@@ -246,6 +246,7 @@ void ezProcessTask::EventHandlerIPC(const ezProcessCommunicationChannel::Event& 
   {
     m_bSuccess = pMsg->m_bSuccess;
     m_bWaiting = false;
+    m_LogEntries.Swap(pMsg->m_LogEntries);
   }
 }
 
@@ -342,8 +343,18 @@ bool ezProcessTask::GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out
   return false;
 }
 
+
+void ezProcessTask::OnProcessCrashed()
+{
+  m_bSuccess = false;
+  ezLogEntryDelegate logger([this](ezLogEntry& entry) { m_LogEntries.PushBack(std::move(entry)); });
+  ezLog::Error(&logger, "AssetProcessor crashed!");
+  ezLog::Error(&ezAssetProcessor::GetSingleton()->m_CuratorLog, "AssetProcessor crashed!");
+}
+
 void ezProcessTask::Execute()
 {
+  m_LogEntries.Clear();
   m_bSuccess = true;
   {
     EZ_LOCK(ezAssetCurator::GetSingleton()->m_CuratorMutex);
@@ -366,30 +377,29 @@ void ezProcessTask::Execute()
 
   if (m_bProcessCrashed)
   {
-    m_bSuccess = false;
-    ezLog::Error(&ezAssetProcessor::GetSingleton()->m_CuratorLog, "AssetProcessor crashed!");
-    ezAssetCurator::GetSingleton()->UpdateAssetTransformState(m_assetGuid, ezAssetInfo::TransformState::TransformError);
-    return;
+    OnProcessCrashed();
   }
-
-  ezLog::Info(&ezAssetProcessor::GetSingleton()->m_CuratorLog, "Processing '{0}'", m_sAssetPath.GetData());
-  // Send and wait
-  ezProcessAsset msg;
-  msg.m_AssetGuid = m_assetGuid;
-  msg.m_sAssetPath = m_sAssetPath;
-  m_pIPC->SendMessage(&msg);
-  m_bWaiting = true;
-
-  while (m_bWaiting)
+  else
   {
-    if (m_bProcessCrashed)
+    ezLog::Info(&ezAssetProcessor::GetSingleton()->m_CuratorLog, "Processing '{0}'", m_sAssetPath.GetData());
+    // Send and wait
+    ezProcessAsset msg;
+    msg.m_AssetGuid = m_assetGuid;
+    msg.m_sAssetPath = m_sAssetPath;
+    m_pIPC->SendMessage(&msg);
+    m_bWaiting = true;
+
+    while (m_bWaiting)
     {
-      m_bWaiting = false;
-      m_bSuccess = false;
-      break;
+      if (m_bProcessCrashed)
+      {
+        m_bWaiting = false;
+        OnProcessCrashed();
+        break;
+      }
+      m_pIPC->ProcessMessages();
+      ezThreadUtils::Sleep(ezTime::Milliseconds(10));
     }
-    m_pIPC->ProcessMessages();
-    ezThreadUtils::Sleep(ezTime::Milliseconds(10));
   }
 
   if (m_bSuccess)
@@ -399,6 +409,7 @@ void ezProcessTask::Execute()
   }
   else
   {
+    ezAssetCurator::GetSingleton()->UpdateAssetTransformLog(m_assetGuid, m_LogEntries);
     ezAssetCurator::GetSingleton()->UpdateAssetTransformState(m_assetGuid, ezAssetInfo::TransformState::TransformError);
   }
 }

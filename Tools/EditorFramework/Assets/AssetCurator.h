@@ -11,6 +11,7 @@
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Timestamp.h>
+#include <Foundation/Logging/LogEntry.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <tuple>
 
@@ -41,6 +42,8 @@ struct ezAssetInfo
   };
   ezAssetExistanceState::Enum m_ExistanceState = ezAssetExistanceState::FileAdded;
   TransformState m_TransformState = TransformState::Unknown;
+  ezDynamicArray<ezLogEntry> m_LogEntries;
+
   ezAssetDocumentManager* m_pManager = nullptr;
   ezString m_sAbsolutePath;
   ezString m_sDataDirRelativePath;
@@ -259,6 +262,7 @@ private:
   void RemoveAssetTransformState(const ezUuid& assetGuid);
   void InvalidateAssetTransformState(const ezUuid& assetGuid);
   void UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetInfo::TransformState state);
+  void UpdateAssetTransformLog(const ezUuid& assetGuid, ezDynamicArray<ezLogEntry>& logEntries);
   void SetAssetExistanceState(ezAssetInfo& assetInfo, ezAssetExistanceState::Enum state);
 
   ///@}

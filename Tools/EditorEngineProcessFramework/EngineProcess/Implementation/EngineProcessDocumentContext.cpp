@@ -473,7 +473,7 @@ bool ezEngineProcessDocumentContext::ExportDocument(const ezExportDocumentMsgToE
 void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateThumbnailMsgToEngine* pMsg)
 {
   EZ_ASSERT_DEV(ezEditorEngineProcessApp::GetSingleton()->m_Mode != ezEditorEngineProcessMode::Remote, "Wrong mode for thumbnail creation");
-
+  EZ_ASSERT_DEV(m_pThumbnailViewContext == nullptr, "Thumbnail rendering already in progress.");
   EZ_CHECK_AT_COMPILETIME_MSG((ThumbnailSuperscaleFactor & (ThumbnailSuperscaleFactor - 1)) == 0, "ThumbnailSuperscaleFactor must be power of 2.");
   m_uiThumbnailConvergenceFrames = 0;
   m_uiThumbnailWidth = pMsg->m_uiWidth * ThumbnailSuperscaleFactor;

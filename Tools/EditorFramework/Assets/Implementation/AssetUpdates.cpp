@@ -753,6 +753,17 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
   }
 }
 
+void ezAssetCurator::UpdateAssetTransformLog(const ezUuid& assetGuid, ezDynamicArray<ezLogEntry>& logEntries)
+{
+  ezAssetInfo* pAssetInfo = nullptr;
+  if (m_KnownAssets.TryGetValue(assetGuid, pAssetInfo))
+  {
+    pAssetInfo->m_LogEntries.Clear();
+    pAssetInfo->m_LogEntries.Swap(logEntries);
+  }
+}
+
+
 void ezAssetCurator::SetAssetExistanceState(ezAssetInfo& assetInfo, ezAssetExistanceState::Enum state)
 {
   assetInfo.m_ExistanceState = state;

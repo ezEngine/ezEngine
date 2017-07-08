@@ -1,14 +1,16 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <EditorFramework/Plugin.h>
-#include <Tools/EditorFramework/ui_LogWidget.h>
+#include <GuiFoundation/Basics.h>
+#include <Code/Tools/GuiFoundation/ui_LogWidget.h>
+#include <Foundation/Logging/Log.h>
 #include <QWidget>
 
 class ezQtLogModel;
+class ezQtSearchWidget;
 
 /// \brief The application wide panel that shows the engine log output and the editor log output
-class EZ_EDITORFRAMEWORK_DLL ezQtLogWidget : public QWidget, public Ui_LogWidget
+class EZ_GUIFOUNDATION_DLL ezQtLogWidget : public QWidget, public Ui_LogWidget
 {
   Q_OBJECT
 
@@ -18,6 +20,8 @@ public:
 
   ezQtLogModel* GetLog();
   ezQtSearchWidget* GetSearchWidget();
+  void SetLogLevel(ezLogMsgType::Enum logLevel);
+  ezLogMsgType::Enum GetLogLevel() const;
 
   virtual bool eventFilter(QObject* pObject, QEvent* pEvent) override;
 

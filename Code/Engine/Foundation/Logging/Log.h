@@ -16,6 +16,8 @@ class ezLogBlock;
 /// \brief Describes the types of events that ezLog sends.
 struct EZ_FOUNDATION_DLL ezLogMsgType
 {
+  typedef ezInt8 StorageType;
+
   enum Enum
   {
     BeginGroup          = -2,   ///< A logging group has been opened.
@@ -29,7 +31,8 @@ struct EZ_FOUNDATION_DLL ezLogMsgType
     DevMsg              = 6,    ///< A development message.
     DebugMsg            = 7,    ///< A debug message.
     All                 = 8,    ///< Can be used to enable all log message types.
-    ENUM_COUNT
+    ENUM_COUNT,
+    Default = None,
   };
 };
 

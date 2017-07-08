@@ -39,6 +39,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessAssetResponse, 1, ezRTTIDefaultAllocato
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Success", m_bSuccess),
+    EZ_ARRAY_MEMBER_PROPERTY("LogEntries", m_LogEntries),
   }
   EZ_END_PROPERTIES
 }
@@ -271,10 +272,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogMsgToEditor, 1, ezRTTIDefaultAllocator<ezLo
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Text", m_sText),
-    EZ_MEMBER_PROPERTY("Tag", m_sTag),
-    EZ_MEMBER_PROPERTY("Type", m_iMsgType),
-    EZ_MEMBER_PROPERTY("Indentation", m_uiIndentation),
+    EZ_MEMBER_PROPERTY("Entry", m_Entry),
   }
   EZ_END_PROPERTIES
 }

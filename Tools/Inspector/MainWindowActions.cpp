@@ -5,7 +5,7 @@
 #include <Inspector/InputWidget.moc.h>
 #include <Inspector/CVarsWidget.moc.h>
 #include <Inspector/ReflectionWidget.moc.h>
-#include <Inspector/LogWidget.moc.h>
+#include <Inspector/LogDockWidget.moc.h>
 #include <Inspector/SubsystemsWidget.moc.h>
 #include <Inspector/FileWidget.moc.h>
 #include <Inspector/PluginsWidget.moc.h>
@@ -18,8 +18,8 @@
 
 void ezQtMainWindow::on_ActionShowWindowLog_triggered()
 {
-  ezQtLogWidget::s_pWidget->setVisible(ActionShowWindowLog->isChecked());
-  ezQtLogWidget::s_pWidget->raise();
+  ezQtLogDockWidget::s_pWidget->setVisible(ActionShowWindowLog->isChecked());
+  ezQtLogDockWidget::s_pWidget->raise();
 }
 
 void ezQtMainWindow::on_ActionShowWindowMemory_triggered()

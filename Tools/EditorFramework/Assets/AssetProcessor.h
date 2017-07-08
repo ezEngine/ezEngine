@@ -5,6 +5,7 @@
 #include <Foundation/Threading/AtomicInteger.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Logging/LogEntry.h>
 #include <EditorFramework/IPC/EditorProcessCommunicationChannel.h>
 
 struct ezAssetCuratorEvent;
@@ -82,6 +83,7 @@ private:
 
   bool GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezStringBuilder& out_sAbsPath);
   bool GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out_sAbsPath);
+  void OnProcessCrashed();
 
   ezUInt32 m_uiProcessorID;
 
@@ -92,5 +94,6 @@ private:
   bool m_bProcessCrashed;
   bool m_bWaiting;
   bool m_bSuccess;
+  ezDynamicArray<ezLogEntry> m_LogEntries;
   virtual void Execute() override;
 };

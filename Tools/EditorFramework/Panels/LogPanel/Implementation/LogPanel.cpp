@@ -1,6 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/Panels/LogPanel/LogPanel.moc.h>
-#include <EditorFramework/Panels/LogPanel/LogModel.moc.h>
+#include <GuiFoundation/Models/LogModel.moc.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
@@ -14,7 +14,7 @@ ezQtLogPanel::ezQtLogPanel()
 {
   setupUi(this);
 
-  setWindowIcon(ezQtUiServices::GetCachedIconResource(":/EditorFramework/Icons/Log.png"));
+  setWindowIcon(ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/Log.png"));
   setWindowTitle(QString::fromUtf8(ezTranslate("Panel.Log")));
 
   EditorLog->GetSearchWidget()->setPlaceholderText(QStringLiteral("Search Editor Log"));
@@ -65,12 +65,7 @@ void ezQtLogPanel::ToolsProjectEventHandler(const ezToolsProjectEvent& e)
 void ezQtLogPanel::LogWriter(const ezLoggingEventData& e)
 {
   // Can be called from a different thread, but AddLogMsg is thread safe.
-  ezQtLogModel::LogMsg msg;
-  msg.m_sMsg = e.m_szText;
-  msg.m_sTag = e.m_szTag;
-  msg.m_Type = e.m_EventType;
-  msg.m_uiIndentation = e.m_uiIndentation;
-
+  ezLogEntry msg(e);
   EditorLog->GetLog()->AddLogMsg(msg);
 
   if (msg.m_sTag == "EditorStatus")
@@ -88,14 +83,7 @@ void ezQtLogPanel::EngineProcessMsgHandler(const ezEditorEngineProcessConnection
       if (e.m_pMsg->GetDynamicRTTI()->IsDerivedFrom<ezLogMsgToEditor>())
       {
         const ezLogMsgToEditor* pMsg = static_cast<const ezLogMsgToEditor*>(e.m_pMsg);
-
-        ezQtLogModel::LogMsg msg;
-        msg.m_sMsg = pMsg->m_sText;
-        msg.m_sTag = pMsg->m_sTag;
-        msg.m_Type = (ezLogMsgType::Enum)pMsg->m_iMsgType;
-        msg.m_uiIndentation = pMsg->m_uiIndentation;
-
-        EngineLog->GetLog()->AddLogMsg(msg);
+        EngineLog->GetLog()->AddLogMsg(pMsg->m_Entry);
       }
     }
     break;

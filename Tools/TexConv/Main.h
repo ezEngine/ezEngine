@@ -3,6 +3,7 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Strings/PathUtils.h>
 #include <Foundation/Strings/StringBuilder.h>
@@ -93,23 +94,30 @@ public:
     ezRectU32 m_Rect[DecalLayer::ENUM_COUNT];
   };
 
-  TextureType m_TextureType;
+  TextureType m_TextureType = TextureType::Texture2D;
   ezHybridArray<ezString, 4> m_InputFileNames;
   ezDynamicArray<ezImage> m_InputImages;
   ezString m_sOutputFile;
-  bool m_bGeneratedMipmaps;
-  bool m_bCompress;
-  bool m_bSRGBOutput;
-  bool m_bHDROutput;
-  bool m_bPremultiplyAlpha;
+  bool m_bGeneratedMipmaps = false;
+  bool m_bCompress = false;
+  bool m_bSRGBOutput = false;
+  bool m_bHDROutput = false;
+  bool m_bPremultiplyAlpha = false;
   ezUInt8 m_uiFilterSetting;
-  ezUInt8 m_uiAddressU;
-  ezUInt8 m_uiAddressV;
-  ezUInt8 m_uiAddressW;
-  ezUInt8 m_uiOutputChannels;
+  ezUInt8 m_uiAddressU = 0;
+  ezUInt8 m_uiAddressV = 0;
+  ezUInt8 m_uiAddressW = 0;
+  ezUInt8 m_uiOutputChannels = 4;
   ezHybridArray<ezImage*, 6> m_CleanupImages;
-  ezUInt64 m_uiAssetHash;
-  ezUInt16 m_uiAssetVersion;
+  ezUInt64 m_uiAssetHash = 0;
+  ezUInt16 m_uiAssetVersion = 0;
+
+  ezString m_sThumbnailFile;
+  bool m_bHasOutput = false; ///< Whether m_FileOut is set, can be false if only a thumbnail need to be generated.
+  ezDeferredFileWriter m_FileOut;
+  bool m_bAlphaIsMaskOnly = false;
+  shared_ptr<ScratchImage> m_pCurrentImage;
+  ID3D11Device* m_pD3dDevice = nullptr;
 
   ChannelMapping m_2dSource[4];
 
@@ -141,6 +149,7 @@ public:
   void WriteTexHeader(ezStreamWriter& stream);
 
   virtual ezApplication::ApplicationExecution Run() override;
+  ezApplication::ApplicationExecution RunInternal();
 
   ezResult CreateTexture2D(ezImage* pImage, bool bCheckAlphaIsMask);
   ezResult CreateTextureCube();
@@ -164,9 +173,4 @@ public:
   ezResult CreateDecalLayerTexture(ezDynamicArray<DecalDesc>& decals, ezInt32 layer, ezStreamWriter& stream);
   void WriteDecalAtlasInfo(ezDynamicArray<DecalDesc> decals);
 
-  ezString m_sThumbnailFile;
-  ezFileWriter m_FileOut;
-  bool m_bAlphaIsMaskOnly;
-  shared_ptr<ScratchImage> m_pCurrentImage;
-  ID3D11Device* m_pD3dDevice;
 };

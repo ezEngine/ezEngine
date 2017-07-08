@@ -115,10 +115,7 @@ ezApplication::ApplicationExecution ezEngineProcessGameApplication::Run()
 void ezEngineProcessGameApplication::LogWriter(const ezLoggingEventData & e)
 {
   ezLogMsgToEditor msg;
-  msg.m_sText = e.m_szText;
-  msg.m_sTag = e.m_szTag;
-  msg.m_iMsgType = (ezInt8)e.m_EventType;
-  msg.m_uiIndentation = e.m_uiIndentation;
+  msg.m_Entry = ezLogEntry(e);
   m_IPC.SendMessage(&msg);
 }
 

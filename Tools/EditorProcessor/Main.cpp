@@ -39,9 +39,17 @@ public:
   {
     if (const ezProcessAsset* pMsg = ezDynamicCast<const ezProcessAsset*>(e.m_pMessage))
     {
-      ezStatus res = ezAssetCurator::GetSingleton()->TransformAsset(pMsg->m_AssetGuid, false);
       ezProcessAssetResponse msg;
-      msg.m_bSuccess = res.m_Result.Succeeded();
+      {
+        ezLogEntryDelegate logger([&msg](ezLogEntry& entry) -> void
+        {
+          msg.m_LogEntries.PushBack(std::move(entry));
+        }, ezLogMsgType::WarningMsg);
+        ezLogSystemScope logScope(&logger);
+
+        ezStatus res = ezAssetCurator::GetSingleton()->TransformAsset(pMsg->m_AssetGuid, false);
+        msg.m_bSuccess = res.m_Result.Succeeded();
+      }
       m_IPC.SendMessage(&msg);
     }
   }

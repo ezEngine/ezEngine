@@ -50,8 +50,25 @@ Cubemap channels cannot be combined from multiple input textures.
 
 */
 
-
 ezApplication::ApplicationExecution ezTexConv::Run()
+{
+  ezApplication::ApplicationExecution res = RunInternal();
+  if (GetReturnCode() == OK)
+  {
+    if (m_bHasOutput && m_FileOut.Close().Failed())
+    {
+      SetReturnCode(TexConvReturnCodes::FAILED_WRITE_OUTPUT);
+      ezLog::Error("Could not open output file for writing: '{0}'", m_sOutputFile.GetData());
+    }
+  }
+  else
+  {
+    m_FileOut.Discard();
+  }
+  return res;
+}
+
+ezApplication::ApplicationExecution ezTexConv::RunInternal()
 {
   // general failure
   SetReturnCode(TexConvReturnCodes::UNKNOWN_FAILURE);
@@ -63,12 +80,8 @@ ezApplication::ApplicationExecution ezTexConv::Run()
 
   if (!m_sOutputFile.IsEmpty())
   {
-    if (m_FileOut.Open(m_sOutputFile, 1024 * 1024 * 8).Failed())
-    {
-      SetReturnCode(TexConvReturnCodes::FAILED_WRITE_OUTPUT);
-      ezLog::Error("Could not open output file for writing: '{0}'", m_sOutputFile.GetData());
-      return ezApplication::Quit;
-    }
+    m_FileOut.SetOutput(m_sOutputFile);
+    m_bHasOutput = true;
   }
 
   if (m_TextureType == TextureType::DecalAtlas)
@@ -88,7 +101,7 @@ ezApplication::ApplicationExecution ezTexConv::Run()
   {
     ezLog::Info("Input can be passed through");
 
-    if (m_FileOut.IsOpen())
+    if (m_bHasOutput)
     {
       if (PassImageThrough().Failed())
         return ezApplication::Quit;
@@ -144,7 +157,7 @@ ezApplication::ApplicationExecution ezTexConv::Run()
 
     SaveThumbnail();
 
-    if (m_FileOut.IsOpen())
+    if (m_bHasOutput)
     {
       if (ConvertToOutputFormat().Failed())
         return ezApplication::Quit;
@@ -242,9 +255,9 @@ ezResult ezTexConv::SaveThumbnail()
     }
 
     // there are multiple situations in which this call fails :(
-    // 1) When a linear format was selected, and thus DXGI_FORMAT_R8G8B8A8_UNORM_SRGB was set above, 
+    // 1) When a linear format was selected, and thus DXGI_FORMAT_R8G8B8A8_UNORM_SRGB was set above,
     //    we hack around this by overriding the sRGB format during the resize
-    // 2) When 'pass through' mode is active and the input texture uses an unsupported format (e.g. a compressed one), 
+    // 2) When 'pass through' mode is active and the input texture uses an unsupported format (e.g. a compressed one),
     //    this should be worked around through the conversion above, but not sure that always works
 
     if (!m_bSRGBOutput)

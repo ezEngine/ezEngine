@@ -92,6 +92,19 @@ EZ_CREATE_SIMPLE_TEST(IO, DeferredFileWriter)
     }
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Discard")
+  {
+    ezStringBuilder sTempFile2 = sOutputFolderResolved;
+    sTempFile2.AppendPath("Temp2.tmp");
+    {
+      ezDeferredFileWriter writer;
+      writer.SetOutput(sTempFile2);
+      writer << 10;
+      writer.Discard();
+    }
+    EZ_TEST_BOOL(!ezFileSystem::ExistsFile(sTempFile2));
+  }
+
   ezFileSystem::DeleteFile(sTempFile);
   ezFileSystem::ClearAllDataDirectories();
 }

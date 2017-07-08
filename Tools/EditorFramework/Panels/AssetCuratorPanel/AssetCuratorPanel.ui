@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="../../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
     <normaloff>:/GuiFoundation/Icons/Log.png</normaloff>:/GuiFoundation/Icons/Log.png</iconset>
   </property>
   <property name="windowTitle">
@@ -54,6 +54,12 @@
     </item>
     <item>
      <widget class="QSplitter" name="splitter">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
@@ -76,14 +82,26 @@
      </widget>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <item>
-       <widget class="QListView" name="ListAssets"/>
-      </item>
-      <item>
-       <widget class="QTextEdit" name="IssueInfo"/>
-      </item>
-     </layout>
+     <widget class="QSplitter" name="splitter_2">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="QListView" name="ListAssets"/>
+      <widget class="ezQtLogWidget" name="TransformLog" native="true">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>1</horstretch>
+         <verstretch>1</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -92,7 +110,7 @@
   <customwidget>
    <class>ezQtLogWidget</class>
    <extends>QWidget</extends>
-   <header location="global">EditorFramework/Panels/LogPanel/LogWidget.moc.h</header>
+   <header location="global">GuiFoundation/Widgets/LogWidget.moc.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

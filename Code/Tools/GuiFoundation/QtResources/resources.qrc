@@ -33,5 +33,13 @@
     <file>Icons/Window16.png</file>
     <file>ThumbnailLoading.png</file>
     <file>ThumbnailUnavailable.png</file>
+    <file>Icons/Flag_Blue16.png</file>
+    <file>Icons/Flag_Green16.png</file>
+    <file>Icons/Flag_Orange16.png</file>
+    <file>Icons/Flag_Pink16.png</file>
+    <file>Icons/Flag_Purple16.png</file>
+    <file>Icons/Flag_Red16.png</file>
+    <file>Icons/Flag_Yellow16.png</file>
+    <file>Icons/Log.png</file>
   </qresource>
 </RCC>

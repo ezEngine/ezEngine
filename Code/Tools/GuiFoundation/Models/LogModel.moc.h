@@ -1,31 +1,24 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <EditorFramework/Plugin.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Strings/String.h>
+#include <GuiFoundation/Basics.h>
+#include <Foundation/Logging/LogEntry.h>
 #include <Foundation/Containers/Deque.h>
 #include <QAbstractItemModel>
 
 /// \brief The Qt model that represents log output for a view
-class EZ_EDITORFRAMEWORK_DLL ezQtLogModel : public QAbstractItemModel
+class EZ_GUIFOUNDATION_DLL ezQtLogModel : public QAbstractItemModel
 {
   Q_OBJECT
 
 public:
-  struct LogMsg
-  {
-    ezString m_sMsg;
-    ezString m_sTag;
-    ezLogMsgType::Enum m_Type;
-    ezUInt8 m_uiIndentation;
-  };
+
 
   ezQtLogModel(QObject* parent);
   void Clear();
   void SetLogLevel(ezLogMsgType::Enum LogLevel);
   void SetSearchText(const char* szText);
-  void AddLogMsg(const LogMsg& msg);
+  void AddLogMsg(const ezLogEntry& msg);
 
   ezUInt32 GetVisibleItemCount() const { return m_VisibleMessages.GetCount(); }
 
@@ -44,17 +37,17 @@ private slots:
 
 private:
   void Invalidate();
-  bool IsFiltered(const LogMsg& lm) const;
+  bool IsFiltered(const ezLogEntry& lm) const;
   void UpdateVisibleEntries() const;
 
   ezLogMsgType::Enum m_LogLevel;
   ezString m_sSearchText;
-  ezDeque<LogMsg> m_AllMessages;
+  ezDeque<ezLogEntry> m_AllMessages;
 
   mutable bool m_bIsValid;
-  mutable ezDeque<const LogMsg*> m_VisibleMessages;
-  mutable ezHybridArray<const LogMsg*, 16> m_BlockQueue;
+  mutable ezDeque<const ezLogEntry*> m_VisibleMessages;
+  mutable ezHybridArray<const ezLogEntry*, 16> m_BlockQueue;
 
   mutable ezMutex m_NewMessagesMutex;
-  ezDeque<LogMsg> m_NewMessages;
+  ezDeque<ezLogEntry> m_NewMessages;
 };

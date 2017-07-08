@@ -1,6 +1,8 @@
 #include <PCH.h>
-#include <EditorFramework/Panels/LogPanel/LogModel.moc.h>
+#include <GuiFoundation/Models/LogModel.moc.h>
 #include <QThread>
+#include <QColor>
+
 
 ezQtLogModel::ezQtLogModel(QObject* parent)
   :QAbstractItemModel(parent)
@@ -45,7 +47,7 @@ void ezQtLogModel::SetSearchText(const char* szText)
   Invalidate();
 }
 
-void ezQtLogModel::AddLogMsg(const LogMsg& msg)
+void ezQtLogModel::AddLogMsg(const ezLogEntry& msg)
 {
   {
     EZ_LOCK(m_NewMessagesMutex);
@@ -64,7 +66,7 @@ void ezQtLogModel::AddLogMsg(const LogMsg& msg)
   return;
 }
 
-bool ezQtLogModel::IsFiltered(const LogMsg& lm) const
+bool ezQtLogModel::IsFiltered(const ezLogEntry& lm) const
 {
   if (lm.m_Type < ezLogMsgType::None)
     return false;
@@ -96,7 +98,7 @@ QVariant ezQtLogModel::data(const QModelIndex& index, int role) const
   if (iRow < 0 || iRow >= (ezInt32)m_VisibleMessages.GetCount())
     return QVariant();
 
-  const LogMsg& msg = *m_VisibleMessages[iRow];
+  const ezLogEntry& msg = *m_VisibleMessages[iRow];
 
   switch (role)
   {

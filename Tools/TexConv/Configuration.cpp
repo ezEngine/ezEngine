@@ -138,20 +138,6 @@ namespace
 #endif
 ezTexConv::ezTexConv()
 {
-  m_TextureType = TextureType::Texture2D;
-  m_bGeneratedMipmaps = false;
-  m_bCompress = false;
-  m_uiOutputChannels = 4;
-  m_bSRGBOutput = false;
-  m_bHDROutput = false;
-  m_bPremultiplyAlpha = false;
-  m_uiAddressU = 0;
-  m_uiAddressV = 0;
-  m_uiAddressW = 0;
-  m_uiAssetHash = 0;
-  m_uiAssetVersion = 0;
-  m_bAlphaIsMaskOnly = false;
-  m_pD3dDevice = nullptr;
 }
 
 void ezTexConv::AfterCoreStartup()
@@ -186,7 +172,6 @@ void ezTexConv::BeforeCoreShutdown()
     m_pD3dDevice->Release();
     m_pD3dDevice = nullptr;
   }
-  m_FileOut.Close();
 
   for (auto pImg : m_CleanupImages)
   {

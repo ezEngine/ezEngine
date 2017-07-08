@@ -2,7 +2,7 @@
 #include <Core/Application/Application.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <Inspector/MainWindow.moc.h>
-#include <Inspector/LogWidget.moc.h>
+#include <Inspector/LogDockWidget.moc.h>
 #include <Inspector/MemoryWidget.moc.h>
 #include <Inspector/TimeWidget.moc.h>
 #include <Inspector/InputWidget.moc.h>
@@ -83,7 +83,7 @@ public:
     ezQtMainWindow MainWindow;
 
     ezTelemetry::AcceptMessagesForSystem('CVAR', true, ezQtCVarsWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem(' LOG', true, ezQtLogWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem(' LOG', true, ezQtLogDockWidget::ProcessTelemetry, nullptr);
     ezTelemetry::AcceptMessagesForSystem(' MEM', true, ezQtMemoryWidget::ProcessTelemetry, nullptr);
     ezTelemetry::AcceptMessagesForSystem('TIME', true, ezQtTimeWidget::ProcessTelemetry, nullptr);
     ezTelemetry::AcceptMessagesForSystem(' APP', true, ezQtMainWindow::ProcessTelemetry, nullptr);

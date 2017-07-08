@@ -5,7 +5,7 @@
 #include <Inspector/InputWidget.moc.h>
 #include <Inspector/CVarsWidget.moc.h>
 #include <Inspector/ReflectionWidget.moc.h>
-#include <Inspector/LogWidget.moc.h>
+#include <Inspector/LogDockWidget.moc.h>
 #include <Inspector/SubsystemsWidget.moc.h>
 #include <Inspector/FileWidget.moc.h>
 #include <Inspector/PluginsWidget.moc.h>
@@ -42,7 +42,7 @@ ezQtMainWindow::ezQtMainWindow() : QMainWindow()
 
   restoreGeometry(Settings.value("WindowGeometry", saveGeometry() ).toByteArray());
 
-  ezQtLogWidget*          pLogWidget            = new ezQtLogWidget(this);
+  ezQtLogDockWidget*          pLogWidget            = new ezQtLogDockWidget(this);
   ezQtMemoryWidget*       pMemoryWidget         = new ezQtMemoryWidget(this);
   ezQtTimeWidget*         pTimeWidget           = new ezQtTimeWidget(this);
   ezQtInputWidget*        pInputWidget          = new ezQtInputWidget(this);
@@ -224,12 +224,12 @@ void ezQtMainWindow::UpdateNetwork()
         ezStringBuilder s;
         s.Format("Connected to new Server with ID {0}", uiServerID);
 
-        ezQtLogWidget::s_pWidget->Log(s.GetData());
+        ezQtLogDockWidget::s_pWidget->Log(s.GetData());
       }
       else
         if (!bConnected)
         {
-          ezQtLogWidget::s_pWidget->Log("Reconnected to Server.");
+          ezQtLogDockWidget::s_pWidget->Log("Reconnected to Server.");
         }
 
         bConnected = true;
@@ -238,7 +238,7 @@ void ezQtMainWindow::UpdateNetwork()
     {
       if (bConnected)
       {
-        ezQtLogWidget::s_pWidget->Log("Lost Connection to Server.");
+        ezQtLogDockWidget::s_pWidget->Log("Lost Connection to Server.");
       }
 
       bConnected = false;
@@ -249,7 +249,7 @@ void ezQtMainWindow::UpdateNetwork()
   {
     ResetStats();
 
-    ezQtLogWidget::s_pWidget->ResetStats();
+    ezQtLogDockWidget::s_pWidget->ResetStats();
     ezQtMemoryWidget::s_pWidget->ResetStats();
     ezQtTimeWidget::s_pWidget->ResetStats();
     ezQtInputWidget::s_pWidget->ResetStats();
@@ -281,7 +281,7 @@ void ezQtMainWindow::UpdateNetwork()
 
 void ezQtMainWindow::DockWidgetVisibilityChanged(bool bVisible)
 {
-  ActionShowWindowLog->setChecked(ezQtLogWidget::s_pWidget->isVisible());
+  ActionShowWindowLog->setChecked(ezQtLogDockWidget::s_pWidget->isVisible());
   ActionShowWindowMemory->setChecked(ezQtMemoryWidget::s_pWidget->isVisible());
   ActionShowWindowTime->setChecked(ezQtTimeWidget::s_pWidget->isVisible());
   ActionShowWindowInput->setChecked(ezQtInputWidget::s_pWidget->isVisible());
@@ -425,26 +425,26 @@ void ezQtMainWindow::ProcessTelemetry(void* pUnuseed)
         Msg.GetReader() >> sExpression;
         Msg.GetReader() >> sMessage;
 
-        ezQtLogWidget::s_pWidget->Log("");
-        ezQtLogWidget::s_pWidget->Log("<<< Application Assertion >>>");
-        ezQtLogWidget::s_pWidget->Log("");
+        ezQtLogDockWidget::s_pWidget->Log("");
+        ezQtLogDockWidget::s_pWidget->Log("<<< Application Assertion >>>");
+        ezQtLogDockWidget::s_pWidget->Log("");
 
-        ezQtLogWidget::s_pWidget->Log(ezFmt("    Expression: '{0}'", sExpression));
-        ezQtLogWidget::s_pWidget->Log("");
+        ezQtLogDockWidget::s_pWidget->Log(ezFmt("    Expression: '{0}'", sExpression));
+        ezQtLogDockWidget::s_pWidget->Log("");
 
-        ezQtLogWidget::s_pWidget->Log(ezFmt("    Message: '{0}'", sMessage));
-        ezQtLogWidget::s_pWidget->Log("");
+        ezQtLogDockWidget::s_pWidget->Log(ezFmt("    Message: '{0}'", sMessage));
+        ezQtLogDockWidget::s_pWidget->Log("");
 
-        ezQtLogWidget::s_pWidget->Log(ezFmt("   File: '{0}'", sSourceFile));
+        ezQtLogDockWidget::s_pWidget->Log(ezFmt("   File: '{0}'", sSourceFile));
 
-        ezQtLogWidget::s_pWidget->Log(ezFmt("   Line: {0}", uiLine));
+        ezQtLogDockWidget::s_pWidget->Log(ezFmt("   Line: {0}", uiLine));
 
-        ezQtLogWidget::s_pWidget->Log(ezFmt("   In Function: '{0}'", sFunction));
+        ezQtLogDockWidget::s_pWidget->Log(ezFmt("   In Function: '{0}'", sFunction));
 
-        ezQtLogWidget::s_pWidget->Log("");
+        ezQtLogDockWidget::s_pWidget->Log("");
 
-        ezQtLogWidget::s_pWidget->Log(">>> Application Assertion <<<");
-        ezQtLogWidget::s_pWidget->Log("");
+        ezQtLogDockWidget::s_pWidget->Log(">>> Application Assertion <<<");
+        ezQtLogDockWidget::s_pWidget->Log("");
       }
       break;
     }

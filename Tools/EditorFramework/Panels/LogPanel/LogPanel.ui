@@ -74,7 +74,7 @@
   <customwidget>
    <class>ezQtLogWidget</class>
    <extends>QWidget</extends>
-   <header location="global">EditorFramework/Panels/LogPanel/LogWidget.moc.h</header>
+   <header location="global">GuiFoundation/Widgets/LogWidget.moc.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

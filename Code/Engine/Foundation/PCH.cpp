@@ -76,6 +76,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_ConsoleWriter);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_HTMLWriter);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_Log);
+  EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_LogEntry);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_VisualStudioWriter);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Color);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_ColorGradient);

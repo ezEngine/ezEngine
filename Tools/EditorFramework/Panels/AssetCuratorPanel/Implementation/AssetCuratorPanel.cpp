@@ -1,6 +1,6 @@
 ﻿#include <PCH.h>
 #include <EditorFramework/Panels/AssetCuratorPanel/AssetCuratorPanel.moc.h>
-#include <EditorFramework/Panels/LogPanel/LogModel.moc.h>
+#include <GuiFoundation/Models/LogModel.moc.h>
 #include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 
@@ -46,7 +46,6 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel()
   m_pModel = new ezQtAssetBrowserModel(this, m_pFilter);
   m_pModel->SetIconMode(false);
 
-  IssueInfo->setReadOnly(true);
   ListAssets->setModel(m_pModel);
   ListAssets->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
   EZ_VERIFY(connect(ListAssets->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ezQtAssetCuratorPanel::OnAssetSelectionChanged) != nullptr, "signal/slot connection failed");
@@ -77,12 +76,7 @@ void ezQtAssetCuratorPanel::OnAssetSelectionChanged(const QItemSelection &select
 void ezQtAssetCuratorPanel::LogWriter(const ezLoggingEventData& e)
 {
   // Can be called from a different thread, but AddLogMsg is thread safe.
-  ezQtLogModel::LogMsg msg;
-  msg.m_sMsg = e.m_szText;
-  msg.m_sTag = e.m_szTag;
-  msg.m_Type = e.m_EventType;
-  msg.m_uiIndentation = e.m_uiIndentation;
-
+  ezLogEntry msg(e);
   CuratorLog->GetLog()->AddLogMsg(msg);
 }
 
@@ -90,7 +84,7 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
 {
   if (!m_selectedIndex.isValid())
   {
-    IssueInfo->clear();
+    TransformLog->GetLog()->Clear();
     return;
   }
 
@@ -98,7 +92,7 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
   auto pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(assetGuid);
   if (pSubAsset == nullptr)
   {
-    IssueInfo->clear();
+    TransformLog->GetLog()->Clear();
     return;
   }
 
@@ -118,31 +112,35 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
     return dep;
   };
 
+  ezLogEntryDelegate logger(([this](ezLogEntry& entry) -> void
+  {
+    TransformLog->GetLog()->AddLogMsg(std::move(entry));
+  }));
   ezStringBuilder text;
   if (pAssetInfo->m_TransformState == ezAssetInfo::MissingDependency)
   {
-    text = "<span style=\"color:#ff8800;\">Missing Dependency:</span><br><br>";
+    ezLog::Error(&logger, "Missing Dependency:");
     for (const ezString& dep : pAssetInfo->m_MissingDependencies)
     {
       ezStringBuilder sNiceName = getNiceName(dep);
-      text.AppendFormat("<span style=\"color:#ffaa00;\">{0}</span><br>", sNiceName);
+      ezLog::Error(&logger, "{0}", sNiceName);
     }
   }
   else if (pAssetInfo->m_TransformState == ezAssetInfo::MissingReference)
   {
-    text = "<span style=\"color:#ff8800;\">Missing Reference:</span><br><br>";
+    ezLog::Error(&logger, "Missing Reference:");
     for (const ezString& ref : pAssetInfo->m_MissingReferences)
     {
       ezStringBuilder sNiceName = getNiceName(ref);
-      text.AppendFormat("<span style=\"color:#ffaa00;\">{0}</span><br>", sNiceName);
+      ezLog::Error(&logger, "{0}", sNiceName);
     }
   }
   else if (pAssetInfo->m_TransformState == ezAssetInfo::TransformError)
   {
-    text = "<span style=\"color:#ff8800;\">Transform Error:</span><br><br>";
-    text.AppendFormat("<span style=\"color:#ffaa00;\">{0}</span><br>", "More info coming soon!");
+    ezLog::Error(&logger, "Transform Error:");
+    for (const ezLogEntry& logEntry : pAssetInfo->m_LogEntries)
+    {
+      TransformLog->GetLog()->AddLogMsg(logEntry);
+    }
   }
-
-  IssueInfo->setAcceptRichText(true);
-  IssueInfo->setHtml(text.GetData());
 }

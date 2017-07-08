@@ -7,6 +7,7 @@
 #include <Core/Application/Config/PluginConfig.h>
 #include <RendererCore/Pipeline/Declarations.h>
 #include <Foundation/Communication/RemoteMessage.h>
+#include <Foundation/Logging/LogEntry.h>
 
 ///////////////////////////////////// ezProcessMessages /////////////////////////////////////
 
@@ -25,6 +26,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezProcessAssetResponse : public ezProc
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezProcessAssetResponse, ezProcessMessage);
 public:
+  mutable ezDynamicArray<ezLogEntry> m_LogEntries;
   bool m_bSuccess;
 };
 
@@ -293,10 +295,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezLogMsgToEditor : public ezEditorEngi
   EZ_ADD_DYNAMIC_REFLECTION(ezLogMsgToEditor, ezEditorEngineMsg);
 
 public:
-  ezString m_sText;
-  ezString m_sTag;
-  ezInt8 m_iMsgType;
-  ezUInt8 m_uiIndentation;
+  ezLogEntry m_Entry;
 };
 
 
