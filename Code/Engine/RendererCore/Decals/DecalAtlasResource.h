@@ -40,6 +40,7 @@ public:
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
+  virtual void ReportResourceIsMissing() override;
 
   void ReadDecalInfo(ezStreamReader* Stream);
 

@@ -1001,6 +1001,19 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const char
   ezStringBuilder sTemp, sTemp2;
   ezString sResourcePath;
 
+  {
+    for (auto& man : ezAssetDocumentManager::GetAllDocumentManagers())
+    {
+      if (!man->GetDynamicRTTI()->IsDerivedFrom<ezAssetDocumentManager>())
+        continue;
+
+      ezAssetDocumentManager* pManager = static_cast<ezAssetDocumentManager*>(man);
+
+      // allow to add fully custom entries
+      pManager->AddEntriesToAssetTable(sDataDir, szPlatform, file);
+    }
+  }
+
   // TODO: Iterate over m_KnownSubAssets instead
   for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
   {
@@ -1011,6 +1024,7 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const char
       continue;
 
     ezAssetDocumentManager* pManager = it.Value()->m_pManager;
+
     auto WriteEntry = [this, &sDataDir, &sPlatform, &file, pManager, &sTemp, &sTemp2](const ezUuid& guid)
     {
       ezSubAsset* pSub = GetSubAssetInternal(guid);

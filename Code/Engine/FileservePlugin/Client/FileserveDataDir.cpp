@@ -93,6 +93,10 @@ ezResult ezDataDirectory::FileserveType::GetFileStats(const char* szFileOrFolder
 
 bool ezDataDirectory::FileserveType::ExistsFile(const char* szFile, bool bOneSpecificDataDir)
 {
+  /// \todo Not sure whether this needs to be done here
+  //ezStringBuilder sRedirectedAsset;
+  //ResolveAssetRedirection(szFile, sRedirectedAsset);
+
   return ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, szFile, bOneSpecificDataDir).Succeeded();
 }
 

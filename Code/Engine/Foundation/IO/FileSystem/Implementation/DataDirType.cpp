@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
 
@@ -16,8 +16,11 @@ ezResult ezDataDirectoryType::InitializeDataDirectory(const char* szDataDirPath)
 
 bool ezDataDirectoryType::ExistsFile(const char* szFile, bool bOneSpecificDataDir)
 {
+  ezStringBuilder sRedirectedAsset;
+  ResolveAssetRedirection(szFile, sRedirectedAsset);
+
   ezStringBuilder sPath = GetRedirectedDataDirectoryPath();
-  sPath.AppendPath(szFile);
+  sPath.AppendPath(sRedirectedAsset);
   return ezOSFile::ExistsFile(sPath);
 }
 

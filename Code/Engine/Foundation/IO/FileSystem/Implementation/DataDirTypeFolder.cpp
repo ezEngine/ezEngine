@@ -163,8 +163,11 @@ namespace ezDataDirectory
 
   bool FolderType::ExistsFile(const char* szFile, bool bOneSpecificDataDir)
   {
+    ezStringBuilder sRedirectedAsset;
+    ResolveAssetRedirection(szFile, sRedirectedAsset);
+
     ezStringBuilder sPath = GetRedirectedDataDirectoryPath();
-    sPath.AppendPath(szFile);
+    sPath.AppendPath(sRedirectedAsset);
     return ezOSFile::ExistsFile(sPath);
   }
 

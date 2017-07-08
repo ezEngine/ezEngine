@@ -43,6 +43,20 @@ ezBitflags<ezAssetDocumentFlags> ezDecalAssetDocumentManager::GetAssetDocumentTy
 }
 
 
+void ezDecalAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory, const char* szPlatform, ezStreamWriter& file) const
+{
+  ezStringBuilder projectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
+  projectDir.MakeCleanPath();
+  projectDir.Append("/");
+
+  if (projectDir.StartsWith_NoCase(szDataDirectory))
+  {
+    ezStringBuilder tmp;
+    tmp.Set("{ ProjectDecalAtlas }", ";", "PC/Decals.ezDecal", "\n");
+    file.WriteBytes(tmp.GetData(), tmp.GetElementCount());
+  }
+}
+
 ezString ezDecalAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const char* szPlatform) const
 {
   // means NO table entry will be written, because for decals we don't need a redirection

@@ -101,7 +101,7 @@ void ezResourceBase::CallUpdateContent(ezStreamReader* Stream)
 
   if (ld.m_State == ezResourceState::LoadedResourceMissing)
   {
-    ezLog::Error("Missing Resource of Type '{2}': '{0}' ('{1}')", GetResourceID(), m_sResourceDescription, GetDynamicRTTI()->GetTypeName());
+    ReportResourceIsMissing();
   }
 
   IncResourceChangeCounter();
@@ -149,6 +149,11 @@ ezTime ezResourceBase::GetLoadingDeadline(ezTime tNow) const
 ezResourceTypeLoader* ezResourceBase::GetDefaultResourceTypeLoader() const
 {
   return ezResourceManager::GetDefaultResourceLoader();
+}
+
+void ezResourceBase::ReportResourceIsMissing()
+{
+  ezLog::Error("Missing Resource of Type '{2}': '{0}' ('{1}')", GetResourceID(), m_sResourceDescription, GetDynamicRTTI()->GetTypeName());
 }
 
 EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_Resource);

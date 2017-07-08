@@ -256,6 +256,8 @@ private:
   /// It is called by the resource manager whenever the resource's data has been loaded or unloaded.
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) = 0;
 
+  virtual void ReportResourceIsMissing();
+
   ezBitflags<ezResourceFlags> m_Flags;
 
   ezUInt32 m_uiUniqueIDHash;
@@ -272,3 +274,4 @@ private:
   ezTime m_DueDate;
   ezTimestamp m_LoadedFileModificationTime;
 };
+

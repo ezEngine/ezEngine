@@ -61,15 +61,7 @@ ezDecalAtlasResource::ezDecalAtlasResource()
 
 ezDecalAtlasResourceHandle ezDecalAtlasResource::GetDecalAtlasResource()
 {
-  // if we don't do this check manually here, projects without decal data will print an error
-  // which will result in failed unit tests
-  if (!ezFileSystem::ExistsFile("AssetCache/PC/Decals.ezDecal"))
-  {
-    ezLog::Warning("Decal Atlas Texture is not available for this project.");
-    return ezDecalAtlasResource::GetTypeMissingResource();
-  }
-
-  return ezResourceManager::LoadResource<ezDecalAtlasResource>("AssetCache/PC/Decals.ezDecal");
+  return ezResourceManager::LoadResource<ezDecalAtlasResource>("{ ProjectDecalAtlas }");
 }
 
 ezResourceLoadDesc ezDecalAtlasResource::UnloadData(Unload WhatToUnload)
@@ -209,3 +201,7 @@ void ezDecalAtlasResource::ReadDecalInfo(ezStreamReader* Stream)
   }
 }
 
+void ezDecalAtlasResource::ReportResourceIsMissing()
+{
+  ezLog::Warning("Decal Atlas Resource is missing: '{0}' ('{1}')", GetResourceID(), GetResourceDescription());
+}
