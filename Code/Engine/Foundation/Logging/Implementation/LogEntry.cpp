@@ -38,7 +38,8 @@ ezLogEntryDelegate::ezLogEntryDelegate(Callback callback, ezLogMsgType::Enum Log
 
 void ezLogEntryDelegate::HandleLogMessage(const ezLoggingEventData& le)
 {
-  m_Callback(ezLogEntry(le));
+  ezLogEntry e(le);
+  m_Callback(e);
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Logging_Implementation_LogEntry);
