@@ -108,7 +108,7 @@ void ezMixedRealityGameState::AfterWorldUpdate()
     m_MainCamera.SetViewMatrix(mViewTransformRight, ezCameraEye::Right);
 
     // If there is an active camera component we update its position, but technically we don't need one!
-    if (ezCameraComponent* pCamComp = FindActiveCameraComponent())
+    /*if (ezCameraComponent* pCamComp = FindActiveCameraComponent())
     {
       ezGameObject* pOwner = pCamComp->GetOwner();
       pOwner->SetGlobalPosition(m_MainCamera.GetCenterPosition());
@@ -118,7 +118,7 @@ void ezMixedRealityGameState::AfterWorldUpdate()
       ezQuat rotationQuat;
       rotationQuat.SetFromMat3(mRotation);
       pOwner->SetGlobalRotation(rotationQuat);
-    }
+    }*/
   }
 }
 

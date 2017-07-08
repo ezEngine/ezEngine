@@ -29,7 +29,7 @@ public:
 protected:
   virtual void ConfigureInputActions() override;
 
-  virtual ezCameraComponent* FindActiveCameraComponent();
+  virtual const ezCameraComponent* FindActiveCameraComponent();
 
   ezInt32 m_iActiveCameraComponentIndex;
 
