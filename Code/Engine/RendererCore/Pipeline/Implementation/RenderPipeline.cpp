@@ -408,7 +408,7 @@ bool ezRenderPipeline::InitRenderTargetDescriptions(const ezView& view)
 
     if (view.GetCamera()->IsStereoscopic() && !pPass->IsStereoAware())
     {
-      ezLog::SeriousWarning("View '{0}' uses a stereoscopic camera, but the render pass '{1}' does not support stereo rendering!", view.GetName(), pPass->GetName());
+      ezLog::Error("View '{0}' uses a stereoscopic camera, but the render pass '{1}' does not support stereo rendering!", view.GetName(), pPass->GetName());
     }
 
     ConnectionData& data = m_Connections[pPass.Borrow()];

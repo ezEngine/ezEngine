@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Pipeline/Passes/TargetPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererFoundation/Device/Device.h>
@@ -22,7 +22,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTargetPass, 1, ezRTTIDefaultAllocator<ezTarget
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezTargetPass::ezTargetPass(const char* szName) : ezRenderPipelinePass(szName)
+ezTargetPass::ezTargetPass(const char* szName) : ezRenderPipelinePass(szName, true)
 {
 }
 

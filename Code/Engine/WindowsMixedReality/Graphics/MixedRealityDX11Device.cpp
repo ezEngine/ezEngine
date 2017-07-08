@@ -3,6 +3,9 @@
 #include <WindowsMixedReality/Graphics/MixedRealitySwapChainDX11.h>
 #include <WindowsMixedReality/HolographicSpace.h>
 
+#include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/Resources/Texture.h>
+
 #include <d3d11.h>
 #include <dxgi1_4.h>
 #include <windows.graphics.holographic.h>
@@ -155,6 +158,15 @@ void ezGALMixedRealityDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain)
     return;
   }
 
+  //// Test
+  //ezGALContext* pContext = GetPrimaryContext();
+  //auto renderTarget = GetDefaultRenderTargetView(pSwapChain->GetBackBufferTexture());
+  //ezGALRenderTagetSetup targetSetup;
+  //targetSetup.SetRenderTarget(0, renderTarget);
+  //pContext->SetRenderTargetSetup(targetSetup);
+  //pContext->Clear(ezColorLinearUB(100, 149, 237, 255));
+
+
   // Presents frame and blocks until done.
   ABI::Windows::Graphics::Holographic::HolographicFramePresentResult presentResult;
   HRESULT result = m_pCurrentHolographicFrame->PresentUsingCurrentPrediction(&presentResult);
@@ -164,7 +176,10 @@ void ezGALMixedRealityDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain)
     return;
   }
 
-  // TODO: Discard all camera views targets.
+  // Discard the contents of the render target.
+  // This is a valid operation only when the existing contents will be entirely overwritten. If dirty or scroll rects are used, this call should be removed.
+  // TODO
+
 
   if (presentResult == ABI::Windows::Graphics::Holographic::HolographicFramePresentResult_DeviceRemoved)
   {

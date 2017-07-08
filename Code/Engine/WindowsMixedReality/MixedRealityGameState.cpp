@@ -80,6 +80,12 @@ float ezMixedRealityGameState::CanHandleThis(ezGameApplicationType AppType, ezWo
   return 1.0f;
 }
 
+void ezMixedRealityGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer)
+{
+  // HololensRenderPipeline.ezRendePipelineAsset
+  ezFallbackGameState::SetupMainView(hBackBuffer, ezResourceManager::LoadResource<ezRenderPipelineResource>("{ f94d0bf2-e90a-49da-a356-b21abd545997 }"));
+}
+
 void ezMixedRealityGameState::ProcessInput()
 {
 }

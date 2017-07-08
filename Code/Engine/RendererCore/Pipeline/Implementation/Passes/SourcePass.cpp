@@ -18,7 +18,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSourcePass, 2, ezRTTIDefaultAllocator<ezSource
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezSourcePass::ezSourcePass(const char* szName) : ezRenderPipelinePass(szName)
+ezSourcePass::ezSourcePass(const char* szName) : ezRenderPipelinePass(szName, true)
 {
   m_Format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
   m_MsaaMode = ezGALMSAASampleCount::None;

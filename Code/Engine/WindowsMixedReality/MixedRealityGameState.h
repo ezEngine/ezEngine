@@ -34,6 +34,8 @@ public:
 
 protected:
 
+  virtual void SetupMainView(ezGALRenderTargetViewHandle hBackBuffer) override;
+
   virtual void ConfigureInputActions() override;
   virtual void OnHolographicCameraAdded(const ezWindowsMixedRealityCamera& camera);
 

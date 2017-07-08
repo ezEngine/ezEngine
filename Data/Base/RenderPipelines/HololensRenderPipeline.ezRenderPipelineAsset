@@ -1,0 +1,208 @@
+Objects
+{
+o
+{
+	Uuid %id{u4{15558115510085860411,2283669405804727908}}
+	s %t{"ezInputNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{7430544079706594604,4243544797035780336}}
+	s %t{"ezInputNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{2899295545341807504,5046721224071856154}}
+	s %t{"ezStereoTestPass"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Uuid %Input{u4{17643813033543598209,16379379862120209230}}
+		s %Name{""}
+		VarArray %Node::Connections
+		{
+			Uuid{u4{18375660273709810681,16322144636568718275}}
+		}
+		Vec2 %Node::Pos{f{0xC50C3C44,0xD160C743}}
+		Uuid %Output{u4{2925556159963342229,6465239959850432009}}
+		VarArray %Renderers{}
+	}
+}
+o
+{
+	Uuid %id{u4{13976123952773100990,5207692378201660278}}
+	s %t{"ezTargetPass"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Uuid %Color0{u4{3192374520646403820,17681612027954734625}}
+		Uuid %Color1{u4{12357140437457247331,12398868023350467971}}
+		Uuid %Color2{u4{15087265301727633282,14230609090468177492}}
+		Uuid %Color3{u4{2464640602284987773,5379914580452341726}}
+		Uuid %Color4{u4{7027721873772107489,13094239307051686954}}
+		Uuid %Color5{u4{7430544079706594604,4243544797035780336}}
+		Uuid %Color6{u4{7477479185293447729,11902351638539739933}}
+		Uuid %Color7{u4{5409148877398977519,13789010356622797244}}
+		Uuid %DepthStencil{u4{15558115510085860411,2283669405804727908}}
+		s %Name{""}
+		VarArray %Node::Connections{}
+		Vec2 %Node::Pos{f{0xDEE58144,0xF63EB443}}
+		VarArray %Renderers{}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{10905841143827814051,5321822143033183218}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"RenderPipeline"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{10905841143827814051,5321822143033183218}}
+		u4 %Hash{13874195846941734014}
+		VarArray %Outputs{}
+		VarArray %References{}
+	}
+}
+o
+{
+	Uuid %id{u4{2464640602284987773,5379914580452341726}}
+	s %t{"ezInputNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{9247579299653762748,5439276140372752503}}
+			Uuid{u4{2899295545341807504,5046721224071856154}}
+			Uuid{u4{13976123952773100990,5207692378201660278}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{9247579299653762748,5439276140372752503}}
+	s %t{"ezSourcePass"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		b %Clear{1}
+		Color %ClearColor{f{0,0,0,0x0000803F}}
+		s %Format{"ezGALResourceFormat::RGBAUByteNormalizedsRGB"}
+		s %MSAA_Mode{"ezGALMSAASampleCount::None"}
+		s %Name{""}
+		VarArray %Node::Connections
+		{
+			Uuid{u4{18370759674575705660,14188676406968185724}}
+		}
+		Vec2 %Node::Pos{f{0xCDBA0D44,0x45E5C943}}
+		Uuid %Output{u4{3777667133775267787,7561657143857126034}}
+		VarArray %Renderers{}
+	}
+}
+o
+{
+	Uuid %id{u4{2925556159963342229,6465239959850432009}}
+	s %t{"ezOutputNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{3777667133775267787,7561657143857126034}}
+	s %t{"ezOutputNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{7477479185293447729,11902351638539739933}}
+	s %t{"ezInputNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{12357140437457247331,12398868023350467971}}
+	s %t{"ezInputNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{7027721873772107489,13094239307051686954}}
+	s %t{"ezInputNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{5409148877398977519,13789010356622797244}}
+	s %t{"ezInputNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{18370759674575705660,14188676406968185724}}
+	s %t{"ConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"Output"}
+		Uuid %Target{u4{2899295545341807504,5046721224071856154}}
+		s %TargetPin{"Input"}
+	}
+}
+o
+{
+	Uuid %id{u4{15087265301727633282,14230609090468177492}}
+	s %t{"ezInputNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{18375660273709810681,16322144636568718275}}
+	s %t{"ConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"Output"}
+		Uuid %Target{u4{13976123952773100990,5207692378201660278}}
+		s %TargetPin{"Color0"}
+	}
+}
+o
+{
+	Uuid %id{u4{17643813033543598209,16379379862120209230}}
+	s %t{"ezInputNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{3192374520646403820,17681612027954734625}}
+	s %t{"ezInputNodePin"}
+	u3 %v{1}
+	p{}
+}
+}
+Types{}

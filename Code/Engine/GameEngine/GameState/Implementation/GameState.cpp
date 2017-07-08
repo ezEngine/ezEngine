@@ -1,4 +1,4 @@
-
+﻿
 #include <PCH.h>
 #include <GameEngine/GameState/GameStateWindow.h>
 #include <GameEngine/GameApplication/GameApplication.h>
@@ -104,6 +104,12 @@ void ezGameState::ConfigureInputActions()
 
 void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer)
 {
+  // Use MainRenderPipeline
+  SetupMainView(hBackBuffer, ezResourceManager::LoadResource<ezRenderPipelineResource>("{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }"));
+}
+
+void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer, ezTypedResourceHandle<ezRenderPipelineResource> hRenderPipeline)
+{
   EZ_LOG_BLOCK("SetupMainView");
 
   ezView* pView = nullptr;
@@ -113,8 +119,7 @@ void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer)
   ezGALRenderTagetSetup renderTargetSetup;
   renderTargetSetup.SetRenderTarget(0, hBackBuffer);
   pView->SetRenderTargetSetup(renderTargetSetup);
-
-  pView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>("{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }"));
+  pView->SetRenderPipelineResource(hRenderPipeline);
 
   ezSizeU32 size = m_pMainWindow->GetClientAreaSize();
   pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)size.width, (float)size.height));

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <GameEngine/Basics.h>
 #include <GameEngine/Declarations.h>
@@ -111,8 +111,11 @@ protected:
   /// Unless overridden Activate() will call this.
   virtual void ConfigureInputActions();
 
-  /// \brief Creates a default render pipeline. Unless overridden, Activate() will do this for the main window.
+  /// \brief Creates a default render view. Unless overridden, Activate() will do this for the main window.
   virtual void SetupMainView(ezGALRenderTargetViewHandle hBackBuffer);
+
+  /// \brief Creates a default main view with the given render pipeline.
+  void SetupMainView(ezGALRenderTargetViewHandle hBackBuffer, ezTypedResourceHandle<ezRenderPipelineResource> hRenderPipeline);
 
   /// \brief Sets m_pMainWorld and updates m_pMainView to use that new world for rendering
   void ChangeMainWorld(ezWorld* pNewMainWorld);
