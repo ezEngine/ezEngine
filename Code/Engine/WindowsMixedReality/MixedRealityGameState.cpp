@@ -1,17 +1,33 @@
 ﻿#include <PCH.h>
 #include <WindowsMixedReality/MixedRealityGameState.h>
 #include <WindowsMixedReality/HolographicSpace.h>
+#include <WindowsMixedReality/SpatialLocationService.h>
+#include <WindowsMixedReality/SpatialReferenceFrame.h>
+#include <WindowsMixedReality/Graphics/MixedRealityCamera.h>
 #include <WindowsMixedReality/Graphics/MixedRealityDX11Device.h>
 #include <WindowsMixedReality/Graphics/MixedRealitySwapChainDX11.h>
 
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameState/GameStateWindow.h>
 
+#include <RendererCore/Components/CameraComponent.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Pipeline/View.h>
+
 #include <Foundation/Threading/Lock.h>
 #include <Core/World/World.h>
 
+#include <windows.perception.spatial.h>
+
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMixedRealityGameState, 1, ezRTTIDefaultAllocator<ezMixedRealityGameState>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezMixedRealityGameState::ezMixedRealityGameState()
+{}
+
+ezMixedRealityGameState::~ezMixedRealityGameState()
+{}
 
 void ezMixedRealityGameState::OnActivation(ezWorld* pWorld)
 {
@@ -22,6 +38,8 @@ void ezMixedRealityGameState::OnActivation(ezWorld* pWorld)
   GetApplication()->AddWindow(m_pMainWindow, ezGALSwapChainHandle());
 
   {
+    m_pDefaultReferenceFrame = ezWindowsHolographicSpace::GetSingleton()->GetSpatialLocationService().CreateStationaryReferenceFrame_CurrentLocation();
+
     ezWindowsHolographicSpace::GetSingleton()->m_cameraAddedEvent.AddEventHandler(ezMakeDelegate(&ezMixedRealityGameState::OnHolographicCameraAdded, this));
 
     // Need to handle add/remove cameras before anything else - world update won't happen without a view wich may be created/destroyed by this.
@@ -37,13 +55,12 @@ void ezMixedRealityGameState::OnActivation(ezWorld* pWorld)
   ConfigureInputDevices();
 
   ConfigureInputActions();
-
-  
 }
 
 void ezMixedRealityGameState::OnDeactivation()
 {
   ezWindowsHolographicSpace::GetSingleton()->m_cameraAddedEvent.RemoveEventHandler(ezMakeDelegate(&ezMixedRealityGameState::OnHolographicCameraAdded, this));
+  m_pDefaultReferenceFrame.Reset();
 }
 
 ezGALDevice* ezMixedRealityGameState::CreateGraphicsDevice(const ezGALDeviceCreationDescription& description)
@@ -68,12 +85,41 @@ void ezMixedRealityGameState::ProcessInput()
 
 void ezMixedRealityGameState::BeforeWorldUpdate()
 {
-  EZ_LOCK(m_pMainWorld->GetReadMarker());
+  ezFallbackGameState::BeforeWorldUpdate();
 }
 
 void ezMixedRealityGameState::AfterWorldUpdate()
 {
   EZ_LOCK(m_pMainWorld->GetReadMarker());
+
+  // Update the camera transform after world update so the owner node has its final position for this frame.
+  // Setting the camera transform in ProcessInput introduces one frame delay.
+  auto holoCameras = ezWindowsHolographicSpace::GetSingleton()->GetCameras();
+  if (!holoCameras.IsEmpty())
+  {
+    ezWindowsMixedRealityCamera* pHoloCamera = holoCameras[0];
+    
+    auto viewport = pHoloCamera->GetViewport();
+    m_MainCamera.SetStereoProjection(pHoloCamera->GetProjectionLeft(), pHoloCamera->GetProjectionRight(), viewport.width / viewport.height);
+    
+    ezMat4 mViewTransformLeft, mViewTransformRight;
+    pHoloCamera->GetViewTransforms(*m_pDefaultReferenceFrame, mViewTransformLeft, mViewTransformRight);
+    m_MainCamera.SetViewMatrix(mViewTransformLeft, ezCameraEye::Left);
+    m_MainCamera.SetViewMatrix(mViewTransformRight, ezCameraEye::Right);
+
+    // If there is an active camera component we update its position, but technically we don't need one!
+    if (ezCameraComponent* pCamComp = FindActiveCameraComponent())
+    {
+      ezGameObject* pOwner = pCamComp->GetOwner();
+      pOwner->SetGlobalPosition(m_MainCamera.GetCenterPosition());
+
+      ezMat3 mRotation;
+      mRotation.SetLookInDirectionMatrix(m_MainCamera.GetCenterDirForwards(), m_MainCamera.GetCenterDirUp());
+      ezQuat rotationQuat;
+      rotationQuat.SetFromMat3(mRotation);
+      pOwner->SetGlobalRotation(rotationQuat);
+    }
+  }
 }
 
 void ezMixedRealityGameState::ConfigureInputActions()
@@ -89,6 +135,14 @@ void ezMixedRealityGameState::OnHolographicCameraAdded(const ezWindowsMixedReali
 
     const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(m_hMainSwapChain);
     SetupMainView(ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(pSwapChain->GetBackBufferTexture()));
+
+    // Viewport is different from window size (which is what SetupMainView will use), need to set manually!
+    ezView* pView = nullptr;
+    ezRenderWorld::TryGetView(m_hMainView, pView);
+    pView->SetViewport(camera.GetViewport());
+
+    // Set stereo property right.
+    //m_MainCamera.SetStereoscopic(camera.IsStereoscopic());
 
     GetApplication()->SetSwapChain(m_pMainWindow, m_hMainSwapChain);
   }

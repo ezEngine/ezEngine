@@ -18,7 +18,7 @@ class SimpleMeshRendererGameState : public ezParentGameState
 
 public:
   SimpleMeshRendererGameState();
-  ~SimpleMeshRendererGameState();
+  virtual ~SimpleMeshRendererGameState();
 
 private:
   virtual void OnActivation(ezWorld* pWorld) override;

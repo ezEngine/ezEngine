@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <WindowsMixedReality/Basics.h>
+#include <Foundation/Types/UniquePtr.h>
 
 namespace ABI
 {
@@ -12,10 +13,13 @@ namespace ABI
       {
         struct ISpatialLocator;
         struct ISpatialStationaryFrameOfReference;
+        struct ISpatialCoordinateSystem;
       }
     }
   }
 }
+
+class ezWindowsSpatialReferenceFrame;
 
 enum class ezSpatialLocatability
 {
@@ -25,6 +29,7 @@ enum class ezSpatialLocatability
   PositionalTrackingInhibited,    ///< Positional tracking is temporarily inhibited. User action may be required in order to restore positional tracking.
   PositionalTrackingActive,       ///< Positional tracking is active. World-locked content can be rendered.
 };
+
 
 /// \brief Provides locations for holographic environments.
 ///
@@ -48,6 +53,9 @@ public:
   /// Retrieves the current status of the location system.
   ezSpatialLocatability GetCurrentLocatability() { return m_currentLocatability; }
 
+  /// Creates the simplest possible reference frame - stationary and at the current position and orientation of the headset.
+  ezUniquePtr<ezWindowsSpatialReferenceFrame> CreateStationaryReferenceFrame_CurrentLocation();
+
 private:
 
   HRESULT OnLocatabilityChanged(ABI::Windows::Perception::Spatial::ISpatialLocator* locator, IInspectable* args);
@@ -58,21 +66,3 @@ private:
 
   ezSpatialLocatability m_currentLocatability;
 };
-
-
-/// \brief A frame of reference on windows holographic.
-///
-/// \see ezWindowsSpatialLocationService
-class EZ_WINDOWSMIXEDREALITY_DLL ezWindowsHolographicReferenceFrame
-{
-public:
-  ezWindowsHolographicReferenceFrame(const ComPtr<ABI::Windows::Perception::Spatial::ISpatialStationaryFrameOfReference>& pReferenceFrame);
-
-  // todo
-
-private:
-
-  ComPtr<ABI::Windows::Perception::Spatial::ISpatialStationaryFrameOfReference> m_pReferenceFrame;
-};
-
-

@@ -21,6 +21,8 @@ namespace ABI
   }
 }
 
+class ezWindowsSpatialReferenceFrame;
+
 /// \brief Represents a camera in windows holographic.
 ///
 /// Each camera is associated with a ezGALMixedRealitySwapChainDX11.
@@ -59,6 +61,11 @@ public:
   /// \brief Returns the viewport rectangle the app must render to for the active frame.
   const ezRectFloat GetViewport() const { return m_viewport; }
 
+  /// \brief Retrieves view transforms for a given reference frame.
+  ///
+  /// If the camera is not stereo, both transform will be identical.
+  ezResult GetViewTransforms(const ezWindowsSpatialReferenceFrame& referenceFrame, ezMat4& leftTransform, ezMat4& rightTransform);
+
   // Internal
 public:
 
@@ -75,4 +82,6 @@ private:
 
   ezMat4 m_projectionMatrices[2];
   ezRectFloat m_viewport;
+
+  ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCameraPose> m_pCurrentPose;
 };

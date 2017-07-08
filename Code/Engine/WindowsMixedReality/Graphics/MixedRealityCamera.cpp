@@ -1,9 +1,12 @@
 ﻿#include <PCH.h>
 #include <WindowsMixedReality/Graphics/MixedRealityCamera.h>
 #include <WindowsMixedReality/Graphics/MixedRealitySwapChainDX11.h>
+#include <WindowsMixedReality/SpatialReferenceFrame.h>
 
 #include <RendererFoundation/Device/Device.h>
+
 #include <windows.graphics.holographic.h>
+#include <windows.perception.spatial.h>
 
 ezWindowsMixedRealityCamera::ezWindowsMixedRealityCamera(const ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCamera> pMixedRealityCamera)
   : m_pMixedRealityCamera(pMixedRealityCamera)
@@ -67,9 +70,34 @@ bool ezWindowsMixedRealityCamera::IsStereoscopic() const
   return isStereo == TRUE;
 }
 
+ezResult ezWindowsMixedRealityCamera::GetViewTransforms(const ezWindowsSpatialReferenceFrame& referenceFrame, ezMat4& leftTransform, ezMat4& rightTransform)
+{
+  if(!m_pCurrentPose)
+    return EZ_FAILURE;
+
+  ComPtr<ABI::Windows::Perception::Spatial::ISpatialCoordinateSystem> pCoordinateSystem;
+  if (referenceFrame.GetInternalCoordinateSystem(pCoordinateSystem).Failed())
+    return EZ_FAILURE;
+  ComPtr<ABI::Windows::Foundation::__FIReference_1_Windows__CGraphics__CHolographic__CHolographicStereoTransform_t> pStereoTransform;
+  EZ_HRESULT_TO_FAILURE_LOG(m_pCurrentPose->TryGetViewTransform(pCoordinateSystem.Get(), &pStereoTransform));
+
+  ABI::Windows::Graphics::Holographic::HolographicStereoTransform stereoTransform;
+  EZ_HRESULT_TO_FAILURE_LOG(pStereoTransform->get_Value(&stereoTransform));
+
+  memcpy_s(&leftTransform, sizeof(leftTransform), &stereoTransform.Left, sizeof(stereoTransform.Left));
+  if (IsStereoscopic())
+    memcpy_s(&rightTransform, sizeof(rightTransform), &stereoTransform.Right, sizeof(stereoTransform.Right));
+  else
+    rightTransform = leftTransform;
+
+  return EZ_SUCCESS;
+}
+
 HRESULT ezWindowsMixedRealityCamera::UpdatePose(ABI::Windows::Graphics::Holographic::IHolographicCameraPose* pPose,
                                                ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters* pRenderingParameters)
 {
+  m_pCurrentPose = pPose;
+
   // Update projection.
   {
     ABI::Windows::Graphics::Holographic::HolographicStereoTransform stereoTransform;
@@ -92,10 +120,6 @@ HRESULT ezWindowsMixedRealityCamera::UpdatePose(ABI::Windows::Graphics::Holograp
     m_viewport.height = viewport.Height;
     m_viewport.width = viewport.Width;
   }
-
-  // Update view transforms.
-  // TODO ?? Needs to be relative to coordinate system!
-  // Need to do on demand? Store pose?
 
   // Ensure swap chain is up to date.
   {

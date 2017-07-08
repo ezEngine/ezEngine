@@ -71,6 +71,10 @@ public:
   /// Can be called *before* being initialized with a window.
   bool IsAvailable() const;
 
+  /// \brief Returns spatial location service that allows to create reference frames.
+  ///
+  /// The location service is fully owned and managed by this class.
+  ezWindowsSpatialLocationService& GetSpatialLocationService() { return *m_pLocationService; }
 
   // Cameras
 public:
@@ -119,7 +123,7 @@ private:
   /// Windows holographic space, created in init method for a specific window.
   ComPtr<ABI::Windows::Graphics::Holographic::IHolographicSpace> m_pHolographicSpace;
 
-  ezUniquePtr<ezWindowsSpatialLocationService> m_pDefaultLocationService;
+  ezUniquePtr<ezWindowsSpatialLocationService> m_pLocationService;
 
   // Camera subscriptions on holographic space.
   EventRegistrationToken m_eventRegistrationOnCameraAdded;

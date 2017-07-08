@@ -26,6 +26,7 @@ SET (LINK_LIBRARIES
   System
   RendererFoundation
   RendererDX11
+  RendererCore
   GameEngine
 )
 

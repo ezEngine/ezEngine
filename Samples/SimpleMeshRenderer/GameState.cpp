@@ -22,7 +22,6 @@ SimpleMeshRendererGameState::SimpleMeshRendererGameState()
 
 SimpleMeshRendererGameState::~SimpleMeshRendererGameState()
 {
-
 }
 
 void SimpleMeshRendererGameState::OnActivation(ezWorld* pWorld)

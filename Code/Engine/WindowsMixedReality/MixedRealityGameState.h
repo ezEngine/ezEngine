@@ -2,8 +2,10 @@
 
 #include <WindowsMixedReality/Basics.h>
 #include <GameEngine/GameState/FallbackGameState.h>
+#include <Foundation/Types/UniquePtr.h>
 
 class ezWindowsMixedRealityCamera;
+class ezWindowsSpatialReferenceFrame;
 
 /// \brief Default gamestate for games that support mixed reality devices.
 ///
@@ -14,6 +16,9 @@ class EZ_WINDOWSMIXEDREALITY_DLL ezMixedRealityGameState : public ezFallbackGame
   EZ_ADD_DYNAMIC_REFLECTION(ezMixedRealityGameState, ezFallbackGameState)
 
 public:
+
+  ezMixedRealityGameState();
+  virtual ~ezMixedRealityGameState();
 
   virtual void OnActivation(ezWorld* pWorld) override;
   virtual void OnDeactivation() override;
@@ -31,4 +36,6 @@ protected:
 
   virtual void ConfigureInputActions() override;
   virtual void OnHolographicCameraAdded(const ezWindowsMixedRealityCamera& camera);
+
+  ezUniquePtr<ezWindowsSpatialReferenceFrame> m_pDefaultReferenceFrame;
 };

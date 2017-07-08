@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GameEngine/GameState/FallbackGameState.h>
 #include <GameEngine/GameApplication/InputConfig.h>
 #include <RendererCore/Components/CameraComponent.h>
@@ -83,24 +83,24 @@ void ezFallbackGameState::ConfigureInputActions()
   }
 }
 
-const ezCameraComponent* ezFallbackGameState::FindActiveCameraComponent()
+ezCameraComponent* ezFallbackGameState::FindActiveCameraComponent()
 {
   if (m_iActiveCameraComponentIndex == -1)
     return nullptr;
 
-  const ezWorld* pWorld = m_pMainWorld;
-  const ezCameraComponentManager* pManager = pWorld->GetComponentManager<ezCameraComponentManager>();
+  ezWorld* pWorld = m_pMainWorld;
+  ezCameraComponentManager* pManager = pWorld->GetComponentManager<ezCameraComponentManager>();
   if (pManager == nullptr)
     return nullptr;
 
   auto itComp = pManager->GetComponents();
 
-  ezHybridArray<const ezCameraComponent*, 32> Cameras[ezCameraUsageHint::ENUM_COUNT];
+  ezHybridArray<ezCameraComponent*, 32> Cameras[ezCameraUsageHint::ENUM_COUNT];
 
   // first find all cameras and sort them by usage type
   while (itComp.IsValid())
   {
-    const ezCameraComponent* pComp = itComp;
+    ezCameraComponent* pComp = itComp;
     Cameras[pComp->GetUsageHint().GetValue()].PushBack(pComp);
 
     itComp.Next();

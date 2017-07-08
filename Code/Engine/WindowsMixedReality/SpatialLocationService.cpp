@@ -1,5 +1,6 @@
 ﻿#include <PCH.h>
 #include <WindowsMixedReality/SpatialLocationService.h>
+#include <WindowsMixedReality/SpatialReferenceFrame.h>
 
 #include <windows.perception.spatial.h>
 
@@ -59,6 +60,19 @@ HRESULT ezWindowsSpatialLocationService::OnLocatabilityChanged(ABI::Windows::Per
   }
 
   return S_OK;
+}
+
+ezUniquePtr<ezWindowsSpatialReferenceFrame> ezWindowsSpatialLocationService::CreateStationaryReferenceFrame_CurrentLocation()
+{
+  ComPtr<ABI::Windows::Perception::Spatial::ISpatialStationaryFrameOfReference> pFrame;
+  HRESULT result = m_pSpatialLocator->CreateStationaryFrameOfReferenceAtCurrentLocation(pFrame.GetAddressOf());
+  if (FAILED(result))
+  {
+    ezLog::Error("Failed to create stationary spatial reference frame at current position: {0}", ezHRESULTtoString(result));
+    return nullptr;
+  }
+
+  return EZ_DEFAULT_NEW(ezWindowsSpatialReferenceFrame, pFrame);
 }
 
 EZ_STATICLINK_FILE(WindowsMixedReality, WindowsMixedReality_HolographicLocationService);

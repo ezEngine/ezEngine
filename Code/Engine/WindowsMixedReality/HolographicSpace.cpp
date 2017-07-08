@@ -91,7 +91,7 @@ ezResult ezWindowsHolographicSpace::InitForMainCoreWindow()
     ComPtr<ABI::Windows::Perception::Spatial::ISpatialLocator> pDefaultSpatialLocator;
     EZ_HRESULT_TO_FAILURE_LOG(pSpatialLocatorStatics->GetDefault(&pDefaultSpatialLocator));
 
-    m_pDefaultLocationService = EZ_DEFAULT_NEW(ezWindowsSpatialLocationService, pDefaultSpatialLocator);
+    m_pLocationService = EZ_DEFAULT_NEW(ezWindowsSpatialLocationService, pDefaultSpatialLocator);
   }
 
   ezLog::Info("Initialized new holographic space for main window!");
@@ -108,7 +108,7 @@ void ezWindowsHolographicSpace::DeInit()
     EZ_DEFAULT_DELETE(pCamera);
   m_cameras.Clear();
 
-  m_pDefaultLocationService.Reset();
+  m_pLocationService.Reset();
 
   if (m_pHolographicSpace)
   {

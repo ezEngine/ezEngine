@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <GameEngine/GameState/GameState.h>
 #include <Core/Graphics/Camera.h>
@@ -29,7 +29,7 @@ public:
 protected:
   virtual void ConfigureInputActions() override;
 
-  virtual const ezCameraComponent* FindActiveCameraComponent();
+  virtual ezCameraComponent* FindActiveCameraComponent();
 
   ezInt32 m_iActiveCameraComponentIndex;
 
