@@ -60,8 +60,8 @@ Selection.GroupItems;Group
 Selection.HideItems;Hide Selected
 Selection.HideUnselectedItems;Hide Unselected
 Selection.ShowHidden;Show Hidden Objects
-Selection.CreateEmptyChildNode;Create Empty Child Node
-Selection.CreateEmptyNodeAtPosition;Create Empty Node At Position
+Selection.CreateEmptyChildObject;Create Empty Child Object
+Selection.CreateEmptyObjectAtPosition;Create Empty Object At Position
 Selection.DuplicateSpecial;Duplicate...
 Selection.Attach;Attach to This
 Selection.Detach;Detach
@@ -126,7 +126,7 @@ ezSurfaceInteractionAlignment::ReverseIncidentDirection;Reverse Incoming Directi
 ezSurfaceInteractionAlignment::ReverseReflectedDirection;Reverse Reflected Direction
 ezOnComponentFinishedAction::None;None
 ezOnComponentFinishedAction::DeleteComponent;Delete Component
-ezOnComponentFinishedAction::DeleteEntity;Delete Entity
+ezOnComponentFinishedAction::DeleteGameObject;Delete Object
 ezVisualScriptComponent;Visual Script
 ezAreaDamageComponent;Area Damage
 ezLogicOperator::Equal;=

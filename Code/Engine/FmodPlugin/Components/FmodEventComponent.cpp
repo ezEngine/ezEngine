@@ -137,7 +137,7 @@ void ezFmodEventComponent::DeserializeComponent(ezWorldReader& stream)
   ezOnComponentFinishedAction::StorageType type;
   s >> type;
   m_OnFinishedAction = (ezOnComponentFinishedAction::Enum) type;
-  
+
   s >> m_iTimelinePosition;
 }
 
@@ -414,7 +414,7 @@ void ezFmodEventComponent::Update()
       ezFmodSoundFinishedEventMessage msg;
       m_SoundFinishedEventSender.SendMessage(msg, this, GetOwner());
 
-      if (m_OnFinishedAction == ezOnComponentFinishedAction::DeleteEntity)
+      if (m_OnFinishedAction == ezOnComponentFinishedAction::DeleteGameObject)
       {
         GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
       }

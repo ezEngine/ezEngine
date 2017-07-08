@@ -404,7 +404,7 @@ void ezSceneDocument::DetachFromParent()
   pHistory->FinishTransaction();
 }
 
-ezStatus ezSceneDocument::CreateEmptyNode(bool bAttachToParent, bool bAtPickedPosition)
+ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPickedPosition)
 {
   auto history = GetCommandHistory();
 

@@ -15,6 +15,7 @@ typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle
 typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
 typedef ezTypedResourceHandle<class ezShaderPermutationResource> ezShaderPermutationResourceHandle;
 typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
+typedef ezTypedResourceHandle<class ezDecalResource> ezDecalResourceHandle;
 typedef ezTypedResourceHandle<class ezDecalAtlasResource> ezDecalAtlasResourceHandle;
 
 struct ezPermutationVar

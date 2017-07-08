@@ -129,8 +129,8 @@ public:
   /// \brief Detaches all selected objects from their current parent
   void DetachFromParent();
 
-  /// \brief Creates a new empty node, either top-level (selection empty) or as a child of the selected item
-  ezStatus CreateEmptyNode(bool bAttachToParent, bool bAtPickedPosition);
+  /// \brief Creates a new empty object, either top-level (selection empty) or as a child of the selected item
+  ezStatus CreateEmptyObject(bool bAttachToParent, bool bAtPickedPosition);
 
   void DuplicateSelection();
   void ShowOrHideSelectedObjects(ShowOrHide action);

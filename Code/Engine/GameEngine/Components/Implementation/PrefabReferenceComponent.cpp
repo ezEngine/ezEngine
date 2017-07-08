@@ -89,7 +89,7 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
 
   m_bRequiresInstantiation = false;
 
-  // first clear all previous children of this entity
+  // first clear all previous children of this object
   {
     auto itChild = GetOwner()->GetChildren();
     ezWorld* pWorld = GetWorld();

@@ -214,7 +214,7 @@ struct EZ_CORE_DLL ezOnComponentFinishedAction
   {
     None,
     DeleteComponent,
-    DeleteEntity,
+    DeleteGameObject,
 
     Default = None
   };

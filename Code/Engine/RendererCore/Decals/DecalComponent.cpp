@@ -9,6 +9,20 @@
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Core/Messages/TriggerMessage.h>
 
+
+ezDecalComponentManager::ezDecalComponentManager(ezWorld* pWorld)
+  : ezComponentManager<ezDecalComponent, ezBlockStorageType::Compact>(pWorld)
+{
+
+}
+
+void ezDecalComponentManager::Initialize()
+{
+  m_hDecalAtlas = ezResourceManager::LoadResource<ezDecalAtlasResource>("AssetCache/PC/Decals.ezDecal");
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -19,10 +33,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 2)
     EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f)), new ezClampValueAttribute(ezVec3(0.01), ezVariant(25.0f))),
     EZ_MEMBER_PROPERTY("SizeVariance", m_fSizeVariance)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
+    EZ_ACCESSOR_PROPERTY("Decal", GetDecalFile, SetDecalFile)->AddAttributes(new ezAssetBrowserAttribute("Decal")),
+    EZ_ACCESSOR_PROPERTY("SortOrder", GetSortOrder, SetSortOrder)->AddAttributes(new ezClampValueAttribute(-64.0f, 64.0f)),
     EZ_ACCESSOR_PROPERTY("InnerFadeAngle", GetInnerFadeAngle, SetInnerFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(90.0f)), new ezDefaultValueAttribute(ezAngle::Degree(50.0f))),
     EZ_ACCESSOR_PROPERTY("OuterFadeAngle", GetOuterFadeAngle, SetOuterFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(90.0f)), new ezDefaultValueAttribute(ezAngle::Degree(80.0f))),
-    EZ_ACCESSOR_PROPERTY("SortOrder", GetSortOrder, SetSortOrder)->AddAttributes(new ezClampValueAttribute(-64.0f, 64.0f)),
-    EZ_ACCESSOR_PROPERTY("Decal", GetDecalFile, SetDecalFile)->AddAttributes(new ezAssetBrowserAttribute("Decal")),
     EZ_MEMBER_PROPERTY("FadeOutDelay", m_FadeOutDelay),
     EZ_MEMBER_PROPERTY("FadeOutDuration", m_FadeOutDuration),
     EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_OnFinishedAction),
@@ -54,6 +68,7 @@ ezUInt16 ezDecalComponent::s_uiNextSortKey = 0;
 
 ezDecalComponent::ezDecalComponent()
   : m_vExtents(1.0f)
+  , m_fSizeVariance(0.0f)
   , m_Color(ezColor::White)
   , m_InnerFadeAngle(ezAngle::Degree(50.0f))
   , m_OuterFadeAngle(ezAngle::Degree(80.0f))
@@ -205,11 +220,11 @@ const char* ezDecalComponent::GetDecalFile() const
 
 void ezDecalComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 {
-  if (!m_hDecal.IsValid())
-    return;
-
   // Don't extract decal render data for selection.
   if (msg.m_OverrideCategory != ezInvalidIndex)
+    return;
+
+  if (!m_hDecal.IsValid() || m_vExtents.IsZero() || GetOwner()->GetLocalScaling().IsZero())
     return;
 
   float fFade = 1.0f;
@@ -226,9 +241,7 @@ void ezDecalComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) cons
   if (finalColor.a <= 0.0f)
     return;
 
-  // TODO: LoadResource should not be done by every decal every frame!
-  // this should move into a manager and only be done once, it is a pretty heavy weight operation
-  auto hDecalAtlas = ezResourceManager::LoadResource<ezDecalAtlasResource>("AssetCache/PC/Decals.ezDecal");
+  auto hDecalAtlas = GetManager()->m_hDecalAtlas;
   ezVec2 baseAtlasScale = ezVec2(0.5f);
   ezVec2 baseAtlasOffset = ezVec2(0.5f);
 
@@ -273,7 +286,7 @@ void ezDecalComponent::OnSimulationStarted()
 
   // no fade out -> fade out pretty late
   m_StartFadeOutTime = ezTime::Seconds(60.0 * 60.0 * 24.0 * 365.0 * 100.0); // 100 years should be enough for everybody (ignoring leap years)
-    
+
   if (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0)
   {
     const ezTime tFadeOutDelay = ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleVariance(m_FadeOutDelay.m_Value.GetSeconds(), m_FadeOutDelay.m_fVariance));
@@ -304,7 +317,7 @@ void ezDecalComponent::OnTriggered(ezInternalComponentMessage& msg)
   if (msg.m_uiUsageStringHash != ezTempHashedString::ComputeHash("Suicide"))
     return;
 
-  if (m_OnFinishedAction == ezOnComponentFinishedAction::DeleteEntity)
+  if (m_OnFinishedAction == ezOnComponentFinishedAction::DeleteGameObject)
   {
     GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
   }

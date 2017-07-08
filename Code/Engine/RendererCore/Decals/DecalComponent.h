@@ -1,14 +1,24 @@
 ﻿#pragma once
 
+#include <RendererCore/Declarations.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
-#include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Types/VarianceTypes.h>
 
-typedef ezTypedResourceHandle<class ezDecalResource> ezDecalResourceHandle;
-typedef ezComponentManager<class ezDecalComponent, ezBlockStorageType::Compact> ezDecalComponentManager;
 class ezAbstractObjectNode;
 struct ezInternalComponentMessage;
+
+class EZ_RENDERERCORE_DLL ezDecalComponentManager : public ezComponentManager<class ezDecalComponent, ezBlockStorageType::Compact>
+{
+public:
+  ezDecalComponentManager(ezWorld* pWorld);
+
+  virtual void Initialize() override;
+
+private:
+  friend class ezDecalComponent;
+  ezDecalAtlasResourceHandle m_hDecalAtlas;
+};
 
 class EZ_RENDERERCORE_DLL ezDecalRenderData : public ezRenderData
 {
@@ -55,7 +65,7 @@ public:
 public:
   void SetExtents(const ezVec3& value);
   const ezVec3& GetExtents() const;
-  float m_fSizeVariance = 0.0f;
+  float m_fSizeVariance;
 
   void SetColor(ezColorGammaUB color);
   ezColorGammaUB GetColor() const;
