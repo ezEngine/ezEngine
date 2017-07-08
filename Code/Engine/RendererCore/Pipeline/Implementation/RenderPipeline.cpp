@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/FrameDataProvider.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
@@ -405,6 +405,12 @@ bool ezRenderPipeline::InitRenderTargetDescriptions(const ezView& view)
   for (auto& pPass : m_Passes)
   {
     ezLogBlock b("InitPass", pPass->GetName());
+
+    if (view.GetCamera()->IsStereoscopic() && !pPass->IsStereoAware())
+    {
+      ezLog::SeriousWarning("View '{0}' uses a stereoscopic camera, but the render pass '{1}' does not support stereo rendering!", view.GetName(), pPass->GetName());
+    }
+
     ConnectionData& data = m_Connections[pPass.Borrow()];
 
     EZ_ASSERT_DEBUG(data.m_Inputs.GetCount() == pPass->GetInputPins().GetCount(), "Input pin count missmatch!");

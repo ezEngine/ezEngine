@@ -30,7 +30,7 @@ class EZ_RENDERERCORE_DLL ezRenderPipelinePass : public ezNode
   EZ_DISALLOW_COPY_AND_ASSIGN(ezRenderPipelinePass);
 
 public:
-  ezRenderPipelinePass(const char* szName);
+  ezRenderPipelinePass(const char* szName, bool bIsStereoAware = false);
   ~ezRenderPipelinePass();
 
   ezArrayPtr<ezRenderer* const> GetRenderers() const;
@@ -50,6 +50,9 @@ public:
 
   /// \brief returns the name of the pass.
   const char* GetName() const;
+
+  /// \brief True if the render pipeline pass can handle stereo cameras correctly.
+  bool IsStereoAware() const { return m_bIsStereoAware; }
 
   /// \brief For a given input pin configuration, provide the output configuration of this node.
   /// Outputs is already resized to the number of output pins.
@@ -86,6 +89,7 @@ private:
 
   bool m_bActive;
 
+  const bool m_bIsStereoAware;
   ezHashedString m_sName;
 
   ezRenderPipeline* m_pPipeline;

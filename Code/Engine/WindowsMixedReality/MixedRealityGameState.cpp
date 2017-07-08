@@ -37,6 +37,7 @@ void ezMixedRealityGameState::OnActivation(ezWorld* pWorld)
   m_pMainWindow = EZ_DEFAULT_NEW(ezGameStateWindow, ezWindowCreationDesc());
   GetApplication()->AddWindow(m_pMainWindow, ezGALSwapChainHandle());
 
+  // Holographic/Stereo!
   {
     m_pDefaultReferenceFrame = ezWindowsHolographicSpace::GetSingleton()->GetSpatialLocationService().CreateStationaryReferenceFrame_CurrentLocation();
 
@@ -130,6 +131,9 @@ void ezMixedRealityGameState::OnHolographicCameraAdded(const ezWindowsMixedReali
 {
   if (m_hMainSwapChain.IsInvalidated())
   {
+    // Set camera to stereo immediately so, the view is setup correctly.
+    m_MainCamera.SetCameraMode(ezCameraMode::Stereo, 1.0f, 1.0f, 1000.0f);
+
     m_hMainSwapChain = ezGALDevice::GetDefaultDevice()->GetPrimarySwapChain();
     EZ_ASSERT_DEBUG(!m_hMainSwapChain.IsInvalidated(), "Primary swap chain is still invalid after a holographic camera has been added.");
 
@@ -140,9 +144,6 @@ void ezMixedRealityGameState::OnHolographicCameraAdded(const ezWindowsMixedReali
     ezView* pView = nullptr;
     ezRenderWorld::TryGetView(m_hMainView, pView);
     pView->SetViewport(camera.GetViewport());
-
-    // Set stereo property right.
-    //m_MainCamera.SetStereoscopic(camera.IsStereoscopic());
 
     GetApplication()->SetSwapChain(m_pMainWindow, m_hMainSwapChain);
   }

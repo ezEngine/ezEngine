@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -22,12 +22,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelinePass, 1, ezRTTINoAllocator)
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezRenderPipelinePass::ezRenderPipelinePass(const char* szName)
+ezRenderPipelinePass::ezRenderPipelinePass(const char* szName, bool bIsStereoAware)
+  : m_bActive(true)
+  , m_bIsStereoAware(bIsStereoAware)
+  , m_pPipeline(nullptr)
 {
-  m_bActive = true;
   m_sName.Assign(szName);
-
-  m_pPipeline = nullptr;
 }
 
 ezRenderPipelinePass::~ezRenderPipelinePass()
