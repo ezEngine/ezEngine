@@ -9,6 +9,7 @@
 #include <RendererCore/Pipeline/View.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 
 ezUInt32 ezRemoteEngineProcessViewContext::s_uiActiveViewID = 0;
 
