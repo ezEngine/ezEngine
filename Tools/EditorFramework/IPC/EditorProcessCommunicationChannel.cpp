@@ -28,7 +28,7 @@ ezResult ezEditorProcessCommunicationChannel::StartClientProcess(const char* szP
 
   if (bRemote)
   {
-    m_pChannel = ezIpcChannel::CreateNetworkChannel("localhost:1050", ezIpcChannel::Mode::Client);
+    m_pChannel = ezIpcChannel::CreateNetworkChannel("172.16.80.3:1050", ezIpcChannel::Mode::Client);
   }
   else
   {
@@ -59,17 +59,21 @@ ezResult ezEditorProcessCommunicationChannel::StartClientProcess(const char* szP
   arguments.append(args);
 
   m_pClientProcess = new QProcess();
-  m_pClientProcess->start(QString::fromUtf8(sPath.GetData()), arguments, QIODevice::OpenModeFlag::NotOpen);
 
-  if (!m_pClientProcess->waitForStarted())
+  if (!bRemote)
   {
-    delete m_pClientProcess;
-    m_pClientProcess = nullptr;
+    m_pClientProcess->start(QString::fromUtf8(sPath.GetData()), arguments, QIODevice::OpenModeFlag::NotOpen);
 
-    EZ_DEFAULT_DELETE(m_pChannel);
+    if (!m_pClientProcess->waitForStarted())
+    {
+      delete m_pClientProcess;
+      m_pClientProcess = nullptr;
 
-    ezLog::Error("Failed to start process '{0}'", sPath.GetData());
-    return EZ_FAILURE;
+      EZ_DEFAULT_DELETE(m_pChannel);
+
+      ezLog::Error("Failed to start process '{0}'", sPath.GetData());
+      return EZ_FAILURE;
+    }
   }
 
   return EZ_SUCCESS;

@@ -154,7 +154,7 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
 {
   EZ_LOCK(m_pWorld->GetWriteMarker());
 
-  const bool bIsRemoteProcess = ezEditorEngineProcessApp::GetSingleton()->m_Mode == ezEditorEngineProcessMode::Remote;
+  const bool bIsRemoteProcess = ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode();
 
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEntityMsgToEngine>())
   {
@@ -233,7 +233,7 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
     {
       if (m_ViewContexts[pViewMsg->m_uiViewID] == nullptr)
       {
-        if (ezEditorEngineProcessApp::GetSingleton()->m_Mode == ezEditorEngineProcessMode::Primary)
+        if (!ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
         {
           m_ViewContexts[pViewMsg->m_uiViewID] = CreateViewContext();
         }
@@ -472,7 +472,7 @@ bool ezEngineProcessDocumentContext::ExportDocument(const ezExportDocumentMsgToE
 
 void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateThumbnailMsgToEngine* pMsg)
 {
-  EZ_ASSERT_DEV(ezEditorEngineProcessApp::GetSingleton()->m_Mode != ezEditorEngineProcessMode::Remote, "Wrong mode for thumbnail creation");
+  EZ_ASSERT_DEV(!ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode(), "Wrong mode for thumbnail creation");
   EZ_ASSERT_DEV(m_pThumbnailViewContext == nullptr, "Thumbnail rendering already in progress.");
   EZ_CHECK_AT_COMPILETIME_MSG((ThumbnailSuperscaleFactor & (ThumbnailSuperscaleFactor - 1)) == 0, "ThumbnailSuperscaleFactor must be power of 2.");
   m_uiThumbnailConvergenceFrames = 0;

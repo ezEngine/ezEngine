@@ -9,6 +9,9 @@
 
 bool ezEngineProcessCommunicationChannel::IsHostAlive() const
 {
+  if (ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
+    return true;
+
   if (m_iHostPID == 0)
     return false;
 
@@ -33,25 +36,25 @@ ezResult ezEngineProcessCommunicationChannel::ConnectToHostProcess()
 {
   EZ_ASSERT_DEV(m_pChannel == nullptr, "ProcessCommunication object already in use");
 
-  if (ezStringUtils::IsNullOrEmpty(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC")))
+  if (!ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
   {
-    EZ_REPORT_FAILURE("Command Line does not contain -IPC parameter");
-    return EZ_FAILURE;
-  }
+    if (ezStringUtils::IsNullOrEmpty(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC")))
+    {
+      EZ_REPORT_FAILURE("Command Line does not contain -IPC parameter");
+      return EZ_FAILURE;
+    }
 
-  if (ezStringUtils::IsNullOrEmpty(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-PID")))
-  {
-    EZ_REPORT_FAILURE("Command Line does not contain -PID parameter");
-    return EZ_FAILURE;
-  }
+    if (ezStringUtils::IsNullOrEmpty(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-PID")))
+    {
+      EZ_REPORT_FAILURE("Command Line does not contain -PID parameter");
+      return EZ_FAILURE;
+    }
 
-  m_iHostPID = 0;
-  ezConversionUtils::StringToInt64(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-PID"), m_iHostPID);
+    m_iHostPID = 0;
+    ezConversionUtils::StringToInt64(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-PID"), m_iHostPID);
 
-  ezLog::Debug("Host Process ID: {0}", m_iHostPID);
+    ezLog::Debug("Host Process ID: {0}", m_iHostPID);
 
-  if (ezEditorEngineProcessApp::GetSingleton()->m_Mode == ezEditorEngineProcessMode::Primary)
-  {
     m_pChannel = ezIpcChannel::CreatePipeChannel(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC"), ezIpcChannel::Mode::Client);
   }
   else

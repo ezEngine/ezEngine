@@ -33,7 +33,7 @@ void ezIpcChannelEnet::InternalConnect()
   else
   {
     m_Network->ConnectToServer('RMOT', m_sAddress, false);
-    m_Network->WaitForConnectionToServer();
+    m_Network->WaitForConnectionToServer(ezTime::Seconds(30.0));
   }
 
   m_Connected = m_Network->IsConnectedToOther() ? 1 : 0;

@@ -26,20 +26,21 @@ void ezEngineProcessGameApplication::BeforeCoreStartup()
 {
   if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-remote", false))
   {
-    ezEditorEngineProcessApp::GetSingleton()->m_Mode = ezEditorEngineProcessMode::Remote;
+    ezEditorEngineProcessApp::GetSingleton()->SetRemoteMode();
   }
 
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   {
     // on all 'mobile' platforms, we assume we are in remote mode
-    ezEditorEngineProcessApp::GetSingleton()->m_Mode = ezEditorEngineProcessMode::Remote;
+    ezEditorEngineProcessApp::GetSingleton()->SetRemoteMode();
   }
-#endif
-
-  ezStartup::AddApplicationTag("editorengineprocess");
+#else
 
   // Make sure to disable the fileserve plugin
   ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-fs_off");
+#endif
+
+  ezStartup::AddApplicationTag("editorengineprocess");
 
   ezGameApplication::BeforeCoreStartup();
 }
@@ -67,8 +68,8 @@ void ezEngineProcessGameApplication::ConnectToHost()
 
   m_IPC.m_Events.AddEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerIPC, this));
 
-  // wait indefinitely
-  m_IPC.WaitForMessage(ezGetStaticRTTI<ezSetupProjectMsgToEngine>(), ezTime());
+  // wait indefinitely (not necessary anymore, should work regardless)
+  //m_IPC.WaitForMessage(ezGetStaticRTTI<ezSetupProjectMsgToEngine>(), ezTime());
 
 }
 
@@ -95,6 +96,8 @@ void ezEngineProcessGameApplication::WaitForDebugger()
 
 void ezEngineProcessGameApplication::BeforeCoreShutdown()
 {
+  ezEditorEngineProcessApp::GetSingleton()->DestroyRemoteWindow();
+
   ezRTTI::s_TypeUpdatedEvent.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerTypeUpdated, this));
   m_IPC.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerIPC, this));
 
@@ -177,7 +180,7 @@ void ezEngineProcessGameApplication::SendProjectReadyMessage()
 
 void ezEngineProcessGameApplication::SendReflectionInformation()
 {
-  if (ezEditorEngineProcessApp::GetSingleton()->m_Mode == ezEditorEngineProcessMode::Remote)
+  if (ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
     return;
 
   ezSet<const ezRTTI*> types;
@@ -322,7 +325,7 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
 
 void ezEngineProcessGameApplication::EventHandlerTypeUpdated(const ezRTTI* pType)
 {
-  if (ezEditorEngineProcessApp::GetSingleton()->m_Mode == ezEditorEngineProcessMode::Remote)
+  if (ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
     return;
 
   ezUpdateReflectionTypeMsgToEditor TypeMsg;

@@ -159,10 +159,10 @@ void ezEditorEngineProcessConnection::StartRemoteProcess()
 {
   if (m_pRemoteProcess != nullptr)
   {
-    if (m_pRemoteProcess->IsClientAlive())
+    //if (m_pRemoteProcess->IsClientAlive())
       return;
 
-    ShutdownRemoteProcess();
+    //ShutdownRemoteProcess();
   }
 
   m_pRemoteProcess = EZ_DEFAULT_NEW(ezEditorProcessCommunicationChannel);

@@ -422,7 +422,7 @@ void ezSceneContext::HandleObjectsForDebugVisMsg(const ezObjectsForDebugVisMsgTo
 
 void ezSceneContext::HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg)
 {
-  if (ezEditorEngineProcessApp::GetSingleton()->m_Mode == ezEditorEngineProcessMode::Remote)
+  if (ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
   {
     ezLog::Info("Ignored game mode messages, not supported by remote engine process.");
     return;

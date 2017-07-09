@@ -176,7 +176,7 @@ ezViewHandle ezSceneViewContext::CreateView()
 void ezSceneViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
 {
   // remote processes do not support picking, just ignore this
-  if (ezEditorEngineProcessApp::GetSingleton()->m_Mode == ezEditorEngineProcessMode::Remote)
+  if (ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
     return;
 
   ezViewPickingResultMsgToEditor res;
