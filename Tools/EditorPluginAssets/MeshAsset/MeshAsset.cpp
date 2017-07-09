@@ -298,18 +298,19 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
   {
     ezStopwatch timer;
     // Prepare streams.
-    const static int maxNumMeshStreams = 6;
+    const static int maxNumMeshStreams = 7;
     enum Streams
     {
       Position,
       Texcoord0,
+      Texcoord1,
       Normal,
       Tangent,
       BiTangent,
       Color
     };
 
-    const ezModelImporter::VertexDataStream* dataStreams[maxNumMeshStreams];
+    const ezModelImporter::VertexDataStream* dataStreams[maxNumMeshStreams] = {};
     dataStreams[Position] = mesh->GetDataStream(ezGALVertexAttributeSemantic::Position);
     if (dataStreams[Position] == nullptr)
     {
@@ -319,6 +320,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
     const ezModelImporter::TypedVertexDataStreamView<ezVec3> streamPosition(*dataStreams[Position]);
 
     dataStreams[Texcoord0] = mesh->GetDataStream(ezGALVertexAttributeSemantic::TexCoord0);
+    dataStreams[Texcoord1] = mesh->GetDataStream(ezGALVertexAttributeSemantic::TexCoord1);
 
     dataStreams[Normal] = mesh->GetDataStream(ezGALVertexAttributeSemantic::Normal);
     if (dataStreams[Normal] == nullptr)
@@ -353,15 +355,22 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
   // Allocate buffer.
     const ezUInt32 uiPosStream = desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
     const ezUInt32 uiNormalStream = desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
-    ezUInt32 uiTangentStream = 0, uiTexStream = 0;
+    ezUInt32 uiTangentStream = 0;
 #ifndef GENERATE_FAKE_DATA
     if (dataStreams[Tangent] && dataStreams[BiTangent])
 #endif
       uiTangentStream = desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Tangent, ezGALResourceFormat::XYZFloat);
+
+    ezUInt32 uiTexStream[2] = { 0, 0 };
 #ifndef GENERATE_FAKE_DATA
     if (dataStreams[Texcoord0])
 #endif
-      uiTexStream = desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
+      uiTexStream[0] = desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
+
+    if (dataStreams[Texcoord1])
+    {
+      uiTexStream[1] = desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezGALResourceFormat::UVFloat);
+    }
 
     ezUInt32 uiColorStream = 0;
     if (dataStreams[Color])
@@ -440,29 +449,33 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
 #endif
 
     // Set Texcoords.
-    if (dataStreams[Texcoord0])
+    for (ezUInt32 i = 0; i < 2; ++i)
     {
-      const ezModelImporter::TypedVertexDataStreamView<ezVec2> streamTex(*dataStreams[Texcoord0]);
-
-      for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
+      ezUInt32 uiDataIndex = Texcoord0 + i;
+      if (dataStreams[uiDataIndex])
       {
-        ImportHelper::DataIndexBundle<maxNumMeshStreams> dataIndices = it.Key();
-        ezUInt32 uiVertexIndex = it.Value();
+        const ezModelImporter::TypedVertexDataStreamView<ezVec2> streamTex(*dataStreams[uiDataIndex]);
 
-        ezVec2 vTexcoord = streamTex.GetValue(dataIndices[Texcoord0]);
-        desc.MeshBufferDesc().SetVertexData(uiTexStream, uiVertexIndex, vTexcoord);
+        for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
+        {
+          ImportHelper::DataIndexBundle<maxNumMeshStreams> dataIndices = it.Key();
+          ezUInt32 uiVertexIndex = it.Value();
+
+          ezVec2 vTexcoord = streamTex.GetValue(dataIndices[uiDataIndex]);
+          desc.MeshBufferDesc().SetVertexData(uiTexStream[i], uiVertexIndex, vTexcoord);
+        }
       }
-    }
 #ifdef GENERATE_FAKE_DATA
-    else
-    {
-      for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
+      else if (i == 0)
       {
-        ezUInt32 uiVertexIndex = it.Value();
-        desc.MeshBufferDesc().SetVertexData(uiTexStream, uiVertexIndex, ezVec2(0.0f));
+        for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
+        {
+          ezUInt32 uiVertexIndex = it.Value();
+          desc.MeshBufferDesc().SetVertexData(uiTexStream[i], uiVertexIndex, ezVec2(0.0f));
+        }
       }
-    }
 #endif
+    }
 
     // Set Color.
     if (dataStreams[Color])

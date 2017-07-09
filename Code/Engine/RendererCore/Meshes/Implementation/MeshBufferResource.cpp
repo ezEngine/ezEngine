@@ -195,6 +195,7 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
       }
       break;
     case ezGALVertexAttributeSemantic::TexCoord0:
+    case ezGALVertexAttributeSemantic::TexCoord1:
       {
         if (si.m_Format == ezGALResourceFormat::UVFloat)
         {
