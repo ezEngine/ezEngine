@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/CodeUtils/Preprocessor.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
@@ -164,6 +164,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
 
     PPTestSettings TestSettings[] =
     {
+      PPTestSettings("PragmaOnce"),
       PPTestSettings("LinePragmaPassThrough", true, true),
       PPTestSettings("Undef"),
       PPTestSettings("InvalidIf1"),

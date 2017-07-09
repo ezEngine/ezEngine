@@ -1,0 +1,12 @@
+#pragma once
+text
+
+Including myself is fine. I have protection!
+#include "PragmaOnce.txt"
+
+#include "Includes/PragmaOnceInclude.txt"
+#include "Includes/PragmaOnceInclude.txt"
+blub
+#include "Includes/PragmaOnceInclude.txt"
+
+#include "Includes/PragmaOnceInclude.txt"

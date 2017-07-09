@@ -33,7 +33,7 @@ public:
   ///
   //// The file content is tokenized first and all #line directives are evaluated, to update the line number and file origin for each token.
   /// Any errors are written to the given log.
-  const ezTokenizer* Tokenize(const ezString& sFileName, const ezDynamicArray<ezUInt8>& FileContent, const ezTimestamp& FileTimeStamp, ezLogInterface* pLog);
+  const ezTokenizer* Tokenize(const ezString& sFileName, ezArrayPtr<const ezUInt8> FileContent, const ezTimestamp& FileTimeStamp, ezLogInterface* pLog);
 
 private:
   void SkipWhitespace(ezDeque<ezToken>& Tokens, ezUInt32& uiCurToken);

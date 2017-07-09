@@ -35,7 +35,7 @@ void ezTokenizedFileCache::SkipWhitespace(ezDeque<ezToken>& Tokens, ezUInt32& ui
     ++uiCurToken;
 }
 
-const ezTokenizer* ezTokenizedFileCache::Tokenize(const ezString& sFileName, const ezDynamicArray<ezUInt8>& FileContent, const ezTimestamp& FileTimeStamp, ezLogInterface* pLog)
+const ezTokenizer* ezTokenizedFileCache::Tokenize(const ezString& sFileName, ezArrayPtr<const ezUInt8> FileContent, const ezTimestamp& FileTimeStamp, ezLogInterface* pLog)
 {
   EZ_LOCK(m_Mutex);
 
@@ -188,8 +188,21 @@ ezResult ezPreprocessor::OpenFile(const char* szFile, const ezTokenizer** pToken
     return EZ_FAILURE;
   }
 
-  *pTokenizer = m_pUsedFileCache->Tokenize(szFile, Content, stamp, m_pLog);
+  ezArrayPtr<const ezUInt8> ContentView = Content;
 
+  // the file open callback gives us raw data for the opened file
+  // the tokenizer doesn't like the Utf8 BOM, so skip it here, if we detect it
+  if (ContentView.GetCount() >= 3) // length of a BOM
+  {
+    const char* dataStart = reinterpret_cast<const char*>(ContentView.GetPtr());
+
+    if (ezUnicodeUtils::SkipUtf8Bom(dataStart))
+    {
+      ContentView = ezArrayPtr<const ezUInt8>((const ezUInt8*)dataStart, Content.GetCount() - 3);
+    }
+  }
+
+  *pTokenizer = m_pUsedFileCache->Tokenize(szFile, ContentView, stamp, m_pLog);
 
   return EZ_SUCCESS;
 }

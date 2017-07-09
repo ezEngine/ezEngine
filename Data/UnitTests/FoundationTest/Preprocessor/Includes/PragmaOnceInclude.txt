@@ -1,0 +1,6 @@
+﻿#pragma once
+
+RESAVE CAREFULLY
+THIS FILE HAS A BOM HEADER!
+In the past we had bugs that a file with BOM header would keep #pragma once
+

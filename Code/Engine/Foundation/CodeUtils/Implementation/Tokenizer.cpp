@@ -77,6 +77,20 @@ void ezTokenizer::AddToken()
 
 void ezTokenizer::Tokenize(ezArrayPtr<const ezUInt8> Data, ezLogInterface* pLog)
 {
+  if (Data.GetCount() >= 3)
+  {
+    const char* dataStart = reinterpret_cast<const char*>(Data.GetPtr());
+
+    if (ezUnicodeUtils::SkipUtf8Bom(dataStart))
+    {
+      ezLog::Error(pLog, "Data to tokenize contains a Utf-8 BOM.");
+
+      // although the tokenizer should get data without a BOM, it's easy enough to work around that here
+      // that's what the tokenizer does in other error cases as well - complain, but continue
+      Data = ezArrayPtr<const ezUInt8>((const ezUInt8*)dataStart, Data.GetCount() - 3);
+    }
+  }
+
   m_Data.Clear();
   m_Data.Reserve(m_Data.GetCount() + 1);
   m_Data = Data;
