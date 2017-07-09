@@ -8,6 +8,8 @@ EZ_IMPLEMENT_SINGLETON(ezMessageLoop);
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   #include <Foundation/Communication/Implementation/Win/MessageLoop_win.h>
+#else
+  #include <Foundation/Communication/Implementation/Mobile/MessageLoop_mobile.h>
 #endif
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, MessageLoop)
@@ -21,6 +23,8 @@ ON_CORE_STARTUP
 {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   EZ_DEFAULT_NEW(ezMessageLoop_win);
+#else
+  EZ_DEFAULT_NEW(ezMessageLoop_mobile);
 #endif
 }
 

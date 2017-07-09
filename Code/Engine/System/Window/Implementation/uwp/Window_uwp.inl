@@ -161,3 +161,10 @@ void ezWindow::ProcessWindowMessages()
     ezLog::Error("Window event processing failed with error code: {0}", result);
   }
 }
+
+void ezWindow::OnResizeMessage(const ezSizeU32& newWindowSize)
+{
+  ezLog::Info("Window resized to ({0}, {1})", newWindowSize.width, newWindowSize.height);
+}
+
+

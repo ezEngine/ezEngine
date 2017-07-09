@@ -29,6 +29,13 @@ void ezEngineProcessGameApplication::BeforeCoreStartup()
     ezEditorEngineProcessApp::GetSingleton()->m_Mode = ezEditorEngineProcessMode::Remote;
   }
 
+#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  {
+    // on all 'mobile' platforms, we assume we are in remote mode
+    ezEditorEngineProcessApp::GetSingleton()->m_Mode = ezEditorEngineProcessMode::Remote;
+  }
+#endif
+
   ezStartup::AddApplicationTag("editorengineprocess");
 
   // Make sure to disable the fileserve plugin
@@ -67,7 +74,7 @@ void ezEngineProcessGameApplication::ConnectToHost()
 
 void ezEngineProcessGameApplication::DisableErrorReport()
 {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   // Setting this flags prevents Windows from showing a dialog when the Engine process crashes
   // this also speeds up process termination significantly (down to less than a second)
   DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);

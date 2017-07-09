@@ -1,4 +1,4 @@
-
+﻿
 #include <PCH.h>
 #include <System/Window/Window.h>
 #include <Foundation/Math/Size.h>
@@ -133,4 +133,10 @@ ezResult ezWindow::DestroyGraphicsContext()
 
   return EZ_FAILURE;
 }
+
+void ezWindow::OnResizeMessage(const ezSizeU32& newWindowSize)
+{
+  ezLog::Info("Window resized to ({0}, {1})", newWindowSize.width, newWindowSize.height);
+}
+
 
