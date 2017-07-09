@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Platforms.h"
 #include "ConstantBufferMacros.h"
@@ -22,27 +22,16 @@
 
 CONSTANT_BUFFER(ezGlobalConstants, 0)
 {
-  /// \todo remove these and extract from CameraToWorldMatrix instead.
-  FLOAT3(CameraPosition);
-  FLOAT1(Padding1);
+  // Use functions from CameraConstantsAccess.h to access these and derived camera properties.
+  MAT4(CameraToScreenMatrix)[2];
+  MAT4(ScreenToCameraMatrix)[2];
+  MAT4(WorldToCameraMatrix)[2];
+  MAT4(CameraToWorldMatrix)[2];
+  MAT4(WorldToScreenMatrix)[2];
+  MAT4(ScreenToWorldMatrix)[2];
 
-  FLOAT3(CameraDirForwards);
-  FLOAT1(Padding2);
-
-  FLOAT3(CameraDirRight);
-  FLOAT1(Padding3);
-
-  FLOAT3(CameraDirUp);
-  FLOAT1(Padding4);
-
-  MAT4(CameraToScreenMatrix);
-  MAT4(ScreenToCameraMatrix);
-  MAT4(WorldToCameraMatrix);
-  MAT4(CameraToWorldMatrix);
-  MAT4(WorldToScreenMatrix);
-  MAT4(ScreenToWorldMatrix);
-  FLOAT4(ViewportSize); // x = width, y = height, z = 1 / width, w = 1 / height
-  FLOAT4(ClipPlanes); // x = near, y = far, z = 1 / far
+  FLOAT4(ViewportSize);   // x = width, y = height, z = 1 / width, w = 1 / height
+  FLOAT4(ClipPlanes);     // x = near, y = far, z = 1 / far
 
   FLOAT1(DeltaTime);
   FLOAT1(GlobalTime);
@@ -54,4 +43,4 @@ CONSTANT_BUFFER(ezGlobalConstants, 0)
   UINT1(NumMsaaSamples);
 };
 
-
+#include "CameraConstantsAccess.h"

@@ -90,14 +90,14 @@ VS_OUT main(uint VertexID : SV_VertexID)
     float3 avgDirection = positionN - positionP;
 
     float3 dirRight = mul(ObjectToWorldMatrix, float4(avgDirection, 0)).xyz;
-    float3 dirUp = normalize(cross(dirRight, CameraDirForwards)) * particle.Size;
+    float3 dirUp = normalize(cross(dirRight, GetCameraDirForwards())) * particle.Size;
 
     float4 offsetRight = float4(dirRight * texCoords[vertexSubIndex].x, 0);
     float4 offsetUp = float4(dirUp * (texCoords[vertexSubIndex].y - 0.5), 0);
 
     float4 position = mul(ObjectToWorldMatrix, float4(position0, 1)) + offsetUp;
 
-    ret.Position = mul(WorldToScreenMatrix, position);
+    ret.Position = mul(GetWorldToScreenMatrix(), position);
     ret.TexCoords.x = uvCoord;
     ret.TexCoords.y = texCoords[vertexSubIndex].y;
     ret.Color = RGBA8ToFloat4(particle.Color);

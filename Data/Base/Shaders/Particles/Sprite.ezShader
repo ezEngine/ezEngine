@@ -62,7 +62,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
   float4 offsetUp = tangentZ * (texCoords[vertexIndex].y - 0.5) * -particle.Size;
 
   float4 worldPosition = mul(ObjectToWorldMatrix, position + offsetRight + offsetUp);
-  float4 screenPosition = mul(WorldToScreenMatrix, worldPosition);
+  float4 screenPosition = mul(GetWorldToScreenMatrix(), worldPosition);
 
 
   VS_OUT ret;

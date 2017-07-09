@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <StochasticRendering/Basics.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
@@ -24,7 +24,7 @@ private:
   ezPassThroughNodePin m_PinSampleCount;
   ezPassThroughNodePin m_PinDepthStencil;
 
-  ezMat4 m_lastViewProjection;
+  ezMat4 m_lastViewProjection;  // Not stereo aware.
   ezGALBufferHandle m_randomNumberBuffer;
   ezDynamicArray<float> m_randomNumbers;
   ezRandom m_randomGenerator;

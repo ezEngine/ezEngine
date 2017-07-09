@@ -39,7 +39,7 @@ VS_OUT FillVertexData(VS_IN Input)
     Output.WorldPosition += GetWorldPositionOffset(Input, data, Output.WorldPosition);
   #endif
 
-  Output.Position = mul(WorldToScreenMatrix, float4(Output.WorldPosition, 1.0));
+  Output.Position = mul(GetWorldToScreenMatrix(), float4(Output.WorldPosition, 1.0));
 
   #if defined(USE_NORMAL)
     Output.Normal = normalize(mul(objectToWorldNormal, Input.Normal));

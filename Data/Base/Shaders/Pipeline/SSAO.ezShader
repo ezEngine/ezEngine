@@ -128,7 +128,7 @@ float4 main(PS_IN Input) : SV_Target
 
   float3 viewSpaceNormal = ReconstructNormal(Input.TexCoord0, centerDepth);
 
-  float2 invTanHalfFov = float2(CameraToScreenMatrix._11, CameraToScreenMatrix._22);
+  float2 invTanHalfFov = float2(GetCameraToScreenMatrix()._11, GetCameraToScreenMatrix()._22);
   float3 fovCorrection = float3(invTanHalfFov, 1);
   float3 invFovCorrection = 1.0f / fovCorrection;
 

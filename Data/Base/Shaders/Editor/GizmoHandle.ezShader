@@ -49,7 +49,7 @@ VS_OUT main(VS_IN Input)
 	float3 centerPosition = mul(ObjectToWorldMatrix, float4(0, 0, 0, 1)).xyz;
 
 	#if GIZMO_CONSTANT_SIZE == 1
-		float scale = length(centerPosition - CameraPosition) * GizmoScale;
+		float scale = length(centerPosition - GetCameraPosition()) * GizmoScale;
 	#else
 		float scale = 1.0f;
 	#endif
@@ -57,7 +57,7 @@ VS_OUT main(VS_IN Input)
 	float4 worldSpacePos = mul(ObjectToWorldMatrix, float4(Input.Position * scale, 1.0f));
 
 	VS_OUT RetVal;
-	RetVal.Position = mul(WorldToScreenMatrix, worldSpacePos);
+	RetVal.Position = mul(GetWorldToScreenMatrix(), worldSpacePos);
 	RetVal.Color =  GizmoColor;
 
 	return RetVal;

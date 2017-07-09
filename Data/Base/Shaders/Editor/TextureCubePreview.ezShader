@@ -45,7 +45,7 @@ SamplerState BaseTexture_AutoSampler;
 float4 SampleTexture(PS_IN Input)
 {
   float3 normal = normalize(Input.Normal);  
-  float3 dir = CubeMapDirection(reflect(CameraDirForwards, normal));
+  float3 dir = CubeMapDirection(reflect(GetCameraDirForwards(), normal));
   dir.x = -dir.x;
 
   if (LodLevel < 0)

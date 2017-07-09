@@ -28,7 +28,7 @@ VS_OUT main(VS_IN Input)
 	float4 worldSpacePos = mul(ObjectToWorldMatrix, float4(Input.Position, 1.0f));
 
 	VS_OUT RetVal;
-	RetVal.Position = mul(WorldToScreenMatrix, worldSpacePos);
+	RetVal.Position = mul(GetWorldToScreenMatrix(), worldSpacePos);
 	RetVal.Color = GizmoColor;
 
 	return RetVal;

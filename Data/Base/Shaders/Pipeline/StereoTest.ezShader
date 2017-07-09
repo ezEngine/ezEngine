@@ -35,6 +35,11 @@ struct PS_IN
 
 float4 main(PS_IN Input) : SV_Target
 {
+  float3 diff = abs(GetGetCameraPosition()() - CameraPosition);
+
+  return float4(diff.x, diff.y, diff.z, 1.0f)* 10000.0f;
+
+/*
   #if CAMERA_STEREO == TRUE
   if (Input.RenderTargetArrayIndex == 0)
     return float4(0.0f, 1.0f, 0.0f, 1.0f);
@@ -43,6 +48,8 @@ float4 main(PS_IN Input) : SV_Target
   #else
   return float4(1.0f, 0.0f, 0.0f, 1.0f);
   #endif
+
+*/
 }
 
 #endif

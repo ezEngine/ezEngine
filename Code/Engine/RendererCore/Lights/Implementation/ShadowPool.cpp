@@ -499,7 +499,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
       camera.SetCameraMode(ezCameraMode::OrthoFixedWidth, radius * 2.0f, 0.0f, fFarPlane);
 
       // stabilize
-      ezMat4 worldToLightMatrix = pView->GetViewMatrix();
+      ezMat4 worldToLightMatrix = pView->GetViewMatrix(ezCameraEye::Left);
       ezVec3 offset = worldToLightMatrix.TransformPosition(ezVec3::ZeroVector());
       float texelInWorld = (2.0f * radius) / s_uiShadowMapSize;
       offset.x -= ezMath::Floor(offset.x / texelInWorld) * texelInWorld;
@@ -772,13 +772,13 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
       ezUInt32 uiMatrixIndex = GET_WORLD_TO_LIGHT_MATRIX_INDEX(shadowData.m_uiPackedDataOffset, 0);
       ezMat4& worldToLightMatrix = *reinterpret_cast<ezMat4*>(&packedShadowData[uiMatrixIndex]);
 
-      worldToLightMatrix = shadowViews[0]->GetViewProjectionMatrix();
+      worldToLightMatrix = shadowViews[0]->GetViewProjectionMatrix(ezCameraEye::Left);
 
       for (ezUInt32 uiViewIndex = 0; uiViewIndex < uiNumCascades; ++uiViewIndex)
       {
         if (uiViewIndex >= 1)
         {
-          ezMat4 cascadeToWorldMatrix = shadowViews[uiViewIndex]->GetInverseViewProjectionMatrix();
+          ezMat4 cascadeToWorldMatrix = shadowViews[uiViewIndex]->GetInverseViewProjectionMatrix(ezCameraEye::Left);
           ezVec3 cascadeCorner = cascadeToWorldMatrix.TransformPosition(ezVec3(0.0f));
           cascadeCorner = worldToLightMatrix.TransformPosition(cascadeCorner);
 
@@ -903,7 +903,7 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
           atlasMatrix.SetTranslationVector(offset.GetAsVec3(0.0f));
 
           fov = pShadowView->GetCamera()->GetFovY(1.0f);
-          const ezMat4& viewProjection = pShadowView->GetViewProjectionMatrix();
+          const ezMat4& viewProjection = pShadowView->GetViewProjectionMatrix(ezCameraEye::Left);
 
           worldToLightMatrix = atlasMatrix * texMatrix * viewProjection;
         }

@@ -92,38 +92,38 @@ EZ_FORCE_INLINE ezResult ezView::ComputeScreenSpacePos(const ezVec3& vPoint, ezV
   return m_Data.ComputeScreenSpacePos(vPoint, out_vScreenPos);
 }
 
-EZ_ALWAYS_INLINE const ezMat4& ezView::GetProjectionMatrix() const
+EZ_ALWAYS_INLINE const ezMat4& ezView::GetProjectionMatrix(ezCameraEye eye) const
 {
   UpdateCachedMatrices();
-  return m_Data.m_ProjectionMatrix;
+  return m_Data.m_ProjectionMatrix[static_cast<int>(eye)];
 }
 
-EZ_ALWAYS_INLINE const ezMat4& ezView::GetInverseProjectionMatrix() const
+EZ_ALWAYS_INLINE const ezMat4& ezView::GetInverseProjectionMatrix(ezCameraEye eye) const
 {
   UpdateCachedMatrices();
-  return m_Data.m_InverseProjectionMatrix;
+  return m_Data.m_InverseProjectionMatrix[static_cast<int>(eye)];
 }
 
-EZ_ALWAYS_INLINE const ezMat4& ezView::GetViewMatrix() const
+EZ_ALWAYS_INLINE const ezMat4& ezView::GetViewMatrix(ezCameraEye eye) const
 {
   UpdateCachedMatrices();
-  return m_Data.m_ViewMatrix;
+  return m_Data.m_ViewMatrix[static_cast<int>(eye)];
 }
 
-EZ_ALWAYS_INLINE const ezMat4& ezView::GetInverseViewMatrix() const
+EZ_ALWAYS_INLINE const ezMat4& ezView::GetInverseViewMatrix(ezCameraEye eye) const
 {
   UpdateCachedMatrices();
-  return m_Data.m_InverseViewMatrix;
+  return m_Data.m_InverseViewMatrix[static_cast<int>(eye)];
 }
 
-EZ_ALWAYS_INLINE const ezMat4& ezView::GetViewProjectionMatrix() const
+EZ_ALWAYS_INLINE const ezMat4& ezView::GetViewProjectionMatrix(ezCameraEye eye) const
 {
   UpdateCachedMatrices();
-  return m_Data.m_ViewProjectionMatrix;
+  return m_Data.m_ViewProjectionMatrix[static_cast<int>(eye)];
 }
 
-EZ_ALWAYS_INLINE const ezMat4& ezView::GetInverseViewProjectionMatrix() const
+EZ_ALWAYS_INLINE const ezMat4& ezView::GetInverseViewProjectionMatrix(ezCameraEye eye) const
 {
   UpdateCachedMatrices();
-  return m_Data.m_InverseViewProjectionMatrix;
+  return m_Data.m_InverseViewProjectionMatrix[static_cast<int>(eye)];
 }

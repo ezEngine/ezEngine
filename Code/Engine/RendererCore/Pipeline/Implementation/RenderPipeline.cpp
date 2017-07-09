@@ -971,16 +971,15 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   const ezViewData* pViewData = &data.GetViewData();
 
   auto& gc = pRenderContext->WriteGlobalConstants();
-  gc.CameraPosition = pCamera->GetPosition();
-  gc.CameraDirForwards = pCamera->GetDirForwards();
-  gc.CameraDirRight = pCamera->GetDirRight();
-  gc.CameraDirUp = pCamera->GetDirUp();
-  gc.CameraToScreenMatrix = pViewData->m_ProjectionMatrix;
-  gc.ScreenToCameraMatrix = pViewData->m_InverseProjectionMatrix;
-  gc.WorldToCameraMatrix = pViewData->m_ViewMatrix;
-  gc.CameraToWorldMatrix = pViewData->m_InverseViewMatrix;
-  gc.WorldToScreenMatrix = pViewData->m_ViewProjectionMatrix;
-  gc.ScreenToWorldMatrix = pViewData->m_InverseViewProjectionMatrix;
+  for (int i = 0; i < 2; ++i)
+  {
+    gc.CameraToScreenMatrix[i] = pViewData->m_ProjectionMatrix[i];
+    gc.ScreenToCameraMatrix[i] = pViewData->m_InverseProjectionMatrix[i];
+    gc.WorldToCameraMatrix[i] = pViewData->m_ViewMatrix[i];
+    gc.CameraToWorldMatrix[i] = pViewData->m_InverseViewMatrix[i];
+    gc.WorldToScreenMatrix[i] = pViewData->m_ViewProjectionMatrix[i];
+    gc.ScreenToWorldMatrix[i] = pViewData->m_InverseViewProjectionMatrix[i];
+  }
 
   const ezRectFloat& viewport = pViewData->m_ViewPortRect;
   gc.ViewportSize = ezVec4(viewport.width, viewport.height, 1.0f / viewport.width, 1.0f / viewport.height);

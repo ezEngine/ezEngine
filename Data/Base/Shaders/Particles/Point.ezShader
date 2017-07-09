@@ -29,7 +29,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
   float4 position = float4(particle.Position.xyz, 1);
 
   float4 worldPosition = mul(ObjectToWorldMatrix, position);
-  float4 screenPosition = mul(WorldToScreenMatrix, worldPosition);
+  float4 screenPosition = mul(GetWorldToScreenMatrix(), worldPosition);
 
   VS_OUT ret;
   ret.Position = screenPosition;

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
@@ -390,7 +390,7 @@ void ezCameraComponent::ApplySettingsToView(ezView* pView) const
       ezMat4 viewMatrix;
       viewMatrix.SetLookAtMatrix(vPosition, vPosition + vForward, vUp);
 
-      ezMat4 projectionMatrix = pView->GetProjectionMatrix();
+      ezMat4 projectionMatrix = pView->GetProjectionMatrix(ezCameraEye::Left); // todo: Stereo support
       ezMat4 viewProjectionMatrix = projectionMatrix * viewMatrix;
 
       ezFrustum frustum;

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Threading/DelegateTask.h>
@@ -78,22 +78,22 @@ public:
   ezResult ComputeScreenSpacePos(const ezVec3& vPoint, ezVec3& out_vScreenPos) const;
 
   /// \brief Returns the current projection matrix.
-  const ezMat4& GetProjectionMatrix() const;
+  const ezMat4& GetProjectionMatrix(ezCameraEye eye) const;
 
   /// \brief Returns the current inverse projection matrix.
-  const ezMat4& GetInverseProjectionMatrix() const;
+  const ezMat4& GetInverseProjectionMatrix(ezCameraEye eye) const;
 
   /// \brief Returns the current view matrix (camera orientation).
-  const ezMat4& GetViewMatrix() const;
+  const ezMat4& GetViewMatrix(ezCameraEye eye) const;
 
   /// \brief Returns the current inverse view matrix (inverse camera orientation).
-  const ezMat4& GetInverseViewMatrix() const;
+  const ezMat4& GetInverseViewMatrix(ezCameraEye eye) const;
 
   /// \brief Returns the current view-projection matrix.
-  const ezMat4& GetViewProjectionMatrix() const;
+  const ezMat4& GetViewProjectionMatrix(ezCameraEye eye) const;
 
   /// \brief Returns the current inverse view-projection matrix.
-  const ezMat4& GetInverseViewProjectionMatrix() const;
+  const ezMat4& GetInverseViewProjectionMatrix(ezCameraEye eye) const;
 
   /// \brief Returns the frustum that should be used for determine visible objects for this view.
   void ComputeCullingFrustum(ezFrustum& out_Frustum) const;

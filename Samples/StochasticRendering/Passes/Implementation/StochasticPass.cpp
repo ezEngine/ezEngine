@@ -109,9 +109,9 @@ void ezStochasticPass::Execute(const ezRenderViewContext& renderViewContext, con
 
   renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
 
-  if (!m_lastViewProjection.IsIdentical(renderViewContext.m_pViewData->m_ViewProjectionMatrix))
+  if (!m_lastViewProjection.IsIdentical(renderViewContext.m_pViewData->m_ViewProjectionMatrix[0]))  // Not stereo aware.
   {
-    m_lastViewProjection = renderViewContext.m_pViewData->m_ViewProjectionMatrix;
+    m_lastViewProjection = renderViewContext.m_pViewData->m_ViewProjectionMatrix[0];
     pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f), 0x1, false, false); // Clear render target with index 0 to 0.0f
     pGALContext->Clear(ezColor(1.0f, 1.0f, 1.0f, 1.0f), 0x2, false, false); // Clear render target with index 1 to 1.0f
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("STOCHASTIC_INITIAL", "TRUE");

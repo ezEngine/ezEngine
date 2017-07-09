@@ -388,7 +388,7 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData)
 
 float3 ApplyFog(float3 color, float3 worldPosition)
 {
-  float distance = length(CameraPosition - worldPosition);
+  float distance = length(GetCameraPosition() - worldPosition);
   float amount = saturate(1.0f - exp(-distance*0.001));
   float3 fogColor = float3(0.5,0.6,0.7);
 

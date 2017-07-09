@@ -173,11 +173,13 @@ void ezView::UpdateCachedMatrices() const
     bUpdateVP = true;
     m_uiLastCameraOrientationModification = pCamera->GetOrientationModificationCounter();
 
-    m_Data.m_ViewMatrix = pCamera->GetViewMatrix();
+    m_Data.m_ViewMatrix[0] = pCamera->GetViewMatrix(ezCameraEye::Left);
+    m_Data.m_ViewMatrix[1] = pCamera->GetViewMatrix(ezCameraEye::Right);
 
     // Some of our matrices contain very small values so that the matrix inversion will fall below the default epsilon.
     // We pass zero as epsilon here since all view and projection matrices are invertible.
-    m_Data.m_InverseViewMatrix = m_Data.m_ViewMatrix.GetInverse(0.0f);
+    m_Data.m_InverseViewMatrix[0] = m_Data.m_ViewMatrix[0].GetInverse(0.0f);
+    m_Data.m_InverseViewMatrix[1] = m_Data.m_ViewMatrix[1].GetInverse(0.0f);
   }
 
   const float fViewportAspectRatio = m_Data.m_ViewPortRect.HasNonZeroArea() ? m_Data.m_ViewPortRect.width / m_Data.m_ViewPortRect.height : 1.0f;
@@ -188,14 +190,21 @@ void ezView::UpdateCachedMatrices() const
     m_uiLastCameraSettingsModification = pCamera->GetSettingsModificationCounter();
     m_fLastViewportAspectRatio = fViewportAspectRatio;
 
-    pCamera->GetProjectionMatrix(m_fLastViewportAspectRatio, m_Data.m_ProjectionMatrix);
-    m_Data.m_InverseProjectionMatrix = m_Data.m_ProjectionMatrix.GetInverse(0.0f);
+
+    pCamera->GetProjectionMatrix(m_fLastViewportAspectRatio, m_Data.m_ProjectionMatrix[0], ezCameraEye::Left);
+    m_Data.m_InverseProjectionMatrix[0] = m_Data.m_ProjectionMatrix[0].GetInverse(0.0f);
+
+    pCamera->GetProjectionMatrix(m_fLastViewportAspectRatio, m_Data.m_ProjectionMatrix[1], ezCameraEye::Right);
+    m_Data.m_InverseProjectionMatrix[1] = m_Data.m_ProjectionMatrix[1].GetInverse(0.0f);
   }
 
   if (bUpdateVP)
   {
-    m_Data.m_ViewProjectionMatrix = m_Data.m_ProjectionMatrix * m_Data.m_ViewMatrix;
-    m_Data.m_InverseViewProjectionMatrix = m_Data.m_ViewProjectionMatrix.GetInverse(0.0f);
+    for (int i = 0; i < 2; ++i)
+    {
+      m_Data.m_ViewProjectionMatrix[i] = m_Data.m_ProjectionMatrix[i] * m_Data.m_ViewMatrix[i];
+      m_Data.m_InverseViewProjectionMatrix[i] = m_Data.m_ViewProjectionMatrix[i].GetInverse(0.0f);
+    }
   }
 }
 

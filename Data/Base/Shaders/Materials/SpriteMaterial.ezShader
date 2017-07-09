@@ -59,10 +59,10 @@ VS_OUT main(uint VertexID : SV_VertexID)
 
 	SpriteData data = spriteData[index];
 	float3 worldPosition = data.worldSpacePosition;
-	float4 screenPosition = mul(WorldToScreenMatrix, float4(worldPosition, 1.0));
+	float4 screenPosition = mul(GetWorldToScreenMatrix(), float4(worldPosition, 1.0));
 
 	float distance = screenPosition.w;
-	float2 scale = mul(CameraToScreenMatrix, float4(1.0, 1.0, distance, 1.0)).xy;
+	float2 scale = mul(GetCameraToScreenMatrix(), float4(1.0, 1.0, distance, 1.0)).xy;
 
 	float2 size = RG16FToFloat2(data.size);
 	scale *= size.x;
