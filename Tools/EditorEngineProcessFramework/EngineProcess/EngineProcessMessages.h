@@ -154,14 +154,21 @@ public:
   ezString m_sDocumentType;
 };
 
+/// \brief Used to reset the engine side to an empty document before sending the full document state over
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezDocumentClearMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentClearMsgToEngine, ezEditorEngineDocumentMsg);
+
+public:
+  ezDocumentClearMsgToEngine() {}
+};
+
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezDocumentOpenResponseMsgToEditor : public ezEditorEngineDocumentMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDocumentOpenResponseMsgToEditor, ezEditorEngineDocumentMsg);
 
 public:
-  ezDocumentOpenResponseMsgToEditor()
-  {
-  }
+  ezDocumentOpenResponseMsgToEditor() {}
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewDestroyedMsgToEngine : public ezEditorEngineViewMsg

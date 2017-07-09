@@ -31,7 +31,12 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPAR
       {
         ezSizeU32 size(LOWORD(LParam), HIWORD(LParam));
         pWindow->OnResizeMessage(size);
-        ezLog::Info("Window resized to ({0}, {1})", size.width, size.height);
+      }
+      break;
+
+    case WM_MOVE:
+      {
+        pWindow->OnWindowMoveMessage((int)(short)LOWORD(LParam), (int)(short)HIWORD(LParam));
       }
       break;
     }
@@ -254,3 +259,10 @@ void ezWindow::ProcessWindowMessages()
     DispatchMessageW(&msg);
   }
 }
+
+void ezWindow::OnResizeMessage(const ezSizeU32& newWindowSize)
+{
+  ezLog::Info("Window resized to ({0}, {1})", newWindowSize.width, newWindowSize.height);
+}
+
+

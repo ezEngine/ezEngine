@@ -56,7 +56,7 @@ ezResult ezEngineProcessCommunicationChannel::ConnectToHostProcess()
   }
   else
   {
-    m_pChannel = ezIpcChannel::CreateNetworkChannel("localhost:1050", ezIpcChannel::Mode::Client);
+    m_pChannel = ezIpcChannel::CreateNetworkChannel("localhost:1050", ezIpcChannel::Mode::Server);
 
   }
 

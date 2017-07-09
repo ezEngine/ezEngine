@@ -143,6 +143,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentOpenMsgToEngine, 1, ezRTTIDefaultAlloc
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentClearMsgToEngine, 1, ezRTTIDefaultAllocator<ezDocumentClearMsgToEngine>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentOpenResponseMsgToEditor, 1, ezRTTIDefaultAllocator<ezDocumentOpenResponseMsgToEditor> )
 EZ_END_DYNAMIC_REFLECTED_TYPE
 

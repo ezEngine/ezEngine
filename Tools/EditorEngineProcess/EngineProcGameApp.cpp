@@ -298,6 +298,13 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     return;
   }
 
+  if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentClearMsgToEngine>())
+  {
+    ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(pDocMsg->m_DocumentGuid);
+    pDocumentContext->Reset();
+    return;
+  }
+
   // can be null if the asset was deleted on disk manually
   if (pDocumentContext)
   {

@@ -222,7 +222,10 @@ public:
   /// \param newWindowSize
   ///   New window size in pixel.
   /// \see OnWindowMessage
-  virtual void OnResizeMessage(const ezSizeU32& newWindowSize) {}
+  virtual void OnResizeMessage(const ezSizeU32& newWindowSize);
+
+  /// \brief Called when the window position is changed. Not possible on all OSes.
+  virtual void OnWindowMoveMessage(const ezInt32 newPosX, const ezInt32 newPosY) {}
 
   /// \brief Called when the window gets focus or loses focus.
   virtual void OnFocusMessage(bool bHasFocus) {}

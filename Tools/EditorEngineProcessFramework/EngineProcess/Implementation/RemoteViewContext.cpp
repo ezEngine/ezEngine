@@ -10,7 +10,9 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 
-ezUniquePtr<ezWindow> ezRemoteEngineProcessViewContext::s_pCustomWindow;
+ezUniquePtr<ezRemoteProcessWindow> ezRemoteEngineProcessViewContext::s_pCustomWindow;
+ezVec2I32 ezRemoteEngineProcessViewContext::s_WindowPosition(-1, -1);
+
 ezViewHandle ezRemoteEngineProcessViewContext::s_hView;
 ezUInt32 ezRemoteEngineProcessViewContext::s_uiActiveViewID = 0;
 ezInt32 ezRemoteEngineProcessViewContext::s_iWindowReferences = 0;
@@ -39,7 +41,7 @@ void ezRemoteEngineProcessViewContext::CreateWindowAndView()
   if (s_pCustomWindow != nullptr)
     return;
 
-  s_pCustomWindow = EZ_DEFAULT_NEW(ezWindow);
+  s_pCustomWindow = EZ_DEFAULT_NEW(ezRemoteProcessWindow);
 
   ezWindowCreationDesc desc;
   desc.m_uiWindowNumber = 0;
@@ -48,7 +50,15 @@ void ezRemoteEngineProcessViewContext::CreateWindowAndView()
   desc.m_Resolution = ezSizeU32(600, 600);
   desc.m_WindowMode = ezWindowMode::WindowFixedResolution;
   desc.m_Title = "Engine View";
+
+  if (s_WindowPosition.x != -1)
+  {
+    desc.m_Position = s_WindowPosition;
+  }
+
   s_pCustomWindow->Initialize(desc);
+  s_pCustomWindow->m_iWindowPosX = desc.m_Position.x;
+  s_pCustomWindow->m_iWindowPosY = desc.m_Position.y;
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
@@ -89,6 +99,8 @@ void ezRemoteEngineProcessViewContext::DestroyWindowAndView()
 
   if (s_pCustomWindow->IsInitialized())
   {
+    s_WindowPosition.Set(s_pCustomWindow->m_iWindowPosX, s_pCustomWindow->m_iWindowPosY);
+
     static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->RemoveWindow(s_pCustomWindow.Borrow());
 
     s_pCustomWindow.Reset();
@@ -133,4 +145,10 @@ ezViewHandle ezRemoteEngineProcessViewContext::CreateView()
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
   return ezViewHandle();
+}
+
+void ezRemoteProcessWindow::OnWindowMoveMessage(const ezInt32 newPosX, const ezInt32 newPosY)
+{
+  m_iWindowPosX = newPosX;
+  m_iWindowPosY = newPosY;
 }

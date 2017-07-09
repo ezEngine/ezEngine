@@ -28,7 +28,7 @@ ezResult ezEditorProcessCommunicationChannel::StartClientProcess(const char* szP
 
   if (bRemote)
   {
-    m_pChannel = ezIpcChannel::CreateNetworkChannel("localhost:1050", ezIpcChannel::Mode::Server);
+    m_pChannel = ezIpcChannel::CreateNetworkChannel("localhost:1050", ezIpcChannel::Mode::Client);
   }
   else
   {
