@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="EditorFramework">
+    <file>Icons/Connection16.png</file>
     <file>Icons/Tag16.png</file>
     <file>Icons/Perspective.png</file>
     <file>Icons/RenderMode.png</file>
@@ -26,8 +27,8 @@
     <file>Icons/AssetMissingDependency16.png</file>
     <file>Icons/AssetMissingReference16.png</file>
     <file>Icons/AssetFailedTransform16.png</file>
-	<file>Icons/WindowConfig16.png</file>
-	<file>Icons/SwitchToRemoteProcess16.png</file>
+    <file>Icons/WindowConfig16.png</file>
+    <file>Icons/SwitchToRemoteProcess16.png</file>
   </qresource>
   <qresource prefix="AssetIcons">
     <file>All.png</file>

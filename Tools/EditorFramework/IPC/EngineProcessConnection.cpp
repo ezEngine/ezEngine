@@ -8,6 +8,7 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/Dialogs/RemoteConnectionDlg.moc.h>
 
 EZ_IMPLEMENT_SINGLETON(ezEditorEngineProcessConnection);
 
@@ -124,7 +125,8 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
 void ezEditorEngineProcessConnection::ActivateRemoteProcess(const ezDocument* pDocument, ezUInt32 uiViewID)
 {
   // make sure process is started
-  StartRemoteProcess();
+  if (!ConnectToRemoteProcess())
+    return;
 
   // resend entire document
   {
@@ -155,22 +157,23 @@ void ezEditorEngineProcessConnection::ActivateRemoteProcess(const ezDocument* pD
   }
 }
 
-void ezEditorEngineProcessConnection::StartRemoteProcess()
+bool ezEditorEngineProcessConnection::ConnectToRemoteProcess()
 {
   if (m_pRemoteProcess != nullptr)
   {
     //if (m_pRemoteProcess->IsClientAlive())
-      return;
+      return true;
 
     //ShutdownRemoteProcess();
   }
 
-  m_pRemoteProcess = EZ_DEFAULT_NEW(ezEditorProcessCommunicationChannel);
+  ezQtRemoteConnectionDlg dlg(QApplication::activeWindow());
 
-  QStringList args;
-  args << "-remote";
+  if (dlg.exec() == QDialog::Rejected)
+    return false;
 
-  m_pRemoteProcess->StartClientProcess("EditorEngineProcess.exe", args, true, nullptr);
+  m_pRemoteProcess = EZ_DEFAULT_NEW(ezEditorProcessRemoteCommunicationChannel);
+  m_pRemoteProcess->ConnectToServer(dlg.GetResultingAddress().toUtf8().data());
 
   // Send project setup.
   {
@@ -181,6 +184,8 @@ void ezEditorEngineProcessConnection::StartRemoteProcess()
 
     m_pRemoteProcess->SendMessage(&msg);
   }
+
+  return true;
 }
 
 

@@ -91,7 +91,7 @@ public:
 private:
   void Initialize(const ezRTTI* pFirstAllowedMessageType);
   void HandleIPCEvent(const ezProcessCommunicationChannel::Event& e);
-  void StartRemoteProcess();
+  bool ConnectToRemoteProcess();
   void ShutdownRemoteProcess();
 
   bool m_bProcessShouldWaitForDebugger;
@@ -99,7 +99,7 @@ private:
   bool m_bProcessCrashed;
   bool m_bClientIsConfigured;
   ezEditorProcessCommunicationChannel m_IPC;
-  ezUniquePtr<ezEditorProcessCommunicationChannel> m_pRemoteProcess;
+  ezUniquePtr<ezEditorProcessRemoteCommunicationChannel> m_pRemoteProcess;
   ezApplicationFileSystemConfig m_FileSystemConfig;
   ezApplicationPluginConfig m_PluginConfig;
   ezHashTable<ezUuid, ezAssetDocument*> m_DocumentByGuid;

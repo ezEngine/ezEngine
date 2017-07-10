@@ -101,3 +101,32 @@ void ezEditorProcessCommunicationChannel::CloseConnection()
     m_pClientProcess = nullptr;
   }
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+ezResult ezEditorProcessRemoteCommunicationChannel::ConnectToServer(const char* szAddress)
+{
+  EZ_LOG_BLOCK("ezEditorProcessRemoteCommunicationChannel::ConnectToServer");
+
+  EZ_ASSERT_DEV(m_pChannel == nullptr, "ProcessCommunication object already in use");
+
+  m_pFirstAllowedMessageType = nullptr;
+
+  m_pChannel = ezIpcChannel::CreateNetworkChannel(szAddress, ezIpcChannel::Mode::Client);
+
+  m_pChannel->m_MessageEvent.AddEventHandler(ezMakeDelegate(&ezProcessCommunicationChannel::MessageFunc, this));
+  m_pChannel->Connect();
+
+  return EZ_SUCCESS;
+}
+
+//bool ezEditorProcessRemoteCommunicationChannel::IsConnected() const
+//{
+//
+//}
+
+void ezEditorProcessRemoteCommunicationChannel::CloseConnection()
+{
+  EZ_DEFAULT_DELETE(m_pChannel);
+}
+

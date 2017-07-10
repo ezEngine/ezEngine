@@ -19,3 +19,16 @@ private:
   QProcess* m_pClientProcess = nullptr;
 };
 
+class EZ_EDITORFRAMEWORK_DLL ezEditorProcessRemoteCommunicationChannel : public ezProcessCommunicationChannel
+{
+public:
+  ezResult ConnectToServer(const char* szAddress);
+
+  //bool IsConnected() const;
+
+  void CloseConnection();
+
+private:
+
+};
+
