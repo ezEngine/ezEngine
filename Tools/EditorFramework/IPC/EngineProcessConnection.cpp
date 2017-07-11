@@ -9,6 +9,8 @@
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/Dialogs/RemoteConnectionDlg.moc.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <QProcess>
 
 EZ_IMPLEMENT_SINGLETON(ezEditorEngineProcessConnection);
 
@@ -168,9 +170,15 @@ bool ezEditorEngineProcessConnection::ConnectToRemoteProcess()
   }
 
   ezQtRemoteConnectionDlg dlg(QApplication::activeWindow());
+  dlg.m_sFileserveCmdLine = BuildFileserveCommandLine();
 
   if (dlg.exec() == QDialog::Rejected)
     return false;
+
+  if (dlg.m_bLaunchFileserve)
+  {
+    RunFileserve();
+  }
 
   m_pRemoteProcess = EZ_DEFAULT_NEW(ezEditorProcessRemoteCommunicationChannel);
   m_pRemoteProcess->ConnectToServer(dlg.GetResultingAddress().toUtf8().data());
@@ -350,5 +358,29 @@ void ezEditorEngineConnection::SendHighlightObjectMessage(ezViewHighlightMsgToEn
 
   LastHighlightGuid = pMessage->m_HighlightObject;
   SendMessage(pMessage);
+}
+
+
+ezString ezEditorEngineProcessConnection::BuildFileserveCommandLine() const
+{
+  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("Fileserve.exe");
+  const ezStringBuilder sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
+  ezStringBuilder params;
+
+  ezStringBuilder cmd;
+  cmd.Set(sToolPath, " -specialdirs project \"", sProjectDir, "\" -fs_start");
+
+  return cmd;
+}
+
+void ezEditorEngineProcessConnection::RunFileserve()
+{
+  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("Fileserve.exe");
+  const ezStringBuilder sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
+
+  QStringList args;
+  args << "-specialdirs" << "project" << sProjectDir.GetData() << "-fs_start";
+
+  QProcess::startDetached(sToolPath.GetData(), args);
 }
 

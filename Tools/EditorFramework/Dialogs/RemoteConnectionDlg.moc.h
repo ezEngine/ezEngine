@@ -24,6 +24,7 @@ public:
   ~ezQtRemoteConnectionDlg();
 
   bool m_bLaunchFileserve = true;
+  ezString m_sFileserveCmdLine;
   Address m_UsedAddress;
 
   QString GetResultingAddress() const;

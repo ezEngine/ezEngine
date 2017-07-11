@@ -9,7 +9,6 @@
 #include <Foundation/Image/ImageConversion.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Core/Assets/AssetFileHeader.h>
-#include <QProcess>
 #include <QStringList>
 #include <QTextStream>
 #include <Foundation/IO/OSFile.h>

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
@@ -7,10 +7,8 @@
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <Foundation/IO/OSFile.h>
-#include <QProcess>
-#include <QDir>
-#include <QClipboard>
 #include <QMimeData>
+#include <QClipboard>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE

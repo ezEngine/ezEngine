@@ -105,6 +105,8 @@ void ezQtRemoteConnectionDlg::showEvent(QShowEvent* event)
     }
   }
 
+  EditFileserve->setText(m_sFileserveCmdLine.GetData());
+
   QDialog::showEvent(event);
 }
 
