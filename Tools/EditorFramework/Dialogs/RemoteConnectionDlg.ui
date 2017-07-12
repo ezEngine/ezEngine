@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>267</width>
-    <height>215</height>
+    <width>297</width>
+    <height>268</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -32,8 +32,11 @@
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <widget class="QLabel" name="label">
+     <property name="toolTip">
+      <string>The IP address of the device on which the remote engine process is running.</string>
+     </property>
      <property name="text">
-      <string>IP Address:</string>
+      <string>Device IP Address:</string>
      </property>
     </widget>
    </item>
@@ -178,6 +181,16 @@
     </spacer>
    </item>
    <item>
+    <widget class="QCheckBox" name="CheckboxFileserve">
+     <property name="toolTip">
+      <string>Starts the file server automatically with the command line that is shown below.</string>
+     </property>
+     <property name="text">
+      <string>Launch Fileserve</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QLabel" name="LabelFileserveCmd">
      <property name="text">
       <string>Fileserve Command Line:</string>
@@ -186,16 +199,146 @@
    </item>
    <item>
     <widget class="QLineEdit" name="EditFileserve">
+     <property name="toolTip">
+      <string>The command line used to launch the file server. Can be copied to create a custom shortcut.</string>
+     </property>
      <property name="readOnly">
       <bool>true</bool>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="CheckboxFileserve">
-     <property name="text">
-      <string>Launch Fileserve</string>
+    <widget class="QLabel" name="LabelFileserveCmd_2">
+     <property name="toolTip">
+      <string>The IP address that the remote engine process should use to connect to the file server. Typically the IP through which the device can reach this PC.</string>
      </property>
+     <property name="text">
+      <string>File Server IP Address:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="frame_2">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>350</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <property name="spacing">
+       <number>2</number>
+      </property>
+      <property name="leftMargin">
+       <number>2</number>
+      </property>
+      <property name="topMargin">
+       <number>2</number>
+      </property>
+      <property name="rightMargin">
+       <number>2</number>
+      </property>
+      <property name="bottomMargin">
+       <number>2</number>
+      </property>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QLineEdit" name="FsIP1">
+          <property name="inputMask">
+           <string>000</string>
+          </property>
+          <property name="maxLength">
+           <number>3</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>.</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="FsIP2">
+          <property name="inputMask">
+           <string>000</string>
+          </property>
+          <property name="maxLength">
+           <number>3</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>.</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="FsIP3">
+          <property name="inputMask">
+           <string>000</string>
+          </property>
+          <property name="maxLength">
+           <number>3</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>.</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="FsIP4">
+          <property name="inputMask">
+           <string>000</string>
+          </property>
+          <property name="maxLength">
+           <number>3</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="LabelPort_2">
+          <property name="text">
+           <string>:1042</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="RecentFsIPs">
+          <property name="text">
+           <string>...</string>
+          </property>
+          <property name="popupMode">
+           <enum>QToolButton::InstantPopup</enum>
+          </property>
+          <property name="arrowType">
+           <enum>Qt::DownArrow</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>

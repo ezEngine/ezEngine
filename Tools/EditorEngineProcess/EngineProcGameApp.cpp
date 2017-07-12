@@ -222,6 +222,14 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     m_CustomFileSystemConfig = pSetupMsgNonConst->m_FileSystemConfig;
     m_CustomPluginConfig = pSetupMsgNonConst->m_PluginConfig;
 
+    if (!pSetupMsg->m_sFileserveAddress.IsEmpty())
+    {
+      // we have no link dependency on the fileserve plugin here, it might not be loaded (yet / at all)
+      // but we can pass the address to the command line, then it will pick it up, if necessary
+      ezStringBuilder arg("-fs_server ", pSetupMsg->m_sFileserveAddress);
+      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument(arg);
+    }
+
     // now that we know which project to initialize, do the delayed project setup
     {
       DoProjectSetup();

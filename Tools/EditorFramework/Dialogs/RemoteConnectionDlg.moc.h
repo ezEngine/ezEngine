@@ -3,6 +3,7 @@
 #include <EditorFramework/Plugin.h>
 #include <QDialog>
 #include <Tools/EditorFramework/ui_RemoteConnectionDlg.h>
+#include <Foundation/Strings/String.h>
 
 class EZ_EDITORFRAMEWORK_DLL ezQtRemoteConnectionDlg : public QDialog, public Ui_ezQtRemoteConnectionDlg
 {
@@ -26,19 +27,24 @@ public:
   bool m_bLaunchFileserve = true;
   ezString m_sFileserveCmdLine;
   Address m_UsedAddress;
+  Address m_UsedFsAddress;
 
   QString GetResultingAddress() const;
+  QString GetResultingFsAddress() const;
 
 private slots:
   void on_ButtonConnect_clicked();
   void on_RecentIP_selected();
+  void on_RecentFsIP_selected();
 
 private:
   Address m_RecentAddresses[5];
+  Address m_RecentFsAddresses[5];
 
   virtual void showEvent(QShowEvent* event) override;
-  void AddToRecentAddresses(const Address& addr);
+  void AddToRecentAddresses(Address* pRecentAddresses, const Address& addr);
   void SetCurrentIP(const Address& addr);
+  void SetCurrentFsIP(const Address& addr);
 };
 
 

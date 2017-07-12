@@ -189,6 +189,7 @@ bool ezEditorEngineProcessConnection::ConnectToRemoteProcess()
     msg.m_sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory(); /// \todo This won't work on remote devices
     msg.m_FileSystemConfig = m_FileSystemConfig;
     msg.m_PluginConfig = m_PluginConfig;
+    msg.m_sFileserveAddress = dlg.GetResultingFsAddress().toUtf8().data();
 
     m_pRemoteProcess->SendMessage(&msg);
   }

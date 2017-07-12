@@ -61,6 +61,7 @@ public:
   ezString m_sProjectDir;
   ezApplicationFileSystemConfig m_FileSystemConfig;
   ezApplicationPluginConfig m_PluginConfig;
+  ezString m_sFileserveAddress; ///< Optionally used for remote processes to tell them with which IP address to connect to the host
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezProjectReadyMsgToEditor : public ezEditorEngineMsg
