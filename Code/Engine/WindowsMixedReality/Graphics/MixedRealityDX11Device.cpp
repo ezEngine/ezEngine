@@ -3,10 +3,14 @@
 #include <WindowsMixedReality/Graphics/MixedRealitySwapChainDX11.h>
 #include <WindowsMixedReality/HolographicSpace.h>
 
+#include <RendererDX11/Context/ContextDX11.h>
+#include <RendererDX11/Resources/RenderTargetViewDX11.h>
+
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Resources/Texture.h>
 
 #include <d3d11.h>
+#include <d3d11_1.h>
 #include <dxgi1_4.h>
 #include <windows.graphics.holographic.h>
 #pragma warning (push)
@@ -178,9 +182,36 @@ void ezGALMixedRealityDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain)
 
   // Discard the contents of the render target.
   // This is a valid operation only when the existing contents will be entirely overwritten. If dirty or scroll rects are used, this call should be removed.
-  // TODO
+  {
+    ID3D11DeviceContext* deviceContext = static_cast<ezGALContextDX11*>(GetPrimaryContext())->GetDXContext();
+    ID3D11DeviceContext1* deviceContext1 = nullptr;
+    if (FAILED(deviceContext->QueryInterface(&deviceContext1)))
+    {
+      ezLog::Error("Failed to query ID3D11DeviceContext1.");
+      return;
+    }
+
+    auto backBuffer = pSwapChain->GetBackBufferTexture();
+    if (!backBuffer.IsInvalidated())
+    {
+      const ezGALRenderTargetViewDX11* renderTargetView = static_cast<const ezGALRenderTargetViewDX11*>(GetRenderTargetView(GetDefaultRenderTargetView(backBuffer)));
+      if (renderTargetView)
+      {
+        deviceContext1->DiscardView(renderTargetView->GetRenderTargetView());
+      }
+    }
+  }
+
+  // Apparently this is using a DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL in the background, so we need to force rebinding the render target to avoid this error:
+  //
+  // D3D11 WARNING: ID3D11DeviceContext::Draw: The Pixel Shader expects a Render Target View bound to slot 0, but the Render Target View was unbound during a call to Present.
+  // A successful Present call for DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL SwapChains unbinds backbuffer 0 from all GPU writeable bind points.
+  // [ EXECUTION WARNING #3146082: DEVICE_DRAW_RENDERTARGETVIEW_NOT_SET_DUE_TO_FLIP_PRESENT]
+  //
+  GetPrimaryContext()->SetRenderTargetSetup(ezGALRenderTagetSetup());
 
 
+  // Device lost can occur!
   if (presentResult == ABI::Windows::Graphics::Holographic::HolographicFramePresentResult_DeviceRemoved)
   {
     // TODO: DEVICE LOST.
