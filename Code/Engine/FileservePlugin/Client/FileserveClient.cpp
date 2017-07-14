@@ -17,6 +17,11 @@ ezFileserveClient::ezFileserveClient()
   : m_SingletonRegistrar(this)
 {
   ezStringBuilder sFallback = "localhost:1042";
+
+  // You can hardcode an IP address here to begin searching with, if you need to test something
+  // Do not forget to append the port 1042 though!
+  sFallback = "169.254.80.80:1042";
+
   ezStringBuilder sSearch = ezOSFile::GetUserDataFolder("ezFileserve.txt");
 
   // first try the user directory
@@ -31,10 +36,6 @@ ezFileserveClient::ezFileserveClient()
 
   // command line always has higher priority
   m_sServerConnectionAddress = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-fs_server", 0, sFallback);
-
-  // You can hardcode an IP address here to begin searching with, if you need to test something
-  // Do not forget to append the port 1042 though!
-  //m_sServerConnectionAddress = "169.254.80.80:1042";
 
   if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-fs_off"))
     s_bEnableFileserve = false;

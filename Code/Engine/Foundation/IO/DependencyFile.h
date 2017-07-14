@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/IO/Stream.h>
@@ -44,10 +44,11 @@ public:
   void StoreCurrentTimeStamp();
 
 private:
-  ezResult RetrieveFileTimeStamp(const char* szFile, ezTimestamp& out_Result);
+  static ezResult RetrieveFileTimeStamp(const char* szFile, ezTimestamp& out_Result);
 
   ezHybridArray<ezString, 16> m_AssetTransformDependencies;
-  ezInt64 m_iMaxTimeStampStored;
+  ezInt64 m_iMaxTimeStampStored = 0;
+  ezUInt64 m_uiSumTimeStampStored = 0;
 
   struct FileCheckCache
   {

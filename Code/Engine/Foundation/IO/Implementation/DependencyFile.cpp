@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/IO/DependencyFile.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -9,6 +9,7 @@ enum class ezDependencyFileVersion : ezUInt8
 {
   Version0 = 0,
   Version1,
+  Version2, ///< added 'sum' time
 
   ENUM_COUNT,
   Current = ENUM_COUNT - 1,
@@ -24,6 +25,7 @@ ezDependencyFile::ezDependencyFile()
 void ezDependencyFile::Clear()
 {
   m_iMaxTimeStampStored = 0;
+  m_uiSumTimeStampStored = 0;
   m_AssetTransformDependencies.Clear();
 }
 
@@ -40,6 +42,7 @@ void ezDependencyFile::StoreCurrentTimeStamp()
   EZ_LOG_BLOCK("ezDependencyFile::StoreCurrentTimeStamp");
 
   m_iMaxTimeStampStored = 0;
+  m_uiSumTimeStampStored = 0;
 
 #if EZ_DISABLED(EZ_SUPPORTS_FILE_STATS)
   ezLog::Warning("Trying to retrieve file time stamps on a platform that does not support it");
@@ -52,7 +55,9 @@ void ezDependencyFile::StoreCurrentTimeStamp()
     if (RetrieveFileTimeStamp(sFile, ts).Failed())
       continue;
 
-    m_iMaxTimeStampStored = ezMath::Max<ezInt64>(m_iMaxTimeStampStored, ts.GetInt64(ezSIUnitOfTime::Second));
+    const ezInt64 time = ts.GetInt64(ezSIUnitOfTime::Second);
+    m_iMaxTimeStampStored = ezMath::Max<ezInt64>(m_iMaxTimeStampStored, time);
+    m_uiSumTimeStampStored += (ezUInt64)time;
   }
 }
 
@@ -63,17 +68,29 @@ bool ezDependencyFile::HasAnyFileChanged()
   return true;
 #endif
 
+  ezUInt64 uiSumTs = 0;
+
   for (const auto& sFile : m_AssetTransformDependencies)
   {
     ezTimestamp ts;
     if (RetrieveFileTimeStamp(sFile, ts).Failed())
       continue;
 
-    if (ts.GetInt64(ezSIUnitOfTime::Second) > m_iMaxTimeStampStored)
+    const ezInt64 time = ts.GetInt64(ezSIUnitOfTime::Second);
+
+    if (time > m_iMaxTimeStampStored)
     {
       ezLog::Dev("Detected file change in '{0}' (TimeStamp {1} > MaxTimeStamp {2})", sFile, ts.GetInt64(ezSIUnitOfTime::Second), m_iMaxTimeStampStored);
       return true;
     }
+
+    uiSumTs += (ezUInt64)time;
+  }
+
+  if (uiSumTs != m_uiSumTimeStampStored)
+  {
+    ezLog::Dev("Detected file change, but exact file is not known.");
+    return true;
   }
 
   return false;
@@ -84,6 +101,7 @@ ezResult ezDependencyFile::WriteDependencyFile(ezStreamWriter& stream) const
   stream << (ezUInt8) ezDependencyFileVersion::Current;
 
   stream << m_iMaxTimeStampStored;
+  stream << m_uiSumTimeStampStored;
   stream << m_AssetTransformDependencies.GetCount();
 
   for (const auto& sFile : m_AssetTransformDependencies)
@@ -97,7 +115,7 @@ ezResult ezDependencyFile::ReadDependencyFile(ezStreamReader& stream)
   ezUInt8 uiVersion = (ezUInt8) ezDependencyFileVersion::Version0;
   stream >> uiVersion;
 
-  if (uiVersion != (ezUInt8) ezDependencyFileVersion::Version1)
+  if (uiVersion > (ezUInt8) ezDependencyFileVersion::Current)
   {
     ezLog::Error("Dependency file has incorrect file version ({0})", uiVersion);
     return EZ_FAILURE;
@@ -106,6 +124,11 @@ ezResult ezDependencyFile::ReadDependencyFile(ezStreamReader& stream)
   EZ_ASSERT_DEV(uiVersion <= (ezUInt8) ezDependencyFileVersion::Current, "Invalid file version {0}", uiVersion);
 
   stream >> m_iMaxTimeStampStored;
+
+  if (uiVersion >= (ezUInt8)ezDependencyFileVersion::Version2)
+  {
+    stream >> m_uiSumTimeStampStored;
+  }
 
   ezUInt32 count = 0;
   stream >> count;
