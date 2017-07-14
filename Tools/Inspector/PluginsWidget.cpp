@@ -60,7 +60,7 @@ void ezQtPluginsWidget::UpdatePlugins()
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TablePlugins->setCellWidget(iRow, 0, pIcon);
 
-      sTemp.Format("  {0}  ", it.Key().GetData());
+      sTemp.Format("  {0}  ", it.Key());
       TablePlugins->setCellWidget(iRow, 1, new QLabel(sTemp.GetData()));
 
       if (it.Value().m_bReloadable)

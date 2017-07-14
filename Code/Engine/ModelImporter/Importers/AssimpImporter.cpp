@@ -182,7 +182,7 @@ namespace ezModelImporter
         vertexDataStreams.PushBack(colors);
 
         if (assimpMesh->GetNumColorChannels() > 1)
-          ezLog::Warning("Mesh '{0}' in '{1}' has {2} sets of vertex colors, only the first set will be imported!", mesh->m_Name.GetData(), szFileName, assimpMesh->GetNumColorChannels());
+          ezLog::Warning("Mesh '{0}' in '{1}' has {2} sets of vertex colors, only the first set will be imported!", mesh->m_Name, szFileName, assimpMesh->GetNumColorChannels());
       }
       if (assimpMesh->HasTangentsAndBitangents())
       {
@@ -214,7 +214,7 @@ namespace ezModelImporter
       if (assimpMesh->HasBones())
       {
         /// \todo import animation data
-        ezLog::Warning("Mesh '{0}' in '{1}' has bone animation data. This is not yet supported and won't be imported.", mesh->m_Name.GetData(), szFileName);
+        ezLog::Warning("Mesh '{0}' in '{1}' has bone animation data. This is not yet supported and won't be imported.", mesh->m_Name, szFileName);
       }
 
       // Triangles/Indices
@@ -234,7 +234,7 @@ namespace ezModelImporter
 
       // Material - an assimp mesh uses only a single material!
       if (assimpMesh->mMaterialIndex >= materialHandles.GetCount())
-        ezLog::Warning("Mesh '{0}' in '{1}' points to material {2}, but there are only {3} materials.", mesh->m_Name.GetData(), szFileName, assimpMesh->mMaterialIndex, materialHandles.GetCount());
+        ezLog::Warning("Mesh '{0}' in '{1}' points to material {2}, but there are only {3} materials.", mesh->m_Name, szFileName, assimpMesh->mMaterialIndex, materialHandles.GetCount());
       else
       {
         SubMesh subMesh;

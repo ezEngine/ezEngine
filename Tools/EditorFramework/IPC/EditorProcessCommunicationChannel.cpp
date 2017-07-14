@@ -71,7 +71,7 @@ ezResult ezEditorProcessCommunicationChannel::StartClientProcess(const char* szP
 
       EZ_DEFAULT_DELETE(m_pChannel);
 
-      ezLog::Error("Failed to start process '{0}'", sPath.GetData());
+      ezLog::Error("Failed to start process '{0}'", sPath);
       return EZ_FAILURE;
     }
   }

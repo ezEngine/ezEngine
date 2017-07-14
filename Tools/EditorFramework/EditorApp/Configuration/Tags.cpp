@@ -19,7 +19,7 @@ ezStatus ezQtEditorApp::SaveTagRegistry()
 
   if (file.Close().Failed())
   {
-    return ezStatus(ezFmt("Could not open tags config file '{0}' for writing", sPath.GetData()));
+    return ezStatus(ezFmt("Could not open tags config file '{0}' for writing", sPath));
   }
   return ezStatus(EZ_SUCCESS);
 }
@@ -37,12 +37,12 @@ void ezQtEditorApp::ReadTagRegistry()
   ezFileReader file;
   if (file.Open(sPath).Failed())
   {
-    ezLog::Warning("Could not open tags config file '{0}'", sPath.GetData());
+    ezLog::Warning("Could not open tags config file '{0}'", sPath);
 
     ezStatus res = SaveTagRegistry();
     if (res.m_Result.Failed())
     {
-      ezLog::Error("{0}", res.m_sMessage.GetData());
+      ezLog::Error("{0}", res.m_sMessage);
     }
   }
   else
@@ -50,7 +50,7 @@ void ezQtEditorApp::ReadTagRegistry()
     ezStatus res = ezToolsTagRegistry::ReadFromDDL(file);
     if (res.m_Result.Failed())
     {
-      ezLog::Error("{0}", res.m_sMessage.GetData());
+      ezLog::Error("{0}", res.m_sMessage);
     }
   }
 

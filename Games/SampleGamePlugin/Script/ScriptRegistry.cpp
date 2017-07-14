@@ -186,7 +186,7 @@ void ezScriptRegistry::UpdateScriptTypes(ScriptData& data)
     ezFileReader file;
     if (!bStat || file.Open(sAbsPath).Failed())
     {
-      ezLog::Error("Can't update script '{0}' type information, the file can't be opened.", data.m_sScriptPath.GetData());
+      ezLog::Error("Can't update script '{0}' type information, the file can't be opened.", data.m_sScriptPath);
       return;
     }
 

@@ -64,7 +64,7 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
 
     if (!bValidColor)
     {
-      ezLog::Error("'{0}' is not a valid color name. Using 'RebeccaPurple' as fallback.", sName.GetData());
+      ezLog::Error("'{0}' is not a valid color name. Using 'RebeccaPurple' as fallback.", sName);
     }
 
     bSRGB = true;
@@ -159,7 +159,7 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
       {
         /// \todo A conversion to B8G8R8X8_UNORM currently fails
 
-        ezLog::Warning("Texture resource uses inefficient BGR format, converting to BGRX: '{0}'", sAbsolutePath.GetData());
+        ezLog::Warning("Texture resource uses inefficient BGR format, converting to BGRX: '{0}'", sAbsolutePath);
         if (ezImageConversion::Convert(pData->m_Image, pData->m_Image, ezImageFormat::B8G8R8A8_UNORM).Failed())
           return res;
       }

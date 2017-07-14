@@ -148,7 +148,7 @@ void ezQtSceneImportDlg::on_accepted()
     ezStringBuilder validFileMeshName;
     if (ezPathUtils::MakeValidFilename(meshIt.Value()->m_Name, '_', validFileMeshName).Failed())
     {
-      ezLog::Error("Failed to create a filename for mesh '{0}'", meshIt.Value()->m_Name.GetData());
+      ezLog::Error("Failed to create a filename for mesh '{0}'", meshIt.Value()->m_Name);
       continue;
     }
     ezStringBuilder meshFilename = meshDirectory;
@@ -159,7 +159,7 @@ void ezQtSceneImportDlg::on_accepted()
     ezMeshAssetDocument* meshDocument = ezDynamicCast<ezMeshAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateOrOpenDocument(true, meshFilename, false, false));
     if (!meshDocument)
     {
-      ezLog::Error("Failed to create a document for mesh '{0}' in '{1}'", meshIt.Value()->m_Name.GetData(), meshFilename.GetData());
+      ezLog::Error("Failed to create a document for mesh '{0}' in '{1}'", meshIt.Value()->m_Name, meshFilename);
       continue;
     }
 

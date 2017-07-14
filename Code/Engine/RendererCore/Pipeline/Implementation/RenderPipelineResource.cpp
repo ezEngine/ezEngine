@@ -23,7 +23,7 @@ ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResource::CreateRender
 {
   if (GetLoadingState() != ezResourceState::Loaded)
   {
-    ezLog::Error("Can't create render pipeline '{0}', the resource is not loaded!", GetResourceID().GetData());
+    ezLog::Error("Can't create render pipeline '{0}', the resource is not loaded!", GetResourceID());
     return ezInternal::NewInstance<ezRenderPipeline>(nullptr, nullptr);
   }
 
@@ -117,7 +117,7 @@ ezResourceLoadDesc ezRenderPipelineResource::UpdateContent(ezStreamReader* Strea
   }
   else
   {
-    EZ_REPORT_FAILURE("The file '{0}' is unsupported, only '.ezRenderPipelineBin' files can be loaded as ezRenderPipelineResource", sAbsFilePath.GetData());
+    EZ_REPORT_FAILURE("The file '{0}' is unsupported, only '.ezRenderPipelineBin' files can be loaded as ezRenderPipelineResource", sAbsFilePath);
   }
 
   return res;

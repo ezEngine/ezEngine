@@ -220,7 +220,7 @@ void ezQtDataWidget::on_ComboItems_currentIndexChanged(int index)
   else
   {
     ezStringBuilder sText;
-    sText.Format("Unknown Mime-Type '{0}'", sMime.GetData());
+    sText.Format("Unknown Mime-Type '{0}'", sMime);
 
     LabelImage->setText(sText.GetData());
   }

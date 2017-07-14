@@ -156,7 +156,7 @@ namespace ezDataDirectory
         //ezLog::Debug("Redirection file contains {0} entries", m_FileRedirection.GetCount());
       }
       //else
-        //ezLog::Debug("No Redirection file found in: '{0}'", sRedirectionFile.GetData());
+        //ezLog::Debug("No Redirection file found in: '{0}'", sRedirectionFile);
     }
   }
 

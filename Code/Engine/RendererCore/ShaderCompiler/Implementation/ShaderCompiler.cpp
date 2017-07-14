@@ -427,7 +427,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
 
     if (PermutationFileOut.Close().Failed())
     {
-      ezLog::Error(pLog, "Could not open file for writing: '{0}'", sTemp.GetData());
+      ezLog::Error(pLog, "Could not open file for writing: '{0}'", sTemp);
       return EZ_FAILURE;
     }
   }
@@ -451,7 +451,7 @@ void ezShaderCompiler::WriteFailedShaderSource(ezShaderProgramCompiler::ezShader
       if (StageFileOut.Open(sShaderStageFile.GetData()).Succeeded())
       {
         StageFileOut.WriteBytes(spd.m_szShaderSource[stage], ezStringUtils::GetStringElementCount(spd.m_szShaderSource[stage]));
-        ezLog::Info(pLog, "Failed shader source written to '{0}'", sShaderStageFile.GetData());
+        ezLog::Info(pLog, "Failed shader source written to '{0}'", sShaderStageFile);
       }
     }
   }

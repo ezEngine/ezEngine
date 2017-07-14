@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <ToolsFoundation/Document/PrefabUtils.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
@@ -119,21 +119,21 @@ void ezPrefabUtils::WriteDiff(const ezDeque<ezAbstractGraphDiffOperation>& merge
     {
     case ezAbstractGraphDiffOperation::Op::NodeAdded:
       {
-        out_sText.AppendFormat("<add> - {{0}} ({1})\n", Data.GetData(), diff.m_sProperty.GetData());
+        out_sText.AppendFormat("<add> - {{0}} ({1})\n", Data, diff.m_sProperty);
       }
       break;
 
     case ezAbstractGraphDiffOperation::Op::NodeRemoved:
       {
-        out_sText.AppendFormat("<del> - {{0}}\n", Data.GetData());
+        out_sText.AppendFormat("<del> - {{0}}\n", Data);
       }
       break;
 
     case ezAbstractGraphDiffOperation::Op::PropertyChanged:
       if (diff.m_Value.CanConvertTo<ezString>())
-        out_sText.AppendFormat("<set> - {{0}} - \"{1}\" = {2}\n", Data.GetData(), diff.m_sProperty.GetData(), diff.m_Value.ConvertTo<ezString>().GetData());
+        out_sText.AppendFormat("<set> - {{0}} - \"{1}\" = {2}\n", Data, diff.m_sProperty, diff.m_Value.ConvertTo<ezString>());
       else
-        out_sText.AppendFormat("<set> - {{0}} - \"{1}\" = xxx\n", Data.GetData(), diff.m_sProperty.GetData());
+        out_sText.AppendFormat("<set> - {{0}} - \"{1}\" = xxx\n", Data, diff.m_sProperty);
       break;
 
     }

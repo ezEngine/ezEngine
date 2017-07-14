@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <RendererCore/Declarations.h>
 #include <Foundation/Strings/String.h>
@@ -28,5 +28,5 @@ public:
   static void ParsePermutationSection(ezStreamReader& stream, ezHybridArray<ezHashedString, 16>& out_PermVars);
   static void ParsePermutationSection(ezStringView sPermutationSection, ezHybridArray<ezHashedString, 16>& out_PermVars);
 
-  static void ParsePermutationVarConfig(ezStringView sPermutationVarConfig, ezVariant& out_DefaultValue, ezHybridArray<ezHashedString, 16>& out_EnumValues);
+  static void ParsePermutationVarConfig(const char* szPermVarName, ezStringView sPermutationVarConfig, ezVariant& out_DefaultValue, ezHybridArray<ezHashedString, 16>& out_EnumValues);
 };

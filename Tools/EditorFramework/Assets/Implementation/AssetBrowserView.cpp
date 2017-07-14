@@ -123,7 +123,7 @@ bool ezQtIconViewDelegate::mouseReleaseEvent(QMouseEvent* event, const QStyleOpt
     if (ret.m_Result.Failed())
     {
       QString path = index.data(ezQtAssetBrowserModel::UserRoles::RelativePath).toString();
-      ezLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage.GetData(), path.toUtf8().data());
+      ezLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage, path.toUtf8().data());
     }
     else
     {

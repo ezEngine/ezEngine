@@ -166,7 +166,7 @@ void ezCVar::SaveCVars()
   while (it.IsValid())
   {
     // create the plugin specific file
-    sTemp.Format("{0}/CVars_{1}.cfg", s_StorageFolder.GetData(), it.Key().GetData());
+    sTemp.Format("{0}/CVars_{1}.cfg", s_StorageFolder, it.Key());
 
     ezFileWriter File;
     if (File.Open(sTemp.GetData()) == EZ_SUCCESS)
@@ -199,7 +199,7 @@ void ezCVar::SaveCVars()
         case ezCVarType::String:
           {
             ezCVarString* pString = (ezCVarString*) pCVar;
-            sTemp.Format("{0} = \"{1}\"\n", pCVar->GetName(), pString->GetValue(ezCVarValue::Restart).GetData());
+            sTemp.Format("{0} = \"{1}\"\n", pCVar->GetName(), pString->GetValue(ezCVarValue::Restart));
           }
           break;
         default:
@@ -341,7 +341,7 @@ void ezCVar::LoadCVars(bool bOnlyNewOnes, bool bSetAsCurrentValue)
   while (it.IsValid())
   {
     // create the plugin specific file
-    sTemp.Format("{0}/CVars_{1}.cfg", s_StorageFolder.GetData(), it.Key().GetData());
+    sTemp.Format("{0}/CVars_{1}.cfg", s_StorageFolder, it.Key());
 
     ezFileReader File;
     if (File.Open(sTemp.GetData()) == EZ_SUCCESS)

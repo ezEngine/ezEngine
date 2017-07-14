@@ -72,7 +72,7 @@ void ezTexConv::CheckCompression()
       // Give out an error and disable compression if this is not the case.
       if (!ezMath::IsPowerOf(m_InputImages[i].GetWidth(), 2) || !ezMath::IsPowerOf(m_InputImages[i].GetHeight(), 2))
       {
-        ezLog::Error("Input image '{0}' cannot be compressed since it's height/width is not a power of 2.", m_InputFileNames[i].GetData());
+        ezLog::Error("Input image '{0}' cannot be compressed since it's height/width is not a power of 2.", m_InputFileNames[i]);
         m_bCompress = false;
         break;
       }

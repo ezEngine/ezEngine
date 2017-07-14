@@ -237,7 +237,7 @@ public:
         b.AppendPath(it.GetStats().m_sFileName.GetData());
 
         // log some info
-        ezLog::Info("{0}: {1}", it.GetStats().m_bIsDirectory ? "Directory" : "File", b.GetData());
+        ezLog::Info("{0}: {1}", it.GetStats().m_bIsDirectory ? "Directory" : "File", b);
 
         if (it.GetStats().m_bIsDirectory)
           ++uiDirectories;
@@ -270,7 +270,7 @@ public:
       ezMap<ezString, FileStats>::Iterator MapIt = FileTypeStatistics.GetIterator();
       while (MapIt.IsValid())
       {
-        ezLog::Info("File Type: '{0}': {1} Files, {2} Lines, {3} Empty Lines, Bytes: {4}, Non-ASCII Characters: {5}, Words: {6}", MapIt.Key().GetData(), MapIt.Value().m_uiFileCount, MapIt.Value().m_uiLines, MapIt.Value().m_uiEmptyLines, MapIt.Value().m_uiBytes, MapIt.Value().m_uiBytes - MapIt.Value().m_uiCharacters, MapIt.Value().m_uiWords);
+        ezLog::Info("File Type: '{0}': {1} Files, {2} Lines, {3} Empty Lines, Bytes: {4}, Non-ASCII Characters: {5}, Words: {6}", MapIt.Key(), MapIt.Value().m_uiFileCount, MapIt.Value().m_uiLines, MapIt.Value().m_uiEmptyLines, MapIt.Value().m_uiBytes, MapIt.Value().m_uiBytes - MapIt.Value().m_uiCharacters, MapIt.Value().m_uiWords);
 
         AllTypes += MapIt.Value();
 

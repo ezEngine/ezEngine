@@ -167,7 +167,7 @@ void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool 
   else
     m_RequireLoading.PushBack(li);
 
-  //ezLog::Debug("Adding resource '{0}' -> '{1}'to preload queue: {2} items", pResource->GetDynamicRTTI()->GetTypeName(), pResource->GetResourceID().GetData(), m_RequireLoading.GetCount());
+  //ezLog::Debug("Adding resource '{0}' -> '{1}'to preload queue: {2} items", pResource->GetDynamicRTTI()->GetTypeName(), pResource->GetResourceID(), m_RequireLoading.GetCount());
 
   ezResourceEvent e;
   e.m_pResource = pResource;
@@ -311,8 +311,8 @@ void ezResourceManagerWorkerMainThread::Execute()
     MemUsage.m_uiMemoryGPU = 0xFFFFFFFF;
     m_pResourceToLoad->UpdateMemoryUsage(MemUsage);
 
-    EZ_ASSERT_DEV(MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its CPU memory usage", m_pResourceToLoad->GetResourceID().GetData());
-    EZ_ASSERT_DEV(MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its GPU memory usage", m_pResourceToLoad->GetResourceID().GetData());
+    EZ_ASSERT_DEV(MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its CPU memory usage", m_pResourceToLoad->GetResourceID());
+    EZ_ASSERT_DEV(MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its GPU memory usage", m_pResourceToLoad->GetResourceID());
 
     m_pResourceToLoad->m_MemoryUsage = MemUsage;
   }
@@ -443,8 +443,8 @@ void ezResourceManagerWorkerDiskRead::DoWork(bool bCalledExternally)
       MemUsage.m_uiMemoryGPU = 0xFFFFFFFF;
       pResourceToLoad->UpdateMemoryUsage(MemUsage);
 
-      EZ_ASSERT_DEV(MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its CPU memory usage", pResourceToLoad->GetResourceID().GetData());
-      EZ_ASSERT_DEV(MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its GPU memory usage", pResourceToLoad->GetResourceID().GetData());
+      EZ_ASSERT_DEV(MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its CPU memory usage", pResourceToLoad->GetResourceID());
+      EZ_ASSERT_DEV(MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its GPU memory usage", pResourceToLoad->GetResourceID());
 
       pResourceToLoad->m_MemoryUsage = MemUsage;
     }
@@ -506,13 +506,13 @@ ezUInt32 ezResourceManager::FreeUnusedResources(bool bFreeAllUnused)
 
       const auto& CurKey = it.Key();
 
-      EZ_ASSERT_DEV(pReference->m_iLockCount == 0, "Resource '{0}' has a refcount of zero, but is still in an acquired state.", pReference->GetResourceID().GetData());
+      EZ_ASSERT_DEV(pReference->m_iLockCount == 0, "Resource '{0}' has a refcount of zero, but is still in an acquired state.", pReference->GetResourceID());
 
       bUnloadedAny = true;
       ++uiUnloaded;
       pReference->CallUnloadData(ezResourceBase::Unload::AllQualityLevels);
 
-      EZ_ASSERT_DEV(pReference->GetLoadingState() <= ezResourceState::UnloadedMetaInfoAvailable, "Resource '{0}' should be in an unloaded state now.", pReference->GetResourceID().GetData());
+      EZ_ASSERT_DEV(pReference->GetLoadingState() <= ezResourceState::UnloadedMetaInfoAvailable, "Resource '{0}' should be in an unloaded state now.", pReference->GetResourceID());
 
       // broadcast that we are going to delete the resource
       {
@@ -600,7 +600,7 @@ void ezResourceManager::ReloadResource(ezResourceBase* pResource, bool bForce)
       // that means some task is already working on loading it
       // therefore we should not touch it (especially unload it), it might end up in an inconsistent state
 
-      ezLog::Dev("Resource '{0}' is not being reloaded, because it is currently loaded already", pResource->GetResourceID().GetData());
+      ezLog::Dev("Resource '{0}' is not being reloaded, because it is currently loaded already", pResource->GetResourceID());
       return;
     }
   }
@@ -612,18 +612,18 @@ void ezResourceManager::ReloadResource(ezResourceBase* pResource, bool bForce)
       if (!pLoader->IsResourceOutdated(pResource))
         return;
 
-      ezLog::Dev("Resource '{0}' is outdated and will be reloaded ('{1}')", pResource->GetResourceID().GetData(), pResource->GetResourceDescription());
+      ezLog::Dev("Resource '{0}' is outdated and will be reloaded ('{1}')", pResource->GetResourceID(), pResource->GetResourceDescription());
     }
   }
   else
   {
-    ezLog::Dev("Resource '{0}' is missing and will be tried to be reloaded ('{1}')", pResource->GetResourceID().GetData(), pResource->GetResourceDescription());
+    ezLog::Dev("Resource '{0}' is missing and will be tried to be reloaded ('{1}')", pResource->GetResourceID(), pResource->GetResourceDescription());
   }
 
   // make sure existing data is purged
   pResource->CallUnloadData(ezResourceBase::Unload::AllQualityLevels);
 
-  EZ_ASSERT_DEV(pResource->GetLoadingState() <= ezResourceState::UnloadedMetaInfoAvailable, "Resource '{0}' should be in an unloaded state now.", pResource->GetResourceID().GetData());
+  EZ_ASSERT_DEV(pResource->GetLoadingState() <= ezResourceState::UnloadedMetaInfoAvailable, "Resource '{0}' should be in an unloaded state now.", pResource->GetResourceID());
 
   if (bAllowPreloading)
   {
@@ -890,7 +890,7 @@ void ezResourceManager::OnCoreShutdown()
     {
       ezResourceBase* pReference = it.Value();
 
-      ezLog::Info("Refcount = {0}, Type = '{1}', ResourceID = '{2}'", pReference->GetReferenceCount(), pReference->GetDynamicRTTI()->GetTypeName(), pReference->GetResourceID().GetData());
+      ezLog::Info("Refcount = {0}, Type = '{1}', ResourceID = '{2}'", pReference->GetReferenceCount(), pReference->GetDynamicRTTI()->GetTypeName(), pReference->GetResourceID());
     }
   }
 

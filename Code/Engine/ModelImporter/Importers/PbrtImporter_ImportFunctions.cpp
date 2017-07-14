@@ -313,7 +313,7 @@ namespace ezModelImporter
       }
       else
       {
-        ezLog::Warning("PBRT '{0}' shapes are not supported.", type.GetData());
+        ezLog::Warning("PBRT '{0}' shapes are not supported.", type);
         return;
       }
 
@@ -537,7 +537,7 @@ namespace ezModelImporter
       if (parameters.IsEmpty() || parameters[0].type != ParamType::STRING ||
         parameters[0].data.IsEmpty() || parameters[0].name.Compare_NoCase("type"))
       {
-        ezLog::Warning("PBRT make named material '{0}' should have a type parameter.", type.GetData()); // This sometimes happens and need to handle that.
+        ezLog::Warning("PBRT make named material '{0}' should have a type parameter.", type); // This sometimes happens and need to handle that.
       }
       else
       {

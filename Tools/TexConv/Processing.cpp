@@ -128,7 +128,7 @@ ezResult ezTexConv::SaveResultToDDS(ezStreamWriter& stream)
   if (FAILED(SaveToDDSMemory(m_pCurrentImage->GetImages(), m_pCurrentImage->GetImageCount(), m_pCurrentImage->GetMetadata(), 0, outputBlob)))
   {
     SetReturnCode(TexConvReturnCodes::FAILED_SAVE_AS_DDS);
-    ezLog::Error("Failed to write image to file '{0}'", m_sOutputFile.GetData());
+    ezLog::Error("Failed to write image to file '{0}'", m_sOutputFile);
     return EZ_FAILURE;
   }
 

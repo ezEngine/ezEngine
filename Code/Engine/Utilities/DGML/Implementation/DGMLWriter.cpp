@@ -119,7 +119,7 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& StringBuilder, c
         break;
     }
 
-    StringBuilder.AppendFormat("\t\t<Node Id=\"N_{0}\" Label=\"{1}\" Background=\"{2}\" {3} />\n", i, SanitizedName.GetData(), ColorValue.GetData(), StyleString.GetData());
+    StringBuilder.AppendFormat("\t\t<Node Id=\"N_{0}\" Label=\"{1}\" Background=\"{2}\" {3} />\n", i, SanitizedName, ColorValue, StyleString);
 
   }
   StringBuilder.Append("\t</Nodes>\n");

@@ -172,11 +172,11 @@ void ezArchiveReader::BeginStream()
 
       m_Types.PushBack(ri);
 
-      ezLog::Dev(m_pLog, "Type {0}: '{1}', Version = {2}, Object Count = {3}", i, ri.m_sTypeName.GetData(), ri.m_uiTypeVersion, ri.m_uiObjectCount);
+      ezLog::Dev(m_pLog, "Type {0}: '{1}', Version = {2}, Object Count = {3}", i, ri.m_sTypeName, ri.m_uiTypeVersion, ri.m_uiObjectCount);
 
       if (ri.m_pRTTI == nullptr)
       {
-        ezLog::SeriousWarning(m_pLog, "Stored type '{0}' is unknown. Objects of this type will be skipped during deserialization.", ri.m_sTypeName.GetData());
+        ezLog::SeriousWarning(m_pLog, "Stored type '{0}' is unknown. Objects of this type will be skipped during deserialization.", ri.m_sTypeName);
       }
       else
       {
@@ -251,7 +251,7 @@ void* ezArchiveReader::ReadTypedObject(const ezRTTI** out_pRtti, ezUInt16* out_p
   if (out_pRtti)
     *out_pRtti = pRtti;
 
-  ezLog::Debug(m_pLog, "Reading object of Type '{0}' (v{1}), ID = {2}, Size = {3}", m_Types[uiTypeID].m_sTypeName.GetData(), m_Types[uiTypeID].m_uiTypeVersion, uiObjectID, uiObjectDataSize);
+  ezLog::Debug(m_pLog, "Reading object of Type '{0}' (v{1}), ID = {2}, Size = {3}", m_Types[uiTypeID].m_sTypeName, m_Types[uiTypeID].m_uiTypeVersion, uiObjectID, uiObjectDataSize);
 
   if (pObject != nullptr)
   {
@@ -292,7 +292,7 @@ void* ezArchiveReader::ReadTypedObject(const ezRTTI** out_pRtti, ezUInt16* out_p
   // if the type could not be created, just skip the rest of the object
   if (pObject == nullptr)
   {
-    ezLog::SeriousWarning(m_pLog, "Object of Type '{0}' could not be created, skipping object.", m_Types[uiTypeID].m_sTypeName.GetData());
+    ezLog::SeriousWarning(m_pLog, "Object of Type '{0}' could not be created, skipping object.", m_Types[uiTypeID].m_sTypeName);
 
     SkipBytes(uiObjectDataSize);
   }

@@ -616,7 +616,7 @@ void ezQtAssetBrowserWidget::OnTransform()
     auto res = ezAssetCurator::GetSingleton()->TransformAsset(guid, false);
     if (res.m_Result.Failed())
     {
-      ezLog::Error("{0} ({1})", res.m_sMessage.GetData(), sPath.toUtf8().data());
+      ezLog::Error("{0} ({1})", res.m_sMessage, sPath.toUtf8().data());
     }
   }
 
@@ -736,7 +736,7 @@ void ezQtAssetBrowserWidget::OnNewAsset()
 
   ezStringBuilder title("Create ", sAssetType), sFilter;
 
-  sFilter.Format("{0} (*.{1})", sAssetType.GetData(), sExtension.GetData());
+  sFilter.Format("{0} (*.{1})", sAssetType, sExtension);
 
   QString sSelectedFilter = sFilter.GetData();
   ezStringBuilder sOutput = QFileDialog::getSaveFileName(QApplication::activeWindow(), title.GetData(), sStartDir, sFilter.GetData(), &sSelectedFilter, QFileDialog::Option::DontResolveSymlinks).toUtf8().data();

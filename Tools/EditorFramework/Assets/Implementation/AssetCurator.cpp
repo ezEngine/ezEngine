@@ -335,7 +335,7 @@ void ezAssetCurator::TransformAllAssets(const char* szPlatform)
     auto res = ProcessAsset(pAssetInfo, szPlatform, false);
     if (res.m_Result.Failed())
     {
-      ezLog::Error("{0} ({1})", res.m_sMessage.GetData(), pAssetInfo->m_sDataDirRelativePath.GetData());
+      ezLog::Error("{0} ({1})", res.m_sMessage, pAssetInfo->m_sDataDirRelativePath);
     }
   }
 
@@ -407,7 +407,7 @@ void ezAssetCurator::ResaveAllAssets()
     auto res = ResaveAsset(pAssetInfo);
     if (res.m_Result.Failed())
     {
-      ezLog::Error("{0} ({1})", res.m_sMessage.GetData(), pAssetInfo->m_sDataDirRelativePath.GetData());
+      ezLog::Error("{0} ({1})", res.m_sMessage, pAssetInfo->m_sDataDirRelativePath);
     }
   }
 }
@@ -757,11 +757,11 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
   const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
   if (ezDocumentManager::FindDocumentTypeFromPath(pAssetInfo->m_sAbsolutePath, false, pTypeDesc).Failed())
   {
-    return ezStatus(ezFmt("The asset '{0}' could not be queried for its ezDocumentTypeDescriptor, skipping transform!", pAssetInfo->m_sDataDirRelativePath.GetData()));
+    return ezStatus(ezFmt("The asset '{0}' could not be queried for its ezDocumentTypeDescriptor, skipping transform!", pAssetInfo->m_sDataDirRelativePath));
   }
 
   // Skip assets that cannot be auto-transformed.
-  EZ_ASSERT_DEV(pTypeDesc->m_pDocumentType->IsDerivedFrom<ezAssetDocument>(), "Asset document does not derive from correct base class ('{0}')", pAssetInfo->m_sDataDirRelativePath.GetData());
+  EZ_ASSERT_DEV(pTypeDesc->m_pDocumentType->IsDerivedFrom<ezAssetDocument>(), "Asset document does not derive from correct base class ('{0}')", pAssetInfo->m_sDataDirRelativePath);
   auto assetFlags = static_cast<ezAssetDocumentManager*>(pTypeDesc->m_pManager)->GetAssetDocumentTypeFlags(pTypeDesc);
   if (assetFlags.IsAnySet(ezAssetDocumentFlags::DisableTransform | ezAssetDocumentFlags::OnlyTransformManually))
     return ezStatus(EZ_SUCCESS);
@@ -780,7 +780,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
 
   if (state == ezAssetInfo::TransformState::MissingDependency)
   {
-    return ezStatus(ezFmt("Missing dependency for asset '{0}', can't transform.", pAssetInfo->m_sAbsolutePath.GetData()));
+    return ezStatus(ezFmt("Missing dependency for asset '{0}', can't transform.", pAssetInfo->m_sAbsolutePath));
   }
 
   // does the document already exist and is open ?
@@ -792,7 +792,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
     pDoc = ezQtEditorApp::GetSingleton()->OpenDocumentImmediate(pAssetInfo->m_sAbsolutePath, false, false);
 
   if (pDoc == nullptr)
-    return ezStatus(ezFmt("Could not open asset document '{0}'", pAssetInfo->m_sDataDirRelativePath.GetData()));
+    return ezStatus(ezFmt("Could not open asset document '{0}'", pAssetInfo->m_sDataDirRelativePath));
 
   ezStatus ret(EZ_SUCCESS);
   ezAssetDocument* pAsset = static_cast<ezAssetDocument*>(pDoc);
@@ -803,7 +803,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
 
   if (state == ezAssetInfo::TransformState::MissingReference)
   {
-    return ezStatus(ezFmt("Missing reference for asset '{0}', can't create thumbnail.", pAssetInfo->m_sAbsolutePath.GetData()));
+    return ezStatus(ezFmt("Missing reference for asset '{0}', can't create thumbnail.", pAssetInfo->m_sAbsolutePath));
   }
 
   if (assetFlags.IsSet(ezAssetDocumentFlags::SupportsThumbnail) && !assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform)
@@ -832,7 +832,7 @@ ezStatus ezAssetCurator::ResaveAsset(ezAssetInfo* pAssetInfo)
     pDoc = ezQtEditorApp::GetSingleton()->OpenDocumentImmediate(pAssetInfo->m_sAbsolutePath, false, false);
 
   if (pDoc == nullptr)
-    return ezStatus(ezFmt("Could not open asset document '{0}'", pAssetInfo->m_sDataDirRelativePath.GetData()));
+    return ezStatus(ezFmt("Could not open asset document '{0}'", pAssetInfo->m_sDataDirRelativePath));
 
   ezStatus ret = pDoc->SaveDocument(true);
 
@@ -1048,7 +1048,7 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const char
 
   if (file.Close().Failed())
   {
-    ezLog::Error("Failed to open asset lookup table file ('{0}')", sFinalPath.GetData());
+    ezLog::Error("Failed to open asset lookup table file ('{0}')", sFinalPath);
     return EZ_FAILURE;
   }
 

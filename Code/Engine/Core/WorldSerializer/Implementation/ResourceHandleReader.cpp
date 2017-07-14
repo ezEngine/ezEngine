@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Core/WorldSerializer/ResourceHandleReader.h>
 #include <Core/ResourceManager/ResourceManager.h>
 
@@ -106,7 +106,7 @@ void ezResourceHandleReadContext::EndReadingFromStream(ezStreamReader* pStream)
 
       if (pRtti == nullptr)
       {
-        ezLog::Error("Unknown resource type '{0}'", sTemp.GetData());
+        ezLog::Error("Unknown resource type '{0}'", sTemp);
       }
 
       // number of resources of this type

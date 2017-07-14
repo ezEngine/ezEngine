@@ -231,7 +231,7 @@ ezResult ezPlugin::LoadPluginInternal(const char* szPluginFile, bool bLoadCopy, 
         goto success;
     }
 
-    ezLog::Error("Could not copy the plugin file '{0}' to '{1}' (and all previous file numbers). Plugin MaxParallelInstances is set to {2}.", sOldPlugin.GetData(), sNewPlugin.GetData(), ezPlugin::m_uiMaxParallelInstances);
+    ezLog::Error("Could not copy the plugin file '{0}' to '{1}' (and all previous file numbers). Plugin MaxParallelInstances is set to {2}.", sOldPlugin, sNewPlugin, ezPlugin::m_uiMaxParallelInstances);
 
     g_LoadedPlugins.Remove(sNewPlugin);
     return EZ_FAILURE;
@@ -476,7 +476,7 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
         {
           bModified = false;
           res = EZ_FAILURE;
-          ezLog::Warning("Plugin '{0}' does not exist at the moment. Plugin will not be reloaded.", pPlugin->m_sLoadedFromFile.GetData());
+          ezLog::Warning("Plugin '{0}' does not exist at the moment. Plugin will not be reloaded.", pPlugin->m_sLoadedFromFile);
         }
         else
         {
@@ -529,7 +529,7 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
     {
       ezUInt32 iIndex = i - 1;
 
-      EZ_VERIFY (UnloadPluginInternal(PluginsToReload[iIndex].GetData(), true) == EZ_SUCCESS, "Could not unload plugin '{0}'.", PluginsToReload[iIndex].GetData());
+      EZ_VERIFY (UnloadPluginInternal(PluginsToReload[iIndex].GetData(), true) == EZ_SUCCESS, "Could not unload plugin '{0}'.", PluginsToReload[iIndex]);
     }
   }
 
@@ -548,7 +548,7 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
       /// \todo Set "copy dll" back to true again, when we know which plugins may be copied
       if (LoadPluginInternal(PluginsToReload[i].GetData(), false, true) == EZ_FAILURE)
       {
-        ezLog::Error("Loading of Plugin '{0}' failed. Falling back to backup of previous version.", PluginsToReload[i].GetData());
+        ezLog::Error("Loading of Plugin '{0}' failed. Falling back to backup of previous version.", PluginsToReload[i]);
 
         res = EZ_FAILURE;
 
@@ -556,7 +556,7 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
         {
           // if we cannot reload a plugin (not even its backup), all we can do is crash with an error message
           // everything else would most probably result in crashes in very strange ways
-          EZ_VERIFY (LoadPluginInternal(PluginsToReload[i].GetData(), false, true) == EZ_SUCCESS, "Could not reload backup of plugin '{0}'", PluginsToReload[i].GetData());
+          EZ_VERIFY (LoadPluginInternal(PluginsToReload[i].GetData(), false, true) == EZ_SUCCESS, "Could not reload backup of plugin '{0}'", PluginsToReload[i]);
         }
       }
 

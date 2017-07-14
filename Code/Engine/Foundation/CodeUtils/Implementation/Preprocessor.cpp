@@ -173,7 +173,7 @@ ezResult ezPreprocessor::Process(const char* szMainFile, TokenStream& TokenOutpu
 
   if (!m_sCurrentFileStack.IsEmpty())
   {
-    ezLog::Error(m_pLog, "Internal error, file stack is not empty after processing. {0} elements, top stack item: '{1}'", m_sCurrentFileStack.GetCount(), m_sCurrentFileStack.PeekBack().m_sFileName.GetData());
+    ezLog::Error(m_pLog, "Internal error, file stack is not empty after processing. {0} elements, top stack item: '{1}'", m_sCurrentFileStack.GetCount(), m_sCurrentFileStack.PeekBack().m_sFileName);
     return EZ_FAILURE;
   }
 
@@ -329,7 +329,7 @@ ezResult ezPreprocessor::HandleLine(const TokenStream& Tokens, ezUInt32 uiCurTok
   const ezString sNumber = Tokens[uiNumberToken]->m_DataView;
   if (ezConversionUtils::StringToInt(sNumber.GetData(), iNextLine).Failed())
   {
-    PP_LOG(Error, "Could not parse '{0}' as a line number", Tokens[uiNumberToken], sNumber.GetData());
+    PP_LOG(Error, "Could not parse '{0}' as a line number", Tokens[uiNumberToken], sNumber);
     return EZ_FAILURE;
   }
 
@@ -503,7 +503,7 @@ ezResult ezPreprocessor::HandleUndef(const TokenStream& Tokens, ezUInt32 uiCurTo
   const ezString sUndef = Tokens[uiIdentifierToken]->m_DataView;
   if (!RemoveDefine(sUndef.GetData()))
   {
-    PP_LOG(Warning, "'#undef' of undefined macro '{0}'", Tokens[uiIdentifierToken], sUndef.GetData());
+    PP_LOG(Warning, "'#undef' of undefined macro '{0}'", Tokens[uiIdentifierToken], sUndef);
     return EZ_SUCCESS;
   }
 
@@ -524,7 +524,7 @@ ezResult ezPreprocessor::HandleErrorDirective(const TokenStream& Tokens, ezUInt3
   while (sTemp.EndsWith("\n") || sTemp.EndsWith("\r"))
     sTemp.Shrink(0, 1);
 
-  PP_LOG(Error, "#error '{0}'", Tokens[uiDirectiveToken], sTemp.GetData());
+  PP_LOG(Error, "#error '{0}'", Tokens[uiDirectiveToken], sTemp);
 
   return EZ_FAILURE;
 }
@@ -539,7 +539,7 @@ ezResult ezPreprocessor::HandleWarningDirective(const TokenStream& Tokens, ezUIn
   while (sTemp.EndsWith("\n") || sTemp.EndsWith("\r"))
     sTemp.Shrink(0, 1);
 
-  PP_LOG(Warning, "#warning '{0}'", Tokens[uiDirectiveToken], sTemp.GetData());
+  PP_LOG(Warning, "#warning '{0}'", Tokens[uiDirectiveToken], sTemp);
 
   return EZ_SUCCESS;
 }

@@ -284,7 +284,7 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* p
           pin.m_pDataType = m_pSamplerPinType;
         else
         {
-          ezLog::Error("Invalid pin type '{0}'", sType.GetData());
+          ezLog::Error("Invalid pin type '{0}'", sType);
           continue;
         }
       }
@@ -295,7 +295,7 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* p
       }
       else if (bOutput)
       {
-        ezLog::Error("Output pin '{0}' has no inline code specified", pin.m_sName.GetData());
+        ezLog::Error("Output pin '{0}' has no inline code specified", pin.m_sName);
         continue;
       }
 

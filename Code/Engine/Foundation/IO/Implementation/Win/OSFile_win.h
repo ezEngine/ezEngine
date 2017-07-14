@@ -287,7 +287,7 @@ ezResult ezFileSystemIterator::StartSearch(const char* szSearchStart, bool bRecu
 
   m_sCurPath = sSearch.GetFileDirectory();
 
-  EZ_ASSERT_DEV(sSearch.IsAbsolutePath(), "The path '{0}' is not absolute.", m_sCurPath.GetData());
+  EZ_ASSERT_DEV(sSearch.IsAbsolutePath(), "The path '{0}' is not absolute.", m_sCurPath);
 
   m_bRecursive = bRecursive;
   m_bReportFolders = bReportFolders;

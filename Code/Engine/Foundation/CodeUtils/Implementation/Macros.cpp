@@ -110,7 +110,7 @@ ezResult ezPreprocessor::ExtractAllMacroParameters(const TokenStream& Tokens, ez
   while (Accept(Tokens, uiCurToken, ",")); // continue with the next parameter
 
   ezString s = Tokens[uiCurToken]->m_DataView;
-  PP_LOG(Error, "',' or ')' expected, got '{0}' instead", Tokens[uiCurToken], s.GetData());
+  PP_LOG(Error, "',' or ')' expected, got '{0}' instead", Tokens[uiCurToken], s);
 
   return EZ_FAILURE;
 }

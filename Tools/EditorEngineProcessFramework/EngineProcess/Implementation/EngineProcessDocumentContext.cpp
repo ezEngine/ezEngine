@@ -185,7 +185,7 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
     ret.m_bOutputSuccess = ExportDocument(pMsg2);
     if (!ret.m_bOutputSuccess)
     {
-      ezLog::Error("Could not export to file '{0}'.", pMsg2->m_sOutputFile.GetData());
+      ezLog::Error("Could not export to file '{0}'.", pMsg2->m_sOutputFile);
     }
 
     SendProcessMessage(&ret);
@@ -337,14 +337,14 @@ void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEd
 
   if (pRtti == nullptr)
   {
-    ezLog::Error("Cannot sync object of type unknown '{0}' to engine process", msg.m_sObjectType.GetData());
+    ezLog::Error("Cannot sync object of type unknown '{0}' to engine process", msg.m_sObjectType);
     return;
   }
 
   if (!it.IsValid())
   {
     // object does not yet exist
-    EZ_ASSERT_DEV(pRtti->GetAllocator() != nullptr, "Sync object of type '{0}' does not have a default allocator", msg.m_sObjectType.GetData());
+    EZ_ASSERT_DEV(pRtti->GetAllocator() != nullptr, "Sync object of type '{0}' does not have a default allocator", msg.m_sObjectType);
     void* pObject = pRtti->GetAllocator()->Allocate();
 
     pSyncObject = static_cast<ezEditorEngineSyncObject*>(pObject);

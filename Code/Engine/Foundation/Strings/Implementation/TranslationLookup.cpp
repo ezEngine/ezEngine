@@ -90,7 +90,7 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFullPath)
 
     if (szSeperator == nullptr)
     {
-      ezLog::Error("Invalid line in translation file: '{0}'", sLine.GetData());
+      ezLog::Error("Invalid line in translation file: '{0}'", sLine);
       continue;
     }
 

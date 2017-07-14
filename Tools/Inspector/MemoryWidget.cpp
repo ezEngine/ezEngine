@@ -160,7 +160,7 @@ void ezQtMemoryWidget::UpdateStats()
       FormatSize(sMaxSize, "", it.Value().m_uiMaxUsedMemory);
 
       ezStringBuilder sText = it.Key().GetData();
-      sText.AppendFormat(" [{0}]", sSize.GetData());
+      sText.AppendFormat(" [{0}]", sSize);
 
       ezStringBuilder sTooltip;
       sTooltip.Format("<p>Current Memory Used: <b>{0}</b><br>Max Memory Used: <b>{1}</b><br>Live Allocations: <b>{2}</b><br>Allocations: <b>{3}</b><br>Deallocations: <b>{4}</b><br>",
@@ -179,7 +179,7 @@ void ezQtMemoryWidget::UpdateStats()
       FormatSize(sMaxSize, "", m_Accu.m_uiMaxUsedMemory);
 
       ezStringBuilder sText = "<Accumulated>";
-      sText.AppendFormat(" [{0}]", sSize.GetData());
+      sText.AppendFormat(" [{0}]", sSize);
 
       ezStringBuilder sTooltip;
       sTooltip.Format("<p>Current Memory Used: <b>{0}</b><br>Max Memory Used: <b>{1}</b><br>Live Allocations: <b>{2}</b><br>Allocations: <b>{3}</b><br>Deallocations: <b>{4}</b><br>",

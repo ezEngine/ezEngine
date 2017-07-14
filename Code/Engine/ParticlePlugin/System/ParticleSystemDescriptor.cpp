@@ -223,7 +223,7 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& stream)
     stream >> sType;
 
     const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
-    EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown emitter factory type '{0}'", sType.GetData());
+    EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown emitter factory type '{0}'", sType);
 
     pEmitter = static_cast<ezParticleEmitterFactory*>(pRtti->GetAllocator()->Allocate());
 
@@ -237,7 +237,7 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& stream)
       stream >> sType;
 
       const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
-      EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown initializer factory type '{0}'", sType.GetData());
+      EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown initializer factory type '{0}'", sType);
 
       pInitializer = static_cast<ezParticleInitializerFactory*>(pRtti->GetAllocator()->Allocate());
 
@@ -250,7 +250,7 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& stream)
     stream >> sType;
 
     const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
-    EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown behavior factory type '{0}'", sType.GetData());
+    EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown behavior factory type '{0}'", sType);
 
     pBehavior = static_cast<ezParticleBehaviorFactory*>(pRtti->GetAllocator()->Allocate());
 
@@ -264,7 +264,7 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& stream)
       stream >> sType;
 
       const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
-      EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown type factory type '{0}'", sType.GetData());
+      EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown type factory type '{0}'", sType);
 
       pType = static_cast<ezParticleTypeFactory*>(pRtti->GetAllocator()->Allocate());
 

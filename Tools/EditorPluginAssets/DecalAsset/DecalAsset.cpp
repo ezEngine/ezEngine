@@ -76,7 +76,7 @@ ezStatus ezDecalAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& 
   for (ezInt32 i = 0; i < arguments.size(); ++i)
     cmd.Append(" ", arguments[i].toUtf8().data());
 
-  ezLog::Debug("TexConv.exe{0}", cmd.GetData());
+  ezLog::Debug("TexConv.exe{0}", cmd);
 
   EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
 

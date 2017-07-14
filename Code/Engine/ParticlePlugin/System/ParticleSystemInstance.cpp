@@ -368,7 +368,7 @@ void ezParticleSystemInstance::CreateStream(const char* szName, ezProcessingStre
   if (bWillInitializeElements)
     pInfo->m_bGetsInitialized = true;
 
-  EZ_ASSERT_DEV(pStream != nullptr, "Stream creation failed ('{0}' -> '{1}')", szName, fullName.GetData());
+  EZ_ASSERT_DEV(pStream != nullptr, "Stream creation failed ('{0}' -> '{1}')", szName, fullName);
   *ppStream = pStream;
 
   {
@@ -414,7 +414,7 @@ void ezParticleSystemInstance::CreateStreamZeroInitializers()
 
       if (pStream == nullptr)
       {
-        ezLog::Warning("Particle stream '{0}' is zero-initialized.", info.m_sName.GetData());
+        ezLog::Warning("Particle stream '{0}' is zero-initialized.", info.m_sName);
 
         ezProcessingStreamSpawnerZeroInitialized* pZeroInit = EZ_DEFAULT_NEW(ezProcessingStreamSpawnerZeroInitialized);
         pZeroInit->SetStreamName(info.m_sName);
@@ -423,7 +423,7 @@ void ezParticleSystemInstance::CreateStreamZeroInitializers()
       }
       else
       {
-        //ezLog::Debug("Particle stream '{0}' is default-initialized.", info.m_sName.GetData());
+        //ezLog::Debug("Particle stream '{0}' is default-initialized.", info.m_sName);
         info.m_pDefaultInitializer = pStream;
       }
 
@@ -437,7 +437,7 @@ void ezParticleStreamBinding::UpdateBindings(const ezProcessingStreamGroup* pGro
   for (const auto& bind : m_Bindings)
   {
     ezProcessingStream* pStream = pGroup->GetStreamByName(bind.m_sName);
-    EZ_ASSERT_DEV(pStream != nullptr, "Stream binding '{0}' is invalid now", bind.m_sName.GetData());
+    EZ_ASSERT_DEV(pStream != nullptr, "Stream binding '{0}' is invalid now", bind.m_sName);
 
     *bind.m_ppStream = pStream;
   }

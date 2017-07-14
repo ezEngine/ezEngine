@@ -198,7 +198,7 @@ void ezQtInputConfigDlg::SaveActions()
   ezGameAppInputConfig::WriteToDDL(file, m_Actions);
 
   if (file.Close().Failed())
-    ezLog::Error("Failed to save '{0}'.", sPath.GetData());
+    ezLog::Error("Failed to save '{0}'.", sPath);
 }
 
 void ezQtInputConfigDlg::FillList()

@@ -226,7 +226,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
     {
       if (ci.m_uiChunkVersion != 1)
       {
-        ezLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName.GetData(), ci.m_uiChunkVersion);
+        ezLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName, ci.m_uiChunkVersion);
         return EZ_FAILURE;
       }
 
@@ -248,7 +248,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
     {
       if (ci.m_uiChunkVersion != 1)
       {
-        ezLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName.GetData(), ci.m_uiChunkVersion);
+        ezLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName, ci.m_uiChunkVersion);
         return EZ_FAILURE;
       }
 
@@ -273,7 +273,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
     {
       if (ci.m_uiChunkVersion > 3)
       {
-        ezLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName.GetData(), ci.m_uiChunkVersion);
+        ezLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName, ci.m_uiChunkVersion);
         return EZ_FAILURE;
       }
 
@@ -334,7 +334,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
     {
       if (ci.m_uiChunkVersion != 1)
       {
-        ezLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName.GetData(), ci.m_uiChunkVersion);
+        ezLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName, ci.m_uiChunkVersion);
         return EZ_FAILURE;
       }
 
@@ -350,7 +350,7 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
     {
       if (ci.m_uiChunkVersion != 1)
       {
-        ezLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName.GetData(), ci.m_uiChunkVersion);
+        ezLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName, ci.m_uiChunkVersion);
         return EZ_FAILURE;
       }
 

@@ -260,7 +260,7 @@ ezResult ezPreprocessor::HandleInclude(const TokenStream& Tokens, ezUInt32 uiCur
       sPath.Shrink(0, 1);
     else
     {
-      PP_LOG(Error, "Invalid include path '{0}'", Tokens[uiAccepted], sPath.GetData());
+      PP_LOG(Error, "Invalid include path '{0}'", Tokens[uiAccepted], sPath);
       return EZ_FAILURE;
     }
   }
@@ -277,7 +277,7 @@ ezResult ezPreprocessor::HandleInclude(const TokenStream& Tokens, ezUInt32 uiCur
 
   if (m_FileLocatorCallback(m_sCurrentFileStack.PeekBack().m_sFileName.GetData(), sPath.GetData(), IncType, sOtherFile).Failed())
   {
-    PP_LOG(Error, "#include file '{0}' could not be located", Tokens[uiAccepted], sPath.GetData());
+    PP_LOG(Error, "#include file '{0}' could not be located", Tokens[uiAccepted], sPath);
     return EZ_FAILURE;
   }
 

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Core/Application/Config/PluginConfig.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
@@ -157,14 +157,14 @@ void ezApplicationPluginConfig::Load()
   ezFileReader file;
   if (file.Open(sPath).Failed())
   {
-    ezLog::Warning("Could not open plugins config file '{0}'", sPath.GetData());
+    ezLog::Warning("Could not open plugins config file '{0}'", sPath);
     return;
   }
 
   ezOpenDdlReader reader;
   if (reader.ParseDocument(file, 0, ezLog::GetThreadLocalLogSystem()).Failed())
   {
-    ezLog::Error("Failed to parse plugins config file '{0}'", sPath.GetData());
+    ezLog::Error("Failed to parse plugins config file '{0}'", sPath);
     return;
   }
 

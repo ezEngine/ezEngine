@@ -69,7 +69,7 @@ void ezConsole::FindPossibleCVars(const char* szVariable, ezDeque<ezString>& Aut
   {
     if (ezStringUtils::StartsWith_NoCase(pCVar->GetName(), szVariable))
     {
-      sText.Format("    {0} = {1}", pCVar->GetName(), GetFullInfoAsString(pCVar).GetData());
+      sText.Format("    {0} = {1}", pCVar->GetName(), GetFullInfoAsString(pCVar));
 
       ConsoleString cs;
       cs.m_sText = sText;
@@ -137,7 +137,7 @@ const ezString ezConsole::GetValueAsString(ezCVar* pCVar)
   case ezCVarType::String:
     {
       ezCVarString* pString = static_cast<ezCVarString*> (pCVar);
-      s.Format("\"{0}\"", pString->GetValue().GetData());
+      s.Format("\"{0}\"", pString->GetValue());
     }
     break;
 

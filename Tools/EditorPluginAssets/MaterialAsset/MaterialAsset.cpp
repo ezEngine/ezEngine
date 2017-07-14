@@ -333,7 +333,7 @@ ezString ezMaterialAssetProperties::ResolveRelativeShaderPath() const
     }
     else
     {
-      ezLog::Error("Could not resolve guid '{0}' for the material shader.", m_sShader.GetData());
+      ezLog::Error("Could not resolve guid '{0}' for the material shader.", m_sShader);
       return "";
     }
   }
@@ -972,7 +972,7 @@ ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const char* szPlatfor
     return ezStatus(EZ_SUCCESS);
   }
   else
-    return ezStatus(ezFmt("Failed to write auto-generated shader to '{0}'", sAutoGenShader.GetData()));
+    return ezStatus(ezFmt("Failed to write auto-generated shader to '{0}'", sAutoGenShader));
 }
 
 void ezMaterialAssetDocument::InvalidateCachedShader()

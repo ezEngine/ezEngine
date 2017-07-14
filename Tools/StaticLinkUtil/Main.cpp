@@ -121,7 +121,7 @@ public:
     sSearchDir.MakeCleanPath();
 
     if (!ezPathUtils::IsAbsolutePath(sSearchDir.GetData()))
-      ezLog::Error("The given path is not absolute: '{0}'", sSearchDir.GetData());
+      ezLog::Error("The given path is not absolute: '{0}'", sSearchDir);
 
     m_sSearchDir = sSearchDir;
 
@@ -281,7 +281,7 @@ public:
       ezFileWriter FileOut;
       if (FileOut.Open(it.Key().GetData()) == EZ_FAILURE)
       {
-        ezLog::Error("Could not open the file for writing: '{0}'", it.Key().GetData());
+        ezLog::Error("Could not open the file for writing: '{0}'", it.Key());
         return;
       }
       else
@@ -289,7 +289,7 @@ public:
         m_bModifiedFiles = true;
         FileOut.WriteBytes(it.Value().m_sFileContent.GetData(), it.Value().m_sFileContent.GetElementCount());
 
-        ezLog::Success("File has been modified: '{0}'", it.Key().GetData());
+        ezLog::Success("File has been modified: '{0}'", it.Key());
       }
     }
   }
@@ -331,7 +331,7 @@ public:
 
         if (sInclude.ReplaceAll("\\", "/") > 0)
         {
-          ezLog::Info("Replacing backslashes in #include path with front slashes: '{0}'", sInclude.GetData());
+          ezLog::Info("Replacing backslashes in #include path with front slashes: '{0}'", sInclude);
           sFileContent.ReplaceSubString(szI, szLineEnd, sInclude.GetData());
         }
 
@@ -352,7 +352,7 @@ public:
         // ignore third-party includes
         if (sInclude.FindSubString_NoCase("ThirdParty"))
         {
-          ezLog::Dev("Skipping ThirdParty Include: '{0}'", sInclude.GetData());
+          ezLog::Dev("Skipping ThirdParty Include: '{0}'", sInclude);
           continue;
         }
 
@@ -368,7 +368,7 @@ public:
         // ignore includes to files that cannot be found (ie. they are not part of the ezEngine source tree)
         if (!ezFileSystem::ExistsFile(sCanFindInclude.GetData()) && !ezFileSystem::ExistsFile(sCanFindInclude2.GetData()))
         {
-          ezLog::Dev("Skipping non-Engine Include: '{0}'", sInclude.GetData());
+          ezLog::Dev("Skipping non-Engine Include: '{0}'", sInclude);
           continue;
         }
 
@@ -378,7 +378,7 @@ public:
           ezLog::Warning("This file includes an implementation header from another library: '{0}'", sInclude);
         }
 
-        ezLog::Dev("Found Include: '{0}'", sInclude.GetData());
+        ezLog::Dev("Found Include: '{0}'", sInclude);
 
         m_GlobalIncludes.Insert(sInclude);
       }
@@ -421,7 +421,7 @@ public:
       }
     }
 
-    ezLog::Info("Rewriting PCH: '{0}'", sPCHFile.GetData());
+    ezLog::Info("Rewriting PCH: '{0}'", sPCHFile);
 
     ezStringBuilder sFileContent;
     if (ReadEntireFile(sPCHFile.GetData(), sFileContent) == EZ_FAILURE)
@@ -438,7 +438,7 @@ public:
 
     for (auto it = m_GlobalIncludes.GetIterator(); it.IsValid(); ++it)
     {
-      sAllIncludes.AppendFormat("#include <{0}>\n", it.Key().GetData());
+      sAllIncludes.AppendFormat("#include <{0}>\n", it.Key());
     }
 
     sAllIncludes.ReplaceAll("\\", "/");
@@ -497,7 +497,7 @@ public:
     ezString sFileMarker = GetFileMarkerName(szFile);
 
     ezStringBuilder sNewMarker;
-    sNewMarker.Format("EZ_STATICLINK_FILE({0}, {1});", sLibraryMarker.GetData(), sFileMarker.GetData());
+    sNewMarker.Format("EZ_STATICLINK_FILE({0}, {1});", sLibraryMarker, sFileMarker);
 
     m_AllRefPoints.Insert(sFileMarker.GetData());
 
@@ -516,7 +516,7 @@ public:
     else
     {
       // otherwise insert it at the end of the file
-      sFileContent.AppendFormat("\n\n{0}\n\n", sNewMarker.GetData());
+      sFileContent.AppendFormat("\n\n{0}\n\n", sNewMarker);
     }
 
     // rewrite the entire file
@@ -532,7 +532,7 @@ public:
 
     EZ_LOG_BLOCK("RewriteRefPointGroup", szFile);
 
-    ezLog::Info("Replacing macro EZ_STATICLINK_LIBRARY in file '{0}'.", m_sRefPointGroupFile.GetData());
+    ezLog::Info("Replacing macro EZ_STATICLINK_LIBRARY in file '{0}'.", m_sRefPointGroupFile);
 
     ezStringBuilder sFileContent;
     if (ReadEntireFile(szFile, sFileContent) == EZ_FAILURE)
@@ -560,13 +560,13 @@ public:
     // generate the code that should be inserted into this file
     // this code will reference all the other files in the library
     {
-      sNewGroupMarker.Format("EZ_STATICLINK_LIBRARY({0})\n{\n  if (bReturn)\n    return;\n\n", GetLibraryMarkerName().GetData());
+      sNewGroupMarker.Format("EZ_STATICLINK_LIBRARY({0})\n{\n  if (bReturn)\n    return;\n\n", GetLibraryMarkerName());
 
       auto it = m_AllRefPoints.GetIterator();
 
       while (it.IsValid())
       {
-        sNewGroupMarker.AppendFormat("  EZ_STATICLINK_REFERENCE({0});\n", it.Key().GetData());
+        sNewGroupMarker.AppendFormat("  EZ_STATICLINK_REFERENCE({0});\n", it.Key());
         ++it;
       }
 
@@ -605,7 +605,7 @@ public:
     {
       // if we can't find the macro, append it to the end of the file
       // this can only happen, if we ever extend this tool such that it picks one file to auto-insert this macro
-      sFileContent.AppendFormat("\n\n{0}\n\n", sNewGroupMarker.GetData());
+      sFileContent.AppendFormat("\n\n{0}\n\n", sNewGroupMarker);
     }
 
     OverwriteFile(szFile, sFileContent);
@@ -653,7 +653,7 @@ public:
       while (it.Next() == EZ_SUCCESS);
     }
     else
-      ezLog::Error("Could not search the directory '{0}'", m_sSearchDir.GetData());
+      ezLog::Error("Could not search the directory '{0}'", m_sSearchDir);
   }
 
   void MakeSureStaticLinkLibraryMacroExists()
@@ -720,10 +720,10 @@ public:
           // part such that it will reference all the other files
           if (sFileContent.FindSubString("EZ_STATICLINK_LIBRARY"))
           {
-            ezLog::Info("Found macro 'EZ_STATICLINK_LIBRARY' in file '{0}'.", &sFile.GetData()[m_sSearchDir.GetElementCount() + 1]);
+            ezLog::Info("Found macro 'EZ_STATICLINK_LIBRARY' in file '{0}'.", &sFile[m_sSearchDir.GetElementCount() + 1]);
 
             if (!m_sRefPointGroupFile.IsEmpty())
-              ezLog::Error("The macro 'EZ_STATICLINK_LIBRARY' was already found in file '{0}' before. You cannot have this macro twice in the same library!", m_sRefPointGroupFile.GetData());
+              ezLog::Error("The macro 'EZ_STATICLINK_LIBRARY' was already found in file '{0}' before. You cannot have this macro twice in the same library!", m_sRefPointGroupFile);
             else
               m_sRefPointGroupFile = sFile;
           }
@@ -732,7 +732,7 @@ public:
       while (it.Next() == EZ_SUCCESS);
     }
     else
-      ezLog::Error("Could not search the directory '{0}'", m_sSearchDir.GetData());
+      ezLog::Error("Could not search the directory '{0}'", m_sSearchDir);
 
     MakeSureStaticLinkLibraryMacroExists();
   }

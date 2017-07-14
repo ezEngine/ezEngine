@@ -24,7 +24,7 @@ void ezQtToolBarActionMapView::SetActionContext(const ezActionContext& context)
 {
   auto pMap = ezActionMapManager::GetActionMap(context.m_sMapping);
 
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping '{0}' does not exist", context.m_sMapping.GetData());
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping '{0}' does not exist", context.m_sMapping);
 
   m_pActionMap = pMap;
   m_Context = context;

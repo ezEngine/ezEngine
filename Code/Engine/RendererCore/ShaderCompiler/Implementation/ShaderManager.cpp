@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>
 #include <RendererCore/Shader/Implementation/Helper.h>
@@ -115,7 +115,7 @@ void ezShaderManager::Configure(const char* szActivePlatform, bool bEnableRuntim
 void ezShaderManager::ReloadPermutationVarConfig(const char* szName, const ezTempHashedString& sHashedName)
 {
   ezStringBuilder sPath;
-  sPath.Format("{0}/{1}.ezPermVar", s_sPermVarSubDir.GetData(), szName);
+  sPath.Format("{0}/{1}.ezPermVar", s_sPermVarSubDir, szName);
 
   // clear earlier data
   s_PermutationVarConfigs.Remove(sHashedName);
@@ -131,13 +131,13 @@ void ezShaderManager::ReloadPermutationVarConfig(const char* szName, const ezTem
 
   if (pp.Process(sPath, sTemp, false).Failed())
   {
-    ezLog::Error("Could not read shader permutation variable '{0}' from file '{1}'", szName, sPath.GetData());
+    ezLog::Error("Could not read shader permutation variable '{0}' from file '{1}'", szName, sPath);
   }
 
   ezVariant defaultValue;
   ezHybridArray<ezHashedString, 16> enumValues;
 
-  ezShaderParser::ParsePermutationVarConfig(sTemp, defaultValue, enumValues);
+  ezShaderParser::ParsePermutationVarConfig(szName, sTemp, defaultValue, enumValues);
   if (defaultValue.IsValid())
   {
     ezHashedString sName; sName.Assign(szName);

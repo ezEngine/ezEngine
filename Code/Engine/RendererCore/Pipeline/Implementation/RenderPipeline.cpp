@@ -458,7 +458,7 @@ bool ezRenderPipeline::InitRenderTargetDescriptions(const ezView& view)
         {
           if (data.m_Inputs[pPin->m_uiInputIndex] == nullptr)
           {
-            //ezLog::Error("The pass of type '{0}' has a pass through pin '{1}' that has an output but no input!", pPass->GetDynamicRTTI()->GetTypeName(), pPass->GetPinName(pPin).GetData());
+            //ezLog::Error("The pass of type '{0}' has a pass through pin '{1}' that has an output but no input!", pPass->GetDynamicRTTI()->GetTypeName(), pPass->GetPinName(pPin));
             //return false;
           }
           else if (data.m_Outputs[pPin->m_uiOutputIndex]->m_Desc.CalculateHash() != data.m_Inputs[pPin->m_uiInputIndex]->m_Desc.CalculateHash())

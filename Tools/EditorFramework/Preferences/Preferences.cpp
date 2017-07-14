@@ -122,7 +122,7 @@ void ezPreferences::Save() const
   ezReflectionSerializer::WriteObjectToDDL(file, GetDynamicRTTI(), this, false, ezOpenDdlWriter::TypeStringMode::Compliant);
 
   if (file.Close().Failed())
-    ezLog::Error("Failed to open file for writing '{0}'.", GetFilePath().GetData());
+    ezLog::Error("Failed to open file for writing '{0}'.", GetFilePath());
 }
 
 

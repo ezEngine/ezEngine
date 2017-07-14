@@ -44,7 +44,7 @@ ezMap<ezString, ezString> ezActionManager::s_ShortcutOverride;
 ezActionDescriptorHandle ezActionManager::RegisterAction(const ezActionDescriptor& desc)
 {
   ezActionDescriptorHandle hType = GetActionHandle(desc.m_sCategoryPath, desc.m_sActionName);
-  EZ_ASSERT_DEV(hType.IsInvalidated(), "The action '{0}' in category '{1}' was already registered!", desc.m_sActionName.GetData(), desc.m_sCategoryPath.GetData());
+  EZ_ASSERT_DEV(hType.IsInvalidated(), "The action '{0}' in category '{1}' was already registered!", desc.m_sActionName, desc.m_sCategoryPath);
 
   ezActionDescriptor* pDesc = CreateActionDesc(desc);
 
@@ -159,7 +159,7 @@ void ezActionManager::SaveShortcutAssignment()
 
   if (file.Close().Failed())
   {
-    ezLog::Error("Failed to write shortcuts config file '{0}'", sFile.GetData());
+    ezLog::Error("Failed to write shortcuts config file '{0}'", sFile);
   }
 }
 
@@ -173,7 +173,7 @@ void ezActionManager::LoadShortcutAssignment()
   ezFileReader file;
   if (file.Open(sFile).Failed())
   {
-    ezLog::Dev("No shortcuts file '{0}' was found", sFile.GetData());
+    ezLog::Dev("No shortcuts file '{0}' was found", sFile);
     return;
   }
 

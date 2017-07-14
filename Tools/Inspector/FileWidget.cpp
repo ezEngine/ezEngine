@@ -180,7 +180,7 @@ void ezQtFileWidget::ProcessTelemetry(void* pUnuseed)
         Msg.GetReader() >> bSuccess;
 
         ezStringBuilder s;
-        s.Format("'{0}' -> '{1}'", sFile1.GetData(), sFile2.GetData());
+        s.Format("'{0}' -> '{1}'", sFile1, sFile2);
         data.m_sFile = s.GetData();
 
         data.m_State = bSuccess ? FileCopy : FileCopyFailed;

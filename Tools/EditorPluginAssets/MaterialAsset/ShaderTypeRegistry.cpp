@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginAssets/MaterialAsset/ShaderTypeRegistry.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -83,7 +83,7 @@ namespace
     }
 
     ezStringBuilder sTemp;
-    sTemp.Format("Shaders/PermutationVars/{0}.ezPermVar", def.m_sName.GetData());
+    sTemp.Format("Shaders/PermutationVars/{0}.ezPermVar", def.m_sName);
 
     ezString sPath = sTemp;
     ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath);
@@ -99,7 +99,7 @@ namespace
     ezVariant defaultValue;
     ezHybridArray<ezHashedString, 16> enumValues;
 
-    ezShaderParser::ParsePermutationVarConfig(sTemp, defaultValue, enumValues);
+    ezShaderParser::ParsePermutationVarConfig(def.m_sName, sTemp, defaultValue, enumValues);
     if (defaultValue.IsValid())
     {
       pConfig = &(s_PermutationVarConfigs[def.m_sName]);
@@ -122,7 +122,7 @@ namespace
         ezArrayPtr<ezPropertyAttribute* const> noAttributes;
 
         ezStringBuilder sEnumName;
-        sEnumName.Format("{0}::Default", def.m_sName.GetData());
+        sEnumName.Format("{0}::Default", def.m_sName);
 
         descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, defaultValue.Get<ezUInt32>(), noAttributes));
 
@@ -132,7 +132,7 @@ namespace
             continue;
 
           ezStringBuilder sEnumName;
-          sEnumName.Format("{0}::{1}", def.m_sName.GetData(), enumValues[i].GetData());
+          sEnumName.Format("{0}::{1}", def.m_sName, enumValues[i].GetData());
 
           descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, (ezUInt32)i, noAttributes));
         }
@@ -258,7 +258,7 @@ const ezRTTI* ezShaderTypeRegistry::GetShaderType(const char* szShaderPath)
   {
     if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sShaderPath))
     {
-      ezLog::Error("Could not make shader path '{0}' relative!", sShaderPath.GetData());
+      ezLog::Error("Could not make shader path '{0}' relative!", sShaderPath);
     }
   }
 
@@ -305,7 +305,7 @@ void ezShaderTypeRegistry::UpdateShaderType(ShaderData& data)
     ezFileReader file;
     if (!bStat || file.Open(data.m_sAbsShaderPath).Failed())
     {
-      ezLog::Error("Can't update shader '{0}' type information, the file can't be opened.", data.m_sShaderPath.GetData());
+      ezLog::Error("Can't update shader '{0}' type information, the file can't be opened.", data.m_sShaderPath);
       return;
     }
 

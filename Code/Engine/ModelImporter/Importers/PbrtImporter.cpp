@@ -131,7 +131,7 @@ namespace ezModelImporter
         ezStringView type = PbrtParseHelper::ReadBlock(remainingSceneText, '\"', '\"');
         if (!type.IsValid())
         {
-          ezLog::Error("Object '{0}' in pbrt file '{1}' has no type specifier.", commandName.GetData(), szFileName);
+          ezLog::Error("Object '{0}' in pbrt file '{1}' has no type specifier.", commandName, szFileName);
           continue;
         }
 
@@ -157,7 +157,7 @@ namespace ezModelImporter
             if (paramType == ParamType::INVALID)
             {
               ezString paramTypeStringInst = paramTypeString;
-              ezLog::Error("Unknown parameter type '{0}' in pbrt file '{1}' for an object '{2}'.", paramTypeStringInst.GetData(), commandName.GetData(), szFileName);
+              ezLog::Error("Unknown parameter type '{0}' in pbrt file '{1}' for an object '{2}'.", paramTypeStringInst, commandName, szFileName);
               break;
             }
 
@@ -187,7 +187,7 @@ namespace ezModelImporter
 
       else
       {
-        ezLog::Warning("Unknown Pbrt command '{0}'.", commandName.GetData());
+        ezLog::Warning("Unknown Pbrt command '{0}'.", commandName);
       }
 
       // Skip lines until something does not start like a parameter.

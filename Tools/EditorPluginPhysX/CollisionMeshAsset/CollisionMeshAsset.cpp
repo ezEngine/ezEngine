@@ -129,7 +129,7 @@ static ezStatus ImportMesh(const char* filename, const char* subMeshFilename, ez
   outMeshFileAbs = filename;
   if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(outMeshFileAbs))
   {
-    return ezStatus(ezFmt("Could not make path absolute: '{0};", outMeshFileAbs.GetData()));
+    return ezStatus(ezFmt("Could not make path absolute: '{0};", outMeshFileAbs));
   }
 
   EZ_SUCCEED_OR_RETURN(ezModelImporter::Importer::GetSingleton()->ImportMesh(outMeshFileAbs, subMeshFilename, outScene, outMesh));

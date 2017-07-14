@@ -58,7 +58,7 @@ ezApplication::ApplicationExecution ezTexConv::Run()
     if (m_bHasOutput && m_FileOut.Close().Failed())
     {
       SetReturnCode(TexConvReturnCodes::FAILED_WRITE_OUTPUT);
-      ezLog::Error("Could not open output file for writing: '{0}'", m_sOutputFile.GetData());
+      ezLog::Error("Could not open output file for writing: '{0}'", m_sOutputFile);
     }
   }
   else
@@ -182,7 +182,7 @@ ezResult ezTexConv::SaveThumbnail()
   if (m_sThumbnailFile.IsEmpty())
     return EZ_SUCCESS;
 
-  ezLog::Info("Thumbnail: '{0}'", m_sThumbnailFile.GetData());
+  ezLog::Info("Thumbnail: '{0}'", m_sThumbnailFile);
 
   const ezUInt32 uiThumbnailSize = 128;
 

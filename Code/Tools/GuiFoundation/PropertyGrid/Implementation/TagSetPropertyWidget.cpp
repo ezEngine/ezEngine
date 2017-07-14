@@ -189,7 +189,7 @@ void ezQtPropertyEditorTagSetWidget::onCheckBoxClicked(bool bChecked)
         auto res = pObjectAccessor->InsertValue(item.m_pObject, m_pProp, value, -1);
         if (res.m_Result.Failed())
         {
-          EZ_REPORT_FAILURE("Failed to add '{0}' tag to tag set", value.Get<ezString>().GetData());
+          EZ_REPORT_FAILURE("Failed to add '{0}' tag to tag set", value.Get<ezString>());
         }
       }
     }
@@ -213,7 +213,7 @@ void ezQtPropertyEditorTagSetWidget::onCheckBoxClicked(bool bChecked)
         auto res = pObjectAccessor->RemoveValue(item.m_pObject, m_pProp, uiIndex);
         if (res.m_Result.Failed())
         {
-          EZ_REPORT_FAILURE("Failed to remove '{0}' tag from tag set", value.Get<ezString>().GetData());
+          EZ_REPORT_FAILURE("Failed to remove '{0}' tag from tag set", value.Get<ezString>());
         }
       }
     }

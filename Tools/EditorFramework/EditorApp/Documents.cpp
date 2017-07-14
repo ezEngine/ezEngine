@@ -30,7 +30,7 @@ ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile
     ezStringBuilder sTemp = szFile;
     ezStringBuilder sExt = sTemp.GetFileExtension();
 
-    sTemp.Format("The selected file extension '{0}' is not registered with any known type.\nCannot open file '{1}'", sExt.GetData(), szFile);
+    sTemp.Format("The selected file extension '{0}' is not registered with any known type.\nCannot open file '{1}'", sExt, szFile);
 
     ezQtUiServices::MessageBoxWarning(sTemp);
     return nullptr;
@@ -64,7 +64,7 @@ ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile
       return nullptr;
     }
 
-    EZ_ASSERT_DEV(pDocument != nullptr, "Creation of document type '{0}' succeeded, but returned pointer is nullptr", pTypeDesc->m_sDocumentTypeName.GetData());
+    EZ_ASSERT_DEV(pDocument != nullptr, "Creation of document type '{0}' succeeded, but returned pointer is nullptr", pTypeDesc->m_sDocumentTypeName);
 
     if (pDocument->GetUnknownObjectTypeInstances() > 0)
     {
@@ -75,7 +75,7 @@ The following types are missing:\n", pDocument->GetUnknownObjectTypeInstances())
 
       for (auto it = pDocument->GetUnknownObjectTypes().GetIterator(); it.IsValid(); ++it)
       {
-        s.AppendFormat(" '{0}' ", (*it).GetData());
+        s.AppendFormat(" '{0}' ", (*it));
       }
 
       ezQtUiServices::MessageBoxWarning(s);

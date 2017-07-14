@@ -176,7 +176,7 @@ void ezQtInputWidget::UpdateSlotTable(bool bRecreate)
     {
       it.Value().m_iTableRow = iRow;
 
-      sTemp.Format("  {0}  ", it.Key().GetData());
+      sTemp.Format("  {0}  ", it.Key());
 
       QLabel* pIcon = new QLabel();
       pIcon->setPixmap(ezQtUiServices::GetCachedPixmapResource(":/Icons/Icons/InputSlots.png"));
@@ -318,7 +318,7 @@ void ezQtInputWidget::UpdateActionTable(bool bRecreate)
     {
       it.Value().m_iTableRow = iRow;
 
-      sTemp.Format("  {0}  ", it.Key().GetData());
+      sTemp.Format("  {0}  ", it.Key());
 
       QLabel* pIcon = new QLabel();
       pIcon->setPixmap(ezQtUiServices::GetCachedPixmapResource(":/Icons/Icons/InputActions.png"));
@@ -339,7 +339,7 @@ void ezQtInputWidget::UpdateActionTable(bool bRecreate)
         if (it.Value().m_sTrigger[slot].IsEmpty())
           sTemp = "  ";
         else
-          sTemp.Format("  [Scale: {0}] {1}  ", ezArgF(it.Value().m_fTriggerScaling[slot], 2), it.Value().m_sTrigger[slot].GetData());
+          sTemp.Format("  [Scale: {0}] {1}  ", ezArgF(it.Value().m_fTriggerScaling[slot], 2), it.Value().m_sTrigger[slot]);
 
         QLabel* pValue = (QLabel*) TableInputActions->cellWidget(iRow, 4 + slot);
         pValue->setText(sTemp.GetData());

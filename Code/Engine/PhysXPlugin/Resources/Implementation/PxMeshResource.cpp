@@ -132,7 +132,7 @@ ezResourceLoadDesc ezPxMeshResource::UpdateContent(ezStreamReader* Stream)
 
     if (m_pPxTriangleMesh == nullptr && m_pPxConvexMesh == nullptr)
     {
-      ezLog::Error("Could neither find a 'TriangleMesh' chunk, nor a 'ConvexMesh' chunk in the PhysXMesh file '{0}'", GetResourceID().GetData());
+      ezLog::Error("Could neither find a 'TriangleMesh' chunk, nor a 'ConvexMesh' chunk in the PhysXMesh file '{0}'", GetResourceID());
     }
 
 

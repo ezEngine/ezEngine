@@ -381,7 +381,7 @@ void ezProcessTask::Execute()
   }
   else
   {
-    ezLog::Info(&ezAssetProcessor::GetSingleton()->m_CuratorLog, "Processing '{0}'", m_sAssetPath.GetData());
+    ezLog::Info(&ezAssetProcessor::GetSingleton()->m_CuratorLog, "Processing '{0}'", m_sAssetPath);
     // Send and wait
     ezProcessAsset msg;
     msg.m_AssetGuid = m_assetGuid;

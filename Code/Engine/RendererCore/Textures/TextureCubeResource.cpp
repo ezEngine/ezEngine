@@ -117,7 +117,7 @@ ezResourceLoadDesc ezTextureCubeResource::UpdateContent(ezStreamReader* Stream)
   if (pImage->GetNumFaces() == 6)
     texDesc.m_Type = ezGALTextureType::TextureCube;
 
-  EZ_ASSERT_DEV(pImage->GetNumFaces() == 1 || pImage->GetNumFaces() == 6, "Invalid number of image faces (resource: '{0}')", GetResourceID().GetData());
+  EZ_ASSERT_DEV(pImage->GetNumFaces() == 1 || pImage->GetNumFaces() == 6, "Invalid number of image faces (resource: '{0}')", GetResourceID());
 
   m_uiMemoryGPU[m_uiLoadedTextures] = 0;
 

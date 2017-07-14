@@ -201,7 +201,7 @@ ezStatus ezDocument::InternalSaveDocument()
 
   if (file.Close() == EZ_FAILURE)
   {
-    return ezStatus(ezFmt("Unable to open file '{0}' for writing!", m_sDocumentPath.GetData()));
+    return ezStatus(ezFmt("Unable to open file '{0}' for writing!", m_sDocumentPath));
   }
 
   return ezStatus(EZ_SUCCESS);

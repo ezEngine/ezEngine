@@ -509,11 +509,11 @@ void ezTexConv::PrintConfig()
     EZ_ASSERT_NOT_IMPLEMENTED;
   }
 
-  ezLog::Info("Output: '{0}'", m_sOutputFile.GetData());
+  ezLog::Info("Output: '{0}'", m_sOutputFile);
 
   for (ezUInt32 i = 0; i < m_InputFileNames.GetCount(); ++i)
   {
-    ezLog::Info("Input {0}: '{1}'", i, m_InputFileNames[i].GetData());
+    ezLog::Info("Input {0}: '{1}'", i, m_InputFileNames[i]);
   }
 
   ezLog::Info("Generate Mipmaps: {0}", m_bGeneratedMipmaps ? "yes" : "no");
@@ -531,7 +531,7 @@ void ezTexConv::PrintConfig()
     }
     else
     {
-      ezLog::Info("Output[{0}] = Input[{1}].{2}", i, m_2dSource[i].m_iInput, ChannelMaskToString(m_2dSource[i].m_uiChannelMask).GetData());
+      ezLog::Info("Output[{0}] = Input[{1}].{2}", i, m_2dSource[i].m_iInput, ChannelMaskToString(m_2dSource[i].m_uiChannelMask));
     }
   }
 

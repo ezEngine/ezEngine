@@ -23,7 +23,7 @@ ezResult ezPreprocessor::StoreDefine(const ezToken* pMacroNameToken, const Token
 
   if ((sMacroName == "defined") || (sMacroName == "__FILE__") || (sMacroName == "__LINE__"))
   {
-    PP_LOG(Error, "Macro name '{0}' is reserved", pMacroNameToken, sMacroName.GetData());
+    PP_LOG(Error, "Macro name '{0}' is reserved", pMacroNameToken, sMacroName);
     return EZ_FAILURE;
   }
 
@@ -39,7 +39,7 @@ ezResult ezPreprocessor::StoreDefine(const ezToken* pMacroNameToken, const Token
 
   if (!md.m_Replacement.IsEmpty() && md.m_Replacement.PeekBack()->m_DataView == "#")
   {
-    PP_LOG(Error, "Macro '{0}' ends with invalid character '#'", md.m_Replacement.PeekBack(), sMacroName.GetData());
+    PP_LOG(Error, "Macro '{0}' ends with invalid character '#'", md.m_Replacement.PeekBack(), sMacroName);
     return EZ_FAILURE;
   }
 
@@ -64,7 +64,7 @@ ezResult ezPreprocessor::StoreDefine(const ezToken* pMacroNameToken, const Token
 
   if (bExisted)
   {
-    PP_LOG(Warning, "Redefinition of macro '{0}'", pMacroNameToken, sMacroName.GetData());
+    PP_LOG(Warning, "Redefinition of macro '{0}'", pMacroNameToken, sMacroName);
     //return EZ_FAILURE;
   }
 

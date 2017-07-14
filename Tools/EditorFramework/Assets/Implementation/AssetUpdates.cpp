@@ -108,7 +108,7 @@ bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bReferences, ezUInt64& u
     ezUInt64 uiAssetHash = GetAssetHash(guid, bReferences);
     if (uiAssetHash == 0)
     {
-      ezLog::Error("Failed to hash dependency asset '{0}'", sPath.GetData());
+      ezLog::Error("Failed to hash dependency asset '{0}'", sPath);
       return false;
     }
     uiHashResult += uiAssetHash;
@@ -140,7 +140,7 @@ bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bReferences, ezUInt64& u
     ezFileReader file;
     if (file.Open(sPath).Failed())
     {
-      ezLog::Error("Failed to open file '{0}'", sPath.GetData());
+      ezLog::Error("Failed to open file '{0}'", sPath);
       return false;
     }
     fileref.m_Timestamp = statDep.m_LastModificationTime;
@@ -282,7 +282,7 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(const char* szAbsFilePath)
           // even if we might know that changing another file makes more sense
           // This works well for when the editor is running and someone copies a file.
 
-          ezLog::Error("Two assets have identical GUIDs: '{0}' and '{1}'", assetInfo.m_sAbsolutePath.GetData(), pAssetInfo->m_sAbsolutePath.GetData());
+          ezLog::Error("Two assets have identical GUIDs: '{0}' and '{1}'", assetInfo.m_sAbsolutePath, pAssetInfo->m_sAbsolutePath);
 
           const ezUuid mod = ezUuid::StableUuidForString(szAbsFilePath);
           ezUuid newGuid = assetInfo.m_Info.m_DocumentID;

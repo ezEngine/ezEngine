@@ -111,7 +111,7 @@ void ezQtGlobalEventsWidget::UpdateTable(bool bRecreate)
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TableEvents->setCellWidget(iRow, 0, pIcon);
 
-      sTemp.Format("  {0}  ", it.Key().GetData());
+      sTemp.Format("  {0}  ", it.Key());
       TableEvents->setCellWidget(iRow, 1, new QLabel(sTemp.GetData())); // Event
 
       sTemp.Format("  {0}  ", it.Value().m_uiTimesFired);

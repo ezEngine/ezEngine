@@ -1,4 +1,4 @@
-
+﻿
 #include <PCH.h>
 #include <Foundation/Types/Tag.h>
 #include <Foundation/Logging/Log.h>

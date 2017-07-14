@@ -133,7 +133,7 @@ ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
 
       bValueEmpty = false;
 
-      sCommand.AppendFormat(" not {0}", sVarName.GetData());
+      sCommand.AppendFormat(" not {0}", sVarName);
     }
 
     if (bSetValue && !bValueEmpty)
@@ -150,13 +150,13 @@ ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
           pConsole->AddConsoleString("  This change takes only effect after a restart.", ezColor(1, 200.0f / 255.0f, 0));
         }
 
-        sTemp.Format("  {0} = {1}", sVarName.GetData(), pConsole->GetFullInfoAsString(pCVAR).GetData());
+        sTemp.Format("  {0} = {1}", sVarName, pConsole->GetFullInfoAsString(pCVAR));
         pConsole->AddConsoleString(sTemp.GetData(), ezColor(50.0f / 255.0f, 1, 50.0f / 255.0f));
       }
     }
     else
     {
-      sTemp.Format("{0} = {1}", sVarName.GetData(), pConsole->GetFullInfoAsString(pCVAR).GetData());
+      sTemp.Format("{0} = {1}", sVarName, pConsole->GetFullInfoAsString(pCVAR));
       pConsole->AddConsoleString(sTemp.GetData());
 
       if (!ezStringUtils::IsNullOrEmpty(pCVAR->GetDescription()))

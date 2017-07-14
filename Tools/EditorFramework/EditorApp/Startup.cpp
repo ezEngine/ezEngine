@@ -167,7 +167,7 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
 
   ezString sApplicationID = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-appid", 0, "ezEditor");
   ezStringBuilder sLogFile;
-  sLogFile.Format(":appdata/Log_{0}.htm", sApplicationID.GetData());
+  sLogFile.Format(":appdata/Log_{0}.htm", sApplicationID);
   m_LogHTML.BeginLog(sLogFile, sApplicationID);
 
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);

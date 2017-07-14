@@ -136,7 +136,7 @@ void ezQtEditorApp::LoadEditorPlugins()
 
     for (auto it = NotLoaded.GetIterator(); it.IsValid(); ++it)
     {
-      s.AppendFormat(" '{0}' ", it.Key().GetData());
+      s.AppendFormat(" '{0}' ", it.Key());
     }
 
     ezQtUiServices::MessageBoxWarning(s);

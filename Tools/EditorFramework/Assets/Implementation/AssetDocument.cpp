@@ -113,7 +113,7 @@ void ezAssetDocument::InternalAfterSaveDocument()
 
     if (ret.m_Result.Failed())
     {
-      ezLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage.GetData(), GetDocumentPath());
+      ezLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage, GetDocumentPath());
     }
     else
     {
@@ -440,8 +440,8 @@ ezStatus ezAssetDocument::SaveThumbnail(const ezImage& img, const ezAssetFileHea
   {
     const ezStringBuilder sResourceFile = GetThumbnailFilePath();
 
-    ezLog::Error("Could not convert asset thumbnail to target format: '{0}'", sResourceFile.GetData());
-    return ezStatus(ezFmt("Could not convert asset thumbnail to target format: '{0}'", sResourceFile.GetData()));
+    ezLog::Error("Could not convert asset thumbnail to target format: '{0}'", sResourceFile);
+    return ezStatus(ezFmt("Could not convert asset thumbnail to target format: '{0}'", sResourceFile));
   }
 
   QImage qimg(converted.GetPixelPointer<ezUInt8>(), converted.GetWidth(), converted.GetHeight(), QImage::Format_RGBA8888);
@@ -493,8 +493,8 @@ ezStatus ezAssetDocument::SaveThumbnail(const QImage& qimg0, const ezAssetFileHe
   // save to JPEG
   if (!qimg.save(QString::fromUtf8(sResourceFile.GetData()), nullptr, 90))
   {
-    ezLog::Error("Could not save asset thumbnail: '{0}'", sResourceFile.GetData());
-    return ezStatus(ezFmt("Could not save asset thumbnail: '{0}'", sResourceFile.GetData()));
+    ezLog::Error("Could not save asset thumbnail: '{0}'", sResourceFile);
+    return ezStatus(ezFmt("Could not save asset thumbnail: '{0}'", sResourceFile));
   }
 
   AppendThumbnailInfo(sResourceFile, header);
@@ -563,16 +563,16 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
 
   if (ezEditorEngineProcessConnection::GetSingleton()->WaitForDocumentMessage(GetGuid(), ezExportDocumentMsgToEditor::GetStaticRTTI(), ezTime::Seconds(60), &callback).Failed())
   {
-    return ezStatus(ezFmt("Remote exporting {0} to \"{1}\" timed out.", QueryAssetType(), msg.m_sOutputFile.GetData()));
+    return ezStatus(ezFmt("Remote exporting {0} to \"{1}\" timed out.", QueryAssetType(), msg.m_sOutputFile));
   }
   else
   {
     if (!bSuccess)
     {
-      return ezStatus(ezFmt("Remote exporting {0} to \"{1}\" failed.", QueryAssetType(), msg.m_sOutputFile.GetData()));
+      return ezStatus(ezFmt("Remote exporting {0} to \"{1}\" failed.", QueryAssetType(), msg.m_sOutputFile));
     }
 
-    ezLog::Success("{0} \"{1}\" has been exported.", QueryAssetType(), msg.m_sOutputFile.GetData());
+    ezLog::Success("{0} \"{1}\" has been exported.", QueryAssetType(), msg.m_sOutputFile);
 
     ShowDocumentStatus(ezFmt("{0} exported successfully", QueryAssetType()));
 

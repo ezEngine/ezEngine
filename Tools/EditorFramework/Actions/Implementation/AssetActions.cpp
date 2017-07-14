@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/Assets/AssetCurator.h>
@@ -100,7 +100,7 @@ void ezAssetAction::Execute(const ezVariant& value)
         ezStatus res = const_cast<ezDocument*>(m_Context.m_pDocument)->SaveDocument();
         if (res.m_Result.Failed())
         {
-          ezLog::Error("Failed to save document '{0}': '{1}'", m_Context.m_pDocument->GetDocumentPath(), res.m_sMessage.GetData());
+          ezLog::Error("Failed to save document '{0}': '{1}'", m_Context.m_pDocument->GetDocumentPath(), res.m_sMessage);
           break;
         }
       }
@@ -109,7 +109,7 @@ void ezAssetAction::Execute(const ezVariant& value)
 
       if (ret.m_Result.Failed())
       {
-        ezLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage.GetData(), m_Context.m_pDocument->GetDocumentPath());
+        ezLog::Error("Transform failed: '{0}' ({1})", ret.m_sMessage, m_Context.m_pDocument->GetDocumentPath());
       }
       else
       {

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Shader/Implementation/Helper.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
@@ -170,7 +170,7 @@ void ezShaderParser::ParsePermutationSection(ezStringView s, ezHybridArray<ezHas
     if (sToken.IsEmpty())
     {
       ezString invalidData = s;
-      ezLog::Warning("Invalid identifier in token section at: \"{0}\"", invalidData.GetData());
+      ezLog::Warning("Invalid identifier in token section at: \"{0}\"", invalidData);
       break;
     }
 
@@ -182,7 +182,7 @@ void ezShaderParser::ParsePermutationSection(ezStringView s, ezHybridArray<ezHas
 }
 
 //static
-void ezShaderParser::ParsePermutationVarConfig(ezStringView s, ezVariant& out_DefaultValue, ezHybridArray<ezHashedString, 16>& out_EnumValues)
+void ezShaderParser::ParsePermutationVarConfig(const char* szPermVarName, ezStringView s, ezVariant& out_DefaultValue, ezHybridArray<ezHashedString, 16>& out_EnumValues)
 {
   SkipWhitespace(s);
 

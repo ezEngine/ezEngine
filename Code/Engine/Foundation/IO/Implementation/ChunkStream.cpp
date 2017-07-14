@@ -20,7 +20,7 @@ void ezChunkStreamWriter::BeginStream()
 void ezChunkStreamWriter::EndStream()
 {
   EZ_ASSERT_DEV(m_bWritingFile, "Not writing to the file.");
-  EZ_ASSERT_DEV(!m_bWritingChunk, "A chunk is still open for writing: '{0}'", m_sChunkName.GetData());
+  EZ_ASSERT_DEV(!m_bWritingChunk, "A chunk is still open for writing: '{0}'", m_sChunkName);
 
   m_bWritingFile = false;
 
@@ -31,7 +31,7 @@ void ezChunkStreamWriter::EndStream()
 void ezChunkStreamWriter::BeginChunk(const char* szName, ezUInt32 uiVersion)
 {
   EZ_ASSERT_DEV(m_bWritingFile, "Not writing to the file.");
-  EZ_ASSERT_DEV(!m_bWritingChunk, "A chunk is already open for writing: '{0}'", m_sChunkName.GetData());
+  EZ_ASSERT_DEV(!m_bWritingChunk, "A chunk is already open for writing: '{0}'", m_sChunkName);
 
   m_sChunkName = szName;
 
@@ -156,7 +156,7 @@ void ezChunkStreamReader::NextChunk()
 
   const ezUInt64 uiToSkip  = m_ChunkInfo.m_uiUnreadChunkBytes;
   const ezUInt64 uiSkipped = SkipBytes(uiToSkip);
-  EZ_VERIFY(uiSkipped == uiToSkip, "Corrupt chunk '{0}' (version {1}), tried to skip {2} bytes, could only read {3} bytes", m_ChunkInfo.m_sChunkName.GetData(), m_ChunkInfo.m_uiChunkVersion, uiToSkip, uiSkipped);
+  EZ_VERIFY(uiSkipped == uiToSkip, "Corrupt chunk '{0}' (version {1}), tried to skip {2} bytes, could only read {3} bytes", m_ChunkInfo.m_sChunkName, m_ChunkInfo.m_uiChunkVersion, uiToSkip, uiSkipped);
 
   TryReadChunkHeader();
 }

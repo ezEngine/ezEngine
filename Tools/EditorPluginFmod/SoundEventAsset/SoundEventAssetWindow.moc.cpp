@@ -72,7 +72,7 @@ void ezSoundEventAssetDocumentWindow::UpdatePreview()
   //s.Format("Vertices: {0}\nTriangles: {1}\nSubMeshes: {2}", prop->m_uiVertices, prop->m_uiTriangles, prop->m_SlotNames.GetCount());
 
   //for (ezUInt32 m = 0; m < prop->m_SlotNames.GetCount(); ++m)
-  //  s.AppendFormat("\nSlot {0}: {1}", m, prop->m_SlotNames[m].GetData());
+  //  s.AppendFormat("\nSlot {0}: {1}", m, prop->m_SlotNames[m]);
 
   //m_pLabelInfo->setText(QString::fromUtf8(s.GetData()));
 }
