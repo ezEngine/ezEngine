@@ -191,21 +191,19 @@ void ezFrustum::SetFrustum(const ezVec3& vPosition, const ezMat4& ModelViewProje
 
   // Near Plane
   {
-    m_Planes[NearPlane].m_vNormal.x = ModelViewProjection.Element(0, 3) - ModelViewProjection.Element(0, 2);
-    m_Planes[NearPlane].m_vNormal.y = ModelViewProjection.Element(1, 3) - ModelViewProjection.Element(1, 2);
-    m_Planes[NearPlane].m_vNormal.z = ModelViewProjection.Element(2, 3) - ModelViewProjection.Element(2, 2);
-    m_Planes[NearPlane].m_vNormal.Normalize();
-
-    // The near-plane has to be at the camera's position, so that no portals in front of you, get culled away
-    m_Planes[NearPlane].SetFromNormalAndPoint(m_Planes[NearPlane].m_vNormal, vPosition);
+    m_Planes[NearPlane].m_vNormal.x     = -ModelViewProjection.Element(0, 2) - ModelViewProjection.Element(0, 3);
+    m_Planes[NearPlane].m_vNormal.y     = -ModelViewProjection.Element(1, 2) - ModelViewProjection.Element(1, 3);
+    m_Planes[NearPlane].m_vNormal.z     = -ModelViewProjection.Element(2, 2) - ModelViewProjection.Element(2, 3);
+    m_Planes[NearPlane].m_fNegDistance  = -ModelViewProjection.Element(3, 2) - ModelViewProjection.Element(3, 3);
+    m_Planes[NearPlane].m_fNegDistance /= m_Planes[NearPlane].m_vNormal.GetLengthAndNormalize();
   }
 
   // Far Plane
   {
-    m_Planes[FarPlane].m_vNormal.x     = -(ModelViewProjection.Element(0, 3) - ModelViewProjection.Element(0, 2));
-    m_Planes[FarPlane].m_vNormal.y     = -(ModelViewProjection.Element(1, 3) - ModelViewProjection.Element(1, 2));
-    m_Planes[FarPlane].m_vNormal.z     = -(ModelViewProjection.Element(2, 3) - ModelViewProjection.Element(2, 2));
-    m_Planes[FarPlane].m_fNegDistance  = -(ModelViewProjection.Element(3, 3) - ModelViewProjection.Element(3, 2));
+    m_Planes[FarPlane].m_vNormal.x     = +ModelViewProjection.Element(0, 2) - ModelViewProjection.Element(0, 3);
+    m_Planes[FarPlane].m_vNormal.y     = +ModelViewProjection.Element(1, 2) - ModelViewProjection.Element(1, 3);
+    m_Planes[FarPlane].m_vNormal.z     = +ModelViewProjection.Element(2, 2) - ModelViewProjection.Element(2, 3);
+    m_Planes[FarPlane].m_fNegDistance  = +ModelViewProjection.Element(3, 2) - ModelViewProjection.Element(3, 3);
     m_Planes[FarPlane].m_fNegDistance /= m_Planes[FarPlane].m_vNormal.GetLengthAndNormalize();
 
     // move the far plane closer, if necessary

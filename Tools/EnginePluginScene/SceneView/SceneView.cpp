@@ -64,7 +64,7 @@ void ezSceneViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
         pSoundInterface->SetListener(-1, pMsg2->m_vPosition, pMsg2->m_vDirForwards, pMsg2->m_vDirUp, ezVec3::ZeroVector());
       }
     }
-        
+
   }
   else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewPickingMsgToEngine>())
   {
@@ -86,7 +86,9 @@ bool ezSceneViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds
     pView->SetExtractorProperty("EditorGridExtractor", "Active", false);
   }
 
-  return !FocusCameraOnObject(m_Camera, bounds, 45.0f, ezVec3(1.0f, 1.0f, -1.0f));
+  bool bResult = !FocusCameraOnObject(m_Camera, bounds, 45.0f, ezVec3(1.0f, 1.0f, -1.0f));
+  m_CullingCamera = m_Camera;
+  return bResult;
 }
 
 void ezSceneViewContext::Redraw(bool bRenderEditorGizmos)
