@@ -28,8 +28,8 @@ ezWindowsMixedRealityCamera::ezWindowsMixedRealityCamera(const ComPtr<ABI::Windo
   if (pDevice->GetPrimarySwapChain().IsInvalidated())
     pDevice->SetPrimarySwapChain(m_associatedSwapChain);
 
-  // TODO
-  pMixedRealityCamera->SetFarPlaneDistance(1000.0f);
+  // TODO, make configurable. 50 meter should be enough for everyone!
+  pMixedRealityCamera->SetFarPlaneDistance(50.0f);
 }
 
 ezWindowsMixedRealityCamera::~ezWindowsMixedRealityCamera()
