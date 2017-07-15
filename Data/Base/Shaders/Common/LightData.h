@@ -1,5 +1,9 @@
 #pragma once
 
+#if SHADING_QUALITY != SHADING_QUALITY_NORMAL
+#error "Functions in LightData.h are only for NORMAL shading quality. Todo: Split up file"
+#endif
+
 #include "Platforms.h"
 #include "ConstantBufferMacros.h"
 

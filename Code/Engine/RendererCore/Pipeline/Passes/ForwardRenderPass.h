@@ -1,7 +1,22 @@
-#pragma once
+﻿#pragma once
 
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
+
+struct ezForwardRenderShadingQuality
+{
+  typedef ezInt8 StorageType;
+
+  enum Enum
+  {
+    Normal,
+    Simplified,
+
+    Default = Normal,
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezForwardRenderShadingQuality);
 
 /// \brief A standard forward render pass that renders into the color target.
 class EZ_RENDERERCORE_DLL ezForwardRenderPass : public ezRenderPipelinePass
@@ -25,6 +40,7 @@ protected:
   ezPassThroughNodePin m_PinDepthStencil;
   ezInputNodePin m_PinSSAO;
 
+  ezEnum<ezForwardRenderShadingQuality> m_ShadingQuality;
   bool m_bWriteDepth;
   bool m_applySSAOToDirectLight;
 

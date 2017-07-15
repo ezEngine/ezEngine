@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Lights/ClusteredDataProvider.h>
 #include <RendererCore/Pipeline/Passes/ForwardRenderPass.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
@@ -17,6 +17,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezForwardRenderPass, 1, ezRTTIDefaultAllocator<e
     EZ_MEMBER_PROPERTY("Color", m_PinColor),
     EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
     EZ_MEMBER_PROPERTY("SSAO", m_PinSSAO),
+    EZ_ENUM_MEMBER_PROPERTY("ShadingQuality", ezForwardRenderShadingQuality, m_ShadingQuality)->AddAttributes(new ezDefaultValueAttribute((int)ezForwardRenderShadingQuality::Normal)),
     EZ_MEMBER_PROPERTY("WriteDepth", m_bWriteDepth)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("ApplySSAOToDirectLighting", m_applySSAOToDirectLight),
   }
@@ -24,8 +25,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezForwardRenderPass, 1, ezRTTIDefaultAllocator<e
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezForwardRenderShadingQuality, 1)
+  EZ_ENUM_CONSTANTS(ezForwardRenderShadingQuality::Normal, ezForwardRenderShadingQuality::Simplified)
+EZ_END_STATIC_REFLECTED_ENUM();
+
+
 ezForwardRenderPass::ezForwardRenderPass(const char* szName)
-  : ezRenderPipelinePass(szName)
+  : ezRenderPipelinePass(szName, true)
+  , m_ShadingQuality(ezForwardRenderShadingQuality::Normal)
   , m_bWriteDepth(true)
   , m_applySSAOToDirectLight(false)
 {
@@ -68,6 +75,11 @@ bool ezForwardRenderPass::GetRenderTargetDescriptions(const ezView& view, const 
     {
       ezLog::Warning("Expected same resolution for SSAO and color input to pass '{0}'!", GetName());
     }
+
+    if (m_ShadingQuality == ezForwardRenderShadingQuality::Simplified)
+    {
+      ezLog::Warning("SSAO input will be ignored for pass '{0}' since simplified shading is activated.", GetName());
+    }
   }
 
   return true;
@@ -103,11 +115,34 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("WRITE_DEPTH", "FALSE");
   }
 
+  // Set permutation for shading quality
+  if (m_ShadingQuality == ezForwardRenderShadingQuality::Normal)
+  {
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("SHADING_QUALITY", "NORMAL");
+  }
+  else if (m_ShadingQuality == ezForwardRenderShadingQuality::Simplified)
+  {
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("SHADING_QUALITY", "SIMPLIFIED");
+  }
+  else
+  {
+    EZ_REPORT_FAILURE("Unknown shading quality setting.");
+  }
+
   // Setup clustered data
-  auto pClusteredData = GetPipeline()->GetFrameDataProvider<ezClusteredDataProvider>()->GetData(renderViewContext);
-  pClusteredData->BindResources(renderViewContext.m_pRenderContext);
+  if (m_ShadingQuality == ezForwardRenderShadingQuality::Normal)
+  {
+    auto pClusteredData = GetPipeline()->GetFrameDataProvider<ezClusteredDataProvider>()->GetData(renderViewContext);
+    pClusteredData->BindResources(renderViewContext.m_pRenderContext);
+  }
+  // Or other light properties. 
+  else
+  {
+     // todo
+  }
 
   // SSAO texture
+  if (m_ShadingQuality == ezForwardRenderShadingQuality::Normal)
   {
     if (inputs[m_PinSSAO.m_uiInputIndex])
     {

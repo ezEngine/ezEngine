@@ -11,6 +11,8 @@ FLIP_WINDING
 WRITE_DEPTH
 APPLY_SSAO_TO_DIRECT_LIGHTING
 MSAA
+CAMERA_STEREO
+SHADING_QUALITY
 
 [MATERIALPARAMETER]
 
@@ -57,6 +59,16 @@ VS_OUT main(VS_IN Input)
 {
   return FillVertexData(Input);
 }
+
+
+[GEOMETRYSHADER]
+
+#define USE_NORMAL
+#define USE_TANGENT
+#define USE_TEXCOORD0
+
+#include <Shaders/Materials/MaterialStereoGeometryShader.h>
+
 
 [PIXELSHADER]
 

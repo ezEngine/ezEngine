@@ -10,6 +10,10 @@
 // USE_TEXCOORD1
 // USE_COLOR
 
+#ifndef CAMERA_STEREO
+	#define CAMERA_STEREO FALSE
+#endif
+
 struct VS_IN
 {
 	float3 Position : POSITION;
@@ -70,7 +74,12 @@ struct VS_OUT
 		CUSTOM_INTERPOLATOR
 	#endif
 
+	// If CAMERA_STEREO is true, every even instance is for the left eye and every odd is for the right eye.
 	uint InstanceOffset : INSTANCEOFFSET;
+
+	#if defined(PIXEL_SHADER) && CAMERA_STEREO == TRUE
+		uint RenderTargetArrayIndex : SV_RenderTargetArrayIndex;
+	#endif
 
 	#if defined(PIXEL_SHADER) && TWO_SIDED == TRUE
 		uint FrontFace : SV_IsFrontFace;

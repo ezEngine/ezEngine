@@ -17,14 +17,21 @@
 
 ezPerInstanceData GetInstanceData(VS_IN Input)
 {
+#if CAMERA_STEREO == TRUE
+  return perInstanceData[Input.InstanceID/2 + InstanceDataOffset];
+#else
   return perInstanceData[Input.InstanceID + InstanceDataOffset];
+#endif
 }
 
 VS_OUT FillVertexData(VS_IN Input)
 {
-  uint instanceDataOffset = Input.InstanceID + InstanceDataOffset;
-  ezPerInstanceData data = perInstanceData[instanceDataOffset];
-  
+#if CAMERA_STEREO == TRUE
+  s_ActiveCameraEyeIndex = Input.InstanceID % 2;
+#endif
+
+  ezPerInstanceData data = GetInstanceData(Input);
+
   float4x4 objectToWorld = TransformToMatrix(data.ObjectToWorld);
   float3x3 objectToWorldNormal = TransformToRotation(data.ObjectToWorldNormal);
 
@@ -65,7 +72,7 @@ VS_OUT FillVertexData(VS_IN Input)
     Output.Color = Input.Color;
   #endif
 
-  Output.InstanceOffset = instanceDataOffset;
+  Output.InstanceOffset = Input.InstanceID + InstanceDataOffset;
 
   return Output;
 }

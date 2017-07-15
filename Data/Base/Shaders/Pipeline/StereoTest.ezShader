@@ -19,6 +19,11 @@ CullMode = CullMode_None
 
 [PIXELSHADER]
 
+#include <Shaders/Common/Common.h>
+#include <Shaders/Common/GlobalConstants.h>
+
+#if EZ_ENABLED(PLATFORM_DX11)
+
 struct PS_IN
 {
   float4 Position : SV_Position;
@@ -28,28 +33,33 @@ struct PS_IN
 #endif
 };
 
-#include <Shaders/Common/Common.h>
-#include <Shaders/Common/GlobalConstants.h>
-
-#if EZ_ENABLED(PLATFORM_DX11)
-
-float4 main(PS_IN Input) : SV_Target
+float4 GetCameraOverlayColor()
 {
-  float3 diff = abs(GetGetCameraPosition()() - CameraPosition);
-
-  return float4(diff.x, diff.y, diff.z, 1.0f)* 10000.0f;
-
-/*
-  #if CAMERA_STEREO == TRUE
-  if (Input.RenderTargetArrayIndex == 0)
+#if CAMERA_STEREO == TRUE
+  if (s_ActiveCameraEyeIndex == 0)
     return float4(0.0f, 1.0f, 0.0f, 1.0f);
   else
     return float4(0.0f, 0.0f, 1.0f, 1.0f);
-  #else
+#else
   return float4(1.0f, 0.0f, 0.0f, 1.0f);
-  #endif
+#endif
+}
 
-*/
+float4 main(PS_IN Input) : SV_Target
+{
+#if CAMERA_STEREO == TRUE
+  s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
+#endif
+
+  float4 coordFar_screen = float4(Input.TexCoord0.x * 2.0f - 1.0f, 1.0f - Input.TexCoord0.y * 2.0f, 0.5f, 1.0f);
+  float4 coordFar_world = mul(GetScreenToWorldMatrix(), coordFar_screen);
+  coordFar_world.xyz /= coordFar_world.w;
+  // Per pixel ray. Could be used for raytracing/marching
+  float3 cameraRayDir = normalize(coordFar_world.xyz - GetCameraPosition());
+
+  //float4 overlayColor = GetCameraOverlayColor();
+  //return overlayColor * 0.1f + float4(GetCameraPosition(), 1.0f);
+  return float4(abs(cameraRayDir.xyz), 1.0f);
 }
 
 #endif

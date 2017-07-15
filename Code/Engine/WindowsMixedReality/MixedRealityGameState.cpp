@@ -83,7 +83,7 @@ float ezMixedRealityGameState::CanHandleThis(ezGameApplicationType AppType, ezWo
 void ezMixedRealityGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer)
 {
   // HololensRenderPipeline.ezRendePipelineAsset
-  ezFallbackGameState::SetupMainView(hBackBuffer, ezResourceManager::LoadResource<ezRenderPipelineResource>("{ f94d0bf2-e90a-49da-a356-b21abd545997 }"));
+  ezFallbackGameState::SetupMainView(hBackBuffer, ezResourceManager::LoadResource<ezRenderPipelineResource>("{ 2fe25ded-776c-7f9e-354f-e4c52a33d125 }"));
 }
 
 void ezMixedRealityGameState::ProcessInput()
@@ -114,7 +114,7 @@ void ezMixedRealityGameState::AfterWorldUpdate()
     m_MainCamera.SetViewMatrix(mViewTransformLeft, ezCameraEye::Left);
     m_MainCamera.SetViewMatrix(mViewTransformRight, ezCameraEye::Right);
 
-    // If there is an active camera component we update its position, but technically we don't need one!
+    // If there is an active camera component we update its position, but technically we don't need to!
     /*if (ezCameraComponent* pCamComp = FindActiveCameraComponent())
     {
       ezGameObject* pOwner = pCamComp->GetOwner();

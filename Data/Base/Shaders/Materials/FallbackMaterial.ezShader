@@ -11,6 +11,8 @@ TWO_SIDED
 FLIP_WINDING
 WRITE_DEPTH
 APPLY_SSAO_TO_DIRECT_LIGHTING
+SHADING_QUALITY
+CAMERA_STEREO
 
 [RENDERSTATE]
 
@@ -43,6 +45,9 @@ struct GS_OUT
   float3 WorldPos : WORLDPOS;
   float3 Normal : NORMAL;
   uint InstanceOffset : INSTANCEOFFSET;
+#if CAMERA_STEREO == TRUE
+  uint RenderTargetArrayIndex : SV_RenderTargetArrayIndex;
+#endif
 };
 
 [maxvertexcount(3)]
@@ -60,6 +65,9 @@ void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
     output.WorldPos = input[i].WorldPos;
     output.Normal = normal;
     output.InstanceOffset = input[i].InstanceOffset;
+#if CAMERA_STEREO == TRUE
+    output.RenderTargetArrayIndex = input[i].InstanceOffset % 2;
+#endif
 
     outputStream.Append(output);
   }
@@ -77,6 +85,7 @@ void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
 
 #include <Shaders/Materials/DefaultMaterialCB.h>
 #include <Shaders/Materials/MaterialPixelShader.h>
+
 
 Texture2D BaseTexture;
 SamplerState BaseTexture_AutoSampler;

@@ -1,5 +1,9 @@
 #pragma once
 
+#if SHADING_QUALITY != SHADING_QUALITY_NORMAL
+#error "Functions in Lighting.h are only for QUALITY_NORMAL shading quality. Todo: Split up file"
+#endif
+
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/LightData.h>
 #include <Shaders/Common/BRDF.h>
