@@ -5,6 +5,10 @@ ALL
 
 BLEND_MODE
 RENDER_PASS
+WRITE_DEPTH
+TWO_SIDED
+SHADING_MODE
+APPLY_SSAO_TO_DIRECT_LIGHTING
 
 [MATERIALPARAMETER]
 
@@ -35,7 +39,7 @@ VS_OUT main(VS_IN Input)
 {
 	ezPerInstanceData data = GetInstanceData(Input);
 	float4x4 objectToWorld = TransformToMatrix(data.ObjectToWorld);
-	
+
 	VS_OUT Output = FillVertexData(Input);
 	float2 ScreenPos = sign(Input.Position.xy);
 	float4 dir = mul(GetScreenToCameraMatrix(), float4(ScreenPos.xy,1.0,1.0));

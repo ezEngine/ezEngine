@@ -59,24 +59,24 @@ float SampleSSAO(float3 screenPosition)
     float2(0, -1),
     float2(-1, 0)
   };
-  
+
 #if 0
   return SSAOTexture.SampleLevel(PointClampSampler, screenPosition.xy * ViewportSize.zw, 0.0f).r;
-#else  
+#else
   float totalSSAO = 0.0f;
   float totalWeight = 0.0f;
-  
+
   [unroll]
   for (int i = 0; i < 5; ++i)
   {
     float2 samplePos = (screenPosition.xy + offsets[i]) * ViewportSize.zw;
     float2 ssaoAndDepth = SSAOTexture.SampleLevel(PointClampSampler, samplePos, 0.0f).rg;
     float weight = saturate(1 - abs(screenPosition.z - ssaoAndDepth.y) * 2.0f);
-    
+
     totalSSAO += ssaoAndDepth.x * weight;
     totalWeight += weight;
   }
-  
+
   return totalWeight > 0.0f ? totalSSAO / totalWeight : 1.0f;
 #endif
 }
@@ -347,24 +347,24 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData)
     uint decalIndex = GET_DECAL_INDEX(itemIndex);
 
     ezPerDecalData decalData = perDecalDataBuffer[decalIndex];
-    
+
     float4x4 worldToDecalMatrix = TransformToMatrix(decalData.worldToDecalMatrix);
     float3 decalPosition = mul(worldToDecalMatrix, float4(matData.worldPosition, 1.0f)).xyz;
-        
+
     if (all(abs(decalPosition) < 1.0f))
     {
       uint decalModeAndFlags = decalData.decalModeAndFlags;
       float2 angleFadeParams = RG16FToFloat2(decalData.angleFadeParams);
-      
-      float3 decalNormal = normalize(mul((float3x3)worldToDecalMatrix, matData.vertexNormal));  
-      
+
+      float3 decalNormal = normalize(mul((float3x3)worldToDecalMatrix, matData.vertexNormal));
+
       float fade = saturate(-decalNormal.z * angleFadeParams.x + angleFadeParams.y);
       fade *= fade;
-      
+
       float3 borderFade = 1.0f - decalPosition * decalPosition;
       //fade *= min(borderFade.x, min(borderFade.y, borderFade.z));
       fade *= borderFade.z;
-      
+
       if (fade > 0.0f)
       {
         if (decalModeAndFlags & DECAL_WRAP_AROUND_FLAG)
@@ -372,14 +372,14 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData)
           decalPosition.xy += decalNormal.xy * decalPosition.z;
           decalPosition.xy = clamp(decalPosition.xy, -1.0f, 1.0f);
         }
-        
+
         float2 baseAtlasScale = RG16FToFloat2(decalData.baseAtlasScale);
         float2 baseAtlasOffset = RG16FToFloat2(decalData.baseAtlasOffset);
-        
+
         float4 decalBaseColor = decalData.color;
         decalBaseColor *= DecalAtlasBaseColorTexture.SampleLevel(LinearClampSampler, decalPosition.xy * baseAtlasScale + baseAtlasOffset, 0);
         fade *= decalBaseColor.a;
-        
+
         matData.diffuseColor = lerp(matData.diffuseColor, decalBaseColor.xyz, fade);
       }
     }

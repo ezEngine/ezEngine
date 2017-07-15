@@ -315,8 +315,19 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
         pp.AddCustomDefine(define);
       }
 
+      bool bFoundUndefinedVars = false;
+      pp.m_ProcessingEvents.AddEventHandler([&bFoundUndefinedVars](const ezPreprocessor::ProcessingEvent& e)
+      {
+        if (e.m_Type == ezPreprocessor::ProcessingEvent::EvaluateUnknown)
+        {
+          bFoundUndefinedVars = true;
+
+          ezLog::Error("Undefined variable is evaluated: '{0}' (File: '{1}', Line: {2}", e.m_pToken->m_DataView, e.m_pToken->m_File.GetData(), e.m_pToken->m_uiLine);
+        }
+      });
+
       ezStringBuilder sOutput;
-      if (pp.Process("ShaderRenderState", sOutput, false).Failed())
+      if (pp.Process("ShaderRenderState", sOutput, false).Failed() || bFoundUndefinedVars)
       {
         ezLog::Error(pLog, "Preprocessing the Shader State block failed");
         return EZ_FAILURE;
@@ -333,6 +344,8 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
 
     for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
     {
+      bool bFoundUndefinedVars = false;
+
       ezPreprocessor pp;
       pp.SetCustomFileCache(&m_FileCache);
       pp.SetLogInterface(ezLog::GetThreadLocalLogSystem());
@@ -340,6 +353,15 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
       pp.SetPassThroughPragma(true);
       pp.SetPassThroughUnknownCmdsCB(ezMakeDelegate(&ezShaderCompiler::PassThroughUnknownCommandCB, this));
       pp.SetPassThroughLine(false);
+      pp.m_ProcessingEvents.AddEventHandler([&bFoundUndefinedVars](const ezPreprocessor::ProcessingEvent& e)
+      {
+        if (e.m_Type == ezPreprocessor::ProcessingEvent::EvaluateUnknown)
+        {
+          bFoundUndefinedVars = true;
+
+          ezLog::Error("Undefined variable is evaluated: '{0}' (File: '{1}', Line: {2}", e.m_pToken->m_DataView, e.m_pToken->m_File.GetData(), e.m_pToken->m_uiLine);
+        }
+      });
 
       pp.AddCustomDefine(s_szStageDefines[stage]);
       for (auto& define : defines)
@@ -347,7 +369,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
         pp.AddCustomDefine(define);
       }
 
-      if (pp.Process(m_StageSourceFile[stage], sProcessed[stage], true, true, true).Failed())
+      if (pp.Process(m_StageSourceFile[stage], sProcessed[stage], true, true, true).Failed() || bFoundUndefinedVars)
       {
         sProcessed[stage].Clear();
         spd.m_szShaderSource[stage] = m_StageSourceFile[stage].GetData();

@@ -3,6 +3,8 @@ ALL
 
 [PERMUTATIONS]
 
+CAMERA_STEREO
+
 [RENDERSTATE]
 
 DepthTest = false

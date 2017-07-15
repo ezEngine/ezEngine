@@ -3,6 +3,8 @@ ALL
 
 [PERMUTATIONS]
 
+CAMERA_STEREO
+
 [RENDERSTATE]
 
 DepthTest = false
@@ -41,8 +43,8 @@ float4 main(PS_IN Input) : SV_Target
   };
 
   float2 screenPosition = Input.Position.xy * 2;
-  float depth = 0.0f;  
-  
+  float depth = 0.0f;
+
   [unroll]
   for (int i = 0; i < 4; ++i)
   {
@@ -54,7 +56,7 @@ float4 main(PS_IN Input) : SV_Target
   {
     depth = LinearizeZBufferDepth(depth);
   }
-  
+
   return depth;
 }
 

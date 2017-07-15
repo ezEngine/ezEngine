@@ -2,6 +2,7 @@
 ALL
 
 [PERMUTATIONS]
+CAMERA_STEREO
 
 [RENDERSTATE]
 
@@ -38,7 +39,7 @@ float main(PS_IN Input) : SV_Depth
   {
     depth = max(depth, DepthTexture.Load(coords, i).r);
   }
-  
+
   return depth;
 }
 

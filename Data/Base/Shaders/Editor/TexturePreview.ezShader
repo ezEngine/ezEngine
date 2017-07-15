@@ -3,6 +3,8 @@ ALL
 
 [PERMUTATIONS]
 
+TWO_SIDED
+
 [MATERIALPARAMETER]
 
 int ShowChannelMode;
@@ -74,7 +76,7 @@ float4 main(PS_IN Input) : SV_Target
   {
     color = SrgbToLinear(SampleTexture(Input).a); // alpha is always linear
   }
-  
+
   if (IsLinear && ShowChannelMode < 4)
   {
     color = SrgbToLinear(color);
