@@ -1038,7 +1038,7 @@ void ezRenderContext::ApplyConstantBufferBindings(const ezShaderStageBinary* pBi
     BoundConstantBuffer boundConstantBuffer;
     if (!m_BoundConstantBuffers.TryGetValue(uiResourceHash, boundConstantBuffer))
     {
-      ezLog::Error("No resource is bound for constant buffer slot '{0}'", binding.m_sName.GetData());
+      ezLog::Error("No resource is bound for constant buffer slot '{0}'", binding.m_sName);
       m_pGALContext->SetConstantBuffer(binding.m_iSlot, ezGALBufferHandle());
       continue;
     }
@@ -1056,7 +1056,7 @@ void ezRenderContext::ApplyConstantBufferBindings(const ezShaderStageBinary* pBi
       }
       else
       {
-        ezLog::Error("Invalid constant buffer storage is bound for slot '{0}'", binding.m_sName.GetData());
+        ezLog::Error("Invalid constant buffer storage is bound for slot '{0}'", binding.m_sName);
         m_pGALContext->SetConstantBuffer(binding.m_iSlot, ezGALBufferHandle());
       }
     }
@@ -1133,7 +1133,7 @@ void ezRenderContext::ApplyBufferBindings(ezGALShaderStage::Enum stage, const ez
     ezGALResourceViewHandle hResourceView;
     if (!m_BoundBuffer[stage].TryGetValue(uiResourceHash, hResourceView))
     {
-      ezLog::Error("No buffer is bound for {0} slot '{1}'", ezGALShaderStage::Names[stage], binding.m_sName.GetData());
+      ezLog::Error("No buffer is bound for {0} slot '{1}'", ezGALShaderStage::Names[stage], binding.m_sName);
     }
 
     m_pGALContext->SetResourceView(stage, binding.m_iSlot, hResourceView);

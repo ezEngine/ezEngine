@@ -56,7 +56,7 @@ namespace
 
       if (isBoolVar)
       {
-        sTemp.Format("{0} {1}", var.m_sName.GetData(), var.m_sValue.GetData());
+        sTemp.Format("{0} {1}", var.m_sName, var.m_sValue);
         out_Defines.PushBack(sTemp);
       }
       else
@@ -68,7 +68,7 @@ namespace
         {
           if (!enumValues[i].IsEmpty())
           {
-            sTemp.Format("{0}_{1} {2}", szName, enumValues[i].GetData(), i);
+            sTemp.Format("{0}_{1} {2}", szName, enumValues[i], i);
             out_Defines.PushBack(sTemp);
           }
         }
@@ -203,7 +203,7 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(const char* szFi
     }
     else
     {
-      ezLog::Error("No value given for permutation var '{0}'. Assuming default value of zero.", usedPermutationVar.GetData());
+      ezLog::Error("No value given for permutation var '{0}'. Assuming default value of zero.", usedPermutationVar);
 
       ezPermutationVar& finalVar = m_ShaderData.m_Permutations.ExpandAndGetRef();
       finalVar.m_sName = usedPermutationVar;
@@ -322,7 +322,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
         {
           bFoundUndefinedVars = true;
 
-          ezLog::Error("Undefined variable is evaluated: '{0}' (File: '{1}', Line: {2}", e.m_pToken->m_DataView, e.m_pToken->m_File.GetData(), e.m_pToken->m_uiLine);
+          ezLog::Error("Undefined variable is evaluated: '{0}' (File: '{1}', Line: {2}", e.m_pToken->m_DataView, e.m_pToken->m_File, e.m_pToken->m_uiLine);
         }
       });
 
@@ -359,7 +359,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
         {
           bFoundUndefinedVars = true;
 
-          ezLog::Error("Undefined variable is evaluated: '{0}' (File: '{1}', Line: {2}", e.m_pToken->m_DataView, e.m_pToken->m_File.GetData(), e.m_pToken->m_uiLine);
+          ezLog::Error("Undefined variable is evaluated: '{0}' (File: '{1}', Line: {2}", e.m_pToken->m_DataView, e.m_pToken->m_File, e.m_pToken->m_uiLine);
         }
       });
 

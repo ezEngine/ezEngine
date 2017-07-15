@@ -187,6 +187,8 @@ private:
   ezUInt32 m_uiHash;
 };
 
+// For ezFormatString
+EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezHashedString& arg);
 
 #include <Foundation/Strings/Implementation/HashedString_inl.h>
 

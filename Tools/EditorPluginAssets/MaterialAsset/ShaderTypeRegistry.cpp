@@ -132,7 +132,7 @@ namespace
             continue;
 
           ezStringBuilder sEnumName;
-          sEnumName.Format("{0}::{1}", def.m_sName, enumValues[i].GetData());
+          sEnumName.Format("{0}::{1}", def.m_sName, enumValues[i]);
 
           descEnum.m_Properties.PushBack(ezReflectedPropertyDescriptor(sEnumName, (ezUInt32)i, noAttributes));
         }

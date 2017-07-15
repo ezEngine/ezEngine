@@ -47,7 +47,7 @@ const ezTag& ezTagRegistry::RegisterTag(const ezHashedString& TagString)
 
   m_TagsByIndex.PushBack(&it.Value());
 
-  ezLog::Debug("Registered Tag '{0}'", TagString.GetData());
+  ezLog::Debug("Registered Tag '{0}'", TagString);
   return *m_TagsByIndex.PeekBack();
 }
 

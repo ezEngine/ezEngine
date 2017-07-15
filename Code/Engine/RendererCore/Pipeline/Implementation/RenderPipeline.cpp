@@ -137,18 +137,18 @@ bool ezRenderPipeline::Connect(ezRenderPipelinePass* pOutputNode, ezHashedString
   const ezNodePin* pPinSource = pOutputNode->GetPinByName(sOutputPinName);
   if (!pPinSource)
   {
-    ezLog::Error("Source pin '{0}::{1}' does not exist!", pOutputNode->GetName(), sOutputPinName.GetData());
+    ezLog::Error("Source pin '{0}::{1}' does not exist!", pOutputNode->GetName(), sOutputPinName);
     return false;
   }
   const ezNodePin* pPinTarget = pInputNode->GetPinByName(sInputPinName);
   if (!pPinTarget)
   {
-    ezLog::Error("Target pin '{0}::{1}' does not exist!", pInputNode->GetName(), sInputPinName.GetData());
+    ezLog::Error("Target pin '{0}::{1}' does not exist!", pInputNode->GetName(), sInputPinName);
     return false;
   }
   if (itIn.Value().m_Inputs[pPinTarget->m_uiInputIndex] != nullptr)
   {
-    ezLog::Error("Pins already connected: '{0}::{1}' -> '{2}::{3}'!", pOutputNode->GetName(), sOutputPinName.GetData(), pInputNode->GetName(), sInputPinName.GetData());
+    ezLog::Error("Pins already connected: '{0}::{1}' -> '{2}::{3}'!", pOutputNode->GetName(), sOutputPinName, pInputNode->GetName(), sInputPinName);
     return false;
   }
 
@@ -169,7 +169,7 @@ bool ezRenderPipeline::Connect(ezRenderPipelinePass* pOutputNode, ezHashedString
       {
         if (pPin->m_Type == ezNodePin::Type::PassThrough)
         {
-          ezLog::Error("A pass through pin is already connected to the '{0}' pin!", sOutputPinName.GetData());
+          ezLog::Error("A pass through pin is already connected to the '{0}' pin!", sOutputPinName);
           return false;
         }
       }
@@ -202,18 +202,18 @@ bool ezRenderPipeline::Disconnect(ezRenderPipelinePass* pOutputNode, ezHashedStr
   const ezNodePin* pPinSource = pOutputNode->GetPinByName(sOutputPinName);
   if (!pPinSource)
   {
-    ezLog::Error("Source pin '{0}::{1}' does not exist!", pOutputNode->GetName(), sOutputPinName.GetData());
+    ezLog::Error("Source pin '{0}::{1}' does not exist!", pOutputNode->GetName(), sOutputPinName);
     return false;
   }
   const ezNodePin* pPinTarget = pInputNode->GetPinByName(sInputPinName);
   if (!pPinTarget)
   {
-    ezLog::Error("Target pin '{0}::{1}' does not exist!", pInputNode->GetName(), sInputPinName.GetData());
+    ezLog::Error("Target pin '{0}::{1}' does not exist!", pInputNode->GetName(), sInputPinName);
     return false;
   }
   if (itIn.Value().m_Inputs[pPinTarget->m_uiInputIndex] == nullptr || itIn.Value().m_Inputs[pPinTarget->m_uiInputIndex] != itOut.Value().m_Outputs[pPinSource->m_uiOutputIndex])
   {
-    ezLog::Error("Pins not connected: '{0}::{1}' -> '{2}::{3}'!", pOutputNode->GetName(), sOutputPinName.GetData(), pInputNode->GetName(), sInputPinName.GetData());
+    ezLog::Error("Pins not connected: '{0}::{1}' -> '{2}::{3}'!", pOutputNode->GetName(), sOutputPinName, pInputNode->GetName(), sInputPinName);
     return false;
   }
 
@@ -463,7 +463,7 @@ bool ezRenderPipeline::InitRenderTargetDescriptions(const ezView& view)
           }
           else if (data.m_Outputs[pPin->m_uiOutputIndex]->m_Desc.CalculateHash() != data.m_Inputs[pPin->m_uiInputIndex]->m_Desc.CalculateHash())
           {
-            ezLog::Error("The pass has a pass through pin '{0}' that has different descriptors for input and output!", pPass->GetPinName(pPin).GetData());
+            ezLog::Error("The pass has a pass through pin '{0}' that has different descriptors for input and output!", pPass->GetPinName(pPin));
             return false;
           }
         }

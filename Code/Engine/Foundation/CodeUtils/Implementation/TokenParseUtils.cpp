@@ -210,7 +210,7 @@ namespace ezTokenParseUtils
       {
         if (sResult.IsEmpty())
         {
-          sResult.AppendFormat("#line {0} \"{1}\"\n", Tokens[t]->m_uiLine, Tokens[t]->m_File.GetData());
+          sResult.AppendFormat("#line {0} \"{1}\"\n", Tokens[t]->m_uiLine, Tokens[t]->m_File);
           uiCurLine = Tokens[t]->m_uiLine;
           sCurFile = Tokens[t]->m_File;
         }
@@ -225,7 +225,7 @@ namespace ezTokenParseUtils
           if (Tokens[t]->m_uiLine != uiCurLine ||
             Tokens[t]->m_File != sCurFile)
           {
-            sResult.AppendFormat("\n#line {0} \"{1}\"\n", Tokens[t]->m_uiLine, Tokens[t]->m_File.GetData());
+            sResult.AppendFormat("\n#line {0} \"{1}\"\n", Tokens[t]->m_uiLine, Tokens[t]->m_File);
             uiCurLine = Tokens[t]->m_uiLine;
             sCurFile = Tokens[t]->m_File;
           }

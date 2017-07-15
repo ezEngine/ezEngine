@@ -259,7 +259,7 @@ void ezShaderParser::ParsePermutationVarConfig(const char* szPermVarName, ezStri
       }
       else
       {
-        ezLog::Error("A enum value with '{0}' already exists: '{1}'", uiCurrentValue, out_EnumValues[uiCurrentValue].GetData());
+        ezLog::Error("A enum value with '{0}' already exists: '{1}'", uiCurrentValue, out_EnumValues[uiCurrentValue]);
       }
 
       ++uiCurrentValue;

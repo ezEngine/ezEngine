@@ -1,7 +1,8 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Strings/FormatString.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Strings/HashedString.h>
 
 void ezFormatString::SBAppendView(ezStringBuilder& sb, const ezStringView& sub)
 {
@@ -90,6 +91,11 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const char* arg)
 ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezString& arg)
 {
   return ezStringView(arg.GetData(), arg.GetData() + arg.GetElementCount());
+}
+
+ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezHashedString& arg)
+{
+  return ezStringView(arg.GetData(), arg.GetData() + arg.GetString().GetElementCount());
 }
 
 ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezStringBuilder& arg)

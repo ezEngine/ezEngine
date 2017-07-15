@@ -93,11 +93,11 @@ void ezGameApplication::ProcessApplicationInput()
     if (fileWriter.Open(":appdata/profiling.json") == EZ_SUCCESS)
     {
       ezProfilingSystem::Capture(fileWriter);
-      ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
+      ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute());
     }
     else
     {
-      ezLog::Error("Could not write profiling capture to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
+      ezLog::Error("Could not write profiling capture to '{0}'.", fileWriter.GetFilePathAbsolute());
     }
   }
 
