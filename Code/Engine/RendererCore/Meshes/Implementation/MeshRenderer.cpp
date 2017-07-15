@@ -60,6 +60,15 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
     pContext->SetShaderPermutationVariable("FLIP_WINDING", "FALSE");
   }
 
+  if (renderViewContext.m_pCamera->IsStereoscopic())
+  {
+    pContext->SetShaderPermutationVariable("CAMERA_STEREO", "TRUE");
+  }
+  else
+  {
+    pContext->SetShaderPermutationVariable("CAMERA_STEREO", "FALSE");
+  }
+
   pContext->BindMaterial(hMaterial);
   pContext->BindMeshBuffer(pMesh->GetMeshBuffer());
 

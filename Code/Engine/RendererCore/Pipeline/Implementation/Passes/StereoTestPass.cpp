@@ -71,10 +71,6 @@ void ezStereoTestPass::Execute(const ezRenderViewContext& renderViewContext, con
   renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
 
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
-  if (renderViewContext.m_pCamera->IsStereoscopic())
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("CAMERA_STEREO", "TRUE");
-  else
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("CAMERA_STEREO", "FALSE");
 
   renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
   renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "ColorTexture", pDevice->GetDefaultResourceView(pInput->m_TextureHandle));
