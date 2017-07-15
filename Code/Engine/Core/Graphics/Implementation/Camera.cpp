@@ -141,24 +141,25 @@ void ezCamera::SetViewMatrix(const ezMat4& mLookAtMatrix, ezCameraEye eye)
 
 void ezCamera::GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out_projectionMatrix, ezCameraEye eye, ezProjectionDepthRange::Enum depthRange) const
 {
-  if (m_Mode == ezCameraMode::PerspectiveFixedFovX)
+  switch (m_Mode)
   {
+  case ezCameraMode::PerspectiveFixedFovX:
     out_projectionMatrix.SetPerspectiveProjectionMatrixFromFovX(ezAngle::Degree(m_fFovOrDim), fAspectRatioWidthDivHeight, m_fNearPlane, m_fFarPlane, depthRange);
-  }
-  else if (m_Mode == ezCameraMode::PerspectiveFixedFovY)
-  {
+    break;
+
+  case ezCameraMode::PerspectiveFixedFovY:
     out_projectionMatrix.SetPerspectiveProjectionMatrixFromFovY(ezAngle::Degree(m_fFovOrDim), fAspectRatioWidthDivHeight, m_fNearPlane, m_fFarPlane, depthRange);
-  }
-  else if (m_Mode == ezCameraMode::OrthoFixedWidth)
-  {
+    break;
+
+  case ezCameraMode::OrthoFixedWidth:
     out_projectionMatrix.SetOrthographicProjectionMatrix(m_fFovOrDim, m_fFovOrDim / fAspectRatioWidthDivHeight, m_fNearPlane, m_fFarPlane, depthRange);
-  }
-  else if (m_Mode == ezCameraMode::OrthoFixedHeight)
-  {
+    break;
+
+  case ezCameraMode::OrthoFixedHeight:
     out_projectionMatrix.SetOrthographicProjectionMatrix(m_fFovOrDim * fAspectRatioWidthDivHeight, m_fFovOrDim, m_fNearPlane, m_fFarPlane, depthRange);
-  }
-  else if (m_Mode == ezCameraMode::Stereo)
-  {
+    break;
+
+  case ezCameraMode::Stereo:
     if (ezMath::IsEqual(m_fAspectOfPrecomputedStereoProjection, fAspectRatioWidthDivHeight, ezMath::BasicType<float>::LargeEpsilon()))
       out_projectionMatrix = m_mStereoProjectionMatrix[static_cast<int>(eye)];
     else
@@ -166,10 +167,10 @@ void ezCamera::GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out
       // Evade to FixedFovY
       out_projectionMatrix.SetPerspectiveProjectionMatrixFromFovY(ezAngle::Degree(m_fFovOrDim), fAspectRatioWidthDivHeight, m_fNearPlane, m_fFarPlane, depthRange);
     }
-  }
-  else
-  {
-    EZ_REPORT_FAILURE("Invalid Camera Mode.");
+    break;
+
+  default:
+      EZ_REPORT_FAILURE("Invalid Camera Mode.");
   }
 }
 
