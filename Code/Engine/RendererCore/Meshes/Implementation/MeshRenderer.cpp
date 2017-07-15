@@ -88,7 +88,12 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
       pInstanceData->UpdateInstanceData(pContext, uiFilteredCount);
 
       const ezMeshResourceDescriptor::SubMesh& meshPart = subMeshes[uiPartIndex];
-      if (pContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive, uiFilteredCount).Failed())
+
+      unsigned int uiRenderedInstances = uiFilteredCount;
+      if (renderViewContext.m_pCamera->IsStereoscopic())
+        uiRenderedInstances *= 2;
+
+      if (pContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive, uiRenderedInstances).Failed())
       {
         for (auto it = batch.GetIterator<ezMeshRenderData>(uiStartIndex, uiCount); it.IsValid(); ++it)
         {
