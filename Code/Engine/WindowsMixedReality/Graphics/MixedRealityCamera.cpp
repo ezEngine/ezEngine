@@ -27,6 +27,9 @@ ezWindowsMixedRealityCamera::ezWindowsMixedRealityCamera(const ComPtr<ABI::Windo
   // Make this the primary swap chain if we're the first.
   if (pDevice->GetPrimarySwapChain().IsInvalidated())
     pDevice->SetPrimarySwapChain(m_associatedSwapChain);
+
+  // TODO
+  pMixedRealityCamera->SetFarPlaneDistance(1000.0f);
 }
 
 ezWindowsMixedRealityCamera::~ezWindowsMixedRealityCamera()
@@ -78,15 +81,29 @@ ezResult ezWindowsMixedRealityCamera::GetViewTransforms(const ezWindowsSpatialRe
   ComPtr<ABI::Windows::Perception::Spatial::ISpatialCoordinateSystem> pCoordinateSystem;
   if (referenceFrame.GetInternalCoordinateSystem(pCoordinateSystem).Failed())
     return EZ_FAILURE;
+
   ComPtr<ABI::Windows::Foundation::__FIReference_1_Windows__CGraphics__CHolographic__CHolographicStereoTransform_t> pStereoTransform;
   EZ_HRESULT_TO_FAILURE_LOG(m_pCurrentPose->TryGetViewTransform(pCoordinateSystem.Get(), &pStereoTransform));
+  if (!pStereoTransform)
+    return EZ_FAILURE;   // Not a real failure since TryGetViewTransform may just not have a new transform ready for us.
 
   ABI::Windows::Graphics::Holographic::HolographicStereoTransform stereoTransform;
   EZ_HRESULT_TO_FAILURE_LOG(pStereoTransform->get_Value(&stereoTransform));
 
   memcpy_s(&leftTransform, sizeof(leftTransform), &stereoTransform.Left, sizeof(stereoTransform.Left));
+  // Windows holographic assume right handed coordinate system.
+  auto column1 = leftTransform.GetColumn(1);
+  leftTransform.SetColumn(1, leftTransform.GetColumn(2));
+  leftTransform.SetColumn(2, column1);
+
   if (IsStereoscopic())
+  {
     memcpy_s(&rightTransform, sizeof(rightTransform), &stereoTransform.Right, sizeof(stereoTransform.Right));
+    // Windows holographic assume right handed coordinate system.
+    auto column1 = rightTransform.GetColumn(1);
+    rightTransform.SetColumn(1, rightTransform.GetColumn(2));
+    rightTransform.SetColumn(2, column1);
+  }
   else
     rightTransform = leftTransform;
 
