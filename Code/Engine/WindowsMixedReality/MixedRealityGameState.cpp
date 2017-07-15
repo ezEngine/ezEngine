@@ -18,6 +18,7 @@
 #include <Core/World/World.h>
 
 #include <windows.perception.spatial.h>
+#include <Core/Input/InputManager.h>
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMixedRealityGameState, 1, ezRTTIDefaultAllocator<ezMixedRealityGameState>);
@@ -88,6 +89,12 @@ void ezMixedRealityGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuf
 
 void ezMixedRealityGameState::ProcessInput()
 {
+  const char* szPressed = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::None, ezInputSlotFlags::None);
+
+  if (!ezStringUtils::IsNullOrEmpty(szPressed))
+  {
+    ezLog::Info("Pressed: {0}", szPressed);
+  }
 }
 
 void ezMixedRealityGameState::BeforeWorldUpdate()
@@ -110,9 +117,15 @@ void ezMixedRealityGameState::AfterWorldUpdate()
     m_MainCamera.SetStereoProjection(pHoloCamera->GetProjectionLeft(), pHoloCamera->GetProjectionRight(), viewport.width / viewport.height);
     
     ezMat4 mViewTransformLeft, mViewTransformRight;
-    pHoloCamera->GetViewTransforms(*m_pDefaultReferenceFrame, mViewTransformLeft, mViewTransformRight);
-    m_MainCamera.SetViewMatrix(mViewTransformLeft, ezCameraEye::Left);
-    m_MainCamera.SetViewMatrix(mViewTransformRight, ezCameraEye::Right);
+    if (pHoloCamera->GetViewTransforms(*m_pDefaultReferenceFrame, mViewTransformLeft, mViewTransformRight).Succeeded())
+    {
+      m_MainCamera.SetViewMatrix(mViewTransformLeft, ezCameraEye::Left);
+      m_MainCamera.SetViewMatrix(mViewTransformRight, ezCameraEye::Right);
+    }
+    else
+    {
+      ezLog::Error("Failed to retrieve the Holographic view transforms.");
+    }
 
     // If there is an active camera component we update its position, but technically we don't need to!
     /*if (ezCameraComponent* pCamComp = FindActiveCameraComponent())

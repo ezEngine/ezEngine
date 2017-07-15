@@ -25,6 +25,8 @@ SET (LINK_LIBRARIES
   RendererCore
   RendererDX11
   GameEngine
+  ShaderCompilerHLSL
+  FileservePlugin
 )
 
 # Application with mixed reality support.

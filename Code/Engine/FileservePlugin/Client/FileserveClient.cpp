@@ -284,19 +284,22 @@ void ezFileserveClient::NetworkMsgHandler(ezRemoteMessage& msg)
     return;
   }
 
-  static bool bReloadResources = false;
+  static bool s_bReloadResources = false;
 
   if (msg.GetMessageID() == 'RLDR')
   {
-    bReloadResources = true;
+    s_bReloadResources = true;
   }
 
-  if (!m_bDownloading && bReloadResources)
+  if (!m_bDownloading && s_bReloadResources)
   {
     EZ_BROADCAST_EVENT(ezResourceManager_ReloadAllResources);
-    bReloadResources = false;
+    s_bReloadResources = false;
     return;
   }
+
+  if (msg.GetMessageID() == 'RLDR')
+    return;
 
   if (msg.GetMessageID() == 'UACK')
   {
