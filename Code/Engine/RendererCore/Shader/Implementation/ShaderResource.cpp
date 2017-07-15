@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
 
@@ -43,7 +43,8 @@ ezResourceLoadDesc ezShaderResource::UpdateContent(ezStreamReader* stream)
     (*stream) >> sAbsFilePath;
   }
 
-  ezShaderParser::ParsePermutationSection(*stream, m_PermutationVarsUsed);
+  ezHybridArray<ezPermutationVar, 16> fixedPermVars; // ignored here
+  ezShaderParser::ParsePermutationSection(*stream, m_PermutationVarsUsed, fixedPermVars);
 
   res.m_State = ezResourceState::Loaded;
   m_bShaderResourceIsValid = true;

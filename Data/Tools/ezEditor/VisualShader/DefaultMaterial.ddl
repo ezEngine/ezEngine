@@ -12,6 +12,7 @@ FLIP_WINDING
 WRITE_DEPTH
 MSAA
 APPLY_SSAO_TO_DIRECT_LIGHTING
+SHADING_QUALITY
 " }
 
   string %CheckPermutations
@@ -22,7 +23,9 @@ SHADING_MODE=LIT
 TWO_SIDED=FALSE
 FLIP_WINDING=FALSE
 WRITE_DEPTH=TRUE
-MSAA=0
+MSAA=FALSE
+APPLY_SSAO_TO_DIRECT_LIGHTING=FALSE
+SHADING_QUALITY=NORMAL
 "}
 
   string %CodeRenderStates { "#include <Shaders/Materials/MaterialState.h>" }
@@ -125,6 +128,7 @@ float GetOcclusion(PS_IN Input)
 {
   return saturate(ToFloat1($in7));
 }
+
 " }
 
   Property %MaskThreshold

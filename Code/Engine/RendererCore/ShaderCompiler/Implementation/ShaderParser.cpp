@@ -140,7 +140,7 @@ void ezShaderParser::ParseMaterialParameterSection(ezStreamReader& stream, ezHyb
 }
 
 //static
-void ezShaderParser::ParsePermutationSection(ezStreamReader& stream, ezHybridArray<ezHashedString, 16>& out_PermVars)
+void ezShaderParser::ParsePermutationSection(ezStreamReader& stream, ezHybridArray<ezHashedString, 16>& out_PermVars, ezHybridArray<ezPermutationVar, 16>& out_FixedPermVars)
 {
   ezString sContent;
   sContent.ReadAll(stream);
@@ -150,34 +150,91 @@ void ezShaderParser::ParsePermutationSection(ezStreamReader& stream, ezHybridArr
 
   ezUInt32 uiFirstLine = 0;
   ezStringView sPermutations = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::PERMUTATIONS, uiFirstLine);
-  ParsePermutationSection(sPermutations, out_PermVars);
+  ParsePermutationSection(sPermutations, out_PermVars, out_FixedPermVars);
 }
 
-//static
-void ezShaderParser::ParsePermutationSection(ezStringView s, ezHybridArray<ezHashedString, 16>& out_PermVars)
+//static 
+void ezShaderParser::ParsePermutationSection(ezStringView s, ezHybridArray<ezHashedString, 16>& out_PermVars, ezHybridArray<ezPermutationVar, 16>& out_FixedPermVars)
 {
-  SkipWhitespace(s);
+  out_PermVars.Clear();
+  out_FixedPermVars.Clear();
 
-  ezStringBuilder sToken;
-  while (s.IsValid())
+  ezTokenizer tokenizer;
+  tokenizer.Tokenize(ezArrayPtr<const ezUInt8>((const ezUInt8*)s.GetData(), s.GetElementCount()), ezLog::GetThreadLocalLogSystem());
+
+  enum class State
   {
-    while (s.IsValid() && IsIdentifier(s.GetCharacter()))
+    Idle,
+    HasName,
+    HasEqual,
+    HasValue
+  };
+
+  State state = State::Idle;
+  ezStringBuilder sToken, sVarName;
+
+  for (const auto& token : tokenizer.GetTokens())
+  {
+    if (token.m_iType == ezTokenType::Whitespace ||
+        token.m_iType == ezTokenType::BlockComment ||
+        token.m_iType == ezTokenType::LineComment)
+      continue;
+
+    if (token.m_iType == ezTokenType::String1 ||
+        token.m_iType == ezTokenType::String2)
     {
-      sToken.Append(s.GetCharacter());
-      ++s;
+      sToken = token.m_DataView;
+      ezLog::Error("Strings are not allowed in the permutation section: '{0}'", sToken);
+      return;
     }
 
-    if (sToken.IsEmpty())
+    if (token.m_iType == ezTokenType::Newline || token.m_iType == ezTokenType::EndOfFile)
     {
-      ezString invalidData = s;
-      ezLog::Warning("Invalid identifier in token section at: \"{0}\"", invalidData);
-      break;
+      if (state == State::HasEqual)
+      {
+        ezLog::Error("Missing assignment value in permutation section");
+        return;
+      }
+
+      if (state == State::HasName)
+      {
+        out_PermVars.ExpandAndGetRef().Assign(sVarName.GetData());
+      }
+
+      state = State::Idle;
+      continue;
     }
 
-    out_PermVars.ExpandAndGetRef().Assign(sToken.GetData());
-    sToken.Clear();
+    sToken = token.m_DataView;
 
-    SkipWhitespace(s);
+    if (token.m_iType == ezTokenType::NonIdentifier)
+    {
+      if (sToken == "=" && state == State::HasName)
+      {
+        state = State::HasEqual;
+        continue;
+      }
+    }
+    else if (token.m_iType == ezTokenType::Identifier)
+    {
+      if (state == State::Idle)
+      {
+        sVarName = sToken;
+        state = State::HasName;
+        continue;
+      }
+
+      if (state == State::HasEqual)
+      {
+        auto& res = out_FixedPermVars.ExpandAndGetRef();
+        res.m_sName.Assign(sVarName.GetData());
+        res.m_sValue.Assign(sToken.GetData());
+        state = State::HasValue;
+        continue;
+      }
+    }
+
+    ezLog::Error("Invalid permutation section at token '{0}'", sToken);
   }
 }
 

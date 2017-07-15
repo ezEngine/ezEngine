@@ -156,8 +156,8 @@ bool ezWindowsHolographicSpace::IsAvailable() const
   if (FAILED(m_pHolographicSpaceStatics.As(&pStatics2)))
   {
 #endif
-    // If we have not access to statics to we're running pre Creators Update windows!
-    // In this case a headset is exaclty then available if we're on hololens!
+    // If we have no access to statics, we are running pre Creators Update windows!
+    // In this case a headset is exactly then available if we're on HoloLens!
 
     ComPtr<ABI::Windows::System::Profile::IAnalyticsInfoStatics> pAnalyticsStatics;
     if (FAILED(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_System_Profile_AnalyticsInfo).Get(), &pAnalyticsStatics)))

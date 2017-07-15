@@ -18,7 +18,7 @@ typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineRe
 typedef ezTypedResourceHandle<class ezDecalResource> ezDecalResourceHandle;
 typedef ezTypedResourceHandle<class ezDecalAtlasResource> ezDecalAtlasResourceHandle;
 
-struct ezPermutationVar
+struct EZ_RENDERERCORE_DLL ezPermutationVar
 {
   EZ_DECLARE_MEM_RELOCATABLE_TYPE();
 

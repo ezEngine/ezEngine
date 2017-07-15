@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Shader/Implementation/Helper.h>
@@ -65,6 +65,7 @@ private:
   {
     ezString m_Platforms;
     ezHybridArray<ezPermutationVar, 16> m_Permutations;
+    ezHybridArray<ezPermutationVar, 16> m_FixedPermVars;
     ezString m_StateSource;
     ezString m_ShaderStageSource[ezGALShaderStage::ENUM_COUNT];
   };

@@ -1,4 +1,4 @@
-#include "Main.h"
+﻿#include "Main.h"
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -116,7 +116,8 @@ ezResult ezShaderCompilerApplication::ExtractPermutationVarValues(const char* sz
   }
 
   ezHybridArray<ezHashedString, 16> permVars;
-  ezShaderParser::ParsePermutationSection(shaderFile, permVars);
+  ezHybridArray<ezPermutationVar, 16> fixedPermVars;
+  ezShaderParser::ParsePermutationSection(shaderFile, permVars, fixedPermVars);
 
   {
     EZ_LOG_BLOCK("Permutation Vars");
@@ -126,6 +127,7 @@ ezResult ezShaderCompilerApplication::ExtractPermutationVarValues(const char* sz
     }
   }
 
+  // regular permutation variables
   {
     for (const auto& s : permVars)
     {
@@ -136,6 +138,14 @@ ezResult ezShaderCompilerApplication::ExtractPermutationVarValues(const char* sz
       {
         m_PermutationGenerator.AddPermutation(s, val);
       }
+    }
+  }
+
+  // permutation variables that have fixed values
+  {
+    for (const auto& s : fixedPermVars)
+    {
+      m_PermutationGenerator.AddPermutation(s.m_sName, s.m_sValue);
     }
   }
 

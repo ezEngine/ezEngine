@@ -39,15 +39,18 @@ namespace
 
   static void GenerateDefines(const char* szPlatform, const ezArrayPtr<ezPermutationVar>& permutationVars, ezHybridArray<ezString, 32>& out_Defines)
   {
-    out_Defines.PushBack("TRUE 1");
-    out_Defines.PushBack("FALSE 0");
-
     ezStringBuilder sTemp;
 
-    sTemp = szPlatform;
-    sTemp.ToUpper();
+    if (out_Defines.IsEmpty())
+    {
+      out_Defines.PushBack("TRUE 1");
+      out_Defines.PushBack("FALSE 0");
 
-    out_Defines.PushBack(sTemp.GetData());
+      sTemp = szPlatform;
+      sTemp.ToUpper();
+
+      out_Defines.PushBack(sTemp.GetData());
+    }
 
     for (const ezPermutationVar& var : permutationVars)
     {
@@ -56,7 +59,7 @@ namespace
 
       if (isBoolVar)
       {
-        sTemp.Format("{0} {1}", var.m_sName, var.m_sValue);
+        sTemp.Set(var.m_sName, " ", var.m_sValue);
         out_Defines.PushBack(sTemp);
       }
       else
@@ -75,11 +78,11 @@ namespace
 
         if (ezStringUtils::StartsWith(szValue, szName))
         {
-          sTemp.Format("{0} {1}", szName, szValue);
+          sTemp.Set(szName, " ", szValue);
         }
         else
         {
-          sTemp.Format("{0} {1}_{2}", szName, szName, szValue);
+          sTemp.Set(szName, " ", szName, "_", szValue);
         }
         out_Defines.PushBack(sTemp);
       }
@@ -183,9 +186,9 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(const char* szFi
   m_ShaderData.m_Platforms = sTemp;
 
   ezHybridArray<ezHashedString, 16> usedPermutations;
-  ezShaderParser::ParsePermutationSection(Sections.GetSectionContent(ezShaderHelper::ezShaderSections::PERMUTATIONS, uiFirstLine), usedPermutations);
+  ezShaderParser::ParsePermutationSection(Sections.GetSectionContent(ezShaderHelper::ezShaderSections::PERMUTATIONS, uiFirstLine), usedPermutations, m_ShaderData.m_FixedPermVars);
 
-  for (ezHashedString& usedPermutationVar : usedPermutations)
+  for (const ezHashedString& usedPermutationVar : usedPermutations)
   {
     ezUInt32 uiIndex = ezInvalidIndex;
     for (ezUInt32 i = 0; i < permutationVars.GetCount(); ++i)
@@ -210,7 +213,6 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(const char* szFi
       finalVar.m_sValue.Assign("0");
     }
   }
-
 
   m_ShaderData.m_StateSource = Sections.GetSectionContent(ezShaderHelper::ezShaderSections::RENDERSTATE, uiFirstLine);
 
@@ -296,6 +298,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
 
     ezHybridArray<ezString, 32> defines;
     GenerateDefines(Platforms[p].GetData(), m_ShaderData.m_Permutations, defines);
+    GenerateDefines(Platforms[p].GetData(), m_ShaderData.m_FixedPermVars, defines);
 
     ezShaderPermutationBinary shaderPermutationBinary;
 
