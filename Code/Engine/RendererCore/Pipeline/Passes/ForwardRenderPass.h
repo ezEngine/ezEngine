@@ -42,7 +42,7 @@ protected:
 
   ezEnum<ezForwardRenderShadingQuality> m_ShadingQuality;
   bool m_bWriteDepth;
-  bool m_applySSAOToDirectLight;
+  bool m_bApplySSAOToDirectLighting;
 
   ezTexture2DResourceHandle m_hWhiteTexture;
 };

@@ -65,6 +65,8 @@ ezClusteredDataGPU::ezClusteredDataGPU()
   }
 
   m_hDecalAtlas = ezDecalAtlasResource::GetDecalAtlasResource();
+
+  m_bApplySSAOToDirectLighting = false;
 }
 
 ezClusteredDataGPU::~ezClusteredDataGPU()
@@ -160,6 +162,7 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
     pConstants->InvTileSize = ezVec2(NUM_CLUSTERS_X / viewport.width, NUM_CLUSTERS_Y / viewport.height);
     pConstants->NumLights = pData->m_LightData.GetCount();
     pConstants->NumDecals = pData->m_DecalData.GetCount();
+    pConstants->ApplySSAOToDirectLighting = m_Data.m_bApplySSAOToDirectLighting;
     pConstants->AmbientTopColor = pData->m_AmbientTopColor;
     pConstants->AmbientBottomColor = pData->m_AmbientBottomColor;
   }

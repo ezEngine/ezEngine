@@ -108,7 +108,8 @@ CONSTANT_BUFFER(ezClusteredDataConstants, 3)
 
   UINT1(NumLights);
   UINT1(NumDecals);
-  UINT2(Padding);
+  BOOL(ApplySSAOToDirectLighting);
+  UINT1(Padding);
 
   COLOR4F(AmbientTopColor);
   COLOR4F(AmbientBottomColor);

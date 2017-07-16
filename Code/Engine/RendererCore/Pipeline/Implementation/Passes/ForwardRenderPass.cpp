@@ -19,7 +19,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezForwardRenderPass, 1, ezRTTIDefaultAllocator<e
     EZ_MEMBER_PROPERTY("SSAO", m_PinSSAO),
     EZ_ENUM_MEMBER_PROPERTY("ShadingQuality", ezForwardRenderShadingQuality, m_ShadingQuality)->AddAttributes(new ezDefaultValueAttribute((int)ezForwardRenderShadingQuality::Normal)),
     EZ_MEMBER_PROPERTY("WriteDepth", m_bWriteDepth)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("ApplySSAOToDirectLighting", m_applySSAOToDirectLight),
+    EZ_MEMBER_PROPERTY("ApplySSAOToDirectLighting", m_bApplySSAOToDirectLighting),
   }
   EZ_END_PROPERTIES
 }
@@ -34,7 +34,7 @@ ezForwardRenderPass::ezForwardRenderPass(const char* szName)
   : ezRenderPipelinePass(szName, true)
   , m_ShadingQuality(ezForwardRenderShadingQuality::Normal)
   , m_bWriteDepth(true)
-  , m_applySSAOToDirectLight(false)
+  , m_bApplySSAOToDirectLighting(false)
 {
   m_hWhiteTexture = ezResourceManager::LoadResource<ezTexture2DResource>("White.color");
 }
@@ -133,6 +133,7 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   if (m_ShadingQuality == ezForwardRenderShadingQuality::Normal)
   {
     auto pClusteredData = GetPipeline()->GetFrameDataProvider<ezClusteredDataProvider>()->GetData(renderViewContext);
+    pClusteredData->m_bApplySSAOToDirectLighting = m_bApplySSAOToDirectLighting;
     pClusteredData->BindResources(renderViewContext.m_pRenderContext);
   }
   // Or other light properties.
@@ -148,11 +149,6 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
     {
       ezGALResourceViewHandle ssaoResourceViewHandle = pDevice->GetDefaultResourceView(inputs[m_PinSSAO.m_uiInputIndex]->m_TextureHandle);
       renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "SSAOTexture", ssaoResourceViewHandle);
-
-      if (m_applySSAOToDirectLight)
-        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("APPLY_SSAO_TO_DIRECT_LIGHTING", "TRUE");
-      else
-        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("APPLY_SSAO_TO_DIRECT_LIGHTING", "FALSE");
     }
     else
     {
