@@ -118,8 +118,7 @@ public:
   /// \brief Returns whether this type can handle the message type with the given id.
   inline bool CanHandleMessage(ezMessageId id) const
   {
-    if (!m_bGatheredDynamicMessageHandlers)
-      GatherDynamicMessageHandlers();
+    EZ_ASSERT_DEBUG(m_bGatheredDynamicMessageHandlers, "Message handler table should have been gathered at this point");
 
     const ezUInt32 uiIndex = id - m_uiMsgIdOffset;
     return uiIndex < m_DynamicMessageHandlers.GetCount() && m_DynamicMessageHandlers[uiIndex] != nullptr;
@@ -140,7 +139,7 @@ protected:
   void RegisterType(ezRTTI* pType);
   void UnregisterType(ezRTTI* pType);
 
-  void GatherDynamicMessageHandlers() const;
+  void GatherDynamicMessageHandlers();
   /// \brief Returns a hash table that accelerates ezRTTI::FindTypeByName.
   ///   The hash table type cannot be put in the header due to circular includes.
   ///   Function is used by RegisterType / UnregisterType to add / remove type from table.
@@ -154,13 +153,13 @@ protected:
   ezUInt32 m_uiTypeVersion = 0;
   ezUInt32 m_uiTypeNameHash = 0;
   ezBitflags<ezTypeFlags> m_TypeFlags;
-  mutable ezUInt32 m_uiMsgIdOffset;
+  ezUInt32 m_uiMsgIdOffset;
 
-  mutable bool m_bGatheredDynamicMessageHandlers;
+  bool m_bGatheredDynamicMessageHandlers;
   const ezRTTI*(*m_fnVerifyParent)();
 
   ezArrayPtr<ezAbstractMessageHandler*> m_MessageHandlers;
-  mutable ezDynamicArray<ezAbstractMessageHandler*, ezStaticAllocatorWrapper> m_DynamicMessageHandlers; // do not track this data, it won't be deallocated before shutdown
+  ezDynamicArray<ezAbstractMessageHandler*, ezStaticAllocatorWrapper> m_DynamicMessageHandlers; // do not track this data, it won't be deallocated before shutdown
 
   ezArrayPtr<ezMessageSenderInfo> m_MessageSenders;
 

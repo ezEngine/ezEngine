@@ -72,7 +72,7 @@ ezRTTI::~ezRTTI()
     UnregisterType(this);
 }
 
-void ezRTTI::GatherDynamicMessageHandlers() const
+void ezRTTI::GatherDynamicMessageHandlers()
 {
   // This cannot be done in the constructor, because the parent types are not guaranteed to be initialized at that point
 
@@ -264,8 +264,7 @@ ezAbstractProperty* ezRTTI::FindPropertyByName(const char* szName, bool bSearchB
 
 bool ezRTTI::DispatchMessage(void* pInstance, ezMessage& msg) const
 {
-  if (!m_bGatheredDynamicMessageHandlers)
-    GatherDynamicMessageHandlers();
+  EZ_ASSERT_DEBUG(m_bGatheredDynamicMessageHandlers, "Message handler table should have been gathered at this point");
 
   const ezUInt32 uiIndex = msg.GetId() - m_uiMsgIdOffset;
 
@@ -285,8 +284,7 @@ bool ezRTTI::DispatchMessage(void* pInstance, ezMessage& msg) const
 
 bool ezRTTI::DispatchMessage(const void* pInstance, ezMessage& msg) const
 {
-  if (!m_bGatheredDynamicMessageHandlers)
-    GatherDynamicMessageHandlers();
+  EZ_ASSERT_DEBUG(m_bGatheredDynamicMessageHandlers, "Message handler table should have been gathered at this point");
 
   const ezUInt32 uiIndex = msg.GetId() - m_uiMsgIdOffset;
 
@@ -316,6 +314,8 @@ void ezRTTI::AssignPlugin(const char* szPluginName)
     {
       pInstance->m_szPluginName = szPluginName;
       SanityCheckType(pInstance);
+
+      pInstance->GatherDynamicMessageHandlers();
     }
     pInstance = pInstance->GetNextInstance();
   }

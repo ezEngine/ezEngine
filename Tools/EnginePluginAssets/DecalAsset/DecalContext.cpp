@@ -71,8 +71,7 @@ void ezDecalContext::OnInitialize()
       ezMeshResourceDescriptor md;
       md.UseExistingMeshBuffer(hMeshBuffer);
       md.AddSubMesh(pMeshBuffer->GetPrimitiveCount(), 0, 0);
-      //md.SetMaterial(0, "Materials/BaseMaterials/Grey.ezMaterial"); // TODO: this is actually what should be used, but it doesn't work
-      md.SetMaterial(0, "{ c069b8a2-ccad-417f-bca4-8739efc222cf }");// "Materials/Common/Reference.ezMaterialAsset"
+      md.SetMaterial(0, "Materials/BaseMaterials/TestBricks.ezMaterial");
       md.ComputeBounds();
 
       hMesh = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, md, pMeshBuffer->GetResourceDescription());
@@ -133,7 +132,7 @@ void ezDecalContext::OnInitialize()
 
 
     {
-      obj.m_sName.Assign("Decal1");
+      obj.m_sName.Assign("Decal4");
       obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(180));
       obj.m_LocalPosition.Set(0.5f, 0, 0);
       pWorld->CreateObject(obj, pObj);
@@ -145,7 +144,7 @@ void ezDecalContext::OnInitialize()
     }
 
     {
-      obj.m_sName.Assign("Decal2");
+      obj.m_sName.Assign("Decal5");
       obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(180));
       obj.m_LocalPosition.Set(0.5f, -1.5f, 0);
       pWorld->CreateObject(obj, pObj);
@@ -157,7 +156,7 @@ void ezDecalContext::OnInitialize()
     }
 
     {
-      obj.m_sName.Assign("Decal3");
+      obj.m_sName.Assign("Decal6");
       obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(180));
       obj.m_LocalPosition.Set(0.5f, 1.5f, 0);
       pWorld->CreateObject(obj, pObj);

@@ -1,0 +1,56 @@
+string %Shader { "Shaders/Materials/DefaultMaterial.ezShader" }
+
+
+Permutation
+{
+  string %Variable { "BLEND_MODE" }
+  string %Value { "OPAQUE" }
+}
+
+Permutation
+{
+  string %Variable { "SHADING_MODE" }
+  string %Value { "LIT" }
+}
+
+Permutation
+{
+  string %Variable { "TWO_SIDED" }
+  string %Value { "FALSE" }
+}
+
+Constant
+{
+  string %Variable { "BaseColor" }
+  Color %Value { f{0.3, 0.3, 0.3, 1.0} }
+}
+
+Constant
+{
+  string %Variable { "UseNormalAndRoughnessTexture" }
+  u3 %Value { 1 }
+}
+
+Texture2D
+{
+  string %Variable { "NormalTexture" }
+  string %Value { "Textures/TestBricks_normal.tga" }
+}
+
+Texture2D
+{
+  string %Variable { "RoughnessTexture" }
+  string %Value { "Textures/TestBricks_roughness.tga" }
+}
+
+Constant
+{
+  string %Variable { "UseOcclusionTexture" }
+  u3 %Value { 1 }
+}
+
+Texture2D
+{
+  string %Variable { "OcclusionTexture" }
+  string %Value { "Textures/TestBricks_ao.tga" }
+}
