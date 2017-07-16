@@ -126,7 +126,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestManyMeshesExec(ezInt32 i
 {
   {
     auto pCamera = GetGameStateForWorld(m_pWorld)->GetMainCamera();
-    pCamera->SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 100.0f, 0.1f, 1000.0f);
+    pCamera->SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 100.0f, 1.0f, 1000.0f);
     ezVec3 pos;
     pos.SetZero();
     pCamera->LookAt(pos, pos + ezVec3(1, 0, 0), ezVec3(0, 0, 1));
