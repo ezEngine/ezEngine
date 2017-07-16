@@ -1,10 +1,11 @@
-#pragma once
+﻿#pragma once
 
 /// \file
 
 #include <Foundation/Basics.h>
 #include <Foundation/Utilities/EnumerableClass.h>
 #include <Foundation/Serialization/GraphVersioning.h>
+#include <Foundation/Strings/HashedString.h>
 
 class ezRTTI;
 class ezAbstractObjectNode;

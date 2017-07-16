@@ -1,8 +1,9 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Serialization/GraphVersioning.h>
 #include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Serialization/RttiConverter.h>
 
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTypeVersionInfo, ezNoBase, 1, ezRTTIDefaultAllocator<ezTypeVersionInfo>)
