@@ -1023,7 +1023,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
       if (usageData.m_uiFirstUsageIdx == i)
       {
         ezGALTextureHandle hTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(usageData.m_UsedBy[0]->m_Desc);
-        EZ_ASSERT_DEV(!hTexture.IsInvalidated(), "GPU pool return invalidated texture!");
+        EZ_ASSERT_DEV(!hTexture.IsInvalidated(), "GPU pool returned an invalidated texture!");
         for (ezRenderPipelinePassConnection* pConn : usageData.m_UsedBy)
         {
           pConn->m_TextureHandle = hTexture;

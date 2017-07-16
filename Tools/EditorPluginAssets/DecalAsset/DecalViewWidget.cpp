@@ -1,10 +1,10 @@
 ﻿#include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorPluginAssets/MaterialAsset/MaterialViewWidget.moc.h>
-#include <EditorPluginAssets/MaterialAsset/MaterialAssetWindow.moc.h>
+#include <EditorPluginAssets/DecalAsset/DecalViewWidget.moc.h>
+#include <EditorPluginAssets/DecalAsset/DecalAssetWindow.moc.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
 
-ezQtMaterialViewWidget::ezQtMaterialViewWidget(QWidget* pParent, ezQtMaterialAssetDocumentWindow* pOwnerWindow, ezSceneViewConfig* pViewConfig)
+ezQtDecalViewWidget::ezQtDecalViewWidget(QWidget* pParent, ezQtDecalAssetDocumentWindow* pOwnerWindow, ezSceneViewConfig* pViewConfig)
   : ezQtEngineViewWidget(pParent, pOwnerWindow, pViewConfig)
 {
   setAcceptDrops(true);
@@ -16,7 +16,7 @@ ezQtMaterialViewWidget::ezQtMaterialViewWidget(QWidget* pParent, ezQtMaterialAss
   m_InputContexts.PushBack(m_pOrbitCameraContext);
 }
 
-ezQtMaterialViewWidget::~ezQtMaterialViewWidget()
+ezQtDecalViewWidget::~ezQtDecalViewWidget()
 {
   EZ_DEFAULT_DELETE(m_pOrbitCameraContext);
 }

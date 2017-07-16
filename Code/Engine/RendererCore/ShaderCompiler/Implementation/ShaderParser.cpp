@@ -4,6 +4,7 @@
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
 #include <Foundation/Types/Variant.h>
 #include <Foundation/Utilities/ConversionUtils.h>
+#include <Foundation/CodeUtils/Tokenizer.h>
 
 namespace
 {

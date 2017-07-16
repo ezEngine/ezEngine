@@ -94,7 +94,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetDocument, 2, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezDecalAssetDocument::ezDecalAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezDecalAssetProperties>(szDocumentPath, false)
+  : ezSimpleAssetDocument<ezDecalAssetProperties>(szDocumentPath, true)
 {
 }
 

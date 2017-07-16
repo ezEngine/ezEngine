@@ -6,6 +6,8 @@
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
+#include <EditorPluginAssets/DecalAsset/DecalViewWidget.moc.h>
+#include <EditorFramework/InputContexts/EditorInputContext.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ezQtDecalAssetDocumentWindow
@@ -40,16 +42,17 @@ ezQtDecalAssetDocumentWindow::ezQtDecalAssetDocumentWindow(ezDecalAssetDocument*
   {
     SetTargetFramerate(25);
 
-    //m_ViewConfig.m_Camera.LookAt(ezVec3(-2, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
-    //m_ViewConfig.ApplyPerspectiveSetting(90);
+    m_ViewConfig.m_Camera.LookAt(ezVec3(-2, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
+    m_ViewConfig.ApplyPerspectiveSetting(90);
 
-    //m_pViewWidget = new ezQtTextureViewWidget(nullptr, this, &m_ViewConfig);
+    m_pViewWidget = new ezQtDecalViewWidget(nullptr, this, &m_ViewConfig);
 
-    //ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, nullptr);
+    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(nullptr, m_pViewWidget, nullptr);
 
-    //setCentralWidget(pContainer);
+    setCentralWidget(pContainer);
   }
 
+  // Property Grid
   {
     ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
     pPropertyPanel->setObjectName("DecalAssetDockWidget");
@@ -70,9 +73,9 @@ ezQtDecalAssetDocumentWindow::ezQtDecalAssetDocumentWindow(ezDecalAssetDocument*
 
 void ezQtDecalAssetDocumentWindow::InternalRedraw()
 {
-  //ezEditorInputContext::UpdateActiveInputContext();
+  ezEditorInputContext::UpdateActiveInputContext();
   SendRedrawMsg();
-  //ezQtEngineDocumentWindow::InternalRedraw();
+  ezQtEngineDocumentWindow::InternalRedraw();
 }
 
 void ezQtDecalAssetDocumentWindow::SendRedrawMsg()
@@ -81,17 +84,17 @@ void ezQtDecalAssetDocumentWindow::SendRedrawMsg()
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
-  //{
-  //  ezSceneSettingsMsgToEngine msg;
-  //  msg.m_fGizmoScale = 0;
-  //  GetEditorEngineConnection()->SendMessage(&msg);
-  //}
+  {
+    ezSceneSettingsMsgToEngine msg;
+    msg.m_fGizmoScale = 0;
+    GetEditorEngineConnection()->SendMessage(&msg);
+  }
 
-  //for (auto pView : m_ViewWidgets)
-  //{
-  //  pView->SetEnablePicking(false);
-  //  pView->UpdateCameraInterpolation();
-  //  pView->SyncToEngine();
-  //}
+  for (auto pView : m_ViewWidgets)
+  {
+    pView->SetEnablePicking(false);
+    pView->UpdateCameraInterpolation();
+    pView->SyncToEngine();
+  }
 }
 

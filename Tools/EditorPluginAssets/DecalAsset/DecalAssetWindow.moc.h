@@ -4,9 +4,10 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 
 class ezDecalAssetDocument;
-//class ezQtDecalViewWidget;
+class ezQtDecalViewWidget;
 
 class ezQtDecalAssetDocumentWindow : public ezQtEngineDocumentWindow
 {
@@ -21,7 +22,7 @@ private:
   virtual void InternalRedraw() override;
   void SendRedrawMsg();
 
-  //ezSceneViewConfig m_ViewConfig;
-  //ezQtDecalViewWidget* m_pViewWidget;
+  ezSceneViewConfig m_ViewConfig;
+  ezQtDecalViewWidget* m_pViewWidget;
 };
 

@@ -40,6 +40,7 @@ ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentW
   //setAttribute(Qt::WA_OpaquePaintEvent);
   setAutoFillBackground(false);
   setMouseTracking(true);
+  setMinimumSize(64, 64); // prevent the window from becoming zero sized, otherwise the rendering code may crash
 
   setAttribute(Qt::WA_PaintOnScreen, true);
   setAttribute(Qt::WA_NativeWindow, true);

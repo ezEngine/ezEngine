@@ -1270,6 +1270,8 @@ void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSeg
   const ezAngle fAngleStepSegment = ezAngle::Degree(360.0f / uiSegments);
   const ezAngle fAngleStepCylinder = ezAngle::Degree(360.0f / uiSegmentDetail);
 
+  const ezUInt32 uiFirstVertex = m_Vertices.GetCount();
+
   // this is the loop for the torus ring
   for (ezUInt16 seg = 0; seg < uiSegments; ++seg)
   {
@@ -1296,8 +1298,8 @@ void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSeg
 
   for (ezUInt16 seg = 0; seg < uiSegments; ++seg)
   {
-    const ezUInt16 rs0 = seg * uiSegmentDetail;
-    const ezUInt16 rs1 = ((seg + 1) % uiSegments) * uiSegmentDetail;
+    const ezUInt16 rs0 = uiFirstVertex + seg * uiSegmentDetail;
+    const ezUInt16 rs1 = uiFirstVertex + ((seg + 1) % uiSegments) * uiSegmentDetail;
 
     for (ezUInt16 p = 0; p < uiSegmentDetail; ++p)
     {
