@@ -69,8 +69,8 @@ struct EZ_ALIGN_16(ezDirShadowData)
   StructuredBuffer<float4> shadowDataBuffer;
 #endif
 
-#define DECAL_MODE_ALL 0
-#define DECAL_MODE_DIFFUSE_ONLY 1
+#define DECAL_MODE_DEFAULT 0
+#define DECAL_MODE_BASE_COLOR_ONLY 1
 #define DECAL_MODE_NORMAL_ONLY 2
 #define DECAL_MODE_EMISSIVE 3
 #define DECAL_MODE_MASK 0xFF

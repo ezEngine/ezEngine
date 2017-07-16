@@ -12,7 +12,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkyBoxComponent, 3)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("ExposureBias", GetExposureBias, SetExposureBias)->AddAttributes(new ezClampValueAttribute(-32.0f, 32.0f)),
-    EZ_ACCESSOR_PROPERTY("InverseTonemap", GetInverseTonemap, SetInverseTonemap)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_ACCESSOR_PROPERTY("InverseTonemap", GetInverseTonemap, SetInverseTonemap),
     EZ_ACCESSOR_PROPERTY("CubeMap", GetCubeMapFile, SetCubeMapFile)->AddAttributes(new ezAssetBrowserAttribute("Texture Cube"))
   }
   EZ_END_PROPERTIES
@@ -31,7 +31,7 @@ EZ_END_COMPONENT_TYPE
 
 ezSkyBoxComponent::ezSkyBoxComponent()
   : m_fExposureBias(0.0f)
-  , m_bInverseTonemap(true)
+  , m_bInverseTonemap(false)
 {
 }
 

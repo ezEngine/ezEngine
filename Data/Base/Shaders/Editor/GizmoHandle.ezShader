@@ -6,7 +6,6 @@ ALL
 RENDER_PASS
 GIZMO_CONSTANT_SIZE
 PREPARE_DEPTH
-TWO_SIDED
 
 [RENDERSTATE]
 
@@ -73,7 +72,7 @@ VS_OUT main(VS_IN Input)
 
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Editor/GizmoConstants.h>
-#include <Shaders/Materials/MaterialInterpolator.h  >
+#include <Shaders/Materials/MaterialInterpolator.h>
 
 #if EZ_ENABLED(PLATFORM_DX11)
 

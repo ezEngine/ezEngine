@@ -108,11 +108,11 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
 
   if (m_bWriteDepth)
   {
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("WRITE_DEPTH", "TRUE");
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("FORWARD_PASS_WRITE_DEPTH", "TRUE");
   }
   else
   {
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("WRITE_DEPTH", "FALSE");
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("FORWARD_PASS_WRITE_DEPTH", "FALSE");
   }
 
   // Set permutation for shading quality
@@ -135,7 +135,7 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
     auto pClusteredData = GetPipeline()->GetFrameDataProvider<ezClusteredDataProvider>()->GetData(renderViewContext);
     pClusteredData->BindResources(renderViewContext.m_pRenderContext);
   }
-  // Or other light properties. 
+  // Or other light properties.
   else
   {
      // todo

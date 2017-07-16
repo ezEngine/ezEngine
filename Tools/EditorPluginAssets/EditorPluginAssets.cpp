@@ -24,6 +24,7 @@
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetObjects.h>
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetWindow.moc.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptActions.h>
+#include <EditorPluginAssets/DecalAsset/DecalAsset.h>
 
 
 void OnLoadPlugin(bool bReloading)
@@ -292,6 +293,8 @@ void OnLoadPlugin(bool bReloading)
 
   // Decal Asset
   {
+    ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezDecalAssetProperties::PropertyMetaStateEventHandler);
+
     // Menu Bar
     {
       ezActionMapManager::RegisterActionMap("DecalAssetMenuBar");
@@ -323,6 +326,7 @@ void OnUnloadPlugin(bool bReloading)
 
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezMeshAssetProperties::PropertyMetaStateEventHandler);
   ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezTextureAssetProperties::PropertyMetaStateEventHandler);
+  ezPropertyMetaState::GetSingleton()->m_Events.RemoveEventHandler(ezDecalAssetProperties::PropertyMetaStateEventHandler);
 }
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);

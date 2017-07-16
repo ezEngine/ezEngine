@@ -3,8 +3,6 @@ ALL
 
 [PERMUTATIONS]
 
-TWO_SIDED
-
 [RENDERSTATE]
 
 BlendingEnabled0 = true

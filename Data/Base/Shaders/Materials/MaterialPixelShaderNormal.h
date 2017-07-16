@@ -3,10 +3,16 @@
 #if BLEND_MODE == BLEND_MODE_MASKED && RENDER_PASS != RENDER_PASS_WIREFRAME
   
   // No need to do alpha test again if we have a depth prepass
-  #if (RENDER_PASS != RENDER_PASS_FORWARD && RENDER_PASS != RENDER_PASS_EDITOR) || WRITE_DEPTH
+  #if defined(FORWARD_PASS_WRITE_DEPTH) && (RENDER_PASS == RENDER_PASS_FORWARD || RENDER_PASS == RENDER_PASS_EDITOR)
+    #if FORWARD_PASS_WRITE_DEPTH == TRUE
+      #define USE_ALPHA_TEST
+    #endif
+  #else
     #define USE_ALPHA_TEST
+  #endif
   
-    #if MSAA
+  #if defined(USE_ALPHA_TEST) && defined(MSAA)
+    #if MSAA == TRUE
       #define USE_ALPHA_TEST_SUPER_SAMPLING
     #endif
   #endif
@@ -71,7 +77,7 @@ PS_OUT main(PS_IN Input)
     }
   #endif
   
-  #if defined(SHADING_MODE) && SHADING_MODE == SHADING_MODE_LIT
+  #if SHADING_MODE == SHADING_MODE_LIT
     float3 litColor = CalculateLighting(matData, clusterData, Input.Position.xyw);
   #else
     float3 litColor = matData.diffuseColor;
@@ -164,7 +170,7 @@ PS_OUT main(PS_IN Input)
     else if (RenderPass == EDITOR_RENDER_PASS_OCCLUSION)
     {
       float ssao = SampleSSAO(Input.Position.xyw);
-      float occlusion = min(matData.occlusion, ssao);
+      float occlusion = matData.occlusion * ssao;
       
       Output.Color = float4(SrgbToLinear(occlusion), opacity);
     }

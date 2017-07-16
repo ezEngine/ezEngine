@@ -4,6 +4,14 @@
 #error "Functions in Lighting.h are only for QUALITY_NORMAL shading quality. Todo: Split up file"
 #endif
 
+#ifndef APPLY_SSAO_TO_DIRECT_LIGHTING
+  #if SHADING_MODE == SHADING_MODE_LIT
+    #error "APPLY_SSAO_TO_DIRECT_LIGHTING must be defined"
+  #else
+    #define APPLY_SSAO_TO_DIRECT_LIGHTING FALSE
+  #endif
+#endif
+
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Common/LightData.h>
 #include <Shaders/Common/BRDF.h>
@@ -327,7 +335,7 @@ float3 CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, f
   totalLight *= (1.0f / PI);
 
   float ssao = SampleSSAO(screenPosition);
-  float occlusion = min(matData.occlusion, ssao);
+  float occlusion = matData.occlusion * ssao;
   #if APPLY_SSAO_TO_DIRECT_LIGHTING
     totalLight *= occlusion;
   #endif
@@ -385,6 +393,10 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData)
         fade *= decalBaseColor.a;
 
         matData.diffuseColor = lerp(matData.diffuseColor, decalBaseColor.xyz, fade);
+        //matData.specularColor = lerp(matData.specularColor, 0.04f, fade);
+        
+        //matData.worldNormal = normalize(lerp(matData.worldNormal, matData.vertexNormal, fade));
+        //matData.occlusion = lerp(matData.occlusion, 1.0f, fade);
       }
     }
   }

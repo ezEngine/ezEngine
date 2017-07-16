@@ -3,7 +3,7 @@ ALL
 
 [PERMUTATIONS]
 
-TWO_SIDED
+CAMERA_STEREO = FALSE
 
 [MATERIALPARAMETER]
 
@@ -46,7 +46,10 @@ SamplerState BaseTexture_AutoSampler;
 
 float4 SampleTexture(PS_IN Input)
 {
-  float3 dir = CubeMapDirection(normalize(Input.Normal));
+  float3 normal = normalize(Input.Normal);
+  float3 viewDir = normalize(Input.WorldPosition - GetCameraPosition());
+  
+  float3 dir = CubeMapDirection(reflect(viewDir, normal));
 
   if (LodLevel < 0)
   {

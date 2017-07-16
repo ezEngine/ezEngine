@@ -23,9 +23,11 @@ DepthTestFunc = CompareFunc_LessEqual
   
   #if defined(RENDER_PASS) && (RENDER_PASS == RENDER_PASS_FORWARD || RENDER_PASS == RENDER_PASS_EDITOR)
   
-    #if !WRITE_DEPTH
-      DepthWrite = false
-      DepthTestFunc = CompareFunc_Equal
+    #if defined(FORWARD_PASS_WRITE_DEPTH)
+      #if FORWARD_PASS_WRITE_DEPTH == FALSE
+        DepthWrite = false
+        DepthTestFunc = CompareFunc_Equal
+      #endif
     #endif
     
   #endif

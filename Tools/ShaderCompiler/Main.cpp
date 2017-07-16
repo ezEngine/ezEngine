@@ -63,6 +63,7 @@ void ezShaderCompilerApplication::BeforeCoreStartup()
 void ezShaderCompilerApplication::AfterCoreStartup()
 {
   DoProjectSetup();
+  DoSetupGraphicsDevice();
 
   ezStartup::StartupEngine();
 }
