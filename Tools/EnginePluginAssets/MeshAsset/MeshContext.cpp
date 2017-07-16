@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EnginePluginAssets/MeshAsset/MeshContext.h>
 #include <EnginePluginAssets/MeshAsset/MeshView.h>
 
@@ -88,10 +88,6 @@ void ezMeshContext::OnInitialize()
     ezAmbientLightComponent* pAmbLight;
     ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);
   }
-}
-
-void ezMeshContext::OnDeinitialize()
-{
 }
 
 ezEngineProcessViewContext* ezMeshContext::CreateViewContext()

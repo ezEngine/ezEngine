@@ -19,7 +19,6 @@ public:
 
 protected:
   virtual void OnInitialize() override;
-  virtual void OnDeinitialize() override;
 
   virtual ezEngineProcessViewContext* CreateViewContext() override;
   virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;

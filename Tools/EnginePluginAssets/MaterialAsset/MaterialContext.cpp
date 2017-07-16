@@ -151,10 +151,6 @@ void ezMaterialContext::OnInitialize()
   }
 }
 
-void ezMaterialContext::OnDeinitialize()
-{
-}
-
 ezEngineProcessViewContext* ezMaterialContext::CreateViewContext()
 {
   return EZ_DEFAULT_NEW(ezMaterialViewContext, this);

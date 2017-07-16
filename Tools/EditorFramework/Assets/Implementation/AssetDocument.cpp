@@ -660,10 +660,11 @@ void ezAssetDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
   {
     if (m_bUseIPCObjectMirror)
     {
+      // this is currently too problematic
       // make sure the engine clears the document first
-      ezDocumentClearMsgToEngine msgClear;
-      msgClear.m_DocumentGuid = GetGuid();
-      SendMessageToEngine(&msgClear);
+      //ezDocumentClearMsgToEngine msgClear;
+      //msgClear.m_DocumentGuid = GetGuid();
+      //SendMessageToEngine(&msgClear);
 
       m_Mirror.SendDocument();
     }

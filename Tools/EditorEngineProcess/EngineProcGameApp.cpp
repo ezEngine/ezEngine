@@ -316,12 +316,15 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     return;
   }
 
-  if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentClearMsgToEngine>())
-  {
-    ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(pDocMsg->m_DocumentGuid);
-    pDocumentContext->Reset();
-    return;
-  }
+  // resetting a document makes a lot of problems:
+  // recreating the world will lose all custom nodes (ambient light etc.)
+  // the simulation state is reset to default (on)
+  //if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentClearMsgToEngine>())
+  //{
+  //  ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(pDocMsg->m_DocumentGuid);
+  //  pDocumentContext->Reset();
+  //  return;
+  //}
 
   // can be null if the asset was deleted on disk manually
   if (pDocumentContext)

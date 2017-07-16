@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EnginePluginParticle/ParticleAsset/ParticleContext.h>
 #include <EnginePluginParticle/ParticleAsset/ParticleView.h>
 
@@ -105,10 +105,6 @@ void ezParticleContext::OnInitialize()
 
     m_pComponent->SetParticleEffect(m_hParticle);
   }
-}
-
-void ezParticleContext::OnDeinitialize()
-{
 }
 
 ezEngineProcessViewContext* ezParticleContext::CreateViewContext()

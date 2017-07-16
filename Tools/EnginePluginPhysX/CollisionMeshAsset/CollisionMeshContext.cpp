@@ -91,10 +91,6 @@ void ezCollisionMeshContext::OnInitialize()
   }
 }
 
-void ezCollisionMeshContext::OnDeinitialize()
-{
-}
-
 ezEngineProcessViewContext* ezCollisionMeshContext::CreateViewContext()
 {
   return EZ_DEFAULT_NEW(ezCollisionMeshViewContext, this);
