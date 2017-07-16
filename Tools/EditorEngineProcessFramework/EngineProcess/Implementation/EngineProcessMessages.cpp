@@ -282,6 +282,18 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogMsgToEditor, 1, ezRTTIDefaultAllocator<ezLo
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCVarMsgToEditor, 1, ezRTTIDefaultAllocator<ezCVarMsgToEditor>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Name", m_sName),
+    EZ_MEMBER_PROPERTY("Plugin", m_sPlugin),
+    EZ_MEMBER_PROPERTY("Desc", m_sDescription),
+    EZ_MEMBER_PROPERTY("Value", m_Value),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineSyncObjectMsg, 1, ezRTTIDefaultAllocator<ezEditorEngineSyncObjectMsg>)
 {

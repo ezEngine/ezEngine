@@ -443,6 +443,10 @@ void ezEngineProcessGameApplication::DoSetupLogWriters()
   ezGameApplication::DoSetupLogWriters();
 
   ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezEngineProcessGameApplication::LogWriter, this));
+
+  // used for sending CVar changes over to the editor
+  ezCVar::s_AllCVarEvents.AddEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerCVar, this));
+  ezPlugin::s_PluginEvents.AddEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerCVarPlugin, this));
 }
 
 void ezEngineProcessGameApplication::DoShutdownLogWriters()
@@ -450,6 +454,58 @@ void ezEngineProcessGameApplication::DoShutdownLogWriters()
   ezGameApplication::DoShutdownLogWriters();
 
   ezGlobalLog::RemoveLogWriter(ezMakeDelegate(&ezEngineProcessGameApplication::LogWriter, this));
+
+  // used for sending CVar changes over to the editor
+  ezCVar::s_AllCVarEvents.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerCVar, this));
+  ezPlugin::s_PluginEvents.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerCVarPlugin, this));
+
 }
 
+void ezEngineProcessGameApplication::EventHandlerCVar(const ezCVar::CVarEvent& e)
+{
+  if (e.m_EventType != ezCVar::CVarEvent::ValueChanged)
+    return;
 
+  TransmitCVar(e.m_pCVar);
+}
+
+void ezEngineProcessGameApplication::EventHandlerCVarPlugin(const ezPlugin::PluginEvent& e)
+{
+  if (e.m_EventType == ezPlugin::PluginEvent::Type::AfterLoadingBeforeInit)
+  {
+    ezCVar* pCVar = ezCVar::GetFirstInstance();
+
+    while (pCVar)
+    {
+      TransmitCVar(pCVar);
+
+      pCVar = pCVar->GetNextInstance();
+    }
+  }
+}
+
+void ezEngineProcessGameApplication::TransmitCVar(const ezCVar* pCVar)
+{
+  ezCVarMsgToEditor msg;
+  msg.m_sName = pCVar->GetName();
+  msg.m_sPlugin = pCVar->GetPluginName();
+  msg.m_sDescription = pCVar->GetDescription();
+
+  switch (pCVar->GetType())
+  {
+  case ezCVarType::Int:
+    msg.m_Value = ((ezCVarInt*)pCVar)->GetValue();
+    break;
+  case ezCVarType::Float:
+    msg.m_Value = ((ezCVarFloat*)pCVar)->GetValue();
+    break;
+  case ezCVarType::Bool:
+    msg.m_Value = ((ezCVarBool*)pCVar)->GetValue();
+    break;
+  case ezCVarType::String:
+    msg.m_Value = ((ezCVarString*)pCVar)->GetValue();
+    break;
+  }
+
+  m_IPC.SendMessage(&msg);
+}

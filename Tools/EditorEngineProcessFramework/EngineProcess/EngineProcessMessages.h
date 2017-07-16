@@ -307,6 +307,16 @@ public:
   ezLogEntry m_Entry;
 };
 
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezCVarMsgToEditor : public ezEditorEngineMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezCVarMsgToEditor, ezEditorEngineMsg);
+
+public:
+  ezString m_sName;
+  ezString m_sPlugin;
+  ezString m_sDescription;
+  ezVariant m_Value;
+};
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEditorEngineSyncObjectMsg : public ezEditorEngineDocumentMsg
 {

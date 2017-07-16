@@ -50,6 +50,7 @@ Asset.WriteLookupTable;Write Lookup Table
 Panel.AssetBrowser;Asset Browser
 Panel.Log;Log
 Panel.AssetCurator;Asset Curator
+Panel.CVar;CVars
 ezSceneViewPerspective::Orthogonal_Front;Ortho Front
 ezSceneViewPerspective::Orthogonal_Right;Ortho Right
 ezSceneViewPerspective::Orthogonal_Top;Ortho Top

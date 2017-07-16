@@ -42,6 +42,7 @@
 #include <EditorFramework/Visualizers/ConeVisualizerAdapter.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
+#include <EditorFramework/Panels/CVarPanel/CVarPanel.moc.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
 
@@ -292,6 +293,7 @@ void ezQtEditorApp::ShutdownEditor()
 void ezQtEditorApp::CreatePanels()
 {
   new ezQtLogPanel();
+  new ezQtCVarPanel();
   new ezQtAssetBrowserPanel();
   new ezQtAssetCuratorPanel();
 }

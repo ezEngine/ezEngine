@@ -40,6 +40,9 @@ private:
   void SendReflectionInformation();
   void EventHandlerIPC(const ezEngineProcessCommunicationChannel::Event& e);
   void EventHandlerTypeUpdated(const ezRTTI* pType);
+  void EventHandlerCVar(const ezCVar::CVarEvent& e);
+  void EventHandlerCVarPlugin(const ezPlugin::PluginEvent& e);
+  void TransmitCVar(const ezCVar* pCVar);
 
   ezEngineProcessDocumentContext* CreateDocumentContext(const ezDocumentOpenMsgToEngine* pMsg);
 

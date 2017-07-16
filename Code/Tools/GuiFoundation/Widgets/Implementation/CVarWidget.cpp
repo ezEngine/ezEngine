@@ -77,7 +77,9 @@ void ezQtCVarWidget::RebuildCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvar
       sTemp.Format("  {0}  ", it.Key());
       TableCVars->setCellWidget(iRow, 2, new QLabel(sTemp.GetData())); // Name
 
-      TableCVars->setCellWidget(iRow, 4, new QLabel(it.Value().m_sDescription.GetData())); // Description
+      QLabel* pDescLabel = new QLabel(it.Value().m_sDescription.GetData());
+      pDescLabel->setToolTip(it.Value().m_sDescription.GetData());
+      TableCVars->setCellWidget(iRow, 4, pDescLabel); // Description
 
       switch (it.Value().m_uiType)
       {
