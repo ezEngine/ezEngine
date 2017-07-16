@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GuiFoundation/Models/LogModel.moc.h>
 #include <QThread>
 #include <QColor>
@@ -7,7 +7,7 @@
 ezQtLogModel::ezQtLogModel(QObject* parent)
   :QAbstractItemModel(parent)
 {
-  m_bIsValid = false;
+  m_bIsValid = true;
   m_LogLevel = ezLogMsgType::InfoMsg;
 }
 
@@ -26,7 +26,9 @@ void ezQtLogModel::Clear()
     return;
 
   m_AllMessages.Clear();
+  m_VisibleMessages.Clear();
   Invalidate();
+  m_bIsValid = true;
 }
 
 void ezQtLogModel::SetLogLevel(ezLogMsgType::Enum LogLevel)

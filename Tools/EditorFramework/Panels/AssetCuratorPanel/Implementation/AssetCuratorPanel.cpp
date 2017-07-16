@@ -96,6 +96,8 @@ void ezQtAssetCuratorPanel::UpdateIssueInfo()
     return;
   }
 
+  TransformLog->GetLog()->Clear();
+
   ezAssetInfo* pAssetInfo = pSubAsset->m_pAssetInfo;
 
   auto getNiceName = [](const ezString& dep) -> ezStringBuilder
