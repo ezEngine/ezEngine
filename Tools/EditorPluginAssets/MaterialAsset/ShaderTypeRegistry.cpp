@@ -423,10 +423,16 @@ public:
     {
       ezRttiConverterContext context;
       ezRttiConverterWriter rttiConverter(pGraph, &context, true, true);
-      const ezRTTI* pBaseType = ezShaderTypeRegistry::GetSingleton()->GetShaderBaseType();
+
       ezReflectedTypeDescriptor desc;
-      ezToolsReflectionUtils::GetMinimalReflectedTypeDescriptorFromRtti(pBaseType, desc);
-      context.RegisterObject(ezUuid::StableUuidForString(pBaseType->GetTypeName()), ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
+      desc.m_sTypeName = "ezShaderTypeBase";
+      desc.m_sPluginName = "ShaderTypes";
+      desc.m_sParentTypeName = ezGetStaticRTTI<ezReflectedClass>()->GetTypeName();
+      desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Abstract | ezTypeFlags::Class;
+      desc.m_uiTypeSize = 0;
+      desc.m_uiTypeVersion = 1;
+
+      context.RegisterObject(ezUuid::StableUuidForString(desc.m_sTypeName.GetData()), ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
       rttiConverter.AddObjectToGraph(ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
     }
 
