@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/CVar.h>
 
@@ -72,7 +72,7 @@ static void SendCVarTelemetry(ezCVar* pCVar)
   msg.SetMessageID('CVAR', 'DATA');
   msg.GetWriter() << pCVar->GetName();
   msg.GetWriter() << pCVar->GetPluginName();
-  msg.GetWriter() << (ezUInt8) pCVar->GetFlags().GetValue();
+  //msg.GetWriter() << (ezUInt8) pCVar->GetFlags().GetValue(); // currently not used
   msg.GetWriter() << (ezUInt8) pCVar->GetType();
   msg.GetWriter() << pCVar->GetDescription();
 

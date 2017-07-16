@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <QDockWidget>
@@ -6,6 +6,7 @@
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Configuration/CVar.h>
+#include <GuiFoundation/Widgets/CVarWidget.moc.h>
 
 class ezQtCVarsWidget : public QDockWidget, public Ui_CVarsWidget
 {
@@ -18,10 +19,10 @@ public:
   static ezQtCVarsWidget* s_pWidget;
 
 private slots:
-  virtual void BoolChanged(int index);
-  virtual void FloatChanged(double d);
-  virtual void IntChanged(int i);
-  virtual void StringChanged(const QString& val);
+  void BoolChanged(const char* szCVar, bool newValue);
+  void FloatChanged(const char* szCVar, float newValue);
+  void IntChanged(const char* szCVar, int newValue);
+  void StringChanged(const char* szCVar, const char* newValue);
 
 public:
   static void ProcessTelemetry(void* pUnuseed);
@@ -29,41 +30,14 @@ public:
   void ResetStats();
 
 private:
-  void UpdateCVarsTable(bool bRecreate);
+  //void UpdateCVarsTable(bool bRecreate);
   
 
-  struct CVarData
-  {
-    ezInt32 m_iTableRow;
-
-    ezString m_sPlugin;
-    ezString m_sDescription;
-    ezUInt8 m_uiFlags;
-    ezUInt8 m_uiType;
-
-    bool m_bValue;
-    float m_fValue;
-    ezString m_sValue;
-    ezInt32 m_iValue;
-
-    CVarData()
-    {
-      m_iTableRow = -1;
-
-      m_uiFlags = 0;
-      m_uiType = 0;
-
-      m_bValue = false;
-      m_fValue = 0;
-      m_iValue = 0;
-    }
-  };
-
-  void SendCVarUpdateToServer(const char* szName, const CVarData& cvd);
+  void SendCVarUpdateToServer(const char* szName, const ezCVarWidgetData& cvd);
   void SyncAllCVarsToServer();
 
-  ezMap<ezString, CVarData> m_CVars;
-  ezMap<ezString, CVarData> m_CVarsBackup;
+  ezMap<ezString, ezCVarWidgetData> m_CVars;
+  ezMap<ezString, ezCVarWidgetData> m_CVarsBackup;
 
 };
 

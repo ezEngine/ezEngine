@@ -231,7 +231,7 @@
      <x>0</x>
      <y>0</y>
      <width>904</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuWindows">
@@ -309,8 +309,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset resource="resources.qrc">
-     <normaloff>:/Icons/Icons/CVar.png</normaloff>:/Icons/Icons/CVar.png</iconset>
+    <iconset resource="../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
+     <normaloff>:/GuiFoundation/Icons/CVar.png</normaloff>:/GuiFoundation/Icons/CVar.png</iconset>
    </property>
    <property name="text">
     <string>CVars</string>
@@ -441,6 +441,7 @@
  </widget>
  <resources>
   <include location="resources.qrc"/>
+  <include location="../../Code/Tools/GuiFoundation/QtResources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>
