@@ -311,6 +311,12 @@ void OnLoadPlugin(bool bReloading)
       ezCommandHistoryActions::MapActions("DecalAssetToolBar", "");
       ezAssetActions::MapActions("DecalAssetToolBar", true);
     }
+
+    // View Tool Bar
+    {
+      ezActionMapManager::RegisterActionMap("DecalAssetViewToolBar");
+      ezViewActions::MapActions("DecalAssetViewToolBar", "", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+    }
   }
 
   // General editor plugin actions

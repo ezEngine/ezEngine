@@ -47,7 +47,7 @@ ezQtDecalAssetDocumentWindow::ezQtDecalAssetDocumentWindow(ezDecalAssetDocument*
 
     m_pViewWidget = new ezQtDecalViewWidget(nullptr, this, &m_ViewConfig);
 
-    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(nullptr, m_pViewWidget, nullptr);
+    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(nullptr, m_pViewWidget, "DecalAssetViewToolBar");
 
     setCentralWidget(pContainer);
   }
