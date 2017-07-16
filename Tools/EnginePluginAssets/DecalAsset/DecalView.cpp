@@ -2,6 +2,8 @@
 #include <EnginePluginAssets/DecalAsset/DecalView.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Pipeline/View.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
+#include <EnginePluginAssets/DecalAsset/DecalContext.h>
 
 ezDecalViewContext::ezDecalViewContext(ezDecalContext* pDecalContext)
   : ezEngineProcessViewContext(pDecalContext)

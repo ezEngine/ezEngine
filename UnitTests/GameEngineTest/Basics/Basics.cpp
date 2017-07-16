@@ -204,7 +204,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestSkyboxExec(ezInt32 iCurF
   ezResourceManager::FinishLoadingOfResources();
 
   auto pCamera = GetGameStateForWorld(m_pWorld)->GetMainCamera();
-  pCamera->SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 120.0f, 0.5f, 100.0f);
+  pCamera->SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 120.0f, 1.0f, 100.0f);
   ezVec3 pos = ezVec3(iCurFrame * 5.0f, 0, 0);
   pCamera->LookAt(pos, pos + ezVec3(1, 0, 0), ezVec3(0, 0, 1));
   pCamera->RotateGlobally(ezAngle::Degree(0), ezAngle::Degree(0), ezAngle::Degree(iCurFrame * 80.0f));
