@@ -49,9 +49,9 @@ class ezMeshAssetPropertiesPatch_1_2 : public ezGraphPatch
 {
 public:
   ezMeshAssetPropertiesPatch_1_2()
-    : ezGraphPatch(ezGetStaticRTTI<ezMeshAssetProperties>(), 2) {}
+    : ezGraphPatch("ezMeshAssetProperties", 2) {}
 
-  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Primitive Type", "PrimitiveType");
     pNode->RenameProperty("Forward Dir", "ForwardDir");

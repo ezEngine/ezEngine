@@ -243,9 +243,9 @@ class ezTransformComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezTransformComponentPatch_1_2()
-    : ezGraphPatch(ezGetStaticRTTI<ezTransformComponent>(), 2) {}
+    : ezGraphPatch("ezTransformComponent", 2) {}
 
-  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Run at Startup", "RunAtStartup");
     pNode->RenameProperty("Reverse at Start", "ReverseAtStart");

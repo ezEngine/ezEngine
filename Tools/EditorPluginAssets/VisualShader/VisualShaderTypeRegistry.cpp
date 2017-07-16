@@ -16,7 +16,7 @@ EZ_IMPLEMENT_SINGLETON(ezVisualShaderTypeRegistry);
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, VisualShader)
 
 BEGIN_SUBSYSTEM_DEPENDENCIES
-"PluginAssets"
+"PluginAssets", "ReflectedTypeManager"
 END_SUBSYSTEM_DEPENDENCIES
 
 ON_CORE_STARTUP

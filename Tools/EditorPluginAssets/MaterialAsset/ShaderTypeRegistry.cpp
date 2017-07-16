@@ -10,7 +10,7 @@ EZ_IMPLEMENT_SINGLETON(ezShaderTypeRegistry);
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ShaderTypeRegistry)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
-    "PluginAssets"
+    "PluginAssets", "ReflectedTypeManager"
   END_SUBSYSTEM_DEPENDENCIES
 
   ON_CORE_STARTUP
@@ -243,7 +243,24 @@ namespace
 ezShaderTypeRegistry::ezShaderTypeRegistry()
   : m_SingletonRegistrar(this)
 {
+  ezShaderTypeRegistry::GetSingleton();
+  ezReflectedTypeDescriptor desc;
+  desc.m_sTypeName = "ezShaderTypeBase";
+  desc.m_sPluginName = "ShaderTypes";
+  desc.m_sParentTypeName = ezGetStaticRTTI<ezReflectedClass>()->GetTypeName();
+  desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Abstract | ezTypeFlags::Class;
+  desc.m_uiTypeSize = 0;
+  desc.m_uiTypeVersion = 1;
 
+  m_pBaseType = ezPhantomRttiManager::RegisterType(desc);
+
+  ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezShaderTypeRegistry::PhantomTypeRegistryEventHandler, this));
+}
+
+
+ezShaderTypeRegistry::~ezShaderTypeRegistry()
+{
+  ezPhantomRttiManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezShaderTypeRegistry::PhantomTypeRegistryEventHandler, this));
 }
 
 const ezRTTI* ezShaderTypeRegistry::GetShaderType(const char* szShaderPath)
@@ -316,10 +333,10 @@ void ezShaderTypeRegistry::UpdateShaderType(ShaderData& data)
   ezReflectedTypeDescriptor desc;
   desc.m_sTypeName = data.m_sShaderPath;
   desc.m_sPluginName = "ShaderTypes";
-  desc.m_sParentTypeName = ezGetStaticRTTI<ezReflectedClass>()->GetTypeName();
-  desc.m_Flags = ezTypeFlags::Phantom;
+  desc.m_sParentTypeName = m_pBaseType->GetTypeName();;
+  desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Class;
   desc.m_uiTypeSize = 0;
-  desc.m_uiTypeVersion = 1;
+  desc.m_uiTypeVersion = 2;
 
   for (auto& parameter : parameters)
   {
@@ -346,5 +363,89 @@ void ezShaderTypeRegistry::UpdateShaderType(ShaderData& data)
 
   // Register and return the phantom type. If the type already exists this will update the type
   // and patch any existing instances of it so they should show up in the prop grid right away.
-  data.m_pType = ezPhantomRttiManager::RegisterType(desc);
+  ezPhantomRttiManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezShaderTypeRegistry::PhantomTypeRegistryEventHandler, this));
+  {
+    // We do not want to listen to type changes that we triggered ourselves.
+    data.m_pType = ezPhantomRttiManager::RegisterType(desc);
+  }
+  ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezShaderTypeRegistry::PhantomTypeRegistryEventHandler, this));
 }
+
+void ezShaderTypeRegistry::PhantomTypeRegistryEventHandler(const ezPhantomRttiManagerEvent& e)
+{
+  if (e.m_Type == ezPhantomRttiManagerEvent::Type::TypeAdded)
+  {
+    if (e.m_pChangedType->GetParentType() == m_pBaseType)
+    {
+      GetShaderType(e.m_pChangedType->GetTypeName());
+    }
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+
+/// \brief Changes the base class of all shader types to ezShaderTypeBase (version 1) and
+/// sets their own version to 2.
+class ezShaderTypePatch_1_2 : public ezGraphPatch
+{
+public:
+  ezShaderTypePatch_1_2()
+    : ezGraphPatch(nullptr, 2, ezGraphPatch::PatchType::GraphPatch) {}
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode*) const override
+  {
+    ezString sDescTypeName = ezGetStaticRTTI<ezReflectedTypeDescriptor>()->GetTypeName();
+
+    auto& nodes = pGraph->GetAllNodes();
+    bool bNeedAddBaseClass = false;
+    for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
+    {
+      ezAbstractObjectNode* pNode = it.Value();
+      if (pNode->GetType() == sDescTypeName)
+      {
+        auto* pTypeProperty = pNode->FindProperty("TypeName");
+        if (ezStringUtils::EndsWith(pTypeProperty->m_Value.Get<ezString>(), ".ezShader"))
+        {
+          auto* pTypeVersionProperty = pNode->FindProperty("TypeVersion");
+          auto* pParentTypeProperty = pNode->FindProperty("ParentTypeName");
+          if (pTypeVersionProperty->m_Value == 1)
+          {
+            pParentTypeProperty->m_Value = "ezShaderTypeBase";
+            pTypeVersionProperty->m_Value = (ezUInt32)2;
+            bNeedAddBaseClass = true;
+          }
+        }
+      }
+    }
+    if (bNeedAddBaseClass)
+    {
+      ezRttiConverterContext context;
+      ezRttiConverterWriter rttiConverter(pGraph, &context, true, true);
+      const ezRTTI* pBaseType = ezShaderTypeRegistry::GetSingleton()->GetShaderBaseType();
+      ezReflectedTypeDescriptor desc;
+      ezToolsReflectionUtils::GetMinimalReflectedTypeDescriptorFromRtti(pBaseType, desc);
+      context.RegisterObject(ezUuid::StableUuidForString(pBaseType->GetTypeName()), ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
+      rttiConverter.AddObjectToGraph(ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
+    }
+
+  }
+};
+
+ezShaderTypePatch_1_2 g_ezShaderTypePatch_1_2;
+
+/* TODO: Increase ezShaderTypeBase version to 2 and implement enum renames, see ezReflectedPropertyDescriptorPatch_1_2
+class ezShaderBaseTypePatch_1_2 : public ezGraphPatch
+{
+public:
+  ezShaderBaseTypePatch_1_2()
+    : ezGraphPatch("ezShaderTypeBase", 2) {}
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+  }
+};
+
+ezShaderBaseTypePatch_1_2 g_ezShaderBaseTypePatch_1_2;
+*/

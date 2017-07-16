@@ -276,7 +276,7 @@ ezUInt64 ezAssetDocument::GetDocumentHash() const
 
   // Gather used types, sort by name to make it table and hash their data
   ezSet<const ezRTTI*> types;
-  ezToolsReflectionUtils::GatherObjectTypes(GetObjectManager()->GetRootObject(), types, false);
+  ezToolsReflectionUtils::GatherObjectTypes(GetObjectManager()->GetRootObject(), types);
   ezDynamicArray<const ezRTTI*> typesSorted;
   typesSorted.Reserve(types.GetCount());
   for (const ezRTTI* pType : types)

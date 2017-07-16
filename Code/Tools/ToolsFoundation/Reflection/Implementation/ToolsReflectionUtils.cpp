@@ -8,6 +8,7 @@
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <Foundation/Serialization/RttiConverter.h>
 
 namespace
 {
@@ -260,20 +261,12 @@ bool ezToolsReflectionUtils::GetVariantFromFloat(double fValue, ezVariantType::E
 
 void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pRtti, ezReflectedTypeDescriptor& out_desc)
 {
-  EZ_ASSERT_DEV(pRtti != nullptr, "Type to process must not be null!");
-  out_desc.m_sTypeName = pRtti->GetTypeName();
-  out_desc.m_sPluginName = pRtti->GetPluginName();
-  out_desc.m_Flags = pRtti->GetTypeFlags();
-  out_desc.m_uiTypeSize = pRtti->GetTypeSize();
-  out_desc.m_uiTypeVersion = pRtti->GetTypeVersion();
-  const ezRTTI* pParentRtti = pRtti->GetParentType();
-  out_desc.m_sParentTypeName = pParentRtti ? pParentRtti->GetTypeName() : nullptr;
+  GetMinimalReflectedTypeDescriptorFromRtti(pRtti, out_desc);
+  out_desc.m_Flags.Remove(ezTypeFlags::Minimal);
 
-  out_desc.m_Properties.Clear();
   const ezArrayPtr<ezAbstractProperty*>& rttiProps = pRtti->GetProperties();
   const ezUInt32 uiCount = rttiProps.GetCount();
   out_desc.m_Properties.Reserve(uiCount);
-
   for (ezUInt32 i = 0; i < uiCount; ++i)
   {
     ezAbstractProperty* prop = rttiProps[i];
@@ -315,7 +308,6 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
     }
   }
 
-  out_desc.m_Functions.Clear();
   const ezArrayPtr<ezAbstractFunctionProperty*>& rttiFunc = pRtti->GetFunctions();
   const ezUInt32 uiFuncCount = rttiFunc.GetCount();
   out_desc.m_Functions.Reserve(uiFuncCount);
@@ -337,6 +329,24 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
   out_desc.m_ReferenceAttributes = pRtti->GetAttributes();
 }
 
+
+void ezToolsReflectionUtils::GetMinimalReflectedTypeDescriptorFromRtti(const ezRTTI* pRtti, ezReflectedTypeDescriptor& out_desc)
+{
+  EZ_ASSERT_DEV(pRtti != nullptr, "Type to process must not be null!");
+  out_desc.m_sTypeName = pRtti->GetTypeName();
+  out_desc.m_sPluginName = pRtti->GetPluginName();
+  out_desc.m_Flags = pRtti->GetTypeFlags() | ezTypeFlags::Minimal;
+  out_desc.m_uiTypeSize = pRtti->GetTypeSize();
+  out_desc.m_uiTypeVersion = pRtti->GetTypeVersion();
+  const ezRTTI* pParentRtti = pRtti->GetParentType();
+  out_desc.m_sParentTypeName = pParentRtti ? pParentRtti->GetTypeName() : nullptr;
+
+  out_desc.m_Properties.Clear();
+  out_desc.m_Functions.Clear();
+  out_desc.m_Attributes.Clear();
+  out_desc.m_ReferenceAttributes = ezArrayPtr<ezPropertyAttribute* const>();
+}
+
 static void GatherObjectTypesInternal(const ezDocumentObject* pObject, ezSet<const ezRTTI*>& inout_types)
 {
   inout_types.Insert(pObject->GetTypeAccessor().GetType());
@@ -348,23 +358,29 @@ static void GatherObjectTypesInternal(const ezDocumentObject* pObject, ezSet<con
   }
 }
 
-void ezToolsReflectionUtils::GatherObjectTypes(const ezDocumentObject* pObject, ezSet<const ezRTTI*>& inout_types, bool bOnlyPhantomTypes)
+void ezToolsReflectionUtils::GatherObjectTypes(const ezDocumentObject* pObject, ezSet<const ezRTTI*>& inout_types)
 {
-  if (!bOnlyPhantomTypes)
-  {
-    GatherObjectTypesInternal(pObject, inout_types);
-    return;
-  }
+  GatherObjectTypesInternal(pObject, inout_types);
+}
 
-  ezSet<const ezRTTI*> types;
-  GatherObjectTypesInternal(pObject, types);
-
+void ezToolsReflectionUtils::SerializeTypes(const ezSet<const ezRTTI*>& types, ezAbstractObjectGraph& typesGraph)
+{
+  ezRttiConverterContext context;
+  ezRttiConverterWriter rttiConverter(&typesGraph, &context, true, true);
   for (const ezRTTI* pType : types)
   {
+    ezReflectedTypeDescriptor desc;
     if (pType->GetTypeFlags().IsSet(ezTypeFlags::Phantom))
     {
-      inout_types.Insert(pType);
+      ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pType, desc);
     }
+    else
+    {
+      ezToolsReflectionUtils::GetMinimalReflectedTypeDescriptorFromRtti(pType, desc);
+    }
+
+    context.RegisterObject(ezUuid::StableUuidForString(pType->GetTypeName()), ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
+    rttiConverter.AddObjectToGraph(ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
   }
 }
 

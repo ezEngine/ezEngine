@@ -86,9 +86,9 @@ class ezReflectedPropertyDescriptorPatch_1_2 : public ezGraphPatch
 {
 public:
   ezReflectedPropertyDescriptorPatch_1_2()
-    : ezGraphPatch(ezGetStaticRTTI<ezReflectedPropertyDescriptor>(), 2) {}
+    : ezGraphPatch("ezReflectedPropertyDescriptor", 2) {}
 
-  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     if (ezAbstractObjectNode::Property* pProp = pNode->FindProperty("Flags"))
     {

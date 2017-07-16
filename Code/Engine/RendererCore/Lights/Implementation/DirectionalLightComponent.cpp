@@ -164,11 +164,11 @@ class ezDirectionalLightComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezDirectionalLightComponentPatch_1_2()
-    : ezGraphPatch(ezGetStaticRTTI<ezDirectionalLightComponent>(), 2) {}
+    : ezGraphPatch("ezDirectionalLightComponent", 2) {}
 
-  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
-    PatchBaseClass(pGraph, pNode, ezGetStaticRTTI<ezLightComponent>(), 2);
+    context.PatchBaseClass("ezLightComponent", 2, true);
   }
 };
 

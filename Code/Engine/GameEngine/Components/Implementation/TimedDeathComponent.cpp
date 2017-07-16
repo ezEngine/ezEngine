@@ -122,9 +122,9 @@ class ezTimedDeathComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezTimedDeathComponentPatch_1_2()
-    : ezGraphPatch(ezGetStaticRTTI<ezTimedDeathComponent>(), 2) {}
+    : ezGraphPatch("ezTimedDeathComponent", 2) {}
 
-  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Min Delay", "MinDelay");
     pNode->RenameProperty("Delay Range", "DelayRange");

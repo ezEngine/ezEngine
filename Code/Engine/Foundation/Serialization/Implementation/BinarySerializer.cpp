@@ -94,9 +94,9 @@ void ezAbstractGraphBinarySerializer::Read(ezStreamReader& stream, ezAbstractObj
 
   if (bApplyPatches)
   {
-    ezGraphVersioning::GetSingleton()->PatchGraph(pGraph);
     if (pTypesGraph)
       ezGraphVersioning::GetSingleton()->PatchGraph(pTypesGraph);
+    ezGraphVersioning::GetSingleton()->PatchGraph(pGraph, pTypesGraph);
   }
 }
 

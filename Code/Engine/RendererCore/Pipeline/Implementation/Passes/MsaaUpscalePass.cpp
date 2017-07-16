@@ -101,9 +101,9 @@ class ezMsaaUpscalePassPatch_1_2 : public ezGraphPatch
 {
 public:
   ezMsaaUpscalePassPatch_1_2()
-    : ezGraphPatch(ezGetStaticRTTI<ezMsaaUpscalePass>(), 2) {}
+    : ezGraphPatch("ezMsaaUpscalePass", 2) {}
 
-  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("MSAA Mode", "MSAA_Mode");
   }

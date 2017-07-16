@@ -166,12 +166,12 @@ class ezRotorComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezRotorComponentPatch_1_2()
-    : ezGraphPatch(ezGetStaticRTTI<ezRotorComponent>(), 2) {}
+    : ezGraphPatch("ezRotorComponent", 2) {}
 
-  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     // Base class
-    PatchBaseClass(pGraph, pNode, ezGetStaticRTTI<ezTransformComponent>(), 2);
+    context.PatchBaseClass("ezTransformComponent", 2, true);
 
     // this class
     pNode->RenameProperty("Degrees to Rotate", "DegreesToRotate");

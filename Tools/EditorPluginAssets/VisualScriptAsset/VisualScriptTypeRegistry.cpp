@@ -18,7 +18,7 @@ EZ_IMPLEMENT_SINGLETON(ezVisualScriptTypeRegistry);
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, VisualScript)
 
 BEGIN_SUBSYSTEM_DEPENDENCIES
-"PluginAssets"
+"PluginAssets", "ReflectedTypeManager"
 END_SUBSYSTEM_DEPENDENCIES
 
 ON_CORE_STARTUP

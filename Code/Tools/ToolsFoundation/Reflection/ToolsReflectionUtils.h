@@ -5,6 +5,7 @@
 
 class ezIReflectedTypeAccessor;
 class ezDocumentObject;
+class ezAbstractObjectGraph;
 
 /// \brief Helper functions for handling reflection related operations.
 class EZ_TOOLSFOUNDATION_DLL ezToolsReflectionUtils
@@ -23,8 +24,10 @@ public:
 
   /// \brief Creates a ReflectedTypeDescriptor from an ezRTTI instance that can be serialized and registered at the ezPhantomRttiManager.
   static void GetReflectedTypeDescriptorFromRtti(const ezRTTI* pRtti, ezReflectedTypeDescriptor& out_desc); // [tested]
+  static void GetMinimalReflectedTypeDescriptorFromRtti(const ezRTTI* pRtti, ezReflectedTypeDescriptor& out_desc);
 
-  static void GatherObjectTypes(const ezDocumentObject* pObject, ezSet<const ezRTTI*>& inout_types, bool bOnlyPhantomTypes = true);
+  static void GatherObjectTypes(const ezDocumentObject* pObject, ezSet<const ezRTTI*>& inout_types);
+  static void SerializeTypes(const ezSet<const ezRTTI*>& types, ezAbstractObjectGraph& typesGraph);
 
   static bool DependencySortTypeDescriptorArray(ezDynamicArray<ezReflectedTypeDescriptor*>& descriptors);
 

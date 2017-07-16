@@ -349,7 +349,7 @@ EZ_END_STATIC_REFLECTED_TYPE
 // ***** Various RTTI infos that can't be put next to their classes *****
 
 EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezTypeFlags, 1)
-EZ_BITFLAGS_CONSTANTS(ezTypeFlags::StandardType, ezTypeFlags::IsEnum, ezTypeFlags::Bitflags, ezTypeFlags::Class, ezTypeFlags::Abstract, ezTypeFlags::Phantom)
+EZ_BITFLAGS_CONSTANTS(ezTypeFlags::StandardType, ezTypeFlags::IsEnum, ezTypeFlags::Bitflags, ezTypeFlags::Class, ezTypeFlags::Abstract, ezTypeFlags::Phantom, ezTypeFlags::Minimal)
 EZ_END_STATIC_REFLECTED_BITFLAGS();
 
 EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezPropertyFlags, 1)

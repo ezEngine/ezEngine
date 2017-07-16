@@ -193,9 +193,9 @@ class ezSpriteComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezSpriteComponentPatch_1_2()
-    : ezGraphPatch(ezGetStaticRTTI<ezSpriteComponent>(), 2) {}
+    : ezGraphPatch("ezSpriteComponent", 2) {}
 
-  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Max Screen Size", "MaxScreenSize");
   }

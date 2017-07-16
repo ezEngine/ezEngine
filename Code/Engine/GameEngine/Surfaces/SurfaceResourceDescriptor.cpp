@@ -147,9 +147,9 @@ class ezSurfaceResourceDescriptorPatch_1_2 : public ezGraphPatch
 {
 public:
   ezSurfaceResourceDescriptorPatch_1_2()
-    : ezGraphPatch(ezGetStaticRTTI<ezSurfaceResourceDescriptor>(), 2) {}
+    : ezGraphPatch("ezSurfaceResourceDescriptor", 2) {}
 
-  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Base Surface", "BaseSurface");
     pNode->RenameProperty("Static Friction", "StaticFriction");

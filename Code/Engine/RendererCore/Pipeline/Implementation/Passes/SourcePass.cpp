@@ -91,9 +91,9 @@ class ezSourcePassPatch_1_2 : public ezGraphPatch
 {
 public:
   ezSourcePassPatch_1_2()
-    : ezGraphPatch(ezGetStaticRTTI<ezSourcePass>(), 2) {}
+    : ezGraphPatch("ezSourcePass", 2) {}
 
-  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("MSAA Mode", "MSAA_Mode");
     pNode->RenameProperty("Clear Color", "ClearColor");

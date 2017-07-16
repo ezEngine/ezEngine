@@ -181,21 +181,10 @@ ezStatus ezDocument::InternalSaveDocument()
   }
   ezAbstractObjectGraph typesGraph;
   {
-    ezRttiConverterContext context;
-    ezRttiConverterWriter rttiConverter(&typesGraph, &context, true, true);
-
     ezSet<const ezRTTI*> types;
     ezToolsReflectionUtils::GatherObjectTypes(GetObjectManager()->GetRootObject(), types);
-    for (const ezRTTI* pType : types)
-    {
-      ezReflectedTypeDescriptor desc;
-      ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pType, desc);
-
-      context.RegisterObject(ezUuid::StableUuidForString(pType->GetTypeName()), ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
-      rttiConverter.AddObjectToGraph(ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
-    }
+    ezToolsReflectionUtils::SerializeTypes(types, typesGraph);
   }
-
 
   ezAbstractGraphDdlSerializer::Write(file, &graph, &typesGraph, false);
 
@@ -254,7 +243,15 @@ ezStatus ezDocument::InternalLoadDocument()
     {
       if (it.Value()->GetType() == sDescTypeName)
       {
-        descriptors.PushBack(static_cast<ezReflectedTypeDescriptor*>(rttiConverter.CreateObjectFromNode(it.Value())));
+        ezReflectedTypeDescriptor* pDesc = static_cast<ezReflectedTypeDescriptor*>(rttiConverter.CreateObjectFromNode(it.Value()));
+        if (pDesc->m_Flags.IsSet(ezTypeFlags::Minimal))
+        {
+          ezGetStaticRTTI<ezReflectedTypeDescriptor>()->GetAllocator()->Deallocate(pDesc);
+        }
+        else
+        {
+          descriptors.PushBack(pDesc);
+        }
       }
     }
     ezToolsReflectionUtils::DependencySortTypeDescriptorArray(descriptors);
@@ -266,6 +263,9 @@ ezStatus ezDocument::InternalLoadDocument()
       }
       ezGetStaticRTTI<ezReflectedTypeDescriptor>()->GetAllocator()->Deallocate(desc);
     }
+
+    //
+
   }
 
   ezRttiConverterContext context;

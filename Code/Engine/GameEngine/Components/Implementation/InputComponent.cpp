@@ -135,9 +135,9 @@ class ezInputComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezInputComponentPatch_1_2()
-    : ezGraphPatch(ezGetStaticRTTI<ezInputComponent>(), 2) {}
+    : ezGraphPatch("ezInputComponent", 2) {}
 
-  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Input Set", "InputSet");
   }

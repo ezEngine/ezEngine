@@ -23,7 +23,8 @@ struct ezTypeFlags
     Class = EZ_BIT(3),        ///< A class or struct. The above flags are mutually exclusive.
 
     Abstract = EZ_BIT(4),     ///< Type is abstract.
-    Phantom = EZ_BIT(5),
+    Phantom = EZ_BIT(5),      ///< De-serialized type information that cannot be created on this process.
+    Minimal = EZ_BIT(6),      ///< Does not contain any property, function or attribute information. Used only for versioning.
     Default = 0
   };
 

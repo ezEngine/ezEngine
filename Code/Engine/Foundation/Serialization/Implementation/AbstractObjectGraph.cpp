@@ -82,7 +82,7 @@ ezAbstractObjectNode* ezAbstractObjectGraph::GetNodeByName(const char* szName)
 ezAbstractObjectNode* ezAbstractObjectGraph::AddNode(const ezUuid& guid, const char* szType, ezUInt32 uiTypeVersion, const char* szNodeName)
 {
   EZ_ASSERT_DEV(!m_Nodes.Contains(guid), "object must not yet exist");
-  if (szNodeName != nullptr)
+  if (!ezStringUtils::IsNullOrEmpty(szNodeName))
   {
     szNodeName = RegisterString(szNodeName);
   }
@@ -96,7 +96,7 @@ ezAbstractObjectNode* ezAbstractObjectGraph::AddNode(const ezUuid& guid, const c
 
   m_Nodes[guid] = pNode;
 
-  if (szNodeName != nullptr)
+  if (!ezStringUtils::IsNullOrEmpty(szNodeName))
   {
     m_NodesByName[szNodeName] = pNode;
   }

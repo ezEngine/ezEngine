@@ -195,9 +195,9 @@ class ezCurve1DControlPointPatch_1_2 : public ezGraphPatch
 {
 public:
   ezCurve1DControlPointPatch_1_2()
-    : ezGraphPatch(ezGetStaticRTTI<ezCurve1DControlPoint>(), 2) {}
+    : ezGraphPatch("ezCurve1DControlPoint", 2) {}
 
-  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Left Tangent", "LeftTangent");
     pNode->RenameProperty("Right Tangent", "RightTangent");
@@ -212,9 +212,9 @@ class ezCurve1DDataPatch_1_2 : public ezGraphPatch
 {
 public:
   ezCurve1DDataPatch_1_2()
-    : ezGraphPatch(ezGetStaticRTTI<ezCurve1DData>(), 2) {}
+    : ezGraphPatch("ezCurve1DData", 2) {}
 
-  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Control Points", "ControlPoints");
   }

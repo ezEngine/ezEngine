@@ -143,9 +143,9 @@ class ezAmbientLightComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezAmbientLightComponentPatch_1_2()
-    : ezGraphPatch(ezGetStaticRTTI<ezAmbientLightComponent>(), 2) {}
+    : ezGraphPatch("ezAmbientLightComponent", 2) {}
 
-  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Top Color", "TopColor");
     pNode->RenameProperty("Bottom Color", "BottomColor");

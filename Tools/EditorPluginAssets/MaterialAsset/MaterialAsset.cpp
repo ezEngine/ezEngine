@@ -1215,9 +1215,9 @@ class ezMaterialAssetPropertiesPatch_1_2 : public ezGraphPatch
 {
 public:
   ezMaterialAssetPropertiesPatch_1_2()
-    : ezGraphPatch(ezGetStaticRTTI<ezMaterialAssetProperties>(), 2) {}
+    : ezGraphPatch("ezMaterialAssetProperties", 2) {}
 
-  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Shader Mode", "ShaderMode");
     pNode->RenameProperty("Base Material", "BaseMaterial");
@@ -1231,9 +1231,9 @@ class ezMaterialAssetPropertiesPatch_2_3 : public ezGraphPatch
 {
 public:
   ezMaterialAssetPropertiesPatch_2_3()
-    : ezGraphPatch(ezGetStaticRTTI<ezMaterialAssetProperties>(), 3) {}
+    : ezGraphPatch("ezMaterialAssetProperties", 3) {}
 
-  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     auto* pBaseMatProp = pNode->FindProperty("BaseMaterial");
     auto* pShaderModeProp = pNode->FindProperty("ShaderMode");

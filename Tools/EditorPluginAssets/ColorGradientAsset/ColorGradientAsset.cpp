@@ -166,9 +166,9 @@ class ezColorGradientAssetDataPatch_1_2 : public ezGraphPatch
 {
 public:
   ezColorGradientAssetDataPatch_1_2()
-    : ezGraphPatch(ezGetStaticRTTI<ezColorGradientAssetData>(), 2) {}
+    : ezGraphPatch("ezColorGradientAssetData", 2) {}
 
-  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Color CPs", "ColorCPs");
     pNode->RenameProperty("Alpha CPs", "AlphaCPs");

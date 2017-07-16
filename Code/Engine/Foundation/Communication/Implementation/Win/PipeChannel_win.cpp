@@ -152,17 +152,17 @@ void ezPipeChannel_win::InternalDisconnect()
   {
     EZ_LOCK(m_OutputQueueMutex);
     m_OutputQueue.Clear();
+    m_Connected = false;
   }
 
   m_Events.Broadcast(ezIpcChannelEvent(Mode::Client ? ezIpcChannelEvent::DisconnectedFromServer : ezIpcChannelEvent::DisconnectedFromClient, this));
-  m_Connected = false;
   // Raise in case another thread is waiting for new messages (as we would sleep forever otherwise).
   m_IncomingMessages.RaiseSignal();
 }
 
 void ezPipeChannel_win::InternalSend()
 {
-  if (!m_OutputState.IsPending)
+  if (!m_OutputState.IsPending && m_Connected)
   {
     ProcessOutgoingMessages(0);
   }

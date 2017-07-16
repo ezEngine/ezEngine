@@ -235,9 +235,9 @@ class ezSpawnComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezSpawnComponentPatch_1_2()
-    : ezGraphPatch(ezGetStaticRTTI<ezSpawnComponent>(), 2) {}
+    : ezGraphPatch("ezSpawnComponent", 2) {}
 
-  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Attach as Child", "AttachAsChild");
     pNode->RenameProperty("Spawn at Start", "SpawnAtStart");

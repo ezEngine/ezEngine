@@ -428,9 +428,9 @@ class ezCameraComponentPatch_4_5 : public ezGraphPatch
 {
 public:
   ezCameraComponentPatch_4_5()
-    : ezGraphPatch(ezGetStaticRTTI<ezCameraComponent>(), 5) {}
+    : ezGraphPatch("ezCameraComponent", 5) {}
 
-  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Usage Hint", "UsageHint");
     pNode->RenameProperty("Near Plane", "NearPlane");

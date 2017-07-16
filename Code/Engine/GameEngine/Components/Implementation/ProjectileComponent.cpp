@@ -433,9 +433,9 @@ class ezProjectileComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezProjectileComponentPatch_1_2()
-    : ezGraphPatch(ezGetStaticRTTI<ezProjectileComponent>(), 2) {}
+    : ezGraphPatch("ezProjectileComponent", 2) {}
 
-  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Gravity Multiplier", "GravityMultiplier");
     pNode->RenameProperty("Max Lifetime", "MaxLifetime");

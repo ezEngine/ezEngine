@@ -229,9 +229,9 @@ class ezSkyBoxComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezSkyBoxComponentPatch_1_2()
-    : ezGraphPatch(ezGetStaticRTTI<ezSkyBoxComponent>(), 2) {}
+    : ezGraphPatch("ezSkyBoxComponent", 2) {}
 
-  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
     pNode->RenameProperty("Exposure Bias", "ExposureBias");
     pNode->RenameProperty("Inverse Tonemap", "InverseTonemap");

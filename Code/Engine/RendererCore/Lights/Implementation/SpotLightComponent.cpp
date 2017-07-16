@@ -246,11 +246,11 @@ class ezSpotLightComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezSpotLightComponentPatch_1_2()
-    : ezGraphPatch(ezGetStaticRTTI<ezSpotLightComponent>(), 2) {}
+    : ezGraphPatch("ezSpotLightComponent", 2) {}
 
-  virtual void Patch(ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
-    PatchBaseClass(pGraph, pNode, ezGetStaticRTTI<ezLightComponent>(), 2);
+    context.PatchBaseClass("ezLightComponent", 2, true);
 
     pNode->RenameProperty("Inner Spot Angle", "InnerSpotAngle");
     pNode->RenameProperty("Outer Spot Angle", "OuterSpotAngle");
