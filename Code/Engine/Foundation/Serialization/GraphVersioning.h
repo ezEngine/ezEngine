@@ -16,6 +16,7 @@ class ezAbstractObjectNode;
 class ezAbstractObjectGraph;
 class ezGraphPatch;
 class ezGraphPatchContext;
+class ezGraphVersioning;
 
 /// \brief Tuple used for identifying patches and tracking patch progression.
 struct ezVersionKey
