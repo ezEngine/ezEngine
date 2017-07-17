@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeStorageManager.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeStorageAccessor.h>
@@ -339,7 +339,8 @@ void ezReflectedTypeStorageManager::TypeEventHandler(const ezPhantomRttiManagerE
 
       if (pNewType->GetParentType() != nullptr && ezStringUtils::IsEqual(pNewType->GetParentType()->GetTypeName(), "ezEnumBase"))
       {
-        EZ_ASSERT_DEV(false, "Updating enums not implemented yet!");
+        //EZ_ASSERT_DEV(false, "Updating enums not implemented yet!");
+        break;
       }
       else if (pNewType->GetParentType() != nullptr && ezStringUtils::IsEqual(pNewType->GetParentType()->GetTypeName(), "ezBitflagsBase"))
       {

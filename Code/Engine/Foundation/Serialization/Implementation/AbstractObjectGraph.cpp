@@ -86,6 +86,10 @@ ezAbstractObjectNode* ezAbstractObjectGraph::AddNode(const ezUuid& guid, const c
   {
     szNodeName = RegisterString(szNodeName);
   }
+  else
+  {
+    szNodeName = nullptr;
+  }
 
   ezAbstractObjectNode* pNode = EZ_DEFAULT_NEW(ezAbstractObjectNode);
   pNode->m_Guid = guid;
