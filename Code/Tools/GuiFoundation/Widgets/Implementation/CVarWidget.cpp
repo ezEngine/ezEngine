@@ -58,8 +58,11 @@ void ezQtCVarWidget::RebuildCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvar
 
     TableCVars->setHorizontalHeaderLabels(Headers);
     TableCVars->horizontalHeader()->show();
+    TableCVars->setSortingEnabled(false); // this does not work with updating the data later, would need to use a QTableView instead
 
     ezStringBuilder sTemp;
+
+    QPixmap icon = ezQtUiServices::GetCachedPixmapResource(":/GuiFoundation/Icons/CVar.png");
 
     ezInt32 iRow = 0;
     for (auto it = cvars.GetIterator(); it.IsValid(); ++it)
@@ -67,19 +70,22 @@ void ezQtCVarWidget::RebuildCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvar
       it.Value().m_iTableRow = iRow;
 
       QLabel* pIcon = new QLabel();
-      pIcon->setPixmap(ezQtUiServices::GetCachedPixmapResource(":/GuiFoundation/Icons/CVar.png"));
+      pIcon->setPixmap(icon);
       pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
       TableCVars->setCellWidget(iRow, 0, pIcon);
 
+      // Plugin
       sTemp.Format("  {0}  ", it.Value().m_sPlugin);
-      TableCVars->setCellWidget(iRow, 1, new QLabel(sTemp.GetData())); // Plugin
+      TableCVars->setItem(iRow, 1, new QTableWidgetItem(sTemp.GetData()));
 
+      // Name
       sTemp.Format("  {0}  ", it.Key());
-      TableCVars->setCellWidget(iRow, 2, new QLabel(sTemp.GetData())); // Name
+      TableCVars->setItem(iRow, 2, new QTableWidgetItem(sTemp.GetData()));
 
-      QLabel* pDescLabel = new QLabel(it.Value().m_sDescription.GetData());
-      pDescLabel->setToolTip(it.Value().m_sDescription.GetData());
-      TableCVars->setCellWidget(iRow, 4, pDescLabel); // Description
+      // // Description
+      QTableWidgetItem* pDesc = new QTableWidgetItem(it.Value().m_sDescription.GetData());
+      pDesc->setToolTip(it.Value().m_sDescription.GetData());
+      TableCVars->setItem(iRow, 4, pDesc);
 
       switch (it.Value().m_uiType)
       {
@@ -104,7 +110,7 @@ void ezQtCVarWidget::RebuildCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvar
           pValue->setSingleStep(1.0);
           TableCVars->setCellWidget(iRow, 3, pValue); // Value
 
-          QWidget::connect(pValue, SIGNAL(valueChanged(double)), this, SLOT(FloatChanged(double)));
+          QWidget::connect(pValue, SIGNAL(editingFinished()), this, SLOT(FloatChanged()));
         }
         break;
       case ezCVarType::Int:
@@ -115,7 +121,7 @@ void ezQtCVarWidget::RebuildCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvar
           pValue->setMaximum((1 << 30));
           TableCVars->setCellWidget(iRow, 3, pValue); // Value
 
-          QWidget::connect(pValue, SIGNAL(valueChanged(int)), this, SLOT(IntChanged(int)));
+          QWidget::connect(pValue, SIGNAL(editingFinished()), this, SLOT(IntChanged()));
         }
         break;
       case ezCVarType::String:
@@ -124,7 +130,7 @@ void ezQtCVarWidget::RebuildCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvar
           pValue->setProperty("cvar", it.Key().GetData());
           TableCVars->setCellWidget(iRow, 3, pValue); // Value
 
-          QWidget::connect(pValue, SIGNAL(textChanged(const QString&)), this, SLOT(StringChanged(const QString&)));
+          QWidget::connect(pValue, SIGNAL(editingFinished()), this, SLOT(StringChanged()));
         }
         break;
       }
@@ -140,9 +146,11 @@ void ezQtCVarWidget::RebuildCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvar
 
 void ezQtCVarWidget::UpdateCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars)
 {
-  ezInt32 iRow = 0;
+  
   for (auto it = cvars.GetIterator(); it.IsValid(); ++it)
   {
+    const ezInt32 iRow = it.Value().m_iTableRow;
+
     // Value
     {
       switch (it.Value().m_uiType)
@@ -177,8 +185,6 @@ void ezQtCVarWidget::UpdateCVarUI(const ezMap<ezString, ezCVarWidgetData>& cvars
         break;
       }
     }
-
-    ++iRow;
   }
 }
 
@@ -192,7 +198,7 @@ void ezQtCVarWidget::BoolChanged(int index)
   emit onBoolChanged(cvar.toUtf8().data(), newValue);
 }
 
-void ezQtCVarWidget::FloatChanged(double val)
+void ezQtCVarWidget::FloatChanged()
 {
   const QDoubleSpinBox* pValue = qobject_cast<QDoubleSpinBox*>(sender());
   const QString cvar = pValue->property("cvar").toString();
@@ -202,7 +208,7 @@ void ezQtCVarWidget::FloatChanged(double val)
   emit onFloatChanged(cvar.toUtf8().data(), newValue);
 }
 
-void ezQtCVarWidget::IntChanged(int val)
+void ezQtCVarWidget::IntChanged()
 {
   const QSpinBox* pValue = qobject_cast<QSpinBox*>(sender());
   const QString cvar = pValue->property("cvar").toString();
@@ -212,7 +218,7 @@ void ezQtCVarWidget::IntChanged(int val)
   emit onIntChanged(cvar.toUtf8().data(), newValue);
 }
 
-void ezQtCVarWidget::StringChanged(const QString& val)
+void ezQtCVarWidget::StringChanged()
 {
   const QLineEdit* pValue = qobject_cast<QLineEdit*>(sender());
   const QString cvar = pValue->property("cvar").toString();

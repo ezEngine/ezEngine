@@ -49,7 +49,7 @@ signals:
 
 private slots:
   void BoolChanged(int index);
-  void FloatChanged(double d);
-  void IntChanged(int i);
-  void StringChanged(const QString& val);
+  void FloatChanged();
+  void IntChanged();
+  void StringChanged();
 };
