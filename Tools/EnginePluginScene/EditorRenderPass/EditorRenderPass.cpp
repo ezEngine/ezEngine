@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <EnginePluginScene/EditorRenderPass/EditorRenderPass.h>
 
@@ -21,7 +21,7 @@ ezEditorRenderPass::ezEditorRenderPass(const char* szName) : ezForwardRenderPass
 
 void ezEditorRenderPass::SetupPermutationVars(const ezRenderViewContext& renderViewContext)
 {
-  ezTempHashedString sRenderPass("FORWARD");
+  ezTempHashedString sRenderPass("RENDER_PASS_FORWARD");
   ezUInt32 uiRenderPass = 0;
 
   ezStringBuilder sDebugText;
@@ -31,64 +31,64 @@ void ezEditorRenderPass::SetupPermutationVars(const ezRenderViewContext& renderV
   case ezViewRenderMode::None:
     break;
   case ezViewRenderMode::WireframeColor:
-    sRenderPass = "WIREFRAME";
+    sRenderPass = "RENDER_PASS_WIREFRAME";
     uiRenderPass = WIREFRAME_RENDER_PASS_COLOR;
     break;
   case ezViewRenderMode::WireframeMonochrome:
-    sRenderPass = "WIREFRAME";
+    sRenderPass = "RENDER_PASS_WIREFRAME";
     uiRenderPass = WIREFRAME_RENDER_PASS_MONOCHROME;
     break;
   case ezViewRenderMode::LitOnly:
-    sRenderPass = "EDITOR";
+    sRenderPass = "RENDER_PASS_EDITOR";
     uiRenderPass = EDITOR_RENDER_PASS_LIT_ONLY;
     break;
   case ezViewRenderMode::LightCount:
-    sRenderPass = "EDITOR";
+    sRenderPass = "RENDER_PASS_EDITOR";
     uiRenderPass = EDITOR_RENDER_PASS_LIGHT_COUNT;
     break;
   case ezViewRenderMode::TexCoordsUV0:
-    sRenderPass = "EDITOR";
+    sRenderPass = "RENDER_PASS_EDITOR";
     uiRenderPass = EDITOR_RENDER_PASS_TEXCOORDS_UV0;
     break;
   case ezViewRenderMode::PixelNormals:
-    sRenderPass = "EDITOR";
+    sRenderPass = "RENDER_PASS_EDITOR";
     uiRenderPass = EDITOR_RENDER_PASS_PIXEL_NORMALS;
     break;
   case ezViewRenderMode::VertexNormals:
-    sRenderPass = "EDITOR";
+    sRenderPass = "RENDER_PASS_EDITOR";
     uiRenderPass = EDITOR_RENDER_PASS_VERTEX_NORMALS;
     break;
   case ezViewRenderMode::VertexTangents:
-    sRenderPass = "EDITOR";
+    sRenderPass = "RENDER_PASS_EDITOR";
     uiRenderPass = EDITOR_RENDER_PASS_VERTEX_TANGENTS;
     break;
   case ezViewRenderMode::DiffuseColor:
-    sRenderPass = "EDITOR";
+    sRenderPass = "RENDER_PASS_EDITOR";
     uiRenderPass = EDITOR_RENDER_PASS_DIFFUSE_COLOR;
     break;
   case ezViewRenderMode::DiffuseColorRange:
-    sRenderPass = "EDITOR";
+    sRenderPass = "RENDER_PASS_EDITOR";
     uiRenderPass = EDITOR_RENDER_PASS_DIFFUSE_COLOR_RANGE;
     sDebugText = "Pure magenta means the diffuse color is too dark, pure green means it is too bright.";
     break;
   case ezViewRenderMode::SpecularColor:
-    sRenderPass = "EDITOR";
+    sRenderPass = "RENDER_PASS_EDITOR";
     uiRenderPass = EDITOR_RENDER_PASS_SPECULAR_COLOR;
     break;
   case ezViewRenderMode::EmissiveColor:
-    sRenderPass = "EDITOR";
+    sRenderPass = "RENDER_PASS_EDITOR";
     uiRenderPass = EDITOR_RENDER_PASS_EMISSIVE_COLOR;
     break;
   case ezViewRenderMode::Roughness:
-    sRenderPass = "EDITOR";
+    sRenderPass = "RENDER_PASS_EDITOR";
     uiRenderPass = EDITOR_RENDER_PASS_ROUGHNESS;
     break;
   case ezViewRenderMode::Occlusion:
-    sRenderPass = "EDITOR";
+    sRenderPass = "RENDER_PASS_EDITOR";
     uiRenderPass = EDITOR_RENDER_PASS_OCCLUSION;
     break;
   case ezViewRenderMode::Depth:
-    sRenderPass = "EDITOR";
+    sRenderPass = "RENDER_PASS_EDITOR";
     uiRenderPass = EDITOR_RENDER_PASS_DEPTH;
     break;
   default:

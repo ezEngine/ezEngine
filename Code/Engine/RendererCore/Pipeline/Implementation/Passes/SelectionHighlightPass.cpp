@@ -91,7 +91,7 @@ void ezSelectionHighlightPass::Execute(const ezRenderViewContext& renderViewCont
 
     pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f), 0);
 
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "DEPTH_ONLY");
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_DEPTH_ONLY");
 
     RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Selection);
   }

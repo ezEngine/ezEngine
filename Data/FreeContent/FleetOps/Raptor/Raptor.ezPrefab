@@ -91,4 +91,114 @@ o
 	}
 }
 }
-Types{}
+Types
+{
+o
+{
+	Uuid %id{u4{12984103802138964609,1901275426220383600}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14270314853994606438,6044130159099333730}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezComponent"}
+		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6467017751125590593,7158000587691918333}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{915440353964695395,7400812910450444469}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezGameObject"}
+		u3 %TypeSize{168}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1384393750607226200,9143286981169020248}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezRenderComponent"}
+		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9257402730400276231,14693459876838695567}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshComponent"}
+		u3 %TypeSize{88}
+		u3 %TypeVersion{1}
+	}
+}
+}

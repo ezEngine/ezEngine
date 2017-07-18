@@ -386,9 +386,9 @@ void ezRenderContext::BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBuffe
 
     ezTempHashedString sTopologies[ezGALPrimitiveTopology::ENUM_COUNT] =
     {
-      ezTempHashedString("POINTS"),
-      ezTempHashedString("LINES"),
-      ezTempHashedString("TRIANGLES")
+      ezTempHashedString("TOPOLOGY_POINTS"),
+      ezTempHashedString("TOPOLOGY_LINES"),
+      ezTempHashedString("TOPOLOGY_TRIANGLES")
     };
 
     SetShaderPermutationVariable("TOPOLOGY", sTopologies[m_Topology]);

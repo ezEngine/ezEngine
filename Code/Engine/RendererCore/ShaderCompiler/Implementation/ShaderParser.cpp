@@ -259,6 +259,8 @@ void ezShaderParser::ParsePermutationVarConfig(const char* szPermVarName, ezStri
   }
   else if (s.StartsWith("enum"))
   {
+    const ezStringBuilder sEnumPrefix(szPermVarName, "_");
+
     const char* szOpenBracket = s.FindSubString("{");
     const char* szCloseBracket = s.FindLastSubString("}");
 
@@ -284,6 +286,8 @@ void ezShaderParser::ParsePermutationVarConfig(const char* szPermVarName, ezStri
       const char* szValue = sName.FindSubString("=");
       if (!ezStringUtils::IsNullOrEmpty(szValue))
       {
+        // this feature seems to be unused at the moment
+
         sName = ezStringView(sName.GetStartPosition(), szValue);
         sName.Trim(" \r\n\t");
 
@@ -300,9 +304,15 @@ void ezShaderParser::ParsePermutationVarConfig(const char* szPermVarName, ezStri
         }
       }
 
+      // this feature seems to be unused at the moment
       if (sName.IsEqual_NoCase("default"))
       {
         uiDefaultValue = uiCurrentValue;
+      }
+
+      if (!sName.StartsWith(sEnumPrefix))
+      {
+        ezLog::Error("Enum value does not start with the expected enum name as prefix: '{0}'", sEnumPrefix);
       }
 
       if (out_EnumValues.GetCount() <= uiCurrentValue)
@@ -312,7 +322,7 @@ void ezShaderParser::ParsePermutationVarConfig(const char* szPermVarName, ezStri
 
       if (ezStringUtils::IsNullOrEmpty(out_EnumValues[uiCurrentValue].GetData()))
       {
-        ezString sFinalName = sName;
+        const ezStringBuilder sFinalName = sName;
         out_EnumValues[uiCurrentValue].Assign(sFinalName.GetData());
       }
       else

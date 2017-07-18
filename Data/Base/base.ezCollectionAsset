@@ -161,7 +161,7 @@ AssetInfo
 		s %AssetType{"Collection"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2066776411180025002,5593963395639352612}}
-		u4 %Hash{2025107933914642691}
+		u4 %Hash{4177830003739481551}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -227,4 +227,78 @@ o
 	}
 }
 }
-Types{}
+Types
+{
+o
+{
+	Uuid %id{u4{12984103802138964609,1901275426220383600}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17898102431227564114,6378307020477087746}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezCollectionAssetEntry"}
+		u3 %TypeSize{136}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6467017751125590593,7158000587691918333}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16103661653820218242,13945327938397422368}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezCollectionAssetData"}
+		u3 %TypeSize{32}
+		u3 %TypeVersion{1}
+	}
+}
+}

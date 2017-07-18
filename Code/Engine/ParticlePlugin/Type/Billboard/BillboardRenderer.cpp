@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <ParticlePlugin/Type/Billboard/BillboardRenderer.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -87,13 +87,13 @@ void ezParticleBillboardRenderer::RenderBatch(const ezRenderViewContext& renderV
     switch (pRenderData->m_RenderMode)
     {
     case ezParticleTypeRenderMode::Additive:
-      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "ADDITIVE");
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_ADDITIVE");
       break;
     case ezParticleTypeRenderMode::Blended:
-      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "BLENDED");
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_BLENDED");
       break;
     case ezParticleTypeRenderMode::Opaque:
-      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "OPAQUE");
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_OPAQUE");
       break;
     }
 

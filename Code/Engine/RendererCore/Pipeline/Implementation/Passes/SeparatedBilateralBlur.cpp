@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Pipeline/Passes/SeparatedBilateralBlur.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -123,14 +123,14 @@ void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderView
     // Horizontal.
     renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(tempTexture));
     renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLUR_DIRECTION", "HORIZONTAL");
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLUR_DIRECTION", "BLUR_DIRECTION_HORIZONTAL");
     renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "BlurSource", hBlurSourceInputView);
     renderViewContext.m_pRenderContext->DrawMeshBuffer();
 
     // Vertical.
     renderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(outputs[m_PinOutput.m_uiOutputIndex]->m_TextureHandle));
     renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLUR_DIRECTION", "VERTICAL");
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLUR_DIRECTION", "BLUR_DIRECTION_VERTICAL");
     renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "BlurSource", hTempTextureRView);
     renderViewContext.m_pRenderContext->DrawMeshBuffer();
 

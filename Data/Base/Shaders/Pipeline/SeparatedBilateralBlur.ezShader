@@ -72,7 +72,7 @@ float4 main(PS_IN input) : SV_Target
   float sampleDistance = 0.0f;
   for (uint r = 1; r <= BlurRadius; ++r) // todo: Should BlurRadius be a permutation variable so we can unroll it?
   {
-  #if BLUR_DIRECTION == HORIZONTAL
+  #if BLUR_DIRECTION == BLUR_DIRECTION_HORIZONTAL
     --texelCoordNeg.x;
     ++texelCoordPos.x;
   #else

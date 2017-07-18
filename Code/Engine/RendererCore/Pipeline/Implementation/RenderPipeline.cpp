@@ -1004,8 +1004,8 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
 
   // Set camera mode permutation variable here since it doesn't change throughout the frame
   static ezHashedString sCameraMode = ezMakeHashedString("CAMERA_MODE");
-  static ezHashedString sOrtho = ezMakeHashedString("ORTHO");
-  static ezHashedString sPerspective = ezMakeHashedString("PERSPECTIVE");
+  static ezHashedString sOrtho = ezMakeHashedString("CAMERA_MODE_ORTHO");
+  static ezHashedString sPerspective = ezMakeHashedString("CAMERA_MODE_PERSPECTIVE");
 
   pRenderContext->SetShaderPermutationVariable(sCameraMode, pCamera->IsOrthographic() ? sOrtho : sPerspective);
 

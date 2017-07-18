@@ -277,7 +277,7 @@ o
 {
 	Uuid %id{u4{7573017800401649449,1390996122812017841}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes{}
@@ -296,6 +296,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
 		s %ParentTypeName{"ezVisualScriptNodeBase"}
 		s %PluginName{"VisualScriptTypes"}
 		VarArray %Properties
@@ -310,6 +311,24 @@ o
 }
 o
 {
+	Uuid %id{u4{12984103802138964609,1901275426220383600}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{14582042793310128380,1998997937108504680}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -317,6 +336,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
 		s %ParentTypeName{"ezVisualScriptNodeBase"}
 		s %PluginName{"VisualScriptTypes"}
 		VarArray %Properties{}
@@ -334,6 +354,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
 		s %ParentTypeName{"ezVisualScriptNodeBase"}
 		s %PluginName{"VisualScriptTypes"}
 		VarArray %Properties
@@ -349,7 +370,7 @@ o
 {
 	Uuid %id{u4{18043477838805884449,3284669428312550740}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes
@@ -364,9 +385,27 @@ o
 }
 o
 {
+	Uuid %id{u4{11061541817101818123,3867562407177176337}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{2278499165454830659,4301765832680402659}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes
@@ -383,7 +422,7 @@ o
 {
 	Uuid %id{u4{14342247937991576665,4368030694144534614}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes
@@ -406,6 +445,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
 		s %ParentTypeName{"ezVisualScriptNodeBase"}
 		s %PluginName{"VisualScriptTypes"}
 		VarArray %Properties
@@ -422,7 +462,7 @@ o
 {
 	Uuid %id{u4{2200887093491840880,4602428096386717904}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes
@@ -444,6 +484,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
 		s %ParentTypeName{"ezVisualScriptNodeBase"}
 		s %PluginName{"VisualScriptTypes"}
 		VarArray %Properties{}
@@ -467,7 +508,7 @@ o
 {
 	Uuid %id{u4{6752443585323171922,6949949985483281897}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes
@@ -482,9 +523,27 @@ o
 }
 o
 {
+	Uuid %id{u4{6467017751125590593,7158000587691918333}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{1569519210102788369,7437279789843998452}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes{}
@@ -524,6 +583,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
 		s %ParentTypeName{"ezVisualScriptNodeBase"}
 		s %PluginName{"VisualScriptTypes"}
 		VarArray %Properties
@@ -542,7 +602,7 @@ o
 {
 	Uuid %id{u4{875648545232074241,8571746055998381495}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes{}
@@ -561,6 +621,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
 		s %ParentTypeName{"ezReflectedClass"}
 		s %PluginName{"VisualScriptTypes"}
 		VarArray %Properties{}
@@ -573,7 +634,7 @@ o
 {
 	Uuid %id{u4{2110782033541533329,10083565940555767430}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes{}
@@ -596,9 +657,27 @@ o
 }
 o
 {
+	Uuid %id{u4{13318675286161657758,12050630265341451736}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezLogicOperator"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{7619223305253795153,12878043200881442114}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes
@@ -620,6 +699,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
 		s %ParentTypeName{"ezVisualScriptNodeBase"}
 		s %PluginName{"VisualScriptTypes"}
 		VarArray %Properties
@@ -647,7 +727,7 @@ o
 {
 	Uuid %id{u4{14956719860259255380,14444307175445268283}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes{}
@@ -666,6 +746,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
 		s %ParentTypeName{"ezVisualScriptNodeBase"}
 		s %PluginName{"VisualScriptTypes"}
 		VarArray %Properties
@@ -693,7 +774,7 @@ o
 {
 	Uuid %id{u4{13150415555110759992,15233659874047350147}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes
@@ -744,7 +825,7 @@ o
 {
 	Uuid %id{u4{4448257560958175199,16736892218077284885}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes{}
@@ -758,7 +839,7 @@ o
 {
 	Uuid %id{u4{17344520341191637160,17887920038756248992}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes

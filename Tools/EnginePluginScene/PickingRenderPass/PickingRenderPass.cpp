@@ -76,7 +76,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
   pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f));
 
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "PICKING");
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_PICKING");
 
   // copy selection to set for faster checks
   s_SelectionSet.Clear();
@@ -112,7 +112,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
 
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "FORWARD");
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_FORWARD");
 
   {
     {

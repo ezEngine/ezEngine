@@ -209,7 +209,7 @@ o
 {
 	Uuid %id{u4{8894499825952108530,275331345850852294}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes{}
@@ -221,6 +221,24 @@ o
 }
 o
 {
+	Uuid %id{u4{12984103802138964609,1901275426220383600}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{15864699995937697702,2040924248293801633}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -228,6 +246,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
 		s %ParentTypeName{"ezVisualScriptNodeBase"}
 		s %PluginName{"VisualScriptTypes"}
 		VarArray %Properties
@@ -253,12 +272,12 @@ o
 {
 	Uuid %id{u4{13798486179364520424,6369012740099418766}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
 		s %Name{"Message"}
 		s %Type{"ezConstCharPtr"}
 	}
@@ -267,7 +286,7 @@ o
 {
 	Uuid %id{u4{6752443585323171922,6949949985483281897}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes
@@ -282,9 +301,27 @@ o
 }
 o
 {
+	Uuid %id{u4{6467017751125590593,7158000587691918333}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{13672257556736718654,7248500238881958106}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes{}
@@ -298,7 +335,7 @@ o
 {
 	Uuid %id{u4{6302591906060984228,7566748377139468269}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes{}
@@ -317,6 +354,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
 		s %ParentTypeName{"ezVisualScriptNodeBase"}
 		s %PluginName{"VisualScriptTypes"}
 		VarArray %Properties{}
@@ -334,6 +372,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
 		s %ParentTypeName{"ezVisualScriptNodeBase"}
 		s %PluginName{"VisualScriptTypes"}
 		VarArray %Properties
@@ -356,6 +395,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
 		s %ParentTypeName{"ezReflectedClass"}
 		s %PluginName{"VisualScriptTypes"}
 		VarArray %Properties{}
@@ -368,7 +408,7 @@ o
 {
 	Uuid %id{u4{18296269122883858867,11541325486374125176}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes
@@ -376,7 +416,7 @@ o
 			Uuid{u4{4842916501969325546,4115478199764911253}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
 		s %Name{"Material"}
 		s %Type{"ezConstCharPtr"}
 	}
@@ -390,6 +430,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
 		s %ParentTypeName{"ezVisualScriptNodeBase"}
 		s %PluginName{"VisualScriptTypes"}
 		VarArray %Properties
@@ -405,7 +446,7 @@ o
 {
 	Uuid %id{u4{9220750924826209747,17521439973423333284}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes{}
@@ -434,6 +475,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
 		s %ParentTypeName{"ezVisualScriptNodeBase"}
 		s %PluginName{"VisualScriptTypes"}
 		VarArray %Properties

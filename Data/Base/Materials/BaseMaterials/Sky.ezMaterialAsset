@@ -14,7 +14,7 @@ AssetInfo
 			s{"Shaders/Materials/SkyMaterial.ezShader"}
 		}
 		Uuid %DocumentID{u4{10074911756598670976,5336416775761779484}}
-		u4 %Hash{12850764542074654535}
+		u4 %Hash{12042367187975111876}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -53,10 +53,10 @@ o
 {
 	Uuid %id{u4{10957423177690619059,6511872893103196178}}
 	s %t{"Shaders/Materials/SkyMaterial.ezShader"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
-		s %BLEND_MODE{"BLEND_MODE::OPAQUE"}
+		s %BLEND_MODE{"BLEND_MODE::BLEND_MODE_OPAQUE"}
 		Color %BaseColor{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		s %CubeMap{"{ da307f05-9ef4-4a09-81d4-b86f5be99412 }"}
 		f %ExposureBias{0x0000803F}
@@ -78,14 +78,14 @@ o
 {
 	Uuid %id{u4{6855408526529572370,383354614554810827}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
 		u3 %ConstantValue{2}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly"}
-		s %Name{"BLEND_MODE::TRANSPARENT"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"BLEND_MODE::BLEND_MODE_TRANSPARENT"}
 		s %Type{"ezUInt32"}
 	}
 }
@@ -93,15 +93,69 @@ o
 {
 	Uuid %id{u4{552492605122220653,1844747189723405359}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
 		u3 %ConstantValue{0}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"BLEND_MODE::Default"}
 		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{12984103802138964609,1901275426220383600}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11061541817101818123,3867562407177176337}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{10869066428599277230,3956597991755222461}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezMaterialAssetProperties"}
+		u3 %TypeSize{264}
+		u3 %TypeVersion{4}
 	}
 }
 o
@@ -118,7 +172,7 @@ o
 {
 	Uuid %id{u4{4077237629254652935,5345495757602664693}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes
@@ -135,14 +189,14 @@ o
 {
 	Uuid %id{u4{4400904040621710918,5807588120518130357}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
 		u3 %ConstantValue{1}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly"}
-		s %Name{"BLEND_MODE::MASKED"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"BLEND_MODE::BLEND_MODE_MASKED"}
 		s %Type{"ezUInt32"}
 	}
 }
@@ -164,6 +218,24 @@ o
 	p
 	{
 		s %Category{"Constant"}
+	}
+}
+o
+{
+	Uuid %id{u4{6467017751125590593,7158000587691918333}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -214,8 +286,9 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Phantom"}
-		s %ParentTypeName{"ezReflectedClass"}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezShaderTypeBase"}
 		s %PluginName{"ShaderTypes"}
 		VarArray %Properties
 		{
@@ -228,21 +301,21 @@ o
 		}
 		s %TypeName{"Shaders/Materials/SkyMaterial.ezShader"}
 		u3 %TypeSize{0}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
 {
 	Uuid %id{u4{7516039242250087728,8495609666795687116}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
 		u3 %ConstantValue{0}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly"}
-		s %Name{"BLEND_MODE::OPAQUE"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"BLEND_MODE::BLEND_MODE_OPAQUE"}
 		s %Type{"ezUInt32"}
 	}
 }
@@ -250,14 +323,14 @@ o
 {
 	Uuid %id{u4{12978201949016875275,8740888472155582686}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
 		u3 %ConstantValue{4}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly"}
-		s %Name{"BLEND_MODE::MODULATE"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"BLEND_MODE::BLEND_MODE_MODULATE"}
 		s %Type{"ezUInt32"}
 	}
 }
@@ -273,6 +346,24 @@ o
 }
 o
 {
+	Uuid %id{u4{10181626492634853455,11589677527242783786}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ShaderTypes"}
+		VarArray %Properties{}
+		s %TypeName{"ezShaderTypeBase"}
+		u3 %TypeSize{0}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
 	Uuid %id{u4{3291295223652199514,11945883720221566070}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -280,6 +371,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
 		s %ParentTypeName{"ezEnumBase"}
 		s %PluginName{"ShaderTypes"}
 		VarArray %Properties
@@ -300,7 +392,7 @@ o
 {
 	Uuid %id{u4{1879655039713855915,12546781288017295341}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes
@@ -317,7 +409,7 @@ o
 {
 	Uuid %id{u4{4675491052817943484,14294446528304183058}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes
@@ -336,14 +428,14 @@ o
 {
 	Uuid %id{u4{1231837580358587373,14604463185840712379}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
 		u3 %ConstantValue{3}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly"}
-		s %Name{"BLEND_MODE::ADDITIVE"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"BLEND_MODE::BLEND_MODE_ADDITIVE"}
 		s %Type{"ezUInt32"}
 	}
 }
@@ -351,7 +443,7 @@ o
 {
 	Uuid %id{u4{17549556273349487184,15402460186614126006}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes
@@ -369,7 +461,7 @@ o
 {
 	Uuid %id{u4{2523203858339236437,15470649213801683747}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes
@@ -395,9 +487,27 @@ o
 }
 o
 {
+	Uuid %id{u4{9818635850718460782,16602541045472804288}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezMaterialShaderMode"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{12754164122313136739,17742226693193850157}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes

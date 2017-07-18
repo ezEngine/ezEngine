@@ -263,27 +263,7 @@ void ezPxVisColMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& ms
     }
     else
     {
-      if (hMaterial.IsValid())
-      {
-        ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowFallback);
-        ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
-        if (blendModeValue == "OPAQUE" || blendModeValue == "")
-        {
-          category = ezDefaultRenderDataCategories::LitOpaque;
-        }
-        else if (blendModeValue == "MASKED")
-        {
-          category = ezDefaultRenderDataCategories::LitMasked;
-        }
-        else
-        {
-          category = ezDefaultRenderDataCategories::LitTransparent;
-        }
-      }
-      else
-      {
-        category = ezDefaultRenderDataCategories::LitOpaque;
-      }
+      category = ezDefaultRenderDataCategories::LitOpaque;
     }
 
     // Sort by material and then by mesh

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Pipeline/Passes/DepthOnlyPass.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
@@ -57,7 +57,7 @@ void ezDepthOnlyPass::Execute(const ezRenderViewContext& renderViewContext, cons
 
   renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
 
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "DEPTH_ONLY");
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_DEPTH_ONLY");
 
   // Render
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque);

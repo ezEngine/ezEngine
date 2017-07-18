@@ -1,6 +1,6 @@
 enum MSAA_SAMPLES
 {
-  TWO = 2,
-  FOUR = 4,
-  EIGHT = 8
+  MSAA_SAMPLES_TWO = 2,
+  MSAA_SAMPLES_FOUR = 4,
+  MSAA_SAMPLES_EIGHT = 8
 };

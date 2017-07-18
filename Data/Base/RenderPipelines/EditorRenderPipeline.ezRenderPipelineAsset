@@ -219,6 +219,7 @@ o
 			Uuid{u4{2525688839503522177,5256496497190223221}}
 		}
 		Uuid %SSAO{u4{14666109703222676106,11145027234500333347}}
+		s %ShadingQuality{"ezForwardRenderShadingQuality::Normal"}
 		s %ViewRenderMode{"ezViewRenderMode::None"}
 		b %WriteDepth{0}
 	}
@@ -535,7 +536,7 @@ AssetInfo
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5189305147899033520,5264929536831011917}}
-		u4 %Hash{9582498458306015498}
+		u4 %Hash{10389764865445074501}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -591,9 +592,13 @@ o
 	{
 		b %Active{1}
 		f %Contrast{0x00000040}
+		f %DepthBlurThreshold{0x00000040}
 		Uuid %DepthInput{u4{10003962656060130951,14420700892103941091}}
+		f %FadeOutEnd{0x0000C842}
+		f %FadeOutStart{0x0000A042}
 		f %Intensity{0x3333333F}
 		f %MaxScreenSpaceRadius{0x0000803F}
+		f %MipLevelScale{0x00002041}
 		s %Name{"AOPass"}
 		VarArray %Node::Connections
 		{
@@ -601,6 +606,7 @@ o
 		}
 		Vec2 %Node::Pos{f{0x012D52C4,0x9744B8C2}}
 		Uuid %Output{u4{427482753494843062,3919292173742580045}}
+		f %PositionBias{0x0000A040}
 		f %Radius{0x0000803F}
 		VarArray %Renderers{}
 	}
@@ -1050,13 +1056,13 @@ o
 {
 	Uuid %id{u4{16682888373256786419,235066711160160335}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
 		s %ConstantValue{"Scene;Prefab"}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Constant|ezPropertyFlags::ReadOnly"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"DocumentType"}
 		s %Type{"ezString"}
 	}
@@ -1065,12 +1071,12 @@ o
 {
 	Uuid %id{u4{17681360642012237503,918567023148729502}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::Pointer|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::Class|ezPropertyFlags::Pointer|ezPropertyFlags::Phantom"}
 		s %Name{"SceneContext"}
 		s %Type{"ezSceneContext"}
 	}
@@ -1079,7 +1085,7 @@ o
 {
 	Uuid %id{u4{1914384259920752551,1092382601243367179}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes
@@ -1096,23 +1102,113 @@ o
 }
 o
 {
-	Uuid %id{u4{12548472470294395549,2208822893882285306}}
-	s %t{"ezReflectedPropertyDescriptor"}
+	Uuid %id{u4{7235081885143945679,1110739109963602718}}
+	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
 	{
 		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezParticleRenderer"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleFragmentRenderer"}
+		u3 %TypeSize{24}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5240575764672698950,1374534942584799325}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezNode"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezRenderPipelinePass"}
+		u3 %TypeSize{168}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1254684869465449112,1824109056330900031}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezNodePin"}
+		u3 %TypeSize{16}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12984103802138964609,1901275426220383600}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12548472470294395549,2208822893882285306}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::Pointer|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::Class|ezPropertyFlags::Pointer|ezPropertyFlags::Phantom"}
 		s %Name{"SceneContext"}
 		s %Type{"ezSceneContext"}
 	}
 }
 o
 {
+	Uuid %id{u4{10456217854898056158,2362781142797569867}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderPipelinePass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezTargetPass"}
+		u3 %TypeSize{312}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{17550677731233588016,2469985167601267333}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes
@@ -1131,14 +1227,68 @@ o
 {
 	Uuid %id{u4{3900396693855734746,3142496393289830597}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::Pointer|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::Class|ezPropertyFlags::Pointer|ezPropertyFlags::Phantom"}
 		s %Name{"SceneContext"}
 		s %Type{"ezSceneContext"}
+	}
+}
+o
+{
+	Uuid %id{u4{13706873560306695038,3209516753954144400}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderer"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezGizmoRenderer"}
+		u3 %TypeSize{16}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1154195672089354304,3282752005352786254}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezNodePin"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezInputNodePin"}
+		u3 %TypeSize{16}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1939211981283990419,3519863825346223479}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderPipelinePass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBloomPass"}
+		u3 %TypeSize{240}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -1150,6 +1300,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
 		s %ParentTypeName{"ezExtractor"}
 		s %PluginName{"ezEnginePluginScene"}
 		VarArray %Properties
@@ -1158,6 +1309,24 @@ o
 		}
 		s %TypeName{"ezEditorGridExtractor"}
 		u3 %TypeSize{88}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11061541817101818123,3867562407177176337}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1173,6 +1342,24 @@ o
 }
 o
 {
+	Uuid %id{u4{7174401678164227258,5891759314376036277}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderer"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSpriteRenderer"}
+		u3 %TypeSize{40}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{8427540443377176270,6408079774911366654}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1180,6 +1367,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
 		s %ParentTypeName{"ezSelectedObjectsExtractor"}
 		s %PluginName{"ezEnginePluginScene"}
 		VarArray %Properties
@@ -1193,9 +1381,27 @@ o
 }
 o
 {
+	Uuid %id{u4{16837555215773931849,6426269517014731180}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezNode"}
+		u3 %TypeSize{88}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{1550108541081636654,6499996619777026584}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes{}
@@ -1217,6 +1423,60 @@ o
 }
 o
 {
+	Uuid %id{u4{17618900143945410251,7004567603611795090}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezExtractor"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezVisibleObjectsExtractor"}
+		u3 %TypeSize{80}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6467017751125590593,7158000587691918333}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6925211783555794167,7248699639865020582}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezGALMSAASampleCount"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{13739961049087297480,7584458541433302802}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1224,6 +1484,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
 		s %ParentTypeName{"ezForwardRenderPass"}
 		s %PluginName{"ezEnginePluginScene"}
 		VarArray %Properties
@@ -1237,6 +1498,24 @@ o
 }
 o
 {
+	Uuid %id{u4{9356329149067304491,7759394150395222094}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderPipelinePass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSelectionHighlightPass"}
+		u3 %TypeSize{208}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{2274890982207009360,7928801780594448694}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1244,6 +1523,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
 		s %ParentTypeName{"ezRenderPipelinePass"}
 		s %PluginName{"ezEnginePluginScene"}
 		VarArray %Properties
@@ -1260,6 +1540,186 @@ o
 }
 o
 {
+	Uuid %id{u4{12490457402213467554,8811460739967595394}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezParticleRenderer"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleTrailRenderer"}
+		u3 %TypeSize{40}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6242944522391254295,8819199894411268423}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderPipelinePass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMsaaUpscalePass"}
+		u3 %TypeSize{216}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{13167346652172721569,9213664815754970084}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezNodePin"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezOutputNodePin"}
+		u3 %TypeSize{16}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{713417100361721465,9466842483471533402}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderer"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleRenderer"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13666116024106071573,9481121117187511459}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezRenderer"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{433017571064485583,9588791973580940449}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderPipelinePass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMsaaResolvePass"}
+		u3 %TypeSize{216}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1977433703224278535,9616605153280793263}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezGALResourceFormat"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6959026194608651683,9670665964352308887}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderPipelinePass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSourcePass"}
+		u3 %TypeSize{216}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{17335125536025014045,9715119525012413962}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderer"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshRenderer"}
+		u3 %TypeSize{16}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{10453930414095359354,10043891315821287712}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezParticleRenderer"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticlePointRenderer"}
+		u3 %TypeSize{24}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{14783989624435995382,10153508228387791255}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1267,11 +1727,66 @@ o
 	{
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
 		s %ParentTypeName{"ezRenderer"}
 		s %PluginName{"ezEnginePluginScene"}
 		VarArray %Properties{}
 		s %TypeName{"ezGridRenderer"}
 		u3 %TypeSize{176}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2623648273376600463,10383975976182439936}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezExtractor"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSelectedObjectsExtractor"}
+		u3 %TypeSize{88}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{15359310503422052138,10912527182295807051}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderPipelinePass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDepthOnlyPass"}
+		u3 %TypeSize{184}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{3947921992906067956,11258700104825381796}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderPipelinePass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezAOPass"}
+		u3 %TypeSize{288}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1284,6 +1799,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
 		s %ParentTypeName{"ezEngineProcessDocumentContext"}
 		s %PluginName{"ezEnginePluginScene"}
 		VarArray %Properties
@@ -1291,7 +1807,25 @@ o
 			Uuid{u4{16682888373256786419,235066711160160335}}
 		}
 		s %TypeName{"ezSceneContext"}
-		u3 %TypeSize{1360}
+		u3 %TypeSize{1352}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{8584922317954272744,11593662365657080586}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderPipelinePass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezTonemapPass"}
+		u3 %TypeSize{272}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1317,6 +1851,42 @@ o
 }
 o
 {
+	Uuid %id{u4{15045319296493613060,12224056073567344178}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezParticleRenderer"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleBillboardRenderer"}
+		u3 %TypeSize{24}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5519308528255851349,12971133850452275833}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezNodePin"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPassThroughNodePin"}
+		u3 %TypeSize{16}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{6237262291451960084,13195598728755712358}}
 	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
@@ -1337,9 +1907,45 @@ o
 }
 o
 {
+	Uuid %id{u4{3396435621371217267,13845416391321257755}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezParticleRenderer"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleSpriteRenderer"}
+		u3 %TypeSize{24}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{3990197234769936013,14152091729179645135}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezForwardRenderShadingQuality"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{17839717520482877205,14218607790324358720}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes{}
@@ -1351,6 +1957,42 @@ o
 }
 o
 {
+	Uuid %id{u4{7122124663178213936,14381612698050424511}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderPipelinePass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezAntialiasingPass"}
+		u3 %TypeSize{216}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{10662176119751416703,14411451572959745967}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderPipelinePass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSimpleRenderPass"}
+		u3 %TypeSize{264}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{10942230428104646098,14503859236293919558}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1358,6 +2000,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
 		s %ParentTypeName{"ezExtractor"}
 		s %PluginName{"ezEnginePluginScene"}
 		VarArray %Properties
@@ -1373,23 +2016,77 @@ o
 }
 o
 {
-	Uuid %id{u4{9754146004690067010,15666469013180105351}}
-	s %t{"ezReflectedPropertyDescriptor"}
+	Uuid %id{u4{1568031452733162253,14756718430072739987}}
+	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
 	{
 		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezExtractor"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleExtractor"}
+		u3 %TypeSize{80}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1758289145410587047,15115175545141271434}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezExtractor"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezClusteredDataExtractor"}
+		u3 %TypeSize{224}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9754146004690067010,15666469013180105351}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::Pointer|ezPropertyFlags::Phantom"}
+		s %Flags{"ezPropertyFlags::Class|ezPropertyFlags::Pointer|ezPropertyFlags::Phantom"}
 		s %Name{"SceneContext"}
 		s %Type{"ezSceneContext"}
 	}
 }
 o
 {
+	Uuid %id{u4{9787954123016899656,16015177899640810970}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezViewRenderMode"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{17400899627489303928,16143989509050117712}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes{}
@@ -1401,9 +2098,63 @@ o
 }
 o
 {
+	Uuid %id{u4{5529481469113974686,16213020718252247261}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEngineProcessDocumentContext"}
+		u3 %TypeSize{1080}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{10928275567334886036,16940095565327068436}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderPipelinePass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezForwardRenderPass"}
+		u3 %TypeSize{232}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1514840326375940891,16955194968236852429}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezExtractor"}
+		u3 %TypeSize{80}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{3969128863122397781,17910208115967728194}}
 	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		VarArray %Attributes{}

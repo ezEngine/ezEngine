@@ -44,24 +44,26 @@ o
 {
 	Uuid %id{u4{13428547740097870850,374436844081624432}}
 	s %t{"ezPxStaticActorComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		s %CollisionMesh{""}
+		b %IncludeInNavmesh{1}
 	}
 }
 o
 {
 	Uuid %id{u4{17309307498434050549,428869554330810791}}
 	s %t{"ezPxStaticActorComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		s %CollisionMesh{""}
+		b %IncludeInNavmesh{1}
 	}
 }
 o
@@ -166,24 +168,26 @@ o
 {
 	Uuid %id{u4{5245760946570736279,4663677348169524854}}
 	s %t{"ezPxStaticActorComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		s %CollisionMesh{""}
+		b %IncludeInNavmesh{1}
 	}
 }
 o
 {
 	Uuid %id{u4{1946943348159173037,4703137168023204544}}
 	s %t{"ezPxStaticActorComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		s %CollisionMesh{""}
+		b %IncludeInNavmesh{1}
 	}
 }
 AssetInfo
@@ -197,7 +201,7 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{6766697876757573793,4816566862146419297}}
-		u4 %Hash{3183697994348703706}
+		u4 %Hash{13212056030806991178}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -293,24 +297,26 @@ o
 {
 	Uuid %id{u4{168559233115076277,5021006641651950430}}
 	s %t{"ezPxStaticActorComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		s %CollisionMesh{""}
+		b %IncludeInNavmesh{1}
 	}
 }
 o
 {
 	Uuid %id{u4{13741654908448117422,5048512896711411826}}
 	s %t{"ezPxStaticActorComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		s %CollisionMesh{""}
+		b %IncludeInNavmesh{1}
 	}
 }
 o
@@ -430,24 +436,26 @@ o
 {
 	Uuid %id{u4{209902220043961256,5480488214123692739}}
 	s %t{"ezPxStaticActorComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		s %CollisionMesh{""}
+		b %IncludeInNavmesh{1}
 	}
 }
 o
 {
 	Uuid %id{u4{4090661978380140955,5534920924372879098}}
 	s %t{"ezPxStaticActorComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		s %CollisionMesh{""}
+		b %IncludeInNavmesh{1}
 	}
 }
 o
@@ -480,12 +488,13 @@ o
 {
 	Uuid %id{u4{5344439541295610538,5578433174204125938}}
 	s %t{"ezPxStaticActorComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		s %CollisionMesh{""}
+		b %IncludeInNavmesh{1}
 	}
 }
 o
@@ -550,12 +559,13 @@ o
 {
 	Uuid %id{u4{7175041901814815059,9809188538065272851}}
 	s %t{"ezPxStaticActorComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		s %CollisionMesh{""}
+		b %IncludeInNavmesh{1}
 	}
 }
 o
@@ -654,12 +664,13 @@ o
 {
 	Uuid %id{u4{5396657786770718299,10127058011694018737}}
 	s %t{"ezPxStaticActorComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		s %CollisionMesh{""}
+		b %IncludeInNavmesh{1}
 	}
 }
 o
@@ -707,12 +718,13 @@ o
 {
 	Uuid %id{u4{1776786951309677411,10198076516584726973}}
 	s %t{"ezPxStaticActorComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		s %CollisionMesh{""}
+		b %IncludeInNavmesh{1}
 	}
 }
 o
@@ -912,12 +924,13 @@ o
 {
 	Uuid %id{u4{10617845851964890870,15696214129100560645}}
 	s %t{"ezPxStaticActorComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		s %CollisionMesh{""}
+		b %IncludeInNavmesh{1}
 	}
 }
 o
@@ -938,12 +951,13 @@ o
 {
 	Uuid %id{u4{17662392915094257,18004370051837008163}}
 	s %t{"ezPxStaticActorComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		u1 %CollisionLayer{0}
 		s %CollisionMesh{""}
+		b %IncludeInNavmesh{1}
 	}
 }
 o
@@ -1010,4 +1024,204 @@ o
 	}
 }
 }
-Types{}
+Types
+{
+o
+{
+	Uuid %id{u4{12984103802138964609,1901275426220383600}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2249460009180721943,2020378876267430042}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPxComponent"}
+		s %PluginName{"ezPhysXPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezPxShapeComponent"}
+		u3 %TypeSize{80}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{14270314853994606438,6044130159099333730}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezComponent"}
+		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6467017751125590593,7158000587691918333}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{915440353964695395,7400812910450444469}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezGameObject"}
+		u3 %TypeSize{168}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11372668100846884931,8737947288923677544}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPxShapeComponent"}
+		s %PluginName{"ezPhysXPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezPxShapeBoxComponent"}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1384393750607226200,9143286981169020248}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezRenderComponent"}
+		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{15923452218273788476,11566311302362979635}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPxActorComponent"}
+		s %PluginName{"ezPhysXPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezPxStaticActorComponent"}
+		u3 %TypeSize{88}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{10964627908253585417,11847310571565702910}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"ezPhysXPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezPxComponent"}
+		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17257203999626667165,14629053773625514456}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPxComponent"}
+		s %PluginName{"ezPhysXPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezPxActorComponent"}
+		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9257402730400276231,14693459876838695567}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshComponent"}
+		u3 %TypeSize{88}
+		u3 %TypeVersion{1}
+	}
+}
+}

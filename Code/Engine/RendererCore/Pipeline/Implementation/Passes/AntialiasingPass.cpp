@@ -39,15 +39,15 @@ bool ezAntialiasingPass::GetRenderTargetDescriptions(const ezView& view, const e
   {
     if (pInput->m_SampleCount == ezGALMSAASampleCount::TwoSamples)
     {
-      m_sMsaaSampleCount.Assign("TWO");
+      m_sMsaaSampleCount.Assign("MSAA_SAMPLES_TWO");
     }
     else if (pInput->m_SampleCount == ezGALMSAASampleCount::FourSamples)
     {
-      m_sMsaaSampleCount.Assign("FOUR");
+      m_sMsaaSampleCount.Assign("MSAA_SAMPLES_FOUR");
     }
     else if (pInput->m_SampleCount == ezGALMSAASampleCount::EightSamples)
     {
-      m_sMsaaSampleCount.Assign("EIGHT");
+      m_sMsaaSampleCount.Assign("MSAA_SAMPLES_EIGHT");
     }
     else
     {

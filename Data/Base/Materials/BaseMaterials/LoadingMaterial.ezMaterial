@@ -3,7 +3,7 @@ string %Shader { "Shaders/Materials/FallbackMaterial.ezShader" }
 Permutation
 {
   string %Variable { "BLEND_MODE" }
-  string %Value { "OPAQUE" }
+  string %Value { "BLEND_MODE_OPAQUE" }
 }
 
 Texture2D

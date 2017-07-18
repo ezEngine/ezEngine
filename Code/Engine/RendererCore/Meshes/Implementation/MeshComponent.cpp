@@ -175,11 +175,11 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
       {
         ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowFallback);
         ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
-        if (blendModeValue == "OPAQUE" || blendModeValue == "")
+        if (blendModeValue == "BLEND_MODE_OPAQUE" || blendModeValue == "")
         {
           category = ezDefaultRenderDataCategories::LitOpaque;
         }
-        else if (blendModeValue == "MASKED")
+        else if (blendModeValue == "BLEND_MODE_MASKED")
         {
           category = ezDefaultRenderDataCategories::LitMasked;
         }

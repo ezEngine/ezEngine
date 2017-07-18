@@ -197,6 +197,11 @@ PS_OUT main(PS_IN Input)
   #elif RENDER_PASS == RENDER_PASS_PICKING
     Output.Color = RGBA8ToFloat4(GetInstanceData(Input).GameObjectID);
 
+  #elif RENDER_PASS == RENDER_PASS_DEPTH_ONLY
+
+  #else
+    Output.Color = float4(litColor, opacity);
+    #error "RENDER_PASS uses undefined value."
   #endif
 
   return Output;

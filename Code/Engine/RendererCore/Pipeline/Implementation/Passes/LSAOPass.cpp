@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Pipeline/Passes/LSAOPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -176,13 +176,13 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     switch (m_DepthCompareFunction)
     {
     case ezLSAODepthCompareFunction::Depth:
-      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LSAO_DEPTH_COMPARE", "DEPTH");
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LSAO_DEPTH_COMPARE", "LSAO_DEPTH_COMPARE_DEPTH");
       break;
     case ezLSAODepthCompareFunction::Normal:
-      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LSAO_DEPTH_COMPARE", "NORMAL");
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LSAO_DEPTH_COMPARE", "LSAO_DEPTH_COMPARE_NORMAL");
       break;
     case ezLSAODepthCompareFunction::NormalAndSampleDistance:
-      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LSAO_DEPTH_COMPARE", "NORMAL_AND_SAMPLE_DISTANCE");
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LSAO_DEPTH_COMPARE", "LSAO_DEPTH_COMPARE_NORMAL_AND_SAMPLE_DISTANCE");
       break;
     }
 
@@ -206,13 +206,13 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     switch (m_DepthCompareFunction)
     {
     case ezLSAODepthCompareFunction::Depth:
-      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LSAO_DEPTH_COMPARE", "DEPTH");
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LSAO_DEPTH_COMPARE", "LSAO_DEPTH_COMPARE_DEPTH");
       break;
     case ezLSAODepthCompareFunction::Normal:
-      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LSAO_DEPTH_COMPARE", "NORMAL");
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LSAO_DEPTH_COMPARE", "LSAO_DEPTH_COMPARE_NORMAL");
       break;
     case ezLSAODepthCompareFunction::NormalAndSampleDistance:
-      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LSAO_DEPTH_COMPARE", "NORMAL_AND_SAMPLE_DISTANCE");
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LSAO_DEPTH_COMPARE", "LSAO_DEPTH_COMPARE_NORMAL_AND_SAMPLE_DISTANCE");
       break;
     }
 

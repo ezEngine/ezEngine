@@ -250,7 +250,7 @@ ezShaderTypeRegistry::ezShaderTypeRegistry()
   desc.m_sParentTypeName = ezGetStaticRTTI<ezReflectedClass>()->GetTypeName();
   desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Abstract | ezTypeFlags::Class;
   desc.m_uiTypeSize = 0;
-  desc.m_uiTypeVersion = 1;
+  desc.m_uiTypeVersion = 2;
 
   m_pBaseType = ezPhantomRttiManager::RegisterType(desc);
 
@@ -419,6 +419,7 @@ public:
         }
       }
     }
+
     if (bNeedAddBaseClass)
     {
       ezRttiConverterContext context;
@@ -435,23 +436,52 @@ public:
       context.RegisterObject(ezUuid::StableUuidForString(desc.m_sTypeName.GetData()), ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
       rttiConverter.AddObjectToGraph(ezGetStaticRTTI<ezReflectedTypeDescriptor>(), &desc);
     }
-
   }
 };
 
 ezShaderTypePatch_1_2 g_ezShaderTypePatch_1_2;
 
-/* TODO: Increase ezShaderTypeBase version to 2 and implement enum renames, see ezReflectedPropertyDescriptorPatch_1_2
+// TODO: Increase ezShaderTypeBase version to 2 and implement enum renames, see ezReflectedPropertyDescriptorPatch_1_2
 class ezShaderBaseTypePatch_1_2 : public ezGraphPatch
 {
 public:
   ezShaderBaseTypePatch_1_2()
     : ezGraphPatch("ezShaderTypeBase", 2) {}
 
+  static void FixEnumString(ezStringBuilder& sValue, const char* szName)
+  {
+    if (sValue.StartsWith(szName))
+      sValue.Shrink(ezStringUtils::GetCharacterCount(szName), 0);
+
+    if (sValue.StartsWith("::"))
+      sValue.Shrink(2, 0);
+
+    if (sValue.StartsWith(szName))
+      sValue.Shrink(ezStringUtils::GetCharacterCount(szName), 0);
+
+    if (sValue.StartsWith("_"))
+      sValue.Shrink(1, 0);
+
+    sValue.PrependFormat("{0}::{0}_", szName);
+  }
+
+  void FixEnum(ezAbstractObjectNode* pNode, const char* szEnum) const
+  {
+    if (ezAbstractObjectNode::Property* pProp = pNode->FindProperty(szEnum))
+    {
+      ezStringBuilder sValue = pProp->m_Value.Get<ezString>();
+      FixEnumString(sValue, szEnum);
+      pProp->m_Value = sValue.GetData();
+    }
+  }
+
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
+    FixEnum(pNode, "SHADING_MODE");
+    FixEnum(pNode, "BLEND_MODE");
+    FixEnum(pNode, "RENDER_PASS");
   }
 };
 
 ezShaderBaseTypePatch_1_2 g_ezShaderBaseTypePatch_1_2;
-*/
+

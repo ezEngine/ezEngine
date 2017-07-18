@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <ParticlePlugin/Type/Trail/TrailRenderer.h>
 #include <ParticlePlugin/Type/Trail/ParticleTypeTrail.h>
 #include <RendererFoundation/Device/Device.h>
@@ -207,32 +207,32 @@ bool ezParticleTrailRenderer::ConfigureShader(const ezParticleTrailRenderData* p
   switch (pRenderData->m_RenderMode)
   {
   case ezParticleTypeRenderMode::Additive:
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "ADDITIVE");
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_ADDITIVE");
     break;
   case ezParticleTypeRenderMode::Blended:
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "BLENDED");
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_BLENDED");
     break;
   case ezParticleTypeRenderMode::Opaque:
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "OPAQUE");
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_OPAQUE");
     break;
   }
 
   switch (ezParticleTypeTrail::ComputeTrailPointBucketSize(pRenderData->m_uiMaxTrailPoints))
   {
   case 8:
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_TRAIL_POINTS", "COUNT8");
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_TRAIL_POINTS", "PARTICLE_TRAIL_POINTS_COUNT8");
     m_hActiveTrailPointsDataBuffer = m_hTrailPointsDataBuffer8;
     return true;
   case 16:
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_TRAIL_POINTS", "COUNT16");
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_TRAIL_POINTS", "PARTICLE_TRAIL_POINTS_COUNT16");
     m_hActiveTrailPointsDataBuffer = m_hTrailPointsDataBuffer16;
     return true;
   case 32:
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_TRAIL_POINTS", "COUNT32");
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_TRAIL_POINTS", "PARTICLE_TRAIL_POINTS_COUNT32");
     m_hActiveTrailPointsDataBuffer = m_hTrailPointsDataBuffer32;
     return true;
   case 64:
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_TRAIL_POINTS", "COUNT64");
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_TRAIL_POINTS", "PARTICLE_TRAIL_POINTS_COUNT64");
     m_hActiveTrailPointsDataBuffer = m_hTrailPointsDataBuffer64;
     return true;
   }

@@ -14,7 +14,8 @@ AssetInfo
 			s{"Textures/skybox_lt.tga"}
 		}
 		Uuid %DocumentID{u4{13921673174405874348,4710388295345817663}}
-		u4 %Hash{12009224500252878350}
+		u4 %Hash{15372221840007285737}
+		VarArray %Outputs{}
 		VarArray %References{}
 	}
 }
@@ -39,17 +40,15 @@ o
 	u3 %v{2}
 	p
 	{
-		s %AddressModeU{"ezTextureAddressMode::Clamp"}
-		s %AddressModeV{"ezTextureAddressMode::Clamp"}
-		s %AddressModeW{"ezTextureAddressMode::Clamp"}
+		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{0}
 		s %Input1{"Textures/skybox_lt.tga"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
-		s %Input5{""}
-		s %Input6{""}
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
@@ -57,4 +56,150 @@ o
 	}
 }
 }
-Types{}
+Types
+{
+o
+{
+	Uuid %id{u4{12984103802138964609,1901275426220383600}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6491127374056931358,3252866561288315111}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezTextureAssetProperties"}
+		u3 %TypeSize{280}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{17287610900598799232,3808707551365893644}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezTexture2DUsageEnum"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11061541817101818123,3867562407177176337}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9317772140935837534,4689202898495384488}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezTexture2DAddressMode"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6467017751125590593,7158000587691918333}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2486599260985300546,9667514782466442203}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezTextureFilterSetting"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6757110434151349557,11256292168853347218}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezTexture2DChannelMappingEnum"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+}

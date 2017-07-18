@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Pipeline/Passes/SimpleRenderPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -102,7 +102,7 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
 
   renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
 
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "FORWARD");
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_FORWARD");
 
   // Execute render functions
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleOpaque);

@@ -118,11 +118,11 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   // Set permutation for shading quality
   if (m_ShadingQuality == ezForwardRenderShadingQuality::Normal)
   {
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("SHADING_QUALITY", "NORMAL");
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("SHADING_QUALITY", "SHADING_QUALITY_NORMAL");
   }
   else if (m_ShadingQuality == ezForwardRenderShadingQuality::Simplified)
   {
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("SHADING_QUALITY", "SIMPLIFIED");
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("SHADING_QUALITY", "SHADING_QUALITY_SIMPLIFIED");
   }
   else
   {
@@ -173,7 +173,7 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
 
 void ezForwardRenderPass::SetupPermutationVars(const ezRenderViewContext& renderViewContext)
 {
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "FORWARD");
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_FORWARD");
 }
 
 

@@ -4,13 +4,13 @@ string %Shader { "Shaders/Materials/DefaultMaterial.ezShader" }
 Permutation
 {
   string %Variable { "BLEND_MODE" }
-  string %Value { "OPAQUE" }
+  string %Value { "BLEND_MODE_OPAQUE" }
 }
 
 Permutation
 {
   string %Variable { "SHADING_MODE" }
-  string %Value { "LIT" }
+  string %Value { "SHADING_MODE_LIT" }
 }
 
 Permutation

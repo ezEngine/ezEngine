@@ -80,7 +80,8 @@ AssetInfo
 			s{"Sponza/sponza.obj"}
 		}
 		Uuid %DocumentID{u4{2160242316676500657,4769815895982398209}}
-		u4 %Hash{3181681720562339184}
+		u4 %Hash{11331302227729727770}
+		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
@@ -115,11 +116,16 @@ o
 	u3 %v{1}
 	p
 	{
+		u1 %Detail{1}
 		s %ForwardDir{"ezBasisAxis::NegativeZ"}
+		f %Height{0x0000803F}
 		s %MeshFile{"Sponza/sponza.obj"}
 		s %MeshType{"ezCollisionMeshType::TriangleMesh"}
 		Vec3 %NonUniformScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %Radius{0x0000003F}
+		f %Radius2{0x0000003F}
 		s %RightDir{"ezBasisAxis::PositiveX"}
+		s %SubmeshName{""}
 		VarArray %Surfaces
 		{
 			Uuid{u4{11865033878535455038,11728031088331379401}}
@@ -350,4 +356,132 @@ o
 	}
 }
 }
-Types{}
+Types
+{
+o
+{
+	Uuid %id{u4{11430702158661509795,453456434903338653}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginPhysX"}
+		VarArray %Properties{}
+		s %TypeName{"ezCollisionMeshAssetProperties"}
+		u3 %TypeSize{1232}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16151412834014881353,455602171930801939}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBasisAxis"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12984103802138964609,1901275426220383600}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2619243749336552648,3707235020139473642}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"ezEditorPluginPhysX"}
+		VarArray %Properties{}
+		s %TypeName{"ezSurfaceResourceSlot"}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11061541817101818123,3867562407177176337}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6467017751125590593,7158000587691918333}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6200827302220788278,12043805384454163904}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginPhysX"}
+		VarArray %Properties{}
+		s %TypeName{"ezCollisionMeshType"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{2}
+	}
+}
+}

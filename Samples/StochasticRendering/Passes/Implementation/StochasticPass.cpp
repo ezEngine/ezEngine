@@ -121,7 +121,7 @@ void ezStochasticPass::Execute(const ezRenderViewContext& renderViewContext, con
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("STOCHASTIC_INITIAL", "FALSE");
   }
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("STOCHASTIC_PASS", "TRUE");
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "FORWARD");
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_FORWARD");
 
   {
     for (auto& number : m_randomNumbers)

@@ -71,7 +71,7 @@ namespace
         {
           if (!enumValues[i].IsEmpty())
           {
-            sTemp.Format("{0}_{1} {2}", szName, enumValues[i], i);
+            sTemp.Format("{1} {2}", szName, enumValues[i], i);
             out_Defines.PushBack(sTemp);
           }
         }

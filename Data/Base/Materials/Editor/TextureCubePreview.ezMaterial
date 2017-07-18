@@ -9,13 +9,13 @@ Permutation
 Permutation
 {
   string %Variable { "SHADING_MODE" }
-  string %Value { "FULLBRIGHT" }
+  string %Value { "SHADING_MODE_FULLBRIGHT" }
 }
 
 Permutation
 {
   string %Variable { "BLEND_MODE" }
-  string %Value { "OPAQUE" }
+  string %Value { "BLEND_MODE_OPAQUE" }
 }
 
 Constant

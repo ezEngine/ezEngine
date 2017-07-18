@@ -137,10 +137,10 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
   {
     EZ_PROFILE_AND_MARKER(pGALContext, "Downscale");
 
-    ezTempHashedString sInitialDownscale = "INITIAL_DOWNSCALE";
-    ezTempHashedString sInitialDownscaleFast = "INITIAL_DOWNSCALE_FAST";
-    ezTempHashedString sDownscale = "DOWNSCALE";
-    ezTempHashedString sDownscaleFast = "DOWNSCALE_FAST";
+    ezTempHashedString sInitialDownscale = "BLOOM_PASS_MODE_INITIAL_DOWNSCALE";
+    ezTempHashedString sInitialDownscaleFast = "BLOOM_PASS_MODE_INITIAL_DOWNSCALE_FAST";
+    ezTempHashedString sDownscale = "BLOOM_PASS_MODE_DOWNSCALE";
+    ezTempHashedString sDownscaleFast = "BLOOM_PASS_MODE_DOWNSCALE_FAST";
 
     for (ezUInt32 i = 0; i < uiNumBlurPasses; ++i)
     {
@@ -180,7 +180,7 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
     const float fBlurRadius = 2.0f * fNumBlurPasses / uiNumBlurPasses;
     const float fMidPass = (uiNumBlurPasses - 1.0f) / 2.0f;
 
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLOOM_PASS_MODE", "UPSCALE");
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLOOM_PASS_MODE", "BLOOM_PASS_MODE_UPSCALE");
 
     for (ezUInt32 i = uiNumBlurPasses - 1; i-- > 0;)
     {
