@@ -158,6 +158,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferRect()
   if (hMesh.IsValid())
     return hMesh;
 
+  // weird size because of translate gizmo, should be fixed through scaling there instead
   const float fLength = 2.0f / 3.0f;
 
   ezMat4 m;
@@ -167,6 +168,35 @@ static ezMeshBufferResourceHandle CreateMeshBufferRect()
   geom.AddRectXY(ezVec2(fLength), ezColor::White, m);
 
   return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Rect", ezGALPrimitiveTopology::Triangles);
+}
+
+static ezMeshBufferResourceHandle CreateMeshBufferLineRect()
+{
+  const char* szResourceName = "{A1EA52B0-DA73-4176-B50D-3470DDB053F8}";
+
+  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+
+  if (hMesh.IsValid())
+    return hMesh;
+
+  ezMat4 m;
+  m.SetIdentity();
+
+  ezGeometry geom;
+
+  const ezVec2 halfSize(1.0f);
+
+  geom.AddVertex(ezVec3(-halfSize.x, -halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(0, 1), ezColor::White, 0, m);
+  geom.AddVertex(ezVec3(halfSize.x, -halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(0, 0), ezColor::White, 0, m);
+  geom.AddVertex(ezVec3(halfSize.x, halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(1, 0), ezColor::White, 0, m);
+  geom.AddVertex(ezVec3(-halfSize.x, halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(1, 1), ezColor::White, 0, m);
+
+  geom.AddLine(0, 1);
+  geom.AddLine(1, 2);
+  geom.AddLine(2, 3);
+  geom.AddLine(3, 0);
+
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_LineRect", ezGALPrimitiveTopology::Lines);
 }
 
 static ezMeshBufferResourceHandle CreateMeshBufferRing()
@@ -376,6 +406,35 @@ static ezMeshBufferResourceHandle CreateMeshBufferCone()
   return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Cone", ezGALPrimitiveTopology::Triangles);
 }
 
+static ezMeshBufferResourceHandle CreateMeshBufferFrustum()
+{
+  const char* szResourceName = "{61A7BE38-797D-4BFC-AED6-33CE4F4C6FF6}";
+
+  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
+
+  if (hMesh.IsValid())
+    return hMesh;
+
+  ezMat4 m;
+  m.SetIdentity();
+
+  ezGeometry geom;
+
+  geom.AddVertex(ezVec3(0, 0, 0), ezVec3(0, 0, 1), ezVec2(0), ezColor::White, 0, m);
+
+  geom.AddVertex(ezVec3(1.0f, -1.0f, 1.0f), ezVec3(0, 0, 1), ezVec2(0), ezColor::White, 0, m);
+  geom.AddVertex(ezVec3(1.0f, 1.0f, 1.0f), ezVec3(0, 0, 1), ezVec2(0), ezColor::White, 0, m);
+  geom.AddVertex(ezVec3(1.0f, -1.0f, -1.0f), ezVec3(0, 0, 1), ezVec2(0), ezColor::White, 0, m);
+  geom.AddVertex(ezVec3(1.0f, 1.0f, -1.0f), ezVec3(0, 0, 1), ezVec2(0), ezColor::White, 0, m);
+
+  geom.AddLine(0, 1);
+  geom.AddLine(0, 2);
+  geom.AddLine(0, 3);
+  geom.AddLine(0, 4);
+
+  return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Frustum", ezGALPrimitiveTopology::Lines);
+}
+
 static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, ezMeshBufferResourceHandle hMeshBuffer, const char* szMaterial)
 {
   const ezStringBuilder sIdentifier(szMeshResourceName, "@", szMaterial);
@@ -449,6 +508,12 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
       szMeshGuid = "{3DF4DDDA-F598-4A37-9691-D4C3677905A8}";
     }
     break;
+  case ezEngineGizmoHandleType::LineRect:
+    {
+      hMeshBuffer = CreateMeshBufferLineRect();
+      szMeshGuid = "{96129543-897C-4DEE-922D-931BC91C5725}";
+    }
+    break;
   case ezEngineGizmoHandleType::Ring:
     {
       hMeshBuffer = CreateMeshBufferRing();
@@ -519,6 +584,12 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
     {
       hMeshBuffer = CreateMeshBufferCone();
       szMeshGuid = "{9A48962D-127A-445C-899A-A054D6AD8A9A}";
+    }
+    break;
+  case ezEngineGizmoHandleType::Frustum:
+    {
+      szMeshGuid = "{22EC5D48-E8BE-410B-8EAD-51B7775BA058}";
+      hMeshBuffer = CreateMeshBufferFrustum();
     }
     break;
   default:

@@ -399,12 +399,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualizerAttribute, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
-ezVisualizerAttribute::ezVisualizerAttribute(const char* szProperty1, const char* szProperty2 /*= nullptr*/, const char* szProperty3 /*= nullptr*/, const char* szProperty4 /*= nullptr*/)
+ezVisualizerAttribute::ezVisualizerAttribute(const char* szProperty1, const char* szProperty2 /*= nullptr*/, const char* szProperty3 /*= nullptr*/, const char* szProperty4 /*= nullptr*/, const char* szProperty5 /*= nullptr*/)
 {
   m_sProperty1 = szProperty1;
   m_sProperty2 = szProperty2;
   m_sProperty3 = szProperty3;
   m_sProperty4 = szProperty4;
+  m_sProperty5 = szProperty5;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -596,6 +597,30 @@ ezConeVisualizerAttribute::ezConeVisualizerAttribute(ezEnum<ezBasisAxis> axis, c
   m_Axis = axis;
   m_Color = fixedColor;
   m_fScale = fScale;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCameraVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezCameraVisualizerAttribute>)
+{
+  //EZ_BEGIN_PROPERTIES
+  //EZ_END_PROPERTIES
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const char*, const char*),
+  }
+  EZ_END_FUNCTIONS
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezCameraVisualizerAttribute::ezCameraVisualizerAttribute()
+  : ezVisualizerAttribute(nullptr)
+{
+}
+
+ezCameraVisualizerAttribute::ezCameraVisualizerAttribute(const char* szModeProperty, const char* szFovProperty, const char* szOrthoDimProperty, const char* szNearPlaneProperty, const char* szFarPlaneProperty)
+  : ezVisualizerAttribute(szModeProperty, szFovProperty, szOrthoDimProperty, szNearPlaneProperty, szFarPlaneProperty)
+{
 }
 
 //////////////////////////////////////////////////////////////////////////

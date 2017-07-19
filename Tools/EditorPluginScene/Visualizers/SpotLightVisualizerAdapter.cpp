@@ -37,7 +37,7 @@ void ezSpotLightVisualizerAdapter::Update()
     ezVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetAngleProperty()), value);
 
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezAngle>(), "Invalid property bound to ezConeVisualizerAttribute 'angle'");
+    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezAngle>(), "Invalid property bound to ezSpotLightVisualizerAttribute 'angle'");
     m_fAngleScale = ezMath::Tan(value.ConvertTo<ezAngle>() * 0.5f);
   }
 
@@ -46,7 +46,7 @@ void ezSpotLightVisualizerAdapter::Update()
     ezVariant value;
     pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetColorProperty()), value);
 
-    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezConeVisualizerAttribute 'color'");
+    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezColor>(), "Invalid property bound to ezSpotLightVisualizerAttribute 'color'");
     m_Gizmo.SetColor(value.ConvertTo<ezColor>());
   }
 

@@ -30,7 +30,6 @@ void ezConeVisualizerAdapter::Update()
 {
   const ezConeVisualizerAttribute* pAttr = static_cast<const ezConeVisualizerAttribute*>(m_pVisualizerAttr);
   ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
-  m_Gizmo.SetVisible(m_bVisualizerIsVisible);
 
   m_fAngleScale = 1.0f;
   if (!pAttr->GetAngleProperty().IsEmpty())
@@ -61,7 +60,7 @@ void ezConeVisualizerAdapter::Update()
     m_fFinalScale *= value.ConvertTo<float>();
   }
 
-  m_Gizmo.SetVisible(m_fAngleScale != 0.0f && m_fFinalScale != 0.0f);
+  m_Gizmo.SetVisible(m_bVisualizerIsVisible && m_fAngleScale != 0.0f && m_fFinalScale != 0.0f);
 }
 
 void ezConeVisualizerAdapter::UpdateGizmoTransform()

@@ -41,6 +41,7 @@ enum ezEngineGizmoHandleType
   Arrow,
   Ring,
   Rect,
+  LineRect,
   Box,
   Piston,
   HalfPiston,
@@ -52,6 +53,7 @@ enum ezEngineGizmoHandleType
   BoxFaces,
   LineBox,
   Cone,
+  Frustum,
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEngineGizmoHandle : public ezGizmoHandle

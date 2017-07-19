@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Visualizers/VisualizerAdapter.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Document/Document.h>
@@ -57,7 +57,8 @@ void ezVisualizerAdapter::DocumentObjectPropertyEventHandler(const ezDocumentObj
       if (e.m_sProperty == m_pVisualizerAttr->m_sProperty1 ||
           e.m_sProperty == m_pVisualizerAttr->m_sProperty2 ||
           e.m_sProperty == m_pVisualizerAttr->m_sProperty3 ||
-          e.m_sProperty == m_pVisualizerAttr->m_sProperty4)
+          e.m_sProperty == m_pVisualizerAttr->m_sProperty4 ||
+          e.m_sProperty == m_pVisualizerAttr->m_sProperty5)
       {
         Update();
       }

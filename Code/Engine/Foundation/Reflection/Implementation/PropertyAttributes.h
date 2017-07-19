@@ -443,12 +443,13 @@ class EZ_FOUNDATION_DLL ezVisualizerAttribute : public ezPropertyAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualizerAttribute, ezPropertyAttribute);
 
 public:
-  ezVisualizerAttribute(const char* szProperty1, const char* szProperty2 = nullptr, const char* szProperty3 = nullptr, const char* szProperty4 = nullptr);
+  ezVisualizerAttribute(const char* szProperty1, const char* szProperty2 = nullptr, const char* szProperty3 = nullptr, const char* szProperty4 = nullptr, const char* szProperty5 = nullptr);
 
   ezUntrackedString m_sProperty1;
   ezUntrackedString m_sProperty2;
   ezUntrackedString m_sProperty3;
   ezUntrackedString m_sProperty4;
+  ezUntrackedString m_sProperty5;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -549,6 +550,24 @@ public:
   float m_fScale;
 };
 
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_FOUNDATION_DLL ezCameraVisualizerAttribute : public ezVisualizerAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezCameraVisualizerAttribute, ezVisualizerAttribute);
+
+public:
+  ezCameraVisualizerAttribute();
+
+  /// \brief Attribute to add on an RTTI type to add a camera cone visualizer.
+  ezCameraVisualizerAttribute(const char* szModeProperty, const char* szFovProperty, const char* szOrthoDimProperty, const char* szNearPlaneProperty, const char* szFarPlaneProperty);
+
+  const ezUntrackedString& GetModeProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetFovProperty() const { return m_sProperty2; }
+  const ezUntrackedString& GetOrthoDimProperty() const { return m_sProperty3; }
+  const ezUntrackedString& GetNearPlaneProperty() const { return m_sProperty4; }
+  const ezUntrackedString& GetFarPlaneProperty() const { return m_sProperty5; }
+};
 
 //////////////////////////////////////////////////////////////////////////
 
