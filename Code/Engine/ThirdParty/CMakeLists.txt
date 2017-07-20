@@ -25,7 +25,6 @@ if(MSVC)
     SET (LINK_LIBRARIES
       ${LINK_LIBRARIES}
       ws2_32.lib
-      winmm.lib
       Kernel32.lib
       runtimeobject.lib
     )

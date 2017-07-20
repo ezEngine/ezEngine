@@ -1,6 +1,5 @@
-#pragma once
+﻿#pragma once
 
-#include <Shlobj.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Strings/StringConversion.h>
@@ -17,6 +16,8 @@ static ezUInt64 HighLowToUInt64(ezUInt32 uiHigh32, ezUInt32 uiLow32)
 }
 
 #if EZ_DISABLED(EZ_USE_POSIX_FILE_API)
+
+#include <Shlobj.h>
 
 ezResult ezOSFile::InternalOpen(const char* szFile, ezFileMode::Enum OpenMode)
 {

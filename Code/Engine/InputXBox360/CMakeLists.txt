@@ -1,4 +1,4 @@
-#cmake
+﻿#cmake
 
 #
 # Copy this file into the folder of an engine library to add it to the solution.
@@ -28,7 +28,7 @@ SET (LINK_LIBRARIES
 if (MSVC10)
   SET (LINK_LIBRARIES ${LINK_LIBRARIES} XInput)
 elseif (MSVC11 OR MSVC12 OR MSVC13 OR MSVC14)
-  SET (LINK_LIBRARIES ${LINK_LIBRARIES} XINPUT9_1_0)
+  SET (LINK_LIBRARIES ${LINK_LIBRARIES} Xinputuap)
 else()
   message (SEND_ERROR "Unknown MSVC compiler version.")
 endif()

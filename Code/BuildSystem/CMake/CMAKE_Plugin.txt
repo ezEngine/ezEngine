@@ -74,9 +74,7 @@ if (ADDITIONAL_DEPENDENCIES)
   add_dependencies(${PROJECT_NAME} ${ADDITIONAL_DEPENDENCIES})
 endif ()
 
-if (BUILDSYSTEM_MSVC)
-	target_link_libraries (${PROJECT_NAME} winmm)
-endif ()
+
 
 if (COMPILER_SETTINGS_ALL)
   set_target_properties (${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "${COMPILER_SETTINGS_ALL}")
