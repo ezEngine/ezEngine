@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Shader/ShaderPermutationBinary.h>
 
 struct ezShaderPermutationBinaryVersion
@@ -8,6 +8,7 @@ struct ezShaderPermutationBinaryVersion
     Version1 = 1,
     Version2 = 2,
     Version3 = 3,
+    Version4 = 4,
 
     // Increase this version number to trigger shader recompilation
 
