@@ -89,15 +89,17 @@ void ezGameApplication::ProcessApplicationInput()
 
   if (ezInputManager::GetInputActionState(g_szInputSet, g_szCaptureProfilingAction) == ezKeyState::Pressed)
   {
+    const char* szOutput = ":appdata/profiling.json";
+
     ezFileWriter fileWriter;
-    if (fileWriter.Open(":appdata/profiling.json") == EZ_SUCCESS)
+    if (fileWriter.Open(szOutput) == EZ_SUCCESS)
     {
       ezProfilingSystem::Capture(fileWriter);
       ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
     }
     else
     {
-      ezLog::Error("Could not write profiling capture to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
+      ezLog::Error("Could not write profiling capture to '{0}'.", szOutput);
     }
   }
 

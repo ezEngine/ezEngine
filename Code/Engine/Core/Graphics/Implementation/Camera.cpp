@@ -112,7 +112,7 @@ void ezCamera::LookAt(const ezVec3& vCameraPos, const ezVec3& vTargetPos, const 
 {
   if (m_Mode == ezCameraMode::Stereo)
   {
-    EZ_REPORT_FAILURE("You cannot get the camera dimensions when it is not an orthographic camera.");
+    EZ_REPORT_FAILURE("ezCamera::LookAt is not possible for stereo cameras.");
     return;
   }
 
@@ -199,10 +199,10 @@ ezVec3 ezCamera::MoveLocally(float fForward, float fRight, float fUp)
 
 void ezCamera::MoveGlobally(const ezVec3& vMove)
 {
-  m_mViewMatrix[0].SetTranslationVector(m_mViewMatrix[0].GetTranslationVector() + m_mViewMatrix[0].GetRotationalPart() * vMove);
+  m_mViewMatrix[0].SetTranslationVector(m_mViewMatrix[0].GetTranslationVector() - m_mViewMatrix[0].GetRotationalPart() * vMove);
   m_mViewMatrix[1].SetTranslationVector(m_mViewMatrix[0].GetTranslationVector());
   
-  m_vCameraPosition[0] += vMove;   // To inaccurate?
+  m_vCameraPosition[0] += vMove;   // Too inaccurate?
   m_vCameraPosition[1] = m_vCameraPosition[0];
 
   CameraOrientationChanged(true, false);
