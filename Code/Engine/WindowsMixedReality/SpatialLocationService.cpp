@@ -103,6 +103,12 @@ ezUniquePtr<ezWindowsSpatialAnchor> ezWindowsSpatialLocationService::CreateSpati
     return nullptr;
   }
 
+  if (pAnchor == nullptr)
+  {
+    // it appears this can happen (success earlier doesn't mean it didn't fail)
+    return nullptr;
+  }
+
   return EZ_DEFAULT_NEW(ezWindowsSpatialAnchor, pAnchor);
 }
 
