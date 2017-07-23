@@ -24,3 +24,7 @@ inline ezResult ezToResult(HRESULT result)
 #define EZ_HRESULT_TO_LOG_RET(code) \
   do { HRESULT s = (code); if (FAILED(s)) { ezLog::Error("Call '{0}' failed with: {1}", EZ_STRINGIZE(code), ezHRESULTtoString(s)); return; } } while (false)
 
+#define EZ_HRESULT_TO_ASSERT(code) \
+  do { HRESULT s = (code); \
+  EZ_ASSERT_DEV(SUCCEEDED(s), "Call '{0}' failed with: {1}", EZ_STRINGIZE(code), ezHRESULTtoString(s)); \
+  } while (false)

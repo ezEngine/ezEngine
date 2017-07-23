@@ -81,4 +81,3 @@ ezResult ezGALMixedRealitySwapChainDX11::DeInitPlatform(ezGALDevice* pDevice)
   return EZ_SUCCESS;
 }
 
-EZ_STATICLINK_FILE(WindowsMixedReality, WindowsMixedReality_Graphics_MixedRealitySwapChainDX11);

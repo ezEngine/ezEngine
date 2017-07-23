@@ -2,6 +2,7 @@
 #include <WindowsMixedReality/HolographicSpace.h>
 #include <WindowsMixedReality/SpatialLocationService.h>
 #include <WindowsMixedReality/Graphics/MixedRealityCamera.h>
+#include <Foundation/Configuration/CVar.h>
 
 #include <windows.graphics.holographic.h>
 #include <windows.system.profile.h>
@@ -49,6 +50,14 @@ ezWindowsHolographicSpace::~ezWindowsHolographicSpace()
   DeInit();
 }
 
+
+void ezWindowsHolographicSpace::Activate()
+{
+  CreateDefaultReferenceFrame();
+
+
+}
+
 ezResult ezWindowsHolographicSpace::InitForMainCoreWindow()
 {
   EZ_LOG_BLOCK("ezWindowsHolographicSpace::InitForMainCoreWindow");
@@ -94,9 +103,27 @@ ezResult ezWindowsHolographicSpace::InitForMainCoreWindow()
     m_pLocationService = EZ_DEFAULT_NEW(ezWindowsSpatialLocationService, pDefaultSpatialLocator);
   }
 
-  ezLog::Info("Initialized new holographic space for main window!");
+  DisableMultiThreadedRendering();
+
+  ezLog::Success("Initialized new holographic space for main window!");
 
   return EZ_SUCCESS;
+}
+
+// static
+void ezWindowsHolographicSpace::DisableMultiThreadedRendering()
+{
+  ezCVar* pCVar = ezCVar::FindCVarByName("r_Multithreading");
+  if (pCVar != nullptr && pCVar->GetType() == ezCVarType::Bool)
+  {
+    ezCVarBool* pBoolVar = static_cast<ezCVarBool*>(pCVar);
+
+    if (pBoolVar->GetValue(ezCVarValue::Current))
+    {
+      *pBoolVar = false;
+      ezLog::Info("Disabling multi-threaded rendering, to reduce rendering lag on HoloLens");
+    }
+  }
 }
 
 void ezWindowsHolographicSpace::DeInit()
@@ -237,8 +264,8 @@ void ezWindowsHolographicSpace::ProcessAddedRemovedCameras()
     // A lot of system can't work with camera/swapchain that doesn't have an actual backbuffer.
     // Since we only get this data with a frame, we start and end a dummy holographic frame before we fire added events.
     //
-    // In the worst case this gives a tiny hickup for all camera every time a camera was added.
-    // What we get for this however in return, is valid camera poses and backbuffers for all engine systems that rely on them.
+    // In the worst case this gives a tiny hiccup for all cameras every time a camera was added.
+    // What we get for this, however, in return, are valid camera poses and backbuffers for all engine systems that rely on them.
     StartNewHolographicFrame();
 
     // Fire added events for all new cameras.
@@ -261,7 +288,7 @@ ezResult ezWindowsHolographicSpace::UpdateCameraPoses(const ComPtr<ABI::Windows:
 
   // Update camera our cameras.
   using IPose = ABI::Windows::Graphics::Holographic::IHolographicCameraPose;
-  ezWinRtIterateIVectorView<IPose*>(pCameraPoses, [this, &pHolographicFrame](UINT, IPose* pPose)
+  ezUwpUtils::ezWinRtIterateIVectorView<IPose*>(pCameraPoses, [this, &pHolographicFrame](UINT, IPose* pPose)
   {
     ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCamera> pCurrentHoloCamera;
     if (FAILED(pPose->get_HolographicCamera(pCurrentHoloCamera.GetAddressOf())))
@@ -308,5 +335,26 @@ HRESULT ezWindowsHolographicSpace::OnCameraRemoved(ABI::Windows::Graphics::Holog
   return S_OK;
 }
 
-EZ_STATICLINK_FILE(WindowsMixedReality, WindowsMixedReality_WindowsHolographicSpace);
+
+void ezWindowsHolographicSpace::CreateDefaultReferenceFrame()
+{
+  if (m_pDefaultReferenceFrame == nullptr)
+  {
+    auto pDefRefFrame = GetSpatialLocationService().CreateStationaryReferenceFrame_CurrentLocation();
+
+    ezWindowsHolographicSpace::GetSingleton()->SetDefaultReferenceFrame(std::move(pDefRefFrame));
+  }
+}
+
+void ezWindowsHolographicSpace::SetDefaultReferenceFrame(ezUniquePtr<ezWindowsSpatialReferenceFrame>&& refFrame)
+{
+  m_pDefaultReferenceFrame = std::move(refFrame);
+}
+
+const ezWindowsSpatialReferenceFrame* ezWindowsHolographicSpace::GetDefaultReferenceFrame() const
+{
+  return m_pDefaultReferenceFrame.Borrow();
+}
+
+
 

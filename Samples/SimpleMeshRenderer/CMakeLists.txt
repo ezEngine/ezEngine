@@ -27,6 +27,7 @@ SET (LINK_LIBRARIES
   GameEngine
   ShaderCompilerHLSL
   FileservePlugin
+  InspectorPlugin
 )
 
 # Application with mixed reality support.

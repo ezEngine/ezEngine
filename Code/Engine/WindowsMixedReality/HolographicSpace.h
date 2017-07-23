@@ -5,36 +5,6 @@
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Types/UniquePtr.h>
 
-
-namespace ABI
-{
-  namespace Windows
-  {
-    namespace Foundation
-    {
-      struct IDeferral;
-    }
-    namespace Graphics
-    {
-      namespace Holographic
-      {
-        struct IHolographicSpaceStatics;
-        struct IHolographicSpace;
-
-        struct IHolographicSpaceCameraAddedEventArgs;
-        struct IHolographicSpaceCameraRemovedEventArgs;
-
-        struct IHolographicCamera;
-        struct IHolographicFrame;
-      }
-    }
-  }
-}
-
-class ezWindowsSpatialLocationService;
-class ezWindowsMixedRealityCamera;
-struct IDXGIAdapter3;
-
 /// \brief Integration of Windows HolographicSpace (WinRT).
 ///
 /// Right now window holographic is the only vr/mr platform we support.
@@ -49,24 +19,21 @@ class EZ_WINDOWSMIXEDREALITY_DLL ezWindowsHolographicSpace
 {
   EZ_DECLARE_SINGLETON(ezWindowsHolographicSpace);
 
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, WindowsHolographicSpace);
+
 public:
   ezWindowsHolographicSpace();
   ~ezWindowsHolographicSpace();
 
-  /// \brief Initializes the holographic space for the main core window. Called automatically on startup.
-  ///
-  /// The holographic space requires a window but also determines the DXGI adpater from which we need to create our DX11 device.
-  /// Historically we first create a device and *then* the window.
-  /// However, since in a VR/AR application we have only a single window anyway and UWP does always have a main window, we can just query that one and don't need to fiddle with our init order.
-  /// (as of writing our UWP window implementation actually doesn't support more than this one preexisting window
-  ezResult InitForMainCoreWindow();
+  /// \brief Has to be called at the start of the game to initialize the default reference frame, etc.
+  void Activate();
 
-  /// Wheather vr/mr headsets are supported at all.
+  /// whether VR/MR headsets are supported at all.
   ///
   /// True for all x64 Windows beyond Creator's Update if the headset was setup already. 
   //bool IsSupported() const;
 
-  /// \brief Wheather a headset is ready for rendering.
+  /// \brief whether a headset is ready for rendering.
   ///
   /// Can be called *before* being initialized with a window.
   bool IsAvailable() const;
@@ -75,6 +42,12 @@ public:
   ///
   /// The location service is fully owned and managed by this class.
   ezWindowsSpatialLocationService& GetSpatialLocationService() { return *m_pLocationService; }
+
+  /// \brief Sets the spatial reference frame that is used as the default reference frame.
+  void SetDefaultReferenceFrame(ezUniquePtr<ezWindowsSpatialReferenceFrame>&& refFrame);
+
+  /// \brief Returns the spatial reference frame that is used as the default reference frame.
+  const ezWindowsSpatialReferenceFrame* GetDefaultReferenceFrame() const;
 
   // Cameras
 public:
@@ -103,10 +76,21 @@ public:
 
   ABI::Windows::Graphics::Holographic::IHolographicSpace* GetInternalHolographicSpace() { return m_pHolographicSpace.Get(); }
 
-
 private:
 
+  /// \brief Initializes the holographic space for the main core window. Called automatically on startup.
+  ///
+  /// The holographic space requires a window but also determines the DXGI adapter from which we need to create our DX11 device.
+  /// Historically we first create a device and *then* the window.
+  /// However, since in a VR/AR application we have only a single window anyway and UWP does always have a main window, we can just query that one and don't need to fiddle with our init order.
+  /// (as of writing our UWP window implementation actually doesn't support more than this one preexisting window
+  ezResult InitForMainCoreWindow();
+
+
   void DeInit();
+
+  /// Disables multi-threaded rendering to reduce frame lag, which has a significant impact on Hologram stability
+  static void DisableMultiThreadedRendering();
 
   /// \brief Updates all camera poses from holographic frame.
   ezResult UpdateCameraPoses(const ComPtr<ABI::Windows::Graphics::Holographic::IHolographicFrame>& pHolographicFrame);
@@ -115,15 +99,11 @@ private:
   HRESULT OnCameraAdded(ABI::Windows::Graphics::Holographic::IHolographicSpace* holographicSpace, ABI::Windows::Graphics::Holographic::IHolographicSpaceCameraAddedEventArgs* args);
   HRESULT OnCameraRemoved(ABI::Windows::Graphics::Holographic::IHolographicSpace* holographicSpace, ABI::Windows::Graphics::Holographic::IHolographicSpaceCameraRemovedEventArgs* args);
 
-
-
-
   /// Static holographic space access. Created on startup. If this is null nothing else will work.
   ComPtr<ABI::Windows::Graphics::Holographic::IHolographicSpaceStatics> m_pHolographicSpaceStatics;
   /// Windows holographic space, created in init method for a specific window.
   ComPtr<ABI::Windows::Graphics::Holographic::IHolographicSpace> m_pHolographicSpace;
 
-  ezUniquePtr<ezWindowsSpatialLocationService> m_pLocationService;
 
   // Camera subscriptions on holographic space.
   EventRegistrationToken m_eventRegistrationOnCameraAdded;
@@ -139,5 +119,13 @@ private:
   ezDynamicArray<ezWindowsMixedRealityCamera*> m_cameras;
   ezDynamicArray<ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCamera>> m_pendingCameraRemovals;
   ezDynamicArray<PendingCameraAddition> m_pendingCameraAdditions;
+
+  // Location
+
+  /// \brief Creates a default reference frame at the current location of the device, if none exists yet.
+  void CreateDefaultReferenceFrame();
+
+  ezUniquePtr<ezWindowsSpatialLocationService> m_pLocationService;
+  ezUniquePtr<ezWindowsSpatialReferenceFrame> m_pDefaultReferenceFrame;
 };
 

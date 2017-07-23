@@ -13,3 +13,4 @@
   #define EZ_WINDOWSMIXEDREALITY_DLL
 #endif
 
+#include <WindowsMixedReality/Declarations.h>

@@ -12,10 +12,8 @@ ezWindowsSpatialReferenceFrame::~ezWindowsSpatialReferenceFrame()
 {
 }
 
-ezResult ezWindowsSpatialReferenceFrame::GetInternalCoordinateSystem(ComPtr<ABI::Windows::Perception::Spatial::ISpatialCoordinateSystem>& outCoordinateSystem) const
+void ezWindowsSpatialReferenceFrame::GetInternalCoordinateSystem(ComPtr<ABI::Windows::Perception::Spatial::ISpatialCoordinateSystem>& outCoordinateSystem) const
 {
-  EZ_HRESULT_TO_FAILURE_LOG(m_pReferenceFrame->get_CoordinateSystem(outCoordinateSystem.GetAddressOf()));
-  return EZ_SUCCESS;
+  EZ_HRESULT_TO_ASSERT(m_pReferenceFrame->get_CoordinateSystem(outCoordinateSystem.GetAddressOf()));
 }
 
-EZ_STATICLINK_FILE(WindowsMixedReality, WindowsMixedReality_SpatialReferenceFrame);

@@ -79,8 +79,7 @@ ezResult ezWindowsMixedRealityCamera::GetViewTransforms(const ezWindowsSpatialRe
     return EZ_FAILURE;
 
   ComPtr<ABI::Windows::Perception::Spatial::ISpatialCoordinateSystem> pCoordinateSystem;
-  if (referenceFrame.GetInternalCoordinateSystem(pCoordinateSystem).Failed())
-    return EZ_FAILURE;
+  referenceFrame.GetInternalCoordinateSystem(pCoordinateSystem);
 
   ComPtr<ABI::Windows::Foundation::__FIReference_1_Windows__CGraphics__CHolographic__CHolographicStereoTransform_t> pStereoTransform;
   EZ_HRESULT_TO_FAILURE_LOG(m_pCurrentPose->TryGetViewTransform(pCoordinateSystem.Get(), &pStereoTransform));
@@ -149,5 +148,4 @@ HRESULT ezWindowsMixedRealityCamera::UpdatePose(ABI::Windows::Graphics::Holograp
 }
 
 
-EZ_STATICLINK_FILE(WindowsMixedReality, WindowsMixedReality_Graphics_MixedRealityCamera);
 

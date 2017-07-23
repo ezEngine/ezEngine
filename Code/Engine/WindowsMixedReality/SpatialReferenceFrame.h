@@ -2,21 +2,6 @@
 
 #include <WindowsMixedReality/Basics.h>
 
-namespace ABI
-{
-  namespace Windows
-  {
-    namespace Perception
-    {
-      namespace Spatial
-      {
-        struct ISpatialStationaryFrameOfReference;
-        struct ISpatialCoordinateSystem;
-      }
-    }
-  }
-}
-
 /// \brief A frame of reference on windows holographic.
 ///
 /// \see ezWindowsSpatialLocationService
@@ -26,7 +11,7 @@ public:
   ezWindowsSpatialReferenceFrame(const ComPtr<ABI::Windows::Perception::Spatial::ISpatialStationaryFrameOfReference>& pReferenceFrame);
   ~ezWindowsSpatialReferenceFrame();
 
-  ezResult GetInternalCoordinateSystem(ComPtr<ABI::Windows::Perception::Spatial::ISpatialCoordinateSystem>& outCoordinateSystem) const;
+  void GetInternalCoordinateSystem(ComPtr<ABI::Windows::Perception::Spatial::ISpatialCoordinateSystem>& outCoordinateSystem) const;
 
 private:
 

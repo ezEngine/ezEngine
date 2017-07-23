@@ -31,5 +31,4 @@ EZ_END_SUBSYSTEM_DECLARATION
 
 
 
-EZ_STATICLINK_FILE(WindowsMixedReality, WindowsMixedReality_Startup);
 

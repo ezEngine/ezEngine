@@ -236,4 +236,3 @@ void ezGALMixedRealityDeviceDX11::EndFramePlatform()
   m_pCurrentHolographicFrame.Reset();
 }
 
-EZ_STATICLINK_FILE(WindowsMixedReality, WindowsMixedReality_Graphics_HolographicDeviceDX11);
