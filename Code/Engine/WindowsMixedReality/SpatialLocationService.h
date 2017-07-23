@@ -3,24 +3,6 @@
 #include <WindowsMixedReality/Basics.h>
 #include <Foundation/Types/UniquePtr.h>
 
-namespace ABI
-{
-  namespace Windows
-  {
-    namespace Perception
-    {
-      namespace Spatial
-      {
-        struct ISpatialLocator;
-        struct ISpatialStationaryFrameOfReference;
-        struct ISpatialCoordinateSystem;
-      }
-    }
-  }
-}
-
-class ezWindowsSpatialReferenceFrame;
-
 enum class ezSpatialLocatability
 {
   Unavailable,                    ///< Error, can't place holograms!
@@ -56,13 +38,29 @@ public:
   /// Creates the simplest possible reference frame - stationary and at the current position and orientation of the headset.
   ezUniquePtr<ezWindowsSpatialReferenceFrame> CreateStationaryReferenceFrame_CurrentLocation();
 
-private:
+  /// \brief Creates a spatial anchor at the given offset relative to the given reference frame.
+  ///
+  /// If the reference frame is null, the default holographic space reference frame is used.
+  /// Only position and rotation from offset are used, scale is ignored.
+  ezUniquePtr<ezWindowsSpatialAnchor> CreateSpatialAnchor(const ezTransform& offset, const ezWindowsSpatialReferenceFrame* pReferenceFrame = nullptr);
 
+  /// \brief Persists an existing spatial anchor under a given name. Anchor names need to be unique.
+  ezResult SavePersistentAnchor(ezWindowsSpatialAnchor& anchor, const char* szID);
+
+  /// \brief Tries to retrieve a spatial anchor by name. Returns null on failure.
+  ezUniquePtr<ezWindowsSpatialAnchor> LoadPersistentAnchor(const char* szID);
+
+
+private:
+  void LoadSpatialAnchorMap();
   HRESULT OnLocatabilityChanged(ABI::Windows::Perception::Spatial::ISpatialLocator* locator, IInspectable* args);
 
 
   ComPtr<ABI::Windows::Perception::Spatial::ISpatialLocator> m_pSpatialLocator;
+  ComPtr<ABI::Windows::Perception::Spatial::ISpatialAnchorStore> m_pStore;
+
   EventRegistrationToken m_eventRegistrationLocatabilityChanged;
 
   ezSpatialLocatability m_currentLocatability;
+  
 };

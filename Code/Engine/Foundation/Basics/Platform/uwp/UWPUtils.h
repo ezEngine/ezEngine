@@ -54,6 +54,7 @@ namespace ezUwpUtils
   }
 
   ezMat4 EZ_FOUNDATION_DLL ConvertMat4(const ABI::Windows::Foundation::Numerics::Matrix4x4& in);
+  ezMat4 EZ_FOUNDATION_DLL ConvertMat4(ABI::Windows::Foundation::__FIReference_1_Windows__CFoundation__CNumerics__CMatrix4x4_t* in);
 
   ezVec3 EZ_FOUNDATION_DLL ConvertVec3(const ABI::Windows::Foundation::Numerics::Vector3& in);
   void EZ_FOUNDATION_DLL ConvertVec3(const ezVec3& in, ABI::Windows::Foundation::Numerics::Vector3& out);

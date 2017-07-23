@@ -3,7 +3,7 @@
 #include <WindowsMixedReality/SpatialReferenceFrame.h>
 
 #include <windows.perception.spatial.h>
-
+#include <windows.foundation.collections.h>
 #include <wrl/event.h>
 
 ezWindowsSpatialLocationService::ezWindowsSpatialLocationService(const ComPtr<ABI::Windows::Perception::Spatial::ISpatialLocator>& pSpatialLocator)
@@ -15,6 +15,8 @@ ezWindowsSpatialLocationService::ezWindowsSpatialLocationService(const ComPtr<AB
   {
     ezLog::Error("Failed to subscribe for locatability changes on spatial locator.");
   }
+
+  LoadSpatialAnchorMap();
 
   // Update internal state.
   OnLocatabilityChanged(m_pSpatialLocator.Get(), nullptr);
@@ -75,4 +77,83 @@ ezUniquePtr<ezWindowsSpatialReferenceFrame> ezWindowsSpatialLocationService::Cre
   return EZ_DEFAULT_NEW(ezWindowsSpatialReferenceFrame, pFrame);
 }
 
-EZ_STATICLINK_FILE(WindowsMixedReality, WindowsMixedReality_HolographicLocationService);
+ezUniquePtr<ezWindowsSpatialAnchor> ezWindowsSpatialLocationService::CreateSpatialAnchor(const ezTransform& offset, const ezWindowsSpatialReferenceFrame* pReferenceFrame /*= nullptr*/)
+{
+  if (pReferenceFrame == nullptr)
+  {
+    pReferenceFrame = ezWindowsHolographicSpace::GetSingleton()->GetDefaultReferenceFrame();
+  }
+
+  ComPtr<ABI::Windows::Perception::Spatial::ISpatialAnchorStatics> pSpatialAnchorStatics;
+  ezUwpUtils::RetrieveStatics(RuntimeClass_Windows_Perception_Spatial_SpatialAnchor, pSpatialAnchorStatics);
+
+  ComPtr<ABI::Windows::Perception::Spatial::ISpatialCoordinateSystem> pCoordinateSystem;
+  pReferenceFrame->GetInternalCoordinateSystem(pCoordinateSystem);
+
+  Numerics::Vector3 position;
+  ezUwpUtils::ConvertVec3(offset.m_vPosition, position);
+
+  /// \todo Rotation does not seem to work as expected
+  Numerics::Quaternion rotation;
+  ezUwpUtils::ConvertQuat(offset.m_qRotation, rotation);
+
+  ComPtr<ABI::Windows::Perception::Spatial::ISpatialAnchor> pAnchor;
+  if (FAILED(pSpatialAnchorStatics->TryCreateWithPositionRelativeTo(pCoordinateSystem.Get(), position, &pAnchor)))
+  {
+    return nullptr;
+  }
+
+  return EZ_DEFAULT_NEW(ezWindowsSpatialAnchor, pAnchor);
+}
+
+void ezWindowsSpatialLocationService::LoadSpatialAnchorMap()
+{
+  ComPtr<ABI::Windows::Perception::Spatial::ISpatialAnchorManagerStatics> manager;
+  ezUwpUtils::RetrieveStatics(RuntimeClass_Windows_Perception_Spatial_SpatialAnchorManager, manager);
+
+  ComPtr<__FIAsyncOperation_1_Windows__CPerception__CSpatial__CSpatialAnchorStore> storeAsync;
+  if (SUCCEEDED(manager->RequestStoreAsync(&storeAsync)))
+  {
+    storeAsync->put_Completed(Microsoft::WRL::Callback< IAsyncOperationCompletedHandler< ABI::Windows::Perception::Spatial::SpatialAnchorStore* > >(
+      [this](IAsyncOperation< ABI::Windows::Perception::Spatial::SpatialAnchorStore* >* pHandler, AsyncStatus status)
+    {
+      if (SUCCEEDED(pHandler->GetResults(&m_pStore)))
+      {
+        ezLog::Dev("Successfully retrieved spatial anchor storage.");
+      }
+      return S_OK;
+    }).Get());
+  }
+}
+
+ezResult ezWindowsSpatialLocationService::SavePersistentAnchor(ezWindowsSpatialAnchor& anchor, const char* szID)
+{
+  if (!m_pStore)
+    return EZ_FAILURE;
+
+  /// \todo Without this, saving will fail. Idk if that means you can only store a single persistent anchor (atm) ?
+  m_pStore->Clear();
+
+  boolean res = false;
+  if (FAILED(m_pStore->TrySave(ezStringHString(szID).GetData().Get(), anchor.m_pSpatialAnchor.Get(), &res)))
+    return EZ_FAILURE;
+
+  return (res == TRUE) ? EZ_SUCCESS : EZ_FAILURE;
+}
+
+ezUniquePtr<ezWindowsSpatialAnchor> ezWindowsSpatialLocationService::LoadPersistentAnchor(const char* szID)
+{
+  if (!m_pStore)
+    return nullptr;
+
+  ComPtr<__FIMapView_2_HSTRING_Windows__CPerception__CSpatial__CSpatialAnchor> anchorMap;
+  if (FAILED(m_pStore->GetAllSavedAnchors(&anchorMap)))
+    return nullptr;
+
+  ComPtr<ABI::Windows::Perception::Spatial::ISpatialAnchor> pSpatialAnchorResult;
+  if (FAILED(anchorMap->Lookup(ezStringHString(szID).GetData().Get(), &pSpatialAnchorResult)))
+    return nullptr;
+
+  return EZ_DEFAULT_NEW(ezWindowsSpatialAnchor, pSpatialAnchorResult);
+}
+

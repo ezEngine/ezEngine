@@ -13,11 +13,18 @@ ezMat4 ezUwpUtils::ConvertMat4(const ABI::Windows::Foundation::Numerics::Matrix4
                 in.M14, in.M24, in.M34, in.M44);
 }
 
+ezMat4 EZ_FOUNDATION_DLL ezUwpUtils::ConvertMat4(ABI::Windows::Foundation::__FIReference_1_Windows__CFoundation__CNumerics__CMatrix4x4_t* in)
+{
+  ABI::Windows::Foundation::Numerics::Matrix4x4 tmp;
+  in->get_Value(&tmp);
+
+  return ezUwpUtils::ConvertMat4(tmp);
+}
+
 ezVec3 ezUwpUtils::ConvertVec3(const ABI::Windows::Foundation::Numerics::Vector3& in)
 {
   return ezVec3(in.X, in.Y, in.Z);
 }
-
 
 ezVec3 EZ_FOUNDATION_DLL ezUwpUtils::ConvertVec3(ABI::Windows::Foundation::__FIReference_1_Windows__CFoundation__CNumerics__CVector3_t* in)
 {
