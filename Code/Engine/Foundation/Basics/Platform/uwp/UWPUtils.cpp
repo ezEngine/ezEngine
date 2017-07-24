@@ -4,6 +4,7 @@
 
 #include <Foundation/Basics/Platform/uwp/UWPUtils.h>
 #include <Windows.Foundation.numerics.h>
+#include <Foundation/Types/Uuid.h>
 
 ezMat4 ezUwpUtils::ConvertMat4(const ABI::Windows::Foundation::Numerics::Matrix4x4& in)
 {
@@ -53,5 +54,16 @@ void ezUwpUtils::ConvertQuat(const ezQuat& in, ABI::Windows::Foundation::Numeric
   out.Z = in.v.z;
   out.W = in.w;
 }
+
+ezUuid ezUwpUtils::ConvertGuid(const GUID& in)
+{
+  return *reinterpret_cast<const ezUuid*>(&in);
+}
+
+void ezUwpUtils::ConvertGuid(const ezUuid& in, GUID& out)
+{
+  ezMemoryUtils::Copy(reinterpret_cast<ezUInt32*>(&out), reinterpret_cast<const ezUInt32 *>(&in), 4);
+}
+
 
 #endif

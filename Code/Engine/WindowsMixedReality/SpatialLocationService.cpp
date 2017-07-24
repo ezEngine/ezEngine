@@ -114,21 +114,20 @@ ezUniquePtr<ezWindowsSpatialAnchor> ezWindowsSpatialLocationService::CreateSpati
 
 void ezWindowsSpatialLocationService::LoadSpatialAnchorMap()
 {
+  using namespace ABI::Windows::Perception::Spatial;
+
   ComPtr<ABI::Windows::Perception::Spatial::ISpatialAnchorManagerStatics> manager;
   ezUwpUtils::RetrieveStatics(RuntimeClass_Windows_Perception_Spatial_SpatialAnchorManager, manager);
 
-  ComPtr<__FIAsyncOperation_1_Windows__CPerception__CSpatial__CSpatialAnchorStore> storeAsync;
-  if (SUCCEEDED(manager->RequestStoreAsync(&storeAsync)))
+  ComPtr<__FIAsyncOperation_1_Windows__CPerception__CSpatial__CSpatialAnchorStore> pAsyncOp;
+  if (SUCCEEDED(manager->RequestStoreAsync(&pAsyncOp)))
   {
-    storeAsync->put_Completed(Microsoft::WRL::Callback< IAsyncOperationCompletedHandler< ABI::Windows::Perception::Spatial::SpatialAnchorStore* > >(
-      [this](IAsyncOperation< ABI::Windows::Perception::Spatial::SpatialAnchorStore* >* pHandler, AsyncStatus status)
+    ezUwpUtils::ezWinRtPutCompleted<SpatialAnchorStore*, ComPtr<ISpatialAnchorStore>>
+      (pAsyncOp, [this](const ComPtr<ISpatialAnchorStore>& pResult)
     {
-      if (SUCCEEDED(pHandler->GetResults(&m_pStore)))
-      {
-        ezLog::Dev("Successfully retrieved spatial anchor storage.");
-      }
-      return S_OK;
-    }).Get());
+      ezLog::Dev("Successfully retrieved spatial anchor storage.");
+      m_pStore = pResult;
+    });
   }
 }
 
