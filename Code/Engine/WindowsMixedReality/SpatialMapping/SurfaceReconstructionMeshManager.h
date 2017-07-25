@@ -27,6 +27,7 @@ struct ezSurfaceMeshInfo
   ezInt64 m_iLastUpdate = 0; ///< If this is set to zero, the mesh was deleted
   ezTransform m_Transform;
   ezMeshBufferResourceDescriptor m_MeshData;
+  bool m_bIsObserved = true;
 
   //////////////////////////////////////////////////////////////////////////
   //ezGameObjectHandle m_hGameObject;
@@ -50,6 +51,8 @@ public:
 
   void PullCurrentSurfaces();
 
+  void ClearUnobservedSurfaces();
+
   ezEvent<const ezSrmManagerEvent&> m_Events;
 
 
@@ -64,12 +67,10 @@ private:
   void UpdateSurfaceMesh(const ezUuid& guid, ABI::Windows::Perception::Spatial::Surfaces::ISpatialSurfaceMesh* pMesh);
   void UpdateMeshData(ezMeshBufferResourceDescriptor& mb, ABI::Windows::Perception::Spatial::Surfaces::ISpatialSurfaceMesh* pMesh);
 
-  void CreateMeshGameObject(const ezUuid& guid);
   void ClearSurfaceMesh(const ezUuid& guid);
 
   mutable ezMutex m_Mutex;
   ComPtr<ABI::Windows::Perception::Spatial::Surfaces::ISpatialSurfaceObserver> m_pSurfaceObserver;
   SrmAvailability m_SrmAvailability = SrmAvailability::Pending;
-  //ezWorld* m_pWorld = nullptr;
   ezMap<ezUuid, ezSurfaceMeshInfo> m_Surfaces;
 };

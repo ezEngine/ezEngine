@@ -1,0 +1,7 @@
+string %Shader { "Shaders/Materials/SRM.ezShader" }
+
+Permutation
+{
+  string %Variable { "SRM_VISIBLE" }
+  string %Value { "FALSE" }
+}

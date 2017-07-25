@@ -3,9 +3,6 @@
 #include <WindowsMixedReality/HolographicSpace.h>
 #include <WindowsMixedReality/SpatialReferenceFrame.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
-#include <Core/World/World.h>
-#include <RendererCore/Meshes/MeshResource.h>
-#include <RendererCore/Meshes/MeshComponent.h>
 
 // Warning	C4467	usage of ATL attributes is deprecated
 #define EZ_MSVC_WARNING_NUMBER 4467
@@ -139,12 +136,19 @@ void ezSurfaceReconstructionMeshManager::CreateSurfaceObserver()
 
 void ezSurfaceReconstructionMeshManager::PullCurrentSurfaces()
 {
-  //m_pWorld = pWorld;
-  //if (m_pWorld == nullptr)
-  //  return;
-
   if (m_pSurfaceObserver == nullptr)
     return;
+
+  // tag all surfaces as 'unobserved'
+  {
+    EZ_LOCK(m_Mutex);
+
+    for (auto it = m_Surfaces.GetIterator(); it.IsValid(); ++it)
+    {
+      // tag all surfaces as 'removed'
+      it.Value().m_bIsObserved = false;
+    }
+  }
 
   ComPtr<__FIMapView_2_GUID_Windows__CPerception__CSpatial__CSurfaces__CSpatialSurfaceInfo> surfaceMap;
   m_pSurfaceObserver->GetObservedSurfaces(&surfaceMap);
@@ -156,6 +160,8 @@ void ezSurfaceReconstructionMeshManager::PullCurrentSurfaces()
     UpdateSurface(ezUwpUtils::ConvertGuid(key), pSurfaceInfo);
     return true;
   });
+
+  ClearUnobservedSurfaces();
 }
 
 const ezMap<ezUuid, ezSurfaceMeshInfo>& ezSurfaceReconstructionMeshManager::BeginAccessingSurfaces()
@@ -178,6 +184,7 @@ void ezSurfaceReconstructionMeshManager::UpdateSurface(const ezUuid& guid, Surfa
     EZ_LOCK(m_Mutex);
 
     auto& surface = m_Surfaces[guid];
+    surface.m_bIsObserved = true;
     if (surface.m_iLastUpdate == lastUpdate.UniversalTime)
       return;
   }
@@ -193,7 +200,7 @@ void ezSurfaceReconstructionMeshManager::UpdateSurface(const ezUuid& guid, Surfa
 
   /// \todo Make detail setting configurable
   ComPtr<IAsyncOperation<Surfaces::SpatialSurfaceMesh*>> pAsyncComputeMesh;
-  pSurfaceInfo->TryComputeLatestMeshWithOptionsAsync(500, pMeshOptions.Get(), &pAsyncComputeMesh);
+  pSurfaceInfo->TryComputeLatestMeshWithOptionsAsync(200, pMeshOptions.Get(), &pAsyncComputeMesh);
 
   ezUwpUtils::ezWinRtPutCompleted<Surfaces::SpatialSurfaceMesh*, ComPtr<Surfaces::ISpatialSurfaceMesh>>(pAsyncComputeMesh, [this, guid](const ComPtr<Surfaces::ISpatialSurfaceMesh>& pMesh)
   {
@@ -255,8 +262,13 @@ void ezSurfaceReconstructionMeshManager::UpdateSurfaceMesh(const ezUuid& guid, S
   ezMeshBufferResourceDescriptor& mb = surface.m_MeshData;
   UpdateMeshData(mb, pMesh);
 
-  //////////////////////////////////////////////////////////////////////////
-  CreateMeshGameObject(guid);
+  {
+    ezSrmManagerEvent e;
+    e.m_pManager = this;
+    e.m_Type = ezSrmManagerEvent::Type::MeshUpdated;
+    e.m_MeshGuid = guid;
+    m_Events.Broadcast(e);
+  }
 }
 
 void ezSurfaceReconstructionMeshManager::UpdateMeshData(ezMeshBufferResourceDescriptor& mb, Surfaces::ISpatialSurfaceMesh* pMesh)
@@ -333,8 +345,6 @@ void ezSurfaceReconstructionMeshManager::UpdateMeshData(ezMeshBufferResourceDesc
 
 void ezSurfaceReconstructionMeshManager::ClearSurfaceMesh(const ezUuid& guid)
 {
-  //EZ_LOCK(m_pWorld->GetWriteMarker());
-
   auto it = m_Surfaces.Find(guid);
   if (it.IsValid())
   {
@@ -346,57 +356,28 @@ void ezSurfaceReconstructionMeshManager::ClearSurfaceMesh(const ezUuid& guid)
     e.m_Type = ezSrmManagerEvent::Type::MeshRemoved;
     e.m_MeshGuid = guid;
     m_Events.Broadcast(e);
-
-    //////////////////////////////////////////////////////////////////////////
-
-    //if (!surface.m_hGameObject.IsInvalidated())
-    //{
-    //  m_pWorld->DeleteObjectDelayed(surface.m_hGameObject);
-    //  surface.m_hGameObject.Invalidate();
-    //}
   }
 }
 
-void ezSurfaceReconstructionMeshManager::CreateMeshGameObject(const ezUuid& guid)
+void ezSurfaceReconstructionMeshManager::ClearUnobservedSurfaces()
 {
-  //EZ_LOCK(m_pWorld->GetWriteMarker());
+  EZ_LOCK(m_Mutex);
 
-  ezSrmManagerEvent e;
-  e.m_pManager = this;
-  e.m_Type = ezSrmManagerEvent::Type::MeshUpdated;
-  e.m_MeshGuid = guid;
-  m_Events.Broadcast(e);
-
-  //////////////////////////////////////////////////////////////////////////
-
-  //ClearSurfaceMesh(guid);
-
-  //auto& surface = m_Surfaces[guid];
-
-  //ezStringBuilder sGuid;
-  //ezConversionUtils::ToString(guid, sGuid);
-
-  //ezStringBuilder sName;
-  //sName.Format("SRMB_{0}_{1}", sGuid, surface.m_iLastUpdate);
-  //ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(sName, surface.m_MeshData);
-
-  //ezMeshResourceDescriptor meshDesc;
-  //meshDesc.UseExistingMeshBuffer(hMeshBuffer);
-  //meshDesc.AddSubMesh(surface.m_MeshData.GetPrimitiveCount(), 0, 0);
-  //meshDesc.SetMaterial(0, "Materials/BaseMaterials/MissingMesh.ezMaterial");
-  //meshDesc.ComputeBounds();
-
-  //sName.Format("SRM_{0}_{1}", sGuid, surface.m_iLastUpdate);
-  //ezMeshResourceHandle hMeshResource = ezResourceManager::CreateResource<ezMeshResource>(sName, meshDesc);
-
-  //ezGameObjectDesc obj;
-  //ezGameObject* pObject;
-  //m_pWorld->CreateObject(obj, pObject);
-
-  //ezMeshComponentManager* pMeshMan = m_pWorld->GetOrCreateComponentManager<ezMeshComponentManager>();
-
-  //ezMeshComponent* pMeshComp;
-  //pMeshMan->CreateComponent(pObject, pMeshComp);
-
-  //pMeshComp->SetMesh(hMeshResource);
+  for (auto it = m_Surfaces.GetIterator(); it.IsValid(); )
+  {
+    // remove all surfaces that still have the tag
+    if (it.Value().m_bIsObserved == false)
+    {
+      const ezUuid guid = it.Key();
+      ++it;
+      
+      ezLog::Debug("Clearing outdated surface");
+      ClearSurfaceMesh(guid);
+    }
+    else
+    {
+      ++it;
+    }
+  }
 }
+

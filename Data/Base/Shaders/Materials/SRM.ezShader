@@ -1,0 +1,119 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+SHADING_QUALITY = SHADING_QUALITY_SIMPLIFIED
+BLEND_MODE = BLEND_MODE_OPAQUE
+TOPOLOGY = TOPOLOGY_TRIANGLES
+MSAA = FALSE
+RENDER_PASS
+CAMERA_STEREO
+SRM_VISIBLE
+TWO_SIDED = FALSE
+
+[RENDERSTATE]
+
+#if SRM_VISIBLE
+  WireFrame = true
+#endif
+
+CullMode = CullMode_Back
+DepthTest = true
+DepthWrite = true
+DepthTestFunc = CompareFunc_LessEqual
+
+[VERTEXSHADER]
+
+#include <Shaders/Materials/DefaultMaterialCB.h>
+#include <Shaders/Materials/MaterialVertexShader.h>
+
+VS_OUT main(VS_IN Input)
+{
+  return FillVertexData(Input);
+}
+
+[GEOMETRYSHADER]
+
+#if TOPOLOGY == TOPOLOGY_TRIANGLES
+
+struct GS_IN
+{
+  float4 Position : SV_Position;
+  float3 WorldPos : WORLDPOS;
+  uint InstanceOffset : INSTANCEOFFSET;
+};
+
+struct GS_OUT
+{
+  float4 Position : SV_Position;
+  float3 WorldPos : WORLDPOS;
+  float3 Normal : NORMAL;
+  uint InstanceOffset : INSTANCEOFFSET;
+#if CAMERA_STEREO == TRUE
+  uint RenderTargetArrayIndex : SV_RenderTargetArrayIndex;
+#endif
+};
+
+[maxvertexcount(3)]
+void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
+{
+  float3 edge1 = input[1].WorldPos - input[0].WorldPos;
+  float3 edge2 = input[2].WorldPos - input[0].WorldPos;
+  float3 normal = normalize(cross(edge1, edge2));
+
+  GS_OUT output;
+
+  for (uint i = 0; i < 3; ++i)
+  {
+    output.Position = input[i].Position;
+    output.WorldPos = input[i].WorldPos;
+    output.Normal = normal;
+    output.InstanceOffset = input[i].InstanceOffset;
+#if CAMERA_STEREO == TRUE
+    output.RenderTargetArrayIndex = input[i].InstanceOffset % 2;
+#endif
+
+    outputStream.Append(output);
+  }
+
+  outputStream.RestartStrip();
+}
+
+#endif
+
+[PIXELSHADER]
+
+#define USE_NORMAL
+
+#include <Shaders/Materials/DefaultMaterialCB.h>
+#include <Shaders/Materials/MaterialPixelShader.h>
+
+float3 GetNormal(PS_IN Input)
+{
+  return Input.Normal;
+}
+
+float3 GetDiffuseColor(PS_IN Input)
+{
+  #if SRM_VISIBLE
+    return float3(0.5, 0.5, 0.5);
+  #else
+    return float3(0.0, 0.0, 0.0);
+  #endif
+}
+
+float3 GetSpecularColor(PS_IN Input)
+{
+  return 0.0f;
+}
+
+float GetRoughness(PS_IN Input)
+{
+  return 1.0f;
+}
+
+float GetOpacity(PS_IN Input)
+{
+  return 1.0f;
+}

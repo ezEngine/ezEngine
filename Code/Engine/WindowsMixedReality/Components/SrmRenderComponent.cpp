@@ -11,14 +11,19 @@
 
 EZ_BEGIN_COMPONENT_TYPE(ezSrmRenderComponent, 1)
 {
-  //EZ_BEGIN_PROPERTIES
-  //{
-  //}
-  //EZ_END_PROPERTIES
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("Material"), new ezDefaultValueAttribute("Materials/Common/SRM_Visible.ezMaterial")),
+  }
+  EZ_END_PROPERTIES
 }
 EZ_END_COMPONENT_TYPE
 
-ezSrmRenderComponent::ezSrmRenderComponent() { }
+ezSrmRenderComponent::ezSrmRenderComponent()
+{
+  SetMaterialFile("Materials/Common/SRM_Visible.ezMaterial");
+}
+
 ezSrmRenderComponent::~ezSrmRenderComponent() { }
 
 void ezSrmRenderComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -69,6 +74,31 @@ void ezSrmRenderComponent::OnDeactivated()
   }
 
   m_SrmRenderObjects.Clear();
+}
+
+void ezSrmRenderComponent::SetMaterialFile(const char* szFile)
+{
+  ezMaterialResourceHandle hResource;
+
+  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  {
+    hResource = ezResourceManager::LoadResource<ezMaterialResource>(szFile);
+  }
+
+  SetMaterial(hResource);
+}
+
+const char* ezSrmRenderComponent::GetMaterialFile() const
+{
+  if (!m_hMaterial.IsValid())
+    return "";
+
+  return m_hMaterial.GetResourceID();
+}
+
+void ezSrmRenderComponent::SetMaterial(const ezMaterialResourceHandle& hMaterial)
+{
+  m_hMaterial = hMaterial;
 }
 
 void ezSrmRenderComponent::SurfaceReconstructionManagerEventHandler(const ezSrmManagerEvent& e)
@@ -135,6 +165,12 @@ void ezSrmRenderComponent::CreateSurfaceRepresentation(const ezUuid& guid, SrmRe
 {
   EZ_LOCK(GetWorld()->GetWriteMarker());
 
+  if (!surface.m_hGameObject.IsInvalidated())
+  {
+    GetWorld()->DeleteObjectDelayed(surface.m_hGameObject);
+    surface.m_hGameObject.Invalidate();
+  }
+
   ezStringBuilder sGuid;
   ezConversionUtils::ToString(guid, sGuid);
 
@@ -145,7 +181,7 @@ void ezSrmRenderComponent::CreateSurfaceRepresentation(const ezUuid& guid, SrmRe
   ezMeshResourceDescriptor meshDesc;
   meshDesc.UseExistingMeshBuffer(hMeshBuffer);
   meshDesc.AddSubMesh(mb.GetPrimitiveCount(), 0, 0);
-  meshDesc.SetMaterial(0, "Materials/BaseMaterials/MissingMesh.ezMaterial");
+  meshDesc.SetMaterial(0, GetMaterialFile());
   meshDesc.ComputeBounds();
 
   sName.Format("SRM_{0}_{1}", sGuid, surface.m_iLastUpdate);

@@ -374,10 +374,20 @@ EZ_DECLARE_FLAGS_OPERATORS(ezInputSlotFlags);
 // Spatial Input Data (Tracked Hands or Controllers)
 //
 
-#define ezInputSlot_Spatial_Hand0_Tap "spatial_hand0_tap"
+#define ezInputSlot_Spatial_Hand0_Tracked "spatial_hand0_tracked"
+#define ezInputSlot_Spatial_Hand0_Pressed "spatial_hand0_pressed"
 #define ezInputSlot_Spatial_Hand0_PositionPosX "spatial_hand0_position_posx"
 #define ezInputSlot_Spatial_Hand0_PositionPosY "spatial_hand0_position_posy"
 #define ezInputSlot_Spatial_Hand0_PositionPosZ "spatial_hand0_position_posz"
 #define ezInputSlot_Spatial_Hand0_PositionNegX "spatial_hand0_position_negx"
 #define ezInputSlot_Spatial_Hand0_PositionNegY "spatial_hand0_position_negy"
 #define ezInputSlot_Spatial_Hand0_PositionNegZ "spatial_hand0_position_negz"
+
+#define ezInputSlot_Spatial_Hand1_Tracked "spatial_hand1_tracked"
+#define ezInputSlot_Spatial_Hand1_Pressed "spatial_hand1_pressed"
+#define ezInputSlot_Spatial_Hand1_PositionPosX "spatial_hand1_position_posx"
+#define ezInputSlot_Spatial_Hand1_PositionPosY "spatial_hand1_position_posy"
+#define ezInputSlot_Spatial_Hand1_PositionPosZ "spatial_hand1_position_posz"
+#define ezInputSlot_Spatial_Hand1_PositionNegX "spatial_hand1_position_negx"
+#define ezInputSlot_Spatial_Hand1_PositionNegY "spatial_hand1_position_negy"
+#define ezInputSlot_Spatial_Hand1_PositionNegZ "spatial_hand1_position_negz"

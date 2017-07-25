@@ -3,9 +3,11 @@
 #include <WindowsMixedReality/Basics.h>
 #include <Core/World/SettingsComponent.h>
 #include <Core/World/SettingsComponentManager.h>
+#include <Core/ResourceManager/ResourceHandle.h>
 
 struct ezSrmManagerEvent;
 struct ezMeshBufferResourceDescriptor;
+typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +36,11 @@ protected:
   // 
 public:
 
+  void SetMaterialFile(const char* szFile);
+  const char* GetMaterialFile() const;
 
+  void SetMaterial(const ezMaterialResourceHandle& hMaterial);
+  EZ_ALWAYS_INLINE const ezMaterialResourceHandle& GetMaterial() const { return m_hMaterial; }
 
 
 protected:
@@ -50,5 +56,6 @@ protected:
   void UpdateSurfaceRepresentation(const ezUuid& guid);
   void CreateSurfaceRepresentation(const ezUuid& guid, SrmRenderObject& surface, const ezTransform& transform, const ezMeshBufferResourceDescriptor& mb);
 
+  ezMaterialResourceHandle m_hMaterial;
   ezMap<ezUuid, SrmRenderObject> m_SrmRenderObjects;
 };
