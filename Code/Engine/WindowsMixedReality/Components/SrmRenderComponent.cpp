@@ -1,0 +1,170 @@
+﻿#include <PCH.h>
+#include <WindowsMixedReality/Components/SrmRenderComponent.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <Core/WorldSerializer/WorldReader.h>
+#include <WindowsMixedReality/SpatialMapping/SurfaceReconstructionMeshManager.h>
+#include <RendererCore/Meshes/MeshResourceDescriptor.h>
+#include <RendererCore/Meshes/MeshResource.h>
+#include <RendererCore/Meshes/MeshComponent.h>
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_COMPONENT_TYPE(ezSrmRenderComponent, 1)
+{
+  //EZ_BEGIN_PROPERTIES
+  //{
+  //}
+  //EZ_END_PROPERTIES
+}
+EZ_END_COMPONENT_TYPE
+
+ezSrmRenderComponent::ezSrmRenderComponent() { }
+ezSrmRenderComponent::~ezSrmRenderComponent() { }
+
+void ezSrmRenderComponent::SerializeComponent(ezWorldWriter& stream) const
+{
+  SUPER::SerializeComponent(stream);
+  ezStreamWriter& s = stream.GetStream();
+}
+
+void ezSrmRenderComponent::DeserializeComponent(ezWorldReader& stream)
+{
+  SUPER::DeserializeComponent(stream);
+  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  ezStreamReader& s = stream.GetStream();
+}
+
+void ezSrmRenderComponent::OnActivated()
+{
+  ezSurfaceReconstructionMeshManager* pMan = ezSurfaceReconstructionMeshManager::GetSingleton();
+  if (pMan == nullptr)
+    return;
+
+  pMan->m_Events.AddEventHandler(ezMakeDelegate(&ezSrmRenderComponent::SurfaceReconstructionManagerEventHandler, this));
+
+  const auto& surfaces = pMan->BeginAccessingSurfaces();
+
+  for (auto it = surfaces.GetIterator(); it.IsValid(); ++it)
+  {
+    UpdateSurfaceRepresentation(it.Key());
+  }
+
+  pMan->EndAccessingSurfaces();
+}
+
+void ezSrmRenderComponent::OnDeactivated()
+{
+  ezSurfaceReconstructionMeshManager* pMan = ezSurfaceReconstructionMeshManager::GetSingleton();
+  if (pMan == nullptr)
+    return;
+
+  if (pMan->m_Events.HasEventHandler(ezMakeDelegate(&ezSrmRenderComponent::SurfaceReconstructionManagerEventHandler, this)))
+  {
+    pMan->m_Events.RemoveEventHandler(ezMakeDelegate(&ezSrmRenderComponent::SurfaceReconstructionManagerEventHandler, this));
+  }
+
+  for (auto it = m_SrmRenderObjects.GetIterator(); it.IsValid(); ++it)
+  {
+    RemoveSrmRenderObject(it.Key());
+  }
+
+  m_SrmRenderObjects.Clear();
+}
+
+void ezSrmRenderComponent::SurfaceReconstructionManagerEventHandler(const ezSrmManagerEvent& e)
+{
+  if (e.m_Type == ezSrmManagerEvent::Type::MeshRemoved)
+  {
+    RemoveSrmRenderObject(e.m_MeshGuid);
+    return;
+  }
+
+  if (e.m_Type == ezSrmManagerEvent::Type::MeshUpdated)
+  {
+    UpdateSurfaceRepresentation(e.m_MeshGuid);
+  }
+}
+
+void ezSrmRenderComponent::RemoveSrmRenderObject(const ezUuid& guid)
+{
+  auto it = m_SrmRenderObjects.Find(guid);
+
+  if (!it.IsValid())
+    return;
+
+  if (!it.Value().m_hGameObject.IsInvalidated())
+  {
+    GetWorld()->DeleteObjectDelayed(it.Value().m_hGameObject);
+    it.Value().m_hGameObject.Invalidate();
+  }
+
+  m_SrmRenderObjects.Remove(it);
+}
+
+void ezSrmRenderComponent::UpdateSurfaceRepresentation(const ezUuid& guid)
+{
+  ezSurfaceReconstructionMeshManager* pMan = ezSurfaceReconstructionMeshManager::GetSingleton();
+
+  const auto& surfaces = pMan->BeginAccessingSurfaces();
+  auto itSurf = surfaces.Find(guid);
+
+  if (!itSurf.IsValid())
+    goto end;
+
+  const auto& surface = itSurf.Value();
+  auto& ownSurface = m_SrmRenderObjects[guid];
+
+  if (surface.m_iLastUpdate == 0) // removed
+  {
+    RemoveSrmRenderObject(guid);
+    goto end;
+  }
+
+  if (ownSurface.m_iLastUpdate >= surface.m_iLastUpdate)
+    goto end;
+
+  ownSurface.m_iLastUpdate = surface.m_iLastUpdate;
+
+  CreateSurfaceRepresentation(guid, ownSurface, surface.m_Transform, surface.m_MeshData);
+
+end:
+  pMan->EndAccessingSurfaces();
+}
+
+void ezSrmRenderComponent::CreateSurfaceRepresentation(const ezUuid& guid, SrmRenderObject& surface, const ezTransform& transform, const ezMeshBufferResourceDescriptor& mb)
+{
+  EZ_LOCK(GetWorld()->GetWriteMarker());
+
+  ezStringBuilder sGuid;
+  ezConversionUtils::ToString(guid, sGuid);
+
+  ezStringBuilder sName;
+  sName.Format("SRMB_{0}_{1}", sGuid, surface.m_iLastUpdate);
+  ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(sName, mb);
+
+  ezMeshResourceDescriptor meshDesc;
+  meshDesc.UseExistingMeshBuffer(hMeshBuffer);
+  meshDesc.AddSubMesh(mb.GetPrimitiveCount(), 0, 0);
+  meshDesc.SetMaterial(0, "Materials/BaseMaterials/MissingMesh.ezMaterial");
+  meshDesc.ComputeBounds();
+
+  sName.Format("SRM_{0}_{1}", sGuid, surface.m_iLastUpdate);
+  ezMeshResourceHandle hMeshResource = ezResourceManager::CreateResource<ezMeshResource>(sName, meshDesc);
+
+  ezGameObjectDesc obj;
+  obj.m_hParent = GetOwner()->GetHandle();
+  obj.m_LocalPosition = transform.m_vPosition;
+  obj.m_LocalRotation = transform.m_qRotation;
+  obj.m_LocalScaling = transform.m_vScale;
+
+  ezGameObject* pObject;
+  surface.m_hGameObject = GetWorld()->CreateObject(obj, pObject);
+
+  ezMeshComponentManager* pMeshMan = GetWorld()->GetOrCreateComponentManager<ezMeshComponentManager>();
+
+  ezMeshComponent* pMeshComp;
+  surface.m_hMeshComponent = pMeshMan->CreateComponent(pObject, pMeshComp);
+
+  pMeshComp->SetMesh(hMeshResource);
+}
+

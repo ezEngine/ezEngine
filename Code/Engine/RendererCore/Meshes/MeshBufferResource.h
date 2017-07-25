@@ -32,6 +32,9 @@ struct EZ_RENDERERCORE_DLL ezMeshBufferResourceDescriptor
 public:
 
   ezMeshBufferResourceDescriptor();
+  ~ezMeshBufferResourceDescriptor();
+
+  void Clear();
 
   /// \brief Use this function to add vertex streams to the mesh buffer. The return value is the index of the just added stream.
   ezUInt32 AddStream(ezGALVertexAttributeSemantic::Enum Semantic, ezGALResourceFormat::Enum Format);
@@ -98,6 +101,7 @@ public:
 
   /// \brief Returns the primitive topology
   ezGALPrimitiveTopology::Enum GetTopology() const { return m_Topology; }
+
 private:
 
   ezGALPrimitiveTopology::Enum m_Topology;

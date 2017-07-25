@@ -11,7 +11,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezMrSpatialAnchorComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezSpatialAnchorComponent, 1)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -21,10 +21,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezMrSpatialAnchorComponent, 1)
 }
 EZ_END_COMPONENT_TYPE
 
-ezMrSpatialAnchorComponent::ezMrSpatialAnchorComponent() { }
-ezMrSpatialAnchorComponent::~ezMrSpatialAnchorComponent() { }
+ezSpatialAnchorComponent::ezSpatialAnchorComponent() { }
+ezSpatialAnchorComponent::~ezSpatialAnchorComponent() { }
 
-void ezMrSpatialAnchorComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezSpatialAnchorComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
   ezStreamWriter& s = stream.GetStream();
@@ -32,7 +32,7 @@ void ezMrSpatialAnchorComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_sAnchorName;
 }
 
-void ezMrSpatialAnchorComponent::DeserializeComponent(ezWorldReader& stream)
+void ezSpatialAnchorComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
   //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
@@ -41,17 +41,17 @@ void ezMrSpatialAnchorComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_sAnchorName;
 }
 
-void ezMrSpatialAnchorComponent::SetPersistentAnchorName(const char* szName)
+void ezSpatialAnchorComponent::SetPersistentAnchorName(const char* szName)
 {
   m_sAnchorName = szName;
 }
 
-const char* ezMrSpatialAnchorComponent::GetPersistentAnchorName() const
+const char* ezSpatialAnchorComponent::GetPersistentAnchorName() const
 {
   return m_sAnchorName;
 }
 
-ezResult ezMrSpatialAnchorComponent::RecreateAnchorAt(const ezTransform& position)
+ezResult ezSpatialAnchorComponent::RecreateAnchorAt(const ezTransform& position)
 {
   auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
   auto pNewAnchor = pHoloSpace->GetSpatialLocationService().CreateSpatialAnchor(position);
@@ -65,7 +65,7 @@ ezResult ezMrSpatialAnchorComponent::RecreateAnchorAt(const ezTransform& positio
   return EZ_SUCCESS;
 }
 
-void ezMrSpatialAnchorComponent::PersistCurrentLocation()
+void ezSpatialAnchorComponent::PersistCurrentLocation()
 {
   if (m_sAnchorName.IsEmpty() || m_pSpatialAnchor == nullptr)
     return;
@@ -76,7 +76,7 @@ void ezMrSpatialAnchorComponent::PersistCurrentLocation()
   }
 }
 
-ezResult ezMrSpatialAnchorComponent::RestorePersistedLocation()
+ezResult ezSpatialAnchorComponent::RestorePersistedLocation()
 {
   if (m_sAnchorName.IsEmpty())
     return EZ_FAILURE;
@@ -92,7 +92,7 @@ ezResult ezMrSpatialAnchorComponent::RestorePersistedLocation()
   return EZ_SUCCESS;
 }
 
-void ezMrSpatialAnchorComponent::Update()
+void ezSpatialAnchorComponent::Update()
 {
   if (!IsActiveAndSimulating() || m_pSpatialAnchor == nullptr)
     return;
@@ -123,7 +123,7 @@ void ezMrSpatialAnchorComponent::Update()
   GetOwner()->SetGlobalTransform(ezTransform(vPos, qRot));
 }
 
-void ezMrSpatialAnchorComponent::OnSimulationStarted()
+void ezSpatialAnchorComponent::OnSimulationStarted()
 {
   auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
 
@@ -135,7 +135,7 @@ void ezMrSpatialAnchorComponent::OnSimulationStarted()
   }
 }
 
-void ezMrSpatialAnchorComponent::OnDeactivated()
+void ezSpatialAnchorComponent::OnDeactivated()
 {
   PersistCurrentLocation();
 }

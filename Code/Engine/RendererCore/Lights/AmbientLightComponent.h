@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Core/World/SettingsComponent.h>
 #include <Core/World/SettingsComponentManager.h>
@@ -6,8 +6,7 @@
 
 struct ezUpdateLocalBoundsMessage;
 
-class ezAmbientLightComponent;
-typedef ezSettingsComponentManager<ezAmbientLightComponent> ezAmbientLightComponentManager;
+typedef ezSettingsComponentManager<class ezAmbientLightComponent> ezAmbientLightComponentManager;
 
 /// \brief The render data object for ambient light.
 class EZ_RENDERERCORE_DLL ezAmbientLightRenderData : public ezRenderData

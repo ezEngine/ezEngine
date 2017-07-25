@@ -8,15 +8,15 @@
 
 class ezWindowsSpatialAnchor;
 
-typedef ezComponentManagerSimple<class ezMrSpatialAnchorComponent, ezComponentUpdateType::WhenSimulating> ezMrSpatialAnchorComponentManager;
+typedef ezComponentManagerSimple<class ezSpatialAnchorComponent, ezComponentUpdateType::WhenSimulating> ezSpatialAnchorComponentManager;
 
-class EZ_WINDOWSMIXEDREALITY_DLL ezMrSpatialAnchorComponent : public ezComponent
+class EZ_WINDOWSMIXEDREALITY_DLL ezSpatialAnchorComponent : public ezComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezMrSpatialAnchorComponent, ezComponent, ezMrSpatialAnchorComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezSpatialAnchorComponent, ezComponent, ezSpatialAnchorComponentManager);
 
 public:
-  ezMrSpatialAnchorComponent();
-  ~ezMrSpatialAnchorComponent();
+  ezSpatialAnchorComponent();
+  ~ezSpatialAnchorComponent();
 
   //
   // ezComponent Interface
@@ -29,7 +29,7 @@ protected:
   virtual void OnDeactivated() override;
 
   //
-  // ezMrSpatialAnchorComponent Interface
+  // ezSpatialAnchorComponent Interface
   // 
 
 public:

@@ -12,6 +12,7 @@
 #include <wrl/wrappers/corewrappers.h>
 #include <wrl/client.h>
 #include <wrl/implements.h>
+#include <wrl/event.h>
 #include <guiddef.h>
 
 class ezUuid;
@@ -115,7 +116,7 @@ namespace ezUwpUtils
     return S_OK;
   }
 
-  /// \brief Helper functions to get the statics / activation factor for a runtime class.
+  /// \brief Helper functions to get the statics / activation factory for a runtime class.
   template<typename T>
   void RetrieveStatics(const WCHAR* szRuntimeClassName, ComPtr<T>& out_Ptr)
   {
@@ -124,6 +125,16 @@ namespace ezUwpUtils
       EZ_REPORT_FAILURE("Failed to retrieve activation factory (statics) for '{0}'", ezStringUtf8(szRuntimeClassName).GetData());
       out_Ptr = nullptr;
     }
+  }
+
+  /// \brief Helper function to create an instance of a runtime class type that does not have a factory function.
+  ///
+  /// \note Only use this function when there is no other way to create an instance of a type.
+  /// Most types can be instantiated through the statics / activation factory.
+  template<typename T>
+  void CreateInstance(const WCHAR* szRuntimeClassName, ComPtr<T>& out_Ptr)
+  {
+    ::RoActivateInstance(HStringReference(szRuntimeClassName).Get(), &out_Ptr);
   }
 
   ezMat4 EZ_FOUNDATION_DLL ConvertMat4(const ABI::Windows::Foundation::Numerics::Matrix4x4& in);

@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
@@ -12,6 +12,21 @@ ezMeshBufferResourceDescriptor::ezMeshBufferResourceDescriptor()
   m_Topology = ezGALPrimitiveTopology::Triangles;
   m_uiVertexSize = 0;
   m_uiVertexCount = 0;
+}
+
+ezMeshBufferResourceDescriptor::~ezMeshBufferResourceDescriptor()
+{
+}
+
+void ezMeshBufferResourceDescriptor::Clear()
+{
+  m_Topology = ezGALPrimitiveTopology::Triangles;
+  m_uiVertexSize = 0;
+  m_uiVertexCount = 0;
+  m_VertexDeclaration.m_uiHash = 0;
+  m_VertexDeclaration.m_VertexStreams.Clear();
+  m_VertexStreamData.Clear();
+  m_IndexBufferData.Clear();
 }
 
 const ezDynamicArray<ezUInt8>& ezMeshBufferResourceDescriptor::GetVertexBufferData() const
