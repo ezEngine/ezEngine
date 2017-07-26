@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Types/UniquePtr.h>
 #include <Foundation/Communication/RemoteInterface.h>
@@ -38,7 +38,7 @@ public:
   /// Call GetServerConnectionAddress() to retrieve the address.
   ///
   /// \param timeout Specifies the timeout for checking whether a server can be reached.
-  ezResult SearchForServerAddress(ezTime timeout = ezTime::Seconds(2));
+  ezResult SearchForServerAddress(ezTime timeout = ezTime::Seconds(20));
 
   /// \brief Waits for a Fileserver application to try to connect to this device and send its own information.
   ///

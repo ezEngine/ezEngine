@@ -6,6 +6,7 @@
 #include <WindowsMixedReality/Graphics/MixedRealityCamera.h>
 #include <WindowsMixedReality/Graphics/MixedRealityDX11Device.h>
 #include <WindowsMixedReality/Graphics/MixedRealitySwapChainDX11.h>
+#include <WindowsMixedReality/SpatialMapping/SurfaceReconstructionMeshManager.h>
 
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameState/GameStateWindow.h>
@@ -19,7 +20,6 @@
 
 #include <windows.perception.spatial.h>
 #include <Core/Input/InputManager.h>
-
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMixedRealityGameState, 1, ezRTTIDefaultAllocator<ezMixedRealityGameState>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -38,17 +38,21 @@ void ezMixedRealityGameState::OnActivation(ezWorld* pWorld)
   m_pMainWindow = EZ_DEFAULT_NEW(ezGameStateWindow, ezWindowCreationDesc());
   GetApplication()->AddWindow(m_pMainWindow, ezGALSwapChainHandle());
 
+  auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
+
   // Holographic/Stereo!
   {
-    m_pDefaultReferenceFrame = ezWindowsHolographicSpace::GetSingleton()->GetSpatialLocationService().CreateStationaryReferenceFrame_CurrentLocation();
+    pHoloSpace->Activate();
 
-    ezWindowsHolographicSpace::GetSingleton()->m_cameraAddedEvent.AddEventHandler(ezMakeDelegate(&ezMixedRealityGameState::OnHolographicCameraAdded, this));
+    pHoloSpace->m_cameraAddedEvent.AddEventHandler(ezMakeDelegate(&ezMixedRealityGameState::OnHolographicCameraAdded, this));
 
-    // Need to handle add/remove cameras before anything else - world update won't happen without a view wich may be created/destroyed by this.
+    // Need to handle add/remove cameras before anything else - world update won't happen without a view which may be created/destroyed by this.
     GetApplication()->m_Events.AddEventHandler([this](const ezGameApplicationEvent& evt)
     {
       if (evt.m_Type == ezGameApplicationEvent::Type::BeginFrame)
+      {
         ezWindowsHolographicSpace::GetSingleton()->ProcessAddedRemovedCameras();
+      }
     });
   }
 
@@ -57,12 +61,17 @@ void ezMixedRealityGameState::OnActivation(ezWorld* pWorld)
   ConfigureInputDevices();
 
   ConfigureInputActions();
+
+  m_pSpatialMappingManager = EZ_DEFAULT_NEW(ezSurfaceReconstructionMeshManager);
 }
 
 void ezMixedRealityGameState::OnDeactivation()
 {
-  ezWindowsHolographicSpace::GetSingleton()->m_cameraAddedEvent.RemoveEventHandler(ezMakeDelegate(&ezMixedRealityGameState::OnHolographicCameraAdded, this));
-  m_pDefaultReferenceFrame.Reset();
+  auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
+
+  pHoloSpace->m_cameraAddedEvent.RemoveEventHandler(ezMakeDelegate(&ezMixedRealityGameState::OnHolographicCameraAdded, this));
+
+  pHoloSpace->SetDefaultReferenceFrame(nullptr);
 }
 
 ezGALDevice* ezMixedRealityGameState::CreateGraphicsDevice(const ezGALDeviceCreationDescription& description)
@@ -94,6 +103,8 @@ void ezMixedRealityGameState::ProcessInput()
   if (!ezStringUtils::IsNullOrEmpty(szPressed))
   {
     ezLog::Info("Pressed: {0}", szPressed);
+
+    m_pSpatialMappingManager->PullCurrentSurfaces();
   }
 }
 
@@ -106,18 +117,20 @@ void ezMixedRealityGameState::AfterWorldUpdate()
 {
   EZ_LOCK(m_pMainWorld->GetReadMarker());
 
+  auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
+
   // Update the camera transform after world update so the owner node has its final position for this frame.
   // Setting the camera transform in ProcessInput introduces one frame delay.
-  auto holoCameras = ezWindowsHolographicSpace::GetSingleton()->GetCameras();
+  auto holoCameras = pHoloSpace->GetCameras();
   if (!holoCameras.IsEmpty())
   {
     ezWindowsMixedRealityCamera* pHoloCamera = holoCameras[0];
-    
+
     auto viewport = pHoloCamera->GetViewport();
     m_MainCamera.SetStereoProjection(pHoloCamera->GetProjectionLeft(), pHoloCamera->GetProjectionRight(), viewport.width / viewport.height);
-    
+
     ezMat4 mViewTransformLeft, mViewTransformRight;
-    if (pHoloCamera->GetViewTransforms(*m_pDefaultReferenceFrame, mViewTransformLeft, mViewTransformRight).Succeeded())
+    if (pHoloCamera->GetViewTransforms(*pHoloSpace->GetDefaultReferenceFrame(), mViewTransformLeft, mViewTransformRight).Succeeded())
     {
       m_MainCamera.SetViewMatrix(mViewTransformLeft, ezCameraEye::Left);
       m_MainCamera.SetViewMatrix(mViewTransformRight, ezCameraEye::Right);

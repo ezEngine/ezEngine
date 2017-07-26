@@ -20,7 +20,7 @@ ezFileserveClient::ezFileserveClient()
 
   // You can hardcode an IP address here to begin searching with, if you need to test something
   // Do not forget to append the port 1042 though!
-  sFallback = "169.254.80.80:1042";
+  sFallback = "192.168.1.2:1042";
 
   ezStringBuilder sSearch = ezOSFile::GetUserDataFolder("ezFileserve.txt");
 
@@ -640,7 +640,7 @@ ezResult ezFileserveClient::TryReadFileserveConfig(const char* szFile, ezStringB
   return EZ_FAILURE;
 }
 
-ezResult ezFileserveClient::SearchForServerAddress(ezTime timeout /*= ezTime::Seconds(2)*/)
+ezResult ezFileserveClient::SearchForServerAddress(ezTime timeout /*= ezTime::Seconds(20)*/)
 {
   if (!s_bEnableFileserve)
     return EZ_FAILURE;
