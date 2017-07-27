@@ -14,16 +14,6 @@
   float3 GetWorldPositionOffset(VS_IN Input, ezPerInstanceData data, float3 worldPosition);
 #endif
 
-
-ezPerInstanceData GetInstanceData(VS_IN Input)
-{
-#if CAMERA_STEREO == TRUE
-  return perInstanceData[Input.InstanceID/2 + InstanceDataOffset];
-#else
-  return perInstanceData[Input.InstanceID + InstanceDataOffset];
-#endif
-}
-
 VS_OUT FillVertexData(VS_IN Input)
 {
 #if CAMERA_STEREO == TRUE
@@ -72,7 +62,7 @@ VS_OUT FillVertexData(VS_IN Input)
     Output.Color = Input.Color;
   #endif
 
-  Output.InstanceOffset = Input.InstanceID + InstanceDataOffset;
+  Output.InstanceID = Input.InstanceID;
 
   return Output;
 }

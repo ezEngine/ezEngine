@@ -34,7 +34,7 @@ struct GS_IN
 {
   float4 Position : SV_Position;
   float3 WorldPos : WORLDPOS;
-  uint InstanceOffset : INSTANCEOFFSET;
+  uint InstanceID : SV_InstanceID;
 };
 
 struct GS_OUT
@@ -43,7 +43,7 @@ struct GS_OUT
   float3 WorldPos : WORLDPOS;
   float3 Normal : NORMAL;
   float3 Barycentric : TEXCOORD0;
-  uint InstanceOffset : INSTANCEOFFSET;
+  uint InstanceID : SV_InstanceID;
 };
 
 [maxvertexcount(3)]
@@ -61,7 +61,7 @@ void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
     output.WorldPos = input[i].WorldPos;
     output.Normal = normal;
     output.Barycentric = float3(i==0, i==1, i==2);
-    output.InstanceOffset = input[i].InstanceOffset;
+    output.InstanceID = input[i].InstanceID;
 
     outputStream.Append(output);
   }

@@ -44,7 +44,7 @@ struct GS_OUT
 	#endif
 
 	// If CAMERA_STEREO is true, every even instance is for the left eye and every odd is for the right eye.
-	uint InstanceOffset : INSTANCEOFFSET;
+	uint InstanceID : SV_InstanceID;
 	uint RenderTargetArrayIndex : SV_RenderTargetArrayIndex;
 };
 
@@ -78,8 +78,8 @@ void main(triangle VS_OUT input[3], inout TriangleStream<GS_OUT> outStream)
           output.Color = input[i].Color;
         #endif
 
-        output.InstanceOffset = input[i].InstanceOffset;
-        output.RenderTargetArrayIndex = input[i].InstanceOffset % 2;
+        output.InstanceID = input[i].InstanceID;
+        output.RenderTargetArrayIndex = input[i].InstanceID % 2;
 
         outStream.Append(output);
     }

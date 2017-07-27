@@ -71,7 +71,7 @@ struct VS_OUT
 	#endif
 
 	// If CAMERA_STEREO is true, every even instance is for the left eye and every odd is for the right eye.
-	uint InstanceOffset : INSTANCEOFFSET;
+    uint InstanceID : SV_InstanceID;
 
 	#if defined(PIXEL_SHADER) && defined(CAMERA_STEREO)
     #if CAMERA_STEREO == TRUE

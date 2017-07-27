@@ -28,11 +28,6 @@ float GetOpacity(PS_IN Input);
   float GetOcclusion(PS_IN Input);
 #endif
 
-ezPerInstanceData GetInstanceData(PS_IN Input)
-{
-  return perInstanceData[Input.InstanceOffset];
-}
-
 uint CalculateCoverage(PS_IN Input)
 {
   #if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
