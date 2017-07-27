@@ -16,7 +16,7 @@
 
 VS_OUT FillVertexData(VS_IN Input)
 {
-#if CAMERA_STEREO == TRUE
+#if CAMERA_MODE == CAMERA_MODE_STEREO
   s_ActiveCameraEyeIndex = Input.InstanceID % 2;
 #endif
 

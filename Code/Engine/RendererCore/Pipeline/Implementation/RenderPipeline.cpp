@@ -1006,8 +1006,14 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   static ezHashedString sCameraMode = ezMakeHashedString("CAMERA_MODE");
   static ezHashedString sOrtho = ezMakeHashedString("CAMERA_MODE_ORTHO");
   static ezHashedString sPerspective = ezMakeHashedString("CAMERA_MODE_PERSPECTIVE");
+  static ezHashedString sStereo = ezMakeHashedString("CAMERA_MODE_STEREO");
 
-  pRenderContext->SetShaderPermutationVariable(sCameraMode, pCamera->IsOrthographic() ? sOrtho : sPerspective);
+  if (pCamera->IsOrthographic())
+    pRenderContext->SetShaderPermutationVariable(sCameraMode, sOrtho);
+  else if(pCamera->IsStereoscopic())
+    pRenderContext->SetShaderPermutationVariable(sCameraMode, sStereo);
+  else
+    pRenderContext->SetShaderPermutationVariable(sCameraMode, sPerspective);
 
   ezUInt32 uiCurrentFirstUsageIdx = 0;
   ezUInt32 uiCurrentLastUsageIdx = 0;

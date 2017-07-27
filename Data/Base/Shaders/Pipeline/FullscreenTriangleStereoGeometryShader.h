@@ -2,7 +2,7 @@
 
 // This geometry shader is a pass-through that leaves the geometry unmodified and sets the render target array index.
 
-#if CAMERA_STEREO == TRUE
+#if CAMERA_MODE == CAMERA_MODE_STEREO
 
 struct GEOM_IN
 {

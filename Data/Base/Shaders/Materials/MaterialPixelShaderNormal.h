@@ -35,7 +35,7 @@ struct PS_OUT
 
 PS_OUT main(PS_IN Input)
 {
-#if CAMERA_STEREO == TRUE
+#if CAMERA_MODE == CAMERA_MODE_STEREO
   s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
 #endif
 

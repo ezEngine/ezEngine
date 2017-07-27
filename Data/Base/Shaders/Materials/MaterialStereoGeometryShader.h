@@ -2,7 +2,7 @@
 
 // This geometry shader is a pass-through that leaves the geometry unmodified and sets the render target array index.
 
-#if CAMERA_STEREO == TRUE
+#if CAMERA_MODE == CAMERA_MODE_STEREO
 
 #define USE_WORLDPOS
 
@@ -43,7 +43,7 @@ struct GS_OUT
 		float4 Color : COLOR;
 	#endif
 
-	// If CAMERA_STEREO is true, every even instance is for the left eye and every odd is for the right eye.
+	// If CAMERA_MODE is CAMERA_MODE_STEREO, every even instance is for the left eye and every odd is for the right eye.
 	uint InstanceID : SV_InstanceID;
 	uint RenderTargetArrayIndex : SV_RenderTargetArrayIndex;
 };

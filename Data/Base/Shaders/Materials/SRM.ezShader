@@ -8,7 +8,7 @@ BLEND_MODE = BLEND_MODE_OPAQUE
 TOPOLOGY = TOPOLOGY_TRIANGLES
 MSAA = FALSE
 RENDER_PASS
-CAMERA_STEREO
+CAMERA_MODE
 SRM_VISIBLE
 TWO_SIDED = FALSE
 
@@ -50,7 +50,7 @@ struct GS_OUT
   float3 WorldPos : WORLDPOS;
   float3 Normal : NORMAL;
   uint InstanceID : SV_InstanceID;
-#if CAMERA_STEREO == TRUE
+#if CAMERA_MODE == CAMERA_MODE_STEREO
   uint RenderTargetArrayIndex : SV_RenderTargetArrayIndex;
 #endif
 };
@@ -70,7 +70,7 @@ void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
     output.WorldPos = input[i].WorldPos;
     output.Normal = normal;
     output.InstanceID = input[i].InstanceID;
-#if CAMERA_STEREO == TRUE
+#if CAMERA_MODE == CAMERA_MODE_STEREO
     output.RenderTargetArrayIndex = input[i].InstanceID % 2;
 #endif
 

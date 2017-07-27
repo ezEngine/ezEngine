@@ -2,7 +2,7 @@
 ALL
 
 [PERMUTATIONS]
-CAMERA_STEREO
+CAMERA_MODE
 
 [RENDERSTATE]
 DepthTest = false
@@ -28,14 +28,14 @@ struct PS_IN
 {
   float4 Position : SV_Position;
   float2 TexCoord0 : TEXCOORD0;
-#if CAMERA_STEREO == TRUE
+#if CAMERA_MODE == CAMERA_MODE_STEREO
   uint RenderTargetArrayIndex : SV_RenderTargetArrayIndex;
 #endif
 };
 
 float4 GetCameraOverlayColor()
 {
-#if CAMERA_STEREO == TRUE
+#if CAMERA_MODE == CAMERA_MODE_STEREO
   if (s_ActiveCameraEyeIndex == 0)
     return float4(0.0f, 1.0f, 0.0f, 1.0f);
   else
@@ -47,7 +47,7 @@ float4 GetCameraOverlayColor()
 
 float4 main(PS_IN Input) : SV_Target
 {
-#if CAMERA_STEREO == TRUE
+#if CAMERA_MODE == CAMERA_MODE_STEREO
   s_ActiveCameraEyeIndex = Input.RenderTargetArrayIndex;
 #endif
 
