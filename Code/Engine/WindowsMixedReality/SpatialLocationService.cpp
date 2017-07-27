@@ -1,6 +1,8 @@
 ﻿#include <PCH.h>
+#include <WindowsMixedReality/HolographicSpace.h>
 #include <WindowsMixedReality/SpatialLocationService.h>
 #include <WindowsMixedReality/SpatialReferenceFrame.h>
+#include <WindowsMixedReality/SpatialAnchor.h>
 
 #include <windows.perception.spatial.h>
 #include <windows.foundation.collections.h>
