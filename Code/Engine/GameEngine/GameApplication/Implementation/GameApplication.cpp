@@ -20,7 +20,7 @@
 #include <Foundation/Image/Image.h>
 
 ezGameApplication* ezGameApplication::s_pGameApplicationInstance = nullptr;
-
+ezDelegate<ezGALDevice* (const ezGALDeviceCreationDescription&)> ezGameApplication::s_DefaultDeviceCreator;
 
 ezGameApplication::ezGameApplication(const char* szAppName, ezGameApplicationType type, const char* szProjectPath /*= nullptr*/)
   : m_sAppProjectPath(szProjectPath)
@@ -88,6 +88,12 @@ ezGALSwapChainHandle ezGameApplication::GetSwapChain(const ezWindowBase* pWindow
   }
 
   return ezGALSwapChainHandle();
+}
+
+// static
+void ezGameApplication::SetOverrideDefaultDeviceCreator(ezDelegate<ezGALDevice* (const ezGALDeviceCreationDescription&)> creator)
+{
+  s_DefaultDeviceCreator = creator;
 }
 
 void ezGameApplication::SetSwapChain(const ezWindowBase* pWindow, ezGALSwapChainHandle hSwapChain)

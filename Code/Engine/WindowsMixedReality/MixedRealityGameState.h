@@ -25,8 +25,6 @@ public:
   virtual void OnActivation(ezWorld* pWorld) override;
   virtual void OnDeactivation() override;
 
-  virtual ezGALDevice* CreateGraphicsDevice(const ezGALDeviceCreationDescription& description) override;
-
   virtual void ProcessInput() override;
   virtual void BeforeWorldUpdate() override;
   virtual void AfterWorldUpdate() override;

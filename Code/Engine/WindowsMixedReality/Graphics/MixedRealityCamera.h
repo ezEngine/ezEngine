@@ -27,7 +27,7 @@ class ezWindowsSpatialReferenceFrame;
 ///
 /// Each camera is associated with a ezGALMixedRealitySwapChainDX11.
 /// \see ezGALMixedRealitySwapChainDX11
-class ezWindowsMixedRealityCamera
+class EZ_WINDOWSMIXEDREALITY_DLL ezWindowsMixedRealityCamera
 {
 public:
   ezWindowsMixedRealityCamera(const ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCamera> pMixedRealityCamera);

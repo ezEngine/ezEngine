@@ -4,6 +4,10 @@
 #include <WindowsMixedReality/SpatialReferenceFrame.h>
 #include <WindowsMixedReality/Graphics/MixedRealityCamera.h>
 #include <Foundation/Configuration/CVar.h>
+#include <GameEngine/GameApplication/GameApplication.h>
+#include <RendererFoundation/Descriptors/Descriptors.h>
+#include <WindowsMixedReality/Graphics/MixedRealityDX11Device.h>
+#include <RendererDX11/Device/DeviceDX11.h>
 
 #include <windows.graphics.holographic.h>
 #include <windows.system.profile.h>
@@ -18,6 +22,20 @@ ON_CORE_STARTUP
 {
   ezWindowsHolographicSpace* holoSpace = EZ_DEFAULT_NEW(ezWindowsHolographicSpace);
   holoSpace->InitForMainCoreWindow();
+
+
+  ezGameApplication::SetOverrideDefaultDeviceCreator([](const ezGALDeviceCreationDescription& desc) -> ezGALDevice*
+  {
+    auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
+    if (pHoloSpace->IsAvailable())
+    {
+      return EZ_DEFAULT_NEW(ezGALMixedRealityDeviceDX11, desc);
+    }
+    else
+    {
+      return EZ_DEFAULT_NEW(ezGALDeviceDX11, desc);
+    }
+  });
 }
 
 ON_CORE_SHUTDOWN

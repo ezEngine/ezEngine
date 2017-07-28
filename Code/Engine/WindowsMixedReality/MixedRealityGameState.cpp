@@ -74,11 +74,6 @@ void ezMixedRealityGameState::OnDeactivation()
   pHoloSpace->SetDefaultReferenceFrame(nullptr);
 }
 
-ezGALDevice* ezMixedRealityGameState::CreateGraphicsDevice(const ezGALDeviceCreationDescription& description)
-{
-  return EZ_DEFAULT_NEW(ezGALMixedRealityDeviceDX11, description);
-}
-
 float ezMixedRealityGameState::CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const
 {
   if (pWorld == nullptr)

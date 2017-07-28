@@ -30,7 +30,7 @@ struct IDXGISwapChain;
 /// Conceptually we're splitting the "surface part" of windows holographic camera into this object.
 ///
 /// \see ezWindowsMixedRealityCamera
-class ezGALMixedRealitySwapChainDX11 : public ezGALSwapChain
+class EZ_WINDOWSMIXEDREALITY_DLL ezGALMixedRealitySwapChainDX11 : public ezGALSwapChain
 {
 public:
   // TODO: Not implemented yet, keeping default plane.

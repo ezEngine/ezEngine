@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
 #include <GameEngine/Collection/CollectionResource.h>
@@ -245,15 +245,17 @@ void ezGameApplication::DoSetupGraphicsDevice()
   DeviceInit.m_bDebugDevice = true;
 #endif
 
-  ezGALDevice* pDevice = nullptr;
-  if (!m_GameStates.IsEmpty())
-    pDevice = m_GameStates[0].m_pState->CreateGraphicsDevice(DeviceInit);
-  if (!pDevice)
-    pDevice = EZ_DEFAULT_NEW(ezGALDeviceDefault, DeviceInit);
+  {
+    ezGALDevice* pDevice = nullptr;
 
-  EZ_VERIFY(pDevice->Init() == EZ_SUCCESS, "Graphics device creation failed!");
+    if (s_DefaultDeviceCreator.IsValid())
+      pDevice = s_DefaultDeviceCreator(DeviceInit);
+    else
+      pDevice = EZ_DEFAULT_NEW(ezGALDeviceDefault, DeviceInit);
 
-  ezGALDevice::SetDefaultDevice(pDevice);
+    EZ_VERIFY(pDevice->Init() == EZ_SUCCESS, "Graphics device creation failed!");
+    ezGALDevice::SetDefaultDevice(pDevice);
+  }
 
   // Create GPU resource pool
   ezGPUResourcePool* pResourcePool = EZ_DEFAULT_NEW(ezGPUResourcePool);
@@ -340,7 +342,7 @@ void ezGameApplication::DoShutdownGraphicsDevice()
 
   for (ezUInt32 i = 0; i < m_Windows.GetCount(); ++i)
   {
-    if(m_Windows[i].m_hSwapChain != pDevice->GetPrimarySwapChain())
+    if (m_Windows[i].m_hSwapChain != pDevice->GetPrimarySwapChain())
       pDevice->DestroySwapChain(m_Windows[i].m_hSwapChain);
   }
 

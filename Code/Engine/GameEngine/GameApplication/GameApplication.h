@@ -93,6 +93,9 @@ public:
   /// \brief Returns the swapchain for the given window. The window must have been added via AddWindow()
   ezGALSwapChainHandle GetSwapChain(const ezWindowBase* pWindow) const;
 
+  /// \brief When the graphics device is created, by default the game application will pick a platform specific implementation. This function allows to override that by setting a custom function that creates a graphics device.
+  static void SetOverrideDefaultDeviceCreator(ezDelegate<ezGALDevice* (const ezGALDeviceCreationDescription&)> creator);
+
   /// \brief Sets the swapchain for a given window. The window must have been added via AddWindow()
   ///
   /// The previous swapchain (if any) will be destroyed.
@@ -329,6 +332,7 @@ private:
   ezDynamicArray<WindowContext> m_Windows;
   ezHybridArray<WorldData, 4> m_Worlds;
   ezHybridArray<GameStateData, 4> m_GameStates;
+  static ezDelegate<ezGALDevice* (const ezGALDeviceCreationDescription&)> s_DefaultDeviceCreator;
 
   bool m_bWasQuitRequested = false;
   bool m_bShowFps = false;

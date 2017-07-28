@@ -56,12 +56,6 @@ public:
   /// \brief Called when the game state is being shut down.
   virtual void OnDeactivation();
 
-  /// \brief Creates the graphics device.
-  ///
-  /// Called only for the first gamestate. If it returns null, the application should create a default device.
-  /// The device must be allocated with the default allocator.
-  virtual ezGALDevice* CreateGraphicsDevice(const ezGALDeviceCreationDescription& description) { return nullptr; }
-
   /// \brief Called once per game update. Should handle input updates here.
   virtual void ProcessInput() { }
 
