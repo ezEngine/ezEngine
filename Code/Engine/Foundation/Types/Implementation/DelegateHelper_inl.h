@@ -83,6 +83,12 @@ public:
     memcpy(m_Data, other.m_Data, DATA_SIZE);
   }
 
+  /// \brief Resets a delegate to an invalid state.
+  EZ_FORCE_INLINE void operator=(std::nullptr_t)
+  {
+    m_pDispatchFunction = nullptr;
+  }
+
   /// \brief Function call operator. This will call the function that is bound to the delegate, or assert if nothing was bound.
   EZ_FORCE_INLINE R operator()(EZ_PAIR_LIST(ARG, arg, ARG_COUNT)) const
   {
@@ -108,6 +114,12 @@ public:
   EZ_ALWAYS_INLINE bool IsValid() const
   {
     return m_pDispatchFunction != nullptr;
+  }
+
+  /// \brief Resets a delegate to an invalid state.
+  EZ_ALWAYS_INLINE void Invalidate()
+  {
+    m_pDispatchFunction = nullptr;
   }
 
   /// \brief Returns the class instance that is used to call a member function pointer on.

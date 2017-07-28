@@ -67,7 +67,7 @@ ezResult ezRemoteInterface::WaitForConnectionToServer(ezTime timeout /*= ezTime:
         return EZ_FAILURE;
     }
 
-    ezThreadUtils::Sleep(ezTime::Milliseconds(50));
+    ezThreadUtils::Sleep(ezTime::Milliseconds(10));
   }
 }
 
