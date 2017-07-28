@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 
@@ -37,6 +37,9 @@ public:
   /// \brief Move assigns a unique ptr from another. The other unique ptr will be empty afterwards to guarantee that there is only one unique ptr managing the same object.
   template <typename U>
   void operator=(ezUniquePtr<U>&& other);
+
+  /// \brief Same as calling 'Reset()'
+  EZ_ALWAYS_INLINE void operator=(std::nullptr_t) { Reset(); }
 
   /// \brief Releases the managed object. The unique ptr will be empty afterwards.
   T* Release();
