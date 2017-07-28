@@ -6,6 +6,7 @@
 #include <Foundation/Communication/Implementation/MessageLoop.h>
 #include <Foundation/Communication/RemoteMessage.h>
 #include <Foundation/Communication/RemoteInterfaceEnet.h>
+#include <Foundation/Logging/Log.h>
 
 ezIpcChannelEnet::ezIpcChannelEnet(const char* szAddress, Mode::Enum mode)
   : ezIpcChannel(szAddress, mode)
