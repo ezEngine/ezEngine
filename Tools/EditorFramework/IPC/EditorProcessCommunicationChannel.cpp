@@ -120,10 +120,10 @@ ezResult ezEditorProcessRemoteCommunicationChannel::ConnectToServer(const char* 
   return EZ_SUCCESS;
 }
 
-//bool ezEditorProcessRemoteCommunicationChannel::IsConnected() const
-//{
-//
-//}
+bool ezEditorProcessRemoteCommunicationChannel::IsConnected() const
+{
+  return m_pChannel->IsConnected();
+}
 
 void ezEditorProcessRemoteCommunicationChannel::CloseConnection()
 {

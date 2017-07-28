@@ -13,6 +13,7 @@ Project.WindowConfig;&Window Configuration
 Settings.Open;S&ettings
 Engine.ReloadResources;Reload Resources
 Engine.ReloadEngine;Reload Engine
+Editor.LaunchFileserve;Launch Fileserve...
 Document.Save;&Save
 Document.SaveAll;Save All
 Document.SaveAs;Save &As...

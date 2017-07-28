@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/Actions/ProjectActions.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <EditorFramework/Settings/SettingsTab.moc.h>
@@ -16,7 +16,8 @@
 #include <EditorFramework/Dialogs/PreferencesDlg.moc.h>
 #include <EditorFramework/Dialogs/InputConfigDlg.moc.h>
 #include <EditorFramework/Dialogs/WindowCfgDlg.moc.h>
-#include <Dialogs/TagsDlg.moc.h>
+#include <EditorFramework/Dialogs/TagsDlg.moc.h>
+#include <EditorFramework/Dialogs/LaunchFileserveDlg.moc.h>
 
 ezActionDescriptorHandle ezProjectActions::s_hEditorMenu;
 
@@ -48,6 +49,7 @@ ezActionDescriptorHandle ezProjectActions::s_hToolsMenu;
 ezActionDescriptorHandle ezProjectActions::s_hToolsCategory;
 ezActionDescriptorHandle ezProjectActions::s_hReloadResources;
 ezActionDescriptorHandle ezProjectActions::s_hReloadEngine;
+ezActionDescriptorHandle ezProjectActions::s_hLaunchFileserve;
 
 void ezProjectActions::RegisterActions()
 {
@@ -83,6 +85,7 @@ void ezProjectActions::RegisterActions()
   s_hToolsCategory = EZ_REGISTER_CATEGORY("ToolsCategory");
   s_hReloadResources = EZ_REGISTER_ACTION_1("Engine.ReloadResources", ezActionScope::Global, "Engine", "F4", ezProjectAction, ezProjectAction::ButtonType::ReloadResources);
   s_hReloadEngine = EZ_REGISTER_ACTION_1("Engine.ReloadEngine", ezActionScope::Global, "Engine", "Ctrl+Shift+F4", ezProjectAction, ezProjectAction::ButtonType::ReloadEngine);
+  s_hLaunchFileserve = EZ_REGISTER_ACTION_1("Editor.LaunchFileserve", ezActionScope::Global, "Engine", "", ezProjectAction, ezProjectAction::ButtonType::LaunchFileserve);
 }
 
 void ezProjectActions::UnregisterActions()
@@ -104,6 +107,7 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hToolsCategory);
   ezActionManager::UnregisterAction(s_hReloadResources);
   ezActionManager::UnregisterAction(s_hReloadEngine);
+  ezActionManager::UnregisterAction(s_hLaunchFileserve);
   ezActionManager::UnregisterAction(s_hShortcutEditor);
   ezActionManager::UnregisterAction(s_hEditorPlugins);
   ezActionManager::UnregisterAction(s_hEnginePlugins);
@@ -141,6 +145,7 @@ void ezProjectActions::MapActions(const char* szMapping)
   pMap->MapAction(s_hToolsCategory, "Menu.Tools", 1.0f);
   pMap->MapAction(s_hReloadResources, "Menu.Tools/ToolsCategory", 1.0f);
   pMap->MapAction(s_hReloadEngine, "Menu.Tools/ToolsCategory", 2.0f);
+  pMap->MapAction(s_hLaunchFileserve, "Menu.Tools/ToolsCategory", 3.0f);
 
   pMap->MapAction(s_hEditorPlugins, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 1.0f);
   pMap->MapAction(s_hShortcutEditor, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 2.0f);
@@ -287,6 +292,9 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
   case ezProjectAction::ButtonType::ReloadResources:
     SetIconPath(":/GuiFoundation/Icons/ReloadResources16.png");
     break;
+  case ezProjectAction::ButtonType::LaunchFileserve:
+    SetIconPath(":/EditorFramework/Icons/Fileserve16.png");
+    break;
   case ezProjectAction::ButtonType::ReloadEngine:
     SetIconPath(":/GuiFoundation/Icons/ReloadEngine16.png");
     break;
@@ -326,6 +334,7 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
       m_ButtonType == ButtonType::TagsDialog ||
       m_ButtonType == ButtonType::ReloadEngine ||
       m_ButtonType == ButtonType::ReloadResources ||
+      m_ButtonType == ButtonType::LaunchFileserve ||
       m_ButtonType == ButtonType::InputConfig)
   {
     SetEnabled(ezToolsProject::IsProjectOpen());
@@ -343,6 +352,7 @@ ezProjectAction::~ezProjectAction()
       m_ButtonType == ButtonType::TagsDialog ||
       m_ButtonType == ButtonType::ReloadEngine ||
       m_ButtonType == ButtonType::ReloadResources ||
+      m_ButtonType == ButtonType::LaunchFileserve ||
       m_ButtonType == ButtonType::InputConfig)
   {
     ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezProjectAction::ProjectEventHandler, this));
@@ -460,6 +470,13 @@ void ezProjectAction::Execute(const ezVariant& value)
       {
         m_Context.m_pDocument->ShowDocumentStatus("Reloading Resources");
       }
+    }
+    break;
+
+  case ezProjectAction::ButtonType::LaunchFileserve:
+    {
+      ezQtLaunchFileserveDlg dlg(nullptr);
+      dlg.exec();
     }
     break;
 

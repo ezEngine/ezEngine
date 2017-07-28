@@ -1,5 +1,6 @@
 ﻿#include <PCH.h>
 #include <EditorFramework/Dialogs/RemoteConnectionDlg.moc.h>
+#include <EditorFramework/Dialogs/LaunchFileserveDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QSettings>
@@ -105,7 +106,6 @@ void ezQtRemoteConnectionDlg::showEvent(QShowEvent* event)
   AddToRecentAddresses(m_RecentAddresses, m_UsedAddress);
   AddToRecentAddresses(m_RecentFsAddresses, m_UsedFsAddress);
 
-  CheckboxFileserve->setChecked(m_bLaunchFileserve);
   SetCurrentIP(m_UsedAddress);
   SetCurrentFsIP(m_UsedFsAddress);
 
@@ -137,14 +137,11 @@ void ezQtRemoteConnectionDlg::showEvent(QShowEvent* event)
     }
   }
 
-  EditFileserve->setText(m_sFileserveCmdLine.GetData());
-
   QDialog::showEvent(event);
 }
 
 void ezQtRemoteConnectionDlg::on_ButtonConnect_clicked()
 {
-  m_bLaunchFileserve = CheckboxFileserve->isChecked();
   m_UsedAddress.part[0] = IP1->text().toInt();
   m_UsedAddress.part[1] = IP2->text().toInt();
   m_UsedAddress.part[2] = IP3->text().toInt();
@@ -184,6 +181,13 @@ void ezQtRemoteConnectionDlg::on_ButtonConnect_clicked()
   }
 
   accept();
+}
+
+
+void ezQtRemoteConnectionDlg::on_ButtonLaunchFS_clicked()
+{
+  ezQtLaunchFileserveDlg dlg(this);
+  dlg.exec();
 }
 
 QString ezQtRemoteConnectionDlg::GetResultingAddress() const

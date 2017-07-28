@@ -22,6 +22,7 @@ protected:
   virtual bool RequiresRegularTick() { return true; }
   virtual void Tick() override;
   void NetworkMessageHandler(ezRemoteMessage& msg);
+  void EnetEventHandler(const ezRemoteEvent& e);
 
   ezString m_sAddress;
   ezUniquePtr<ezRemoteInterface> m_Network;

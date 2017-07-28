@@ -1,4 +1,4 @@
-#include <Fileserve/Main.h>
+﻿#include <Fileserve/Main.h>
 
 #ifdef EZ_USE_QT
 
@@ -29,6 +29,8 @@ ezQtFileserveMainWnd::ezQtFileserveMainWnd(ezApplication* pApp, QWidget* parent)
   show();
 
   QTimer::singleShot(0, this, &ezQtFileserveMainWnd::UpdateNetworkSlot);
+
+  setWindowIcon(m_pFileserveWidget->windowIcon());
 }
 
 

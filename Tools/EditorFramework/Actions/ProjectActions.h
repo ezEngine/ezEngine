@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
@@ -43,6 +43,7 @@ public:
   static ezActionDescriptorHandle s_hToolsCategory;
   static ezActionDescriptorHandle s_hReloadResources;
   static ezActionDescriptorHandle s_hReloadEngine;
+  static ezActionDescriptorHandle s_hLaunchFileserve;
 };
 
 ///
@@ -79,6 +80,7 @@ public:
     CloseProject,
     ReloadResources,
     ReloadEngine,
+    LaunchFileserve,
     Shortcuts,
     EditorPlugins,
     DataDirectories,

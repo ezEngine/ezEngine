@@ -48,6 +48,10 @@ public:
 
   ezEvent<const ezEditorAppEvent&> m_Events;
 
+  //
+  // External Tools
+  // 
+
   /// \brief Returns the folder in which the tools binaries can be found. If enabled in the preferences, it uses the pre-compiled tools, otherwise the currently compiled ones.
   /// If bForceUseCustomTools is true, it always returns the folder in which custom compiled tools are stored (app binary dir)
   ezString GetExternalToolsFolder(bool bForceUseCustomTools = false);
@@ -60,6 +64,16 @@ public:
   /// The applications output is parsed and forwarded to the given log interface. A custom log level is applied first.
   /// If the tool cannot be found or it takes longer to execute than the allowed timeout, the function returns failure.
   ezStatus ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout, ezLogInterface* pLogOutput = nullptr, ezLogMsgType::Enum LogLevel = ezLogMsgType::WarningMsg);
+
+  /// \brief Creates the string with which to run Fileserve for the currently open project.
+  ezString BuildFileserveCommandLine() const;
+
+  /// \brief Launches Fileserve with the settings for the current project.
+  void RunFileserve();
+
+  //
+  //
+  //
 
   /// \brief Can be set via the command line option '-safe'. In this mode the editor will not automatically load recent documents
   bool IsInSafeMode() const { return m_bSafeMode; }

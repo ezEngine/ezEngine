@@ -24,8 +24,6 @@ public:
   ezQtRemoteConnectionDlg(QWidget* parent);
   ~ezQtRemoteConnectionDlg();
 
-  bool m_bLaunchFileserve = true;
-  ezString m_sFileserveCmdLine;
   Address m_UsedAddress;
   Address m_UsedFsAddress;
 
@@ -34,6 +32,7 @@ public:
 
 private slots:
   void on_ButtonConnect_clicked();
+  void on_ButtonLaunchFS_clicked();
   void on_RecentIP_selected();
   void on_RecentFsIP_selected();
 

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>297</width>
-    <height>268</height>
+    <width>274</width>
+    <height>207</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -181,33 +181,6 @@
     </spacer>
    </item>
    <item>
-    <widget class="QCheckBox" name="CheckboxFileserve">
-     <property name="toolTip">
-      <string>Starts the file server automatically with the command line that is shown below.</string>
-     </property>
-     <property name="text">
-      <string>Launch Fileserve</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="LabelFileserveCmd">
-     <property name="text">
-      <string>Fileserve Command Line:</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLineEdit" name="EditFileserve">
-     <property name="toolTip">
-      <string>The command line used to launch the file server. Can be copied to create a custom shortcut.</string>
-     </property>
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QLabel" name="LabelFileserveCmd_2">
      <property name="toolTip">
       <string>The IP address that the remote engine process should use to connect to the file server. Typically the IP through which the device can reach this PC.</string>
@@ -356,6 +329,13 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QPushButton" name="ButtonLaunchFS">
+       <property name="text">
+        <string>Launch Fileserve</string>
+       </property>
+      </widget>
+     </item>
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">

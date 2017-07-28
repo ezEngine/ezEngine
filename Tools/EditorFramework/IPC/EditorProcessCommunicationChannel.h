@@ -24,7 +24,7 @@ class EZ_EDITORFRAMEWORK_DLL ezEditorProcessRemoteCommunicationChannel : public 
 public:
   ezResult ConnectToServer(const char* szAddress);
 
-  //bool IsConnected() const;
+  bool IsConnected() const;
 
   void CloseConnection();
 

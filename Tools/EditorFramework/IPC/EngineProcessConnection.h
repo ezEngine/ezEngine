@@ -87,9 +87,6 @@ public:
 
   static ezEvent<const Event&> s_Events;
 
-  ezString BuildFileserveCommandLine() const;
-  void RunFileserve();
-
 private:
   void Initialize(const ezRTTI* pFirstAllowedMessageType);
   void HandleIPCEvent(const ezProcessCommunicationChannel::Event& e);

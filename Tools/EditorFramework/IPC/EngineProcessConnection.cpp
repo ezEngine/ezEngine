@@ -163,22 +163,16 @@ bool ezEditorEngineProcessConnection::ConnectToRemoteProcess()
 {
   if (m_pRemoteProcess != nullptr)
   {
-    //if (m_pRemoteProcess->IsClientAlive())
+    if (m_pRemoteProcess->IsConnected())
       return true;
 
-    //ShutdownRemoteProcess();
+    ShutdownRemoteProcess();
   }
 
   ezQtRemoteConnectionDlg dlg(QApplication::activeWindow());
-  dlg.m_sFileserveCmdLine = BuildFileserveCommandLine();
 
   if (dlg.exec() == QDialog::Rejected)
     return false;
-
-  if (dlg.m_bLaunchFileserve)
-  {
-    RunFileserve();
-  }
 
   m_pRemoteProcess = EZ_DEFAULT_NEW(ezEditorProcessRemoteCommunicationChannel);
   m_pRemoteProcess->ConnectToServer(dlg.GetResultingAddress().toUtf8().data());
@@ -205,7 +199,7 @@ void ezEditorEngineProcessConnection::ShutdownRemoteProcess()
     ezLog::Info("Shutting down Remote Engine Process");
     m_pRemoteProcess->CloseConnection();
 
-    m_pRemoteProcess.Reset();
+    m_pRemoteProcess = nullptr;
   }
 }
 
@@ -360,28 +354,3 @@ void ezEditorEngineConnection::SendHighlightObjectMessage(ezViewHighlightMsgToEn
   LastHighlightGuid = pMessage->m_HighlightObject;
   SendMessage(pMessage);
 }
-
-
-ezString ezEditorEngineProcessConnection::BuildFileserveCommandLine() const
-{
-  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("Fileserve.exe");
-  const ezStringBuilder sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
-  ezStringBuilder params;
-
-  ezStringBuilder cmd;
-  cmd.Set(sToolPath, " -specialdirs project \"", sProjectDir, "\" -fs_start");
-
-  return cmd;
-}
-
-void ezEditorEngineProcessConnection::RunFileserve()
-{
-  const ezStringBuilder sToolPath = ezQtEditorApp::GetSingleton()->FindToolApplication("Fileserve.exe");
-  const ezStringBuilder sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
-
-  QStringList args;
-  args << "-specialdirs" << "project" << sProjectDir.GetData() << "-fs_start";
-
-  QProcess::startDetached(sToolPath.GetData(), args);
-}
-

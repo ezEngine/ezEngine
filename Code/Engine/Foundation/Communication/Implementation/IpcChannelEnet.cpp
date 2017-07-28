@@ -13,6 +13,7 @@ ezIpcChannelEnet::ezIpcChannelEnet(const char* szAddress, Mode::Enum mode)
   m_sAddress = szAddress;
   m_Network = EZ_DEFAULT_NEW(ezRemoteInterfaceEnet);
   m_Network->SetMessageHandler(0, ezMakeDelegate(&ezIpcChannelEnet::NetworkMessageHandler, this));
+  m_Network->m_RemoteEvents.AddEventHandler(ezMakeDelegate(&ezIpcChannelEnet::EnetEventHandler, this));
 
   m_pOwner->AddChannel(this);
 }
@@ -42,6 +43,7 @@ void ezIpcChannelEnet::InternalConnect()
 void ezIpcChannelEnet::InternalDisconnect()
 {
   m_Network->ShutdownConnection();
+  m_Network->m_RemoteEvents.RemoveEventHandler(ezMakeDelegate(&ezIpcChannelEnet::EnetEventHandler, this));
 
   m_Connected = 0;
 }
@@ -83,6 +85,16 @@ void ezIpcChannelEnet::NetworkMessageHandler(ezRemoteMessage& msg)
   ezArrayPtr<const ezUInt8> data(msg.GetMessageData(), msg.GetMessageSize());
 
   ReceiveMessageData(data);
+}
+
+
+void ezIpcChannelEnet::EnetEventHandler(const ezRemoteEvent& e)
+{
+  if (e.m_Type == ezRemoteEvent::DisconnectedFromServer)
+  {
+    ezLog::Info("Remote engine process was disconnected.");
+    Disconnect();
+  }
 }
 
 #endif
