@@ -4,6 +4,7 @@
 #include <EditorFramework/Preferences/Preferences.h>
 #include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
+#include <Foundation/Profiling/Profiling.h>
 
 void UpdateInputDynamicEnumValues();
 
@@ -36,6 +37,8 @@ void ezQtEditorApp::SlotQueuedOpenProject(QString sProject)
 
 void ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
 {
+  EZ_PROFILE("CreateOrOpenProject");
+
   if (ezToolsProject::IsProjectOpen() && ezToolsProject::GetSingleton()->GetProjectFile() == szFile)
   {
     ezQtUiServices::MessageBoxInformation("The selected project is already open");
@@ -88,6 +91,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
 
   case ezToolsProjectEvent::Type::ProjectOpened:
     {
+      EZ_PROFILE("ProjectOpened");
       LoadProjectPreferences();
       SetupDataDirectories();
       ReadEnginePluginConfig();
@@ -98,12 +102,13 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
       ezEditorEngineProcessConnection::GetSingleton()->SetFileSystemConfig(m_FileSystemConfig);
       ezEditorEngineProcessConnection::GetSingleton()->SetPluginConfig(m_EnginePluginConfig);
 
+      ezAssetCurator::GetSingleton()->StartInitialize(m_FileSystemConfig);
       if (ezEditorEngineProcessConnection::GetSingleton()->RestartProcess().Failed())
       {
+        EZ_PROFILE("ErrorLog");
         ezLog::Error("Failed to start the engine process. Project loading incomplete.");
       }
-
-      ezAssetCurator::GetSingleton()->Initialize(m_FileSystemConfig);
+      ezAssetCurator::GetSingleton()->WaitForInitialize();
 
       m_sLastDocumentFolder = ezToolsProject::GetSingleton()->GetProjectFile();
       m_sLastProjectFolder = ezToolsProject::GetSingleton()->GetProjectFile();

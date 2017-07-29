@@ -7,6 +7,7 @@
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/Profiling/Profiling.h>
 
 void ezQtEditorApp::DetectAvailableEditorPlugins()
 {
@@ -97,6 +98,7 @@ void ezQtEditorApp::ReadEditorPluginsToBeLoaded()
 
 void ezQtEditorApp::LoadEditorPlugins()
 {
+  EZ_PROFILE("LoadEditorPlugins");
   DetectAvailableEditorPlugins();
   ReadEditorPluginsToBeLoaded();
 

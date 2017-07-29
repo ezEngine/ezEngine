@@ -1,6 +1,7 @@
 ﻿#include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/Preferences.h>
+#include <Foundation/Profiling/Profiling.h>
 
 
 void ezQtEditorApp::OpenDocument(const char* szDocument, const ezDocumentObject* pOpenContext /*= nullptr*/)
@@ -20,6 +21,8 @@ void ezQtEditorApp::SlotQueuedOpenDocument(QString sProject, void* pOpenContext)
 
 ezDocument* ezQtEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile, bool bRequestWindow, bool bAddToRecentFilesList, const ezDocumentObject* pOpenContext)
 {
+  EZ_PROFILE("CreateOrOpenDocument");
+
   if (m_bHeadless)
     bRequestWindow = false;
 

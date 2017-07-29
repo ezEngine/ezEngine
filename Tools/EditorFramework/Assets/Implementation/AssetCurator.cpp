@@ -13,8 +13,10 @@
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Utilities/Progress.h>
 #include <QDir>
+#include <Foundation/Profiling/Profiling.h>
 
-#define EZ_CURATOR_CACHE_VERSION 1
+#define EZ_CURATOR_CACHE_VERSION 2
+#define EZ_CURATOR_CACHE_FILE_VERSION 6
 
 EZ_IMPLEMENT_SINGLETON(ezAssetCurator);
 
@@ -46,19 +48,29 @@ ON_ENGINE_SHUTDOWN
 
 EZ_END_SUBSYSTEM_DECLARATION
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(AssetCacheEntry, ezNoBase, 2, ezRTTIDefaultAllocator<AssetCacheEntry>)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezFileStatus, ezNoBase, 3, ezRTTIDefaultAllocator<ezFileStatus>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("File", m_sFile),
     EZ_MEMBER_PROPERTY("Timestamp", m_Timestamp),
     EZ_MEMBER_PROPERTY("Hash", m_uiHash),
-    EZ_MEMBER_PROPERTY("Info", m_Info),
+    EZ_MEMBER_PROPERTY("AssetGuid", m_AssetGuid),
   }
   EZ_END_PROPERTIES
 }
 EZ_END_STATIC_REFLECTED_TYPE
 
+inline ezStreamWriter& operator << (ezStreamWriter& Stream, const ezFileStatus& uiValue)
+{
+  Stream.WriteBytes(&uiValue, sizeof(ezFileStatus));
+  return Stream;
+}
+
+inline ezStreamReader& operator >> (ezStreamReader& Stream, ezFileStatus& uiValue)
+{
+  Stream.ReadBytes(&uiValue, sizeof(ezFileStatus));
+  return Stream;
+}
 
 void ezAssetInfo::Update(const ezAssetInfo& rhs)
 {
@@ -110,68 +122,98 @@ ezAssetCurator::~ezAssetCurator()
   EZ_ASSERT_DEBUG(m_KnownAssets.IsEmpty(), "Need to call Deinitialize before curator is deleted.");
 }
 
-void ezAssetCurator::Initialize(const ezApplicationFileSystemConfig& cfg)
+void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
 {
+  EZ_PROFILE("StartInitialize");
   m_bRunUpdateTask = true;
   m_FileSystemConfig = cfg;
   m_sActivePlatform = "PC";
 
-  for (auto& dd : m_FileSystemConfig.m_DataDirs)
   {
-    ezStringBuilder sTemp;
-    if (ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp).Failed())
+    EZ_PROFILE("Watchers");
+    for (auto& dd : m_FileSystemConfig.m_DataDirs)
     {
-      ezLog::Error("Failed to init directory watcher for dir '{0}'", dd.m_sDataDirSpecialPath);
-      continue;
+      ezStringBuilder sTemp;
+      if (ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp).Failed())
+      {
+        ezLog::Error("Failed to init directory watcher for dir '{0}'", dd.m_sDataDirSpecialPath);
+        continue;
+      }
+
+      ezDirectoryWatcher* pWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
+      ezResult res = pWatcher->OpenDirectory(sTemp, ezDirectoryWatcher::Watch::Reads | ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Renames | ezDirectoryWatcher::Watch::Subdirectories);
+
+      if (res.Failed())
+      {
+        EZ_DEFAULT_DELETE(pWatcher);
+        ezLog::Error("Failed to init directory watcher for dir '{0}'", sTemp);
+        continue;
+      }
+
+      m_Watchers.PushBack(pWatcher);
     }
-
-    ezDirectoryWatcher* pWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
-    ezResult res = pWatcher->OpenDirectory(sTemp, ezDirectoryWatcher::Watch::Reads | ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Renames | ezDirectoryWatcher::Watch::Subdirectories);
-
-    if (res.Failed())
-    {
-      EZ_DEFAULT_DELETE(pWatcher);
-      ezLog::Error("Failed to init directory watcher for dir '{0}'", sTemp);
-      continue;
-    }
-
-    m_Watchers.PushBack(pWatcher);
   }
 
-
-  LoadCaches();
-
-  CheckFileSystem();
-
-  // As we fired a AssetListReset in CheckFileSystem, set everything new to FileUnchanged or
-  // we would fire an added call for every asset.
-  for (auto it = m_KnownSubAssets.GetIterator(); it.IsValid(); ++it)
+  ezDelegateTask<void>* pInitTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Initialize Curator", [this]()
   {
-    if (it.Value().m_ExistanceState == ezAssetExistanceState::FileAdded)
-    {
-      it.Value().m_ExistanceState = ezAssetExistanceState::FileUnchanged;
-    }
-  }
-  for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
-  {
-    if (it.Value()->m_ExistanceState == ezAssetExistanceState::FileAdded)
-    {
-      it.Value()->m_ExistanceState = ezAssetExistanceState::FileUnchanged;
-    }
-  }
-  SaveCaches();
+    EZ_LOCK(m_CuratorMutex);
+    m_bInitStarted = true;
+    LoadCaches();
+    CheckFileSystem();
 
-  ProcessAllCoreAssets();
+    // As we fired a AssetListReset in CheckFileSystem, set everything new to FileUnchanged or
+    // we would fire an added call for every asset.
+    for (auto it = m_KnownSubAssets.GetIterator(); it.IsValid(); ++it)
+    {
+      if (it.Value().m_ExistanceState == ezAssetExistanceState::FileAdded)
+      {
+        it.Value().m_ExistanceState = ezAssetExistanceState::FileUnchanged;
+      }
+    }
+    for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
+    {
+      if (it.Value()->m_ExistanceState == ezAssetExistanceState::FileAdded)
+      {
+        it.Value()->m_ExistanceState = ezAssetExistanceState::FileUnchanged;
+      }
+    }
+    SaveCaches();
+    ProcessAllCoreAssets();
+  });
+  pInitTask->SetOnTaskFinished([](ezTask* pTask)
+  {
+    EZ_DEFAULT_DELETE(pTask);
+  });
+  m_bInitStarted = false;
+  ezTaskSystem::StartSingleTask(pInitTask, ezTaskPriority::FileAccessHighPriority);
+}
+
+void ezAssetCurator::WaitForInitialize()
+{
+  EZ_PROFILE("WaitForInitialize");
+  while (m_bInitStarted == false)
+  {
+    ezThreadUtils::YieldTimeSlice();
+  }
+  EZ_LOCK(m_CuratorMutex);
+  // Broadcast reset.
+  {
+    ezAssetCuratorEvent e;
+    e.m_pInfo = nullptr;
+    e.m_Type = ezAssetCuratorEvent::Type::AssetListReset;
+    m_Events.Broadcast(e);
+  }
 }
 
 void ezAssetCurator::Deinitialize()
 {
+  EZ_PROFILE("Deinitialize");
   ShutdownUpdateTask();
   ezAssetProcessor::GetSingleton()->ShutdownProcessTask();
   SaveCaches();
 
   {
-    ezLock<ezMutex> ml(m_CuratorMutex);
+    EZ_LOCK(m_CuratorMutex);
 
     for (ezDirectoryWatcher* pWatcher : m_Watchers)
     {
@@ -234,6 +276,7 @@ void WatcherCallback(const char* szDirectory, const char* szFilename, ezDirector
 
 void ezAssetCurator::MainThreadTick()
 {
+  CURATOR_PROFILE("MainThreadTick");
   EZ_LOCK(m_CuratorMutex);
 
   static bool bReentry = false;
@@ -579,6 +622,7 @@ ezUInt64 ezAssetCurator::GetAssetReferenceHash(ezUuid assetGuid)
 
 ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const char* szPlatform, const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash)
 {
+  CURATOR_PROFILE("IsAssetUpToDate");
   out_AssetHash = GetAssetDependencyHash(assetGuid);
   out_ThumbHash = 0;
   if (out_AssetHash == 0)
@@ -689,14 +733,17 @@ void ezAssetCurator::UpdateAssetLastAccessTime(const ezUuid& assetGuid)
 
 void ezAssetCurator::CheckFileSystem()
 {
+  EZ_PROFILE("CheckFileSystem");
   ezStopwatch sw;
 
-  ezProgressRange range("Check File-System for Assets", m_FileSystemConfig.m_DataDirs.GetCount(), false);
+  ezProgressRange* range = nullptr;
+  if (ezThreadUtils::IsMainThread())
+    range = EZ_DEFAULT_NEW(ezProgressRange, "Check File-System for Assets", m_FileSystemConfig.m_DataDirs.GetCount(), false);
 
   // make sure the hashing task has finished
   ShutdownUpdateTask();
 
-  ezLock<ezMutex> ml(m_CuratorMutex);
+  EZ_LOCK(m_CuratorMutex);
 
   SetAllAssetStatusUnknown();
 
@@ -708,15 +755,19 @@ void ezAssetCurator::CheckFileSystem()
     ezStringBuilder sTemp;
     ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp);
 
-    range.BeginNextStep(dd.m_sDataDirSpecialPath);
+    if (ezThreadUtils::IsMainThread())
+      range->BeginNextStep(dd.m_sDataDirSpecialPath);
 
     IterateDataDirectory(sTemp, m_ValidAssetExtensions);
   }
 
   RemoveStaleFileInfos();
 
-  // Broadcast reset.
+  if (ezThreadUtils::IsMainThread())
   {
+    EZ_DEFAULT_DELETE(range);
+    // Broadcast reset only if we are on the main thread.
+    // Otherwise we are on the init task thread and the reset will be called on the main thread by WaitForInitialize.
     ezAssetCuratorEvent e;
     e.m_pInfo = nullptr;
     e.m_Type = ezAssetCuratorEvent::Type::AssetListReset;
@@ -879,6 +930,7 @@ ezSubAsset* ezAssetCurator::GetSubAssetInternal(const ezUuid& assetGuid)
 
 void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath)
 {
+  CURATOR_PROFILE("HandleSingleFile");
   EZ_LOCK(m_CuratorMutex);
 
   ezFileStats Stats;
@@ -897,7 +949,7 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath)
     {
       it.Value().m_Timestamp.Invalidate();
       it.Value().m_uiHash = 0;
-      it.Value().m_Status = FileStatus::Status::Unknown;
+      it.Value().m_Status = ezFileStatus::Status::Unknown;
 
       ezUuid guid = it.Value().m_AssetGuid;
       if (guid.IsValid())
@@ -922,6 +974,7 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath)
 
 void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath, const ezSet<ezString>& validExtensions, const ezFileStats& FileStat)
 {
+  CURATOR_PROFILE("HandleSingleFile2");
   EZ_LOCK(m_CuratorMutex);
 
   ezStringBuilder sExt = ezPathUtils::GetFileExtension(sAbsolutePath);
@@ -931,7 +984,7 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath, const ezSet
   auto& RefFile = m_ReferencedFiles[sAbsolutePath];
 
   // mark the file as valid (i.e. we saw it on disk, so it hasn't been deleted or such)
-  RefFile.m_Status = FileStatus::Status::Valid;
+  RefFile.m_Status = ezFileStatus::Status::Valid;
 
   bool fileChanged = !RefFile.m_Timestamp.Compare(FileStat.m_LastModificationTime, ezTimestamp::CompareMode::Identical);
   if (fileChanged)
@@ -1057,6 +1110,7 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const char
 
 void ezAssetCurator::ProcessAllCoreAssets()
 {
+  EZ_PROFILE("ProcessAllCoreAssets");
   if (ezQtUiServices::IsHeadless())
     return;
 
@@ -1096,7 +1150,7 @@ void ezAssetCurator::ProcessAllCoreAssets()
 
 void ezAssetCurator::RestartUpdateTask()
 {
-  ezLock<ezMutex> ml(m_CuratorMutex);
+  EZ_LOCK(m_CuratorMutex);
   m_bRunUpdateTask = true;
 
   RunNextUpdateTask();
@@ -1105,7 +1159,7 @@ void ezAssetCurator::RestartUpdateTask()
 void ezAssetCurator::ShutdownUpdateTask()
 {
   {
-    ezLock<ezMutex> ml(m_CuratorMutex);
+    EZ_LOCK(m_CuratorMutex);
     m_bRunUpdateTask = false;
   }
 
@@ -1113,14 +1167,14 @@ void ezAssetCurator::ShutdownUpdateTask()
   {
     ezTaskSystem::WaitForTask((ezTask*)m_pUpdateTask);
 
-    ezLock<ezMutex> ml(m_CuratorMutex);
+    EZ_LOCK(m_CuratorMutex);
     EZ_DEFAULT_DELETE(m_pUpdateTask);
   }
 }
 
 bool ezAssetCurator::GetNextAssetToUpdate(ezUuid& guid, ezStringBuilder& out_sAbsPath)
 {
-  ezLock<ezMutex> ml(m_CuratorMutex);
+  EZ_LOCK(m_CuratorMutex);
 
   while (!m_TransformStateStale.IsEmpty())
   {
@@ -1138,14 +1192,14 @@ bool ezAssetCurator::GetNextAssetToUpdate(ezUuid& guid, ezStringBuilder& out_sAb
 
 void ezAssetCurator::OnUpdateTaskFinished(ezTask* pTask)
 {
-  ezLock<ezMutex> ml(m_CuratorMutex);
+  EZ_LOCK(m_CuratorMutex);
 
   RunNextUpdateTask();
 }
 
 void ezAssetCurator::RunNextUpdateTask()
 {
-  ezLock<ezMutex> ml(m_CuratorMutex);
+  EZ_LOCK(m_CuratorMutex);
 
   if (!m_bRunUpdateTask || (m_TransformStateStale.IsEmpty() && m_TransformState[ezAssetInfo::TransformState::Unknown].IsEmpty()))
     return;
@@ -1172,7 +1226,7 @@ void ezAssetCurator::SetAllAssetStatusUnknown()
 
   for (auto it = m_ReferencedFiles.GetIterator(); it.IsValid(); ++it)
   {
-    it.Value().m_Status = FileStatus::Status::Unknown;
+    it.Value().m_Status = ezFileStatus::Status::Unknown;
   }
 
   for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
@@ -1186,7 +1240,7 @@ void ezAssetCurator::RemoveStaleFileInfos()
   for (auto it = m_ReferencedFiles.GetIterator(); it.IsValid();)
   {
     // search for files that existed previously but have not been found anymore recently
-    if (it.Value().m_Status == FileStatus::Status::Unknown)
+    if (it.Value().m_Status == ezFileStatus::Status::Unknown)
     {
       HandleSingleFile(it.Key());
       // remove the file from the list
@@ -1247,6 +1301,7 @@ void ezAssetCurator::IterateDataDirectory(const char* szDataDir, const ezSet<ezS
 
 void ezAssetCurator::LoadCaches()
 {
+  EZ_PROFILE("LoadCaches");
   EZ_LOCK(m_CuratorMutex);
 
   ezStopwatch sw;
@@ -1262,12 +1317,13 @@ void ezAssetCurator::LoadCaches()
     if (reader.Open(sCacheFile).Succeeded())
     {
       ezUInt32 uiCuratorCacheVersion = 0;
-      ezUInt32 uiVersion = 0;
-      ezUInt32 uiCount = 0;
-
+      ezUInt32 uiFileVersion = 0;
+      ezUInt32 uiAssetCount = 0;
+      ezUInt32 uiFileCount = 0;
       reader >> uiCuratorCacheVersion;
-      reader >> uiVersion;
-      reader >> uiCount;
+      reader >> uiFileVersion;
+      reader >> uiAssetCount;
+      reader >> uiFileCount;
 
       if (uiCuratorCacheVersion != EZ_CURATOR_CACHE_VERSION)
       {
@@ -1286,15 +1342,37 @@ void ezAssetCurator::LoadCaches()
         continue;
       }
 
-      if (uiVersion != ezGetStaticRTTI<AssetCacheEntry>()->GetTypeVersion())
+      if (uiFileVersion != EZ_CURATOR_CACHE_FILE_VERSION)
         continue;
 
-      for (ezUInt32 i = 0; i < uiCount; i++)
+      const ezRTTI* pFileStatusType = ezGetStaticRTTI<ezFileStatus>();
       {
-        const ezRTTI* pType = nullptr;
-        AssetCacheEntry* pEntry = static_cast<AssetCacheEntry*>(ezReflectionSerializer::ReadObjectFromBinary(reader, pType));
-        EZ_ASSERT_DEBUG(pEntry != nullptr && pType == ezGetStaticRTTI<AssetCacheEntry>(), "Failed to deserialize AssetCacheEntry!");
-        m_CachedEntries.Insert(pEntry->m_sFile, ezUniquePtr<AssetCacheEntry>(pEntry, ezFoundation::GetDefaultAllocator()));
+        EZ_PROFILE("Assets");
+        for (ezUInt32 i = 0; i < uiAssetCount; i++)
+        {
+          ezString sPath;
+          reader >> sPath;
+
+          const ezRTTI* pType = nullptr;
+          ezAssetDocumentInfo* pEntry = static_cast<ezAssetDocumentInfo*>(ezReflectionSerializer::ReadObjectFromBinary(reader, pType));
+          EZ_ASSERT_DEBUG(pEntry != nullptr && pType == ezGetStaticRTTI<ezAssetDocumentInfo>(), "Failed to deserialize ezAssetDocumentInfo!");
+          m_CachedAssets.Insert(sPath, ezUniquePtr<ezAssetDocumentInfo>(pEntry, ezFoundation::GetDefaultAllocator()));
+
+          ezFileStatus stat;
+          reader >> stat;
+          m_CachedFiles.Insert(std::move(sPath), stat);
+        }
+      }
+      {
+        EZ_PROFILE("Files");
+        for (ezUInt32 i = 0; i < uiFileCount; i++)
+        {
+          ezString sPath;
+          reader >> sPath;
+          ezFileStatus stat;
+          reader >> stat;
+          m_ReferencedFiles.Insert(std::move(sPath), stat);
+        }
       }
     }
   }
@@ -1303,7 +1381,9 @@ void ezAssetCurator::LoadCaches()
 
 void ezAssetCurator::SaveCaches()
 {
-  m_CachedEntries.Clear();
+  EZ_PROFILE("SaveCaches");
+  m_CachedAssets.Clear();
+  m_CachedFiles.Clear();
 
   // Do not save cache on processors.
   if (ezQtUiServices::IsHeadless())
@@ -1321,39 +1401,62 @@ void ezAssetCurator::SaveCaches()
     ezStringBuilder sCacheFile = sDataDir;
     sCacheFile.AppendPath("AssetCache", "AssetCurator.ezCache");
 
-    ezUInt32 uiVersion = ezGetStaticRTTI<AssetCacheEntry>()->GetTypeVersion();
-    ezUInt32 uiCount = 0;
-    for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
+    const ezUInt32 uiFileVersion = EZ_CURATOR_CACHE_FILE_VERSION;
+    ezUInt32 uiAssetCount = 0;
+    ezUInt32 uiFileCount = 0;
+
     {
-      if (it.Value()->m_ExistanceState == ezAssetExistanceState::FileUnchanged && it.Value()->m_sAbsolutePath.StartsWith(sDataDir))
+      EZ_PROFILE("Count");
+      for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
       {
-        ++uiCount;
+        if (it.Value()->m_ExistanceState == ezAssetExistanceState::FileUnchanged && it.Value()->m_sAbsolutePath.StartsWith(sDataDir))
+        {
+          ++uiAssetCount;
+        }
+      }
+      for (auto it = m_ReferencedFiles.GetIterator(); it.IsValid(); ++it)
+      {
+        if (it.Value().m_Status == ezFileStatus::Status::Valid && !it.Value().m_AssetGuid.IsValid() && it.Key().StartsWith(sDataDir))
+        {
+          ++uiFileCount;
+        }
       }
     }
-
     ezDeferredFileWriter writer;
     writer.SetOutput(sCacheFile);
 
     writer << uiCuratorCacheVersion;
-    writer << uiVersion;
-    writer << uiCount;
+    writer << uiFileVersion;
+    writer << uiAssetCount;
+    writer << uiFileCount;
 
-    AssetCacheEntry entry;
-    for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
     {
-      if (it.Value()->m_ExistanceState == ezAssetExistanceState::FileUnchanged && it.Value()->m_sAbsolutePath.StartsWith(sDataDir))
+      EZ_PROFILE("Assets");
+      for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
       {
-        auto refFile = m_ReferencedFiles.Find(it.Value()->m_sAbsolutePath);
-        EZ_ASSERT_DEBUG(refFile.IsValid(), "");
-        entry.m_sFile = it.Value()->m_sAbsolutePath;
-        entry.m_Timestamp = refFile.Value().m_Timestamp;
-        entry.m_uiHash = refFile.Value().m_uiHash;
-        entry.m_Info = it.Value()->m_Info;
-
-        ezReflectionSerializer::WriteObjectToBinary(writer, ezGetStaticRTTI<AssetCacheEntry>(), &entry);
+        const ezAssetInfo* pAsset = it.Value();
+        if (pAsset->m_ExistanceState == ezAssetExistanceState::FileUnchanged && pAsset->m_sAbsolutePath.StartsWith(sDataDir))
+        {
+          writer << pAsset->m_sAbsolutePath;
+          ezReflectionSerializer::WriteObjectToBinary(writer, ezGetStaticRTTI<ezAssetDocumentInfo>(), &pAsset->m_Info);
+          auto stat = m_ReferencedFiles.Find(it.Value()->m_sAbsolutePath);
+          EZ_ASSERT_DEBUG(stat.IsValid(), "");
+          writer << stat.Value();
+        }
       }
     }
-
+    {
+      EZ_PROFILE("Files");
+      for (auto it = m_ReferencedFiles.GetIterator(); it.IsValid(); ++it)
+      {
+        const ezFileStatus& stat = it.Value();
+        if (stat.m_Status == ezFileStatus::Status::Valid && !stat.m_AssetGuid.IsValid() && it.Key().StartsWith(sDataDir))
+        {
+          writer << it.Key();
+          writer << stat;
+        }
+      }
+    }
     writer.Close();
   }
 

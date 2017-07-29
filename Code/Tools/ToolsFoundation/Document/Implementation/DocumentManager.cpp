@@ -2,6 +2,7 @@
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <Foundation/Configuration/SubSystem.h>
 #include <Foundation/Configuration/Plugin.h>
+#include <Foundation/Profiling/Profiling.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentManager, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -161,6 +162,7 @@ void ezDocumentManager::EnsureWindowRequested(ezDocument* pDocument, const ezDoc
   if (pDocument->m_bWindowRequested)
     return;
 
+  EZ_PROFILE("EnsureWindowRequested");
   pDocument->m_bWindowRequested = true;
 
   Event e;
@@ -204,9 +206,11 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
     {
       EZ_ASSERT_DEV(DocumentTypes[i]->m_bCanCreate, "This document manager cannot create the document type '{0}'", szDocumentTypeName);
 
-      status = InternalCreateDocument(szDocumentTypeName, sPath, out_pDocument);
-      EZ_ASSERT_DEV(status.m_Result == EZ_FAILURE || out_pDocument != nullptr, "Status was success, but the document manager returned a nullptr document.");
-
+      {
+        EZ_PROFILE("InternalCreateDocument");
+        status = InternalCreateDocument(szDocumentTypeName, sPath, out_pDocument);
+        EZ_ASSERT_DEV(status.m_Result == EZ_FAILURE || out_pDocument != nullptr, "Status was success, but the document manager returned a nullptr document.");
+      }
       out_pDocument->SetAddToResetFilesList(bAddToRecentFilesList);
 
       if (status.m_Result.Succeeded())
@@ -216,13 +220,17 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
         out_pDocument->m_pDocumentManager = this;
         m_AllDocuments.PushBack(out_pDocument);
 
-        out_pDocument->InitializeBeforeLoading();
-
+        {
+          EZ_PROFILE("InitializeBeforeLoading");
+          out_pDocument->InitializeBeforeLoading();
+        }
         if (!bCreate)
           status = out_pDocument->LoadDocument();
 
-        out_pDocument->InitializeAfterLoading();
-
+        {
+          EZ_PROFILE("InitializeAfterLoading");
+          out_pDocument->InitializeAfterLoading();
+        }
         if (bCreate)
         {
           out_pDocument->SetModified(true);

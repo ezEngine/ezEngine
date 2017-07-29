@@ -12,7 +12,7 @@
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <QPainter>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentInfo, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentInfo, 1, ezRTTIDefaultAllocator<ezAssetDocumentInfo>)
 {
   EZ_BEGIN_PROPERTIES
   {

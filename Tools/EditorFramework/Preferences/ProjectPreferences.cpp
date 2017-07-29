@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/Preferences/ProjectPreferences.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <Foundation/Profiling/Profiling.h>
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectPreferencesUser, 1, ezRTTIDefaultAllocator<ezProjectPreferencesUser>)
@@ -21,5 +22,6 @@ ezProjectPreferencesUser::ezProjectPreferencesUser()
 
 void ezQtEditorApp::LoadProjectPreferences()
 {
+  EZ_PROFILE("LoadProjectPreferences");
   ezPreferences::QueryPreferences<ezProjectPreferencesUser>();
 }

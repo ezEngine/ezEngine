@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <Foundation/Profiling/Profiling.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -29,5 +30,6 @@ ezEditorPreferencesUser::ezEditorPreferencesUser()
 
 void ezQtEditorApp::LoadEditorPreferences()
 {
+  EZ_PROFILE("Preferences");
   ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
 }

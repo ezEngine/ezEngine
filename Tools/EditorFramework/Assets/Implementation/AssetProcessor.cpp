@@ -200,6 +200,7 @@ void ezAssetProcessor::AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
 ezProcessTask::ezProcessTask(ezUInt32 uiProcessorID)
   : m_uiProcessorID(uiProcessorID), m_bProcessShouldBeRunning(false), m_bProcessCrashed(false), m_bWaiting(false), m_bSuccess(true)
 {
+  SetTaskName("ezProcessTask");
   m_pIPC = EZ_DEFAULT_NEW(ezEditorProcessCommunicationChannel);
   m_pIPC->m_Events.AddEventHandler(ezMakeDelegate(&ezProcessTask::EventHandlerIPC, this));
 }

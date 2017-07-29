@@ -2,6 +2,7 @@
 #include <EditorFramework/EditorApp/Configuration/Plugins.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Profiling/Profiling.h>
 
 void ezQtEditorApp::DetectAvailableEnginePlugins()
 {
@@ -68,6 +69,7 @@ void ezQtEditorApp::StoreEnginePluginsToBeLoaded()
 
 void ezQtEditorApp::ReadEnginePluginConfig()
 {
+  EZ_PROFILE("ReadEnginePluginConfig");
   m_EnginePluginConfig.Load();
 
   // remove all plugin dependencies that are stored in file

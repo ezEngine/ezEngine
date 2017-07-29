@@ -53,6 +53,7 @@ ezString ezAssetDocumentManager::GenerateResourceThumbnailPath(const char* szDoc
 
 bool ezAssetDocumentManager::IsThumbnailUpToDate(const char* szDocumentPath, ezUInt64 uiThumbnailHash, ezUInt32 uiTypeVersion)
 {
+  CURATOR_PROFILE(szDocumentPath);
   ezString sThumbPath = GenerateResourceThumbnailPath(szDocumentPath);
   ezFileReader file;
   if (file.Open(sThumbPath, 256).Failed())
@@ -115,6 +116,7 @@ ezString ezAssetDocumentManager::GetRelativeOutputFileName(const char* szDataDir
 
 bool ezAssetDocumentManager::IsOutputUpToDate(const char* szDocumentPath, const ezSet<ezString>& outputs, ezUInt64 uiHash, ezUInt16 uiTypeVersion)
 {
+  CURATOR_PROFILE(szDocumentPath);
   if (!IsOutputUpToDate(szDocumentPath, "", uiHash, uiTypeVersion))
     return false;
 
@@ -144,6 +146,7 @@ ezString ezAssetDocumentManager::DetermineFinalTargetPlatform(const char* szPlat
 
 bool ezAssetDocumentManager::IsResourceUpToDate(const char* szResourceFile, ezUInt64 uiHash, ezUInt16 uiTypeVersion)
 {
+  CURATOR_PROFILE(szResourceFile);
   ezFileReader file;
   if (file.Open(szResourceFile, 256).Failed())
     return false;

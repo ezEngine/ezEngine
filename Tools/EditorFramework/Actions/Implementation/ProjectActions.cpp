@@ -18,6 +18,7 @@
 #include <EditorFramework/Dialogs/WindowCfgDlg.moc.h>
 #include <EditorFramework/Dialogs/TagsDlg.moc.h>
 #include <EditorFramework/Dialogs/LaunchFileserveDlg.moc.h>
+#include <Foundation/Profiling/Profiling.h>
 
 ezActionDescriptorHandle ezProjectActions::s_hEditorMenu;
 
@@ -50,6 +51,7 @@ ezActionDescriptorHandle ezProjectActions::s_hToolsCategory;
 ezActionDescriptorHandle ezProjectActions::s_hReloadResources;
 ezActionDescriptorHandle ezProjectActions::s_hReloadEngine;
 ezActionDescriptorHandle ezProjectActions::s_hLaunchFileserve;
+ezActionDescriptorHandle ezProjectActions::s_hSaveProfiling;
 
 void ezProjectActions::RegisterActions()
 {
@@ -86,6 +88,7 @@ void ezProjectActions::RegisterActions()
   s_hReloadResources = EZ_REGISTER_ACTION_1("Engine.ReloadResources", ezActionScope::Global, "Engine", "F4", ezProjectAction, ezProjectAction::ButtonType::ReloadResources);
   s_hReloadEngine = EZ_REGISTER_ACTION_1("Engine.ReloadEngine", ezActionScope::Global, "Engine", "Ctrl+Shift+F4", ezProjectAction, ezProjectAction::ButtonType::ReloadEngine);
   s_hLaunchFileserve = EZ_REGISTER_ACTION_1("Editor.LaunchFileserve", ezActionScope::Global, "Engine", "", ezProjectAction, ezProjectAction::ButtonType::LaunchFileserve);
+  s_hSaveProfiling = EZ_REGISTER_ACTION_1("Editor.SaveProfiling", ezActionScope::Global, "Engine", "Alt+S", ezProjectAction, ezProjectAction::ButtonType::SaveProfiling);
 }
 
 void ezProjectActions::UnregisterActions()
@@ -108,6 +111,7 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hReloadResources);
   ezActionManager::UnregisterAction(s_hReloadEngine);
   ezActionManager::UnregisterAction(s_hLaunchFileserve);
+  ezActionManager::UnregisterAction(s_hSaveProfiling);
   ezActionManager::UnregisterAction(s_hShortcutEditor);
   ezActionManager::UnregisterAction(s_hEditorPlugins);
   ezActionManager::UnregisterAction(s_hEnginePlugins);
@@ -146,6 +150,7 @@ void ezProjectActions::MapActions(const char* szMapping)
   pMap->MapAction(s_hReloadResources, "Menu.Tools/ToolsCategory", 1.0f);
   pMap->MapAction(s_hReloadEngine, "Menu.Tools/ToolsCategory", 2.0f);
   pMap->MapAction(s_hLaunchFileserve, "Menu.Tools/ToolsCategory", 3.0f);
+  pMap->MapAction(s_hSaveProfiling, "Menu.Tools/ToolsCategory", 4.0f);
 
   pMap->MapAction(s_hEditorPlugins, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 1.0f);
   pMap->MapAction(s_hShortcutEditor, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 2.0f);
@@ -483,6 +488,21 @@ void ezProjectAction::Execute(const ezVariant& value)
   case ezProjectAction::ButtonType::ReloadEngine:
     {
       ezEditorEngineProcessConnection::GetSingleton()->RestartProcess();
+    }
+    break;
+
+  case ezProjectAction::ButtonType::SaveProfiling:
+    {
+      ezFileWriter fileWriter;
+      if (fileWriter.Open(":appdata/profiling.json") == EZ_SUCCESS)
+      {
+        ezProfilingSystem::Capture(fileWriter);
+        ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
+      }
+      else
+      {
+        ezLog::Error("Could not write profiling capture to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
+      }
     }
     break;
 

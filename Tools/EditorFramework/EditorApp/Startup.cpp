@@ -43,6 +43,7 @@
 #include <EditorFramework/Visualizers/CameraVisualizerAdapter.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <EditorFramework/Panels/CVarPanel/CVarPanel.moc.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
@@ -103,6 +104,7 @@ EZ_END_SUBSYSTEM_DECLARATION
 
 void ezQtEditorApp::StartupEditor(bool bHeadless)
 {
+  EZ_PROFILE("StartupEditor");
   m_bHeadless = bHeadless;
   if (!bHeadless)
   {
@@ -139,6 +141,7 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
 
   if (!bHeadless)
   {
+    EZ_PROFILE("ezQtContainerWindow");
     SetStyleSheet();
 
     ezQtContainerWindow* pContainer = new ezQtContainerWindow(0);
@@ -155,29 +158,34 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
 
   ezStartup::StartupCore();
 
-  const ezString sAppDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
-  const ezString sUserData = ezApplicationServices::GetSingleton()->GetApplicationUserDataFolder();
+  {
+    EZ_PROFILE("Filesystem");
+    const ezString sAppDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
+    const ezString sUserData = ezApplicationServices::GetSingleton()->GetApplicationUserDataFolder();
 
-  // make sure these folders exist
-  ezFileSystem::CreateDirectoryStructure(sAppDir);
-  ezFileSystem::CreateDirectoryStructure(sUserData);
+    // make sure these folders exist
+    ezFileSystem::CreateDirectoryStructure(sAppDir);
+    ezFileSystem::CreateDirectoryStructure(sUserData);
 
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
+    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
-  ezFileSystem::AddDataDirectory("", "AbsPaths", ":", ezFileSystem::AllowWrites); // for absolute paths
-  ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites); // writing to the binary directory
-  ezFileSystem::AddDataDirectory(sAppDir, "AppData", "app"); // app specific data
-  ezFileSystem::AddDataDirectory(sUserData, "AppData", "appdata", ezFileSystem::AllowWrites); // for writing app user data
+    ezFileSystem::AddDataDirectory("", "AbsPaths", ":", ezFileSystem::AllowWrites); // for absolute paths
+    ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites); // writing to the binary directory
+    ezFileSystem::AddDataDirectory(sAppDir, "AppData", "app"); // app specific data
+    ezFileSystem::AddDataDirectory(sUserData, "AppData", "appdata", ezFileSystem::AllowWrites); // for writing app user data
+  }
 
-  ezString sApplicationID = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-appid", 0, "ezEditor");
-  ezStringBuilder sLogFile;
+  {
+    EZ_PROFILE("Logging");
+    ezString sApplicationID = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-appid", 0, "ezEditor");
+    ezStringBuilder sLogFile;
   sLogFile.Format(":appdata/Log_{0}.htm", sApplicationID);
-  m_LogHTML.BeginLog(sLogFile, sApplicationID);
+    m_LogHTML.BeginLog(sLogFile, sApplicationID);
 
-  ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
-  ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
-  ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
-
+    ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
+    ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+    ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
+  }
   ezUniquePtr<ezTranslatorFromFiles> pTranslatorEn = EZ_DEFAULT_NEW(ezTranslatorFromFiles);
   //ezUniquePtr<ezTranslatorFromFiles> pTranslatorDe = EZ_DEFAULT_NEW(ezTranslatorFromFiles);
 
@@ -295,6 +303,7 @@ void ezQtEditorApp::ShutdownEditor()
 
 void ezQtEditorApp::CreatePanels()
 {
+  EZ_PROFILE("CreatePanels");
   new ezQtLogPanel();
   new ezQtCVarPanel();
   new ezQtAssetBrowserPanel();

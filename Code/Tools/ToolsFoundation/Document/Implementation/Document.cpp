@@ -14,6 +14,7 @@
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/Utilities/Progress.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
+#include <Foundation/Profiling/Profiling.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentObjectMetaData, 1, ezRTTINoAllocator)
 {
@@ -164,6 +165,7 @@ void ezDocument::EnsureVisible()
 
 ezStatus ezDocument::InternalSaveDocument()
 {
+  EZ_PROFILE("InternalSaveDocument");
   ezDeferredFileWriter file;
   file.SetOutput(m_sDocumentPath);
 
@@ -198,6 +200,7 @@ ezStatus ezDocument::InternalSaveDocument()
 
 ezStatus ezDocument::InternalLoadDocument()
 {
+  EZ_PROFILE("InternalLoadDocument");
   // this would currently crash in Qt, due to the processEvents in the QtProgressBar
   //ezProgressRange range("Loading Document", 5, false);
 
@@ -208,6 +211,7 @@ ezStatus ezDocument::InternalLoadDocument()
   ezMemoryStreamReader memreader(&storage);
 
   {
+    EZ_PROFILE("Read File");
     ezFileReader file;
     if (file.Open(m_sDocumentPath) == EZ_FAILURE)
     {
@@ -219,6 +223,7 @@ ezStatus ezDocument::InternalLoadDocument()
 
     //range.BeginNextStep("Parsing Graph");
     {
+      EZ_PROFILE("parse DDL graph");
       ezStopwatch sw;
       if (ezAbstractGraphDdlSerializer::Read(memreader, &graph, &typesGraph).Failed())
         return ezStatus("Failed to parse DDL graph");
@@ -229,6 +234,7 @@ ezStatus ezDocument::InternalLoadDocument()
   }
 
   {
+    EZ_PROFILE("Deserializing Types");
     //range.BeginNextStep("Deserializing Types");
 
     // Deserialize and register serialized phantom types.
@@ -273,6 +279,7 @@ ezStatus ezDocument::InternalLoadDocument()
   ezDocumentObjectConverterReader objectConverter(&graph, GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
 
   {
+    EZ_PROFILE("Restoring Objects");
     //range.BeginNextStep("Restoring Objects");
 
     auto* pHeaderNode = graph.GetNodeByName("Header");
@@ -285,6 +292,7 @@ ezStatus ezDocument::InternalLoadDocument()
   }
 
   {
+    EZ_PROFILE("Restoring Meta-Data");
     //range.BeginNextStep("Restoring Meta-Data");
     RestoreMetaDataAfterLoading(graph);
   }

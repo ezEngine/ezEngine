@@ -44,6 +44,7 @@ public:
   static ezActionDescriptorHandle s_hReloadResources;
   static ezActionDescriptorHandle s_hReloadEngine;
   static ezActionDescriptorHandle s_hLaunchFileserve;
+  static ezActionDescriptorHandle s_hSaveProfiling;
 };
 
 ///
@@ -81,6 +82,7 @@ public:
     ReloadResources,
     ReloadEngine,
     LaunchFileserve,
+    SaveProfiling,
     Shortcuts,
     EditorPlugins,
     DataDirectories,

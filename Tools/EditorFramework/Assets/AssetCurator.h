@@ -14,6 +14,8 @@
 #include <Foundation/Logging/LogEntry.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <tuple>
+#include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Threading/DelegateTask.h>
 
 class ezUpdateTask;
 class ezTask;
@@ -21,8 +23,32 @@ class ezAssetDocumentManager;
 class ezDirectoryWatcher;
 class ezProcessTask;
 struct ezFileStats;
-struct AssetCacheEntry;
 class ezAssetProcessorLog;
+
+#if 0 // Define to enable extensive curator profile scopes
+#define CURATOR_PROFILE(szName) \
+  EZ_PROFILE(szName)
+
+#else
+  #define CURATOR_PROFILE(Name)
+
+#endif
+
+/// \brief Custom mutex that allows to profile the time in the curator lock.
+class ezCuratorMutex : public ezMutex
+{
+public:
+  void Acquire()
+  {
+    CURATOR_PROFILE("ezCuratorMutex");
+    ezMutex::Acquire();
+  }
+
+  void Release()
+  {
+    ezMutex::Release();
+  }
+};
 
 struct ezAssetInfo
 {
@@ -60,6 +86,7 @@ private:
   void operator= (const ezAssetInfo& rhs) = delete;
 };
 
+/// \brief Information about an asset or sub-asset.
 struct ezSubAsset
 {
   ezStringView GetName() const;
@@ -73,15 +100,28 @@ struct ezSubAsset
   ezSubAssetData m_Data;
 };
 
-struct AssetCacheEntry
+/// \brief Information about a single file on disk. The file might be an asset or any other file (needed for dependencies).
+struct ezFileStatus
 {
-  ezString m_sFile;
+  enum class Status
+  {
+    Unknown,    ///< Since the file has been tagged as 'Unknown' it has not been encountered again on disk (yet)
+    FileLocked, ///< The file is probably an asset, but we could not read it
+    Valid       ///< The file exists on disk
+  };
+
+  ezFileStatus()
+  {
+    m_uiHash = 0;
+    m_Status = Status::Unknown;
+  }
+
   ezTimestamp m_Timestamp;
   ezUInt64 m_uiHash;
-  ezAssetDocumentInfo m_Info;
+  ezUuid m_AssetGuid; ///< If the file is linked to an asset, the GUID is valid, otherwise not.
+  Status m_Status;
 };
-
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, AssetCacheEntry);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezFileStatus);
 
 struct ezAssetCuratorEvent
 {
@@ -110,7 +150,10 @@ public:
   /// \name Setup
   ///@{
 
-  void Initialize(const ezApplicationFileSystemConfig& cfg);
+  /// \brief Starts init task. Need to call WaitForInitialize to finish before loading docs.
+  void StartInitialize(const ezApplicationFileSystemConfig& cfg);
+  /// \brief Waits for init task to finish.
+  void WaitForInitialize();
   void Deinitialize();
 
   const char* GetActivePlatform() const { return m_sActivePlatform; }
@@ -188,27 +231,7 @@ public:
 
 private:
 
-  /// \brief Information about a single file on disk. The file might be an asset or any other file (needed for dependencies).
-  struct FileStatus
-  {
-    enum class Status
-    {
-      Unknown,    ///< Since the file has been tagged as 'Unknown' it has not been encountered again on disk (yet)
-      FileLocked, ///< The file is probably an asset, but we could not read it
-      Valid       ///< The file exists on disk
-    };
 
-    FileStatus()
-    {
-      m_uiHash = 0;
-      m_Status = Status::Unknown;
-    }
-
-    ezTimestamp m_Timestamp;
-    ezUInt64 m_uiHash;
-    ezUuid m_AssetGuid; ///< If the file is linked to an asset, the GUID is valid, otherwise not.
-    Status m_Status;
-  };
 
   /// \name Processing
   ///@{
@@ -254,7 +277,7 @@ private:
   void UntrackDependencies(ezAssetInfo* pAssetInfo);
   void UpdateTrackedFiles(const ezUuid& assetGuid, const ezSet<ezString>& files, ezMap<ezString, ezHybridArray<ezUuid, 1> >& inverseTracker, ezSet<std::tuple<ezUuid, ezUuid> >& unresolved, bool bAdd);
   void UpdateUnresolvedTrackedFiles(ezMap<ezString, ezHybridArray<ezUuid, 1> >& inverseTracker, ezSet<std::tuple<ezUuid, ezUuid> >& unresolved);
-  ezResult ReadAssetDocumentInfo(const char* szAbsFilePath, ezAssetCurator::FileStatus& stat, ezAssetInfo& assetInfo, const ezFileStats* pFileStat);
+  ezResult ReadAssetDocumentInfo(const char* szAbsFilePath, ezFileStatus& stat, ezAssetInfo& assetInfo);
   void UpdateSubAssets(ezAssetInfo& assetInfo);
   /// \brief Computes the hash of the given file. Optionally passes the data stream through into another stream writer.
   static ezUInt64 HashFile(ezStreamReader& InputStream, ezStreamWriter* pPassThroughStream);
@@ -283,13 +306,14 @@ private:
   friend class ezProcessTask;
   friend class ezAssetProcessor;
 
+  ezAtomicInteger32 m_bInitStarted = false; // Used to figure out whether the task system has already started the init task so we don't still its lock.
   bool m_bRunUpdateTask;
   bool m_bNeedToReloadResources;
 
   // Actual data stored in the curator
   ezHashTable<ezUuid, ezAssetInfo*> m_KnownAssets;
   ezMap<ezUuid, ezSubAsset> m_KnownSubAssets;
-  ezMap<ezString, FileStatus, ezCompareString_NoCase> m_ReferencedFiles;
+  ezMap<ezString, ezFileStatus, ezCompareString_NoCase> m_ReferencedFiles;
 
   // Derived dependency lookup tables
   ezMap<ezString, ezHybridArray<ezUuid, 1> > m_InverseDependency;
@@ -303,14 +327,16 @@ private:
   ezSet<ezUuid> m_TransformStateStale;
 
   // Serialized cache
-  ezMap<ezString, ezUniquePtr<AssetCacheEntry>, ezCompareString_NoCase > m_CachedEntries;
+  ezMap<ezString, ezUniquePtr<ezAssetDocumentInfo> > m_CachedAssets;
+  ezMap<ezString, ezFileStatus > m_CachedFiles;
+
 
   ezApplicationFileSystemConfig m_FileSystemConfig;
   ezString m_sActivePlatform;
   ezSet<ezString> m_ValidAssetExtensions;
   ezSet<ezString> m_AssetFolders;
 
-  mutable ezMutex m_CuratorMutex;
+  mutable ezCuratorMutex m_CuratorMutex;
   ezDynamicArray<ezDirectoryWatcher*> m_Watchers;
   ezUpdateTask* m_pUpdateTask;
 };

@@ -12,88 +12,101 @@
 
 ezUInt64 ezAssetCurator::GetAssetHash(ezUuid assetGuid, bool bReferences)
 {
+  CURATOR_PROFILE("GetAssetHash");
   ezStringBuilder tmp;
-  auto it = m_KnownSubAssets.Find(assetGuid);
-  if (it.IsValid())
+
+  ezString m_sAbsolutePath;
+  ezAssetDocumentInfo m_Info;
   {
-    // If assetGuid is a sub-asset, redirect to main asset.
-    assetGuid = it.Value().m_pAssetInfo->m_Info.m_DocumentID;
+    EZ_LOCK(m_CuratorMutex);
+    auto it = m_KnownSubAssets.Find(assetGuid);
+    if (it.IsValid())
+    {
+      // If assetGuid is a sub-asset, redirect to main asset.
+      assetGuid = it.Value().m_pAssetInfo->m_Info.m_DocumentID;
+    }
+    ezAssetInfo* pInfo = nullptr;
+    if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
+    {
+      ezLog::Error("Asset with GUID {0} is unknown", ezConversionUtils::ToString(assetGuid, tmp));
+      return 0;
+    }
+
+    if (pInfo->m_TransformState == ezAssetInfo::TransformError)
+      return 0;
+
+    m_Info = pInfo->m_Info;
+    m_sAbsolutePath = pInfo->m_sAbsolutePath;
   }
 
+  EZ_LOG_BLOCK("ezAssetCurator::GetAssetHash", m_sAbsolutePath.GetData());
   if (EnsureAssetInfoUpdated(assetGuid).Failed())
   {
     ezLog::Error("Asset with GUID {0} is unknown", ezConversionUtils::ToString(assetGuid, tmp));
     return 0;
   }
 
-  EZ_LOCK(m_CuratorMutex);
-
-  ezAssetInfo* pInfo = nullptr;
-  if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
+  ezUInt64 uiHashResult = 0;
+  ezSet<ezString> missingDependencies;
+  ezSet<ezString> missingReferences;
   {
-    ezLog::Error("Asset with GUID {0} is unknown", ezConversionUtils::ToString(assetGuid, tmp));
-    return 0;
-  }
+    // hash of the main asset file
+    uiHashResult = m_Info.m_uiSettingsHash;
 
-  EZ_LOG_BLOCK("ezAssetCurator::GetAssetHash", pInfo->m_sAbsolutePath.GetData());
+    // Iterate dependencies
+    ezSet<ezString>& files = bReferences ? m_Info.m_RuntimeDependencies : m_Info.m_AssetTransformDependencies;
 
-  ezFileStats stat;
-
-  if (ezOSFile::GetFileStats(pInfo->m_sAbsolutePath, stat).Failed())
-  {
-    ezLog::Error("Failed to retrieve file stats '{0}'", pInfo->m_sAbsolutePath);
-    return 0;
-  }
-
-  if (pInfo->m_TransformState == ezAssetInfo::TransformError)
-    return 0;
-
-  if (bReferences)
-    pInfo->m_MissingReferences.Clear();
-
-  pInfo->m_MissingDependencies.Clear();
-
-  // hash of the main asset file
-  ezUInt64 uiHashResult = pInfo->m_Info.m_uiSettingsHash;
-
-  // Iterate dependencies
-  ezSet<ezString>& files = bReferences ? pInfo->m_Info.m_RuntimeDependencies : pInfo->m_Info.m_AssetTransformDependencies;
-
-  for (const auto& dep : pInfo->m_Info.m_AssetTransformDependencies)
-  {
-    ezString sPath = dep;
-
-    if (!AddAssetHash(sPath, bReferences, uiHashResult))
-    {
-      pInfo->m_MissingDependencies.Insert(sPath);
-      return 0;
-    }
-  }
-
-  if (bReferences)
-  {
-    for (const auto& dep : pInfo->m_Info.m_RuntimeDependencies)
+    for (const auto& dep : m_Info.m_AssetTransformDependencies)
     {
       ezString sPath = dep;
-      // Already hashed in the dependency list.
-      if (pInfo->m_Info.m_AssetTransformDependencies.Contains(sPath))
-        continue;
-
       if (!AddAssetHash(sPath, bReferences, uiHashResult))
       {
-        pInfo->m_MissingReferences.Insert(sPath);
-        return 0;
+        missingDependencies.Insert(sPath);
+      }
+    }
+
+    if (bReferences)
+    {
+      for (const auto& dep : m_Info.m_RuntimeDependencies)
+      {
+        ezString sPath = dep;
+        // Already hashed in the dependency list.
+        if (m_Info.m_AssetTransformDependencies.Contains(sPath))
+          continue;
+
+        if (!AddAssetHash(sPath, bReferences, uiHashResult))
+        {
+          missingReferences.Insert(sPath);
+        }
       }
     }
   }
 
-  if (!bReferences)
+  if (!missingDependencies.IsEmpty() || !missingReferences.IsEmpty())
   {
-    if (pInfo->m_LastAssetDependencyHash != uiHashResult)
+    uiHashResult = 0;
+  }
+
+  {
+    EZ_LOCK(m_CuratorMutex);
+    ezAssetInfo* pInfo = nullptr;
+    if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
     {
-      pInfo->m_LastAssetDependencyHash = uiHashResult;
+      ezLog::Error("Asset with GUID {0} is unknown", ezConversionUtils::ToString(assetGuid, tmp));
+      return 0;
+    }
+    pInfo->m_MissingDependencies = missingDependencies;
+    pInfo->m_MissingReferences = missingReferences;
+    if (!bReferences)
+    {
+      // Write back result hash for debugging.
+      if (pInfo->m_LastAssetDependencyHash != uiHashResult)
+      {
+        pInfo->m_LastAssetDependencyHash = uiHashResult;
+      }
     }
   }
+
   return uiHashResult;
 }
 
@@ -132,29 +145,41 @@ bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bReferences, ezUInt64& u
     return false;
   }
 
-  auto& fileref = m_ReferencedFiles[sPath];
+  ezFileStatus fileStatus;
+  {
+    EZ_LOCK(m_CuratorMutex);
+    fileStatus = m_ReferencedFiles[sPath];
+  }
 
   // if the file has been modified, make sure to get updated data
-  if (!fileref.m_Timestamp.Compare(statDep.m_LastModificationTime, ezTimestamp::CompareMode::Identical))
+  if (!fileStatus.m_Timestamp.Compare(statDep.m_LastModificationTime, ezTimestamp::CompareMode::Identical))
   {
+    CURATOR_PROFILE(sPath);
     ezFileReader file;
     if (file.Open(sPath).Failed())
     {
       ezLog::Error("Failed to open file '{0}'", sPath);
       return false;
     }
-    fileref.m_Timestamp = statDep.m_LastModificationTime;
-    fileref.m_uiHash = ezAssetCurator::HashFile(file, nullptr);
-    fileref.m_Status = ezAssetCurator::FileStatus::Status::Valid;
+    fileStatus.m_Timestamp = statDep.m_LastModificationTime;
+    fileStatus.m_uiHash = ezAssetCurator::HashFile(file, nullptr);
+    fileStatus.m_Status = ezFileStatus::Status::Valid;
+  }
+
+  {
+    EZ_LOCK(m_CuratorMutex);
+    ezFileStatus& refFile = m_ReferencedFiles[sPath];
+    refFile = fileStatus;
   }
 
   // combine all hashes
-  uiHashResult += fileref.m_uiHash;
+  uiHashResult += fileStatus.m_uiHash;
   return true;
 }
 
 ezResult ezAssetCurator::EnsureAssetInfoUpdated(const ezUuid& assetGuid)
 {
+  EZ_LOCK(m_CuratorMutex);
   ezAssetInfo* pInfo = nullptr;
   if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
     return EZ_FAILURE;
@@ -221,23 +246,31 @@ static ezResult PatchAssetGuid(const char* szAbsFilePath, ezUuid oldGuid, ezUuid
 
 ezResult ezAssetCurator::EnsureAssetInfoUpdated(const char* szAbsFilePath)
 {
+  CURATOR_PROFILE(szAbsFilePath);
   ezFileStats fs;
   if (ezOSFile::GetFileStats(szAbsFilePath, fs).Failed())
     return EZ_FAILURE;
 
-  EZ_LOCK(m_CuratorMutex);
+  {
+    // If the file stat matches our stored timestamp, we are still up to date.
+    EZ_LOCK(m_CuratorMutex);
+    if (m_ReferencedFiles[szAbsFilePath].m_Timestamp.Compare(fs.m_LastModificationTime, ezTimestamp::CompareMode::Identical))
+      return EZ_SUCCESS;
+  }
 
-  if (m_ReferencedFiles[szAbsFilePath].m_Timestamp.Compare(fs.m_LastModificationTime, ezTimestamp::CompareMode::Identical))
-    return EZ_SUCCESS;
-
-  FileStatus& RefFile = m_ReferencedFiles[szAbsFilePath];
+  // Read document info outside the lock
+  ezFileStatus fileStatus;
   ezAssetInfo assetInfo;
-  ezUuid oldGuid = RefFile.m_AssetGuid;
-  bool bNew = !RefFile.m_AssetGuid.IsValid(); // Under this current location the asset is not known.
-  // if it already has a valid GUID, an ezAssetInfo object must exist
-  EZ_VERIFY(bNew == !m_KnownAssets.Contains(RefFile.m_AssetGuid), "guid set in file-status but no asset is actually known under that guid");
-  EZ_SUCCEED_OR_RETURN(ReadAssetDocumentInfo(szAbsFilePath, RefFile, assetInfo, &fs));
+  EZ_SUCCEED_OR_RETURN(ReadAssetDocumentInfo(szAbsFilePath, fileStatus, assetInfo));
 
+  EZ_LOCK(m_CuratorMutex);
+  ezFileStatus& RefFile = m_ReferencedFiles[szAbsFilePath];
+  ezUuid oldGuid = RefFile.m_AssetGuid;
+  // if it already has a valid GUID, an ezAssetInfo object must exist
+  bool bNew = !RefFile.m_AssetGuid.IsValid(); // Under this current location the asset is not known.
+  EZ_VERIFY(bNew == !m_KnownAssets.Contains(RefFile.m_AssetGuid), "guid set in file-status but no asset is actually known under that guid");
+
+  RefFile = fileStatus;
   ezAssetInfo* pAssetInfo = nullptr;
   if (bNew)
   {
@@ -448,36 +481,30 @@ void ezAssetCurator::UpdateUnresolvedTrackedFiles(ezMap<ezString, ezHybridArray<
   }
 }
 
-ezResult ezAssetCurator::ReadAssetDocumentInfo(const char* szAbsFilePath, ezAssetCurator::FileStatus& stat, ezAssetInfo& out_assetInfo, const ezFileStats* pFileStat)
+ezResult ezAssetCurator::ReadAssetDocumentInfo(const char* szAbsFilePath, ezFileStatus& stat, ezAssetInfo& out_assetInfo)
 {
+  CURATOR_PROFILE(szAbsFilePath);
+
+  ezFileStats fs;
+  if (ezOSFile::GetFileStats(szAbsFilePath, fs).Failed())
+    return EZ_FAILURE;
+  stat.m_Timestamp = fs.m_LastModificationTime;
+  stat.m_Status = ezFileStatus::Status::Valid;
+
   // try to read the asset file
   ezFileReader file;
   if (file.Open(szAbsFilePath) == EZ_FAILURE)
   {
     stat.m_Timestamp.Invalidate();
     stat.m_uiHash = 0;
-    stat.m_Status = FileStatus::Status::FileLocked;
+    stat.m_Status = ezFileStatus::Status::FileLocked;
 
     ezLog::Error("Failed to open asset file '{0}'", szAbsFilePath);
     return EZ_FAILURE;
   }
 
-  auto it = m_CachedEntries.Find(szAbsFilePath);
-  // Update time stamp
-  {
-    ezFileStats fs;
-
-    if (pFileStat == nullptr)
-    {
-      if (ezOSFile::GetFileStats(szAbsFilePath, fs).Failed())
-        return EZ_FAILURE;
-
-      pFileStat = &fs;
-    }
-
-    stat.m_Timestamp = pFileStat->m_LastModificationTime;
-    stat.m_Status = FileStatus::Status::Valid;
-  }
+  auto itAsset = m_CachedAssets.Find(szAbsFilePath);
+  auto itFile = m_CachedFiles.Find(szAbsFilePath);
 
   // update the paths
   {
@@ -511,9 +538,9 @@ ezResult ezAssetCurator::ReadAssetDocumentInfo(const char* szAbsFilePath, ezAsse
 
   ezMemoryStreamWriter MemWriter(&storage);
 
-  if (it.IsValid() && it.Value()->m_Timestamp.Compare(stat.m_Timestamp, ezTimestamp::CompareMode::Identical))
+  if (itAsset.IsValid() && itFile.IsValid() && itFile.Value().m_Timestamp.Compare(stat.m_Timestamp, ezTimestamp::CompareMode::Identical))
   {
-    stat.m_uiHash = it.Value()->m_uiHash;
+    stat.m_uiHash = itFile.Value().m_uiHash;
   }
   else
   {
@@ -523,9 +550,9 @@ ezResult ezAssetCurator::ReadAssetDocumentInfo(const char* szAbsFilePath, ezAsse
   file.Close();
 
   // and finally actually read the asset file (header only) and store the information in the ezAssetDocumentInfo member
-  if (it.IsValid() && it.Value()->m_Timestamp.Compare(stat.m_Timestamp, ezTimestamp::CompareMode::Identical))
+  if (itAsset.IsValid() && itFile.IsValid() && itFile.Value().m_Timestamp.Compare(stat.m_Timestamp, ezTimestamp::CompareMode::Identical))
   {
-    out_assetInfo.m_Info = it.Value()->m_Info;
+    out_assetInfo.m_Info = *itAsset.Value();
     stat.m_AssetGuid = out_assetInfo.m_Info.m_DocumentID;
   }
   else
@@ -547,6 +574,7 @@ ezResult ezAssetCurator::ReadAssetDocumentInfo(const char* szAbsFilePath, ezAsse
 
 void ezAssetCurator::UpdateSubAssets(ezAssetInfo& assetInfo)
 {
+  CURATOR_PROFILE("UpdateSubAssets");
   if (assetInfo.m_ExistanceState == ezAssetExistanceState::FileRemoved)
   {
     auto itMain = m_KnownSubAssets.Find(assetInfo.m_Info.m_DocumentID);
@@ -586,7 +614,10 @@ void ezAssetCurator::UpdateSubAssets(ezAssetInfo& assetInfo)
 
   {
     ezHybridArray<ezSubAssetData, 4> subAssets;
-    assetInfo.m_pManager->FillOutSubAssetList(assetInfo.m_Info, subAssets);
+    {
+      CURATOR_PROFILE("FillOutSubAssetList");
+      assetInfo.m_pManager->FillOutSubAssetList(assetInfo.m_Info, subAssets);
+    }
 
     for (const ezUuid& sub : assetInfo.m_SubAssets)
     {
@@ -627,6 +658,7 @@ void ezAssetCurator::UpdateSubAssets(ezAssetInfo& assetInfo)
 
 ezUInt64 ezAssetCurator::HashFile(ezStreamReader& InputStream, ezStreamWriter* pPassThroughStream)
 {
+  CURATOR_PROFILE("HashFile");
   ezUInt8 uiCache[1024 * 10];
   ezUInt64 uiHash = 0;
   while (true)
@@ -777,6 +809,7 @@ void ezAssetCurator::SetAssetExistanceState(ezAssetInfo& assetInfo, ezAssetExist
 
 ezUpdateTask::ezUpdateTask()
 {
+  SetTaskName("ezUpdateTask");
 }
 
 void ezUpdateTask::Execute()

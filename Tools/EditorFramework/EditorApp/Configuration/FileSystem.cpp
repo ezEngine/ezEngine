@@ -2,6 +2,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OSFile.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <Foundation/Profiling/Profiling.h>
 
 void ezQtEditorApp::AddPluginDataDirDependency(const char* szSdkRootRelativePath, const char* szRootName, bool bWriteable)
 {
@@ -43,6 +44,7 @@ void ezQtEditorApp::SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg
 
 void ezQtEditorApp::SetupDataDirectories()
 {
+  EZ_PROFILE("SetupDataDirectories");
   ezFileSystem::DetectSdkRootDirectory();
 
   ezStringBuilder sPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
