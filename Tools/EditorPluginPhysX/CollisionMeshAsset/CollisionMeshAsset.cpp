@@ -170,7 +170,7 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(const ezMat3 &mTransfo
 
     // outMesh.m_PolygonIndices is now ready and we have a mapping from mesh data index to vertex index. Remains only to copy over the vertices to their correct places.
 
-    outMesh.m_Vertices.SetCount(dataIndicesToVertexIndices.GetCount());
+    outMesh.m_Vertices.SetCountUninitialized(dataIndicesToVertexIndices.GetCount());
     for(auto it = dataIndicesToVertexIndices.GetIterator(); it.IsValid(); ++it)
     {
       ezVec3 vPosition = positionStream.GetValue(it.Key()[0]);

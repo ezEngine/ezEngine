@@ -20,7 +20,13 @@
   }
 
   template<int NumStreams>
-  inline ezModelImporter::VertexDataIndex Mesh::DataIndexBundle<NumStreams>::operator [] (int i) const
+  inline const ezModelImporter::VertexDataIndex Mesh::DataIndexBundle<NumStreams>::operator [] (int i) const
+  {
+    return m_indices[i];
+  }
+
+  template<int NumStreams>
+  inline ezModelImporter::VertexDataIndex& Mesh::DataIndexBundle<NumStreams>::operator [] (int i)
   {
     return m_indices[i];
   }
@@ -44,11 +50,6 @@
   inline void Mesh::GenerateInterleavedVertexMapping(const ezArrayPtr<const Triangle>& triangles, const VertexDataStream* (&dataStreams)[NumStreams],
                                                      ezHashTable<Mesh::DataIndexBundle<NumStreams>, ezUInt32>& outDataIndices_to_InterleavedVertexIndices, ezDynamicArray<ezUInt32>& outTriangleVertexIndices)
   {
-    for (int i = 0; i < NumStreams; ++i)
-    {
-      EZ_ASSERT_DEBUG(dataStreams[i], "Given data stream pointer is null!");
-    }
-
     outTriangleVertexIndices.SetCountUninitialized(triangles.GetCount() * 3);
 
     ezUInt32 nextVertexIndex = 0;
@@ -59,7 +60,7 @@
       {
         for (int stream = 0; stream < NumStreams; ++stream)
         {
-          dataIndices[stream] = dataStreams[stream]->GetDataIndex(triangles[t].m_Vertices[v]);
+          dataIndices[stream] = dataStreams[stream] ? dataStreams[stream]->GetDataIndex(triangles[t].m_Vertices[v]) : 0;
         }
 
         ezUInt32 gpuVertexIndex = nextVertexIndex;

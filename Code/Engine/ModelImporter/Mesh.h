@@ -114,7 +114,8 @@ namespace ezModelImporter
       EZ_DECLARE_POD_TYPE();
 
       bool operator == (const DataIndexBundle& dataIndex) const;
-      ezModelImporter::VertexDataIndex operator [] (int i) const;
+      const ezModelImporter::VertexDataIndex operator [] (int i) const;
+      ezModelImporter::VertexDataIndex& operator [] (int i);
 
     private:
       ezModelImporter::VertexDataIndex m_indices[NumStreams];
