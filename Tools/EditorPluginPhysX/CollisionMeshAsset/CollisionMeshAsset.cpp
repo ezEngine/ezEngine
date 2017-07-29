@@ -139,22 +139,6 @@ static ezStatus ImportMesh(const char* filename, const char* subMeshFilename, ez
   return ezStatus(EZ_SUCCESS);
 }
 
-template<>
-struct ezHashHelper<ezModelImporter::VertexDataIndex>
-{
-  typedef ezModelImporter::VertexDataIndex ValueType;
-
-  static ezUInt32 Hash(const ValueType& value)
-  {
-    return ezHashing::MurmurHash(&value, sizeof(ValueType));
-  }
-
-  static bool Equal(const ValueType& a, const ValueType& b)
-  {
-    return a == b;
-  }
-};
-
 ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(const ezMat3 &mTransformation, ezPhysXCookingMesh& outMesh)
 {
   using namespace ezModelImporter;
@@ -167,43 +151,32 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromFile(const ezMat3 &mTransfo
   EZ_SUCCEED_OR_RETURN(ImportMesh(pProp->m_sMeshFile, pProp->m_sSubMeshName, scene, mesh, sMeshFileAbs));
 
   const ezModelImporter::TypedVertexDataStreamView<ezVec3> positionStream(*mesh->GetDataStream(ezGALVertexAttributeSemantic::Position));
-  auto pStream = mesh->GetDataStream(ezGALVertexAttributeSemantic::Position);
 
   const ezArrayPtr<Mesh::Triangle> triangles = mesh->GetTriangles();
 
   outMesh.m_PolygonSurfaceID.SetCountUninitialized(triangles.GetCount());
   outMesh.m_VerticesInPolygon.SetCountUninitialized(triangles.GetCount());
-  outMesh.m_PolygonIndices.Reserve(triangles.GetCount() * 3);
-  outMesh.m_Vertices.Reserve(triangles.GetCount() * 3);
-
-  ezHashTable<VertexDataIndex, ezUInt32> vertexIndices;
-
   for (ezUInt32 uiTriangle = 0; uiTriangle < triangles.GetCount(); ++uiTriangle)
   {
-    const Mesh::Triangle& triangle = triangles[uiTriangle];
-
-    outMesh.m_PolygonSurfaceID[uiTriangle] = 0; // default value, will be updated below
-    outMesh.m_VerticesInPolygon[uiTriangle] = 3;
-
-    for (ezUInt32 v = 0; v < 3; ++v)
-    {
-      auto dataIdx = pStream->GetDataIndex(triangle.m_Vertices[v]);
-
-      ezUInt32 uiVertexIndex = outMesh.m_Vertices.GetCount(); // next index value, if not a known vertex yet
-      if (!vertexIndices.TryGetValue(dataIdx, uiVertexIndex))
-      {
-        // vertex wasn't used before, add it to the hashmap and the vertex data array
-        vertexIndices.Insert(dataIdx, uiVertexIndex);
-
-        ezVec3 vPosition = positionStream.GetValue(dataIdx);
-
-        outMesh.m_Vertices.PushBack(mTransformation.TransformDirection(vPosition));
-      }
-
-      outMesh.m_PolygonIndices.PushBack(uiVertexIndex);
-    }
+    outMesh.m_PolygonSurfaceID[uiTriangle] = 0; // default value, will be updated below when extracting materials.
+    outMesh.m_VerticesInPolygon[uiTriangle] = 3;  // Triangles!
   }
 
+  // Extract vertices and indices
+  {
+    const ezGALVertexAttributeSemantic::Enum streamSemantics[] = { ezGALVertexAttributeSemantic::Position };
+    ezHashTable<Mesh::DataIndexBundle<1>, ezUInt32> dataIndicesToVertexIndices;
+    mesh->GenerateInterleavedVertexMapping(streamSemantics, dataIndicesToVertexIndices, outMesh.m_PolygonIndices);
+
+    // outMesh.m_PolygonIndices is now ready and we have a mapping from mesh data index to vertex index. Remains only to copy over the vertices to their correct places.
+
+    outMesh.m_Vertices.SetCount(dataIndicesToVertexIndices.GetCount());
+    for(auto it = dataIndicesToVertexIndices.GetIterator(); it.IsValid(); ++it)
+    {
+      ezVec3 vPosition = positionStream.GetValue(it.Key()[0]);
+      outMesh.m_Vertices[it.Value()] = mTransformation.TransformDirection(vPosition);
+    }
+  }
 
   // Extract Material Information
   {

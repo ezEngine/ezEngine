@@ -2,6 +2,7 @@
 
 #include <ModelImporter/Node.h>
 #include <ModelImporter/VertexIndex.h>
+#include <ModelImporter/VertexData.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <Foundation/Containers/HashTable.h>
 
@@ -79,29 +80,60 @@ namespace ezModelImporter
     // Processing
   public:
 
-    /// Applies a transform to all directional and positional vertex data.
+    /// \brief Applies a transform to all directional and positional vertex data.
     void ApplyTransform(const ezTransform& transform);
 
-    /// Adds all triangles, vertices and submeshes from an existing mesh.
+    /// \brief Adds all triangles, vertices and submeshes from an existing mesh.
     void AddData(const Mesh& mesh, const ezTransform& transform = ezTransform::Identity());
 
-    /// Merges all sub-meshes that use the same material.
+    /// \brief Merges all sub-meshes that use the same material.
+    ///
     /// Especially useful after merging meshes.
     void MergeSubMeshesWithSameMaterials();
 
-    /// Computes vertex normals from position data.
+    /// \brief Computes vertex normals from position data.
+    ///
     /// If the mesh already has a vertex stream for normals, they will be recomputed.
     /// Fails if there is no position stream.
     ezResult ComputeNormals();
 
-    /// Computes vertex tangents and bitangent signs.
+    /// \brief Computes vertex tangents and bitangent signs.
     ///
     /// Bitangent vertex stream will only have a single element which determines the sign of the bitangent. BiTangent = (normal x tangent) * sign
     /// If the mesh already has a vertex stream for (bi)tangent, they will be recomputed.
     /// Fails if there is no normal stream or there is no Texcoord0 stream with 2 components.
     ezResult ComputeTangents();
 
-  private:
+
+
+    /// \brief A bundle of several vertex data indices.
+    /// \see GenerateInterleavedVertexMapping
+    template<int NumStreams>
+    struct DataIndexBundle
+    {
+      EZ_DECLARE_POD_TYPE();
+
+      bool operator == (const DataIndexBundle& dataIndex) const;
+      ezModelImporter::VertexDataIndex operator [] (int i) const;
+
+    private:
+      ezModelImporter::VertexDataIndex m_indices[NumStreams];
+    };
+
+
+    /// \brief Generates an index buffer for interleaved vertices and a mapping for vertex streams.
+    ///
+    /// Use this method to generate classic vertex + index buffer.
+    /// If the mesh does not have a given semantic, the method fails.
+    template<int NumStreams>
+    ezResult GenerateInterleavedVertexMapping(const ezGALVertexAttributeSemantic::Enum (&dataStreamSemantics)[NumStreams],
+      ezHashTable<DataIndexBundle<NumStreams>, ezUInt32>& outDataIndices_to_InterleavedVertexIndices, ezDynamicArray<ezUInt32>& outTriangleVertexIndices) const;
+
+    template<int NumStreams>
+    static void GenerateInterleavedVertexMapping(const ezArrayPtr<const Triangle>& triangles, const VertexDataStream* (&dataStreams)[NumStreams],
+      ezHashTable<DataIndexBundle<NumStreams>, ezUInt32>& outDataIndices_to_InterleavedVertexIndices, ezDynamicArray<ezUInt32>& outTriangleVertexIndices);
+
+  private:  
 
     ezDynamicArray<Triangle> m_Triangles;
     ezUInt32 m_uiNextUnusedVertexIndex;

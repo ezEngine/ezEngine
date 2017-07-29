@@ -63,75 +63,6 @@ static ezMat3 CalculateTransformationMatrix(const ezMeshAssetProperties* pProp)
 
 namespace ImportHelper
 {
-  using namespace ezModelImporter;
-
-  template<int NumStreams>
-  struct DataIndexBundle
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    bool operator == (const DataIndexBundle& dataIndex) const
-    {
-      for (int i = 0; i < NumStreams; ++i)
-      {
-        if (m_indices[i] != dataIndex.m_indices[i])
-          return false;
-      }
-      return true;
-    }
-
-    ezModelImporter::VertexDataIndex operator [] (int i) const { return m_indices[i]; }
-    ezModelImporter::VertexDataIndex& operator [] (int i) { return m_indices[i]; }
-
-    ezModelImporter::VertexDataIndex m_indices[NumStreams];
-  };
-
-  template <int NumStreams>
-  struct ezHashHelper<typename DataIndexBundle<NumStreams>>
-  {
-    typedef ImportHelper::DataIndexBundle<NumStreams> ValueType;
-
-    static ezUInt32 Hash(const ValueType& value)
-    {
-      return ezHashing::MurmurHash(&value, sizeof(ValueType));
-    }
-
-    static bool Equal(const ValueType& a, const ValueType& b)
-    {
-      return a == b;
-    }
-  };
-
-
-  template<int NumStreams>
-  void GenerateInterleavedVertexMapping(ezArrayPtr<const Mesh::Triangle> triangles, const VertexDataStream* (&dataStreams)[NumStreams],
-                                            ezHashTable<DataIndexBundle<NumStreams>, ezUInt32>& outDataIndices_to_InterleavedVertexIndices, ezDynamicArray<ezUInt32>& outTriangleVertexIndices)
-  {
-    outTriangleVertexIndices.SetCountUninitialized(triangles.GetCount() * 3);
-
-    ezUInt32 nextVertexIndex = 0;
-    DataIndexBundle<NumStreams> dataIndices;
-    for (ezUInt32 t = 0; t < triangles.GetCount(); ++t)
-    {
-      for (int v = 0; v < 3; ++v)
-      {
-        for (int stream = 0; stream < NumStreams; ++stream)
-        {
-          dataIndices[stream] = dataStreams[stream] ? dataStreams[stream]->GetDataIndex(triangles[t].m_Vertices[v]) : 0;
-        }
-
-        ezUInt32 gpuVertexIndex = nextVertexIndex;
-        if (outDataIndices_to_InterleavedVertexIndices.TryGetValue(dataIndices, gpuVertexIndex) == false)
-        {
-          outDataIndices_to_InterleavedVertexIndices.Insert(dataIndices, nextVertexIndex);
-          ++nextVertexIndex;
-        }
-
-        outTriangleVertexIndices[t * 3 + v] = gpuVertexIndex;
-      }
-    }
-  }
-
   ezStatus ImportMesh(const char* filename, const char* subMeshFilename, ezSharedPtr<ezModelImporter::Scene>& outScene, ezModelImporter::Mesh*& outMesh, ezString& outMeshFileAbs)
   {
     outMeshFileAbs = filename;
@@ -335,10 +266,10 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
     dataStreams[Color] = mesh->GetDataStream(ezGALVertexAttributeSemantic::Color);
 
     // Compute indices for interleaved data.
-    ezHashTable<ImportHelper::DataIndexBundle<maxNumMeshStreams>, ezUInt32> dataIndices_to_InterleavedVertexIndices;
+    ezHashTable<Mesh::DataIndexBundle<maxNumMeshStreams>, ezUInt32> dataIndices_to_InterleavedVertexIndices;
     ezDynamicArray<ezUInt32> triangleVertexIndices;
     auto triangles = mesh->GetTriangles();
-    ImportHelper::GenerateInterleavedVertexMapping<maxNumMeshStreams>(triangles, dataStreams, dataIndices_to_InterleavedVertexIndices, triangleVertexIndices);
+    Mesh::GenerateInterleavedVertexMapping<maxNumMeshStreams>(triangles, dataStreams, dataIndices_to_InterleavedVertexIndices, triangleVertexIndices);
     ezTime mappingTime = timer.Checkpoint();
 
 
@@ -384,7 +315,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
     // Set positions and normals (should always be there.
     for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
     {
-      ImportHelper::DataIndexBundle<maxNumMeshStreams> dataIndices = it.Key();
+      Mesh::DataIndexBundle<maxNumMeshStreams> dataIndices = it.Key();
       ezUInt32 uiVertexIndex = it.Value();
 
       ezVec3 vPosition = streamPosition.GetValue(dataIndices[Position]);
@@ -407,7 +338,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
 
       for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
       {
-        ImportHelper::DataIndexBundle<maxNumMeshStreams> dataIndices = it.Key();
+        Mesh::DataIndexBundle<maxNumMeshStreams> dataIndices = it.Key();
         ezUInt32 uiVertexIndex = it.Value();
 
         ezVec3 vTangent = streamTangent.GetValue(dataIndices[Tangent]);
@@ -458,7 +389,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
 
         for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
         {
-          ImportHelper::DataIndexBundle<maxNumMeshStreams> dataIndices = it.Key();
+          Mesh::DataIndexBundle<maxNumMeshStreams> dataIndices = it.Key();
           ezUInt32 uiVertexIndex = it.Value();
 
           ezVec2 vTexcoord = streamTex.GetValue(dataIndices[uiDataIndex]);
@@ -484,7 +415,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
 
       for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
       {
-        ImportHelper::DataIndexBundle<maxNumMeshStreams> dataIndices = it.Key();
+        Mesh::DataIndexBundle<maxNumMeshStreams> dataIndices = it.Key();
         ezUInt32 uiVertexIndex = it.Value();
 
         ezVec4 c = streamColor.GetValue(dataIndices[Color]);
