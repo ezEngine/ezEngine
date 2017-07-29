@@ -61,7 +61,7 @@ double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>&
 
   for (ezUInt32 instructionIdx = 0; instructionIdx < m_InstructionStream.GetCount(); ++instructionIdx)
   {
-    InstructionType instruction = static_cast<InstructionType>(m_InstructionStream[instructionIdx]);
+    InstructionType::Enum instruction = static_cast<InstructionType::Enum>(m_InstructionStream[instructionIdx]);
 
     switch (instruction)
     {
@@ -156,59 +156,73 @@ double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>&
   }
 }
 
-ezResult ezMathExpression::ParseExpressionPlus(const TokenStream& tokens, ezUInt32& uiCurToken)
+namespace
 {
-  if (ParseExpressionMul(tokens, uiCurToken).Failed())
-    return EZ_FAILURE;
-
-  while (true)
+  const int s_operatorPrecedence[] =
   {
-    if (Accept(tokens, uiCurToken, "+"))
-    {
-      ezInt64 iNextValue = 0;
-      if (ParseExpressionMul(tokens, uiCurToken).Failed())
-        return EZ_FAILURE;
+    // Binary
+    1, // Add
+    1, // Subtract
+    2, // Multiply
+    2, // Divide
 
-      m_InstructionStream.PushBack(static_cast<ezUInt32>(InstructionType::Add));
-    }
-    else if (Accept(tokens, uiCurToken, "-"))
-    {
-      ezInt64 iNextValue = 0;
-      if (ParseExpressionMul(tokens, uiCurToken).Failed())
-        return EZ_FAILURE;
+    // Unary
+    2, // Negate
+  };
 
-      m_InstructionStream.PushBack(static_cast<ezUInt32>(InstructionType::Subtract));
-    }
-    else
+  // Accept/parses binary operator.
+  // Does NOT advance the current token beyond the binary operator!
+  bool AcceptBinaryOperator(const ezTokenParseUtils::TokenStream& tokens, ezUInt32& uiCurToken, ezMathExpression::InstructionType::Enum& outOperator)
+  {
+    SkipWhitespace(tokens, uiCurToken);
+
+    if (uiCurToken >= tokens.GetCount())
+      return false;
+
+    if (tokens[uiCurToken]->m_DataView.GetElementCount() != 1)
+      return false;
+    char operatorChar = tokens[uiCurToken]->m_DataView.GetData()[0];
+
+    switch (operatorChar)
+    {
+    case '+':
+      outOperator = ezMathExpression::InstructionType::Add;
       break;
-  }
+    case '-':
+      outOperator = ezMathExpression::InstructionType::Subtract;
+      break;
+    case '*':
+      outOperator = ezMathExpression::InstructionType::Multiply;
+      break;
+    case '/':
+      outOperator = ezMathExpression::InstructionType::Divide;
+      break;
 
-  return EZ_SUCCESS;
+    default:
+      return false;
+    }
+
+    return true;
+  }
 }
 
-ezResult ezMathExpression::ParseExpressionMul(const TokenStream& tokens, ezUInt32& uiCurToken)
+ezResult ezMathExpression::ParseExpression(const ezTokenParseUtils::TokenStream& tokens, ezUInt32& uiCurToken, int precedence)
 {
   if (ParseFactor(tokens, uiCurToken).Failed())
     return EZ_FAILURE;
 
-  while (true)
+  InstructionType::Enum binaryOp;
+  while (AcceptBinaryOperator(tokens, uiCurToken, binaryOp) && precedence < s_operatorPrecedence[binaryOp])
   {
-    if (Accept(tokens, uiCurToken, "*"))
-    {
-      if (ParseFactor(tokens, uiCurToken).Failed())
-        return EZ_FAILURE;
+    // Consume token.
+    ++uiCurToken;
 
-      m_InstructionStream.PushBack(static_cast<ezUInt32>(InstructionType::Multiply));
-    }
-    else if (Accept(tokens, uiCurToken, "/"))
-    {
-      if (ParseFactor(tokens, uiCurToken).Failed())
-        return EZ_FAILURE;
+    // Parse second operand.
+    if (ParseExpression(tokens, uiCurToken, s_operatorPrecedence[binaryOp]).Failed())
+      return EZ_FAILURE;
 
-      m_InstructionStream.PushBack(static_cast<ezUInt32>(InstructionType::Divide));
-    }
-    else
-      break;
+    // Perform operation on previous two operands.
+    m_InstructionStream.PushBack(binaryOp);
   }
 
   return EZ_SUCCESS;
@@ -216,19 +230,23 @@ ezResult ezMathExpression::ParseExpressionMul(const TokenStream& tokens, ezUInt3
 
 ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCurToken)
 {
-  while (Accept(tokens, uiCurToken, "+"))
+  // Consume unary operators
   {
+    while (Accept(tokens, uiCurToken, "+"))
+    {
+    }
+
+    if (Accept(tokens, uiCurToken, "-"))
+    {
+      if (ParseExpression(tokens, uiCurToken, s_operatorPrecedence[InstructionType::Negate]).Failed())
+        return EZ_FAILURE;
+
+      m_InstructionStream.PushBack(InstructionType::Negate);
+      return EZ_SUCCESS;
+    }
   }
 
-  if (Accept(tokens, uiCurToken, "-"))
-  {
-    if (ParseFactor(tokens, uiCurToken).Failed())
-      return EZ_FAILURE;
-
-    m_InstructionStream.PushBack(static_cast<ezUInt32>(InstructionType::Negate));
-    return EZ_SUCCESS;
-  }
-
+  // Consume constant or variable.
   ezUInt32 uiValueToken = uiCurToken;
   if (Accept(tokens, uiCurToken, ezTokenType::Identifier, &uiValueToken))
   {
@@ -239,7 +257,7 @@ ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCu
     // It's either a double or a variable
     if (ezConversionUtils::StringToFloat(sVal.GetData(), fConstant).Succeeded())
     {
-      m_InstructionStream.PushBack(static_cast<ezUInt32>(InstructionType::PushConstant));
+      m_InstructionStream.PushBack(InstructionType::PushConstant);
       m_InstructionStream.PushBack(m_Constants.GetCount());
       m_Constants.PushBack(fConstant);
     }
@@ -256,18 +274,19 @@ ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCu
         }
         if (*validChar == '\0')  // Walked to the end, so the varChar was not any of the valid chars!
         {
-          ezLog::Error(m_pLog, "Invalid character {1} in variable name: {0}", sVal, varChar);
+          ezLog::Error(m_pLog, "Invalid character {0} in variable name: {1}", varChar, sVal);
           return EZ_FAILURE;
         }
       }
 
-      m_InstructionStream.PushBack(static_cast<ezUInt32>(InstructionType::PushVariable));
+      m_InstructionStream.PushBack(InstructionType::PushVariable);
       m_InstructionStream.PushBack(tokens[uiValueToken]->m_uiColumn - 1);
       m_InstructionStream.PushBack(tokens[uiValueToken]->m_uiColumn - 1 + sVal.GetElementCount());
     }
 
     return EZ_SUCCESS;
   }
+  // Consume paranthesis.
   else if (Accept(tokens, uiCurToken, "("))
   {
     // A new expression!
@@ -275,14 +294,14 @@ ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCu
 
     if (!Accept(tokens, uiCurToken, ")"))
     {
-      ezLog::Error(m_pLog, "Syntax error, ')' after token '{0}' in column {0}.", tokens[uiCurToken - 1]->m_DataView, tokens[uiCurToken - 1]->m_uiColumn);
+      ezLog::Error(m_pLog, "Syntax error, ')' after token '{0}' in column {1}.", tokens[uiCurToken - 1]->m_DataView, tokens[uiCurToken - 1]->m_uiColumn);
       return EZ_FAILURE;
     }
     else
       return EZ_SUCCESS;
   }
 
-  ezLog::Error(m_pLog, "Syntax error, expected identifier, number or '(' after token '{0}' in column {0}.", tokens[uiCurToken - 1]->m_DataView, tokens[uiCurToken - 1]->m_uiColumn);
+  ezLog::Error(m_pLog, "Syntax error, expected identifier, number or '(' after token '{0}' in column {1}.", tokens[uiCurToken - 1]->m_DataView, tokens[uiCurToken - 1]->m_uiColumn);
   return EZ_FAILURE;
 }
 

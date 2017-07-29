@@ -51,40 +51,42 @@ public:
   double Evaluate(const ezDelegate<double(const ezStringView&)>& variableResolveFunction = [](const ezStringView&) { return 0.0; }) const; // [tested]
 
 
-  // Parsing the expression - recursive parser.
+  // Parsing the expression - recursive parser using "precedence climbing".
+  // Note as of writing the ezPreprocessor parser uses a classic rescursive descent parser.
+  // http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm
 private:
 
-  /// \brief Entry point for parsing the math expression from a token stream.
-  ///
-  /// This function wraps the expression with the lowest priority.
-  ezResult ParseExpression(const ezTokenParseUtils::TokenStream& tokens, ezUInt32& uiCurToken) { return ParseExpressionPlus(tokens, uiCurToken);  }
-
-  ezResult ParseExpressionPlus(const ezTokenParseUtils::TokenStream& tokens, ezUInt32& uiCurToken);
-  ezResult ParseExpressionMul(const ezTokenParseUtils::TokenStream& tokens, ezUInt32& uiCurToken);
+  ezResult ParseExpression(const ezTokenParseUtils::TokenStream& tokens, ezUInt32& uiCurToken, int precedence = 0);
   ezResult ParseFactor(const ezTokenParseUtils::TokenStream& tokens, ezUInt32& uiCurToken);
-
 
   ezLogInterface* const m_pLog;
   ezString m_OriginalExpression;
 
   // Instruction stream.
-private:
+public:
 
-  enum class InstructionType : ezUInt32
+  struct InstructionType
   {
-    // Binary
-    Add,      ///< Add last two elements of evaluation stack and push result back.
-    Subtract, ///< Subtract last two elements of evaluation stack and push result back.
-    Multiply, ///< Multiply last two elements of evaluation stack and push result back.
-    Divide,   ///< Divide last two elements of evaluation stack and push result back.
+    enum Enum : ezUInt32
+    {
+      // Binary
+      Add,      ///< Add last two elements of evaluation stack and push result back.
+      Subtract, ///< Subtract last two elements of evaluation stack and push result back.
+      Multiply, ///< Multiply last two elements of evaluation stack and push result back.
+      Divide,   ///< Divide last two elements of evaluation stack and push result back.
 
-    // Unary
-    Negate,   ///< Negate top element of the evaluation stack.
+      // Unary
+      Negate,   ///< Negate top element of the evaluation stack.
 
-    // Special
-    PushConstant, ///< Instruction is followed by an integer that determines which constant should be pushed onto the evaluation stack.
-    PushVariable, ///< Instruction is followed by two integers, giving begin and end of a variable name in m_OriginalExpression
+      // Special
+      PushConstant, ///< Instruction is followed by an integer that determines which constant should be pushed onto the evaluation stack.
+      PushVariable, ///< Instruction is followed by two integers, giving begin and end of a variable name in m_OriginalExpression
+
+      Invalid,
+    };
   };
+
+private:
 
   ezDynamicArray<ezUInt32> m_InstructionStream;
   ezDynamicArray<double> m_Constants;
