@@ -358,7 +358,6 @@ HRESULT ezWindowsHolographicSpace::OnCameraRemoved(ABI::Windows::Graphics::Holog
   return S_OK;
 }
 
-
 void ezWindowsHolographicSpace::CreateDefaultReferenceFrame()
 {
   if (m_pDefaultReferenceFrame == nullptr)
@@ -371,6 +370,8 @@ void ezWindowsHolographicSpace::CreateDefaultReferenceFrame()
 
 void ezWindowsHolographicSpace::SetDefaultReferenceFrame(ezUniquePtr<ezWindowsSpatialReferenceFrame>&& refFrame)
 {
+  EZ_ASSERT_DEV(refFrame.Borrow() != nullptr, "Invalid reference frame");
+
   m_pDefaultReferenceFrame = std::move(refFrame);
 }
 

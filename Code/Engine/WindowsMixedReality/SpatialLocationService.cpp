@@ -139,11 +139,14 @@ ezUniquePtr<ezWindowsSpatialReferenceFrame> ezWindowsSpatialLocationService::Cre
   ezQuat qCurToDest0;
   qCurToDest0.SetFromMat3((mCurToOrigin *  qOriginToDest.GetAsMat4()).GetRotationalPart());
 
+  ezQuat qLocalRot;
+  qLocalRot.SetFromAxisAndAngle(ezVec3(0, 1, 0), difference);
+
   Quaternion qCurToDest;
-  ezUwpUtils::ConvertQuat(qCurToDest0, qCurToDest);
+  ezUwpUtils::ConvertQuat(qCurToDest0 * qLocalRot, qCurToDest);
 
   ComPtr<ISpatialStationaryFrameOfReference> pFrame;
-  HRESULT result = m_pSpatialLocator->CreateStationaryFrameOfReferenceAtCurrentLocationWithPositionAndOrientationAndRelativeHeading(vCurToDest, qCurToDest, difference.GetRadian(), pFrame.GetAddressOf());
+  HRESULT result = m_pSpatialLocator->CreateStationaryFrameOfReferenceAtCurrentLocationWithPositionAndOrientation(vCurToDest, qCurToDest, pFrame.GetAddressOf());
   if (FAILED(result))
   {
     ezLog::Error("Failed to create stationary spatial reference frame at current position: {0}", ezHRESULTtoString(result));

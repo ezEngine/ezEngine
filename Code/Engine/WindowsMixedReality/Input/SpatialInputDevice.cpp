@@ -39,6 +39,9 @@ void ezInputDeviceSpatialInteraction::InitializeDevice()
     m_pSpatialInteractionManager->add_SourcePressed(Microsoft::WRL::Callback<DefSourceEventArgs>(this, &ezInputDeviceSpatialInteraction::OnSourcePressed).Get(), &m_OnSourcePressedToken);
 
     m_pSpatialInteractionManager->add_SourceReleased(Microsoft::WRL::Callback<DefSourceEventArgs>(this, &ezInputDeviceSpatialInteraction::OnSourceReleased).Get(), &m_OnSourceReleasedToken);
+
+    m_pSpatialInteractionManager->add_SourceUpdated(Microsoft::WRL::Callback<DefSourceEventArgs>(this, &ezInputDeviceSpatialInteraction::OnSourceUpdated).Get(), &m_OnSourceUpdatedToken);
+
   }
 }
 
@@ -100,6 +103,9 @@ void ezInputDeviceSpatialInteraction::UpdateInputSlotValues()
 
   ComPtr<ISpatialPointerPose> pPointerPose;
   pPointerPoseStatics->TryGetAtTimestamp(coordinateSystem.Get(), pHoloSpace->GetPredictionTimestamp().Get(), &pPointerPose);
+
+  if (pPointerPose == nullptr)
+    return;
 
   ComPtr<IHeadPose> pHeadPose;
   pPointerPose->get_Head(&pHeadPose);
@@ -224,10 +230,41 @@ void ezInputDeviceSpatialInteraction::SetTrackingStatus(ISpatialInteractionSourc
   switch (pInfo->m_SlotMapping)
   {
   case SourceInfo::SlotMapping::Hand0:
+    if (!bTracked)
+      m_InputSlotValues[ezInputSlot_Spatial_Hand0_Pressed] = 0.0f;
+
     m_InputSlotValues[ezInputSlot_Spatial_Hand0_Tracked] = bTracked ? 1.0f : 0.0f;
     break;
   case SourceInfo::SlotMapping::Hand1:
+    if (!bTracked)
+      m_InputSlotValues[ezInputSlot_Spatial_Hand1_Pressed] = 0.0f;
+
     m_InputSlotValues[ezInputSlot_Spatial_Hand1_Tracked] = bTracked ? 1.0f : 0.0f;
+    break;
+  }
+}
+
+void ezInputDeviceSpatialInteraction::SetSlotValues(const SourceDetails& details, const SourceInfo& sourceInfo)
+{
+  switch (sourceInfo.m_SlotMapping)
+  {
+  case SourceInfo::SlotMapping::Hand0:
+    m_InputSlotValues[ezInputSlot_Spatial_Hand0_Pressed] = details.m_bIsPressed ? 1.0f : 0.0f;
+    m_InputSlotValues[ezInputSlot_Spatial_Hand0_PositionPosX] = ezMath::Max(0.0f, details.m_vPosition.x);
+    m_InputSlotValues[ezInputSlot_Spatial_Hand0_PositionPosY] = ezMath::Max(0.0f, details.m_vPosition.y);
+    m_InputSlotValues[ezInputSlot_Spatial_Hand0_PositionPosZ] = ezMath::Max(0.0f, details.m_vPosition.z);
+    m_InputSlotValues[ezInputSlot_Spatial_Hand0_PositionNegX] = ezMath::Max(0.0f, -details.m_vPosition.x);
+    m_InputSlotValues[ezInputSlot_Spatial_Hand0_PositionNegY] = ezMath::Max(0.0f, -details.m_vPosition.y);
+    m_InputSlotValues[ezInputSlot_Spatial_Hand0_PositionNegZ] = ezMath::Max(0.0f, -details.m_vPosition.z);
+    break;
+  case SourceInfo::SlotMapping::Hand1:
+    m_InputSlotValues[ezInputSlot_Spatial_Hand1_Pressed] = details.m_bIsPressed ? 1.0f : 0.0f;
+    m_InputSlotValues[ezInputSlot_Spatial_Hand1_PositionPosX] = ezMath::Max(0.0f, details.m_vPosition.x);
+    m_InputSlotValues[ezInputSlot_Spatial_Hand1_PositionPosY] = ezMath::Max(0.0f, details.m_vPosition.y);
+    m_InputSlotValues[ezInputSlot_Spatial_Hand1_PositionPosZ] = ezMath::Max(0.0f, details.m_vPosition.z);
+    m_InputSlotValues[ezInputSlot_Spatial_Hand1_PositionNegX] = ezMath::Max(0.0f, -details.m_vPosition.x);
+    m_InputSlotValues[ezInputSlot_Spatial_Hand1_PositionNegY] = ezMath::Max(0.0f, -details.m_vPosition.y);
+    m_InputSlotValues[ezInputSlot_Spatial_Hand1_PositionNegZ] = ezMath::Max(0.0f, -details.m_vPosition.z);
     break;
   }
 }
@@ -252,29 +289,15 @@ HRESULT ezInputDeviceSpatialInteraction::OnSourcePressed(ISpatialInteractionMana
   SourceInfo* pInfo;
   UpdateSourceInfo(details, true, pInfo);
 
-  /// \todo Coordinate system swaps Y and Z, not sure whether to do a conversion here
+  SetSlotValues(details, *pInfo);
 
   switch (pInfo->m_SlotMapping)
   {
   case SourceInfo::SlotMapping::Hand0:
-    m_InputSlotValues[ezInputSlot_Spatial_Hand0_Tracked] = 1.0f;
     m_InputSlotValues[ezInputSlot_Spatial_Hand0_Pressed] = 1.0f;
-    m_InputSlotValues[ezInputSlot_Spatial_Hand0_PositionPosX] = ezMath::Max(0.0f, details.m_vPosition.x);
-    m_InputSlotValues[ezInputSlot_Spatial_Hand0_PositionPosY] = ezMath::Max(0.0f, details.m_vPosition.y);
-    m_InputSlotValues[ezInputSlot_Spatial_Hand0_PositionPosZ] = ezMath::Max(0.0f, details.m_vPosition.z);
-    m_InputSlotValues[ezInputSlot_Spatial_Hand0_PositionNegX] = ezMath::Max(0.0f, -details.m_vPosition.x);
-    m_InputSlotValues[ezInputSlot_Spatial_Hand0_PositionNegY] = ezMath::Max(0.0f, -details.m_vPosition.y);
-    m_InputSlotValues[ezInputSlot_Spatial_Hand0_PositionNegZ] = ezMath::Max(0.0f, -details.m_vPosition.z);
     break;
   case SourceInfo::SlotMapping::Hand1:
-    m_InputSlotValues[ezInputSlot_Spatial_Hand1_Tracked] = 1.0f;
     m_InputSlotValues[ezInputSlot_Spatial_Hand1_Pressed] = 1.0f;
-    m_InputSlotValues[ezInputSlot_Spatial_Hand1_PositionPosX] = ezMath::Max(0.0f, details.m_vPosition.x);
-    m_InputSlotValues[ezInputSlot_Spatial_Hand1_PositionPosY] = ezMath::Max(0.0f, details.m_vPosition.y);
-    m_InputSlotValues[ezInputSlot_Spatial_Hand1_PositionPosZ] = ezMath::Max(0.0f, details.m_vPosition.z);
-    m_InputSlotValues[ezInputSlot_Spatial_Hand1_PositionNegX] = ezMath::Max(0.0f, -details.m_vPosition.x);
-    m_InputSlotValues[ezInputSlot_Spatial_Hand1_PositionNegY] = ezMath::Max(0.0f, -details.m_vPosition.y);
-    m_InputSlotValues[ezInputSlot_Spatial_Hand1_PositionNegZ] = ezMath::Max(0.0f, -details.m_vPosition.z);
     break;
   }
 
@@ -289,6 +312,8 @@ HRESULT ezInputDeviceSpatialInteraction::OnSourceReleased(ISpatialInteractionMan
   SourceInfo* pInfo;
   UpdateSourceInfo(details, true, pInfo);
 
+  SetSlotValues(details, *pInfo);
+
   switch (pInfo->m_SlotMapping)
   {
   case SourceInfo::SlotMapping::Hand0:
@@ -298,6 +323,19 @@ HRESULT ezInputDeviceSpatialInteraction::OnSourceReleased(ISpatialInteractionMan
     m_InputSlotValues[ezInputSlot_Spatial_Hand1_Pressed] = 0.0f;
     break;
   }
+
+  return S_OK;
+}
+
+HRESULT ezInputDeviceSpatialInteraction::OnSourceUpdated(ABI::Windows::UI::Input::Spatial::ISpatialInteractionManager* pManager, ABI::Windows::UI::Input::Spatial::ISpatialInteractionSourceEventArgs* args)
+{
+  SourceDetails details;
+  GetSourceDetails(args, details);
+
+  SourceInfo* pInfo;
+  UpdateSourceInfo(details, true, pInfo);
+
+  SetSlotValues(details, *pInfo);
 
   return S_OK;
 }

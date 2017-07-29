@@ -49,6 +49,7 @@ private:
   void GetSourceDetails(ABI::Windows::UI::Input::Spatial::ISpatialInteractionSourceEventArgs* args, SourceDetails& out_Details);
   void UpdateSourceInfo(const SourceDetails& details, bool isTracked, SourceInfo*& out_pInfo);
   void SetTrackingStatus(ABI::Windows::UI::Input::Spatial::ISpatialInteractionSourceEventArgs* args, bool bTracked);
+  void SetSlotValues(const SourceDetails& details, const SourceInfo& sourceInfo);
 
   HRESULT OnSourceDetected(ABI::Windows::UI::Input::Spatial::ISpatialInteractionManager* pManager, ABI::Windows::UI::Input::Spatial::ISpatialInteractionSourceEventArgs* args);
 
@@ -58,10 +59,13 @@ private:
 
   HRESULT OnSourceReleased(ABI::Windows::UI::Input::Spatial::ISpatialInteractionManager* pManager, ABI::Windows::UI::Input::Spatial::ISpatialInteractionSourceEventArgs* args);
 
+  HRESULT OnSourceUpdated(ABI::Windows::UI::Input::Spatial::ISpatialInteractionManager* pManager, ABI::Windows::UI::Input::Spatial::ISpatialInteractionSourceEventArgs* args);
+
   EventRegistrationToken m_OnSourceDetectedToken;
   EventRegistrationToken m_OnSourceLostToken;
   EventRegistrationToken m_OnSourcePressedToken;
   EventRegistrationToken m_OnSourceReleasedToken;
+  EventRegistrationToken m_OnSourceUpdatedToken;
   ComPtr<ABI::Windows::UI::Input::Spatial::ISpatialInteractionManagerStatics> m_pSpatialInteractionManagerStatics;
   ComPtr<ABI::Windows::UI::Input::Spatial::ISpatialInteractionManager> m_pSpatialInteractionManager;
 

@@ -58,6 +58,13 @@ void ezQtWaitForOperationDlg::onIdle()
   }
   else
   {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    m_pWinTaskBarProgress->setMinimum(0);
+    m_pWinTaskBarProgress->setMaximum(100);
+    m_pWinTaskBarProgress->setValue(99);
+    m_pWinTaskBarProgress->setPaused(true);
+#endif
+
     accept();
   }
 }
