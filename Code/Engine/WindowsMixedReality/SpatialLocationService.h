@@ -38,6 +38,10 @@ public:
   /// Creates the simplest possible reference frame - stationary and at the current position and orientation of the headset.
   ezUniquePtr<ezWindowsSpatialReferenceFrame> CreateStationaryReferenceFrame_CurrentLocation();
 
+  /// Creates the simplest possible reference frame - stationary and at the current position and orientation of the headset.
+  /// This overload adds a position offset to the headset position.
+  ezUniquePtr<ezWindowsSpatialReferenceFrame> CreateStationaryReferenceFrame_CurrentLocation(const ezWindowsSpatialReferenceFrame& origin, const ezVec3& vOffset);
+
   /// \brief Creates a spatial anchor at the given offset relative to the given reference frame.
   ///
   /// If the reference frame is null, the default holographic space reference frame is used.

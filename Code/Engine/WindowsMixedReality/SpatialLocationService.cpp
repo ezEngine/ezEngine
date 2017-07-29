@@ -8,7 +8,10 @@
 #include <windows.foundation.collections.h>
 #include <wrl/event.h>
 
-ezWindowsSpatialLocationService::ezWindowsSpatialLocationService(const ComPtr<ABI::Windows::Perception::Spatial::ISpatialLocator>& pSpatialLocator)
+using namespace ABI::Windows::Foundation::Numerics;
+using namespace ABI::Windows::Perception::Spatial;
+
+ezWindowsSpatialLocationService::ezWindowsSpatialLocationService(const ComPtr<ISpatialLocator>& pSpatialLocator)
   : m_pSpatialLocator(pSpatialLocator)
   , m_currentLocatability(ezSpatialLocatability::Unavailable)
 {
@@ -30,34 +33,34 @@ ezWindowsSpatialLocationService::~ezWindowsSpatialLocationService()
     m_pSpatialLocator->remove_LocatabilityChanged(m_eventRegistrationLocatabilityChanged);
 }
 
-HRESULT ezWindowsSpatialLocationService::OnLocatabilityChanged(ABI::Windows::Perception::Spatial::ISpatialLocator* locator, IInspectable* args)
+HRESULT ezWindowsSpatialLocationService::OnLocatabilityChanged(ISpatialLocator* locator, IInspectable* args)
 {
-  ABI::Windows::Perception::Spatial::SpatialLocatability locatability;
+  SpatialLocatability locatability;
   EZ_HRESULT_TO_FAILURE_LOG(locator->get_Locatability(&locatability));
 
   switch (locatability)
   {
-  case ABI::Windows::Perception::Spatial::SpatialLocatability::SpatialLocatability_Unavailable:
+  case SpatialLocatability::SpatialLocatability_Unavailable:
     m_currentLocatability = ezSpatialLocatability::Unavailable;
     ezLog::SeriousWarning("Spatial locator unavailable, can't place holograms!");
     break;
 
-  case ABI::Windows::Perception::Spatial::SpatialLocatability::SpatialLocatability_OrientationOnly:
+  case SpatialLocatability::SpatialLocatability_OrientationOnly:
     m_currentLocatability = ezSpatialLocatability::OrientationOnly;
     ezLog::Debug("Spatial locator is orientation only - the system is preparing to use positional tracking.");
     break;
 
-  case ABI::Windows::Perception::Spatial::SpatialLocatability::SpatialLocatability_PositionalTrackingActivating:
+  case SpatialLocatability::SpatialLocatability_PositionalTrackingActivating:
     m_currentLocatability = ezSpatialLocatability::PositionalTrackingActivating;
     ezLog::Debug("Spatial locator is activating positional tracking.");
     break;
 
-  case ABI::Windows::Perception::Spatial::SpatialLocatability::SpatialLocatability_PositionalTrackingActive:
+  case SpatialLocatability::SpatialLocatability_PositionalTrackingActive:
     m_currentLocatability = ezSpatialLocatability::PositionalTrackingActive;
     ezLog::Debug("Spatial locator fully functional.");
     break;
 
-  case ABI::Windows::Perception::Spatial::SpatialLocatability::SpatialLocatability_PositionalTrackingInhibited:
+  case SpatialLocatability::SpatialLocatability_PositionalTrackingInhibited:
     m_currentLocatability = ezSpatialLocatability::PositionalTrackingInhibited;
     ezLog::Warning("Positional tracking is temporarily inhibited. User action may be required in order to restore positional tracking..");
     break;
@@ -68,8 +71,39 @@ HRESULT ezWindowsSpatialLocationService::OnLocatabilityChanged(ABI::Windows::Per
 
 ezUniquePtr<ezWindowsSpatialReferenceFrame> ezWindowsSpatialLocationService::CreateStationaryReferenceFrame_CurrentLocation()
 {
-  ComPtr<ABI::Windows::Perception::Spatial::ISpatialStationaryFrameOfReference> pFrame;
+  ComPtr<ISpatialStationaryFrameOfReference> pFrame;
   HRESULT result = m_pSpatialLocator->CreateStationaryFrameOfReferenceAtCurrentLocation(pFrame.GetAddressOf());
+  if (FAILED(result))
+  {
+    ezLog::Error("Failed to create stationary spatial reference frame at current position: {0}", ezHRESULTtoString(result));
+    return nullptr;
+  }
+
+  return EZ_DEFAULT_NEW(ezWindowsSpatialReferenceFrame, pFrame);
+}
+
+
+ezUniquePtr<ezWindowsSpatialReferenceFrame> ezWindowsSpatialLocationService::CreateStationaryReferenceFrame_CurrentLocation(const ezWindowsSpatialReferenceFrame& origin, const ezVec3& vOriginToDest)
+{
+  ComPtr<ISpatialCoordinateSystem> pOriginCoords;
+  origin.GetInternalCoordinateSystem(pOriginCoords);
+
+  ComPtr<ISpatialStationaryFrameOfReference> pCurFrame;
+  m_pSpatialLocator->CreateStationaryFrameOfReferenceAtCurrentLocation(pCurFrame.GetAddressOf());
+
+  ComPtr<ISpatialCoordinateSystem> pCurCoords;
+  pCurFrame->get_CoordinateSystem(&pCurCoords);
+
+  ComPtr<__FIReference_1_Windows__CFoundation__CNumerics__CMatrix4x4> pMatCurToOrigin;
+  pOriginCoords->TryGetTransformTo(pCurCoords.Get(), &pMatCurToOrigin);
+
+  const ezMat4 mCurToOrigin = ezUwpUtils::ConvertMat4(pMatCurToOrigin.Get());
+
+  Vector3 vCurToDest;
+  ezUwpUtils::ConvertVec3(mCurToOrigin * vOriginToDest, vCurToDest);
+
+  ComPtr<ISpatialStationaryFrameOfReference> pFrame;
+  HRESULT result = m_pSpatialLocator->CreateStationaryFrameOfReferenceAtCurrentLocationWithPosition(vCurToDest, pFrame.GetAddressOf());
   if (FAILED(result))
   {
     ezLog::Error("Failed to create stationary spatial reference frame at current position: {0}", ezHRESULTtoString(result));
@@ -86,10 +120,10 @@ ezUniquePtr<ezWindowsSpatialAnchor> ezWindowsSpatialLocationService::CreateSpati
     pReferenceFrame = ezWindowsHolographicSpace::GetSingleton()->GetDefaultReferenceFrame();
   }
 
-  ComPtr<ABI::Windows::Perception::Spatial::ISpatialAnchorStatics> pSpatialAnchorStatics;
+  ComPtr<ISpatialAnchorStatics> pSpatialAnchorStatics;
   ezUwpUtils::RetrieveStatics(RuntimeClass_Windows_Perception_Spatial_SpatialAnchor, pSpatialAnchorStatics);
 
-  ComPtr<ABI::Windows::Perception::Spatial::ISpatialCoordinateSystem> pCoordinateSystem;
+  ComPtr<ISpatialCoordinateSystem> pCoordinateSystem;
   pReferenceFrame->GetInternalCoordinateSystem(pCoordinateSystem);
 
   Numerics::Vector3 position;
@@ -99,7 +133,7 @@ ezUniquePtr<ezWindowsSpatialAnchor> ezWindowsSpatialLocationService::CreateSpati
   Numerics::Quaternion rotation;
   ezUwpUtils::ConvertQuat(offset.m_qRotation, rotation);
 
-  ComPtr<ABI::Windows::Perception::Spatial::ISpatialAnchor> pAnchor;
+  ComPtr<ISpatialAnchor> pAnchor;
   if (FAILED(pSpatialAnchorStatics->TryCreateWithPositionRelativeTo(pCoordinateSystem.Get(), position, &pAnchor)))
   {
     return nullptr;
@@ -116,9 +150,7 @@ ezUniquePtr<ezWindowsSpatialAnchor> ezWindowsSpatialLocationService::CreateSpati
 
 void ezWindowsSpatialLocationService::LoadSpatialAnchorMap()
 {
-  using namespace ABI::Windows::Perception::Spatial;
-
-  ComPtr<ABI::Windows::Perception::Spatial::ISpatialAnchorManagerStatics> manager;
+  ComPtr<ISpatialAnchorManagerStatics> manager;
   ezUwpUtils::RetrieveStatics(RuntimeClass_Windows_Perception_Spatial_SpatialAnchorManager, manager);
 
   ComPtr<__FIAsyncOperation_1_Windows__CPerception__CSpatial__CSpatialAnchorStore> pAsyncOp;
@@ -157,7 +189,7 @@ ezUniquePtr<ezWindowsSpatialAnchor> ezWindowsSpatialLocationService::LoadPersist
   if (FAILED(m_pStore->GetAllSavedAnchors(&anchorMap)))
     return nullptr;
 
-  ComPtr<ABI::Windows::Perception::Spatial::ISpatialAnchor> pSpatialAnchorResult;
+  ComPtr<ISpatialAnchor> pSpatialAnchorResult;
   if (FAILED(anchorMap->Lookup(ezStringHString(szID).GetData().Get(), &pSpatialAnchorResult)))
     return nullptr;
 

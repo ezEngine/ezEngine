@@ -334,6 +334,9 @@
        <property name="text">
         <string>Launch Fileserve</string>
        </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
       </widget>
      </item>
      <item>
@@ -353,6 +356,9 @@
       <widget class="QPushButton" name="ButtonConnect">
        <property name="text">
         <string>Connect</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
        </property>
       </widget>
      </item>

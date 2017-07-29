@@ -43,7 +43,16 @@ SET (ADDITIONAL_DEPENDENCIES
   EnginePluginAssets
   EnginePluginParticle
   RecastPlugin
+  InspectorPlugin
 )
+
+# For plugins to work in UWP builds, they must be direct link dependencies, otherwise they are not packaged with the app.
+if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
+  LIST(APPEND LINK_LIBRARIES
+    InspectorPlugin
+  )
+endif()
+
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)
 

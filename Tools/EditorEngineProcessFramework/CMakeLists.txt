@@ -28,4 +28,10 @@ SET (LINK_LIBRARIES
   GameEngine
 )
 
+if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
+  LIST(APPEND LINK_LIBRARIES
+    WindowsMixedReality
+  )
+endif()
+
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)
