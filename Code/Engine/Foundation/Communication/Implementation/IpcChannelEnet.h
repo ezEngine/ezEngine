@@ -25,6 +25,8 @@ protected:
   void EnetEventHandler(const ezRemoteEvent& e);
 
   ezString m_sAddress;
+  ezString m_sLastAddress;
+  ezTime m_LastConnectAttempt;
   ezUniquePtr<ezRemoteInterface> m_Network;
 };
 

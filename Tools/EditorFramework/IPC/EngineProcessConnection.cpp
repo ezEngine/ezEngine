@@ -11,6 +11,9 @@
 #include <EditorFramework/Dialogs/RemoteConnectionDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <QProcess>
+#include <Foundation/Profiling/Profiling.h>
+#include <GuiFoundation/UIServices/QtWaitForOperationDlg.moc.h>
+#include <Foundation/Communication/Implementation/IpcChannelEnet.h>
 
 EZ_IMPLEMENT_SINGLETON(ezEditorEngineProcessConnection);
 
@@ -33,6 +36,8 @@ ezEditorEngineProcessConnection::~ezEditorEngineProcessConnection()
 
 void ezEditorEngineProcessConnection::SendDocumentOpenMessage(const ezDocument* pDocument, bool bOpen)
 {
+  EZ_PROFILE("SendDocumentOpenMessage");
+
   if (!pDocument)
     return;
 
@@ -89,6 +94,7 @@ void ezEditorEngineProcessConnection::DestroyEngineConnection(ezAssetDocument* p
 
 void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMessageType)
 {
+  EZ_PROFILE("Initialize");
   if (m_IPC.IsClientAlive())
     return;
 
@@ -177,10 +183,23 @@ bool ezEditorEngineProcessConnection::ConnectToRemoteProcess()
   m_pRemoteProcess = EZ_DEFAULT_NEW(ezEditorProcessRemoteCommunicationChannel);
   m_pRemoteProcess->ConnectToServer(dlg.GetResultingAddress().toUtf8().data());
 
-  // Send project setup.
+  ezQtWaitForOperationDlg waitDialog(QApplication::activeWindow());
+  waitDialog.m_OnIdle = [this]() -> bool
   {
+    if (m_pRemoteProcess->IsConnected())
+      return false;
+
+    m_pRemoteProcess->TryConnect();
+    return true;
+  };
+
+  const int iRet = waitDialog.exec();
+
+  if (iRet == QDialog::Accepted)
+  {
+    // Send project setup.
     ezSetupProjectMsgToEngine msg;
-    msg.m_sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory(); /// \todo This won't work on remote devices
+    msg.m_sProjectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
     msg.m_FileSystemConfig = m_FileSystemConfig;
     msg.m_PluginConfig = m_PluginConfig;
     msg.m_sFileserveAddress = dlg.GetResultingFsAddress().toUtf8().data();
@@ -188,7 +207,7 @@ bool ezEditorEngineProcessConnection::ConnectToRemoteProcess()
     m_pRemoteProcess->SendMessage(&msg);
   }
 
-  return true;
+  return iRet == QDialog::Accepted;
 }
 
 
@@ -233,6 +252,7 @@ void ezEditorEngineProcessConnection::SendMessage(ezProcessMessage* pMessage)
 
 ezResult ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback)
 {
+  EZ_PROFILE(pMessageType->GetTypeName());
   return m_IPC.WaitForMessage(pMessageType, tTimeout, pCallback);
 }
 
@@ -268,6 +288,7 @@ ezResult ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& a
 
 ezResult ezEditorEngineProcessConnection::RestartProcess()
 {
+  EZ_PROFILE("RestartProcess");
   EZ_LOG_BLOCK("Restarting Engine Process");
 
   ShutdownProcess();

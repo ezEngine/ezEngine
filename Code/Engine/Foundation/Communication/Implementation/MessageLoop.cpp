@@ -119,7 +119,12 @@ void ezMessageLoop::RunLoop()
 bool ezMessageLoop::ProcessTasks()
 {
   EZ_LOCK(m_TasksMutex);
-  for (ezIpcChannel* pChannel : m_ConnectQueue)
+
+  // allow to re-queue a connect internally, for this to work, the connect queue musn't be cleared at the end of this
+  ezDynamicArray<ezIpcChannel*> conQueue = m_ConnectQueue;
+  m_ConnectQueue.Clear();
+
+  for (ezIpcChannel* pChannel : conQueue)
   {
     pChannel->InternalConnect();
   }
@@ -132,8 +137,7 @@ bool ezMessageLoop::ProcessTasks()
     pChannel->InternalDisconnect();
   }
 
-  bool bDidWork = !m_ConnectQueue.IsEmpty() || !m_SendQueue.IsEmpty() || !m_DisconnectQueue.IsEmpty();
-  m_ConnectQueue.Clear();
+  bool bDidWork = !conQueue.IsEmpty() || !m_SendQueue.IsEmpty() || !m_DisconnectQueue.IsEmpty();
   m_SendQueue.Clear();
   m_DisconnectQueue.Clear();
   return bDidWork;

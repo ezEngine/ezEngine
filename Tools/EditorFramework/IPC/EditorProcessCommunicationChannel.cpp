@@ -130,3 +130,11 @@ void ezEditorProcessRemoteCommunicationChannel::CloseConnection()
   EZ_DEFAULT_DELETE(m_pChannel);
 }
 
+void ezEditorProcessRemoteCommunicationChannel::TryConnect()
+{
+  if (m_pChannel && !m_pChannel->IsConnected())
+  {
+    m_pChannel->Connect();
+  }
+}
+

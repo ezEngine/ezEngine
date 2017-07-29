@@ -28,6 +28,8 @@ public:
 
   void CloseConnection();
 
+  void TryConnect();
+
 private:
 
 };
