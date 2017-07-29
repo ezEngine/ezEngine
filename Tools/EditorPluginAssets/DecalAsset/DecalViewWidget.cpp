@@ -13,10 +13,9 @@ ezQtDecalViewWidget::ezQtDecalViewWidget(QWidget* pParent, ezQtDecalAssetDocumen
   m_pOrbitCameraContext->SetCamera(&m_pViewConfig->m_Camera);
   m_pOrbitCameraContext->SetOrbitVolume(ezVec3(0), ezVec3(0.0f), ezVec3(-2, 0, 0));
 
-  m_InputContexts.PushBack(m_pOrbitCameraContext);
+  m_InputContexts.PushBack(m_pOrbitCameraContext.Borrow());
 }
 
 ezQtDecalViewWidget::~ezQtDecalViewWidget()
 {
-  EZ_DEFAULT_DELETE(m_pOrbitCameraContext);
 }

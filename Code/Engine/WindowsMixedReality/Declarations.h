@@ -26,6 +26,8 @@ namespace ABI
 
     namespace Perception
     {
+      struct IPerceptionTimestamp;
+
       namespace Spatial
       {
         struct ISpatialStationaryFrameOfReference;

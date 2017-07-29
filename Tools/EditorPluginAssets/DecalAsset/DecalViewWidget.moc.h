@@ -2,6 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <Foundation/Types/UniquePtr.h>
 
 class ezQtDecalAssetDocumentWindow;
 class ezOrbitCameraContext;
@@ -14,5 +15,5 @@ public:
   ~ezQtDecalViewWidget();
 
 private:
-  ezOrbitCameraContext* m_pOrbitCameraContext;
+  ezUniquePtr<ezOrbitCameraContext> m_pOrbitCameraContext;
 };

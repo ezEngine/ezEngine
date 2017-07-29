@@ -700,6 +700,8 @@ ezResult ezFileserveClient::TryConnectWithFileserver(const char* szAddress, ezTi
   if (ezStringUtils::IsNullOrEmpty(szAddress))
     return EZ_FAILURE;
 
+  ezLog::Info("File server address: '{0}' ({1} sec)", szAddress, timeout.GetSeconds());
+
   ezRemoteInterfaceEnet network; /// \todo Abstract this somehow ?
   if (network.ConnectToServer('EZFS', szAddress, false).Failed())
     return EZ_FAILURE;

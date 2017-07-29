@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/MeshAsset/MeshViewWidget.moc.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetWindow.moc.h>
@@ -15,10 +15,9 @@ ezQtMeshViewWidget::ezQtMeshViewWidget(QWidget* pParent, ezQtMeshAssetDocumentWi
   m_pOrbitCameraContext->SetCamera(&m_pViewConfig->m_Camera);
   m_pOrbitCameraContext->SetOrbitVolume(ezVec3(0, 0, 1), ezVec3(10.0f), ezVec3(-5, 1, 2));
 
-  m_InputContexts.PushBack(m_pOrbitCameraContext);
+  m_InputContexts.PushBack(m_pOrbitCameraContext.Borrow());
 }
 
 ezQtMeshViewWidget::~ezQtMeshViewWidget()
 {
-  EZ_DEFAULT_DELETE(m_pOrbitCameraContext);
 }

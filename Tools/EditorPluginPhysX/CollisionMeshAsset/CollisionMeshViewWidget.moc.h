@@ -2,6 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <Foundation/Types/UniquePtr.h>
 
 class ezQtCollisionMeshAssetDocumentWindow;
 class ezOrbitCameraContext;
@@ -13,8 +14,8 @@ public:
   ezQtCollisionMeshViewWidget(QWidget* pParent, ezQtCollisionMeshAssetDocumentWindow* pOwnerWindow, ezSceneViewConfig* pViewConfig);
   ~ezQtCollisionMeshViewWidget();
 
-  ezOrbitCameraContext* GetOrbitCamera() { return m_pOrbitCameraContext; }
+  ezOrbitCameraContext* GetOrbitCamera() { return m_pOrbitCameraContext.Borrow(); }
 
 private:
-  ezOrbitCameraContext* m_pOrbitCameraContext;
+  ezUniquePtr<ezOrbitCameraContext> m_pOrbitCameraContext;
 };

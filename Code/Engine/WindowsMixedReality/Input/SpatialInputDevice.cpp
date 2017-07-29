@@ -5,8 +5,10 @@
 #include <wrl/event.h>
 
 using namespace ABI::Windows::Foundation;
+using namespace ABI::Windows::Perception::People;
 using namespace ABI::Windows::Perception::Spatial;
 using namespace ABI::Windows::UI::Input::Spatial;
+using namespace ABI::Windows::Foundation::Numerics;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceSpatialInteraction, 1, ezRTTINoAllocator);
 // no properties or message handlers
@@ -59,6 +61,27 @@ void ezInputDeviceSpatialInteraction::RegisterInputSlots()
   RegisterInputSlot(ezInputSlot_Spatial_Hand1_PositionNegX, "Hand 2 Position Neg X", ezInputSlotFlags::IsTrackedValue);
   RegisterInputSlot(ezInputSlot_Spatial_Hand1_PositionNegY, "Hand 2 Position Neg Y", ezInputSlotFlags::IsTrackedValue);
   RegisterInputSlot(ezInputSlot_Spatial_Hand1_PositionNegZ, "Hand 2 Position Neg Z", ezInputSlotFlags::IsTrackedValue);
+
+  RegisterInputSlot(ezInputSlot_Spatial_Head_PositionPosX, "Head Position Pos X", ezInputSlotFlags::IsTrackedValue);
+  RegisterInputSlot(ezInputSlot_Spatial_Head_PositionPosY, "Head Position Pos Y", ezInputSlotFlags::IsTrackedValue);
+  RegisterInputSlot(ezInputSlot_Spatial_Head_PositionPosZ, "Head Position Pos Z", ezInputSlotFlags::IsTrackedValue);
+  RegisterInputSlot(ezInputSlot_Spatial_Head_PositionNegX, "Head Position Neg X", ezInputSlotFlags::IsTrackedValue);
+  RegisterInputSlot(ezInputSlot_Spatial_Head_PositionNegY, "Head Position Neg Y", ezInputSlotFlags::IsTrackedValue);
+  RegisterInputSlot(ezInputSlot_Spatial_Head_PositionNegZ, "Head Position Neg Z", ezInputSlotFlags::IsTrackedValue);
+
+  RegisterInputSlot(ezInputSlot_Spatial_Head_ForwardPosX, "Head Forward Pos X", ezInputSlotFlags::IsTrackedValue);
+  RegisterInputSlot(ezInputSlot_Spatial_Head_ForwardPosY, "Head Forward Pos Y", ezInputSlotFlags::IsTrackedValue);
+  RegisterInputSlot(ezInputSlot_Spatial_Head_ForwardPosZ, "Head Forward Pos Z", ezInputSlotFlags::IsTrackedValue);
+  RegisterInputSlot(ezInputSlot_Spatial_Head_ForwardNegX, "Head Forward Neg X", ezInputSlotFlags::IsTrackedValue);
+  RegisterInputSlot(ezInputSlot_Spatial_Head_ForwardNegY, "Head Forward Neg Y", ezInputSlotFlags::IsTrackedValue);
+  RegisterInputSlot(ezInputSlot_Spatial_Head_ForwardNegZ, "Head Forward Neg Z", ezInputSlotFlags::IsTrackedValue);
+
+  RegisterInputSlot(ezInputSlot_Spatial_Head_UpPosX, "Head Up Pos X", ezInputSlotFlags::IsTrackedValue);
+  RegisterInputSlot(ezInputSlot_Spatial_Head_UpPosY, "Head Up Pos Y", ezInputSlotFlags::IsTrackedValue);
+  RegisterInputSlot(ezInputSlot_Spatial_Head_UpPosZ, "Head Up Pos Z", ezInputSlotFlags::IsTrackedValue);
+  RegisterInputSlot(ezInputSlot_Spatial_Head_UpNegX, "Head Up Neg X", ezInputSlotFlags::IsTrackedValue);
+  RegisterInputSlot(ezInputSlot_Spatial_Head_UpNegY, "Head Up Neg Y", ezInputSlotFlags::IsTrackedValue);
+  RegisterInputSlot(ezInputSlot_Spatial_Head_UpNegZ, "Head Up Neg Z", ezInputSlotFlags::IsTrackedValue);
 }
 
 void ezInputDeviceSpatialInteraction::ResetInputSlotValues()
@@ -67,9 +90,48 @@ void ezInputDeviceSpatialInteraction::ResetInputSlotValues()
 
 void ezInputDeviceSpatialInteraction::UpdateInputSlotValues()
 {
+  auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
+
+  ComPtr<ISpatialPointerPoseStatics> pPointerPoseStatics;
+  ezUwpUtils::RetrieveStatics(RuntimeClass_Windows_UI_Input_Spatial_SpatialPointerPose, pPointerPoseStatics);
+
+  ComPtr<ISpatialCoordinateSystem> coordinateSystem;
+  pHoloSpace->GetDefaultReferenceFrame()->GetInternalCoordinateSystem(coordinateSystem);
+
+  ComPtr<ISpatialPointerPose> pPointerPose;
+  pPointerPoseStatics->TryGetAtTimestamp(coordinateSystem.Get(), pHoloSpace->GetPredictionTimestamp().Get(), &pPointerPose);
+
+  ComPtr<IHeadPose> pHeadPose;
+  pPointerPose->get_Head(&pHeadPose);
+
+  Vector3 headPos, headFwd, headUp;
+  pHeadPose->get_Position(&headPos);
+  pHeadPose->get_ForwardDirection(&headFwd);
+  pHeadPose->get_UpDirection(&headUp);
+
+  m_InputSlotValues[ezInputSlot_Spatial_Head_PositionPosX] = ezMath::Max(0.0f, headPos.X);
+  m_InputSlotValues[ezInputSlot_Spatial_Head_PositionPosY] = ezMath::Max(0.0f, headPos.Y);
+  m_InputSlotValues[ezInputSlot_Spatial_Head_PositionPosZ] = ezMath::Max(0.0f, headPos.Z);
+  m_InputSlotValues[ezInputSlot_Spatial_Head_PositionNegX] = ezMath::Max(0.0f, -headPos.X);
+  m_InputSlotValues[ezInputSlot_Spatial_Head_PositionNegY] = ezMath::Max(0.0f, -headPos.Y);
+  m_InputSlotValues[ezInputSlot_Spatial_Head_PositionNegZ] = ezMath::Max(0.0f, -headPos.Z);
+
+  m_InputSlotValues[ezInputSlot_Spatial_Head_ForwardPosX] = ezMath::Max(0.0f, headFwd.X);
+  m_InputSlotValues[ezInputSlot_Spatial_Head_ForwardPosY] = ezMath::Max(0.0f, headFwd.Y);
+  m_InputSlotValues[ezInputSlot_Spatial_Head_ForwardPosZ] = ezMath::Max(0.0f, headFwd.Z);
+  m_InputSlotValues[ezInputSlot_Spatial_Head_ForwardNegX] = ezMath::Max(0.0f, -headFwd.X);
+  m_InputSlotValues[ezInputSlot_Spatial_Head_ForwardNegY] = ezMath::Max(0.0f, -headFwd.Y);
+  m_InputSlotValues[ezInputSlot_Spatial_Head_ForwardNegZ] = ezMath::Max(0.0f, -headFwd.Z);
+
+  m_InputSlotValues[ezInputSlot_Spatial_Head_UpPosX] = ezMath::Max(0.0f, headUp.X);
+  m_InputSlotValues[ezInputSlot_Spatial_Head_UpPosY] = ezMath::Max(0.0f, headUp.Y);
+  m_InputSlotValues[ezInputSlot_Spatial_Head_UpPosZ] = ezMath::Max(0.0f, headUp.Z);
+  m_InputSlotValues[ezInputSlot_Spatial_Head_UpNegX] = ezMath::Max(0.0f, -headUp.X);
+  m_InputSlotValues[ezInputSlot_Spatial_Head_UpNegY] = ezMath::Max(0.0f, -headUp.Y);
+  m_InputSlotValues[ezInputSlot_Spatial_Head_UpNegZ] = ezMath::Max(0.0f, -headUp.Z);
 }
 
-void ezInputDeviceSpatialInteraction::GetSourceDetails(ABI::Windows::UI::Input::Spatial::ISpatialInteractionSourceEventArgs* args, SourceDetails& out_Details)
+void ezInputDeviceSpatialInteraction::GetSourceDetails(ISpatialInteractionSourceEventArgs* args, SourceDetails& out_Details)
 {
   auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
 
@@ -151,7 +213,7 @@ void ezInputDeviceSpatialInteraction::UpdateSourceInfo(const SourceDetails& deta
   }
 }
 
-void ezInputDeviceSpatialInteraction::SetTrackingStatus(ABI::Windows::UI::Input::Spatial::ISpatialInteractionSourceEventArgs* args, bool bTracked)
+void ezInputDeviceSpatialInteraction::SetTrackingStatus(ISpatialInteractionSourceEventArgs* args, bool bTracked)
 {
   SourceDetails details;
   GetSourceDetails(args, details);
@@ -170,13 +232,13 @@ void ezInputDeviceSpatialInteraction::SetTrackingStatus(ABI::Windows::UI::Input:
   }
 }
 
-HRESULT ezInputDeviceSpatialInteraction::OnSourceDetected(ABI::Windows::UI::Input::Spatial::ISpatialInteractionManager* pManager, ABI::Windows::UI::Input::Spatial::ISpatialInteractionSourceEventArgs* args)
+HRESULT ezInputDeviceSpatialInteraction::OnSourceDetected(ISpatialInteractionManager* pManager, ISpatialInteractionSourceEventArgs* args)
 {
   SetTrackingStatus(args, true);
   return S_OK;
 }
 
-HRESULT ezInputDeviceSpatialInteraction::OnSourceLost(ABI::Windows::UI::Input::Spatial::ISpatialInteractionManager* pManager, ABI::Windows::UI::Input::Spatial::ISpatialInteractionSourceEventArgs* args)
+HRESULT ezInputDeviceSpatialInteraction::OnSourceLost(ISpatialInteractionManager* pManager, ISpatialInteractionSourceEventArgs* args)
 {
   SetTrackingStatus(args, false);
   return S_OK;
@@ -219,7 +281,7 @@ HRESULT ezInputDeviceSpatialInteraction::OnSourcePressed(ISpatialInteractionMana
   return S_OK;
 }
 
-HRESULT ezInputDeviceSpatialInteraction::OnSourceReleased(ABI::Windows::UI::Input::Spatial::ISpatialInteractionManager* pManager, ABI::Windows::UI::Input::Spatial::ISpatialInteractionSourceEventArgs* args)
+HRESULT ezInputDeviceSpatialInteraction::OnSourceReleased(ISpatialInteractionManager* pManager, ISpatialInteractionSourceEventArgs* args)
 {
   SourceDetails details;
   GetSourceDetails(args, details);

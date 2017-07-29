@@ -83,7 +83,7 @@ void ezMaterialContext::OnInitialize()
       // Build geometry
       ezGeometry geom;
 
-      geom.AddSphere(1, 64, 64, ezColor::Red);
+      geom.AddSphere(0.1f, 64, 64, ezColor::Red);
       geom.ComputeTangents();
 
       ezMeshBufferResourceDescriptor desc;

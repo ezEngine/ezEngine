@@ -1,7 +1,8 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <Foundation/Types/UniquePtr.h>
 
 class ezQtTextureAssetDocumentWindow;
 class ezOrbitCameraContext;
@@ -14,5 +15,5 @@ public:
   ~ezQtTextureViewWidget();
 
 private:
-  ezOrbitCameraContext* m_pOrbitCameraContext;
+  ezUniquePtr<ezOrbitCameraContext> m_pOrbitCameraContext;
 };

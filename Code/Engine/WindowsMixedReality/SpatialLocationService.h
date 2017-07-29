@@ -42,6 +42,9 @@ public:
   /// This overload adds a position offset to the headset position.
   ezUniquePtr<ezWindowsSpatialReferenceFrame> CreateStationaryReferenceFrame_CurrentLocation(const ezWindowsSpatialReferenceFrame& origin, const ezVec3& vOffset);
 
+  /// \brief Creates a new anchor at the same position as the given anchor, but with a rotation applied.
+  ezUniquePtr<ezWindowsSpatialReferenceFrame> CreateStationaryReferenceFrameRotated(const ezWindowsSpatialReferenceFrame& origin, ezAngle difference);
+
   /// \brief Creates a spatial anchor at the given offset relative to the given reference frame.
   ///
   /// If the reference frame is null, the default holographic space reference frame is used.

@@ -15,10 +15,9 @@ ezQtCollisionMeshViewWidget::ezQtCollisionMeshViewWidget(QWidget* pParent, ezQtC
   m_pOrbitCameraContext->SetCamera(&m_pViewConfig->m_Camera);
   m_pOrbitCameraContext->SetOrbitVolume(ezVec3(0, 0, 1), ezVec3(10.0f), ezVec3(-5, 1, 2));
 
-  m_InputContexts.PushBack(m_pOrbitCameraContext);
+  m_InputContexts.PushBack(m_pOrbitCameraContext.Borrow());
 }
 
 ezQtCollisionMeshViewWidget::~ezQtCollisionMeshViewWidget()
 {
-  EZ_DEFAULT_DELETE(m_pOrbitCameraContext);
 }

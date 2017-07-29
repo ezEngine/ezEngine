@@ -113,6 +113,47 @@ ezUniquePtr<ezWindowsSpatialReferenceFrame> ezWindowsSpatialLocationService::Cre
   return EZ_DEFAULT_NEW(ezWindowsSpatialReferenceFrame, pFrame);
 }
 
+
+ezUniquePtr<ezWindowsSpatialReferenceFrame> ezWindowsSpatialLocationService::CreateStationaryReferenceFrameRotated(const ezWindowsSpatialReferenceFrame& origin, ezAngle difference)
+{
+  const ezVec3 vOriginToDest(0.0f);
+  const ezQuat qOriginToDest = ezQuat::IdentityQuaternion();
+
+  ComPtr<ISpatialCoordinateSystem> pOriginCoords;
+  origin.GetInternalCoordinateSystem(pOriginCoords);
+
+  ComPtr<ISpatialStationaryFrameOfReference> pCurFrame;
+  m_pSpatialLocator->CreateStationaryFrameOfReferenceAtCurrentLocation(pCurFrame.GetAddressOf());
+
+  ComPtr<ISpatialCoordinateSystem> pCurCoords;
+  pCurFrame->get_CoordinateSystem(&pCurCoords);
+
+  ComPtr<__FIReference_1_Windows__CFoundation__CNumerics__CMatrix4x4> pMatCurToOrigin;
+  pOriginCoords->TryGetTransformTo(pCurCoords.Get(), &pMatCurToOrigin);
+
+  const ezMat4 mCurToOrigin = ezUwpUtils::ConvertMat4(pMatCurToOrigin.Get());
+
+  Vector3 vCurToDest;
+  ezUwpUtils::ConvertVec3(mCurToOrigin * vOriginToDest, vCurToDest);
+
+  ezQuat qCurToDest0;
+  qCurToDest0.SetFromMat3((mCurToOrigin *  qOriginToDest.GetAsMat4()).GetRotationalPart());
+
+  Quaternion qCurToDest;
+  ezUwpUtils::ConvertQuat(qCurToDest0, qCurToDest);
+
+  ComPtr<ISpatialStationaryFrameOfReference> pFrame;
+  HRESULT result = m_pSpatialLocator->CreateStationaryFrameOfReferenceAtCurrentLocationWithPositionAndOrientationAndRelativeHeading(vCurToDest, qCurToDest, difference.GetRadian(), pFrame.GetAddressOf());
+  if (FAILED(result))
+  {
+    ezLog::Error("Failed to create stationary spatial reference frame at current position: {0}", ezHRESULTtoString(result));
+    return nullptr;
+  }
+
+  return EZ_DEFAULT_NEW(ezWindowsSpatialReferenceFrame, pFrame);
+
+}
+
 ezUniquePtr<ezWindowsSpatialAnchor> ezWindowsSpatialLocationService::CreateSpatialAnchor(const ezTransform& offset, const ezWindowsSpatialReferenceFrame* pReferenceFrame /*= nullptr*/)
 {
   if (pReferenceFrame == nullptr)

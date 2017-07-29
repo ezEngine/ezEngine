@@ -245,6 +245,10 @@ ComPtr<ABI::Windows::Graphics::Holographic::IHolographicFrame> ezWindowsHolograp
   // Use it to update all our cameras.
   UpdateCameraPoses(pHolographicFrame);
 
+  ComPtr<ABI::Windows::Graphics::Holographic::IHolographicFramePrediction> pPrediction;
+  pHolographicFrame->get_CurrentPrediction(&pPrediction);
+  pPrediction->get_Timestamp(&m_pPredictionTimestamp);
+
   return std::move(pHolographicFrame);
 }
 

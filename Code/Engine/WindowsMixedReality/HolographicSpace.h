@@ -49,6 +49,9 @@ public:
   /// \brief Returns the spatial reference frame that is used as the default reference frame.
   const ezWindowsSpatialReferenceFrame* GetDefaultReferenceFrame() const;
 
+  /// \brief Returns the last prediction timestamp. Some APIs need this timestamp to query data at a consistent time.
+  const ComPtr<ABI::Windows::Perception::IPerceptionTimestamp>& GetPredictionTimestamp() const { return m_pPredictionTimestamp; }
+
   // Cameras
 public:
 
@@ -104,6 +107,8 @@ private:
   /// Windows holographic space, created in init method for a specific window.
   ComPtr<ABI::Windows::Graphics::Holographic::IHolographicSpace> m_pHolographicSpace;
 
+  /// The timestamp at which the last frame was started and therefore all predictions where done.
+  ComPtr<ABI::Windows::Perception::IPerceptionTimestamp> m_pPredictionTimestamp;
 
   // Camera subscriptions on holographic space.
   EventRegistrationToken m_eventRegistrationOnCameraAdded;

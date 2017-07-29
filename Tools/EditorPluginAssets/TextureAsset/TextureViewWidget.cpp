@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/TextureAsset/TextureViewWidget.moc.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetWindow.moc.h>
@@ -15,10 +15,9 @@ ezQtTextureViewWidget::ezQtTextureViewWidget(QWidget* pParent, ezQtTextureAssetD
   m_pOrbitCameraContext->SetCamera(&m_pViewConfig->m_Camera);
   m_pOrbitCameraContext->SetOrbitVolume(ezVec3(0), ezVec3(1.0f), ezVec3(-1, 0, 0));
 
-  m_InputContexts.PushBack(m_pOrbitCameraContext);
+  m_InputContexts.PushBack(m_pOrbitCameraContext.Borrow());
 }
 
 ezQtTextureViewWidget::~ezQtTextureViewWidget()
 {
-  EZ_DEFAULT_DELETE(m_pOrbitCameraContext);
 }

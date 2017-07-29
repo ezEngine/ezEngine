@@ -1,7 +1,8 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <Foundation/Types/UniquePtr.h>
 
 class ezQtMeshAssetDocumentWindow;
 class ezOrbitCameraContext;
@@ -13,8 +14,8 @@ public:
   ezQtMeshViewWidget(QWidget* pParent, ezQtMeshAssetDocumentWindow* pOwnerWindow, ezSceneViewConfig* pViewConfig);
   ~ezQtMeshViewWidget();
 
-  ezOrbitCameraContext* GetOrbitCamera() { return m_pOrbitCameraContext; }
+  ezOrbitCameraContext* GetOrbitCamera() { return m_pOrbitCameraContext.Borrow(); }
 
 private:
-  ezOrbitCameraContext* m_pOrbitCameraContext;
+  ezUniquePtr<ezOrbitCameraContext> m_pOrbitCameraContext;
 };
