@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderTypeRegistry.h>
 
@@ -67,6 +67,7 @@ private:
   ezStringBuilder m_sShaderPixelSamplers;
   ezStringBuilder m_sShaderPixelBody;
   ezStringBuilder m_sShaderVertex;
+  ezStringBuilder m_sShaderGeometry;
   ezStringBuilder m_sShaderMaterialParam;
   ezStringBuilder m_sShaderMaterialCB;
   ezStringBuilder m_sShaderRenderState;

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Configuration/Singleton.h>
@@ -52,6 +52,7 @@ struct ezVisualShaderNodeDescriptor
   ezString m_sShaderCodeMaterialCB;
   ezString m_sShaderCodeRenderState;
   ezString m_sShaderCodeVertexShader;
+  ezString m_sShaderCodeGeometryShader;
 
   ezHybridArray<ezVisualShaderPinDescriptor, 4> m_InputPins;
   ezHybridArray<ezVisualShaderPinDescriptor, 4> m_OutputPins;

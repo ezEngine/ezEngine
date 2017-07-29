@@ -56,6 +56,16 @@ float3 GetWorldPositionOffset(VS_IN Input, ezPerInstanceData data, float3 worldP
 
 " }
 
+  string %CodeGeometryShader { "
+
+#define USE_NORMAL
+#define USE_TANGENT
+#define USE_TEXCOORD0
+
+#include <Shaders/Materials/MaterialStereoGeometryShader.h>
+
+" }
+
   string %CodeMaterialParams { "
 Permutation BLEND_MODE;
 Permutation SHADING_MODE;

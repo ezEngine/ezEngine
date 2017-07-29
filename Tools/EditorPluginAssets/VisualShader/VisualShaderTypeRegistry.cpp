@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderTypeRegistry.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderNodeManager.h>
@@ -503,6 +503,12 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezOpenDdlReaderElement*
         temp = pElement->GetPrimitivesString()[0];
         if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
         nd.m_sShaderCodeVertexShader = temp;
+      }
+      else if (ezStringUtils::IsEqual(pElement->GetName(), "CodeGeometryShader"))
+      {
+        temp = pElement->GetPrimitivesString()[0];
+        if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
+        nd.m_sShaderCodeGeometryShader = temp;
       }
       else if (ezStringUtils::IsEqual(pElement->GetName(), "CodeMaterialParams"))
       {
