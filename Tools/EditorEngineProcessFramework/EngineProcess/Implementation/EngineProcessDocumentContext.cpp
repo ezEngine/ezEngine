@@ -378,6 +378,12 @@ void ezEngineProcessDocumentContext::Reset()
   Initialize(guid, ipc);
 }
 
+
+void ezEngineProcessDocumentContext::ClearExistingObjects()
+{
+  m_Context.DeleteExistingObjects();
+}
+
 bool ezEngineProcessDocumentContext::PendingOperationInProgress() const
 {
   return m_pThumbnailViewContext != nullptr;

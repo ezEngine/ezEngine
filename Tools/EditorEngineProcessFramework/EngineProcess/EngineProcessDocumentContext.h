@@ -47,6 +47,7 @@ public:
   const ezUuid& GetDocumentGuid() const { return m_DocumentGuid; }
 
   virtual void Reset();
+  void ClearExistingObjects();
 
   ezIPCObjectMirrorEngine m_Mirror;
   ezWorldRttiConverterContext m_Context; //TODO: Move actual context into the EngineProcessDocumentContext

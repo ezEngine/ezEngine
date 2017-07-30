@@ -16,6 +16,7 @@ public:
   ezWorldRttiConverterContext() : m_pWorld(nullptr), m_uiNextComponentPickingID(1) {}
 
   virtual void Clear() override;
+  void DeleteExistingObjects();
 
   virtual void* CreateObject(const ezUuid& guid, const ezRTTI* pRtti) override;
   virtual void DeleteObject(const ezUuid& guid) override;

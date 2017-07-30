@@ -226,8 +226,8 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     {
       // we have no link dependency on the fileserve plugin here, it might not be loaded (yet / at all)
       // but we can pass the address to the command line, then it will pick it up, if necessary
-      ezStringBuilder arg("-fs_server ", pSetupMsg->m_sFileserveAddress);
-      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument(arg);
+      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-fs_server");
+      ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument(pSetupMsg->m_sFileserveAddress);
     }
 
     // now that we know which project to initialize, do the delayed project setup
@@ -316,15 +316,12 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     return;
   }
 
-  // resetting a document makes a lot of problems:
-  // recreating the world will lose all custom nodes (ambient light etc.)
-  // the simulation state is reset to default (on)
-  //if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentClearMsgToEngine>())
-  //{
-  //  ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(pDocMsg->m_DocumentGuid);
-  //  pDocumentContext->Reset();
-  //  return;
-  //}
+  if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentClearMsgToEngine>())
+  {
+    ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(pDocMsg->m_DocumentGuid);
+    pDocumentContext->ClearExistingObjects();
+    return;
+  }
 
   // can be null if the asset was deleted on disk manually
   if (pDocumentContext)

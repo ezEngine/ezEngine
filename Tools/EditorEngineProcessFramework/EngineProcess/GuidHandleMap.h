@@ -53,6 +53,11 @@ public:
     return m_HandleToGuid.GetValueOrDefault(handle, ezUuid());
   }
 
+  const ezMap<HandleType, ezUuid>& GetHandleToGuidMap() const
+  {
+    return m_HandleToGuid;
+  }
+
 private:
   ezHashTable<ezUuid, HandleType> m_GuidToHandle;
   ezMap<HandleType, ezUuid> m_HandleToGuid;

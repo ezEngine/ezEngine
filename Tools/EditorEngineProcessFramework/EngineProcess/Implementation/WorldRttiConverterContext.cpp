@@ -14,6 +14,39 @@ void ezWorldRttiConverterContext::Clear()
   m_ComponentPickingMap.Clear();
 }
 
+
+void ezWorldRttiConverterContext::DeleteExistingObjects()
+{
+  if (m_pWorld == nullptr)
+    return;
+
+  EZ_LOCK(m_pWorld->GetWriteMarker());
+
+  const auto& map = m_GameObjectMap.GetHandleToGuidMap();
+  while (!map.IsEmpty())
+  {
+    auto it = map.GetIterator();
+
+    ezGameObject* pGameObject = nullptr;
+    if (m_pWorld->TryGetObject(it.Key(), pGameObject))
+    {
+      DeleteObject(it.Value());
+    }
+    else
+    {
+      m_GameObjectMap.UnregisterObject(it.Value());
+    }
+  }
+
+  // call base class clear, not the overridden one
+  ezRttiConverterContext::Clear();
+
+  m_GameObjectMap.Clear();
+  m_ComponentMap.Clear();
+  m_ComponentPickingMap.Clear();
+  //m_OtherPickingMap.Clear(); // do not clear this
+}
+
 void* ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI* pRtti)
 {
   EZ_ASSERT_DEBUG(pRtti != nullptr, "Object type is unknown");
