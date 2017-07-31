@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 /// \file
 
@@ -50,7 +50,7 @@ inline const char* ezFmt(const char* szFormat)
 
 /// \brief Macro to report a failure when that code is reached. This will ALWAYS be executed, even in release builds, therefore might crash the application (or trigger a debug break).
 #define EZ_REPORT_FAILURE(szErrorMsg, ...) \
-  { if (ezFailedCheck(EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, "", ezFmt(szErrorMsg, ##__VA_ARGS__))) EZ_DEBUG_BREAK; }
+  do { if (ezFailedCheck(EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, "", ezFmt(szErrorMsg, ##__VA_ARGS__))) EZ_DEBUG_BREAK; } while (false)
 
 /// \brief Macro to raise an error, if a condition is not met. Allows to write a message using printf style. This assert will be triggered, even in non-development builds and cannot be deactivated.
 #define EZ_ASSERT_ALWAYS(bCondition, szErrorMsg, ...) \
@@ -62,7 +62,7 @@ inline const char* ezFmt(const char* szFormat)
 
 
 /// \brief This type of assert can be used to mark code as 'not (yet) implemented' and makes it easier to find it later on by just searching for these asserts.
-#define EZ_ASSERT_NOT_IMPLEMENTED EZ_REPORT_FAILURE("Not implemented")
+#define EZ_ASSERT_NOT_IMPLEMENTED EZ_REPORT_FAILURE("Not implemented");
 
 // Occurrences of EZ_ASSERT_DEBUG are compiled out in non-debug builds
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
