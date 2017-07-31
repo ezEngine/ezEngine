@@ -1,4 +1,4 @@
-#cmake
+﻿#cmake
 
 #
 # Copy this file into the folder of an engine library to add it to the solution.
@@ -37,21 +37,33 @@ SET (LINK_LIBRARIES
   GameEngine
 )
 
-if (${BUILDSYSTEM_PLATFORM_64BIT})
+if (${BUILDSYSTEM_PLATFORM_WINDOWS_UWP})
 
   SET (LINK_LIBRARIES
     ${LINK_LIBRARIES}
-		fmod64_vc
-		fmodstudio64_vc
-	)
+    fmod_X86
+    fmodstudio_X86
+  )
 
-else()
+elseif (${BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP})
 
-  SET (LINK_LIBRARIES
-    ${LINK_LIBRARIES}
-		fmod_vc
-		fmodstudio_vc
-	)
+  if (${BUILDSYSTEM_PLATFORM_64BIT})
+
+    SET (LINK_LIBRARIES
+      ${LINK_LIBRARIES}
+      fmod64_vc
+      fmodstudio64_vc
+    )
+
+  else()
+
+    SET (LINK_LIBRARIES
+      ${LINK_LIBRARIES}
+      fmod_vc
+      fmodstudio_vc
+    )
+  endif()
+
 endif()
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)
@@ -60,6 +72,8 @@ add_custom_command(TARGET ${PROJECT_NAME}
   COMMAND ${CMAKE_COMMAND}
 	-DMSVC_BUILD_CONFIG_DIR=${CMAKE_CFG_INTDIR}
   -DBUILDSYSTEM_PLATFORM_64BIT=${BUILDSYSTEM_PLATFORM_64BIT}
+  -DBUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP=${BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP}
+  -DBUILDSYSTEM_PLATFORM_WINDOWS_UWP=${BUILDSYSTEM_PLATFORM_WINDOWS_UWP}
   -DFMOD_SOURCE=${EZ_FMOD_DIR}
 	-DFMOD_TARGET=$<TARGET_FILE_DIR:${PROJECT_NAME}>
 	-P "${CMAKE_CURRENT_SOURCE_DIR}/CopyFModDlls.cmake"
