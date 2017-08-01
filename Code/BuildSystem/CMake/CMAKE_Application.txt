@@ -55,10 +55,6 @@ endif ()
 # Setup package if necessary
 # TODO: Move to somewhere else
 if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
-  # Clear content variable
-  # TODO how can the user add existing content?
-  set(CONTENT_FILES "")
-
   set(CONTENT_DIRECTORY_DST "${CMAKE_CURRENT_BINARY_DIR}/Assets/")
   set(CONTENT_DIRECTORY_SRC "${CMAKE_SOURCE_DIR}/Data/Platform/UWP/")
 

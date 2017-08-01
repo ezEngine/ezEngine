@@ -1,4 +1,4 @@
-#cmake
+﻿#cmake
 
 #
 # Copy this file into the folder of an engine library to add it to the solution.
@@ -8,13 +8,8 @@
 #
 
 # Pass a boolean expression into this macro to build this project only if the expression evaluates to true.
-BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP)
+BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
 BUILD_CONDITIONAL(EZ_BUILD_PHYSX)
-
-set (EZ_PHYSX_DIR "" CACHE PATH "Directory of PhysX installation")
-
-include_directories ("${EZ_PHYSX_DIR}/PhysX_3.4/Include")
-include_directories ("${EZ_PHYSX_DIR}/PxShared/Include")
 
 # Add all the preprocessor definitions that are needed to configure this library
 # add_definitions (-DMY_PREPROCESS_DEFINITION_1)
@@ -31,45 +26,5 @@ SET (LINK_LIBRARIES
   Core
 )
 
-SET (PHYSX_LIB_DIR "${EZ_PHYSX_DIR}/PhysX_3.4/Lib")
-SET (PXSHARED_BIN_DIR "${EZ_PHYSX_DIR}/PxShared/Bin")
-
-if (DEFINED BUILDSYSTEM_COMPILER_MSVC_140)
-  SET (PHYSX_LIB_DIR "${PHYSX_LIB_DIR}/vc14")
-  SET (PXSHARED_LIB_DIR "${PXSHARED_LIB_DIR}/vc14")
-endif()
-if (DEFINED BUILDSYSTEM_COMPILER_MSVC_150)
-  SET (PHYSX_LIB_DIR "${PHYSX_LIB_DIR}/vc15")
-  SET (PXSHARED_LIB_DIR "${PXSHARED_LIB_DIR}/vc15")
-endif()
-
-if (${BUILDSYSTEM_PLATFORM_64BIT})
-  link_directories ("${PHYSX_LIB_DIR}win64")
-  link_directories ("${PXSHARED_LIB_DIR}win64")
-
-  SET (LINK_LIBRARIES 
-    ${LINK_LIBRARIES}
-    debug PhysX3DEBUG_x64
-    debug PhysX3CommonDEBUG_x64
-    debug PhysX3CookingDEBUG_x64
-    optimized PhysX3_x64
-    optimized PhysX3Common_x64
-    optimized PhysX3Cooking_x64
-  )
-
-else()
-  link_directories ("${PHYSX_LIB_DIR}win32")
-  link_directories ("${PXSHARED_LIB_DIR}win32")
-
-  SET (LINK_LIBRARIES 
-    ${LINK_LIBRARIES}
-    debug PhysX3DEBUG_x86
-    debug PhysX3CommonDEBUG_x86
-    debug PhysX3CookingDEBUG_x86
-    optimized PhysX3_x86
-    optimized PhysX3Common_x86
-    optimized PhysX3Cooking_x86
-  )
-endif()
-
+include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/ExternalLibraries/CMAKE_PhysX.txt)
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)

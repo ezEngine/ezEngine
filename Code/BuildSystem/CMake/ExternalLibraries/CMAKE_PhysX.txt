@@ -1,0 +1,99 @@
+#cmake
+
+set (EZ_PHYSX_DIR "" CACHE PATH "Directory of PhysX installation")
+
+include_directories ("${EZ_PHYSX_DIR}/PhysX_3.4/Include")
+include_directories ("${EZ_PHYSX_DIR}/PxShared/Include")
+
+SET (LINK_LIBRARIES
+    ${LINK_LIBRARIES}
+    debug PhysX3ExtensionsDEBUG
+    optimized PhysX3Extensions
+)
+
+SET (PHYSX_LIB_DIR "${EZ_PHYSX_DIR}/PhysX_3.4/Lib")
+SET (PHYSX_BIN_DIR "${EZ_PHYSX_DIR}/PhysX_3.4/Bin")
+
+SET (PXSHARED_LIB_DIR "${EZ_PHYSX_DIR}/PxShared/Lib")
+SET (PXSHARED_BIN_DIR "${EZ_PHYSX_DIR}/PxShared/Bin")
+
+if (DEFINED BUILDSYSTEM_COMPILER_MSVC_140)
+    SET (PHYSX_LIB_DIR "${PHYSX_LIB_DIR}/vc14")
+    SET (PHYSX_BIN_DIR "${PHYSX_BIN_DIR}/vc14")
+    
+    SET (PXSHARED_LIB_DIR "${PXSHARED_LIB_DIR}/vc14")
+    SET (PXSHARED_BIN_DIR "${PXSHARED_BIN_DIR}/vc14")
+endif()
+if (DEFINED BUILDSYSTEM_COMPILER_MSVC_150)
+    SET (PHYSX_LIB_DIR "${PHYSX_LIB_DIR}/vc15")
+    SET (PHYSX_BIN_DIR "${PHYSX_BIN_DIR}/vc15")
+    
+    SET (PXSHARED_LIB_DIR "${PXSHARED_LIB_DIR}/vc15")
+    SET (PXSHARED_BIN_DIR "${PXSHARED_BIN_DIR}/vc15")
+endif()
+
+if (${BUILDSYSTEM_PLATFORM_64BIT})
+    link_directories ("${PHYSX_LIB_DIR}win64")
+    link_directories ("${PXSHARED_LIB_DIR}win64")
+    
+    SET (LINK_LIBRARIES
+        ${LINK_LIBRARIES}
+        debug PxFoundationDEBUG_x64
+        debug PxPvdSDKDEBUG_x64
+        debug PhysX3DEBUG_x64
+        debug PhysX3CommonDEBUG_x64
+        debug PhysX3CharacterKinematicDEBUG_x64
+        optimized PxFoundation_x64
+        optimized PxPvdSDK_x64
+        optimized PhysX3_x64
+        optimized PhysX3Common_x64
+        optimized PhysX3CharacterKinematic_x64
+    )
+    
+    SET (PHYSX_BIN_DIR "${PHYSX_BIN_DIR}win64")
+    SET (PXSHARED_BIN_DIR "${PXSHARED_BIN_DIR}win64")
+else()
+    link_directories ("${PHYSX_LIB_DIR}win32")
+    link_directories ("${PXSHARED_LIB_DIR}win32")
+
+    SET (LINK_LIBRARIES
+        ${LINK_LIBRARIES}
+        debug PxFoundationDEBUG_x86
+        debug PxPvdSDKDEBUG_x86
+        debug PhysX3DEBUG_x86
+        debug PhysX3CommonDEBUG_x86
+        debug PhysX3CharacterKinematicDEBUG_x86
+        optimized PxFoundation_x86
+        optimized PxPvdSDK_x86
+        optimized PhysX3_x86
+        optimized PhysX3Common_x86
+        optimized PhysX3CharacterKinematic_x86
+    )
+    
+    SET (PHYSX_BIN_DIR "${PHYSX_BIN_DIR}win32")
+    SET (PXSHARED_BIN_DIR "${PXSHARED_BIN_DIR}win32")
+endif()
+
+
+# Dlls need some extra care.
+
+# Make part of the AppX bundle for uwp build
+if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
+    SET (PHYSX_DLLS
+        ${PXSHARED_BIN_DIR}/PxFoundationDEBUG_x86.dll
+        ${PXSHARED_BIN_DIR}/PxPvdSDKDEBUG_x86.dll
+        ${PHYSX_BIN_DIR}/PhysX3DEBUG_x86.dll
+        ${PHYSX_BIN_DIR}/PhysX3CommonDEBUG_x86.dll
+        ${PHYSX_BIN_DIR}/PhysX3CharacterKinematicDEBUG_x86.dll
+        ${PHYSX_BIN_DIR}/PhysX3CookingDEBUG_x86.dll
+        ${PHYSX_BIN_DIR}/nvToolsExt32_1.dll
+    )
+
+    #message(STATUS ${PHYSX_DLLS})
+
+    set_property(SOURCE ${PHYSX_DLLS} PROPERTY VS_DEPLOYMENT_CONTENT 1)
+    set_property(SOURCE ${PHYSX_DLLS} PROPERTY VS_DEPLOYMENT_LOCATION "")
+    source_group("PhysX Dlls" FILES ${PHYSX_DLLS})
+
+    set(CONTENT_FILES ${CONTENT_FILES} ${PHYSX_DLLS})
+endif()
