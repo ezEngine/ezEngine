@@ -36,6 +36,10 @@ ezAngle ezCamera::GetFovX(float fAspectRatioWidthDivHeight) const
   if (m_Mode == ezCameraMode::PerspectiveFixedFovY)
     return ezMath::ATan(ezMath::Tan(ezAngle::Degree(m_fFovOrDim) * 0.5f) * fAspectRatioWidthDivHeight) * 2.0f;
 
+  // TODO: HACK
+  if (m_Mode == ezCameraMode::Stereo)
+    return ezAngle::Degree(90);
+
   EZ_REPORT_FAILURE("You cannot get the camera FOV when it is not a perspective camera.");
   return ezAngle();
 }
@@ -47,6 +51,10 @@ ezAngle ezCamera::GetFovY(float fAspectRatioWidthDivHeight) const
 
   if (m_Mode == ezCameraMode::PerspectiveFixedFovY)
     return ezAngle::Degree(m_fFovOrDim);
+
+  // TODO: HACK
+  if (m_Mode == ezCameraMode::Stereo)
+    return ezAngle::Degree(90);
 
   EZ_REPORT_FAILURE("You cannot get the camera FOV when it is not a perspective camera.");
   return ezAngle();

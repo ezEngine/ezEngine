@@ -77,6 +77,13 @@ void ezWindowsHolographicSpace::Activate(ezCamera* pCameraForSynchronization)
     CreateDefaultReferenceFrame();
   }
 
+  if (!m_bAddedGameAppEventHandler)
+  {
+    m_bAddedGameAppEventHandler = true;
+
+    ezGameApplication::GetGameApplicationInstance()->m_Events.AddEventHandler(ezMakeDelegate(&ezWindowsHolographicSpace::GameApplicationEventHandler, this));
+  }
+
   SetCameraForPredictionSynchronization(pCameraForSynchronization);
 }
 
@@ -154,6 +161,13 @@ void ezWindowsHolographicSpace::DeInit()
     return;
 
   SetCameraForPredictionSynchronization(nullptr);
+
+  if (m_bAddedGameAppEventHandler)
+  {
+    m_bAddedGameAppEventHandler = false;
+
+    ezGameApplication::GetGameApplicationInstance()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezWindowsHolographicSpace::GameApplicationEventHandler, this));
+  }
 
   for (auto pCamera : m_cameras)
     EZ_DEFAULT_DELETE(pCamera);
@@ -312,6 +326,11 @@ void ezWindowsHolographicSpace::GameApplicationEventHandler(const ezGameApplicat
       SynchronizeCameraPrediction(*m_pCameraToSynchronize);
     }
   }
+
+  if (e.m_Type == ezGameApplicationEvent::Type::BeginAppTick)
+  {
+    ezWindowsHolographicSpace::GetSingleton()->ProcessAddedRemovedCameras();
+  }
 }
 
 void ezWindowsHolographicSpace::SetCameraForPredictionSynchronization(ezCamera* pCamera)
@@ -319,17 +338,9 @@ void ezWindowsHolographicSpace::SetCameraForPredictionSynchronization(ezCamera* 
   if (m_pCameraToSynchronize == pCamera)
     return;
 
-  if (m_pCameraToSynchronize)
-  {
-    ezGameApplication::GetGameApplicationInstance()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezWindowsHolographicSpace::GameApplicationEventHandler, this));
-  }
+  EZ_ASSERT_DEV(m_bAddedGameAppEventHandler, "Activate() has not been called on ezWindowsHolographicSpace");
 
   m_pCameraToSynchronize = pCamera;
-
-  if (pCamera)
-  {
-    ezGameApplication::GetGameApplicationInstance()->m_Events.AddEventHandler(ezMakeDelegate(&ezWindowsHolographicSpace::GameApplicationEventHandler, this));
-  }
 }
 
 ezResult ezWindowsHolographicSpace::SynchronizeCameraPrediction(ezCamera& inout_Camera)

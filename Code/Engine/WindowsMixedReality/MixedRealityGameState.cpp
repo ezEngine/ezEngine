@@ -45,15 +45,6 @@ void ezMixedRealityGameState::OnActivation(ezWorld* pWorld)
     pHoloSpace->Activate(&m_MainCamera);
 
     pHoloSpace->m_cameraAddedEvent.AddEventHandler(ezMakeDelegate(&ezMixedRealityGameState::OnHolographicCameraAdded, this));
-
-    // Need to handle add/remove cameras before anything else - world update won't happen without a view which may be created/destroyed by this.
-    GetApplication()->m_Events.AddEventHandler([this](const ezGameApplicationEvent& evt)
-    {
-      if (evt.m_Type == ezGameApplicationEvent::Type::BeginAppTick)
-      {
-        ezWindowsHolographicSpace::GetSingleton()->ProcessAddedRemovedCameras();
-      }
-    });
   }
 
   ConfigureMainCamera();

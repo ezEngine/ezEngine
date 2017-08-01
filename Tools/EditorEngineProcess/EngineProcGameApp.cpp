@@ -159,7 +159,9 @@ bool ezEngineProcessGameApplication::ProcessIPCMessages(bool bPendingOpInProgres
   }
   else
   {
-    if (bPendingOpInProgress)
+    // if an operation is still pending or this process is a remote process, we do NOT want to block
+    // remote processes shall run as fast as they can
+    if (bPendingOpInProgress || ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
     {
       m_IPC.ProcessMessages();
     }
@@ -306,7 +308,7 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     if (pMsg->m_bDocumentOpen)
     {
       pDocumentContext = CreateDocumentContext(pMsg);
-      EZ_ASSERT_DEV(pDocumentContext != nullptr, "Could not create a document context for document type '{0}'", pMsg->m_sDocumentType);
+     // EZ_ASSERT_DEV(pDocumentContext != nullptr, "Could not create a document context for document type '{0}'", pMsg->m_sDocumentType);
     }
     else
     {

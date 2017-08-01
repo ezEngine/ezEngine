@@ -58,12 +58,6 @@ public:
   // Cameras
 public:
 
-  /// \brief Processes queued holographic camera additions and removals.
-  ///
-  /// Needs to be called by the user in order to create new cameras and corresponding swap chains.
-  /// If a new camera was added or removed the corresponding events are fired.
-  void ProcessAddedRemovedCameras();
-
   /// \brief Gets list of all cameras.
   ezArrayPtr<ezWindowsMixedRealityCamera*> GetCameras() { return ezMakeArrayPtr(m_cameras); }
 
@@ -91,6 +85,10 @@ public:
 
 private:
 
+  //
+  // Initialization
+  //
+
   /// \brief Initializes the holographic space for the main core window. Called automatically on startup.
   ///
   /// The holographic space requires a window but also determines the DXGI adapter from which we need to create our DX11 device.
@@ -99,18 +97,15 @@ private:
   /// (as of writing our UWP window implementation actually doesn't support more than this one preexisting window
   ezResult InitForMainCoreWindow();
 
-
   void DeInit();
 
   /// Disables multi-threaded rendering to reduce frame lag, which has a significant impact on Hologram stability
   static void DisableMultiThreadedRendering();
 
-  /// \brief Updates all camera poses from holographic frame.
-  ezResult UpdateCameraPoses(const ComPtr<ABI::Windows::Graphics::Holographic::IHolographicFrame>& pHolographicFrame);
+  // implements automatic camera synchronization among other things
+  void GameApplicationEventHandler(const ezGameApplicationEvent& e);
 
-  // Callbacks for camera add/remove
-  HRESULT OnCameraAdded(ABI::Windows::Graphics::Holographic::IHolographicSpace* holographicSpace, ABI::Windows::Graphics::Holographic::IHolographicSpaceCameraAddedEventArgs* args);
-  HRESULT OnCameraRemoved(ABI::Windows::Graphics::Holographic::IHolographicSpace* holographicSpace, ABI::Windows::Graphics::Holographic::IHolographicSpaceCameraRemovedEventArgs* args);
+  bool m_bAddedGameAppEventHandler = false;
 
   /// Static holographic space access. Created on startup. If this is null nothing else will work.
   ComPtr<ABI::Windows::Graphics::Holographic::IHolographicSpaceStatics> m_pHolographicSpaceStatics;
@@ -123,8 +118,17 @@ private:
   //
   // Camera
   //
+
+  /// \brief Processes queued holographic camera additions and removals.
+  void ProcessAddedRemovedCameras();
+
+  /// \brief Updates all camera poses from holographic frame.
+  ezResult UpdateCameraPoses(const ComPtr<ABI::Windows::Graphics::Holographic::IHolographicFrame>& pHolographicFrame);
+
+  // Callbacks for camera add/remove
+  HRESULT OnCameraAdded(ABI::Windows::Graphics::Holographic::IHolographicSpace* holographicSpace, ABI::Windows::Graphics::Holographic::IHolographicSpaceCameraAddedEventArgs* args);
+  HRESULT OnCameraRemoved(ABI::Windows::Graphics::Holographic::IHolographicSpace* holographicSpace, ABI::Windows::Graphics::Holographic::IHolographicSpaceCameraRemovedEventArgs* args);
   
-  void GameApplicationEventHandler(const ezGameApplicationEvent& e);
 
   // the camera object that will get the head tracking data applied every frame
   ezCamera* m_pCameraToSynchronize = nullptr;
