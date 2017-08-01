@@ -353,5 +353,22 @@ struct ezGALQueryCreationDescription : public ezHashableStruct<ezGALQueryCreatio
   bool m_bDrawIfUnknown;
 };
 
+/// \brief Type for important GAL events.
+struct ezGALDeviceEvent
+{
+  enum Type
+  {
+    AfterInit,
+    BeforeShutdown,
+    BeforeBeginFrame,
+    AfterBeginFrame,
+    BeforeEndFrame,
+    AfterEndFrame,
+    // could add resource creation/destruction events, if this would be useful
+  };
+
+  Type m_Type;
+  class ezGALDevice* m_pDevice;
+};
 
 #include <RendererFoundation/Descriptors/Implementation/Descriptors_inl.h>

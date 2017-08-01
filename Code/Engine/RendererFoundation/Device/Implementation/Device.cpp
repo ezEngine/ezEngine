@@ -142,6 +142,13 @@ ezResult ezGALDevice::Init()
     SetPrimarySwapChain(hSwapChain);
   }
 
+  {
+    ezGALDeviceEvent e;
+    e.m_pDevice = this;
+    e.m_Type = ezGALDeviceEvent::AfterInit;
+    m_Events.Broadcast(e);
+  }
+
   return EZ_SUCCESS;
 }
 
@@ -150,6 +157,13 @@ ezResult ezGALDevice::Shutdown()
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
   EZ_LOG_BLOCK("ezGALDevice::Shutdown");
+
+  {
+    ezGALDeviceEvent e;
+    e.m_pDevice = this;
+    e.m_Type = ezGALDeviceEvent::BeforeShutdown;
+    m_Events.Broadcast(e);
+  }
 
   for (auto it = m_namedStopwatches.GetIterator(); it.IsValid(); ++it)
     EZ_DEFAULT_DELETE(it.Value());
@@ -1080,15 +1094,36 @@ ezGALTextureHandle ezGALDevice::GetBackBufferTextureFromSwapChain(ezGALSwapChain
 
 void ezGALDevice::BeginFrame()
 {
+  {
+    ezGALDeviceEvent e;
+    e.m_pDevice = this;
+    e.m_Type = ezGALDeviceEvent::BeforeBeginFrame;
+    m_Events.Broadcast(e);
+  }
+
   EZ_ASSERT_DEV(!m_bFrameBeginCalled, "You must call ezGALDevice::End before you can call ezGALDevice::BeginFrame again");
   m_bFrameBeginCalled = true;
 
   BeginFramePlatform();
   m_pPrimaryContext->ClearStatisticsCounters();
+
+  {
+    ezGALDeviceEvent e;
+    e.m_pDevice = this;
+    e.m_Type = ezGALDeviceEvent::AfterBeginFrame;
+    m_Events.Broadcast(e);
+  }
 }
 
 void ezGALDevice::EndFrame()
 {
+  {
+    ezGALDeviceEvent e;
+    e.m_pDevice = this;
+    e.m_Type = ezGALDeviceEvent::BeforeEndFrame;
+    m_Events.Broadcast(e);
+  }
+
   EZ_ASSERT_DEV(m_bFrameBeginCalled, "You must have called ezGALDevice::Begin before you can call ezGALDevice::EndFrame");
 
   DestroyDeadObjects();
@@ -1096,6 +1131,13 @@ void ezGALDevice::EndFrame()
   EndFramePlatform();
 
   m_bFrameBeginCalled = false;
+
+  {
+    ezGALDeviceEvent e;
+    e.m_pDevice = this;
+    e.m_Type = ezGALDeviceEvent::AfterEndFrame;
+    m_Events.Broadcast(e);
+  }
 }
 
 void ezGALDevice::SetPrimarySwapChain(ezGALSwapChainHandle hSwapChain)

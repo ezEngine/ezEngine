@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 #include <RendererFoundation/Basics.h>
@@ -19,14 +19,19 @@ class EZ_RENDERERFOUNDATION_DLL ezGALDevice
 {
 public:
 
+  ezEvent<const ezGALDeviceEvent&> m_Events;
+
+  //
   // Init & shutdown functions
+  //
 
   ezResult Init();
 
   ezResult Shutdown();
 
-
+  //
   // State creation functions
+  //
 
   ezGALBlendStateHandle CreateBlendState(const ezGALBlendStateCreationDescription& Description);
 

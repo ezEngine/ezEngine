@@ -5,6 +5,8 @@
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Types/UniquePtr.h>
 
+class ezCamera;
+
 /// \brief Integration of Windows HolographicSpace (WinRT).
 ///
 /// Right now window holographic is the only vr/mr platform we support.
@@ -63,6 +65,9 @@ public:
 
   /// \brief Gets list of all cameras.
   ezArrayPtr<ezWindowsMixedRealityCamera*> GetCameras() { return ezMakeArrayPtr(m_cameras); }
+
+  /// \brief Retrieves the current head tracking camera data and fills out the corresponding ezCamera values.
+  ezResult SynchronizeCameraPrediction(ezCamera& inout_Camera);
 
   // ezEvents for camera add/remove. Always fired on rendering thread.
   ezEvent<const ezWindowsMixedRealityCamera&> m_cameraAddedEvent;

@@ -8,6 +8,7 @@
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <WindowsMixedReality/Graphics/MixedRealityDX11Device.h>
 #include <RendererDX11/Device/DeviceDX11.h>
+#include <Core/Graphics/Camera.h>
 
 #include <windows.graphics.holographic.h>
 #include <windows.system.profile.h>
@@ -296,6 +297,29 @@ void ezWindowsHolographicSpace::ProcessAddedRemovedCameras()
       m_cameraAddedEvent.Broadcast(*m_cameras[i]);
   }
   m_pendingCameraAdditions.Clear();
+}
+
+ezResult ezWindowsHolographicSpace::SynchronizeCameraPrediction(ezCamera& inout_Camera)
+{
+  ezArrayPtr<ezWindowsMixedRealityCamera*> holoCameras = GetCameras();
+
+  if (holoCameras.IsEmpty())
+    return EZ_FAILURE;
+
+  EZ_ASSERT_DEV(inout_Camera.GetCameraMode() == ezCameraMode::Stereo, "Incorrect camera mode. Must be 'Stereo'");
+
+  ezWindowsMixedRealityCamera* pHoloCamera = holoCameras[0];
+
+  const ezRectFloat viewport = pHoloCamera->GetViewport();
+  inout_Camera.SetStereoProjection(pHoloCamera->GetProjectionLeft(), pHoloCamera->GetProjectionRight(), viewport.width / viewport.height);
+
+  ezMat4 mViewTransformLeft, mViewTransformRight;
+  EZ_SUCCEED_OR_RETURN(pHoloCamera->GetViewTransforms(*GetDefaultReferenceFrame(), mViewTransformLeft, mViewTransformRight));
+
+  inout_Camera.SetViewMatrix(mViewTransformLeft, ezCameraEye::Left);
+  inout_Camera.SetViewMatrix(mViewTransformRight, ezCameraEye::Right);
+
+  return EZ_SUCCESS;
 }
 
 ezResult ezWindowsHolographicSpace::UpdateCameraPoses(const ComPtr<ABI::Windows::Graphics::Holographic::IHolographicFrame>& pHolographicFrame)

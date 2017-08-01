@@ -112,41 +112,9 @@ void ezMixedRealityGameState::AfterWorldUpdate()
 {
   EZ_LOCK(m_pMainWorld->GetReadMarker());
 
-  auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
-
-  // Update the camera transform after world update so the owner node has its final position for this frame.
-  // Setting the camera transform in ProcessInput introduces one frame delay.
-  auto holoCameras = pHoloSpace->GetCameras();
-  if (!holoCameras.IsEmpty())
+  if (ezWindowsHolographicSpace::GetSingleton()->SynchronizeCameraPrediction(m_MainCamera).Failed())
   {
-    ezWindowsMixedRealityCamera* pHoloCamera = holoCameras[0];
-
-    auto viewport = pHoloCamera->GetViewport();
-    m_MainCamera.SetStereoProjection(pHoloCamera->GetProjectionLeft(), pHoloCamera->GetProjectionRight(), viewport.width / viewport.height);
-
-    ezMat4 mViewTransformLeft, mViewTransformRight;
-    if (pHoloCamera->GetViewTransforms(*pHoloSpace->GetDefaultReferenceFrame(), mViewTransformLeft, mViewTransformRight).Succeeded())
-    {
-      m_MainCamera.SetViewMatrix(mViewTransformLeft, ezCameraEye::Left);
-      m_MainCamera.SetViewMatrix(mViewTransformRight, ezCameraEye::Right);
-    }
-    else
-    {
-      ezLog::Error("Failed to retrieve the Holographic view transforms.");
-    }
-
-    // If there is an active camera component we update its position, but technically we don't need to!
-    /*if (ezCameraComponent* pCamComp = FindActiveCameraComponent())
-    {
-      ezGameObject* pOwner = pCamComp->GetOwner();
-      pOwner->SetGlobalPosition(m_MainCamera.GetCenterPosition());
-
-      ezMat3 mRotation;
-      mRotation.SetLookInDirectionMatrix(m_MainCamera.GetCenterDirForwards(), m_MainCamera.GetCenterDirUp());
-      ezQuat rotationQuat;
-      rotationQuat.SetFromMat3(mRotation);
-      pOwner->SetGlobalRotation(rotationQuat);
-    }*/
+    ezLog::Error("Failed to retrieve the Holographic view transforms.");
   }
 }
 
