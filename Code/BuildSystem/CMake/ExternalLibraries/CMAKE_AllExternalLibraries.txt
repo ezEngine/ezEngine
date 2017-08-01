@@ -1,0 +1,3 @@
+#cmake
+
+include (${CMAKE_CURRENT_LIST_DIR}/CMAKE_PhysX.txt)

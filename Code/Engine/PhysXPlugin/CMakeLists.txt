@@ -29,8 +29,8 @@ SET (LINK_LIBRARIES
   GameEngine
   RendererCore
 )
+AddPhysX(FALSE)
 
-include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/ExternalLibraries/CMAKE_PhysX.txt)
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)
 
 

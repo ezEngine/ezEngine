@@ -25,7 +25,6 @@ SET (LINK_LIBRARIES
   GameEngine
   InputXBox360
   FileservePlugin
-  PhysXPlugin
 )
 
 SET (ADDITIONAL_DEPENDENCIES
@@ -34,8 +33,9 @@ SET (ADDITIONAL_DEPENDENCIES
   FmodPlugin
 )
 
+AddPhysX(FALSE)
+
 # Set this to true, if your application is a real win32 app (not a console app)
 SET (IS_WIN32_APPLICATION true)
 
-include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/ExternalLibraries/CMAKE_PhysX.txt)
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)
