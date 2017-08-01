@@ -391,6 +391,16 @@ bool ezEngineProcessDocumentContext::PendingOperationInProgress() const
 
 void ezEngineProcessDocumentContext::UpdateDocumentContext()
 {
+  if (ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
+  {
+    // in remote mode simply redraw all all views every time a context is updated
+    for (auto pView : m_ViewContexts)
+    {
+      if (pView)
+        pView->Redraw(false);
+    }
+  }
+
   if (m_pThumbnailViewContext)
   {
     m_uiThumbnailConvergenceFrames++;

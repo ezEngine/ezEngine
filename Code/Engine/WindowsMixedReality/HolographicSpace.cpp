@@ -70,12 +70,14 @@ ezWindowsHolographicSpace::~ezWindowsHolographicSpace()
   DeInit();
 }
 
-
-void ezWindowsHolographicSpace::Activate()
+void ezWindowsHolographicSpace::Activate(ezCamera* pCameraForSynchronization)
 {
-  CreateDefaultReferenceFrame();
+  if (m_pDefaultReferenceFrame == nullptr)
+  {
+    CreateDefaultReferenceFrame();
+  }
 
-
+  SetCameraForPredictionSynchronization(pCameraForSynchronization);
 }
 
 ezResult ezWindowsHolographicSpace::InitForMainCoreWindow()
@@ -150,6 +152,8 @@ void ezWindowsHolographicSpace::DeInit()
 {
   if (!m_pHolographicSpaceStatics)
     return;
+
+  SetCameraForPredictionSynchronization(nullptr);
 
   for (auto pCamera : m_cameras)
     EZ_DEFAULT_DELETE(pCamera);
@@ -297,6 +301,35 @@ void ezWindowsHolographicSpace::ProcessAddedRemovedCameras()
       m_cameraAddedEvent.Broadcast(*m_cameras[i]);
   }
   m_pendingCameraAdditions.Clear();
+}
+
+void ezWindowsHolographicSpace::GameApplicationEventHandler(const ezGameApplicationEvent& e)
+{
+  if (e.m_Type == ezGameApplicationEvent::Type::AfterWorldUpdates)
+  {
+    if (m_pCameraToSynchronize)
+    {
+      SynchronizeCameraPrediction(*m_pCameraToSynchronize);
+    }
+  }
+}
+
+void ezWindowsHolographicSpace::SetCameraForPredictionSynchronization(ezCamera* pCamera)
+{
+  if (m_pCameraToSynchronize == pCamera)
+    return;
+
+  if (m_pCameraToSynchronize)
+  {
+    ezGameApplication::GetGameApplicationInstance()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezWindowsHolographicSpace::GameApplicationEventHandler, this));
+  }
+
+  m_pCameraToSynchronize = pCamera;
+
+  if (pCamera)
+  {
+    ezGameApplication::GetGameApplicationInstance()->m_Events.AddEventHandler(ezMakeDelegate(&ezWindowsHolographicSpace::GameApplicationEventHandler, this));
+  }
 }
 
 ezResult ezWindowsHolographicSpace::SynchronizeCameraPrediction(ezCamera& inout_Camera)

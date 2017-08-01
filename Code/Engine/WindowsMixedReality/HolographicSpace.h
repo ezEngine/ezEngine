@@ -6,6 +6,7 @@
 #include <Foundation/Types/UniquePtr.h>
 
 class ezCamera;
+struct ezGameApplicationEvent;
 
 /// \brief Integration of Windows HolographicSpace (WinRT).
 ///
@@ -27,8 +28,8 @@ public:
   ezWindowsHolographicSpace();
   ~ezWindowsHolographicSpace();
 
-  /// \brief Has to be called at the start of the game to initialize the default reference frame, etc.
-  void Activate();
+  /// \brief Makes sure a static reference frame exists, and optionally sets an ezCamera instance for automatic synchronization.
+  void Activate(ezCamera* pCameraForSynchronization /* = nullptr*/);
 
   /// whether VR/MR headsets are supported at all.
   ///
@@ -65,6 +66,10 @@ public:
 
   /// \brief Gets list of all cameras.
   ezArrayPtr<ezWindowsMixedRealityCamera*> GetCameras() { return ezMakeArrayPtr(m_cameras); }
+
+  /// \brief When an ezCamera is provided, the holographic space will automatically fill it with the
+  /// latest prediction values at the right time every frame.
+  void SetCameraForPredictionSynchronization(ezCamera* pCamera);
 
   /// \brief Retrieves the current head tracking camera data and fills out the corresponding ezCamera values.
   ezResult SynchronizeCameraPrediction(ezCamera& inout_Camera);
@@ -115,6 +120,15 @@ private:
   /// The timestamp at which the last frame was started and therefore all predictions where done.
   ComPtr<ABI::Windows::Perception::IPerceptionTimestamp> m_pPredictionTimestamp;
 
+  //
+  // Camera
+  //
+  
+  void GameApplicationEventHandler(const ezGameApplicationEvent& e);
+
+  // the camera object that will get the head tracking data applied every frame
+  ezCamera* m_pCameraToSynchronize = nullptr;
+
   // Camera subscriptions on holographic space.
   EventRegistrationToken m_eventRegistrationOnCameraAdded;
   EventRegistrationToken m_eventRegistrationOnCameraRemoved;
@@ -130,7 +144,9 @@ private:
   ezDynamicArray<ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCamera>> m_pendingCameraRemovals;
   ezDynamicArray<PendingCameraAddition> m_pendingCameraAdditions;
 
+  //
   // Location
+  //
 
   /// \brief Creates a default reference frame at the current location of the device, if none exists yet.
   void CreateDefaultReferenceFrame();

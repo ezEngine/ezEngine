@@ -42,14 +42,14 @@ void ezMixedRealityGameState::OnActivation(ezWorld* pWorld)
 
   // Holographic/Stereo!
   {
-    pHoloSpace->Activate();
+    pHoloSpace->Activate(&m_MainCamera);
 
     pHoloSpace->m_cameraAddedEvent.AddEventHandler(ezMakeDelegate(&ezMixedRealityGameState::OnHolographicCameraAdded, this));
 
     // Need to handle add/remove cameras before anything else - world update won't happen without a view which may be created/destroyed by this.
     GetApplication()->m_Events.AddEventHandler([this](const ezGameApplicationEvent& evt)
     {
-      if (evt.m_Type == ezGameApplicationEvent::Type::BeginFrame)
+      if (evt.m_Type == ezGameApplicationEvent::Type::BeginAppTick)
       {
         ezWindowsHolographicSpace::GetSingleton()->ProcessAddedRemovedCameras();
       }
@@ -103,23 +103,9 @@ void ezMixedRealityGameState::ProcessInput()
   }
 }
 
-void ezMixedRealityGameState::BeforeWorldUpdate()
-{
-  ezFallbackGameState::BeforeWorldUpdate();
-}
-
-void ezMixedRealityGameState::AfterWorldUpdate()
-{
-  EZ_LOCK(m_pMainWorld->GetReadMarker());
-
-  if (ezWindowsHolographicSpace::GetSingleton()->SynchronizeCameraPrediction(m_MainCamera).Failed())
-  {
-    ezLog::Error("Failed to retrieve the Holographic view transforms.");
-  }
-}
-
 void ezMixedRealityGameState::ConfigureInputActions()
 {
+  // skip the base class input action configuration
 }
 
 void ezMixedRealityGameState::OnHolographicCameraAdded(const ezWindowsMixedRealityCamera& camera)

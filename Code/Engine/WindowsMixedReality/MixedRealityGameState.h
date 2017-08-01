@@ -26,8 +26,6 @@ public:
   virtual void OnDeactivation() override;
 
   virtual void ProcessInput() override;
-  virtual void BeforeWorldUpdate() override;
-  virtual void AfterWorldUpdate() override;
 
   /// \brief Returns -1 if pWorld == nullptr or no MR device is available, 1 otherwise.
   virtual float CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const override;

@@ -450,11 +450,11 @@ ezApplication::ApplicationExecution ezGameApplication::Run()
     ProcessWindowMessages();
 
     // for plugins that need to hook into this without a link dependency on this lib
-    EZ_BROADCAST_EVENT(GameApp_BeginFrame);
+    EZ_BROADCAST_EVENT(GameApp_BeginAppTick);
 
     {
       ezGameApplicationEvent e;
-      e.m_Type = ezGameApplicationEvent::Type::BeginFrame;
+      e.m_Type = ezGameApplicationEvent::Type::BeginAppTick;
       m_Events.Broadcast(e);
     }
 
@@ -468,11 +468,11 @@ ezApplication::ApplicationExecution ezGameApplication::Run()
     }
 
     // for plugins that need to hook into this without a link dependency on this lib
-    EZ_BROADCAST_EVENT(GameApp_EndFrame);
+    EZ_BROADCAST_EVENT(GameApp_EndAppTick);
 
     {
       ezGameApplicationEvent e;
-      e.m_Type = ezGameApplicationEvent::Type::EndFrame;
+      e.m_Type = ezGameApplicationEvent::Type::EndAppTick;
       m_Events.Broadcast(e);
     }
 
@@ -615,6 +615,12 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
   {
     EZ_PROFILE("GameApplication.AfterWorldUpdate");
 
+    {
+      ezGameApplicationEvent e;
+      e.m_Type = ezGameApplicationEvent::Type::BeforeWorldUpdates;
+      m_Events.Broadcast(e);
+    }
+
     for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
     {
       /// \todo Pause state ?
@@ -622,6 +628,12 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
       {
         m_GameStates[i].m_pState->AfterWorldUpdate();
       }
+    }
+
+    {
+      ezGameApplicationEvent e;
+      e.m_Type = ezGameApplicationEvent::Type::AfterWorldUpdates;
+      m_Events.Broadcast(e);
     }
   }
 

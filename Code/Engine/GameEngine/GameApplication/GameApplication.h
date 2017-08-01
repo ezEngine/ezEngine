@@ -15,16 +15,19 @@ class ezConsole;
 struct ezWorldDesc;
 class ezImage;
 
-/// Allows custom code to inject logic at specific update points
+/// Allows custom code to inject logic at specific update points.
+/// The events are listed in the order in which they typically happen.
 struct ezGameApplicationEvent
 {
   enum class Type
   {
-    BeginFrame,
+    BeginAppTick,
+    BeforeWorldUpdates,
+    AfterWorldUpdates,
     BeforeUpdatePlugins,
     AfterUpdatePlugins,
     BeforePresent,
-    EndFrame,
+    EndAppTick,
   };
 
   Type m_Type;
