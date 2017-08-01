@@ -5,6 +5,7 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererCore/Pipeline/View.h>
+#include <EditorEngineProcessFramework/EngineProcess/RemoteViewContext.h>
 
 EZ_IMPLEMENT_SINGLETON(ezEditorEngineProcessApp);
 
@@ -41,7 +42,7 @@ void ezEditorEngineProcessApp::CreateRemoteWindow()
   desc.m_uiWindowNumber = 0;
   desc.m_bClipMouseCursor = false;
   desc.m_bShowMouseCursor = true;
-  desc.m_Resolution = ezSizeU32(600, 600);
+  desc.m_Resolution = ezSizeU32(1024, 768);
   desc.m_WindowMode = ezWindowMode::WindowFixedResolution;
   desc.m_Title = "Engine View";
 
@@ -74,8 +75,8 @@ ezViewHandle ezEditorEngineProcessApp::CreateRemoteWindowAndView()
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-    auto hPrimarySwapChain = static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->AddWindow(m_pRemoteWindow.Borrow());
-    const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(hPrimarySwapChain);
+    m_hRemoteWindowSwapChain = static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->AddWindow(m_pRemoteWindow.Borrow());
+    const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(m_hRemoteWindowSwapChain);
     EZ_ASSERT_DEV(pPrimarySwapChain != nullptr, "Failed to init swapchain");
 
     auto hSwapChainRTV = pDevice->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());

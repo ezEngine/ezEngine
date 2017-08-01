@@ -52,9 +52,10 @@ void ezRemoteEngineProcessViewContext::HandleViewMessage(const ezEditorEngineVie
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewRedrawMsgToEngine>())
   {
     const ezViewRedrawMsgToEngine* pMsg2 = static_cast<const ezViewRedrawMsgToEngine*>(pMsg);
-
     SetCamera(pMsg2);
-    Redraw(false);
+
+    // skip the on-message redraw, in remote mode it will just render as fast as it can
+    //Redraw(false);
   }
 }
 

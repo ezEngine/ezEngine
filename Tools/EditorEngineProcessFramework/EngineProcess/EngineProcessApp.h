@@ -40,4 +40,5 @@ private:
 
   ezUniquePtr<ezRemoteProcessWindow> m_pRemoteWindow;
   ezViewHandle m_hRemoteView;
+  ezGALSwapChainHandle m_hRemoteWindowSwapChain;
 };
