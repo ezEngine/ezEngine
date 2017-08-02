@@ -1,4 +1,4 @@
-#include <Fileserve/Main.h>
+﻿#include <Fileserve/Main.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Configuration/Startup.h>
@@ -24,6 +24,10 @@ int main(int argc, const char** argv)
   int argc = 0;
   char** argv = nullptr;
   QApplication* pQtApplication = new QApplication(argc, const_cast<char**>(argv));
+  pQtApplication->setApplicationName("ezFileserve");
+  pQtApplication->setOrganizationDomain("www.ezEngine.net");
+  pQtApplication->setOrganizationName("ezEngine Project");
+  pQtApplication->setApplicationVersion("1.0.0");
 
   ezRun_Startup(pApp);
 

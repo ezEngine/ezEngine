@@ -61,8 +61,6 @@ void ezMixedRealityGameState::OnDeactivation()
   auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
 
   pHoloSpace->m_cameraAddedEvent.RemoveEventHandler(ezMakeDelegate(&ezMixedRealityGameState::OnHolographicCameraAdded, this));
-
-  pHoloSpace->SetDefaultReferenceFrame(nullptr);
 }
 
 float ezMixedRealityGameState::CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const

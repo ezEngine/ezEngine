@@ -13,6 +13,7 @@
 #include <QTableWidget>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <QInputDialog>
+#include <QSettings>
 
 ezQtFileserveWidget::ezQtFileserveWidget(QWidget *parent /*= nullptr*/)
 {
@@ -195,10 +196,26 @@ void ezQtFileserveWidget::on_ReloadResourcesButton_clicked()
 
 void ezQtFileserveWidget::on_ConnectClient_clicked()
 {
+  QString sIP;
+
+  {
+    QSettings Settings;
+    Settings.beginGroup(QLatin1String("Fileserve"));
+    sIP = Settings.value("ConnectClientIP", "").toString();
+    Settings.endGroup();
+  }
+
   bool ok = false;
-  QString sIP = QInputDialog::getText(this, "Connect to Device", "Device IP:", QLineEdit::Normal, "", &ok);
+  sIP = QInputDialog::getText(this, "Connect to Device", "Device IP:", QLineEdit::Normal, sIP, &ok);
   if (!ok)
     return;
+
+  {
+    QSettings Settings;
+    Settings.beginGroup(QLatin1String("Fileserve"));
+    Settings.setValue("ConnectClientIP", sIP);
+    Settings.endGroup();
+  }
 
   ezStringBuilder sDisplayString;
   ezHybridArray<ezStringBuilder, 4> AllIPs;

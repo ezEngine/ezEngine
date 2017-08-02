@@ -291,20 +291,13 @@ ezTestAppRun ezTestFramework::RunTestExecutionLoop()
 
       if (ezFileserveClient::GetSingleton()->SearchForServerAddress().Failed())
       {
-        if (ezFileserveClient::GetSingleton()->WaitForServerInfo().Succeeded())
-        {
-          ezFileserveClient::GetSingleton()->SaveCurrentConnectionInfoToDisk();
-        }
-      }
-      else
-      {
-        ezFileserveClient::GetSingleton()->SaveCurrentConnectionInfoToDisk();
+        ezFileserveClient::GetSingleton()->WaitForServerInfo();
       }
     }
 
     if (ezFileserveClient::GetSingleton()->EnsureConnected(ezTime::Seconds(-30)).Failed())
     {
-      Error("Failed to establish a Fileserve connection", "", 0, "ezTestFramework::RunTestExecutionLoop", "Tried to connect with ezFileServe through address '%s'.", ezFileserveClient::GetSingleton()->GetServerConnectionAddress());
+      Error("Failed to establish a Fileserve connection", "", 0, "ezTestFramework::RunTestExecutionLoop", "");
       return ezTestAppRun::Quit;
     }
 #endif
@@ -313,6 +306,7 @@ ezTestAppRun ezTestFramework::RunTestExecutionLoop()
 #ifdef EZ_TESTFRAMEWORK_USE_FILESERVE
   ezFileserveClient::GetSingleton()->UpdateClient();
 #endif
+
 
   if (m_iExecutingTest < 0)
   {

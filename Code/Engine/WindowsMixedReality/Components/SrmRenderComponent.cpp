@@ -68,9 +68,9 @@ void ezSrmRenderComponent::OnDeactivated()
     pMan->m_Events.RemoveEventHandler(ezMakeDelegate(&ezSrmRenderComponent::SurfaceReconstructionManagerEventHandler, this));
   }
 
-  for (auto it = m_SrmRenderObjects.GetIterator(); it.IsValid(); ++it)
+  while (!m_SrmRenderObjects.IsEmpty())
   {
-    RemoveSrmRenderObject(it.Key());
+    RemoveSrmRenderObject(m_SrmRenderObjects.GetIterator().Key());
   }
 
   m_SrmRenderObjects.Clear();

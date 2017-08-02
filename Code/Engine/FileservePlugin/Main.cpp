@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <FileservePlugin/Client/FileserveDataDir.h>
 
 void OnLoadPlugin(bool bReloading)    { }
@@ -34,14 +34,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(FileservePlugin, FileservePluginMain)
 #if EZ_DISABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
       if (fs->SearchForServerAddress().Failed())
       {
-        if (fs->WaitForServerInfo().Succeeded())
-        {
-          fs->SaveCurrentConnectionInfoToDisk();
-        }
-      }
-      else
-      {
-        fs->SaveCurrentConnectionInfoToDisk();
+        fs->WaitForServerInfo();
       }
 #endif
     }

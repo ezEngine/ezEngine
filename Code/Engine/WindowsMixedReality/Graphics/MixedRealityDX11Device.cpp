@@ -117,7 +117,7 @@ ezResult ezGALMixedRealityDeviceDX11::ShutdownPlatform()
   pHolographicSpace->SetDirect3D11Device(nullptr);
   m_pDX11InteropDevice.Reset();
 
-  return ShutdownPlatform();
+  return ezGALDeviceDX11::ShutdownPlatform();
 }
 
 ezGALSwapChain* ezGALMixedRealityDeviceDX11::CreateSwapChainPlatform(const ezGALSwapChainCreationDescription& Description)

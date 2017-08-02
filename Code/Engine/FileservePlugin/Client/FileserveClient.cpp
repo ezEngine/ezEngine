@@ -16,26 +16,33 @@ bool ezFileserveClient::s_bEnableFileserve = true;
 ezFileserveClient::ezFileserveClient()
   : m_SingletonRegistrar(this)
 {
-  ezStringBuilder sFallback = "localhost:1042";
+  AddServerAddressToTry("localhost:1042");
 
-  // You can hardcode an IP address here to begin searching with, if you need to test something
-  // Do not forget to append the port 1042 though!
-  sFallback = "192.168.1.2:1042";
+  ezStringBuilder sAddress, sSearch;
 
-  ezStringBuilder sSearch = ezOSFile::GetUserDataFolder("ezFileserve.txt");
-
-  // first try the user directory
-  if (TryReadFileserveConfig(sSearch, sFallback).Failed())
+  // the app directory
   {
     sSearch = ezOSFile::GetApplicationDirectory();
     sSearch.AppendPath("ezFileserve.txt");
 
-    // if that failed, try the app directory
-    TryReadFileserveConfig(sSearch, sFallback);
+    if (TryReadFileserveConfig(sSearch, sAddress).Succeeded())
+    {
+      AddServerAddressToTry(sAddress);
+    }
   }
 
-  // command line always has higher priority
-  m_sServerConnectionAddress = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-fs_server", 0, sFallback);
+  // command line argument
+  AddServerAddressToTry(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-fs_server", 0, ""));
+
+  // last successful IP is stored in the user directory
+  {
+    sSearch = ezOSFile::GetUserDataFolder("ezFileserve.txt");
+
+    if (TryReadFileserveConfig(sSearch, sAddress).Succeeded())
+    {
+      AddServerAddressToTry(sAddress);
+    }
+  }
 
   if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-fs_off"))
     s_bEnableFileserve = false;
@@ -118,6 +125,20 @@ void ezFileserveClient::UpdateClient()
   m_CurrentTime = ezTime::Now();
 
   m_Network->ExecuteAllMessageHandlers();
+}
+
+void ezFileserveClient::AddServerAddressToTry(const char* szAddress)
+{
+  if (ezStringUtils::IsNullOrEmpty(szAddress))
+    return;
+
+  if (m_TryServerAddresses.Contains(szAddress))
+    return;
+
+  m_TryServerAddresses.PushBack(szAddress);
+
+  // always set the most recent address as the default one
+  m_sServerConnectionAddress = szAddress;
 }
 
 void ezFileserveClient::UploadFile(ezUInt16 uiDataDirID, const char* szFile, const ezDynamicArray<ezUInt8>& fileContent)
@@ -647,49 +668,11 @@ ezResult ezFileserveClient::SearchForServerAddress(ezTime timeout /*= ezTime::Se
 
   ezStringBuilder sAddress;
 
-  // first try whatever the code specified last (this might override all other options)
-  if (TryConnectWithFileserver(m_sServerConnectionAddress, timeout).Succeeded())
-    return EZ_SUCCESS;
-
-  // now check the command line argument
-  sAddress = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-fs_server", 0, "");
-  if (TryConnectWithFileserver(sAddress, timeout).Succeeded())
+  // go through the available options
+  for (ezInt32 idx = m_TryServerAddresses.GetCount() - 1; idx >= 0; --idx)
   {
-    m_sServerConnectionAddress = sAddress;
-    return EZ_SUCCESS;
-  }
-
-  // then check the user data folder
-  ezStringBuilder sSearch = ezOSFile::GetUserDataFolder("ezFileserve.txt");
-  if (TryReadFileserveConfig(sSearch, sAddress).Succeeded())
-  {
-    if (TryConnectWithFileserver(sAddress, timeout).Succeeded())
-    {
-      m_sServerConnectionAddress = sAddress;
+    if (TryConnectWithFileserver(m_TryServerAddresses[idx], timeout).Succeeded())
       return EZ_SUCCESS;
-    }
-  }
-
-  // if nothing found yet, check the application directory (ie. app package on mobile platforms)
-  {
-    sSearch = ezOSFile::GetApplicationDirectory();
-    sSearch.AppendPath("ezFileserve.txt");
-
-    if (TryReadFileserveConfig(sSearch, sAddress).Succeeded())
-    {
-      if (TryConnectWithFileserver(sAddress, timeout).Succeeded())
-      {
-        m_sServerConnectionAddress = sAddress;
-        return EZ_SUCCESS;
-      }
-    }
-  }
-
-  // finally fallback to the hardcoded localhost address
-  if (TryConnectWithFileserver("localhost:1042", timeout).Succeeded())
-  {
-    m_sServerConnectionAddress = "localhost:1042";
-    return EZ_SUCCESS;
   }
 
   return EZ_FAILURE;
@@ -737,6 +720,10 @@ ezResult ezFileserveClient::TryConnectWithFileserver(const char* szAddress, ezTi
   if (!bServerFound)
     return EZ_FAILURE;
 
+  m_sServerConnectionAddress = szAddress;
+
+  // always store the IP that was successful in the user directory
+  SaveCurrentConnectionInfoToDisk();
   return EZ_SUCCESS;
 }
 
@@ -801,24 +788,8 @@ ezResult ezFileserveClient::WaitForServerInfo(ezTime timeout /*= ezTime::Seconds
 
       ezThreadUtils::Sleep(ezTime::Milliseconds(500));
 
-      if (TryConnectWithFileserver(sAddress, ezTime::Seconds(2)).Succeeded())
-      {
-        m_sServerConnectionAddress = sAddress;
+      if (TryConnectWithFileserver(sAddress, ezTime::Seconds(3)).Succeeded())
         return EZ_SUCCESS;
-      }
-    }
-
-    // if all fails, try localhost again, we at least know the port
-    {
-      sAddress.Format("localhost:{0}", uiPort);
-
-      ezThreadUtils::Sleep(ezTime::Milliseconds(500));
-
-      if (TryConnectWithFileserver(sAddress, ezTime::Seconds(2)).Succeeded())
-      {
-        m_sServerConnectionAddress = sAddress;
-        return EZ_SUCCESS;
-      }
     }
 
     ezThreadUtils::Sleep(ezTime::Milliseconds(1000));

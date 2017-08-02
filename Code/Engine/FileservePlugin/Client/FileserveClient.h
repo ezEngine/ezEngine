@@ -58,12 +58,7 @@ public:
   /// Also achieved through the command line argument "-fs_off"
   static void DisabledFileserveClient() { s_bEnableFileserve = false; }
 
-  /// \brief Sets the address through which the client tries to connect to the server. Default is "localhost:1042"
-  ///
-  /// Can also be set through the command line argument "-fs_server" followed by the address and port.
-  void SetServerConnectionAddress(const char* szAddress) { m_sServerConnectionAddress = szAddress; }
-
-  /// \brief Returns the address through which the Fileserve client tries to connect with the server.
+  /// \brief Returns the address through which the Fileserve client tried to connect with the server last.
   const char* GetServerConnectionAddress() { return m_sServerConnectionAddress; }
 
   /// \brief Can be called to ensure a fileserve connection. Otherwise automatically called when a data directory is mounted.
@@ -73,12 +68,14 @@ public:
   /// A zero timeout means the application will wait indefinitely.
   /// A negative number means to either wait that time, or whatever was specified through the command-line.
   /// The timeout can be specified with the command line switch "-fs_timeout X" (in seconds).
-  ezResult EnsureConnected(ezTime timeout = ezTime::Seconds(-3));
+  ezResult EnsureConnected(ezTime timeout = ezTime::Seconds(-5));
 
   /// \brief Needs to be called regularly to update the network. By default this is automatically called when the global event
   /// 'GameApp_UpdatePlugins' is fired, which is done by ezGameApplication.
   void UpdateClient();
 
+  /// \brief Adds an address that should be tried for connecting with the server.
+  void AddServerAddressToTry(const char* szAddress);
 
 private:
   friend class ezDataDirectory::FileserveType;
@@ -122,7 +119,7 @@ private:
   ezResult TryConnectWithFileserver(const char* szAddress, ezTime timeout) const;
   void FillFileStatusCache(const char* szFile);
 
-  ezString m_sServerConnectionAddress;
+  mutable ezString m_sServerConnectionAddress;
   ezString m_sFileserveCacheFolder;
   ezString m_sFileserveCacheMetaFolder;
   bool m_bDownloading = false;
@@ -133,6 +130,7 @@ private:
   ezUniquePtr<ezRemoteInterface> m_Network;
   ezDynamicArray<ezUInt8> m_Download;
   ezTime m_CurrentTime;
+  ezHybridArray<ezString, 4> m_TryServerAddresses;
 
   ezMap<ezString, ezUInt16> m_FileDataDir;
 
