@@ -10,11 +10,25 @@
 #include <Core/World/World.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+  #include <MixedReality/MixedRealityFramework.h>
+  #include <WindowsMixedReality/HolographicSpace.h>
+#endif
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameState, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_STATICLINK_FILE(GameFoundation, GameFoundation_GameState);
 
+ezGameState::ezGameState()
+{
+
+}
+
+ezGameState::~ezGameState()
+{
+
+}
 
 void ezGameState::OnActivation(ezWorld* pWorld)
 {
@@ -48,6 +62,18 @@ void ezGameState::AddAllMainViews()
 void ezGameState::CreateMainWindow()
 {
   EZ_LOG_BLOCK("ezGameState::CreateMainWindow");
+
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+  {
+    auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
+    if (pHoloSpace->IsAvailable())
+    {
+      m_pMainWindow = EZ_DEFAULT_NEW(ezGameStateWindow, ezWindowCreationDesc());
+      GetApplication()->AddWindow(m_pMainWindow, ezGALSwapChainHandle());
+      return;
+    }
+  }
+#endif
 
   ezHybridArray<ezScreenInfo, 2> screens;
   ezScreen::EnumerateScreens(screens);

@@ -19,6 +19,10 @@
 #include <Foundation/Image/Formats/TgaFileFormat.h>
 #include <Foundation/Image/Image.h>
 
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+#include <GameEngine/MixedReality/MixedRealityFramework.h>
+#endif
+
 ezGameApplication* ezGameApplication::s_pGameApplicationInstance = nullptr;
 ezDelegate<ezGALDevice* (const ezGALDeviceCreationDescription&)> ezGameApplication::s_DefaultDeviceCreator;
 
@@ -48,8 +52,8 @@ ezGALSwapChainHandle ezGameApplication::AddWindow(ezWindowBase* pWindow)
   desc.m_pWindow = pWindow;
   desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
   desc.m_bAllowScreenshots = true;
-  auto hSwapChain  = ezGALDevice::GetDefaultDevice()->CreateSwapChain(desc);
-  
+  auto hSwapChain = ezGALDevice::GetDefaultDevice()->CreateSwapChain(desc);
+
   AddWindow(pWindow, hSwapChain);
 
   return hSwapChain;
@@ -214,6 +218,10 @@ void ezGameApplication::BeforeCoreStartup()
   ezStartup::AddApplicationTag("runtime");
 
   ezApplication::BeforeCoreStartup();
+
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+  m_pMixedRealityFramework = EZ_DEFAULT_NEW(ezMixedRealityFramework, nullptr);
+#endif
 }
 
 void ezGameApplication::DestroyAllGameStates()
@@ -828,8 +836,8 @@ void ezGameApplication::DoSaveScreenshot(ezImage& image)
 
       ezStringBuilder sPath;
       sPath.Format(":appdata/Screenshots/{6} {0}-{1}-{2} {3}-{4}-{5}-{7}.tga",
-                    dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true),
-                    ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true),
+                   dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true),
+                   ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true),
                    ezGameApplication::GetGameApplicationInstance()->GetAppName(),
                    ezArgU(dt.GetMicroseconds() / 1000, 3, true));
 

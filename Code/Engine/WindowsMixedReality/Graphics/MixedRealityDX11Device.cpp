@@ -22,6 +22,7 @@ ezGALMixedRealityDeviceDX11::ezGALMixedRealityDeviceDX11(const ezGALDeviceCreati
   : ezGALDeviceDX11(Description)
   , m_bPresentedCurrentFrame(false)
 {
+  ezLog::Info("Created DX11 device for Mixed Reality");
 }
 
 ezGALMixedRealityDeviceDX11::~ezGALMixedRealityDeviceDX11()

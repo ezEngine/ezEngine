@@ -99,7 +99,7 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
       if (result == E_ACCESSDENIED)
       {
         ezLog::Error("Failed to create swapchain: {0}. This may happen when the old swap chain is still in use. "
-                     "Make sure all resources referencing the swap chain were destroyed, keepping in mind the 'Deferred Destruction' that applies with FLIP swapchains. "
+                     "Make sure all resources referencing the swap chain were destroyed, keeping in mind the 'Deferred Destruction' that applies with FLIP swapchains. "
                      "https://msdn.microsoft.com/en-us/library/windows/desktop/ff476425(v=vs.85).aspx#Defer_Issues_with_Flip", result);
       }
       else

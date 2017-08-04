@@ -9,6 +9,7 @@
 
 # Pass a boolean expression into this macro to build this project only if the expression evaluates to true.
 BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
+BUILD_CONDITIONAL(EZ_ENABLE_MIXEDREALITY_SUPPORT)
 
 # Add all the preprocessor definitions that are needed to configure this library
 # add_definitions (-DMY_PREPROCESS_DEFINITION_1)
@@ -27,7 +28,6 @@ SET (LINK_LIBRARIES
   RendererFoundation
   RendererDX11
   RendererCore
-  GameEngine
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)

@@ -8,6 +8,7 @@
 #include <RendererCore/Pipeline/Declarations.h>
 #include <Core/Graphics/Camera.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Foundation/Types/UniquePtr.h>
 
 class ezWindow;
 class ezView;
@@ -39,10 +40,10 @@ class EZ_GAMEENGINE_DLL ezGameState : public ezReflectedClass
 
 protected:
   /// \brief This class cannot be instantiated directly.
-  ezGameState() {}
+  ezGameState();
 
 public:
-  virtual ~ezGameState() {}
+  virtual ~ezGameState();
 
   /// \brief When a game state was chosen, it gets activated through this function.
   ///

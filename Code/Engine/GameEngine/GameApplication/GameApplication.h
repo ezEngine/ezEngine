@@ -344,4 +344,8 @@ private:
   ezGameApplicationType m_AppType;
 
   ezUniquePtr<ezConsole> m_pConsole;
+
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+  ezUniquePtr<class ezMixedRealityFramework> m_pMixedRealityFramework;
+#endif
 };

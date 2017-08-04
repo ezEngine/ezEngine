@@ -4,7 +4,7 @@
 #include <WindowsMixedReality/SpatialReferenceFrame.h>
 #include <WindowsMixedReality/Graphics/MixedRealityCamera.h>
 #include <Foundation/Configuration/CVar.h>
-#include <GameEngine/GameApplication/GameApplication.h>
+//#include <GameEngine/GameApplication/GameApplication.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <WindowsMixedReality/Graphics/MixedRealityDX11Device.h>
 #include <RendererDX11/Device/DeviceDX11.h>
@@ -16,45 +16,6 @@
 #include <wrl/event.h>
 
 EZ_IMPLEMENT_SINGLETON(ezWindowsHolographicSpace);
-
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, WindowsHolographicSpace)
-
-ON_CORE_STARTUP
-{
-  ezWindowsHolographicSpace* holoSpace = EZ_DEFAULT_NEW(ezWindowsHolographicSpace);
-  holoSpace->InitForMainCoreWindow();
-
-
-  ezGameApplication::SetOverrideDefaultDeviceCreator([](const ezGALDeviceCreationDescription& desc) -> ezGALDevice*
-  {
-    auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
-    if (pHoloSpace->IsAvailable())
-    {
-      return EZ_DEFAULT_NEW(ezGALMixedRealityDeviceDX11, desc);
-    }
-    else
-    {
-      return EZ_DEFAULT_NEW(ezGALDeviceDX11, desc);
-    }
-  });
-}
-
-ON_CORE_SHUTDOWN
-{
-  ezWindowsHolographicSpace* pDummy = ezWindowsHolographicSpace::GetSingleton();
-  EZ_DEFAULT_DELETE(pDummy);
-}
-
-ON_ENGINE_STARTUP
-{
-}
-
-ON_ENGINE_SHUTDOWN
-{
-}
-
-EZ_END_SUBSYSTEM_DECLARATION
-
 
 ezWindowsHolographicSpace::ezWindowsHolographicSpace()
   : m_SingletonRegistrar(this)
@@ -68,23 +29,6 @@ ezWindowsHolographicSpace::ezWindowsHolographicSpace()
 ezWindowsHolographicSpace::~ezWindowsHolographicSpace()
 {
   DeInit();
-}
-
-void ezWindowsHolographicSpace::Activate(ezCamera* pCameraForSynchronization)
-{
-  if (m_pDefaultReferenceFrame == nullptr)
-  {
-    CreateDefaultReferenceFrame();
-  }
-
-  if (!m_bAddedGameAppEventHandler)
-  {
-    m_bAddedGameAppEventHandler = true;
-
-    ezGameApplication::GetGameApplicationInstance()->m_Events.AddEventHandler(ezMakeDelegate(&ezWindowsHolographicSpace::GameApplicationEventHandler, this));
-  }
-
-  SetCameraForPredictionSynchronization(pCameraForSynchronization);
 }
 
 ezResult ezWindowsHolographicSpace::InitForMainCoreWindow()
@@ -160,17 +104,11 @@ void ezWindowsHolographicSpace::DeInit()
   if (!m_pHolographicSpaceStatics)
     return;
 
-  SetCameraForPredictionSynchronization(nullptr);
-
-  if (m_bAddedGameAppEventHandler)
+  for (auto pCamera : m_cameras)
   {
-    m_bAddedGameAppEventHandler = false;
-
-    ezGameApplication::GetGameApplicationInstance()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezWindowsHolographicSpace::GameApplicationEventHandler, this));
+    EZ_DEFAULT_DELETE(pCamera);
   }
 
-  for (auto pCamera : m_cameras)
-    EZ_DEFAULT_DELETE(pCamera);
   m_cameras.Clear();
 
   m_pLocationService.Reset();
@@ -315,32 +253,6 @@ void ezWindowsHolographicSpace::ProcessAddedRemovedCameras()
       m_cameraAddedEvent.Broadcast(*m_cameras[i]);
   }
   m_pendingCameraAdditions.Clear();
-}
-
-void ezWindowsHolographicSpace::GameApplicationEventHandler(const ezGameApplicationEvent& e)
-{
-  if (e.m_Type == ezGameApplicationEvent::Type::AfterWorldUpdates)
-  {
-    if (m_pCameraToSynchronize)
-    {
-      SynchronizeCameraPrediction(*m_pCameraToSynchronize);
-    }
-  }
-
-  if (e.m_Type == ezGameApplicationEvent::Type::BeginAppTick)
-  {
-    ezWindowsHolographicSpace::GetSingleton()->ProcessAddedRemovedCameras();
-  }
-}
-
-void ezWindowsHolographicSpace::SetCameraForPredictionSynchronization(ezCamera* pCamera)
-{
-  if (m_pCameraToSynchronize == pCamera)
-    return;
-
-  EZ_ASSERT_DEV(m_bAddedGameAppEventHandler, "Activate() has not been called on ezWindowsHolographicSpace");
-
-  m_pCameraToSynchronize = pCamera;
 }
 
 ezResult ezWindowsHolographicSpace::SynchronizeCameraPrediction(ezCamera& inout_Camera)

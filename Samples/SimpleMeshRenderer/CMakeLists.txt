@@ -30,8 +30,7 @@ SET (LINK_LIBRARIES
   InspectorPlugin
 )
 
-# Application with mixed reality support.
-if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
+if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP AND EZ_ENABLE_MIXEDREALITY_SUPPORT)
   LIST(APPEND LINK_LIBRARIES WindowsMixedReality)
 endif()
 

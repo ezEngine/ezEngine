@@ -1,13 +1,5 @@
 ﻿#include <PCH.h>
-#include <WindowsMixedReality/MixedRealityGameState.h>
-#include <WindowsMixedReality/HolographicSpace.h>
-#include <WindowsMixedReality/SpatialLocationService.h>
-#include <WindowsMixedReality/SpatialReferenceFrame.h>
-#include <WindowsMixedReality/Graphics/MixedRealityCamera.h>
-#include <WindowsMixedReality/Graphics/MixedRealityDX11Device.h>
-#include <WindowsMixedReality/Graphics/MixedRealitySwapChainDX11.h>
-#include <WindowsMixedReality/SpatialMapping/SurfaceReconstructionMeshManager.h>
-
+#include <GameEngine/MixedReality/MixedRealityGameState.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameState/GameStateWindow.h>
 
@@ -30,20 +22,32 @@ ezMixedRealityGameState::ezMixedRealityGameState()
 ezMixedRealityGameState::~ezMixedRealityGameState()
 {}
 
+
+
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+
+#include <WindowsMixedReality/HolographicSpace.h>
+#include <WindowsMixedReality/SpatialLocationService.h>
+#include <WindowsMixedReality/SpatialReferenceFrame.h>
+#include <WindowsMixedReality/Graphics/MixedRealityCamera.h>
+#include <WindowsMixedReality/Graphics/MixedRealityDX11Device.h>
+#include <WindowsMixedReality/Graphics/MixedRealitySwapChainDX11.h>
+#include <WindowsMixedReality/SpatialMapping/SurfaceReconstructionMeshManager.h>
+#include <GameEngine/MixedReality/MixedRealityFramework.h>
+
+
 void ezMixedRealityGameState::OnActivation(ezWorld* pWorld)
 {
   m_bStateWantsToQuit = false;
   m_pMainWorld = pWorld;
 
-  m_pMainWindow = EZ_DEFAULT_NEW(ezGameStateWindow, ezWindowCreationDesc());
-  GetApplication()->AddWindow(m_pMainWindow, ezGALSwapChainHandle());
+  CreateMainWindow();
 
+  ezMixedRealityFramework::GetSingleton()->SetCameraForPredictionSynchronization(&m_MainCamera);
   auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
 
   // Holographic/Stereo!
   {
-    pHoloSpace->Activate(&m_MainCamera);
-
     pHoloSpace->m_cameraAddedEvent.AddEventHandler(ezMakeDelegate(&ezMixedRealityGameState::OnHolographicCameraAdded, this));
   }
 
@@ -52,8 +56,6 @@ void ezMixedRealityGameState::OnActivation(ezWorld* pWorld)
   ConfigureInputDevices();
 
   ConfigureInputActions();
-
-  m_pSpatialMappingManager = EZ_DEFAULT_NEW(ezSurfaceReconstructionMeshManager);
 }
 
 void ezMixedRealityGameState::OnDeactivation()
@@ -88,7 +90,7 @@ void ezMixedRealityGameState::ProcessInput()
   {
     ezLog::Info("Pressed: {0}", szPressed);
 
-    m_pSpatialMappingManager->PullCurrentSurfaces();
+    ezMixedRealityFramework::GetSingleton()->GetSpatialMappingManager().PullCurrentSurfaces();
   }
 }
 
@@ -122,3 +124,6 @@ void ezMixedRealityGameState::OnHolographicCameraAdded(const ezWindowsMixedReali
     ezLog::Warning("New holographic camera was added but ezMixedRealityGameState supports currently only a single holographic camera!");
   }
 }
+
+#endif
+

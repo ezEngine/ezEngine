@@ -42,7 +42,7 @@ HRESULT ezWindowsSpatialLocationService::OnLocatabilityChanged(ISpatialLocator* 
   {
   case SpatialLocatability::SpatialLocatability_Unavailable:
     m_currentLocatability = ezSpatialLocatability::Unavailable;
-    ezLog::SeriousWarning("Spatial locator unavailable, can't place holograms!");
+    ezLog::Warning("Spatial locator unavailable, can't place holograms!");
     break;
 
   case SpatialLocatability::SpatialLocatability_OrientationOnly:
