@@ -9,7 +9,12 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
+#include <Core/Input/InputManager.h>
 
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+#include <WindowsMixedReality/Components/SpatialAnchorComponent.h>
+#include <WindowsMixedReality/Components/SrmRenderComponent.h>
+#endif
 
 #include "GameState.h"
 
@@ -24,11 +29,43 @@ SimpleMeshRendererGameState::~SimpleMeshRendererGameState()
 {
 }
 
+void SimpleMeshRendererGameState::ConfigureInputActions()
+{
+  // Tap
+  {
+    ezInputActionConfig cfg;
+    cfg.m_bApplyTimeScaling = false;
+    cfg.m_sInputSlotTrigger[0] = ezInputSlot_Spatial_Hand1_Pressed;
+    ezInputManager::SetInputActionConfig("Game", "AirTap", cfg, true);
+  }
+}
+
+void SimpleMeshRendererGameState::ProcessInput()
+{
+  if (ezInputManager::GetInputActionState("Game", "AirTap") == ezKeyState::Pressed)
+  {
+    ezVec3 posP(0), posN(0), pos(0);
+    ezInputManager::GetInputSlotState(ezInputSlot_Spatial_Hand1_PositionPosX, &posP.x);
+    ezInputManager::GetInputSlotState(ezInputSlot_Spatial_Hand1_PositionPosY, &posP.y);
+    ezInputManager::GetInputSlotState(ezInputSlot_Spatial_Hand1_PositionPosZ, &posP.z);
+    ezInputManager::GetInputSlotState(ezInputSlot_Spatial_Hand1_PositionNegX, &posN.x);
+    ezInputManager::GetInputSlotState(ezInputSlot_Spatial_Hand1_PositionNegY, &posN.y);
+    ezInputManager::GetInputSlotState(ezInputSlot_Spatial_Hand1_PositionNegZ, &posN.z);
+    pos = posP - posN;
+
+    ezLog::Dev("Air Tap: {0} | {1} | {2}", pos.x, pos.y, pos.z);
+
+    MoveObjectToPosition(pos);
+  }
+
+  SUPER::ProcessInput();
+}
+
 void SimpleMeshRendererGameState::OnActivation(ezWorld* pWorld)
 {
   EZ_LOG_BLOCK("SimpleMeshRendererGameState::Activate");
 
-  ezParentGameState::OnActivation(pWorld);
+  SUPER::OnActivation(pWorld);
 
   CreateGameLevel();
 }
@@ -39,7 +76,7 @@ void SimpleMeshRendererGameState::OnDeactivation()
 
   DestroyGameLevel();
 
-  ezParentGameState::OnDeactivation();
+  SUPER::OnDeactivation();
 }
 
 float SimpleMeshRendererGameState::CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const
@@ -51,71 +88,90 @@ void SimpleMeshRendererGameState::CreateGameLevel()
 {
   ezWorldDesc desc("Level");
   m_pMainWorld = GetApplication()->CreateWorld(desc);
-  EZ_LOCK( m_pMainWorld->GetWriteMarker());
+  EZ_LOCK(m_pMainWorld->GetWriteMarker());
 
   ezMeshComponentManager* pMeshCompMan = m_pMainWorld->GetOrCreateComponentManager<ezMeshComponentManager>();
   ezRotorComponentManager* pRotorCompMan = m_pMainWorld->GetOrCreateComponentManager<ezRotorComponentManager>();
 
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+  ezSpatialAnchorComponentManager* pAnchorMan = m_pMainWorld->GetOrCreateComponentManager<ezSpatialAnchorComponentManager>();
+  ezSrmRenderComponentManager* pSrmCompMan = m_pMainWorld->GetOrCreateComponentManager<ezSrmRenderComponentManager>();
+  ezSrmRenderComponent* pSrmRenderComp;
+#endif
+
   ezGameObjectDesc obj;
   ezGameObject* pObj;
   ezMeshComponent* pMesh;
-  ezRotorComponent* pRotor;
+  //ezRotorComponent* pRotor;
 
-  ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Sponza/Meshes/Sponza.ezMesh");
-  ezMeshResourceHandle hMeshTree = ezResourceManager::LoadResource<ezMeshResource>("Trees/Meshes/Tree5.ezMesh");
+  ezMeshResourceHandle hMeshSponza = ezResourceManager::LoadResource<ezMeshResource>("Sponza/Meshes/Sponza.ezMesh");
+  ezMeshResourceHandle hMeshBarrel = ezResourceManager::LoadResource<ezMeshResource>("{ c227019a-92d3-4bf5-b391-9320e11ca7ff }");
+  ezMeshResourceHandle hMeshTree = ezResourceManager::LoadResource<ezMeshResource>("{ 5bbea795-0358-4dd8-86a9-c277f7a59f53 }");
 
-  // World Mesh
+
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+  // SRM Mesh
   {
-    obj.m_sName.Assign("Sponza");
+    obj.m_sName.Assign("SRM");
     m_pMainWorld->CreateObject(obj, pObj);
-
-    pMeshCompMan->CreateComponent(pObj, pMesh);
-    pMesh->SetMesh(hMesh);
+    pSrmCompMan->CreateComponent(pObj, pSrmRenderComp);
   }
+#endif
 
   // Tree Mesh
   {
     obj.m_sName.Assign("Rotating Tree");
-    obj.m_LocalScaling.Set(0.5f);
-    obj.m_LocalPosition.y = -5;
+    obj.m_LocalScaling.Set(1.0f);
+    //obj.m_LocalPosition.y = -5;
+    m_hTree = m_pMainWorld->CreateObject(obj, pObj);
+
+    pMeshCompMan->CreateComponent(pObj, pMesh);
+    pMesh->SetMesh(hMeshBarrel);
+
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+    ezSpatialAnchorComponent* pComp = nullptr;
+    pAnchorMan->CreateComponent(pObj, pComp);
+    pComp->SetPersistentAnchorName("MrAnchor");
+#endif
+  }
+
+  {
+    obj.m_sName.Assign("Barrel without Anchor");
+    obj.m_LocalScaling.Set(1.0f);
+    obj.m_LocalPosition.x = 0.0f;
     m_pMainWorld->CreateObject(obj, pObj);
 
     pMeshCompMan->CreateComponent(pObj, pMesh);
-    pMesh->SetMesh(hMeshTree);
-
-    pRotorCompMan->CreateComponent(pObj, pRotor);
-    pRotor->m_fAnimationSpeed = 5.0f;
-    pRotor->SetAnimatingAtStartup(true);
-    pRotor->m_Axis = ezBasisAxis::PositiveZ;
+    pMesh->SetMesh(hMeshBarrel);
   }
 
-  // Tree Mesh
-  {
-    obj.m_sName.Assign("Tree");
-    obj.m_LocalScaling.Set(0.7f);
-    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(75));
-    obj.m_LocalPosition.y = 5;
-    m_pMainWorld->CreateObject(obj, pObj);
+  //// Tree Mesh
+  //{
+  //  obj.m_sName.Assign("Tree");
+  //  obj.m_LocalScaling.Set(0.7f);
+  //  obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(75));
+  //  obj.m_LocalPosition.y = 5;
+  //  m_pMainWorld->CreateObject(obj, pObj);
 
-    pMeshCompMan->CreateComponent(pObj, pMesh);
-    pMesh->SetMesh(hMeshTree);
-  }
+  //  pMeshCompMan->CreateComponent(pObj, pMesh);
+  //  pMesh->SetMesh(hMeshTree);
+  //}
 
-  // Lights
-  {
-    obj.m_sName.Assign("DirLight");
-    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(60.0f));
-    obj.m_LocalPosition.SetZero();
-    obj.m_LocalRotation.SetIdentity();
+  //// Lights
+  //{
+  //  obj.m_sName.Assign("DirLight");
+  //  obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(60.0f));
+  //  obj.m_LocalPosition.SetZero();
+  //  obj.m_LocalRotation.SetIdentity();
 
-    m_pMainWorld->CreateObject(obj, pObj);
+  //  m_pMainWorld->CreateObject(obj, pObj);
 
-    ezDirectionalLightComponent* pDirLight;
-    ezDirectionalLightComponent::CreateComponent(pObj, pDirLight);
+  //  ezDirectionalLightComponent* pDirLight;
+  //  ezDirectionalLightComponent::CreateComponent(pObj, pDirLight);
 
-    ezAmbientLightComponent* pAmbLight;
-    ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);
-  }
+  //  ezAmbientLightComponent* pAmbLight;
+  //  ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);
+  //}
 
   ChangeMainWorld(m_pMainWorld);
 }
@@ -123,6 +179,24 @@ void SimpleMeshRendererGameState::CreateGameLevel()
 void SimpleMeshRendererGameState::DestroyGameLevel()
 {
   GetApplication()->DestroyWorld(m_pMainWorld);
+}
+
+
+void SimpleMeshRendererGameState::MoveObjectToPosition(const ezVec3& pos)
+{
+  EZ_LOCK(m_pMainWorld->GetReadMarker());
+
+  ezGameObject* pObject = nullptr;
+  if (!m_pMainWorld->TryGetObject(m_hTree, pObject))
+    return;
+
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+  ezSpatialAnchorComponent* pComp = nullptr;
+  if (pObject->TryGetComponentOfBaseType<ezSpatialAnchorComponent>(pComp))
+  {
+    pComp->RecreateAnchorAt(ezTransform(pos));
+  }
+#endif
 }
 
 EZ_APPLICATION_ENTRY_POINT(ezGameApplication, "SimpleMeshRenderer", ezGameApplicationType::StandAlone, "Data/Samples/SimpleMeshRenderer");

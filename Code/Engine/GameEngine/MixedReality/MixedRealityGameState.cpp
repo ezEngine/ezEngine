@@ -10,7 +10,6 @@
 #include <Foundation/Threading/Lock.h>
 #include <Core/World/World.h>
 
-#include <windows.perception.spatial.h>
 #include <Core/Input/InputManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMixedRealityGameState, 1, ezRTTIDefaultAllocator<ezMixedRealityGameState>);
@@ -22,8 +21,6 @@ ezMixedRealityGameState::ezMixedRealityGameState()
 ezMixedRealityGameState::~ezMixedRealityGameState()
 {}
 
-
-
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
 
 #include <WindowsMixedReality/HolographicSpace.h>
@@ -34,6 +31,7 @@ ezMixedRealityGameState::~ezMixedRealityGameState()
 #include <WindowsMixedReality/Graphics/MixedRealitySwapChainDX11.h>
 #include <WindowsMixedReality/SpatialMapping/SurfaceReconstructionMeshManager.h>
 #include <GameEngine/MixedReality/MixedRealityFramework.h>
+#include <windows.perception.spatial.h>
 
 
 void ezMixedRealityGameState::OnActivation(ezWorld* pWorld)

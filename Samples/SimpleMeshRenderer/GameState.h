@@ -2,23 +2,18 @@
 
 #include <GameEngine/GameState/FallbackGameState.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#include <WindowsMixedReality/MixedRealityGameState.h>
-#endif
+#include <GameEngine/MixedReality/MixedRealityGameState.h>
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-typedef ezMixedRealityGameState ezParentGameState;
-#else
-typedef ezFallbackGameState ezParentGameState;
-#endif
-
-class SimpleMeshRendererGameState : public ezParentGameState
+class SimpleMeshRendererGameState : public ezMixedRealityGameState
 {
-  EZ_ADD_DYNAMIC_REFLECTION(SimpleMeshRendererGameState, ezParentGameState);
+  EZ_ADD_DYNAMIC_REFLECTION(SimpleMeshRendererGameState, ezMixedRealityGameState);
 
 public:
   SimpleMeshRendererGameState();
   virtual ~SimpleMeshRendererGameState();
+
+  virtual void ConfigureInputActions() override;
+  virtual void ProcessInput() override;
 
 private:
   virtual void OnActivation(ezWorld* pWorld) override;
@@ -28,4 +23,8 @@ private:
   
   void CreateGameLevel();
   void DestroyGameLevel();
+  void MoveObjectToPosition(const ezVec3& pos);
+
+  ezGameObjectHandle m_hSponza;
+  ezGameObjectHandle m_hTree;
 };
