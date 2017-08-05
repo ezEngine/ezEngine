@@ -1,6 +1,7 @@
 #include <PCH.h>
 
 #include <Foundation/Algorithm/HashableStruct.h>
+#include <Foundation/Algorithm/HashHelperString.h>
 #include <Foundation/Strings/HashedString.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Algorithm);
@@ -12,7 +13,10 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Algorithm);
 EZ_CREATE_SIMPLE_TEST(Algorithm, Hashing)
 {
   // check whether compile time hashing gives the same value as runtime hashing
-  ezStringBuilder sb = "This is a test string. 1234";
+  const char* szString = "This is a test string. 1234";
+  const char* szStringLower = "this is a test string. 1234";
+  const char* szString2 = "THiS iS A TESt sTrInG. 1234";
+  ezStringBuilder sb = szString;
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Hashfunction")
   {
@@ -54,6 +58,39 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Hashing)
     uiHash = ezHashHelper<ezHashedString>::Hash(ths);
     EZ_TEST_INT(uiHash, 0xb999d6c4);
     EZ_TEST_BOOL(ezHashHelper<ezHashedString>::Equal(hs, ths));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "HashHelperString_NoCase")
+  {
+    const ezUInt32 uiHash = ezHashHelper<const char*>::Hash(szStringLower);
+    EZ_TEST_INT(uiHash, 0x756cc03e);
+    EZ_TEST_INT(uiHash, ezHashHelperString_NoCase::Hash(szString));
+    EZ_TEST_INT(uiHash, ezHashHelperString_NoCase::Hash(szStringLower));
+    EZ_TEST_INT(uiHash, ezHashHelperString_NoCase::Hash(szString2));
+    EZ_TEST_INT(uiHash, ezHashHelperString_NoCase::Hash(sb));
+    ezStringBuilder sb2 = szString2;
+    EZ_TEST_INT(uiHash, ezHashHelperString_NoCase::Hash(sb2));
+    ezString sL = szStringLower;
+    ezString s1 = sb;
+    ezString s2 = sb2;
+    EZ_TEST_INT(uiHash, ezHashHelperString_NoCase::Hash(s1));
+    EZ_TEST_INT(uiHash, ezHashHelperString_NoCase::Hash(s2));
+    ezStringView svL = szStringLower;
+    ezStringView sv1 = szString;
+    ezStringView sv2 = szString2;
+    EZ_TEST_INT(uiHash, ezHashHelperString_NoCase::Hash(svL));
+    EZ_TEST_INT(uiHash, ezHashHelperString_NoCase::Hash(sv1));
+    EZ_TEST_INT(uiHash, ezHashHelperString_NoCase::Hash(sv2));
+
+    EZ_TEST_BOOL(ezHashHelperString_NoCase::Equal(sb, sb2));
+    EZ_TEST_BOOL(ezHashHelperString_NoCase::Equal(sb, szString2));
+    EZ_TEST_BOOL(ezHashHelperString_NoCase::Equal(sb, sv2));
+    EZ_TEST_BOOL(ezHashHelperString_NoCase::Equal(s1, sb2));
+    EZ_TEST_BOOL(ezHashHelperString_NoCase::Equal(s1, szString2));
+    EZ_TEST_BOOL(ezHashHelperString_NoCase::Equal(s1, sv2));
+    EZ_TEST_BOOL(ezHashHelperString_NoCase::Equal(sv1, sb2));
+    EZ_TEST_BOOL(ezHashHelperString_NoCase::Equal(sv1, szString2));
+    EZ_TEST_BOOL(ezHashHelperString_NoCase::Equal(sv1, sv2));
   }
 }
 

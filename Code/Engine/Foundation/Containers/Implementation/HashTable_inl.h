@@ -5,12 +5,12 @@
 
 template <typename K, typename V, typename H>
 ezHashTableBase<K, V, H>::ConstIterator::ConstIterator(const ezHashTableBase<K, V, H>& hashTable) :
-  m_hashTable(hashTable), m_uiCurrentIndex(0), m_uiCurrentCount(0)
+  m_hashTable(&hashTable), m_uiCurrentIndex(0), m_uiCurrentCount(0)
 {
-  if (m_hashTable.IsEmpty())
+  if (m_hashTable->IsEmpty())
     return;
 
-  while (!m_hashTable.IsValidEntry(m_uiCurrentIndex))
+  while (!m_hashTable->IsValidEntry(m_uiCurrentIndex))
   {
     ++m_uiCurrentIndex;
   }
@@ -19,13 +19,13 @@ ezHashTableBase<K, V, H>::ConstIterator::ConstIterator(const ezHashTableBase<K, 
 template <typename K, typename V, typename H>
 EZ_FORCE_INLINE bool ezHashTableBase<K, V, H>::ConstIterator::IsValid() const
 {
-  return m_uiCurrentCount < m_hashTable.m_uiCount;
+  return m_uiCurrentCount < m_hashTable->m_uiCount;
 }
 
 template <typename K, typename V, typename H>
 EZ_FORCE_INLINE bool ezHashTableBase<K, V, H>::ConstIterator::operator==(const typename ezHashTableBase<K, V, H>::ConstIterator& it2) const
 {
-  return m_hashTable.m_pEntries == it2.m_hashTable.m_pEntries && m_uiCurrentIndex == it2.m_uiCurrentIndex;
+  return m_hashTable->m_pEntries == it2.m_hashTable->m_pEntries && m_uiCurrentIndex == it2.m_uiCurrentIndex;
 }
 
 template <typename K, typename V, typename H>
@@ -37,27 +37,27 @@ EZ_ALWAYS_INLINE bool ezHashTableBase<K, V, H>::ConstIterator::operator!=(const 
 template <typename K, typename V, typename H>
 EZ_ALWAYS_INLINE const K& ezHashTableBase<K, V, H>::ConstIterator::Key() const
 {
-  return m_hashTable.m_pEntries[m_uiCurrentIndex].key;
+  return m_hashTable->m_pEntries[m_uiCurrentIndex].key;
 }
 
 template <typename K, typename V, typename H>
 EZ_ALWAYS_INLINE const V& ezHashTableBase<K, V, H>::ConstIterator::Value() const
 {
-  return m_hashTable.m_pEntries[m_uiCurrentIndex].value;
+  return m_hashTable->m_pEntries[m_uiCurrentIndex].value;
 }
 
 template <typename K, typename V, typename H>
 void ezHashTableBase<K, V, H>::ConstIterator::Next()
 {
   ++m_uiCurrentCount;
-  if (m_uiCurrentCount == m_hashTable.m_uiCount)
+  if (m_uiCurrentCount == m_hashTable->m_uiCount)
     return;
 
   do
   {
     ++m_uiCurrentIndex;
   }
-  while (!m_hashTable.IsValidEntry(m_uiCurrentIndex));
+  while (!m_hashTable->IsValidEntry(m_uiCurrentIndex));
 }
 
 template <typename K, typename V, typename H>
@@ -78,7 +78,7 @@ ezHashTableBase<K, V, H>::Iterator::Iterator(const ezHashTableBase<K, V, H>& has
 template <typename K, typename V, typename H>
 EZ_FORCE_INLINE V& ezHashTableBase<K, V, H>::Iterator::Value()
 {
-  return this->m_hashTable.m_pEntries[this->m_uiCurrentIndex].value;
+  return this->m_hashTable->m_pEntries[this->m_uiCurrentIndex].value;
 }
 
 
@@ -328,42 +328,59 @@ bool ezHashTableBase<K, V, H>::Remove(const CompatibleKeyType& key, V* out_oldVa
     if (out_oldValue != nullptr)
       *out_oldValue = std::move(m_pEntries[uiIndex].value);
 
-    ezMemoryUtils::Destruct(&m_pEntries[uiIndex].key, 1);
-    ezMemoryUtils::Destruct(&m_pEntries[uiIndex].value, 1);
-
-    ezUInt32 uiNextIndex = uiIndex + 1;
-    if (uiNextIndex == m_uiCapacity)
-      uiNextIndex = 0;
-
-    // if the next entry is free we are at the end of a chain and
-    // can immediately mark this entry as free as well
-    if (IsFreeEntry(uiNextIndex))
-    {
-      MarkEntryAsFree(uiIndex);
-
-      // run backwards and free all deleted entries in this chain
-      ezUInt32 uiPrevIndex = (uiIndex != 0) ? uiIndex : m_uiCapacity;
-      --uiPrevIndex;
-
-      while (IsDeletedEntry(uiPrevIndex))
-      {
-        MarkEntryAsFree(uiPrevIndex);
-
-        if (uiPrevIndex == 0)
-          uiPrevIndex = m_uiCapacity;
-        --uiPrevIndex;
-      }
-    }
-    else
-    {
-      MarkEntryAsDeleted(uiIndex);
-    }
-
-    --m_uiCount;
+    RemoveInternal(uiIndex);
     return true;
   }
 
   return false;
+}
+
+template <typename K, typename V, typename H>
+typename ezHashTableBase<K, V, H>::Iterator ezHashTableBase<K, V, H>::Remove(const typename ezHashTableBase<K, V, H>::Iterator& pos)
+{
+  Iterator it = pos;
+  ezUInt32 uiIndex = pos.m_uiCurrentIndex;
+  ++it;
+  --it.m_uiCurrentCount;
+  RemoveInternal(uiIndex);
+  return it;
+}
+
+template <typename K, typename V, typename H>
+void ezHashTableBase<K, V, H>::RemoveInternal(ezUInt32 uiIndex)
+{
+  ezMemoryUtils::Destruct(&m_pEntries[uiIndex].key, 1);
+  ezMemoryUtils::Destruct(&m_pEntries[uiIndex].value, 1);
+
+  ezUInt32 uiNextIndex = uiIndex + 1;
+  if (uiNextIndex == m_uiCapacity)
+    uiNextIndex = 0;
+
+  // if the next entry is free we are at the end of a chain and
+  // can immediately mark this entry as free as well
+  if (IsFreeEntry(uiNextIndex))
+  {
+    MarkEntryAsFree(uiIndex);
+
+    // run backwards and free all deleted entries in this chain
+    ezUInt32 uiPrevIndex = (uiIndex != 0) ? uiIndex : m_uiCapacity;
+    --uiPrevIndex;
+
+    while (IsDeletedEntry(uiPrevIndex))
+    {
+      MarkEntryAsFree(uiPrevIndex);
+
+      if (uiPrevIndex == 0)
+        uiPrevIndex = m_uiCapacity;
+      --uiPrevIndex;
+    }
+  }
+  else
+  {
+    MarkEntryAsDeleted(uiIndex);
+  }
+
+  --m_uiCount;
 }
 
 template <typename K, typename V, typename H>

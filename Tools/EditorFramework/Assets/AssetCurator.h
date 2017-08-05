@@ -13,9 +13,10 @@
 #include <Foundation/Time/Timestamp.h>
 #include <Foundation/Logging/LogEntry.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
-#include <tuple>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/DelegateTask.h>
+#include <Foundation/Algorithm/HashHelperString.h>
+#include <tuple>
 
 class ezUpdateTask;
 class ezTask;
@@ -313,7 +314,7 @@ private:
   // Actual data stored in the curator
   ezHashTable<ezUuid, ezAssetInfo*> m_KnownAssets;
   ezMap<ezUuid, ezSubAsset> m_KnownSubAssets;
-  ezMap<ezString, ezFileStatus, ezCompareString_NoCase> m_ReferencedFiles;
+  ezHashTable<ezString, ezFileStatus, ezHashHelperString_NoCase> m_ReferencedFiles;
 
   // Derived dependency lookup tables
   ezMap<ezString, ezHybridArray<ezUuid, 1> > m_InverseDependency;

@@ -944,21 +944,20 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath)
     // so, for now, since this is probably a rare case anyway, we just close the document without asking
     ezDocumentManager::EnsureDocumentIsClosedInAllManagers(sAbsolutePath);
 
-    auto it = m_ReferencedFiles.Find(sAbsolutePath);
-    if (it.IsValid())
+    if (ezFileStatus* pFileStatus = m_ReferencedFiles.GetValue(sAbsolutePath))
     {
-      it.Value().m_Timestamp.Invalidate();
-      it.Value().m_uiHash = 0;
-      it.Value().m_Status = ezFileStatus::Status::Unknown;
+      pFileStatus->m_Timestamp.Invalidate();
+      pFileStatus->m_uiHash = 0;
+      pFileStatus->m_Status = ezFileStatus::Status::Unknown;
 
-      ezUuid guid = it.Value().m_AssetGuid;
+      ezUuid guid = pFileStatus->m_AssetGuid;
       if (guid.IsValid())
       {
         ezAssetInfo* pAssetInfo = m_KnownAssets[guid];
         UntrackDependencies(pAssetInfo);
         RemoveAssetTransformState(guid);
         SetAssetExistanceState(*pAssetInfo, ezAssetExistanceState::FileRemoved);
-        it.Value().m_AssetGuid = ezUuid();
+        pFileStatus->m_AssetGuid = ezUuid();
       }
     }
     return;
@@ -1439,9 +1438,9 @@ void ezAssetCurator::SaveCaches()
         {
           writer << pAsset->m_sAbsolutePath;
           ezReflectionSerializer::WriteObjectToBinary(writer, ezGetStaticRTTI<ezAssetDocumentInfo>(), &pAsset->m_Info);
-          auto stat = m_ReferencedFiles.Find(it.Value()->m_sAbsolutePath);
-          EZ_ASSERT_DEBUG(stat.IsValid(), "");
-          writer << stat.Value();
+          const ezFileStatus* pStat = m_ReferencedFiles.GetValue(it.Value()->m_sAbsolutePath);
+          EZ_ASSERT_DEBUG(pStat != nullptr, "");
+          writer << *pStat;
         }
       }
     }

@@ -20,9 +20,10 @@ class ezHashTableBase
 {
 public:
   /// \brief Const iterator.
-  class ConstIterator
+  struct ConstIterator
   {
-  public:
+    EZ_DECLARE_POD_TYPE();
+
     /// \brief Checks whether this iterator points to a valid element.
     bool IsValid() const; // [tested]
 
@@ -49,20 +50,37 @@ public:
 
     explicit ConstIterator(const ezHashTableBase<KeyType, ValueType, Hasher>& hashTable);
 
-    const ezHashTableBase<KeyType, ValueType, Hasher>& m_hashTable;
+    const ezHashTableBase<KeyType, ValueType, Hasher>* m_hashTable;
     ezUInt32 m_uiCurrentIndex; // current element index that this iterator points to.
     ezUInt32 m_uiCurrentCount; // current number of valid elements that this iterator has found so far.
   };
 
   /// \brief Iterator with write access.
-  class Iterator : public ConstIterator
+  struct Iterator : public ConstIterator
   {
-  public:
+    EZ_DECLARE_POD_TYPE();
+
+    EZ_ALWAYS_INLINE Iterator(const Iterator& rhs) : ConstIterator(*rhs.m_hashTable)
+    {
+      m_uiCurrentIndex = rhs.m_uiCurrentIndex;
+      m_uiCurrentCount = rhs.m_uiCurrentCount;
+    }
+
+    EZ_ALWAYS_INLINE void operator=(const Iterator& rhs) // [tested]
+    {
+      m_hashTable = rhs.m_hashTable;
+      m_uiCurrentIndex = rhs.m_uiCurrentIndex;
+      m_uiCurrentCount = rhs.m_uiCurrentCount;
+    }
+
     // this is required to pull in the const version of this function
     using ConstIterator::Value;
 
     /// \brief Returns the 'value' of the element that this iterator points to.
-    ValueType& Value(); // [tested]
+    EZ_FORCE_INLINE ValueType& Value(); // [tested]
+
+    /// \brief Returns the 'value' of the element that this iterator points to.
+    EZ_ALWAYS_INLINE ValueType& operator*() { return Value(); }
 
   private:
     friend class ezHashTableBase<KeyType, ValueType, Hasher>;
@@ -124,6 +142,9 @@ public:
   /// \brief Removes the entry with the given key. Returns if an entry was removed and optionally writes out the old value to out_oldValue.
   template <typename CompatibleKeyType>
   bool Remove(const CompatibleKeyType& key, ValueType* out_oldValue = nullptr); // [tested]
+
+  /// \brief Erases the key/value pair at the given Iterator. Returns an iterator to the element after the given iterator.
+  Iterator Remove(const Iterator& pos); // [tested]
 
   /// \brief Returns if an entry with the given key was found and if found writes out the corresponding value to out_value.
   template <typename CompatibleKeyType>
@@ -191,6 +212,7 @@ private:
 
   void SetCapacity(ezUInt32 uiCapacity);
 
+  void RemoveInternal(ezUInt32 uiIndex);
   template <typename CompatibleKeyType>
   ezUInt32 FindEntry(const CompatibleKeyType& key) const;
 

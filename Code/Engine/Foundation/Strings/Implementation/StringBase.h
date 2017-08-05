@@ -135,6 +135,8 @@ private: // friends
   friend struct ezCompareHelper;
 
   friend struct ezCompareString_NoCase;
+
+  friend struct ezHashHelperString_NoCase;
 };
 
 

@@ -385,13 +385,22 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
       EZ_TEST_INT(a[i].m_iData, i);
 
 
-    for (ezInt32 i = 0; i < 500; ++i)
+    for (ezInt32 i = 0; i < 250; ++i)
     {
       HashTableTestDetail::st oldValue;
       EZ_TEST_BOOL(a.Remove(i, &oldValue));
       EZ_TEST_INT(oldValue.m_iData, i);
     }
+    EZ_TEST_INT(a.GetCount(), 750);
 
+    for (ezHashTable<ezInt32, HashTableTestDetail::st>::Iterator it = a.GetIterator(); it.IsValid();)
+    {
+      if (it.Key() < 500)
+        it = a.Remove(it);
+      else
+        ++it;
+    }
+    EZ_TEST_INT(a.GetCount(), 500);
     a.Compact();
 
     for (ezInt32 i = 500; i < 1000; ++i)
