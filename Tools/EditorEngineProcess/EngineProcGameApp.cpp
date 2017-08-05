@@ -17,13 +17,20 @@
 ezInputDeviceXBox360 g_XboxInputDevice;
 #endif
 
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+ezEngineProcessGameApplication::ezEngineProcessGameApplication()
+  : ezGameApplication("ezEditorEngineProcess", ezGameApplicationType::EmbeddedInToolMixedReality, nullptr)
+#else
 ezEngineProcessGameApplication::ezEngineProcessGameApplication()
   : ezGameApplication("ezEditorEngineProcess", ezGameApplicationType::EmbeddedInTool, nullptr)
+#endif
 {
 }
 
 void ezEngineProcessGameApplication::BeforeCoreStartup()
 {
+  m_pApp = CreateEngineProcessApp();
+
   if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-remote", false))
   {
     ezEditorEngineProcessApp::GetSingleton()->SetRemoteMode();
@@ -96,7 +103,7 @@ void ezEngineProcessGameApplication::WaitForDebugger()
 
 void ezEngineProcessGameApplication::BeforeCoreShutdown()
 {
-  ezEditorEngineProcessApp::GetSingleton()->DestroyRemoteWindow();
+  m_pApp = nullptr;
 
   ezRTTI::s_TypeUpdatedEvent.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerTypeUpdated, this));
   m_IPC.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerIPC, this));
@@ -308,7 +315,7 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     if (pMsg->m_bDocumentOpen)
     {
       pDocumentContext = CreateDocumentContext(pMsg);
-     // EZ_ASSERT_DEV(pDocumentContext != nullptr, "Could not create a document context for document type '{0}'", pMsg->m_sDocumentType);
+      // EZ_ASSERT_DEV(pDocumentContext != nullptr, "Could not create a document context for document type '{0}'", pMsg->m_sDocumentType);
     }
     else
     {
@@ -435,6 +442,11 @@ void ezEngineProcessGameApplication::ProcessApplicationInput()
   {
     ezGameApplication::ProcessApplicationInput();
   }
+}
+
+ezUniquePtr<ezEditorEngineProcessApp> ezEngineProcessGameApplication::CreateEngineProcessApp()
+{
+  return EZ_DEFAULT_NEW(ezEditorEngineProcessApp);
 }
 
 void ezEngineProcessGameApplication::DoSetupLogWriters()

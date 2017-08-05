@@ -209,12 +209,15 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     }
   }
 
-  ezCameraMode::Enum cameraMode = (ezCameraMode::Enum)pMsg->m_iCameraMode;
-  if (!bModeFromCamera || cameraMode == ezCameraMode::OrthoFixedWidth || cameraMode == ezCameraMode::OrthoFixedHeight)
+  if (m_Camera.GetCameraMode() != ezCameraMode::Stereo)
   {
-    m_Camera.SetCameraMode(cameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
+    ezCameraMode::Enum cameraMode = (ezCameraMode::Enum)pMsg->m_iCameraMode;
+    if (!bModeFromCamera || cameraMode == ezCameraMode::OrthoFixedWidth || cameraMode == ezCameraMode::OrthoFixedHeight)
+    {
+      m_Camera.SetCameraMode(cameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
+    }
+    m_Camera.LookAt(pMsg->m_vPosition, pMsg->m_vPosition + pMsg->m_vDirForwards, pMsg->m_vDirUp);
   }
-  m_Camera.LookAt(pMsg->m_vPosition, pMsg->m_vPosition + pMsg->m_vDirForwards, pMsg->m_vDirUp);
 
   if (pView)
   {
@@ -233,10 +236,10 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 
 ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDefaultRenderPipeline()
 {
-  return ezResourceManager::LoadResource<ezRenderPipelineResource>("{ da463c4d-c984-4910-b0b7-a0b3891d0448 }");
+  return ezEditorEngineProcessApp::GetSingleton()->CreateDefaultMainRenderPipeline();
 }
 
 ezRenderPipelineResourceHandle ezEngineProcessViewContext::CreateDebugRenderPipeline()
 {
-  return ezResourceManager::LoadResource<ezRenderPipelineResource>("{ 0416eb3e-69c0-4640-be5b-77354e0e37d7 }");
+  return ezEditorEngineProcessApp::GetSingleton()->CreateDefaultDebugRenderPipeline();
 }

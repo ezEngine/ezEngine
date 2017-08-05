@@ -21,8 +21,26 @@ ezRemoteEngineProcessViewContext::ezRemoteEngineProcessViewContext(ezEngineProce
 
 ezRemoteEngineProcessViewContext::~ezRemoteEngineProcessViewContext()
 {
+  ezView* pView = nullptr;
+  if (ezRenderWorld::TryGetView(m_hView, pView))
+  {
+    pView->SetWorld(nullptr);
+  }
+
   // make sure the base class destructor doesn't destroy the view
   m_hView.Invalidate();
+
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+  auto pHoloFramework = ezMixedRealityFramework::GetSingleton();
+  if (pHoloFramework)
+  {
+    // make sure the camera is not synchronized further
+    if (pHoloFramework->GetCameraForPredictionSynchronization() == &m_Camera)
+    {
+      pHoloFramework->SetCameraForPredictionSynchronization(nullptr);
+    }
+  }
+#endif
 }
 
 void ezRemoteEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
@@ -31,7 +49,7 @@ void ezRemoteEngineProcessViewContext::HandleViewMessage(const ezEditorEngineVie
   {
     if (m_hView.IsInvalidated())
     {
-      m_hView = ezEditorEngineProcessApp::GetSingleton()->CreateRemoteWindowAndView();
+      m_hView = ezEditorEngineProcessApp::GetSingleton()->CreateRemoteWindowAndView(&m_Camera);
     }
 
     ezView* pView = nullptr;

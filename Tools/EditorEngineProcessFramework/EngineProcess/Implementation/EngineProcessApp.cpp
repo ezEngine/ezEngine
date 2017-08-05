@@ -9,8 +9,6 @@
 
 EZ_IMPLEMENT_SINGLETON(ezEditorEngineProcessApp);
 
-static ezEditorEngineProcessApp g_Instance;
-
 ezEditorEngineProcessApp::ezEditorEngineProcessApp()
   : m_SingletonRegistrar(this)
 {
@@ -65,7 +63,17 @@ void ezEditorEngineProcessApp::DestroyRemoteWindow()
   }
 }
 
-ezViewHandle ezEditorEngineProcessApp::CreateRemoteWindowAndView()
+ezRenderPipelineResourceHandle ezEditorEngineProcessApp::CreateDefaultMainRenderPipeline()
+{
+  return ezResourceManager::LoadResource<ezRenderPipelineResource>("{ da463c4d-c984-4910-b0b7-a0b3891d0448 }");
+}
+
+ezRenderPipelineResourceHandle ezEditorEngineProcessApp::CreateDefaultDebugRenderPipeline()
+{
+  return ezResourceManager::LoadResource<ezRenderPipelineResource>("{ 0416eb3e-69c0-4640-be5b-77354e0e37d7 }");
+}
+
+ezViewHandle ezEditorEngineProcessApp::CreateRemoteWindowAndView(ezCamera* pCamera)
 {
   EZ_ASSERT_DEV(IsRemoteMode(), "Incorrect app mode");
 
@@ -94,8 +102,10 @@ ezViewHandle ezEditorEngineProcessApp::CreateRemoteWindowAndView()
 
       pView->SetRenderTargetSetup(BackBufferRenderTargetSetup);
       pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)m_pRemoteWindow->GetClientAreaSize().width, (float)m_pRemoteWindow->GetClientAreaSize().height));
+      pView->SetCamera(pCamera);
     }
   }
 
   return m_hRemoteView;
 }
+

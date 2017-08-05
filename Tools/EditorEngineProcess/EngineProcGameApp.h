@@ -1,11 +1,12 @@
 ﻿#pragma once
 
-#include <PCH.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <Core/Application/Config/FileSystemConfig.h>
 #include <Core/Application/Config/PluginConfig.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
+#include <Foundation/Types/UniquePtr.h>
 
+class ezEditorEngineProcessApp;
 class ezDocumentOpenMsgToEngine;
 class ezEngineProcessDocumentContext;
 
@@ -29,6 +30,7 @@ protected:
   virtual void DoShutdownLogWriters() override;
   virtual void DoSetupDataDirectories() override;
   virtual void ProcessApplicationInput() override;
+  virtual ezUniquePtr<ezEditorEngineProcessApp> CreateEngineProcessApp();
 
 private:
   void ConnectToHost();
@@ -54,5 +56,6 @@ private:
   ezApplicationFileSystemConfig m_CustomFileSystemConfig;
   ezApplicationPluginConfig m_CustomPluginConfig;
   ezEngineProcessCommunicationChannel m_IPC;
+  ezUniquePtr<ezEditorEngineProcessApp> m_pApp;
 };
 
