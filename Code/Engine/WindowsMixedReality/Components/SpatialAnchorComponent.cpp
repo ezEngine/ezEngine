@@ -54,6 +54,9 @@ const char* ezSpatialAnchorComponent::GetPersistentAnchorName() const
 ezResult ezSpatialAnchorComponent::RecreateAnchorAt(const ezTransform& position)
 {
   auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
+  if (pHoloSpace == nullptr)
+    return EZ_FAILURE;
+
   auto pNewAnchor = pHoloSpace->GetSpatialLocationService().CreateSpatialAnchor(position);
 
   if (pNewAnchor == nullptr)

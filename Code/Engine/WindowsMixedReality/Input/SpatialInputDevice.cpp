@@ -26,6 +26,10 @@ ezInputDeviceSpatialInteraction::~ezInputDeviceSpatialInteraction()
 
 void ezInputDeviceSpatialInteraction::InitializeDevice()
 {
+  auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
+  if (pHoloSpace == nullptr || !pHoloSpace->IsAvailable())
+    return;
+
   ezUwpUtils::RetrieveStatics(RuntimeClass_Windows_UI_Input_Spatial_SpatialInteractionManager, m_pSpatialInteractionManagerStatics);
 
   if (SUCCEEDED(m_pSpatialInteractionManagerStatics->GetForCurrentView(&m_pSpatialInteractionManager)))
@@ -47,6 +51,10 @@ void ezInputDeviceSpatialInteraction::InitializeDevice()
 
 void ezInputDeviceSpatialInteraction::RegisterInputSlots()
 {
+  auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
+  if (pHoloSpace == nullptr || !pHoloSpace->IsAvailable())
+    return;
+
   RegisterInputSlot(ezInputSlot_Spatial_Hand0_Tracked, "Hand 1 Visible", ezInputSlotFlags::IsButton);
   RegisterInputSlot(ezInputSlot_Spatial_Hand0_Pressed, "Hand 1 Air Tap", ezInputSlotFlags::IsButton);
   RegisterInputSlot(ezInputSlot_Spatial_Hand0_PositionPosX, "Hand 1 Position Pos X", ezInputSlotFlags::IsTrackedValue);
@@ -94,6 +102,8 @@ void ezInputDeviceSpatialInteraction::ResetInputSlotValues()
 void ezInputDeviceSpatialInteraction::UpdateInputSlotValues()
 {
   auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
+  if (pHoloSpace == nullptr || !pHoloSpace->IsAvailable())
+    return;
 
   ComPtr<ISpatialPointerPoseStatics> pPointerPoseStatics;
   ezUwpUtils::RetrieveStatics(RuntimeClass_Windows_UI_Input_Spatial_SpatialPointerPose, pPointerPoseStatics);

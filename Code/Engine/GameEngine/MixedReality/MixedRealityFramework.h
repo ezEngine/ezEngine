@@ -3,6 +3,8 @@
 #include <GameEngine/Basics.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <Core/ResourceManager/ResourceHandle.h>
+#include <RendererCore/Pipeline/Declarations.h>
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
 
@@ -10,6 +12,9 @@ class ezCamera;
 class ezWindowsHolographicSpace;
 struct ezGameApplicationEvent;
 class ezSurfaceReconstructionMeshManager;
+class ezViewHandle;
+class ezWindowBase;
+typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 
 class EZ_GAMEENGINE_DLL ezMixedRealityFramework
 {
@@ -24,6 +29,19 @@ public:
   void SetCameraForPredictionSynchronization(ezCamera* pCamera);
 
   ezSurfaceReconstructionMeshManager& GetSpatialMappingManager() const { return *m_pSpatialMappingManager; }
+
+  /// \brief Attempts to create the main render view for a mixed reality application.
+  ///
+  /// The view is configured to use the given render pipeline and have the MR camera viewport.
+  /// It is added to ezRenderWorld as a main view.
+  /// The given window is added to ezGameApplication, using AddWindow, together with the main view's swap chain.
+  /// 
+  /// The function also sets the camera as the camera that gets automatic prediction synchronization,
+  /// and it makes sure the camera is set to be in 'Stereo' mode.
+  /// 
+  /// If the function fails, an invalid handle is returned.
+  /// This happens either when the holographic space is not available or no MR camera was given by the OS.
+  ezViewHandle CreateHolographicView(ezWindowBase* pWindow, const ezRenderPipelineResourceHandle& hRenderPipeline, ezCamera* pCamera, ezWorld* pWorld = nullptr);
 
 private:
   void Startup(ezCamera* pCameraForSynchronization);

@@ -14,6 +14,8 @@
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
 #include <WindowsMixedReality/Components/SpatialAnchorComponent.h>
 #include <WindowsMixedReality/Components/SrmRenderComponent.h>
+#include <GameEngine/MixedReality/MixedRealityFramework.h>
+#include <WindowsMixedReality/SpatialMapping/SurfaceReconstructionMeshManager.h>
 #endif
 
 #include "GameState.h"
@@ -57,6 +59,17 @@ void SimpleMeshRendererGameState::ProcessInput()
 
     MoveObjectToPosition(pos);
   }
+
+  const char* szPressed = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::None, ezInputSlotFlags::None);
+
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+  if (IsMixedRealityMode() && !ezStringUtils::IsNullOrEmpty(szPressed))
+  {
+    ezLog::Info("Pressed: {0}", szPressed);
+
+    ezMixedRealityFramework::GetSingleton()->GetSpatialMappingManager().PullCurrentSurfaces();
+  }
+#endif
 
   SUPER::ProcessInput();
 }
@@ -191,14 +204,23 @@ void SimpleMeshRendererGameState::MoveObjectToPosition(const ezVec3& pos)
     return;
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-  ezSpatialAnchorComponent* pComp = nullptr;
-  if (pObject->TryGetComponentOfBaseType<ezSpatialAnchorComponent>(pComp))
+  if (IsMixedRealityMode())
   {
-    pComp->RecreateAnchorAt(ezTransform(pos));
+    ezSpatialAnchorComponent* pComp = nullptr;
+    if (pObject->TryGetComponentOfBaseType<ezSpatialAnchorComponent>(pComp))
+    {
+      pComp->RecreateAnchorAt(ezTransform(pos));
+    }
   }
 #endif
 }
 
+
+// This application supports being compiled for both modes
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+EZ_APPLICATION_ENTRY_POINT(ezGameApplication, "SimpleMeshRenderer", ezGameApplicationType::StandAloneMixedReality, "Data/Samples/SimpleMeshRenderer");
+#else
 EZ_APPLICATION_ENTRY_POINT(ezGameApplication, "SimpleMeshRenderer", ezGameApplicationType::StandAlone, "Data/Samples/SimpleMeshRenderer");
+#endif
 
 

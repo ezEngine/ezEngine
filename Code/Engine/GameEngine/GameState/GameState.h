@@ -90,6 +90,10 @@ public:
   /// \brief Gives access to the game state's main camera object.
   ezCamera* GetMainCamera() { return &m_MainCamera; }
 
+  /// \brief Returns whether the application is running in full mixed reality mode.
+  /// This is evaluated in OnActivation(), will always return false before that call.
+  bool IsMixedRealityMode() const { return m_bMixedRealityMode; }
+
 protected:
   /// \brief Creates a default window (ezGameStateWindow) adds it to the application and fills out m_pMainWindow and m_hMainSwapChain
   virtual void CreateMainWindow();
@@ -130,4 +134,5 @@ protected:
 private:
   friend class ezGameApplication;
   ezGameApplication* m_pApplication = nullptr;
+  bool m_bMixedRealityMode = false;
 };

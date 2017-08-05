@@ -2,11 +2,9 @@
 
 #include <GameEngine/GameState/FallbackGameState.h>
 
-#include <GameEngine/MixedReality/MixedRealityGameState.h>
-
-class SimpleMeshRendererGameState : public ezMixedRealityGameState
+class SimpleMeshRendererGameState : public ezFallbackGameState
 {
-  EZ_ADD_DYNAMIC_REFLECTION(SimpleMeshRendererGameState, ezMixedRealityGameState);
+  EZ_ADD_DYNAMIC_REFLECTION(SimpleMeshRendererGameState, ezFallbackGameState);
 
 public:
   SimpleMeshRendererGameState();

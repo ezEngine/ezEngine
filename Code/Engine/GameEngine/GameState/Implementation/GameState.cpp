@@ -32,13 +32,34 @@ ezGameState::~ezGameState()
 
 void ezGameState::OnActivation(ezWorld* pWorld)
 {
-  m_bStateWantsToQuit = false;
   m_pMainWorld = pWorld;
+
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+  if ((GetApplication()->GetAppType() == ezGameApplicationType::StandAloneMixedReality ||
+       GetApplication()->GetAppType() == ezGameApplicationType::EmbeddedInToolMixedReality) && ezWindowsHolographicSpace::GetSingleton()->IsAvailable())
+  {
+    m_bMixedRealityMode = true;
+  }
+#endif
 
   CreateMainWindow();
 
-  const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(m_hMainSwapChain);
-  SetupMainView(ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(pSwapChain->GetBackBufferTexture()));
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+  if (m_bMixedRealityMode)
+  {
+    // HololensRenderPipeline.ezRendePipelineAsset
+    auto hRenderPipeline = ezResourceManager::LoadResource<ezRenderPipelineResource>("{ 2fe25ded-776c-7f9e-354f-e4c52a33d125 }");
+
+    auto pHoloFramework = ezMixedRealityFramework::GetSingleton();
+    m_hMainView = pHoloFramework->CreateHolographicView(m_pMainWindow, hRenderPipeline, &m_MainCamera, m_pMainWorld);
+    m_hMainSwapChain = ezGALDevice::GetDefaultDevice()->GetPrimarySwapChain();
+  }
+  else
+#endif
+  {
+    const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(m_hMainSwapChain);
+    SetupMainView(ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(pSwapChain->GetBackBufferTexture()));
+  }
 
   ConfigureMainCamera();
 
@@ -64,14 +85,11 @@ void ezGameState::CreateMainWindow()
   EZ_LOG_BLOCK("ezGameState::CreateMainWindow");
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+  if (m_bMixedRealityMode)
   {
-    auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
-    if (pHoloSpace->IsAvailable())
-    {
-      m_pMainWindow = EZ_DEFAULT_NEW(ezGameStateWindow, ezWindowCreationDesc());
-      GetApplication()->AddWindow(m_pMainWindow, ezGALSwapChainHandle());
-      return;
-    }
+    m_pMainWindow = EZ_DEFAULT_NEW(ezGameStateWindow, ezWindowCreationDesc());
+    GetApplication()->AddWindow(m_pMainWindow, ezGALSwapChainHandle());
+    return;
   }
 #endif
 
@@ -93,10 +111,6 @@ void ezGameState::CreateMainWindow()
       sWndCfg = ":appdata/Window.ddl";
     else
       sWndCfg = ":project/Window.ddl";
-  }
-
-  if (GetApplication()->GetAppType() == ezGameApplicationType::EmbeddedInTool)
-  {
   }
 
   ezWindowCreationDesc wndDesc;
@@ -189,6 +203,10 @@ void ezGameState::ConfigureMainCamera()
     coordSys.m_vUpDir.Set(0, 0, 1);
   }
 
-  m_MainCamera.LookAt(vCameraPos, vCameraPos + coordSys.m_vForwardDir, coordSys.m_vUpDir);
-  m_MainCamera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 60.0f, 0.1f, 1000.0f);
+  // if the camera is already set to be in 'Stereo' mode, its parameters are set from the outside
+  if (m_MainCamera.GetCameraMode() != ezCameraMode::Stereo)
+  {
+    m_MainCamera.LookAt(vCameraPos, vCameraPos + coordSys.m_vForwardDir, coordSys.m_vUpDir);
+    m_MainCamera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 60.0f, 0.1f, 1000.0f);
+  }
 }

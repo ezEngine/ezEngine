@@ -223,7 +223,11 @@ void ezGameApplication::BeforeCoreStartup()
   ezApplication::BeforeCoreStartup();
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-  m_pMixedRealityFramework = EZ_DEFAULT_NEW(ezMixedRealityFramework, nullptr);
+  if (m_AppType == ezGameApplicationType::StandAloneMixedReality ||
+      m_AppType == ezGameApplicationType::EmbeddedInToolMixedReality)
+  {
+    m_pMixedRealityFramework = EZ_DEFAULT_NEW(ezMixedRealityFramework, nullptr);
+  }
 #endif
 }
 
@@ -358,7 +362,11 @@ void ezGameApplication::AfterCoreStartup()
   DoProjectSetup();
 
   // Create gamestate.
-  if (m_AppType == ezGameApplicationType::StandAlone)
+  if (m_AppType == ezGameApplicationType::StandAlone 
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+      || m_AppType == ezGameApplicationType::StandAloneMixedReality
+#endif
+      )
   {
     CreateGameStateForWorld(nullptr);
   }
@@ -375,7 +383,11 @@ void ezGameApplication::AfterCoreStartup()
 
 
   // Activate gamestate
-  if (m_AppType == ezGameApplicationType::StandAlone)
+  if (m_AppType == ezGameApplicationType::StandAlone 
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+      || m_AppType == ezGameApplicationType::StandAloneMixedReality
+#endif
+      )
   {
     ActivateAllGameStates();
   }

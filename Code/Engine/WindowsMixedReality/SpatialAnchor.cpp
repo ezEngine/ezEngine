@@ -26,6 +26,9 @@ ezResult ezWindowsSpatialAnchor::GetInternalCoordinateSystem(ComPtr<ABI::Windows
 ezResult ezWindowsSpatialAnchor::PersistCurrentLocation(const char* szID)
 {
   auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
+  if (pHoloSpace == nullptr)
+    return EZ_FAILURE;
+
   return pHoloSpace->GetSpatialLocationService().SavePersistentAnchor(*this, szID);
 }
 
@@ -33,5 +36,8 @@ ezResult ezWindowsSpatialAnchor::PersistCurrentLocation(const char* szID)
 ezUniquePtr<ezWindowsSpatialAnchor> ezWindowsSpatialAnchor::LoadPersistedLocation(const char* szID)
 {
   auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
+  if (pHoloSpace == nullptr)
+    return nullptr;
+
   return pHoloSpace->GetSpatialLocationService().LoadPersistentAnchor(szID);
 }
