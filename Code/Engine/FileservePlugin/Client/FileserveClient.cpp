@@ -540,6 +540,12 @@ void ezFileserveClient::WriteDownloadToDisk(ezStringBuilder sCachedFile)
 
 ezResult ezFileserveClient::DownloadFile(ezUInt16 uiDataDirID, const char* szFile, bool bForceThisDataDir)
 {
+  if (m_bDownloading)
+  {
+    ezLog::Warning("Trying to download a file over fileserve while another file is already downloading. Recursive download is ignored.");
+    return EZ_FAILURE;
+  }
+
   EZ_ASSERT_DEV(uiDataDirID < m_MountedDataDirs.GetCount(), "Invalid data dir index {0}", uiDataDirID);
   EZ_ASSERT_DEV(m_MountedDataDirs[uiDataDirID].m_bMounted, "Data directory {0} is not mounted", uiDataDirID);
   EZ_ASSERT_DEV(!m_bDownloading, "Cannot start a download, while one is still running");

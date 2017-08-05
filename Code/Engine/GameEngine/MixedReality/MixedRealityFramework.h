@@ -28,6 +28,8 @@ public:
   /// latest prediction values at the right time every frame.
   void SetCameraForPredictionSynchronization(ezCamera* pCamera);
 
+  ezCamera* GetCameraForPredictionSynchronization() { return m_pCameraToSynchronize; }
+
   ezSurfaceReconstructionMeshManager& GetSpatialMappingManager() const { return *m_pSpatialMappingManager; }
 
   /// \brief Attempts to create the main render view for a mixed reality application.

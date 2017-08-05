@@ -611,9 +611,8 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
     if (ezRenderWorld::TryGetView(hView, pView))
     {
       ezWorld* pWorld = pView->GetWorld();
-      EZ_ASSERT_DEBUG(pWorld != nullptr, "World on main view is invalid");
 
-      if (!worldsToUpdate.Contains(pWorld))
+      if (pWorld != nullptr && !worldsToUpdate.Contains(pWorld))
       {
         worldsToUpdate.PushBack(pWorld);
       }
