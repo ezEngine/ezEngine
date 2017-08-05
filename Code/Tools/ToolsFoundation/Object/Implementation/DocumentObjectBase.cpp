@@ -137,7 +137,8 @@ bool ezDocumentObject::IsOnHeap() const
 {
   /// \todo Christopher: This crashes when the pointer is nullptr, which appears to be possible
   /// It happened for me when duplicating (CTRL+D) 2 objects 2 times then moving them and finally undoing everything
-  EZ_ASSERT_DEV(m_pParent != nullptr, "Invalid usage (?)");
+  EZ_ASSERT_DEV(m_pParent != nullptr, "Object being modified is not part of the document, e.g. may be in the undo stack instead. "
+    "This could happen if within an undo / redo op some callback tries to create a new undo scope / update prefabs etc.");
 
   if (GetParent() == GetDocumentObjectManager()->GetRootObject())
     return true;

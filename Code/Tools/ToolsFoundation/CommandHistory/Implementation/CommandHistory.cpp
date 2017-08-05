@@ -201,6 +201,8 @@ const char* ezCommandHistory::GetRedoDisplayString() const
 
 void ezCommandHistory::StartTransaction(const ezFormatString& sDisplayString)
 {
+  EZ_ASSERT_DEV(!m_bIsInUndoRedo, "Cannot start new transaction while redoing/undoing.");
+
   /// \todo Allow to have a limited transaction history and clean up transactions after a while
 
   ezCommandTransaction* pTransaction;
@@ -317,6 +319,7 @@ ezStatus ezCommandHistory::AddCommand(ezCommand& command)
 
 void ezCommandHistory::ClearUndoHistory()
 {
+  EZ_ASSERT_DEV(!m_bIsInUndoRedo, "Cannot clear undo/redo history while redoing/undoing.");
   while (!m_UndoHistory.IsEmpty())
   {
     ezCommandTransaction* pTransaction = m_UndoHistory.PeekBack();
@@ -330,6 +333,7 @@ void ezCommandHistory::ClearUndoHistory()
 
 void ezCommandHistory::ClearRedoHistory()
 {
+  EZ_ASSERT_DEV(!m_bIsInUndoRedo, "Cannot clear undo/redo history while redoing/undoing.");
   while (!m_RedoHistory.IsEmpty())
   {
     ezCommandTransaction* pTransaction = m_RedoHistory.PeekBack();

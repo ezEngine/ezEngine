@@ -146,18 +146,27 @@ ezResult ezAbstractGraphDdlSerializer::Read(ezStreamReader& stream, ezAbstractOb
     return EZ_FAILURE;
   }
 
-  const ezOpenDdlReaderElement* pTypes = reader.GetRootElement()->FindChildOfType("Types");
-  if (pTypesGraph != nullptr && pTypes != nullptr)
+  ezAbstractObjectGraph* pTempTypesGraph = pTypesGraph;
+  if (pTempTypesGraph == nullptr)
   {
-    ReadGraph(pTypesGraph, pTypes);
+    pTempTypesGraph = EZ_DEFAULT_NEW(ezAbstractObjectGraph);
+  }
+  const ezOpenDdlReaderElement* pTypes = reader.GetRootElement()->FindChildOfType("Types");
+  if (pTypes != nullptr)
+  {
+    ReadGraph(pTempTypesGraph, pTypes);
   }
 
   if (bApplyPatches)
   {
-    if (pTypesGraph)
-      ezGraphVersioning::GetSingleton()->PatchGraph(pTypesGraph);
-    ezGraphVersioning::GetSingleton()->PatchGraph(pGraph, pTypesGraph);
+    if (pTempTypesGraph)
+      ezGraphVersioning::GetSingleton()->PatchGraph(pTempTypesGraph);
+    ezGraphVersioning::GetSingleton()->PatchGraph(pGraph, pTempTypesGraph);
   }
+
+  if (pTypesGraph == nullptr)
+    EZ_DEFAULT_DELETE(pTempTypesGraph);
+
   return EZ_SUCCESS;
 }
 

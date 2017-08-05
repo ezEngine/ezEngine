@@ -101,9 +101,9 @@ private:
   void EndTransaction(bool bCancel);
   void EndTemporaryCommands(bool bCancel);
 
-  bool m_bFireEventsWhenUndoingTempCommands;
-  bool m_bTemporaryMode;
-  bool m_bIsInUndoRedo;
+  bool m_bFireEventsWhenUndoingTempCommands = false;
+  bool m_bTemporaryMode = false;
+  bool m_bIsInUndoRedo = false;
 
   ezHybridArray<ezCommandTransaction*, 4> m_TransactionStack;
   ezHybridArray<ezCommand*, 4> m_ActiveCommandStack;

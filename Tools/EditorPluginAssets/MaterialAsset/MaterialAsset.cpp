@@ -50,7 +50,8 @@ void ezMaterialAssetProperties::SetBaseMaterial(const char* szBaseMaterial)
   // If no doc is present, we are de-serializing the document so do nothing yet.
   if (!m_pDocument)
     return;
-
+  if (m_pDocument->GetCommandHistory()->IsInUndoRedo())
+    return;
   m_pDocument->SetBaseMaterial(m_sBaseMaterial);
 
 }
