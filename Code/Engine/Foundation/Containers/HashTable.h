@@ -60,18 +60,11 @@ public:
   {
     EZ_DECLARE_POD_TYPE();
 
-    EZ_ALWAYS_INLINE Iterator(const Iterator& rhs) : ConstIterator(*rhs.m_hashTable)
-    {
-      m_uiCurrentIndex = rhs.m_uiCurrentIndex;
-      m_uiCurrentCount = rhs.m_uiCurrentCount;
-    }
+    /// \brief Creates a new itarator from another.
+    EZ_ALWAYS_INLINE Iterator(const Iterator& rhs); // [tested]
 
-    EZ_ALWAYS_INLINE void operator=(const Iterator& rhs) // [tested]
-    {
-      m_hashTable = rhs.m_hashTable;
-      m_uiCurrentIndex = rhs.m_uiCurrentIndex;
-      m_uiCurrentCount = rhs.m_uiCurrentCount;
-    }
+    /// \brief Assigns one itarator no another.
+    EZ_ALWAYS_INLINE void operator=(const Iterator& rhs); // [tested]
 
     // this is required to pull in the const version of this function
     using ConstIterator::Value;
