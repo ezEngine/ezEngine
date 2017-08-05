@@ -177,6 +177,13 @@ public:
   /// \brief At the end of the frame, a screenshot will be taken and stored in ":appdata/AppName/Screenshots"
   void TakeScreenshot();
 
+  /// \brief Calls ProcessWindowMessages on all windows. Returns true, any windows are available, at all.
+  ///
+  /// \note This should actually never be executed manually. It is only public for very specific edge cases.
+  /// Otherwise this function is automatically executed once every frame.
+  bool ProcessWindowMessages();
+
+
 protected:
 
   /// \brief Can be overridden for the application to create a specific game state.
@@ -270,9 +277,6 @@ protected:
   ///
   /// The default implementation handles ESC (close app), F5 (reload resources) and F8 (capture profiling info).
   virtual void ProcessApplicationInput();
-
-  /// \brief Calls ProcessWindowMessages on all windows.
-  void ProcessWindowMessages();
 
   /// \brief Does all input handling on input manager and game states.
   void UpdateInput();

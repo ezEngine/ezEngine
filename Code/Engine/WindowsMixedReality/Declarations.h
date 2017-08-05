@@ -46,5 +46,4 @@ class ezWindowsSpatialReferenceFrame;
 class ezWindowsSpatialAnchor;
 class ezWindowsSpatialLocationService;
 class ezWindowsMixedRealityCamera;
-class ezWindowsSpatialReferenceFrame;
 struct IDXGIAdapter3;

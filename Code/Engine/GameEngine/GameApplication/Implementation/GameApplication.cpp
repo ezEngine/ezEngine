@@ -61,6 +61,9 @@ ezGALSwapChainHandle ezGameApplication::AddWindow(ezWindowBase* pWindow)
 
 void ezGameApplication::AddWindow(ezWindowBase* pWindow, ezGALSwapChainHandle hSwapChain)
 {
+  // make sure not to add the same window twice
+  RemoveWindow(pWindow);
+
   WindowContext& windowContext = m_Windows.ExpandAndGetRef();
   windowContext.m_pWindow = pWindow;
   windowContext.m_hSwapChain = hSwapChain;
@@ -398,6 +401,10 @@ void ezGameApplication::BeforeCoreShutdown()
   ezFrameAllocator::Reset();
   ezResourceManager::FreeUnusedResources(true);
 
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+  m_pMixedRealityFramework = nullptr;
+#endif
+
   DoShutdownGraphicsDevice();
 
   DestroyAllGameStates();
@@ -592,6 +599,8 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
     if (ezRenderWorld::TryGetView(hView, pView))
     {
       ezWorld* pWorld = pView->GetWorld();
+      EZ_ASSERT_DEBUG(pWorld != nullptr, "World on main view is invalid");
+
       if (!worldsToUpdate.Contains(pWorld))
       {
         worldsToUpdate.PushBack(pWorld);

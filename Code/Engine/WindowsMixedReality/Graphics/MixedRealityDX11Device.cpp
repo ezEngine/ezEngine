@@ -108,14 +108,18 @@ ezResult ezGALMixedRealityDeviceDX11::InitPlatform()
 
 ezResult ezGALMixedRealityDeviceDX11::ShutdownPlatform()
 {
-  auto pHolographicSpace = ezWindowsHolographicSpace::GetSingleton()->GetInternalHolographicSpace();
-  if (!pHolographicSpace)
+  if (ezWindowsHolographicSpace::GetSingleton() != nullptr)
   {
-    ezLog::Error("Can't destroy holographic DX11 device since there is no holographic space.");
-    return EZ_FAILURE;
+    auto pHolographicSpace = ezWindowsHolographicSpace::GetSingleton()->GetInternalHolographicSpace();
+    if (!pHolographicSpace)
+    {
+      ezLog::Error("Can't destroy holographic DX11 device since there is no holographic space.");
+      return EZ_FAILURE;
+    }
+
+    pHolographicSpace->SetDirect3D11Device(nullptr);
   }
 
-  pHolographicSpace->SetDirect3D11Device(nullptr);
   m_pDX11InteropDevice.Reset();
 
   return ezGALDeviceDX11::ShutdownPlatform();

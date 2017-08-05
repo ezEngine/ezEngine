@@ -1379,7 +1379,10 @@ void ezGALDevice::DestroyDeadObjects()
 
         m_SwapChains.Remove(hSwapChain, &pSwapChain);
 
-        DestroySwapChainPlatform(pSwapChain);
+        if (pSwapChain != nullptr)
+        {
+          DestroySwapChainPlatform(pSwapChain);
+        }
 
         break;
       }
