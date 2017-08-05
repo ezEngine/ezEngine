@@ -70,20 +70,21 @@ EZ_ALWAYS_INLINE void ezHashTableBase<K, V, H>::ConstIterator::operator++()
 // ***** Iterator *****
 
 template <typename K, typename V, typename H>
-ezHashTableBase<K, V, H>::Iterator::Iterator(const ezHashTableBase<K, V, H>& hashTable) :
-  ConstIterator(hashTable)
+ezHashTableBase<K, V, H>::Iterator::Iterator(const ezHashTableBase<K, V, H>& hashTable)
+  : ConstIterator(hashTable)
 {
 }
 
-template <typename KeyType, typename ValueType, typename Hasher>
-ezHashTableBase::Iterator<KeyType, ValueType, Hasher>::Iterator(const Iterator& rhs) : ConstIterator(*rhs.m_hashTable)
+template <typename K, typename V, typename H>
+ezHashTableBase<K, V, H>::Iterator::Iterator(const typename ezHashTableBase<K, V, H>::Iterator& rhs)
+  : ConstIterator(*rhs.m_hashTable)
 {
   this->m_uiCurrentIndex = rhs.m_uiCurrentIndex;
   this->m_uiCurrentCount = rhs.m_uiCurrentCount;
 }
 
-template <typename KeyType, typename ValueType, typename Hasher>
-EZ_ALWAYS_INLINE void ezHashTableBase::Iterator<KeyType, ValueType, Hasher>::operator=(const Iterator& rhs) // [tested]
+template <typename K, typename V, typename H>
+EZ_ALWAYS_INLINE void ezHashTableBase<K, V, H>::Iterator::operator=(const Iterator& rhs) // [tested]
 {
   this->m_hashTable = rhs.m_hashTable;
   this->m_uiCurrentIndex = rhs.m_uiCurrentIndex;

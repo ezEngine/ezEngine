@@ -6,6 +6,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
     return;
 
   EZ_STATICLINK_REFERENCE(Foundation_Algorithm_Implementation_Hashing);
+  EZ_STATICLINK_REFERENCE(Foundation_Algorithm_Implementation_HashHelperString);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_Assert);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_Basics);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_IncludeAll);
