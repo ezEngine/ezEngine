@@ -162,14 +162,14 @@ void ezRemoteInterfaceEnet::InternalUpdateRemoteInterface()
         {
           // Querying host IP and name can take a lot of time
           // Do not do this in the other case, as it may result in timeouts while establishing the connection.
-          char szHostIP[64] = "";
-          char szHostName[64] = "";
+          char szHostIP[64] = "<unknown>";
+          //char szHostName[64] = "<unknown>";
 
           enet_address_get_host_ip(&NetworkEvent.peer->address, szHostIP, 63);
-          enet_address_get_host(&NetworkEvent.peer->address, szHostName, 63);
+          //enet_address_get_host(&NetworkEvent.peer->address, szHostName, 63);
 
-          m_ServerInfoName = szHostName;
           m_ServerInfoIP = szHostIP;
+          //m_ServerInfoName = szHostName;
 
           // now we are waiting for the server to send its ID
         }
@@ -190,7 +190,7 @@ void ezRemoteInterfaceEnet::InternalUpdateRemoteInterface()
           ezLog::Info("Disconnected from server, trying to reconnect");
 
           // First wait a bit to ensure that the Server could shut down, if this was a legitimate disconnect
-          ezThreadUtils::Sleep(ezTime::Milliseconds(1000));
+          ezThreadUtils::Sleep(ezTime::Milliseconds(500));
 
           // Now try to reconnect. If the Server still exists, fine, connect to that.
           // If it does not exist anymore, this will connect to the next best Server that can be found.

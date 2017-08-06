@@ -67,7 +67,7 @@ public:
   virtual void SetOverridePlatform(const char* szPlatform) override;
 
   /// \brief Automatically called by the plugin every time ezGameApplicationEvent::BeforeUpdatePlugins is fired.
-  virtual void UpdateFmod() override;
+  virtual void UpdateSound() override;
 
   /// \brief Adjusts the master volume. This affects all sounds, with no exception. Value must be between 0.0f and 1.0f.
   virtual void SetMasterChannelVolume(float volume) override;

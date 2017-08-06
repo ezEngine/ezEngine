@@ -28,6 +28,8 @@ protected:
   ezString m_sLastAddress;
   ezTime m_LastConnectAttempt;
   ezUniquePtr<ezRemoteInterface> m_Network;
+
+  ezInt32 m_iReconnectTries = 0;
 };
 
 #endif

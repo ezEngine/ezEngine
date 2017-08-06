@@ -117,7 +117,7 @@ public:
   ///@{
 
   /// \brief For the client to display the name of the server
-  const ezString& GetServerInfoName() const { return m_ServerInfoName; }
+  //const ezString& GetServerInfoName() const { return m_ServerInfoName; }
 
   /// \brief For the client to display the IP of the server
   const ezString& GetServerInfoIP() const { return m_ServerInfoIP; }
@@ -212,7 +212,7 @@ protected:
   virtual ezResult DetermineTargetAddress(const char* szConnectTo, ezUInt32& out_IP, ezUInt16& out_Port);
 
   /// Derived classes should update this when the information is available
-  ezString m_ServerInfoName;
+  //ezString m_ServerInfoName;
   /// Derived classes should update this when the information is available
   ezString m_ServerInfoIP;
 

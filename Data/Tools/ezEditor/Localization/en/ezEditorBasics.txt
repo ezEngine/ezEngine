@@ -81,6 +81,7 @@ ezBasisAxis::NegativeZ;Negative Z
 Editor.Plugins;Editor Pl&ugins
 Editor.Shortcuts;Shortcuts
 Editor.ezQtPreferencesDlg;Preferences...
+Editor.SaveProfiling;Save Editor Profiling Data
 Engine.Plugins;Engine Pl&ugins
 Engine.ezQtTagsDlg;Tags
 ezCameraMode::PerspectiveFixedFovX;Perspective Fixed X

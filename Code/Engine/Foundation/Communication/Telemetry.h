@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Containers/Deque.h>
@@ -92,7 +92,7 @@ public:
   static ezTime GetPingToServer() { return s_PingToServer; }
 
   /// \brief Returns the name of the machine on which the Server is running. Only meaningful if there is an active connection (see IsConnectedToServer() ).
-  static const char* GetServerName() { return s_ServerName.GetData(); }
+  //static const char* GetServerName() { return s_ServerName.GetData(); }
 
   /// \brief Returns the IP address of the machine on which the Server is running. Only meaningful if there is an active connection (see IsConnectedToServer() ).
   static const char* GetServerIP() { return s_ServerIP.GetData(); }
@@ -202,7 +202,7 @@ private:
   static ezUInt32 s_uiApplicationID;
   static ezUInt32 s_uiServerID;
 
-  static ezString s_ServerName;
+  //static ezString s_ServerName;
   static ezString s_ServerIP;
 
   static bool s_bConnectedToServer;

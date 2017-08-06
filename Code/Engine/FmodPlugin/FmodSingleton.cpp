@@ -113,7 +113,7 @@ void ezFmod::Startup()
 #else
     studioflags |= FMOD_STUDIO_INIT_LIVEUPDATE;
 #endif
-    }
+  }
 #endif
 
   EZ_FMOD_ASSERT(m_pStudioSystem->initialize(config.m_uiVirtualChannels, studioflags, FMOD_INIT_NORMAL, extraDriverData));
@@ -129,8 +129,8 @@ void ezFmod::Startup()
     return;
   }
 
-  UpdateFmod();
-  }
+  UpdateSound();
+}
 
 void ezFmod::Shutdown()
 {
@@ -171,7 +171,7 @@ void ezFmod::SetOverridePlatform(const char* szPlatform)
   m_pData->m_sPlatform = szPlatform;
 }
 
-void ezFmod::UpdateFmod()
+void ezFmod::UpdateSound()
 {
   if (m_pStudioSystem == nullptr)
     return;
@@ -269,7 +269,7 @@ void ezFmod::GameApplicationEventHandler(const ezGameApplicationEvent& e)
 {
   if (e.m_Type == ezGameApplicationEvent::Type::BeforeUpdatePlugins)
   {
-    ezFmod::GetSingleton()->UpdateFmod();
+    ezFmod::GetSingleton()->UpdateSound();
   }
 }
 

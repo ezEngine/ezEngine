@@ -13,7 +13,7 @@ bool ezTelemetry::s_bConnectedToServer = false;
 bool ezTelemetry::s_bConnectedToClient = false;
 bool ezTelemetry::s_bAllowNetworkUpdate = true;
 ezTime ezTelemetry::s_PingToServer;
-ezString ezTelemetry::s_ServerName;
+//ezString ezTelemetry::s_ServerName;
 ezString ezTelemetry::s_ServerIP;
 static bool g_bInitialized = false;
 ezTelemetry::ConnectionMode ezTelemetry::s_ConnectionMode = ezTelemetry::None;
@@ -68,16 +68,16 @@ void ezTelemetry::UpdateNetwork()
           break;
         }
 
-        char szHostIP[64] = "";
-        char szHostName[64] = "";
-
-        enet_address_get_host_ip(&NetworkEvent.peer->address, szHostIP, 63);
-        enet_address_get_host(&NetworkEvent.peer->address, szHostName, 63);
-
         if (s_ConnectionMode == Client)
         {
-          ezTelemetry::s_ServerName = szHostName;
-          ezTelemetry::s_ServerIP   = szHostIP;
+          char szHostIP[64] = "<unknown>";
+          char szHostName[64] = "<unknown>";
+
+          enet_address_get_host_ip(&NetworkEvent.peer->address, szHostIP, 63);
+          //enet_address_get_host(&NetworkEvent.peer->address, szHostName, 63);
+
+          ezTelemetry::s_ServerIP = szHostIP;
+          //ezTelemetry::s_ServerName = szHostName;
 
           // now we are waiting for the server to send its ID
         }

@@ -11,8 +11,8 @@ public:
   /// Calling this before startup allows to override which configuration is used.
   virtual void SetOverridePlatform(const char* szPlatform) = 0;
 
-  /// \brief Has to be called once per frame to update fmod
-  virtual void UpdateFmod() = 0;
+  /// \brief Has to be called once per frame to update all sounds
+  virtual void UpdateSound() = 0;
 
   /// \brief Adjusts the master volume. This affects all sounds, with no exception. Value must be between 0.0f and 1.0f.
   virtual void SetMasterChannelVolume(float volume) = 0;
