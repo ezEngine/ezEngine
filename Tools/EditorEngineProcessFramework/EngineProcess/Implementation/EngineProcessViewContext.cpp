@@ -12,6 +12,7 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <GameEngine/GameApplication/GameApplication.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 
 ezEngineProcessViewContext::ezEngineProcessViewContext(ezEngineProcessDocumentContext* pContext)
   : m_pDocumentContext(pContext)

@@ -14,6 +14,9 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Pipeline/View.h>
 #include <WindowsMixedReality/Graphics/MixedRealityCamera.h>
+#include <RendererCore/Components/CameraComponent.h>
+#include <Core/World/World.h>
+#include <Interfaces/SoundInterface.h>
 
 EZ_IMPLEMENT_SINGLETON(ezMixedRealityFramework);
 
@@ -80,6 +83,13 @@ void ezMixedRealityFramework::GameApplicationEventHandler(const ezGameApplicatio
     if (m_pCameraToSynchronize)
     {
       ezWindowsHolographicSpace::GetSingleton()->SynchronizeCameraPrediction(*m_pCameraToSynchronize);
+
+      // put the camera orientation into the sound listener and enable the listener override mode
+      if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>("ezSoundInterface"))
+      {
+        pSoundInterface->SetListenerOverrideMode(true);
+        pSoundInterface->SetListener(-1, m_pCameraToSynchronize->GetCenterPosition(), m_pCameraToSynchronize->GetCenterDirForwards(), m_pCameraToSynchronize->GetCenterDirUp(), ezVec3::ZeroVector());
+      }
     }
   }
 
@@ -155,6 +165,49 @@ ezViewHandle ezMixedRealityFramework::CreateHolographicView(ezWindowBase* pWindo
   ezGameApplication::GetGameApplicationInstance()->AddWindow(pWindow, hRemoteWindowSwapChain);
 
   return hMainView;
+}
+
+
+void ezMixedRealityFramework::SynchronizeCameraOrientationToCameraObjects(ezWorld* pWorld)
+{
+  ezCameraComponentManager* pCamMan = pWorld->GetComponentManager<ezCameraComponentManager>();
+  if (pCamMan == nullptr)
+    return;
+
+  EZ_LOCK(pWorld->GetWriteMarker());
+
+  for (auto it = pCamMan->GetComponents(); it.IsValid(); ++it)
+  {
+    if (it->IsActiveAndInitialized() && it->GetUsageHint() == ezCameraUsageHint::MainView)
+    {
+      ezGameObject* pOwner = it->GetOwner();
+      
+      SynchronizeCameraOrientationToGameObject(pOwner);
+    }
+  }
+}
+
+void ezMixedRealityFramework::SynchronizeCameraOrientationToGameObject(ezGameObject* pObject)
+{
+  auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
+  if (pHoloSpace->GetCameras().IsEmpty())
+    return;
+
+  if (m_pCameraToSynchronize == nullptr)
+    return;
+
+  ezTransform tGlobal;
+  tGlobal.m_vPosition = m_pCameraToSynchronize->GetCenterPosition();
+  tGlobal.m_vScale.Set(1.0f);
+
+  ezMat3 mRot;
+  mRot.SetColumn(0, m_pCameraToSynchronize->GetCenterDirForwards());
+  mRot.SetColumn(1, m_pCameraToSynchronize->GetCenterDirRight());
+  mRot.SetColumn(2, m_pCameraToSynchronize->GetCenterDirUp());
+
+  tGlobal.m_qRotation.SetFromMat3(mRot);
+
+  pObject->SetGlobalTransform(tGlobal);
 }
 
 #endif

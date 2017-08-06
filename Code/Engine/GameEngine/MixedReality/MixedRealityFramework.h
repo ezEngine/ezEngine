@@ -45,6 +45,9 @@ public:
   /// This happens either when the holographic space is not available or no MR camera was given by the OS.
   ezViewHandle CreateHolographicView(ezWindowBase* pWindow, const ezRenderPipelineResourceHandle& hRenderPipeline, ezCamera* pCamera, ezWorld* pWorld = nullptr);
 
+  void SynchronizeCameraOrientationToCameraObjects(ezWorld* pWorld);
+  void SynchronizeCameraOrientationToGameObject(ezGameObject* pObject);
+
 private:
   void Startup(ezCamera* pCameraForSynchronization);
   void Shutdown();

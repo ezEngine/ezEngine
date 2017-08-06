@@ -267,10 +267,24 @@ ezResult ezWindowsHolographicSpace::SynchronizeCameraPrediction(ezCamera& inout_
   ezWindowsMixedRealityCamera* pHoloCamera = holoCameras[0];
 
   const ezRectFloat viewport = pHoloCamera->GetViewport();
-  inout_Camera.SetStereoProjection(pHoloCamera->GetProjectionLeft(), pHoloCamera->GetProjectionRight(), viewport.width / viewport.height);
+
+  // compensate for the negated forward vector in the view transform below
+  ezMat4 projLeft = pHoloCamera->GetProjectionLeft();
+  ezMat4 projRight = pHoloCamera->GetProjectionRight();
+  projLeft.SetColumn(2, -projLeft.GetColumn(2));
+  projRight.SetColumn(2, -projRight.GetColumn(2));
+
+  inout_Camera.SetStereoProjection(projLeft, projRight, viewport.width / viewport.height);
 
   ezMat4 mViewTransformLeft, mViewTransformRight;
   EZ_SUCCEED_OR_RETURN(pHoloCamera->GetViewTransforms(*GetDefaultReferenceFrame(), mViewTransformLeft, mViewTransformRight));
+
+  // Forward dir is in row 2
+  // Windows holographic uses a right handed coordinate system (OpenGL style)
+  // ez uses a left handed coordinate system
+  // need to negate the forward direction
+  mViewTransformLeft.SetRow(2, -mViewTransformLeft.GetRow(2));
+  mViewTransformRight.SetRow(2, -mViewTransformRight.GetRow(2));
 
   inout_Camera.SetViewMatrix(mViewTransformLeft, ezCameraEye::Left);
   inout_Camera.SetViewMatrix(mViewTransformRight, ezCameraEye::Right);
