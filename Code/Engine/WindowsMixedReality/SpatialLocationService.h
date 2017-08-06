@@ -39,8 +39,8 @@ public:
   ezUniquePtr<ezWindowsSpatialReferenceFrame> CreateStationaryReferenceFrame_CurrentLocation();
 
   /// Creates the simplest possible reference frame - stationary and at the current position and orientation of the headset.
-  /// This overload adds a position offset to the headset position.
-  ezUniquePtr<ezWindowsSpatialReferenceFrame> CreateStationaryReferenceFrame_CurrentLocation(const ezWindowsSpatialReferenceFrame& origin, const ezVec3& vOffset);
+  /// This overload adds an offset to the headset position.
+  ezUniquePtr<ezWindowsSpatialReferenceFrame> CreateStationaryReferenceFrame_CurrentLocation(const ezWindowsSpatialReferenceFrame& origin, const ezTransform& offset);
 
   /// \brief Creates a new anchor at the same position as the given anchor, but with a rotation applied.
   ezUniquePtr<ezWindowsSpatialReferenceFrame> CreateStationaryReferenceFrameRotated(const ezWindowsSpatialReferenceFrame& origin, ezAngle difference);
@@ -57,6 +57,7 @@ public:
   /// \brief Tries to retrieve a spatial anchor by name. Returns null on failure.
   ezUniquePtr<ezWindowsSpatialAnchor> LoadPersistentAnchor(const char* szID);
 
+  bool IsPersistantAnchorDataLoaded() const { return m_pStore != nullptr; }
 
 private:
   void LoadSpatialAnchorMap();

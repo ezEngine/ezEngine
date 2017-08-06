@@ -83,7 +83,7 @@ ezUniquePtr<ezWindowsSpatialReferenceFrame> ezWindowsSpatialLocationService::Cre
 }
 
 
-ezUniquePtr<ezWindowsSpatialReferenceFrame> ezWindowsSpatialLocationService::CreateStationaryReferenceFrame_CurrentLocation(const ezWindowsSpatialReferenceFrame& origin, const ezVec3& vOriginToDest)
+ezUniquePtr<ezWindowsSpatialReferenceFrame> ezWindowsSpatialLocationService::CreateStationaryReferenceFrame_CurrentLocation(const ezWindowsSpatialReferenceFrame& origin, const ezTransform& offset)
 {
   ComPtr<ISpatialCoordinateSystem> pOriginCoords;
   origin.GetInternalCoordinateSystem(pOriginCoords);
@@ -100,10 +100,17 @@ ezUniquePtr<ezWindowsSpatialReferenceFrame> ezWindowsSpatialLocationService::Cre
   const ezMat4 mCurToOrigin = ezUwpUtils::ConvertMat4(pMatCurToOrigin.Get());
 
   Vector3 vCurToDest;
-  ezUwpUtils::ConvertVec3(mCurToOrigin * vOriginToDest, vCurToDest);
+  ezUwpUtils::ConvertVec3(mCurToOrigin * offset.m_vPosition, vCurToDest);
+
+  const ezMat3 mRot = mCurToOrigin.GetRotationalPart() * offset.m_qRotation.GetAsMat3();
+  ezQuat qRot;
+  qRot.SetFromMat3(mRot);
+
+  Quaternion qCurToDest;
+  ezUwpUtils::ConvertQuat(qRot, qCurToDest);
 
   ComPtr<ISpatialStationaryFrameOfReference> pFrame;
-  HRESULT result = m_pSpatialLocator->CreateStationaryFrameOfReferenceAtCurrentLocationWithPosition(vCurToDest, pFrame.GetAddressOf());
+  HRESULT result = m_pSpatialLocator->CreateStationaryFrameOfReferenceAtCurrentLocationWithPositionAndOrientation(vCurToDest, qCurToDest, pFrame.GetAddressOf());
   if (FAILED(result))
   {
     ezLog::Error("Failed to create stationary spatial reference frame at current position: {0}", ezHRESULTtoString(result));
@@ -173,9 +180,17 @@ ezUniquePtr<ezWindowsSpatialAnchor> ezWindowsSpatialLocationService::CreateSpati
   Numerics::Vector3 position;
   ezUwpUtils::ConvertVec3(offset.m_vPosition, position);
 
-  /// \todo Rotation does not seem to work as expected
+  // convert rotation from ez left-handed to MR OpenGL style right handed coordinate system
+  ezMat3 mRot = offset.m_qRotation.GetAsMat3();
+  ezMat3 mNewRot;
+  mNewRot.SetColumn(0, mRot.GetColumn(0));
+  mNewRot.SetColumn(1, mRot.GetColumn(2));
+  mNewRot.SetColumn(2, -mRot.GetColumn(1));
+  ezQuat qRot;
+  qRot.SetFromMat3(mNewRot);
+
   Numerics::Quaternion rotation;
-  ezUwpUtils::ConvertQuat(offset.m_qRotation, rotation);
+  ezUwpUtils::ConvertQuat(qRot, rotation);
 
   ComPtr<ISpatialAnchor> pAnchor;
   if (FAILED(pSpatialAnchorStatics->TryCreateWithPositionRelativeTo(pCoordinateSystem.Get(), position, &pAnchor)))

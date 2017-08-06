@@ -8,10 +8,12 @@
 #include <EditorEngineProcessFramework/EngineProcess/RemoteViewContext.h>
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-#include <GameEngine/MixedReality/MixedRealityFramework.h>
-#include <WindowsMixedReality/HolographicSpace.h>
-#include <WindowsMixedReality/SpatialLocationService.h>
-#include <WindowsMixedReality/SpatialReferenceFrame.h>
+  #include <GameEngine/MixedReality/MixedRealityFramework.h>
+  #include <WindowsMixedReality/HolographicSpace.h>
+  #include <WindowsMixedReality/SpatialLocationService.h>
+  #include <WindowsMixedReality/SpatialReferenceFrame.h>
+  #include <WindowsMixedReality/SpatialAnchor.h>
+  #include <windows.perception.spatial.h>
 #endif
 
 ezEditorEngineProcessAppUWP::ezEditorEngineProcessAppUWP()
@@ -67,18 +69,65 @@ ezRenderPipelineResourceHandle ezEditorEngineProcessAppUWP::CreateDefaultDebugRe
 }
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-void ezEditorEngineProcessAppUWP::SetAnchor(const ezVec3& position)
+void ezEditorEngineProcessAppUWP::SetAnchor(const ezTransform& offset)
 {
   auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
-  if (pHoloSpace->IsAvailable())
-  {
-    auto pCurLoc = pHoloSpace->GetSpatialLocationService().CreateStationaryReferenceFrame_CurrentLocation(*pHoloSpace->GetDefaultReferenceFrame(), position);
+  if (pHoloSpace == nullptr || !pHoloSpace->IsAvailable())
+    return;
 
-    if (pCurLoc)
-    {
-      pHoloSpace->SetDefaultReferenceFrame(std::move(pCurLoc));
-    }
+  auto locService = pHoloSpace->GetSpatialLocationService();
+
+  auto pCurLoc = locService.CreateStationaryReferenceFrame_CurrentLocation(*pHoloSpace->GetDefaultReferenceFrame(), offset);
+
+  if (pCurLoc)
+  {
+    pHoloSpace->SetDefaultReferenceFrame(std::move(pCurLoc));
+
+    auto pAnchor = locService.CreateSpatialAnchor(ezTransform::Identity());
+
+    locService.SavePersistentAnchor(*pAnchor, "EngineProcessOrigin");
   }
 }
+
+void ezEditorEngineProcessAppUWP::LoadAnchor()
+{
+  if (m_bAnchorLoaded)
+    return;
+
+  auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
+  if (pHoloSpace == nullptr || !pHoloSpace->IsAvailable())
+  {
+    m_bAnchorLoaded = true;
+    return;
+  }
+
+  auto locService = pHoloSpace->GetSpatialLocationService();
+  if (!locService.IsPersistantAnchorDataLoaded())
+    return;
+
+  m_bAnchorLoaded = true;
+
+  auto pAnchor = locService.LoadPersistentAnchor("EngineProcessOrigin");
+  if (pAnchor == nullptr)
+    return;
+
+  ComPtr<ABI::Windows::Perception::Spatial::ISpatialCoordinateSystem> pReferenceCoords;
+  pHoloSpace->GetDefaultReferenceFrame()->GetInternalCoordinateSystem(pReferenceCoords);
+
+  ComPtr<ABI::Windows::Perception::Spatial::ISpatialCoordinateSystem> pAnchorCoords;
+  pAnchor->GetInternalCoordinateSystem(pAnchorCoords);
+
+  ComPtr<__FIReference_1_Windows__CFoundation__CNumerics__CMatrix4x4> pMatToAnchor;
+  if (FAILED(pAnchorCoords->TryGetTransformTo(pReferenceCoords.Get(), &pMatToAnchor)) || pMatToAnchor == nullptr)
+    return;
+
+  ezMat4 mMatToAnchor = ezUwpUtils::ConvertMat4(pMatToAnchor.Get());
+  ezTransform tToAnchor;
+  tToAnchor.SetIdentity();
+  tToAnchor.m_vPosition = mMatToAnchor.GetTranslationVector();
+  tToAnchor.m_qRotation.SetFromMat3(mMatToAnchor.GetRotationalPart());
+  SetAnchor(tToAnchor);
+}
+
 #endif
 

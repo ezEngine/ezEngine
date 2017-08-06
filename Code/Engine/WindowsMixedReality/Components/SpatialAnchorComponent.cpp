@@ -113,15 +113,18 @@ void ezSpatialAnchorComponent::Update()
     return;
 
   ezMat4 mFinal = ezUwpUtils::ConvertMat4(mat);
+  ezMat4 mFinalFinal;
+  mFinalFinal.SetColumn(0, mFinal.GetColumn(0));
+  mFinalFinal.SetColumn(1, -mFinal.GetColumn(2));
+  mFinalFinal.SetColumn(2, mFinal.GetColumn(1));
+  mFinalFinal.SetColumn(3, mFinal.GetColumn(3));
   
-  ezVec3 vPos = mFinal.GetTranslationVector();
+  ezVec3 vPos = mFinalFinal.GetTranslationVector();
   ezMath::Swap(vPos.y, vPos.z); // Y up in other coordinate system
   
   ezQuat qRot;
-  qRot.SetIdentity();
-
-  /// \todo Rotation somehow always returns non-identify when loading a persistent anchor
-  //qRot.SetFromMat3(mFinal.GetRotationalPart());
+  //qRot.SetIdentity();
+  qRot.SetFromMat3(mFinalFinal.GetRotationalPart());
 
   GetOwner()->SetGlobalTransform(ezTransform(vPos, qRot));
 }

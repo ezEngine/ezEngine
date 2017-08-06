@@ -99,23 +99,13 @@ void ezIpcChannelEnet::EnetEventHandler(const ezRemoteEvent& e)
 {
   if (e.m_Type == ezRemoteEvent::DisconnectedFromServer)
   {
-    ++m_iReconnectTries;
-
-    if (m_iReconnectTries > 5)
-    {
       ezLog::Info("Disconnected from remote engine process.");
       Disconnect();
-    }
-    else
-    {
-      ezLog::Info("Remote engine process was disconnected.");
-    }
   }
 
   if (e.m_Type == ezRemoteEvent::ConnectedToServer)
   {
     ezLog::Info("Connected to remote engine process.");
-    m_iReconnectTries = 0;
   }
 }
 
