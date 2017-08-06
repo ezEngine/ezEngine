@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Pipeline/Declarations.h>
@@ -19,6 +19,7 @@ public:
   void Update(const ezWorldModule::UpdateContext& context);
 
   const ezCameraComponent* GetCameraByUsageHint(ezCameraUsageHint::Enum usageHint) const;
+  ezCameraComponent* GetCameraByUsageHint(ezCameraUsageHint::Enum usageHint);
 
 private:
   friend class ezCameraComponent;

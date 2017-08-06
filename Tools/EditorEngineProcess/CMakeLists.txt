@@ -48,11 +48,19 @@ SET (ADDITIONAL_DEPENDENCIES
 
 # For plugins to work in UWP builds, they must be direct link dependencies, otherwise they are not packaged with the app.
 if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
-  LIST(APPEND LINK_LIBRARIES
-    InspectorPlugin
-  )
+  LIST(APPEND LINK_LIBRARIES InspectorPlugin)
+
+  if (EZ_BUILD_FMOD)
+  LIST(APPEND LINK_LIBRARIES "FmodPlugin")
+  endif()
+
+  if (EZ_BUILD_PHYSX)
+    LIST(APPEND LINK_LIBRARIES "PhysXPlugin" "PhysXCooking")
+  endif()
 endif()
 
+AddPhysX(TRUE)
+AddFmod()
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)
 

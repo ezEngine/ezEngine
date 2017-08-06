@@ -101,16 +101,41 @@ macro(AddPhysX ENABLE_COOKING_LIB)
     # Make part of the AppX bundle for uwp build
     if (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
         SET (PHYSX_DLLS
+            # unclear what this is needed for
+			${PHYSX_BIN_DIR}/nvToolsExt32_1.dll
+			
+			# not needed
+			#${PHYSX_BIN_DIR}/glut32.dll
+			
+			# Debug
             ${PXSHARED_BIN_DIR}/PxFoundationDEBUG_x86.dll
             ${PXSHARED_BIN_DIR}/PxPvdSDKDEBUG_x86.dll
             ${PHYSX_BIN_DIR}/PhysX3DEBUG_x86.dll
             ${PHYSX_BIN_DIR}/PhysX3CommonDEBUG_x86.dll
             ${PHYSX_BIN_DIR}/PhysX3CharacterKinematicDEBUG_x86.dll
-            ${PHYSX_BIN_DIR}/nvToolsExt32_1.dll
-        )
+
+			# Release
+            ${PXSHARED_BIN_DIR}/PxFoundation_x86.dll
+            ${PXSHARED_BIN_DIR}/PxPvdSDK_x86.dll
+            ${PHYSX_BIN_DIR}/PhysX3_x86.dll
+            ${PHYSX_BIN_DIR}/PhysX3Common_x86.dll
+            ${PHYSX_BIN_DIR}/PhysX3CharacterKinematic_x86.dll
+			
+			# not needed
+			#${PHYSX_BIN_DIR}/PhysXDevice.dll
+			#${PHYSX_BIN_DIR}/PhysX3GpuDEBUG_x86.dll
+			#${PHYSX_BIN_DIR}/PhysX3GpuPROFILE_x86.dll
+			#${PHYSX_BIN_DIR}/PhysX3Gpu_x86.dll
+		)
 
         if (${ENABLE_COOKING_LIB})
-            SET(PHYSX_DLLS ${PHYSX_DLLS} ${PHYSX_BIN_DIR}/PhysX3CookingDEBUG_x86.dll)
+            SET(PHYSX_DLLS ${PHYSX_DLLS}
+				# Debug
+				${PHYSX_BIN_DIR}/PhysX3CookingDEBUG_x86.dll
+				
+				# Release
+				${PHYSX_BIN_DIR}/PhysX3Cooking_x86.dll
+			)
         endif()
 
         set_property(SOURCE ${PHYSX_DLLS} PROPERTY VS_DEPLOYMENT_CONTENT 1)

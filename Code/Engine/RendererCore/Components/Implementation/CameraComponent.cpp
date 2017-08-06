@@ -71,6 +71,19 @@ const ezCameraComponent* ezCameraComponentManager::GetCameraByUsageHint(ezCamera
   return nullptr;
 }
 
+ezCameraComponent* ezCameraComponentManager::GetCameraByUsageHint(ezCameraUsageHint::Enum usageHint)
+{
+  for (auto it = GetComponents(); it.IsValid(); ++it)
+  {
+    if (it->IsActiveAndInitialized() && it->GetUsageHint() == usageHint)
+    {
+      return it;
+    }
+  }
+
+  return nullptr;
+}
+
 void ezCameraComponentManager::OnViewCreated(ezView* pView)
 {
   // Mark all cameras as modified so the new view gets the proper settings

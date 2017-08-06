@@ -11,16 +11,6 @@
 BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
 BUILD_CONDITIONAL(EZ_BUILD_FMOD)
 
-set (EZ_FMOD_DIR "" CACHE PATH "Directory of the Fmod SDK")
-
-include_directories ("${EZ_FMOD_DIR}/api/studio/inc")
-include_directories ("${EZ_FMOD_DIR}/api/fsbank/inc")
-include_directories ("${EZ_FMOD_DIR}/api/lowlevel/inc")
-
-link_directories ("${EZ_FMOD_DIR}/api/studio/lib")
-link_directories ("${EZ_FMOD_DIR}/api/fsbank/lib")
-link_directories ("${EZ_FMOD_DIR}/api/lowlevel/lib")
-
 # Add all the preprocessor definitions that are needed to configure this library
 # add_definitions (-DMY_PREPROCESS_DEFINITION_1)
 # add_definitions (-DMY_PREPROCESS_DEFINITION_2)
@@ -37,34 +27,7 @@ SET (LINK_LIBRARIES
   GameEngine
 )
 
-if (${BUILDSYSTEM_PLATFORM_WINDOWS_UWP})
-
-  SET (LINK_LIBRARIES
-    ${LINK_LIBRARIES}
-    fmod_X86
-    fmodstudio_X86
-  )
-
-elseif (${BUILDSYSTEM_PLATFORM_WINDOWS_DESKTOP})
-
-  if (${BUILDSYSTEM_PLATFORM_64BIT})
-
-    SET (LINK_LIBRARIES
-      ${LINK_LIBRARIES}
-      fmod64_vc
-      fmodstudio64_vc
-    )
-
-  else()
-
-    SET (LINK_LIBRARIES
-      ${LINK_LIBRARIES}
-      fmod_vc
-      fmodstudio_vc
-    )
-  endif()
-
-endif()
+AddFmod()
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)
 
