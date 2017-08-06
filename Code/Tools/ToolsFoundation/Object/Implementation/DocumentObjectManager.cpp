@@ -215,10 +215,16 @@ ezStatus ezDocumentObjectManager::CanAdd(const ezRTTI* pRtti, const ezDocumentOb
     if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
     {
       ezInt32 iCount = accessor.GetCount(szParentProperty);
+      if (!index.CanConvertTo<ezInt32>())
+      {
+        return ezStatus(ezFmt("Cannot add object to the property '{0}', the given index is an invalid ezVariant (Either use '-1' to append or a valid index).", szParentProperty));
+      }
       ezInt32 iNewIndex = index.ConvertTo<ezInt32>();
       if (iNewIndex >(ezInt32)iCount)
         return ezStatus(ezFmt("Cannot add object to its new location '{0}' is out of the bounds of the parent's property range '{1}'!"
           , iNewIndex, (ezInt32)iCount));
+      if (iNewIndex < 0 && iNewIndex != -1)
+        return ezStatus(ezFmt("Cannot add object to the property '{0}', the index '{1}' is not valid (Either use '-1' to append or a valid index).", szParentProperty, iNewIndex));
     }
     if (pProp->GetCategory() == ezPropertyCategory::Map)
     {

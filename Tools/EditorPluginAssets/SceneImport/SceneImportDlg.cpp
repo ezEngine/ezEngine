@@ -57,9 +57,9 @@ namespace
         ezUuid newGameObjectId;
         newGameObjectId.CreateNewUuid();
         if (parentNode)
-          sceneAccessor.AddObject(parentNode, "Children", ezVariant(), ezRTTI::FindTypeByName("ezGameObject"), newGameObjectId);
+          sceneAccessor.AddObject(parentNode, "Children", -1, ezRTTI::FindTypeByName("ezGameObject"), newGameObjectId).LogFailure();
         else
-          sceneAccessor.AddObject(nullptr, static_cast<ezAbstractProperty*>(nullptr), ezVariant(), ezRTTI::FindTypeByName("ezGameObject"), newGameObjectId);
+          sceneAccessor.AddObject(nullptr, static_cast<ezAbstractProperty*>(nullptr), -1, ezRTTI::FindTypeByName("ezGameObject"), newGameObjectId).LogFailure();
         currentGameObject = objectManager.GetObject(newGameObjectId);
       }
       else
@@ -95,7 +95,7 @@ namespace
         if (rawMeshToFile.TryGetValue(object->Cast<ezModelImporter::Mesh>(), meshId))
         {
           ezUuid newMeshComponentId;
-          sceneAccessor.AddObject(currentGameObject, "Components", ezVariant(), ezRTTI::FindTypeByName("ezMeshComponent"), newMeshComponentId);
+          sceneAccessor.AddObject(currentGameObject, "Components", -1, ezRTTI::FindTypeByName("ezMeshComponent"), newMeshComponentId).LogFailure();
           const ezDocumentObject* newMeshComponent = objectManager.GetObject(newMeshComponentId);
           sceneAccessor.SetValue(newMeshComponent, "Mesh", *meshId);
         }
@@ -154,6 +154,15 @@ void ezQtSceneImportDlg::on_accepted()
     ezStringBuilder meshFilename = meshDirectory;
     meshFilename.AppendPath(validFileMeshName);
     meshFilename.Append(".ezMeshAsset");
+
+    {
+      const auto assetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(meshFilename);
+      if (assetInfo != nullptr)
+      {
+        rawMeshToFile.Insert(meshIt.Value().Borrow(), ezConversionUtils::ToString(assetInfo->m_pAssetInfo->m_Info.m_DocumentID, tmp));
+        continue;
+      }
+    }
 
     // Create document.
     ezMeshAssetDocument* meshDocument = ezDynamicCast<ezMeshAssetDocument*>(ezQtEditorApp::GetSingleton()->CreateOrOpenDocument(true, meshFilename, false, false));

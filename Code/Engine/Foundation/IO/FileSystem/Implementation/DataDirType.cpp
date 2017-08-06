@@ -26,9 +26,6 @@ bool ezDataDirectoryType::ExistsFile(const char* szFile, bool bOneSpecificDataDi
 
 void ezDataDirectoryReaderWriterBase::Close()
 {
-  // without this Mutex at least the event broadcasting might fail when doing this multi-threaded
-  EZ_LOCK(ezFileSystem::GetFileSystemMutex());
-
   InternalClose();
 
   ezFileSystem::FileEvent fe;
@@ -36,7 +33,6 @@ void ezDataDirectoryReaderWriterBase::Close()
   fe.m_szFileOrDirectory = GetFilePath ().GetData();
   fe.m_pDataDir = m_pDataDirectory;
   ezFileSystem::s_Data->m_Event.Broadcast(fe);
-
 
   m_pDataDirectory->OnReaderWriterClose(this);
 }

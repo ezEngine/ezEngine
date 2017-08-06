@@ -66,6 +66,7 @@ namespace ezDataDirectory
 
   void FolderType::RemoveDataDirectory()
   {
+    EZ_LOCK(m_ReaderWriterMutex);
     for (ezUInt32 i = 0; i < m_Readers.GetCount(); ++i)
     {
       EZ_ASSERT_DEV(!m_Readers[i]->m_bIsInUse, "Cannot remove a data directory while there are still files open in it.");
@@ -90,6 +91,7 @@ namespace ezDataDirectory
 
   FolderType::~FolderType()
   {
+    EZ_LOCK(m_ReaderWriterMutex);
     for (ezUInt32 i = 0; i < m_Readers.GetCount(); ++i)
       EZ_DEFAULT_DELETE(m_Readers[i]);
 
@@ -204,6 +206,7 @@ namespace ezDataDirectory
 
   void FolderType::OnReaderWriterClose(ezDataDirectoryReaderWriterBase* pClosed)
   {
+    EZ_LOCK(m_ReaderWriterMutex);
     if (pClosed->IsReader())
     {
       FolderReader* pReader = (FolderReader*)pClosed;
@@ -236,25 +239,31 @@ namespace ezDataDirectory
       return nullptr;
 
     FolderReader* pReader = nullptr;
-
-    for (ezUInt32 i = 0; i < m_Readers.GetCount(); ++i)
     {
-      if (!m_Readers[i]->m_bIsInUse)
-        pReader = m_Readers[i];
+      EZ_LOCK(m_ReaderWriterMutex);
+      for (ezUInt32 i = 0; i < m_Readers.GetCount(); ++i)
+      {
+        if (!m_Readers[i]->m_bIsInUse)
+          pReader = m_Readers[i];
+      }
+
+      if (pReader == nullptr)
+      {
+        m_Readers.PushBack(CreateFolderReader());
+        pReader = m_Readers.PeekBack();
+      }
+      pReader->m_bIsInUse = true;
     }
 
-    if (pReader == nullptr)
-    {
-      m_Readers.PushBack(CreateFolderReader());
-      pReader = m_Readers.PeekBack();
-    }
-
-    // if opening the file fails, the reader state is never set to 'used', so nothing else needs to be done
+    // if opening the file fails, the reader's m_bIsInUse needs to be reset.
     if (pReader->Open(sFileToOpen, this) == EZ_FAILURE)
+    {
+      EZ_LOCK(m_ReaderWriterMutex);
+      pReader->m_bIsInUse = false;
       return nullptr;
+    }
 
     // if it succeeds, we return the reader
-    pReader->m_bIsInUse = true;
     return pReader;
   }
 
@@ -291,24 +300,30 @@ namespace ezDataDirectory
   {
     FolderWriter* pWriter = nullptr;
 
-    for (ezUInt32 i = 0; i < m_Writers.GetCount(); ++i)
     {
-      if (!m_Writers[i]->m_bIsInUse)
-        pWriter = m_Writers[i];
-    }
+      EZ_LOCK(m_ReaderWriterMutex);
+      for (ezUInt32 i = 0; i < m_Writers.GetCount(); ++i)
+      {
+        if (!m_Writers[i]->m_bIsInUse)
+          pWriter = m_Writers[i];
+      }
 
-    if (pWriter == nullptr)
-    {
-      m_Writers.PushBack(CreateFolderWriter());
-      pWriter = m_Writers.PeekBack();
+      if (pWriter == nullptr)
+      {
+        m_Writers.PushBack(CreateFolderWriter());
+        pWriter = m_Writers.PeekBack();
+      }
+      pWriter->m_bIsInUse = true;
     }
-
-    // if opening the file fails, the writer state is never set to 'used', so nothing else needs to be done
+    // if opening the file fails, the writer's m_bIsInUse needs to be reset.
     if (pWriter->Open(szFile, this) == EZ_FAILURE)
+    {
+      EZ_LOCK(m_ReaderWriterMutex);
+      pWriter->m_bIsInUse = false;
       return nullptr;
+    }
 
     // if it succeeds, we return the reader
-    pWriter->m_bIsInUse = true;
     return pWriter;
   }
 

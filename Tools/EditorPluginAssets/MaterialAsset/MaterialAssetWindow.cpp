@@ -358,6 +358,7 @@ void ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler(const ezMaterialV
       else
         text.Append(line);
     }
+    UpdatePreview();
   }
 
   m_pOutputLine->setAcceptRichText(true);

@@ -53,9 +53,6 @@ public:
   /// \brief Unregisters a previously registered Event Handler.
   static void UnregisterEventHandler(ezEvent<const FileEvent&>::Handler handler);
 
-  /// \brief Returns the mutex that the filesystem uses.
-  static ezMutex& GetFileSystemMutex();
-
 public:
 
   /// \brief Describes in which mode a data directory is mounted.
@@ -64,6 +61,12 @@ public:
     ReadOnly,
     AllowWrites,
   };
+
+  /// \name Data Directory Modifications
+  ///
+  /// All functions that add / remove data directories are not thread safe and require that this is done
+  /// on a single thread with no other thread accessing anything in ezFileSystem simultaneously.
+  ///@{
 
   /// \brief This factory creates a data directory type, if it can handle the given data directory. Otherwise it returns nullptr.
   ///
@@ -111,6 +114,7 @@ public:
   /// \brief Calls ezDataDirectoryType::ReloadExternalConfigs() on all active data directories.
   static void ReloadAllExternalDataDirectoryConfigs();
 
+  ///@}
   /// \name Special Directories
   ///@{
 
@@ -226,8 +230,8 @@ private:
   {
     ezHybridArray<Factory, 4> m_DataDirFactories;
     ezHybridArray<DataDirectory, 16> m_DataDirectories;
-    ezEvent<const FileEvent&> m_Event;
-    ezMutex m_Mutex;
+
+    ezEvent<const FileEvent&, ezMutex> m_Event;
   };
 
   /// \brief Returns a list of data directory categories that were embedded in the path.

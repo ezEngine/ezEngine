@@ -63,6 +63,7 @@ ezFileserveClient::~ezFileserveClient()
 
 ezResult ezFileserveClient::EnsureConnected(ezTime timeout)
 {
+  EZ_LOCK(m_Mutex);
   if (!s_bEnableFileserve || m_bFailedToConnect)
     return EZ_FAILURE;
 
@@ -116,6 +117,7 @@ ezResult ezFileserveClient::EnsureConnected(ezTime timeout)
 
 void ezFileserveClient::UpdateClient()
 {
+  EZ_LOCK(m_Mutex);
   if (m_Network == nullptr || m_bFailedToConnect || !s_bEnableFileserve)
     return;
 
@@ -129,6 +131,7 @@ void ezFileserveClient::UpdateClient()
 
 void ezFileserveClient::AddServerAddressToTry(const char* szAddress)
 {
+  EZ_LOCK(m_Mutex);
   if (ezStringUtils::IsNullOrEmpty(szAddress))
     return;
 
@@ -143,6 +146,7 @@ void ezFileserveClient::AddServerAddressToTry(const char* szAddress)
 
 void ezFileserveClient::UploadFile(ezUInt16 uiDataDirID, const char* szFile, const ezDynamicArray<ezUInt8>& fileContent)
 {
+  EZ_LOCK(m_Mutex);
   // update meta state and cache
   {
     const ezString& sMountPoint = m_MountedDataDirs[uiDataDirID].m_sMountPoint;
@@ -219,6 +223,7 @@ void ezFileserveClient::UploadFile(ezUInt16 uiDataDirID, const char* szFile, con
 
 void ezFileserveClient::InvalidateFileCache(ezUInt16 uiDataDirID, const char* szFile, ezUInt64 uiHash)
 {
+  EZ_LOCK(m_Mutex);
   auto& cache = m_MountedDataDirs[uiDataDirID].m_CacheStatus[szFile];
   cache.m_FileHash = uiHash;
   cache.m_TimeStamp = 0;
@@ -231,6 +236,7 @@ void ezFileserveClient::InvalidateFileCache(ezUInt16 uiDataDirID, const char* sz
 
 void ezFileserveClient::FillFileStatusCache(const char* szFile)
 {
+  EZ_LOCK(m_Mutex);
   auto it = m_FileDataDir.FindOrAdd(szFile);
   it.Value() = 0xffff; // does not exist
 
@@ -261,7 +267,7 @@ void ezFileserveClient::FillFileStatusCache(const char* szFile)
 void ezFileserveClient::BuildPathInCache(const char* szFile, const char* szMountPoint, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sFullPathMeta) const
 {
   EZ_ASSERT_DEV(!ezPathUtils::IsAbsolutePath(szFile), "Invalid path");
-
+  EZ_LOCK(m_Mutex);
   out_sAbsPath = m_sFileserveCacheFolder;
   out_sAbsPath.AppendPath(szMountPoint, szFile);
   out_sAbsPath.MakeCleanPath();
@@ -271,7 +277,7 @@ void ezFileserveClient::BuildPathInCache(const char* szFile, const char* szMount
   out_sFullPathMeta.MakeCleanPath();
 }
 
-void ezFileserveClient::ComputeDataDirMountPoint(const char* szDataDir, ezStringBuilder& out_sMountPoint) const
+void ezFileserveClient::ComputeDataDirMountPoint(const char* szDataDir, ezStringBuilder& out_sMountPoint)
 {
   EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szDataDir) || ezStringUtils::EndsWith(szDataDir, "/"), "Invalid path");
 
@@ -281,6 +287,7 @@ void ezFileserveClient::ComputeDataDirMountPoint(const char* szDataDir, ezString
 
 void ezFileserveClient::GetFullDataDirCachePath(const char* szDataDir, ezStringBuilder& out_sFullPath, ezStringBuilder& out_sFullPathMeta) const
 {
+  EZ_LOCK(m_Mutex);
   ezStringBuilder sMountPoint;
   ComputeDataDirMountPoint(szDataDir, sMountPoint);
 
@@ -293,6 +300,7 @@ void ezFileserveClient::GetFullDataDirCachePath(const char* szDataDir, ezStringB
 
 void ezFileserveClient::NetworkMsgHandler(ezRemoteMessage& msg)
 {
+  EZ_LOCK(m_Mutex);
   if (msg.GetMessageID() == 'DWNL')
   {
     HandleFileTransferMsg(msg);
@@ -333,6 +341,7 @@ void ezFileserveClient::NetworkMsgHandler(ezRemoteMessage& msg)
 
 ezUInt16 ezFileserveClient::MountDataDirectory(const char* szDataDirectory, const char* szRootName)
 {
+  EZ_LOCK(m_Mutex);
   if (!m_Network->IsConnectedToServer())
     return 0xffff;
 
@@ -364,6 +373,7 @@ ezUInt16 ezFileserveClient::MountDataDirectory(const char* szDataDirectory, cons
 
 void ezFileserveClient::UnmountDataDirectory(ezUInt16 uiDataDir)
 {
+  EZ_LOCK(m_Mutex);
   if (!m_Network->IsConnectedToServer())
     return;
 
@@ -378,6 +388,7 @@ void ezFileserveClient::UnmountDataDirectory(ezUInt16 uiDataDir)
 
 void ezFileserveClient::DeleteFile(ezUInt16 uiDataDir, const char* szFile)
 {
+  EZ_LOCK(m_Mutex);
   if (!m_Network->IsConnectedToServer())
     return;
 
@@ -392,6 +403,7 @@ void ezFileserveClient::DeleteFile(ezUInt16 uiDataDir, const char* szFile)
 
 void ezFileserveClient::HandleFileTransferMsg(ezRemoteMessage &msg)
 {
+  EZ_LOCK(m_Mutex);
   {
     ezUuid fileRequestGuid;
     msg.GetReader() >> fileRequestGuid;
@@ -423,6 +435,7 @@ void ezFileserveClient::HandleFileTransferMsg(ezRemoteMessage &msg)
 
 void ezFileserveClient::HandleFileTransferFinishedMsg(ezRemoteMessage &msg)
 {
+  EZ_LOCK(m_Mutex);
   EZ_SCOPE_EXIT(m_bDownloading = false);
 
   {
@@ -524,6 +537,7 @@ void ezFileserveClient::WriteMetaFile(ezStringBuilder sCachedMetaFile, ezInt64 i
 
 void ezFileserveClient::WriteDownloadToDisk(ezStringBuilder sCachedFile)
 {
+  EZ_LOCK(m_Mutex);
   ezOSFile file;
   if (file.Open(sCachedFile, ezFileMode::Write).Succeeded())
   {
@@ -540,6 +554,7 @@ void ezFileserveClient::WriteDownloadToDisk(ezStringBuilder sCachedFile)
 
 ezResult ezFileserveClient::DownloadFile(ezUInt16 uiDataDirID, const char* szFile, bool bForceThisDataDir)
 {
+  EZ_LOCK(m_Mutex);
   if (m_bDownloading)
   {
     ezLog::Warning("Trying to download a file over fileserve while another file is already downloading. Recursive download is ignored.");
@@ -617,6 +632,7 @@ ezResult ezFileserveClient::DownloadFile(ezUInt16 uiDataDirID, const char* szFil
 
 void ezFileserveClient::DetermineCacheStatus(ezUInt16 uiDataDirID, const char* szFile, FileCacheStatus& out_Status) const
 {
+  EZ_LOCK(m_Mutex);
   ezStringBuilder sAbsPathFile, sAbsPathMeta;
   const auto& dd = m_MountedDataDirs[uiDataDirID];
 
@@ -639,7 +655,7 @@ void ezFileserveClient::DetermineCacheStatus(ezUInt16 uiDataDirID, const char* s
   }
 }
 
-ezResult ezFileserveClient::TryReadFileserveConfig(const char* szFile, ezStringBuilder& out_Result) const
+ezResult ezFileserveClient::TryReadFileserveConfig(const char* szFile, ezStringBuilder& out_Result)
 {
   ezOSFile file;
   if (file.Open(szFile, ezFileMode::Read).Succeeded())
@@ -669,6 +685,7 @@ ezResult ezFileserveClient::TryReadFileserveConfig(const char* szFile, ezStringB
 
 ezResult ezFileserveClient::SearchForServerAddress(ezTime timeout /*= ezTime::Seconds(20)*/)
 {
+  EZ_LOCK(m_Mutex);
   if (!s_bEnableFileserve)
     return EZ_FAILURE;
 
@@ -686,6 +703,7 @@ ezResult ezFileserveClient::SearchForServerAddress(ezTime timeout /*= ezTime::Se
 
 ezResult ezFileserveClient::TryConnectWithFileserver(const char* szAddress, ezTime timeout) const
 {
+  EZ_LOCK(m_Mutex);
   if (ezStringUtils::IsNullOrEmpty(szAddress))
     return EZ_FAILURE;
 
@@ -735,6 +753,7 @@ ezResult ezFileserveClient::TryConnectWithFileserver(const char* szAddress, ezTi
 
 ezResult ezFileserveClient::WaitForServerInfo(ezTime timeout /*= ezTime::Seconds(60.0 * 5)*/)
 {
+  EZ_LOCK(m_Mutex);
   if (!s_bEnableFileserve)
     return EZ_FAILURE;
 
@@ -806,6 +825,7 @@ ezResult ezFileserveClient::WaitForServerInfo(ezTime timeout /*= ezTime::Seconds
 
 ezResult ezFileserveClient::SaveCurrentConnectionInfoToDisk() const
 {
+  EZ_LOCK(m_Mutex);
   ezStringBuilder sFile = ezOSFile::GetUserDataFolder("ezFileserve.txt");
   ezOSFile file;
   EZ_SUCCEED_OR_RETURN(file.Open(sFile, ezFileMode::Write));

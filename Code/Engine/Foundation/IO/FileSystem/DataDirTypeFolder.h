@@ -60,6 +60,7 @@ namespace ezDataDirectory
 
     void LoadRedirectionFile();
 
+    mutable ezMutex m_ReaderWriterMutex; ///< Locks m_Readers / m_Writers as well as the m_bIsInUse flag of each reader / writer.
     ezHybridArray<ezDataDirectory::FolderReader*, 4> m_Readers;
     ezHybridArray<ezDataDirectory::FolderWriter*, 4> m_Writers;
 
