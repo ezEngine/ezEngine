@@ -227,6 +227,16 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     const ezSetupProjectMsgToEngine* pSetupMsg = static_cast<const ezSetupProjectMsgToEngine*>(e.m_pMessage);
     ezSetupProjectMsgToEngine* pSetupMsgNonConst = const_cast<ezSetupProjectMsgToEngine*>(pSetupMsg);
 
+    if (!m_sProjectDirectory.IsEmpty())
+    {
+      // ignore this message, if it is for the same project
+      if (m_sProjectDirectory == pSetupMsg->m_sProjectDir)
+        return;
+
+      ezLog::Error("Engine Process must restart to switch to another project ('{0}' -> '{1}').", m_sProjectDirectory, pSetupMsg->m_sProjectDir);
+      return;
+    }
+
     m_sProjectDirectory = pSetupMsg->m_sProjectDir;
     m_CustomFileSystemConfig = pSetupMsgNonConst->m_FileSystemConfig;
     m_CustomPluginConfig = pSetupMsgNonConst->m_PluginConfig;
