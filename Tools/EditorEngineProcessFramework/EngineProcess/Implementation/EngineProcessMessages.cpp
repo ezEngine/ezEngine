@@ -74,6 +74,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetupProjectMsgToEngine, 1, ezRTTIDefaultAlloc
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShutdownProcessMsgToEngine, 1, ezRTTIDefaultAllocator<ezShutdownProcessMsgToEngine>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectReadyMsgToEditor, 1, ezRTTIDefaultAllocator<ezProjectReadyMsgToEditor> )
 EZ_END_DYNAMIC_REFLECTED_TYPE
 

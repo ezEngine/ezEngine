@@ -208,7 +208,7 @@ ezResult ezWindow::Destroy()
 
   ezResult Res = EZ_SUCCESS;
 
-  EZ_DEFAULT_DELETE(m_pInputDevice);
+  m_pInputDevice = nullptr;
 
   if (m_CreationDescription.m_WindowMode == ezWindowMode::FullscreenFixedResolution)
     ChangeDisplaySettingsW(nullptr, 0);

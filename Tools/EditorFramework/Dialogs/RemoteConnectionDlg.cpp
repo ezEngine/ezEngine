@@ -117,7 +117,7 @@ void ezQtRemoteConnectionDlg::showEvent(QShowEvent* event)
       pAction->setText(QString("%1.%2.%3.%4").arg(m_RecentAddresses[i].part[0]).arg(m_RecentAddresses[i].part[1]).arg(m_RecentAddresses[i].part[2]).arg(m_RecentAddresses[i].part[3]));
       pAction->setData(i);
 
-      connect(pAction, &QAction::triggered, this, &ezQtRemoteConnectionDlg::on_RecentIP_selected);
+      connect(pAction, &QAction::triggered, this, &ezQtRemoteConnectionDlg::onRecentIPselected);
 
       RecentIPs->addAction(pAction);
     }
@@ -131,7 +131,7 @@ void ezQtRemoteConnectionDlg::showEvent(QShowEvent* event)
       pAction->setText(QString("%1.%2.%3.%4").arg(m_RecentFsAddresses[i].part[0]).arg(m_RecentFsAddresses[i].part[1]).arg(m_RecentFsAddresses[i].part[2]).arg(m_RecentFsAddresses[i].part[3]));
       pAction->setData(i);
 
-      connect(pAction, &QAction::triggered, this, &ezQtRemoteConnectionDlg::on_RecentFsIP_selected);
+      connect(pAction, &QAction::triggered, this, &ezQtRemoteConnectionDlg::onRecentFsIPselected);
 
       RecentFsIPs->addAction(pAction);
     }
@@ -200,7 +200,7 @@ QString ezQtRemoteConnectionDlg::GetResultingFsAddress() const
   return QString("%1.%2.%3.%4:1042").arg(m_UsedFsAddress.part[0]).arg(m_UsedFsAddress.part[1]).arg(m_UsedFsAddress.part[2]).arg(m_UsedFsAddress.part[3]);
 }
 
-void ezQtRemoteConnectionDlg::on_RecentIP_selected()
+void ezQtRemoteConnectionDlg::onRecentIPselected()
 {
   QAction* pAction = qobject_cast<QAction*>(sender());
   int ip = pAction->data().toInt();
@@ -208,7 +208,7 @@ void ezQtRemoteConnectionDlg::on_RecentIP_selected()
   SetCurrentIP(m_RecentAddresses[ip]);
 }
 
-void ezQtRemoteConnectionDlg::on_RecentFsIP_selected()
+void ezQtRemoteConnectionDlg::onRecentFsIPselected()
 {
   QAction* pAction = qobject_cast<QAction*>(sender());
   int ip = pAction->data().toInt();

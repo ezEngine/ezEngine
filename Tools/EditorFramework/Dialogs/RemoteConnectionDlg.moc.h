@@ -33,8 +33,8 @@ public:
 private slots:
   void on_ButtonConnect_clicked();
   void on_ButtonLaunchFS_clicked();
-  void on_RecentIP_selected();
-  void on_RecentFsIP_selected();
+  void onRecentIPselected();
+  void onRecentFsIPselected();
 
 private:
   Address m_RecentAddresses[5];

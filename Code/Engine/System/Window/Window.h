@@ -5,6 +5,7 @@
 #include <Foundation/Math/Size.h>
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Types/UniquePtr.h>
 
 class ezOpenDdlWriter;
 class ezOpenDdlReader;
@@ -254,7 +255,7 @@ public:
 #endif
 
   /// \brief Returns the input device that is attached to this window and typically provides mouse / keyboard input.
-  ezStandardInputDevice* GetInputDevice() const { return m_pInputDevice; }
+  ezStandardInputDevice* GetInputDevice() const { return m_pInputDevice.Borrow(); }
 
 protected:
 
@@ -266,7 +267,7 @@ private:
 
   bool m_bInitialized = false;
 
-  ezStandardInputDevice* m_pInputDevice = nullptr;
+  ezUniquePtr<ezStandardInputDevice> m_pInputDevice;
 
   mutable ezWindowHandle m_WindowHandle = ezWindowHandle();
 };

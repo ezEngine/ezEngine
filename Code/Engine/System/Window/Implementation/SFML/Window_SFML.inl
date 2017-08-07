@@ -54,7 +54,7 @@ ezResult ezWindow::Initialize()
 
 ezResult ezWindow::Destroy()
 {
-  EZ_DEFAULT_DELETE(m_pInputDevice);
+  m_pInputDevice = nullptr;
 
   DestroyGraphicsContext();
 

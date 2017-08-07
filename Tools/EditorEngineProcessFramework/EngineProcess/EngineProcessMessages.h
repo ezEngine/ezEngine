@@ -64,6 +64,16 @@ public:
   ezString m_sFileserveAddress; ///< Optionally used for remote processes to tell them with which IP address to connect to the host
 };
 
+/// \brief Sent to remote processes to shut them down.
+/// Local processes are simply killed through QProcess::close, but remote processes have to close themselves.
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezShutdownProcessMsgToEngine : public ezEditorEngineMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezShutdownProcessMsgToEngine, ezEditorEngineMsg);
+
+public:
+
+};
+
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezProjectReadyMsgToEditor : public ezEditorEngineMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezProjectReadyMsgToEditor, ezEditorEngineMsg);

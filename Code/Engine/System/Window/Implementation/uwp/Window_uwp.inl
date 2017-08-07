@@ -7,6 +7,7 @@
 #include <Foundation/Basics/Platform/uwp/UWPUtils.h>
 #include <windows.ui.core.h>
 #include <windows.applicationmodel.core.h>
+#include <Foundation/Types/UniquePtr.h>
 
 namespace
 {
@@ -15,7 +16,7 @@ namespace
     ComPtr<ABI::Windows::UI::Core::ICoreDispatcher> m_dispatcher;
     ComPtr<ABI::Windows::UI::Core::ICoreWindow> m_coreWindow;
   };
-  ezWindowUwpData* s_uwpWindowData = nullptr;
+  ezUniquePtr<ezWindowUwpData> s_uwpWindowData;
 }
 
 ezResult ezWindow::Initialize()
@@ -140,9 +141,7 @@ ezResult ezWindow::Destroy()
 
   EZ_LOG_BLOCK("ezWindow::Destroy");
 
-
-  EZ_DEFAULT_DELETE(m_pInputDevice);
-  EZ_DEFAULT_DELETE(s_uwpWindowData);
+  m_pInputDevice = nullptr;
   s_uwpWindowData = nullptr;
 
 

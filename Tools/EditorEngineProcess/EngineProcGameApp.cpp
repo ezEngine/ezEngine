@@ -221,6 +221,16 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
     return;
   }
 
+  if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezShutdownProcessMsgToEngine>())
+  {
+    // in non-remote mode, the process needs to be properly killed, to prevent error messages
+    // this is taken care of by the editor process
+    if (ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
+      RequestQuit();
+
+    return;
+  }
+
   // Project Messages:
   if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezSetupProjectMsgToEngine>())
   {
