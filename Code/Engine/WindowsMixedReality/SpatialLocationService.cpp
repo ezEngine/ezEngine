@@ -82,8 +82,40 @@ ezUniquePtr<ezWindowsSpatialReferenceFrame> ezWindowsSpatialLocationService::Cre
   return EZ_DEFAULT_NEW(ezWindowsSpatialReferenceFrame, pFrame);
 }
 
+ezUniquePtr<ezWindowsSpatialReferenceFrame> ezWindowsSpatialLocationService::CreateStationaryReferenceFrame_CurrentHeading(const ezWindowsSpatialReferenceFrame& origin, const ezTransform& offset)
+{
+  ComPtr<ISpatialCoordinateSystem> pOriginCoords;
+  origin.GetInternalCoordinateSystem(pOriginCoords);
 
-ezUniquePtr<ezWindowsSpatialReferenceFrame> ezWindowsSpatialLocationService::CreateStationaryReferenceFrame_CurrentLocation(const ezWindowsSpatialReferenceFrame& origin, const ezTransform& offset)
+  ComPtr<ISpatialStationaryFrameOfReference> pCurFrame;
+  m_pSpatialLocator->CreateStationaryFrameOfReferenceAtCurrentLocation(pCurFrame.GetAddressOf());
+
+  ComPtr<ISpatialCoordinateSystem> pCurCoords;
+  pCurFrame->get_CoordinateSystem(&pCurCoords);
+
+  ComPtr<__FIReference_1_Windows__CFoundation__CNumerics__CMatrix4x4> pMatCurToOrigin;
+  pOriginCoords->TryGetTransformTo(pCurCoords.Get(), &pMatCurToOrigin);
+
+  const ezMat4 mCurToOrigin = ezUwpUtils::ConvertMat4(pMatCurToOrigin.Get());
+
+  Vector3 vCurToDest;
+  ezUwpUtils::ConvertVec3(mCurToOrigin * offset.m_vPosition, vCurToDest);
+
+  Quaternion qCurToDest;
+  ezUwpUtils::ConvertQuat(offset.m_qRotation, qCurToDest);
+
+  ComPtr<ISpatialStationaryFrameOfReference> pFrame;
+  HRESULT result = m_pSpatialLocator->CreateStationaryFrameOfReferenceAtCurrentLocationWithPositionAndOrientation(vCurToDest, qCurToDest, pFrame.GetAddressOf());
+  if (FAILED(result))
+  {
+    ezLog::Error("Failed to create stationary spatial reference frame at current position: {0}", ezHRESULTtoString(result));
+    return nullptr;
+  }
+
+  return EZ_DEFAULT_NEW(ezWindowsSpatialReferenceFrame, pFrame);
+}
+
+ezUniquePtr<ezWindowsSpatialReferenceFrame> ezWindowsSpatialLocationService::CreateStationaryReferenceFrame(const ezWindowsSpatialReferenceFrame& origin, const ezTransform& offset)
 {
   ComPtr<ISpatialCoordinateSystem> pOriginCoords;
   origin.GetInternalCoordinateSystem(pOriginCoords);
@@ -121,7 +153,7 @@ ezUniquePtr<ezWindowsSpatialReferenceFrame> ezWindowsSpatialLocationService::Cre
 }
 
 
-ezUniquePtr<ezWindowsSpatialReferenceFrame> ezWindowsSpatialLocationService::CreateStationaryReferenceFrameRotated(const ezWindowsSpatialReferenceFrame& origin, ezAngle difference)
+ezUniquePtr<ezWindowsSpatialReferenceFrame> ezWindowsSpatialLocationService::CreateStationaryReferenceFrame_Rotated(const ezWindowsSpatialReferenceFrame& origin, ezAngle difference)
 {
   const ezVec3 vOriginToDest(0.0f);
   const ezQuat qOriginToDest = ezQuat::IdentityQuaternion();

@@ -14,6 +14,7 @@ public:
   virtual ezRenderPipelineResourceHandle CreateDefaultDebugRenderPipeline() override;
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+  void SetAnchor(const ezVec3& position);
   void SetAnchor(const ezTransform& offset);
   void LoadAnchor();
   bool m_bAnchorLoaded = false;

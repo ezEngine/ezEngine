@@ -62,7 +62,7 @@ void ezEngineProcessGameApplicationUWP::ProcessApplicationInput()
     {
       if (ezTime::Now() - m_HandPressTime < ezTime::Milliseconds(500))
       {
-        m_pEngineProcessApp->SetAnchor(ezTransform(m_vHandStartPosition));
+        m_pEngineProcessApp->SetAnchor(m_vHandStartPosition);
       }
     }
   }

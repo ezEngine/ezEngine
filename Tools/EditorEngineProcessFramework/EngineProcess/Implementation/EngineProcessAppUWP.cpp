@@ -69,6 +69,27 @@ ezRenderPipelineResourceHandle ezEditorEngineProcessAppUWP::CreateDefaultDebugRe
 }
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+
+void ezEditorEngineProcessAppUWP::SetAnchor(const ezVec3& position)
+{
+  auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
+  if (pHoloSpace == nullptr || !pHoloSpace->IsAvailable())
+    return;
+
+  auto locService = pHoloSpace->GetSpatialLocationService();
+
+  auto pCurLoc = locService.CreateStationaryReferenceFrame_CurrentHeading(*pHoloSpace->GetDefaultReferenceFrame(), ezTransform(position));
+
+  if (pCurLoc)
+  {
+    pHoloSpace->SetDefaultReferenceFrame(std::move(pCurLoc));
+
+    auto pAnchor = locService.CreateSpatialAnchor(ezTransform::Identity());
+
+    locService.SavePersistentAnchor(*pAnchor, "EngineProcessOrigin");
+  }
+}
+
 void ezEditorEngineProcessAppUWP::SetAnchor(const ezTransform& offset)
 {
   auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
@@ -77,7 +98,7 @@ void ezEditorEngineProcessAppUWP::SetAnchor(const ezTransform& offset)
 
   auto locService = pHoloSpace->GetSpatialLocationService();
 
-  auto pCurLoc = locService.CreateStationaryReferenceFrame_CurrentLocation(*pHoloSpace->GetDefaultReferenceFrame(), offset);
+  auto pCurLoc = locService.CreateStationaryReferenceFrame(*pHoloSpace->GetDefaultReferenceFrame(), offset);
 
   if (pCurLoc)
   {
