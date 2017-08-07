@@ -4,6 +4,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <QApplication>
 #include <QSettings>
 #include <QtNetwork/QHostInfo>
@@ -14,6 +15,7 @@ public:
   ezEditorApplication()
   {
     EnableMemoryLeakReporting(true);
+    m_pEditorEngineProcessAppDummy = EZ_DEFAULT_NEW(ezEditorEngineProcessApp);
 
     m_pEditorApp = new ezQtEditorApp;
   }
@@ -29,6 +31,8 @@ public:
 
   virtual void AfterCoreShutdown() override
   {
+    m_pEditorEngineProcessAppDummy = nullptr;
+
     ezQtEditorApp::GetSingleton()->DeInitQt();
 
     delete m_pEditorApp;
@@ -107,6 +111,7 @@ public:
 private:
   ezQtEditorApp* m_pEditorApp;
   ezEngineProcessCommunicationChannel m_IPC;
+  ezUniquePtr<ezEditorEngineProcessApp> m_pEditorEngineProcessAppDummy;
 };
 
 EZ_APPLICATION_ENTRY_POINT(ezEditorApplication);
