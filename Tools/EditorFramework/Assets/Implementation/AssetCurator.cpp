@@ -178,7 +178,6 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
       }
     }
     SaveCaches();
-    ProcessAllCoreAssets();
   });
   pInitTask->SetOnTaskFinished([](ezTask* pTask)
   {
@@ -195,7 +194,9 @@ void ezAssetCurator::WaitForInitialize()
   {
     ezThreadUtils::YieldTimeSlice();
   }
+
   EZ_LOCK(m_CuratorMutex);
+  ProcessAllCoreAssets();
   // Broadcast reset.
   {
     ezAssetCuratorEvent e;
