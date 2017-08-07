@@ -155,10 +155,17 @@ void ezWindow::ProcessWindowMessages()
 {
   EZ_ASSERT_RELEASE(s_uwpWindowData != nullptr, "No uwp window data available.");
 
-  HRESULT result = s_uwpWindowData->m_dispatcher->ProcessEvents(ABI::Windows::UI::Core::CoreProcessEventsOption_ProcessAllIfPresent);
-  if (FAILED(result))
+  // Apparently ProcessAllIfPresent does NOT process all events in the queue somehow
+  // if this isn't executed quite often every frame (even at 60 Hz), spatial input events quickly queue up
+  // and are delivered with many seconds delay
+  // as far as I can tell, there is no way to figure out whether there are more queued events
+  for (int i = 0; i < 64; ++i)
   {
-    ezLog::Error("Window event processing failed with error code: {0}", result);
+    HRESULT result = s_uwpWindowData->m_dispatcher->ProcessEvents(ABI::Windows::UI::Core::CoreProcessEventsOption_ProcessAllIfPresent);
+    if (FAILED(result))
+    {
+      ezLog::Error("Window event processing failed with error code: {0}", result);
+    }
   }
 }
 
