@@ -33,6 +33,7 @@ ezGameState::~ezGameState()
 void ezGameState::OnActivation(ezWorld* pWorld)
 {
   m_pMainWorld = pWorld;
+  bool bCreateNewWindow = true;
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
   if ((GetApplication()->GetAppType() == ezGameApplicationType::StandAloneMixedReality ||
@@ -40,30 +41,39 @@ void ezGameState::OnActivation(ezWorld* pWorld)
   {
     m_bMixedRealityMode = true;
   }
+
+  if (GetApplication()->GetAppType() == ezGameApplicationType::EmbeddedInToolMixedReality)
+    bCreateNewWindow = false;
+
 #endif
 
-  CreateMainWindow();
+  // a bit hacky to get this to work with Mixed Reality
+  if (bCreateNewWindow)
+  {
+    CreateMainWindow();
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-  if (m_bMixedRealityMode)
-  {
-    // HololensRenderPipeline.ezRendePipelineAsset
-    auto hRenderPipeline = ezResourceManager::LoadResource<ezRenderPipelineResource>("{ 2fe25ded-776c-7f9e-354f-e4c52a33d125 }");
+    if (m_bMixedRealityMode)
+    {
+      // HololensRenderPipeline.ezRendePipelineAsset
+      auto hRenderPipeline = ezResourceManager::LoadResource<ezRenderPipelineResource>("{ 2fe25ded-776c-7f9e-354f-e4c52a33d125 }");
 
-    auto pHoloFramework = ezMixedRealityFramework::GetSingleton();
-    m_hMainView = pHoloFramework->CreateHolographicView(m_pMainWindow, hRenderPipeline, &m_MainCamera, m_pMainWorld);
-    m_hMainSwapChain = ezGALDevice::GetDefaultDevice()->GetPrimarySwapChain();
-  }
-  else
+      auto pHoloFramework = ezMixedRealityFramework::GetSingleton();
+      m_hMainView = pHoloFramework->CreateHolographicView(m_pMainWindow, hRenderPipeline, &m_MainCamera, m_pMainWorld);
+      m_hMainSwapChain = ezGALDevice::GetDefaultDevice()->GetPrimarySwapChain();
+    }
+    else
 #endif
-  {
-    const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(m_hMainSwapChain);
-    SetupMainView(ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(pSwapChain->GetBackBufferTexture()));
+    {
+      const ezGALSwapChain* pSwapChain = ezGALDevice::GetDefaultDevice()->GetSwapChain(m_hMainSwapChain);
+      SetupMainView(ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(pSwapChain->GetBackBufferTexture()));
+    }
+
+    ConfigureMainCamera();
+
+    ConfigureInputDevices();
   }
 
-  ConfigureMainCamera();
-
-  ConfigureInputDevices();
 
   ConfigureInputActions();
 }

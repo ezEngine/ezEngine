@@ -306,6 +306,9 @@ protected:
   /// \brief Only few applications can have more than one game state (e.g. the editor).
   const ezHybridArray<GameStateData, 4>& GetAllGameStates() const { return m_GameStates; }
 
+  /// \brief Checks whether any GameState exists.
+  bool HasAnyActiveGameState() const;
+
   /// \brief Stores what is given to the constructor
   ezString m_sAppProjectPath;
 

@@ -41,6 +41,7 @@ void ezEngineProcessGameApplicationUWP::ProcessApplicationInput()
 #endif
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+  if (!HasAnyActiveGameState())
   {
     const bool bHandVisible = ezInputManager::GetInputSlotState(ezInputSlot_Spatial_Hand0_Tracked) == ezKeyState::Down;
 

@@ -883,5 +883,17 @@ void ezGameApplication::DoSaveScreenshot(ezImage& image)
   ezTaskSystem::StartSingleTask(pWriteTask, ezTaskPriority::LongRunning);
 }
 
+
+bool ezGameApplication::HasAnyActiveGameState() const
+{
+  for (const auto gs : GetAllGameStates())
+  {
+    if (gs.m_pState != nullptr)
+      return true;
+  }
+
+  return false;
+}
+
 EZ_STATICLINK_FILE(GameFoundation, GameFoundation_GameApplication);
 
