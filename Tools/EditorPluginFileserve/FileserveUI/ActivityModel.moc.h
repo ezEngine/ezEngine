@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <EditorPluginFileserve/Plugin.h>
 #include <Foundation/Containers/Deque.h>
@@ -9,6 +9,7 @@ enum class ezFileserveActivityType
   StartServer,
   StopServer,
   ClientConnect,
+  ClientReconnected,
   ClientDisconnect,
   Mount,
   MountFailed,

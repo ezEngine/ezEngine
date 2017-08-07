@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <EditorPluginFileserve/FileserveUI/ActivityModel.moc.h>
 #include <QTimer>
 #include <QWidget>
@@ -47,6 +47,8 @@ QVariant ezQtFileserveActivityModel::data(const QModelIndex &index, int role /*=
         return "Server Stopped";
       case ezFileserveActivityType::ClientConnect:
         return "Client Connected";
+      case ezFileserveActivityType::ClientReconnected:
+        return "Client Re-connected";
       case ezFileserveActivityType::ClientDisconnect:
         return "Client Disconnect";
       case ezFileserveActivityType::Mount:
@@ -77,6 +79,7 @@ QVariant ezQtFileserveActivityModel::data(const QModelIndex &index, int role /*=
         return QColor::fromRgb(200, 200, 0);
 
       case ezFileserveActivityType::ClientConnect:
+      case ezFileserveActivityType::ClientReconnected:
         return QColor::fromRgb(50, 200, 0);
       case ezFileserveActivityType::ClientDisconnect:
         return QColor::fromRgb(250, 100, 0);

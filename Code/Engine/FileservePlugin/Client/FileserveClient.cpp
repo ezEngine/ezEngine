@@ -52,13 +52,27 @@ ezFileserveClient::ezFileserveClient()
 
 ezFileserveClient::~ezFileserveClient()
 {
+  ShutdownConnection();
+}
+
+void ezFileserveClient::ShutdownConnection()
+{
   if (m_Network)
   {
     ezLog::Dev("Shutting down fileserve client");
 
     m_Network->ShutdownConnection();
-    m_Network.Reset();
+    m_Network = nullptr;
   }
+}
+
+void ezFileserveClient::ClearState()
+{
+  m_bDownloading = false;
+  m_bWaitingForUploadFinished = false;
+  m_CurFileRequestGuid = ezUuid();
+  m_sCurFileRequest.Clear();
+  m_Download.Clear();
 }
 
 ezResult ezFileserveClient::EnsureConnected(ezTime timeout)
@@ -69,7 +83,6 @@ ezResult ezFileserveClient::EnsureConnected(ezTime timeout)
 
   if (m_Network == nullptr)
   {
-    m_bFailedToConnect = true;
     m_Network = EZ_DEFAULT_NEW(ezRemoteInterfaceEnet); /// \todo Somehow abstract this away ?
 
     m_sFileserveCacheFolder = ezOSFile::GetUserDataFolder("ezFileserve/Cache");
@@ -86,6 +99,12 @@ ezResult ezFileserveClient::EnsureConnected(ezTime timeout)
       ezLog::Error("Could not create fileserve cache folder '{0}'", m_sFileserveCacheMetaFolder);
       return EZ_FAILURE;
     }
+  }
+
+  if (!m_Network->IsConnectedToServer())
+  {
+    ClearState();
+    m_bFailedToConnect = true;
 
     if (m_Network->ConnectToServer('EZFS', m_sServerConnectionAddress).Failed())
       return EZ_FAILURE;
@@ -122,7 +141,14 @@ void ezFileserveClient::UpdateClient()
     return;
 
   if (!m_Network->IsConnectedToServer())
+  {
+    if (EnsureConnected().Failed())
+    {
+      ezLog::Error("Fileserve connection was lost and could not be re-established.");
+      ShutdownConnection();
+    }
     return;
+  }
 
   m_CurrentTime = ezTime::Now();
 
@@ -683,13 +709,17 @@ ezResult ezFileserveClient::TryReadFileserveConfig(const char* szFile, ezStringB
   return EZ_FAILURE;
 }
 
-ezResult ezFileserveClient::SearchForServerAddress(ezTime timeout /*= ezTime::Seconds(20)*/)
+ezResult ezFileserveClient::SearchForServerAddress(ezTime timeout /*= ezTime::Seconds(5)*/)
 {
   EZ_LOCK(m_Mutex);
   if (!s_bEnableFileserve)
     return EZ_FAILURE;
 
   ezStringBuilder sAddress;
+
+  // add the command line argument again, in case this was modified since the constructor ran
+  // will not change anything, if this is a duplicate
+  AddServerAddressToTry(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-fs_server", 0, ""));
 
   // go through the available options
   for (ezInt32 idx = m_TryServerAddresses.GetCount() - 1; idx >= 0; --idx)

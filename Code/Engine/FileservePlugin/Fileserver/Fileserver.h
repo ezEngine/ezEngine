@@ -17,6 +17,7 @@ struct ezFileserverEvent
     ServerStarted,
     ServerStopped,
     ClientConnected,
+    ClientReconnected, // connected again after a disconnect
     ClientDisconnected,
     MountDataDir,
     MountDataDirFailed,

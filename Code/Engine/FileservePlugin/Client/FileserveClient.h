@@ -38,7 +38,7 @@ public:
   /// Call GetServerConnectionAddress() to retrieve the address.
   ///
   /// \param timeout Specifies the timeout for checking whether a server can be reached.
-  ezResult SearchForServerAddress(ezTime timeout = ezTime::Seconds(20));
+  ezResult SearchForServerAddress(ezTime timeout = ezTime::Seconds(5));
 
   /// \brief Waits for a Fileserver application to try to connect to this device and send its own information.
   ///
@@ -118,6 +118,8 @@ private:
   static ezResult TryReadFileserveConfig(const char* szFile, ezStringBuilder& out_Result);
   ezResult TryConnectWithFileserver(const char* szAddress, ezTime timeout) const;
   void FillFileStatusCache(const char* szFile);
+  void ShutdownConnection();
+  void ClearState();
 
   mutable ezMutex m_Mutex;
   mutable ezString m_sServerConnectionAddress;
@@ -134,7 +136,6 @@ private:
   ezHybridArray<ezString, 4> m_TryServerAddresses;
 
   ezMap<ezString, ezUInt16> m_FileDataDir;
-
   ezHybridArray<DataDir, 8> m_MountedDataDirs;
 };
 

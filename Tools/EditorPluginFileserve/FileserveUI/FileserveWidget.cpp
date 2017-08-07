@@ -269,6 +269,15 @@ void ezQtFileserveWidget::FileserverEventHandler(const ezFileserverEvent& e)
     }
     break;
 
+  case ezFileserverEvent::Type::ClientReconnected:
+    {
+      LogActivity("", ezFileserveActivityType::ClientReconnected);
+      m_Clients[e.m_uiClientID].m_bConnected = true;
+
+      UpdateClientList();
+    }
+    break;
+
   case ezFileserverEvent::Type::ClientDisconnected:
     {
       LogActivity("", ezFileserveActivityType::ClientDisconnect);

@@ -187,16 +187,6 @@ void ezRemoteInterfaceEnet::InternalUpdateRemoteInterface()
       {
         if (GetRemoteMode() == ezRemoteMode::Client)
         {
-          ezLog::Info("Disconnected from server, trying to reconnect");
-
-          // First wait a bit to ensure that the Server could shut down, if this was a legitimate disconnect
-          ezThreadUtils::Sleep(ezTime::Milliseconds(500));
-
-          // Now try to reconnect. If the Server still exists, fine, connect to that.
-          // If it does not exist anymore, this will connect to the next best Server that can be found.
-          const size_t maxChannels = 2;
-          m_pEnetConnectionToServer = enet_host_connect(m_pEnetHost, &m_EnetServerAddress, maxChannels, GetConnectionToken());
-
           ReportDisconnectedFromServer();
         }
         else

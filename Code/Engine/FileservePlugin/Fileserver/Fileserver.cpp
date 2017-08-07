@@ -155,7 +155,7 @@ void ezFileserver::NetworkEventHandler(const ezRemoteEvent& e)
 
         m_Events.Broadcast(se);
 
-        m_Clients.Remove(e.m_uiOtherAppID);
+        m_Clients[e.m_uiOtherAppID].m_bLostConnection = true;
       }
     }
     break;
@@ -175,6 +175,15 @@ ezFileserveClientContext& ezFileserver::DetermineClient(ezRemoteMessage &msg)
 
     ezFileserverEvent e;
     e.m_Type = ezFileserverEvent::Type::ClientConnected;
+    e.m_uiClientID = client.m_uiApplicationID;
+    m_Events.Broadcast(e);
+  }
+  else if (client.m_bLostConnection)
+  {
+    client.m_bLostConnection = false;
+
+    ezFileserverEvent e;
+    e.m_Type = ezFileserverEvent::Type::ClientReconnected;
     e.m_uiClientID = client.m_uiApplicationID;
     m_Events.Broadcast(e);
   }

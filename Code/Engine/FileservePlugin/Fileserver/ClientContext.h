@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <FileservePlugin/Plugin.h>
 #include <Foundation/Containers/HybridArray.h>
@@ -36,6 +36,7 @@ public:
 
   ezFileserveFileState GetFileStatus(ezUInt16& inout_uiDataDirID, const char* szRequestedFile, FileStatus& inout_Status, ezDynamicArray<ezUInt8>& out_FileContent, bool bForceThisDataDir) const;
 
+  bool m_bLostConnection = false;
   ezUInt32 m_uiApplicationID = 0;
   ezHybridArray<DataDir, 8> m_MountedDataDirs;
 };

@@ -11,13 +11,20 @@ ezRemoteInterface::~ezRemoteInterface()
 
 ezResult ezRemoteInterface::CreateConnection(ezUInt32 uiConnectionToken, ezRemoteMode mode, const char* szServerAddress, bool bStartUpdateThread)
 {
+  ezUInt32 uiPrevID = m_uiApplicationID;
   ShutdownConnection();
+  m_uiApplicationID = uiPrevID;
 
   EZ_LOCK(GetMutex());
 
   m_uiConnectionToken = uiConnectionToken;
-  m_uiApplicationID = (ezUInt32)ezTime::Now().GetSeconds();
   m_sServerAddress = szServerAddress;
+
+  if (m_uiApplicationID == 0)
+  {
+    // create a 'unique' ID to identify this application
+    m_uiApplicationID = (ezUInt32)ezTime::Now().GetSeconds();
+  }
 
   if (InternalCreateConnection(mode, szServerAddress).Failed())
   {
