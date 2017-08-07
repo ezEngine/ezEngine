@@ -561,7 +561,9 @@ const ezAssetCurator::ezLockedSubAsset ezAssetCurator::FindSubAsset(const char* 
   const char* szSeparator = ezStringUtils::FindSubString(szPathOrGuid, "|");
   if (szSeparator != nullptr)
   {
-    ezStringView mainAsset(szPathOrGuid, szSeparator);
+    ezStringBuilder mainAsset;
+    mainAsset.SetSubString_FromTo(szPathOrGuid, szSeparator);
+
     ezStringView subAsset(szSeparator + 1);
     if (ezAssetInfo* pAssetInfo = FindAsset(mainAsset))
     {

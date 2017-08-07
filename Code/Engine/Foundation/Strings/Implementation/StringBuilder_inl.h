@@ -48,7 +48,7 @@ inline ezStringBuilder::ezStringBuilder(const ezStringView& rhs, ezAllocatorBase
   *this = rhs;
 }
 
-inline ezAllocatorBase* ezStringBuilder::GetAllocator() const
+EZ_ALWAYS_INLINE ezAllocatorBase* ezStringBuilder::GetAllocator() const
 {
   return m_Data.GetAllocator();
 }
@@ -58,41 +58,41 @@ EZ_ALWAYS_INLINE void ezStringBuilder::operator=(const char* szUTF8)
   Set(szUTF8);
 }
 
-inline void ezStringBuilder::operator=(const wchar_t* szWChar)
+EZ_FORCE_INLINE void ezStringBuilder::operator=(const wchar_t* szWChar)
 {
   // fine to do this, szWChar can never come from the stringbuilder's own data array
   Clear();
   Append(szWChar);
 }
 
-inline void ezStringBuilder::operator=(const ezStringBuilder& rhs)
+EZ_ALWAYS_INLINE void ezStringBuilder::operator=(const ezStringBuilder& rhs)
 {
   m_uiCharacterCount = rhs.m_uiCharacterCount;
   m_Data = rhs.m_Data;
 }
 
-inline void ezStringBuilder::operator=(ezStringBuilder&& rhs)
+EZ_ALWAYS_INLINE void ezStringBuilder::operator=(ezStringBuilder&& rhs)
 {
   m_uiCharacterCount = rhs.m_uiCharacterCount;
   m_Data = std::move(rhs.m_Data);
 }
 
-inline ezUInt32 ezStringBuilder::GetElementCount() const
+EZ_ALWAYS_INLINE ezUInt32 ezStringBuilder::GetElementCount() const
 {
   return m_Data.GetCount() - 1; // exclude the '\0' terminator
 }
 
-inline ezUInt32 ezStringBuilder::GetCharacterCount() const
+EZ_ALWAYS_INLINE ezUInt32 ezStringBuilder::GetCharacterCount() const
 {
   return m_uiCharacterCount;
 }
 
-inline ezStringBuilder::operator ezStringView() const
+EZ_ALWAYS_INLINE ezStringBuilder::operator ezStringView() const
 {
   return ezStringView(GetData(), GetData() + GetElementCount());
 }
 
-inline void ezStringBuilder::Clear()
+EZ_FORCE_INLINE void ezStringBuilder::Clear()
 {
   m_uiCharacterCount = 0;
   m_Data.SetCountUninitialized(1);
@@ -215,17 +215,17 @@ EZ_ALWAYS_INLINE bool ezStringBuilder::IsPureASCII() const
   return m_uiCharacterCount + 1 == m_Data.GetCount();
 }
 
-inline void ezStringBuilder::Reserve(ezUInt32 uiNumElements)
+EZ_ALWAYS_INLINE void ezStringBuilder::Reserve(ezUInt32 uiNumElements)
 {
   m_Data.Reserve(uiNumElements);
 }
 
-inline void ezStringBuilder::Insert (const char* szInsertAtPos, const ezStringView& szTextToInsert)
+EZ_ALWAYS_INLINE void ezStringBuilder::Insert (const char* szInsertAtPos, const ezStringView& szTextToInsert)
 {
   ReplaceSubString(szInsertAtPos, szInsertAtPos, szTextToInsert);
 }
 
-inline void ezStringBuilder::Remove(const char* szRemoveFromPos, const char* szRemoveToPos)
+EZ_ALWAYS_INLINE void ezStringBuilder::Remove(const char* szRemoveFromPos, const char* szRemoveToPos)
 {
   ReplaceSubString(szRemoveFromPos, szRemoveToPos, ezStringView());
 }
@@ -291,52 +291,52 @@ void ezStringBuilder::Split(bool bReturnEmptyStrings, Container& Output, const c
   }
 }
 
-inline bool ezStringBuilder::HasAnyExtension() const
+EZ_FORCE_INLINE bool ezStringBuilder::HasAnyExtension() const
 {
   return ezPathUtils::HasAnyExtension(GetData(), GetData() + GetElementCount());
 }
 
-inline bool ezStringBuilder::HasExtension(const char* szExtension) const
+EZ_FORCE_INLINE bool ezStringBuilder::HasExtension(const char* szExtension) const
 {
   return ezPathUtils::HasExtension(GetData(), szExtension, GetData() + GetElementCount());
 }
 
-inline ezStringView ezStringBuilder::GetFileExtension() const
+EZ_FORCE_INLINE ezStringView ezStringBuilder::GetFileExtension() const
 {
   return ezPathUtils::GetFileExtension(GetData(), GetData() + GetElementCount());
 }
 
-inline ezStringView ezStringBuilder::GetFileName() const
+EZ_FORCE_INLINE ezStringView ezStringBuilder::GetFileName() const
 {
   return ezPathUtils::GetFileName(GetData(), GetData() + GetElementCount());
 }
 
-inline ezStringView ezStringBuilder::GetFileNameAndExtension() const
+EZ_FORCE_INLINE ezStringView ezStringBuilder::GetFileNameAndExtension() const
 {
   return ezPathUtils::GetFileNameAndExtension(GetData(), GetData() + GetElementCount());
 }
 
-inline ezStringView ezStringBuilder::GetFileDirectory() const
+EZ_FORCE_INLINE ezStringView ezStringBuilder::GetFileDirectory() const
 {
   return ezPathUtils::GetFileDirectory(GetData(), GetData() + GetElementCount());
 }
 
-inline bool ezStringBuilder::IsAbsolutePath() const
+EZ_FORCE_INLINE bool ezStringBuilder::IsAbsolutePath() const
 {
   return ezPathUtils::IsAbsolutePath(GetData());
 }
 
-inline bool ezStringBuilder::IsRelativePath() const
+EZ_FORCE_INLINE bool ezStringBuilder::IsRelativePath() const
 {
   return ezPathUtils::IsRelativePath(GetData());
 }
 
-inline bool ezStringBuilder::IsRootedPath() const
+EZ_FORCE_INLINE bool ezStringBuilder::IsRootedPath() const
 {
   return ezPathUtils::IsRootedPath(GetData());
 }
 
-inline ezStringView ezStringBuilder::GetRootedPathRootName() const
+EZ_FORCE_INLINE ezStringView ezStringBuilder::GetRootedPathRootName() const
 {
   return ezPathUtils::GetRootedPathRootName(GetData());
 }
