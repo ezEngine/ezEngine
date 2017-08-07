@@ -12,6 +12,7 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 
 ezUInt32 ezRemoteEngineProcessViewContext::s_uiActiveViewID = 0;
+ezRemoteEngineProcessViewContext* ezRemoteEngineProcessViewContext::s_pActiveRemoteViewContext = nullptr;
 
 ezRemoteEngineProcessViewContext::ezRemoteEngineProcessViewContext(ezEngineProcessDocumentContext* pContext)
   : ezEngineProcessViewContext(pContext)
@@ -21,10 +22,15 @@ ezRemoteEngineProcessViewContext::ezRemoteEngineProcessViewContext(ezEngineProce
 
 ezRemoteEngineProcessViewContext::~ezRemoteEngineProcessViewContext()
 {
-  ezView* pView = nullptr;
-  if (ezRenderWorld::TryGetView(m_hView, pView))
+  if (s_pActiveRemoteViewContext == this)
   {
-    pView->SetWorld(nullptr);
+    s_pActiveRemoteViewContext = nullptr;
+
+    ezView* pView = nullptr;
+    if (ezRenderWorld::TryGetView(m_hView, pView))
+    {
+      pView->SetWorld(nullptr);
+    }
   }
 
   // make sure the base class destructor doesn't destroy the view
@@ -52,6 +58,8 @@ void ezRemoteEngineProcessViewContext::HandleViewMessage(const ezEditorEngineVie
       m_hView = ezEditorEngineProcessApp::GetSingleton()->CreateRemoteWindowAndView(&m_Camera);
     }
 
+    s_pActiveRemoteViewContext = this;
+
     ezView* pView = nullptr;
     if (ezRenderWorld::TryGetView(m_hView, pView))
     {
@@ -74,6 +82,29 @@ void ezRemoteEngineProcessViewContext::HandleViewMessage(const ezEditorEngineVie
 
     // skip the on-message redraw, in remote mode it will just render as fast as it can
     //Redraw(false);
+
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+    auto pHoloFramework = ezMixedRealityFramework::GetSingleton();
+    if (pHoloFramework)
+    {
+      if (pMsg2->m_bUseCameraTransformOnDevice)
+      {
+        ezMat4 m = pMsg2->m_ViewMatrix;
+        m.SetRow(1, -pMsg2->m_ViewMatrix.GetRow(2));
+        m.SetRow(2, pMsg2->m_ViewMatrix.GetRow(1));
+
+        ezTransform tf;
+        tf.SetFromMat4(m);
+        tf.m_vScale.Set(0.5f / (1.0f + tf.m_vPosition.GetLength()));
+        tf.m_vPosition.SetZero();
+        pHoloFramework->SetAdditionalCameraTransform(tf);
+      }
+      else
+      {
+        pHoloFramework->SetAdditionalCameraTransform(ezTransform::Identity());
+      }
+    }
+#endif
   }
 }
 

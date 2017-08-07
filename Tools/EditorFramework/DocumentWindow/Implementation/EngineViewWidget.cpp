@@ -94,6 +94,7 @@ void ezQtEngineViewWidget::SyncToEngine()
   cam.m_fNearPlane = m_pViewConfig->m_Camera.GetNearPlane();
   cam.m_fFarPlane = m_pViewConfig->m_Camera.GetFarPlane();
   cam.m_iCameraMode = (ezInt8)m_pViewConfig->m_Camera.GetCameraMode();
+  cam.m_bUseCameraTransformOnDevice = m_pViewConfig->m_bUseCameraTransformOnDevice;
   cam.m_fFovOrDim = fov;
   cam.m_vDirForwards = m_pViewConfig->m_Camera.GetCenterDirForwards();
   cam.m_vDirUp = m_pViewConfig->m_Camera.GetCenterDirUp();

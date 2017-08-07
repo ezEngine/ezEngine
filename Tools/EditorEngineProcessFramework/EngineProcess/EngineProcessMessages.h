@@ -199,6 +199,7 @@ public:
   ezUInt16 m_uiWindowHeight;
   bool m_bUpdatePickingData;
   bool m_bEnablePickingSelected;
+  bool m_bUseCameraTransformOnDevice = true;
 
   ezInt8 m_iCameraMode; ///< ezCameraMode::Enum
   float m_fNearPlane;

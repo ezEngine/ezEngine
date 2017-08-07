@@ -84,10 +84,16 @@ void ezMixedRealityFramework::GameApplicationEventHandler(const ezGameApplicatio
     {
       ezWindowsHolographicSpace::GetSingleton()->SynchronizeCameraPrediction(*m_pCameraToSynchronize);
 
+      const ezMat4 mAdd = m_AdditionalCameraTransform.GetAsMat4();
+
+      const ezMat4 viewL = m_pCameraToSynchronize->GetViewMatrix(ezCameraEye::Left) * mAdd;
+      const ezMat4 viewR = m_pCameraToSynchronize->GetViewMatrix(ezCameraEye::Right) * mAdd;
+      m_pCameraToSynchronize->SetViewMatrix(viewL, ezCameraEye::Left);
+      m_pCameraToSynchronize->SetViewMatrix(viewR, ezCameraEye::Right);
+
       // put the camera orientation into the sound listener and enable the listener override mode
       if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>("ezSoundInterface"))
       {
-        pSoundInterface->SetListenerOverrideMode(true);
         pSoundInterface->SetListener(-1, m_pCameraToSynchronize->GetCenterPosition(), m_pCameraToSynchronize->GetCenterDirForwards(), m_pCameraToSynchronize->GetCenterDirUp(), ezVec3::ZeroVector());
       }
     }
@@ -115,7 +121,23 @@ void ezMixedRealityFramework::SetCameraForPredictionSynchronization(ezCamera* pC
     return;
 
   EZ_ASSERT_DEV(pCamera == nullptr || pCamera->GetCameraMode() == ezCameraMode::Stereo, "Incorrect camera mode. Should be 'Stereo'.");
+
   m_pCameraToSynchronize = pCamera;
+  m_AdditionalCameraTransform.SetIdentity();
+
+  if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>("ezSoundInterface"))
+  {
+    if (pCamera != nullptr)
+    {
+      pSoundInterface->SetListenerOverrideMode(true);
+    }
+  }
+}
+
+
+void ezMixedRealityFramework::SetAdditionalCameraTransform(const ezTransform& transform)
+{
+  m_AdditionalCameraTransform = transform;
 }
 
 ezViewHandle ezMixedRealityFramework::CreateHolographicView(ezWindowBase* pWindow, const ezRenderPipelineResourceHandle& hRenderPipeline, ezCamera* pCamera, ezWorld* pWorld /*= nullptr*/)

@@ -17,5 +17,6 @@ protected:
   virtual ezViewHandle CreateView() override;
 
   static ezUInt32 s_uiActiveViewID;
+  static ezRemoteEngineProcessViewContext* s_pActiveRemoteViewContext;
 };
 

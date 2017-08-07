@@ -30,6 +30,7 @@
     <file>Icons/WindowConfig16.png</file>
     <file>Icons/SwitchToRemoteProcess16.png</file>
     <file>Icons/Fileserve16.png</file>
+	<file>Icons/LinkDeviceCamera16.png</file>
   </qresource>
   <qresource prefix="AssetIcons">
     <file>All.png</file>

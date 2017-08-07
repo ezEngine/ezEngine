@@ -24,6 +24,7 @@ public:
   static ezActionDescriptorHandle s_hPerspective;
   static ezActionDescriptorHandle s_hCameraUsageHint;
   static ezActionDescriptorHandle s_hActivateRemoteProcess;
+  static ezActionDescriptorHandle s_hLinkDeviceCamera;
 };
 
 ///
@@ -63,6 +64,7 @@ public:
   enum class ButtonType
   {
     ActivateRemoteProcess,
+    LinkDeviceCamera,
   };
 
   ezViewAction(const ezActionContext& context, const char* szName, ButtonType button);

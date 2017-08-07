@@ -13,6 +13,7 @@ ezActionDescriptorHandle ezViewActions::s_hRenderMode;
 ezActionDescriptorHandle ezViewActions::s_hPerspective;
 ezActionDescriptorHandle ezViewActions::s_hCameraUsageHint;
 ezActionDescriptorHandle ezViewActions::s_hActivateRemoteProcess;
+ezActionDescriptorHandle ezViewActions::s_hLinkDeviceCamera;
 
 
 void ezViewActions::RegisterActions()
@@ -21,6 +22,7 @@ void ezViewActions::RegisterActions()
   s_hPerspective = EZ_REGISTER_DYNAMIC_MENU("View.RenderPerspective", ezPerspectiveAction, ":/EditorFramework/Icons/Perspective.png");
   s_hCameraUsageHint = EZ_REGISTER_DYNAMIC_MENU("View.CameraUsageHint", ezCameraUsageHintAction, ":/EditorFramework/Icons/Tag16.png");
   s_hActivateRemoteProcess = EZ_REGISTER_ACTION_1("View.ActivateRemoteProcess", ezActionScope::Window, "View", "", ezViewAction, ezViewAction::ButtonType::ActivateRemoteProcess);
+  s_hLinkDeviceCamera = EZ_REGISTER_ACTION_1("View.LinkDeviceCamera", ezActionScope::Window, "View", "", ezViewAction, ezViewAction::ButtonType::LinkDeviceCamera);
 }
 
 void ezViewActions::UnregisterActions()
@@ -29,6 +31,7 @@ void ezViewActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hPerspective);
   ezActionManager::UnregisterAction(s_hCameraUsageHint);
   ezActionManager::UnregisterAction(s_hActivateRemoteProcess);
+  ezActionManager::UnregisterAction(s_hLinkDeviceCamera);
 }
 
 void ezViewActions::MapActions(const char* szMapping, const char* szPath, ezUInt32 flags)
@@ -46,7 +49,10 @@ void ezViewActions::MapActions(const char* szMapping, const char* szPath, ezUInt
     pMap->MapAction(s_hCameraUsageHint, szPath, 3.0f);
 
   if (flags & Flags::ActivateRemoteProcess)
+  {
     pMap->MapAction(s_hActivateRemoteProcess, szPath, 4.0f);
+    pMap->MapAction(s_hLinkDeviceCamera, szPath, 5.0f);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -149,11 +155,17 @@ ezViewAction::ezViewAction(const ezActionContext& context, const char* szName, B
   : ezButtonAction(context, szName, false, "")
 {
   m_ButtonType = button;
+  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(m_Context.m_pWindow);
 
   switch (m_ButtonType)
   {
   case ezViewAction::ButtonType::ActivateRemoteProcess:
     SetIconPath(":/EditorFramework/Icons/SwitchToRemoteProcess16.png");
+    break;
+  case ezViewAction::ButtonType::LinkDeviceCamera:
+    SetIconPath(":/EditorFramework/Icons/LinkDeviceCamera16.png");
+    SetCheckable(true);
+    SetChecked(pView->m_pViewConfig->m_bUseCameraTransformOnDevice);
     break;
   }
 }
@@ -170,6 +182,14 @@ void ezViewAction::Execute(const ezVariant& value)
   {
   case ezViewAction::ButtonType::ActivateRemoteProcess:
     {
+      ezEditorEngineProcessConnection::GetSingleton()->ActivateRemoteProcess(m_Context.m_pDocument, pView->GetViewID());
+    }
+    break;
+
+  case ezViewAction::ButtonType::LinkDeviceCamera:
+    {
+      pView->m_pViewConfig->m_bUseCameraTransformOnDevice = !pView->m_pViewConfig->m_bUseCameraTransformOnDevice;
+      SetChecked(pView->m_pViewConfig->m_bUseCameraTransformOnDevice);
       ezEditorEngineProcessConnection::GetSingleton()->ActivateRemoteProcess(m_Context.m_pDocument, pView->GetViewID());
     }
     break;

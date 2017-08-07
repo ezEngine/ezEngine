@@ -28,6 +28,8 @@ public:
   /// latest prediction values at the right time every frame.
   void SetCameraForPredictionSynchronization(ezCamera* pCamera);
 
+  void SetAdditionalCameraTransform(const ezTransform& transform);
+
   ezCamera* GetCameraForPredictionSynchronization() { return m_pCameraToSynchronize; }
 
   ezSurfaceReconstructionMeshManager& GetSpatialMappingManager() const { return *m_pSpatialMappingManager; }
@@ -56,6 +58,7 @@ private:
 
   // the camera object that will get the head tracking data applied every frame
   ezCamera* m_pCameraToSynchronize = nullptr;
+  ezTransform m_AdditionalCameraTransform;
 
   // only set when the MR framework created it itself
   ezUniquePtr<ezWindowsHolographicSpace> m_pHolospaceToDestroy;
