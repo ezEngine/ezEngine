@@ -67,7 +67,7 @@ private:
   void CreateSurfaceObserver();
   void UpdateSurface(const ezUuid& guid, ABI::Windows::Perception::Spatial::Surfaces::ISpatialSurfaceInfo* pSurfaceInfo);
   void UpdateSurfaceMesh(const ezUuid& guid, ABI::Windows::Perception::Spatial::Surfaces::ISpatialSurfaceMesh* pMesh);
-  void UpdateMeshData(ezMeshBufferResourceDescriptor& mb, ABI::Windows::Perception::Spatial::Surfaces::ISpatialSurfaceMesh* pMesh);
+  ezResult UpdateMeshData(ezMeshBufferResourceDescriptor& mb, ABI::Windows::Perception::Spatial::Surfaces::ISpatialSurfaceMesh* pMesh);
 
   void ClearSurfaceMesh(const ezUuid& guid);
 

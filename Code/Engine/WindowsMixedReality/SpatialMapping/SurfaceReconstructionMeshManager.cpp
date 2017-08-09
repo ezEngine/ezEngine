@@ -66,6 +66,8 @@ void ezSurfaceReconstructionMeshManager::LogSupportedFormats()
 
 void ezSurfaceReconstructionMeshManager::RequestSpatialMappingAccess()
 {
+  ezLog::Info("Requesting spatial mapping access");
+
   ComPtr<Surfaces::ISpatialSurfaceObserverStatics> pSurfaceObserverStatics;
   ezUwpUtils::RetrieveStatics(RuntimeClass_Windows_Perception_Spatial_Surfaces_SpatialSurfaceObserver, pSurfaceObserverStatics);
 
@@ -85,15 +87,28 @@ void ezSurfaceReconstructionMeshManager::RequestSpatialMappingAccess()
 
     ezUwpUtils::ezWinRtPutCompleted<SpatialPerceptionAccessStatus, SpatialPerceptionAccessStatus>(status, [this](SpatialPerceptionAccessStatus result)
     {
-      if (result == SpatialPerceptionAccessStatus_Allowed)
+      switch (result)
       {
+      case SpatialPerceptionAccessStatus_Allowed:
+      
         m_SrmAvailability = SrmAvailability::Available;
-        ezLog::Info("Spatial Surfaces are available.");
-      }
-      else
-      {
+        ezLog::Info("Spatial Surfaces Access available.");
+        break;
+
+      case SpatialPerceptionAccessStatus_DeniedBySystem:
         m_SrmAvailability = SrmAvailability::NotAvailable;
-        ezLog::Error("Spatial Surfaces are not available.");
+        ezLog::Error("Spatial Surface Access denied by System. This usually means the app does not contain the necessary capability flag in its manifest.");
+        break;
+
+      case SpatialPerceptionAccessStatus_DeniedByUser:
+        m_SrmAvailability = SrmAvailability::NotAvailable;
+        ezLog::Error("Spatial Surface Access denied by User.");
+        break;
+
+      case SpatialPerceptionAccessStatus_Unspecified:
+        m_SrmAvailability = SrmAvailability::NotAvailable;
+        ezLog::Error("Spatial Surface Access unspecified.");
+        break;
       }
 
       ezSrmManagerEvent e;
@@ -101,7 +116,7 @@ void ezSurfaceReconstructionMeshManager::RequestSpatialMappingAccess()
       e.m_Type = ezSrmManagerEvent::Type::AvailabilityChanged;
       m_Events.Broadcast(e);
 
-      if (result == SpatialPerceptionAccessStatus_Allowed)
+      if (m_SrmAvailability == SrmAvailability::Available)
       {
         CreateSurfaceObserver();
       }
@@ -260,7 +275,11 @@ void ezSurfaceReconstructionMeshManager::UpdateSurfaceMesh(const ezUuid& guid, S
   }
 
   ezMeshBufferResourceDescriptor& mb = surface.m_MeshData;
-  UpdateMeshData(mb, pMesh);
+  if (UpdateMeshData(mb, pMesh).Failed())
+  {
+    ClearSurfaceMesh(guid);
+    return;
+  }
 
   {
     ezSrmManagerEvent e;
@@ -271,7 +290,7 @@ void ezSurfaceReconstructionMeshManager::UpdateSurfaceMesh(const ezUuid& guid, S
   }
 }
 
-void ezSurfaceReconstructionMeshManager::UpdateMeshData(ezMeshBufferResourceDescriptor& mb, Surfaces::ISpatialSurfaceMesh* pMesh)
+ezResult ezSurfaceReconstructionMeshManager::UpdateMeshData(ezMeshBufferResourceDescriptor& mb, Surfaces::ISpatialSurfaceMesh* pMesh)
 {
   mb.Clear();
 
@@ -292,6 +311,9 @@ void ezSurfaceReconstructionMeshManager::UpdateMeshData(ezMeshBufferResourceDesc
 
   ComPtr<__FIReference_1_Windows__CFoundation__CNumerics__CMatrix4x4> pRelMat;
   pCoordSys->TryGetTransformTo(pRefFrame.Get(), &pRelMat);
+
+  if (pRelMat == nullptr)
+    return EZ_FAILURE;
 
   const ezMat4 relMat = ezUwpUtils::ConvertMat4(pRelMat.Get());
 
@@ -341,6 +363,7 @@ void ezSurfaceReconstructionMeshManager::UpdateMeshData(ezMeshBufferResourceDesc
   }
 
   mb.ComputeBounds();
+  return EZ_SUCCESS;
 }
 
 void ezSurfaceReconstructionMeshManager::ClearSurfaceMesh(const ezUuid& guid)

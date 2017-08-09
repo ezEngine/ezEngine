@@ -31,6 +31,7 @@
   <Capabilities>
   <Capability Name="internetClientServer" />
   <Capability Name="privateNetworkClientServer" />
+  <uap2:Capability Name="spatialPerception" />
   @EXTRA_APP_CAPABILITIES@
   </Capabilities>
 </Package>
