@@ -1,13 +1,16 @@
 ﻿#include <PCH.h>
-#include <WindowsMixedReality/Components/SpatialAnchorComponent.h>
+#include <GameEngine/MixedReality/Components/SpatialAnchorComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <WindowsMixedReality/HolographicSpace.h>
 #include <WindowsMixedReality/SpatialLocationService.h>
 #include <WindowsMixedReality/SpatialReferenceFrame.h>
-#include <windows.perception.spatial.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <WindowsMixedReality/SpatialAnchor.h>
+
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+#include <windows.perception.spatial.h>
+#endif
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -18,6 +21,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpatialAnchorComponent, 1)
     EZ_ACCESSOR_PROPERTY("PersistentName", GetPersistentAnchorName, SetPersistentAnchorName),
   }
   EZ_END_PROPERTIES
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Mixed Reality"),
+  }
+  EZ_END_ATTRIBUTES
 }
 EZ_END_COMPONENT_TYPE
 
@@ -53,6 +61,7 @@ const char* ezSpatialAnchorComponent::GetPersistentAnchorName() const
 
 ezResult ezSpatialAnchorComponent::RecreateAnchorAt(const ezTransform& position)
 {
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
   auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
   if (pHoloSpace == nullptr)
     return EZ_FAILURE;
@@ -64,12 +73,14 @@ ezResult ezSpatialAnchorComponent::RecreateAnchorAt(const ezTransform& position)
 
   m_pSpatialAnchor = std::move(pNewAnchor);
   PersistCurrentLocation();
+#endif
 
   return EZ_SUCCESS;
 }
 
 void ezSpatialAnchorComponent::PersistCurrentLocation()
 {
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
   if (m_sAnchorName.IsEmpty() || m_pSpatialAnchor == nullptr)
     return;
 
@@ -77,10 +88,12 @@ void ezSpatialAnchorComponent::PersistCurrentLocation()
   {
     ezLog::Error("Failed to persist spatial anchor '{0}'", m_sAnchorName);
   }
+#endif
 }
 
 ezResult ezSpatialAnchorComponent::RestorePersistedLocation()
 {
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
   if (m_sAnchorName.IsEmpty())
     return EZ_FAILURE;
 
@@ -92,11 +105,14 @@ ezResult ezSpatialAnchorComponent::RestorePersistedLocation()
   }
 
   m_pSpatialAnchor = std::move(pAnchor);
+#endif
+
   return EZ_SUCCESS;
 }
 
 void ezSpatialAnchorComponent::Update()
 {
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
   if (!IsActiveAndSimulating() || m_pSpatialAnchor == nullptr)
     return;
 
@@ -127,10 +143,12 @@ void ezSpatialAnchorComponent::Update()
   qRot.SetFromMat3(mFinalFinal.GetRotationalPart());
 
   GetOwner()->SetGlobalTransform(ezTransform(vPos, qRot));
+#endif
 }
 
 void ezSpatialAnchorComponent::OnSimulationStarted()
 {
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
   auto pHoloSpace = ezWindowsHolographicSpace::GetSingleton();
 
   RestorePersistedLocation();
@@ -139,6 +157,7 @@ void ezSpatialAnchorComponent::OnSimulationStarted()
   {
     RecreateAnchorAt(GetOwner()->GetGlobalTransform());
   }
+#endif
 }
 
 void ezSpatialAnchorComponent::OnDeactivated()

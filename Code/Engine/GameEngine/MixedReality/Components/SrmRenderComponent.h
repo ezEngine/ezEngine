@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <WindowsMixedReality/Basics.h>
+#include <GameEngine/Basics.h>
 #include <Core/World/SettingsComponent.h>
 #include <Core/World/SettingsComponentManager.h>
 #include <Core/ResourceManager/ResourceHandle.h>
@@ -13,7 +13,7 @@ typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle
 
 typedef ezSettingsComponentManager<class ezSrmRenderComponent> ezSrmRenderComponentManager;
 
-class EZ_WINDOWSMIXEDREALITY_DLL ezSrmRenderComponent : public ezComponent
+class EZ_GAMEENGINE_DLL ezSrmRenderComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezSrmRenderComponent, ezComponent, ezSrmRenderComponentManager);
 

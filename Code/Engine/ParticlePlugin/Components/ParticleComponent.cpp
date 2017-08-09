@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <ParticlePlugin/Components/ParticleComponent.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
@@ -37,7 +37,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 1)
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("FX"),
+    new ezCategoryAttribute("Effects"),
   }
   EZ_END_ATTRIBUTES
     EZ_BEGIN_MESSAGEHANDLERS

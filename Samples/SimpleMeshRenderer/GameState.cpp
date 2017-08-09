@@ -12,8 +12,8 @@
 #include <Core/Input/InputManager.h>
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-#include <WindowsMixedReality/Components/SpatialAnchorComponent.h>
-#include <WindowsMixedReality/Components/SrmRenderComponent.h>
+#include <GameEngine/MixedReality/Components/SpatialAnchorComponent.h>
+#include <GameEngine/MixedReality/Components/SrmRenderComponent.h>
 #include <GameEngine/MixedReality/MixedRealityFramework.h>
 #include <WindowsMixedReality/SpatialMapping/SurfaceReconstructionMeshManager.h>
 #endif

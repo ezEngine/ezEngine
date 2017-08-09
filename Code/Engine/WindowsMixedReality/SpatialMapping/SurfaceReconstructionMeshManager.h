@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+
 #include <WindowsMixedReality/Basics.h>
 #include <wrl/client.h>
 #include <Windows.perception.spatial.surfaces.h>
@@ -74,3 +76,5 @@ private:
   SrmAvailability m_SrmAvailability = SrmAvailability::Pending;
   ezMap<ezUuid, ezSurfaceMeshInfo> m_Surfaces;
 };
+
+#endif

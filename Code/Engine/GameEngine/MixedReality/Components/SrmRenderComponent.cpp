@@ -1,11 +1,11 @@
 ﻿#include <PCH.h>
-#include <WindowsMixedReality/Components/SrmRenderComponent.h>
+#include <GameEngine/MixedReality/Components/SrmRenderComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
-#include <WindowsMixedReality/SpatialMapping/SurfaceReconstructionMeshManager.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Meshes/MeshComponent.h>
+#include <WindowsMixedReality/SpatialMapping/SurfaceReconstructionMeshManager.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -16,6 +16,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezSrmRenderComponent, 1)
     EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("Material"), new ezDefaultValueAttribute("Materials/Common/SRM_Visible.ezMaterial")),
   }
   EZ_END_PROPERTIES
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Mixed Reality"),
+  }
+  EZ_END_ATTRIBUTES
 }
 EZ_END_COMPONENT_TYPE
 
@@ -30,6 +35,8 @@ void ezSrmRenderComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
   ezStreamWriter& s = stream.GetStream();
+
+  s << m_hMaterial;
 }
 
 void ezSrmRenderComponent::DeserializeComponent(ezWorldReader& stream)
@@ -37,10 +44,13 @@ void ezSrmRenderComponent::DeserializeComponent(ezWorldReader& stream)
   SUPER::DeserializeComponent(stream);
   //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
+
+  s >> m_hMaterial;
 }
 
 void ezSrmRenderComponent::OnActivated()
 {
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
   ezSurfaceReconstructionMeshManager* pMan = ezSurfaceReconstructionMeshManager::GetSingleton();
   if (pMan == nullptr)
     return;
@@ -55,10 +65,12 @@ void ezSrmRenderComponent::OnActivated()
   }
 
   pMan->EndAccessingSurfaces();
+#endif
 }
 
 void ezSrmRenderComponent::OnDeactivated()
 {
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
   ezSurfaceReconstructionMeshManager* pMan = ezSurfaceReconstructionMeshManager::GetSingleton();
   if (pMan == nullptr)
     return;
@@ -74,6 +86,7 @@ void ezSrmRenderComponent::OnDeactivated()
   }
 
   m_SrmRenderObjects.Clear();
+#endif
 }
 
 void ezSrmRenderComponent::SetMaterialFile(const char* szFile)
@@ -103,6 +116,7 @@ void ezSrmRenderComponent::SetMaterial(const ezMaterialResourceHandle& hMaterial
 
 void ezSrmRenderComponent::SurfaceReconstructionManagerEventHandler(const ezSrmManagerEvent& e)
 {
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
   if (e.m_Type == ezSrmManagerEvent::Type::MeshRemoved)
   {
     RemoveSrmRenderObject(e.m_MeshGuid);
@@ -113,6 +127,7 @@ void ezSrmRenderComponent::SurfaceReconstructionManagerEventHandler(const ezSrmM
   {
     UpdateSurfaceRepresentation(e.m_MeshGuid);
   }
+#endif
 }
 
 void ezSrmRenderComponent::RemoveSrmRenderObject(const ezUuid& guid)
@@ -133,6 +148,7 @@ void ezSrmRenderComponent::RemoveSrmRenderObject(const ezUuid& guid)
 
 void ezSrmRenderComponent::UpdateSurfaceRepresentation(const ezUuid& guid)
 {
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
   ezSurfaceReconstructionMeshManager* pMan = ezSurfaceReconstructionMeshManager::GetSingleton();
 
   const auto& surfaces = pMan->BeginAccessingSurfaces();
@@ -159,6 +175,7 @@ void ezSrmRenderComponent::UpdateSurfaceRepresentation(const ezUuid& guid)
 
 end:
   pMan->EndAccessingSurfaces();
+#endif
 }
 
 void ezSrmRenderComponent::CreateSurfaceRepresentation(const ezUuid& guid, SrmRenderObject& surface, const ezTransform& transform, const ezMeshBufferResourceDescriptor& mb)

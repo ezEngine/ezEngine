@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+
 #include <WindowsMixedReality/Basics.h>
 #include <Core/Input/DeviceTypes/Controller.h>
 #include <Foundation/Configuration/Singleton.h>
@@ -149,3 +151,4 @@ private:
   ezUniquePtr<ezWindowsSpatialReferenceFrame> m_pDefaultReferenceFrame;
 };
 
+#endif

@@ -32,7 +32,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezCharacterControllerComponent, 1)
   //EZ_END_PROPERTIES
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Game"),
+    new ezCategoryAttribute("Gameplay"),
   }
   EZ_END_ATTRIBUTES
   EZ_BEGIN_MESSAGEHANDLERS

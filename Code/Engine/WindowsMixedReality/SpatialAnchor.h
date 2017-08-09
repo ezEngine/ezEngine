@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+
 #include <WindowsMixedReality/Basics.h>
 
 /// \brief Represents a fixed location in space.
@@ -27,3 +29,4 @@ private:
   ComPtr<ABI::Windows::Perception::Spatial::ISpatialAnchor> m_pSpatialAnchor;
 };
 
+#endif

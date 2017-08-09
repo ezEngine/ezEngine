@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+
 #include <WindowsMixedReality/Basics.h>
 #include <Foundation/Types/UniquePtr.h>
 
@@ -74,3 +76,5 @@ private:
   ezSpatialLocatability m_currentLocatability;
   
 };
+
+#endif

@@ -31,7 +31,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxRaycastInteractComponent, 1)
   EZ_END_MESSAGEHANDLERS
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Gameplay"),
+    new ezCategoryAttribute("Input"),
     new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2f, ezColor::LightGreen, "MaxDistance"),
   }
   EZ_END_ATTRIBUTES

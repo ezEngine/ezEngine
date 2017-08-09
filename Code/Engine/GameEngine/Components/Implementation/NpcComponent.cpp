@@ -9,7 +9,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezNpcComponent, 1)
 {
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Game/NPCs"),
+    new ezCategoryAttribute("AI"),
   }
   EZ_END_ATTRIBUTES
 }

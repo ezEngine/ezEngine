@@ -26,7 +26,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezInputComponent, 2)
   EZ_END_PROPERTIES
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("General"),
+    new ezCategoryAttribute("Input"),
   }
   EZ_END_ATTRIBUTES
   EZ_BEGIN_MESSAGESENDERS

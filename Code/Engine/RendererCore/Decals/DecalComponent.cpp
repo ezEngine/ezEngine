@@ -45,7 +45,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 3)
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("FX"),
+    new ezCategoryAttribute("Effects"),
     new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.5f, ezColor::LightSteelBlue),
     new ezBoxManipulatorAttribute("Extents"),
     new ezBoxVisualizerAttribute("Extents"),

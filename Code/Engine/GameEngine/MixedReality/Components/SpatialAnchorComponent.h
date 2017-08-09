@@ -1,16 +1,14 @@
 ﻿#pragma once
 
-#include <WindowsMixedReality/Basics.h>
+#include <GameEngine/Basics.h>
 #include <Core/World/World.h>
 #include <Core/World/Component.h>
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezWindowsSpatialAnchor;
-
 typedef ezComponentManagerSimple<class ezSpatialAnchorComponent, ezComponentUpdateType::WhenSimulating> ezSpatialAnchorComponentManager;
 
-class EZ_WINDOWSMIXEDREALITY_DLL ezSpatialAnchorComponent : public ezComponent
+class EZ_GAMEENGINE_DLL ezSpatialAnchorComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezSpatialAnchorComponent, ezComponent, ezSpatialAnchorComponentManager);
 
@@ -55,5 +53,8 @@ protected:
   ezResult RestorePersistedLocation();
 
   ezString m_sAnchorName;
-  ezUniquePtr<ezWindowsSpatialAnchor> m_pSpatialAnchor;
+
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+  ezUniquePtr<class ezWindowsSpatialAnchor> m_pSpatialAnchor;
+#endif
 };
