@@ -45,10 +45,19 @@ namespace
       return;
 
     ++s; //skip (
+    int braces = 0;
 
     const char* szValueStart = s.GetData();
-    while (s.IsValid() && s.GetCharacter() != ')')
+    while (s.IsValid())
     {
+      if (s.GetCharacter() == '(')
+        braces++;
+      if (s.GetCharacter() == ')')
+      {
+        if (braces == 0)
+          break;
+        braces--;
+      }
       ++s;
     }
 
@@ -154,7 +163,7 @@ void ezShaderParser::ParsePermutationSection(ezStreamReader& stream, ezHybridArr
   ParsePermutationSection(sPermutations, out_PermVars, out_FixedPermVars);
 }
 
-//static 
+//static
 void ezShaderParser::ParsePermutationSection(ezStringView s, ezHybridArray<ezHashedString, 16>& out_PermVars, ezHybridArray<ezPermutationVar, 16>& out_FixedPermVars)
 {
   out_PermVars.Clear();

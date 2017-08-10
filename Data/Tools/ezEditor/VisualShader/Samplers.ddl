@@ -3,7 +3,7 @@ Node %PointSampler
   string %Category { "Texturing/Samplers" }
   unsigned_int8 %Color { 0, 96, 96 }
 
-  string %CodePixelSamplers { "PointSampler;" }
+  string %CodePixelSamplers { "" }
 
   OutputPin %Sampler
   {
@@ -18,7 +18,7 @@ Node %LinearSampler
   string %Category { "Texturing/Samplers" }
   unsigned_int8 %Color { 0, 96, 96 }
 
-  string %CodePixelSamplers { "SamplerState LinearSampler;" }
+  string %CodePixelSamplers { "" }
 
   OutputPin %Sampler
   {
@@ -33,7 +33,7 @@ Node %PointClampSampler
   string %Category { "Texturing/Samplers" }
   unsigned_int8 %Color { 0, 96, 96 }
 
-  string %CodePixelSamplers { "SamplerState PointClampSampler;" }
+  string %CodePixelSamplers { "" }
 
   OutputPin %Sampler
   {
@@ -48,7 +48,7 @@ Node %LinearClampSampler
   string %Category { "Texturing/Samplers" }
   unsigned_int8 %Color { 0, 96, 96 }
 
-  string %CodePixelSamplers { "SamplerState LinearClampSampler;" }
+  string %CodePixelSamplers { "" }
 
   OutputPin %Sampler
   {
