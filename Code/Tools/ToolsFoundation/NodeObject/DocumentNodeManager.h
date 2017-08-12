@@ -113,7 +113,7 @@ public:
   void MoveNode(const ezDocumentObject* pObject, const ezVec2& vPos);
 
   void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const;
-  void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph);
+  void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable);
 
 protected:
   /// \brief Tests whether pTarget can be reached from pSource by following the pin connections

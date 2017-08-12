@@ -187,7 +187,7 @@ protected:
   virtual void InternalAfterSaveDocument() {}
 
   virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const;
-  virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph);
+  virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable);
 
   virtual void InitializeBeforeLoading() {}
   virtual void InitializeAfterLoading() {}

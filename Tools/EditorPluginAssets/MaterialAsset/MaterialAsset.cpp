@@ -741,11 +741,11 @@ void ezMaterialAssetDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& 
   pManager->AttachMetaDataBeforeSaving(graph);
 }
 
-void ezMaterialAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph)
+void ezMaterialAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
 {
-  SUPER::RestoreMetaDataAfterLoading(graph);
+  SUPER::RestoreMetaDataAfterLoading(graph, bUndoable);
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
-  pManager->RestoreMetaDataAfterLoading(graph);
+  pManager->RestoreMetaDataAfterLoading(graph, bUndoable);
 }
 
 void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
@@ -1174,7 +1174,7 @@ bool ezMaterialAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezA
 
   m_DocumentObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
 
-  RestoreMetaDataAfterLoading(objectGraph);
+  RestoreMetaDataAfterLoading(objectGraph, true);
 
   if (!AddedNodes.IsEmpty() && bAllowPickedPosition)
   {
@@ -1192,7 +1192,10 @@ bool ezMaterialAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezA
 
     for (const ezDocumentObject* pNode : AddedNodes)
     {
-      pManager->MoveNode(pNode, pManager->GetNodePos(pNode) + vMoveNode);
+      ezMoveNodeCommand move;
+      move.m_Object = pNode->GetGuid();
+      move.m_NewPos = pManager->GetNodePos(pNode) + vMoveNode;
+      GetCommandHistory()->AddCommand(move);
     }
 
     if (!bAddedAll)

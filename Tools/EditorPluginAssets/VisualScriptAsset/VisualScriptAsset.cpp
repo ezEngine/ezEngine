@@ -13,6 +13,7 @@
 #include <GameEngine/VisualScript/VisualScriptResource.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
+#include <ToolsFoundation/Command/NodeCommands.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ezVisualScriptAssetDocument
@@ -35,7 +36,7 @@ void ezVisualScriptAssetDocument::OnInterDocumentMessage(ezReflectedClass* pMess
     HandleVsActivityMsg(static_cast<ezVisualScriptActivityMsgToEditor*>(pMessage));
     return;
   }
-  
+
   if (pMessage->GetDynamicRTTI()->IsDerivedFrom<ezGatherObjectsForDebugVisMsgInterDoc>())
   {
     m_InterDocumentMessages.Broadcast(pMessage);
@@ -115,10 +116,10 @@ void ezVisualScriptAssetDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGra
 
 }
 
-void ezVisualScriptAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph)
+void ezVisualScriptAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
 {
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
-  pManager->RestoreMetaDataAfterLoading(graph);
+  pManager->RestoreMetaDataAfterLoading(graph, bUndoable);
 }
 
 ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScriptResourceDescriptor& desc)
@@ -280,7 +281,7 @@ bool ezVisualScriptAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const
 
   m_DocumentObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
 
-  RestoreMetaDataAfterLoading(objectGraph);
+  RestoreMetaDataAfterLoading(objectGraph, true);
 
   if (!AddedNodes.IsEmpty() && bAllowPickedPosition)
   {
@@ -298,7 +299,10 @@ bool ezVisualScriptAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const
 
     for (const ezDocumentObject* pNode : AddedNodes)
     {
-      pManager->MoveNode(pNode, pManager->GetNodePos(pNode) + vMoveNode);
+      ezMoveNodeCommand move;
+      move.m_Object = pNode->GetGuid();
+      move.m_NewPos = pManager->GetNodePos(pNode) + vMoveNode;
+      GetCommandHistory()->AddCommand(move);
     }
 
     if (!bAddedAll)

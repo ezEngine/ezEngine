@@ -2,6 +2,8 @@
 #include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/RttiConverter.h>
+#include <ToolsFoundation/CommandHistory/CommandHistory.h>
+#include <ToolsFoundation/Command/NodeCommands.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConnection, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -299,8 +301,9 @@ void ezDocumentNodeManager::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& gr
 
 }
 
-void ezDocumentNodeManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph)
+void ezDocumentNodeManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
 {
+  ezCommandHistory* history = GetDocument()->GetCommandHistory();
   auto& AllNodes = graph.GetAllNodes();
 
   auto pType = ezGetStaticRTTI<NodeDataInternal>();
@@ -326,7 +329,17 @@ void ezDocumentNodeManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGr
 
         if (CanMoveNode(pObject, data.m_NodePos).m_Result.Succeeded())
         {
-          MoveNode(pObject, data.m_NodePos);
+          if (bUndoable)
+          {
+            ezMoveNodeCommand move;
+            move.m_Object = pObject->GetGuid();
+            move.m_NewPos = data.m_NodePos;
+            history->AddCommand(move);
+          }
+          else
+          {
+            MoveNode(pObject, data.m_NodePos);
+          }
         }
 
         for (const auto& con : data.m_Connections)
@@ -340,7 +353,19 @@ void ezDocumentNodeManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGr
             ezDocumentNodeManager::CanConnectResult res;
             if (CanConnect(pSourcePin, pTargetPin, res).m_Result.Succeeded())
             {
-              Connect(pSourcePin, pTargetPin);
+              if (bUndoable)
+              {
+                ezConnectNodePinsCommand cmd;
+                cmd.m_ObjectSource = pSourcePin->GetParent()->GetGuid();
+                cmd.m_ObjectTarget = pTargetPin->GetParent()->GetGuid();
+                cmd.m_sSourcePin = pSourcePin->GetName();
+                cmd.m_sTargetPin = pTargetPin->GetName();
+                history->AddCommand(cmd);
+              }
+              else
+              {
+                Connect(pSourcePin, pTargetPin);
+              }
             }
           }
         }

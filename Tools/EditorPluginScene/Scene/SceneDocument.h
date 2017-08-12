@@ -258,7 +258,7 @@ protected:
   }
 
   virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const override;
-  virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph) override;
+  virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable) override;
 
 private:
   void ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e);

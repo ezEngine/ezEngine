@@ -167,9 +167,9 @@ void ezRenderPipelineAssetDocument::AttachMetaDataBeforeSaving(ezAbstractObjectG
 
 }
 
-void ezRenderPipelineAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph)
+void ezRenderPipelineAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
 {
   ezDocumentNodeManager* pManager = static_cast<ezDocumentNodeManager*>(GetObjectManager());
-  pManager->RestoreMetaDataAfterLoading(graph);
+  pManager->RestoreMetaDataAfterLoading(graph, bUndoable);
 }
 

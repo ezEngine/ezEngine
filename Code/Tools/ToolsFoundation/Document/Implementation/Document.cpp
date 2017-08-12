@@ -294,7 +294,7 @@ ezStatus ezDocument::InternalLoadDocument()
   {
     EZ_PROFILE("Restoring Meta-Data");
     //range.BeginNextStep("Restoring Meta-Data");
-    RestoreMetaDataAfterLoading(graph);
+    RestoreMetaDataAfterLoading(graph, false);
   }
 
   SetModified(false);
@@ -308,7 +308,7 @@ void ezDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
 }
 
 
-void ezDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph)
+void ezDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
 {
   m_DocumentObjectMetaData.RestoreMetaDataFromAbstractGraph(graph);
 }

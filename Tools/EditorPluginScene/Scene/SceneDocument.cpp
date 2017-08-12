@@ -103,9 +103,9 @@ void ezSceneDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) c
   m_SceneObjectMetaData.AttachMetaDataToAbstractGraph(graph);
 }
 
-void ezSceneDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph)
+void ezSceneDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
 {
-  ezAssetDocument::RestoreMetaDataAfterLoading(graph);
+  ezAssetDocument::RestoreMetaDataAfterLoading(graph, bUndoable);
 
   m_SceneObjectMetaData.RestoreMetaDataFromAbstractGraph(graph);
 }
