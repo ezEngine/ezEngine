@@ -397,7 +397,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
   EZ_ASSERT_DEBUG(pDirLight->GetCastShadows(), "Implementation error");
 
   // No shadows in orthographic views
-  if (pReferenceView->GetCamera()->IsOrthographic())
+  if (pReferenceView->GetCullingCamera()->IsOrthographic())
   {
     return ezInvalidIndex;
   }

@@ -12,6 +12,7 @@ class ezStackAllocator : public ezAllocator<ezMemoryPolicies::ezStackAllocation,
 {
 public:
   ezStackAllocator(const char* szName, ezAllocatorBase* pParent);
+  ~ezStackAllocator();
 
   virtual void* Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc) override;
   virtual void Deallocate(void* ptr) override;
@@ -26,7 +27,7 @@ private:
     EZ_DECLARE_POD_TYPE();
 
     ezMemoryUtils::DestructorFunction m_Func;
-    void* m_Ptr;    
+    void* m_Ptr;
   };
 
   ezMutex m_Mutex;

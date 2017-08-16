@@ -265,7 +265,7 @@ void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& m
   QueuedMsgMetaData metaData;
   metaData.m_uiReceiverObject = receiverObject.m_InternalId.m_Data;
 
-  ezMessage* pMsgCopy = msg.Clone(ezFrameAllocator::GetCurrentAllocator());
+  ezMessage* pMsgCopy = msg.Clone(m_Data.m_StackAllocator.GetCurrentAllocator());
   m_Data.m_MessageQueues[queueType].Enqueue(pMsgCopy, metaData);
 }
 
@@ -289,7 +289,7 @@ void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, ezMessage&
   metaData.m_uiReceiverComponent = *reinterpret_cast<const ezUInt64*>(&receiverComponent.m_InternalId);
   metaData.m_uiReceiverIsComponent = 1;
 
-  ezMessage* pMsgCopy = msg.Clone(ezFrameAllocator::GetCurrentAllocator());
+  ezMessage* pMsgCopy = msg.Clone(m_Data.m_StackAllocator.GetCurrentAllocator());
   m_Data.m_MessageQueues[queueType].Enqueue(pMsgCopy, metaData);
 }
 
@@ -379,6 +379,9 @@ void ezWorld::Update()
 
   // Process again so new component can receive render messages, otherwise we introduce a frame delay.
   ProcessComponentsToInitialize();
+
+  // Swap our double buffered stack allocator
+  m_Data.m_StackAllocator.Swap();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

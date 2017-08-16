@@ -2,11 +2,10 @@
 
 #include <Foundation/Communication/MessageQueue.h>
 #include <Foundation/Containers/HashTable.h>
-
-#include <Foundation/Threading/DelegateTask.h>
-
-#include <Foundation/Time/Clock.h>
 #include <Foundation/Math/Random.h>
+#include <Foundation/Memory/FrameAllocator.h>
+#include <Foundation/Threading/DelegateTask.h>
+#include <Foundation/Time/Clock.h>
 
 #include <Core/World/GameObject.h>
 #include <Core/World/WorldDesc.h>
@@ -25,6 +24,7 @@ namespace ezInternal
     mutable ezProxyAllocator m_Allocator;
     ezLocalAllocatorWrapper m_AllocatorWrapper;
     ezInternal::WorldLargeBlockAllocator m_BlockAllocator;
+    ezDoubleBufferedStackAllocator m_StackAllocator;
 
     enum
     {

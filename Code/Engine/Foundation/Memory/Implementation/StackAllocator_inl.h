@@ -8,6 +8,12 @@ ezStackAllocator<TrackingFlags>::ezStackAllocator(const char* szName, ezAllocato
 }
 
 template <ezUInt32 TrackingFlags>
+ezStackAllocator<TrackingFlags>::~ezStackAllocator()
+{
+  Reset();
+}
+
+template <ezUInt32 TrackingFlags>
 void* ezStackAllocator<TrackingFlags>::Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc)
 {
   EZ_LOCK(m_Mutex);
@@ -51,7 +57,7 @@ void ezStackAllocator<TrackingFlags>::Reset()
   for (ezUInt32 i = m_DestructData.GetCount(); i-- > 0;)
   {
     auto& data = m_DestructData[i];
-    if (data.m_Func != nullptr) 
+    if (data.m_Func != nullptr)
       data.m_Func(data.m_Ptr);
   }
   m_DestructData.Clear();
