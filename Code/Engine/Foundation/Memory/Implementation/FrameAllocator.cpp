@@ -6,15 +6,14 @@
 
 ezDoubleBufferedStackAllocator::ezDoubleBufferedStackAllocator(ezAllocatorBase* pParent)
 {
-  m_pCurrentAllocator = EZ_NEW(pParent, StackAllocatorType, "StackAllocator0", pParent);
-  m_pOtherAllocator = EZ_NEW(pParent, StackAllocatorType, "StackAllocator1", pParent);
+  m_pCurrentAllocator = EZ_DEFAULT_NEW(StackAllocatorType, "StackAllocator0", pParent);
+  m_pOtherAllocator = EZ_DEFAULT_NEW(StackAllocatorType, "StackAllocator1", pParent);
 }
 
 ezDoubleBufferedStackAllocator::~ezDoubleBufferedStackAllocator()
 {
-  ezAllocatorBase* pParent = m_pCurrentAllocator->GetParent();
-  EZ_DELETE(pParent, m_pCurrentAllocator);
-  EZ_DELETE(pParent, m_pOtherAllocator);
+  EZ_DEFAULT_DELETE(m_pCurrentAllocator);
+  EZ_DEFAULT_DELETE(m_pOtherAllocator);
 }
 
 void ezDoubleBufferedStackAllocator::Swap()
