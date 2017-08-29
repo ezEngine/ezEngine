@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Core/World/Implementation/WorldData.h>
 
@@ -154,8 +154,11 @@ public:
   /// \name Message Functions
   ///@{
 
-  /// \brief Sends a message to all components of the receiverObject. Depending on the routing options the message is also send to parents or children.
+  /// \brief Sends a message to all components of the receiverObject.
   void SendMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg);
+
+  /// \brief Sends a message to all components of the receiverObject and all its children.
+  void SendMessageRecursive(const ezGameObjectHandle& receiverObject, ezMessage& msg);
 
   /// \brief Queues the message for the given phase and send it later in that phase to the receiverObject.
   void PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, ezObjectMsgQueueType::Enum queueType) const;
@@ -163,6 +166,8 @@ public:
   /// \brief Queues the message for the given phase. The message is send to the receiverObject after the given delay in the corresponding phase.
   void PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const;
 
+  /// \brief Queues the message for the given phase. The message is send to the receiverObject and all its children after the given delay in the corresponding phase.
+  void PostMessageRecursive(const ezGameObjectHandle& receiverObject, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
 
   /// \brief Sends a message to the component.
   void SendMessage(const ezComponentHandle& receiverComponent, ezMessage& msg);
@@ -270,6 +275,7 @@ private:
   const char* GetObjectGlobalKey(const ezGameObject* pObject) const;
 
   void ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::Entry& entry);
+  void ProcessQueuedMessageRecursive(const ezInternal::WorldData::MessageQueue::Entry& entry);
   void ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType);
 
   ezResult RegisterUpdateFunction(const ezWorldModule::UpdateFunctionDesc& desc);

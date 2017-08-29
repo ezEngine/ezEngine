@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 
 #include <Core/World/World.h>
 #include <Core/World/WorldModule.h>
@@ -281,6 +281,28 @@ void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& m
   m_Data.m_TimedMessageQueues[queueType].Enqueue(pMsgCopy, metaData);
 }
 
+void ezWorld::PostMessageRecursive(const ezGameObjectHandle& receiverObject, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
+{
+  // This method is allowed to be called from multiple threads.
+
+
+  QueuedMsgMetaData metaData;
+  metaData.m_uiReceiverObject = receiverObject.m_InternalId.m_Data;
+
+  if (delay.GetSeconds() > 0.0)
+  {
+    ezMessage* pMsgCopy = msg.Clone(&m_Data.m_Allocator);
+
+    metaData.m_Due = m_Data.m_Clock.GetAccumulatedTime() + delay;
+    m_Data.m_TimedMessageQueuesRecursive[queueType].Enqueue(pMsgCopy, metaData);
+  }
+  else
+  {
+    ezMessage* pMsgCopy = msg.Clone(m_Data.m_StackAllocator.GetCurrentAllocator());
+    m_Data.m_MessageQueuesRecursive[queueType].Enqueue(pMsgCopy, metaData);
+  }
+}
+
 void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, ezMessage& msg, ezObjectMsgQueueType::Enum queueType) const
 {
   // This method is allowed to be called from multiple threads.
@@ -523,7 +545,7 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
       if (entry.m_pMessage->GetDebugMessageRouting())
       {
-        ezLog::Warning("ezWorld::ProcessQueuedMessage: Receiver ezComponent for message of type {0} does not exist anymore.", entry.m_pMessage->GetId());
+        ezLog::Warning("ezWorld::ProcessQueuedMessage: Receiver ezComponent for message of type '{0}' does not exist anymore.", entry.m_pMessage->GetId());
       }
 #endif
     }
@@ -542,7 +564,31 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
       if (entry.m_pMessage->GetDebugMessageRouting())
       {
-        ezLog::Warning("ezWorld::ProcessQueuedMessage: Receiver ezGameObject for message of type {0} does not exist anymore.", entry.m_pMessage->GetId());
+        ezLog::Warning("ezWorld::ProcessQueuedMessage: Receiver ezGameObject for message of type '{0}' does not exist anymore.", entry.m_pMessage->GetId());
+      }
+#endif
+    }
+  }
+}
+
+void ezWorld::ProcessQueuedMessageRecursive(const ezInternal::WorldData::MessageQueue::Entry& entry)
+{
+  EZ_ASSERT_DEBUG(entry.m_MetaData.m_uiReceiverIsComponent == 0, "Component messages cannot be sent recursively");
+
+  {
+    ezGameObjectHandle hObject(ezGameObjectId(entry.m_MetaData.m_uiReceiverObject));
+
+    ezGameObject* pReceiverObject = nullptr;
+    if (TryGetObject(hObject, pReceiverObject))
+    {
+      pReceiverObject->SendMessageRecursive(*entry.m_pMessage);
+    }
+    else
+    {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+      if (entry.m_pMessage->GetDebugMessageRouting())
+      {
+        ezLog::Warning("ezWorld::ProcessQueuedMessageRecursive: Receiver ezGameObject for message of type '{0}' does not exist anymore.", entry.m_pMessage->GetId());
       }
 #endif
     }
@@ -588,6 +634,21 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
     queue.Clear();
   }
 
+  // regular messages recursive
+  {
+    ezInternal::WorldData::MessageQueue& queue = m_Data.m_MessageQueuesRecursive[queueType];
+    queue.Sort(MessageComparer());
+
+    for (ezUInt32 i = 0; i < queue.GetCount(); ++i)
+    {
+      ProcessQueuedMessageRecursive(queue[i]);
+
+      // no need to deallocate these messages, they are allocated through a frame allocator
+    }
+
+    queue.Clear();
+  }
+
   // timed messages
   {
     ezInternal::WorldData::MessageQueue& queue = m_Data.m_TimedMessageQueues[queueType];
@@ -602,6 +663,27 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
         break;
 
       ProcessQueuedMessage(entry);
+
+      EZ_DELETE(&m_Data.m_Allocator, entry.m_pMessage);
+
+      queue.Dequeue();
+    }
+  }
+
+  // timed messages recursive
+  {
+    ezInternal::WorldData::MessageQueue& queue = m_Data.m_TimedMessageQueuesRecursive[queueType];
+    queue.Sort(MessageComparer());
+
+    const ezTime now = m_Data.m_Clock.GetAccumulatedTime();
+
+    while (!queue.IsEmpty())
+    {
+      auto& entry = queue.Peek();
+      if (entry.m_MetaData.m_Due > now)
+        break;
+
+      ProcessQueuedMessageRecursive(entry);
 
       EZ_DELETE(&m_Data.m_Allocator, entry.m_pMessage);
 

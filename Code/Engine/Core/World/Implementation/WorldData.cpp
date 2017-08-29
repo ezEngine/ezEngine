@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 
 #include <Core/World/SpatialSystem_RegularGrid.h>
 #include <Core/World/World.h>
@@ -110,18 +110,40 @@ WorldData::~WorldData()
   // delete queued messages
   for (ezUInt32 i = 0; i < ezObjectMsgQueueType::COUNT; ++i)
   {
-    MessageQueue& queue = m_MessageQueues[i];
-
-    // The messages in this queue are allocated through a frame allocator and thus mustn't (and don't need to be) deallocated
-    m_MessageQueues[i].Clear();
-
-    queue = m_TimedMessageQueues[i];
-    while (!queue.IsEmpty())
     {
-      MessageQueue::Entry& entry = queue.Peek();
-      EZ_DELETE(&m_Allocator, entry.m_pMessage);
+      MessageQueue& queue = m_MessageQueues[i];
 
-      queue.Dequeue();
+      // The messages in this queue are allocated through a frame allocator and thus mustn't (and don't need to be) deallocated
+      queue.Clear();
+    }
+
+    {
+      MessageQueue& queue = m_MessageQueuesRecursive[i];
+
+      // The messages in this queue are allocated through a frame allocator and thus mustn't (and don't need to be) deallocated
+      queue.Clear();
+    }
+
+    {
+      MessageQueue& queue = m_TimedMessageQueues[i];
+      while (!queue.IsEmpty())
+      {
+        MessageQueue::Entry& entry = queue.Peek();
+        EZ_DELETE(&m_Allocator, entry.m_pMessage);
+
+        queue.Dequeue();
+      }
+    }
+
+    {
+      MessageQueue& queue = m_TimedMessageQueuesRecursive[i];
+      while (!queue.IsEmpty())
+      {
+        MessageQueue::Entry& entry = queue.Peek();
+        EZ_DELETE(&m_Allocator, entry.m_pMessage);
+
+        queue.Dequeue();
+      }
     }
   }
 }

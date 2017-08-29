@@ -1,4 +1,4 @@
-﻿
+
 EZ_ALWAYS_INLINE const char* ezWorld::GetName() const
 {
   return m_Data.m_sName.GetData();
@@ -306,7 +306,27 @@ EZ_FORCE_INLINE void ezWorld::SendMessage(const ezGameObjectHandle& receiverObje
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     if (msg.GetDebugMessageRouting())
     {
-      ezLog::Warning("ezWorld::SendMessage: The receiver ezGameObject for message of type {0} does not exist.", msg.GetId());
+      ezLog::Warning("ezWorld::SendMessage: The receiver ezGameObject for message of type '{0}' does not exist.", msg.GetId());
+    }
+#endif
+  }
+}
+
+EZ_FORCE_INLINE void ezWorld::SendMessageRecursive(const ezGameObjectHandle& receiverObject, ezMessage& msg)
+{
+  CheckForWriteAccess();
+
+  ezGameObject* pReceiverObject = nullptr;
+  if (TryGetObject(receiverObject, pReceiverObject))
+  {
+    pReceiverObject->SendMessageRecursive(msg);
+  }
+  else
+  {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+    if (msg.GetDebugMessageRouting())
+    {
+      ezLog::Warning("ezWorld::SendMessageRecursive: The receiver ezGameObject for message of type '{0}' does not exist.", msg.GetId());
     }
 #endif
   }
@@ -326,7 +346,7 @@ EZ_FORCE_INLINE void ezWorld::SendMessage(const ezComponentHandle& receiverCompo
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     if (msg.GetDebugMessageRouting())
     {
-      ezLog::Warning("ezWorld::SendMessage: The receiver ezComponent for message of type {0} does not exist.", msg.GetId());
+      ezLog::Warning("ezWorld::SendMessage: The receiver ezComponent for message of type '{0}' does not exist.", msg.GetId());
     }
 #endif
   }

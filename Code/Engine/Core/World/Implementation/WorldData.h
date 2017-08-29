@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Communication/MessageQueue.h>
 #include <Foundation/Containers/HashTable.h>
@@ -153,6 +153,8 @@ namespace ezInternal
     typedef ezMessageQueue<QueuedMsgMetaData, ezLocalAllocatorWrapper> MessageQueue;
     mutable MessageQueue m_MessageQueues[ezObjectMsgQueueType::COUNT];
     mutable MessageQueue m_TimedMessageQueues[ezObjectMsgQueueType::COUNT];
+    mutable MessageQueue m_MessageQueuesRecursive[ezObjectMsgQueueType::COUNT];
+    mutable MessageQueue m_TimedMessageQueuesRecursive[ezObjectMsgQueueType::COUNT];
 
     ezThreadID m_WriteThreadID;
     ezInt32 m_iWriteCounter;

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/SimdMath/SimdConversion.h>
@@ -248,11 +248,18 @@ public:
   ezArrayPtr<const ezComponent* const> GetComponents() const;
 
 
-  /// \brief Sends a message to all components of this object. Depending on the routing options the message is also send to parents or children.
-  void SendMessage(ezMessage& msg);
+  /// \brief Sends a message to all components of this object.
+  bool SendMessage(ezMessage& msg);
 
-  /// \brief Sends a message to all components of this object. Depending on the routing options the message is also send to parents or children.
-  void SendMessage(ezMessage& msg) const;
+  /// \brief Sends a message to all components of this object.
+  bool SendMessage(ezMessage& msg) const;
+
+  /// \brief Sends a message to all components of this object and then recursively to all children.
+  bool SendMessageRecursive(ezMessage& msg);
+
+  /// \brief Sends a message to all components of this object and then recursively to all children.
+  bool SendMessageRecursive(ezMessage& msg) const;
+
 
   /// \brief Queues the message for the given phase and processes it later in that phase.
   void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType) const;
@@ -260,6 +267,8 @@ public:
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
   void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const;
 
+  /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
+  void PostMessageRecursive(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
 
   /// \brief Returns the tag set associated with this object.
   ezTagSet& GetTags();

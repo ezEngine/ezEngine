@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Core/World/World.h>
 #include <Core/Messages/DeleteObjectMessage.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
@@ -312,28 +312,12 @@ void ezGameObject::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueT
   m_pWorld->PostMessage(GetHandle(), msg, queueType, delay);
 }
 
-void ezGameObject::SendMessage(ezMessage& msg)
+void ezGameObject::PostMessageRecursive(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
 {
-  bool bSentToAny = false;
-
-  const ezRTTI* pRtti = ezGetStaticRTTI<ezGameObject>();
-  bSentToAny |= pRtti->DispatchMessage(this, msg);
-
-  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
-  {
-    ezComponent* pComponent = m_Components[i];
-    bSentToAny |= pComponent->SendMessage(msg);
-  }
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  if (!bSentToAny && msg.GetDebugMessageRouting())
-  {
-    ezLog::Warning("ezGameObject::SendMessage: None of the target object's components had a handler for messages of type {0}.", msg.GetId());
-  }
-#endif
+  m_pWorld->PostMessageRecursive(GetHandle(), msg, queueType, delay);
 }
 
-void ezGameObject::SendMessage(ezMessage& msg) const
+bool ezGameObject::SendMessage(ezMessage& msg)
 {
   bool bSentToAny = false;
 
@@ -352,6 +336,89 @@ void ezGameObject::SendMessage(ezMessage& msg) const
     ezLog::Warning("ezGameObject::SendMessage: None of the target object's components had a handler for messages of type {0}.", msg.GetId());
   }
 #endif
+
+  return bSentToAny;
+}
+
+bool ezGameObject::SendMessage(ezMessage& msg) const
+{
+  bool bSentToAny = false;
+
+  const ezRTTI* pRtti = ezGetStaticRTTI<ezGameObject>();
+  bSentToAny |= pRtti->DispatchMessage(this, msg);
+
+  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  {
+    ezComponent* pComponent = m_Components[i];
+    bSentToAny |= pComponent->SendMessage(msg);
+  }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  if (!bSentToAny && msg.GetDebugMessageRouting())
+  {
+    ezLog::Warning("ezGameObject::SendMessage (const): None of the target object's components had a handler for messages of type {0}.", msg.GetId());
+  }
+#endif
+
+  return bSentToAny;
+}
+
+bool ezGameObject::SendMessageRecursive(ezMessage& msg)
+{
+  bool bSentToAny = false;
+
+  const ezRTTI* pRtti = ezGetStaticRTTI<ezGameObject>();
+  bSentToAny |= pRtti->DispatchMessage(this, msg);
+
+  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  {
+    ezComponent* pComponent = m_Components[i];
+    bSentToAny |= pComponent->SendMessage(msg);
+  }
+
+  for (auto childIt = GetChildren(); childIt.IsValid(); ++childIt)
+  {
+    bSentToAny |= childIt->SendMessageRecursive(msg);
+  }
+
+  // should only be evaluated at the top function call
+//#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+//  if (!bSentToAny && msg.GetDebugMessageRouting())
+//  {
+//    ezLog::Warning("ezGameObject::SendMessageRecursive: None of the target object's components had a handler for messages of type {0}.", msg.GetId());
+//  }
+//#endif
+//#
+  return bSentToAny;
+}
+
+bool ezGameObject::SendMessageRecursive(ezMessage& msg) const
+{
+  bool bSentToAny = false;
+
+  const ezRTTI* pRtti = ezGetStaticRTTI<ezGameObject>();
+  bSentToAny |= pRtti->DispatchMessage(this, msg);
+
+  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  {
+    ezComponent* pComponent = m_Components[i];
+    bSentToAny |= pComponent->SendMessage(msg);
+  }
+
+  for (auto childIt = GetChildren(); childIt.IsValid(); ++childIt)
+  {
+    bSentToAny |= childIt->SendMessageRecursive(msg);
+  }
+
+  // should only be evaluated at the top function call
+  //#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  //  if (!bSentToAny && msg.GetDebugMessageRouting())
+  //  {
+  //    ezLog::Warning("ezGameObject::SendMessageRecursive(const): None of the target object's components had a handler for messages of type {0}.", msg.GetId());
+  //  }
+  //#endif
+  //#
+  return bSentToAny;
 }
 
 void ezGameObject::TransformationData::UpdateLocalTransform()

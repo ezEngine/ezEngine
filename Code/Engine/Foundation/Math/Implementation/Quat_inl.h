@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/Math/Mat4.h>
@@ -86,7 +86,7 @@ EZ_FORCE_INLINE const ezQuatTemplate<Type> ezQuatTemplate<Type>::operator-() con
 }
 
 template<typename Type>
-const ezVec3Template<Type> operator* (const ezQuatTemplate<Type>& q, const ezVec3Template<Type>& v)
+EZ_ALWAYS_INLINE const ezVec3Template<Type> operator* (const ezQuatTemplate<Type>& q, const ezVec3Template<Type>& v)
 {
   ezVec3Template<Type> t = q.v.Cross(v) * (Type)2;
   return v + q.w * t + q.v.Cross(t);
