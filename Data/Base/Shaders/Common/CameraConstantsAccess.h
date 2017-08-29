@@ -15,9 +15,9 @@ float4x4 GetWorldToScreenMatrix()   { return WorldToScreenMatrix[s_ActiveCameraE
 float4x4 GetScreenToWorldMatrix()   { return ScreenToWorldMatrix[s_ActiveCameraEyeIndex]; }
 
 float3 GetCameraPosition()     { return GetCameraToWorldMatrix()._m03_m13_m23; };
-float3 GetCameraDirForwards()  { return GetWorldToCameraMatrix()._m02_m12_m22; };
-float3 GetCameraDirRight()     { return GetWorldToCameraMatrix()._m00_m10_m20; };
-float3 GetCameraDirUp()        { return GetWorldToCameraMatrix()._m01_m11_m21; };
+float3 GetCameraDirForwards()  { return GetCameraToWorldMatrix()._m02_m12_m22; };
+float3 GetCameraDirRight()     { return GetCameraToWorldMatrix()._m00_m10_m20; };
+float3 GetCameraDirUp()        { return GetCameraToWorldMatrix()._m01_m11_m21; };
 
 
 #elif EZ_ENABLED(PLATFORM_OPENGL)

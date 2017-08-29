@@ -57,7 +57,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
   float3x3 rotation = TransformToRotation(particle.Transform);
 
   float3 offsetRight = GetCameraDirRight() * (texCoords[vertexIndex].x - 0.5) * particle.Size;
-  float3 offsetUp = GetGetCameraDirUp()() * (texCoords[vertexIndex].y - 0.5) * -particle.Size;
+  float3 offsetUp = GetCameraDirUp() * (texCoords[vertexIndex].y - 0.5) * -particle.Size;
 
   float3 offsetRightCS = mul(GetWorldToCameraMatrix(), float4(offsetRight, 0)).xzy;
   float3 offsetUpCS = mul(GetWorldToCameraMatrix(), float4(offsetUp, 0)).xzy;
@@ -66,9 +66,9 @@ VS_OUT main(uint VertexID : SV_VertexID)
   offsetUpCS = mul(rotation, offsetUpCS);
 
   float4 worldPosition = mul(ObjectToWorldMatrix, position);
-  float4 GetCameraPosition() = mul(GetWorldToCameraMatrix(), worldPosition);
-  GetCameraPosition().xzy = GetCameraPosition().xzy + offsetRightCS + offsetUpCS;
-  float4 screenPosition = mul(GetCameraToScreenMatrix(), GetCameraPosition());
+  float4 cameraPosition = mul(GetWorldToCameraMatrix(), worldPosition);
+  cameraPosition.xzy = cameraPosition.xzy + offsetRightCS + offsetUpCS;
+  float4 screenPosition = mul(GetCameraToScreenMatrix(), cameraPosition);
 
   VS_OUT ret;
   ret.Position = screenPosition;
@@ -98,12 +98,12 @@ float4 main(PS_IN Input) : SV_Target
 {
   float4 color = ParticleTexture.Sample(ParticleTexture_AutoSampler, Input.TexCoords.xy);
 
-#if PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_OPAQUE
-  if (Input.Color.a * color.a < 0.1)
+  if (Input.Color.a * color.a < 0.01)
     discard;
-#endif
 
-  return float4(color.rgb * Input.Color.rgb * Input.Color.a, color.a);
+  float opacity = Input.Color.a * color.a;
+
+  return float4(color.rgb * Input.Color.rgb * opacity, opacity);
 }
 
 #endif
