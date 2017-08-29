@@ -9,8 +9,15 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezInputDeviceXBox360::ezInputDeviceXBox360()
 {
+  CoInitialize(nullptr);
+
   for (ezInt32 i = 0; i < MaxControllers; ++i)
     m_bControllerConnected[i] = false;
+}
+
+ezInputDeviceXBox360::~ezInputDeviceXBox360()
+{
+  CoUninitialize();
 }
 
 void ezInputDeviceXBox360::RegisterControllerButton(const char* szButton, const char* szName, ezBitflags<ezInputSlotFlags> SlotFlags)

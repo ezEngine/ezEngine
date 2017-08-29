@@ -12,6 +12,7 @@ class EZ_INPUTXBOX360_DLL ezInputDeviceXBox360 : public ezInputDeviceController
 
 public:
   ezInputDeviceXBox360();
+  ~ezInputDeviceXBox360();
 
   /// \brief Returns an ezInputDeviceXBox360 device.
   static ezInputDeviceXBox360* GetDevice();
