@@ -80,11 +80,13 @@ void ezParticleWorldModule::DestroyEffectInstance(const ezParticleEffectHandle& 
       return; // never delete these
     }
 
-    pInstance->SetEmitterEnabled(false);
-    m_FinishingEffects.PushBack(pInstance);
-
-    // as far as the outside world is concerned, the effect is dead now
-    m_ActiveEffects.Remove(hEffect.GetInternalID());
+    if (!pInstance->m_bIsFinishing)
+    {
+      // make sure not to insert it into m_FinishingEffects twice
+      pInstance->m_bIsFinishing = true;
+      pInstance->SetEmitterEnabled(false);
+      m_FinishingEffects.PushBack(pInstance);
+    }
 
     if (bInterruptImmediately)
     {
@@ -135,9 +137,13 @@ void ezParticleWorldModule::DestroyFinishedEffects()
 
     if (!pEffect->HasActiveParticles())
     {
-      pEffect->Destruct();
+      if (m_ActiveEffects.Remove(pEffect->GetHandle().GetInternalID()))
+      {
+        pEffect->Destruct();
 
-      m_ParticleEffectsFreeList.PushBack(pEffect);
+        m_ParticleEffectsFreeList.PushBack(pEffect);
+      }
+
       m_FinishingEffects.RemoveAtSwap(i);
     }
     else

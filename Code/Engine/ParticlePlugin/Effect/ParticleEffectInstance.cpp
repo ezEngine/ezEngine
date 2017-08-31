@@ -6,6 +6,7 @@
 #include <ParticlePlugin/System/ParticleSystemDescriptor.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 
 ezParticleEffectInstance::ezParticleEffectInstance()
   : m_Task(this)
@@ -29,6 +30,7 @@ void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, c
   m_hResource = hResource;
   m_bIsSharedEffect = bIsShared;
   m_bEmitterEnabled = true;
+  m_bIsFinishing = false;
 
   Reconfigure(uiRandomSeed, true);
 }
@@ -143,6 +145,14 @@ void ezParticleEffectInstance::PreSimulate()
     Update(m_PreSimulateDuration);
     m_PreSimulateDuration = ezTime::Seconds(0);
   }
+}
+
+void ezParticleEffectInstance::SetIsInView() const
+{
+  // if it is visible this frame, also render it next frame
+  // this is used to fix the transition when handing off an effect from a
+  // ezParticleComponent to a ezParticleFinisherComponent
+  m_uiEffectIsInView = ezRenderWorld::GetFrameCounter() + 1;
 }
 
 void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTime)
@@ -333,6 +343,48 @@ bool ezParticleEffectInstance::ShouldBeUpdated() const
     return false;
 
   return true;
+}
+
+ezUInt64 ezParticleEffectInstance::GetBoundingVolume(ezBoundingBoxSphere& volume)
+{
+  ezBoundingBoxSphere effectVolume;
+  effectVolume.SetInvalid();
+  float effectMaxSize = 0;
+
+  ezBoundingBoxSphere systemVolume;
+  float systemMaxSize = 0;
+
+  ezUInt64 uiChangeCounter = 0;
+
+  for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
+  {
+    if (m_ParticleSystems[i])
+    {
+      const ezUInt64 uiCC = m_ParticleSystems[i]->GetBoundingVolume(systemVolume, systemMaxSize);
+
+      if (uiCC > 0)
+      {
+        uiChangeCounter = ezMath::Max(uiChangeCounter, uiCC);
+
+        effectVolume.ExpandToInclude(systemVolume);
+        effectMaxSize = ezMath::Max(effectMaxSize, systemMaxSize);
+      }
+    }
+  }
+
+  if (uiChangeCounter > 0)
+  {
+    effectVolume.m_fSphereRadius += effectMaxSize;
+    effectVolume.m_vBoxHalfExtends += ezVec3(effectMaxSize);
+
+    volume = effectVolume;
+  }
+  else
+  {
+    volume = ezBoundingSphere(ezVec3::ZeroVector(), 0);
+  }
+
+  return uiChangeCounter;
 }
 
 void ezParticleEffectInstance::DestroyEventQueues()

@@ -19,8 +19,11 @@ public:
   void SetTransform(const ezTransform& t) const;
 
   void Tick(const ezTime& tDiff) const;
+  void SetIsInView() const;
 
   void StopImmediate();
+
+  ezUInt64 GetBoundingVolume(ezBoundingBoxSphere& volume) const;
 
 private:
   ezParticleEffectController(ezParticleWorldModule* pModule, ezParticleEffectHandle hEffect);

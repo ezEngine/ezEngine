@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <ParticlePlugin/Basics.h>
 #include <Core/Messages/ScriptFunctionMessage.h>
@@ -79,13 +79,14 @@ public:
 
 
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+  void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
 
   ezParticleEffectController m_EffectController;
 
 protected:
+  virtual void OnDeactivated() override;
+  void HandOffToFinisher();
+
   ezParticleEffectResourceHandle m_hEffectResource;
   ezTime m_RestartTime;
-
-  virtual void OnDeactivated() override;
-
 };

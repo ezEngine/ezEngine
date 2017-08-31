@@ -91,6 +91,17 @@ void ezParticleEffectController::Tick(const ezTime& tDiff) const
   }
 }
 
+
+void ezParticleEffectController::SetIsInView() const
+{
+  ezParticleEffectInstance* pEffect = GetInstance();
+
+  if (pEffect)
+  {
+    pEffect->SetIsInView();
+  }
+}
+
 void ezParticleEffectController::StopImmediate()
 {
   if (m_pModule)
@@ -100,6 +111,19 @@ void ezParticleEffectController::StopImmediate()
     m_pModule = nullptr;
     m_hEffect.Invalidate();
   }
+}
+
+
+ezUInt64 ezParticleEffectController::GetBoundingVolume(ezBoundingBoxSphere& volume) const
+{
+  ezParticleEffectInstance* pEffect = GetInstance();
+
+  if (pEffect)
+  {
+    return pEffect->GetBoundingVolume(volume);
+  }
+
+  return 0;
 }
 
 void ezParticleEffectController::Invalidate()

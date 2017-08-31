@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <ParticlePlugin/Components/ParticleComponent.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
@@ -6,6 +6,8 @@
 #include <Core/World/WorldModule.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
+#include <RendererCore/Pipeline/RenderData.h>
+#include <ParticlePlugin/Components/ParticleFinisherComponent.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +45,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 1)
     EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezParticleComponent_PlayEffectMsg, Play),
+    EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS
 
@@ -63,7 +66,7 @@ ezParticleComponent::~ezParticleComponent()
 
 void ezParticleComponent::OnDeactivated()
 {
-  m_EffectController.Invalidate();
+  HandOffToFinisher();
 
   ezRenderComponent::OnDeactivated();
 }
@@ -101,7 +104,7 @@ void ezParticleComponent::DeserializeComponent(ezWorldReader& stream)
 bool ezParticleComponent::StartEffect()
 {
   // stop any previous effect
-  m_EffectController.Invalidate();
+  HandOffToFinisher();
 
   if (m_hEffectResource.IsValid())
   {
@@ -118,7 +121,7 @@ bool ezParticleComponent::StartEffect()
 
 void ezParticleComponent::StopEffect()
 {
-  m_EffectController.Invalidate();
+  HandOffToFinisher();
 }
 
 void ezParticleComponent::InterruptEffect()
@@ -148,7 +151,7 @@ void ezParticleComponent::Play(ezParticleComponent_PlayEffectMsg& msg)
 void ezParticleComponent::SetParticleEffect(const ezParticleEffectResourceHandle& hEffect)
 {
   m_hEffectResource = hEffect;
-  m_EffectController.Invalidate();
+  HandOffToFinisher();
 
   TriggerLocalBoundsUpdate();
 }
@@ -178,10 +181,29 @@ const char* ezParticleComponent::GetParticleEffectFile() const
 
 ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
-  /// \todo Get bbox from somewhere
+  if (m_EffectController.IsAlive())
+  {
+    ezBoundingBoxSphere volume;
+    const ezUInt64 uiChangeCounter = m_EffectController.GetBoundingVolume(volume);
 
-  bounds.ExpandToInclude(ezBoundingSphere(ezVec3::ZeroVector(), 3.0f));
+    if (uiChangeCounter > 0)
+    {
+      ezTransform inv = GetOwner()->GetGlobalTransform().GetInverse();
+      volume.Transform(inv.GetAsMat4());
+
+      bounds.ExpandToInclude(volume);
+      return EZ_SUCCESS;
+    }
+  }
+
+  bounds.ExpandToInclude(ezBoundingSphere(ezVec3::ZeroVector(), 0.25f));
   return EZ_SUCCESS;
+}
+
+
+void ezParticleComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
+{
+  m_EffectController.SetIsInView();
 }
 
 void ezParticleComponent::Update()
@@ -212,9 +234,36 @@ void ezParticleComponent::Update()
   }
 
   m_EffectController.SetTransform(GetOwner()->GetGlobalTransform());
+
+  TriggerLocalBoundsUpdate();
 }
 
+void ezParticleComponent::HandOffToFinisher()
+{
+  if (m_EffectController.IsAlive())
+  {
+    ezGameObject* pOwner = GetOwner();
+    ezWorld* pWorld = pOwner->GetWorld();
 
+    ezTransform transform = pOwner->GetGlobalTransform();
+
+    ezGameObjectDesc go;
+    go.m_LocalPosition = transform.m_vPosition;
+    go.m_LocalRotation = transform.m_qRotation;
+    go.m_LocalScaling = transform.m_vScale;
+    go.m_Tags = GetOwner()->GetTags();
+
+    ezGameObject* pFinisher;
+    pWorld->CreateObject(go, pFinisher);
+
+    ezParticleFinisherComponent* pFinisherComp;
+    pWorld->GetOrCreateComponentManager<ezParticleFinisherComponentManager>()->CreateComponent(pFinisher, pFinisherComp);
+
+    pFinisherComp->m_EffectController = m_EffectController;
+  }
+
+  m_EffectController.Invalidate();
+}
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Components_ParticleComponent);
 

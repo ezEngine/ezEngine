@@ -13,6 +13,7 @@
 #include <Foundation/DataProcessing/Stream/DefaultImplementations/ZeroInitializer.h>
 #include <ParticlePlugin/Streams/ParticleStream.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 
 bool ezParticleSystemInstance::HasActiveParticles() const
 {
@@ -177,6 +178,29 @@ void ezParticleSystemInstance::CreateStreamProcessors(const ezParticleSystemDesc
       m_Types.PushBack(pType);
     }
   }
+
+  // setup optional streams
+  {
+    for (auto& pEmitter : m_Emitters)
+    {
+      pEmitter->QueryOptionalStreams();
+    }
+
+    for (auto& pInitializer : m_Initializers)
+    {
+      pInitializer->QueryOptionalStreams();
+    }
+
+    for (auto& pBehavior : m_Behaviors)
+    {
+      pBehavior->QueryOptionalStreams();
+    }
+
+    for (auto& pType : m_Types)
+    {
+      pType->QueryOptionalStreams();
+    }
+  }
 }
 
 void ezParticleSystemInstance::ReinitializeStreamProcessors(const ezParticleSystemDescriptor* pTemplate)
@@ -232,6 +256,11 @@ void ezParticleSystemInstance::ReinitializeStreamProcessors(const ezParticleSyst
       m_Types[i]->CreateRequiredStreams();
     }
   }
+}
+
+ezParticleSystemInstance::ezParticleSystemInstance()
+{
+  m_BoundingVolume = ezBoundingSphere(ezVec3::ZeroVector(), 0.0f);
 }
 
 void ezParticleSystemInstance::Construct(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed, ezParticleEffectInstance* pOwnerEffect)
@@ -327,8 +356,8 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
 
 const ezProcessingStream* ezParticleSystemInstance::QueryStream(const char* szName, ezProcessingStream::DataType Type) const
 {
-  ezStringBuilder fullName(szName);
-  fullName.AppendFormat("({0})", (int)Type);
+  ezStringBuilder fullName;
+  ezParticleStreamFactory::GetFullStreamName(szName, Type, fullName);
 
   return m_StreamGroup.GetStreamByName(fullName);
 }
@@ -483,6 +512,21 @@ void ezParticleSystemInstance::RemoveParticleDeathEventHandler(ParticleDeathHand
 }
 
 
+void ezParticleSystemInstance::SetBoundingVolume(const ezBoundingBoxSphere& volume, float fMaxSize)
+{
+  m_uiBoundingVolumeChangeCounter = ezRenderWorld::GetFrameCounter();
+  m_BoundingVolume = volume;
+  m_fMaxParticleSize = fMaxSize;
+}
+
+
+ezUInt64 ezParticleSystemInstance::GetBoundingVolume(ezBoundingBoxSphere& volume, float& fMaxSize)
+{
+  volume = m_BoundingVolume;
+  fMaxSize = m_fMaxParticleSize;
+
+  return m_uiBoundingVolumeChangeCounter;
+}
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_System_ParticleSystemInstance);
 

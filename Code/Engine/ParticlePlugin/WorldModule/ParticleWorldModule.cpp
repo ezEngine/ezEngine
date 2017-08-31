@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 #include <Foundation/Threading/Lock.h>
 #include <Core/World/World.h>
@@ -9,6 +9,7 @@
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <ParticlePlugin/Streams/ParticleStream.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 
 EZ_IMPLEMENT_WORLD_MODULE(ezParticleWorldModule);
 
@@ -77,9 +78,9 @@ void ezParticleWorldModule::ExtractRenderData(const ezView& view, ezExtractedRen
   // increase frame count to identify which system has been updated in this frame already
   ++m_uiExtractedFrame;
 
-  for (ezUInt32 e = 0; e < m_ParticleEffects.GetCount(); ++e)
+  for (auto it = m_ActiveEffects.GetIterator(); it.IsValid(); ++it)
   {
-    const ezParticleEffectInstance* pEffect = &m_ParticleEffects[e];
+    const ezParticleEffectInstance* pEffect = it.Value();
 
     if (pEffect->IsSharedEffect())
     {
@@ -109,6 +110,9 @@ void ezParticleWorldModule::ExtractRenderData(const ezView& view, ezExtractedRen
 
 void ezParticleWorldModule::ExtractEffectRenderData(const ezParticleEffectInstance* pEffect, const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& systemTransform) const
 {
+  if (pEffect->m_uiEffectIsInView < ezRenderWorld::GetFrameCounter())
+    return;
+
   for (ezUInt32 i = 0; i < pEffect->GetParticleSystems().GetCount(); ++i)
   {
     const ezParticleSystemInstance* pSystem = pEffect->GetParticleSystems()[i];

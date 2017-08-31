@@ -12,7 +12,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 void ezParticleStreamFactory::GetFullStreamName(const char* szName, ezProcessingStream::DataType type, ezStringBuilder& out_Result)
 {
-  out_Result.Format("{0}({1})", szName, (int)type);
+  out_Result = szName;
+  out_Result.AppendFormat("({0})", (int)type);
 }
 
 ezParticleStream* ezParticleStreamFactory::CreateParticleStream(ezParticleSystemInstance* pOwner) const

@@ -51,6 +51,8 @@ public:
 
   void PreSimulate();
 
+  void SetIsInView() const;
+
 
   /// \brief Returns false when the effect is finished
   bool Update(const ezTime& tDiff);
@@ -80,6 +82,8 @@ public:
   /// \brief Whether this instance is in a state where its update task should be run
   bool ShouldBeUpdated() const;
 
+  ezUInt64 GetBoundingVolume(ezBoundingBoxSphere& volume);
+
 private:
   void Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTime);
   void ClearParticleSystem(ezUInt32 index);
@@ -91,6 +95,8 @@ private:
   bool m_bIsSharedEffect;
   bool m_bEmitterEnabled;
   bool m_bSimulateInLocalSpace;
+  bool m_bIsFinishing = false;
+  mutable ezUInt64 m_uiEffectIsInView = 0;
   ezUInt8 m_uiReviveTimeout;
   ezTime m_PreSimulateDuration;
   ezParticleEffectResourceHandle m_hResource;

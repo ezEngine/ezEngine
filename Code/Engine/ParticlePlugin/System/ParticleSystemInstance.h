@@ -5,6 +5,7 @@
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Random.h>
 #include <ParticlePlugin/Declarations.h>
+#include <Foundation/Math/BoundingBoxSphere.h>
 
 class ezView;
 class ezExtractedRenderData;
@@ -13,7 +14,7 @@ class ezExtractedRenderData;
 class EZ_PARTICLEPLUGIN_DLL ezParticleSystemInstance
 {
 public:
-  ezParticleSystemInstance() {}
+  ezParticleSystemInstance();
 
   void Construct(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed, ezParticleEffectInstance* pOwnerEffect);
   void Destruct();
@@ -61,6 +62,9 @@ public:
   void AddParticleDeathEventHandler(ParticleDeathHandler handler);
   void RemoveParticleDeathEventHandler(ParticleDeathHandler handler);
 
+  void SetBoundingVolume(const ezBoundingBoxSphere& volume, float fMaxSize);
+  ezUInt64 GetBoundingVolume(ezBoundingBoxSphere& volume, float& fMaxSize);
+
 private:
   bool IsEmitterConfigEqual(const ezParticleSystemDescriptor* pTemplate) const;
   bool IsInitializerConfigEqual(const ezParticleSystemDescriptor* pTemplate) const;
@@ -95,4 +99,9 @@ private:
   ezHybridArray<StreamInfo, 16> m_StreamInfo;
 
   ezRandom m_Random;
+
+  // culling data
+  ezUInt64 m_uiBoundingVolumeChangeCounter = 0;
+  ezBoundingBoxSphere m_BoundingVolume;
+  float m_fMaxParticleSize = 0.0f;
 };
