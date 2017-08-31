@@ -40,7 +40,9 @@ ezWorld::ezWorld(ezWorldDesc& desc)
 
 ezWorld::~ezWorld()
 {
+  // allow reading and writing during destruction
   m_Data.m_WriteThreadID = ezThreadUtils::GetCurrentThreadID();
+  m_Data.m_iReadCounter.Increment();
 
   // set all objects to inactive so components and children know that they shouldn't access the objects anymore.
   for (auto it = m_Data.m_ObjectStorage.GetIterator(); it.IsValid(); it.Next())
