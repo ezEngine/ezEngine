@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
@@ -34,11 +34,15 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_ColorGradient : public ezParticle
 public:
   ezColorGradientResourceHandle m_hGradient;
 
+  virtual void AfterPropertiesConfigured(bool bFirstTime) override;
   virtual void CreateRequiredStreams() override;
 
 protected:
+  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
   virtual void Process(ezUInt64 uiNumElements) override;
 
   ezProcessingStream* m_pStreamLifeTime;
   ezProcessingStream* m_pStreamColor;
+  ezColor m_InitColor;
+  ezUInt32 m_uiFirstToUpdate = 0;
 };

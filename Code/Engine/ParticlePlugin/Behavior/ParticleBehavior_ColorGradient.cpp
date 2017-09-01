@@ -57,7 +57,6 @@ void ezParticleBehaviorFactory_ColorGradient::SetColorGradientFile(const char* s
   SetColorGradient(m_hGradient);
 }
 
-
 const char* ezParticleBehaviorFactory_ColorGradient::GetColorGradientFile() const
 {
   if (!m_hGradient.IsValid())
@@ -66,10 +65,48 @@ const char* ezParticleBehaviorFactory_ColorGradient::GetColorGradientFile() cons
   return m_hGradient.GetResourceID();
 }
 
+void ezParticleBehavior_ColorGradient::AfterPropertiesConfigured(bool bFirstTime)
+{
+  m_InitColor = ezColor::RebeccaPurple;
+}
+
 void ezParticleBehavior_ColorGradient::CreateRequiredStreams()
 {
   CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime, false);
   CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor, false);
+}
+
+void ezParticleBehavior_ColorGradient::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+{
+  if (!m_hGradient.IsValid())
+    return;
+
+  EZ_PROFILE("PFX: Color Gradient Init");
+
+  if (m_InitColor == ezColor::RebeccaPurple)
+  {
+    ezResourceLock<ezColorGradientResource> pGradient(m_hGradient, ezResourceAcquireMode::NoFallback);
+
+    if (!pGradient->IsMissingResource())
+    {
+      const ezColorGradient& gradient = pGradient->GetDescriptor().m_Gradient;
+
+      ezColor rgba;
+      ezUInt8 alpha;
+      gradient.EvaluateColor(0, rgba);
+      gradient.EvaluateAlpha(0, alpha);
+      rgba.a = ezMath::ColorByteToFloat(alpha);
+
+      m_InitColor = rgba;
+    }
+  }
+
+  ezProcessingStreamIterator<ezColor> itColor(m_pStreamColor, uiNumElements, uiStartIndex);
+  while (!itColor.HasReachedEnd())
+  {
+    itColor.Current() = m_InitColor;
+    itColor.Advance();
+  }
 }
 
 void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
@@ -77,29 +114,55 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
   if (!m_hGradient.IsValid())
     return;
 
-  ezProcessingStreamIterator<ezVec3> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
-  ezProcessingStreamIterator<ezColor> itColor(m_pStreamColor, uiNumElements, 0);
+  EZ_PROFILE("PFX: Color Gradient");
 
   ezResourceLock<ezColorGradientResource> pGradient(m_hGradient, ezResourceAcquireMode::NoFallback);
 
   if (pGradient->IsMissingResource())
     return;
 
+  const ezColorGradient& gradient = pGradient->GetDescriptor().m_Gradient;
+
+  ezProcessingStreamIterator<ezVec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
+  ezProcessingStreamIterator<ezColor> itColor(m_pStreamColor, uiNumElements, 0);
+
+  /// \todo This could be adjusted depending on the effects priority (visibility etc.)
+  const ezUInt32 uiUpdateInterval = 8;
+
+  ++m_uiFirstToUpdate;
+  if (m_uiFirstToUpdate >= uiUpdateInterval)
+    m_uiFirstToUpdate = 0;
+
+  for (ezUInt32 i = 0; i < m_uiFirstToUpdate; ++i)
+  {
+    itLifeTime.Advance();
+    itColor.Advance();
+  }
+
   while (!itLifeTime.HasReachedEnd())
   {
     if (itLifeTime.Current().y > 0)
     {
       const float fLifeTimeFraction = itLifeTime.Current().x / itLifeTime.Current().y;
+      const float posx = 1.0f - fLifeTimeFraction;
 
-      ezColorGammaUB rgba;
-      float intensity;
-      pGradient->GetDescriptor().m_Gradient.Evaluate(1.0f - fLifeTimeFraction, rgba, intensity);
+      ezColor rgba;
+      ezUInt8 alpha;
+      gradient.EvaluateColor(posx, rgba);
+      gradient.EvaluateAlpha(posx, alpha);
+      rgba.a = ezMath::ColorByteToFloat(alpha);
 
       itColor.Current() = rgba;
     }
 
-    itLifeTime.Advance();
-    itColor.Advance();
+    // skip the next n items
+    // this is to reduce the number of particles that need to be fully evaluated,
+    // since sampling the color gradient is pretty expensive
+    for (ezUInt32 i = 0; i < uiUpdateInterval; ++i)
+    {
+      itLifeTime.Advance();
+      itColor.Advance();
+    }
   }
 }
 

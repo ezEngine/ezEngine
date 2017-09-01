@@ -7,6 +7,7 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <Foundation/Profiling/Profiling.h>
 
 ezParticleEffectInstance::ezParticleEffectInstance()
   : m_Task(this)
@@ -226,6 +227,7 @@ void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTim
 
 bool ezParticleEffectInstance::Update(const ezTime& tDiff)
 {
+  EZ_PROFILE("PFX: Effect Update");
   ++m_uiUpdateBVolumeCounter;
 
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
@@ -252,6 +254,7 @@ bool ezParticleEffectInstance::Update(const ezTime& tDiff)
 
   if (NeedsBoundingVolumeUpdate())
   {
+    EZ_PROFILE("PFX: BVol Update");
     CombineSystemBoundingVolumes();
     m_uiUpdateBVolumeCounter = 0;
   }
@@ -425,6 +428,7 @@ void ezParticleEffectInstance::DestroyEventQueues()
 
 void ezParticleEffectInstance::ProcessEventQueues()
 {
+  EZ_PROFILE("PFX: Effect Event Queue");
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
     if (m_ParticleSystems[i])

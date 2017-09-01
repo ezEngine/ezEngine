@@ -14,6 +14,7 @@
 #include <ParticlePlugin/Streams/ParticleStream.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <Foundation/Profiling/Profiling.h>
 
 bool ezParticleSystemInstance::HasActiveParticles() const
 {
@@ -292,6 +293,8 @@ void ezParticleSystemInstance::Destruct()
 
 ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff)
 {
+  EZ_PROFILE("PFX: System Update");
+
   if (m_bEmitterEnabled)
   {
     // if all emitters are finished, we deactivate this on the whole system
@@ -306,6 +309,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
 
         if (uiSpawn > 0)
         {
+          EZ_PROFILE("PFX: System Emit");
           m_StreamGroup.InitializeElements(uiSpawn);
         }
       }
@@ -326,23 +330,33 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
 
         if (uiSpawn > 0)
         {
+          EZ_PROFILE("PFX: System Emit (React)");
           m_StreamGroup.InitializeElements(uiSpawn);
         }
       }
     }
   }
 
-  for (auto pBehavior : m_Behaviors)
   {
-    pBehavior->StepParticleSystem(tDiff);
+    EZ_PROFILE("PFX: System Step Behaviors");
+    for (auto pBehavior : m_Behaviors)
+    {
+      pBehavior->StepParticleSystem(tDiff);
+    }
   }
 
-  for (auto pType : m_Types)
   {
-    pType->StepParticleSystem(tDiff);
+    EZ_PROFILE("PFX: System Step Types");
+    for (auto pType : m_Types)
+    {
+      pType->StepParticleSystem(tDiff);
+    }
   }
 
-  m_StreamGroup.Process();
+  {
+    EZ_PROFILE("PFX: System Process");
+    m_StreamGroup.Process();
+  }
 
   if (m_bEmitterEnabled)
     return ezParticleSystemState::Active;

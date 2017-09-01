@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <ParticlePlugin/Type/Fragment/ParticleTypeFragment.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
@@ -11,6 +11,7 @@
 #include <Core/World/GameObject.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/World/World.h>
+#include <Foundation/Profiling/Profiling.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezFragmentAxis, 1)
 EZ_ENUM_CONSTANTS(ezFragmentAxis::OrthogonalEmitterDirection, ezFragmentAxis::EmitterDirection)
@@ -91,7 +92,7 @@ void ezParticleTypeFragmentFactory::Load(ezStreamReader& stream)
 
 void ezParticleTypeFragment::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition, false);
+  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
   CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize, false);
   CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor, false);
   CreateStream("RotationSpeed", ezProcessingStream::DataType::Float, &m_pStreamRotationSpeed, false);
@@ -99,6 +100,8 @@ void ezParticleTypeFragment::CreateRequiredStreams()
 
 void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
+  EZ_PROFILE("PFX: Fragment");
+
   if (!m_hTexture.IsValid())
     return;
 
@@ -115,7 +118,7 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
   {
     m_uiLastExtractedFrame = uiExtractedFrame;
 
-    const ezVec3* pPosition = m_pStreamPosition->GetData<ezVec3>();
+    const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
     const float* pSize = m_pStreamSize->GetData<float>();
     const ezColor* pColor = m_pStreamColor->GetData<ezColor>();
     const float* pRotationSpeed = m_pStreamRotationSpeed->GetData<float>();
@@ -141,7 +144,7 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
         ezMat3 mRotation;
         mRotation.SetRotationMatrix(vEmitterDir, ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[p])));
 
-        m_ParticleData[p].Position = pPosition[p];
+        m_ParticleData[p].Position = pPosition[p].GetAsVec3();
         m_ParticleData[p].TangentX = mRotation * vTangentX;
         m_ParticleData[p].TangentZ = vTangentZ;
       }
@@ -152,13 +155,13 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
 
       for (ezUInt32 p = 0; p < (ezUInt32)GetOwnerSystem()->GetNumActiveParticles(); ++p)
       {
-        const ezVec3 vDirToParticle = (pPosition[p] - vEmitterPos);
+        const ezVec3 vDirToParticle = (pPosition[p].GetAsVec3() - vEmitterPos);
         const ezVec3 vOrthoDir = vEmitterDir.Cross(vDirToParticle).GetNormalized();
 
         ezMat3 mRotation;
         mRotation.SetRotationMatrix(vOrthoDir, ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[p])));
 
-        m_ParticleData[p].Position = pPosition[p];
+        m_ParticleData[p].Position = pPosition[p].GetAsVec3();
         m_ParticleData[p].TangentX = vOrthoDir;
         m_ParticleData[p].TangentZ = mRotation * vTangentZ;
       }

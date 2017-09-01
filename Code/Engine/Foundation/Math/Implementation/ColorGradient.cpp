@@ -82,6 +82,45 @@ void ezColorGradient::SortControlPoints()
   m_ColorCPs.Sort();
   m_AlphaCPs.Sort();
   m_IntensityCPs.Sort();
+
+  PrecomputeLerpNormalizer();
+
+}
+
+void ezColorGradient::PrecomputeLerpNormalizer()
+{
+  for (ezUInt32 i = 1; i < m_ColorCPs.GetCount(); ++i)
+  {
+    const double px0 = m_ColorCPs[i - 1].m_PosX;
+    const double px1 = m_ColorCPs[i].m_PosX;
+
+    const double dist = px1 - px0;
+    const double invDist = 1.0 / dist;
+
+    m_ColorCPs[i - 1].m_fInvDistToNextCp = (float)invDist;
+  }
+
+  for (ezUInt32 i = 1; i < m_AlphaCPs.GetCount(); ++i)
+  {
+    const double px0 = m_AlphaCPs[i - 1].m_PosX;
+    const double px1 = m_AlphaCPs[i].m_PosX;
+
+    const double dist = px1 - px0;
+    const double invDist = 1.0 / dist;
+
+    m_AlphaCPs[i - 1].m_fInvDistToNextCp = (float)invDist;
+  }
+
+  for (ezUInt32 i = 1; i < m_IntensityCPs.GetCount(); ++i)
+  {
+    const double px0 = m_IntensityCPs[i - 1].m_PosX;
+    const double px1 = m_IntensityCPs[i].m_PosX;
+
+    const double dist = px1 - px0;
+    const double invDist = 1.0 / dist;
+
+    m_IntensityCPs[i - 1].m_fInvDistToNextCp = (float)invDist;
+  }
 }
 
 void ezColorGradient::Evaluate(float x, ezColorGammaUB& rgba, float& intensity) const
@@ -127,46 +166,55 @@ void ezColorGradient::EvaluateColor(float x, ezColor& rgb) const
   rgb.b = 1.0f;
   rgb.a = 1.0f;
 
-  if (m_ColorCPs.GetCount() == 1)
-  {
-    rgb = ezColorGammaUB(m_ColorCPs[0].m_GammaRed, m_ColorCPs[0].m_GammaGreen, m_ColorCPs[0].m_GammaBlue);
-  }
-  else if (m_ColorCPs.GetCount() >= 2)
-  {
-    ezInt32 iControlPoint = -1;
+  const ezUInt32 numCPs = m_ColorCPs.GetCount();
 
-    const ezUInt32 numCPs = m_ColorCPs.GetCount();
-    for (ezUInt32 i = 0; i < numCPs; ++i)
+  if (numCPs >= 2)
+  {
+    // clamp to left value
+    if (m_ColorCPs[0].m_PosX >= x)
+    {
+      const ColorCP& cp = m_ColorCPs[0];
+      rgb = ezColorGammaUB(cp.m_GammaRed, cp.m_GammaGreen, cp.m_GammaBlue);
+      return;
+    }
+
+    ezUInt32 uiControlPoint;
+
+    for (ezUInt32 i = 1; i < numCPs; ++i)
     {
       if (m_ColorCPs[i].m_PosX >= x)
-        break;
-
-      iControlPoint = i;
+      {
+        uiControlPoint = i - 1;
+        goto found;
+      }
     }
 
-    if (iControlPoint == -1)
+    // no point found -> clamp to right value
     {
-      // clamp to left value
-      rgb = ezColorGammaUB(m_ColorCPs[0].m_GammaRed, m_ColorCPs[0].m_GammaGreen, m_ColorCPs[0].m_GammaBlue);
+      const ColorCP& cp = m_ColorCPs[numCPs - 1];
+      rgb = ezColorGammaUB(cp.m_GammaRed, cp.m_GammaGreen, cp.m_GammaBlue);
+      return;
     }
-    else if (iControlPoint == numCPs - 1)
+
+found:
     {
-      // clamp to right value
-      rgb = ezColorGammaUB(m_ColorCPs[numCPs - 1].m_GammaRed, m_ColorCPs[numCPs - 1].m_GammaGreen, m_ColorCPs[numCPs - 1].m_GammaBlue);
-    }
-    else
-    {
-      const ezColor lhs(ezColorGammaUB(m_ColorCPs[iControlPoint].m_GammaRed, m_ColorCPs[iControlPoint].m_GammaGreen, m_ColorCPs[iControlPoint].m_GammaBlue, 255));
-      const ezColor rhs(ezColorGammaUB(m_ColorCPs[iControlPoint + 1].m_GammaRed, m_ColorCPs[iControlPoint + 1].m_GammaGreen, m_ColorCPs[iControlPoint + 1].m_GammaBlue, 255));
+      const ColorCP& cpl = m_ColorCPs[uiControlPoint];
+      const ColorCP& cpr = m_ColorCPs[uiControlPoint + 1];
+
+      const ezColor lhs(ezColorGammaUB(cpl.m_GammaRed, cpl.m_GammaGreen, cpl.m_GammaBlue, 255));
+      const ezColor rhs(ezColorGammaUB(cpr.m_GammaRed, cpr.m_GammaGreen, cpr.m_GammaBlue, 255));
 
       /// \todo Use a midpoint interpolation
 
       // interpolate (linear for now)
-      float lerpX = x - m_ColorCPs[iControlPoint].m_PosX;
-      lerpX /= (m_ColorCPs[iControlPoint + 1].m_PosX - m_ColorCPs[iControlPoint].m_PosX);
+      const float lerpX = (x - cpl.m_PosX) * cpl.m_fInvDistToNextCp;
 
       rgb = ezMath::Lerp(lhs, rhs, lerpX);
     }
+  }
+  else if (m_ColorCPs.GetCount() == 1)
+  {
+    rgb = ezColorGammaUB(m_ColorCPs[0].m_GammaRed, m_ColorCPs[0].m_GammaGreen, m_ColorCPs[0].m_GammaBlue);
   }
 }
 
@@ -174,43 +222,49 @@ void ezColorGradient::EvaluateAlpha(float x, ezUInt8& alpha) const
 {
   alpha = 255;
 
-  if (m_AlphaCPs.GetCount() == 1)
+  const ezUInt32 numCPs = m_AlphaCPs.GetCount();
+  if (numCPs >= 2)
   {
-    alpha = m_AlphaCPs[0].m_Alpha;
-  }
-  else if (m_AlphaCPs.GetCount() >= 2)
-  {
-    ezInt32 iControlPoint = -1;
+    // clamp to left value
+    if (m_AlphaCPs[0].m_PosX >= x)
+    {
+      alpha = m_AlphaCPs[0].m_Alpha;
+      return;
+    }
 
-    const ezUInt32 numCPs = m_AlphaCPs.GetCount();
-    for (ezUInt32 i = 0; i < numCPs; ++i)
+    ezUInt32 uiControlPoint;
+
+    for (ezUInt32 i = 1; i < numCPs; ++i)
     {
       if (m_AlphaCPs[i].m_PosX >= x)
-        break;
-
-      iControlPoint = i;
+      {
+        uiControlPoint = i - 1;
+        goto found;
+      }
     }
 
-    if (iControlPoint == -1)
+    // no point found -> clamp to right value
     {
-      // clamp to left value
-      alpha = m_AlphaCPs[0].m_Alpha;
-    }
-    else if (iControlPoint == numCPs - 1)
-    {
-      // clamp to right value
       alpha = m_AlphaCPs[numCPs - 1].m_Alpha;
+      return;
     }
-    else
+
+found:
     {
       /// \todo Use a midpoint interpolation
 
-      // interpolate (linear for now)
-      float lerpX = x - m_AlphaCPs[iControlPoint].m_PosX;
-      lerpX /= (m_AlphaCPs[iControlPoint + 1].m_PosX - m_AlphaCPs[iControlPoint].m_PosX);
+      const AlphaCP& cpl = m_AlphaCPs[uiControlPoint];
+      const AlphaCP& cpr = m_AlphaCPs[uiControlPoint + 1];
 
-      alpha = ezMath::Lerp(m_AlphaCPs[iControlPoint].m_Alpha, m_AlphaCPs[iControlPoint + 1].m_Alpha, lerpX);
+      // interpolate (linear for now)
+      const float lerpX = (x - cpl.m_PosX) * cpl.m_fInvDistToNextCp;
+
+      alpha = ezMath::Lerp(cpl.m_Alpha, cpr.m_Alpha, lerpX);
     }
+  }
+  else if (m_AlphaCPs.GetCount() == 1)
+  {
+    alpha = m_AlphaCPs[0].m_Alpha;
   }
 }
 
@@ -218,43 +272,49 @@ void ezColorGradient::EvaluateIntensity(float x, float& intensity) const
 {
   intensity = 1.0f;
 
-  if (m_IntensityCPs.GetCount() == 1)
+  const ezUInt32 numCPs = m_AlphaCPs.GetCount();
+  if (m_IntensityCPs.GetCount() >= 2)
   {
-    intensity = m_IntensityCPs[0].m_Intensity;
-  }
-  else if (m_IntensityCPs.GetCount() >= 2)
-  {
-    ezInt32 iControlPoint = -1;
+    // clamp to left value
+    if (m_IntensityCPs[0].m_PosX >= x)
+    {
+      intensity = m_IntensityCPs[0].m_Intensity;
+      return;
+    }
 
-    const ezUInt32 numCPs = m_IntensityCPs.GetCount();
-    for (ezUInt32 i = 0; i < numCPs; ++i)
+    ezUInt32 uiControlPoint;
+
+    for (ezUInt32 i = 1; i < numCPs; ++i)
     {
       if (m_IntensityCPs[i].m_PosX >= x)
-        break;
-
-      iControlPoint = i;
+      {
+        uiControlPoint = i - 1;
+        goto found;
+      }
     }
 
-    if (iControlPoint == -1)
+    // no point found -> clamp to right value
     {
-      // clamp to left value
-      intensity = m_IntensityCPs[0].m_Intensity;
-    }
-    else if (iControlPoint == numCPs - 1)
-    {
-      // clamp to right value
       intensity = m_IntensityCPs[numCPs - 1].m_Intensity;
+      return;
     }
-    else
+
+found:
     {
+      const IntensityCP& cpl = m_IntensityCPs[uiControlPoint];
+      const IntensityCP& cpr = m_IntensityCPs[uiControlPoint + 1];
+
       /// \todo Use a midpoint interpolation
 
       // interpolate (linear for now)
-      float lerpX = x - m_IntensityCPs[iControlPoint].m_PosX;
-      lerpX /= (m_IntensityCPs[iControlPoint + 1].m_PosX - m_IntensityCPs[iControlPoint].m_PosX);
+      const float lerpX = (x - cpl.m_PosX) * cpl.m_fInvDistToNextCp;
 
-      intensity = ezMath::Lerp(m_IntensityCPs[iControlPoint].m_Intensity, m_IntensityCPs[iControlPoint + 1].m_Intensity, lerpX);
+      intensity = ezMath::Lerp(cpl.m_Intensity, cpr.m_Intensity, lerpX);
     }
+  }
+  else if (m_IntensityCPs.GetCount() == 1)
+  {
+    intensity = m_IntensityCPs[0].m_Intensity;
   }
 }
 
@@ -336,6 +396,8 @@ void ezColorGradient::Load(ezStreamReader& stream)
     stream >> cp.m_PosX;
     stream >> cp.m_Intensity;
   }
+
+  PrecomputeLerpNormalizer();
 }
 
 

@@ -83,6 +83,8 @@ void ezParticleInitializer_RandomSize::CreateRequiredStreams()
 
 void ezParticleInitializer_RandomSize::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
+  EZ_PROFILE("PFX: Random Size");
+
   float* pSize = m_pStreamSize->GetWritableData<float>();
 
   ezRandom& rng = GetRNG();

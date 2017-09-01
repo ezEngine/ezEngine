@@ -3,6 +3,9 @@
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Random.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
+#include <Foundation/SimdMath/SimdVec4f.h>
+#include <Foundation/SimdMath/SimdTransform.h>
+#include <Foundation/Profiling/Profiling.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_BoxPosition, 1, ezRTTIDefaultAllocator<ezParticleInitializerFactory_BoxPosition>)
 {
@@ -53,18 +56,21 @@ void ezParticleInitializerFactory_BoxPosition::Load(ezStreamReader& stream)
 
 void ezParticleInitializer_BoxPosition::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition, true);
+  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, true);
 }
 
 void ezParticleInitializer_BoxPosition::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
-  ezVec3* pPosition = m_pStreamPosition->GetWritableData<ezVec3>();
+  EZ_PROFILE("PFX: Box Position");
+
+  ezSimdVec4f* pPosition = m_pStreamPosition->GetWritableData<ezSimdVec4f>();
 
   ezRandom& rng = GetRNG();
 
   if (m_vSize.IsZero())
   {
-    const ezVec3 pos = GetOwnerSystem()->GetTransform().m_vPosition;
+    ezSimdVec4f pos;
+    pos.Load<3>(&GetOwnerSystem()->GetTransform().m_vPosition.x);
 
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
@@ -73,15 +79,26 @@ void ezParticleInitializer_BoxPosition::InitializeElements(ezUInt64 uiStartIndex
   }
   else
   {
-    ezVec3 pos;
+    ezTransform ownerTransform = GetOwnerSystem()->GetTransform();
+
+    ezSimdVec4f pos;
+    ezSimdTransform transform;
+    transform.m_Position.Load<3>(&ownerTransform.m_vPosition.x);
+    transform.m_Rotation.m_v.Load<4>(&ownerTransform.m_qRotation.v.x);
+    transform.m_Scale.Load<3>(&ownerTransform.m_vScale.x);
+
+    float p0[4];
+    p0[3] = 0;
 
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
-      pos.x = (float)rng.DoubleMinMax(-m_vSize.x, m_vSize.x) * 0.5f;
-      pos.y = (float)rng.DoubleMinMax(-m_vSize.y, m_vSize.y) * 0.5f;
-      pos.z = (float)rng.DoubleMinMax(-m_vSize.z, m_vSize.z) * 0.5f;
+      p0[0] = (float)(rng.DoubleMinMax(-m_vSize.x, m_vSize.x) * 0.5);
+      p0[1] = (float)(rng.DoubleMinMax(-m_vSize.y, m_vSize.y) * 0.5);
+      p0[2] = (float)(rng.DoubleMinMax(-m_vSize.z, m_vSize.z) * 0.5);
 
-      pPosition[i] = GetOwnerSystem()->GetTransform() * pos;
+      pos.Load<4>(p0);
+
+      pPosition[i] = transform.TransformPosition(pos);
     }
   }
 }

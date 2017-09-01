@@ -78,24 +78,32 @@ void ezParticleBehavior_Velocity::AfterPropertiesConfigured(bool bFirstTime)
 
 void ezParticleBehavior_Velocity::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition, false);
+  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
   CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity, false);
 }
 
 void ezParticleBehavior_Velocity::Process(ezUInt64 uiNumElements)
 {
+  EZ_PROFILE("PFX: Velocity");
+
   const float tDiff = (float)m_TimeDiff.GetSeconds();
   const ezVec3 vDown = m_pPhysicsModule != nullptr ? m_pPhysicsModule->GetGravity().GetNormalized() : ezVec3(0.0f, 0.0f, -1.0f);
-  const ezVec3 vRise = vDown * tDiff * -m_fRiseSpeed;
+  const ezVec3 vRise0 = vDown * tDiff * -m_fRiseSpeed;
+
+  ezSimdVec4f vRise;
+  vRise.Load<3>(&vRise0.x);
 
   const float fVelocityFactor = 1.0f + (m_fAcceleration * tDiff);
 
-  ezProcessingStreamIterator<ezVec3> itPosition(m_pStreamPosition, uiNumElements, 0);
+  ezProcessingStreamIterator<ezSimdVec4f> itPosition(m_pStreamPosition, uiNumElements, 0);
   ezProcessingStreamIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements, 0);
 
   while (!itPosition.HasReachedEnd())
   {
-    itPosition.Current() += itVelocity.Current() * tDiff + vRise;
+    ezSimdVec4f velocity;
+    velocity.Load<3>(&itVelocity.Current().x);
+
+    itPosition.Current() += velocity * tDiff + vRise;
     itVelocity.Current() *= fVelocityFactor;
 
     itPosition.Advance();

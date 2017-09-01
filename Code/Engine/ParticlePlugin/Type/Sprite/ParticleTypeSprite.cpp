@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/Math/Angle.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/Math/Vec3.h>
@@ -15,6 +15,7 @@
 #include <Core/World/GameObject.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/World/World.h>
+#include <Foundation/Profiling/Profiling.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSpriteAxis, 1)
 EZ_ENUM_CONSTANTS(ezSpriteAxis::EmitterDirection, ezSpriteAxis::WorldUp, ezSpriteAxis::Random)
@@ -101,7 +102,7 @@ void ezParticleTypeSpriteFactory::Load(ezStreamReader& stream)
 
 void ezParticleTypeSprite::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition, false);
+  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
   CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize, false);
   CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor, false);
   CreateStream("RotationSpeed", ezProcessingStream::DataType::Float, &m_pStreamRotationSpeed, false);
@@ -110,6 +111,8 @@ void ezParticleTypeSprite::CreateRequiredStreams()
 
 void ezParticleTypeSprite::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
+  EZ_PROFILE("PFX: Init Sprite");
+
   ezVec3* pAxis = m_pStreamAxis->GetWritableData<ezVec3>();
   ezRandom& rng = GetRNG();
 
@@ -165,6 +168,8 @@ void ezParticleTypeSprite::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 ui
 
 void ezParticleTypeSprite::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
+  EZ_PROFILE("PFX: Sprite");
+
   if (!m_hTexture.IsValid())
     return;
 
@@ -178,7 +183,7 @@ void ezParticleTypeSprite::ExtractTypeRenderData(const ezView& view, ezExtracted
 
     const ezTime tCur = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
 
-    const ezVec3* pPosition = m_pStreamPosition->GetData<ezVec3>();
+    const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
     const float* pSize = m_pStreamSize->GetData<float>();
     const ezColor* pColor = m_pStreamColor->GetData<ezColor>();
     const float* pRotationSpeed = m_pStreamRotationSpeed->GetData<float>();
@@ -207,7 +212,7 @@ void ezParticleTypeSprite::ExtractTypeRenderData(const ezView& view, ezExtracted
 
       const ezVec3 vTangentX = mRotation * vTangentStart;
 
-      TempData[p].Position = pPosition[p];
+      TempData[p].Position = pPosition[p].GetAsVec3();
       TempData[p].TangentX = vTangentX;
       TempData[p].TangentZ = vTangentX.Cross(vNormal);
     }

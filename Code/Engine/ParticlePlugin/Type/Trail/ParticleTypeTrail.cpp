@@ -11,6 +11,7 @@
 #include <Core/World/GameObject.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/World/World.h>
+#include <Foundation/Profiling/Profiling.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeTrailFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeTrailFactory>)
 {
@@ -118,7 +119,7 @@ void ezParticleTypeTrail::AfterPropertiesConfigured(bool bFirstTime)
 
 void ezParticleTypeTrail::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition, false);
+  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
   CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize, false);
   CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor, false);
   CreateStream("TrailData", ezProcessingStream::DataType::Int, &m_pStreamTrailData, true);
@@ -126,6 +127,8 @@ void ezParticleTypeTrail::CreateRequiredStreams()
 
 void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
+  EZ_PROFILE("PFX: Trail");
+
   if (!m_hTexture.IsValid())
     return;
 
@@ -198,14 +201,14 @@ void ezParticleTypeTrail::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiN
 {
   TrailData* pTrailData = m_pStreamTrailData->GetWritableData<TrailData>();
 
-  const ezVec3* pPosData = m_pStreamPosition->GetData<ezVec3>();
+  const ezVec4* pPosData = m_pStreamPosition->GetData<ezVec4>();
 
   const ezUInt32 uiPrevIndex = (m_uiCurFirstIndex > 0) ? (m_uiCurFirstIndex - 1) : (m_uiMaxPoints - 1);
   const ezUInt32 uiPrevIndex2 = (uiPrevIndex > 0) ? (uiPrevIndex - 1) : (m_uiMaxPoints - 1);
 
   for (ezUInt64 i = 0; i < uiNumElements; ++i)
   {
-    const ezVec4 vStartPos = pPosData[uiStartIndex + i].GetAsPositionVec4();
+    const ezVec4 vStartPos = pPosData[uiStartIndex + i];
 
     TrailData& td = pTrailData[uiStartIndex + i];
     td.m_uiNumPoints = 2;
@@ -224,7 +227,7 @@ void ezParticleTypeTrail::Process(ezUInt64 uiNumElements)
   const ezTime tNow = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
 
   TrailData* pTrailData = m_pStreamTrailData->GetWritableData<TrailData>();
-  const ezVec3* pPosData = m_pStreamPosition->GetData<ezVec3>();
+  const ezVec4* pPosData = m_pStreamPosition->GetData<ezVec4>();
 
   if (tNow - m_LastSnapshot >= m_UpdateDiff)
   {
@@ -244,7 +247,7 @@ void ezParticleTypeTrail::Process(ezUInt64 uiNumElements)
   for (ezUInt64 i = 0; i < uiNumElements; ++i)
   {
     ezVec4* pPositions = GetTrailPointsPositions(pTrailData[i].m_uiIndexForTrailPoints);
-    pPositions[m_uiCurFirstIndex] = pPosData[i].GetAsPositionVec4();
+    pPositions[m_uiCurFirstIndex] = pPosData[i];
   }
 }
 

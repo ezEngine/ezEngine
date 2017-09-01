@@ -5,6 +5,7 @@
 #include <Core/World/World.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Events/ParticleEvent.h>
+#include <Foundation/Profiling/Profiling.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Age, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Age>)
 {
@@ -100,7 +101,7 @@ void ezParticleBehavior_Age::CreateRequiredStreams()
 
   if (m_sOnDeathEvent.GetHash() != 0)
   {
-    CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition, false);
+    CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
     CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity, false);
   }
 }
@@ -123,6 +124,8 @@ void ezParticleBehavior_Age::AfterPropertiesConfigured(bool bFirstTime)
 
 void ezParticleBehavior_Age::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
+  EZ_PROFILE("PFX: Age Init");
+
   ezVec2* pLifeTime = m_pStreamLifeTime->GetWritableData<ezVec2>();
 
   if (m_LifeTime.m_fVariance == 0)
@@ -149,6 +152,8 @@ void ezParticleBehavior_Age::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 
 
 void ezParticleBehavior_Age::Process(ezUInt64 uiNumElements)
 {
+  EZ_PROFILE("PFX: Age");
+
   ezVec2* pLifeTime = m_pStreamLifeTime->GetWritableData<ezVec2>();
 
   const float tDiff = (float)m_TimeDiff.GetSeconds();
@@ -169,13 +174,13 @@ void ezParticleBehavior_Age::Process(ezUInt64 uiNumElements)
 
 void ezParticleBehavior_Age::OnParticleDeath(const ezStreamGroupElementRemovedEvent& e)
 {
-  const ezVec3* pPosition = m_pStreamPosition->GetData<ezVec3>();
+  const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
   const ezVec3* pVelocity = m_pStreamVelocity->GetData<ezVec3>();
 
   ezParticleEventQueue* pQueue = GetOwnerEffect()->GetEventQueue(m_sOnDeathEvent);
 
   ezParticleEvent pe;
-  pe.m_vPosition = pPosition[e.m_uiElementIndex];
+  pe.m_vPosition = pPosition[e.m_uiElementIndex].GetAsVec3();
   pe.m_vDirection = pVelocity[e.m_uiElementIndex];
   pe.m_vNormal.SetZero();
   pQueue->AddEvent(pe);

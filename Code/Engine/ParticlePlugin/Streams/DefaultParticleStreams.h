@@ -13,7 +13,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Position : public ezParticle
 public:
   virtual const ezRTTI* GetParticleStreamType() const override;
   virtual const char* GetStreamName() const override { return "Position"; }
-  virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Float3; }
+  virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Float4; }
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Position : public ezParticleStream

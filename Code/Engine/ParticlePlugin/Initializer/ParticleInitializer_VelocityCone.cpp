@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_VelocityCone.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Random.h>
@@ -64,6 +64,8 @@ void ezParticleInitializer_VelocityCone::CreateRequiredStreams()
 
 void ezParticleInitializer_VelocityCone::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
+  EZ_PROFILE("PFX: Velocity Cone");
+
   ezVec3* pVelocity = m_pStreamVelocity->GetWritableData<ezVec3>();
 
   ezRandom& rng = GetRNG();

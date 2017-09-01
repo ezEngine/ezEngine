@@ -1,8 +1,9 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <ParticlePlugin/Type/Effect/ParticleTypeEffect.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
+#include <Foundation/Profiling/Profiling.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeEffectFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeEffectFactory>)
 {
@@ -96,7 +97,7 @@ ezParticleTypeEffect::~ezParticleTypeEffect()
 
 void ezParticleTypeEffect::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition, false);
+  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
   CreateStream("EffectID", ezProcessingStream::DataType::Int, &m_pStreamEffectID, false);
 }
 
@@ -116,10 +117,12 @@ void ezParticleTypeEffect::OnReset()
 
 void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
 {
+  EZ_PROFILE("PFX: Effect");
+
   if (!m_hEffect.IsValid())
     return;
 
-  const ezVec3* pPosition = m_pStreamPosition->GetData<ezVec3>();
+  const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
   ezUInt32* pEffectID = m_pStreamEffectID->GetWritableData<ezUInt32>();
 
   ezParticleWorldModule* pWorldModule = GetOwnerEffect()->GetOwnerWorldModule();
@@ -141,7 +144,7 @@ void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
       ezTransform t;
       t.m_qRotation.SetIdentity();
       t.m_vScale.Set(1.0f);
-      t.m_vPosition = pPosition[i];
+      t.m_vPosition = pPosition[i].GetAsVec3();
 
       pEffect->SetTransform(t, nullptr);
     }

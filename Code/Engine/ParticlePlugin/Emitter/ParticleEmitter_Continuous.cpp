@@ -8,6 +8,7 @@
 #include <GameEngine/Curves/Curve1DResource.h>
 #include <Core/WorldSerializer/ResourceHandleReader.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
+#include <Foundation/Profiling/Profiling.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory_Continuous, 1, ezRTTIDefaultAllocator<ezParticleEmitterFactory_Continuous>)
 {
@@ -162,6 +163,8 @@ ezParticleEmitterState ezParticleEmitter_Continuous::IsFinished()
 
 ezUInt32 ezParticleEmitter_Continuous::ComputeSpawnCount(const ezTime& tDiff)
 {
+  EZ_PROFILE("PFX: Continuous - Spawn Count ");
+
   m_RunningTime += tDiff;
 
   // delay before the emitter becomes active

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_CylinderPosition.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Random.h>
@@ -73,7 +73,7 @@ void ezParticleInitializerFactory_CylinderPosition::Load(ezStreamReader& stream)
 
 void ezParticleInitializer_CylinderPosition::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition, true);
+  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, true);
 
   if (m_bSetVelocity)
   {
@@ -83,7 +83,9 @@ void ezParticleInitializer_CylinderPosition::CreateRequiredStreams()
 
 void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
-  ezVec3* pPosition = m_pStreamPosition->GetWritableData<ezVec3>();
+  EZ_PROFILE("PFX: Cylinder Position");
+
+  ezVec4* pPosition = m_pStreamPosition->GetWritableData<ezVec4>();
   ezVec3* pVelocity = m_bSetVelocity ? m_pStreamVelocity->GetWritableData<ezVec3>() : nullptr;
 
   ezRandom& rng = GetRNG();
@@ -128,7 +130,7 @@ void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStart
       pVelocity[i] = GetOwnerSystem()->GetTransform().m_qRotation * normalPos * fSpeed;
     }
 
-    pPosition[i] = GetOwnerSystem()->GetTransform() * pos;
+    pPosition[i] = (GetOwnerSystem()->GetTransform() * pos).GetAsVec4(0);
   }
 }
 

@@ -97,17 +97,19 @@ void ezParticleBehavior_Raycast::AfterPropertiesConfigured(bool bFirstTime)
 
 void ezParticleBehavior_Raycast::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition, false);
-  CreateStream("LastPosition", ezProcessingStream::DataType::Float3, &m_pStreamLastPosition, false);
+  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
+  CreateStream("LastPosition", ezProcessingStream::DataType::Float4, &m_pStreamLastPosition, false);
   CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity, false);
 }
 
 void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
 {
+  EZ_PROFILE("PFX: Raycast");
+
   const float tDiff = (float)m_TimeDiff.GetSeconds();
 
-  ezProcessingStreamIterator<ezVec3> itPosition(m_pStreamPosition, uiNumElements, 0);
-  ezProcessingStreamIterator<ezVec3> itLastPosition(m_pStreamLastPosition, uiNumElements, 0);
+  ezProcessingStreamIterator<ezVec4> itPosition(m_pStreamPosition, uiNumElements, 0);
+  ezProcessingStreamIterator<ezVec4> itLastPosition(m_pStreamLastPosition, uiNumElements, 0);
   ezProcessingStreamIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements, 0);
 
   ezPhysicsHitResult hitResult;
@@ -115,25 +117,26 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
   ezUInt32 i = 0;
   while (!itPosition.HasReachedEnd())
   {
-    const ezVec3 vLastPos = itLastPosition.Current();
-    const ezVec3 vCurPos = itPosition.Current();
+    const ezVec4 vLastPos = itLastPosition.Current();
+    const ezVec4 vCurPos = itPosition.Current();
 
     if (!vLastPos.IsZero())
     {
-      const ezVec3 vChange = vCurPos - vLastPos;
+      const ezVec4 vChange = vCurPos - vLastPos;
 
       if (!vChange.IsZero(0.001f))
       {
-        ezVec3 vDirection = vChange;
+        ezVec4 vDirection = vChange;
+        vDirection.w = 0;
         const float fMaxLen = vDirection.GetLengthAndNormalize();
 
-        if (m_pPhysicsModule != nullptr && m_pPhysicsModule->CastRay(vLastPos, vDirection, fMaxLen, m_uiCollisionLayer, hitResult))
+        if (m_pPhysicsModule != nullptr && m_pPhysicsModule->CastRay(vLastPos.GetAsVec3(), vDirection.GetAsVec3(), fMaxLen, m_uiCollisionLayer, hitResult))
         {
           if (m_Reaction == ezParticleRaycastHitReaction::Bounce)
           {
-            const ezVec3 vNewDir = vChange.GetReflectedVector(hitResult.m_vNormal);
+            const ezVec3 vNewDir = vChange.GetAsVec3().GetReflectedVector(hitResult.m_vNormal);
 
-            itPosition.Current() = hitResult.m_vPosition + hitResult.m_vNormal * 0.05f + vNewDir;
+            itPosition.Current() = ezVec3(hitResult.m_vPosition + hitResult.m_vNormal * 0.05f + vNewDir).GetAsVec4(0);
             itVelocity.Current() = vNewDir / tDiff;
           }
           else if (m_Reaction == ezParticleRaycastHitReaction::Die)
@@ -147,7 +150,7 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
             ezParticleEvent e;
             e.m_vPosition = hitResult.m_vPosition;
             e.m_vNormal = hitResult.m_vNormal;
-            e.m_vDirection = vDirection;
+            e.m_vDirection = vDirection.GetAsVec3();
 
             GetOwnerEffect()->GetEventQueue(m_sOnCollideEvent)->AddEvent(e);
           }

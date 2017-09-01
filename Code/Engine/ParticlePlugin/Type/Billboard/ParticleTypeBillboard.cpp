@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <ParticlePlugin/Type/Billboard/ParticleTypeBillboard.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
@@ -11,6 +11,7 @@
 #include <Core/World/GameObject.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/World/World.h>
+#include <Foundation/Profiling/Profiling.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeBillboardFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeBillboardFactory>)
 {
@@ -96,7 +97,7 @@ ezParticleTypeBillboard::ezParticleTypeBillboard()
 
 void ezParticleTypeBillboard::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition, false);
+  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
   CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize, false);
   CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor, false);
   CreateStream("RotationSpeed", ezProcessingStream::DataType::Float, &m_pStreamRotationSpeed, false);
@@ -104,6 +105,8 @@ void ezParticleTypeBillboard::CreateRequiredStreams()
 
 void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
+  EZ_PROFILE("PFX: Billboard");
+
   if (!m_hTexture.IsValid())
     return;
 
@@ -119,7 +122,7 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
   {
     m_uiLastExtractedFrame = uiExtractedFrame;
 
-    const ezVec3* pPosition = m_pStreamPosition->GetData<ezVec3>();
+    const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
     const float* pSize = m_pStreamSize->GetData<float>();
     const ezColor* pColor = m_pStreamColor->GetData<ezColor>();
     const float* pRotationSpeed = m_pStreamRotationSpeed->GetData<float>();
@@ -132,7 +135,7 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
     for (ezUInt32 p = 0; p < numParticles; ++p)
     {
       t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[p])));
-      t.m_vPosition = pPosition[p];
+      t.m_vPosition = pPosition[p].GetAsVec3();
       t.m_vScale.Set(1.0f);
       m_ParticleData[p].Transform = t;
       m_ParticleData[p].Size = pSize[p];

@@ -9,6 +9,7 @@
 #include <Core/WorldSerializer/ResourceHandleReader.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <ParticlePlugin/Events/ParticleEvent.h>
+#include <Foundation/Profiling/Profiling.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory_OnEvent, 1, ezRTTIDefaultAllocator<ezParticleEmitterFactory_OnEvent>)
 {
@@ -73,26 +74,28 @@ void ezParticleEmitterFactory_OnEvent::Load(ezStreamReader& stream)
 
 void ezParticleEmitter_OnEvent::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition, false);
+  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
   CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity, false);
 }
 
 void ezParticleEmitter_OnEvent::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
+  EZ_PROFILE("PFX: Event Emitter");
+
   if (uiStartIndex + uiNumElements > m_Events.GetCount())
   {
     ezLog::Error("OnEvent emitter must be the only emitter on a particle system");
     return;
   }
 
-  ezVec3* pPosition = m_pStreamPosition->GetWritableData<ezVec3>();
+  ezVec4* pPosition = m_pStreamPosition->GetWritableData<ezVec4>();
   ezVec3* pVelocity = m_pStreamVelocity->GetWritableData<ezVec3>();
 
   for (ezUInt32 i = 0; i < uiNumElements; ++i)
   {
     const ezUInt64 index = uiStartIndex + i;
 
-    pPosition[index] = m_Events[i].m_vPosition;
+    pPosition[index] = m_Events[i].m_vPosition.GetAsVec4(0);
     pVelocity[index] = m_Events[i].m_vDirection; /// \todo whatever
   }
 }

@@ -11,6 +11,7 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
+#include <Foundation/Profiling/Profiling.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeLightFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeLightFactory>)
 {
@@ -85,7 +86,7 @@ void ezParticleTypeLight::CreateRequiredStreams()
 {
   m_pStreamOnOff = nullptr;
 
-  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition, false);
+  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
   CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize, false);
   CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor, false);
 
@@ -98,7 +99,9 @@ void ezParticleTypeLight::CreateRequiredStreams()
 
 void ezParticleTypeLight::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
-  const ezVec3* pPosition = m_pStreamPosition->GetData<ezVec3>();
+  EZ_PROFILE("PFX: Light");
+
+  const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
   const float* pSize = m_pStreamSize->GetData<float>();
   const ezColor* pColor = m_pStreamColor->GetData<ezColor>();
 
@@ -140,7 +143,7 @@ void ezParticleTypeLight::ExtractTypeRenderData(const ezView& view, ezExtractedR
     auto pRenderData = ezCreateRenderDataForThisFrame<ezPointLightRenderData>(nullptr, uiBatchId);
 
     pRenderData->m_GlobalTransform.SetIdentity();
-    pRenderData->m_GlobalTransform.m_vPosition = instanceTransform * pPosition[i];
+    pRenderData->m_GlobalTransform.m_vPosition = instanceTransform * pPosition[i].GetAsVec3();
     pRenderData->m_LightColor = pColor[i];
     pRenderData->m_fIntensity = m_fIntensity;
     pRenderData->m_fRange = pSize[i] * m_fSizeFactor;

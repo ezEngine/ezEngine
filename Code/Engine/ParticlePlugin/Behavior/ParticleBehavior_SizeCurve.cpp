@@ -85,6 +85,8 @@ void ezParticleBehavior_SizeCurve::Process(ezUInt64 uiNumElements)
   if (!m_hCurve.IsValid())
     return;
 
+  EZ_PROFILE("PFX: Size Curve");
+
   ezProcessingStreamIterator<ezVec3> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
   ezProcessingStreamIterator<float> itSize(m_pStreamSize, uiNumElements, 0);
 

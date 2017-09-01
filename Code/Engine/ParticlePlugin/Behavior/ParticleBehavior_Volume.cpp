@@ -71,7 +71,7 @@ ezParticleBehavior_Volume::~ezParticleBehavior_Volume()
 
 void ezParticleBehavior_Volume::CreateRequiredStreams()
 {
-  CreateStream("Position", ezProcessingStream::DataType::Float3, &m_pStreamPosition, false);
+  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
   m_pStreamSize = nullptr;
 }
 
@@ -85,23 +85,50 @@ void ezParticleBehavior_Volume::Process(ezUInt64 uiNumElements)
   if (!GetOwnerEffect()->NeedsBoundingVolumeUpdate())
     return;
 
-  const ezVec3* pPosition = m_pStreamPosition->GetData<ezVec3>();
+  EZ_PROFILE("PFX: Volume");
+
+  const ezSimdVec4f* pPosition = m_pStreamPosition->GetData<ezSimdVec4f>();
 
   ezBoundingBoxSphere volume;
-  volume.SetFromPoints(pPosition, static_cast<ezUInt32>(uiNumElements));
+  volume.SetFromPoints(reinterpret_cast<const ezVec3*>(pPosition), static_cast<ezUInt32>(uiNumElements), sizeof(ezVec4));
 
-  float fMaxSize = 0.0f;
+  float fMaxSize[8] = { 0 };
 
   if (m_pStreamSize != nullptr)
   {
     const float* pSize = m_pStreamSize->GetData<float>();
 
-    /// \todo Could unroll this loop to do multiple max computations in parallel and combine at the end
-    for (ezUInt64 i = 0; i < uiNumElements; ++i)
+    ezUInt32 idx = 0;
+
+    for (ezUInt64 i = 0; i < uiNumElements / 8; ++i)
     {
-      fMaxSize = ezMath::Max(fMaxSize, pSize[i]);
+      fMaxSize[0] = ezMath::Max(fMaxSize[0], pSize[idx + 0]);
+      fMaxSize[1] = ezMath::Max(fMaxSize[1], pSize[idx + 1]);
+      fMaxSize[2] = ezMath::Max(fMaxSize[2], pSize[idx + 2]);
+      fMaxSize[3] = ezMath::Max(fMaxSize[3], pSize[idx + 3]);
+      fMaxSize[4] = ezMath::Max(fMaxSize[4], pSize[idx + 4]);
+      fMaxSize[5] = ezMath::Max(fMaxSize[5], pSize[idx + 5]);
+      fMaxSize[6] = ezMath::Max(fMaxSize[6], pSize[idx + 6]);
+      fMaxSize[7] = ezMath::Max(fMaxSize[7], pSize[idx + 7]);
+
+      idx += 8;
+    }
+
+    for (ezUInt64 i = (uiNumElements / 8) * 8; i < uiNumElements; ++i)
+    {
+      fMaxSize[0] = ezMath::Max(fMaxSize[0], pSize[i]);
     }
   }
 
-  GetOwnerSystem()->SetBoundingVolume(volume, fMaxSize);
+  const float fms01 = ezMath::Max(fMaxSize[0], fMaxSize[1]);
+  const float fms23 = ezMath::Max(fMaxSize[2], fMaxSize[3]);
+  const float fms45 = ezMath::Max(fMaxSize[4], fMaxSize[5]);
+  const float fms67 = ezMath::Max(fMaxSize[6], fMaxSize[7]);
+
+  const float fms0123 = ezMath::Max(fms01, fms23);
+  const float fms4567 = ezMath::Max(fms45, fms67);
+
+  const float fms = ezMath::Max(fms0123, fms4567);
+
+  GetOwnerSystem()->SetBoundingVolume(volume, fms);
 }

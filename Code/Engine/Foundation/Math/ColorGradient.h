@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Math/Declarations.h>
@@ -23,6 +23,7 @@ public:
     ezUInt8 m_GammaRed;
     ezUInt8 m_GammaGreen;
     ezUInt8 m_GammaBlue;
+    float m_fInvDistToNextCp; /// Internal: Optimization for Evaluate to not recalculate 1/distance to the next control point
 
     EZ_ALWAYS_INLINE bool operator<(const ColorCP& rhs) const { return m_PosX < rhs.m_PosX; }
   };
@@ -34,6 +35,7 @@ public:
 
     float m_PosX;
     ezUInt8 m_Alpha;
+    float m_fInvDistToNextCp; /// Internal: Optimization for Evaluate to not recalculate 1/distance to the next control point
 
     EZ_ALWAYS_INLINE bool operator<(const AlphaCP& rhs) const { return m_PosX < rhs.m_PosX; }
   };
@@ -45,6 +47,7 @@ public:
 
     float m_PosX;
     float m_Intensity;
+    float m_fInvDistToNextCp; /// Internal: Optimization for Evaluate to not recalculate 1/distance to the next control point
 
     EZ_ALWAYS_INLINE bool operator<(const IntensityCP& rhs) const { return m_PosX < rhs.m_PosX; }
   };
@@ -117,6 +120,7 @@ public:
   void Load(ezStreamReader& stream);
 
 private:
+  void PrecomputeLerpNormalizer();
 
   ezHybridArray<ColorCP, 8> m_ColorCPs;
   ezHybridArray<AlphaCP, 8> m_AlphaCPs;

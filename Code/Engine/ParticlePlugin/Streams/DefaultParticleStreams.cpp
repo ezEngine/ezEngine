@@ -20,9 +20,9 @@ const ezRTTI* ezParticleStreamFactory_Position::GetParticleStreamType() const
 
 void ezParticleStream_Position::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
-  ezProcessingStreamIterator<ezVec3> itData(m_pStream, uiNumElements, uiStartIndex);
+  ezProcessingStreamIterator<ezVec4> itData(m_pStream, uiNumElements, uiStartIndex);
 
-  const ezVec3 defValue = m_pOwner->GetTransform().m_vPosition;
+  const ezVec4 defValue = m_pOwner->GetTransform().m_vPosition.GetAsVec4(0);
   while (!itData.HasReachedEnd())
   {
     itData.Current() = defValue;
