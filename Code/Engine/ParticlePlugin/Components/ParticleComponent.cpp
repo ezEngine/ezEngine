@@ -184,9 +184,9 @@ ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& 
   if (m_EffectController.IsAlive())
   {
     ezBoundingBoxSphere volume;
-    const ezUInt64 uiChangeCounter = m_EffectController.GetBoundingVolume(volume);
+    m_uiLastBVolumeUpdate = m_EffectController.GetBoundingVolume(volume);
 
-    if (uiChangeCounter > 0)
+    if (m_uiLastBVolumeUpdate > 0)
     {
       ezTransform inv = GetOwner()->GetGlobalTransform().GetInverse();
       volume.Transform(inv.GetAsMat4());
@@ -196,7 +196,7 @@ ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& 
     }
   }
 
-  bounds.ExpandToInclude(ezBoundingSphere(ezVec3::ZeroVector(), 0.25f));
+  bounds.ExpandToInclude(ezBoundingSphere(ezVec3::ZeroVector(), 0.1f));
   return EZ_SUCCESS;
 }
 
@@ -235,7 +235,7 @@ void ezParticleComponent::Update()
 
   m_EffectController.SetTransform(GetOwner()->GetGlobalTransform());
 
-  TriggerLocalBoundsUpdate();
+  CheckBVolumeUpdate();
 }
 
 void ezParticleComponent::HandOffToFinisher()
@@ -265,5 +265,13 @@ void ezParticleComponent::HandOffToFinisher()
   m_EffectController.Invalidate();
 }
 
+void ezParticleComponent::CheckBVolumeUpdate()
+{
+  ezBoundingBoxSphere bvol;
+  if (m_uiLastBVolumeUpdate < m_EffectController.GetBoundingVolume(bvol))
+  {
+    TriggerLocalBoundsUpdate();
+  }
+}
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Components_ParticleComponent);
 

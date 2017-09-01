@@ -82,6 +82,9 @@ void ezParticleBehavior_Volume::QueryOptionalStreams()
 
 void ezParticleBehavior_Volume::Process(ezUInt64 uiNumElements)
 {
+  if (!GetOwnerEffect()->NeedsBoundingVolumeUpdate())
+    return;
+
   const ezVec3* pPosition = m_pStreamPosition->GetData<ezVec3>();
 
   ezBoundingBoxSphere volume;

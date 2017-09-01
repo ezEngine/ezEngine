@@ -61,4 +61,6 @@ public:
 protected:
   void Update();
 
+  void CheckBVolumeUpdate();
+  ezUInt64 m_uiLastBVolumeUpdate = 0;
 };

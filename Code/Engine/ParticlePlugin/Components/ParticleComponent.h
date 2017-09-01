@@ -89,4 +89,7 @@ protected:
 
   ezParticleEffectResourceHandle m_hEffectResource;
   ezTime m_RestartTime;
+
+  void CheckBVolumeUpdate();
+  ezUInt64 m_uiLastBVolumeUpdate = 0;
 };

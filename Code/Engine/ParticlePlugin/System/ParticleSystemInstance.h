@@ -63,7 +63,7 @@ public:
   void RemoveParticleDeathEventHandler(ParticleDeathHandler handler);
 
   void SetBoundingVolume(const ezBoundingBoxSphere& volume, float fMaxSize);
-  ezUInt64 GetBoundingVolume(ezBoundingBoxSphere& volume, float& fMaxSize);
+  void GetBoundingVolume(ezBoundingBoxSphere& volume, float& fMaxSize) const;
 
 private:
   bool IsEmitterConfigEqual(const ezParticleSystemDescriptor* pTemplate) const;
@@ -101,7 +101,6 @@ private:
   ezRandom m_Random;
 
   // culling data
-  ezUInt64 m_uiBoundingVolumeChangeCounter = 0;
   ezBoundingBoxSphere m_BoundingVolume;
   float m_fMaxParticleSize = 0.0f;
 };

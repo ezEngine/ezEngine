@@ -82,6 +82,7 @@ public:
   /// \brief Whether this instance is in a state where its update task should be run
   bool ShouldBeUpdated() const;
 
+  bool NeedsBoundingVolumeUpdate() const;
   ezUInt64 GetBoundingVolume(ezBoundingBoxSphere& volume);
 
 private:
@@ -89,6 +90,7 @@ private:
   void ClearParticleSystem(ezUInt32 index);
   void DestroyEventQueues();
   void ProcessEventQueues();
+  void CombineSystemBoundingVolumes();
 
   ezDynamicArray<SharedInstance> m_SharedInstances;
   ezParticleEffectHandle m_hEffectHandle;
@@ -117,4 +119,9 @@ private:
   };
 
   ezHybridArray<EventQueue, 4> m_EventQueues;
+
+  // Visibility Culling
+  ezUInt8 m_uiUpdateBVolumeCounter = 0;
+  ezUInt64 m_uiLastBVolumeUpdate = 0;
+  ezBoundingBoxSphere m_BoundingVolume;
 };
