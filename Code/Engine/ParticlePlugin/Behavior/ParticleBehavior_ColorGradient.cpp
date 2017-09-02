@@ -154,9 +154,9 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
 
   while (!itLifeTime.HasReachedEnd())
   {
-    if (itLifeTime.Current().y > 0)
+    // if (itLifeTime.Current().y > 0)
     {
-      const float fLifeTimeFraction = itLifeTime.Current().x / itLifeTime.Current().y;
+      const float fLifeTimeFraction = itLifeTime.Current().x * itLifeTime.Current().y;
       const float posx = 1.0f - fLifeTimeFraction;
 
       ezColor rgba;

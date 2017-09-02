@@ -82,6 +82,16 @@ void ezParticleBehavior_SizeCurve::CreateRequiredStreams()
 
 void ezParticleBehavior_SizeCurve::Process(ezUInt64 uiNumElements)
 {
+  if (!GetOwnerEffect()->IsVisible())
+  {
+    // reduce the update interval when the effect is not visible
+    m_uiCurrentUpdateInterval = 32;
+  }
+  else
+  {
+    m_uiCurrentUpdateInterval = 2;
+  }
+
   if (!m_hCurve.IsValid())
     return;
 
@@ -103,11 +113,24 @@ void ezParticleBehavior_SizeCurve::Process(ezUInt64 uiNumElements)
   float fMinX, fMaxX;
   curve.QueryExtents(fMinX, fMaxX);
 
+  // skip the first n particles
+  {
+    for (ezUInt32 i = 0; i < m_uiFirstToUpdate; ++i)
+    {
+      itLifeTime.Advance();
+      itSize.Advance();
+    }
+
+    ++m_uiFirstToUpdate;
+    if (m_uiFirstToUpdate >= m_uiCurrentUpdateInterval)
+      m_uiFirstToUpdate = 0;
+  }
+
   while (!itLifeTime.HasReachedEnd())
   {
-    if (itLifeTime.Current().y > 0)
+    // if (itLifeTime.Current().y > 0)
     {
-      const float fLifeTimeFraction = 1.0f - (itLifeTime.Current().x / itLifeTime.Current().y);
+      const float fLifeTimeFraction = 1.0f - (itLifeTime.Current().x * itLifeTime.Current().y);
 
       const float evalPos = curve.ConvertNormalizedPos(fLifeTimeFraction);
       float val = curve.Evaluate(evalPos);
@@ -116,8 +139,14 @@ void ezParticleBehavior_SizeCurve::Process(ezUInt64 uiNumElements)
       itSize.Current() = m_fBaseSize + val * m_fCurveScale;
     }
 
-    itLifeTime.Advance();
-    itSize.Advance();
+    // skip the next n items
+    // this is to reduce the number of particles that need to be fully evaluated,
+    // since sampling the curve is expensive
+    for (ezUInt32 i = 0; i < m_uiCurrentUpdateInterval; ++i)
+    {
+      itLifeTime.Advance();
+      itSize.Advance();
+    }
   }
 }
 

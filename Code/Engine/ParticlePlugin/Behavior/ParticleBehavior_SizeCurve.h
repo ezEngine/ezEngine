@@ -36,6 +36,8 @@ public:
 protected:
   virtual void Process(ezUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStreamLifeTime;
-  ezProcessingStream* m_pStreamSize;
+  ezProcessingStream* m_pStreamLifeTime = nullptr;
+  ezProcessingStream* m_pStreamSize = nullptr;
+  ezUInt8 m_uiFirstToUpdate = 0;
+  ezUInt8 m_uiCurrentUpdateInterval = 8;
 };

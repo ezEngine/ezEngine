@@ -95,11 +95,7 @@ float ezCurve1D::Evaluate(float x) const
 {
   EZ_ASSERT_DEBUG(!m_LinearApproximation.IsEmpty(), "Cannot evaluate curve without precomputing curve approximation data first. Call CreateLinearApproximation() on curve before calling Evaluate().");
 
-  if (m_LinearApproximation.GetCount() == 1)
-  {
-    return m_LinearApproximation[0].y;
-  }
-  else if (m_LinearApproximation.GetCount() >= 2)
+  if (m_LinearApproximation.GetCount() >= 2)
   {
     const ezUInt32 numCPs = m_LinearApproximation.GetCount();
     const ezInt32 iControlPoint = FindApproxControlPoint(x);
@@ -121,10 +117,14 @@ float ezCurve1D::Evaluate(float x) const
 
       // interpolate
       float lerpX = x - m_LinearApproximation[iControlPoint].x;
-      lerpX /= (m_LinearApproximation[iControlPoint + 1].x - m_LinearApproximation[iControlPoint].x);
+      lerpX /= (m_LinearApproximation[iControlPoint + 1].x - m_LinearApproximation[iControlPoint].x); // TODO remove division ?
 
       return ezMath::Lerp(v1, v2, lerpX);
     }
+  }
+  else if (m_LinearApproximation.GetCount() == 1)
+  {
+    return m_LinearApproximation[0].y;
   }
 
   return 0.0f;

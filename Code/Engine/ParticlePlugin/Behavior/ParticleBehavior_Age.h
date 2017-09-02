@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 #include <Foundation/Types/VarianceTypes.h>
@@ -43,7 +43,7 @@ protected:
   void OnParticleDeath(const ezStreamGroupElementRemovedEvent& e);
 
   bool m_bHasOnDeathEventHandler;
-  ezProcessingStream* m_pStreamLifeTime;
-  ezProcessingStream* m_pStreamPosition;
-  ezProcessingStream* m_pStreamVelocity;
+  ezProcessingStream* m_pStreamLifeTime = nullptr;
+  ezProcessingStream* m_pStreamPosition = nullptr;
+  ezProcessingStream* m_pStreamVelocity = nullptr;
 };
