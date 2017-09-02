@@ -12,7 +12,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Velocity, 1, ezRTTIDef
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("RiseSpeed", m_fRiseSpeed),
-    EZ_MEMBER_PROPERTY("Acceleration", m_fAcceleration),
+    EZ_MEMBER_PROPERTY("Friction", m_fFriction),
   }
   EZ_END_PROPERTIES
 }
@@ -24,7 +24,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 ezParticleBehaviorFactory_Velocity::ezParticleBehaviorFactory_Velocity()
 {
   m_fRiseSpeed = 0;
-  m_fAcceleration = 0;
+  m_fFriction = 0;
 }
 
 const ezRTTI* ezParticleBehaviorFactory_Velocity::GetBehaviorType() const
@@ -37,7 +37,7 @@ void ezParticleBehaviorFactory_Velocity::CopyBehaviorProperties(ezParticleBehavi
   ezParticleBehavior_Velocity* pBehavior = static_cast<ezParticleBehavior_Velocity*>(pObject);
 
   pBehavior->m_fRiseSpeed = m_fRiseSpeed;
-  pBehavior->m_fAcceleration = m_fAcceleration;
+  pBehavior->m_fFriction = m_fFriction;
 }
 
 enum class BehaviorVelocityVersion
@@ -57,7 +57,7 @@ void ezParticleBehaviorFactory_Velocity::Save(ezStreamWriter& stream) const
   stream << uiVersion;
 
   stream << m_fRiseSpeed;
-  stream << m_fAcceleration;
+  stream << m_fFriction;
 }
 
 void ezParticleBehaviorFactory_Velocity::Load(ezStreamReader& stream)
@@ -68,7 +68,7 @@ void ezParticleBehaviorFactory_Velocity::Load(ezStreamReader& stream)
   EZ_ASSERT_DEV(uiVersion <= (int)BehaviorVelocityVersion::Version_Current, "Invalid version {0}", uiVersion);
 
   stream >> m_fRiseSpeed;
-  stream >> m_fAcceleration;
+  stream >> m_fFriction;
 }
 
 void ezParticleBehavior_Velocity::AfterPropertiesConfigured(bool bFirstTime)
@@ -93,7 +93,8 @@ void ezParticleBehavior_Velocity::Process(ezUInt64 uiNumElements)
   ezSimdVec4f vRise;
   vRise.Load<3>(&vRise0.x);
 
-  const float fVelocityFactor = 1.0f + (m_fAcceleration * tDiff);
+  const float fFriction = ezMath::Clamp(m_fFriction, 0.0f, 1.0f);
+  const float fFrictionFactor = ezMath::Pow(1.0f - fFriction, tDiff);
 
   ezProcessingStreamIterator<ezSimdVec4f> itPosition(m_pStreamPosition, uiNumElements, 0);
   ezProcessingStreamIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements, 0);
@@ -104,7 +105,7 @@ void ezParticleBehavior_Velocity::Process(ezUInt64 uiNumElements)
     velocity.Load<3>(&itVelocity.Current().x);
 
     itPosition.Current() += velocity * tDiff + vRise;
-    itVelocity.Current() *= fVelocityFactor;
+    itVelocity.Current() *= fFrictionFactor;
 
     itPosition.Advance();
     itVelocity.Advance();

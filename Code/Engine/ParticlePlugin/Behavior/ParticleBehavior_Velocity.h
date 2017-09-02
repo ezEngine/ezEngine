@@ -18,7 +18,7 @@ public:
   virtual void Load(ezStreamReader& stream) override;
 
   float m_fRiseSpeed;
-  float m_fAcceleration;
+  float m_fFriction;
 };
 
 
@@ -29,8 +29,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Velocity : public ezParticleBehav
 public:
   virtual void CreateRequiredStreams() override;
 
-  float m_fRiseSpeed;
-  float m_fAcceleration;
+  float m_fRiseSpeed = 0;
+  float m_fFriction = 0;
 
 protected:
   virtual void AfterPropertiesConfigured(bool bFirstTime) override;

@@ -34,6 +34,8 @@ public:
   virtual void CreateRequiredStreams() override;
 
 protected:
+
+  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
   virtual void Process(ezUInt64 uiNumElements) override;
 
   ezProcessingStream* m_pStreamLifeTime = nullptr;

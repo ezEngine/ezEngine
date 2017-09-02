@@ -129,7 +129,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Acceleration{0}
+		f %Friction{0}
 		f %RiseSpeed{0}
 	}
 }

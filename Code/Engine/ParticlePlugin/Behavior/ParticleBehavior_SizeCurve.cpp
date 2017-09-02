@@ -80,6 +80,17 @@ void ezParticleBehavior_SizeCurve::CreateRequiredStreams()
   CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize, false);
 }
 
+
+void ezParticleBehavior_SizeCurve::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+{
+  ezProcessingStreamIterator<float> itSize(m_pStreamSize, uiNumElements, uiStartIndex);
+  while (!itSize.HasReachedEnd())
+  {
+    itSize.Current() = m_fBaseSize;
+    itSize.Advance();
+  }
+}
+
 void ezParticleBehavior_SizeCurve::Process(ezUInt64 uiNumElements)
 {
   if (!GetOwnerEffect()->IsVisible())
