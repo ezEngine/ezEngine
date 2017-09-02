@@ -98,7 +98,7 @@ void ezParticleEffectController::SetIsInView() const
 
   if (pEffect)
   {
-    pEffect->SetIsInView();
+    pEffect->SetIsVisible();
   }
 }
 

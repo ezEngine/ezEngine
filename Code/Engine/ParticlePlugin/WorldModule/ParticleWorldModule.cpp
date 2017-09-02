@@ -110,7 +110,7 @@ void ezParticleWorldModule::ExtractRenderData(const ezView& view, ezExtractedRen
 
 void ezParticleWorldModule::ExtractEffectRenderData(const ezParticleEffectInstance* pEffect, const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& systemTransform) const
 {
-  if (pEffect->m_uiEffectIsInView < ezRenderWorld::GetFrameCounter())
+  if (!pEffect->IsVisible())
     return;
 
   for (ezUInt32 i = 0; i < pEffect->GetParticleSystems().GetCount(); ++i)

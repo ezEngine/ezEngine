@@ -41,8 +41,9 @@ protected:
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
   virtual void Process(ezUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStreamLifeTime;
-  ezProcessingStream* m_pStreamColor;
+  ezProcessingStream* m_pStreamLifeTime = nullptr;
+  ezProcessingStream* m_pStreamColor = nullptr;
   ezColor m_InitColor;
-  ezUInt32 m_uiFirstToUpdate = 0;
+  ezUInt8 m_uiFirstToUpdate = 0;
+  ezUInt8 m_uiCurrentUpdateInterval = 8;
 };

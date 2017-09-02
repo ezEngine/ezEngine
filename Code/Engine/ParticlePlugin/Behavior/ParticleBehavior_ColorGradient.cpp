@@ -67,6 +67,7 @@ const char* ezParticleBehaviorFactory_ColorGradient::GetColorGradientFile() cons
 
 void ezParticleBehavior_ColorGradient::AfterPropertiesConfigured(bool bFirstTime)
 {
+  // the gradient resource may not be specified yet, so defer evaluation until an element is created
   m_InitColor = ezColor::RebeccaPurple;
 }
 
@@ -83,8 +84,11 @@ void ezParticleBehavior_ColorGradient::InitializeElements(ezUInt64 uiStartIndex,
 
   EZ_PROFILE("PFX: Color Gradient Init");
 
+  // query the init color from the gradient
   if (m_InitColor == ezColor::RebeccaPurple)
   {
+    m_InitColor = ezColor::White;
+
     ezResourceLock<ezColorGradientResource> pGradient(m_hGradient, ezResourceAcquireMode::NoFallback);
 
     if (!pGradient->IsMissingResource())
@@ -111,6 +115,15 @@ void ezParticleBehavior_ColorGradient::InitializeElements(ezUInt64 uiStartIndex,
 
 void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
 {
+  if (!GetOwnerEffect()->IsVisible())
+  {
+    // set the update interval such that once the effect becomes visible,
+    // all particles get fully updated
+    m_uiCurrentUpdateInterval = 1;
+    m_uiFirstToUpdate = 0;
+    return;
+  }
+
   if (!m_hGradient.IsValid())
     return;
 
@@ -126,17 +139,17 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
   ezProcessingStreamIterator<ezVec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
   ezProcessingStreamIterator<ezColor> itColor(m_pStreamColor, uiNumElements, 0);
 
-  /// \todo This could be adjusted depending on the effects priority (visibility etc.)
-  const ezUInt32 uiUpdateInterval = 8;
-
-  ++m_uiFirstToUpdate;
-  if (m_uiFirstToUpdate >= uiUpdateInterval)
-    m_uiFirstToUpdate = 0;
-
-  for (ezUInt32 i = 0; i < m_uiFirstToUpdate; ++i)
+  // skip the first n particles
   {
-    itLifeTime.Advance();
-    itColor.Advance();
+    for (ezUInt32 i = 0; i < m_uiFirstToUpdate; ++i)
+    {
+      itLifeTime.Advance();
+      itColor.Advance();
+    }
+
+    ++m_uiFirstToUpdate;
+    if (m_uiFirstToUpdate >= m_uiCurrentUpdateInterval)
+      m_uiFirstToUpdate = 0;
   }
 
   while (!itLifeTime.HasReachedEnd())
@@ -158,12 +171,15 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
     // skip the next n items
     // this is to reduce the number of particles that need to be fully evaluated,
     // since sampling the color gradient is pretty expensive
-    for (ezUInt32 i = 0; i < uiUpdateInterval; ++i)
+    for (ezUInt32 i = 0; i < m_uiCurrentUpdateInterval; ++i)
     {
       itLifeTime.Advance();
       itColor.Advance();
     }
   }
+
+  // reset the update interval to the default
+  m_uiCurrentUpdateInterval = 8;
 }
 
 

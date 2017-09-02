@@ -51,10 +51,7 @@ public:
 
   void PreSimulate();
 
-  void SetIsInView() const;
-
-
-  /// \brief Returns false when the effect is finished
+  /// \brief Returns false when the effect is finished.
   bool Update(const ezTime& tDiff);
 
   ezWorld* GetWorld() const { return m_pWorld; }
@@ -85,12 +82,34 @@ public:
   bool NeedsBoundingVolumeUpdate() const;
   ezUInt64 GetBoundingVolume(ezBoundingBoxSphere& volume);
 
+  /// \name Visibility and Culling
+  /// @{
+public:
+
+  /// \brief Marks this effect as visible from at least one view.
+  /// This affects simulation update rates.
+  void SetIsVisible() const;
+
+  /// \brief Whether the effect has been marked as visible recently.
+  bool IsVisible() const;
+
+private:
+  void CombineSystemBoundingVolumes();
+
+  ezUInt8 m_uiUpdateBVolumeCounter = 0;
+  ezUInt64 m_uiLastBVolumeUpdate = 0;
+  ezBoundingBoxSphere m_BoundingVolume;
+  mutable ezUInt64 m_uiEffectIsVisible = 0;
+
+  /// @}
+
+
+
 private:
   void Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTime);
   void ClearParticleSystem(ezUInt32 index);
   void DestroyEventQueues();
   void ProcessEventQueues();
-  void CombineSystemBoundingVolumes();
 
   ezDynamicArray<SharedInstance> m_SharedInstances;
   ezParticleEffectHandle m_hEffectHandle;
@@ -98,7 +117,6 @@ private:
   bool m_bEmitterEnabled;
   bool m_bSimulateInLocalSpace;
   bool m_bIsFinishing = false;
-  mutable ezUInt64 m_uiEffectIsInView = 0;
   ezUInt8 m_uiReviveTimeout;
   ezTime m_PreSimulateDuration;
   ezParticleEffectResourceHandle m_hResource;
@@ -119,9 +137,4 @@ private:
   };
 
   ezHybridArray<EventQueue, 4> m_EventQueues;
-
-  // Visibility Culling
-  ezUInt8 m_uiUpdateBVolumeCounter = 0;
-  ezUInt64 m_uiLastBVolumeUpdate = 0;
-  ezBoundingBoxSphere m_BoundingVolume;
 };

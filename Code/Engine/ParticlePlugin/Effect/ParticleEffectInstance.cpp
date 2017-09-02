@@ -150,7 +150,7 @@ void ezParticleEffectInstance::PreSimulate()
   }
 }
 
-void ezParticleEffectInstance::SetIsInView() const
+void ezParticleEffectInstance::SetIsVisible() const
 {
   // if it is visible this frame, also render it the next few frames
   // this has multiple purposes:
@@ -161,7 +161,13 @@ void ezParticleEffectInstance::SetIsInView() const
   //    so it may be too small for 7 frames and culling could be imprecise
   //    by just rendering it the next 8 frames, no matter what, the bounding volume
   //    does not need to be updated so frequently
-  m_uiEffectIsInView = ezRenderWorld::GetFrameCounter() + 8;
+  m_uiEffectIsVisible = ezRenderWorld::GetFrameCounter() + 8;
+}
+
+
+bool ezParticleEffectInstance::IsVisible() const
+{
+  return m_uiEffectIsVisible >= ezRenderWorld::GetFrameCounter();
 }
 
 void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTime)
