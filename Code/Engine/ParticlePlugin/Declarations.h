@@ -64,6 +64,8 @@ private:
   ezHybridArray<Binding, 4> m_Bindings;
 };
 
+//////////////////////////////////////////////////////////////////////////
+
 struct EZ_PARTICLEPLUGIN_DLL ezParticleTypeRenderMode
 {
   typedef ezUInt8 StorageType;
@@ -79,3 +81,24 @@ struct EZ_PARTICLEPLUGIN_DLL ezParticleTypeRenderMode
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleTypeRenderMode);
 
+//////////////////////////////////////////////////////////////////////////
+
+/// \brief What to do when an effect is not visible.
+struct EZ_PARTICLEPLUGIN_DLL ezEffectInvisibleUpdateRate
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    FullUpdate,
+    Max20fps,
+    Max10fps,
+    Max5fps,
+    Pause,
+    Discard,
+
+    Default = Max10fps
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezEffectInvisibleUpdateRate);

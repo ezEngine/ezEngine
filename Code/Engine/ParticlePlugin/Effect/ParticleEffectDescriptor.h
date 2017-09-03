@@ -21,8 +21,8 @@ public:
 
   void ClearSystems();
 
-  bool m_bSimulateInLocalSpace;
-  //bool m_bSimulateWhenNotVisible;
+  ezEnum<ezEffectInvisibleUpdateRate> m_InvisibleUpdateRate;
+  bool m_bSimulateInLocalSpace = false;
   ezTime m_PreSimulateDuration;
 
 private:

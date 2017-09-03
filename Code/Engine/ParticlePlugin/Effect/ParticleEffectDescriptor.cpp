@@ -8,6 +8,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectDescriptor, 1, ezRTTIDefaultAllo
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_ENUM_MEMBER_PROPERTY("WhenInvisible", ezEffectInvisibleUpdateRate, m_InvisibleUpdateRate),
     EZ_MEMBER_PROPERTY("SimulateInLocalSpace", m_bSimulateInLocalSpace),
     EZ_MEMBER_PROPERTY("PreSimulateDuration", m_PreSimulateDuration),
     EZ_SET_ACCESSOR_PROPERTY("ParticleSystems", GetParticleSystems, AddParticleSystem, RemoveParticleSystem)->AddFlags(ezPropertyFlags::PointerOwner),
@@ -18,10 +19,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezParticleEffectDescriptor::ezParticleEffectDescriptor()
 {
-  m_bSimulateInLocalSpace = false;
-  m_PreSimulateDuration.SetZero();
 }
-
 
 ezParticleEffectDescriptor::~ezParticleEffectDescriptor()
 {
@@ -44,6 +42,7 @@ enum class ParticleEffectVersion
   Version_1,
   Version_2,
   Version_3,
+  Version_4,
 
   // insert new version numbers above
   Version_Count,
@@ -66,7 +65,10 @@ void ezParticleEffectDescriptor::Save(ezStreamWriter& stream) const
   // Version 3
   stream << m_bSimulateInLocalSpace;
   stream << m_PreSimulateDuration;
+  // Version 4
+  stream << m_InvisibleUpdateRate;
 
+  // Version 3
   for (auto pSystem : m_ParticleSystems)
   {
     stream << pSystem->GetDynamicRTTI()->GetTypeName();
@@ -103,6 +105,11 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& stream)
   {
     stream >> m_bSimulateInLocalSpace;
     stream >> m_PreSimulateDuration;
+  }
+
+  if (uiVersion >= 4)
+  {
+    stream >> m_InvisibleUpdateRate;
   }
 
   m_ParticleSystems.SetCountUninitialized(uiNumSystems);

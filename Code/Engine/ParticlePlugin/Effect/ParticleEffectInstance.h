@@ -85,7 +85,11 @@ private: // friend ezParticleffectUpdateTask
   /// \brief If the effect wants to skip all the initial behavior, this simulates it multiple times before it is shown the first time.
   void PreSimulate();
 
+  /// \brief Applies a given time step, without any restrictions.
+  bool StepSimulation(const ezTime& tDiff);
+
 private:
+  ezTime m_ElapsedTimeSinceUpdate;
 
 
   /// @}
@@ -106,6 +110,7 @@ private: //friend ezParticleWorldModule
   const ezDynamicArray<SharedInstance>& GetAllSharedInstances() const { return m_SharedInstances; }
 
 private:
+  bool m_bIsSharedEffect = false;
 
   /// @}
 
@@ -134,6 +139,7 @@ private:
   ezTime m_LastBVolumeUpdate;
   ezBoundingBoxSphere m_BoundingVolume;
   mutable ezTime m_EffectIsVisible;
+  ezEnum<ezEffectInvisibleUpdateRate> m_InvisibleUpdateRate;
 
   /// @}
 
@@ -147,11 +153,11 @@ private:
 
   ezDynamicArray<SharedInstance> m_SharedInstances;
   ezParticleEffectHandle m_hEffectHandle;
-  bool m_bIsSharedEffect;
-  bool m_bEmitterEnabled;
-  bool m_bSimulateInLocalSpace;
+  bool m_bEmitterEnabled = true;
+  bool m_bSimulateInLocalSpace = false;
   bool m_bIsFinishing = false;
   ezUInt8 m_uiReviveTimeout;
+  ezInt8 m_iMinSimStepsToDo = 0;
   ezTime m_PreSimulateDuration;
   ezParticleEffectResourceHandle m_hResource;
 

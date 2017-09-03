@@ -53,3 +53,9 @@ ezParticleTypeRenderMode::Opaque;Opaque
 ezSpriteAxis::EmitterDirection;Emitter Direction
 ezSpriteAxis::WorldUp;World Up
 ezSpriteAxis::Random;Random
+ezEffectInvisibleUpdateRate::FullUpdate;Full Update
+ezEffectInvisibleUpdateRate::Max20fps;Max 20 FPS
+ezEffectInvisibleUpdateRate::Max10fps;Max 10 FPS
+ezEffectInvisibleUpdateRate::Max5fps;Max 5 FPS
+ezEffectInvisibleUpdateRate::Pause;Pause
+ezEffectInvisibleUpdateRate::Discard;Discard

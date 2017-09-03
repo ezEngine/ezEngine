@@ -36,6 +36,9 @@ void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, c
   m_UpdateBVolumeTime.SetZero();
   m_LastBVolumeUpdate.SetZero();
   m_BoundingVolume = ezBoundingSphere(ezVec3::ZeroVector(), 0);
+  m_ElapsedTimeSinceUpdate.SetZero();
+  m_EffectIsVisible.SetZero();
+  m_iMinSimStepsToDo = 4;
 
   Reconfigure(uiRandomSeed, true);
 }
@@ -119,7 +122,7 @@ void ezParticleEffectInstance::PreSimulate()
     const ezTime tDiff = ezTime::Seconds(0.5);
     while (m_PreSimulateDuration.GetSeconds() > 10.0)
     {
-      Update(tDiff);
+      StepSimulation(tDiff);
       m_PreSimulateDuration -= tDiff;
     }
   }
@@ -129,7 +132,7 @@ void ezParticleEffectInstance::PreSimulate()
     const ezTime tDiff = ezTime::Seconds(0.2);
     while (m_PreSimulateDuration.GetSeconds() > 5.0)
     {
-      Update(tDiff);
+      StepSimulation(tDiff);
       m_PreSimulateDuration -= tDiff;
     }
   }
@@ -139,7 +142,7 @@ void ezParticleEffectInstance::PreSimulate()
     const ezTime tDiff = ezTime::Seconds(0.1);
     while (m_PreSimulateDuration.GetSeconds() >= 0.1)
     {
-      Update(tDiff);
+      StepSimulation(tDiff);
       m_PreSimulateDuration -= tDiff;
     }
   }
@@ -147,7 +150,7 @@ void ezParticleEffectInstance::PreSimulate()
   // final step if necessary
   if (m_PreSimulateDuration.GetSeconds() > 0.0)
   {
-    Update(m_PreSimulateDuration);
+    StepSimulation(m_PreSimulateDuration);
     m_PreSimulateDuration = ezTime::Seconds(0);
   }
 }
@@ -186,6 +189,7 @@ void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTim
   const auto& systems = desc.GetParticleSystems();
 
   m_bSimulateInLocalSpace = desc.m_bSimulateInLocalSpace;
+  m_InvisibleUpdateRate = desc.m_InvisibleUpdateRate;
 
   if (bFirstTime)
   {
@@ -237,6 +241,66 @@ bool ezParticleEffectInstance::Update(const ezTime& tDiff)
 {
   EZ_PROFILE("PFX: Effect Update");
 
+  ezTime tMinStep = ezTime::Seconds(1.0 / 60.0);
+
+  if (!IsVisible() && m_iMinSimStepsToDo == 0)
+  {
+    // shared effects always get paused when they are invisible
+    if (IsSharedEffect())
+      return true;
+
+    switch (m_InvisibleUpdateRate)
+    {
+    case ezEffectInvisibleUpdateRate::FullUpdate:
+      break;
+
+    case ezEffectInvisibleUpdateRate::Max20fps:
+      tMinStep = ezTime::Milliseconds(50);
+      break;
+
+    case ezEffectInvisibleUpdateRate::Max10fps:
+      tMinStep = ezTime::Milliseconds(100);
+      break;
+
+    case ezEffectInvisibleUpdateRate::Max5fps:
+      tMinStep = ezTime::Milliseconds(200);
+      break;
+
+    case ezEffectInvisibleUpdateRate::Pause:
+      return m_uiReviveTimeout > 0;
+
+    case ezEffectInvisibleUpdateRate::Discard:
+      Interrupt();
+      return false;
+    }
+  }
+
+  m_ElapsedTimeSinceUpdate += tDiff;
+
+  // if the time step is too big, iterate multiple times
+  {
+    const ezTime tMaxTimeStep = ezTime::Milliseconds(200); // in sync with Max5fps
+    while (m_ElapsedTimeSinceUpdate > tMaxTimeStep)
+    {
+      m_ElapsedTimeSinceUpdate -= tMaxTimeStep;
+
+      if (!StepSimulation(tMaxTimeStep))
+        return false;
+    }
+  }
+
+  if (m_ElapsedTimeSinceUpdate < tMinStep)
+    return m_uiReviveTimeout > 0;
+
+  // do the remainder
+  const ezTime tUpdateDiff = m_ElapsedTimeSinceUpdate;
+  m_ElapsedTimeSinceUpdate.SetZero();
+
+  return StepSimulation(tUpdateDiff);
+}
+
+bool ezParticleEffectInstance::StepSimulation(const ezTime& tDiff)
+{
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
     if (m_ParticleSystems[i] != nullptr)
@@ -263,6 +327,8 @@ bool ezParticleEffectInstance::Update(const ezTime& tDiff)
   {
     CombineSystemBoundingVolumes();
   }
+
+  m_iMinSimStepsToDo = ezMath::Max<ezInt8>(m_iMinSimStepsToDo - 1, 0);
 
   --m_uiReviveTimeout;
   return m_uiReviveTimeout > 0;

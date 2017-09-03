@@ -22,7 +22,7 @@ AssetInfo
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4202708370900592777,4889946379708453151}}
-		u4 %Hash{16574508365253848706}
+		u4 %Hash{8925387226574385209}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -177,6 +177,7 @@ o
 		}
 		Time %PreSimulateDuration{d{0}}
 		b %SimulateInLocalSpace{0}
+		s %WhenInvisible{"ezEffectInvisibleUpdateRate::Pause"}
 	}
 }
 }
@@ -256,6 +257,24 @@ o
 }
 o
 {
+	Uuid %id{u4{11061541817101818123,3867562407177176337}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{4364839988722085851,4256514474267485533}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -323,6 +342,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezVarianceTypeBase"}
 		u3 %TypeSize{4}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7918771787888430535,9942412559181558879}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezEffectInvisibleUpdateRate"}
+		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
