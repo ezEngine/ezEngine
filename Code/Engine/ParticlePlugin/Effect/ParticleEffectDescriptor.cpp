@@ -10,6 +10,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectDescriptor, 1, ezRTTIDefaultAllo
   {
     EZ_ENUM_MEMBER_PROPERTY("WhenInvisible", ezEffectInvisibleUpdateRate, m_InvisibleUpdateRate),
     EZ_MEMBER_PROPERTY("SimulateInLocalSpace", m_bSimulateInLocalSpace),
+    EZ_MEMBER_PROPERTY("AlwaysShared", m_bAlwaysShared),
     EZ_MEMBER_PROPERTY("PreSimulateDuration", m_PreSimulateDuration),
     EZ_SET_ACCESSOR_PROPERTY("ParticleSystems", GetParticleSystems, AddParticleSystem, RemoveParticleSystem)->AddFlags(ezPropertyFlags::PointerOwner),
   }
@@ -43,6 +44,7 @@ enum class ParticleEffectVersion
   Version_2,
   Version_3,
   Version_4,
+  Version_5, // m_bAlwaysShared
 
   // insert new version numbers above
   Version_Count,
@@ -67,6 +69,8 @@ void ezParticleEffectDescriptor::Save(ezStreamWriter& stream) const
   stream << m_PreSimulateDuration;
   // Version 4
   stream << m_InvisibleUpdateRate;
+  // Version 5
+  stream << m_bAlwaysShared;
 
   // Version 3
   for (auto pSystem : m_ParticleSystems)
@@ -110,6 +114,11 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& stream)
   if (uiVersion >= 4)
   {
     stream >> m_InvisibleUpdateRate;
+  }
+
+  if (uiVersion >= 5)
+  {
+    stream >> m_bAlwaysShared;
   }
 
   m_ParticleSystems.SetCountUninitialized(uiNumSystems);

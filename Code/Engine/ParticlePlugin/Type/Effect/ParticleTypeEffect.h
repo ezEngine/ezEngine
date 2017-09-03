@@ -20,7 +20,7 @@ public:
 
   ezString m_sEffect;
   ezUInt64 m_uiRandomSeed;
-  ezString m_sSharedInstanceName;
+  ezString m_sSharedInstanceName; // to be removed
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeEffect : public ezParticleType
@@ -33,7 +33,7 @@ public:
 
   ezParticleEffectResourceHandle m_hEffect;
   ezUInt64 m_uiRandomSeed;
-  ezString m_sSharedInstanceName;
+  //ezString m_sSharedInstanceName;
 
   virtual void CreateRequiredStreams() override;
   virtual void AfterPropertiesConfigured(bool bFirstTime) override;

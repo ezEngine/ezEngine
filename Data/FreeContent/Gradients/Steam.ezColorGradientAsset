@@ -2,6 +2,17 @@ Objects
 {
 o
 {
+	Uuid %id{u4{3727193592507672960,4659317327664586494}}
+	s %t{"ezAlphaControlPoint"}
+	u3 %v{1}
+	p
+	{
+		u1 %Alpha{51}
+		f %Position{0x6BD6423F}
+	}
+}
+o
+{
 	Uuid %id{u4{12622943997032129189,4681287014890880746}}
 	s %t{"ezAlphaControlPoint"}
 	u3 %v{1}
@@ -48,7 +59,7 @@ AssetInfo
 		s %AssetType{"ColorGradient"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7758285767783997330,5014147135020380386}}
-		u4 %Hash{7432118373904300370}
+		u4 %Hash{16178399283597161727}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -90,6 +101,7 @@ o
 			Uuid{u4{12622943997032129189,4681287014890880746}}
 			Uuid{u4{1151950771853104545,5368706965425885566}}
 			Uuid{u4{6626022187018795174,5764057194058953456}}
+			Uuid{u4{3727193592507672960,4659317327664586494}}
 		}
 		VarArray %ColorCPs
 		{

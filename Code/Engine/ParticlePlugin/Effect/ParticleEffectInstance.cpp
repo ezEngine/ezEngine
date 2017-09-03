@@ -39,6 +39,7 @@ void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, c
   m_ElapsedTimeSinceUpdate.SetZero();
   m_EffectIsVisible.SetZero();
   m_iMinSimStepsToDo = 4;
+  m_Transform.SetIdentity();
 
   Reconfigure(uiRandomSeed, true);
 }
@@ -188,6 +189,7 @@ void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTim
   const auto& desc = pResource->GetDescriptor().m_Effect;
   const auto& systems = desc.GetParticleSystems();
 
+  m_Transform.SetIdentity();
   m_bSimulateInLocalSpace = desc.m_bSimulateInLocalSpace;
   m_InvisibleUpdateRate = desc.m_InvisibleUpdateRate;
 
@@ -468,9 +470,8 @@ void ezParticleEffectInstance::CombineSystemBoundingVolumes()
     effectVolume = ezBoundingSphere(ezVec3::ZeroVector(), 0.25f);
   }
 
-  // if it is a shared effect, everything happens in 'local space' already
-  // otherwise, transform the bounding volume into local space
-  if (!IsSharedEffect())
+  // transform the bounding volume to local space, unless it was already created there
+  if (!m_bSimulateInLocalSpace)
   {
     const ezTransform invTrans = GetTransform().GetInverse();
     effectVolume.Transform(invTrans.GetAsMat4());

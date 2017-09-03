@@ -180,8 +180,11 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
     }
   }
 
+  /// \todo Use level of detail to reduce the update interval further
+  /// up close, with a high interval, animations appear choppy, especially when fading stuff out at the end
+
   // reset the update interval to the default
-  m_uiCurrentUpdateInterval = 8;
+  m_uiCurrentUpdateInterval = 2;
 }
 
 

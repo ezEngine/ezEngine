@@ -23,6 +23,7 @@ public:
 
   ezEnum<ezEffectInvisibleUpdateRate> m_InvisibleUpdateRate;
   bool m_bSimulateInLocalSpace = false;
+  bool m_bAlwaysShared = false;
   ezTime m_PreSimulateDuration;
 
 private:

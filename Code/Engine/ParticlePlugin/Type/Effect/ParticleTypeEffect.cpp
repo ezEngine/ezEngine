@@ -41,7 +41,7 @@ void ezParticleTypeEffectFactory::CopyTypeProperties(ezParticleType* pObject) co
     pType->m_hEffect = ezResourceManager::LoadResource<ezParticleEffectResource>(m_sEffect);
 
   pType->m_uiRandomSeed = m_uiRandomSeed;
-  pType->m_sSharedInstanceName = m_sSharedInstanceName;
+  //pType->m_sSharedInstanceName = m_sSharedInstanceName;
 }
 
 enum class TypeEffectVersion
@@ -131,7 +131,8 @@ void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
   {
     if (pEffectID[i] == 0) // always an invalid ID
     {
-      ezParticleEffectHandle hInstance = pWorldModule->CreateEffectInstance(m_hEffect, m_uiRandomSeed, m_sSharedInstanceName, nullptr);
+      const void* pDummy = nullptr;
+      ezParticleEffectHandle hInstance = pWorldModule->CreateEffectInstance(m_hEffect, m_uiRandomSeed, /*m_sSharedInstanceName*/nullptr, pDummy);
 
       pEffectID[i] = hInstance.GetInternalID().m_Data;
     }

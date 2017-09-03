@@ -269,6 +269,7 @@ ezParticleSystemInstance::ezParticleSystemInstance()
 
 void ezParticleSystemInstance::Construct(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed, ezParticleEffectInstance* pOwnerEffect)
 {
+  m_Transform.SetIdentity();
   m_pOwnerEffect = pOwnerEffect;
   m_bEmitterEnabled = true;
   m_bVisible = true;

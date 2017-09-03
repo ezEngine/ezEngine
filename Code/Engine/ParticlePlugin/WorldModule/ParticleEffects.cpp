@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 #include <Core/World/World.h>
+#include <ParticlePlugin/Resources/ParticleEffectResource.h>
 
 ezParticleEffectHandle ezParticleWorldModule::InternalCreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, bool bIsShared)
 {
@@ -53,17 +54,26 @@ ezParticleEffectHandle ezParticleWorldModule::InternalCreateSharedEffectInstance
 }
 
 
-ezParticleEffectHandle ezParticleWorldModule::CreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const char* szSharedName, const void* pSharedInstanceOwner)
+ezParticleEffectHandle ezParticleWorldModule::CreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const char* szSharedName, const void*& inout_pSharedInstanceOwner)
 {
   EZ_ASSERT_DEBUG(hResource.IsValid(), "Invalid Particle Effect resource handle");
 
-  if (ezStringUtils::IsNullOrEmpty(szSharedName) || pSharedInstanceOwner == nullptr)
+  bool bIsShared = !ezStringUtils::IsNullOrEmpty(szSharedName) && (inout_pSharedInstanceOwner != nullptr);
+
+  if (!bIsShared)
   {
+    ezResourceLock<ezParticleEffectResource> pResource(hResource, ezResourceAcquireMode::NoFallback);
+    bIsShared |= pResource->GetDescriptor().m_Effect.m_bAlwaysShared;
+  }
+
+  if (!bIsShared)
+  {
+    inout_pSharedInstanceOwner = nullptr;
     return InternalCreateEffectInstance(hResource, uiRandomSeed, false);
   }
   else
   {
-    return InternalCreateSharedEffectInstance(szSharedName, hResource, uiRandomSeed, pSharedInstanceOwner);
+    return InternalCreateSharedEffectInstance(szSharedName, hResource, uiRandomSeed, inout_pSharedInstanceOwner);
   }
 }
 

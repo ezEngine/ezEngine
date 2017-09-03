@@ -39,16 +39,13 @@ ezParticleEffectInstance* ezParticleEffectController::GetInstance() const
 
 void ezParticleEffectController::Create(const ezParticleEffectResourceHandle& hEffectResource, ezParticleWorldModule* pModule, ezUInt64 uiRandomSeed, const char* szSharedName, const void* pSharedInstanceOwner)
 {
-  if (ezStringUtils::IsNullOrEmpty(szSharedName))
-    m_pSharedInstanceOwner = nullptr;
-  else
-    m_pSharedInstanceOwner = pSharedInstanceOwner;
+  m_pSharedInstanceOwner = pSharedInstanceOwner;
 
   // first get the new effect, to potentially increase a refcount to the same effect instance, before we decrease the refcount of our current one
   ezParticleEffectHandle hNewEffect;
   if (pModule != nullptr && hEffectResource.IsValid())
   {
-    hNewEffect = pModule->CreateEffectInstance(hEffectResource, uiRandomSeed, szSharedName, pSharedInstanceOwner);
+    hNewEffect = pModule->CreateEffectInstance(hEffectResource, uiRandomSeed, szSharedName, m_pSharedInstanceOwner);
   }
 
   Invalidate();
