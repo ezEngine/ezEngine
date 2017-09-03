@@ -7,6 +7,7 @@
 #include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <ParticlePlugin/Events/ParticleEvent.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
+#include <Foundation/Profiling/Profiling.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Raycast, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Raycast>)
 {

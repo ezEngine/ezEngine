@@ -6,6 +6,7 @@
 #include <Core/World/World.h>
 #include <Foundation/Time/Clock.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
+#include <Foundation/Profiling/Profiling.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Gravity, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Gravity>)
 {
