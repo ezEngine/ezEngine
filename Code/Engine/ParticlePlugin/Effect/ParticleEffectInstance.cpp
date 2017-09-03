@@ -8,6 +8,7 @@
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Time/Clock.h>
 
 ezParticleEffectInstance::ezParticleEffectInstance()
   : m_Task(this)
@@ -32,7 +33,8 @@ void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, c
   m_bIsSharedEffect = bIsShared;
   m_bEmitterEnabled = true;
   m_bIsFinishing = false;
-  m_uiUpdateBVolumeCounter = 255;
+  m_UpdateBVolumeTime.SetZero();
+  m_LastBVolumeUpdate.SetZero();
   m_BoundingVolume = ezBoundingSphere(ezVec3::ZeroVector(), 0);
 
   Reconfigure(uiRandomSeed, true);
@@ -115,7 +117,7 @@ void ezParticleEffectInstance::PreSimulate()
   // simulate in large steps to get close
   {
     const ezTime tDiff = ezTime::Seconds(0.5);
-    while (m_PreSimulateDuration.GetSeconds() > 5.0)
+    while (m_PreSimulateDuration.GetSeconds() > 10.0)
     {
       Update(tDiff);
       m_PreSimulateDuration -= tDiff;
@@ -125,7 +127,7 @@ void ezParticleEffectInstance::PreSimulate()
   // finer steps
   {
     const ezTime tDiff = ezTime::Seconds(0.2);
-    while (m_PreSimulateDuration.GetSeconds() > 1.0)
+    while (m_PreSimulateDuration.GetSeconds() > 5.0)
     {
       Update(tDiff);
       m_PreSimulateDuration -= tDiff;
@@ -157,17 +159,17 @@ void ezParticleEffectInstance::SetIsVisible() const
   // 1) it fixes the transition when handing off an effect from a
   //    ezParticleComponent to a ezParticleFinisherComponent
   //    though this would only need one frame overlap
-  // 2) The bounding volume for culling is only computed every 8 updates
-  //    so it may be too small for 7 frames and culling could be imprecise
-  //    by just rendering it the next 8 frames, no matter what, the bounding volume
+  // 2) The bounding volume for culling is only computed every couple of frames
+  //    so it may be too small 100ms and culling could be imprecise
+  //    by just rendering it the next 100ms, no matter what, the bounding volume
   //    does not need to be updated so frequently
-  m_uiEffectIsVisible = ezRenderWorld::GetFrameCounter() + 8;
+  m_EffectIsVisible = ezClock::GetGlobalClock()->GetAccumulatedTime() + ezTime::Seconds(0.1);
 }
 
 
 bool ezParticleEffectInstance::IsVisible() const
 {
-  return m_uiEffectIsVisible >= ezRenderWorld::GetFrameCounter();
+  return m_EffectIsVisible >= ezClock::GetGlobalClock()->GetAccumulatedTime();
 }
 
 void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTime)
@@ -234,7 +236,6 @@ void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTim
 bool ezParticleEffectInstance::Update(const ezTime& tDiff)
 {
   EZ_PROFILE("PFX: Effect Update");
-  ++m_uiUpdateBVolumeCounter;
 
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
@@ -260,9 +261,7 @@ bool ezParticleEffectInstance::Update(const ezTime& tDiff)
 
   if (NeedsBoundingVolumeUpdate())
   {
-    EZ_PROFILE("PFX: BVol Update");
     CombineSystemBoundingVolumes();
-    m_uiUpdateBVolumeCounter = 0;
   }
 
   --m_uiReviveTimeout;
@@ -373,53 +372,55 @@ bool ezParticleEffectInstance::ShouldBeUpdated() const
 
 bool ezParticleEffectInstance::NeedsBoundingVolumeUpdate() const
 {
-  return m_uiUpdateBVolumeCounter > 7;
+  return m_UpdateBVolumeTime <= ezClock::GetGlobalClock()->GetAccumulatedTime();
 }
 
 void ezParticleEffectInstance::CombineSystemBoundingVolumes()
 {
   ezBoundingBoxSphere effectVolume;
   effectVolume.SetInvalid();
-  float effectMaxSize = 0;
 
   ezBoundingBoxSphere systemVolume;
-  float systemMaxSize = 0;
 
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
     if (m_ParticleSystems[i])
     {
       systemVolume.SetInvalid();
-      systemMaxSize = 0.0f;
 
-      m_ParticleSystems[i]->GetBoundingVolume(systemVolume, systemMaxSize);
+      m_ParticleSystems[i]->GetBoundingVolume(systemVolume);
 
       if (systemVolume.IsValid())
       {
         effectVolume.ExpandToInclude(systemVolume);
-        effectMaxSize = ezMath::Max(effectMaxSize, systemMaxSize);
       }
     }
   }
 
-  if (effectVolume.IsValid())
-  {
-    effectVolume.m_fSphereRadius += effectMaxSize;
-    effectVolume.m_vBoxHalfExtends += ezVec3(effectMaxSize);
-  }
-  else
+  if (!effectVolume.IsValid())
   {
     effectVolume = ezBoundingSphere(ezVec3::ZeroVector(), 0.25f);
   }
 
+  // if it is a shared effect, everything happens in 'local space' already
+  // otherwise, transform the bounding volume into local space
+  if (!IsSharedEffect())
+  {
+    const ezTransform invTrans = GetTransform().GetInverse();
+    effectVolume.Transform(invTrans.GetAsMat4());
+  }
+
+  const ezTime tNow = ezClock::GetGlobalClock()->GetAccumulatedTime();
+
   m_BoundingVolume = effectVolume;
-  m_uiLastBVolumeUpdate = ezRenderWorld::GetFrameCounter();
+  m_LastBVolumeUpdate = tNow;
+  m_UpdateBVolumeTime = tNow + ezTime::Seconds(0.1);
 }
 
-ezUInt64 ezParticleEffectInstance::GetBoundingVolume(ezBoundingBoxSphere& volume)
+ezTime ezParticleEffectInstance::GetBoundingVolume(ezBoundingBoxSphere& volume) const
 {
   volume = m_BoundingVolume;
-  return m_uiLastBVolumeUpdate;
+  return m_LastBVolumeUpdate;
 }
 
 void ezParticleEffectInstance::DestroyEventQueues()

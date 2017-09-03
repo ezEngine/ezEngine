@@ -62,5 +62,5 @@ protected:
   void Update();
 
   void CheckBVolumeUpdate();
-  ezUInt64 m_uiLastBVolumeUpdate = 0;
+  ezTime m_LastBVolumeUpdate;
 };

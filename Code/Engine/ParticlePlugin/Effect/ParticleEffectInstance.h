@@ -23,6 +23,7 @@ private:
 class EZ_PARTICLEPLUGIN_DLL ezParticleEffectInstance
 {
   friend class ezParticleWorldModule;
+  friend class ezParticleffectUpdateTask;
 
 public:
   struct SharedInstance
@@ -49,10 +50,6 @@ public:
 
   void ClearParticleSystems();
 
-  void PreSimulate();
-
-  /// \brief Returns false when the effect is finished.
-  bool Update(const ezTime& tDiff);
 
   ezWorld* GetWorld() const { return m_pWorld; }
   ezParticleWorldModule* GetOwnerWorldModule() const { return m_pOwnerModule; }
@@ -61,26 +58,56 @@ public:
 
   const ezHybridArray<ezParticleSystemInstance*, 4>& GetParticleSystems() const { return m_ParticleSystems; }
 
-  bool IsSharedEffect() const { return m_bIsSharedEffect; }
+  
   bool IsSimulatedInLocalSpace() const { return m_bSimulateInLocalSpace; }
 
-  void AddSharedInstance(const void* pSharedInstanceOwner);
-  void RemoveSharedInstance(const void* pSharedInstanceOwner);
   void SetTransform(const ezTransform& transform, const void* pSharedInstanceOwner = nullptr);
   const ezTransform& GetTransform(const void* pSharedInstanceOwner = nullptr) const;
 
-  const ezDynamicArray<SharedInstance>& GetAllSharedInstances() const { return m_SharedInstances; }
 
   ezParticleEventQueue* GetEventQueue(const ezTempHashedString& EventType);
+
+  /// @name Updates
+  /// @{
+
+public:
+  /// \brief Returns false when the effect is finished.
+  bool Update(const ezTime& tDiff);
+
+private: //friend ezParticleWorldModule
+  /// \brief Whether this instance is in a state where its update task should be run
+  bool ShouldBeUpdated() const;
 
   /// \brief Returns the task that is used to update the effect
   ezParticleffectUpdateTask* GetUpdateTask() { return &m_Task; }
 
-  /// \brief Whether this instance is in a state where its update task should be run
-  bool ShouldBeUpdated() const;
+private: // friend ezParticleffectUpdateTask
+  /// \brief If the effect wants to skip all the initial behavior, this simulates it multiple times before it is shown the first time.
+  void PreSimulate();
 
-  bool NeedsBoundingVolumeUpdate() const;
-  ezUInt64 GetBoundingVolume(ezBoundingBoxSphere& volume);
+private:
+
+
+  /// @}
+
+  /// @name Shared Instances
+  /// @{
+public:
+
+  /// \brief Returns true, if this effect is configured to be simulated once per frame, but rendered by multiple instances.
+  bool IsSharedEffect() const { return m_bIsSharedEffect; }
+
+private: // friend ezParticleWorldModule
+  void AddSharedInstance(const void* pSharedInstanceOwner);
+  void RemoveSharedInstance(const void* pSharedInstanceOwner);
+
+
+private: //friend ezParticleWorldModule
+  const ezDynamicArray<SharedInstance>& GetAllSharedInstances() const { return m_SharedInstances; }
+
+private:
+
+  /// @}
 
   /// \name Visibility and Culling
   /// @{
@@ -93,13 +120,20 @@ public:
   /// \brief Whether the effect has been marked as visible recently.
   bool IsVisible() const;
 
+  /// \brief Returns true when the last bounding volume update was too long ago.
+  bool NeedsBoundingVolumeUpdate() const;
+
+  /// \brief Returns the bounding volume of the effect and the time at which the volume was updated last.
+  /// The volume is in the local space of the effect.
+  ezTime GetBoundingVolume(ezBoundingBoxSphere& volume) const;
+
 private:
   void CombineSystemBoundingVolumes();
 
-  ezUInt8 m_uiUpdateBVolumeCounter = 0;
-  ezUInt64 m_uiLastBVolumeUpdate = 0;
+  ezTime m_UpdateBVolumeTime;
+  ezTime m_LastBVolumeUpdate;
   ezBoundingBoxSphere m_BoundingVolume;
-  mutable ezUInt64 m_uiEffectIsVisible = 0;
+  mutable ezTime m_EffectIsVisible;
 
   /// @}
 

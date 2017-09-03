@@ -23,7 +23,9 @@ public:
 
   void StopImmediate();
 
-  ezUInt64 GetBoundingVolume(ezBoundingBoxSphere& volume) const;
+  /// \brief Returns the bounding volume of the effect and the time at which the volume was updated last.
+  /// The volume is in the local space of the effect.
+  ezTime GetBoundingVolume(ezBoundingBoxSphere& volume) const;
 
 private:
   ezParticleEffectController(ezParticleWorldModule* pModule, ezParticleEffectHandle hEffect);

@@ -37,6 +37,9 @@ public:
   /// \brief Sets the time value to zero.
   void SetZero();
 
+  /// \brief Returns true if the stored time is exactly zero. That typically means the value was not changed from the default.
+  constexpr bool IsZero() const { return m_fTime == 0.0; }
+
   /// \brief Returns true if the stored time is zero or negative.
   constexpr bool IsZeroOrLess() const { return m_fTime <= 0.0; }
 

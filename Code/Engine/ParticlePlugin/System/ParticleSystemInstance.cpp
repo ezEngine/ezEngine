@@ -525,18 +525,14 @@ void ezParticleSystemInstance::RemoveParticleDeathEventHandler(ParticleDeathHand
   m_StreamGroup.m_ElementRemovedEvent.RemoveEventHandler(handler);
 }
 
-
-void ezParticleSystemInstance::SetBoundingVolume(const ezBoundingBoxSphere& volume, float fMaxSize)
+void ezParticleSystemInstance::SetBoundingVolume(const ezBoundingBoxSphere& volume)
 {
   m_BoundingVolume = volume;
-  m_fMaxParticleSize = fMaxSize;
 }
 
-
-void ezParticleSystemInstance::GetBoundingVolume(ezBoundingBoxSphere& volume, float& fMaxSize) const
+void ezParticleSystemInstance::GetBoundingVolume(ezBoundingBoxSphere& volume) const
 {
   volume = m_BoundingVolume;
-  fMaxSize = m_fMaxParticleSize;
 }
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_System_ParticleSystemInstance);

@@ -206,9 +206,9 @@ ezUInt32 ezParticleEmitter_Continuous::ComputeSpawnCount(const ezTime& tDiff)
 
   const ezTime interval = ezTime::Seconds(rng.DoubleVariance(m_SpawnInterval.m_Value.GetSeconds(), m_SpawnInterval.m_fVariance));
 
-  // we ignore the fact that with lower update frequencies (bad framerate), the actual interval will become larger and the effect
-  // might visibly change
-  m_NextSpawn = interval;
+  // we ignore the fact that with lower update frequencies (bad framerate), the actual interval will become larger
+  // and the effect might visibly change
+  m_NextSpawn += interval;
 
   return uiSpawn;
 }

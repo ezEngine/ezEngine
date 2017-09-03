@@ -60,13 +60,10 @@ ezResult ezParticleFinisherComponent::GetLocalBounds(ezBoundingBoxSphere& bounds
   if (m_EffectController.IsAlive())
   {
     ezBoundingBoxSphere volume;
-    m_uiLastBVolumeUpdate = m_EffectController.GetBoundingVolume(volume);
+    m_LastBVolumeUpdate = m_EffectController.GetBoundingVolume(volume);
 
-    if (m_uiLastBVolumeUpdate > 0)
+    if (!m_LastBVolumeUpdate.IsZero())
     {
-      ezTransform inv = GetOwner()->GetGlobalTransform().GetInverse();
-      volume.Transform(inv.GetAsMat4());
-
       bounds.ExpandToInclude(volume);
       return EZ_SUCCESS;
     }
@@ -95,7 +92,7 @@ void ezParticleFinisherComponent::Update()
 void ezParticleFinisherComponent::CheckBVolumeUpdate()
 {
   ezBoundingBoxSphere bvol;
-  if (m_uiLastBVolumeUpdate < m_EffectController.GetBoundingVolume(bvol))
+  if (m_LastBVolumeUpdate < m_EffectController.GetBoundingVolume(bvol))
   {
     TriggerLocalBoundsUpdate();
   }
