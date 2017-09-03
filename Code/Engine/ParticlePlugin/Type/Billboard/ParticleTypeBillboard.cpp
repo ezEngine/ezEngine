@@ -14,6 +14,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <RendererCore/Pipeline/View.h>
 #include <Foundation/Algorithm/Sorting.h>
+#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeBillboardFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeBillboardFactory>)
 {
@@ -198,6 +199,7 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
   const ezUInt32 uiBatchId = m_hTexture.GetResourceIDHash();
   auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleBillboardRenderData>(nullptr, uiBatchId);
 
+  pRenderData->m_bApplyObjectTransform = GetOwnerEffect()->NeedsToApplyTransform();
   pRenderData->m_GlobalTransform = instanceTransform;
   pRenderData->m_RenderMode = m_RenderMode;
   pRenderData->m_hTexture = m_hTexture;

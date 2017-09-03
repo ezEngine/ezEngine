@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <ParticlePlugin/Type/Trail/TrailRenderer.h>
 #include <ParticlePlugin/Type/Trail/ParticleTypeTrail.h>
 #include <RendererFoundation/Device/Device.h>
@@ -179,7 +179,12 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
     // fill the constant buffer
     {
       ezParticleSystemConstants& cb = pConstantBuffer->GetDataForWriting();
-      cb.ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();
+
+      if (pRenderData->m_bApplyObjectTransform)
+        cb.ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();
+      else
+        cb.ObjectToWorldMatrix.SetIdentity();
+
       cb.NumUsedTrailPoints = pRenderData->m_uiMaxTrailPoints;
       cb.SnapshotFraction = pRenderData->m_fSnapshotFraction;
     }

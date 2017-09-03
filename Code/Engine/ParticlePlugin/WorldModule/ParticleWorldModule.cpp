@@ -88,21 +88,12 @@ void ezParticleWorldModule::ExtractRenderData(const ezView& view, ezExtractedRen
 
       for (ezUInt32 shi = 0; shi < shared.GetCount(); ++shi)
       {
-        /// \todo Determine per shared instance, whether it is visible at all
-
         ExtractEffectRenderData(pEffect, view, pExtractedRenderData, pEffect->GetTransform(shared[shi].m_pSharedInstanceOwner));
       }
     }
     else
     {
-      ezTransform systemTransform = ezTransform::Identity();
-
-      if (pEffect->IsSimulatedInLocalSpace())
-        systemTransform = pEffect->GetTransform(nullptr);
-
-      /// \todo Determine whether this instance is visible at all
-
-      ExtractEffectRenderData(pEffect, view, pExtractedRenderData, systemTransform);
+      ExtractEffectRenderData(pEffect, view, pExtractedRenderData, pEffect->GetTransform(nullptr));
     }
   }
 }

@@ -18,6 +18,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticlePointRenderData : public ezRenderData
 
 public:
   ezArrayPtr<ezPointParticleData> m_ParticleData;
+  bool m_bApplyObjectTransform = true;
 };
 
 /// \brief Implements rendering of particle systems

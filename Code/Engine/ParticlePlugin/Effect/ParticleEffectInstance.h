@@ -57,15 +57,24 @@ public:
   const ezParticleEffectResourceHandle& GetResource() const { return m_hResource; }
 
   const ezHybridArray<ezParticleSystemInstance*, 4>& GetParticleSystems() const { return m_ParticleSystems; }
+  ezParticleEventQueue* GetEventQueue(const ezTempHashedString& EventType);
 
-  
+  /// @name Transform Related
+  /// @{
+
+  /// \brief Whether the effect is simulated around the origin and thus not affected by instance position and rotation
   bool IsSimulatedInLocalSpace() const { return m_bSimulateInLocalSpace; }
 
+  /// \brief Sets the transformation of the main or shared instance
   void SetTransform(const ezTransform& transform, const void* pSharedInstanceOwner = nullptr);
+
+  /// \brief Returns the transform of the main or shared instance
   const ezTransform& GetTransform(const void* pSharedInstanceOwner = nullptr) const;
 
+  /// \brief For the renderer to know whether the instance transform has to be applied to each particle position.
+  bool NeedsToApplyTransform() const { return m_bSimulateInLocalSpace || m_bIsSharedEffect; }
 
-  ezParticleEventQueue* GetEventQueue(const ezTempHashedString& EventType);
+  /// @}
 
   /// @name Updates
   /// @{

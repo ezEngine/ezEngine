@@ -22,6 +22,7 @@ public:
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezTexture2DResourceHandle m_hTexture;
   ezArrayPtr<ezSpriteParticleData> m_ParticleData;
+  bool m_bApplyObjectTransform = true;
 };
 
 

@@ -25,6 +25,7 @@ public:
   ezArrayPtr<ezTrailParticleData> m_ParticleDataShared;
   ezArrayPtr<ezVec4> m_TrailPointsShared;
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
+  bool m_bApplyObjectTransform = true;
 };
 
 /// \brief Implements rendering of a trail particle systems

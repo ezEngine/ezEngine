@@ -12,6 +12,7 @@
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/World/World.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeTrailFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeTrailFactory>)
 {
@@ -184,6 +185,7 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
   const ezUInt32 uiBatchId = m_hTexture.GetResourceIDHash() + m_uiMaxPoints;
   auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleTrailRenderData>(nullptr, uiBatchId);
 
+  pRenderData->m_bApplyObjectTransform = GetOwnerEffect()->NeedsToApplyTransform();
   pRenderData->m_RenderMode = m_RenderMode;
   pRenderData->m_GlobalTransform = instanceTransform;
   pRenderData->m_uiMaxTrailPoints = m_uiMaxPoints;

@@ -12,6 +12,7 @@
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/World/World.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezFragmentAxis, 1)
 EZ_ENUM_CONSTANTS(ezFragmentAxis::OrthogonalEmitterDirection, ezFragmentAxis::EmitterDirection)
@@ -173,6 +174,7 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
   const ezUInt32 uiBatchId = m_hTexture.GetResourceIDHash();
   auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleFragmentRenderData>(nullptr, uiBatchId);
 
+  pRenderData->m_bApplyObjectTransform = GetOwnerEffect()->NeedsToApplyTransform();
   pRenderData->m_GlobalTransform = instanceTransform;
   pRenderData->m_hTexture = m_hTexture;
   pRenderData->m_ParticleData = m_ParticleData;

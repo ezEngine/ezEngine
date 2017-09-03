@@ -10,6 +10,7 @@
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/World/World.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypePointFactory, 1, ezRTTIDefaultAllocator<ezParticleTypePointFactory>)
 {
@@ -100,6 +101,7 @@ void ezParticleTypePoint::ExtractTypeRenderData(const ezView& view, ezExtractedR
   const ezUInt32 uiBatchId = 0;
   auto pRenderData = ezCreateRenderDataForThisFrame<ezParticlePointRenderData>(nullptr, uiBatchId);
 
+  pRenderData->m_bApplyObjectTransform = GetOwnerEffect()->NeedsToApplyTransform();
   pRenderData->m_GlobalTransform = instanceTransform;
   pRenderData->m_ParticleData = m_ParticleData;
 

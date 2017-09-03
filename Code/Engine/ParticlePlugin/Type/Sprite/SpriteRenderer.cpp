@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <ParticlePlugin/Type/Sprite/SpriteRenderer.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -100,7 +100,11 @@ void ezParticleSpriteRenderer::RenderBatch(const ezRenderViewContext& renderView
     // fill the constant buffer
     {
       ezParticleSystemConstants& cb = pConstantBuffer->GetDataForWriting();
-      cb.ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();
+
+      if (pRenderData->m_bApplyObjectTransform)
+        cb.ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();
+      else
+        cb.ObjectToWorldMatrix.SetIdentity();
     }
 
     while (uiNumParticles > 0)

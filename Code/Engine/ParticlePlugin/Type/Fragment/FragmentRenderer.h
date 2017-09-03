@@ -20,6 +20,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleFragmentRenderData : public ezRenderData
 public:
   ezTexture2DResourceHandle m_hTexture;
   ezArrayPtr<ezFragmentParticleData> m_ParticleData;
+  bool m_bApplyObjectTransform = true;
 };
 
 
