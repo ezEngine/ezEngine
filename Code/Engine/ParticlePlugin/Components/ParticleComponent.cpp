@@ -8,6 +8,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <ParticlePlugin/Components/ParticleFinisherComponent.h>
+#include <RendererCore/Pipeline/View.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -199,6 +200,10 @@ ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& 
 
 void ezParticleComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 {
+  // do not extract particles during shadow map rendering
+  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
+    return;
+
   m_EffectController.SetIsInView();
 }
 
