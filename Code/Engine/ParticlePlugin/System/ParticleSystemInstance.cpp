@@ -113,6 +113,8 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
     ReinitializeStreamProcessors(pTemplate);
   }
 
+  SetupOptionalStreams();
+
   // setup stream initializers for all streams that have none yet
   CreateStreamZeroInitializers();
 }
@@ -179,28 +181,29 @@ void ezParticleSystemInstance::CreateStreamProcessors(const ezParticleSystemDesc
       m_Types.PushBack(pType);
     }
   }
+}
 
-  // setup optional streams
+
+void ezParticleSystemInstance::SetupOptionalStreams()
+{
+  for (auto& pEmitter : m_Emitters)
   {
-    for (auto& pEmitter : m_Emitters)
-    {
-      pEmitter->QueryOptionalStreams();
-    }
+    pEmitter->QueryOptionalStreams();
+  }
 
-    for (auto& pInitializer : m_Initializers)
-    {
-      pInitializer->QueryOptionalStreams();
-    }
+  for (auto& pInitializer : m_Initializers)
+  {
+    pInitializer->QueryOptionalStreams();
+  }
 
-    for (auto& pBehavior : m_Behaviors)
-    {
-      pBehavior->QueryOptionalStreams();
-    }
+  for (auto& pBehavior : m_Behaviors)
+  {
+    pBehavior->QueryOptionalStreams();
+  }
 
-    for (auto& pType : m_Types)
-    {
-      pType->QueryOptionalStreams();
-    }
+  for (auto& pType : m_Types)
+  {
+    pType->QueryOptionalStreams();
   }
 }
 
@@ -525,9 +528,18 @@ void ezParticleSystemInstance::RemoveParticleDeathEventHandler(ParticleDeathHand
   m_StreamGroup.m_ElementRemovedEvent.RemoveEventHandler(handler);
 }
 
-void ezParticleSystemInstance::SetBoundingVolume(const ezBoundingBoxSphere& volume)
+void ezParticleSystemInstance::SetBoundingVolume(const ezBoundingBoxSphere& volume, float fMaxParticleSize)
 {
   m_BoundingVolume = volume;
+
+  float fExpand = 0;
+  for (const auto pType : m_Types)
+  {
+    fExpand = ezMath::Max(fExpand, pType->GetMaxParticleRadius(fMaxParticleSize));
+  }
+
+  m_BoundingVolume.m_vBoxHalfExtends += ezVec3(fExpand);
+  m_BoundingVolume.m_fSphereRadius += fExpand;
 }
 
 void ezParticleSystemInstance::GetBoundingVolume(ezBoundingBoxSphere& volume) const

@@ -16,6 +16,8 @@ public:
   void Invalidate();
 
   bool IsAlive() const;
+  bool IsSharedInstance() const { return m_pSharedInstanceOwner != nullptr; }
+
   void SetTransform(const ezTransform& t) const;
 
   void Tick(const ezTime& tDiff) const;

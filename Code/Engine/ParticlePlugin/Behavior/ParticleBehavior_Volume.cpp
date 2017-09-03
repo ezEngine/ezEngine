@@ -131,8 +131,5 @@ void ezParticleBehavior_Volume::Process(ezUInt64 uiNumElements)
 
   const float fms = ezMath::Max(fms0123, fms4567);
 
-  volume.m_vBoxHalfExtends += ezVec3(fms);
-  volume.m_fSphereRadius += fms;
-
-  GetOwnerSystem()->SetBoundingVolume(volume);
+  GetOwnerSystem()->SetBoundingVolume(volume, fms);
 }

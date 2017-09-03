@@ -12,6 +12,8 @@
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/World/World.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <RendererCore/Pipeline/View.h>
+#include <Foundation/Algorithm/Sorting.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeBillboardFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeBillboardFactory>)
 {
@@ -103,6 +105,21 @@ void ezParticleTypeBillboard::CreateRequiredStreams()
   CreateStream("RotationSpeed", ezProcessingStream::DataType::Float, &m_pStreamRotationSpeed, false);
 }
 
+struct sod
+{
+  EZ_DECLARE_POD_TYPE();
+
+  float dist;
+  ezUInt32 index;
+};
+
+struct sodComparer
+{
+  // sort farther particles to the front, so that they get rendered first (back to front)
+  EZ_ALWAYS_INLINE bool Less(const sod& a, const sod& b) const { return a.dist > b.dist; }
+  EZ_ALWAYS_INLINE bool Equal(const sod& a, const sod& b) const { return a.dist == b.dist; }
+};
+
 void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
   EZ_PROFILE("PFX: Billboard");
@@ -117,6 +134,8 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
 
   const ezTime tCur = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
 
+  const ezVec3 vCameraPos = view.GetCamera()->GetCenterPosition();
+
   // don't copy the data multiple times in the same frame, if the effect is instanced
   if (m_uiLastExtractedFrame != uiExtractedFrame)
   {
@@ -130,16 +149,48 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
     // this will automatically be deallocated at the end of the frame
     m_ParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBillboardParticleData, numParticles);
 
-    ezTransform t;
+    ezTransform trans;
+    const bool bNeedsSorting = m_RenderMode == ezParticleTypeRenderMode::Blended;
 
-    for (ezUInt32 p = 0; p < numParticles; ++p)
+    if (bNeedsSorting)
     {
-      t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[p])));
-      t.m_vPosition = pPosition[p].GetAsVec3();
-      t.m_vScale.Set(1.0f);
-      m_ParticleData[p].Transform = t;
-      m_ParticleData[p].Size = pSize[p];
-      m_ParticleData[p].Color = pColor[p];
+      ezHybridArray<sod, 64> sorted(ezFrameAllocator::GetCurrentAllocator());
+      sorted.SetCountUninitialized(numParticles);
+
+      for (ezUInt32 p = 0; p < numParticles; ++p)
+      {
+        const ezVec3 pos = pPosition[p].GetAsVec3();
+        sorted[p].dist = (pos - vCameraPos).GetLengthSquared();
+        sorted[p].index = p;
+      }
+
+      sorted.Sort(sodComparer());
+
+      for (ezUInt32 p = 0; p < numParticles; ++p)
+      {
+        const ezUInt32 idx = sorted[p].index;
+
+        trans.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[idx])));
+        trans.m_vPosition = pPosition[idx].GetAsVec3();
+        trans.m_vScale.Set(1.0f);
+        m_ParticleData[p].Transform = trans;
+        m_ParticleData[p].Size = pSize[idx];
+        m_ParticleData[p].Color = pColor[idx];
+      }
+    }
+    else
+    {
+      for (ezUInt32 p = 0; p < numParticles; ++p)
+      {
+        const ezUInt32 idx = p;
+
+        trans.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[idx])));
+        trans.m_vPosition = pPosition[idx].GetAsVec3();
+        trans.m_vScale.Set(1.0f);
+        m_ParticleData[p].Transform = trans;
+        m_ParticleData[p].Size = pSize[idx];
+        m_ParticleData[p].Color = pColor[idx];
+      }
     }
   }
 

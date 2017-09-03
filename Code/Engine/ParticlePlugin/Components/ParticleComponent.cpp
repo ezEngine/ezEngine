@@ -236,7 +236,7 @@ void ezParticleComponent::Update()
 
 void ezParticleComponent::HandOffToFinisher()
 {
-  if (m_EffectController.IsAlive())
+  if (m_EffectController.IsAlive() && !m_EffectController.IsSharedInstance())
   {
     ezGameObject* pOwner = GetOwner();
     ezWorld* pWorld = pOwner->GetWorld();

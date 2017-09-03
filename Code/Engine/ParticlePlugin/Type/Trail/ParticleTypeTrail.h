@@ -33,14 +33,16 @@ public:
   ezParticleTypeTrail();
   ~ezParticleTypeTrail();
 
-  virtual void CreateRequiredStreams() override;
 
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezUInt16 m_uiMaxPoints;
   ezTime m_UpdateDiff;
   ezTexture2DResourceHandle m_hTexture;
 
+  virtual void CreateRequiredStreams() override;
   virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override;
+  /// \todo This is a hacky guess, one would actually need to inspect the trail positions
+  virtual float GetMaxParticleRadius(float fParticleSize) const override { return fParticleSize + m_uiMaxPoints * 0.05f; }
 
   static ezUInt32 ComputeTrailPointBucketSize(ezUInt32 uiMaxTrailPoints);
 

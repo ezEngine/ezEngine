@@ -32,6 +32,8 @@ public:
 
   void CreateStreamProcessors(const ezParticleSystemDescriptor* pTemplate);
 
+  void SetupOptionalStreams();
+
   void SetTransform(const ezTransform& transform) { m_Transform = transform; }
   const ezTransform& GetTransform() const { return m_Transform; }
 
@@ -62,7 +64,7 @@ public:
   void AddParticleDeathEventHandler(ParticleDeathHandler handler);
   void RemoveParticleDeathEventHandler(ParticleDeathHandler handler);
 
-  void SetBoundingVolume(const ezBoundingBoxSphere& volume);
+  void SetBoundingVolume(const ezBoundingBoxSphere& volume, float fMaxParticleSize);
   void GetBoundingVolume(ezBoundingBoxSphere& volume) const;
 
 private:

@@ -156,7 +156,8 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
       for (ezUInt32 p = 0; p < (ezUInt32)GetOwnerSystem()->GetNumActiveParticles(); ++p)
       {
         const ezVec3 vDirToParticle = (pPosition[p].GetAsVec3() - vEmitterPos);
-        const ezVec3 vOrthoDir = vEmitterDir.Cross(vDirToParticle).GetNormalized();
+        ezVec3 vOrthoDir = vEmitterDir.Cross(vDirToParticle);
+        vOrthoDir.NormalizeIfNotZero(ezVec3(1, 0, 0));
 
         ezMat3 mRotation;
         mRotation.SetRotationMatrix(vOrthoDir, ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[p])));

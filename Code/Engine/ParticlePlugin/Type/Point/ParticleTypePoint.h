@@ -29,6 +29,8 @@ public:
 
   virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override;
 
+  virtual float GetMaxParticleRadius(float fParticleSize) const { return 0.0f; }
+
 protected:
   virtual void Process(ezUInt64 uiNumElements) override {}
 

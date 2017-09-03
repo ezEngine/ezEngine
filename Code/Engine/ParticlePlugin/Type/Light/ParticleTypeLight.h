@@ -35,6 +35,8 @@ public:
   float m_fIntensity;
   ezUInt32 m_uiPercentage;
 
+  virtual float GetMaxParticleRadius(float fParticleSize) const { return 0.5f * fParticleSize * m_fSizeFactor; }
+
   virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override;
 
 protected:
