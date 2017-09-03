@@ -1,4 +1,4 @@
-﻿#cmake
+#cmake
 
 #
 # Copy this file into the folder of an engine library to add it to the solution.
@@ -27,8 +27,10 @@ SET (LINK_LIBRARIES
 
 if (BUILDSYSTEM_PLATFORM_WINDOWS_7)
   SET (LINK_LIBRARIES ${LINK_LIBRARIES} XINPUT9_1_0)
-else()
+elseif (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
   SET (LINK_LIBRARIES ${LINK_LIBRARIES} Xinputuap)
+else()
+  SET (LINK_LIBRARIES ${LINK_LIBRARIES} XINPUT9_1_0)
 endif()
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)
