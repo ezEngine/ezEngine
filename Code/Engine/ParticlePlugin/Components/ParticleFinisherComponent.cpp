@@ -4,6 +4,7 @@
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 #include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/Pipeline/View.h>
 
 //////////////////////////////////////////////////////////////////////////
 
