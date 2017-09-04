@@ -52,10 +52,11 @@ protected:
   virtual void Process(ezUInt64 uiNumElements) override;
   void OnParticleDeath(const ezStreamGroupElementRemovedEvent& e);
 
-  ezProcessingStream* m_pStreamPosition;
-  ezProcessingStream* m_pStreamSize;
-  ezProcessingStream* m_pStreamColor;
-  ezProcessingStream* m_pStreamTrailData;
+  ezProcessingStream* m_pStreamLifeTime = nullptr;
+  ezProcessingStream* m_pStreamPosition = nullptr;
+  ezProcessingStream* m_pStreamSize = nullptr;
+  ezProcessingStream* m_pStreamColor = nullptr;
+  ezProcessingStream* m_pStreamTrailData = nullptr;
   ezTime m_LastSnapshot;
   ezUInt8 m_uiCurFirstIndex;
   float m_fSnapshotFraction;

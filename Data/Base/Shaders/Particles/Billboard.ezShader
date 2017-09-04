@@ -33,6 +33,7 @@ DepthWrite = false
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
 #include <Shaders/Particles/BillboardShaderData.h>
+#include <Shaders/Particles/ParticleHelpers.h>
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
@@ -71,8 +72,8 @@ VS_OUT main(uint VertexID : SV_VertexID)
   float4 screenPosition = mul(GetCameraToScreenMatrix(), cameraPosition);
 
   VS_OUT ret;
+  ret.TexCoords = ComputeSpriteAnimationTexCoord(texCoords[vertexIndex], NumSpritesX, NumSpritesY, particle.Life);
   ret.Position = screenPosition;
-  ret.TexCoords = texCoords[vertexIndex];
   ret.Color = RGBA8ToFloat4(particle.Color);
 
   return ret;

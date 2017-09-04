@@ -33,6 +33,7 @@ CullMode = CullMode_None
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
 #include <Shaders/Particles/FragmentShaderData.h>
+#include <Shaders/Particles/ParticleHelpers.h>
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
@@ -67,7 +68,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
 
   VS_OUT ret;
   ret.Position = screenPosition;
-  ret.TexCoords = texCoords[vertexIndex];
+  ret.TexCoords = ComputeSpriteAnimationTexCoord(texCoords[vertexIndex], NumSpritesX, NumSpritesY, particle.Life);
   ret.Color = RGBA8ToFloat4(particle.Color);
 
   return ret;

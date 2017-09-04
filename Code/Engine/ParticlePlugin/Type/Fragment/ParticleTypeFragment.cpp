@@ -23,6 +23,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeFragmentFactory, 1, ezRTTIDefaultA
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Texture", m_sTexture)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
+    EZ_MEMBER_PROPERTY("NumSpritesX", m_uiNumSpritesX)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
+    EZ_MEMBER_PROPERTY("NumSpritesY", m_uiNumSpritesY)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_ENUM_MEMBER_PROPERTY("RotationAxis", ezFragmentAxis, m_RotationAxis),
   }
   EZ_END_PROPERTIES
@@ -44,6 +46,8 @@ void ezParticleTypeFragmentFactory::CopyTypeProperties(ezParticleType* pObject) 
 
   pType->m_RotationAxis = m_RotationAxis;
   pType->m_hTexture.Invalidate();
+  pType->m_uiNumSpritesY = m_uiNumSpritesX;
+  pType->m_uiNumSpritesX = m_uiNumSpritesY;
 
   if (!m_sTexture.IsEmpty())
     pType->m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sTexture);
@@ -55,6 +59,7 @@ enum class TypeFragmentVersion
   Version_1,
   Version_2, // added texture
   Version_3, // added fragment rotation mode
+  Version_4, // added flipbook animation
 
   // insert new version numbers above
   Version_Count,
@@ -68,6 +73,8 @@ void ezParticleTypeFragmentFactory::Save(ezStreamWriter& stream) const
 
   stream << m_sTexture;
   stream << m_RotationAxis.GetValue();
+  stream << m_uiNumSpritesX;
+  stream << m_uiNumSpritesY;
 }
 
 void ezParticleTypeFragmentFactory::Load(ezStreamReader& stream)
@@ -88,11 +95,18 @@ void ezParticleTypeFragmentFactory::Load(ezStreamReader& stream)
     stream >> val;
     m_RotationAxis.SetValue(val);
   }
+
+  if (uiVersion >= 4)
+  {
+    stream >> m_uiNumSpritesX;
+    stream >> m_uiNumSpritesY;
+  }
 }
 
 
 void ezParticleTypeFragment::CreateRequiredStreams()
 {
+  CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime, false);
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
   CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize, false);
   CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor, false);
@@ -123,6 +137,7 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
     const float* pSize = m_pStreamSize->GetData<float>();
     const ezColor* pColor = m_pStreamColor->GetData<ezColor>();
     const float* pRotationSpeed = m_pStreamRotationSpeed->GetData<float>();
+    const ezVec2* pLifeTime = m_pStreamLifeTime->GetData<ezVec2>();
 
     // this will automatically be deallocated at the end of the frame
     m_ParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezFragmentParticleData, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
@@ -133,6 +148,7 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
     {
       m_ParticleData[p].Size = pSize[p];
       m_ParticleData[p].Color = pColor[p];
+      m_ParticleData[p].Life = pLifeTime[p].x * pLifeTime[p].y;
     }
 
     if (m_RotationAxis == ezFragmentAxis::EmitterDirection)
@@ -178,6 +194,8 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
   pRenderData->m_GlobalTransform = instanceTransform;
   pRenderData->m_hTexture = m_hTexture;
   pRenderData->m_ParticleData = m_ParticleData;
+  pRenderData->m_uiNumSpritesX = m_uiNumSpritesX;
+  pRenderData->m_uiNumSpritesY = m_uiNumSpritesY;
 
   /// \todo Generate a proper sorting key?
   const ezUInt32 uiSortingKey = 0;

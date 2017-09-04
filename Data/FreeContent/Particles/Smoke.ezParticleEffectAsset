@@ -66,7 +66,7 @@ AssetInfo
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{18423804289550068914,5029208661442092394}}
-		u4 %Hash{10196407393069200843}
+		u4 %Hash{7292743861957995967}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -103,6 +103,8 @@ o
 	u3 %v{1}
 	p
 	{
+		u1 %NumSpritesX{1}
+		u1 %NumSpritesY{1}
 		s %RenderMode{"ezParticleTypeRenderMode::Blended"}
 		s %Texture{"{ 0c5ce0a7-7218-427d-9a9d-47ef5e9aa33f }"}
 	}
@@ -128,12 +130,14 @@ o
 	u3 %v{1}
 	p
 	{
+		b %AlwaysShared{0}
 		VarArray %ParticleSystems
 		{
 			Uuid{u4{674240590497784451,4762084656348639882}}
 		}
 		Time %PreSimulateDuration{d{0}}
 		b %SimulateInLocalSpace{0}
+		s %WhenInvisible{"ezEffectInvisibleUpdateRate::Max10fps"}
 	}
 }
 o
@@ -352,6 +356,24 @@ o
 }
 o
 {
+	Uuid %id{u4{7918771787888430535,9942412559181558879}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezEffectInvisibleUpdateRate"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{654225503647135356,10598575033334472595}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -508,7 +530,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleTypeBillboardFactory"}
-		u3 %TypeSize{80}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }

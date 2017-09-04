@@ -39,6 +39,8 @@ public:
   ezString m_sTexture;
   ezEnum<ezSpriteAxis> m_RotationAxis;
   ezAngle m_MaxDeviation;
+  ezUInt8 m_uiNumSpritesX = 1;
+  ezUInt8 m_uiNumSpritesY = 1;
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeSprite : public ezParticleType
@@ -52,6 +54,8 @@ public:
   ezTexture2DResourceHandle m_hTexture;
   ezEnum<ezSpriteAxis> m_RotationAxis;
   ezAngle m_MaxDeviation;
+  ezUInt8 m_uiNumSpritesX = 1;
+  ezUInt8 m_uiNumSpritesY = 1;
 
   virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override;
 
@@ -59,11 +63,12 @@ protected:
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
   virtual void Process(ezUInt64 uiNumElements) override {}
 
-  ezProcessingStream* m_pStreamPosition;
-  ezProcessingStream* m_pStreamSize;
-  ezProcessingStream* m_pStreamColor;
-  ezProcessingStream* m_pStreamRotationSpeed;
-  ezProcessingStream* m_pStreamAxis;
+  ezProcessingStream* m_pStreamLifeTime = nullptr;
+  ezProcessingStream* m_pStreamPosition = nullptr;
+  ezProcessingStream* m_pStreamSize = nullptr;
+  ezProcessingStream* m_pStreamColor = nullptr;
+  ezProcessingStream* m_pStreamRotationSpeed = nullptr;
+  ezProcessingStream* m_pStreamAxis = nullptr;
 
   mutable ezArrayPtr<ezSpriteParticleData> m_ParticleData;
 };

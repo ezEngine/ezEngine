@@ -5,9 +5,9 @@
 struct EZ_ALIGN_16(ezTrailParticleData)
 {
   COLOR4UB(Color);
+  FLOAT1(Life); // 1 to 0
   FLOAT1(Size);
   INT1(NumPoints);
-  FLOAT1(Dummy);
 };
 
 struct EZ_ALIGN_16(ezTrailParticlePointsData8)

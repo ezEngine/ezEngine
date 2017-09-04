@@ -5,7 +5,7 @@
 struct EZ_ALIGN_16(ezFragmentParticleData)
 {
   FLOAT3(Position);
-  FLOAT1(dummy1);
+  FLOAT1(Life); // 1 to 0
 
   FLOAT3(TangentX);
   FLOAT1(dummy2);

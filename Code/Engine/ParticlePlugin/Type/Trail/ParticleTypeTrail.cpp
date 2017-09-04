@@ -120,6 +120,7 @@ void ezParticleTypeTrail::AfterPropertiesConfigured(bool bFirstTime)
 
 void ezParticleTypeTrail::CreateRequiredStreams()
 {
+  CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime, false);
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
   CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize, false);
   CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor, false);
@@ -146,6 +147,7 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
     const float* pSize = m_pStreamSize->GetData<float>();
     const ezColor* pColor = m_pStreamColor->GetData<ezColor>();
     const TrailData* pTrailData = m_pStreamTrailData->GetData<TrailData>();
+    const ezVec2* pLifeTime = m_pStreamLifeTime->GetData<ezVec2>();
 
     const ezUInt32 uiBucketSize = ComputeTrailPointBucketSize(m_uiMaxPoints);
 
@@ -158,6 +160,7 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
       m_ParticleDataShared[p].Size = pSize[p];
       m_ParticleDataShared[p].Color = pColor[p];
       m_ParticleDataShared[p].NumPoints = pTrailData[p].m_uiNumPoints;
+      m_ParticleDataShared[p].Life = pLifeTime[p].x * pLifeTime[p].y;
     }
 
     for (ezUInt32 p = 0; p < numActiveParticles; ++p)
@@ -193,6 +196,9 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
   pRenderData->m_ParticleDataShared = m_ParticleDataShared;
   pRenderData->m_TrailPointsShared = m_TrailPointsShared;
   pRenderData->m_fSnapshotFraction = m_fSnapshotFraction;
+  // TODO: expose and use this
+  pRenderData->m_uiNumSpritesX = 1;
+  pRenderData->m_uiNumSpritesY = 1;
 
   /// \todo Generate a proper sorting key?
   const ezUInt32 uiSortingKey = 0;

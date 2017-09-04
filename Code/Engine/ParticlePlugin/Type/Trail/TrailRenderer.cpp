@@ -187,6 +187,8 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
 
       cb.NumUsedTrailPoints = pRenderData->m_uiMaxTrailPoints;
       cb.SnapshotFraction = pRenderData->m_fSnapshotFraction;
+      cb.NumSpritesX = pRenderData->m_uiNumSpritesX;
+      cb.NumSpritesY = pRenderData->m_uiNumSpritesY;
     }
 
     ezUInt32 uiNumParticles = pRenderData->m_ParticleDataShared.GetCount();

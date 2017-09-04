@@ -23,6 +23,8 @@ public:
   ezTexture2DResourceHandle m_hTexture;
   ezArrayPtr<ezBillboardParticleData> m_ParticleData;
   bool m_bApplyObjectTransform = true;
+  ezUInt8 m_uiNumSpritesX = 1;
+  ezUInt8 m_uiNumSpritesY = 1;
 };
 
 /// \brief Implements rendering of particle systems

@@ -100,6 +100,8 @@ void ezParticleSpriteRenderer::RenderBatch(const ezRenderViewContext& renderView
     // fill the constant buffer
     {
       ezParticleSystemConstants& cb = pConstantBuffer->GetDataForWriting();
+      cb.NumSpritesX = pRenderData->m_uiNumSpritesX;
+      cb.NumSpritesY = pRenderData->m_uiNumSpritesY;
 
       if (pRenderData->m_bApplyObjectTransform)
         cb.ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();

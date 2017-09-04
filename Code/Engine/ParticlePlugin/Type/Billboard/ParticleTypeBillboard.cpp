@@ -22,6 +22,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeBillboardFactory, 1, ezRTTIDefault
   {
     EZ_ENUM_MEMBER_PROPERTY("RenderMode", ezParticleTypeRenderMode, m_RenderMode),
     EZ_MEMBER_PROPERTY("Texture", m_sTexture)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
+    EZ_MEMBER_PROPERTY("NumSpritesX", m_uiNumSpritesX)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
+    EZ_MEMBER_PROPERTY("NumSpritesY", m_uiNumSpritesY)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
   }
   EZ_END_PROPERTIES
 }
@@ -42,6 +44,8 @@ void ezParticleTypeBillboardFactory::CopyTypeProperties(ezParticleType* pObject)
 
   pType->m_hTexture.Invalidate();
   pType->m_RenderMode = m_RenderMode;
+  pType->m_uiNumSpritesX = m_uiNumSpritesX;
+  pType->m_uiNumSpritesY = m_uiNumSpritesY;
 
   if (!m_sTexture.IsEmpty())
     pType->m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sTexture);
@@ -54,6 +58,7 @@ enum class TypeBillboardVersion
   Version_2, // added texture
   Version_3, // added opacity
   Version_4, // added render mode
+  Version_5, // added num sprites XY
 
   // insert new version numbers above
   Version_Count,
@@ -67,6 +72,8 @@ void ezParticleTypeBillboardFactory::Save(ezStreamWriter& stream) const
 
   stream << m_sTexture;
   stream << m_RenderMode;
+  stream << m_uiNumSpritesX;
+  stream << m_uiNumSpritesY;
 }
 
 void ezParticleTypeBillboardFactory::Load(ezStreamReader& stream)
@@ -91,15 +98,25 @@ void ezParticleTypeBillboardFactory::Load(ezStreamReader& stream)
   {
     stream >> m_RenderMode;
   }
-}
 
+  if (uiVersion >= 5)
+  {
+    stream >> m_uiNumSpritesX;
+    stream >> m_uiNumSpritesY;
+  }
+}
 
 ezParticleTypeBillboard::ezParticleTypeBillboard()
 {
 }
 
+ezParticleTypeBillboard::~ezParticleTypeBillboard()
+{
+}
+
 void ezParticleTypeBillboard::CreateRequiredStreams()
 {
+  CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime, false);
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
   CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize, false);
   CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor, false);
@@ -142,6 +159,7 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
   {
     m_uiLastExtractedFrame = uiExtractedFrame;
 
+    const ezVec2* pLifeTime = m_pStreamLifeTime->GetData<ezVec2>();
     const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
     const float* pSize = m_pStreamSize->GetData<float>();
     const ezColor* pColor = m_pStreamColor->GetData<ezColor>();
@@ -177,6 +195,7 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
         m_ParticleData[p].Transform = trans;
         m_ParticleData[p].Size = pSize[idx];
         m_ParticleData[p].Color = pColor[idx];
+        m_ParticleData[p].Life = pLifeTime[idx].x * pLifeTime[idx].y;
       }
     }
     else
@@ -191,6 +210,7 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
         m_ParticleData[p].Transform = trans;
         m_ParticleData[p].Size = pSize[idx];
         m_ParticleData[p].Color = pColor[idx];
+        m_ParticleData[p].Life = pLifeTime[idx].x * pLifeTime[idx].y;
       }
     }
   }
@@ -204,6 +224,8 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
   pRenderData->m_RenderMode = m_RenderMode;
   pRenderData->m_hTexture = m_hTexture;
   pRenderData->m_ParticleData = m_ParticleData;
+  pRenderData->m_uiNumSpritesX = m_uiNumSpritesX;
+  pRenderData->m_uiNumSpritesY = m_uiNumSpritesY;
 
   /// \todo Generate a proper sorting key?
   const ezUInt32 uiSortingKey = 0;
