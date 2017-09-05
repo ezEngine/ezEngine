@@ -299,6 +299,8 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
 {
   EZ_PROFILE("PFX: System Update");
 
+  ezUInt32 uiSpawnedParticles = 0;
+
   if (m_bEmitterEnabled)
   {
     // if all emitters are finished, we deactivate this on the whole system
@@ -315,6 +317,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
         {
           EZ_PROFILE("PFX: System Emit");
           m_StreamGroup.InitializeElements(uiSpawn);
+          uiSpawnedParticles += uiSpawn;
         }
       }
     }
@@ -336,6 +339,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
         {
           EZ_PROFILE("PFX: System Emit (React)");
           m_StreamGroup.InitializeElements(uiSpawn);
+          uiSpawnedParticles += uiSpawn;
         }
       }
     }
@@ -345,7 +349,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
     EZ_PROFILE("PFX: System Step Behaviors");
     for (auto pBehavior : m_Behaviors)
     {
-      pBehavior->StepParticleSystem(tDiff);
+      pBehavior->StepParticleSystem(tDiff, uiSpawnedParticles);
     }
   }
 
@@ -353,7 +357,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
     EZ_PROFILE("PFX: System Step Types");
     for (auto pType : m_Types)
     {
-      pType->StepParticleSystem(tDiff);
+      pType->StepParticleSystem(tDiff, uiSpawnedParticles);
     }
   }
 

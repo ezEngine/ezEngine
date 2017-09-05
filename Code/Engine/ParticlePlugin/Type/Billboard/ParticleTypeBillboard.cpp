@@ -153,9 +153,11 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
   const ezTime tCur = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
 
   const ezVec3 vCameraPos = view.GetCamera()->GetCenterPosition();
+  const bool bNeedsSorting = m_RenderMode == ezParticleTypeRenderMode::Blended;
 
   // don't copy the data multiple times in the same frame, if the effect is instanced
-  if (m_uiLastExtractedFrame != uiExtractedFrame)
+  if ((m_uiLastExtractedFrame != uiExtractedFrame)
+      /*&& !bNeedsSorting*/) // TODO: in theory every shared instance has to sort the billboards, in practice this maybe should be an option
   {
     m_uiLastExtractedFrame = uiExtractedFrame;
 
@@ -169,8 +171,6 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
     m_ParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBillboardParticleData, numParticles);
 
     ezTransform trans;
-    const bool bNeedsSorting = m_RenderMode == ezParticleTypeRenderMode::Blended;
-
     if (bNeedsSorting)
     {
       ezHybridArray<sod, 64> sorted(ezFrameAllocator::GetCurrentAllocator());

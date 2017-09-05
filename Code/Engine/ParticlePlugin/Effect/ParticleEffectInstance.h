@@ -61,7 +61,7 @@ public:
 
   /// @name Transform Related
   /// @{
-
+public:
   /// \brief Whether the effect is simulated around the origin and thus not affected by instance position and rotation
   bool IsSimulatedInLocalSpace() const { return m_bSimulateInLocalSpace; }
 
@@ -73,6 +73,11 @@ public:
 
   /// \brief For the renderer to know whether the instance transform has to be applied to each particle position.
   bool NeedsToApplyTransform() const { return m_bSimulateInLocalSpace || m_bIsSharedEffect; }
+
+private:
+  void PassTransformToSystems();
+
+  ezTransform m_Transform;
 
   /// @}
 
@@ -172,7 +177,6 @@ private:
 
   ezParticleWorldModule* m_pOwnerModule;
   ezWorld* m_pWorld;
-  ezTransform m_Transform;
   ezHybridArray<ezParticleSystemInstance*, 4> m_ParticleSystems;
 
   ezParticleffectUpdateTask m_Task;

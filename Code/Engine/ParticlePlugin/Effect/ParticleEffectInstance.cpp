@@ -243,7 +243,7 @@ bool ezParticleEffectInstance::Update(const ezTime& tDiff)
 {
   EZ_PROFILE("PFX: Effect Update");
 
-  ezTime tMinStep = ezTime::Seconds(1.0 / 60.0);
+  ezTime tMinStep = ezTime::Seconds(0);
 
   if (!IsVisible() && m_iMinSimStepsToDo == 0)
   {
@@ -254,6 +254,7 @@ bool ezParticleEffectInstance::Update(const ezTime& tDiff)
     switch (m_InvisibleUpdateRate)
     {
     case ezEffectInvisibleUpdateRate::FullUpdate:
+      tMinStep = ezTime::Seconds(1.0 / 60.0);
       break;
 
     case ezEffectInvisibleUpdateRate::Max20fps:
@@ -278,6 +279,7 @@ bool ezParticleEffectInstance::Update(const ezTime& tDiff)
   }
 
   m_ElapsedTimeSinceUpdate += tDiff;
+  PassTransformToSystems();
 
   // if the time step is too big, iterate multiple times
   {
@@ -341,17 +343,6 @@ void ezParticleEffectInstance::SetTransform(const ezTransform& transform, const 
   if (pSharedInstanceOwner == nullptr)
   {
     m_Transform = transform;
-
-    if (!m_bSimulateInLocalSpace)
-    {
-      for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
-      {
-        if (m_ParticleSystems[i] != nullptr)
-        {
-          m_ParticleSystems[i]->SetTransform(m_Transform);
-        }
-      }
-    }
   }
   else
   {
@@ -380,6 +371,21 @@ const ezTransform& ezParticleEffectInstance::GetTransform(const void* pSharedIns
   }
 
   return m_Transform;
+}
+
+
+void ezParticleEffectInstance::PassTransformToSystems()
+{
+  if (!m_bSimulateInLocalSpace)
+  {
+    for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
+    {
+      if (m_ParticleSystems[i] != nullptr)
+      {
+        m_ParticleSystems[i]->SetTransform(m_Transform);
+      }
+    }
+  }
 }
 
 void ezParticleEffectInstance::AddSharedInstance(const void* pSharedInstanceOwner)
