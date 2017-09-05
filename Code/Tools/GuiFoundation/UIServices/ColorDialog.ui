@@ -554,6 +554,23 @@
    <header location="global">GuiFoundation/Widgets/DoubleSpinBox.moc.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>SpinHue</tabstop>
+  <tabstop>SpinSaturation</tabstop>
+  <tabstop>SpinValue</tabstop>
+  <tabstop>SpinRed</tabstop>
+  <tabstop>SpinGreen</tabstop>
+  <tabstop>SpinBlue</tabstop>
+  <tabstop>LineRed32</tabstop>
+  <tabstop>LineGreen32</tabstop>
+  <tabstop>LineBlue32</tabstop>
+  <tabstop>SliderExposure</tabstop>
+  <tabstop>LineExposure</tabstop>
+  <tabstop>LineHEX</tabstop>
+  <tabstop>SpinAlpha</tabstop>
+  <tabstop>ButtonCancel</tabstop>
+  <tabstop>ButtonOk</tabstop>
+ </tabstops>
  <resources>
   <include location="../QtResources/resources.qrc"/>
  </resources>

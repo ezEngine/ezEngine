@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <Foundation/Serialization/BinarySerializer.h>
@@ -561,6 +561,16 @@ void ezDocumentObjectMirror::ApplyOp(ezRttiConverterObject object, const ezObjec
       {
         auto pSpecificProp = static_cast<ezAbstractArrayProperty*>(pProp);
         ezReflectionUtils::SetArrayPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Index.ConvertTo<ezUInt32>(), change.m_Change.m_Value);
+      }
+      else if (pProp->GetCategory() == ezPropertyCategory::Set)
+      {
+        auto pSpecificProp = static_cast<ezAbstractSetProperty*>(pProp);
+        ezReflectionUtils::InsertSetPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Value);
+      }
+      else if (pProp->GetCategory() == ezPropertyCategory::Map)
+      {
+        auto pSpecificProp = static_cast<ezAbstractMapProperty*>(pProp);
+        ezReflectionUtils::SetMapPropertyValue(pSpecificProp, object.m_pObject, change.m_Change.m_Index.Get<ezString>(), change.m_Change.m_Value);
       }
     }
     break;
