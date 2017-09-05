@@ -123,6 +123,28 @@ ezTime ezParticleEffectController::GetBoundingVolume(ezBoundingBoxSphere& volume
   return ezTime();
 }
 
+
+void ezParticleEffectController::SetParameter(const ezTempHashedString& name, float value)
+{
+  ezParticleEffectInstance* pEffect = GetInstance();
+
+  if (pEffect)
+  {
+    pEffect->SetParameter(name, value);
+  }
+}
+
+
+void ezParticleEffectController::SetParameter(const ezTempHashedString& name, const ezColor& value)
+{
+  ezParticleEffectInstance* pEffect = GetInstance();
+
+  if (pEffect)
+  {
+    pEffect->SetParameter(name, value);
+  }
+}
+
 void ezParticleEffectController::Invalidate()
 {
   if (m_pModule)

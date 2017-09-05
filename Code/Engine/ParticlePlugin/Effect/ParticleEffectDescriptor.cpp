@@ -12,6 +12,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectDescriptor, 1, ezRTTIDefaultAllo
     EZ_MEMBER_PROPERTY("SimulateInLocalSpace", m_bSimulateInLocalSpace),
     EZ_MEMBER_PROPERTY("AlwaysShared", m_bAlwaysShared),
     EZ_MEMBER_PROPERTY("PreSimulateDuration", m_PreSimulateDuration),
+    EZ_MAP_MEMBER_PROPERTY("FloatParameters", m_FloatParameters),
+    EZ_MAP_MEMBER_PROPERTY("ColorParameters", m_ColorParameters)->AddAttributes(new ezExposeColorAlphaAttribute),
     EZ_SET_ACCESSOR_PROPERTY("ParticleSystems", GetParticleSystems, AddParticleSystem, RemoveParticleSystem)->AddFlags(ezPropertyFlags::PointerOwner),
   }
   EZ_END_PROPERTIES
@@ -45,6 +47,7 @@ enum class ParticleEffectVersion
   Version_3,
   Version_4,
   Version_5, // m_bAlwaysShared
+  Version_6, // added parameters
 
   // insert new version numbers above
   Version_Count,
@@ -78,6 +81,25 @@ void ezParticleEffectDescriptor::Save(ezStreamWriter& stream) const
     stream << pSystem->GetDynamicRTTI()->GetTypeName();
 
     pSystem->Save(stream);
+  }
+
+  // Version 6
+  {
+    ezUInt8 paramCol = m_ColorParameters.GetCount();
+    stream << paramCol;
+    for (auto it = m_ColorParameters.GetIterator(); it.IsValid(); ++it)
+    {
+      stream << it.Key();
+      stream << it.Value();
+    }
+
+    ezUInt8 paramFloat = m_FloatParameters.GetCount();
+    stream << paramFloat;
+    for (auto it = m_FloatParameters.GetIterator(); it.IsValid(); ++it)
+    {
+      stream << it.Key();
+      stream << it.Value();
+    }
   }
 
   context.EndWritingToStream(&stream);
@@ -135,6 +157,33 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& stream)
     pSystem = static_cast<ezParticleSystemDescriptor*>(pRtti->GetAllocator()->Allocate());
 
     pSystem->Load(stream);
+  }
+
+  if (uiVersion >= 6)
+  {
+    ezStringBuilder key;
+    m_ColorParameters.Clear();
+    m_FloatParameters.Clear();
+
+    ezUInt8 paramCol;
+    stream >> paramCol;
+    for (ezUInt32 i = 0; i < paramCol; ++i)
+    {
+      ezColor val;
+      stream >> key;
+      stream >>val;
+      m_ColorParameters[key] = val;
+    }
+
+    ezUInt8 paramFloat;
+    stream >> paramFloat;
+    for (ezUInt32 i = 0; i < paramFloat; ++i)
+    {
+      float val;
+      stream >> key;
+      stream >> val;
+      m_FloatParameters[key] = val;
+    }
   }
 
   context.EndReadingFromStream(&stream);

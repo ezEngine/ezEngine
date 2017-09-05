@@ -24,6 +24,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeBillboardFactory, 1, ezRTTIDefault
     EZ_MEMBER_PROPERTY("Texture", m_sTexture)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
     EZ_MEMBER_PROPERTY("NumSpritesX", m_uiNumSpritesX)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_MEMBER_PROPERTY("NumSpritesY", m_uiNumSpritesY)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
+    EZ_MEMBER_PROPERTY("TintColorParam", m_sTintColorParameter),
   }
   EZ_END_PROPERTIES
 }
@@ -46,6 +47,7 @@ void ezParticleTypeBillboardFactory::CopyTypeProperties(ezParticleType* pObject)
   pType->m_RenderMode = m_RenderMode;
   pType->m_uiNumSpritesX = m_uiNumSpritesX;
   pType->m_uiNumSpritesY = m_uiNumSpritesY;
+  pType->m_sTintColorParameter = ezTempHashedString(m_sTintColorParameter.GetData());
 
   if (!m_sTexture.IsEmpty())
     pType->m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sTexture);
@@ -59,6 +61,7 @@ enum class TypeBillboardVersion
   Version_3, // added opacity
   Version_4, // added render mode
   Version_5, // added num sprites XY
+  Version_6, // added tint color parameter
 
   // insert new version numbers above
   Version_Count,
@@ -74,6 +77,7 @@ void ezParticleTypeBillboardFactory::Save(ezStreamWriter& stream) const
   stream << m_RenderMode;
   stream << m_uiNumSpritesX;
   stream << m_uiNumSpritesY;
+  stream << m_sTintColorParameter;
 }
 
 void ezParticleTypeBillboardFactory::Load(ezStreamReader& stream)
@@ -103,6 +107,11 @@ void ezParticleTypeBillboardFactory::Load(ezStreamReader& stream)
   {
     stream >> m_uiNumSpritesX;
     stream >> m_uiNumSpritesY;
+  }
+
+  if (uiVersion >= 6)
+  {
+    stream >> m_sTintColorParameter;
   }
 }
 
@@ -159,6 +168,8 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
   if ((m_uiLastExtractedFrame != uiExtractedFrame)
       /*&& !bNeedsSorting*/) // TODO: in theory every shared instance has to sort the billboards, in practice this maybe should be an option
   {
+    const ezColor tintColor = GetOwnerEffect()->GetColorParameter(m_sTintColorParameter, ezColor::White);
+
     m_uiLastExtractedFrame = uiExtractedFrame;
 
     const ezVec2* pLifeTime = m_pStreamLifeTime->GetData<ezVec2>();
@@ -194,7 +205,7 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
         trans.m_vScale.Set(1.0f);
         m_ParticleData[p].Transform = trans;
         m_ParticleData[p].Size = pSize[idx];
-        m_ParticleData[p].Color = pColor[idx];
+        m_ParticleData[p].Color = pColor[idx] * tintColor;
         m_ParticleData[p].Life = pLifeTime[idx].x * pLifeTime[idx].y;
       }
     }
@@ -209,7 +220,7 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
         trans.m_vScale.Set(1.0f);
         m_ParticleData[p].Transform = trans;
         m_ParticleData[p].Size = pSize[idx];
-        m_ParticleData[p].Color = pColor[idx];
+        m_ParticleData[p].Color = pColor[idx] * tintColor;
         m_ParticleData[p].Life = pLifeTime[idx].x * pLifeTime[idx].y;
       }
     }

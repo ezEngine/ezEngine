@@ -237,6 +237,22 @@ void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTim
     m_ParticleSystems[i]->SetTransform(m_Transform);
     m_ParticleSystems[i]->SetEmitterEnabled(m_bEmitterEnabled);
   }
+
+  // parameters
+  {
+    m_FloatParameters.Clear();
+    m_ColorParameters.Clear();
+
+    for (auto it = desc.m_FloatParameters.GetIterator(); it.IsValid(); ++it)
+    {
+      SetParameter(ezTempHashedString::ComputeHash(it.Key().GetData()), it.Value());
+    }
+
+    for (auto it = desc.m_ColorParameters.GetIterator(); it.IsValid(); ++it)
+    {
+      SetParameter(ezTempHashedString::ComputeHash(it.Key().GetData()), it.Value());
+    }
+  }
 }
 
 bool ezParticleEffectInstance::Update(const ezTime& tDiff)
@@ -551,7 +567,87 @@ void ezParticleffectUpdateTask::Execute()
   }
 }
 
+void ezParticleEffectInstance::SetParameter(const ezTempHashedString& name, float value)
+{
+  for (ezUInt32 i = 0; i < m_FloatParameters.GetCount(); ++i)
+  {
+    if (m_FloatParameters[i].m_uiNameHash == name.GetHash())
+    {
+      m_FloatParameters[i].m_fValue = value;
+      return;
+    }
+  }
 
+  auto& ref = m_FloatParameters.ExpandAndGetRef();
+  ref.m_uiNameHash = name.GetHash();
+  ref.m_fValue = value;
+}
+
+void ezParticleEffectInstance::SetParameter(const ezTempHashedString& name, const ezColor& value)
+{
+  for (ezUInt32 i = 0; i < m_ColorParameters.GetCount(); ++i)
+  {
+    if (m_ColorParameters[i].m_uiNameHash == name.GetHash())
+    {
+      m_ColorParameters[i].m_Value = value;
+      return;
+    }
+  }
+
+  auto& ref = m_ColorParameters.ExpandAndGetRef();
+  ref.m_uiNameHash = name.GetHash();
+  ref.m_Value = value;
+}
+
+ezInt32 ezParticleEffectInstance::FindFloatParameter(const ezTempHashedString& name) const
+{
+  for (ezUInt32 i = 0; i < m_FloatParameters.GetCount(); ++i)
+  {
+    if (m_FloatParameters[i].m_uiNameHash == name.GetHash())
+      return i;
+  }
+
+  return -1;
+}
+
+float ezParticleEffectInstance::GetFloatParameter(const ezTempHashedString& name, float defaultValue) const
+{
+  if (name.GetHash() == 0)
+    return defaultValue;
+
+  for (ezUInt32 i = 0; i < m_FloatParameters.GetCount(); ++i)
+  {
+    if (m_FloatParameters[i].m_uiNameHash == name.GetHash())
+      return m_FloatParameters[i].m_fValue;
+  }
+
+  return defaultValue;
+}
+
+ezInt32 ezParticleEffectInstance::FindColorParameter(const ezTempHashedString& name) const
+{
+  for (ezUInt32 i = 0; i < m_ColorParameters.GetCount(); ++i)
+  {
+    if (m_ColorParameters[i].m_uiNameHash == name.GetHash())
+      return i;
+  }
+
+  return -1;
+}
+
+const ezColor& ezParticleEffectInstance::GetColorParameter(const ezTempHashedString& name, const ezColor& defaultValue) const
+{
+  if (name.GetHash() == 0)
+    return defaultValue;
+
+  for (ezUInt32 i = 0; i < m_ColorParameters.GetCount(); ++i)
+  {
+    if (m_ColorParameters[i].m_uiNameHash == name.GetHash())
+      return m_ColorParameters[i].m_Value;
+  }
+
+  return defaultValue;
+}
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Effect_ParticleEffectInstance);
 

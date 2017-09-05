@@ -25,6 +25,8 @@ public:
   bool m_bSimulateInLocalSpace = false;
   bool m_bAlwaysShared = false;
   ezTime m_PreSimulateDuration;
+  ezMap<ezString, float> m_FloatParameters;
+  ezMap<ezString, ezColor> m_ColorParameters;
 
 private:
   ezHybridArray<ezParticleSystemDescriptor*, 4> m_ParticleSystems;

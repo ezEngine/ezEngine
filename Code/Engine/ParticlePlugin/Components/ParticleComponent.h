@@ -92,4 +92,36 @@ protected:
 
   void CheckBVolumeUpdate();
   ezTime m_LastBVolumeUpdate;
+
+  //////////////////////////////////////////////////////////////////////////
+  // Exposed Parameters
+public:
+
+  void SetFloatParam(const char* szKey, float value);
+  void SetColorParam(const char* szKey, const ezColor& value);
+
+private:
+  ezMap<ezString, float> GetFloatParams() const;
+  ezMap<ezString, ezColor> GetColorParams() const;
+  void RemoveFloatParam(const char* szKey);
+  void RemoveColorParam(const char* szKey);
+
+  struct FloatParam
+  {
+    EZ_DECLARE_POD_TYPE();
+    ezHashedString m_sName;
+    float m_Value;
+  };
+
+  struct ColorParam
+  {
+    EZ_DECLARE_POD_TYPE();
+    ezHashedString m_sName;
+    ezColor m_Value;
+  };
+
+  bool m_bFloatParamsChanged = false;
+  bool m_bColorParamsChanged = false;
+  ezHybridArray<FloatParam, 2> m_FloatParams;
+  ezHybridArray<ColorParam, 2> m_ColorParams;
 };

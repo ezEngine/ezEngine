@@ -23,6 +23,7 @@ public:
   ezString m_sTexture;
   ezUInt8 m_uiNumSpritesX = 1;
   ezUInt8 m_uiNumSpritesY = 1;
+  ezString m_sTintColorParameter;
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeBillboard : public ezParticleType
@@ -39,6 +40,7 @@ public:
   ezTexture2DResourceHandle m_hTexture;
   ezUInt8 m_uiNumSpritesX = 1;
   ezUInt8 m_uiNumSpritesY = 1;
+  ezTempHashedString m_sTintColorParameter;
 
   virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override;
 

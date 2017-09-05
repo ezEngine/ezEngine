@@ -37,7 +37,7 @@ void ezParticleBehaviorFactory_PullAlong::CopyBehaviorProperties(ezParticleBehav
   pBehavior->m_fStrength = ezMath::Clamp(m_fStrength, 0.0f, 1.0f);
 }
 
-enum class BehaviorVelocityVersion
+enum class BehaviorPullAlongVersion
 {
   Version_0 = 0,
 
@@ -48,7 +48,7 @@ enum class BehaviorVelocityVersion
 
 void ezParticleBehaviorFactory_PullAlong::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = (int)BehaviorVelocityVersion::Version_Current;
+  const ezUInt8 uiVersion = (int)BehaviorPullAlongVersion::Version_Current;
   stream << uiVersion;
 
   stream << m_fStrength;
@@ -59,7 +59,7 @@ void ezParticleBehaviorFactory_PullAlong::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion <= (int)BehaviorVelocityVersion::Version_Current, "Invalid version {0}", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= (int)BehaviorPullAlongVersion::Version_Current, "Invalid version {0}", uiVersion);
 
   stream >> m_fStrength;
 }

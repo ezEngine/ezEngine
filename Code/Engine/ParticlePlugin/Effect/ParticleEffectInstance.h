@@ -80,7 +80,6 @@ private:
   ezTransform m_Transform;
 
   /// @}
-
   /// @name Updates
   /// @{
 
@@ -107,7 +106,6 @@ private:
 
 
   /// @}
-
   /// @name Shared Instances
   /// @{
 public:
@@ -127,7 +125,6 @@ private:
   bool m_bIsSharedEffect = false;
 
   /// @}
-
   /// \name Visibility and Culling
   /// @{
 public:
@@ -156,7 +153,41 @@ private:
   ezEnum<ezEffectInvisibleUpdateRate> m_InvisibleUpdateRate;
 
   /// @}
+  /// \name Effect Parameters
+  /// @{
+public:
 
+  void SetParameter(const ezTempHashedString& name, float value);
+  void SetParameter(const ezTempHashedString& name, const ezColor& value);
+
+  ezInt32 FindFloatParameter(const ezTempHashedString& name) const;
+  float GetFloatParameter(const ezTempHashedString& name, float defaultValue) const;
+  float GetFloatParameter(ezUInt32 idx) const { return m_FloatParameters[idx].m_fValue; }
+
+  ezInt32 FindColorParameter(const ezTempHashedString& name) const;
+  const ezColor& GetColorParameter(const ezTempHashedString& name, const ezColor& defaultValue) const;
+  const ezColor& GetColorParameter(ezUInt32 idx) const { return m_ColorParameters[idx].m_Value; }
+
+
+private:
+  struct FloatParameter
+  {
+    EZ_DECLARE_POD_TYPE();
+    ezUInt32 m_uiNameHash;
+    float m_fValue;
+  };
+
+  struct ColorParameter
+  {
+    EZ_DECLARE_POD_TYPE();
+    ezUInt32 m_uiNameHash;
+    ezColor m_Value;
+  };
+
+  ezHybridArray<FloatParameter, 2> m_FloatParameters;
+  ezHybridArray<ColorParameter, 2> m_ColorParameters;
+
+  /// @}
 
 
 private:

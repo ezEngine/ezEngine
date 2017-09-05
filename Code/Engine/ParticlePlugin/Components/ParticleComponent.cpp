@@ -25,7 +25,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -36,6 +36,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 1)
     EZ_MEMBER_PROPERTY("RestartDelayRange", m_RestartDelayRange),
     EZ_MEMBER_PROPERTY("RandomSeed", m_uiRandomSeed),
     EZ_MEMBER_PROPERTY("SharedInstanceName", m_sSharedInstanceName),
+    EZ_MAP_ACCESSOR_PROPERTY("FloatParams", GetFloatParams, SetFloatParam, RemoveFloatParam),
+    EZ_MAP_ACCESSOR_PROPERTY("ColorParams", GetColorParams, SetColorParam, RemoveColorParam)->AddAttributes(new ezExposeColorAlphaAttribute),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES
@@ -85,12 +87,27 @@ void ezParticleComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_uiRandomSeed;
   s << m_sSharedInstanceName;
 
+  // Version 2
+  s << m_FloatParams.GetCount();
+  for (ezUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
+  {
+    s << m_FloatParams[i].m_sName;
+    s << m_FloatParams[i].m_Value;
+  }
+  s << m_ColorParams.GetCount();
+  for (ezUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
+  {
+    s << m_ColorParams[i].m_sName;
+    s << m_ColorParams[i].m_Value;
+  }
+
   /// \todo store effect state
 }
 
 void ezParticleComponent::DeserializeComponent(ezWorldReader& stream)
 {
   auto& s = stream.GetStream();
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   s >> m_hEffectResource;
   s >> m_bSpawnAtStart;
@@ -100,6 +117,29 @@ void ezParticleComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_RestartTime;
   s >> m_uiRandomSeed;
   s >> m_sSharedInstanceName;
+
+  if (uiVersion >= 2)
+  {
+    ezUInt32 numFloats, numColors;
+
+    s >> numFloats;
+    m_FloatParams.SetCount(numFloats);
+
+    for (ezUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
+    {
+      s >> m_FloatParams[i].m_sName;
+      s >> m_FloatParams[i].m_Value;
+    }
+
+    s >> numColors;
+    m_ColorParams.SetCount(numColors);
+
+    for (ezUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
+    {
+      s >> m_ColorParams[i].m_sName;
+      s >> m_ColorParams[i].m_Value;
+    }
+  }
 }
 
 bool ezParticleComponent::StartEffect()
@@ -209,7 +249,7 @@ void ezParticleComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) c
 
 void ezParticleComponent::Update()
 {
-  if (!IsEffectActive() && m_bSpawnAtStart)
+  if (!m_EffectController.IsAlive() && m_bSpawnAtStart)
   {
     if (StartEffect())
     {
@@ -217,7 +257,7 @@ void ezParticleComponent::Update()
     }
   }
 
-  if (!IsEffectActive() && m_bAutoRestart)
+  if (!m_EffectController.IsAlive() && m_bAutoRestart)
   {
     const ezTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
 
@@ -234,9 +274,34 @@ void ezParticleComponent::Update()
     }
   }
 
-  m_EffectController.SetTransform(GetOwner()->GetGlobalTransform());
+  if (m_EffectController.IsAlive())
+  {
+    if (m_bFloatParamsChanged)
+    {
+      m_bFloatParamsChanged = false;
 
-  CheckBVolumeUpdate();
+      for (ezUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
+      {
+        const auto& e = m_FloatParams[i];
+        m_EffectController.SetParameter(e.m_sName, e.m_Value);
+      }
+    }
+
+    if (m_bColorParamsChanged)
+    {
+      m_bColorParamsChanged = false;
+
+      for (ezUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
+      {
+        const auto& e = m_ColorParams[i];
+        m_EffectController.SetParameter(e.m_sName, e.m_Value);
+      }
+    }
+
+    m_EffectController.SetTransform(GetOwner()->GetGlobalTransform());
+
+    CheckBVolumeUpdate();
+  }
 }
 
 void ezParticleComponent::HandOffToFinisher()
@@ -274,5 +339,94 @@ void ezParticleComponent::CheckBVolumeUpdate()
     TriggerLocalBoundsUpdate();
   }
 }
+
+ezMap<ezString, float> ezParticleComponent::GetFloatParams() const
+{
+  ezMap<ezString, float> map;
+  for (const auto& e : m_FloatParams)
+  {
+    map[e.m_sName.GetString()] = e.m_Value;
+  }
+
+  return map;
+}
+
+void ezParticleComponent::SetFloatParam(const char* szKey, float value)
+{
+  for (ezUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
+  {
+    if (m_FloatParams[i].m_sName == szKey)
+    {
+      if (m_FloatParams[i].m_Value != value)
+      {
+        m_bFloatParamsChanged = true;
+        m_FloatParams[i].m_Value = value;
+      }
+      return;
+    }
+  }
+
+  m_bFloatParamsChanged = true;
+  auto& e = m_FloatParams.ExpandAndGetRef();
+  e.m_sName.Assign(szKey);
+  e.m_Value = value;
+}
+
+void ezParticleComponent::RemoveFloatParam(const char* szKey)
+{
+  for (ezUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
+  {
+    if (m_FloatParams[i].m_sName == szKey)
+    {
+      m_FloatParams.RemoveAtSwap(i);
+      return;
+    }
+  }
+}
+
+ezMap<ezString, ezColor> ezParticleComponent::GetColorParams() const
+{
+  ezMap<ezString, ezColor> map;
+  for (const auto& e : m_ColorParams)
+  {
+    map[e.m_sName.GetString()] = e.m_Value;
+  }
+
+  return map;
+}
+
+void ezParticleComponent::SetColorParam(const char* szKey, const ezColor& value)
+{
+  for (ezUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
+  {
+    if (m_ColorParams[i].m_sName == szKey)
+    {
+      if (m_ColorParams[i].m_Value != value)
+      {
+        m_bColorParamsChanged = true;
+        m_ColorParams[i].m_Value = value;
+      }
+      return;
+    }
+  }
+
+  m_bColorParamsChanged = true;
+  auto& e = m_ColorParams.ExpandAndGetRef();
+  e.m_sName.Assign(szKey);
+  e.m_Value = value;
+}
+
+void ezParticleComponent::RemoveColorParam(const char* szKey)
+{
+  for (ezUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
+  {
+    if (m_ColorParams[i].m_sName == szKey)
+    {
+      m_ColorParams.RemoveAtSwap(i);
+      return;
+    }
+  }
+}
+
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Components_ParticleComponent);
 

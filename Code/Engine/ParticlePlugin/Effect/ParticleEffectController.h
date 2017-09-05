@@ -29,6 +29,18 @@ public:
   /// The volume is in the local space of the effect.
   ezTime GetBoundingVolume(ezBoundingBoxSphere& volume) const;
 
+  /// \name Effect Parameters
+  ///@{
+public:
+
+  /// \brief Passes an effect parameter on to the effect instance
+  void SetParameter(const ezTempHashedString& name, float value);
+
+  /// \brief Passes an effect parameter on to the effect instance
+  void SetParameter(const ezTempHashedString& name, const ezColor& value);
+
+  ///@}
+
 private:
   ezParticleEffectController(ezParticleWorldModule* pModule, ezParticleEffectHandle hEffect);
   ezParticleEffectInstance* GetInstance() const;
