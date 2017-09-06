@@ -22,6 +22,9 @@ public:
   float m_fSizeFactor;
   float m_fIntensity;
   ezUInt32 m_uiPercentage;
+  ezString m_sTintColorParameter;
+  ezString m_sIntensityParameter;
+  ezString m_sSizeScaleParameter;
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeLight : public ezParticleType
@@ -34,6 +37,9 @@ public:
   float m_fSizeFactor;
   float m_fIntensity;
   ezUInt32 m_uiPercentage;
+  ezTempHashedString m_sTintColorParameter;
+  ezTempHashedString m_sIntensityParameter;
+  ezTempHashedString m_sSizeScaleParameter;
 
   virtual float GetMaxParticleRadius(float fParticleSize) const { return 0.5f * fParticleSize * m_fSizeFactor; }
 

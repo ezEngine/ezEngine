@@ -16,6 +16,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleSystemDescriptor, 1, ezRTTIDefaultAllo
     EZ_MEMBER_PROPERTY("Visible", m_bVisible)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("MaxParticles", m_uiMaxParticles)->AddAttributes(new ezDefaultValueAttribute(64), new ezClampValueAttribute(1, 65535)),
     EZ_MEMBER_PROPERTY("LifeTime", m_LifeTime)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(2)), new ezClampValueAttribute(ezTime::Seconds(0.1), ezVariant())),
+    EZ_MEMBER_PROPERTY("LifeScaleParam", m_sLifeScaleParameter),
     EZ_MEMBER_PROPERTY("OnDeathEvent", m_sOnDeathEvent),
     EZ_ARRAY_MEMBER_PROPERTY("Emitters", m_EmitterFactories)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezMaxArraySizeAttribute(1)),
     EZ_SET_ACCESSOR_PROPERTY("Initializers", GetInitializerFactories, AddInitializerFactory, RemoveInitializerFactory)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezPreventDuplicatesAttribute()),
@@ -88,6 +89,7 @@ void ezParticleSystemDescriptor::SetupDefaultProcessors()
     ezParticleBehaviorFactory_Age* pFactory = (ezParticleBehaviorFactory_Age*)ezParticleBehaviorFactory_Age::GetStaticRTTI()->GetAllocator()->Allocate();
     pFactory->m_LifeTime = m_LifeTime;
     pFactory->m_sOnDeathEvent = m_sOnDeathEvent;
+    pFactory->m_sLifeScaleParameter = m_sLifeScaleParameter;
     m_BehaviorFactories.PushBack(pFactory);
   }
 
@@ -113,6 +115,7 @@ enum class ParticleSystemVersion
   Version_4, // added Types
   Version_5, // added default processors
   Version_6, // changed lifetime variance
+  Version_7, // added life scale param
 
   // insert new version numbers above
   Version_Count,
@@ -136,6 +139,7 @@ void ezParticleSystemDescriptor::Save(ezStreamWriter& stream) const
   stream << m_LifeTime.m_Value;
   stream << m_LifeTime.m_fVariance;
   stream << m_sOnDeathEvent;
+  stream << m_sLifeScaleParameter;
   stream << uiNumEmitters;
   stream << uiNumInitializers;
   stream << uiNumBehaviors;
@@ -202,6 +206,11 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& stream)
     stream >> m_LifeTime.m_Value;
     stream >> m_LifeTime.m_fVariance;
     stream >> m_sOnDeathEvent;
+  }
+
+  if (uiVersion >= 7)
+  {
+    stream >> m_sLifeScaleParameter;
   }
 
   stream >> uiNumEmitters;

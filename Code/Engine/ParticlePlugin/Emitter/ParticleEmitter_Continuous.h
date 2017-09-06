@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <ParticlePlugin/Emitter/ParticleEmitter.h>
 #include <Core/ResourceManager/ResourceHandle.h>
@@ -25,6 +25,7 @@ public:
 
   ezUInt32 m_uiSpawnCountMin;
   ezUInt32 m_uiSpawnCountRange;
+  ezString m_sSpawnCountScaleParameter;
 
   ezVarianceTypeTime m_SpawnInterval;
 
@@ -48,6 +49,7 @@ public:
 
   ezUInt32 m_uiSpawnCountMin;
   ezUInt32 m_uiSpawnCountRange;
+  ezTempHashedString m_sSpawnCountScaleParameter;
 
   ezVarianceTypeTime m_SpawnInterval;
 

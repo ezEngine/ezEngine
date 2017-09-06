@@ -12,6 +12,7 @@
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeLightFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeLightFactory>)
 {
@@ -20,6 +21,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeLightFactory, 1, ezRTTIDefaultAllo
     EZ_MEMBER_PROPERTY("SizeFactor", m_fSizeFactor)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.0f, 1000.0f)),
     EZ_MEMBER_PROPERTY("Intensity", m_fIntensity)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, 100000.0f)),
     EZ_MEMBER_PROPERTY("Percentage", m_uiPercentage)->AddAttributes(new ezDefaultValueAttribute(50), new ezClampValueAttribute(1, 100)),
+    EZ_MEMBER_PROPERTY("TintColorParam", m_sTintColorParameter),
+    EZ_MEMBER_PROPERTY("IntensityScaleParam", m_sIntensityParameter),
+    EZ_MEMBER_PROPERTY("SizeScaleParam", m_sSizeScaleParameter),
   }
   EZ_END_PROPERTIES
 }
@@ -48,12 +52,16 @@ void ezParticleTypeLightFactory::CopyTypeProperties(ezParticleType* pObject) con
   pType->m_fSizeFactor = m_fSizeFactor;
   pType->m_fIntensity = m_fIntensity;
   pType->m_uiPercentage = m_uiPercentage;
+  pType->m_sTintColorParameter = ezTempHashedString(m_sTintColorParameter.GetData());
+  pType->m_sIntensityParameter = ezTempHashedString(m_sIntensityParameter.GetData());
+  pType->m_sSizeScaleParameter = ezTempHashedString(m_sSizeScaleParameter.GetData());
 }
 
 enum class TypeLightVersion
 {
   Version_0 = 0,
   Version_1,
+  Version_2, // added tint color and intensity parameter
 
   // insert new version numbers above
   Version_Count,
@@ -68,6 +76,11 @@ void ezParticleTypeLightFactory::Save(ezStreamWriter& stream) const
   stream << m_fSizeFactor;
   stream << m_fIntensity;
   stream << m_uiPercentage;
+
+  // Version 2
+  stream << m_sTintColorParameter;
+  stream << m_sIntensityParameter;
+  stream << m_sSizeScaleParameter;
 }
 
 void ezParticleTypeLightFactory::Load(ezStreamReader& stream)
@@ -80,6 +93,13 @@ void ezParticleTypeLightFactory::Load(ezStreamReader& stream)
   stream >> m_fSizeFactor;
   stream >> m_fIntensity;
   stream >> m_uiPercentage;
+
+  if (uiVersion >= 2)
+  {
+    stream >> m_sTintColorParameter;
+    stream >> m_sIntensityParameter;
+    stream >> m_sSizeScaleParameter;
+  }
 }
 
 void ezParticleTypeLight::CreateRequiredStreams()
@@ -124,6 +144,13 @@ void ezParticleTypeLight::ExtractTypeRenderData(const ezView& view, ezExtractedR
 
   const ezUInt32 uiBatchId = 1; // no shadows
 
+  const ezColor tintColor = GetOwnerEffect()->GetColorParameter(m_sTintColorParameter, ezColor::White);
+  const float intensityScale = GetOwnerEffect()->GetFloatParameter(m_sIntensityParameter, 1.0f);
+  const float sizeScale = GetOwnerEffect()->GetFloatParameter(m_sSizeScaleParameter, 1.0f);
+
+  const float sizeFactor = m_fSizeFactor * sizeScale;
+  const float intensity = intensityScale * m_fIntensity;
+
   for (ezUInt32 i = 0; i < uiNumParticles; ++i)
   {
     if (pOnOff)
@@ -144,9 +171,9 @@ void ezParticleTypeLight::ExtractTypeRenderData(const ezView& view, ezExtractedR
 
     pRenderData->m_GlobalTransform.SetIdentity();
     pRenderData->m_GlobalTransform.m_vPosition = instanceTransform * pPosition[i].GetAsVec3();
-    pRenderData->m_LightColor = pColor[i];
-    pRenderData->m_fIntensity = m_fIntensity;
-    pRenderData->m_fRange = pSize[i] * m_fSizeFactor;
+    pRenderData->m_LightColor = tintColor * pColor[i];
+    pRenderData->m_fIntensity = intensity;
+    pRenderData->m_fRange = pSize[i] * sizeFactor;
     pRenderData->m_uiShadowDataOffset = ezInvalidIndex;
 
     pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, uiBatchId);

@@ -9,6 +9,7 @@
 #include <Core/WorldSerializer/ResourceHandleReader.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory_Continuous, 1, ezRTTIDefaultAllocator<ezParticleEmitterFactory_Continuous>)
 {
@@ -19,6 +20,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory_Continuous, 1, ezRTTIDe
 
     EZ_MEMBER_PROPERTY("MinSpawnCount", m_uiSpawnCountMin)->AddAttributes(new ezDefaultValueAttribute(1)),
     EZ_MEMBER_PROPERTY("SpawnCountRange", m_uiSpawnCountRange),
+    EZ_MEMBER_PROPERTY("SpawnCountScaleParam", m_sSpawnCountScaleParameter),
 
     EZ_MEMBER_PROPERTY("Interval", m_SpawnInterval),
 
@@ -55,6 +57,7 @@ void ezParticleEmitterFactory_Continuous::CopyEmitterProperties(ezParticleEmitte
 
   pEmitter->m_uiSpawnCountMin = m_uiSpawnCountMin;
   pEmitter->m_uiSpawnCountRange = m_uiSpawnCountRange;
+  pEmitter->m_sSpawnCountScaleParameter = ezTempHashedString(m_sSpawnCountScaleParameter.GetData());
 
   pEmitter->m_SpawnInterval = m_SpawnInterval;
 
@@ -69,6 +72,7 @@ enum class EmitterContinuousVersion
   Version_2,
   Version_3,
   Version_4, // added emitter start delay
+  Version_5, // added spawn count scale param
 
   // insert new version numbers above
   Version_Count,
@@ -95,6 +99,9 @@ void ezParticleEmitterFactory_Continuous::Save(ezStreamWriter& stream) const
   // Version 2
   stream << m_hCountCurve;
   stream << m_CurveDuration;
+
+  // Version 5
+  stream << m_sSpawnCountScaleParameter;
 }
 
 void ezParticleEmitterFactory_Continuous::Load(ezStreamReader& stream)
@@ -123,6 +130,11 @@ void ezParticleEmitterFactory_Continuous::Load(ezStreamReader& stream)
   {
     stream >> m_hCountCurve;
     stream >> m_CurveDuration;
+  }
+
+  if (uiVersion >= 5)
+  {
+    stream >> m_sSpawnCountScaleParameter;
   }
 }
 
@@ -199,6 +211,9 @@ ezUInt32 ezParticleEmitter_Continuous::ComputeSpawnCount(const ezTime& tDiff)
       fSpawnFactor = ezMath::Max(0.0f, curve.Evaluate(evalPos));
     }
   }
+
+  const float spawnCountScale = ezMath::Clamp(GetOwnerEffect()->GetFloatParameter(m_sSpawnCountScaleParameter, 1.0f), 0.0f, 10.0f);
+  fSpawnFactor *= spawnCountScale;
 
   ezRandom& rng = GetRNG();
 

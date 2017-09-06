@@ -20,6 +20,7 @@ public:
 
   ezVarianceTypeTime m_LifeTime;
   ezString m_sOnDeathEvent;
+  ezString m_sLifeScaleParameter;
 };
 
 
@@ -34,6 +35,7 @@ public:
 
   ezVarianceTypeTime m_LifeTime;
   ezTempHashedString m_sOnDeathEvent;
+  ezTempHashedString m_sLifeScaleParameter;
 
   virtual void AfterPropertiesConfigured(bool bFirstTime) override;
 

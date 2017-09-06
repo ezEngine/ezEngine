@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <ParticlePlugin/Basics.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStream.h>
@@ -41,6 +41,7 @@ public:
 
   ezVarianceTypeTime m_LifeTime;
   ezString m_sOnDeathEvent;
+  ezString m_sLifeScaleParameter;
 
   //////////////////////////////////////////////////////////////////////////
 

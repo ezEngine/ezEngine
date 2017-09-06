@@ -35,6 +35,7 @@ void ezParticleBehaviorFactory_Age::CopyBehaviorProperties(ezParticleBehavior* p
 
   pBehavior->m_LifeTime = m_LifeTime;
   pBehavior->m_sOnDeathEvent = ezTempHashedString(m_sOnDeathEvent.GetData());
+  pBehavior->m_sLifeScaleParameter = ezTempHashedString(m_sLifeScaleParameter.GetData());
 }
 
 
@@ -45,6 +46,7 @@ enum class BehaviorAgeVersion
   Version_2,
   Version_3,
   Version_4,
+  Version_5, // added life scale param
 
   // insert new version numbers above
   Version_Count,
@@ -60,6 +62,9 @@ void ezParticleBehaviorFactory_Age::Save(ezStreamWriter& stream) const
 
   stream << m_LifeTime.m_Value;
   stream << m_LifeTime.m_fVariance;
+
+  // Version 5
+  stream << m_sLifeScaleParameter;
 }
 
 void ezParticleBehaviorFactory_Age::Load(ezStreamReader& stream)
@@ -78,6 +83,11 @@ void ezParticleBehaviorFactory_Age::Load(ezStreamReader& stream)
   {
     stream >> m_LifeTime.m_Value;
     stream >> m_LifeTime.m_fVariance;
+  }
+
+  if (uiVersion >= 5)
+  {
+    stream >> m_sLifeScaleParameter;
   }
 }
 
@@ -127,10 +137,11 @@ void ezParticleBehavior_Age::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 
   EZ_PROFILE("PFX: Age Init");
 
   ezVec2* pLifeTime = m_pStreamLifeTime->GetWritableData<ezVec2>();
+  const float fLifeScale = ezMath::Clamp(GetOwnerEffect()->GetFloatParameter(m_sLifeScaleParameter, 1.0f), 0.0f, 10.0f);
 
   if (m_LifeTime.m_fVariance == 0)
   {
-    const float tLifeTime = (float)m_LifeTime.m_Value.GetSeconds() + 0.01f; // make sure it's not zero
+    const float tLifeTime = (fLifeScale * (float)m_LifeTime.m_Value.GetSeconds()) + 0.01f; // make sure it's not zero
     const float tInvLifeTime = 1.0f / tLifeTime;
 
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
@@ -144,7 +155,7 @@ void ezParticleBehavior_Age::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 
 
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
-      const float tLifeTime = (float)rng.DoubleVariance(m_LifeTime.m_Value.GetSeconds(), m_LifeTime.m_fVariance) + 0.01f; // make sure it's not zero
+      const float tLifeTime = (fLifeScale * (float)rng.DoubleVariance(m_LifeTime.m_Value.GetSeconds(), m_LifeTime.m_fVariance)) + 0.01f; // make sure it's not zero
       const float tInvLifeTime = 1.0f / tLifeTime;
 
       pLifeTime[i].Set(tLifeTime, tInvLifeTime);

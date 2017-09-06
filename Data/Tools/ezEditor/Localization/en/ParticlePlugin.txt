@@ -36,6 +36,7 @@ ezParticleInitializerFactory_RandomColor;Random Color
 ezParticleInitializerFactory_RandomSize;Random Size
 ezParticleInitializerFactory_RandomRotationSpeed;Rotation Speed
 ezParticleInitializerFactory_SpherePosition;Sphere Position
+ezParticleBehaviorFactory_PullAlong;Pull Along
 ezParticleBehaviorFactory_SizeCurve;Size Curve
 ezParticleTypeBillboardFactory;Billboards
 ezParticleTypeLightFactory;Lights
@@ -59,3 +60,5 @@ ezEffectInvisibleUpdateRate::Max10fps;Max 10 FPS
 ezEffectInvisibleUpdateRate::Max5fps;Max 5 FPS
 ezEffectInvisibleUpdateRate::Pause;Pause
 ezEffectInvisibleUpdateRate::Discard;Discard
+FloatParameters;Number Parameters
+ColorParameters;Color Parameters
