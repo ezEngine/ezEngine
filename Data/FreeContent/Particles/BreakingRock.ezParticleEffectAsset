@@ -1,0 +1,1434 @@
+Objects
+{
+o
+{
+	Uuid %id{u4{5126831453959542396,272350434110784849}}
+	s %t{"ezVarianceTypeAngle"}
+	u3 %v{1}
+	p
+	{
+		Angle %Value{f{0xDB0F4940}}
+		f %Variance{0xCDCC0C3F}
+	}
+}
+o
+{
+	Uuid %id{u4{3465390895510622461,4278063824393480181}}
+	s %t{"ezVarianceTypeTime"}
+	u3 %v{1}
+	p
+	{
+		Time %Value{d{0x9A9999999999A93F}}
+		f %Variance{0}
+	}
+}
+o
+{
+	Uuid %id{u4{15175246456341248680,4628398379764297359}}
+	s %t{"ezParticleInitializerFactory_RandomColor"}
+	u3 %v{1}
+	p
+	{
+		Color %Color1{f{0x8FC2753E,0xB01B363E,0x24977F3D,0x0000803F}}
+		Color %Color2{f{0x8FC2F53D,0x47C9AB3D,0x28A0893C,0x0000803F}}
+		s %Gradient{""}
+	}
+}
+o
+{
+	Uuid %id{u4{3043213046936040858,4659216943811857661}}
+	s %t{"ezParticleInitializerFactory_RandomColor"}
+	u3 %v{1}
+	p
+	{
+		Color %Color1{f{0x85EBD13E,0x34AA793E,0x7424173E,0x0000803F}}
+		Color %Color2{f{0xF6285C3F,0xD1ED153F,0x36EFB83E,0x0000803F}}
+		s %Gradient{""}
+	}
+}
+o
+{
+	Uuid %id{u4{7655801771386949562,4701933330526228590}}
+	s %t{"ezParticleTypeSpriteFactory"}
+	u3 %v{1}
+	p
+	{
+		Angle %Deviation{f{0}}
+		u1 %NumSpritesX{1}
+		u1 %NumSpritesY{1}
+		s %RenderMode{"ezParticleTypeRenderMode::Blended"}
+		s %RotationAxis{"ezSpriteAxis::Random"}
+		s %Texture{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{15743331047095930006,4714944409318883734}}
+	s %t{"ezParticleBehaviorFactory_Velocity"}
+	u3 %v{1}
+	p
+	{
+		f %Friction{0x3333333F}
+		f %RiseSpeed{0}
+	}
+}
+o
+{
+	Uuid %id{u4{5031366284947872897,4729321395423799505}}
+	s %t{"ezParticleEmitterFactory_Continuous"}
+	u3 %v{1}
+	p
+	{
+		s %CountCurve{""}
+		Time %CurveDuration{d{0x0000000000002440}}
+		Time %Duration{d{0x9A9999999999B93F}}
+		Uuid %Interval{u4{17329570029990194878,17141287530466233613}}
+		u3 %MinSpawnCount{1}
+		u3 %SpawnCountRange{0}
+		s %SpawnCountScaleParam{""}
+		Time %StartDelay{d{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{1534745006719595432,4758319081967103215}}
+	s %t{"ezParticleSystemDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Behaviors
+		{
+			Uuid{u4{16477679519029654682,4763261432933082824}}
+		}
+		VarArray %Emitters
+		{
+			Uuid{u4{15942395644742443154,4912663662778625332}}
+		}
+		VarArray %Initializers
+		{
+			Uuid{u4{406494820819209891,5087106561977418227}}
+			Uuid{u4{3588870102154398115,5369858632046831969}}
+			Uuid{u4{15175246456341248680,4628398379764297359}}
+			Uuid{u4{3847543955944989845,4794775861818896361}}
+		}
+		s %LifeScaleParam{""}
+		Uuid %LifeTime{u4{647528206143931228,17943237760151265741}}
+		u3 %MaxParticles{64}
+		s %Name{"Pop"}
+		s %OnDeathEvent{""}
+		VarArray %Types
+		{
+			Uuid{u4{6312424891014447292,5678146472350800936}}
+		}
+		b %Visible{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16477679519029654682,4763261432933082824}}
+	s %t{"ezParticleBehaviorFactory_ColorGradient"}
+	u3 %v{1}
+	p
+	{
+		s %Gradient{"{ a1f3f932-460e-405a-8512-a0f3ce341d1b }"}
+	}
+}
+o
+{
+	Uuid %id{u4{4059840079658845877,4790019111268678856}}
+	s %t{"ezParticleInitializerFactory_SpherePosition"}
+	u3 %v{1}
+	p
+	{
+		b %OnSurface{0}
+		f %Radius{0x0000803F}
+		b %SetVelocity{1}
+		Uuid %Speed{u4{13094927276463032117,6950521585765037411}}
+	}
+}
+o
+{
+	Uuid %id{u4{3847543955944989845,4794775861818896361}}
+	s %t{"ezParticleInitializerFactory_RandomRotationSpeed"}
+	u3 %v{1}
+	p
+	{
+		Uuid %DegreesPerSecond{u4{5126831453959542396,272350434110784849}}
+	}
+}
+o
+{
+	Uuid %id{u4{9564780552109188483,4823907807513981374}}
+	s %t{"ezParticleInitializerFactory_RandomColor"}
+	u3 %v{1}
+	p
+	{
+		Color %Color1{f{0xAE47613E,0x74590C3E,0x884AEA3C,0x0000803F}}
+		Color %Color2{f{0xCDCCCC3D,0x1B2F5D3D,0x7012033C,0x0000803F}}
+		s %Gradient{""}
+	}
+}
+o
+{
+	Uuid %id{u4{11145541668145225354,4830969992710623894}}
+	s %t{"ezParticleInitializerFactory_SpherePosition"}
+	u3 %v{1}
+	p
+	{
+		b %OnSurface{0}
+		f %Radius{0x0000003F}
+		b %SetVelocity{1}
+		Uuid %Speed{u4{154295655674184991,17488808118757317128}}
+	}
+}
+o
+{
+	Uuid %id{u4{5406741148988944309,4865395621678116115}}
+	s %t{"ezParticleEmitterFactory_Continuous"}
+	u3 %v{1}
+	p
+	{
+		s %CountCurve{""}
+		Time %CurveDuration{d{0x0000000000002440}}
+		Time %Duration{d{0x0000000000000040}}
+		Uuid %Interval{u4{9358509406298184757,13371734556253134104}}
+		u3 %MinSpawnCount{15}
+		u3 %SpawnCountRange{10}
+		s %SpawnCountScaleParam{""}
+		Time %StartDelay{d{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{85186784515627950,4904001040843565735}}
+	s %t{"ezParticleEffectDescriptor"}
+	u3 %v{1}
+	p
+	{
+		b %AlwaysShared{0}
+		VarDict %ColorParameters{}
+		VarDict %FloatParameters{}
+		VarArray %ParticleSystems
+		{
+			Uuid{u4{15950858524320967811,5477697195598493427}}
+			Uuid{u4{1534745006719595432,4758319081967103215}}
+			Uuid{u4{4704455029282509749,4999800041280905175}}
+			Uuid{u4{17084670537803900350,5514616979312142889}}
+			Uuid{u4{15852036092444863637,5599430855100243136}}
+		}
+		Time %PreSimulateDuration{d{0}}
+		b %SimulateInLocalSpace{0}
+		s %WhenInvisible{"ezEffectInvisibleUpdateRate::Max10fps"}
+	}
+}
+o
+{
+	Uuid %id{u4{15942395644742443154,4912663662778625332}}
+	s %t{"ezParticleEmitterFactory_Continuous"}
+	u3 %v{1}
+	p
+	{
+		s %CountCurve{""}
+		Time %CurveDuration{d{0x0000000000002440}}
+		Time %Duration{d{0x9A9999999999B93F}}
+		Uuid %Interval{u4{3465390895510622461,4278063824393480181}}
+		u3 %MinSpawnCount{5}
+		u3 %SpawnCountRange{5}
+		s %SpawnCountScaleParam{""}
+		Time %StartDelay{d{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{17212876610728266112,4926936584164749040}}
+	s %t{"ezParticleTypeFragmentFactory"}
+	u3 %v{1}
+	p
+	{
+		u1 %NumSpritesX{1}
+		u1 %NumSpritesY{4}
+		s %RotationAxis{"ezFragmentAxis::OrthogonalEmitterDirection"}
+		s %Texture{"{ d40ad137-d1e4-40d6-a7f3-8d2c88283c21 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{2781536012053982107,4963575338331142378}}
+	s %t{"ezParticleBehaviorFactory_Velocity"}
+	u3 %v{1}
+	p
+	{
+		f %Friction{0xCDCC4C3D}
+		f %RiseSpeed{0}
+	}
+}
+o
+{
+	Uuid %id{u4{122363945715465095,4976274145754328692}}
+	s %t{"ezParticleInitializerFactory_RandomRotationSpeed"}
+	u3 %v{1}
+	p
+	{
+		Uuid %DegreesPerSecond{u4{5884290598677811369,5614829066711727916}}
+	}
+}
+o
+{
+	Uuid %id{u4{4704455029282509749,4999800041280905175}}
+	s %t{"ezParticleSystemDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Behaviors
+		{
+			Uuid{u4{15743331047095930006,4714944409318883734}}
+		}
+		VarArray %Emitters
+		{
+			Uuid{u4{5401243580203207318,5523259929824921261}}
+		}
+		VarArray %Initializers
+		{
+			Uuid{u4{11145541668145225354,4830969992710623894}}
+			Uuid{u4{5539399322276896681,5611531015202571632}}
+			Uuid{u4{9967508251741964163,5068327847882780128}}
+			Uuid{u4{18367053616874164353,5530807890327495052}}
+		}
+		s %LifeScaleParam{""}
+		Uuid %LifeTime{u4{8411460781982115965,11238871861669251012}}
+		u3 %MaxParticles{500}
+		s %Name{"Fragments"}
+		s %OnDeathEvent{""}
+		VarArray %Types
+		{
+			Uuid{u4{17212876610728266112,4926936584164749040}}
+		}
+		b %Visible{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7624928336030832780,5010887326076620496}}
+	s %t{"ezParticleTypeBillboardFactory"}
+	u3 %v{1}
+	p
+	{
+		u1 %NumSpritesX{1}
+		u1 %NumSpritesY{1}
+		s %RenderMode{"ezParticleTypeRenderMode::Blended"}
+		s %Texture{"{ 0c5ce0a7-7218-427d-9a9d-47ef5e9aa33f }"}
+		s %TintColorParam{""}
+	}
+}
+o
+{
+	Uuid %id{u4{14042184127740911787,5047917351356162737}}
+	s %t{"ezParticleBehaviorFactory_FadeOut"}
+	u3 %v{1}
+	p
+	{
+		f %Exponent{0x00004040}
+		f %StartAlpha{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{9967508251741964163,5068327847882780128}}
+	s %t{"ezParticleInitializerFactory_RandomRotationSpeed"}
+	u3 %v{1}
+	p
+	{
+		Uuid %DegreesPerSecond{u4{11968256762422253955,8190441828944680882}}
+	}
+}
+o
+{
+	Uuid %id{u4{406494820819209891,5087106561977418227}}
+	s %t{"ezParticleInitializerFactory_SpherePosition"}
+	u3 %v{1}
+	p
+	{
+		b %OnSurface{0}
+		f %Radius{0x0000803F}
+		b %SetVelocity{0}
+		Uuid %Speed{u4{15930415998122598948,9402239515334960947}}
+	}
+}
+o
+{
+	Uuid %id{u4{17202382152121515655,5221086439359290985}}
+	s %t{"ezParticleInitializerFactory_SpherePosition"}
+	u3 %v{1}
+	p
+	{
+		b %OnSurface{1}
+		f %Radius{0x9A99993E}
+		b %SetVelocity{0}
+		Uuid %Speed{u4{3362749499932905062,14326837249471611496}}
+	}
+}
+o
+{
+	Uuid %id{u4{4799386666762090136,5232792778884275582}}
+	s %t{"ezParticleTypeBillboardFactory"}
+	u3 %v{1}
+	p
+	{
+		u1 %NumSpritesX{1}
+		u1 %NumSpritesY{1}
+		s %RenderMode{"ezParticleTypeRenderMode::Blended"}
+		s %Texture{"{ 0c5ce0a7-7218-427d-9a9d-47ef5e9aa33f }"}
+		s %TintColorParam{""}
+	}
+}
+o
+{
+	Uuid %id{u4{830006986213027729,5290682408547575959}}
+	s %t{"ezParticleInitializerFactory_RandomColor"}
+	u3 %v{1}
+	p
+	{
+		Color %Color1{f{0x8FC2753E,0xB01B363E,0x24977F3D,0x0000803F}}
+		Color %Color2{f{0xEC51383E,0xD05CA73D,0xD8B5843C,0x0000803F}}
+		s %Gradient{""}
+	}
+}
+o
+{
+	Uuid %id{u4{2849352066393688762,5304085440087473781}}
+	s %t{"ezParticleInitializerFactory_SpherePosition"}
+	u3 %v{1}
+	p
+	{
+		b %OnSurface{0}
+		f %Radius{0x0000803E}
+		b %SetVelocity{1}
+		Uuid %Speed{u4{15405963014464613308,17473919169529885681}}
+	}
+}
+o
+{
+	Uuid %id{u4{15941114547924599180,5324641582135076540}}
+	s %t{"ezParticleBehaviorFactory_SizeCurve"}
+	u3 %v{1}
+	p
+	{
+		f %BaseSize{0x0000803F}
+		f %CurveScale{0x0000A040}
+		s %SizeCurve{"{ c1ff3ecb-522f-4085-9164-dc1f40be3f98 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{10867426409032507281,5338150348394848949}}
+	s %t{"ezParticleBehaviorFactory_Velocity"}
+	u3 %v{1}
+	p
+	{
+		f %Friction{0x6666663F}
+		f %RiseSpeed{0xCDCC4C3E}
+	}
+}
+o
+{
+	Uuid %id{u4{3588870102154398115,5369858632046831969}}
+	s %t{"ezParticleInitializerFactory_RandomSize"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Size{u4{17242684396974926790,10938952112547439684}}
+		s %SizeCurve{""}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{85186784515627950,4904001040843565735}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{391423838225857200,5449165284048767696}}
+	s %t{"ezParticleInitializerFactory_RandomRotationSpeed"}
+	u3 %v{1}
+	p
+	{
+		Uuid %DegreesPerSecond{u4{1996493459742508250,8630854129352119328}}
+	}
+}
+o
+{
+	Uuid %id{u4{15950858524320967811,5477697195598493427}}
+	s %t{"ezParticleSystemDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Behaviors
+		{
+			Uuid{u4{10867426409032507281,5338150348394848949}}
+			Uuid{u4{15941114547924599180,5324641582135076540}}
+			Uuid{u4{14042184127740911787,5047917351356162737}}
+		}
+		VarArray %Emitters
+		{
+			Uuid{u4{5406741148988944309,4865395621678116115}}
+		}
+		VarArray %Initializers
+		{
+			Uuid{u4{2849352066393688762,5304085440087473781}}
+			Uuid{u4{830006986213027729,5290682408547575959}}
+			Uuid{u4{122363945715465095,4976274145754328692}}
+		}
+		s %LifeScaleParam{""}
+		Uuid %LifeTime{u4{17621039124798471605,9518567649423108554}}
+		u3 %MaxParticles{500}
+		s %Name{"Dust"}
+		s %OnDeathEvent{""}
+		VarArray %Types
+		{
+			Uuid{u4{4799386666762090136,5232792778884275582}}
+		}
+		b %Visible{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17084670537803900350,5514616979312142889}}
+	s %t{"ezParticleSystemDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Behaviors
+		{
+			Uuid{u4{16489744575296052368,5569365547761360492}}
+		}
+		VarArray %Emitters
+		{
+			Uuid{u4{5031366284947872897,4729321395423799505}}
+		}
+		VarArray %Initializers
+		{
+			Uuid{u4{17202382152121515655,5221086439359290985}}
+			Uuid{u4{3043213046936040858,4659216943811857661}}
+		}
+		s %LifeScaleParam{""}
+		Uuid %LifeTime{u4{17777722385351478173,14258667227772632944}}
+		u3 %MaxParticles{64}
+		s %Name{"Shock"}
+		s %OnDeathEvent{""}
+		VarArray %Types
+		{
+			Uuid{u4{7655801771386949562,4701933330526228590}}
+		}
+		b %Visible{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5401243580203207318,5523259929824921261}}
+	s %t{"ezParticleEmitterFactory_Continuous"}
+	u3 %v{1}
+	p
+	{
+		s %CountCurve{""}
+		Time %CurveDuration{d{0x0000000000002440}}
+		Time %Duration{d{0x333333333333D33F}}
+		Uuid %Interval{u4{16143561979164122592,6623103600855918971}}
+		u3 %MinSpawnCount{30}
+		u3 %SpawnCountRange{10}
+		s %SpawnCountScaleParam{""}
+		Time %StartDelay{d{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{18367053616874164353,5530807890327495052}}
+	s %t{"ezParticleInitializerFactory_RandomSize"}
+	u3 %v{1}
+	p
+	{
+		Uuid %Size{u4{14040388193248926074,13245288101489756317}}
+		s %SizeCurve{""}
+	}
+}
+o
+{
+	Uuid %id{u4{16489744575296052368,5569365547761360492}}
+	s %t{"ezParticleBehaviorFactory_SizeCurve"}
+	u3 %v{1}
+	p
+	{
+		f %BaseSize{0}
+		f %CurveScale{0x0000A040}
+		s %SizeCurve{"{ ab745bdf-bc09-9e34-77b5-734904059b96 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{3582023120760588477,5598791100965583299}}
+	s %t{"ezParticleEmitterFactory_Continuous"}
+	u3 %v{1}
+	p
+	{
+		s %CountCurve{""}
+		Time %CurveDuration{d{0x0000000000002440}}
+		Time %Duration{d{0x0000000000000040}}
+		Uuid %Interval{u4{14249278993676521729,6022542527455989105}}
+		u3 %MinSpawnCount{1}
+		u3 %SpawnCountRange{1}
+		s %SpawnCountScaleParam{""}
+		Time %StartDelay{d{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{15852036092444863637,5599430855100243136}}
+	s %t{"ezParticleSystemDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Behaviors
+		{
+			Uuid{u4{2781536012053982107,4963575338331142378}}
+			Uuid{u4{11794276547157461439,5731245653816609155}}
+			Uuid{u4{16527432483539262644,5649421523909101936}}
+		}
+		VarArray %Emitters
+		{
+			Uuid{u4{3582023120760588477,5598791100965583299}}
+		}
+		VarArray %Initializers
+		{
+			Uuid{u4{4059840079658845877,4790019111268678856}}
+			Uuid{u4{9564780552109188483,4823907807513981374}}
+			Uuid{u4{391423838225857200,5449165284048767696}}
+		}
+		s %LifeScaleParam{""}
+		Uuid %LifeTime{u4{3089681119105523862,11408571881763326598}}
+		u3 %MaxParticles{500}
+		s %Name{"Lingering Dust"}
+		s %OnDeathEvent{""}
+		VarArray %Types
+		{
+			Uuid{u4{7624928336030832780,5010887326076620496}}
+		}
+		b %Visible{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5539399322276896681,5611531015202571632}}
+	s %t{"ezParticleInitializerFactory_RandomColor"}
+	u3 %v{1}
+	p
+	{
+		Color %Color1{f{0x8FC2F53D,0x9C33A23D,0xBC74933C,0x0000803F}}
+		Color %Color2{f{0x90C2753D,0xF6B4433D,0xB840023D,0x0000803F}}
+		s %Gradient{""}
+	}
+}
+o
+{
+	Uuid %id{u4{5884290598677811369,5614829066711727916}}
+	s %t{"ezVarianceTypeAngle"}
+	u3 %v{1}
+	p
+	{
+		Angle %Value{f{0xDB0F493F}}
+		f %Variance{0xD7A3F03E}
+	}
+}
+o
+{
+	Uuid %id{u4{16527432483539262644,5649421523909101936}}
+	s %t{"ezParticleBehaviorFactory_FadeOut"}
+	u3 %v{1}
+	p
+	{
+		f %Exponent{0x00000040}
+		f %StartAlpha{0x0000003F}
+	}
+}
+o
+{
+	Uuid %id{u4{6312424891014447292,5678146472350800936}}
+	s %t{"ezParticleTypeBillboardFactory"}
+	u3 %v{1}
+	p
+	{
+		u1 %NumSpritesX{1}
+		u1 %NumSpritesY{1}
+		s %RenderMode{"ezParticleTypeRenderMode::Blended"}
+		s %Texture{"{ 0c5ce0a7-7218-427d-9a9d-47ef5e9aa33f }"}
+		s %TintColorParam{""}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{7797394691505756328,5717546376087507856}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Particle Effect"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{7797394691505756328,5717546376087507856}}
+		u4 %Hash{13323625450970717153}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ 0c5ce0a7-7218-427d-9a9d-47ef5e9aa33f }"}
+			s{"{ a1f3f932-460e-405a-8512-a0f3ce341d1b }"}
+			s{"{ ab745bdf-bc09-9e34-77b5-734904059b96 }"}
+			s{"{ c1ff3ecb-522f-4085-9164-dc1f40be3f98 }"}
+			s{"{ d40ad137-d1e4-40d6-a7f3-8d2c88283c21 }"}
+			s{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
+			s{"{ f633ccad-b4d5-12e5-260a-bb050d602881 }"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{11794276547157461439,5731245653816609155}}
+	s %t{"ezParticleBehaviorFactory_SizeCurve"}
+	u3 %v{1}
+	p
+	{
+		f %BaseSize{0x0000803F}
+		f %CurveScale{0x0000E040}
+		s %SizeCurve{"{ f633ccad-b4d5-12e5-260a-bb050d602881 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{14249278993676521729,6022542527455989105}}
+	s %t{"ezVarianceTypeTime"}
+	u3 %v{1}
+	p
+	{
+		Time %Value{d{0x9A9999999999B93F}}
+		f %Variance{0}
+	}
+}
+o
+{
+	Uuid %id{u4{16143561979164122592,6623103600855918971}}
+	s %t{"ezVarianceTypeTime"}
+	u3 %v{1}
+	p
+	{
+		Time %Value{d{0x9A9999999999A93F}}
+		f %Variance{0}
+	}
+}
+o
+{
+	Uuid %id{u4{13094927276463032117,6950521585765037411}}
+	s %t{"ezVarianceTypeFloat"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000003F}
+		f %Variance{0x7B142E3F}
+	}
+}
+o
+{
+	Uuid %id{u4{11968256762422253955,8190441828944680882}}
+	s %t{"ezVarianceTypeAngle"}
+	u3 %v{1}
+	p
+	{
+		Angle %Value{f{0x58A08B41}}
+		f %Variance{0x14AEC73E}
+	}
+}
+o
+{
+	Uuid %id{u4{1996493459742508250,8630854129352119328}}
+	s %t{"ezVarianceTypeAngle"}
+	u3 %v{1}
+	p
+	{
+		Angle %Value{f{0x920A863E}}
+		f %Variance{0x48E1FA3E}
+	}
+}
+o
+{
+	Uuid %id{u4{15930415998122598948,9402239515334960947}}
+	s %t{"ezVarianceTypeFloat"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0}
+		f %Variance{0}
+	}
+}
+o
+{
+	Uuid %id{u4{17621039124798471605,9518567649423108554}}
+	s %t{"ezVarianceTypeTime"}
+	u3 %v{1}
+	p
+	{
+		Time %Value{d{0x0000000000001440}}
+		f %Variance{0xAE47E13E}
+	}
+}
+o
+{
+	Uuid %id{u4{17242684396974926790,10938952112547439684}}
+	s %t{"ezVarianceTypeFloat"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000803F}
+		f %Variance{0x295C8F3E}
+	}
+}
+o
+{
+	Uuid %id{u4{8411460781982115965,11238871861669251012}}
+	s %t{"ezVarianceTypeTime"}
+	u3 %v{1}
+	p
+	{
+		Time %Value{d{0x000000000000F03F}}
+		f %Variance{0x5C8FC23E}
+	}
+}
+o
+{
+	Uuid %id{u4{3089681119105523862,11408571881763326598}}
+	s %t{"ezVarianceTypeTime"}
+	u3 %v{1}
+	p
+	{
+		Time %Value{d{0x0000000000003E40}}
+		f %Variance{0xAE47E13E}
+	}
+}
+o
+{
+	Uuid %id{u4{14040388193248926074,13245288101489756317}}
+	s %t{"ezVarianceTypeFloat"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0xCDCC4C3E}
+		f %Variance{0x85EB513F}
+	}
+}
+o
+{
+	Uuid %id{u4{9358509406298184757,13371734556253134104}}
+	s %t{"ezVarianceTypeTime"}
+	u3 %v{1}
+	p
+	{
+		Time %Value{d{0x9A9999999999A93F}}
+		f %Variance{0}
+	}
+}
+o
+{
+	Uuid %id{u4{17777722385351478173,14258667227772632944}}
+	s %t{"ezVarianceTypeTime"}
+	u3 %v{1}
+	p
+	{
+		Time %Value{d{0x333333333333D33F}}
+		f %Variance{0}
+	}
+}
+o
+{
+	Uuid %id{u4{3362749499932905062,14326837249471611496}}
+	s %t{"ezVarianceTypeFloat"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0}
+		f %Variance{0}
+	}
+}
+o
+{
+	Uuid %id{u4{17329570029990194878,17141287530466233613}}
+	s %t{"ezVarianceTypeTime"}
+	u3 %v{1}
+	p
+	{
+		Time %Value{d{0x9A9999999999B93F}}
+		f %Variance{0}
+	}
+}
+o
+{
+	Uuid %id{u4{15405963014464613308,17473919169529885681}}
+	s %t{"ezVarianceTypeFloat"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000A040}
+		f %Variance{0x713D8A3E}
+	}
+}
+o
+{
+	Uuid %id{u4{154295655674184991,17488808118757317128}}
+	s %t{"ezVarianceTypeFloat"}
+	u3 %v{1}
+	p
+	{
+		f %Value{0x0000A040}
+		f %Variance{0xAE47213F}
+	}
+}
+o
+{
+	Uuid %id{u4{647528206143931228,17943237760151265741}}
+	s %t{"ezVarianceTypeTime"}
+	u3 %v{1}
+	p
+	{
+		Time %Value{d{0x9A9999999999D93F}}
+		f %Variance{0}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{2413026653160727328,130253255832074449}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleTypeFactory"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{3496738843922925605,240403249381493002}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleEffectDescriptor"}
+		u3 %TypeSize{304}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{3018473839829409804,974333528179988407}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleInitializerFactory"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12984103802138964609,1901275426220383600}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17758852573202078434,2621427841157290158}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezFragmentAxis"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11061541817101818123,3867562407177176337}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4364839988722085851,4256514474267485533}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVarianceTypeBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezVarianceTypeTime"}
+		u3 %TypeSize{16}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17655861219811055552,4903048421697502036}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezParticleInitializerFactory"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleInitializerFactory_RandomRotationSpeed"}
+		u3 %TypeSize{16}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6467017751125590593,7158000587691918333}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{8916439108611325441,8470309028469650738}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezParticleBehaviorFactory"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleBehaviorFactory_FadeOut"}
+		u3 %TypeSize{16}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{3969526542868760376,8704057474900243451}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezSpriteAxis"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1949665634325955684,9834907768920370974}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezVarianceTypeBase"}
+		u3 %TypeSize{4}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7918771787888430535,9942412559181558879}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezEffectInvisibleUpdateRate"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{654225503647135356,10598575033334472595}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleBehaviorFactory"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{3920215696288591271,10615497342444198031}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleEmitterFactory"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5424959512980594043,11453643186094352129}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezParticleTypeFactory"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleTypeFragmentFactory"}
+		u3 %TypeSize{80}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{8563154359724972453,13210958814909023362}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVarianceTypeBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezVarianceTypeFloat"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{8449193922694686816,13468111117191095776}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVarianceTypeBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezVarianceTypeAngle"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12694384040100944314,13773907362476445970}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezParticleInitializerFactory"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleInitializerFactory_SpherePosition"}
+		u3 %TypeSize{24}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{15640535635019246607,13998217723822488639}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleSystemDescriptor"}
+		u3 %TypeSize{496}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4724430481722573655,14430703504297601769}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezParticleTypeFactory"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleTypeSpriteFactory"}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{10640450684922643884,14694943993999342216}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezParticleBehaviorFactory"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleBehaviorFactory_SizeCurve"}
+		u3 %TypeSize{24}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13001377482072882666,16064513423858759456}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleTypeRenderMode"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12406126558323264688,16321140815071504515}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezParticleInitializerFactory"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleInitializerFactory_RandomColor"}
+		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12921622808035406096,16700312844570441723}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezParticleBehaviorFactory"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleBehaviorFactory_Velocity"}
+		u3 %TypeSize{16}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{3837825899114449083,17260179072659940356}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezParticleInitializerFactory"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleInitializerFactory_RandomSize"}
+		u3 %TypeSize{24}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{10655183741723044651,17520639311894089676}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezParticleEmitterFactory"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleEmitterFactory_Continuous"}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4450416161877696683,17940638046943818512}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezParticleTypeFactory"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleTypeBillboardFactory"}
+		u3 %TypeSize{152}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2958933816078497782,18261045659744235843}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezParticleBehaviorFactory"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleBehaviorFactory_ColorGradient"}
+		u3 %TypeSize{16}
+		u3 %TypeVersion{1}
+	}
+}
+}

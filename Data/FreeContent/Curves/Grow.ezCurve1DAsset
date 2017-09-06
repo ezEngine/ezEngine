@@ -15,7 +15,7 @@ o
 }
 AssetInfo
 {
-	Uuid %id{u4{14339276257154894520,5056515756713821388}}
+	Uuid %id{u4{9306794239008115238,1361693293401066669}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{1}
 	s %n{"Header"}
@@ -23,7 +23,7 @@ AssetInfo
 	{
 		s %AssetType{"Curve1D"}
 		VarArray %Dependencies{}
-		Uuid %DocumentID{u4{14339276257154894520,5056515756713821388}}
+		Uuid %DocumentID{u4{9306794239008115238,1361693293401066669}}
 		u4 %Hash{14738448945484428760}
 		VarArray %Outputs{}
 		VarArray %References{}

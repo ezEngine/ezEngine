@@ -71,12 +71,14 @@ o
 {
 	Uuid %id{u4{16066207511823804328,5414987928874355234}}
 	s %t{"ezParticleComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		b %AutoRestart{0}
-		s %Effect{"{ ae657001-3504-4d28-8154-d42142f182ee }"}
+		VarDict %ColorParams{}
+		s %Effect{"{ dd849390-ce22-4f58-a898-b7d828e9356c }"}
+		VarDict %FloatParams{}
 		Time %MinRestartDelay{d{0}}
 		u4 %RandomSeed{0}
 		Time %RestartDelayRange{d{0}}
@@ -95,12 +97,12 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8442476130659817125,5462836412014684702}}
-		u4 %Hash{8625783498012850797}
+		u4 %Hash{5430471050967577808}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 384630de-7888-48fa-9695-a47936f2c4d1 }"}
-			s{"{ ae657001-3504-4d28-8154-d42142f182ee }"}
+			s{"{ dd849390-ce22-4f58-a898-b7d828e9356c }"}
 		}
 	}
 }
@@ -139,8 +141,8 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleComponent"}
-		u3 %TypeSize{192}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{328}
+		u3 %TypeVersion{2}
 	}
 }
 o

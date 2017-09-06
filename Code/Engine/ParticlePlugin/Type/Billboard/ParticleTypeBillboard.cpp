@@ -184,7 +184,9 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
     ezTransform trans;
     if (bNeedsSorting)
     {
-      ezHybridArray<sod, 64> sorted(ezFrameAllocator::GetCurrentAllocator());
+      // TODO: Using the frame allocator this way results in memory corruptions.
+      // Not sure, whether this is supposed to work.
+      ezHybridArray<sod, 64> sorted;// (ezFrameAllocator::GetCurrentAllocator());
       sorted.SetCountUninitialized(numParticles);
 
       for (ezUInt32 p = 0; p < numParticles; ++p)
