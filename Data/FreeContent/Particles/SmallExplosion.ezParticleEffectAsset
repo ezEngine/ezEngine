@@ -34,6 +34,7 @@ o
 		u1 %NumSpritesY{7}
 		s %RenderMode{"ezParticleTypeRenderMode::Additive"}
 		s %Texture{"{ 5960875e-fd79-4e1a-a7f6-8c084e7fba9b }"}
+		s %TintColorParam{""}
 	}
 }
 o
@@ -70,22 +71,6 @@ o
 }
 o
 {
-	Uuid %id{u4{3461467210052831904,4749688792675389444}}
-	s %t{"ezParticleEmitterFactory_Continuous"}
-	u3 %v{1}
-	p
-	{
-		s %CountCurve{""}
-		Time %CurveDuration{d{0x0000000000002440}}
-		Time %Duration{d{0x9A9999999999B93F}}
-		Uuid %Interval{u4{2744595986769959438,5523824388119100061}}
-		u3 %MinSpawnCount{20}
-		u3 %SpawnCountRange{10}
-		Time %StartDelay{d{0}}
-	}
-}
-o
-{
 	Uuid %id{u4{8080425991458034090,4787095973830133793}}
 	s %t{"ezParticleSystemDescriptor"}
 	u3 %v{1}
@@ -99,7 +84,7 @@ o
 		}
 		VarArray %Emitters
 		{
-			Uuid{u4{3461467210052831904,4749688792675389444}}
+			Uuid{u4{4283155096750265005,5007701955631347073}}
 		}
 		VarArray %Initializers
 		{
@@ -107,6 +92,7 @@ o
 			Uuid{u4{2067877405109175425,4716670649691251566}}
 			Uuid{u4{8108911685998174888,5262857671539342203}}
 		}
+		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{16852626061531171485,9990563873319844370}}
 		u3 %MaxParticles{100}
 		s %Name{""}
@@ -132,18 +118,47 @@ o
 		}
 		VarArray %Emitters
 		{
-			Uuid{u4{5582379708336197549,5578845156767357955}}
+			Uuid{u4{11170590347073413811,4993399822225910438}}
 		}
 		VarArray %Initializers{}
+		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{1053025563762561272,13728720564581764986}}
 		u3 %MaxParticles{64}
-		s %Name{""}
+		s %Name{"Flash"}
 		s %OnDeathEvent{""}
 		VarArray %Types
 		{
 			Uuid{u4{5462784538730693047,5105328798605025924}}
 		}
 		b %Visible{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11170590347073413811,4993399822225910438}}
+	s %t{"ezParticleEmitterFactory_Burst"}
+	u3 %v{1}
+	p
+	{
+		Time %Duration{d{0}}
+		u3 %MinSpawnCount{1}
+		u3 %SpawnCountRange{0}
+		s %SpawnCountScaleParam{""}
+		Time %StartDelay{d{0}}
+	}
+}
+o
+{
+	Uuid %id{u4{4283155096750265005,5007701955631347073}}
+	s %t{"ezParticleEmitterFactory_Burst"}
+	u3 %v{1}
+	p
+	{
+		Time %Duration{d{0}}
+		u3 %MinSpawnCount{200}
+		u3 %SpawnCountRange{100}
+		s %SpawnCountScaleParam{""}
+		Time %StartDelay{d{0}}
 	}
 }
 o
@@ -157,6 +172,7 @@ o
 		u1 %NumSpritesY{1}
 		s %RenderMode{"ezParticleTypeRenderMode::Additive"}
 		s %Texture{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
+		s %TintColorParam{""}
 	}
 }
 o
@@ -167,6 +183,8 @@ o
 	p
 	{
 		b %AlwaysShared{0}
+		VarDict %ColorParameters{}
+		VarDict %FloatParameters{}
 		VarArray %ParticleSystems
 		{
 			Uuid{u4{8080425991458034090,4787095973830133793}}
@@ -226,17 +244,6 @@ o
 		}
 	}
 }
-o
-{
-	Uuid %id{u4{2744595986769959438,5523824388119100061}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0x9A9999999999B93F}}
-		f %Variance{0}
-	}
-}
 AssetInfo
 {
 	Uuid %id{u4{17186564394336932993,5559752034210902017}}
@@ -248,7 +255,7 @@ AssetInfo
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17186564394336932993,5559752034210902017}}
-		u4 %Hash{11055197035920159767}
+		u4 %Hash{3285816362219069895}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -257,22 +264,6 @@ AssetInfo
 			s{"{ d26eb0e2-d440-4595-92df-bbf6ccf7aa6b }"}
 			s{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{5582379708336197549,5578845156767357955}}
-	s %t{"ezParticleEmitterFactory_Continuous"}
-	u3 %v{1}
-	p
-	{
-		s %CountCurve{""}
-		Time %CurveDuration{d{0x0000000000002440}}
-		Time %Duration{d{0x9A9999999999A93F}}
-		Uuid %Interval{u4{4173570249932171327,13509662145846140583}}
-		u3 %MinSpawnCount{1}
-		u3 %SpawnCountRange{0}
-		Time %StartDelay{d{0}}
 	}
 }
 o
@@ -294,17 +285,6 @@ o
 	{
 		Time %Value{d{0x666666666666E63F}}
 		f %Variance{0x6666E63E}
-	}
-}
-o
-{
-	Uuid %id{u4{4173570249932171327,13509662145846140583}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
 	}
 }
 o
@@ -375,7 +355,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEffectDescriptor"}
-		u3 %TypeSize{80}
+		u3 %TypeSize{304}
 		u3 %TypeVersion{1}
 	}
 }
@@ -627,7 +607,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleSystemDescriptor"}
-		u3 %TypeSize{432}
+		u3 %TypeSize{496}
 		u3 %TypeVersion{1}
 	}
 }
@@ -687,6 +667,24 @@ o
 }
 o
 {
+	Uuid %id{u4{15232584554998410798,17094653963734388608}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezParticleEmitterFactory"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleEmitterFactory_Burst"}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{3837825899114449083,17260179072659940356}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -705,24 +703,6 @@ o
 }
 o
 {
-	Uuid %id{u4{10655183741723044651,17520639311894089676}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezParticleEmitterFactory"}
-		s %PluginName{"ezEditorPluginParticle"}
-		VarArray %Properties{}
-		s %TypeName{"ezParticleEmitterFactory_Continuous"}
-		u3 %TypeSize{64}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{4450416161877696683,17940638046943818512}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -735,7 +715,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleTypeBillboardFactory"}
-		u3 %TypeSize{88}
+		u3 %TypeSize{152}
 		u3 %TypeVersion{1}
 	}
 }

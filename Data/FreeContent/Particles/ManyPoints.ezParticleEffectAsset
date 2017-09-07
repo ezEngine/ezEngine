@@ -22,7 +22,7 @@ AssetInfo
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4202708370900592777,4889946379708453151}}
-		u4 %Hash{8925387226574385209}
+		u4 %Hash{623077879388023400}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -63,6 +63,7 @@ o
 			Uuid{u4{3286599514650951604,5701907190014571043}}
 			Uuid{u4{87903812747687853,4953472027449769850}}
 		}
+		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{6958944036712542400,5371625411812571738}}
 		u3 %MaxParticles{20000}
 		s %Name{"Points"}
@@ -80,10 +81,9 @@ o
 	{
 		s %CountCurve{""}
 		Time %CurveDuration{d{0x0000000000002440}}
-		Time %Duration{d{0}}
-		Uuid %Interval{u4{14875015326826937726,5709322355694160483}}
-		u3 %MinSpawnCount{300}
-		u3 %SpawnCountRange{0}
+		u3 %SpawnCountPerSec{6000}
+		u3 %SpawnCountPerSecRange{0}
+		s %SpawnCountScaleParam{""}
 		Time %StartDelay{d{0}}
 	}
 }
@@ -155,22 +155,14 @@ o
 }
 o
 {
-	Uuid %id{u4{14875015326826937726,5709322355694160483}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0x9A9999999999A93F}}
-		f %Variance{0}
-	}
-}
-o
-{
 	Uuid %id{u4{11472136107055013277,5721090161652357995}}
 	s %t{"ezParticleEffectDescriptor"}
 	u3 %v{1}
 	p
 	{
+		b %AlwaysShared{0}
+		VarDict %ColorParameters{}
+		VarDict %FloatParameters{}
 		VarArray %ParticleSystems
 		{
 			Uuid{u4{2522753709472971402,5151888566929241422}}
@@ -215,7 +207,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEffectDescriptor"}
-		u3 %TypeSize{80}
+		u3 %TypeSize{304}
 		u3 %TypeVersion{1}
 	}
 }
@@ -431,7 +423,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleSystemDescriptor"}
-		u3 %TypeSize{432}
+		u3 %TypeSize{496}
 		u3 %TypeVersion{1}
 	}
 }
@@ -503,7 +495,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEmitterFactory_Continuous"}
-		u3 %TypeSize{64}
+		u3 %TypeSize{104}
 		u3 %TypeVersion{1}
 	}
 }

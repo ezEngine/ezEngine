@@ -526,7 +526,7 @@ AssetInfo
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7797394691505756328,5717546376087507856}}
-		u4 %Hash{930533680769084274}
+		u4 %Hash{7251300088873234957}
 		VarArray %Outputs{}
 		VarArray %References
 		{

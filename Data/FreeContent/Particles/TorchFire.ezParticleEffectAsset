@@ -35,28 +35,6 @@ o
 }
 o
 {
-	Uuid %id{u4{1754332386725804349,2115768429769496794}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0x000000000000E03F}}
-		f %Variance{0x14AEC73E}
-	}
-}
-o
-{
-	Uuid %id{u4{6764037370536836132,2494307862319336619}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0x9A9999999999A93F}}
-		f %Variance{0}
-	}
-}
-o
-{
 	Uuid %id{u4{15810735706753757857,2831075053279761263}}
 	s %t{"ezVarianceTypeFloat"}
 	u3 %v{1}
@@ -99,6 +77,7 @@ o
 			Uuid{u4{11834375503205841342,5331075031405506014}}
 			Uuid{u4{8838759807014156205,4898845845502597422}}
 		}
+		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{15738597742593802075,1879368186662908854}}
 		u3 %MaxParticles{100}
 		s %Name{"Fire"}
@@ -132,6 +111,7 @@ o
 		u1 %NumSpritesY{1}
 		s %RenderMode{"ezParticleTypeRenderMode::Blended"}
 		s %Texture{"{ 0c5ce0a7-7218-427d-9a9d-47ef5e9aa33f }"}
+		s %TintColorParam{""}
 	}
 }
 o
@@ -143,10 +123,9 @@ o
 	{
 		s %CountCurve{""}
 		Time %CurveDuration{d{0x0000000000002440}}
-		Time %Duration{d{0}}
-		Uuid %Interval{u4{1955941973366367615,4900901390787482487}}
-		u3 %MinSpawnCount{1}
-		u3 %SpawnCountRange{1}
+		u3 %SpawnCountPerSec{5}
+		u3 %SpawnCountPerSecRange{5}
+		s %SpawnCountScaleParam{""}
 		Time %StartDelay{d{0}}
 	}
 }
@@ -159,10 +138,9 @@ o
 	{
 		s %CountCurve{""}
 		Time %CurveDuration{d{0x0000000000002440}}
-		Time %Duration{d{0}}
-		Uuid %Interval{u4{11693098876233398030,14963514201041698286}}
-		u3 %MinSpawnCount{0}
-		u3 %SpawnCountRange{2}
+		u3 %SpawnCountPerSec{0}
+		u3 %SpawnCountPerSecRange{4}
+		s %SpawnCountScaleParam{""}
 		Time %StartDelay{d{0}}
 	}
 }
@@ -187,6 +165,7 @@ o
 		u1 %NumSpritesY{1}
 		s %RenderMode{"ezParticleTypeRenderMode::Blended"}
 		s %Texture{"{ 0c5ce0a7-7218-427d-9a9d-47ef5e9aa33f }"}
+		s %TintColorParam{""}
 	}
 }
 o
@@ -207,17 +186,6 @@ o
 	p
 	{
 		Uuid %DegreesPerSecond{u4{13723752037193028024,1296711883199888682}}
-	}
-}
-o
-{
-	Uuid %id{u4{1955941973366367615,4900901390787482487}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0x9A9999999999C93F}}
-		f %Variance{0x8FC2753E}
 	}
 }
 o
@@ -255,6 +223,7 @@ o
 			Uuid{u4{898329141506751407,5443976380636947239}}
 			Uuid{u4{17189177644814897044,5055924260133354596}}
 		}
+		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{7977792618928333193,7616445241697074208}}
 		u3 %MaxParticles{64}
 		s %Name{"Smoke"}
@@ -314,6 +283,7 @@ o
 		{
 			Uuid{u4{5832281712334348734,4918374988100116366}}
 		}
+		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{3569086305326755954,10409991635428791035}}
 		u3 %MaxParticles{64}
 		s %Name{"Lights"}
@@ -430,6 +400,8 @@ o
 	p
 	{
 		b %AlwaysShared{1}
+		VarDict %ColorParameters{}
+		VarDict %FloatParameters{}
 		VarArray %ParticleSystems
 		{
 			Uuid{u4{1721720655916899720,4647101664897225731}}
@@ -450,8 +422,11 @@ o
 	p
 	{
 		f %Intensity{0x0000003F}
+		s %IntensityScaleParam{""}
 		u3 %Percentage{100}
 		f %SizeFactor{0x0000803F}
+		s %SizeScaleParam{""}
+		s %TintColorParam{""}
 	}
 }
 o
@@ -465,6 +440,7 @@ o
 		u1 %NumSpritesY{6}
 		s %RenderMode{"ezParticleTypeRenderMode::Additive"}
 		s %Texture{"{ 4e992106-a0f2-4eea-907d-76e8e5eb1613 }"}
+		s %TintColorParam{""}
 	}
 }
 AssetInfo
@@ -478,7 +454,7 @@ AssetInfo
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{454749077023242116,5574305021158798414}}
-		u4 %Hash{9959103177897302553}
+		u4 %Hash{6375975842565291912}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -523,6 +499,7 @@ o
 			Uuid{u4{826175076407403436,5742553121147361499}}
 			Uuid{u4{15560175962401520056,5120821442611523350}}
 		}
+		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{2748521512290447935,7162096063204275631}}
 		u3 %MaxParticles{64}
 		s %Name{"Sparks"}
@@ -556,10 +533,9 @@ o
 	{
 		s %CountCurve{""}
 		Time %CurveDuration{d{0x0000000000002440}}
-		Time %Duration{d{0}}
-		Uuid %Interval{u4{1754332386725804349,2115768429769496794}}
-		u3 %MinSpawnCount{1}
-		u3 %SpawnCountRange{0}
+		u3 %SpawnCountPerSec{2}
+		u3 %SpawnCountPerSecRange{0}
+		s %SpawnCountScaleParam{""}
 		Time %StartDelay{d{0}}
 	}
 }
@@ -572,10 +548,9 @@ o
 	{
 		s %CountCurve{""}
 		Time %CurveDuration{d{0x0000000000002440}}
-		Time %Duration{d{0}}
-		Uuid %Interval{u4{6764037370536836132,2494307862319336619}}
-		u3 %MinSpawnCount{1}
-		u3 %SpawnCountRange{1}
+		u3 %SpawnCountPerSec{20}
+		u3 %SpawnCountPerSecRange{20}
+		s %SpawnCountScaleParam{""}
 		Time %StartDelay{d{0}}
 	}
 }
@@ -645,17 +620,6 @@ o
 		f %Variance{0x0000803E}
 	}
 }
-o
-{
-	Uuid %id{u4{11693098876233398030,14963514201041698286}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0x000000000000E03F}}
-		f %Variance{0x1F85EB3E}
-	}
-}
 }
 Types
 {
@@ -691,7 +655,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEffectDescriptor"}
-		u3 %TypeSize{80}
+		u3 %TypeSize{304}
 		u3 %TypeVersion{1}
 	}
 }
@@ -835,7 +799,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleTypeLightFactory"}
-		u3 %TypeSize{24}
+		u3 %TypeSize{216}
 		u3 %TypeVersion{1}
 	}
 }
@@ -979,7 +943,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleSystemDescriptor"}
-		u3 %TypeSize{432}
+		u3 %TypeSize{496}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1069,7 +1033,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEmitterFactory_Continuous"}
-		u3 %TypeSize{64}
+		u3 %TypeSize{104}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1087,7 +1051,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleTypeBillboardFactory"}
-		u3 %TypeSize{88}
+		u3 %TypeSize{152}
 		u3 %TypeVersion{1}
 	}
 }

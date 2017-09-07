@@ -22,7 +22,7 @@ AssetInfo
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4607189238494912230,4410921466201175968}}
-		u4 %Hash{13204753463458582826}
+		u4 %Hash{14550028722960567913}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -70,6 +70,8 @@ o
 	p
 	{
 		b %AlwaysShared{0}
+		VarDict %ColorParameters{}
+		VarDict %FloatParameters{}
 		VarArray %ParticleSystems
 		{
 			Uuid{u4{4640506145466473397,4929771257271492951}}
@@ -114,6 +116,7 @@ o
 			Uuid{u4{6151575721505504182,5411908325529261159}}
 			Uuid{u4{17615328122416346509,4794417773240945749}}
 		}
+		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{7452151145388359944,18222208979497433089}}
 		u3 %MaxParticles{100}
 		s %Name{"Steam"}
@@ -170,10 +173,9 @@ o
 	{
 		s %CountCurve{""}
 		Time %CurveDuration{d{0x0000000000002440}}
-		Time %Duration{d{0}}
-		Uuid %Interval{u4{9138365627732352440,12607326315049071735}}
-		u3 %MinSpawnCount{2}
-		u3 %SpawnCountRange{0}
+		u3 %SpawnCountPerSec{40}
+		u3 %SpawnCountPerSecRange{0}
+		s %SpawnCountScaleParam{""}
 		Time %StartDelay{d{0}}
 	}
 }
@@ -188,17 +190,7 @@ o
 		u1 %NumSpritesY{7}
 		s %RenderMode{"ezParticleTypeRenderMode::Additive"}
 		s %Texture{"{ 5960875e-fd79-4e1a-a7f6-8c084e7fba9b }"}
-	}
-}
-o
-{
-	Uuid %id{u4{9138365627732352440,12607326315049071735}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0x9A9999999999A93F}}
-		f %Variance{0xB81E053F}
+		s %TintColorParam{""}
 	}
 }
 o
@@ -258,7 +250,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEffectDescriptor"}
-		u3 %TypeSize{80}
+		u3 %TypeSize{304}
 		u3 %TypeVersion{1}
 	}
 }
@@ -528,7 +520,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleSystemDescriptor"}
-		u3 %TypeSize{432}
+		u3 %TypeSize{496}
 		u3 %TypeVersion{1}
 	}
 }
@@ -600,7 +592,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEmitterFactory_Continuous"}
-		u3 %TypeSize{64}
+		u3 %TypeSize{104}
 		u3 %TypeVersion{1}
 	}
 }
@@ -618,7 +610,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleTypeBillboardFactory"}
-		u3 %TypeSize{88}
+		u3 %TypeSize{152}
 		u3 %TypeVersion{1}
 	}
 }

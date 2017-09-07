@@ -1,18 +1,5 @@
 Objects
 {
-o
-{
-	Uuid %id{u4{7075420928361258674,4990898805690747048}}
-	s %t{"ezCurve1DAssetData"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Curves
-		{
-			Uuid{u4{9995267940946845589,5390321208925815361}}
-		}
-	}
-}
 AssetInfo
 {
 	Uuid %id{u4{9306794239008115238,1361693293401066669}}
@@ -24,9 +11,22 @@ AssetInfo
 		s %AssetType{"Curve1D"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9306794239008115238,1361693293401066669}}
-		u4 %Hash{14738448945484428760}
+		u4 %Hash{17441652505216675644}
 		VarArray %Outputs{}
 		VarArray %References{}
+	}
+}
+o
+{
+	Uuid %id{u4{7075420928361258674,4990898805690747048}}
+	s %t{"ezCurve1DAssetData"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Curves
+		{
+			Uuid{u4{9995267940946845589,5390321208925815361}}
+		}
 	}
 }
 o

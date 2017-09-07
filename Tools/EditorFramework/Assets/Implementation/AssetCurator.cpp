@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/Assets/AssetDocument.h>
@@ -390,7 +390,7 @@ void ezAssetCurator::TransformAllAssets(const char* szPlatform)
 
 void ezAssetCurator::ResaveAllAssets()
 {
-  ezProgressRange range("Transforming Assets", 1 + m_KnownAssets.GetCount(), true);
+  ezProgressRange range("Re-saving all Assets", 1 + m_KnownAssets.GetCount(), true);
 
   EZ_LOCK(m_CuratorMutex);
 

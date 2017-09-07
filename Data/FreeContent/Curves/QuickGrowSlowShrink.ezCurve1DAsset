@@ -15,22 +15,6 @@ o
 		}
 	}
 }
-AssetInfo
-{
-	Uuid %id{u4{10852273243049670007,11399943306498825183}}
-	s %t{"ezAssetDocumentInfo"}
-	u3 %v{1}
-	s %n{"Header"}
-	p
-	{
-		s %AssetType{"Curve1D"}
-		VarArray %Dependencies{}
-		Uuid %DocumentID{u4{10852273243049670007,11399943306498825183}}
-		u4 %Hash{11627550335417141969}
-		VarArray %Outputs{}
-		VarArray %References{}
-	}
-}
 o
 {
 	Uuid %id{u4{3264468146755176855,5245645977114829171}}
@@ -92,6 +76,22 @@ o
 		Vec2 %LeftTangent{f{0x0838BDBE,0x41FB1140}}
 		Vec2 %Point{f{0xC217D640,0x306EA3BE}}
 		Vec2 %RightTangent{f{0xE6D5C73E,0x3CD221B2}}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{10852273243049670007,11399943306498825183}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Curve1D"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{10852273243049670007,11399943306498825183}}
+		u4 %Hash{8947330569310608411}
+		VarArray %Outputs{}
+		VarArray %References{}
 	}
 }
 }
