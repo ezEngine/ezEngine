@@ -28,6 +28,8 @@ ezParticleBehaviorFactory_Raycast;Raycast
 ezParticleBehaviorFactory_FadeOut;Fade Out
 ezParticleEmitterFactory_Continuous;Continuous
 ezParticleEmitterFactory_OnEvent;On Event
+ezParticleEmitterFactory_Burst;Burst
+
 ezParticleInitializerFactory_Life;Life
 ezParticleInitializerFactory_VelocityCone;Velocity Cone
 ezParticleComponent;Particle

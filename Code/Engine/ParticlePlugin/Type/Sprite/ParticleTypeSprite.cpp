@@ -54,8 +54,8 @@ void ezParticleTypeSpriteFactory::CopyTypeProperties(ezParticleType* pObject) co
   pType->m_RotationAxis = m_RotationAxis;
   pType->m_MaxDeviation = m_MaxDeviation;
   pType->m_hTexture.Invalidate();
-  pType->m_uiNumSpritesY = m_uiNumSpritesX;
-  pType->m_uiNumSpritesX = m_uiNumSpritesY;
+  pType->m_uiNumSpritesX = m_uiNumSpritesX;
+  pType->m_uiNumSpritesY = m_uiNumSpritesY;
 
   if (!m_sTexture.IsEmpty())
     pType->m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sTexture);

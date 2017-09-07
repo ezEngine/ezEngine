@@ -119,6 +119,30 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
   CreateStreamZeroInitializers();
 }
 
+
+void ezParticleSystemInstance::Finalize()
+{
+  for (auto& pEmitter : m_Emitters)
+  {
+    pEmitter->OnFinalize();
+  }
+
+  for (auto& pInitializer : m_Initializers)
+  {
+    pInitializer->OnFinalize();
+  }
+
+  for (auto& pBehavior : m_Behaviors)
+  {
+    pBehavior->OnFinalize();
+  }
+
+  for (auto& pType : m_Types)
+  {
+    pType->OnFinalize();
+  }
+}
+
 void ezParticleSystemInstance::CreateStreamProcessors(const ezParticleSystemDescriptor* pTemplate)
 {
   // all spawners get cleared, so clear this as well

@@ -27,6 +27,9 @@ public:
     OnReset();
   }
 
+  /// \brief Called after everything is set up.
+  virtual void OnFinalize() { }
+
   ezParticleSystemInstance* GetOwnerSystem()
   {
     return m_pOwnerSystem;

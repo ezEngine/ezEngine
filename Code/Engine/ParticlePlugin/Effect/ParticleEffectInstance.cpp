@@ -231,13 +231,6 @@ void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTim
     }
   }
 
-  for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
-  {
-    m_ParticleSystems[i]->ConfigureFromTemplate(systems[i]);
-    m_ParticleSystems[i]->SetTransform(m_Transform);
-    m_ParticleSystems[i]->SetEmitterEnabled(m_bEmitterEnabled);
-  }
-
   // parameters
   {
     m_FloatParameters.Clear();
@@ -253,6 +246,15 @@ void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTim
       SetParameter(ezTempHashedString::ComputeHash(it.Key().GetData()), it.Value());
     }
   }
+
+  for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
+  {
+    m_ParticleSystems[i]->ConfigureFromTemplate(systems[i]);
+    m_ParticleSystems[i]->SetTransform(m_Transform);
+    m_ParticleSystems[i]->SetEmitterEnabled(m_bEmitterEnabled);
+    m_ParticleSystems[i]->Finalize();
+  }
+
 }
 
 bool ezParticleEffectInstance::Update(const ezTime& tDiff)

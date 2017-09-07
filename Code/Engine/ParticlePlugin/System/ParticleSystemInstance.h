@@ -27,6 +27,7 @@ public:
   bool HasActiveParticles() const;
 
   void ConfigureFromTemplate(const ezParticleSystemDescriptor* pTemplate);
+  void Finalize();
 
   void ReinitializeStreamProcessors(const ezParticleSystemDescriptor* pTemplate);
 

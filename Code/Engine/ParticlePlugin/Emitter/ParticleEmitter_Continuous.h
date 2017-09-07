@@ -62,6 +62,7 @@ public:
 
 protected:
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override {}
+  virtual void OnFinalize() override;
 
   virtual ezParticleEmitterState IsFinished() override;
   virtual ezUInt32 ComputeSpawnCount(const ezTime& tDiff) override;

@@ -165,6 +165,13 @@ void ezParticleEmitter_Continuous::AfterPropertiesConfigured(bool bFirstTime)
 }
 
 
+void ezParticleEmitter_Continuous::OnFinalize()
+{
+  m_RunningTime.SetZero();
+  m_NextSpawn.SetZero();
+  m_CountCurveTime.SetZero();
+}
+
 ezParticleEmitterState ezParticleEmitter_Continuous::IsFinished()
 {
   if (m_Duration == ezTime())
