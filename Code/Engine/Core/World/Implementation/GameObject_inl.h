@@ -156,9 +156,10 @@ EZ_ALWAYS_INLINE const ezWorld* ezGameObject::GetWorld() const
   return m_pWorld;
 }
 
+
 EZ_ALWAYS_INLINE void ezGameObject::SetLocalPosition(ezVec3 position)
 {
-  m_pTransformationData->m_localPosition = ezSimdConversion::ToVec3(position);
+  SetLocalPosition(ezSimdConversion::ToVec3(position));
 }
 
 EZ_ALWAYS_INLINE ezVec3 ezGameObject::GetLocalPosition() const
@@ -166,9 +167,10 @@ EZ_ALWAYS_INLINE ezVec3 ezGameObject::GetLocalPosition() const
   return ezSimdConversion::ToVec3(m_pTransformationData->m_localPosition);
 }
 
+
 EZ_ALWAYS_INLINE void ezGameObject::SetLocalRotation(ezQuat rotation)
 {
-  m_pTransformationData->m_localRotation = ezSimdConversion::ToQuat(rotation);
+  SetLocalRotation(ezSimdConversion::ToQuat(rotation));
 }
 
 EZ_ALWAYS_INLINE ezQuat ezGameObject::GetLocalRotation() const
@@ -176,9 +178,10 @@ EZ_ALWAYS_INLINE ezQuat ezGameObject::GetLocalRotation() const
   return ezSimdConversion::ToQuat(m_pTransformationData->m_localRotation);
 }
 
+
 EZ_ALWAYS_INLINE void ezGameObject::SetLocalScaling(ezVec3 scaling)
 {
-  m_pTransformationData->m_localScaling = ezSimdConversion::ToVec4(scaling.GetAsVec4(m_pTransformationData->m_localScaling.w()));
+  SetLocalScaling(ezSimdConversion::ToVec3(scaling));
 }
 
 EZ_ALWAYS_INLINE ezVec3 ezGameObject::GetLocalScaling() const
@@ -186,9 +189,10 @@ EZ_ALWAYS_INLINE ezVec3 ezGameObject::GetLocalScaling() const
   return ezSimdConversion::ToVec3(m_pTransformationData->m_localScaling);
 }
 
+
 EZ_ALWAYS_INLINE void ezGameObject::SetLocalUniformScaling(float scaling)
 {
-  m_pTransformationData->m_localScaling.SetW(scaling);
+  SetLocalUniformScaling(ezSimdFloat(scaling));
 }
 
 EZ_ALWAYS_INLINE float ezGameObject::GetLocalUniformScaling() const
@@ -196,11 +200,10 @@ EZ_ALWAYS_INLINE float ezGameObject::GetLocalUniformScaling() const
   return m_pTransformationData->m_localScaling.w();
 }
 
+
 EZ_ALWAYS_INLINE void ezGameObject::SetGlobalPosition(const ezVec3& position)
 {
-  m_pTransformationData->m_globalTransform.m_Position = ezSimdConversion::ToVec3(position);
-
-  m_pTransformationData->UpdateLocalTransform();
+  SetGlobalPosition(ezSimdConversion::ToVec3(position));
 }
 
 EZ_ALWAYS_INLINE ezVec3 ezGameObject::GetGlobalPosition() const
@@ -208,11 +211,10 @@ EZ_ALWAYS_INLINE ezVec3 ezGameObject::GetGlobalPosition() const
   return ezSimdConversion::ToVec3(m_pTransformationData->m_globalTransform.m_Position);
 }
 
+
 EZ_ALWAYS_INLINE void ezGameObject::SetGlobalRotation(const ezQuat rotation)
 {
-  m_pTransformationData->m_globalTransform.m_Rotation = ezSimdConversion::ToQuat(rotation);
-
-  m_pTransformationData->UpdateLocalTransform();
+  SetGlobalRotation(ezSimdConversion::ToQuat(rotation));
 }
 
 EZ_ALWAYS_INLINE ezQuat ezGameObject::GetGlobalRotation() const
@@ -220,11 +222,10 @@ EZ_ALWAYS_INLINE ezQuat ezGameObject::GetGlobalRotation() const
   return ezSimdConversion::ToQuat(m_pTransformationData->m_globalTransform.m_Rotation);
 }
 
+
 EZ_ALWAYS_INLINE void ezGameObject::SetGlobalScaling(const ezVec3 scaling)
 {
-  m_pTransformationData->m_globalTransform.m_Scale = ezSimdConversion::ToVec3(scaling);
-
-  m_pTransformationData->UpdateLocalTransform();
+  SetGlobalScaling(ezSimdConversion::ToVec3(scaling));
 }
 
 EZ_ALWAYS_INLINE ezVec3 ezGameObject::GetGlobalScaling() const
@@ -232,18 +233,10 @@ EZ_ALWAYS_INLINE ezVec3 ezGameObject::GetGlobalScaling() const
   return ezSimdConversion::ToVec3(m_pTransformationData->m_globalTransform.m_Scale);
 }
 
+
 EZ_ALWAYS_INLINE void ezGameObject::SetGlobalTransform(const ezTransform& transform)
 {
-  m_pTransformationData->m_globalTransform = ezSimdConversion::ToTransform(transform);
-
-  m_pTransformationData->UpdateLocalTransform();
-}
-
-EZ_ALWAYS_INLINE void ezGameObject::SetGlobalTransform(const ezSimdTransform& transform)
-{
-  m_pTransformationData->m_globalTransform = transform;
-
-  m_pTransformationData->UpdateLocalTransform();
+  SetGlobalTransform(ezSimdConversion::ToTransform(transform));
 }
 
 EZ_ALWAYS_INLINE ezTransform ezGameObject::GetGlobalTransform() const
@@ -251,10 +244,144 @@ EZ_ALWAYS_INLINE ezTransform ezGameObject::GetGlobalTransform() const
   return ezSimdConversion::ToTransform(m_pTransformationData->m_globalTransform);
 }
 
+
+EZ_ALWAYS_INLINE void ezGameObject::SetLocalPosition(const ezSimdVec4f& position)
+{
+  m_pTransformationData->m_localPosition = position;
+
+  if (IsStatic())
+  {
+    UpdateGlobalTransformAndBounds();
+  }
+}
+
+EZ_ALWAYS_INLINE const ezSimdVec4f& ezGameObject::GetLocalPositionSimd() const
+{
+  return m_pTransformationData->m_localPosition;
+}
+
+
+EZ_ALWAYS_INLINE void ezGameObject::SetLocalRotation(const ezSimdQuat& rotation)
+{
+  m_pTransformationData->m_localRotation = rotation;
+
+  if (IsStatic())
+  {
+    UpdateGlobalTransformAndBounds();
+  }
+}
+
+EZ_ALWAYS_INLINE const ezSimdQuat& ezGameObject::GetLocalRotationSimd() const
+{
+  return m_pTransformationData->m_localRotation;
+}
+
+
+EZ_ALWAYS_INLINE void ezGameObject::SetLocalScaling(const ezSimdVec4f& scaling)
+{
+  ezSimdFloat uniformScale = m_pTransformationData->m_localScaling.w();
+  m_pTransformationData->m_localScaling = scaling;
+  m_pTransformationData->m_localScaling.SetW(uniformScale);
+
+  if (IsStatic())
+  {
+    UpdateGlobalTransformAndBounds();
+  }
+}
+
+EZ_ALWAYS_INLINE const ezSimdVec4f& ezGameObject::GetLocalScalingSimd() const
+{
+  return m_pTransformationData->m_localScaling;
+}
+
+
+EZ_ALWAYS_INLINE void ezGameObject::SetLocalUniformScaling(const ezSimdFloat& scaling)
+{
+  m_pTransformationData->m_localScaling.SetW(scaling);
+
+  if (IsStatic())
+  {
+    UpdateGlobalTransformAndBounds();
+  }
+}
+
+EZ_ALWAYS_INLINE ezSimdFloat ezGameObject::GetLocalUniformScalingSimd() const
+{
+  return m_pTransformationData->m_localScaling.w();
+}
+
+
+EZ_ALWAYS_INLINE void ezGameObject::SetGlobalPosition(const ezSimdVec4f& position)
+{
+  m_pTransformationData->m_globalTransform.m_Position = position;
+
+  m_pTransformationData->UpdateLocalTransform();
+
+  if (IsStatic())
+  {
+    m_pTransformationData->UpdateGlobalBounds();
+  }
+}
+
+EZ_ALWAYS_INLINE const ezSimdVec4f& ezGameObject::GetGlobalPositionSimd() const
+{
+  return m_pTransformationData->m_globalTransform.m_Position;
+}
+
+
+EZ_ALWAYS_INLINE void ezGameObject::SetGlobalRotation(const ezSimdQuat& rotation)
+{
+  m_pTransformationData->m_globalTransform.m_Rotation = rotation;
+
+  m_pTransformationData->UpdateLocalTransform();
+
+  if (IsStatic())
+  {
+    m_pTransformationData->UpdateGlobalBounds();
+  }
+}
+
+EZ_ALWAYS_INLINE const ezSimdQuat& ezGameObject::GetGlobalRotationSimd() const
+{
+  return m_pTransformationData->m_globalTransform.m_Rotation;
+}
+
+
+EZ_ALWAYS_INLINE void ezGameObject::SetGlobalScaling(const ezSimdVec4f& scaling)
+{
+  m_pTransformationData->m_globalTransform.m_Scale = scaling;
+
+  m_pTransformationData->UpdateLocalTransform();
+
+  if (IsStatic())
+  {
+    m_pTransformationData->UpdateGlobalBounds();
+  }
+}
+
+EZ_ALWAYS_INLINE const ezSimdVec4f& ezGameObject::GetGlobalScalingSimd() const
+{
+  return m_pTransformationData->m_globalTransform.m_Scale;
+}
+
+
+EZ_ALWAYS_INLINE void ezGameObject::SetGlobalTransform(const ezSimdTransform& transform)
+{
+  m_pTransformationData->m_globalTransform = transform;
+
+  m_pTransformationData->UpdateLocalTransform();
+
+  if (IsStatic())
+  {
+    m_pTransformationData->UpdateGlobalBounds();
+  }
+}
+
 EZ_ALWAYS_INLINE const ezSimdTransform& ezGameObject::GetGlobalTransformSimd() const
 {
   return m_pTransformationData->m_globalTransform;
 }
+
 
 EZ_ALWAYS_INLINE void ezGameObject::SetVelocity(const ezVec3& vVelocity)
 {

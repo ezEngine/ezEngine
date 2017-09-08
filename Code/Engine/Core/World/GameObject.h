@@ -193,12 +193,35 @@ public:
   void SetGlobalScaling(const ezVec3 scaling);
   ezVec3 GetGlobalScaling() const;
 
-  /// \brief Prefer the SIMD variant since it does not involve a decomposition.
   void SetGlobalTransform(const ezTransform& transform);
-  void SetGlobalTransform(const ezSimdTransform& transform);
   ezTransform GetGlobalTransform() const;
+
+  // Simd variants of above methods
+  void SetLocalPosition(const ezSimdVec4f& position);
+  const ezSimdVec4f& GetLocalPositionSimd() const;
+
+  void SetLocalRotation(const ezSimdQuat& rotation);
+  const ezSimdQuat& GetLocalRotationSimd() const;
+
+  void SetLocalScaling(const ezSimdVec4f& scaling);
+  const ezSimdVec4f& GetLocalScalingSimd() const;
+
+  void SetLocalUniformScaling(const ezSimdFloat& scaling);
+  ezSimdFloat GetLocalUniformScalingSimd() const;
+
+  void SetGlobalPosition(const ezSimdVec4f& position);
+  const ezSimdVec4f& GetGlobalPositionSimd() const;
+
+  void SetGlobalRotation(const ezSimdQuat& rotation);
+  const ezSimdQuat& GetGlobalRotationSimd() const;
+
+  void SetGlobalScaling(const ezSimdVec4f& scaling);
+  const ezSimdVec4f& GetGlobalScalingSimd() const;
+
+  void SetGlobalTransform(const ezSimdTransform& transform);
   const ezSimdTransform& GetGlobalTransformSimd() const;
 
+  // Local axis
   ezVec3 GetDirForwards() const;
   ezVec3 GetDirRight() const;
   ezVec3 GetDirUp() const;
@@ -261,11 +284,8 @@ public:
   bool SendMessageRecursive(ezMessage& msg) const;
 
 
-  /// \brief Queues the message for the given phase and processes it later in that phase.
-  void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType) const;
-
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
-  void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const;
+  void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
 
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
   void PostMessageRecursive(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;

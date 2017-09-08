@@ -140,8 +140,9 @@ namespace ezInternal
 
         struct
         {
-          ezUInt64 m_uiReceiverComponent : 63;
+          ezUInt64 m_uiReceiverComponent : 62;
           ezUInt64 m_uiReceiverIsComponent : 1;
+          ezUInt64 m_uiRecursive : 1;
         };
 
         ezUInt64 m_uiReceiverData;
@@ -153,8 +154,6 @@ namespace ezInternal
     typedef ezMessageQueue<QueuedMsgMetaData, ezLocalAllocatorWrapper> MessageQueue;
     mutable MessageQueue m_MessageQueues[ezObjectMsgQueueType::COUNT];
     mutable MessageQueue m_TimedMessageQueues[ezObjectMsgQueueType::COUNT];
-    mutable MessageQueue m_MessageQueuesRecursive[ezObjectMsgQueueType::COUNT];
-    mutable MessageQueue m_TimedMessageQueuesRecursive[ezObjectMsgQueueType::COUNT];
 
     ezThreadID m_WriteThreadID;
     ezInt32 m_iWriteCounter;

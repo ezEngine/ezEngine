@@ -1226,7 +1226,7 @@ void ezSceneDocument::DetermineNodeName(const ezDocumentObject* pObject, const e
   if (bHasChildren)
     out_Result = "Group";
   else
-    out_Result = "Entity";
+    out_Result = "Object";
 }
 
 

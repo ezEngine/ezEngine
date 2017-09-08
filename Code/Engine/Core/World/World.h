@@ -160,11 +160,8 @@ public:
   /// \brief Sends a message to all components of the receiverObject and all its children.
   void SendMessageRecursive(const ezGameObjectHandle& receiverObject, ezMessage& msg);
 
-  /// \brief Queues the message for the given phase and send it later in that phase to the receiverObject.
-  void PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, ezObjectMsgQueueType::Enum queueType) const;
-
   /// \brief Queues the message for the given phase. The message is send to the receiverObject after the given delay in the corresponding phase.
-  void PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const;
+  void PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
 
   /// \brief Queues the message for the given phase. The message is send to the receiverObject and all its children after the given delay in the corresponding phase.
   void PostMessageRecursive(const ezGameObjectHandle& receiverObject, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
@@ -172,11 +169,8 @@ public:
   /// \brief Sends a message to the component.
   void SendMessage(const ezComponentHandle& receiverComponent, ezMessage& msg);
 
-  /// \brief Queues the message for the given phase and send it later in that phase to the receiverComponent.
-  void PostMessage(const ezComponentHandle& receiverComponent, ezMessage& msg, ezObjectMsgQueueType::Enum queueType) const;
-
   /// \brief Queues the message for the given phase. The message is send to the receiverComponent after the given delay in the corresponding phase.
-  void PostMessage(const ezComponentHandle& receiverComponent, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const;
+  void PostMessage(const ezComponentHandle& receiverComponent, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
 
   ///@}
 
@@ -274,8 +268,8 @@ private:
   void SetObjectGlobalKey(ezGameObject* pObject, const ezHashedString& sGlobalKey);
   const char* GetObjectGlobalKey(const ezGameObject* pObject) const;
 
+  void PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const;
   void ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::Entry& entry);
-  void ProcessQueuedMessageRecursive(const ezInternal::WorldData::MessageQueue::Entry& entry);
   void ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType);
 
   ezResult RegisterUpdateFunction(const ezWorldModule::UpdateFunctionDesc& desc);

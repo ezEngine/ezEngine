@@ -118,25 +118,7 @@ WorldData::~WorldData()
     }
 
     {
-      MessageQueue& queue = m_MessageQueuesRecursive[i];
-
-      // The messages in this queue are allocated through a frame allocator and thus mustn't (and don't need to be) deallocated
-      queue.Clear();
-    }
-
-    {
       MessageQueue& queue = m_TimedMessageQueues[i];
-      while (!queue.IsEmpty())
-      {
-        MessageQueue::Entry& entry = queue.Peek();
-        EZ_DELETE(&m_Allocator, entry.m_pMessage);
-
-        queue.Dequeue();
-      }
-    }
-
-    {
-      MessageQueue& queue = m_TimedMessageQueuesRecursive[i];
       while (!queue.IsEmpty())
       {
         MessageQueue::Entry& entry = queue.Peek();

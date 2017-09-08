@@ -203,10 +203,11 @@ namespace
     ezMat4 lookAt; lookAt.SetLookAtMatrix(position, position + dirForwards, dirUp);
     ezMat4 scaleMat; scaleMat.SetScalingMatrix(ezVec3(scale.y, -scale.z, scale.x));
 
+    const bool bNoFade = pDecalRenderData->m_InnerFadeAngle == ezAngle::Radian(0.0f) && pDecalRenderData->m_OuterFadeAngle == ezAngle::Radian(0.0f);
     const float fCosInner = ezMath::Cos(pDecalRenderData->m_InnerFadeAngle);
     const float fCosOuter = ezMath::Cos(pDecalRenderData->m_OuterFadeAngle);
-    const float fFadeParamScale = 1.0f / ezMath::Max(0.001f, (fCosInner - fCosOuter));
-    const float fFadeParamOffset = -fCosOuter * fFadeParamScale;
+    const float fFadeParamScale = bNoFade ? 0.0f : (1.0f / ezMath::Max(0.001f, (fCosInner - fCosOuter)));
+    const float fFadeParamOffset = bNoFade ? 1.0f : (-fCosOuter * fFadeParamScale);
 
     perDecalData.worldToDecalMatrix = scaleMat * lookAt;
     perDecalData.color = pDecalRenderData->m_Color;

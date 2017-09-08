@@ -302,11 +302,6 @@ void ezGameObject::FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPt
   m_Components[uiIndex] = pNewPtr;
 }
 
-void ezGameObject::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType) const
-{
-  m_pWorld->PostMessage(GetHandle(), msg, queueType);
-}
-
 void ezGameObject::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
 {
   m_pWorld->PostMessage(GetHandle(), msg, queueType, delay);

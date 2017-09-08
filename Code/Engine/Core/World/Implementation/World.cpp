@@ -260,61 +260,27 @@ const ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pRtti) 
   return nullptr;
 }
 
-void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, ezObjectMsgQueueType::Enum queueType) const
+void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const
 {
   // This method is allowed to be called from multiple threads.
 
   QueuedMsgMetaData metaData;
   metaData.m_uiReceiverObject = receiverObject.m_InternalId.m_Data;
-
-  ezMessage* pMsgCopy = msg.Clone(m_Data.m_StackAllocator.GetCurrentAllocator());
-  m_Data.m_MessageQueues[queueType].Enqueue(pMsgCopy, metaData);
-}
-
-void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
-{
-  // This method is allowed to be called from multiple threads.
-
-  QueuedMsgMetaData metaData;
-  metaData.m_uiReceiverObject = receiverObject.m_InternalId.m_Data;
-  metaData.m_Due = m_Data.m_Clock.GetAccumulatedTime() + delay;
-
-  ezMessage* pMsgCopy = msg.Clone(&m_Data.m_Allocator);
-  m_Data.m_TimedMessageQueues[queueType].Enqueue(pMsgCopy, metaData);
-}
-
-void ezWorld::PostMessageRecursive(const ezGameObjectHandle& receiverObject, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
-{
-  // This method is allowed to be called from multiple threads.
-
-
-  QueuedMsgMetaData metaData;
-  metaData.m_uiReceiverObject = receiverObject.m_InternalId.m_Data;
+  metaData.m_uiReceiverIsComponent = false;
+  metaData.m_uiRecursive = bRecursive;
 
   if (delay.GetSeconds() > 0.0)
   {
     ezMessage* pMsgCopy = msg.Clone(&m_Data.m_Allocator);
 
     metaData.m_Due = m_Data.m_Clock.GetAccumulatedTime() + delay;
-    m_Data.m_TimedMessageQueuesRecursive[queueType].Enqueue(pMsgCopy, metaData);
+    m_Data.m_TimedMessageQueues[queueType].Enqueue(pMsgCopy, metaData);
   }
   else
   {
     ezMessage* pMsgCopy = msg.Clone(m_Data.m_StackAllocator.GetCurrentAllocator());
-    m_Data.m_MessageQueuesRecursive[queueType].Enqueue(pMsgCopy, metaData);
+    m_Data.m_MessageQueues[queueType].Enqueue(pMsgCopy, metaData);
   }
-}
-
-void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, ezMessage& msg, ezObjectMsgQueueType::Enum queueType) const
-{
-  // This method is allowed to be called from multiple threads.
-
-  QueuedMsgMetaData metaData;
-  metaData.m_uiReceiverComponent = *reinterpret_cast<const ezUInt64*>(&receiverComponent.m_InternalId);
-  metaData.m_uiReceiverIsComponent = 1;
-
-  ezMessage* pMsgCopy = msg.Clone(m_Data.m_StackAllocator.GetCurrentAllocator());
-  m_Data.m_MessageQueues[queueType].Enqueue(pMsgCopy, metaData);
 }
 
 void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
@@ -323,11 +289,23 @@ void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, ezMessage&
 
   QueuedMsgMetaData metaData;
   metaData.m_uiReceiverComponent = *reinterpret_cast<const ezUInt64*>(&receiverComponent.m_InternalId);
-  metaData.m_uiReceiverIsComponent = 1;
-  metaData.m_Due = m_Data.m_Clock.GetAccumulatedTime() + delay;
+  EZ_ASSERT_DEBUG((metaData.m_uiReceiverData >> 62) == 0, "Upper 2 bits in component id must not be set");
 
-  ezMessage* pMsgCopy = msg.Clone(&m_Data.m_Allocator);
-  m_Data.m_TimedMessageQueues[queueType].Enqueue(pMsgCopy, metaData);
+  metaData.m_uiReceiverIsComponent = true;
+  metaData.m_uiRecursive = false;
+
+  if (delay.GetSeconds() > 0.0)
+  {
+    ezMessage* pMsgCopy = msg.Clone(&m_Data.m_Allocator);
+
+    metaData.m_Due = m_Data.m_Clock.GetAccumulatedTime() + delay;
+    m_Data.m_TimedMessageQueues[queueType].Enqueue(pMsgCopy, metaData);
+  }
+  else
+  {
+    ezMessage* pMsgCopy = msg.Clone(m_Data.m_StackAllocator.GetCurrentAllocator());
+    m_Data.m_MessageQueues[queueType].Enqueue(pMsgCopy, metaData);
+  }
 }
 
 void ezWorld::Update()
@@ -516,7 +494,6 @@ void ezWorld::SetObjectGlobalKey(ezGameObject* pObject, const ezHashedString& sG
   }
 }
 
-
 const char* ezWorld::GetObjectGlobalKey(const ezGameObject* pObject) const
 {
   const ezUInt32 uiId = pObject->m_InternalId.m_Data;
@@ -559,7 +536,14 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
     ezGameObject* pReceiverObject = nullptr;
     if (TryGetObject(hObject, pReceiverObject))
     {
-      pReceiverObject->SendMessage(*entry.m_pMessage);
+      if (entry.m_MetaData.m_uiRecursive)
+      {
+        pReceiverObject->SendMessageRecursive(*entry.m_pMessage);
+      }
+      else
+      {
+        pReceiverObject->SendMessage(*entry.m_pMessage);
+      }
     }
     else
     {
@@ -567,30 +551,6 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
       if (entry.m_pMessage->GetDebugMessageRouting())
       {
         ezLog::Warning("ezWorld::ProcessQueuedMessage: Receiver ezGameObject for message of type '{0}' does not exist anymore.", entry.m_pMessage->GetId());
-      }
-#endif
-    }
-  }
-}
-
-void ezWorld::ProcessQueuedMessageRecursive(const ezInternal::WorldData::MessageQueue::Entry& entry)
-{
-  EZ_ASSERT_DEBUG(entry.m_MetaData.m_uiReceiverIsComponent == 0, "Component messages cannot be sent recursively");
-
-  {
-    ezGameObjectHandle hObject(ezGameObjectId(entry.m_MetaData.m_uiReceiverObject));
-
-    ezGameObject* pReceiverObject = nullptr;
-    if (TryGetObject(hObject, pReceiverObject))
-    {
-      pReceiverObject->SendMessageRecursive(*entry.m_pMessage);
-    }
-    else
-    {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-      if (entry.m_pMessage->GetDebugMessageRouting())
-      {
-        ezLog::Warning("ezWorld::ProcessQueuedMessageRecursive: Receiver ezGameObject for message of type '{0}' does not exist anymore.", entry.m_pMessage->GetId());
       }
 #endif
     }
@@ -614,8 +574,8 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
       if (a.m_pMessage->GetId() != b.m_pMessage->GetId())
         return a.m_pMessage->GetId() < b.m_pMessage->GetId();
 
-      if (a.m_MetaData.m_uiReceiverData != b.m_MetaData.m_uiReceiverData)
-        return a.m_MetaData.m_uiReceiverData < b.m_MetaData.m_uiReceiverData;
+      if (a.m_MetaData.m_uiReceiverComponent != b.m_MetaData.m_uiReceiverComponent)
+        return a.m_MetaData.m_uiReceiverComponent < b.m_MetaData.m_uiReceiverComponent;
 
       return a.m_pMessage->GetHash() < b.m_pMessage->GetHash();
     }
@@ -629,21 +589,6 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
     for (ezUInt32 i = 0; i < queue.GetCount(); ++i)
     {
       ProcessQueuedMessage(queue[i]);
-
-      // no need to deallocate these messages, they are allocated through a frame allocator
-    }
-
-    queue.Clear();
-  }
-
-  // regular messages recursive
-  {
-    ezInternal::WorldData::MessageQueue& queue = m_Data.m_MessageQueuesRecursive[queueType];
-    queue.Sort(MessageComparer());
-
-    for (ezUInt32 i = 0; i < queue.GetCount(); ++i)
-    {
-      ProcessQueuedMessageRecursive(queue[i]);
 
       // no need to deallocate these messages, they are allocated through a frame allocator
     }
@@ -665,27 +610,6 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
         break;
 
       ProcessQueuedMessage(entry);
-
-      EZ_DELETE(&m_Data.m_Allocator, entry.m_pMessage);
-
-      queue.Dequeue();
-    }
-  }
-
-  // timed messages recursive
-  {
-    ezInternal::WorldData::MessageQueue& queue = m_Data.m_TimedMessageQueuesRecursive[queueType];
-    queue.Sort(MessageComparer());
-
-    const ezTime now = m_Data.m_Clock.GetAccumulatedTime();
-
-    while (!queue.IsEmpty())
-    {
-      auto& entry = queue.Peek();
-      if (entry.m_MetaData.m_Due > now)
-        break;
-
-      ProcessQueuedMessageRecursive(entry);
 
       EZ_DELETE(&m_Data.m_Allocator, entry.m_pMessage);
 
