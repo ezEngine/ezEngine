@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Memory/BlockStorage.h>
 #include <Foundation/Memory/LargeBlockAllocator.h>
@@ -221,6 +221,24 @@ struct EZ_CORE_DLL ezOnComponentFinishedAction
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezOnComponentFinishedAction);
+
+/// \brief Same as ezOnComponentFinishedAction, but additionally includes 'Restart'
+struct EZ_CORE_DLL ezOnComponentFinishedAction2
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    None,
+    DeleteComponent,
+    DeleteGameObject,
+    Restart,
+
+    Default = None
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezOnComponentFinishedAction2);
 
 /// \brief Used as return value of visitor functions to define whether calling function should stop or continue visiting
 struct ezVisitorExecution

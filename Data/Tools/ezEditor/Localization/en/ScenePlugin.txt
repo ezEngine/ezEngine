@@ -127,6 +127,10 @@ ezSurfaceInteractionAlignment::ReverseReflectedDirection;Reverse Reflected Direc
 ezOnComponentFinishedAction::None;None
 ezOnComponentFinishedAction::DeleteComponent;Delete Component
 ezOnComponentFinishedAction::DeleteGameObject;Delete Object
+ezOnComponentFinishedAction2::None;None
+ezOnComponentFinishedAction2::DeleteComponent;Delete Component
+ezOnComponentFinishedAction2::DeleteGameObject;Delete Object
+ezOnComponentFinishedAction2::Restart;Restart
 ezVisualScriptComponent;Visual Script
 ezAreaDamageComponent;Area Damage
 ezLogicOperator::Equal;=

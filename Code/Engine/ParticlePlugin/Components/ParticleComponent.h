@@ -71,7 +71,7 @@ public:
   ezString m_sSharedInstanceName;
 
   bool m_bSpawnAtStart;
-  bool m_bAutoRestart;
+  ezEnum<ezOnComponentFinishedAction2> m_OnFinishedAction;
   ezTime m_MinRestartDelay;
   ezTime m_RestartDelayRange;
 

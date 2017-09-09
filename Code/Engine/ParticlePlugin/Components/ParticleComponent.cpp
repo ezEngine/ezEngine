@@ -25,13 +25,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 2)
+EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 3)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Effect", GetParticleEffectFile, SetParticleEffectFile)->AddAttributes(new ezAssetBrowserAttribute("Particle Effect")),
     EZ_MEMBER_PROPERTY("SpawnAtStart", m_bSpawnAtStart)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("AutoRestart", m_bAutoRestart),
+    EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction2, m_OnFinishedAction),
     EZ_MEMBER_PROPERTY("MinRestartDelay", m_MinRestartDelay),
     EZ_MEMBER_PROPERTY("RestartDelayRange", m_RestartDelayRange),
     EZ_MEMBER_PROPERTY("RandomSeed", m_uiRandomSeed),
@@ -60,7 +60,6 @@ ezParticleComponent::ezParticleComponent()
 {
   m_uiRandomSeed = 0;
   m_bSpawnAtStart = true;
-  m_bAutoRestart = false;
 }
 
 ezParticleComponent::~ezParticleComponent()
@@ -80,7 +79,13 @@ void ezParticleComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_hEffectResource;
   s << m_bSpawnAtStart;
-  s << m_bAutoRestart;
+
+  // Version 1
+  {
+    bool bAutoRestart = false;
+    s << bAutoRestart;
+  }
+
   s << m_MinRestartDelay;
   s << m_RestartDelayRange;
   s << m_RestartTime;
@@ -101,6 +106,9 @@ void ezParticleComponent::SerializeComponent(ezWorldWriter& stream) const
     s << m_ColorParams[i].m_Value;
   }
 
+  // Version 3
+  s << m_OnFinishedAction;
+
   /// \todo store effect state
 }
 
@@ -111,7 +119,13 @@ void ezParticleComponent::DeserializeComponent(ezWorldReader& stream)
 
   s >> m_hEffectResource;
   s >> m_bSpawnAtStart;
-  s >> m_bAutoRestart;
+
+  // Version 1
+  {
+    bool bAutoRestart = false;
+    s >> bAutoRestart;
+  }
+
   s >> m_MinRestartDelay;
   s >> m_RestartDelayRange;
   s >> m_RestartTime;
@@ -139,6 +153,11 @@ void ezParticleComponent::DeserializeComponent(ezWorldReader& stream)
       s >> m_ColorParams[i].m_sName;
       s >> m_ColorParams[i].m_Value;
     }
+  }
+
+  if (uiVersion >= 3)
+  {
+    s >> m_OnFinishedAction;
   }
 }
 
@@ -257,7 +276,7 @@ void ezParticleComponent::Update()
     }
   }
 
-  if (!m_EffectController.IsAlive() && m_bAutoRestart)
+  if (!m_EffectController.IsAlive() && (m_OnFinishedAction == ezOnComponentFinishedAction2::Restart))
   {
     const ezTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
 
@@ -301,6 +320,17 @@ void ezParticleComponent::Update()
     m_EffectController.SetTransform(GetOwner()->GetGlobalTransform());
 
     CheckBVolumeUpdate();
+  }
+  else
+  {
+    if (m_OnFinishedAction == ezOnComponentFinishedAction2::DeleteGameObject)
+    {
+      GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
+    }
+    else if (m_OnFinishedAction == ezOnComponentFinishedAction2::DeleteComponent)
+    {
+      GetManager()->DeleteComponent(GetHandle());
+    }
   }
 }
 

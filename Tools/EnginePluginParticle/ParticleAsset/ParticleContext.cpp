@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EnginePluginParticle/ParticleAsset/ParticleContext.h>
 #include <EnginePluginParticle/ParticleAsset/ParticleView.h>
 
@@ -96,7 +96,7 @@ void ezParticleContext::OnInitialize()
     pWorld->CreateObject(obj, pObj);
 
     pCompMan->CreateComponent(pObj, m_pComponent);
-    m_pComponent->m_bAutoRestart = true;
+    m_pComponent->m_OnFinishedAction = ezOnComponentFinishedAction2::Restart;
     m_pComponent->m_MinRestartDelay = ezTime::Seconds(0.5);
 
     ezStringBuilder sParticleGuid;
@@ -155,6 +155,6 @@ void ezParticleContext::SetAutoRestartEffect(bool loop)
 
   if (m_pComponent)
   {
-    m_pComponent->m_bAutoRestart = loop;
+    m_pComponent->m_OnFinishedAction = loop ? ezOnComponentFinishedAction2::Restart : ezOnComponentFinishedAction2::None;
   }
 }
