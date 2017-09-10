@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EnginePluginScene/Plugin.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
@@ -30,6 +30,7 @@ public:
   ezTransform GetGridTransform() const { return m_GridTransform; }
 
   ezGameState* GetGameState() const;
+  bool IsPlayTheGameActive() const { return GetGameState() != nullptr; }
 
 protected:
   virtual void OnInitialize() override;

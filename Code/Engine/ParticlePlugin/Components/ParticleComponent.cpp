@@ -383,9 +383,11 @@ ezMap<ezString, float> ezParticleComponent::GetFloatParams() const
 
 void ezParticleComponent::SetFloatParam(const char* szKey, float value)
 {
+  const ezTempHashedString th(szKey);
+
   for (ezUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
   {
-    if (m_FloatParams[i].m_sName == szKey)
+    if (m_FloatParams[i].m_sName == th)
     {
       if (m_FloatParams[i].m_Value != value)
       {
@@ -404,9 +406,11 @@ void ezParticleComponent::SetFloatParam(const char* szKey, float value)
 
 void ezParticleComponent::RemoveFloatParam(const char* szKey)
 {
+  const ezTempHashedString th(szKey);
+
   for (ezUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
   {
-    if (m_FloatParams[i].m_sName == szKey)
+    if (m_FloatParams[i].m_sName == th)
     {
       m_FloatParams.RemoveAtSwap(i);
       return;
@@ -427,9 +431,11 @@ ezMap<ezString, ezColor> ezParticleComponent::GetColorParams() const
 
 void ezParticleComponent::SetColorParam(const char* szKey, const ezColor& value)
 {
+  const ezTempHashedString th(szKey);
+
   for (ezUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
   {
-    if (m_ColorParams[i].m_sName == szKey)
+    if (m_ColorParams[i].m_sName == th)
     {
       if (m_ColorParams[i].m_Value != value)
       {
@@ -448,9 +454,11 @@ void ezParticleComponent::SetColorParam(const char* szKey, const ezColor& value)
 
 void ezParticleComponent::RemoveColorParam(const char* szKey)
 {
+  const ezTempHashedString th(szKey);
+
   for (ezUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
   {
-    if (m_ColorParams[i].m_sName == szKey)
+    if (m_ColorParams[i].m_sName == th)
     {
       m_ColorParams.RemoveAtSwap(i);
       return;

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EnginePluginScene/SceneContext/SceneContext.h>
 #include <EnginePluginScene/SceneView/SceneView.h>
 
@@ -357,6 +357,10 @@ void ezSceneContext::OnPlayTheGameModeStarted()
 
   SendProcessMessage(&msgRet);
 
+  if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>("ezSoundInterface"))
+  {
+    pSoundInterface->SetListenerOverrideMode(false);
+  }
 }
 
 
@@ -422,7 +426,6 @@ void ezSceneContext::HandleObjectsForDebugVisMsg(const ezObjectsForDebugVisMsgTo
 
 void ezSceneContext::HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg)
 {
-
   ezGameState* pState = GetGameState();
 
   if (pMsg->m_bEnablePTG)

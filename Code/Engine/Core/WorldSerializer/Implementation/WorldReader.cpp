@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
 
@@ -391,11 +391,14 @@ void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& 
   {
     ezGameObjectDesc desc = godesc.m_Desc; // make a copy
     desc.m_hParent = hParent;
-    ezTransform tChild(desc.m_LocalPosition, desc.m_LocalRotation, desc.m_LocalScaling);
 
-    desc.m_LocalPosition = rootTransform.m_vPosition;
-    desc.m_LocalRotation = rootTransform.m_qRotation;
-    desc.m_LocalScaling = rootTransform.m_vScale;
+    ezTransform tChild(desc.m_LocalPosition, desc.m_LocalRotation, desc.m_LocalScaling);
+    ezTransform tFinal;
+    tFinal.SetGlobalTransform(rootTransform, tChild);
+
+    desc.m_LocalPosition = tFinal.m_vPosition;
+    desc.m_LocalRotation = tFinal.m_qRotation;
+    desc.m_LocalScaling = tFinal.m_vScale;
 
     ezGameObject* pObject;
 
