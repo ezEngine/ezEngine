@@ -22,12 +22,12 @@ public:
 
   static ezUInt16 TypeId();
 
-private:
-  friend class ezComponentManagerFactory;
-
   // ezComponentManagerBase implementation
   virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents) override;
   virtual void CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents) override;
+
+private:
+  friend class ezComponentManagerFactory;
 
   virtual ezComponent* CreateComponentStorage() override;
   virtual void DeleteComponentStorage(ezComponent* pComponent, ezComponent*& out_pMovedComponent) override;

@@ -14,8 +14,8 @@ class RecursiveGrowthComponent : public ezComponent
 public:
   RecursiveGrowthComponent();
 
-  void SerializeComponent(ezWorldWriter& stream) const;
-  void DeserializeComponent(ezWorldReader& stream);
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
 
   virtual void OnSimulationStarted() override;
 

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Types/Delegate.h>
 #include <Foundation/Containers/HybridArray.h>
@@ -97,14 +97,14 @@ public:
   /// \brief Returns the type id corresponding to the component type managed by this manager.
   static ezUInt16 TypeId();
 
+  virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents) override;
+  virtual void CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents) override;
+
 protected:
   friend ComponentType;
   friend class ezComponentManagerFactory;
 
   virtual void DeleteAllComponents() override;
-
-  virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents) override;
-  virtual void CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents) override;
 
   virtual ezComponent* CreateComponentStorage() override;
   virtual void DeleteComponentStorage(ezComponent* pComponent, ezComponent*& out_pMovedComponent) override;
