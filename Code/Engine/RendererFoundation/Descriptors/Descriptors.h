@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include <Foundation/Algorithm/HashableStruct.h>
@@ -23,7 +23,6 @@ struct ezGALSwapChainCreationDescription : public ezHashableStruct<ezGALSwapChai
   ezGALResourceFormat::Enum m_BackBufferFormat;
 
   bool m_bDoubleBuffered;
-  bool m_bVerticalSynchronization;
   bool m_bAllowScreenshots;
 };
 

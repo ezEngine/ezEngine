@@ -1,4 +1,4 @@
-﻿
+
 #include <PCH.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
@@ -1056,7 +1056,7 @@ ezGPUStopwatch& ezGALDevice::GetOrCreateGPUStopwatch(const char* szName)
 
 // Swap chain functions
 
-void ezGALDevice::Present(ezGALSwapChainHandle hSwapChain)
+void ezGALDevice::Present(ezGALSwapChainHandle hSwapChain, bool bVSync)
 {
   EZ_ASSERT_DEV(m_bFrameBeginCalled, "You must have called ezGALDevice::Begin before you can call this function");
 
@@ -1064,7 +1064,7 @@ void ezGALDevice::Present(ezGALSwapChainHandle hSwapChain)
 
   if (m_SwapChains.TryGetValue(hSwapChain, pSwapChain))
   {
-    PresentPlatform(pSwapChain);
+    PresentPlatform(pSwapChain, bVSync);
   }
   else
   {

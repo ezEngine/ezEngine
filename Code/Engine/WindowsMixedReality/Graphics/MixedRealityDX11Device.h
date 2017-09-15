@@ -55,7 +55,7 @@ protected:
   virtual void DestroySwapChainPlatform(ezGALSwapChain* pSwapChain) override;
 
 
-  virtual void PresentPlatform(ezGALSwapChain* pSwapChain) override;
+  virtual void PresentPlatform(ezGALSwapChain* pSwapChain, bool bVSync) override;
 
   // Misc functions
 

@@ -1,4 +1,4 @@
-﻿
+
 #include <PCH.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererDX11/Device/SwapChainDX11.h>
@@ -553,7 +553,7 @@ void ezGALDeviceDX11::DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* p
 
 // Swap chain functions
 
-void ezGALDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain)
+void ezGALDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain, bool bVSync)
 {
   auto pDXSwapChain = static_cast<ezGALSwapChainDX11*>(pSwapChain);
   IDXGISwapChain* pDXGISwapChain = pDXSwapChain->GetDXSwapChain();
@@ -564,7 +564,7 @@ void ezGALDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain)
     GetPrimaryContext()->CopyTexture(pDXSwapChain->m_hActualBackBufferTexture, pDXSwapChain->m_hBackBufferTexture);
   }
 
-  HRESULT result = pDXGISwapChain->Present(pSwapChain->GetDescription().m_bVerticalSynchronization ? 1 : 0, 0);
+  HRESULT result = pDXGISwapChain->Present(bVSync ? 1 : 0, 0);
   if (FAILED(result))
   {
     ezLog::Error("Swap chain Present failed with {0}", (ezUInt32)result);

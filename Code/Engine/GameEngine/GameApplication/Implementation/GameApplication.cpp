@@ -1,4 +1,4 @@
-﻿
+
 #include <PCH.h>
 #include <GameEngine/Console/Console.h>
 #include <GameEngine/GameApplication/GameApplication.h>
@@ -25,6 +25,7 @@
 
 ezGameApplication* ezGameApplication::s_pGameApplicationInstance = nullptr;
 ezDelegate<ezGALDevice* (const ezGALDeviceCreationDescription&)> ezGameApplication::s_DefaultDeviceCreator;
+ezCVarBool CVarEnableVSync("g_VSync", false, ezCVarFlags::Save, "Enables V-Sync");
 
 ezGameApplication::ezGameApplication(const char* szAppName, ezGameApplicationType type, const char* szProjectPath /*= nullptr*/)
   : m_sAppProjectPath(szProjectPath)
@@ -573,7 +574,7 @@ void ezGameApplication::UpdateWorldsAndRender()
             DoSaveScreenshot(img);
           }
 
-          pDevice->Present(windowContext.m_hSwapChain);
+          pDevice->Present(windowContext.m_hSwapChain, CVarEnableVSync);
         }
       }
     }

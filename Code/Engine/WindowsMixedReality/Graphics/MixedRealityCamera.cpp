@@ -21,7 +21,6 @@ ezWindowsMixedRealityCamera::ezWindowsMixedRealityCamera(const ComPtr<ABI::Windo
   desc.m_BackBufferFormat = ezGALResourceFormat::Invalid;
   desc.m_bAllowScreenshots = false;
   desc.m_bDoubleBuffered = false;
-  desc.m_bVerticalSynchronization = false;
   m_associatedSwapChain = pDevice->CreateSwapChain(desc);
 
   // Make this the primary swap chain if we're the first.

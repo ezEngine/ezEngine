@@ -1,11 +1,10 @@
-﻿
+
 inline ezGALSwapChainCreationDescription::ezGALSwapChainCreationDescription()
   : ezHashableStruct(),
     m_pWindow(nullptr),
     m_SampleCount(ezGALMSAASampleCount::None),
     m_BackBufferFormat(ezGALResourceFormat::RGBAUByteNormalizedsRGB),
     m_bDoubleBuffered(true),
-    m_bVerticalSynchronization(false),
     m_bAllowScreenshots(false)
 {
 }

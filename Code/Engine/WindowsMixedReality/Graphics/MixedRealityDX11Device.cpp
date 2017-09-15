@@ -151,7 +151,7 @@ void ezGALMixedRealityDeviceDX11::DestroySwapChainPlatform(ezGALSwapChain* pSwap
   EZ_DELETE(&m_Allocator, pSwapChainHoloDX11);
 }
 
-void ezGALMixedRealityDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain)
+void ezGALMixedRealityDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain, bool bVSync)
 {
   EZ_ASSERT_DEV(m_pCurrentHolographicFrame, "There is no holographic frame.");
 

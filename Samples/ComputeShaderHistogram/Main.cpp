@@ -1,4 +1,4 @@
-﻿#include "Main.h"
+#include "Main.h"
 #include <System/Window/Window.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <Core/Graphics/Geometry.h>
@@ -114,7 +114,7 @@ ezApplication::ApplicationExecution ezComputeShaderHistogramApp::Run()
       renderContext.ApplyContextStates();
     }
 
-    device->Present(device->GetPrimarySwapChain());
+    device->Present(device->GetPrimarySwapChain(), true);
 
     device->EndFrame();
     ezRenderContext::GetDefaultInstance()->ResetContextState();

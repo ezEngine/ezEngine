@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
 #include <GameEngine/Collection/CollectionResource.h>
@@ -53,6 +53,9 @@ void ezGameApplication::DoProjectSetup()
   DoLoadPluginsFromConfig();
   DoConfigureInput(false);
   DoLoadTags();
+
+  ezCVar::SetStorageFolder(":appdata/CVars");
+  ezCVar::LoadCVars();
 
   ezTaskSystem::SetTargetFrameTime(1000.0 / 20.0);
 }

@@ -170,7 +170,6 @@ public:
       DeviceInit.m_PrimarySwapChainDescription.m_pWindow = m_pWindow;
       DeviceInit.m_PrimarySwapChainDescription.m_SampleCount = ezGALMSAASampleCount::None;
       DeviceInit.m_PrimarySwapChainDescription.m_bAllowScreenshots = true;
-      DeviceInit.m_PrimarySwapChainDescription.m_bVerticalSynchronization = true;
 
       m_pDevice = EZ_DEFAULT_NEW(ezGALDeviceDX11, DeviceInit);
       EZ_VERIFY(m_pDevice->Init() == EZ_SUCCESS, "Device init failed!");
@@ -369,7 +368,7 @@ public:
         }
       }
 
-      m_pDevice->Present(m_pDevice->GetPrimarySwapChain());
+      m_pDevice->Present(m_pDevice->GetPrimarySwapChain(), true);
 
       m_pDevice->EndFrame();
     }

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include "TestClass.h"
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererFoundation/Context/Context.h>
@@ -85,7 +85,6 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
   DeviceInit.m_PrimarySwapChainDescription.m_pWindow = m_pWindow;
   DeviceInit.m_PrimarySwapChainDescription.m_SampleCount = ezGALMSAASampleCount::None;
   DeviceInit.m_PrimarySwapChainDescription.m_bAllowScreenshots = true;
-  DeviceInit.m_PrimarySwapChainDescription.m_bVerticalSynchronization = true;
 
   m_pDevice = EZ_DEFAULT_NEW(ezGALDeviceDX11, DeviceInit);
 
@@ -159,7 +158,7 @@ void ezGraphicsTest::EndFrame()
 {
   m_pWindow->ProcessWindowMessages();
 
-  m_pDevice->Present(m_pDevice->GetPrimarySwapChain());
+  m_pDevice->Present(m_pDevice->GetPrimarySwapChain(), false);
 
   m_pDevice->EndFrame();
 

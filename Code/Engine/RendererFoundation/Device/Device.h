@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include <RendererFoundation/Basics.h>
@@ -121,7 +121,7 @@ public:
 
   // Swap chain functions
 
-  void Present(ezGALSwapChainHandle hSwapChain);
+  void Present(ezGALSwapChainHandle hSwapChain, bool bVSync);
 
   ezGALTextureHandle GetBackBufferTextureFromSwapChain(ezGALSwapChainHandle hSwapChain);
 
@@ -367,7 +367,7 @@ protected:
 
   // Swap chain functions
 
-  virtual void PresentPlatform(ezGALSwapChain* pSwapChain) = 0;
+  virtual void PresentPlatform(ezGALSwapChain* pSwapChain, bool bVSync) = 0;
 
   // Misc functions
 

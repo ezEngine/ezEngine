@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include <RendererDX11/Basics.h>
@@ -124,7 +124,7 @@ protected:
 
   // Swap chain functions
 
-  virtual void PresentPlatform(ezGALSwapChain* pSwapChain) override;
+  virtual void PresentPlatform(ezGALSwapChain* pSwapChain, bool bVSync) override;
 
   // Misc functions
 
