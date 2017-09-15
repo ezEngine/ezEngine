@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
 #include <FmodPlugin/FmodSingleton.h>
 #include <FmodPlugin/FmodIncludes.h>
@@ -24,7 +24,8 @@ ezResourceLoadDesc ezFmodSoundBankResource::UnloadData(Unload WhatToUnload)
     m_pSoundBank = nullptr;
   }
 
-  EZ_DEFAULT_DELETE(m_pSoundBankData);
+  ezFmod::GetSingleton()->QueueSoundBankDataForDeletion(m_pSoundBankData);
+  m_pSoundBankData = nullptr;
 
   ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezFmodSoundBankResource);
 

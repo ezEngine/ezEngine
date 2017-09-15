@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
 #include <FmodPlugin/FmodSingleton.h>
 #include <GameEngine/GameApplication/GameApplication.h>
@@ -137,14 +137,24 @@ void ezFmod::Shutdown()
   if (!m_bInitialized)
     return;
 
-  m_bInitialized = false;
-  m_pData.Reset();
-
+  // delete all fmod resources, except the master bank
   ezResourceManager::FreeUnusedResources(true);
+
+  m_bInitialized = false;
+  m_pData->m_hMasterBank.Invalidate();
+
+  // now also delete the master bank
+  ezResourceManager::FreeUnusedResources(true);
+
+  // now actually delete the sound bank data
+  ClearSoundBankDataDeletionQueue();
 
   m_pStudioSystem->release();
   m_pStudioSystem = nullptr;
   m_pLowLevelSystem = nullptr;
+
+  // finally delete all data
+  m_pData.Reset();
 }
 
 void ezFmod::SetNumListeners(ezUInt8 uiNumListeners)
@@ -176,6 +186,8 @@ void ezFmod::UpdateSound()
   if (m_pStudioSystem == nullptr)
     return;
 
+  EZ_ASSERT_DEV(m_pData != nullptr, "UpdateSound() should not be called at this time.");
+
   // make sure to reload the sound bank, if it has been unloaded
   if (m_pData->m_hMasterBank.IsValid())
   {
@@ -198,6 +210,8 @@ void ezFmod::UpdateSound()
   }
 
   m_pStudioSystem->update();
+
+  ClearSoundBankDataDeletionQueue();
 }
 
 void ezFmod::SetMasterChannelVolume(float volume)
@@ -358,6 +372,31 @@ ezResult ezFmod::LoadMasterSoundBank(const char* szMasterBankResourceID)
     return EZ_FAILURE;
 
   return EZ_SUCCESS;
+}
+
+void ezFmod::QueueSoundBankDataForDeletion(ezDataBuffer* pData)
+{
+  EZ_LOCK(m_DeletionQueueMutex);
+
+  m_pData->m_SbDeletionQueue.PushBack(pData);
+}
+
+void ezFmod::ClearSoundBankDataDeletionQueue()
+{
+  if (m_pData->m_SbDeletionQueue.IsEmpty())
+    return;
+
+  EZ_LOCK(m_DeletionQueueMutex);
+
+  // make sure the data is not in use anymore
+  m_pStudioSystem->flushCommands();
+
+  for (auto pData : m_pData->m_SbDeletionQueue)
+  {
+    EZ_DEFAULT_DELETE(pData);
+  }
+
+  m_pData->m_SbDeletionQueue.Clear();
 }
 
 EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_FmodSingleton);

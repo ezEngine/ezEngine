@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <FmodPlugin/Basics.h>
 #include <GameEngine/Interfaces/SoundInterface.h>
@@ -10,6 +10,7 @@
 struct ezGameApplicationEvent;
 class ezOpenDdlWriter;
 class ezOpenDdlReaderElement;
+typedef ezDynamicArray<ezUInt8> ezDataBuffer;
 
 typedef ezTypedResourceHandle<class ezFmodSoundBankResource> ezFmodSoundBankResourceHandle;
 
@@ -111,6 +112,13 @@ public:
   virtual void SetListener(ezInt32 iIndex, const ezVec3& vPosition, const ezVec3& vForward, const ezVec3& vUp, const ezVec3& vVelocity) override;
 
 private:
+  friend class ezFmodSoundBankResource;
+  void QueueSoundBankDataForDeletion(ezDataBuffer* pData);
+  void ClearSoundBankDataDeletionQueue();
+  mutable ezMutex m_DeletionQueueMutex;
+
+private:
+
   void DetectPlatform();
   ezResult LoadMasterSoundBank(const char* szMasterBankResourceID);
 
@@ -127,6 +135,7 @@ private:
     ezFmodPlatformConfigs m_Configs;
     ezString m_sPlatform;
     ezFmodSoundBankResourceHandle m_hMasterBank;
+    ezHybridArray<ezDataBuffer*, 4> m_SbDeletionQueue;
   };
 
   ezUniquePtr<Data> m_pData;
