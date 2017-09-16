@@ -4,6 +4,12 @@ ezUuid::ezUuid()
 {
 }
 
+void ezUuid::SetInvalid()
+{
+  m_uiHigh = 0;
+  m_uiLow = 0;
+}
+
 bool ezUuid::operator == (const ezUuid& Other) const
 {
   return m_uiHigh == Other.m_uiHigh && m_uiLow == Other.m_uiLow;

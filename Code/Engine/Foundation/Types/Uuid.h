@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include <Foundation/Algorithm/Hashing.h>
@@ -30,6 +30,9 @@ public:
 
   /// \brief Returns true if this is a valid Uuid.
   EZ_ALWAYS_INLINE bool IsValid() const;
+
+  /// \brief Sets the Uuid to be invalid
+  EZ_ALWAYS_INLINE void SetInvalid();
 
   /// \brief Creates a new Uuid and stores is it in this object.
   void CreateNewUuid();
