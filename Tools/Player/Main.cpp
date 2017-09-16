@@ -55,6 +55,8 @@ void ezPlayerApplication::AfterCoreStartup()
 
 void ezPlayerApplication::BeforeCoreShutdown()
 {
+  DeactivateAllGameStates();
+
   GetGameApplicationInstance()->DestroyWorld(m_pWorld);
 
   ezGameApplication::BeforeCoreShutdown();

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GameEngine/Basics.h>
 #include <GameEngine/GameState/GameState.h>
@@ -299,8 +299,9 @@ protected:
   {
     EZ_DECLARE_POD_TYPE();
 
-    ezGameState* m_pState;
-    ezWorld* m_pLinkedToWorld;
+    ezGameState* m_pState = nullptr;
+    ezWorld* m_pLinkedToWorld = nullptr;
+    bool m_bStateActive = false;
   };
 
   /// \brief Only few applications can have more than one game state (e.g. the editor).

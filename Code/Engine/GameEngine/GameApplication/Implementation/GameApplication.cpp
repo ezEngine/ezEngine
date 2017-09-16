@@ -243,12 +243,15 @@ void ezGameApplication::DestroyAllGameStates()
 
 void ezGameApplication::ActivateGameStateForWorld(ezWorld* pWorld)
 {
-  for (ezUInt32 id = 0; id < m_GameStates.GetCount(); ++id)
+  for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
   {
-    if (m_GameStates[id].m_pLinkedToWorld == pWorld)
+    if (m_GameStates[i].m_pLinkedToWorld == pWorld)
     {
-      /// \todo Already activated?
-      m_GameStates[id].m_pState->OnActivation(pWorld);
+      if (!m_GameStates[i].m_bStateActive)
+      {
+        m_GameStates[i].m_bStateActive = true;
+        m_GameStates[i].m_pState->OnActivation(pWorld);
+      }
     }
   }
 }
@@ -256,12 +259,15 @@ void ezGameApplication::ActivateGameStateForWorld(ezWorld* pWorld)
 
 void ezGameApplication::DeactivateGameStateForWorld(ezWorld* pWorld)
 {
-  for (ezUInt32 id = 0; id < m_GameStates.GetCount(); ++id)
+  for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
   {
-    if (m_GameStates[id].m_pLinkedToWorld == pWorld)
+    if (m_GameStates[i].m_pLinkedToWorld == pWorld)
     {
-      /// \todo Already deactivated?
-      m_GameStates[id].m_pState->OnDeactivation();
+      if (m_GameStates[i].m_bStateActive)
+      {
+        m_GameStates[i].m_bStateActive = false;
+        m_GameStates[i].m_pState->OnDeactivation();
+      }
     }
   }
 }
@@ -274,8 +280,11 @@ void ezGameApplication::ActivateAllGameStates()
 
   for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
   {
-    /// \todo Already deactivated
-    m_GameStates[i].m_pState->OnActivation(m_GameStates[i].m_pLinkedToWorld);
+    if (!m_GameStates[i].m_bStateActive)
+    {
+      m_GameStates[i].m_bStateActive = true;
+      m_GameStates[i].m_pState->OnActivation(m_GameStates[i].m_pLinkedToWorld);
+    }
   }
 }
 
@@ -288,8 +297,11 @@ void ezGameApplication::DeactivateAllGameStates()
 
   for (ezUInt32 i = 0; i < m_GameStates.GetCount(); ++i)
   {
-    /// \todo Already deactivated?
-    m_GameStates[i].m_pState->OnDeactivation();
+    if (m_GameStates[i].m_bStateActive)
+    {
+      m_GameStates[i].m_bStateActive = false;
+      m_GameStates[i].m_pState->OnDeactivation();
+    }
   }
 }
 

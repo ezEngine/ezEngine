@@ -23,6 +23,7 @@
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <RendererFoundation/Device/Device.h>
 #include <VisualScript/VisualScriptResource.h>
+#include <Foundation/Configuration/CVar.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <RendererDX11/Device/DeviceDX11.h>
