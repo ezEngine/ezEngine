@@ -9,6 +9,9 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/Clock.h>
+#include <Foundation/Configuration/CVar.h>
+
+extern ezCVarBool CVarShowFPS;
 
 namespace
 {
