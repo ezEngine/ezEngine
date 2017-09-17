@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameApplication/InputConfig.h>
 #include <GameEngine/Console/Console.h>
@@ -74,7 +74,7 @@ void ezGameApplication::ProcessApplicationInput()
 
   if (ezInputManager::GetInputActionState(g_szInputSet, g_szShowFpsAction) == ezKeyState::Pressed)
   {
-    m_bShowFps = !m_bShowFps;
+    CVarShowFPS = !CVarShowFPS;
   }
 
   if (ezInputManager::GetInputActionState(g_szInputSet, g_szReloadResourcesAction) == ezKeyState::Pressed)

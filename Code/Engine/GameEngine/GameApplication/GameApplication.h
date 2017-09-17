@@ -5,6 +5,7 @@
 
 #include <Foundation/Threading/DelegateTask.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <GameEngine/Console/ConsoleFunction.h>
 
 #include <Core/Application/Application.h>
 
@@ -346,12 +347,14 @@ private:
   static ezDelegate<ezGALDevice* (const ezGALDeviceCreationDescription&)> s_DefaultDeviceCreator;
 
   bool m_bWasQuitRequested = false;
-  bool m_bShowFps = false;
   bool m_bShowConsole = false;
   bool m_bTakeScreenshot = false;
   ezGameApplicationType m_AppType;
 
   ezUniquePtr<ezConsole> m_pConsole;
+
+  // expose TakeScreenshot as a console function
+  ezConsoleFunction<void()> m_ConFunc_TakeScreenshot;
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
   ezUniquePtr<class ezMixedRealityFramework> m_pMixedRealityFramework;

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
 #include <RendererCore/Lights/ClusteredDataExtractor.h>
@@ -21,6 +21,10 @@ namespace
       return;
 
     const ezCamera* pCamera = view.GetCullingCamera();
+
+    if (pCamera->IsOrthographic())
+      return;
+
     float fAspectRatio = view.GetViewport().width / view.GetViewport().height;
     float fTanFovX = ezMath::Tan(pCamera->GetFovX(fAspectRatio) * 0.5f) * 2.0f;
     float fTanFovY = ezMath::Tan(pCamera->GetFovY(fAspectRatio) * 0.5f) * 2.0f;

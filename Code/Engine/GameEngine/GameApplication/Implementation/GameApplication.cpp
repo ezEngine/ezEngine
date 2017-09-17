@@ -26,15 +26,16 @@
 ezGameApplication* ezGameApplication::s_pGameApplicationInstance = nullptr;
 ezDelegate<ezGALDevice* (const ezGALDeviceCreationDescription&)> ezGameApplication::s_DefaultDeviceCreator;
 ezCVarBool CVarEnableVSync("g_VSync", false, ezCVarFlags::Save, "Enables V-Sync");
+ezCVarBool CVarShowFPS("g_ShowFPS", false, ezCVarFlags::Save, "Show frames per second counter");
 
 ezGameApplication::ezGameApplication(const char* szAppName, ezGameApplicationType type, const char* szProjectPath /*= nullptr*/)
   : m_sAppProjectPath(szProjectPath)
   , m_UpdateTask("GameApplication.Update", ezMakeDelegate(&ezGameApplication::UpdateWorldsAndExtractViews, this))
+  , m_ConFunc_TakeScreenshot("Screenshot", "()", ezMakeDelegate(&ezGameApplication::TakeScreenshot, this))
 {
   m_sAppName = szAppName;
   s_pGameApplicationInstance = this;
   m_bWasQuitRequested = false;
-  m_bShowFps = false;
   m_AppType = type;
 
   m_pConsole = EZ_DEFAULT_NEW(ezConsole);
@@ -746,7 +747,7 @@ void ezGameApplication::RenderFps()
     fElapsedTime = tDiff;
   }
 
-  if (m_bShowFps)
+  if (CVarShowFPS)
   {
     if (const ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView))
     {
