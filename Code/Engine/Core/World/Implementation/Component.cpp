@@ -132,7 +132,7 @@ bool ezComponent::SendMessage(ezMessage& msg)
   {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     if (msg.GetDebugMessageRouting())
-      ezLog::Warning("Discarded message with ID {0} because component of type '{1}' is not initialized or not active at the moment", msg.GetId(), GetDynamicRTTI()->GetTypeName());
+      ezLog::Warning("Discarded message with ID {0} because component of type '{1}' is neither initialized nor active at the moment", msg.GetId(), GetDynamicRTTI()->GetTypeName());
 #endif
 
     return false;
@@ -158,7 +158,7 @@ bool ezComponent::SendMessage(ezMessage& msg) const
   {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     if (msg.GetDebugMessageRouting())
-      ezLog::Warning("Discarded message with ID {0} because component of type '{1}' is not initialized or not active at the moment", msg.GetId(), GetDynamicRTTI()->GetTypeName());
+      ezLog::Warning("Discarded message with ID {0} because component of type '{1}' is neither initialized nor active at the moment", msg.GetId(), GetDynamicRTTI()->GetTypeName());
 #endif
 
     return false;

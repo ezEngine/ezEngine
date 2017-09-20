@@ -10,8 +10,8 @@ ezGameGrid<CellData>::ezGameGrid()
   m_RotateToGridspace.SetIdentity();
 
   m_vWorldSpaceOrigin.SetZero();
-  m_vWorldSpaceCellSize.Set(1.0f);
-  m_vInverseWorldSpaceCellSize.Set(1.0f);
+  m_vLocalSpaceCellSize.Set(1.0f);
+  m_vInverseLocalSpaceCellSize.Set(1.0f);
 }
 
 template<class CellData>
@@ -50,8 +50,8 @@ template<class CellData>
 void ezGameGrid<CellData>::SetWorldSpaceDimensions(const ezVec3& vLowerLeftCorner, const ezVec3& vCellSize, const ezMat3& mRotation)
 {
   m_vWorldSpaceOrigin  = vLowerLeftCorner;
-  m_vWorldSpaceCellSize = vCellSize;
-  m_vInverseWorldSpaceCellSize = ezVec3(1.0f).CompDiv(vCellSize);
+  m_vLocalSpaceCellSize = vCellSize;
+  m_vInverseLocalSpaceCellSize = ezVec3(1.0f).CompDiv(vCellSize);
 
   m_RotateToWorldspace = mRotation;
   m_RotateToGridspace  = mRotation.GetInverse();
@@ -60,7 +60,7 @@ void ezGameGrid<CellData>::SetWorldSpaceDimensions(const ezVec3& vLowerLeftCorne
 template<class CellData>
 ezVec2I32 ezGameGrid<CellData>::GetCellAtWorldPosition(const ezVec3& vWorldSpacePos) const
 {
-  const ezVec3 vCell = m_RotateToGridspace * ((vWorldSpacePos - m_vWorldSpaceOrigin).CompMul(m_vInverseWorldSpaceCellSize));
+  const ezVec3 vCell = (m_RotateToGridspace * ((vWorldSpacePos - m_vWorldSpaceOrigin)).CompMul(m_vInverseLocalSpaceCellSize));
 
   // Without the Floor, the border case when the position is outside (-1 / -1) is not immediately detected
   return ezVec2I32((ezInt32) ezMath::Floor(vCell.x), (ezInt32) ezMath::Floor(vCell.y));
@@ -69,15 +69,17 @@ ezVec2I32 ezGameGrid<CellData>::GetCellAtWorldPosition(const ezVec3& vWorldSpace
 template<class CellData>
 ezVec3 ezGameGrid<CellData>::GetCellWorldSpaceOrigin(const ezVec2I32& Coord) const
 {
-  const ezVec3 vPos = m_RotateToWorldspace * ezVec3((float) Coord.x, (float) Coord.y, 0.0f);
+  const ezVec3 vPos = m_RotateToWorldspace * m_vLocalSpaceCellSize.CompMul(ezVec3((float) Coord.x, (float) Coord.y, 0.0f));
 
-  return m_vWorldSpaceOrigin + m_vWorldSpaceCellSize.CompMul(vPos);
+  return m_vWorldSpaceOrigin + vPos;
 }
 
 template<class CellData>
 ezVec3 ezGameGrid<CellData>::GetCellWorldSpaceCenter(const ezVec2I32& Coord) const
 {
-  return GetCellWorldSpaceOrigin(Coord) + m_vWorldSpaceCellSize * 0.5f;
+  const ezVec3 vPos = m_RotateToWorldspace * m_vLocalSpaceCellSize.CompMul(ezVec3((float)Coord.x + 0.5f, (float)Coord.y + 0.5f, 0.5f));
+
+  return m_vWorldSpaceOrigin + vPos;
 }
 
 
@@ -113,9 +115,9 @@ ezBoundingBox ezGameGrid<CellData>::GetWorldBoundingBox() const
 {
   ezVec3 vGridBox(m_uiGridSizeX, m_uiGridSizeY, 1.0f);
 
-  vGridBox = m_RotateToWorldspace * vGridBox;
+  vGridBox = m_RotateToWorldspace * m_vLocalSpaceCellSize.CompMul(vGridBox);
 
-  return ezBoundingBox(m_vWorldSpaceOrigin, m_vWorldSpaceOrigin + m_vWorldSpaceCellSize.CompMul(vGridBox));
+  return ezBoundingBox(m_vWorldSpaceOrigin, m_vWorldSpaceOrigin + vGridBox);
 }
 
 template<class CellData>
@@ -126,7 +128,7 @@ bool ezGameGrid<CellData>::GetRayIntersection(const ezVec3& vRayStartWorldSpace,
 
   ezVec3 vGridBox(m_uiGridSizeX, m_uiGridSizeY, 1.0f);
 
-  const ezBoundingBox localBox(ezVec3(0.0f), m_vWorldSpaceCellSize.CompMul(vGridBox));
+  const ezBoundingBox localBox(ezVec3(0.0f), m_vLocalSpaceCellSize.CompMul(vGridBox));
 
   if (localBox.Contains(vRayStart))
   {
@@ -144,7 +146,7 @@ bool ezGameGrid<CellData>::GetRayIntersection(const ezVec3& vRayStartWorldSpace,
 
   const ezVec3 vEnterPos = vRayStart + vRayDir * out_fIntersection;
 
-  const ezVec3 vCell = vEnterPos.CompMul(m_vInverseWorldSpaceCellSize);
+  const ezVec3 vCell = vEnterPos.CompMul(m_vInverseLocalSpaceCellSize);
 
   // Without the Floor, the border case when the position is outside (-1 / -1) is not immediately detected
   out_CellCoord = ezVec2I32((ezInt32)ezMath::Floor(vCell.x), (ezInt32)ezMath::Floor(vCell.y));
@@ -162,7 +164,7 @@ bool ezGameGrid<CellData>::GetRayIntersectionExpandedBBox(const ezVec3& vRayStar
 
   ezVec3 vGridBox(m_uiGridSizeX, m_uiGridSizeY, 1.0f);
 
-  ezBoundingBox localBox(ezVec3(0.0f), m_vWorldSpaceCellSize.CompMul(vGridBox));
+  ezBoundingBox localBox(ezVec3(0.0f), m_vLocalSpaceCellSize.CompMul(vGridBox));
   localBox.Grow(vExpandBBoxByThis);
 
   if (localBox.Contains(vRayStart))

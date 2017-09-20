@@ -39,8 +39,8 @@ public:
   /// Other rotations allow to rotate the grid into other planes, such as XZ, if that is more convenient.
   void SetWorldSpaceDimensions(const ezVec3& vLowerLeftCorner, const ezVec3& vCellSize, const ezMat3& mRotation);
 
-  /// \brief Returns the worldspace size of each cell.
-  ezVec3 GetWorldSpaceCellSize() const { return m_vWorldSpaceCellSize; }
+  /// \brief Returns the size of each cell.
+  ezVec3 GetCellSize() const { return m_vLocalSpaceCellSize; }
 
   /// \brief Returns the coordinate of the cell at the given world-space position. The world space dimension must be set for this to work.
   /// The indices might be outside valid ranges (negative, larger than the maximum size).
@@ -112,8 +112,8 @@ private:
   ezMat3 m_RotateToGridspace;
 
   ezVec3 m_vWorldSpaceOrigin;
-  ezVec3 m_vWorldSpaceCellSize;
-  ezVec3 m_vInverseWorldSpaceCellSize;
+  ezVec3 m_vLocalSpaceCellSize;
+  ezVec3 m_vInverseLocalSpaceCellSize;
 
   ezDynamicArray<CellData> m_Cells;
 };

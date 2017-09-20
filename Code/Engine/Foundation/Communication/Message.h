@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Algorithm/Hashing.h>
 #include <Foundation/IO/Stream.h>
