@@ -80,6 +80,9 @@ namespace ez2DGridUtils
   /// several operations, which will reduce the amount of memory allocations that need to be done.
   EZ_UTILITIES_DLL ezUInt32 FloodFill(ezInt32 iStartX, ezInt32 iStartY, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough = nullptr, ezDeque<ezVec2I32>* pTempArray = nullptr);
 
+  /// \brief Same as FloodFill() but also visits the diagonal neighbors, ie. all eight neighboring cells.
+  EZ_UTILITIES_DLL ezUInt32 FloodFillDiag(ezInt32 iStartX, ezInt32 iStartY, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough = nullptr, ezDeque<ezVec2I32>* pTempArray = nullptr);
+
   /// \brief Describes the different circle types that can be rasterized
   enum ezBlobType
   {

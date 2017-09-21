@@ -175,6 +175,42 @@ ezUInt32 ez2DGridUtils::FloodFill(ezInt32 iStartX, ezInt32 iStartY, EZ_RASTERIZE
   return uiFilled;
 }
 
+ezUInt32 ez2DGridUtils::FloodFillDiag(ezInt32 iStartX, ezInt32 iStartY, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough /*= nullptr*/, ezDeque<ezVec2I32>* pTempArray /*= nullptr*/)
+{
+  ezUInt32 uiFilled = 0;
+
+  ezDeque<ezVec2I32> FallbackQueue;
+
+  if (pTempArray == nullptr)
+    pTempArray = &FallbackQueue;
+
+  pTempArray->Clear();
+  pTempArray->PushBack(ezVec2I32(iStartX, iStartY));
+
+  while (!pTempArray->IsEmpty())
+  {
+    ezVec2I32 v = pTempArray->PeekBack();
+    pTempArray->PopBack();
+
+    if (Callback(v.x, v.y, pPassThrough) == ezCallbackResult::Continue)
+    {
+      ++uiFilled;
+
+      // put the eight neighbors into the queue
+      pTempArray->PushBack(ezVec2I32(v.x - 1, v.y));
+      pTempArray->PushBack(ezVec2I32(v.x + 1, v.y));
+      pTempArray->PushBack(ezVec2I32(v.x, v.y - 1));
+      pTempArray->PushBack(ezVec2I32(v.x, v.y + 1));
+
+      pTempArray->PushBack(ezVec2I32(v.x - 1, v.y - 1));
+      pTempArray->PushBack(ezVec2I32(v.x + 1, v.y - 1));
+      pTempArray->PushBack(ezVec2I32(v.x + 1, v.y + 1));
+      pTempArray->PushBack(ezVec2I32(v.x - 1, v.y + 1));
+    }
+  }
+
+  return uiFilled;
+}
 
 // Lookup table that describes the shape of the circle
 // When rasterizing circles with few pixels algorithms usually don't give nice shapes
