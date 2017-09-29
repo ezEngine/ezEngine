@@ -9,8 +9,11 @@
 #include <Foundation/Image/ImageConversion.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Configuration/CVar.h>
 
 static ezTextureResourceLoader s_TextureResourceLoader;
+
+ezCVarFloat CVarTextureLoadingDelay("r_TextureLoadDelay", 0.0f, ezCVarFlags::Save, "Artificial texture loading slowdown");
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, TextureResource)
 
@@ -179,6 +182,11 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
 
   res.m_pDataStream = &pData->m_Reader;
   res.m_pCustomLoaderData = pData;
+
+  if (CVarTextureLoadingDelay > 0)
+  {
+    ezThreadUtils::Sleep(ezTime::Seconds(CVarTextureLoadingDelay));
+  }
 
   return res;
 }

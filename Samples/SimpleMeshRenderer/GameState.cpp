@@ -1,4 +1,4 @@
-﻿#include <Core/ResourceManager/ResourceManager.h>
+#include <Core/ResourceManager/ResourceManager.h>
 #include <Core/Graphics/Camera.h>
 
 #include <RendererCore/Meshes/MeshComponent.h>
@@ -103,6 +103,8 @@ void SimpleMeshRendererGameState::CreateGameLevel()
   m_pMainWorld = GetApplication()->CreateWorld(desc);
   EZ_LOCK(m_pMainWorld->GetWriteMarker());
 
+  const ezTag& tagCastShadows = ezTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
+
   ezMeshComponentManager* pMeshCompMan = m_pMainWorld->GetOrCreateComponentManager<ezMeshComponentManager>();
   ezRotorComponentManager* pRotorCompMan = m_pMainWorld->GetOrCreateComponentManager<ezRotorComponentManager>();
 
@@ -131,15 +133,18 @@ void SimpleMeshRendererGameState::CreateGameLevel()
   }
 #endif
 
-  // Tree Mesh
+  obj.m_Tags.Set(tagCastShadows);
+
+  // Sponza Mesh
   {
-    obj.m_sName.Assign("Rotating Tree");
+    obj.m_sName.Assign("Sponza");
     obj.m_LocalScaling.Set(1.0f);
-    //obj.m_LocalPosition.y = -5;
+    obj.m_LocalPosition.z = -1;
+    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
     m_hTree = m_pMainWorld->CreateObject(obj, pObj);
 
     pMeshCompMan->CreateComponent(pObj, pMesh);
-    pMesh->SetMesh(hMeshBarrel);
+    pMesh->SetMesh(hMeshSponza);
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
     ezSpatialAnchorComponent* pComp = nullptr;
@@ -148,43 +153,43 @@ void SimpleMeshRendererGameState::CreateGameLevel()
 #endif
   }
 
-  {
-    obj.m_sName.Assign("Barrel without Anchor");
-    obj.m_LocalScaling.Set(1.0f);
-    obj.m_LocalPosition.x = 0.0f;
-    m_pMainWorld->CreateObject(obj, pObj);
+  //{
+  //  obj.m_sName.Assign("Barrel without Anchor");
+  //  obj.m_LocalScaling.Set(1.0f);
+  //  obj.m_LocalPosition.x = 0.0f;
+  //  m_pMainWorld->CreateObject(obj, pObj);
 
-    pMeshCompMan->CreateComponent(pObj, pMesh);
-    pMesh->SetMesh(hMeshBarrel);
-  }
+  //  pMeshCompMan->CreateComponent(pObj, pMesh);
+  //  pMesh->SetMesh(hMeshBarrel); 
+  //}
 
-  //// Tree Mesh
+  // Tree Mesh
   //{
   //  obj.m_sName.Assign("Tree");
-  //  obj.m_LocalScaling.Set(0.7f);
+  //  obj.m_LocalScaling.Set(0.5f);
   //  obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(75));
-  //  obj.m_LocalPosition.y = 5;
-  //  m_pMainWorld->CreateObject(obj, pObj);
+  //  obj.m_LocalPosition.x = 5;
+  //  m_pMainWorld->CreateObject(obj, pObj); 
 
   //  pMeshCompMan->CreateComponent(pObj, pMesh);
   //  pMesh->SetMesh(hMeshTree);
   //}
 
-  //// Lights
-  //{
-  //  obj.m_sName.Assign("DirLight");
-  //  obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(60.0f));
-  //  obj.m_LocalPosition.SetZero();
-  //  obj.m_LocalRotation.SetIdentity();
+  // Lights
+  {
+    obj.m_sName.Assign("DirLight");
+    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0.0f, 1.0f, 0.0f), ezAngle::Degree(60.0f));
+    obj.m_LocalPosition.SetZero();
 
-  //  m_pMainWorld->CreateObject(obj, pObj);
+    m_pMainWorld->CreateObject(obj, pObj);
 
-  //  ezDirectionalLightComponent* pDirLight;
-  //  ezDirectionalLightComponent::CreateComponent(pObj, pDirLight);
+    ezDirectionalLightComponent* pDirLight;
+    ezDirectionalLightComponent::CreateComponent(pObj, pDirLight);
+    //pDirLight->SetCastShadows(true);
 
-  //  ezAmbientLightComponent* pAmbLight;
-  //  ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);
-  //}
+    ezAmbientLightComponent* pAmbLight;
+    ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);
+  }
 
   ChangeMainWorld(m_pMainWorld);
 }
