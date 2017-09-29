@@ -22,6 +22,19 @@ ezPrefabReferenceComponent::ezPrefabReferenceComponent()
   m_bRequiresInstantiation = true;
 }
 
+ezPrefabReferenceComponent::~ezPrefabReferenceComponent()
+{
+
+}
+
+void ezPrefabReferenceComponent::Deinitialize()
+{
+  for (auto it = GetOwner()->GetChildren(); it.IsValid(); ++it)
+  {
+    GetWorld()->DeleteObjectNow(it->GetHandle());
+  }
+}
+
 void ezPrefabReferenceComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);

@@ -86,6 +86,10 @@ PS_OUT main(PS_IN Input)
   litColor += matData.emissiveColor;
 
   #if RENDER_PASS == RENDER_PASS_FORWARD
+    #if SHADING_MODE == SHADING_MODE_LIT
+      litColor = ApplyFog(litColor, matData.worldPosition);
+    #endif
+  
     Output.Color = float4(litColor, opacity);
     
   #elif RENDER_PASS == RENDER_PASS_EDITOR

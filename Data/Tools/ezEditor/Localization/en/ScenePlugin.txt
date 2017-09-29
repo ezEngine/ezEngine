@@ -103,6 +103,7 @@ ezDirectionalLightComponent;Directional Light
 ezSpotLightComponent;Spot Light
 ezPointLightComponent;Point Light
 ezSkyBoxComponent;Sky Box
+ezFogComponent;Fog
 ezSpriteComponent;Sprite
 ezRotorComponent;Rotor
 ezHeadBoneComponent;Head Bone

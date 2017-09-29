@@ -31,6 +31,9 @@ class EZ_GAMEENGINE_DLL ezPrefabReferenceComponent : public ezComponent
 
 public:
   ezPrefabReferenceComponent();
+  ~ezPrefabReferenceComponent();
+
+  virtual void Deinitialize() override;
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;

@@ -163,8 +163,15 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
     pConstants->NumLights = pData->m_LightData.GetCount();
     pConstants->NumDecals = pData->m_DecalData.GetCount();
     pConstants->ApplySSAOToDirectLighting = m_Data.m_bApplySSAOToDirectLighting;
+
     pConstants->AmbientTopColor = pData->m_AmbientTopColor;
     pConstants->AmbientBottomColor = pData->m_AmbientBottomColor;
+
+    pConstants->FogHeight = pData->m_fFogHeight;
+    pConstants->FogHeightFalloff = pData->m_fFogHeightFalloff;
+    pConstants->FogDensityAtCameraPos = pData->m_fFogDensityAtCameraPos;
+    pConstants->FogDensity = pData->m_fFogDensity;
+    pConstants->FogColor = pData->m_FogColor;
   }
 
   return &m_Data;

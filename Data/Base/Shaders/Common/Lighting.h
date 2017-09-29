@@ -398,9 +398,17 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData)
 
 float3 ApplyFog(float3 color, float3 worldPosition)
 {
-  float distance = length(GetCameraPosition() - worldPosition);
-  float amount = saturate(1.0f - exp(-distance*0.001));
-  float3 fogColor = float3(0.5,0.6,0.7);
+  if (FogDensity > 0.0)
+  {
+    float3 cameraToWorldPos = worldPosition - GetCameraPosition();
 
-  return lerp(color, fogColor, amount);
+    float range = FogHeightFalloff * cameraToWorldPos.z;    
+    float densityAttenuation = saturate((FogDensityAtCameraPos - exp(-FogHeightFalloff * worldPosition.z + FogHeight)) / range);
+    
+    float fogAmount = saturate(exp(-FogDensity * densityAttenuation * length(cameraToWorldPos)));
+    
+    color = lerp(FogColor, color, fogAmount);
+  }
+  
+  return color;
 }

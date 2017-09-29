@@ -12,6 +12,9 @@ class ezClusteredDataCPU : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezClusteredDataCPU, ezRenderData);
 public:
 
+  ezClusteredDataCPU();
+  ~ezClusteredDataCPU();
+
   enum
   {
     MAX_LIGHT_DATA = 1024,
@@ -26,6 +29,12 @@ public:
 
   ezColor m_AmbientTopColor;
   ezColor m_AmbientBottomColor;
+
+  float m_fFogHeight;
+  float m_fFogHeightFalloff;
+  float m_fFogDensityAtCameraPos;
+  float m_fFogDensity;
+  ezColor m_FogColor;
 };
 
 class EZ_RENDERERCORE_DLL ezClusteredDataExtractor : public ezExtractor

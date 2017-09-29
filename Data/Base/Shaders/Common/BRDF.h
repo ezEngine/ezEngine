@@ -8,57 +8,71 @@
 
 float3 DiffuseLambert( float3 diffuseColor )
 {
-	return diffuseColor;
+  return diffuseColor;
 }
 
 float SpecularGGX( float roughness, float NdotH )
 {
-	// mad friendly reformulation of:
-	//
-	//              m^2
-	// --------------------------------
-	// PI * ((N.H)^2 * (m^2 - 1) + 1)^2
+  // mad friendly reformulation of:
+  //
+  //              m^2
+  // --------------------------------
+  // PI * ((N.H)^2 * (m^2 - 1) + 1)^2
 
-	float m = roughness * roughness;
-	float m2 = m * m;
-	float f = ( NdotH * m2 - NdotH ) * NdotH + 1.0f;
-	return m2 / ( f * f );
+  float m = roughness * roughness;
+  float m2 = m * m;
+  float f = ( NdotH * m2 - NdotH ) * NdotH + 1.0f;
+  return m2 / ( f * f );
+}
+
+float VisibilitySmithCorrelated( float roughness, float NdotV, float NdotL )
+{
+  float a = roughness * roughness;
+  float lambdaV = NdotL * sqrt((-NdotV * a + NdotV) * NdotV + a);
+  float lambdaL = NdotV * sqrt((-NdotL * a + NdotL) * NdotL + a);
+  return 0.5f / ( lambdaV + lambdaL );
 }
 
 float VisibilitySmithJointApprox( float roughness, float NdotV, float NdotL )
 {
-	float a = roughness * roughness;
-	float lambdaV = NdotL * ( NdotV * ( 1.0f - a ) + a );
-	float lambdaL = NdotV * ( NdotL * ( 1.0f - a ) + a );
-	return 0.5f / ( lambdaV + lambdaL );
+  float a = roughness * roughness;
+  float b = 1.0f - a;
+  float lambdaV = NdotL * ( NdotV * b + a );
+  float lambdaL = NdotV * ( NdotL * b + a );
+  return 0.5f / ( lambdaV + lambdaL );
 }
 
-float3 FresnelSchlick( float3 f0, float u )
+float3 FresnelSchlick( float3 specularColor, float u )
 {
-	return f0 + (1.0f - f0) * pow(1.0f - u, 5.0f);
+  float f = 1.0f - u;
+  float ff = f * f;
+  float f5 = ff * ff * f;
+  
+  // specularColor below 2% is considered to be shadowing
+  return saturate( 50.0 * specularColor.g ) * f5 + (1 - f5) * specularColor;
 }
 
 // note that N.L * 1/PI is already included in the light attenuation which is applied later
 float3 DefaultShading( ezMaterialData matData, float3 L, float3 V, float2 diffSpecEnergy )
 {
-	float3 N = matData.worldNormal;
-	float3 H = normalize(V + L);
-	float NdotL = saturate( dot(N, L) );
-	float NdotV = max( dot(N, V), 1e-5f );
-	float NdotH = saturate( dot(N, H) );
-	float VdotH = saturate( dot(V, H) );
+  float3 N = matData.worldNormal;
+  float3 H = normalize(V + L);
+  float NdotL = saturate( dot(N, L) );
+  float NdotV = max( dot(N, V), 1e-5f );
+  float NdotH = saturate( dot(N, H) );
+  float VdotH = saturate( dot(V, H) );
 
-	// Cook-Torrance microfacet BRDF
-	//
-	//    D * G * F                                  G
-	//  ------------- = D * Vis * F with Vis = -------------
-	//  4 * N.L * N.V                          4 * N.L * N.V
+  // Cook-Torrance microfacet BRDF
+  //
+  //    D * G * F                                  G
+  //  ------------- = D * Vis * F with Vis = -------------
+  //  4 * N.L * N.V                          4 * N.L * N.V
 
-	float D = SpecularGGX( matData.roughness, NdotH );
-	float Vis = VisibilitySmithJointApprox( matData.roughness, NdotV, NdotL );
-	float3 F = FresnelSchlick( matData.specularColor, VdotH );
+  float D = SpecularGGX( matData.roughness, NdotH );
+  float Vis = VisibilitySmithJointApprox( matData.roughness, NdotV, NdotL );
+  float3 F = FresnelSchlick( matData.specularColor, VdotH );
 
-	float3 diffuse = DiffuseLambert( matData.diffuseColor );
+  float3 diffuse = DiffuseLambert( matData.diffuseColor );
 
-	return diffuse * diffSpecEnergy.x + F * (D * Vis * diffSpecEnergy.y);
+  return diffuse * diffSpecEnergy.x + F * (D * Vis * diffSpecEnergy.y);
 }

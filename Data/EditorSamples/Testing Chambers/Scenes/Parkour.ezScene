@@ -2163,6 +2163,19 @@ o
 }
 o
 {
+	Uuid %id{u4{5329833952380949671,4923509184337781993}}
+	s %t{"ezFogComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0xF2D24D3E,0x022B673E,0x9A99993E,0x0000803F}}
+		f %Density{0x0000003F}
+		f %HeightFalloff{0x0000A041}
+	}
+}
+o
+{
 	Uuid %id{u4{9029284152245249973,4927139643016945998}}
 	s %t{"ezPointLightComponent"}
 	u3 %v{2}
@@ -2356,6 +2369,27 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Name{"Wall"}
+		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{14252765410519895986,5010836698078129055}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{5329833952380949671,4923509184337781993}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0x000000C1}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Name{""}
 		VarArray %Tags{}
 	}
 }
@@ -2714,7 +2748,7 @@ AssetInfo
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{221999753810050456}
+		u4 %Hash{4034591950729448373}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -3749,6 +3783,7 @@ o
 		VarArray %Children
 		{
 			Uuid{u4{17394369187855360180,5414806457378966778}}
+			Uuid{u4{14252765410519895986,5010836698078129055}}
 		}
 		VarArray %Components
 		{
@@ -10738,6 +10773,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezPxComponent"}
 		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{15996205561521081011,11975365929692762812}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezSettingsComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezFogComponent"}
+		u3 %TypeSize{80}
 		u3 %TypeVersion{1}
 	}
 }

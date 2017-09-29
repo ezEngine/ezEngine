@@ -1,4 +1,5 @@
 #include <PCH.h>
+#include <RendererCore/Components/FogComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
 #include <RendererCore/Lights/ClusteredDataExtractor.h>
@@ -135,6 +136,25 @@ namespace
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClusteredDataCPU, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+ezClusteredDataCPU::ezClusteredDataCPU()
+  : m_AmbientTopColor(ezColor::Black)
+  , m_AmbientBottomColor(ezColor::Black)
+  , m_fFogHeight(0.0f)
+  , m_fFogHeightFalloff(0.0f)
+  , m_fFogDensityAtCameraPos(0.0f)
+  , m_fFogDensity(0.0f)
+  , m_FogColor(ezColor::Black)
+{
+
+}
+
+ezClusteredDataCPU::~ezClusteredDataCPU()
+{
+
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClusteredDataExtractor, 1, ezRTTIDefaultAllocator<ezClusteredDataExtractor>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -175,9 +195,6 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
   {
     m_TempLightData.Clear();
     ezMemoryUtils::ZeroFill(m_TempLightsClusters.GetData(), NUM_CLUSTERS);
-
-    ezColor ambientTopColor = ezColor::Black;
-    ezColor ambientBottomColor = ezColor::Black;
 
     auto batchList = pExtractedRenderData->GetRenderDataBatchesWithCategory(ezDefaultRenderDataCategories::Light);
     const ezUInt32 uiBatchCount = batchList.GetBatchCount();
@@ -235,8 +252,17 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
         }
         else if (auto pAmbientLightRenderData = ezDynamicCast<const ezAmbientLightRenderData*>(it))
         {
-          ambientTopColor = pAmbientLightRenderData->m_TopColor;
-          ambientBottomColor = pAmbientLightRenderData->m_BottomColor;
+          pData->m_AmbientTopColor = pAmbientLightRenderData->m_TopColor;
+          pData->m_AmbientBottomColor = pAmbientLightRenderData->m_BottomColor;
+        }
+        else if (auto pFogRenderData = ezDynamicCast<const ezFogRenderData*>(it))
+        {
+          pData->m_fFogHeight = pFogRenderData->m_GlobalTransform.m_vPosition.z * pFogRenderData->m_fHeightFalloff;
+          pData->m_fFogHeightFalloff = pFogRenderData->m_fHeightFalloff;
+          pData->m_fFogDensityAtCameraPos = ezMath::Exp(-pData->m_fFogHeightFalloff * pCamera->GetPosition().z + pData->m_fFogHeight);
+          pData->m_fFogDensity = pFogRenderData->m_fDensity;
+
+          pData->m_FogColor = pFogRenderData->m_Color;
         }
         else
         {
@@ -247,9 +273,6 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
 
     pData->m_LightData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezPerLightData, m_TempLightData.GetCount());
     pData->m_LightData.CopyFrom(m_TempLightData);
-
-    pData->m_AmbientTopColor = ambientTopColor;
-    pData->m_AmbientBottomColor = ambientBottomColor;
 
     FillItemListAndClusterData(pData);
   }

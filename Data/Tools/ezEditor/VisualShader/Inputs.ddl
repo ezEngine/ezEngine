@@ -70,6 +70,20 @@ Node %VertexPosition
   }
 }
 
+Node %VertexWorldPosition
+{
+  string %Category { "Input" }
+  unsigned_int8 %Color { 38, 105, 0 }
+
+  OutputPin %Position
+  {
+    string %Type { "float3" }
+    unsigned_int8 %Color { 38, 105, 0 }
+    string %Inline { "Input.WorldPosition" }
+    string %Tooltip { "The vertex world space position." }
+  }
+}
+
 Node %VertexNormal
 {
   string %Category { "Input" }
