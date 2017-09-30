@@ -647,15 +647,15 @@ ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetG
 
   if (pManager->IsOutputUpToDate(sAssetFile, outputs, out_AssetHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion()))
   {
+    out_ThumbHash = GetAssetReferenceHash(assetGuid);
+    if (out_ThumbHash == 0)
+    {
+      UpdateAssetTransformState(assetGuid, ezAssetInfo::TransformState::MissingReference);
+      return ezAssetInfo::TransformState::MissingReference;
+    }
+
     if (flags.IsSet(ezAssetDocumentFlags::SupportsThumbnail))
     {
-      out_ThumbHash = GetAssetReferenceHash(assetGuid);
-      if (out_ThumbHash == 0)
-      {
-        UpdateAssetTransformState(assetGuid, ezAssetInfo::TransformState::MissingReference);
-        return ezAssetInfo::TransformState::MissingReference;
-      }
-
       if (!ezAssetDocumentManager::IsThumbnailUpToDate(sAssetFile, out_ThumbHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion()))
       {
         UpdateAssetTransformState(assetGuid, ezAssetInfo::TransformState::NeedsThumbnail);
@@ -668,10 +668,7 @@ ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetG
   }
   else
   {
-    if (flags.IsSet(ezAssetDocumentFlags::SupportsThumbnail))
-    {
-      out_ThumbHash = GetAssetReferenceHash(assetGuid);
-    }
+    out_ThumbHash = GetAssetReferenceHash(assetGuid);
     UpdateAssetTransformState(assetGuid, ezAssetInfo::TransformState::NeedsTransform);
     return ezAssetInfo::TransformState::NeedsTransform;
   }
@@ -993,6 +990,9 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath, const ezSet
   {
     RefFile.m_Timestamp.Invalidate();
     RefFile.m_uiHash = 0;
+    if (RefFile.m_AssetGuid.IsValid())
+      InvalidateAssetTransformState(RefFile.m_AssetGuid);
+
     auto it = m_InverseDependency.Find(sAbsolutePath);
     if (it.IsValid())
     {

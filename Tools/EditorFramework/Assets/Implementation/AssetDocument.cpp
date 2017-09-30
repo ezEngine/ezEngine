@@ -105,6 +105,7 @@ ezStatus ezAssetDocument::InternalSaveDocument()
 void ezAssetDocument::InternalAfterSaveDocument()
 {
   const auto flags = GetAssetFlags();
+  ezAssetCurator::GetSingleton()->NotifyOfFileChange(GetDocumentPath());
 
   if (flags.IsAnySet(ezAssetDocumentFlags::AutoTransformOnSave))
   {
@@ -120,8 +121,6 @@ void ezAssetDocument::InternalAfterSaveDocument()
       ezAssetCurator::GetSingleton()->WriteAssetTables();
     }
   }
-  ezAssetCurator::GetSingleton()->NotifyOfFileChange(GetDocumentPath());
-  ezAssetCurator::GetSingleton()->NotifyOfAssetChange(GetGuid());
 }
 
 void ezAssetDocument::InitializeAfterLoading()

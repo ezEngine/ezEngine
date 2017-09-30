@@ -33,6 +33,9 @@ public:
 public slots:
   void OnAssetSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
+private slots:
+  void on_ListAssets_doubleClicked(const QModelIndex& index);
+
 private:
   void LogWriter(const ezLoggingEventData& e);
   void UpdateIssueInfo();

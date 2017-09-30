@@ -3,6 +3,7 @@
 #include <GuiFoundation/Models/LogModel.moc.h>
 #include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 
 ezQtAssetCuratorFilter::ezQtAssetCuratorFilter(QObject* pParent)
   : ezQtAssetFilter(pParent)
@@ -17,8 +18,9 @@ bool ezQtAssetCuratorFilter::IsAssetFiltered(const ezSubAsset* pInfo) const
 
 bool ezQtAssetCuratorFilter::Less(const ezSubAsset* pInfoA, const ezSubAsset* pInfoB) const
 {
-  if (pInfoA->m_pAssetInfo->m_TransformState != pInfoB->m_pAssetInfo->m_TransformState)
-    return pInfoA->m_pAssetInfo->m_TransformState < pInfoB->m_pAssetInfo->m_TransformState;
+  // TODO: We can't sort on mutable data here as it destoys the set order, need to add a sorting model on top.
+  //if (pInfoA->m_pAssetInfo->m_TransformState != pInfoB->m_pAssetInfo->m_TransformState)
+  //  return pInfoA->m_pAssetInfo->m_TransformState < pInfoB->m_pAssetInfo->m_TransformState;
 
   ezStringView sSortA = pInfoA->GetName();
   ezStringView sSortB = pInfoB->GetName();
@@ -71,6 +73,14 @@ void ezQtAssetCuratorPanel::OnAssetSelectionChanged(const QItemSelection &select
     m_selectedIndex = selected.indexes()[0];
 
   UpdateIssueInfo();
+}
+
+void ezQtAssetCuratorPanel::on_ListAssets_doubleClicked(const QModelIndex& index)
+{
+  ezUuid guid = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>();
+  QString sAbsPath = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
+
+  ezQtEditorApp::GetSingleton()->OpenDocument(sAbsPath.toUtf8().data());
 }
 
 void ezQtAssetCuratorPanel::LogWriter(const ezLoggingEventData& e)

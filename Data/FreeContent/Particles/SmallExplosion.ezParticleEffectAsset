@@ -20,7 +20,7 @@ o
 	{
 		f %BaseSize{0}
 		f %CurveScale{0x00000040}
-		s %SizeCurve{"{ 4817c4cc-5a4a-462c-b80a-e97bc857ffc6 }"}
+		s %SizeCurve{"{ ab745bdf-bc09-9e34-77b5-734904059b96 }"}
 	}
 }
 o
@@ -204,7 +204,7 @@ o
 	{
 		f %BaseSize{0}
 		f %CurveScale{0x0000803F}
-		s %SizeCurve{"{ 4817c4cc-5a4a-462c-b80a-e97bc857ffc6 }"}
+		s %SizeCurve{"{ ab745bdf-bc09-9e34-77b5-734904059b96 }"}
 	}
 }
 o
@@ -255,12 +255,12 @@ AssetInfo
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17186564394336932993,5559752034210902017}}
-		u4 %Hash{3285816362219069895}
+		u4 %Hash{2925710095634951198}
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 4817c4cc-5a4a-462c-b80a-e97bc857ffc6 }"}
 			s{"{ 5960875e-fd79-4e1a-a7f6-8c084e7fba9b }"}
+			s{"{ ab745bdf-bc09-9e34-77b5-734904059b96 }"}
 			s{"{ d26eb0e2-d440-4595-92df-bbf6ccf7aa6b }"}
 			s{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
 		}
