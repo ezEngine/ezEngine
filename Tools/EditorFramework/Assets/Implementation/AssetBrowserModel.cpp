@@ -136,7 +136,9 @@ void ezQtAssetBrowserModel::HandleAsset(const ezSubAsset* pInfo, AssetOp op)
 {
   if (m_pFilter->IsAssetFiltered(pInfo))
   {
-    if (!m_DisplayedEntries.Contains(pInfo->m_Data.m_Guid))
+    // TODO: Due to file system watcher weirdness the m_sDataDirRelativePath can be empty at this point when renaming files
+    // really rare haven't reproed it yet but that case crashes when getting the name so early out that.
+    if (!m_DisplayedEntries.Contains(pInfo->m_Data.m_Guid) || pInfo->m_pAssetInfo->m_sDataDirRelativePath.IsEmpty())
     {
       return;
     }
@@ -154,6 +156,19 @@ void ezQtAssetBrowserModel::HandleAsset(const ezSubAsset* pInfo, AssetOp op)
   AssetComparer cmp(this, AllAssets);
   AssetEntry* pLB = std::lower_bound(begin(m_AssetsToDisplay), end(m_AssetsToDisplay), ae, cmp);
   ezUInt32 uiInsertIndex = pLB - m_AssetsToDisplay.GetData();
+  //TODO: Due to sorting issues the above can fail (we need to add a sorting model ontop of this as we use mutable data (name) for sorting.
+  if (uiInsertIndex >= m_AssetsToDisplay.GetCount())
+  {
+    for (ezUInt32 i = 0; i < m_AssetsToDisplay.GetCount(); i++)
+    {
+      const AssetEntry& displayEntry = m_AssetsToDisplay[i];
+      if (!cmp.Less(displayEntry, ae) && !cmp.Less(ae, displayEntry))
+      {
+        uiInsertIndex = i;
+        break;
+      }
+    }
+  }
 
   if (op == AssetOp::Add)
   {
