@@ -161,10 +161,11 @@ void ezQtAssetBrowserModel::HandleAsset(const ezSubAsset* pInfo, AssetOp op)
   {
     for (ezUInt32 i = 0; i < m_AssetsToDisplay.GetCount(); i++)
     {
-      const AssetEntry& displayEntry = m_AssetsToDisplay[i];
+      AssetEntry& displayEntry = m_AssetsToDisplay[i];
       if (!cmp.Less(displayEntry, ae) && !cmp.Less(ae, displayEntry))
       {
         uiInsertIndex = i;
+        pLB = &displayEntry;
         break;
       }
     }
