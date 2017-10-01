@@ -25,7 +25,7 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{1092965785348279721,5019769357126639657}}
-		u4 %Hash{1085901112112798071}
+		u4 %Hash{17699521484922179189}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -93,7 +93,7 @@ o
 			Uuid{u4{4679188952548771314,17504372203063908829}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x240E5741,0x43F48540,0xA052803F}}
+		Vec3 %LocalPosition{f{0,0,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}

@@ -76,7 +76,7 @@ o
 	{
 		b %Active{1}
 		VarDict %ColorParams{}
-		s %Effect{"{ dd849390-ce22-4f58-a898-b7d828e9356c }"}
+		s %Effect{"{ ae657001-3504-4d28-8154-d42142f182ee }"}
 		VarDict %FloatParams{}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
@@ -97,12 +97,12 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8442476130659817125,5462836412014684702}}
-		u4 %Hash{17365023319488513911}
+		u4 %Hash{18156040141528313465}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 384630de-7888-48fa-9695-a47936f2c4d1 }"}
-			s{"{ dd849390-ce22-4f58-a898-b7d828e9356c }"}
+			s{"{ ae657001-3504-4d28-8154-d42142f182ee }"}
 		}
 	}
 }
