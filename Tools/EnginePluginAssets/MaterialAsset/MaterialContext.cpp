@@ -60,7 +60,8 @@ void ezMaterialContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     }
   }
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineRestoreResourceMsg>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineRestoreResourceMsg>() ||
+    pMsg->GetDynamicRTTI()->IsDerivedFrom<ezCreateThumbnailMsgToEngine>())
   {
     ezResourceManager::RestoreResource(m_hMaterial);
   }

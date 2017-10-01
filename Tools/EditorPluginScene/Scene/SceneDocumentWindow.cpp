@@ -312,6 +312,11 @@ void ezQtSceneDocumentWindow::FocusOnSelectionHoveredView()
 
 void ezQtSceneDocumentWindow::InternalRedraw()
 {
+  // If play the game is on, only render (in editor) if the window is active
+  ezSceneDocument* doc = GetSceneDocument();
+  if (doc->GetGameMode() == GameMode::Play && !window()->isActiveWindow())
+    return;
+
   ezEditorInputContext::UpdateActiveInputContext();
   SendRedrawMsg();
   ezQtEngineDocumentWindow::InternalRedraw();

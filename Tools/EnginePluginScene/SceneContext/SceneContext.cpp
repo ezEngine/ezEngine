@@ -177,18 +177,6 @@ void ezSceneContext::HandleSceneSettingsMsg(const ezSceneSettingsMsgToEngine* pM
     AddAmbientLight(true);
   else
     RemoveAmbientLight();
-
-  if (pState && pState->WasQuitRequested())
-  {
-    ezGameApplication::GetGameApplicationInstance()->DeactivateGameStateForWorld(m_pWorld);
-    ezGameApplication::GetGameApplicationInstance()->DestroyGameStateForWorld(m_pWorld);
-
-    ezGameModeMsgToEditor msgToEd;
-    msgToEd.m_DocumentGuid = pMsg->m_DocumentGuid;
-    msgToEd.m_bRunningPTG = false;
-
-    SendProcessMessage(&msgToEd);
-  }
 }
 
 void ezSceneContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
@@ -509,6 +497,24 @@ void ezSceneContext::OnThumbnailViewContextCreated()
 void ezSceneContext::OnDestroyThumbnailViewContext()
 {
   RemoveAmbientLight();
+}
+
+
+void ezSceneContext::UpdateDocumentContext()
+{
+  SUPER::UpdateDocumentContext();
+  ezGameState* pState = GetGameState();
+  if (pState && pState->WasQuitRequested())
+  {
+    ezGameApplication::GetGameApplicationInstance()->DeactivateGameStateForWorld(m_pWorld);
+    ezGameApplication::GetGameApplicationInstance()->DestroyGameStateForWorld(m_pWorld);
+
+    ezGameModeMsgToEditor msgToEd;
+    msgToEd.m_DocumentGuid = GetDocumentGuid();
+    msgToEd.m_bRunningPTG = false;
+
+    SendProcessMessage(&msgToEd);
+  }
 }
 
 bool ezSceneContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)

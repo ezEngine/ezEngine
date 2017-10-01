@@ -627,11 +627,16 @@ ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetG
 {
   CURATOR_PROFILE("IsAssetUpToDate");
   out_AssetHash = GetAssetDependencyHash(assetGuid);
-  out_ThumbHash = 0;
+  out_ThumbHash = GetAssetReferenceHash(assetGuid);
   if (out_AssetHash == 0)
   {
     UpdateAssetTransformState(assetGuid, ezAssetInfo::TransformState::MissingDependency);
     return ezAssetInfo::TransformState::MissingDependency;
+  }
+  if (out_ThumbHash == 0)
+  {
+    UpdateAssetTransformState(assetGuid, ezAssetInfo::TransformState::MissingReference);
+    return ezAssetInfo::TransformState::MissingReference;
   }
 
   ezAssetDocumentManager* pManager = static_cast<ezAssetDocumentManager*>(pTypeDescriptor->m_pManager);
@@ -647,13 +652,6 @@ ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetG
 
   if (pManager->IsOutputUpToDate(sAssetFile, outputs, out_AssetHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion()))
   {
-    out_ThumbHash = GetAssetReferenceHash(assetGuid);
-    if (out_ThumbHash == 0)
-    {
-      UpdateAssetTransformState(assetGuid, ezAssetInfo::TransformState::MissingReference);
-      return ezAssetInfo::TransformState::MissingReference;
-    }
-
     if (flags.IsSet(ezAssetDocumentFlags::SupportsThumbnail))
     {
       if (!ezAssetDocumentManager::IsThumbnailUpToDate(sAssetFile, out_ThumbHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion()))
@@ -668,7 +666,6 @@ ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetG
   }
   else
   {
-    out_ThumbHash = GetAssetReferenceHash(assetGuid);
     UpdateAssetTransformState(assetGuid, ezAssetInfo::TransformState::NeedsTransform);
     return ezAssetInfo::TransformState::NeedsTransform;
   }

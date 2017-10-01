@@ -15,16 +15,28 @@ ezUInt64 ezAssetCurator::GetAssetHash(ezUuid assetGuid, bool bReferences)
   CURATOR_PROFILE("GetAssetHash");
   ezStringBuilder tmp;
 
-  ezString m_sAbsolutePath;
-  ezAssetDocumentInfo m_Info;
   {
+    // If assetGuid is a sub-asset, redirect to main asset.
     EZ_LOCK(m_CuratorMutex);
     auto it = m_KnownSubAssets.Find(assetGuid);
     if (it.IsValid())
     {
-      // If assetGuid is a sub-asset, redirect to main asset.
       assetGuid = it.Value().m_pAssetInfo->m_Info.m_DocumentID;
     }
+  }
+
+  // Do this before copying the ezAssetDocumentInfo as this may change it. So we can't cache it in
+  // the lock above.
+  if (EnsureAssetInfoUpdated(assetGuid).Failed())
+  {
+    ezLog::Error("Asset with GUID {0} is unknown", ezConversionUtils::ToString(assetGuid, tmp));
+    return 0;
+  }
+
+  ezString m_sAbsolutePath;
+  ezAssetDocumentInfo m_Info;
+  {
+    EZ_LOCK(m_CuratorMutex);
     ezAssetInfo* pInfo = nullptr;
     if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
     {
@@ -40,11 +52,7 @@ ezUInt64 ezAssetCurator::GetAssetHash(ezUuid assetGuid, bool bReferences)
   }
 
   EZ_LOG_BLOCK("ezAssetCurator::GetAssetHash", m_sAbsolutePath.GetData());
-  if (EnsureAssetInfoUpdated(assetGuid).Failed())
-  {
-    ezLog::Error("Asset with GUID {0} is unknown", ezConversionUtils::ToString(assetGuid, tmp));
-    return 0;
-  }
+
 
   ezUInt64 uiHashResult = 0;
   ezSet<ezString> missingDependencies;
@@ -773,10 +781,7 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
       {
         ezString sThumbPath = static_cast<ezAssetDocumentManager*>(pAssetInfo->m_pManager)->GenerateResourceThumbnailPath(pAssetInfo->m_sAbsolutePath);
         UpdateSubAssets(*pAssetInfo);
-        if (pAssetInfo->m_TransformState != state)
-        {
-          ezQtImageCache::GetSingleton()->InvalidateCache(sThumbPath);
-        }
+        ezQtImageCache::GetSingleton()->InvalidateCache(sThumbPath);
       }
       break;
     default:

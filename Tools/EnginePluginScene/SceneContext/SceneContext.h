@@ -42,6 +42,7 @@ protected:
   virtual bool UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext) override;
   virtual void OnThumbnailViewContextCreated() override;
   virtual void OnDestroyThumbnailViewContext() override;
+  virtual void UpdateDocumentContext() override;
 
 private:
   void AddAmbientLight(bool bSetEditorTag);
