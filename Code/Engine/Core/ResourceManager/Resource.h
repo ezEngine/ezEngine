@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Core/Basics.h>
 #include <Foundation/Strings/HashedString.h>
@@ -147,6 +147,8 @@ private:
     e.m_pResource = this;
     e.m_EventType = ezResourceEventType::ResourceContentUpdated;
     ezResourceManager::BroadcastResourceEvent(e);
+
+    ezLog::Debug("Created {0} - '{1}' ", GetDynamicRTTI()->GetTypeName(), GetResourceDescription());
   }
 
   /// \brief Override this function to implement resource creation. This is called by ezResourceManager::CreateResource.

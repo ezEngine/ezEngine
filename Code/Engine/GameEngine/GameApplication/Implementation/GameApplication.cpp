@@ -574,6 +574,9 @@ void ezGameApplication::UpdateWorldsAndRender()
         if (windowContext.m_hSwapChain.IsInvalidated())
           continue;
 
+        if (ezRenderWorld::GetFrameCounter() < 10)
+          ezLog::Debug("Finishing Frame: {0}", ezRenderWorld::GetFrameCounter());
+
         if (ezRenderWorld::GetUseMultithreadedRendering() && windowContext.m_bFirstFrame)
         {
           windowContext.m_bFirstFrame = false;

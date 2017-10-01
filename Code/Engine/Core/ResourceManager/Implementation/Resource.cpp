@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Core/ResourceManager/Resource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResourceBase, 1, ezRTTINoAllocator);
@@ -114,6 +114,8 @@ void ezResourceBase::CallUpdateContent(ezStreamReader* Stream)
   e.m_pResource = this;
   e.m_EventType = ezResourceEventType::ResourceContentUpdated;
   ezResourceManager::BroadcastResourceEvent(e);
+
+  ezLog::Debug("Updated {0} - '{1}'({2}, {3}) ", GetDynamicRTTI()->GetTypeName(), GetResourceDescription(), (int)GetPriority(), GetLoadingDeadline(ezTime::Now()).GetSeconds());
 }
 
 ezTime ezResourceBase::GetLoadingDeadline(ezTime tNow) const

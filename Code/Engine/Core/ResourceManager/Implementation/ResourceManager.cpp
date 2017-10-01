@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Communication/GlobalEvent.h>
@@ -251,12 +251,17 @@ void ezResourceManager::UpdateLoadingDeadlines()
 
   /// \todo don't do this too often
 
-  const ezTime tNow = m_LastFrameUpdate;
+  const ezTime tNow = ezTime::Now();
 
   if (tNow - m_LastDeadLineUpdate < ezTime::Milliseconds(100))
     return;
 
   m_LastDeadLineUpdate = tNow;
+
+  if (m_RequireLoading.IsEmpty())
+    return;
+
+  ezLog::Debug("Updating Loading Deadlines");
 
   /// \todo Allow to tweak kick out time
   /// \todo Make sure resources that are queued here don't get deleted

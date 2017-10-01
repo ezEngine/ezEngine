@@ -86,6 +86,9 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
   if (mode == ezResourceAcquireMode::PointerOnly ||
       (mode == ezResourceAcquireMode::MetaInfo && pResource->GetLoadingState() >= ezResourceState::UnloadedMetaInfoAvailable))
   {
+    if (Priority != ezResourcePriority::Unchanged)
+      pResource->m_Priority = Priority;
+
     pResource->m_iLockCount.Increment();
     return pResource;
   }

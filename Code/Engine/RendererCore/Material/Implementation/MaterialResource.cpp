@@ -487,7 +487,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
         ezMaterialResourceDescriptor::Texture2DBinding& tc = m_Desc.m_Texture2DBindings.ExpandAndGetRef();
         tc.m_Name.Assign(sTemp.GetData());
-        tc.m_Value = ezResourceManager::LoadResource<ezTexture2DResource>(sTemp2);
+        tc.m_Value = ezResourceManager::LoadResource<ezTexture2DResource>(sTemp2, ezResourcePriority::Lowest, ezTexture2DResourceHandle());
       }
     }
 
@@ -509,7 +509,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
         ezMaterialResourceDescriptor::TextureCubeBinding& tc = m_Desc.m_TextureCubeBindings.ExpandAndGetRef();
         tc.m_Name.Assign(sTemp.GetData());
-        tc.m_Value = ezResourceManager::LoadResource<ezTextureCubeResource>(sTemp2);
+        tc.m_Value = ezResourceManager::LoadResource<ezTextureCubeResource>(sTemp2, ezResourcePriority::Lowest, ezTextureCubeResourceHandle());
       }
     }
 
@@ -623,7 +623,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
           tc.m_Name.Assign(tmp.GetData());
 
           tmp = pValue->GetPrimitivesString()[0];
-          tc.m_Value = ezResourceManager::LoadResource<ezTexture2DResource>(tmp);
+          tc.m_Value = ezResourceManager::LoadResource<ezTexture2DResource>(tmp, ezResourcePriority::Low, ezTexture2DResourceHandle());
         }
       }
 
@@ -641,7 +641,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
           tc.m_Name.Assign(tmp.GetData());
 
           tmp = pValue->GetPrimitivesString()[0];
-          tc.m_Value = ezResourceManager::LoadResource<ezTextureCubeResource>(tmp);
+          tc.m_Value = ezResourceManager::LoadResource<ezTextureCubeResource>(tmp, ezResourcePriority::Lowest, ezTextureCubeResourceHandle());
         }
       }
     }

@@ -152,7 +152,7 @@ void ezGameApplication::DoSetupDefaultResources()
 
   // 2D Textures
   {
-    ezTexture2DResourceHandle hFallbackTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/LoadingTexture_D.dds");
+    ezTexture2DResourceHandle hFallbackTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/LoadingTexture_D.dds", ezResourcePriority::Highest, ezTexture2DResourceHandle());
     ezTexture2DResourceHandle hMissingTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/MissingTexture_D.dds");
 
     ezTexture2DResource::SetTypeFallbackResource(hFallbackTexture);
@@ -173,7 +173,7 @@ void ezGameApplication::DoSetupDefaultResources()
   // Materials
   {
     ezMaterialResourceHandle hMissingMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/MissingMaterial.ezMaterial");
-    ezMaterialResourceHandle hFallbackMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/LoadingMaterial.ezMaterial");
+    ezMaterialResourceHandle hFallbackMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/LoadingMaterial.ezMaterial", ezResourcePriority::Highest, ezMaterialResourceHandle());
 
     ezMaterialResource::SetTypeFallbackResource(hFallbackMaterial);
     ezMaterialResource::SetTypeMissingResource(hMissingMaterial);
