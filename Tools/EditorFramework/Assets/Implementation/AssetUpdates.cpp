@@ -310,11 +310,13 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(const char* szAbsFilePath)
           // Asset moved, remove old file and asset info.
           m_ReferencedFiles.Remove(pAssetInfo->m_sAbsolutePath);
           UntrackDependencies(pAssetInfo);
-          // Copy old list of sub-assets so we don't lose it.
-          assetInfo.m_SubAssets = pAssetInfo->m_SubAssets;
-          EZ_DEFAULT_DELETE(pAssetInfo);
-          pAssetInfo = nullptr;
-          SetAssetExistanceState(assetInfo, ezAssetExistanceState::FileModified); // asset was only moved, prevent added event (could have been modified though)
+          pAssetInfo->Update(assetInfo);
+          TrackDependencies(pAssetInfo);
+          UpdateAssetTransformState(RefFile.m_AssetGuid, ezAssetInfo::TransformState::Unknown);
+          SetAssetExistanceState(*pAssetInfo, ezAssetExistanceState::FileModified); // asset was only moved, prevent added event (could have been modified though)
+          UpdateSubAssets(*pAssetInfo);
+          RefFile.m_AssetGuid = pAssetInfo->m_Info.m_DocumentID;
+          return EZ_SUCCESS;
         }
         else
         {
