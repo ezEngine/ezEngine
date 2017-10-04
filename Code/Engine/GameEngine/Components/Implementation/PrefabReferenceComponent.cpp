@@ -203,8 +203,11 @@ void ezPrefabReferenceComponentManager::Update(const ezWorldModule::UpdateContex
       // only do this at editor time though, at regular runtime we do want to fully serialize the entire sub tree
       const ezTag& tag = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorPrefabInstance");
 
-      SetUniqueIDRecursive(pPrefab->GetOwner(), pPrefab->GetUniqueID(), tag);
-      pPrefab->GetOwner()->GetTags().Remove(tag); // remove it from the top level prefab game object again
+      ezGameObject* pOwner = pPrefab->GetOwner();
+      for (auto itChild = pOwner->GetChildren(); itChild.IsValid(); itChild.Next())
+      {
+        SetUniqueIDRecursive(itChild, pPrefab->GetUniqueID(), tag);
+      }
     }
   }
 

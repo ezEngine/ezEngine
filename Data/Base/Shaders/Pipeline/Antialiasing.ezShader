@@ -118,7 +118,7 @@ float4 main(PS_IN Input) : SV_Target
 
         if (sampleDist <= 1.0f)
         {
-          float3 sample = ColorTexture.Load(currentCoords, subSampleIdx).rgb;
+          float3 sample = max(ColorTexture.Load(currentCoords, subSampleIdx).rgb, 0.0f);
 
           float weight = Filter(sampleDist);
           float luminance = GetLuminance(sample);

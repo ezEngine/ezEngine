@@ -28,7 +28,7 @@ void ezWorldWriter::Write(ezStreamWriter& stream, ezWorld& world, const ezTagSet
     m_WrittenComponentHandles[ezComponentHandle()] = 0;
   }
 
-  m_pWorld->Traverse(ezMakeDelegate(&ezWorldWriter::ObjectTraverser, this), ezWorld::TraversalMethod::BreadthFirst);
+  m_pWorld->Traverse(ezMakeDelegate(&ezWorldWriter::ObjectTraverser, this), ezWorld::TraversalMethod::DepthFirst);
 
   IncludeAllComponentBaseTypes();
 
@@ -163,7 +163,7 @@ void ezWorldWriter::WriteComponentHandle(const ezComponentHandle& hComponent)
 ezVisitorExecution::Enum ezWorldWriter::ObjectTraverser(ezGameObject* pObject)
 {
   if (m_pExclude && pObject->GetTags().IsAnySet(*m_pExclude))
-    return ezVisitorExecution::Continue;
+    return ezVisitorExecution::Skip;
 
   if (pObject->GetParent())
     m_AllChildObjects.PushBack(pObject);

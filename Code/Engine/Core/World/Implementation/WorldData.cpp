@@ -206,7 +206,9 @@ void WorldData::TraverseBreadthFirst(VisitorFunc& func)
       Hierarchy& hierarchy = m_Hierarchies[uiHierarchyIndex];
       if (uiHierarchyLevel < hierarchy.m_Data.GetCount())
       {
-        if (TraverseHierarchyLevel<Helper>(*hierarchy.m_Data[uiHierarchyLevel], &func) == ezVisitorExecution::Stop)
+        ezVisitorExecution::Enum execution = TraverseHierarchyLevel<Helper>(*hierarchy.m_Data[uiHierarchyLevel], &func);
+        EZ_ASSERT_DEV(execution != ezVisitorExecution::Skip, "Skip is not supported when using breadth first traversal");
+        if (execution == ezVisitorExecution::Stop)
           return;
       }
     }
@@ -237,13 +239,17 @@ void WorldData::TraverseDepthFirst(VisitorFunc& func)
 // static
 ezVisitorExecution::Enum WorldData::TraverseObjectDepthFirst(ezGameObject* pObject, VisitorFunc& func)
 {
-  if (func(pObject) == ezVisitorExecution::Stop)
+  ezVisitorExecution::Enum execution = func(pObject);
+  if (execution == ezVisitorExecution::Stop)
     return ezVisitorExecution::Stop;
 
-  for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
+  if (execution != ezVisitorExecution::Skip) // skip all children
   {
-    if (TraverseObjectDepthFirst(it, func) == ezVisitorExecution::Stop)
-      return ezVisitorExecution::Stop;
+    for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
+    {
+      if (TraverseObjectDepthFirst(it, func) == ezVisitorExecution::Stop)
+        return ezVisitorExecution::Stop;
+    }
   }
 
   return ezVisitorExecution::Continue;

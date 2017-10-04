@@ -19,8 +19,9 @@ namespace ezInternal
 
       while (pCurrentData < pEndData)
       {
-        if (VISITOR::Visit(pCurrentData, pUserData) == ezVisitorExecution::Stop)
-          return ezVisitorExecution::Stop;
+        ezVisitorExecution::Enum execution = VISITOR::Visit(pCurrentData, pUserData);
+        if (execution != ezVisitorExecution::Continue)
+          return execution;
 
         ++pCurrentData;
       }

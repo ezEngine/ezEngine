@@ -240,12 +240,13 @@ struct EZ_CORE_DLL ezOnComponentFinishedAction2
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezOnComponentFinishedAction2);
 
-/// \brief Used as return value of visitor functions to define whether calling function should stop or continue visiting
+/// \brief Used as return value of visitor functions to define whether calling function should stop or continue visiting.
 struct ezVisitorExecution
 {
   enum Enum
   {
     Continue,
+    Skip,
     Stop
   };
 };
