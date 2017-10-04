@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <PhysXCooking/Basics.h>
 #include <PhysXPlugin/PhysXInterface.h>
@@ -30,6 +30,7 @@ public:
 
   static ezResult CookTriangleMesh(const ezPhysXCookingMesh& mesh, ezStreamWriter& OutputStream);
   static ezResult CookConvexMesh(const ezPhysXCookingMesh& mesh, ezStreamWriter& OutputStream);
+  static ezResult ComputeConvexHull(const ezPhysXCookingMesh& mesh, ezPhysXCookingMesh& outMesh);
 
 
 private:
