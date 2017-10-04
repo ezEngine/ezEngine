@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <PhysXPlugin/Components/PxVisColMeshComponent.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -32,6 +32,8 @@ ezPxVisColMeshComponent::ezPxVisColMeshComponent()
 
 ezPxVisColMeshComponent::~ezPxVisColMeshComponent()
 {
+  // unsubscribe from resource events
+  SetMesh(ezPxMeshResourceHandle());
 }
 
 void ezPxVisColMeshComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -95,10 +97,33 @@ void ezPxVisColMeshComponent::SetMesh(const ezPxMeshResourceHandle& hMesh)
 {
   if (m_hCollisionMesh != hMesh)
   {
+    if (m_hCollisionMesh.IsValid())
+    {
+      ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::NoFallback);
+
+      EZ_LOCK(ezResourceManager::GetMutex());
+
+      if (pMesh->m_ResourceEvents.HasEventHandler(ezMakeDelegate(&ezPxVisColMeshComponent::ResourceEventHandler, this)))
+      {
+        pMesh->m_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezPxVisColMeshComponent::ResourceEventHandler, this));
+      }
+    }
+
     m_hCollisionMesh = hMesh;
     m_hMesh.Invalidate();
 
     GetManager()->EnqueueUpdate(GetHandle());
+  }
+}
+
+void ezPxVisColMeshComponent::ResourceEventHandler(const ezResourceEvent& e)
+{
+  switch (e.m_EventType)
+  {
+  case ezResourceEventType::ResourceContentUnloading:
+  case ezResourceEventType::ResourceContentUpdated:
+    GetManager()->EnqueueUpdate(GetHandle());
+    break;
   }
 }
 
@@ -118,6 +143,11 @@ void ezPxVisColMeshComponent::CreateCollisionRenderMesh()
     return;
 
   EZ_LOCK(ezResourceManager::GetMutex());
+
+  if (!pMesh->m_ResourceEvents.HasEventHandler(ezMakeDelegate(&ezPxVisColMeshComponent::ResourceEventHandler, this)))
+  {
+    pMesh->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezPxVisColMeshComponent::ResourceEventHandler, this));
+  }
 
   ezStringBuilder sColMeshName = pMesh->GetResourceID();
   sColMeshName.AppendFormat("_{0}_VisColMesh", pMesh->GetCurrentResourceChangeCounter()); // the change counter allows to react to resource updates

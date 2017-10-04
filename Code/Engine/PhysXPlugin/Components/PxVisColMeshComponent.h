@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <PhysXPlugin/Basics.h>
 #include <PhysXPlugin/Resources/PxMeshResource.h>
@@ -61,6 +61,7 @@ public:
   EZ_ALWAYS_INLINE const ezPxMeshResourceHandle& GetMesh() const { return m_hCollisionMesh; }
 
 private:
+  void ResourceEventHandler(const ezResourceEvent& e);
 
   ezPxMeshResourceHandle m_hCollisionMesh;
   mutable ezMeshResourceHandle m_hMesh;
