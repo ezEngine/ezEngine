@@ -225,8 +225,9 @@ private:
   ezResult ComputeCenterAndScale(const ezArrayPtr<const ezVec3> vertices);
   ezResult StoreNormalizedVertices(const ezArrayPtr<const ezVec3> vertices);
   void StoreTriangle(int i, int j, int k);
-  void InitializeHull();
+  ezResult InitializeHull();
   void ComputeHull();
+  bool IsInside(ezUInt32 vtxId) const;
   void RemoveVisibleFaces(ezUInt32 vtxId);
   void PatchHole(ezUInt32 vtxId);
 
@@ -251,6 +252,8 @@ private:
 
   ezVec3d m_vCenter;
   double m_fScale;
+
+  ezVec3d m_vInside;
 
   // all the 'good' vertices (no duplicates)
   // normalized to be within a unit-cube
@@ -361,16 +364,7 @@ void ezConvexHullGenerator::StoreTriangle(int i, int j, int k)
   m_Edges[i * uiMaxVertices + k].Add(j);
   m_Edges[j * uiMaxVertices + k].Add(i);
 
-  ezVec3d avg;
-  {
-    avg.SetZero();
-    for (ezUInt32 v = 0; v < 4; ++v)
-      avg += m_Vertices[v];
-    avg /= 4.0;
-  }
-
-  //triangle.m_bFlip = triangle.m_fPlaneDistance < 0;
-  triangle.m_bFlip = triangle.m_vNormal.Dot(avg) > triangle.m_fPlaneDistance;
+  triangle.m_bFlip = triangle.m_vNormal.Dot(m_vInside) > triangle.m_fPlaneDistance;
 
   if (triangle.m_bFlip)
   {
@@ -379,9 +373,158 @@ void ezConvexHullGenerator::StoreTriangle(int i, int j, int k)
   }
 }
 
-void ezConvexHullGenerator::InitializeHull()
+ezResult ezConvexHullGenerator::InitializeHull()
 {
-  // Initially construct the hull as containing only the first four points.
+  ezVec3d minV = m_Vertices[0];
+  ezVec3d maxV = m_Vertices[0];
+  ezUInt32 minIx = 0;
+  ezUInt32 minIy = 0;
+  ezUInt32 minIz = 0;
+  ezUInt32 maxIx = 0;
+  ezUInt32 maxIy = 0;
+  ezUInt32 maxIz = 0;
+
+  for (ezUInt32 i = 0; i < m_Vertices.GetCount(); ++i)
+  {
+    const auto& v = m_Vertices[i];
+
+    if (v.x < minV.x)
+    {
+      minV.x = v.x;
+      minIx = i;
+    }
+
+    if (v.x > maxV.x)
+    {
+      maxV.x = v.x;
+      maxIx = i;
+    }
+
+    if (v.y < minV.y)
+    {
+      minV.y = v.y;
+      minIy = i;
+    }
+
+    if (v.y > maxV.y)
+    {
+      maxV.y = v.y;
+      maxIy = i;
+    }
+
+    if (v.z < minV.z)
+    {
+      minV.z = v.z;
+      minIz = i;
+    }
+
+    if (v.z > maxV.z)
+    {
+      maxV.z = v.z;
+      maxIz = i;
+    }
+  }
+
+  const ezVec3d extents = maxV - minV;
+  ezUInt32 uiMainAxis1;
+  ezUInt32 uiMainAxis2;
+
+  if (extents.x >= extents.y && extents.x >= extents.z)
+  {
+    uiMainAxis1 = minIx;
+    uiMainAxis2 = maxIx;
+  }
+  else if (extents.y >= extents.x && extents.y >= extents.z)
+  {
+    uiMainAxis1 = minIy;
+    uiMainAxis2 = maxIy;
+  }
+  else
+  {
+    uiMainAxis1 = minIz;
+    uiMainAxis2 = maxIz;
+  }
+
+  if (uiMainAxis1 == uiMainAxis2)
+    return EZ_FAILURE;
+
+  ezHybridArray<ezUInt32, 6> testIdx;
+  testIdx.PushBack(uiMainAxis1);
+  testIdx.PushBack(uiMainAxis2);
+
+  if (!testIdx.Contains(minIx))
+    testIdx.PushBack(minIx);
+  if (!testIdx.Contains(minIy))
+    testIdx.PushBack(minIy);
+  if (!testIdx.Contains(minIz))
+    testIdx.PushBack(minIz);
+  if (!testIdx.Contains(maxIx))
+    testIdx.PushBack(maxIx);
+  if (!testIdx.Contains(maxIy))
+    testIdx.PushBack(maxIy);
+  if (!testIdx.Contains(maxIz))
+    testIdx.PushBack(maxIz);
+
+  ezVec3d planePoints[3];
+  planePoints[0] = m_Vertices[testIdx[0]];
+  planePoints[1] = m_Vertices[testIdx[1]];
+
+  double maxDist = 0;
+  ezUInt32 uiIx1 = 0, uiIx2 = 0;
+
+  for (ezUInt32 i = 2; i < testIdx.GetCount(); ++i)
+  {
+    planePoints[2] = m_Vertices[testIdx[i]];
+
+    ezPlaned p;
+    if (p.SetFromPoints(planePoints).Failed())
+      continue;
+
+    for (ezUInt32 j = 2; j < testIdx.GetCount(); ++j)
+    {
+      if (i == j)
+        continue;
+
+      const double thisDist = ezMath::Abs(p.GetDistanceTo(m_Vertices[testIdx[j]]));
+      if (thisDist > maxDist)
+      {
+        maxDist = thisDist;
+        uiIx1 = i;
+        uiIx2 = j;
+      }
+    }
+  }
+
+  if (uiIx1 == 0 || uiIx2 == 0)
+    return EZ_FAILURE;
+
+  // move the four chosen ones to the front of the queue
+  testIdx.Clear();
+  testIdx.PushBack(uiMainAxis1);
+  testIdx.PushBack(uiMainAxis2);
+  testIdx.PushBack(uiIx1);
+  testIdx.PushBack(uiIx2);
+  testIdx.Sort();
+
+  for (int i = 0; i < 4; ++i)
+  {
+    if (i > 0)
+    {
+      EZ_ASSERT_DEBUG(testIdx[i - 1] != testIdx[i], "Same index used twice");
+    }
+
+    ezMath::Swap(m_Vertices[i], m_Vertices[testIdx[i]]);
+  }
+
+  // precompute the 'inside' position
+  {
+    m_vInside.SetZero();
+    for (ezUInt32 v = 0; v < 4; ++v)
+      m_vInside += m_Vertices[v];
+    m_vInside /= 4.0;
+  }
+
+  // construct the hull as containing only the first four points
   for (int i = 0; i < 4; i++)
   {
     for (int j = i + 1; j < 4; j++)
@@ -392,6 +535,8 @@ void ezConvexHullGenerator::InitializeHull()
       }
     }
   }
+
+  return EZ_SUCCESS;
 }
 
 void ezConvexHullGenerator::ComputeHull()
@@ -401,6 +546,9 @@ void ezConvexHullGenerator::ComputeHull()
   // Add the points to the hull, one at a time.
   for (ezUInt32 vtxId = 4; vtxId < uiMaxVertices; ++vtxId)
   {
+    if (IsInside(vtxId))
+      continue;
+
     // Find and delete all faces with their outside 'illuminated' by this point.
     RemoveVisibleFaces(vtxId);
 
@@ -408,6 +556,23 @@ void ezConvexHullGenerator::ComputeHull()
     // add another face containing the new point and that edge to the hull.
     PatchHole(vtxId);
   }
+}
+
+bool ezConvexHullGenerator::IsInside(ezUInt32 vtxId) const
+{
+  const ezVec3d pos = m_Vertices[vtxId];
+
+  const ezInt32 iNumTriangles = m_Triangles.GetCount();
+  for (ezInt32 j = 0; j < iNumTriangles; j++)
+  {
+    const auto& tri = m_Triangles[j];
+
+    const double dist = tri.m_vNormal.Dot(pos);
+    if (dist > tri.m_fPlaneDistance + 0.01)
+      return false;
+  }
+
+  return true;
 }
 
 void ezConvexHullGenerator::RemoveVisibleFaces(ezUInt32 vtxId)
@@ -479,7 +644,7 @@ ezResult ezConvexHullGenerator::Build(const ezArrayPtr<const ezVec3> vertices)
   m_Edges.SetCount(ezMath::Square(m_Vertices.GetCount()));
   m_Triangles.Reserve(512);
 
-  InitializeHull();
+  EZ_SUCCEED_OR_RETURN(InitializeHull());
   ComputeHull();
 
   if (m_Triangles.GetCount() < 4)
