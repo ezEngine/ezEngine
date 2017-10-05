@@ -17,6 +17,8 @@ Permutation BLEND_MODE;
 float MaskThreshold @Default(0.25);
 float ExposureBias;
 bool InverseTonemap;
+bool UseFog @Default(true);
+float VirtualDistance @Default(1000.0f);
 
 TextureCube CubeMap;
 Color BaseColor @Default(1.0, 1.0, 1.0);
@@ -36,18 +38,18 @@ DepthWrite = false
 
 VS_OUT main(VS_IN Input)
 {
-	ezPerInstanceData data = GetInstanceData(Input);
-	float4x4 objectToWorld = TransformToMatrix(data.ObjectToWorld);
+  ezPerInstanceData data = GetInstanceData(Input);
+  float4x4 objectToWorld = TransformToMatrix(data.ObjectToWorld);
 
-	VS_OUT Output = FillVertexData(Input);
-	float2 ScreenPos = sign(Input.Position.xy);
-	float4 dir = mul(GetScreenToCameraMatrix(), float4(ScreenPos.xy,1.0,1.0));
-	dir.w = 0.0;
+  VS_OUT Output = FillVertexData(Input);
+  float2 ScreenPos = sign(Input.Position.xy);
+  float4 dir = mul(GetScreenToCameraMatrix(), float4(ScreenPos.xy,1.0,1.0));
+  dir.w = 0.0;
 
-	Output.Position = float4(ScreenPos.xy, 1.0, 1.0);
-	Output.ViewDirection = mul(transpose(objectToWorld), mul(GetCameraToWorldMatrix(), dir)).xyz;
+  Output.Position = float4(ScreenPos.xy, 1.0, 1.0);
+  Output.ViewDirection = mul(transpose(objectToWorld), mul(GetCameraToWorldMatrix(), dir)).xyz;
 
-	return Output;
+  return Output;
 }
 
 [PIXELSHADER]
@@ -63,44 +65,50 @@ SamplerState CubeMap_AutoSampler;
 
 float3 GetNormal(PS_IN Input)
 {
-	return float3(0.0f, 0.0f, 1.0f);
+  return float3(0.0f, 0.0f, 1.0f);
 }
 
 float3 GetDiffuseColor(PS_IN Input)
 {
-	float3 color = CubeMap.Sample(CubeMap_AutoSampler, CubeMapDirection(Input.ViewDirection)).rgb;
+  float3 color = CubeMap.Sample(CubeMap_AutoSampler, CubeMapDirection(Input.ViewDirection)).rgb;
 
-	color *= BaseColor.rgb;
-	float weight = exp2(ExposureBias);
+  color *= BaseColor.rgb;
+  float weight = exp2(ExposureBias);
 
-	if (InverseTonemap)
-	{
-		float luminance = GetLuminance(color);
-		weight *= rcp(max(1.0f - luminance, 0.001f));
-	}
+  if (InverseTonemap)
+  {
+    float luminance = GetLuminance(color);
+    weight *= rcp(max(1.0f - luminance, 0.001f));
+  }
 
-	color *= weight;
+  color *= weight;
 
-	return color;
+  if (UseFog)
+  {
+    float3 worldPos = GetCameraPosition() + normalize(Input.ViewDirection) * VirtualDistance;
+    color = ApplyFog(color, worldPos);
+  }
+
+  return color;
 }
 
 float3 GetSpecularColor(PS_IN Input)
 {
-	return 0.0f;
+  return 0.0f;
 }
 
 float GetRoughness(PS_IN Input)
 {
-	return 1.0f;
+  return 1.0f;
 }
 
 float GetOpacity(PS_IN Input)
 {
-	float opacity = CubeMap.Sample(CubeMap_AutoSampler, CubeMapDirection(Input.ViewDirection)).a * BaseColor.a;
+  float opacity = CubeMap.Sample(CubeMap_AutoSampler, CubeMapDirection(Input.ViewDirection)).a * BaseColor.a;
 
-	#if BLEND_MODE == BLEND_MODE_MASKED
-		return opacity - MaskThreshold;
-	#else
-		return opacity;
-	#endif
+  #if BLEND_MODE == BLEND_MODE_MASKED
+    return opacity - MaskThreshold;
+  #else
+    return opacity;
+  #endif
 }

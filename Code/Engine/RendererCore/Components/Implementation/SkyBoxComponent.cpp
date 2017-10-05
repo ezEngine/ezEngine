@@ -7,13 +7,15 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/Graphics/Geometry.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezSkyBoxComponent, 3)
+EZ_BEGIN_COMPONENT_TYPE(ezSkyBoxComponent, 4)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("ExposureBias", GetExposureBias, SetExposureBias)->AddAttributes(new ezClampValueAttribute(-32.0f, 32.0f)),
     EZ_ACCESSOR_PROPERTY("InverseTonemap", GetInverseTonemap, SetInverseTonemap),
-    EZ_ACCESSOR_PROPERTY("CubeMap", GetCubeMapFile, SetCubeMapFile)->AddAttributes(new ezAssetBrowserAttribute("Texture Cube"))
+    EZ_ACCESSOR_PROPERTY("CubeMap", GetCubeMapFile, SetCubeMapFile)->AddAttributes(new ezAssetBrowserAttribute("Texture Cube")),
+    EZ_ACCESSOR_PROPERTY("UseFog", GetUseFog, SetUseFog)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_ACCESSOR_PROPERTY("VirtualDistance", GetVirtualDistance, SetVirtualDistance)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1000.0f))
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES
@@ -31,7 +33,9 @@ EZ_END_COMPONENT_TYPE
 
 ezSkyBoxComponent::ezSkyBoxComponent()
   : m_fExposureBias(0.0f)
+  , m_fVirtualDistance(1000.0f)
   , m_bInverseTonemap(false)
+  , m_bUseFog(true)
 {
 }
 
@@ -128,6 +132,8 @@ void ezSkyBoxComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_fExposureBias;
   s << m_bInverseTonemap;
+  s << m_bUseFog;
+  s << m_fVirtualDistance;
   s << m_hCubeMap;
 }
 
@@ -141,7 +147,13 @@ void ezSkyBoxComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fExposureBias;
   s >> m_bInverseTonemap;
 
-  if (uiVersion > 2)
+  if (uiVersion >= 4)
+  {
+    s >> m_bUseFog;
+    s >> m_fVirtualDistance;
+  }
+
+  if (uiVersion >= 3)
   {
     s >> m_hCubeMap;
   }
@@ -169,6 +181,19 @@ void ezSkyBoxComponent::SetInverseTonemap(bool bInverseTonemap)
   UpdateMaterials();
 }
 
+void ezSkyBoxComponent::SetUseFog(bool bUseFog)
+{
+  m_bUseFog = bUseFog;
+
+  UpdateMaterials();
+}
+
+void ezSkyBoxComponent::SetVirtualDistance(float fVirtualDistance)
+{
+  m_fVirtualDistance = fVirtualDistance;
+
+  UpdateMaterials();
+}
 
 void ezSkyBoxComponent::SetCubeMapFile(const char* szFile)
 {
@@ -210,8 +235,10 @@ void ezSkyBoxComponent::UpdateMaterials()
   {
     ezResourceLock<ezMaterialResource> pMaterial(m_hCubeMapMaterial);
 
-    pMaterial->SetParameter( "ExposureBias", m_fExposureBias );
-    pMaterial->SetParameter( "InverseTonemap", m_bInverseTonemap );
+    pMaterial->SetParameter("ExposureBias", m_fExposureBias);
+    pMaterial->SetParameter("InverseTonemap", m_bInverseTonemap);
+    pMaterial->SetParameter("UseFog", m_bUseFog);
+    pMaterial->SetParameter("VirtualDistance", m_fVirtualDistance);
     pMaterial->SetTextureCubeBinding("CubeMap", m_hCubeMap);
 
     pMaterial->PreserveCurrentDesc();

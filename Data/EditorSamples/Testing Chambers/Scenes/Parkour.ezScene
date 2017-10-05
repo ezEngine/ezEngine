@@ -2142,26 +2142,9 @@ o
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0xF2D24D3E,0x022B673E,0x9A99993E,0x0000803F}}
+		Color %Color{f{0x3333333F,0x703D4A3F,0x0000803F,0x0000803F}}
 		f %Density{0x0000003F}
 		f %HeightFalloff{0x0000A041}
-	}
-}
-o
-{
-	Uuid %id{u4{9029284152245249973,4927139643016945998}}
-	s %t{"ezPointLightComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{1}
-		b %CastShadows{0}
-		f %ConstantBias{0xCDCCCC3D}
-		f %Intensity{0x00007A44}
-		ColorGamma %LightColor{u1{255,255,255,255}}
-		f %PenumbraSize{0x0AD7233C}
-		f %Range{0x00002041}
-		f %SlopeBias{0x0000803E}
 	}
 }
 o
@@ -2706,7 +2689,7 @@ AssetInfo
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{11307716269186816352}
+		u4 %Hash{6743398546561549731}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -2844,13 +2827,15 @@ o
 {
 	Uuid %id{u4{6084841500830243463,5213165637570940150}}
 	s %t{"ezSkyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		s %CubeMap{"{ 7658057c-4541-4284-bfe5-b31c2bacd163 }"}
 		f %ExposureBias{0x0000803F}
 		b %InverseTonemap{0}
+		b %UseFog{1}
+		f %VirtualDistance{0x0000FA43}
 	}
 }
 o
@@ -3649,7 +3634,6 @@ o
 			Uuid{u4{10327930229809105293,5584995126100406967}}
 			Uuid{u4{6926584327692950705,5100168883589242071}}
 			Uuid{u4{7165347154927110319,4904037833927165563}}
-			Uuid{u4{9029284152245249973,4927139643016945998}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
@@ -10423,8 +10407,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSkyBoxComponent"}
-		u3 %TypeSize{80}
-		u3 %TypeVersion{3}
+		u3 %TypeSize{88}
+		u3 %TypeVersion{4}
 	}
 }
 o

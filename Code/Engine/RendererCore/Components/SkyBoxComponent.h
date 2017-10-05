@@ -30,6 +30,12 @@ public:
   void SetInverseTonemap(bool bInverseTonemap);
   bool GetInverseTonemap() const { return m_bInverseTonemap; }
 
+  void SetUseFog(bool bUseFog);
+  bool GetUseFog() const { return m_bUseFog; }
+
+  void SetVirtualDistance(float fVirtualDistance);
+  float GetVirtualDistance() const { return m_fVirtualDistance; }
+
   void SetCubeMapFile(const char* szFile);
   const char* GetCubeMapFile() const;
 
@@ -43,7 +49,9 @@ private:
   void UpdateMaterials();
 
   float m_fExposureBias;
+  float m_fVirtualDistance;
   bool m_bInverseTonemap;
+  bool m_bUseFog;
 
   ezTextureCubeResourceHandle m_hCubeMap;
 
