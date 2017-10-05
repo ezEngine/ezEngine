@@ -226,10 +226,11 @@ private:
   ezResult StoreNormalizedVertices(const ezArrayPtr<const ezVec3> vertices);
   void StoreTriangle(int i, int j, int k);
   ezResult InitializeHull();
-  void ComputeHull();
+  ezResult ComputeHull();
   bool IsInside(ezUInt32 vtxId) const;
   void RemoveVisibleFaces(ezUInt32 vtxId);
   void PatchHole(ezUInt32 vtxId);
+  bool PruneFlatVertices();
 
   struct TwoSet
   {
@@ -248,6 +249,7 @@ private:
     double m_fPlaneDistance;
     ezUInt16 m_uiVertexIdx[3];
     bool m_bFlip;
+    bool m_bIsDegenerate;
   };
 
   ezVec3d m_vCenter;
@@ -346,11 +348,27 @@ void ezConvexHullGenerator::StoreTriangle(int i, int j, int k)
 {
   Triangle& triangle = m_Triangles.ExpandAndGetRef();
 
-  EZ_ASSERT_DEBUG(i < j, "Invalid Triangle");
-  EZ_ASSERT_DEBUG(i < k, "Invalid Triangle");
-  EZ_ASSERT_DEBUG(j < k, "Invalid Triangle");
+  EZ_ASSERT_DEBUG((i < j) && (i < k) && (j < k), "Invalid Triangle");
 
-  triangle.m_vNormal = (m_Vertices[k] - m_Vertices[i]).Cross(m_Vertices[j] - m_Vertices[i]);
+  ezVec3d tangent1 = m_Vertices[k] - m_Vertices[i];
+  ezVec3d tangent2 = m_Vertices[j] - m_Vertices[i];
+
+  triangle.m_vNormal = tangent1.Cross(tangent2);
+  triangle.m_bIsDegenerate = triangle.m_vNormal.IsZero(0.0000001);
+
+  if (triangle.m_bIsDegenerate)
+  {
+    // triangle has degenerated to a line
+    // use some made up normal to pretend it has some direction
+
+    const ezVec3d orth = m_Vertices[i] - m_vInside;
+    tangent2 = tangent1.Cross(orth);
+    triangle.m_vNormal = tangent1.Cross(tangent2);
+
+    EZ_ASSERT_DEBUG(!triangle.m_vNormal.IsZero(0.0000001), "Normal is still invalid");
+  }
+
+  // needs to be normalized for later pruning
   triangle.m_vNormal.Normalize();
   triangle.m_fPlaneDistance = triangle.m_vNormal.Dot(m_Vertices[i]);
 
@@ -470,7 +488,7 @@ ezResult ezConvexHullGenerator::InitializeHull()
   planePoints[1] = m_Vertices[testIdx[1]];
 
   double maxDist = 0;
-  ezUInt32 uiIx1 = 0, uiIx2 = 0;
+  ezUInt32 uiIx1 = 0xFFFFFFFF, uiIx2 = 0xFFFFFFFF;
 
   for (ezUInt32 i = 2; i < testIdx.GetCount(); ++i)
   {
@@ -489,13 +507,13 @@ ezResult ezConvexHullGenerator::InitializeHull()
       if (thisDist > maxDist)
       {
         maxDist = thisDist;
-        uiIx1 = i;
-        uiIx2 = j;
+        uiIx1 = testIdx[i];
+        uiIx2 = testIdx[j];
       }
     }
   }
 
-  if (uiIx1 == 0 || uiIx2 == 0)
+  if (uiIx1 == 0xFFFFFFFF || uiIx2 == 0xFFFFFFFF)
     return EZ_FAILURE;
 
   // move the four chosen ones to the front of the queue
@@ -539,9 +557,16 @@ ezResult ezConvexHullGenerator::InitializeHull()
   return EZ_SUCCESS;
 }
 
-void ezConvexHullGenerator::ComputeHull()
+ezResult ezConvexHullGenerator::ComputeHull()
 {
   const ezUInt32 uiMaxVertices = m_Vertices.GetCount();
+
+  m_Edges.Clear();
+  m_Edges.SetCount(ezMath::Square(uiMaxVertices));
+  m_Triangles.Clear();
+  m_Triangles.Reserve(512);
+
+  EZ_SUCCEED_OR_RETURN(InitializeHull());
 
   // Add the points to the hull, one at a time.
   for (ezUInt32 vtxId = 4; vtxId < uiMaxVertices; ++vtxId)
@@ -556,6 +581,11 @@ void ezConvexHullGenerator::ComputeHull()
     // add another face containing the new point and that edge to the hull.
     PatchHole(vtxId);
   }
+
+  if (m_Triangles.GetCount() < 4)
+    return EZ_FAILURE;
+
+  return EZ_SUCCESS;
 }
 
 bool ezConvexHullGenerator::IsInside(ezUInt32 vtxId) const
@@ -629,26 +659,102 @@ void ezConvexHullGenerator::PatchHole(ezUInt32 vtxId)
   }
 }
 
+bool ezConvexHullGenerator::PruneFlatVertices()
+{
+  struct VertexNormals
+  {
+    ezVec3d m_vNormals[2];
+    ezInt32 m_iDifferentNormals = 0;
+  };
+
+  ezDynamicArray<VertexNormals> VtxNorms;
+  VtxNorms.SetCount(m_Vertices.GetCount());
+
+  ezUInt32 uiNumVerticesRemaining = 0;
+
+  for (const auto& tri : m_Triangles)
+  {
+    if (tri.m_bIsDegenerate)
+      continue;
+
+    const ezVec3d planeNorm = tri.m_vNormal;
+
+    for (int v = 0; v < 3; ++v)
+    {
+      VertexNormals& norms = VtxNorms[tri.m_uiVertexIdx[v]];
+
+      if (norms.m_iDifferentNormals > 2)
+        continue;
+
+      for (int d = 0; d < norms.m_iDifferentNormals; ++d)
+      {
+        
+        if (norms.m_vNormals[d].Dot(planeNorm) > 0.9961946) // 5 degree
+        //if (norms.m_vNormals[d].Dot(planeNorm) > 0.9848077) // 10 degree
+          goto same;
+      }
+
+      if (norms.m_iDifferentNormals == 2)
+      {
+        uiNumVerticesRemaining++;
+        norms.m_iDifferentNormals = 3;
+      }
+      else
+      {
+        norms.m_vNormals[norms.m_iDifferentNormals] = planeNorm;
+        ++norms.m_iDifferentNormals;
+      }
+      
+same:
+      continue;
+    }
+  }
+
+  if (uiNumVerticesRemaining < 4)
+    return false;
+
+  if (uiNumVerticesRemaining == m_Vertices.GetCount())
+    return false;
+
+  ezDynamicArray<ezVec3d> remaining;
+  remaining.Reserve(uiNumVerticesRemaining);
+
+  // now only keep the vertices that have at least 3 different normals
+  for (ezUInt32 v = 0; v < m_Vertices.GetCount(); ++v)
+  {
+    if (VtxNorms[v].m_iDifferentNormals < 3)
+      continue;
+
+    remaining.PushBack(m_Vertices[v]);
+  }
+
+  m_Vertices = remaining;
+
+  return true;
+}
+
 ezResult ezConvexHullGenerator::Build(const ezArrayPtr<const ezVec3> vertices)
 {
   m_Vertices.Clear();
-  m_Edges.Clear();
-  m_Triangles.Clear();
 
   EZ_SUCCEED_OR_RETURN(ComputeCenterAndScale(vertices));
   EZ_SUCCEED_OR_RETURN(StoreNormalizedVertices(vertices));
 
-  if (m_Vertices.GetCount() >= 0xFFF0)
+  if (m_Vertices.GetCount() >= 16384)
+  {
+    // TODO: Reduce vertex count
+    // compute distance of each vertex to origin
+    // sort by distance
+    // remove closest ones until maximum number is reached
     return EZ_FAILURE;
+  }
 
-  m_Edges.SetCount(ezMath::Square(m_Vertices.GetCount()));
-  m_Triangles.Reserve(512);
+  EZ_SUCCEED_OR_RETURN(ComputeHull());
 
-  EZ_SUCCEED_OR_RETURN(InitializeHull());
-  ComputeHull();
-
-  if (m_Triangles.GetCount() < 4)
-    return EZ_FAILURE;
+  if (PruneFlatVertices())
+  {
+    EZ_SUCCEED_OR_RETURN(ComputeHull());
+  }
 
   return EZ_SUCCESS;
 }
