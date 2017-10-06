@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <ModelImporter/ModelImporter.h>
 
 #include <ModelImporter/ImporterImplementation.h>
@@ -99,7 +99,7 @@ namespace ezModelImporter
           scene->CreateUniqueNames();
         }
 
-        ezLog::Success("Scene '{0}' has been imported (time {1}.2s)", szFileName, timer.GetRunningTotal().GetSeconds());
+        ezLog::Success("Imported scene '{0}' in {1} seconds", szFileName, ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
         if (addToCache)
           m_cachedScenes.Insert(szFileName, scene);
 

@@ -4,6 +4,7 @@
 #include <Foundation/Configuration/Singleton.h>
 #include <Core/Graphics/ConvexHull.h>
 #include <PxPhysicsAPI.h>
+#include <Foundation/Time/Stopwatch.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(PhysX, PhysXCooking)
 
@@ -123,11 +124,7 @@ ezResult ezPhysXCooking::CookTriangleMesh(const ezPhysXCookingMesh& mesh, ezStre
 ezResult ezPhysXCooking::CookConvexMesh(const ezPhysXCookingMesh& mesh0, ezStreamWriter& OutputStream)
 {
   ezPhysXCookingMesh mesh;
-  if (ComputeConvexHull(mesh0, mesh).Failed())
-  {
-    ezLog::Error("Convex Hull computation failed.");
-    return EZ_FAILURE;
-  }
+  EZ_SUCCEED_OR_RETURN(ComputeConvexHull(mesh0, mesh));
 
   if (mesh.m_PolygonIndices.IsEmpty() || mesh.m_Vertices.IsEmpty())
   {
@@ -210,10 +207,16 @@ ezResult ezPhysXCooking::CookConvexMesh(const ezPhysXCookingMesh& mesh0, ezStrea
 
 ezResult ezPhysXCooking::ComputeConvexHull(const ezPhysXCookingMesh& mesh, ezPhysXCookingMesh& outMesh)
 {
+  ezStopwatch timer;
+
   outMesh.m_bFlipNormals = mesh.m_bFlipNormals;
 
   ezConvexHullGenerator gen;
-  EZ_SUCCEED_OR_RETURN(gen.Build(mesh.m_Vertices));
+  if (gen.Build(mesh.m_Vertices).Failed())
+  {
+    ezLog::Error("Computing the convex hull failed.");
+    return EZ_FAILURE;
+  }
 
   ezDynamicArray<ezConvexHullGenerator::Face> faces;
   gen.Retrieve(outMesh.m_Vertices, faces);
@@ -227,6 +230,7 @@ ezResult ezPhysXCooking::ComputeConvexHull(const ezPhysXCookingMesh& mesh, ezPhy
       outMesh.m_PolygonIndices.ExpandAndGetRef() = face.m_uiVertexIdx[vert];
   }
 
+  ezLog::Dev("Computed the convex hull in {0} milliseconds", ezArgF(timer.GetRunningTotal().GetMilliseconds(), 1));
   return EZ_SUCCESS;
 }
 

@@ -45,6 +45,9 @@ public:
   /// \brief When Build() was successful this can be called to retrieve the resulting vertices and triangles.
   void Retrieve(ezDynamicArray<ezVec3>& out_Vertices, ezDynamicArray<Face>& out_Faces);
 
+  /// \brief Same as Retrieve() but only returns the vertices.
+  void RetrieveVertices(ezDynamicArray<ezVec3>& out_Vertices);
+
 private:
   ezResult ComputeCenterAndScale(const ezArrayPtr<const ezVec3> vertices);
   ezResult StoreNormalizedVertices(const ezArrayPtr<const ezVec3> vertices);
@@ -57,6 +60,7 @@ private:
   bool PruneFlatVertices(double fNormalThreshold);
   bool PruneDegenerateTriangles(double fMaxAngle);
   bool PruneSmallTriangles(double fMaxEdgeLen);
+  ezResult ProcessVertices(const ezArrayPtr<const ezVec3> vertices);
 
   struct TwoSet
   {
