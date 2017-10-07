@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginScene/Scene/SceneViewWidget.moc.h>
 #include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
@@ -197,5 +197,23 @@ void ezQtSceneViewWidget::dropEvent(QDropEvent * e)
   ezQtEngineViewWidget::dropEvent(e);
 }
 
+void ezQtSceneViewWidget::HandleMarqueePickingResult(const ezViewMarqueePickingResultMsgToEditor* pMsg)
+{
+  auto pSelMan = GetDocumentWindow()->GetDocument()->GetSelectionManager();
+  auto pObjMan = GetDocumentWindow()->GetDocument()->GetObjectManager();
+
+  if (pMsg->m_uiWhatToDo == 0) // set selection
+    pSelMan->Clear();
+
+  for (ezUuid guid : pMsg->m_ObjectGuids)
+  {
+    auto pObject = pObjMan->GetObject(guid);
+
+    if (pMsg->m_uiWhatToDo == 2) // remove from selection
+      pSelMan->RemoveObject(pObject);
+    else
+      pSelMan->AddObject(pObject); // add/set selection
+  }
+}
 
 

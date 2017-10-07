@@ -1,6 +1,7 @@
 #pragma once
 
 #include <EditorFramework/InputContexts/EditorInputContext.h>
+#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 
 class QWidget;
 class ezCamera;
@@ -29,13 +30,26 @@ protected:
 
   const ezDocumentObject* determineObjectToSelect(const ezDocumentObject* pickedObject, bool bToggle, bool bDirect) const;
 
+  virtual void DoFocusLost(bool bCancel) override;
 
 private:
   void OpenPickedMaterial(const ezObjectPickingResult& res) const;
   bool TryOpenMaterial(const ezString& sMatRef) const;
 
-  bool m_bSelectOnMouseUp;
   const ezCamera* m_pCamera;
   ezVec2I32 m_Viewport;
+  ezEngineGizmoHandle m_MarqueeGizmo;
+  ezVec3 m_vMarqueeStartPos;
+  ezUInt32 m_uiMarqueeID;
+
+  enum class Mode
+  {
+    None,
+    Single,
+    MarqueeAdd,
+    MarqueeRemove
+  };
+
+  Mode m_Mode = Mode::None;
 };
 

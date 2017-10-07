@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorEngineProcessFramework/Plugin.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
@@ -296,6 +296,32 @@ public:
   ezVec3 m_vPickedNormal;
   ezVec3 m_vPickingRayStartPosition;
 };
+
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewMarqueePickingMsgToEngine : public ezEditorEngineViewMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezViewMarqueePickingMsgToEngine, ezEditorEngineViewMsg);
+
+public:
+
+  ezUInt16 m_uiPickPosX0;
+  ezUInt16 m_uiPickPosY0;
+
+  ezUInt16 m_uiPickPosX1;
+  ezUInt16 m_uiPickPosY1;
+
+  ezUInt8 m_uiWhatToDo; // 0 == select, 1 == add, 2 == remove
+  ezUInt32 m_uiActionIdentifier;
+};
+
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewMarqueePickingResultMsgToEditor : public ezEditorEngineViewMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezViewMarqueePickingResultMsgToEditor, ezEditorEngineViewMsg);
+
+public:
+  ezDynamicArray<ezUuid> m_ObjectGuids;
+  ezUInt8 m_uiWhatToDo; // 0 == select, 1 == add, 2 == remove
+};
+
 
 class ezEditorEngineConnection;
 

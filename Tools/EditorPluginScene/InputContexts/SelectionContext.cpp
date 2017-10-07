@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginScene/InputContexts/SelectionContext.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
@@ -17,17 +17,17 @@
 ezSelectionContext::ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, const ezCamera* pCamera)
 {
   m_pCamera = pCamera;
-  m_bSelectOnMouseUp = false;
 
   SetOwner(pOwnerWindow, pOwnerView);
+
+  m_MarqueeGizmo.Configure(nullptr, ezEngineGizmoHandleType::LineBox, ezColor::CadetBlue, false, false, false);
+  pOwnerWindow->GetDocument()->AddSyncObject(&m_MarqueeGizmo);
 }
 
 ezEditorInut ezSelectionContext::DoMousePressEvent(QMouseEvent* e)
 {
   if (e->button() == Qt::MouseButton::LeftButton)
   {
-    m_bSelectOnMouseUp = false;
-
     const ezObjectPickingResult& res = GetOwnerView()->PickObject(e->pos().x(), e->pos().y());
 
     if (res.m_PickedOther.IsValid())
@@ -50,7 +50,23 @@ ezEditorInut ezSelectionContext::DoMousePressEvent(QMouseEvent* e)
       }
     }
 
-    m_bSelectOnMouseUp = true;
+    m_Mode = Mode::Single;
+
+    if (e->modifiers().testFlag(Qt::ShiftModifier))
+    {
+      m_uiMarqueeID += 23;
+      m_vMarqueeStartPos.Set(e->pos().x(), e->pos().y(), 0.1f);
+
+      m_Mode = e->modifiers().testFlag(Qt::ShiftModifier) ? Mode::MarqueeAdd : Mode::MarqueeRemove;
+      MakeActiveInputContext();
+
+      if (m_Mode == Mode::MarqueeAdd)
+        m_MarqueeGizmo.SetColor(ezColor::LightSkyBlue);
+      else
+        m_MarqueeGizmo.SetColor(ezColor::PaleVioletRed);
+
+      return ezEditorInut::WasExclusivelyHandled;
+    }
   }
 
   return ezEditorInut::MayBeHandledByOthers;
@@ -70,28 +86,37 @@ ezEditorInut ezSelectionContext::DoMouseReleaseEvent(QMouseEvent* e)
     }
   }
 
-  if (e->button() == Qt::MouseButton::LeftButton && m_bSelectOnMouseUp)
+  if (e->button() == Qt::MouseButton::LeftButton)
   {
-    const ezObjectPickingResult& res = GetOwnerView()->PickObject(e->pos().x(), e->pos().y());
-
-    const bool bToggle = (e->modifiers() & Qt::KeyboardModifier::ControlModifier) != 0;
-    const bool bDirect = (e->modifiers() & Qt::KeyboardModifier::AltModifier) != 0;
-
-    if (res.m_PickedObject.IsValid())
+    if (m_Mode == Mode::Single)
     {
-      const ezDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(res.m_PickedObject);
+      const ezObjectPickingResult& res = GetOwnerView()->PickObject(e->pos().x(), e->pos().y());
 
-      if (bToggle)
-        pDocument->GetSelectionManager()->ToggleObject(determineObjectToSelect(pObject, true, bDirect));
-      else
-        pDocument->GetSelectionManager()->SetSelection(determineObjectToSelect(pObject, false, bDirect));
+      const bool bToggle = (e->modifiers() & Qt::KeyboardModifier::ControlModifier) != 0;
+      const bool bDirect = (e->modifiers() & Qt::KeyboardModifier::AltModifier) != 0;
+
+      if (res.m_PickedObject.IsValid())
+      {
+        const ezDocumentObject* pObject = pDocument->GetObjectManager()->GetObject(res.m_PickedObject);
+
+        if (bToggle)
+          pDocument->GetSelectionManager()->ToggleObject(determineObjectToSelect(pObject, true, bDirect));
+        else
+          pDocument->GetSelectionManager()->SetSelection(determineObjectToSelect(pObject, false, bDirect));
+      }
+
+      DoFocusLost(false);
+
+      // we handled the mouse click event
+      // but this is it, we don't stay active
+      return ezEditorInut::WasExclusivelyHandled;
     }
 
-    m_bSelectOnMouseUp = false;
-
-    // we handled the mouse click event
-    // but this is it, we don't stay active
-    return ezEditorInut::WasExclusivelyHandled;
+    if (m_Mode == Mode::MarqueeAdd || m_Mode == Mode::MarqueeRemove)
+    {
+      DoFocusLost(false);
+      return ezEditorInut::WasExclusivelyHandled;
+    }
   }
 
   return ezEditorInut::MayBeHandledByOthers;
@@ -198,23 +223,80 @@ bool ezSelectionContext::TryOpenMaterial(const ezString& sMatRef) const
 
 ezEditorInut ezSelectionContext::DoMouseMoveEvent(QMouseEvent* e)
 {
-  ezViewHighlightMsgToEngine msg;
-
+  if (IsActiveInputContext() && (m_Mode == Mode::MarqueeAdd || m_Mode == Mode::MarqueeRemove))
   {
-    const ezObjectPickingResult& res = GetOwnerView()->PickObject(e->pos().x(), e->pos().y());
+    ezVec2I32 curPos;
+    curPos.Set(e->pos().x(), e->pos().y());
 
-    if (res.m_PickedComponent.IsValid())
-      msg.m_HighlightObject = res.m_PickedComponent;
-    else if (res.m_PickedOther.IsValid())
-      msg.m_HighlightObject = res.m_PickedOther;
-    else
-      msg.m_HighlightObject = res.m_PickedObject;
+    ezMat4 mView = m_pCamera->GetViewMatrix();
+    ezMat4 mProj;
+    m_pCamera->GetProjectionMatrix((float)m_Viewport.x / (float)m_Viewport.y, mProj);
+    ezMat4 mViewProj = mProj * mView;
+    ezMat4 mInvViewProj = mViewProj.GetInverse();
+
+    const ezVec3 vMousePos(e->pos().x(), e->pos().y(), 0.1f);
+
+    const ezVec3 vScreenSpacePos0(vMousePos.x, m_Viewport.y - vMousePos.y, vMousePos.z);
+    const ezVec3 vScreenSpacePos1(m_vMarqueeStartPos.x, m_Viewport.y - m_vMarqueeStartPos.y, m_vMarqueeStartPos.z);
+
+    ezVec3 vPosOnNearPlane0, vRayDir0;
+    ezVec3 vPosOnNearPlane1, vRayDir1;
+    ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vScreenSpacePos0, vPosOnNearPlane0, &vRayDir0);
+    ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vScreenSpacePos1, vPosOnNearPlane1, &vRayDir1);
+
+    ezTransform t;
+    t.SetIdentity();
+    t.m_vPosition = ezMath::Lerp(vPosOnNearPlane0, vPosOnNearPlane1, 0.5f);
+    t.m_qRotation.SetFromMat3(m_pCamera->GetViewMatrix().GetRotationalPart());
+
+    // box coordinates in screen space
+    ezVec3 vBoxPosSS0 = t.m_qRotation * vPosOnNearPlane0;
+    ezVec3 vBoxPosSS1 = t.m_qRotation * vPosOnNearPlane1;
+
+    t.m_qRotation = -t.m_qRotation;
+
+    t.m_vScale.x = ezMath::Abs(vBoxPosSS0.x - vBoxPosSS1.x);
+    t.m_vScale.y = ezMath::Abs(vBoxPosSS0.y - vBoxPosSS1.y);
+    t.m_vScale.z = 0.0f;
+
+    m_MarqueeGizmo.SetTransformation(t);
+    m_MarqueeGizmo.SetVisible(true);
+
+    {
+      ezViewMarqueePickingMsgToEngine msg;
+      msg.m_uiViewID = GetOwnerView()->GetViewID();
+      msg.m_uiPickPosX0 = (ezUInt16)m_vMarqueeStartPos.x;
+      msg.m_uiPickPosY0 = (ezUInt16)m_vMarqueeStartPos.y;
+      msg.m_uiPickPosX1 = (ezUInt16)(e->pos().x());
+      msg.m_uiPickPosY1 = (ezUInt16)(e->pos().y());
+      msg.m_uiWhatToDo = (m_Mode == Mode::MarqueeAdd) ? 1 : 2;
+      msg.m_uiActionIdentifier = m_uiMarqueeID;
+
+      GetOwnerView()->GetDocumentWindow()->GetDocument()->SendMessageToEngine(&msg);
+    }
+
+    return ezEditorInut::WasExclusivelyHandled;
   }
+  else
+  {
+    ezViewHighlightMsgToEngine msg;
 
-  GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
+    {
+      const ezObjectPickingResult& res = GetOwnerView()->PickObject(e->pos().x(), e->pos().y());
 
-  // we only updated the highlight, so others may do additional stuff, if they like
-  return ezEditorInut::MayBeHandledByOthers;
+      if (res.m_PickedComponent.IsValid())
+        msg.m_HighlightObject = res.m_PickedComponent;
+      else if (res.m_PickedOther.IsValid())
+        msg.m_HighlightObject = res.m_PickedOther;
+      else
+        msg.m_HighlightObject = res.m_PickedObject;
+    }
+
+    GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
+
+    // we only updated the highlight, so others may do additional stuff, if they like
+    return ezEditorInut::MayBeHandledByOthers;
+  }
 }
 
 ezEditorInut ezSelectionContext::DoKeyPressEvent(QKeyEvent* e)
@@ -323,6 +405,17 @@ const ezDocumentObject* ezSelectionContext::determineObjectToSelect(const ezDocu
     }
 
     return pParentChild;
+  }
+}
+
+void ezSelectionContext::DoFocusLost(bool bCancel)
+{
+  m_Mode = Mode::None;
+  m_MarqueeGizmo.SetVisible(false);
+
+  if (IsActiveInputContext())
+  {
+    MakeActiveInputContext(false);
   }
 }
 

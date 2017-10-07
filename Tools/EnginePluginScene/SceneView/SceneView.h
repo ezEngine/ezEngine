@@ -13,6 +13,7 @@ class ezEditorRenderPass;
 class ezSelectedObjectsExtractor;
 class ezSceneContext;
 typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
+class ezViewMarqueePickingMsgToEngine;
 
 struct ObjectData
 {
@@ -35,6 +36,7 @@ protected:
   virtual ezViewHandle CreateView() override;
 
   void PickObjectAt(ezUInt16 x, ezUInt16 y);
+  void MarqueePickObjects(const ezViewMarqueePickingMsgToEngine* pMsg);
 
 private:
   ezSceneContext* m_pSceneContext;

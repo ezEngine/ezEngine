@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSyncWithProcessMsgToEngine, 1, ezRTTIDefaultAllocator<ezSyncWithProcessMsgToEngine>)
@@ -261,6 +261,32 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewPickingResultMsgToEditor, 1, ezRTTIDefault
     EZ_MEMBER_PROPERTY("PickedPos", m_vPickedPosition),
     EZ_MEMBER_PROPERTY("PickedNormal", m_vPickedNormal),
     EZ_MEMBER_PROPERTY("PickRayStart", m_vPickingRayStartPosition),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewMarqueePickingMsgToEngine, 1, ezRTTIDefaultAllocator<ezViewMarqueePickingMsgToEngine>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("PickPosX0", m_uiPickPosX0),
+    EZ_MEMBER_PROPERTY("PickPosY0", m_uiPickPosY0),
+    EZ_MEMBER_PROPERTY("PickPosX1", m_uiPickPosX1),
+    EZ_MEMBER_PROPERTY("PickPosY1", m_uiPickPosY1),
+    EZ_MEMBER_PROPERTY("what", m_uiWhatToDo),
+    EZ_MEMBER_PROPERTY("aid", m_uiActionIdentifier),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewMarqueePickingResultMsgToEditor, 1, ezRTTIDefaultAllocator<ezViewMarqueePickingResultMsgToEditor>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ARRAY_MEMBER_PROPERTY("Objects", m_ObjectGuids),
+    EZ_MEMBER_PROPERTY("what", m_uiWhatToDo),
   }
   EZ_END_PROPERTIES
 }

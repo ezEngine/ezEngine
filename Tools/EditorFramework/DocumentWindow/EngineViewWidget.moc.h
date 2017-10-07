@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <QWidget>
@@ -12,6 +12,7 @@ class ezEditorInputContext;
 class QHBoxLayout;
 class QPushButton;
 class QVBoxLayout;
+class ezViewMarqueePickingResultMsgToEditor;
 
 struct ezObjectPickingResult
 {
@@ -110,6 +111,7 @@ protected:
   void EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e);
   void ShowRestartButton(bool bShow);
   virtual void OnOpenContextMenu(QPoint globalPos) {}
+  virtual void HandleMarqueePickingResult(const ezViewMarqueePickingResultMsgToEditor* pMsg) {}
 
 private slots:
   void SlotRestartEngineProcess();

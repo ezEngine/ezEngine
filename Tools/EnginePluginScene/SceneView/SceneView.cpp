@@ -74,6 +74,12 @@ void ezSceneViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
 
     PickObjectAt(pMsg2->m_uiPickPosX, pMsg2->m_uiPickPosY);
   }
+  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewMarqueePickingMsgToEngine>())
+  {
+    const ezViewMarqueePickingMsgToEngine* pMsg2 = static_cast<const ezViewMarqueePickingMsgToEngine*>(pMsg);
+
+    MarqueePickObjects(pMsg2);
+  }
 }
 
 bool ezSceneViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds)
@@ -86,6 +92,7 @@ bool ezSceneViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds
     pView->SetRenderPassProperty("EditorPickingPass", "ViewRenderMode", (ezUInt8)ezViewRenderMode::Default);
     pView->SetExtractorProperty("EditorShapeIconsExtractor", "Active", false);
     pView->SetExtractorProperty("EditorGridExtractor", "Active", false);
+    pView->SetRenderPassProperty("EditorPickingPass", "PickSelected", true);
   }
 
   bool bResult = !FocusCameraOnObject(m_Camera, bounds, 45.0f, ezVec3(1.0f, 1.0f, -1.0f));
@@ -228,6 +235,65 @@ void ezSceneViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
       }
     }
   }
+
+  SendViewMessage(&res);
+}
+
+void ezSceneViewContext::MarqueePickObjects(const ezViewMarqueePickingMsgToEngine* pMsg)
+{
+  // remote processes do not support picking, just ignore this
+  if (ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
+    return;
+
+  ezViewMarqueePickingResultMsgToEditor res;
+  res.m_uiWhatToDo = pMsg->m_uiWhatToDo;
+
+  ezView* pView = nullptr;
+  if (ezRenderWorld::TryGetView(m_hView, pView))
+  {
+    pView->SetRenderPassProperty("EditorPickingPass", "MarqueePickPos0", ezVec2(pMsg->m_uiPickPosX0, pMsg->m_uiPickPosY0));
+    pView->SetRenderPassProperty("EditorPickingPass", "MarqueePickPos1", ezVec2(pMsg->m_uiPickPosX1, pMsg->m_uiPickPosY1));
+    pView->SetRenderPassProperty("EditorPickingPass", "MarqueeActionID", pMsg->m_uiActionIdentifier);
+    
+    if (!pView->IsRenderPassReadBackPropertyExisting("EditorPickingPass", "MarqueeActionID") ||
+      pView->GetRenderPassReadBackProperty("EditorPickingPass", "MarqueeActionID").ConvertTo<ezUInt32>() != pMsg->m_uiActionIdentifier)
+      return;
+
+    ezVariant varMarquee = pView->GetRenderPassReadBackProperty("EditorPickingPass", "MarqueeResult");
+
+    if (varMarquee.IsA<ezVariantArray>())
+    {
+      ezEngineProcessDocumentContext* pDocumentContext = GetDocumentContext();
+
+      const ezVariantArray resArray = varMarquee.Get<ezVariantArray>();
+
+      for (ezUInt32 i = 0; i < resArray.GetCount(); ++i)
+      {
+        const ezVariant& singleRes = resArray[i];
+
+        const ezUInt32 uiPickingID = singleRes.ConvertTo<ezUInt32>();
+        const ezUInt32 uiComponentID = (uiPickingID & 0x00FFFFFF);
+
+        const ezUuid componentGuid = GetDocumentContext()->m_Context.m_ComponentPickingMap.GetGuid(uiComponentID);
+
+        if (componentGuid.IsValid())
+        {
+          ezComponentHandle hComponent = GetDocumentContext()->m_Context.m_ComponentMap.GetHandle(componentGuid);
+
+          // check whether the component is still valid
+          ezComponent* pComponent = nullptr;
+          if (pDocumentContext->GetWorld()->TryGetComponent<ezComponent>(hComponent, pComponent))
+          {
+            // if yes, fill out the parent game object guid
+            res.m_ObjectGuids.PushBack(GetDocumentContext()->m_Context.m_GameObjectMap.GetGuid(pComponent->GetOwner()->GetHandle()));
+          }
+        }
+      }
+    }
+  }
+
+  if (res.m_ObjectGuids.IsEmpty())
+    return;
 
   SendViewMessage(&res);
 }

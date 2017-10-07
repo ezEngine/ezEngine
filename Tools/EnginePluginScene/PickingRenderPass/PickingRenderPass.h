@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
@@ -35,12 +35,18 @@ public:
   ezVec2 m_PickingPosition;
   ezUInt32 m_PickingIdOut;
   float m_PickingDepthOut;
+  ezVec2 m_MarqueePickPosition0;
+  ezVec2 m_MarqueePickPosition1;
+  ezUInt32 m_uiMarqueeActionID; // used to prevent reusing an old result for a new marquee action
   ezUInt32 m_uiWindowWidth;
   ezUInt32 m_uiWindowHeight;
 
 private:
   void CreateTarget();
   void DestroyTarget();
+
+  void ReadBackPropertiesSinglePick(ezView* pView);
+  void ReadBackPropertiesMarqueePick(ezView* pView);
 
 private:
   ezRectFloat m_TargetRect;

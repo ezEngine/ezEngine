@@ -33,9 +33,12 @@ protected:
   virtual void dragMoveEvent(QDragMoveEvent* e) override;
   virtual void dropEvent(QDropEvent* e) override;
   virtual void OnOpenContextMenu(QPoint globalPos) override;
+  virtual void HandleMarqueePickingResult(const ezViewMarqueePickingResultMsgToEditor* pMsg) override;
 
   bool m_bAllowPickSelectedWhileDragging;
   ezTime m_LastDragMoveEvent;
 
   static bool s_bContextMenuInitialized;
+
+
 };

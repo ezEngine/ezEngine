@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
@@ -214,7 +214,6 @@ const ezObjectPickingResult& ezQtEngineViewWidget::PickObject(ezUInt16 uiScreenP
   return m_LastPickingResult;
 }
 
-
 void ezQtEngineViewWidget::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
 {
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewPickingResultMsgToEditor>())
@@ -228,6 +227,16 @@ void ezQtEngineViewWidget::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
     m_LastPickingResult.m_vPickedPosition = pFullMsg->m_vPickedPosition;
     m_LastPickingResult.m_vPickedNormal = pFullMsg->m_vPickedNormal;
     m_LastPickingResult.m_vPickingRayStart = pFullMsg->m_vPickingRayStartPosition;
+
+    return;
+  }
+
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewMarqueePickingResultMsgToEditor>())
+  {
+    const ezViewMarqueePickingResultMsgToEditor* pFullMsg = static_cast<const ezViewMarqueePickingResultMsgToEditor*>(pMsg);
+
+    HandleMarqueePickingResult(pFullMsg);
+    return;
   }
 }
 
