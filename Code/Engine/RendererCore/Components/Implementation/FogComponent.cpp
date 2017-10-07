@@ -14,7 +14,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezFogComponent, 1)
   {
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezDefaultValueAttribute(ezColorGammaUB(ezColor(0.2f, 0.2f, 0.3f)))),
     EZ_ACCESSOR_PROPERTY("Density", GetDensity, SetDensity)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
-    EZ_ACCESSOR_PROPERTY("HeightFalloff", GetHeightFalloff, SetHeightFalloff)->AddAttributes(new ezClampValueAttribute(0.1f, ezVariant()), new ezDefaultValueAttribute(10.0f))
+    EZ_ACCESSOR_PROPERTY("HeightFalloff", GetHeightFalloff, SetHeightFalloff)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(10.0f))
   }
   EZ_END_PROPERTIES
   EZ_BEGIN_MESSAGEHANDLERS
@@ -77,7 +77,7 @@ float ezFogComponent::GetDensity() const
 
 void ezFogComponent::SetHeightFalloff(float fHeightFalloff)
 {
-  m_fHeightFalloff = ezMath::Max(fHeightFalloff, 0.1f);
+  m_fHeightFalloff = ezMath::Max(fHeightFalloff, 0.0f);
   SetModified(EZ_BIT(3));
 }
 
@@ -104,7 +104,7 @@ void ezFogComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
   pRenderData->m_Color = m_Color;
   pRenderData->m_fDensity = m_fDensity / 100.0f;
-  pRenderData->m_fHeightFalloff = ezMath::Ln(1.0f/0.0001f) / m_fHeightFalloff;
+  pRenderData->m_fHeightFalloff = m_fHeightFalloff;
 
   msg.m_pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, uiBatchId);
 }

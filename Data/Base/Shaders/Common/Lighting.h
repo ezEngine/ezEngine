@@ -401,11 +401,15 @@ float3 ApplyFog(float3 color, float3 worldPosition)
   if (FogDensity > 0.0)
   {
     float3 cameraToWorldPos = worldPosition - GetCameraPosition();
-
-    float range = FogHeightFalloff * cameraToWorldPos.z;    
-    float densityAttenuation = saturate((FogDensityAtCameraPos - exp(-FogHeightFalloff * worldPosition.z + FogHeight)) / range);
+    float fogDensity = FogDensity;
     
-    float fogAmount = saturate(exp(-FogDensity * densityAttenuation * length(cameraToWorldPos)));
+    if (FogHeightFalloff != 0.0)
+    {
+      float range = FogHeightFalloff * cameraToWorldPos.z;
+      fogDensity *= saturate((exp(FogHeightFalloff * worldPosition.z + FogHeight) - FogDensityAtCameraPos) / range);
+    }
+    
+    float fogAmount = saturate(exp(-fogDensity * length(cameraToWorldPos)));
     
     color = lerp(FogColor, color, fogAmount);
   }

@@ -257,9 +257,18 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
         }
         else if (auto pFogRenderData = ezDynamicCast<const ezFogRenderData*>(it))
         {
-          pData->m_fFogHeight = pFogRenderData->m_GlobalTransform.m_vPosition.z * pFogRenderData->m_fHeightFalloff;
-          pData->m_fFogHeightFalloff = pFogRenderData->m_fHeightFalloff;
-          pData->m_fFogDensityAtCameraPos = ezMath::Exp(-pData->m_fFogHeightFalloff * pCamera->GetPosition().z + pData->m_fFogHeight);
+          float fogBaseHeight = pFogRenderData->m_GlobalTransform.m_vPosition.z;
+          float fogHeightFalloff = pFogRenderData->m_fHeightFalloff > 0.0f ? ezMath::Ln(0.0001f) / pFogRenderData->m_fHeightFalloff : 0.0f;
+
+          float fogAtCameraPos = fogHeightFalloff * (pCamera->GetPosition().z - fogBaseHeight);
+          if (fogAtCameraPos >= 80.0f) // Prevent infs
+          {
+            fogHeightFalloff = 0.0f;
+          }
+
+          pData->m_fFogHeight = -fogHeightFalloff * fogBaseHeight;
+          pData->m_fFogHeightFalloff = fogHeightFalloff;
+          pData->m_fFogDensityAtCameraPos = ezMath::Exp(ezMath::Clamp(fogAtCameraPos, -80.0f, 80.0f)); // Prevent infs
           pData->m_fFogDensity = pFogRenderData->m_fDensity;
 
           pData->m_FogColor = pFogRenderData->m_Color;
