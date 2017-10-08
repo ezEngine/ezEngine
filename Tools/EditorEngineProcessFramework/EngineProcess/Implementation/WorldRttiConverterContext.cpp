@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorEngineProcessFramework/Plugin.h>
 #include <EditorEngineProcessFramework/EngineProcess/WorldRttiConverterContext.h>
 
@@ -103,8 +103,15 @@ void* ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI
 void ezWorldRttiConverterContext::DeleteObject(const ezUuid& guid)
 {
   ezRttiConverterObject object = GetObjectByGUID(guid);
+
+  // this can happen when manipulating scenes during simulation
+  // and when creating two components of a type that acts like a singleton (and therefore ignores the second instance creation)
+  if (object.m_pObject == nullptr)
+    return;
+
   const ezRTTI* pRtti = object.m_pType;
   EZ_ASSERT_DEBUG(pRtti != nullptr, "Object does not exist!");
+
   if (pRtti == ezGetStaticRTTI<ezGameObject>())
   {
     auto hObject = m_GameObjectMap.GetHandle(guid);
@@ -154,16 +161,22 @@ void ezWorldRttiConverterContext::RegisterObject(const ezUuid& guid, const ezRTT
 void ezWorldRttiConverterContext::UnregisterObject(const ezUuid& guid)
 {
   ezRttiConverterObject object = GetObjectByGUID(guid);
-  EZ_ASSERT_DEBUG(object.m_pObject, "Failed to retrieve object by guid!");
-  const ezRTTI* pRtti = object.m_pType;
-  if (pRtti == ezGetStaticRTTI<ezGameObject>())
+
+  // this can happen when running a game simulation and the object is destroyed by the game code
+  //EZ_ASSERT_DEBUG(object.m_pObject, "Failed to retrieve object by guid!");
+
+  if (object.m_pType != nullptr)
   {
-    m_GameObjectMap.UnregisterObject(guid);
-  }
-  else if (pRtti->IsDerivedFrom<ezComponent>())
-  {
-    m_ComponentMap.UnregisterObject(guid);
-    m_ComponentPickingMap.UnregisterObject(guid);
+    const ezRTTI* pRtti = object.m_pType;
+    if (pRtti == ezGetStaticRTTI<ezGameObject>())
+    {
+      m_GameObjectMap.UnregisterObject(guid);
+    }
+    else if (pRtti->IsDerivedFrom<ezComponent>())
+    {
+      m_ComponentMap.UnregisterObject(guid);
+      m_ComponentPickingMap.UnregisterObject(guid);
+    }
   }
 
   ezRttiConverterContext::UnregisterObject(guid);

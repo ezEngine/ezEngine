@@ -1,6 +1,10 @@
 #include <PCH.h>
 #include <Core/Graphics/ConvexHull.h>
 #include <Foundation/Containers/Bitfield.h>
+#include <Foundation/Math/BoundingBox.h>
+#include <Foundation/Math/Plane.h>
+#include <Foundation/Containers/Map.h>
+#include <Foundation/Containers/Set.h>
 
 ezConvexHullGenerator::ezConvexHullGenerator()
 {
