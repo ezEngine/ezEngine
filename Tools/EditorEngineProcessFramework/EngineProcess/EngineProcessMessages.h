@@ -320,6 +320,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewMarqueePickingResultMsgToEditor 
 public:
   ezDynamicArray<ezUuid> m_ObjectGuids;
   ezUInt8 m_uiWhatToDo; // 0 == select, 1 == add, 2 == remove
+  ezUInt32 m_uiActionIdentifier;
 };
 
 

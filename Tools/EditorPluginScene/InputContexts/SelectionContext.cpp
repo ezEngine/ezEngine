@@ -21,7 +21,7 @@ ezSelectionContext::ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, e
 
   SetOwner(pOwnerWindow, pOwnerView);
 
-  m_MarqueeGizmo.Configure(nullptr, ezEngineGizmoHandleType::LineBox, ezColor::CadetBlue, false, false, false);
+  m_MarqueeGizmo.Configure(nullptr, ezEngineGizmoHandleType::LineBox, ezColor::CadetBlue, false, true, false, true);
   pOwnerWindow->GetDocument()->AddSyncObject(&m_MarqueeGizmo);
 }
 
@@ -56,7 +56,7 @@ ezEditorInut ezSelectionContext::DoMousePressEvent(QMouseEvent* e)
     if (e->modifiers().testFlag(Qt::ShiftModifier))
     {
       m_uiMarqueeID += 23;
-      m_vMarqueeStartPos.Set(e->pos().x(), e->pos().y(), 0.1f);
+      m_vMarqueeStartPos.Set(e->pos().x(), e->pos().y(), 0.01f);
 
       // only shift -> add, shift AND control -> remove
       m_Mode = e->modifiers().testFlag(Qt::ControlModifier) ? Mode::MarqueeRemove : Mode::MarqueeAdd;
@@ -236,7 +236,7 @@ ezEditorInut ezSelectionContext::DoMouseMoveEvent(QMouseEvent* e)
     ezMat4 mViewProj = mProj * mView;
     ezMat4 mInvViewProj = mViewProj.GetInverse();
 
-    const ezVec3 vMousePos(e->pos().x(), e->pos().y(), 0.1f);
+    const ezVec3 vMousePos(e->pos().x(), e->pos().y(), 0.01f);
 
     const ezVec3 vScreenSpacePos0(vMousePos.x, m_Viewport.y - vMousePos.y, vMousePos.z);
     const ezVec3 vScreenSpacePos1(m_vMarqueeStartPos.x, m_Viewport.y - m_vMarqueeStartPos.y, m_vMarqueeStartPos.z);
@@ -412,13 +412,13 @@ const ezDocumentObject* ezSelectionContext::determineObjectToSelect(const ezDocu
 
 void ezSelectionContext::DoFocusLost(bool bCancel)
 {
+  ezEditorInputContext::DoFocusLost(bCancel);
+
   m_Mode = Mode::None;
   m_MarqueeGizmo.SetVisible(false);
 
   if (IsActiveInputContext())
-  {
     MakeActiveInputContext(false);
-  }
 }
 
 

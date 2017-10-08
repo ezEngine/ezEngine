@@ -37,8 +37,8 @@ protected:
 
   bool m_bAllowPickSelectedWhileDragging;
   ezTime m_LastDragMoveEvent;
+  ezUInt32 m_uiLastMarqueeActionID = 0;
+  ezDeque<ezUuid> m_MarqueeBaseSelection;
 
   static bool s_bContextMenuInitialized;
-
-
 };

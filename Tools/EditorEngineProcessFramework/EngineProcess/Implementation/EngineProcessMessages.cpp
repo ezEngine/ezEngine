@@ -287,6 +287,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewMarqueePickingResultMsgToEditor, 1, ezRTTI
   {
     EZ_ARRAY_MEMBER_PROPERTY("Objects", m_ObjectGuids),
     EZ_MEMBER_PROPERTY("what", m_uiWhatToDo),
+    EZ_MEMBER_PROPERTY("aid", m_uiActionIdentifier),
   }
   EZ_END_PROPERTIES
 }

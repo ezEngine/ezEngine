@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoComponent.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
@@ -26,6 +26,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineGizmoHandle, 1, ezRTTIDefaultAllocator<e
     EZ_MEMBER_PROPERTY("ConstantSize", m_bConstantSize),
     EZ_MEMBER_PROPERTY("AlwaysOnTop", m_bAlwaysOnTop),
     EZ_MEMBER_PROPERTY("Visualizer", m_bVisualizer),
+    EZ_MEMBER_PROPERTY("Ortho", m_bShowInOrtho),
   }
   EZ_END_PROPERTIES
 }
@@ -462,6 +463,7 @@ ezEngineGizmoHandle::ezEngineGizmoHandle()
   m_bConstantSize = true;
   m_bAlwaysOnTop = false;
   m_bVisualizer = false;
+  m_bShowInOrtho = false;
   m_Color = ezColor::CornflowerBlue; /* The Original! */
 }
 
@@ -473,7 +475,7 @@ ezEngineGizmoHandle::~ezEngineGizmoHandle()
   m_pWorld->DeleteObjectDelayed(m_hGameObject);
 }
 
-void ezEngineGizmoHandle::Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize, bool bAlwaysOnTop, bool bVisualizer)
+void ezEngineGizmoHandle::Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize, bool bAlwaysOnTop, bool bVisualizer, bool bShowInOrtho)
 {
   SetParentGizmo(pParentGizmo);
 
@@ -482,6 +484,7 @@ void ezEngineGizmoHandle::Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleTy
   m_bVisualizer = bVisualizer;
   m_iHandleType = (int)type;
   m_Color = col;
+  m_bShowInOrtho = bShowInOrtho;
 }
 
 bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID)
@@ -608,6 +611,7 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
   ezGameObject* pObject;
   m_hGameObject = pWorld->CreateObject(god, pObject);
 
+  if (!m_bShowInOrtho)
   {
     const ezTag& tagNoOrtho = ezTagRegistry::GetGlobalRegistry().RegisterTag("NotInOrthoMode");
 

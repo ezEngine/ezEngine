@@ -202,18 +202,52 @@ void ezQtSceneViewWidget::HandleMarqueePickingResult(const ezViewMarqueePickingR
   auto pSelMan = GetDocumentWindow()->GetDocument()->GetSelectionManager();
   auto pObjMan = GetDocumentWindow()->GetDocument()->GetObjectManager();
 
-  if (pMsg->m_uiWhatToDo == 0) // set selection
-    pSelMan->Clear();
+  if (m_uiLastMarqueeActionID != pMsg->m_uiActionIdentifier)
+  {
+    m_uiLastMarqueeActionID = pMsg->m_uiActionIdentifier;
+
+    m_MarqueeBaseSelection.Clear();
+
+    if (pMsg->m_uiWhatToDo == 0) // set selection
+      pSelMan->Clear();
+
+    const auto& curSel = pSelMan->GetSelection();
+    for (auto pObj : curSel)
+    {
+      m_MarqueeBaseSelection.PushBack(pObj->GetGuid());
+    }
+  }
+
+  ezDeque<const ezDocumentObject*> newSelection;
+
+  for (ezUuid guid : m_MarqueeBaseSelection)
+  {
+    auto pObject = pObjMan->GetObject(guid);
+    newSelection.PushBack(pObject);
+  }
+
+  const ezDocumentObject* pRoot = pObjMan->GetRootObject();
 
   for (ezUuid guid : pMsg->m_ObjectGuids)
   {
-    auto pObject = pObjMan->GetObject(guid);
+    const ezDocumentObject* pObject = pObjMan->GetObject(guid);
+    
+    while (pObject->GetParent() != pRoot)
+      pObject = pObject->GetParent();
 
     if (pMsg->m_uiWhatToDo == 2) // remove from selection
-      pSelMan->RemoveObject(pObject);
-    else
-      pSelMan->AddObject(pObject); // add/set selection
+    {
+      // keep selection order
+      newSelection.Remove(pObject);
+    }
+    else // add/set selection
+    {
+      if (!newSelection.Contains(pObject))
+        newSelection.PushBack(pObject);
+    }
   }
+
+  pSelMan->SetSelection(newSelection);
 }
 
 

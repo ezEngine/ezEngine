@@ -120,7 +120,7 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
   if (pMsg->IsInstanceOf<ezViewRedrawMsgToEngine>())
   {
     /// \todo We are actually doing this once per view, but the data is going to be rendered in every view
-    /// That means we in 4-view mode we render this stuff 3 times more than necessary
+    /// That means in 4-view mode we render this stuff 3 times more than necessary
     DrawSelectionBounds();
 
     // fall through
@@ -128,7 +128,6 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
   ezEngineProcessDocumentContext::HandleMessage(pMsg);
 }
-
 
 void ezSceneContext::HandleSceneSettingsMsg(const ezSceneSettingsMsgToEngine* pMsg)
 {
@@ -268,7 +267,6 @@ void ezSceneContext::OnInitialize()
 {
   EZ_LOCK(m_pWorld->GetWriteMarker());
 }
-
 
 void ezSceneContext::OnDeinitialize()
 {

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginScene/InputContexts/OrthoGizmoContext.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
@@ -74,6 +74,12 @@ ezEditorInut ezOrthoGizmoContext::DoMouseReleaseEvent(QMouseEvent* e)
 
 ezEditorInut ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
 {
+  if (!e->buttons().testFlag(Qt::MouseButton::LeftButton))
+  {
+    m_bCanInteract = false;
+    return ezEditorInut::MayBeHandledByOthers;
+  }
+
   if (IsActiveInputContext())
   {
     float fDistPerPixel = 0;

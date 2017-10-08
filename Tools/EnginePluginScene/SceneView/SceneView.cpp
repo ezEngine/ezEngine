@@ -247,6 +247,7 @@ void ezSceneViewContext::MarqueePickObjects(const ezViewMarqueePickingMsgToEngin
 
   ezViewMarqueePickingResultMsgToEditor res;
   res.m_uiWhatToDo = pMsg->m_uiWhatToDo;
+  res.m_uiActionIdentifier = 0;
 
   ezView* pView = nullptr;
   if (ezRenderWorld::TryGetView(m_hView, pView))
@@ -258,6 +259,8 @@ void ezSceneViewContext::MarqueePickObjects(const ezViewMarqueePickingMsgToEngin
     if (!pView->IsRenderPassReadBackPropertyExisting("EditorPickingPass", "MarqueeActionID") ||
       pView->GetRenderPassReadBackProperty("EditorPickingPass", "MarqueeActionID").ConvertTo<ezUInt32>() != pMsg->m_uiActionIdentifier)
       return;
+
+    res.m_uiActionIdentifier = pMsg->m_uiActionIdentifier;
 
     ezVariant varMarquee = pView->GetRenderPassReadBackProperty("EditorPickingPass", "MarqueeResult");
 
@@ -292,7 +295,7 @@ void ezSceneViewContext::MarqueePickObjects(const ezViewMarqueePickingMsgToEngin
     }
   }
 
-  if (res.m_ObjectGuids.IsEmpty())
+  if (res.m_uiActionIdentifier == 0)
     return;
 
   SendViewMessage(&res);
