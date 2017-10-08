@@ -13,6 +13,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/MeshAsset/MeshAsset.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 
 ezSelectionContext::ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, const ezCamera* pCamera)
 {
@@ -57,7 +58,8 @@ ezEditorInut ezSelectionContext::DoMousePressEvent(QMouseEvent* e)
       m_uiMarqueeID += 23;
       m_vMarqueeStartPos.Set(e->pos().x(), e->pos().y(), 0.1f);
 
-      m_Mode = e->modifiers().testFlag(Qt::ShiftModifier) ? Mode::MarqueeAdd : Mode::MarqueeRemove;
+      // only shift -> add, shift AND control -> remove
+      m_Mode = e->modifiers().testFlag(Qt::ControlModifier) ? Mode::MarqueeRemove : Mode::MarqueeAdd;
       MakeActiveInputContext();
 
       if (m_Mode == Mode::MarqueeAdd)
