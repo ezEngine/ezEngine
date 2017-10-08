@@ -168,7 +168,6 @@ ezViewHandle ezSceneViewContext::CreateView()
 
   pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
 
-  pView->SetRenderPassProperty("EditorPickingPass", "SceneContext", m_pSceneContext);
   pView->SetExtractorProperty("EditorSelectedObjectsExtractor", "SceneContext", m_pSceneContext);
   pView->SetExtractorProperty("EditorShapeIconsExtractor", "SceneContext", m_pSceneContext);
   pView->SetExtractorProperty("EditorGridExtractor", "SceneContext", m_pSceneContext);

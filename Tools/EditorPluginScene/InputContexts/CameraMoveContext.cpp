@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginScene/InputContexts/CameraMoveContext.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
@@ -707,11 +707,6 @@ ezEditorInut ezCameraMoveContext::DoWheelEvent(QWheelEvent* e)
   {
     float fBoost = 1.0f;
     const float fTick = 1.4f;
-    const float fBoostFactor = 1.5f;
-
-    /// \todo Keep this ?
-    if (e->modifiers() == Qt::KeyboardModifier::ShiftModifier)
-      fBoost *= fBoostFactor;
 
     float fNewDim = 20.0f;
 
@@ -719,6 +714,8 @@ ezEditorInut ezCameraMoveContext::DoWheelEvent(QWheelEvent* e)
       fNewDim = m_pCamera->GetFovOrDim() * ezMath::Pow(1.0f / fTick, fBoost);
     else
       fNewDim = m_pCamera->GetFovOrDim() * ezMath::Pow(fTick, fBoost);
+
+    fNewDim = ezMath::Clamp(fNewDim, 1.0f, 2000.0f);
 
     m_pCamera->SetCameraMode(m_pCamera->GetCameraMode(), fNewDim, m_pCamera->GetNearPlane(), m_pCamera->GetFarPlane());
 

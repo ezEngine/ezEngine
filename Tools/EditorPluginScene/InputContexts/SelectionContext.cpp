@@ -233,8 +233,14 @@ ezEditorInut ezSelectionContext::DoMouseMoveEvent(QMouseEvent* e)
     ezMat4 mView = m_pCamera->GetViewMatrix();
     ezMat4 mProj;
     m_pCamera->GetProjectionMatrix((float)m_Viewport.x / (float)m_Viewport.y, mProj);
+
     ezMat4 mViewProj = mProj * mView;
-    ezMat4 mInvViewProj = mViewProj.GetInverse();
+    ezMat4 mInvViewProj = mViewProj;
+    if (mInvViewProj.Invert(0.0f).Failed())
+    {
+      // if this fails, the marquee will not be rendered correctly
+      EZ_ASSERT_DEBUG(false, "Failed to invert view projection matrix.");
+    }
 
     const ezVec3 vMousePos(e->pos().x(), e->pos().y(), 0.01f);
 
