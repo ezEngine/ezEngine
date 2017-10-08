@@ -3,8 +3,8 @@
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <Core/World/GameObject.h>
 
-ezInt32 ezQtDeltaTransformDlg::s_iMode = 0;
-ezInt32 ezQtDeltaTransformDlg::s_iSpace = 0;
+ezQtDeltaTransformDlg::Mode ezQtDeltaTransformDlg::s_Mode = ezQtDeltaTransformDlg::Mode::Translate;
+ezQtDeltaTransformDlg::Space ezQtDeltaTransformDlg::s_Space = ezQtDeltaTransformDlg::Space::World;
 ezVec3 ezQtDeltaTransformDlg::s_vTranslate(0.0f);
 ezVec3 ezQtDeltaTransformDlg::s_vScale(1.0f);
 float ezQtDeltaTransformDlg::s_fUniformScale = 1.0f;
@@ -18,29 +18,77 @@ ezQtDeltaTransformDlg::ezQtDeltaTransformDlg(QWidget *parent, ezSceneDocument* p
   setupUi(this);
 
   UpdateUI();
-  ComboMode->setCurrentIndex(s_iMode);
-  ComboSpace->setCurrentIndex(s_iSpace);
+  ComboMode->setCurrentIndex(s_Mode);
+  ComboSpace->setCurrentIndex(s_Space);
 
-  ButtonUndo->setEnabled(false);
-
+  ButtonUndo->setEnabled(m_uiActionsApplied > 0 && m_pSceneDocument->GetCommandHistory()->CanUndo());
 }
 
 void ezQtDeltaTransformDlg::on_ComboMode_currentIndexChanged(int index)
 {
   QueryUI();
 
-  s_iMode = index;
+  s_Mode = (Mode)index;
 
   UpdateUI();
 }
 
 void ezQtDeltaTransformDlg::on_ComboSpace_currentIndexChanged(int index)
 {
-  s_iSpace = index;
+  s_Space = (Space)index;
 }
 
 void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
 {
+  ezStringBuilder sAction;
+
+  // early out when nothing is to do
+  switch (s_Mode)
+  {
+  case Mode::Translate:
+    if (s_vTranslate == ezVec3(0.0f))
+      return;
+
+    sAction.Format("Translate: {0} | {1} | {2}", ezArgF(s_vTranslate.x, 2), ezArgF(s_vTranslate.y, 2), ezArgF(s_vTranslate.z, 2));
+    break;
+
+  case Mode::RotateX:
+    if (s_vRotate.x == 0.0f)
+      return;
+
+    sAction.Format("Rotate X: {0}", ezArgF(s_vRotate.x, 1));
+    break;
+
+  case Mode::RotateY:
+    if (s_vRotate.y == 0.0f)
+      return;
+
+    sAction.Format("Rotate Y: {0}", ezArgF(s_vRotate.y, 1));
+    break;
+
+  case Mode::RotateZ:
+    if (s_vRotate.z == 0.0f)
+      return;
+
+    sAction.Format("Rotate Z: {0}", ezArgF(s_vRotate.z, 1));
+    break;
+
+  case Mode::Scale:
+    if (s_vScale == ezVec3(1.0f))
+      return;
+
+    sAction.Format("Scale: {0} | {1} | {2}", ezArgF(s_vScale.x, 2), ezArgF(s_vScale.y, 2), ezArgF(s_vScale.z, 2));
+    break;
+
+  case Mode::UniformScale:
+    if (s_fUniformScale == 1.0f)
+      return;
+
+    sAction.Format("Scale: {0}", ezArgF(s_fUniformScale, 2));
+    break;
+  }
+
+
   auto history = m_pSceneDocument->GetCommandHistory();
   auto selman = m_pSceneDocument->GetSelectionManager();
   const auto& selection = selman->GetTopLevelSelection();
@@ -48,24 +96,24 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
   if (selection.IsEmpty())
     return;
 
-  const ezInt32 iSpace = ComboSpace->currentIndex();
+  const Space space = (Space)ComboSpace->currentIndex();
 
-  ezTransform tReference;
-  tReference.SetIdentity();
+  ezTransform tReference = m_pSceneDocument->GetGlobalTransform(selection.PeekBack());
 
-  if (iSpace == 1)
+  if (space == Space::World)
   {
     tReference = m_pSceneDocument->GetGlobalTransform(selection.PeekBack());
+    tReference.m_qRotation.SetIdentity();
   }
 
-  history->StartTransaction("Delta Transform");
+  history->StartTransaction(sAction.GetData());
 
   for (const ezDocumentObject* pObject : selection)
   {
     if (!pObject->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
       continue;
 
-    if (iSpace == 2)
+    if (space == Space::LocalEach)
     {
       tReference = m_pSceneDocument->GetGlobalTransform(pObject);
     }
@@ -74,43 +122,46 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
     ezTransform localTrans = tReference.GetInverse() * trans;
     ezQuat qRot;
 
-    switch (s_iMode)
+    switch (s_Mode)
     {
-    case 0: // translate
+    case Mode::Translate:
       trans.m_vPosition += tReference.m_qRotation * s_vTranslate;
       m_pSceneDocument->SetGlobalTransform(pObject, trans, TransformationChanges::Translation);
       break;
 
-    case 1: // rotate X
+    case Mode::RotateX:
       qRot.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(s_vRotate.x));
       localTrans.m_qRotation = qRot * localTrans.m_qRotation;
+      localTrans.m_vPosition = qRot * localTrans.m_vPosition;
       trans = tReference * localTrans;
       trans.m_qRotation.Normalize();
-      m_pSceneDocument->SetGlobalTransform(pObject, trans, TransformationChanges::Rotation);
+      m_pSceneDocument->SetGlobalTransform(pObject, trans, TransformationChanges::Translation | TransformationChanges::Rotation);
       break;
 
-    case 2: // rotate Y
+    case Mode::RotateY:
       qRot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(s_vRotate.y));
       localTrans.m_qRotation = qRot * localTrans.m_qRotation;
+      localTrans.m_vPosition = qRot * localTrans.m_vPosition;
       trans = tReference * localTrans;
       trans.m_qRotation.Normalize();
-      m_pSceneDocument->SetGlobalTransform(pObject, trans, TransformationChanges::Rotation);
+      m_pSceneDocument->SetGlobalTransform(pObject, trans, TransformationChanges::Translation | TransformationChanges::Rotation);
       break;
 
-    case 3: // rotate Z
+    case Mode::RotateZ:
       qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(s_vRotate.z));
       localTrans.m_qRotation = qRot * localTrans.m_qRotation;
+      localTrans.m_vPosition = qRot * localTrans.m_vPosition;
       trans = tReference * localTrans;
       trans.m_qRotation.Normalize();
-      m_pSceneDocument->SetGlobalTransform(pObject, trans, TransformationChanges::Rotation);
+      m_pSceneDocument->SetGlobalTransform(pObject, trans, TransformationChanges::Translation | TransformationChanges::Rotation);
       break;
 
-    case 4: // Scale
+    case Mode::Scale:
       trans.m_vScale = trans.m_vScale.CompMul(s_vScale);
       m_pSceneDocument->SetGlobalTransform(pObject, trans, TransformationChanges::Scale);
       break;
 
-    case 5: // Scale Uniform
+    case Mode::UniformScale:
       trans.m_vScale *= s_fUniformScale;
 
       if (trans.m_vScale.x == trans.m_vScale.y && trans.m_vScale.x == trans.m_vScale.z)
@@ -124,68 +175,79 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
 
   history->FinishTransaction();
 
-  ButtonUndo->setEnabled(true);
   ++m_uiActionsApplied;
+  ButtonUndo->setEnabled(m_uiActionsApplied > 0 && m_pSceneDocument->GetCommandHistory()->CanUndo());
 }
 
 void ezQtDeltaTransformDlg::on_ButtonUndo_clicked()
 {
   auto history = m_pSceneDocument->GetCommandHistory();
 
-  if (m_uiActionsApplied > 0)
+  if (history->CanUndo())
   {
     --m_uiActionsApplied;
-    if (history->CanUndo())
-    {
-      history->Undo();
-    }
+    history->Undo();
   }
 
-  if (m_uiActionsApplied == 0 || !history->CanUndo())
-  {
-    ButtonUndo->setEnabled(false);
-  }
+  ButtonUndo->setEnabled(m_uiActionsApplied > 0 && m_pSceneDocument->GetCommandHistory()->CanUndo());
 }
 
 void ezQtDeltaTransformDlg::on_ButtonReset_clicked()
 {
-  s_vTranslate.SetZero();
-  s_vScale.Set(1.0f);
-  s_fUniformScale = 1.0f;
-  s_vRotate.SetZero();
+  switch (s_Mode)
+  {
+  case ezQtDeltaTransformDlg::Translate:
+    s_vTranslate.SetZero();
+    break;
+  case ezQtDeltaTransformDlg::RotateX:
+    s_vRotate.x = 0;
+    break;
+  case ezQtDeltaTransformDlg::RotateY:
+    s_vRotate.y = 0;
+    break;
+  case ezQtDeltaTransformDlg::RotateZ:
+    s_vRotate.z = 0;
+    break;
+  case ezQtDeltaTransformDlg::Scale:
+    s_vScale.Set(1.0f);
+    break;
+  case ezQtDeltaTransformDlg::UniformScale:
+    s_fUniformScale = 1.0f;
+    break;
+  }
 
   UpdateUI();
 }
 
 void ezQtDeltaTransformDlg::QueryUI()
 {
-  switch (s_iMode)
+  switch (s_Mode)
   {
-  case 0: // translate
+  case Mode::Translate:
     s_vTranslate.x = (float)Value1->value();
     s_vTranslate.y = (float)Value2->value();
     s_vTranslate.z = (float)Value3->value();
     break;
 
-  case 1: // rotate X
+  case Mode::RotateX:
     s_vRotate.x = (float)Value1->value();
     break;
 
-  case 2: // rotate Y
+  case Mode::RotateY:
     s_vRotate.y = (float)Value1->value();
     break;
 
-  case 3: // rotate Z
+  case Mode::RotateZ:
     s_vRotate.z = (float)Value1->value();
     break;
 
-  case 4: // Scale
+  case Mode::Scale:
     s_vScale.x = (float)Value1->value();
     s_vScale.y = (float)Value2->value();
     s_vScale.z = (float)Value3->value();
     break;
 
-  case 5: // Scale Uniform
+  case Mode::UniformScale:
     s_fUniformScale = (float)Value1->value();
     break;
   }
@@ -204,48 +266,55 @@ void ezQtDeltaTransformDlg::UpdateUI()
   Label2->setText("Y");
   Label3->setText("Z");
 
-  switch (s_iMode)
+  switch (s_Mode)
   {
-  case 0: // translate
+  case Mode::Translate:
     Value1->setValue(s_vTranslate.x);
     Value2->setValue(s_vTranslate.y);
     Value3->setValue(s_vTranslate.z);
+    Value1->setSingleStep(1.0f);
+    Value2->setSingleStep(1.0f);
+    Value3->setSingleStep(1.0f);
     break;
 
-  case 1: // rotate X
+  case Mode::RotateX:
     Value2->setVisible(false);
     Value3->setVisible(false);
     Label2->setVisible(false);
     Label3->setVisible(false);
     Value1->setValue(s_vRotate.x);
+    Value1->setSingleStep(5.0f);
     break;
 
-  case 2: // rotate Y
+  case Mode::RotateY:
     Value2->setVisible(false);
     Value3->setVisible(false);
     Label2->setVisible(false);
     Label3->setVisible(false);
     Label1->setText("Y");
     Value1->setValue(s_vRotate.y);
+    Value1->setSingleStep(5.0f);
     break;
 
-  case 3: // rotate Z
+  case Mode::RotateZ:
     Value2->setVisible(false);
     Value3->setVisible(false);
     Label2->setVisible(false);
     Label3->setVisible(false);
     Label1->setText("Z");
     Value1->setValue(s_vRotate.z);
+    Value1->setSingleStep(5.0f);
     break;
 
-  case 4: // Scale
+  case Mode::Scale:
     ComboSpace->setVisible(false);
     Value1->setValue(s_vScale.x);
     Value2->setValue(s_vScale.y);
     Value3->setValue(s_vScale.z);
+    Value1->setSingleStep(1.0f);
     break;
 
-  case 5: // Scale Uniform
+  case Mode::UniformScale:
     ComboSpace->setVisible(false);
     Value2->setVisible(false);
     Value3->setVisible(false);
@@ -253,35 +322,36 @@ void ezQtDeltaTransformDlg::UpdateUI()
     Label3->setVisible(false);
     Label1->setText("XYZ");
     Value1->setValue(s_fUniformScale);
+    Value1->setSingleStep(1.0f);
     break;
   }
 }
 
 void ezQtDeltaTransformDlg::on_Value1_valueChanged(double value)
 {
-  switch (s_iMode)
+  switch (s_Mode)
   {
-  case 0: // translate
+  case Mode::Translate:
     s_vTranslate.x = (float)Value1->value();
     break;
 
-  case 1: // rotate X
+  case Mode::RotateX:
     s_vRotate.x = (float)Value1->value();
     break;
 
-  case 2: // rotate Y
+  case Mode::RotateY:
     s_vRotate.y = (float)Value1->value();
     break;
 
-  case 3: // rotate Z
+  case Mode::RotateZ:
     s_vRotate.z = (float)Value1->value();
     break;
 
-  case 4: // Scale
+  case Mode::Scale:
     s_vScale.x = (float)Value1->value();
     break;
 
-  case 5: // Scale Uniform
+  case Mode::UniformScale:
     s_fUniformScale = (float)Value1->value();
     break;
   }
@@ -289,13 +359,13 @@ void ezQtDeltaTransformDlg::on_Value1_valueChanged(double value)
 
 void ezQtDeltaTransformDlg::on_Value2_valueChanged(double value)
 {
-  switch (s_iMode)
+  switch (s_Mode)
   {
-  case 0: // translate
+  case Mode::Translate:
     s_vTranslate.y = (float)Value2->value();
     break;
 
-  case 4: // Scale
+  case Mode::Scale:
     s_vScale.y = (float)Value2->value();
     break;
   }
@@ -303,13 +373,13 @@ void ezQtDeltaTransformDlg::on_Value2_valueChanged(double value)
 
 void ezQtDeltaTransformDlg::on_Value3_valueChanged(double value)
 {
-  switch (s_iMode)
+  switch (s_Mode)
   {
-  case 0: // translate
+  case Mode::Translate:
     s_vTranslate.z = (float)Value3->value();
     break;
 
-  case 4: // Scale
+  case Mode::Scale:
     s_vScale.z = (float)Value3->value();
     break;
   }
