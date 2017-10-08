@@ -1,7 +1,8 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <EditorPluginScene/Objects/SceneObjectManager.h>
 #include <EditorPluginScene/Dialogs/DuplicateDlg.moc.h>
+#include <EditorPluginScene/Dialogs/DeltaTransformDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <Core/World/GameObject.h>
@@ -264,6 +265,15 @@ void ezSceneDocument::DuplicateSpecial()
     history->FinishTransaction();
 }
 
+
+void ezSceneDocument::DeltaTransform()
+{
+  if (GetSelectionManager()->IsSelectionEmpty())
+    return;
+
+  ezQtDeltaTransformDlg dlg(nullptr, this);
+  dlg.exec();
+}
 
 void ezSceneDocument::SnapCameraToObject()
 {

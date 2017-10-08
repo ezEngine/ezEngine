@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
@@ -113,6 +113,9 @@ public:
 
   /// \brief Opens the Duplicate Special dialog
   void DuplicateSpecial();
+
+  /// \brief Opens the 'Delta Transform' dialog.
+  void DeltaTransform();
 
   /// \brief Moves the editor camera to the same position as the selected object
   void SnapCameraToObject();

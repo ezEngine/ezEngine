@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorPluginScene/Plugin.h>
 #include <GuiFoundation/Basics.h>
@@ -15,9 +15,11 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(const char* szMapping, const char* szPath);
+  static void MapMenuActions(const char* szMapping, const char* szPath);
+  static void MapToolbarActions(const char* szMapping, const char* szPath);
 
   static ezActionDescriptorHandle s_hGizmoCategory;
+  static ezActionDescriptorHandle s_hGizmoMenu;
   static ezActionDescriptorHandle s_hNoGizmo;
   static ezActionDescriptorHandle s_hTranslateGizmo;
   static ezActionDescriptorHandle s_hRotateGizmo;

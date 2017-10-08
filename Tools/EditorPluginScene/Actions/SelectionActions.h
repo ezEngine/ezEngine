@@ -33,6 +33,7 @@ public:
   static ezActionDescriptorHandle s_hUnlinkFromPrefab;
   static ezActionDescriptorHandle s_hOpenPrefabDocument;
   static ezActionDescriptorHandle s_hDuplicateSpecial;
+  static ezActionDescriptorHandle s_hDeltaTransform;
   static ezActionDescriptorHandle s_hSnapCameraToObject;
   static ezActionDescriptorHandle s_hSnapObjectToCamera;
   static ezActionDescriptorHandle s_hMoveCameraHere;
@@ -65,6 +66,7 @@ public:
     UnlinkFromPrefab,
     OpenPrefabDocument,
     DuplicateSpecial,
+    DeltaTransform,
     SnapCameraToObject,
     SnapObjectToCamera,
     MoveCameraHere,

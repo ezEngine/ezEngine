@@ -1,3 +1,4 @@
+Gizmo.Menu;Edit Mode
 Gizmo.Mode.Select;Select
 Gizmo.Mode.Translate;Translate
 Gizmo.Mode.Rotate;Rotate
@@ -63,6 +64,7 @@ Selection.ShowHidden;Show Hidden Objects
 Selection.CreateEmptyChildObject;Create Empty Child Object
 Selection.CreateEmptyObjectAtPosition;Create Empty Object At Position
 Selection.DuplicateSpecial;Duplicate...
+Selection.DeltaTransform;Delta Transform...
 Selection.Attach;Attach to This
 Selection.Detach;Detach
 Prefabs.Menu;Prefabs

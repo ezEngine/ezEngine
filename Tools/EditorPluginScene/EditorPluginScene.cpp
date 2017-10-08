@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginScene/EditorPluginScene.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginScene/Actions/GizmoActions.h>
@@ -75,19 +75,19 @@ void OnLoadPlugin(bool bReloading)
   ezDocumentActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.File", false);
   ezDocumentActions::MapToolsActions("EditorPluginScene_DocumentMenuBar", "Menu.Tools");
   ezCommandHistoryActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");
-  ezGizmoActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");
+  ezGizmoActions::MapMenuActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");
   ezSelectionActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");
   ezEditActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit", true, true);
-  ezRotateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit/GizmoCategory");
-  ezScaleGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit/GizmoCategory");
-  ezTranslateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit/GizmoCategory");
+  ezRotateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit/Gizmo.Menu");
+  ezScaleGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit/Gizmo.Menu");
+  ezTranslateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit/Gizmo.Menu");
   ezSceneActions::MapMenuActions();
 
   // Tool Bar
   ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentToolBar");
   ezDocumentActions::MapActions("EditorPluginScene_DocumentToolBar", "", true);
   ezCommandHistoryActions::MapActions("EditorPluginScene_DocumentToolBar", "");
-  ezGizmoActions::MapActions("EditorPluginScene_DocumentToolBar", "");
+  ezGizmoActions::MapToolbarActions("EditorPluginScene_DocumentToolBar", "");
   ezRotateGizmoAction::MapActions("EditorPluginScene_DocumentToolBar", "");
   ezScaleGizmoAction::MapActions("EditorPluginScene_DocumentToolBar", "");
   ezTranslateGizmoAction::MapActions("EditorPluginScene_DocumentToolBar", "");

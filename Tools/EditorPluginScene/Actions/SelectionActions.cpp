@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <EditorPluginScene/Actions/SelectionActions.h>
@@ -30,6 +30,7 @@ ezActionDescriptorHandle ezSelectionActions::s_hRevertPrefab;
 ezActionDescriptorHandle ezSelectionActions::s_hUnlinkFromPrefab;
 ezActionDescriptorHandle ezSelectionActions::s_hOpenPrefabDocument;
 ezActionDescriptorHandle ezSelectionActions::s_hDuplicateSpecial;
+ezActionDescriptorHandle ezSelectionActions::s_hDeltaTransform;
 ezActionDescriptorHandle ezSelectionActions::s_hSnapCameraToObject;
 ezActionDescriptorHandle ezSelectionActions::s_hSnapObjectToCamera;
 ezActionDescriptorHandle ezSelectionActions::s_hMoveCameraHere;
@@ -64,6 +65,7 @@ void ezSelectionActions::RegisterActions()
   s_hConvertToEditorPrefab = EZ_REGISTER_ACTION_1("Prefabs.ConvertToEditor", ezActionScope::Document, "Prefabs", "", ezSelectionAction, ezSelectionAction::ActionType::ConvertToEditorPrefab);
 
   s_hDuplicateSpecial = EZ_REGISTER_ACTION_1("Selection.DuplicateSpecial", ezActionScope::Document, "Scene - Selection", "Ctrl+D", ezSelectionAction, ezSelectionAction::ActionType::DuplicateSpecial);
+  s_hDeltaTransform = EZ_REGISTER_ACTION_1("Selection.DeltaTransform", ezActionScope::Document, "Scene - Selection", "Ctrl+M", ezSelectionAction, ezSelectionAction::ActionType::DeltaTransform);
   s_hSnapCameraToObject = EZ_REGISTER_ACTION_1("Scene.Camera.SnapCameraToObject", ezActionScope::Document, "Camera", "", ezSelectionAction, ezSelectionAction::ActionType::SnapCameraToObject);
   s_hSnapObjectToCamera = EZ_REGISTER_ACTION_1("Scene.Camera.SnapObjectToCamera", ezActionScope::Document, "Camera", "", ezSelectionAction, ezSelectionAction::ActionType::SnapObjectToCamera);
   s_hMoveCameraHere = EZ_REGISTER_ACTION_1("Scene.Camera.MoveCameraHere", ezActionScope::Document, "Camera", "C", ezSelectionAction, ezSelectionAction::ActionType::MoveCameraHere);
@@ -87,6 +89,7 @@ void ezSelectionActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hUnlinkFromPrefab);
   ezActionManager::UnregisterAction(s_hOpenPrefabDocument);
   ezActionManager::UnregisterAction(s_hDuplicateSpecial);
+  ezActionManager::UnregisterAction(s_hDeltaTransform);
   ezActionManager::UnregisterAction(s_hSnapCameraToObject);
   ezActionManager::UnregisterAction(s_hSnapObjectToCamera);
   ezActionManager::UnregisterAction(s_hMoveCameraHere);
@@ -115,13 +118,14 @@ void ezSelectionActions::MapActions(const char* szMapping, const char* szPath)
   pMap->MapAction(s_hHideUnselectedObjects, sSubPath, 5.0f);
   pMap->MapAction(s_hShowHiddenObjects, sSubPath, 6.0f);
   pMap->MapAction(s_hDuplicateSpecial, sSubPath, 7.0f);
-  pMap->MapAction(s_hAttachToObject, sSubPath, 7.1f);
-  pMap->MapAction(s_hDetachFromParent, sSubPath, 7.2f);
+  pMap->MapAction(s_hDeltaTransform, sSubPath, 7.1f);
+  pMap->MapAction(s_hAttachToObject, sSubPath, 7.2f);
+  pMap->MapAction(s_hDetachFromParent, sSubPath, 7.3f);
   pMap->MapAction(s_hSnapCameraToObject, sSubPath, 8.0f);
   pMap->MapAction(s_hSnapObjectToCamera, sSubPath, 9.0f);
   pMap->MapAction(s_hMoveCameraHere, sSubPath, 10.0f);
 
-  MapPrefabActions(szMapping, sSubPath, 1.0f);
+  MapPrefabActions(szMapping, sSubPath, 0.0f);
 }
 
 void ezSelectionActions::MapPrefabActions(const char* szMapping, const char* szPath, float fPriority)
@@ -230,6 +234,9 @@ ezSelectionAction::ezSelectionAction(const ezActionContext& context, const char*
   case ActionType::DuplicateSpecial:
     SetIconPath(":/EditorPluginScene/Icons/Duplicate16.png");
     break;
+  case ActionType::DeltaTransform:
+    //SetIconPath(":/EditorPluginScene/Icons/Duplicate16.png"); // TODO Icon
+    break;
   case ActionType::SnapCameraToObject:
     //SetIconPath(":/EditorPluginScene/Icons/Duplicate16.png"); // TODO Icon
     break;
@@ -333,6 +340,10 @@ void ezSelectionAction::Execute(const ezVariant& value)
     m_pSceneDocument->DuplicateSpecial();
     break;
 
+  case ActionType::DeltaTransform:
+    m_pSceneDocument->DeltaTransform();
+    break;
+
   case ActionType::SnapCameraToObject:
     m_pSceneDocument->SnapCameraToObject();
     break;
@@ -432,6 +443,7 @@ void ezSelectionAction::UpdateEnableState()
       m_Type == ActionType::HideSelectedObjects ||
       m_Type == ActionType::ShowInScenegraph ||
       m_Type == ActionType::DuplicateSpecial ||
+      m_Type == ActionType::DeltaTransform ||
       m_Type == ActionType::SnapObjectToCamera ||
       m_Type == ActionType::DetachFromParent ||
       m_Type == ActionType::HideUnselectedObjects ||

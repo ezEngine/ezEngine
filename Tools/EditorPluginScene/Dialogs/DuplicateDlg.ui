@@ -26,8 +26,8 @@
    <string>Duplicate Special</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>:/Icons/icon1.ico</normaloff>:/Icons/icon1.ico</iconset>
+   <iconset resource="../QtResources/resources.qrc">
+    <normaloff>:/EditorPluginScene/Icons/Duplicate16.png</normaloff>:/EditorPluginScene/Icons/Duplicate16.png</iconset>
   </property>
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
@@ -832,6 +832,7 @@
  </tabstops>
  <resources>
   <include location="../QtResources/resources.qrc"/>
+  <include location="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

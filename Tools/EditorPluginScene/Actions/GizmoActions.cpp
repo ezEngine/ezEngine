@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <EditorPluginScene/Actions/GizmoActions.h>
@@ -9,6 +9,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoAction, 0, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezActionDescriptorHandle ezGizmoActions::s_hGizmoCategory;
+ezActionDescriptorHandle ezGizmoActions::s_hGizmoMenu;
 ezActionDescriptorHandle ezGizmoActions::s_hNoGizmo;
 ezActionDescriptorHandle ezGizmoActions::s_hTranslateGizmo;
 ezActionDescriptorHandle ezGizmoActions::s_hRotateGizmo;
@@ -19,6 +20,7 @@ ezActionDescriptorHandle ezGizmoActions::s_hWorldSpace;
 void ezGizmoActions::RegisterActions()
 {
   s_hGizmoCategory = EZ_REGISTER_CATEGORY("GizmoCategory");
+  s_hGizmoMenu = EZ_REGISTER_MENU("Gizmo.Menu");
   s_hNoGizmo = EZ_REGISTER_ACTION_1("Gizmo.Mode.Select", ezActionScope::Document, "Gizmo", "Q", ezGizmoAction, ezGizmoAction::ActionType::GizmoNone);
   s_hTranslateGizmo = EZ_REGISTER_ACTION_1("Gizmo.Mode.Translate", ezActionScope::Document, "Gizmo", "W", ezGizmoAction, ezGizmoAction::ActionType::GizmoTranslate);
   s_hRotateGizmo = EZ_REGISTER_ACTION_1("Gizmo.Mode.Rotate", ezActionScope::Document, "Gizmo", "E", ezGizmoAction, ezGizmoAction::ActionType::GizmoRotate);
@@ -30,6 +32,7 @@ void ezGizmoActions::RegisterActions()
 void ezGizmoActions::UnregisterActions()
 {
   ezActionManager::UnregisterAction(s_hGizmoCategory);
+  ezActionManager::UnregisterAction(s_hGizmoMenu);
   ezActionManager::UnregisterAction(s_hNoGizmo);
   ezActionManager::UnregisterAction(s_hTranslateGizmo);
   ezActionManager::UnregisterAction(s_hRotateGizmo);
@@ -38,7 +41,23 @@ void ezGizmoActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hWorldSpace);
 }
 
-void ezGizmoActions::MapActions(const char* szMapping, const char* szPath)
+void ezGizmoActions::MapMenuActions(const char* szMapping, const char* szPath)
+{
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
+
+  ezStringBuilder sSubPath(szPath, "/Gizmo.Menu");
+
+  pMap->MapAction(s_hGizmoMenu, szPath, 4.0f);
+  pMap->MapAction(s_hNoGizmo, sSubPath, 0.0f);
+  pMap->MapAction(s_hTranslateGizmo, sSubPath, 1.0f);
+  pMap->MapAction(s_hRotateGizmo, sSubPath, 2.0f);
+  pMap->MapAction(s_hScaleGizmo, sSubPath, 3.0f);
+  pMap->MapAction(s_hDragToPositionGizmo, sSubPath, 4.0f);
+  pMap->MapAction(s_hWorldSpace, sSubPath, 5.0f);
+}
+
+void ezGizmoActions::MapToolbarActions(const char* szMapping, const char* szPath)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('{0}') does not exist, mapping the actions failed!", szMapping);
