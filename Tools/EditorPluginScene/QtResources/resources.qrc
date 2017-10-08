@@ -53,5 +53,6 @@
 	<file>ezAreaDamageComponent.png</file>
 	<file>ezShapeIconComponent.png</file>
 	<file>ezDecalComponent.png</file>
+	<file>ezFogComponent.png</file>
   </qresource>  
 </RCC>
