@@ -18,7 +18,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPickingRenderPass, 1, ezRTTIDefaultAllocator<e
     EZ_MEMBER_PROPERTY("MarqueePickPos1", m_MarqueePickPosition1),
     EZ_MEMBER_PROPERTY("MarqueeActionID", m_uiMarqueeActionID),
     EZ_ENUM_MEMBER_PROPERTY("ViewRenderMode", ezViewRenderMode, m_ViewRenderMode),
-    EZ_ACCESSOR_PROPERTY("SceneContext", GetSceneContext, SetSceneContext),
   }
   EZ_END_PROPERTIES
 }
@@ -26,7 +25,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezPickingRenderPass::ezPickingRenderPass() : ezRenderPipelinePass("EditorPickingRenderPass")
 {
-  m_pSceneContext = nullptr;
   m_bPickSelected = true;
   AddRenderer(EZ_DEFAULT_NEW(ezMeshRenderer));
 
@@ -64,10 +62,6 @@ void ezPickingRenderPass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipeli
   CreateTarget();
 }
 
-static ezHashTable<ezGameObjectHandle, ezUInt32> s_SelectionSet;
-
-
-
 void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
   const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
@@ -87,21 +81,23 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_PICKING");
 
   // copy selection to set for faster checks
-  s_SelectionSet.Clear();
+  m_SelectionSet.Clear();
 
-  if (m_pSceneContext != nullptr)
+  auto batchList = GetPipeline()->GetRenderDataBatchesWithCategory(ezDefaultRenderDataCategories::Selection);
+  const ezUInt32 uiBatchCount = batchList.GetBatchCount();
+  for (ezUInt32 i = 0; i < uiBatchCount; ++i)
   {
-    auto& selection = m_pSceneContext->GetSelectionWithChildren();
-    for (auto hObj : selection)
+    const ezRenderDataBatch& batch = batchList.GetBatch(i);
+    for (auto it = batch.GetIterator<ezRenderData>(); it.IsValid(); ++it)
     {
-      s_SelectionSet.Insert(hObj, 0);
+      m_SelectionSet.Insert(it->m_hOwner);
     }
   }
 
   // filter out all selected objects
   ezRenderDataBatch::Filter filter([&](const ezRenderData* pRenderData)
   {
-    return s_SelectionSet.Contains(pRenderData->m_hOwner);
+    return m_SelectionSet.Contains(pRenderData->m_hOwner);
   });
 
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque, filter);

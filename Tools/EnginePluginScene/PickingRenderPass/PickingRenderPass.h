@@ -14,9 +14,6 @@ public:
   ezPickingRenderPass();
   ~ezPickingRenderPass();
 
-  void SetSceneContext(ezSceneContext* pSceneContext) { m_pSceneContext = pSceneContext; }
-  ezSceneContext* GetSceneContext() const { return m_pSceneContext; }
-
   ezGALTextureHandle GetPickingIdRT() const;
   ezGALTextureHandle GetPickingDepthRT() const;
 
@@ -51,10 +48,11 @@ private:
 private:
   ezRectFloat m_TargetRect;
 
-  ezSceneContext* m_pSceneContext;
   ezGALTextureHandle m_hPickingIdRT;
   ezGALTextureHandle m_hPickingDepthRT;
   ezGALRenderTagetSetup m_RenderTargetSetup;
+
+  ezHashSet<ezGameObjectHandle> m_SelectionSet;
 
 
   /// we need this matrix to compute the world space position of picked pixels
