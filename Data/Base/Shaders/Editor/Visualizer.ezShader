@@ -48,7 +48,7 @@ VS_OUT main(VS_IN Input)
 
 float4 main(PS_IN Input) : SV_Target
 {
-#if RENDER_PASS == RENDER_PASS_PICKING
+#if (RENDER_PASS == RENDER_PASS_PICKING) || (RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
 	discard;
 #endif
 

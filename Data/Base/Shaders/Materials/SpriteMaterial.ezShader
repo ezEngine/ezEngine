@@ -18,7 +18,7 @@ DepthWrite = true
 #define USE_TEXCOORD0
 #define USE_COLOR
 
-#if RENDER_PASS == RENDER_PASS_PICKING
+#if (RENDER_PASS == RENDER_PASS_PICKING) || (RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
 	#define CUSTOM_INTERPOLATOR float4 GameObjectID : GAME_OBJECT_ID;
 #endif
 
@@ -85,7 +85,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
 	RetVal.TexCoords = texCoords * texCoordScale + texCoordOffset;
 	RetVal.Color = RGBA8ToFloat4(data.color);
 
-	#if RENDER_PASS == RENDER_PASS_PICKING
+	#if (RENDER_PASS == RENDER_PASS_PICKING) || (RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
 		RetVal.GameObjectID = RGBA8ToFloat4(data.gameObjectID);
 	#endif
 
@@ -100,7 +100,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
 #define USE_TEXCOORD0
 #define USE_COLOR
 
-#if RENDER_PASS == RENDER_PASS_PICKING
+#if (RENDER_PASS == RENDER_PASS_PICKING) || (RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
 	#define CUSTOM_INTERPOLATOR float4 GameObjectID : GAME_OBJECT_ID;
 #endif
 
@@ -142,7 +142,7 @@ PS_OUT main(PS_IN Input)
 
 	PS_OUT RetVal;
 
-	#if RENDER_PASS == RENDER_PASS_PICKING
+	#if (RENDER_PASS == RENDER_PASS_PICKING) || (RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
 		RetVal.Color = Input.GameObjectID;
 	#elif RENDER_PASS != RENDER_PASS_DEPTH_ONLY
 		RetVal.Color = SpriteTexture.Sample(SpriteTexture_AutoSampler, Input.TexCoords.xy) * Input.Color;

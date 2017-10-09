@@ -78,7 +78,10 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
   pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f));
 
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_PICKING");
+  if (m_ViewRenderMode == ezViewRenderMode::WireframeColor || m_ViewRenderMode == ezViewRenderMode::WireframeMonochrome)
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_PICKING_WIREFRAME");
+  else
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_PICKING");
 
   // copy selection to set for faster checks
   m_SelectionSet.Clear();
@@ -310,8 +313,43 @@ void ezPickingRenderPass::ReadBackPropertiesSinglePick(ezView* pView)
     vNormal = (vNormals[0] + vNormals[1] + vNormals[2] + vNormals[3]).GetNormalized();
   }
 
+  ezUInt32 uiPickID = m_PickingResultsID[uiIndex];
+  if (uiPickID == 0)
+  {
+    for (ezInt32 radius = 1; radius < 10; ++radius)
+    {
+      ezInt32 left = ezMath::Max<ezInt32>(x - radius, 0);
+      ezInt32 right = ezMath::Min<ezInt32>(x + radius, m_uiWindowWidth - 1);
+      ezInt32 top = ezMath::Max<ezInt32>(y - radius, 0);
+      ezInt32 bottom = ezMath::Min<ezInt32>(y + radius, m_uiWindowHeight - 1);
+
+      for (ezInt32 xt = left; xt <= right; ++xt)
+      {
+        const ezUInt32 idxt = (top * m_uiWindowWidth) + xt;
+
+        uiPickID = m_PickingResultsID[idxt];
+
+        if (uiPickID != 0)
+          goto done;
+      }
+
+      for (ezInt32 xt = left; xt <= right; ++xt)
+      {
+        const ezUInt32 idxt = (bottom * m_uiWindowWidth) + xt;
+
+        uiPickID = m_PickingResultsID[idxt];
+
+        if (uiPickID != 0)
+          goto done;
+      }
+    }
+
+  done:
+    ;
+  }
+
   pView->SetRenderPassReadBackProperty(GetName(), "PickingMatrix", m_PickingInverseViewProjectionMatrix);
-  pView->SetRenderPassReadBackProperty(GetName(), "PickingID", m_PickingResultsID[uiIndex]);
+  pView->SetRenderPassReadBackProperty(GetName(), "PickingID", uiPickID);
   pView->SetRenderPassReadBackProperty(GetName(), "PickingDepth", m_PickingResultsDepth[uiIndex]);
   pView->SetRenderPassReadBackProperty(GetName(), "PickingNormal", vNormal);
   pView->SetRenderPassReadBackProperty(GetName(), "PickingRayStartPosition", vPickingRayStartPosition);
@@ -345,10 +383,11 @@ void ezPickingRenderPass::ReadBackPropertiesMarqueePick(ezView* pView)
   const ezUInt32 lowY = ezMath::Min(y0, y1);
   const ezUInt32 highY = ezMath::Max(y0, y1);
 
-  // skip a few lines to improve performance
-  for (ezUInt32 y = lowY; y < highY; y += 4)
+  ezUInt32 offset = 0;
+
+  for (ezUInt32 y = lowY; y < highY; y += 1)
   {
-    for (ezUInt32 x = lowX; x < highX; x += 4)
+    for (ezUInt32 x = lowX + offset; x < highX; x += 2)
     {
       const ezUInt32 uiIndex = (y * m_uiWindowWidth) + x;
 
@@ -361,6 +400,9 @@ void ezPickingRenderPass::ReadBackPropertiesMarqueePick(ezView* pView)
       IDs.PushBack(id);
       resArray.PushBack(id);
     }
+
+    // only evaluate every second pixel, in a checker board pattern
+    offset = (offset + 1) % 2;
   }
 
   pView->SetRenderPassReadBackProperty(GetName(), "MarqueeResult", resArray);

@@ -1,7 +1,7 @@
 #pragma once
 
 // rasterizer state
-#if defined(RENDER_PASS) && RENDER_PASS == RENDER_PASS_WIREFRAME
+#if defined(RENDER_PASS) && (RENDER_PASS == RENDER_PASS_WIREFRAME || RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
   WireFrame = true
 #endif
 
@@ -20,18 +20,18 @@ DepthWrite = true
 DepthTestFunc = CompareFunc_LessEqual
 
 #if defined(BLEND_MODE) && (BLEND_MODE == BLEND_MODE_OPAQUE || BLEND_MODE == BLEND_MODE_MASKED)
-  
+
   #if defined(RENDER_PASS) && (RENDER_PASS == RENDER_PASS_FORWARD || RENDER_PASS == RENDER_PASS_EDITOR)
-  
+
     #if defined(FORWARD_PASS_WRITE_DEPTH)
       #if FORWARD_PASS_WRITE_DEPTH == FALSE
         DepthWrite = false
         DepthTestFunc = CompareFunc_Equal
       #endif
     #endif
-    
+
   #endif
-  
+
 #else
   DepthWrite = false
 #endif

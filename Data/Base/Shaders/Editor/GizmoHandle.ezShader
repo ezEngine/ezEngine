@@ -82,7 +82,7 @@ float4 main(PS_IN Input) : SV_Target
 	return float4(0, 0, 0, 1);
 #else
 
-	#if RENDER_PASS == RENDER_PASS_PICKING
+	#if (RENDER_PASS == RENDER_PASS_PICKING) || (RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
 		return RGBA8ToFloat4(GameObjectID);
 	#else
 		return Input.Color;
