@@ -35,6 +35,7 @@ protected:
 private:
   void OpenPickedMaterial(const ezObjectPickingResult& res) const;
   bool TryOpenMaterial(const ezString& sMatRef) const;
+  void SendMarqueeMsg(QMouseEvent* e, ezUInt8 uiWhatToDo);
 
   const ezCamera* m_pCamera;
   ezVec2I32 m_Viewport;

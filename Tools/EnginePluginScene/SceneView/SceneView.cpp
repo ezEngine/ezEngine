@@ -254,6 +254,9 @@ void ezSceneViewContext::MarqueePickObjects(const ezViewMarqueePickingMsgToEngin
     pView->SetRenderPassProperty("EditorPickingPass", "MarqueePickPos0", ezVec2(pMsg->m_uiPickPosX0, pMsg->m_uiPickPosY0));
     pView->SetRenderPassProperty("EditorPickingPass", "MarqueePickPos1", ezVec2(pMsg->m_uiPickPosX1, pMsg->m_uiPickPosY1));
     pView->SetRenderPassProperty("EditorPickingPass", "MarqueeActionID", pMsg->m_uiActionIdentifier);
+
+    if (pMsg->m_uiWhatToDo == 0xFF)
+      return;
     
     if (!pView->IsRenderPassReadBackPropertyExisting("EditorPickingPass", "MarqueeActionID") ||
       pView->GetRenderPassReadBackProperty("EditorPickingPass", "MarqueeActionID").ConvertTo<ezUInt32>() != pMsg->m_uiActionIdentifier)

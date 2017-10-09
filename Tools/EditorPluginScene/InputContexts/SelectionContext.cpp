@@ -116,6 +116,8 @@ ezEditorInut ezSelectionContext::DoMouseReleaseEvent(QMouseEvent* e)
 
     if (m_Mode == Mode::MarqueeAdd || m_Mode == Mode::MarqueeRemove)
     {
+      SendMarqueeMsg(e, (m_Mode == Mode::MarqueeAdd) ? 1 : 2);
+
       DoFocusLost(false);
       return ezEditorInut::WasExclusivelyHandled;
     }
@@ -223,65 +225,71 @@ bool ezSelectionContext::TryOpenMaterial(const ezString& sMatRef) const
   return false;
 }
 
+
+void ezSelectionContext::SendMarqueeMsg(QMouseEvent* e, ezUInt8 uiWhatToDo)
+{
+  ezVec2I32 curPos;
+  curPos.Set(e->pos().x(), e->pos().y());
+
+  ezMat4 mView = m_pCamera->GetViewMatrix();
+  ezMat4 mProj;
+  m_pCamera->GetProjectionMatrix((float)m_Viewport.x / (float)m_Viewport.y, mProj);
+
+  ezMat4 mViewProj = mProj * mView;
+  ezMat4 mInvViewProj = mViewProj;
+  if (mInvViewProj.Invert(0.0f).Failed())
+  {
+    // if this fails, the marquee will not be rendered correctly
+    EZ_ASSERT_DEBUG(false, "Failed to invert view projection matrix.");
+  }
+
+  const ezVec3 vMousePos(e->pos().x(), e->pos().y(), 0.01f);
+
+  const ezVec3 vScreenSpacePos0(vMousePos.x, m_Viewport.y - vMousePos.y, vMousePos.z);
+  const ezVec3 vScreenSpacePos1(m_vMarqueeStartPos.x, m_Viewport.y - m_vMarqueeStartPos.y, m_vMarqueeStartPos.z);
+
+  ezVec3 vPosOnNearPlane0, vRayDir0;
+  ezVec3 vPosOnNearPlane1, vRayDir1;
+  ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vScreenSpacePos0, vPosOnNearPlane0, &vRayDir0);
+  ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vScreenSpacePos1, vPosOnNearPlane1, &vRayDir1);
+
+  ezTransform t;
+  t.SetIdentity();
+  t.m_vPosition = ezMath::Lerp(vPosOnNearPlane0, vPosOnNearPlane1, 0.5f);
+  t.m_qRotation.SetFromMat3(m_pCamera->GetViewMatrix().GetRotationalPart());
+
+  // box coordinates in screen space
+  ezVec3 vBoxPosSS0 = t.m_qRotation * vPosOnNearPlane0;
+  ezVec3 vBoxPosSS1 = t.m_qRotation * vPosOnNearPlane1;
+
+  t.m_qRotation = -t.m_qRotation;
+
+  t.m_vScale.x = ezMath::Abs(vBoxPosSS0.x - vBoxPosSS1.x);
+  t.m_vScale.y = ezMath::Abs(vBoxPosSS0.y - vBoxPosSS1.y);
+  t.m_vScale.z = 0.0f;
+
+  m_MarqueeGizmo.SetTransformation(t);
+  m_MarqueeGizmo.SetVisible(true);
+
+  {
+    ezViewMarqueePickingMsgToEngine msg;
+    msg.m_uiViewID = GetOwnerView()->GetViewID();
+    msg.m_uiPickPosX0 = (ezUInt16)m_vMarqueeStartPos.x;
+    msg.m_uiPickPosY0 = (ezUInt16)m_vMarqueeStartPos.y;
+    msg.m_uiPickPosX1 = (ezUInt16)(e->pos().x());
+    msg.m_uiPickPosY1 = (ezUInt16)(e->pos().y());
+    msg.m_uiWhatToDo = uiWhatToDo;
+    msg.m_uiActionIdentifier = m_uiMarqueeID;
+
+    GetOwnerView()->GetDocumentWindow()->GetDocument()->SendMessageToEngine(&msg);
+  }
+}
+
 ezEditorInut ezSelectionContext::DoMouseMoveEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext() && (m_Mode == Mode::MarqueeAdd || m_Mode == Mode::MarqueeRemove))
   {
-    ezVec2I32 curPos;
-    curPos.Set(e->pos().x(), e->pos().y());
-
-    ezMat4 mView = m_pCamera->GetViewMatrix();
-    ezMat4 mProj;
-    m_pCamera->GetProjectionMatrix((float)m_Viewport.x / (float)m_Viewport.y, mProj);
-
-    ezMat4 mViewProj = mProj * mView;
-    ezMat4 mInvViewProj = mViewProj;
-    if (mInvViewProj.Invert(0.0f).Failed())
-    {
-      // if this fails, the marquee will not be rendered correctly
-      EZ_ASSERT_DEBUG(false, "Failed to invert view projection matrix.");
-    }
-
-    const ezVec3 vMousePos(e->pos().x(), e->pos().y(), 0.01f);
-
-    const ezVec3 vScreenSpacePos0(vMousePos.x, m_Viewport.y - vMousePos.y, vMousePos.z);
-    const ezVec3 vScreenSpacePos1(m_vMarqueeStartPos.x, m_Viewport.y - m_vMarqueeStartPos.y, m_vMarqueeStartPos.z);
-
-    ezVec3 vPosOnNearPlane0, vRayDir0;
-    ezVec3 vPosOnNearPlane1, vRayDir1;
-    ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vScreenSpacePos0, vPosOnNearPlane0, &vRayDir0);
-    ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vScreenSpacePos1, vPosOnNearPlane1, &vRayDir1);
-
-    ezTransform t;
-    t.SetIdentity();
-    t.m_vPosition = ezMath::Lerp(vPosOnNearPlane0, vPosOnNearPlane1, 0.5f);
-    t.m_qRotation.SetFromMat3(m_pCamera->GetViewMatrix().GetRotationalPart());
-
-    // box coordinates in screen space
-    ezVec3 vBoxPosSS0 = t.m_qRotation * vPosOnNearPlane0;
-    ezVec3 vBoxPosSS1 = t.m_qRotation * vPosOnNearPlane1;
-
-    t.m_qRotation = -t.m_qRotation;
-
-    t.m_vScale.x = ezMath::Abs(vBoxPosSS0.x - vBoxPosSS1.x);
-    t.m_vScale.y = ezMath::Abs(vBoxPosSS0.y - vBoxPosSS1.y);
-    t.m_vScale.z = 0.0f;
-
-    m_MarqueeGizmo.SetTransformation(t);
-    m_MarqueeGizmo.SetVisible(true);
-
-    {
-      ezViewMarqueePickingMsgToEngine msg;
-      msg.m_uiViewID = GetOwnerView()->GetViewID();
-      msg.m_uiPickPosX0 = (ezUInt16)m_vMarqueeStartPos.x;
-      msg.m_uiPickPosY0 = (ezUInt16)m_vMarqueeStartPos.y;
-      msg.m_uiPickPosX1 = (ezUInt16)(e->pos().x());
-      msg.m_uiPickPosY1 = (ezUInt16)(e->pos().y());
-      msg.m_uiWhatToDo = (m_Mode == Mode::MarqueeAdd) ? 1 : 2;
-      msg.m_uiActionIdentifier = m_uiMarqueeID;
-
-      GetOwnerView()->GetDocumentWindow()->GetDocument()->SendMessageToEngine(&msg);
-    }
+    SendMarqueeMsg(e, 0xFF);
 
     return ezEditorInut::WasExclusivelyHandled;
   }
