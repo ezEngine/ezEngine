@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
@@ -121,9 +121,7 @@ void ezQtSceneDocumentWindow::UpdateGizmoPosition()
     m_ScaleGizmo.SetTransformation(mt);
     m_DragToPosGizmo.SetTransformation(mt);
   }
-
 }
-
 
 void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent& e)
 {
@@ -132,10 +130,10 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent
   case ezGizmoEvent::Type::BeginInteractions:
     {
       m_bMergeTransactions = false;
+      const bool bDuplicate = QApplication::keyboardModifiers().testFlag(Qt::KeyboardModifier::ShiftModifier);
 
       // duplicate the object when shift is held while dragging the item
-      if ((e.m_pGizmo == &m_TranslateGizmo || e.m_pGizmo == &m_DragToPosGizmo)
-          && QApplication::keyboardModifiers() & Qt::KeyboardModifier::ShiftModifier)
+      if ((e.m_pGizmo == &m_TranslateGizmo || e.m_pGizmo == &m_RotateGizmo || e.m_pGizmo == &m_DragToPosGizmo) && bDuplicate)
       {
         m_bMergeTransactions = true;
         GetSceneDocument()->DuplicateSelection();
@@ -143,7 +141,7 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent
 
       if (e.m_pGizmo->GetDynamicRTTI()->IsDerivedFrom<ezOrthoGizmoContext>())
       {
-        if (m_TranslateGizmo.IsVisible() && QApplication::keyboardModifiers() & Qt::KeyboardModifier::ShiftModifier)
+        if (m_TranslateGizmo.IsVisible() && bDuplicate)
         {
           m_bMergeTransactions = true;
           GetSceneDocument()->DuplicateSelection();
@@ -201,7 +199,10 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent
           tNew = obj.m_GlobalTransform;
           tNew.m_vPosition += vTranslate;
 
-          pScene->SetGlobalTransform(obj.m_pObject, tNew, TransformationChanges::Translation);
+          if (GetSceneDocument()->GetGizmoMoveParentOnly())
+            pScene->SetGlobalTransformParentOnly(obj.m_pObject, tNew, TransformationChanges::Translation);
+          else
+            pScene->SetGlobalTransform(obj.m_pObject, tNew, TransformationChanges::Translation);
         }
 
         if (e.m_pGizmo == &m_TranslateGizmo && QApplication::keyboardModifiers() & Qt::KeyboardModifier::ControlModifier)
@@ -233,7 +234,10 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent
           tNew.m_qRotation = qRotation * obj.m_GlobalTransform.m_qRotation;
           tNew.m_vPosition = vPivot + qRotation * (obj.m_GlobalTransform.m_vPosition - vPivot);
 
-          pScene->SetGlobalTransform(obj.m_pObject, tNew, TransformationChanges::Rotation | TransformationChanges::Translation);
+          if (GetSceneDocument()->GetGizmoMoveParentOnly())
+            pScene->SetGlobalTransformParentOnly(obj.m_pObject, tNew, TransformationChanges::Rotation | TransformationChanges::Translation);
+          else
+            pScene->SetGlobalTransform(obj.m_pObject, tNew, TransformationChanges::Rotation | TransformationChanges::Translation);
         }
       }
 
@@ -297,7 +301,10 @@ void ezQtSceneDocumentWindow::TransformationGizmoEventHandler(const ezGizmoEvent
             tNew.m_qRotation = qRot;
           }
 
-          pScene->SetGlobalTransform(obj.m_pObject, tNew, TransformationChanges::Translation | TransformationChanges::Rotation);
+          if (GetSceneDocument()->GetGizmoMoveParentOnly())
+            pScene->SetGlobalTransformParentOnly(obj.m_pObject, tNew, TransformationChanges::Rotation | TransformationChanges::Translation);
+          else
+            pScene->SetGlobalTransform(obj.m_pObject, tNew, TransformationChanges::Translation | TransformationChanges::Rotation);
         }
       }
 

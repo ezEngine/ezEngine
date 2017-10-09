@@ -40,7 +40,7 @@ void ezSceneActions::RegisterActions()
   s_hGameModeSimulate = EZ_REGISTER_ACTION_1("Scene.GameMode.Simulate", ezActionScope::Document, "Scene", "F5", ezSceneAction, ezSceneAction::ActionType::StartGameModeSimulate);
   s_hRenderSelectionOverlay = EZ_REGISTER_ACTION_1("Scene.Render.SelectionOverlay", ezActionScope::Document, "Scene", "End", ezSceneAction, ezSceneAction::ActionType::RenderSelectionOverlay);
   s_hRenderVisualizers = EZ_REGISTER_ACTION_1("Scene.Render.Visualizers", ezActionScope::Document, "Scene", "Insert", ezSceneAction, ezSceneAction::ActionType::RenderVisualizers);
-  s_hRenderShapeIcons = EZ_REGISTER_ACTION_1("Scene.Render.ShapeIcons", ezActionScope::Document, "Scene", "Space", ezSceneAction, ezSceneAction::ActionType::RenderShapeIcons);
+  s_hRenderShapeIcons = EZ_REGISTER_ACTION_1("Scene.Render.ShapeIcons", ezActionScope::Document, "Scene", "Enter", ezSceneAction, ezSceneAction::ActionType::RenderShapeIcons);
   s_hRenderGrid = EZ_REGISTER_ACTION_1("Scene.Render.Grid", ezActionScope::Document, "Scene", "Home", ezSceneAction, ezSceneAction::ActionType::RenderGrid);
   s_hAddAmbientLight = EZ_REGISTER_ACTION_1("Scene.Render.AddAmbient", ezActionScope::Document, "Scene", "", ezSceneAction, ezSceneAction::ActionType::AddAmbientLight);
   s_hGameModePlay = EZ_REGISTER_ACTION_1("Scene.GameMode.Play", ezActionScope::Document, "Scene", "Ctrl+F5", ezSceneAction, ezSceneAction::ActionType::StartGameModePlay);

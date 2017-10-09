@@ -16,6 +16,7 @@ ezActionDescriptorHandle ezGizmoActions::s_hRotateGizmo;
 ezActionDescriptorHandle ezGizmoActions::s_hScaleGizmo;
 ezActionDescriptorHandle ezGizmoActions::s_hDragToPositionGizmo;
 ezActionDescriptorHandle ezGizmoActions::s_hWorldSpace;
+ezActionDescriptorHandle ezGizmoActions::s_hMoveParentOnly;
 
 void ezGizmoActions::RegisterActions()
 {
@@ -27,6 +28,7 @@ void ezGizmoActions::RegisterActions()
   s_hScaleGizmo = EZ_REGISTER_ACTION_1("Gizmo.Mode.Scale", ezActionScope::Document, "Gizmo", "R", ezGizmoAction, ezGizmoAction::ActionType::GizmoScale);
   s_hDragToPositionGizmo = EZ_REGISTER_ACTION_1("Gizmo.Mode.DragToPosition", ezActionScope::Document, "Gizmo", "T", ezGizmoAction, ezGizmoAction::ActionType::GizmoDragToPosition);
   s_hWorldSpace = EZ_REGISTER_ACTION_1("Gizmo.TransformSpace", ezActionScope::Document, "Gizmo", "", ezGizmoAction, ezGizmoAction::ActionType::GizmoToggleWorldSpace);
+  s_hMoveParentOnly = EZ_REGISTER_ACTION_1("Gizmo.MoveParentOnly", ezActionScope::Document, "Gizmo", "P", ezGizmoAction, ezGizmoAction::ActionType::GizmoToggleMoveParentOnly);
 }
 
 void ezGizmoActions::UnregisterActions()
@@ -39,6 +41,7 @@ void ezGizmoActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hScaleGizmo);
   ezActionManager::UnregisterAction(s_hDragToPositionGizmo);
   ezActionManager::UnregisterAction(s_hWorldSpace);
+  ezActionManager::UnregisterAction(s_hMoveParentOnly);
 }
 
 void ezGizmoActions::MapMenuActions(const char* szMapping, const char* szPath)
@@ -55,6 +58,7 @@ void ezGizmoActions::MapMenuActions(const char* szMapping, const char* szPath)
   pMap->MapAction(s_hScaleGizmo, sSubPath, 3.0f);
   pMap->MapAction(s_hDragToPositionGizmo, sSubPath, 4.0f);
   pMap->MapAction(s_hWorldSpace, sSubPath, 5.0f);
+  pMap->MapAction(s_hMoveParentOnly, sSubPath, 6.0f);
 }
 
 void ezGizmoActions::MapToolbarActions(const char* szMapping, const char* szPath)
@@ -100,6 +104,9 @@ ezGizmoAction::ezGizmoAction(const ezActionContext& context, const char* szName,
   case ActionType::GizmoToggleWorldSpace:
     SetIconPath(":/EditorPluginScene/Icons/WorldSpace16.png");
     break;
+  case ActionType::GizmoToggleMoveParentOnly:
+    SetIconPath(":/EditorPluginScene/Icons/TransformParent16.png");
+    break;
   }
 
   UpdateState();
@@ -115,6 +122,10 @@ void ezGizmoAction::Execute(const ezVariant& value)
   if (m_Type == ActionType::GizmoToggleWorldSpace)
   {
     m_pSceneDocument->SetGizmoWorldSpace(value.ConvertTo<bool>());
+  }
+  else if (m_Type == ActionType::GizmoToggleMoveParentOnly)
+  {
+    m_pSceneDocument->SetGizmoMoveParentOnly(value.ConvertTo<bool>());
   }
   else
   {
@@ -135,6 +146,13 @@ void ezGizmoAction::UpdateState()
                m_pSceneDocument->GetActiveGizmo() == ActiveGizmo::Rotate);
 
     SetChecked(m_pSceneDocument->GetGizmoWorldSpace() && m_pSceneDocument->GetActiveGizmo() != ActiveGizmo::Scale);
+  }
+  else if (m_Type == ActionType::GizmoToggleMoveParentOnly)
+  {
+    SetEnabled(m_pSceneDocument->GetActiveGizmo() == ActiveGizmo::Translate ||
+               m_pSceneDocument->GetActiveGizmo() == ActiveGizmo::Rotate);
+
+    SetChecked(m_pSceneDocument->GetGizmoMoveParentOnly() && m_pSceneDocument->GetActiveGizmo() != ActiveGizmo::Scale);
   }
   else
   {

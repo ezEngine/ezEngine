@@ -787,6 +787,29 @@ bool ezSceneDocument::GetGizmoWorldSpace() const
   return m_bGizmoWorldSpace;
 }
 
+void ezSceneDocument::SetGizmoMoveParentOnly(bool bMoveParent)
+{
+  if (m_bGizmoMoveParentOnly == bMoveParent)
+    return;
+
+  m_bGizmoMoveParentOnly = bMoveParent;
+
+  ezSceneDocumentEvent e;
+  e.m_Type = ezSceneDocumentEvent::Type::ActiveGizmoChanged;
+  m_SceneEvents.Broadcast(e);
+}
+
+bool ezSceneDocument::GetGizmoMoveParentOnly() const
+{
+  if (m_ActiveGizmo == ActiveGizmo::Scale)
+    return false;
+
+  if (m_ActiveGizmo == ActiveGizmo::DragToPosition)
+    return false;
+
+  return m_bGizmoMoveParentOnly;
+}
+
 void ezSceneDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const
 {
   out_MimeTypes.PushBack("application/ezEditor.ezAbstractGraph");
@@ -1413,6 +1436,28 @@ void ezSceneDocument::SetGlobalTransform(const ezDocumentObject* pObject, const 
 
   // will be recomputed the next time it is queried
   InvalidateGlobalTransformValue(pObject);
+}
+
+void ezSceneDocument::SetGlobalTransformParentOnly(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 transformationChanges) const
+{
+  ezHybridArray<ezTransform, 16> childTransforms;
+  const auto& children = pObject->GetChildren();
+
+  childTransforms.SetCountUninitialized(children.GetCount());
+
+  for (ezUInt32 i = 0; i < children.GetCount(); ++i)
+  {
+    const ezDocumentObject* pChild = children[i];
+    childTransforms[i] = GetGlobalTransform(pChild);
+  }
+
+  SetGlobalTransform(pObject, t, transformationChanges);
+
+  for (ezUInt32 i = 0; i < children.GetCount(); ++i)
+  {
+    const ezDocumentObject* pChild = children[i];
+    SetGlobalTransform(pChild, childTransforms[i], TransformationChanges::All);
+  }
 }
 
 ezStatus ezSceneDocument::RequestExportScene(const char* szTargetFile, const ezAssetFileHeader& header)

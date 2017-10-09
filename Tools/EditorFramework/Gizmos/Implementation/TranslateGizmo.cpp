@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorFramework/Gizmos/TranslateGizmo.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <Foundation/Logging/Log.h>
@@ -108,6 +108,7 @@ void ezTranslateGizmo::DoFocusLost(bool bCancel)
   m_vLastMoveDiff.SetZero();
 
   m_vStartPosition = GetTransformation().m_vPosition;
+  m_TotalMouseDiff.SetZero();
 }
 
 ezEditorInut ezTranslateGizmo::DoMousePressEvent(QMouseEvent* e)
@@ -167,6 +168,7 @@ ezEditorInut ezTranslateGizmo::DoMousePressEvent(QMouseEvent* e)
   GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
   m_vStartPosition = GetTransformation().m_vPosition;
+  m_TotalMouseDiff.SetZero();
 
   ezMat4 mView = m_pCamera->GetViewMatrix();
   ezMat4 mProj;
@@ -307,15 +309,16 @@ ezEditorInut ezTranslateGizmo::DoMouseMoveEvent(QMouseEvent* e)
   {
     const float fSpeed = m_fCameraSpeed * 0.01f;
 
-    const ezVec3 vMouseDir = m_pCamera->GetDirRight() * (float)(CurMousePos.x - m_LastMousePos.x) + -m_pCamera->GetDirUp() * (float)(CurMousePos.y - m_LastMousePos.y);
+    m_TotalMouseDiff += ezVec2((float)(CurMousePos.x - m_LastMousePos.x), (float)(CurMousePos.y - m_LastMousePos.y));
+    const ezVec3 vMouseDir = m_pCamera->GetDirRight() * m_TotalMouseDiff.x + -m_pCamera->GetDirUp() * m_TotalMouseDiff.y;
 
     if (m_Mode == TranslateMode::Axis)
     {
-      vTranslate = mTrans.m_vPosition - m_vStartPosition + m_vMoveAxis * (m_vMoveAxis.Dot(vMouseDir)) * fSpeed;
+      vTranslate = m_vMoveAxis * (m_vMoveAxis.Dot(vMouseDir)) * fSpeed;
     }
     else if (m_Mode == TranslateMode::Plane)
     {
-      vTranslate = mTrans.m_vPosition - m_vStartPosition + m_vPlaneAxis[0] * (m_vPlaneAxis[0].Dot(vMouseDir)) * fSpeed + m_vPlaneAxis[1] * (m_vPlaneAxis[1].Dot(vMouseDir)) * fSpeed;
+      vTranslate = m_vPlaneAxis[0] * (m_vPlaneAxis[0].Dot(vMouseDir)) * fSpeed + m_vPlaneAxis[1] * (m_vPlaneAxis[1].Dot(vMouseDir)) * fSpeed;
     }
   }
 

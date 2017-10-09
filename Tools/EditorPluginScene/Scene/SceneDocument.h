@@ -155,6 +155,9 @@ public:
   void SetGizmoWorldSpace(bool bWorldSpace);
   bool GetGizmoWorldSpace() const;
 
+  void SetGizmoMoveParentOnly(bool bMoveParent);
+  bool GetGizmoMoveParentOnly() const;
+
   virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const override;
   virtual bool Copy(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const override;
   virtual bool Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType) override;
@@ -181,6 +184,9 @@ public:
   /// \brief Sets the new global transformation of the given object.
   /// The transformationChanges bitmask (of type TransformationChanges) allows to tell the system that, e.g. only translation has changed and thus some work can be spared.
   void SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 transformationChanges) const;
+
+  /// \brief Same as SetGlobalTransform, except that all children will keep their current global transform (thus their local transforms are adjusted)
+  void SetGlobalTransformParentOnly(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 transformationChanges) const;
 
   /// \brief Returns a cached value for the global transform of the given object, if available. Otherwise it calls ComputeGlobalTransform().
   ezTransform GetGlobalTransform(const ezDocumentObject* pObject) const;
@@ -298,6 +304,7 @@ private:
   bool m_bIsPrefab;
   bool m_bAddAmbientLight;
   bool m_bGizmoWorldSpace; // whether the gizmo is in local/global space mode
+  bool m_bGizmoMoveParentOnly = false;
   GameMode::Enum m_GameMode;
   float m_fSimulationSpeed;
 

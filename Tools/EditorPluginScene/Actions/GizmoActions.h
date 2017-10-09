@@ -26,6 +26,7 @@ public:
   static ezActionDescriptorHandle s_hScaleGizmo;
   static ezActionDescriptorHandle s_hDragToPositionGizmo;
   static ezActionDescriptorHandle s_hWorldSpace;
+  static ezActionDescriptorHandle s_hMoveParentOnly;
 };
 
 ///
@@ -42,6 +43,7 @@ public:
     GizmoScale,
     GizmoDragToPosition,
     GizmoToggleWorldSpace,
+    GizmoToggleMoveParentOnly,
   };
 
   ezGizmoAction(const ezActionContext& context, const char* szName, ActionType type);

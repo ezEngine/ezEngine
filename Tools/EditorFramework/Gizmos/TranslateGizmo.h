@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <ToolsFoundation/Basics.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
@@ -59,6 +59,7 @@ protected:
 
 private:
   ezVec2I32 m_LastMousePos;
+  ezVec2 m_TotalMouseDiff;
 
   ezVec3 m_vLastMoveDiff;
 

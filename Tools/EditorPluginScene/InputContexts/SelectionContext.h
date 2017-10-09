@@ -42,6 +42,7 @@ private:
   ezEngineGizmoHandle m_MarqueeGizmo;
   ezVec3 m_vMarqueeStartPos;
   ezUInt32 m_uiMarqueeID;
+  bool m_bPressedSpace = false;
 
   enum class Mode
   {

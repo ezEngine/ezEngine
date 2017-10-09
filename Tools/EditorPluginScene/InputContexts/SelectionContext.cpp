@@ -53,7 +53,7 @@ ezEditorInut ezSelectionContext::DoMousePressEvent(QMouseEvent* e)
 
     m_Mode = Mode::Single;
 
-    if (e->modifiers().testFlag(Qt::ShiftModifier))
+    if (m_bPressedSpace)
     {
       m_uiMarqueeID += 23;
       m_vMarqueeStartPos.Set(e->pos().x(), e->pos().y(), 0.01f);
@@ -119,6 +119,7 @@ ezEditorInut ezSelectionContext::DoMouseReleaseEvent(QMouseEvent* e)
       SendMarqueeMsg(e, (m_Mode == Mode::MarqueeAdd) ? 1 : 2);
 
       DoFocusLost(false);
+      m_bPressedSpace = true;
       return ezEditorInut::WasExclusivelyHandled;
     }
   }
@@ -319,6 +320,12 @@ ezEditorInut ezSelectionContext::DoKeyPressEvent(QKeyEvent* e)
 {
   /// \todo Handle the current cursor (icon) across all active input contexts
 
+  if (e->key() == Qt::Key_Space)
+  {
+    m_bPressedSpace = true;
+    return ezEditorInut::MayBeHandledByOthers;
+  }
+
   if (e->key() == Qt::Key_Delete)
   {
     GetOwnerWindow()->GetDocument()->DeleteSelectedObjects();
@@ -336,6 +343,11 @@ ezEditorInut ezSelectionContext::DoKeyPressEvent(QKeyEvent* e)
 
 ezEditorInut ezSelectionContext::DoKeyReleaseEvent(QKeyEvent* e)
 {
+  if (e->key() == Qt::Key_Space)
+  {
+    m_bPressedSpace = false;
+  }
+
   return ezEditorInut::MayBeHandledByOthers;
 }
 
@@ -428,6 +440,7 @@ void ezSelectionContext::DoFocusLost(bool bCancel)
 {
   ezEditorInputContext::DoFocusLost(bCancel);
 
+  m_bPressedSpace = false;
   m_Mode = Mode::None;
   m_MarqueeGizmo.SetVisible(false);
 
