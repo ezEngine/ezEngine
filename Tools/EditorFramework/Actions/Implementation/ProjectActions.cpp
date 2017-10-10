@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorFramework/Actions/ProjectActions.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <EditorFramework/Settings/SettingsTab.moc.h>
@@ -19,6 +19,8 @@
 #include <EditorFramework/Dialogs/TagsDlg.moc.h>
 #include <EditorFramework/Dialogs/LaunchFileserveDlg.moc.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <QFileDialog>
+#include <EditorFramework/Assets/AssetDocumentGenerator.h>
 
 ezActionDescriptorHandle ezProjectActions::s_hEditorMenu;
 
@@ -45,6 +47,7 @@ ezActionDescriptorHandle ezProjectActions::s_hInputConfig;
 ezActionDescriptorHandle ezProjectActions::s_hPreferencesDlg;
 ezActionDescriptorHandle ezProjectActions::s_hEditorTests;
 ezActionDescriptorHandle ezProjectActions::s_hTagsDlg;
+ezActionDescriptorHandle ezProjectActions::s_hImportAsset;
 
 ezActionDescriptorHandle ezProjectActions::s_hToolsMenu;
 ezActionDescriptorHandle ezProjectActions::s_hToolsCategory;
@@ -82,6 +85,7 @@ void ezProjectActions::RegisterActions()
   s_hDataDirectories = EZ_REGISTER_ACTION_1("Project.DataDirectories", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::DataDirectories);
   s_hInputConfig = EZ_REGISTER_ACTION_1("Project.InputConfig", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::InputConfig);
   s_hWindowConfig = EZ_REGISTER_ACTION_1("Project.WindowConfig", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::WindowConfig);
+  s_hImportAsset = EZ_REGISTER_ACTION_1("Project.ImportAsset", ezActionScope::Global, "Project", "Ctrl+I", ezProjectAction, ezProjectAction::ButtonType::ImportAsset);
 
   s_hToolsMenu = EZ_REGISTER_MENU("Menu.Tools");
   s_hToolsCategory = EZ_REGISTER_CATEGORY("ToolsCategory");
@@ -119,6 +123,7 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hTagsDlg);
   ezActionManager::UnregisterAction(s_hDataDirectories);
   ezActionManager::UnregisterAction(s_hWindowConfig);
+  ezActionManager::UnregisterAction(s_hImportAsset);
   ezActionManager::UnregisterAction(s_hInputConfig);
   ezActionManager::UnregisterAction(s_hEditorTests);
 }
@@ -162,6 +167,7 @@ void ezProjectActions::MapActions(const char* szMapping)
   pMap->MapAction(s_hInputConfig, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 3.0f);
   pMap->MapAction(s_hTagsDlg, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 4.0f);
   pMap->MapAction(s_hWindowConfig, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 5.0f);
+  pMap->MapAction(s_hImportAsset, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 6.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -309,6 +315,9 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
   case ezProjectAction::ButtonType::WindowConfig:
     SetIconPath(":/EditorFramework/Icons/WindowConfig16.png");
     break;
+  case ezProjectAction::ButtonType::ImportAsset:
+    //SetIconPath(":/EditorFramework/Icons/WindowConfig16.png"); // TODO Icon
+    break;
   case ezProjectAction::ButtonType::InputConfig:
     SetIconPath(":/EditorFramework/Icons/Input16.png");
     break;
@@ -335,6 +344,7 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
   if (m_ButtonType == ButtonType::CloseProject ||
       m_ButtonType == ButtonType::DataDirectories ||
       m_ButtonType == ButtonType::WindowConfig ||
+      m_ButtonType == ButtonType::ImportAsset ||
       m_ButtonType == ButtonType::EnginePlugins ||
       m_ButtonType == ButtonType::TagsDialog ||
       m_ButtonType == ButtonType::ReloadEngine ||
@@ -353,6 +363,7 @@ ezProjectAction::~ezProjectAction()
   if (m_ButtonType == ButtonType::CloseProject ||
       m_ButtonType == ButtonType::DataDirectories ||
       m_ButtonType == ButtonType::WindowConfig ||
+      m_ButtonType == ButtonType::ImportAsset ||
       m_ButtonType == ButtonType::EnginePlugins ||
       m_ButtonType == ButtonType::TagsDialog ||
       m_ButtonType == ButtonType::ReloadEngine ||
@@ -407,6 +418,25 @@ void ezProjectAction::Execute(const ezVariant& value)
     {
       ezQtWindowCfgDlg dlg(nullptr);
       dlg.exec();
+    }
+    break;
+
+  case ezProjectAction::ButtonType::ImportAsset:
+    {
+      QString filter = "All files (*.*)";
+
+      QStringList filenames = QFileDialog::getOpenFileNames(QApplication::activeWindow(), "Import Assets", ezToolsProject::GetSingleton()->GetProjectDirectory().GetData(), filter, nullptr, QFileDialog::Option::DontResolveSymlinks);
+
+      if (filenames.empty())
+        return;
+
+      ezHybridArray<ezString, 16> filesToImport;
+      for (QString s : filenames)
+      {
+        filesToImport.PushBack(s.toUtf8().data());
+      }
+
+      ezAssetDocumentGenerator::ImportAssets(filesToImport);
     }
     break;
 

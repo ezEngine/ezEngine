@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
@@ -45,6 +45,7 @@ public:
   static ezActionDescriptorHandle s_hReloadEngine;
   static ezActionDescriptorHandle s_hLaunchFileserve;
   static ezActionDescriptorHandle s_hSaveProfiling;
+  static ezActionDescriptorHandle s_hImportAsset;
 };
 
 ///
@@ -92,6 +93,7 @@ public:
     TagsDialog,
     EnginePlugins,
     EditorTests,
+    ImportAsset,
   };
 
   ezProjectAction(const ezActionContext& context, const char* szName, ButtonType button);

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginAssets/TextureAsset/TextureAsset.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetManager.h>
@@ -226,3 +226,89 @@ const char* ezTextureAssetDocument::QueryAssetType() const
 {
   return "Texture 2D";
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezTextureAssetDocumentGenerator>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezTextureAssetDocumentGenerator::ezTextureAssetDocumentGenerator()
+{
+
+}
+
+
+ezTextureAssetDocumentGenerator::~ezTextureAssetDocumentGenerator()
+{
+
+}
+
+
+void ezTextureAssetDocumentGenerator::GetImportModes(const char* szPath, ezHybridArray<ezAssetDocumentGenerator::Info, 16>& out_Modes)
+{
+  if (ezPathUtils::HasExtension(szPath, "tga") ||
+      ezPathUtils::HasExtension(szPath, "dds") ||
+      ezPathUtils::HasExtension(szPath, "jpg") ||
+      ezPathUtils::HasExtension(szPath, "jpeg") ||
+      ezPathUtils::HasExtension(szPath, "png"))
+  {
+    ezStringBuilder outputFile = szPath;
+    outputFile.ChangeFileExtension("ezTextureAsset");
+
+    {
+      ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+      info.m_pGenerator = this;
+      info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
+      info.m_sDescription = "TextureAsset.Diffuse";
+      info.m_sOutputFile = outputFile;
+    }
+    {
+      ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+      info.m_pGenerator = this;
+      info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+      info.m_sDescription = "TextureAsset.Normal";
+      info.m_sOutputFile = outputFile;
+    }
+  }
+}
+
+ezResult ezTextureAssetDocumentGenerator::Generate(const char* szPath, const ezAssetDocumentGenerator::Info& info)
+{
+  auto pApp = ezQtEditorApp::GetSingleton();
+
+  ezStringBuilder inputFile = szPath;
+  pApp->MakePathDataDirectoryRelative(inputFile);
+
+  // don't create it when it already exists
+  if (ezOSFile::ExistsFile(info.m_sOutputFile))
+    return EZ_FAILURE;
+
+  ezDocument* pDoc = pApp->CreateOrOpenDocument(true, info.m_sOutputFile, false, false);
+  if (pDoc == nullptr)
+    return EZ_FAILURE;
+
+  ezTextureAssetDocument* pAssetDoc = ezDynamicCast<ezTextureAssetDocument*>(pDoc);
+  if (pAssetDoc == nullptr)
+    return EZ_FAILURE;
+
+  auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
+  accessor.SetValue("Input1", inputFile.GetData());
+  accessor.SetValue("ChannelMapping", (int)ezTexture2DChannelMappingEnum::RGB1);
+
+  if (info.m_sDescription == "TextureAsset.Diffuse")
+    accessor.SetValue("Usage", (int)ezTexture2DUsageEnum::Diffuse);
+  else if (info.m_sDescription == "TextureAsset.Normal")
+    accessor.SetValue("Usage", (int)ezTexture2DUsageEnum::NormalMap);
+
+  pAssetDoc->SaveDocument(true);
+
+  if (!pAssetDoc->HasWindowBeenRequested())
+    pAssetDoc->GetAssetDocumentManager()->CloseDocument(pAssetDoc);
+
+  return EZ_SUCCESS;
+}
+
+
+
+

@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
+#include <EditorFramework/Assets/AssetDocumentGenerator.h>
 
 struct ezTextureChannelMode
 {
@@ -41,4 +42,19 @@ protected:
   virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
 
   ezStatus RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail);
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+
+class ezTextureAssetDocumentGenerator : public ezAssetDocumentGenerator
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezTextureAssetDocumentGenerator, ezAssetDocumentGenerator);
+
+public:
+  ezTextureAssetDocumentGenerator();
+  ~ezTextureAssetDocumentGenerator();
+
+  virtual void GetImportModes(const char* szPath, ezHybridArray<ezAssetDocumentGenerator::Info, 16>& out_Modes) override;
+  virtual ezResult Generate(const char* szPath, const ezAssetDocumentGenerator::Info& info) override;
 };

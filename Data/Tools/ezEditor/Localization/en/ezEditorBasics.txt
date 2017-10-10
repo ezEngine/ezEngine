@@ -102,3 +102,4 @@ ezComponent;Component
 Animation;Animation
 FX;FX
 Scripting;Scripting
+Project.ImportAsset;Import Asset...

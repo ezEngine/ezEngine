@@ -123,3 +123,4 @@ ezMaterialAnimComponent;Material Animation
 ezCollectionAssetEntry;Collection Asset Entry
 Entries;Entries
 ControlPoints;Control Points
+TextureCubeAsset.LodSlider;Level of Detail

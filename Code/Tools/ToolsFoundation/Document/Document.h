@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <ToolsFoundation/Basics.h>
 #include <Foundation/Strings/String.h>
@@ -78,6 +78,8 @@ public:
   /// \brief Returns the absolute path to the document.
   const char* GetDocumentPath() const { return m_sDocumentPath; }
 
+  /// \brief Saves the document, if it is modified.
+  /// If bForce is true, the document will be written, even if it is not considered modified.
   ezStatus SaveDocument(bool bForce = false);
   ezStatus LoadDocument() { return InternalLoadDocument(); }
 
