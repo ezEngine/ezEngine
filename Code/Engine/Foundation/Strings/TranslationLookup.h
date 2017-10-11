@@ -54,7 +54,7 @@ public:
   virtual void Reset() override;
 
 protected:
-  ezMap<ezUInt32, ezString> m_Translations[ezTranslationUsage::ENUM_COUNT];
+  ezMap<ezUInt32, ezString> m_Translations[(int)ezTranslationUsage::ENUM_COUNT];
 };
 
 /// \brief Outputs a 'Missing Translation' warning the first time a string translation is requested. Otherwise returns the input string as the translation.

@@ -249,71 +249,112 @@ void ezTextureAssetDocumentGenerator::GetImportModes(const char* szPath, ezHybri
       ezPathUtils::HasExtension(szPath, "dds") ||
       ezPathUtils::HasExtension(szPath, "jpg") ||
       ezPathUtils::HasExtension(szPath, "jpeg") ||
+      ezPathUtils::HasExtension(szPath, "hdr") ||
       ezPathUtils::HasExtension(szPath, "png"))
   {
-    ezStringBuilder outputFile = szPath;
-    outputFile.ChangeFileExtension("ezTextureAsset");
+    ezStringBuilder baseOutputFile = szPath;
+
+    const ezStringBuilder baseFilename = baseOutputFile.GetFileName();
+    const bool isHDR = ezPathUtils::HasExtension(szPath, "hdr");
+
+    baseOutputFile.ChangeFileExtension("ezTextureAsset");
+
+    /// \todo make this configurable
+    const bool isNormalMap = !isHDR && (baseFilename.EndsWith_NoCase("_n") ||
+      baseFilename.EndsWith_NoCase("normal") || baseFilename.EndsWith_NoCase("normals") || baseFilename.EndsWith_NoCase("norm"));
 
     {
       ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
       info.m_pGenerator = this;
       info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
       info.m_sName = "TextureImport.Diffuse";
-      info.m_sOutputFile = outputFile;
+      info.m_sOutputFile = baseOutputFile;
       info.m_sIcon = ":/AssetIcons/Texture_2D.png";
     }
+
+    {
+      ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+      info.m_pGenerator = this;
+      info.m_Priority = isNormalMap ? ezAssetDocGeneratorPriority::HighPriority : ezAssetDocGeneratorPriority::LowPriority;
+      info.m_sName = "TextureImport.Normal";
+      info.m_sOutputFile = baseOutputFile;
+      info.m_sIcon = ":/AssetIcons/Texture_Normals.png";
+    }
+
     {
       ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
       info.m_pGenerator = this;
       info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-      info.m_sName = "TextureImport.Normal";
-      info.m_sOutputFile = outputFile;
+      info.m_sName = "TextureImport.Linear";
+      info.m_sOutputFile = baseOutputFile;
+      info.m_sIcon = ":/AssetIcons/Texture_Linear.png";
+    }
+
+    if (isHDR)
+    {
+      ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+      info.m_pGenerator = this;
+      info.m_Priority = ezAssetDocGeneratorPriority::HighPriority;
+      info.m_sName = "TextureImport.HDR";
+      info.m_sOutputFile = baseOutputFile;
       info.m_sIcon = ":/AssetIcons/Texture_2D.png";
     }
   }
 }
 
-ezResult ezTextureAssetDocumentGenerator::Generate(const char* szPath, const ezAssetDocumentGenerator::Info& info)
+ezStatus ezTextureAssetDocumentGenerator::Generate(const char* szPath, const ezAssetDocumentGenerator::Info& info)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 
   ezStringBuilder inputFile = szPath;
   if (!pApp->MakeParentDataDirectoryRelativePathAbsolute(inputFile, true))
-    return EZ_FAILURE;
+    return ezStatus("Input file could not be located");
   if (!pApp->MakePathDataDirectoryRelative(inputFile))
-    return EZ_FAILURE;
+    return ezStatus("Input file is not in any known data directory");
 
   ezStringBuilder outputFile = info.m_sOutputFile;
   if (!pApp->MakeParentDataDirectoryRelativePathAbsolute(outputFile, false))
-    return EZ_FAILURE;
+    return ezStatus("Target file location could not be found");
 
   // don't create it when it already exists
   if (ezOSFile::ExistsFile(outputFile))
-    return EZ_FAILURE;
+    return ezStatus("Target file already exists");
 
   ezDocument* pDoc = pApp->CreateOrOpenDocument(true, outputFile, false, false);
   if (pDoc == nullptr)
-    return EZ_FAILURE;
+    return ezStatus("Could not create target document");
 
   ezTextureAssetDocument* pAssetDoc = ezDynamicCast<ezTextureAssetDocument*>(pDoc);
   if (pAssetDoc == nullptr)
-    return EZ_FAILURE;
+    return ezStatus("Target document is not a valid ezTextureAssetDocument");
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
   accessor.SetValue("Input1", inputFile.GetData());
   accessor.SetValue("ChannelMapping", (int)ezTexture2DChannelMappingEnum::RGB1);
 
-  if (info.m_sName == "TextureAsset.Diffuse")
+  if (info.m_sName == "TextureImport.Diffuse")
+  {
     accessor.SetValue("Usage", (int)ezTexture2DUsageEnum::Diffuse);
-  else if (info.m_sName == "TextureAsset.Normal")
+  }
+  else if (info.m_sName == "TextureImport.Normal")
+  {
     accessor.SetValue("Usage", (int)ezTexture2DUsageEnum::NormalMap);
+  }
+  else if (info.m_sName == "TextureImport.HDR")
+  {
+    accessor.SetValue("Usage", (int)ezTexture2DUsageEnum::HDR);
+  }
+  else if (info.m_sName == "TextureImport.Linear")
+  {
+    accessor.SetValue("Usage", (int)ezTexture2DUsageEnum::Other_Linear);
+  }
 
   pAssetDoc->SaveDocument(true);
 
   if (!pAssetDoc->HasWindowBeenRequested())
     pAssetDoc->GetAssetDocumentManager()->CloseDocument(pAssetDoc);
 
-  return EZ_SUCCESS;
+  return ezStatus(EZ_SUCCESS);
 }
 
 

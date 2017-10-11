@@ -41,6 +41,6 @@ public:
   };
 
   virtual void GetImportModes(const char* szPath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) = 0;
-  virtual ezResult Generate(const char* szPath, const ezAssetDocumentGenerator::Info& mode) = 0;
+  virtual ezStatus Generate(const char* szPath, const ezAssetDocumentGenerator::Info& mode) = 0;
 };
 

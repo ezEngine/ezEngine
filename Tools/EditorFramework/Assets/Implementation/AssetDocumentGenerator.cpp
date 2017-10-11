@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/Assets/AssetImportDlg.moc.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentGenerator, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -68,7 +69,7 @@ void ezAssetDocumentGenerator::ImportAssets(const ezHybridArray<ezString, 16>& f
     for (ezUInt32 i = 0; i < singleImport.m_ImportOptions.GetCount(); ++i)
     {
       uiNumPrios[(ezUInt32)singleImport.m_ImportOptions[i].m_Priority]++;
-      uiNumPrios[(ezUInt32)singleImport.m_ImportOptions[i].m_Priority] = i;
+      uiBestPrio[(ezUInt32)singleImport.m_ImportOptions[i].m_Priority] = i;
     }
 
     singleImport.m_iSelectedOption = -1;
@@ -93,8 +94,19 @@ void ezAssetDocumentGenerator::ImportAssets(const ezHybridArray<ezString, 16>& f
       if (data.m_iSelectedOption < 0)
         continue;
 
+      EZ_LOG_BLOCK("Asset Import", data.m_sInputFile);
+
       auto& option = data.m_ImportOptions[data.m_iSelectedOption];
-      option.m_pGenerator->Generate(data.m_sInputFile, option);
+      const ezStatus status = option.m_pGenerator->Generate(data.m_sInputFile, option);
+
+      if (status.Failed())
+      {
+        ezLog::Error("Asset import failed: '{0}'", status.m_sMessage);
+      }
+      else
+      {
+        ezLog::Success("Generated asset document '{0}'", option.m_sOutputFile);
+      }
     }
   }
 

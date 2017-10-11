@@ -56,5 +56,5 @@ public:
   ~ezTextureAssetDocumentGenerator();
 
   virtual void GetImportModes(const char* szPath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) override;
-  virtual ezResult Generate(const char* szPath, const ezAssetDocumentGenerator::Info& info) override;
+  virtual ezStatus Generate(const char* szPath, const ezAssetDocumentGenerator::Info& info) override;
 };

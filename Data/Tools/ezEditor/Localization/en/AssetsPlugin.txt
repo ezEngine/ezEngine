@@ -126,3 +126,5 @@ ControlPoints;Control Points
 TextureCubeAsset.LodSlider;Level of Detail
 TextureImport.Diffuse;Diffuse Texture
 TextureImport.Normal;Normal Map
+TextureImport.HDR;HDR Texture
+TextureImport.Linear;Linear Texture

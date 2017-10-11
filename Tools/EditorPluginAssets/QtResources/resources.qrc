@@ -17,6 +17,8 @@
     <file>PropertyAnim.png</file>
 	<file>Visual_Script.png</file>
 	<file>Decal.png</file>
+	<file>Texture_Normals.png</file>
+	<file>Texture_Linear.png</file>
   </qresource>
   <qresource prefix="EditorPluginAssets">
 	<file>VSE_CleanGraph16.png</file>
