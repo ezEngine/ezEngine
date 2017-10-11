@@ -1,6 +1,7 @@
 <RCC>
   <qresource prefix="GuiFoundation">
-	<file>Icons/CVar.png</file>
+    <file>Icons/No16.png</file>
+    <file>Icons/CVar.png</file>
     <file>Icons/PickTarget16.png</file>
     <file>Icons/groupClosed.png</file>
     <file>Icons/groupOpen.png</file>

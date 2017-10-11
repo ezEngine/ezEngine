@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
@@ -154,7 +154,7 @@ public:
   bool MakePathDataDirectoryRelative(ezString& sPath) const;
 
   bool MakePathDataDirectoryParentRelative(ezStringBuilder& sPath) const;
-  bool MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder& sPath) const;
+  bool MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder& sPath, bool bCheckExists) const;
 
   void AddRuntimePluginDependency(const char* szEditorPluginName, const char* szRuntimeDependency);
 

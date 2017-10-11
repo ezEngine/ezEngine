@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Containers/DynamicArray.h>
@@ -7,7 +7,7 @@
 #include <Foundation/Types/UniquePtr.h>
 
 /// \brief What a translated string is used for.
-enum ezTranslationUsage
+enum class ezTranslationUsage
 {
   Default,
   Tooltip,

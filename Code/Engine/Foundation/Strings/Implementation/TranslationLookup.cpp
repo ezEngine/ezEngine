@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Logging/Log.h>
@@ -121,12 +121,12 @@ void ezTranslatorFromFiles::LoadTranslationFile(const char* szFullPath)
 
 void ezTranslatorStorage::StoreTranslation(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage)
 {
-  m_Translations[usage][uiStringHash] = szString;
+  m_Translations[(ezUInt32)usage][uiStringHash] = szString;
 }
 
 const char* ezTranslatorStorage::Translate(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage)
 {
-  auto it = m_Translations[usage].Find(uiStringHash);
+  auto it = m_Translations[(ezUInt32)usage].Find(uiStringHash);
   if (it.IsValid())
     return it.Value().GetData();
 
@@ -135,7 +135,7 @@ const char* ezTranslatorStorage::Translate(const char* szString, ezUInt32 uiStri
 
 void ezTranslatorStorage::Reset()
 {
-  for (ezUInt32 i = 0; i < ezTranslationUsage::ENUM_COUNT; ++i)
+  for (ezUInt32 i = 0; i < (ezUInt32)ezTranslationUsage::ENUM_COUNT; ++i)
   {
     m_Translations[i].Clear();
   }

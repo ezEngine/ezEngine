@@ -124,3 +124,5 @@ ezCollectionAssetEntry;Collection Asset Entry
 Entries;Entries
 ControlPoints;Control Points
 TextureCubeAsset.LodSlider;Level of Detail
+TextureImport.Diffuse;Diffuse Texture
+TextureImport.Normal;Normal Map

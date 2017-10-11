@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/OSFile.h>
 #include <EditorFramework/Assets/AssetCurator.h>
@@ -77,8 +77,10 @@ void ezQtEditorApp::SetupDataDirectories()
   m_FileSystemConfig.Apply();
 }
 
-bool ezQtEditorApp::MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder& sPath) const
+bool ezQtEditorApp::MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder& sPath, bool bCheckExists) const
 {
+  sPath.MakeCleanPath();
+
   if (ezPathUtils::IsAbsolutePath(sPath))
     return true;
 
@@ -106,7 +108,13 @@ bool ezQtEditorApp::MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder&
     return true;
   }
 
-  ezStringBuilder sTemp;
+  ezStringBuilder sTemp, sFolder, sDataDirName;
+
+  const char* szEnd = sPath.FindSubString("/");
+  if (szEnd)
+  {
+    sDataDirName.SetSubString_FromTo(sPath.GetData(), szEnd);
+  }
 
   for (ezUInt32 i = m_FileSystemConfig.m_DataDirs.GetCount(); i > 0; --i)
   {
@@ -115,11 +123,19 @@ bool ezQtEditorApp::MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder&
     if (ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, sTemp).Failed())
       continue;
 
+    // only check data directories that start with the required name
+    while (sTemp.EndsWith("/") || sTemp.EndsWith("\\"))
+      sTemp.Shrink(0, 1);
+    const ezStringView folderName = sTemp.GetFileName();
+
+    if (sDataDirName != folderName)
+      continue;
+
     sTemp.PathParentDirectory(); // the secret sauce is here
     sTemp.AppendPath(sPath);
     sTemp.MakeCleanPath();
 
-    if (ezOSFile::ExistsFile(sTemp) || ezOSFile::ExistsDirectory(sTemp))
+    if (!bCheckExists || ezOSFile::ExistsFile(sTemp) || ezOSFile::ExistsDirectory(sTemp))
     {
       sPath = sTemp;
       return true;

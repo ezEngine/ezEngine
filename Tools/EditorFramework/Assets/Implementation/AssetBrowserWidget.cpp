@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorFramework/Assets/AssetBrowserWidget.moc.h>
 #include <EditorFramework/Assets/AssetBrowserFilter.moc.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
@@ -546,7 +546,7 @@ void ezQtAssetBrowserWidget::OnTreeOpenExplorer()
 
   ezStringBuilder sPath = TreeFolderFilter->currentItem()->data(0, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
 
-  if (!ezQtEditorApp::GetSingleton()->MakeParentDataDirectoryRelativePathAbsolute(sPath))
+  if (!ezQtEditorApp::GetSingleton()->MakeParentDataDirectoryRelativePathAbsolute(sPath, true))
     return;
 
   ezQtUiServices::OpenInExplorer(sPath);

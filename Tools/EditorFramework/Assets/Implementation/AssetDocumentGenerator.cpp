@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
+#include <EditorFramework/Assets/AssetImportDlg.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentGenerator, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -14,8 +15,31 @@ ezAssetDocumentGenerator::~ezAssetDocumentGenerator()
 
 }
 
+
 void ezAssetDocumentGenerator::ImportAssets(const ezHybridArray<ezString, 16>& filesToImport)
 {
+  ezDynamicArray<ezAssetDocumentGenerator::ImportData> allImports;
+  allImports.Reserve(filesToImport.GetCount());
+
+  ezQtEditorApp* pApp = ezQtEditorApp::GetSingleton();
+  ezStringBuilder tmp;
+
+  for (const ezString& s : filesToImport)
+  {
+    tmp = s;
+
+    if (!pApp->MakePathDataDirectoryParentRelative(tmp))
+      continue;
+
+    auto& data = allImports.ExpandAndGetRef();
+    data.m_sInputFile = tmp;
+  }
+
+  allImports.Sort([](const ezAssetDocumentGenerator::ImportData& lhs, const ezAssetDocumentGenerator::ImportData& rhs) -> bool
+  {
+    return lhs.m_sInputFile < rhs.m_sInputFile;
+  });
+
   ezHybridArray<ezAssetDocumentGenerator*, 16> generators;
 
   for (ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
@@ -26,20 +50,51 @@ void ezAssetDocumentGenerator::ImportAssets(const ezHybridArray<ezString, 16>& f
     generators.PushBack(static_cast<ezAssetDocumentGenerator*>(pRtti->GetAllocator()->Allocate()));
   }
 
-  for (const ezString& file : filesToImport)
+  for (auto& singleImport : allImports)
   {
-    ezHybridArray<ezAssetDocumentGenerator::Info, 16> importModes;
-
     for (ezAssetDocumentGenerator* pGen : generators)
     {
-      pGen->GetImportModes(file, importModes);
+      pGen->GetImportModes(singleImport.m_sInputFile, singleImport.m_ImportOptions);
     }
 
-    importModes.Sort();
-
-    if (!importModes.IsEmpty())
+    singleImport.m_ImportOptions.Sort([](const ezAssetDocumentGenerator::Info& lhs, const ezAssetDocumentGenerator::Info& rhs) -> bool
     {
-      importModes[0].m_pGenerator->Generate(file, importModes[0]);
+      return lhs.m_sName < rhs.m_sName;
+    });
+
+    ezUInt32 uiNumPrios[(ezUInt32)ezAssetDocGeneratorPriority::ENUM_COUNT] = { 0 };
+    ezUInt32 uiBestPrio[(ezUInt32)ezAssetDocGeneratorPriority::ENUM_COUNT] = { 0 };
+
+    for (ezUInt32 i = 0; i < singleImport.m_ImportOptions.GetCount(); ++i)
+    {
+      uiNumPrios[(ezUInt32)singleImport.m_ImportOptions[i].m_Priority]++;
+      uiNumPrios[(ezUInt32)singleImport.m_ImportOptions[i].m_Priority] = i;
+    }
+
+    singleImport.m_iSelectedOption = -1;
+    for (ezUInt32 prio = (ezUInt32)ezAssetDocGeneratorPriority::HighPriority; prio > (ezUInt32)ezAssetDocGeneratorPriority::Undecided; --prio)
+    {
+      if (uiNumPrios[prio] == 1)
+      {
+        singleImport.m_iSelectedOption = uiBestPrio[prio];
+        break;
+      }
+
+      if (uiNumPrios[prio] > 1)
+        break;
+    }
+  }
+
+  ezQtAssetImportDlg dlg(QApplication::activeWindow(), allImports);
+  if (dlg.exec() == QDialog::Accepted)
+  {
+    for (auto& data : allImports)
+    {
+      if (data.m_iSelectedOption < 0)
+        continue;
+
+      auto& option = data.m_ImportOptions[data.m_iSelectedOption];
+      option.m_pGenerator->Generate(data.m_sInputFile, option);
     }
   }
 
@@ -47,5 +102,4 @@ void ezAssetDocumentGenerator::ImportAssets(const ezHybridArray<ezString, 16>& f
   {
     pGen->GetDynamicRTTI()->GetAllocator()->Deallocate(pGen);
   }
-  generators.Clear();
 }
