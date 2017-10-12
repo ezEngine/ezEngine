@@ -2,6 +2,7 @@
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/Assets/AssetImportDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <QFileDialog>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentGenerator, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE

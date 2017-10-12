@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Plugin.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Types/Status.h>
 
 enum class ezAssetDocGeneratorPriority
 {
