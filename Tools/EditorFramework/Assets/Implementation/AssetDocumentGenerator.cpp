@@ -8,14 +8,102 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezAssetDocumentGenerator::ezAssetDocumentGenerator()
 {
-
 }
 
 ezAssetDocumentGenerator::~ezAssetDocumentGenerator()
 {
-
 }
 
+void ezAssetDocumentGenerator::AddSupportedFileType(const char* szExtension)
+{
+  ezStringBuilder tmp = szExtension;
+  tmp.ToLower();
+
+  m_SupportedFileTypes.PushBack(tmp);
+}
+
+bool ezAssetDocumentGenerator::SupportsFileType(const char* szFile) const
+{
+  ezStringBuilder tmp = ezPathUtils::GetFileExtension(szFile);
+  tmp.ToLower();
+
+  return m_SupportedFileTypes.Contains(tmp);
+}
+
+void ezAssetDocumentGenerator::BuildFileDialogFilterString(ezStringBuilder& out_Filter) const
+{
+  bool semicolon = false;
+  out_Filter.Format("{0} (", GetDocumentExtension());
+  AppendFileFilterStrings(out_Filter, semicolon);
+  out_Filter.Append(")");
+}
+
+void ezAssetDocumentGenerator::AppendFileFilterStrings(ezStringBuilder& out_Filter, bool& semicolon) const
+{
+  for (const ezString ext : m_SupportedFileTypes)
+  {
+    if (semicolon)
+    {
+      out_Filter.AppendFormat("; *.{0}", ext);
+    }
+    else
+    {
+      out_Filter.AppendFormat("*.{0}", ext);
+      semicolon = true;
+    }
+  }
+}
+
+void ezAssetDocumentGenerator::CreateGenerators(ezHybridArray<ezAssetDocumentGenerator*, 16>& out_Generators)
+{
+  for (ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+  {
+    if (!pRtti->IsDerivedFrom<ezAssetDocumentGenerator>() || !pRtti->GetAllocator()->CanAllocate())
+      continue;
+
+    out_Generators.PushBack(static_cast<ezAssetDocumentGenerator*>(pRtti->GetAllocator()->Allocate()));
+  }
+
+  // sort by name
+  out_Generators.Sort([](ezAssetDocumentGenerator* lhs, ezAssetDocumentGenerator* rhs) -> bool
+  {
+    return ezStringUtils::Compare_NoCase(lhs->GetDocumentExtension(), rhs->GetDocumentExtension()) < 0;
+  });
+}
+
+void ezAssetDocumentGenerator::DestroyGenerators(ezHybridArray<ezAssetDocumentGenerator*, 16>& generators)
+{
+  for (ezAssetDocumentGenerator* pGen : generators)
+  {
+    pGen->GetDynamicRTTI()->GetAllocator()->Deallocate(pGen);
+  }
+
+  generators.Clear();
+}
+
+
+void ezAssetDocumentGenerator::ExecuteImport(const ezDynamicArray<ImportData>& allImports)
+{
+  for (auto& data : allImports)
+  {
+    if (data.m_iSelectedOption < 0)
+      continue;
+
+    EZ_LOG_BLOCK("Asset Import", data.m_sInputFile);
+
+    auto& option = data.m_ImportOptions[data.m_iSelectedOption];
+    const ezStatus status = option.m_pGenerator->Generate(data.m_sInputFile, option);
+
+    if (status.Failed())
+    {
+      ezLog::Error("Asset import failed: '{0}'", status.m_sMessage);
+    }
+    else
+    {
+      ezLog::Success("Generated asset document '{0}'", option.m_sOutputFile);
+    }
+  }
+}
 
 void ezAssetDocumentGenerator::ImportAssets(const ezHybridArray<ezString, 16>& filesToImport)
 {
@@ -42,20 +130,16 @@ void ezAssetDocumentGenerator::ImportAssets(const ezHybridArray<ezString, 16>& f
   });
 
   ezHybridArray<ezAssetDocumentGenerator*, 16> generators;
-
-  for (ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
-  {
-    if (!pRtti->IsDerivedFrom<ezAssetDocumentGenerator>() || !pRtti->GetAllocator()->CanAllocate())
-      continue;
-
-    generators.PushBack(static_cast<ezAssetDocumentGenerator*>(pRtti->GetAllocator()->Allocate()));
-  }
+  CreateGenerators(generators);
 
   for (auto& singleImport : allImports)
   {
     for (ezAssetDocumentGenerator* pGen : generators)
     {
-      pGen->GetImportModes(singleImport.m_sInputFile, singleImport.m_ImportOptions);
+      if (pGen->SupportsFileType(singleImport.m_sInputFile))
+      {
+        pGen->GetImportModes(singleImport.m_sInputFile, singleImport.m_ImportOptions);
+      }
     }
 
     singleImport.m_ImportOptions.Sort([](const ezAssetDocumentGenerator::Info& lhs, const ezAssetDocumentGenerator::Info& rhs) -> bool
@@ -89,29 +173,42 @@ void ezAssetDocumentGenerator::ImportAssets(const ezHybridArray<ezString, 16>& f
   ezQtAssetImportDlg dlg(QApplication::activeWindow(), allImports);
   if (dlg.exec() == QDialog::Accepted)
   {
-    for (auto& data : allImports)
-    {
-      if (data.m_iSelectedOption < 0)
-        continue;
-
-      EZ_LOG_BLOCK("Asset Import", data.m_sInputFile);
-
-      auto& option = data.m_ImportOptions[data.m_iSelectedOption];
-      const ezStatus status = option.m_pGenerator->Generate(data.m_sInputFile, option);
-
-      if (status.Failed())
-      {
-        ezLog::Error("Asset import failed: '{0}'", status.m_sMessage);
-      }
-      else
-      {
-        ezLog::Success("Generated asset document '{0}'", option.m_sOutputFile);
-      }
-    }
+    ExecuteImport(allImports);
   }
 
-  for (ezAssetDocumentGenerator* pGen : generators)
+  DestroyGenerators(generators);
+}
+
+void ezAssetDocumentGenerator::ImportAssets()
+{
+  ezHybridArray<ezAssetDocumentGenerator*, 16> generators;
+  CreateGenerators(generators);
+
+  ezStringBuilder singleFilter, fullFilter, allExtensions;
+  bool semicolon = false;
+
+  for (auto pGen : generators)
   {
-    pGen->GetDynamicRTTI()->GetAllocator()->Deallocate(pGen);
+    pGen->AppendFileFilterStrings(allExtensions, semicolon);
+    pGen->BuildFileDialogFilterString(singleFilter);
+    fullFilter.Append(singleFilter, "\n");
   }
+
+  fullFilter.Append("All files (*.*)");
+  fullFilter.Prepend("All asset files (", allExtensions, ")\n");
+
+  QStringList filenames = QFileDialog::getOpenFileNames(QApplication::activeWindow(), "Import Assets", ezToolsProject::GetSingleton()->GetProjectDirectory().GetData(), QString::fromUtf8(fullFilter.GetData()), nullptr, QFileDialog::Option::DontResolveSymlinks);
+
+  DestroyGenerators(generators);
+
+  if (filenames.empty())
+    return;
+
+  ezHybridArray<ezString, 16> filesToImport;
+  for (QString s : filenames)
+  {
+    filesToImport.PushBack(s.toUtf8().data());
+  }
+
+  ImportAssets(filesToImport);
 }

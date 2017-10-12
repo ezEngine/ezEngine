@@ -235,7 +235,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezTextureAssetDocumentGenerator::ezTextureAssetDocumentGenerator()
 {
-
+  AddSupportedFileType("tga");
+  AddSupportedFileType("dds");
+  AddSupportedFileType("jpg");
+  AddSupportedFileType("jpeg");
+  AddSupportedFileType("hdr");
+  AddSupportedFileType("png");
 }
 
 ezTextureAssetDocumentGenerator::~ezTextureAssetDocumentGenerator()
@@ -245,60 +250,52 @@ ezTextureAssetDocumentGenerator::~ezTextureAssetDocumentGenerator()
 
 void ezTextureAssetDocumentGenerator::GetImportModes(const char* szPath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes)
 {
-  if (ezPathUtils::HasExtension(szPath, "tga") ||
-      ezPathUtils::HasExtension(szPath, "dds") ||
-      ezPathUtils::HasExtension(szPath, "jpg") ||
-      ezPathUtils::HasExtension(szPath, "jpeg") ||
-      ezPathUtils::HasExtension(szPath, "hdr") ||
-      ezPathUtils::HasExtension(szPath, "png"))
+  ezStringBuilder baseOutputFile = szPath;
+
+  const ezStringBuilder baseFilename = baseOutputFile.GetFileName();
+  const bool isHDR = ezPathUtils::HasExtension(szPath, "hdr");
+
+  baseOutputFile.ChangeFileExtension("ezTextureAsset");
+
+  /// \todo make this configurable
+  const bool isNormalMap = !isHDR && (baseFilename.EndsWith_NoCase("_n") ||
+    baseFilename.EndsWith_NoCase("normal") || baseFilename.EndsWith_NoCase("normals") || baseFilename.EndsWith_NoCase("norm"));
+
   {
-    ezStringBuilder baseOutputFile = szPath;
+    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+    info.m_pGenerator = this;
+    info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
+    info.m_sName = "TextureImport.Diffuse";
+    info.m_sOutputFile = baseOutputFile;
+    info.m_sIcon = ":/AssetIcons/Texture_2D.png";
+  }
 
-    const ezStringBuilder baseFilename = baseOutputFile.GetFileName();
-    const bool isHDR = ezPathUtils::HasExtension(szPath, "hdr");
+  {
+    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+    info.m_pGenerator = this;
+    info.m_Priority = isNormalMap ? ezAssetDocGeneratorPriority::HighPriority : ezAssetDocGeneratorPriority::LowPriority;
+    info.m_sName = "TextureImport.Normal";
+    info.m_sOutputFile = baseOutputFile;
+    info.m_sIcon = ":/AssetIcons/Texture_Normals.png";
+  }
 
-    baseOutputFile.ChangeFileExtension("ezTextureAsset");
+  {
+    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+    info.m_pGenerator = this;
+    info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+    info.m_sName = "TextureImport.Linear";
+    info.m_sOutputFile = baseOutputFile;
+    info.m_sIcon = ":/AssetIcons/Texture_Linear.png";
+  }
 
-    /// \todo make this configurable
-    const bool isNormalMap = !isHDR && (baseFilename.EndsWith_NoCase("_n") ||
-      baseFilename.EndsWith_NoCase("normal") || baseFilename.EndsWith_NoCase("normals") || baseFilename.EndsWith_NoCase("norm"));
-
-    {
-      ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
-      info.m_pGenerator = this;
-      info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
-      info.m_sName = "TextureImport.Diffuse";
-      info.m_sOutputFile = baseOutputFile;
-      info.m_sIcon = ":/AssetIcons/Texture_2D.png";
-    }
-
-    {
-      ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
-      info.m_pGenerator = this;
-      info.m_Priority = isNormalMap ? ezAssetDocGeneratorPriority::HighPriority : ezAssetDocGeneratorPriority::LowPriority;
-      info.m_sName = "TextureImport.Normal";
-      info.m_sOutputFile = baseOutputFile;
-      info.m_sIcon = ":/AssetIcons/Texture_Normals.png";
-    }
-
-    {
-      ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
-      info.m_pGenerator = this;
-      info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-      info.m_sName = "TextureImport.Linear";
-      info.m_sOutputFile = baseOutputFile;
-      info.m_sIcon = ":/AssetIcons/Texture_Linear.png";
-    }
-
-    if (isHDR)
-    {
-      ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
-      info.m_pGenerator = this;
-      info.m_Priority = ezAssetDocGeneratorPriority::HighPriority;
-      info.m_sName = "TextureImport.HDR";
-      info.m_sOutputFile = baseOutputFile;
-      info.m_sIcon = ":/AssetIcons/Texture_2D.png";
-    }
+  if (isHDR)
+  {
+    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+    info.m_pGenerator = this;
+    info.m_Priority = ezAssetDocGeneratorPriority::HighPriority;
+    info.m_sName = "TextureImport.HDR";
+    info.m_sOutputFile = baseOutputFile;
+    info.m_sIcon = ":/AssetIcons/Texture_2D.png";
   }
 }
 

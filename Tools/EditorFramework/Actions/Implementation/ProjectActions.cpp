@@ -423,20 +423,7 @@ void ezProjectAction::Execute(const ezVariant& value)
 
   case ezProjectAction::ButtonType::ImportAsset:
     {
-      QString filter = "All files (*.*)";
-
-      QStringList filenames = QFileDialog::getOpenFileNames(QApplication::activeWindow(), "Import Assets", ezToolsProject::GetSingleton()->GetProjectDirectory().GetData(), filter, nullptr, QFileDialog::Option::DontResolveSymlinks);
-
-      if (filenames.empty())
-        return;
-
-      ezHybridArray<ezString, 16> filesToImport;
-      for (QString s : filenames)
-      {
-        filesToImport.PushBack(s.toUtf8().data());
-      }
-
-      ezAssetDocumentGenerator::ImportAssets(filesToImport);
+      ezAssetDocumentGenerator::ImportAssets();
     }
     break;
 
