@@ -5,6 +5,7 @@
 #include <QComboBox>
 #include <QTableWidget>
 #include <QToolButton>
+#include <QFileDialog>
 
 enum Columns
 {
