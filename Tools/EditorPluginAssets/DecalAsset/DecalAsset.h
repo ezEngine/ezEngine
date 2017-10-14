@@ -1,6 +1,7 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
+#include <EditorFramework/Assets/AssetDocumentGenerator.h>
 
 class ezAssetFileHeader;
 struct ezPropertyMetaStateEvent;
@@ -59,4 +60,20 @@ protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
 
   virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezDecalAssetDocumentGenerator : public ezAssetDocumentGenerator
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezDecalAssetDocumentGenerator, ezAssetDocumentGenerator);
+
+public:
+  ezDecalAssetDocumentGenerator();
+  ~ezDecalAssetDocumentGenerator();
+
+  virtual void GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const override;
+  virtual ezStatus Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument) override;
+  virtual const char* GetDocumentExtension() const override { return "ezDecalAsset"; }
+  virtual const char* GetGeneratorGroup() const override { return "Images"; }
 };

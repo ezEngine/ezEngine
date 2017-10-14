@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginAssets/DecalAsset/DecalAsset.h>
 #include <EditorPluginAssets/DecalAsset/DecalAssetManager.h>
 #include <Core/Assets/AssetFileHeader.h>
@@ -21,7 +21,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetProperties, 1, ezRTTIDefaultAllocato
   {
     EZ_ENUM_MEMBER_PROPERTY("Mode", ezDecalMode, m_Mode),
     EZ_MEMBER_PROPERTY("BaseColor", m_sBaseColor)->AddAttributes(new ezFileBrowserAttribute("Select Base Color Map", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
-    EZ_MEMBER_PROPERTY("Normal", m_sNormal)->AddAttributes(new ezFileBrowserAttribute("Select Normal Map", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
+    EZ_MEMBER_PROPERTY("Normal", m_sNormal)->AddAttributes(new ezFileBrowserAttribute("Select Normal Map", "*.dds;*.tga;*.png;*.jpg;*.jpeg")/*, new ezDefaultValueAttribute(ezUntrackedString("Textures/NeutralNormal.tga"))*/), // would report a memory leak
     EZ_MEMBER_PROPERTY("Roughness", m_sRoughness)->AddAttributes(new ezFileBrowserAttribute("Select Roughness Map", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
     EZ_MEMBER_PROPERTY("RoughnessValue", m_fRoughnessValue)->AddAttributes(new ezDefaultValueAttribute(0.7f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_MEMBER_PROPERTY("Metallic", m_sMetallic)->AddAttributes(new ezFileBrowserAttribute("Select Metallic Map", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
@@ -162,3 +162,65 @@ ezStatus ezDecalAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& 
 
   return ezStatus(EZ_SUCCESS);
 }
+
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezDecalAssetDocumentGenerator>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezDecalAssetDocumentGenerator::ezDecalAssetDocumentGenerator()
+{
+  AddSupportedFileType("tga");
+  AddSupportedFileType("dds");
+  AddSupportedFileType("jpg");
+  AddSupportedFileType("jpeg");
+  AddSupportedFileType("png");
+}
+
+ezDecalAssetDocumentGenerator::~ezDecalAssetDocumentGenerator()
+{
+}
+
+void ezDecalAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+{
+  ezStringBuilder baseOutputFile = szParentDirRelativePath;
+
+  const ezStringBuilder baseFilename = baseOutputFile.GetFileName();
+
+  baseOutputFile.ChangeFileExtension(GetDocumentExtension());
+
+  /// \todo Make this configurable
+  const bool isDecal = (baseFilename.FindSubString_NoCase("decal") != nullptr);
+
+  {
+    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+    info.m_Priority = isDecal ? ezAssetDocGeneratorPriority::HighPriority : ezAssetDocGeneratorPriority::LowPriority;
+    info.m_sName = "DecalImport.All";
+    info.m_sOutputFileParentRelative = baseOutputFile;
+    info.m_sIcon = ":/AssetIcons/Decal.png";
+  }
+}
+
+ezStatus ezDecalAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+{
+  auto pApp = ezQtEditorApp::GetSingleton();
+
+  out_pGeneratedDocument = pApp->CreateOrOpenDocument(true, info.m_sOutputFileAbsolute, false, false);
+  if (out_pGeneratedDocument == nullptr)
+    return ezStatus("Could not create target document");
+
+  ezDecalAssetDocument* pAssetDoc = ezDynamicCast<ezDecalAssetDocument*>(out_pGeneratedDocument);
+  if (pAssetDoc == nullptr)
+    return ezStatus("Target document is not a valid ezDecalAssetDocument");
+
+  auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
+  accessor.SetValue("BaseColor", szDataDirRelativePath);
+  accessor.SetValue("Normal", "Textures/NeutralNormal.tga");
+
+  return ezStatus(EZ_SUCCESS);
+}
+
+
+
+

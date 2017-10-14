@@ -33,20 +33,24 @@ void ezQtUiServices::MessageBoxStatus(const ezStatus& s, const char* szFailureMs
   }
 }
 
-void ezQtUiServices::MessageBoxInformation(const char* szMsg)
+void ezQtUiServices::MessageBoxInformation(const ezFormatString& msg)
 {
+  ezStringBuilder tmp;
+
   if (s_bHeadless)
-    ezLog::Info("{0}", szMsg);
+    ezLog::Info(msg.GetText(tmp));
   else
-    QMessageBox::information(QApplication::activeWindow(), QString::fromUtf8(ezApplicationServices::GetSingleton()->GetApplicationName()), QString::fromUtf8(szMsg), QMessageBox::StandardButton::Ok);
+    QMessageBox::information(QApplication::activeWindow(), QString::fromUtf8(ezApplicationServices::GetSingleton()->GetApplicationName()), QString::fromUtf8(msg.GetText(tmp)), QMessageBox::StandardButton::Ok);
 }
 
-void ezQtUiServices::MessageBoxWarning(const char* szMsg)
+void ezQtUiServices::MessageBoxWarning(const ezFormatString& msg)
 {
+  ezStringBuilder tmp;
+
   if (s_bHeadless)
-    ezLog::Warning("{0}", szMsg);
+    ezLog::Warning(msg.GetText(tmp));
   else
-    QMessageBox::warning(QApplication::activeWindow(), QString::fromUtf8(ezApplicationServices::GetSingleton()->GetApplicationName()), QString::fromUtf8(szMsg), QMessageBox::StandardButton::Ok);
+    QMessageBox::warning(QApplication::activeWindow(), QString::fromUtf8(ezApplicationServices::GetSingleton()->GetApplicationName()), QString::fromUtf8(msg.GetText(tmp)), QMessageBox::StandardButton::Ok);
 }
 
 QMessageBox::StandardButton ezQtUiServices::MessageBoxQuestion(const char* szMsg, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton)

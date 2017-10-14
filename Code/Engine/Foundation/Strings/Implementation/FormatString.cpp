@@ -1,8 +1,13 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/Strings/FormatString.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/HashedString.h>
+
+ezFormatString::ezFormatString(const ezStringBuilder& s)
+{
+  m_szString = s.GetData();
+}
 
 void ezFormatString::SBAppendView(ezStringBuilder& sb, const ezStringView& sub)
 {

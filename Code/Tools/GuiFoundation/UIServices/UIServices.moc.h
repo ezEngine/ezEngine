@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GuiFoundation/Basics.h>
 #include <Foundation/Types/Status.h>
@@ -7,6 +7,7 @@
 #include <QMessageBox>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Time/Time.h>
+#include <Foundation/Strings/FormatString.h>
 
 class QColorDialog;
 class ezQtColorDialog;
@@ -50,10 +51,10 @@ public:
   static void MessageBoxStatus(const ezStatus& s, const char* szFailureMsg, const char* szSuccessMsg = "", bool bOnlySuccessMsgIfDetails = true);
 
   /// \brief Shows an information message box
-  static void MessageBoxInformation(const char* szMsg);
+  static void MessageBoxInformation(const ezFormatString& msg);
 
   /// \brief Shows an warning message box
-  static void MessageBoxWarning(const char* szMsg);
+  static void MessageBoxWarning(const ezFormatString& msg);
 
   /// \brief Shows a question message box and returns which button the user pressed
   static QMessageBox::StandardButton MessageBoxQuestion(const char* szMsg, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton);

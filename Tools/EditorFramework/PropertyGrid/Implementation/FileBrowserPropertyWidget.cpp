@@ -103,7 +103,7 @@ void ezQtFilePropertyWidget::OnOpenFile()
     return;
 
   if (!ezQtUiServices::OpenFileInDefaultProgram(sPath))
-    ezQtUiServices::MessageBoxInformation("File could not be opened.\nCheck that the file exists, that a program is associated with this file type and that access to this file is not denied.");
+    ezQtUiServices::MessageBoxInformation(ezFmt("File could not be opened:\n{0}\nCheck that the file exists, that a program is associated with this file type and that access to this file is not denied.", sPath));
 }
 
 static ezMap<ezString, ezString> s_StartDirs;

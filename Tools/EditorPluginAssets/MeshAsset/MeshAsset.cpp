@@ -799,7 +799,7 @@ ezMeshAssetDocumentGenerator::~ezMeshAssetDocumentGenerator()
 void ezMeshAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
-  baseOutputFile.ChangeFileExtension("ezMeshAsset");
+  baseOutputFile.ChangeFileExtension(GetDocumentExtension());
 
   {
     ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();

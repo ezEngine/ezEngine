@@ -4,6 +4,8 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/Status.h>
 
+class ezDocument;
+
 enum class ezAssetDocGeneratorPriority
 {
   Undecided,
@@ -33,6 +35,7 @@ public:
 
   struct ImportData
   {
+    ezString m_sGroup;
     ezString m_sInputFileRelative;
     ezString m_sInputFileParentRelative;
     ezString m_sInputFileAbsolute;
@@ -50,6 +53,7 @@ public:
   virtual void GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const = 0;
   virtual ezStatus Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& mode, ezDocument*& out_pGeneratedDocument) = 0;
   virtual const char* GetDocumentExtension() const = 0;
+  virtual const char* GetGeneratorGroup() const = 0;
 
   bool SupportsFileType(const char* szFile) const;
   void BuildFileDialogFilterString(ezStringBuilder& out_Filter) const;

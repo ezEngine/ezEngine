@@ -134,7 +134,7 @@ void ezQtUiServices::ShowGlobalStatusBarMessage(const char* szMsg)
 
 bool ezQtUiServices::OpenFileInDefaultProgram(const char* szPath)
 {
-  return QDesktopServices::openUrl(QUrl(szPath));
+  return QDesktopServices::openUrl(QUrl::fromLocalFile(szPath));
 }
 
 void ezQtUiServices::OpenInExplorer(const char* szPath)

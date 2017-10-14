@@ -218,7 +218,7 @@ void ezAssetDocumentGenerator::ImportAssets()
 void ezAssetDocumentGenerator::CreateImportOptionList(const ezHybridArray<ezString, 16>& filesToImport, ezDynamicArray<ezAssetDocumentGenerator::ImportData> &allImports, const ezHybridArray<ezAssetDocumentGenerator *, 16>& generators)
 {
   ezQtEditorApp* pApp = ezQtEditorApp::GetSingleton();
-  ezStringBuilder sInputParentRelative, sInputRelative;
+  ezStringBuilder sInputParentRelative, sInputRelative, sGroup;
 
   for (const ezString& sInputAbsolute : filesToImport)
   {
@@ -241,17 +241,35 @@ void ezAssetDocumentGenerator::CreateImportOptionList(const ezHybridArray<ezStri
     {
       if (pGen->SupportsFileType(sInputParentRelative))
       {
-        auto& data = allImports.ExpandAndGetRef();
-        data.m_sInputFileAbsolute = sInputAbsolute;
-        data.m_sInputFileParentRelative = sInputParentRelative;
-        data.m_sInputFileRelative = sInputRelative;
+        sGroup = pGen->GetGeneratorGroup();
 
-        pGen->GetImportModes(sInputParentRelative, data.m_ImportOptions);
+        ImportData* pData = nullptr;
+        for (auto& importer : allImports)
+        {
+          if (importer.m_sGroup == sGroup && importer.m_sInputFileAbsolute == sInputAbsolute)
+          {
+            pData = &importer;
+          }
+        }
 
-        for (auto& option : data.m_ImportOptions)
+        if (pData == nullptr)
+        {
+          pData = &allImports.ExpandAndGetRef();
+          pData->m_sGroup = sGroup;
+          pData->m_sInputFileAbsolute = sInputAbsolute;
+          pData->m_sInputFileParentRelative = sInputParentRelative;
+          pData->m_sInputFileRelative = sInputRelative;
+        }
+
+        ezHybridArray<ezAssetDocumentGenerator::Info, 4> options;
+        pGen->GetImportModes(sInputParentRelative, options);
+
+        for (auto& option : options)
         {
           option.m_pGenerator = pGen;
         }
+
+        pData->m_ImportOptions.PushBackRange(options);
       }
     }
   }

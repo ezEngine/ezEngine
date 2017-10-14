@@ -135,3 +135,6 @@ ezDecalMode::NormalRoughnessOcclusion;Normal, Roughness, Occlusion
 ezDecalMode::Emissive;Emissive
 MeshImport.WithMaterials;Mesh and Materials
 MeshImport.NoMaterials;Mesh only
+DecalImport.All;Decal
+CubemapImport.Skybox;Skybox
+CubemapImport.SkyboxHDR;HDR Skybox

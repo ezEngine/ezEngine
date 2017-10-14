@@ -229,7 +229,6 @@ const char* ezTextureAssetDocument::QueryAssetType() const
 
 //////////////////////////////////////////////////////////////////////////
 
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezTextureAssetDocumentGenerator>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -255,7 +254,7 @@ void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRela
   const ezStringBuilder baseFilename = baseOutputFile.GetFileName();
   const bool isHDR = ezPathUtils::HasExtension(szParentDirRelativePath, "hdr");
 
-  baseOutputFile.ChangeFileExtension("ezTextureAsset");
+  baseOutputFile.ChangeFileExtension(GetDocumentExtension());
 
   /// \todo make this configurable
   const bool isNormalMap = !isHDR && (baseFilename.EndsWith_NoCase("_n") ||
