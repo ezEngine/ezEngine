@@ -2,7 +2,7 @@ Objects
 {
 o
 {
-	Uuid %id{u4{5845498866316631938,5334075333773571784}}
+	Uuid %id{u4{7500496111499049904,4874394387034083287}}
 	s %t{"ezTextureAssetProperties"}
 	u3 %v{2}
 	p
@@ -11,15 +11,34 @@ o
 		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
-		b %Compression{1}
-		s %Input1{"FleetOps/Calypso/Calypso_D.dds"}
+		b %Compression{0}
+		s %Input1{"FleetOps/ExcelsiorII_data/fedExcelsiorII0_bump_Normal.tga"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTexture2DUsageEnum::Diffuse"}
+		s %Usage{"ezTexture2DUsageEnum::NormalMap"}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{6614093533713722021,4921138711723877565}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Texture 2D"}
+		VarArray %Dependencies
+		{
+			s{"FleetOps/ExcelsiorII_data/fedExcelsiorII0_bump_Normal.tga"}
+		}
+		Uuid %DocumentID{u4{6614093533713722021,4921138711723877565}}
+		u4 %Hash{18269034487187676734}
+		VarArray %Outputs{}
+		VarArray %References{}
 	}
 }
 o
@@ -32,27 +51,8 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{5845498866316631938,5334075333773571784}}
+			Uuid{u4{7500496111499049904,4874394387034083287}}
 		}
-	}
-}
-AssetInfo
-{
-	Uuid %id{u4{12013350895396097210,5416215417293213352}}
-	s %t{"ezAssetDocumentInfo"}
-	u3 %v{1}
-	s %n{"Header"}
-	p
-	{
-		s %AssetType{"Texture 2D"}
-		VarArray %Dependencies
-		{
-			s{"FleetOps/Calypso/Calypso_D.dds"}
-		}
-		Uuid %DocumentID{u4{12013350895396097210,5416215417293213352}}
-		u4 %Hash{1791413649307031780}
-		VarArray %Outputs{}
-		VarArray %References{}
 	}
 }
 }

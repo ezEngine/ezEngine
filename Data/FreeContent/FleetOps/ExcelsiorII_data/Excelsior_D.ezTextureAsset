@@ -1,30 +1,8 @@
 Objects
 {
-o
-{
-	Uuid %id{u4{4590701281667019707,4661418036243172388}}
-	s %t{"ezTextureAssetProperties"}
-	u3 %v{2}
-	p
-	{
-		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
-		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
-		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1"}
-		b %Compression{1}
-		s %Input1{"FleetOps/Raptor/romRaptor0.tga"}
-		s %Input2{""}
-		s %Input3{""}
-		s %Input4{""}
-		b %Mipmaps{1}
-		b %PremultipliedAlpha{0}
-		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTexture2DUsageEnum::Diffuse"}
-	}
-}
 AssetInfo
 {
-	Uuid %id{u4{11027266470889074870,5011170251983821777}}
+	Uuid %id{u4{6703208666448483508,5077350605220584747}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{1}
 	s %n{"Header"}
@@ -33,10 +11,10 @@ AssetInfo
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"FleetOps/Raptor/romRaptor0.tga"}
+			s{"FleetOps/ExcelsiorII_data/fedExcelsiorII0.tga"}
 		}
-		Uuid %DocumentID{u4{11027266470889074870,5011170251983821777}}
-		u4 %Hash{15874138194011097207}
+		Uuid %DocumentID{u4{6703208666448483508,5077350605220584747}}
+		u4 %Hash{18017856680689035831}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -51,8 +29,30 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{4590701281667019707,4661418036243172388}}
+			Uuid{u4{139937598421847175,5586598966383508621}}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{139937598421847175,5586598966383508621}}
+	s %t{"ezTextureAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1"}
+		b %Compression{1}
+		s %Input1{"FleetOps/ExcelsiorII_data/fedExcelsiorII0.tga"}
+		s %Input2{""}
+		s %Input3{""}
+		s %Input4{""}
+		b %Mipmaps{1}
+		b %PremultipliedAlpha{0}
+		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
+		s %Usage{"ezTexture2DUsageEnum::Diffuse"}
 	}
 }
 }

@@ -1,30 +1,8 @@
 Objects
 {
-o
-{
-	Uuid %id{u4{10370740575836784812,4689370512586001757}}
-	s %t{"ezTextureAssetProperties"}
-	u3 %v{2}
-	p
-	{
-		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
-		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
-		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1"}
-		b %Compression{0}
-		s %Input1{"FleetOps/Cassiopeia/fedCassiopeia0_bump_Normal.tga"}
-		s %Input2{""}
-		s %Input3{""}
-		s %Input4{""}
-		b %Mipmaps{1}
-		b %PremultipliedAlpha{0}
-		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTexture2DUsageEnum::NormalMap"}
-	}
-}
 AssetInfo
 {
-	Uuid %id{u4{13178337959159163303,4936944039737786068}}
+	Uuid %id{u4{6419064937458709140,4888885951299332839}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{1}
 	s %n{"Header"}
@@ -33,10 +11,10 @@ AssetInfo
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"FleetOps/Cassiopeia/fedCassiopeia0_bump_Normal.tga"}
+			s{"FleetOps/Calypso_data/Calypso_N.dds"}
 		}
-		Uuid %DocumentID{u4{13178337959159163303,4936944039737786068}}
-		u4 %Hash{12867661471208215058}
+		Uuid %DocumentID{u4{6419064937458709140,4888885951299332839}}
+		u4 %Hash{6507318863671133850}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -51,8 +29,30 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{10370740575836784812,4689370512586001757}}
+			Uuid{u4{16054664142641984414,5583383719422251997}}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{16054664142641984414,5583383719422251997}}
+	s %t{"ezTextureAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
+		b %Compression{1}
+		s %Input1{"FleetOps/Calypso_data/Calypso_N.dds"}
+		s %Input2{""}
+		s %Input3{""}
+		s %Input4{""}
+		b %Mipmaps{1}
+		b %PremultipliedAlpha{0}
+		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
+		s %Usage{"ezTexture2DUsageEnum::NormalMap"}
 	}
 }
 }

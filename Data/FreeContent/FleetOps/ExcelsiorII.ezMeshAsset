@@ -1,33 +1,30 @@
 Objects
 {
-o
+AssetInfo
 {
-	Uuid %id{u4{8787884484749449176,944244370587791384}}
-	s %t{"ezMaterialResourceSlot"}
+	Uuid %id{u4{2605859993440062648,5175260505212127248}}
+	s %t{"ezAssetDocumentInfo"}
 	u3 %v{1}
+	s %n{"Header"}
 	p
 	{
-		s %Label{"DefaultMaterial"}
-		s %Resource{"{ 50fefdc0-191f-4cd5-b429-2246ba01d4fb }"}
-	}
-}
-o
-{
-	Uuid %id{u4{4538525219092991391,5381193384925595199}}
-	s %t{"ezDocumentRoot"}
-	u3 %v{1}
-	s %n{"ObjectTree"}
-	p
-	{
-		VarArray %Children
+		s %AssetType{"Mesh"}
+		VarArray %Dependencies
 		{
-			Uuid{u4{13317598867614863233,5603077352873315335}}
+			s{"FleetOps/ExcelsiorII_data/excelsiorII.obj"}
+		}
+		Uuid %DocumentID{u4{2605859993440062648,5175260505212127248}}
+		u4 %Hash{7712683644383693100}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ 84470b23-52bc-4938-b20b-8d6f30ef8228 }"}
 		}
 	}
 }
 o
 {
-	Uuid %id{u4{13317598867614863233,5603077352873315335}}
+	Uuid %id{u4{9792350047110360508,5278365906800958821}}
 	s %t{"ezMeshAssetProperties"}
 	u3 %v{2}
 	p
@@ -43,9 +40,9 @@ o
 		b %InvertNormals{0}
 		VarArray %Materials
 		{
-			Uuid{u4{8787884484749449176,944244370587791384}}
+			Uuid{u4{5152830506804759073,7016530223774591067}}
 		}
-		s %MeshFile{"FleetOps/Raptor/raptor.obj"}
+		s %MeshFile{"FleetOps/ExcelsiorII_data/excelsiorII.obj"}
 		Vec3 %NonUniformScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		s %PrimitiveType{"ezMeshPrimitive::File"}
 		f %Radius{0x0000003F}
@@ -58,26 +55,29 @@ o
 		b %UseSubfolderForMaterialImport{1}
 	}
 }
-AssetInfo
+o
 {
-	Uuid %id{u4{11029746117145571255,5608980641584566929}}
-	s %t{"ezAssetDocumentInfo"}
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
 	u3 %v{1}
-	s %n{"Header"}
+	s %n{"ObjectTree"}
 	p
 	{
-		s %AssetType{"Mesh"}
-		VarArray %Dependencies
+		VarArray %Children
 		{
-			s{"FleetOps/Raptor/raptor.obj"}
+			Uuid{u4{9792350047110360508,5278365906800958821}}
 		}
-		Uuid %DocumentID{u4{11029746117145571255,5608980641584566929}}
-		u4 %Hash{2072004379589242911}
-		VarArray %Outputs{}
-		VarArray %References
-		{
-			s{"{ 50fefdc0-191f-4cd5-b429-2246ba01d4fb }"}
-		}
+	}
+}
+o
+{
+	Uuid %id{u4{5152830506804759073,7016530223774591067}}
+	s %t{"ezMaterialResourceSlot"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"DefaultMaterial"}
+		s %Resource{"{ 84470b23-52bc-4938-b20b-8d6f30ef8228 }"}
 	}
 }
 }

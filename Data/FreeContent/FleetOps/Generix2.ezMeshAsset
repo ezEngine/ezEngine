@@ -2,7 +2,21 @@ Objects
 {
 o
 {
-	Uuid %id{u4{15323988726837033633,4743458506064932414}}
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{179252004433658533,5599867310552610362}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{179252004433658533,5599867310552610362}}
 	s %t{"ezMeshAssetProperties"}
 	u3 %v{2}
 	p
@@ -14,13 +28,13 @@ o
 		u2 %Detail2{1}
 		s %ForwardDir{"ezBasisAxis::NegativeZ"}
 		f %Height{0x0000803F}
-		b %ImportMaterials{1}
+		b %ImportMaterials{0}
 		b %InvertNormals{0}
 		VarArray %Materials
 		{
-			Uuid{u4{12284374248572302239,6166989521099226010}}
+			Uuid{u4{14887899837785386143,18293142995456238102}}
 		}
-		s %MeshFile{"FleetOps/Cassiopeia/cassiopeia_alpha.obj"}
+		s %MeshFile{"FleetOps/Generix_data/generix1.obj"}
 		Vec3 %NonUniformScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		s %PrimitiveType{"ezMeshPrimitive::File"}
 		f %Radius{0x0000003F}
@@ -30,12 +44,12 @@ o
 		s %SubmeshName{""}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}
-		b %UseSubfolderForMaterialImport{1}
+		b %UseSubfolderForMaterialImport{0}
 	}
 }
 AssetInfo
 {
-	Uuid %id{u4{5540179655752936832,4978292137957891399}}
+	Uuid %id{u4{23600535938266760,5764135168552649451}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{1}
 	s %n{"Header"}
@@ -44,40 +58,26 @@ AssetInfo
 		s %AssetType{"Mesh"}
 		VarArray %Dependencies
 		{
-			s{"FleetOps/Cassiopeia/cassiopeia_alpha.obj"}
+			s{"FleetOps/Generix_data/generix1.obj"}
 		}
-		Uuid %DocumentID{u4{5540179655752936832,4978292137957891399}}
-		u4 %Hash{2103249131408367224}
+		Uuid %DocumentID{u4{23600535938266760,5764135168552649451}}
+		u4 %Hash{15275650051291279760}
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ e881631c-7285-4fa2-aaac-6893a7db172d }"}
+			s{"{ 74dbd371-598a-4c19-9849-fd8c7a913f1a }"}
 		}
 	}
 }
 o
 {
-	Uuid %id{u4{4538525219092991391,5381193384925595199}}
-	s %t{"ezDocumentRoot"}
-	u3 %v{1}
-	s %n{"ObjectTree"}
-	p
-	{
-		VarArray %Children
-		{
-			Uuid{u4{15323988726837033633,4743458506064932414}}
-		}
-	}
-}
-o
-{
-	Uuid %id{u4{12284374248572302239,6166989521099226010}}
+	Uuid %id{u4{14887899837785386143,18293142995456238102}}
 	s %t{"ezMaterialResourceSlot"}
 	u3 %v{1}
 	p
 	{
 		s %Label{"DefaultMaterial"}
-		s %Resource{"{ e881631c-7285-4fa2-aaac-6893a7db172d }"}
+		s %Resource{"{ 74dbd371-598a-4c19-9849-fd8c7a913f1a }"}
 	}
 }
 }

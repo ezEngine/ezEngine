@@ -2,7 +2,7 @@ Objects
 {
 o
 {
-	Uuid %id{u4{7500496111499049904,4874394387034083287}}
+	Uuid %id{u4{10370740575836784812,4689370512586001757}}
 	s %t{"ezTextureAssetProperties"}
 	u3 %v{2}
 	p
@@ -10,9 +10,9 @@ o
 		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1"}
 		b %Compression{0}
-		s %Input1{"FleetOps/ExcelsiorII/fedExcelsiorII0_bump_Normal.tga"}
+		s %Input1{"FleetOps/Cassiopeia_data/fedCassiopeia0_bump_Normal.tga"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
@@ -24,7 +24,7 @@ o
 }
 AssetInfo
 {
-	Uuid %id{u4{6614093533713722021,4921138711723877565}}
+	Uuid %id{u4{13178337959159163303,4936944039737786068}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{1}
 	s %n{"Header"}
@@ -33,10 +33,10 @@ AssetInfo
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"FleetOps/ExcelsiorII/fedExcelsiorII0_bump_Normal.tga"}
+			s{"FleetOps/Cassiopeia_data/fedCassiopeia0_bump_Normal.tga"}
 		}
-		Uuid %DocumentID{u4{6614093533713722021,4921138711723877565}}
-		u4 %Hash{8366416548782974768}
+		Uuid %DocumentID{u4{13178337959159163303,4936944039737786068}}
+		u4 %Hash{10120578951248412089}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -51,7 +51,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{7500496111499049904,4874394387034083287}}
+			Uuid{u4{10370740575836784812,4689370512586001757}}
 		}
 	}
 }

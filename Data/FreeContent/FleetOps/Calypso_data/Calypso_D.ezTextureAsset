@@ -2,7 +2,7 @@ Objects
 {
 o
 {
-	Uuid %id{u4{7434534419652838532,4798321257361662918}}
+	Uuid %id{u4{5845498866316631938,5334075333773571784}}
 	s %t{"ezTextureAssetProperties"}
 	u3 %v{2}
 	p
@@ -11,15 +11,15 @@ o
 		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
-		b %Compression{0}
-		s %Input1{"FleetOps/Raptor/romRaptor0_bump_Normal.tga"}
+		b %Compression{1}
+		s %Input1{"FleetOps/Calypso_data/Calypso_D.dds"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTexture2DUsageEnum::NormalMap"}
+		s %Usage{"ezTexture2DUsageEnum::Diffuse"}
 	}
 }
 o
@@ -32,13 +32,13 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{7434534419652838532,4798321257361662918}}
+			Uuid{u4{5845498866316631938,5334075333773571784}}
 		}
 	}
 }
 AssetInfo
 {
-	Uuid %id{u4{232674509197489306,5393803915774733633}}
+	Uuid %id{u4{12013350895396097210,5416215417293213352}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{1}
 	s %n{"Header"}
@@ -47,10 +47,10 @@ AssetInfo
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"FleetOps/Raptor/romRaptor0_bump_Normal.tga"}
+			s{"FleetOps/Calypso_data/Calypso_D.dds"}
 		}
-		Uuid %DocumentID{u4{232674509197489306,5393803915774733633}}
-		u4 %Hash{2363963324425628608}
+		Uuid %DocumentID{u4{12013350895396097210,5416215417293213352}}
+		u4 %Hash{5018453128276435940}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

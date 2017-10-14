@@ -2,7 +2,7 @@ Objects
 {
 o
 {
-	Uuid %id{u4{8651498575463085189,5285488547385394034}}
+	Uuid %id{u4{4590701281667019707,4661418036243172388}}
 	s %t{"ezTextureAssetProperties"}
 	u3 %v{2}
 	p
@@ -10,16 +10,35 @@ o
 		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
-		b %Compression{0}
-		s %Input1{"FleetOps/Shashura/romShashura0_bump_Normal.tga"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1"}
+		b %Compression{1}
+		s %Input1{"FleetOps/Raptor_data/romRaptor0.tga"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTexture2DUsageEnum::NormalMap"}
+		s %Usage{"ezTexture2DUsageEnum::Diffuse"}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{11027266470889074870,5011170251983821777}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Texture 2D"}
+		VarArray %Dependencies
+		{
+			s{"FleetOps/Raptor_data/romRaptor0.tga"}
+		}
+		Uuid %DocumentID{u4{11027266470889074870,5011170251983821777}}
+		u4 %Hash{1941708300344614450}
+		VarArray %Outputs{}
+		VarArray %References{}
 	}
 }
 o
@@ -32,27 +51,8 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{8651498575463085189,5285488547385394034}}
+			Uuid{u4{4590701281667019707,4661418036243172388}}
 		}
-	}
-}
-AssetInfo
-{
-	Uuid %id{u4{9516716831661666739,5731688537165904341}}
-	s %t{"ezAssetDocumentInfo"}
-	u3 %v{1}
-	s %n{"Header"}
-	p
-	{
-		s %AssetType{"Texture 2D"}
-		VarArray %Dependencies
-		{
-			s{"FleetOps/Shashura/romShashura0_bump_Normal.tga"}
-		}
-		Uuid %DocumentID{u4{9516716831661666739,5731688537165904341}}
-		u4 %Hash{3484956740587473670}
-		VarArray %Outputs{}
-		VarArray %References{}
 	}
 }
 }

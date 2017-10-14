@@ -2,7 +2,7 @@ Objects
 {
 o
 {
-	Uuid %id{u4{2811380550302357129,4963456511306320057}}
+	Uuid %id{u4{3440585949985982861,5249480499049753228}}
 	s %t{"ezTextureAssetProperties"}
 	u3 %v{2}
 	p
@@ -10,16 +10,16 @@ o
 		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
-		s %Input1{"FleetOps/Cassiopeia/fedCassiopeia0.tga"}
+		s %Input1{"FleetOps/Calypso_data/Calypso_E.dds"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTexture2DUsageEnum::Diffuse"}
+		s %Usage{"ezTexture2DUsageEnum::EmissiveColor"}
 	}
 }
 o
@@ -32,13 +32,13 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{2811380550302357129,4963456511306320057}}
+			Uuid{u4{3440585949985982861,5249480499049753228}}
 		}
 	}
 }
 AssetInfo
 {
-	Uuid %id{u4{16159780687570004134,5745454315371220956}}
+	Uuid %id{u4{4323570249424907427,5685982062835668293}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{1}
 	s %n{"Header"}
@@ -47,10 +47,10 @@ AssetInfo
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"FleetOps/Cassiopeia/fedCassiopeia0.tga"}
+			s{"FleetOps/Calypso_data/Calypso_E.dds"}
 		}
-		Uuid %DocumentID{u4{16159780687570004134,5745454315371220956}}
-		u4 %Hash{7650498142884673312}
+		Uuid %DocumentID{u4{4323570249424907427,5685982062835668293}}
+		u4 %Hash{1258589753262822133}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

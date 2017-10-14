@@ -1,22 +1,25 @@
 Objects
 {
-AssetInfo
+o
 {
-	Uuid %id{u4{16851323767018333590,4901687252489865602}}
-	s %t{"ezAssetDocumentInfo"}
-	u3 %v{1}
-	s %n{"Header"}
+	Uuid %id{u4{8651498575463085189,5285488547385394034}}
+	s %t{"ezTextureAssetProperties"}
+	u3 %v{2}
 	p
 	{
-		s %AssetType{"Texture 2D"}
-		VarArray %Dependencies
-		{
-			s{"FleetOps/Generix/romGenerix1_bump_Normal.tga"}
-		}
-		Uuid %DocumentID{u4{16851323767018333590,4901687252489865602}}
-		u4 %Hash{8525880340962878135}
-		VarArray %Outputs{}
-		VarArray %References{}
+		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
+		b %Compression{0}
+		s %Input1{"FleetOps/Shashura_data/romShashura0_bump_Normal.tga"}
+		s %Input2{""}
+		s %Input3{""}
+		s %Input4{""}
+		b %Mipmaps{1}
+		b %PremultipliedAlpha{0}
+		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
+		s %Usage{"ezTexture2DUsageEnum::NormalMap"}
 	}
 }
 o
@@ -29,30 +32,27 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{496674786878579132,5688408619327606130}}
+			Uuid{u4{8651498575463085189,5285488547385394034}}
 		}
 	}
 }
-o
+AssetInfo
 {
-	Uuid %id{u4{496674786878579132,5688408619327606130}}
-	s %t{"ezTextureAssetProperties"}
-	u3 %v{2}
+	Uuid %id{u4{9516716831661666739,5731688537165904341}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
 	p
 	{
-		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
-		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
-		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
-		b %Compression{0}
-		s %Input1{"FleetOps/Generix/romGenerix1_bump_Normal.tga"}
-		s %Input2{""}
-		s %Input3{""}
-		s %Input4{""}
-		b %Mipmaps{1}
-		b %PremultipliedAlpha{0}
-		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTexture2DUsageEnum::NormalMap"}
+		s %AssetType{"Texture 2D"}
+		VarArray %Dependencies
+		{
+			s{"FleetOps/Shashura_data/romShashura0_bump_Normal.tga"}
+		}
+		Uuid %DocumentID{u4{9516716831661666739,5731688537165904341}}
+		u4 %Hash{1878474807595648982}
+		VarArray %Outputs{}
+		VarArray %References{}
 	}
 }
 }

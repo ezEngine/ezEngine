@@ -2,7 +2,7 @@ Objects
 {
 AssetInfo
 {
-	Uuid %id{u4{6419064937458709140,4888885951299332839}}
+	Uuid %id{u4{9348311974050143146,5168866431444513940}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{1}
 	s %n{"Header"}
@@ -11,10 +11,10 @@ AssetInfo
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"FleetOps/Calypso/Calypso_N.dds"}
+			s{"FleetOps/Shashura_data/romShashura0.tga"}
 		}
-		Uuid %DocumentID{u4{6419064937458709140,4888885951299332839}}
-		u4 %Hash{9288774788465917717}
+		Uuid %DocumentID{u4{9348311974050143146,5168866431444513940}}
+		u4 %Hash{1894714314035425240}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -29,13 +29,13 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{16054664142641984414,5583383719422251997}}
+			Uuid{u4{816440940608032396,5598056279376816096}}
 		}
 	}
 }
 o
 {
-	Uuid %id{u4{16054664142641984414,5583383719422251997}}
+	Uuid %id{u4{816440940608032396,5598056279376816096}}
 	s %t{"ezTextureAssetProperties"}
 	u3 %v{2}
 	p
@@ -43,16 +43,16 @@ o
 		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1"}
 		b %Compression{1}
-		s %Input1{"FleetOps/Calypso/Calypso_N.dds"}
+		s %Input1{"FleetOps/Shashura_data/romShashura0.tga"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTexture2DUsageEnum::NormalMap"}
+		s %Usage{"ezTexture2DUsageEnum::Diffuse"}
 	}
 }
 }

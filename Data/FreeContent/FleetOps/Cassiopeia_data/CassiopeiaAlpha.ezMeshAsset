@@ -1,30 +1,8 @@
 Objects
 {
-AssetInfo
-{
-	Uuid %id{u4{2605859993440062648,5175260505212127248}}
-	s %t{"ezAssetDocumentInfo"}
-	u3 %v{1}
-	s %n{"Header"}
-	p
-	{
-		s %AssetType{"Mesh"}
-		VarArray %Dependencies
-		{
-			s{"FleetOps/ExcelsiorII/excelsiorII.obj"}
-		}
-		Uuid %DocumentID{u4{2605859993440062648,5175260505212127248}}
-		u4 %Hash{18250046206516048640}
-		VarArray %Outputs{}
-		VarArray %References
-		{
-			s{"{ 84470b23-52bc-4938-b20b-8d6f30ef8228 }"}
-		}
-	}
-}
 o
 {
-	Uuid %id{u4{9792350047110360508,5278365906800958821}}
+	Uuid %id{u4{15323988726837033633,4743458506064932414}}
 	s %t{"ezMeshAssetProperties"}
 	u3 %v{2}
 	p
@@ -40,9 +18,9 @@ o
 		b %InvertNormals{0}
 		VarArray %Materials
 		{
-			Uuid{u4{5152830506804759073,7016530223774591067}}
+			Uuid{u4{12284374248572302239,6166989521099226010}}
 		}
-		s %MeshFile{"FleetOps/ExcelsiorII/excelsiorII.obj"}
+		s %MeshFile{"FleetOps/Cassiopeia_data/cassiopeia_alpha.obj"}
 		Vec3 %NonUniformScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		s %PrimitiveType{"ezMeshPrimitive::File"}
 		f %Radius{0x0000003F}
@@ -55,6 +33,28 @@ o
 		b %UseSubfolderForMaterialImport{1}
 	}
 }
+AssetInfo
+{
+	Uuid %id{u4{5540179655752936832,4978292137957891399}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Mesh"}
+		VarArray %Dependencies
+		{
+			s{"FleetOps/Cassiopeia_data/cassiopeia_alpha.obj"}
+		}
+		Uuid %DocumentID{u4{5540179655752936832,4978292137957891399}}
+		u4 %Hash{16389387667178626038}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ e881631c-7285-4fa2-aaac-6893a7db172d }"}
+		}
+	}
+}
 o
 {
 	Uuid %id{u4{4538525219092991391,5381193384925595199}}
@@ -65,19 +65,19 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{9792350047110360508,5278365906800958821}}
+			Uuid{u4{15323988726837033633,4743458506064932414}}
 		}
 	}
 }
 o
 {
-	Uuid %id{u4{5152830506804759073,7016530223774591067}}
+	Uuid %id{u4{12284374248572302239,6166989521099226010}}
 	s %t{"ezMaterialResourceSlot"}
 	u3 %v{1}
 	p
 	{
 		s %Label{"DefaultMaterial"}
-		s %Resource{"{ 84470b23-52bc-4938-b20b-8d6f30ef8228 }"}
+		s %Resource{"{ e881631c-7285-4fa2-aaac-6893a7db172d }"}
 	}
 }
 }

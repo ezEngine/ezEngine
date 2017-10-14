@@ -2,7 +2,7 @@ Objects
 {
 AssetInfo
 {
-	Uuid %id{u4{6703208666448483508,5077350605220584747}}
+	Uuid %id{u4{16851323767018333590,4901687252489865602}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{1}
 	s %n{"Header"}
@@ -11,10 +11,10 @@ AssetInfo
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"FleetOps/ExcelsiorII/fedExcelsiorII0.tga"}
+			s{"FleetOps/Generix_data/romGenerix1_bump_Normal.tga"}
 		}
-		Uuid %DocumentID{u4{6703208666448483508,5077350605220584747}}
-		u4 %Hash{1899407699452061700}
+		Uuid %DocumentID{u4{16851323767018333590,4901687252489865602}}
+		u4 %Hash{8495113952477111864}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -29,13 +29,13 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{139937598421847175,5586598966383508621}}
+			Uuid{u4{496674786878579132,5688408619327606130}}
 		}
 	}
 }
 o
 {
-	Uuid %id{u4{139937598421847175,5586598966383508621}}
+	Uuid %id{u4{496674786878579132,5688408619327606130}}
 	s %t{"ezTextureAssetProperties"}
 	u3 %v{2}
 	p
@@ -43,16 +43,16 @@ o
 		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1"}
-		b %Compression{1}
-		s %Input1{"FleetOps/ExcelsiorII/fedExcelsiorII0.tga"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
+		b %Compression{0}
+		s %Input1{"FleetOps/Generix_data/romGenerix1_bump_Normal.tga"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTexture2DUsageEnum::Diffuse"}
+		s %Usage{"ezTexture2DUsageEnum::NormalMap"}
 	}
 }
 }

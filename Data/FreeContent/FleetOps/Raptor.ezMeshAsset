@@ -2,13 +2,13 @@ Objects
 {
 o
 {
-	Uuid %id{u4{921772275289789868,3589931148627096456}}
+	Uuid %id{u4{8787884484749449176,944244370587791384}}
 	s %t{"ezMaterialResourceSlot"}
 	u3 %v{1}
 	p
 	{
 		s %Label{"DefaultMaterial"}
-		s %Resource{"{ 8e984a44-0a4a-4808-9701-0728c1dd6203 }"}
+		s %Resource{"{ 50fefdc0-191f-4cd5-b429-2246ba01d4fb }"}
 	}
 }
 o
@@ -21,13 +21,13 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{12186541174012433076,5430354016376555903}}
+			Uuid{u4{13317598867614863233,5603077352873315335}}
 		}
 	}
 }
 o
 {
-	Uuid %id{u4{12186541174012433076,5430354016376555903}}
+	Uuid %id{u4{13317598867614863233,5603077352873315335}}
 	s %t{"ezMeshAssetProperties"}
 	u3 %v{2}
 	p
@@ -43,9 +43,9 @@ o
 		b %InvertNormals{0}
 		VarArray %Materials
 		{
-			Uuid{u4{921772275289789868,3589931148627096456}}
+			Uuid{u4{8787884484749449176,944244370587791384}}
 		}
-		s %MeshFile{"FleetOps/Shashura/shashura.obj"}
+		s %MeshFile{"FleetOps/Raptor_data/raptor.obj"}
 		Vec3 %NonUniformScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		s %PrimitiveType{"ezMeshPrimitive::File"}
 		f %Radius{0x0000003F}
@@ -60,7 +60,7 @@ o
 }
 AssetInfo
 {
-	Uuid %id{u4{15146058209142488988,5701069334011088019}}
+	Uuid %id{u4{11029746117145571255,5608980641584566929}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{1}
 	s %n{"Header"}
@@ -69,14 +69,14 @@ AssetInfo
 		s %AssetType{"Mesh"}
 		VarArray %Dependencies
 		{
-			s{"FleetOps/Shashura/shashura.obj"}
+			s{"FleetOps/Raptor_data/raptor.obj"}
 		}
-		Uuid %DocumentID{u4{15146058209142488988,5701069334011088019}}
-		u4 %Hash{4195780378001434006}
+		Uuid %DocumentID{u4{11029746117145571255,5608980641584566929}}
+		u4 %Hash{2227478980806094131}
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 8e984a44-0a4a-4808-9701-0728c1dd6203 }"}
+			s{"{ 50fefdc0-191f-4cd5-b429-2246ba01d4fb }"}
 		}
 	}
 }

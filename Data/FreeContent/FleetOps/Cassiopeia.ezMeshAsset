@@ -2,7 +2,7 @@ Objects
 {
 o
 {
-	Uuid %id{u4{7835781871727266977,4795722510911580565}}
+	Uuid %id{u4{17620145686227680188,4957063583841273974}}
 	s %t{"ezMeshAssetProperties"}
 	u3 %v{2}
 	p
@@ -18,9 +18,9 @@ o
 		b %InvertNormals{0}
 		VarArray %Materials
 		{
-			Uuid{u4{714224482469311438,14736654386135258691}}
+			Uuid{u4{5024902303617274120,12219174996692020880}}
 		}
-		s %MeshFile{"FleetOps/Generix/generix0.obj"}
+		s %MeshFile{"FleetOps/Cassiopeia_data/cassiopeia.obj"}
 		Vec3 %NonUniformScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		s %PrimitiveType{"ezMeshPrimitive::File"}
 		f %Radius{0x0000003F}
@@ -43,13 +43,13 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{7835781871727266977,4795722510911580565}}
+			Uuid{u4{17620145686227680188,4957063583841273974}}
 		}
 	}
 }
 AssetInfo
 {
-	Uuid %id{u4{15841179174245619841,5470851768852247890}}
+	Uuid %id{u4{16846785442011202236,5495732318075967143}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{1}
 	s %n{"Header"}
@@ -58,26 +58,26 @@ AssetInfo
 		s %AssetType{"Mesh"}
 		VarArray %Dependencies
 		{
-			s{"FleetOps/Generix/generix0.obj"}
+			s{"FleetOps/Cassiopeia_data/cassiopeia.obj"}
 		}
-		Uuid %DocumentID{u4{15841179174245619841,5470851768852247890}}
-		u4 %Hash{13264326099464412609}
+		Uuid %DocumentID{u4{16846785442011202236,5495732318075967143}}
+		u4 %Hash{12155535089333809118}
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ d30f005e-b111-4684-86af-ccba9ad6febe }"}
+			s{"{ b50c8311-adec-4282-9476-5e9ea1ca4b79 }"}
 		}
 	}
 }
 o
 {
-	Uuid %id{u4{714224482469311438,14736654386135258691}}
+	Uuid %id{u4{5024902303617274120,12219174996692020880}}
 	s %t{"ezMaterialResourceSlot"}
 	u3 %v{1}
 	p
 	{
 		s %Label{"DefaultMaterial"}
-		s %Resource{"{ d30f005e-b111-4684-86af-ccba9ad6febe }"}
+		s %Resource{"{ b50c8311-adec-4282-9476-5e9ea1ca4b79 }"}
 	}
 }
 }

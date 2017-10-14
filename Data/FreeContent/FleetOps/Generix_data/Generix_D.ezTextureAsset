@@ -2,7 +2,7 @@ Objects
 {
 AssetInfo
 {
-	Uuid %id{u4{9348311974050143146,5168866431444513940}}
+	Uuid %id{u4{8887514256862289295,4687711898228023680}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{1}
 	s %n{"Header"}
@@ -11,12 +11,34 @@ AssetInfo
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"FleetOps/Shashura/romShashura0.tga"}
+			s{"FleetOps/Generix_data/romGenerix0.tga"}
 		}
-		Uuid %DocumentID{u4{9348311974050143146,5168866431444513940}}
-		u4 %Hash{2480745628871710571}
+		Uuid %DocumentID{u4{8887514256862289295,4687711898228023680}}
+		u4 %Hash{3971649623647510591}
 		VarArray %Outputs{}
 		VarArray %References{}
+	}
+}
+o
+{
+	Uuid %id{u4{10059338730638559161,4742441898395847117}}
+	s %t{"ezTextureAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1"}
+		b %Compression{1}
+		s %Input1{"FleetOps/Generix_data/romGenerix0.tga"}
+		s %Input2{""}
+		s %Input3{""}
+		s %Input4{""}
+		b %Mipmaps{1}
+		b %PremultipliedAlpha{0}
+		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
+		s %Usage{"ezTexture2DUsageEnum::Diffuse"}
 	}
 }
 o
@@ -29,30 +51,8 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{816440940608032396,5598056279376816096}}
+			Uuid{u4{10059338730638559161,4742441898395847117}}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{816440940608032396,5598056279376816096}}
-	s %t{"ezTextureAssetProperties"}
-	u3 %v{2}
-	p
-	{
-		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
-		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
-		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1"}
-		b %Compression{1}
-		s %Input1{"FleetOps/Shashura/romShashura0.tga"}
-		s %Input2{""}
-		s %Input3{""}
-		s %Input4{""}
-		b %Mipmaps{1}
-		b %PremultipliedAlpha{0}
-		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTexture2DUsageEnum::Diffuse"}
 	}
 }
 }
