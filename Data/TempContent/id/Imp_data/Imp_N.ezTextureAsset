@@ -1,27 +1,8 @@
 Objects
 {
-AssetInfo
-{
-	Uuid %id{u4{14444537978262200199,4790281877677650125}}
-	s %t{"ezAssetDocumentInfo"}
-	u3 %v{1}
-	s %n{"Header"}
-	p
-	{
-		s %AssetType{"Texture 2D"}
-		VarArray %Dependencies
-		{
-			s{"id/Imp/Diffuse2.tga"}
-		}
-		Uuid %DocumentID{u4{14444537978262200199,4790281877677650125}}
-		u4 %Hash{9204651844531905148}
-		VarArray %Outputs{}
-		VarArray %References{}
-	}
-}
 o
 {
-	Uuid %id{u4{8962542696899416708,5061636999776338395}}
+	Uuid %id{u4{14840846582233230780,4827083935244890328}}
 	s %t{"ezTextureAssetProperties"}
 	u3 %v{2}
 	p
@@ -30,15 +11,34 @@ o
 		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
-		b %Compression{1}
-		s %Input1{"id/Imp/Diffuse2.tga"}
+		b %Compression{0}
+		s %Input1{"id/Imp_data/Normals.tga"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTexture2DUsageEnum::Diffuse"}
+		s %Usage{"ezTexture2DUsageEnum::NormalMap"}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{1152537212582175411,4874572279036075617}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Texture 2D"}
+		VarArray %Dependencies
+		{
+			s{"id/Imp_data/Normals.tga"}
+		}
+		Uuid %DocumentID{u4{1152537212582175411,4874572279036075617}}
+		u4 %Hash{11264545524719405598}
+		VarArray %Outputs{}
+		VarArray %References{}
 	}
 }
 o
@@ -51,7 +51,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{8962542696899416708,5061636999776338395}}
+			Uuid{u4{14840846582233230780,4827083935244890328}}
 		}
 	}
 }

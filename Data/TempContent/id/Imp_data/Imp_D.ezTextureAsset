@@ -11,10 +11,10 @@ AssetInfo
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"id/Imp/Diffuse.tga"}
+			s{"id/Imp_data/Diffuse.tga"}
 		}
 		Uuid %DocumentID{u4{4906755065095926953,4766800278616334013}}
-		u4 %Hash{8796647877650666780}
+		u4 %Hash{1370287023990114692}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -31,7 +31,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
-		s %Input1{"id/Imp/Diffuse.tga"}
+		s %Input1{"id/Imp_data/Diffuse.tga"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}

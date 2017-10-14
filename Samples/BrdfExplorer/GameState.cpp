@@ -111,7 +111,7 @@ void BrdfExplorerGameState::CreateGameLevel()
   ezGameObject* pObj;
   ezMeshComponent* pMesh;
 
-  ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Sponza/Meshes/Sponza.ezMesh");
+  ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Sponza/Sponza.ezMesh");
 
   // World Mesh
   {

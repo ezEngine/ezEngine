@@ -2,7 +2,7 @@ Objects
 {
 o
 {
-	Uuid %id{u4{14840846582233230780,4827083935244890328}}
+	Uuid %id{u4{4934132794621669034,4837257329909178425}}
 	s %t{"ezTextureAssetProperties"}
 	u3 %v{2}
 	p
@@ -11,20 +11,20 @@ o
 		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
-		b %Compression{0}
-		s %Input1{"id/Imp/Normals.tga"}
+		b %Compression{1}
+		s %Input1{"id/Imp_data/Metallic.tga"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTexture2DUsageEnum::NormalMap"}
+		s %Usage{"ezTexture2DUsageEnum::Other_Linear"}
 	}
 }
 AssetInfo
 {
-	Uuid %id{u4{1152537212582175411,4874572279036075617}}
+	Uuid %id{u4{17098682770359194535,5324431217922566126}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{1}
 	s %n{"Header"}
@@ -33,10 +33,10 @@ AssetInfo
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"id/Imp/Normals.tga"}
+			s{"id/Imp_data/Metallic.tga"}
 		}
-		Uuid %DocumentID{u4{1152537212582175411,4874572279036075617}}
-		u4 %Hash{3361325910374461524}
+		Uuid %DocumentID{u4{17098682770359194535,5324431217922566126}}
+		u4 %Hash{2535526954545211172}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -51,7 +51,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{14840846582233230780,4827083935244890328}}
+			Uuid{u4{4934132794621669034,4837257329909178425}}
 		}
 	}
 }

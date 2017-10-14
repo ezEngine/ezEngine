@@ -2,42 +2,68 @@ Objects
 {
 o
 {
-	Uuid %id{u4{6797222137855316883,5062285810312261924}}
-	s %t{"ezTextureCubeAssetProperties"}
+	Uuid %id{u4{11295200991947568127,2454832838597152448}}
+	s %t{"ezMaterialResourceSlot"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"DefaultMaterial"}
+		s %Resource{"{ 25d8c2ac-f99e-406a-a07d-720bec3b19e1 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{18396800391592910982,4619878909517340062}}
+	s %t{"ezMeshAssetProperties"}
 	u3 %v{2}
 	p
 	{
-		s %ChannelMapping{"ezTextureCubeChannelMappingEnum::RGB1"}
-		b %Compression{1}
-		s %Input1{"Cubemaps/Textures/uffizi_cross.hdr"}
-		s %Input2{""}
-		s %Input3{""}
-		s %Input4{""}
-		s %Input5{""}
-		s %Input6{""}
-		b %Mipmaps{0}
-		b %PremultipliedAlpha{0}
-		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTextureCubeUsageEnum::Skybox"}
+		f %Angle{0x0000B443}
+		b %Cap{1}
+		b %Cap2{1}
+		u2 %Detail{1}
+		u2 %Detail2{1}
+		s %ForwardDir{"ezBasisAxis::PositiveX"}
+		f %Height{0x0000803F}
+		b %ImportMaterials{0}
+		b %InvertNormals{1}
+		VarArray %Materials
+		{
+			Uuid{u4{11295200991947568127,2454832838597152448}}
+		}
+		s %MeshFile{"id/Imp_data/Imp.obj"}
+		Vec3 %NonUniformScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		s %PrimitiveType{"ezMeshPrimitive::File"}
+		f %Radius{0x0000003F}
+		f %Radius2{0x0000003F}
+		b %RecalculateNormals{0}
+		s %RightDir{"ezBasisAxis::PositiveY"}
+		s %SubmeshName{""}
+		f %UniformScaling{0x0000803F}
+		s %UpDir{"ezBasisAxis::PositiveZ"}
+		b %UseSubfolderForMaterialImport{0}
 	}
 }
 AssetInfo
 {
-	Uuid %id{u4{16570251626035375497,5377630440112190531}}
+	Uuid %id{u4{824725391493986470,5000215402686462604}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{1}
 	s %n{"Header"}
 	p
 	{
-		s %AssetType{"Texture Cube"}
+		s %AssetType{"Mesh"}
 		VarArray %Dependencies
 		{
-			s{"Cubemaps/Textures/uffizi_cross.hdr"}
+			s{"id/Imp_data/Imp.obj"}
 		}
-		Uuid %DocumentID{u4{16570251626035375497,5377630440112190531}}
-		u4 %Hash{511003900161497428}
+		Uuid %DocumentID{u4{824725391493986470,5000215402686462604}}
+		u4 %Hash{8050593659076573086}
 		VarArray %Outputs{}
-		VarArray %References{}
+		VarArray %References
+		{
+			s{"{ 25d8c2ac-f99e-406a-a07d-720bec3b19e1 }"}
+		}
 	}
 }
 o
@@ -50,7 +76,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{6797222137855316883,5062285810312261924}}
+			Uuid{u4{18396800391592910982,4619878909517340062}}
 		}
 	}
 }
@@ -59,7 +85,7 @@ Types
 {
 o
 {
-	Uuid %id{u4{13883850868176967382,69423359835370515}}
+	Uuid %id{u4{16151412834014881353,455602171930801939}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -68,9 +94,9 @@ o
 		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"ezEditorPluginAssets"}
+		s %PluginName{"Static"}
 		VarArray %Properties{}
-		s %TypeName{"ezTextureCubeChannelMappingEnum"}
+		s %TypeName{"ezBasisAxis"}
 		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
@@ -113,19 +139,19 @@ o
 }
 o
 {
-	Uuid %id{u4{12429759640381803011,4393811392585982372}}
+	Uuid %id{u4{14671648138773591326,5868081672200965352}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
+		s %ParentTypeName{""}
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
-		s %TypeName{"ezTextureCubeUsageEnum"}
-		u3 %TypeSize{1}
+		s %TypeName{"ezMaterialResourceSlot"}
+		u3 %TypeSize{128}
 		u3 %TypeVersion{1}
 	}
 }
@@ -149,25 +175,7 @@ o
 }
 o
 {
-	Uuid %id{u4{2486599260985300546,9667514782466442203}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezTextureFilterSetting"}
-		u3 %TypeSize{1}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{12245020967156862698,13911733491206670039}}
+	Uuid %id{u4{12548133714559506524,15048962895131464253}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -178,9 +186,27 @@ o
 		s %ParentTypeName{"ezReflectedClass"}
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
-		s %TypeName{"ezTextureCubeAssetProperties"}
-		u3 %TypeSize{400}
+		s %TypeName{"ezMeshAssetProperties"}
+		u3 %TypeSize{1248}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{12318933889413480389,17746338614557059932}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshPrimitive"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
 	}
 }
 }
