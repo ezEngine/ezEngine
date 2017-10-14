@@ -128,3 +128,8 @@ TextureImport.Diffuse;Diffuse Texture
 TextureImport.Normal;Normal Map
 TextureImport.HDR;HDR Texture
 TextureImport.Linear;Linear Texture
+ezDecalMode::All;All
+ezDecalMode::BaseColor;Base Color
+ezDecalMode::BaseColorRoughness;Base Color, Roughness
+ezDecalMode::NormalRoughnessOcclusion;Normal, Roughness, Occlusion
+ezDecalMode::Emissive;Emissive

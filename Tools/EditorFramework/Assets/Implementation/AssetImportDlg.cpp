@@ -13,6 +13,7 @@ enum Columns
   InputFile,
   GeneratedDoc,
   Browse,
+  Status,
   ENUM_COUNT
 };
 
@@ -27,6 +28,7 @@ ezQtAssetImportDlg::ezQtAssetImportDlg(QWidget* parent, ezDynamicArray<ezAssetDo
   headers.push_back(QString::fromUtf8("Input File"));
   headers.push_back(QString::fromUtf8("Generated Document"));
   headers.push_back(QString());
+  headers.push_back(QString("Status"));
 
   QTableWidget* table = AssetTable;
   table->setColumnCount(headers.size());
@@ -44,11 +46,14 @@ ezQtAssetImportDlg::ezQtAssetImportDlg(QWidget* parent, ezDynamicArray<ezAssetDo
 
   table->horizontalHeader()->setSectionResizeMode(Columns::Method, QHeaderView::ResizeMode::ResizeToContents);
   table->horizontalHeader()->setSectionResizeMode(Columns::InputFile, QHeaderView::ResizeMode::Interactive);
-  table->horizontalHeader()->setSectionResizeMode(Columns::GeneratedDoc, QHeaderView::ResizeMode::Stretch);
+  table->horizontalHeader()->setSectionResizeMode(Columns::GeneratedDoc, QHeaderView::ResizeMode::Interactive);
   table->horizontalHeader()->setSectionResizeMode(Columns::Browse, QHeaderView::ResizeMode::ResizeToContents);
+  table->horizontalHeader()->setSectionResizeMode(Columns::Status, QHeaderView::ResizeMode::Stretch);
 
+  table->resizeColumnToContents(Columns::GeneratedDoc);
   table->resizeColumnToContents(Columns::InputFile);
   table->setColumnWidth(Columns::InputFile, table->columnWidth(Columns::InputFile) + 30);
+  table->setColumnWidth(Columns::GeneratedDoc, table->columnWidth(Columns::GeneratedDoc) + 30);
 }
 
 ezQtAssetImportDlg::~ezQtAssetImportDlg()
@@ -60,8 +65,10 @@ void ezQtAssetImportDlg::InitRow(ezUInt32 uiRow)
   QTableWidget* table = AssetTable;
   const auto& data = m_allImports[uiRow];
 
-  table->setItem(uiRow, Columns::InputFile, new QTableWidgetItem(data.m_sInputFile.GetData()));
+  table->setItem(uiRow, Columns::InputFile, new QTableWidgetItem(data.m_sInputFileParentRelative.GetData()));
+  table->setItem(uiRow, Columns::Status, new QTableWidgetItem());
   table->item(uiRow, Columns::InputFile)->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
+  table->item(uiRow, Columns::Status)->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable);
 
   QComboBox* pCombo = new QComboBox();
   table->setCellWidget(uiRow, Columns::Method, pCombo);
@@ -93,17 +100,37 @@ void ezQtAssetImportDlg::InitRow(ezUInt32 uiRow)
 void ezQtAssetImportDlg::UpdateRow(ezUInt32 uiRow)
 {
   QTableWidget* table = AssetTable;
+  ezQtScopedBlockSignals _1(table);
+
   const auto& data = m_allImports[uiRow];
 
   QTableWidgetItem* pOutputItem = table->item(uiRow, Columns::GeneratedDoc);
+  QTableWidgetItem* pStatusItem = table->item(uiRow, Columns::Status);
 
   if (data.m_iSelectedOption < 0)
     pOutputItem->setText(QString());
   else
-    pOutputItem->setText(data.m_ImportOptions[data.m_iSelectedOption].m_sOutputFile.GetData());
+    pOutputItem->setText(data.m_ImportOptions[data.m_iSelectedOption].m_sOutputFileParentRelative.GetData());
 
   QToolButton* pBrowse = qobject_cast<QToolButton*>(table->cellWidget(uiRow, Columns::Browse));
   pBrowse->setEnabled(data.m_iSelectedOption >= 0);
+
+  pStatusItem->setTextColor(QColor::fromRgba(qRgb(200, 0, 0)));
+  pStatusItem->setText(data.m_sImportError.GetData());
+
+  if (data.m_bDoNotImport)
+  {
+    pOutputItem->setFlags(Qt::ItemFlag::ItemIsSelectable);
+    pBrowse->setEnabled(false);
+    QComboBox* pCombo = qobject_cast<QComboBox*>(table->cellWidget(uiRow, Columns::Method));
+    pCombo->setEnabled(false);
+    
+    if (data.m_sImportError.IsEmpty())
+    {
+      pStatusItem->setTextColor(QColor::fromRgba(qRgb(0, 200, 0)));
+      pStatusItem->setText("Asset Imported");
+    }
+  }
 }
 
 void ezQtAssetImportDlg::SelectedOptionChanged(int index)
@@ -128,10 +155,25 @@ void ezQtAssetImportDlg::QueryRow(ezUInt32 uiRow)
 
   ezStringBuilder file = table->item(uiRow, Columns::GeneratedDoc)->text().toUtf8().data();
   file.ChangeFileExtension(option.m_pGenerator->GetDocumentExtension());
-  option.m_sOutputFile = file;
+  option.m_sOutputFileParentRelative = file;
+}
+
+void ezQtAssetImportDlg::UpdateAllRows()
+{
+  for (ezUInt32 i = 0; i < m_allImports.GetCount(); ++i)
+  {
+    UpdateRow(i);
+  }
 }
 
 void ezQtAssetImportDlg::on_ButtonImport_clicked()
+{
+  ezAssetDocumentGenerator::ExecuteImport(m_allImports);
+
+  UpdateAllRows();
+}
+
+void ezQtAssetImportDlg::on_ButtonClose_clicked()
 {
   accept();
 }
@@ -170,6 +212,7 @@ void ezQtAssetImportDlg::BrowseButtonClicked(bool)
     return;
   }
 
-  option.m_sOutputFile = tmp;
+  option.m_sOutputFileAbsolute = result.toUtf8().data();
+  option.m_sOutputFileParentRelative = tmp;
   UpdateRow(uiRow);
 }

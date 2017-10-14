@@ -16,6 +16,7 @@ public:
 private slots:
   void SelectedOptionChanged(int index);
   void on_ButtonImport_clicked();
+  void on_ButtonClose_clicked();
   void TableCellChanged(int row, int column);
   void BrowseButtonClicked(bool);
 
@@ -23,6 +24,7 @@ private:
   void InitRow(ezUInt32 uiRow);
   void UpdateRow(ezUInt32 uiRow);
   void QueryRow(ezUInt32 uiRow);
+  void UpdateAllRows();
 
   ezDynamicArray<ezAssetDocumentGenerator::ImportData>& m_allImports;
 };

@@ -1,7 +1,8 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetObjects.h>
+#include <EditorFramework/Assets/AssetDocumentGenerator.h>
 
 class ezPxMeshResourceDescriptor;
 class ezGeometry;
@@ -27,4 +28,20 @@ protected:
   ezStatus CreateMeshFromGeom(ezGeometry& geom, ezPhysXCookingMesh& outMesh);
   ezStatus WriteToStream(ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh);
   virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+
+class ezCollisionMeshAssetDocumentGenerator : public ezAssetDocumentGenerator
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezCollisionMeshAssetDocumentGenerator, ezAssetDocumentGenerator);
+
+public:
+  ezCollisionMeshAssetDocumentGenerator();
+  ~ezCollisionMeshAssetDocumentGenerator();
+
+  virtual void GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) override;
+  virtual ezStatus Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument) override;
+  virtual const char* GetDocumentExtension() const override { return "ezCollisionMeshAsset"; }
 };

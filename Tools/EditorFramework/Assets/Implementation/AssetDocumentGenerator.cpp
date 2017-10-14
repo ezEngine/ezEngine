@@ -83,27 +83,82 @@ void ezAssetDocumentGenerator::DestroyGenerators(ezHybridArray<ezAssetDocumentGe
 }
 
 
-void ezAssetDocumentGenerator::ExecuteImport(const ezDynamicArray<ImportData>& allImports)
+void ezAssetDocumentGenerator::ExecuteImport(ezDynamicArray<ImportData>& allImports)
 {
   for (auto& data : allImports)
   {
     if (data.m_iSelectedOption < 0)
       continue;
 
-    EZ_LOG_BLOCK("Asset Import", data.m_sInputFile);
+    EZ_LOG_BLOCK("Asset Import", data.m_sInputFileParentRelative);
 
     auto& option = data.m_ImportOptions[data.m_iSelectedOption];
-    const ezStatus status = option.m_pGenerator->Generate(data.m_sInputFile, option);
+
+    if (DetermineInputAndOutputFiles(data, option).Failed())
+      continue;
+
+    ezDocument* pGeneratedDoc = nullptr;
+    const ezStatus status = option.m_pGenerator->Generate(data.m_sInputFileRelative, option, pGeneratedDoc);
+
+    if (pGeneratedDoc)
+    {
+      pGeneratedDoc->SaveDocument(true);
+      pGeneratedDoc->GetDocumentManager()->CloseDocument(pGeneratedDoc);
+    }
 
     if (status.Failed())
     {
+      data.m_sImportError = status.m_sMessage;
       ezLog::Error("Asset import failed: '{0}'", status.m_sMessage);
     }
     else
     {
-      ezLog::Success("Generated asset document '{0}'", option.m_sOutputFile);
+      data.m_sImportError.Clear();
+      data.m_bDoNotImport = true;
+      ezLog::Success("Generated asset document '{0}'", option.m_sOutputFileAbsolute);
     }
   }
+}
+
+
+ezResult ezAssetDocumentGenerator::DetermineInputAndOutputFiles(ImportData& data, Info& option)
+{
+  auto pApp = ezQtEditorApp::GetSingleton();
+
+  ezStringBuilder inputFile = data.m_sInputFileParentRelative;
+  if (!pApp->MakeParentDataDirectoryRelativePathAbsolute(inputFile, true))
+  {
+    data.m_sImportError = "Input file could not be located";
+    return EZ_FAILURE;
+  }
+
+  data.m_sInputFileAbsolute = inputFile;
+
+  if (!pApp->MakePathDataDirectoryRelative(inputFile))
+  {
+    data.m_sImportError = "Input file is not in any known data directory";
+    return EZ_FAILURE;
+  }
+
+  data.m_sInputFileRelative = inputFile;
+
+  ezStringBuilder outputFile = option.m_sOutputFileParentRelative;
+  if (!pApp->MakeParentDataDirectoryRelativePathAbsolute(outputFile, false))
+  {
+    data.m_sImportError = "Target file location could not be found";
+    return EZ_FAILURE;
+  }
+
+  option.m_sOutputFileAbsolute = outputFile;
+
+  // don't create it when it already exists
+  if (ezOSFile::ExistsFile(outputFile))
+  {
+    data.m_sImportError = "Target file already exists";
+    return EZ_FAILURE;
+  }
+
+  return EZ_SUCCESS;
 }
 
 void ezAssetDocumentGenerator::ImportAssets(const ezHybridArray<ezString, 16>& filesToImport)
@@ -112,22 +167,40 @@ void ezAssetDocumentGenerator::ImportAssets(const ezHybridArray<ezString, 16>& f
   allImports.Reserve(filesToImport.GetCount());
 
   ezQtEditorApp* pApp = ezQtEditorApp::GetSingleton();
-  ezStringBuilder tmp;
+  ezStringBuilder tmp, tmp2;
 
   for (const ezString& s : filesToImport)
   {
     tmp = s;
-
-    if (!pApp->MakePathDataDirectoryParentRelative(tmp))
-      continue;
+    tmp2 = s;
 
     auto& data = allImports.ExpandAndGetRef();
-    data.m_sInputFile = tmp;
+    data.m_sInputFileAbsolute = s;
+    data.m_sInputFileParentRelative = s;
+    data.m_sInputFileRelative = s;
+
+    if (!pApp->MakePathDataDirectoryParentRelative(tmp))
+    {
+      data.m_sImportError = "File is not located in any data directory.";
+      data.m_bDoNotImport = true;
+      continue;
+    }
+
+    data.m_sInputFileParentRelative = tmp;
+
+    if (!pApp->MakePathDataDirectoryRelative(tmp2))
+    {
+      data.m_sImportError = "File is not located in any data directory.";
+      data.m_bDoNotImport = true;
+      continue;
+    }
+
+    data.m_sInputFileRelative = tmp2;
   }
 
   allImports.Sort([](const ezAssetDocumentGenerator::ImportData& lhs, const ezAssetDocumentGenerator::ImportData& rhs) -> bool
   {
-    return lhs.m_sInputFile < rhs.m_sInputFile;
+    return lhs.m_sInputFileParentRelative < rhs.m_sInputFileParentRelative;
   });
 
   ezHybridArray<ezAssetDocumentGenerator*, 16> generators;
@@ -137,9 +210,9 @@ void ezAssetDocumentGenerator::ImportAssets(const ezHybridArray<ezString, 16>& f
   {
     for (ezAssetDocumentGenerator* pGen : generators)
     {
-      if (pGen->SupportsFileType(singleImport.m_sInputFile))
+      if (pGen->SupportsFileType(singleImport.m_sInputFileRelative))
       {
-        pGen->GetImportModes(singleImport.m_sInputFile, singleImport.m_ImportOptions);
+        pGen->GetImportModes(singleImport.m_sInputFileParentRelative, singleImport.m_ImportOptions);
       }
     }
 
@@ -172,10 +245,7 @@ void ezAssetDocumentGenerator::ImportAssets(const ezHybridArray<ezString, 16>& f
   }
 
   ezQtAssetImportDlg dlg(QApplication::activeWindow(), allImports);
-  if (dlg.exec() == QDialog::Accepted)
-  {
-    ExecuteImport(allImports);
-  }
+  dlg.exec();
 
   DestroyGenerators(generators);
 }

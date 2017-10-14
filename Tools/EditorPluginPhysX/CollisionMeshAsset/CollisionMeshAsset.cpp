@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAsset.h>
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetObjects.h>
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetManager.h>
@@ -315,4 +315,75 @@ ezStatus ezCollisionMeshAssetDocument::InternalCreateThumbnail(const ezAssetFile
 {
   ezStatus status = ezAssetDocument::RemoteCreateThumbnail(AssetHeader);
   return status;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezCollisionMeshAssetDocumentGenerator>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezCollisionMeshAssetDocumentGenerator::ezCollisionMeshAssetDocumentGenerator()
+{
+  AddSupportedFileType("obj");
+  AddSupportedFileType("fbx");
+  AddSupportedFileType("ply");
+}
+
+ezCollisionMeshAssetDocumentGenerator::~ezCollisionMeshAssetDocumentGenerator()
+{
+
+}
+
+void ezCollisionMeshAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes)
+{
+  ezStringBuilder baseOutputFile = szParentDirRelativePath;
+  baseOutputFile.ChangeFileExtension("ezCollisionMeshAsset");
+
+  {
+    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+    info.m_pGenerator = this;
+    info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
+    info.m_sName = "CollisionMeshImport.TriangleMesh";
+    info.m_sOutputFileParentRelative = baseOutputFile;
+    info.m_sIcon = ":/AssetIcons/Collision_Mesh.png";
+  }
+
+  {
+    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+    info.m_pGenerator = this;
+    info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+    info.m_sName = "CollisionMeshImport.ConvexMesh";
+    info.m_sOutputFileParentRelative = baseOutputFile;
+    info.m_sIcon = ":/AssetIcons/Collision_Mesh.png";
+  }
+}
+
+ezStatus ezCollisionMeshAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+{
+  auto pApp = ezQtEditorApp::GetSingleton();
+
+  ezStringBuilder outputFile = info.m_sOutputFileAbsolute;
+  ezStringBuilder inputFile = szDataDirRelativePath;
+
+  out_pGeneratedDocument = pApp->CreateOrOpenDocument(true, outputFile, false, false);
+  if (out_pGeneratedDocument == nullptr)
+    return ezStatus("Could not create target document");
+
+  ezCollisionMeshAssetDocument* pAssetDoc = ezDynamicCast<ezCollisionMeshAssetDocument*>(out_pGeneratedDocument);
+  if (pAssetDoc == nullptr)
+    return ezStatus("Target document is not a valid ezCollisionMeshAssetDocument");
+
+  auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
+  accessor.SetValue("MeshFile", inputFile.GetData());
+
+  if (info.m_sName == "CollisionMeshImport.ConvexMesh")
+  {
+    accessor.SetValue("MeshType", (int)ezCollisionMeshType::ConvexHull);
+  }
+  else
+  {
+    accessor.SetValue("MeshType", (int)ezCollisionMeshType::TriangleMesh);
+  }
+
+  return ezStatus(EZ_SUCCESS);
 }

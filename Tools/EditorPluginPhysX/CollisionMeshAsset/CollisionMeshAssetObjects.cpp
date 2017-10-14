@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetObjects.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
@@ -37,7 +37,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetProperties, 1, ezRTTIDefault
     EZ_MEMBER_PROPERTY("Radius2", m_fRadius2)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("Detail", m_uiDetail)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 32)),
-    EZ_MEMBER_PROPERTY("MeshFile", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", "*.obj;*.fbx")),
+    EZ_MEMBER_PROPERTY("MeshFile", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", "*.obj;*.fbx;*.ply")),
     EZ_MEMBER_PROPERTY("SubmeshName", m_sSubMeshName),
     EZ_ARRAY_MEMBER_PROPERTY("Surfaces", m_Slots)->AddAttributes(new ezContainerAttribute(false, false, true)),
   }
@@ -100,10 +100,10 @@ void ezCollisionMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMet
     props["Detail"].m_Visibility = ezPropertyUiState::Default;
     break;
 
-  case ezCollisionMeshType::Oktaeder:
-  case ezCollisionMeshType::Pyramid:
-  case ezCollisionMeshType::Tetraeder:
-    break;
+  //case ezCollisionMeshType::Oktaeder:
+  //case ezCollisionMeshType::Pyramid:
+  //case ezCollisionMeshType::Tetraeder:
+  //  break;
   }
 }
 

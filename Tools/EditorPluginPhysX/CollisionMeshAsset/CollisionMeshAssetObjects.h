@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
@@ -20,9 +20,9 @@ struct ezCollisionMeshType
     ConvexHull,
     TriangleMesh,
     Cylinder,
-    Pyramid,
-    Tetraeder, // 3 sided pyramid
-    Oktaeder, // Double 4 sided pyramid
+    //Pyramid,
+    //Tetraeder, // 3 sided pyramid
+    //Oktaeder, // Double 4 sided pyramid
 
     Default = TriangleMesh
   };
