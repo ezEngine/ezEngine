@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
@@ -8,6 +8,7 @@
 #include <QFileDialog>
 
 bool ezQtAssetBrowserDlg::s_bShowItemsInSubFolder = true;
+bool ezQtAssetBrowserDlg::s_bShowItemsInHiddenFolder = false;
 bool ezQtAssetBrowserDlg::s_bSortByRecentUse = true;
 ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_sTextFilter;
 ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_sPathFilter;
@@ -40,6 +41,7 @@ ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* parent, const ezUuid& preselec
   AssetBrowserWidget->RestoreState("AssetBrowserDlg");
   AssetBrowserWidget->GetAssetBrowserFilter()->SetSortByRecentUse(s_bSortByRecentUse);
   AssetBrowserWidget->GetAssetBrowserFilter()->SetShowItemsInSubFolders(s_bShowItemsInSubFolder);
+  AssetBrowserWidget->GetAssetBrowserFilter()->SetShowItemsInHiddenFolders(s_bShowItemsInHiddenFolder);
 
   if (!s_sTextFilter[m_sVisibleFilters].IsEmpty())
     AssetBrowserWidget->GetAssetBrowserFilter()->SetTextFilter(s_sTextFilter[m_sVisibleFilters]);
@@ -56,6 +58,7 @@ ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* parent, const ezUuid& preselec
 ezQtAssetBrowserDlg::~ezQtAssetBrowserDlg()
 {
   s_bShowItemsInSubFolder = AssetBrowserWidget->GetAssetBrowserFilter()->GetShowItemsInSubFolders();
+  s_bShowItemsInHiddenFolder = AssetBrowserWidget->GetAssetBrowserFilter()->GetShowItemsInHiddenFolders();
   s_bSortByRecentUse = AssetBrowserWidget->GetAssetBrowserFilter()->GetSortByRecentUse();
   s_sTextFilter[m_sVisibleFilters] = AssetBrowserWidget->GetAssetBrowserFilter()->GetTextFilter();
   s_sPathFilter[m_sVisibleFilters] = AssetBrowserWidget->GetAssetBrowserFilter()->GetPathFilter();

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <Tools/EditorFramework/ui_AssetBrowserDlg.h>
@@ -30,6 +30,7 @@ private:
   ezString m_sVisibleFilters;
 
   static bool s_bShowItemsInSubFolder;
+  static bool s_bShowItemsInHiddenFolder;
   static bool s_bSortByRecentUse;
   static ezMap<ezString, ezString> s_sTextFilter;
   static ezMap<ezString, ezString> s_sPathFilter;

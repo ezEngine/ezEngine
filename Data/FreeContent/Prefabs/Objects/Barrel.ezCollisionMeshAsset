@@ -10,7 +10,7 @@ o
 		u1 %Detail{12}
 		s %ForwardDir{"ezBasisAxis::PositiveX"}
 		f %Height{0x3333733F}
-		s %MeshFile{"FleetOps/Raptor/raptor.obj"}
+		s %MeshFile{""}
 		s %MeshType{"ezCollisionMeshType::Cylinder"}
 		Vec3 %NonUniformScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %Radius{0x9A99993E}
@@ -48,12 +48,9 @@ AssetInfo
 	p
 	{
 		s %AssetType{"Collision Mesh (Convex)"}
-		VarArray %Dependencies
-		{
-			s{"FleetOps/Raptor/raptor.obj"}
-		}
+		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7161358030105095869,5569181095683251272}}
-		u4 %Hash{14956777022383775730}
+		u4 %Hash{6896522662388966521}
 		VarArray %Outputs{}
 		VarArray %References
 		{

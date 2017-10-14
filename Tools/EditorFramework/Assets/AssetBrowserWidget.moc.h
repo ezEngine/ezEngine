@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <Tools/EditorFramework/ui_AssetBrowserWidget.h>
@@ -51,6 +51,7 @@ private slots:
   void OnScrollToItem(ezUuid preselectedAsset);
   void OnTreeOpenExplorer();
   void OnShowSubFolderItemsToggled();
+  void OnShowHiddenFolderItemsToggled();
   void on_ListAssets_customContextMenuRequested(const QPoint& pt);
   void OnListOpenExplorer();
   void OnListOpenAssetDocument();
@@ -67,7 +68,7 @@ private:
   void AssetCuratorEventHandler(const ezAssetCuratorEvent& e);
   void UpdateDirectoryTree();
   void ClearDirectoryTree();
-  void BuildDirectoryTree(const char* szCurPath, QTreeWidgetItem* pParent, const char* szCurPathToItem);
+  void BuildDirectoryTree(const char* szCurPath, QTreeWidgetItem* pParent, const char* szCurPathToItem, bool bIsHidden);
   bool SelectPathFilter(QTreeWidgetItem* pParent, const QString& sPath);
   void UpdateAssetTypes();
   void ProjectEventHandler(const ezToolsProjectEvent& e);

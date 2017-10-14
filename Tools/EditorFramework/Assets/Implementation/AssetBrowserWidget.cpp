@@ -445,7 +445,7 @@ void ezQtAssetBrowserWidget::UpdateDirectoryTree()
     if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryParentRelative(tmp))
       continue;
 
-    BuildDirectoryTree(tmp, TreeFolderFilter->topLevelItem(0), "");
+    BuildDirectoryTree(tmp, TreeFolderFilter->topLevelItem(0), "", false);
   }
 
   TreeFolderFilter->setSortingEnabled(true);
@@ -459,7 +459,7 @@ void ezQtAssetBrowserWidget::ClearDirectoryTree()
   m_uiKnownAssetFolderCount = 0;
 }
 
-void ezQtAssetBrowserWidget::BuildDirectoryTree(const char* szCurPath, QTreeWidgetItem* pParent, const char* szCurPathToItem)
+void ezQtAssetBrowserWidget::BuildDirectoryTree(const char* szCurPath, QTreeWidgetItem* pParent, const char* szCurPathToItem, bool bIsHidden)
 {
   if (ezStringUtils::IsNullOrEmpty(szCurPath))
     return;
@@ -474,6 +474,11 @@ void ezQtAssetBrowserWidget::BuildDirectoryTree(const char* szCurPath, QTreeWidg
     sFolderName = szCurPath;
   else
     sFolderName = ezStringView(szCurPath, szNextSep);
+
+  if (sFolderName.EndsWith_NoCase("_data"))
+  {
+    bIsHidden = true;
+  }
 
   ezStringBuilder sCurPath = szCurPathToItem;
   sCurPath.AppendPath(sFolderName);
@@ -494,6 +499,11 @@ void ezQtAssetBrowserWidget::BuildDirectoryTree(const char* szCurPath, QTreeWidg
   pNewParent->setText(0, sQtFolderName);
   pNewParent->setData(0, ezQtAssetBrowserModel::UserRoles::AbsolutePath, QString::fromUtf8(sCurPath.GetData()));
 
+  if (bIsHidden)
+  {
+    pNewParent->setTextColor(0, qRgb(110, 110, 120));
+  }
+
   pParent->addChild(pNewParent);
 
 godown:
@@ -501,7 +511,7 @@ godown:
   if (szNextSep == nullptr)
     return;
 
-  BuildDirectoryTree(szNextSep + 1, pNewParent, sCurPath);
+  BuildDirectoryTree(szNextSep + 1, pNewParent, sCurPath, bIsHidden);
 }
 
 void ezQtAssetBrowserWidget::on_TreeFolderFilter_itemSelectionChanged()
@@ -525,9 +535,17 @@ void ezQtAssetBrowserWidget::on_TreeFolderFilter_customContextMenuRequested(cons
     m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this, SLOT(OnTreeOpenExplorer()));
   }
 
-  QAction* pAction = m.addAction(QLatin1String("Show Items in Sub-Folders"), this, SLOT(OnShowSubFolderItemsToggled()));
-  pAction->setCheckable(true);
-  pAction->setChecked(m_pFilter->GetShowItemsInSubFolders());
+  {
+    QAction* pAction = m.addAction(QLatin1String("Show Items in sub-folders"), this, SLOT(OnShowSubFolderItemsToggled()));
+    pAction->setCheckable(true);
+    pAction->setChecked(m_pFilter->GetShowItemsInSubFolders());
+  }
+
+  {
+    QAction* pAction = m.addAction(QLatin1String("Show Items in hidden folders"), this, SLOT(OnShowHiddenFolderItemsToggled()));
+    pAction->setCheckable(true);
+    pAction->setChecked(m_pFilter->GetShowItemsInHiddenFolders());
+  }
 
   AddAssetCreatorMenu(&m, false);
 
@@ -537,6 +555,11 @@ void ezQtAssetBrowserWidget::on_TreeFolderFilter_customContextMenuRequested(cons
 void ezQtAssetBrowserWidget::OnShowSubFolderItemsToggled()
 {
   m_pFilter->SetShowItemsInSubFolders(!m_pFilter->GetShowItemsInSubFolders());
+}
+
+void ezQtAssetBrowserWidget::OnShowHiddenFolderItemsToggled()
+{
+  m_pFilter->SetShowItemsInHiddenFolders(!m_pFilter->GetShowItemsInHiddenFolders());
 }
 
 void ezQtAssetBrowserWidget::OnTreeOpenExplorer()

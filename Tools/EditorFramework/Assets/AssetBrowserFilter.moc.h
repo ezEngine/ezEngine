@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
@@ -16,6 +16,9 @@ public:
   void SetShowItemsInSubFolders(bool bShow);
   bool GetShowItemsInSubFolders() const { return m_bShowItemsInSubFolders; }
 
+  void SetShowItemsInHiddenFolders(bool bShow);
+  bool GetShowItemsInHiddenFolders() const { return m_bShowItemsInHiddenFolders; }
+
   void SetSortByRecentUse(bool bSort);
   bool GetSortByRecentUse() const { return m_bSortByRecentUse; }
 
@@ -32,7 +35,6 @@ signals:
   void TextFilterChanged();
   void TypeFilterChanged();
   void PathFilterChanged();
-  void ShowSubFolderItemsChanged();
   void SortByRecentUseChanged();
 
 public:
@@ -42,6 +44,7 @@ public:
 private:
   ezString m_sTextFilter, m_sTypeFilter, m_sPathFilter;
   bool m_bShowItemsInSubFolders = true;
+  bool m_bShowItemsInHiddenFolders = false;
   bool m_bSortByRecentUse = false;
   mutable ezStringBuilder m_sTemp; // stored here to reduce unnecessary allocations
 };

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorFramework/Assets/AssetBrowserFilter.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 
@@ -12,6 +12,7 @@ ezQtAssetBrowserFilter::ezQtAssetBrowserFilter(QObject* pParent)
 void ezQtAssetBrowserFilter::Reset()
 {
   SetShowItemsInSubFolders(true);
+  SetShowItemsInHiddenFolders(false);
   SetSortByRecentUse(false);
   SetTextFilter("");
   SetTypeFilter("");
@@ -26,7 +27,16 @@ void ezQtAssetBrowserFilter::SetShowItemsInSubFolders(bool bShow)
   m_bShowItemsInSubFolders = bShow;
 
   emit FilterChanged();
-  emit ShowSubFolderItemsChanged();
+}
+
+void ezQtAssetBrowserFilter::SetShowItemsInHiddenFolders(bool bShow)
+{
+  if (m_bShowItemsInHiddenFolders == bShow)
+    return;
+
+  m_bShowItemsInHiddenFolders = bShow;
+
+  emit FilterChanged();
 }
 
 void ezQtAssetBrowserFilter::SetSortByRecentUse(bool bSort)
@@ -95,6 +105,12 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(const ezSubAsset* pInfo) const
       if (ezStringUtils::FindSubString(pInfo->m_pAssetInfo->m_sDataDirRelativePath.GetData() + m_sPathFilter.GetElementCount() + 1, "/") != nullptr)
         return true;
     }
+  }
+
+  if (!m_bShowItemsInHiddenFolders)
+  {
+    if (ezStringUtils::FindSubString_NoCase(pInfo->m_pAssetInfo->m_sDataDirRelativePath.GetData() + m_sPathFilter.GetElementCount() + 1, "_data/") != nullptr)
+      return true;
   }
 
   if (!m_sTextFilter.IsEmpty())
