@@ -25,10 +25,10 @@ AssetInfo
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"Sponza/Textures/sponza_fabric_blue_diff.dds"}
+			s{"Sponza/Sponza_data/sponza_fabric_blue_diff.dds"}
 		}
 		Uuid %DocumentID{u4{14188593651358456762,5466457842207964451}}
-		u4 %Hash{12746625613029437135}
+		u4 %Hash{11430567069731826056}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -45,7 +45,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
-		s %Input1{"Sponza/Textures/sponza_fabric_blue_diff.dds"}
+		s %Input1{"Sponza/Sponza_data/sponza_fabric_blue_diff.dds"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}

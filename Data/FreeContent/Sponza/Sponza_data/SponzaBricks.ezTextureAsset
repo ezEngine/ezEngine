@@ -1,8 +1,30 @@
 Objects
 {
+o
+{
+	Uuid %id{u4{3336002108729556632,5007116286673076272}}
+	s %t{"ezTextureAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
+		b %Compression{1}
+		s %Input1{"Sponza/Sponza_data/spnza_bricks_a_diff.dds"}
+		s %Input2{""}
+		s %Input3{""}
+		s %Input4{""}
+		b %Mipmaps{1}
+		b %PremultipliedAlpha{0}
+		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
+		s %Usage{"ezTexture2DUsageEnum::Diffuse"}
+	}
+}
 AssetInfo
 {
-	Uuid %id{u4{5895025858826839201,5103975785320087454}}
+	Uuid %id{u4{14590100124396801965,5096714900710252583}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{1}
 	s %n{"Header"}
@@ -11,10 +33,10 @@ AssetInfo
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"Sponza/Textures/vase_round.dds"}
+			s{"Sponza/Sponza_data/spnza_bricks_a_diff.dds"}
 		}
-		Uuid %DocumentID{u4{5895025858826839201,5103975785320087454}}
-		u4 %Hash{5919045641180524507}
+		Uuid %DocumentID{u4{14590100124396801965,5096714900710252583}}
+		u4 %Hash{10143923175396098111}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -29,30 +51,8 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{13273011094000490666,5641862591920899124}}
+			Uuid{u4{3336002108729556632,5007116286673076272}}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{13273011094000490666,5641862591920899124}}
-	s %t{"ezTextureAssetProperties"}
-	u3 %v{2}
-	p
-	{
-		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
-		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
-		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
-		b %Compression{1}
-		s %Input1{"Sponza/Textures/vase_round.dds"}
-		s %Input2{""}
-		s %Input3{""}
-		s %Input4{""}
-		b %Mipmaps{1}
-		b %PremultipliedAlpha{0}
-		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTexture2DUsageEnum::Diffuse"}
 	}
 }
 }

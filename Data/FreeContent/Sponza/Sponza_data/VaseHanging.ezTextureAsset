@@ -2,7 +2,7 @@ Objects
 {
 AssetInfo
 {
-	Uuid %id{u4{17013208509311960980,4626051634666648544}}
+	Uuid %id{u4{2213869444835003530,4632818972965410531}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{1}
 	s %n{"Header"}
@@ -11,10 +11,10 @@ AssetInfo
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"Sponza/Textures/vase_diff.dds"}
+			s{"Sponza/Sponza_data/vase_hanging_diff.dds"}
 		}
-		Uuid %DocumentID{u4{17013208509311960980,4626051634666648544}}
-		u4 %Hash{18172659628523928821}
+		Uuid %DocumentID{u4{2213869444835003530,4632818972965410531}}
+		u4 %Hash{5436053992990597002}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -45,7 +45,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
-		s %Input1{"Sponza/Textures/vase_diff.dds"}
+		s %Input1{"Sponza/Sponza_data/vase_hanging_diff.dds"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}

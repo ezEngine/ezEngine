@@ -1,24 +1,5 @@
 Objects
 {
-AssetInfo
-{
-	Uuid %id{u4{8547547894394872978,5080485769653285665}}
-	s %t{"ezAssetDocumentInfo"}
-	u3 %v{1}
-	s %n{"Header"}
-	p
-	{
-		s %AssetType{"Texture 2D"}
-		VarArray %Dependencies
-		{
-			s{"Sponza/Textures/sponza_floor_a_diff.dds"}
-		}
-		Uuid %DocumentID{u4{8547547894394872978,5080485769653285665}}
-		u4 %Hash{1807495421068887877}
-		VarArray %Outputs{}
-		VarArray %References{}
-	}
-}
 o
 {
 	Uuid %id{u4{4538525219092991391,5381193384925595199}}
@@ -33,6 +14,25 @@ o
 		}
 	}
 }
+AssetInfo
+{
+	Uuid %id{u4{1048261483494797200,5428741134133429720}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Texture 2D"}
+		VarArray %Dependencies
+		{
+			s{"Sponza/Sponza_data/sponza_thorn_diff.dds"}
+		}
+		Uuid %DocumentID{u4{1048261483494797200,5428741134133429720}}
+		u4 %Hash{13793811542502642481}
+		VarArray %Outputs{}
+		VarArray %References{}
+	}
+}
 o
 {
 	Uuid %id{u4{13273011094000490666,5641862591920899124}}
@@ -43,9 +43,9 @@ o
 		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1"}
 		b %Compression{1}
-		s %Input1{"Sponza/Textures/sponza_floor_a_diff.dds"}
+		s %Input1{"Sponza/Sponza_data/sponza_thorn_diff.dds"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
