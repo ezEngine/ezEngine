@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginAssets/MeshAsset/MeshAsset.h>
 #include <Core/Graphics/Geometry.h>
 #include <EditorFramework/Assets/AssetCurator.h>
@@ -776,4 +776,72 @@ ezStatus ezMeshAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& A
 {
   ezStatus status = ezAssetDocument::RemoteCreateThumbnail(AssetHeader);
   return status;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezMeshAssetDocumentGenerator>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezMeshAssetDocumentGenerator::ezMeshAssetDocumentGenerator()
+{
+  AddSupportedFileType("obj");
+  AddSupportedFileType("fbx");
+  AddSupportedFileType("ply");
+}
+
+ezMeshAssetDocumentGenerator::~ezMeshAssetDocumentGenerator()
+{
+
+}
+
+void ezMeshAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+{
+  ezStringBuilder baseOutputFile = szParentDirRelativePath;
+  baseOutputFile.ChangeFileExtension("ezMeshAsset");
+
+  {
+    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+    info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
+    info.m_sName = "MeshImport.WithMaterials";
+    info.m_sOutputFileParentRelative = baseOutputFile;
+    info.m_sIcon = ":/AssetIcons/Mesh.png";
+  }
+
+  {
+    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+    info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+    info.m_sName = "MeshImport.NoMaterials";
+    info.m_sOutputFileParentRelative = baseOutputFile;
+    info.m_sIcon = ":/AssetIcons/Mesh.png";
+  }
+}
+
+ezStatus ezMeshAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+{
+  auto pApp = ezQtEditorApp::GetSingleton();
+
+  out_pGeneratedDocument = pApp->CreateOrOpenDocument(true, info.m_sOutputFileAbsolute, false, false);
+  if (out_pGeneratedDocument == nullptr)
+    return ezStatus("Could not create target document");
+
+  ezMeshAssetDocument* pAssetDoc = ezDynamicCast<ezMeshAssetDocument*>(out_pGeneratedDocument);
+  if (pAssetDoc == nullptr)
+    return ezStatus("Target document is not a valid ezCollisionMeshAssetDocument");
+
+  auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
+  accessor.SetValue("MeshFile", szDataDirRelativePath);
+
+  if (info.m_sName == "MeshImport.WithMaterials")
+  {
+    accessor.SetValue("ImportMaterials", true);
+  }
+
+  if (info.m_sName == "MeshImport.NoMaterials")
+  {
+    accessor.SetValue("ImportMaterials", false);
+  }
+
+  return ezStatus(EZ_SUCCESS);
 }

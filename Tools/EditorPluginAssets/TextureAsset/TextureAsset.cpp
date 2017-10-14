@@ -248,7 +248,7 @@ ezTextureAssetDocumentGenerator::~ezTextureAssetDocumentGenerator()
 
 }
 
-void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes)
+void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
 
@@ -261,41 +261,42 @@ void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRela
   const bool isNormalMap = !isHDR && (baseFilename.EndsWith_NoCase("_n") ||
     baseFilename.EndsWith_NoCase("normal") || baseFilename.EndsWith_NoCase("normals") || baseFilename.EndsWith_NoCase("norm"));
 
-  {
-    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
-    info.m_pGenerator = this;
-    info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
-    info.m_sName = "TextureImport.Diffuse";
-    info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sIcon = ":/AssetIcons/Texture_2D.png";
-  }
-
-  {
-    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
-    info.m_pGenerator = this;
-    info.m_Priority = isNormalMap ? ezAssetDocGeneratorPriority::HighPriority : ezAssetDocGeneratorPriority::LowPriority;
-    info.m_sName = "TextureImport.Normal";
-    info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sIcon = ":/AssetIcons/Texture_Normals.png";
-  }
-
-  {
-    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
-    info.m_pGenerator = this;
-    info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
-    info.m_sName = "TextureImport.Linear";
-    info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sIcon = ":/AssetIcons/Texture_Linear.png";
-  }
-
   if (isHDR)
   {
-    ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
-    info.m_pGenerator = this;
-    info.m_Priority = ezAssetDocGeneratorPriority::HighPriority;
-    info.m_sName = "TextureImport.HDR";
-    info.m_sOutputFileParentRelative = baseOutputFile;
-    info.m_sIcon = ":/AssetIcons/Texture_2D.png";
+    {
+      ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+      info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
+      info.m_sName = "TextureImport.HDR";
+      info.m_sOutputFileParentRelative = baseOutputFile;
+      info.m_sIcon = ":/AssetIcons/Texture_2D.png";
+    }
+
+  }
+  else
+  {
+    {
+      ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+      info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
+      info.m_sName = "TextureImport.Diffuse";
+      info.m_sOutputFileParentRelative = baseOutputFile;
+      info.m_sIcon = ":/AssetIcons/Texture_2D.png";
+    }
+
+    {
+      ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+      info.m_Priority = isNormalMap ? ezAssetDocGeneratorPriority::HighPriority : ezAssetDocGeneratorPriority::LowPriority;
+      info.m_sName = "TextureImport.Normal";
+      info.m_sOutputFileParentRelative = baseOutputFile;
+      info.m_sIcon = ":/AssetIcons/Texture_Normals.png";
+    }
+
+    {
+      ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
+      info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+      info.m_sName = "TextureImport.Linear";
+      info.m_sOutputFileParentRelative = baseOutputFile;
+      info.m_sIcon = ":/AssetIcons/Texture_Linear.png";
+    }
   }
 }
 

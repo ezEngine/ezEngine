@@ -364,7 +364,8 @@ void ezAssetCurator::MainThreadTick()
 
 void ezAssetCurator::TransformAllAssets(const char* szPlatform)
 {
-  ezProgressRange range("Transforming Assets", 1 + m_KnownAssets.GetCount(), true);
+  ezUInt32 uiNumStepsLeft = m_KnownAssets.GetCount();
+  ezProgressRange range("Transforming Assets", 1 + uiNumStepsLeft, true);
 
   EZ_LOCK(m_CuratorMutex);
   for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
@@ -374,7 +375,16 @@ void ezAssetCurator::TransformAllAssets(const char* szPlatform)
 
     ezAssetInfo* pAssetInfo = it.Value();
 
-    range.BeginNextStep(ezPathUtils::GetFileNameAndExtension(pAssetInfo->m_sDataDirRelativePath).GetData());
+    if (uiNumStepsLeft > 0)
+    {
+      // it can happen that the number of known assets changes while we are processing them
+      // in this case the progress bar may assert that the number of steps completed is larger than
+      // what was specified before
+      // since this is a valid case, we just stop updating the progress bar, in case more assets are detected
+
+      range.BeginNextStep(ezPathUtils::GetFileNameAndExtension(pAssetInfo->m_sDataDirRelativePath).GetData());
+      --uiNumStepsLeft;
+    }
 
     auto res = ProcessAsset(pAssetInfo, szPlatform, false);
     if (res.m_Result.Failed())

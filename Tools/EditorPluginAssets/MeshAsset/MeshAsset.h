@@ -1,8 +1,9 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
 #include <ModelImporter/Declarations.h>
+#include <EditorFramework/Assets/AssetDocumentGenerator.h>
 
 class ezMeshResourceDescriptor;
 class ezGeometry;
@@ -37,4 +38,19 @@ protected:
 
   virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
 
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezMeshAssetDocumentGenerator : public ezAssetDocumentGenerator
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezMeshAssetDocumentGenerator, ezAssetDocumentGenerator);
+
+public:
+  ezMeshAssetDocumentGenerator();
+  ~ezMeshAssetDocumentGenerator();
+
+  virtual void GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const override;
+  virtual ezStatus Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument) override;
+  virtual const char* GetDocumentExtension() const override { return "ezMeshAsset"; }
 };

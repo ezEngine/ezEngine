@@ -2,7 +2,9 @@
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/Assets/AssetImportDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <ToolsFoundation/Document/Document.h>
 #include <QFileDialog>
+#include <Foundation/IO/OSFile.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentGenerator, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -163,86 +165,15 @@ ezResult ezAssetDocumentGenerator::DetermineInputAndOutputFiles(ImportData& data
 
 void ezAssetDocumentGenerator::ImportAssets(const ezHybridArray<ezString, 16>& filesToImport)
 {
-  ezDynamicArray<ezAssetDocumentGenerator::ImportData> allImports;
-  allImports.Reserve(filesToImport.GetCount());
-
-  ezQtEditorApp* pApp = ezQtEditorApp::GetSingleton();
-  ezStringBuilder tmp, tmp2;
-
-  for (const ezString& s : filesToImport)
-  {
-    tmp = s;
-    tmp2 = s;
-
-    auto& data = allImports.ExpandAndGetRef();
-    data.m_sInputFileAbsolute = s;
-    data.m_sInputFileParentRelative = s;
-    data.m_sInputFileRelative = s;
-
-    if (!pApp->MakePathDataDirectoryParentRelative(tmp))
-    {
-      data.m_sImportError = "File is not located in any data directory.";
-      data.m_bDoNotImport = true;
-      continue;
-    }
-
-    data.m_sInputFileParentRelative = tmp;
-
-    if (!pApp->MakePathDataDirectoryRelative(tmp2))
-    {
-      data.m_sImportError = "File is not located in any data directory.";
-      data.m_bDoNotImport = true;
-      continue;
-    }
-
-    data.m_sInputFileRelative = tmp2;
-  }
-
-  allImports.Sort([](const ezAssetDocumentGenerator::ImportData& lhs, const ezAssetDocumentGenerator::ImportData& rhs) -> bool
-  {
-    return lhs.m_sInputFileParentRelative < rhs.m_sInputFileParentRelative;
-  });
-
   ezHybridArray<ezAssetDocumentGenerator*, 16> generators;
   CreateGenerators(generators);
 
-  for (auto& singleImport : allImports)
-  {
-    for (ezAssetDocumentGenerator* pGen : generators)
-    {
-      if (pGen->SupportsFileType(singleImport.m_sInputFileRelative))
-      {
-        pGen->GetImportModes(singleImport.m_sInputFileParentRelative, singleImport.m_ImportOptions);
-      }
-    }
+  ezDynamicArray<ezAssetDocumentGenerator::ImportData> allImports;
+  allImports.Reserve(filesToImport.GetCount());
 
-    singleImport.m_ImportOptions.Sort([](const ezAssetDocumentGenerator::Info& lhs, const ezAssetDocumentGenerator::Info& rhs) -> bool
-    {
-      return lhs.m_sName < rhs.m_sName;
-    });
+  CreateImportOptionList(filesToImport, allImports, generators);
 
-    ezUInt32 uiNumPrios[(ezUInt32)ezAssetDocGeneratorPriority::ENUM_COUNT] = { 0 };
-    ezUInt32 uiBestPrio[(ezUInt32)ezAssetDocGeneratorPriority::ENUM_COUNT] = { 0 };
-
-    for (ezUInt32 i = 0; i < singleImport.m_ImportOptions.GetCount(); ++i)
-    {
-      uiNumPrios[(ezUInt32)singleImport.m_ImportOptions[i].m_Priority]++;
-      uiBestPrio[(ezUInt32)singleImport.m_ImportOptions[i].m_Priority] = i;
-    }
-
-    singleImport.m_iSelectedOption = -1;
-    for (ezUInt32 prio = (ezUInt32)ezAssetDocGeneratorPriority::HighPriority; prio > (ezUInt32)ezAssetDocGeneratorPriority::Undecided; --prio)
-    {
-      if (uiNumPrios[prio] == 1)
-      {
-        singleImport.m_iSelectedOption = uiBestPrio[prio];
-        break;
-      }
-
-      if (uiNumPrios[prio] > 1)
-        break;
-    }
-  }
+  SortAndSelectBestImportOption(allImports);
 
   ezQtAssetImportDlg dlg(QApplication::activeWindow(), allImports);
   dlg.exec();
@@ -282,4 +213,85 @@ void ezAssetDocumentGenerator::ImportAssets()
   }
 
   ImportAssets(filesToImport);
+}
+
+void ezAssetDocumentGenerator::CreateImportOptionList(const ezHybridArray<ezString, 16>& filesToImport, ezDynamicArray<ezAssetDocumentGenerator::ImportData> &allImports, const ezHybridArray<ezAssetDocumentGenerator *, 16>& generators)
+{
+  ezQtEditorApp* pApp = ezQtEditorApp::GetSingleton();
+  ezStringBuilder sInputParentRelative, sInputRelative;
+
+  for (const ezString& sInputAbsolute : filesToImport)
+  {
+    sInputParentRelative = sInputAbsolute;
+    sInputRelative = sInputAbsolute;
+
+    if (!pApp->MakePathDataDirectoryParentRelative(sInputParentRelative) ||
+      !pApp->MakePathDataDirectoryRelative(sInputRelative))
+    {
+      auto& data = allImports.ExpandAndGetRef();
+      data.m_sInputFileAbsolute = sInputAbsolute;
+      data.m_sInputFileParentRelative = sInputParentRelative;
+      data.m_sInputFileRelative = sInputRelative;
+      data.m_sImportError = "File is not located in any data directory.";
+      data.m_bDoNotImport = true;
+      continue;
+    }
+
+    for (ezAssetDocumentGenerator* pGen : generators)
+    {
+      if (pGen->SupportsFileType(sInputParentRelative))
+      {
+        auto& data = allImports.ExpandAndGetRef();
+        data.m_sInputFileAbsolute = sInputAbsolute;
+        data.m_sInputFileParentRelative = sInputParentRelative;
+        data.m_sInputFileRelative = sInputRelative;
+
+        pGen->GetImportModes(sInputParentRelative, data.m_ImportOptions);
+
+        for (auto& option : data.m_ImportOptions)
+        {
+          option.m_pGenerator = pGen;
+        }
+      }
+    }
+  }
+}
+
+void ezAssetDocumentGenerator::SortAndSelectBestImportOption(ezDynamicArray<ezAssetDocumentGenerator::ImportData>& allImports)
+{
+  allImports.Sort([](const ezAssetDocumentGenerator::ImportData& lhs, const ezAssetDocumentGenerator::ImportData& rhs) -> bool
+  {
+    return lhs.m_sInputFileParentRelative < rhs.m_sInputFileParentRelative;
+  });
+
+  for (auto& singleImport : allImports)
+  {
+
+    singleImport.m_ImportOptions.Sort([](const ezAssetDocumentGenerator::Info& lhs, const ezAssetDocumentGenerator::Info& rhs) -> bool
+    {
+      return lhs.m_sName < rhs.m_sName;
+    });
+
+    ezUInt32 uiNumPrios[(ezUInt32)ezAssetDocGeneratorPriority::ENUM_COUNT] = { 0 };
+    ezUInt32 uiBestPrio[(ezUInt32)ezAssetDocGeneratorPriority::ENUM_COUNT] = { 0 };
+
+    for (ezUInt32 i = 0; i < singleImport.m_ImportOptions.GetCount(); ++i)
+    {
+      uiNumPrios[(ezUInt32)singleImport.m_ImportOptions[i].m_Priority]++;
+      uiBestPrio[(ezUInt32)singleImport.m_ImportOptions[i].m_Priority] = i;
+    }
+
+    singleImport.m_iSelectedOption = -1;
+    for (ezUInt32 prio = (ezUInt32)ezAssetDocGeneratorPriority::HighPriority; prio > (ezUInt32)ezAssetDocGeneratorPriority::Undecided; --prio)
+    {
+      if (uiNumPrios[prio] == 1)
+      {
+        singleImport.m_iSelectedOption = uiBestPrio[prio];
+        break;
+      }
+
+      if (uiNumPrios[prio] > 1)
+        break;
+    }
+  }
 }

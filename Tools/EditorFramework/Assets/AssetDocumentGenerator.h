@@ -23,12 +23,12 @@ public:
 
   struct Info
   {
-    ezAssetDocumentGenerator* m_pGenerator = nullptr;
-    ezAssetDocGeneratorPriority m_Priority;
-    ezString m_sOutputFileParentRelative;
-    ezString m_sOutputFileAbsolute;
-    ezString m_sName;
-    ezString m_sIcon;
+    ezAssetDocumentGenerator* m_pGenerator = nullptr; ///< automatically set by ezAssetDocumentGenerator
+    ezAssetDocGeneratorPriority m_Priority; ///< has to be specified by generator
+    ezString m_sOutputFileParentRelative; ///< has to be specified by generator
+    ezString m_sOutputFileAbsolute; ///< automatically generated from m_sOutputFileParentRelative
+    ezString m_sName; ///< has to be specified by generator, used to know which action to take by Generate()
+    ezString m_sIcon; ///< has to be specified by generator
   };
 
   struct ImportData
@@ -47,7 +47,7 @@ public:
   static void ImportAssets(const ezHybridArray<ezString, 16>& filesToImport);
   static void ExecuteImport(ezDynamicArray<ezAssetDocumentGenerator::ImportData>& allImports);
 
-  virtual void GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) = 0;
+  virtual void GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const = 0;
   virtual ezStatus Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& mode, ezDocument*& out_pGeneratedDocument) = 0;
   virtual const char* GetDocumentExtension() const = 0;
 
@@ -62,6 +62,8 @@ private:
   static void CreateGenerators(ezHybridArray<ezAssetDocumentGenerator*, 16>& out_Generators);
   static void DestroyGenerators(ezHybridArray<ezAssetDocumentGenerator*, 16>& generators);
   static ezResult DetermineInputAndOutputFiles(ImportData& data, Info& option);
+  static void SortAndSelectBestImportOption(ezDynamicArray<ezAssetDocumentGenerator::ImportData>& allImports);
+  static void CreateImportOptionList(const ezHybridArray<ezString, 16>& filesToImport, ezDynamicArray<ezAssetDocumentGenerator::ImportData> &allImports, const ezHybridArray<ezAssetDocumentGenerator *, 16>& generators);
 
   ezHybridArray<ezString, 16> m_SupportedFileTypes;
 };

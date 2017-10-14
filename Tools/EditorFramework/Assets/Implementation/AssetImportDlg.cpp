@@ -89,7 +89,7 @@ void ezQtAssetImportDlg::InitRow(ezUInt32 uiRow)
   table->item(uiRow, Columns::GeneratedDoc)->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsEditable | Qt::ItemFlag::ItemIsSelectable);
 
   QToolButton* pBrowse = new QToolButton();
-  pBrowse->setText("...");
+  pBrowse->setText("Browse...");
   pBrowse->setProperty("row", uiRow);
   connect(pBrowse, &QToolButton::clicked, this, &ezQtAssetImportDlg::BrowseButtonClicked);
   table->setCellWidget(uiRow, Columns::Browse, pBrowse);
@@ -127,6 +127,8 @@ void ezQtAssetImportDlg::UpdateRow(ezUInt32 uiRow)
     
     if (data.m_sImportError.IsEmpty())
     {
+      pBrowse->setEnabled(true);
+      pBrowse->setText("Open");
       pStatusItem->setTextColor(QColor::fromRgba(qRgb(0, 200, 0)));
       pStatusItem->setText("Asset Imported");
     }
@@ -198,21 +200,31 @@ void ezQtAssetImportDlg::BrowseButtonClicked(bool)
 
   auto& option = data.m_ImportOptions[data.m_iSelectedOption];
 
-  ezStringBuilder filter;
-  filter.Format("{0} (*.{0})", option.m_pGenerator->GetDocumentExtension());
-  QString result = QFileDialog::getSaveFileName(this, "Target Document", ezToolsProject::GetSingleton()->GetProjectDirectory().GetData(), filter.GetData(), nullptr, QFileDialog::Option::DontResolveSymlinks);
-
-  if (result.isEmpty())
-    return;
-
-  ezStringBuilder tmp = result.toUtf8().data();
-  if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryParentRelative(tmp))
+  if (data.m_bDoNotImport && data.m_sImportError.IsEmpty())
   {
-    ezQtUiServices::GetSingleton()->MessageBoxWarning("The selected file is not located in any of the project's data directories.");
-    return;
-  }
+    // asset was already imported
 
-  option.m_sOutputFileAbsolute = result.toUtf8().data();
-  option.m_sOutputFileParentRelative = tmp;
-  UpdateRow(uiRow);
+    ezQtEditorApp* pApp = ezQtEditorApp::GetSingleton();
+    pApp->OpenDocument(option.m_sOutputFileAbsolute);
+  }
+  else
+  {
+    ezStringBuilder filter;
+    filter.Format("{0} (*.{0})", option.m_pGenerator->GetDocumentExtension());
+    QString result = QFileDialog::getSaveFileName(this, "Target Document", ezToolsProject::GetSingleton()->GetProjectDirectory().GetData(), filter.GetData(), nullptr, QFileDialog::Option::DontResolveSymlinks);
+
+    if (result.isEmpty())
+      return;
+
+    ezStringBuilder tmp = result.toUtf8().data();
+    if (!ezQtEditorApp::GetSingleton()->MakePathDataDirectoryParentRelative(tmp))
+    {
+      ezQtUiServices::GetSingleton()->MessageBoxWarning("The selected file is not located in any of the project's data directories.");
+      return;
+    }
+
+    option.m_sOutputFileAbsolute = result.toUtf8().data();
+    option.m_sOutputFileParentRelative = tmp;
+    UpdateRow(uiRow);
+  }
 }

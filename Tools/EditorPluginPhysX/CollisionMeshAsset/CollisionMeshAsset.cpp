@@ -334,14 +334,13 @@ ezCollisionMeshAssetDocumentGenerator::~ezCollisionMeshAssetDocumentGenerator()
 
 }
 
-void ezCollisionMeshAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes)
+void ezCollisionMeshAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
   baseOutputFile.ChangeFileExtension("ezCollisionMeshAsset");
 
   {
     ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
-    info.m_pGenerator = this;
     info.m_Priority = ezAssetDocGeneratorPriority::DefaultPriority;
     info.m_sName = "CollisionMeshImport.TriangleMesh";
     info.m_sOutputFileParentRelative = baseOutputFile;
@@ -350,7 +349,6 @@ void ezCollisionMeshAssetDocumentGenerator::GetImportModes(const char* szParentD
 
   {
     ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
-    info.m_pGenerator = this;
     info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
     info.m_sName = "CollisionMeshImport.ConvexMesh";
     info.m_sOutputFileParentRelative = baseOutputFile;
@@ -362,10 +360,7 @@ ezStatus ezCollisionMeshAssetDocumentGenerator::Generate(const char* szDataDirRe
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 
-  ezStringBuilder outputFile = info.m_sOutputFileAbsolute;
-  ezStringBuilder inputFile = szDataDirRelativePath;
-
-  out_pGeneratedDocument = pApp->CreateOrOpenDocument(true, outputFile, false, false);
+  out_pGeneratedDocument = pApp->CreateOrOpenDocument(true, info.m_sOutputFileAbsolute, false, false);
   if (out_pGeneratedDocument == nullptr)
     return ezStatus("Could not create target document");
 
@@ -374,7 +369,7 @@ ezStatus ezCollisionMeshAssetDocumentGenerator::Generate(const char* szDataDirRe
     return ezStatus("Target document is not a valid ezCollisionMeshAssetDocument");
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
-  accessor.SetValue("MeshFile", inputFile.GetData());
+  accessor.SetValue("MeshFile", szDataDirRelativePath);
 
   if (info.m_sName == "CollisionMeshImport.ConvexMesh")
   {

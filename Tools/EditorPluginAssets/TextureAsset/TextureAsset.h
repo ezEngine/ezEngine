@@ -55,7 +55,7 @@ public:
   ezTextureAssetDocumentGenerator();
   ~ezTextureAssetDocumentGenerator();
 
-  virtual void GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) override;
+  virtual void GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const override;
   virtual ezStatus Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument) override;
   virtual const char* GetDocumentExtension() const override { return "ezTextureAsset"; }
 };
