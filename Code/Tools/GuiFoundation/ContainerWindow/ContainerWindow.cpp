@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 #include <QSettings>
@@ -23,7 +23,7 @@ ezQtContainerWindow::ezQtContainerWindow(ezInt32 iUniqueIdentifier)
   s_AllContainerWindows.PushBack(this);
 
   setObjectName(GetUniqueName().GetData());
-  setWindowIcon(QIcon(QStringLiteral(":/GuiFoundation/Icons/ezEditor16.png"))); /// \todo Make icon configurable
+  setWindowIcon(QIcon(QStringLiteral(":/GuiFoundation/Icons/ezEditor16.png")));
 
 
   ezQtDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezQtContainerWindow::DocumentWindowEventHandler, this));

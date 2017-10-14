@@ -138,7 +138,8 @@ void ezProjectActions::MapActions(const char* szMapping)
   pMap->MapAction(s_hDocumentCategory, "Menu.Editor", 1.0f);
   pMap->MapAction(s_hCreateDocument, "Menu.Editor/DocumentCategory", 1.0f);
   pMap->MapAction(s_hOpenDocument, "Menu.Editor/DocumentCategory", 2.0f);
-  pMap->MapAction(s_hRecentDocuments, "Menu.Editor/DocumentCategory", 3.0f);
+  pMap->MapAction(s_hImportAsset, "Menu.Editor/DocumentCategory", 3.0f);
+  pMap->MapAction(s_hRecentDocuments, "Menu.Editor/DocumentCategory", 4.0f);
 
   pMap->MapAction(s_hProjectCategory, "Menu.Editor", 2.0f);
   pMap->MapAction(s_hCreateProject, "Menu.Editor/ProjectCategory", 1.0f);
@@ -167,7 +168,6 @@ void ezProjectActions::MapActions(const char* szMapping)
   pMap->MapAction(s_hInputConfig, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 3.0f);
   pMap->MapAction(s_hTagsDlg, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 4.0f);
   pMap->MapAction(s_hWindowConfig, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 5.0f);
-  pMap->MapAction(s_hImportAsset, "Menu.Editor/ProjectCategory/Menu.ProjectSettings", 6.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -316,7 +316,7 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
     SetIconPath(":/EditorFramework/Icons/WindowConfig16.png");
     break;
   case ezProjectAction::ButtonType::ImportAsset:
-    //SetIconPath(":/EditorFramework/Icons/WindowConfig16.png"); // TODO Icon
+    SetIconPath(":/GuiFoundation/Icons/DocumentImport16.png");
     break;
   case ezProjectAction::ButtonType::InputConfig:
     SetIconPath(":/EditorFramework/Icons/Input16.png");

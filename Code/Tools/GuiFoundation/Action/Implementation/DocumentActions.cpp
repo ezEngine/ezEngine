@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
@@ -122,7 +122,7 @@ ezDocumentAction::ezDocumentAction(const ezActionContext& context, const char* s
     SetIconPath(":/GuiFoundation/Icons/OpenFolder16.png");
     break;
   case ezDocumentAction::ButtonType::CopyAssetGuid:
-    //SetIconPath(":/GuiFoundation/Icons/OpenFolder16.png");
+    SetIconPath(":/GuiFoundation/Icons/DocumentGuid16.png");
     break;
   case ezDocumentAction::ButtonType::UpdatePrefabs:
     SetIconPath(":/EditorPluginScene/PrefabUpdate.png");

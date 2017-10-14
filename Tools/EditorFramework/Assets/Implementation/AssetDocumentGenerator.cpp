@@ -199,12 +199,21 @@ void ezAssetDocumentGenerator::ImportAssets()
   fullFilter.Append("All files (*.*)");
   fullFilter.Prepend("All asset files (", allExtensions, ")\n");
 
-  QStringList filenames = QFileDialog::getOpenFileNames(QApplication::activeWindow(), "Import Assets", ezToolsProject::GetSingleton()->GetProjectDirectory().GetData(), QString::fromUtf8(fullFilter.GetData()), nullptr, QFileDialog::Option::DontResolveSymlinks);
+  static ezStringBuilder s_StartDir;
+  if (s_StartDir.IsEmpty())
+  {
+    s_StartDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
+  }
+
+  QStringList filenames = QFileDialog::getOpenFileNames(QApplication::activeWindow(), "Import Assets", s_StartDir.GetData(), QString::fromUtf8(fullFilter.GetData()), nullptr, QFileDialog::Option::DontResolveSymlinks);
 
   DestroyGenerators(generators);
 
   if (filenames.empty())
     return;
+
+  s_StartDir = filenames[0].toUtf8().data();
+  s_StartDir.PathParentDirectory();
 
   ezHybridArray<ezString, 16> filesToImport;
   for (QString s : filenames)

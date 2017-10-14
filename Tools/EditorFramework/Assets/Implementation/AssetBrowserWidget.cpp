@@ -566,7 +566,7 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
     m.addAction(QIcon(QLatin1String(":/EditorFramework/Icons/AssetNeedsTransform16.png")), QLatin1String("Transform"), this, SLOT(OnTransform()));
 
     m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open Containing Folder"), this, SLOT(OnListOpenExplorer()));
-    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Asset Guid"), this, SLOT(OnListCopyAssetGuid())); /// \todo Icon
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Asset Guid"), this, SLOT(OnListCopyAssetGuid()));
   }
 
   auto pSortAction = m.addAction(QLatin1String("Sort by Recently Used"), this, SLOT(OnListToggleSortByRecentlyUsed()));
