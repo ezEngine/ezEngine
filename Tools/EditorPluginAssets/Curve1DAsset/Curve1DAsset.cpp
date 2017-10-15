@@ -24,6 +24,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DData, 2, ezRTTIDefaultAllocator<ezCurve
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_MEMBER_PROPERTY("Color", m_CurveColor),
     EZ_ARRAY_MEMBER_PROPERTY("ControlPoints", m_ControlPoints),
   }
   EZ_END_PROPERTIES
@@ -55,6 +56,7 @@ void ezCurve1DAssetDocument::FillCurve(ezUInt32 uiCurveIdx, ezCurve1D& out_Resul
   const ezCurve1DAssetData* pProp = static_cast<const ezCurve1DAssetData*>(GetProperties());
 
   const auto& curve = pProp->m_Curves[uiCurveIdx];
+  out_Result.SetCurveColor(curve.m_CurveColor);
 
   for (const auto& cp : curve.m_ControlPoints)
   {
@@ -71,7 +73,8 @@ ezUInt32 ezCurve1DAssetDocument::GetCurveCount() const
   return pProp->m_Curves.GetCount();
 }
 
-ezStatus ezCurve1DAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually){
+ezStatus ezCurve1DAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+{
   const ezCurve1DAssetData* pProp = GetProperties();
 
   ezCurve1DResourceDescriptor desc;

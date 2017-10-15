@@ -1,8 +1,9 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Math/Color.h>
 
 class ezStreamWriter;
 class ezStreamReader;
@@ -103,6 +104,11 @@ public:
   /// \brief Adjusts the tangents such that the curve cannot make loopings
   void ClampTangents();
 
+  void MakeFixedLengthTangents();
+
+  void SetCurveColor(const ezColor& color) { m_CurveColor = color; }
+  const ezColor& GetCurveColor() const { return m_CurveColor; }
+
 private:
   void RecomputeExtremes();
   void ApproximateCurve(const ezVec2& p0, const ezVec2& p1, const ezVec2& p2, const ezVec2& p3, float fMaxErrorSQR);
@@ -113,5 +119,7 @@ private:
   float m_fMinY, m_fMaxY;
   ezHybridArray<ControlPoint, 8> m_ControlPoints;
   ezHybridArray<ezVec2, 24> m_LinearApproximation;
+
+  ezColor m_CurveColor;
 };
 

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/Widgets/Curve1DEditorWidget.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <Foundation/Math/Color8UNorm.h>
@@ -180,50 +180,75 @@ void ezQtCurve1DEditorWidget::UpdateCpUi()
       const auto& cp = curve.GetControlPoint(cpIdx);
 
       ezQCurveControlPoint* point = nullptr;
-      ezQCurveTangent* pTangentLeft = nullptr;
-      ezQCurveTangent* pTangentRight = nullptr;
+      ezQCurveTangentHandle* pTangentHandleLeft = nullptr;
+      ezQCurveTangentHandle* pTangentHandleRight = nullptr;
+      ezQCurveTangentLine* pTangentLineLeft = nullptr;
+      ezQCurveTangentLine* pTangentLineRight = nullptr;
 
       if (cpIdx < data.m_ControlPoints.GetCount())
       {
         point = data.m_ControlPoints[cpIdx];
-        pTangentLeft = data.m_TangentsLeft[cpIdx];
-        pTangentRight = data.m_TangentsRight[cpIdx];
+        pTangentHandleLeft = data.m_TangentHandlesLeft[cpIdx];
+        pTangentHandleRight = data.m_TangentHandlesRight[cpIdx];
+        pTangentLineLeft = data.m_TangentLinesLeft[cpIdx];
+        pTangentLineRight = data.m_TangentLinesRight[cpIdx];
       }
       else
       {
         bClearSelection = true;
 
         point = new ezQCurveControlPoint();
-        point->setRect(-0.15f, -0.15f, 0.3f, 0.3f);
+        point->setRect(-5, -5, 10, 10);
         point->m_uiCurveIdx = curveIdx;
         point->m_pOwner = this;
         data.m_ControlPoints.PushBack(point);
         m_Scene.addItem(point);
 
-        pTangentLeft = new ezQCurveTangent();
-        pTangentLeft->setRect(-0.1f, -0.1f, 0.2f, 0.2f);
-        pTangentLeft->m_uiCurveIdx = curveIdx;
-        pTangentLeft->m_pOwner = this;
-        pTangentLeft->m_bRightTangent = false;
-        data.m_TangentsLeft.PushBack(pTangentLeft);
-        m_Scene.addItem(pTangentLeft);
+        pTangentHandleLeft = new ezQCurveTangentHandle();
+        pTangentHandleLeft->setRect(-5, -5, 10, 10);
+        pTangentHandleLeft->m_uiCurveIdx = curveIdx;
+        pTangentHandleLeft->m_pOwner = this;
+        pTangentHandleLeft->m_bRightTangent = false;
+        data.m_TangentHandlesLeft.PushBack(pTangentHandleLeft);
+        m_Scene.addItem(pTangentHandleLeft);
 
-        pTangentRight = new ezQCurveTangent();
-        pTangentRight->setRect(-0.1f, -0.1f, 0.2f, 0.2f);
-        pTangentRight->m_uiCurveIdx = curveIdx;
-        pTangentRight->m_pOwner = this;
-        pTangentRight->m_bRightTangent = true;
-        data.m_TangentsRight.PushBack(pTangentRight);
-        m_Scene.addItem(pTangentRight);
+        pTangentHandleRight = new ezQCurveTangentHandle();
+        pTangentHandleRight->setRect(-5, -5, 10, 10);
+        pTangentHandleRight->m_uiCurveIdx = curveIdx;
+        pTangentHandleRight->m_pOwner = this;
+        pTangentHandleRight->m_bRightTangent = true;
+        data.m_TangentHandlesRight.PushBack(pTangentHandleRight);
+        m_Scene.addItem(pTangentHandleRight);
+
+        pTangentLineLeft = new ezQCurveTangentLine();
+        pTangentLineLeft->m_uiCurveIdx = curveIdx;
+        pTangentLineLeft->m_pOwner = this;
+        pTangentLineLeft->m_bRightTangent = false;
+        data.m_TangentLinesLeft.PushBack(pTangentLineLeft);
+        m_Scene.addItem(pTangentLineLeft);
+
+        pTangentLineRight = new ezQCurveTangentLine();
+        pTangentLineRight->m_uiCurveIdx = curveIdx;
+        pTangentLineRight->m_pOwner = this;
+        pTangentLineRight->m_bRightTangent = true;
+        data.m_TangentLinesRight.PushBack(pTangentLineRight);
+        m_Scene.addItem(pTangentLineRight);
       }
 
       point->m_uiControlPoint = cpIdx;
-      pTangentLeft->m_uiControlPoint = cpIdx;
-      pTangentRight->m_uiControlPoint = cpIdx;
+      pTangentHandleLeft->m_uiControlPoint = cpIdx;
+      pTangentHandleRight->m_uiControlPoint = cpIdx;
+      pTangentLineLeft->m_uiControlPoint = cpIdx;
+      pTangentLineRight->m_uiControlPoint = cpIdx;
       point->setPos(cp.m_Position.x, cp.m_Position.y);
 
-      pTangentLeft->setPos(cp.m_Position.x + cp.m_LeftTangent.x, cp.m_Position.y + cp.m_LeftTangent.y);
-      pTangentRight->setPos(cp.m_Position.x + cp.m_RightTangent.x, cp.m_Position.y + cp.m_RightTangent.y);
+      pTangentHandleLeft->setPos(cp.m_Position.x + cp.m_LeftTangent.x, cp.m_Position.y + cp.m_LeftTangent.y);
+      pTangentHandleRight->setPos(cp.m_Position.x + cp.m_RightTangent.x, cp.m_Position.y + cp.m_RightTangent.y);
+      pTangentLineLeft->setPos(cp.m_Position.x + cp.m_LeftTangent.x, cp.m_Position.y + cp.m_LeftTangent.y);
+      pTangentLineRight->setPos(cp.m_Position.x + cp.m_RightTangent.x, cp.m_Position.y + cp.m_RightTangent.y);
+
+      pTangentLineLeft->UpdateTangentLine();
+      pTangentLineRight->UpdateTangentLine();
     }
 
     while (data.m_ControlPoints.GetCount() > curve.GetNumControlPoints())
@@ -233,11 +258,17 @@ void ezQtCurve1DEditorWidget::UpdateCpUi()
       delete data.m_ControlPoints.PeekBack();
       data.m_ControlPoints.PopBack();
 
-      delete data.m_TangentsLeft.PeekBack();
-      data.m_TangentsLeft.PopBack();
+      delete data.m_TangentHandlesLeft.PeekBack();
+      data.m_TangentHandlesLeft.PopBack();
 
-      delete data.m_TangentsRight.PeekBack();
-      data.m_TangentsRight.PopBack();
+      delete data.m_TangentHandlesRight.PeekBack();
+      data.m_TangentHandlesRight.PopBack();
+
+      delete data.m_TangentLinesLeft.PeekBack();
+      data.m_TangentLinesLeft.PopBack();
+
+      delete data.m_TangentLinesRight.PeekBack();
+      data.m_TangentLinesRight.PopBack();
     }
 
     for (ezUInt32 uiSegment = 0; uiSegment + 1 < curve.GetNumControlPoints(); ++uiSegment)
@@ -294,6 +325,7 @@ ezQCurveControlPoint::ezQCurveControlPoint(QGraphicsItem* parent /*= nullptr*/)
   setFlag(QGraphicsItem::ItemIsMovable);
   setFlag(QGraphicsItem::ItemIsSelectable);
   setFlag(QGraphicsItem::ItemSendsGeometryChanges);
+  setFlag(QGraphicsItem::ItemIgnoresTransformations);
 
   setPen(Qt::NoPen);
 }
@@ -380,17 +412,18 @@ QVariant ezQCurveControlPoint::itemChange(GraphicsItemChange change, const QVari
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezQCurveTangent::ezQCurveTangent(QGraphicsItem* parent /*= nullptr*/)
+ezQCurveTangentHandle::ezQCurveTangentHandle(QGraphicsItem* parent /*= nullptr*/)
 {
   m_pOwner = nullptr;
   setFlag(QGraphicsItem::ItemIsMovable);
   setFlag(QGraphicsItem::ItemIsSelectable);
   setFlag(QGraphicsItem::ItemSendsGeometryChanges);
+  setFlag(QGraphicsItem::ItemIgnoresTransformations);
 
-  setZValue(0.5);
+  setZValue(-0.5);
 }
 
-void ezQCurveTangent::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
+void ezQCurveTangentHandle::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
   const ezCurve1D& curve = m_pOwner->GetCurve1D(m_uiCurveIdx);
   const auto& cp = curve.GetControlPoint(m_uiControlPoint);
@@ -402,19 +435,6 @@ void ezQCurveTangent::paint(QPainter* painter, const QStyleOptionGraphicsItem* o
     return;
   if (m_bRightTangent && cp.m_Position.x == fMaxX)
     return;
-
-  auto palette = QApplication::palette();
-
-
-  QPen pen(QColor(50, 50, 100), 0.05f, Qt::SolidLine);
-  painter->setPen(pen);
-  painter->setBrush(Qt::NoBrush);
-
-  if (m_bRightTangent)
-    painter->drawLine(QPointF(0, 0), -QPointF(cp.m_RightTangent.x, cp.m_RightTangent.y));
-  else
-    painter->drawLine(QPointF(0, 0), -QPointF(cp.m_LeftTangent.x, cp.m_LeftTangent.y));
-
 
   if (isSelected())
   {
@@ -431,7 +451,7 @@ void ezQCurveTangent::paint(QPainter* painter, const QStyleOptionGraphicsItem* o
   painter->drawRect(rect());
 }
 
-QVariant ezQCurveTangent::itemChange(GraphicsItemChange change, const QVariant &value)
+QVariant ezQCurveTangentHandle::itemChange(GraphicsItemChange change, const QVariant &value)
 {
   if (m_pOwner != nullptr)
   {
@@ -480,16 +500,50 @@ QVariant ezQCurveTangent::itemChange(GraphicsItemChange change, const QVariant &
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+ezQCurveTangentLine::ezQCurveTangentLine(QGraphicsItem* parent /*= nullptr*/)
+{
+  QColor col(160, 160, 160);
+
+  QPen pen(QColor(50, 50, 100), 2.0f, Qt::DashLine);
+  pen.setCosmetic(true);
+  setPen(pen);
+  setBrush(Qt::NoBrush);
+
+  setZValue(-0.75);
+}
+
+void ezQCurveTangentLine::UpdateTangentLine()
+{
+  const ezCurve1D& curve = m_pOwner->GetCurve1D(m_uiCurveIdx);
+  const auto& cp = curve.GetControlPoint(m_uiControlPoint);
+
+  float fMinX, fMaxX;
+  curve.QueryExtents(fMinX, fMaxX);
+
+  QPainterPath p;
+
+  if ((!m_bRightTangent && cp.m_Position.x != fMinX) ||
+    (m_bRightTangent && cp.m_Position.x != fMaxX))
+  {
+    p.moveTo(0, 0);
+
+    if (m_bRightTangent)
+      p.lineTo(-QPointF(cp.m_RightTangent.x, cp.m_RightTangent.y));
+    else
+      p.lineTo(-QPointF(cp.m_LeftTangent.x, cp.m_LeftTangent.y));
+  }
+    
+  setPath(p);
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 ezQCurveSegment::ezQCurveSegment(QGraphicsItem* parent /*= nullptr*/)
   : QGraphicsPathItem(parent)
 {
-  QColor col(160, 160, 160);
-
-  QPen pen(col, 0.05f, Qt::SolidLine);
-  setPen(pen);
-  setBrush(Qt::NoBrush);
-
   setZValue(-1);
 }
 
@@ -502,6 +556,16 @@ void ezQCurveSegment::UpdateSegment()
   ezCurve1D curve = m_pOwner->GetCurve1D(m_uiCurveIdx);
   curve.SortControlPoints();
   curve.ClampTangents();
+  //curve.MakeFixedLengthTangents();
+
+  {
+    ezColorGammaUB color = curve.GetCurveColor();
+    QColor col(color.r, color.g, color.b);
+
+    QPen pen(col, 1.0f, Qt::SolidLine);
+    pen.setCosmetic(true);
+    setPen(pen);
+  }
 
   const auto& cp0 = curve.GetControlPoint(m_uiSegment);
   const auto& cp1 = curve.GetControlPoint(m_uiSegment + 1);
@@ -510,7 +574,6 @@ void ezQCurveSegment::UpdateSegment()
   const ezVec2 t1 = ezVec2(cp1.m_Position.x, cp1.m_Position.y) + cp1.m_LeftTangent;
 
   p.moveTo(cp0.m_Position.x, cp0.m_Position.y);
-
   p.cubicTo(QPointF(t0.x, t0.y), QPointF(t1.x, t1.y), QPointF(cp1.m_Position.x, cp1.m_Position.y));
 
   setPath(p);

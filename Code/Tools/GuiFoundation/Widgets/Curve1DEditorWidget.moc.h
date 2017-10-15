@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GuiFoundation/Basics.h>
 #include <Foundation/Math/Curve1D.h>
@@ -42,10 +42,10 @@ public:
   void UpdateSegment();
 };
 
-class ezQCurveTangent : public QGraphicsEllipseItem
+class ezQCurveTangentHandle : public QGraphicsEllipseItem
 {
 public:
-  ezQCurveTangent(QGraphicsItem* parent = nullptr);
+  ezQCurveTangentHandle(QGraphicsItem* parent = nullptr);
 
   virtual int type() const override { return QGraphicsItem::UserType + 3; }
 
@@ -57,6 +57,21 @@ public:
 protected:
   virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
   virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
+};
+
+class ezQCurveTangentLine : public QGraphicsPathItem
+{
+public:
+  ezQCurveTangentLine(QGraphicsItem* parent = nullptr);
+
+  virtual int type() const override { return QGraphicsItem::UserType + 4; }
+
+  ezQtCurve1DEditorWidget* m_pOwner;
+  ezUInt32 m_uiCurveIdx;
+  ezUInt32 m_uiControlPoint;
+  bool m_bRightTangent;
+
+  void UpdateTangentLine();
 };
 
 struct ControlPointMove
@@ -133,8 +148,10 @@ private:
     ezCurve1D m_Curve;
     ezHybridArray<ezQCurveControlPoint*, 10> m_ControlPoints;
     ezHybridArray<ezQCurveSegment*, 10> m_Segments;
-    ezHybridArray<ezQCurveTangent*, 10> m_TangentsLeft;
-    ezHybridArray<ezQCurveTangent*, 10> m_TangentsRight;
+    ezHybridArray<ezQCurveTangentHandle*, 10> m_TangentHandlesLeft;
+    ezHybridArray<ezQCurveTangentHandle*, 10> m_TangentHandlesRight;
+    ezHybridArray<ezQCurveTangentLine*, 10> m_TangentLinesLeft;
+    ezHybridArray<ezQCurveTangentLine*, 10> m_TangentLinesRight;
   };
 
   ezHybridArray<Data, 4> m_Curves;

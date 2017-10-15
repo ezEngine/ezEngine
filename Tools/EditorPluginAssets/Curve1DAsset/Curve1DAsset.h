@@ -18,7 +18,7 @@ class ezCurve1DData : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCurve1DData, ezReflectedClass);
 public:
-
+  ezColorGammaUB m_CurveColor;
   ezDynamicArray<ezCurve1DControlPoint> m_ControlPoints;
 };
 
