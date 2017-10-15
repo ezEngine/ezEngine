@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginAssets/Curve1DAsset/Curve1DAssetWindow.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
@@ -49,6 +49,7 @@ ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocu
 
   setCentralWidget(pContainer);
 
+  connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::InsertCpAt, this, &ezQtCurve1DAssetDocumentWindow::onInsertCpAt);
   connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::CpMoved, this, &ezQtCurve1DAssetDocumentWindow::onCurveCpMoved);
   connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::CpDeleted, this, &ezQtCurve1DAssetDocumentWindow::onCurveCpDeleted);
   connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::TangentMoved, this, &ezQtCurve1DAssetDocumentWindow::onCurveTangentMoved);
@@ -186,6 +187,47 @@ void ezQtCurve1DAssetDocumentWindow::onCurveEndCpChanges()
   UpdatePreview();
 }
 
+
+void ezQtCurve1DAssetDocumentWindow::onInsertCpAt(float clickPosX, float clickPosY)
+{
+  int curveIdx = 0;
+  if (!PickCurveAt(clickPosX, clickPosY, 0.5f, curveIdx, clickPosY))
+    return;
+
+  ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
+
+  ezCommandHistory* history = pDoc->GetCommandHistory();
+  history->StartTransaction("Insert Control Point");
+
+  const ezVariant curveGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Curves", curveIdx);
+
+  ezAddObjectCommand cmdAdd;
+  cmdAdd.m_Parent = curveGuid.Get<ezUuid>();
+  cmdAdd.m_NewObjectGuid.CreateNewUuid();
+  cmdAdd.m_sParentProperty = "ControlPoints";
+  cmdAdd.m_pType = ezGetStaticRTTI<ezCurve1DControlPoint>();
+  cmdAdd.m_Index = -1;
+
+  history->AddCommand(cmdAdd);
+
+  ezSetObjectPropertyCommand cmdSet;
+  cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
+
+  cmdSet.m_sProperty = "Point";
+  cmdSet.m_NewValue = ezVec2(clickPosX, clickPosY);
+  history->AddCommand(cmdSet);
+
+  cmdSet.m_sProperty = "LeftTangent";
+  cmdSet.m_NewValue = ezVec2(-0.1f, 0.0f);
+  history->AddCommand(cmdSet);
+
+  cmdSet.m_sProperty = "RightTangent";
+  cmdSet.m_NewValue = ezVec2(+0.1f, 0.0f);
+  history->AddCommand(cmdSet);
+
+  history->FinishTransaction();
+}
+
 void ezQtCurve1DAssetDocumentWindow::onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY)
 {
   ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
@@ -233,6 +275,12 @@ void ezQtCurve1DAssetDocumentWindow::onCurveTangentMoved(ezUInt32 curveIdx, ezUI
 
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cpGuid.Get<ezUuid>();
+
+  // clamp tangents to one side
+  if (rightTangent)
+    newPosX = ezMath::Max(newPosX, 0.0f);
+  else
+    newPosX = ezMath::Min(newPosX, 0.0f);
 
   cmdSet.m_sProperty = rightTangent ? "RightTangent" : "LeftTangent";
   cmdSet.m_NewValue = ezVec2(newPosX, newPosY);
@@ -374,5 +422,37 @@ void ezQtCurve1DAssetDocumentWindow::StructureEventHandler(const ezDocumentObjec
   UpdatePreview();
 }
 
+bool ezQtCurve1DAssetDocumentWindow::PickCurveAt(float x, float y, float fMaxYDistance, ezInt32& out_iCurveIdx, float& out_ValueY) const
+{
+  out_iCurveIdx = -1;
+
+  ezCurve1D CurveData;
+  ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
+
+  for (ezUInt32 i = 0; i < pDoc->GetCurveCount(); ++i)
+  {
+    pDoc->FillCurve(i, CurveData);
+    CurveData.SortControlPoints();
+    CurveData.CreateLinearApproximation();
+
+    float minVal, maxVal;
+    CurveData.QueryExtents(minVal, maxVal);
+
+    if (x < minVal || x > maxVal)
+      continue;
+
+    const float val = CurveData.Evaluate(x);
+
+    const float dist = ezMath::Abs(val - y);
+    if (dist < fMaxYDistance)
+    {
+      fMaxYDistance = dist;
+      out_iCurveIdx = i;
+      out_ValueY = val;
+    }
+  }
+
+  return out_iCurveIdx >= 0;
+}
 
 

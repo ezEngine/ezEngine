@@ -4,9 +4,11 @@
 #include <Foundation/Math/Color8UNorm.h>
 #include <QGraphicsItem>
 #include <QPainterPath>
+#include <QGraphicsSceneEvent>
 
 ezQtCurve1DEditorWidget::ezQtCurve1DEditorWidget(QWidget* pParent)
   : QWidget(pParent)
+  , m_Scene(this)
 {
   setupUi(this);
 
@@ -77,6 +79,11 @@ void ezQtCurve1DEditorWidget::SetControlPoints(const ezSet<ControlPointMove>& mo
   UpdateCpUi();
 }
 
+void ezQtCurve1DEditorWidget::InsertControlPointAt(float x, float y)
+{
+  InsertCpAt(x, y);
+}
+
 void ezQtCurve1DEditorWidget::on_ButtonFrame_clicked()
 {
   FrameCurve();
@@ -123,6 +130,19 @@ void ezQtCurve1DEditorWidget::on_ButtonNormalizeY_clicked()
   emit NormalizeRangeY();
 }
 
+struct PtToDelete
+{
+  EZ_DECLARE_POD_TYPE();
+
+  ezUInt32 m_uiCurveIdx;
+  ezUInt32 m_uiPointIdx;
+
+  bool operator<(const PtToDelete& rhs) const
+  {
+    return m_uiPointIdx > rhs.m_uiPointIdx;
+  }
+};
+
 void ezQtCurve1DEditorWidget::onDeleteCPs()
 {
   QList<QGraphicsItem*> selection = m_Scene.selectedItems();
@@ -132,14 +152,26 @@ void ezQtCurve1DEditorWidget::onDeleteCPs()
     m_Scene.blockSignals(true);
     emit BeginCpChanges();
 
+    ezHybridArray<PtToDelete, 16> delOrder;
+
     for (QGraphicsItem* pItem : selection)
     {
       ezQCurveControlPoint* pCP = static_cast<ezQCurveControlPoint*>(pItem);
 
       if (pCP != nullptr)
       {
-        emit CpDeleted(pCP->m_uiCurveIdx, pCP->m_uiControlPoint);
+        auto& pt = delOrder.ExpandAndGetRef();
+        pt.m_uiCurveIdx = pCP->m_uiCurveIdx;
+        pt.m_uiPointIdx = pCP->m_uiControlPoint;
       }
+    }
+
+    delOrder.Sort();
+
+    // delete sorted from back to front to prevent point indices becoming invalidated
+    for (const auto& pt : delOrder)
+    {
+      emit CpDeleted(pt.m_uiCurveIdx, pt.m_uiPointIdx);
     }
 
     emit EndCpChanges();
@@ -249,6 +281,12 @@ void ezQtCurve1DEditorWidget::UpdateCpUi()
 
       pTangentLineLeft->UpdateTangentLine();
       pTangentLineRight->UpdateTangentLine();
+
+      const bool tangentsVisible = point->isSelected() || pTangentHandleLeft->isSelected() || pTangentHandleRight->isSelected();
+      pTangentHandleLeft->setVisible(tangentsVisible);
+      pTangentHandleRight->setVisible(tangentsVisible);
+      pTangentLineLeft->setVisible(tangentsVisible);
+      pTangentLineRight->setVisible(tangentsVisible);
     }
 
     while (data.m_ControlPoints.GetCount() > curve.GetNumControlPoints())
@@ -504,6 +542,9 @@ QVariant ezQCurveTangentHandle::itemChange(GraphicsItemChange change, const QVar
 
 ezQCurveTangentLine::ezQCurveTangentLine(QGraphicsItem* parent /*= nullptr*/)
 {
+  setFlag(QGraphicsItem::ItemIsMovable, false);
+  setFlag(QGraphicsItem::ItemIsSelectable, false);
+  
   QColor col(160, 160, 160);
 
   QPen pen(QColor(50, 50, 100), 2.0f, Qt::DashLine);
@@ -544,6 +585,9 @@ void ezQCurveTangentLine::UpdateTangentLine()
 ezQCurveSegment::ezQCurveSegment(QGraphicsItem* parent /*= nullptr*/)
   : QGraphicsPathItem(parent)
 {
+  setFlag(QGraphicsItem::ItemIsMovable, false);
+  setFlag(QGraphicsItem::ItemIsSelectable, false);
+
   setZValue(-1);
 }
 
@@ -577,4 +621,17 @@ void ezQCurveSegment::UpdateSegment()
   p.cubicTo(QPointF(t0.x, t0.y), QPointF(t1.x, t1.y), QPointF(cp1.m_Position.x, cp1.m_Position.y));
 
   setPath(p);
+}
+
+ezQCurveScene::ezQCurveScene(ezQtCurve1DEditorWidget* pOwner)
+  : m_pOwner(pOwner)
+{
+
+}
+
+void ezQCurveScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* e)
+{
+  const QPointF pos = e->scenePos();
+
+  m_pOwner->InsertControlPointAt(pos.x(), pos.y());
 }

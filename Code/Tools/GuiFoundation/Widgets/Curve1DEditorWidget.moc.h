@@ -97,6 +97,17 @@ struct ControlPointMove
   }
 };
 
+class ezQCurveScene : public QGraphicsScene
+{
+public:
+  ezQCurveScene(ezQtCurve1DEditorWidget* pOwner);
+
+  virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent) override;
+
+private:
+  ezQtCurve1DEditorWidget* m_pOwner;
+};
+
 class EZ_GUIFOUNDATION_DLL ezQtCurve1DEditorWidget : public QWidget, public Ui_Curve1DEditorWidget
 {
   Q_OBJECT
@@ -115,10 +126,10 @@ public:
   //void SetControlPoint(ezUInt32 curveIdx, ezUInt32 cpIdx, float x, float y);
   void SetControlPoints(const ezSet<ControlPointMove>& moves);
 
-
+  void InsertControlPointAt(float x, float y);
 
 signals:
-  //void CpAdded(float posX, float value);
+  void InsertCpAt(float posX, float value);
   void CpMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY);
   void CpDeleted(ezUInt32 curveIdx, ezUInt32 cpIdx);
   void TangentMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent);
@@ -155,5 +166,5 @@ private:
   };
 
   ezHybridArray<Data, 4> m_Curves;
-  QGraphicsScene m_Scene;
+  ezQCurveScene m_Scene;
 };
