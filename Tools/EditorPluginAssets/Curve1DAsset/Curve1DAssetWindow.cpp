@@ -188,10 +188,15 @@ void ezQtCurve1DAssetDocumentWindow::onCurveEndCpChanges()
 }
 
 
-void ezQtCurve1DAssetDocumentWindow::onInsertCpAt(float clickPosX, float clickPosY)
+void ezQtCurve1DAssetDocumentWindow::onInsertCpAt(float clickPosX, float clickPosY, float epsilon)
 {
-  int curveIdx = 0;
-  if (!PickCurveAt(clickPosX, clickPosY, 0.5f, curveIdx, clickPosY))
+  int curveIdx = 0, cpIdx = 0;
+
+  // do not insert at a point where a CP already exists
+  if (PickControlPointAt(clickPosX, clickPosY, epsilon, curveIdx, cpIdx))
+    return;
+
+  if (!PickCurveAt(clickPosX, clickPosY, epsilon, curveIdx, clickPosY))
     return;
 
   ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
@@ -256,6 +261,9 @@ void ezQtCurve1DAssetDocumentWindow::onCurveCpDeleted(ezUInt32 curveIdx, ezUInt3
   const ezVariant curveGuid = pProp->GetTypeAccessor().GetValue("Curves", curveIdx);
   const ezDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<ezUuid>());
   const ezVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+
+  if (!cpGuid.IsValid())
+    return;
 
   ezRemoveObjectCommand cmdSet;
   cmdSet.m_Object = cpGuid.Get<ezUuid>();
@@ -453,6 +461,37 @@ bool ezQtCurve1DAssetDocumentWindow::PickCurveAt(float x, float y, float fMaxYDi
   }
 
   return out_iCurveIdx >= 0;
+}
+
+bool ezQtCurve1DAssetDocumentWindow::PickControlPointAt(float x, float y, float fMaxDistance, ezInt32& out_iCurveIdx, ezInt32& out_iCpIdx) const
+{
+  const ezVec2 at(x, y);
+  float fMaxDistSqr = ezMath::Square(fMaxDistance);
+
+  out_iCurveIdx = -1;
+  out_iCpIdx = -1;
+
+  ezCurve1D CurveData;
+  ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
+
+  for (ezUInt32 iCurve = 0; iCurve < pDoc->GetCurveCount(); ++iCurve)
+  {
+     pDoc->FillCurve(iCurve, CurveData);
+
+     for (ezUInt32 iCP = 0; iCP < CurveData.GetNumControlPoints(); ++iCP)
+     {
+       const auto& cp = CurveData.GetControlPoint(iCP);
+       const float fDistSqr = (cp.m_Position - at).GetLengthSquared();
+       if (fDistSqr <= fMaxDistSqr)
+       {
+         fMaxDistSqr = fDistSqr;
+         out_iCurveIdx = iCurve;
+         out_iCpIdx = iCP;
+       }
+     }
+  }
+
+  return out_iCpIdx >= 0;
 }
 
 

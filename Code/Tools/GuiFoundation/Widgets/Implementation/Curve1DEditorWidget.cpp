@@ -5,6 +5,8 @@
 #include <QGraphicsItem>
 #include <QPainterPath>
 #include <QGraphicsSceneEvent>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Math/Math.h>
 
 ezQtCurve1DEditorWidget::ezQtCurve1DEditorWidget(QWidget* pParent)
   : QWidget(pParent)
@@ -14,6 +16,10 @@ ezQtCurve1DEditorWidget::ezQtCurve1DEditorWidget(QWidget* pParent)
 
   m_Scene.setItemIndexMethod(QGraphicsScene::NoIndex);
   GraphicsView->setScene(&m_Scene);
+
+  // this is broken in Qt
+  GraphicsView->setCacheMode(QGraphicsView::CacheNone);
+  GraphicsView->SetGridBarWidget(GridBarWidget);
 
   connect(GraphicsView, &ezQtGraphicsView::BeginDrag, this, [this]() { emit BeginOperation(); });
   connect(GraphicsView, &ezQtGraphicsView::EndDrag, this, [this]() { emit EndOperation(true); });
@@ -79,9 +85,9 @@ void ezQtCurve1DEditorWidget::SetControlPoints(const ezSet<ControlPointMove>& mo
   UpdateCpUi();
 }
 
-void ezQtCurve1DEditorWidget::InsertControlPointAt(float x, float y)
+void ezQtCurve1DEditorWidget::InsertControlPointAt(float x, float y, float epsilon)
 {
-  InsertCpAt(x, y);
+  InsertCpAt(x, y, epsilon);
 }
 
 void ezQtCurve1DEditorWidget::on_ButtonFrame_clicked()
@@ -621,17 +627,4 @@ void ezQCurveSegment::UpdateSegment()
   p.cubicTo(QPointF(t0.x, t0.y), QPointF(t1.x, t1.y), QPointF(cp1.m_Position.x, cp1.m_Position.y));
 
   setPath(p);
-}
-
-ezQCurveScene::ezQCurveScene(ezQtCurve1DEditorWidget* pOwner)
-  : m_pOwner(pOwner)
-{
-
-}
-
-void ezQCurveScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* e)
-{
-  const QPointF pos = e->scenePos();
-
-  m_pOwner->InsertControlPointAt(pos.x(), pos.y());
 }

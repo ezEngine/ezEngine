@@ -6,6 +6,7 @@
 class QWheelEvent;
 class QMouseEvent;
 class QKeyEvent;
+class ezQGridBarWidget;
 
 class EZ_GUIFOUNDATION_DLL ezQtGraphicsView : public QGraphicsView
 {
@@ -40,4 +41,41 @@ protected:
   float m_fMinZoom, m_fMaxZoom;
   float m_fZoom;
   QPoint m_lastGlobalMouseMovePos;
+};
+
+class EZ_GUIFOUNDATION_DLL ezQCurveView : public ezQtGraphicsView
+{
+  Q_OBJECT
+
+public:
+  ezQCurveView(QWidget* parent);
+  void SetGridBarWidget(ezQGridBarWidget* pGridBar) { m_pGridBar = pGridBar; }
+
+protected:
+  virtual void drawBackground(QPainter *painter, const QRectF &rect) override;
+  virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
+
+  void RenderVerticalGrid(QPainter* painter, const QRectF& viewportSceneRect, double fRoughGridDensity);
+  void RenderSideLinesAndText(QPainter* painter, const QRectF& viewportSceneRect);
+
+  ezQGridBarWidget* m_pGridBar = nullptr;
+};
+
+class EZ_GUIFOUNDATION_DLL ezQGridBarWidget : public QWidget
+{
+  Q_OBJECT
+
+public:
+  ezQGridBarWidget(QWidget* parent);
+
+  void SetConfig(QGraphicsView* pView, const QRectF& viewportSceneRect, double fTextGridStops, double fFineGridStops);
+
+protected:
+  virtual void paintEvent(QPaintEvent *event) override;
+
+private:
+  QGraphicsView* m_pView = nullptr;
+  QRectF m_viewportSceneRect;
+  double m_fTextGridStops;
+  double m_fFineGridStops;
 };
