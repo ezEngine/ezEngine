@@ -32,9 +32,9 @@ ezQtCurve1DEditorWidget::~ezQtCurve1DEditorWidget()
 
 }
 
-void ezQtCurve1DEditorWidget::SetNumCurves(ezUInt32 num)
+void ezQtCurve1DEditorWidget::SetCurves(const ezArrayPtr<ezCurve1D>& curves)
 {
-  if (num < m_Curves.GetCount())
+  if (curves.GetCount() < m_Curves.GetCount())
   {
     m_Scene.blockSignals(true);
     m_Scene.clear();
@@ -42,19 +42,20 @@ void ezQtCurve1DEditorWidget::SetNumCurves(ezUInt32 num)
     m_Scene.blockSignals(false);
   }
 
-  m_Curves.SetCount(num);
-}
+  m_Curves.SetCount(curves.GetCount());
 
-void ezQtCurve1DEditorWidget::SetCurve1D(ezUInt32 idx, const ezCurve1D& curve)
-{
   ezQtScopedUpdatesDisabled ud(this);
   ezQtScopedBlockSignals bs(this);
 
-  m_Curves[idx].m_Curve = curve;
+  for (ezUInt32 i = 0; i < curves.GetCount(); ++i)
+  {
+    m_Curves[i].m_Curve = curves[i];
+  }
 
   UpdateCpUi();
-}
 
+  CurveEdit->SetCurves(curves);
+}
 
 void ezQtCurve1DEditorWidget::FrameCurve()
 {

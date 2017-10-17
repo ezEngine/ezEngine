@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>728</width>
-    <height>341</height>
+    <width>788</width>
+    <height>518</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -37,20 +37,20 @@
     <widget class="ezQCurveView" name="GraphicsView"/>
    </item>
    <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
+    <widget class="ezQtCurveEditWidget" name="CurveEdit" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Preferred</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
+     <property name="minimumSize">
       <size>
-       <width>20</width>
-       <height>6</height>
+       <width>0</width>
+       <height>400</height>
       </size>
      </property>
-    </spacer>
+    </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
@@ -145,6 +145,12 @@
    <class>ezQGridBarWidget</class>
    <extends>QWidget</extends>
    <header location="global">GuiFoundation\Widgets\GraphicsView.moc.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ezQtCurveEditWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">GuiFoundation\Widgets\CurveEditWidget.moc.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

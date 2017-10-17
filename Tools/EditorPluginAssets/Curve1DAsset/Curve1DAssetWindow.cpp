@@ -407,17 +407,18 @@ void ezQtCurve1DAssetDocumentWindow::onCurveNormalizeX()
 
 void ezQtCurve1DAssetDocumentWindow::UpdatePreview()
 {
-  ezCurve1D CurveData;
+  ezHybridArray<ezCurve1D, 8> CurveData;
 
   ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
 
-  m_pCurveEditor->SetNumCurves(pDoc->GetCurveCount());
-
   for (ezUInt32 i = 0; i < pDoc->GetCurveCount(); ++i)
   {
-    pDoc->FillCurve(i, CurveData);
-    m_pCurveEditor->SetCurve1D(i, CurveData);
+    auto& data = CurveData.ExpandAndGetRef();
+
+    pDoc->FillCurve(i, data);
   }
+
+  m_pCurveEditor->SetCurves(CurveData);
 }
 
 void ezQtCurve1DAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)

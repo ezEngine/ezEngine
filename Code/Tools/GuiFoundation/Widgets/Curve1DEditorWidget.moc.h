@@ -106,9 +106,7 @@ public:
   explicit ezQtCurve1DEditorWidget(QWidget* pParent);
   ~ezQtCurve1DEditorWidget();
 
-  void SetNumCurves(ezUInt32 num);
-
-  void SetCurve1D(ezUInt32 idx, const ezCurve1D& curve);
+  void SetCurves(const ezArrayPtr<ezCurve1D>& curves);
   const ezCurve1D& GetCurve1D(ezUInt32 idx) const { return m_Curves[idx].m_Curve; }
 
   void FrameCurve();
