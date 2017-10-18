@@ -4,6 +4,8 @@
 #include <Foundation/Math/Curve1D.h>
 
 #include <QWidget>
+#include <QPen>
+#include <QBrush>
 
 class EZ_GUIFOUNDATION_DLL ezQtCurveEditWidget : public QWidget
 {

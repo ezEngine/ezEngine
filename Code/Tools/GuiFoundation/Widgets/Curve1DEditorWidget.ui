@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>788</width>
-    <height>518</height>
+    <height>534</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -144,13 +144,13 @@
   <customwidget>
    <class>ezQGridBarWidget</class>
    <extends>QWidget</extends>
-   <header location="global">GuiFoundation\Widgets\GraphicsView.moc.h</header>
+   <header location="global">GuiFoundation/Widgets/GraphicsView.moc.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>ezQtCurveEditWidget</class>
    <extends>QWidget</extends>
-   <header location="global">GuiFoundation\Widgets\CurveEditWidget.moc.h</header>
+   <header location="global">GuiFoundation/Widgets/CurveEditWidget.moc.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

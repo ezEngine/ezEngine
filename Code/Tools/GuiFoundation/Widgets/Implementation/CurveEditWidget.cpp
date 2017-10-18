@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <GuiFoundation/Widgets/CurveEditWidget.moc.h>
-
+#include <QPainter>
+#include <qevent.h>
 
 ezQtCurveEditWidget::ezQtCurveEditWidget(QWidget* parent)
   : QWidget(parent)
