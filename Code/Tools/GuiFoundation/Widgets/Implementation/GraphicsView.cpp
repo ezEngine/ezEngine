@@ -220,7 +220,10 @@ void ezQCurveView::drawBackground(QPainter *painter, const QRectF& viewportScene
 
   if (m_pGridBar)
   {
-    m_pGridBar->SetConfig(this, viewportSceneRect, fRoughGridDensity, fFineGridDensity);
+    m_pGridBar->SetConfig(viewportSceneRect, fRoughGridDensity, fFineGridDensity, [this](const QPointF& pt) -> QPoint
+    {
+      return mapFromScene(pt);
+    });
   }
 
   RenderSideLinesAndText(painter, viewportSceneRect);
@@ -362,9 +365,10 @@ ezQGridBarWidget::ezQGridBarWidget(QWidget* parent)
   m_fTextGridStops = 100;
 }
 
-void ezQGridBarWidget::SetConfig(QGraphicsView* pView, const QRectF& viewportSceneRect, double fTextGridStops, double fFineGridStops)
+
+void ezQGridBarWidget::SetConfig(const QRectF& viewportSceneRect, double fTextGridStops, double fFineGridStops, ezDelegate<QPoint(const QPointF&)> mapFromSceneFunc)
 {
-  m_pView = pView;
+  MapFromSceneFunc = mapFromSceneFunc;
 
   bool bUpdate = false;
   if (m_viewportSceneRect != viewportSceneRect)
@@ -393,7 +397,7 @@ void ezQGridBarWidget::SetConfig(QGraphicsView* pView, const QRectF& viewportSce
 
 void ezQGridBarWidget::paintEvent(QPaintEvent* e)
 {
-  if (m_pView == nullptr)
+  if (!MapFromSceneFunc.IsValid())
   {
     QWidget::paintEvent(e);
     return;
@@ -419,7 +423,7 @@ void ezQGridBarWidget::paintEvent(QPaintEvent* e)
     // some overcompensation for the case that the GraphicsView displays a scrollbar at the side
     for (double x = fSceneMinX; x <= fSceneMaxX + m_fTextGridStops; x += m_fFineGridStops)
     {
-      const QPoint pos = m_pView->mapFromScene(x, 0);
+      const QPoint pos = MapFromSceneFunc(QPointF(x, 0));
 
       QLine& l = lines.ExpandAndGetRef();
       l.setLine(pos.x(), areaRect.bottom() - 3, pos.x(), areaRect.bottom());
@@ -440,7 +444,7 @@ void ezQGridBarWidget::paintEvent(QPaintEvent* e)
 
     for (double x = fSceneMinX; x <= fSceneMaxX; x += m_fTextGridStops)
     {
-      const QPoint pos = m_pView->mapFromScene(x, 0);
+      const QPoint pos = MapFromSceneFunc(QPointF(x, 0));
 
       textRect.setRect(pos.x() - 50, areaRect.top(), 100, areaRect.height());
       painter->drawText(textRect, QString("%1").arg(x, 2), textOpt);

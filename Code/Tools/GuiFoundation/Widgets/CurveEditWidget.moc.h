@@ -16,6 +16,7 @@ public:
   ezQtCurveEditWidget(QWidget* parent);
 
   void SetCurves(const ezArrayPtr<ezCurve1D>& curves);
+  void SetGridBarWidget(ezQGridBarWidget* pGridBar) { m_pGridBar = pGridBar; }
 
   QPoint MapFromScene(const QPointF& pos) const;
   QPointF MapToScene(const QPoint& pos) const;

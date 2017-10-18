@@ -19,7 +19,8 @@ ezQtCurve1DEditorWidget::ezQtCurve1DEditorWidget(QWidget* pParent)
 
   // this is broken in Qt
   GraphicsView->setCacheMode(QGraphicsView::CacheNone);
-  GraphicsView->SetGridBarWidget(GridBarWidget);
+  //GraphicsView->SetGridBarWidget(GridBarWidget);
+  CurveEdit->SetGridBarWidget(GridBarWidget);
 
   connect(GraphicsView, &ezQtGraphicsView::BeginDrag, this, [this]() { emit BeginOperation(); });
   connect(GraphicsView, &ezQtGraphicsView::EndDrag, this, [this]() { emit EndOperation(true); });

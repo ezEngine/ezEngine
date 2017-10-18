@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <GuiFoundation/Widgets/CurveEditWidget.moc.h>
 #include <Foundation/Math/Color.h>
+#include <Foundation/Math/Color8UNorm.h>
 #include <QPainter>
 #include <qevent.h>
 
@@ -123,7 +124,10 @@ void ezQtCurveEditWidget::paintEvent(QPaintEvent* e)
 
   if (m_pGridBar)
   {
-    //m_pGridBar->SetConfig(this, viewportSceneRect, fRoughGridDensity, fFineGridDensity);
+    m_pGridBar->SetConfig(viewportSceneRect, fRoughGridDensity, fFineGridDensity, [this](const QPointF& pt) -> QPoint
+      {
+        return MapFromScene(pt);
+      });
   }
 
   RenderSideLinesAndText(&painter, viewportSceneRect);
@@ -297,5 +301,89 @@ void ezQtCurveEditWidget::RenderVerticalGrid(QPainter* painter, const QRectF& vi
 
 void ezQtCurveEditWidget::RenderSideLinesAndText(QPainter* painter, const QRectF& viewportSceneRect)
 {
+  double fFineGridDensity = 0.01;
+  double fRoughGridDensity = 0.01;
+  AdjustGridDensity2(fFineGridDensity, fRoughGridDensity, rect().width(), viewportSceneRect.width(), 20);
 
+  painter->save();
+
+  const ezInt32 iFineLineLength = 10;
+  const ezInt32 iRoughLineLength = 20;
+
+  QRect areaRect = rect();
+  areaRect.setRight(areaRect.left() + 20);
+
+  // render fine grid stop lines
+  {
+    double lowY, highY;
+    ComputeGridExtentsY2(viewportSceneRect, fFineGridDensity, lowY, highY);
+
+    if (lowY > highY)
+      ezMath::Swap(lowY, highY);
+
+    QPen pen(palette().light(), 1.0f);
+    pen.setCosmetic(true);
+    painter->setPen(pen);
+
+    ezHybridArray<QLine, 100> lines;
+
+    for (double y = lowY; y <= highY; y += fFineGridDensity)
+    {
+      const QPoint pos = MapFromScene(QPointF(0, y));
+
+      QLine& l = lines.ExpandAndGetRef();
+      l.setLine(0, pos.y(), iFineLineLength, pos.y());
+    }
+
+    painter->drawLines(lines.GetData(), lines.GetCount());
+  }
+
+  // render rough grid stop lines
+  {
+    double lowY, highY;
+    ComputeGridExtentsY2(viewportSceneRect, fRoughGridDensity, lowY, highY);
+
+    if (lowY > highY)
+      ezMath::Swap(lowY, highY);
+
+    QPen pen(palette().light(), 1.0f);
+    pen.setCosmetic(true);
+    painter->setPen(pen);
+
+    ezHybridArray<QLine, 100> lines;
+
+    for (double y = lowY; y <= highY; y += fRoughGridDensity)
+    {
+      const QPoint pos = MapFromScene(QPointF(0, y));
+
+      QLine& l = lines.ExpandAndGetRef();
+      l.setLine(0, pos.y(), iRoughLineLength, pos.y());
+    }
+
+    painter->drawLines(lines.GetData(), lines.GetCount());
+  }
+
+  // Grid Stop Value Text
+  {
+    double lowY, highY;
+    ComputeGridExtentsY2(viewportSceneRect, fRoughGridDensity, lowY, highY);
+
+    if (lowY > highY)
+      ezMath::Swap(lowY, highY);
+
+    QTextOption textOpt(Qt::AlignCenter);
+    QRectF textRect;
+
+    painter->setPen(palette().buttonText().color());
+
+    for (double y = lowY; y <= highY; y += fRoughGridDensity)
+    {
+      const QPoint pos = MapFromScene(QPointF(0, y));
+
+      textRect.setRect(0, pos.y() - 15, areaRect.width(), 15);
+      painter->drawText(textRect, QString("%1").arg(y, 2), textOpt);
+    }
+  }
+
+  painter->restore();
 }

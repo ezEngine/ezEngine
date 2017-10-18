@@ -2,6 +2,7 @@
 
 #include <GuiFoundation/Basics.h>
 #include <QGraphicsView>
+#include <Foundation/Types/Delegate.h>
 
 class QWheelEvent;
 class QMouseEvent;
@@ -68,14 +69,14 @@ class EZ_GUIFOUNDATION_DLL ezQGridBarWidget : public QWidget
 public:
   ezQGridBarWidget(QWidget* parent);
 
-  void SetConfig(QGraphicsView* pView, const QRectF& viewportSceneRect, double fTextGridStops, double fFineGridStops);
+  void SetConfig(const QRectF& viewportSceneRect, double fTextGridStops, double fFineGridStops, ezDelegate<QPoint (const QPointF&)> mapFromSceneFunc);
 
 protected:
   virtual void paintEvent(QPaintEvent *event) override;
 
 private:
-  QGraphicsView* m_pView = nullptr;
   QRectF m_viewportSceneRect;
   double m_fTextGridStops;
   double m_fFineGridStops;
+  ezDelegate<QPoint(const QPointF&)> MapFromSceneFunc;
 };
