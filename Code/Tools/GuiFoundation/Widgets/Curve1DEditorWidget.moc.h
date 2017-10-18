@@ -138,6 +138,7 @@ private slots:
   void on_ButtonNormalizeX_clicked();
   void on_ButtonNormalizeY_clicked();
   void onDeleteCPs();
+  void onDeleteCPs2();
 
 private:
   void UpdateCpUi();

@@ -25,6 +25,8 @@ ezQtCurve1DEditorWidget::ezQtCurve1DEditorWidget(QWidget* pParent)
   connect(GraphicsView, &ezQtGraphicsView::BeginDrag, this, [this]() { emit BeginOperation(); });
   connect(GraphicsView, &ezQtGraphicsView::EndDrag, this, [this]() { emit EndOperation(true); });
   connect(GraphicsView, &ezQtGraphicsView::DeleteCPs, this, &ezQtCurve1DEditorWidget::onDeleteCPs);
+
+  connect(CurveEdit, &ezQtCurveEditWidget::DeleteControlPointsEvent, this, &ezQtCurve1DEditorWidget::onDeleteCPs2);
 }
 
 
@@ -189,6 +191,43 @@ void ezQtCurve1DEditorWidget::onDeleteCPs()
     UpdateCpUi();
   }
 }
+
+void ezQtCurve1DEditorWidget::onDeleteCPs2()
+{
+  const auto selection = CurveEdit->GetSelection();
+
+  if (!selection.IsEmpty())
+  {
+    CurveEdit->ClearSelection();
+
+    m_Scene.blockSignals(true);
+    emit BeginCpChanges();
+
+    ezHybridArray<PtToDelete, 16> delOrder;
+
+    for (const auto& item : selection)
+    {
+      auto& pt = delOrder.ExpandAndGetRef();
+      pt.m_uiCurveIdx = item.m_uiCurve;
+      pt.m_uiPointIdx = item.m_uiPoint;
+    }
+
+    delOrder.Sort();
+
+    // delete sorted from back to front to prevent point indices becoming invalidated
+    for (const auto& pt : delOrder)
+    {
+      emit CpDeleted(pt.m_uiCurveIdx, pt.m_uiPointIdx);
+    }
+
+    emit EndCpChanges();
+    m_Scene.clearSelection();
+    m_Scene.blockSignals(false);
+
+    UpdateCpUi();
+  }
+}
+
 
 void ezQtCurve1DEditorWidget::UpdateCpUi()
 {
@@ -552,7 +591,7 @@ ezQCurveTangentLine::ezQCurveTangentLine(QGraphicsItem* parent /*= nullptr*/)
 {
   setFlag(QGraphicsItem::ItemIsMovable, false);
   setFlag(QGraphicsItem::ItemIsSelectable, false);
-  
+
   QColor col(160, 160, 160);
 
   QPen pen(QColor(50, 50, 100), 2.0f, Qt::DashLine);
@@ -583,7 +622,7 @@ void ezQCurveTangentLine::UpdateTangentLine()
     else
       p.lineTo(-QPointF(cp.m_LeftTangent.x, cp.m_LeftTangent.y));
   }
-    
+
   setPath(p);
 }
 
