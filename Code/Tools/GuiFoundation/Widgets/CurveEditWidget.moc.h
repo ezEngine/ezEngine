@@ -18,6 +18,8 @@ struct ezSelectedCurveCP
   ezUInt16 m_uiPoint;
 };
 
+class ezQGridBarWidget;
+
 class EZ_GUIFOUNDATION_DLL ezQtCurveEditWidget : public QWidget
 {
   Q_OBJECT

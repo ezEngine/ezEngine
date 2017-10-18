@@ -2,6 +2,7 @@
 #include <GuiFoundation/Widgets/CurveEditWidget.moc.h>
 #include <Foundation/Math/Color.h>
 #include <Foundation/Math/Color8UNorm.h>
+#include <GuiFoundation/Widgets/GridBarWidget.moc.h>
 #include <QPainter>
 #include <qevent.h>
 

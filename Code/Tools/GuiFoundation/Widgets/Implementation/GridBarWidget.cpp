@@ -1,8 +1,10 @@
 #include <PCH.h>
 #include <GuiFoundation/Widgets/GridBarWidget.moc.h>
 #include <Foundation/Math/Math.h>
+#include <Foundation/Containers/HybridArray.h>
 #include <qevent.h>
 #include <QTextOption>
+#include <QPainter>
 
 static void ComputeGridExtentsX(const QRectF& viewportSceneRect, double fGridStops, double& out_fMinX, double& out_fMaxX)
 {
