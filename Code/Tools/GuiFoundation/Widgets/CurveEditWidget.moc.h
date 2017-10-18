@@ -2,6 +2,7 @@
 
 #include <GuiFoundation/Basics.h>
 #include <Foundation/Math/Curve1D.h>
+#include <GuiFoundation/Widgets/GraphicsView.moc.h>
 
 #include <QWidget>
 #include <QPen>
@@ -30,6 +31,11 @@ protected:
 private:
   void PaintCurveSegments(QPainter* painter) const;
   void PaintControlPoints(QPainter* painter) const;
+  void RenderVerticalGrid(QPainter* painter, const QRectF& viewportSceneRect, double fRoughGridDensity);
+  void RenderSideLinesAndText(QPainter* painter, const QRectF& viewportSceneRect);
+  QRectF ComputeViewportSceneRect() const;
+
+  ezQGridBarWidget* m_pGridBar = nullptr;
 
   ezHybridArray<ezCurve1D, 4> m_Curves;
   ezHybridArray<ezCurve1D, 4> m_CurvesSorted;

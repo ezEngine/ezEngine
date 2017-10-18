@@ -1,7 +1,54 @@
 #include <PCH.h>
 #include <GuiFoundation/Widgets/CurveEditWidget.moc.h>
+#include <Foundation/Math/Color.h>
 #include <QPainter>
 #include <qevent.h>
+
+//////////////////////////////////////////////////////////////////////////
+
+static void AdjustGridDensity2(double& fFinestDensity, double& fRoughDensity, ezUInt32 uiWindowWidth, double fOrthoDimX, ezUInt32 uiMinPixelsForStep)
+{
+  const double fMaxStepsFitInWindow = (double)uiWindowWidth / (double)uiMinPixelsForStep;
+
+  const double fStartDensity = fFinestDensity;
+
+  ezInt32 iFactor = 1;
+  double fNewDensity = fFinestDensity;
+  ezInt32 iFactors[2] = { 5, 2 };
+  ezInt32 iLastFactor = 0;
+
+  while (true)
+  {
+    const double fStepsAtDensity = fOrthoDimX / fNewDensity;
+
+    if (fStepsAtDensity < fMaxStepsFitInWindow)
+      break;
+
+    iFactor *= iFactors[iLastFactor];
+    fNewDensity = fStartDensity * iFactor;
+
+    iLastFactor = (iLastFactor + 1) % 2;
+  }
+
+  fFinestDensity = fStartDensity * iFactor;
+
+  iFactor *= iFactors[iLastFactor];
+  fRoughDensity = fStartDensity * iFactor;
+}
+
+static void ComputeGridExtentsX2(const QRectF& viewportSceneRect, double fGridStops, double& out_fMinX, double& out_fMaxX)
+{
+  out_fMinX = ezMath::Floor((double)viewportSceneRect.left(), fGridStops);
+  out_fMaxX = ezMath::Ceil((double)viewportSceneRect.right(), fGridStops);
+}
+
+static void ComputeGridExtentsY2(const QRectF& viewportSceneRect, double fGridStops, double& out_fMinY, double& out_fMaxY)
+{
+  out_fMinY = ezMath::Floor((double)viewportSceneRect.top(), fGridStops);
+  out_fMaxY = ezMath::Ceil((double)viewportSceneRect.bottom(), fGridStops);
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 ezQtCurveEditWidget::ezQtCurveEditWidget(QWidget* parent)
   : QWidget(parent)
@@ -51,10 +98,36 @@ QPointF ezQtCurveEditWidget::MapToScene(const QPoint& pos) const
   return QPointF(x, y) + m_SceneTranslation;
 }
 
+QRectF ezQtCurveEditWidget::ComputeViewportSceneRect() const
+{
+  const QPointF topLeft = MapToScene(rect().topLeft());
+  const QPointF bottomRight = MapToScene(rect().bottomRight());
+
+  return QRectF(topLeft, bottomRight);
+}
+
 void ezQtCurveEditWidget::paintEvent(QPaintEvent* e)
 {
   QPainter painter(this);
   painter.fillRect(rect(), palette().base());
+
+  painter.setRenderHint(QPainter::Antialiasing, false);
+
+  const QRectF viewportSceneRect = ComputeViewportSceneRect();
+
+  double fFineGridDensity = 0.01;
+  double fRoughGridDensity = 0.01;
+  AdjustGridDensity2(fFineGridDensity, fRoughGridDensity, rect().width(), viewportSceneRect.width(), 20);
+
+  RenderVerticalGrid(&painter, viewportSceneRect, fRoughGridDensity);
+
+  if (m_pGridBar)
+  {
+    //m_pGridBar->SetConfig(this, viewportSceneRect, fRoughGridDensity, fFineGridDensity);
+  }
+
+  RenderSideLinesAndText(&painter, viewportSceneRect);
+
 
   PaintCurveSegments(&painter);
   PaintControlPoints(&painter);
@@ -193,4 +266,36 @@ void ezQtCurveEditWidget::PaintControlPoints(QPainter* painter) const
   }
 
   painter->restore();
+}
+
+void ezQtCurveEditWidget::RenderVerticalGrid(QPainter* painter, const QRectF& viewportSceneRect, double fRoughGridDensity)
+{
+  double lowX, highX;
+  ComputeGridExtentsX2(viewportSceneRect, fRoughGridDensity, lowX, highX);
+
+  const int iy = rect().bottom();
+
+  // render grid lines
+  {
+    QPen pen(palette().light(), 1.0f);
+    pen.setCosmetic(true);
+    painter->setPen(pen);
+
+    ezHybridArray<QLine, 100> lines;
+
+    for (double x = lowX; x <= highX; x += fRoughGridDensity)
+    {
+      const int ix = MapFromScene(QPointF(x, x)).x();
+
+      QLine& l = lines.ExpandAndGetRef();
+      l.setLine(ix, 0, ix, iy);
+    }
+
+    painter->drawLines(lines.GetData(), lines.GetCount());
+  }
+}
+
+void ezQtCurveEditWidget::RenderSideLinesAndText(QPainter* painter, const QRectF& viewportSceneRect)
+{
+
 }
