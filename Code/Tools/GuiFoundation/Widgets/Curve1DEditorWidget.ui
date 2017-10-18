@@ -34,9 +34,6 @@
     </widget>
    </item>
    <item>
-    <widget class="ezQCurveView" name="GraphicsView"/>
-   </item>
-   <item>
     <widget class="ezQtCurveEditWidget" name="CurveEdit" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -47,7 +44,7 @@
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>400</height>
+       <height>0</height>
       </size>
      </property>
     </widget>
@@ -137,14 +134,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ezQCurveView</class>
-   <extends>QGraphicsView</extends>
-   <header location="global">GuiFoundation/Widgets/GraphicsView.moc.h</header>
-  </customwidget>
-  <customwidget>
    <class>ezQGridBarWidget</class>
    <extends>QWidget</extends>
-   <header location="global">GuiFoundation/Widgets/GraphicsView.moc.h</header>
+   <header location="global">GuiFoundation/Widgets/GridBarWidget.moc.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

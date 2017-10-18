@@ -178,6 +178,14 @@ void ezQtCurveEditWidget::SetSelected(const ezSelectedCurveCP& cp, bool set)
   }
 }
 
+bool ezQtCurveEditWidget::GetSelectedTangent(ezInt32& out_iCurve, ezInt32& out_iPoint, bool& out_bLeftTangent) const
+{
+  out_iCurve = m_iSelectedTangentCurve;
+  out_iPoint = m_iSelectedTangentPoint;
+  out_bLeftTangent = m_bSelectedTangentLeft;
+  return (out_iCurve >= 0);
+}
+
 QRectF ezQtCurveEditWidget::ComputeViewportSceneRect() const
 {
   const QPointF topLeft = MapToScene(rect().topLeft());
@@ -211,7 +219,6 @@ void ezQtCurveEditWidget::paintEvent(QPaintEvent* e)
 
   RenderSideLinesAndText(&painter, viewportSceneRect);
 
-
   PaintCurveSegments(&painter);
   PaintSelectedTangentLines(&painter);
   PaintControlPoints(&painter);
@@ -237,7 +244,7 @@ void ezQtCurveEditWidget::mousePressEvent(QMouseEvent* e)
   {
     const ClickTarget clickedOn = DetectClickTarget(e->pos());
 
-    if (clickedOn == ClickTarget::Nothing)
+    if (clickedOn == ClickTarget::Nothing || clickedOn == ClickTarget::SelectedPoint)
     {
       m_State = EditState::MultiSelect;
 
@@ -254,15 +261,16 @@ void ezQtCurveEditWidget::mousePressEvent(QMouseEvent* e)
         }
         else
         {
-          SetSelection(cp);
+          if (clickedOn == ClickTarget::Nothing)
+          {
+            SetSelection(cp);
+          }
+
+          m_State = EditState::DraggingPoints;
         }
 
         update();
       }
-    }
-    else if (clickedOn == ClickTarget::SelectedPoint)
-    {
-      m_State = EditState::DraggingPoints;
     }
     else if (clickedOn == ClickTarget::TangentHandle)
     {
@@ -307,17 +315,26 @@ void ezQtCurveEditWidget::mouseMoveEvent(QMouseEvent* e)
 {
   QWidget::mouseMoveEvent(e);
 
+  const QPoint diff = e->pos() - m_LastMousePos;
+  const double moveX = (double)diff.x() / m_SceneToPixelScale.x();
+  const double moveY = (double)diff.y() / m_SceneToPixelScale.y();
+
   if (m_State == EditState::Panning)
   {
-    const QPoint diff = e->pos() - m_LastMousePos;
-
-    const double moveX = (double)diff.x() / m_SceneToPixelScale.x();
-    const double moveY = (double)diff.y() / m_SceneToPixelScale.y();
-
     m_SceneTranslation.setX(m_SceneTranslation.x() - moveX);
     m_SceneTranslation.setY(m_SceneTranslation.y() - moveY);
 
     update();
+  }
+
+  if (m_State == EditState::DraggingPoints)
+  {
+    MoveControlPointsEvent(moveX, moveY);
+  }
+
+  if (m_State == EditState::DraggingTangents)
+  {
+    MoveTangentsEvent(moveX, moveY);
   }
 
   m_LastMousePos = e->pos();
@@ -331,13 +348,6 @@ void ezQtCurveEditWidget::mouseDoubleClickEvent(QMouseEvent* e)
   {
     const QPointF epsilon = MapToScene(QPoint(15, 15)) - MapToScene(QPoint(0, 0));
     const QPointF scenePos = MapToScene(e->pos());
-
-    ezQtCurve1DEditorWidget* pCurveEditor = qobject_cast<ezQtCurve1DEditorWidget*>(parent());
-
-    if (pCurveEditor)
-    {
-      pCurveEditor->InsertControlPointAt(scenePos.x(), scenePos.y(), epsilon.x());
-    }
 
     emit DoubleClickEvent(scenePos, epsilon);
   }

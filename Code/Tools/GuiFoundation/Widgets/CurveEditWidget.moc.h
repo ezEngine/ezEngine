@@ -39,9 +39,13 @@ public:
   void ToggleSelected(const ezSelectedCurveCP& cp);
   void SetSelected(const ezSelectedCurveCP& cp, bool set);
 
+  bool GetSelectedTangent(ezInt32& out_iCurve, ezInt32& out_iPoint, bool& out_bLeftTangent) const;
+
 signals:
   void DoubleClickEvent(const QPointF& scenePos, const QPointF& epsilon);
   void DeleteControlPointsEvent();
+  void MoveControlPointsEvent(double moveX, double moveY);
+  void MoveTangentsEvent(double moveX, double moveY);
 
 protected:
   virtual void paintEvent(QPaintEvent* e) override;
@@ -90,5 +94,5 @@ private:
   ezDynamicArray<ezSelectedCurveCP> m_SelectedCPs;
   ezInt32 m_iSelectedTangentCurve = -1;
   ezInt32 m_iSelectedTangentPoint = -1;
-  ezInt32 m_bSelectedTangentLeft = false;
+  bool m_bSelectedTangentLeft = false;
 };
