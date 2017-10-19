@@ -5,10 +5,11 @@
 #include <GuiFoundation/Widgets/GridBarWidget.moc.h>
 #include <QPainter>
 #include <qevent.h>
+#include <QRubberBand>
 
 //////////////////////////////////////////////////////////////////////////
 
-static void AdjustGridDensity2(double& fFinestDensity, double& fRoughDensity, ezUInt32 uiWindowWidth, double fOrthoDimX, ezUInt32 uiMinPixelsForStep)
+static void AdjustGridDensity(double& fFinestDensity, double& fRoughDensity, ezUInt32 uiWindowWidth, double fOrthoDimX, ezUInt32 uiMinPixelsForStep)
 {
   const double fMaxStepsFitInWindow = (double)uiWindowWidth / (double)uiMinPixelsForStep;
 
@@ -206,7 +207,7 @@ void ezQtCurveEditWidget::paintEvent(QPaintEvent* e)
 
   double fFineGridDensity = 0.01;
   double fRoughGridDensity = 0.01;
-  AdjustGridDensity2(fFineGridDensity, fRoughGridDensity, rect().width(), viewportSceneRect.width(), 20);
+  AdjustGridDensity(fFineGridDensity, fRoughGridDensity, rect().width(), viewportSceneRect.width(), 20);
 
   RenderVerticalGrid(&painter, viewportSceneRect, fRoughGridDensity);
 
@@ -260,6 +261,10 @@ void ezQtCurveEditWidget::mousePressEvent(QMouseEvent* e)
         {
           SetSelected(cp, true);
         }
+        else if (e->modifiers().testFlag(Qt::AltModifier))
+        {
+          SetSelected(cp, false);
+        }
         else
         {
           if (clickedOn == ClickTarget::Nothing)
@@ -278,6 +283,15 @@ void ezQtCurveEditWidget::mousePressEvent(QMouseEvent* e)
       m_State = EditState::DraggingTangents;
     }
   }
+
+  if (m_State == EditState::MultiSelect && m_pRubberband == nullptr)
+  {
+    m_multiSelectionStart = e->pos();
+    m_multiSelectRect = QRect();
+    m_pRubberband = new QRubberBand(QRubberBand::Shape::Rectangle, this);
+    m_pRubberband->setGeometry(QRect(m_multiSelectionStart, QSize()));
+    m_pRubberband->hide();
+  }
 }
 
 void ezQtCurveEditWidget::mouseReleaseEvent(QMouseEvent* e)
@@ -291,7 +305,6 @@ void ezQtCurveEditWidget::mouseReleaseEvent(QMouseEvent* e)
     m_iSelectedTangentPoint = -1;
 
     update();
-    return;
   }
 
   if (e->button() == Qt::RightButton && m_State == EditState::Panning)
@@ -309,6 +322,34 @@ void ezQtCurveEditWidget::mouseReleaseEvent(QMouseEvent* e)
     m_iSelectedTangentPoint = -1;
 
     update();
+  }
+
+  if (m_State != EditState::MultiSelect && m_pRubberband)
+  {
+    delete m_pRubberband;
+    m_pRubberband = nullptr;
+
+    if (!m_multiSelectRect.isEmpty())
+    {
+      ezDynamicArray<ezSelectedCurveCP> change;
+      ExecMultiSelection(change);
+      m_multiSelectRect = QRect();
+
+      if (e->modifiers().testFlag(Qt::AltModifier))
+      {
+        CombineSelection(m_SelectedCPs, change, false);
+      }
+      else if (e->modifiers().testFlag(Qt::ShiftModifier) || e->modifiers().testFlag(Qt::ControlModifier))
+      {
+        CombineSelection(m_SelectedCPs, change, true);
+      }
+      else
+      {
+        m_SelectedCPs = change;
+      }
+
+      update();
+    }
   }
 }
 
@@ -336,6 +377,13 @@ void ezQtCurveEditWidget::mouseMoveEvent(QMouseEvent* e)
   if (m_State == EditState::DraggingTangents)
   {
     MoveTangentsEvent(moveX, moveY);
+  }
+
+  if (m_State == EditState::MultiSelect && m_pRubberband)
+  {
+    m_multiSelectRect = QRect(m_multiSelectionStart, e->pos()).normalized();
+    m_pRubberband->setGeometry(m_multiSelectRect);
+    m_pRubberband->show();
   }
 
   m_LastMousePos = e->pos();
@@ -578,7 +626,7 @@ void ezQtCurveEditWidget::RenderSideLinesAndText(QPainter* painter, const QRectF
 {
   double fFineGridDensity = 0.01;
   double fRoughGridDensity = 0.01;
-  AdjustGridDensity2(fFineGridDensity, fRoughGridDensity, rect().width(), viewportSceneRect.width(), 20);
+  AdjustGridDensity(fFineGridDensity, fRoughGridDensity, rect().width(), viewportSceneRect.width(), 20);
 
   painter->save();
 
@@ -670,13 +718,13 @@ bool ezQtCurveEditWidget::PickCpAt(const QPoint& pos, float fMaxPixelDistance, e
 
   out_Result.m_uiCurve = 0xFFFF;
 
-  for (ezUInt32 iCurve = 0; iCurve < m_Curves.GetCount(); ++iCurve)
+  for (ezUInt32 uiCurve = 0; uiCurve < m_Curves.GetCount(); ++uiCurve)
   {
-    const ezCurve1D& curve = m_Curves[iCurve];
+    const ezCurve1D& curve = m_Curves[uiCurve];
 
-    for (ezUInt32 iCP = 0; iCP < curve.GetNumControlPoints(); ++iCP)
+    for (ezUInt32 uiCP = 0; uiCP < curve.GetNumControlPoints(); ++uiCP)
     {
-      const auto& cp = curve.GetControlPoint(iCP);
+      const auto& cp = curve.GetControlPoint(uiCP);
 
       const QPoint diff = MapFromScene(cp.m_Position) - pos;
       const ezVec2 fDiff(diff.x(), diff.y());
@@ -685,8 +733,8 @@ bool ezQtCurveEditWidget::PickCpAt(const QPoint& pos, float fMaxPixelDistance, e
       if (fDistSqr <= fMaxDistSqr)
       {
         fMaxDistSqr = fDistSqr;
-        out_Result.m_uiCurve = iCurve;
-        out_Result.m_uiPoint = iCP;
+        out_Result.m_uiCurve = uiCurve;
+        out_Result.m_uiPoint = uiCP;
       }
     }
   }
@@ -765,5 +813,51 @@ ezQtCurveEditWidget::ClickTarget ezQtCurveEditWidget::DetectClickTarget(const QP
     return ClickTarget::SelectedPoint;
 
   return ClickTarget::Nothing;
+}
+
+void ezQtCurveEditWidget::ExecMultiSelection(ezDynamicArray<ezSelectedCurveCP>& out_Selection)
+{
+  out_Selection.Clear();
+
+  for (ezUInt32 uiCurve = 0; uiCurve < m_Curves.GetCount(); ++uiCurve)
+  {
+    const ezCurve1D& curve = m_Curves[uiCurve];
+
+    for (ezUInt32 uiCP = 0; uiCP < curve.GetNumControlPoints(); ++uiCP)
+    {
+      const auto& cp = curve.GetControlPoint(uiCP);
+
+      const QPoint cpPos = MapFromScene(cp.m_Position);
+
+      if (m_multiSelectRect.contains(cpPos))
+      {
+        auto& sel = out_Selection.ExpandAndGetRef();
+        sel.m_uiCurve = uiCurve;
+        sel.m_uiPoint = uiCP;
+      }
+    }
+  }
+}
+
+bool ezQtCurveEditWidget::CombineSelection(ezDynamicArray<ezSelectedCurveCP>& inout_Selection, const ezDynamicArray<ezSelectedCurveCP>& change, bool add)
+{
+  bool bChange = false;
+
+  for (ezUInt32 i = 0; i < change.GetCount(); ++i)
+  {
+    const auto& cp = change[i];
+
+    if (!add)
+    {
+      bChange |= inout_Selection.Remove(cp);
+    }
+    else if (!inout_Selection.Contains(cp))
+    {
+      inout_Selection.PushBack(cp);
+      bChange = true;
+    }
+  }
+
+  return bChange;
 }
 

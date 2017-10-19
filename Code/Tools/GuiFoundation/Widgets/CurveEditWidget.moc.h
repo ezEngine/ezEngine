@@ -19,6 +19,7 @@ struct ezSelectedCurveCP
 };
 
 class ezQGridBarWidget;
+class QRubberBand;
 
 class EZ_GUIFOUNDATION_DLL ezQtCurveEditWidget : public QWidget
 {
@@ -72,6 +73,8 @@ private:
   QRectF ComputeViewportSceneRect() const;
   bool PickCpAt(const QPoint& pos, float fMaxPixelDistance, ezSelectedCurveCP& out_Result) const;
   ClickTarget DetectClickTarget(const QPoint& pos);
+  void ExecMultiSelection(ezDynamicArray<ezSelectedCurveCP>& out_Selection);
+  bool CombineSelection(ezDynamicArray<ezSelectedCurveCP>& inout_Selection, const ezDynamicArray<ezSelectedCurveCP>& change, bool add);
 
   ezQGridBarWidget* m_pGridBar = nullptr;
 
@@ -97,4 +100,8 @@ private:
   ezInt32 m_iSelectedTangentCurve = -1;
   ezInt32 m_iSelectedTangentPoint = -1;
   bool m_bSelectedTangentLeft = false;
+
+  QPoint m_multiSelectionStart;
+  QRect m_multiSelectRect;
+  QRubberBand* m_pRubberband = nullptr;
 };
