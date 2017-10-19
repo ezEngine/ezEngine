@@ -104,85 +104,88 @@ ezStatus ezCurve1DAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader
   painter->setRenderHint(QPainter::Antialiasing);
   painter->setRenderHint(QPainter::HighQualityAntialiasing);
 
-
-  float fExtentsMin, fExtentsMax;
-  float fExtremesMin, fExtremesMax;
-
-  for (ezUInt32 curveIdx = 0; curveIdx < pProp->m_Curves.GetCount(); ++curveIdx)
+  if (!pProp->m_Curves.IsEmpty())
   {
-    ezCurve1D curve;
-    FillCurve(curveIdx, curve);
 
-    curve.SortControlPoints();
-    curve.CreateLinearApproximation();
+    float fExtentsMin, fExtentsMax;
+    float fExtremesMin, fExtremesMax;
 
-    float fMin, fMax;
-    curve.QueryExtents(fMin, fMax);
-
-    float fMin2, fMax2;
-    curve.QueryExtremeValues(fMin2, fMax2);
-
-    if (curveIdx == 0)
+    for (ezUInt32 curveIdx = 0; curveIdx < pProp->m_Curves.GetCount(); ++curveIdx)
     {
-      fExtentsMin = fMin;
-      fExtentsMax = fMax;
-      fExtremesMin = fMin2;
-      fExtremesMax = fMax2;
-    }
-    else
-    {
-      fExtentsMin = ezMath::Min(fExtentsMin, fMin);
-      fExtentsMax = ezMath::Max(fExtentsMax, fMax);
-      fExtremesMin = ezMath::Min(fExtremesMin, fMin2);
-      fExtremesMax = ezMath::Max(fExtremesMax, fMax2);
-    }
-  }
+      ezCurve1D curve;
+      FillCurve(curveIdx, curve);
 
-  const float range = fExtentsMax - fExtentsMin;
-  const float div = 1.0f / (qimg.width() - 1);
-  const float factor = range * div;
+      curve.SortControlPoints();
+      curve.CreateLinearApproximation();
 
-  const float lowValue = (fExtremesMin > 0) ? 0.0f : fExtremesMin;
-  const float highValue = (fExtremesMax < 0) ? 0.0f : fExtremesMax;
+      float fMin, fMax;
+      curve.QueryExtents(fMin, fMax);
 
-  const float range2 = highValue - lowValue;
+      float fMin2, fMax2;
+      curve.QueryExtremeValues(fMin2, fMax2);
 
-
-  QColor curveColor[] =
-  {
-    QColor(255, 100, 100),
-    QColor(100, 255, 100),
-    QColor(100, 100, 255),
-    QColor(200, 200, 200),
-  };
-
-  for (ezUInt32 curveIdx = 0; curveIdx < pProp->m_Curves.GetCount(); ++curveIdx)
-  {
-    QPainterPath path;
-
-    ezCurve1D curve;
-    FillCurve(curveIdx, curve);
-    curve.SortControlPoints();
-    curve.CreateLinearApproximation();
-
-    const QColor curColor = curveColor[curveIdx % EZ_ARRAY_SIZE(curveColor)];
-    QPen pen(curColor, 8.0f);
-    painter->setPen(pen);
-
-    for (ezUInt32 x = 0; x < (ezUInt32)qimg.width(); ++x)
-    {
-      const float pos = fExtentsMin + x * factor;
-      const float value = 1.0f - (curve.Evaluate(pos) - lowValue) / range2;
-
-      const ezUInt32 y = ezMath::Clamp<ezUInt32>(qimg.height() * value, 0, qimg.height() - 1);
-
-      if (x == 0)
-        path.moveTo(x, y);
+      if (curveIdx == 0)
+      {
+        fExtentsMin = fMin;
+        fExtentsMax = fMax;
+        fExtremesMin = fMin2;
+        fExtremesMax = fMax2;
+      }
       else
-        path.lineTo(x, y);
+      {
+        fExtentsMin = ezMath::Min(fExtentsMin, fMin);
+        fExtentsMax = ezMath::Max(fExtentsMax, fMax);
+        fExtremesMin = ezMath::Min(fExtremesMin, fMin2);
+        fExtremesMax = ezMath::Max(fExtremesMax, fMax2);
+      }
     }
 
-    painter->drawPath(path);
+    const float range = fExtentsMax - fExtentsMin;
+    const float div = 1.0f / (qimg.width() - 1);
+    const float factor = range * div;
+
+    const float lowValue = (fExtremesMin > 0) ? 0.0f : fExtremesMin;
+    const float highValue = (fExtremesMax < 0) ? 0.0f : fExtremesMax;
+
+    const float range2 = highValue - lowValue;
+
+
+    QColor curveColor[] =
+    {
+      QColor(255, 100, 100),
+      QColor(100, 255, 100),
+      QColor(100, 100, 255),
+      QColor(200, 200, 200),
+    };
+
+    for (ezUInt32 curveIdx = 0; curveIdx < pProp->m_Curves.GetCount(); ++curveIdx)
+    {
+      QPainterPath path;
+
+      ezCurve1D curve;
+      FillCurve(curveIdx, curve);
+      curve.SortControlPoints();
+      curve.CreateLinearApproximation();
+
+      const QColor curColor = curveColor[curveIdx % EZ_ARRAY_SIZE(curveColor)];
+      QPen pen(curColor, 8.0f);
+      painter->setPen(pen);
+
+      for (ezUInt32 x = 0; x < (ezUInt32)qimg.width(); ++x)
+      {
+        const float pos = fExtentsMin + x * factor;
+        const float value = 1.0f - (curve.Evaluate(pos) - lowValue) / range2;
+
+        const ezUInt32 y = ezMath::Clamp<ezUInt32>(qimg.height() * value, 0, qimg.height() - 1);
+
+        if (x == 0)
+          path.moveTo(x, y);
+        else
+          path.lineTo(x, y);
+      }
+
+      painter->drawPath(path);
+    }
   }
 
   return SaveThumbnail(qimg, AssetHeader);

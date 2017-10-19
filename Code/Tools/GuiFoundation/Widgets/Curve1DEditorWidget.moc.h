@@ -27,10 +27,10 @@ signals:
   void NormalizeRangeX();
   void NormalizeRangeY();
 
-  void BeginCpChanges();
+  void BeginCpChanges(QString name);
   void EndCpChanges();
 
-  void BeginOperation();
+  void BeginOperation(QString name);
   void EndOperation(bool commit);
 
 

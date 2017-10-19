@@ -19,6 +19,8 @@ ezQtCurve1DEditorWidget::ezQtCurve1DEditorWidget(QWidget* pParent)
   connect(CurveEdit, &ezQtCurveEditWidget::DoubleClickEvent, this, &ezQtCurve1DEditorWidget::onDoubleClick);
   connect(CurveEdit, &ezQtCurveEditWidget::MoveControlPointsEvent, this, &ezQtCurve1DEditorWidget::onMoveControlPoints);
   connect(CurveEdit, &ezQtCurveEditWidget::MoveTangentsEvent, this, &ezQtCurve1DEditorWidget::onMoveTangents);
+  connect(CurveEdit, &ezQtCurveEditWidget::BeginOperation, this, [this](QString name) { emit BeginOperation(name); });
+  connect(CurveEdit, &ezQtCurveEditWidget::EndOperation, this, [this](bool commit) { emit EndOperation(commit); });
 }
 
 ezQtCurve1DEditorWidget::~ezQtCurve1DEditorWidget()
@@ -109,7 +111,7 @@ void ezQtCurve1DEditorWidget::onDeleteControlPoints()
 
   CurveEdit->ClearSelection();
 
-  emit BeginCpChanges();
+  emit BeginCpChanges("Delete Points");
 
   ezHybridArray<PtToDelete, 16> delOrder;
 
@@ -143,7 +145,7 @@ void ezQtCurve1DEditorWidget::onMoveControlPoints(double x, double y)
   if (selection.IsEmpty())
     return;
 
-  emit BeginCpChanges();
+  emit BeginCpChanges("Move Points");
 
   const ezVec2 move(x, y);
 
@@ -167,7 +169,7 @@ void ezQtCurve1DEditorWidget::onMoveTangents(double x, double y)
   if (!CurveEdit->GetSelectedTangent(iCurve, iPoint, bLeftTangent))
     return;
 
-  emit BeginCpChanges();
+  emit BeginCpChanges("Move Tangents");
 
   const ezVec2 move(x, y);
 

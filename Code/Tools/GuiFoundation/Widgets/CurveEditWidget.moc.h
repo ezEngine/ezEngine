@@ -49,6 +49,8 @@ signals:
   void DeleteControlPointsEvent();
   void MoveControlPointsEvent(double moveX, double moveY);
   void MoveTangentsEvent(double moveX, double moveY);
+  void BeginOperation(QString name);
+  void EndOperation(bool bCommit);
 
 protected:
   virtual void paintEvent(QPaintEvent* e) override;
@@ -100,6 +102,7 @@ private:
   ezInt32 m_iSelectedTangentCurve = -1;
   ezInt32 m_iSelectedTangentPoint = -1;
   bool m_bSelectedTangentLeft = false;
+  bool m_bBegunChanges = false;
 
   QPoint m_multiSelectionStart;
   QRect m_multiSelectRect;

@@ -273,6 +273,9 @@ void ezQtCurveEditWidget::mousePressEvent(QMouseEvent* e)
           }
 
           m_State = EditState::DraggingPoints;
+          emit BeginOperation("Drag Points");
+          EZ_ASSERT_DEBUG(!m_bBegunChanges, "Invalid State");
+          m_bBegunChanges = true;
         }
 
         update();
@@ -281,6 +284,9 @@ void ezQtCurveEditWidget::mousePressEvent(QMouseEvent* e)
     else if (clickedOn == ClickTarget::TangentHandle)
     {
       m_State = EditState::DraggingTangents;
+      emit BeginOperation("Drag Tangents");
+      EZ_ASSERT_DEBUG(!m_bBegunChanges, "Invalid State");
+      m_bBegunChanges = true;
     }
   }
 
@@ -304,6 +310,12 @@ void ezQtCurveEditWidget::mouseReleaseEvent(QMouseEvent* e)
     m_iSelectedTangentCurve = -1;
     m_iSelectedTangentPoint = -1;
 
+    if (m_bBegunChanges)
+    {
+      m_bBegunChanges = false;
+      emit EndOperation(true);
+    }
+
     update();
   }
 
@@ -320,6 +332,12 @@ void ezQtCurveEditWidget::mouseReleaseEvent(QMouseEvent* e)
     m_State = EditState::None;
     m_iSelectedTangentCurve = -1;
     m_iSelectedTangentPoint = -1;
+
+    if (m_bBegunChanges)
+    {
+      m_bBegunChanges = false;
+      emit EndOperation(true);
+    }
 
     update();
   }

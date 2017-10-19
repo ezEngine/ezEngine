@@ -24,9 +24,9 @@ private slots:
   void onCurveNormalizeX();
   void onCurveNormalizeY();
 
-  void onCurveBeginOperation();
+  void onCurveBeginOperation(QString name);
   void onCurveEndOperation(bool commit);
-  void onCurveBeginCpChanges();
+  void onCurveBeginCpChanges(QString name);
   void onCurveEndCpChanges();
 
 private:

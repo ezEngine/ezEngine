@@ -62,6 +62,7 @@ ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocu
   connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::BeginCpChanges, this, &ezQtCurve1DAssetDocumentWindow::onCurveBeginCpChanges);
   connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::EndCpChanges, this, &ezQtCurve1DAssetDocumentWindow::onCurveEndCpChanges);
 
+  if (false)
   {
     ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
     pPropertyPanel->setObjectName("Curve1DAssetDockWidget");
@@ -155,10 +156,10 @@ ezQtCurve1DAssetDocumentWindow::~ezQtCurve1DAssetDocumentWindow()
 //}
 
 
-void ezQtCurve1DAssetDocumentWindow::onCurveBeginOperation()
+void ezQtCurve1DAssetDocumentWindow::onCurveBeginOperation(QString name)
 {
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
-  history->BeginTemporaryCommands("Modify Curve");
+  history->BeginTemporaryCommands(name.toUtf8().data());
 }
 
 
@@ -175,9 +176,9 @@ void ezQtCurve1DAssetDocumentWindow::onCurveEndOperation(bool commit)
 }
 
 
-void ezQtCurve1DAssetDocumentWindow::onCurveBeginCpChanges()
+void ezQtCurve1DAssetDocumentWindow::onCurveBeginCpChanges(QString name)
 {
-  GetDocument()->GetCommandHistory()->StartTransaction("Modify Curve");
+  GetDocument()->GetCommandHistory()->StartTransaction(name.toUtf8().data());
 }
 
 void ezQtCurve1DAssetDocumentWindow::onCurveEndCpChanges()
@@ -197,12 +198,29 @@ void ezQtCurve1DAssetDocumentWindow::onInsertCpAt(float clickPosX, float clickPo
     return;
 
   if (!PickCurveAt(clickPosX, clickPosY, epsilon, curveIdx, clickPosY))
-    return;
+  {
+    // by default insert into curve 0
+    curveIdx = 0;
+  }
 
   ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
 
   ezCommandHistory* history = pDoc->GetCommandHistory();
   history->StartTransaction("Insert Control Point");
+
+  if (pDoc->GetPropertyObject()->GetTypeAccessor().GetCount("Curves") == 0)
+  {
+    // no curves allocated yet, add one
+
+    ezAddObjectCommand cmdAddCurve;
+    cmdAddCurve.m_Parent = pDoc->GetPropertyObject()->GetGuid();
+    cmdAddCurve.m_NewObjectGuid.CreateNewUuid();
+    cmdAddCurve.m_sParentProperty = "Curves";
+    cmdAddCurve.m_pType = ezGetStaticRTTI<ezCurve1DData>();
+    cmdAddCurve.m_Index = -1;
+
+    history->AddCommand(cmdAddCurve);
+  }
 
   const ezVariant curveGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Curves", curveIdx);
 
