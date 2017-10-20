@@ -70,6 +70,7 @@ private:
   void PaintSelectedControlPoints(QPainter* painter) const;
   void PaintSelectedTangentLines(QPainter* painter) const;
   void PaintSelectedTangentHandles(QPainter* painter) const;
+  void PaintMultiSelectionSquare(QPainter* painter) const;
   void RenderVerticalGrid(QPainter* painter, const QRectF& viewportSceneRect, double fRoughGridDensity);
   void RenderSideLinesAndText(QPainter* painter, const QRectF& viewportSceneRect);
   QRectF ComputeViewportSceneRect() const;
@@ -77,6 +78,7 @@ private:
   ClickTarget DetectClickTarget(const QPoint& pos);
   void ExecMultiSelection(ezDynamicArray<ezSelectedCurveCP>& out_Selection);
   bool CombineSelection(ezDynamicArray<ezSelectedCurveCP>& inout_Selection, const ezDynamicArray<ezSelectedCurveCP>& change, bool add);
+  void ComputeSelectionRect();
 
   ezQGridBarWidget* m_pGridBar = nullptr;
 
@@ -90,12 +92,9 @@ private:
   QPointF m_SceneToPixelScale;
   QPoint m_LastMousePos;
 
-  QPen m_ControlPointPen;
   QBrush m_ControlPointBrush;
-  QPen m_SelectedControlPointPen;
   QBrush m_SelectedControlPointBrush;
   QPen m_TangentLinePen;
-  QPen m_TangentHandlePen;
   QBrush m_TangentHandleBrush;
 
   ezDynamicArray<ezSelectedCurveCP> m_SelectedCPs;
@@ -106,5 +105,6 @@ private:
 
   QPoint m_multiSelectionStart;
   QRect m_multiSelectRect;
+  QRectF m_selectionBRect;
   QRubberBand* m_pRubberband = nullptr;
 };

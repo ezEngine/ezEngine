@@ -60,11 +60,15 @@ void ezQGridBarWidget::paintEvent(QPaintEvent* e)
 
   QPainter Painter(this);
   QPainter* painter = &Painter;
+  painter->setRenderHint(QPainter::Antialiasing);
+  painter->setRenderHint(QPainter::TextAntialiasing);
+  painter->setRenderHint(QPainter::HighQualityAntialiasing);
 
   QRect areaRect = rect();
 
   // background
   painter->fillRect(areaRect, palette().button());
+  painter->translate(0.5, 0.5);
 
   // render fine grid stop lines
   {
@@ -101,7 +105,7 @@ void ezQGridBarWidget::paintEvent(QPaintEvent* e)
     {
       const QPoint pos = MapFromSceneFunc(QPointF(x, 0));
 
-      textRect.setRect(pos.x() - 50, areaRect.top(), 100, areaRect.height());
+      textRect.setRect(pos.x() - 50, areaRect.top(), 99, areaRect.height());
       painter->drawText(textRect, QString("%1").arg(x, 2), textOpt);
     }
   }
