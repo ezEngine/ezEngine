@@ -51,6 +51,7 @@ signals:
   void MoveTangentsEvent(double moveX, double moveY);
   void BeginOperation(QString name);
   void EndOperation(bool bCommit);
+  void ScaleControlPointsEvent(const QPointF& centerPos, double scaleX, double scaleY);
 
 protected:
   virtual void paintEvent(QPaintEvent* e) override;
@@ -63,7 +64,8 @@ protected:
 
 private:
   enum class ClickTarget { Nothing, SelectedPoint, TangentHandle };
-  enum class EditState { None, DraggingPoints, DraggingTangents, MultiSelect, Panning };
+  enum class EditState { None, DraggingPoints, DraggingTangents, MultiSelect, Panning, ScaleLeftRight, ScaleUpDown };
+  enum class SelectArea { None, Center, Top, Bottom, Left, Right };
 
   void PaintCurveSegments(QPainter* painter) const;
   void PaintControlPoints(QPainter* painter) const;
@@ -79,6 +81,7 @@ private:
   void ExecMultiSelection(ezDynamicArray<ezSelectedCurveCP>& out_Selection);
   bool CombineSelection(ezDynamicArray<ezSelectedCurveCP>& inout_Selection, const ezDynamicArray<ezSelectedCurveCP>& change, bool add);
   void ComputeSelectionRect();
+  SelectArea WhereIsPoint(QPoint pos) const;
 
   ezQGridBarWidget* m_pGridBar = nullptr;
 
@@ -106,5 +109,7 @@ private:
   QPoint m_multiSelectionStart;
   QRect m_multiSelectRect;
   QRectF m_selectionBRect;
+  QPointF m_scaleReferencePoint;
+  QPointF m_scaleStartPoint;
   QRubberBand* m_pRubberband = nullptr;
 };

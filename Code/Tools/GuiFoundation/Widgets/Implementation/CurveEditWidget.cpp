@@ -249,38 +249,82 @@ void ezQtCurveEditWidget::mousePressEvent(QMouseEvent* e)
 
     if (clickedOn == ClickTarget::Nothing || clickedOn == ClickTarget::SelectedPoint)
     {
-      m_State = EditState::MultiSelect;
-
-      ezSelectedCurveCP cp;
-      if (PickCpAt(e->pos(), 8, cp))
+      if (e->modifiers() == Qt::NoModifier)
       {
-        if (e->modifiers().testFlag(Qt::ControlModifier))
-        {
-          ToggleSelected(cp);
-        }
-        else if (e->modifiers().testFlag(Qt::ShiftModifier))
-        {
-          SetSelected(cp, true);
-        }
-        else if (e->modifiers().testFlag(Qt::AltModifier))
-        {
-          SetSelected(cp, false);
-        }
-        else
-        {
-          if (clickedOn == ClickTarget::Nothing)
-          {
-            SetSelection(cp);
-          }
+        m_scaleStartPoint = MapToScene(e->pos());
 
+        switch (WhereIsPoint(e->pos()))
+        {
+        case ezQtCurveEditWidget::SelectArea::Center:
           m_State = EditState::DraggingPoints;
-          emit BeginOperation("Drag Points");
-          EZ_ASSERT_DEBUG(!m_bBegunChanges, "Invalid State");
-          m_bBegunChanges = true;
+          break;
+        case ezQtCurveEditWidget::SelectArea::Top:
+          m_scaleReferencePoint = m_selectionBRect.topLeft();
+          m_State = EditState::ScaleUpDown;
+          break;
+        case ezQtCurveEditWidget::SelectArea::Bottom:
+          m_scaleReferencePoint = m_selectionBRect.bottomRight();
+          m_State = EditState::ScaleUpDown;
+          break;
+        case ezQtCurveEditWidget::SelectArea::Left:
+          m_State = EditState::ScaleLeftRight;
+          m_scaleReferencePoint = m_selectionBRect.topRight();
+          break;
+        case ezQtCurveEditWidget::SelectArea::Right:
+          m_State = EditState::ScaleLeftRight;
+          m_scaleReferencePoint = m_selectionBRect.topLeft();
+          break;
         }
-
-        update();
       }
+
+      if (m_State == EditState::None)
+      {
+        m_State = EditState::MultiSelect;
+
+        ezSelectedCurveCP cp;
+        if (PickCpAt(e->pos(), 8, cp))
+        {
+          if (e->modifiers().testFlag(Qt::ControlModifier))
+          {
+            ToggleSelected(cp);
+          }
+          else if (e->modifiers().testFlag(Qt::ShiftModifier))
+          {
+            SetSelected(cp, true);
+          }
+          else if (e->modifiers().testFlag(Qt::AltModifier))
+          {
+            SetSelected(cp, false);
+          }
+          else
+          {
+            if (clickedOn == ClickTarget::Nothing)
+              SetSelection(cp);
+
+            m_State = EditState::DraggingPoints;
+          }
+        }
+      }
+
+      EZ_ASSERT_DEBUG(!m_bBegunChanges, "Invalid State");
+
+      if (m_State == EditState::DraggingPoints)
+      {
+        emit BeginOperation("Drag Points");
+        m_bBegunChanges = true;
+      }
+      else if (m_State == EditState::ScaleLeftRight)
+      {
+        emit BeginOperation("Scale Points Left / Right");
+        m_bBegunChanges = true;
+      }
+      else if (m_State == EditState::ScaleUpDown)
+      {
+        emit BeginOperation("Scale Points Up / Down");
+        m_bBegunChanges = true;
+      }
+
+      update();
     }
     else if (clickedOn == ClickTarget::TangentHandle)
     {
@@ -307,6 +351,8 @@ void ezQtCurveEditWidget::mouseReleaseEvent(QMouseEvent* e)
 
   if (e->buttons() == Qt::NoButton)
   {
+    unsetCursor();
+
     m_State = EditState::None;
     m_iSelectedTangentCurve = -1;
     m_iSelectedTangentPoint = -1;
@@ -395,6 +441,7 @@ void ezQtCurveEditWidget::mouseMoveEvent(QMouseEvent* e)
   if (m_State == EditState::DraggingPoints)
   {
     MoveControlPointsEvent(moveX, moveY);
+    //cursor = Qt::SizeAllCursor;
   }
 
   if (m_State == EditState::DraggingTangents)
@@ -411,28 +458,42 @@ void ezQtCurveEditWidget::mouseMoveEvent(QMouseEvent* e)
 
   if (m_State == EditState::None && !m_selectionBRect.isEmpty())
   {
-    const QPoint tl = MapFromScene(m_selectionBRect.topLeft());
-    const QPoint br = MapFromScene(m_selectionBRect.bottomRight());
-    QRect selectionRectSS = QRect(tl, br);
-    selectionRectSS.adjust(-4.5, +4.5, +3.5, -5.5);
-
-    const QRect barTop(selectionRectSS.left(), selectionRectSS.bottom() - 10, selectionRectSS.width(), 10);
-    const QRect barBottom(selectionRectSS.left(), selectionRectSS.top(), selectionRectSS.width(), 10);
-    const QRect barLeft(selectionRectSS.left() - 10, selectionRectSS.top(), 10, selectionRectSS.height());
-    const QRect barRight(selectionRectSS.right(), selectionRectSS.top(), 10, selectionRectSS.height());
-
-    if (barTop.contains(e->pos()) || barBottom.contains(e->pos()))
+    switch (WhereIsPoint(e->pos()))
     {
+    case ezQtCurveEditWidget::SelectArea::Center:
+      //cursor = Qt::SizeAllCursor;
+      break;
+    case ezQtCurveEditWidget::SelectArea::Top:
+    case ezQtCurveEditWidget::SelectArea::Bottom:
       cursor = Qt::SizeVerCursor;
-    }
-    if (barLeft.contains(e->pos()) || barRight.contains(e->pos()))
-    {
+      break;
+    case ezQtCurveEditWidget::SelectArea::Left:
+    case ezQtCurveEditWidget::SelectArea::Right:
       cursor = Qt::SizeHorCursor;
+      break;
     }
-    else if (selectionRectSS.contains(e->pos()))
-    {
-      cursor = Qt::SizeAllCursor;
-    }
+  }
+
+  if (m_State == EditState::ScaleLeftRight)
+  {
+    cursor = Qt::SizeHorCursor;
+
+    const QPointF wsPos = MapToScene(e->pos());
+    const QPointF norm = m_scaleReferencePoint - m_scaleStartPoint;
+    const QPointF wsDiff = m_scaleReferencePoint - wsPos;
+
+    ScaleControlPointsEvent(m_scaleReferencePoint, wsDiff.x() / norm.x(), 1);
+  }
+
+  if (m_State == EditState::ScaleUpDown)
+  {
+    cursor = Qt::SizeVerCursor;
+
+    const QPointF wsPos = MapToScene(e->pos());
+    const QPointF norm = m_scaleReferencePoint - m_scaleStartPoint;
+    const QPointF wsDiff = m_scaleReferencePoint - wsPos;
+
+    ScaleControlPointsEvent(m_scaleReferencePoint, 1, wsDiff.y() / norm.y());
   }
 
   setCursor(cursor);
@@ -445,10 +506,18 @@ void ezQtCurveEditWidget::mouseDoubleClickEvent(QMouseEvent* e)
 
   if (e->button() == Qt::LeftButton)
   {
-    const QPointF epsilon = MapToScene(QPoint(15, 15)) - MapToScene(QPoint(0, 0));
-    const QPointF scenePos = MapToScene(e->pos());
+    ezSelectedCurveCP cp;
+    if (PickCpAt(e->pos(), 15, cp))
+    {
+      SetSelection(cp);
+    }
+    else
+    {
+      const QPointF epsilon = MapToScene(QPoint(15, 15)) - MapToScene(QPoint(0, 0));
+      const QPointF scenePos = MapToScene(e->pos());
 
-    emit DoubleClickEvent(scenePos, epsilon);
+      emit DoubleClickEvent(scenePos, epsilon);
+    }
   }
 }
 
@@ -970,5 +1039,38 @@ void ezQtCurveEditWidget::ComputeSelectionRect()
   }
 }
 
+ezQtCurveEditWidget::SelectArea ezQtCurveEditWidget::WhereIsPoint(QPoint pos) const
+{
+  if (m_selectionBRect.isEmpty())
+    return SelectArea::None;
+
+  const QPoint tl = MapFromScene(m_selectionBRect.topLeft());
+  const QPoint br = MapFromScene(m_selectionBRect.bottomRight());
+  QRect selectionRectSS = QRect(tl, br);
+  selectionRectSS.adjust(-4.5, +4.5, +3.5, -5.5);
+
+  const QRect barTop(selectionRectSS.left(), selectionRectSS.bottom() - 10, selectionRectSS.width(), 10);
+  const QRect barBottom(selectionRectSS.left(), selectionRectSS.top(), selectionRectSS.width(), 10);
+  const QRect barLeft(selectionRectSS.left() - 10, selectionRectSS.top(), 10, selectionRectSS.height());
+  const QRect barRight(selectionRectSS.right(), selectionRectSS.top(), 10, selectionRectSS.height());
+
+  if (barTop.contains(pos))
+    return SelectArea::Top;
+
+
+  if (barBottom.contains(pos))
+    return SelectArea::Bottom;
+
+  if (barLeft.contains(pos))
+    return SelectArea::Left;
+
+  if (barRight.contains(pos))
+    return SelectArea::Right;
+
+  if (selectionRectSS.contains(pos))
+    return SelectArea::Center;
+
+  return SelectArea::None;
+}
 
 

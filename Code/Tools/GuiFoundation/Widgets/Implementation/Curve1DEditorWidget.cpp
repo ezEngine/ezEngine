@@ -19,8 +19,9 @@ ezQtCurve1DEditorWidget::ezQtCurve1DEditorWidget(QWidget* pParent)
   connect(CurveEdit, &ezQtCurveEditWidget::DoubleClickEvent, this, &ezQtCurve1DEditorWidget::onDoubleClick);
   connect(CurveEdit, &ezQtCurveEditWidget::MoveControlPointsEvent, this, &ezQtCurve1DEditorWidget::onMoveControlPoints);
   connect(CurveEdit, &ezQtCurveEditWidget::MoveTangentsEvent, this, &ezQtCurve1DEditorWidget::onMoveTangents);
-  connect(CurveEdit, &ezQtCurveEditWidget::BeginOperation, this, [this](QString name) { emit BeginOperation(name); });
+  connect(CurveEdit, &ezQtCurveEditWidget::BeginOperation, this, &ezQtCurve1DEditorWidget::onBeginOperation);
   connect(CurveEdit, &ezQtCurveEditWidget::EndOperation, this, [this](bool commit) { emit EndOperation(commit); });
+  connect(CurveEdit, &ezQtCurveEditWidget::ScaleControlPointsEvent, this, &ezQtCurve1DEditorWidget::onScaleControlPoints);
 }
 
 ezQtCurve1DEditorWidget::~ezQtCurve1DEditorWidget()
@@ -140,6 +141,8 @@ void ezQtCurve1DEditorWidget::onDoubleClick(const QPointF& scenePos, const QPoin
 
 void ezQtCurve1DEditorWidget::onMoveControlPoints(double x, double y)
 {
+  m_ControlPointMove += ezVec2(x, y);
+
   const auto selection = CurveEdit->GetSelection();
 
   if (selection.IsEmpty())
@@ -147,12 +150,33 @@ void ezQtCurve1DEditorWidget::onMoveControlPoints(double x, double y)
 
   emit BeginCpChanges("Move Points");
 
-  const ezVec2 move(x, y);
+  for (const auto& cpSel : selection)
+  {
+    const auto& cp = m_CurvesBackup[cpSel.m_uiCurve].GetControlPoint(cpSel.m_uiPoint);
+    const ezVec2 newPos = cp.m_Position + m_ControlPointMove;
+
+    emit CpMoved(cpSel.m_uiCurve, cpSel.m_uiPoint, newPos.x, newPos.y);
+  }
+
+  emit EndCpChanges();
+}
+
+void ezQtCurve1DEditorWidget::onScaleControlPoints(QPointF refPt, double scaleX, double scaleY)
+{
+  const auto selection = CurveEdit->GetSelection();
+
+  if (selection.IsEmpty())
+    return;
+
+  const ezVec2 ref(refPt.x(), refPt.y());
+  const ezVec2 scale(scaleX, scaleY);
+
+  emit BeginCpChanges("Scale Points");
 
   for (const auto& cpSel : selection)
   {
-    const auto& cp = m_Curves[cpSel.m_uiCurve].GetControlPoint(cpSel.m_uiPoint);
-    const ezVec2 newPos = cp.m_Position + move;
+    const auto& cp = m_CurvesBackup[cpSel.m_uiCurve].GetControlPoint(cpSel.m_uiPoint);
+    const ezVec2 newPos = ref + (cp.m_Position - ref).CompMul(scale);
 
     emit CpMoved(cpSel.m_uiCurve, cpSel.m_uiPoint, newPos.x, newPos.y);
   }
@@ -162,6 +186,8 @@ void ezQtCurve1DEditorWidget::onMoveControlPoints(double x, double y)
 
 void ezQtCurve1DEditorWidget::onMoveTangents(double x, double y)
 {
+  m_TangentMove += ezVec2(x, y);
+
   ezInt32 iCurve;
   ezInt32 iPoint;
   bool bLeftTangent;
@@ -171,19 +197,27 @@ void ezQtCurve1DEditorWidget::onMoveTangents(double x, double y)
 
   emit BeginCpChanges("Move Tangents");
 
-  const ezVec2 move(x, y);
-
   {
-    const auto& cp = m_Curves[iCurve].GetControlPoint(iPoint);
+    const auto& cp = m_CurvesBackup[iCurve].GetControlPoint(iPoint);
     ezVec2 newPos;
 
     if (bLeftTangent)
-      newPos = cp.m_LeftTangent + move;
+      newPos = cp.m_LeftTangent + m_TangentMove;
     else
-      newPos = cp.m_RightTangent + move;
+      newPos = cp.m_RightTangent + m_TangentMove;
 
     emit TangentMoved(iCurve, iPoint, newPos.x, newPos.y, !bLeftTangent);
   }
 
   emit EndCpChanges();
 }
+
+void ezQtCurve1DEditorWidget::onBeginOperation(QString name)
+{
+  m_CurvesBackup = m_Curves;
+  m_TangentMove.SetZero();
+  m_ControlPointMove.SetZero();
+
+  emit BeginOperation(name);
+}
+

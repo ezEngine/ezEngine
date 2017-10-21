@@ -43,8 +43,13 @@ private slots:
   void onDoubleClick(const QPointF& scenePos, const QPointF& epsilon);
   void onMoveControlPoints(double x, double y);
   void onMoveTangents(double x, double y);
+  void onBeginOperation(QString name);
+  void onScaleControlPoints(QPointF refPt, double scaleX, double scaleY);
 
 private:
 
+  ezVec2 m_TangentMove;
+  ezVec2 m_ControlPointMove;
   ezHybridArray<ezCurve1D, 4> m_Curves;
+  ezHybridArray<ezCurve1D, 4> m_CurvesBackup;
 };
