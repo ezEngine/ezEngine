@@ -9,8 +9,6 @@ ezCurve1D::ezCurve1D()
 
 void ezCurve1D::Clear()
 {
-  m_CurveColor = ezColor::White;
-
   m_fMinX = 0;
   m_fMaxX = 0;
   m_fMinY = 0;

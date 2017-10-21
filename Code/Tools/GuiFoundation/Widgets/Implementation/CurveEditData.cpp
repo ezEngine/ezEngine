@@ -20,7 +20,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DData, 2, ezRTTIDefaultAllocator<ezCurve
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Color", m_CurveColor),
+    EZ_MEMBER_PROPERTY("Color", m_CurveColor)->AddAttributes(new ezDefaultValueAttribute(ezColorGammaUB(ezColor::GreenYellow))),
     EZ_ARRAY_MEMBER_PROPERTY("ControlPoints", m_ControlPoints),
   }
   EZ_END_PROPERTIES
@@ -43,7 +43,6 @@ void ezCurve1DAssetData::ConvertToRuntimeData(ezUInt32 uiCurveIdx, ezCurve1D& ou
   out_Result.Clear();
 
   const auto& curve = m_Curves[uiCurveIdx];
-  out_Result.SetCurveColor(curve.m_CurveColor);
 
   for (const auto& cp : curve.m_ControlPoints)
   {

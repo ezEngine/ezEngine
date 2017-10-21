@@ -5,6 +5,7 @@
 #include <qevent.h>
 #include <QTextOption>
 #include <QPainter>
+#include <Foundation/Strings/StringBuilder.h>
 
 static void ComputeGridExtentsX(const QRectF& viewportSceneRect, double fGridStops, double& out_fMinX, double& out_fMaxX)
 {
@@ -74,6 +75,7 @@ void ezQGridBarWidget::paintEvent(QPaintEvent* e)
   {
     double fSceneMinX, fSceneMaxX;
     ComputeGridExtentsX(m_viewportSceneRect, m_fFineGridStops, fSceneMinX, fSceneMaxX);
+    fSceneMinX = ezMath::Max(fSceneMinX, 0.0);
 
     painter->setPen(palette().buttonText().color());
 
@@ -95,6 +97,7 @@ void ezQGridBarWidget::paintEvent(QPaintEvent* e)
   {
     double fSceneMinX, fSceneMaxX;
     ComputeGridExtentsX(m_viewportSceneRect, m_fTextGridStops, fSceneMinX, fSceneMaxX);
+    fSceneMinX = ezMath::Max(fSceneMinX, 0.0);
 
     QTextOption textOpt(Qt::AlignCenter);
     QRectF textRect;

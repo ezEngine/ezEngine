@@ -30,7 +30,7 @@ ezQtCurve1DEditorWidget::~ezQtCurve1DEditorWidget()
 {
 }
 
-void ezQtCurve1DEditorWidget::SetCurves(const ezCurve1DAssetData& curves)
+void ezQtCurve1DEditorWidget::SetCurves(ezCurve1DAssetData& curves)
 {
   ezQtScopedUpdatesDisabled ud(this);
   ezQtScopedBlockSignals bs(this);

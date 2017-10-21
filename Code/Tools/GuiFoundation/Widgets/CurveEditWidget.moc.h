@@ -20,7 +20,7 @@ class EZ_GUIFOUNDATION_DLL ezQtCurveEditWidget : public QWidget
 public:
   ezQtCurveEditWidget(QWidget* parent);
 
-  void SetCurves(const ezCurve1DAssetData* pCurveEditData);
+  void SetCurves(ezCurve1DAssetData* pCurveEditData);
   void SetGridBarWidget(ezQGridBarWidget* pGridBar) { m_pGridBar = pGridBar; }
 
   QPoint MapFromScene(const QPointF& pos) const;
@@ -60,7 +60,8 @@ private:
   enum class EditState { None, DraggingPoints, DraggingTangents, MultiSelect, RightClick, Panning, ScaleLeftRight, ScaleUpDown };
   enum class SelectArea { None, Center, Top, Bottom, Left, Right };
 
-  void PaintCurveSegments(QPainter* painter) const;
+  void PaintCurveSegments(QPainter* painter, float fOffsetX, ezUInt8 alpha) const;
+  void PaintOutsideAreaOverlay(QPainter* painter) const;
   void PaintControlPoints(QPainter* painter) const;
   void PaintSelectedControlPoints(QPainter* painter) const;
   void PaintSelectedTangentLines(QPainter* painter) const;
@@ -80,9 +81,11 @@ private:
 
   EditState m_State = EditState::None;
 
+  ezCurve1DAssetData* m_pCurveEditData;
   ezHybridArray<ezCurve1D, 4> m_Curves;
   ezHybridArray<ezCurve1D, 4> m_CurvesSorted;
   ezHybridArray<ezVec2, 4> m_CurveExtents;
+  float m_fMaxCurveExtent;
 
   QPointF m_SceneTranslation;
   QPointF m_SceneToPixelScale;

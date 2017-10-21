@@ -59,7 +59,7 @@ ezQtCurveEditWidget::ezQtCurveEditWidget(QWidget* parent)
   setFocusPolicy(Qt::FocusPolicy::ClickFocus);
   setMouseTracking(true);
 
-  m_SceneTranslation = QPointF(-8, 8);
+  m_SceneTranslation = QPointF(-2, 8);
   m_SceneToPixelScale = QPointF(40, -40);
 
   m_ControlPointBrush.setColor(QColor(200, 150, 0));
@@ -76,8 +76,10 @@ ezQtCurveEditWidget::ezQtCurveEditWidget(QWidget* parent)
   m_TangentHandleBrush.setStyle(Qt::BrushStyle::SolidPattern);
 }
 
-void ezQtCurveEditWidget::SetCurves(const ezCurve1DAssetData* pCurveEditData)
+void ezQtCurveEditWidget::SetCurves(ezCurve1DAssetData* pCurveEditData)
 {
+  m_pCurveEditData = pCurveEditData;
+
   m_Curves.Clear();
   m_Curves.Reserve(pCurveEditData->m_Curves.GetCount());
 
@@ -104,6 +106,7 @@ void ezQtCurveEditWidget::SetCurves(const ezCurve1DAssetData* pCurveEditData)
 
   m_CurvesSorted = m_Curves;
   m_CurveExtents.SetCount(m_Curves.GetCount());
+  m_fMaxCurveExtent = 0;
 
   for (ezUInt32 i = 0; i < m_CurvesSorted.GetCount(); ++i)
   {
@@ -113,6 +116,8 @@ void ezQtCurveEditWidget::SetCurves(const ezCurve1DAssetData* pCurveEditData)
     curve.CreateLinearApproximation();
 
     curve.QueryExtents(m_CurveExtents[i].x, m_CurveExtents[i].y);
+
+    m_fMaxCurveExtent = ezMath::Max(m_fMaxCurveExtent, m_CurveExtents[i].y);
   }
 
   ComputeSelectionRect();
@@ -244,7 +249,10 @@ void ezQtCurveEditWidget::paintEvent(QPaintEvent* e)
 
   RenderSideLinesAndText(&painter, viewportSceneRect);
 
-  PaintCurveSegments(&painter);
+  PaintCurveSegments(&painter, 0, 255);
+  PaintCurveSegments(&painter, m_fMaxCurveExtent, 128);
+  PaintCurveSegments(&painter, 2.0f * m_fMaxCurveExtent, 40);
+  PaintOutsideAreaOverlay(&painter);
   PaintSelectedTangentLines(&painter);
   PaintControlPoints(&painter);
   PaintSelectedTangentHandles(&painter);
@@ -467,6 +475,8 @@ void ezQtCurveEditWidget::mouseMoveEvent(QMouseEvent* e)
     m_SceneTranslation.setX(m_SceneTranslation.x() - moveX);
     m_SceneTranslation.setY(m_SceneTranslation.y() - moveY);
 
+    m_SceneTranslation.setX(ezMath::Max(m_SceneTranslation.x(), -2.0));
+
     update();
   }
 
@@ -548,6 +558,9 @@ void ezQtCurveEditWidget::mouseDoubleClickEvent(QMouseEvent* e)
       const QPointF epsilon = MapToScene(QPoint(15, 15)) - MapToScene(QPoint(0, 0));
       const QPointF scenePos = MapToScene(e->pos());
 
+      if (scenePos.x() < 0)
+        return;
+
       emit DoubleClickEvent(scenePos, epsilon);
     }
   }
@@ -574,6 +587,7 @@ void ezQtCurveEditWidget::wheelEvent(QWheelEvent* e)
   }
 
   m_SceneTranslation = ptAt + posDiff;
+  m_SceneTranslation.setX(ezMath::Max(m_SceneTranslation.x(), -2.0));
 
   update();
 }
@@ -594,7 +608,7 @@ void ezQtCurveEditWidget::keyPressEvent(QKeyEvent* e)
   }
 }
 
-void ezQtCurveEditWidget::PaintCurveSegments(QPainter* painter) const
+void ezQtCurveEditWidget::PaintCurveSegments(QPainter* painter, float fOffsetX, ezUInt8 alpha) const
 {
   painter->save();
   painter->setBrush(Qt::NoBrush);
@@ -606,21 +620,31 @@ void ezQtCurveEditWidget::PaintCurveSegments(QPainter* painter) const
   for (ezUInt32 curveIdx = 0; curveIdx < m_CurvesSorted.GetCount(); ++curveIdx)
   {
     const ezCurve1D& curve = m_CurvesSorted[curveIdx];
-    const ezColorGammaUB curveColor = curve.GetCurveColor();
+    const ezUInt32 numCps = curve.GetNumControlPoints();
 
-    pen.setColor(QColor(curveColor.r, curveColor.g, curveColor.b));
+    if (numCps == 0)
+      continue;
+
+    const ezColorGammaUB curveColor = m_pCurveEditData->m_Curves[curveIdx].m_CurveColor;
+
+    pen.setColor(QColor(curveColor.r, curveColor.g, curveColor.b, alpha));
     painter->setPen(pen);
 
     QPainterPath path;
 
-    const ezUInt32 numCps = curve.GetNumControlPoints();
+    {
+      const ezCurve1D::ControlPoint& cp = curve.GetControlPoint(0);
+      path.moveTo(MapFromScene(QPointF(fOffsetX, cp.m_Position.y)));
+      path.lineTo(MapFromScene(QPointF(fOffsetX + cp.m_Position.x, cp.m_Position.y)));
+    }
+
     for (ezUInt32 cpIdx = 1; cpIdx < numCps; ++cpIdx)
     {
       const ezCurve1D::ControlPoint& cpPrev = curve.GetControlPoint(cpIdx - 1);
       const ezCurve1D::ControlPoint& cpThis = curve.GetControlPoint(cpIdx);
 
-      const QPointF startPt = QPointF(cpPrev.m_Position.x, cpPrev.m_Position.y);
-      const QPointF endPt = QPointF(cpThis.m_Position.x, cpThis.m_Position.y);
+      const QPointF startPt = QPointF(fOffsetX + cpPrev.m_Position.x, cpPrev.m_Position.y);
+      const QPointF endPt = QPointF(fOffsetX + cpThis.m_Position.x, cpThis.m_Position.y);
       const QPointF tangent1 = QPointF(cpPrev.m_RightTangent.x, cpPrev.m_RightTangent.y);
       const QPointF tangent2 = QPointF(cpThis.m_LeftTangent.x, cpThis.m_LeftTangent.y);
       const QPointF ctrlPt1 = startPt + tangent1;
@@ -630,10 +654,34 @@ void ezQtCurveEditWidget::PaintCurveSegments(QPainter* painter) const
       path.cubicTo(MapFromScene(ctrlPt1), MapFromScene(ctrlPt2), MapFromScene(endPt));
     }
 
+    {
+      const ezCurve1D::ControlPoint& cp = curve.GetControlPoint(numCps - 1);
+      path.lineTo(MapFromScene(QPointF(fOffsetX + m_fMaxCurveExtent, cp.m_Position.y)));
+    }
+
     painter->drawPath(path);
   }
 
   painter->restore();
+}
+
+void ezQtCurveEditWidget::PaintOutsideAreaOverlay(QPainter* painter) const
+{
+  const int iRightEdge = MapFromScene(QPointF(m_fMaxCurveExtent, 0)).x();
+
+  if (iRightEdge >= rect().width())
+    return;
+
+  QRect area = rect();
+  area.setLeft(iRightEdge);
+
+  QBrush b;
+  b.setColor(palette().light().color());
+  b.setStyle(Qt::BrushStyle::Dense6Pattern);
+
+  painter->setPen(Qt::NoPen);
+  painter->setBrush(b);
+  painter->drawRect(area);
 }
 
 void ezQtCurveEditWidget::PaintControlPoints(QPainter* painter) const
@@ -783,6 +831,7 @@ void ezQtCurveEditWidget::RenderVerticalGrid(QPainter* painter, const QRectF& vi
 {
   double lowX, highX;
   ComputeGridExtentsX2(viewportSceneRect, fRoughGridDensity, lowX, highX);
+  lowX = ezMath::Max(lowX, 0.0);
 
   const int iy = rect().bottom();
 
@@ -800,6 +849,15 @@ void ezQtCurveEditWidget::RenderVerticalGrid(QPainter* painter, const QRectF& vi
 
       QLine& l = lines.ExpandAndGetRef();
       l.setLine(ix, 0, ix, iy);
+    }
+
+    // zero line
+    {
+      const QPoint x0 = MapFromScene(QPointF(lowX, 0));
+      const QPoint x1 = MapFromScene(QPointF(highX, 0));
+
+      QLine& l = lines.ExpandAndGetRef();
+      l.setLine(0, x0.y(), x1.x(), x1.y());
     }
 
     painter->drawLines(lines.GetData(), lines.GetCount());

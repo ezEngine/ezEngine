@@ -14,7 +14,7 @@ public:
   explicit ezQtCurve1DEditorWidget(QWidget* pParent);
   ~ezQtCurve1DEditorWidget();
 
-  void SetCurves(const ezCurve1DAssetData& curveData);
+  void SetCurves(ezCurve1DAssetData& curveData);
 
   void FrameCurve();
 
