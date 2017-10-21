@@ -1,35 +1,9 @@
 #pragma once
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
+#include <GuiFoundation/Widgets/CurveEditData.h>
 
 class ezCurve1D;
-
-class ezCurve1DControlPoint : public ezReflectedClass
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezCurve1DControlPoint, ezReflectedClass);
-public:
-
-  ezVec2 m_Point;
-  ezVec2 m_LeftTangent;
-  ezVec2 m_RightTangent;
-};
-
-class ezCurve1DData : public ezReflectedClass
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezCurve1DData, ezReflectedClass);
-public:
-  ezColorGammaUB m_CurveColor;
-  ezDynamicArray<ezCurve1DControlPoint> m_ControlPoints;
-};
-
-class ezCurve1DAssetData : public ezReflectedClass
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezCurve1DAssetData, ezReflectedClass);
-public:
-
-  ezDynamicArray<ezCurve1DData> m_Curves;
-};
-
 
 class ezCurve1DAssetDocument : public ezSimpleAssetDocument<ezCurve1DAssetData>
 {

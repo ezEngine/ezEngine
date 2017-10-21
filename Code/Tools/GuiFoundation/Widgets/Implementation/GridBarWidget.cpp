@@ -101,12 +101,16 @@ void ezQGridBarWidget::paintEvent(QPaintEvent* e)
 
     painter->setPen(palette().buttonText().color());
 
+    ezStringBuilder tmp;
+
     for (double x = fSceneMinX; x <= fSceneMaxX; x += m_fTextGridStops)
     {
       const QPoint pos = MapFromSceneFunc(QPointF(x, 0));
 
       textRect.setRect(pos.x() - 50, areaRect.top(), 99, areaRect.height());
-      painter->drawText(textRect, QString("%1").arg(x, 2), textOpt);
+      tmp.Format("{0}", ezArgF(x));
+
+      painter->drawText(textRect, tmp.GetData(), textOpt);
     }
   }
 }

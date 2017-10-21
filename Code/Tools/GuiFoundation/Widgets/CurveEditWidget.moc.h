@@ -2,21 +2,13 @@
 
 #include <GuiFoundation/Basics.h>
 #include <Foundation/Math/Curve1D.h>
-#include <GuiFoundation/Widgets/GraphicsView.moc.h>
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <GuiFoundation/Widgets/CurveEditData.h>
 
 #include <QWidget>
 #include <QPen>
 #include <QBrush>
-
-struct ezSelectedCurveCP
-{
-  EZ_DECLARE_POD_TYPE();
-
-  ezUInt16 m_uiCurve;
-  ezUInt16 m_uiPoint;
-};
 
 class ezQGridBarWidget;
 class QRubberBand;
@@ -28,7 +20,7 @@ class EZ_GUIFOUNDATION_DLL ezQtCurveEditWidget : public QWidget
 public:
   ezQtCurveEditWidget(QWidget* parent);
 
-  void SetCurves(const ezArrayPtr<ezCurve1D>& curves);
+  void SetCurves(const ezCurve1DAssetData* pCurveEditData);
   void SetGridBarWidget(ezQGridBarWidget* pGridBar) { m_pGridBar = pGridBar; }
 
   QPoint MapFromScene(const QPointF& pos) const;
@@ -49,9 +41,10 @@ signals:
   void DeleteControlPointsEvent();
   void MoveControlPointsEvent(double moveX, double moveY);
   void MoveTangentsEvent(double moveX, double moveY);
-  void BeginOperation(QString name);
-  void EndOperation(bool bCommit);
+  void BeginOperationEvent(QString name);
+  void EndOperationEvent(bool bCommit);
   void ScaleControlPointsEvent(const QPointF& centerPos, double scaleX, double scaleY);
+  void ContextMenuEvent(QPoint pos, QPointF scenePos);
 
 protected:
   virtual void paintEvent(QPaintEvent* e) override;
@@ -64,7 +57,7 @@ protected:
 
 private:
   enum class ClickTarget { Nothing, SelectedPoint, TangentHandle };
-  enum class EditState { None, DraggingPoints, DraggingTangents, MultiSelect, Panning, ScaleLeftRight, ScaleUpDown };
+  enum class EditState { None, DraggingPoints, DraggingTangents, MultiSelect, RightClick, Panning, ScaleLeftRight, ScaleUpDown };
   enum class SelectArea { None, Center, Top, Bottom, Left, Right };
 
   void PaintCurveSegments(QPainter* painter) const;

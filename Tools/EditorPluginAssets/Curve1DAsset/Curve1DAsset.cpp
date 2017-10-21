@@ -8,39 +8,6 @@
 #include <QPainter>
 #include <QPaintEngine>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DControlPoint, 2, ezRTTIDefaultAllocator<ezCurve1DControlPoint>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("Point", m_Point),
-    EZ_MEMBER_PROPERTY("LeftTangent", m_LeftTangent)->AddAttributes(new ezDefaultValueAttribute(ezVec2(-0.1f, 0))),
-    EZ_MEMBER_PROPERTY("RightTangent", m_RightTangent)->AddAttributes(new ezDefaultValueAttribute(ezVec2(+0.1f, 0))),
-  }
-  EZ_END_PROPERTIES
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DData, 2, ezRTTIDefaultAllocator<ezCurve1DData>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("Color", m_CurveColor),
-    EZ_ARRAY_MEMBER_PROPERTY("ControlPoints", m_ControlPoints),
-  }
-  EZ_END_PROPERTIES
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DAssetData, 1, ezRTTIDefaultAllocator<ezCurve1DAssetData>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_ARRAY_MEMBER_PROPERTY("Curves", m_Curves),
-  }
-  EZ_END_PROPERTIES
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DAssetDocument, 3, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -51,20 +18,8 @@ ezCurve1DAssetDocument::ezCurve1DAssetDocument(const char* szDocumentPath)
 
 void ezCurve1DAssetDocument::FillCurve(ezUInt32 uiCurveIdx, ezCurve1D& out_Result) const
 {
-  out_Result.Clear();
-
   const ezCurve1DAssetData* pProp = static_cast<const ezCurve1DAssetData*>(GetProperties());
-
-  const auto& curve = pProp->m_Curves[uiCurveIdx];
-  out_Result.SetCurveColor(curve.m_CurveColor);
-
-  for (const auto& cp : curve.m_ControlPoints)
-  {
-    auto& ccp = out_Result.AddControlPoint(cp.m_Point.x);
-    ccp.m_Position.y = cp.m_Point.y;
-    ccp.m_LeftTangent = cp.m_LeftTangent;
-    ccp.m_RightTangent = cp.m_RightTangent;
-  }
+  pProp->ConvertToRuntimeData(uiCurveIdx, out_Result);
 }
 
 ezUInt32 ezCurve1DAssetDocument::GetCurveCount() const
@@ -211,7 +166,6 @@ public:
 };
 
 ezCurve1DControlPointPatch_1_2 g_ezCurve1DControlPointPatch_1_2;
-
 
 
 class ezCurve1DDataPatch_1_2 : public ezGraphPatch

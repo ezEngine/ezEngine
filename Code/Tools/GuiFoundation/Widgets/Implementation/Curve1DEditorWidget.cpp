@@ -7,6 +7,7 @@
 #include <QGraphicsSceneEvent>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Math/Math.h>
+#include <QMenu>
 
 ezQtCurve1DEditorWidget::ezQtCurve1DEditorWidget(QWidget* pParent)
   : QWidget(pParent)
@@ -19,29 +20,28 @@ ezQtCurve1DEditorWidget::ezQtCurve1DEditorWidget(QWidget* pParent)
   connect(CurveEdit, &ezQtCurveEditWidget::DoubleClickEvent, this, &ezQtCurve1DEditorWidget::onDoubleClick);
   connect(CurveEdit, &ezQtCurveEditWidget::MoveControlPointsEvent, this, &ezQtCurve1DEditorWidget::onMoveControlPoints);
   connect(CurveEdit, &ezQtCurveEditWidget::MoveTangentsEvent, this, &ezQtCurve1DEditorWidget::onMoveTangents);
-  connect(CurveEdit, &ezQtCurveEditWidget::BeginOperation, this, &ezQtCurve1DEditorWidget::onBeginOperation);
-  connect(CurveEdit, &ezQtCurveEditWidget::EndOperation, this, [this](bool commit) { emit EndOperation(commit); });
+  connect(CurveEdit, &ezQtCurveEditWidget::BeginOperationEvent, this, &ezQtCurve1DEditorWidget::onBeginOperation);
+  connect(CurveEdit, &ezQtCurveEditWidget::EndOperationEvent, this, [this](bool commit) { emit EndOperationEvent(commit); });
   connect(CurveEdit, &ezQtCurveEditWidget::ScaleControlPointsEvent, this, &ezQtCurve1DEditorWidget::onScaleControlPoints);
+  connect(CurveEdit, &ezQtCurveEditWidget::ContextMenuEvent, this, &ezQtCurve1DEditorWidget::onContextMenu);
 }
 
 ezQtCurve1DEditorWidget::~ezQtCurve1DEditorWidget()
 {
 }
 
-void ezQtCurve1DEditorWidget::SetCurves(const ezArrayPtr<ezCurve1D>& curves)
+void ezQtCurve1DEditorWidget::SetCurves(const ezCurve1DAssetData& curves)
 {
   ezQtScopedUpdatesDisabled ud(this);
   ezQtScopedBlockSignals bs(this);
 
   m_Curves = curves;
 
-  CurveEdit->SetCurves(curves);
+  CurveEdit->SetCurves(&curves);
 }
 
 void ezQtCurve1DEditorWidget::FrameCurve()
 {
-
-  //curveWidget->update();
 }
 
 void ezQtCurve1DEditorWidget::on_ButtonFrame_clicked()
@@ -49,45 +49,115 @@ void ezQtCurve1DEditorWidget::on_ButtonFrame_clicked()
   FrameCurve();
 }
 
-//void ezQtCurve1DEditorWidget::on_curveWidget_selectionChanged(ezInt32 colorCP, ezInt32 alphaCP, ezInt32 intensityCP)
-//{
-//  m_iSelectedColorCP = colorCP;
-//  m_iSelectedAlphaCP = alphaCP;
-//  m_iSelectedIntensityCP = intensityCP;
-//
-//  SpinPosition->setEnabled((m_iSelectedColorCP != -1) || (m_iSelectedAlphaCP != -1) || (m_iSelectedIntensityCP != -1));
-//
-//  LabelColor->setVisible(m_iSelectedColorCP != -1);
-//  ButtonColor->setVisible(m_iSelectedColorCP != -1);
-//
-//  LabelAlpha->setVisible(m_iSelectedAlphaCP != -1);
-//  SpinAlpha->setVisible(m_iSelectedAlphaCP != -1);
-//  SliderAlpha->setVisible(m_iSelectedAlphaCP != -1);
-//
-//  LabelIntensity->setVisible(m_iSelectedIntensityCP != -1);
-//  SpinIntensity->setVisible(m_iSelectedIntensityCP != -1);
-//
-//  UpdateCpUi();
-//}
-
-
 void ezQtCurve1DEditorWidget::on_SpinPosition_valueChanged(double value)
 {
-  //if (m_iSelectedColorCP != -1)
-  //{
-  //  emit ColorCpMoved(m_iSelectedColorCP, value);
-  //}
+}
+
+void ezQtCurve1DEditorWidget::NormalizeCurveX(ezUInt32 uiActiveCurve)
+{
+  ezCurve1D CurveData;
+  m_Curves.ConvertToRuntimeData(uiActiveCurve, CurveData);
+
+  const ezUInt32 numCPs = CurveData.GetNumControlPoints();
+
+  if (numCPs < 2)
+    return;
+
+  CurveData.RecomputeExtents();
+
+  float minX, maxX;
+  CurveData.QueryExtents(minX, maxX);
+
+  if (minX == 0 && maxX == 1)
+    return;
+
+  emit BeginOperationEvent("Normalize Curve (X)");
+
+  const float rangeNorm = 1.0f / (maxX - minX);
+
+  for (ezUInt32 i = 0; i < numCPs; ++i)
+  {
+    const auto& cp = CurveData.GetControlPoint(i);
+
+    ezVec2 pos = cp.m_Position;
+    pos.x -= minX;
+    pos.x *= rangeNorm;
+
+    emit CpMovedEvent(uiActiveCurve, i, pos.x, pos.y);
+
+    ezVec2 lt = cp.m_LeftTangent;
+    lt.x *= rangeNorm;
+    emit TangentMovedEvent(uiActiveCurve, i, lt.x, lt.y, false);
+
+    ezVec2 rt = cp.m_RightTangent;
+    rt.x *= rangeNorm;
+    emit TangentMovedEvent(uiActiveCurve, i, rt.x, rt.y, true);
+  }
+
+  emit EndOperationEvent(true);
+
+  FrameCurve();
+}
+
+void ezQtCurve1DEditorWidget::NormalizeCurveY(ezUInt32 uiActiveCurve)
+{
+  ezCurve1D CurveData;
+  m_Curves.ConvertToRuntimeData(uiActiveCurve, CurveData);
+
+  const ezUInt32 numCPs = CurveData.GetNumControlPoints();
+
+  if (numCPs < 2)
+    return;
+
+  ezCurve1D CurveDataSorted = CurveData;
+  CurveDataSorted.SortControlPoints();
+  CurveDataSorted.CreateLinearApproximation();
+
+  float minY, maxY;
+  CurveDataSorted.QueryExtremeValues(minY, maxY);
+
+  if (minY == 0 && maxY == 1)
+    return;
+
+  emit BeginOperationEvent("Normalize Curve (Y)");
+
+  const float rangeNorm = 1.0f / (maxY - minY);
+
+  for (ezUInt32 i = 0; i < numCPs; ++i)
+  {
+    const auto& cp = CurveData.GetControlPoint(i);
+
+    ezVec2 pos = cp.m_Position;
+    pos.y -= minY;
+    pos.y *= rangeNorm;
+
+    emit CpMovedEvent(uiActiveCurve, i, pos.x, pos.y);
+
+    ezVec2 lt = cp.m_LeftTangent;
+    lt.y *= rangeNorm;
+    emit TangentMovedEvent(uiActiveCurve, i, lt.x, lt.y, false);
+
+    ezVec2 rt = cp.m_RightTangent;
+    rt.y *= rangeNorm;
+    emit TangentMovedEvent(uiActiveCurve, i, rt.x, rt.y, true);
+  }
+
+  emit EndOperationEvent(true);
+
+  FrameCurve();
 }
 
 void ezQtCurve1DEditorWidget::on_ButtonNormalizeX_clicked()
 {
-  emit NormalizeRangeX();
+  /// \todo Active curve index
+  NormalizeCurveX(0);
 }
 
 
 void ezQtCurve1DEditorWidget::on_ButtonNormalizeY_clicked()
 {
-  emit NormalizeRangeY();
+  /// \todo Active curve index
+  NormalizeCurveY(0);
 }
 
 struct PtToDelete
@@ -112,7 +182,7 @@ void ezQtCurve1DEditorWidget::onDeleteControlPoints()
 
   CurveEdit->ClearSelection();
 
-  emit BeginCpChanges("Delete Points");
+  emit BeginCpChangesEvent("Delete Points");
 
   ezHybridArray<PtToDelete, 16> delOrder;
 
@@ -128,10 +198,10 @@ void ezQtCurve1DEditorWidget::onDeleteControlPoints()
   // delete sorted from back to front to prevent point indices becoming invalidated
   for (const auto& pt : delOrder)
   {
-    emit CpDeleted(pt.m_uiCurveIdx, pt.m_uiPointIdx);
+    emit CpDeletedEvent(pt.m_uiCurveIdx, pt.m_uiPointIdx);
   }
 
-  emit EndCpChanges();
+  emit EndCpChangesEvent();
 }
 
 void ezQtCurve1DEditorWidget::onDoubleClick(const QPointF& scenePos, const QPointF& epsilon)
@@ -148,17 +218,17 @@ void ezQtCurve1DEditorWidget::onMoveControlPoints(double x, double y)
   if (selection.IsEmpty())
     return;
 
-  emit BeginCpChanges("Move Points");
+  emit BeginCpChangesEvent("Move Points");
 
   for (const auto& cpSel : selection)
   {
-    const auto& cp = m_CurvesBackup[cpSel.m_uiCurve].GetControlPoint(cpSel.m_uiPoint);
-    const ezVec2 newPos = cp.m_Position + m_ControlPointMove;
+    const auto& cp = m_CurvesBackup.m_Curves[cpSel.m_uiCurve].m_ControlPoints[cpSel.m_uiPoint];
+    const ezVec2 newPos = cp.m_Point + m_ControlPointMove;
 
-    emit CpMoved(cpSel.m_uiCurve, cpSel.m_uiPoint, newPos.x, newPos.y);
+    emit CpMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, newPos.x, newPos.y);
   }
 
-  emit EndCpChanges();
+  emit EndCpChangesEvent();
 }
 
 void ezQtCurve1DEditorWidget::onScaleControlPoints(QPointF refPt, double scaleX, double scaleY)
@@ -171,17 +241,17 @@ void ezQtCurve1DEditorWidget::onScaleControlPoints(QPointF refPt, double scaleX,
   const ezVec2 ref(refPt.x(), refPt.y());
   const ezVec2 scale(scaleX, scaleY);
 
-  emit BeginCpChanges("Scale Points");
+  emit BeginCpChangesEvent("Scale Points");
 
   for (const auto& cpSel : selection)
   {
-    const auto& cp = m_CurvesBackup[cpSel.m_uiCurve].GetControlPoint(cpSel.m_uiPoint);
-    const ezVec2 newPos = ref + (cp.m_Position - ref).CompMul(scale);
+    const auto& cp = m_CurvesBackup.m_Curves[cpSel.m_uiCurve].m_ControlPoints[cpSel.m_uiPoint];
+    const ezVec2 newPos = ref + (cp.m_Point - ref).CompMul(scale);
 
-    emit CpMoved(cpSel.m_uiCurve, cpSel.m_uiPoint, newPos.x, newPos.y);
+    emit CpMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, newPos.x, newPos.y);
   }
 
-  emit EndCpChanges();
+  emit EndCpChangesEvent();
 }
 
 void ezQtCurve1DEditorWidget::onMoveTangents(double x, double y)
@@ -195,10 +265,10 @@ void ezQtCurve1DEditorWidget::onMoveTangents(double x, double y)
   if (!CurveEdit->GetSelectedTangent(iCurve, iPoint, bLeftTangent))
     return;
 
-  emit BeginCpChanges("Move Tangents");
+  emit BeginCpChangesEvent("Move Tangents");
 
   {
-    const auto& cp = m_CurvesBackup[iCurve].GetControlPoint(iPoint);
+    const auto& cp = m_CurvesBackup.m_Curves[iCurve].m_ControlPoints[iPoint];
     ezVec2 newPos;
 
     if (bLeftTangent)
@@ -206,10 +276,10 @@ void ezQtCurve1DEditorWidget::onMoveTangents(double x, double y)
     else
       newPos = cp.m_RightTangent + m_TangentMove;
 
-    emit TangentMoved(iCurve, iPoint, newPos.x, newPos.y, !bLeftTangent);
+    emit TangentMovedEvent(iCurve, iPoint, newPos.x, newPos.y, !bLeftTangent);
   }
 
-  emit EndCpChanges();
+  emit EndCpChangesEvent();
 }
 
 void ezQtCurve1DEditorWidget::onBeginOperation(QString name)
@@ -218,6 +288,124 @@ void ezQtCurve1DEditorWidget::onBeginOperation(QString name)
   m_TangentMove.SetZero();
   m_ControlPointMove.SetZero();
 
-  emit BeginOperation(name);
+  emit BeginOperationEvent(name);
 }
+
+void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
+{
+  m_contextMenuScenePos = scenePos;
+
+  QMenu m(this);
+  m.addAction("Add Point", this, SLOT(onAddPoint()));
+
+  const auto& selection = CurveEdit->GetSelection();
+
+  if (!selection.IsEmpty())
+  {
+    m.addAction("Delete Points", this, SLOT(onDeleteControlPoints()));
+    m.addAction("Link Tangents", this, SLOT(onLinkTangents()));
+    m.addAction("Break Tangents", this, SLOT(onBreakTangents()));
+
+  }
+
+  if (!m.isEmpty())
+    m.exec(pos);
+}
+
+void ezQtCurve1DEditorWidget::onAddPoint()
+{
+  InsertCpAt(m_contextMenuScenePos.x(), m_contextMenuScenePos.y(), 0);
+}
+
+void ezQtCurve1DEditorWidget::onLinkTangents()
+{
+
+}
+
+void ezQtCurve1DEditorWidget::onBreakTangents()
+{
+
+}
+
+void ezQtCurve1DEditorWidget::InsertCpAt(float posX, float value, float epsilon)
+{
+  int curveIdx = 0, cpIdx = 0;
+
+  // do not insert at a point where a CP already exists
+  if (PickControlPointAt(posX, value, epsilon, curveIdx, cpIdx))
+    return;
+
+  if (!PickCurveAt(posX, value, epsilon, curveIdx, value))
+  {
+    // by default insert into curve 0
+    curveIdx = 0;
+  }
+
+  emit InsertCpEvent(curveIdx, posX, value);
+}
+
+
+bool ezQtCurve1DEditorWidget::PickCurveAt(float x, float y, float fMaxYDistance, ezInt32& out_iCurveIdx, float& out_ValueY) const
+{
+  out_iCurveIdx = -1;
+  ezCurve1D CurveData;
+
+  for (ezUInt32 i = 0; i < m_Curves.m_Curves.GetCount(); ++i)
+  {
+    m_Curves.ConvertToRuntimeData(i, CurveData);
+
+    CurveData.SortControlPoints();
+    CurveData.CreateLinearApproximation();
+
+    float minVal, maxVal;
+    CurveData.QueryExtents(minVal, maxVal);
+
+    if (x < minVal || x > maxVal)
+      continue;
+
+    const float val = CurveData.Evaluate(x);
+
+    const float dist = ezMath::Abs(val - y);
+    if (dist < fMaxYDistance)
+    {
+      fMaxYDistance = dist;
+      out_iCurveIdx = i;
+      out_ValueY = val;
+    }
+  }
+
+  return out_iCurveIdx >= 0;
+}
+
+bool ezQtCurve1DEditorWidget::PickControlPointAt(float x, float y, float fMaxDistance, ezInt32& out_iCurveIdx, ezInt32& out_iCpIdx) const
+{
+  const ezVec2 at(x, y);
+  float fMaxDistSqr = ezMath::Square(fMaxDistance);
+
+  out_iCurveIdx = -1;
+  out_iCpIdx = -1;
+
+  ezCurve1D CurveData;
+
+  for (ezUInt32 iCurve = 0; iCurve < m_Curves.m_Curves.GetCount(); ++iCurve)
+  {
+    m_Curves.ConvertToRuntimeData(iCurve, CurveData);
+
+    for (ezUInt32 iCP = 0; iCP < CurveData.GetNumControlPoints(); ++iCP)
+    {
+      const auto& cp = CurveData.GetControlPoint(iCP);
+      const float fDistSqr = (cp.m_Position - at).GetLengthSquared();
+      if (fDistSqr <= fMaxDistSqr)
+      {
+        fMaxDistSqr = fDistSqr;
+        out_iCurveIdx = iCurve;
+        out_iCpIdx = iCP;
+      }
+    }
+  }
+
+  return out_iCpIdx >= 0;
+}
+
+
 

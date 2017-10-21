@@ -76,11 +76,20 @@ ezQtCurveEditWidget::ezQtCurveEditWidget(QWidget* parent)
   m_TangentHandleBrush.setStyle(Qt::BrushStyle::SolidPattern);
 }
 
-void ezQtCurveEditWidget::SetCurves(const ezArrayPtr<ezCurve1D>& curves)
+void ezQtCurveEditWidget::SetCurves(const ezCurve1DAssetData* pCurveEditData)
 {
-  m_Curves = curves;
-  m_CurvesSorted = curves;
-  m_CurveExtents.SetCount(curves.GetCount());
+  m_Curves.Clear();
+  m_Curves.Reserve(pCurveEditData->m_Curves.GetCount());
+
+  for (ezUInt32 i = 0; i < pCurveEditData->m_Curves.GetCount(); ++i)
+  {
+    auto& data = m_Curves.ExpandAndGetRef();
+
+    pCurveEditData->ConvertToRuntimeData(i, data);
+  }
+
+  m_CurvesSorted = m_Curves;
+  m_CurveExtents.SetCount(m_Curves.GetCount());
 
   for (ezUInt32 i = 0; i < m_CurvesSorted.GetCount(); ++i)
   {
@@ -239,7 +248,7 @@ void ezQtCurveEditWidget::mousePressEvent(QMouseEvent* e)
 
   if (e->button() == Qt::RightButton)
   {
-    m_State = EditState::Panning;
+    m_State = EditState::RightClick;
     return;
   }
 
@@ -310,17 +319,17 @@ void ezQtCurveEditWidget::mousePressEvent(QMouseEvent* e)
 
       if (m_State == EditState::DraggingPoints)
       {
-        emit BeginOperation("Drag Points");
+        emit BeginOperationEvent("Drag Points");
         m_bBegunChanges = true;
       }
       else if (m_State == EditState::ScaleLeftRight)
       {
-        emit BeginOperation("Scale Points Left / Right");
+        emit BeginOperationEvent("Scale Points Left / Right");
         m_bBegunChanges = true;
       }
       else if (m_State == EditState::ScaleUpDown)
       {
-        emit BeginOperation("Scale Points Up / Down");
+        emit BeginOperationEvent("Scale Points Up / Down");
         m_bBegunChanges = true;
       }
 
@@ -329,7 +338,7 @@ void ezQtCurveEditWidget::mousePressEvent(QMouseEvent* e)
     else if (clickedOn == ClickTarget::TangentHandle)
     {
       m_State = EditState::DraggingTangents;
-      emit BeginOperation("Drag Tangents");
+      emit BeginOperationEvent("Drag Tangents");
       EZ_ASSERT_DEBUG(!m_bBegunChanges, "Invalid State");
       m_bBegunChanges = true;
     }
@@ -349,26 +358,17 @@ void ezQtCurveEditWidget::mouseReleaseEvent(QMouseEvent* e)
 {
   QWidget::mouseReleaseEvent(e);
 
-  if (e->buttons() == Qt::NoButton)
+  if (e->button() == Qt::RightButton)
   {
-    unsetCursor();
+    if (m_State == EditState::Panning)
+      m_State = EditState::None;
 
-    m_State = EditState::None;
-    m_iSelectedTangentCurve = -1;
-    m_iSelectedTangentPoint = -1;
-
-    if (m_bBegunChanges)
+    if (m_State == EditState::RightClick)
     {
-      m_bBegunChanges = false;
-      emit EndOperation(true);
+      m_State = EditState::None;
+
+      ContextMenuEvent(mapToGlobal(e->pos()), MapToScene(e->pos()));
     }
-
-    update();
-  }
-
-  if (e->button() == Qt::RightButton && m_State == EditState::Panning)
-  {
-    m_State = EditState::None;
   }
 
   if (e->button() == Qt::LeftButton &&
@@ -383,7 +383,7 @@ void ezQtCurveEditWidget::mouseReleaseEvent(QMouseEvent* e)
     if (m_bBegunChanges)
     {
       m_bBegunChanges = false;
-      emit EndOperation(true);
+      emit EndOperationEvent(true);
     }
 
     update();
@@ -417,6 +417,23 @@ void ezQtCurveEditWidget::mouseReleaseEvent(QMouseEvent* e)
       update();
     }
   }
+
+  if (e->buttons() == Qt::NoButton)
+  {
+    unsetCursor();
+
+    m_State = EditState::None;
+    m_iSelectedTangentCurve = -1;
+    m_iSelectedTangentPoint = -1;
+
+    if (m_bBegunChanges)
+    {
+      m_bBegunChanges = false;
+      emit EndOperationEvent(true);
+    }
+
+    update();
+  }
 }
 
 void ezQtCurveEditWidget::mouseMoveEvent(QMouseEvent* e)
@@ -428,8 +445,9 @@ void ezQtCurveEditWidget::mouseMoveEvent(QMouseEvent* e)
   const double moveX = (double)diff.x() / m_SceneToPixelScale.x();
   const double moveY = (double)diff.y() / m_SceneToPixelScale.y();
 
-  if (m_State == EditState::Panning)
+  if (m_State == EditState::RightClick || m_State == EditState::Panning)
   {
+    m_State = EditState::Panning;
     cursor = Qt::ClosedHandCursor;
 
     m_SceneTranslation.setX(m_SceneTranslation.x() - moveX);
@@ -851,12 +869,16 @@ void ezQtCurveEditWidget::RenderSideLinesAndText(QPainter* painter, const QRectF
 
     painter->setPen(palette().buttonText().color());
 
+    ezStringBuilder tmp;
+
     for (double y = lowY; y <= highY; y += fRoughGridDensity)
     {
       const QPoint pos = MapFromScene(QPointF(0, y));
 
       textRect.setRect(0, pos.y() - 15, areaRect.width(), 15);
-      painter->drawText(textRect, QString("%1").arg(y, 2), textOpt);
+      tmp.Format("{0}", ezArgF(y));
+
+      painter->drawText(textRect, tmp.GetData(), textOpt);
     }
   }
 
@@ -1013,7 +1035,6 @@ bool ezQtCurveEditWidget::CombineSelection(ezDynamicArray<ezSelectedCurveCP>& in
   return bChange;
 }
 
-
 void ezQtCurveEditWidget::ComputeSelectionRect()
 {
   m_selectionBRect = QRectF();
@@ -1056,7 +1077,6 @@ ezQtCurveEditWidget::SelectArea ezQtCurveEditWidget::WhereIsPoint(QPoint pos) co
 
   if (barTop.contains(pos))
     return SelectArea::Top;
-
 
   if (barBottom.contains(pos))
     return SelectArea::Bottom;
