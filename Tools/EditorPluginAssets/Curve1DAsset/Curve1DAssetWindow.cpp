@@ -51,6 +51,7 @@ ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocu
   connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::CpMovedEvent, this, &ezQtCurve1DAssetDocumentWindow::onCurveCpMoved);
   connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::CpDeletedEvent, this, &ezQtCurve1DAssetDocumentWindow::onCurveCpDeleted);
   connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::TangentMovedEvent, this, &ezQtCurve1DAssetDocumentWindow::onCurveTangentMoved);
+  connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::TangentLinkEvent, this, &ezQtCurve1DAssetDocumentWindow::onLinkCurveTangents);
 
   connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::BeginOperationEvent, this, &ezQtCurve1DAssetDocumentWindow::onCurveBeginOperation);
   connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::EndOperationEvent, this, &ezQtCurve1DAssetDocumentWindow::onCurveEndOperation);
@@ -222,6 +223,31 @@ void ezQtCurve1DAssetDocumentWindow::onCurveTangentMoved(ezUInt32 curveIdx, ezUI
   cmdSet.m_sProperty = rightTangent ? "RightTangent" : "LeftTangent";
   cmdSet.m_NewValue = ezVec2(newPosX, newPosY);
   GetDocument()->GetCommandHistory()->AddCommand(cmdSet);
+}
+
+void ezQtCurve1DAssetDocumentWindow::onLinkCurveTangents(ezUInt32 curveIdx, ezUInt32 cpIdx, bool bLink)
+{
+  ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
+
+  auto pProp = pDoc->GetPropertyObject();
+
+  const ezVariant curveGuid = pProp->GetTypeAccessor().GetValue("Curves", curveIdx);
+  const ezDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<ezUuid>());
+  const ezVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+
+  ezSetObjectPropertyCommand cmdLink;
+  cmdLink.m_Object = cpGuid.Get<ezUuid>();
+  cmdLink.m_sProperty = "Linked";
+  cmdLink.m_NewValue = bLink;
+  GetDocument()->GetCommandHistory()->AddCommand(cmdLink);
+
+  if (bLink)
+  {
+    const ezVec2 leftTangent = pDoc->GetProperties()->m_Curves[curveIdx].m_ControlPoints[cpIdx].m_LeftTangent;
+    const ezVec2 rightTangent(-leftTangent.x, -leftTangent.y);
+
+    onCurveTangentMoved(curveIdx, cpIdx, rightTangent.x, rightTangent.y, true);
+  }
 }
 
 void ezQtCurve1DAssetDocumentWindow::UpdatePreview()

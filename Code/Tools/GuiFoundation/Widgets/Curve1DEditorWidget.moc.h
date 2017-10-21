@@ -23,6 +23,7 @@ signals:
   void CpDeletedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx);
   void TangentMovedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent);
   void InsertCpEvent(ezUInt32 uiCurveIdx, float posX, float value);
+  void TangentLinkEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, bool bLink);
 
   void BeginCpChangesEvent(QString name);
   void EndCpChangesEvent();
@@ -45,6 +46,7 @@ private slots:
   void onAddPoint();
   void onLinkTangents();
   void onBreakTangents();
+  void onFlattenTangents();
 
 private:
   void NormalizeCurveX(ezUInt32 uiActiveCurve);

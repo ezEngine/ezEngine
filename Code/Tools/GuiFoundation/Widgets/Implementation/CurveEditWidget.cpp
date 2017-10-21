@@ -88,6 +88,20 @@ void ezQtCurveEditWidget::SetCurves(const ezCurve1DAssetData* pCurveEditData)
     pCurveEditData->ConvertToRuntimeData(i, data);
   }
 
+  // make sure the selection does not contain points that got deleted
+  for (ezUInt32 i = 0; i < m_SelectedCPs.GetCount(); )
+  {
+    if (m_SelectedCPs[i].m_uiCurve >= m_Curves.GetCount() ||
+      m_SelectedCPs[i].m_uiPoint >= m_Curves[m_SelectedCPs[i].m_uiCurve].GetNumControlPoints())
+    {
+      m_SelectedCPs.RemoveAt(i);
+    }
+    else
+    {
+      ++i;
+    }
+  }
+
   m_CurvesSorted = m_Curves;
   m_CurveExtents.SetCount(m_Curves.GetCount());
 

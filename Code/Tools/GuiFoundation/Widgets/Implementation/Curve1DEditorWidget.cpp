@@ -277,6 +277,11 @@ void ezQtCurve1DEditorWidget::onMoveTangents(double x, double y)
       newPos = cp.m_RightTangent + m_TangentMove;
 
     emit TangentMovedEvent(iCurve, iPoint, newPos.x, newPos.y, !bLeftTangent);
+
+    if (cp.m_bTangentsLinked)
+    {
+      emit TangentMovedEvent(iCurve, iPoint, -newPos.x, -newPos.y, bLeftTangent);
+    }
   }
 
   emit EndCpChangesEvent();
@@ -303,8 +308,10 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
   if (!selection.IsEmpty())
   {
     m.addAction("Delete Points", this, SLOT(onDeleteControlPoints()));
+    m.addSeparator();
     m.addAction("Link Tangents", this, SLOT(onLinkTangents()));
     m.addAction("Break Tangents", this, SLOT(onBreakTangents()));
+    m.addAction("Flatten Tangents", this, SLOT(onFlattenTangents()));
 
   }
 
@@ -319,12 +326,49 @@ void ezQtCurve1DEditorWidget::onAddPoint()
 
 void ezQtCurve1DEditorWidget::onLinkTangents()
 {
+  const auto& selection = CurveEdit->GetSelection();
 
+  emit BeginOperationEvent("Link Tangents");
+
+  for (const auto& cpSel : selection)
+  {
+    emit TangentLinkEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, true);
+  }
+
+  emit EndOperationEvent(true);
 }
 
 void ezQtCurve1DEditorWidget::onBreakTangents()
 {
+  const auto& selection = CurveEdit->GetSelection();
 
+  emit BeginOperationEvent("Break Tangents");
+
+  for (const auto& cpSel : selection)
+  {
+    emit TangentLinkEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, false);
+  }
+
+  emit EndOperationEvent(true);
+}
+
+
+void ezQtCurve1DEditorWidget::onFlattenTangents()
+{
+  const auto& selection = CurveEdit->GetSelection();
+
+  emit BeginOperationEvent("Flatten Tangents");
+
+  for (const auto& cpSel : selection)
+  {
+    const auto& tL = m_Curves.m_Curves[cpSel.m_uiCurve].m_ControlPoints[cpSel.m_uiPoint].m_LeftTangent;
+    const auto& tR = m_Curves.m_Curves[cpSel.m_uiCurve].m_ControlPoints[cpSel.m_uiPoint].m_RightTangent;
+
+    emit TangentMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, tL.x, 0, false);
+    emit TangentMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, tR.x, 0, true);
+  }
+
+  emit EndOperationEvent(true);
 }
 
 void ezQtCurve1DEditorWidget::InsertCpAt(float posX, float value, float epsilon)
