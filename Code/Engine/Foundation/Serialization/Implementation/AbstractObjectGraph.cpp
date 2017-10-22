@@ -168,6 +168,11 @@ void ezAbstractObjectNode::RemoveProperty(const char* szName)
   }
 }
 
+void ezAbstractObjectNode::SetType(const char* szType)
+{
+  m_szType = m_pOwner->RegisterString(szType);
+}
+
 const ezAbstractObjectNode::Property* ezAbstractObjectNode::FindProperty(const char* szName) const
 {
   for (ezUInt32 i = 0; i < m_Properties.GetCount(); ++i)

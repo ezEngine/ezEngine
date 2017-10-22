@@ -53,6 +53,22 @@ void ezGraphPatchContext::PatchBaseClass(const char* szType, ezUInt32 uiTypeVers
   EZ_REPORT_FAILURE("Base class of name '{0}' not found in parent types of '{1}'", sType.GetData(), m_pNode->GetType());
 }
 
+void ezGraphPatchContext::RenameClass(const char* szTypeName)
+{
+  m_pNode->SetType(m_pGraph->RegisterString(szTypeName));
+  m_BaseClasses[m_uiBaseClassIndex].m_sType.Assign(szTypeName);
+}
+
+
+void ezGraphPatchContext::ChangeBaseClass(ezArrayPtr<ezVersionKey> baseClasses)
+{
+  m_BaseClasses.SetCount(m_uiBaseClassIndex + 1 + baseClasses.GetCount());
+  for (ezUInt32 i = 0; i < baseClasses.GetCount(); i++)
+  {
+    m_BaseClasses[m_uiBaseClassIndex + 1 + i] = baseClasses[i];
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 ezGraphPatchContext::ezGraphPatchContext(ezGraphVersioning* pParent, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph)
@@ -117,9 +133,10 @@ void ezGraphPatchContext::Patch(ezUInt32 uiBaseClassIndex, ezUInt32 uiTypeVersio
     if (m_pParent->m_NodePatches.TryGetValue(key, pPatch))
     {
       pPatch->Patch(*this, m_pGraph, m_pNode);
-      // Don't use a ref to the key as the array might get resized during patching.
-      m_BaseClasses[m_uiBaseClassIndex].m_uiTypeVersion = key.m_uiTypeVersion;
+      uiTypeVersion = m_pParent->GetMaxPatchVersion(m_BaseClasses[m_uiBaseClassIndex].m_sType);
     }
+    // Don't use a ref to the key as the array might get resized during patching.
+    m_BaseClasses[m_uiBaseClassIndex].m_uiTypeVersion = key.m_uiTypeVersion;
   }
 }
 

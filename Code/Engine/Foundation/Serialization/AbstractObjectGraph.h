@@ -38,6 +38,7 @@ public:
   const ezUInt32 GetTypeVersion() const { return m_uiTypeVersion; }
   void SetTypeVersion(ezUInt32 uiTypeVersion) { m_uiTypeVersion = uiTypeVersion; }
   const char* GetType() const { return m_szType; }
+  void SetType(const char* szType);
 
   const Property* FindProperty(const char* szName) const;
   Property* FindProperty(const char* szName);

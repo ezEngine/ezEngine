@@ -8,51 +8,173 @@
 #include <Foundation/Serialization/GraphVersioning.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Versioning);
-///
-class ezFloatStruct_1_2 : public ezGraphPatch
+
+struct ezPatchTestBase
 {
 public:
-  ezFloatStruct_1_2() : ezGraphPatch("ezFloatStruct", 2) {}
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  ezPatchTestBase()
   {
-    pNode->ChangeProperty("Double", (double)10.0);
-    pNode->RenameProperty("Time", "TimeRenamed");
+    m_string = "Base";
+    m_string2 = "";
   }
-};
-ezFloatStruct_1_2 g_ezFloatStruct_1_2;
 
-///
-class ezPODClass_1_2 : public ezGraphPatch
+  ezString m_string;
+  ezString m_string2;
+};
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezPatchTestBase);
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezPatchTestBase, ezNoBase, 1, ezRTTIDefaultAllocator<ezPatchTestBase>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("String", m_string),
+    EZ_MEMBER_PROPERTY("String2", m_string2),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_STATIC_REFLECTED_TYPE
+
+struct ezPatchTest : public ezPatchTestBase
 {
 public:
-  ezPODClass_1_2() : ezGraphPatch("ezPODClass", 2) {}
-  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  ezPatchTest()
   {
-    pNode->ChangeProperty("Color", ezColor(0.0f, 1.0f, 0.0f, 0.0f));
+    m_iInt32 = 1;
   }
+
+  ezInt32 m_iInt32;
 };
-ezPODClass_1_2 g_ezPODClass_1_2;
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezPatchTest);
 
-
-ezAbstractObjectNode* SerializeObject(ezAbstractObjectGraph& graph, ezAbstractObjectGraph& typesGraph, const ezRTTI* pRtti, void* pObject)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezPatchTest, ezPatchTestBase, 1, ezRTTIDefaultAllocator<ezPatchTest>)
 {
-  ezAbstractObjectNode* pNode = nullptr;
+  EZ_BEGIN_PROPERTIES
   {
-    // Object
-    ezRttiConverterContext context;
-    ezRttiConverterWriter rttiConverter(&graph, &context, true, true);
-    context.RegisterObject(ezUuid::StableUuidForString(pRtti->GetTypeName()), pRtti, pObject);
-    pNode = rttiConverter.AddObjectToGraph(pRtti, pObject, "ROOT");
+    EZ_MEMBER_PROPERTY("Int", m_iInt32),
   }
+  EZ_END_PROPERTIES
+}
+EZ_END_STATIC_REFLECTED_TYPE
+
+
+namespace
+{
+  /// Patch class
+  class ezPatchTestP : public ezGraphPatch
   {
-    // Types
-    ezSet<const ezRTTI*> types;
-    ezReflectionUtils::GatherDependentTypes(pRtti, types);
-    ezToolsReflectionUtils::SerializeTypes(types, typesGraph);
+  public:
+    ezPatchTestP() : ezGraphPatch("ezPatchTestP", 2) {}
+    virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+    {
+      pNode->RenameProperty("Int", "IntRenamed");
+      pNode->ChangeProperty("IntRenamed", 2);
+    }
+  };
+  ezPatchTestP g_ezPatchTestP;
+
+  /// Patch base class
+  class ezPatchTestBaseBP : public ezGraphPatch
+  {
+  public:
+    ezPatchTestBaseBP() : ezGraphPatch("ezPatchTestBaseBP", 2) {}
+    virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+    {
+      pNode->ChangeProperty("String", "BaseClassPatched");
+    }
+  };
+  ezPatchTestBaseBP g_ezPatchTestBaseBP;
+
+  /// Rename class
+  class ezPatchTestRN : public ezGraphPatch
+  {
+  public:
+    ezPatchTestRN() : ezGraphPatch("ezPatchTestRN", 2) {}
+    virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+    {
+      context.RenameClass("ezPatchTestRN2");
+      pNode->ChangeProperty("String", "RenameExecuted");
+    }
+  };
+  ezPatchTestRN g_ezPatchTestRN;
+
+  /// Patch renamed class to v3
+  class ezPatchTestRN2 : public ezGraphPatch
+  {
+  public:
+    ezPatchTestRN2() : ezGraphPatch("ezPatchTestRN2", 3) {}
+    virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+    {
+      pNode->ChangeProperty("String2", "Patched");
+    }
+  };
+  ezPatchTestRN2 g_ezPatchTestRN2;
+
+  /// Change base class
+  class ezPatchTestCB : public ezGraphPatch
+  {
+  public:
+    ezPatchTestCB() : ezGraphPatch("ezPatchTestCB", 2) {}
+    virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+    {
+      ezVersionKey bases[] = { { "ezPatchTestBaseBP", 1 } };
+      context.ChangeBaseClass(bases);
+      pNode->ChangeProperty("String2", "ChangedBase");
+    }
+  };
+  ezPatchTestCB g_ezPatchTestCB;
+
+  void ReplaceTypeName(ezAbstractObjectGraph& graph, ezAbstractObjectGraph& typesGraph, const char* szOldName, const char* szNewName)
+  {
+    for (auto* pNode : graph.GetAllNodes())
+    {
+      if (ezStringUtils::IsEqual(szOldName, pNode->GetType()))
+        pNode->SetType(szNewName);
+    }
+
+    for (auto* pNode : typesGraph.GetAllNodes())
+    {
+      if (ezStringUtils::IsEqual("ezReflectedTypeDescriptor", pNode->GetType()))
+      {
+        if (auto* pProp = pNode->FindProperty("TypeName"))
+        {
+          if (ezStringUtils::IsEqual(szOldName, pProp->m_Value.Get<ezString>()))
+            pProp->m_Value = szNewName;
+        }
+        if (auto* pProp = pNode->FindProperty("ParentTypeName"))
+        {
+          if (ezStringUtils::IsEqual(szOldName, pProp->m_Value.Get<ezString>()))
+            pProp->m_Value = szNewName;
+        }
+      }
+    }
   }
-  ezGraphVersioning::GetSingleton()->PatchGraph(&typesGraph);
-  ezGraphVersioning::GetSingleton()->PatchGraph(&graph, &typesGraph);
-  return pNode;
+
+  ezAbstractObjectNode* SerializeObject(ezAbstractObjectGraph& graph, ezAbstractObjectGraph& typesGraph,
+    const ezRTTI* pRtti, void* pObject)
+  {
+    ezAbstractObjectNode* pNode = nullptr;
+    {
+      // Object
+      ezRttiConverterContext context;
+      ezRttiConverterWriter rttiConverter(&graph, &context, true, true);
+      context.RegisterObject(ezUuid::StableUuidForString(pRtti->GetTypeName()), pRtti, pObject);
+      pNode = rttiConverter.AddObjectToGraph(pRtti, pObject, "ROOT");
+    }
+    {
+      // Types
+      ezSet<const ezRTTI*> types;
+      types.Insert(pRtti);
+      ezReflectionUtils::GatherDependentTypes(pRtti, types);
+      ezToolsReflectionUtils::SerializeTypes(types, typesGraph);
+    }
+    return pNode;
+  }
+
+  void PatchGraph(ezAbstractObjectGraph& graph, ezAbstractObjectGraph& typesGraph)
+  {
+    ezGraphVersioning::GetSingleton()->PatchGraph(&typesGraph);
+    ezGraphVersioning::GetSingleton()->PatchGraph(&graph, &typesGraph);
+  }
 }
 
 EZ_CREATE_SIMPLE_TEST(Versioning, GraphPatch)
@@ -62,15 +184,15 @@ EZ_CREATE_SIMPLE_TEST(Versioning, GraphPatch)
     ezAbstractObjectGraph graph;
     ezAbstractObjectGraph typesGraph;
 
-    ezFloatStruct data;
-    data.SetDouble(5.0);
-    ezAbstractObjectNode* pNode = SerializeObject(graph, typesGraph, ezGetStaticRTTI<ezFloatStruct>(), &data);
+    ezPatchTest data;
+    data.m_iInt32 = 5;
+    ezAbstractObjectNode* pNode = SerializeObject(graph, typesGraph, ezGetStaticRTTI<ezPatchTest>(), &data);
+    ReplaceTypeName(graph, typesGraph, "ezPatchTest", "ezPatchTestP");
+    PatchGraph(graph, typesGraph);
 
-    ezAbstractObjectNode::Property* pDouble = pNode->FindProperty("Double");
-    EZ_TEST_FLOAT(10.0, pDouble->m_Value.Get<double>(), 0.0);
-    ezAbstractObjectNode::Property* pTime = pNode->FindProperty("TimeRenamed");
-    EZ_TEST_BOOL(pNode->FindProperty("TimeRenamed") != nullptr);
-    EZ_TEST_BOOL(pNode->FindProperty("Time") == nullptr);
+    ezAbstractObjectNode::Property* pInt = pNode->FindProperty("IntRenamed");
+    EZ_TEST_INT(2, pInt->m_Value.Get<ezInt32>());
+    EZ_TEST_BOOL(pNode->FindProperty("Int") == nullptr);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "PatchBaseClass")
@@ -78,13 +200,50 @@ EZ_CREATE_SIMPLE_TEST(Versioning, GraphPatch)
     ezAbstractObjectGraph graph;
     ezAbstractObjectGraph typesGraph;
 
-    ezMathClass data;
-    data.SetColor(ezColor(1.0f, 0.0f, 0.0f, 0.0f));
-    ezAbstractObjectNode* pNode = SerializeObject(graph, typesGraph, ezGetStaticRTTI<ezMathClass>(), &data);
+    ezPatchTest data;
+    data.m_string = "Unpatched";
+    ezAbstractObjectNode* pNode = SerializeObject(graph, typesGraph, ezGetStaticRTTI<ezPatchTest>(), &data);
+    ReplaceTypeName(graph, typesGraph, "ezPatchTestBase", "ezPatchTestBaseBP");
+    PatchGraph(graph, typesGraph);
 
-    ezAbstractObjectNode::Property* pColor = pNode->FindProperty("Color");
-    EZ_TEST_BOOL(pColor->m_Value.Get<ezColor>() == ezColor(0.0f, 1.0f, 0.0f, 0.0f));
+    ezAbstractObjectNode::Property* pString = pNode->FindProperty("String");
+    EZ_TEST_STRING(pString->m_Value.Get<ezString>(), "BaseClassPatched");
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RenameClass")
+  {
+    ezAbstractObjectGraph graph;
+    ezAbstractObjectGraph typesGraph;
 
+    ezPatchTest data;
+    data.m_string = "NotRenamed";
+    ezAbstractObjectNode* pNode = SerializeObject(graph, typesGraph, ezGetStaticRTTI<ezPatchTest>(), &data);
+    ReplaceTypeName(graph, typesGraph, "ezPatchTest", "ezPatchTestRN");
+    PatchGraph(graph, typesGraph);
+
+    ezAbstractObjectNode::Property* pString = pNode->FindProperty("String");
+    EZ_TEST_BOOL(pString->m_Value.Get<ezString>() == "RenameExecuted");
+    EZ_TEST_STRING(pNode->GetType(), "ezPatchTestRN2");
+    EZ_TEST_INT(pNode->GetTypeVersion(), 3);
+    ezAbstractObjectNode::Property* pString2 = pNode->FindProperty("String2");
+    EZ_TEST_BOOL(pString2->m_Value.Get<ezString>() == "Patched");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ChangeBaseClass")
+  {
+    ezAbstractObjectGraph graph;
+    ezAbstractObjectGraph typesGraph;
+
+    ezPatchTest data;
+    data.m_string = "NotPatched";
+    ezAbstractObjectNode* pNode = SerializeObject(graph, typesGraph, ezGetStaticRTTI<ezPatchTest>(), &data);
+    ReplaceTypeName(graph, typesGraph, "ezPatchTest", "ezPatchTestCB");
+    PatchGraph(graph, typesGraph);
+
+    ezAbstractObjectNode::Property* pString = pNode->FindProperty("String");
+    EZ_TEST_STRING(pString->m_Value.Get<ezString>(), "BaseClassPatched");
+    EZ_TEST_INT(pNode->GetTypeVersion(), 2);
+    ezAbstractObjectNode::Property* pString2 = pNode->FindProperty("String2");
+    EZ_TEST_STRING(pString2->m_Value.Get<ezString>(), "ChangedBase");
+  }
 }

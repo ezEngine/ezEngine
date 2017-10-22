@@ -21,6 +21,12 @@ class ezGraphVersioning;
 /// \brief Tuple used for identifying patches and tracking patch progression.
 struct ezVersionKey
 {
+  ezVersionKey() {}
+  ezVersionKey(const char* szType, ezUInt32 uiTypeVersion)
+  {
+    m_sType.Assign(szType);
+    m_uiTypeVersion = uiTypeVersion;
+  }
   EZ_DECLARE_POD_TYPE();
   ezHashedString m_sType;
   ezUInt32 m_uiTypeVersion;
@@ -65,7 +71,13 @@ public:
   ///  If bForcePatch is set, the current version of the base class is reset back to force the execution
   ///  of this patch if necessary. This is mainly necessary for backwards compatibility with patches that
   ///  were written before the type information of all base classes was written to the doc.
-  void PatchBaseClass(const char* szType, ezUInt32 uiTypeVersion, bool bForcePatch = false);
+  void PatchBaseClass(const char* szType, ezUInt32 uiTypeVersion, bool bForcePatch = false); // [tested]
+
+  /// \brief Renames current class type.
+  void RenameClass(const char* szTypeName); // [tested]
+
+  /// \brief Changes the base class hierarchy to the given one.
+  void ChangeBaseClass(ezArrayPtr<ezVersionKey> baseClasses); // [tested]
 
 private:
   friend class ezGraphVersioning;
