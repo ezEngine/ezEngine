@@ -59,8 +59,8 @@ ezQtCurveEditWidget::ezQtCurveEditWidget(QWidget* parent)
   setFocusPolicy(Qt::FocusPolicy::ClickFocus);
   setMouseTracking(true);
 
-  m_SceneTranslation = QPointF(-2, 8);
-  m_SceneToPixelScale = QPointF(40, -40);
+  m_SceneTranslation = QPointF(-2, 0);
+  m_SceneToPixelScale = QPointF(1, -1);
 
   m_ControlPointBrush.setColor(QColor(200, 150, 0));
   m_ControlPointBrush.setStyle(Qt::BrushStyle::SolidPattern);
@@ -107,6 +107,8 @@ void ezQtCurveEditWidget::SetCurves(ezCurve1DAssetData* pCurveEditData)
   m_CurvesSorted = m_Curves;
   m_CurveExtents.SetCount(m_Curves.GetCount());
   m_fMaxCurveExtent = 0;
+  m_fMinValue = ezMath::BasicType<float>::MaxValue();
+  m_fMaxValue = -ezMath::BasicType<float>::MaxValue();
 
   for (ezUInt32 i = 0; i < m_CurvesSorted.GetCount(); ++i)
   {
@@ -117,10 +119,47 @@ void ezQtCurveEditWidget::SetCurves(ezCurve1DAssetData* pCurveEditData)
 
     curve.QueryExtents(m_CurveExtents[i].x, m_CurveExtents[i].y);
 
+    float fMin, fMax;
+    curve.QueryExtremeValues(fMin, fMax);
+
     m_fMaxCurveExtent = ezMath::Max(m_fMaxCurveExtent, m_CurveExtents[i].y);
+    m_fMinValue = ezMath::Min(m_fMinValue, fMin);
+    m_fMaxValue = ezMath::Max(m_fMaxValue, fMax);
   }
 
   ComputeSelectionRect();
+
+  update();
+}
+
+void ezQtCurveEditWidget::FrameCurve()
+{
+  m_bFrameBeforePaint = false;
+
+  double fWidth = m_fMaxCurveExtent;
+  double fHeight = m_fMaxValue - m_fMinValue;
+  double fOffsetX = 0;
+  double fOffsetY = m_fMinValue;
+
+  if (m_SelectedCPs.GetCount() > 1)
+  {
+    fWidth = m_selectionBRect.width();
+    fHeight = m_selectionBRect.height();
+
+    fOffsetX = m_selectionBRect.left();
+    fOffsetY = m_selectionBRect.top();
+  }
+
+  const double fFinalWidth = fWidth * 1.2;
+  const double fFinalHeight = fHeight * 1.2;
+
+  fOffsetX -= (fFinalWidth - fWidth) * 0.5;
+  fOffsetY -= (fFinalHeight - fHeight) * 0.5;
+
+  m_SceneToPixelScale.setX(rect().width() / fFinalWidth);
+  m_SceneToPixelScale.setY(-rect().height() / fFinalHeight);
+  m_SceneTranslation.setX(fOffsetX);
+  m_SceneTranslation.setY((-rect().height() / m_SceneToPixelScale.y()) + fOffsetY);
 
   update();
 }
@@ -225,6 +264,9 @@ QRectF ezQtCurveEditWidget::ComputeViewportSceneRect() const
 
 void ezQtCurveEditWidget::paintEvent(QPaintEvent* e)
 {
+  if (m_bFrameBeforePaint)
+    FrameCurve();
+
   QPainter painter(this);
   painter.fillRect(rect(), palette().base());
   painter.translate(0.5, 0.5);
@@ -571,19 +613,27 @@ void ezQtCurveEditWidget::wheelEvent(QWheelEvent* e)
   const QPointF ptAt = MapToScene(mapFromGlobal(e->globalPos()));
   QPointF posDiff = m_SceneTranslation - ptAt;
 
+  double changeX = 1.2;
+  double changeY = 1.2;
+
+  if (e->modifiers().testFlag(Qt::ShiftModifier))
+    changeX = 1;
+  if (e->modifiers().testFlag(Qt::ControlModifier))
+    changeY = 1;
+
   if (e->delta() > 0)
   {
-    m_SceneToPixelScale.setX(m_SceneToPixelScale.x() * 1.2);
-    m_SceneToPixelScale.setY(m_SceneToPixelScale.y() * 1.2);
-    posDiff.setX(posDiff.x() * (1.0 / 1.2));
-    posDiff.setY(posDiff.y() * (1.0 / 1.2));
+    m_SceneToPixelScale.setX(m_SceneToPixelScale.x() * changeX);
+    m_SceneToPixelScale.setY(m_SceneToPixelScale.y() * changeY);
+    posDiff.setX(posDiff.x() * (1.0 / changeX));
+    posDiff.setY(posDiff.y() * (1.0 / changeY));
   }
   else
   {
-    m_SceneToPixelScale.setX(m_SceneToPixelScale.x() * (1.0 / 1.2));
-    m_SceneToPixelScale.setY(m_SceneToPixelScale.y() * (1.0 / 1.2));
-    posDiff.setX(posDiff.x() * 1.2);
-    posDiff.setY(posDiff.y() * 1.2);
+    m_SceneToPixelScale.setX(m_SceneToPixelScale.x() * (1.0 / changeX));
+    m_SceneToPixelScale.setY(m_SceneToPixelScale.y() * (1.0 / changeY));
+    posDiff.setX(posDiff.x() * changeX);
+    posDiff.setY(posDiff.y() * changeY);
   }
 
   m_SceneTranslation = ptAt + posDiff;
@@ -592,19 +642,26 @@ void ezQtCurveEditWidget::wheelEvent(QWheelEvent* e)
   update();
 }
 
-
 void ezQtCurveEditWidget::keyPressEvent(QKeyEvent* e)
 {
   QWidget::keyPressEvent(e);
 
-  if (e->key() == Qt::Key_Escape)
+  if (e->modifiers() == Qt::NoModifier)
   {
-    ClearSelection();
-  }
+    if (e->key() == Qt::Key_F)
+    {
+      FrameCurve();
+    }
 
-  if (e->key() == Qt::Key_Delete)
-  {
-    emit DeleteControlPointsEvent();
+    if (e->key() == Qt::Key_Escape)
+    {
+      ClearSelection();
+    }
+
+    if (e->key() == Qt::Key_Delete)
+    {
+      emit DeleteControlPointsEvent();
+    }
   }
 }
 
@@ -868,7 +925,7 @@ void ezQtCurveEditWidget::RenderSideLinesAndText(QPainter* painter, const QRectF
 {
   double fFineGridDensity = 0.01;
   double fRoughGridDensity = 0.01;
-  AdjustGridDensity(fFineGridDensity, fRoughGridDensity, rect().width(), viewportSceneRect.width(), 20);
+  AdjustGridDensity(fFineGridDensity, fRoughGridDensity, rect().height(), ezMath::Abs(viewportSceneRect.height()), 20);
 
   painter->save();
 

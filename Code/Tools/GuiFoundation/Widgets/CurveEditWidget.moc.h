@@ -23,6 +23,8 @@ public:
   void SetCurves(ezCurve1DAssetData* pCurveEditData);
   void SetGridBarWidget(ezQGridBarWidget* pGridBar) { m_pGridBar = pGridBar; }
 
+  void FrameCurve();
+
   QPoint MapFromScene(const QPointF& pos) const;
   QPoint MapFromScene(const ezVec2& pos) const { return MapFromScene(QPointF(pos.x, pos.y)); }
   QPointF MapToScene(const QPoint& pos) const;
@@ -86,6 +88,7 @@ private:
   ezHybridArray<ezCurve1D, 4> m_CurvesSorted;
   ezHybridArray<ezVec2, 4> m_CurveExtents;
   float m_fMaxCurveExtent;
+  float m_fMinValue, m_fMaxValue;
 
   QPointF m_SceneTranslation;
   QPointF m_SceneToPixelScale;
@@ -101,6 +104,7 @@ private:
   ezInt32 m_iSelectedTangentPoint = -1;
   bool m_bSelectedTangentLeft = false;
   bool m_bBegunChanges = false;
+  bool m_bFrameBeforePaint = true;
 
   QPoint m_multiSelectionStart;
   QRect m_multiSelectRect;

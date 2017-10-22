@@ -32,10 +32,7 @@ signals:
   void EndOperationEvent(bool commit);
 
 private slots:
-  void on_ButtonFrame_clicked();
   void on_SpinPosition_valueChanged(double value);
-  void on_ButtonNormalizeX_clicked();
-  void on_ButtonNormalizeY_clicked();
   void onDeleteControlPoints();
   void onDoubleClick(const QPointF& scenePos, const QPointF& epsilon);
   void onMoveControlPoints(double x, double y);

@@ -42,11 +42,7 @@ void ezQtCurve1DEditorWidget::SetCurves(ezCurve1DAssetData& curves)
 
 void ezQtCurve1DEditorWidget::FrameCurve()
 {
-}
-
-void ezQtCurve1DEditorWidget::on_ButtonFrame_clicked()
-{
-  FrameCurve();
+  CurveEdit->FrameCurve();
 }
 
 void ezQtCurve1DEditorWidget::on_SpinPosition_valueChanged(double value)
@@ -145,19 +141,6 @@ void ezQtCurve1DEditorWidget::NormalizeCurveY(ezUInt32 uiActiveCurve)
   emit EndOperationEvent(true);
 
   FrameCurve();
-}
-
-void ezQtCurve1DEditorWidget::on_ButtonNormalizeX_clicked()
-{
-  /// \todo Active curve index
-  NormalizeCurveX(0);
-}
-
-
-void ezQtCurve1DEditorWidget::on_ButtonNormalizeY_clicked()
-{
-  /// \todo Active curve index
-  NormalizeCurveY(0);
 }
 
 struct PtToDelete
@@ -307,13 +290,19 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
 
   if (!selection.IsEmpty())
   {
-    m.addAction("Delete Points", this, SLOT(onDeleteControlPoints()));
+    m.addAction("Delete Points", this, SLOT(onDeleteControlPoints()), QKeySequence(Qt::Key_Delete));
     m.addSeparator();
     m.addAction("Link Tangents", this, SLOT(onLinkTangents()));
     m.addAction("Break Tangents", this, SLOT(onBreakTangents()));
     m.addAction("Flatten Tangents", this, SLOT(onFlattenTangents()));
-
   }
+
+  m.addSeparator();
+  QMenu* cm = m.addMenu("Curve");
+  cm->addAction("Frame", this, [this]() { FrameCurve(); }, QKeySequence(Qt::Key_F));
+  cm->addSeparator();
+  cm->addAction("Normalize X", this, [this]() { NormalizeCurveX(0); });
+  cm->addAction("Normalize Y", this, [this]() { NormalizeCurveY(0); });
 
   if (!m.isEmpty())
     m.exec(pos);
