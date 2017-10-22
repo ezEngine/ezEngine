@@ -4,6 +4,7 @@
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Math/Color.h>
+#include <Foundation/Types/Enum.h>
 
 class ezStreamWriter;
 class ezStreamReader;
@@ -113,7 +114,7 @@ public:
   /// \brief Restores the state from a stream.
   void Load(ezStreamReader& stream);
 
-  /// \brief Precomputes sample points for linear interpolation that approximate the curve within the allowed error threshold.
+  /// \brief Pre-computes sample points for linear interpolation that approximate the curve within the allowed error threshold.
   ///
   /// \note All control points must already be in sorted order, so call SortControlPoints() first if necessary.
   void CreateLinearApproximation(float fMaxError = 0.01f);

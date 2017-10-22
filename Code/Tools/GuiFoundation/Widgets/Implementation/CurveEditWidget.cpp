@@ -184,6 +184,13 @@ QPointF ezQtCurveEditWidget::MapToScene(const QPoint& pos) const
   return QPointF(x, y) + m_SceneTranslation;
 }
 
+ezVec2 ezQtCurveEditWidget::MapDirFromScene(const ezVec2& pos) const
+{
+  const float x = pos.x * m_SceneToPixelScale.x();
+  const float y = pos.y * m_SceneToPixelScale.y();
+
+  return ezVec2(x, y);
+}
 
 void ezQtCurveEditWidget::ClearSelection()
 {
@@ -339,6 +346,7 @@ void ezQtCurveEditWidget::mousePressEvent(QMouseEvent* e)
         {
         case ezQtCurveEditWidget::SelectArea::Center:
           m_State = EditState::DraggingPoints;
+          m_totalPointDrag = QPointF();
           break;
         case ezQtCurveEditWidget::SelectArea::Top:
           m_scaleReferencePoint = m_selectionBRect.topLeft();
@@ -361,8 +369,6 @@ void ezQtCurveEditWidget::mousePressEvent(QMouseEvent* e)
 
       if (m_State == EditState::None)
       {
-        m_State = EditState::MultiSelect;
-
         ezSelectedCurveCP cp;
         if (PickCpAt(e->pos(), 8, cp))
         {
@@ -384,13 +390,32 @@ void ezQtCurveEditWidget::mousePressEvent(QMouseEvent* e)
               SetSelection(cp);
 
             m_State = EditState::DraggingPoints;
+            m_totalPointDrag = QPointF();
           }
         }
       }
 
+      if (m_State == EditState::None && e->modifiers() == Qt::AltModifier)
+      {
+        m_iDraggedCurve = PickCurveAt(e->pos());
+
+        if (m_iDraggedCurve >= 0)
+          m_State = EditState::DraggingCurve;
+      }
+
+      if (m_State == EditState::None)
+      {
+        m_State = EditState::MultiSelect;
+      }
+
       EZ_ASSERT_DEBUG(!m_bBegunChanges, "Invalid State");
 
-      if (m_State == EditState::DraggingPoints)
+      if (m_State == EditState::DraggingCurve)
+      {
+        emit BeginOperationEvent("Drag Curve");
+        m_bBegunChanges = true;
+      }
+      else if (m_State == EditState::DraggingPoints)
       {
         emit BeginOperationEvent("Drag Points");
         m_bBegunChanges = true;
@@ -446,12 +471,16 @@ void ezQtCurveEditWidget::mouseReleaseEvent(QMouseEvent* e)
 
   if (e->button() == Qt::LeftButton &&
     (m_State == EditState::DraggingPoints ||
+      m_State == EditState::DraggingPointsHorz ||
+      m_State == EditState::DraggingPointsVert ||
       m_State == EditState::DraggingTangents ||
+      m_State == EditState::DraggingCurve ||
       m_State == EditState::MultiSelect))
   {
     m_State = EditState::None;
     m_iSelectedTangentCurve = -1;
     m_iSelectedTangentPoint = -1;
+    m_totalPointDrag = QPointF();
 
     if (m_bBegunChanges)
     {
@@ -517,8 +546,8 @@ void ezQtCurveEditWidget::mouseMoveEvent(QMouseEvent* e)
   Qt::CursorShape cursor = Qt::ArrowCursor;
 
   const QPoint diff = e->pos() - m_LastMousePos;
-  const double moveX = (double)diff.x() / m_SceneToPixelScale.x();
-  const double moveY = (double)diff.y() / m_SceneToPixelScale.y();
+  double moveX = (double)diff.x() / m_SceneToPixelScale.x();
+  double moveY = (double)diff.y() / m_SceneToPixelScale.y();
 
   if (m_State == EditState::RightClick || m_State == EditState::Panning)
   {
@@ -535,8 +564,34 @@ void ezQtCurveEditWidget::mouseMoveEvent(QMouseEvent* e)
 
   if (m_State == EditState::DraggingPoints)
   {
+    if (e->modifiers() == Qt::ShiftModifier)
+    {
+      if (ezMath::Abs(m_totalPointDrag.x()) > ezMath::Abs(m_totalPointDrag.y()))
+      {
+        moveY = -m_totalPointDrag.y();
+        m_State = EditState::DraggingPointsHorz;
+      }
+      else
+      {
+        moveX = -m_totalPointDrag.x();
+        m_State = EditState::DraggingPointsVert;
+      }
+    }
+
     MoveControlPointsEvent(moveX, moveY);
-    //cursor = Qt::SizeAllCursor;
+    m_totalPointDrag += QPointF(moveX, moveY);
+  }
+  else
+  {
+    if (m_State == EditState::DraggingPointsHorz)
+    {
+      MoveControlPointsEvent(moveX, 0);
+    }
+
+    if (m_State == EditState::DraggingPointsVert)
+    {
+      MoveControlPointsEvent(0, moveY);
+    }
   }
 
   if (m_State == EditState::DraggingTangents)
@@ -589,6 +644,12 @@ void ezQtCurveEditWidget::mouseMoveEvent(QMouseEvent* e)
     const QPointF wsDiff = m_scaleReferencePoint - wsPos;
 
     ScaleControlPointsEvent(m_scaleReferencePoint, 1, wsDiff.y() / norm.y());
+  }
+
+  if (m_State == EditState::DraggingCurve)
+  {
+    cursor = Qt::SizeVerCursor;
+    emit MoveCurveEvent(m_iDraggedCurve, moveY);
   }
 
   setCursor(cursor);
@@ -853,23 +914,48 @@ void ezQtCurveEditWidget::PaintSelectedTangentHandles(QPainter* painter) const
     const ezCurve1D& curve = m_Curves[cpSel.m_uiCurve];
     const ezCurve1D::ControlPoint& cp = curve.GetControlPoint(cpSel.m_uiPoint);
 
-    ezVec2 leftHandlePos = cp.m_Position + cp.m_LeftTangent;
-    ezVec2 rightHandlePos = cp.m_Position + cp.m_RightTangent;
-
-    const QPointF ptPosLeft = MapFromScene(QPointF(leftHandlePos.x, leftHandlePos.y));
-    const QPointF ptPosRight = MapFromScene(QPointF(rightHandlePos.x, rightHandlePos.y));
-
-    bool bDrawLeft = m_CurveExtents[cpSel.m_uiCurve].x != cp.m_Position.x;
-    bool bDrawRight = m_CurveExtents[cpSel.m_uiCurve].y != cp.m_Position.x;
-
     const ezCurveTangentMode::Enum tmLeft = m_pCurveEditData->m_Curves[cpSel.m_uiCurve].m_ControlPoints[cpSel.m_uiPoint].m_LeftTangentMode;
     const ezCurveTangentMode::Enum tmRight = m_pCurveEditData->m_Curves[cpSel.m_uiCurve].m_ControlPoints[cpSel.m_uiPoint].m_RightTangentMode;
 
+    const bool bDrawLeft = m_CurveExtents[cpSel.m_uiCurve].x != cp.m_Position.x;
+    const bool bDrawRight = m_CurveExtents[cpSel.m_uiCurve].y != cp.m_Position.x;
+
     if (bDrawLeft && tmLeft != ezCurveTangentMode::Linear)
-      painter->drawRect(QRectF(ptPosLeft.x() - 4.5, ptPosLeft.y() - 4.5, 9, 9));
+    {
+      if (tmLeft == ezCurveTangentMode::Bezier)
+      {
+        const ezVec2 leftHandlePos = cp.m_Position + cp.m_LeftTangent;
+        const QPointF ptPosLeft = MapFromScene(QPointF(leftHandlePos.x, leftHandlePos.y));
+        painter->drawRect(QRectF(ptPosLeft.x() - 4.5, ptPosLeft.y() - 4.5, 9, 9));
+      }
+      else
+      {
+        const ezVec2 leftHandlePos = cp.m_Position + cp.m_LeftTangent;
+        const QPointF ptPosLeft = MapFromScene(QPointF(leftHandlePos.x, leftHandlePos.y));
+        //const ezVec2 dir = MapDirFromScene(cp.m_LeftTangent).GetNormalized() * 50.0f;
+        //const QPointF ptPosLeft = MapFromScene(QPointF(cp.m_Position.x, cp.m_Position.y)) + QPointF(dir.x, dir.y);
+        painter->drawEllipse(QPointF(ptPosLeft.x(), ptPosLeft.y()), 3.5, 3.5);
+      }
+
+    }
 
     if (bDrawRight && tmRight != ezCurveTangentMode::Linear)
-      painter->drawRect(QRectF(ptPosRight.x() - 4.5, ptPosRight.y() - 4.5, 9, 9));
+    {
+      if (tmRight == ezCurveTangentMode::Bezier)
+      {
+        const ezVec2 rightHandlePos = cp.m_Position + cp.m_RightTangent;
+        const QPointF ptPosRight = MapFromScene(QPointF(rightHandlePos.x, rightHandlePos.y));
+        painter->drawRect(QRectF(ptPosRight.x() - 4.5, ptPosRight.y() - 4.5, 9, 9));
+      }
+      else
+      {
+        const ezVec2 rightHandlePos = cp.m_Position + cp.m_RightTangent;
+        const QPointF ptPosRight = MapFromScene(QPointF(rightHandlePos.x, rightHandlePos.y));
+        //const ezVec2 dir = MapDirFromScene(cp.m_RightTangent).GetNormalized() * 50.0f;
+        //ptPosRight = MapFromScene(QPointF(cp.m_Position.x, cp.m_Position.y)) + QPointF(dir.x, dir.y);
+        painter->drawEllipse(QPointF(ptPosRight.x(), ptPosRight.y()), 3.5, 3.5);
+      }
+    }
   }
 
   painter->restore();
@@ -1087,11 +1173,21 @@ ezQtCurveEditWidget::ClickTarget ezQtCurveEditWidget::DetectClickTarget(const QP
   for (ezUInt32 i = 0; i < m_SelectedCPs.GetCount(); ++i)
   {
     const auto& cpSel = m_SelectedCPs[i];
-    const auto& cp = m_Curves[cpSel.m_uiCurve].GetControlPoint(cpSel.m_uiPoint);
+    const auto& cp = m_pCurveEditData->m_Curves[cpSel.m_uiCurve].m_ControlPoints[cpSel.m_uiPoint];
 
-    const ezVec2 ptPos = ToVec(MapFromScene(cp.m_Position));
-    const ezVec2 ptLeft = ToVec(MapFromScene(cp.m_Position + cp.m_LeftTangent));
-    const ezVec2 ptRight = ToVec(MapFromScene(cp.m_Position + cp.m_RightTangent));
+    const ezVec2 ptPos = ToVec(MapFromScene(cp.m_Point));
+    ezVec2 ptLeft;
+    ezVec2 ptRight;
+
+    //if (cp.m_LeftTangentMode == ezCurveTangentMode::Bezier)
+    ptLeft = ToVec(MapFromScene(cp.m_Point + cp.m_LeftTangent));
+    //else
+      //ptLeft = ToVec(MapFromScene(cp.m_Point)) + MapDirFromScene(cp.m_LeftTangent).GetNormalized() * 50.0f;
+
+    //if (cp.m_RightTangentMode == ezCurveTangentMode::Bezier)
+    ptRight = ToVec(MapFromScene(cp.m_Point + cp.m_RightTangent));
+    //else
+      //ptRight = ToVec(MapFromScene(cp.m_Point)) + MapDirFromScene(cp.m_RightTangent).GetNormalized() * 50.0f;
 
     {
       const float distSQR = (ptPos - vScreenPos).GetLengthSquared();
@@ -1248,4 +1344,32 @@ ezQtCurveEditWidget::SelectArea ezQtCurveEditWidget::WhereIsPoint(QPoint pos) co
   return SelectArea::None;
 }
 
+ezInt32 ezQtCurveEditWidget::PickCurveAt(QPoint pos) const
+{
+  const QPointF scenePos = MapToScene(pos);
+  const float x = scenePos.x();
 
+  ezInt32 iCurveIdx = -1;
+  ezInt32 iMinDistance = 15;
+
+  for (ezUInt32 i = 0; i < m_CurvesSorted.GetCount(); ++i)
+  {
+    float minVal, maxVal;
+    m_CurvesSorted[i].QueryExtents(minVal, maxVal);
+
+    if (x < minVal || x > maxVal)
+      continue;
+
+    const float val = m_CurvesSorted[i].Evaluate(x);
+    const QPoint pixelPos = MapFromScene(QPointF(x, val));
+
+    const ezInt32 dist = ezMath::Abs(pixelPos.y() - pos.y());
+    if (dist < iMinDistance)
+    {
+      iMinDistance = dist;
+      iCurveIdx = i;
+    }
+  }
+
+  return iCurveIdx;
+}

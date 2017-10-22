@@ -25,6 +25,7 @@ ezQtCurve1DEditorWidget::ezQtCurve1DEditorWidget(QWidget* pParent)
   connect(CurveEdit, &ezQtCurveEditWidget::ScaleControlPointsEvent, this, &ezQtCurve1DEditorWidget::onScaleControlPoints);
   connect(CurveEdit, &ezQtCurveEditWidget::ContextMenuEvent, this, &ezQtCurve1DEditorWidget::onContextMenu);
   connect(CurveEdit, &ezQtCurveEditWidget::SelectionChangedEvent, this, &ezQtCurve1DEditorWidget::onSelectionChanged);
+  connect(CurveEdit, &ezQtCurveEditWidget::MoveCurveEvent, this, &ezQtCurve1DEditorWidget::onMoveCurve);
 
   SpinPosition->setEnabled(false);
   SpinValue->setEnabled(false);
@@ -525,6 +526,26 @@ bool ezQtCurve1DEditorWidget::PickControlPointAt(float x, float y, float fMaxDis
 void ezQtCurve1DEditorWidget::onSelectionChanged()
 {
   UpdateSpinBoxes();
+}
+
+
+void ezQtCurve1DEditorWidget::onMoveCurve(ezInt32 iCurve, double moveY)
+{
+  m_ControlPointMove.y += moveY;
+
+  emit BeginCpChangesEvent("Move Curve");
+
+  const auto& curve = m_CurvesBackup.m_Curves[iCurve];
+  ezUInt32 uiNumCps = curve.m_ControlPoints.GetCount();
+  for (ezUInt32 i = 0; i < uiNumCps; ++i)
+  {
+    const float x = curve.m_ControlPoints[i].m_Point.x;
+    const float y = curve.m_ControlPoints[i].m_Point.y + m_ControlPointMove.y;
+
+    emit CpMovedEvent(iCurve, i, x, y);
+  }
+
+  emit EndCpChangesEvent();
 }
 
 void ezQtCurve1DEditorWidget::UpdateSpinBoxes()

@@ -51,6 +51,7 @@ private slots:
   void onBreakTangents();
   void onFlattenTangents();
   void onSelectionChanged();
+  void onMoveCurve(ezInt32 iCurve, double moveY);
 
 private:
   void InsertCpAt(float posX, float value, float epsilon);

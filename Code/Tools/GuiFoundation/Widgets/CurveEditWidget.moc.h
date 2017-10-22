@@ -28,6 +28,7 @@ public:
   QPoint MapFromScene(const QPointF& pos) const;
   QPoint MapFromScene(const ezVec2& pos) const { return MapFromScene(QPointF(pos.x, pos.y)); }
   QPointF MapToScene(const QPoint& pos) const;
+  ezVec2 MapDirFromScene(const ezVec2& pos) const;
 
   void ClearSelection();
   const ezDynamicArray<ezSelectedCurveCP>& GetSelection() const { return m_SelectedCPs; }
@@ -48,6 +49,7 @@ signals:
   void ScaleControlPointsEvent(const QPointF& centerPos, double scaleX, double scaleY);
   void ContextMenuEvent(QPoint pos, QPointF scenePos);
   void SelectionChangedEvent();
+  void MoveCurveEvent(ezInt32 iCurve, double moveY);
 
 protected:
   virtual void paintEvent(QPaintEvent* e) override;
@@ -60,7 +62,8 @@ protected:
 
 private:
   enum class ClickTarget { Nothing, SelectedPoint, TangentHandle };
-  enum class EditState { None, DraggingPoints, DraggingTangents, MultiSelect, RightClick, Panning, ScaleLeftRight, ScaleUpDown };
+  enum class EditState {
+    None, DraggingPoints, DraggingPointsHorz, DraggingPointsVert, DraggingTangents, MultiSelect, RightClick, Panning, ScaleLeftRight, ScaleUpDown, DraggingCurve };
   enum class SelectArea { None, Center, Top, Bottom, Left, Right };
 
   void PaintCurveSegments(QPainter* painter, float fOffsetX, ezUInt8 alpha) const;
@@ -79,10 +82,12 @@ private:
   bool CombineSelection(ezDynamicArray<ezSelectedCurveCP>& inout_Selection, const ezDynamicArray<ezSelectedCurveCP>& change, bool add);
   void ComputeSelectionRect();
   SelectArea WhereIsPoint(QPoint pos) const;
+  ezInt32 PickCurveAt(QPoint pos) const;
 
   ezQGridBarWidget* m_pGridBar = nullptr;
 
   EditState m_State = EditState::None;
+  ezInt32 m_iDraggedCurve;
 
   ezCurve1DAssetData* m_pCurveEditData;
   ezHybridArray<ezCurve1D, 4> m_Curves;
@@ -112,5 +117,6 @@ private:
   QRectF m_selectionBRect;
   QPointF m_scaleReferencePoint;
   QPointF m_scaleStartPoint;
+  QPointF m_totalPointDrag;
   QRubberBand* m_pRubberband = nullptr;
 };
