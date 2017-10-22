@@ -47,6 +47,7 @@ signals:
   void EndOperationEvent(bool bCommit);
   void ScaleControlPointsEvent(const QPointF& centerPos, double scaleX, double scaleY);
   void ContextMenuEvent(QPoint pos, QPointF scenePos);
+  void SelectionChangedEvent();
 
 protected:
   virtual void paintEvent(QPaintEvent* e) override;

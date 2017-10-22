@@ -33,17 +33,20 @@ signals:
 
 private slots:
   void on_SpinPosition_valueChanged(double value);
+  void on_SpinValue_valueChanged(double value);
   void onDeleteControlPoints();
   void onDoubleClick(const QPointF& scenePos, const QPointF& epsilon);
   void onMoveControlPoints(double x, double y);
   void onMoveTangents(double x, double y);
   void onBeginOperation(QString name);
+  void onEndOperation(bool commit);
   void onScaleControlPoints(QPointF refPt, double scaleX, double scaleY);
   void onContextMenu(QPoint pos, QPointF scenePos);
   void onAddPoint();
   void onLinkTangents();
   void onBreakTangents();
   void onFlattenTangents();
+  void onSelectionChanged();
 
 private:
   void NormalizeCurveX(ezUInt32 uiActiveCurve);
@@ -51,6 +54,7 @@ private:
   void InsertCpAt(float posX, float value, float epsilon);
   bool PickCurveAt(float x, float y, float fMaxYDistance, ezInt32& out_iCurveIdx, float& out_ValueY) const;
   bool PickControlPointAt(float x, float y, float fMaxDistance, ezInt32& out_iCurveIdx, ezInt32& out_iCpIdx) const;
+  void UpdateSpinBoxes();
 
   ezVec2 m_TangentMove;
   ezVec2 m_ControlPointMove;

@@ -194,6 +194,8 @@ void ezQtCurveEditWidget::ClearSelection()
     m_SelectedCPs.Clear();
     update();
   }
+
+  emit SelectionChangedEvent();
 }
 
 bool ezQtCurveEditWidget::IsSelected(const ezSelectedCurveCP& cp) const
@@ -213,6 +215,8 @@ void ezQtCurveEditWidget::SetSelection(const ezSelectedCurveCP& cp)
   m_SelectedCPs.PushBack(cp);
 
   ComputeSelectionRect();
+
+  emit SelectionChangedEvent();
 }
 
 void ezQtCurveEditWidget::ToggleSelected(const ezSelectedCurveCP& cp)
@@ -220,6 +224,8 @@ void ezQtCurveEditWidget::ToggleSelected(const ezSelectedCurveCP& cp)
   SetSelected(cp, !IsSelected(cp));
 
   ComputeSelectionRect();
+
+  emit SelectionChangedEvent();
 }
 
 void ezQtCurveEditWidget::SetSelected(const ezSelectedCurveCP& cp, bool set)
@@ -231,7 +237,7 @@ void ezQtCurveEditWidget::SetSelected(const ezSelectedCurveCP& cp, bool set)
       if (m_SelectedCPs[i].m_uiCurve == cp.m_uiCurve && m_SelectedCPs[i].m_uiPoint == cp.m_uiPoint)
       {
         m_SelectedCPs.RemoveAt(i);
-        return;
+        break;
       }
     }
   }
@@ -244,6 +250,7 @@ void ezQtCurveEditWidget::SetSelected(const ezSelectedCurveCP& cp, bool set)
   }
 
   ComputeSelectionRect();
+  emit SelectionChangedEvent();
 }
 
 bool ezQtCurveEditWidget::GetSelectedTangent(ezInt32& out_iCurve, ezInt32& out_iPoint, bool& out_bLeftTangent) const
@@ -479,6 +486,8 @@ void ezQtCurveEditWidget::mouseReleaseEvent(QMouseEvent* e)
 
       ComputeSelectionRect();
       update();
+
+      emit SelectionChangedEvent();
     }
   }
 
