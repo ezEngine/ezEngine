@@ -54,6 +54,61 @@ void ezQtCurve1DEditorWidget::FrameCurve()
   CurveEdit->FrameCurve();
 }
 
+void ezQtCurve1DEditorWidget::MakeRepeatable(bool bAdjustLastPoint)
+{
+  emit BeginOperationEvent("Make Curve Repeatable");
+
+  for (ezUInt32 iCurveIdx = 0; iCurveIdx < m_Curves.m_Curves.GetCount(); ++iCurveIdx)
+  {
+    const auto& curve = m_Curves.m_Curves[iCurveIdx];
+
+    const ezUInt32 uiNumCps = curve.m_ControlPoints.GetCount();
+    if (uiNumCps < 2)
+      continue;
+
+    float fMinPos = curve.m_ControlPoints[0].m_Point.x;
+    float fMaxPos = curve.m_ControlPoints[0].m_Point.x;
+    ezUInt32 uiMinCp = 0;
+    ezUInt32 uiMaxCp = 0;
+
+    for (ezUInt32 uiCpIdx = 1; uiCpIdx < uiNumCps; ++uiCpIdx)
+    {
+      const float x = curve.m_ControlPoints[uiCpIdx].m_Point.x;
+
+      if (x < fMinPos)
+      {
+        fMinPos = x;
+        uiMinCp = uiCpIdx;
+      }
+      if (x > fMaxPos)
+      {
+        fMaxPos = x;
+        uiMaxCp = uiCpIdx;
+      }
+    }
+
+    if (uiMinCp == uiMaxCp)
+      continue;
+
+    const auto& cpLeft = curve.m_ControlPoints[uiMinCp];
+    const auto& cpRight = curve.m_ControlPoints[uiMaxCp];
+
+    if (bAdjustLastPoint)
+    {
+      emit CpMovedEvent(iCurveIdx, uiMaxCp, cpRight.m_Point.x, cpLeft.m_Point.y);
+      emit TangentMovedEvent(iCurveIdx, uiMaxCp, -cpLeft.m_RightTangent.x, -cpLeft.m_RightTangent.y, false);
+    }
+    else
+    {
+      emit CpMovedEvent(iCurveIdx, uiMinCp, cpLeft.m_Point.x, cpRight.m_Point.y);
+      emit TangentMovedEvent(iCurveIdx, uiMinCp, -cpRight.m_LeftTangent.x, -cpRight.m_LeftTangent.y, true);
+
+    }
+  }
+
+  emit EndOperationEvent(true);
+}
+
 void ezQtCurve1DEditorWidget::NormalizeCurveX(ezUInt32 uiActiveCurve)
 {
   ezCurve1D CurveData;
@@ -305,6 +360,22 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
     m.addAction("Link Tangents", this, SLOT(onLinkTangents()));
     m.addAction("Break Tangents", this, SLOT(onBreakTangents()));
     m.addAction("Flatten Tangents", this, SLOT(onFlattenTangents()));
+
+    QMenu* cmLT = m.addMenu("Left Tangents");
+    QMenu* cmRT = m.addMenu("Right Tangents");
+    QMenu* cmBT = m.addMenu("Both Tangents");
+
+    cmLT->addAction("Bezier", this, [this]() { SetTangentMode(ezCurveTangentMode::Bezier, true, false); });
+    cmLT->addAction("Fixed Length", this, [this]() { SetTangentMode(ezCurveTangentMode::FixedLength, true, false); });
+    cmLT->addAction("Linear", this, [this]() { SetTangentMode(ezCurveTangentMode::Linear, true, false); });
+
+    cmRT->addAction("Bezier", this, [this]() { SetTangentMode(ezCurveTangentMode::Bezier, false, true); });
+    cmRT->addAction("Fixed Length", this, [this]() { SetTangentMode(ezCurveTangentMode::FixedLength, false, true); });
+    cmRT->addAction("Linear", this, [this]() { SetTangentMode(ezCurveTangentMode::Linear, false, true); });
+
+    cmBT->addAction("Bezier", this, [this]() { SetTangentMode(ezCurveTangentMode::Bezier, true, true); });
+    cmBT->addAction("Fixed Length", this, [this]() { SetTangentMode(ezCurveTangentMode::FixedLength, true, true); });
+    cmBT->addAction("Linear", this, [this]() { SetTangentMode(ezCurveTangentMode::Linear, true, true); });
   }
 
   m.addSeparator();
@@ -313,9 +384,10 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
   cm->addSeparator();
   cm->addAction("Normalize X", this, [this]() { NormalizeCurveX(0); });
   cm->addAction("Normalize Y", this, [this]() { NormalizeCurveY(0); });
+  cm->addAction("Loop: Adjust Last Point", this, [this]() { MakeRepeatable(true); });
+  cm->addAction("Loop: Adjust First Point", this, [this]() { MakeRepeatable(false); });
 
-  if (!m.isEmpty())
-    m.exec(pos);
+  m.exec(pos);
 }
 
 void ezQtCurve1DEditorWidget::onAddPoint()
@@ -553,6 +625,26 @@ void ezQtCurve1DEditorWidget::on_SpinValue_valueChanged(double value)
 
     if (cp.m_Point.y != value)
       emit CpMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, cp.m_Point.x, value);
+  }
+
+  emit EndCpChangesEvent();
+}
+
+void ezQtCurve1DEditorWidget::SetTangentMode(ezCurveTangentMode::Enum mode, bool bLeft, bool bRight)
+{
+  const auto& selection = CurveEdit->GetSelection();
+  if (selection.IsEmpty())
+    return;
+
+  emit BeginCpChangesEvent("Set Tangent Mode");
+
+  for (const auto& cpSel : selection)
+  {
+    if (bLeft)
+      emit CpTangentModeEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, false, (int)mode);
+
+    if (bRight)
+      emit CpTangentModeEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, true, (int)mode);
   }
 
   emit EndCpChangesEvent();

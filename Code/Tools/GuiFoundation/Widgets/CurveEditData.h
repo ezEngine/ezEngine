@@ -5,8 +5,11 @@
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Math/Curve1D.h>
 
 class ezCurve1D;
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_GUIFOUNDATION_DLL, ezCurveTangentMode);
 
 class EZ_GUIFOUNDATION_DLL ezCurve1DControlPoint : public ezReflectedClass
 {
@@ -17,6 +20,8 @@ public:
   ezVec2 m_LeftTangent;
   ezVec2 m_RightTangent;
   bool m_bTangentsLinked = true;
+  ezEnum<ezCurveTangentMode> m_LeftTangentMode;
+  ezEnum<ezCurveTangentMode> m_RightTangentMode;
 };
 
 class EZ_GUIFOUNDATION_DLL ezCurve1DData : public ezReflectedClass
@@ -25,6 +30,8 @@ class EZ_GUIFOUNDATION_DLL ezCurve1DData : public ezReflectedClass
 public:
   ezColorGammaUB m_CurveColor;
   ezDynamicArray<ezCurve1DControlPoint> m_ControlPoints;
+
+  void ConvertToRuntimeData(ezCurve1D& out_Result) const;
 };
 
 class EZ_GUIFOUNDATION_DLL ezCurve1DAssetData : public ezReflectedClass

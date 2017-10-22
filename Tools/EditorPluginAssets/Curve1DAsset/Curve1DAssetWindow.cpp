@@ -52,6 +52,7 @@ ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocu
   connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::CpDeletedEvent, this, &ezQtCurve1DAssetDocumentWindow::onCurveCpDeleted);
   connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::TangentMovedEvent, this, &ezQtCurve1DAssetDocumentWindow::onCurveTangentMoved);
   connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::TangentLinkEvent, this, &ezQtCurve1DAssetDocumentWindow::onLinkCurveTangents);
+  connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::CpTangentModeEvent, this, &ezQtCurve1DAssetDocumentWindow::onCurveTangentModeChanged);
 
   connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::BeginOperationEvent, this, &ezQtCurve1DAssetDocumentWindow::onCurveBeginOperation);
   connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::EndOperationEvent, this, &ezQtCurve1DAssetDocumentWindow::onCurveEndOperation);
@@ -250,6 +251,23 @@ void ezQtCurve1DAssetDocumentWindow::onLinkCurveTangents(ezUInt32 curveIdx, ezUI
 
     onCurveTangentMoved(curveIdx, cpIdx, rightTangent.x, rightTangent.y, true);
   }
+}
+
+void ezQtCurve1DAssetDocumentWindow::onCurveTangentModeChanged(ezUInt32 curveIdx, ezUInt32 cpIdx, bool rightTangent, int mode)
+{
+  ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
+
+  auto pProp = pDoc->GetPropertyObject();
+
+  const ezVariant curveGuid = pProp->GetTypeAccessor().GetValue("Curves", curveIdx);
+  const ezDocumentObject* pCurvesArray = pDoc->GetObjectManager()->GetObject(curveGuid.Get<ezUuid>());
+  const ezVariant cpGuid = pCurvesArray->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+
+  ezSetObjectPropertyCommand cmd;
+  cmd.m_Object = cpGuid.Get<ezUuid>();
+  cmd.m_sProperty = rightTangent ? "RightTangentMode" : "LeftTangentMode";
+  cmd.m_NewValue = mode;
+  GetDocument()->GetCommandHistory()->AddCommand(cmd);
 }
 
 void ezQtCurve1DAssetDocumentWindow::UpdatePreview()

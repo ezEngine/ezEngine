@@ -17,6 +17,9 @@ public:
   void SetCurves(ezCurve1DAssetData& curveData);
 
   void FrameCurve();
+  void MakeRepeatable(bool bAdjustLastPoint);
+  void NormalizeCurveX(ezUInt32 uiActiveCurve);
+  void NormalizeCurveY(ezUInt32 uiActiveCurve);
 
 signals:
   void CpMovedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY);
@@ -24,6 +27,7 @@ signals:
   void TangentMovedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent);
   void InsertCpEvent(ezUInt32 uiCurveIdx, float posX, float value);
   void TangentLinkEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, bool bLink);
+  void CpTangentModeEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, bool rightTangent, int mode); // ezCurveTangentMode
 
   void BeginCpChangesEvent(QString name);
   void EndCpChangesEvent();
@@ -49,12 +53,11 @@ private slots:
   void onSelectionChanged();
 
 private:
-  void NormalizeCurveX(ezUInt32 uiActiveCurve);
-  void NormalizeCurveY(ezUInt32 uiActiveCurve);
   void InsertCpAt(float posX, float value, float epsilon);
   bool PickCurveAt(float x, float y, float fMaxYDistance, ezInt32& out_iCurveIdx, float& out_ValueY) const;
   bool PickControlPointAt(float x, float y, float fMaxDistance, ezInt32& out_iCurveIdx, ezInt32& out_iCpIdx) const;
   void UpdateSpinBoxes();
+  void SetTangentMode(ezCurveTangentMode::Enum mode, bool bLeft, bool bRight);
 
   ezVec2 m_TangentMove;
   ezVec2 m_ControlPointMove;

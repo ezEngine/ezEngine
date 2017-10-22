@@ -22,6 +22,7 @@ private slots:
   void onCurveCpDeleted(ezUInt32 curveIdx, ezUInt32 cpIdx);
   void onCurveTangentMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent);
   void onLinkCurveTangents(ezUInt32 curveIdx, ezUInt32 cpIdx, bool bLink);
+  void onCurveTangentModeChanged(ezUInt32 curveIdx, ezUInt32 cpIdx, bool rightTangent, int mode);
 
   void onCurveBeginOperation(QString name);
   void onCurveEndOperation(bool commit);

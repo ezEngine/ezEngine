@@ -201,8 +201,9 @@ void ezCurve1D::Load(ezStreamReader& stream)
 void ezCurve1D::CreateLinearApproximation(float fMaxError /*= 0.01f*/)
 {
   ClampTangents();
+
   /// \todo Since we do this, we actually don't need the linear approximation anymore and could just evaluate the full curve
-  //MakeFixedLengthTangents();
+  ApplyTangentModes();
 
   m_LinearApproximation.Clear();
 
@@ -341,80 +342,106 @@ void ezCurve1D::ClampTangents()
   }
 }
 
-void ezCurve1D::MakeFixedLengthTangents()
+void ezCurve1D::ApplyTangentModes()
 {
   if (m_ControlPoints.GetCount() < 2)
     return;
 
   for (ezUInt32 i = 1; i < m_ControlPoints.GetCount() - 1; ++i)
   {
-    auto& tCP = m_ControlPoints[i];
-    const auto& pCP = m_ControlPoints[i - 1];
-    const auto& nCP = m_ControlPoints[i + 1];
+    const auto& cp = m_ControlPoints[i];
 
-    const float lengthL = (pCP.m_Position.x - tCP.m_Position.x) * 0.3333333333f;
-    const float lengthR = (nCP.m_Position.x - tCP.m_Position.x) * 0.3333333333f;
+    if (cp.m_TangentModeLeft == ezCurveTangentMode::FixedLength)
+      MakeFixedLengthTangentLeft(i);
+    else if (cp.m_TangentModeLeft == ezCurveTangentMode::Linear)
+      MakeLinearTangentLeft(i);
 
-    if (lengthL >= -0.0000001f)
-    {
-      tCP.m_LeftTangent.SetZero();
-    }
-    else
-    {
-      const float fNormL = lengthL / tCP.m_LeftTangent.x;
-      tCP.m_LeftTangent.x = lengthL;
-      tCP.m_LeftTangent.y *= fNormL;
-    }
-
-    if (lengthR <= 0.0000001f)
-    {
-      tCP.m_RightTangent.SetZero();
-    }
-    else
-    {
-      const float fNormR = lengthR / tCP.m_RightTangent.x;
-      tCP.m_RightTangent.x = lengthR;
-      tCP.m_RightTangent.y *= fNormR;
-    }
+    if (cp.m_TangentModeRight == ezCurveTangentMode::FixedLength)
+      MakeFixedLengthTangentRight(i);
+    else if (cp.m_TangentModeRight == ezCurveTangentMode::Linear)
+      MakeLinearTangentRight(i);
   }
 
   // first CP
   {
-    auto& tCP = m_ControlPoints[0];
-    const auto& nCP = m_ControlPoints[1];
+    const ezUInt32 i = 0;
+    const auto& cp = m_ControlPoints[i];
 
-    const float lengthR = (nCP.m_Position.x - tCP.m_Position.x) * 0.3333333333f;
-
-    if (lengthR <= 0.0000001f)
-    {
-      tCP.m_RightTangent.SetZero();
-    }
-    else
-    {
-      const float fNormR = lengthR / tCP.m_RightTangent.x;
-      tCP.m_RightTangent.x = lengthR;
-      tCP.m_RightTangent.y *= fNormR;
-    }
+    if (cp.m_TangentModeLeft == ezCurveTangentMode::FixedLength)
+      MakeFixedLengthTangentRight(i);
+    else if (cp.m_TangentModeLeft == ezCurveTangentMode::Linear)
+      MakeLinearTangentRight(i);
   }
 
   // last CP
   {
-    auto& tCP = m_ControlPoints[m_ControlPoints.GetCount() - 1];
-    const auto& pCP = m_ControlPoints[m_ControlPoints.GetCount() - 2];
+    const ezUInt32 i = m_ControlPoints.GetCount() - 1;
+    const auto& cp = m_ControlPoints[i];
 
-    const float lengthL = (pCP.m_Position.x - tCP.m_Position.x) * 0.3333333333f;
-
-    if (lengthL >= -0.0000001f)
-    {
-      tCP.m_LeftTangent.SetZero();
-    }
-    else
-    {
-      const float fNormL = lengthL / tCP.m_LeftTangent.x;
-      tCP.m_LeftTangent.x = lengthL;
-      tCP.m_LeftTangent.y *= fNormL;
-    }
+    if (cp.m_TangentModeRight == ezCurveTangentMode::FixedLength)
+      MakeFixedLengthTangentLeft(i);
+    else if (cp.m_TangentModeRight == ezCurveTangentMode::Linear)
+      MakeLinearTangentLeft(i);
   }
+}
+
+void ezCurve1D::MakeFixedLengthTangentLeft(ezUInt32 uiCpIdx)
+{
+  auto& tCP = m_ControlPoints[uiCpIdx];
+  const auto& pCP = m_ControlPoints[uiCpIdx - 1];
+
+  const float lengthL = (pCP.m_Position.x - tCP.m_Position.x) * 0.3333333333f;
+
+  if (lengthL >= -0.0000001f)
+  {
+    tCP.m_LeftTangent.SetZero();
+  }
+  else
+  {
+    const float tLen = ezMath::Min(tCP.m_LeftTangent.x, -0.001f);
+
+    const float fNormL = lengthL / tLen;
+    tCP.m_LeftTangent.x = lengthL;
+    tCP.m_LeftTangent.y *= fNormL;
+  }
+}
+
+void ezCurve1D::MakeFixedLengthTangentRight(ezUInt32 uiCpIdx)
+{
+  auto& tCP = m_ControlPoints[uiCpIdx];
+  const auto& nCP = m_ControlPoints[uiCpIdx + 1];
+
+  const float lengthR = (nCP.m_Position.x - tCP.m_Position.x) * 0.3333333333f;
+
+  if (lengthR <= 0.0000001f)
+  {
+    tCP.m_RightTangent.SetZero();
+  }
+  else
+  {
+    const float tLen = ezMath::Max(tCP.m_RightTangent.x, 0.001f);
+
+    const float fNormR = lengthR / tLen;
+    tCP.m_RightTangent.x = lengthR;
+    tCP.m_RightTangent.y *= fNormR;
+  }
+}
+
+void ezCurve1D::MakeLinearTangentLeft(ezUInt32 uiCpIdx)
+{
+  auto& tCP = m_ControlPoints[uiCpIdx];
+  const auto& pCP = m_ControlPoints[uiCpIdx - 1];
+
+  tCP.m_LeftTangent = (pCP.m_Position - tCP.m_Position) * 0.3333333333f;
+}
+
+void ezCurve1D::MakeLinearTangentRight(ezUInt32 uiCpIdx)
+{
+  auto& tCP = m_ControlPoints[uiCpIdx];
+  const auto& nCP = m_ControlPoints[uiCpIdx + 1];
+
+  tCP.m_RightTangent = (nCP.m_Position - tCP.m_Position) * 0.3333333333f;
+
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Curve1D);

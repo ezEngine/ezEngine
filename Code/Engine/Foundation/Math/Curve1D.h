@@ -8,6 +8,20 @@
 class ezStreamWriter;
 class ezStreamReader;
 
+struct EZ_FOUNDATION_DLL ezCurveTangentMode
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    Bezier,
+    FixedLength,
+    Linear,
+    //Constant,
+    Default = FixedLength
+  };
+};
+
 /// \brief A 1D curve for animating a single value over time.
 class EZ_FOUNDATION_DLL ezCurve1D
 {
@@ -24,6 +38,9 @@ public:
     ezVec2 m_LeftTangent;
     /// \brief The tangent for the curve segment to the right that affects the spline interpolation
     ezVec2 m_RightTangent;
+
+    ezEnum<ezCurveTangentMode> m_TangentModeLeft;
+    ezEnum<ezCurveTangentMode> m_TangentModeRight;
 
     EZ_ALWAYS_INLINE bool operator<(const ControlPoint& rhs) const { return m_Position.x < rhs.m_Position.x; }
   };
@@ -104,7 +121,19 @@ public:
   /// \brief Adjusts the tangents such that the curve cannot make loopings
   void ClampTangents();
 
-  void MakeFixedLengthTangents();
+  /// \brief Adjusts the tangents in accordance to the specified tangent modes at each control point
+  ///
+  /// \note All control points must already be in sorted order, so call SortControlPoints() first if necessary.
+  void ApplyTangentModes();
+
+  /// \brief Typically called by ApplyTangentModes() for specific control points. Control points must be in sorted order.
+  void MakeFixedLengthTangentLeft(ezUInt32 uiCpIdx);
+  /// \brief Typically called by ApplyTangentModes() for specific control points. Control points must be in sorted order.
+  void MakeFixedLengthTangentRight(ezUInt32 uiCpIdx);
+  /// \brief Typically called by ApplyTangentModes() for specific control points. Control points must be in sorted order.
+  void MakeLinearTangentLeft(ezUInt32 uiCpIdx);
+  /// \brief Typically called by ApplyTangentModes() for specific control points. Control points must be in sorted order.
+  void MakeLinearTangentRight(ezUInt32 uiCpIdx);
 
 private:
   void RecomputeExtremes();

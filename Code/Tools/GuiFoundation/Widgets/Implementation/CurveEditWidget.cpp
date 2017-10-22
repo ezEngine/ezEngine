@@ -299,8 +299,10 @@ void ezQtCurveEditWidget::paintEvent(QPaintEvent* e)
   RenderSideLinesAndText(&painter, viewportSceneRect);
 
   PaintCurveSegments(&painter, 0, 255);
-  PaintCurveSegments(&painter, m_fMaxCurveExtent, 128);
-  PaintCurveSegments(&painter, 2.0f * m_fMaxCurveExtent, 40);
+  PaintCurveSegments(&painter, m_fMaxCurveExtent, 200);
+  PaintCurveSegments(&painter, 2.0f * m_fMaxCurveExtent, 150);
+  PaintCurveSegments(&painter, 3.0f * m_fMaxCurveExtent, 100);
+  PaintCurveSegments(&painter, 4.0f * m_fMaxCurveExtent, 50);
   PaintOutsideAreaOverlay(&painter);
   PaintSelectedTangentLines(&painter);
   PaintControlPoints(&painter);
@@ -676,6 +678,9 @@ void ezQtCurveEditWidget::keyPressEvent(QKeyEvent* e)
 
 void ezQtCurveEditWidget::PaintCurveSegments(QPainter* painter, float fOffsetX, ezUInt8 alpha) const
 {
+  if (MapFromScene(QPointF(fOffsetX, 0)).x() >= rect().width())
+    return;
+
   painter->save();
   painter->setBrush(Qt::NoBrush);
 
@@ -813,13 +818,19 @@ void ezQtCurveEditWidget::PaintSelectedTangentLines(QPainter* painter) const
     const QPoint ptPosLeft = MapFromScene(QPointF(leftHandlePos.x, leftHandlePos.y));
     const QPoint ptPosRight = MapFromScene(QPointF(rightHandlePos.x, rightHandlePos.y));
 
-    if (m_CurveExtents[cpSel.m_uiCurve].x != cp.m_Position.x)
+    bool bDrawLeft = m_CurveExtents[cpSel.m_uiCurve].x != cp.m_Position.x;
+    bool bDrawRight = m_CurveExtents[cpSel.m_uiCurve].y != cp.m_Position.x;
+
+    const ezCurveTangentMode::Enum tmLeft = m_pCurveEditData->m_Curves[cpSel.m_uiCurve].m_ControlPoints[cpSel.m_uiPoint].m_LeftTangentMode;
+    const ezCurveTangentMode::Enum tmRight = m_pCurveEditData->m_Curves[cpSel.m_uiCurve].m_ControlPoints[cpSel.m_uiPoint].m_RightTangentMode;
+
+    if (bDrawLeft && tmLeft != ezCurveTangentMode::Linear)
     {
       QLine& l1 = lines.ExpandAndGetRef();
       l1.setLine(ptPos.x(), ptPos.y(), ptPosLeft.x(), ptPosLeft.y());
     }
 
-    if (m_CurveExtents[cpSel.m_uiCurve].y != cp.m_Position.x)
+    if (bDrawRight && tmRight != ezCurveTangentMode::Linear)
     {
       QLine& l2 = lines.ExpandAndGetRef();
       l2.setLine(ptPos.x(), ptPos.y(), ptPosRight.x(), ptPosRight.y());
@@ -848,10 +859,16 @@ void ezQtCurveEditWidget::PaintSelectedTangentHandles(QPainter* painter) const
     const QPointF ptPosLeft = MapFromScene(QPointF(leftHandlePos.x, leftHandlePos.y));
     const QPointF ptPosRight = MapFromScene(QPointF(rightHandlePos.x, rightHandlePos.y));
 
-    if (m_CurveExtents[cpSel.m_uiCurve].x != cp.m_Position.x)
+    bool bDrawLeft = m_CurveExtents[cpSel.m_uiCurve].x != cp.m_Position.x;
+    bool bDrawRight = m_CurveExtents[cpSel.m_uiCurve].y != cp.m_Position.x;
+
+    const ezCurveTangentMode::Enum tmLeft = m_pCurveEditData->m_Curves[cpSel.m_uiCurve].m_ControlPoints[cpSel.m_uiPoint].m_LeftTangentMode;
+    const ezCurveTangentMode::Enum tmRight = m_pCurveEditData->m_Curves[cpSel.m_uiCurve].m_ControlPoints[cpSel.m_uiPoint].m_RightTangentMode;
+
+    if (bDrawLeft && tmLeft != ezCurveTangentMode::Linear)
       painter->drawRect(QRectF(ptPosLeft.x() - 4.5, ptPosLeft.y() - 4.5, 9, 9));
 
-    if (m_CurveExtents[cpSel.m_uiCurve].y != cp.m_Position.x)
+    if (bDrawRight && tmRight != ezCurveTangentMode::Linear)
       painter->drawRect(QRectF(ptPosRight.x() - 4.5, ptPosRight.y() - 4.5, 9, 9));
   }
 
