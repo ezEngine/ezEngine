@@ -25,6 +25,7 @@ bool ezCurve1D::IsEmpty() const
 ezCurve1D::ControlPoint& ezCurve1D::AddControlPoint(float x)
 {
   auto& cp = m_ControlPoints.ExpandAndGetRef();
+  cp.m_uiOriginalIndex = m_ControlPoints.GetCount() - 1;
   cp.m_Position.x = x;
   cp.m_Position.y = 0;
   cp.m_LeftTangent.x = -0.1f;
@@ -200,10 +201,10 @@ void ezCurve1D::Load(ezStreamReader& stream)
 
 void ezCurve1D::CreateLinearApproximation(float fMaxError /*= 0.01f*/)
 {
-  ClampTangents();
-
   /// \todo Since we do this, we actually don't need the linear approximation anymore and could just evaluate the full curve
   ApplyTangentModes();
+
+  ClampTangents();
 
   m_LinearApproximation.Clear();
 
@@ -355,11 +356,15 @@ void ezCurve1D::ApplyTangentModes()
       MakeFixedLengthTangentLeft(i);
     else if (cp.m_TangentModeLeft == ezCurveTangentMode::Linear)
       MakeLinearTangentLeft(i);
+    else if (cp.m_TangentModeLeft == ezCurveTangentMode::Auto)
+      MakeAutoTangentLeft(i);
 
     if (cp.m_TangentModeRight == ezCurveTangentMode::FixedLength)
       MakeFixedLengthTangentRight(i);
     else if (cp.m_TangentModeRight == ezCurveTangentMode::Linear)
       MakeLinearTangentRight(i);
+    else if (cp.m_TangentModeRight == ezCurveTangentMode::Auto)
+      MakeAutoTangentRight(i);
   }
 
   // first CP
@@ -371,6 +376,8 @@ void ezCurve1D::ApplyTangentModes()
       MakeFixedLengthTangentRight(i);
     else if (cp.m_TangentModeLeft == ezCurveTangentMode::Linear)
       MakeLinearTangentRight(i);
+    else if (cp.m_TangentModeRight == ezCurveTangentMode::Auto)
+      MakeLinearTangentRight(i);
   }
 
   // last CP
@@ -381,6 +388,8 @@ void ezCurve1D::ApplyTangentModes()
     if (cp.m_TangentModeRight == ezCurveTangentMode::FixedLength)
       MakeFixedLengthTangentLeft(i);
     else if (cp.m_TangentModeRight == ezCurveTangentMode::Linear)
+      MakeLinearTangentLeft(i);
+    else if (cp.m_TangentModeLeft == ezCurveTangentMode::Auto)
       MakeLinearTangentLeft(i);
   }
 }
@@ -442,6 +451,38 @@ void ezCurve1D::MakeLinearTangentRight(ezUInt32 uiCpIdx)
 
   tCP.m_RightTangent = (nCP.m_Position - tCP.m_Position) * 0.3333333333f;
 
+}
+
+void ezCurve1D::MakeAutoTangentLeft(ezUInt32 uiCpIdx)
+{
+  auto& tCP = m_ControlPoints[uiCpIdx];
+  const auto& pCP = m_ControlPoints[uiCpIdx - 1];
+  const auto& nCP = m_ControlPoints[uiCpIdx + 1];
+
+  const float fLerpFactor = (tCP.m_Position.x - pCP.m_Position.x) / (nCP.m_Position.x - pCP.m_Position.x);
+
+  const ezVec2 dirP = (tCP.m_Position - pCP.m_Position) * 0.3333333333f;
+  const ezVec2 dirN = (nCP.m_Position - tCP.m_Position) * 0.3333333333f;
+
+  const ezVec2 tangent = ezMath::Lerp(dirP, dirN, fLerpFactor);
+
+  tCP.m_LeftTangent = -tangent;
+}
+
+void ezCurve1D::MakeAutoTangentRight(ezUInt32 uiCpIdx)
+{
+  auto& tCP = m_ControlPoints[uiCpIdx];
+  const auto& pCP = m_ControlPoints[uiCpIdx - 1];
+  const auto& nCP = m_ControlPoints[uiCpIdx + 1];
+
+  const float fLerpFactor = (tCP.m_Position.x - pCP.m_Position.x) / (nCP.m_Position.x - pCP.m_Position.x);
+
+  const ezVec2 dirP = (tCP.m_Position - pCP.m_Position) * 0.3333333333f;
+  const ezVec2 dirN = (nCP.m_Position - tCP.m_Position) * 0.3333333333f;
+
+  const ezVec2 tangent = ezMath::Lerp(dirP, dirN, fLerpFactor);
+
+  tCP.m_RightTangent = tangent;
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Curve1D);

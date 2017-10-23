@@ -19,7 +19,8 @@ struct EZ_FOUNDATION_DLL ezCurveTangentMode
     FixedLength,
     Linear,
     //Constant,
-    Default = FixedLength
+    Auto,
+    Default = Auto
   };
 };
 
@@ -42,6 +43,8 @@ public:
 
     ezEnum<ezCurveTangentMode> m_TangentModeLeft;
     ezEnum<ezCurveTangentMode> m_TangentModeRight;
+
+    ezUInt16 m_uiOriginalIndex;
 
     EZ_ALWAYS_INLINE bool operator<(const ControlPoint& rhs) const { return m_Position.x < rhs.m_Position.x; }
   };
@@ -135,6 +138,9 @@ public:
   void MakeLinearTangentLeft(ezUInt32 uiCpIdx);
   /// \brief Typically called by ApplyTangentModes() for specific control points. Control points must be in sorted order.
   void MakeLinearTangentRight(ezUInt32 uiCpIdx);
+
+  void MakeAutoTangentLeft(ezUInt32 uiCpIdx);
+  void MakeAutoTangentRight(ezUInt32 uiCpIdx);
 
 private:
   void RecomputeExtremes();

@@ -268,6 +268,31 @@ void ezQtCurve1DAssetDocumentWindow::onCurveTangentModeChanged(ezUInt32 curveIdx
   cmd.m_sProperty = rightTangent ? "RightTangentMode" : "LeftTangentMode";
   cmd.m_NewValue = mode;
   GetDocument()->GetCommandHistory()->AddCommand(cmd);
+
+  // sync current curve back
+  if (false)
+  {
+    // generally works, but would need some work to make it perfect
+
+    ezCurve1D curve;
+    pDoc->GetProperties()->m_Curves[curveIdx].ConvertToRuntimeData(curve);
+    curve.SortControlPoints();
+    curve.ApplyTangentModes();
+
+    for (ezUInt32 i = 0; i < curve.GetNumControlPoints(); ++i)
+    {
+      const auto& cp = curve.GetControlPoint(i);
+      if (cp.m_uiOriginalIndex == cpIdx)
+      {
+        if (rightTangent)
+          onCurveTangentMoved(curveIdx, cpIdx, cp.m_RightTangent.x, cp.m_RightTangent.y, true);
+        else
+          onCurveTangentMoved(curveIdx, cpIdx, cp.m_LeftTangent.x, cp.m_LeftTangent.y, false);
+
+        break;
+      }
+    }
+  }
 }
 
 void ezQtCurve1DAssetDocumentWindow::UpdatePreview()

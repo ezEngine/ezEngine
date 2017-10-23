@@ -149,6 +149,18 @@ void ezQtCurveEditWidget::FrameCurve()
     fOffsetX = m_selectionBRect.left();
     fOffsetY = m_selectionBRect.top();
   }
+  else if (m_SelectedCPs.GetCount() == 1)
+  {
+    fWidth = 0.1f;
+    fHeight = 0.1f;
+
+    const ezVec2 pos = m_pCurveEditData->m_Curves[m_SelectedCPs[0].m_uiCurve].m_ControlPoints[m_SelectedCPs[0].m_uiPoint].m_Point;
+    fOffsetX = pos.x - 0.05f;
+    fOffsetY = pos.y - 0.05f;
+  }
+
+  fWidth = ezMath::Max(fWidth, 0.1);
+  fHeight = ezMath::Max(fHeight, 0.1);
 
   const double fFinalWidth = fWidth * 1.2;
   const double fFinalHeight = fHeight * 1.2;
@@ -885,13 +897,13 @@ void ezQtCurveEditWidget::PaintSelectedTangentLines(QPainter* painter) const
     const ezCurveTangentMode::Enum tmLeft = m_pCurveEditData->m_Curves[cpSel.m_uiCurve].m_ControlPoints[cpSel.m_uiPoint].m_LeftTangentMode;
     const ezCurveTangentMode::Enum tmRight = m_pCurveEditData->m_Curves[cpSel.m_uiCurve].m_ControlPoints[cpSel.m_uiPoint].m_RightTangentMode;
 
-    if (bDrawLeft && tmLeft != ezCurveTangentMode::Linear)
+    if (bDrawLeft && tmLeft != ezCurveTangentMode::Linear && tmLeft != ezCurveTangentMode::Auto)
     {
       QLine& l1 = lines.ExpandAndGetRef();
       l1.setLine(ptPos.x(), ptPos.y(), ptPosLeft.x(), ptPosLeft.y());
     }
 
-    if (bDrawRight && tmRight != ezCurveTangentMode::Linear)
+    if (bDrawRight && tmRight != ezCurveTangentMode::Linear && tmRight != ezCurveTangentMode::Auto)
     {
       QLine& l2 = lines.ExpandAndGetRef();
       l2.setLine(ptPos.x(), ptPos.y(), ptPosRight.x(), ptPosRight.y());
@@ -920,7 +932,7 @@ void ezQtCurveEditWidget::PaintSelectedTangentHandles(QPainter* painter) const
     const bool bDrawLeft = m_CurveExtents[cpSel.m_uiCurve].x != cp.m_Position.x;
     const bool bDrawRight = m_CurveExtents[cpSel.m_uiCurve].y != cp.m_Position.x;
 
-    if (bDrawLeft && tmLeft != ezCurveTangentMode::Linear)
+    if (bDrawLeft && tmLeft != ezCurveTangentMode::Linear && tmLeft != ezCurveTangentMode::Auto)
     {
       if (tmLeft == ezCurveTangentMode::Bezier)
       {
@@ -939,7 +951,7 @@ void ezQtCurveEditWidget::PaintSelectedTangentHandles(QPainter* painter) const
 
     }
 
-    if (bDrawRight && tmRight != ezCurveTangentMode::Linear)
+    if (bDrawRight && tmRight != ezCurveTangentMode::Linear && tmRight != ezCurveTangentMode::Auto)
     {
       if (tmRight == ezCurveTangentMode::Bezier)
       {

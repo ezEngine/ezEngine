@@ -4,7 +4,7 @@
 #include <Foundation/Math/Curve1D.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCurveTangentMode, 1)
-EZ_ENUM_CONSTANTS(ezCurveTangentMode::Bezier, ezCurveTangentMode::FixedLength, ezCurveTangentMode::Linear)
+EZ_ENUM_CONSTANTS(ezCurveTangentMode::Bezier, ezCurveTangentMode::FixedLength, ezCurveTangentMode::Linear, ezCurveTangentMode::Auto)
 EZ_END_STATIC_REFLECTED_ENUM()
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DControlPoint, 2, ezRTTIDefaultAllocator<ezCurve1DControlPoint>)

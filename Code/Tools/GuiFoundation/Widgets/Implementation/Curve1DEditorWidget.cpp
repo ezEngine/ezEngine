@@ -366,14 +366,17 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
     QMenu* cmRT = m.addMenu("Right Tangents");
     QMenu* cmBT = m.addMenu("Both Tangents");
 
+    cmLT->addAction("Auto", this, [this]() { SetTangentMode(ezCurveTangentMode::Auto, true, false); });
     cmLT->addAction("Bezier", this, [this]() { SetTangentMode(ezCurveTangentMode::Bezier, true, false); });
     cmLT->addAction("Fixed Length", this, [this]() { SetTangentMode(ezCurveTangentMode::FixedLength, true, false); });
     cmLT->addAction("Linear", this, [this]() { SetTangentMode(ezCurveTangentMode::Linear, true, false); });
 
+    cmRT->addAction("Auto", this, [this]() { SetTangentMode(ezCurveTangentMode::Auto, false, true); });
     cmRT->addAction("Bezier", this, [this]() { SetTangentMode(ezCurveTangentMode::Bezier, false, true); });
     cmRT->addAction("Fixed Length", this, [this]() { SetTangentMode(ezCurveTangentMode::FixedLength, false, true); });
     cmRT->addAction("Linear", this, [this]() { SetTangentMode(ezCurveTangentMode::Linear, false, true); });
 
+    cmBT->addAction("Auto", this, [this]() { SetTangentMode(ezCurveTangentMode::Auto, true, true); });
     cmBT->addAction("Bezier", this, [this]() { SetTangentMode(ezCurveTangentMode::Bezier, true, true); });
     cmBT->addAction("Fixed Length", this, [this]() { SetTangentMode(ezCurveTangentMode::FixedLength, true, true); });
     cmBT->addAction("Linear", this, [this]() { SetTangentMode(ezCurveTangentMode::Linear, true, true); });
