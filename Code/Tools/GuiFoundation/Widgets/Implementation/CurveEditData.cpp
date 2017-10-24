@@ -7,11 +7,11 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCurveTangentMode, 1)
 EZ_ENUM_CONSTANTS(ezCurveTangentMode::Bezier, ezCurveTangentMode::FixedLength, ezCurveTangentMode::Linear, ezCurveTangentMode::Auto)
 EZ_END_STATIC_REFLECTED_ENUM()
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DControlPoint, 3, ezRTTIDefaultAllocator<ezCurve1DControlPoint>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DControlPoint, 4, ezRTTIDefaultAllocator<ezCurve1DControlPoint>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Time", m_fTime),
+    EZ_MEMBER_PROPERTY("Tick", m_iTick),
     EZ_MEMBER_PROPERTY("Value", m_fValue),
     EZ_MEMBER_PROPERTY("LeftTangent", m_LeftTangent)->AddAttributes(new ezDefaultValueAttribute(ezVec2(-0.1f, 0))),
     EZ_MEMBER_PROPERTY("RightTangent", m_RightTangent)->AddAttributes(new ezDefaultValueAttribute(ezVec2(+0.1f, 0))),
@@ -45,13 +45,23 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DAssetData, 1, ezRTTIDefaultAllocator<ez
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
+void ezCurve1DControlPoint::SetTickFromTime(double time, ezInt64 fps)
+{
+  m_iTick = (ezInt64)ezMath::Round(time * 4800.0, (double)fps);
+}
+
+ezInt64 ezCurve1DAssetData::TickFromTime(double time)
+{
+  return (ezInt64)ezMath::Round(time * 4800.0, (double)m_uiFramesPerSecond);
+}
+
 void ezCurve1DData::ConvertToRuntimeData(ezCurve1D& out_Result) const
 {
   out_Result.Clear();
 
   for (const auto& cp : m_ControlPoints)
   {
-    auto& ccp = out_Result.AddControlPoint(cp.m_fTime);
+    auto& ccp = out_Result.AddControlPoint(cp.GetTickAsTime());
     ccp.m_Position.y = cp.m_fValue;
     ccp.m_LeftTangent = cp.m_LeftTangent;
     ccp.m_RightTangent = cp.m_RightTangent;
@@ -93,3 +103,24 @@ public:
 };
 
 ezCurve1DControlPoint_2_3 g_ezCurve1DControlPoint_2_3;
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezCurve1DControlPoint_3_4 : public ezGraphPatch
+{
+public:
+  ezCurve1DControlPoint_3_4()
+    : ezGraphPatch("ezCurve1DControlPoint", 4) {}
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    auto* pPoint = pNode->FindProperty("Time");
+    if (pPoint && pPoint->m_Value.IsA<double>())
+    {
+      const double fTime = pPoint->m_Value.Get<double>();
+      pNode->AddProperty("Tick", (ezInt64)ezMath::Round(fTime * 4800.0, 60.0));
+    }
+  }
+};
+
+ezCurve1DControlPoint_3_4 g_ezCurve1DControlPoint_3_4;

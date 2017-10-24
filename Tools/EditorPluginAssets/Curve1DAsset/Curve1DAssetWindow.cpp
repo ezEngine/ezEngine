@@ -116,7 +116,7 @@ void ezQtCurve1DAssetDocumentWindow::onCurveEndCpChanges()
   UpdatePreview();
 }
 
-void ezQtCurve1DAssetDocumentWindow::onInsertCpAt(ezUInt32 uiCurveIdx, double clickPosX, double clickPosY)
+void ezQtCurve1DAssetDocumentWindow::onInsertCpAt(ezUInt32 uiCurveIdx, ezInt64 tickX, double clickPosY)
 {
   ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
 
@@ -151,8 +151,8 @@ void ezQtCurve1DAssetDocumentWindow::onInsertCpAt(ezUInt32 uiCurveIdx, double cl
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
-  cmdSet.m_sProperty = "Time";
-  cmdSet.m_NewValue = clickPosX;
+  cmdSet.m_sProperty = "Tick";
+  cmdSet.m_NewValue = tickX;
   history->AddCommand(cmdSet);
 
   cmdSet.m_sProperty = "Value";
@@ -170,9 +170,9 @@ void ezQtCurve1DAssetDocumentWindow::onInsertCpAt(ezUInt32 uiCurveIdx, double cl
   history->FinishTransaction();
 }
 
-void ezQtCurve1DAssetDocumentWindow::onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, double newPosX, double newPosY)
+void ezQtCurve1DAssetDocumentWindow::onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, ezInt64 iTickX, double newPosY)
 {
-  newPosX = ezMath::Max(newPosX, 0.0);
+  iTickX = ezMath::Max<ezInt64>(iTickX, 0);
 
   ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
 
@@ -185,8 +185,8 @@ void ezQtCurve1DAssetDocumentWindow::onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cpGuid.Get<ezUuid>();
 
-  cmdSet.m_sProperty = "Time";
-  cmdSet.m_NewValue = newPosX;
+  cmdSet.m_sProperty = "Tick";
+  cmdSet.m_NewValue = iTickX;
   GetDocument()->GetCommandHistory()->AddCommand(cmdSet);
 
   cmdSet.m_sProperty = "Value";

@@ -22,10 +22,10 @@ public:
   void NormalizeCurveY(ezUInt32 uiActiveCurve);
 
 signals:
-  void CpMovedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, double newPosX, double newPosY);
+  void CpMovedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, ezInt64 iTickX, double newPosY);
   void CpDeletedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx);
-  void TangentMovedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, double newPosX, double newPosY, bool rightTangent);
-  void InsertCpEvent(ezUInt32 uiCurveIdx, double posX, double value);
+  void TangentMovedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent);
+  void InsertCpEvent(ezUInt32 uiCurveIdx, ezInt64 tickX, double value);
   void TangentLinkEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, bool bLink);
   void CpTangentModeEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, bool rightTangent, int mode); // ezCurveTangentMode
 

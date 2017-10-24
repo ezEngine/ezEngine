@@ -117,7 +117,12 @@ double ezCurve1D::Evaluate(double x) const
 
       // interpolate
       double lerpX = x - m_LinearApproximation[iControlPoint].x;
-      lerpX /= (m_LinearApproximation[iControlPoint + 1].x - m_LinearApproximation[iControlPoint].x); // TODO remove division ?
+      const double len = (m_LinearApproximation[iControlPoint + 1].x - m_LinearApproximation[iControlPoint].x);
+
+      if (len <= 0)
+        lerpX = 0;
+      else
+        lerpX /= len; // TODO remove division ?
 
       return ezMath::Lerp(v1, v2, lerpX);
     }
