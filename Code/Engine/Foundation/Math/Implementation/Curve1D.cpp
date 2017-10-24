@@ -395,9 +395,9 @@ void ezCurve1D::ApplyTangentModes()
     const ezUInt32 i = 0;
     const auto& cp = m_ControlPoints[i];
 
-    if (cp.m_TangentModeLeft == ezCurveTangentMode::FixedLength)
+    if (cp.m_TangentModeRight == ezCurveTangentMode::FixedLength)
       MakeFixedLengthTangentRight(i);
-    else if (cp.m_TangentModeLeft == ezCurveTangentMode::Linear)
+    else if (cp.m_TangentModeRight == ezCurveTangentMode::Linear)
       MakeLinearTangentRight(i);
     else if (cp.m_TangentModeRight == ezCurveTangentMode::Auto)
       MakeLinearTangentRight(i);
@@ -408,9 +408,9 @@ void ezCurve1D::ApplyTangentModes()
     const ezUInt32 i = m_ControlPoints.GetCount() - 1;
     const auto& cp = m_ControlPoints[i];
 
-    if (cp.m_TangentModeRight == ezCurveTangentMode::FixedLength)
+    if (cp.m_TangentModeLeft == ezCurveTangentMode::FixedLength)
       MakeFixedLengthTangentLeft(i);
-    else if (cp.m_TangentModeRight == ezCurveTangentMode::Linear)
+    else if (cp.m_TangentModeLeft == ezCurveTangentMode::Linear)
       MakeLinearTangentLeft(i);
     else if (cp.m_TangentModeLeft == ezCurveTangentMode::Auto)
       MakeLinearTangentLeft(i);
@@ -465,7 +465,7 @@ void ezCurve1D::MakeLinearTangentLeft(ezUInt32 uiCpIdx)
   const auto& pCP = m_ControlPoints[uiCpIdx - 1];
 
   const ezVec2d tangent = (pCP.m_Position - tCP.m_Position) * 0.3333333333;
-  tCP.m_LeftTangent.Set(-(float)tangent.x, -(float)tangent.y);
+  tCP.m_LeftTangent.Set((float)tangent.x, (float)tangent.y);
 }
 
 void ezCurve1D::MakeLinearTangentRight(ezUInt32 uiCpIdx)

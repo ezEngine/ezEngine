@@ -20,7 +20,7 @@ class EZ_GUIFOUNDATION_DLL ezQtCurveEditWidget : public QWidget
 public:
   ezQtCurveEditWidget(QWidget* parent);
 
-  void SetCurves(ezCurve1DAssetData* pCurveEditData);
+  void SetCurves(ezCurveGroupData* pCurveEditData);
   void SetGridBarWidget(ezQGridBarWidget* pGridBar) { m_pGridBar = pGridBar; }
 
   void FrameCurve();
@@ -89,7 +89,7 @@ private:
   EditState m_State = EditState::None;
   ezInt32 m_iDraggedCurve;
 
-  ezCurve1DAssetData* m_pCurveEditData;
+  ezCurveGroupData* m_pCurveEditData;
   ezHybridArray<ezCurve1D, 4> m_Curves;
   ezHybridArray<ezCurve1D, 4> m_CurvesSorted;
   ezHybridArray<ezVec2d, 4> m_CurveExtents;

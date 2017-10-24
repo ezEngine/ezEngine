@@ -11,9 +11,9 @@ class ezCurve1D;
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GUIFOUNDATION_DLL, ezCurveTangentMode);
 
-class EZ_GUIFOUNDATION_DLL ezCurve1DControlPoint : public ezReflectedClass
+class EZ_GUIFOUNDATION_DLL ezCurveControlPointData : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCurve1DControlPoint, ezReflectedClass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezCurveControlPointData, ezReflectedClass);
 public:
 
   double GetTickAsTime() const { return m_iTick / 4800.0; }
@@ -29,22 +29,22 @@ public:
   ezEnum<ezCurveTangentMode> m_RightTangentMode;
 };
 
-class EZ_GUIFOUNDATION_DLL ezCurve1DData : public ezReflectedClass
+class EZ_GUIFOUNDATION_DLL ezSingleCurveData : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCurve1DData, ezReflectedClass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezSingleCurveData, ezReflectedClass);
 public:
   ezColorGammaUB m_CurveColor;
-  ezDynamicArray<ezCurve1DControlPoint> m_ControlPoints;
+  ezDynamicArray<ezCurveControlPointData> m_ControlPoints;
 
   void ConvertToRuntimeData(ezCurve1D& out_Result) const;
 };
 
-class EZ_GUIFOUNDATION_DLL ezCurve1DAssetData : public ezReflectedClass
+class EZ_GUIFOUNDATION_DLL ezCurveGroupData : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCurve1DAssetData, ezReflectedClass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezCurveGroupData, ezReflectedClass);
 public:
 
-  ezDynamicArray<ezCurve1DData> m_Curves;
+  ezDynamicArray<ezSingleCurveData> m_Curves;
   ezUInt16 m_uiFramesPerSecond = 60;
 
   ezInt64 TickFromTime(double time);

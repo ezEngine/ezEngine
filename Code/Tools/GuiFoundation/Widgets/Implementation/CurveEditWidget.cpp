@@ -76,7 +76,7 @@ ezQtCurveEditWidget::ezQtCurveEditWidget(QWidget* parent)
   m_TangentHandleBrush.setStyle(Qt::BrushStyle::SolidPattern);
 }
 
-void ezQtCurveEditWidget::SetCurves(ezCurve1DAssetData* pCurveEditData)
+void ezQtCurveEditWidget::SetCurves(ezCurveGroupData* pCurveEditData)
 {
   m_pCurveEditData = pCurveEditData;
 

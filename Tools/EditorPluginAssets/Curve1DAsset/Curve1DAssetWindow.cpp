@@ -131,7 +131,7 @@ void ezQtCurve1DAssetDocumentWindow::onInsertCpAt(ezUInt32 uiCurveIdx, ezInt64 t
     cmdAddCurve.m_Parent = pDoc->GetPropertyObject()->GetGuid();
     cmdAddCurve.m_NewObjectGuid.CreateNewUuid();
     cmdAddCurve.m_sParentProperty = "Curves";
-    cmdAddCurve.m_pType = ezGetStaticRTTI<ezCurve1DData>();
+    cmdAddCurve.m_pType = ezGetStaticRTTI<ezSingleCurveData>();
     cmdAddCurve.m_Index = -1;
 
     history->AddCommand(cmdAddCurve);
@@ -143,7 +143,7 @@ void ezQtCurve1DAssetDocumentWindow::onInsertCpAt(ezUInt32 uiCurveIdx, ezInt64 t
   cmdAdd.m_Parent = curveGuid.Get<ezUuid>();
   cmdAdd.m_NewObjectGuid.CreateNewUuid();
   cmdAdd.m_sParentProperty = "ControlPoints";
-  cmdAdd.m_pType = ezGetStaticRTTI<ezCurve1DControlPoint>();
+  cmdAdd.m_pType = ezGetStaticRTTI<ezCurveControlPointData>();
   cmdAdd.m_Index = -1;
 
   history->AddCommand(cmdAdd);

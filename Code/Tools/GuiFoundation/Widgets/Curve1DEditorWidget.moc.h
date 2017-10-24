@@ -14,7 +14,7 @@ public:
   explicit ezQtCurve1DEditorWidget(QWidget* pParent);
   ~ezQtCurve1DEditorWidget();
 
-  void SetCurves(ezCurve1DAssetData& curveData);
+  void SetCurves(ezCurveGroupData& curveData);
 
   void FrameCurve();
   void MakeRepeatable(bool bAdjustLastPoint);
@@ -62,7 +62,7 @@ private:
 
   ezVec2 m_TangentMove;
   ezVec2d m_ControlPointMove;
-  ezCurve1DAssetData m_Curves;
-  ezCurve1DAssetData m_CurvesBackup;
+  ezCurveGroupData m_Curves;
+  ezCurveGroupData m_CurvesBackup;
   QPointF m_contextMenuScenePos;
 };

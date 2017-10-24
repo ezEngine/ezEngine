@@ -12,25 +12,25 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DAssetDocument, 3, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezCurve1DAssetDocument::ezCurve1DAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezCurve1DAssetData>(szDocumentPath)
+  : ezSimpleAssetDocument<ezCurveGroupData>(szDocumentPath)
 {
 }
 
 void ezCurve1DAssetDocument::FillCurve(ezUInt32 uiCurveIdx, ezCurve1D& out_Result) const
 {
-  const ezCurve1DAssetData* pProp = static_cast<const ezCurve1DAssetData*>(GetProperties());
+  const ezCurveGroupData* pProp = static_cast<const ezCurveGroupData*>(GetProperties());
   pProp->ConvertToRuntimeData(uiCurveIdx, out_Result);
 }
 
 ezUInt32 ezCurve1DAssetDocument::GetCurveCount() const
 {
-  const ezCurve1DAssetData* pProp = GetProperties();
+  const ezCurveGroupData* pProp = GetProperties();
   return pProp->m_Curves.GetCount();
 }
 
 ezStatus ezCurve1DAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
-  const ezCurve1DAssetData* pProp = GetProperties();
+  const ezCurveGroupData* pProp = GetProperties();
 
   ezCurve1DResourceDescriptor desc;
   desc.m_Curves.SetCount(pProp->m_Curves.GetCount());
@@ -48,7 +48,7 @@ ezStatus ezCurve1DAssetDocument::InternalTransformAsset(ezStreamWriter& stream, 
 
 ezStatus ezCurve1DAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)
 {
-  const ezCurve1DAssetData* pProp = GetProperties();
+  const ezCurveGroupData* pProp = GetProperties();
 
   QImage qimg(256, 256, QImage::Format_RGBA8888);
   qimg.fill(QColor(50, 50, 50));

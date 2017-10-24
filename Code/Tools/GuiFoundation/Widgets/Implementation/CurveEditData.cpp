@@ -7,7 +7,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCurveTangentMode, 1)
 EZ_ENUM_CONSTANTS(ezCurveTangentMode::Bezier, ezCurveTangentMode::FixedLength, ezCurveTangentMode::Linear, ezCurveTangentMode::Auto)
 EZ_END_STATIC_REFLECTED_ENUM()
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DControlPoint, 4, ezRTTIDefaultAllocator<ezCurve1DControlPoint>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurveControlPointData, 5, ezRTTIDefaultAllocator<ezCurveControlPointData>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -23,7 +23,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DControlPoint, 4, ezRTTIDefaultAllocator
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DData, 2, ezRTTIDefaultAllocator<ezCurve1DData>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSingleCurveData, 3, ezRTTIDefaultAllocator<ezSingleCurveData>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -34,7 +34,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DData, 2, ezRTTIDefaultAllocator<ezCurve
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DAssetData, 1, ezRTTIDefaultAllocator<ezCurve1DAssetData>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurveGroupData, 2, ezRTTIDefaultAllocator<ezCurveGroupData>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -45,17 +45,17 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DAssetData, 1, ezRTTIDefaultAllocator<ez
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
-void ezCurve1DControlPoint::SetTickFromTime(double time, ezInt64 fps)
+void ezCurveControlPointData::SetTickFromTime(double time, ezInt64 fps)
 {
   m_iTick = (ezInt64)ezMath::Round(time * 4800.0, (double)fps);
 }
 
-ezInt64 ezCurve1DAssetData::TickFromTime(double time)
+ezInt64 ezCurveGroupData::TickFromTime(double time)
 {
   return (ezInt64)ezMath::Round(time * 4800.0, (double)m_uiFramesPerSecond);
 }
 
-void ezCurve1DData::ConvertToRuntimeData(ezCurve1D& out_Result) const
+void ezSingleCurveData::ConvertToRuntimeData(ezCurve1D& out_Result) const
 {
   out_Result.Clear();
 
@@ -70,7 +70,7 @@ void ezCurve1DData::ConvertToRuntimeData(ezCurve1D& out_Result) const
   }
 }
 
-void ezCurve1DAssetData::ConvertToRuntimeData(ezUInt32 uiCurveIdx, ezCurve1D& out_Result) const
+void ezCurveGroupData::ConvertToRuntimeData(ezUInt32 uiCurveIdx, ezCurve1D& out_Result) const
 {
   m_Curves[uiCurveIdx].ConvertToRuntimeData(out_Result);
 }
@@ -124,3 +124,51 @@ public:
 };
 
 ezCurve1DControlPoint_3_4 g_ezCurve1DControlPoint_3_4;
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezCurve1DControlPoint_4_5 : public ezGraphPatch
+{
+public:
+  ezCurve1DControlPoint_4_5()
+    : ezGraphPatch("ezCurve1DControlPoint", 5) {}
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    context.RenameClass("ezCurveControlPointData");
+  }
+};
+
+ezCurve1DControlPoint_4_5 g_ezCurve1DControlPoint_4_5;
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezCurve1DData_2_3 : public ezGraphPatch
+{
+public:
+  ezCurve1DData_2_3()
+    : ezGraphPatch("ezCurve1DData", 3) {}
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    context.RenameClass("ezSingleCurveData");
+  }
+};
+
+ezCurve1DData_2_3 g_ezCurve1DData_2_3;
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezCurve1DAssetData_1_2 : public ezGraphPatch
+{
+public:
+  ezCurve1DAssetData_1_2()
+    : ezGraphPatch("ezCurve1DAssetData", 2) {}
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    context.RenameClass("ezCurveGroupData");
+  }
+};
+
+ezCurve1DAssetData_1_2 g_ezCurve1DAssetData_1_2;

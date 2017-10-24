@@ -5,9 +5,9 @@
 
 class ezCurve1D;
 
-class ezCurve1DAssetDocument : public ezSimpleAssetDocument<ezCurve1DAssetData>
+class ezCurve1DAssetDocument : public ezSimpleAssetDocument<ezCurveGroupData>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezCurve1DAssetDocument, ezSimpleAssetDocument<ezCurve1DAssetData>);
+  EZ_ADD_DYNAMIC_REFLECTION(ezCurve1DAssetDocument, ezSimpleAssetDocument<ezCurveGroupData>);
 
 public:
   ezCurve1DAssetDocument(const char* szDocumentPath);
