@@ -204,6 +204,10 @@ namespace ezMath
   template <typename T>
   T Lerp(T f1, T f2, float factor); // [tested]
 
+  /// \brief Returns the linear interpolation of f1 and f2. factor is a value between 0 and 1.
+  template <typename T>
+  T Lerp(T f1, T f2, double factor); // [tested]
+
   /// \brief Returns 0, if value < edge, and 1, if value >= edge.
   template <typename T>
   constexpr T Step(T value, T edge); // [tested]
@@ -244,8 +248,8 @@ namespace ezMath
 
   /// \brief Evaluates the cubic spline defined by four control points at time \a t and returns the interpolated result.
   /// Can be used with T as float, vec2, vec3 or vec4
-  template<typename T>
-  T EvaluateBezierCurve(float t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint);
+  template<typename T, typename T2>
+  T EvaluateBezierCurve(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint);
 };
 
 #include <Foundation/Math/Implementation/Math_inl.h>

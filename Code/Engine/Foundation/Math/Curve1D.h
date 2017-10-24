@@ -34,7 +34,7 @@ public:
     EZ_DECLARE_POD_TYPE();
 
     /// \brief The position (x,y) of the control point
-    ezVec2 m_Position;
+    ezVec2d m_Position;
 
     /// \brief The tangent for the curve segment to the left that affects the spline interpolation
     ezVec2 m_LeftTangent;
@@ -59,7 +59,7 @@ public:
   bool IsEmpty() const;
 
   /// \brief Appends a control point. SortControlPoints() must be called to before evaluating the curve.
-  ControlPoint& AddControlPoint(float pos);
+  ControlPoint& AddControlPoint(double pos);
 
   /// \brief Updates the min/max X value that can be retrieved through GetExtents().
   ///
@@ -70,11 +70,11 @@ public:
   ///
   /// The returned values are only up to date if either SortControlPoints() or RecomputeExtents() was called before.
   /// Otherwise they will contain stale values.
-  void QueryExtents(float& minx, float& maxx) const;
+  void QueryExtents(double& minx, double& maxx) const;
 
   /// \brief Returns the min and max Y value across the curve.
   /// For this information to be available, the linear approximation of the curve must have been computed, otherwise stale values will be returned.
-  void QueryExtremeValues(float& minVal, float& maxVal) const;
+  void QueryExtremeValues(double& minVal, double& maxVal) const;
 
   /// \brief Returns the number of control points.
   ezUInt32 GetNumControlPoints() const;
@@ -93,7 +93,7 @@ public:
   /// This uses the linear approximation of the curve, so CreateLinearApproximation() must have been called first.
   ///
   /// \sa CreateLinearApproximation
-  float Evaluate(float position) const;
+  double Evaluate(double position) const;
 
   /// \brief Takes the normalized x coordinate [0;1] and converts it into a valid position on the curve
   ///
@@ -101,12 +101,12 @@ public:
   ///
   /// \sa RecomputeExtents
   /// \sa QueryExtents
-  float ConvertNormalizedPos(float pos) const;
+  double ConvertNormalizedPos(double pos) const;
 
   /// \brief Takes a value (typically returned by Evaluate()) and normalizes it into [0;1] range
   ///
   /// \note This only works when the linear approximation of the curve has been computed first.
-  float NormalizeValue(float value) const;
+  double NormalizeValue(double value) const;
 
   /// \brief How much heap memory the curve uses.
   ezUInt64 GetHeapMemoryUsage() const;
@@ -120,7 +120,7 @@ public:
   /// \brief Pre-computes sample points for linear interpolation that approximate the curve within the allowed error threshold.
   ///
   /// \note All control points must already be in sorted order, so call SortControlPoints() first if necessary.
-  void CreateLinearApproximation(float fMaxError = 0.01f);
+  void CreateLinearApproximation(double fMaxError = 0.01);
 
   /// \brief Adjusts the tangents such that the curve cannot make loopings
   void ClampTangents();
@@ -144,13 +144,13 @@ public:
 
 private:
   void RecomputeExtremes();
-  void ApproximateCurve(const ezVec2& p0, const ezVec2& p1, const ezVec2& p2, const ezVec2& p3, float fMaxErrorSQR);
-  void ApproximateCurvePiece(const ezVec2& p0, const ezVec2& p1, const ezVec2& p2, const ezVec2& p3, float tLeft, const ezVec2& pLeft, float tRight, const ezVec2& pRight, float fMaxErrorSQR);
-  ezInt32 FindApproxControlPoint(float x) const;
+  void ApproximateCurve(const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double fMaxErrorSQR);
+  void ApproximateCurvePiece(const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double tLeft, const ezVec2d& pLeft, double tRight, const ezVec2d& pRight, double fMaxErrorSQR);
+  ezInt32 FindApproxControlPoint(double x) const;
 
-  float m_fMinX, m_fMaxX;
-  float m_fMinY, m_fMaxY;
+  double m_fMinX, m_fMaxX;
+  double m_fMinY, m_fMaxY;
   ezHybridArray<ControlPoint, 8> m_ControlPoints;
-  ezHybridArray<ezVec2, 24> m_LinearApproximation;
+  ezHybridArray<ezVec2d, 24> m_LinearApproximation;
 };
 

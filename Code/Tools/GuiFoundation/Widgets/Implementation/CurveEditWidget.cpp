@@ -119,7 +119,7 @@ void ezQtCurveEditWidget::SetCurves(ezCurve1DAssetData* pCurveEditData)
 
     curve.QueryExtents(m_CurveExtents[i].x, m_CurveExtents[i].y);
 
-    float fMin, fMax;
+    double fMin, fMax;
     curve.QueryExtremeValues(fMin, fMax);
 
     m_fMaxCurveExtent = ezMath::Max(m_fMaxCurveExtent, m_CurveExtents[i].y);
@@ -154,9 +154,9 @@ void ezQtCurveEditWidget::FrameCurve()
     fWidth = 0.1f;
     fHeight = 0.1f;
 
-    const ezVec2 pos = m_pCurveEditData->m_Curves[m_SelectedCPs[0].m_uiCurve].m_ControlPoints[m_SelectedCPs[0].m_uiPoint].m_Point;
-    fOffsetX = pos.x - 0.05f;
-    fOffsetY = pos.y - 0.05f;
+    const auto& point = m_pCurveEditData->m_Curves[m_SelectedCPs[0].m_uiCurve].m_ControlPoints[m_SelectedCPs[0].m_uiPoint];
+    fOffsetX = point.m_fTime - 0.05;
+    fOffsetY = point.m_fValue - 0.05;
   }
 
   fWidth = ezMath::Max(fWidth, 0.1);
@@ -884,8 +884,8 @@ void ezQtCurveEditWidget::PaintSelectedTangentLines(QPainter* painter) const
     const ezCurve1D& curve = m_Curves[cpSel.m_uiCurve];
     const ezCurve1D::ControlPoint& cp = curve.GetControlPoint(cpSel.m_uiPoint);
 
-    ezVec2 leftHandlePos = cp.m_Position + cp.m_LeftTangent;
-    ezVec2 rightHandlePos = cp.m_Position + cp.m_RightTangent;
+    ezVec2d leftHandlePos = cp.m_Position + ezVec2d(cp.m_LeftTangent.x, cp.m_LeftTangent.y);
+    ezVec2d rightHandlePos = cp.m_Position + ezVec2d(cp.m_RightTangent.x, cp.m_RightTangent.y);
 
     const QPoint ptPos = MapFromScene(QPointF(cp.m_Position.x, cp.m_Position.y));
     const QPoint ptPosLeft = MapFromScene(QPointF(leftHandlePos.x, leftHandlePos.y));
@@ -936,13 +936,13 @@ void ezQtCurveEditWidget::PaintSelectedTangentHandles(QPainter* painter) const
     {
       if (tmLeft == ezCurveTangentMode::Bezier)
       {
-        const ezVec2 leftHandlePos = cp.m_Position + cp.m_LeftTangent;
+        const ezVec2d leftHandlePos = cp.m_Position + ezVec2d(cp.m_LeftTangent.x, cp.m_LeftTangent.y);
         const QPointF ptPosLeft = MapFromScene(QPointF(leftHandlePos.x, leftHandlePos.y));
         painter->drawRect(QRectF(ptPosLeft.x() - 4.5, ptPosLeft.y() - 4.5, 9, 9));
       }
       else
       {
-        const ezVec2 leftHandlePos = cp.m_Position + cp.m_LeftTangent;
+        const ezVec2d leftHandlePos = cp.m_Position + ezVec2d(cp.m_LeftTangent.x, cp.m_LeftTangent.y);
         const QPointF ptPosLeft = MapFromScene(QPointF(leftHandlePos.x, leftHandlePos.y));
         //const ezVec2 dir = MapDirFromScene(cp.m_LeftTangent).GetNormalized() * 50.0f;
         //const QPointF ptPosLeft = MapFromScene(QPointF(cp.m_Position.x, cp.m_Position.y)) + QPointF(dir.x, dir.y);
@@ -955,13 +955,13 @@ void ezQtCurveEditWidget::PaintSelectedTangentHandles(QPainter* painter) const
     {
       if (tmRight == ezCurveTangentMode::Bezier)
       {
-        const ezVec2 rightHandlePos = cp.m_Position + cp.m_RightTangent;
+        const ezVec2d rightHandlePos = cp.m_Position + ezVec2d(cp.m_RightTangent.x, cp.m_RightTangent.y);
         const QPointF ptPosRight = MapFromScene(QPointF(rightHandlePos.x, rightHandlePos.y));
         painter->drawRect(QRectF(ptPosRight.x() - 4.5, ptPosRight.y() - 4.5, 9, 9));
       }
       else
       {
-        const ezVec2 rightHandlePos = cp.m_Position + cp.m_RightTangent;
+        const ezVec2d rightHandlePos = cp.m_Position + ezVec2d(cp.m_RightTangent.x, cp.m_RightTangent.y);
         const QPointF ptPosRight = MapFromScene(QPointF(rightHandlePos.x, rightHandlePos.y));
         //const ezVec2 dir = MapDirFromScene(cp.m_RightTangent).GetNormalized() * 50.0f;
         //ptPosRight = MapFromScene(QPointF(cp.m_Position.x, cp.m_Position.y)) + QPointF(dir.x, dir.y);
@@ -1169,14 +1169,14 @@ bool ezQtCurveEditWidget::PickCpAt(const QPoint& pos, float fMaxPixelDistance, e
   return out_Result.m_uiCurve != 0xFFFF;
 }
 
-static inline ezVec2 ToVec(const QPoint& pt)
+static inline ezVec2d ToVec(const QPoint& pt)
 {
-  return ezVec2(pt.x(), pt.y());
+  return ezVec2d(pt.x(), pt.y());
 }
 
 ezQtCurveEditWidget::ClickTarget ezQtCurveEditWidget::DetectClickTarget(const QPoint& pos)
 {
-  const ezVec2 vScreenPos(pos.x(), pos.y());
+  const ezVec2d vScreenPos(pos.x(), pos.y());
   float fMinDistSQR = ezMath::Square(15);
   ezInt32 iBestCurve = -1;
   ezInt32 iBestCP = -1;
@@ -1187,17 +1187,19 @@ ezQtCurveEditWidget::ClickTarget ezQtCurveEditWidget::DetectClickTarget(const QP
     const auto& cpSel = m_SelectedCPs[i];
     const auto& cp = m_pCurveEditData->m_Curves[cpSel.m_uiCurve].m_ControlPoints[cpSel.m_uiPoint];
 
-    const ezVec2 ptPos = ToVec(MapFromScene(cp.m_Point));
-    ezVec2 ptLeft;
-    ezVec2 ptRight;
+    const ezVec2d point(cp.m_fTime, cp.m_fValue);
+
+    const ezVec2d ptPos = ToVec(MapFromScene(point));
+    ezVec2d ptLeft;
+    ezVec2d ptRight;
 
     //if (cp.m_LeftTangentMode == ezCurveTangentMode::Bezier)
-    ptLeft = ToVec(MapFromScene(cp.m_Point + cp.m_LeftTangent));
+    ptLeft = ToVec(MapFromScene(point + ezVec2d(cp.m_LeftTangent.x, cp.m_LeftTangent.y)));
     //else
       //ptLeft = ToVec(MapFromScene(cp.m_Point)) + MapDirFromScene(cp.m_LeftTangent).GetNormalized() * 50.0f;
 
     //if (cp.m_RightTangentMode == ezCurveTangentMode::Bezier)
-    ptRight = ToVec(MapFromScene(cp.m_Point + cp.m_RightTangent));
+    ptRight = ToVec(MapFromScene(point + ezVec2d(cp.m_RightTangent.x, cp.m_RightTangent.y)));
     //else
       //ptRight = ToVec(MapFromScene(cp.m_Point)) + MapDirFromScene(cp.m_RightTangent).GetNormalized() * 50.0f;
 
@@ -1366,7 +1368,7 @@ ezInt32 ezQtCurveEditWidget::PickCurveAt(QPoint pos) const
 
   for (ezUInt32 i = 0; i < m_CurvesSorted.GetCount(); ++i)
   {
-    float minVal, maxVal;
+    double minVal, maxVal;
     m_CurvesSorted[i].QueryExtents(minVal, maxVal);
 
     if (x < minVal || x > maxVal)

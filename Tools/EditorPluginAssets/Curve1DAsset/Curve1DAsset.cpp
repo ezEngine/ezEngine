@@ -62,8 +62,8 @@ ezStatus ezCurve1DAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader
   if (!pProp->m_Curves.IsEmpty())
   {
 
-    float fExtentsMin, fExtentsMax;
-    float fExtremesMin, fExtremesMax;
+    double fExtentsMin, fExtentsMax;
+    double fExtremesMin, fExtremesMax;
 
     for (ezUInt32 curveIdx = 0; curveIdx < pProp->m_Curves.GetCount(); ++curveIdx)
     {
@@ -73,10 +73,10 @@ ezStatus ezCurve1DAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader
       curve.SortControlPoints();
       curve.CreateLinearApproximation();
 
-      float fMin, fMax;
+      double fMin, fMax;
       curve.QueryExtents(fMin, fMax);
 
-      float fMin2, fMax2;
+      double fMin2, fMax2;
       curve.QueryExtremeValues(fMin2, fMax2);
 
       if (curveIdx == 0)

@@ -116,7 +116,7 @@ void ezQtCurve1DAssetDocumentWindow::onCurveEndCpChanges()
   UpdatePreview();
 }
 
-void ezQtCurve1DAssetDocumentWindow::onInsertCpAt(ezUInt32 uiCurveIdx, float clickPosX, float clickPosY)
+void ezQtCurve1DAssetDocumentWindow::onInsertCpAt(ezUInt32 uiCurveIdx, double clickPosX, double clickPosY)
 {
   ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
 
@@ -151,8 +151,12 @@ void ezQtCurve1DAssetDocumentWindow::onInsertCpAt(ezUInt32 uiCurveIdx, float cli
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
-  cmdSet.m_sProperty = "Point";
-  cmdSet.m_NewValue = ezVec2(clickPosX, clickPosY);
+  cmdSet.m_sProperty = "Time";
+  cmdSet.m_NewValue = clickPosX;
+  history->AddCommand(cmdSet);
+
+  cmdSet.m_sProperty = "Value";
+  cmdSet.m_NewValue = clickPosY;
   history->AddCommand(cmdSet);
 
   cmdSet.m_sProperty = "LeftTangent";
@@ -166,9 +170,9 @@ void ezQtCurve1DAssetDocumentWindow::onInsertCpAt(ezUInt32 uiCurveIdx, float cli
   history->FinishTransaction();
 }
 
-void ezQtCurve1DAssetDocumentWindow::onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY)
+void ezQtCurve1DAssetDocumentWindow::onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, double newPosX, double newPosY)
 {
-  newPosX = ezMath::Max(newPosX, 0.0f);
+  newPosX = ezMath::Max(newPosX, 0.0);
 
   ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
 
@@ -181,8 +185,12 @@ void ezQtCurve1DAssetDocumentWindow::onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cpGuid.Get<ezUuid>();
 
-  cmdSet.m_sProperty = "Point";
-  cmdSet.m_NewValue = ezVec2(newPosX, newPosY);
+  cmdSet.m_sProperty = "Time";
+  cmdSet.m_NewValue = newPosX;
+  GetDocument()->GetCommandHistory()->AddCommand(cmdSet);
+
+  cmdSet.m_sProperty = "Value";
+  cmdSet.m_NewValue = newPosY;
   GetDocument()->GetCommandHistory()->AddCommand(cmdSet);
 }
 

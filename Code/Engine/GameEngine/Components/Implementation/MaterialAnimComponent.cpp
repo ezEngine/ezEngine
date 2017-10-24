@@ -145,7 +145,7 @@ void ezMaterialAnimComponent::Update()
       {
         ezResourceLock<ezCurve1DResource> pCurve(anim.m_hNumberCurve);
 
-        const float value = pCurve->GetDescriptor().m_Curves[0].Evaluate((float)m_CurAnimTime.GetSeconds());
+        const double value = pCurve->GetDescriptor().m_Curves[0].Evaluate(m_CurAnimTime.GetSeconds());
 
         pMaterial->SetParameter(anim.m_sPropertyName.GetData(), value);
       }

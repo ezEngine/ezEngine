@@ -22,10 +22,10 @@ public:
   void NormalizeCurveY(ezUInt32 uiActiveCurve);
 
 signals:
-  void CpMovedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY);
+  void CpMovedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, double newPosX, double newPosY);
   void CpDeletedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx);
-  void TangentMovedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent);
-  void InsertCpEvent(ezUInt32 uiCurveIdx, float posX, float value);
+  void TangentMovedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, double newPosX, double newPosY, bool rightTangent);
+  void InsertCpEvent(ezUInt32 uiCurveIdx, double posX, double value);
   void TangentLinkEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, bool bLink);
   void CpTangentModeEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, bool rightTangent, int mode); // ezCurveTangentMode
 
@@ -41,7 +41,7 @@ private slots:
   void onDeleteControlPoints();
   void onDoubleClick(const QPointF& scenePos, const QPointF& epsilon);
   void onMoveControlPoints(double x, double y);
-  void onMoveTangents(double x, double y);
+  void onMoveTangents(float x, float y);
   void onBeginOperation(QString name);
   void onEndOperation(bool commit);
   void onScaleControlPoints(QPointF refPt, double scaleX, double scaleY);
@@ -54,14 +54,14 @@ private slots:
   void onMoveCurve(ezInt32 iCurve, double moveY);
 
 private:
-  void InsertCpAt(float posX, float value, float epsilon);
-  bool PickCurveAt(float x, float y, float fMaxYDistance, ezInt32& out_iCurveIdx, float& out_ValueY) const;
-  bool PickControlPointAt(float x, float y, float fMaxDistance, ezInt32& out_iCurveIdx, ezInt32& out_iCpIdx) const;
+  void InsertCpAt(double posX, double value, double epsilon);
+  bool PickCurveAt(double x, double y, double fMaxYDistance, ezInt32& out_iCurveIdx, double& out_ValueY) const;
+  bool PickControlPointAt(double x, double y, double fMaxDistance, ezInt32& out_iCurveIdx, ezInt32& out_iCpIdx) const;
   void UpdateSpinBoxes();
   void SetTangentMode(ezCurveTangentMode::Enum mode, bool bLeft, bool bRight);
 
   ezVec2 m_TangentMove;
-  ezVec2 m_ControlPointMove;
+  ezVec2d m_ControlPointMove;
   ezCurve1DAssetData m_Curves;
   ezCurve1DAssetData m_CurvesBackup;
   QPointF m_contextMenuScenePos;

@@ -103,17 +103,17 @@ void ezParticleInitializer_RandomSize::InitializeElements(ezUInt64 uiStartIndex,
 
     const ezCurve1D& curve = pResource->GetDescriptor().m_Curves[0];
 
-    float fMinX, fMaxX;
+    double fMinX, fMaxX;
     curve.QueryExtents(fMinX, fMaxX);
 
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
-      const float f = (float)rng.DoubleMinMax(fMinX, fMaxX);
+      const double f = rng.DoubleMinMax(fMinX, fMaxX);
 
-      float val = curve.Evaluate(f);
+      double val = curve.Evaluate(f);
       val = curve.NormalizeValue(val);
 
-      pSize[i] = val * (float)rng.DoubleVariance(m_Size.m_Value, m_Size.m_fVariance);
+      pSize[i] = (float)(val * rng.DoubleVariance(m_Size.m_Value, m_Size.m_fVariance));
     }
   }
 }

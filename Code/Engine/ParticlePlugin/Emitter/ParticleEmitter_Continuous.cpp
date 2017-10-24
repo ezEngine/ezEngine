@@ -202,10 +202,10 @@ ezUInt32 ezParticleEmitter_Continuous::ComputeSpawnCount(const ezTime& tDiff)
 
       const auto& curve = pCurve->GetDescriptor().m_Curves[0];
 
-      const float normPos = (float)(m_CountCurveTime.GetSeconds() / m_CurveDuration.GetSeconds());
-      const float evalPos = curve.ConvertNormalizedPos(normPos);
+      const double normPos = (float)(m_CountCurveTime.GetSeconds() / m_CurveDuration.GetSeconds());
+      const double evalPos = curve.ConvertNormalizedPos(normPos);
 
-      fSpawnFactor = ezMath::Max(0.0f, curve.Evaluate(evalPos));
+      fSpawnFactor = (float)ezMath::Max(0.0, curve.Evaluate(evalPos));
     }
   }
 

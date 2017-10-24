@@ -123,7 +123,7 @@ void ezParticleBehavior_SizeCurve::Process(ezUInt64 uiNumElements)
 
   auto& curve = pCurve->GetDescriptor().m_Curves[0];
 
-  float fMinX, fMaxX;
+  double fMinX, fMaxX;
   curve.QueryExtents(fMinX, fMaxX);
 
   // skip the first n particles
@@ -145,11 +145,11 @@ void ezParticleBehavior_SizeCurve::Process(ezUInt64 uiNumElements)
     {
       const float fLifeTimeFraction = 1.0f - (itLifeTime.Current().x * itLifeTime.Current().y);
 
-      const float evalPos = curve.ConvertNormalizedPos(fLifeTimeFraction);
-      float val = curve.Evaluate(evalPos);
+      const double evalPos = curve.ConvertNormalizedPos(fLifeTimeFraction);
+      double val = curve.Evaluate(evalPos);
       val = curve.NormalizeValue(val);
 
-      itSize.Current() = m_fBaseSize + val * m_fCurveScale;
+      itSize.Current() = m_fBaseSize + (float)val * m_fCurveScale;
     }
 
     // skip the next n items

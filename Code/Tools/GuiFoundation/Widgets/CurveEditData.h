@@ -16,7 +16,8 @@ class EZ_GUIFOUNDATION_DLL ezCurve1DControlPoint : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezCurve1DControlPoint, ezReflectedClass);
 public:
 
-  ezVec2 m_Point;
+  double m_fTime;
+  double m_fValue;
   ezVec2 m_LeftTangent;
   ezVec2 m_RightTangent;
   bool m_bTangentsLinked = true;

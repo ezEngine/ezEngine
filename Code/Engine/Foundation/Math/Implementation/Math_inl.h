@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <algorithm>
 
@@ -162,6 +162,15 @@ namespace ezMath
     return (T)(f1 + (factor * (f2 - f1)));
   }
 
+  template <typename T>
+  EZ_FORCE_INLINE T Lerp(T f1, T f2, double factor)
+  {
+    // value is not included in format string, to prevent requirement on FormatString.h, to break #include cycles
+    EZ_ASSERT_DEBUG((factor >= -0.00001) && (factor <= 1.0 + 0.00001), "lerp: factor is not in the range [0; 1]");
+
+    return (T)(f1 + (factor * (f2 - f1)));
+  }
+
   ///  Returns 0, if value < edge, and 1, if value >= edge.
   template <typename T>
   constexpr EZ_FORCE_INLINE T Step(T value, T edge)
@@ -257,15 +266,15 @@ namespace ezMath
   }
 
 
-  template<typename T>
-  T EvaluateBezierCurve(float t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint)
+  template<typename T, typename T2>
+  T EvaluateBezierCurve(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint)
   {
-    const float mt = 1 - t;
+    const T2 mt = 1 - t;
 
-    const float f1 = mt * mt * mt;
-    const float f2 = 3 * mt * mt * t;
-    const float f3 = 3 * mt * t * t;
-    const float f4 = t * t * t;
+    const T2 f1 = mt * mt * mt;
+    const T2 f2 = 3 * mt * mt * t;
+    const T2 f3 = 3 * mt * t * t;
+    const T2 f4 = t * t * t;
 
     return f1 * startPoint + f2 * controlPoint1 + f3 * controlPoint2 + f4 * endPoint;
   }

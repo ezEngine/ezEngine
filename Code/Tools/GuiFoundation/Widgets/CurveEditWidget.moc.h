@@ -26,7 +26,7 @@ public:
   void FrameCurve();
 
   QPoint MapFromScene(const QPointF& pos) const;
-  QPoint MapFromScene(const ezVec2& pos) const { return MapFromScene(QPointF(pos.x, pos.y)); }
+  QPoint MapFromScene(const ezVec2d& pos) const { return MapFromScene(QPointF(pos.x, pos.y)); }
   QPointF MapToScene(const QPoint& pos) const;
   ezVec2 MapDirFromScene(const ezVec2& pos) const;
 
@@ -92,9 +92,9 @@ private:
   ezCurve1DAssetData* m_pCurveEditData;
   ezHybridArray<ezCurve1D, 4> m_Curves;
   ezHybridArray<ezCurve1D, 4> m_CurvesSorted;
-  ezHybridArray<ezVec2, 4> m_CurveExtents;
-  float m_fMaxCurveExtent;
-  float m_fMinValue, m_fMaxValue;
+  ezHybridArray<ezVec2d, 4> m_CurveExtents;
+  double m_fMaxCurveExtent;
+  double m_fMinValue, m_fMaxValue;
 
   QPointF m_SceneTranslation;
   QPointF m_SceneToPixelScale;

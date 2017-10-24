@@ -246,7 +246,7 @@ void ezPropertyAnimComponent::ApplyAnimation(const ezTime& tDiff, ezUInt32 idx)
     return;
   }
 
-  float fFinalValue = 0.0f;
+  float fFinalValue = 0;
   {
     ezResourceLock<ezCurve1DResource> pResource(binding.m_pAnimation->m_hNumberCurve);
     if (pResource->GetDescriptor().m_Curves.IsEmpty())
@@ -257,10 +257,10 @@ void ezPropertyAnimComponent::ApplyAnimation(const ezTime& tDiff, ezUInt32 idx)
     if (curve.IsEmpty())
       return;
 
-    float fMin, fMax;
+    double fMin, fMax;
     curve.QueryExtents(fMin, fMax);
 
-    fFinalValue = curve.Evaluate(fMin + fLookupPos * (fMax - fMin));
+    fFinalValue = (float)curve.Evaluate(fMin + fLookupPos * (fMax - fMin));
   }
 
   /// \todo etc. int types
