@@ -487,6 +487,8 @@ void ezQtCurveEditWidget::mouseReleaseEvent(QMouseEvent* e)
       m_State == EditState::DraggingPointsVert ||
       m_State == EditState::DraggingTangents ||
       m_State == EditState::DraggingCurve ||
+      m_State == EditState::ScaleLeftRight ||
+      m_State == EditState::ScaleUpDown ||
       m_State == EditState::MultiSelect))
   {
     m_State = EditState::None;
@@ -686,6 +688,12 @@ void ezQtCurveEditWidget::mouseDoubleClickEvent(QMouseEvent* e)
 
       if (scenePos.x() < 0)
         return;
+
+      if (m_bBegunChanges)
+      {
+        m_bBegunChanges = false;
+        emit EndOperationEvent(true);
+      }
 
       emit DoubleClickEvent(scenePos, epsilon);
     }

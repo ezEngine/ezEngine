@@ -38,7 +38,7 @@ AssetInfo
 		s %AssetType{"PropertyAnim"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{638237508510807988,5721064449891201425}}
-		u4 %Hash{12012371112796450884}
+		u4 %Hash{17689514138104073883}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -57,7 +57,7 @@ o
 		Time %Duration{d{0x000000000000F03F}}
 		s %Mode{"ezPropertyAnimMode::BackAndForth"}
 		s %NumberCurve{""}
-		s %Property{"Light Color"}
+		s %Property{"LightColor"}
 		s %Target{"ezPropertyAnimTarget::Color"}
 	}
 }
