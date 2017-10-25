@@ -162,7 +162,7 @@ ezUInt64 ezCurve1D::GetHeapMemoryUsage() const
 
 void ezCurve1D::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 3;
+  const ezUInt8 uiVersion = 4;
 
   stream << uiVersion;
 
@@ -175,6 +175,8 @@ void ezCurve1D::Save(ezStreamWriter& stream) const
     stream << cp.m_Position;
     stream << cp.m_LeftTangent;
     stream << cp.m_RightTangent;
+    stream << cp.m_TangentModeRight;
+    stream << cp.m_TangentModeLeft;
   }
 }
 
@@ -183,7 +185,7 @@ void ezCurve1D::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
 
   stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion <= 3, "Incorrect version '{0}' for ezCurve1D", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= 4, "Incorrect version '{0}' for ezCurve1D", uiVersion);
 
   ezUInt32 numCp = 0;
 
@@ -213,6 +215,12 @@ void ezCurve1D::Load(ezStreamReader& stream)
       stream >> cp.m_Position;
       stream >> cp.m_LeftTangent;
       stream >> cp.m_RightTangent;
+
+      if (uiVersion >= 4)
+      {
+        stream >> cp.m_TangentModeRight;
+        stream >> cp.m_TangentModeLeft;
+      }
     }
   }
 }
