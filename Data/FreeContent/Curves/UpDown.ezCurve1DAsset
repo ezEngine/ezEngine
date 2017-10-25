@@ -3,8 +3,8 @@ Objects
 o
 {
 	Uuid %id{u4{11938993426352371603,4916569642028559541}}
-	s %t{"ezCurve1DAssetData"}
-	u3 %v{1}
+	s %t{"ezCurveGroupData"}
+	u3 %v{2}
 	p
 	{
 		VarArray %Curves
@@ -16,10 +16,11 @@ o
 o
 {
 	Uuid %id{u4{309023642080270726,5057293515091906517}}
-	s %t{"ezCurve1DData"}
-	u3 %v{2}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
 	p
 	{
+		ColorGamma %Color{u1{173,255,47,255}}
 		VarArray %ControlPoints
 		{
 			Uuid{u4{12126312599156338853,5267545395899146354}}
@@ -30,13 +31,17 @@ o
 o
 {
 	Uuid %id{u4{12126312599156338853,5267545395899146354}}
-	s %t{"ezCurve1DControlPoint"}
-	u3 %v{2}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
 	p
 	{
-		Vec2 %LeftTangent{f{0,0x0000803F}}
-		Vec2 %Point{f{0,0}}
-		Vec2 %RightTangent{f{0x00000040,0x00000040}}
+		Vec2 %LeftTangent{f{0,0x010E603F}}
+		s %LeftTangentMode{"ezCurveTangentMode::Bezier"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0x0000003F,0x010EE03F}}
+		s %RightTangentMode{"ezCurveTangentMode::Bezier"}
+		i4 %Tick{0}
+		d %Value{0}
 	}
 }
 o
@@ -56,13 +61,17 @@ o
 o
 {
 	Uuid %id{u4{4395247008461226644,5583224422301703849}}
-	s %t{"ezCurve1DControlPoint"}
-	u3 %v{2}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
 	p
 	{
-		Vec2 %LeftTangent{f{0x000000C0,0x000000C0}}
-		Vec2 %Point{f{0x00008040,0}}
-		Vec2 %RightTangent{f{0,0x000080BF}}
+		Vec2 %LeftTangent{f{0x000000BF,0x010EE0BF}}
+		s %LeftTangentMode{"ezCurveTangentMode::Bezier"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0,0x010E60BF}}
+		s %RightTangentMode{"ezCurveTangentMode::Bezier"}
+		i4 %Tick{4800}
+		d %Value{0}
 	}
 }
 AssetInfo
@@ -76,7 +85,7 @@ AssetInfo
 		s %AssetType{"Curve1D"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{1490407678575209857,5669322845094949241}}
-		u4 %Hash{15744498648638169484}
+		u4 %Hash{9538770416708250839}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -104,7 +113,7 @@ o
 }
 o
 {
-	Uuid %id{u4{6556537717515283726,6779390750970577737}}
+	Uuid %id{u4{11061541817101818123,3867562407177176337}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -112,12 +121,12 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"ezEditorPluginAssets"}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
 		VarArray %Properties{}
-		s %TypeName{"ezCurve1DData"}
-		u3 %TypeSize{32}
-		u3 %TypeVersion{2}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -140,7 +149,7 @@ o
 }
 o
 {
-	Uuid %id{u4{16056008717242569839,13880494621923277544}}
+	Uuid %id{u4{11283328920519754257,7762271560247873194}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -149,16 +158,34 @@ o
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"ezEditorPluginAssets"}
+		s %PluginName{"Static"}
 		VarArray %Properties{}
-		s %TypeName{"ezCurve1DControlPoint"}
-		u3 %TypeSize{32}
+		s %TypeName{"ezSingleCurveData"}
+		u3 %TypeSize{40}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{931911971920702524,16258275094731059491}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCurveGroupData"}
+		u3 %TypeSize{40}
 		u3 %TypeVersion{2}
 	}
 }
 o
 {
-	Uuid %id{u4{18074069088205007275,16836019556753862548}}
+	Uuid %id{u4{9103490395175710257,16500399196874557863}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -167,10 +194,28 @@ o
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"ezEditorPluginAssets"}
+		s %PluginName{"Static"}
 		VarArray %Properties{}
-		s %TypeName{"ezCurve1DAssetData"}
-		u3 %TypeSize{32}
+		s %TypeName{"ezCurveControlPointData"}
+		u3 %TypeSize{48}
+		u3 %TypeVersion{5}
+	}
+}
+o
+{
+	Uuid %id{u4{11790346877825962014,17334317481724298707}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCurveTangentMode"}
+		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }

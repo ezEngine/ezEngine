@@ -2027,7 +2027,7 @@ AssetInfo
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8509371654781092019,5438081593505794318}}
-		u4 %Hash{6573877926600368055}
+		u4 %Hash{5538742925220072713}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -4237,13 +4237,15 @@ o
 {
 	Uuid %id{u4{6154382942426957637,10741261294803444348}}
 	s %t{"ezSkyBoxComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		s %CubeMap{"{ a3bdac8f-bd8c-48af-b1ed-4ab9760e3d9c }"}
 		f %ExposureBias{0x295CCF3F}
 		b %InverseTonemap{0}
+		b %UseFog{1}
+		f %VirtualDistance{0x00007A44}
 	}
 }
 o
@@ -6326,8 +6328,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSkyBoxComponent"}
-		u3 %TypeSize{80}
-		u3 %TypeVersion{3}
+		u3 %TypeSize{88}
+		u3 %TypeVersion{4}
 	}
 }
 o

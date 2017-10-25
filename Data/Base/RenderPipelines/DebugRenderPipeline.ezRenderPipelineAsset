@@ -164,6 +164,9 @@ o
 	p
 	{
 		b %Active{1}
+		u3 %MarqueeActionID{0}
+		Vec2 %MarqueePickPos0{f{0,0}}
+		Vec2 %MarqueePickPos1{f{0,0}}
 		s %Name{"EditorPickingPass"}
 		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0x5A369DC3,0x3157B7C3}}
@@ -175,7 +178,6 @@ o
 			Uuid{u4{3452188334156940963,5403412659744363881}}
 			Uuid{u4{17807073858304941756,5755851498833885382}}
 		}
-		Uuid %SceneContext{u4{0,0}}
 		s %ViewRenderMode{"ezViewRenderMode::None"}
 	}
 }
@@ -230,7 +232,7 @@ AssetInfo
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15507879570940844990,5062162254587685694}}
-		u4 %Hash{15695811864884103008}
+		u4 %Hash{15719896833239014546}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -1004,9 +1006,9 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::Class|ezPropertyFlags::Pointer|ezPropertyFlags::Phantom"}
-		s %Name{"SceneContext"}
-		s %Type{"ezSceneContext"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"MarqueePickPos1"}
+		s %Type{"ezVec2"}
 	}
 }
 o
@@ -1178,9 +1180,9 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
-		s %Name{"ViewRenderMode"}
-		s %Type{"ezViewRenderMode"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"MarqueePickPos0"}
+		s %Type{"ezVec2"}
 	}
 }
 o
@@ -1304,9 +1306,11 @@ o
 			Uuid{u4{17839717520482877205,14218607790324358720}}
 			Uuid{u4{1550108541081636654,6499996619777026584}}
 			Uuid{u4{3900396693855734746,3142496393289830597}}
+			Uuid{u4{6057531788164191153,9864477790286305697}}
+			Uuid{u4{14224672553163021716,12878625654473102466}}
 		}
 		s %TypeName{"ezPickingRenderPass"}
-		u3 %TypeSize{384}
+		u3 %TypeSize{432}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1420,6 +1424,20 @@ o
 }
 o
 {
+	Uuid %id{u4{6057531788164191153,9864477790286305697}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"MarqueeActionID"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
 	Uuid %id{u4{14783989624435995382,10153508228387791255}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1529,6 +1547,20 @@ o
 	p
 	{
 		f %Min{0}
+	}
+}
+o
+{
+	Uuid %id{u4{14224672553163021716,12878625654473102466}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
+		s %Name{"ViewRenderMode"}
+		s %Type{"ezViewRenderMode"}
 	}
 }
 o

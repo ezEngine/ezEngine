@@ -42,7 +42,7 @@ o
 	{
 		f %BaseSize{0}
 		f %CurveScale{0x00004040}
-		s %SizeCurve{"{ ab745bdf-bc09-9e34-77b5-734904059b96 }"}
+		s %SizeCurve{"{ f633ccad-b4d5-12e5-260a-bb050d602881 }"}
 	}
 }
 o
@@ -67,13 +67,13 @@ AssetInfo
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{18423804289550068914,5029208661442092394}}
-		u4 %Hash{10427700872864395273}
+		u4 %Hash{15095791563422273843}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 0c5ce0a7-7218-427d-9a9d-47ef5e9aa33f }"}
 			s{"{ a1f3f932-460e-405a-8512-a0f3ce341d1b }"}
-			s{"{ ab745bdf-bc09-9e34-77b5-734904059b96 }"}
+			s{"{ f633ccad-b4d5-12e5-260a-bb050d602881 }"}
 		}
 	}
 }
@@ -167,7 +167,7 @@ o
 	p
 	{
 		Angle %Value{f{0xC2B8B23E}}
-		f %Variance{0xD7A3F03E}
+		f %Variance{0x7B14AE3E}
 	}
 }
 o
@@ -216,7 +216,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEffectDescriptor"}
-		u3 %TypeSize{288}
+		u3 %TypeSize{304}
 		u3 %TypeVersion{1}
 	}
 }
