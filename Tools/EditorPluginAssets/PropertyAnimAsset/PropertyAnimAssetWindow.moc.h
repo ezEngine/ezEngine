@@ -10,6 +10,8 @@ class QTreeView;
 class QItemSelection;
 class QItemSelectionModel;
 class ezQtCurve1DEditorWidget;
+struct ezDocumentObjectPropertyEvent;
+struct ezDocumentObjectStructureEvent;
 
 class ezQtPropertyAnimAssetDocumentWindow : public ezQtDocumentWindow
 {
@@ -37,6 +39,8 @@ private slots:
   void onCurveEndCpChanges();
 
 private:
+  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void UpdateCurveEditor();
 
   ezCurveGroupData m_CurvesToDisplay;

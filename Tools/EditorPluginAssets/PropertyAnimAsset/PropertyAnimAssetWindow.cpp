@@ -14,6 +14,7 @@
 #include <QItemSelectionModel>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAsset.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
 {
@@ -60,6 +61,9 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezDocum
     pPanel->show();
 
     m_pPropertyTreeView = new QTreeView(pPanel);
+    m_pPropertyTreeView->setHeaderHidden(true);
+    m_pPropertyTreeView->setRootIsDecorated(true);
+    m_pPropertyTreeView->setUniformRowHeights(true);
     pPanel->setWidget(m_pPropertyTreeView);
 
     addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanel);
@@ -69,6 +73,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezDocum
   {
     m_pPropertiesModel = new ezQtPropertyAnimModel(static_cast<ezPropertyAnimAssetDocument*>(pDocument), this);
     m_pPropertyTreeView->setModel(m_pPropertiesModel);
+    m_pPropertyTreeView->expandToDepth(1);
   }
 
   // Selection Model
@@ -109,11 +114,16 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezDocum
   connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::BeginCpChangesEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveBeginCpChanges);
   connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::EndCpChangesEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveEndCpChanges);
 
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler, this));
+
   FinishWindowCreation();
 }
 
 ezQtPropertyAnimAssetDocumentWindow::~ezQtPropertyAnimAssetDocumentWindow()
 {
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler, this));
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
@@ -159,6 +169,23 @@ void ezQtPropertyAnimAssetDocumentWindow::onSelectionChanged(const QItemSelectio
   // m_CurvesToDisplay.m_uiFramesPerSecond = ...
 
   UpdateCurveEditor();
+}
+
+void ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+{
+  UpdateCurveEditor();
+}
+
+void ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
+{
+  switch (e.m_EventType)
+  {
+  case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
+  case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
+  case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
+    UpdateCurveEditor();
+    break;
+  }
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::UpdateCurveEditor()

@@ -3,6 +3,8 @@
 #include <EditorFramework/Plugin.h>
 #include <QAbstractItemModel>
 #include <Foundation/Containers/Deque.h>
+#include <Foundation/Strings/String.h>
+#include <Foundation/Containers/DynamicArray.h>
 
 class ezPropertyAnimAssetDocument;
 struct ezDocumentObjectPropertyEvent;
