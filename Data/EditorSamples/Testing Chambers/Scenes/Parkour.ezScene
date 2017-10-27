@@ -2103,25 +2103,6 @@ o
 }
 o
 {
-	Uuid %id{u4{7165347154927110319,4904037833927165563}}
-	s %t{"ezRotorComponent"}
-	u3 %v{2}
-	p
-	{
-		f %Acceleration{0}
-		b %Active{1}
-		b %AutoToggleDirection{0}
-		s %Axis{"ezBasisAxis::PositiveZ"}
-		f %Deceleration{0}
-		i3 %DegreesToRotate{0}
-		b %ReverseAtEnd{0}
-		b %ReverseAtStart{0}
-		b %RunAtStartup{1}
-		f %Speed{0x0000B442}
-	}
-}
-o
-{
 	Uuid %id{u4{15750760655123705475,4905380829566005174}}
 	s %t{"ezPxShapeSphereComponent"}
 	u3 %v{1}
@@ -2521,17 +2502,6 @@ o
 }
 o
 {
-	Uuid %id{u4{6926584327692950705,5100168883589242071}}
-	s %t{"ezPropertyAnimComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		s %Animation{"{ 1034ea07-7e19-43d0-8bd9-ff9a2558f4cf }"}
-	}
-}
-o
-{
 	Uuid %id{u4{12384213441240832672,5103826627108748983}}
 	s %t{"ezPrefabReferenceComponent"}
 	u3 %v{1}
@@ -2664,7 +2634,6 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{10930877781915852983,5199116863181522261}}
-			Uuid{u4{14853410426790218431,5521762390297251965}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0xA3B27341,0xBFFFCB41,0x9D531740}}
@@ -2689,12 +2658,11 @@ AssetInfo
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{6743398546561549731}
+		u4 %Hash{10960898691405619568}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 03bb62c3-6b77-4641-99d0-ad6e3d3c2121 }"}
-			s{"{ 1034ea07-7e19-43d0-8bd9-ff9a2558f4cf }"}
 			s{"{ 15723cbd-9706-4c86-b695-bd945c5ada6a }"}
 			s{"{ 1ce6f3e5-326b-4dce-8cef-03cc8c06b40b }"}
 			s{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
@@ -2703,7 +2671,6 @@ AssetInfo
 			s{"{ 309d7ff1-19c6-435e-821d-584426d01365 }"}
 			s{"{ 317e4b00-3e99-4f42-a175-2f7cdfc3fd7f }"}
 			s{"{ 3ebe2790-7cc4-40c8-bde6-e760b96b2636 }"}
-			s{"{ 40e17191-4dce-4f65-b4f7-1de9a179db08 }"}
 			s{"{ 45c7a1b7-2a49-48c1-b2a5-2eed7de93920 }"}
 			s{"{ 5451b35f-d73c-402e-a540-c542d3e52be0 }"}
 			s{"{ 5aca09be-6ccf-4dda-9281-2ffd1b411a96 }"}
@@ -2719,7 +2686,6 @@ AssetInfo
 			s{"{ ac0755c6-f78d-40ec-bfaa-55f2be674f87 }"}
 			s{"{ b727ba61-e20a-42d7-a170-860ede23e85d }"}
 			s{"{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }"}
-			s{"{ ce11aaa9-e082-4a02-bb75-cf193c804c90 }"}
 			s{"{ d65cd59b-50e0-44f3-aefb-a88943b81900 }"}
 			s{"{ d75e6ba0-47da-4c0f-86b5-55a53996dfe1 }"}
 			s{"{ e6c495bb-9dd5-43ef-9f20-618828f20781 }"}
@@ -2960,7 +2926,6 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{10273322198907215267,5278739019818890760}}
-			Uuid{u4{17248607557287879583,5500134137491846925}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x0000A03F,0x0000E840,0x00005441}}
@@ -3514,18 +3479,6 @@ o
 }
 o
 {
-	Uuid %id{u4{17248607557287879583,5500134137491846925}}
-	s %t{"ezMaterialAnimComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		s %Animation{"{ ce11aaa9-e082-4a02-bb75-cf193c804c90 }"}
-		s %Material{"{ 45c7a1b7-2a49-48c1-b2a5-2eed7de93920 }"}
-	}
-}
-o
-{
 	Uuid %id{u4{2926729404369113253,5502192461906697793}}
 	s %t{"ezPxShapeBoxComponent"}
 	u3 %v{1}
@@ -3550,17 +3503,6 @@ o
 		Vec3 %Extents{f{0x00008040,0x00008040,0x00008040}}
 		b %ReportContact{0}
 		s %Surface{""}
-	}
-}
-o
-{
-	Uuid %id{u4{14853410426790218431,5521762390297251965}}
-	s %t{"ezPropertyAnimComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		s %Animation{"{ 40e17191-4dce-4f65-b4f7-1de9a179db08 }"}
 	}
 }
 o
@@ -3632,8 +3574,6 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{10327930229809105293,5584995126100406967}}
-			Uuid{u4{6926584327692950705,5100168883589242071}}
-			Uuid{u4{7165347154927110319,4904037833927165563}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
@@ -10251,24 +10191,6 @@ o
 }
 o
 {
-	Uuid %id{u4{9891928991293619246,2710824445141860763}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezPropertyAnimComponent"}
-		u3 %TypeSize{256}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{11061541817101818123,3867562407177176337}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -10606,24 +10528,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezVarianceTypeBase"}
 		u3 %TypeSize{4}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{15057136663719445792,10192935553870661389}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezMaterialAnimComponent"}
-		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

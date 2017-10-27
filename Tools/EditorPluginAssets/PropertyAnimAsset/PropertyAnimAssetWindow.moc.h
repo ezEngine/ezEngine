@@ -4,6 +4,9 @@
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
+class ezQtPropertyAnimModel;
+class QTreeView;
+
 class ezQtPropertyAnimAssetDocumentWindow : public ezQtDocumentWindow
 {
   Q_OBJECT
@@ -14,4 +17,6 @@ public:
 
   virtual const char* GetWindowLayoutGroupName() const { return "PropertyAnimAsset"; }
 
+  QTreeView* m_pPropertyTreeView = nullptr;
+  ezQtPropertyAnimModel* m_pPropertiesModel;
 };

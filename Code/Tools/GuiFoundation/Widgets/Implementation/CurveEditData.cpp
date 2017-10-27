@@ -38,6 +38,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurveGroupData, 2, ezRTTIDefaultAllocator<ezCu
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_MEMBER_PROPERTY("FPS", m_uiFramesPerSecond)->AddAttributes(new ezDefaultValueAttribute(60)),
     EZ_ARRAY_MEMBER_PROPERTY("Curves", m_Curves)->AddFlags(ezPropertyFlags::PointerOwner),
   }
   EZ_END_PROPERTIES

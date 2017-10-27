@@ -141,7 +141,13 @@ void ezQtCurveEditWidget::FrameCurve()
   double fOffsetX = 0;
   double fOffsetY = m_fMinValue;
 
-  if (m_SelectedCPs.GetCount() > 1)
+  if (m_Curves.GetCount() == 0)
+  {
+    fWidth = 10.0;
+    fHeight = 10.0;
+    fOffsetY = -5.0;
+  }
+  else if (m_SelectedCPs.GetCount() > 1)
   {
     fWidth = m_selectionBRect.width();
     fHeight = m_selectionBRect.height();
@@ -840,7 +846,7 @@ void ezQtCurveEditWidget::PaintCurveSegments(QPainter* painter, float fOffsetX, 
 
 void ezQtCurveEditWidget::PaintOutsideAreaOverlay(QPainter* painter) const
 {
-  const int iRightEdge = MapFromScene(QPointF(m_fMaxCurveExtent, 0)).x();
+  const int iRightEdge = MapFromScene(QPointF(ezMath::Max(0.0, m_fMaxCurveExtent), 0)).x();
 
   if (iRightEdge >= rect().width())
     return;
@@ -1086,7 +1092,7 @@ void ezQtCurveEditWidget::RenderSideLinesAndText(QPainter* painter, const QRectF
   const ezInt32 iRoughLineLength = 20;
 
   QRect areaRect = rect();
-  areaRect.setRight(areaRect.left() + 20);
+  areaRect.setRight(areaRect.left() + 30);
 
   // render fine grid stop lines
   {

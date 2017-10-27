@@ -112,6 +112,9 @@ void ezQtCurve1DEditorWidget::MakeRepeatable(bool bAdjustLastPoint)
 
 void ezQtCurve1DEditorWidget::NormalizeCurveX(ezUInt32 uiActiveCurve)
 {
+  if (uiActiveCurve > m_Curves.m_Curves.GetCount())
+    return;
+
   ezCurve1D CurveData;
   m_Curves.ConvertToRuntimeData(uiActiveCurve, CurveData);
 
@@ -158,6 +161,9 @@ void ezQtCurve1DEditorWidget::NormalizeCurveX(ezUInt32 uiActiveCurve)
 
 void ezQtCurve1DEditorWidget::NormalizeCurveY(ezUInt32 uiActiveCurve)
 {
+  if (uiActiveCurve > m_Curves.m_Curves.GetCount())
+    return;
+
   ezCurve1D CurveData;
   m_Curves.ConvertToRuntimeData(uiActiveCurve, CurveData);
 
@@ -347,6 +353,9 @@ void ezQtCurve1DEditorWidget::onEndOperation(bool commit)
 
 void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
 {
+  if (m_Curves.m_Curves.IsEmpty())
+    return;
+
   m_contextMenuScenePos = scenePos;
 
   QMenu m(this);
