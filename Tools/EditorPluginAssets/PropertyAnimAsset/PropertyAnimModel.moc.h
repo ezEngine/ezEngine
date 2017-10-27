@@ -7,6 +7,7 @@
 class ezPropertyAnimAssetDocument;
 struct ezDocumentObjectPropertyEvent;
 struct ezDocumentObjectStructureEvent;
+class ezPropertyAnimationTrack;
 
 struct ezQtPropertyAnimModelTreeEntry
 {

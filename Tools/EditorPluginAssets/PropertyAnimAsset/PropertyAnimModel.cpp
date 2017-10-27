@@ -1,13 +1,14 @@
 #include <PCH.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimModel.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAsset.h>
 
 ezQtPropertyAnimModel::ezQtPropertyAnimModel(ezPropertyAnimAssetDocument* pDocument, QObject* pParent)
   : QAbstractItemModel(pParent)
   , m_pAssetDoc(pDocument)
 {
   m_pAssetDoc->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimModel::DocumentObjectEventHandler, this));
-  m_pAssetDoc->GetObjectManager() ->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimModel::DocumentStructureEventHandler, this));
+  m_pAssetDoc->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimModel::DocumentStructureEventHandler, this));
 
   BuildMapping();
 }
