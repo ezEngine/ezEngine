@@ -13,6 +13,7 @@
 #include <GuiFoundation/Widgets/Curve1DEditorWidget.moc.h>
 #include <QItemSelectionModel>
 #include <ToolsFoundation/Command/TreeCommands.h>
+#include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAsset.h>
 
 ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
 {
@@ -197,6 +198,9 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveEndCpChanges()
 
 void ezQtPropertyAnimAssetDocumentWindow::onInsertCpAt(ezUInt32 uiCurveIdx, ezInt64 tickX, double clickPosY)
 {
+  if (uiCurveIdx >= m_MapSelectionToTrack.GetCount())
+    return;
+
   ezPropertyAnimAssetDocument* pDoc = static_cast<ezPropertyAnimAssetDocument*>(GetDocument());
 
   ezCommandHistory* history = pDoc->GetCommandHistory();
@@ -240,15 +244,18 @@ void ezQtPropertyAnimAssetDocumentWindow::onInsertCpAt(ezUInt32 uiCurveIdx, ezIn
   UpdateCurveEditor();
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, ezInt64 iTickX, double newPosY)
+void ezQtPropertyAnimAssetDocumentWindow::onCurveCpMoved(ezUInt32 uiCurveIdx, ezUInt32 cpIdx, ezInt64 iTickX, double newPosY)
 {
+  if (uiCurveIdx >= m_MapSelectionToTrack.GetCount())
+    return;
+
   iTickX = ezMath::Max<ezInt64>(iTickX, 0);
 
   ezPropertyAnimAssetDocument* pDoc = static_cast<ezPropertyAnimAssetDocument*>(GetDocument());
 
   auto pProp = pDoc->GetPropertyObject();
 
-  const ezInt32 iTrackIdx = m_MapSelectionToTrack[curveIdx];
+  const ezInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
   const ezDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<ezUuid>());
   const ezVariant curveGuid = trackObject->GetTypeAccessor().GetValue("FloatCurve");
@@ -268,13 +275,16 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveCpMoved(ezUInt32 curveIdx, ezUI
   GetDocument()->GetCommandHistory()->AddCommand(cmdSet);
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onCurveCpDeleted(ezUInt32 curveIdx, ezUInt32 cpIdx)
+void ezQtPropertyAnimAssetDocumentWindow::onCurveCpDeleted(ezUInt32 uiCurveIdx, ezUInt32 cpIdx)
 {
+  if (uiCurveIdx >= m_MapSelectionToTrack.GetCount())
+    return;
+
   ezPropertyAnimAssetDocument* pDoc = static_cast<ezPropertyAnimAssetDocument*>(GetDocument());
 
   auto pProp = pDoc->GetPropertyObject();
 
-  const ezInt32 iTrackIdx = m_MapSelectionToTrack[curveIdx];
+  const ezInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
   const ezDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<ezUuid>());
   const ezVariant curveGuid = trackObject->GetTypeAccessor().GetValue("FloatCurve");
@@ -290,13 +300,16 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveCpDeleted(ezUInt32 curveIdx, ez
   GetDocument()->GetCommandHistory()->AddCommand(cmdSet);
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onCurveTangentMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent)
+void ezQtPropertyAnimAssetDocumentWindow::onCurveTangentMoved(ezUInt32 uiCurveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent)
 {
+  if (uiCurveIdx >= m_MapSelectionToTrack.GetCount())
+    return;
+
   ezPropertyAnimAssetDocument* pDoc = static_cast<ezPropertyAnimAssetDocument*>(GetDocument());
 
   auto pProp = pDoc->GetPropertyObject();
 
-  const ezInt32 iTrackIdx = m_MapSelectionToTrack[curveIdx];
+  const ezInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
   const ezDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<ezUuid>());
   const ezVariant curveGuid = trackObject->GetTypeAccessor().GetValue("FloatCurve");
@@ -318,13 +331,16 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveTangentMoved(ezUInt32 curveIdx,
   GetDocument()->GetCommandHistory()->AddCommand(cmdSet);
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onLinkCurveTangents(ezUInt32 curveIdx, ezUInt32 cpIdx, bool bLink)
+void ezQtPropertyAnimAssetDocumentWindow::onLinkCurveTangents(ezUInt32 uiCurveIdx, ezUInt32 cpIdx, bool bLink)
 {
+  if (uiCurveIdx >= m_MapSelectionToTrack.GetCount())
+    return;
+
   ezPropertyAnimAssetDocument* pDoc = static_cast<ezPropertyAnimAssetDocument*>(GetDocument());
 
   auto pProp = pDoc->GetPropertyObject();
 
-  const ezInt32 iTrackIdx = m_MapSelectionToTrack[curveIdx];
+  const ezInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
   const ezDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<ezUuid>());
   const ezVariant curveGuid = trackObject->GetTypeAccessor().GetValue("FloatCurve");
@@ -343,17 +359,20 @@ void ezQtPropertyAnimAssetDocumentWindow::onLinkCurveTangents(ezUInt32 curveIdx,
     const ezVec2 leftTangent = pDoc->GetProperties()->m_Tracks[iTrackIdx]->m_FloatCurve.m_ControlPoints[cpIdx].m_LeftTangent;
     const ezVec2 rightTangent(-leftTangent.x, -leftTangent.y);
 
-    onCurveTangentMoved(curveIdx, cpIdx, rightTangent.x, rightTangent.y, true);
+    onCurveTangentMoved(uiCurveIdx, cpIdx, rightTangent.x, rightTangent.y, true);
   }
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onCurveTangentModeChanged(ezUInt32 curveIdx, ezUInt32 cpIdx, bool rightTangent, int mode)
+void ezQtPropertyAnimAssetDocumentWindow::onCurveTangentModeChanged(ezUInt32 uiCurveIdx, ezUInt32 cpIdx, bool rightTangent, int mode)
 {
+  if (uiCurveIdx >= m_MapSelectionToTrack.GetCount())
+    return;
+
   ezPropertyAnimAssetDocument* pDoc = static_cast<ezPropertyAnimAssetDocument*>(GetDocument());
 
   auto pProp = pDoc->GetPropertyObject();
 
-  const ezInt32 iTrackIdx = m_MapSelectionToTrack[curveIdx];
+  const ezInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
   const ezDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<ezUuid>());
   const ezVariant curveGuid = trackObject->GetTypeAccessor().GetValue("FloatCurve");

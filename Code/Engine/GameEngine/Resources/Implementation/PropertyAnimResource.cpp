@@ -105,25 +105,38 @@ void ezPropertyAnimResourceDescriptor::Save(ezStreamWriter& stream) const
   const ezUInt16 uiNumFloatAnimations = m_FloatAnimations.GetCount();
   const ezUInt16 uiNumColorAnimations = m_ColorAnimations.GetCount();
 
+  EZ_ASSERT_DEV(m_AnimationDuration.GetSeconds() > 0, "Animation duration must be positive");
+
   stream << uiVersion;
   stream << uiIdentifier;
   stream << m_AnimationDuration;
   stream << m_Mode;
   stream << uiNumFloatAnimations;
 
+  ezCurve1D tmpCurve;
+
   for (ezUInt32 i = 0; i < uiNumFloatAnimations; ++i)
   {
     stream << m_FloatAnimations[i].m_sPropertyName;
     stream << m_FloatAnimations[i].m_Target;
-    m_FloatAnimations[i].m_Curve.Save(stream);
+
+    tmpCurve = m_FloatAnimations[i].m_Curve;
+    tmpCurve.SortControlPoints();
+    tmpCurve.ApplyTangentModes();
+    tmpCurve.ClampTangents();
+    tmpCurve.Save(stream);
   }
 
+  ezColorGradient tmpGradient;
   stream << uiNumColorAnimations;
   for (ezUInt32 i = 0; i < uiNumColorAnimations; ++i)
   {
     stream << m_ColorAnimations[i].m_sPropertyName;
     stream << m_ColorAnimations[i].m_Target;
-    m_ColorAnimations[i].m_Gradient.Save(stream);
+
+    tmpGradient = m_ColorAnimations[i].m_Gradient;
+    tmpGradient.SortControlPoints();
+    tmpGradient.Save(stream);
   }
 }
 
@@ -150,6 +163,8 @@ void ezPropertyAnimResourceDescriptor::Load(ezStreamReader& stream)
     stream >> m_FloatAnimations[i].m_sPropertyName;
     stream >> m_FloatAnimations[i].m_Target;
     m_FloatAnimations[i].m_Curve.Load(stream);
+    m_FloatAnimations[i].m_Curve.SortControlPoints();
+    m_FloatAnimations[i].m_Curve.CreateLinearApproximation();
   }
 
   stream >> uiNumColorAnimations;

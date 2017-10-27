@@ -3,6 +3,7 @@
 #include <Foundation/Basics.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <GuiFoundation/Widgets/CurveEditData.h>
 
 class ezQtPropertyAnimModel;
 class QTreeView;

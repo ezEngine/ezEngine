@@ -259,7 +259,7 @@ double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime& inout_tCur, ezPro
       inout_tCur -= duration;
   }
 
-  return inout_tCur.GetSeconds() / duration.GetSeconds();
+  return inout_tCur.GetSeconds();
 }
 
 void ezPropertyAnimComponent::ApplyFloatAnimation(ezUInt32 idx, double lookupTime)

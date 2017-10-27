@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAsset.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
+#include <GameEngine/Resources/PropertyAnimResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimationTrack, 1, ezRTTIDefaultAllocator<ezPropertyAnimationTrack>);
 {
@@ -41,16 +42,61 @@ ezPropertyAnimAssetDocument::ezPropertyAnimAssetDocument(const char* szDocumentP
 {
 }
 
+
+ezTime ezPropertyAnimAssetDocument::GetAnimationDuration() const
+{
+  const ezPropertyAnimationTrackGroup* pProp = GetProperties();
+
+  // minimum duration
+  double length = 0.1;
+
+  for (ezUInt32 i = 0; i < pProp->m_Tracks.GetCount(); ++i)
+  {
+    const ezPropertyAnimationTrack* pTrack = pProp->m_Tracks[i];
+
+    for (const auto& cp : pTrack->m_FloatCurve.m_ControlPoints)
+    {
+      length = ezMath::Max(length, cp.GetTickAsTime());
+    }
+  }
+
+  return ezTime::Seconds(length);
+}
+
 ezStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   const ezPropertyAnimationTrackGroup* pProp = GetProperties();
 
-  //ezResourceHandleWriteContext HandleContext;
-  //HandleContext.BeginWritingToStream(&stream);
+  ezResourceHandleWriteContext HandleContext;
+  HandleContext.BeginWritingToStream(&stream);
 
-  //pProp->Save(stream);
+  ezPropertyAnimResourceDescriptor desc;
+  desc.m_Mode = ezPropertyAnimMode::Loop; /// \todo Expose in UI
+  desc.m_AnimationDuration = GetAnimationDuration();
 
-  //HandleContext.EndWritingToStream(&stream);
+  for (ezUInt32 i = 0; i < pProp->m_Tracks.GetCount(); ++i)
+  {
+    const ezPropertyAnimationTrack* pTrack = pProp->m_Tracks[i];
+
+    if (pTrack->m_Target == ezPropertyAnimTarget::Color)
+    {
+      // TODO
+    }
+    else
+    {
+      auto& anim = desc.m_FloatAnimations.ExpandAndGetRef();
+      anim.m_sPropertyName = pTrack->m_sPropertyName;
+      anim.m_Target = pTrack->m_Target;
+      pTrack->m_FloatCurve.ConvertToRuntimeData(anim.m_Curve);
+      anim.m_Curve.SortControlPoints();
+      anim.m_Curve.ApplyTangentModes();
+      anim.m_Curve.ClampTangents();
+    }
+  }
+
+  desc.Save(stream);
+
+  HandleContext.EndWritingToStream(&stream);
 
   return ezStatus(EZ_SUCCESS);
 }
