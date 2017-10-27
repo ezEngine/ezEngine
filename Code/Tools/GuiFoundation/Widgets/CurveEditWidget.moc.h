@@ -83,6 +83,7 @@ private:
   void ComputeSelectionRect();
   SelectArea WhereIsPoint(QPoint pos) const;
   ezInt32 PickCurveAt(QPoint pos) const;
+  void ClampZoomPan();
 
   ezQGridBarWidget* m_pGridBar = nullptr;
 

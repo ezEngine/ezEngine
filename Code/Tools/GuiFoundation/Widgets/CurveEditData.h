@@ -43,8 +43,20 @@ class EZ_GUIFOUNDATION_DLL ezCurveGroupData : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCurveGroupData, ezReflectedClass);
 public:
+  ezCurveGroupData() = default;
+  ezCurveGroupData(const ezCurveGroupData& rhs) = delete;
+  ~ezCurveGroupData();
+  ezCurveGroupData& operator=(const ezCurveGroupData& rhs) = delete;
 
-  ezDynamicArray<ezSingleCurveData> m_Curves;
+  /// \brief Makes a deep copy of rhs.
+  void CloneFrom(const ezCurveGroupData& rhs);
+
+  /// \brief Clears the curve and deallocates the curve data, if it is owned (e.g. if it was created through CloneFrom())
+  void Clear();
+
+  /// Can be set to false for cases where the instance is only supposed to act like a container for passing curve pointers around
+  bool m_bOwnsData = true;
+  ezDynamicArray<ezSingleCurveData*> m_Curves;
   ezUInt16 m_uiFramesPerSecond = 60;
 
   ezInt64 TickFromTime(double time);

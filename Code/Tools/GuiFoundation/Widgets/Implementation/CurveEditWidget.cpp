@@ -154,7 +154,7 @@ void ezQtCurveEditWidget::FrameCurve()
     fWidth = 0.1f;
     fHeight = 0.1f;
 
-    const auto& point = m_pCurveEditData->m_Curves[m_SelectedCPs[0].m_uiCurve].m_ControlPoints[m_SelectedCPs[0].m_uiPoint];
+    const auto& point = m_pCurveEditData->m_Curves[m_SelectedCPs[0].m_uiCurve]->m_ControlPoints[m_SelectedCPs[0].m_uiPoint];
     fOffsetX = point.GetTickAsTime() - 0.05;
     fOffsetY = point.m_fValue - 0.05;
   }
@@ -172,6 +172,8 @@ void ezQtCurveEditWidget::FrameCurve()
   m_SceneToPixelScale.setY(-rect().height() / fFinalHeight);
   m_SceneTranslation.setX(fOffsetX);
   m_SceneTranslation.setY((-rect().height() / m_SceneToPixelScale.y()) + fOffsetY);
+
+  ClampZoomPan();
 
   update();
 }
@@ -293,6 +295,8 @@ void ezQtCurveEditWidget::paintEvent(QPaintEvent* e)
   if (m_bFrameBeforePaint)
     FrameCurve();
 
+  ClampZoomPan();
+
   QPainter painter(this);
   painter.fillRect(rect(), palette().base());
   painter.translate(0.5, 0.5);
@@ -328,6 +332,14 @@ void ezQtCurveEditWidget::paintEvent(QPaintEvent* e)
   PaintSelectedTangentHandles(&painter);
   PaintSelectedControlPoints(&painter);
   PaintMultiSelectionSquare(&painter);
+}
+
+void ezQtCurveEditWidget::ClampZoomPan()
+{
+  m_SceneTranslation.setX(ezMath::Clamp(m_SceneTranslation.x(), -2.0, 50000.0));
+  m_SceneTranslation.setY(ezMath::Clamp(m_SceneTranslation.y(), -10000.0, 10000.0));
+  m_SceneToPixelScale.setX(ezMath::Clamp(m_SceneToPixelScale.x(), 0.1, 10000.0));
+  m_SceneToPixelScale.setY(ezMath::Clamp(m_SceneToPixelScale.y(), -10000.0, -0.1));
 }
 
 void ezQtCurveEditWidget::mousePressEvent(QMouseEvent* e)
@@ -571,7 +583,7 @@ void ezQtCurveEditWidget::mouseMoveEvent(QMouseEvent* e)
     m_SceneTranslation.setX(m_SceneTranslation.x() - moveX);
     m_SceneTranslation.setY(m_SceneTranslation.y() - moveY);
 
-    m_SceneTranslation.setX(ezMath::Max(m_SceneTranslation.x(), -2.0));
+    ClampZoomPan();
 
     update();
   }
@@ -713,23 +725,32 @@ void ezQtCurveEditWidget::wheelEvent(QWheelEvent* e)
   if (e->modifiers().testFlag(Qt::ControlModifier))
     changeY = 1;
 
+  const double oldScaleX = m_SceneToPixelScale.x();
+  const double oldScaleY = m_SceneToPixelScale.y();
+
   if (e->delta() > 0)
   {
+
     m_SceneToPixelScale.setX(m_SceneToPixelScale.x() * changeX);
     m_SceneToPixelScale.setY(m_SceneToPixelScale.y() * changeY);
-    posDiff.setX(posDiff.x() * (1.0 / changeX));
-    posDiff.setY(posDiff.y() * (1.0 / changeY));
   }
   else
   {
     m_SceneToPixelScale.setX(m_SceneToPixelScale.x() * (1.0 / changeX));
     m_SceneToPixelScale.setY(m_SceneToPixelScale.y() * (1.0 / changeY));
-    posDiff.setX(posDiff.x() * changeX);
-    posDiff.setY(posDiff.y() * changeY);
   }
 
+  ClampZoomPan();
+
+  changeX = m_SceneToPixelScale.x() / oldScaleX;
+  changeY = m_SceneToPixelScale.y() / oldScaleY;
+
+  posDiff.setX(posDiff.x() * (1.0 / changeX));
+  posDiff.setY(posDiff.y() * (1.0 / changeY));
+
   m_SceneTranslation = ptAt + posDiff;
-  m_SceneTranslation.setX(ezMath::Max(m_SceneTranslation.x(), -2.0));
+
+  ClampZoomPan();
 
   update();
 }
@@ -777,7 +798,7 @@ void ezQtCurveEditWidget::PaintCurveSegments(QPainter* painter, float fOffsetX, 
     if (numCps == 0)
       continue;
 
-    const ezColorGammaUB curveColor = m_pCurveEditData->m_Curves[curveIdx].m_CurveColor;
+    const ezColorGammaUB curveColor = m_pCurveEditData->m_Curves[curveIdx]->m_CurveColor;
 
     pen.setColor(QColor(curveColor.r, curveColor.g, curveColor.b, alpha));
     painter->setPen(pen);
@@ -902,8 +923,8 @@ void ezQtCurveEditWidget::PaintSelectedTangentLines(QPainter* painter) const
     bool bDrawLeft = m_CurveExtents[cpSel.m_uiCurve].x != cp.m_Position.x;
     bool bDrawRight = m_CurveExtents[cpSel.m_uiCurve].y != cp.m_Position.x;
 
-    const ezCurveTangentMode::Enum tmLeft = m_pCurveEditData->m_Curves[cpSel.m_uiCurve].m_ControlPoints[cpSel.m_uiPoint].m_LeftTangentMode;
-    const ezCurveTangentMode::Enum tmRight = m_pCurveEditData->m_Curves[cpSel.m_uiCurve].m_ControlPoints[cpSel.m_uiPoint].m_RightTangentMode;
+    const ezCurveTangentMode::Enum tmLeft = m_pCurveEditData->m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint].m_LeftTangentMode;
+    const ezCurveTangentMode::Enum tmRight = m_pCurveEditData->m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint].m_RightTangentMode;
 
     if (bDrawLeft && tmLeft != ezCurveTangentMode::Linear && tmLeft != ezCurveTangentMode::Auto)
     {
@@ -934,8 +955,8 @@ void ezQtCurveEditWidget::PaintSelectedTangentHandles(QPainter* painter) const
     const ezCurve1D& curve = m_Curves[cpSel.m_uiCurve];
     const ezCurve1D::ControlPoint& cp = curve.GetControlPoint(cpSel.m_uiPoint);
 
-    const ezCurveTangentMode::Enum tmLeft = m_pCurveEditData->m_Curves[cpSel.m_uiCurve].m_ControlPoints[cpSel.m_uiPoint].m_LeftTangentMode;
-    const ezCurveTangentMode::Enum tmRight = m_pCurveEditData->m_Curves[cpSel.m_uiCurve].m_ControlPoints[cpSel.m_uiPoint].m_RightTangentMode;
+    const ezCurveTangentMode::Enum tmLeft = m_pCurveEditData->m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint].m_LeftTangentMode;
+    const ezCurveTangentMode::Enum tmRight = m_pCurveEditData->m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint].m_RightTangentMode;
 
     const bool bDrawLeft = m_CurveExtents[cpSel.m_uiCurve].x != cp.m_Position.x;
     const bool bDrawRight = m_CurveExtents[cpSel.m_uiCurve].y != cp.m_Position.x;
@@ -1193,7 +1214,7 @@ ezQtCurveEditWidget::ClickTarget ezQtCurveEditWidget::DetectClickTarget(const QP
   for (ezUInt32 i = 0; i < m_SelectedCPs.GetCount(); ++i)
   {
     const auto& cpSel = m_SelectedCPs[i];
-    const auto& cp = m_pCurveEditData->m_Curves[cpSel.m_uiCurve].m_ControlPoints[cpSel.m_uiPoint];
+    const auto& cp = m_pCurveEditData->m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint];
 
     const ezVec2d point(cp.GetTickAsTime(), cp.m_fValue);
 

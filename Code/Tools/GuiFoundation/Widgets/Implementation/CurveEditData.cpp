@@ -38,7 +38,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurveGroupData, 2, ezRTTIDefaultAllocator<ezCu
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ARRAY_MEMBER_PROPERTY("Curves", m_Curves),
+    EZ_ARRAY_MEMBER_PROPERTY("Curves", m_Curves)->AddFlags(ezPropertyFlags::PointerOwner),
   }
   EZ_END_PROPERTIES
 }
@@ -48,6 +48,43 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 void ezCurveControlPointData::SetTickFromTime(double time, ezInt64 fps)
 {
   m_iTick = (ezInt64)ezMath::Round(time * 4800.0, (double)fps);
+}
+
+ezCurveGroupData::~ezCurveGroupData()
+{
+  Clear();
+}
+
+void ezCurveGroupData::CloneFrom(const ezCurveGroupData& rhs)
+{
+  Clear();
+
+  m_bOwnsData = true;
+  m_uiFramesPerSecond = rhs.m_uiFramesPerSecond;
+  m_Curves.SetCount(rhs.m_Curves.GetCount());
+
+  for (ezUInt32 i = 0; i < m_Curves.GetCount(); ++i)
+  {
+    m_Curves[i] = EZ_DEFAULT_NEW(ezSingleCurveData);
+    *m_Curves[i] = *(rhs.m_Curves[i]);
+  }
+}
+
+void ezCurveGroupData::Clear()
+{
+  m_uiFramesPerSecond = 60;
+
+  if (m_bOwnsData)
+  {
+    m_bOwnsData = false;
+
+    for (ezUInt32 i = 0; i < m_Curves.GetCount(); ++i)
+    {
+      EZ_DEFAULT_DELETE(m_Curves[i]);
+    }
+  }
+
+  m_Curves.Clear();
 }
 
 ezInt64 ezCurveGroupData::TickFromTime(double time)
@@ -72,7 +109,7 @@ void ezSingleCurveData::ConvertToRuntimeData(ezCurve1D& out_Result) const
 
 void ezCurveGroupData::ConvertToRuntimeData(ezUInt32 uiCurveIdx, ezCurve1D& out_Result) const
 {
-  m_Curves[uiCurveIdx].ConvertToRuntimeData(out_Result);
+  m_Curves[uiCurveIdx]->ConvertToRuntimeData(out_Result);
 }
 
 //////////////////////////////////////////////////////////////////////////

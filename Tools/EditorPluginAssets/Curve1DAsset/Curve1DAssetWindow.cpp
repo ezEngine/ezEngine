@@ -254,7 +254,7 @@ void ezQtCurve1DAssetDocumentWindow::onLinkCurveTangents(ezUInt32 curveIdx, ezUI
 
   if (bLink)
   {
-    const ezVec2 leftTangent = pDoc->GetProperties()->m_Curves[curveIdx].m_ControlPoints[cpIdx].m_LeftTangent;
+    const ezVec2 leftTangent = pDoc->GetProperties()->m_Curves[curveIdx]->m_ControlPoints[cpIdx].m_LeftTangent;
     const ezVec2 rightTangent(-leftTangent.x, -leftTangent.y);
 
     onCurveTangentMoved(curveIdx, cpIdx, rightTangent.x, rightTangent.y, true);
@@ -283,7 +283,7 @@ void ezQtCurve1DAssetDocumentWindow::onCurveTangentModeChanged(ezUInt32 curveIdx
     // generally works, but would need some work to make it perfect
 
     ezCurve1D curve;
-    pDoc->GetProperties()->m_Curves[curveIdx].ConvertToRuntimeData(curve);
+    pDoc->GetProperties()->m_Curves[curveIdx]->ConvertToRuntimeData(curve);
     curve.SortControlPoints();
     curve.ApplyTangentModes();
 
