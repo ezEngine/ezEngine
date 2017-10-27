@@ -3,9 +3,8 @@
 #include <GameEngine/Basics.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Foundation/Types/SharedPtr.h>
-
-typedef ezTypedResourceHandle<class ezCurve1DResource> ezCurve1DResourceHandle;
-typedef ezTypedResourceHandle<class ezColorGradientResource> ezColorGradientResourceHandle;
+#include <Foundation/Math/Curve1D.h>
+#include <Foundation/Math/ColorGradient.h>
 
 struct EZ_GAMEENGINE_DLL ezPropertyAnimTarget
 {
@@ -26,6 +25,7 @@ struct EZ_GAMEENGINE_DLL ezPropertyAnimTarget
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezPropertyAnimTarget);
 
+//////////////////////////////////////////////////////////////////////////
 
 struct EZ_GAMEENGINE_DLL ezPropertyAnimMode
 {
@@ -43,38 +43,39 @@ struct EZ_GAMEENGINE_DLL ezPropertyAnimMode
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezPropertyAnimMode);
 
+//////////////////////////////////////////////////////////////////////////
 
 struct EZ_GAMEENGINE_DLL ezPropertyAnimEntry
 {
   ezString m_sPropertyName;
-  ezTime m_Duration;
-  ezEnum<ezPropertyAnimMode> m_Mode;
   ezEnum<ezPropertyAnimTarget> m_Target;
-  ezCurve1DResourceHandle m_hNumberCurve;
-  ezColorGradientResourceHandle m_hColorCurve;
-
-  void SetNumberCurveFile(const char* szFile);
-  const char* GetNumberCurveFile() const;
-
-  void SetColorCurveFile(const char* szFile);
-  const char* GetColorCurveFile() const;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezPropertyAnimEntry);
+struct EZ_GAMEENGINE_DLL ezFloatPropertyAnimEntry : public ezPropertyAnimEntry
+{
+  ezCurve1D m_Curve;
+};
 
+struct EZ_GAMEENGINE_DLL ezColorPropertyAnimEntry : public ezPropertyAnimEntry
+{
+  ezColorGradient m_Gradient;
+};
+
+//////////////////////////////////////////////////////////////////////////
 
 // this class is actually ref counted and used with ezSharedPtr to allow to work on the same data, even when the resource was reloaded
 struct EZ_GAMEENGINE_DLL ezPropertyAnimResourceDescriptor : public ezRefCounted
 {
-  ezDynamicArray<ezPropertyAnimEntry> m_Animations;
+  ezTime m_AnimationDuration;
+  ezEnum<ezPropertyAnimMode> m_Mode;
+  ezDynamicArray<ezFloatPropertyAnimEntry> m_FloatAnimations;
+  ezDynamicArray<ezColorPropertyAnimEntry> m_ColorAnimations;
 
   void Save(ezStreamWriter& stream) const;
   void Load(ezStreamReader& stream);
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezPropertyAnimResourceDescriptor);
-
-
+//////////////////////////////////////////////////////////////////////////
 
 typedef ezTypedResourceHandle<class ezPropertyAnimResource> ezPropertyAnimResourceHandle;
 

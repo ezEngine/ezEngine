@@ -120,47 +120,47 @@ void ezMaterialAnimComponent::Update()
 
   /// \todo IsFallbackResource ...
   //if (pMaterial->IsFallbackResource())
-  //  return;
+  ////  return;
 
-  auto pDesc = pAnim->GetDescriptor();
+  //auto pDesc = pAnim->GetDescriptor();
 
-  for (ezUInt32 i = 0; i < pDesc->m_Animations.GetCount(); ++i)
-  {
-    const auto& anim = pDesc->m_Animations[i];
+  //for (ezUInt32 i = 0; i < pDesc->m_Animations.GetCount(); ++i)
+  //{
+  //  const auto& anim = pDesc->m_Animations[i];
 
-    switch (anim.m_Target)
-    {
-    case ezPropertyAnimTarget::Color:
-      {
-        ezResourceLock<ezColorGradientResource> pColor(anim.m_hColorCurve);
+  //  switch (anim.m_Target)
+  //  {
+  //  case ezPropertyAnimTarget::Color:
+  //    {
+  //      ezResourceLock<ezColorGradientResource> pColor(anim.m_hColorCurve);
 
-        ezColor color;
-        pColor->GetDescriptor().m_Gradient.Evaluate((float)m_CurAnimTime.GetSeconds(), color);
+  //      ezColor color;
+  //      pColor->GetDescriptor().m_Gradient.Evaluate((float)m_CurAnimTime.GetSeconds(), color);
 
-        pMaterial->SetParameter(anim.m_sPropertyName.GetData(), color);
-      }
-      break;
+  //      pMaterial->SetParameter(anim.m_sPropertyName.GetData(), color);
+  //    }
+  //    break;
 
-    case ezPropertyAnimTarget::Number:
-      {
-        ezResourceLock<ezCurve1DResource> pCurve(anim.m_hNumberCurve);
+  //  case ezPropertyAnimTarget::Number:
+  //    {
+  //      ezResourceLock<ezCurve1DResource> pCurve(anim.m_hNumberCurve);
 
-        const double value = pCurve->GetDescriptor().m_Curves[0].Evaluate(m_CurAnimTime.GetSeconds());
+  //      const double value = pCurve->GetDescriptor().m_Curves[0].Evaluate(m_CurAnimTime.GetSeconds());
 
-        pMaterial->SetParameter(anim.m_sPropertyName.GetData(), value);
-      }
-      break;
+  //      pMaterial->SetParameter(anim.m_sPropertyName.GetData(), value);
+  //    }
+  //    break;
 
-    case ezPropertyAnimTarget::VectorX:
-    case ezPropertyAnimTarget::VectorY:
-    case ezPropertyAnimTarget::VectorZ:
-    case ezPropertyAnimTarget::VectorW:
-      {
-        // OMG combinatorial EXPLOSION! aaaaahhh! (aka I need a utility function for this)
-      }
-      break;
-    }
-  }
+  //  case ezPropertyAnimTarget::VectorX:
+  //  case ezPropertyAnimTarget::VectorY:
+  //  case ezPropertyAnimTarget::VectorZ:
+  //  case ezPropertyAnimTarget::VectorW:
+  //    {
+  //      // OMG combinatorial EXPLOSION! aaaaahhh! (aka I need a utility function for this)
+  //    }
+  //    break;
+  //  }
+  //}
 }
 
 

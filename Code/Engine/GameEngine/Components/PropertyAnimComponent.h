@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Core/World/World.h>
@@ -31,21 +31,33 @@ public:
 
 protected:
   void CreatePropertyBindings();
-  void CreatePropertyBinding(const ezPropertyAnimEntry* pAnim, const ezRTTI* pRtti, void* pObject, const ezComponentHandle& hComponent);
+  void CreateFloatPropertyBinding(const ezFloatPropertyAnimEntry* pAnim, const ezRTTI* pRtti, void* pObject, const ezComponentHandle& hComponent);
+  void CreateColorPropertyBinding(const ezColorPropertyAnimEntry* pAnim, const ezRTTI* pRtti, void* pObject, const ezComponentHandle& hComponent);
   void ApplyAnimations(const ezTime& tDiff);
-  void ApplyAnimation(const ezTime& tDiff, ezUInt32 idx);
-  float ComputeAnimationLookup(ezTime& inout_tCur, const ezPropertyAnimEntry* pAnimation) const;
+  void ApplyFloatAnimation(ezUInt32 idx, double lookupTime);
+  void ApplyColorAnimation(ezUInt32 idx, double lookupTime);
+  double ComputeAnimationLookup(ezTime& inout_tCur, ezPropertyAnimMode::Enum mode, ezTime duration) const;
 
   struct Binding
   {
     ezAbstractMemberProperty* m_pMemberProperty;
     ezComponentHandle m_hComponent;
     void* m_pObject;
-    ezTime m_AnimationTime;
-    const ezPropertyAnimEntry* m_pAnimation;
   };
 
-  ezHybridArray<Binding, 4> m_AnimBindings;
+  struct FloatBinding : Binding
+  {
+    const ezFloatPropertyAnimEntry* m_pAnimation;
+  };
+
+  struct ColorBinding : Binding
+  {
+    const ezColorPropertyAnimEntry* m_pAnimation;
+  };
+
+  ezTime m_AnimationTime;
+  ezHybridArray<FloatBinding, 4> m_FloatBindings;
+  ezHybridArray<ColorBinding, 4> m_ColorBindings;
   ezPropertyAnimResourceHandle m_hPropertyAnim;
 
   // we do not want to recreate the binding when the resource changes at runtime

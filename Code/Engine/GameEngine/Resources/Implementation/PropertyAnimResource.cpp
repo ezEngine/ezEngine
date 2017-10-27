@@ -17,33 +17,6 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezPropertyAnimMode, 1)
 EZ_ENUM_CONSTANTS(ezPropertyAnimMode::Once, ezPropertyAnimMode::Loop, ezPropertyAnimMode::BackAndForth)
 EZ_END_STATIC_REFLECTED_ENUM()
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezPropertyAnimEntry, ezNoBase, 1, ezRTTIDefaultAllocator<ezPropertyAnimEntry>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("Property", m_sPropertyName),
-    EZ_MEMBER_PROPERTY("Duration", m_Duration)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(5))),
-    EZ_ENUM_MEMBER_PROPERTY("Mode", ezPropertyAnimMode, m_Mode),
-    EZ_ENUM_MEMBER_PROPERTY("Target", ezPropertyAnimTarget, m_Target),
-    EZ_ACCESSOR_PROPERTY("NumberCurve", GetNumberCurveFile, SetNumberCurveFile)->AddAttributes(new ezAssetBrowserAttribute("Curve1D")),
-    EZ_ACCESSOR_PROPERTY("ColorGradient", GetColorCurveFile, SetColorCurveFile)->AddAttributes(new ezAssetBrowserAttribute("ColorGradient")),
-  }
-  EZ_END_PROPERTIES
-}
-EZ_END_STATIC_REFLECTED_TYPE
-
-
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezPropertyAnimResourceDescriptor, ezNoBase, 1, ezRTTIDefaultAllocator<ezPropertyAnimResourceDescriptor>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_ARRAY_MEMBER_PROPERTY("Animations", m_Animations),
-  }
-  EZ_END_PROPERTIES
-}
-EZ_END_STATIC_REFLECTED_TYPE
-
-
 ezPropertyAnimResource::ezPropertyAnimResource()
   : ezResource<ezPropertyAnimResource, ezPropertyAnimResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
@@ -121,28 +94,36 @@ void ezPropertyAnimResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 
   if (m_pDescriptor)
   {
-    out_NewMemoryUsage.m_uiMemoryCPU = static_cast<ezUInt32>(m_pDescriptor->m_Animations.GetHeapMemoryUsage() + sizeof(ezPropertyAnimResourceDescriptor));
+    out_NewMemoryUsage.m_uiMemoryCPU = static_cast<ezUInt32>(m_pDescriptor->m_FloatAnimations.GetHeapMemoryUsage() + sizeof(ezPropertyAnimResourceDescriptor));
   }
 }
 
 void ezPropertyAnimResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 1;
+  const ezUInt8 uiVersion = 2;
   const ezUInt8 uiIdentifier = 0x0A; // dummy to fill the header to 32 Bit
-  const ezUInt16 uiNumAnimations = m_Animations.GetCount();
+  const ezUInt16 uiNumFloatAnimations = m_FloatAnimations.GetCount();
+  const ezUInt16 uiNumColorAnimations = m_ColorAnimations.GetCount();
 
   stream << uiVersion;
   stream << uiIdentifier;
-  stream << uiNumAnimations;
+  stream << m_AnimationDuration;
+  stream << m_Mode;
+  stream << uiNumFloatAnimations;
 
-  for (ezUInt32 i = 0; i < uiNumAnimations; ++i)
+  for (ezUInt32 i = 0; i < uiNumFloatAnimations; ++i)
   {
-    stream << m_Animations[i].m_sPropertyName;
-    stream << m_Animations[i].m_Duration;
-    stream << m_Animations[i].m_Mode.GetValue();
-    stream << m_Animations[i].m_Target.GetValue();
-    stream << m_Animations[i].m_hNumberCurve;
-    stream << m_Animations[i].m_hColorCurve;
+    stream << m_FloatAnimations[i].m_sPropertyName;
+    stream << m_FloatAnimations[i].m_Target;
+    m_FloatAnimations[i].m_Curve.Save(stream);
+  }
+
+  stream << uiNumColorAnimations;
+  for (ezUInt32 i = 0; i < uiNumColorAnimations; ++i)
+  {
+    stream << m_ColorAnimations[i].m_sPropertyName;
+    stream << m_ColorAnimations[i].m_Target;
+    m_ColorAnimations[i].m_Gradient.Save(stream);
   }
 }
 
@@ -150,62 +131,35 @@ void ezPropertyAnimResourceDescriptor::Load(ezStreamReader& stream)
 {
   ezUInt8 uiVersion = 0;
   ezUInt8 uiIdentifier = 0;
-  ezUInt16 uiNumAnimations = 0;
+  ezUInt16 uiNumFloatAnimations = 0;
+  ezUInt16 uiNumColorAnimations = 0;
 
   stream >> uiVersion;
   stream >> uiIdentifier;
-  stream >> uiNumAnimations;
+  stream >> m_AnimationDuration;
+  stream >> m_Mode;
 
   EZ_ASSERT_DEV(uiIdentifier == 0x0A, "File does not contain a valid ezPropertyAnimResourceDescriptor");
-  EZ_ASSERT_DEV(uiVersion == 1, "Invalid file version {0}", uiVersion);
+  EZ_ASSERT_DEV(uiVersion == 2, "Invalid file version {0}", uiVersion);
 
-  m_Animations.SetCount(uiNumAnimations);
+  stream >> uiNumFloatAnimations;
+  m_FloatAnimations.SetCount(uiNumFloatAnimations);
 
-  for (ezUInt32 i = 0; i < uiNumAnimations; ++i)
+  for (ezUInt32 i = 0; i < uiNumFloatAnimations; ++i)
   {
-    stream >> m_Animations[i].m_sPropertyName;
-    stream >> m_Animations[i].m_Duration;
+    stream >> m_FloatAnimations[i].m_sPropertyName;
+    stream >> m_FloatAnimations[i].m_Target;
+    m_FloatAnimations[i].m_Curve.Load(stream);
+  }
 
-    ezPropertyAnimMode::StorageType mode;
-    stream >> mode;  m_Animations[i].m_Mode.SetValue(mode);
+  stream >> uiNumColorAnimations;
+  m_ColorAnimations.SetCount(uiNumColorAnimations);
 
-    ezPropertyAnimTarget::StorageType target;
-    stream >> target;  m_Animations[i].m_Target.SetValue(target);
-
-    stream >> m_Animations[i].m_hNumberCurve;
-    stream >> m_Animations[i].m_hColorCurve;
+  for (ezUInt32 i = 0; i < uiNumColorAnimations; ++i)
+  {
+    stream >> m_ColorAnimations[i].m_sPropertyName;
+    stream >> m_ColorAnimations[i].m_Target;
+    m_ColorAnimations[i].m_Gradient.Load(stream);
   }
 }
 
-
-void ezPropertyAnimEntry::SetNumberCurveFile(const char* szFile)
-{
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    m_hNumberCurve = ezResourceManager::LoadResource<ezCurve1DResource>(szFile);
-  }
-}
-
-const char* ezPropertyAnimEntry::GetNumberCurveFile() const
-{
-  if (m_hNumberCurve.IsValid())
-    return m_hNumberCurve.GetResourceID();
-
-  return "";
-}
-
-void ezPropertyAnimEntry::SetColorCurveFile(const char* szFile)
-{
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    m_hColorCurve = ezResourceManager::LoadResource<ezColorGradientResource>(szFile);
-  }
-}
-
-const char* ezPropertyAnimEntry::GetColorCurveFile() const
-{
-  if (m_hColorCurve.IsValid())
-    return m_hColorCurve.GetResourceID();
-
-  return "";
-}
