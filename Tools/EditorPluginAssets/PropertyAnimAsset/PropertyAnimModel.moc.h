@@ -8,6 +8,27 @@ class ezPropertyAnimAssetDocument;
 struct ezDocumentObjectPropertyEvent;
 struct ezDocumentObjectStructureEvent;
 
+struct ezQtPropertyAnimModelTreeEntry
+{
+  ezInt32 m_iParent = -1;
+  ezUInt16 m_uiOwnRowIndex = 0;
+  ezPropertyAnimationTrack* m_pTrack = nullptr;
+  ezInt32 m_iTrackIdx = -1;
+  ezString m_sDisplay;
+  ezDynamicArray<ezInt32> m_Children;
+
+  bool operator==(const ezQtPropertyAnimModelTreeEntry& rhs) const
+  {
+    return (m_iParent == rhs.m_iParent) && (m_uiOwnRowIndex == rhs.m_uiOwnRowIndex) && (m_pTrack == rhs.m_pTrack) &&
+      (m_iTrackIdx == rhs.m_iTrackIdx) && (m_sDisplay == rhs.m_sDisplay) && (m_Children == rhs.m_Children);
+  }
+
+  bool operator!=(const ezQtPropertyAnimModelTreeEntry& rhs) const
+  {
+    return !(*this == rhs);
+  }
+};
+
 class ezQtPropertyAnimModel : public QAbstractItemModel
 {
   Q_OBJECT
@@ -18,7 +39,11 @@ public:
   enum UserRoles
   {
     TrackPtr = Qt::UserRole + 1,
+    TreeItem = Qt::UserRole + 2,
+    TrackIdx = Qt::UserRole + 3,
   };
+
+  const ezDeque<ezQtPropertyAnimModelTreeEntry>& GetAllEntries() const { return m_AllEntries[m_iInUse]; }
 
 private slots:
 
@@ -33,22 +58,15 @@ public: //QAbstractItemModel interface
 
 private:
 
-  struct TreeEntry
-  {
-    TreeEntry* m_pParent = nullptr;
-    ezUInt16 m_uiOwnRowIndex = 0;
-    ezPropertyAnimationTrack* m_pTrack = nullptr;
-    ezString m_sDisplay;
-    ezDynamicArray<TreeEntry*> m_Children;
-  };
-
   void DocumentObjectEventHandler(const ezDocumentObjectPropertyEvent& e);
   void DocumentStructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void BuildMapping();
-  void BuildMapping(ezPropertyAnimationTrack* pTrack, ezDynamicArray<TreeEntry*>& treeItems, TreeEntry* pParentEntry, const char* szPath);
+  void BuildMapping(ezInt32 iToUse);
+  void BuildMapping(ezInt32 iToUse, ezInt32 iTrackIdx, ezPropertyAnimationTrack* pTrack, ezDynamicArray<ezInt32>& treeItems, ezInt32 iParentEntry, const char* szPath);
 
-  ezDynamicArray<TreeEntry*> m_TopLevelEntries;
-  ezDeque<TreeEntry> m_AllEntries;
+  ezInt32 m_iInUse = 0;
+  ezDynamicArray<ezInt32> m_TopLevelEntries[2];
+  ezDeque<ezQtPropertyAnimModelTreeEntry> m_AllEntries[2];
 
   ezPropertyAnimAssetDocument* m_pAssetDoc = nullptr;
 };
