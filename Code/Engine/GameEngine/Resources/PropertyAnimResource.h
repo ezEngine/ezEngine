@@ -47,6 +47,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezPropertyAnimMode);
 
 struct EZ_GAMEENGINE_DLL ezPropertyAnimEntry
 {
+  ezString m_sObjectPath;
   ezString m_sPropertyName;
   ezEnum<ezPropertyAnimTarget> m_Target;
 };

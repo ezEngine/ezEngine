@@ -100,7 +100,7 @@ void ezPropertyAnimResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 
 void ezPropertyAnimResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 2;
+  const ezUInt8 uiVersion = 3;
   const ezUInt8 uiIdentifier = 0x0A; // dummy to fill the header to 32 Bit
   const ezUInt16 uiNumFloatAnimations = m_FloatAnimations.GetCount();
   const ezUInt16 uiNumColorAnimations = m_ColorAnimations.GetCount();
@@ -117,6 +117,7 @@ void ezPropertyAnimResourceDescriptor::Save(ezStreamWriter& stream) const
 
   for (ezUInt32 i = 0; i < uiNumFloatAnimations; ++i)
   {
+    stream << m_FloatAnimations[i].m_sObjectPath;
     stream << m_FloatAnimations[i].m_sPropertyName;
     stream << m_FloatAnimations[i].m_Target;
 
@@ -131,6 +132,7 @@ void ezPropertyAnimResourceDescriptor::Save(ezStreamWriter& stream) const
   stream << uiNumColorAnimations;
   for (ezUInt32 i = 0; i < uiNumColorAnimations; ++i)
   {
+    stream << m_ColorAnimations[i].m_sObjectPath;
     stream << m_ColorAnimations[i].m_sPropertyName;
     stream << m_ColorAnimations[i].m_Target;
 
@@ -153,13 +155,14 @@ void ezPropertyAnimResourceDescriptor::Load(ezStreamReader& stream)
   stream >> m_Mode;
 
   EZ_ASSERT_DEV(uiIdentifier == 0x0A, "File does not contain a valid ezPropertyAnimResourceDescriptor");
-  EZ_ASSERT_DEV(uiVersion == 2, "Invalid file version {0}", uiVersion);
+  EZ_ASSERT_DEV(uiVersion == 3, "Invalid file version {0}", uiVersion);
 
   stream >> uiNumFloatAnimations;
   m_FloatAnimations.SetCount(uiNumFloatAnimations);
 
   for (ezUInt32 i = 0; i < uiNumFloatAnimations; ++i)
   {
+    stream >> m_FloatAnimations[i].m_sObjectPath;
     stream >> m_FloatAnimations[i].m_sPropertyName;
     stream >> m_FloatAnimations[i].m_Target;
     m_FloatAnimations[i].m_Curve.Load(stream);
@@ -172,6 +175,7 @@ void ezPropertyAnimResourceDescriptor::Load(ezStreamReader& stream)
 
   for (ezUInt32 i = 0; i < uiNumColorAnimations; ++i)
   {
+    stream >> m_ColorAnimations[i].m_sObjectPath;
     stream >> m_ColorAnimations[i].m_sPropertyName;
     stream >> m_ColorAnimations[i].m_Target;
     m_ColorAnimations[i].m_Gradient.Load(stream);

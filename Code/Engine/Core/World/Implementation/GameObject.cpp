@@ -205,6 +205,27 @@ ezGameObject* ezGameObject::FindChildByName(const ezTempHashedString& name, bool
   return nullptr;
 }
 
+ezGameObject* ezGameObject::FindChildByPath(const char* path)
+{
+  if (ezStringUtils::IsNullOrEmpty(path))
+    return this;
+
+  const char* szSep = ezStringUtils::FindSubString(path, "/");
+  ezUInt32 uiNameHash = 0;
+  
+  if (szSep == nullptr)
+    uiNameHash = ezHashing::MurmurHash(path, (size_t)ezStringUtils::GetStringElementCount(path));
+  else
+    uiNameHash = ezHashing::MurmurHash(path, szSep - path);
+
+  ezGameObject* pNextChild = FindChildByName(ezTempHashedString(uiNameHash));
+
+  if (szSep == nullptr || pNextChild != nullptr)
+    return pNextChild;
+
+  return pNextChild->FindChildByPath(szSep + 1);
+}
+
 ezVec3 ezGameObject::GetDirForwards() const
 {
   ezCoordinateSystem coordinateSystem;

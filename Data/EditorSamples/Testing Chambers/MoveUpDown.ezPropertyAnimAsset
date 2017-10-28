@@ -24,8 +24,8 @@ o
 	p
 	{
 		Uuid %FloatCurve{u4{15807083532000818366,7060828933882746235}}
-		s %Property{"LocalPosition"}
-		s %Target{"ezPropertyAnimTarget::VectorZ"}
+		s %Property{"A/LocalPosition"}
+		s %Target{"ezPropertyAnimTarget::VectorX"}
 	}
 }
 o
@@ -71,7 +71,7 @@ AssetInfo
 		s %AssetType{"PropertyAnim"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14416072379724892317,5137667082026569700}}
-		u4 %Hash{11452712190672295458}
+		u4 %Hash{12457982376243481999}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -145,7 +145,7 @@ o
 	p
 	{
 		Uuid %FloatCurve{u4{11748783352561430202,4730702321296317103}}
-		s %Property{"LocalUniformScaling"}
+		s %Property{"A/LocalUniformScaling"}
 		s %Target{"ezPropertyAnimTarget::Number"}
 	}
 }
@@ -220,7 +220,7 @@ o
 	u3 %v{3}
 	p
 	{
-		ColorGamma %Color{u1{192,100,100,255}}
+		ColorGamma %Color{u1{208,122,122,255}}
 		VarArray %ControlPoints
 		{
 			Uuid{u4{11792499316997874311,5138604918422843855}}

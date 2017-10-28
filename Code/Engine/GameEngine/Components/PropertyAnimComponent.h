@@ -30,33 +30,45 @@ public:
 
 
 protected:
-  void CreatePropertyBindings();
-  void CreateFloatPropertyBinding(const ezFloatPropertyAnimEntry* pAnim, const ezRTTI* pRtti, void* pObject, const ezComponentHandle& hComponent);
-  void CreateColorPropertyBinding(const ezColorPropertyAnimEntry* pAnim, const ezRTTI* pRtti, void* pObject, const ezComponentHandle& hComponent);
-  void ApplyAnimations(const ezTime& tDiff);
-  void ApplyFloatAnimation(ezUInt32 idx, double lookupTime);
-  void ApplyColorAnimation(ezUInt32 idx, double lookupTime);
-  double ComputeAnimationLookup(ezTime& inout_tCur, ezPropertyAnimMode::Enum mode, ezTime duration) const;
-
   struct Binding
   {
     ezAbstractMemberProperty* m_pMemberProperty;
-    ezComponentHandle m_hComponent;
     void* m_pObject;
   };
 
-  struct FloatBinding : Binding
+  struct FloatBinding : public Binding
   {
     const ezFloatPropertyAnimEntry* m_pAnimation;
   };
 
-  struct ColorBinding : Binding
+  struct ComponentFloatBinding : public FloatBinding
   {
+    ezComponentHandle m_hComponent;
+  };
+
+  struct GameObjectBinding : public FloatBinding
+  {
+    ezGameObjectHandle m_hObject;
+  };
+
+  struct ColorBinding : public Binding
+  {
+    ezComponentHandle m_hComponent;
     const ezColorPropertyAnimEntry* m_pAnimation;
   };
 
+  void CreatePropertyBindings();
+  void CreateGameObjectBinding(const ezFloatPropertyAnimEntry* pAnim, const ezRTTI* pRtti, void* pObject, const ezGameObjectHandle& hGameObject);
+  void CreateFloatPropertyBinding(const ezFloatPropertyAnimEntry* pAnim, const ezRTTI* pRtti, void* pObject, const ezComponentHandle& hComponent);
+  void CreateColorPropertyBinding(const ezColorPropertyAnimEntry* pAnim, const ezRTTI* pRtti, void* pObject, const ezComponentHandle& hComponent);
+  void ApplyAnimations(const ezTime& tDiff);
+  void ApplyFloatAnimation(const FloatBinding& binding, double lookupTime);
+  void ApplyColorAnimation(const ColorBinding& binding, double lookupTime);
+  double ComputeAnimationLookup(ezTime& inout_tCur, ezPropertyAnimMode::Enum mode, ezTime duration) const;
+
   ezTime m_AnimationTime;
-  ezHybridArray<FloatBinding, 4> m_FloatBindings;
+  ezHybridArray<GameObjectBinding, 4> m_GoFloatBindings;
+  ezHybridArray<ComponentFloatBinding, 4> m_ComponentFloatBindings;
   ezHybridArray<ColorBinding, 4> m_ColorBindings;
   ezPropertyAnimResourceHandle m_hPropertyAnim;
 

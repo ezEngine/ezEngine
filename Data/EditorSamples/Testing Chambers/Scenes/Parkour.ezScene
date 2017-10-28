@@ -2658,7 +2658,7 @@ AssetInfo
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{3846693809095085247}
+		u4 %Hash{11193298554879133099}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -2927,14 +2927,13 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{10273322198907215267,5278739019818890760}}
-			Uuid{u4{16393733639782643883,5430825592647146366}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0x0000803F,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
-		s %Name{""}
+		s %Name{"A"}
 		VarArray %Tags{}
 	}
 }
@@ -3306,17 +3305,6 @@ o
 }
 o
 {
-	Uuid %id{u4{16393733639782643883,5430825592647146366}}
-	s %t{"ezPropertyAnimComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		s %Animation{"{ 96694fe4-a8fd-474c-9d88-d221732d10c8 }"}
-	}
-}
-o
-{
 	Uuid %id{u4{8681008406389286059,5432033361141591529}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -3516,6 +3504,17 @@ o
 		Vec3 %Extents{f{0x00008040,0x00008040,0x00008040}}
 		b %ReportContact{0}
 		s %Surface{""}
+	}
+}
+o
+{
+	Uuid %id{u4{14832071951303909786,5520339003774246706}}
+	s %t{"ezPropertyAnimComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %Animation{"{ 96694fe4-a8fd-474c-9d88-d221732d10c8 }"}
 	}
 }
 o
@@ -5941,6 +5940,7 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{15514530911433382488,10014663674044460983}}
+			Uuid{u4{14832071951303909786,5520339003774246706}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x0000803F,0x0000E040,0x00005041}}

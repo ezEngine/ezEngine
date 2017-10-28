@@ -165,6 +165,13 @@ public:
   /// \brief Searches for a child object with the given name. Optionally traverses the entire hierarchy.
   ezGameObject* FindChildByName(const ezTempHashedString& name, bool bRecursive = true);
 
+  /// \brief Searches for a child using a path. Every path segment represents a child with a given name.
+  ///
+  /// Paths are separated with single slashes: /
+  /// When an empty path is given, 'this' is returned.
+  /// When on any part of the path the next child cannot be found, nullptr is returned.
+  ezGameObject* FindChildByPath(const char* path);
+
   ezWorld* GetWorld();
   const ezWorld* GetWorld() const;
 

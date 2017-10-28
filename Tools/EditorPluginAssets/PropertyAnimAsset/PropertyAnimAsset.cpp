@@ -74,24 +74,51 @@ ezStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& str
   desc.m_Mode = ezPropertyAnimMode::Loop; /// \todo Expose in UI
   desc.m_AnimationDuration = GetAnimationDuration();
 
+  ezStringBuilder tmp, tmpPath, tmpName;
+
   for (ezUInt32 i = 0; i < pProp->m_Tracks.GetCount(); ++i)
   {
     const ezPropertyAnimationTrack* pTrack = pProp->m_Tracks[i];
 
+    tmp = pTrack->m_sPropertyName;
+    tmpPath = tmp.GetFileDirectory();
+    tmpName = tmp.GetFileName();
+
     if (pTrack->m_Target == ezPropertyAnimTarget::Color)
     {
       // TODO
+
+      //auto& anim = desc.m_ColorAnimations.ExpandAndGetRef();
+      //anim.m_sObjectPath = tmpPath;
+      //anim.m_sPropertyName = tmpName;
+      //anim.m_Target = pTrack->m_Target;
+      //pTrack->m_ColorGradient.ConvertToRuntimeData(anim.m_Curve);
+      //anim.m_Gradient.SortControlPoints();
     }
     else
     {
       auto& anim = desc.m_FloatAnimations.ExpandAndGetRef();
-      anim.m_sPropertyName = pTrack->m_sPropertyName;
+      anim.m_sObjectPath = tmpPath;
+      anim.m_sPropertyName = tmpName;
       anim.m_Target = pTrack->m_Target;
       pTrack->m_FloatCurve.ConvertToRuntimeData(anim.m_Curve);
       anim.m_Curve.SortControlPoints();
       anim.m_Curve.ApplyTangentModes();
       anim.m_Curve.ClampTangents();
     }
+  }
+
+  // sort animation tracks by object path for better cache reuse at runtime
+  {
+    desc.m_FloatAnimations.Sort([](const ezFloatPropertyAnimEntry& lhs, const ezFloatPropertyAnimEntry& rhs) -> bool
+    {
+      return lhs.m_sObjectPath < rhs.m_sObjectPath;
+    });
+
+    desc.m_ColorAnimations.Sort([](const ezColorPropertyAnimEntry& lhs, const ezColorPropertyAnimEntry& rhs) -> bool
+    {
+      return lhs.m_sObjectPath < rhs.m_sObjectPath;
+    });
   }
 
   desc.Save(stream);

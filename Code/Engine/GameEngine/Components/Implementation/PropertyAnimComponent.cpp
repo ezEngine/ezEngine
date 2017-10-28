@@ -69,10 +69,12 @@ void ezPropertyAnimComponent::SetPropertyAnim(const ezPropertyAnimResourceHandle
   m_hPropertyAnim = hPropertyAnim;
 }
 
-
 void ezPropertyAnimComponent::CreatePropertyBindings()
 {
-  m_FloatBindings.Clear();
+  m_ColorBindings.Clear();
+  m_ComponentFloatBindings.Clear();
+  m_GoFloatBindings.Clear();
+
   m_AnimDesc = nullptr;
 
   if (!m_hPropertyAnim.IsValid())
@@ -85,14 +87,18 @@ void ezPropertyAnimComponent::CreatePropertyBindings()
 
   m_AnimDesc = pAnimation->GetDescriptor();
 
-  const ezArrayPtr<ezComponent* const> AllComponents = GetOwner()->GetComponents();
-
   for (const ezFloatPropertyAnimEntry& anim : m_AnimDesc->m_FloatAnimations)
   {
+    ezGameObject* pTargetObject = GetOwner()->FindChildByPath(anim.m_sObjectPath);
+    if (pTargetObject == nullptr)
+      continue;
+
     // allow to animate properties on the ezGameObject
-    CreateFloatPropertyBinding(&anim, ezGetStaticRTTI<ezGameObject>(), GetOwner(), ezComponentHandle());
+    CreateGameObjectBinding(&anim, ezGetStaticRTTI<ezGameObject>(), pTargetObject, pTargetObject->GetHandle());
 
     // and of course all components attached to that object
+    const ezArrayPtr<ezComponent* const> AllComponents = pTargetObject->GetComponents();
+
     for (ezComponent* pComp : AllComponents)
     {
       CreateFloatPropertyBinding(&anim, pComp->GetDynamicRTTI(), pComp, pComp->GetHandle());
@@ -101,11 +107,54 @@ void ezPropertyAnimComponent::CreatePropertyBindings()
 
   for (const ezColorPropertyAnimEntry& anim : m_AnimDesc->m_ColorAnimations)
   {
+    ezGameObject* pTargetObject = GetOwner()->FindChildByPath(anim.m_sObjectPath);
+    if (pTargetObject == nullptr)
+      continue;
+
+    const ezArrayPtr<ezComponent* const> AllComponents = pTargetObject->GetComponents();
+
     for (ezComponent* pComp : AllComponents)
     {
       CreateColorPropertyBinding(&anim, pComp->GetDynamicRTTI(), pComp, pComp->GetHandle());
     }
   }
+}
+
+void ezPropertyAnimComponent::CreateGameObjectBinding(const ezFloatPropertyAnimEntry* pAnim, const ezRTTI* pOwnerRtti, void* pObject, const ezGameObjectHandle& hGameObject)
+{
+  if (pAnim->m_Target < ezPropertyAnimTarget::Number || pAnim->m_Target > ezPropertyAnimTarget::VectorW)
+    return;
+
+  ezAbstractProperty* pAbstract = pOwnerRtti->FindPropertyByName(pAnim->m_sPropertyName);
+
+  // we only support direct member properties at this time, so no arrays or other complex structures
+  if (pAbstract == nullptr || pAbstract->GetCategory() != ezPropertyCategory::Member)
+    return;
+
+  ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbstract);
+
+  const ezRTTI* pPropRtti = pMember->GetSpecificType();
+
+  if (pAnim->m_Target == ezPropertyAnimTarget::Number)
+  {
+    // Game objects only support to animate Position, Rotation (TBD),
+    // Non-Uniform Scale and the one single-float Uniform scale value
+    if (pPropRtti != ezGetStaticRTTI<float>())
+      return;
+  }
+  else
+  {
+    if (pPropRtti != ezGetStaticRTTI<ezVec2>() &&
+      pPropRtti != ezGetStaticRTTI<ezVec3>() &&
+      pPropRtti != ezGetStaticRTTI<ezVec4>())
+      return;
+  }
+
+  GameObjectBinding& binding = m_GoFloatBindings.ExpandAndGetRef();
+  binding.m_hObject = hGameObject;
+  binding.m_pObject = pObject;
+  binding.m_pAnimation = pAnim; // we can store a direct pointer here, because our sharedptr keeps the descriptor alive
+  binding.m_pMemberProperty = pMember;
 }
 
 void ezPropertyAnimComponent::CreateFloatPropertyBinding(const ezFloatPropertyAnimEntry* pAnim, const ezRTTI* pOwnerRtti, void* pObject, const ezComponentHandle& hComponent)
@@ -115,48 +164,42 @@ void ezPropertyAnimComponent::CreateFloatPropertyBinding(const ezFloatPropertyAn
 
   ezAbstractProperty* pAbstract = pOwnerRtti->FindPropertyByName(pAnim->m_sPropertyName);
 
-  if (pAbstract == nullptr)
-    return;
-
   // we only support direct member properties at this time, so no arrays or other complex structures
-  if (pAbstract->GetCategory() != ezPropertyCategory::Member)
+  if (pAbstract == nullptr || pAbstract->GetCategory() != ezPropertyCategory::Member)
     return;
 
   ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbstract);
 
   const ezRTTI* pPropRtti = pMember->GetSpecificType();
 
-  FloatBinding binding;
+  if (pAnim->m_Target == ezPropertyAnimTarget::Number)
+  {
+    if (pPropRtti != ezGetStaticRTTI<float>() &&
+      pPropRtti != ezGetStaticRTTI<double>() &&
+      pPropRtti != ezGetStaticRTTI<bool>() &&
+      pPropRtti != ezGetStaticRTTI<ezInt32>() &&
+      pPropRtti != ezGetStaticRTTI<ezInt16>() &&
+      pPropRtti != ezGetStaticRTTI<ezInt8>() &&
+      pPropRtti != ezGetStaticRTTI<ezUInt32>() &&
+      pPropRtti != ezGetStaticRTTI<ezUInt16>() &&
+      pPropRtti != ezGetStaticRTTI<ezUInt8>())
+      return;
+  }
+  else if (pAnim->m_Target >= ezPropertyAnimTarget::VectorX && pAnim->m_Target <= ezPropertyAnimTarget::VectorW)
+  {
+    if (pPropRtti != ezGetStaticRTTI<ezVec2>() &&
+      pPropRtti != ezGetStaticRTTI<ezVec3>() &&
+      pPropRtti != ezGetStaticRTTI<ezVec4>())
+      return;
+  }
+  else
+    return;
+
+  ComponentFloatBinding& binding = m_ComponentFloatBindings.ExpandAndGetRef();
   binding.m_hComponent = hComponent;
   binding.m_pObject = pObject;
   binding.m_pAnimation = pAnim; // we can store a direct pointer here, because our sharedptr keeps the descriptor alive
   binding.m_pMemberProperty = pMember;
-
-  if (pAnim->m_Target == ezPropertyAnimTarget::Number)
-  {
-    if (pPropRtti != ezGetStaticRTTI<float>() &&
-        pPropRtti != ezGetStaticRTTI<double>() &&
-        pPropRtti != ezGetStaticRTTI<bool>() &&
-        pPropRtti != ezGetStaticRTTI<ezInt32>() &&
-        pPropRtti != ezGetStaticRTTI<ezInt16>() &&
-        pPropRtti != ezGetStaticRTTI<ezInt8>() &&
-        pPropRtti != ezGetStaticRTTI<ezUInt32>() &&
-        pPropRtti != ezGetStaticRTTI<ezUInt16>() &&
-        pPropRtti != ezGetStaticRTTI<ezUInt8>())
-      return;
-
-    m_FloatBindings.PushBack(binding);
-  }
-
-  if (pAnim->m_Target >= ezPropertyAnimTarget::VectorX && pAnim->m_Target <= ezPropertyAnimTarget::VectorW)
-  {
-    if (pPropRtti != ezGetStaticRTTI<ezVec2>() &&
-        pPropRtti != ezGetStaticRTTI<ezVec3>() &&
-        pPropRtti != ezGetStaticRTTI<ezVec4>())
-      return;
-
-    m_FloatBindings.PushBack(binding);
-  }
 }
 
 
@@ -167,29 +210,22 @@ void ezPropertyAnimComponent::CreateColorPropertyBinding(const ezColorPropertyAn
 
   ezAbstractProperty* pAbstract = pOwnerRtti->FindPropertyByName(pAnim->m_sPropertyName);
 
-  if (pAbstract == nullptr)
-    return;
-
   // we only support direct member properties at this time, so no arrays or other complex structures
-  if (pAbstract->GetCategory() != ezPropertyCategory::Member)
+  if (pAbstract == nullptr || pAbstract->GetCategory() != ezPropertyCategory::Member)
     return;
 
   ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbstract);
 
   const ezRTTI* pPropRtti = pMember->GetSpecificType();
 
-  ColorBinding binding;
+  if (pPropRtti != ezGetStaticRTTI<ezColor>() && pPropRtti != ezGetStaticRTTI<ezColorGammaUB>())
+    return;
+
+  ColorBinding& binding = m_ColorBindings.ExpandAndGetRef();
   binding.m_hComponent = hComponent;
   binding.m_pObject = pObject;
   binding.m_pAnimation = pAnim; // we can store a direct pointer here, because our sharedptr keeps the descriptor alive
   binding.m_pMemberProperty = pMember;
-
-  {
-    if (pPropRtti != ezGetStaticRTTI<ezColor>() && pPropRtti != ezGetStaticRTTI<ezColorGammaUB>())
-      return;
-
-    m_ColorBindings.PushBack(binding);
-  }
 }
 
 void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
@@ -198,9 +234,9 @@ void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
 
   const double fLookupPos = ComputeAnimationLookup(m_AnimationTime, m_AnimDesc->m_Mode, m_AnimDesc->m_AnimationDuration);
 
-  for (ezUInt32 i = 0; i < m_FloatBindings.GetCount(); )
+  for (ezUInt32 i = 0; i < m_ComponentFloatBindings.GetCount(); )
   {
-    const auto& binding = m_FloatBindings[i];
+    const auto& binding = m_ComponentFloatBindings[i];
 
     // if we have a component handle, use it to check that the component is still alive
     if (!binding.m_hComponent.IsInvalidated())
@@ -208,12 +244,12 @@ void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
       if (!GetWorld()->IsValidComponent(binding.m_hComponent))
       {
         // remove dead references
-        m_FloatBindings.RemoveAtSwap(i);
+        m_ComponentFloatBindings.RemoveAtSwap(i);
         continue;
       }
     }
 
-    ApplyFloatAnimation(i, fLookupPos);
+    ApplyFloatAnimation(m_ComponentFloatBindings[i], fLookupPos);
 
     ++i;
   }
@@ -233,7 +269,27 @@ void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
       }
     }
 
-    ApplyColorAnimation(i, fLookupPos);
+    ApplyColorAnimation(m_ColorBindings[i], fLookupPos);
+
+    ++i;
+  }
+
+  for (ezUInt32 i = 0; i < m_GoFloatBindings.GetCount(); )
+  {
+    const auto& binding = m_GoFloatBindings[i];
+
+    // if we have a game object handle, use it to check that the component is still alive
+    if (!binding.m_hObject.IsInvalidated())
+    {
+      if (!GetWorld()->IsValidObject(binding.m_hObject))
+      {
+        // remove dead references
+        m_GoFloatBindings.RemoveAtSwap(i);
+        continue;
+      }
+    }
+
+    ApplyFloatAnimation(m_GoFloatBindings[i], fLookupPos);
 
     ++i;
   }
@@ -262,10 +318,8 @@ double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime& inout_tCur, ezPro
   return inout_tCur.GetSeconds();
 }
 
-void ezPropertyAnimComponent::ApplyFloatAnimation(ezUInt32 idx, double lookupTime)
+void ezPropertyAnimComponent::ApplyFloatAnimation(const FloatBinding& binding, double lookupTime)
 {
-  const auto& binding = m_FloatBindings[idx];
-
   const ezRTTI* pRtti = binding.m_pMemberProperty->GetSpecificType();
 
   // and now for the tedious task of applying different type values...
@@ -273,7 +327,7 @@ void ezPropertyAnimComponent::ApplyFloatAnimation(ezUInt32 idx, double lookupTim
 
   float fFinalValue = 0;
   {
-    const ezCurve1D& curve = m_FloatBindings[idx].m_pAnimation->m_Curve;
+    const ezCurve1D& curve = binding.m_pAnimation->m_Curve;
 
     if (curve.IsEmpty())
       return;
@@ -296,7 +350,7 @@ void ezPropertyAnimComponent::ApplyFloatAnimation(ezUInt32 idx, double lookupTim
     pTyped->SetValue(binding.m_pObject, value);
     return;
   }
-  
+
   if (pRtti == ezGetStaticRTTI<ezVec2>())
   {
     ezTypedMemberProperty<ezVec2>* pTyped = static_cast<ezTypedMemberProperty<ezVec2>*>(binding.m_pMemberProperty);
@@ -346,10 +400,8 @@ void ezPropertyAnimComponent::ApplyFloatAnimation(ezUInt32 idx, double lookupTim
   }
 }
 
-void ezPropertyAnimComponent::ApplyColorAnimation(ezUInt32 idx, double lookupTime)
+void ezPropertyAnimComponent::ApplyColorAnimation(const ColorBinding& binding, double lookupTime)
 {
-  const auto& binding = m_ColorBindings[idx];
-
   const ezRTTI* pRtti = binding.m_pMemberProperty->GetSpecificType();
 
   if (pRtti == ezGetStaticRTTI<ezColorGammaUB>())
