@@ -256,7 +256,7 @@ void ezQtCurve1DEditorWidget::onDeleteControlPoints()
 
 void ezQtCurve1DEditorWidget::onDoubleClick(const QPointF& scenePos, const QPointF& epsilon)
 {
-  InsertCpAt(scenePos.x(), scenePos.y(), epsilon.x());
+  InsertCpAt(scenePos.x(), scenePos.y(), ezVec2d(ezMath::Abs(epsilon.x()), ezMath::Abs(epsilon.y())));
 }
 
 void ezQtCurve1DEditorWidget::onMoveControlPoints(double x, double y)
@@ -405,7 +405,7 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
 
 void ezQtCurve1DEditorWidget::onAddPoint()
 {
-  InsertCpAt(m_contextMenuScenePos.x(), m_contextMenuScenePos.y(), 0);
+  InsertCpAt(m_contextMenuScenePos.x(), m_contextMenuScenePos.y(), ezVec2d::ZeroVector());
 }
 
 void ezQtCurve1DEditorWidget::onLinkTangents()
@@ -455,7 +455,7 @@ void ezQtCurve1DEditorWidget::onFlattenTangents()
   emit EndOperationEvent(true);
 }
 
-void ezQtCurve1DEditorWidget::InsertCpAt(double posX, double value, double epsilon)
+void ezQtCurve1DEditorWidget::InsertCpAt(double posX, double value, ezVec2d epsilon)
 {
   int curveIdx = 0, cpIdx = 0;
 
@@ -463,7 +463,7 @@ void ezQtCurve1DEditorWidget::InsertCpAt(double posX, double value, double epsil
   if (PickControlPointAt(posX, value, epsilon, curveIdx, cpIdx))
     return;
 
-  if (!PickCurveAt(posX, value, epsilon, curveIdx, value))
+  if (!PickCurveAt(posX, value, epsilon.y, curveIdx, value))
   {
     // by default insert into curve 0
     curveIdx = 0;
@@ -473,7 +473,7 @@ void ezQtCurve1DEditorWidget::InsertCpAt(double posX, double value, double epsil
 }
 
 
-bool ezQtCurve1DEditorWidget::PickCurveAt(double x, double y, double fMaxYDistance, ezInt32& out_iCurveIdx, double& out_ValueY) const
+bool ezQtCurve1DEditorWidget::PickCurveAt(double x, double y, double fMaxDistanceY, ezInt32& out_iCurveIdx, double& out_ValueY) const
 {
   out_iCurveIdx = -1;
   ezCurve1D CurveData;
@@ -494,9 +494,9 @@ bool ezQtCurve1DEditorWidget::PickCurveAt(double x, double y, double fMaxYDistan
     const double val = CurveData.Evaluate(x);
 
     const double dist = ezMath::Abs(val - y);
-    if (dist < fMaxYDistance)
+    if (dist < fMaxDistanceY)
     {
-      fMaxYDistance = dist;
+      fMaxDistanceY = dist;
       out_iCurveIdx = i;
       out_ValueY = val;
     }
@@ -505,10 +505,9 @@ bool ezQtCurve1DEditorWidget::PickCurveAt(double x, double y, double fMaxYDistan
   return out_iCurveIdx >= 0;
 }
 
-bool ezQtCurve1DEditorWidget::PickControlPointAt(double x, double y, double fMaxDistance, ezInt32& out_iCurveIdx, ezInt32& out_iCpIdx) const
+bool ezQtCurve1DEditorWidget::PickControlPointAt(double x, double y, ezVec2d vMaxDistance, ezInt32& out_iCurveIdx, ezInt32& out_iCpIdx) const
 {
   const ezVec2d at(x, y);
-  float fMaxDistSqr = ezMath::Square(fMaxDistance);
 
   out_iCurveIdx = -1;
   out_iCpIdx = -1;
@@ -522,10 +521,13 @@ bool ezQtCurve1DEditorWidget::PickControlPointAt(double x, double y, double fMax
     for (ezUInt32 iCP = 0; iCP < CurveData.GetNumControlPoints(); ++iCP)
     {
       const auto& cp = CurveData.GetControlPoint(iCP);
-      const float fDistSqr = (cp.m_Position - at).GetLengthSquared();
-      if (fDistSqr <= fMaxDistSqr)
+      const ezVec2d dist = cp.m_Position - at;
+      
+      if (ezMath::Abs(dist.x) <= vMaxDistance.x && ezMath::Abs(dist.y) <= vMaxDistance.y)
       {
-        fMaxDistSqr = fDistSqr;
+        vMaxDistance.x = ezMath::Abs(dist.x);
+        vMaxDistance.y = ezMath::Abs(dist.y);
+
         out_iCurveIdx = iCurve;
         out_iCpIdx = iCP;
       }

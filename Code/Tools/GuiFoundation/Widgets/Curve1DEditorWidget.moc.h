@@ -54,9 +54,9 @@ private slots:
   void onMoveCurve(ezInt32 iCurve, double moveY);
 
 private:
-  void InsertCpAt(double posX, double value, double epsilon);
-  bool PickCurveAt(double x, double y, double fMaxYDistance, ezInt32& out_iCurveIdx, double& out_ValueY) const;
-  bool PickControlPointAt(double x, double y, double fMaxDistance, ezInt32& out_iCurveIdx, ezInt32& out_iCpIdx) const;
+  void InsertCpAt(double posX, double value, ezVec2d epsilon);
+  bool PickCurveAt(double x, double y, double fMaxDistanceY, ezInt32& out_iCurveIdx, double& out_ValueY) const;
+  bool PickControlPointAt(double x, double y, ezVec2d vMaxDistance, ezInt32& out_iCurveIdx, ezInt32& out_iCpIdx) const;
   void UpdateSpinBoxes();
   void SetTangentMode(ezCurveTangentMode::Enum mode, bool bLeft, bool bRight);
 
