@@ -2,6 +2,22 @@ Objects
 {
 o
 {
+	Uuid %id{u4{2697802346188177080,4687225671299729843}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0x5AA213BF,0x78B364BF}}
+		s %LeftTangentMode{"ezCurveTangentMode::Bezier"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xD2C70B3F,0x80A451C0}}
+		s %RightTangentMode{"ezCurveTangentMode::Bezier"}
+		i4 %Tick{9600}
+		d %Value{0}
+	}
+}
+o
+{
 	Uuid %id{u4{11748783352561430202,4730702321296317103}}
 	s %t{"ezSingleCurveData"}
 	u3 %v{3}
@@ -23,8 +39,10 @@ o
 	u3 %v{1}
 	p
 	{
+		s %ComponentType{""}
 		Uuid %FloatCurve{u4{15807083532000818366,7060828933882746235}}
-		s %Property{"A/LocalPosition"}
+		s %ObjectPath{"A"}
+		s %Property{"LocalPosition"}
 		s %Target{"ezPropertyAnimTarget::VectorX"}
 	}
 }
@@ -60,6 +78,20 @@ o
 		d %Value{0x000000000000F03F}
 	}
 }
+o
+{
+	Uuid %id{u4{8415036074978043066,5079796659755525775}}
+	s %t{"ezPropertyAnimationTrack"}
+	u3 %v{1}
+	p
+	{
+		s %ComponentType{"ezPointLightComponent"}
+		Uuid %FloatCurve{u4{8080068725150925830,14925258744378955364}}
+		s %ObjectPath{"A"}
+		s %Property{"Intensity"}
+		s %Target{"ezPropertyAnimTarget::Number"}
+	}
+}
 AssetInfo
 {
 	Uuid %id{u4{14416072379724892317,5137667082026569700}}
@@ -71,7 +103,7 @@ AssetInfo
 		s %AssetType{"PropertyAnim"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14416072379724892317,5137667082026569700}}
-		u4 %Hash{12457982376243481999}
+		u4 %Hash{17302036933903509331}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -104,6 +136,7 @@ o
 		{
 			Uuid{u4{14074295076466876553,4803517135902210691}}
 			Uuid{u4{2579131118432265644,5466895140248130667}}
+			Uuid{u4{8415036074978043066,5079796659755525775}}
 		}
 	}
 }
@@ -121,6 +154,22 @@ o
 		s %RightTangentMode{"ezCurveTangentMode::Bezier"}
 		i4 %Tick{9600}
 		d %Value{0x000000000000F03F}
+	}
+}
+o
+{
+	Uuid %id{u4{12325472161435163326,5334259961756624917}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0xBC3711BF,0x78B3643F}}
+		s %LeftTangentMode{"ezCurveTangentMode::Bezier"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0xBC37113F,0x78B364BF}}
+		s %RightTangentMode{"ezCurveTangentMode::Bezier"}
+		i4 %Tick{4920}
+		d %Value{0x0000000000309140}
 	}
 }
 o
@@ -144,8 +193,10 @@ o
 	u3 %v{1}
 	p
 	{
+		s %ComponentType{""}
 		Uuid %FloatCurve{u4{11748783352561430202,4730702321296317103}}
-		s %Property{"A/LocalUniformScaling"}
+		s %ObjectPath{"A"}
+		s %Property{"LocalUniformScaling"}
 		s %Target{"ezPropertyAnimTarget::Number"}
 	}
 }
@@ -163,6 +214,22 @@ o
 		s %RightTangentMode{"ezCurveTangentMode::Auto"}
 		i4 %Tick{2400}
 		d %Value{0x000000000000E03F}
+	}
+}
+o
+{
+	Uuid %id{u4{10598018531108620948,5562954314325972296}}
+	s %t{"ezCurveControlPointData"}
+	u3 %v{5}
+	p
+	{
+		Vec2 %LeftTangent{f{0x5AA213BF,0x78B364BF}}
+		s %LeftTangentMode{"ezCurveTangentMode::Bezier"}
+		b %Linked{1}
+		Vec2 %RightTangent{f{0x5AA2133F,0x78B3643F}}
+		s %RightTangentMode{"ezCurveTangentMode::Bezier"}
+		i4 %Tick{0}
+		d %Value{0}
 	}
 }
 o
@@ -228,6 +295,22 @@ o
 			Uuid{u4{16501384035686341565,5736798143957042554}}
 			Uuid{u4{14569305626831496613,5672458964373773013}}
 			Uuid{u4{1167114168331757219,5728907442324193379}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{8080068725150925830,14925258744378955364}}
+	s %t{"ezSingleCurveData"}
+	u3 %v{3}
+	p
+	{
+		ColorGamma %Color{u1{255,241,0,255}}
+		VarArray %ControlPoints
+		{
+			Uuid{u4{10598018531108620948,5562954314325972296}}
+			Uuid{u4{2697802346188177080,4687225671299729843}}
+			Uuid{u4{12325472161435163326,5334259961756624917}}
 		}
 	}
 }
@@ -338,7 +421,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezPropertyAnimationTrack"}
-		u3 %TypeSize{120}
+		u3 %TypeSize{248}
 		u3 %TypeVersion{1}
 	}
 }

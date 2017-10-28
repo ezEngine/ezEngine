@@ -7,7 +7,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimationTrack, 1, ezRTTIDefaultAlloca
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Property", m_sPropertyName),
+    EZ_MEMBER_PROPERTY("ObjectPath", m_sObjectSearchSequence),
+    EZ_MEMBER_PROPERTY("ComponentType", m_sComponentType),
+    EZ_MEMBER_PROPERTY("Property", m_sPropertyPath),
     EZ_ENUM_MEMBER_PROPERTY("Target", ezPropertyAnimTarget, m_Target),
     EZ_MEMBER_PROPERTY("FloatCurve", m_FloatCurve),
   }
@@ -74,23 +76,18 @@ ezStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& str
   desc.m_Mode = ezPropertyAnimMode::Loop; /// \todo Expose in UI
   desc.m_AnimationDuration = GetAnimationDuration();
 
-  ezStringBuilder tmp, tmpPath, tmpName;
-
   for (ezUInt32 i = 0; i < pProp->m_Tracks.GetCount(); ++i)
   {
     const ezPropertyAnimationTrack* pTrack = pProp->m_Tracks[i];
-
-    tmp = pTrack->m_sPropertyName;
-    tmpPath = tmp.GetFileDirectory();
-    tmpName = tmp.GetFileName();
 
     if (pTrack->m_Target == ezPropertyAnimTarget::Color)
     {
       // TODO
 
       //auto& anim = desc.m_ColorAnimations.ExpandAndGetRef();
-      //anim.m_sObjectPath = tmpPath;
-      //anim.m_sPropertyName = tmpName;
+      //anim.m_sObjectSearchSequence = pTrack->m_sObjectSearchSequence;
+      //anim.m_sComponentType = pTrack->m_sComponentType;
+      //anim.m_sPropertyPath = pTrack->m_sPropertyPath;
       //anim.m_Target = pTrack->m_Target;
       //pTrack->m_ColorGradient.ConvertToRuntimeData(anim.m_Curve);
       //anim.m_Gradient.SortControlPoints();
@@ -98,8 +95,9 @@ ezStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& str
     else
     {
       auto& anim = desc.m_FloatAnimations.ExpandAndGetRef();
-      anim.m_sObjectPath = tmpPath;
-      anim.m_sPropertyName = tmpName;
+      anim.m_sObjectSearchSequence = pTrack->m_sObjectSearchSequence;
+      anim.m_sComponentType = pTrack->m_sComponentType;
+      anim.m_sPropertyPath = pTrack->m_sPropertyPath;
       anim.m_Target = pTrack->m_Target;
       pTrack->m_FloatCurve.ConvertToRuntimeData(anim.m_Curve);
       anim.m_Curve.SortControlPoints();
@@ -112,12 +110,24 @@ ezStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& str
   {
     desc.m_FloatAnimations.Sort([](const ezFloatPropertyAnimEntry& lhs, const ezFloatPropertyAnimEntry& rhs) -> bool
     {
-      return lhs.m_sObjectPath < rhs.m_sObjectPath;
+      const ezInt32 res = lhs.m_sObjectSearchSequence.Compare(rhs.m_sObjectSearchSequence);
+      if (res < 0)
+        return true;
+      if (res > 0)
+        return false;
+
+      return lhs.m_sComponentType < rhs.m_sComponentType;
     });
 
     desc.m_ColorAnimations.Sort([](const ezColorPropertyAnimEntry& lhs, const ezColorPropertyAnimEntry& rhs) -> bool
     {
-      return lhs.m_sObjectPath < rhs.m_sObjectPath;
+      const ezInt32 res = lhs.m_sObjectSearchSequence.Compare(rhs.m_sObjectSearchSequence);
+      if (res < 0)
+        return true;
+      if (res > 0)
+        return false;
+
+      return lhs.m_sComponentType < rhs.m_sComponentType;
     });
   }
 

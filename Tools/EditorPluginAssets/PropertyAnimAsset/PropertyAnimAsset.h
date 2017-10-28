@@ -9,7 +9,9 @@ class ezPropertyAnimationTrack : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezPropertyAnimationTrack, ezReflectedClass);
 public:
 
-  ezString m_sPropertyName;
+  ezString m_sObjectSearchSequence; ///< Sequence of named objects to search for the target
+  ezString m_sComponentType; ///< Empty to reference the game object properties (position etc.)
+  ezString m_sPropertyPath;
   ezEnum<ezPropertyAnimTarget> m_Target;
 
   ezSingleCurveData m_FloatCurve;

@@ -2130,6 +2130,23 @@ o
 }
 o
 {
+	Uuid %id{u4{17257977204836421288,4935348640102004864}}
+	s %t{"ezPointLightComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
+		f %Intensity{0x00007A44}
+		ColorGamma %LightColor{u1{79,253,233,255}}
+		f %PenumbraSize{0xCDCCCC3D}
+		f %Range{0}
+		f %SlopeBias{0x0000803E}
+	}
+}
+o
+{
 	Uuid %id{u4{3603276572286352791,4945382739323541421}}
 	s %t{"ezMeshComponent"}
 	u3 %v{1}
@@ -2658,7 +2675,7 @@ AssetInfo
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{11193298554879133099}
+		u4 %Hash{18243231428525488135}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -2927,6 +2944,7 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{10273322198907215267,5278739019818890760}}
+			Uuid{u4{17257977204836421288,4935348640102004864}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0x0000803F,0}}
@@ -10255,7 +10273,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezPropertyAnimComponent"}
-		u3 %TypeSize{384}
+		u3 %TypeSize{536}
 		u3 %TypeVersion{1}
 	}
 }

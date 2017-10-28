@@ -47,9 +47,11 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezPropertyAnimMode);
 
 struct EZ_GAMEENGINE_DLL ezPropertyAnimEntry
 {
-  ezString m_sObjectPath;
-  ezString m_sPropertyName;
+  ezString m_sObjectSearchSequence; ///< Sequence of named objects to search for the target
+  ezString m_sComponentType; ///< Empty to reference the game object properties (position etc.)
+  ezString m_sPropertyPath;
   ezEnum<ezPropertyAnimTarget> m_Target;
+  const ezRTTI* m_pComponentRtti = nullptr;
 };
 
 struct EZ_GAMEENGINE_DLL ezFloatPropertyAnimEntry : public ezPropertyAnimEntry

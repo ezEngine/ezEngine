@@ -142,10 +142,17 @@ void ezQtPropertyAnimModel::BuildMapping(ezInt32 iToUse)
 
   const ezPropertyAnimationTrackGroup& group = *m_pAssetDoc->GetProperties();
 
+  ezStringBuilder tmp;
+
   for (ezUInt32 tIdx = 0; tIdx < group.m_Tracks.GetCount(); ++tIdx)
   {
     ezPropertyAnimationTrack* pTrack = group.m_Tracks[tIdx];
-    BuildMapping(iToUse, tIdx, pTrack, m_TopLevelEntries[iToUse], -1, pTrack->m_sPropertyName);
+
+    tmp = pTrack->m_sObjectSearchSequence;
+    tmp.AppendPath(pTrack->m_sComponentType);
+    tmp.AppendPath(pTrack->m_sPropertyPath);
+
+    BuildMapping(iToUse, tIdx, pTrack, m_TopLevelEntries[iToUse], -1, tmp);
   }
 }
 

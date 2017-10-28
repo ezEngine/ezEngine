@@ -89,31 +89,33 @@ void ezPropertyAnimComponent::CreatePropertyBindings()
 
   for (const ezFloatPropertyAnimEntry& anim : m_AnimDesc->m_FloatAnimations)
   {
-    ezGameObject* pTargetObject = GetOwner()->FindChildByPath(anim.m_sObjectPath);
+    ezGameObject* pTargetObject = GetOwner()->FindChildByPath(anim.m_sObjectSearchSequence);
     if (pTargetObject == nullptr)
       continue;
 
     // allow to animate properties on the ezGameObject
-    CreateGameObjectBinding(&anim, ezGetStaticRTTI<ezGameObject>(), pTargetObject, pTargetObject->GetHandle());
-
-    // and of course all components attached to that object
-    const ezArrayPtr<ezComponent* const> AllComponents = pTargetObject->GetComponents();
-
-    for (ezComponent* pComp : AllComponents)
+    if (anim.m_pComponentRtti == nullptr)
     {
-      CreateFloatPropertyBinding(&anim, pComp->GetDynamicRTTI(), pComp, pComp->GetHandle());
+      CreateGameObjectBinding(&anim, ezGetStaticRTTI<ezGameObject>(), pTargetObject, pTargetObject->GetHandle());
+    }
+    else
+    {
+      ezComponent* pComp;
+      if (pTargetObject->TryGetComponentOfBaseType(anim.m_pComponentRtti, pComp))
+      {
+        CreateFloatPropertyBinding(&anim, pComp->GetDynamicRTTI(), pComp, pComp->GetHandle());
+      }
     }
   }
 
   for (const ezColorPropertyAnimEntry& anim : m_AnimDesc->m_ColorAnimations)
   {
-    ezGameObject* pTargetObject = GetOwner()->FindChildByPath(anim.m_sObjectPath);
+    ezGameObject* pTargetObject = GetOwner()->FindChildByPath(anim.m_sObjectSearchSequence);
     if (pTargetObject == nullptr)
       continue;
 
-    const ezArrayPtr<ezComponent* const> AllComponents = pTargetObject->GetComponents();
-
-    for (ezComponent* pComp : AllComponents)
+    ezComponent* pComp;
+    if (pTargetObject->TryGetComponentOfBaseType(anim.m_pComponentRtti, pComp))
     {
       CreateColorPropertyBinding(&anim, pComp->GetDynamicRTTI(), pComp, pComp->GetHandle());
     }
@@ -125,7 +127,7 @@ void ezPropertyAnimComponent::CreateGameObjectBinding(const ezFloatPropertyAnimE
   if (pAnim->m_Target < ezPropertyAnimTarget::Number || pAnim->m_Target > ezPropertyAnimTarget::VectorW)
     return;
 
-  ezAbstractProperty* pAbstract = pOwnerRtti->FindPropertyByName(pAnim->m_sPropertyName);
+  ezAbstractProperty* pAbstract = pOwnerRtti->FindPropertyByName(pAnim->m_sPropertyPath);
 
   // we only support direct member properties at this time, so no arrays or other complex structures
   if (pAbstract == nullptr || pAbstract->GetCategory() != ezPropertyCategory::Member)
@@ -162,7 +164,7 @@ void ezPropertyAnimComponent::CreateFloatPropertyBinding(const ezFloatPropertyAn
   if (pAnim->m_Target < ezPropertyAnimTarget::Number || pAnim->m_Target > ezPropertyAnimTarget::VectorW)
     return;
 
-  ezAbstractProperty* pAbstract = pOwnerRtti->FindPropertyByName(pAnim->m_sPropertyName);
+  ezAbstractProperty* pAbstract = pOwnerRtti->FindPropertyByName(pAnim->m_sPropertyPath);
 
   // we only support direct member properties at this time, so no arrays or other complex structures
   if (pAbstract == nullptr || pAbstract->GetCategory() != ezPropertyCategory::Member)
@@ -208,7 +210,7 @@ void ezPropertyAnimComponent::CreateColorPropertyBinding(const ezColorPropertyAn
   if (pAnim->m_Target != ezPropertyAnimTarget::Color)
     return;
 
-  ezAbstractProperty* pAbstract = pOwnerRtti->FindPropertyByName(pAnim->m_sPropertyName);
+  ezAbstractProperty* pAbstract = pOwnerRtti->FindPropertyByName(pAnim->m_sPropertyPath);
 
   // we only support direct member properties at this time, so no arrays or other complex structures
   if (pAbstract == nullptr || pAbstract->GetCategory() != ezPropertyCategory::Member)

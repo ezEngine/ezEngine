@@ -220,7 +220,7 @@ ezGameObject* ezGameObject::FindChildByPath(const char* path)
 
   ezGameObject* pNextChild = FindChildByName(ezTempHashedString(uiNameHash));
 
-  if (szSep == nullptr || pNextChild != nullptr)
+  if (szSep == nullptr || pNextChild == nullptr)
     return pNextChild;
 
   return pNextChild->FindChildByPath(szSep + 1);
