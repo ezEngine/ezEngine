@@ -128,9 +128,12 @@ ezQtPropertyAnimAssetDocumentWindow::~ezQtPropertyAnimAssetDocumentWindow()
 
 void ezQtPropertyAnimAssetDocumentWindow::onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
 {
+  ezPropertyAnimAssetDocument* pDoc = static_cast<ezPropertyAnimAssetDocument*>(GetDocument());
+
   m_MapSelectionToTrack.Clear();
   m_CurvesToDisplay.Clear();
   m_CurvesToDisplay.m_bOwnsData = false;
+  m_CurvesToDisplay.m_uiFramesPerSecond = pDoc->GetProperties()->m_uiFramesPerSecond;
 
   ezSet<ezInt32> tracks;
 
@@ -155,8 +158,6 @@ void ezQtPropertyAnimAssetDocumentWindow::onSelectionChanged(const QItemSelectio
     addRecursive(addRecursive, pTreeItem);
   }
 
-  ezPropertyAnimAssetDocument* pDoc = static_cast<ezPropertyAnimAssetDocument*>(GetDocument());
-
   for (auto it = tracks.GetIterator(); it.IsValid(); ++it)
   {
     const ezInt32 iTrackIdx = it.Key();
@@ -164,9 +165,6 @@ void ezQtPropertyAnimAssetDocumentWindow::onSelectionChanged(const QItemSelectio
 
     m_CurvesToDisplay.m_Curves.PushBack(&pDoc->GetProperties()->m_Tracks[iTrackIdx]->m_FloatCurve);
   }
-
-  // TODO: fps setting
-  // m_CurvesToDisplay.m_uiFramesPerSecond = ...
 
   UpdateCurveEditor();
 }
@@ -190,7 +188,8 @@ void ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler(const ezDocument
 
 void ezQtPropertyAnimAssetDocumentWindow::UpdateCurveEditor()
 {
-  m_pCurveEditor->SetCurves(m_CurvesToDisplay);
+  ezPropertyAnimAssetDocument* pDoc = static_cast<ezPropertyAnimAssetDocument*>(GetDocument());
+  m_pCurveEditor->SetCurves(m_CurvesToDisplay, pDoc->GetAnimationDuration().GetSeconds());
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onCurveBeginOperation(QString name)

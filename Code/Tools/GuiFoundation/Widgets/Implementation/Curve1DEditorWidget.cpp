@@ -27,25 +27,22 @@ ezQtCurve1DEditorWidget::ezQtCurve1DEditorWidget(QWidget* pParent)
   connect(CurveEdit, &ezQtCurveEditWidget::SelectionChangedEvent, this, &ezQtCurve1DEditorWidget::onSelectionChanged);
   connect(CurveEdit, &ezQtCurveEditWidget::MoveCurveEvent, this, &ezQtCurve1DEditorWidget::onMoveCurve);
 
-  SpinPosition->setEnabled(false);
-  SpinValue->setEnabled(false);
-
-  SpinPosition->setSpecialValueText("--");
-  SpinValue->setSpecialValueText("--");
+  LinePosition->setEnabled(false);
+  LineValue->setEnabled(false);
 }
 
 ezQtCurve1DEditorWidget::~ezQtCurve1DEditorWidget()
 {
 }
 
-void ezQtCurve1DEditorWidget::SetCurves(ezCurveGroupData& curves)
+void ezQtCurve1DEditorWidget::SetCurves(ezCurveGroupData& curves, double fMinCurveLength)
 {
   ezQtScopedUpdatesDisabled ud(this);
   ezQtScopedBlockSignals bs(this);
 
   m_Curves.CloneFrom(curves);
 
-  CurveEdit->SetCurves(&curves);
+  CurveEdit->SetCurves(&curves, fMinCurveLength);
 
   UpdateSpinBoxes();
 }
@@ -273,7 +270,9 @@ void ezQtCurve1DEditorWidget::onMoveControlPoints(double x, double y)
   for (const auto& cpSel : selection)
   {
     const auto& cp = m_CurvesBackup.m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint];
-    const ezVec2d newPos = ezVec2d(cp.GetTickAsTime(), cp.m_fValue) + m_ControlPointMove;
+    ezVec2d newPos = ezVec2d(cp.GetTickAsTime(), cp.m_fValue) + m_ControlPointMove;
+    newPos.x = ezMath::Max(newPos.x, 0.0);
+    newPos.y = ezMath::Clamp(newPos.y, -100000.0, +100000.0);
 
     emit CpMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, m_Curves.TickFromTime(newPos.x), newPos.y);
   }
@@ -296,7 +295,9 @@ void ezQtCurve1DEditorWidget::onScaleControlPoints(QPointF refPt, double scaleX,
   for (const auto& cpSel : selection)
   {
     const auto& cp = m_CurvesBackup.m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint];
-    const ezVec2d newPos = ref + (ezVec2d(cp.GetTickAsTime(), cp.m_fValue) - ref).CompMul(scale);
+    ezVec2d newPos = ref + (ezVec2d(cp.GetTickAsTime(), cp.m_fValue) - ref).CompMul(scale);
+    newPos.x = ezMath::Max(newPos.x, 0.0);
+    newPos.y = ezMath::Clamp(newPos.y, -100000.0, +100000.0);
 
     emit CpMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, m_Curves.TickFromTime(newPos.x), newPos.y);
   }
@@ -325,6 +326,8 @@ void ezQtCurve1DEditorWidget::onMoveTangents(float x, float y)
       newPos = cp.m_LeftTangent + m_TangentMove;
     else
       newPos = cp.m_RightTangent + m_TangentMove;
+
+    newPos.y = ezMath::Clamp(newPos.y, -100000.0f, +100000.0f);
 
     emit TangentMovedEvent(iCurve, iPoint, newPos.x, newPos.y, !bLeftTangent);
 
@@ -458,6 +461,8 @@ void ezQtCurve1DEditorWidget::onFlattenTangents()
 void ezQtCurve1DEditorWidget::InsertCpAt(double posX, double value, ezVec2d epsilon)
 {
   int curveIdx = 0, cpIdx = 0;
+  posX = ezMath::Max(posX, 0.0);
+  value = ezMath::Clamp(value, -100000.0, +100000.0);
 
   // do not insert at a point where a CP already exists
   if (PickControlPointAt(posX, value, epsilon, curveIdx, cpIdx))
@@ -566,15 +571,15 @@ void ezQtCurve1DEditorWidget::UpdateSpinBoxes()
 {
   const auto& selection = CurveEdit->GetSelection();
 
-  ezQtScopedBlockSignals _1(SpinPosition, SpinValue);
+  ezQtScopedBlockSignals _1(LinePosition, LineValue);
 
   if (selection.IsEmpty())
   {
-    SpinPosition->setValue(0);
-    SpinValue->setValue(0);
+    LinePosition->setText(QString());
+    LineValue->setText(QString());
 
-    SpinPosition->setEnabled(false);
-    SpinValue->setEnabled(false);
+    LinePosition->setEnabled(false);
+    LineValue->setEnabled(false);
     return;
   }
 
@@ -582,15 +587,11 @@ void ezQtCurve1DEditorWidget::UpdateSpinBoxes()
   const double fPos = pt0.GetTickAsTime();
   const double fVal = pt0.m_fValue;
 
-  SpinPosition->setValue(fPos);
-  SpinValue->setValue(fVal);
+  LinePosition->setText(QString::number(fPos, 'f', 2));
+  LineValue->setText(QString::number(fVal, 'f', 3));
 
-  SpinPosition->setEnabled(true);
-  SpinValue->setEnabled(true);
-
-  SpinPosition->setMinimum(0);
-  SpinPosition->setSpecialValueText(QString());
-  SpinValue->setSpecialValueText(QString());
+  LinePosition->setEnabled(true);
+  LineValue->setEnabled(true);
 
   for (ezUInt32 i = 1; i < selection.GetCount(); ++i)
   {
@@ -598,9 +599,7 @@ void ezQtCurve1DEditorWidget::UpdateSpinBoxes()
 
     if (pt.GetTickAsTime() != fPos)
     {
-      SpinPosition->setMinimum(-0.01);
-      SpinPosition->setSpecialValueText("--");
-      SpinPosition->setValue(SpinPosition->minimum());
+      LinePosition->setText(QString());
       break;
     }
   }
@@ -611,16 +610,19 @@ void ezQtCurve1DEditorWidget::UpdateSpinBoxes()
 
     if (pt.m_fValue != fVal)
     {
-      SpinValue->setSpecialValueText("--");
-      SpinValue->setValue(SpinValue->minimum());
+      LineValue->setText(QString());
       break;
     }
   }
 }
 
-void ezQtCurve1DEditorWidget::on_SpinPosition_valueChanged(double value)
+void ezQtCurve1DEditorWidget::on_LinePosition_editingFinished()
 {
-  if (!SpinPosition->specialValueText().isEmpty() && value == SpinPosition->minimum())
+  QString sValue = LinePosition->text();
+
+  bool ok = false;
+  const double value = sValue.toDouble(&ok);
+  if (!ok)
     return;
 
   if (value < 0)
@@ -644,9 +646,13 @@ void ezQtCurve1DEditorWidget::on_SpinPosition_valueChanged(double value)
   emit EndCpChangesEvent();
 }
 
-void ezQtCurve1DEditorWidget::on_SpinValue_valueChanged(double value)
+void ezQtCurve1DEditorWidget::on_LineValue_editingFinished()
 {
-  if (!SpinValue->specialValueText().isEmpty() && value == SpinValue->minimum())
+  QString sValue = LineValue->text();
+
+  bool ok = false;
+  const double value = sValue.toDouble(&ok);
+  if (!ok)
     return;
 
   const auto& selection = CurveEdit->GetSelection();

@@ -14,7 +14,7 @@ public:
   explicit ezQtCurve1DEditorWidget(QWidget* pParent);
   ~ezQtCurve1DEditorWidget();
 
-  void SetCurves(ezCurveGroupData& curveData);
+  void SetCurves(ezCurveGroupData& curveData, double fMinCurveLength);
 
   void FrameCurve();
   void MakeRepeatable(bool bAdjustLastPoint);
@@ -36,8 +36,8 @@ signals:
   void EndOperationEvent(bool commit);
 
 private slots:
-  void on_SpinPosition_valueChanged(double value);
-  void on_SpinValue_valueChanged(double value);
+  void on_LinePosition_editingFinished();
+  void on_LineValue_editingFinished();
   void onDeleteControlPoints();
   void onDoubleClick(const QPointF& scenePos, const QPointF& epsilon);
   void onMoveControlPoints(double x, double y);

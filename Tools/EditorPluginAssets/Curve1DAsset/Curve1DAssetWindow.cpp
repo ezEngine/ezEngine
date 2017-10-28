@@ -307,7 +307,7 @@ void ezQtCurve1DAssetDocumentWindow::UpdatePreview()
 {
   ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
 
-  m_pCurveEditor->SetCurves(*pDoc->GetProperties());
+  m_pCurveEditor->SetCurves(*pDoc->GetProperties(), 0);
 }
 
 void ezQtCurve1DAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)

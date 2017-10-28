@@ -76,7 +76,7 @@ ezQtCurveEditWidget::ezQtCurveEditWidget(QWidget* parent)
   m_TangentHandleBrush.setStyle(Qt::BrushStyle::SolidPattern);
 }
 
-void ezQtCurveEditWidget::SetCurves(ezCurveGroupData* pCurveEditData)
+void ezQtCurveEditWidget::SetCurves(ezCurveGroupData* pCurveEditData, double fMinCurveLength)
 {
   m_pCurveEditData = pCurveEditData;
 
@@ -106,7 +106,7 @@ void ezQtCurveEditWidget::SetCurves(ezCurveGroupData* pCurveEditData)
 
   m_CurvesSorted = m_Curves;
   m_CurveExtents.SetCount(m_Curves.GetCount());
-  m_fMaxCurveExtent = 0;
+  m_fMaxCurveExtent = fMinCurveLength;
   m_fMinValue = ezMath::BasicType<float>::MaxValue();
   m_fMaxValue = -ezMath::BasicType<float>::MaxValue();
 
@@ -343,9 +343,9 @@ void ezQtCurveEditWidget::paintEvent(QPaintEvent* e)
 void ezQtCurveEditWidget::ClampZoomPan()
 {
   m_SceneTranslation.setX(ezMath::Clamp(m_SceneTranslation.x(), -2.0, 50000.0));
-  m_SceneTranslation.setY(ezMath::Clamp(m_SceneTranslation.y(), -10000.0, 10000.0));
-  m_SceneToPixelScale.setX(ezMath::Clamp(m_SceneToPixelScale.x(), 0.1, 10000.0));
-  m_SceneToPixelScale.setY(ezMath::Clamp(m_SceneToPixelScale.y(), -10000.0, -0.1));
+  m_SceneTranslation.setY(ezMath::Clamp(m_SceneTranslation.y(), -200000.0, 200000.0));
+  m_SceneToPixelScale.setX(ezMath::Clamp(m_SceneToPixelScale.x(), 0.0005, 10000.0));
+  m_SceneToPixelScale.setY(ezMath::Clamp(m_SceneToPixelScale.y(), -10000.0, -0.0005));
 }
 
 void ezQtCurveEditWidget::mousePressEvent(QMouseEvent* e)
@@ -703,9 +703,6 @@ void ezQtCurveEditWidget::mouseDoubleClickEvent(QMouseEvent* e)
     {
       const QPointF epsilon = MapToScene(QPoint(15, 15)) - MapToScene(QPoint(0, 0));
       const QPointF scenePos = MapToScene(e->pos());
-
-      if (scenePos.x() < 0)
-        return;
 
       if (m_bBegunChanges)
       {

@@ -144,8 +144,8 @@ public:
 
 private:
   void RecomputeExtremes();
-  void ApproximateCurve(const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double fMaxErrorSQR);
-  void ApproximateCurvePiece(const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double tLeft, const ezVec2d& pLeft, double tRight, const ezVec2d& pRight, double fMaxErrorSQR);
+  void ApproximateCurve(const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double fMaxError);
+  void ApproximateCurvePiece(const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double tLeft, const ezVec2d& pLeft, double tRight, const ezVec2d& pRight, double fMaxError);
   ezInt32 FindApproxControlPoint(double x) const;
 
   double m_fMinX, m_fMaxX;

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>788</width>
-    <height>534</height>
+    <width>834</width>
+    <height>613</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -50,7 +50,26 @@
     </widget>
    </item>
    <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>6</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>6</number>
+     </property>
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
@@ -59,15 +78,21 @@
       </widget>
      </item>
      <item>
-      <widget class="QDoubleSpinBox" name="SpinPosition">
-       <property name="minimum">
-        <double>-1.000000000000000</double>
+      <widget class="QLineEdit" name="LinePosition">
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>16777215</height>
+        </size>
        </property>
-       <property name="maximum">
-        <double>100000.000000000000000</double>
+       <property name="maxLength">
+        <number>11</number>
        </property>
-       <property name="singleStep">
-        <double>0.100000000000000</double>
+       <property name="placeholderText">
+        <string>--</string>
+       </property>
+       <property name="clearButtonEnabled">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -82,21 +107,21 @@
       </widget>
      </item>
      <item>
-      <widget class="QDoubleSpinBox" name="SpinValue">
-       <property name="decimals">
-        <number>3</number>
+      <widget class="QLineEdit" name="LineValue">
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>16777215</height>
+        </size>
        </property>
-       <property name="minimum">
-        <double>-100000.000000000000000</double>
+       <property name="maxLength">
+        <number>11</number>
        </property>
-       <property name="maximum">
-        <double>100000.000000000000000</double>
+       <property name="placeholderText">
+        <string>--</string>
        </property>
-       <property name="singleStep">
-        <double>0.100000000000000</double>
-       </property>
-       <property name="value">
-        <double>0.000000000000000</double>
+       <property name="clearButtonEnabled">
+        <bool>false</bool>
        </property>
       </widget>
      </item>

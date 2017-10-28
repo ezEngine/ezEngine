@@ -20,7 +20,7 @@ class EZ_GUIFOUNDATION_DLL ezQtCurveEditWidget : public QWidget
 public:
   ezQtCurveEditWidget(QWidget* parent);
 
-  void SetCurves(ezCurveGroupData* pCurveEditData);
+  void SetCurves(ezCurveGroupData* pCurveEditData, double fMinCurveLength);
   void SetGridBarWidget(ezQGridBarWidget* pGridBar) { m_pGridBar = pGridBar; }
 
   void FrameCurve();
