@@ -74,6 +74,8 @@ public:
   /// \brief Returns the sum: "this instance + other"
   constexpr ezTime operator + (const ezTime& other) const;
 
+  constexpr ezTime operator-() const;
+
   constexpr bool operator< (const ezTime& rhs) const { return m_fTime <  rhs.m_fTime; }
   constexpr bool operator<=(const ezTime& rhs) const { return m_fTime <= rhs.m_fTime; }
   constexpr bool operator> (const ezTime& rhs) const { return m_fTime >  rhs.m_fTime; }

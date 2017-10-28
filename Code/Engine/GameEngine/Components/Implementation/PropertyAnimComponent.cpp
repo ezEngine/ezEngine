@@ -232,9 +232,7 @@ void ezPropertyAnimComponent::CreateColorPropertyBinding(const ezColorPropertyAn
 
 void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
 {
-  m_AnimationTime += tDiff;
-
-  const double fLookupPos = ComputeAnimationLookup(m_AnimationTime, m_AnimDesc->m_Mode, m_AnimDesc->m_AnimationDuration);
+  const double fLookupPos = ComputeAnimationLookup(tDiff);
 
   for (ezUInt32 i = 0; i < m_ComponentFloatBindings.GetCount(); )
   {
@@ -297,27 +295,53 @@ void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
   }
 }
 
-double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime& inout_tCur, ezPropertyAnimMode::Enum mode, ezTime duration) const
+double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
 {
-  if (mode == ezPropertyAnimMode::Once)
-  {
-    inout_tCur = ezMath::Min(inout_tCur, duration);
-  }
-  else if (mode == ezPropertyAnimMode::Loop)
-  {
-    while (inout_tCur > duration)
-      inout_tCur -= duration;
-  }
-  else if (mode == ezPropertyAnimMode::BackAndForth)
-  {
-    /// \todo Implement this animation mode
-    // same as Loop for now
+  const ezTime duration = m_AnimDesc->m_AnimationDuration;
 
-    while (inout_tCur > duration)
-      inout_tCur -= duration;
+  if (m_AnimDesc->m_Mode == ezPropertyAnimMode::Once)
+  {
+    m_AnimationTime += tDiff;
+
+    if (m_AnimationTime > duration)
+    {
+      m_AnimationTime = duration;
+      SetActive(false);
+    }
+  }
+  else if (m_AnimDesc->m_Mode == ezPropertyAnimMode::Loop)
+  {
+    m_AnimationTime += tDiff;
+
+    while (m_AnimationTime > duration)
+      m_AnimationTime -= duration;
+  }
+  else if (m_AnimDesc->m_Mode == ezPropertyAnimMode::BackAndForth)
+  {
+    if (m_bReverse)
+      m_AnimationTime -= tDiff;
+    else
+      m_AnimationTime += tDiff;
+
+    // ping pong back and forth as long as the current animation time is outside the valid range
+    while (true)
+    {
+      if (m_AnimationTime > duration)
+      {
+        m_AnimationTime = duration - (m_AnimationTime - duration);
+        m_bReverse = true;
+      }
+      else if (m_AnimationTime < ezTime::Zero())
+      {
+        m_AnimationTime = -m_AnimationTime;
+        m_bReverse = false;
+      }
+      else
+        break;
+    }
   }
 
-  return inout_tCur.GetSeconds();
+  return m_AnimationTime.GetSeconds();
 }
 
 void ezPropertyAnimComponent::ApplyFloatAnimation(const FloatBinding& binding, double lookupTime)

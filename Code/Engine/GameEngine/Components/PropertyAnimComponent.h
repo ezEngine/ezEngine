@@ -64,8 +64,9 @@ protected:
   void ApplyAnimations(const ezTime& tDiff);
   void ApplyFloatAnimation(const FloatBinding& binding, double lookupTime);
   void ApplyColorAnimation(const ColorBinding& binding, double lookupTime);
-  double ComputeAnimationLookup(ezTime& inout_tCur, ezPropertyAnimMode::Enum mode, ezTime duration) const;
+  double ComputeAnimationLookup(ezTime tDiff);
 
+  bool m_bReverse = false;
   ezTime m_AnimationTime;
   ezHybridArray<GameObjectBinding, 4> m_GoFloatBindings;
   ezHybridArray<ComponentFloatBinding, 4> m_ComponentFloatBindings;

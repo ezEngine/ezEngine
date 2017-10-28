@@ -166,6 +166,7 @@ o
 	p
 	{
 		u3 %FPS{60}
+		s %Mode{"ezPropertyAnimMode::Loop"}
 		VarArray %Tracks
 		{
 			Uuid{u4{15442347543978425236,5359380359447922684}}
@@ -403,7 +404,7 @@ AssetInfo
 		s %AssetType{"PropertyAnim"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4994724443176325531,5726186809139790685}}
-		u4 %Hash{13639554554549906250}
+		u4 %Hash{10458463921177248383}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -575,6 +576,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezPropertyAnimationTrack"}
 		u3 %TypeSize{248}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12972737289749247188,16257932502388579775}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPropertyAnimMode"}
+		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }

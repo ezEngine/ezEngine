@@ -46,6 +46,11 @@ EZ_ALWAYS_INLINE void ezTime::operator += (const ezTime& other)
   m_fTime += other.m_fTime;
 }
 
+constexpr EZ_ALWAYS_INLINE ezTime ezTime::operator-() const
+{
+  return ezTime(-m_fTime);
+}
+
 constexpr EZ_ALWAYS_INLINE ezTime ezTime::operator - (const ezTime& other) const
 {
   return ezTime(m_fTime - other.m_fTime);

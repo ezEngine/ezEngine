@@ -22,6 +22,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimationTrackGroup, 1, ezRTTIDefaultA
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("FPS", m_uiFramesPerSecond)->AddAttributes(new ezDefaultValueAttribute(60)),
+    EZ_ENUM_MEMBER_PROPERTY("Mode", ezPropertyAnimMode, m_Mode),
     EZ_ARRAY_MEMBER_PROPERTY("Tracks", m_Tracks)->AddFlags(ezPropertyFlags::PointerOwner),
   }
   EZ_END_PROPERTIES
@@ -73,7 +74,7 @@ ezStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& str
   HandleContext.BeginWritingToStream(&stream);
 
   ezPropertyAnimResourceDescriptor desc;
-  desc.m_Mode = ezPropertyAnimMode::Loop; /// \todo Expose in UI
+  desc.m_Mode = pProp->m_Mode;
   desc.m_AnimationDuration = GetAnimationDuration();
 
   for (ezUInt32 i = 0; i < pProp->m_Tracks.GetCount(); ++i)

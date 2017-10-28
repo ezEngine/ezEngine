@@ -27,6 +27,7 @@ public:
   ~ezPropertyAnimationTrackGroup();
 
   ezUInt32 m_uiFramesPerSecond = 60;
+  ezEnum<ezPropertyAnimMode> m_Mode;
   ezDynamicArray<ezPropertyAnimationTrack*> m_Tracks;
 };
 
