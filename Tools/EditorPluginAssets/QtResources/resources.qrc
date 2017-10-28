@@ -23,6 +23,10 @@
   <qresource prefix="EditorPluginAssets">
 	<file>VSE_CleanGraph16.png</file>
 	<file>PickTarget16.png</file>
+	<file>CurveX.png</file>
+	<file>CurveY.png</file>
+	<file>CurveZ.png</file>
+	<file>CurveW.png</file>
   </qresource>
 </RCC>
 

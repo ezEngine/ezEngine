@@ -19,6 +19,7 @@ struct ezQtPropertyAnimModelTreeEntry
   ezInt32 m_iTrackIdx = -1;
   ezString m_sDisplay;
   ezDynamicArray<ezInt32> m_Children;
+  QIcon m_Icon;
 
   bool operator==(const ezQtPropertyAnimModelTreeEntry& rhs) const
   {

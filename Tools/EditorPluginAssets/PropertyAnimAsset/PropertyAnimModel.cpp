@@ -2,6 +2,7 @@
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimModel.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAsset.h>
+#include <Foundation/Strings/TranslationLookup.h>
 
 ezQtPropertyAnimModel::ezQtPropertyAnimModel(ezPropertyAnimAssetDocument* pDocument, QObject* pParent)
   : QAbstractItemModel(pParent)
@@ -31,6 +32,9 @@ QVariant ezQtPropertyAnimModel::data(const QModelIndex& index, int role) const
   {
   case Qt::DisplayRole:
     return QString(pItem->m_sDisplay.GetData());
+
+  case Qt::DecorationRole:
+    return pItem->m_Icon;
 
   case UserRoles::TrackPtr:
     return qVariantFromValue((void*)pItem->m_pTrack);
@@ -101,12 +105,12 @@ int ezQtPropertyAnimModel::columnCount(const QModelIndex& parent /*= QModelIndex
 
 void ezQtPropertyAnimModel::DocumentObjectEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
-  //if (e.m_EventType == ezDocumentObjectPropertyEvent::Type::PropertyInserted ||
-  //  e.m_EventType == ezDocumentObjectPropertyEvent::Type::PropertyMoved ||
-  //  e.m_EventType == ezDocumentObjectPropertyEvent::Type::PropertyRemoved)
-  //{
+  // TODO: do not execute this on property changes! (it's quite inefficient)
+  // only temporarily here until the property grid has been removed
+  if (e.m_sProperty == "Property" || e.m_sProperty == "ObjectPath" || e.m_sProperty == "ComponentType")
+  {
     BuildMapping();
-  //}
+  }
 }
 
 
@@ -149,7 +153,11 @@ void ezQtPropertyAnimModel::BuildMapping(ezInt32 iToUse)
     ezPropertyAnimationTrack* pTrack = group.m_Tracks[tIdx];
 
     tmp = pTrack->m_sObjectSearchSequence;
-    tmp.AppendPath(pTrack->m_sComponentType);
+    if (!pTrack->m_sComponentType.IsEmpty())
+    {
+      tmp.AppendPath(":");
+      tmp.Append(pTrack->m_sComponentType.GetData());
+    }
     tmp.AppendPath(pTrack->m_sPropertyPath);
 
     BuildMapping(iToUse, tIdx, pTrack, m_TopLevelEntries[iToUse], -1, tmp);
@@ -161,6 +169,13 @@ void ezQtPropertyAnimModel::BuildMapping(ezInt32 iToUse, ezInt32 iTrackIdx, ezPr
   const char* szSubPath = ezStringUtils::FindSubString(szPath, "/");
 
   ezStringBuilder name;
+
+  bool bIsComponent = false;
+  if (szPath[0] == ':')
+  {
+    ++szPath;
+    bIsComponent = true;
+  }
 
   if (szSubPath != nullptr)
     name.SetSubString_FromTo(szPath, szSubPath);
@@ -187,8 +202,20 @@ void ezQtPropertyAnimModel::BuildMapping(ezInt32 iToUse, ezInt32 iTrackIdx, ezPr
     treeItems.PushBack(iThisEntry);
 
     pThisEntry->m_iParent = iParentEntry;
-    pThisEntry->m_sDisplay = name;
     pThisEntry->m_uiOwnRowIndex = treeItems.GetCount() - 1;
+
+    if (bIsComponent)
+    {
+      pThisEntry->m_sDisplay = ezTranslate(name);
+
+      ezStringBuilder sIconName;
+      sIconName.Set(":/TypeIcons/", name);
+      pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(sIconName);
+    }
+    else
+    {
+      pThisEntry->m_sDisplay = name;
+    }
   }
   else
   {
@@ -204,6 +231,34 @@ void ezQtPropertyAnimModel::BuildMapping(ezInt32 iToUse, ezInt32 iTrackIdx, ezPr
   {
     pThisEntry->m_iTrackIdx = iTrackIdx;
     pThisEntry->m_pTrack = pTrack;
+
+    switch (pTrack->m_Target)
+    {
+    case ezPropertyAnimTarget::Color:
+      pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/AssetIcons/ColorGradient.png");
+      break;
+    case ezPropertyAnimTarget::Number:
+      pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/AssetIcons/Curve1D.png");
+      break;
+    case ezPropertyAnimTarget::VectorX:
+      pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveX.png");
+      name.Append(".x");
+      break;
+    case ezPropertyAnimTarget::VectorY:
+      pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveY.png");
+      name.Append(".y");
+      break;
+    case ezPropertyAnimTarget::VectorZ:
+      pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveZ.png");
+      name.Append(".z");
+      break;
+    case ezPropertyAnimTarget::VectorW:
+      pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveW.png");
+      name.Append(".w");
+      break;
+    }
+
+    pThisEntry->m_sDisplay = name;
   }
 }
 
