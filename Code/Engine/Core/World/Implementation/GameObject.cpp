@@ -183,6 +183,8 @@ ezGameObject::ConstChildIterator ezGameObject::GetChildren() const
 
 ezGameObject* ezGameObject::FindChildByName(const ezTempHashedString& name, bool bRecursive /*= true*/)
 {
+  /// \test Needs a unit test
+
   for (auto it = GetChildren(); it.IsValid(); ++it)
   {
     if (it->m_sName == name)
@@ -207,6 +209,8 @@ ezGameObject* ezGameObject::FindChildByName(const ezTempHashedString& name, bool
 
 ezGameObject* ezGameObject::FindChildByPath(const char* path)
 {
+  /// \test Needs a unit test
+
   if (ezStringUtils::IsNullOrEmpty(path))
     return this;
 
@@ -218,12 +222,76 @@ ezGameObject* ezGameObject::FindChildByPath(const char* path)
   else
     uiNameHash = ezHashing::MurmurHash(path, szSep - path);
 
-  ezGameObject* pNextChild = FindChildByName(ezTempHashedString(uiNameHash));
+  ezGameObject* pNextChild = FindChildByName(ezTempHashedString(uiNameHash), false);
 
   if (szSep == nullptr || pNextChild == nullptr)
     return pNextChild;
 
   return pNextChild->FindChildByPath(szSep + 1);
+}
+
+
+ezGameObject* ezGameObject::SearchForChildByNameSequence(const char* szObjectSequence, const ezRTTI* pExpectedComponent /*= nullptr*/)
+{
+  /// \test Needs a unit test
+
+  if (ezStringUtils::IsNullOrEmpty(szObjectSequence))
+  {
+    // in case we are searching for a specific component type, verify that it exists on this object
+    if (pExpectedComponent != nullptr)
+    {
+      ezComponent* pComp = nullptr;
+      if (!TryGetComponentOfBaseType(pExpectedComponent, pComp))
+        return nullptr;
+    }
+
+    return this;
+  }
+
+  const char* szSep = ezStringUtils::FindSubString(szObjectSequence, "/");
+  const char* szNextSequence = nullptr;
+  ezUInt32 uiNameHash = 0;
+
+  if (szSep == nullptr)
+  {
+    const size_t len = (size_t)ezStringUtils::GetStringElementCount(szObjectSequence);
+    uiNameHash = ezHashing::MurmurHash(szObjectSequence, len);
+    szNextSequence = szObjectSequence + len;
+  }
+  else
+  {
+    uiNameHash = ezHashing::MurmurHash(szObjectSequence, szSep - szObjectSequence);
+    szNextSequence = szSep + 1;
+  }
+
+  const ezTempHashedString name(uiNameHash);
+
+  // first go through all direct children an see if any of them actually matches the current name
+  // if so, continue the recursion from there and give them the remaining search path to continue
+  for (auto it = GetChildren(); it.IsValid(); ++it)
+  {
+    if (it->m_sName == name)
+    {
+      ezGameObject* res = it->SearchForChildByNameSequence(szNextSequence, pExpectedComponent);
+      if (res != nullptr)
+        return res;
+    }
+  }
+
+  // if no direct child fulfilled the requirements, just recurse with the full name sequence
+  // however, we can skip any child that already fulfilled the next sequence name,
+  // because that's definitely a lost cause
+  for (auto it = GetChildren(); it.IsValid(); ++it)
+  {
+    if (it->m_sName != name)
+    {
+      ezGameObject* res = it->SearchForChildByNameSequence(szObjectSequence, pExpectedComponent);
+      if (res != nullptr)
+        return res;
+    }
+  }
+
+  return nullptr;
 }
 
 ezVec3 ezGameObject::GetDirForwards() const

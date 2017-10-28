@@ -121,7 +121,7 @@ o
 	{
 		s %ComponentType{"ezPointLightComponent"}
 		Uuid %FloatCurve{u4{8861615674321589515,12765705893413555121}}
-		s %ObjectPath{"Calypso/Light"}
+		s %ObjectPath{"Light"}
 		s %Property{"Intensity"}
 		s %Target{"ezPropertyAnimTarget::Number"}
 	}
@@ -403,7 +403,7 @@ AssetInfo
 		s %AssetType{"PropertyAnim"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4994724443176325531,5726186809139790685}}
-		u4 %Hash{16603762078559194989}
+		u4 %Hash{13639554554549906250}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

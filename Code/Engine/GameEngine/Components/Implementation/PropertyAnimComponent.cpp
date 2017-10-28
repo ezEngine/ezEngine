@@ -89,7 +89,7 @@ void ezPropertyAnimComponent::CreatePropertyBindings()
 
   for (const ezFloatPropertyAnimEntry& anim : m_AnimDesc->m_FloatAnimations)
   {
-    ezGameObject* pTargetObject = GetOwner()->FindChildByPath(anim.m_sObjectSearchSequence);
+    ezGameObject* pTargetObject = GetOwner()->SearchForChildByNameSequence(anim.m_sObjectSearchSequence, anim.m_pComponentRtti);
     if (pTargetObject == nullptr)
       continue;
 
@@ -110,7 +110,7 @@ void ezPropertyAnimComponent::CreatePropertyBindings()
 
   for (const ezColorPropertyAnimEntry& anim : m_AnimDesc->m_ColorAnimations)
   {
-    ezGameObject* pTargetObject = GetOwner()->FindChildByPath(anim.m_sObjectSearchSequence);
+    ezGameObject* pTargetObject = GetOwner()->SearchForChildByNameSequence(anim.m_sObjectSearchSequence, anim.m_pComponentRtti);
     if (pTargetObject == nullptr)
       continue;
 

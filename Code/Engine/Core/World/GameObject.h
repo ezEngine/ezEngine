@@ -170,7 +170,18 @@ public:
   /// Paths are separated with single slashes: /
   /// When an empty path is given, 'this' is returned.
   /// When on any part of the path the next child cannot be found, nullptr is returned.
+  /// This function expects an exact path to the destination. It does not search the full hierarchy for
+  /// the next child, as SearchChildByNameSequence() does.
   ezGameObject* FindChildByPath(const char* path);
+
+  /// \brief Searches for a child similar to FindChildByName() but allows to search for multiple names in a sequence.
+  ///
+  /// The names in the sequence are separated with slashes.
+  /// For example, calling this with "a/b" will first search the entire hierarchy below this object for a child
+  /// named "a". If that is found, the search continues from there for a child called "b".
+  /// If such a child is found and pExpectedComponent != nullptr, it is verified that the object
+  /// contains a component of that type. If it doesn't the search continues (including back-tracking).
+  ezGameObject* SearchForChildByNameSequence(const char* szObjectSequence, const ezRTTI* pExpectedComponent = nullptr);
 
   ezWorld* GetWorld();
   const ezWorld* GetWorld() const;
