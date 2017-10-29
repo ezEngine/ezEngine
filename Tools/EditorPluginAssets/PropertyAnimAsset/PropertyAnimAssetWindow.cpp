@@ -16,6 +16,7 @@
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAsset.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <GuiFoundation/Widgets/ColorGradientEditorWidget.moc.h>
+#include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
 
 ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
 {

@@ -13,6 +13,7 @@ class ezQtCurve1DEditorWidget;
 struct ezDocumentObjectPropertyEvent;
 struct ezDocumentObjectStructureEvent;
 class ezQtColorGradientEditorWidget;
+class ezColorGradientAssetData;
 
 class ezQtPropertyAnimAssetDocumentWindow : public ezQtDocumentWindow
 {
