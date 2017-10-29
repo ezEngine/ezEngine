@@ -124,10 +124,11 @@ AssetInfo
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{362041927946777491,5070520887660440560}}
-		u4 %Hash{9538779911834219310}
+		u4 %Hash{16448442395552940985}
 		VarArray %Outputs{}
 		VarArray %References
 		{
+			s{"{ 3acb7fc0-4846-4a36-9a10-cd65c5a62587 }"}
 			s{"{ 744e035d-8090-4f77-9b51-7cfa6ad35045 }"}
 			s{"{ 7771b49b-cbbc-4db7-8721-307042a07748 }"}
 			s{"{ 87012036-2712-42af-80ba-c0fd29d5a480 }"}
@@ -324,7 +325,10 @@ o
 	p
 	{
 		b %Active{1}
-		VarArray %Materials{}
+		VarArray %Materials
+		{
+			s{"{ 3acb7fc0-4846-4a36-9a10-cd65c5a62587 }"}
+		}
 		s %Mesh{"{ 87012036-2712-42af-80ba-c0fd29d5a480 }"}
 	}
 }
@@ -447,7 +451,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezPropertyAnimComponent"}
-		u3 %TypeSize{536}
+		u3 %TypeSize{544}
 		u3 %TypeVersion{1}
 	}
 }

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAssetWindow.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
@@ -367,7 +367,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientNormalizeRange()
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
 
   ezColorGradient GradientData;
-  pDoc->FillGradientData(GradientData);
+  pDoc->GetProperties()->FillGradientData(GradientData);
 
   float minX, maxX;
   if (!GradientData.GetExtents(minX, maxX))
@@ -422,7 +422,7 @@ void ezQtColorGradientAssetDocumentWindow::UpdatePreview()
   ezColorGradient GradientData;
 
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
-  pDoc->FillGradientData(GradientData);
+  pDoc->GetProperties()->FillGradientData(GradientData);
 
   m_pGradientEditor->SetColorGradient(GradientData);
 

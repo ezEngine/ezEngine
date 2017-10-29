@@ -12,6 +12,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimationTrack, 1, ezRTTIDefaultAlloca
     EZ_MEMBER_PROPERTY("Property", m_sPropertyPath),
     EZ_ENUM_MEMBER_PROPERTY("Target", ezPropertyAnimTarget, m_Target),
     EZ_MEMBER_PROPERTY("FloatCurve", m_FloatCurve),
+    EZ_MEMBER_PROPERTY("Gradient", m_ColorGradient),
   }
   EZ_END_PROPERTIES
 }
@@ -83,15 +84,13 @@ ezStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& str
 
     if (pTrack->m_Target == ezPropertyAnimTarget::Color)
     {
-      // TODO
-
-      //auto& anim = desc.m_ColorAnimations.ExpandAndGetRef();
-      //anim.m_sObjectSearchSequence = pTrack->m_sObjectSearchSequence;
-      //anim.m_sComponentType = pTrack->m_sComponentType;
-      //anim.m_sPropertyPath = pTrack->m_sPropertyPath;
-      //anim.m_Target = pTrack->m_Target;
-      //pTrack->m_ColorGradient.ConvertToRuntimeData(anim.m_Curve);
-      //anim.m_Gradient.SortControlPoints();
+      auto& anim = desc.m_ColorAnimations.ExpandAndGetRef();
+      anim.m_sObjectSearchSequence = pTrack->m_sObjectSearchSequence;
+      anim.m_sComponentType = pTrack->m_sComponentType;
+      anim.m_sPropertyPath = pTrack->m_sPropertyPath;
+      anim.m_Target = pTrack->m_Target;
+      pTrack->m_ColorGradient.FillGradientData(anim.m_Gradient);
+      anim.m_Gradient.SortControlPoints();
     }
     else
     {

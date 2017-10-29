@@ -41,9 +41,11 @@ public:
   ezDynamicArray<ezColorControlPoint> m_ColorCPs;
   ezDynamicArray<ezAlphaControlPoint> m_AlphaCPs;
   ezDynamicArray<ezIntensityControlPoint> m_IntensityCPs;
+
+  /// \brief Fills out the ezColorGradient structure with an exact copy of the data in the asset.
+  /// Does NOT yet sort the control points, so before evaluating the color gradient, that must be called manually.
+  void FillGradientData(ezColorGradient& out_Result) const;
 };
-
-
 
 class ezColorGradientAssetDocument : public ezSimpleAssetDocument<ezColorGradientAssetData>
 {
@@ -53,10 +55,6 @@ public:
   ezColorGradientAssetDocument(const char* szDocumentPath);
 
   virtual const char* QueryAssetType() const override { return "ColorGradient"; }
-
-  /// \brief Fills out the ezColorGradient structure with an exact copy of the data in the asset.
-  /// Does NOT yet sort the control points, so before evaluating the color gradient, that must be called manually.
-  void FillGradientData(ezColorGradient& out_Result) const;
 
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;

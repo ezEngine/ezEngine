@@ -168,7 +168,7 @@ void ezQtPropertyAnimModel::BuildMapping(ezInt32 iToUse, ezInt32 iTrackIdx, ezPr
 {
   const char* szSubPath = ezStringUtils::FindSubString(szPath, "/");
 
-  ezStringBuilder name;
+  ezStringBuilder name, sDisplayString;
 
   bool bIsComponent = false;
   if (szPath[0] == ':')
@@ -182,11 +182,16 @@ void ezQtPropertyAnimModel::BuildMapping(ezInt32 iToUse, ezInt32 iTrackIdx, ezPr
   else
     name = szPath;
 
+  if (bIsComponent)
+    sDisplayString = ezTranslate(name);
+  else
+    sDisplayString = name;
+
   ezInt32 iThisEntry = -1;
 
   for (ezUInt32 i = 0; i < treeItems.GetCount(); ++i)
   {
-    if (m_AllEntries[iToUse][treeItems[i]].m_sDisplay.IsEqual_NoCase(name))
+    if (m_AllEntries[iToUse][treeItems[i]].m_sDisplay.IsEqual_NoCase(sDisplayString))
     {
       iThisEntry = treeItems[i];
       break;
@@ -203,18 +208,12 @@ void ezQtPropertyAnimModel::BuildMapping(ezInt32 iToUse, ezInt32 iTrackIdx, ezPr
 
     pThisEntry->m_iParent = iParentEntry;
     pThisEntry->m_uiOwnRowIndex = treeItems.GetCount() - 1;
+    pThisEntry->m_sDisplay = sDisplayString;
 
     if (bIsComponent)
     {
-      pThisEntry->m_sDisplay = ezTranslate(name);
-
-      ezStringBuilder sIconName;
-      sIconName.Set(":/TypeIcons/", name);
-      pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(sIconName);
-    }
-    else
-    {
-      pThisEntry->m_sDisplay = name;
+      sDisplayString.Set(":/TypeIcons/", name);
+      pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(sDisplayString);
     }
   }
   else

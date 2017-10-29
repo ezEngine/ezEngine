@@ -5,6 +5,7 @@
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <QIcon>
 
 class ezPropertyAnimAssetDocument;
 struct ezDocumentObjectPropertyEvent;

@@ -65,31 +65,30 @@ ezColorGradientAssetDocument::ezColorGradientAssetDocument(const char* szDocumen
 {
 }
 
-void ezColorGradientAssetDocument::FillGradientData(ezColorGradient& out_Result) const
+void ezColorGradientAssetData::FillGradientData(ezColorGradient& out_Result) const
 {
-  const ezColorGradientAssetData* pProp = static_cast<const ezColorGradientAssetData*>(GetProperties());
-
-  for (const auto& cp : pProp->m_ColorCPs)
+  for (const auto& cp : m_ColorCPs)
   {
     out_Result.AddColorControlPoint(cp.m_fPositionX, ezColorGammaUB(cp.m_Red, cp.m_Green, cp.m_Blue));
   }
 
-  for (const auto& cp : pProp->m_AlphaCPs)
+  for (const auto& cp : m_AlphaCPs)
   {
     out_Result.AddAlphaControlPoint(cp.m_fPositionX, cp.m_Alpha);
   }
 
-  for (const auto& cp : pProp->m_IntensityCPs)
+  for (const auto& cp : m_IntensityCPs)
   {
     out_Result.AddIntensityControlPoint(cp.m_fPositionX, cp.m_fIntensity);
   }
 }
 
-ezStatus ezColorGradientAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually){
+ezStatus ezColorGradientAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+{
   const ezColorGradientAssetData* pProp = GetProperties();
 
   ezColorGradientResourceDescriptor desc;
-  FillGradientData(desc.m_Gradient);
+  pProp->FillGradientData(desc.m_Gradient);
   desc.m_Gradient.SortControlPoints();
 
   desc.Save(stream);
@@ -99,6 +98,8 @@ ezStatus ezColorGradientAssetDocument::InternalTransformAsset(ezStreamWriter& st
 
 ezStatus ezColorGradientAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)
 {
+  const ezColorGradientAssetData* pProp = GetProperties();
+
   ezImage img;
   img.SetWidth(256);
   img.SetHeight(256);
@@ -106,7 +107,7 @@ ezStatus ezColorGradientAssetDocument::InternalCreateThumbnail(const ezAssetFile
   img.AllocateImageData();
 
   ezColorGradient gradient;
-  FillGradientData(gradient);
+  pProp->FillGradientData(gradient);
   gradient.SortControlPoints();
 
   float fMin, fMax;

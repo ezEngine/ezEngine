@@ -3,6 +3,7 @@
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <GameEngine/Resources/PropertyAnimResource.h>
 #include <GuiFoundation/Widgets/CurveEditData.h>
+#include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
 
 class ezPropertyAnimationTrack : public ezReflectedClass
 {
@@ -15,6 +16,7 @@ public:
   ezEnum<ezPropertyAnimTarget> m_Target;
 
   ezSingleCurveData m_FloatCurve;
+  ezColorGradientAssetData m_ColorGradient;
 };
 
 class ezPropertyAnimationTrackGroup : public ezReflectedClass
