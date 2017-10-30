@@ -19,33 +19,15 @@
 #include <Foundation/Strings/TranslationLookup.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneObjectMetaData, 1, ezRTTINoAllocator)
-{
-  //EZ_BEGIN_PROPERTIES
-  //{
-  //  //EZ_MEMBER_PROPERTY("MetaHidden", m_bHidden) // remove this property to disable serialization
-  //}
-  //EZ_END_PROPERTIES
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, 2, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab)
-  : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezSceneObjectManager), true, true)
+  : ezGameObjectDocument(szDocumentPath, EZ_DEFAULT_NEW(ezSceneObjectManager))
 {
-  m_ActiveGizmo = ActiveGizmo::None;
   m_bIsPrefab = bIsPrefab;
   m_GameMode = GameMode::Off;
-  m_fSimulationSpeed = 1.0f;
-  m_bGizmoWorldSpace = true;
-  m_iResendSelection = 0;
-  m_bAddAmbientLight = bIsPrefab;
-
-  m_CurrentMode.m_bRenderSelectionOverlay = true;
-  m_CurrentMode.m_bRenderShapeIcons = true;
-  m_CurrentMode.m_bRenderVisualizers = true;
+  SetAddAmbientLight(bIsPrefab);
 
   m_GameModeData[GameMode::Off].m_bRenderSelectionOverlay = true;
   m_GameModeData[GameMode::Off].m_bRenderShapeIcons = true;
@@ -60,14 +42,11 @@ ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab)
   m_GameModeData[GameMode::Play].m_bRenderVisualizers = false;
 }
 
+
 void ezSceneDocument::InitializeAfterLoading()
 {
-  ezAssetDocument::InitializeAfterLoading();
+  ezGameObjectDocument::InitializeAfterLoading();
 
-  GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectPropertyEventHandler, this));
-  GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectStructureEventHandler, this));
-  GetObjectManager()->m_ObjectEvents.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectEventHandler, this));
-  GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::SelectionManagerEventHandler, this));
   m_DocumentObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezSceneDocument::DocumentObjectMetaDataEventHandler, this));
 
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ToolsProjectEventHandler, this));
@@ -77,10 +56,6 @@ void ezSceneDocument::InitializeAfterLoading()
 
 ezSceneDocument::~ezSceneDocument()
 {
-  GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectStructureEventHandler, this));
-  GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectPropertyEventHandler, this));
-  GetObjectManager()->m_ObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ObjectEventHandler, this));
-  GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::SelectionManagerEventHandler, this));
   m_DocumentObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::DocumentObjectMetaDataEventHandler, this));
 
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ToolsProjectEventHandler, this));
@@ -95,77 +70,6 @@ const char* ezSceneDocument::GetDocumentTypeDisplayString() const
     return "Prefab";
 
   return "Scene";
-}
-
-void ezSceneDocument::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const
-{
-  ezAssetDocument::AttachMetaDataBeforeSaving(graph);
-
-  m_SceneObjectMetaData.AttachMetaDataToAbstractGraph(graph);
-}
-
-void ezSceneDocument::RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable)
-{
-  ezAssetDocument::RestoreMetaDataAfterLoading(graph, bUndoable);
-
-  m_SceneObjectMetaData.RestoreMetaDataFromAbstractGraph(graph);
-}
-
-void ezSceneDocument::SetActiveGizmo(ActiveGizmo gizmo) const
-{
-  if (m_ActiveGizmo == gizmo)
-    return;
-
-  m_ActiveGizmo = gizmo;
-
-  ezSceneDocumentEvent e;
-  e.m_Type = ezSceneDocumentEvent::Type::ActiveGizmoChanged;
-  m_SceneEvents.Broadcast(e);
-}
-
-ActiveGizmo ezSceneDocument::GetActiveGizmo() const
-{
-  return m_ActiveGizmo;
-}
-
-void ezSceneDocument::TriggerShowSelectionInScenegraph() const
-{
-  if (GetSelectionManager()->GetSelection().IsEmpty())
-    return;
-
-  ezSceneDocumentEvent e;
-  e.m_Type = ezSceneDocumentEvent::Type::ShowSelectionInScenegraph;
-  m_SceneEvents.Broadcast(e);
-}
-
-void ezSceneDocument::TriggerFocusOnSelection(bool bAllViews) const
-{
-  if (GetSelectionManager()->GetSelection().IsEmpty())
-    return;
-
-  ezSceneDocumentEvent e;
-  e.m_Type = bAllViews ? ezSceneDocumentEvent::Type::FocusOnSelection_All : ezSceneDocumentEvent::Type::FocusOnSelection_Hovered;
-  m_SceneEvents.Broadcast(e);
-}
-
-void ezSceneDocument::TriggerSnapPivotToGrid() const
-{
-  if (GetSelectionManager()->GetSelection().IsEmpty())
-    return;
-
-  ezSceneDocumentEvent e;
-  e.m_Type = ezSceneDocumentEvent::Type::SnapSelectionPivotToGrid;
-  m_SceneEvents.Broadcast(e);
-}
-
-void ezSceneDocument::TriggerSnapEachObjectToGrid() const
-{
-  if (GetSelectionManager()->GetSelection().IsEmpty())
-    return;
-
-  ezSceneDocumentEvent e;
-  e.m_Type = ezSceneDocumentEvent::Type::SnapEachSelectedObjectToGrid;
-  m_SceneEvents.Broadcast(e);
 }
 
 void ezSceneDocument::GroupSelection()
@@ -275,31 +179,6 @@ void ezSceneDocument::DeltaTransform()
   dlg.exec();
 }
 
-void ezSceneDocument::SnapCameraToObject()
-{
-  const auto& selection = GetSelectionManager()->GetSelection();
-
-  if (selection.GetCount() != 1)
-    return;
-
-  ezTransform trans;
-  if (ComputeObjectTransformation(selection[0], trans).Failed())
-    return;
-
-  const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
-
-  if (ctxt.m_pLastHoveredViewWidget == nullptr)
-    return;
-
-  const ezCamera* pCamera = &ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Camera;
-
-  const ezVec3 vForward = trans.m_qRotation * ezVec3(1, 0, 0);
-  const ezVec3 vUp = trans.m_qRotation * ezVec3(0, 0, 1);
-
-  ctxt.m_pLastHoveredViewWidget->InterpolateCameraTo(trans.m_vPosition, vForward, pCamera->GetFovOrDim(), &vUp);
-}
-
-
 void ezSceneDocument::SnapObjectToCamera()
 {
   const auto& selection = GetSelectionManager()->GetSelection();
@@ -335,28 +214,6 @@ void ezSceneDocument::SnapObjectToCamera()
   }
   pHistory->FinishTransaction();
 
-}
-
-
-void ezSceneDocument::MoveCameraHere()
-{
-  const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
-  const bool bCanMove = ctxt.m_pLastHoveredViewWidget != nullptr && ctxt.m_pLastPickingResult && !ctxt.m_pLastPickingResult->m_vPickedPosition.IsNaN();
-
-  if (!bCanMove)
-    return;
-
-  const ezCamera* pCamera = &ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Camera;
-
-  const ezVec3 vCurPos = pCamera->GetCenterPosition();
-  const ezVec3 vDirToPos = ctxt.m_pLastPickingResult->m_vPickedPosition - vCurPos;
-
-  // don't move the entire distance, keep some distance to the target position
-  const ezVec3 vPos = vCurPos + 0.9f * vDirToPos;
-  const ezVec3 vForward = pCamera->GetCenterDirForwards();
-  const ezVec3 vUp = pCamera->GetCenterDirUp();
-
-  ctxt.m_pLastHoveredViewWidget->InterpolateCameraTo(vPos, vForward, pCamera->GetFovOrDim(), &vUp);
 }
 
 
@@ -592,18 +449,11 @@ void ezSceneDocument::SetGameMode(GameMode::Enum mode)
     SendGameWorldToEngine();
   }
 
-  ezSceneDocumentEvent e;
-  e.m_Type = ezSceneDocumentEvent::Type::GameModeChanged;
-  m_SceneEvents.Broadcast(e);
+  ezGameObjectEvent e;
+  e.m_Type = ezGameObjectEvent::Type::GameModeChanged;
+  m_GameObjectEvents.Broadcast(e);
 }
 
-
-void ezSceneDocument::SendGameWorldToEngine()
-{
-  ezEditorEngineProcessConnection::GetSingleton()->SendDocumentOpenMessage(this, true);
-
-  m_iResendSelection = 2;
-}
 
 void ezSceneDocument::StartSimulateWorld()
 {
@@ -626,9 +476,9 @@ void ezSceneDocument::TriggerGameModePlay()
   }
 
   {
-    ezSceneDocumentEvent e;
-    e.m_Type = ezSceneDocumentEvent::Type::BeforeTriggerGameModePlay;
-    m_SceneEvents.Broadcast(e);
+    ezGameObjectEvent e;
+    e.m_Type = ezGameObjectEvent::Type::BeforeTriggerGameModePlay;
+    m_GameObjectEvents.Broadcast(e);
   }
 
   UpdateObjectDebugTargets();
@@ -642,9 +492,9 @@ void ezSceneDocument::TriggerGameModePlay()
   }
 
   {
-    ezSceneDocumentEvent e;
-    e.m_Type = ezSceneDocumentEvent::Type::TriggerGameModePlay;
-    m_SceneEvents.Broadcast(e);
+    ezGameObjectEvent e;
+    e.m_Type = ezGameObjectEvent::Type::TriggerGameModePlay;
+    m_GameObjectEvents.Broadcast(e);
   }
 }
 
@@ -669,77 +519,12 @@ bool ezSceneDocument::StopGameMode()
       msg.m_bEnablePTG = false;
       GetEditorEngineConnection()->SendMessage(&msg);
     }
-    ezSceneDocumentEvent e;
-    e.m_Type = ezSceneDocumentEvent::Type::TriggerStopGameModePlay;
-    m_SceneEvents.Broadcast(e);
+    ezGameObjectEvent e;
+    e.m_Type = ezGameObjectEvent::Type::TriggerStopGameModePlay;
+    m_GameObjectEvents.Broadcast(e);
   }
 
   return true;
-}
-
-void ezSceneDocument::SetSimulationSpeed(float f)
-{
-  if (m_fSimulationSpeed == f)
-    return;
-
-  m_fSimulationSpeed = f;
-
-  ezSceneDocumentEvent e;
-  e.m_Type = ezSceneDocumentEvent::Type::SimulationSpeedChanged;
-  m_SceneEvents.Broadcast(e);
-
-  ShowDocumentStatus(ezFmt("Simulation Speed: {0}%%", (ezInt32)(m_fSimulationSpeed * 100.0f)));
-}
-
-void ezSceneDocument::SetRenderSelectionOverlay(bool b)
-{
-  if (m_CurrentMode.m_bRenderSelectionOverlay == b)
-    return;
-
-  m_CurrentMode.m_bRenderSelectionOverlay = b;
-
-  ezSceneDocumentEvent e;
-  e.m_Type = ezSceneDocumentEvent::Type::RenderSelectionOverlayChanged;
-  m_SceneEvents.Broadcast(e);
-}
-
-
-void ezSceneDocument::SetRenderVisualizers(bool b)
-{
-  if (m_CurrentMode.m_bRenderVisualizers == b)
-    return;
-
-  m_CurrentMode.m_bRenderVisualizers = b;
-
-  ezVisualizerManager::GetSingleton()->SetVisualizersActive(this, m_CurrentMode.m_bRenderVisualizers);
-
-  ezSceneDocumentEvent e;
-  e.m_Type = ezSceneDocumentEvent::Type::RenderVisualizersChanged;
-  m_SceneEvents.Broadcast(e);
-}
-
-void ezSceneDocument::SetRenderShapeIcons(bool b)
-{
-  if (m_CurrentMode.m_bRenderShapeIcons == b)
-    return;
-
-  m_CurrentMode.m_bRenderShapeIcons = b;
-
-  ezSceneDocumentEvent e;
-  e.m_Type = ezSceneDocumentEvent::Type::RenderShapeIconsChanged;
-  m_SceneEvents.Broadcast(e);
-}
-
-void ezSceneDocument::SetAddAmbientLight(bool b)
-{
-  if (m_bAddAmbientLight == b)
-    return;
-
-  m_bAddAmbientLight = b;
-
-  ezSceneDocumentEvent e;
-  e.m_Type = ezSceneDocumentEvent::Type::AddAmbientLightChanged;
-  m_SceneEvents.Broadcast(e);
 }
 
 void ezSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
@@ -764,52 +549,6 @@ void ezSceneDocument::ShowOrHideAllObjects(ShowOrHide action)
     m_DocumentObjectMetaData.EndModifyMetaData(uiFlags);
   });
 }
-void ezSceneDocument::SetGizmoWorldSpace(bool bWorldSpace)
-{
-  if (m_bGizmoWorldSpace == bWorldSpace)
-    return;
-
-  m_bGizmoWorldSpace = bWorldSpace;
-
-  ezSceneDocumentEvent e;
-  e.m_Type = ezSceneDocumentEvent::Type::ActiveGizmoChanged;
-  m_SceneEvents.Broadcast(e);
-}
-
-bool ezSceneDocument::GetGizmoWorldSpace() const
-{
-  if (m_ActiveGizmo == ActiveGizmo::Scale)
-    return false;
-
-  if (m_ActiveGizmo == ActiveGizmo::DragToPosition)
-    return false;
-
-  return m_bGizmoWorldSpace;
-}
-
-void ezSceneDocument::SetGizmoMoveParentOnly(bool bMoveParent)
-{
-  if (m_bGizmoMoveParentOnly == bMoveParent)
-    return;
-
-  m_bGizmoMoveParentOnly = bMoveParent;
-
-  ezSceneDocumentEvent e;
-  e.m_Type = ezSceneDocumentEvent::Type::ActiveGizmoChanged;
-  m_SceneEvents.Broadcast(e);
-}
-
-bool ezSceneDocument::GetGizmoMoveParentOnly() const
-{
-  if (m_ActiveGizmo == ActiveGizmo::Scale)
-    return false;
-
-  if (m_ActiveGizmo == ActiveGizmo::DragToPosition)
-    return false;
-
-  return m_bGizmoMoveParentOnly;
-}
-
 void ezSceneDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const
 {
   out_MimeTypes.PushBack("application/ezEditor.ezAbstractGraph");
@@ -829,7 +568,7 @@ bool ezSceneDocument::Copy(ezAbstractObjectGraph& graph, ezMap<ezUuid, ezUuid>* 
   // Serialize selection to graph
   auto Selection = GetSelectionManager()->GetTopLevelSelection();
 
-  ezDocumentObjectConverterWriter writer(&graph, GetObjectManager(), true, true);
+  ezDocumentObjectConverterWriter writer(&graph, GetObjectManager());
 
   // TODO: objects are required to be named root but this is not enforced or obvious by the interface.
   for (auto item : Selection)
@@ -915,7 +654,7 @@ bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractO
   }
 
   m_DocumentObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
-  m_SceneObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
+  m_GameObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
 
   // set the pasted objects as the new selection
   {
@@ -940,7 +679,7 @@ bool ezSceneDocument::Duplicate(const ezArrayPtr<PasteInfo>& info, const ezAbstr
     return false;
 
   m_DocumentObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
-  m_SceneObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
+  m_GameObjectMetaData.RestoreMetaDataFromAbstractGraph(objectGraph);
 
   // set the pasted objects as the new selection
   if (bSetSelected)
@@ -958,74 +697,6 @@ bool ezSceneDocument::Duplicate(const ezArrayPtr<PasteInfo>& info, const ezAbstr
   }
 
   return true;
-}
-
-void ezSceneDocument::ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
-{
-  if (e.m_sProperty == "LocalPosition" ||
-      e.m_sProperty == "LocalRotation" ||
-      e.m_sProperty == "LocalScaling" ||
-      e.m_sProperty == "LocalUniformScaling")
-  {
-    InvalidateGlobalTransformValue(e.m_pObject);
-  }
-}
-
-void ezSceneDocument::ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e)
-{
-  if (!e.m_pObject->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
-    return;
-
-  switch (e.m_EventType)
-  {
-  case ezDocumentObjectStructureEvent::Type::BeforeObjectMoved:
-    {
-      // make sure the cache is filled with a proper value
-      GetGlobalTransform(e.m_pObject);
-    }
-    break;
-
-  case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
-    {
-      // read cached value, hopefully it was not invalidated in between BeforeObjectMoved and AfterObjectMoved
-      ezTransform t = GetGlobalTransform(e.m_pObject);
-
-      SetGlobalTransform(e.m_pObject, t, TransformationChanges::All);
-    }
-    break;
-  }
-}
-
-
-void ezSceneDocument::ObjectEventHandler(const ezDocumentObjectEvent& e)
-{
-  if (!e.m_pObject->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
-    return;
-
-  switch (e.m_EventType)
-  {
-  case ezDocumentObjectEvent::Type::BeforeObjectDestroyed:
-    {
-      // clean up object meta data upon object destruction, because we can :-P
-      if (GetObjectManager()->GetObject(e.m_pObject->GetGuid()) == nullptr)
-      {
-        // make sure there is no object with this GUID still "added" to the document
-        // this can happen if two objects use the same GUID, only one object can be "added" at a time, but multiple objects with the same GUID may exist
-        // the same GUID is in use, when a prefab is recreated (updated) and the GUIDs are restored, such that references don't change
-        // the object that is being destroyed is typically referenced by a command that was in the redo-queue that got purged
-
-        m_DocumentObjectMetaData.ClearMetaData(e.m_pObject->GetGuid());
-        m_SceneObjectMetaData.ClearMetaData(e.m_pObject->GetGuid());
-      }
-    }
-    break;
-  }
-}
-
-
-void ezSceneDocument::SelectionManagerEventHandler(const ezSelectionManagerEvent& e)
-{
-  m_iResendSelection = 2;
 }
 
 void ezSceneDocument::DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e)
@@ -1127,195 +798,6 @@ void ezSceneDocument::SendObjectMsgRecursive(const ezDocumentObject* pObj, ezObj
   }
 }
 
-void ezSceneDocument::SendObjectSelection()
-{
-  if (m_iResendSelection <= 0)
-    return;
-
-  --m_iResendSelection;
-
-  const auto& sel = GetSelectionManager()->GetSelection();
-
-  ezObjectSelectionMsgToEngine msg;
-  ezStringBuilder sTemp;
-  ezStringBuilder sGuid;
-
-  for (const auto& item : sel)
-  {
-    ezConversionUtils::ToString(item->GetGuid(), sGuid);
-
-    sTemp.Append(";", sGuid);
-  }
-
-  msg.m_sSelection = sTemp;
-
-  GetEditorEngineConnection()->SendMessage(&msg);
-}
-
-void ezSceneDocument::DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_Result, QIcon* out_pIcon /*= nullptr*/) const
-{
-  // tries to find a good name for a node by looking at the attached components and their properties
-
-  bool bHasIcon = false;
-
-  if (prefabGuid.IsValid())
-  {
-    auto pInfo = ezAssetCurator::GetSingleton()->GetSubAsset(prefabGuid);
-
-    if (pInfo)
-    {
-      ezStringBuilder sPath = pInfo->m_pAssetInfo->m_sDataDirRelativePath;
-      sPath = sPath.GetFileName();
-
-      out_Result.Set("Prefab: ", sPath);
-    }
-    else
-      out_Result = "Prefab: Invalid Asset";
-  }
-
-  bool bHasChildren = false;
-
-  ezHybridArray<ezVariant, 16> values;
-  ezStringBuilder componentProp = "Components";
-  pObject->GetTypeAccessor().GetValues(componentProp, values);
-  for (ezVariant& value : values)
-  {
-    auto pChild = GetObjectManager()->GetObject(value.Get<ezUuid>());
-
-    // search for components
-    if (pChild->GetTypeAccessor().GetType()->IsDerivedFrom<ezComponent>())
-    {
-      // take the first components name
-
-      if (!bHasIcon && out_pIcon != nullptr)
-      {
-        bHasIcon = true;
-
-        ezStringBuilder sIconName;
-        sIconName.Set(":/TypeIcons/", pChild->GetTypeAccessor().GetType()->GetTypeName());
-        *out_pIcon = ezQtUiServices::GetCachedIconResource(sIconName.GetData());
-      }
-
-      if (out_Result.IsEmpty())
-      {
-        // try to translate the component name, that will typically make it a nice clean name already
-        out_Result = ezTranslate(pChild->GetTypeAccessor().GetType()->GetTypeName());
-
-        // if no translation is available, clean up the component name in a simple way
-        if (out_Result.EndsWith_NoCase("Component"))
-          out_Result.Shrink(0, 9);
-        if (out_Result.StartsWith("ez"))
-          out_Result.Shrink(2, 0);
-      }
-
-      if (prefabGuid.IsValid())
-        continue;
-
-      const auto& properties = pChild->GetTypeAccessor().GetType()->GetProperties();
-
-      for (auto pProperty : properties)
-      {
-        // search for string properties that also have an asset browser property -> they reference an asset, so this is most likely the most relevant property
-        if (pProperty->GetCategory() == ezPropertyCategory::Member &&
-          (pProperty->GetSpecificType() == ezGetStaticRTTI<const char*>() ||
-           pProperty->GetSpecificType() == ezGetStaticRTTI<ezString>()) &&
-            pProperty->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr)
-        {
-          ezStringBuilder sValue = pChild->GetTypeAccessor().GetValue(pProperty->GetPropertyName()).ConvertTo<ezString>();
-
-          // if the property is a full asset guid reference, convert it to a file name
-          if (ezConversionUtils::IsStringUuid(sValue))
-          {
-            const ezUuid AssetGuid = ezConversionUtils::ConvertStringToUuid(sValue);
-
-            auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(AssetGuid);
-
-            if (pAsset)
-              sValue = pAsset->m_pAssetInfo->m_sDataDirRelativePath;
-            else
-              sValue = "<unknown>";
-          }
-
-          // only use the file name for our display
-          sValue = sValue.GetFileName();
-
-          if (!sValue.IsEmpty())
-            out_Result.Append(": ", sValue);
-
-          return;
-        }
-      }
-    }
-    else
-    {
-      // must be ezGameObject children
-      bHasChildren = true;
-    }
-  }
-
-  if (!out_Result.IsEmpty())
-    return;
-
-  if (bHasChildren)
-    out_Result = "Group";
-  else
-    out_Result = "Object";
-}
-
-
-void ezSceneDocument::QueryCachedNodeName(const ezDocumentObject* pObject, ezStringBuilder& out_Result, ezUuid* out_pPrefabGuid, QIcon* out_pIcon /*= nullptr*/) const
-{
-  out_Result = pObject->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
-
-  auto pMetaScene = m_SceneObjectMetaData.BeginReadMetaData(pObject->GetGuid());
-  auto pMetaDoc = m_DocumentObjectMetaData.BeginReadMetaData(pObject->GetGuid());
-  const ezUuid prefabGuid = pMetaDoc->m_CreateFromPrefab;
-
-  if (out_pPrefabGuid != nullptr)
-    *out_pPrefabGuid = prefabGuid;
-
-  if (out_Result.IsEmpty())
-    out_Result = pMetaScene->m_CachedNodeName;
-
-  m_SceneObjectMetaData.EndReadMetaData();
-  m_DocumentObjectMetaData.EndReadMetaData();
-
-  if (out_Result.IsEmpty())
-  {
-    // the cached node name is only determined once
-    // after that only a node rename (EditRole) will currently trigger a cache cleaning and thus a reevaluation
-    // this is to prevent excessive re-computation of the name, which is quite involved
-
-    QIcon icon;
-    DetermineNodeName(pObject, prefabGuid, out_Result, &icon);
-
-    auto pMetaWrite = m_SceneObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
-    pMetaWrite->m_CachedNodeName = out_Result;
-    pMetaWrite->m_Icon = icon;
-    m_SceneObjectMetaData.EndModifyMetaData(0); // no need to broadcast this change
-
-    if (out_pIcon != nullptr)
-      *out_pIcon = icon;
-  }
-}
-
-
-void ezSceneDocument::GenerateFullDisplayName(const ezDocumentObject* pRoot, ezStringBuilder& out_sFullPath) const
-{
-  if (pRoot == nullptr || pRoot == GetObjectManager()->GetRootObject())
-    return;
-
-  GenerateFullDisplayName(pRoot->GetParent(), out_sFullPath);
-
-  if (!pRoot->GetType()->IsDerivedFrom<ezComponent>())
-  {
-    ezStringBuilder sObjectName;
-    QueryCachedNodeName(pRoot, sObjectName);
-
-    out_sFullPath.AppendPath(sObjectName);
-  }
-}
-
 void ezSceneDocument::GatherObjectsOfType(ezDocumentObject* pRoot, ezGatherObjectsOfTypeMsgInterDoc* pMsg) const
 {
   if (pRoot->GetType() == pMsg->m_pType)
@@ -1343,123 +825,6 @@ void ezSceneDocument::OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocum
   }
 }
 
-ezTransform ezSceneDocument::GetGlobalTransform(const ezDocumentObject* pObject) const
-{
-  if (!m_GlobalTransforms.Contains(pObject))
-  {
-    ComputeGlobalTransform(pObject);
-  }
-
-  return ezSimdConversion::ToTransform(m_GlobalTransforms[pObject]);
-}
-
-void ezSceneDocument::SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 transformationChanges) const
-{
-  auto pHistory = GetCommandHistory();
-  if (!pHistory->IsInTransaction())
-  {
-    InvalidateGlobalTransformValue(pObject);
-    return;
-  }
-
-  const ezDocumentObject* pParent = pObject->GetParent();
-
-  ezSimdTransform tLocal;
-  ezSimdTransform simdT = ezSimdConversion::ToTransform(t);
-
-  if (pParent != nullptr)
-  {
-    if (!m_GlobalTransforms.Contains(pParent))
-    {
-      ComputeGlobalTransform(pParent);
-    }
-
-    ezSimdTransform tParent = m_GlobalTransforms[pParent];
-
-    tLocal.SetLocalTransform(tParent, simdT);
-  }
-  else
-  {
-    tLocal = simdT;
-  }
-
-  ezVec3 vLocalPos = ezSimdConversion::ToVec3(tLocal.m_Position);
-  ezVec3 vLocalScale = ezSimdConversion::ToVec3(tLocal.m_Scale);
-  ezQuat qLocalRot = ezSimdConversion::ToQuat(tLocal.m_Rotation);
-  float fUniformScale = 1.0f;
-
-  if (vLocalScale.x == vLocalScale.y && vLocalScale.x == vLocalScale.z)
-  {
-    fUniformScale = vLocalScale.x;
-    vLocalScale.Set(1.0f);
-  }
-
-  ezSetObjectPropertyCommand cmd;
-  cmd.m_Object = pObject->GetGuid();
-
-  // unfortunately when we are dragging an object the 'temporary' transaction is undone every time before the new commands are sent
-  // that means the values that we read here, are always the original values before the object was modified at all
-  // therefore when the original position and the new position are identical, that means the user dragged the object to the previous position
-  // it does NOT mean that there is no change, in fact there is a change, just back to the original value
-
-  //if (pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>() != vLocalPos)
-  if ((transformationChanges & TransformationChanges::Translation) != 0)
-  {
-    cmd.m_sProperty = "LocalPosition";
-    cmd.m_NewValue = vLocalPos;
-    pHistory->AddCommand(cmd);
-  }
-
-  //if (pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>() != qLocalRot)
-  if ((transformationChanges & TransformationChanges::Rotation) != 0)
-  {
-    cmd.m_sProperty = "LocalRotation";
-    cmd.m_NewValue = qLocalRot;
-    pHistory->AddCommand(cmd);
-  }
-
-  //if (pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>() != vLocalScale)
-  if ((transformationChanges & TransformationChanges::Scale) != 0)
-  {
-    cmd.m_sProperty = "LocalScaling";
-    cmd.m_NewValue = vLocalScale;
-    pHistory->AddCommand(cmd);
-  }
-
-  //if (pObject->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>() != fUniformScale)
-  if ((transformationChanges & TransformationChanges::UniformScale) != 0)
-  {
-    cmd.m_sProperty = "LocalUniformScaling";
-    cmd.m_NewValue = fUniformScale;
-    pHistory->AddCommand(cmd);
-  }
-
-  // will be recomputed the next time it is queried
-  InvalidateGlobalTransformValue(pObject);
-}
-
-void ezSceneDocument::SetGlobalTransformParentOnly(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 transformationChanges) const
-{
-  ezHybridArray<ezTransform, 16> childTransforms;
-  const auto& children = pObject->GetChildren();
-
-  childTransforms.SetCountUninitialized(children.GetCount());
-
-  for (ezUInt32 i = 0; i < children.GetCount(); ++i)
-  {
-    const ezDocumentObject* pChild = children[i];
-    childTransforms[i] = GetGlobalTransform(pChild);
-  }
-
-  SetGlobalTransform(pObject, t, transformationChanges);
-
-  for (ezUInt32 i = 0; i < children.GetCount(); ++i)
-  {
-    const ezDocumentObject* pChild = children[i];
-    SetGlobalTransform(pChild, childTransforms[i], TransformationChanges::All);
-  }
-}
-
 ezStatus ezSceneDocument::RequestExportScene(const char* szTargetFile, const ezAssetFileHeader& header)
 {
   if (GetGameMode() != GameMode::Off)
@@ -1473,19 +838,6 @@ ezStatus ezSceneDocument::RequestExportScene(const char* szTargetFile, const ezA
   SendGameWorldToEngine();
 
   return status;
-}
-
-void ezSceneDocument::InvalidateGlobalTransformValue(const ezDocumentObject* pObject) const
-{
-  // will be recomputed the next time it is queried
-  m_GlobalTransforms.Remove(pObject);
-
-  /// \todo If all parents are always inserted as well, we can stop once an object is found that is not in the list
-
-  for (auto pChild : pObject->GetChildren())
-  {
-    InvalidateGlobalTransformValue(pChild);
-  }
 }
 
 const char* ezSceneDocument::QueryAssetType() const
@@ -1516,31 +868,9 @@ ezStatus ezSceneDocument::ExportScene()
 }
 
 
-ezResult ezSceneDocument::ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_Result) const
-{
-  const ezDocumentObject* pObj = pObject;
-
-  while (pObj && !pObj->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
-  {
-    pObj = pObj->GetParent();
-  }
-
-  if (pObj)
-  {
-    out_Result = ComputeGlobalTransform(pObj);
-    return EZ_SUCCESS;
-  }
-  else
-  {
-    out_Result.SetIdentity();
-    return EZ_FAILURE;
-  }
-}
-
-
 void ezSceneDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
-  ezAssetDocument::HandleEngineMessage(pMsg);
+  ezGameObjectDocument::HandleEngineMessage(pMsg);
 
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezGameModeMsgToEditor>())
   {

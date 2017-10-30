@@ -1,26 +1,26 @@
 #include <PCH.h>
 #include <EnginePluginScene/SceneView/SceneView.h>
-#include <RendererFoundation/Device/SwapChain.h>
 #include <Core/ResourceManager/ResourceManager.h>
-#include <RendererCore/Components/CameraComponent.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
-#include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <GameEngine/GameApplication/GameApplication.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
-#include <EnginePluginScene/PickingRenderPass/PickingRenderPass.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
 #include <EnginePluginScene/EditorRenderPass/EditorRenderPass.h>
-#include <SceneContext/SceneContext.h>
-#include <RenderPipeline/EditorSelectedObjectsExtractor.h>
-#include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
-#include <GameEngine/Interfaces/SoundInterface.h>
+#include <EnginePluginScene/PickingRenderPass/PickingRenderPass.h>
+#include <EnginePluginScene/SceneContext/SceneContext.h>
 #include <Foundation/Configuration/Singleton.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
+#include <GameEngine/GameApplication/GameApplication.h>
+#include <GameEngine/Interfaces/SoundInterface.h>
+#include <RendererCore/Components/CameraComponent.h>
+#include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
+#include <RendererCore/Pipeline/RenderPipeline.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererFoundation/Device/SwapChain.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
+#include <RenderPipeline/EditorSelectedObjectsExtractor.h>
 
 ezSceneViewContext::ezSceneViewContext(ezSceneContext* pSceneContext)
   : ezEngineProcessViewContext(pSceneContext)
@@ -257,7 +257,7 @@ void ezSceneViewContext::MarqueePickObjects(const ezViewMarqueePickingMsgToEngin
 
     if (pMsg->m_uiWhatToDo == 0xFF)
       return;
-    
+
     if (!pView->IsRenderPassReadBackPropertyExisting("EditorPickingPass", "MarqueeActionID") ||
       pView->GetRenderPassReadBackProperty("EditorPickingPass", "MarqueeActionID").ConvertTo<ezUInt32>() != pMsg->m_uiActionIdentifier)
       return;

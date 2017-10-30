@@ -1,13 +1,13 @@
 #include <PCH.h>
 #include <EditorFramework/DragDrop/ComponentDragDropHandler.h>
 #include <EditorFramework/DragDrop/DragDropInfo.h>
-#include <EditorFramework/Assets/AssetCurator.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
 
 #include <QMimeData>
 #include <QDataStream>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <ToolsFoundation/Document/DocumentManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponentDragDropHandler, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE

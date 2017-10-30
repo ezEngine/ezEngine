@@ -1,16 +1,16 @@
 #include <PCH.h>
-#include <EditorPluginScene/InputContexts/OrthoGizmoContext.h>
-#include <EditorPluginScene/Scene/SceneDocument.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorEngineProcessFramework/IPC/SyncObject.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
-#include <EditorFramework/Gizmos/GizmoBase.h>
-#include <Foundation/Logging/Log.h>
-#include <QKeyEvent>
+#include <EditorFramework/InputContexts/OrthoGizmoContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
+#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
+#include <EditorEngineProcessFramework/IPC/SyncObject.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/Gizmos/GizmoBase.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
+#include <Foundation/Logging/Log.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <EditorFramework/Assets/AssetDocument.h>
+#include <QKeyEvent>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezOrthoGizmoContext, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE

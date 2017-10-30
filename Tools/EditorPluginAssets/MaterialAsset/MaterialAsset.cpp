@@ -488,7 +488,7 @@ void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, cons
   // Instance
   ezAbstractObjectGraph rightGraph;
   {
-    ezDocumentObjectConverterWriter writer(&rightGraph, pObject->GetDocumentObjectManager(), true, true);
+    ezDocumentObjectConverterWriter writer(&rightGraph, pObject->GetDocumentObjectManager());
     writer.AddObjectToGraph(pObject);
     rightGraph.ReMapNodeGuids(PrefabSeed, true);
   }
@@ -1139,7 +1139,7 @@ bool ezMaterialAssetDocument::Copy(ezAbstractObjectGraph& out_objectGraph, ezStr
 
   const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
 
-  ezDocumentObjectConverterWriter writer(&out_objectGraph, pManager, true, true);
+  ezDocumentObjectConverterWriter writer(&out_objectGraph, pManager);
 
   for (const ezDocumentObject* pNode : selection)
   {

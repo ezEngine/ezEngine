@@ -6,7 +6,7 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
 
-ezQtTextureViewWidget::ezQtTextureViewWidget(QWidget* pParent, ezQtTextureAssetDocumentWindow* pOwnerWindow, ezSceneViewConfig* pViewConfig)
+ezQtTextureViewWidget::ezQtTextureViewWidget(QWidget* pParent, ezQtTextureAssetDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig)
   : ezQtEngineViewWidget(pParent, pOwnerWindow, pViewConfig)
 {
   setAcceptDrops(true);

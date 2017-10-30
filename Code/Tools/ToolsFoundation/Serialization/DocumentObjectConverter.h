@@ -8,13 +8,13 @@ class ezObjectAccessorBase;
 class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectConverterWriter
 {
 public:
-
-  ezDocumentObjectConverterWriter(ezAbstractObjectGraph* pGraph, const ezDocumentObjectManager* pManager, bool bSerializeReadOnly, bool bSerializeOwnerPtrs)
+  typedef ezDelegate<bool(const ezAbstractProperty*)> FilterFunction;
+  ezDocumentObjectConverterWriter(ezAbstractObjectGraph* pGraph, const ezDocumentObjectManager* pManager,
+    FilterFunction filter = FilterFunction())
   {
     m_pGraph = pGraph;
     m_pManager = pManager;
-    m_bSerializeReadOnly = bSerializeReadOnly;
-    m_bSerializeOwnerPtrs = bSerializeOwnerPtrs;
+    m_Filter = filter;
   }
 
   ezAbstractObjectNode* AddObjectToGraph(const ezDocumentObject* pObject, const char* szNodeName = nullptr);
@@ -27,8 +27,7 @@ private:
 
   const ezDocumentObjectManager* m_pManager;
   ezAbstractObjectGraph* m_pGraph;
-  bool m_bSerializeReadOnly;
-  bool m_bSerializeOwnerPtrs;
+  FilterFunction m_Filter;
   ezSet<const ezDocumentObject*> m_QueuedObjects;
 };
 

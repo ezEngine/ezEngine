@@ -123,7 +123,7 @@ void ezDocumentObjectMirror::SendDocument()
     change.m_Change.m_Value = pChild->GetGuid();
 
     ezAbstractObjectGraph graph;
-    ezDocumentObjectConverterWriter objectConverter(&graph, m_pManager, true, true);
+    ezDocumentObjectConverterWriter objectConverter(&graph, m_pManager);
     objectConverter.AddObjectToGraph(pChild, "Object");
     change.SetGraph(graph);
 
@@ -143,7 +143,7 @@ void ezDocumentObjectMirror::Clear()
       change.m_Change.m_Value = pChild->GetGuid();
 
       /*ezAbstractObjectGraph graph;
-      ezDocumentObjectConverterWriter objectConverter(&graph, m_pManager, true, true);
+      ezDocumentObjectConverterWriter objectConverter(&graph, m_pManager);
       ezAbstractObjectNode* pNode = objectConverter.AddObjectToGraph(pChild, "Object");
       change.SetGraph(graph);*/
 
@@ -195,7 +195,7 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
       change.m_Change.m_Value = e.m_pObject->GetGuid();
 
       ezAbstractObjectGraph graph;
-      ezDocumentObjectConverterWriter objectConverter(&graph, m_pManager, true, true);
+      ezDocumentObjectConverterWriter objectConverter(&graph, m_pManager);
       objectConverter.AddObjectToGraph(e.m_pObject, "Object");
       change.SetGraph(graph);
 

@@ -212,7 +212,7 @@ void ezPrefabUtils::Merge(const char* szBase, const char* szLeft, ezDocumentObje
     // prepare the current state as a graph
     ezAbstractObjectGraph rightGraph;
     {
-      ezDocumentObjectConverterWriter writer(&rightGraph, pRight->GetDocumentObjectManager(), true, true);
+      ezDocumentObjectConverterWriter writer(&rightGraph, pRight->GetDocumentObjectManager());
       writer.AddObjectToGraph(pRight);
       rightGraph.ReMapNodeGuids(PrefabSeed, true);
       // just take the entire ObjectTree node as is TODO: this may cause a crash if the root object is replaced

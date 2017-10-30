@@ -17,7 +17,7 @@ void MirrorCheck(ezTestDocument* pDoc, const ezDocumentObject* pObject)
   ezAbstractObjectGraph origGraph;
   ezAbstractObjectNode* pOrigRootNode = nullptr;
   {
-    ezDocumentObjectConverterWriter writer(&origGraph, pDoc->GetObjectManager(), true, true);
+    ezDocumentObjectConverterWriter writer(&origGraph, pDoc->GetObjectManager());
     pOrigRootNode = writer.AddObjectToGraph(pObject);
   }
 

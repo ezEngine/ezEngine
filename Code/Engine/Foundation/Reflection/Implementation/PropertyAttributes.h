@@ -25,6 +25,13 @@ class EZ_FOUNDATION_DLL ezHiddenAttribute : public ezPropertyAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezHiddenAttribute, ezPropertyAttribute);
 };
 
+/// \brief A property attribute that indicates that the property is not to be serialized
+/// and whatever it points to only exists temporarily while running or in editor.
+class EZ_FOUNDATION_DLL ezTemporaryAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezTemporaryAttribute, ezPropertyAttribute);
+};
+
 /// \brief Used to categorize types (e.g. add component menu)
 class EZ_FOUNDATION_DLL ezCategoryAttribute : public ezPropertyAttribute
 {

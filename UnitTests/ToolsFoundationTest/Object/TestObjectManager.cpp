@@ -56,7 +56,7 @@ void ezTestDocument::ApplyNativePropertyChangesToObjectManager(ezDocumentObject*
   ezAbstractObjectGraph origGraph;
   ezAbstractObjectNode* pOrigRootNode = nullptr;
   {
-    ezDocumentObjectConverterWriter writer(&origGraph, GetObjectManager(), true, true);
+    ezDocumentObjectConverterWriter writer(&origGraph, GetObjectManager());
     pOrigRootNode = writer.AddObjectToGraph(pObject);
   }
 

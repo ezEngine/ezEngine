@@ -29,6 +29,6 @@ private:
   void SendRedrawMsg();
   void QueryObjectBBox();
 
-  ezSceneViewConfig m_ViewConfig;
+  ezEngineViewConfig m_ViewConfig;
   ezQtMeshViewWidget* m_pViewWidget;
 };

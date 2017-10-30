@@ -1,6 +1,7 @@
 #pragma once
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
+#include <EditorFramework/Document/GameObjectContextDocument.h>
 #include <GameEngine/Resources/PropertyAnimResource.h>
 #include <GuiFoundation/Widgets/CurveEditData.h>
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
@@ -33,9 +34,10 @@ public:
   ezDynamicArray<ezPropertyAnimationTrack*> m_Tracks;
 };
 
-class ezPropertyAnimAssetDocument : public ezSimpleAssetDocument<ezPropertyAnimationTrackGroup>
+class ezPropertyAnimAssetDocument : public ezSimpleAssetDocument<ezPropertyAnimationTrackGroup, ezGameObjectContextDocument>
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezPropertyAnimAssetDocument, ezSimpleAssetDocument<ezPropertyAnimationTrackGroup>);
+  typedef ezSimpleAssetDocument<ezPropertyAnimationTrackGroup, ezGameObjectContextDocument> BaseClass;
+  EZ_ADD_DYNAMIC_REFLECTION(ezPropertyAnimAssetDocument, BaseClass);
 
 public:
   ezPropertyAnimAssetDocument(const char* szDocumentPath);

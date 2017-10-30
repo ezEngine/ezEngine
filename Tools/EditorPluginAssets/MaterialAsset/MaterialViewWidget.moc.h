@@ -11,7 +11,7 @@ class ezQtMaterialViewWidget : public ezQtEngineViewWidget
 {
   Q_OBJECT
 public:
-  ezQtMaterialViewWidget(QWidget* pParent, ezQtMaterialAssetDocumentWindow* pOwnerWindow, ezSceneViewConfig* pViewConfig);
+  ezQtMaterialViewWidget(QWidget* pParent, ezQtMaterialAssetDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig);
   ~ezQtMaterialViewWidget();
 
 private:

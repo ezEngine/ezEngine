@@ -46,7 +46,7 @@ private:
   void OnVseConfigChanged(const char* filename, ezDirectoryWatcherAction action);
   void VisualShaderEventHandler(const ezMaterialVisualShaderEvent& e);
 
-  ezSceneViewConfig m_ViewConfig;
+  ezEngineViewConfig m_ViewConfig;
   ezQtMaterialViewWidget* m_pViewWidget = nullptr;
   ezQtVisualShaderScene* m_pScene = nullptr;
   ezQtNodeView* m_pNodeView = nullptr;

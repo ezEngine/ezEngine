@@ -12,7 +12,8 @@ class ezDocumentRoot : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDocumentRoot, ezReflectedClass);
 
-  ezHybridArray<ezReflectedClass*, 8> m_RootObjects;
+  ezHybridArray<ezReflectedClass*, 1> m_RootObjects;
+  ezHybridArray<ezReflectedClass*, 1> m_TempObjects;
 };
 
 class ezDocumentRootObject : public ezDocumentStorageObject

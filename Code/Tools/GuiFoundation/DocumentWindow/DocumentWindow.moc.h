@@ -112,7 +112,7 @@ private:
 private:
   void Constructor();
   void DocumentManagerEventHandler(const ezDocumentManager::Event& e);
-  void DocumentEventHandler(const ezDocumentEvent& e);
+  void GameObjectEventHandler(const ezDocumentEvent& e);
   void UIServicesEventHandler(const ezQtUiServices::Event& e);
 
   virtual void InternalDeleteThis() { delete this; }

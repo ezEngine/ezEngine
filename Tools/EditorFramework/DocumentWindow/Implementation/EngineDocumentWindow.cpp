@@ -121,6 +121,28 @@ ezQtEngineViewWidget* ezQtEngineDocumentWindow::GetViewWidgetByID(ezUInt32 uiVie
   return nullptr;
 }
 
+ezArrayPtr<ezQtEngineViewWidget* const> ezQtEngineDocumentWindow::GetViewWidgets() const
+{
+  return m_ViewWidgets;
+}
+
+void ezQtEngineDocumentWindow::AddViewWidget(ezQtEngineViewWidget* pView)
+{
+  m_ViewWidgets.PushBack(pView);
+  ezEngineWindowEvent e;
+  e.m_Type = ezEngineWindowEvent::Type::ViewCreated;
+  e.m_pView = pView;
+  m_EngineWindowEvent.Broadcast(e);
+}
+
+void ezQtEngineDocumentWindow::RemoveViewWidget(ezQtEngineViewWidget* pView)
+{
+  m_ViewWidgets.RemoveSwap(pView);
+  ezEngineWindowEvent e;
+  e.m_Type = ezEngineWindowEvent::Type::ViewDestroyed;
+  e.m_pView = pView;
+  m_EngineWindowEvent.Broadcast(e);
+}
 
 void ezQtEngineDocumentWindow::ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg)
 {

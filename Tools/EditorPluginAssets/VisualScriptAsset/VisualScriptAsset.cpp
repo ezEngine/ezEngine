@@ -246,7 +246,7 @@ bool ezVisualScriptAssetDocument::Copy(ezAbstractObjectGraph& out_objectGraph, e
 
   const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
 
-  ezDocumentObjectConverterWriter writer(&out_objectGraph, pManager, true, true);
+  ezDocumentObjectConverterWriter writer(&out_objectGraph, pManager);
 
   for (const ezDocumentObject* pNode : selection)
   {

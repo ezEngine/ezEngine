@@ -28,7 +28,7 @@ void ezObjectPickingResult::Reset()
 // ezQtEngineViewWidget public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentWindow* pDocumentWindow, ezSceneViewConfig* pViewConfig)
+ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentWindow* pDocumentWindow, ezEngineViewConfig* pViewConfig)
   : QWidget(pParent)
   , m_pDocumentWindow(pDocumentWindow)
   , m_pViewConfig(pViewConfig)
@@ -54,7 +54,6 @@ ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentW
 
   m_uiViewID = s_uiNextViewID;
   ++s_uiNextViewID;
-  m_pDocumentWindow->m_ViewWidgets.PushBack(this);
 
   m_fCameraLerp = 1.0f;
   m_fCameraTargetFovOrDim = 70.0f;
@@ -73,8 +72,7 @@ ezQtEngineViewWidget::~ezQtEngineViewWidget()
   ezViewDestroyedMsgToEngine msg;
   msg.m_uiViewID = GetViewID();
   m_pDocumentWindow->GetDocument()->SendMessageToEngine(&msg);
-
-  m_pDocumentWindow->m_ViewWidgets.RemoveSwap(this);
+  m_pDocumentWindow->RemoveViewWidget(this);
 }
 
 void ezQtEngineViewWidget::SyncToEngine()

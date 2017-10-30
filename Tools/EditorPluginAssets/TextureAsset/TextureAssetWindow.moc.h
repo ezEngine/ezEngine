@@ -24,7 +24,7 @@ private:
   virtual void InternalRedraw() override;
   void SendRedrawMsg();
 
-  ezSceneViewConfig m_ViewConfig;
+  ezEngineViewConfig m_ViewConfig;
   ezQtTextureViewWidget* m_pViewWidget;
 };
 

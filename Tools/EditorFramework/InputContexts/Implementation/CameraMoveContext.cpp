@@ -1,9 +1,9 @@
 #include <PCH.h>
-#include <EditorPluginScene/InputContexts/CameraMoveContext.h>
+#include <EditorFramework/InputContexts/CameraMoveContext.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
-#include <EditorPluginScene/Preferences/ScenePreferences.h>
+#include <EditorFramework/Preferences/ScenePreferences.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <QKeyEvent>
 

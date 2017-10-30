@@ -1,31 +1,16 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
-#include <EditorPluginScene/InputContexts/SelectionContext.h>
-#include <EditorPluginScene/InputContexts/CameraMoveContext.h>
-#include <EditorPluginScene/Scene/SceneDocument.h>
+#include <EditorFramework/DocumentWindow/GameObjectViewWidget.moc.h>
 
-class QVBoxLayout;
-class ezQtSceneDocumentWindow;
-class ezOrthoGizmoContext;
-class ezContextMenuContext;
-
-class ezQtSceneViewWidget : public ezQtEngineViewWidget
+class ezQtSceneViewWidget : public ezQtGameObjectViewWidget
 {
   Q_OBJECT
 public:
-  ezQtSceneViewWidget(QWidget* pParent, ezQtSceneDocumentWindow* pDocument, ezSceneViewConfig* pViewConfig);
+  ezQtSceneViewWidget(QWidget* pParent, ezQtGameObjectDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig);
   ~ezQtSceneViewWidget();
 
-  ezOrthoGizmoContext* m_pOrthoGizmoContext;
-  ezSelectionContext* m_pSelectionContext;
-  ezCameraMoveContext* m_pCameraMoveContext;
-
-  virtual void SyncToEngine() override;
-
   virtual bool IsPickingAgainstSelectionAllowed() const override;
-
 
 protected:
   virtual void dragEnterEvent(QDragEnterEvent* e) override;
@@ -33,12 +18,9 @@ protected:
   virtual void dragMoveEvent(QDragMoveEvent* e) override;
   virtual void dropEvent(QDropEvent* e) override;
   virtual void OnOpenContextMenu(QPoint globalPos) override;
-  virtual void HandleMarqueePickingResult(const ezViewMarqueePickingResultMsgToEditor* pMsg) override;
 
   bool m_bAllowPickSelectedWhileDragging;
   ezTime m_LastDragMoveEvent;
-  ezUInt32 m_uiLastMarqueeActionID = 0;
-  ezDeque<ezUuid> m_MarqueeBaseSelection;
 
   static bool s_bContextMenuInitialized;
 };

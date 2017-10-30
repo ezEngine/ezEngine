@@ -11,7 +11,7 @@ class ezQtTextureCubeViewWidget : public ezQtEngineViewWidget
 {
   Q_OBJECT
 public:
-  ezQtTextureCubeViewWidget(QWidget* pParent, ezQtTextureCubeAssetDocumentWindow* pOwnerWindow, ezSceneViewConfig* pViewConfig);
+  ezQtTextureCubeViewWidget(QWidget* pParent, ezQtTextureCubeAssetDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig);
   ~ezQtTextureCubeViewWidget();
 
 private:

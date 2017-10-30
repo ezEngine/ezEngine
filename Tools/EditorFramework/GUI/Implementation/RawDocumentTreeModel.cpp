@@ -11,13 +11,14 @@
 #include <DragDrop/DragDropHandler.h>
 #include <DragDrop/DragDropInfo.h>
 
-ezQtDocumentTreeModel::ezQtDocumentTreeModel(const ezDocumentObjectManager* pTree, const ezRTTI* pBaseClass, const char* szChildProperty) :
+ezQtDocumentTreeModel::ezQtDocumentTreeModel(const ezDocumentObjectManager* pTree, const ezRTTI* pBaseClass, const char* szChildProperty, const char* szRootProperty) :
   QAbstractItemModel(nullptr)
 {
   m_bAllowDragDrop = false;
   m_pDocumentTree = pTree;
   m_pBaseClass = pBaseClass;
   m_sChildProperty = szChildProperty;
+  m_sRootProperty = szRootProperty;
 
   if (!m_sChildProperty.IsEmpty())
   {
@@ -53,7 +54,7 @@ void ezQtDocumentTreeModel::TreeEventHandler(const ezDocumentObjectStructureEven
 {
   if (!e.m_pObject->GetTypeAccessor().GetType()->IsDerivedFrom(m_pBaseClass))
     return;
-  if (!e.m_sParentProperty.IsEqual(m_sChildProperty) && !e.m_sParentProperty.IsEqual("Children"))
+  if (!e.m_sParentProperty.IsEqual(m_sChildProperty) && !e.m_sParentProperty.IsEqual(m_sRootProperty))
     return;
 
   // TODO: BLA root object could have other objects instead of m_pBaseClass, in which case indices are broken on root.
@@ -105,10 +106,12 @@ QModelIndex ezQtDocumentTreeModel::index(int row, int column, const QModelIndex&
 {
   if (!parent.isValid())
   {
-    if (m_pDocumentTree->GetRootObject()->GetChildren().IsEmpty())
+    const ezDocumentObject* pRoot = m_pDocumentTree->GetRootObject();
+
+    if (pRoot->GetTypeAccessor().GetCount(m_sRootProperty) == 0)
       return QModelIndex();
 
-    ezVariant value = m_pDocumentTree->GetRootObject()->GetTypeAccessor().GetValue("Children", row);
+    ezVariant value = pRoot->GetTypeAccessor().GetValue(m_sRootProperty, row);
     EZ_ASSERT_DEV(value.IsValid() && value.IsA<ezUuid>(), "Tree corruption!");
 
     const ezDocumentObject* pObject = m_pDocumentTree->GetObject(value.Get<ezUuid>());
@@ -125,16 +128,27 @@ QModelIndex ezQtDocumentTreeModel::index(int row, int column, const QModelIndex&
 
 ezInt32 ezQtDocumentTreeModel::ComputeIndex(const ezDocumentObject* pObject) const
 {
-  const ezDocumentObject* pParent = pObject->GetParent();
-
   ezInt32 iIndex = pObject->GetPropertyIndex().ConvertTo<ezInt32>();
   return iIndex;
 }
 
 QModelIndex ezQtDocumentTreeModel::ComputeModelIndex(const ezDocumentObject* pObject) const
 {
+  // Filter out objects that are not under the root property 'm_sRootProperty' or any of
+  // its children under the property 'm_sChildProperty'.
   if (pObject == m_pDocumentTree->GetRootObject())
     return QModelIndex();
+
+  if (pObject->GetParent() == m_pDocumentTree->GetRootObject())
+  {
+    if (m_sRootProperty != pObject->GetParentProperty())
+      return QModelIndex();
+  }
+  else
+  {
+    if (m_sChildProperty != pObject->GetParentProperty())
+      return QModelIndex();
+  }
 
   return index(ComputeIndex(pObject), 0, ComputeParent(pObject));
 }
@@ -170,7 +184,7 @@ int ezQtDocumentTreeModel::rowCount(const QModelIndex& parent) const
 
   if (!parent.isValid())
   {
-    iCount = m_pDocumentTree->GetRootObject()->GetTypeAccessor().GetCount("Children");
+    iCount = m_pDocumentTree->GetRootObject()->GetTypeAccessor().GetCount(m_sRootProperty);
   }
   else
   {
@@ -336,7 +350,7 @@ bool ezQtDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction a
       if (pNewParent)
         cmd.m_NewParent = pNewParent->GetGuid();
       else
-        cmd.m_sParentProperty = "Children";
+        cmd.m_sParentProperty = m_sRootProperty;
 
       res = pHistory->AddCommand(cmd);
       if (res.m_Result.Failed())

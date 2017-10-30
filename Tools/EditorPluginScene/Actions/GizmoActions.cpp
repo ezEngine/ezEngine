@@ -82,7 +82,7 @@ ezGizmoAction::ezGizmoAction(const ezActionContext& context, const char* szName,
   SetCheckable(true);
   m_Type = type;
   m_pSceneDocument = static_cast<ezSceneDocument*>(context.m_pDocument);
-  m_pSceneDocument->m_SceneEvents.AddEventHandler(ezMakeDelegate(&ezGizmoAction::SceneEventHandler, this));
+  m_pSceneDocument->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezGizmoAction::GameObjectEventHandler, this));
 
   switch (m_Type)
   {
@@ -114,7 +114,7 @@ ezGizmoAction::ezGizmoAction(const ezActionContext& context, const char* szName,
 
 ezGizmoAction::~ezGizmoAction()
 {
-  m_pSceneDocument->m_SceneEvents.RemoveEventHandler(ezMakeDelegate(&ezGizmoAction::SceneEventHandler, this));
+  m_pSceneDocument->m_GameObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezGizmoAction::GameObjectEventHandler, this));
 }
 
 void ezGizmoAction::Execute(const ezVariant& value)
@@ -160,9 +160,9 @@ void ezGizmoAction::UpdateState()
   }
 }
 
-void ezGizmoAction::SceneEventHandler(const ezSceneDocumentEvent& e)
+void ezGizmoAction::GameObjectEventHandler(const ezGameObjectEvent& e)
 {
-  if (e.m_Type == ezSceneDocumentEvent::Type::ActiveGizmoChanged)
+  if (e.m_Type == ezGameObjectEvent::Type::ActiveGizmoChanged)
     UpdateState();
 
 }

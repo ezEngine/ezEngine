@@ -173,7 +173,14 @@ ezStatus ezDocument::InternalSaveDocument()
   {
     ezRttiConverterContext context;
     ezRttiConverterWriter rttiConverter(&graph, &context, true, true);
-    ezDocumentObjectConverterWriter objectConverter(&graph, GetObjectManager(), true, true);
+    // Do not serialize any temporary properties into the document.
+    auto filter = [](const ezAbstractProperty* pProp) -> bool
+    {
+      if (pProp->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
+        return false;
+      return true;
+    };
+    ezDocumentObjectConverterWriter objectConverter(&graph, GetObjectManager(), filter);
     context.RegisterObject(GetGuid(), m_pDocumentInfo->GetDynamicRTTI(), m_pDocumentInfo);
 
     rttiConverter.AddObjectToGraph(m_pDocumentInfo, "Header");

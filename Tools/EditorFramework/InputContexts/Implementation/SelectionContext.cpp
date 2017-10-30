@@ -1,19 +1,18 @@
 #include <PCH.h>
-#include <EditorPluginScene/InputContexts/SelectionContext.h>
-#include <EditorPluginScene/Scene/SceneDocument.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorEngineProcessFramework/IPC/SyncObject.h>
+#include <EditorFramework/InputContexts/SelectionContext.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
+#include <EditorEngineProcessFramework/IPC/SyncObject.h>
+#include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
 #include <Foundation/Logging/Log.h>
-#include <QKeyEvent>
-#include <RendererCore/Meshes/MeshComponent.h>
-#include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorPluginAssets/MeshAsset/MeshAsset.h>
-#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
+#include <RendererCore/Meshes/MeshComponent.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <EditorFramework/Assets/AssetDocument.h>
+#include <QKeyEvent>
 
 ezSelectionContext::ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, const ezCamera* pCamera)
 {
@@ -130,6 +129,8 @@ ezEditorInut ezSelectionContext::DoMouseReleaseEvent(QMouseEvent* e)
 
 void ezSelectionContext::OpenPickedMaterial(const ezObjectPickingResult& res) const
 {
+  //#TODO: Move somewhere else. How did this ever compile?
+  /*
   if (!res.m_PickedComponent.IsValid())
     return;
 
@@ -195,6 +196,8 @@ void ezSelectionContext::OpenPickedMaterial(const ezObjectPickingResult& res) co
   // otherwise keep it open
   if (!pMeshDoc->HasWindowBeenRequested())
     pMeshDoc->GetDocumentManager()->CloseDocument(pMeshDoc);
+
+  */
 }
 
 

@@ -4,6 +4,7 @@
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Serialization/RttiConverter.h>
+#include <Foundation/Logging/Log.h>
 
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTypeVersionInfo, ezNoBase, 1, ezRTTIDefaultAllocator<ezTypeVersionInfo>)
@@ -162,7 +163,7 @@ void ezGraphPatchContext::UpdateBaseClasses()
     }
     else
     {
-      EZ_REPORT_FAILURE("Parent type unknown");
+      ezLog::Error("Can't patch base class, parent type of '{0}' unknown.", m_BaseClasses.PeekBack().m_sType.GetData());
       break;
     }
 

@@ -62,7 +62,7 @@ public:
   virtual void Execute(const ezVariant& value) override;
 
 private:
-  void SceneEventHandler(const ezSceneDocumentEvent& e);
+  void SceneEventHandler(const ezGameObjectEvent& e);
   void UpdateState();
   void OnPreferenceChange(ezPreferences* pref);
 

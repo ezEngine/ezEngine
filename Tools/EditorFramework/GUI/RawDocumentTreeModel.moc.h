@@ -7,7 +7,7 @@
 class EZ_EDITORFRAMEWORK_DLL ezQtDocumentTreeModel : public QAbstractItemModel
 {
 public:
-  ezQtDocumentTreeModel(const ezDocumentObjectManager* pTree, const ezRTTI* pBaseClass, const char* szChildProperty);
+  ezQtDocumentTreeModel(const ezDocumentObjectManager* pTree, const ezRTTI* pBaseClass, const char* szChildProperty, const char* szRootProperty = "Children");
   ~ezQtDocumentTreeModel();
 
   const ezDocumentObjectManager* GetDocumentTree() const { return m_pDocumentTree; }
@@ -29,7 +29,7 @@ public:
   virtual QMimeData* mimeData(const QModelIndexList& indexes) const override;
 
   virtual bool setData(const QModelIndex& index, const QVariant& value, int role) override;
- 
+
   QModelIndex ComputeModelIndex(const ezDocumentObject* pObject) const;
 
   void SetAllowDragDrop(bool bAllow);
@@ -40,13 +40,14 @@ protected:
 private:
   QModelIndex ComputeParent(const ezDocumentObject* pObject) const;
   ezInt32 ComputeIndex(const ezDocumentObject* pObject) const;
-  
+
   void TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
 
 protected:
   bool m_bAllowDragDrop;
   const ezDocumentObjectManager* m_pDocumentTree;
   const ezRTTI* m_pBaseClass;
-  ezString m_sChildProperty;
+  ezString m_sChildProperty; ///< The name of the property that contains child objects for objects below root.
+  ezString m_sRootProperty; ///< The name of the property on the root object that contains our objects to display.
 };
 

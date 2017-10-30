@@ -4,7 +4,7 @@
 #include <EditorPluginAssets/DecalAsset/DecalAssetWindow.moc.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
 
-ezQtDecalViewWidget::ezQtDecalViewWidget(QWidget* pParent, ezQtDecalAssetDocumentWindow* pOwnerWindow, ezSceneViewConfig* pViewConfig)
+ezQtDecalViewWidget::ezQtDecalViewWidget(QWidget* pParent, ezQtDecalAssetDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig)
   : ezQtEngineViewWidget(pParent, pOwnerWindow, pViewConfig)
 {
   setAcceptDrops(true);

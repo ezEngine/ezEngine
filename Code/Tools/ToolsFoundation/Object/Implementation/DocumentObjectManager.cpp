@@ -12,6 +12,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentRoot, 1, ezRTTINoAllocator)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ARRAY_MEMBER_PROPERTY("Children", m_RootObjects)->AddFlags(ezPropertyFlags::PointerOwner),
+    EZ_ARRAY_MEMBER_PROPERTY("TempObjects", m_TempObjects)->AddFlags(ezPropertyFlags::PointerOwner)->AddAttributes(new ezTemporaryAttribute()),
   }
   EZ_END_PROPERTIES
 }
@@ -20,7 +21,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 void ezDocumentRootObject::InsertSubObject(ezDocumentObject* pObject, const char* szProperty, const ezVariant& index)
 {
-  return ezDocumentObject::InsertSubObject(pObject, "Children", index);
+  if (ezStringUtils::IsNullOrEmpty(szProperty))
+    szProperty = "Children";
+  return ezDocumentObject::InsertSubObject(pObject, szProperty, index);
 }
 
 void ezDocumentRootObject::RemoveSubObject(ezDocumentObject* pObject)
@@ -127,7 +130,7 @@ void ezDocumentObjectManager::AddObject(ezDocumentObject* pObject, ezDocumentObj
 {
   if (pParent == nullptr)
     pParent = &m_RootObject;
-  if (pParent == &m_RootObject)
+  if (pParent == &m_RootObject && ezStringUtils::IsNullOrEmpty(szParentProperty))
     szParentProperty = "Children";
 
   EZ_ASSERT_DEV(pObject->GetGuid().IsValid(), "Object Guid invalid! Object was not created via an ezObjectManagerBase!");

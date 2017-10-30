@@ -7,7 +7,7 @@
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
 #include <QBoxLayout>
 
-ezQtParticleViewWidget::ezQtParticleViewWidget(QWidget* pParent, ezQtParticleEffectAssetDocumentWindow* pOwnerWindow, ezSceneViewConfig* pViewConfig)
+ezQtParticleViewWidget::ezQtParticleViewWidget(QWidget* pParent, ezQtParticleEffectAssetDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig)
   : ezQtEngineViewWidget(pParent, pOwnerWindow, pViewConfig)
 {
   setAcceptDrops(true);

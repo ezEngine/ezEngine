@@ -16,17 +16,17 @@ public:
   }
 };
 
-template<typename PropertyType>
-class ezSimpleAssetDocument : public ezAssetDocument
+template<typename PropertyType, typename BaseClass = ezAssetDocument>
+class ezSimpleAssetDocument : public BaseClass
 {
 public:
   ezSimpleAssetDocument(const char* szDocumentPath, bool bUseEngineConnection = false, bool bUseIPCObjectMirror = false)
-    : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezSimpleDocumentObjectManager<PropertyType>), bUseEngineConnection, bUseIPCObjectMirror)
+    : BaseClass(szDocumentPath, EZ_DEFAULT_NEW(ezSimpleDocumentObjectManager<PropertyType>), bUseEngineConnection, bUseIPCObjectMirror)
   {
   }
 
   ezSimpleAssetDocument(ezDocumentObjectManager* pObjectManager, const char* szDocumentPath, bool bUseEngineConnection = false, bool bUseIPCObjectMirror = false)
-    : ezAssetDocument(szDocumentPath, pObjectManager, bUseEngineConnection, bUseIPCObjectMirror)
+    : BaseClass(szDocumentPath, pObjectManager, bUseEngineConnection, bUseIPCObjectMirror)
   {
   }
 
@@ -54,7 +54,7 @@ public:
 protected:
   virtual void InitializeAfterLoading() override
   {
-    ezAssetDocument::InitializeAfterLoading();
+    BaseClass::InitializeAfterLoading();
 
     EnsureSettingsObjectExist();
 
@@ -67,7 +67,7 @@ protected:
   {
     GetObjectManager()->DestroyAllObjects();
 
-    ezStatus ret = ezAssetDocument::InternalLoadDocument();
+    ezStatus ret = BaseClass::InternalLoadDocument();
 
     return ret;
   }
@@ -86,7 +86,7 @@ protected:
     ezAbstractObjectGraph origGraph;
     ezAbstractObjectNode* pOrigRootNode = nullptr;
     {
-      ezDocumentObjectConverterWriter writer(&origGraph, GetObjectManager(), true, true);
+      ezDocumentObjectConverterWriter writer(&origGraph, GetObjectManager());
       pOrigRootNode = writer.AddObjectToGraph(GetPropertyObject());
     }
 

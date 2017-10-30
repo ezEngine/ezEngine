@@ -12,6 +12,7 @@ class QItemSelectionModel;
 class ezQtCurve1DEditorWidget;
 struct ezDocumentObjectPropertyEvent;
 struct ezDocumentObjectStructureEvent;
+class ezPropertyAnimAssetDocument;
 class ezQtColorGradientEditorWidget;
 class ezColorGradientAssetData;
 
@@ -67,8 +68,10 @@ private slots:
   //////////////////////////////////////////////////////////////////////////
 
 private:
+  ezPropertyAnimAssetDocument* GetPropertyAnimDocument();
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
+  void SelectionEventHandler(const ezSelectionManagerEvent& e);
   void UpdateCurveEditor();
   void UpdateGradientEditor();
 

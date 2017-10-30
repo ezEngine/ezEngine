@@ -12,7 +12,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSceneViewPerspective, 1)
 EZ_BITFLAGS_CONSTANTS(ezSceneViewPerspective::Orthogonal_Front, ezSceneViewPerspective::Orthogonal_Right, ezSceneViewPerspective::Orthogonal_Top, ezSceneViewPerspective::Perspective)
 EZ_END_STATIC_REFLECTED_ENUM();
 
-void ezSceneViewConfig::ApplyPerspectiveSetting(float fov)
+void ezEngineViewConfig::ApplyPerspectiveSetting(float fov)
 {
   const float fOrthoRange = 1000.0f;
 

@@ -13,6 +13,20 @@ class ezQtEngineViewWidget;
 class ezAssetDocument;
 class ezEditorEngineDocumentMsg;
 struct ezObjectPickingResult;
+struct ezEngineViewConfig;
+
+
+struct EZ_EDITORFRAMEWORK_DLL ezEngineWindowEvent
+{
+  enum class Type
+  {
+    ViewCreated,
+    ViewDestroyed,
+  };
+
+  Type m_Type;
+  ezQtEngineViewWidget* m_pView = nullptr;
+};
 
 /// \brief Base class for all document windows that need a connection to the engine process, and might want to render 3D content.
 ///
@@ -39,13 +53,19 @@ public:
 
   ezQtEngineViewWidget* GetViewWidgetByID(ezUInt32 uiViewID) const;
 
+  ezArrayPtr<ezQtEngineViewWidget* const> GetViewWidgets() const;
+
+  void AddViewWidget(ezQtEngineViewWidget* pView);
+
+public:
+  mutable ezEvent<const ezEngineWindowEvent&> m_EngineWindowEvent;
+
 protected:
   friend class ezQtEngineViewWidget;
-
   ezHybridArray<ezQtEngineViewWidget*, 4> m_ViewWidgets;
 
   virtual void ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg);
-
+  void RemoveViewWidget(ezQtEngineViewWidget* pView);
   void DestroyAllViews();
   virtual void InternalRedraw() override;
 

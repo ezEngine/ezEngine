@@ -11,7 +11,7 @@ class ezQtDecalViewWidget : public ezQtEngineViewWidget
 {
   Q_OBJECT
 public:
-  ezQtDecalViewWidget(QWidget* pParent, ezQtDecalAssetDocumentWindow* pOwnerWindow, ezSceneViewConfig* pViewConfig);
+  ezQtDecalViewWidget(QWidget* pParent, ezQtDecalAssetDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig);
   ~ezQtDecalViewWidget();
 
 private:

@@ -50,9 +50,9 @@ struct EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSceneViewPerspective
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORENGINEPROCESSFRAMEWORK_DLL, ezSceneViewPerspective);
 
-struct EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSceneViewConfig
+struct EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEngineViewConfig
 {
-  ezSceneViewConfig()
+  ezEngineViewConfig()
   {
     m_RenderMode = ezViewRenderMode::Default;
     m_Perspective = ezSceneViewPerspective::Default;
@@ -66,7 +66,7 @@ struct EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSceneViewConfig
   bool m_bUseCameraTransformOnDevice = true;
 
   ezCamera m_Camera;
-  ezSceneViewConfig* m_pLinkedViewConfig; // used to store which other view config this is linked to, for resetting values when switching views
+  ezEngineViewConfig* m_pLinkedViewConfig; // used to store which other view config this is linked to, for resetting values when switching views
 
   void ApplyPerspectiveSetting(float fov = 0.0f);
 };

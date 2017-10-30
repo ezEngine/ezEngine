@@ -5,7 +5,7 @@
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <QProcess>
 #include <Foundation/Logging/Log.h>
-#include <Preferences/ScenePreferences.h>
+#include <EditorFramework/Preferences/ScenePreferences.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
@@ -147,7 +147,7 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
   m_Type = type;
   // TODO const cast
   m_pSceneDocument = const_cast<ezSceneDocument*>(static_cast<const ezSceneDocument*>(context.m_pDocument));
-  m_pSceneDocument->m_SceneEvents.AddEventHandler(ezMakeDelegate(&ezSceneAction::SceneEventHandler, this));
+  m_pSceneDocument->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezSceneAction::SceneEventHandler, this));
   m_fSimSpeed = fSimSpeed;
 
   switch (m_Type)
@@ -221,7 +221,7 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
 
 ezSceneAction::~ezSceneAction()
 {
-  m_pSceneDocument->m_SceneEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneAction::SceneEventHandler, this));
+  m_pSceneDocument->m_GameObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneAction::SceneEventHandler, this));
 
   switch (m_Type)
   {
@@ -312,15 +312,15 @@ void ezSceneAction::Execute(const ezVariant& value)
   }
 }
 
-void ezSceneAction::SceneEventHandler(const ezSceneDocumentEvent& e)
+void ezSceneAction::SceneEventHandler(const ezGameObjectEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezSceneDocumentEvent::Type::GameModeChanged:
+  case ezGameObjectEvent::Type::GameModeChanged:
     UpdateState();
     break;
 
-  case ezSceneDocumentEvent::Type::RenderSelectionOverlayChanged:
+  case ezGameObjectEvent::Type::RenderSelectionOverlayChanged:
     {
       if (m_Type == ActionType::RenderSelectionOverlay)
       {
@@ -329,7 +329,7 @@ void ezSceneAction::SceneEventHandler(const ezSceneDocumentEvent& e)
     }
     break;
 
-  case ezSceneDocumentEvent::Type::RenderVisualizersChanged:
+  case ezGameObjectEvent::Type::RenderVisualizersChanged:
     {
       if (m_Type == ActionType::RenderVisualizers)
       {
@@ -338,7 +338,7 @@ void ezSceneAction::SceneEventHandler(const ezSceneDocumentEvent& e)
     }
     break;
 
-  case ezSceneDocumentEvent::Type::RenderShapeIconsChanged:
+  case ezGameObjectEvent::Type::RenderShapeIconsChanged:
     {
       if (m_Type == ActionType::RenderShapeIcons)
       {
@@ -347,7 +347,7 @@ void ezSceneAction::SceneEventHandler(const ezSceneDocumentEvent& e)
     }
     break;
 
-  case ezSceneDocumentEvent::Type::AddAmbientLightChanged:
+  case ezGameObjectEvent::Type::AddAmbientLightChanged:
     {
       if (m_Type == ActionType::AddAmbientLight)
       {
@@ -356,7 +356,7 @@ void ezSceneAction::SceneEventHandler(const ezSceneDocumentEvent& e)
     }
     break;
 
-  case ezSceneDocumentEvent::Type::SimulationSpeedChanged:
+  case ezGameObjectEvent::Type::SimulationSpeedChanged:
     {
       if (m_Type == ActionType::SimulationSpeed)
       {

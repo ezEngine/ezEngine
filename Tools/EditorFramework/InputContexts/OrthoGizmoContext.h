@@ -7,7 +7,7 @@
 class QWidget;
 class ezCamera;
 
-class ezOrthoGizmoContext : public ezEditorInputContext
+class EZ_EDITORFRAMEWORK_DLL ezOrthoGizmoContext : public ezEditorInputContext
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezOrthoGizmoContext, ezEditorInputContext);
 

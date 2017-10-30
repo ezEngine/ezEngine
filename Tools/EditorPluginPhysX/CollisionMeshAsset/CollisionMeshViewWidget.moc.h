@@ -11,7 +11,7 @@ class ezQtCollisionMeshViewWidget : public ezQtEngineViewWidget
 {
   Q_OBJECT
 public:
-  ezQtCollisionMeshViewWidget(QWidget* pParent, ezQtCollisionMeshAssetDocumentWindow* pOwnerWindow, ezSceneViewConfig* pViewConfig);
+  ezQtCollisionMeshViewWidget(QWidget* pParent, ezQtCollisionMeshAssetDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig);
   ~ezQtCollisionMeshViewWidget();
 
   ezOrbitCameraContext* GetOrbitCamera() { return m_pOrbitCameraContext.Borrow(); }

@@ -45,6 +45,8 @@
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <EditorFramework/Panels/CVarPanel/CVarPanel.moc.h>
+#include <EditorFramework/Actions/GameObjectContextActions.h>
+#include <EditorFramework/Panels/GameObjectPanel/GameObjectPanel.moc.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
 
@@ -59,6 +61,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezProjectActions::RegisterActions();
     ezAssetActions::RegisterActions();
     ezViewActions::RegisterActions();
+    ezGameObjectContextActions::RegisterActions();
+    ezQtGameObjectPanel::RegisterActions();
 
     ezActionMapManager::RegisterActionMap("SettingsTabMenuBar");
     ezProjectActions::MapActions("SettingsTabMenuBar");

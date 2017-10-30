@@ -89,7 +89,7 @@ ezStatus ezDocument::CreatePrefabDocument(const char* szFile, const ezDocumentOb
   // prepare the current state as a graph
   ezAbstractObjectGraph PrefabGraph;
 
-  ezDocumentObjectConverterWriter writer(&PrefabGraph, GetObjectManager(), true, true);
+  ezDocumentObjectConverterWriter writer(&PrefabGraph, GetObjectManager());
   auto pPrefabGraphMainNode = writer.AddObjectToGraph(pSaveAsPrefab);
 
   PrefabGraph.ReMapNodeGuids(invPrefabSeed, true);

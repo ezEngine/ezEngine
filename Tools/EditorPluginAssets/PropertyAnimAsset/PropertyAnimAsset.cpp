@@ -41,8 +41,8 @@ ezPropertyAnimationTrackGroup::~ezPropertyAnimationTrackGroup()
   }
 }
 
-ezPropertyAnimAssetDocument::ezPropertyAnimAssetDocument(const char* szDocumentPath) 
-  : ezSimpleAssetDocument<ezPropertyAnimationTrackGroup>(szDocumentPath)
+ezPropertyAnimAssetDocument::ezPropertyAnimAssetDocument(const char* szDocumentPath)
+  : ezSimpleAssetDocument<ezPropertyAnimationTrackGroup, ezGameObjectContextDocument>(szDocumentPath, true, true)
 {
 }
 

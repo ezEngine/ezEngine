@@ -113,7 +113,13 @@ void ezQtPreferencesDlg::ObjectToNative(ezUuid objectGuid, const ezDocument* pPr
 
   // Write object to graph.
   ezAbstractObjectGraph graph;
-  ezDocumentObjectConverterWriter objectConverter(&graph, m_pDocument->GetObjectManager(), false, true);
+  auto filter = [](const ezAbstractProperty* pProp) -> bool
+  {
+    if (pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
+      return false;
+    return true;
+  };
+  ezDocumentObjectConverterWriter objectConverter(&graph, m_pDocument->GetObjectManager(), filter);
   ezAbstractObjectNode* pNode = objectConverter.AddObjectToGraph(pObject, "root");
 
   // Read from graph and write to native object.

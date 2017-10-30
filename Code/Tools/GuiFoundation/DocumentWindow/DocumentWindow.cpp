@@ -49,7 +49,7 @@ ezQtDocumentWindow::ezQtDocumentWindow(ezDocument* pDocument)
   setObjectName(GetUniqueName());
 
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezQtDocumentWindow::DocumentManagerEventHandler, this));
-  pDocument->m_EventsOne.AddEventHandler(ezMakeDelegate(&ezQtDocumentWindow::DocumentEventHandler, this));
+  pDocument->m_EventsOne.AddEventHandler(ezMakeDelegate(&ezQtDocumentWindow::GameObjectEventHandler, this));
 
   Constructor();
 }
@@ -72,7 +72,7 @@ ezQtDocumentWindow::~ezQtDocumentWindow()
 
   if (m_pDocument)
   {
-    m_pDocument->m_EventsOne.RemoveEventHandler(ezMakeDelegate(&ezQtDocumentWindow::DocumentEventHandler, this));
+    m_pDocument->m_EventsOne.RemoveEventHandler(ezMakeDelegate(&ezQtDocumentWindow::GameObjectEventHandler, this));
     ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtDocumentWindow::DocumentManagerEventHandler, this));
   }
 }
@@ -184,7 +184,7 @@ void ezQtDocumentWindow::SlotRedraw()
   }
 }
 
-void ezQtDocumentWindow::DocumentEventHandler(const ezDocumentEvent& e)
+void ezQtDocumentWindow::GameObjectEventHandler(const ezDocumentEvent& e)
 {
   switch (e.m_Type)
   {

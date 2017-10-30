@@ -63,7 +63,8 @@ void ezPrefabCache::LoadGraph(ezAbstractObjectGraph& out_graph, ezStringView sGr
     it = m_CachedGraphs.Insert(uiHash, ezUniquePtr<ezAbstractObjectGraph>(EZ_DEFAULT_NEW(ezAbstractObjectGraph)));
 
     ezRawMemoryStreamReader stringReader(sGraph.GetData(), sGraph.GetElementCount());
-    ezAbstractGraphDdlSerializer::Read(stringReader, it.Value().Borrow());
+    ezAbstractObjectGraph types;
+    ezAbstractGraphDdlSerializer::Read(stringReader, it.Value().Borrow(), &types);
   }
 
   it.Value()->Clone(out_graph);

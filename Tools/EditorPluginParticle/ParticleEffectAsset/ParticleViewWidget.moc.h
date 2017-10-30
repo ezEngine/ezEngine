@@ -13,7 +13,7 @@ class ezQtParticleViewWidget : public ezQtEngineViewWidget
   Q_OBJECT
 
 public:
-  ezQtParticleViewWidget(QWidget* pParent, ezQtParticleEffectAssetDocumentWindow* pOwnerWindow, ezSceneViewConfig* pViewConfig);
+  ezQtParticleViewWidget(QWidget* pParent, ezQtParticleEffectAssetDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig);
   ~ezQtParticleViewWidget();
 
 private:

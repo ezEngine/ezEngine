@@ -6,7 +6,7 @@
 
 class ezCamera;
 
-class ezCameraMoveContext : public ezEditorInputContext
+class EZ_EDITORFRAMEWORK_DLL ezCameraMoveContext : public ezEditorInputContext
 {
 public:
   ezCameraMoveContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView);

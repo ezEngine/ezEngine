@@ -53,7 +53,7 @@ public:
 
 private:
   void UpdateState();
-  void SceneEventHandler(const ezSceneDocumentEvent& e);
+  void GameObjectEventHandler(const ezGameObjectEvent& e);
 
   ezSceneDocument* m_pSceneDocument;
   ActionType m_Type;
@@ -118,7 +118,7 @@ public:
   ~ezScaleGizmoAction();
 
   virtual void Execute(const ezVariant& value) override;
-  
+
 private:
   void EventHandler(const ezSnapProviderEvent& e);
 

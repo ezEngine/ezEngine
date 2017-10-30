@@ -8,7 +8,7 @@ class ezCamera;
 struct ezObjectPickingResult;
 class ezDocumentObject;
 
-class ezSelectionContext : public ezEditorInputContext
+class EZ_EDITORFRAMEWORK_DLL ezSelectionContext : public ezEditorInputContext
 {
 public:
   ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, const ezCamera* pCamera);

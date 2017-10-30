@@ -34,7 +34,7 @@ class EZ_EDITORFRAMEWORK_DLL ezQtEngineViewWidget : public QWidget
   Q_OBJECT
 
 public:
-  ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentWindow* pDocumentWindow, ezSceneViewConfig* pViewConfig);
+  ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentWindow* pDocumentWindow, ezEngineViewConfig* pViewConfig);
   ~ezQtEngineViewWidget();
 
   /// \brief Add input contexts in the order in which they are supposed to be processed
@@ -49,7 +49,7 @@ public:
 
   void GetCameraMatrices(ezMat4& out_ViewMatrix, ezMat4& out_ProjectionMatrix) const;
 
-  ezSceneViewConfig* m_pViewConfig;
+  ezEngineViewConfig* m_pViewConfig;
 
   /// \brief Called every frame to move the camera to its current target (focus on selection, etc.)
   void UpdateCameraInterpolation();

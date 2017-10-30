@@ -36,7 +36,7 @@ private:
 
   ezParticleEffectAssetDocument* m_pAssetDoc;
 
-  ezSceneViewConfig m_ViewConfig;
+  ezEngineViewConfig m_ViewConfig;
   ezQtParticleViewWidget* m_pViewWidget;
 
 };

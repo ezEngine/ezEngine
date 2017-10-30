@@ -13,7 +13,7 @@
 #include <QLabel>
 #include <QLayout>
 
-ezQtCollisionMeshAssetDocumentWindow::ezQtCollisionMeshAssetDocumentWindow(ezAssetDocument* pDocument) 
+ezQtCollisionMeshAssetDocumentWindow::ezQtCollisionMeshAssetDocumentWindow(ezAssetDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
 {
   // Menu Bar
@@ -47,6 +47,7 @@ ezQtCollisionMeshAssetDocumentWindow::ezQtCollisionMeshAssetDocumentWindow(ezAss
     m_ViewConfig.ApplyPerspectiveSetting(90);
 
     m_pViewWidget = new ezQtCollisionMeshViewWidget(nullptr, this, &m_ViewConfig);
+    AddViewWidget(m_pViewWidget);
     pContainer = new ezQtViewWidgetContainer(this, m_pViewWidget, "MeshAssetViewToolBar");
     setCentralWidget(pContainer);
   }

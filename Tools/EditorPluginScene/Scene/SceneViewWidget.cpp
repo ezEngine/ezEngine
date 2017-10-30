@@ -1,61 +1,40 @@
 #include <PCH.h>
+#include <EditorFramework/DragDrop/DragDropHandler.h>
+#include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorPluginScene/Scene/SceneViewWidget.moc.h>
+#include <EditorFramework/Gizmos/SnapProvider.h>
+#include <EditorFramework/InputContexts/OrthoGizmoContext.h>
+#include <EditorPluginScene/Actions/SelectionActions.h>
 #include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
+#include <EditorPluginScene/Scene/SceneViewWidget.moc.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/Serialization/RttiConverter.h>
+#include <GuiFoundation/Action/ActionMapManager.h>
+#include <GuiFoundation/Action/EditActions.h>
+#include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
-
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <QKeyEvent>
 #include <QMimeData>
 #include <QVBoxLayout>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/Serialization/RttiConverter.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <InputContexts/OrthoGizmoContext.h>
-#include <EditorFramework/Gizmos/SnapProvider.h>
-#include <EditorFramework/DragDrop/DragDropInfo.h>
-#include <EditorFramework/DragDrop/DragDropHandler.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
-#include <EditorPluginScene/Actions/SelectionActions.h>
-#include <GuiFoundation/Action/EditActions.h>
-#include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
+
+
 
 bool ezQtSceneViewWidget::s_bContextMenuInitialized = false;
 
-ezQtSceneViewWidget::ezQtSceneViewWidget(QWidget* pParent, ezQtSceneDocumentWindow* pOwnerWindow, ezSceneViewConfig* pViewConfig)
-  : ezQtEngineViewWidget(pParent, pOwnerWindow, pViewConfig)
+ezQtSceneViewWidget::ezQtSceneViewWidget(QWidget* pParent, ezQtGameObjectDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig)
+  : ezQtGameObjectViewWidget(pParent, pOwnerWindow, pViewConfig)
 {
   setAcceptDrops(true);
 
   m_bAllowPickSelectedWhileDragging = false;
 
-  ezQtSceneDocumentWindow* pSceneWindow = pOwnerWindow;
 
-  m_pSelectionContext = EZ_DEFAULT_NEW(ezSelectionContext, pOwnerWindow, this, &m_pViewConfig->m_Camera);
-  m_pCameraMoveContext = EZ_DEFAULT_NEW(ezCameraMoveContext, pOwnerWindow, this);
-  m_pOrthoGizmoContext = EZ_DEFAULT_NEW(ezOrthoGizmoContext, pOwnerWindow, this, &m_pViewConfig->m_Camera);
-
-  m_pCameraMoveContext->SetCamera(&m_pViewConfig->m_Camera);
-  m_pCameraMoveContext->LoadState();
-
-  // add the input contexts in the order in which they are supposed to be processed
-  m_InputContexts.PushBack(m_pOrthoGizmoContext);
-  m_InputContexts.PushBack(m_pSelectionContext);
-  m_InputContexts.PushBack(m_pCameraMoveContext);
 }
 
 ezQtSceneViewWidget::~ezQtSceneViewWidget()
 {
-  EZ_DEFAULT_DELETE(m_pOrthoGizmoContext);
-  EZ_DEFAULT_DELETE(m_pSelectionContext);
-  EZ_DEFAULT_DELETE(m_pCameraMoveContext);
-}
-
-void ezQtSceneViewWidget::SyncToEngine()
-{
-  m_pSelectionContext->SetWindowConfig(ezVec2I32(width(), height()));
-
-  ezQtEngineViewWidget::SyncToEngine();
 }
 
 bool ezQtSceneViewWidget::IsPickingAgainstSelectionAllowed() const
@@ -196,58 +175,3 @@ void ezQtSceneViewWidget::dropEvent(QDropEvent * e)
 
   ezQtEngineViewWidget::dropEvent(e);
 }
-
-void ezQtSceneViewWidget::HandleMarqueePickingResult(const ezViewMarqueePickingResultMsgToEditor* pMsg)
-{
-  auto pSelMan = GetDocumentWindow()->GetDocument()->GetSelectionManager();
-  auto pObjMan = GetDocumentWindow()->GetDocument()->GetObjectManager();
-
-  if (m_uiLastMarqueeActionID != pMsg->m_uiActionIdentifier)
-  {
-    m_uiLastMarqueeActionID = pMsg->m_uiActionIdentifier;
-
-    m_MarqueeBaseSelection.Clear();
-
-    if (pMsg->m_uiWhatToDo == 0) // set selection
-      pSelMan->Clear();
-
-    const auto& curSel = pSelMan->GetSelection();
-    for (auto pObj : curSel)
-    {
-      m_MarqueeBaseSelection.PushBack(pObj->GetGuid());
-    }
-  }
-
-  ezDeque<const ezDocumentObject*> newSelection;
-
-  for (ezUuid guid : m_MarqueeBaseSelection)
-  {
-    auto pObject = pObjMan->GetObject(guid);
-    newSelection.PushBack(pObject);
-  }
-
-  const ezDocumentObject* pRoot = pObjMan->GetRootObject();
-
-  for (ezUuid guid : pMsg->m_ObjectGuids)
-  {
-    const ezDocumentObject* pObject = pObjMan->GetObject(guid);
-    
-    while (pObject->GetParent() != pRoot)
-      pObject = pObject->GetParent();
-
-    if (pMsg->m_uiWhatToDo == 2) // remove from selection
-    {
-      // keep selection order
-      newSelection.Remove(pObject);
-    }
-    else // add/set selection
-    {
-      if (!newSelection.Contains(pObject))
-        newSelection.PushBack(pObject);
-    }
-  }
-
-  pSelMan->SetSelection(newSelection);
-}
-
-

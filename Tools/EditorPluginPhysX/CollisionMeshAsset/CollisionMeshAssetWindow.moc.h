@@ -28,7 +28,7 @@ private:
   void SendRedrawMsg();
   void QueryObjectBBox();
 
-  ezSceneViewConfig m_ViewConfig;
+  ezEngineViewConfig m_ViewConfig;
   ezQtCollisionMeshViewWidget* m_pViewWidget;
   ezCollisionMeshAssetDocument* m_pAssetDoc;
 };

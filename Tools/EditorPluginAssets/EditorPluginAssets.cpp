@@ -25,6 +25,7 @@
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetWindow.moc.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptActions.h>
 #include <EditorPluginAssets/DecalAsset/DecalAsset.h>
+#include <EditorFramework/Actions/GameObjectContextActions.h>
 
 
 void OnLoadPlugin(bool bReloading)
@@ -264,6 +265,7 @@ void OnLoadPlugin(bool bReloading)
       ezDocumentActions::MapActions("PropertyAnimAssetToolBar", "", true);
       ezCommandHistoryActions::MapActions("PropertyAnimAssetToolBar", "");
       ezAssetActions::MapActions("PropertyAnimAssetToolBar", true);
+      ezGameObjectContextActions::MapActions("PropertyAnimAssetToolBar", "");
     }
   }
 
