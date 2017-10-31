@@ -8,6 +8,10 @@ class EZ_PHYSXPLUGIN_DLL ezPxJointComponent : public ezPxComponent
 
 public:
   ezPxJointComponent();
+  ~ezPxJointComponent();
+
+  virtual void OnSimulationStarted() override;
+  virtual void Deinitialize() override;
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
@@ -26,13 +30,19 @@ protected:
 
 public:
 
+  void SetActors(ezGameObjectHandle hActorA, const ezTransform& localFrameA, ezGameObjectHandle hActorB, const ezTransform& localFrameB);
 
 protected:
-  virtual void Deinitialize() override;
 
-  physx::PxJoint* SetupJoint();
+  void FindActorsInHierarchy();
 
   virtual physx::PxJoint* CreateJointType(physx::PxRigidActor* actor0, const physx::PxTransform& localFrame0, physx::PxRigidActor* actor1, const physx::PxTransform& localFrame1) = 0;
+
+  ezGameObjectHandle m_hActorA;
+  ezGameObjectHandle m_hActorB;
+
+  ezTransform m_localFrameA;
+  ezTransform m_localFrameB;
 
   physx::PxJoint* m_pJoint;
 };

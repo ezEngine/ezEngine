@@ -24,6 +24,10 @@ ezPhantomRTTI::~ezPhantomRTTI()
   {
     EZ_DEFAULT_DELETE(pProp);
   }
+  for (auto pFunc : m_FunctionsStorage)
+  {
+    EZ_DEFAULT_DELETE(pFunc);
+  }
   for (auto pAttrib : m_AttributesStorage)
   {
     EZ_DEFAULT_DELETE(pAttrib);

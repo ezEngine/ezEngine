@@ -181,6 +181,7 @@ private:
     static EZ_ALWAYS_INLINE ezUInt16 TypeId() { return TYPE_ID; } \
     static ezComponentHandle CreateComponent(ezGameObject* pOwnerObject, componentType*& pComponent); \
     static void DeleteComponent(componentType* pComponent); \
+    void DeleteComponent(); \
   private: \
     friend managerType; \
     static ezUInt16 TYPE_ID
@@ -212,6 +213,8 @@ private:
     return pOwnerObject->GetWorld()->GetOrCreateComponentManager<ComponentManagerType>()->CreateComponent(pOwnerObject, out_pComponent); } \
   void componentType::DeleteComponent(componentType* pComponent) { \
     pComponent->GetManager()->DeleteComponent(pComponent->GetHandle()); } \
+  void componentType::DeleteComponent() { \
+    GetManager()->DeleteComponent(GetHandle()); } \
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(componentType, version, ezRTTINoAllocator);
 
 /// \brief Implements rtti and abstract component specific functionality. Add this macro to a cpp file.

@@ -59,27 +59,24 @@ void ezPxDistanceJointComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fSpringTolerance;
 }
 
-void ezPxDistanceJointComponent::OnSimulationStarted()
-{
-  PxDistanceJoint* pJoint = static_cast<PxDistanceJoint*>(SetupJoint());
-
-  if (pJoint == nullptr)
-    return;
-
-  pJoint->setMinDistance(m_fMinDistance);
-  pJoint->setMaxDistance(m_fMaxDistance);
-  pJoint->setStiffness(m_fSpringStiffness);
-  pJoint->setDamping(ezMath::Max(0.0f, m_fSpringDamping));
-  pJoint->setTolerance(ezMath::Max(0.0f, m_fSpringTolerance));
-
-  pJoint->setDistanceJointFlag(PxDistanceJointFlag::eMIN_DISTANCE_ENABLED, m_fMinDistance > 0.0f);
-  pJoint->setDistanceJointFlag(PxDistanceJointFlag::eMAX_DISTANCE_ENABLED, m_fMaxDistance > m_fMinDistance);
-  pJoint->setDistanceJointFlag(PxDistanceJointFlag::eSPRING_ENABLED, m_fSpringStiffness > 0.0f);
-}
-
 PxJoint* ezPxDistanceJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
-  return PxDistanceJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
+  PxDistanceJoint* pJoint = PxDistanceJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
+
+  if (pJoint != nullptr)
+  {
+    pJoint->setMinDistance(m_fMinDistance);
+    pJoint->setMaxDistance(m_fMaxDistance);
+    pJoint->setStiffness(m_fSpringStiffness);
+    pJoint->setDamping(ezMath::Max(0.0f, m_fSpringDamping));
+    pJoint->setTolerance(ezMath::Max(0.0f, m_fSpringTolerance));
+
+    pJoint->setDistanceJointFlag(PxDistanceJointFlag::eMIN_DISTANCE_ENABLED, m_fMinDistance > 0.0f);
+    pJoint->setDistanceJointFlag(PxDistanceJointFlag::eMAX_DISTANCE_ENABLED, m_fMaxDistance > m_fMinDistance);
+    pJoint->setDistanceJointFlag(PxDistanceJointFlag::eSPRING_ENABLED, m_fSpringStiffness > 0.0f);
+  }
+
+  return pJoint;
 }
 
 

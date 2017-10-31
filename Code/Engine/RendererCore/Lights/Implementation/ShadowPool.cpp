@@ -676,6 +676,12 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
   if (s_pPool->m_uiUsedShadowData == 0)
     return;
 
+  auto& packedShadowData = s_pPool->m_PackedShadowData[ezRenderWorld::GetDataIndexForRendering()];
+  if (packedShadowData.IsEmpty())
+  {
+    return;
+  }
+
   // Sort by shadow map scale
   s_SortedShadowData.Clear();
 
@@ -763,8 +769,6 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
     }
 
     // Fill shadow data
-    auto& packedShadowData = s_pPool->m_PackedShadowData[ezRenderWorld::GetDataIndexForRendering()];
-
     if (shadowData.m_uiType == LIGHT_TYPE_DIR)
     {
       ezUInt32 uiNumCascades = shadowData.m_Views.GetCount();

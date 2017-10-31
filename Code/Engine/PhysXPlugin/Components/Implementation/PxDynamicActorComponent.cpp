@@ -162,6 +162,8 @@ void ezPxDynamicActorComponent::SetKinematic(bool b)
 
   if (m_pActor)
   {
+    EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
+
     m_pActor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, m_bKinematic);
   }
 }
@@ -175,6 +177,8 @@ void ezPxDynamicActorComponent::SetDisableGravity(bool b)
 
   if (m_pActor)
   {
+    EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
+
     m_pActor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, m_bDisableGravity);
   }
 }
@@ -200,7 +204,7 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
   globalTransformNoScale.m_Scale.Set(1.0f);
   AddShapesFromObject(GetOwner(), m_pActor, globalTransformNoScale);
 
-  if (m_pActor->getNbShapes() == 0)
+  if (m_pActor->getNbShapes() == 0 && !m_bKinematic)
   {
     m_pActor->release();
     m_pActor = nullptr;
@@ -284,7 +288,7 @@ ezVec3 ezPxDynamicActorComponent::GetGlobalCenterOfMass() const
 {
   if (m_pActor != nullptr)
   {
-    EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
+    EZ_PX_READ_LOCK(*(m_pActor->getScene()));
 
     const PxTransform globalPose = m_pActor->getGlobalPose();
     return ezPxConversionUtils::ToVec3(globalPose.transform(m_pActor->getCMassLocalPose().p));
