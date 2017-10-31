@@ -3,6 +3,7 @@
 #include <ModelImporter/ModelImporter.h>
 #include <ModelImporter/Importers/AssimpImporter.h>
 #include <ModelImporter/Importers/PbrtImporter.h>
+#include <ModelImporter/Importers/SourceBSPImporter.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Editor, PluginAssets)
 
@@ -15,6 +16,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Editor, PluginAssets)
     EZ_DEFAULT_NEW(ezModelImporter::Importer);
     ezModelImporter::Importer::GetSingleton()->AddImporterImplementation(EZ_DEFAULT_NEW(ezModelImporter::AssimpImporter));
     ezModelImporter::Importer::GetSingleton()->AddImporterImplementation(EZ_DEFAULT_NEW(ezModelImporter::PbrtImporter));
+    ezModelImporter::Importer::GetSingleton()->AddImporterImplementation(EZ_DEFAULT_NEW(ezModelImporter::SourceBSPImporter));
   }
 
   ON_CORE_SHUTDOWN
