@@ -192,7 +192,7 @@ void ezQtColorGradientWidget::PaintColorGradient(QPainter& p) const
 
   if (m_fDisplayExtentMinX <= m_fDisplayExtentMaxX)
   {
-    const float range = m_fDisplayExtentMaxX - m_fDisplayExtentMinX;
+    const double range = m_fDisplayExtentMaxX - m_fDisplayExtentMinX;
 
     const ezInt32 width = GradientArea.width();
 
@@ -215,7 +215,7 @@ void ezQtColorGradientWidget::PaintColorGradient(QPainter& p) const
       ezColorGammaUB rgba;
       float intensity;
 
-      const float lerp = (float)posX / (float)width;
+      const double lerp = (double)posX / (double)width;
       GradientFinal.Evaluate(m_fDisplayExtentMinX + lerp * range, rgba, intensity);
 
       const ezColor linearCol = rgba;
@@ -239,7 +239,7 @@ void ezQtColorGradientWidget::PaintColorGradient(QPainter& p) const
     {
       p.save();
 
-      float fExtentMin, fExtentMax;
+      double fExtentMin, fExtentMax;
       GradientFinal.GetExtents(fExtentMin, fExtentMax);
 
       QPen endLines;
@@ -321,14 +321,14 @@ void ezQtColorGradientWidget::PaintCoordinateStrip(QPainter& p, const QRect& are
 
   p.fillRect(area, bg);
 
-  const float fStep = ComputeCoordinateDisplayStep();
+  const double fStep = ComputeCoordinateDisplayStep();
 
-  const float fFirstStop = ezMath::Round(m_fDisplayExtentMinX, fStep);
+  const double fFirstStop = ezMath::Round(m_fDisplayExtentMinX, fStep);
 
   QString text;
   p.setPen(QColor(0, 85, 127));
 
-  for (float fCurStop = fFirstStop; fCurStop < m_fDisplayExtentMaxX; fCurStop += fStep)
+  for (double fCurStop = fFirstStop; fCurStop < m_fDisplayExtentMaxX; fCurStop += fStep)
   {
     const ezInt32 xPos = GradientToWindowCoord(fCurStop);
 
@@ -344,7 +344,7 @@ void ezQtColorGradientWidget::PaintCoordinateLines(QPainter& p)
   if (!m_bEditMode)
     return;
 
-  const float fStep = ComputeCoordinateDisplayStep();
+  const double fStep = ComputeCoordinateDisplayStep();
 
   const QRect area = GetGradientArea();
 
@@ -357,12 +357,12 @@ void ezQtColorGradientWidget::PaintCoordinateLines(QPainter& p)
   p.setCompositionMode(QPainter::CompositionMode_Difference);
   p.setPen(endLines);
 
-  const float fFirstStop = ezMath::Round(m_fDisplayExtentMinX, fStep);
+  const double fFirstStop = ezMath::Round(m_fDisplayExtentMinX, fStep);
 
   const ezInt32 iLineHeight = area.height() / 8;
 
   QVarLengthArray<QLine, 100> lines;
-  for (float fCurStop = fFirstStop; fCurStop < m_fDisplayExtentMaxX; fCurStop += fStep)
+  for (double fCurStop = fFirstStop; fCurStop < m_fDisplayExtentMaxX; fCurStop += fStep)
   {
     const ezInt32 xPos = GradientToWindowCoord(fCurStop);
 
@@ -373,7 +373,7 @@ void ezQtColorGradientWidget::PaintCoordinateLines(QPainter& p)
   p.restore();
 }
 
-void ezQtColorGradientWidget::PaintControlPoint(QPainter& p, const QRect& area, float posX, const ezColorGammaUB& outlineColor, const ezColorGammaUB& fillColor, bool selected) const
+void ezQtColorGradientWidget::PaintControlPoint(QPainter& p, const QRect& area, double posX, const ezColorGammaUB& outlineColor, const ezColorGammaUB& fillColor, bool selected) const
 {
   const ezInt32 iPosX = GradientToWindowCoord(posX);
 
@@ -516,7 +516,7 @@ void ezQtColorGradientWidget::mouseDoubleClickEvent(QMouseEvent* event)
     // left click and nothing else
     if (event->buttons() == Qt::MouseButton::LeftButton)
     {
-      const float posX = WindowToGradientCoord(event->pos().x());
+      const double posX = WindowToGradientCoord(event->pos().x());
 
       const bool hovers = HoversControlPoint(event->pos());
 
@@ -586,7 +586,7 @@ void ezQtColorGradientWidget::mouseMoveEvent(QMouseEvent* event)
         emit beginOperation();
       }
 
-      const float newPosX = WindowToGradientCoord(event->pos().x());
+      const double newPosX = WindowToGradientCoord(event->pos().x());
 
       if (m_iSelectedColorCP != -1)
       {
@@ -611,9 +611,9 @@ void ezQtColorGradientWidget::mouseMoveEvent(QMouseEvent* event)
           const QPoint mouseMove = event->globalPos() - m_LastMousePosition;
           m_LastMousePosition = event->globalPos();
 
-          const float range = m_fDisplayExtentMaxX - m_fDisplayExtentMinX;
+          const double range = m_fDisplayExtentMaxX - m_fDisplayExtentMinX;
 
-          const float scrolled = (float)mouseMove.x() / (float)GetGradientArea().width();
+          const double scrolled = (double)mouseMove.x() / (double)GetGradientArea().width();
 
           /// \todo Why not += ?
           m_fDisplayExtentMinX -= scrolled * range;
@@ -664,16 +664,16 @@ void ezQtColorGradientWidget::wheelEvent(QWheelEvent* event)
     // zoom displayed area
     if (m_fDisplayExtentMinX < m_fDisplayExtentMaxX)
     {
-      const float range = m_fDisplayExtentMaxX - m_fDisplayExtentMinX;
+      const double range = m_fDisplayExtentMaxX - m_fDisplayExtentMinX;
 
-      const float zoomCenter = WindowToGradientCoord(event->pos().x());
-      const float zoomNorm = (zoomCenter - m_fDisplayExtentMinX) / range;
+      const double zoomCenter = WindowToGradientCoord(event->pos().x());
+      const double zoomNorm = (zoomCenter - m_fDisplayExtentMinX) / range;
 
-      const float changePerc = (event->delta() > 0) ? 0.1f : -0.1f;
-      const float change = changePerc * range;
+      const double changePerc = (event->delta() > 0) ? 0.1 : -0.1;
+      const double change = changePerc * range;
 
       m_fDisplayExtentMinX += change * zoomNorm;
-      m_fDisplayExtentMaxX -= change * (1.0f - zoomNorm);
+      m_fDisplayExtentMaxX -= change * (1.0 - zoomNorm);
 
       ClampDisplayExtents(zoomNorm);
 
@@ -684,14 +684,14 @@ void ezQtColorGradientWidget::wheelEvent(QWheelEvent* event)
   QWidget::wheelEvent(event);
 }
 
-void ezQtColorGradientWidget::ClampDisplayExtents(float zoomCenter)
+void ezQtColorGradientWidget::ClampDisplayExtents(double zoomCenter)
 {
-  const float newRange = m_fDisplayExtentMaxX - m_fDisplayExtentMinX;
-  const float clampedRange = ezMath::Clamp(newRange, 0.05f, 100.0f);
-  const float center = ezMath::Lerp(m_fDisplayExtentMinX, m_fDisplayExtentMaxX, zoomCenter);
+  const double newRange = m_fDisplayExtentMaxX - m_fDisplayExtentMinX;
+  const double clampedRange = ezMath::Clamp(newRange, 0.05, 100.0);
+  const double center = ezMath::Lerp(m_fDisplayExtentMinX, m_fDisplayExtentMaxX, zoomCenter);
 
   m_fDisplayExtentMinX = center - clampedRange * zoomCenter;
-  m_fDisplayExtentMaxX = center + clampedRange * (1.0f - zoomCenter); 
+  m_fDisplayExtentMaxX = center + clampedRange * (1.0 - zoomCenter); 
 }
 
 void ezQtColorGradientWidget::keyPressEvent(QKeyEvent* event)
@@ -800,17 +800,17 @@ QRect ezQtColorGradientWidget::GetCoordAreaBottom() const
   return r;
 }
 
-float ezQtColorGradientWidget::WindowToGradientCoord(ezInt32 mouseWindowPosX) const
+double ezQtColorGradientWidget::WindowToGradientCoord(ezInt32 mouseWindowPosX) const
 {
   QRect area = GetGradientArea();
-  const float norm = (float)(mouseWindowPosX - area.left()) / (float)area.width();
+  const double norm = (double)(mouseWindowPosX - area.left()) / (double)area.width();
   return m_fDisplayExtentMinX + norm * (m_fDisplayExtentMaxX - m_fDisplayExtentMinX);
 }
 
-ezInt32 ezQtColorGradientWidget::GradientToWindowCoord(float gradientPosX) const
+ezInt32 ezQtColorGradientWidget::GradientToWindowCoord(double gradientPosX) const
 {
   QRect area = GetGradientArea();
-  const float norm = (gradientPosX - m_fDisplayExtentMinX) / (m_fDisplayExtentMaxX - m_fDisplayExtentMinX);
+  const double norm = (gradientPosX - m_fDisplayExtentMinX) / (m_fDisplayExtentMaxX - m_fDisplayExtentMinX);
   return area.left() + norm * (area.right() - area.left());
 }
 
@@ -968,25 +968,25 @@ void ezQtColorGradientWidget::EvaluateAt(ezInt32 windowPos, ezColorGammaUB& rgba
   GradientFinal = *m_pColorGradientData;
   GradientFinal.SortControlPoints();
 
-  const float range = m_fDisplayExtentMaxX - m_fDisplayExtentMinX;
+  const double range = m_fDisplayExtentMaxX - m_fDisplayExtentMinX;
 
-  const float lerp = (float)windowPos / (float)rect().width();
+  const double lerp = (double)windowPos / (double)rect().width();
   GradientFinal.Evaluate(m_fDisplayExtentMinX + lerp * range, rgba, intensity);
 }
 
 
-float ezQtColorGradientWidget::ComputeCoordinateDisplayStep() const
+double ezQtColorGradientWidget::ComputeCoordinateDisplayStep() const
 {
   const ezInt32 iPixelsNeeded = 50;
-  const float fFitInWindow = ezMath::Max<float>(2, rect().width() / (float)iPixelsNeeded);
+  const double fFitInWindow = ezMath::Max<double>(2, rect().width() / (double)iPixelsNeeded);
 
-  const float fGradientRange = (m_fDisplayExtentMaxX - m_fDisplayExtentMinX);
-  const float fSubRange = fGradientRange / fFitInWindow;
+  const double fGradientRange = (m_fDisplayExtentMaxX - m_fDisplayExtentMinX);
+  const double fSubRange = fGradientRange / fFitInWindow;
 
-  const float fExp = ezMath::Log10(fSubRange);
+  const double fExp = ezMath::Log10(fSubRange);
   const ezInt32 iExp = ezMath::Ceil(fExp);
 
-  const float step = ezMath::Pow(10.0f, (float)iExp);
+  const double step = ezMath::Pow(10.0, (double)iExp);
 
   return step;
 }
@@ -1006,18 +1006,18 @@ void ezQtColorGradientWidget::FrameExtents()
 
   if (m_fDisplayExtentMinX == m_fDisplayExtentMaxX)
   {
-    m_fDisplayExtentMinX = ezMath::Floor(m_fDisplayExtentMinX - 0.1f, 1.0f);
-    m_fDisplayExtentMaxX = ezMath::Ceil(m_fDisplayExtentMaxX + 0.1f, 1.0f);
+    m_fDisplayExtentMinX = ezMath::Floor(m_fDisplayExtentMinX - 0.1, 1.0);
+    m_fDisplayExtentMaxX = ezMath::Ceil(m_fDisplayExtentMaxX + 0.1, 1.0);
   }
 
   if (m_bEditMode)
   {
     // round up/down to next multiple of 1
-    m_fDisplayExtentMinX = ezMath::Floor(m_fDisplayExtentMinX, 1.0f);
-    m_fDisplayExtentMaxX = ezMath::Ceil(m_fDisplayExtentMaxX, 1.0f);
+    m_fDisplayExtentMinX = ezMath::Floor(m_fDisplayExtentMinX, 1.0);
+    m_fDisplayExtentMaxX = ezMath::Ceil(m_fDisplayExtentMaxX, 1.0);
 
-    const float range = m_fDisplayExtentMaxX - m_fDisplayExtentMinX;
-    const float border = range * 0.05f;
+    const double range = m_fDisplayExtentMaxX - m_fDisplayExtentMinX;
+    const double border = range * 0.05;
 
     m_fDisplayExtentMinX -= border;
     m_fDisplayExtentMaxX += border;

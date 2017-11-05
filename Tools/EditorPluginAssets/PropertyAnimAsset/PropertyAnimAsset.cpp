@@ -60,12 +60,15 @@ ezObjectAccessorBase* ezPropertyAnimAssetDocument::GetObjectAccessor() const
   return m_pAccessor.Borrow();
 }
 
-ezTime ezPropertyAnimAssetDocument::GetAnimationDuration() const
+ezInt64 ezPropertyAnimAssetDocument::GetAnimationDurationTicks() const
 {
+  if (m_iCachedAnimationDuration != 0)
+    return m_iCachedAnimationDuration;
+
   const ezPropertyAnimationTrackGroup* pProp = GetProperties();
 
   // minimum duration
-  double length = 0.1;
+  m_iCachedAnimationDuration = 480; // 1/10th second
 
   for (ezUInt32 i = 0; i < pProp->m_Tracks.GetCount(); ++i)
   {
@@ -73,11 +76,34 @@ ezTime ezPropertyAnimAssetDocument::GetAnimationDuration() const
 
     for (const auto& cp : pTrack->m_FloatCurve.m_ControlPoints)
     {
-      length = ezMath::Max(length, cp.GetTickAsTime());
+      m_iCachedAnimationDuration = ezMath::Max(m_iCachedAnimationDuration, cp.m_iTick);
+    }
+
+    for (const auto& cp : pTrack->m_ColorGradient.m_ColorCPs)
+    {
+      m_iCachedAnimationDuration = ezMath::Max<ezInt64>(m_iCachedAnimationDuration, cp.m_iTick);
+    }
+
+    for (const auto& cp : pTrack->m_ColorGradient.m_AlphaCPs)
+    {
+      m_iCachedAnimationDuration = ezMath::Max<ezInt64>(m_iCachedAnimationDuration, cp.m_iTick);
+    }
+
+    for (const auto& cp : pTrack->m_ColorGradient.m_IntensityCPs)
+    {
+      m_iCachedAnimationDuration = ezMath::Max<ezInt64>(m_iCachedAnimationDuration, cp.m_iTick);
     }
   }
 
-  return ezTime::Seconds(length);
+  return m_iCachedAnimationDuration;
+}
+
+
+ezTime ezPropertyAnimAssetDocument::GetAnimationDurationTime() const
+{
+  const ezInt64 ticks = GetAnimationDurationTicks();
+
+  return ezTime::Seconds(ticks / 4800.0);
 }
 
 ezStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
@@ -89,7 +115,7 @@ ezStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& str
 
   ezPropertyAnimResourceDescriptor desc;
   desc.m_Mode = pProp->m_Mode;
-  desc.m_AnimationDuration = GetAnimationDuration();
+  desc.m_AnimationDuration = GetAnimationDurationTime();
 
   for (ezUInt32 i = 0; i < pProp->m_Tracks.GetCount(); ++i)
   {

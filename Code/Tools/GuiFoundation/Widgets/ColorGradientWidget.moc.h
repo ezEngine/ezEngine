@@ -29,12 +29,12 @@ public:
 
 signals:
   void GradientClicked();
-  void addColorCp(float posX, const ezColorGammaUB& color);
-  void addAlphaCp(float posX, ezUInt8 value);
-  void addIntensityCp(float posX, float intensity);
-  void moveColorCpToPos(ezInt32 index, float newPosX);
-  void moveAlphaCpToPos(ezInt32 index, float newPosX);
-  void moveIntensityCpToPos(ezInt32 index, float newPosX);
+  void addColorCp(double posX, const ezColorGammaUB& color);
+  void addAlphaCp(double posX, ezUInt8 value);
+  void addIntensityCp(double posX, float intensity);
+  void moveColorCpToPos(ezInt32 index, double newPosX);
+  void moveAlphaCpToPos(ezInt32 index, double newPosX);
+  void moveIntensityCpToPos(ezInt32 index, double newPosX);
   void deleteColorCp(ezInt32 index);
   void deleteAlphaCp(ezInt32 index);
   void deleteIntensityCp(ezInt32 index);
@@ -64,7 +64,7 @@ private:
 
   virtual void wheelEvent(QWheelEvent* event) override;
 
-  void ClampDisplayExtents(float zoomCenter = 0.5f);
+  void ClampDisplayExtents(double zoomCenter = 0.5);
 
   virtual void keyPressEvent(QKeyEvent* event) override;
 
@@ -77,7 +77,7 @@ private:
   void PaintCoordinateStrip(QPainter& p, const QRect& area) const;
   void PaintCoordinateLines(QPainter& p);
 
-  void PaintControlPoint(QPainter& p, const QRect& area, float posX, const ezColorGammaUB& outlineColor, const ezColorGammaUB& fillColor, bool selected) const;
+  void PaintControlPoint(QPainter& p, const QRect& area, double posX, const ezColorGammaUB& outlineColor, const ezColorGammaUB& fillColor, bool selected) const;
   void PaintColorCPs(QPainter& p) const;
   void PaintAlphaCPs(QPainter& p) const;
 
@@ -88,8 +88,8 @@ private:
   QRect GetCoordAreaTop() const;
   QRect GetCoordAreaBottom() const;
 
-  float WindowToGradientCoord(ezInt32 mouseWindowPosX) const;
-  ezInt32 GradientToWindowCoord(float gradientPosX) const;
+  double WindowToGradientCoord(ezInt32 mouseWindowPosX) const;
+  ezInt32 GradientToWindowCoord(double gradientPosX) const;
 
   ezInt32 FindClosestColorCp(ezInt32 iWindowPosX) const;
   ezInt32 FindClosestAlphaCp(ezInt32 iWindowPosX) const;
@@ -101,7 +101,7 @@ private:
 
   void EvaluateAt(ezInt32 windowPos, ezColorGammaUB& rgba, float& intensity) const;
 
-  float ComputeCoordinateDisplayStep() const;
+  double ComputeCoordinateDisplayStep() const;
 
   const ezColorGradient* m_pColorGradientData;
 
@@ -114,8 +114,8 @@ private:
   bool m_bShowCoordsTop;
   bool m_bShowCoordsBottom;
 
-  float m_fDisplayExtentMinX;
-  float m_fDisplayExtentMaxX;
+  double m_fDisplayExtentMinX;
+  double m_fDisplayExtentMaxX;
 
   ezInt32 m_iSelectedColorCP;
   ezInt32 m_iSelectedAlphaCP;

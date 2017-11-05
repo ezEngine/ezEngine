@@ -19,7 +19,7 @@ public:
   {
     EZ_DECLARE_POD_TYPE();
 
-    float m_PosX;
+    double m_PosX;
     ezUInt8 m_GammaRed;
     ezUInt8 m_GammaGreen;
     ezUInt8 m_GammaBlue;
@@ -33,7 +33,7 @@ public:
   {
     EZ_DECLARE_POD_TYPE();
 
-    float m_PosX;
+    double m_PosX;
     ezUInt8 m_Alpha;
     float m_fInvDistToNextCp; /// Internal: Optimization for Evaluate to not recalculate 1/distance to the next control point
 
@@ -45,7 +45,7 @@ public:
   {
     EZ_DECLARE_POD_TYPE();
 
-    float m_PosX;
+    double m_PosX;
     float m_Intensity;
     float m_fInvDistToNextCp; /// Internal: Optimization for Evaluate to not recalculate 1/distance to the next control point
 
@@ -62,16 +62,16 @@ public:
   bool IsEmpty() const;
 
   /// \brief Appends a color control point. SortControlPoints() must be called to before evaluating the curve.
-  void AddColorControlPoint(float x, const ezColorGammaUB& rgb);
+  void AddColorControlPoint(double x, const ezColorGammaUB& rgb);
 
   /// \brief Appends an alpha control point. SortControlPoints() must be called to before evaluating the curve.
-  void AddAlphaControlPoint(float x, ezUInt8 alpha);
+  void AddAlphaControlPoint(double x, ezUInt8 alpha);
 
   /// \brief Appends an intensity control point. SortControlPoints() must be called to before evaluating the curve.
-  void AddIntensityControlPoint(float x, float intensity);
+  void AddIntensityControlPoint(double x, float intensity);
 
   /// \brief Determines the min and max x-coordinate value across all control points.
-  bool GetExtents(float& minx, float& maxx) const;
+  bool GetExtents(double& minx, double& maxx) const;
 
   /// \brief Returns the number of control points of each type.
   void GetNumControlPoints(ezUInt32& rgb, ezUInt32& alpha, ezUInt32& intensity) const;
@@ -96,19 +96,19 @@ public:
   /// \brief Evaluates the curve at the given x-coordinate and returns RGBA and intensity separately.
   ///
   /// The control points have to be sorted, so call SortControlPoints() before, if any modifications where done.
-  void Evaluate(float x, ezColorGammaUB& rgba, float& intensity) const;
+  void Evaluate(double x, ezColorGammaUB& rgba, float& intensity) const;
 
   /// \brief Evaluates the curve and returns RGBA and intensity in one combined ezColor value.
-  void Evaluate(float x, ezColor& hdr) const;
+  void Evaluate(double x, ezColor& hdr) const;
 
   /// \brief Evaluates only the color curve.
-  void EvaluateColor(float x, ezColorGammaUB& rgb) const;
+  void EvaluateColor(double x, ezColorGammaUB& rgb) const;
   /// \brief Evaluates only the color curve.
-  void EvaluateColor(float x, ezColor& rgb) const;
+  void EvaluateColor(double x, ezColor& rgb) const;
   /// \brief Evaluates only the alpha curve.
-  void EvaluateAlpha(float x, ezUInt8& alpha) const;
+  void EvaluateAlpha(double x, ezUInt8& alpha) const;
   /// \brief Evaluates only the intensity curve.
-  void EvaluateIntensity(float x, float& intensity) const;
+  void EvaluateIntensity(double x, float& intensity) const;
 
   /// \brief How much heap memory the curve uses.
   ezUInt64 GetHeapMemoryUsage() const;

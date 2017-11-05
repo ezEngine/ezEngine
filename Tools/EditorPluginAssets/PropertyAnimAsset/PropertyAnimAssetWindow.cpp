@@ -23,6 +23,10 @@
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimViewWidget.moc.h>
 #include <EditorFramework/DocumentWindow/GameObjectGizmoHandler.h>
 #include <EditorFramework/DocumentWindow/QuadViewWidget.moc.h>
+#include <GuiFoundation/Widgets/TimeScrubberWidget.moc.h>
+#include <QToolBar>
+#include <QPushButton>
+
 
 ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPropertyAnimAssetDocument* pDocument) : ezQtGameObjectDocumentWindow(pDocument)
 {
@@ -138,6 +142,13 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     pPanel->setWidget(m_pGradientEditor);
 
     addDockWidget(Qt::DockWidgetArea::BottomDockWidgetArea, pPanel);
+  }
+
+  // Time Scrubber
+  {
+    m_pScrubberToolbar = new ezQtTimeScrubberToolbar(this);
+
+    addToolBar(Qt::ToolBarArea::BottomToolBarArea, m_pScrubberToolbar);
   }
 
   pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
@@ -347,7 +358,7 @@ void ezQtPropertyAnimAssetDocumentWindow::SelectionEventHandler(const ezSelectio
 void ezQtPropertyAnimAssetDocumentWindow::UpdateCurveEditor()
 {
   ezPropertyAnimAssetDocument* pDoc = static_cast<ezPropertyAnimAssetDocument*>(GetDocument());
-  m_pCurveEditor->SetCurves(m_CurvesToDisplay, pDoc->GetAnimationDuration().GetSeconds());
+  m_pCurveEditor->SetCurves(m_CurvesToDisplay, pDoc->GetAnimationDurationTime().GetSeconds());
 }
 
 
@@ -444,6 +455,8 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveInsertCpAt(ezUInt32 uiCurveIdx,
 
   history->FinishTransaction();
 
+  pDoc->ClearCachedAnimationDuration();
+
   UpdateCurveEditor();
 }
 
@@ -471,11 +484,13 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveCpMoved(ezUInt32 uiCurveIdx, ez
 
   cmdSet.m_sProperty = "Tick";
   cmdSet.m_NewValue = iTickX;
-  GetDocument()->GetCommandHistory()->AddCommand(cmdSet);
+  pDoc->GetCommandHistory()->AddCommand(cmdSet);
 
   cmdSet.m_sProperty = "Value";
   cmdSet.m_NewValue = newPosY;
-  GetDocument()->GetCommandHistory()->AddCommand(cmdSet);
+  pDoc->GetCommandHistory()->AddCommand(cmdSet);
+
+  pDoc->ClearCachedAnimationDuration();
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onCurveCpDeleted(ezUInt32 uiCurveIdx, ezUInt32 cpIdx)
@@ -500,7 +515,9 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveCpDeleted(ezUInt32 uiCurveIdx, 
 
   ezRemoveObjectCommand cmdSet;
   cmdSet.m_Object = cpGuid.Get<ezUuid>();
-  GetDocument()->GetCommandHistory()->AddCommand(cmdSet);
+  pDoc->GetCommandHistory()->AddCommand(cmdSet);
+
+  pDoc->ClearCachedAnimationDuration();
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onCurveTangentMoved(ezUInt32 uiCurveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent)
@@ -596,7 +613,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveTangentModeChanged(ezUInt32 uiC
 //////////////////////////////////////////////////////////////////////////
 
 
-void ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpAdded(float posX, const ezColorGammaUB& color)
+void ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpAdded(double posX, const ezColorGammaUB& color)
 {
   ezPropertyAnimAssetDocument* pDoc = static_cast<ezPropertyAnimAssetDocument*>(GetDocument());
 
@@ -622,8 +639,8 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpAdded(float posX, con
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
-  cmdSet.m_sProperty = "Position";
-  cmdSet.m_NewValue = posX;
+  cmdSet.m_sProperty = "Tick";
+  cmdSet.m_NewValue = pDoc->GetProperties()->m_Tracks[m_iMapGradientToTrack]->m_ColorGradient.TickFromTime(posX);
   history->AddCommand(cmdSet);
 
   cmdSet.m_sProperty = "Red";
@@ -639,10 +656,12 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpAdded(float posX, con
   history->AddCommand(cmdSet);
 
   history->FinishTransaction();
+
+  pDoc->ClearCachedAnimationDuration();
 }
 
 
-void ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpAdded(float posX, ezUInt8 alpha)
+void ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpAdded(double posX, ezUInt8 alpha)
 {
   ezPropertyAnimAssetDocument* pDoc = static_cast<ezPropertyAnimAssetDocument*>(GetDocument());
 
@@ -668,8 +687,8 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpAdded(float posX, ezU
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
-  cmdSet.m_sProperty = "Position";
-  cmdSet.m_NewValue = posX;
+  cmdSet.m_sProperty = "Tick";
+  cmdSet.m_NewValue = pDoc->GetProperties()->m_Tracks[m_iMapGradientToTrack]->m_ColorGradient.TickFromTime(posX);
   history->AddCommand(cmdSet);
 
   cmdSet.m_sProperty = "Alpha";
@@ -677,10 +696,12 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpAdded(float posX, ezU
   history->AddCommand(cmdSet);
 
   history->FinishTransaction();
+
+  pDoc->ClearCachedAnimationDuration();
 }
 
 
-void ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpAdded(float posX, float intensity)
+void ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpAdded(double posX, float intensity)
 {
   ezPropertyAnimAssetDocument* pDoc = static_cast<ezPropertyAnimAssetDocument*>(GetDocument());
 
@@ -706,8 +727,8 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpAdded(float posX,
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
-  cmdSet.m_sProperty = "Position";
-  cmdSet.m_NewValue = posX;
+  cmdSet.m_sProperty = "Tick";
+  cmdSet.m_NewValue = pDoc->GetProperties()->m_Tracks[m_iMapGradientToTrack]->m_ColorGradient.TickFromTime(posX);
   history->AddCommand(cmdSet);
 
   cmdSet.m_sProperty = "Intensity";
@@ -715,9 +736,11 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpAdded(float posX,
   history->AddCommand(cmdSet);
 
   history->FinishTransaction();
+
+  pDoc->ClearCachedAnimationDuration();
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::MoveGradientCP(ezInt32 idx, float newPosX, const char* szArrayName)
+void ezQtPropertyAnimAssetDocumentWindow::MoveGradientCP(ezInt32 idx, double newPosX, const char* szArrayName)
 {
   ezPropertyAnimAssetDocument* pDoc = static_cast<ezPropertyAnimAssetDocument*>(GetDocument());
 
@@ -737,25 +760,27 @@ void ezQtPropertyAnimAssetDocumentWindow::MoveGradientCP(ezInt32 idx, float newP
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = objGuid.Get<ezUuid>();
 
-  cmdSet.m_sProperty = "Position";
-  cmdSet.m_NewValue = newPosX;
+  cmdSet.m_sProperty = "Tick";
+  cmdSet.m_NewValue = pDoc->GetProperties()->m_Tracks[m_iMapGradientToTrack]->m_ColorGradient.TickFromTime(newPosX);
   history->AddCommand(cmdSet);
 
   history->FinishTransaction();
+
+  pDoc->ClearCachedAnimationDuration();
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpMoved(ezInt32 idx, float newPosX)
+void ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpMoved(ezInt32 idx, double newPosX)
 {
   MoveGradientCP(idx, newPosX, "ColorCPs");
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpMoved(ezInt32 idx, float newPosX)
+void ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpMoved(ezInt32 idx, double newPosX)
 {
   MoveGradientCP(idx, newPosX, "AlphaCPs");
 }
 
 
-void ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpMoved(ezInt32 idx, float newPosX)
+void ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpMoved(ezInt32 idx, double newPosX)
 {
   MoveGradientCP(idx, newPosX, "IntensityCPs");
 }
@@ -782,6 +807,8 @@ void ezQtPropertyAnimAssetDocumentWindow::RemoveGradientCP(ezInt32 idx, const ch
   history->AddCommand(cmdSet);
 
   history->FinishTransaction();
+
+  pDoc->ClearCachedAnimationDuration();
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpDeleted(ezInt32 idx)

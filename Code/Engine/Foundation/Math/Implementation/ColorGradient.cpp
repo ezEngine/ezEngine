@@ -21,7 +21,7 @@ bool ezColorGradient::IsEmpty() const
   return m_ColorCPs.IsEmpty() && m_AlphaCPs.IsEmpty() && m_IntensityCPs.IsEmpty();
 }
 
-void ezColorGradient::AddColorControlPoint(float x, const ezColorGammaUB& rgb)
+void ezColorGradient::AddColorControlPoint(double x, const ezColorGammaUB& rgb)
 {
   auto& cp = m_ColorCPs.ExpandAndGetRef();
   cp.m_PosX = x;
@@ -30,21 +30,21 @@ void ezColorGradient::AddColorControlPoint(float x, const ezColorGammaUB& rgb)
   cp.m_GammaBlue = rgb.b;
 }
 
-void ezColorGradient::AddAlphaControlPoint(float x, ezUInt8 alpha)
+void ezColorGradient::AddAlphaControlPoint(double x, ezUInt8 alpha)
 {
   auto& cp = m_AlphaCPs.ExpandAndGetRef();
   cp.m_PosX = x;
   cp.m_Alpha = alpha;
 }
 
-void ezColorGradient::AddIntensityControlPoint(float x, float intensity)
+void ezColorGradient::AddIntensityControlPoint(double x, float intensity)
 {
   auto& cp = m_IntensityCPs.ExpandAndGetRef();
   cp.m_PosX = x;
   cp.m_Intensity = intensity;
 }
 
-bool ezColorGradient::GetExtents(float& minx, float& maxx) const
+bool ezColorGradient::GetExtents(double& minx, double& maxx) const
 {
   minx = ezMath::BasicType<float>::MaxValue();
   maxx = -ezMath::BasicType<float>::MaxValue();
@@ -123,7 +123,7 @@ void ezColorGradient::PrecomputeLerpNormalizer()
   }
 }
 
-void ezColorGradient::Evaluate(float x, ezColorGammaUB& rgba, float& intensity) const
+void ezColorGradient::Evaluate(double x, ezColorGammaUB& rgba, float& intensity) const
 {
   rgba.r = 255;
   rgba.g = 255;
@@ -137,7 +137,7 @@ void ezColorGradient::Evaluate(float x, ezColorGammaUB& rgba, float& intensity) 
 }
 
 
-void ezColorGradient::Evaluate(float x, ezColor& hdr) const
+void ezColorGradient::Evaluate(double x, ezColor& hdr) const
 {
   float intensity = 1.0f;
   ezUInt8 alpha = 255;
@@ -150,7 +150,7 @@ void ezColorGradient::Evaluate(float x, ezColor& hdr) const
   hdr.a = ezMath::ColorByteToFloat(alpha);
 }
 
-void ezColorGradient::EvaluateColor(float x, ezColorGammaUB& rgb) const
+void ezColorGradient::EvaluateColor(double x, ezColorGammaUB& rgb) const
 {
   ezColor hdr;
   EvaluateColor(x, hdr);
@@ -159,7 +159,7 @@ void ezColorGradient::EvaluateColor(float x, ezColorGammaUB& rgb) const
   rgb.a = 255;
 }
 
-void ezColorGradient::EvaluateColor(float x, ezColor& rgb) const
+void ezColorGradient::EvaluateColor(double x, ezColor& rgb) const
 {
   rgb.r = 1.0f;
   rgb.g = 1.0f;
@@ -207,7 +207,7 @@ found:
       /// \todo Use a midpoint interpolation
 
       // interpolate (linear for now)
-      const float lerpX = (x - cpl.m_PosX) * cpl.m_fInvDistToNextCp;
+      const float lerpX = (float)(x - cpl.m_PosX) * cpl.m_fInvDistToNextCp;
 
       rgb = ezMath::Lerp(lhs, rhs, lerpX);
     }
@@ -218,7 +218,7 @@ found:
   }
 }
 
-void ezColorGradient::EvaluateAlpha(float x, ezUInt8& alpha) const
+void ezColorGradient::EvaluateAlpha(double x, ezUInt8& alpha) const
 {
   alpha = 255;
 
@@ -257,7 +257,7 @@ found:
       const AlphaCP& cpr = m_AlphaCPs[uiControlPoint + 1];
 
       // interpolate (linear for now)
-      const float lerpX = (x - cpl.m_PosX) * cpl.m_fInvDistToNextCp;
+      const float lerpX = (float)(x - cpl.m_PosX) * cpl.m_fInvDistToNextCp;
 
       alpha = ezMath::Lerp(cpl.m_Alpha, cpr.m_Alpha, lerpX);
     }
@@ -268,7 +268,7 @@ found:
   }
 }
 
-void ezColorGradient::EvaluateIntensity(float x, float& intensity) const
+void ezColorGradient::EvaluateIntensity(double x, float& intensity) const
 {
   intensity = 1.0f;
 
@@ -307,7 +307,7 @@ found:
       /// \todo Use a midpoint interpolation
 
       // interpolate (linear for now)
-      const float lerpX = (x - cpl.m_PosX) * cpl.m_fInvDistToNextCp;
+      const float lerpX = (float)(x - cpl.m_PosX) * cpl.m_fInvDistToNextCp;
 
       intensity = ezMath::Lerp(cpl.m_Intensity, cpr.m_Intensity, lerpX);
     }
@@ -325,7 +325,7 @@ ezUInt64 ezColorGradient::GetHeapMemoryUsage() const
 
 void ezColorGradient::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 1;
+  const ezUInt8 uiVersion = 2;
 
   stream << uiVersion;
 
@@ -363,7 +363,7 @@ void ezColorGradient::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
 
   stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion == 1, "Incorrect version '{0}' for ezColorGradient", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= 2, "Incorrect version '{0}' for ezColorGradient", uiVersion);
 
   ezUInt32 numColor = 0;
   ezUInt32 numAlpha = 0;
@@ -377,24 +377,50 @@ void ezColorGradient::Load(ezStreamReader& stream)
   m_AlphaCPs.SetCountUninitialized(numAlpha);
   m_IntensityCPs.SetCountUninitialized(numIntensity);
 
-  for (auto& cp : m_ColorCPs)
+  if (uiVersion == 1)
   {
-    stream >> cp.m_PosX;
-    stream >> cp.m_GammaRed;
-    stream >> cp.m_GammaGreen;
-    stream >> cp.m_GammaBlue;
-  }
+    float x;
+    for (auto& cp : m_ColorCPs)
+    {
+      stream >> x; cp.m_PosX = x; // float
+      stream >> cp.m_GammaRed;
+      stream >> cp.m_GammaGreen;
+      stream >> cp.m_GammaBlue;
+    }
 
-  for (auto& cp : m_AlphaCPs)
-  {
-    stream >> cp.m_PosX;
-    stream >> cp.m_Alpha;
-  }
+    for (auto& cp : m_AlphaCPs)
+    {
+      stream >> x; cp.m_PosX = x; // float
+      stream >> cp.m_Alpha;
+    }
 
-  for (auto& cp : m_IntensityCPs)
+    for (auto& cp : m_IntensityCPs)
+    {
+      stream >> x; cp.m_PosX = x; // float
+      stream >> cp.m_Intensity;
+    }
+  }
+  else
   {
-    stream >> cp.m_PosX;
-    stream >> cp.m_Intensity;
+    for (auto& cp : m_ColorCPs)
+    {
+      stream >> cp.m_PosX;
+      stream >> cp.m_GammaRed;
+      stream >> cp.m_GammaGreen;
+      stream >> cp.m_GammaBlue;
+    }
+
+    for (auto& cp : m_AlphaCPs)
+    {
+      stream >> cp.m_PosX;
+      stream >> cp.m_Alpha;
+    }
+
+    for (auto& cp : m_IntensityCPs)
+    {
+      stream >> cp.m_PosX;
+      stream >> cp.m_Intensity;
+    }
   }
 
   PrecomputeLerpNormalizer();

@@ -17,16 +17,16 @@ ezQtColorGradientEditorWidget::ezQtColorGradientEditorWidget(QWidget* pParent)
 
   on_GradientWidget_selectionChanged(-1, -1, -1);
 
-  connect(GradientWidget, &ezQtColorGradientWidget::addColorCp, this, [this](float x, const ezColorGammaUB& color) { emit ColorCpAdded(x, color); });
-  connect(GradientWidget, &ezQtColorGradientWidget::moveColorCpToPos, this, [this](ezInt32 idx, float x) { emit ColorCpMoved(idx, x); });
+  connect(GradientWidget, &ezQtColorGradientWidget::addColorCp, this, [this](double x, const ezColorGammaUB& color) { emit ColorCpAdded(x, color); });
+  connect(GradientWidget, &ezQtColorGradientWidget::moveColorCpToPos, this, [this](ezInt32 idx, double x) { emit ColorCpMoved(idx, x); });
   connect(GradientWidget, &ezQtColorGradientWidget::deleteColorCp, this, [this](ezInt32 idx) { emit ColorCpDeleted(idx); });
 
-  connect(GradientWidget, &ezQtColorGradientWidget::addAlphaCp, this, [this](float x, ezUInt8 alpha) { emit AlphaCpAdded(x, alpha); });
-  connect(GradientWidget, &ezQtColorGradientWidget::moveAlphaCpToPos, this, [this](ezInt32 idx, float x) { emit AlphaCpMoved(idx, x); });
+  connect(GradientWidget, &ezQtColorGradientWidget::addAlphaCp, this, [this](double x, ezUInt8 alpha) { emit AlphaCpAdded(x, alpha); });
+  connect(GradientWidget, &ezQtColorGradientWidget::moveAlphaCpToPos, this, [this](ezInt32 idx, double x) { emit AlphaCpMoved(idx, x); });
   connect(GradientWidget, &ezQtColorGradientWidget::deleteAlphaCp, this, [this](ezInt32 idx) { emit AlphaCpDeleted(idx); });
 
-  connect(GradientWidget, &ezQtColorGradientWidget::addIntensityCp, this, [this](float x, float intensity) { emit IntensityCpAdded(x, intensity); });
-  connect(GradientWidget, &ezQtColorGradientWidget::moveIntensityCpToPos, this, [this](ezInt32 idx, float x) { emit IntensityCpMoved(idx, x); });
+  connect(GradientWidget, &ezQtColorGradientWidget::addIntensityCp, this, [this](double x, float intensity) { emit IntensityCpAdded(x, intensity); });
+  connect(GradientWidget, &ezQtColorGradientWidget::moveIntensityCpToPos, this, [this](ezInt32 idx, double x) { emit IntensityCpMoved(idx, x); });
   connect(GradientWidget, &ezQtColorGradientWidget::deleteIntensityCp, this, [this](ezInt32 idx) { emit IntensityCpDeleted(idx); });
 
   connect(GradientWidget, &ezQtColorGradientWidget::beginOperation, this, [this]() { emit BeginOperation(); });

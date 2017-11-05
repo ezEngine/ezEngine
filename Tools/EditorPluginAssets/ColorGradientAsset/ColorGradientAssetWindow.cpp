@@ -98,7 +98,7 @@ ezQtColorGradientAssetDocumentWindow::~ezQtColorGradientAssetDocumentWindow()
 }
 
 
-void ezQtColorGradientAssetDocumentWindow::onGradientColorCpAdded(float posX, const ezColorGammaUB& color)
+void ezQtColorGradientAssetDocumentWindow::onGradientColorCpAdded(double posX, const ezColorGammaUB& color)
 {
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
 
@@ -117,8 +117,8 @@ void ezQtColorGradientAssetDocumentWindow::onGradientColorCpAdded(float posX, co
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
-  cmdSet.m_sProperty = "Position";
-  cmdSet.m_NewValue = posX;
+  cmdSet.m_sProperty = "Tick";
+  cmdSet.m_NewValue = pDoc->GetProperties()->TickFromTime(posX);
   history->AddCommand(cmdSet);
 
   cmdSet.m_sProperty = "Red";
@@ -137,7 +137,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientColorCpAdded(float posX, co
 }
 
 
-void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpAdded(float posX, ezUInt8 alpha)
+void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpAdded(double posX, ezUInt8 alpha)
 {
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
 
@@ -156,8 +156,8 @@ void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpAdded(float posX, ez
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
-  cmdSet.m_sProperty = "Position";
-  cmdSet.m_NewValue = posX;
+  cmdSet.m_sProperty = "Tick";
+  cmdSet.m_NewValue = pDoc->GetProperties()->TickFromTime(posX);
   history->AddCommand(cmdSet);
 
   cmdSet.m_sProperty = "Alpha";
@@ -168,7 +168,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpAdded(float posX, ez
 }
 
 
-void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpAdded(float posX, float intensity)
+void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpAdded(double posX, float intensity)
 {
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
 
@@ -187,8 +187,8 @@ void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpAdded(float posX
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
 
-  cmdSet.m_sProperty = "Position";
-  cmdSet.m_NewValue = posX;
+  cmdSet.m_sProperty = "Tick";
+  cmdSet.m_NewValue = pDoc->GetProperties()->TickFromTime(posX);
   history->AddCommand(cmdSet);
 
   cmdSet.m_sProperty = "Intensity";
@@ -198,7 +198,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpAdded(float posX
   history->FinishTransaction();
 }
 
-void ezQtColorGradientAssetDocumentWindow::MoveCP(ezInt32 idx, float newPosX, const char* szArrayName)
+void ezQtColorGradientAssetDocumentWindow::MoveCP(ezInt32 idx, double newPosX, const char* szArrayName)
 {
   ezColorGradientAssetDocument* pDoc = static_cast<ezColorGradientAssetDocument*>(GetDocument());
 
@@ -212,25 +212,25 @@ void ezQtColorGradientAssetDocumentWindow::MoveCP(ezInt32 idx, float newPosX, co
   ezSetObjectPropertyCommand cmdSet;
   cmdSet.m_Object = objGuid.Get<ezUuid>();
 
-  cmdSet.m_sProperty = "Position";
-  cmdSet.m_NewValue = newPosX;
+  cmdSet.m_sProperty = "Tick";
+  cmdSet.m_NewValue = pDoc->GetProperties()->TickFromTime(newPosX);
   history->AddCommand(cmdSet);
 
   history->FinishTransaction();
 }
 
-void ezQtColorGradientAssetDocumentWindow::onGradientColorCpMoved(ezInt32 idx, float newPosX)
+void ezQtColorGradientAssetDocumentWindow::onGradientColorCpMoved(ezInt32 idx, double newPosX)
 {
   MoveCP(idx, newPosX, "ColorCPs");
 }
 
-void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpMoved(ezInt32 idx, float newPosX)
+void ezQtColorGradientAssetDocumentWindow::onGradientAlphaCpMoved(ezInt32 idx, double newPosX)
 {
   MoveCP(idx, newPosX, "AlphaCPs");
 }
 
 
-void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpMoved(ezInt32 idx, float newPosX)
+void ezQtColorGradientAssetDocumentWindow::onGradientIntensityCpMoved(ezInt32 idx, double newPosX)
 {
   MoveCP(idx, newPosX, "IntensityCPs");
 }
@@ -369,7 +369,7 @@ void ezQtColorGradientAssetDocumentWindow::onGradientNormalizeRange()
   ezColorGradient GradientData;
   pDoc->GetProperties()->FillGradientData(GradientData);
 
-  float minX, maxX;
+  double minX, maxX;
   if (!GradientData.GetExtents(minX, maxX))
     return;
 

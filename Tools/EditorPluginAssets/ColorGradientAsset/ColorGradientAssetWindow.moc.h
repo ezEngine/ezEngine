@@ -17,14 +17,14 @@ public:
   virtual const char* GetWindowLayoutGroupName() const { return "ColorGradientAsset"; }
 
 private slots:
-  void onGradientColorCpAdded(float posX, const ezColorGammaUB& color);
-  void onGradientAlphaCpAdded(float posX, ezUInt8 alpha);
-  void onGradientIntensityCpAdded(float posX, float intensity);
+  void onGradientColorCpAdded(double posX, const ezColorGammaUB& color);
+  void onGradientAlphaCpAdded(double posX, ezUInt8 alpha);
+  void onGradientIntensityCpAdded(double posX, float intensity);
 
-  void MoveCP(ezInt32 idx, float newPosX, const char* szArrayName);
-  void onGradientColorCpMoved(ezInt32 idx, float newPosX);
-  void onGradientAlphaCpMoved(ezInt32 idx, float newPosX);
-  void onGradientIntensityCpMoved(ezInt32 idx, float newPosX);
+  void MoveCP(ezInt32 idx, double newPosX, const char* szArrayName);
+  void onGradientColorCpMoved(ezInt32 idx, double newPosX);
+  void onGradientAlphaCpMoved(ezInt32 idx, double newPosX);
+  void onGradientIntensityCpMoved(ezInt32 idx, double newPosX);
   
   void RemoveCP(ezInt32 idx, const char* szArrayName);
   void onGradientColorCpDeleted(ezInt32 idx);

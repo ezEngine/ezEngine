@@ -105,7 +105,7 @@ void ezParticleInitializer_RandomColor::InitializeElements(ezUInt64 uiStartIndex
   {
     ezResourceLock<ezColorGradientResource> pResource(m_hGradient, ezResourceAcquireMode::NoFallback);
 
-    float fMinValue, fMaxValue;
+    double fMinValue, fMaxValue;
     const ezColorGradient& gradient = pResource->GetDescriptor().m_Gradient;
     gradient.GetExtents(fMinValue, fMaxValue);
 
@@ -114,7 +114,7 @@ void ezParticleInitializer_RandomColor::InitializeElements(ezUInt64 uiStartIndex
 
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
-      const float f = (float)rng.DoubleMinMax(fMinValue, fMaxValue);
+      const double f = rng.DoubleMinMax(fMinValue, fMaxValue);
 
       gradient.Evaluate(f, color, intensity);
 

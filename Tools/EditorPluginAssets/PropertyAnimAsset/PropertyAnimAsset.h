@@ -49,7 +49,9 @@ public:
   virtual const char* QueryAssetType() const override { return "PropertyAnim"; }
   virtual ezObjectAccessorBase* GetObjectAccessor() const override;
 
-  ezTime GetAnimationDuration() const;
+  ezInt64 GetAnimationDurationTicks() const;
+  ezTime GetAnimationDurationTime() const;
+  void ClearCachedAnimationDuration() { m_iCachedAnimationDuration = 0; }
 
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
@@ -58,4 +60,6 @@ private:
   void GameObjectContextEventHandler(const ezGameObjectContextEvent& e);
 
   ezUniquePtr<ezPropertyAnimObjectAccessor> m_pAccessor;
+
+  mutable ezInt64 m_iCachedAnimationDuration;
 };

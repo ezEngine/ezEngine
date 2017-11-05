@@ -18,6 +18,7 @@ class ezQtColorGradientEditorWidget;
 class ezColorGradientAssetData;
 class ezQtQuadViewWidget;
 class ezGameObjectGizmoHandler;
+class ezQtTimeScrubberToolbar;
 
 class ezQtPropertyAnimAssetDocumentWindow : public ezQtGameObjectDocumentWindow, public ezGameObjectGizmoInterface
 {
@@ -61,13 +62,13 @@ private slots:
   //////////////////////////////////////////////////////////////////////////
   // Color gradient editor events
 
-  void onGradientColorCpAdded(float posX, const ezColorGammaUB& color);
-  void onGradientAlphaCpAdded(float posX, ezUInt8 alpha);
-  void onGradientIntensityCpAdded(float posX, float intensity);
-  void MoveGradientCP(ezInt32 idx, float newPosX, const char* szArrayName);
-  void onGradientColorCpMoved(ezInt32 idx, float newPosX);
-  void onGradientAlphaCpMoved(ezInt32 idx, float newPosX);
-  void onGradientIntensityCpMoved(ezInt32 idx, float newPosX);
+  void onGradientColorCpAdded(double posX, const ezColorGammaUB& color);
+  void onGradientAlphaCpAdded(double posX, ezUInt8 alpha);
+  void onGradientIntensityCpAdded(double posX, float intensity);
+  void MoveGradientCP(ezInt32 idx, double newPosX, const char* szArrayName);
+  void onGradientColorCpMoved(ezInt32 idx, double newPosX);
+  void onGradientAlphaCpMoved(ezInt32 idx, double newPosX);
+  void onGradientIntensityCpMoved(ezInt32 idx, double newPosX);
   void RemoveGradientCP(ezInt32 idx, const char* szArrayName);
   void onGradientColorCpDeleted(ezInt32 idx);
   void onGradientAlphaCpDeleted(ezInt32 idx);
@@ -100,4 +101,5 @@ private:
   QItemSelectionModel* m_pSelectionModel = nullptr;
   ezQtCurve1DEditorWidget* m_pCurveEditor = nullptr;
   ezQtColorGradientEditorWidget* m_pGradientEditor = nullptr;
+  ezQtTimeScrubberToolbar* m_pScrubberToolbar = nullptr;
 };
