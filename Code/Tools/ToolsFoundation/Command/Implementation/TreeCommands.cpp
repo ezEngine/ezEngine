@@ -264,7 +264,7 @@ ezStatus ezPasteObjectsCommand::DoInternal(bool bRedo)
       auto* pNode = it.Value();
       if (ezStringUtils::IsEqual(pNode->GetNodeName(), "root"))
       {
-        auto* pNewObject = reader.CreateObjectFromNode(pNode, nullptr, nullptr, ezVariant());
+        auto* pNewObject = reader.CreateObjectFromNode(pNode);
 
         if (pNewObject)
         {
@@ -376,7 +376,7 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
     if (pRealRootNode)
     {
       ezDocumentObjectConverterReader reader(&graph, pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateOnly);
-      auto* pNewObject = reader.CreateObjectFromNode(pRealRootNode, nullptr, nullptr, ezVariant());
+      auto* pNewObject = reader.CreateObjectFromNode(pRealRootNode);
 
       if (pNewObject)
       {

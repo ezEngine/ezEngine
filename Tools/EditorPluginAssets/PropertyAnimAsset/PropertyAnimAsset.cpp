@@ -1,5 +1,7 @@
 #include <PCH.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAsset.h>
+#include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimObjectManager.h>
+#include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimObjectAccessor.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <GameEngine/Resources/PropertyAnimResource.h>
 
@@ -42,10 +44,21 @@ ezPropertyAnimationTrackGroup::~ezPropertyAnimationTrackGroup()
 }
 
 ezPropertyAnimAssetDocument::ezPropertyAnimAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezPropertyAnimationTrackGroup, ezGameObjectContextDocument>(szDocumentPath, true, true)
+  : ezSimpleAssetDocument<ezPropertyAnimationTrackGroup, ezGameObjectContextDocument>(EZ_DEFAULT_NEW(ezPropertyAnimObjectManager), szDocumentPath, true, true)
 {
+  m_GameObjectContextEvents.AddEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocument::GameObjectContextEventHandler, this));
+  m_pAccessor = EZ_DEFAULT_NEW(ezPropertyAnimObjectAccessor, this, GetCommandHistory());
 }
 
+ezPropertyAnimAssetDocument::~ezPropertyAnimAssetDocument()
+{
+  m_GameObjectContextEvents.RemoveEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocument::GameObjectContextEventHandler, this));
+}
+
+ezObjectAccessorBase* ezPropertyAnimAssetDocument::GetObjectAccessor() const
+{
+  return m_pAccessor.Borrow();
+}
 
 ezTime ezPropertyAnimAssetDocument::GetAnimationDuration() const
 {
@@ -138,3 +151,15 @@ ezStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& str
   return ezStatus(EZ_SUCCESS);
 }
 
+void ezPropertyAnimAssetDocument::GameObjectContextEventHandler(const ezGameObjectContextEvent& e)
+{
+  switch (e.m_Type)
+  {
+  case ezGameObjectContextEvent::Type::ContextAboutToBeChanged:
+    static_cast<ezPropertyAnimObjectManager*>(GetObjectManager())->SetAllowStructureChangeOnTemporaries(true);
+    break;
+  case ezGameObjectContextEvent::Type::ContextChanged:
+    static_cast<ezPropertyAnimObjectManager*>(GetObjectManager())->SetAllowStructureChangeOnTemporaries(false);
+    break;
+  }
+}

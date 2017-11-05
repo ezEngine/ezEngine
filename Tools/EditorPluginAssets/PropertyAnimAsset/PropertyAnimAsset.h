@@ -6,6 +6,9 @@
 #include <GuiFoundation/Widgets/CurveEditData.h>
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
 
+struct ezGameObjectContextEvent;
+class ezPropertyAnimObjectAccessor;
+
 class ezPropertyAnimationTrack : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezPropertyAnimationTrack, ezReflectedClass);
@@ -41,11 +44,18 @@ class ezPropertyAnimAssetDocument : public ezSimpleAssetDocument<ezPropertyAnima
 
 public:
   ezPropertyAnimAssetDocument(const char* szDocumentPath);
+  ~ezPropertyAnimAssetDocument();
 
   virtual const char* QueryAssetType() const override { return "PropertyAnim"; }
+  virtual ezObjectAccessorBase* GetObjectAccessor() const override;
 
   ezTime GetAnimationDuration() const;
 
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
+
+private:
+  void GameObjectContextEventHandler(const ezGameObjectContextEvent& e);
+
+  ezUniquePtr<ezPropertyAnimObjectAccessor> m_pAccessor;
 };

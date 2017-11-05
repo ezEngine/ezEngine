@@ -32,11 +32,11 @@ ezParticleContext::ezParticleContext()
 
 void ezParticleContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezSceneSettingsMsgToEngine>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezSimulationSettingsMsgToEngine>())
   {
     // this message comes exactly once per 'update', afterwards there will be 1 to n redraw messages
 
-    auto msg = static_cast<const ezSceneSettingsMsgToEngine*>(pMsg);
+    auto msg = static_cast<const ezSimulationSettingsMsgToEngine*>(pMsg);
 
     m_pWorld->SetWorldSimulationEnabled(msg->m_bSimulateWorld);
     m_pWorld->GetClock().SetSpeed(msg->m_fSimulationSpeed);

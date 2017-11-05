@@ -3,6 +3,8 @@
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 
 class ezGameObjectDocument;
+class ezWorldSettingsMsgToEngine;
+class ezGameObjectGizmoHandler;
 
 class EZ_EDITORFRAMEWORK_DLL ezQtGameObjectDocumentWindow : public ezQtEngineDocumentWindow
 {
@@ -12,6 +14,11 @@ public:
   ~ezQtGameObjectDocumentWindow();
 
   ezGameObjectDocument* GetGameObjectDocument() const;
+
+protected:
+  ezGlobalSettingsMsgToEngine GetGlobalSettings() const;
+  ezWorldSettingsMsgToEngine GetWorldSettings() const;
+  ezGridSettingsMsgToEngine GetGridSettings(ezGameObjectGizmoHandler* handler) const;
 };
 
 

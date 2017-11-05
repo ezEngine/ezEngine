@@ -2,6 +2,15 @@
 #include <EditorFramework/Plugin.h>
 #include <EditorFramework/Document/GameObjectDocument.h>
 
+struct EZ_EDITORFRAMEWORK_DLL ezGameObjectContextEvent
+{
+  enum class Type
+  {
+    ContextAboutToBeChanged,
+    ContextChanged,
+  };
+  Type m_Type;
+};
 class EZ_EDITORFRAMEWORK_DLL ezGameObjectContextDocument : public ezGameObjectDocument
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectContextDocument, ezGameObjectDocument);
@@ -12,6 +21,8 @@ public:
   ezStatus SetContext(ezUuid documentGuid, ezUuid objectGuid);
   ezUuid GetContextDocument() const;
   ezUuid GetContextObject() const;
+
+  mutable ezEvent<const ezGameObjectContextEvent&> m_GameObjectContextEvents;
 
 private:
   void ClearContext();

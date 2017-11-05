@@ -361,21 +361,48 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectSelectionMsgToEngine, 1, ezRTTIDefaultAl
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneSettingsMsgToEngine, 1, ezRTTIDefaultAllocator<ezSceneSettingsMsgToEngine>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimulationSettingsMsgToEngine, 1, ezRTTIDefaultAllocator<ezSimulationSettingsMsgToEngine>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("StartGameModeSimulate", m_bSimulateWorld),
+    EZ_MEMBER_PROPERTY("SimulateWorld", m_bSimulateWorld),
     EZ_MEMBER_PROPERTY("SimulationSpeed", m_fSimulationSpeed),
-    EZ_MEMBER_PROPERTY("GizmoScale", m_fGizmoScale),
-    EZ_MEMBER_PROPERTY("RenderOverlay", m_bRenderOverlay),
-    EZ_MEMBER_PROPERTY("ShapeIcons", m_bRenderShapeIcons),
-    EZ_MEMBER_PROPERTY("RenderSelectionBoxes", m_bRenderSelectionBoxes),
-    EZ_MEMBER_PROPERTY("AddAmbient", m_bAddAmbientLight),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGridSettingsMsgToEngine, 1, ezRTTIDefaultAllocator<ezGridSettingsMsgToEngine>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
     EZ_MEMBER_PROPERTY("GridDensity", m_fGridDensity),
     EZ_MEMBER_PROPERTY("GridCenter", m_vGridCenter),
     EZ_MEMBER_PROPERTY("GridTangent1", m_vGridTangent1),
     EZ_MEMBER_PROPERTY("GridTangent2", m_vGridTangent2),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGlobalSettingsMsgToEngine, 1, ezRTTIDefaultAllocator<ezGlobalSettingsMsgToEngine>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("GizmoScale", m_fGizmoScale),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezWorldSettingsMsgToEngine, 1, ezRTTIDefaultAllocator<ezWorldSettingsMsgToEngine>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("RenderOverlay", m_bRenderOverlay),
+    EZ_MEMBER_PROPERTY("ShapeIcons", m_bRenderShapeIcons),
+    EZ_MEMBER_PROPERTY("RenderSelectionBoxes", m_bRenderSelectionBoxes),
+    EZ_MEMBER_PROPERTY("AddAmbient", m_bAddAmbientLight),
   }
   EZ_END_PROPERTIES
 }

@@ -33,8 +33,9 @@ public:
 
   void SetSelection(const ezDocumentObject* pSingleObject)
   {
-    Clear();
-    AddObject(pSingleObject);
+    ezDeque<const ezDocumentObject*> objs;
+    objs.PushBack(pSingleObject);
+    SetSelection(objs);
   }
 
   void Clear();

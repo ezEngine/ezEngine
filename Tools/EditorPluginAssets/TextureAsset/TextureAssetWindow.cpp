@@ -166,12 +166,6 @@ void ezQtTextureAssetDocumentWindow::SendRedrawMsg()
     return;
 
   {
-    ezSceneSettingsMsgToEngine msg;
-    msg.m_fGizmoScale = 0;
-    GetEditorEngineConnection()->SendMessage(&msg);
-  }
-
-  {
     const ezTextureAssetDocument* pDoc = static_cast<const ezTextureAssetDocument*>(GetDocument());
 
     ezDocumentConfigMsgToEngine msg;

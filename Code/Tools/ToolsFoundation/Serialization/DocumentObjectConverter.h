@@ -42,7 +42,7 @@ public:
   };
   ezDocumentObjectConverterReader(const ezAbstractObjectGraph* pGraph, ezDocumentObjectManager* pManager, Mode mode);
 
-  ezDocumentObject* CreateObjectFromNode(const ezAbstractObjectNode* pNode, ezDocumentObject* pParent, const char* szParentProperty, ezVariant index);
+  ezDocumentObject* CreateObjectFromNode(const ezAbstractObjectNode* pNode);
   void ApplyPropertiesToObject(const ezAbstractObjectNode* pNode, ezDocumentObject* pObject);
 
   ezUInt32 GetNumUnknownObjectCreations() const { return m_uiUnknownTypeInstances; }
@@ -51,6 +51,7 @@ public:
   static void ApplyDiffToObject(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pObject, ezDeque<ezAbstractGraphDiffOperation>& diff);
 
 private:
+  void AddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, const char* szParentProperty, ezVariant index);
   void ApplyProperty(ezDocumentObject* pObject, ezAbstractProperty* pProp, const ezAbstractObjectNode::Property* pSource);
   static void ApplyDiff(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pObject, ezAbstractProperty* pProp, ezAbstractGraphDiffOperation& op, ezDeque<ezAbstractGraphDiffOperation>& diff);
 

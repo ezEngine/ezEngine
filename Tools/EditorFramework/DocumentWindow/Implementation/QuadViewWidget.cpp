@@ -101,7 +101,7 @@ void ezQtQuadViewWidget::CreateViews(bool bQuad)
     for (ezUInt32 i = 0; i < 4; ++i)
     {
       ezQtEngineViewWidget* pViewWidget = m_ViewFactory(m_pWindow, &m_ViewConfigQuad[i]);
-      ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(m_pWindow, pViewWidget, "EditorPluginScene_ViewToolBar");
+      ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(m_pWindow, pViewWidget, m_sViewToolBarMapping);
       m_ActiveMainViews.PushBack(pContainer);
       m_pViewLayout->addWidget(pContainer, i / 2, i % 2);
 
@@ -110,7 +110,7 @@ void ezQtQuadViewWidget::CreateViews(bool bQuad)
   else
   {
     ezQtEngineViewWidget* pViewWidget = m_ViewFactory(m_pWindow, &m_ViewConfigSingle);
-    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(m_pWindow, pViewWidget, "EditorPluginScene_ViewToolBar");
+    ezQtViewWidgetContainer* pContainer = new ezQtViewWidgetContainer(m_pWindow, pViewWidget, m_sViewToolBarMapping);
     m_ActiveMainViews.PushBack(pContainer);
     m_pViewLayout->addWidget(pContainer, 0, 0);
   }

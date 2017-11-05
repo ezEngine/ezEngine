@@ -1,9 +1,10 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <GuiFoundation/Widgets/CurveEditData.h>
+#include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
+#include <EditorFramework/DocumentWindow/GameObjectGizmoHandler.h>
 
 class ezQtPropertyAnimModel;
 class QTreeView;
@@ -15,23 +16,36 @@ struct ezDocumentObjectStructureEvent;
 class ezPropertyAnimAssetDocument;
 class ezQtColorGradientEditorWidget;
 class ezColorGradientAssetData;
+class ezQtQuadViewWidget;
+class ezGameObjectGizmoHandler;
 
-class ezQtPropertyAnimAssetDocumentWindow : public ezQtDocumentWindow
+class ezQtPropertyAnimAssetDocumentWindow : public ezQtGameObjectDocumentWindow, public ezGameObjectGizmoInterface
 {
   Q_OBJECT
 
 public:
-  ezQtPropertyAnimAssetDocumentWindow(ezDocument* pDocument);
+  ezQtPropertyAnimAssetDocumentWindow(ezPropertyAnimAssetDocument* pDocument);
   ~ezQtPropertyAnimAssetDocumentWindow();
 
   virtual const char* GetWindowLayoutGroupName() const { return "PropertyAnimAsset"; }
+
+public:
+  /// \name ezGameObjectGizmoInterface implementation
+  ///@{
+  virtual ezObjectAccessorBase* GetObjectAccessor() override;
+  virtual bool CanDuplicateSelection() const override;
+  virtual void DuplicateSelection() override;
+  ///@}
+
+protected:
+  virtual void InternalRedraw() override;
 
 private slots:
   void onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
 
   //////////////////////////////////////////////////////////////////////////
   // Curve editor events
-  
+
   void onCurveInsertCpAt(ezUInt32 uiCurveIdx, ezInt64 tickX, double newPosY);
   void onCurveCpMoved(ezUInt32 curveIdx, ezUInt32 cpIdx, ezInt64 iTickX, double newPosY);
   void onCurveCpDeleted(ezUInt32 curveIdx, ezUInt32 cpIdx);
@@ -46,7 +60,7 @@ private slots:
 
   //////////////////////////////////////////////////////////////////////////
   // Color gradient editor events
-  
+
   void onGradientColorCpAdded(float posX, const ezColorGammaUB& color);
   void onGradientAlphaCpAdded(float posX, ezUInt8 alpha);
   void onGradientIntensityCpAdded(float posX, float intensity);
@@ -75,6 +89,8 @@ private:
   void UpdateCurveEditor();
   void UpdateGradientEditor();
 
+  ezQtQuadViewWidget* m_pQuadViewWidget;
+  ezUniquePtr<ezGameObjectGizmoHandler> m_GizmoHandler;
   ezCurveGroupData m_CurvesToDisplay;
   ezColorGradientAssetData* m_pGradientToDisplay = nullptr;
   ezInt32 m_iMapGradientToTrack = -1;

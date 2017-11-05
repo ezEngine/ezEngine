@@ -20,10 +20,24 @@
 #include <QTimer>
 #include <GuiFoundation/Widgets/ColorGradientEditorWidget.moc.h>
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
+#include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimViewWidget.moc.h>
+#include <EditorFramework/DocumentWindow/GameObjectGizmoHandler.h>
+#include <EditorFramework/DocumentWindow/QuadViewWidget.moc.h>
 
-ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezDocument* pDocument) : ezQtDocumentWindow(pDocument)
+ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPropertyAnimAssetDocument* pDocument) : ezQtGameObjectDocumentWindow(pDocument)
 {
-  auto pDoc = static_cast<ezGameObjectDocument*>(pDocument);
+  auto ViewFactory = [](ezQtEngineDocumentWindow* pWindow, ezEngineViewConfig* pConfig) -> ezQtEngineViewWidget*
+  {
+    ezQtPropertyAnimViewWidget* pWidget = new ezQtPropertyAnimViewWidget(nullptr, static_cast<ezQtPropertyAnimAssetDocumentWindow*>(pWindow), pConfig);
+    pWindow->AddViewWidget(pWidget);
+    return pWidget;
+  };
+  m_pQuadViewWidget = new ezQtQuadViewWidget(pDocument, this, ViewFactory, "PropertyAnimAssetViewToolBar");
+  m_GizmoHandler = EZ_DEFAULT_NEW(ezGameObjectGizmoHandler, pDocument, this, this);
+
+  setCentralWidget(m_pQuadViewWidget);
+  SetTargetFramerate(25);
+
   // Menu Bar
   {
     ezQtMenuBarActionMapView* pMenuBar = static_cast<ezQtMenuBarActionMapView*>(menuBar());
@@ -48,8 +62,8 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezDocum
 
   // Game Object Graph
   {
-    std::unique_ptr<ezQtDocumentTreeModel> ptr(new ezQtGameObjectModel(pDoc, "TempObjects"));
-    ezQtDocumentPanel* pGameObjectPanel = new ezQtGameObjectPanel(this, pDoc, std::move(ptr), "ScenegraphContextMenu");
+    std::unique_ptr<ezQtDocumentTreeModel> ptr(new ezQtGameObjectModel(pDocument, "TempObjects"));
+    ezQtDocumentPanel* pGameObjectPanel = new ezQtGameObjectPanel(this, pDocument, std::move(ptr), "ScenegraphContextMenu");
     addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pGameObjectPanel);
   }
 
@@ -178,6 +192,62 @@ ezQtPropertyAnimAssetDocumentWindow::~ezQtPropertyAnimAssetDocumentWindow()
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler, this));
   GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler, this));
   GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::SelectionEventHandler, this));
+}
+
+ezObjectAccessorBase* ezQtPropertyAnimAssetDocumentWindow::GetObjectAccessor()
+{
+  return GetPropertyAnimDocument()->GetObjectAccessor();
+}
+
+bool ezQtPropertyAnimAssetDocumentWindow::CanDuplicateSelection() const
+{
+  return false;
+}
+
+void ezQtPropertyAnimAssetDocumentWindow::DuplicateSelection()
+{
+  EZ_ASSERT_NOT_IMPLEMENTED;
+}
+
+
+void ezQtPropertyAnimAssetDocumentWindow::InternalRedraw()
+{
+  ezEditorInputContext::UpdateActiveInputContext();
+  {
+    // do not try to redraw while the process is crashed, it is obviously futile
+    if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+      return;
+
+    {
+      ezSimulationSettingsMsgToEngine msg;
+      msg.m_bSimulateWorld = false;
+      GetEditorEngineConnection()->SendMessage(&msg);
+    }
+    {
+      ezGridSettingsMsgToEngine msg = GetGridSettings(m_GizmoHandler.Borrow());
+      GetEditorEngineConnection()->SendMessage(&msg);
+    }
+    {
+      ezGlobalSettingsMsgToEngine msg = GetGlobalSettings();
+      GetEditorEngineConnection()->SendMessage(&msg);
+    }
+    {
+      ezWorldSettingsMsgToEngine msg = GetWorldSettings();
+      GetEditorEngineConnection()->SendMessage(&msg);
+    }
+
+    GetGameObjectDocument()->SendObjectSelection();
+
+    auto pHoveredView = GetHoveredViewWidget();
+
+    for (auto pView : m_ViewWidgets)
+    {
+      pView->SetEnablePicking(pView == pHoveredView);
+      pView->UpdateCameraInterpolation();
+      pView->SyncToEngine();
+    }
+  }
+  ezQtEngineDocumentWindow::InternalRedraw();
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)

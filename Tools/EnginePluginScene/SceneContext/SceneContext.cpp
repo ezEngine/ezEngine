@@ -86,10 +86,28 @@ ezSceneContext::~ezSceneContext()
 
 void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezSceneSettingsMsgToEngine>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezWorldSettingsMsgToEngine>())
   {
     // this message comes exactly once per 'update', afterwards there will be 1 to n redraw messages
-    HandleSceneSettingsMsg(static_cast<const ezSceneSettingsMsgToEngine*>(pMsg));
+    HandleWorldSettingsMsg(static_cast<const ezWorldSettingsMsgToEngine*>(pMsg));
+    return;
+  }
+
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezSimulationSettingsMsgToEngine>())
+  {
+    HandleSimulationSettingsMsg(static_cast<const ezSimulationSettingsMsgToEngine*>(pMsg));
+    return;
+  }
+
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezGridSettingsMsgToEngine>())
+  {
+    HandleGridSettingsMsg(static_cast<const ezGridSettingsMsgToEngine*>(pMsg));
+    return;
+  }
+
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezGlobalSettingsMsgToEngine>())
+  {
+    HandleGlobalSettingsMsg(static_cast<const ezGlobalSettingsMsgToEngine*>(pMsg));
     return;
   }
 
@@ -129,16 +147,10 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
   ezEngineProcessDocumentContext::HandleMessage(pMsg);
 }
 
-void ezSceneContext::HandleSceneSettingsMsg(const ezSceneSettingsMsgToEngine* pMsg)
+
+void ezSceneContext::HandleGridSettingsMsg(const ezGridSettingsMsgToEngine* pMsg)
 {
-  ezGizmoRenderer::s_fGizmoScale = pMsg->m_fGizmoScale;
-
-  const bool bSimulate = pMsg->m_bSimulateWorld;
-  m_bRenderSelectionOverlay = pMsg->m_bRenderOverlay;
-  m_bRenderShapeIcons = pMsg->m_bRenderShapeIcons;
-  m_bRenderSelectionBoxes = pMsg->m_bRenderSelectionBoxes;
   m_fGridDensity = pMsg->m_fGridDensity;
-
   if (m_fGridDensity != 0.0f)
   {
     m_GridTransform.m_vPosition = pMsg->m_vGridCenter;
@@ -158,7 +170,16 @@ void ezSceneContext::HandleSceneSettingsMsg(const ezSceneSettingsMsgToEngine* pM
       m_GridTransform.m_qRotation.SetFromMat3(mRot);
     }
   }
+}
 
+void ezSceneContext::HandleGlobalSettingsMsg(const ezGlobalSettingsMsgToEngine* pMsg)
+{
+  ezGizmoRenderer::s_fGizmoScale = pMsg->m_fGizmoScale;
+}
+
+void ezSceneContext::HandleSimulationSettingsMsg(const ezSimulationSettingsMsgToEngine* pMsg)
+{
+  const bool bSimulate = pMsg->m_bSimulateWorld;
   ezGameState* pState = GetGameState();
   m_pWorld->GetClock().SetSpeed(pMsg->m_fSimulationSpeed);
 
@@ -171,6 +192,13 @@ void ezSceneContext::HandleSceneSettingsMsg(const ezSceneSettingsMsgToEngine* pM
     else
       OnSimulationDisabled();
   }
+}
+
+void ezSceneContext::HandleWorldSettingsMsg(const ezWorldSettingsMsgToEngine* pMsg)
+{
+  m_bRenderSelectionOverlay = pMsg->m_bRenderOverlay;
+  m_bRenderShapeIcons = pMsg->m_bRenderShapeIcons;
+  m_bRenderSelectionBoxes = pMsg->m_bRenderSelectionBoxes;
 
   if (pMsg->m_bAddAmbientLight)
     AddAmbientLight(true);

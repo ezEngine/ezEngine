@@ -267,6 +267,13 @@ void OnLoadPlugin(bool bReloading)
       ezAssetActions::MapActions("PropertyAnimAssetToolBar", true);
       ezGameObjectContextActions::MapActions("PropertyAnimAssetToolBar", "");
     }
+
+    // View Tool Bar
+    {
+      ezActionMapManager::RegisterActionMap("PropertyAnimAssetViewToolBar");
+      ezViewActions::MapActions("PropertyAnimAssetViewToolBar", "", ezViewActions::PerspectiveMode | ezViewActions::RenderMode | ezViewActions::UsageHint | ezViewActions::ActivateRemoteProcess);
+      //ezSceneViewActions::MapActions("PropertyAnimAssetViewToolBar", "");
+    }
   }
 
   // Visual Script Asset

@@ -21,11 +21,16 @@ ezGameObjectContextDocument::~ezGameObjectContextDocument()
 
 ezStatus ezGameObjectContextDocument::SetContext(ezUuid documentGuid, ezUuid objectGuid)
 {
-  ClearContext();
   const ezAbstractObjectGraph* pPrefab = ezPrefabCache::GetSingleton()->GetCachedPrefabGraph(documentGuid);
   if (!pPrefab)
     return ezStatus("Context document could not be loaded.");
 
+  {
+    ezGameObjectContextEvent e;
+    e.m_Type = ezGameObjectContextEvent::Type::ContextAboutToBeChanged;
+    m_GameObjectContextEvents.Broadcast(e);
+  }
+  ClearContext();
   ezAbstractObjectGraph graph;
   pPrefab->Clone(graph);
 
@@ -43,7 +48,12 @@ ezStatus ezGameObjectContextDocument::SetContext(ezUuid documentGuid, ezUuid obj
     EZ_PROFILE("Restoring Meta-Data");
     RestoreMetaDataAfterLoading(graph, false);
   }
-  return ezStatus("");
+  {
+    ezGameObjectContextEvent e;
+    e.m_Type = ezGameObjectContextEvent::Type::ContextChanged;
+    m_GameObjectContextEvents.Broadcast(e);
+  }
+  return ezStatus(EZ_SUCCESS);
 }
 
 ezUuid ezGameObjectContextDocument::GetContextDocument() const
@@ -59,6 +69,7 @@ ezUuid ezGameObjectContextDocument::GetContextObject() const
 
 void ezGameObjectContextDocument::ClearContext()
 {
+  m_ContextDocument = ezUuid();
   ezDocumentObject* pRoot = GetObjectManager()->GetRootObject();
   ezHybridArray<ezVariant, 16> values;
   GetObjectAccessor()->GetValues(pRoot, "TempObjects", values);

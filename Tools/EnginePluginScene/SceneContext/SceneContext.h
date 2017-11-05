@@ -7,9 +7,12 @@ class ezObjectSelectionMsgToEngine;
 class ezRenderContext;
 class ezGameState;
 class ezGameModeMsgToEngine;
-class ezSceneSettingsMsgToEngine;
+class ezWorldSettingsMsgToEngine;
 class ezObjectsForDebugVisMsgToEngine;
 struct ezVisualScriptComponentActivityEvent;
+class ezGlobalSettingsMsgToEngine;
+class ezGridSettingsMsgToEngine;
+class ezSimulationSettingsMsgToEngine;
 
 class EZ_ENGINEPLUGINSCENE_DLL ezSceneContext : public ezEngineProcessDocumentContext
 {
@@ -49,7 +52,10 @@ private:
   void RemoveAmbientLight();
   void HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg);
   void HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg);
-  void HandleSceneSettingsMsg(const ezSceneSettingsMsgToEngine* msg);
+  void HandleSimulationSettingsMsg(const ezSimulationSettingsMsgToEngine* msg);
+  void HandleGridSettingsMsg(const ezGridSettingsMsgToEngine* msg);
+  void HandleGlobalSettingsMsg(const ezGlobalSettingsMsgToEngine* msg);
+  void HandleWorldSettingsMsg(const ezWorldSettingsMsgToEngine* msg);
   void HandleObjectsForDebugVisMsg(const ezObjectsForDebugVisMsgToEngine* pMsg);
   void ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds);
 

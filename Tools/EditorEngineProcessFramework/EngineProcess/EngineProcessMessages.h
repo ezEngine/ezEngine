@@ -395,34 +395,39 @@ public:
   ezString m_sSelection;
 };
 
-class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSceneSettingsMsgToEngine : public ezEditorEngineDocumentMsg
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSimulationSettingsMsgToEngine : public ezEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSceneSettingsMsgToEngine, ezEditorEngineDocumentMsg);
-
+  EZ_ADD_DYNAMIC_REFLECTION(ezSimulationSettingsMsgToEngine, ezEditorEngineDocumentMsg);
 public:
-  ezSceneSettingsMsgToEngine()
-  {
-    m_bSimulateWorld = false;
-    m_fSimulationSpeed = 1.0f;
-    m_bRenderOverlay = false;
-    m_bRenderShapeIcons = false;
-    m_bRenderSelectionBoxes = false;
-    m_bAddAmbientLight = false;
-    m_fGizmoScale = 0.0f;
-    m_fGridDensity = 0.0f;
-  }
+  bool m_bSimulateWorld = false;
+  float m_fSimulationSpeed = 1.0f;
+};
 
-  bool m_bSimulateWorld;
-  float m_fSimulationSpeed;
-  bool m_bRenderOverlay;
-  bool m_bRenderShapeIcons;
-  bool m_bRenderSelectionBoxes;
-  bool m_bAddAmbientLight;
-  float m_fGizmoScale;
-  float m_fGridDensity;
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGridSettingsMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezGridSettingsMsgToEngine, ezEditorEngineDocumentMsg);
+public:
+  float m_fGridDensity = 0.0f;
   ezVec3 m_vGridCenter;
   ezVec3 m_vGridTangent1;
   ezVec3 m_vGridTangent2;
+};
+
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGlobalSettingsMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezGlobalSettingsMsgToEngine, ezEditorEngineDocumentMsg);
+public:
+  float m_fGizmoScale = 0.0f;
+};
+
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezWorldSettingsMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezWorldSettingsMsgToEngine, ezEditorEngineDocumentMsg);
+public:
+  bool m_bRenderOverlay = false;
+  bool m_bRenderShapeIcons = false;
+  bool m_bRenderSelectionBoxes = false;
+  bool m_bAddAmbientLight = false;
 };
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGameModeMsgToEngine : public ezEditorEngineDocumentMsg

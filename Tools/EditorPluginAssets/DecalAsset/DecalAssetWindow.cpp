@@ -85,12 +85,6 @@ void ezQtDecalAssetDocumentWindow::SendRedrawMsg()
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
-  {
-    ezSceneSettingsMsgToEngine msg;
-    msg.m_fGizmoScale = 0;
-    GetEditorEngineConnection()->SendMessage(&msg);
-  }
-
   for (auto pView : m_ViewWidgets)
   {
     pView->SetEnablePicking(false);

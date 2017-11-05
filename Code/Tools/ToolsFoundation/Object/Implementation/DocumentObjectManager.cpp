@@ -159,7 +159,8 @@ const ezDocumentObject* ezDocumentObjectManager::GetObject(const ezUuid& guid) c
   {
     return pObject;
   }
-
+  else if (guid == m_RootObject.GetGuid())
+    return &m_RootObject;
   return nullptr;
 }
 

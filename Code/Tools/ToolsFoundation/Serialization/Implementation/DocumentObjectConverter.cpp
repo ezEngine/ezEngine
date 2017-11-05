@@ -148,53 +148,37 @@ ezDocumentObjectConverterReader::ezDocumentObjectConverterReader(const ezAbstrac
   m_uiUnknownTypeInstances = 0;
 }
 
-ezDocumentObject* ezDocumentObjectConverterReader::CreateObjectFromNode(const ezAbstractObjectNode* pNode, ezDocumentObject* pParent, const char* szParentProperty, ezVariant index)
+ezDocumentObject* ezDocumentObjectConverterReader::CreateObjectFromNode(const ezAbstractObjectNode* pNode)
 {
   ezDocumentObject* pObject = nullptr;
-
-  switch (m_Mode)
+  ezRTTI* pType = ezRTTI::FindTypeByName(pNode->GetType());
+  if (pType)
   {
-  case ezDocumentObjectConverterReader::Mode::CreateOnly:
-    {
-      ezRTTI* pType = ezRTTI::FindTypeByName(pNode->GetType());
-      if (pType)
-      {
-        pObject = m_pManager->CreateObject(pType, pNode->GetGuid());
-        if (pParent != nullptr)
-          pParent->InsertSubObject(pObject, szParentProperty, index);
-      }
-      else
-      {
-        ezLog::Error("Cannot create node of unknown type '{0}'.", pNode->GetType());
-      }
-    }
-    break;
-
-  case ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument:
-    {
-      const ezRTTI* pRtti = ezRTTI::FindTypeByName(pNode->GetType());
-
-      if (pRtti)
-      {
-        pObject = m_pManager->CreateObject(pRtti, pNode->GetGuid());
-        m_pManager->AddObject(pObject, pParent, szParentProperty, index);
-      }
-      else
-      {
-        if (!m_UnknownTypes.Contains(pNode->GetType()))
-        {
-          ezLog::Error("Can't create objects of unknown type '{0}'", pNode->GetType());
-          m_UnknownTypes.Insert(pNode->GetType());
-        }
-
-        m_uiUnknownTypeInstances++;
-        return nullptr;
-      }
-    }
-    break;
+    pObject = m_pManager->CreateObject(pType, pNode->GetGuid());
   }
-
+  else
+  {
+    if (!m_UnknownTypes.Contains(pNode->GetType()))
+    {
+      ezLog::Error("Cannot create node of unknown type '{0}'.", pNode->GetType());
+      m_UnknownTypes.Insert(pNode->GetType());
+    }
+    m_uiUnknownTypeInstances++;
+  }
   return pObject;
+}
+
+void ezDocumentObjectConverterReader::AddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, const char* szParentProperty, ezVariant index)
+{
+  EZ_ASSERT_DEV(pObject && pParent, "Need to have valid objects to add them to the document");
+  if (m_Mode == ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument && pParent->GetDocumentObjectManager()->GetObject(pParent->GetGuid()))
+  {
+    m_pManager->AddObject(pObject, pParent, szParentProperty, index);
+  }
+  else
+  {
+    pParent->InsertSubObject(pObject, szParentProperty, index);
+  }
 }
 
 void ezDocumentObjectConverterReader::ApplyPropertiesToObject(const ezAbstractObjectNode* pNode, ezDocumentObject* pObject)
@@ -260,7 +244,7 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
         return &op;
     }
     return nullptr;
-    };
+  };
 
   switch (pProp->GetCategory())
   {
@@ -429,11 +413,10 @@ void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObject* pObject, e
             auto* pSubNode = m_pGraph->GetNode(guid);
             EZ_ASSERT_DEV(pSubNode != nullptr, "invalid document");
 
-            auto* pSubObject = CreateObjectFromNode(pSubNode, pObject, pProp->GetPropertyName(), ezVariant());
-
-            if (pSubObject)
+            if (auto* pSubObject = CreateObjectFromNode(pSubNode))
             {
               ApplyPropertiesToObject(pSubNode, pSubObject);
+              AddObject(pSubObject, pObject, pProp->GetPropertyName(), ezVariant());
             }
           }
         }
@@ -501,16 +484,18 @@ void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObject* pObject, e
             {
               // Overwrite existing object
               ezUuid childGuid = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), i).ConvertTo<ezUuid>();
-              pSubObject = m_pManager->GetObject(childGuid);
+              if (ezDocumentObject* pSubObject = m_pManager->GetObject(childGuid))
+              {
+                ApplyPropertiesToObject(pSubNode, pSubObject);
+              }
             }
             else
             {
-              pSubObject = CreateObjectFromNode(pSubNode, pObject, pProp->GetPropertyName(), -1);
-            }
-
-            if (pSubObject)
-            {
-              ApplyPropertiesToObject(pSubNode, pSubObject);
+              if (ezDocumentObject* pSubObject = CreateObjectFromNode(pSubNode))
+              {
+                ApplyPropertiesToObject(pSubNode, pSubObject);
+                AddObject(pSubObject, pObject, pProp->GetPropertyName(), -1);
+              }
             }
           }
         }
@@ -549,11 +534,10 @@ void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObject* pObject, e
           {
             auto* pSubNode = m_pGraph->GetNode(guid);
             EZ_ASSERT_DEV(pSubNode != nullptr, "invalid document");
-            ezDocumentObject* pSubObject = CreateObjectFromNode(pSubNode, pObject, pProp->GetPropertyName(), it.Key());
-
-            if (pSubObject)
+            if (ezDocumentObject* pSubObject = CreateObjectFromNode(pSubNode))
             {
               ApplyPropertiesToObject(pSubNode, pSubObject);
+              AddObject(pSubObject, pObject, pProp->GetPropertyName(), it.Key());
             }
           }
         }

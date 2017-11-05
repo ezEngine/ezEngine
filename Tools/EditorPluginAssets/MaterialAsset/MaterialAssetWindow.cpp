@@ -260,13 +260,6 @@ void ezQtMaterialAssetDocumentWindow::SendRedrawMsg()
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
-  {
-    ezSceneSettingsMsgToEngine msg;
-    msg.m_fGizmoScale = 0;
-    msg.m_bAddAmbientLight = true; // not implemented yet
-    GetEditorEngineConnection()->SendMessage(&msg);
-  }
-
   for (auto pView : m_ViewWidgets)
   {
     pView->SetEnablePicking(false);

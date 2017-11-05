@@ -81,13 +81,6 @@ void ezQtCollisionMeshAssetDocumentWindow::SendRedrawMsg()
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
 
-  {
-    ezSceneSettingsMsgToEngine msg;
-    msg.m_fGizmoScale = ezPreferences::QueryPreferences<ezEditorPreferencesUser>()->m_fGizmoScale;
-    msg.m_bAddAmbientLight = true; // not implemented yet
-    GetEditorEngineConnection()->SendMessage(&msg);
-  }
-
   for (auto pView : m_ViewWidgets)
   {
     pView->SetEnablePicking(false);
