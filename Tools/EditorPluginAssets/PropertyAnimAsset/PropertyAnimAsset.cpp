@@ -95,6 +95,16 @@ ezInt64 ezPropertyAnimAssetDocument::GetAnimationDurationTicks() const
     }
   }
 
+  if (m_iLastAnimationDuration != m_iCachedAnimationDuration)
+  {
+    m_iLastAnimationDuration = m_iCachedAnimationDuration;
+
+    ezPropertyAnimAssetDocumentEvent e;
+    e.m_pDocument = this;
+    e.m_Type = ezPropertyAnimAssetDocumentEvent::Type::AnimationLengthChanged;
+    m_PropertyAnimEvents.Broadcast(e);
+  }
+
   return m_iCachedAnimationDuration;
 }
 
@@ -104,6 +114,22 @@ ezTime ezPropertyAnimAssetDocument::GetAnimationDurationTime() const
   const ezInt64 ticks = GetAnimationDurationTicks();
 
   return ezTime::Seconds(ticks / 4800.0);
+}
+
+void ezPropertyAnimAssetDocument::SetScrubberPosition(ezUInt64 uiTick)
+{
+  const ezUInt32 uiTicksPerFrame = 4800 / GetProperties()->m_uiFramesPerSecond;
+  uiTick = (ezUInt64)ezMath::Round((double)uiTick, (double)uiTicksPerFrame);
+
+  if (m_uiScrubberTickPos == uiTick)
+    return;
+
+  m_uiScrubberTickPos = uiTick;
+
+  ezPropertyAnimAssetDocumentEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezPropertyAnimAssetDocumentEvent::Type::ScrubberPositionChanged;
+  m_PropertyAnimEvents.Broadcast(e);
 }
 
 ezStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)

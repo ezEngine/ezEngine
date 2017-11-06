@@ -15,18 +15,24 @@ public:
   explicit ezQtTimeScrubberWidget(QWidget* pParent);
   ~ezQtTimeScrubberWidget();
 
-  void SetDuration(ezInt64 iNumTicks, ezUInt32 uiFramesPerSecond);
+  void SetDuration(ezUInt64 uiNumTicks, ezUInt32 uiFramesPerSecond);
+  void SetScrubberPosition(ezUInt64 uiTick);
 
 signals:
+  void ScrubberPosChangedEvent(ezUInt64 uiNewScrubberTickPos);
 
 private:
   virtual void paintEvent(QPaintEvent* event) override;
   virtual void mousePressEvent(QMouseEvent* event);
   virtual void mouseReleaseEvent(QMouseEvent* event);
   virtual void mouseMoveEvent(QMouseEvent* event) override;
+  void SetScrubberPosFromPixelCoord(ezInt32 x);
 
-  ezInt64 m_iDurationTicks = 0;
-  ezUInt32 m_uiFramesPerSecond = 60;
+  ezUInt64 m_uiDurationTicks = 0;
+  ezTime m_Duration;
+  ezUInt64 m_uiScrubberTickPos = 0;
+  double m_fNormScrubberPosition = 0.0;
+  bool m_bDragging = false;
 };
 
 class EZ_GUIFOUNDATION_DLL ezQtTimeScrubberToolbar : public QToolBar
@@ -36,7 +42,12 @@ class EZ_GUIFOUNDATION_DLL ezQtTimeScrubberToolbar : public QToolBar
 public:
   explicit ezQtTimeScrubberToolbar(QWidget* parent);
 
-  void SetDuration(ezInt64 iNumTicks, ezUInt32 uiFramesPerSecond);
+  void SetDuration(ezUInt64 iNumTicks, ezUInt32 uiFramesPerSecond);
+
+  void SetScrubberPosition(ezUInt64 uiTick);
+
+signals:
+  void ScrubberPosChangedEvent(ezUInt64 uiNewScrubberTickPos);
 
 private:
   ezQtTimeScrubberWidget* m_pScrubber;

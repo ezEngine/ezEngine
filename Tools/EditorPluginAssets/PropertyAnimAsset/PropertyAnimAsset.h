@@ -5,9 +5,11 @@
 #include <GameEngine/Resources/PropertyAnimResource.h>
 #include <GuiFoundation/Widgets/CurveEditData.h>
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
+#include <Foundation/Communication/Event.h>
 
 struct ezGameObjectContextEvent;
 class ezPropertyAnimObjectAccessor;
+class ezPropertyAnimAssetDocument;
 
 class ezPropertyAnimationTrack : public ezReflectedClass
 {
@@ -37,6 +39,18 @@ public:
   ezDynamicArray<ezPropertyAnimationTrack*> m_Tracks;
 };
 
+struct ezPropertyAnimAssetDocumentEvent
+{
+  enum class Type
+  {
+    AnimationLengthChanged,
+    ScrubberPositionChanged,
+  };
+
+  const ezPropertyAnimAssetDocument* m_pDocument;
+  Type m_Type;
+};
+
 class ezPropertyAnimAssetDocument : public ezSimpleAssetDocument<ezPropertyAnimationTrackGroup, ezGameObjectContextDocument>
 {
   typedef ezSimpleAssetDocument<ezPropertyAnimationTrackGroup, ezGameObjectContextDocument> BaseClass;
@@ -53,6 +67,11 @@ public:
   ezTime GetAnimationDurationTime() const;
   void ClearCachedAnimationDuration() { m_iCachedAnimationDuration = 0; }
 
+  void SetScrubberPosition(ezUInt64 uiTick);
+  ezUInt64 GetScrubberPosition() const { return m_uiScrubberTickPos; }
+
+  ezEvent<const ezPropertyAnimAssetDocumentEvent&> m_PropertyAnimEvents;
+
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
 
@@ -61,5 +80,7 @@ private:
 
   ezUniquePtr<ezPropertyAnimObjectAccessor> m_pAccessor;
 
-  mutable ezInt64 m_iCachedAnimationDuration;
+  ezUInt64 m_uiScrubberTickPos = 0;
+  mutable ezInt64 m_iCachedAnimationDuration = 0;
+  mutable ezInt64 m_iLastAnimationDuration = 0;
 };

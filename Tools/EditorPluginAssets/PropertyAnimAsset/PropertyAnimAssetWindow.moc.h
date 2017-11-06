@@ -40,9 +40,11 @@ public:
 
 protected:
   virtual void InternalRedraw() override;
+  void PropertyAnimAssetEventHandler(const ezPropertyAnimAssetDocumentEvent& e);
 
 private slots:
   void onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
+  void onScrubberPosChanged(ezUInt64 uiTick);
 
   //////////////////////////////////////////////////////////////////////////
   // Curve editor events
