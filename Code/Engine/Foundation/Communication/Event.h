@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Types/Delegate.h>
 #include <Foundation/Containers/DynamicArray.h>
@@ -29,7 +29,7 @@ public:
   /// \brief This function will broadcast to all registered users, that this event has just happened.
   ///  Setting uiMaxRecursionDepth will allow you to permit recursions. When broadcasting consider up to what depth
   ///  you want recursions to be permitted. By default no recursion is allowed.
-  void Broadcast(EventData pEventData, ezUInt8 uiMaxRecursionDepth = 0); // [tested]
+  void Broadcast(EventData pEventData, ezUInt8 uiMaxRecursionDepth = 0) const; // [tested]
 
   /// \brief Adds a function as an event handler. All handlers will be notified in the order that they were registered.
   void AddEventHandler(Handler handler) const; // [tested]
@@ -44,7 +44,7 @@ public:
 
 private:
   /// \brief Used to detect recursive broadcasts and then throw asserts at you.
-  ezUInt8 m_uiRecursionDepth;
+  mutable ezUInt8 m_uiRecursionDepth;
 
   mutable MutexType m_Mutex;
 

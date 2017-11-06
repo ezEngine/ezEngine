@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 template <typename EventData, typename MutexType>
 ezEventBase<EventData, MutexType>::ezEventBase(ezAllocatorBase* pAllocator) : m_EventHandlers(pAllocator)
@@ -41,7 +41,7 @@ bool ezEventBase<EventData, MutexType>::HasEventHandler(Handler handler) const
 
 /// The notification is sent to all event handlers in the order that they were registered.
 template <typename EventData, typename MutexType>
-void ezEventBase<EventData, MutexType>::Broadcast(EventData eventData, ezUInt8 uiMaxRecursionDepth)
+void ezEventBase<EventData, MutexType>::Broadcast(EventData eventData, ezUInt8 uiMaxRecursionDepth) const
 {
   EZ_LOCK(m_Mutex);
 
