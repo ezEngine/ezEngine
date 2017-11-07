@@ -143,7 +143,7 @@ Node %Camera
   {
     string %Type { "float3" }
     unsigned_int8 %Color { 200, 200, 200 }
-    string %Inline { "CameraPosition" }
+    string %Inline { "GetCameraPosition()" }
     string %Tooltip { "Global camera position." }
   }
 
@@ -151,7 +151,7 @@ Node %Camera
   {
     string %Type { "float3" }
     unsigned_int8 %Color { 128, 0, 0 }
-    string %Inline { "CameraDirForwards" }
+    string %Inline { "GetCameraDirForwards()" }
     string %Tooltip { "Forward direction vector of the camera." }
   }
 
@@ -159,7 +159,7 @@ Node %Camera
   {
     string %Type { "float3" }
     unsigned_int8 %Color { 0, 128, 0 }
-    string %Inline { "CameraDirRight" }
+    string %Inline { "GetCameraDirRight()" }
     string %Tooltip { "Right direction vector of the camera." }
   }
 
@@ -167,7 +167,7 @@ Node %Camera
   {
     string %Type { "float3" }
     unsigned_int8 %Color { 0, 0, 128 }
-    string %Inline { "CameraDirUp" }
+    string %Inline { "GetCameraDirUp()" }
     string %Tooltip { "Up direction vector of the camera." }
   }
 

@@ -90,9 +90,10 @@ void ezPxJointComponent::OnSimulationStarted()
 
 void ezPxJointComponent::Deinitialize()
 {
-  if (m_pJoint)
+  if (m_pJoint != nullptr)
   {
-    EZ_PX_WRITE_LOCK(*(m_pJoint->getScene()));
+    ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
+    EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
 
     m_pJoint->release();
     m_pJoint = nullptr;

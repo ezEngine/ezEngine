@@ -127,7 +127,7 @@ Node %ParameterColor
   Property %Default
   {
     string %Type { "color" }
-    string %DefaultValue { "0, 0, 0, 0" }
+    string %DefaultValue { "255, 255, 255, 255" }
   }
 
   OutputPin %Value

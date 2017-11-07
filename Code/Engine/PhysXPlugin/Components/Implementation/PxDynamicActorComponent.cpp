@@ -88,7 +88,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 1)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Kinematic", GetKinematic, SetKinematic),
-    EZ_MEMBER_PROPERTY("Mass", m_fMass),
+    EZ_ACCESSOR_PROPERTY("Mass", GetMass, SetMass),
     EZ_MEMBER_PROPERTY("Density", m_fDensity)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_ACCESSOR_PROPERTY("DisableGravity", GetDisableGravity, SetDisableGravity),
     EZ_MEMBER_PROPERTY("LinearDamping", m_fLinearDamping)->AddAttributes(new ezDefaultValueAttribute(0.1f)),
@@ -180,6 +180,21 @@ void ezPxDynamicActorComponent::SetDisableGravity(bool b)
     EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
 
     m_pActor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, m_bDisableGravity);
+  }
+}
+
+void ezPxDynamicActorComponent::SetMass(float fMass)
+{
+  if (m_fMass == fMass)
+    return;
+
+  m_fMass = fMass;
+
+  if (m_pActor)
+  {
+    EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
+
+    m_pActor->setMass(m_fMass);
   }
 }
 

@@ -51,14 +51,22 @@ namespace
     while (s.IsValid())
     {
       if (s.GetCharacter() == '(')
-        braces++;
-      if (s.GetCharacter() == ')')
       {
-        if (braces == 0)
-          break;
-        braces--;
+        braces++;
+
+        ++s; //skip (
+        szValueStart = s.GetData();
       }
-      ++s;
+      else
+      {
+        if (s.GetCharacter() == ')')
+        {
+          if (braces == 0)
+            break;
+          braces--;
+        }
+        ++s;
+      }
     }
 
     if (!s.IsValid() || s.GetCharacter() != ')')

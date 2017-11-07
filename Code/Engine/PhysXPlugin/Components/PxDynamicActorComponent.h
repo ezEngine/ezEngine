@@ -51,7 +51,9 @@ public:
   bool GetDisableGravity() const { return m_bDisableGravity; }
   void SetDisableGravity(bool b);
 
-  float m_fMass;
+  float GetMass() const { return m_fMass; }
+  void SetMass(float fMass);
+
   float m_fDensity;
   float m_fLinearDamping;
   float m_fAngularDamping;
@@ -80,6 +82,7 @@ protected:
   physx::PxRigidDynamic* m_pActor;
 
 private:
+  float m_fMass;
   bool m_bDisableGravity;
   bool m_bKinematic;
 
