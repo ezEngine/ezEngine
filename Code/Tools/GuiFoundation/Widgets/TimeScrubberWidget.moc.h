@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GuiFoundation/Basics.h>
+#include <Foundation/Time/Time.h>
 
 #include <QWidget>
 #include <QToolBar>
@@ -23,8 +24,8 @@ signals:
 
 private:
   virtual void paintEvent(QPaintEvent* event) override;
-  virtual void mousePressEvent(QMouseEvent* event);
-  virtual void mouseReleaseEvent(QMouseEvent* event);
+  virtual void mousePressEvent(QMouseEvent* event) override;
+  virtual void mouseReleaseEvent(QMouseEvent* event) override;
   virtual void mouseMoveEvent(QMouseEvent* event) override;
   void SetScrubberPosFromPixelCoord(ezInt32 x);
 
