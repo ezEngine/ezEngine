@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Math/Math.h>
 #include <Foundation/Math/Vec4.h>
@@ -242,21 +242,14 @@ public:
   // *** Conversion Operators/Functions ***
 public:
 
-  /// \brief Sets this color from a color that is in linear color space and given in HSV format.
+  /// \brief Sets this color from a HSV (hue, saturation, value) format.
   ///
   /// \a hue is in range [0; 360], \a sat and \a val are in range [0; 1]
-  ///
-  /// You should typically NOT use this functions, as most colors in HSV format are taken from some color picker,
-  /// which will return a color in Gamma space.
   void SetHSV(float hue, float sat, float val); // [tested]
 
-  /// \brief Converts the color part to HSV format. The HSV color will be in linear space.
+  /// \brief Converts the color part to HSV format.
   ///
   /// \a hue is in range [0; 360], \a sat and \a val are in range [0; 1]
-  ///
-  /// You should NOT use this functions when you want to display the HSV value in a UI element, as those should display colors in Gamma space.
-  /// You can use this function for procedural color modifications. E.g. GetComplementaryColor() is computed by rotating the hue value 180 degree.
-  /// In this case you also need to use FromLinearHSV() to convert the color back to RGB format.
   void GetHSV(float& hue, float& sat, float& val) const; // [tested]
 
   /// \brief Conversion to const float*

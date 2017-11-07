@@ -2,6 +2,8 @@
 
 #include <GuiFoundation/Basics.h>
 
+class QRectF;
+
 namespace ezWidgetUtils
 {
   EZ_GUIFOUNDATION_DLL void AdjustGridDensity(double& fFinestDensity, double& fRoughDensity, ezUInt32 uiWindowWidth, double fViewportSceneWidth, ezUInt32 uiMinPixelsForStep);

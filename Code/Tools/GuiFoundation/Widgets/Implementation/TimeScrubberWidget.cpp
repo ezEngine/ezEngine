@@ -3,6 +3,8 @@
 #include <QPainter>
 #include <Foundation/Math/Color8UNorm.h>
 #include <GuiFoundation/Widgets/WidgetUtils.h>
+#include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Strings/StringBuilder.h>
 #include <qevent.h>
 
 ezQtTimeScrubberWidget::ezQtTimeScrubberWidget(QWidget* pParent)

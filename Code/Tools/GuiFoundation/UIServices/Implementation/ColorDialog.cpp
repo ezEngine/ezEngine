@@ -42,8 +42,8 @@ ezQtColorDialog::ezQtColorDialog(const ezColor& initial, QWidget* parent)
 
     SpinHue->SetIntMode(true);
     SpinSaturation->SetIntMode(true);
-    SpinValue->SetIntMode(false);
-    SpinValue->setDecimals(1);
+    SpinValue->SetIntMode(true);
+    //SpinValue->setDecimals(1);
 
     ButtonOk->setAutoDefault(false);
     ButtonCancel->setAutoDefault(false);

@@ -73,11 +73,12 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
 
 
     // hsv test - took some samples from http://www.javascripter.net/faq/rgb2hsv.htm
-    ezVec3 rgb[] = { ezVec3(1,1,1), ezVec3(0,0,0), ezVec3(123, 12, 1) / 255.0f, ezVec3(31, 112, 153) / 255.0f };
-    ezVec3 hsv[] = { ezVec3(0,0,1), ezVec3(0,0,0), ezVec3(5.4f, 0.991f, 0.48f), ezVec3(200.2f, 0.797f, 0.600f)};
+    const ezColorGammaUB rgb[] = { ezColorGammaUB(255,255,255), ezColorGammaUB(0,0,0), ezColorGammaUB(123, 12, 1), ezColorGammaUB(31, 112, 153) };
+    const ezVec3 hsv[] = { ezVec3(0,0,1), ezVec3(0,0,0), ezVec3(5.4f, 0.991f, 0.48f), ezVec3(200.2f, 0.797f, 0.600f)};
+
     for (int i=0; i<4; ++i)
     {
-      ezColor color(rgb[i].x, rgb[i].y, rgb[i].z);
+      const ezColor color = rgb[i];
       float hue, sat, val;
       color.GetHSV(hue, sat, val);
 
@@ -87,9 +88,9 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
 
       ezColor fromHSV;
       fromHSV.SetHSV(hsv[i].x, hsv[i].y, hsv[i].z);
-      EZ_TEST_FLOAT(fromHSV.r, rgb[i].x, 0.01f);
-      EZ_TEST_FLOAT(fromHSV.g, rgb[i].y, 0.01f);
-      EZ_TEST_FLOAT(fromHSV.b, rgb[i].z, 0.01f);
+      EZ_TEST_FLOAT(fromHSV.r, color.r, 0.01f);
+      EZ_TEST_FLOAT(fromHSV.g, color.g, 0.01f);
+      EZ_TEST_FLOAT(fromHSV.b, color.b, 0.01f);
     }
   }
 

@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <GuiFoundation/Widgets/WidgetUtils.h>
+#include <QRect>
 
 void ezWidgetUtils::AdjustGridDensity(double& fFinestDensity, double& fRoughDensity, ezUInt32 uiWindowWidth, double fViewportSceneWidth, ezUInt32 uiMinPixelsForStep)
 {

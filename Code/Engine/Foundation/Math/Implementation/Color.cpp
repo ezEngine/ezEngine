@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Math/Mat4.h>
 
@@ -25,7 +25,12 @@ bool ezColor::IsNormalized() const
 // http://en.literateprograms.org/RGB_to_HSV_color_space_conversion_%28C%29
 void ezColor::GetHSV(float& out_hue, float& out_sat, float& out_value) const
 {
-  out_value = ezMath::Max(r, g, b); // Value
+  // The formula below assumes values in gamma space
+  const float r2 = LinearToGamma(r);
+  const float g2 = LinearToGamma(g);
+  const float b2 = LinearToGamma(b);
+
+  out_value = ezMath::Max(r2, g2, b2); // Value
 
   if (out_value < ezMath::BasicType<float>::SmallEpsilon())
   {
@@ -36,9 +41,9 @@ void ezColor::GetHSV(float& out_hue, float& out_sat, float& out_value) const
   }
 
   const float invV = 1.0f / out_value;
-  float norm_r = r * invV;
-  float norm_g = g * invV;
-  float norm_b = b * invV;
+  float norm_r = r2 * invV;
+  float norm_g = g2 * invV;
+  float norm_b = b2 * invV;
   float rgb_min = ezMath::Min(norm_r, norm_g, norm_b);
   float rgb_max = ezMath::Max(norm_r, norm_g, norm_b);
 
@@ -122,6 +127,11 @@ void ezColor::SetHSV(float hue, float sat, float val)
     g = 0 + m;
     b = x + m;
   }
+
+  // The formula above produces value in gamma space
+  r = GammaToLinear(r);
+  g = GammaToLinear(g);
+  b = GammaToLinear(b);
 }
 
 float ezColor::GetSaturation() const
