@@ -10,6 +10,7 @@
 struct ezGameObjectContextEvent;
 class ezPropertyAnimObjectAccessor;
 class ezPropertyAnimAssetDocument;
+struct ezCommandHistoryEvent;
 
 class ezPropertyAnimationTrack : public ezReflectedClass
 {
@@ -77,6 +78,7 @@ protected:
 
 private:
   void GameObjectContextEventHandler(const ezGameObjectContextEvent& e);
+  void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);
 
   ezUniquePtr<ezPropertyAnimObjectAccessor> m_pAccessor;
 

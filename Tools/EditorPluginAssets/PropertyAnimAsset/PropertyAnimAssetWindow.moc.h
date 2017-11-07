@@ -19,6 +19,7 @@ class ezColorGradientAssetData;
 class ezQtQuadViewWidget;
 class ezGameObjectGizmoHandler;
 class ezQtTimeScrubberToolbar;
+struct ezPropertyAnimAssetDocumentEvent;
 
 class ezQtPropertyAnimAssetDocumentWindow : public ezQtGameObjectDocumentWindow, public ezGameObjectGizmoInterface
 {

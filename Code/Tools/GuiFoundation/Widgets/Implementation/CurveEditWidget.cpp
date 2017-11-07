@@ -3,55 +3,10 @@
 #include <Foundation/Math/Color.h>
 #include <Foundation/Math/Color8UNorm.h>
 #include <GuiFoundation/Widgets/GridBarWidget.moc.h>
+#include <GuiFoundation/Widgets/WidgetUtils.h>
 #include <QPainter>
 #include <qevent.h>
 #include <QRubberBand>
-
-//////////////////////////////////////////////////////////////////////////
-
-static void AdjustGridDensity(double& fFinestDensity, double& fRoughDensity, ezUInt32 uiWindowWidth, double fOrthoDimX, ezUInt32 uiMinPixelsForStep)
-{
-  const double fMaxStepsFitInWindow = (double)uiWindowWidth / (double)uiMinPixelsForStep;
-
-  const double fStartDensity = fFinestDensity;
-
-  ezInt32 iFactor = 1;
-  double fNewDensity = fFinestDensity;
-  ezInt32 iFactors[2] = { 5, 2 };
-  ezInt32 iLastFactor = 0;
-
-  while (true)
-  {
-    const double fStepsAtDensity = fOrthoDimX / fNewDensity;
-
-    if (fStepsAtDensity < fMaxStepsFitInWindow)
-      break;
-
-    iFactor *= iFactors[iLastFactor];
-    fNewDensity = fStartDensity * iFactor;
-
-    iLastFactor = (iLastFactor + 1) % 2;
-  }
-
-  fFinestDensity = fStartDensity * iFactor;
-
-  iFactor *= iFactors[iLastFactor];
-  fRoughDensity = fStartDensity * iFactor;
-}
-
-static void ComputeGridExtentsX2(const QRectF& viewportSceneRect, double fGridStops, double& out_fMinX, double& out_fMaxX)
-{
-  out_fMinX = ezMath::Floor((double)viewportSceneRect.left(), fGridStops);
-  out_fMaxX = ezMath::Ceil((double)viewportSceneRect.right(), fGridStops);
-}
-
-static void ComputeGridExtentsY2(const QRectF& viewportSceneRect, double fGridStops, double& out_fMinY, double& out_fMaxY)
-{
-  out_fMinY = ezMath::Floor((double)viewportSceneRect.top(), fGridStops);
-  out_fMaxY = ezMath::Ceil((double)viewportSceneRect.bottom(), fGridStops);
-}
-
-//////////////////////////////////////////////////////////////////////////
 
 ezQtCurveEditWidget::ezQtCurveEditWidget(QWidget* parent)
   : QWidget(parent)
@@ -313,7 +268,7 @@ void ezQtCurveEditWidget::paintEvent(QPaintEvent* e)
 
   double fFineGridDensity = 0.01;
   double fRoughGridDensity = 0.01;
-  AdjustGridDensity(fFineGridDensity, fRoughGridDensity, rect().width(), viewportSceneRect.width(), 20);
+  ezWidgetUtils::AdjustGridDensity(fFineGridDensity, fRoughGridDensity, rect().width(), viewportSceneRect.width(), 20);
 
   RenderVerticalGrid(&painter, viewportSceneRect, fRoughGridDensity);
 
@@ -1043,7 +998,7 @@ void ezQtCurveEditWidget::PaintMultiSelectionSquare(QPainter* painter) const
 void ezQtCurveEditWidget::RenderVerticalGrid(QPainter* painter, const QRectF& viewportSceneRect, double fRoughGridDensity)
 {
   double lowX, highX;
-  ComputeGridExtentsX2(viewportSceneRect, fRoughGridDensity, lowX, highX);
+  ezWidgetUtils::ComputeGridExtentsX(viewportSceneRect, fRoughGridDensity, lowX, highX);
   lowX = ezMath::Max(lowX, 0.0);
 
   const int iy = rect().bottom();
@@ -1081,7 +1036,7 @@ void ezQtCurveEditWidget::RenderSideLinesAndText(QPainter* painter, const QRectF
 {
   double fFineGridDensity = 0.01;
   double fRoughGridDensity = 0.01;
-  AdjustGridDensity(fFineGridDensity, fRoughGridDensity, rect().height(), ezMath::Abs(viewportSceneRect.height()), 20);
+  ezWidgetUtils::AdjustGridDensity(fFineGridDensity, fRoughGridDensity, rect().height(), ezMath::Abs(viewportSceneRect.height()), 20);
 
   painter->save();
 
@@ -1094,7 +1049,7 @@ void ezQtCurveEditWidget::RenderSideLinesAndText(QPainter* painter, const QRectF
   // render fine grid stop lines
   {
     double lowY, highY;
-    ComputeGridExtentsY2(viewportSceneRect, fFineGridDensity, lowY, highY);
+    ezWidgetUtils::ComputeGridExtentsY(viewportSceneRect, fFineGridDensity, lowY, highY);
 
     if (lowY > highY)
       ezMath::Swap(lowY, highY);
@@ -1119,7 +1074,7 @@ void ezQtCurveEditWidget::RenderSideLinesAndText(QPainter* painter, const QRectF
   // render rough grid stop lines
   {
     double lowY, highY;
-    ComputeGridExtentsY2(viewportSceneRect, fRoughGridDensity, lowY, highY);
+    ezWidgetUtils::ComputeGridExtentsY(viewportSceneRect, fRoughGridDensity, lowY, highY);
 
     if (lowY > highY)
       ezMath::Swap(lowY, highY);
@@ -1144,7 +1099,7 @@ void ezQtCurveEditWidget::RenderSideLinesAndText(QPainter* painter, const QRectF
   // Grid Stop Value Text
   {
     double lowY, highY;
-    ComputeGridExtentsY2(viewportSceneRect, fRoughGridDensity, lowY, highY);
+    ezWidgetUtils::ComputeGridExtentsY(viewportSceneRect, fRoughGridDensity, lowY, highY);
 
     if (lowY > highY)
       ezMath::Swap(lowY, highY);

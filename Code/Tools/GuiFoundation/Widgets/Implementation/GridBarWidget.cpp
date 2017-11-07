@@ -2,16 +2,11 @@
 #include <GuiFoundation/Widgets/GridBarWidget.moc.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Containers/HybridArray.h>
+#include <GuiFoundation/Widgets/WidgetUtils.h>
 #include <qevent.h>
 #include <QTextOption>
 #include <QPainter>
 #include <Foundation/Strings/StringBuilder.h>
-
-static void ComputeGridExtentsX(const QRectF& viewportSceneRect, double fGridStops, double& out_fMinX, double& out_fMaxX)
-{
-  out_fMinX = ezMath::Floor((double)viewportSceneRect.left(), fGridStops);
-  out_fMaxX = ezMath::Ceil((double)viewportSceneRect.right(), fGridStops);
-}
 
 ezQGridBarWidget::ezQGridBarWidget(QWidget* parent)
   : QWidget(parent)
@@ -20,7 +15,6 @@ ezQGridBarWidget::ezQGridBarWidget(QWidget* parent)
   m_fFineGridStops = 10;
   m_fTextGridStops = 100;
 }
-
 
 void ezQGridBarWidget::SetConfig(const QRectF& viewportSceneRect, double fTextGridStops, double fFineGridStops, ezDelegate<QPoint(const QPointF&)> mapFromSceneFunc)
 {
@@ -74,7 +68,7 @@ void ezQGridBarWidget::paintEvent(QPaintEvent* e)
   // render fine grid stop lines
   {
     double fSceneMinX, fSceneMaxX;
-    ComputeGridExtentsX(m_viewportSceneRect, m_fFineGridStops, fSceneMinX, fSceneMaxX);
+    ezWidgetUtils::ComputeGridExtentsX(m_viewportSceneRect, m_fFineGridStops, fSceneMinX, fSceneMaxX);
     fSceneMinX = ezMath::Max(fSceneMinX, 0.0);
 
     painter->setPen(palette().buttonText().color());
@@ -96,7 +90,7 @@ void ezQGridBarWidget::paintEvent(QPaintEvent* e)
   // Grid Stop Value Text
   {
     double fSceneMinX, fSceneMaxX;
-    ComputeGridExtentsX(m_viewportSceneRect, m_fTextGridStops, fSceneMinX, fSceneMaxX);
+    ezWidgetUtils::ComputeGridExtentsX(m_viewportSceneRect, m_fTextGridStops, fSceneMinX, fSceneMaxX);
     fSceneMinX = ezMath::Max(fSceneMinX, 0.0);
 
     QTextOption textOpt(Qt::AlignCenter);

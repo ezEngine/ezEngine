@@ -2,6 +2,7 @@
 #include <GuiFoundation/Widgets/TimeScrubberWidget.moc.h>
 #include <QPainter>
 #include <Foundation/Math/Color8UNorm.h>
+#include <GuiFoundation/Widgets/WidgetUtils.h>
 #include <qevent.h>
 
 ezQtTimeScrubberWidget::ezQtTimeScrubberWidget(QWidget* pParent)
@@ -47,16 +48,92 @@ void ezQtTimeScrubberWidget::paintEvent(QPaintEvent* event)
     return;
 
   QPainter p(this);
+  p.setRenderHint(QPainter::Antialiasing);
+  p.setRenderHint(QPainter::TextAntialiasing);
+  p.setRenderHint(QPainter::HighQualityAntialiasing);
   p.fillRect(rect(), palette().light());
+  p.translate(0.5, 0.5);
 
   QPen linePen;
-  linePen.setColor(palette().highlight().color());
   linePen.setCosmetic(true);
-  linePen.setWidth(m_bDragging ? 3 : 1);
-  p.setPen(linePen);
 
-  const double posX = rect().width() * m_fNormScrubberPosition;
-  p.drawLine(QLineF(posX, 0, posX, rect().height()));
+  // Scrubber line
+  {
+    linePen.setColor(palette().highlight().color());
+    linePen.setWidth(m_bDragging ? 3 : 1);
+    p.setPen(linePen);
+
+    const int posX = (int)(rect().width() * m_fNormScrubberPosition);
+    p.drawLine(QLine(posX, 0, posX, rect().height()));
+  }
+
+  const double fMaxDuration = m_Duration.GetSeconds();
+  double fFineGridDensity = 0.01;
+  double fRoughGridDensity = 0.01;
+  ezWidgetUtils::AdjustGridDensity(fFineGridDensity, fRoughGridDensity, rect().width(), fMaxDuration, 20);
+  ezHybridArray<QLine, 100> lines;
+
+  // fine lines
+  {
+    lines.Clear();
+
+    const int lineBottom = rect().bottom();
+    const int lineTop = lineBottom - 6;
+    const double scale = rect().width() / fMaxDuration;
+
+    for (double x = 0.0; x < fMaxDuration; x += fFineGridDensity)
+    {
+      lines.PushBack(QLine(QPoint((int)(scale * x), lineTop), QPoint((int)(scale * x), lineBottom)));
+    }
+
+    linePen.setColor(palette().color(QPalette::ColorGroup::Disabled, QPalette::ColorRole::WindowText));
+    linePen.setWidth(1);
+    p.setPen(linePen);
+    p.drawLines(lines.GetData(), lines.GetCount());
+  }
+
+  // rough lines
+  {
+    lines.Clear();
+
+    const int lineBottom = rect().bottom();
+    const int lineTop = lineBottom - 8;
+    const double scale = rect().width() / fMaxDuration;
+
+    for (double x = 0.0; x < fMaxDuration; x += fRoughGridDensity)
+    {
+      lines.PushBack(QLine(QPoint((int)(scale * x), lineTop), QPoint((int)(scale * x), lineBottom)));
+    }
+
+    linePen.setColor(palette().color(QPalette::ColorGroup::Active, QPalette::ColorRole::WindowText));
+    linePen.setWidth(1);
+    p.setPen(linePen);
+    p.drawLines(lines.GetData(), lines.GetCount());
+  }
+
+  // rough stops text
+  {
+    QTextOption textOpt(Qt::AlignCenter);
+    QRectF textRect;
+
+    p.setPen(palette().buttonText().color());
+
+    ezStringBuilder tmp;
+
+    const double areaTop = rect().top();
+    const double areaHeight = 14.0;
+    const double scale = rect().width() / fMaxDuration;
+
+    for (double x = fRoughGridDensity; x < fMaxDuration; x += fRoughGridDensity)
+    {
+      const double scaledX = x * scale;
+
+      textRect.setRect(scaledX - 20, areaTop, 39, areaHeight);
+      tmp.Format("{0}", ezArgF(x));
+
+      p.drawText(textRect, tmp.GetData(), textOpt);
+    }
+  }
 }
 
 void ezQtTimeScrubberWidget::mousePressEvent(QMouseEvent* event)

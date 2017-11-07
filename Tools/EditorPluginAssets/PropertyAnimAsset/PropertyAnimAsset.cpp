@@ -48,11 +48,14 @@ ezPropertyAnimAssetDocument::ezPropertyAnimAssetDocument(const char* szDocumentP
 {
   m_GameObjectContextEvents.AddEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocument::GameObjectContextEventHandler, this));
   m_pAccessor = EZ_DEFAULT_NEW(ezPropertyAnimObjectAccessor, this, GetCommandHistory());
+
+  GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocument::CommandHistoryEventHandler, this));
 }
 
 ezPropertyAnimAssetDocument::~ezPropertyAnimAssetDocument()
 {
   m_GameObjectContextEvents.RemoveEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocument::GameObjectContextEventHandler, this));
+  GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocument::CommandHistoryEventHandler, this));
 }
 
 ezObjectAccessorBase* ezPropertyAnimAssetDocument::GetObjectAccessor() const
@@ -212,6 +215,18 @@ void ezPropertyAnimAssetDocument::GameObjectContextEventHandler(const ezGameObje
     break;
   case ezGameObjectContextEvent::Type::ContextChanged:
     static_cast<ezPropertyAnimObjectManager*>(GetObjectManager())->SetAllowStructureChangeOnTemporaries(false);
+    break;
+  }
+}
+
+void ezPropertyAnimAssetDocument::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
+{
+  switch (e.m_Type)
+  {
+  case ezCommandHistoryEvent::Type::UndoEnded:
+  case ezCommandHistoryEvent::Type::RedoEnded:
+    ClearCachedAnimationDuration();
+    GetAnimationDurationTicks();
     break;
   }
 }

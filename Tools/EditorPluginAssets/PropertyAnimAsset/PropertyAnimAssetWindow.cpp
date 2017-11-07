@@ -275,6 +275,7 @@ void ezQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler(const ez
     const ezInt64 iDuration = e.m_pDocument->GetAnimationDurationTicks();
     
     m_pScrubberToolbar->SetDuration(iDuration, e.m_pDocument->GetProperties()->m_uiFramesPerSecond);
+    UpdateCurveEditor();
   }
   else if (e.m_Type == ezPropertyAnimAssetDocumentEvent::Type::ScrubberPositionChanged)
   {
