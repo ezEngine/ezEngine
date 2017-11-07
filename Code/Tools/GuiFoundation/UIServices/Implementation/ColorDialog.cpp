@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/UIServices/ColorDialog.moc.h>
 #include <Foundation/Utilities/ConversionUtils.h>
@@ -42,7 +42,8 @@ ezQtColorDialog::ezQtColorDialog(const ezColor& initial, QWidget* parent)
 
     SpinHue->SetIntMode(true);
     SpinSaturation->SetIntMode(true);
-    SpinValue->SetIntMode(true);
+    SpinValue->SetIntMode(false);
+    SpinValue->setDecimals(1);
 
     ButtonOk->setAutoDefault(false);
     ButtonCancel->setAutoDefault(false);
@@ -122,7 +123,7 @@ void ezQtColorDialog::ApplyColor()
 
   SpinHue->setValue(m_uiHue);
   SpinSaturation->setValue(m_uiSaturation);
-  SpinValue->setValue(m_uiValue);
+  SpinValue->setValue(m_fValue * 100.0);
 
   LineRed32->setText(QString("%1").arg(m_CurrentColor.r, 0, 'f', 2));
   LineGreen32->setText(QString("%1").arg(m_CurrentColor.g, 0, 'f', 2));
@@ -131,7 +132,7 @@ void ezQtColorDialog::ApplyColor()
   ColorRange->SetHue(m_uiHue);
   ColorArea->SetHue(m_uiHue);
   ColorArea->SetSaturation(m_uiSaturation / 100.0f);
-  ColorArea->SetValue(m_uiValue / 100.0f);
+  ColorArea->SetValue(m_fValue);
   ColorCompare->SetNewColor(m_CurrentColor);
 
   ezStringBuilder s;
@@ -183,7 +184,8 @@ void ezQtColorDialog::ChangedExposure()
 void ezQtColorDialog::ChangedArea(double x, double y)
 {
   m_uiSaturation = ezMath::Min<ezUInt8>(ezMath::Round(x * 100.0), 100);
-  m_uiValue = ezMath::Min<ezUInt8>(ezMath::Round(y * 100.0), 100);
+  m_fSaturation = ezMath::Clamp((float)x, 0.0f, 1.0f);
+  m_fValue = ezMath::Clamp((float)y, 0.0f, 1.0f);
 
   RecomputeRGB();
   RecomputeHDR();
@@ -195,6 +197,7 @@ void ezQtColorDialog::ChangedArea(double x, double y)
 void ezQtColorDialog::ChangedRange(double x)
 {
   m_uiHue = ezMath::Clamp<ezUInt16>(ezMath::Round(x * 359), 0, 359);
+  m_fHue = (float)m_uiHue;
 
   RecomputeRGB();
   RecomputeHDR();
@@ -243,7 +246,11 @@ void ezQtColorDialog::ExtractColorHSV()
 {
   m_uiHue = ezMath::Clamp<float>(SpinHue->value(), 0, 359);
   m_uiSaturation = ezMath::Min<ezUInt8>(SpinSaturation->value(), 100);
-  m_uiValue = ezMath::Min<ezUInt8>(SpinValue->value(), 100);
+  m_fValue = ezMath::Min<float>(SpinValue->value(), 100.0f);
+
+  m_fHue = (float)m_uiHue;
+  m_fSaturation = ezMath::Clamp(m_uiSaturation / 100.0f, 0.0f, 1.0f);
+  m_fValue = ezMath::Clamp(m_fValue / 100.0f, 0.0f, 1.0f);
 
   RecomputeRGB();
   RecomputeHDR();
@@ -265,7 +272,7 @@ void ezQtColorDialog::ComputeRgbAndHsv(const ezColor& color)
 void ezQtColorDialog::RecomputeRGB()
 {
   ezColor col;
-  col.SetHSV(m_uiHue, m_uiSaturation / 100.0, m_uiValue / 100.0);
+  col.SetHSV(m_fHue, m_fSaturation, m_fValue);
   ezColorGammaUB colGamma = col;
 
   m_GammaRed = colGamma.r;
@@ -278,12 +285,10 @@ void ezQtColorDialog::RecomputeHSV()
   ezColorGammaUB colGamma(m_GammaRed, m_GammaGreen, m_GammaBlue, 255);
   ezColor color = colGamma;
 
-  float hue, sat, val;
-  color.GetHSV(hue, sat, val);
+  color.GetHSV(m_fHue, m_fSaturation, m_fValue);
 
-  m_uiHue = (ezUInt16)ezMath::Round(hue);
-  m_uiSaturation = ezMath::Min<ezUInt8>(ezMath::Round(sat * 100.0), 100);
-  m_uiValue = ezMath::Min<ezUInt8>(ezMath::Round(val * 100.0), 100);
+  m_uiHue = (ezUInt16)ezMath::Round(m_fHue);
+  m_uiSaturation = ezMath::Min<ezUInt8>(ezMath::Round(m_fSaturation * 100.0), 100);
 }
 
 void ezQtColorDialog::RecomputeHDR()
@@ -293,6 +298,6 @@ void ezQtColorDialog::RecomputeHDR()
   //m_CurrentColor.ApplyHdrExposureValue(m_uiExposureValue);
 
   // not sure whether this is better than just scaling RGB, no test data yet
-  m_CurrentColor.SetHSV(m_uiHue, m_uiSaturation / 100.0, (m_uiValue / 100.0) * (1U << m_uiExposureValue));
+  m_CurrentColor.SetHSV(m_fHue, m_fSaturation, m_fValue * (1U << m_uiExposureValue));
   m_CurrentColor.a = ezMath::ColorByteToFloat(m_Alpha);
 }

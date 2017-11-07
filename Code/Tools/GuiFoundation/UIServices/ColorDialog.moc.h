@@ -40,9 +40,12 @@ private:
   bool m_bAlpha;
   bool m_bHDR;
 
+  float m_fHue;
+  float m_fSaturation;
+  float m_fValue;
+
   ezUInt16 m_uiHue;
   ezUInt8 m_uiSaturation;
-  ezUInt8 m_uiValue;
 
   ezUInt8 m_GammaRed;
   ezUInt8 m_GammaGreen;
