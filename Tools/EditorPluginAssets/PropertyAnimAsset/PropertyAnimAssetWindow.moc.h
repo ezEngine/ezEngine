@@ -5,9 +5,9 @@
 #include <GuiFoundation/Widgets/CurveEditData.h>
 #include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
 #include <EditorFramework/DocumentWindow/GameObjectGizmoHandler.h>
+#include <QTreeView>
 
 class ezQtPropertyAnimModel;
-class QTreeView;
 class QItemSelection;
 class QItemSelectionModel;
 class ezQtCurve1DEditorWidget;
@@ -20,6 +20,21 @@ class ezQtQuadViewWidget;
 class ezGameObjectGizmoHandler;
 class ezQtTimeScrubberToolbar;
 struct ezPropertyAnimAssetDocumentEvent;
+class QKeyEvent;
+
+class ezQtPropertyAnimAssetTreeView : public QTreeView
+{
+  Q_OBJECT
+
+public:
+  ezQtPropertyAnimAssetTreeView(QWidget* parent);
+
+signals:
+  void DeleteSelectedItemsEvent();
+
+protected:
+  virtual void keyPressEvent(QKeyEvent* e) override;
+};
 
 class ezQtPropertyAnimAssetDocumentWindow : public ezQtGameObjectDocumentWindow, public ezGameObjectGizmoInterface
 {
@@ -46,6 +61,7 @@ protected:
 private slots:
   void onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
   void onScrubberPosChanged(ezUInt64 uiTick);
+  void onDeleteSelectedItems();
 
   //////////////////////////////////////////////////////////////////////////
   // Curve editor events
@@ -99,7 +115,7 @@ private:
   ezColorGradientAssetData* m_pGradientToDisplay = nullptr;
   ezInt32 m_iMapGradientToTrack = -1;
   ezDynamicArray<ezInt32> m_MapSelectionToTrack;
-  QTreeView* m_pPropertyTreeView = nullptr;
+  ezQtPropertyAnimAssetTreeView* m_pPropertyTreeView = nullptr;
   ezQtPropertyAnimModel* m_pPropertiesModel;
   QItemSelectionModel* m_pSelectionModel = nullptr;
   ezQtCurve1DEditorWidget* m_pCurveEditor = nullptr;
