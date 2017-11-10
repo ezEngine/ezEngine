@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
@@ -54,7 +54,6 @@ protected:
 private:
   void GameObjectEventHandler(const ezGameObjectEvent& e);
   void SnapProviderEventHandler(const ezSnapProviderEvent& e);
-  void OnPreferenceChange(ezPreferences* pref);
 
   void FocusOnSelectionAllViews();
   void FocusOnSelectionHoveredView();
@@ -65,5 +64,4 @@ private:
 
 private:
   ezQtQuadViewWidget* m_pQuadViewWidget = nullptr;
-  ezUniquePtr<ezGameObjectGizmoHandler> m_GizmoHandler;
 };

@@ -9,15 +9,7 @@
 #include <ToolsFoundation/Project/ToolsProject.h>
 
 class ezAssetFileHeader;
-
-enum class ActiveGizmo
-{
-  None,
-  Translate,
-  Rotate,
-  Scale,
-  DragToPosition,
-};
+class ezGameObjectEditTool;
 
 struct EZ_EDITORFRAMEWORK_DLL TransformationChanges
 {
@@ -41,7 +33,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezGameObjectEvent
     AddAmbientLightChanged,
     SimulationSpeedChanged,
 
-    ActiveGizmoChanged,
+    ActiveEditToolChanged,
 
     TriggerShowSelectionInScenegraph,
     TriggerFocusOnSelection_Hovered,
@@ -78,6 +70,14 @@ public:
   QIcon m_Icon;
 };
 
+struct EZ_EDITORFRAMEWORK_DLL ezSelectedGameObject
+{
+  const ezDocumentObject* m_pObject;
+  ezVec3 m_vLocalScaling;
+  float m_fLocalUniformScaling;
+  ezTransform m_GlobalTransform;
+};
+
 class EZ_EDITORFRAMEWORK_DLL ezGameObjectDocument : public ezAssetDocument
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectDocument, ezAssetDocument);
@@ -87,19 +87,45 @@ public:
 
   /// \name Gizmo
   ///@{
+public:
 
-  void SetActiveGizmo(ActiveGizmo gizmo) const;
-  ActiveGizmo GetActiveGizmo() const;
+  /// \brief Makes an edit tool of the given type active. Allocates a new one, if necessary. Only works when SetEditToolConfigDelegate() is set.
+  void SetActiveEditTool(const ezRTTI* pEditToolType);
+
+  /// \brief Returns the currently active edit tool (nullptr for none).
+  ezGameObjectEditTool* GetActiveEditTool() const { return m_pActiveEditTool; }
+
+  /// \brief Checks whether an edit tool of the given type, or nullptr for none, is active.
+  bool IsActiveEditTool(const ezRTTI* pEditToolType) const;
+
+  /// \brief Needs to be called by some higher level code (usually the DocumentWindow) to react to newly created edit tools to configure them (call ezGameObjectEditTool::ConfigureTool()).
+  void SetEditToolConfigDelegate(ezDelegate<void(ezGameObjectEditTool*)> configDelegate);
+
   void SetGizmoWorldSpace(bool bWorldSpace);
   bool GetGizmoWorldSpace() const;
 
   void SetGizmoMoveParentOnly(bool bMoveParent);
   bool GetGizmoMoveParentOnly() const;
 
+  /// \brief Finds all objects that are selected at the top level, ie. none of their parents is selected.
+  ///
+  /// Additionally stores the current transformation. Useful to store this at the start of an operation
+  /// to then do modifications on this base transformation every frame.
+  void ComputeTopLevelSelectedGameObjects(ezDeque<ezSelectedGameObject>& out_Selection);
+
+private:
+  void DeallocateEditTools();
+
+  ezDelegate<void(ezGameObjectEditTool*)> m_EditToolConfigDelegate;
+  ezGameObjectEditTool* m_pActiveEditTool = nullptr;
+  ezMap<const ezRTTI*, ezGameObjectEditTool*> m_CreatedEditTools;
+
+
   ///@}
   /// \name Actions
   ///@{
 
+public:
   void TriggerShowSelectionInScenegraph() const;
   void TriggerFocusOnSelection(bool bAllViews) const;
   void TriggerSnapPivotToGrid() const;
@@ -202,17 +228,13 @@ private:
   bool m_bGizmoWorldSpace = true; // whether the gizmo is in local/global space mode
   bool m_bGizmoMoveParentOnly = false;
 
-
   float m_fSimulationSpeed = 1.0f;
 
-  mutable ActiveGizmo m_ActiveGizmo;
   typedef ezHashTable<const ezDocumentObject*, ezSimdTransform, ezHashHelper<const ezDocumentObject*>, ezAlignedAllocatorWrapper> TransformTable;
   mutable TransformTable m_GlobalTransforms;
-
 
   // when new objects are created the engine sometimes needs to catch up creating sub-objects (e.g. for reference prefabs)
   // therefore when the selection is changed in the first frame, it might not be fully correct
   // by sending it a second time, we can fix that easily
   ezInt8 m_iResendSelection = 0;
-
 };

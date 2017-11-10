@@ -14,6 +14,7 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <EditorFramework/DocumentWindow/GameObjectGizmoHandler.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectMetaData, 1, ezRTTINoAllocator)
 {
@@ -32,7 +33,6 @@ ezGameObjectDocument::ezGameObjectDocument(const char* szDocumentPath, ezDocumen
   : ezAssetDocument(szDocumentPath, pObjectManager, bUseEngineConnection, bUseIPCObjectMirror)
 {
   EZ_ASSERT_DEBUG(bUseEngineConnection && bUseIPCObjectMirror, "IPC mirror must be enabled for ezGameObjectDocument");
-  m_ActiveGizmo = ActiveGizmo::None;
 
   m_CurrentMode.m_bRenderSelectionOverlay = true;
   m_CurrentMode.m_bRenderShapeIcons = true;
@@ -46,23 +46,58 @@ ezGameObjectDocument::~ezGameObjectDocument()
   GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectPropertyEventHandler, this));
   GetObjectManager()->m_ObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectEventHandler, this));
 
+  DeallocateEditTools();
 }
 
-void ezGameObjectDocument::SetActiveGizmo(ActiveGizmo gizmo) const
+void ezGameObjectDocument::SetEditToolConfigDelegate(ezDelegate<void(ezGameObjectEditTool*)> configDelegate)
 {
-  if (m_ActiveGizmo == gizmo)
+  m_EditToolConfigDelegate = configDelegate;
+}
+
+bool ezGameObjectDocument::IsActiveEditTool(const ezRTTI* pEditToolType) const
+{
+  if (m_pActiveEditTool == nullptr)
+    return pEditToolType == nullptr;
+
+  return m_pActiveEditTool->IsInstanceOf(pEditToolType);
+}
+
+void ezGameObjectDocument::SetActiveEditTool(const ezRTTI* pEditToolType)
+{
+  ezGameObjectEditTool* pEditTool = nullptr;
+
+  if (pEditToolType != nullptr)
+  {
+    auto it = m_CreatedEditTools.Find(pEditToolType);
+    if (it.IsValid())
+    {
+      pEditTool = it.Value();
+    }
+    else
+    {
+      EZ_ASSERT_DEBUG(m_EditToolConfigDelegate.IsValid(), "Window did not specify a delegate to configure edit tools");
+
+      pEditTool = reinterpret_cast<ezGameObjectEditTool*>(pEditToolType->GetAllocator()->Allocate());
+      m_CreatedEditTools[pEditToolType] = pEditTool;
+
+      m_EditToolConfigDelegate(pEditTool);
+    }
+  }
+
+  if (m_pActiveEditTool == pEditTool)
     return;
 
-  m_ActiveGizmo = gizmo;
+  if (m_pActiveEditTool)
+    m_pActiveEditTool->SetActive(false);
+
+  m_pActiveEditTool = pEditTool;
+
+  if (m_pActiveEditTool)
+    m_pActiveEditTool->SetActive(true);
 
   ezGameObjectEvent e;
-  e.m_Type = ezGameObjectEvent::Type::ActiveGizmoChanged;
+  e.m_Type = ezGameObjectEvent::Type::ActiveEditToolChanged;
   m_GameObjectEvents.Broadcast(e);
-}
-
-ActiveGizmo ezGameObjectDocument::GetActiveGizmo() const
-{
-  return m_ActiveGizmo;
 }
 
 void ezGameObjectDocument::SetAddAmbientLight(bool b)
@@ -85,18 +120,12 @@ void ezGameObjectDocument::SetGizmoWorldSpace(bool bWorldSpace)
   m_bGizmoWorldSpace = bWorldSpace;
 
   ezGameObjectEvent e;
-  e.m_Type = ezGameObjectEvent::Type::ActiveGizmoChanged;
+  e.m_Type = ezGameObjectEvent::Type::ActiveEditToolChanged;
   m_GameObjectEvents.Broadcast(e);
 }
 
 bool ezGameObjectDocument::GetGizmoWorldSpace() const
 {
-  if (m_ActiveGizmo == ActiveGizmo::Scale)
-    return false;
-
-  if (m_ActiveGizmo == ActiveGizmo::DragToPosition)
-    return false;
-
   return m_bGizmoWorldSpace;
 }
 
@@ -108,7 +137,7 @@ void ezGameObjectDocument::SetGizmoMoveParentOnly(bool bMoveParent)
   m_bGizmoMoveParentOnly = bMoveParent;
 
   ezGameObjectEvent e;
-  e.m_Type = ezGameObjectEvent::Type::ActiveGizmoChanged;
+  e.m_Type = ezGameObjectEvent::Type::ActiveEditToolChanged;
   m_GameObjectEvents.Broadcast(e);
 }
 
@@ -424,18 +453,22 @@ ezResult ezGameObjectDocument::ComputeObjectTransformation(const ezDocumentObjec
   }
 }
 
-
 bool ezGameObjectDocument::GetGizmoMoveParentOnly() const
 {
-  if (m_ActiveGizmo == ActiveGizmo::Scale)
-    return false;
-
-  if (m_ActiveGizmo == ActiveGizmo::DragToPosition)
-    return false;
-
   return m_bGizmoMoveParentOnly;
 }
 
+void ezGameObjectDocument::DeallocateEditTools()
+{
+  SetActiveEditTool(nullptr);
+
+  for (auto it = m_CreatedEditTools.GetIterator(); it.IsValid(); ++it)
+  {
+    it.Value()->GetDynamicRTTI()->GetAllocator()->Deallocate(it.Value());
+  }
+
+  m_CreatedEditTools.Clear();
+}
 
 void ezGameObjectDocument::InitializeAfterLoading()
 {
@@ -775,6 +808,35 @@ ezTransform ezGameObjectDocument::ComputeGlobalTransform(const ezDocumentObject*
   m_GlobalTransforms[pObject] = tGlobal;
 
   return ezSimdConversion::ToTransform(tGlobal);
+}
+
+void ezGameObjectDocument::ComputeTopLevelSelectedGameObjects(ezDeque<ezSelectedGameObject>& out_Selection)
+{
+  // Get the list of all objects that are manipulated
+  // and store their original transformation
+
+  out_Selection.Clear();
+
+  auto hType = ezGetStaticRTTI<ezGameObject>();
+
+  auto pSelMan = GetSelectionManager();
+  const auto& Selection = pSelMan->GetSelection();
+  for (ezUInt32 sel = 0; sel < Selection.GetCount(); ++sel)
+  {
+    if (!Selection[sel]->GetTypeAccessor().GetType()->IsDerivedFrom(hType))
+      continue;
+
+    // ignore objects, whose parent is already selected as well, so that transformations aren't applied
+    // multiple times on the same hierarchy
+    if (pSelMan->IsParentSelected(Selection[sel]))
+      continue;
+
+    ezSelectedGameObject& sgo = out_Selection.ExpandAndGetRef();
+    sgo.m_pObject = Selection[sel];
+    sgo.m_GlobalTransform = GetGlobalTransform(sgo.m_pObject);
+    sgo.m_vLocalScaling = Selection[sel]->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
+    sgo.m_fLocalUniformScaling = Selection[sel]->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>();
+  }
 }
 
 

@@ -37,7 +37,11 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     return pWidget;
   };
   m_pQuadViewWidget = new ezQtQuadViewWidget(pDocument, this, ViewFactory, "PropertyAnimAssetViewToolBar");
-  m_GizmoHandler = EZ_DEFAULT_NEW(ezGameObjectGizmoHandler, pDocument, this, this);
+
+  pDocument->SetEditToolConfigDelegate([this](ezGameObjectEditTool* pTool)
+  {
+    pTool->ConfigureTool(static_cast<ezGameObjectDocument*>(GetDocument()), this, this);
+  });
 
   pDocument->m_PropertyAnimEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler, this));
 
@@ -244,7 +248,7 @@ void ezQtPropertyAnimAssetDocumentWindow::InternalRedraw()
       GetEditorEngineConnection()->SendMessage(&msg);
     }
     {
-      ezGridSettingsMsgToEngine msg = GetGridSettings(m_GizmoHandler.Borrow());
+      ezGridSettingsMsgToEngine msg = GetGridSettings();
       GetEditorEngineConnection()->SendMessage(&msg);
     }
     {

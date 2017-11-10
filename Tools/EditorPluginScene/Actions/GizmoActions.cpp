@@ -4,6 +4,7 @@
 #include <EditorPluginScene/Actions/GizmoActions.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
+#include <EditorFramework/DocumentWindow/GameObjectGizmoHandler.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoAction, 0, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -129,10 +130,35 @@ void ezGizmoAction::Execute(const ezVariant& value)
   }
   else
   {
-    if ((m_Type == ActionType::GizmoTranslate || m_Type == ActionType::GizmoRotate) && m_pSceneDocument->GetActiveGizmo() == (ActiveGizmo)((int)m_Type))
+    const bool isTranslateTool = m_pSceneDocument->IsActiveEditTool(ezGetStaticRTTI<ezTranslateGizmoEditTool>());
+    const bool isRotateTool = m_pSceneDocument->IsActiveEditTool(ezGetStaticRTTI<ezRotateGizmoEditTool>());
+
+    if ((m_Type == ActionType::GizmoTranslate && isTranslateTool) || (m_Type == ActionType::GizmoRotate && isRotateTool))
+    {
+      // toggle local/world space if the same tool is selected again
       m_pSceneDocument->SetGizmoWorldSpace(!m_pSceneDocument->GetGizmoWorldSpace());
+    }
     else
-      m_pSceneDocument->SetActiveGizmo((ActiveGizmo)((int)m_Type));
+    {
+      switch (m_Type)
+      {
+      case ezGizmoAction::ActionType::GizmoNone:
+        m_pSceneDocument->SetActiveEditTool(nullptr);
+        break;
+      case ezGizmoAction::ActionType::GizmoTranslate:
+        m_pSceneDocument->SetActiveEditTool(ezGetStaticRTTI<ezTranslateGizmoEditTool>());
+        break;
+      case ezGizmoAction::ActionType::GizmoRotate:
+        m_pSceneDocument->SetActiveEditTool(ezGetStaticRTTI<ezRotateGizmoEditTool>());
+        break;
+      case ezGizmoAction::ActionType::GizmoScale:
+        m_pSceneDocument->SetActiveEditTool(ezGetStaticRTTI<ezScaleGizmoEditTool>());
+        break;
+      case ezGizmoAction::ActionType::GizmoDragToPosition:
+        m_pSceneDocument->SetActiveEditTool(ezGetStaticRTTI<ezDragToPositionGizmoEditTool>());
+        break;
+      }
+    }
   }
 
   UpdateState();
@@ -142,35 +168,66 @@ void ezGizmoAction::UpdateState()
 {
   if (m_Type == ActionType::GizmoToggleWorldSpace)
   {
-    SetEnabled(m_pSceneDocument->GetActiveGizmo() == ActiveGizmo::Translate ||
-               m_pSceneDocument->GetActiveGizmo() == ActiveGizmo::Rotate);
+    ezGameObjectEditTool* pTool = m_pSceneDocument->GetActiveEditTool();
+    SetEnabled(pTool != nullptr && pTool->GetSupportedSpaces() == ezEditToolSupportedSpaces::LocalAndWorldSpace);
 
-    SetChecked(m_pSceneDocument->GetGizmoWorldSpace() && m_pSceneDocument->GetActiveGizmo() != ActiveGizmo::Scale);
+    if (pTool != nullptr)
+    {
+      switch (pTool->GetSupportedSpaces())
+      {
+      case ezEditToolSupportedSpaces::LocalSpaceOnly:
+        SetChecked(false);
+        break;
+      case ezEditToolSupportedSpaces::WorldSpaceOnly:
+        SetChecked(true);
+        break;
+      case ezEditToolSupportedSpaces::LocalAndWorldSpace:
+        SetChecked(m_pSceneDocument->GetGizmoWorldSpace());
+        break;
+      }
+    }
   }
   else if (m_Type == ActionType::GizmoToggleMoveParentOnly)
   {
-    SetEnabled(m_pSceneDocument->GetActiveGizmo() == ActiveGizmo::Translate ||
-               m_pSceneDocument->GetActiveGizmo() == ActiveGizmo::Rotate);
+    ezGameObjectEditTool* pTool = m_pSceneDocument->GetActiveEditTool();
+    const bool bSupported = pTool != nullptr && pTool->GetSupportsMoveParentOnly();
 
-    SetChecked(m_pSceneDocument->GetGizmoMoveParentOnly() && m_pSceneDocument->GetActiveGizmo() != ActiveGizmo::Scale);
+    SetEnabled(bSupported);
+    SetChecked(bSupported && m_pSceneDocument->GetGizmoMoveParentOnly());
   }
   else
   {
-    SetChecked((int)m_pSceneDocument->GetActiveGizmo() == (int)m_Type);
+    switch (m_Type)
+    {
+    case ezGizmoAction::ActionType::GizmoNone:
+      SetChecked(m_pSceneDocument->IsActiveEditTool(nullptr));
+      break;
+    case ezGizmoAction::ActionType::GizmoTranslate:
+      SetChecked(m_pSceneDocument->IsActiveEditTool(ezGetStaticRTTI<ezTranslateGizmoEditTool>()));
+      break;
+    case ezGizmoAction::ActionType::GizmoRotate:
+      SetChecked(m_pSceneDocument->IsActiveEditTool(ezGetStaticRTTI<ezRotateGizmoEditTool>()));
+      break;
+    case ezGizmoAction::ActionType::GizmoScale:
+      SetChecked(m_pSceneDocument->IsActiveEditTool(ezGetStaticRTTI<ezScaleGizmoEditTool>()));
+      break;
+    case ezGizmoAction::ActionType::GizmoDragToPosition:
+      SetChecked(m_pSceneDocument->IsActiveEditTool(ezGetStaticRTTI<ezDragToPositionGizmoEditTool>()));
+      break;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+    }
   }
 }
 
 void ezGizmoAction::GameObjectEventHandler(const ezGameObjectEvent& e)
 {
-  if (e.m_Type == ezGameObjectEvent::Type::ActiveGizmoChanged)
+  if (e.m_Type == ezGameObjectEvent::Type::ActiveEditToolChanged)
     UpdateState();
 
 }
 
-
-
-
-
+//////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRotateGizmoAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE

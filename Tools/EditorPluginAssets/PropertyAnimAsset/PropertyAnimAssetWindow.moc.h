@@ -17,7 +17,6 @@ class ezPropertyAnimAssetDocument;
 class ezQtColorGradientEditorWidget;
 class ezColorGradientAssetData;
 class ezQtQuadViewWidget;
-class ezGameObjectGizmoHandler;
 class ezQtTimeScrubberToolbar;
 struct ezPropertyAnimAssetDocumentEvent;
 class QKeyEvent;
@@ -110,7 +109,6 @@ private:
   void UpdateGradientEditor();
 
   ezQtQuadViewWidget* m_pQuadViewWidget;
-  ezUniquePtr<ezGameObjectGizmoHandler> m_GizmoHandler;
   ezCurveGroupData m_CurvesToDisplay;
   ezColorGradientAssetData* m_pGradientToDisplay = nullptr;
   ezInt32 m_iMapGradientToTrack = -1;

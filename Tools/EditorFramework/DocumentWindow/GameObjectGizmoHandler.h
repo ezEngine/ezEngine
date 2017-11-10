@@ -5,11 +5,13 @@
 #include <EditorFramework/Gizmos/RotateGizmo.h>
 #include <EditorFramework/Gizmos/ScaleGizmo.h>
 #include <EditorFramework/Gizmos/DragToPositionGizmo.h>
+#include <EditorFramework/Document/GameObjectDocument.h>
 
 class ezGameObjectDocument;
 class ezQtGameObjectDocumentWindow;
 class ezDocumentObject;
 class ezObjectAccessorBase;
+class ezPreferences;
 struct ezEngineWindowEvent;
 struct ezGameObjectEvent;
 struct ezDocumentObjectStructureEvent;
@@ -25,55 +27,174 @@ public:
   virtual void DuplicateSelection() = 0;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezGameObjectGizmoHandler
+//////////////////////////////////////////////////////////////////////////
+
+enum class ezEditToolSupportedSpaces
 {
+  LocalSpaceOnly,
+  WorldSpaceOnly,
+  LocalAndWorldSpace,
+};
+
+class EZ_EDITORFRAMEWORK_DLL ezGameObjectEditTool : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectEditTool, ezReflectedClass);
+
 public:
-  ezGameObjectGizmoHandler(ezGameObjectDocument* pDocument, ezQtGameObjectDocumentWindow* pWindow,
-    ezGameObjectGizmoInterface* pInterface);
-  ~ezGameObjectGizmoHandler();
+  ezGameObjectEditTool();
 
-  ezGameObjectDocument* GetDocument() const;
-  ezTranslateGizmo& GetTranslateGizmo() { return m_TranslateGizmo; }
-  ezRotateGizmo& GetRotateGizmo() { return m_RotateGizmo; }
-  ezScaleGizmo& GetScaleGizmo() { return m_ScaleGizmo; }
-  ezDragToPositionGizmo& GetDragToPosGizmo() { return m_DragToPosGizmo; }
+  void ConfigureTool(ezGameObjectDocument* pDocument, ezQtGameObjectDocumentWindow* pWindow, ezGameObjectGizmoInterface* pInterface);
 
-  struct SelectedGO
-  {
-    const ezDocumentObject* m_pObject;
-    ezVec3 m_vLocalScaling;
-    float m_fLocalUniformScaling;
-    ezTransform m_GlobalTransform;
-  };
+  ezGameObjectDocument* GetDocument() const { return m_pDocument; }
+  ezQtGameObjectDocumentWindow* GetWindow() const { return m_pWindow; }
+  ezGameObjectGizmoInterface* GetGizmoInterface() const { return m_pInterface; }
+  bool IsActive() const { return m_bIsActive; }
+  void SetActive(bool active);
 
-  ezDeque<SelectedGO> GetSelectedGizmoObjects();
+  virtual ezEditToolSupportedSpaces GetSupportedSpaces() const { return ezEditToolSupportedSpaces::WorldSpaceOnly; }
+  virtual bool GetSupportsMoveParentOnly() const { return false; }
+  virtual void GetGridSettings(ezGridSettingsMsgToEngine& outGridSettings) {}
+
+protected:
+  virtual void OnConfigured() = 0;
 
 private:
-  void TransformationGizmoEventHandler(const ezGizmoEvent& e);
-  void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);
-  void SelectionManagerEventHandler(const ezSelectionManagerEvent& e);
-  void ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e);
-  void ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e);
-  void GameObjectEventHandler(const ezGameObjectEvent& e);
-  void EngineWindowEventHandler(const ezEngineWindowEvent& e);
-
-  void UpdateGizmoSelectionList();
-  void UpdateGizmoVisibility();
-  void UpdateManipulatorVisibility();
-  void UpdateGizmoPosition();
-
-private:
+  bool m_bIsActive = false;
   ezGameObjectDocument* m_pDocument = nullptr;
   ezQtGameObjectDocumentWindow* m_pWindow = nullptr;
   ezGameObjectGizmoInterface* m_pInterface = nullptr;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_EDITORFRAMEWORK_DLL ezGameObjectGizmoEditTool : public ezGameObjectEditTool
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectGizmoEditTool, ezGameObjectEditTool);
+
+public:
+  ezGameObjectGizmoEditTool();
+  ~ezGameObjectGizmoEditTool();
+
+  void TransformationGizmoEventHandler(const ezGizmoEvent& e);
+
+protected:
+  virtual void OnConfigured() override;
+
+  void UpdateGizmoSelectionList();
+
+  void UpdateGizmoVisibleState();
+  virtual void ApplyGizmoVisibleState(bool visible) = 0;
+
+  void UpdateGizmoTransformation();
+  virtual void ApplyGizmoTransformation(const ezTransform& transform) = 0;
+
+  virtual void TransformationGizmoEventHandlerImpl(const ezGizmoEvent& e) = 0;
+
+  ezDeque<ezSelectedGameObject> m_GizmoSelection;
+  bool m_bInGizmoInteraction = false;
+  bool m_bMergeTransactions = false;
+
+private:
+  void UpdateManipulatorVisibility();
+  void GameObjectEventHandler(const ezGameObjectEvent& e);
+  void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);
+  void SelectionManagerEventHandler(const ezSelectionManagerEvent& e);
+  void ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e);
+  void EngineWindowEventHandler(const ezEngineWindowEvent& e);
+  void ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e);
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_EDITORFRAMEWORK_DLL ezTranslateGizmoEditTool : public ezGameObjectGizmoEditTool
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezTranslateGizmoEditTool, ezGameObjectGizmoEditTool);
+
+public:
+  ezTranslateGizmoEditTool();
+  ~ezTranslateGizmoEditTool();
+
+  virtual ezEditToolSupportedSpaces GetSupportedSpaces() const override { return ezEditToolSupportedSpaces::LocalAndWorldSpace; }
+  virtual bool GetSupportsMoveParentOnly() const override { return true; }
+  virtual void GetGridSettings(ezGridSettingsMsgToEngine& outGridSettings) override;
+
+protected:
+  virtual void OnConfigured() override;
+  virtual void ApplyGizmoVisibleState(bool visible) override;
+  virtual void ApplyGizmoTransformation(const ezTransform& transform) override;
+  virtual void TransformationGizmoEventHandlerImpl(const ezGizmoEvent& e) override;
+
+private:
+  void OnPreferenceChange(ezPreferences* pref);
 
   ezTranslateGizmo m_TranslateGizmo;
-  ezRotateGizmo m_RotateGizmo;
-  ezScaleGizmo m_ScaleGizmo;
-  ezDragToPositionGizmo m_DragToPosGizmo;
+};
 
-  bool m_bInGizmoInteraction = false;
-  bool m_bMergeTransactions;
-  ezDeque<SelectedGO> m_GizmoSelection;
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_EDITORFRAMEWORK_DLL ezRotateGizmoEditTool : public ezGameObjectGizmoEditTool
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezRotateGizmoEditTool, ezGameObjectGizmoEditTool);
+
+public:
+  ezRotateGizmoEditTool();
+  ~ezRotateGizmoEditTool();
+
+  virtual ezEditToolSupportedSpaces GetSupportedSpaces() const override { return ezEditToolSupportedSpaces::LocalAndWorldSpace; }
+  virtual bool GetSupportsMoveParentOnly() const override { return true; }
+
+protected:
+  virtual void OnConfigured() override;
+  virtual void ApplyGizmoVisibleState(bool visible) override;
+  virtual void ApplyGizmoTransformation(const ezTransform& transform) override;
+  virtual void TransformationGizmoEventHandlerImpl(const ezGizmoEvent& e) override;
+
+private:
+  ezRotateGizmo m_RotateGizmo;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_EDITORFRAMEWORK_DLL ezScaleGizmoEditTool : public ezGameObjectGizmoEditTool
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezScaleGizmoEditTool, ezGameObjectGizmoEditTool);
+
+public:
+  ezScaleGizmoEditTool();
+  ~ezScaleGizmoEditTool();
+
+  virtual ezEditToolSupportedSpaces GetSupportedSpaces() const override { return ezEditToolSupportedSpaces::LocalSpaceOnly; }
+
+protected:
+  virtual void OnConfigured() override;
+  virtual void ApplyGizmoVisibleState(bool visible) override;
+  virtual void ApplyGizmoTransformation(const ezTransform& transform) override;
+  virtual void TransformationGizmoEventHandlerImpl(const ezGizmoEvent& e) override;
+
+private:
+  ezScaleGizmo m_ScaleGizmo;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_EDITORFRAMEWORK_DLL ezDragToPositionGizmoEditTool : public ezGameObjectGizmoEditTool
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezDragToPositionGizmoEditTool, ezGameObjectGizmoEditTool);
+
+public:
+  ezDragToPositionGizmoEditTool();
+  ~ezDragToPositionGizmoEditTool();
+
+  virtual ezEditToolSupportedSpaces GetSupportedSpaces() const override { return ezEditToolSupportedSpaces::LocalSpaceOnly; }
+  virtual bool GetSupportsMoveParentOnly() const override { return true; }
+
+protected:
+  virtual void OnConfigured() override;
+  virtual void ApplyGizmoVisibleState(bool visible) override;
+  virtual void ApplyGizmoTransformation(const ezTransform& transform) override;
+  virtual void TransformationGizmoEventHandlerImpl(const ezGizmoEvent& e) override;
+
+private:
+  ezDragToPositionGizmo m_DragToPosGizmo;
 };
 

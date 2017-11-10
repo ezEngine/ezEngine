@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
 #include <EditorPluginScene/Scene/SceneViewWidget.moc.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
@@ -29,7 +29,11 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
     return pWidget;
   };
   m_pQuadViewWidget = new ezQtQuadViewWidget(pDocument, this, ViewFactory, "EditorPluginScene_ViewToolBar");
-  m_GizmoHandler = EZ_DEFAULT_NEW(ezGameObjectGizmoHandler, pDocument, this, this);
+
+  pDocument->SetEditToolConfigDelegate([this](ezGameObjectEditTool* pTool)
+  {
+    pTool->ConfigureTool(static_cast<ezGameObjectDocument*>(GetDocument()), this, this);
+  });
 
   setCentralWidget(m_pQuadViewWidget);
 
@@ -60,7 +64,6 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
   const ezSceneDocument* pSceneDoc = static_cast<const ezSceneDocument*>(GetDocument());
   pSceneDoc->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::GameObjectEventHandler, this));
   ezSnapProvider::s_Events.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SnapProviderEventHandler, this));
-  ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetDocument())->m_ChangedEvent.AddEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::OnPreferenceChange, this));
 
   {
     ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
@@ -83,14 +86,10 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
 
 ezQtSceneDocumentWindow::~ezQtSceneDocumentWindow()
 {
-
   const ezSceneDocument* pSceneDoc = static_cast<const ezSceneDocument*>(GetDocument());
   pSceneDoc->m_GameObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::GameObjectEventHandler, this));
 
-  ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetDocument())->m_ChangedEvent.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::OnPreferenceChange, this));
-
   ezSnapProvider::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtSceneDocumentWindow::SnapProviderEventHandler, this));
-
 }
 
 ezSceneDocument* ezQtSceneDocumentWindow::GetSceneDocument() const
@@ -150,7 +149,9 @@ void ezQtSceneDocumentWindow::SnapSelectionToPosition(bool bSnapEachObject)
       return;
   }
 
-  ezDeque<ezGameObjectGizmoHandler::SelectedGO> gizmoSelection = m_GizmoHandler.Borrow()->GetSelectedGizmoObjects();
+  ezDeque<ezSelectedGameObject> gizmoSelection;
+  GetGameObjectDocument()->ComputeTopLevelSelectedGameObjects(gizmoSelection);
+
   if (gizmoSelection.IsEmpty())
     return;
 
@@ -217,12 +218,6 @@ void ezQtSceneDocumentWindow::GameObjectEventHandler(const ezGameObjectEvent& e)
   }
 }
 
-void ezQtSceneDocumentWindow::OnPreferenceChange(ezPreferences* pref)
-{
-  ezScenePreferencesUser* pPref = ezDynamicCast<ezScenePreferencesUser*>(pref);
-  m_GizmoHandler.Borrow()->GetTranslateGizmo().SetCameraSpeed(ezCameraMoveContext::ConvertCameraSpeed(pPref->GetCameraSpeed()));
-}
-
 void ezQtSceneDocumentWindow::FocusOnSelectionAllViews()
 {
   const auto& sel = GetDocument()->GetSelectionManager()->GetSelection();
@@ -284,7 +279,7 @@ void ezQtSceneDocumentWindow::SendRedrawMsg()
     GetEditorEngineConnection()->SendMessage(&msg);
   }
   {
-    ezGridSettingsMsgToEngine msg = GetGridSettings(m_GizmoHandler.Borrow());
+    ezGridSettingsMsgToEngine msg = GetGridSettings();
     GetEditorEngineConnection()->SendMessage(&msg);
   }
   {

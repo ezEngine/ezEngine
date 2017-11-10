@@ -4,7 +4,6 @@
 
 class ezGameObjectDocument;
 class ezWorldSettingsMsgToEngine;
-class ezGameObjectGizmoHandler;
 
 class EZ_EDITORFRAMEWORK_DLL ezQtGameObjectDocumentWindow : public ezQtEngineDocumentWindow
 {
@@ -18,7 +17,7 @@ public:
 protected:
   ezGlobalSettingsMsgToEngine GetGlobalSettings() const;
   ezWorldSettingsMsgToEngine GetWorldSettings() const;
-  ezGridSettingsMsgToEngine GetGridSettings(ezGameObjectGizmoHandler* handler) const;
+  ezGridSettingsMsgToEngine GetGridSettings() const;
 };
 
 
