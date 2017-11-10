@@ -9,6 +9,7 @@
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <EditorFramework/InputContexts/CameraMoveContext.h>
 #include <EditorFramework/Preferences/ScenePreferences.h>
+#include <EditorFramework/Gizmos/SnapProvider.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectEditTool, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
