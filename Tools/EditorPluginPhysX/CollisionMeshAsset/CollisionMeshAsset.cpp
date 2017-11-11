@@ -16,6 +16,7 @@
 #include <ModelImporter/ModelImporter.h>
 #include <ModelImporter/VertexData.h>
 #include <Foundation/Time/Stopwatch.h>
+#include <Foundation/Utilities/Progress.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetDocument, 3, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -82,6 +83,8 @@ const char* ezCollisionMeshAssetDocument::QueryAssetType() const
 
 ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
+  ezProgressRange range("Transforming Asset", 2, false);
+
   ezCollisionMeshAssetProperties* pProp = GetProperties();
 
   const ezMat3 mTransformation = CalculateTransformationMatrix(pProp);
@@ -92,6 +95,8 @@ ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& st
   chunk.BeginStream();
 
   {
+    range.BeginNextStep("Preparing Mesh");
+
     ezPhysXCookingMesh xMesh;
 
     // TODO verify
@@ -114,6 +119,7 @@ ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& st
       EZ_SUCCEED_OR_RETURN(CreateMeshFromGeom(geom, xMesh));
     }
 
+    range.BeginNextStep("Writing Result");
     EZ_SUCCEED_OR_RETURN(WriteToStream(chunk, xMesh));
   }
 

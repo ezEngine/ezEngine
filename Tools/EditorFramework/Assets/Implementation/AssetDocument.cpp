@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
@@ -530,6 +530,8 @@ void ezAssetDocument::AppendThumbnailInfo(const char* szThumbnailFile, const ezA
 
 ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const char* szOutputTarget) const
 {
+  ezProgressRange range("Exporting Asset", 2, false);
+
   ezLog::Info("Exporting {0} to \"{1}\"", QueryAssetType(), szOutputTarget);
 
   if (GetEngineStatus() == ezAssetDocument::EngineStatus::Disconnected)
@@ -544,6 +546,8 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
     }
     EZ_ASSERT_DEV(GetEngineStatus() == ezAssetDocument::EngineStatus::Loaded, "After receiving ezDocumentOpenResponseMsgToEditor, the document should be in loaded state.");
   }
+
+  range.BeginNextStep(szOutputTarget);
 
   ezExportDocumentMsgToEngine msg;
   msg.m_sOutputFile = szOutputTarget;

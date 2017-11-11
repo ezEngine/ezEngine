@@ -14,6 +14,7 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <Foundation/Utilities/Progress.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 3, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -82,11 +83,16 @@ ezMeshAssetDocument::ezMeshAssetDocument(const char* szDocumentPath)
 
 ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
+  ezProgressRange range("Transforming Asset", 2, false);
+
   ezMeshAssetProperties* pProp = GetProperties();
 
   ezMeshResourceDescriptor desc;
 
   const ezMat3 mTransformation = CalculateTransformationMatrix(pProp);
+
+  range.SetStepWeighting(0, 0.9);
+  range.BeginNextStep("Importing Mesh");
 
   if (pProp->m_PrimitiveType == ezMeshPrimitive::File)
   {
@@ -147,6 +153,7 @@ ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, con
     CreateMeshFromGeom(pProp, geom, desc);
   }
 
+  range.BeginNextStep("Writing Result");
   desc.Save(stream);
 
   return ezStatus(EZ_SUCCESS);
@@ -190,6 +197,11 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezGeo
 
 ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor &desc, const ezMat3 &mTransformation)
 {
+  ezProgressRange range("Mesh Import", 5, false);
+
+  range.SetStepWeighting(0, 0.7f);
+  range.BeginNextStep("Importing Mesh Data");
+
   using namespace ezModelImporter;
 
   const bool bFlipTriangles = (mTransformation.GetColumn(0).Cross(mTransformation.GetColumn(1)).Dot(mTransformation.GetColumn(2)) < 0.0f);
@@ -207,6 +219,8 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
     ezStopwatch timer;
     if (calculateNewNormals)
     {
+      range.BeginNextStep("Computing Normals");
+
       if (mesh->ComputeNormals().Succeeded())
         ezLog::Success("Computed normals (time {0}s)", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
       else
@@ -218,12 +232,16 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
     ezStopwatch timer;
     if (calculateNewTangents)
     {
+      range.BeginNextStep("Computing Tangents");
+
       if (mesh->ComputeTangents().Succeeded())
         ezLog::Success("Computed tangents (time {0}s)", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
       else
         ezLog::Success("Failed to compute tangents");
     }
   }
+
+  range.BeginNextStep("Generating Mesh Data");
 
   // Create vertex & index buffer.
   {
@@ -444,6 +462,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
   ezStringBuilder defaultMaterialAssetId;
   ezConversionUtils::ToString(ezAssetCurator::GetSingleton()->FindSubAsset(defaultMaterialAssetPath)->m_Data.m_Guid, defaultMaterialAssetId);
 
+  range.BeginNextStep("Importing Materials");
 
   // Option material slot count correction & material import.
   if (pProp->m_bImportMaterials || pProp->m_Slots.GetCount() != mesh->GetNumSubMeshes())
@@ -492,6 +511,8 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
     // Need to reacquire pProp pointer since it might be reallocated.
     pProp = GetProperties();
   }
+
+  range.BeginNextStep("Setting Materials");
 
   // Setting materials.
   for (ezUInt32 subMeshIdx = 0; subMeshIdx < mesh->GetNumSubMeshes(); ++subMeshIdx)
@@ -609,9 +630,13 @@ void ezMeshAssetDocument::ImportMaterials(const ezModelImporter::Scene& scene, c
   ezStringBuilder materialNameTemp;
   ezStringBuilder newResourcePathAbs;
 
+  ezProgressRange range("Importing Materials", mesh.GetNumSubMeshes(), false);
+
   ezHashTable<const ezModelImporter::Material*, ezString> importMatToMaterialGuid;
   for (ezUInt32 subMeshIdx = 0; subMeshIdx < mesh.GetNumSubMeshes(); ++subMeshIdx)
   {
+    range.BeginNextStep("Importing Material");
+
     const ezModelImporter::SubMesh& subMesh = mesh.GetSubMesh(subMeshIdx);
     const ezModelImporter::Material* material = scene.GetMaterial(subMesh.m_Material);
     if (!material) // No material? Leave default or user set.

@@ -5,6 +5,7 @@
 #include <Core/Graphics/ConvexHull.h>
 #include <PxPhysicsAPI.h>
 #include <Foundation/Time/Stopwatch.h>
+#include <Foundation/Utilities/Progress.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(PhysX, PhysXCooking)
 
@@ -105,15 +106,21 @@ ezResult ezPhysXCooking::CookTriangleMesh(const ezPhysXCookingMesh& mesh, ezStre
   //  return EZ_FAILURE;
   //}
 
+  ezProgressRange range("Cooking Triangle Mesh", 2, false);
+
   PxTriangleMeshDesc desc;
   desc.setToDefault();
   desc.materialIndices.data = mesh.m_PolygonSurfaceID.GetData();
   desc.materialIndices.stride = sizeof(ezUInt16);
 
+  range.BeginNextStep("Preprocessing Mesh");
+
   ezDynamicArray<ezUInt32> TriangleIndices;
   CreateMeshDesc(mesh, desc, TriangleIndices);
 
   ezPxOutStream PassThroughStream(&OutputStream);
+
+  range.BeginNextStep("PhysX Cooking");
 
   if (!s_pCooking->cookTriangleMesh(desc, PassThroughStream))
     return EZ_FAILURE;
@@ -123,6 +130,10 @@ ezResult ezPhysXCooking::CookTriangleMesh(const ezPhysXCookingMesh& mesh, ezStre
 
 ezResult ezPhysXCooking::CookConvexMesh(const ezPhysXCookingMesh& mesh0, ezStreamWriter& OutputStream)
 {
+  ezProgressRange range("Cooking Convex Mesh", 4, false);
+
+  range.BeginNextStep("Computing Convex Hull");
+
   ezPhysXCookingMesh mesh;
   EZ_SUCCEED_OR_RETURN(ComputeConvexHull(mesh0, mesh));
 
@@ -141,6 +152,8 @@ ezResult ezPhysXCooking::CookConvexMesh(const ezPhysXCookingMesh& mesh0, ezStrea
   PxSimpleTriangleMesh desc;
   desc.setToDefault();
 
+  range.BeginNextStep("Preparing Mesh Data");
+
   ezDynamicArray<ezUInt32> TriangleIndices;
   CreateMeshDesc(mesh, desc, TriangleIndices);
 
@@ -149,6 +162,8 @@ ezResult ezPhysXCooking::CookConvexMesh(const ezPhysXCookingMesh& mesh0, ezStrea
     ezLog::Error("Cannot cook convex meshes with more than 255 triangles. This mesh has {0}.", desc.triangles.count);
     return EZ_FAILURE;
   }
+
+  range.BeginNextStep("Computing Hull Polygons");
 
   ezPxAllocator allocator;
 
@@ -179,6 +194,8 @@ ezResult ezPhysXCooking::CookConvexMesh(const ezPhysXCookingMesh& mesh0, ezStrea
   convex.polygons.stride = sizeof(PxHullPolygon);
 
   convex.vertexLimit = 256;
+
+  range.BeginNextStep("PhysX Cooking");
 
   ezPxOutStream PassThroughStream(&OutputStream);
   if (!s_pCooking->cookConvexMesh(convex, PassThroughStream))
