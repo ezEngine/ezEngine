@@ -10,6 +10,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
+#include <Foundation/Utilities/Progress.h>
 #include <QPainter>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentInfo, 1, ezRTTIDefaultAllocator<ezAssetDocumentInfo>)
