@@ -286,6 +286,8 @@ void ezQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler(const ez
   else if (e.m_Type == ezPropertyAnimAssetDocumentEvent::Type::ScrubberPositionChanged)
   {
     m_pScrubberToolbar->SetScrubberPosition(e.m_pDocument->GetScrubberPosition());
+    m_pCurveEditor->SetScrubberPosition(e.m_pDocument->GetScrubberPosition());
+    m_pGradientEditor->SetScrubberPosition(e.m_pDocument->GetScrubberPosition());
   }
 }
 
@@ -349,7 +351,6 @@ void ezQtPropertyAnimAssetDocumentWindow::onScrubberPosChanged(ezUInt64 uiTick)
 {
   GetPropertyAnimDocument()->SetScrubberPosition(uiTick);
 }
-
 
 void ezQtPropertyAnimAssetDocumentWindow::onDeleteSelectedItems()
 {

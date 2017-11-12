@@ -23,6 +23,8 @@ public:
   void SetCurves(ezCurveGroupData* pCurveEditData, double fMinCurveLength);
   void SetGridBarWidget(ezQGridBarWidget* pGridBar) { m_pGridBar = pGridBar; }
 
+  void SetScrubberPosition(double fPosition);
+
   void FrameCurve();
 
   QPoint MapFromScene(const QPointF& pos) const;
@@ -73,6 +75,7 @@ private:
   void PaintSelectedTangentLines(QPainter* painter) const;
   void PaintSelectedTangentHandles(QPainter* painter) const;
   void PaintMultiSelectionSquare(QPainter* painter) const;
+  void PaintScrubber(QPainter& p) const;
   void RenderVerticalGrid(QPainter* painter, const QRectF& viewportSceneRect, double fRoughGridDensity);
   void RenderSideLinesAndText(QPainter* painter, const QRectF& viewportSceneRect);
   QRectF ComputeViewportSceneRect() const;
@@ -120,4 +123,7 @@ private:
   QPointF m_scaleStartPoint;
   QPointF m_totalPointDrag;
   QRubberBand* m_pRubberband = nullptr;
+
+  bool m_bShowScrubber = false;
+  double m_fScrubberPosition = 0;
 };

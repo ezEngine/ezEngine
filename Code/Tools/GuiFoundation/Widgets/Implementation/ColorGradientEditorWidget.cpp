@@ -77,6 +77,10 @@ void ezQtColorGradientEditorWidget::SetColorGradient(const ezColorGradient& grad
   GradientWidget->update();
 }
 
+void ezQtColorGradientEditorWidget::SetScrubberPosition(ezUInt64 uiTick)
+{
+  GradientWidget->SetScrubberPosition(uiTick / 4800.0);
+}
 
 void ezQtColorGradientEditorWidget::FrameGradient()
 {

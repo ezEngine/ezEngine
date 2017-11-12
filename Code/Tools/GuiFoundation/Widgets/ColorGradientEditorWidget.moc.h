@@ -21,6 +21,7 @@ public:
   const ezColorGradient& GetColorGradient() const { return m_Gradient; }
 
   void ShowColorPicker() { on_ButtonColor_clicked(); }
+  void SetScrubberPosition(ezUInt64 uiTick);
 
   void FrameGradient();
 

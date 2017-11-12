@@ -47,6 +47,12 @@ void ezQtCurve1DEditorWidget::SetCurves(ezCurveGroupData& curves, double fMinCur
   UpdateSpinBoxes();
 }
 
+
+void ezQtCurve1DEditorWidget::SetScrubberPosition(ezUInt64 uiTick)
+{
+  CurveEdit->SetScrubberPosition(uiTick / 4800.0);
+}
+
 void ezQtCurve1DEditorWidget::FrameCurve()
 {
   CurveEdit->FrameCurve();

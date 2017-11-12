@@ -61,6 +61,13 @@ ezQtColorGradientWidget::~ezQtColorGradientWidget()
 {
 }
 
+void ezQtColorGradientWidget::SetScrubberPosition(double fPosition)
+{
+  m_bShowScrubber = true;
+  m_fScrubberPosition = fPosition;
+
+  update();
+}
 
 void ezQtColorGradientWidget::setColorGradientData(const ezColorGradient* gradient)
 {
@@ -107,7 +114,6 @@ void ezQtColorGradientWidget::ClearSelectedCP()
 {
   SelectCP(-1, -1, -1);
 }
-
 
 void ezQtColorGradientWidget::SelectCP(ezInt32 colorCP, ezInt32 alphaCP, ezInt32 intensityCP)
 {
@@ -168,8 +174,9 @@ void ezQtColorGradientWidget::paintEvent(QPaintEvent* event)
 
   PaintColorCPs(p);
   PaintAlphaCPs(p);
-}
 
+  PaintScrubber(p);
+}
 
 void ezQtColorGradientWidget::PaintColorGradient(QPainter& p) const
 {
@@ -265,7 +272,6 @@ void ezQtColorGradientWidget::PaintColorGradient(QPainter& p) const
   }
 }
 
-
 void ezQtColorGradientWidget::PaintCpBackground(QPainter& p, const QRect& area) const
 {
   QBrush bg;
@@ -275,7 +281,6 @@ void ezQtColorGradientWidget::PaintCpBackground(QPainter& p, const QRect& area) 
   p.fillRect(area, bg);
 }
 
-
 void ezQtColorGradientWidget::PaintColorCpArea(QPainter& p)
 {
   if (!m_bShowColorCPs)
@@ -284,7 +289,6 @@ void ezQtColorGradientWidget::PaintColorCpArea(QPainter& p)
   PaintCpBackground(p, GetColorCpArea());
 }
 
-
 void ezQtColorGradientWidget::PaintAlphaCpArea(QPainter& p)
 {
   if (!m_bShowAlphaCPs)
@@ -292,7 +296,6 @@ void ezQtColorGradientWidget::PaintAlphaCpArea(QPainter& p)
 
   PaintCpBackground(p, GetAlphaCpArea());
 }
-
 
 void ezQtColorGradientWidget::PaintIntensityCpArea(QPainter& p)
 {
@@ -451,6 +454,30 @@ void ezQtColorGradientWidget::PaintAlphaCPs(QPainter& p) const
 
     PaintControlPoint(p, area, cp.m_PosX, selected ? ezColor::White : ezColor::Black, ezColorGammaUB(cp.m_Alpha, cp.m_Alpha, cp.m_Alpha), selected);
   }
+}
+
+void ezQtColorGradientWidget::PaintScrubber(QPainter& p) const
+{
+  if (!m_bShowScrubber)
+    return;
+
+  const QRect area = rect();
+
+  const ezInt32 xPos = GradientToWindowCoord(m_fScrubberPosition);
+  if (xPos < 0 || xPos > area.width())
+    return;
+
+  p.save();
+
+  QPen pen;
+  pen.setCosmetic(true);
+  pen.setColor(palette().highlight().color());
+  pen.setWidth(1);
+
+  p.setPen(pen);
+  p.drawLine(QLine(xPos, area.top(), xPos, area.bottom()));
+
+  p.restore();
 }
 
 void ezQtColorGradientWidget::mousePressEvent(QMouseEvent* event)

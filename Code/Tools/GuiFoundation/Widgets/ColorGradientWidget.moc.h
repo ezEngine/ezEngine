@@ -15,6 +15,8 @@ public:
   explicit ezQtColorGradientWidget(QWidget* pParent);
   ~ezQtColorGradientWidget();
 
+  void SetScrubberPosition(double fPosition);
+
   void setColorGradientData(const ezColorGradient* gradient);
 
   void setEditMode(bool edit);
@@ -80,6 +82,7 @@ private:
   void PaintControlPoint(QPainter& p, const QRect& area, double posX, const ezColorGammaUB& outlineColor, const ezColorGammaUB& fillColor, bool selected) const;
   void PaintColorCPs(QPainter& p) const;
   void PaintAlphaCPs(QPainter& p) const;
+  void PaintScrubber(QPainter& p) const;
 
   QRect GetColorCpArea() const;
   QRect GetAlphaCpArea() const;
@@ -123,4 +126,7 @@ private:
 
   QPoint m_LastMousePosition;
   QPixmap m_AlphaPattern;
+
+  bool m_bShowScrubber = false;
+  double m_fScrubberPosition = 0;
 };

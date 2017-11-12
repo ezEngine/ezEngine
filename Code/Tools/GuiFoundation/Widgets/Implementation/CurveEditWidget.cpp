@@ -87,6 +87,14 @@ void ezQtCurveEditWidget::SetCurves(ezCurveGroupData* pCurveEditData, double fMi
   update();
 }
 
+void ezQtCurveEditWidget::SetScrubberPosition(double fPosition)
+{
+  m_bShowScrubber = true;
+  m_fScrubberPosition = fPosition;
+
+  update();
+}
+
 void ezQtCurveEditWidget::FrameCurve()
 {
   m_bFrameBeforePaint = false;
@@ -293,6 +301,7 @@ void ezQtCurveEditWidget::paintEvent(QPaintEvent* e)
   PaintSelectedTangentHandles(&painter);
   PaintSelectedControlPoints(&painter);
   PaintMultiSelectionSquare(&painter);
+  PaintScrubber(painter);
 }
 
 void ezQtCurveEditWidget::ClampZoomPan()
@@ -993,6 +1002,30 @@ void ezQtCurveEditWidget::PaintMultiSelectionSquare(QPainter* painter) const
   painter->drawLine(tl.x(), tl.y() + 10, br.x(), tl.y() + 10);
 
   painter->restore();
+}
+
+void ezQtCurveEditWidget::PaintScrubber(QPainter& p) const
+{
+  if (!m_bShowScrubber)
+    return;
+
+  const QRect area = rect();
+
+  const ezInt32 xPos = MapFromScene(ezVec2d(m_fScrubberPosition, 0)).x();
+  if (xPos < 0 || xPos > area.width())
+    return;
+
+  p.save();
+
+  QPen pen;
+  pen.setCosmetic(true);
+  pen.setColor(palette().highlight().color());
+  pen.setWidth(1);
+
+  p.setPen(pen);
+  p.drawLine(QLine(xPos, area.top(), xPos, area.bottom()));
+
+  p.restore();
 }
 
 void ezQtCurveEditWidget::RenderVerticalGrid(QPainter* painter, const QRectF& viewportSceneRect, double fRoughGridDensity)
