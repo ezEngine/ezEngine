@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <ModelImporter/Importers/FBXSDKImporter.h>
 #include <ModelImporter/Scene.h>
 #include <ModelImporter/Node.h>
@@ -692,7 +692,9 @@ namespace ezModelImporter
 
       // Load available plugins
       FbxString lPath = FbxGetApplicationDirectory();
-      m_pFBXManager->LoadPluginsDirectory(lPath.Buffer());
+      ezStringBuilder sFbxPluginDir = lPath.Buffer();
+      sFbxPluginDir.AppendPath("FbxPlugins");
+      m_pFBXManager->LoadPluginsDirectory(sFbxPluginDir.GetData());
     }
   }
 
