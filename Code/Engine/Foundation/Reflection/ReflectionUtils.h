@@ -11,11 +11,16 @@ class EZ_FOUNDATION_DLL ezReflectionUtils
 public:
   static const ezRTTI* GetCommonBaseType(const ezRTTI* pRtti1, const ezRTTI* pRtti2);
 
-  // \brief Returns whether a type can be stored directly inside a ezVariant.
+  /// \brief Returns whether a type can be stored directly inside a ezVariant.
   static bool IsBasicType(const ezRTTI* pRtti);
 
-  // \brief Returns the RTTI type matching the variant's type.
+  /// \brief Returns the RTTI type matching the variant's type.
   static const ezRTTI* GetTypeFromVariant(const ezVariant& value);
+
+  /// \brief Sets the Nth component of the vector to the given value.
+  ///
+  /// vector's type needs to be in between ezVariant::Type::Vector2 and ezVariant::Type::Vector4U.
+  static void SetComponent(ezVariant& vector, ezUInt32 iComponent, double fValue); // [tested]
 
   static ezVariant GetMemberPropertyValue(const ezAbstractMemberProperty* pProp, const void* pObject); // [tested] via ToolsFoundation
   static void SetMemberPropertyValue(ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value); // [tested] via ToolsFoundation

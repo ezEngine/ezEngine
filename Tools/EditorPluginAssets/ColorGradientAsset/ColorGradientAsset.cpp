@@ -9,6 +9,7 @@
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <Foundation/Math/ColorGradient.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
+#include <GuiFoundation/Widgets/CurveEditData.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorControlPoint, 2, ezRTTIDefaultAllocator<ezColorControlPoint>)
 {
@@ -111,6 +112,55 @@ void ezColorGradientAssetData::FillGradientData(ezColorGradient& out_Result) con
   {
     out_Result.AddIntensityControlPoint(cp.GetTickAsTime(), cp.m_fIntensity);
   }
+}
+
+ezColor ezColorGradientAssetData::Evaluate(ezInt64 iTick) const
+{
+  ezColorGradient temp;
+  {
+    const ezColorControlPoint* lhs = nullptr;
+    const ezColorControlPoint* rhs = nullptr;
+    FindNearestControlPoints(m_ColorCPs.GetArrayPtr(), iTick, lhs, rhs);
+    if (lhs)
+    {
+      temp.AddColorControlPoint(lhs->GetTickAsTime(), ezColorGammaUB(lhs->m_Red, lhs->m_Green, lhs->m_Blue));
+    }
+    if (rhs)
+    {
+      temp.AddColorControlPoint(rhs->GetTickAsTime(), ezColorGammaUB(rhs->m_Red, rhs->m_Green, rhs->m_Blue));
+    }
+  }
+  {
+    const ezAlphaControlPoint* lhs = nullptr;
+    const ezAlphaControlPoint* rhs = nullptr;
+    FindNearestControlPoints(m_AlphaCPs.GetArrayPtr(), iTick, lhs, rhs);
+    if (lhs)
+    {
+      temp.AddAlphaControlPoint(lhs->GetTickAsTime(), lhs->m_Alpha);
+    }
+    if (rhs)
+    {
+      temp.AddAlphaControlPoint(rhs->GetTickAsTime(), rhs->m_Alpha);
+    }
+  }
+  {
+    const ezIntensityControlPoint* lhs = nullptr;
+    const ezIntensityControlPoint* rhs = nullptr;
+    FindNearestControlPoints(m_IntensityCPs.GetArrayPtr(), iTick, lhs, rhs);
+    if (lhs)
+    {
+      temp.AddIntensityControlPoint(lhs->GetTickAsTime(), lhs->m_fIntensity);
+    }
+    if (rhs)
+    {
+      temp.AddIntensityControlPoint(rhs->GetTickAsTime(), rhs->m_fIntensity);
+    }
+  }
+  ezColor color;
+  //#TODO: This is rather slow as we eval lots of points but only need one
+  temp.SortControlPoints();
+  temp.Evaluate(iTick / 4800.0, color);
+  return color;
 }
 
 ezStatus ezColorGradientAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)

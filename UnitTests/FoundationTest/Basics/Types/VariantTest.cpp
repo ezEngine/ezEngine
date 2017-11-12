@@ -295,7 +295,8 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.IsValid());
     EZ_TEST_BOOL(v.GetType() == ezVariant::Type::Color);
     EZ_TEST_BOOL(v.IsA<ezColor>());
-    EZ_TEST_BOOL(!v.CanConvertTo<ezColorGammaUB>());
+    EZ_TEST_BOOL(v.CanConvertTo<ezColorGammaUB>());
+    EZ_TEST_BOOL(v.ConvertTo<ezColorGammaUB>() == static_cast<ezColorGammaUB>(ezColor(1, 2, 3, 1)));
     EZ_TEST_BOOL(v.Get<ezColor>() == ezColor(1, 2, 3, 1));
 
     EZ_TEST_BOOL(v == ezVariant(ezColor(1, 2, 3)));
@@ -984,7 +985,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     ezColor c(3, 3, 4, 0);
     ezVariant v(c);
 
-    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Color);
+    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Color, ezVariant::Type::ColorGamma);
 
     EZ_TEST_BOOL(v.ConvertTo<ezColor>() == c);
     EZ_TEST_BOOL(v.ConvertTo<ezString>() == "{ r=3, g=3, b=4, a=0 }");

@@ -151,6 +151,10 @@ void ezDocumentObjectMirror::Clear()
     }
   }
 
+  if (m_pContext)
+  {
+    m_pContext->Clear();
+  }
 }
 
 void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStructureEvent& e)

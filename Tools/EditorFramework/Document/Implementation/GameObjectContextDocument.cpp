@@ -56,15 +56,24 @@ ezStatus ezGameObjectContextDocument::SetContext(ezUuid documentGuid, ezUuid obj
   return ezStatus(EZ_SUCCESS);
 }
 
-ezUuid ezGameObjectContextDocument::GetContextDocument() const
+ezUuid ezGameObjectContextDocument::GetContextDocumentGuid() const
 {
   return m_ContextDocument;
 }
 
-ezUuid ezGameObjectContextDocument::GetContextObject() const
+ezUuid ezGameObjectContextDocument::GetContextObjectGuid() const
 {
   return m_ContextObject;
 
+}
+
+const ezDocumentObject* ezGameObjectContextDocument::GetContextObject()
+{
+  if (m_ContextObject.IsValid())
+  {
+    return GetObjectManager()->GetObject(m_ContextObject);
+  }
+  return GetObjectManager()->GetRootObject();
 }
 
 void ezGameObjectContextDocument::ClearContext()

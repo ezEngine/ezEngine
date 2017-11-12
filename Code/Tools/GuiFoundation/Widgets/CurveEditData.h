@@ -11,6 +11,28 @@ class ezCurve1D;
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GUIFOUNDATION_DLL, ezCurveTangentMode);
 
+template<typename T>
+void FindNearestControlPoints(ezArrayPtr<T>& cps, ezInt64 iTick, T*& lhs, T*& rhs)
+{
+  lhs = nullptr;
+  rhs = nullptr;
+  ezInt64 lhsTick = std::numeric_limits<ezInt64>::min();
+  ezInt64 rhsTick = std::numeric_limits<ezInt64>::max();
+  for (decltype(auto) cp : cps)
+  {
+    if (cp.m_iTick <= iTick && cp.m_iTick > lhsTick)
+    {
+      lhs = &cp;
+      lhsTick = cp.m_iTick;
+    }
+    if (cp.m_iTick > iTick && cp.m_iTick < rhsTick)
+    {
+      rhs = &cp;
+      rhsTick = cp.m_iTick;
+    }
+  }
+}
+
 class EZ_GUIFOUNDATION_DLL ezCurveControlPointData : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCurveControlPointData, ezReflectedClass);
@@ -37,6 +59,7 @@ public:
   ezDynamicArray<ezCurveControlPointData> m_ControlPoints;
 
   void ConvertToRuntimeData(ezCurve1D& out_Result) const;
+  double Evaluate(ezInt64 uiTick) const;
 };
 
 class EZ_GUIFOUNDATION_DLL ezCurveGroupData : public ezReflectedClass

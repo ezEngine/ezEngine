@@ -98,16 +98,11 @@ protected:
 
     // As we messed up the native side the object mirror is no longer synced and needs to be destroyed.
     m_ObjectMirror.Clear();
-    m_ObjectMirror.DeInit();
-
     // Apply diff while object mirror is down.
     GetObjectAccessor()->StartTransaction("Apply Native Property Changes to Object");
     ezDocumentObjectConverterReader::ApplyDiffToObject(GetObjectAccessor(), GetPropertyObject(), diffResult);
     GetObjectAccessor()->FinishTransaction();
-
-    // Restart mirror from scratch.
-    m_ObjectMirror.InitSender(GetObjectManager());
-    m_ObjectMirror.InitReceiver(&m_Context);
+    // Re-apply document
     m_ObjectMirror.SendDocument();
   }
 
@@ -127,7 +122,7 @@ private:
     return EZ_DEFAULT_NEW(ezAssetDocumentInfo);
   }
 
-private:
+protected:
   ezDocumentObjectMirror m_ObjectMirror;
   ezRttiConverterContext m_Context;
 };

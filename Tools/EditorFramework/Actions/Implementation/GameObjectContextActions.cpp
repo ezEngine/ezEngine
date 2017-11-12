@@ -63,7 +63,7 @@ ezGameObjectContextAction::~ezGameObjectContextAction()
 void ezGameObjectContextAction::Execute(const ezVariant& value)
 {
   ezGameObjectContextDocument* pDocument = static_cast<ezGameObjectContextDocument*>(GetContext().m_pDocument);
-  ezUuid document = pDocument->GetContextDocument();
+  ezUuid document = pDocument->GetContextDocumentGuid();
   switch (m_Type)
   {
   case ActionType::PickContextScene:

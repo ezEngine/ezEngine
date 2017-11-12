@@ -1,20 +1,12 @@
 #include <PCH.h>
 #include <EditorFramework/Document/GameObjectDocument.h>
-#include <Core/Assets/AssetFileHeader.h>
-#include <Core/World/GameObject.h>
-#include <Core/World/GameObject.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/Serialization/AbstractObjectGraph.h>
-#include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <EditorFramework/DocumentWindow/GameObjectGizmoHandler.h>
+#include <Core/World/GameObject.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectMetaData, 1, ezRTTINoAllocator)
 {
@@ -162,83 +154,72 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
       out_Result = "Prefab: Invalid Asset";
   }
 
-  bool bHasChildren = false;
+  const bool bHasChildren = pObject->GetTypeAccessor().GetCount("Children") > 0;
 
-  ezHybridArray<ezVariant, 16> values;
-  ezStringBuilder componentProp = "Components";
-  pObject->GetTypeAccessor().GetValues(componentProp, values);
-  for (ezVariant& value : values)
+  const ezInt32 iComponents = pObject->GetTypeAccessor().GetCount("Components");
+  for (ezInt32 i = 0; i < iComponents; i++)
   {
+    ezVariant value = pObject->GetTypeAccessor().GetValue("Components", i);
     auto pChild = GetObjectManager()->GetObject(value.Get<ezUuid>());
-
-    // search for components
-    if (pChild->GetTypeAccessor().GetType()->IsDerivedFrom<ezComponent>())
+    EZ_ASSERT_DEBUG(pChild->GetTypeAccessor().GetType()->IsDerivedFrom<ezComponent>(), "Non-component found in component set.");
+    // take the first components name
+    if (!bHasIcon && out_pIcon != nullptr)
     {
-      // take the first components name
+      bHasIcon = true;
 
-      if (!bHasIcon && out_pIcon != nullptr)
-      {
-        bHasIcon = true;
-
-        ezStringBuilder sIconName;
-        sIconName.Set(":/TypeIcons/", pChild->GetTypeAccessor().GetType()->GetTypeName());
-        *out_pIcon = ezQtUiServices::GetCachedIconResource(sIconName.GetData());
-      }
-
-      if (out_Result.IsEmpty())
-      {
-        // try to translate the component name, that will typically make it a nice clean name already
-        out_Result = ezTranslate(pChild->GetTypeAccessor().GetType()->GetTypeName());
-
-        // if no translation is available, clean up the component name in a simple way
-        if (out_Result.EndsWith_NoCase("Component"))
-          out_Result.Shrink(0, 9);
-        if (out_Result.StartsWith("ez"))
-          out_Result.Shrink(2, 0);
-      }
-
-      if (prefabGuid.IsValid())
-        continue;
-
-      const auto& properties = pChild->GetTypeAccessor().GetType()->GetProperties();
-
-      for (auto pProperty : properties)
-      {
-        // search for string properties that also have an asset browser property -> they reference an asset, so this is most likely the most relevant property
-        if (pProperty->GetCategory() == ezPropertyCategory::Member &&
-          (pProperty->GetSpecificType() == ezGetStaticRTTI<const char*>() ||
-           pProperty->GetSpecificType() == ezGetStaticRTTI<ezString>()) &&
-            pProperty->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr)
-        {
-          ezStringBuilder sValue = pChild->GetTypeAccessor().GetValue(pProperty->GetPropertyName()).ConvertTo<ezString>();
-
-          // if the property is a full asset guid reference, convert it to a file name
-          if (ezConversionUtils::IsStringUuid(sValue))
-          {
-            const ezUuid AssetGuid = ezConversionUtils::ConvertStringToUuid(sValue);
-
-            auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(AssetGuid);
-
-            if (pAsset)
-              sValue = pAsset->m_pAssetInfo->m_sDataDirRelativePath;
-            else
-              sValue = "<unknown>";
-          }
-
-          // only use the file name for our display
-          sValue = sValue.GetFileName();
-
-          if (!sValue.IsEmpty())
-            out_Result.Append(": ", sValue);
-
-          return;
-        }
-      }
+      ezStringBuilder sIconName;
+      sIconName.Set(":/TypeIcons/", pChild->GetTypeAccessor().GetType()->GetTypeName());
+      *out_pIcon = ezQtUiServices::GetCachedIconResource(sIconName.GetData());
     }
-    else
+
+    if (out_Result.IsEmpty())
     {
-      // must be ezGameObject children
-      bHasChildren = true;
+      // try to translate the component name, that will typically make it a nice clean name already
+      out_Result = ezTranslate(pChild->GetTypeAccessor().GetType()->GetTypeName());
+
+      // if no translation is available, clean up the component name in a simple way
+      if (out_Result.EndsWith_NoCase("Component"))
+        out_Result.Shrink(0, 9);
+      if (out_Result.StartsWith("ez"))
+        out_Result.Shrink(2, 0);
+    }
+
+    if (prefabGuid.IsValid())
+      continue;
+
+    const auto& properties = pChild->GetTypeAccessor().GetType()->GetProperties();
+
+    for (auto pProperty : properties)
+    {
+      // search for string properties that also have an asset browser property -> they reference an asset, so this is most likely the most relevant property
+      if (pProperty->GetCategory() == ezPropertyCategory::Member &&
+        (pProperty->GetSpecificType() == ezGetStaticRTTI<const char*>() ||
+          pProperty->GetSpecificType() == ezGetStaticRTTI<ezString>()) &&
+          pProperty->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr)
+      {
+        ezStringBuilder sValue = pChild->GetTypeAccessor().GetValue(pProperty->GetPropertyName()).ConvertTo<ezString>();
+
+        // if the property is a full asset guid reference, convert it to a file name
+        if (ezConversionUtils::IsStringUuid(sValue))
+        {
+          const ezUuid AssetGuid = ezConversionUtils::ConvertStringToUuid(sValue);
+
+          auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(AssetGuid);
+
+          if (pAsset)
+            sValue = pAsset->m_pAssetInfo->m_sDataDirRelativePath;
+          else
+            sValue = "<unknown>";
+        }
+
+        // only use the file name for our display
+        sValue = sValue.GetFileName();
+
+        if (!sValue.IsEmpty())
+          out_Result.Append(": ", sValue);
+
+        return;
+      }
     }
   }
 
@@ -271,10 +252,14 @@ void ezGameObjectDocument::QueryCachedNodeName(const ezDocumentObject* pObject, 
     // the cached node name is only determined once
     // after that only a node rename (EditRole) will currently trigger a cache cleaning and thus a reevaluation
     // this is to prevent excessive re-computation of the name, which is quite involved
-    out_Result = pObject->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
 
     QIcon icon;
     DetermineNodeName(pObject, prefabGuid, out_Result, &icon);
+    ezString sNodeName = pObject->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
+    if (!sNodeName.IsEmpty())
+    {
+      out_Result = sNodeName;
+    }
     auto pMetaWrite = m_GameObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
     pMetaWrite->m_CachedNodeName = out_Result;
     pMetaWrite->m_Icon = icon;

@@ -268,7 +268,9 @@ bool ezVariant::CanConvertTo(Type::Enum type) const
     return true;
   if (type == Type::String && m_Type == Type::VariantArray)
     return true;
-  if (type == Type::Color && m_Type == Type::ColorGamma) // allow converting to higher precision
+  if (type == Type::Color && m_Type == Type::ColorGamma)
+    return true;
+  if (type == Type::ColorGamma && m_Type == Type::Color)
     return true;
 
   if (type == Type::VoidPointer && m_Type == Type::ReflectedPointer)

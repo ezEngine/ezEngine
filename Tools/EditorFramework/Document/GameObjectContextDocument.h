@@ -19,8 +19,9 @@ public:
   ~ezGameObjectContextDocument();
 
   ezStatus SetContext(ezUuid documentGuid, ezUuid objectGuid);
-  ezUuid GetContextDocument() const;
-  ezUuid GetContextObject() const;
+  ezUuid GetContextDocumentGuid() const;
+  ezUuid GetContextObjectGuid() const;
+  const ezDocumentObject* GetContextObject();
 
   mutable ezEvent<const ezGameObjectContextEvent&> m_GameObjectContextEvents;
 

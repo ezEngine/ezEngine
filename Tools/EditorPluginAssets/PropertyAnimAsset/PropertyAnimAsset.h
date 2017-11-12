@@ -75,10 +75,48 @@ public:
 
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
+  virtual void InitializeAfterLoading() override;
 
 private:
   void GameObjectContextEventHandler(const ezGameObjectContextEvent& e);
   void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);
+  void TreeStructureEventHandler(const ezDocumentObjectStructureEvent& e);
+  void TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+
+  struct PropertyKey
+  {
+    ezUuid m_Object;
+    const ezAbstractProperty* m_pProperty;
+    ezVariant m_Index;
+  };
+  struct PropertyValue
+  {
+    ezVariant m_InitialValue;
+    ezHybridArray<ezUuid, 3> m_Tracks;
+  };
+  struct PropertyKeyHash
+  {
+    EZ_ALWAYS_INLINE static ezUInt32 Hash(const PropertyKey& key)
+    {
+      return ezHashing::MurmurHash(&key.m_Object, sizeof(ezUuid))
+        + ezHashing::MurmurHash(&key.m_pProperty, sizeof(const ezAbstractProperty*))
+        + (ezUInt32)key.m_Index.ComputeHash();
+    }
+
+    EZ_ALWAYS_INLINE static bool Equal(const PropertyKey& a, const PropertyKey& b)
+    {
+      return a.m_Object == b.m_Object && a.m_pProperty == b.m_pProperty && a.m_Index == b.m_Index;
+    }
+  };
+
+  void RebuildMapping();
+  void RemoveTrack(const ezUuid& track);
+  void AddTrack(const ezUuid& track);
+  void ApplyAnimation();
+  void ApplyAnimation(const PropertyKey& key, const PropertyValue& value);
+
+  ezHashTable<PropertyKey, PropertyValue, PropertyKeyHash> m_PropertyTable;
+  ezHashTable<ezUuid, ezHybridArray<PropertyKey, 1>> m_TrackTable;
 
   ezUniquePtr<ezPropertyAnimObjectAccessor> m_pAccessor;
 

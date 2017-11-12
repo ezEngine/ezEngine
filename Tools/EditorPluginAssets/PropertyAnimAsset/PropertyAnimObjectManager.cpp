@@ -50,7 +50,7 @@ bool ezPropertyAnimObjectManager::IsTemporary(const ezDocumentObject* pObject) c
 
 bool ezPropertyAnimObjectManager::IsTemporary(const ezDocumentObject* pParent, const char* szParentProperty) const
 {
-  return (pParent == nullptr && ezStringUtils::IsEqual(szParentProperty, "TempObjects")) ||
+  return ((pParent == nullptr || pParent == GetRootObject()) && ezStringUtils::IsEqual(szParentProperty, "TempObjects")) ||
     (pParent != nullptr && IsTemporary(pParent));
 }
 

@@ -51,15 +51,21 @@ namespace ezInternal
   template<typename T>
   struct ezStaticRTTI
   {
+  };
+
+  // Special implementation for types that have no base
+  template<>
+  struct ezStaticRTTI<ezNoBase>
+  {
     static const ezRTTI* GetRTTI()
     {
       return nullptr;
     }
   };
 
-  // Special implementation for types that have no base
+  // Special implementation for void to make function reflection compile void return values without further specialization.
   template<>
-  struct ezStaticRTTI<ezNoBase>
+  struct ezStaticRTTI<void>
   {
     static const ezRTTI* GetRTTI()
     {

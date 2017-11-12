@@ -123,17 +123,22 @@ public:
   virtual const char* GetTypeCategory(const ezRTTI* pRtti) const { return nullptr; }
   void PatchEmbeddedClassObjects(const ezDocumentObject* pObject) const;
 
-  // Structure Change
   const ezDocumentObject* GetRootObject() const { return &m_RootObject; }
   ezDocumentObject* GetRootObject() { return &m_RootObject; }
-
-  void AddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, const char* szParentProperty, ezVariant index);
-  void RemoveObject(ezDocumentObject* pObject);
-  void MoveObject(ezDocumentObject* pObject, ezDocumentObject* pNewParent, const char* szParentProperty, ezVariant index);
-
   const ezDocumentObject* GetObject(const ezUuid& guid) const;
   ezDocumentObject* GetObject(const ezUuid& guid);
   const ezDocument* GetDocument() const { return m_pDocument; }
+
+  // Property Change
+  ezStatus SetValue(ezDocumentObject* pObject, const char* szProperty, const ezVariant& newValue, ezVariant index = ezVariant());
+  ezStatus InsertValue(ezDocumentObject* pObject, const char* szProperty, const ezVariant& newValue, ezVariant index = ezVariant());
+  ezStatus RemoveValue(ezDocumentObject* pObject, const char* szProperty, ezVariant index = ezVariant());
+  ezStatus MoveValue(ezDocumentObject* pObject, const char* szProperty, const ezVariant& oldIndex, const ezVariant& newIndex);
+
+  // Structure Change
+  void AddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, const char* szParentProperty, ezVariant index);
+  void RemoveObject(ezDocumentObject* pObject);
+  void MoveObject(ezDocumentObject* pObject, ezDocumentObject* pNewParent, const char* szParentProperty, ezVariant index);
 
   // Structure Change Test
   ezStatus CanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const;

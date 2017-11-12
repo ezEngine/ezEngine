@@ -95,19 +95,43 @@ ezInt64 ezCurveGroupData::TickFromTime(double time)
   return (ezInt64)ezMath::Round(time * 4800.0, (double)uiTicksPerStep);
 }
 
+static void ConvertControlPoint(const ezCurveControlPointData& cp, ezCurve1D& out_Result)
+{
+  auto& ccp = out_Result.AddControlPoint(cp.GetTickAsTime());
+  ccp.m_Position.y = cp.m_fValue;
+  ccp.m_LeftTangent = cp.m_LeftTangent;
+  ccp.m_RightTangent = cp.m_RightTangent;
+  ccp.m_TangentModeLeft = cp.m_LeftTangentMode;
+  ccp.m_TangentModeRight = cp.m_RightTangentMode;
+}
+
 void ezSingleCurveData::ConvertToRuntimeData(ezCurve1D& out_Result) const
 {
   out_Result.Clear();
 
   for (const auto& cp : m_ControlPoints)
   {
-    auto& ccp = out_Result.AddControlPoint(cp.GetTickAsTime());
-    ccp.m_Position.y = cp.m_fValue;
-    ccp.m_LeftTangent = cp.m_LeftTangent;
-    ccp.m_RightTangent = cp.m_RightTangent;
-    ccp.m_TangentModeLeft = cp.m_LeftTangentMode;
-    ccp.m_TangentModeRight = cp.m_RightTangentMode;
+    ConvertControlPoint(cp, out_Result);
   }
+}
+
+double ezSingleCurveData::Evaluate(ezInt64 iTick) const
+{
+  ezCurve1D temp;
+  const ezCurveControlPointData* lhs = nullptr;
+  const ezCurveControlPointData* rhs = nullptr;
+  FindNearestControlPoints(m_ControlPoints.GetArrayPtr(), iTick, lhs, rhs);
+  if (lhs)
+  {
+    ConvertControlPoint(*lhs, temp);
+  }
+  if (rhs)
+  {
+    ConvertControlPoint(*rhs, temp);
+  }
+  //#TODO: This is rather slow as we eval lots of points but only need one
+  temp.CreateLinearApproximation();
+  return temp.Evaluate(iTick / 4800.0);
 }
 
 void ezCurveGroupData::ConvertToRuntimeData(ezUInt32 uiCurveIdx, ezCurve1D& out_Result) const

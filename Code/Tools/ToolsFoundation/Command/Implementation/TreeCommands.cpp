@@ -710,48 +710,23 @@ ezStatus ezSetObjectPropertyCommand::DoInternal(bool bRedo)
     }
   }
 
-  ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
-  if (!accessor.SetValue(m_sProperty, m_NewValue, m_Index))
-  {
-    return ezStatus(ezFmt("Set Property: The property '{0}' does not exist", m_sProperty));
-  }
-
-  ezDocumentObjectPropertyEvent e;
-  e.m_EventType = ezDocumentObjectPropertyEvent::Type::PropertySet;
-  e.m_pObject = m_pObject;
-  e.m_OldValue = m_OldValue;
-  e.m_NewValue = m_NewValue;
-  e.m_sProperty = m_sProperty;
-  e.m_NewIndex = m_Index;
-
-  // Allow a recursion depth of 2 for property setters. This allowed for two levels of side-effects on property setters.
-  pDocument->GetObjectManager()->m_PropertyEvents.Broadcast(e, 2);
-
-  return ezStatus(EZ_SUCCESS);
+  return pDocument->GetObjectManager()->SetValue(m_pObject, m_sProperty, m_NewValue, m_Index);
 }
 
 ezStatus ezSetObjectPropertyCommand::UndoInternal(bool bFireEvents)
 {
-  ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
-
-  if (!accessor.SetValue(m_sProperty, m_OldValue, m_Index))
-  {
-    return ezStatus(ezFmt("Set Property: The property '{0}' does not exist", m_sProperty));
-  }
-
   if (bFireEvents)
   {
-    ezDocumentObjectPropertyEvent e;
-    e.m_EventType = ezDocumentObjectPropertyEvent::Type::PropertySet;
-    e.m_pObject = m_pObject;
-    e.m_OldValue = m_NewValue;
-    e.m_NewValue = m_OldValue;
-    e.m_sProperty = m_sProperty;
-    e.m_NewIndex = m_Index;
-
-    GetDocument()->GetObjectManager()->m_PropertyEvents.Broadcast(e);
+    return GetDocument()->GetObjectManager()->SetValue(m_pObject, m_sProperty, m_OldValue, m_Index);
   }
-
+  else
+  {
+    ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
+    if (!accessor.SetValue(m_sProperty, m_OldValue, m_Index))
+    {
+      return ezStatus(ezFmt("Set Property: The property '{0}' does not exist", m_sProperty));
+    }
+  }
   return ezStatus(EZ_SUCCESS);
 }
 
@@ -839,43 +814,22 @@ ezStatus ezInsertObjectPropertyCommand::DoInternal(bool bRedo)
     }
   }
 
-  ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
-  if (!accessor.InsertValue(m_sProperty, m_Index, m_NewValue))
-  {
-    return ezStatus(ezFmt("Insert Property: The property '{0}' does not exist", m_sProperty));
-  }
-
-  ezDocumentObjectPropertyEvent e;
-  e.m_EventType = ezDocumentObjectPropertyEvent::Type::PropertyInserted;
-  e.m_pObject = m_pObject;
-  e.m_NewValue = m_NewValue;
-  e.m_NewIndex = m_Index;
-  e.m_sProperty = m_sProperty;
-
-  pDocument->GetObjectManager()->m_PropertyEvents.Broadcast(e);
-
-  return ezStatus(EZ_SUCCESS);
+  return pDocument->GetObjectManager()->InsertValue(m_pObject, m_sProperty, m_NewValue, m_Index);
 }
 
 ezStatus ezInsertObjectPropertyCommand::UndoInternal(bool bFireEvents)
 {
-  ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
-
-  if (!accessor.RemoveValue(m_sProperty, m_Index))
-  {
-    return ezStatus(ezFmt("Insert Property: The property '{0}' does not exist", m_sProperty));
-  }
-
   if (bFireEvents)
   {
-    ezDocumentObjectPropertyEvent e;
-    e.m_EventType = ezDocumentObjectPropertyEvent::Type::PropertyRemoved;
-    e.m_pObject = m_pObject;
-    e.m_OldValue = m_NewValue;
-    e.m_OldIndex = m_Index;
-    e.m_sProperty = m_sProperty;
-
-    GetDocument()->GetObjectManager()->m_PropertyEvents.Broadcast(e);
+    return GetDocument()->GetObjectManager()->RemoveValue(m_pObject, m_sProperty, m_Index);
+  }
+  else
+  {
+    ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
+    if (!accessor.RemoveValue(m_sProperty, m_Index))
+    {
+      return ezStatus(ezFmt("Insert Property: The property '{0}' does not exist", m_sProperty));
+    }
   }
 
   return ezStatus(EZ_SUCCESS);
@@ -907,49 +861,23 @@ ezStatus ezRemoveObjectPropertyCommand::DoInternal(bool bRedo)
       return ezStatus("Remove Property: The given object does not exist!");
   }
 
-  ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
-  m_OldValue = accessor.GetValue(m_sProperty, m_Index);
-  if (!m_OldValue.IsValid())
-    return ezStatus(ezFmt("Remove Property: The index '{0}' in property '{1}' does not exist", m_Index.ConvertTo<ezString>(), m_sProperty));
-
-  if (!accessor.RemoveValue(m_sProperty, m_Index))
-  {
-    return ezStatus(ezFmt("Remove Property: The index '{0}' in property '{1}' does not exist!", m_Index.ConvertTo<ezString>(), m_sProperty));
-  }
-
-  ezDocumentObjectPropertyEvent e;
-  e.m_EventType = ezDocumentObjectPropertyEvent::Type::PropertyRemoved;
-  e.m_pObject = m_pObject;
-  e.m_OldValue = m_OldValue;
-  e.m_OldIndex = m_Index;
-  e.m_sProperty = m_sProperty;
-
-  pDocument->GetObjectManager()->m_PropertyEvents.Broadcast(e);
-
-  return ezStatus(EZ_SUCCESS);
+  return pDocument->GetObjectManager()->RemoveValue(m_pObject, m_sProperty, m_Index);
 }
 
 ezStatus ezRemoveObjectPropertyCommand::UndoInternal(bool bFireEvents)
 {
-  ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
-
-  if (!accessor.InsertValue(m_sProperty, m_Index, m_OldValue))
-  {
-    return ezStatus(ezFmt("Remove Property: Undo failed! The index '{0}' in property '{1}' does not exist", m_Index.ConvertTo<ezString>(), m_sProperty));
-  }
-
   if (bFireEvents)
   {
-    ezDocumentObjectPropertyEvent e;
-    e.m_EventType = ezDocumentObjectPropertyEvent::Type::PropertyInserted;
-    e.m_pObject = m_pObject;
-    e.m_NewValue = m_OldValue;
-    e.m_NewIndex = m_Index;
-    e.m_sProperty = m_sProperty;
-
-    GetDocument()->GetObjectManager()->m_PropertyEvents.Broadcast(e);
+    return GetDocument()->GetObjectManager()->InsertValue(m_pObject, m_sProperty, m_OldValue, m_Index);
   }
-
+  else
+  {
+    ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
+    if (!accessor.InsertValue(m_sProperty, m_Index, m_OldValue))
+    {
+      return ezStatus(ezFmt("Remove Property: Undo failed! The index '{0}' in property '{1}' does not exist", m_Index.ConvertTo<ezString>(), m_sProperty));
+    }
+  }
   return ezStatus(EZ_SUCCESS);
 }
 
@@ -966,44 +894,15 @@ ezMoveObjectPropertyCommand::ezMoveObjectPropertyCommand()
 ezStatus ezMoveObjectPropertyCommand::DoInternal(bool bRedo)
 {
   ezDocument* pDocument = GetDocument();
-  if (!m_OldIndex.CanConvertTo<ezInt32>() || !m_OldIndex.CanConvertTo<ezInt32>())
-    return ezStatus("Move Property: Invalid indices provided.");
 
   if (!bRedo)
   {
-    {
-      m_pObject = pDocument->GetObjectManager()->GetObject(m_Object);
-      if (m_pObject == nullptr)
-        return ezStatus("Move Property: The given object does not exist.");
-    }
-
-    const ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
-    ezInt32 iCount = accessor.GetCount(m_sProperty);
-    if (iCount < 0)
-      return ezStatus("Move Property: Invalid property.");
-    if (m_OldIndex.ConvertTo<ezInt32>() < 0 || m_OldIndex.ConvertTo<ezInt32>() >= iCount)
-      return ezStatus(ezFmt("Move Property: Invalid old index '{0}'.", m_OldIndex.ConvertTo<ezInt32>()));
-    if (m_NewIndex.ConvertTo<ezInt32>() < 0 || m_NewIndex.ConvertTo<ezInt32>() > iCount)
-      return ezStatus(ezFmt("Move Property: Invalid new index '{0}'.", m_NewIndex.ConvertTo<ezInt32>()));
+    m_pObject = pDocument->GetObjectManager()->GetObject(m_Object);
+    if (m_pObject == nullptr)
+      return ezStatus("Move Property: The given object does not exist.");
   }
 
-  ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
-  if (!accessor.MoveValue(m_sProperty, m_OldIndex, m_NewIndex))
-    return ezStatus("Move Property: Move value failed.");
-
-  {
-    ezDocumentObjectPropertyEvent e;
-    e.m_EventType = ezDocumentObjectPropertyEvent::Type::PropertyMoved;
-    e.m_pObject = m_pObject;
-    e.m_OldIndex = m_OldIndex;
-    e.m_NewIndex = m_NewIndex;
-    e.m_sProperty = m_sProperty;
-    e.m_NewValue = accessor.GetValue(m_sProperty, e.getInsertIndex());
-    EZ_ASSERT_DEV(e.m_NewValue.IsValid(), "Value at new pos should be valid now, index missmatch?");
-    GetDocument()->GetObjectManager()->m_PropertyEvents.Broadcast(e);
-  }
-
-  return ezStatus(EZ_SUCCESS);
+  return GetDocument()->GetObjectManager()->MoveValue(m_pObject, m_sProperty, m_OldIndex, m_NewIndex);
 }
 
 ezStatus ezMoveObjectPropertyCommand::UndoInternal(bool bFireEvents)
@@ -1035,20 +934,5 @@ ezStatus ezMoveObjectPropertyCommand::UndoInternal(bool bFireEvents)
     }
   }
 
-  ezIReflectedTypeAccessor& accessor = m_pObject->GetTypeAccessor();
-  if (!accessor.MoveValue(m_sProperty, FinalNewPosition, FinalOldPosition))
-    return ezStatus("Move Property: Move value failed.");
-
-  {
-    ezDocumentObjectPropertyEvent e;
-    e.m_EventType = ezDocumentObjectPropertyEvent::Type::PropertyMoved;
-    e.m_pObject = m_pObject;
-    e.m_OldIndex = FinalNewPosition;
-    e.m_NewIndex = FinalOldPosition;
-    e.m_sProperty = m_sProperty;
-
-    GetDocument()->GetObjectManager()->m_PropertyEvents.Broadcast(e);
-  }
-
-  return ezStatus(EZ_SUCCESS);
+  return GetDocument()->GetObjectManager()->MoveValue(m_pObject, m_sProperty, FinalOldPosition, FinalNewPosition);
 }

@@ -202,6 +202,14 @@ class ezVariantHelper
       EZ_REPORT_FAILURE("Conversion to ezColor failed");
   }
 
+  static void To(const ezVariant& value, ezColorGammaUB& result, bool& bSuccessful)
+  {
+    if (value.GetType() == ezVariant::Type::Color)
+      result = value.Get<ezColor>();
+    else
+      EZ_REPORT_FAILURE("Conversion to ezColorGammaUB failed");
+  }
+
   template <typename T>
   static void To(const ezVariant& value, T& result, bool& bSuccessful)
   {

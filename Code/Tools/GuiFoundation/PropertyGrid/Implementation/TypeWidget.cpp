@@ -253,10 +253,15 @@ void ezQtTypeWidget::UpdateProperty(const ezDocumentObject* pObject, const ezStr
   ))
     return;
 
+
   if (!m_QueuedChanges.Contains(sProperty))
   {
     m_QueuedChanges.PushBack(sProperty);
   }
+
+  // In case the change happened outside the command history we have to update at once.
+  if (!m_pGrid->GetCommandHistory()->IsInTransaction() && !m_pGrid->GetCommandHistory()->IsInUndoRedo())
+    FlushQueuedChanges();
 }
 
 void ezQtTypeWidget::FlushQueuedChanges()
