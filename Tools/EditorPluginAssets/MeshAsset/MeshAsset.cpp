@@ -197,7 +197,7 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezGeo
 
 ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor &desc, const ezMat3 &mTransformation)
 {
-  ezProgressRange range("Mesh Import", 5, false);
+  ezProgressRange range("Mesh Import", 6, false);
 
   range.SetStepWeighting(0, 0.7f);
   range.BeginNextStep("Importing Mesh Data");
