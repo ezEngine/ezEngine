@@ -66,28 +66,28 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
   if( ${CMAKE_SYSTEM_VERSION} EQUAL 6.1 ) # Windows 7
     set (BUILDSYSTEM_PLATFORM_WINDOWS_7 ON)
   endif()
-  
+
 elseif (CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
   # Windows Universal
   message (STATUS "Platform is Windows Universal (BUILDSYSTEM_PLATFORM_WINDOWS_UWP)")
   set (BUILDSYSTEM_PLATFORM_WINDOWS ON)
   set (BUILDSYSTEM_PLATFORM_WINDOWS_UWP ON)
   set (PLATFORM_PREFIX "WinUWP")
-  
+
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CURRENT_OSX_VERSION)
   # OS X
   message (STATUS "Platform is OS X (BUILDSYSTEM_PLATFORM_OSX, BUILDSYSTEM_PLATFORM_POSIX)")
   set (BUILDSYSTEM_PLATFORM_OSX ON)
   set (BUILDSYSTEM_PLATFORM_POSIX ON)
   set (PLATFORM_PREFIX "Osx")
-  
+
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   # Linux
-  message (STATUS "Platform is Linux (BUILDSYSTEM_PLATFORM_LINUX, BUILDSYSTEM_PLATFORM_POSIX)")  
+  message (STATUS "Platform is Linux (BUILDSYSTEM_PLATFORM_LINUX, BUILDSYSTEM_PLATFORM_POSIX)")
   set (BUILDSYSTEM_PLATFORM_LINUX ON)
   set (BUILDSYSTEM_PLATFORM_POSIX ON)
   set (PLATFORM_PREFIX "Linux")
-  
+
 else ()
   message (FATAL_ERROR "Platform '${CMAKE_SYSTEM_NAME}' is not supported! Please extend CMAKE_GeneralConfig.txt.")
 endif ()
@@ -109,7 +109,7 @@ if (BUILDSYSTEM_PLATFORM_WINDOWS)
   else ()
     message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Windows! Please extend CMAKE_GeneralConfig.txt.")
   endif ()
-  
+
 elseif (BUILDSYSTEM_PLATFORM_OSX)
   # Supported OSX generators
   if (CMAKE_GENERATOR STREQUAL "Xcode")
@@ -127,7 +127,7 @@ elseif (BUILDSYSTEM_PLATFORM_OSX)
   else ()
     message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on OS X! Please extend CMAKE_GeneralConfig.txt.")
   endif ()
-  
+
 elseif (BUILDSYSTEM_PLATFORM_LINUX)
   if (CMAKE_GENERATOR STREQUAL "Unix Makefiles")
     # Unix Makefiles (for QtCreator etc.)
@@ -138,7 +138,7 @@ elseif (BUILDSYSTEM_PLATFORM_LINUX)
   else ()
     message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Linux! Please extend CMAKE_GeneralConfig.txt.")
   endif ()
-  
+
 else ()
   message (FATAL_ERROR "Platform '${CMAKE_SYSTEM_NAME}' has not setup the supported generators. Please extend CMAKE_GeneralConfig.txt.")
 endif ()
@@ -152,7 +152,7 @@ if (BUILDSYSTEM_MSVC)
   # Visual Studio Compiler
   message (STATUS "Compiler is MSVC (BUILDSYSTEM_COMPILER_MSVC)")
   set (BUILDSYSTEM_COMPILER_MSVC ON)
-  
+
   if (MSVC14) # nobody knows what happened to MSVC13
     message (STATUS "Compiler is Visual Studio 2015 (BUILDSYSTEM_COMPILER_MSVC_140)")
     set (BUILDSYSTEM_COMPILER_MSVC_140 ON)
@@ -168,24 +168,24 @@ if (BUILDSYSTEM_MSVC)
   elseif (MSVC10)
     message (STATUS "Compiler is Visual Studio 2010 (BUILDSYSTEM_COMPILER_MSVC_100)")
     set (BUILDSYSTEM_COMPILER_MSVC_100 ON)
-    set (COMPILER_POSTFIX "2010") 
+    set (COMPILER_POSTFIX "2010")
   else ()
     message (FATAL_ERROR "Compiler for generator '${CMAKE_GENERATOR}' is not supported on MSVC! Please extend CMAKE_GeneralConfig.txt.")
   endif ()
-  
+
 elseif (BUILDSYSTEM_PLATFORM_OSX)
   # Currently all are clang by default.
   # We should probably make this more idiot-proof in case someone actually changes the compiler to gcc.
-  message (STATUS "Compiler is clang (BUILDSYSTEM_COMPILER_CLANG)")  
+  message (STATUS "Compiler is clang (BUILDSYSTEM_COMPILER_CLANG)")
   set (BUILDSYSTEM_COMPILER_CLANG ON)
   set (COMPILER_POSTFIX "Clang")
-  
+
 elseif (BUILDSYSTEM_PLATFORM_LINUX)
   # Currently all are gcc by default. See OSX comment.
-  message (STATUS "Compiler is gcc (BUILDSYSTEM_COMPILER_GCC)")  
+  message (STATUS "Compiler is gcc (BUILDSYSTEM_COMPILER_GCC)")
   set (BUILDSYSTEM_COMPILER_GCC ON)
   set (COMPILER_POSTFIX "Gcc")
-  
+
 else ()
   message (FATAL_ERROR "Compiler for generator '${CMAKE_GENERATOR}' is not supported on '${CMAKE_SYSTEM_NAME}'. Please extend CMAKE_GeneralConfig.txt.")
 endif ()
@@ -207,7 +207,7 @@ if (BUILDSYSTEM_PLATFORM_WINDOWS AND BUILDSYSTEM_COMPILER_MSVC)
     set (BUILDSYSTEM_PLATFORM_32BIT ON)
     set (ARCHITECTURE_POSTFIX "32")
   endif ()
-  
+
 elseif (BUILDSYSTEM_PLATFORM_OSX AND BUILDSYSTEM_COMPILER_CLANG)
   # OS X always has 32/64 bit support in the project files and the user switches on demand.
   # However, we do not support 32 bit with our current build configuration so we throw an error on 32-bit systems.
@@ -218,7 +218,7 @@ elseif (BUILDSYSTEM_PLATFORM_OSX AND BUILDSYSTEM_COMPILER_CLANG)
   else ()
     message (FATAL_ERROR "32-Bit is not supported on OS X!")
   endif ()
-  
+
 elseif (BUILDSYSTEM_PLATFORM_LINUX AND BUILDSYSTEM_COMPILER_GCC)
   # Detect 64-bit builds for Linux, no other way than checking CMAKE_SIZEOF_VOID_P.
   if (CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -230,7 +230,7 @@ elseif (BUILDSYSTEM_PLATFORM_LINUX AND BUILDSYSTEM_COMPILER_GCC)
     set (BUILDSYSTEM_PLATFORM_32BIT ON)
     set (ARCHITECTURE_POSTFIX "32")
   endif ()
-  
+
 else ()
   message (FATAL_ERROR "Architecture could not be determined. Please extend CMAKE_GeneralConfig.txt.")
 endif ()
@@ -259,6 +259,7 @@ set (EZ_BUILD_GAMES OFF CACHE BOOL "Whether game projects should be added to the
 set (EZ_BUILD_UNITTESTS ON CACHE BOOL "Whether unit-test projects should be added to the solution")
 set (EZ_BUILD_PHYSX OFF CACHE BOOL "Whether support for nVidia PhysX should be added")
 set (EZ_BUILD_FMOD OFF CACHE BOOL "Whether support for FMod should be added")
+set (EZ_BUILD_OFFICIAL_FBX_SDK OFF CACHE BOOL "Whether to use the official Autodesk FBX SDK or not")
 set (EZ_ENABLE_FOLDER_UNITY_FILES ON CACHE BOOL "Whether unity cpp files should be created per folder")
 set (EZ_ENABLE_PVS_STUDIO_HEADER_IN_UNITY_FILES ON CACHE BOOL "Adds the necessary comment to the generated unity files for PVS checking")
 set (EZ_ENABLE_ENET_SUPPORT ON CACHE BOOL "Whether to add support for Enet. This is needed for Telemetry.")
@@ -277,7 +278,7 @@ set (OUTPUT_LIB_DEBUG       "${EZ_OUTPUT_DIRECTORY_LIB}/${PLATFORM_PREFIX}${BUIL
 set (OUTPUT_LIB_RELEASE     "${EZ_OUTPUT_DIRECTORY_LIB}/${PLATFORM_PREFIX}${BUILDSYSTEM_PREFIX}${COMPILER_POSTFIX}Release${ARCHITECTURE_POSTFIX}")
 set (OUTPUT_LIB_MINSIZE     "${EZ_OUTPUT_DIRECTORY_LIB}/${PLATFORM_PREFIX}${BUILDSYSTEM_PREFIX}${COMPILER_POSTFIX}MinSize${ARCHITECTURE_POSTFIX}")
 set (OUTPUT_LIB_RELWITHDEB  "${EZ_OUTPUT_DIRECTORY_LIB}/${PLATFORM_PREFIX}${BUILDSYSTEM_PREFIX}${COMPILER_POSTFIX}RelDeb${ARCHITECTURE_POSTFIX}")
-                                                       
+
 set (OUTPUT_DLL_DEBUG       "${EZ_OUTPUT_DIRECTORY_DLL}/${PLATFORM_PREFIX}${BUILDSYSTEM_PREFIX}${COMPILER_POSTFIX}Debug${ARCHITECTURE_POSTFIX}")
 set (OUTPUT_DLL_RELEASE     "${EZ_OUTPUT_DIRECTORY_DLL}/${PLATFORM_PREFIX}${BUILDSYSTEM_PREFIX}${COMPILER_POSTFIX}Release${ARCHITECTURE_POSTFIX}")
 set (OUTPUT_DLL_MINSIZE     "${EZ_OUTPUT_DIRECTORY_DLL}/${PLATFORM_PREFIX}${BUILDSYSTEM_PREFIX}${COMPILER_POSTFIX}MinSize${ARCHITECTURE_POSTFIX}")
@@ -327,7 +328,7 @@ if (BUILDSYSTEM_COMPILER_MSVC)
   #set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /fp:except")
   # enable default exception handling
   set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /EHsc")
-  
+
   # enable standard conform casting behavior - casting results always in rvalue
   set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /Zc:rvalueCast")
 
@@ -348,11 +349,11 @@ if (BUILDSYSTEM_COMPILER_MSVC)
     if(MSVC10)
       # enable static code analysis, only works on 32 Bit builds
       # (may cause compile errors when combined with Qt, disabled for the time being)
-      #set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /analyze")    
+      #set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /analyze")
       #message (STATUS "Enabling static code analysis.")
     endif ()
   endif ()
-  
+
   if(MSVC11 OR MSVC12)
     #set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /analyze")
     set (CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /d2Zi+")
@@ -362,13 +363,13 @@ if (BUILDSYSTEM_COMPILER_MSVC)
   set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Ob1")
   set (CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Ox /Ob2 /Oi")
   set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Ox /Ob2 /Oi")
-  
-  set (LINKER_SETTINGS_RELEASE "${LINKER_SETTINGS_RELEASE} /INCREMENTAL:NO") 
+
+  set (LINKER_SETTINGS_RELEASE "${LINKER_SETTINGS_RELEASE} /INCREMENTAL:NO")
   # Remove unreferenced data (does not work together with incremental build)
-  set (LINKER_SETTINGS_RELEASE "${LINKER_SETTINGS_RELEASE} /OPT:REF") 
+  set (LINKER_SETTINGS_RELEASE "${LINKER_SETTINGS_RELEASE} /OPT:REF")
   # Don't know what it does, but Clemens wants it :-) (does not work together with incremental build)
   set (LINKER_SETTINGS_RELEASE "${LINKER_SETTINGS_RELEASE} /OPT:ICF")
-  
+
   # Enable SSE4.1 for Clang on Windows.
   # Todo: In general we should make this configurable. As of writing SSE4.1 is always active for windows builds (independent of the compiler)
   if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -392,7 +393,7 @@ elseif (BUILDSYSTEM_COMPILER_GCC)
   # gdwarf-3 will use the old debug info which is compatible with older gdb versions.
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wno-enum-compare -std=c++14 -mssse3 -mfpmath=sse -gdwarf-3")
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -gdwarf-3")
-  
+
 else ()
   message (FATAL_ERROR "Not settings are defined for the selected compiler. Please extend CMAKE_GeneralConfig.txt.")
 endif ()
@@ -421,14 +422,14 @@ add_definitions (-DBUILDSYSTEM_CONFIGURATION="${BUILDSYSTEM_CONFIGURATION}")
 if (EZ_ENABLE_ENET_SUPPORT)
   add_definitions (-DBUILDSYSTEM_ENABLE_ENET_SUPPORT)
 endif()
-  
+
 #########################################################################################
 ## Lua support
 
 if (EZ_ENABLE_LUA_SUPPORT)
   add_definitions (-DBUILDSYSTEM_ENABLE_LUA_SUPPORT)
 endif()
-  
+
 #########################################################################################
 ## zlib support
 
@@ -442,22 +443,22 @@ endif()
 if (EZ_ENABLE_MIXEDREALITY_SUPPORT AND BUILDSYSTEM_PLATFORM_WINDOWS_UWP)
   add_definitions (-DBUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT)
 endif()
-  
+
 #########################################################################################
 ## UserConfig.h and CMake Configuration
 
 if (EZ_IGNORE_USERCONFIG_HEADER)
 
   add_definitions (-DBUILDSYSTEM_IGNORE_USERCONFIG_HEADER)
-  
+
   set (EZ_USE_PROFILING ON CACHE BOOL "Whether the code for profiling should be compiled in -> #define EZ_USE_PROFILING EZ_ON")
   set (EZ_COMPILE_FOR_DEVELOPMENT ON CACHE BOOL "Enables various debug checks even in release builds -> #define EZ_COMPILE_FOR_DEVELOPMENT EZ_ON")
   set (EZ_USE_ALLOCATION_STACK_TRACING ON CACHE BOOL "Enables stack tracing for all allocations for easier memory leak detection -> #define EZ_USE_ALLOCATION_STACK_TRACING EZ_ON")
-  
+
   if (EZ_USE_PROFILING)
     add_definitions(-DBUILDSYSTEM_USE_PROFILING)
   endif()
-  
+
   if (EZ_COMPILE_FOR_DEVELOPMENT)
     add_definitions(-DBUILDSYSTEM_COMPILE_FOR_DEVELOPMENT)
   endif()
@@ -465,11 +466,11 @@ if (EZ_IGNORE_USERCONFIG_HEADER)
   if (EZ_USE_ALLOCATION_STACK_TRACING)
     add_definitions(-DBUILDSYSTEM_USE_ALLOCATION_STACK_TRACING)
   endif()
-  
+
   # EZ_COMPILE_ENGINE_AS_DLL is always set through CMake as it determines how the solution is created
   # However, when EZ_IGNORE_USERCONFIG_HEADER is enabled, the C++ #define 'EZ_COMPILE_ENGINE_AS_DLL' will be set always identical to what is configured in CMake.
   # If it the UserConfig.h is used, however, one needs to ensure that what 5
-  
+
 else()
 
   unset(EZ_USE_PROFILING CACHE)
@@ -515,7 +516,7 @@ MACRO(ADD_MSVC_PRECOMPILED_HEADER)
       endif ()
 
     endforeach ()
-    
+
     if (NOT EZ_USE_PCH)
       set (PCH_FOUND false)
     endif()
@@ -523,18 +524,18 @@ MACRO(ADD_MSVC_PRECOMPILED_HEADER)
     if (PCH_FOUND)
       message (STATUS "Enabling Precompiled Header for this project.")
       set_source_files_properties("PCH.cpp" PROPERTIES COMPILE_FLAGS "/YcPCH.h")
-      
+
       # Remove CMAKE's increase of the max pre-compiled header size (/Zm1000)
       # as this will cause C1027 errors during compiling due to ASLR.
       if (NOT CMAKE_CXX_FLAGS)
-        message (FATAL_ERROR "CMAKE_CXX_FLAGS is empty! Cause unknown but clear cache and rerun configure solves the problem.")  
+        message (FATAL_ERROR "CMAKE_CXX_FLAGS is empty! Cause unknown but clear cache and rerun configure solves the problem.")
       endif ()
-      
+
       string(REGEX REPLACE "/Zm[0-9]+ *" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
       # Force the above change into the cache.
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" CACHE STRING "" FORCE)
 
-      
+
       foreach (src_file ${ALL_SOURCE_FILES})
         GET_FILENAME_COMPONENT(RawFilename ${src_file} NAME)
         GET_FILENAME_COMPONENT(Extension ${src_file} EXT)
@@ -549,9 +550,9 @@ MACRO(ADD_MSVC_PRECOMPILED_HEADER)
         endif ()
 
       endforeach ()
-      
+
     endif()
-    
+
   ENDIF(MSVC)
 ENDMACRO(ADD_MSVC_PRECOMPILED_HEADER)
 
@@ -562,7 +563,7 @@ MACRO(BUILD_APPLICATION_PROJECT)
   get_filename_component (PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
   string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
   set(EZ_BUILD_APPLICATION_${PROJECT_NAME_UPPER} ON CACHE BOOL "Whether to build the application '${PROJECT_NAME_UPPER}'")
-   
+
   if (NOT EZ_BUILD_APPLICATION_${PROJECT_NAME_UPPER})
     return ()
   endif ()
@@ -580,7 +581,7 @@ MACRO(BUILD_REQUIRES_DX11)
     # VS 2012 and up get the Direct X includes via the windows SDK which is always present so this is only required for VS 2010 (I.e. v100).
     if (${BUILDSYSTEM_COMPILER_MSVC_100})
       include_directories (${DirectX11_INCLUDE_DIR})
-    endif () 
+    endif ()
   else ()
     get_filename_component (BUILD_REQUIRES_DX11_MACRO_FOLDERNAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
     message (FATAL_ERROR "Platform '${CMAKE_SYSTEM_NAME}' does not support DirectX. Exclude the project '${BUILD_REQUIRES_DX11_MACRO_FOLDERNAME}' with 'BUILD_CONDITIONAL'!")
@@ -594,7 +595,7 @@ MACRO(DX11_COPY_DLLS)
     else ()
        set (DX11_COPY_DLLS_BIT "x86")
     endif ()
-    
+
     if( ${DirectX11_LIBRARY} MATCHES "/8\\.0/")
        set (DX11_COPY_DLLS_WINSDKVERSION "8.0")
        set (DX11_COPY_DLLS_DLL_VERSION "46")
@@ -628,7 +629,7 @@ ENDMACRO()
 #########################################################################################
 ## Macro to enable qt support for this library / project and store the required modules
 
-MACRO(QT_MODULES modules)  
+MACRO(QT_MODULES modules)
   SET (EZ_QTPROJECT ON)
   SET (EZ_QT_MODULES ${ARGV})
 ENDMACRO()
@@ -640,7 +641,7 @@ ENDMACRO()
 MACRO(BUILD_CONDITIONAL expression)
   # Negating this in place doesn't work as cmake does not support braces.
   if (${ARGV})
-    
+
   else ()
     get_filename_component (BUILD_CONDITIONAL_MACRO_FOLDERNAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
     Message (STATUS "Skipping ${BUILD_CONDITIONAL_MACRO_FOLDERNAME}. Not supported in this configuration.")
@@ -668,9 +669,9 @@ MACRO(ADD_TEST needs_hardware_access)
   else ()
     set (ADD_TEST_MACRO_HWA 0)
   endif ()
-  
+
   get_filename_component (ADD_TEST_MACRO_FOLDERNAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
-  
+
   file(APPEND ${CMAKE_BINARY_DIR}/Tests.txt "${ADD_TEST_MACRO_FOLDERNAME}|${ADD_TEST_MACRO_HWA}|0\n")
 ENDMACRO()
 

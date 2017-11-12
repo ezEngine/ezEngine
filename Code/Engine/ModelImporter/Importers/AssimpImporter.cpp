@@ -24,6 +24,12 @@ namespace ezModelImporter
     importer.GetExtensionList(assimpExtensions);
 
     ezStringBuilder extensionListString = assimpExtensions.C_Str();
+
+    // When building with the official FBX SDK we disable FBX support in this importer
+#if defined(BUILDSYSTEM_BUILD_WITH_OFFICIAL_FBX_SDK)
+    extensionListString.ReplaceAll("*.fbx", "");
+#endif
+
     extensionListString.ReplaceAll("*.", "");
 
     ezDynamicArray<ezStringView> supportedFileFormatViews;
@@ -32,6 +38,9 @@ namespace ezModelImporter
     m_supportedFileFormats.Reserve(supportedFileFormatViews.GetCount());
     for (ezUInt32 i = 0; i < supportedFileFormatViews.GetCount(); ++i)
     {
+      if(supportedFileFormatViews[i].IsEmpty())
+        continue;
+
       m_supportedFileFormats.PushBack(ezString(supportedFileFormatViews[i]));
     }
   }
