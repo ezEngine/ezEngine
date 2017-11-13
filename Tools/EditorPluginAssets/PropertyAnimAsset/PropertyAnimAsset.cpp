@@ -68,15 +68,15 @@ ezObjectAccessorBase* ezPropertyAnimAssetDocument::GetObjectAccessor() const
   return m_pAccessor.Borrow();
 }
 
-ezInt64 ezPropertyAnimAssetDocument::GetAnimationDurationTicks() const
+ezUInt64 ezPropertyAnimAssetDocument::GetAnimationDurationTicks() const
 {
-  if (m_iCachedAnimationDuration != 0)
-    return m_iCachedAnimationDuration;
+  if (m_uiCachedAnimationDuration != 0)
+    return m_uiCachedAnimationDuration;
 
   const ezPropertyAnimationTrackGroup* pProp = GetProperties();
 
   // minimum duration
-  m_iCachedAnimationDuration = 480; // 1/10th second
+  m_uiCachedAnimationDuration = 480; // 1/10th second
 
   for (ezUInt32 i = 0; i < pProp->m_Tracks.GetCount(); ++i)
   {
@@ -84,28 +84,28 @@ ezInt64 ezPropertyAnimAssetDocument::GetAnimationDurationTicks() const
 
     for (const auto& cp : pTrack->m_FloatCurve.m_ControlPoints)
     {
-      m_iCachedAnimationDuration = ezMath::Max(m_iCachedAnimationDuration, cp.m_iTick);
+      m_uiCachedAnimationDuration = ezMath::Max(m_uiCachedAnimationDuration, (ezUInt64)cp.m_iTick);
     }
 
     for (const auto& cp : pTrack->m_ColorGradient.m_ColorCPs)
     {
-      m_iCachedAnimationDuration = ezMath::Max<ezInt64>(m_iCachedAnimationDuration, cp.m_iTick);
+      m_uiCachedAnimationDuration = ezMath::Max<ezInt64>(m_uiCachedAnimationDuration, cp.m_iTick);
     }
 
     for (const auto& cp : pTrack->m_ColorGradient.m_AlphaCPs)
     {
-      m_iCachedAnimationDuration = ezMath::Max<ezInt64>(m_iCachedAnimationDuration, cp.m_iTick);
+      m_uiCachedAnimationDuration = ezMath::Max<ezInt64>(m_uiCachedAnimationDuration, cp.m_iTick);
     }
 
     for (const auto& cp : pTrack->m_ColorGradient.m_IntensityCPs)
     {
-      m_iCachedAnimationDuration = ezMath::Max<ezInt64>(m_iCachedAnimationDuration, cp.m_iTick);
+      m_uiCachedAnimationDuration = ezMath::Max<ezInt64>(m_uiCachedAnimationDuration, cp.m_iTick);
     }
   }
 
-  if (m_iLastAnimationDuration != m_iCachedAnimationDuration)
+  if (m_uiLastAnimationDuration != m_uiCachedAnimationDuration)
   {
-    m_iLastAnimationDuration = m_iCachedAnimationDuration;
+    m_uiLastAnimationDuration = m_uiCachedAnimationDuration;
 
     ezPropertyAnimAssetDocumentEvent e;
     e.m_pDocument = this;
@@ -113,7 +113,7 @@ ezInt64 ezPropertyAnimAssetDocument::GetAnimationDurationTicks() const
     m_PropertyAnimEvents.Broadcast(e);
   }
 
-  return m_iCachedAnimationDuration;
+  return m_uiCachedAnimationDuration;
 }
 
 
@@ -124,13 +124,15 @@ ezTime ezPropertyAnimAssetDocument::GetAnimationDurationTime() const
   return ezTime::Seconds(ticks / 4800.0);
 }
 
-void ezPropertyAnimAssetDocument::SetScrubberPosition(ezUInt64 uiTick)
+bool ezPropertyAnimAssetDocument::SetScrubberPosition(ezUInt64 uiTick)
 {
   const ezUInt32 uiTicksPerFrame = 4800 / GetProperties()->m_uiFramesPerSecond;
   uiTick = (ezUInt64)ezMath::Round((double)uiTick, (double)uiTicksPerFrame);
 
+  uiTick = ezMath::Clamp<ezUInt64>(uiTick, 0, GetAnimationDurationTicks());
+
   if (m_uiScrubberTickPos == uiTick)
-    return;
+    return false;
 
   m_uiScrubberTickPos = uiTick;
   ApplyAnimation();
@@ -139,6 +141,8 @@ void ezPropertyAnimAssetDocument::SetScrubberPosition(ezUInt64 uiTick)
   e.m_pDocument = this;
   e.m_Type = ezPropertyAnimAssetDocumentEvent::Type::ScrubberPositionChanged;
   m_PropertyAnimEvents.Broadcast(e);
+
+  return true;
 }
 
 ezStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
@@ -503,3 +507,53 @@ void ezPropertyAnimAssetDocument::ApplyAnimation(const PropertyKey& key, const P
   if (oldValue != animValue)
     GetObjectManager()->SetValue(pObj, key.m_pProperty->GetPropertyName(), animValue, key.m_Index);
 }
+
+void ezPropertyAnimAssetDocument::SetPlayAnimation(bool play)
+{
+  if (m_bPlayAnimation == play)
+    return;
+
+  if (m_uiScrubberTickPos >= GetAnimationDurationTicks())
+    m_uiScrubberTickPos = 0;
+
+  m_bPlayAnimation = play;
+  m_StartPlaybackTime = ezTime::Now();
+  m_uiStartPlaybackTick = m_uiScrubberTickPos;
+
+  ezPropertyAnimAssetDocumentEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezPropertyAnimAssetDocumentEvent::Type::PlaybackChanged;
+  m_PropertyAnimEvents.Broadcast(e);
+}
+
+void ezPropertyAnimAssetDocument::SetRepeatAnimation(bool repeat)
+{
+  if (m_bRepeatAnimation == repeat)
+    return;
+
+  m_bRepeatAnimation = repeat;
+
+  ezPropertyAnimAssetDocumentEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezPropertyAnimAssetDocumentEvent::Type::PlaybackChanged;
+  m_PropertyAnimEvents.Broadcast(e);
+}
+
+void ezPropertyAnimAssetDocument::ExecuteAnimationPlaybackStep()
+{
+  const ezTime tDiff = ezTime::Now() - m_StartPlaybackTime;
+  const ezUInt64 uiTicks = (ezUInt64)(tDiff.GetSeconds() * 4800.0);
+
+  const ezUInt64 uiNewPos = m_uiStartPlaybackTick + uiTicks;
+
+  SetScrubberPosition(uiNewPos);
+
+  if (uiNewPos > GetAnimationDurationTicks())
+  {
+    SetPlayAnimation(false);
+
+    if (m_bRepeatAnimation)
+      SetPlayAnimation(true);
+  }
+}
+

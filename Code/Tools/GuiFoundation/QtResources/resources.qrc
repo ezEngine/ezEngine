@@ -44,5 +44,13 @@
     <file>Icons/Flag_Red16.png</file>
     <file>Icons/Flag_Yellow16.png</file>
     <file>Icons/Log.png</file>
+	<file>Icons/ControlPlay16.png</file>
+	<file>Icons/ControlPause16.png</file>
+	<file>Icons/ControlStop16.png</file>
+	<file>Icons/ControlRepeat16.png</file>
+	<file>Icons/ControlFastForward16.png</file>
+	<file>Icons/ControlFastBackward16.png</file>
+	<file>Icons/ControlSkipForwards16.png</file>
+	<file>Icons/ControlSkipBackwards16.png</file>
   </qresource>
 </RCC>

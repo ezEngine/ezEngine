@@ -44,12 +44,16 @@ public:
   explicit ezQtTimeScrubberToolbar(QWidget* parent);
 
   void SetDuration(ezUInt64 iNumTicks, ezUInt32 uiFramesPerSecond);
-
   void SetScrubberPosition(ezUInt64 uiTick);
+  void SetButtonState(bool playing, bool repeatEnabled);
 
 signals:
   void ScrubberPosChangedEvent(ezUInt64 uiNewScrubberTickPos);
+  void PlayPauseEvent();
+  void RepeatEvent();
 
 private:
-  ezQtTimeScrubberWidget* m_pScrubber;
+  ezQtTimeScrubberWidget* m_pScrubber = nullptr;
+  QPushButton* m_pPlayButton = nullptr;
+  QPushButton* m_pRepeatButton = nullptr;
 };

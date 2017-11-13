@@ -158,6 +158,10 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     m_pScrubberToolbar = new ezQtTimeScrubberToolbar(this);
     connect(m_pScrubberToolbar, &ezQtTimeScrubberToolbar::ScrubberPosChangedEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onScrubberPosChanged);
 
+    connect(m_pScrubberToolbar, &ezQtTimeScrubberToolbar::PlayPauseEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onPlayPauseClicked);
+
+    connect(m_pScrubberToolbar, &ezQtTimeScrubberToolbar::RepeatEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onRepeatClicked);
+
     addToolBar(Qt::ToolBarArea::BottomToolBarArea, m_pScrubberToolbar);
   }
 
@@ -290,6 +294,16 @@ void ezQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler(const ez
     m_pCurveEditor->SetScrubberPosition(e.m_pDocument->GetScrubberPosition());
     m_pGradientEditor->SetScrubberPosition(e.m_pDocument->GetScrubberPosition());
   }
+  else if (e.m_Type == ezPropertyAnimAssetDocumentEvent::Type::PlaybackChanged)
+  {
+    if (!m_bAnimTimerInFlight && GetPropertyAnimDocument()->GetPlayAnimation())
+    {
+      m_bAnimTimerInFlight = true;
+      QTimer::singleShot(0, this, SLOT(onPlaybackTick()));
+    }
+
+    m_pScrubberToolbar->SetButtonState(GetPropertyAnimDocument()->GetPlayAnimation(), GetPropertyAnimDocument()->GetRepeatAnimation());
+  }
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
@@ -386,6 +400,29 @@ void ezQtPropertyAnimAssetDocumentWindow::onDeleteSelectedItems()
 
   m_MapSelectionToTrack.Clear();
   pHistory->FinishTransaction();
+}
+
+void ezQtPropertyAnimAssetDocumentWindow::onPlaybackTick()
+{
+  m_bAnimTimerInFlight = false;
+
+  if (!GetPropertyAnimDocument()->GetPlayAnimation())
+    return;
+
+  GetPropertyAnimDocument()->ExecuteAnimationPlaybackStep();
+
+  m_bAnimTimerInFlight = true;
+  QTimer::singleShot(0, this, SLOT(onPlaybackTick()));
+}
+
+void ezQtPropertyAnimAssetDocumentWindow::onPlayPauseClicked()
+{
+  GetPropertyAnimDocument()->SetPlayAnimation(!GetPropertyAnimDocument()->GetPlayAnimation());
+}
+
+void ezQtPropertyAnimAssetDocumentWindow::onRepeatClicked()
+{
+  GetPropertyAnimDocument()->SetRepeatAnimation(!GetPropertyAnimDocument()->GetRepeatAnimation());
 }
 
 ezPropertyAnimAssetDocument* ezQtPropertyAnimAssetDocumentWindow::GetPropertyAnimDocument()

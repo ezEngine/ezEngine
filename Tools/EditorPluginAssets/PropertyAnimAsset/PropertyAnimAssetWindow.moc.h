@@ -61,6 +61,9 @@ private slots:
   void onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
   void onScrubberPosChanged(ezUInt64 uiTick);
   void onDeleteSelectedItems();
+  void onPlaybackTick();
+  void onPlayPauseClicked();
+  void onRepeatClicked();
 
   //////////////////////////////////////////////////////////////////////////
   // Curve editor events
@@ -119,4 +122,5 @@ private:
   ezQtCurve1DEditorWidget* m_pCurveEditor = nullptr;
   ezQtColorGradientEditorWidget* m_pGradientEditor = nullptr;
   ezQtTimeScrubberToolbar* m_pScrubberToolbar = nullptr;
+  bool m_bAnimTimerInFlight = false;
 };

@@ -46,6 +46,7 @@ struct ezPropertyAnimAssetDocumentEvent
   {
     AnimationLengthChanged,
     ScrubberPositionChanged,
+    PlaybackChanged,
   };
 
   const ezPropertyAnimAssetDocument* m_pDocument;
@@ -64,14 +65,20 @@ public:
   virtual const char* QueryAssetType() const override { return "PropertyAnim"; }
   virtual ezObjectAccessorBase* GetObjectAccessor() const override;
 
-  ezInt64 GetAnimationDurationTicks() const;
+  ezUInt64 GetAnimationDurationTicks() const;
   ezTime GetAnimationDurationTime() const;
-  void ClearCachedAnimationDuration() { m_iCachedAnimationDuration = 0; }
+  void ClearCachedAnimationDuration() { m_uiCachedAnimationDuration = 0; }
 
-  void SetScrubberPosition(ezUInt64 uiTick);
+  bool SetScrubberPosition(ezUInt64 uiTick);
   ezUInt64 GetScrubberPosition() const { return m_uiScrubberTickPos; }
 
   ezEvent<const ezPropertyAnimAssetDocumentEvent&> m_PropertyAnimEvents;
+
+  void SetPlayAnimation(bool play);
+  bool GetPlayAnimation() const { return m_bPlayAnimation; }
+  void SetRepeatAnimation(bool repeat);
+  bool GetRepeatAnimation() const { return m_bRepeatAnimation; }
+  void ExecuteAnimationPlaybackStep();
 
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
@@ -120,7 +127,12 @@ private:
 
   ezUniquePtr<ezPropertyAnimObjectAccessor> m_pAccessor;
 
+  bool m_bPlayAnimation = false;
+  bool m_bRepeatAnimation = false;
+  ezTime m_StartPlaybackTime;
+  ezUInt64 m_uiStartPlaybackTick = 0;
+
   ezUInt64 m_uiScrubberTickPos = 0;
-  mutable ezInt64 m_iCachedAnimationDuration = 0;
-  mutable ezInt64 m_iLastAnimationDuration = 0;
+  mutable ezUInt64 m_uiCachedAnimationDuration = 0;
+  mutable ezUInt64 m_uiLastAnimationDuration = 0;
 };

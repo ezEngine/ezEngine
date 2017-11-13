@@ -202,10 +202,22 @@ ezQtTimeScrubberToolbar::ezQtTimeScrubberToolbar(QWidget* parent)
   m_pScrubber = new ezQtTimeScrubberWidget(this);
   setObjectName("TimeScrubberToolbar");
 
+  m_pPlayButton = new QPushButton(this);
+  m_pPlayButton->setIcon(QIcon(":/GuiFoundation/Icons/ControlPlay16.png"));
+
+  m_pRepeatButton = new QPushButton(this);
+  m_pRepeatButton->setIcon(QIcon(":/GuiFoundation/Icons/ControlRepeat16.png"));
+  m_pRepeatButton->setCheckable(true);
+
+  addWidget(m_pPlayButton);
+  addWidget(m_pRepeatButton);
   addWidget(m_pScrubber);
 
   // Pass event through
   connect(m_pScrubber, &ezQtTimeScrubberWidget::ScrubberPosChangedEvent, this, [this](ezUInt64 uiNewScrubberTickPos) {emit ScrubberPosChangedEvent(uiNewScrubberTickPos); });
+
+  connect(m_pPlayButton, &QPushButton::clicked, this, [this](bool) { emit PlayPauseEvent(); });
+  connect(m_pRepeatButton, &QPushButton::clicked, this, [this](bool) { emit RepeatEvent(); });
 }
 
 void ezQtTimeScrubberToolbar::SetDuration(ezUInt64 iNumTicks, ezUInt32 uiFramesPerSecond)
@@ -217,3 +229,14 @@ void ezQtTimeScrubberToolbar::SetScrubberPosition(ezUInt64 uiTick)
 {
   m_pScrubber->SetScrubberPosition(uiTick);
 }
+
+void ezQtTimeScrubberToolbar::SetButtonState(bool playing, bool repeatEnabled)
+{
+  if (playing)
+    m_pPlayButton->setIcon(QIcon(":/GuiFoundation/Icons/ControlPause16.png"));
+  else
+    m_pPlayButton->setIcon(QIcon(":/GuiFoundation/Icons/ControlPlay16.png"));
+
+  m_pRepeatButton->setChecked(repeatEnabled);
+}
+
