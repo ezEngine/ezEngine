@@ -13,6 +13,10 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ProfilingSystem)
   {
     ezProfilingSystem::Initialize();
   }
+  ON_CORE_SHUTDOWN
+  {
+    ezProfilingSystem::Reset();
+  }
 
 EZ_END_SUBSYSTEM_DECLARATION
 
@@ -36,7 +40,15 @@ void ezProfilingSystem::Initialize()
 {
 }
 
+void ezProfilingSystem::Reset()
+{
+}
+
 void ezProfilingSystem::Capture(ezStreamWriter& outputStream)
+{
+}
+
+void ezProfilingSystem::RemoveThread()
 {
 }
 

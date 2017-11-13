@@ -33,9 +33,14 @@ private:
   friend ezUInt32 RunThread(ezThread* pThread);
 
   static void Initialize();
+  /// \brief Removes profiling data of dead threads.
+  static void Reset();
 
   /// \brief Sets the name of the current thread.
   static void SetThreadName(const char* szThreadName);
+  /// \brief Removes the current thread from the profiling system.
+  ///  Needs to be called before the thread exits to be able to release profiling memory of dead threads on Reset.
+  static void RemoveThread();
 };
 
 #if EZ_ENABLED(EZ_USE_PROFILING) || defined(EZ_DOCS)

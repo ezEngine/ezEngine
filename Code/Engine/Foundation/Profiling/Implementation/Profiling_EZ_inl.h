@@ -14,6 +14,7 @@ namespace
   };
 
   static ezHybridArray<ThreadInfo, 16> s_ThreadInfos;
+  static ezHybridArray<ezUInt64, 16> s_DeadThreadIDs;
   static ezMutex s_ThreadInfosMutex;
 
   struct Event
@@ -39,6 +40,7 @@ namespace
   struct EventBuffer
   {
     ezStaticRingBuffer<Event, 1024 * 512 / sizeof(Event)> m_Data;
+    ezUInt64 m_uiThreadId = 0;
   };
 
   static ezThreadLocalPointer<EventBuffer> s_EventBuffers;
@@ -52,7 +54,7 @@ namespace
     if (pEventBuffer == nullptr)
     {
       pEventBuffer = EZ_DEFAULT_NEW(EventBuffer);
-
+      pEventBuffer->m_uiThreadId = (ezUInt64)ezThreadUtils::GetCurrentThreadID();
       s_EventBuffers = pEventBuffer;
 
       {
@@ -80,6 +82,37 @@ namespace
   }
 }
 
+void ezProfilingSystem::Reset()
+{
+  EZ_LOCK(s_ThreadInfosMutex);
+  EZ_LOCK(s_AllEventBuffersMutex);
+  for (ezUInt32 i = 0; i < s_DeadThreadIDs.GetCount(); i++)
+  {
+    ezUInt64 uiThreadId = s_DeadThreadIDs[i];
+    for (ezUInt32 k = 0; k < s_ThreadInfos.GetCount(); k++)
+    {
+      if (s_ThreadInfos[k].m_uiThreadId == uiThreadId)
+      {
+        // Don't use swap as a thread ID could be re-used and so we might delete the
+        // info for an actual thread in the next loop instead of the remnants of the thread
+        // that existed before.
+        s_ThreadInfos.RemoveAt(k);
+        break;
+      }
+    }
+    for (ezUInt32 k = 0; k < s_AllEventBuffers.GetCount(); k++)
+    {
+      EventBuffer* pEventBuffer = s_AllEventBuffers[k];
+      if (pEventBuffer->m_uiThreadId == uiThreadId)
+      {
+        EZ_DEFAULT_DELETE(pEventBuffer);
+        // Forward order and no swap important, see comment above.
+        s_AllEventBuffers.RemoveAt(k);
+      }
+    }
+  }
+  s_DeadThreadIDs.Clear();
+}
 
 ezProfilingScope::ezProfilingScope(const char* szName, const char* szFunctionName)
   : m_szName(szName)
@@ -103,6 +136,14 @@ void ezProfilingSystem::SetThreadName(const char* szThreadName)
   ThreadInfo& info = s_ThreadInfos.ExpandAndGetRef();
   info.m_uiThreadId = (ezUInt64)ezThreadUtils::GetCurrentThreadID();
   info.m_sName = szThreadName;
+}
+
+//static
+void ezProfilingSystem::RemoveThread()
+{
+  EZ_LOCK(s_ThreadInfosMutex);
+
+  s_DeadThreadIDs.PushBack((ezUInt64)ezThreadUtils::GetCurrentThreadID());
 }
 
 //static

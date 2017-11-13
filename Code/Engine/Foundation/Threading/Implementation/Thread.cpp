@@ -13,7 +13,7 @@ ezUInt32 RunThread(ezThread* pThread)
 
   ezThreadLocalStorage::SetPerThreadPointerTable(&(pThread->m_ThreadLocalPointerTable));
   ezProfilingSystem::SetThreadName(pThread->m_Name.GetData());
-  
+
   pThread->m_ThreadStatus = ezThread::Running;
 
   // Run the worker thread function
@@ -21,6 +21,7 @@ ezUInt32 RunThread(ezThread* pThread)
 
   pThread->m_ThreadStatus = ezThread::Finished;
 
+  ezProfilingSystem::RemoveThread();
   ezThreadLocalStorage::SetPerThreadPointerTable(nullptr);
 
   return uiReturnCode;

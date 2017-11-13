@@ -56,7 +56,7 @@ inline const char* ezFmt(const char* szFormat)
 #define EZ_ASSERT_ALWAYS(bCondition, szErrorMsg, ...) \
   do { \
   EZ_ANALYSIS_ASSUME(bCondition); \
-  if ((bCondition) == false) \
+  if (!!(bCondition) == false) \
   { if (ezFailedCheck(EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, #bCondition, ezFmt(szErrorMsg, ##__VA_ARGS__))) EZ_DEBUG_BREAK; } \
   } while (false)
 
@@ -114,7 +114,7 @@ inline const char* ezFmt(const char* szFormat)
   /// Compiled out in non-development builds, however the condition is always evaluated,
   /// so you may execute important code in it.
   #define EZ_VERIFY(bCondition, szErrorMsg, ...) \
-    if ((bCondition) == false) \
+    if (!!(bCondition) == false) \
     { /* The condition is evaluated, even though nothing is done with it. */ }
 
 #endif
