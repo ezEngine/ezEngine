@@ -51,6 +51,8 @@ const ezStringBuilder& ezPrefabCache::GetCachedPrefabDocument(const ezUuid& docu
 const ezAbstractObjectGraph* ezPrefabCache::GetCachedPrefabGraph(const ezUuid& documentGuid)
 {
   PrefabData& data = ezPrefabCache::GetOrCreatePrefabCache(documentGuid);
+  if (data.m_sAbsPath.IsEmpty())
+    return nullptr;
   return &data.m_Graph;
 }
 

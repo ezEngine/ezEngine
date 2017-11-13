@@ -73,7 +73,7 @@ void ezGameObjectContextAction::Execute(const ezVariant& value)
         return;
 
       document = dlg.GetSelectedAssetGuid();
-      pDocument->SetContext(document, ezUuid());
+      pDocument->SetContext(document, ezUuid()).LogFailure();
       return;
     }
   case ActionType::PickContextObject:

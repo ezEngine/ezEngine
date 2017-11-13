@@ -22,6 +22,22 @@ ezGameObjectContextDocument::~ezGameObjectContextDocument()
 
 ezStatus ezGameObjectContextDocument::SetContext(ezUuid documentGuid, ezUuid objectGuid)
 {
+  if (!documentGuid.IsValid())
+  {
+    {
+      ezGameObjectContextEvent e;
+      e.m_Type = ezGameObjectContextEvent::Type::ContextAboutToBeChanged;
+      m_GameObjectContextEvents.Broadcast(e);
+    }
+    ClearContext();
+    {
+      ezGameObjectContextEvent e;
+      e.m_Type = ezGameObjectContextEvent::Type::ContextChanged;
+      m_GameObjectContextEvents.Broadcast(e);
+    }
+    return ezStatus(EZ_SUCCESS);
+  }
+
   const ezAbstractObjectGraph* pPrefab = ezPrefabCache::GetSingleton()->GetCachedPrefabGraph(documentGuid);
   if (!pPrefab)
     return ezStatus("Context document could not be loaded.");
@@ -93,7 +109,7 @@ const ezDocumentObject* ezGameObjectContextDocument::GetContextObject()
 void ezGameObjectContextDocument::InitializeAfterLoading()
 {
   ezGameObjectContextPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezGameObjectContextPreferencesUser>(this);
-  SetContext(pPreferences->GetContextDocument(), pPreferences->GetContextObject());
+  SetContext(pPreferences->GetContextDocument(), pPreferences->GetContextObject()).LogFailure();
   SUPER::InitializeAfterLoading();
 }
 
