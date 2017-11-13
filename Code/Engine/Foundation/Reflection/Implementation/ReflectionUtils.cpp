@@ -1,4 +1,5 @@
 ﻿#include <PCH.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Logging/Log.h>
 
@@ -821,7 +822,8 @@ void ezReflectionUtils::GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ez
     ezAbstractProperty* prop = rttiProps[i];
     if (prop->GetFlags().IsSet(ezPropertyFlags::StandardType))
       continue;
-
+    if (prop->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
+      continue;
     switch (prop->GetCategory())
     {
     case ezPropertyCategory::Member:

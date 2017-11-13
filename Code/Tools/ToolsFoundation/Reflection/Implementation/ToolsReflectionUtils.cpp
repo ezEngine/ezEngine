@@ -354,6 +354,9 @@ static void GatherObjectTypesInternal(const ezDocumentObject* pObject, ezSet<con
 
   for (const ezDocumentObject* pChild : pObject->GetChildren())
   {
+    if (pChild->GetParentPropertyType()->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
+      continue;
+
     GatherObjectTypesInternal(pChild, inout_types);
   }
 }

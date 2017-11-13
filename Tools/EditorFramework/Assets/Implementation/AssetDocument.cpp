@@ -157,6 +157,8 @@ void ezAssetDocument::AddPrefabDependencies(const ezDocumentObject* pObject, ezA
 
   for (auto pChild : children)
   {
+    if (pChild->GetParentPropertyType()->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
+      continue;
     AddPrefabDependencies(pChild, pInfo);
   }
 }
@@ -182,6 +184,9 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
   pType->GetAllProperties(Properties);
   for (const auto* pProp : Properties)
   {
+    if (pProp->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
+      continue;
+
     bool bIsReference = pProp->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr;
     bool bIsDependency = pProp->GetAttributeByType<ezFileBrowserAttribute>() != nullptr;
     // add all strings that are marked as asset references or file references
@@ -241,6 +246,9 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
 
   for (auto pChild : children)
   {
+    if (pChild->GetParentPropertyType()->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
+      continue;
+
     AddReferences(pChild, pInfo, bInsidePrefab);
   }
 }
@@ -270,6 +278,8 @@ ezUInt64 ezAssetDocument::GetDocumentHash() const
   ezUInt64 uiHash = ezHashing::MurmurHash64(&m_pDocumentInfo->m_DocumentID, sizeof(ezUuid));
   for (auto pChild : GetObjectManager()->GetRootObject()->GetChildren())
   {
+    if (pChild->GetParentPropertyType()->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
+      continue;
     GetChildHash(pChild, uiHash);
     InternalGetMetaDataHash(pChild, uiHash);
   }
