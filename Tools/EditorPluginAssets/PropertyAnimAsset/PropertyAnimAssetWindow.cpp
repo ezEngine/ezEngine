@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAssetWindow.moc.h>
+#include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimObjectManager.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/Widgets/ImageWidget.moc.h>
@@ -394,12 +395,19 @@ ezPropertyAnimAssetDocument* ezQtPropertyAnimAssetDocumentWindow::GetPropertyAni
 
 void ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
+  if (static_cast<ezPropertyAnimObjectManager*>(GetDocument()->GetObjectManager())->IsTemporary(e.m_pObject, e.m_sProperty))
+    return;
   UpdateCurveEditor();
   UpdateGradientEditor();
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
 {
+  if (e.m_pNewParent && static_cast<ezPropertyAnimObjectManager*>(GetDocument()->GetObjectManager())->IsTemporary(e.m_pNewParent, e.m_sParentProperty))
+    return;
+  if (e.m_pPreviousParent && static_cast<ezPropertyAnimObjectManager*>(GetDocument()->GetObjectManager())->IsTemporary(e.m_pPreviousParent, e.m_sParentProperty))
+    return;
+
   switch (e.m_EventType)
   {
   case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:

@@ -25,6 +25,9 @@ public:
 
   mutable ezEvent<const ezGameObjectContextEvent&> m_GameObjectContextEvents;
 
+protected:
+  virtual void InitializeAfterLoading() override;
+
 private:
   void ClearContext();
 

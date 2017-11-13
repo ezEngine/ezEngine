@@ -533,7 +533,7 @@ bool ezQtCurve1DEditorWidget::PickControlPointAt(double x, double y, ezVec2d vMa
     {
       const auto& cp = CurveData.GetControlPoint(iCP);
       const ezVec2d dist = cp.m_Position - at;
-      
+
       if (ezMath::Abs(dist.x) <= vMaxDistance.x && ezMath::Abs(dist.y) <= vMaxDistance.y)
       {
         vMaxDistance.x = ezMath::Abs(dist.x);
@@ -593,33 +593,36 @@ void ezQtCurve1DEditorWidget::UpdateSpinBoxes()
   const double fPos = pt0.GetTickAsTime();
   const double fVal = pt0.m_fValue;
 
-  LinePosition->setText(QString::number(fPos, 'f', 2));
-  LineValue->setText(QString::number(fVal, 'f', 3));
-
   LinePosition->setEnabled(true);
   LineValue->setEnabled(true);
 
+  bool bMultipleTicks = false;
   for (ezUInt32 i = 1; i < selection.GetCount(); ++i)
   {
     const auto& pt = m_Curves.m_Curves[selection[i].m_uiCurve]->m_ControlPoints[selection[i].m_uiPoint];
 
     if (pt.GetTickAsTime() != fPos)
     {
-      LinePosition->setText(QString());
+      bMultipleTicks = true;
       break;
     }
   }
 
+  bool bMultipleValues = false;
   for (ezUInt32 i = 1; i < selection.GetCount(); ++i)
   {
     const auto& pt = m_Curves.m_Curves[selection[i].m_uiCurve]->m_ControlPoints[selection[i].m_uiPoint];
 
     if (pt.m_fValue != fVal)
     {
+      bMultipleValues = true;
       LineValue->setText(QString());
       break;
     }
   }
+
+  LinePosition->setText(bMultipleTicks ? QString() : QString::number(fPos, 'f', 2));
+  LineValue->setText(bMultipleValues ? QString() : QString::number(fVal, 'f', 3));
 }
 
 void ezQtCurve1DEditorWidget::on_LinePosition_editingFinished()

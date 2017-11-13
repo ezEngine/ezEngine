@@ -113,11 +113,19 @@ void ezDocumentObjectMirror::DeInit()
   }
 }
 
+void ezDocumentObjectMirror::SetFilterFunction(FilterFunction filter)
+{
+  m_Filter = filter;
+}
+
 void ezDocumentObjectMirror::SendDocument()
 {
   const auto* pRoot = m_pManager->GetRootObject();
   for (auto* pChild : pRoot->GetChildren())
   {
+    if (IsDiscardedByFilter(pRoot, pChild->GetParentProperty()))
+      continue;
+
     ezObjectChange change;
     change.m_Change.m_Operation = ezObjectChangeType::NodeAdded;
     change.m_Change.m_Value = pChild->GetGuid();
@@ -159,6 +167,11 @@ void ezDocumentObjectMirror::Clear()
 
 void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStructureEvent& e)
 {
+  if (e.m_pNewParent && IsDiscardedByFilter(e.m_pNewParent, e.m_sParentProperty))
+    return;
+  if (e.m_pPreviousParent && IsDiscardedByFilter(e.m_pPreviousParent, e.m_sParentProperty))
+    return;
+
   switch (e.m_EventType)
   {
   case ezDocumentObjectStructureEvent::Type::AfterObjectMoved:
@@ -268,6 +281,9 @@ void ezDocumentObjectMirror::TreeStructureEventHandler(const ezDocumentObjectStr
 
 void ezDocumentObjectMirror::TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
+  if (IsDiscardedByFilter(e.m_pObject, e.m_sProperty))
+    return;
+
   switch (e.m_EventType)
   {
   case ezDocumentObjectPropertyEvent::Type::PropertySet:
@@ -366,6 +382,16 @@ bool ezDocumentObjectMirror::IsHeapAllocated(const ezDocumentObject* pParent, co
 
   auto* pProp = pRtti->FindPropertyByName(szParentProperty);
   return pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner);
+}
+
+
+bool ezDocumentObjectMirror::IsDiscardedByFilter(const ezDocumentObject* pObject, const char* szProperty) const
+{
+  if (m_Filter.IsValid())
+  {
+    return !m_Filter(pObject, szProperty);
+  }
+  return false;
 }
 
 void ezDocumentObjectMirror::CreatePath(ezObjectChange& out_change, const ezDocumentObject* pRoot, const char* szProperty)

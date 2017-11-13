@@ -55,6 +55,13 @@ public:
   void InitReceiver(ezRttiConverterContext* pContext);
   void DeInit();
 
+  typedef ezDelegate<bool(const ezDocumentObject* pObject, const char* szProperty)> FilterFunction;
+  /// \brief
+  ///
+  /// \param filter
+  ///   Filter that defines whether an object property should be mirrored or not.
+  void SetFilterFunction(FilterFunction filter);
+
   void SendDocument();
   void Clear();
 
@@ -67,6 +74,7 @@ public:
 protected:
   bool IsRootObject(const ezDocumentObject* pParent);
   bool IsHeapAllocated(const ezDocumentObject* pParent, const char* szParentProperty);
+  bool IsDiscardedByFilter(const ezDocumentObject* pObject, const char* szProperty) const;
   static void CreatePath(ezObjectChange& out_change, const ezDocumentObject* pRoot, const char* szProperty);
   static ezUuid FindRootOpObject(const ezDocumentObject* pObject, ezHybridArray<const ezDocumentObject*, 8>& path);
   static void FlattenSteps(const ezArrayPtr<const ezDocumentObject* const> path, ezHybridArray<ezObjectChangeStep, 2>& out_steps);
@@ -78,4 +86,5 @@ protected:
 protected:
   ezRttiConverterContext* m_pContext;
   const ezDocumentObjectManager* m_pManager;
+  FilterFunction m_Filter;
 };

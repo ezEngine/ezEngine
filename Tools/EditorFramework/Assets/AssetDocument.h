@@ -183,6 +183,9 @@ protected:
   /// Automatically called by UpdateAssetDocumentInfo()
   void AddReferences(const ezDocumentObject* pObject, ezAssetDocumentInfo* pInfo, bool bInsidePrefab) const;
 
+protected:
+  ezIPCObjectMirrorEditor m_Mirror;
+
 private:
   virtual ezDocumentInfo* CreateDocumentInfo() override;
 
@@ -192,7 +195,6 @@ private:
   bool m_bUseIPCObjectMirror;
   bool m_bUseEngineConnection;
 
-  ezIPCObjectMirrorEditor m_Mirror;
   ezEditorEngineConnection* m_pEngineConnection;
 
   mutable ezHashTable<ezUuid, ezEditorEngineSyncObject*> m_AllSyncObjects;

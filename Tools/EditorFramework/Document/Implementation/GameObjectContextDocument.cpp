@@ -4,6 +4,7 @@
 #include <ToolsFoundation/Document/PrefabCache.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <Preferences/GameObjectContextPreferences.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectContextDocument, 2, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -49,6 +50,15 @@ ezStatus ezGameObjectContextDocument::SetContext(ezUuid documentGuid, ezUuid obj
     RestoreMetaDataAfterLoading(graph, false);
   }
   {
+    ezGameObjectContextPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezGameObjectContextPreferencesUser>(this);
+    m_ContextDocument = documentGuid;
+    pPreferences->SetContextDocument(m_ContextDocument);
+
+    const ezDocumentObject* pContextObject = GetObjectManager()->GetObject(objectGuid);
+    m_ContextObject = pContextObject ? objectGuid : ezUuid();
+    pPreferences->SetContextObject(m_ContextObject);
+  }
+  {
     ezGameObjectContextEvent e;
     e.m_Type = ezGameObjectContextEvent::Type::ContextChanged;
     m_GameObjectContextEvents.Broadcast(e);
@@ -69,16 +79,28 @@ ezUuid ezGameObjectContextDocument::GetContextObjectGuid() const
 
 const ezDocumentObject* ezGameObjectContextDocument::GetContextObject()
 {
-  if (m_ContextObject.IsValid())
+  if (m_ContextDocument.IsValid())
   {
-    return GetObjectManager()->GetObject(m_ContextObject);
+    if (m_ContextObject.IsValid())
+    {
+      return GetObjectManager()->GetObject(m_ContextObject);
+    }
+    return GetObjectManager()->GetRootObject();
   }
-  return GetObjectManager()->GetRootObject();
+  return nullptr;
+}
+
+void ezGameObjectContextDocument::InitializeAfterLoading()
+{
+  ezGameObjectContextPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezGameObjectContextPreferencesUser>(this);
+  SetContext(pPreferences->GetContextDocument(), pPreferences->GetContextObject());
+  SUPER::InitializeAfterLoading();
 }
 
 void ezGameObjectContextDocument::ClearContext()
 {
   m_ContextDocument = ezUuid();
+  m_ContextObject = ezUuid();
   ezDocumentObject* pRoot = GetObjectManager()->GetRootObject();
   ezHybridArray<ezVariant, 16> values;
   GetObjectAccessor()->GetValues(pRoot, "TempObjects", values);

@@ -462,7 +462,6 @@ void ezGameObjectDocument::InitializeAfterLoading()
   GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectPropertyEventHandler, this));
   GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectStructureEventHandler, this));
   GetObjectManager()->m_ObjectEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectEventHandler, this));
-
 }
 
 

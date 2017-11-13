@@ -54,13 +54,13 @@ public:
 protected:
   virtual void InitializeAfterLoading() override
   {
-    BaseClass::InitializeAfterLoading();
-
     EnsureSettingsObjectExist();
 
     m_ObjectMirror.InitSender(GetObjectManager());
     m_ObjectMirror.InitReceiver(&m_Context);
     m_ObjectMirror.SendDocument();
+
+    BaseClass::InitializeAfterLoading();
   }
 
   virtual ezStatus InternalLoadDocument() override

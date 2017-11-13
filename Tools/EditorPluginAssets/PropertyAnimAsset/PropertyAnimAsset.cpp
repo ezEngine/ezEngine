@@ -215,9 +215,23 @@ ezStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& str
 
 void ezPropertyAnimAssetDocument::InitializeAfterLoading()
 {
+  // Filter needs to be set before base class init as that one sends the doc.
+  // (Local mirror ignores temporaries, i.e. only mirrors the asset itself)
+  m_ObjectMirror.SetFilterFunction([this](const ezDocumentObject* pObject, const char* szProperty) -> bool
+  {
+    return !static_cast<ezPropertyAnimObjectManager*>(GetObjectManager())->IsTemporary(pObject, szProperty);
+  });
+  // (Remote IPC mirror only sends temporaries, i.e. the context)
+  m_Mirror.SetFilterFunction([this](const ezDocumentObject* pObject, const char* szProperty) -> bool
+  {
+    return static_cast<ezPropertyAnimObjectManager*>(GetObjectManager())->IsTemporary(pObject, szProperty);
+  });
   SUPER::InitializeAfterLoading();
+  // Important to do these after base class init as we want our subscriptions to happen after the mirror of the base class.
   GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocument::TreeStructureEventHandler, this));
   GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocument::TreePropertyEventHandler, this));
+  // Subscribe here as otherwise base init will fire a context changed event when we are not set up yet.
+  //RebuildMapping();
 }
 
 void ezPropertyAnimAssetDocument::GameObjectContextEventHandler(const ezGameObjectContextEvent& e)
@@ -484,5 +498,8 @@ void ezPropertyAnimAssetDocument::ApplyAnimation(const PropertyKey& key, const P
     }
   }
   ezDocumentObject* pObj = GetObjectManager()->GetObject(key.m_Object);
-  GetObjectManager()->SetValue(pObj, key.m_pProperty->GetPropertyName(), animValue, key.m_Index);
+  ezVariant oldValue;
+  EZ_VERIFY(m_pAccessor->GetValue(pObj, key.m_pProperty, oldValue, key.m_Index).Succeeded(), "Retrieving old value failed.");
+  if (oldValue != animValue)
+    GetObjectManager()->SetValue(pObj, key.m_pProperty->GetPropertyName(), animValue, key.m_Index);
 }
