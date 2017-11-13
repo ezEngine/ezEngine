@@ -6,7 +6,7 @@
 #include <Foundation/Serialization/ReflectionSerializer.h>
 
 template<typename T>
-static void SetComponentTest(ezVec2Template<T>& vector, T value)
+static void SetComponentTest(ezVec2Template<T> vector, T value)
 {
   ezVariant var = vector;
   ezReflectionUtils::SetComponent(var, 0, value);
@@ -15,7 +15,7 @@ static void SetComponentTest(ezVec2Template<T>& vector, T value)
   EZ_TEST_BOOL(var.Get<ezVec2Template<T>>().y == value);
 }
 template<typename T>
-static void SetComponentTest(ezVec3Template<T>& vector, T value)
+static void SetComponentTest(ezVec3Template<T> vector, T value)
 {
   ezVariant var = vector;
   ezReflectionUtils::SetComponent(var, 0, value);
@@ -26,7 +26,7 @@ static void SetComponentTest(ezVec3Template<T>& vector, T value)
   EZ_TEST_BOOL(var.Get<ezVec3Template<T>>().z == value);
 }
 template<typename T>
-static void SetComponentTest(ezVec4Template<T>& vector, T value)
+static void SetComponentTest(ezVec4Template<T> vector, T value)
 {
   ezVariant var = vector;
   ezReflectionUtils::SetComponent(var, 0, value);

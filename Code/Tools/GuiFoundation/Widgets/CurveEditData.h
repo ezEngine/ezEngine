@@ -12,7 +12,7 @@ class ezCurve1D;
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GUIFOUNDATION_DLL, ezCurveTangentMode);
 
 template<typename T>
-void FindNearestControlPoints(ezArrayPtr<T>& cps, ezInt64 iTick, T*& lhs, T*& rhs)
+void FindNearestControlPoints(ezArrayPtr<T> cps, ezInt64 iTick, T*& lhs, T*& rhs)
 {
   lhs = nullptr;
   rhs = nullptr;
