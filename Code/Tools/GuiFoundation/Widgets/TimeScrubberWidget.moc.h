@@ -7,6 +7,7 @@
 #include <QToolBar>
 
 class QMouseEvent;
+class QPushButton;
 
 class EZ_GUIFOUNDATION_DLL ezQtTimeScrubberWidget : public QWidget
 {

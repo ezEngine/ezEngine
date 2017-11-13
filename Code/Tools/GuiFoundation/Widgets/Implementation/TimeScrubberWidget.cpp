@@ -6,6 +6,7 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <qevent.h>
+#include <QPushButton>
 
 ezQtTimeScrubberWidget::ezQtTimeScrubberWidget(QWidget* pParent)
   : QWidget(pParent)
