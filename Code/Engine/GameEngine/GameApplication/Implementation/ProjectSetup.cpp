@@ -24,6 +24,7 @@
 #include <RendererFoundation/Device/Device.h>
 #include <VisualScript/VisualScriptResource.h>
 #include <Foundation/Configuration/CVar.h>
+#include <GameEngine/Resources/PropertyAnimResource.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <RendererDX11/Device/DeviceDX11.h>
@@ -235,6 +236,17 @@ void ezGameApplication::DoSetupDefaultResources()
 
     ezVisualScriptResourceHandle hResource = ezResourceManager::CreateResource<ezVisualScriptResource>("MissingVisualScript", desc, "Missing Visual Script Resource");
     ezVisualScriptResource::SetTypeMissingResource(hResource);
+  }
+
+  // Property Animations
+  {
+    ezPropertyAnimResourceDescriptor desc;
+    desc.m_AnimationDuration = ezTime::Seconds(0.1);
+    desc.m_Mode = ezPropertyAnimMode::Once;
+
+    ezPropertyAnimResourceHandle hResource = ezResourceManager::CreateResource<ezPropertyAnimResource>("MissingPropertyAnim", desc, "Missing Property Animation Resource");
+    ezPropertyAnimResource::SetTypeMissingResource(hResource);
+
   }
 }
 
