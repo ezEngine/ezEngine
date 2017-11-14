@@ -242,7 +242,6 @@ void ezGameApplication::DoSetupDefaultResources()
   {
     ezPropertyAnimResourceDescriptor desc;
     desc.m_AnimationDuration = ezTime::Seconds(0.1);
-    desc.m_Mode = ezPropertyAnimMode::Once;
 
     ezPropertyAnimResourceHandle hResource = ezResourceManager::CreateResource<ezPropertyAnimResource>("MissingPropertyAnim", desc, "Missing Property Animation Resource");
     ezPropertyAnimResource::SetTypeMissingResource(hResource);

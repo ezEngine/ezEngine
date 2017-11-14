@@ -41,31 +41,15 @@ o
 }
 o
 {
-	Uuid %id{u4{2013415152967868563,4644072706116647921}}
-	s %t{"ezCurveControlPointData"}
-	u3 %v{5}
-	p
-	{
-		Vec2 %LeftTangent{f{0xCDCCCCBD,0}}
-		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
-		b %Linked{1}
-		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
-		s %RightTangentMode{"ezCurveTangentMode::Auto"}
-		i4 %Tick{19680}
-		d %Value{0}
-	}
-}
-o
-{
 	Uuid %id{u4{5703601044911801520,4687885159979810705}}
 	s %t{"ezColorControlPoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		u1 %Blue{255}
 		u1 %Green{255}
-		f %Position{0x9AECFF3F}
 		u1 %Red{255}
+		i4 %Tick{9600}
 	}
 }
 o
@@ -127,7 +111,7 @@ o
 		s %LeftTangentMode{"ezCurveTangentMode::Auto"}
 		b %Linked{1}
 		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
-		s %RightTangentMode{"ezCurveTangentMode::Auto"}
+		s %RightTangentMode{"ezCurveTangentMode::Linear"}
 		i4 %Tick{14400}
 		d %Value{0x000000000000BC3C}
 	}
@@ -248,26 +232,26 @@ o
 {
 	Uuid %id{u4{9910084599451960731,5111084992966082275}}
 	s %t{"ezColorControlPoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		u1 %Blue{196}
 		u1 %Green{120}
-		f %Position{0x7ED9F63F}
 		u1 %Red{89}
+		i4 %Tick{9280}
 	}
 }
 o
 {
 	Uuid %id{u4{8661312362984932782,5140845681542123245}}
 	s %t{"ezColorControlPoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		u1 %Blue{105}
 		u1 %Green{105}
-		f %Position{0x58F1593E}
 		u1 %Red{199}
+		i4 %Tick{1040}
 	}
 }
 o
@@ -353,13 +337,13 @@ o
 {
 	Uuid %id{u4{13304802604082690237,5380401321175571804}}
 	s %t{"ezColorControlPoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		u1 %Blue{255}
 		u1 %Green{255}
-		f %Position{0x004A1D3C}
 		u1 %Red{255}
+		i4 %Tick{80}
 	}
 }
 o
@@ -380,13 +364,13 @@ o
 {
 	Uuid %id{u4{6710268655542999691,5389507958333963292}}
 	s %t{"ezColorControlPoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		u1 %Blue{190}
 		u1 %Green{129}
-		f %Position{0x1131BF3F}
 		u1 %Red{101}
+		i4 %Tick{7200}
 	}
 }
 o
@@ -488,26 +472,26 @@ o
 {
 	Uuid %id{u4{16755163987665504946,5641492315613504641}}
 	s %t{"ezColorControlPoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		u1 %Blue{102}
 		u1 %Green{109}
-		f %Position{0x39C3083F}
 		u1 %Red{200}
+		i4 %Tick{2560}
 	}
 }
 o
 {
 	Uuid %id{u4{5504255552582606000,5643933875188660251}}
 	s %t{"ezColorControlPoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		u1 %Blue{196}
 		u1 %Green{120}
-		f %Position{0x3B860740}
 		u1 %Red{89}
+		i4 %Tick{10160}
 	}
 }
 o
@@ -522,19 +506,19 @@ o
 		b %Linked{1}
 		Vec2 %RightTangent{f{0xCDCCCC3D,0}}
 		s %RightTangentMode{"ezCurveTangentMode::Auto"}
-		i4 %Tick{19200}
-		d %Value{0xA62D0DB510794840}
+		i4 %Tick{18560}
+		d %Value{0x38B0BE6E8C845840}
 	}
 }
 o
 {
 	Uuid %id{u4{17936067931590619796,5682415828084691852}}
 	s %t{"ezAlphaControlPoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		u1 %Alpha{255}
-		f %Position{0x1013C93D}
+		i4 %Tick{480}
 	}
 }
 AssetInfo
@@ -548,7 +532,7 @@ AssetInfo
 		s %AssetType{"PropertyAnim"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4994724443176325531,5726186809139790685}}
-		u4 %Hash{15581374746346659599}
+		u4 %Hash{3108921431131251116}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -568,7 +552,6 @@ o
 			Uuid{u4{14525610258371031209,4796250694713063340}}
 			Uuid{u4{11248628684737555637,4632083218058051001}}
 			Uuid{u4{10875975496552708516,5662140181346642579}}
-			Uuid{u4{2013415152967868563,4644072706116647921}}
 		}
 	}
 }
@@ -677,7 +660,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -749,8 +732,8 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezIntensityControlPoint"}
-		u3 %TypeSize{16}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{24}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -803,8 +786,8 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezColorControlPoint"}
-		u3 %TypeSize{16}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{24}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -821,8 +804,8 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezAlphaControlPoint"}
-		u3 %TypeSize{16}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{24}
+		u3 %TypeVersion{2}
 	}
 }
 o

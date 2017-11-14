@@ -100,7 +100,7 @@ void ezPropertyAnimResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 
 void ezPropertyAnimResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 4;
+  const ezUInt8 uiVersion = 5;
   const ezUInt8 uiIdentifier = 0x0A; // dummy to fill the header to 32 Bit
   const ezUInt16 uiNumFloatAnimations = m_FloatAnimations.GetCount();
   const ezUInt16 uiNumColorAnimations = m_ColorAnimations.GetCount();
@@ -110,7 +110,6 @@ void ezPropertyAnimResourceDescriptor::Save(ezStreamWriter& stream) const
   stream << uiVersion;
   stream << uiIdentifier;
   stream << m_AnimationDuration;
-  stream << m_Mode;
   stream << uiNumFloatAnimations;
 
   ezCurve1D tmpCurve;
@@ -152,11 +151,17 @@ void ezPropertyAnimResourceDescriptor::Load(ezStreamReader& stream)
 
   stream >> uiVersion;
   stream >> uiIdentifier;
-  stream >> m_AnimationDuration;
-  stream >> m_Mode;
 
   EZ_ASSERT_DEV(uiIdentifier == 0x0A, "File does not contain a valid ezPropertyAnimResourceDescriptor");
-  EZ_ASSERT_DEV(uiVersion == 4, "Invalid file version {0}", uiVersion);
+  EZ_ASSERT_DEV(uiVersion == 4 || uiVersion == 5, "Invalid file version {0}", uiVersion);
+
+  stream >> m_AnimationDuration;
+
+  if (uiVersion == 4)
+  {
+    ezEnum<ezPropertyAnimMode> mode;
+    stream >> mode;
+  }
 
   stream >> uiNumAnimations;
   m_FloatAnimations.SetCount(uiNumAnimations);

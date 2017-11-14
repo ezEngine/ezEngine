@@ -70,7 +70,6 @@ struct EZ_GAMEENGINE_DLL ezColorPropertyAnimEntry : public ezPropertyAnimEntry
 struct EZ_GAMEENGINE_DLL ezPropertyAnimResourceDescriptor : public ezRefCounted
 {
   ezTime m_AnimationDuration;
-  ezEnum<ezPropertyAnimMode> m_Mode;
   ezDynamicArray<ezFloatPropertyAnimEntry> m_FloatAnimations;
   ezDynamicArray<ezColorPropertyAnimEntry> m_ColorAnimations;
 

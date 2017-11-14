@@ -11,6 +11,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 1)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Animation", GetPropertyAnimFile, SetPropertyAnimFile)->AddAttributes(new ezAssetBrowserAttribute("PropertyAnim")),
+    EZ_ENUM_MEMBER_PROPERTY("Mode", ezPropertyAnimMode, m_AnimationMode),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES
@@ -299,7 +300,7 @@ double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
 {
   const ezTime duration = m_AnimDesc->m_AnimationDuration;
 
-  if (m_AnimDesc->m_Mode == ezPropertyAnimMode::Once)
+  if (m_AnimationMode == ezPropertyAnimMode::Once)
   {
     m_AnimationTime += tDiff;
 
@@ -309,14 +310,14 @@ double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
       SetActive(false);
     }
   }
-  else if (m_AnimDesc->m_Mode == ezPropertyAnimMode::Loop)
+  else if (m_AnimationMode == ezPropertyAnimMode::Loop)
   {
     m_AnimationTime += tDiff;
 
     while (m_AnimationTime > duration)
       m_AnimationTime -= duration;
   }
-  else if (m_AnimDesc->m_Mode == ezPropertyAnimMode::BackAndForth)
+  else if (m_AnimationMode == ezPropertyAnimMode::BackAndForth)
   {
     if (m_bReverse)
       m_AnimationTime -= tDiff;

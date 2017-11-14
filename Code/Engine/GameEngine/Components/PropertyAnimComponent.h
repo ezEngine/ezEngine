@@ -72,6 +72,7 @@ protected:
   ezHybridArray<ComponentFloatBinding, 4> m_ComponentFloatBindings;
   ezHybridArray<ColorBinding, 4> m_ColorBindings;
   ezPropertyAnimResourceHandle m_hPropertyAnim;
+  ezEnum<ezPropertyAnimMode> m_AnimationMode;
 
   // we do not want to recreate the binding when the resource changes at runtime
   // therefore we use a sharedptr to keep the data around as long as necessary
