@@ -53,6 +53,12 @@ void ezQtCurve1DEditorWidget::SetScrubberPosition(ezUInt64 uiTick)
   CurveEdit->SetScrubberPosition(uiTick / 4800.0);
 }
 
+
+void ezQtCurve1DEditorWidget::ClearSelection()
+{
+  CurveEdit->ClearSelection();
+}
+
 void ezQtCurve1DEditorWidget::FrameCurve()
 {
   CurveEdit->FrameCurve();
@@ -402,12 +408,13 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
 
   m.addSeparator();
   QMenu* cm = m.addMenu("Curve");
-  cm->addAction("Frame", this, [this]() { FrameCurve(); }, QKeySequence(Qt::Key_F));
   cm->addSeparator();
   cm->addAction("Normalize X", this, [this]() { NormalizeCurveX(0); });
   cm->addAction("Normalize Y", this, [this]() { NormalizeCurveY(0); });
   cm->addAction("Loop: Adjust Last Point", this, [this]() { MakeRepeatable(true); });
   cm->addAction("Loop: Adjust First Point", this, [this]() { MakeRepeatable(false); });
+
+  m.addAction("Frame", this, [this]() { FrameCurve(); }, QKeySequence(Qt::Key_F));
 
   m.exec(pos);
 }

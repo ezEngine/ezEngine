@@ -65,6 +65,7 @@ private slots:
   void onPlaybackTick();
   void onPlayPauseClicked();
   void onRepeatClicked();
+  void onTreeItemDoubleClicked(const QModelIndex& index);
 
   //////////////////////////////////////////////////////////////////////////
   // Curve editor events

@@ -102,9 +102,12 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     m_pPropertyTreeView->setHeaderHidden(true);
     m_pPropertyTreeView->setRootIsDecorated(true);
     m_pPropertyTreeView->setUniformRowHeights(true);
+    m_pPropertyTreeView->setExpandsOnDoubleClick(false);
     pPanel->setWidget(m_pPropertyTreeView);
 
     connect(m_pPropertyTreeView, &ezQtPropertyAnimAssetTreeView::DeleteSelectedItemsEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onDeleteSelectedItems);
+
+    connect(m_pPropertyTreeView, &QTreeView::doubleClicked, this, &ezQtPropertyAnimAssetDocumentWindow::onTreeItemDoubleClicked);
 
     addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanel);
   }
@@ -358,6 +361,8 @@ void ezQtPropertyAnimAssetDocumentWindow::onSelectionChanged(const QItemSelectio
     }
   }
 
+  m_pCurveEditor->ClearSelection();
+
   UpdateCurveEditor();
   UpdateGradientEditor();
 
@@ -434,6 +439,38 @@ void ezQtPropertyAnimAssetDocumentWindow::onRepeatClicked()
   GetPropertyAnimDocument()->SetRepeatAnimation(!GetPropertyAnimDocument()->GetRepeatAnimation());
 }
 
+void ezQtPropertyAnimAssetDocumentWindow::onTreeItemDoubleClicked(const QModelIndex& index)
+{
+  ezQtPropertyAnimModelTreeEntry* pTreeItem = reinterpret_cast<ezQtPropertyAnimModelTreeEntry*>(m_pPropertiesModel->data(index, ezQtPropertyAnimModel::UserRoles::TreeItem).value<void*>());
+
+  if (pTreeItem != nullptr && pTreeItem->m_pTrack != nullptr)
+  {
+    if (pTreeItem->m_pTrack->m_Target == ezPropertyAnimTarget::Color)
+    {
+      m_pGradientEditor->FrameGradient();
+      m_pColorGradientPanel->raise();
+    }
+    else
+    {
+      m_pCurveEditor->FrameCurve();
+      m_pCurvePanel->raise();
+    }
+  }
+  else
+  {
+    if (!m_CurvesToDisplay.m_Curves.IsEmpty())
+    {
+      m_pCurveEditor->FrameCurve();
+      m_pCurvePanel->raise();
+    }
+    else if (m_pGradientToDisplay != nullptr)
+    {
+      m_pGradientEditor->FrameGradient();
+      m_pColorGradientPanel->raise();
+    }
+  }
+}
+
 ezPropertyAnimAssetDocument* ezQtPropertyAnimAssetDocumentWindow::GetPropertyAnimDocument()
 {
   return static_cast<ezPropertyAnimAssetDocument*>(GetDocument());
@@ -443,6 +480,7 @@ void ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler(const ezDocumentO
 {
   if (static_cast<ezPropertyAnimObjectManager*>(GetDocument()->GetObjectManager())->IsTemporary(e.m_pObject, e.m_sProperty))
     return;
+
   UpdateCurveEditor();
   UpdateGradientEditor();
 }

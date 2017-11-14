@@ -16,6 +16,7 @@ public:
 
   void SetCurves(ezCurveGroupData& curveData, double fMinCurveLength);
   void SetScrubberPosition(ezUInt64 uiTick);
+  void ClearSelection();
 
   void FrameCurve();
   void MakeRepeatable(bool bAdjustLastPoint);
