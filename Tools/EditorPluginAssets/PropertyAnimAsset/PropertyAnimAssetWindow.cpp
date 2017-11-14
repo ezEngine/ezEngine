@@ -129,28 +129,28 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Float Curve Panel
   {
-    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(this);
-    pPanel->setObjectName("PropertyAnimFloatCurveDockWidget");
-    pPanel->setWindowTitle("Curves");
-    pPanel->show();
+    m_pCurvePanel = new ezQtDocumentPanel(this);
+    m_pCurvePanel->setObjectName("PropertyAnimFloatCurveDockWidget");
+    m_pCurvePanel->setWindowTitle("Curves");
+    m_pCurvePanel->show();
 
-    m_pCurveEditor = new ezQtCurve1DEditorWidget(pPanel);
-    pPanel->setWidget(m_pCurveEditor);
+    m_pCurveEditor = new ezQtCurve1DEditorWidget(m_pCurvePanel);
+    m_pCurvePanel->setWidget(m_pCurveEditor);
 
-    addDockWidget(Qt::DockWidgetArea::BottomDockWidgetArea, pPanel);
+    addDockWidget(Qt::DockWidgetArea::BottomDockWidgetArea, m_pCurvePanel);
   }
 
   // Color Gradient Panel
   {
-    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(this);
-    pPanel->setObjectName("PropertyAnimColorGradientDockWidget");
-    pPanel->setWindowTitle("Color Gradient");
-    pPanel->show();
+    m_pColorGradientPanel = new ezQtDocumentPanel(this);
+    m_pColorGradientPanel->setObjectName("PropertyAnimColorGradientDockWidget");
+    m_pColorGradientPanel->setWindowTitle("Color Gradient");
+    m_pColorGradientPanel->show();
 
-    m_pGradientEditor = new ezQtColorGradientEditorWidget(pPanel);
-    pPanel->setWidget(m_pGradientEditor);
+    m_pGradientEditor = new ezQtColorGradientEditorWidget(m_pColorGradientPanel);
+    m_pColorGradientPanel->setWidget(m_pGradientEditor);
 
-    addDockWidget(Qt::DockWidgetArea::BottomDockWidgetArea, pPanel);
+    addDockWidget(Qt::DockWidgetArea::BottomDockWidgetArea, m_pColorGradientPanel);
   }
 
   // Time Scrubber
@@ -360,6 +360,15 @@ void ezQtPropertyAnimAssetDocumentWindow::onSelectionChanged(const QItemSelectio
 
   UpdateCurveEditor();
   UpdateGradientEditor();
+
+  if (!m_CurvesToDisplay.m_Curves.IsEmpty())
+  {
+    m_pCurvePanel->raise();
+  }
+  else if (m_pGradientToDisplay != nullptr)
+  {
+    m_pColorGradientPanel->raise();
+  }
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onScrubberPosChanged(ezUInt64 uiTick)
