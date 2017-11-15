@@ -5,6 +5,7 @@
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
 #include <EditorFramework/EditTools/StandardGizmoEditTools.h>
+#include <EditorPluginScene/EditTools/GreyBoxEditTool.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoAction, 0, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -16,6 +17,7 @@ ezActionDescriptorHandle ezGizmoActions::s_hTranslateGizmo;
 ezActionDescriptorHandle ezGizmoActions::s_hRotateGizmo;
 ezActionDescriptorHandle ezGizmoActions::s_hScaleGizmo;
 ezActionDescriptorHandle ezGizmoActions::s_hDragToPositionGizmo;
+ezActionDescriptorHandle ezGizmoActions::s_hGreyBoxingGizmo;
 ezActionDescriptorHandle ezGizmoActions::s_hWorldSpace;
 ezActionDescriptorHandle ezGizmoActions::s_hMoveParentOnly;
 
@@ -28,6 +30,7 @@ void ezGizmoActions::RegisterActions()
   s_hRotateGizmo = EZ_REGISTER_ACTION_1("Gizmo.Mode.Rotate", ezActionScope::Document, "Gizmo", "E", ezGizmoAction, ezGizmoAction::ActionType::GizmoRotate);
   s_hScaleGizmo = EZ_REGISTER_ACTION_1("Gizmo.Mode.Scale", ezActionScope::Document, "Gizmo", "R", ezGizmoAction, ezGizmoAction::ActionType::GizmoScale);
   s_hDragToPositionGizmo = EZ_REGISTER_ACTION_1("Gizmo.Mode.DragToPosition", ezActionScope::Document, "Gizmo", "T", ezGizmoAction, ezGizmoAction::ActionType::GizmoDragToPosition);
+  s_hGreyBoxingGizmo = EZ_REGISTER_ACTION_1("Gizmo.Mode.GreyBoxing", ezActionScope::Document, "Gizmo", "", ezGizmoAction, ezGizmoAction::ActionType::GizmoGreyBoxing);
   s_hWorldSpace = EZ_REGISTER_ACTION_1("Gizmo.TransformSpace", ezActionScope::Document, "Gizmo", "", ezGizmoAction, ezGizmoAction::ActionType::GizmoToggleWorldSpace);
   s_hMoveParentOnly = EZ_REGISTER_ACTION_1("Gizmo.MoveParentOnly", ezActionScope::Document, "Gizmo", "P", ezGizmoAction, ezGizmoAction::ActionType::GizmoToggleMoveParentOnly);
 }
@@ -58,8 +61,9 @@ void ezGizmoActions::MapMenuActions(const char* szMapping, const char* szPath)
   pMap->MapAction(s_hRotateGizmo, sSubPath, 2.0f);
   pMap->MapAction(s_hScaleGizmo, sSubPath, 3.0f);
   pMap->MapAction(s_hDragToPositionGizmo, sSubPath, 4.0f);
-  pMap->MapAction(s_hWorldSpace, sSubPath, 5.0f);
-  pMap->MapAction(s_hMoveParentOnly, sSubPath, 6.0f);
+  pMap->MapAction(s_hGreyBoxingGizmo, sSubPath, 5.0f);
+  pMap->MapAction(s_hWorldSpace, sSubPath, 6.0f);
+  pMap->MapAction(s_hMoveParentOnly, sSubPath, 7.0f);
 }
 
 void ezGizmoActions::MapToolbarActions(const char* szMapping, const char* szPath)
@@ -75,7 +79,8 @@ void ezGizmoActions::MapToolbarActions(const char* szMapping, const char* szPath
   pMap->MapAction(s_hRotateGizmo, sSubPath, 2.0f);
   pMap->MapAction(s_hScaleGizmo, sSubPath, 3.0f);
   pMap->MapAction(s_hDragToPositionGizmo, sSubPath, 4.0f);
-  pMap->MapAction(s_hWorldSpace, sSubPath, 5.0f);
+  pMap->MapAction(s_hGreyBoxingGizmo, sSubPath, 5.0f);
+  pMap->MapAction(s_hWorldSpace, sSubPath, 6.0f);
 }
 
 ezGizmoAction::ezGizmoAction(const ezActionContext& context, const char* szName, ActionType type) : ezButtonAction(context, szName, false, "")
@@ -101,6 +106,9 @@ ezGizmoAction::ezGizmoAction(const ezActionContext& context, const char* szName,
     break;
   case ActionType::GizmoDragToPosition:
     SetIconPath(":/EditorPluginScene/Icons/GizmoDragPosition24.png");
+    break;
+  case ActionType::GizmoGreyBoxing:
+    SetIconPath(":/EditorPluginScene/Icons/GizmoGreyBox16.png");
     break;
   case ActionType::GizmoToggleWorldSpace:
     SetIconPath(":/EditorPluginScene/Icons/WorldSpace16.png");
@@ -156,6 +164,9 @@ void ezGizmoAction::Execute(const ezVariant& value)
         break;
       case ezGizmoAction::ActionType::GizmoDragToPosition:
         m_pSceneDocument->SetActiveEditTool(ezGetStaticRTTI<ezDragToPositionGizmoEditTool>());
+        break;
+      case ezGizmoAction::ActionType::GizmoGreyBoxing:
+        m_pSceneDocument->SetActiveEditTool(ezGetStaticRTTI<ezGreyBoxEditTool>());
         break;
       }
     }
@@ -214,6 +225,9 @@ void ezGizmoAction::UpdateState()
     case ezGizmoAction::ActionType::GizmoDragToPosition:
       SetChecked(m_pSceneDocument->IsActiveEditTool(ezGetStaticRTTI<ezDragToPositionGizmoEditTool>()));
       break;
+    case ezGizmoAction::ActionType::GizmoGreyBoxing:
+      SetChecked(m_pSceneDocument->IsActiveEditTool(ezGetStaticRTTI<ezGreyBoxEditTool>()));
+      break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
     }
@@ -267,7 +281,7 @@ void ezRotateGizmoAction::MapActions(const char* szMapping, const char* szPath)
 
   ezStringBuilder sSubPath(szPath, "/Gizmo.Rotation.Snap.Menu");
 
-  pMap->MapAction(s_hSnappingValueMenu, szPath, 6.0f);
+  pMap->MapAction(s_hSnappingValueMenu, szPath, 9.0f);
 
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(s_hSnappingValues); ++i)
     pMap->MapAction(s_hSnappingValues[i], sSubPath, i + 1.0f);
@@ -349,7 +363,7 @@ void ezScaleGizmoAction::MapActions(const char* szMapping, const char* szPath)
 
   ezStringBuilder sSubPath(szPath, "/Gizmo.Scale.Snap.Menu");
 
-  pMap->MapAction(s_hSnappingValueMenu, szPath, 7.0f);
+  pMap->MapAction(s_hSnappingValueMenu, szPath, 10.0f);
 
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(s_hSnappingValues); ++i)
     pMap->MapAction(s_hSnappingValues[i], sSubPath, i + 1.0f);
@@ -435,7 +449,7 @@ void ezTranslateGizmoAction::MapActions(const char* szMapping, const char* szPat
 
   ezStringBuilder sSubPath(szPath, "/Gizmo.Translate.Snap.Menu");
 
-  pMap->MapAction(s_hSnappingValueMenu, szPath, 5.0f);
+  pMap->MapAction(s_hSnappingValueMenu, szPath, 8.0f);
 
   pMap->MapAction(s_hSnapPivotToGrid, sSubPath, 0.0f);
   pMap->MapAction(s_hSnapObjectsToGrid, sSubPath, 1.0f);

@@ -25,6 +25,7 @@ public:
   static ezActionDescriptorHandle s_hRotateGizmo;
   static ezActionDescriptorHandle s_hScaleGizmo;
   static ezActionDescriptorHandle s_hDragToPositionGizmo;
+  static ezActionDescriptorHandle s_hGreyBoxingGizmo;
   static ezActionDescriptorHandle s_hWorldSpace;
   static ezActionDescriptorHandle s_hMoveParentOnly;
 };
@@ -42,6 +43,7 @@ public:
     GizmoRotate,
     GizmoScale,
     GizmoDragToPosition,
+    GizmoGreyBoxing,
     GizmoToggleWorldSpace,
     GizmoToggleMoveParentOnly,
   };

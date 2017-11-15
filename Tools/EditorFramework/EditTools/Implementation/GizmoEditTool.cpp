@@ -59,9 +59,8 @@ void ezGameObjectGizmoEditTool::UpdateGizmoVisibleState()
       goto done;
 
     isVisible = true;
+    UpdateGizmoTransformation();
   }
-
-  UpdateGizmoTransformation();
 
 done:
   ApplyGizmoVisibleState(isVisible);

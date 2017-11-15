@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <EditorPluginFmod/Actions/FmodActions.h>
@@ -49,7 +49,7 @@ void ezFmodActions::MapMenuActions()
     ezActionMap* pSceneMap = ezActionMapManager::GetActionMap("EditorPluginScene_DocumentToolBar");
     EZ_ASSERT_DEV(pSceneMap != nullptr, "Mmapping the actions failed!");
 
-    pSceneMap->MapAction(s_hCategoryFmod, "", 6.5f);
+    pSceneMap->MapAction(s_hCategoryFmod, "", 12.0f);
     pSceneMap->MapAction(s_hMuteSound, "Fmod", 0.0f);
   }
 

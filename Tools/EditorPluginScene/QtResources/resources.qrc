@@ -30,6 +30,7 @@
 	<file>Icons/Visualizers16.png</file>
 	<file>Icons/Grid16.png</file>
 	<file>Icons/TransformParent16.png</file>
+	<file>Icons/GizmoGreyBox16.png</file>
   </qresource>
   <qresource prefix="TypeIcons">
 	<file>ezMeshComponent.png</file>
