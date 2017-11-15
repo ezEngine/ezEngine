@@ -11,7 +11,7 @@
 #include <EditorFramework/Gizmos/DragToPositionGizmo.h>
 #include <EditorPluginScene/Actions/GizmoActions.h>
 #include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
-#include <EditorFramework/DocumentWindow/GameObjectGizmoHandler.h>
+#include <EditorFramework/EditTools/EditTool.h>
 
 struct ezEngineViewPreferences;
 class QGridLayout;

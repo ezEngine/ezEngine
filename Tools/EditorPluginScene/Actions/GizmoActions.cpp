@@ -4,7 +4,7 @@
 #include <EditorPluginScene/Actions/GizmoActions.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
-#include <EditorFramework/DocumentWindow/GameObjectGizmoHandler.h>
+#include <EditorFramework/EditTools/StandardGizmoEditTools.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoAction, 0, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE

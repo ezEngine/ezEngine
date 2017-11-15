@@ -5,7 +5,7 @@
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
-#include <EditorFramework/DocumentWindow/GameObjectGizmoHandler.h>
+#include <EditorFramework/EditTools/EditTool.h>
 #include <Core/World/GameObject.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectMetaData, 1, ezRTTINoAllocator)

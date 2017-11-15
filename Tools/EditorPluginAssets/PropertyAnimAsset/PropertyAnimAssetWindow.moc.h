@@ -4,7 +4,7 @@
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <GuiFoundation/Widgets/CurveEditData.h>
 #include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
-#include <EditorFramework/DocumentWindow/GameObjectGizmoHandler.h>
+#include <EditorFramework/EditTools/EditTool.h>
 #include <QTreeView>
 
 class ezQtPropertyAnimModel;

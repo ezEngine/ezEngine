@@ -17,9 +17,10 @@
 #include <GuiFoundation/Widgets/ColorGradientEditorWidget.moc.h>
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimViewWidget.moc.h>
-#include <EditorFramework/DocumentWindow/GameObjectGizmoHandler.h>
+#include <EditorFramework/EditTools/EditTool.h>
 #include <EditorFramework/DocumentWindow/QuadViewWidget.moc.h>
 #include <GuiFoundation/Widgets/TimeScrubberWidget.moc.h>
+#include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <QItemSelectionModel>
 #include <QLabel>
 #include <QLayout>
@@ -27,7 +28,6 @@
 #include <QToolBar>
 #include <QPushButton>
 #include <qevent.h>
-
 
 ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPropertyAnimAssetDocument* pDocument) : ezQtGameObjectDocumentWindow(pDocument)
 {

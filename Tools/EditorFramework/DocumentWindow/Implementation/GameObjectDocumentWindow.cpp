@@ -1,6 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
-#include <EditorFramework/DocumentWindow/GameObjectGizmoHandler.h>
+#include <EditorFramework/EditTools/EditTool.h>
 #include <EditorFramework/Document/GameObjectDocument.h>
 #include <Preferences/ScenePreferences.h>
 #include <Gizmos/SnapProvider.h>
