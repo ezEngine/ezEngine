@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/Utilities/Progress.h>
 
 static ezProgress* s_pGlobal = nullptr;
@@ -180,7 +180,7 @@ void ezProgressRange::SetStepWeighting(ezUInt32 uiStep, float fWeigth)
 void ezProgressRange::ComputeCurStepBaseAndRange(double& out_base, double& out_range)
 {
   const double internalBase = ComputeInternalCompletion();
-  const double internalRange = m_StepWeights[m_uiCurrentStep] / m_SummedWeight;
+  const double internalRange = m_StepWeights[ezMath::Min(m_uiCurrentStep, m_StepWeights.GetCount()-1)] / m_SummedWeight;
 
   out_range = internalRange * m_PercentageRange;
   out_base = m_PercentageBase + (internalBase * m_PercentageRange);

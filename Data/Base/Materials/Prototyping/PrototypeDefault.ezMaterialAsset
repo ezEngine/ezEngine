@@ -2,7 +2,7 @@ Objects
 {
 AssetInfo
 {
-	Uuid %id{u4{5563984912310313115,4632119091453651644}}
+	Uuid %id{u4{9004306192901779569,3422057330073992824}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{1}
 	s %n{"Header"}
@@ -13,7 +13,7 @@ AssetInfo
 		{
 			s{"{ 7c71fc2d-2a1a-4938-9305-f3a0f26d73cc }"}
 		}
-		Uuid %DocumentID{u4{5563984912310313115,4632119091453651644}}
+		Uuid %DocumentID{u4{9004306192901779569,3422057330073992824}}
 		u4 %Hash{17038632933824429738}
 		VarArray %Outputs{}
 		VarArray %References

@@ -50,7 +50,7 @@ void ezDrawBoxGizmo::DoFocusLost(bool bCancel)
 
 ezEditorInput ezDrawBoxGizmo::DoMousePressEvent(QMouseEvent* e)
 {
-  if (e->button() == Qt::LeftButton)
+  if (e->buttons() == Qt::LeftButton && e->modifiers() == Qt::NoModifier)
   {
     if (m_ManipulateMode == ManipulateMode::None)
     {

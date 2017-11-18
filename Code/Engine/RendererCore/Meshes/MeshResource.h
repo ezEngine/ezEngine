@@ -51,4 +51,4 @@ private:
   static ezUInt32 s_MeshBufferNameSuffix;
 };
 
-typedef ezTypedResourceHandle<ezMeshResource> ezMeshResourceHandle;
+typedef ezTypedResourceHandle<class ezMeshResource> ezMeshResourceHandle;

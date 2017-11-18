@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Core/Messages/ScriptFunctionMessage.h>
 #include <Core/World/World.h>
@@ -43,32 +43,38 @@ public:
   ezMeshComponent();
   ~ezMeshComponent();
 
-  // ezRenderComponent interface
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent Interface
+public:
+
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezRenderComponent Interface
+
+public:
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+  void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezMeshComponent Interface
+
+public:
 
   void SetMesh(const ezMeshResourceHandle& hMesh);
-  EZ_ALWAYS_INLINE const ezMeshResourceHandle& GetMesh() const
-  {
-    return m_hMesh;
-  }
+  EZ_ALWAYS_INLINE const ezMeshResourceHandle& GetMesh() const { return m_hMesh; }
 
   void SetMaterial(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial);
   ezMaterialResourceHandle GetMaterial(ezUInt32 uiIndex) const;
 
-  EZ_ALWAYS_INLINE void SetRenderDataCategory(ezRenderData::Category category)
-  {
-    m_RenderDataCategory = category;
-  }
-
-  void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
+  EZ_ALWAYS_INLINE void SetRenderDataCategory(ezRenderData::Category category) { m_RenderDataCategory = category; }
 
   void SetMeshFile(const char* szFile);
   const char* GetMeshFile() const;
 
   void OnSetMaterialMsg(ezMeshComponent_SetMaterialMsg& msg);
-
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
 
 protected:
   virtual ezMeshRenderData* CreateRenderData(ezUInt32 uiBatchId) const;

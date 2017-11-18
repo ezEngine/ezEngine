@@ -105,7 +105,7 @@ ezResourceLoadDesc ezMeshResource::CreateResource(const ezMeshResourceDescriptor
   }
 
   m_Bounds = desc.GetBounds();
-  EZ_ASSERT_DEV(m_Bounds.IsValid(), "The mesh bounds are invalid. Make sure to call ezMeshResourceDescriptor::CalculateBounds()");
+  EZ_ASSERT_DEV(m_Bounds.IsValid(), "The mesh bounds are invalid. Make sure to call ezMeshResourceDescriptor::ComputeBounds()");
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
