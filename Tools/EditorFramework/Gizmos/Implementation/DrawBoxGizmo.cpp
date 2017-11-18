@@ -185,11 +185,11 @@ void ezDrawBoxGizmo::SwitchMode(bool bCancel)
 
   if (m_ManipulateMode == ManipulateMode::DrawHeight)
   {
-    UpdateBox();
-    FocusLost(false);
-
     e.m_Type = ezGizmoEvent::Type::EndInteractions;
     m_GizmoEvents.Broadcast(e);
+
+    UpdateBox();
+    FocusLost(false);
     return;
   }
 }
@@ -221,11 +221,37 @@ void ezDrawBoxGizmo::UpdateBox()
   vCenter.z += m_fBoxHeight * 0.5f;
 
   ezVec3 vSize;
-  vSize.x = (m_vSecondCorner.x - m_vFirstCorner.x);
-  vSize.y = (m_vSecondCorner.y - m_vFirstCorner.y);
+  vSize.x = ezMath::Abs(m_vSecondCorner.x - m_vFirstCorner.x);
+  vSize.y = ezMath::Abs(m_vSecondCorner.y - m_vFirstCorner.y);
   vSize.z = m_fBoxHeight;
 
   m_Box.SetTransformation(ezTransform(vCenter, ezQuat::IdentityQuaternion(), vSize));
   m_Box.SetVisible(true);
+}
+
+void ezDrawBoxGizmo::GetResult(ezVec3& out_Center, float& out_fSizeNegX, float& out_fSizePosX, float& out_fSizeNegY, float& out_fSizePosY, float& out_fSizeNegZ, float& out_fSizePosZ) const
+{
+  out_Center = ezMath::Lerp(m_vFirstCorner, m_vSecondCorner, 0.5f);
+
+  ezVec3 vSize;
+  vSize.x = ezMath::Abs(m_vSecondCorner.x - m_vFirstCorner.x);
+  vSize.y = ezMath::Abs(m_vSecondCorner.y - m_vFirstCorner.y);
+  vSize.z = m_fBoxHeight;
+
+  out_fSizeNegX = vSize.x * 0.5f;
+  out_fSizePosX = vSize.x * 0.5f;
+  out_fSizeNegY = vSize.y * 0.5f;
+  out_fSizePosY = vSize.y * 0.5f;
+
+  if (m_fBoxHeight > 0)
+  {
+    out_fSizeNegZ = 0;
+    out_fSizePosZ = m_fBoxHeight;
+  }
+  else
+  {
+    out_fSizeNegZ = -m_fBoxHeight;
+    out_fSizePosZ = 0;
+  }
 }
 

@@ -145,3 +145,4 @@ ezLogicOperator::LessEqual;<=
 ezLogicOperator::Greater;>
 ezLogicOperator::GreaterEqual;>=
 ezShapeIconComponent;Shape Icon
+ezGreyBoxShape::Box;Box

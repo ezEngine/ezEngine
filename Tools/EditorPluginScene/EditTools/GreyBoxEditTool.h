@@ -26,6 +26,7 @@ private:
   void UpdateGizmoState();
   void GameObjectEventHandler(const ezGameObjectEvent& e);
   void ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e);
+  void GizmoEventHandler(const ezGizmoEvent& e);
 
   ezDrawBoxGizmo m_DrawBoxGizmo;
 };

@@ -12,6 +12,8 @@ class EZ_EDITORFRAMEWORK_DLL ezDrawBoxGizmo : public ezGizmo
 public:
   ezDrawBoxGizmo();
 
+  void GetResult(ezVec3& out_Center, float& out_fSizeNegX, float& out_fSizePosX, float& out_fSizeNegY, float& out_fSizePosY, float& out_fSizeNegZ, float& out_fSizePosZ) const;
+
 protected:
   virtual void DoFocusLost(bool bCancel) override;
 
