@@ -84,6 +84,9 @@ public:
   /// \brief Starts a picking operation for the given pixel position in this view. Returns the most recent picking information in the meantime.
   const ezObjectPickingResult& PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY) const;
 
+  /// \brief Similar to PickObject, but computes the intersection with the given plane instead.
+  ezResult PickPlane(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY, const ezPlane& plane, ezVec3& out_Position) const;
+
   /// \brief Processes incoming messages from the engine that are meant for this particular view. Mostly picking results.
   void HandleViewMessage(const ezEditorEngineViewMsg* pMsg);
 

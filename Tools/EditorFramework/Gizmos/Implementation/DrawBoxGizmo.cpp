@@ -8,6 +8,7 @@
 #include <Foundation/Math/Mat4.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <QMouseEvent>
+#include <EditorFramework/Gizmos/SnapProvider.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDrawBoxGizmo, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -16,7 +17,7 @@ ezDrawBoxGizmo::ezDrawBoxGizmo()
 {
   m_ManipulateMode = ManipulateMode::None;
 
-  m_Box.Configure(this, ezEngineGizmoHandleType::Box, ezColorLinearUB(200, 200, 255, 128), false, false, false, true, false);
+  m_Box.Configure(this, ezEngineGizmoHandleType::LineBox, ezColorLinearUB(255, 100, 0), false, false, false, true, false);
 
   SetVisible(false);
   SetTransformation(ezTransform::Identity());
@@ -41,85 +42,190 @@ void ezDrawBoxGizmo::DoFocusLost(bool bCancel)
   GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
   
   m_ManipulateMode = ManipulateMode::None;
-  m_Box.SetVisible(false);
+  UpdateBox();
 
   if (IsActiveInputContext())
     SetActiveInputContext(nullptr);
 }
 
-ezEditorInut ezDrawBoxGizmo::DoMousePressEvent(QMouseEvent* e)
+ezEditorInput ezDrawBoxGizmo::DoMousePressEvent(QMouseEvent* e)
 {
-  return ezEditorInut::MayBeHandledByOthers;
+  if (e->button() == Qt::LeftButton)
+  {
+    if (m_ManipulateMode == ManipulateMode::None)
+    {
+      const QPoint mousePos = GetOwnerWindow()->mapFromGlobal(QCursor::pos());
+
+      const ezObjectPickingResult& res = GetOwnerView()->PickObject(mousePos.x(), mousePos.y());
+
+      if (res.m_PickedObject.IsValid())
+        m_vCurrentPosition = res.m_vPickedPosition;
+      else
+      {
+        ezPlane plane;
+        plane.SetFromNormalAndPoint(ezVec3(0, 0, 1), ezVec3(0, 0, 0));
+
+        if (GetOwnerView()->PickPlane(e->pos().x(), e->pos().y(), plane, m_vCurrentPosition).Failed())
+          return ezEditorInput::WasExclusivelyHandled; // failed to pick anything
+      }
+
+      ezSnapProvider::SnapTranslation(m_vCurrentPosition);
+
+      SwitchMode(false);
+      return ezEditorInput::WasExclusivelyHandled;
+    }
+  }
+
+  return ezEditorInput::MayBeHandledByOthers;
 }
 
-ezEditorInut ezDrawBoxGizmo::DoMouseReleaseEvent(QMouseEvent* e)
-{
-  return ezEditorInut::MayBeHandledByOthers;
-}
-
-ezEditorInut ezDrawBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
+ezEditorInput ezDrawBoxGizmo::DoMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
-  const ezObjectPickingResult& res = GetOwnerView()->PickObject(e->pos().x(), e->pos().y());
+  if (e->button() == Qt::LeftButton)
+  {
+    if (m_ManipulateMode == ManipulateMode::DrawBase || m_ManipulateMode == ManipulateMode::DrawHeight)
+    {
+      SwitchMode(m_vFirstCorner == m_vSecondCorner);
+      return ezEditorInput::WasExclusivelyHandled;
+    }
+  }
 
-  m_Box.SetTransformation(ezTransform(res.m_vPickedPosition));
-
-  return ezEditorInut::WasExclusivelyHandled;
+  return ezEditorInput::MayBeHandledByOthers;
 }
 
-ezEditorInut ezDrawBoxGizmo::DoKeyPressEvent(QKeyEvent* e)
+ezEditorInput ezDrawBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
+{
+  if (!IsActiveInputContext())
+    return ezEditorInput::MayBeHandledByOthers;
+
+  if (m_ManipulateMode == ManipulateMode::DrawHeight)
+  {
+    const ezVec2I32 vMouseMove = ezVec2I32(e->globalPos().x(), e->globalPos().y()) - m_LastMousePos;
+    m_iHeightChange -= vMouseMove.y;
+
+    m_LastMousePos = UpdateMouseMode(e);
+  }
+  else
+  {
+    ezPlane plane;
+    plane.SetFromNormalAndPoint(ezVec3(0, 0, 1), m_vFirstCorner);
+
+    GetOwnerView()->PickPlane(e->pos().x(), e->pos().y(), plane, m_vCurrentPosition);
+
+    ezSnapProvider::SnapTranslation(m_vCurrentPosition);
+  }
+
+  UpdateBox();
+
+  return ezEditorInput::WasExclusivelyHandled;
+}
+
+ezEditorInput ezDrawBoxGizmo::DoKeyPressEvent(QKeyEvent* e)
 {
   // is the gizmo in general visible == is it active
   if (!IsVisible())
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   if (e->key() == Qt::Key_Escape)
   {
     if (m_ManipulateMode != ManipulateMode::None)
     {
-      FocusLost(true);
-      return ezEditorInut::WasExclusivelyHandled;
+      SwitchMode(true);
+      return ezEditorInput::WasExclusivelyHandled;
     }
   }
 
-  if (e->key() == Qt::Key_Space)
-  {
-    if (m_ManipulateMode == ManipulateMode::None)
-    {
-      SetActiveInputContext(this);
-      m_ManipulateMode = ManipulateMode::DrawBase;
-      m_Box.SetVisible(true);
-      return ezEditorInut::WasExclusivelyHandled;
-    }
-  }
-
-  return ezEditorInut::MayBeHandledByOthers;
+  return ezEditorInput::MayBeHandledByOthers;
 }
 
-ezEditorInut ezDrawBoxGizmo::DoKeyReleaseEvent(QKeyEvent* e)
+ezEditorInput ezDrawBoxGizmo::DoKeyReleaseEvent(QKeyEvent* e)
 {
-  if (!IsActiveInputContext())
-    return ezEditorInut::MayBeHandledByOthers;
+  return ezEditorInput::MayBeHandledByOthers;
+}
 
-  if (e->key() == Qt::Key_Space)
+void ezDrawBoxGizmo::SwitchMode(bool bCancel)
+{
+  ezGizmoEvent e;
+  e.m_pGizmo = this;
+
+  if (bCancel)
   {
-    if (m_ManipulateMode == ManipulateMode::DrawBase)
-    {
-      m_ManipulateMode = ManipulateMode::DrawHeight;
-      return ezEditorInut::WasExclusivelyHandled;
-    }
+    FocusLost(true);
 
-    if (m_ManipulateMode == ManipulateMode::DrawHeight)
-    {
-      FocusLost(false);
-
-      // FInish box
-      return ezEditorInut::WasExclusivelyHandled;
-    }
+    e.m_Type = ezGizmoEvent::Type::CancelInteractions;
+    m_GizmoEvents.Broadcast(e);
+    return;
   }
 
-  return ezEditorInut::MayBeHandledByOthers;
+  if (m_ManipulateMode == ManipulateMode::None)
+  {
+    m_ManipulateMode = ManipulateMode::DrawBase;
+    m_vFirstCorner = m_vCurrentPosition;
+
+    SetActiveInputContext(this);
+    UpdateBox();
+
+    e.m_Type = ezGizmoEvent::Type::BeginInteractions;
+    m_GizmoEvents.Broadcast(e);
+    return;
+  }
+
+  if (m_ManipulateMode == ManipulateMode::DrawBase)
+  {
+    m_ManipulateMode = ManipulateMode::DrawHeight;
+    m_iHeightChange = 0;
+    m_fOriginalBoxHeight = m_fBoxHeight;
+    m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
+    UpdateBox();
+    return;
+  }
+
+  if (m_ManipulateMode == ManipulateMode::DrawHeight)
+  {
+    UpdateBox();
+    FocusLost(false);
+
+    e.m_Type = ezGizmoEvent::Type::EndInteractions;
+    m_GizmoEvents.Broadcast(e);
+    return;
+  }
+}
+
+void ezDrawBoxGizmo::UpdateBox()
+{
+  if (m_ManipulateMode == ManipulateMode::DrawBase)
+  {
+    m_vSecondCorner = m_vCurrentPosition;
+    m_vSecondCorner.z = m_vFirstCorner.z;
+  }
+
+  if (m_ManipulateMode == ManipulateMode::None || m_vFirstCorner == m_vSecondCorner)
+  {
+    m_Box.SetTransformation(ezTransform(ezVec3(0), ezQuat::IdentityQuaternion(), ezVec3(0)));
+    m_Box.SetVisible(false);
+    return;
+  }
+
+  if (m_ManipulateMode == ManipulateMode::DrawHeight)
+  {
+    m_fBoxHeight = m_fOriginalBoxHeight + ((float)m_iHeightChange * 0.1f * ezSnapProvider::GetTranslationSnapValue());
+    ezVec3 snapDummy(m_fBoxHeight);
+    ezSnapProvider::SnapTranslation(snapDummy);
+    m_fBoxHeight = snapDummy.z;
+  }
+
+  ezVec3 vCenter = ezMath::Lerp(m_vFirstCorner, m_vSecondCorner, 0.5f);
+  vCenter.z += m_fBoxHeight * 0.5f;
+
+  ezVec3 vSize;
+  vSize.x = (m_vSecondCorner.x - m_vFirstCorner.x);
+  vSize.y = (m_vSecondCorner.y - m_vFirstCorner.y);
+  vSize.z = m_fBoxHeight;
+
+  m_Box.SetTransformation(ezTransform(vCenter, ezQuat::IdentityQuaternion(), vSize));
+  m_Box.SetVisible(true);
 }
 

@@ -8,6 +8,7 @@
 #include <QHBoxLayout>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <Preferences/EditorPreferences.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 
 ezUInt32 ezQtEngineViewWidget::s_uiNextViewID = 0;
 
@@ -212,6 +213,29 @@ const ezObjectPickingResult& ezQtEngineViewWidget::PickObject(ezUInt16 uiScreenP
   return m_LastPickingResult;
 }
 
+
+ezResult ezQtEngineViewWidget::PickPlane(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY, const ezPlane& plane, ezVec3& out_Position) const
+{
+  const auto& cam = m_pViewConfig->m_Camera;
+
+  ezMat4 mView = cam.GetViewMatrix();
+  ezMat4 mProj;
+  cam.GetProjectionMatrix((float)width() / (float)height(), mProj);
+  ezMat4 mViewProj = mProj * mView;
+  ezMat4 mInvViewProj = mViewProj.GetInverse();
+
+  ezVec3 vScreenPos(uiScreenPosX, height() - uiScreenPosY, 0);
+  ezVec3 vResPos, vResRay;
+
+  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, width(), height(), vScreenPos, vResPos, &vResRay).Failed())
+    return EZ_FAILURE;
+
+  if (plane.GetRayIntersection(vResPos, vResRay, nullptr, &out_Position))
+    return EZ_SUCCESS;
+
+  return EZ_FAILURE;
+}
+
 void ezQtEngineViewWidget::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
 {
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewPickingResultMsgToEditor>())
@@ -279,7 +303,7 @@ void ezQtEngineViewWidget::keyPressEvent(QKeyEvent* e)
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
   {
-    if (ezEditorInputContext::GetActiveInputContext()->KeyPressEvent(e) == ezEditorInut::WasExclusivelyHandled)
+    if (ezEditorInputContext::GetActiveInputContext()->KeyPressEvent(e) == ezEditorInput::WasExclusivelyHandled)
       return;
   }
 
@@ -291,7 +315,7 @@ void ezQtEngineViewWidget::keyPressEvent(QKeyEvent* e)
     ezEditorInputContext* pOverride = GetDocumentWindow()->GetDocument()->GetEditorInputContextOverride();
     if (pOverride != nullptr)
     {
-      if (pOverride->KeyPressEvent(e) == ezEditorInut::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
+      if (pOverride->KeyPressEvent(e) == ezEditorInput::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
         return;
     }
   }
@@ -299,7 +323,7 @@ void ezQtEngineViewWidget::keyPressEvent(QKeyEvent* e)
   // if no context is active, pass the input through in a certain order, until someone handles it
   for (auto pContext : m_InputContexts)
   {
-    if (pContext->KeyPressEvent(e) == ezEditorInut::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
+    if (pContext->KeyPressEvent(e) == ezEditorInput::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
       return;
   }
 
@@ -314,7 +338,7 @@ void ezQtEngineViewWidget::keyReleaseEvent(QKeyEvent* e)
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
   {
-    if (ezEditorInputContext::GetActiveInputContext()->KeyReleaseEvent(e) == ezEditorInut::WasExclusivelyHandled)
+    if (ezEditorInputContext::GetActiveInputContext()->KeyReleaseEvent(e) == ezEditorInput::WasExclusivelyHandled)
       return;
   }
 
@@ -326,7 +350,7 @@ void ezQtEngineViewWidget::keyReleaseEvent(QKeyEvent* e)
     ezEditorInputContext* pOverride = GetDocumentWindow()->GetDocument()->GetEditorInputContextOverride();
     if (pOverride != nullptr)
     {
-      if (pOverride->KeyReleaseEvent(e) == ezEditorInut::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
+      if (pOverride->KeyReleaseEvent(e) == ezEditorInput::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
         return;
     }
   }
@@ -334,7 +358,7 @@ void ezQtEngineViewWidget::keyReleaseEvent(QKeyEvent* e)
   // if no context is active, pass the input through in a certain order, until someone handles it
   for (auto pContext : m_InputContexts)
   {
-    if (pContext->KeyReleaseEvent(e) == ezEditorInut::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
+    if (pContext->KeyReleaseEvent(e) == ezEditorInput::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
       return;
   }
 
@@ -346,7 +370,7 @@ void ezQtEngineViewWidget::mousePressEvent(QMouseEvent* e)
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
   {
-    if (ezEditorInputContext::GetActiveInputContext()->MousePressEvent(e) == ezEditorInut::WasExclusivelyHandled)
+    if (ezEditorInputContext::GetActiveInputContext()->MousePressEvent(e) == ezEditorInput::WasExclusivelyHandled)
     {
       e->accept();
       return;
@@ -364,7 +388,7 @@ void ezQtEngineViewWidget::mousePressEvent(QMouseEvent* e)
     ezEditorInputContext* pOverride = GetDocumentWindow()->GetDocument()->GetEditorInputContextOverride();
     if (pOverride != nullptr)
     {
-      if (pOverride->MousePressEvent(e) == ezEditorInut::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
+      if (pOverride->MousePressEvent(e) == ezEditorInput::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
         return;
     }
   }
@@ -372,7 +396,7 @@ void ezQtEngineViewWidget::mousePressEvent(QMouseEvent* e)
   // if no context is active, pass the input through in a certain order, until someone handles it
   for (auto pContext : m_InputContexts)
   {
-    if (pContext->MousePressEvent(e) == ezEditorInut::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
+    if (pContext->MousePressEvent(e) == ezEditorInput::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
     {
       e->accept();
       return;
@@ -387,7 +411,7 @@ void ezQtEngineViewWidget::mouseReleaseEvent(QMouseEvent* e)
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
   {
-    if (ezEditorInputContext::GetActiveInputContext()->MouseReleaseEvent(e) == ezEditorInut::WasExclusivelyHandled)
+    if (ezEditorInputContext::GetActiveInputContext()->MouseReleaseEvent(e) == ezEditorInput::WasExclusivelyHandled)
     {
       e->accept();
       return;
@@ -405,7 +429,7 @@ void ezQtEngineViewWidget::mouseReleaseEvent(QMouseEvent* e)
     ezEditorInputContext* pOverride = GetDocumentWindow()->GetDocument()->GetEditorInputContextOverride();
     if (pOverride != nullptr)
     {
-      if (pOverride->MouseReleaseEvent(e) == ezEditorInut::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
+      if (pOverride->MouseReleaseEvent(e) == ezEditorInput::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
         return;
     }
   }
@@ -413,7 +437,7 @@ void ezQtEngineViewWidget::mouseReleaseEvent(QMouseEvent* e)
   // if no context is active, pass the input through in a certain order, until someone handles it
   for (auto pContext : m_InputContexts)
   {
-    if (pContext->MouseReleaseEvent(e) == ezEditorInut::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
+    if (pContext->MouseReleaseEvent(e) == ezEditorInput::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
     {
       e->accept();
       return;
@@ -434,7 +458,7 @@ void ezQtEngineViewWidget::mouseMoveEvent(QMouseEvent* e)
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
   {
-    if (ezEditorInputContext::GetActiveInputContext()->MouseMoveEvent(e) == ezEditorInut::WasExclusivelyHandled)
+    if (ezEditorInputContext::GetActiveInputContext()->MouseMoveEvent(e) == ezEditorInput::WasExclusivelyHandled)
     {
       e->accept();
       return;
@@ -452,7 +476,7 @@ void ezQtEngineViewWidget::mouseMoveEvent(QMouseEvent* e)
     ezEditorInputContext* pOverride = GetDocumentWindow()->GetDocument()->GetEditorInputContextOverride();
     if (pOverride != nullptr)
     {
-      if (pOverride->MouseMoveEvent(e) == ezEditorInut::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
+      if (pOverride->MouseMoveEvent(e) == ezEditorInput::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
         return;
     }
   }
@@ -460,7 +484,7 @@ void ezQtEngineViewWidget::mouseMoveEvent(QMouseEvent* e)
   // if no context is active, pass the input through in a certain order, until someone handles it
   for (auto pContext : m_InputContexts)
   {
-    if (pContext->MouseMoveEvent(e) == ezEditorInut::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
+    if (pContext->MouseMoveEvent(e) == ezEditorInput::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
     {
       e->accept();
       return;
@@ -475,7 +499,7 @@ void ezQtEngineViewWidget::wheelEvent(QWheelEvent* e)
   // if a context is active, it gets exclusive access to the input data
   if (ezEditorInputContext::IsAnyInputContextActive())
   {
-    if (ezEditorInputContext::GetActiveInputContext()->WheelEvent(e) == ezEditorInut::WasExclusivelyHandled)
+    if (ezEditorInputContext::GetActiveInputContext()->WheelEvent(e) == ezEditorInput::WasExclusivelyHandled)
       return;
   }
 
@@ -487,7 +511,7 @@ void ezQtEngineViewWidget::wheelEvent(QWheelEvent* e)
     ezEditorInputContext* pOverride = GetDocumentWindow()->GetDocument()->GetEditorInputContextOverride();
     if (pOverride != nullptr)
     {
-      if (pOverride->WheelEvent(e) == ezEditorInut::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
+      if (pOverride->WheelEvent(e) == ezEditorInput::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
         return;
     }
   }
@@ -495,7 +519,7 @@ void ezQtEngineViewWidget::wheelEvent(QWheelEvent* e)
   // if no context is active, pass the input through in a certain order, until someone handles it
   for (auto pContext : m_InputContexts)
   {
-    if (pContext->WheelEvent(e) == ezEditorInut::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
+    if (pContext->WheelEvent(e) == ezEditorInput::WasExclusivelyHandled || ezEditorInputContext::IsAnyInputContextActive())
       return;
   }
 

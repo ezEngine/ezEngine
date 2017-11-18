@@ -94,13 +94,13 @@ void ezDragToPositionGizmo::DoFocusLost(bool bCancel)
   m_AlignNZ.SetVisible(true);
 }
 
-ezEditorInut ezDragToPositionGizmo::DoMousePressEvent(QMouseEvent* e)
+ezEditorInput ezDragToPositionGizmo::DoMousePressEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
-    return ezEditorInut::WasExclusivelyHandled;
+    return ezEditorInput::WasExclusivelyHandled;
 
   if (e->button() != Qt::MouseButton::LeftButton)
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   ezViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
@@ -128,21 +128,21 @@ ezEditorInut ezDragToPositionGizmo::DoMousePressEvent(QMouseEvent* e)
   ev.m_Type = ezGizmoEvent::Type::BeginInteractions;
   m_GizmoEvents.Broadcast(ev);
 
-  return ezEditorInut::WasExclusivelyHandled;
+  return ezEditorInput::WasExclusivelyHandled;
 }
 
-ezEditorInut ezDragToPositionGizmo::DoMouseReleaseEvent(QMouseEvent* e)
+ezEditorInput ezDragToPositionGizmo::DoMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   if (e->button() != Qt::MouseButton::LeftButton)
-    return ezEditorInut::WasExclusivelyHandled;
+    return ezEditorInput::WasExclusivelyHandled;
 
   FocusLost(false);
 
   SetActiveInputContext(nullptr);
-  return ezEditorInut::WasExclusivelyHandled;
+  return ezEditorInput::WasExclusivelyHandled;
 }
 
 static const ezVec3 GetOrthogonalVector(const ezVec3& vDir)
@@ -153,25 +153,25 @@ static const ezVec3 GetOrthogonalVector(const ezVec3& vDir)
   return -vDir.Cross(ezVec3(1, 0, 0));
 }
 
-ezEditorInut ezDragToPositionGizmo::DoMouseMoveEvent(QMouseEvent* e)
+ezEditorInput ezDragToPositionGizmo::DoMouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   const ezTime tNow = ezTime::Now();
 
   if (tNow - m_LastInteraction < ezTime::Seconds(1.0 / 25.0))
-    return ezEditorInut::WasExclusivelyHandled;
+    return ezEditorInput::WasExclusivelyHandled;
 
   m_LastInteraction = tNow;
 
   const ezObjectPickingResult& res = GetOwnerView()->PickObject(e->pos().x(), e->pos().y());
 
   if (!res.m_PickedObject.IsValid())
-    return ezEditorInut::WasExclusivelyHandled;
+    return ezEditorInput::WasExclusivelyHandled;
 
   if (res.m_vPickedPosition.IsNaN() || res.m_vPickedNormal.IsNaN() || res.m_vPickedNormal.IsZero())
-    return ezEditorInut::WasExclusivelyHandled;
+    return ezEditorInput::WasExclusivelyHandled;
 
   const ezVec3 vTangent = GetOrthogonalVector(res.m_vPickedNormal).GetNormalized();
   const ezVec3 vBiTangent = res.m_vPickedNormal.Cross(vTangent).GetNormalized();
@@ -238,6 +238,6 @@ ezEditorInut ezDragToPositionGizmo::DoMouseMoveEvent(QMouseEvent* e)
   ev.m_Type = ezGizmoEvent::Type::Interaction;
   m_GizmoEvents.Broadcast(ev);
 
-  return ezEditorInut::WasExclusivelyHandled;
+  return ezEditorInput::WasExclusivelyHandled;
 }
 

@@ -55,13 +55,13 @@ void ezOrbitCameraContext::DoFocusLost(bool bCancel)
   ResetCursor();
 }
 
-ezEditorInut ezOrbitCameraContext::DoMousePressEvent(QMouseEvent* e)
+ezEditorInput ezOrbitCameraContext::DoMousePressEvent(QMouseEvent* e)
 {
   if (m_pCamera == nullptr)
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   if (!m_pCamera->IsPerspective())
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   if (m_Mode == Mode::Off)
   {
@@ -100,26 +100,26 @@ ezEditorInut ezOrbitCameraContext::DoMousePressEvent(QMouseEvent* e)
     goto activate;
   }
 
-  return ezEditorInut::MayBeHandledByOthers;
+  return ezEditorInput::MayBeHandledByOthers;
 
 activate:
   {
     m_LastMousePos = SetMouseMode(ezEditorInputContext::MouseMode::HideAndWrapAtScreenBorders);
     MakeActiveInputContext();
-    return ezEditorInut::WasExclusivelyHandled;
+    return ezEditorInput::WasExclusivelyHandled;
   }
 }
 
-ezEditorInut ezOrbitCameraContext::DoMouseReleaseEvent(QMouseEvent* e)
+ezEditorInput ezOrbitCameraContext::DoMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   if (m_pCamera == nullptr)
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   if (m_Mode == Mode::Off)
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
 
   if (m_Mode == Mode::Orbit)
@@ -156,23 +156,23 @@ ezEditorInut ezOrbitCameraContext::DoMouseReleaseEvent(QMouseEvent* e)
     ResetCursor();
   }
 
-  return ezEditorInut::WasExclusivelyHandled;
+  return ezEditorInput::WasExclusivelyHandled;
 }
 
-ezEditorInut ezOrbitCameraContext::DoMouseMoveEvent(QMouseEvent* e)
+ezEditorInput ezOrbitCameraContext::DoMouseMoveEvent(QMouseEvent* e)
 {
   // do nothing, unless this is an active context
   if (!IsActiveInputContext())
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   if (!m_pCamera->IsPerspective())
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   if (m_pCamera == nullptr)
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   if (m_Mode == Mode::Off)
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   const ezVec2I32 CurMousePos(e->globalX(), e->globalY());
   const ezVec2I32 diff = CurMousePos - m_LastMousePos;
@@ -248,16 +248,16 @@ ezEditorInut ezOrbitCameraContext::DoMouseMoveEvent(QMouseEvent* e)
     m_pCamera->MoveGlobally(vCamDiff);
   }
 
-  return ezEditorInut::WasExclusivelyHandled;
+  return ezEditorInput::WasExclusivelyHandled;
 }
 
-ezEditorInut ezOrbitCameraContext::DoWheelEvent(QWheelEvent* e)
+ezEditorInput ezOrbitCameraContext::DoWheelEvent(QWheelEvent* e)
 {
   if (m_Mode != Mode::Off)
-    return ezEditorInut::WasExclusivelyHandled; // ignore it, but others should not handle it either
+    return ezEditorInput::WasExclusivelyHandled; // ignore it, but others should not handle it either
 
   if (!m_pCamera->IsPerspective())
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   const float fScale = 1.1f;
 
@@ -280,11 +280,11 @@ ezEditorInut ezOrbitCameraContext::DoWheelEvent(QWheelEvent* e)
   m_pCamera->LookAt(m_vOrbitPoint - vDir, m_vOrbitPoint, ezVec3(0.0f, 0.0f, 1.0f));
 
   // handled, independent of whether we are the active context or not
-  return ezEditorInut::WasExclusivelyHandled;
+  return ezEditorInput::WasExclusivelyHandled;
 }
 
 
-ezEditorInut ezOrbitCameraContext::DoKeyPressEvent(QKeyEvent* e)
+ezEditorInput ezOrbitCameraContext::DoKeyPressEvent(QKeyEvent* e)
 {
   if (e->key() == Qt::Key_F)
   {
@@ -292,16 +292,16 @@ ezEditorInut ezOrbitCameraContext::DoKeyPressEvent(QKeyEvent* e)
     m_vOrbitPoint = m_Volume.GetCenter();
     m_pCamera->MoveGlobally(vDiff);
 
-    return ezEditorInut::WasExclusivelyHandled;
+    return ezEditorInput::WasExclusivelyHandled;
   }
 
   if (e->key() == Qt::Key_Space)
   {
     m_pCamera->LookAt(m_vDefaultCameraPosition, m_vOrbitPoint, ezVec3(0, 0, 1));
-    return ezEditorInut::WasExclusivelyHandled;
+    return ezEditorInput::WasExclusivelyHandled;
   }
 
-  return ezEditorInut::MayBeHandledByOthers;
+  return ezEditorInput::MayBeHandledByOthers;
 }
 
 void ezOrbitCameraContext::ResetCursor()

@@ -4,6 +4,7 @@ Gizmo.Mode.Translate;Translate
 Gizmo.Mode.Rotate;Rotate
 Gizmo.Mode.Scale;Scale
 Gizmo.Mode.DragToPosition;Drag To Position
+Gizmo.Mode.GreyBoxing;Grey-Boxing
 Gizmo.TransformSpace;Transform in World Space
 Gizmo.MoveParentOnly;Transform Parent Only
 Gizmo.Rotation.Snap.Menu;Rotation Snap

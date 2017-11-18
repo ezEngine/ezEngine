@@ -26,11 +26,11 @@ public:
 protected:
   virtual void DoFocusLost(bool bCancel) override;
 
-  virtual ezEditorInut DoMousePressEvent(QMouseEvent* e) override;
-  virtual ezEditorInut DoMouseReleaseEvent(QMouseEvent* e) override;
-  virtual ezEditorInut DoMouseMoveEvent(QMouseEvent* e) override;
-  virtual ezEditorInut DoWheelEvent(QWheelEvent* e) override;
-  virtual ezEditorInut DoKeyPressEvent(QKeyEvent* e) override;
+  virtual ezEditorInput DoMousePressEvent(QMouseEvent* e) override;
+  virtual ezEditorInput DoMouseReleaseEvent(QMouseEvent* e) override;
+  virtual ezEditorInput DoMouseMoveEvent(QMouseEvent* e) override;
+  virtual ezEditorInput DoWheelEvent(QWheelEvent* e) override;
+  virtual ezEditorInput DoKeyPressEvent(QKeyEvent* e) override;
 
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) override {}
 

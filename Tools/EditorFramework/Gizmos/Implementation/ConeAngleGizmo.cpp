@@ -57,22 +57,22 @@ void ezConeAngleGizmo::DoFocusLost(bool bCancel)
   m_ManipulateMode = ManipulateMode::None;
 }
 
-ezEditorInut ezConeAngleGizmo::DoMousePressEvent(QMouseEvent* e)
+ezEditorInput ezConeAngleGizmo::DoMousePressEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
-    return ezEditorInut::WasExclusivelyHandled;
+    return ezEditorInput::WasExclusivelyHandled;
 
   if (e->button() != Qt::MouseButton::LeftButton)
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
   if (e->modifiers() != 0)
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   if (m_pInteractionGizmoHandle == &m_ConeAngle)
   {
     m_ManipulateMode = ManipulateMode::Angle;
   }
   else
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   ezViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
@@ -89,32 +89,32 @@ ezEditorInut ezConeAngleGizmo::DoMousePressEvent(QMouseEvent* e)
   ev.m_Type = ezGizmoEvent::Type::BeginInteractions;
   m_GizmoEvents.Broadcast(ev);
 
-  return ezEditorInut::WasExclusivelyHandled;
+  return ezEditorInput::WasExclusivelyHandled;
 }
 
-ezEditorInut ezConeAngleGizmo::DoMouseReleaseEvent(QMouseEvent* e)
+ezEditorInput ezConeAngleGizmo::DoMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   if (e->button() != Qt::MouseButton::LeftButton)
-    return ezEditorInut::WasExclusivelyHandled;
+    return ezEditorInput::WasExclusivelyHandled;
 
   FocusLost(false);
 
   SetActiveInputContext(nullptr);
-  return ezEditorInut::WasExclusivelyHandled;
+  return ezEditorInput::WasExclusivelyHandled;
 }
 
-ezEditorInut ezConeAngleGizmo::DoMouseMoveEvent(QMouseEvent* e)
+ezEditorInput ezConeAngleGizmo::DoMouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   const ezTime tNow = ezTime::Now();
 
   if (tNow - m_LastInteraction < ezTime::Seconds(1.0 / 25.0))
-    return ezEditorInut::WasExclusivelyHandled;
+    return ezEditorInput::WasExclusivelyHandled;
 
   m_LastInteraction = tNow;
 
@@ -143,7 +143,7 @@ ezEditorInut ezConeAngleGizmo::DoMouseMoveEvent(QMouseEvent* e)
   ev.m_Type = ezGizmoEvent::Type::Interaction;
   m_GizmoEvents.Broadcast(ev);
 
-  return ezEditorInut::WasExclusivelyHandled;
+  return ezEditorInput::WasExclusivelyHandled;
 }
 
 void ezConeAngleGizmo::SetAngle(ezAngle angle)

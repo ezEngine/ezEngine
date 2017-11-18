@@ -30,7 +30,7 @@ void ezGizmoActions::RegisterActions()
   s_hRotateGizmo = EZ_REGISTER_ACTION_1("Gizmo.Mode.Rotate", ezActionScope::Document, "Gizmo", "E", ezGizmoAction, ezGizmoAction::ActionType::GizmoRotate);
   s_hScaleGizmo = EZ_REGISTER_ACTION_1("Gizmo.Mode.Scale", ezActionScope::Document, "Gizmo", "R", ezGizmoAction, ezGizmoAction::ActionType::GizmoScale);
   s_hDragToPositionGizmo = EZ_REGISTER_ACTION_1("Gizmo.Mode.DragToPosition", ezActionScope::Document, "Gizmo", "T", ezGizmoAction, ezGizmoAction::ActionType::GizmoDragToPosition);
-  s_hGreyBoxingGizmo = EZ_REGISTER_ACTION_1("Gizmo.Mode.GreyBoxing", ezActionScope::Document, "Gizmo", "", ezGizmoAction, ezGizmoAction::ActionType::GizmoGreyBoxing);
+  s_hGreyBoxingGizmo = EZ_REGISTER_ACTION_1("Gizmo.Mode.GreyBoxing", ezActionScope::Document, "Gizmo", "B", ezGizmoAction, ezGizmoAction::ActionType::GizmoGreyBoxing);
   s_hWorldSpace = EZ_REGISTER_ACTION_1("Gizmo.TransformSpace", ezActionScope::Document, "Gizmo", "", ezGizmoAction, ezGizmoAction::ActionType::GizmoToggleWorldSpace);
   s_hMoveParentOnly = EZ_REGISTER_ACTION_1("Gizmo.MoveParentOnly", ezActionScope::Document, "Gizmo", "P", ezGizmoAction, ezGizmoAction::ActionType::GizmoToggleMoveParentOnly);
 }

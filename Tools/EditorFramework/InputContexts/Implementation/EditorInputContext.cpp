@@ -36,23 +36,23 @@ void ezEditorInputContext::FocusLost(bool bCancel)
   SetMouseMode(MouseMode::Normal);
 }
 
-ezEditorInut ezEditorInputContext::DoKeyPressEvent(QKeyEvent* e)
+ezEditorInput ezEditorInputContext::DoKeyPressEvent(QKeyEvent* e)
 {
   if (!IsActiveInputContext())
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   if (e->key() == Qt::Key_Escape)
   {
     FocusLost(true);
     SetActiveInputContext(nullptr);
-    return ezEditorInut::WasExclusivelyHandled;
+    return ezEditorInput::WasExclusivelyHandled;
   }
 
-  return ezEditorInut::MayBeHandledByOthers;
+  return ezEditorInput::MayBeHandledByOthers;
 }
 
 
-ezEditorInut ezEditorInputContext::MouseMoveEvent(QMouseEvent* e)
+ezEditorInput ezEditorInputContext::MouseMoveEvent(QMouseEvent* e)
 {
   if (m_MouseMode != MouseMode::Normal)
   {
@@ -66,7 +66,7 @@ ezEditorInut ezEditorInputContext::MouseMoveEvent(QMouseEvent* e)
       {
         // this is an invalid message, it was still in the message queue with old coordinates and should be discarded
 
-        return ezEditorInut::WasExclusivelyHandled;
+        return ezEditorInput::WasExclusivelyHandled;
       }
 
       m_bJustWrappedMouse = false;

@@ -12,7 +12,7 @@ class ezDocument;
 class ezQtEngineDocumentWindow;
 class ezQtEngineViewWidget;
 
-enum class ezEditorInut
+enum class ezEditorInput
 {
   MayBeHandledByOthers,
   WasExclusivelyHandled,
@@ -29,12 +29,12 @@ public:
 
   void FocusLost(bool bCancel);
 
-  ezEditorInut KeyPressEvent(QKeyEvent* e) { return DoKeyPressEvent(e); }
-  ezEditorInut KeyReleaseEvent(QKeyEvent* e) { return DoKeyReleaseEvent(e); }
-  ezEditorInut MousePressEvent(QMouseEvent* e) { return DoMousePressEvent(e); }
-  ezEditorInut MouseReleaseEvent(QMouseEvent* e) { return DoMouseReleaseEvent(e); }
-  ezEditorInut MouseMoveEvent(QMouseEvent* e);
-  ezEditorInut WheelEvent(QWheelEvent* e) { return DoWheelEvent(e); }
+  ezEditorInput KeyPressEvent(QKeyEvent* e) { return DoKeyPressEvent(e); }
+  ezEditorInput KeyReleaseEvent(QKeyEvent* e) { return DoKeyReleaseEvent(e); }
+  ezEditorInput MousePressEvent(QMouseEvent* e) { return DoMousePressEvent(e); }
+  ezEditorInput MouseReleaseEvent(QMouseEvent* e) { return DoMouseReleaseEvent(e); }
+  ezEditorInput MouseMoveEvent(QMouseEvent* e);
+  ezEditorInput WheelEvent(QWheelEvent* e) { return DoWheelEvent(e); }
 
   static void SetActiveInputContext(ezEditorInputContext* pContext) { s_pActiveInputContext = pContext; }
 
@@ -85,12 +85,12 @@ protected:
 
   virtual void OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView) = 0;
 
-  virtual ezEditorInut DoKeyPressEvent(QKeyEvent* e);
-  virtual ezEditorInut DoKeyReleaseEvent(QKeyEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
-  virtual ezEditorInut DoMousePressEvent(QMouseEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
-  virtual ezEditorInut DoMouseReleaseEvent(QMouseEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
-  virtual ezEditorInut DoMouseMoveEvent(QMouseEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
-  virtual ezEditorInut DoWheelEvent(QWheelEvent* e) { return ezEditorInut::MayBeHandledByOthers; }
+  virtual ezEditorInput DoKeyPressEvent(QKeyEvent* e);
+  virtual ezEditorInput DoKeyReleaseEvent(QKeyEvent* e) { return ezEditorInput::MayBeHandledByOthers; }
+  virtual ezEditorInput DoMousePressEvent(QMouseEvent* e) { return ezEditorInput::MayBeHandledByOthers; }
+  virtual ezEditorInput DoMouseReleaseEvent(QMouseEvent* e) { return ezEditorInput::MayBeHandledByOthers; }
+  virtual ezEditorInput DoMouseMoveEvent(QMouseEvent* e) { return ezEditorInput::MayBeHandledByOthers; }
+  virtual ezEditorInput DoWheelEvent(QWheelEvent* e) { return ezEditorInput::MayBeHandledByOthers; }
 
 private:
   static ezEditorInputContext* s_pActiveInputContext;

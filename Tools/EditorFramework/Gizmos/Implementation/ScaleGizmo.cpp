@@ -74,13 +74,13 @@ void ezScaleGizmo::DoFocusLost(bool bCancel)
   QApplication::restoreOverrideCursor();
 }
 
-ezEditorInut ezScaleGizmo::DoMousePressEvent(QMouseEvent* e)
+ezEditorInput ezScaleGizmo::DoMousePressEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
-    return ezEditorInut::WasExclusivelyHandled;
+    return ezEditorInput::WasExclusivelyHandled;
 
   if (e->button() != Qt::MouseButton::LeftButton)
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   if (m_pInteractionGizmoHandle == &m_AxisX)
   {
@@ -99,7 +99,7 @@ ezEditorInut ezScaleGizmo::DoMousePressEvent(QMouseEvent* e)
     m_vMoveAxis.Set(1, 1, 1);
   }
   else
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   ezViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
@@ -132,32 +132,32 @@ ezEditorInut ezScaleGizmo::DoMousePressEvent(QMouseEvent* e)
   ev.m_Type = ezGizmoEvent::Type::BeginInteractions;
   m_GizmoEvents.Broadcast(ev);
 
-  return ezEditorInut::WasExclusivelyHandled;
+  return ezEditorInput::WasExclusivelyHandled;
 }
 
-ezEditorInut ezScaleGizmo::DoMouseReleaseEvent(QMouseEvent* e)
+ezEditorInput ezScaleGizmo::DoMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   if (e->button() != Qt::MouseButton::LeftButton)
-    return ezEditorInut::WasExclusivelyHandled;
+    return ezEditorInput::WasExclusivelyHandled;
 
   FocusLost(false);
 
   SetActiveInputContext(nullptr);
-  return ezEditorInut::WasExclusivelyHandled;
+  return ezEditorInput::WasExclusivelyHandled;
 }
 
-ezEditorInut ezScaleGizmo::DoMouseMoveEvent(QMouseEvent* e)
+ezEditorInput ezScaleGizmo::DoMouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   const ezTime tNow = ezTime::Now();
 
   if (tNow - m_LastInteraction < ezTime::Seconds(1.0 / 25.0))
-    return ezEditorInut::WasExclusivelyHandled;
+    return ezEditorInput::WasExclusivelyHandled;
 
   m_LastInteraction = tNow;
 
@@ -197,6 +197,6 @@ ezEditorInut ezScaleGizmo::DoMouseMoveEvent(QMouseEvent* e)
   ev.m_Type = ezGizmoEvent::Type::Interaction;
   m_GizmoEvents.Broadcast(ev);
 
-  return ezEditorInut::WasExclusivelyHandled;
+  return ezEditorInput::WasExclusivelyHandled;
 }
 

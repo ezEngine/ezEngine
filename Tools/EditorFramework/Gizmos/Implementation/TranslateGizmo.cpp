@@ -111,13 +111,13 @@ void ezTranslateGizmo::DoFocusLost(bool bCancel)
   m_TotalMouseDiff.SetZero();
 }
 
-ezEditorInut ezTranslateGizmo::DoMousePressEvent(QMouseEvent* e)
+ezEditorInput ezTranslateGizmo::DoMousePressEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext())
-    return ezEditorInut::WasExclusivelyHandled;
+    return ezEditorInput::WasExclusivelyHandled;
 
   if (e->button() != Qt::MouseButton::LeftButton)
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   m_vLastMoveDiff.SetZero();
 
@@ -161,7 +161,7 @@ ezEditorInut ezTranslateGizmo::DoMousePressEvent(QMouseEvent* e)
     m_LastPlaneInteraction = PlaneInteraction::PlaneX;
   }
   else
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   ezViewHighlightMsgToEngine msg;
   msg.m_HighlightObject = m_pInteractionGizmoHandle->GetGuid();
@@ -198,21 +198,21 @@ ezEditorInut ezTranslateGizmo::DoMousePressEvent(QMouseEvent* e)
   ev.m_Type = ezGizmoEvent::Type::BeginInteractions;
   m_GizmoEvents.Broadcast(ev);
 
-  return ezEditorInut::WasExclusivelyHandled;
+  return ezEditorInput::WasExclusivelyHandled;
 }
 
-ezEditorInut ezTranslateGizmo::DoMouseReleaseEvent(QMouseEvent* e)
+ezEditorInput ezTranslateGizmo::DoMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   if (e->button() != Qt::MouseButton::LeftButton)
-    return ezEditorInut::WasExclusivelyHandled;
+    return ezEditorInput::WasExclusivelyHandled;
 
   FocusLost(false);
 
   SetActiveInputContext(nullptr);
-  return ezEditorInut::WasExclusivelyHandled;
+  return ezEditorInput::WasExclusivelyHandled;
 }
 
 ezResult ezTranslateGizmo::GetPointOnPlane(ezInt32 iScreenPosX, ezInt32 iScreenPosY, ezVec3& out_Result) const
@@ -259,15 +259,15 @@ ezResult ezTranslateGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPo
   return EZ_SUCCESS;
 }
 
-ezEditorInut ezTranslateGizmo::DoMouseMoveEvent(QMouseEvent* e)
+ezEditorInput ezTranslateGizmo::DoMouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   const ezTime tNow = ezTime::Now();
 
   if (tNow - m_LastInteraction < ezTime::Seconds(1.0 / 25.0))
-    return ezEditorInut::WasExclusivelyHandled;
+    return ezEditorInput::WasExclusivelyHandled;
 
   const ezVec2I32 CurMousePos(e->globalX(), e->globalY());
 
@@ -285,7 +285,7 @@ ezEditorInut ezTranslateGizmo::DoMouseMoveEvent(QMouseEvent* e)
       if (GetPointOnAxis(e->pos().x(), m_Viewport.y - e->pos().y(), vCurrentInteractionPoint).Failed())
       {
         m_LastMousePos = UpdateMouseMode(e);
-        return ezEditorInut::WasExclusivelyHandled;
+        return ezEditorInput::WasExclusivelyHandled;
       }
     }
     else if (m_Mode == TranslateMode::Plane)
@@ -293,7 +293,7 @@ ezEditorInut ezTranslateGizmo::DoMouseMoveEvent(QMouseEvent* e)
       if (GetPointOnPlane(e->pos().x(), m_Viewport.y - e->pos().y(), vCurrentInteractionPoint).Failed())
       {
         m_LastMousePos = UpdateMouseMode(e);
-        return ezEditorInut::WasExclusivelyHandled;
+        return ezEditorInput::WasExclusivelyHandled;
       }
     }
 
@@ -346,7 +346,7 @@ ezEditorInut ezTranslateGizmo::DoMouseMoveEvent(QMouseEvent* e)
     m_GizmoEvents.Broadcast(ev);
   }
 
-  return ezEditorInut::WasExclusivelyHandled;
+  return ezEditorInput::WasExclusivelyHandled;
 }
 
 void ezTranslateGizmo::SetMovementMode(MovementMode mode)

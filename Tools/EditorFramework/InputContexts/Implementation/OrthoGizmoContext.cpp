@@ -39,12 +39,12 @@ void ezOrthoGizmoContext::FocusLost(bool bCancel)
   ezEditorInputContext::FocusLost(bCancel);
 }
 
-ezEditorInut ezOrthoGizmoContext::DoMousePressEvent(QMouseEvent* e)
+ezEditorInput ezOrthoGizmoContext::DoMousePressEvent(QMouseEvent* e)
 {
   if (!IsViewInOthoMode())
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
   if (GetOwnerWindow()->GetDocument()->GetSelectionManager()->IsSelectionEmpty())
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
 
   if (e->button() == Qt::MouseButton::LeftButton)
   {
@@ -52,32 +52,32 @@ ezEditorInut ezOrthoGizmoContext::DoMousePressEvent(QMouseEvent* e)
 
   }
 
-  return ezEditorInut::MayBeHandledByOthers;
+  return ezEditorInput::MayBeHandledByOthers;
 }
 
-ezEditorInut ezOrthoGizmoContext::DoMouseReleaseEvent(QMouseEvent* e)
+ezEditorInput ezOrthoGizmoContext::DoMouseReleaseEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
   {
     m_bCanInteract = false;
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
   }
 
   if (e->button() == Qt::MouseButton::LeftButton)
   {
     FocusLost(false);
-    return ezEditorInut::WasExclusivelyHandled;
+    return ezEditorInput::WasExclusivelyHandled;
   }
 
-  return ezEditorInut::MayBeHandledByOthers;
+  return ezEditorInput::MayBeHandledByOthers;
 }
 
-ezEditorInut ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
+ezEditorInput ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
 {
   if (!e->buttons().testFlag(Qt::MouseButton::LeftButton))
   {
     m_bCanInteract = false;
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
   }
 
   if (IsActiveInputContext())
@@ -141,7 +141,7 @@ ezEditorInut ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
 
     m_GizmoEvents.Broadcast(ev);
 
-    return ezEditorInut::WasExclusivelyHandled;
+    return ezEditorInput::WasExclusivelyHandled;
   }
 
   if (m_bCanInteract)
@@ -163,10 +163,10 @@ ezEditorInut ezOrthoGizmoContext::DoMouseMoveEvent(QMouseEvent* e)
     ev.m_Type = ezGizmoEvent::Type::BeginInteractions;
 
     m_GizmoEvents.Broadcast(ev);
-    return ezEditorInut::WasExclusivelyHandled;
+    return ezEditorInput::WasExclusivelyHandled;
   }
 
-  return ezEditorInut::MayBeHandledByOthers;
+  return ezEditorInput::MayBeHandledByOthers;
 }
 
 bool ezOrthoGizmoContext::IsViewInOthoMode() const

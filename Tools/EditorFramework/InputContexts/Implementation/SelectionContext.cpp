@@ -24,7 +24,7 @@ ezSelectionContext::ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, e
   pOwnerWindow->GetDocument()->AddSyncObject(&m_MarqueeGizmo);
 }
 
-ezEditorInut ezSelectionContext::DoMousePressEvent(QMouseEvent* e)
+ezEditorInput ezSelectionContext::DoMousePressEvent(QMouseEvent* e)
 {
   if (e->button() == Qt::MouseButton::LeftButton)
   {
@@ -66,14 +66,14 @@ ezEditorInut ezSelectionContext::DoMousePressEvent(QMouseEvent* e)
       else
         m_MarqueeGizmo.SetColor(ezColor::PaleVioletRed);
 
-      return ezEditorInut::WasExclusivelyHandled;
+      return ezEditorInput::WasExclusivelyHandled;
     }
   }
 
-  return ezEditorInut::MayBeHandledByOthers;
+  return ezEditorInput::MayBeHandledByOthers;
 }
 
-ezEditorInut ezSelectionContext::DoMouseReleaseEvent(QMouseEvent* e)
+ezEditorInput ezSelectionContext::DoMouseReleaseEvent(QMouseEvent* e)
 {
   auto* pDocument = GetOwnerWindow()->GetDocument();
 
@@ -110,7 +110,7 @@ ezEditorInut ezSelectionContext::DoMouseReleaseEvent(QMouseEvent* e)
 
       // we handled the mouse click event
       // but this is it, we don't stay active
-      return ezEditorInut::WasExclusivelyHandled;
+      return ezEditorInput::WasExclusivelyHandled;
     }
 
     if (m_Mode == Mode::MarqueeAdd || m_Mode == Mode::MarqueeRemove)
@@ -119,11 +119,11 @@ ezEditorInut ezSelectionContext::DoMouseReleaseEvent(QMouseEvent* e)
 
       DoFocusLost(false);
       m_bPressedSpace = true;
-      return ezEditorInut::WasExclusivelyHandled;
+      return ezEditorInput::WasExclusivelyHandled;
     }
   }
 
-  return ezEditorInut::MayBeHandledByOthers;
+  return ezEditorInput::MayBeHandledByOthers;
 }
 
 
@@ -289,13 +289,13 @@ void ezSelectionContext::SendMarqueeMsg(QMouseEvent* e, ezUInt8 uiWhatToDo)
   }
 }
 
-ezEditorInut ezSelectionContext::DoMouseMoveEvent(QMouseEvent* e)
+ezEditorInput ezSelectionContext::DoMouseMoveEvent(QMouseEvent* e)
 {
   if (IsActiveInputContext() && (m_Mode == Mode::MarqueeAdd || m_Mode == Mode::MarqueeRemove))
   {
     SendMarqueeMsg(e, 0xFF);
 
-    return ezEditorInut::WasExclusivelyHandled;
+    return ezEditorInput::WasExclusivelyHandled;
   }
   else
   {
@@ -315,43 +315,43 @@ ezEditorInut ezSelectionContext::DoMouseMoveEvent(QMouseEvent* e)
     GetOwnerWindow()->GetEditorEngineConnection()->SendHighlightObjectMessage(&msg);
 
     // we only updated the highlight, so others may do additional stuff, if they like
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
   }
 }
 
-ezEditorInut ezSelectionContext::DoKeyPressEvent(QKeyEvent* e)
+ezEditorInput ezSelectionContext::DoKeyPressEvent(QKeyEvent* e)
 {
   /// \todo Handle the current cursor (icon) across all active input contexts
 
   if (e->key() == Qt::Key_Space)
   {
     m_bPressedSpace = true;
-    return ezEditorInut::MayBeHandledByOthers;
+    return ezEditorInput::MayBeHandledByOthers;
   }
 
   if (e->key() == Qt::Key_Delete)
   {
     GetOwnerWindow()->GetDocument()->DeleteSelectedObjects();
-    return ezEditorInut::WasExclusivelyHandled;
+    return ezEditorInput::WasExclusivelyHandled;
   }
 
   if (e->key() == Qt::Key_Escape)
   {
     GetOwnerWindow()->GetDocument()->GetSelectionManager()->Clear();
-    return ezEditorInut::WasExclusivelyHandled;
+    return ezEditorInput::WasExclusivelyHandled;
   }
 
-  return ezEditorInut::MayBeHandledByOthers;
+  return ezEditorInput::MayBeHandledByOthers;
 }
 
-ezEditorInut ezSelectionContext::DoKeyReleaseEvent(QKeyEvent* e)
+ezEditorInput ezSelectionContext::DoKeyReleaseEvent(QKeyEvent* e)
 {
   if (e->key() == Qt::Key_Space)
   {
     m_bPressedSpace = false;
   }
 
-  return ezEditorInut::MayBeHandledByOthers;
+  return ezEditorInput::MayBeHandledByOthers;
 }
 
 static const bool IsInSelection(const ezDeque<const ezDocumentObject*>& selection, const ezDocumentObject* pObject, const ezDocumentObject*& out_ParentInSelection, const ezDocumentObject*& out_ParentChild, const ezDocumentObject* pRootObject)
