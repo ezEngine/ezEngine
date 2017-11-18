@@ -2,7 +2,7 @@
 
 #include <EditorFramework/Plugin.h>
 #include <EditorFramework/EditTools/EditTool.h>
-#include <EditorFramework/Gizmos/TranslateGizmo.h>
+#include <EditorFramework/Gizmos/DrawBoxGizmo.h>
 
 struct ezGameObjectEvent;
 struct ezManipulatorManagerEvent;
@@ -15,6 +15,7 @@ public:
   ezGreyBoxEditTool();
   ~ezGreyBoxEditTool();
 
+  virtual ezEditorInputContext* GetEditorInputContextOverride();
   virtual ezEditToolSupportedSpaces GetSupportedSpaces() const override;
   virtual bool GetSupportsMoveParentOnly() const override;
 
@@ -26,6 +27,6 @@ private:
   void GameObjectEventHandler(const ezGameObjectEvent& e);
   void ManipulatorManagerEventHandler(const ezManipulatorManagerEvent& e);
 
-  ezTranslateGizmo m_TranslateGizmo;
+  ezDrawBoxGizmo m_DrawBoxGizmo;
 };
 

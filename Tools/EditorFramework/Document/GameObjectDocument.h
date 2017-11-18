@@ -85,6 +85,8 @@ public:
   ezGameObjectDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, bool bUseEngineConnection = true, bool bUseIPCObjectMirror = true);
   ~ezGameObjectDocument();
 
+  virtual ezEditorInputContext* GetEditorInputContextOverride() override;
+
   /// \name Gizmo
   ///@{
 public:

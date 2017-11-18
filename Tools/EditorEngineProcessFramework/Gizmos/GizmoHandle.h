@@ -64,7 +64,7 @@ public:
   ezEngineGizmoHandle();
   ~ezEngineGizmoHandle();
 
-  void Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize = true, bool bAlwaysOnTop = false, bool bVisualizer = false, bool bShowInOrtho = false);
+  void Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize = true, bool bAlwaysOnTop = false, bool bVisualizer = false, bool bShowInOrtho = false, bool bIsPickable = true);
 
   virtual bool SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID) override;
   virtual void UpdateForEngine(ezWorld* pWorld) override;
@@ -76,14 +76,11 @@ protected:
   bool m_bAlwaysOnTop;
   bool m_bVisualizer;
   bool m_bShowInOrtho;
+  bool m_bIsPickable = true;
   ezInt32 m_iHandleType;
   ezGameObjectHandle m_hGameObject;
   ezGizmoComponent* m_pGizmoComponent;
   ezColor m_Color;
   ezWorld* m_pWorld;
-
-
-private:
-
 };
 

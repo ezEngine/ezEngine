@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoComponent.h>
 
@@ -17,7 +17,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoRenderer, 1, ezRTTIDefaultAllocator<ezGiz
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Enabled", m_bEnabled)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("HighlightID", m_uiHighlightID)
+    EZ_MEMBER_PROPERTY("HighlightID", m_uiHighlightID),
+    EZ_MEMBER_PROPERTY("OnlyPickable", m_bOnlyPickable)
   }
   EZ_END_PROPERTIES
 }
@@ -78,6 +79,9 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
   for (auto it = batch.GetIterator<ezGizmoRenderData>(); it.IsValid(); ++it)
   {
     pRenderData = it;
+
+    if (m_bOnlyPickable && !pRenderData->m_bIsPickable)
+      continue;
 
     EZ_ASSERT_DEV(pRenderData->m_hMesh == hMesh, "Invalid batching (mesh)");
     EZ_ASSERT_DEV(pRenderData->m_hMaterial == hMaterial, "Invalid batching (material)");

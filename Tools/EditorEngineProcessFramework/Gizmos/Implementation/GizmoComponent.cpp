@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoComponent.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoRenderData, 1, ezRTTINoAllocator)
@@ -24,6 +24,7 @@ ezMeshRenderData* ezGizmoComponent::CreateRenderData(ezUInt32 uiBatchId) const
   ezGizmoRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezGizmoRenderData>(GetOwner(), uiBatchId);
   pRenderData->m_GizmoColor = m_GizmoColor;
   pRenderData->m_bUseDepthPrepass = m_bUseDepthPrepass;
+  pRenderData->m_bIsPickable = m_bIsPickable;
 
   return pRenderData;
 }

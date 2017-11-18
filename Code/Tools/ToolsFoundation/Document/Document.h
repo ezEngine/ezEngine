@@ -13,6 +13,7 @@
 
 class ezObjectAccessorBase;
 class ezObjectCommandAccessor;
+class ezEditorInputContext;
 
 struct EZ_TOOLSFOUNDATION_DLL ezObjectAccessorChangeEvent
 {
@@ -123,6 +124,15 @@ public:
   ///
   /// Use the RTTI information to identify whether the message is of interest.
   virtual void OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender) { }
+
+  ///@}
+  /// \name Editing Functionality
+  ///@{
+
+  /// \brief Allows to return a single input context that currently overrides all others (in priority).
+  ///
+  /// Used to implement custom tools that need to have priority over selection and camera movement.
+  virtual ezEditorInputContext* GetEditorInputContextOverride() { return nullptr; }
 
   ///@}
   /// \name Misc Functions

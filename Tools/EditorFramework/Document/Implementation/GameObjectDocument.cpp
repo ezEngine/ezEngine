@@ -41,6 +41,16 @@ ezGameObjectDocument::~ezGameObjectDocument()
   DeallocateEditTools();
 }
 
+ezEditorInputContext* ezGameObjectDocument::GetEditorInputContextOverride()
+{
+  if (GetActiveEditTool() && GetActiveEditTool()->GetEditorInputContextOverride() != nullptr)
+  {
+    return GetActiveEditTool()->GetEditorInputContextOverride();
+  }
+
+  return nullptr;
+}
+
 void ezGameObjectDocument::SetEditToolConfigDelegate(ezDelegate<void(ezGameObjectEditTool*)> configDelegate)
 {
   m_EditToolConfigDelegate = configDelegate;

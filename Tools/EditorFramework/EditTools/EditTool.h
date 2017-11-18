@@ -6,6 +6,7 @@
 class ezGameObjectDocument;
 class ezQtGameObjectDocumentWindow;
 class ezObjectAccessorBase;
+class ezEditorInputContext;
 
 class EZ_EDITORFRAMEWORK_DLL ezGameObjectGizmoInterface
 {
@@ -39,6 +40,7 @@ public:
   bool IsActive() const { return m_bIsActive; }
   void SetActive(bool active);
 
+  virtual ezEditorInputContext* GetEditorInputContextOverride() { return nullptr; }
   virtual ezEditToolSupportedSpaces GetSupportedSpaces() const { return ezEditToolSupportedSpaces::WorldSpaceOnly; }
   virtual bool GetSupportsMoveParentOnly() const { return false; }
   virtual void GetGridSettings(ezGridSettingsMsgToEngine& outGridSettings) {}

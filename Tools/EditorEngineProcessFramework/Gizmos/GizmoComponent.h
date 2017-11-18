@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorEngineProcessFramework/Plugin.h>
 #include <RendererCore/Meshes/MeshComponent.h>
@@ -10,6 +10,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGizmoRenderData : public ezMeshRende
 public:
   ezColor m_GizmoColor;
   bool m_bUseDepthPrepass;
+  bool m_bIsPickable;
 };
 
 class ezGizmoComponent;
@@ -24,6 +25,7 @@ public:
 
   ezColor m_GizmoColor;
   bool m_bUseDepthPrepass;
+  bool m_bIsPickable = true;
 
 protected:
   virtual ezMeshRenderData* CreateRenderData(ezUInt32 uiBatchId) const override;

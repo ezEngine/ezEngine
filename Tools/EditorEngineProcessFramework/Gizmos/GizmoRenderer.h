@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorEngineProcessFramework/Plugin.h>
 #include <RendererCore/Pipeline/Declarations.h>
@@ -19,7 +19,8 @@ public:
 
 private:
 
-  bool m_bEnabled;
-  ezUInt32 m_uiHighlightID;
+  bool m_bEnabled = true;
+  bool m_bOnlyPickable = false;
+  ezUInt32 m_uiHighlightID = 0;
 };
 

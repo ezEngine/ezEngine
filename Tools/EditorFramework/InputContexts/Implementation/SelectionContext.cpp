@@ -20,7 +20,7 @@ ezSelectionContext::ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, e
 
   SetOwner(pOwnerWindow, pOwnerView);
 
-  m_MarqueeGizmo.Configure(nullptr, ezEngineGizmoHandleType::LineBox, ezColor::CadetBlue, false, true, false, true);
+  m_MarqueeGizmo.Configure(nullptr, ezEngineGizmoHandleType::LineBox, ezColor::CadetBlue, false, true, false, true, false);
   pOwnerWindow->GetDocument()->AddSyncObject(&m_MarqueeGizmo);
 }
 

@@ -16,6 +16,14 @@ ezGreyBoxEditTool::~ezGreyBoxEditTool()
 
 }
 
+ezEditorInputContext* ezGreyBoxEditTool::GetEditorInputContextOverride()
+{
+  if (IsActive())
+    return &m_DrawBoxGizmo;
+
+  return nullptr;
+}
+
 ezEditToolSupportedSpaces ezGreyBoxEditTool::GetSupportedSpaces() const
 {
   return ezEditToolSupportedSpaces::WorldSpaceOnly;
@@ -30,8 +38,8 @@ void ezGreyBoxEditTool::UpdateGizmoState()
 {
   ezManipulatorManager::GetSingleton()->HideActiveManipulator(GetDocument(), GetDocument()->GetActiveEditTool() != nullptr);
 
-  m_TranslateGizmo.SetVisible(IsActive());
-  m_TranslateGizmo.SetTransformation(ezTransform::Identity());
+  m_DrawBoxGizmo.SetVisible(IsActive());
+  m_DrawBoxGizmo.SetTransformation(ezTransform::Identity());
 }
 
 void ezGreyBoxEditTool::GameObjectEventHandler(const ezGameObjectEvent& e)
@@ -61,5 +69,5 @@ void ezGreyBoxEditTool::OnConfigured()
   GetDocument()->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezGreyBoxEditTool::GameObjectEventHandler, this));
   ezManipulatorManager::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezGreyBoxEditTool::ManipulatorManagerEventHandler, this));
 
-  m_TranslateGizmo.SetOwner(GetWindow(), nullptr);
+  m_DrawBoxGizmo.SetOwner(GetWindow(), nullptr);
 }

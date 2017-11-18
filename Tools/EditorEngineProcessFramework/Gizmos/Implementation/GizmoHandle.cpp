@@ -27,6 +27,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineGizmoHandle, 1, ezRTTIDefaultAllocator<e
     EZ_MEMBER_PROPERTY("AlwaysOnTop", m_bAlwaysOnTop),
     EZ_MEMBER_PROPERTY("Visualizer", m_bVisualizer),
     EZ_MEMBER_PROPERTY("Ortho", m_bShowInOrtho),
+    EZ_MEMBER_PROPERTY("Pickable", m_bIsPickable),
   }
   EZ_END_PROPERTIES
 }
@@ -475,7 +476,7 @@ ezEngineGizmoHandle::~ezEngineGizmoHandle()
   m_pWorld->DeleteObjectDelayed(m_hGameObject);
 }
 
-void ezEngineGizmoHandle::Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize, bool bAlwaysOnTop, bool bVisualizer, bool bShowInOrtho)
+void ezEngineGizmoHandle::Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize, bool bAlwaysOnTop, bool bVisualizer, bool bShowInOrtho, bool bIsPickable)
 {
   SetParentGizmo(pParentGizmo);
 
@@ -485,6 +486,7 @@ void ezEngineGizmoHandle::Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleTy
   m_iHandleType = (int)type;
   m_Color = col;
   m_bShowInOrtho = bShowInOrtho;
+  m_bIsPickable = bIsPickable;
 }
 
 bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID)
@@ -645,6 +647,7 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
   m_pGizmoComponent->SetRenderDataCategory(m_bVisualizer ? ezDefaultRenderDataCategories::SimpleOpaque : ezDefaultRenderDataCategories::SimpleForeground);
   m_pGizmoComponent->m_GizmoColor = m_Color;
   m_pGizmoComponent->m_bUseDepthPrepass = !m_bVisualizer;
+  m_pGizmoComponent->m_bIsPickable = m_bIsPickable;
   m_pGizmoComponent->SetMesh(hMesh);
 
   m_pGizmoComponent->SetUniqueID(uiNextComponentPickingID);
