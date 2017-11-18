@@ -12,7 +12,7 @@
 #include <QMenu>
 
 ezQtGameObjectPanel::ezQtGameObjectPanel(QWidget* pParent, ezGameObjectDocument* pDocument,
-  std::unique_ptr<ezQtDocumentTreeModel> pCustomModel, const char* szContextMenuMapping)
+  const char* szContextMenuMapping, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel)
   : ezQtDocumentPanel(pParent)
 {
   setObjectName("ScenegraphPanel");
@@ -50,14 +50,6 @@ ezQtGameObjectPanel::~ezQtGameObjectPanel()
 {
   m_pDocument->m_GameObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezQtGameObjectPanel::DocumentSceneEventHandler, this));
 
-}
-
-void ezQtGameObjectPanel::RegisterActions()
-{
-  ezActionMapManager::RegisterActionMap("ScenegraphContextMenu");
-
-  //#TODO: ezSelectionActions::MapContextMenuActions("ScenegraphContextMenu", "");
-  ezEditActions::MapContextMenuActions("ScenegraphContextMenu", "");
 }
 
 void ezQtGameObjectPanel::DocumentSceneEventHandler(const ezGameObjectEvent& e)

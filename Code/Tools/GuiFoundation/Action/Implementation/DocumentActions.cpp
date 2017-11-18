@@ -125,7 +125,7 @@ ezDocumentAction::ezDocumentAction(const ezActionContext& context, const char* s
     SetIconPath(":/GuiFoundation/Icons/DocumentGuid16.png");
     break;
   case ezDocumentAction::ButtonType::UpdatePrefabs:
-    SetIconPath(":/EditorPluginScene/PrefabUpdate.png");
+    SetIconPath(":/EditorPluginScene/Icons/PrefabUpdate16.png");
     break;
   }
 

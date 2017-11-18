@@ -22,6 +22,7 @@ struct ezManipulatorManagerEvent;
 class ezPreferences;
 class ezQtQuadViewWidget;
 struct ezEngineWindowEvent;
+class ezSceneDocument;
 
 Q_DECLARE_OPAQUE_POINTER(ezQtSceneViewWidget*);
 
@@ -53,13 +54,7 @@ protected:
 
 private:
   void GameObjectEventHandler(const ezGameObjectEvent& e);
-  void SnapProviderEventHandler(const ezSnapProviderEvent& e);
-
-  void FocusOnSelectionAllViews();
-  void FocusOnSelectionHoveredView();
   void SnapSelectionToPosition(bool bSnapEachObject);
-  void HandleFocusOnSelection(const ezQuerySelectionBBoxResultMsgToEditor* pMsg, ezQtSceneViewWidget* pSceneView);
-
   void SendRedrawMsg();
 
 private:

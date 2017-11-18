@@ -74,7 +74,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
   // Game Object Graph
   {
     std::unique_ptr<ezQtDocumentTreeModel> ptr(new ezQtGameObjectModel(pDocument, "TempObjects"));
-    ezQtDocumentPanel* pGameObjectPanel = new ezQtGameObjectPanel(this, pDocument, std::move(ptr), "ScenegraphContextMenu");
+    ezQtDocumentPanel* pGameObjectPanel = new ezQtGameObjectPanel(this, pDocument,"PropertyAnimAsset_ScenegraphContextMenu", std::move(ptr));
     addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pGameObjectPanel);
   }
 
@@ -224,6 +224,11 @@ ezQtPropertyAnimAssetDocumentWindow::~ezQtPropertyAnimAssetDocumentWindow()
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler, this));
   GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler, this));
   GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::SelectionEventHandler, this));
+}
+
+void ezQtPropertyAnimAssetDocumentWindow::ToggleViews(QWidget* pView)
+{
+  m_pQuadViewWidget->ToggleViews(pView);
 }
 
 ezObjectAccessorBase* ezQtPropertyAnimAssetDocumentWindow::GetObjectAccessor()

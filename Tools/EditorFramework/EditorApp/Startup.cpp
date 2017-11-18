@@ -47,6 +47,10 @@
 #include <EditorFramework/Panels/CVarPanel/CVarPanel.moc.h>
 #include <EditorFramework/Actions/GameObjectContextActions.h>
 #include <EditorFramework/Panels/GameObjectPanel/GameObjectPanel.moc.h>
+#include <EditorFramework/Actions/GameObjectDocumentActions.h>
+#include <EditorFramework/Actions/GameObjectSelectionActions.h>
+#include <EditorFramework/Actions/QuadViewActions.h>
+#include <EditorFramework/Actions/TransformGizmoActions.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
 
@@ -62,7 +66,13 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezAssetActions::RegisterActions();
     ezViewActions::RegisterActions();
     ezGameObjectContextActions::RegisterActions();
-    ezQtGameObjectPanel::RegisterActions();
+    ezGameObjectDocumentActions::RegisterActions();
+    ezGameObjectSelectionActions::RegisterActions();
+    ezQuadViewActions::RegisterActions();
+    ezTransformGizmoActions::RegisterActions();
+    ezRotateGizmoAction::RegisterActions();
+    ezScaleGizmoAction::RegisterActions();
+    ezTranslateGizmoAction::RegisterActions();
 
     ezActionMapManager::RegisterActionMap("SettingsTabMenuBar");
     ezProjectActions::MapActions("SettingsTabMenuBar");
@@ -96,6 +106,14 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezProjectActions::UnregisterActions();
     ezAssetActions::UnregisterActions();
     ezViewActions::UnregisterActions();
+    ezGameObjectContextActions::UnregisterActions();
+    ezGameObjectDocumentActions::UnregisterActions();
+    ezGameObjectSelectionActions::UnregisterActions();
+    ezQuadViewActions::UnregisterActions();
+    ezTransformGizmoActions::UnregisterActions();
+    ezRotateGizmoAction::UnregisterActions();
+    ezScaleGizmoAction::UnregisterActions();
+    ezTranslateGizmoAction::UnregisterActions();
 
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezFileBrowserAttribute>());
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezAssetBrowserAttribute>());

@@ -30,9 +30,25 @@
     <file>Icons/WindowConfig16.png</file>
     <file>Icons/SwitchToRemoteProcess16.png</file>
     <file>Icons/Fileserve16.png</file>
-	<file>Icons/LinkDeviceCamera16.png</file>
+    <file>Icons/GizmoNone24.png</file>
+    <file>Icons/WorldSpace16.png</file>
+    <file>Icons/TransformParent16.png</file>
+    <file>Icons/LinkDeviceCamera16.png</file>
+    <file>Icons/FocusOnSelection16.png</file>
+    <file>Icons/FocusOnSelectionAllViews16.png</file>
+    <file>Icons/Scenegraph16.png</file>
+    <file>Icons/ShapeIcons16.png</file>
+    <file>Icons/Visualizers16.png</file>
+    <file>Icons/Grid16.png</file>
+    <file>Icons/Selection16.png</file>
   </qresource>
   <qresource prefix="AssetIcons">
     <file>All.png</file>
   </qresource>
+  <qresource prefix="TypeIcons">
+    <file>ezDragToPositionGizmoEditTool.png</file>
+    <file>ezRotateGizmoEditTool.png</file>
+    <file>ezScaleGizmoEditTool.png</file>
+    <file>ezTranslateGizmoEditTool.png</file>
+  </qresource>  
 </RCC>

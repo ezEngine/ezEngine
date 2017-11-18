@@ -3,7 +3,6 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginScene/Actions/GizmoActions.h>
 #include <EditorPluginScene/Actions/SelectionActions.h>
-#include <EditorPluginScene/Actions/SceneViewActions.h>
 #include <EditorPluginScene/Scene/SceneDocumentWindow.moc.h>
 #include <EditorPluginScene/Visualizers/PointLightVisualizerAdapter.h>
 #include <EditorPluginScene/Visualizers/SpotLightVisualizerAdapter.h>
@@ -22,6 +21,10 @@
 #include <Panels/ScenegraphPanel/ScenegraphPanel.moc.h>
 #include <Actions/SceneActions.h>
 #include <ToolsFoundation/Settings/ToolsTagRegistry.h>
+#include <EditorFramework/Actions/GameObjectDocumentActions.h>
+#include <EditorFramework/Actions/GameObjectSelectionActions.h>
+#include <EditorFramework/Actions/QuadViewActions.h>
+#include <EditorFramework/Actions/TransformGizmoActions.h>
 
 void OnDocumentManagerEvent(const ezDocumentManager::Event& e)
 {
@@ -59,13 +62,8 @@ void OnLoadPlugin(bool bReloading)
     ezToolsTagRegistry::AddTag(ezToolsTag("Default", "CastShadow", true));
   }
 
-  ezGizmoActions::RegisterActions();
   ezSelectionActions::RegisterActions();
-  ezRotateGizmoAction::RegisterActions();
-  ezScaleGizmoAction::RegisterActions();
-  ezTranslateGizmoAction::RegisterActions();
-  ezSceneViewActions::RegisterActions();
-  ezQtScenegraphPanel::RegisterActions();
+  ezSceneGizmoActions::RegisterActions();
   ezSceneActions::RegisterActions();
 
   // Menu Bar
@@ -75,33 +73,44 @@ void OnLoadPlugin(bool bReloading)
   ezDocumentActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.File", false);
   ezDocumentActions::MapToolsActions("EditorPluginScene_DocumentMenuBar", "Menu.Tools");
   ezCommandHistoryActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");
-  ezGizmoActions::MapMenuActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");
+  ezTransformGizmoActions::MapMenuActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");
+  ezSceneGizmoActions::MapMenuActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");
+  ezGameObjectSelectionActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");
   ezSelectionActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit");
   ezEditActions::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit", true, true);
   ezRotateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit/Gizmo.Menu");
   ezScaleGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit/Gizmo.Menu");
   ezTranslateGizmoAction::MapActions("EditorPluginScene_DocumentMenuBar", "Menu.Edit/Gizmo.Menu");
+  ezGameObjectDocumentActions::MapMenuActions("EditorPluginScene_DocumentMenuBar", "Menu.View");
+  ezGameObjectDocumentActions::MapMenuSimulationSpeed("EditorPluginScene_DocumentMenuBar", "Menu.Scene");
   ezSceneActions::MapMenuActions();
 
   // Tool Bar
   ezActionMapManager::RegisterActionMap("EditorPluginScene_DocumentToolBar");
   ezDocumentActions::MapActions("EditorPluginScene_DocumentToolBar", "", true);
   ezCommandHistoryActions::MapActions("EditorPluginScene_DocumentToolBar", "");
-  ezGizmoActions::MapToolbarActions("EditorPluginScene_DocumentToolBar", "");
+  ezTransformGizmoActions::MapToolbarActions("EditorPluginScene_DocumentToolBar", "");
+  ezSceneGizmoActions::MapToolbarActions("EditorPluginScene_DocumentToolBar", "");
   ezRotateGizmoAction::MapActions("EditorPluginScene_DocumentToolBar", "");
   ezScaleGizmoAction::MapActions("EditorPluginScene_DocumentToolBar", "");
   ezTranslateGizmoAction::MapActions("EditorPluginScene_DocumentToolBar", "");
+  ezGameObjectDocumentActions::MapToolbarActions("EditorPluginScene_DocumentToolBar", "");
   ezSceneActions::MapToolbarActions();
 
   // View Tool Bar
   ezActionMapManager::RegisterActionMap("EditorPluginScene_ViewToolBar");
   ezViewActions::MapActions("EditorPluginScene_ViewToolBar", "", ezViewActions::PerspectiveMode | ezViewActions::RenderMode | ezViewActions::UsageHint | ezViewActions::ActivateRemoteProcess);
-  ezSceneViewActions::MapActions("EditorPluginScene_ViewToolBar", "");
+  ezQuadViewActions::MapActions("EditorPluginScene_ViewToolBar", "");
 
   // Visualizers
   ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezPointLightVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezPointLightVisualizerAdapter); });
   ezVisualizerAdapterRegistry::GetSingleton()->m_Factory.RegisterCreator(ezGetStaticRTTI<ezSpotLightVisualizerAttribute>(), [](const ezRTTI* pRtti)->ezVisualizerAdapter* { return EZ_DEFAULT_NEW(ezSpotLightVisualizerAdapter); });
 
+  // SceneGraph Context Menu
+  ezActionMapManager::RegisterActionMap("EditorPluginScene_ScenegraphContextMenu");
+  ezGameObjectSelectionActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu", "");
+  ezSelectionActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu", "");
+  ezEditActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu", "");
 }
 
 void OnUnloadPlugin(bool bReloading)
@@ -109,12 +118,8 @@ void OnUnloadPlugin(bool bReloading)
   ezQtEditorApp::GetSingleton()->m_Events.RemoveEventHandler(ToolsProjectEventHandler);
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
 
-  ezGizmoActions::UnregisterActions();
   ezSelectionActions::UnregisterActions();
-  ezRotateGizmoAction::UnregisterActions();
-  ezScaleGizmoAction::UnregisterActions();
-  ezTranslateGizmoAction::UnregisterActions();
-  ezSceneViewActions::UnregisterActions();
+  ezSceneGizmoActions::UnregisterActions();
   ezSceneActions::UnregisterActions();
 }
 

@@ -11,9 +11,10 @@
 #include <QSortFilterProxyModel>
 #include <QBoxLayout>
 #include <QMenu>
+#include <EditorFramework/Actions/GameObjectSelectionActions.h>
 
 ezQtScenegraphPanel::ezQtScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocument)
-  : ezQtGameObjectPanel(pParent, pDocument, std::unique_ptr<ezQtDocumentTreeModel>(new ezQtScenegraphModel(pDocument)), "ScenegraphContextMenu")
+  : ezQtGameObjectPanel(pParent, pDocument, "EditorPluginScene_ScenegraphContextMenu", std::unique_ptr<ezQtDocumentTreeModel>(new ezQtScenegraphModel(pDocument)))
 {
   setObjectName("ScenegraphPanel");
   setWindowTitle("Scenegraph");
@@ -22,13 +23,5 @@ ezQtScenegraphPanel::ezQtScenegraphPanel(QWidget* pParent, ezSceneDocument* pDoc
 
 ezQtScenegraphPanel::~ezQtScenegraphPanel()
 {
-}
-
-void ezQtScenegraphPanel::RegisterActions()
-{
-  //#TODO: ezActionMapManager::RegisterActionMap("ScenegraphContextMenu");
-
-  ezSelectionActions::MapContextMenuActions("ScenegraphContextMenu", "");
-  //#TODO: ezEditActions::MapContextMenuActions("ScenegraphContextMenu", "");
 }
 

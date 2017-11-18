@@ -1,11 +1,11 @@
 #pragma once
 
-#include <EditorPluginScene/Plugin.h>
+#include <EditorFramework/Plugin.h>
 #include <GuiFoundation/Basics.h>
 #include <GuiFoundation/Action/BaseActions.h>
 
 ///
-class EZ_EDITORPLUGINSCENE_DLL ezSceneViewActions
+class EZ_EDITORFRAMEWORK_DLL ezQuadViewActions
 {
 public:
   static void RegisterActions();
@@ -18,9 +18,9 @@ public:
 };
 
 ///
-class EZ_EDITORPLUGINSCENE_DLL ezSceneViewAction : public ezButtonAction
+class EZ_EDITORFRAMEWORK_DLL ezQuadViewAction : public ezButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSceneViewAction, ezButtonAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezQuadViewAction, ezButtonAction);
 public:
   enum class ButtonType
   {
@@ -28,8 +28,8 @@ public:
     SpawnView,
   };
 
-  ezSceneViewAction(const ezActionContext& context, const char* szName, ButtonType button);
-  ~ezSceneViewAction();
+  ezQuadViewAction(const ezActionContext& context, const char* szName, ButtonType button);
+  ~ezQuadViewAction();
 
   virtual void Execute(const ezVariant& value) override;
 

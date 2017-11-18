@@ -125,9 +125,11 @@ ezTime ezPropertyAnimAssetDocument::GetAnimationDurationTime() const
 
 bool ezPropertyAnimAssetDocument::SetScrubberPosition(ezUInt64 uiTick)
 {
-  const ezUInt32 uiTicksPerFrame = 4800 / GetProperties()->m_uiFramesPerSecond;
-  uiTick = (ezUInt64)ezMath::Round((double)uiTick, (double)uiTicksPerFrame);
-
+  if (!m_bPlayAnimation)
+  {
+    const ezUInt32 uiTicksPerFrame = 4800 / GetProperties()->m_uiFramesPerSecond;
+    uiTick = (ezUInt64)ezMath::Round((double)uiTick, (double)uiTicksPerFrame);
+  }
   uiTick = ezMath::Clamp<ezUInt64>(uiTick, 0, GetAnimationDurationTicks());
 
   if (m_uiScrubberTickPos == uiTick)
@@ -515,8 +517,12 @@ void ezPropertyAnimAssetDocument::SetPlayAnimation(bool play)
     m_uiScrubberTickPos = 0;
 
   m_bPlayAnimation = play;
-  m_StartPlaybackTime = ezTime::Now();
-  m_uiStartPlaybackTick = m_uiScrubberTickPos;
+  if (!m_bPlayAnimation)
+  {
+    // During playback we do not round to frames, so we need to round it again on stop.
+    SetScrubberPosition(GetScrubberPosition());
+  }
+  m_LastFrameTime = ezTime::Now();
 
   ezPropertyAnimAssetDocumentEvent e;
   e.m_pDocument = this;
@@ -539,11 +545,15 @@ void ezPropertyAnimAssetDocument::SetRepeatAnimation(bool repeat)
 
 void ezPropertyAnimAssetDocument::ExecuteAnimationPlaybackStep()
 {
-  const ezTime tDiff = ezTime::Now() - m_StartPlaybackTime;
+  const ezTime currentTime = ezTime::Now();
+  const ezTime tDiff = (currentTime - m_LastFrameTime) * GetSimulationSpeed();
   const ezUInt64 uiTicks = (ezUInt64)(tDiff.GetSeconds() * 4800.0);
+  // Accumulate further if we render too fast and round ticks to zero.
+  if (uiTicks == 0)
+    return;
 
-  const ezUInt64 uiNewPos = m_uiStartPlaybackTick + uiTicks;
-
+  m_LastFrameTime = currentTime;
+  const ezUInt64 uiNewPos = GetScrubberPosition() + uiTicks;
   SetScrubberPosition(uiNewPos);
 
   if (uiNewPos > GetAnimationDurationTicks())

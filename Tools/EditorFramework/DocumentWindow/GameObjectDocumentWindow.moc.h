@@ -4,6 +4,9 @@
 
 class ezGameObjectDocument;
 class ezWorldSettingsMsgToEngine;
+class ezQtGameObjectViewWidget;
+struct ezGameObjectEvent;
+struct ezSnapProviderEvent;
 
 class EZ_EDITORFRAMEWORK_DLL ezQtGameObjectDocumentWindow : public ezQtEngineDocumentWindow
 {
@@ -18,6 +21,16 @@ protected:
   ezGlobalSettingsMsgToEngine GetGlobalSettings() const;
   ezWorldSettingsMsgToEngine GetWorldSettings() const;
   ezGridSettingsMsgToEngine GetGridSettings() const;
+  virtual void ProcessMessageEventHandler(const ezEditorEngineDocumentMsg* pMsg) override;
+
+private:
+  void GameObjectEventHandler(const ezGameObjectEvent& e);
+  void SnapProviderEventHandler(const ezSnapProviderEvent& e);
+
+  void FocusOnSelectionAllViews();
+  void FocusOnSelectionHoveredView();
+
+  void HandleFocusOnSelection(const ezQuerySelectionBBoxResultMsgToEditor* pMsg, ezQtGameObjectViewWidget* pSceneView);
 };
 
 

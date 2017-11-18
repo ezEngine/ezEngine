@@ -15,6 +15,7 @@
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <EditorFramework/Actions/GameObjectSelectionActions.h>
 #include <QKeyEvent>
 #include <QMimeData>
 #include <QVBoxLayout>
@@ -55,6 +56,7 @@ void ezQtSceneViewWidget::OnOpenContextMenu(QPoint globalPos)
 
     ezActionMapManager::RegisterActionMap("SceneViewContextMenu");
 
+    ezGameObjectSelectionActions::MapViewContextMenuActions("SceneViewContextMenu", "");
     ezSelectionActions::MapViewContextMenuActions("SceneViewContextMenu", "");
     ezEditActions::MapViewContextMenuActions("SceneViewContextMenu", "");
   }

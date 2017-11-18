@@ -17,10 +17,6 @@ public:
   static void MapContextMenuActions(const char* szMapping, const char* szPath);
   static void MapViewContextMenuActions(const char* szMapping, const char* szPath);
 
-  static ezActionDescriptorHandle s_hSelectionCategory;
-  static ezActionDescriptorHandle s_hShowInScenegraph;
-  static ezActionDescriptorHandle s_hFocusOnSelection;
-  static ezActionDescriptorHandle s_hFocusOnSelectionAllViews;
   static ezActionDescriptorHandle s_hGroupSelectedItems;
   static ezActionDescriptorHandle s_hCreateEmptyChildObject;
   static ezActionDescriptorHandle s_hCreateEmptyObjectAtPosition;
@@ -34,9 +30,7 @@ public:
   static ezActionDescriptorHandle s_hOpenPrefabDocument;
   static ezActionDescriptorHandle s_hDuplicateSpecial;
   static ezActionDescriptorHandle s_hDeltaTransform;
-  static ezActionDescriptorHandle s_hSnapCameraToObject;
   static ezActionDescriptorHandle s_hSnapObjectToCamera;
-  static ezActionDescriptorHandle s_hMoveCameraHere;
   static ezActionDescriptorHandle s_hAttachToObject;
   static ezActionDescriptorHandle s_hDetachFromParent;
   static ezActionDescriptorHandle s_hConvertToEnginePrefab;
@@ -52,28 +46,25 @@ public:
 
   enum class ActionType
   {
-    ShowInScenegraph,
-    FocusOnSelection,
-    FocusOnSelectionAllViews,
     GroupSelectedItems,
     CreateEmptyChildObject,
     CreateEmptyObjectAtPosition,
     HideSelectedObjects,
     HideUnselectedObjects,
     ShowHiddenObjects,
+
     CreatePrefab,
     RevertPrefab,
     UnlinkFromPrefab,
     OpenPrefabDocument,
-    DuplicateSpecial,
-    DeltaTransform,
-    SnapCameraToObject,
-    SnapObjectToCamera,
-    MoveCameraHere,
-    AttachToObject,
-    DetachFromParent,
     ConvertToEnginePrefab,
     ConvertToEditorPrefab,
+
+    DuplicateSpecial,
+    DeltaTransform,
+    SnapObjectToCamera,
+    AttachToObject,
+    DetachFromParent,
   };
 
   ezSelectionAction(const ezActionContext& context, const char* szName, ActionType type);

@@ -14,8 +14,6 @@ public:
   ezQtScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocument);
   ~ezQtScenegraphPanel();
 
-  static void RegisterActions();
-
 private:
   ezSceneDocument* m_pSceneDocument;
 };

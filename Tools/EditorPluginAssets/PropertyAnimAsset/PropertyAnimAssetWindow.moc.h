@@ -46,6 +46,9 @@ public:
 
   virtual const char* GetWindowLayoutGroupName() const { return "PropertyAnimAsset"; }
 
+public slots:
+  void ToggleViews(QWidget* pView);
+
 public:
   /// \name ezGameObjectGizmoInterface implementation
   ///@{

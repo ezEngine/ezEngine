@@ -129,8 +129,7 @@ private:
 
   bool m_bPlayAnimation = false;
   bool m_bRepeatAnimation = false;
-  ezTime m_StartPlaybackTime;
-  ezUInt64 m_uiStartPlaybackTick = 0;
+  ezTime m_LastFrameTime;
 
   ezUInt64 m_uiScrubberTickPos = 0;
   mutable ezUInt64 m_uiCachedAnimationDuration = 0;

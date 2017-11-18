@@ -27,9 +27,12 @@ ezActionMap::~ezActionMap()
 
 void ezActionMap::MapAction(ezActionDescriptorHandle hAction, const char* szPath, float fOrder)
 {
+  ezStringBuilder sPath = szPath;
+  sPath.MakeCleanPath();
+  sPath.Trim("/");
   ezActionMapDescriptor d;
   d.m_hAction = hAction;
-  d.m_sPath = szPath;
+  d.m_sPath = sPath;
   d.m_fOrder = fOrder;
 
   EZ_VERIFY(MapAction(d).IsValid(), "Mapping Failed");
@@ -42,7 +45,7 @@ ezUuid ezActionMap::MapAction(const ezActionMapDescriptor& desc)
   {
     return ezUuid();
   }
-  
+
   auto it = m_Descriptors.Find(ParentGUID);
 
   ezTreeNode<ezActionMapDescriptor>* pParent = nullptr;
@@ -118,7 +121,7 @@ bool ezActionMap::FindObjectByPath(const ezStringView& sPath, ezUuid& out_guid) 
       return false;
   }
 
-  out_guid = pParent->GetGuid(); 
+  out_guid = pParent->GetGuid();
   return true;
 }
 

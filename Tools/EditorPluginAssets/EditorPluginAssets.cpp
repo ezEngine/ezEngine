@@ -26,7 +26,10 @@
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptActions.h>
 #include <EditorPluginAssets/DecalAsset/DecalAsset.h>
 #include <EditorFramework/Actions/GameObjectContextActions.h>
-
+#include <EditorFramework/Actions/GameObjectDocumentActions.h>
+#include <EditorFramework/Actions/QuadViewActions.h>
+#include <EditorFramework/Actions/GameObjectSelectionActions.h>
+#include <EditorFramework/Actions/TransformGizmoActions.h>
 
 void OnLoadPlugin(bool bReloading)
 {
@@ -253,10 +256,17 @@ void OnLoadPlugin(bool bReloading)
     {
       ezActionMapManager::RegisterActionMap("PropertyAnimAssetMenuBar");
       ezProjectActions::MapActions("PropertyAnimAssetMenuBar");
-      ezStandardMenus::MapActions("PropertyAnimAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezStandardMenus::MapActions("PropertyAnimAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Scene | ezStandardMenuTypes::View | ezStandardMenuTypes::Help);
       ezDocumentActions::MapActions("PropertyAnimAssetMenuBar", "Menu.File", false);
       ezDocumentActions::MapToolsActions("PropertyAnimAssetMenuBar", "Menu.Tools");
       ezCommandHistoryActions::MapActions("PropertyAnimAssetMenuBar", "Menu.Edit");
+      ezGameObjectSelectionActions::MapActions("PropertyAnimAssetMenuBar", "Menu.Edit");
+      ezGameObjectDocumentActions::MapMenuActions("PropertyAnimAssetMenuBar", "Menu.View");
+      ezGameObjectDocumentActions::MapMenuSimulationSpeed("PropertyAnimAssetMenuBar", "Menu.Scene");
+      ezTransformGizmoActions::MapMenuActions("PropertyAnimAssetMenuBar", "Menu.Edit");
+      ezRotateGizmoAction::MapActions("PropertyAnimAssetMenuBar", "Menu.Edit/Gizmo.Menu");
+      ezScaleGizmoAction::MapActions("PropertyAnimAssetMenuBar", "Menu.Edit/Gizmo.Menu");
+      ezTranslateGizmoAction::MapActions("PropertyAnimAssetMenuBar", "Menu.Edit/Gizmo.Menu");
     }
 
     // Tool Bar
@@ -266,13 +276,24 @@ void OnLoadPlugin(bool bReloading)
       ezCommandHistoryActions::MapActions("PropertyAnimAssetToolBar", "");
       ezAssetActions::MapActions("PropertyAnimAssetToolBar", true);
       ezGameObjectContextActions::MapActions("PropertyAnimAssetToolBar", "");
+      ezGameObjectDocumentActions::MapToolbarActions("PropertyAnimAssetToolBar", "");
+      ezTransformGizmoActions::MapToolbarActions("PropertyAnimAssetToolBar", "");
+      ezRotateGizmoAction::MapActions("PropertyAnimAssetToolBar", "");
+      ezScaleGizmoAction::MapActions("PropertyAnimAssetToolBar", "");
+      ezTranslateGizmoAction::MapActions("PropertyAnimAssetToolBar", "");
     }
 
     // View Tool Bar
     {
       ezActionMapManager::RegisterActionMap("PropertyAnimAssetViewToolBar");
       ezViewActions::MapActions("PropertyAnimAssetViewToolBar", "", ezViewActions::PerspectiveMode | ezViewActions::RenderMode | ezViewActions::UsageHint | ezViewActions::ActivateRemoteProcess);
-      //ezSceneViewActions::MapActions("PropertyAnimAssetViewToolBar", "");
+      ezQuadViewActions::MapActions("PropertyAnimAssetViewToolBar", "");
+    }
+
+    // SceneGraph Context Menu
+    {
+      ezActionMapManager::RegisterActionMap("PropertyAnimAsset_ScenegraphContextMenu");
+      ezGameObjectSelectionActions::MapContextMenuActions("PropertyAnimAsset_ScenegraphContextMenu", "");
     }
   }
 

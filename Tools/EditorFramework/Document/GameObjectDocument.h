@@ -38,6 +38,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezGameObjectEvent
     TriggerShowSelectionInScenegraph,
     TriggerFocusOnSelection_Hovered,
     TriggerFocusOnSelection_All,
+
     TriggerSnapSelectionPivotToGrid,
     TriggerSnapEachSelectedObjectToGrid,
 

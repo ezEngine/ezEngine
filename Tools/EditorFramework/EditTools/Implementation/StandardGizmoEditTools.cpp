@@ -11,6 +11,7 @@
 #include <EditorFramework/Gizmos/SnapProvider.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmoEditTool, 1, ezRTTIDefaultAllocator<ezTranslateGizmoEditTool>)
+
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezTranslateGizmoEditTool::ezTranslateGizmoEditTool()
