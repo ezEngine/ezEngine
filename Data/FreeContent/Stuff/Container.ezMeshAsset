@@ -61,11 +61,11 @@ AssetInfo
 			s{"Stuff/Container.FBX"}
 		}
 		Uuid %DocumentID{u4{1325716919593115325,5652369746131908295}}
-		u4 %Hash{16995787921462556931}
+		u4 %Hash{10147705489249697979}
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ f7c921a1-51dd-4f43-b8c6-b8c0210bd198 }"}
+			s{"{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"}
 		}
 	}
 }
@@ -77,7 +77,7 @@ o
 	p
 	{
 		s %Label{"14 - Default"}
-		s %Resource{"{ f7c921a1-51dd-4f43-b8c6-b8c0210bd198 }"}
+		s %Resource{"{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"}
 	}
 }
 }
@@ -115,7 +115,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

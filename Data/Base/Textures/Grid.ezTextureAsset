@@ -11,10 +11,10 @@ AssetInfo
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"Prototyping/Textures/Grid.tga"}
+			s{"Textures/Grid.tga"}
 		}
 		Uuid %DocumentID{u4{17339766635678476197,5214154738922355752}}
-		u4 %Hash{921139698409419302}
+		u4 %Hash{12468327392910175524}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -45,7 +45,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{0}
-		s %Input1{"Prototyping/Textures/Grid.tga"}
+		s %Input1{"Textures/Grid.tga"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
@@ -72,7 +72,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

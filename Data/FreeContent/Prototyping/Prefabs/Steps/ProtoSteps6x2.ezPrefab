@@ -130,7 +130,7 @@ o
 		b %Active{1}
 		VarArray %Materials
 		{
-			s{"{ 03197de8-0b46-49b6-ae64-298ecd7418a1 }"}
+			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
 		}
 		s %Mesh{"{ a43925bc-7d2f-4862-a164-131993c9a4c7 }"}
 	}
@@ -145,7 +145,7 @@ o
 		b %Active{1}
 		VarArray %Materials
 		{
-			s{"{ 03197de8-0b46-49b6-ae64-298ecd7418a1 }"}
+			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
 		}
 		s %Mesh{"{ a43925bc-7d2f-4862-a164-131993c9a4c7 }"}
 	}
@@ -160,7 +160,7 @@ o
 		b %Active{1}
 		VarArray %Materials
 		{
-			s{"{ 03197de8-0b46-49b6-ae64-298ecd7418a1 }"}
+			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
 		}
 		s %Mesh{"{ a43925bc-7d2f-4862-a164-131993c9a4c7 }"}
 	}
@@ -215,11 +215,11 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3901924571102045885,4668118196077602704}}
-		u4 %Hash{4025892756473926345}
+		u4 %Hash{14983608470923420009}
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 03197de8-0b46-49b6-ae64-298ecd7418a1 }"}
+			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
 			s{"{ a43925bc-7d2f-4862-a164-131993c9a4c7 }"}
 		}
 	}
@@ -320,7 +320,7 @@ o
 		b %Active{1}
 		VarArray %Materials
 		{
-			s{"{ 03197de8-0b46-49b6-ae64-298ecd7418a1 }"}
+			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
 		}
 		s %Mesh{"{ a43925bc-7d2f-4862-a164-131993c9a4c7 }"}
 	}
@@ -428,7 +428,7 @@ o
 		b %Active{1}
 		VarArray %Materials
 		{
-			s{"{ 03197de8-0b46-49b6-ae64-298ecd7418a1 }"}
+			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
 		}
 		s %Mesh{"{ a43925bc-7d2f-4862-a164-131993c9a4c7 }"}
 	}
@@ -443,7 +443,7 @@ o
 		b %Active{1}
 		VarArray %Materials
 		{
-			s{"{ 03197de8-0b46-49b6-ae64-298ecd7418a1 }"}
+			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
 		}
 		s %Mesh{"{ a43925bc-7d2f-4862-a164-131993c9a4c7 }"}
 	}
@@ -538,7 +538,7 @@ o
 		b %Active{1}
 		VarArray %Materials
 		{
-			s{"{ 03197de8-0b46-49b6-ae64-298ecd7418a1 }"}
+			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
 		}
 		s %Mesh{"{ a43925bc-7d2f-4862-a164-131993c9a4c7 }"}
 	}
@@ -592,7 +592,7 @@ o
 		b %Active{1}
 		VarArray %Materials
 		{
-			s{"{ 03197de8-0b46-49b6-ae64-298ecd7418a1 }"}
+			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
 		}
 		s %Mesh{"{ a43925bc-7d2f-4862-a164-131993c9a4c7 }"}
 	}
@@ -660,7 +660,7 @@ o
 		b %Active{1}
 		VarArray %Materials
 		{
-			s{"{ 03197de8-0b46-49b6-ae64-298ecd7418a1 }"}
+			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
 		}
 		s %Mesh{"{ a43925bc-7d2f-4862-a164-131993c9a4c7 }"}
 	}
@@ -756,7 +756,7 @@ o
 		b %Active{1}
 		VarArray %Materials
 		{
-			s{"{ 03197de8-0b46-49b6-ae64-298ecd7418a1 }"}
+			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
 		}
 		s %Mesh{"{ a43925bc-7d2f-4862-a164-131993c9a4c7 }"}
 	}
@@ -836,7 +836,7 @@ o
 		b %Active{1}
 		VarArray %Materials
 		{
-			s{"{ 03197de8-0b46-49b6-ae64-298ecd7418a1 }"}
+			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
 		}
 		s %Mesh{"{ a43925bc-7d2f-4862-a164-131993c9a4c7 }"}
 	}
@@ -851,7 +851,7 @@ o
 		b %Active{1}
 		VarArray %Materials
 		{
-			s{"{ 03197de8-0b46-49b6-ae64-298ecd7418a1 }"}
+			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
 		}
 		s %Mesh{"{ a43925bc-7d2f-4862-a164-131993c9a4c7 }"}
 	}
@@ -899,7 +899,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

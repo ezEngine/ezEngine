@@ -11,11 +11,11 @@ AssetInfo
 		s %AssetType{"Mesh"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9269768309362965120,4805102287955501110}}
-		u4 %Hash{12668281595521049808}
+		u4 %Hash{12137412208860611867}
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 8b666abc-97c5-4048-9ba0-e369cc3e374d }"}
+			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 		}
 	}
 }
@@ -74,7 +74,7 @@ o
 	p
 	{
 		s %Label{"Default"}
-		s %Resource{"{ 8b666abc-97c5-4048-9ba0-e369cc3e374d }"}
+		s %Resource{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 	}
 }
 }
@@ -112,7 +112,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

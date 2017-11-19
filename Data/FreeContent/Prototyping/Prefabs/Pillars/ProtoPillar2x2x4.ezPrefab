@@ -25,11 +25,11 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{843306232013123468,5606474021750633445}}
-		u4 %Hash{12123417873527246628}
+		u4 %Hash{8750252150415994842}
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 5aca09be-6ccf-4dda-9281-2ffd1b411a96 }"}
+			s{"{ 9fc82cb4-e800-cc3d-feed-61a7c88e2a20 }"}
 			s{"{ f88fa326-bcd8-4a73-b0f0-f97f1dc9fd4a }"}
 		}
 	}
@@ -65,7 +65,7 @@ o
 		b %Active{1}
 		VarArray %Materials
 		{
-			s{"{ 5aca09be-6ccf-4dda-9281-2ffd1b411a96 }"}
+			s{"{ 9fc82cb4-e800-cc3d-feed-61a7c88e2a20 }"}
 		}
 		s %Mesh{"{ f88fa326-bcd8-4a73-b0f0-f97f1dc9fd4a }"}
 	}
@@ -140,7 +140,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

@@ -1558,7 +1558,7 @@ o
 		b %Active{1}
 		VarArray %Materials
 		{
-			s{"{ 00c0d975-64c5-4507-b352-223179bce685 }"}
+			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 		}
 		s %Mesh{"{ 7771b49b-cbbc-4db7-8721-307042a07748 }"}
 	}
@@ -2027,11 +2027,10 @@ AssetInfo
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8509371654781092019,5438081593505794318}}
-		u4 %Hash{5538742925220072713}
+		u4 %Hash{5423138110301667724}
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 00c0d975-64c5-4507-b352-223179bce685 }"}
 			s{"{ 05b0d291-1a2d-4dd7-b7af-34cba7871199 }"}
 			s{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
 			s{"{ 124aa432-f4c0-44b2-bd29-1f10bd910f4a }"}
@@ -2057,6 +2056,7 @@ AssetInfo
 			s{"{ b2751d1b-1a01-4ce1-bbad-78a11986cc39 }"}
 			s{"{ b302fe0d-f657-49bc-9fbe-9e6bdae934e0 }"}
 			s{"{ b727ba61-e20a-42d7-a170-860ede23e85d }"}
+			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 			s{"{ ccd32963-93f9-401c-95d1-bf4e491a2df3 }"}
 			s{"{ ceec7738-dd1f-407c-b04a-7061e94822e8 }"}
 			s{"{ d120d4d0-9ac3-4c4b-94bc-c766b8a5a0a3 }"}
@@ -4344,7 +4344,7 @@ o
 		b %Active{1}
 		VarArray %Materials
 		{
-			s{"{ 00c0d975-64c5-4507-b352-223179bce685 }"}
+			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 		}
 		s %Mesh{"{ 7771b49b-cbbc-4db7-8721-307042a07748 }"}
 	}
@@ -6184,7 +6184,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
