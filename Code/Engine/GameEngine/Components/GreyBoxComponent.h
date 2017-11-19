@@ -22,6 +22,7 @@ struct EZ_GAMEENGINE_DLL ezGreyBoxShape
   enum Enum
   {
     Box,
+    Ramp,
 
     Default = Box
   };

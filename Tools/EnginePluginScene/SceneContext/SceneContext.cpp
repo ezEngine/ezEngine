@@ -361,6 +361,8 @@ void ezSceneContext::OnPlayTheGameModeStarted()
 
   ezSceneExportModifier::ApplyAllModifiers(*m_pWorld);
 
+  ezResourceManager::ReloadAllResources(false);
+
   m_pWorld->GetClock().SetSpeed(1.0f);
   m_pWorld->SetWorldSimulationEnabled(true);
 
@@ -454,7 +456,6 @@ void ezSceneContext::HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg)
       return;
     }
 
-    ezResourceManager::ReloadAllResources(false);
     OnPlayTheGameModeStarted();
   }
   else

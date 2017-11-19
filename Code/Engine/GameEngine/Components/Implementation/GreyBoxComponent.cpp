@@ -10,14 +10,14 @@
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGreyBoxShape, 1)
-EZ_ENUM_CONSTANTS(ezGreyBoxShape::Box)
+EZ_ENUM_CONSTANTS(ezGreyBoxShape::Box, ezGreyBoxShape::Ramp)
 EZ_END_STATIC_REFLECTED_ENUM()
 
 EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 1)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("Shape", ezGreyBoxShape, m_Shape),
+    EZ_ENUM_ACCESSOR_PROPERTY("Shape", ezGreyBoxShape, GetShape, SetShape),
     EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("Material")),
     EZ_ACCESSOR_PROPERTY("SizeNegX", GetSizeNegX, SetSizeNegX),
     EZ_ACCESSOR_PROPERTY("SizePosX", GetSizePosX, SetSizePosX),
@@ -254,22 +254,30 @@ void ezGreyBoxComponent::InvalidateMesh()
 
 void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom) const
 {
+  ezVec3 size;
+  size.x = m_fSizeNegX + m_fSizePosX;
+  size.y = m_fSizeNegY + m_fSizePosY;
+  size.z = m_fSizeNegZ + m_fSizePosZ;
+
+  ezVec3 offset(0);
+  offset.x = (m_fSizePosX - m_fSizeNegX) * 0.5f;
+  offset.y = (m_fSizePosY - m_fSizeNegY) * 0.5f;
+  offset.z = (m_fSizePosZ - m_fSizeNegZ) * 0.5f;
+
+  ezMat4 t;
+  t.SetTranslationMatrix(offset);
+
   if (m_Shape == ezGreyBoxShape::Box)
   {
-    ezVec3 size;
-    size.x = m_fSizeNegX + m_fSizePosX;
-    size.y = m_fSizeNegY + m_fSizePosY;
-    size.z = m_fSizeNegZ + m_fSizePosZ;
-
-    ezVec3 offset(0);
-    offset.x = (m_fSizePosX - m_fSizeNegX) * 0.5f;
-    offset.y = (m_fSizePosY - m_fSizeNegY) * 0.5f;
-    offset.z = (m_fSizePosZ - m_fSizeNegZ) * 0.5f;
-
-    ezMat4 t;
-    t.SetTranslationMatrix(offset);
-
     geom.AddTexturedBox(size, ezColor::White, t);
+  }
+  else if (m_Shape == ezGreyBoxShape::Ramp)
+  {
+    geom.AddTexturedRamp(size, ezColor::White, t);
+  }
+  else
+  {
+    EZ_ASSERT_NOT_IMPLEMENTED;
   }
 }
 
@@ -284,6 +292,10 @@ void ezGreyBoxComponent::GenerateRenderMesh() const
   {
   case ezGreyBoxShape::Box:
     sResourceName.Format("Grey-Box:{0}-{1},{2}-{3},{4}-{5}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ);
+    break;
+
+  case ezGreyBoxShape::Ramp:
+    sResourceName.Format("Grey-Ramp:{0}-{1},{2}-{3},{4}-{5}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ);
     break;
 
   default:

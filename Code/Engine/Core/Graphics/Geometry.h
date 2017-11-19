@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Core/Basics.h>
 #include <Foundation/Math/Vec3.h>
@@ -188,6 +188,9 @@ public:
   /// uiSegments is the detail around the up axis.
   /// uiSegmentDetail is the number of segments around the torus ring (ie. the cylinder detail)
   void AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSegments, ezUInt16 uiSegmentDetail, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+
+  /// \brief Adds a ramp that has UV coordinates set.
+  void AddTexturedRamp(const ezVec3& size, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
   /// \todo GeomUtils improvements:
   // ThickLine
