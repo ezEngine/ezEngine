@@ -72,11 +72,12 @@ public:
   ~ezTransformGizmoAction();
 
   virtual void Execute(const ezVariant& value) override;
+  void GameObjectEventHandler(const ezGameObjectEvent& e);
 
 private:
   void UpdateState();
 
-  ezGameObjectDocument* m_pSceneDocument;
+  ezGameObjectDocument* m_pGameObjectDocument;
   ActionType m_Type;
 };
 

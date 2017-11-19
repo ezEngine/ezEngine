@@ -152,7 +152,7 @@ ezTransformGizmoAction::ezTransformGizmoAction(const ezActionContext& context, c
 {
   SetCheckable(true);
   m_Type = type;
-  m_pSceneDocument = static_cast<ezGameObjectDocument*>(context.m_pDocument);
+  m_pGameObjectDocument = static_cast<ezGameObjectDocument*>(context.m_pDocument);
 
   switch (m_Type)
   {
@@ -164,32 +164,40 @@ ezTransformGizmoAction::ezTransformGizmoAction(const ezActionContext& context, c
     break;
   }
 
+  m_pGameObjectDocument->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezTransformGizmoAction::GameObjectEventHandler, this));
   UpdateState();
 }
 
 ezTransformGizmoAction::~ezTransformGizmoAction()
 {
+  m_pGameObjectDocument->m_GameObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezTransformGizmoAction::GameObjectEventHandler, this));
 }
 
 void ezTransformGizmoAction::Execute(const ezVariant& value)
 {
   if (m_Type == ActionType::GizmoToggleWorldSpace)
   {
-    m_pSceneDocument->SetGizmoWorldSpace(value.ConvertTo<bool>());
+    m_pGameObjectDocument->SetGizmoWorldSpace(value.ConvertTo<bool>());
   }
   else if (m_Type == ActionType::GizmoToggleMoveParentOnly)
   {
-    m_pSceneDocument->SetGizmoMoveParentOnly(value.ConvertTo<bool>());
+    m_pGameObjectDocument->SetGizmoMoveParentOnly(value.ConvertTo<bool>());
   }
 
   UpdateState();
+}
+
+void ezTransformGizmoAction::GameObjectEventHandler(const ezGameObjectEvent& e)
+{
+  if (e.m_Type == ezGameObjectEvent::Type::ActiveEditToolChanged)
+    UpdateState();
 }
 
 void ezTransformGizmoAction::UpdateState()
 {
   if (m_Type == ActionType::GizmoToggleWorldSpace)
   {
-    ezGameObjectEditTool* pTool = m_pSceneDocument->GetActiveEditTool();
+    ezGameObjectEditTool* pTool = m_pGameObjectDocument->GetActiveEditTool();
     SetEnabled(pTool != nullptr && pTool->GetSupportedSpaces() == ezEditToolSupportedSpaces::LocalAndWorldSpace);
 
     if (pTool != nullptr)
@@ -203,18 +211,18 @@ void ezTransformGizmoAction::UpdateState()
         SetChecked(true);
         break;
       case ezEditToolSupportedSpaces::LocalAndWorldSpace:
-        SetChecked(m_pSceneDocument->GetGizmoWorldSpace());
+        SetChecked(m_pGameObjectDocument->GetGizmoWorldSpace());
         break;
       }
     }
   }
   else if (m_Type == ActionType::GizmoToggleMoveParentOnly)
   {
-    ezGameObjectEditTool* pTool = m_pSceneDocument->GetActiveEditTool();
+    ezGameObjectEditTool* pTool = m_pGameObjectDocument->GetActiveEditTool();
     const bool bSupported = pTool != nullptr && pTool->GetSupportsMoveParentOnly();
 
     SetEnabled(bSupported);
-    SetChecked(bSupported && m_pSceneDocument->GetGizmoMoveParentOnly());
+    SetChecked(bSupported && m_pGameObjectDocument->GetGizmoMoveParentOnly());
   }
 }
 

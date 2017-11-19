@@ -115,7 +115,6 @@ ezStatus ezCommand::AddSubCommand(ezCommand& command)
   if (ret.m_Result == EZ_FAILURE)
   {
     m_ChildActions.PopBack();
-    pCommand->Cleanup(ezCommand::CommandState::WasDone);
     pCommand->GetDynamicRTTI()->GetAllocator()->Deallocate(pCommand);
     return ret;
   }
