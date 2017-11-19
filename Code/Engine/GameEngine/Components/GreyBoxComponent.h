@@ -23,6 +23,8 @@ struct EZ_GAMEENGINE_DLL ezGreyBoxShape
   {
     Box,
     Ramp,
+    Column,
+    Stairs,
 
     Default = Box
   };

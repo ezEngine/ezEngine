@@ -10,9 +10,19 @@ class EZ_EDITORFRAMEWORK_DLL ezDrawBoxGizmo : public ezGizmo
   EZ_ADD_DYNAMIC_REFLECTION(ezDrawBoxGizmo, ezGizmo);
 
 public:
+  enum class ManipulateMode
+  {
+    None,
+    DrawBase,
+    DrawHeight,
+  };
+
   ezDrawBoxGizmo();
 
   void GetResult(ezVec3& out_Center, float& out_fSizeNegX, float& out_fSizePosX, float& out_fSizeNegY, float& out_fSizePosY, float& out_fSizeNegZ, float& out_fSizePosZ) const;
+
+  ManipulateMode GetCurrentMode() const { return m_ManipulateMode; }
+  const ezVec3& GetStartPosition() const { return m_vFirstCorner; }
 
 protected:
   virtual void DoFocusLost(bool bCancel) override;
@@ -28,12 +38,6 @@ protected:
   virtual void OnTransformationChanged(const ezTransform& transform) override;
 
 private:
-  enum class ManipulateMode
-  {
-    None,
-    DrawBase,
-    DrawHeight,
-  };
 
   void SwitchMode(bool bCancel);
   void UpdateBox();

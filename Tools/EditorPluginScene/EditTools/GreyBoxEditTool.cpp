@@ -3,6 +3,9 @@
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
+#include <EditorFramework/Preferences/ScenePreferences.h>
+#include <EditorFramework/Gizmos/SnapProvider.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGreyBoxEditTool, 1, ezRTTIDefaultAllocator<ezGreyBoxEditTool>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -33,6 +36,48 @@ ezEditToolSupportedSpaces ezGreyBoxEditTool::GetSupportedSpaces() const
 bool ezGreyBoxEditTool::GetSupportsMoveParentOnly() const
 {
   return false;
+}
+
+
+void ezGreyBoxEditTool::GetGridSettings(ezGridSettingsMsgToEngine& msg)
+{
+  auto pSceneDoc = GetDocument();
+  ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetDocument());
+
+  msg.m_fGridDensity = ezSnapProvider::GetTranslationSnapValue(); // negative density = local space
+  msg.m_vGridTangent1.SetZero(); // indicates that the grid is disabled
+  msg.m_vGridTangent2.SetZero(); // indicates that the grid is disabled
+
+  if (pPreferences->GetShowGrid())
+  {
+    if (m_DrawBoxGizmo.GetCurrentMode() == ezDrawBoxGizmo::ManipulateMode::DrawBase)
+    {
+      msg.m_vGridCenter = m_DrawBoxGizmo.GetStartPosition();
+
+      msg.m_vGridTangent1 = ezVec3(1, 0, 0);
+      msg.m_vGridTangent2 = ezVec3(0, 1, 0);
+    }
+    else if (m_DrawBoxGizmo.GetCurrentMode() == ezDrawBoxGizmo::ManipulateMode::DrawHeight)
+    {
+      const ezVec3 vCamDir = GetWindow()->GetFocusedViewWidget()->m_pViewConfig->m_Camera.GetDirForwards();
+
+      //float dummy;
+      //m_DrawBoxGizmo.GetResult(msg.m_vGridCenter, dummy, dummy, dummy, dummy, dummy, dummy);
+
+      msg.m_vGridCenter = m_DrawBoxGizmo.GetStartPosition();
+
+      if (ezMath::Abs(ezVec3(1, 0, 0).Dot(vCamDir)) < ezMath::Abs(ezVec3(0, 1, 0).Dot(vCamDir)))
+      {
+        msg.m_vGridTangent1 = ezVec3(1, 0, 0);
+        msg.m_vGridTangent2 = ezVec3(0, 0, 1);
+      }
+      else
+      {
+        msg.m_vGridTangent1 = ezVec3(0, 1, 0);
+        msg.m_vGridTangent2 = ezVec3(0, 0, 1);
+      }
+    }
+  }
 }
 
 void ezGreyBoxEditTool::UpdateGizmoState()
