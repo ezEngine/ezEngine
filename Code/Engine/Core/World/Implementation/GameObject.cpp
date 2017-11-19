@@ -9,6 +9,7 @@ namespace
   {
     ezVariantArray value(ezStaticAllocatorWrapper::GetAllocator());
     value.PushBack(ezStringView("CastShadow"));
+    value.PushBack(ezStringView("AutoColMesh")); // TODO: keep this ?
     return value;
   }
 }

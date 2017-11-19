@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Core/World/WorldModule.h>
@@ -81,4 +81,39 @@ struct EZ_GAMEENGINE_DLL ezPhysicsAddForceMsg : public ezMessage
 
   ezVec3 m_vGlobalPosition;
   ezVec3 m_vForce;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Communication/Message.h>
+
+struct EZ_GAMEENGINE_DLL ezSmcTriangle
+{
+  EZ_DECLARE_POD_TYPE();
+
+  ezUInt32 m_uiVertexIndices[3];
+};
+
+struct EZ_GAMEENGINE_DLL ezSmcSubMesh
+{
+  EZ_DECLARE_POD_TYPE();
+
+  ezUInt32 m_uiFirstTriangle;
+  ezUInt32 m_uiNumTriangles;
+  // TODO material
+};
+
+struct EZ_GAMEENGINE_DLL ezSmcDescription
+{
+  ezDeque<ezVec3> m_Vertices;
+  ezDeque<ezSmcTriangle> m_Triangles;
+  ezDeque<ezSmcSubMesh> m_SubMeshes;
+};
+
+struct EZ_GAMEENGINE_DLL ezBuildStaticMeshMessage : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezBuildStaticMeshMessage, ezMessage);
+
+  /// \brief Append data to this description to add meshes to the automatic static mesh generation
+  ezSmcDescription* m_pStaticMeshDescription;
 };

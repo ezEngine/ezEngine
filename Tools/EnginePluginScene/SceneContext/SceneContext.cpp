@@ -264,6 +264,8 @@ void ezSceneContext::OnSimulationEnabled()
 {
   ezLog::Info("World Simulation enabled");
 
+  ezSceneExportModifier::ApplyAllModifiers(*m_pWorld);
+
   ezResourceManager::ReloadAllResources(false);
 
   ezGameApplication::GetGameApplicationInstance()->ReinitializeInputConfig();
@@ -356,6 +358,8 @@ void ezSceneContext::HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg
 void ezSceneContext::OnPlayTheGameModeStarted()
 {
   ezLog::Info("Starting Play-the-Game mode");
+
+  ezSceneExportModifier::ApplyAllModifiers(*m_pWorld);
 
   m_pWorld->GetClock().SetSpeed(1.0f);
   m_pWorld->SetWorldSimulationEnabled(true);

@@ -3,12 +3,13 @@
 #include <GameEngine/Basics.h>
 #include <Core/World/World.h>
 #include <Core/World/Component.h>
-#include <EditorEngineProcessFramework/SceneExport/SceneExportModifier.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 
 class ezMeshRenderData;
+class ezGeometry;
 struct ezExtractRenderDataMessage;
+struct ezBuildStaticMeshMessage;
 typedef ezTypedResourceHandle<class ezMeshResource> ezMeshResourceHandle;
 typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
 
@@ -70,6 +71,8 @@ public:
   void SetSizePosZ(float f);
   float GetSizePosZ() const { return m_fSizePosZ; }
 
+  void OnBuildStaticMesh(ezBuildStaticMeshMessage& msg) const;
+
 protected:
   ezEnum<ezGreyBoxShape> m_Shape;
   ezMaterialResourceHandle m_hMaterial;
@@ -83,15 +86,8 @@ protected:
 protected:
   void InvalidateMesh();
   void GenerateRenderMesh() const;
+  void BuildGeometry(ezGeometry& geom) const;
 
   mutable ezMeshResourceHandle m_hMesh;
 };
 
-//class EZ_ENGINEPLUGINSCENE_DLL ezSceneExportModifier_ConvertGreyBoxComponents : public ezSceneExportModifier
-//{
-//  EZ_ADD_DYNAMIC_REFLECTION(ezSceneExportModifier_ConvertGreyBoxComponents, ezSceneExportModifier);
-//public:
-//
-//  virtual void ModifyWorld(ezWorld& world) override;
-//};
-//

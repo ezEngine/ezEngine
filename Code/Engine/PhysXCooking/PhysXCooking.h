@@ -2,6 +2,7 @@
 
 #include <PhysXCooking/Basics.h>
 #include <PhysXPlugin/PhysXInterface.h>
+#include <Foundation/Types/Status.h>
 
 using namespace physx;
 
@@ -11,10 +12,11 @@ namespace physx
 }
 
 class ezStreamWriter;
+class ezChunkStreamWriter;
 
-struct ezPhysXCookingMesh
+struct EZ_PHYSXCOOKING_DLL ezPhysXCookingMesh
 {
-  bool m_bFlipNormals;
+  bool m_bFlipNormals = false;
   ezDynamicArray<ezVec3> m_Vertices;
   ezDynamicArray<ezUInt8> m_VerticesInPolygon;
   ezDynamicArray<ezUInt32> m_PolygonIndices;
@@ -31,7 +33,7 @@ public:
   static ezResult CookTriangleMesh(const ezPhysXCookingMesh& mesh, ezStreamWriter& OutputStream);
   static ezResult CookConvexMesh(const ezPhysXCookingMesh& mesh, ezStreamWriter& OutputStream);
   static ezResult ComputeConvexHull(const ezPhysXCookingMesh& mesh, ezPhysXCookingMesh& outMesh);
-
+  static ezStatus WriteResourceToStream(ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh, const ezArrayPtr<ezString>& surfaces, bool bConvexMesh);
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(PhysX, PhysXCooking);

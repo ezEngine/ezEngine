@@ -7,6 +7,7 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
+#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGreyBoxShape, 1)
 EZ_ENUM_CONSTANTS(ezGreyBoxShape::Box)
@@ -34,6 +35,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 1)
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezBuildStaticMeshMessage, OnBuildStaticMesh),
   }
   EZ_END_MESSAGEHANDLERS
 }
@@ -53,6 +55,7 @@ void ezGreyBoxComponent::SerializeComponent(ezWorldWriter& stream) const
   ezStreamWriter& s = stream.GetStream();
 
   s << m_Shape;
+  s << m_hMaterial;
   s << m_fSizeNegX;
   s << m_fSizePosX;
   s << m_fSizeNegY;
@@ -68,6 +71,7 @@ void ezGreyBoxComponent::DeserializeComponent(ezWorldReader& stream)
   ezStreamReader& s = stream.GetStream();
 
   s >> m_Shape;
+  s >> m_hMaterial;
   s >> m_fSizeNegX;
   s >> m_fSizePosX;
   s >> m_fSizeNegY;
@@ -209,12 +213,63 @@ void ezGreyBoxComponent::SetSizePosZ(float f)
   InvalidateMesh();
 }
 
+void ezGreyBoxComponent::OnBuildStaticMesh(ezBuildStaticMeshMessage& msg) const
+{
+  ezGeometry geom;
+  BuildGeometry(geom);
+  geom.TriangulatePolygons();
+
+  auto* pDesc = msg.m_pStaticMeshDescription;
+  auto& subMesh = pDesc->m_SubMeshes.ExpandAndGetRef();
+  subMesh.m_uiFirstTriangle = pDesc->m_Triangles.GetCount();
+
+  const ezTransform t = GetOwner()->GetGlobalTransform();
+
+  const ezUInt32 uiTriOffset = pDesc->m_Vertices.GetCount();
+
+  for (const auto& verts : geom.GetVertices())
+  {
+    pDesc->m_Vertices.PushBack(t * verts.m_vPosition);
+  }
+
+  for (const auto& polys : geom.GetPolygons())
+  {
+    auto& tri = pDesc->m_Triangles.ExpandAndGetRef();
+    tri.m_uiVertexIndices[0] = uiTriOffset + polys.m_Vertices[0];
+    tri.m_uiVertexIndices[1] = uiTriOffset + polys.m_Vertices[1];
+    tri.m_uiVertexIndices[2] = uiTriOffset + polys.m_Vertices[2];
+  }
+
+  subMesh.m_uiNumTriangles = pDesc->m_Triangles.GetCount() - subMesh.m_uiFirstTriangle;
+}
+
 void ezGreyBoxComponent::InvalidateMesh()
 {
   if (m_hMesh.IsValid())
   {
     m_hMesh.Invalidate();
     TriggerLocalBoundsUpdate();
+  }
+}
+
+void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom) const
+{
+  if (m_Shape == ezGreyBoxShape::Box)
+  {
+    ezVec3 size;
+    size.x = m_fSizeNegX + m_fSizePosX;
+    size.y = m_fSizeNegY + m_fSizePosY;
+    size.z = m_fSizeNegZ + m_fSizePosZ;
+
+    ezVec3 offset(0);
+    offset.x = (m_fSizePosX - m_fSizeNegX) * 0.5f;
+    offset.y = (m_fSizePosY - m_fSizeNegY) * 0.5f;
+    offset.z = (m_fSizePosZ - m_fSizeNegZ) * 0.5f;
+
+    ezMat4 t;
+    t.SetTranslationMatrix(offset);
+
+    geom.AddTexturedBox(size, ezColor::White, t);
   }
 }
 
@@ -240,24 +295,7 @@ void ezGreyBoxComponent::GenerateRenderMesh() const
     return;
 
   ezGeometry geom;
-
-  if (m_Shape == ezGreyBoxShape::Box)
-  {
-    ezVec3 size;
-    size.x = m_fSizeNegX + m_fSizePosX;
-    size.y = m_fSizeNegY + m_fSizePosY;
-    size.z = m_fSizeNegZ + m_fSizePosZ;
-
-    ezVec3 offset(0);
-    offset.x = (m_fSizePosX - m_fSizeNegX) * 0.5f;
-    offset.y = (m_fSizePosY - m_fSizeNegY) * 0.5f;
-    offset.z = (m_fSizePosZ - m_fSizeNegZ) * 0.5f;
-
-    ezMat4 t;
-    t.SetTranslationMatrix(offset);
-
-    geom.AddTexturedBox(size, ezColor::White, t);
-  }
+  BuildGeometry(geom);
 
   geom.ComputeFaceNormals();
   geom.TriangulatePolygons();
@@ -280,31 +318,3 @@ void ezGreyBoxComponent::GenerateRenderMesh() const
 
   m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(sResourceName, desc, sResourceName);
 }
-
-//////////////////////////////////////////////////////////////////////////
-
-//EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_ConvertGreyBoxComponents, 1, ezRTTIDefaultAllocator<ezSceneExportModifier_ConvertGreyBoxComponents>)
-//EZ_END_DYNAMIC_REFLECTED_TYPE
-//
-//
-//void ezSceneExportModifier_ConvertGreyBoxComponents::ModifyWorld(ezWorld& world)
-//{
-//  EZ_LOCK(world.GetWriteMarker());
-//
-//  ezGreyBoxComponentManager* pMan = world.GetComponentManager<ezGreyBoxComponentManager>();
-//
-//  if (pMan == nullptr)
-//    return;
-//
-//  ezUInt32 num = 0;
-//
-//  for (auto it = pMan->GetComponents(); it.IsValid(); )
-//  {
-//    ezGreyBoxComponent* pComp = &(*it);
-//    it.Next();
-//
-//    pMan->DeleteComponent(pComp->GetHandle());
-//
-//    ++num;
-//  }
-//}

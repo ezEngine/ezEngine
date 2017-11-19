@@ -120,7 +120,7 @@ ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& st
     }
 
     range.BeginNextStep("Writing Result");
-    EZ_SUCCEED_OR_RETURN(WriteToStream(chunk, xMesh));
+    EZ_SUCCEED_OR_RETURN(WriteToStream(chunk, xMesh, GetProperties()));
   }
 
   chunk.EndStream();
@@ -264,57 +264,16 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromGeom(ezGeometry& geom, ezPh
   return ezStatus(EZ_SUCCESS);
 }
 
-//ezStatus ezMeshAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)
-//{
-//  ezStatus status = ezAssetDocument::RemoteCreateThumbnail(AssetHeader);
-//  return status;
-//}
-
-ezStatus ezCollisionMeshAssetDocument::WriteToStream(ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh)
+ezStatus ezCollisionMeshAssetDocument::WriteToStream(ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh, const ezCollisionMeshAssetProperties* pProp)
 {
-  const ezCollisionMeshAssetProperties* pProp = GetProperties();
+  ezHybridArray<ezString, 32> surfaces;
 
-  ezResult resCooking = EZ_FAILURE;
-
+  for (const auto& slot : pProp->m_Slots)
   {
-    stream.BeginChunk("Surfaces", 1);
-
-    stream << pProp->m_Slots.GetCount();
-
-    for (const auto& slot : pProp->m_Slots)
-    {
-      stream << slot.m_sResource;
-    }
-
-    stream.EndChunk();
+    surfaces.PushBack(slot.m_sResource);
   }
 
-  if (pProp->m_MeshType == ezCollisionMeshType::TriangleMesh)
-  {
-    stream.BeginChunk("TriangleMesh", 1);
-
-    ezStopwatch timer;
-    resCooking = ezPhysXCooking::CookTriangleMesh(mesh, stream);
-    ezLog::Dev("Triangle Mesh Cooking time: {0}s", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
-
-    stream.EndChunk();
-  }
-  else
-  {
-    stream.BeginChunk("ConvexMesh", 1);
-
-    ezStopwatch timer;
-    resCooking = ezPhysXCooking::CookConvexMesh(mesh, stream);
-    ezLog::Dev("Convex Mesh Cooking time: {0}s", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
-
-    stream.EndChunk();
-  }
-
-  if (resCooking.Failed())
-    return ezStatus("Cooking the collision mesh failed.");
-
-
-  return ezStatus(EZ_SUCCESS);
+  return ezPhysXCooking::WriteResourceToStream(stream, mesh, surfaces, pProp->m_MeshType == ezCollisionMeshType::TriangleMesh);
 }
 
 ezStatus ezCollisionMeshAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)

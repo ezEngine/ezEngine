@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <PhysXPlugin/Components/PxActorComponent.h>
 #include <PhysXPlugin/Resources/PxMeshResource.h>
@@ -15,12 +15,17 @@ public:
   ezPxStaticActorComponent();
   ~ezPxStaticActorComponent();
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent Interface
+
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
   virtual void Deinitialize() override;
-
   virtual void OnSimulationStarted() override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezPxStaticActorComponent Interface
 
   void OnBuildNavMesh(ezBuildNavMeshMessage& msg) const;
 

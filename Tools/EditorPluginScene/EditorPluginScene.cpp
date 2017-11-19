@@ -60,6 +60,7 @@ void OnLoadPlugin(bool bReloading)
   // Add built in tags
   {
     ezToolsTagRegistry::AddTag(ezToolsTag("Default", "CastShadow", true));
+    ezToolsTagRegistry::AddTag(ezToolsTag("Default", "AutoColMesh", true));
   }
 
   ezSelectionActions::RegisterActions();

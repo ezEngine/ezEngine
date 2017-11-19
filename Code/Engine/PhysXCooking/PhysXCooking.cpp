@@ -6,6 +6,7 @@
 #include <PxPhysicsAPI.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Utilities/Progress.h>
+#include <Foundation/IO/ChunkStream.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(PhysX, PhysXCooking)
 
@@ -290,7 +291,50 @@ void ezPhysXCooking::CreateMeshDesc(const ezPhysXCookingMesh& mesh, PxSimpleTria
   EZ_ASSERT_DEV(desc.isValid(), "PhysX PxTriangleMeshDesc is invalid");
 }
 
+ezStatus ezPhysXCooking::WriteResourceToStream(ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh, const ezArrayPtr<ezString>& surfaces, bool bConvexMesh)
+{
+  ezResult resCooking = EZ_FAILURE;
 
+  {
+    stream.BeginChunk("Surfaces", 1);
+
+    stream << surfaces.GetCount();
+
+    for (const auto& slot : surfaces)
+    {
+      stream << slot;
+    }
+
+    stream.EndChunk();
+  }
+
+  if (!bConvexMesh)
+  {
+    stream.BeginChunk("TriangleMesh", 1);
+
+    ezStopwatch timer;
+    resCooking = ezPhysXCooking::CookTriangleMesh(mesh, stream);
+    ezLog::Dev("Triangle Mesh Cooking time: {0}s", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
+
+    stream.EndChunk();
+  }
+  else
+  {
+    stream.BeginChunk("ConvexMesh", 1);
+
+    ezStopwatch timer;
+    resCooking = ezPhysXCooking::CookConvexMesh(mesh, stream);
+    ezLog::Dev("Convex Mesh Cooking time: {0}s", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
+
+    stream.EndChunk();
+  }
+
+  if (resCooking.Failed())
+    return ezStatus("Cooking the collision mesh failed.");
+
+
+  return ezStatus(EZ_SUCCESS);
+}
 
 EZ_STATICLINK_FILE(PhysXCooking, PhysXCooking_PhysXCooking);
 
