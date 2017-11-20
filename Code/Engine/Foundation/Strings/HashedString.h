@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Algorithm/Hashing.h>
 #include <Foundation/Containers/Map.h>
@@ -104,6 +104,9 @@ public:
 
   /// \brief Returns whether the string is empty.
   bool IsEmpty() const;
+
+  /// \brief Resets the string to the empty string.
+  void Clear();
 
   /// \brief Returns a string view to this string's data.
   EZ_ALWAYS_INLINE operator ezStringView() const { return GetString(); }
