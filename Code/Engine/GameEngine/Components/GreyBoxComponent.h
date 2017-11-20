@@ -22,9 +22,11 @@ struct EZ_GAMEENGINE_DLL ezGreyBoxShape
   enum Enum
   {
     Box,
-    Ramp,
+    RampX,
+    RampY,
     Column,
-    Stairs,
+    StairsX,
+    StairsY,
 
     Default = Box
   };
@@ -73,6 +75,8 @@ public:
   float GetSizeNegZ() const { return m_fSizeNegZ; }
   void SetSizePosZ(float f);
   float GetSizePosZ() const { return m_fSizePosZ; }
+  void SetDetail(ezUInt32 uiDetail);
+  ezUInt32 GetDetail() const { return m_uiDetail; }
 
   void OnBuildStaticMesh(ezBuildStaticMeshMessage& msg) const;
 
@@ -85,6 +89,7 @@ protected:
   float m_fSizePosY = 0;
   float m_fSizeNegZ = 0;
   float m_fSizePosZ = 0;
+  ezUInt32 m_uiDetail = 8;
 
 protected:
   void InvalidateMesh();

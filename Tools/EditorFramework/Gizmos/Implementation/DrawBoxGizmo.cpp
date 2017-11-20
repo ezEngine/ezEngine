@@ -23,6 +23,10 @@ ezDrawBoxGizmo::ezDrawBoxGizmo()
   SetTransformation(ezTransform::Identity());
 }
 
+ezDrawBoxGizmo::~ezDrawBoxGizmo()
+{
+}
+
 void ezDrawBoxGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
   pOwnerWindow->GetDocument()->AddSyncObject(&m_Box);
@@ -229,19 +233,34 @@ void ezDrawBoxGizmo::UpdateBox()
   m_Box.SetVisible(true);
 }
 
-void ezDrawBoxGizmo::GetResult(ezVec3& out_Center, float& out_fSizeNegX, float& out_fSizePosX, float& out_fSizeNegY, float& out_fSizePosY, float& out_fSizeNegZ, float& out_fSizePosZ) const
+void ezDrawBoxGizmo::GetResult(ezVec3& out_Origin, float& out_fSizeNegX, float& out_fSizePosX, float& out_fSizeNegY, float& out_fSizePosY, float& out_fSizeNegZ, float& out_fSizePosZ) const
 {
-  out_Center = ezMath::Lerp(m_vFirstCorner, m_vSecondCorner, 0.5f);
+  out_Origin = m_vFirstCorner;
 
-  ezVec3 vSize;
-  vSize.x = ezMath::Abs(m_vSecondCorner.x - m_vFirstCorner.x);
-  vSize.y = ezMath::Abs(m_vSecondCorner.y - m_vFirstCorner.y);
-  vSize.z = m_fBoxHeight;
+  const float fBoxWidth = m_vSecondCorner.x - m_vFirstCorner.x;
+  const float fBoxDepth = m_vSecondCorner.y - m_vFirstCorner.y;
 
-  out_fSizeNegX = vSize.x * 0.5f;
-  out_fSizePosX = vSize.x * 0.5f;
-  out_fSizeNegY = vSize.y * 0.5f;
-  out_fSizePosY = vSize.y * 0.5f;
+  if (fBoxWidth > 0)
+  {
+    out_fSizeNegX = 0;
+    out_fSizePosX = fBoxWidth;
+  }
+  else
+  {
+    out_fSizeNegX = -fBoxWidth;
+    out_fSizePosX = 0;
+  }
+
+  if (fBoxDepth > 0)
+  {
+    out_fSizeNegY = 0;
+    out_fSizePosY = fBoxDepth;
+  }
+  else
+  {
+    out_fSizeNegY = -fBoxDepth;
+    out_fSizePosY = 0;
+  }
 
   if (m_fBoxHeight > 0)
   {

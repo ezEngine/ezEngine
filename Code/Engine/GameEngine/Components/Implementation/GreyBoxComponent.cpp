@@ -10,7 +10,7 @@
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGreyBoxShape, 1)
-EZ_ENUM_CONSTANTS(ezGreyBoxShape::Box, ezGreyBoxShape::Ramp, ezGreyBoxShape::Column, ezGreyBoxShape::Stairs)
+EZ_ENUM_CONSTANTS(ezGreyBoxShape::Box, ezGreyBoxShape::RampX, ezGreyBoxShape::RampY, ezGreyBoxShape::Column, ezGreyBoxShape::StairsX, ezGreyBoxShape::StairsY)
 EZ_END_STATIC_REFLECTED_ENUM()
 
 EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 1)
@@ -25,6 +25,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 1)
     EZ_ACCESSOR_PROPERTY("SizePosY", GetSizePosY, SetSizePosY),
     EZ_ACCESSOR_PROPERTY("SizeNegZ", GetSizeNegZ, SetSizeNegZ),
     EZ_ACCESSOR_PROPERTY("SizePosZ", GetSizePosZ, SetSizePosZ),
+    EZ_ACCESSOR_PROPERTY("Detail", GetDetail, SetDetail)->AddAttributes(new ezDefaultValueAttribute(8), new ezClampValueAttribute(3, 32)),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES
@@ -62,6 +63,7 @@ void ezGreyBoxComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fSizePosY;
   s << m_fSizeNegZ;
   s << m_fSizePosZ;
+  s << m_uiDetail;
 }
 
 void ezGreyBoxComponent::DeserializeComponent(ezWorldReader& stream)
@@ -78,6 +80,7 @@ void ezGreyBoxComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fSizePosY;
   s >> m_fSizeNegZ;
   s >> m_fSizePosZ;
+  s >> m_uiDetail;
 }
 
 ezResult ezGreyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
@@ -213,6 +216,12 @@ void ezGreyBoxComponent::SetSizePosZ(float f)
   InvalidateMesh();
 }
 
+void ezGreyBoxComponent::SetDetail(ezUInt32 uiDetail)
+{
+  m_uiDetail = uiDetail;
+  InvalidateMesh();
+}
+
 void ezGreyBoxComponent::OnBuildStaticMesh(ezBuildStaticMeshMessage& msg) const
 {
   ezGeometry geom;
@@ -273,17 +282,32 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom) const
     geom.AddTexturedBox(size, ezColor::White, t);
     break;
 
-  case ezGreyBoxShape::Ramp:
+  case ezGreyBoxShape::RampX:
+    geom.AddTexturedRamp(size, ezColor::White, t);
+    break;
+
+  case ezGreyBoxShape::RampY:
+    ezMath::Swap(size.x, size.y);
+    t.SetRotationMatrixZ(ezAngle::Degree(-90.0f));
+    t.SetTranslationVector(offset);
     geom.AddTexturedRamp(size, ezColor::White, t);
     break;
 
   case ezGreyBoxShape::Column:
     t.SetScalingFactors(size);
-    geom.AddCylinder(0.5f, 0.5f, 1.0f, true, true, 16, ezColor::White, t);
+    geom.AddCylinder(0.5f, 0.5f, 1.0f, true, true, m_uiDetail, ezColor::White, t);
     break;
 
-  case ezGreyBoxShape::Stairs:
-    //break;
+  case ezGreyBoxShape::StairsX:
+    geom.AddStairs(size, m_uiDetail, ezColor::White, t);
+    break;
+
+  case ezGreyBoxShape::StairsY:
+    ezMath::Swap(size.x, size.y);
+    t.SetRotationMatrixZ(ezAngle::Degree(-90.0f));
+    t.SetTranslationVector(offset);
+    geom.AddStairs(size, m_uiDetail, ezColor::White, t);
+    break;
 
   default:
     EZ_ASSERT_NOT_IMPLEMENTED;
@@ -303,16 +327,24 @@ void ezGreyBoxComponent::GenerateRenderMesh() const
     sResourceName.Format("Grey-Box:{0}-{1},{2}-{3},{4}-{5}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ);
     break;
 
-  case ezGreyBoxShape::Ramp:
-    sResourceName.Format("Grey-Ramp:{0}-{1},{2}-{3},{4}-{5}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ);
+  case ezGreyBoxShape::RampX:
+    sResourceName.Format("Grey-RampX:{0}-{1},{2}-{3},{4}-{5}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ);
+    break;
+
+  case ezGreyBoxShape::RampY:
+    sResourceName.Format("Grey-RampY:{0}-{1},{2}-{3},{4}-{5}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ);
     break;
 
   case ezGreyBoxShape::Column:
-    sResourceName.Format("Grey-Column:{0}-{1},{2}-{3},{4}-{5}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ);
+    sResourceName.Format("Grey-Column:{0}-{1},{2}-{3},{4}-{5}-d{6}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail);
     break;
 
-  case ezGreyBoxShape::Stairs:
-    sResourceName.Format("Grey-Stairs:{0}-{1},{2}-{3},{4}-{5}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ);
+  case ezGreyBoxShape::StairsX:
+    sResourceName.Format("Grey-StairsX:{0}-{1},{2}-{3},{4}-{5}-d{6}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail);
+    break;
+
+  case ezGreyBoxShape::StairsY:
+    sResourceName.Format("Grey-StairsY:{0}-{1},{2}-{3},{4}-{5}-d{6}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail);
     break;
 
   default:

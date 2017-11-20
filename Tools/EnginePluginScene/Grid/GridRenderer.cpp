@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EnginePluginScene/Grid/GridRenderer.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
@@ -267,11 +267,6 @@ void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<con
   }
   else
   {
-    const auto& sel = m_pSceneContext->GetSelection();
-
-    if (sel.IsEmpty())
-      return;
-
     pRenderData->m_GlobalTransform = m_pSceneContext->GetGridTransform();
 
     // grid is disabled

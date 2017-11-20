@@ -192,6 +192,9 @@ public:
   /// \brief Adds a ramp that has UV coordinates set.
   void AddTexturedRamp(const ezVec3& size, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
+  /// \brief Generates a straight stair mesh along the X axis. The number of steps determines the step height and depth.
+  void AddStairs(const ezVec3& size, ezUInt32 uiNumSteps, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+
   /// \todo GeomUtils improvements:
   // ThickLine
   // Part of a Torus

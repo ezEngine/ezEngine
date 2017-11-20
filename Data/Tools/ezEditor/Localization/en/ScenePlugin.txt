@@ -146,6 +146,8 @@ ezLogicOperator::Greater;>
 ezLogicOperator::GreaterEqual;>=
 ezShapeIconComponent;Shape Icon
 ezGreyBoxShape::Box;Box
-ezGreyBoxShape::Ramp;Ramp
+ezGreyBoxShape::RampX;Ramp X
+ezGreyBoxShape::RampY;Ramp Y
 ezGreyBoxShape::Column;Column
-ezGreyBoxShape::Stairs;Stairs
+ezGreyBoxShape::StairsX;Stairs X
+ezGreyBoxShape::StairsY;Stairs Y

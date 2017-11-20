@@ -263,7 +263,7 @@ struct TangentContext
   }
 
   static void setTSpace(const SMikkTSpaceContext * pContext, const float fvTangent[], const float fvBiTangent[], const float fMagS, const float fMagT,
-                        const tbool bIsOrientationPreserving, const int iFace, const int iVert)
+    const tbool bIsOrientationPreserving, const int iFace, const int iVert)
   {
     int i = 0;
     (void)i;
@@ -380,9 +380,9 @@ void ezGeometry::AddRectXY(const ezVec2& size, const ezColor& color, const ezMat
   ezUInt32 idx[4];
 
   idx[0] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(0, 1), color, iCustomIndex, mTransform);
-  idx[1] = AddVertex(ezVec3( halfSize.x, -halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(0, 0), color, iCustomIndex, mTransform);
-  idx[2] = AddVertex(ezVec3( halfSize.x,  halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(1, 0), color, iCustomIndex, mTransform);
-  idx[3] = AddVertex(ezVec3(-halfSize.x,  halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(1, 1), color, iCustomIndex, mTransform);
+  idx[1] = AddVertex(ezVec3(halfSize.x, -halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(0, 0), color, iCustomIndex, mTransform);
+  idx[2] = AddVertex(ezVec3(halfSize.x, halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(1, 0), color, iCustomIndex, mTransform);
+  idx[3] = AddVertex(ezVec3(-halfSize.x, halfSize.y, 0), ezVec3(0, 0, 1), ezVec2(1, 1), color, iCustomIndex, mTransform);
 
   AddPolygon(idx, bFlipWinding);
 }
@@ -786,7 +786,7 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeigh
     ezHybridArray<ezUInt32, 512> VertsTop;
     ezHybridArray<ezUInt32, 512> VertsBottom;
 
-    for (ezInt32 i = 0 ; i <= uiSegments; ++i)
+    for (ezInt32 i = 0; i <= uiSegments; ++i)
     {
       const ezAngle deg = (float)i * fDegStep;
 
@@ -950,7 +950,7 @@ void ezGeometry::AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSeg
 
   for (ezInt32 i = uiSegments - 1; i >= 0; --i)
   {
-    const ezAngle deg = (float) i * fDegStep;
+    const ezAngle deg = (float)i * fDegStep;
 
     ezVec3 vDir(ezMath::Cos(deg), ezMath::Sin(deg), 0);
 
@@ -983,8 +983,8 @@ void ezGeometry::AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks
   EZ_ASSERT_DEV(uiStacks >= 2, "Sphere must have at least 2 stacks");
 
   bool bFlipWinding = mTransform.GetRotationalPart().GetDeterminant() < 0;
-  const ezAngle fDegreeDiffSegments = ezAngle::Degree(360.0f / (float) (uiSegments));
-  const ezAngle fDegreeDiffStacks = ezAngle::Degree(180.0f / (float) (uiStacks));
+  const ezAngle fDegreeDiffSegments = ezAngle::Degree(360.0f / (float)(uiSegments));
+  const ezAngle fDegreeDiffStacks = ezAngle::Degree(180.0f / (float)(uiStacks));
 
   const ezUInt32 uiFirstVertex = m_Vertices.GetCount();
 
@@ -1009,7 +1009,7 @@ void ezGeometry::AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks
 
       ezVec3 vPos;
       vPos.x = ezMath::Cos(fDegree) * fRadius * fCosDS;
-      vPos.y =-ezMath::Sin(fDegree) * fRadius * fCosDS;
+      vPos.y = -ezMath::Sin(fDegree) * fRadius * fCosDS;
       vPos.z = fY;
 
       AddVertex(vPos, vPos.GetNormalized(), ezVec2(fU, fV), color, iCustomIndex, mTransform);
@@ -1069,20 +1069,20 @@ void ezGeometry::AddHalfSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiSt
   EZ_ASSERT_DEV(uiStacks >= 1, "Sphere must have at least 1 stacks");
 
   bool bFlipWinding = mTransform.GetRotationalPart().GetDeterminant() < 0;
-  const ezAngle fDegreeDiffSegments = ezAngle::Degree(360.0f / (float) (uiSegments));
-  const ezAngle fDegreeDiffStacks = ezAngle::Degree(90.0f / (float) (uiStacks));
+  const ezAngle fDegreeDiffSegments = ezAngle::Degree(360.0f / (float)(uiSegments));
+  const ezAngle fDegreeDiffStacks = ezAngle::Degree(90.0f / (float)(uiStacks));
 
   const ezUInt32 uiFirstVertex = m_Vertices.GetCount();
 
   // first create all the vertex positions
   for (ezUInt32 st = 0; st < uiStacks; ++st)
   {
-    const ezAngle fDegreeStack = ezAngle::Degree(-90.0f + ((st+1) * fDegreeDiffStacks.GetDegree()));
+    const ezAngle fDegreeStack = ezAngle::Degree(-90.0f + ((st + 1) * fDegreeDiffStacks.GetDegree()));
     const float fCosDS = ezMath::Cos(fDegreeStack);
     const float fSinDS = ezMath::Sin(fDegreeStack);
     const float fY = -fSinDS * fRadius;
 
-    const float fV = (float)(st+1) / (float)uiStacks;
+    const float fV = (float)(st + 1) / (float)uiStacks;
 
     for (ezUInt32 sp = 0; sp <= uiSegments; ++sp)
     {
@@ -1155,12 +1155,12 @@ void ezGeometry::AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, e
   EZ_ASSERT_DEV(fHeight >= 0.0f, "Height must be positive");
 
   bool bFlipWinding = mTransform.GetRotationalPart().GetDeterminant() < 0;
-  const ezAngle fDegreeDiffStacks = ezAngle::Degree(90.0f / (float) (uiStacks));
+  const ezAngle fDegreeDiffStacks = ezAngle::Degree(90.0f / (float)(uiStacks));
 
   const ezUInt32 uiFirstVertex = m_Vertices.GetCount();
 
   // first create all the vertex positions
-  const float fDegreeStepSlices = 360.0f / (float) (uiSegments);
+  const float fDegreeStepSlices = 360.0f / (float)(uiSegments);
 
   float fOffset = fHeight * 0.5f;
 
@@ -1362,6 +1362,116 @@ void ezGeometry::AddTexturedRamp(const ezVec3& size, const ezColor& color, const
     AddPolygon(idx3, bFlipWinding);
   }
 
+}
+
+void ezGeometry::AddStairs(const ezVec3& size, ezUInt32 uiNumSteps, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
+{
+  const bool bFlipWinding = false; // TODO
+
+  {
+    const float fStepDiv = 1.0f / uiNumSteps;
+    const float fStepDepth = size.x / uiNumSteps;
+    const float fStepHeight = size.z / uiNumSteps;
+
+    const ezVec3 vMoveFwd(fStepDepth, 0, 0);
+    const ezVec3 vMoveUp(0, 0, fStepHeight);
+    const ezVec3 vMoveUpFwd(fStepDepth, 0, fStepHeight);
+
+    ezVec3 vBaseL0(-size.x * 0.5f, -size.y * 0.5f, -size.z * 0.5f);
+    ezVec3 vBaseL1(-size.x * 0.5f, +size.y * 0.5f, -size.z * 0.5f);
+    ezVec3 vBaseR0 = vBaseL0 + vMoveFwd;
+    ezVec3 vBaseR1 = vBaseL1 + vMoveFwd;
+
+    ezVec3 vTopL0 = vBaseL0 + vMoveUp;
+    ezVec3 vTopL1 = vBaseL1 + vMoveUp;
+    ezVec3 vTopR0 = vBaseR0 + vMoveUp;
+    ezVec3 vTopR1 = vBaseR1 + vMoveUp;
+
+    ezVec3 vPrevTopR0 = vBaseL0;
+    ezVec3 vPrevTopR1 = vBaseL1;
+
+    float fTexU0 = 0;
+    float fTexU1 = fStepDiv;
+
+    for (ezUInt32 step = 0; step < uiNumSteps; ++step)
+    {
+      ezUInt32 poly[4];
+
+      // top
+      poly[0] = AddVertex(vTopL0, ezVec3(0, 0, 1), ezVec2(fTexU0, 0), color, iCustomIndex, mTransform);
+      poly[3] = AddVertex(vTopL1, ezVec3(0, 0, 1), ezVec2(fTexU0, 1), color, iCustomIndex, mTransform);
+      poly[1] = AddVertex(vTopR0, ezVec3(0, 0, 1), ezVec2(fTexU1, 0), color, iCustomIndex, mTransform);
+      poly[2] = AddVertex(vTopR1, ezVec3(0, 0, 1), ezVec2(fTexU1, 1), color, iCustomIndex, mTransform);
+      AddPolygon(poly, bFlipWinding);
+
+      // step front
+      poly[0] = AddVertex(vPrevTopR0, ezVec3(-1, 0, 0), ezVec2(0, fTexU0), color, iCustomIndex, mTransform);
+      poly[3] = AddVertex(vPrevTopR1, ezVec3(-1, 0, 0), ezVec2(1, fTexU0), color, iCustomIndex, mTransform);
+      poly[1] = AddVertex(vTopL0, ezVec3(-1, 0, 0), ezVec2(0, fTexU1), color, iCustomIndex, mTransform);
+      poly[2] = AddVertex(vTopL1, ezVec3(-1, 0, 0), ezVec2(1, fTexU1), color, iCustomIndex, mTransform);
+      AddPolygon(poly, bFlipWinding);
+
+      // side 1
+      poly[0] = AddVertex(vBaseL0, ezVec3(0, -1, 0), ezVec2(fTexU0, 0), color, iCustomIndex, mTransform);
+      poly[1] = AddVertex(vBaseR0, ezVec3(0, -1, 0), ezVec2(fTexU1, 0), color, iCustomIndex, mTransform);
+      poly[3] = AddVertex(vTopL0, ezVec3(0, -1, 0), ezVec2(fTexU0, fTexU1), color, iCustomIndex, mTransform);
+      poly[2] = AddVertex(vTopR0, ezVec3(0, -1, 0), ezVec2(fTexU1, fTexU1), color, iCustomIndex, mTransform);
+      AddPolygon(poly, bFlipWinding);
+
+      // side 2
+      poly[0] = AddVertex(vBaseL1, ezVec3(0, 1, 0), ezVec2(fTexU0, 0), color, iCustomIndex, mTransform);
+      poly[3] = AddVertex(vBaseR1, ezVec3(0, 1, 0), ezVec2(fTexU1, 0), color, iCustomIndex, mTransform);
+      poly[1] = AddVertex(vTopL1, ezVec3(0, 1, 0), ezVec2(fTexU0, fTexU1), color, iCustomIndex, mTransform);
+      poly[2] = AddVertex(vTopR1, ezVec3(0, 1, 0), ezVec2(fTexU1, fTexU1), color, iCustomIndex, mTransform);
+      AddPolygon(poly, bFlipWinding);
+
+      vPrevTopR0 = vTopR0;
+      vPrevTopR1 = vTopR1;
+
+      vBaseL0 += vMoveFwd;
+      vBaseL1 += vMoveFwd;
+      vBaseR0 += vMoveFwd;
+      vBaseR1 += vMoveFwd;
+
+      vTopL0 += vMoveUpFwd;
+      vTopL1 += vMoveUpFwd;
+      vTopR0 += vMoveUpFwd;
+      vTopR1 += vMoveUpFwd;
+
+      fTexU0 = fTexU1;
+      fTexU1 += fStepDiv;
+    }
+  }
+
+  // bottom
+  {
+    ezVec3 vBaseL0(-size.x * 0.5f, -size.y * 0.5f, -size.z * 0.5f);
+    ezVec3 vBaseL1(-size.x * 0.5f, +size.y * 0.5f, -size.z * 0.5f);
+    ezVec3 vBaseR0(+size.x * 0.5f, -size.y * 0.5f, -size.z * 0.5f);
+    ezVec3 vBaseR1(+size.x * 0.5f, +size.y * 0.5f, -size.z * 0.5f);
+
+    ezUInt32 poly[4];
+    poly[0] = AddVertex(vBaseL0, ezVec3(0, 0, -1), ezVec2(0, 0), color, iCustomIndex, mTransform);
+    poly[1] = AddVertex(vBaseL1, ezVec3(0, 0, -1), ezVec2(1, 0), color, iCustomIndex, mTransform);
+    poly[3] = AddVertex(vBaseR0, ezVec3(0, 0, -1), ezVec2(0, 1), color, iCustomIndex, mTransform);
+    poly[2] = AddVertex(vBaseR1, ezVec3(0, 0, -1), ezVec2(1, 1), color, iCustomIndex, mTransform);
+    AddPolygon(poly, bFlipWinding);
+  }
+
+  // back
+  {
+    ezVec3 vBaseL0(+size.x * 0.5f, -size.y * 0.5f, -size.z * 0.5f);
+    ezVec3 vBaseL1(+size.x * 0.5f, +size.y * 0.5f, -size.z * 0.5f);
+    ezVec3 vBaseR0(+size.x * 0.5f, -size.y * 0.5f, +size.z * 0.5f);
+    ezVec3 vBaseR1(+size.x * 0.5f, +size.y * 0.5f, +size.z * 0.5f);
+
+    ezUInt32 poly[4];
+    poly[0] = AddVertex(vBaseL0, ezVec3(1, 0, 0), ezVec2(0, 0), color, iCustomIndex, mTransform);
+    poly[1] = AddVertex(vBaseL1, ezVec3(1, 0, 0), ezVec2(1, 0), color, iCustomIndex, mTransform);
+    poly[3] = AddVertex(vBaseR0, ezVec3(1, 0, 0), ezVec2(0, 1), color, iCustomIndex, mTransform);
+    poly[2] = AddVertex(vBaseR1, ezVec3(1, 0, 0), ezVec2(1, 1), color, iCustomIndex, mTransform);
+    AddPolygon(poly, bFlipWinding);
+  }
 }
 
 EZ_STATICLINK_FILE(Core, Core_Graphics_Implementation_Geometry);
