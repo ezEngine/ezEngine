@@ -45,6 +45,10 @@ public:
 
   void SetBaseMaterial(const char* szBaseMaterial);
   const char* GetBaseMaterial() const;
+
+  void SetSurface(const char* szSurface) { m_sSurface = szSurface; }
+  const char* GetSurface() const { return m_sSurface; }
+
   void SetShader(const char* szShader);
   const char* GetShader() const;
   void SetShaderProperties(ezReflectedClass* pProperties);
@@ -68,6 +72,7 @@ public:
 
 public:
   ezString m_sBaseMaterial;
+  ezString m_sSurface;
   ezString m_sShader;
 
   ezMap<ezString, ezVariant> m_CachedProperties;

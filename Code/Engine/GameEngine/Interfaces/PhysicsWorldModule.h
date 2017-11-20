@@ -98,9 +98,9 @@ struct EZ_GAMEENGINE_DLL ezSmcSubMesh
 {
   EZ_DECLARE_POD_TYPE();
 
-  ezUInt32 m_uiFirstTriangle;
-  ezUInt32 m_uiNumTriangles;
-  // TODO material
+  ezUInt32 m_uiFirstTriangle = 0;
+  ezUInt32 m_uiNumTriangles = 0;
+  ezUInt16 m_uiSurfaceIndex = 0;
 };
 
 struct EZ_GAMEENGINE_DLL ezSmcDescription
@@ -108,6 +108,7 @@ struct EZ_GAMEENGINE_DLL ezSmcDescription
   ezDeque<ezVec3> m_Vertices;
   ezDeque<ezSmcTriangle> m_Triangles;
   ezDeque<ezSmcSubMesh> m_SubMeshes;
+  ezDeque<ezString> m_Surfaces;
 };
 
 struct EZ_GAMEENGINE_DLL ezBuildStaticMeshMessage : public ezMessage

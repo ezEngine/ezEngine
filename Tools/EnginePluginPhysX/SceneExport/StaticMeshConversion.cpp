@@ -18,6 +18,8 @@ void ezSceneExportModifier_StaticMeshConversion::ModifyWorld(ezWorld& world)
   ezTag tagColMesh = ezTagRegistry::GetGlobalRegistry().RegisterTag("AutoColMesh");
 
   ezSmcDescription desc;
+  desc.m_Surfaces.PushBack(); // add a dummy empty material
+
   ezBuildStaticMeshMessage msg;
   msg.m_pStaticMeshDescription = &desc;
 
@@ -34,6 +36,7 @@ void ezSceneExportModifier_StaticMeshConversion::ModifyWorld(ezWorld& world)
 
   const ezUInt32 uiNumVertices = desc.m_Vertices.GetCount();
   const ezUInt32 uiNumTriangles = desc.m_Triangles.GetCount();
+  const ezUInt32 uiNumSubMeshes = desc.m_SubMeshes.GetCount();
 
   ezPhysXCookingMesh xMesh;
   xMesh.m_Vertices.SetCountUninitialized(uiNumVertices);
@@ -45,16 +48,37 @@ void ezSceneExportModifier_StaticMeshConversion::ModifyWorld(ezWorld& world)
 
   xMesh.m_PolygonIndices.SetCountUninitialized(uiNumTriangles * 3);
   xMesh.m_VerticesInPolygon.SetCountUninitialized(uiNumTriangles);
-  xMesh.m_PolygonSurfaceID.SetCountUninitialized(uiNumTriangles);
+  xMesh.m_PolygonSurfaceID.SetCount(uiNumTriangles);
 
   for (ezUInt32 i = 0; i < uiNumTriangles; ++i)
   {
-    xMesh.m_PolygonSurfaceID[i] = 0; // TODO material
     xMesh.m_VerticesInPolygon[i] = 3;
 
     xMesh.m_PolygonIndices[i * 3 + 0] = desc.m_Triangles[i].m_uiVertexIndices[0];
     xMesh.m_PolygonIndices[i * 3 + 1] = desc.m_Triangles[i].m_uiVertexIndices[1];
     xMesh.m_PolygonIndices[i * 3 + 2] = desc.m_Triangles[i].m_uiVertexIndices[2];
+  }
+
+  ezHybridArray<ezString, 32> surfaces;
+
+  // copy materials
+  // we could collate identical materials here and merge meshes, but the mesh cooking will probably do the same already
+  {
+    for (ezUInt32 i = 0; i < desc.m_Surfaces.GetCount(); ++i)
+    {
+      surfaces.PushBack(desc.m_Surfaces[i]);
+    }
+
+    for (ezUInt32 i = 0; i < uiNumSubMeshes; ++i)
+    {
+      const ezUInt32 uiLastTriangle = desc.m_SubMeshes[i].m_uiFirstTriangle + desc.m_SubMeshes[i].m_uiNumTriangles;
+      const ezUInt16 uiSurface = desc.m_SubMeshes[i].m_uiSurfaceIndex;
+
+      for (ezUInt32 t = desc.m_SubMeshes[i].m_uiFirstTriangle; t < uiLastTriangle; ++t)
+      {
+        xMesh.m_PolygonSurfaceID[t] = uiSurface;
+      }
+    }
   }
 
   // TODO: hacky file path
@@ -66,8 +90,6 @@ void ezSceneExportModifier_StaticMeshConversion::ModifyWorld(ezWorld& world)
 
   ezChunkStreamWriter chunk(file);
   chunk.BeginStream();
-
-  ezHybridArray<ezString, 32> surfaces;
 
   ezPhysXCooking::WriteResourceToStream(chunk, xMesh, surfaces, false);
 

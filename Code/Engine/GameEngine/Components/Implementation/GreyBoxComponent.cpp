@@ -250,6 +250,25 @@ void ezGreyBoxComponent::OnBuildStaticMesh(ezBuildStaticMeshMessage& msg) const
   }
 
   subMesh.m_uiNumTriangles = pDesc->m_Triangles.GetCount() - subMesh.m_uiFirstTriangle;
+
+  if (m_hMaterial.IsValid())
+  {
+    ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::NoFallback);
+
+    const ezString surface = pMaterial->GetSurface().GetString();
+
+    if (!surface.IsEmpty())
+    {
+      ezUInt32 idx = pDesc->m_Surfaces.IndexOf(surface);
+      if (idx == ezInvalidIndex)
+      {
+        idx = pDesc->m_Surfaces.GetCount();
+        pDesc->m_Surfaces.PushBack(surface);
+      }
+
+      subMesh.m_uiSurfaceIndex = idx;
+    }
+  }
 }
 
 void ezGreyBoxComponent::InvalidateMesh()

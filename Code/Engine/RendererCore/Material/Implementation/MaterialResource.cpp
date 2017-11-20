@@ -11,6 +11,7 @@
 void ezMaterialResourceDescriptor::Clear()
 {
   m_hBaseMaterial.Invalidate();
+  m_sSurface.Clear();
   m_hShader.Invalidate();
   m_PermutationVars.Clear();
   m_Parameters.Clear();
@@ -57,6 +58,20 @@ ezHashedString ezMaterialResource::GetPermutationValue(const ezTempHashedString&
   m_CachedPermutationVars.TryGetValue(sName, sResult);
 
   return sResult;
+}
+
+ezHashedString ezMaterialResource::GetSurface() const
+{
+  if (!m_Desc.m_sSurface.IsEmpty())
+    return m_Desc.m_sSurface;
+
+  if (m_Desc.m_hBaseMaterial.IsValid())
+  {
+    ezResourceLock<ezMaterialResource> pBaseMaterial(m_Desc.m_hBaseMaterial, ezResourceAcquireMode::NoFallback);
+    return pBaseMaterial->GetSurface();
+  }
+
+  return ezHashedString();
 }
 
 void ezMaterialResource::SetParameter(const ezHashedString& sName, const ezVariant& value)
@@ -431,7 +446,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
     ezUInt8 uiVersion = 0;
     (*Stream) >> uiVersion;
-    EZ_ASSERT_DEV(uiVersion <= 3, "Unknown ezMaterialBin version {0}", uiVersion);
+    EZ_ASSERT_DEV(uiVersion <= 4, "Unknown ezMaterialBin version {0}", uiVersion);
 
     // Base material
     {
@@ -439,6 +454,16 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
       if (!sTemp.IsEmpty())
         m_Desc.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>(sTemp);
+    }
+
+    if (uiVersion >= 4)
+    {
+      (*Stream) >> sTemp;
+
+      if (!sTemp.IsEmpty())
+      {
+        m_Desc.m_sSurface.Assign(sTemp.GetData());
+      }
     }
 
     // Shader

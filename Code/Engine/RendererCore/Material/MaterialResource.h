@@ -5,6 +5,7 @@
 #include <RendererCore/Shader/ShaderResource.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Core/ResourceManager/Resource.h>
+#include <Foundation/Strings/HashedString.h>
 
 typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
@@ -54,6 +55,9 @@ struct ezMaterialResourceDescriptor
   }
 
   ezMaterialResourceHandle m_hBaseMaterial;
+  // ezSurfaceResource is not linked into this project
+  // this is not used for game purposes but rather for automatic collision mesh generation, so we only store the asset ID here
+  ezHashedString m_sSurface;
   ezShaderResourceHandle m_hShader;
   ezDynamicArray<ezPermutationVar> m_PermutationVars;
   ezDynamicArray<Parameter> m_Parameters;
@@ -70,6 +74,7 @@ public:
   ~ezMaterialResource();
 
   ezHashedString GetPermutationValue(const ezTempHashedString& sName);
+  ezHashedString GetSurface() const;
 
   void SetParameter(const ezHashedString& sName, const ezVariant& value);
   void SetParameter(const char* szName, const ezVariant& value);
