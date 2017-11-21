@@ -193,13 +193,14 @@ public:
   void AddTexturedRamp(const ezVec3& size, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
   /// \brief Generates a straight stair mesh along the X axis. The number of steps determines the step height and depth.
-  void AddStairs(const ezVec3& size, ezUInt32 uiNumSteps, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+  void AddStairs(const ezVec3& size, ezUInt32 uiNumSteps, ezAngle curvature, bool bSmoothSloped, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+
+  void AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fSegmentThickness, float fAddHeightBottom, float fAddHeightTop, ezAngle angle, ezAngle startAngle = ezAngle::Degree(0), bool bSmoothTop = false, bool bSmoothBottom = false, ezInt32 iOnlySingleSegment = -1);
 
   /// \todo GeomUtils improvements:
   // ThickLine
   // Part of a Torus
   // Arc
-  // Arch
   // Circle
   // Curved cone (spotlight)
   // flat arc / circle (ie. UE4 gizmo)

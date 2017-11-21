@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Core/World/World.h>
@@ -28,6 +28,6 @@ class EZ_ENGINEPLUGINSCENE_DLL ezSceneExportModifier_RemoveShapeIconComponents :
   EZ_ADD_DYNAMIC_REFLECTION(ezSceneExportModifier_RemoveShapeIconComponents, ezSceneExportModifier);
 public:
 
-  virtual void ModifyWorld(ezWorld& world) override;
+  virtual void ModifyWorld(ezWorld& world, const ezUuid& documentGuid) override;
 };
 

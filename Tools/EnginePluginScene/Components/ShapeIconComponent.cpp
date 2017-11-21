@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EnginePluginScene/Components/ShapeIconComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -40,7 +40,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_RemoveShapeIconComponents,
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
-void ezSceneExportModifier_RemoveShapeIconComponents::ModifyWorld(ezWorld& world)
+void ezSceneExportModifier_RemoveShapeIconComponents::ModifyWorld(ezWorld& world, const ezUuid& documentGuid)
 {
   EZ_LOCK(world.GetWriteMarker());
 

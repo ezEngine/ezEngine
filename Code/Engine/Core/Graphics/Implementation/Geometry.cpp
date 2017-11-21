@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <Core/Graphics/Geometry.h>
 #include <Foundation/Containers/Map.h>
+#include <Foundation/Math/Quat.h>
 #include <ThirdParty/mikktspace/mikktspace.h>
 
 bool ezGeometry::Vertex::operator<(const ezGeometry::Vertex& rhs) const
@@ -1364,114 +1365,438 @@ void ezGeometry::AddTexturedRamp(const ezVec3& size, const ezColor& color, const
 
 }
 
-void ezGeometry::AddStairs(const ezVec3& size, ezUInt32 uiNumSteps, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
+void ezGeometry::AddStairs(const ezVec3& size, ezUInt32 uiNumSteps, ezAngle curvature, bool bSmoothSloped, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
 {
   const bool bFlipWinding = false; // TODO
 
+  curvature = ezMath::Clamp(curvature, -ezAngle::Degree(360), ezAngle::Degree(360));
+  const ezAngle curveStep = curvature / (float)uiNumSteps;
+
+  const float fStepDiv = 1.0f / uiNumSteps;
+  const float fStepDepth = size.x / uiNumSteps;
+  const float fStepHeight = size.z / uiNumSteps;
+
+  ezVec3 vMoveFwd(fStepDepth, 0, 0);
+  const ezVec3 vMoveUp(0, 0, fStepHeight);
+  ezVec3 vMoveUpFwd(fStepDepth, 0, fStepHeight);
+
+  ezVec3 vBaseL0(-size.x * 0.5f, -size.y * 0.5f, -size.z * 0.5f);
+  ezVec3 vBaseL1(-size.x * 0.5f, +size.y * 0.5f, -size.z * 0.5f);
+  ezVec3 vBaseR0 = vBaseL0 + vMoveFwd;
+  ezVec3 vBaseR1 = vBaseL1 + vMoveFwd;
+
+  ezVec3 vTopL0 = vBaseL0 + vMoveUp;
+  ezVec3 vTopL1 = vBaseL1 + vMoveUp;
+  ezVec3 vTopR0 = vBaseR0 + vMoveUp;
+  ezVec3 vTopR1 = vBaseR1 + vMoveUp;
+
+  ezVec3 vPrevTopR0 = vBaseL0;
+  ezVec3 vPrevTopR1 = vBaseL1;
+
+  float fTexU0 = 0;
+  float fTexU1 = fStepDiv;
+
+  ezVec3 vSideNormal0(0, 1, 0);
+  ezVec3 vSideNormal1(0, 1, 0);
+  ezVec3 vStepFrontNormal(-1, 0, 0);
+
+  ezQuat qRot;
+  qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), curveStep);
+
+  for (ezUInt32 step = 0; step < uiNumSteps; ++step)
   {
-    const float fStepDiv = 1.0f / uiNumSteps;
-    const float fStepDepth = size.x / uiNumSteps;
-    const float fStepHeight = size.z / uiNumSteps;
-
-    const ezVec3 vMoveFwd(fStepDepth, 0, 0);
-    const ezVec3 vMoveUp(0, 0, fStepHeight);
-    const ezVec3 vMoveUpFwd(fStepDepth, 0, fStepHeight);
-
-    ezVec3 vBaseL0(-size.x * 0.5f, -size.y * 0.5f, -size.z * 0.5f);
-    ezVec3 vBaseL1(-size.x * 0.5f, +size.y * 0.5f, -size.z * 0.5f);
-    ezVec3 vBaseR0 = vBaseL0 + vMoveFwd;
-    ezVec3 vBaseR1 = vBaseL1 + vMoveFwd;
-
-    ezVec3 vTopL0 = vBaseL0 + vMoveUp;
-    ezVec3 vTopL1 = vBaseL1 + vMoveUp;
-    ezVec3 vTopR0 = vBaseR0 + vMoveUp;
-    ezVec3 vTopR1 = vBaseR1 + vMoveUp;
-
-    ezVec3 vPrevTopR0 = vBaseL0;
-    ezVec3 vPrevTopR1 = vBaseL1;
-
-    float fTexU0 = 0;
-    float fTexU1 = fStepDiv;
-
-    for (ezUInt32 step = 0; step < uiNumSteps; ++step)
     {
-      ezUInt32 poly[4];
+      const ezVec3 vAvg = (vTopL0 + vTopL1 + vTopR0 + vTopR1) / 4.0f;
 
-      // top
-      poly[0] = AddVertex(vTopL0, ezVec3(0, 0, 1), ezVec2(fTexU0, 0), color, iCustomIndex, mTransform);
-      poly[3] = AddVertex(vTopL1, ezVec3(0, 0, 1), ezVec2(fTexU0, 1), color, iCustomIndex, mTransform);
-      poly[1] = AddVertex(vTopR0, ezVec3(0, 0, 1), ezVec2(fTexU1, 0), color, iCustomIndex, mTransform);
-      poly[2] = AddVertex(vTopR1, ezVec3(0, 0, 1), ezVec2(fTexU1, 1), color, iCustomIndex, mTransform);
-      AddPolygon(poly, bFlipWinding);
+      vTopR0 = vAvg + qRot * (vTopR0 - vAvg);
+      vTopR1 = vAvg + qRot * (vTopR1 - vAvg);
+      vBaseR0 = vAvg + qRot * (vBaseR0 - vAvg);
+      vBaseR1 = vAvg + qRot * (vBaseR1 - vAvg);
 
-      // step front
+      vMoveFwd = qRot * vMoveFwd;
+      vMoveUpFwd = vMoveFwd;
+      vMoveUpFwd.z = fStepHeight;
+
+      vSideNormal1 = qRot * vSideNormal1;
+    }
+
+    if (bSmoothSloped)
+    {
+      // don't care about exact normals for the top surfaces
+      vTopL0 = vPrevTopR0;
+      vTopL1 = vPrevTopR1;
+    }
+
+    ezUInt32 poly[4];
+
+    // top
+    poly[0] = AddVertex(vTopL0, ezVec3(0, 0, 1), ezVec2(fTexU0, 0), color, iCustomIndex, mTransform);
+    poly[3] = AddVertex(vTopL1, ezVec3(0, 0, 1), ezVec2(fTexU0, 1), color, iCustomIndex, mTransform);
+    poly[1] = AddVertex(vTopR0, ezVec3(0, 0, 1), ezVec2(fTexU1, 0), color, iCustomIndex, mTransform);
+    poly[2] = AddVertex(vTopR1, ezVec3(0, 0, 1), ezVec2(fTexU1, 1), color, iCustomIndex, mTransform);
+    AddPolygon(poly, bFlipWinding);
+
+    // bottom
+    poly[0] = AddVertex(vBaseL0, ezVec3(0, 0, -1), ezVec2(fTexU0, 0), color, iCustomIndex, mTransform);
+    poly[1] = AddVertex(vBaseL1, ezVec3(0, 0, -1), ezVec2(fTexU0, 1), color, iCustomIndex, mTransform);
+    poly[3] = AddVertex(vBaseR0, ezVec3(0, 0, -1), ezVec2(fTexU1, 0), color, iCustomIndex, mTransform);
+    poly[2] = AddVertex(vBaseR1, ezVec3(0, 0, -1), ezVec2(fTexU1, 1), color, iCustomIndex, mTransform);
+    AddPolygon(poly, bFlipWinding);
+
+    // step front
+    if (!bSmoothSloped)
+    {
       poly[0] = AddVertex(vPrevTopR0, ezVec3(-1, 0, 0), ezVec2(0, fTexU0), color, iCustomIndex, mTransform);
       poly[3] = AddVertex(vPrevTopR1, ezVec3(-1, 0, 0), ezVec2(1, fTexU0), color, iCustomIndex, mTransform);
       poly[1] = AddVertex(vTopL0, ezVec3(-1, 0, 0), ezVec2(0, fTexU1), color, iCustomIndex, mTransform);
       poly[2] = AddVertex(vTopL1, ezVec3(-1, 0, 0), ezVec2(1, fTexU1), color, iCustomIndex, mTransform);
       AddPolygon(poly, bFlipWinding);
-
-      // side 1
-      poly[0] = AddVertex(vBaseL0, ezVec3(0, -1, 0), ezVec2(fTexU0, 0), color, iCustomIndex, mTransform);
-      poly[1] = AddVertex(vBaseR0, ezVec3(0, -1, 0), ezVec2(fTexU1, 0), color, iCustomIndex, mTransform);
-      poly[3] = AddVertex(vTopL0, ezVec3(0, -1, 0), ezVec2(fTexU0, fTexU1), color, iCustomIndex, mTransform);
-      poly[2] = AddVertex(vTopR0, ezVec3(0, -1, 0), ezVec2(fTexU1, fTexU1), color, iCustomIndex, mTransform);
-      AddPolygon(poly, bFlipWinding);
-
-      // side 2
-      poly[0] = AddVertex(vBaseL1, ezVec3(0, 1, 0), ezVec2(fTexU0, 0), color, iCustomIndex, mTransform);
-      poly[3] = AddVertex(vBaseR1, ezVec3(0, 1, 0), ezVec2(fTexU1, 0), color, iCustomIndex, mTransform);
-      poly[1] = AddVertex(vTopL1, ezVec3(0, 1, 0), ezVec2(fTexU0, fTexU1), color, iCustomIndex, mTransform);
-      poly[2] = AddVertex(vTopR1, ezVec3(0, 1, 0), ezVec2(fTexU1, fTexU1), color, iCustomIndex, mTransform);
-      AddPolygon(poly, bFlipWinding);
-
-      vPrevTopR0 = vTopR0;
-      vPrevTopR1 = vTopR1;
-
-      vBaseL0 += vMoveFwd;
-      vBaseL1 += vMoveFwd;
-      vBaseR0 += vMoveFwd;
-      vBaseR1 += vMoveFwd;
-
-      vTopL0 += vMoveUpFwd;
-      vTopL1 += vMoveUpFwd;
-      vTopR0 += vMoveUpFwd;
-      vTopR1 += vMoveUpFwd;
-
-      fTexU0 = fTexU1;
-      fTexU1 += fStepDiv;
     }
-  }
 
-  // bottom
-  {
-    ezVec3 vBaseL0(-size.x * 0.5f, -size.y * 0.5f, -size.z * 0.5f);
-    ezVec3 vBaseL1(-size.x * 0.5f, +size.y * 0.5f, -size.z * 0.5f);
-    ezVec3 vBaseR0(+size.x * 0.5f, -size.y * 0.5f, -size.z * 0.5f);
-    ezVec3 vBaseR1(+size.x * 0.5f, +size.y * 0.5f, -size.z * 0.5f);
-
-    ezUInt32 poly[4];
-    poly[0] = AddVertex(vBaseL0, ezVec3(0, 0, -1), ezVec2(0, 0), color, iCustomIndex, mTransform);
-    poly[1] = AddVertex(vBaseL1, ezVec3(0, 0, -1), ezVec2(1, 0), color, iCustomIndex, mTransform);
-    poly[3] = AddVertex(vBaseR0, ezVec3(0, 0, -1), ezVec2(0, 1), color, iCustomIndex, mTransform);
-    poly[2] = AddVertex(vBaseR1, ezVec3(0, 0, -1), ezVec2(1, 1), color, iCustomIndex, mTransform);
+    // side 1
+    poly[0] = AddVertex(vBaseL0, -vSideNormal0, ezVec2(fTexU0, 0), color, iCustomIndex, mTransform);
+    poly[1] = AddVertex(vBaseR0, -vSideNormal1, ezVec2(fTexU1, 0), color, iCustomIndex, mTransform);
+    poly[3] = AddVertex(vTopL0, -vSideNormal0, ezVec2(fTexU0, fTexU1), color, iCustomIndex, mTransform);
+    poly[2] = AddVertex(vTopR0, -vSideNormal1, ezVec2(fTexU1, fTexU1), color, iCustomIndex, mTransform);
     AddPolygon(poly, bFlipWinding);
+
+    // side 2
+    poly[0] = AddVertex(vBaseL1, vSideNormal0, ezVec2(fTexU0, 0), color, iCustomIndex, mTransform);
+    poly[3] = AddVertex(vBaseR1, vSideNormal1, ezVec2(fTexU1, 0), color, iCustomIndex, mTransform);
+    poly[1] = AddVertex(vTopL1, vSideNormal0, ezVec2(fTexU0, fTexU1), color, iCustomIndex, mTransform);
+    poly[2] = AddVertex(vTopR1, vSideNormal1, ezVec2(fTexU1, fTexU1), color, iCustomIndex, mTransform);
+    AddPolygon(poly, bFlipWinding);
+
+    vPrevTopR0 = vTopR0;
+    vPrevTopR1 = vTopR1;
+
+    vBaseL0 = vBaseR0;
+    vBaseL1 = vBaseR1;
+    vBaseR0 += vMoveFwd;
+    vBaseR1 += vMoveFwd;
+
+    vTopL0 = vTopR0 + vMoveUp;
+    vTopL1 = vTopR1 + vMoveUp;
+    vTopR0 += vMoveUpFwd;
+    vTopR1 += vMoveUpFwd;
+
+    fTexU0 = fTexU1;
+    fTexU1 += fStepDiv;
+
+    vSideNormal0 = vSideNormal1;
+    vStepFrontNormal = qRot * vStepFrontNormal;
   }
 
   // back
   {
-    ezVec3 vBaseL0(+size.x * 0.5f, -size.y * 0.5f, -size.z * 0.5f);
-    ezVec3 vBaseL1(+size.x * 0.5f, +size.y * 0.5f, -size.z * 0.5f);
-    ezVec3 vBaseR0(+size.x * 0.5f, -size.y * 0.5f, +size.z * 0.5f);
-    ezVec3 vBaseR1(+size.x * 0.5f, +size.y * 0.5f, +size.z * 0.5f);
-
     ezUInt32 poly[4];
-    poly[0] = AddVertex(vBaseL0, ezVec3(1, 0, 0), ezVec2(0, 0), color, iCustomIndex, mTransform);
-    poly[1] = AddVertex(vBaseL1, ezVec3(1, 0, 0), ezVec2(1, 0), color, iCustomIndex, mTransform);
-    poly[3] = AddVertex(vBaseR0, ezVec3(1, 0, 0), ezVec2(0, 1), color, iCustomIndex, mTransform);
-    poly[2] = AddVertex(vBaseR1, ezVec3(1, 0, 0), ezVec2(1, 1), color, iCustomIndex, mTransform);
+    poly[0] = AddVertex(vBaseL0, -vStepFrontNormal, ezVec2(0, 0), color, iCustomIndex, mTransform);
+    poly[1] = AddVertex(vBaseL1, -vStepFrontNormal, ezVec2(1, 0), color, iCustomIndex, mTransform);
+    poly[3] = AddVertex(vPrevTopR0, -vStepFrontNormal, ezVec2(0, 1), color, iCustomIndex, mTransform);
+    poly[2] = AddVertex(vPrevTopR1, -vStepFrontNormal, ezVec2(1, 1), color, iCustomIndex, mTransform);
     AddPolygon(poly, bFlipWinding);
   }
+}
+
+
+void ezGeometry::AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fSegmentThickness, float fAddHeightBottom, float fAddHeightTop, ezAngle angle, ezAngle startAngle /*= ezAngle::Degree(0)*/, bool bSmoothTop /*= false*/, bool bSmoothBottom /*= false*/, ezInt32 iOnlySingleSegment /*= -1*/)
+{
+  angle = ezMath::Max(angle, ezAngle::Degree(1.0f));
+  fAddHeightTop = ezMath::Max(fAddHeightTop, fAddHeightBottom);
+
+  if (fAddHeightBottom == 0.0f || fAddHeightTop == 0.0f)
+    angle = ezMath::Min(angle, ezAngle::Degree(360.0f));
+
+  const float hx = size.x * 0.5f;
+  const float hy = size.y * 0.5f;
+  const float hz = size.z * 0.5f;
+
+  const float fInnerRadius = 1.0f - (fSegmentThickness / hx);
+
+  const ezAngle fDegreeStep = angle / (float)uiNumSegments;
+  const ezAngle fMaxDegree = startAngle + angle;
+
+  //if (fAddHeightBottom != 0.0f || fAddHeightTop != 0.0f || iOnlySingleSegment != -1)
+  {
+    //if (iOnlySingleSegment == -1)
+    //{
+    //  m_SharedVertices.resize(iSegments * 8);
+    //  m_Faces.resize(iSegments * 6);
+    //}
+    //else
+    //{
+    //  m_SharedVertices.resize(1 * 8);
+    //  m_Faces.resize(1 * 6);
+    //}
+
+    ezInt32 iVertex = 0;
+    float fAddTop = 0.0f;
+    float fAddBottom = 0.0f;
+
+    float fAddHeightHalfTop = 0.0f;
+    float fAddHeightHalfBottom = 0.0f;
+
+    if (bSmoothTop)
+      fAddHeightHalfTop = fAddHeightTop * 0.5f;
+    if (bSmoothBottom)
+      fAddHeightHalfBottom = fAddHeightBottom * 0.5f;
+
+    const ezUInt32 uiVtxOffset = m_Vertices.GetCount();
+
+    ezInt32 iCurSegment = -1;
+    for (ezAngle fDeg = startAngle; fDeg < fMaxDegree; fDeg += fDegreeStep, fAddTop += fAddHeightTop, fAddBottom += fAddHeightBottom)
+    {
+      ++iCurSegment;
+
+      if ((iOnlySingleSegment != -1) && (iOnlySingleSegment != iCurSegment))
+        continue;
+
+      // bottom polygon
+      ezVec3 vP(ezMath::Cos(fDeg), -hy + fAddBottom, ezMath::Sin(fDeg));
+      vP.y -= fAddHeightHalfBottom;
+
+      AddVertex(vP, ezVec3(0), ezVec2(0), ezColor::White, 0);
+      AddVertex(ezVec3(vP.x, hy + fAddBottom - fAddHeightHalfTop, vP.z), ezVec3(0), ezVec2(0), ezColor::White, 0);
+      AddVertex(ezVec3(fInnerRadius * vP.x, hy + fAddBottom - fAddHeightHalfTop, fInnerRadius * vP.z), ezVec3(0), ezVec2(0), ezColor::White, 0);
+      AddVertex(ezVec3(fInnerRadius * vP.x, vP.y, fInnerRadius * vP.z), ezVec3(0), ezVec2(0), ezColor::White, 0);
+
+      // top polygon
+      vP = ezVec3(ezMath::Cos(fDeg + fDegreeStep), -hy + fAddTop, ezMath::Sin(fDeg + fDegreeStep));
+      vP.y += fAddHeightHalfBottom;
+
+      AddVertex(vP, ezVec3(0), ezVec2(0), ezColor::White, 0);
+      AddVertex(ezVec3(vP.x, hy + fAddTop + fAddHeightHalfTop, vP.z), ezVec3(0), ezVec2(0), ezColor::White, 0);
+      AddVertex(ezVec3(fInnerRadius * vP.x, hy + fAddTop + fAddHeightHalfTop, fInnerRadius * vP.z), ezVec3(0), ezVec2(0), ezColor::White, 0);
+      AddVertex(ezVec3(fInnerRadius * vP.x, vP.y, fInnerRadius * vP.z), ezVec3(0), ezVec2(0), ezColor::White, 0);
+    }
+
+    for (ezUInt32 i = uiVtxOffset; i < m_Vertices.GetCount(); ++i)
+    {
+      m_Vertices[i].m_vPosition.x *= hx;
+      //m_Vertices[i].m_vPosition.y *= hy;
+      m_Vertices[i].m_vPosition.z *= hz;
+    }
+
+    int iFace = 0;
+    ezUInt32 uiCurVertex = uiVtxOffset;
+    for (ezUInt32 s = 0; s < uiNumSegments; ++s)
+    {
+      if ((iOnlySingleSegment != -1) && (iOnlySingleSegment != s))
+        continue;
+
+      ezUInt32 poly[4];
+
+      // FRONT polygon
+      poly[0] = uiCurVertex + 3;
+      poly[1] = uiCurVertex + 2;
+      poly[2] = uiCurVertex + 1;
+      poly[3] = uiCurVertex + 0;
+      AddPolygon(poly, false);
+
+      // TOP polygon
+      poly[0] = uiCurVertex + 2;
+      poly[1] = uiCurVertex + 6;
+      poly[2] = uiCurVertex + 5;
+      poly[3] = uiCurVertex + 1;
+      AddPolygon(poly, false);
+
+      // BACK polygon
+      poly[0] = uiCurVertex + 7;
+      poly[1] = uiCurVertex + 4;
+      poly[2] = uiCurVertex + 5;
+      poly[3] = uiCurVertex + 6;
+      AddPolygon(poly, false);
+
+      // BOTTOM polygon
+      poly[0] = uiCurVertex + 3;
+      poly[1] = uiCurVertex + 0;
+      poly[2] = uiCurVertex + 4;
+      poly[3] = uiCurVertex + 7;
+      AddPolygon(poly, false);
+
+      // INNER polygon
+      poly[0] = uiCurVertex + 6;
+      poly[1] = uiCurVertex + 2;
+      poly[2] = uiCurVertex + 3;
+      poly[3] = uiCurVertex + 7;
+      AddPolygon(poly, false);
+
+      // OUTER plate
+      poly[0] = uiCurVertex + 1;
+      poly[1] = uiCurVertex + 5;
+      poly[2] = uiCurVertex + 4;
+      poly[3] = uiCurVertex + 0;
+      AddPolygon(poly, false);
+
+      uiCurVertex += 8;
+    }
+  }
+  /*else // complete or half-open pipes
+  {
+
+    if (fDegree == 360.0f)
+    {
+      //m_SharedVertices.resize(iSegments * 4);
+      //m_Faces.resize(iSegments * 4);
+
+      int iVertex = 0;
+      for (float fDeg = fStartDegree; fDeg < fMaxDegree; fDeg += fDegreeStep, iVertex += 4)
+      {
+        ezVec3 vP(ezMath::CosDeg(fDeg), -hy, ezMath::SinDeg(fDeg));
+
+        m_SharedVertices[iVertex + 0].m_vPosition = vP;
+        m_SharedVertices[iVertex + 1].m_vPosition = ezVec3(vP.x, hy, vP.z);
+        m_SharedVertices[iVertex + 2].m_vPosition = ezVec3(fInnerRadius * vP.x, hy, fInnerRadius * vP.z);
+        m_SharedVertices[iVertex + 3].m_vPosition = ezVec3(fInnerRadius * vP.x, vP.y, fInnerRadius * vP.z);
+      }
+
+      for (int i = 0; i < (int)m_SharedVertices.size(); ++i)
+      {
+        m_SharedVertices[i].m_vPosition.x *= hx;
+        m_SharedVertices[i].m_vPosition.z *= hz;
+      }
+
+      int iFace = 0;
+      iVertex = 0;
+      // first n-1 segments
+      for (ezUInt32 s = 0; s < uiNumSegments - 1; ++s, iFace += 4, iVertex += 4)
+      {
+        int f = 0;
+
+        // top plate
+        m_Faces[iFace + f].m_Vertices.resize(4);
+        m_Faces[iFace + f].m_Vertices[0].m_uiSharedVertexIndex = iVertex + 2;
+        m_Faces[iFace + f].m_Vertices[1].m_uiSharedVertexIndex = iVertex + 6;
+        m_Faces[iFace + f].m_Vertices[2].m_uiSharedVertexIndex = iVertex + 5;
+        m_Faces[iFace + f].m_Vertices[3].m_uiSharedVertexIndex = iVertex + 1;
+
+        // bottom plate
+        f = 1;
+        m_Faces[iFace + f].m_Vertices.resize(4);
+        m_Faces[iFace + f].m_Vertices[0].m_uiSharedVertexIndex = iVertex + 3;
+        m_Faces[iFace + f].m_Vertices[1].m_uiSharedVertexIndex = iVertex + 0;
+        m_Faces[iFace + f].m_Vertices[2].m_uiSharedVertexIndex = iVertex + 4;
+        m_Faces[iFace + f].m_Vertices[3].m_uiSharedVertexIndex = iVertex + 7;
+
+        // inner plate
+        f = 2;
+        m_Faces[iFace + f].m_Vertices.resize(4);
+        m_Faces[iFace + f].m_Vertices[0].m_uiSharedVertexIndex = iVertex + 6;
+        m_Faces[iFace + f].m_Vertices[1].m_uiSharedVertexIndex = iVertex + 2;
+        m_Faces[iFace + f].m_Vertices[2].m_uiSharedVertexIndex = iVertex + 3;
+        m_Faces[iFace + f].m_Vertices[3].m_uiSharedVertexIndex = iVertex + 7;
+
+        // outer plate
+        f = 3;
+        m_Faces[iFace + f].m_Vertices.resize(4);
+        m_Faces[iFace + f].m_Vertices[0].m_uiSharedVertexIndex = iVertex + 1;
+        m_Faces[iFace + f].m_Vertices[1].m_uiSharedVertexIndex = iVertex + 5;
+        m_Faces[iFace + f].m_Vertices[2].m_uiSharedVertexIndex = iVertex + 4;
+        m_Faces[iFace + f].m_Vertices[3].m_uiSharedVertexIndex = iVertex + 0;
+      }
+
+      // n-th segment
+      int f = 0;
+      int iVertices = (int)m_SharedVertices.size();
+      m_Faces[iFace + f].m_Vertices.resize(4);
+      m_Faces[iFace + f].m_Vertices[0].m_uiSharedVertexIndex = iVertex + 2;
+      m_Faces[iFace + f].m_Vertices[1].m_uiSharedVertexIndex = (iVertex + 6) % iVertices;
+      m_Faces[iFace + f].m_Vertices[2].m_uiSharedVertexIndex = (iVertex + 5) % iVertices;
+      m_Faces[iFace + f].m_Vertices[3].m_uiSharedVertexIndex = iVertex + 1;
+
+      f = 1;
+      m_Faces[iFace + f].m_Vertices.resize(4);
+      m_Faces[iFace + f].m_Vertices[0].m_uiSharedVertexIndex = iVertex + 3;
+      m_Faces[iFace + f].m_Vertices[1].m_uiSharedVertexIndex = iVertex + 0;
+      m_Faces[iFace + f].m_Vertices[2].m_uiSharedVertexIndex = (iVertex + 4) % iVertices;
+      m_Faces[iFace + f].m_Vertices[3].m_uiSharedVertexIndex = (iVertex + 7) % iVertices;
+
+      // inner plate
+      f = 2;
+      m_Faces[iFace + f].m_Vertices.resize(4);
+      m_Faces[iFace + f].m_Vertices[0].m_uiSharedVertexIndex = (iVertex + 6) % iVertices;
+      m_Faces[iFace + f].m_Vertices[1].m_uiSharedVertexIndex = iVertex + 2;
+      m_Faces[iFace + f].m_Vertices[2].m_uiSharedVertexIndex = iVertex + 3;
+      m_Faces[iFace + f].m_Vertices[3].m_uiSharedVertexIndex = (iVertex + 7) % iVertices;
+
+      // outer plate
+      f = 3;
+      m_Faces[iFace + f].m_Vertices.resize(4);
+      m_Faces[iFace + f].m_Vertices[0].m_uiSharedVertexIndex = iVertex + 1;
+      m_Faces[iFace + f].m_Vertices[1].m_uiSharedVertexIndex = (iVertex + 5) % iVertices;
+      m_Faces[iFace + f].m_Vertices[2].m_uiSharedVertexIndex = (iVertex + 4) % iVertices;
+      m_Faces[iFace + f].m_Vertices[3].m_uiSharedVertexIndex = iVertex + 0;
+    }
+    else
+    {
+      //m_SharedVertices.resize((iSegments + 1) * 4);
+      //m_Faces.resize(iSegments * 4 + 2);
+
+      int iVertex = 0;
+      for (float fDeg = fStartDegree; fDeg <= fMaxDegree; fDeg += fDegreeStep, iVertex += 4)
+      {
+        ezVec3 vP(ezMath::CosDeg(fDeg), -hy, ezMath::SinDeg(fDeg));
+
+        m_SharedVertices[iVertex + 0].m_vPosition = vP;
+        m_SharedVertices[iVertex + 1].m_vPosition = ezVec3(vP.x, hy, vP.z);
+        m_SharedVertices[iVertex + 2].m_vPosition = ezVec3(fInnerRadius * vP.x, hy, fInnerRadius * vP.z);
+        m_SharedVertices[iVertex + 3].m_vPosition = ezVec3(fInnerRadius * vP.x, vP.y, fInnerRadius * vP.z);
+      }
+
+      for (int i = 0; i < (int)m_SharedVertices.size(); ++i)
+      {
+        m_SharedVertices[i].m_vPosition.x *= hx;
+        m_SharedVertices[i].m_vPosition.z *= hz;
+      }
+
+      m_Faces[0].m_Vertices.resize(4);
+      m_Faces[0].m_Vertices[0].m_uiSharedVertexIndex = 3;
+      m_Faces[0].m_Vertices[1].m_uiSharedVertexIndex = 2;
+      m_Faces[0].m_Vertices[2].m_uiSharedVertexIndex = 1;
+      m_Faces[0].m_Vertices[3].m_uiSharedVertexIndex = 0;
+
+      iVertex = (int)(m_SharedVertices.size()) - 4;
+      m_Faces[1].m_Vertices.resize(4);
+      m_Faces[1].m_Vertices[0].m_uiSharedVertexIndex = iVertex + 0;
+      m_Faces[1].m_Vertices[1].m_uiSharedVertexIndex = iVertex + 1;
+      m_Faces[1].m_Vertices[2].m_uiSharedVertexIndex = iVertex + 2;
+      m_Faces[1].m_Vertices[3].m_uiSharedVertexIndex = iVertex + 3;
+
+      int iFace = 2;
+      iVertex = 0;
+      for (ezUInt32 s = 0; s < uiNumSegments; ++s, iFace += 4, iVertex += 4)
+      {
+        int f = 0;
+
+        m_Faces[iFace + f].m_Vertices.resize(4);
+        m_Faces[iFace + f].m_Vertices[0].m_uiSharedVertexIndex = iVertex + 2;
+        m_Faces[iFace + f].m_Vertices[1].m_uiSharedVertexIndex = iVertex + 6;
+        m_Faces[iFace + f].m_Vertices[2].m_uiSharedVertexIndex = iVertex + 5;
+        m_Faces[iFace + f].m_Vertices[3].m_uiSharedVertexIndex = iVertex + 1;
+
+        f = 1;
+        m_Faces[iFace + f].m_Vertices.resize(4);
+        m_Faces[iFace + f].m_Vertices[0].m_uiSharedVertexIndex = iVertex + 3;
+        m_Faces[iFace + f].m_Vertices[1].m_uiSharedVertexIndex = iVertex + 0;
+        m_Faces[iFace + f].m_Vertices[2].m_uiSharedVertexIndex = iVertex + 4;
+        m_Faces[iFace + f].m_Vertices[3].m_uiSharedVertexIndex = iVertex + 7;
+
+        f = 2;
+        m_Faces[iFace + f].m_Vertices.resize(4);
+        m_Faces[iFace + f].m_Vertices[0].m_uiSharedVertexIndex = iVertex + 6;
+        m_Faces[iFace + f].m_Vertices[1].m_uiSharedVertexIndex = iVertex + 2;
+        m_Faces[iFace + f].m_Vertices[2].m_uiSharedVertexIndex = iVertex + 3;
+        m_Faces[iFace + f].m_Vertices[3].m_uiSharedVertexIndex = iVertex + 7;
+
+        f = 3;
+        m_Faces[iFace + f].m_Vertices.resize(4);
+        m_Faces[iFace + f].m_Vertices[0].m_uiSharedVertexIndex = iVertex + 1;
+        m_Faces[iFace + f].m_Vertices[1].m_uiSharedVertexIndex = iVertex + 5;
+        m_Faces[iFace + f].m_Vertices[2].m_uiSharedVertexIndex = iVertex + 4;
+        m_Faces[iFace + f].m_Vertices[3].m_uiSharedVertexIndex = iVertex + 0;
+      }
+    }
+  }*/
 }
 
 EZ_STATICLINK_FILE(Core, Core_Graphics_Implementation_Geometry);

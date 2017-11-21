@@ -10,7 +10,7 @@
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGreyBoxShape, 1)
-EZ_ENUM_CONSTANTS(ezGreyBoxShape::Box, ezGreyBoxShape::RampX, ezGreyBoxShape::RampY, ezGreyBoxShape::Column, ezGreyBoxShape::StairsX, ezGreyBoxShape::StairsY)
+EZ_ENUM_CONSTANTS(ezGreyBoxShape::Box, ezGreyBoxShape::RampX, ezGreyBoxShape::RampY, ezGreyBoxShape::Column, ezGreyBoxShape::StairsX, ezGreyBoxShape::StairsY, ezGreyBoxShape::Arch)
 EZ_END_STATIC_REFLECTED_ENUM()
 
 EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 1)
@@ -26,6 +26,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 1)
     EZ_ACCESSOR_PROPERTY("SizeNegZ", GetSizeNegZ, SetSizeNegZ),
     EZ_ACCESSOR_PROPERTY("SizePosZ", GetSizePosZ, SetSizePosZ),
     EZ_ACCESSOR_PROPERTY("Detail", GetDetail, SetDetail)->AddAttributes(new ezDefaultValueAttribute(8), new ezClampValueAttribute(3, 32)),
+    EZ_ACCESSOR_PROPERTY("Curvature", GetCurvature, SetCurvature),
+    EZ_ACCESSOR_PROPERTY("SlopedTop", GetSlopedTop, SetSlopedTop),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES
@@ -222,6 +224,18 @@ void ezGreyBoxComponent::SetDetail(ezUInt32 uiDetail)
   InvalidateMesh();
 }
 
+void ezGreyBoxComponent::SetCurvature(ezAngle curvature)
+{
+  m_Curvature = curvature;
+  InvalidateMesh();
+}
+
+void ezGreyBoxComponent::SetSlopedTop(bool b)
+{
+  m_bSlopedTop = b;
+  InvalidateMesh();
+}
+
 void ezGreyBoxComponent::OnBuildStaticMesh(ezBuildStaticMeshMessage& msg) const
 {
   ezGeometry geom;
@@ -318,15 +332,23 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom) const
     break;
 
   case ezGreyBoxShape::StairsX:
-    geom.AddStairs(size, m_uiDetail, ezColor::White, t);
+    geom.AddStairs(size, m_uiDetail, m_Curvature, m_bSlopedTop, ezColor::White, t);
     break;
 
   case ezGreyBoxShape::StairsY:
     ezMath::Swap(size.x, size.y);
     t.SetRotationMatrixZ(ezAngle::Degree(-90.0f));
     t.SetTranslationVector(offset);
-    geom.AddStairs(size, m_uiDetail, ezColor::White, t);
+    geom.AddStairs(size, m_uiDetail, m_Curvature, m_bSlopedTop, ezColor::White, t);
     break;
+
+  case ezGreyBoxShape::Arch:
+    {
+      const float fStepHeight = size.y / m_uiDetail;
+      size.y = fStepHeight;
+      geom.AddArch(size, m_uiDetail, 1.0f, 0, fStepHeight, ezAngle::Degree(90), ezAngle(), false, true);
+      break;
+    }
 
   default:
     EZ_ASSERT_NOT_IMPLEMENTED;
@@ -359,11 +381,15 @@ void ezGreyBoxComponent::GenerateRenderMesh() const
     break;
 
   case ezGreyBoxShape::StairsX:
-    sResourceName.Format("Grey-StairsX:{0}-{1},{2}-{3},{4}-{5}-d{6}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail);
+    sResourceName.Format("Grey-StairsX:{0}-{1},{2}-{3},{4}-{5}-d{6}-c{7}-st{8}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail, m_Curvature.GetDegree(), m_bSlopedTop);
     break;
 
   case ezGreyBoxShape::StairsY:
-    sResourceName.Format("Grey-StairsY:{0}-{1},{2}-{3},{4}-{5}-d{6}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail);
+    sResourceName.Format("Grey-StairsY:{0}-{1},{2}-{3},{4}-{5}-d{6}-c{7}-st{8}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail, m_Curvature.GetDegree(), m_bSlopedTop);
+    break;
+
+  case ezGreyBoxShape::Arch:
+    sResourceName.Format("Grey-Arch:{0}-{1},{2}-{3},{4}-{5}-d{6}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail);
     break;
 
   default:

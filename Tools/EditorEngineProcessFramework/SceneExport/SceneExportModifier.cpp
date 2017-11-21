@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorEngineProcessFramework/SceneExport/SceneExportModifier.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier, 1, ezRTTINoAllocator)
@@ -34,14 +34,14 @@ void ezSceneExportModifier::DestroyModifiers(ezHybridArray<ezSceneExportModifier
   modifiers.Clear();
 }
 
-void ezSceneExportModifier::ApplyAllModifiers(ezWorld& world)
+void ezSceneExportModifier::ApplyAllModifiers(ezWorld& world, const ezUuid& documentGuid)
 {
   ezHybridArray<ezSceneExportModifier*, 8> modifiers;
   CreateModifiers(modifiers);
 
   for (auto pMod : modifiers)
   {
-    pMod->ModifyWorld(world);
+    pMod->ModifyWorld(world, documentGuid);
   }
 
   DestroyModifiers(modifiers);

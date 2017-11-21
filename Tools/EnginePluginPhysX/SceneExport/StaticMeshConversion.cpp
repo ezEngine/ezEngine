@@ -11,7 +11,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_StaticMeshConversion, 1, ezRTTIDefaultAllocator<ezSceneExportModifier_StaticMeshConversion>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-void ezSceneExportModifier_StaticMeshConversion::ModifyWorld(ezWorld& world)
+void ezSceneExportModifier_StaticMeshConversion::ModifyWorld(ezWorld& world, const ezUuid& documentGuid)
 {
   EZ_LOCK(world.GetWriteMarker());
 
@@ -81,9 +81,13 @@ void ezSceneExportModifier_StaticMeshConversion::ModifyWorld(ezWorld& world)
     }
   }
 
-  // TODO: hacky file path
+  ezStringBuilder sDocGuid, sOutputFile;
+  ezConversionUtils::ToString(documentGuid, sDocGuid);
+
+  sOutputFile.Format(":project/AssetCache/Generated/{0}.ezPhysXMesh", sDocGuid);
+  
   ezDeferredFileWriter file;
-  file.SetOutput(":project/GlobalColMesh.ezPhysXMesh");
+  file.SetOutput(sOutputFile);
 
   ezAssetFileHeader header;
   header.Write(file);
@@ -112,6 +116,6 @@ void ezSceneExportModifier_StaticMeshConversion::ModifyWorld(ezWorld& world)
     ezPxStaticActorComponent* pComp;
     pCompMan->CreateComponent(pGo, pComp);
 
-    pComp->SetMeshFile("GlobalColMesh.ezPhysXMesh");
+    pComp->SetMeshFile(sOutputFile);
   }
 }
