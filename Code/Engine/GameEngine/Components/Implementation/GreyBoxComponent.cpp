@@ -10,7 +10,7 @@
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGreyBoxShape, 1)
-EZ_ENUM_CONSTANTS(ezGreyBoxShape::Box, ezGreyBoxShape::RampX, ezGreyBoxShape::RampY, ezGreyBoxShape::Column, ezGreyBoxShape::StairsX, ezGreyBoxShape::StairsY, ezGreyBoxShape::Arch)
+EZ_ENUM_CONSTANTS(ezGreyBoxShape::Box, ezGreyBoxShape::RampX, ezGreyBoxShape::RampY, ezGreyBoxShape::Column, ezGreyBoxShape::StairsX, ezGreyBoxShape::StairsY, ezGreyBoxShape::ArchX, ezGreyBoxShape::ArchY)
 EZ_END_STATIC_REFLECTED_ENUM()
 
 EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 1)
@@ -19,14 +19,15 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 1)
   {
     EZ_ENUM_ACCESSOR_PROPERTY("Shape", ezGreyBoxShape, GetShape, SetShape),
     EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("Material")),
-    EZ_ACCESSOR_PROPERTY("SizeNegX", GetSizeNegX, SetSizeNegX),
-    EZ_ACCESSOR_PROPERTY("SizePosX", GetSizePosX, SetSizePosX),
-    EZ_ACCESSOR_PROPERTY("SizeNegY", GetSizeNegY, SetSizeNegY),
-    EZ_ACCESSOR_PROPERTY("SizePosY", GetSizePosY, SetSizePosY),
-    EZ_ACCESSOR_PROPERTY("SizeNegZ", GetSizeNegZ, SetSizeNegZ),
-    EZ_ACCESSOR_PROPERTY("SizePosZ", GetSizePosZ, SetSizePosZ),
-    EZ_ACCESSOR_PROPERTY("Detail", GetDetail, SetDetail)->AddAttributes(new ezDefaultValueAttribute(8), new ezClampValueAttribute(3, 32)),
+    EZ_ACCESSOR_PROPERTY("SizeNegX", GetSizeNegX, SetSizeNegX)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_ACCESSOR_PROPERTY("SizePosX", GetSizePosX, SetSizePosX)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_ACCESSOR_PROPERTY("SizeNegY", GetSizeNegY, SetSizeNegY)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_ACCESSOR_PROPERTY("SizePosY", GetSizePosY, SetSizePosY)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_ACCESSOR_PROPERTY("SizeNegZ", GetSizeNegZ, SetSizeNegZ)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_ACCESSOR_PROPERTY("SizePosZ", GetSizePosZ, SetSizePosZ)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_ACCESSOR_PROPERTY("Detail", GetDetail, SetDetail)->AddAttributes(new ezDefaultValueAttribute(16), new ezClampValueAttribute(3, 32)),
     EZ_ACCESSOR_PROPERTY("Curvature", GetCurvature, SetCurvature),
+    EZ_ACCESSOR_PROPERTY("Thickness", GetThickness, SetThickness)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("SlopedTop", GetSlopedTop, SetSlopedTop),
   }
   EZ_END_PROPERTIES
@@ -226,13 +227,19 @@ void ezGreyBoxComponent::SetDetail(ezUInt32 uiDetail)
 
 void ezGreyBoxComponent::SetCurvature(ezAngle curvature)
 {
-  m_Curvature = curvature;
+  m_Curvature = ezAngle::Degree(ezMath::Round(curvature.GetDegree(), 5.0f));
   InvalidateMesh();
 }
 
 void ezGreyBoxComponent::SetSlopedTop(bool b)
 {
   m_bSlopedTop = b;
+  InvalidateMesh();
+}
+
+void ezGreyBoxComponent::SetThickness(float f)
+{
+  m_fThickness = f;
   InvalidateMesh();
 }
 
@@ -306,7 +313,7 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom) const
   offset.y = (m_fSizePosY - m_fSizeNegY) * 0.5f;
   offset.z = (m_fSizePosZ - m_fSizeNegZ) * 0.5f;
 
-  ezMat4 t;
+  ezMat4 t, t2, t3;
   t.SetTranslationMatrix(offset);
 
   switch (m_Shape)
@@ -342,13 +349,31 @@ void ezGreyBoxComponent::BuildGeometry(ezGeometry& geom) const
     geom.AddStairs(size, m_uiDetail, m_Curvature, m_bSlopedTop, ezColor::White, t);
     break;
 
-  case ezGreyBoxShape::Arch:
+  case ezGreyBoxShape::ArchX:
     {
-      const float fStepHeight = size.y / m_uiDetail;
-      size.y = fStepHeight;
-      geom.AddArch(size, m_uiDetail, 1.0f, 0, fStepHeight, ezAngle::Degree(90), ezAngle(), false, true);
-      break;
+      const float tmp = size.z;
+      size.z = size.x;
+      size.x = size.y;
+      size.y = tmp;
+      t.SetRotationMatrixY(ezAngle::Degree(-90));
+      t2.SetRotationMatrixX(ezAngle::Degree(90));
+      t = t2 * t;
+      t.SetTranslationVector(offset);
+      geom.AddArch(size, m_uiDetail, m_fThickness, m_Curvature, ezColor::White, t);
     }
+    break;
+
+  case ezGreyBoxShape::ArchY:
+    {
+      t.SetRotationMatrixY(ezAngle::Degree(-90));
+      t2.SetRotationMatrixX(ezAngle::Degree(90));
+      t3.SetRotationMatrixZ(ezAngle::Degree(90));
+      ezMath::Swap(size.y, size.z);
+      t = t3 * t2 * t;
+      t.SetTranslationVector(offset);
+      geom.AddArch(size, m_uiDetail, m_fThickness, m_Curvature, ezColor::White, t);
+    }
+    break;
 
   default:
     EZ_ASSERT_NOT_IMPLEMENTED;
@@ -388,8 +413,11 @@ void ezGreyBoxComponent::GenerateRenderMesh() const
     sResourceName.Format("Grey-StairsY:{0}-{1},{2}-{3},{4}-{5}-d{6}-c{7}-st{8}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail, m_Curvature.GetDegree(), m_bSlopedTop);
     break;
 
-  case ezGreyBoxShape::Arch:
-    sResourceName.Format("Grey-Arch:{0}-{1},{2}-{3},{4}-{5}-d{6}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail);
+  case ezGreyBoxShape::ArchX:
+    sResourceName.Format("Grey-ArchX:{0}-{1},{2}-{3},{4}-{5}-d{6}-c{7}-t{8}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail, m_Curvature.GetDegree(), m_fThickness);
+    break;
+  case ezGreyBoxShape::ArchY:
+    sResourceName.Format("Grey-ArchY:{0}-{1},{2}-{3},{4}-{5}-d{6}-c{7}-t{8}", m_fSizeNegX, m_fSizePosX, m_fSizeNegY, m_fSizePosY, m_fSizeNegZ, m_fSizePosZ, m_uiDetail, m_Curvature.GetDegree(), m_fThickness);
     break;
 
   default:

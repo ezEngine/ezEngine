@@ -27,7 +27,8 @@ struct EZ_GAMEENGINE_DLL ezGreyBoxShape
     Column,
     StairsX,
     StairsY,
-    Arch,
+    ArchX,
+    ArchY,
 
     Default = Box
   };
@@ -82,6 +83,8 @@ public:
   ezAngle GetCurvature() const { return m_Curvature; }
   void SetSlopedTop(bool b);
   bool GetSlopedTop() const { return m_bSlopedTop; }
+  void SetThickness(float f);
+  float GetThickness() const { return m_fThickness; }
 
   void OnBuildStaticMesh(ezBuildStaticMeshMessage& msg) const;
 
@@ -94,9 +97,10 @@ protected:
   float m_fSizePosY = 0;
   float m_fSizeNegZ = 0;
   float m_fSizePosZ = 0;
-  ezUInt32 m_uiDetail = 8;
+  ezUInt32 m_uiDetail = 16;
   ezAngle m_Curvature;
   bool m_bSlopedTop = false;
+  float m_fThickness = 0.5f;
 
 protected:
   void InvalidateMesh();
