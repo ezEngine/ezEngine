@@ -273,7 +273,7 @@ ezStatus ezCollisionMeshAssetDocument::WriteToStream(ezChunkStreamWriter& stream
     surfaces.PushBack(slot.m_sResource);
   }
 
-  return ezPhysXCooking::WriteResourceToStream(stream, mesh, surfaces, pProp->m_MeshType == ezCollisionMeshType::TriangleMesh);
+  return ezPhysXCooking::WriteResourceToStream(stream, mesh, surfaces, pProp->m_MeshType != ezCollisionMeshType::TriangleMesh);
 }
 
 ezStatus ezCollisionMeshAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)

@@ -121,12 +121,14 @@ void ezProgress::SetGlobalProgressbar(ezProgress* pProgress)
   s_pGlobal = pProgress;
 }
 
-
-
+//////////////////////////////////////////////////////////////////////////
 
 ezProgressRange::ezProgressRange(const char* szDisplayText, ezUInt32 uiSteps, bool bAllowCancel, ezProgress* pProgressbar /*= nullptr*/)
 {
   EZ_ASSERT_DEV(uiSteps > 0, "Every progress range must have at least one step to complete");
+
+  // add one step for the very first 'BeginNextStep' to have no effect
+  uiSteps += 1;
 
   if (pProgressbar == nullptr)
     m_pProgressbar = ezProgress::GetGlobalProgressbar();
@@ -139,9 +141,10 @@ ezProgressRange::ezProgressRange(const char* szDisplayText, ezUInt32 uiSteps, bo
   m_uiCurrentStep = 0;
   m_sDisplayText = szDisplayText;
   m_StepWeights.SetCountUninitialized(uiSteps);
-  m_SummedWeight = (double)uiSteps;
+  m_SummedWeight = (double)uiSteps - 1.0;
 
-  for (ezUInt32 s = 0; s < uiSteps; ++s)
+  m_StepWeights[0] = 0; // first 'BeginNextStep' should not advance the progress at all
+  for (ezUInt32 s = 1; s < uiSteps; ++s)
     m_StepWeights[s] = 1.0f;
 
   m_pParentRange = m_pProgressbar->m_pActiveRange;
@@ -161,8 +164,8 @@ ezProgressRange::ezProgressRange(const char* szDisplayText, ezUInt32 uiSteps, bo
 
 ezProgressRange::~ezProgressRange()
 {
+  m_pProgressbar->SetCompletion((float)(m_PercentageBase + m_PercentageRange));
   m_pProgressbar->SetActiveRange(m_pParentRange);
-
 }
 
 ezProgress* ezProgressRange::GetProgressbar() const
@@ -172,9 +175,9 @@ ezProgress* ezProgressRange::GetProgressbar() const
 
 void ezProgressRange::SetStepWeighting(ezUInt32 uiStep, float fWeigth)
 {
-  m_SummedWeight -= m_StepWeights[uiStep];
+  m_SummedWeight -= m_StepWeights[uiStep + 1];
   m_SummedWeight += fWeigth;
-  m_StepWeights[uiStep] = fWeigth;
+  m_StepWeights[uiStep + 1] = fWeigth;
 }
 
 void ezProgressRange::ComputeCurStepBaseAndRange(double& out_base, double& out_range)
@@ -184,6 +187,10 @@ void ezProgressRange::ComputeCurStepBaseAndRange(double& out_base, double& out_r
 
   out_range = internalRange * m_PercentageRange;
   out_base = m_PercentageBase + (internalBase * m_PercentageRange);
+
+  EZ_ASSERT_DEBUG(out_base <= 1.0f, "Invalid range");
+  EZ_ASSERT_DEBUG(out_range <= 1.0f, "Invalid range");
+  EZ_ASSERT_DEBUG(out_base + out_range <= 1.0f, "Invalid range");
 }
 
 double ezProgressRange::ComputeInternalCompletion() const
@@ -203,7 +210,9 @@ void ezProgressRange::BeginNextStep(const char* szStepDisplayText, ezUInt32 uiNu
   m_sStepDisplayText = szStepDisplayText;
 
   m_uiCurrentStep += uiNumSteps;
-  EZ_ASSERT_DEBUG(m_uiCurrentStep <= m_StepWeights.GetCount(), "Too many steps completed! ({0} of {1})", m_uiCurrentStep, m_StepWeights.GetCount());
+
+  // there is one extra step added as an empty step
+  EZ_ASSERT_DEBUG(m_uiCurrentStep < m_StepWeights.GetCount(), "Too many steps completed! ({0} of {1})", m_uiCurrentStep, m_StepWeights.GetCount());
 
   const double internalCompletion = ComputeInternalCompletion();
 
