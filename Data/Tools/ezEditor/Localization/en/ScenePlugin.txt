@@ -153,4 +153,5 @@ ezGreyBoxShape::StairsX;Stairs X
 ezGreyBoxShape::StairsY;Stairs Y
 ezGreyBoxShape::ArchX;Arch X
 ezGreyBoxShape::ArchY;Arch Y
+ezGreyBoxShape::SpiralStairs;Spiral Stairs
 ezGreyBoxComponent;Grey Boxing

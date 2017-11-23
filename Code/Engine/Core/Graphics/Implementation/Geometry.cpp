@@ -1499,23 +1499,38 @@ void ezGeometry::AddStairs(const ezVec3& size, ezUInt32 uiNumSteps, ezAngle curv
 }
 
 
-void ezGeometry::AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThickness, ezAngle angle, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
+void ezGeometry::AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThickness, ezAngle angle, bool bMakeSteps, bool bSmoothBottom, bool bSmoothTop, const ezColor& color, const ezMat4& mTransform /*= ezMat4::IdentityMatrix()*/, ezInt32 iCustomIndex /*= 0*/)
 {
   // sanitize input values
   {
-    if (angle.GetRadian() <= 0.0f)
+    if (angle.GetRadian() == 0.0f)
       angle = ezAngle::Degree(360);
 
-    angle = ezMath::Clamp(angle, ezAngle::Degree(1.0f), ezAngle::Degree(360.0f));
+    angle = ezMath::Clamp(angle, ezAngle::Degree(-360.0f), ezAngle::Degree(360.0f));
 
     fThickness = ezMath::Clamp(fThickness, 0.01f, ezMath::Min(size.x, size.y) * 0.45f);
+
+    bSmoothBottom = bMakeSteps && bSmoothBottom;
+    bSmoothTop = bMakeSteps && bSmoothTop;
   }
 
-  const bool bFlipWinding = mTransform.GetRotationalPart().GetDeterminant() < 0;
+  bool bFlipWinding = mTransform.GetRotationalPart().GetDeterminant() < 0;
+  if (angle.GetRadian() < 0)
+    bFlipWinding = !bFlipWinding;
+
   const ezAngle angleStep = angle / (float)uiNumSegments;
   const float fScaleX = size.x * 0.5f;
   const float fScaleY = size.y * 0.5f;
   const float fHalfHeight = size.z * 0.5f;
+  const float fStepHeight = size.z / (float)uiNumSegments;
+
+  float fBottomZ = -fHalfHeight;
+  float fTopZ = +fHalfHeight;
+
+  if (bMakeSteps)
+  {
+    fTopZ = fBottomZ + fStepHeight;
+  }
 
   // mutable variables
   ezAngle nextAngle;
@@ -1526,12 +1541,24 @@ void ezGeometry::AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThic
   // Setup first round
   {
     vNextDirOutwards.Set(ezMath::Cos(nextAngle), ezMath::Sin(nextAngle), 0);
-    vNextBottomOuter.Set(ezMath::Cos(nextAngle) * fScaleX, ezMath::Sin(nextAngle) * fScaleY, -fHalfHeight);
-    vNextTopOuter.Set(vNextBottomOuter.x, vNextBottomOuter.y, +fHalfHeight);
+    vNextBottomOuter.Set(ezMath::Cos(nextAngle) * fScaleX, ezMath::Sin(nextAngle) * fScaleY, fBottomZ);
+    vNextTopOuter.Set(vNextBottomOuter.x, vNextBottomOuter.y, fTopZ);
 
     const ezVec3 vNextThickness = vNextDirOutwards * fThickness;
     vNextBottomInner = vNextBottomOuter - vNextThickness;
     vNextTopInner = vNextTopOuter - vNextThickness;
+
+    if (bSmoothBottom)
+    {
+      vNextBottomInner.z += fStepHeight * 0.5f;
+      vNextBottomOuter.z += fStepHeight * 0.5f;
+    }
+
+    if (bSmoothTop)
+    {
+      vNextTopInner.z += fStepHeight * 0.5f;
+      vNextTopOuter.z += fStepHeight * 0.5f;
+    }
   }
 
   const float fOuterUstep = 3.0f / uiNumSegments;
@@ -1550,12 +1577,30 @@ void ezGeometry::AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThic
 
       vNextDirOutwards.Set(ezMath::Cos(nextAngle), ezMath::Sin(nextAngle), 0);
 
-      vNextBottomOuter.Set(vNextDirOutwards.x * fScaleX, vNextDirOutwards.y * fScaleY, -fHalfHeight);
-      vNextTopOuter.Set(vNextBottomOuter.x, vNextBottomOuter.y, +fHalfHeight);
+      vNextBottomOuter.Set(vNextDirOutwards.x * fScaleX, vNextDirOutwards.y * fScaleY, fBottomZ);
+      vNextTopOuter.Set(vNextBottomOuter.x, vNextBottomOuter.y, fTopZ);
 
       const ezVec3 vNextThickness = vNextDirOutwards * fThickness;
       vNextBottomInner = vNextBottomOuter - vNextThickness;
       vNextTopInner = vNextTopOuter - vNextThickness;
+
+      if (bSmoothBottom)
+      {
+        vCurBottomInner.z -= fStepHeight;
+        vCurBottomOuter.z -= fStepHeight;
+
+        vNextBottomInner.z += fStepHeight * 0.5f;
+        vNextBottomOuter.z += fStepHeight * 0.5f;
+      }
+
+      if (bSmoothTop)
+      {
+        vCurTopInner.z -= fStepHeight;
+        vCurTopOuter.z -= fStepHeight;
+
+        vNextTopInner.z += fStepHeight * 0.5f;
+        vNextTopOuter.z += fStepHeight * 0.5f;
+      }
     }
 
     const float fCurOuterU = segment * fOuterUstep;
@@ -1601,7 +1646,7 @@ void ezGeometry::AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThic
 
     // Front
     {
-      const ezVec3 vNormal = vCurDirOutwards.Cross(ezVec3(0, 0, 1));
+      const ezVec3 vNormal = (bFlipWinding ? -1.0f : 1.0f) * vCurDirOutwards.Cross(ezVec3(0, 0, 1));
       poly[0] = AddVertex(vCurBottomInner, vNormal, ezVec2(0, 0), color, iCustomIndex, mTransform);
       poly[1] = AddVertex(vCurBottomOuter, vNormal, ezVec2(1, 0), color, iCustomIndex, mTransform);
       poly[3] = AddVertex(vCurTopInner, vNormal, ezVec2(0, 1), color, iCustomIndex, mTransform);
@@ -1611,12 +1656,23 @@ void ezGeometry::AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThic
 
     // Back
     {
-      const ezVec3 vNormal = -vNextDirOutwards.Cross(ezVec3(0, 0, 1));
+      const ezVec3 vNormal = (bFlipWinding ? -1.0f : 1.0f) * -vNextDirOutwards.Cross(ezVec3(0, 0, 1));
       poly[0] = AddVertex(vNextBottomInner, vNormal, ezVec2(0, 0), color, iCustomIndex, mTransform);
       poly[3] = AddVertex(vNextBottomOuter, vNormal, ezVec2(1, 0), color, iCustomIndex, mTransform);
       poly[1] = AddVertex(vNextTopInner, vNormal, ezVec2(0, 1), color, iCustomIndex, mTransform);
       poly[2] = AddVertex(vNextTopOuter, vNormal, ezVec2(1, 1), color, iCustomIndex, mTransform);
       AddPolygon(poly, bFlipWinding);
+    }
+
+    if (bMakeSteps)
+    {
+      vNextTopOuter.z += fStepHeight;
+      vNextTopInner.z += fStepHeight;
+      vNextBottomOuter.z += fStepHeight;
+      vNextBottomInner.z += fStepHeight;
+
+      fBottomZ = fTopZ;
+      fTopZ += fStepHeight;
     }
   }
 }
