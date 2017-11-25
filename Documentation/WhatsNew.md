@@ -4,8 +4,7 @@ What's New {#WhatsNew}
 Milestone 8
 -----------
 
-Start Revision: 1192
-#### UP TO REVISION: 2300
+[//]: # (SVN Revision 1192 to 3287)
 
 General features:
   * Added PhysX support
@@ -13,6 +12,13 @@ General features:
   * Added Fmod support for sound and music.
   * Added a particle effect system and editor.
   * Added a Visual Shader editor. Can be used to easily create custom material shaders.
+  * Added UWP port
+  * Added support for Windows Mixed Reality and the HoloLens
+  * Added support for 'dear imgui' for displaying UIs in game
+  * Added Visual Scripting functionality
+  * Added Recast integration to generate navmeshes from the level geometry and compute paths for AI characters
+  * Added decal functionality for rendering signs, splatter, dirt, etc.
+  * Added "property animations" and an editor to edit to edit the curves both through curve editor as well as through recording changes to a scene
 
 Editor:
   * Shortcuts can now be configured with a hotkey editor
@@ -29,6 +35,17 @@ Editor:
   * The input bindings (which keys trigger which action) can now be configured from the editor
   * Added manipulators for visualizing and modifying property values. For instance light source cones can now be modified in the 3D viewport.
   * Editor can now spawn multiple 'container windows' to display documents on multiple monitors
+  * Added a dialog to configure the game's window mode and resolution. Allows for different settings when run from the editor.
+  * Before exporting a scene, the editor can now modify (bake / optimize) the world
+  * The editor can now connect to an instance of the engine process, running on a remote device, for previewing purposes
+  * Added a panel to display and modify CVars. This allows to enable debug functionality inside the editor.
+  * Added marquee selection via SPACE+Drag
+  * Added a "Move Parent Only" mode for adjusting node transforms without changing the child transforms
+  * Added a "Delta Transform" dialog to precisely modify object transforms
+  * Added "Import Assets" functionality that allows to quickly import multiple source assets and auto-generate the necessary documents
+  * Assets in a folder named "XYZ_data" are now hidden in the asset browser, unless one enables showing them or navigates directly to that folder
+  * Added support for importing Source Engine BSP files
+  * Added a greyboxing tool to easily generate prototyping geometry such as boxes, columns, ramps and stairs
 
 Engine Runtime:
   * Added ezWorldReader and ezWorldWriter for importing and exporting ezWorld's in binary format
@@ -41,6 +58,7 @@ Engine Runtime:
   * Added an ingame console for modifying CVars. Can be opened in ezPlayer with F1.
   * Added ezCameraComponent for managing runtime cameras
   * Editor can now ignore unknown component types. Shows warnings when opening and saving such a scene, but does not crash.
+  * Negative mesh scaling (mirroring) is now supported
 
 Rendering:
   * Support for point and line rendering
@@ -56,6 +74,9 @@ Rendering:
   * Added two different SSAO post processors with different speed/quality trade offs
   * Added emissive and occlusion to the material model
   * Embedded a font in code for debug text output
+  * Implemented proper culling and various other optimizations
+  * Added stereoscopic rendering support
+  * Added depth and height fog rendering through the ezFogComponent
 
 Infrastructure:
   * Added ezDeferredFileWriter for only writing files to disk after everything succeeded
@@ -67,12 +88,14 @@ Infrastructure:
   * Added color gradient and curve resources and respective editors. Used by the property animation system and the particle effects.
   * Added ezModelImporter for loading and processing mesh data
   * Added a typesafe printf replacement to ezStringBuffer
+  * Added SIMD versions of the vector and matrix classes
 
 Tools / Samples:
   * Added ezPlayer, a stand-alone application to run exported scenes
   * Added ezTexConv for converting image files to optimized formats
   * Added ezShaderCompiler for compiling shaders in a separate process. Used by the Visual Shader editor for verification purposes.
   * Added the ComputeShaderHistogram sample
+  * Added ezFileServe, an application to stream game data to a remote device
 
 
 Milestone 7
