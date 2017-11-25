@@ -12,7 +12,7 @@ Get binaries for Qt from https://www.qt.io/ or compile it yourself. You will nee
 * QtNetwork
 * QtWinExtras
 
-The latest version of Qt used by ezEngine is **5.9**
+The latest version of Qt used by ezEngine is **5.9.3**
 
 
 Configuring the Build
