@@ -309,6 +309,7 @@ ezTransform ezGameObjectDocument::GetGlobalTransform(const ezDocumentObject* pOb
 
 void ezGameObjectDocument::SetGlobalTransform(const ezDocumentObject* pObject, const ezTransform& t, ezUInt8 transformationChanges) const
 {
+  ezObjectAccessorBase* pAccessor = GetObjectAccessor();
   auto pHistory = GetCommandHistory();
   if (!pHistory->IsInTransaction())
   {
@@ -359,33 +360,25 @@ void ezGameObjectDocument::SetGlobalTransform(const ezDocumentObject* pObject, c
   //if (pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>() != vLocalPos)
   if ((transformationChanges & TransformationChanges::Translation) != 0)
   {
-    cmd.m_sProperty = "LocalPosition";
-    cmd.m_NewValue = vLocalPos;
-    pHistory->AddCommand(cmd);
+    pAccessor->SetValue(pObject, "LocalPosition", vLocalPos).LogFailure();
   }
 
   //if (pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>() != qLocalRot)
   if ((transformationChanges & TransformationChanges::Rotation) != 0)
   {
-    cmd.m_sProperty = "LocalRotation";
-    cmd.m_NewValue = qLocalRot;
-    pHistory->AddCommand(cmd);
+    pAccessor->SetValue(pObject, "LocalRotation", qLocalRot).LogFailure();
   }
 
   //if (pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>() != vLocalScale)
   if ((transformationChanges & TransformationChanges::Scale) != 0)
   {
-    cmd.m_sProperty = "LocalScaling";
-    cmd.m_NewValue = vLocalScale;
-    pHistory->AddCommand(cmd);
+    pAccessor->SetValue(pObject, "LocalScaling", vLocalScale).LogFailure();
   }
 
   //if (pObject->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>() != fUniformScale)
   if ((transformationChanges & TransformationChanges::UniformScale) != 0)
   {
-    cmd.m_sProperty = "LocalUniformScaling";
-    cmd.m_NewValue = fUniformScale;
-    pHistory->AddCommand(cmd);
+    pAccessor->SetValue(pObject, "LocalUniformScaling", fUniformScale).LogFailure();
   }
 
   // will be recomputed the next time it is queried

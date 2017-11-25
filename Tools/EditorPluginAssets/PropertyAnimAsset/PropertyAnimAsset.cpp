@@ -6,6 +6,7 @@
 #include <GameEngine/Resources/PropertyAnimResource.h>
 #include <ToolsFoundation/Object/DocumentObjectVisitor.h>
 #include <Core/World/GameObject.h>
+#include <ToolsFoundation/Command/TreeCommands.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimationTrack, 1, ezRTTIDefaultAllocator<ezPropertyAnimationTrack>);
 {
@@ -267,7 +268,7 @@ void ezPropertyAnimAssetDocument::CommandHistoryEventHandler(const ezCommandHist
 void ezPropertyAnimAssetDocument::TreeStructureEventHandler(const ezDocumentObjectStructureEvent& e)
 {
   auto pManager = static_cast<ezPropertyAnimObjectManager*>(GetObjectManager());
-  if (e.m_pPreviousParent && pManager->IsTemporary(e.m_pPreviousParent, e.m_sParentProperty ))
+  if (e.m_pPreviousParent && pManager->IsTemporary(e.m_pPreviousParent, e.m_sParentProperty))
     return;
   if (e.m_pNewParent && pManager->IsTemporary(e.m_pNewParent, e.m_sParentProperty))
     return;
@@ -355,10 +356,7 @@ void ezPropertyAnimAssetDocument::AddTrack(const ezUuid& track)
 
   {
     ezDocumentObjectVisitor visitor(GetObjectManager(), "Children", "TempObjects");
-    auto obj = m_Context.GetObjectByGUID(track);
-    EZ_ASSERT_DEBUG(obj.m_pType == ezGetStaticRTTI<ezPropertyAnimationTrack>(), "Track guid does not resolve to a track, "
-      "either the track is not yet created in the mirror or already destroyed. Make sure callbacks are executed in the right order.");
-    auto pTrack = static_cast<const ezPropertyAnimationTrack*>(obj.m_pObject);
+    auto pTrack = GetTrack(track);
     ezHybridArray<const ezDocumentObject*, 8> input;
     input.PushBack(pContext);
     ezHybridArray<const ezDocumentObject*, 8> output;
@@ -459,10 +457,7 @@ void ezPropertyAnimAssetDocument::ApplyAnimation(const PropertyKey& key, const P
   ezVariant animValue = value.m_InitialValue;
   for (const ezUuid& track : value.m_Tracks)
   {
-    auto obj = m_Context.GetObjectByGUID(track);
-    EZ_ASSERT_DEBUG(obj.m_pType == ezGetStaticRTTI<ezPropertyAnimationTrack>(), "Track guid does not resolve to a track, "
-      "either the track is not yet created in the mirror or already destroyed. Make sure callbacks are executed in the right order.");
-    auto pTrack = static_cast<const ezPropertyAnimationTrack*>(obj.m_pObject);
+    auto pTrack = GetTrack(track);
     const ezRTTI* pPropRtti = key.m_pProperty->GetSpecificType();
 
     //#TODO apply pTrack to animValue
@@ -563,5 +558,154 @@ void ezPropertyAnimAssetDocument::ExecuteAnimationPlaybackStep()
     if (m_bRepeatAnimation)
       SetPlayAnimation(true);
   }
+}
+
+const ezPropertyAnimationTrack* ezPropertyAnimAssetDocument::GetTrack(const ezUuid& track) const
+{
+  return const_cast<ezPropertyAnimAssetDocument*>(this)->GetTrack(track);
+}
+
+ezPropertyAnimationTrack* ezPropertyAnimAssetDocument::GetTrack(const ezUuid& track)
+{
+  auto obj = m_Context.GetObjectByGUID(track);
+  EZ_ASSERT_DEBUG(obj.m_pType == ezGetStaticRTTI<ezPropertyAnimationTrack>(), "Track guid does not resolve to a track, "
+    "either the track is not yet created in the mirror or already destroyed. Make sure callbacks are executed in the right order.");
+  auto pTrack = static_cast<ezPropertyAnimationTrack*>(obj.m_pObject);
+  return pTrack;
+}
+
+ezUuid ezPropertyAnimAssetDocument::FindTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target) const
+{
+  PropertyKey key;
+  key.m_Object = pObject->GetGuid();
+  key.m_pProperty = pProp;
+  key.m_Index = index;
+  if (const PropertyValue* value = m_PropertyTable.GetValue(key))
+  {
+    for (const ezUuid& track : value->m_Tracks)
+    {
+      auto pTrack = GetTrack(track);
+      if (pTrack->m_Target == target)
+        return track;
+    }
+  }
+  return ezUuid();
+}
+
+ezUuid ezPropertyAnimAssetDocument::CreateTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target)
+{
+  ezObjectCommandAccessor accessor(GetCommandHistory());
+  const ezRTTI* pObjType = ezGetStaticRTTI<ezGameObject>();
+  const ezAbstractProperty* pName = pObjType->FindPropertyByName("Name");
+  ezStringBuilder sObjectSearchSequence;
+  ezStringBuilder sComponentType;
+  ezStringBuilder sPropertyPath = pProp->GetPropertyName();
+  const ezDocumentObject* pObj = pObject;
+  while (pObj != GetContextObject())
+  {
+    if (pObj->GetType() == ezGetStaticRTTI<ezGameObject>())
+    {
+      ezString sName = m_pAccessor->Get<ezString>(pObj, pName);
+      if (!sName.IsEmpty())
+      {
+        if (!sObjectSearchSequence.IsEmpty())
+          sObjectSearchSequence.Prepend("/");
+        sObjectSearchSequence.Prepend(sName);
+      }
+    }
+    else if (pObj->GetType()->IsDerivedFrom(ezGetStaticRTTI<ezComponent>()))
+    {
+      sComponentType = pObj->GetType()->GetTypeName();
+    }
+    else
+    {
+      if (!sPropertyPath.IsEmpty())
+        sPropertyPath.Prepend("/");
+      sPropertyPath.Prepend(pObj->GetParentPropertyType()->GetPropertyName());
+    }
+    pObj = pObj->GetParent();
+  }
+
+  const ezRTTI* pTrackType = ezGetStaticRTTI<ezPropertyAnimationTrack>();
+  ezUuid newTrack;
+  EZ_VERIFY(accessor.AddObject(GetPropertyObject(), ezGetStaticRTTI<ezPropertyAnimationTrackGroup>()->FindPropertyByName("Tracks"),
+    -1, pTrackType, newTrack).Succeeded(), "Adding track failed.");
+  const ezDocumentObject* pTrackObj = accessor.GetObject(newTrack);
+  ezVariant value = sObjectSearchSequence.GetData();
+  EZ_VERIFY(accessor.SetValue(pTrackObj, pTrackType->FindPropertyByName("ObjectPath"), value).Succeeded(), "Adding track failed.");
+  value = sComponentType.GetData();
+  EZ_VERIFY(accessor.SetValue(pTrackObj, pTrackType->FindPropertyByName("ComponentType"), value).Succeeded(), "Adding track failed.");
+  value = sPropertyPath.GetData();
+  EZ_VERIFY(accessor.SetValue(pTrackObj, pTrackType->FindPropertyByName("Property"), value).Succeeded(), "Adding track failed.");
+  value = (int)target;
+  EZ_VERIFY(accessor.SetValue(pTrackObj, pTrackType->FindPropertyByName("Target"), value).Succeeded(), "Adding track failed.");
+
+  return newTrack;
+}
+
+ezUuid ezPropertyAnimAssetDocument::FindCurveCp(const ezUuid& trackGuid, ezInt64 tickX)
+{
+  auto pTrack = GetTrack(trackGuid);
+  ezInt32 iIndex = -1;
+  for (ezUInt32 i = 0; i < pTrack->m_FloatCurve.m_ControlPoints.GetCount(); i++)
+  {
+    if (pTrack->m_FloatCurve.m_ControlPoints[i].m_iTick == tickX)
+    {
+      iIndex = (ezInt32)i;
+      break;
+    }
+  }
+  if (iIndex == -1)
+    return ezUuid();
+  const ezAbstractProperty* pCurveProp = ezGetStaticRTTI<ezPropertyAnimationTrack>()->FindPropertyByName("FloatCurve");
+  const ezDocumentObject* trackObject = GetObjectManager()->GetObject(trackGuid);
+  ezUuid curveGuid = m_pAccessor->Get<ezUuid>(trackObject, pCurveProp);
+  const ezAbstractProperty* pControlPointsProp = ezGetStaticRTTI<ezSingleCurveData>()->FindPropertyByName("ControlPoints");
+  const ezDocumentObject* curveObject = GetObjectManager()->GetObject(curveGuid);
+  ezUuid cpGuid = m_pAccessor->Get<ezUuid>(curveObject, pControlPointsProp, iIndex);
+  return cpGuid;
+}
+
+ezUuid ezPropertyAnimAssetDocument::InsertCurveCpAt(const ezUuid& track, ezInt64 tickX, double newPosY)
+{
+  ezCommandHistory* history = GetCommandHistory();
+  history->StartTransaction("Insert Control Point");
+
+  const ezDocumentObject* trackObject = GetObjectManager()->GetObject(track);
+  const ezVariant curveGuid = trackObject->GetTypeAccessor().GetValue("FloatCurve");
+
+  ezAddObjectCommand cmdAdd;
+  cmdAdd.m_Parent = curveGuid.Get<ezUuid>();
+  cmdAdd.m_NewObjectGuid.CreateNewUuid();
+  cmdAdd.m_sParentProperty = "ControlPoints";
+  cmdAdd.m_pType = ezGetStaticRTTI<ezCurveControlPointData>();
+  cmdAdd.m_Index = -1;
+
+  history->AddCommand(cmdAdd);
+
+  ezSetObjectPropertyCommand cmdSet;
+  cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
+
+  cmdSet.m_sProperty = "Tick";
+  cmdSet.m_NewValue = tickX;
+  history->AddCommand(cmdSet);
+
+  cmdSet.m_sProperty = "Value";
+  cmdSet.m_NewValue = newPosY;
+  history->AddCommand(cmdSet);
+
+  cmdSet.m_sProperty = "LeftTangent";
+  cmdSet.m_NewValue = ezVec2(-0.1f, 0.0f);
+  history->AddCommand(cmdSet);
+
+  cmdSet.m_sProperty = "RightTangent";
+  cmdSet.m_NewValue = ezVec2(+0.1f, 0.0f);
+  history->AddCommand(cmdSet);
+
+  history->FinishTransaction();
+
+  ClearCachedAnimationDuration();
+
+  return cmdAdd.m_NewObjectGuid;
 }
 

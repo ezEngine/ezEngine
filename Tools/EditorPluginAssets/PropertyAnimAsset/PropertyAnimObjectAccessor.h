@@ -23,7 +23,9 @@ public:
 private:
   bool IsTemporary(const ezDocumentObject* pObject) const;
   bool IsTemporary(const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp) const;
-
+  ezStatus SetCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target, double fValue);
+  ezUuid FindOrAddTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target);
+  ezStatus SetOrInsertCurveCp(const ezUuid& track, double fValue);
 
   ezObjectCommandAccessor m_ObjAccessor;
   ezPropertyAnimAssetDocument* m_pDocument = nullptr;

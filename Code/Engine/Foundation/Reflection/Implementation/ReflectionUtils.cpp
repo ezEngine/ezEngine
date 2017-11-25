@@ -365,6 +365,90 @@ namespace
     ezUInt32 m_iComponent;
     double m_fValue;
   };
+
+  template<typename T>
+  struct GetComponentValueImpl
+  {
+    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 iComponent, double& fValue)
+    {
+      EZ_ASSERT_DEBUG(false, "ezReflectionUtils::SetComponent was called with a non-vector variant '{}'", pVector->GetType());
+    }
+  };
+
+  template<typename T>
+  struct GetComponentValueImpl<ezVec2Template<T>>
+  {
+    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 iComponent, double& fValue)
+    {
+      const auto& vec = pVector->Get<ezVec2Template<T>>();
+      switch (iComponent)
+      {
+      case 0:
+        fValue = static_cast<double>(vec.x);
+        break;
+      case 1:
+        fValue = static_cast<double>(vec.y);
+        break;
+      }
+    }
+  };
+
+  template<typename T>
+  struct GetComponentValueImpl<ezVec3Template<T>>
+  {
+    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 iComponent, double& fValue)
+    {
+      const auto& vec = pVector->Get<ezVec3Template<T>>();
+      switch (iComponent)
+      {
+      case 0:
+        fValue = static_cast<double>(vec.x);
+        break;
+      case 1:
+        fValue = static_cast<double>(vec.y);
+        break;
+      case 2:
+        fValue = static_cast<double>(vec.z);
+        break;
+      }
+    }
+  };
+
+  template<typename T>
+  struct GetComponentValueImpl<ezVec4Template<T>>
+  {
+    EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 iComponent, double& fValue)
+    {
+      const auto& vec = pVector->Get<ezVec4Template<T>>();
+      switch (iComponent)
+      {
+      case 0:
+        fValue = static_cast<double>(vec.x);
+        break;
+      case 1:
+        fValue = static_cast<double>(vec.y);
+        break;
+      case 2:
+        fValue = static_cast<double>(vec.z);
+        break;
+      case 3:
+        fValue = static_cast<double>(vec.w);
+        break;
+      }
+    }
+  };
+
+  struct GetComponentValueFunc
+  {
+    template <typename T>
+    EZ_FORCE_INLINE void operator()()
+    {
+      GetComponentValueImpl<T>::impl(m_pVector, m_iComponent, m_fValue);
+    }
+    const ezVariant* m_pVector;
+    ezUInt32 m_iComponent;
+    double m_fValue;
+  };
 }
 
 const ezRTTI* ezReflectionUtils::GetCommonBaseType(const ezRTTI* pRtti1, const ezRTTI* pRtti2)
@@ -408,6 +492,27 @@ const ezRTTI* ezReflectionUtils::GetTypeFromVariant(const ezVariant& value)
   return func.m_pType;
 }
 
+ezUInt32 ezReflectionUtils::GetComponentCount(ezVariantType::Enum type)
+{
+  switch (type)
+  {
+  case ezVariant::Type::Vector2:
+  case ezVariant::Type::Vector2I:
+  case ezVariant::Type::Vector2U:
+    return 2;
+  case ezVariant::Type::Vector3:
+  case ezVariant::Type::Vector3I:
+  case ezVariant::Type::Vector3U:
+    return 3;
+  case ezVariant::Type::Vector4:
+  case ezVariant::Type::Vector4I:
+  case ezVariant::Type::Vector4U:
+    return 4;
+  default:
+    EZ_REPORT_FAILURE("Not a vector type: '{0}'", type);
+    return 0;
+  }
+}
 
 void ezReflectionUtils::SetComponent(ezVariant& vector, ezUInt32 iComponent, double fValue)
 {
@@ -416,6 +521,15 @@ void ezReflectionUtils::SetComponent(ezVariant& vector, ezUInt32 iComponent, dou
   func.m_iComponent = iComponent;
   func.m_fValue = fValue;
   ezVariant::DispatchTo(func, vector.GetType());
+}
+
+double ezReflectionUtils::GetComponent(const ezVariant& vector, ezUInt32 iComponent)
+{
+  GetComponentValueFunc func;
+  func.m_pVector = &vector;
+  func.m_iComponent = iComponent;
+  ezVariant::DispatchTo(func, vector.GetType());
+  return func.m_fValue;
 }
 
 ezVariant ezReflectionUtils::GetMemberPropertyValue(const ezAbstractMemberProperty* pProp, const void* pObject)

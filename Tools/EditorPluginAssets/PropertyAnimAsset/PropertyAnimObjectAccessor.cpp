@@ -15,7 +15,6 @@ ezStatus ezPropertyAnimObjectAccessor::GetValue(const ezDocumentObject* pObject,
 {
   if (IsTemporary(pObject))
   {
-
     return ezObjectCommandAccessor::GetValue(pObject, pProp, out_value, index);
   }
   else
@@ -24,42 +23,39 @@ ezStatus ezPropertyAnimObjectAccessor::GetValue(const ezDocumentObject* pObject,
   }
 }
 
-ezStatus ezPropertyAnimObjectAccessor::SetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
+ezStatus ezPropertyAnimObjectAccessor::SetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index)
 {
   if (IsTemporary(pObject))
   {
-   /* const ezRTTI* pObjType = ezGetStaticRTTI<ezGameObject>();
-    const ezAbstractProperty* pName = pObjType->FindPropertyByName("Name");
-    ezStringBuilder sObjectSearchSequence;
-    ezStringBuilder sComponentType;
-    ezStringBuilder sPropertyPath = pProp->GetPropertyName();
-    const ezDocumentObject* pObj = pObject;
-    while (pObj != m_pObjectManager->GetRootObject())
+    ezVariantType::Enum type = pProp->GetSpecificType()->GetVariantType();
+    if (type >= ezVariantType::Bool && type <= ezVariantType::Double)
     {
-      if (pObj->GetType() == ezGetStaticRTTI<ezGameObject>())
+      return SetCurveCp(pObject, pProp, index, ezPropertyAnimTarget::Number, newValue.ConvertTo<double>());
+    }
+    else if (type >= ezVariantType::Vector2 && type <= ezVariantType::Vector4U)
+    {
+      ezVariant oldValue;
+      EZ_VERIFY(m_ObjAccessor.GetValue(pObject, pProp, oldValue, index).Succeeded(), "Property does not exist, can't animate");
+      const ezUInt32 uiComponents = ezReflectionUtils::GetComponentCount(type);
+      for (ezUInt32 c = 0; c < uiComponents; c++)
       {
-        ezString sName = m_ObjAccessor.Get<ezString>(pObj, pName);
-        if (!sName.IsEmpty())
+        double fOldValue = ezReflectionUtils::GetComponent(oldValue, c);
+        double fValue = ezReflectionUtils::GetComponent(newValue, c);
+        if (ezMath::IsEqual(fOldValue, fValue, ezMath::BasicType<double>::SmallEpsilon()))
+          continue;
+        ezStatus res = SetCurveCp(pObject, pProp, index, static_cast<ezPropertyAnimTarget::Enum>((int)ezPropertyAnimTarget::VectorX + c), fValue);
+        if (res.Failed())
         {
-          if (!sObjectSearchSequence.IsEmpty())
-            sObjectSearchSequence.Prepend("/");
-          sObjectSearchSequence.Prepend(sName);
+          return res;
         }
       }
-      else if (pObj->GetType()->IsDerivedFrom(ezGetStaticRTTI<ezComponent>()))
-      {
-        sComponentType = pObj->GetType()->GetTypeName();
-      }
-      else
-      {
-        if (!sPropertyPath.IsEmpty())
-          sPropertyPath.Prepend("/");
-        sPropertyPath.Prepend(pObj->GetParentPropertyType()->GetPropertyName());
-      }
-      pObj = pObj->GetParent();
-    }*/
-
-    return ezObjectCommandAccessor::SetValue(pObject, pProp, newValue, index);
+      return ezStatus(EZ_SUCCESS);
+    }
+    else if (type == ezVariantType::Color || type == ezVariantType::ColorGamma)
+    {
+      //#TODO: case ezPropertyAnimTarget::Color:
+    }
+    return ezStatus(ezFmt("The property '{0}' cannot be animated.", pProp->GetPropertyName()));
   }
   else
   {
@@ -147,4 +143,60 @@ bool ezPropertyAnimObjectAccessor::IsTemporary(const ezDocumentObject* pObject) 
 bool ezPropertyAnimObjectAccessor::IsTemporary(const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp) const
 {
   return m_pObjectManager->IsTemporary(pParent, pParentProp->GetPropertyName());
+}
+
+
+ezStatus ezPropertyAnimObjectAccessor::SetCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target, double fValue)
+{
+  ezUuid track = FindOrAddTrack(pObject, pProp, index, target);
+  SetOrInsertCurveCp(track, fValue);
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezUuid ezPropertyAnimObjectAccessor::FindOrAddTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target)
+{
+  ezUuid track = m_pDocument->FindTrack(pObject, pProp, index, target);
+  if (!track.IsValid())
+  {
+    auto pHistory = m_pDocument->GetCommandHistory();
+    bool bWasTemporaryTransaction = pHistory->InTemporaryTransaction();
+    if (bWasTemporaryTransaction)
+    {
+      pHistory->SuspendTemporaryTransaction();
+    }
+    track = m_pDocument->CreateTrack(pObject, pProp, index, target);
+    if (bWasTemporaryTransaction)
+    {
+      pHistory->ResumeTemporaryTransaction();
+    }
+  }
+  EZ_ASSERT_DEBUG(track.IsValid(), "Creating track failed.");
+  return track;
+}
+
+ezStatus ezPropertyAnimObjectAccessor::SetOrInsertCurveCp(const ezUuid& track, double fValue)
+{
+  const ezInt64 iScrubberPos = (ezInt64)m_pDocument->GetScrubberPosition();
+  ezUuid cpGuid = m_pDocument->FindCurveCp(track, iScrubberPos);
+  if (cpGuid.IsValid())
+  {
+    auto pCP = GetObject(cpGuid);
+    const ezAbstractProperty* pValueProp = ezGetStaticRTTI<ezCurveControlPointData>()->FindPropertyByName("Value");
+    m_ObjAccessor.SetValue(pCP, pValueProp, fValue);
+  }
+  else
+  {
+    auto pHistory = m_pDocument->GetCommandHistory();
+    bool bWasTemporaryTransaction = pHistory->InTemporaryTransaction();
+    if (bWasTemporaryTransaction)
+    {
+      pHistory->SuspendTemporaryTransaction();
+    }
+    cpGuid = m_pDocument->InsertCurveCpAt(track, iScrubberPos, fValue);
+    if (bWasTemporaryTransaction)
+    {
+      pHistory->ResumeTemporaryTransaction();
+    }
+  }
+  return ezStatus(EZ_SUCCESS);
 }

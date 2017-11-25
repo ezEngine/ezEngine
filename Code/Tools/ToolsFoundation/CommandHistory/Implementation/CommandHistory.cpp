@@ -55,17 +55,59 @@ ezCommandHistory::~ezCommandHistory()
 void ezCommandHistory::BeginTemporaryCommands(const char* szDisplayString, bool bFireEventsWhenUndoingTempCommands)
 {
   EZ_ASSERT_DEV(!m_bTemporaryMode, "Temporary Mode cannot be nested");
-
   StartTransaction(szDisplayString);
+  StartTransaction("[Temporary]");
 
   m_bFireEventsWhenUndoingTempCommands = bFireEventsWhenUndoingTempCommands;
   m_bTemporaryMode = true;
+  m_iTemporaryDepth = (ezInt32)m_TransactionStack.GetCount();
+}
+
+void ezCommandHistory::CancelTemporaryCommands()
+{
+  EndTemporaryCommands(true);
+  EndTransaction(true);
+}
+
+void ezCommandHistory::FinishTemporaryCommands()
+{
+  EndTemporaryCommands(false);
+  EndTransaction(false);
+}
+
+bool ezCommandHistory::InTemporaryTransaction() const
+{
+  return m_bTemporaryMode;
+}
+
+
+void ezCommandHistory::SuspendTemporaryTransaction()
+{
+  m_iPreSuspendTemporaryDepth = (ezInt32)m_TransactionStack.GetCount();
+  EZ_ASSERT_DEV(m_bTemporaryMode, "No temporary transaction active.");
+  while (m_iTemporaryDepth < (ezInt32)m_TransactionStack.GetCount())
+  {
+    EndTransaction(true);
+  }
+  EndTemporaryCommands(true);
+}
+
+void ezCommandHistory::ResumeTemporaryTransaction()
+{
+  EZ_ASSERT_DEV(m_iTemporaryDepth == (ezInt32)m_TransactionStack.GetCount() + 1, "Can't resume temporary, not before temporary depth.");
+  while (m_iPreSuspendTemporaryDepth > (ezInt32)m_TransactionStack.GetCount())
+  {
+    StartTransaction("[Temporary]");
+  }
+  m_bTemporaryMode = true;
+  EZ_ASSERT_DEV(m_iPreSuspendTemporaryDepth == (ezInt32)m_TransactionStack.GetCount(), "");
 }
 
 void ezCommandHistory::EndTemporaryCommands(bool bCancel)
 {
   EZ_ASSERT_DEV(m_bTemporaryMode, "Temporary Mode was not enabled");
-
+  EZ_ASSERT_DEV(m_iTemporaryDepth == (ezInt32)m_TransactionStack.GetCount(), "Transaction stack is at depth {0} but temporary is at {1}",
+    m_TransactionStack.GetCount(), m_iTemporaryDepth);
   m_bTemporaryMode = false;
 
   EndTransaction(bCancel);

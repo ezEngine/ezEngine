@@ -77,8 +77,12 @@ public:
   /// Every time a new transaction is started, the previous one is undone first. At the end of a serious of temporary transactions, only the last transaction will be stored as a single undo step.
   /// Call this first and then start a transaction inside it.
   void BeginTemporaryCommands(const char* szDisplayString, bool bFireEventsWhenUndoingTempCommands = false);
-  void CancelTemporaryCommands() { EndTemporaryCommands(true); }
-  void FinishTemporaryCommands() { EndTemporaryCommands(false); }
+  void CancelTemporaryCommands();
+  void FinishTemporaryCommands();
+
+  bool InTemporaryTransaction() const;
+  void SuspendTemporaryTransaction();
+  void ResumeTemporaryTransaction();
 
   ezStatus AddCommand(ezCommand& command);
 
@@ -103,6 +107,8 @@ private:
 
   bool m_bFireEventsWhenUndoingTempCommands = false;
   bool m_bTemporaryMode = false;
+  ezInt32 m_iTemporaryDepth = -1;
+  ezInt32 m_iPreSuspendTemporaryDepth = -1;
   bool m_bIsInUndoRedo = false;
 
   ezHybridArray<ezCommandTransaction*, 4> m_TransactionStack;

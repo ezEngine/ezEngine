@@ -80,6 +80,15 @@ public:
   bool GetRepeatAnimation() const { return m_bRepeatAnimation; }
   void ExecuteAnimationPlaybackStep();
 
+  const ezPropertyAnimationTrack* GetTrack(const ezUuid& trackGuid) const;
+  ezPropertyAnimationTrack* GetTrack(const ezUuid& trackGuid);
+
+  ezUuid FindTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target) const;
+  ezUuid CreateTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target);
+
+  ezUuid FindCurveCp(const ezUuid& trackGuid, ezInt64 tickX);
+  ezUuid InsertCurveCpAt(const ezUuid& trackGuid, ezInt64 tickX, double newPosY);
+
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
   virtual void InitializeAfterLoading() override;

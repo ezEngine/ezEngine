@@ -20,7 +20,9 @@ public:
   /// \brief Sets the Nth component of the vector to the given value.
   ///
   /// vector's type needs to be in between ezVariant::Type::Vector2 and ezVariant::Type::Vector4U.
+  static ezUInt32 GetComponentCount(ezVariantType::Enum type);
   static void SetComponent(ezVariant& vector, ezUInt32 iComponent, double fValue); // [tested]
+  static double GetComponent(const ezVariant& vector, ezUInt32 iComponent);
 
   static ezVariant GetMemberPropertyValue(const ezAbstractMemberProperty* pProp, const void* pObject); // [tested] via ToolsFoundation
   static void SetMemberPropertyValue(ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value); // [tested] via ToolsFoundation

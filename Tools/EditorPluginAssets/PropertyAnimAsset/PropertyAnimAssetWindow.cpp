@@ -582,48 +582,9 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveInsertCpAt(ezUInt32 uiCurveIdx,
     return;
 
   ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
-
-  ezCommandHistory* history = pDoc->GetCommandHistory();
-  history->StartTransaction("Insert Control Point");
-
   const ezInt32 iTrackIdx = m_MapSelectionToTrack[uiCurveIdx];
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrackIdx);
-  const ezDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<ezUuid>());
-  const ezVariant curveGuid = trackObject->GetTypeAccessor().GetValue("FloatCurve");
-
-  ezAddObjectCommand cmdAdd;
-  cmdAdd.m_Parent = curveGuid.Get<ezUuid>();
-  cmdAdd.m_NewObjectGuid.CreateNewUuid();
-  cmdAdd.m_sParentProperty = "ControlPoints";
-  cmdAdd.m_pType = ezGetStaticRTTI<ezCurveControlPointData>();
-  cmdAdd.m_Index = -1;
-
-  history->AddCommand(cmdAdd);
-
-  ezSetObjectPropertyCommand cmdSet;
-  cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
-
-  cmdSet.m_sProperty = "Tick";
-  cmdSet.m_NewValue = tickX;
-  history->AddCommand(cmdSet);
-
-  cmdSet.m_sProperty = "Value";
-  cmdSet.m_NewValue = clickPosY;
-  history->AddCommand(cmdSet);
-
-  cmdSet.m_sProperty = "LeftTangent";
-  cmdSet.m_NewValue = ezVec2(-0.1f, 0.0f);
-  history->AddCommand(cmdSet);
-
-  cmdSet.m_sProperty = "RightTangent";
-  cmdSet.m_NewValue = ezVec2(+0.1f, 0.0f);
-  history->AddCommand(cmdSet);
-
-  history->FinishTransaction();
-
-  pDoc->ClearCachedAnimationDuration();
-
-  UpdateCurveEditor();
+  pDoc->InsertCurveCpAt(trackGuid.Get<ezUuid>(), tickX, clickPosY);
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onCurveCpMoved(ezUInt32 uiCurveIdx, ezUInt32 cpIdx, ezInt64 iTickX, double newPosY)

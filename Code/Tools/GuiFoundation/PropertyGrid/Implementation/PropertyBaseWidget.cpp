@@ -149,7 +149,7 @@ void ezQtPropertyWidget::Broadcast(ezPropertyEvent::Type type)
   ed.m_Type = type;
   ed.m_pProperty = m_pProp;
 
-  m_Events.Broadcast(ed);
+  m_Events.Broadcast(ed, 2);
 }
 
 
