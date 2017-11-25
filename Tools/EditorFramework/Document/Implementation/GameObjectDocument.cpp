@@ -7,6 +7,7 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <EditorFramework/EditTools/EditTool.h>
 #include <Core/World/GameObject.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectMetaData, 1, ezRTTINoAllocator)
 {

@@ -27,6 +27,9 @@ ezStatus ezPropertyAnimObjectAccessor::SetValue(const ezDocumentObject* pObject,
 {
   if (IsTemporary(pObject))
   {
+    ezVariant oldValue;
+    EZ_VERIFY(m_ObjAccessor.GetValue(pObject, pProp, oldValue, index).Succeeded(), "Property does not exist, can't animate");
+
     ezVariantType::Enum type = pProp->GetSpecificType()->GetVariantType();
     if (type >= ezVariantType::Bool && type <= ezVariantType::Double)
     {
@@ -34,20 +37,16 @@ ezStatus ezPropertyAnimObjectAccessor::SetValue(const ezDocumentObject* pObject,
     }
     else if (type >= ezVariantType::Vector2 && type <= ezVariantType::Vector4U)
     {
-      ezVariant oldValue;
-      EZ_VERIFY(m_ObjAccessor.GetValue(pObject, pProp, oldValue, index).Succeeded(), "Property does not exist, can't animate");
       const ezUInt32 uiComponents = ezReflectionUtils::GetComponentCount(type);
       for (ezUInt32 c = 0; c < uiComponents; c++)
       {
-        double fOldValue = ezReflectionUtils::GetComponent(oldValue, c);
-        double fValue = ezReflectionUtils::GetComponent(newValue, c);
+        const double fOldValue = ezReflectionUtils::GetComponent(oldValue, c);
+        const double fValue = ezReflectionUtils::GetComponent(newValue, c);
         if (ezMath::IsEqual(fOldValue, fValue, ezMath::BasicType<double>::SmallEpsilon()))
           continue;
         ezStatus res = SetCurveCp(pObject, pProp, index, static_cast<ezPropertyAnimTarget::Enum>((int)ezPropertyAnimTarget::VectorX + c), fValue);
         if (res.Failed())
-        {
           return res;
-        }
       }
       return ezStatus(EZ_SUCCESS);
     }
