@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.01.09.00">
+<objects serializationModel="Studio.01.10.00">
     <object class="Event" id="{8d3701d6-83c9-4039-b341-88d33fbaa0d3}">
         <property name="name">
             <value>EnergyBarrier</value>
@@ -225,7 +225,14 @@
     </object>
     <object class="MixerBusPanner" id="{4e1461ea-2034-4c42-ad99-2b93f3fc5c1d}"/>
     <object class="MixerBusFader" id="{9b234b1c-2863-4b67-a29e-ef2200a20fa1}"/>
-    <object class="SpatialiserEffect" id="{3bff0a13-7f89-4719-b0ff-a7f05f8cf952}"/>
+    <object class="ProxyEffect" id="{3bff0a13-7f89-4719-b0ff-a7f05f8cf952}">
+        <property name="inputFormat">
+            <value>1</value>
+        </property>
+        <relationship name="preset">
+            <destination>{2d30d573-4e89-0139-3fce-3d9c8b01cf1c}</destination>
+        </relationship>
+    </object>
     <object class="AutomationPoint" id="{a12e8dd7-6f38-40b9-af46-fceff1f5d9c2}">
         <property name="position">
             <value>5.6000000000000014</value>

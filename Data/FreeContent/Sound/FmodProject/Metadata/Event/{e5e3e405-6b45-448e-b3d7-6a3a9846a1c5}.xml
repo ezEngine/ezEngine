@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.01.09.00">
+<objects serializationModel="Studio.01.10.00">
     <object class="Event" id="{e5e3e405-6b45-448e-b3d7-6a3a9846a1c5}">
         <property name="name">
             <value>Grass</value>
@@ -238,6 +238,13 @@
     </object>
     <object class="MixerBusPanner" id="{5089b853-57f1-4761-85c6-01033f946b53}"/>
     <object class="MixerBusFader" id="{14d162ae-14fc-4295-86bc-5d7028b1a93f}"/>
-    <object class="SpatialiserEffect" id="{7e4a4779-9f24-4fac-9738-80cc847ce973}"/>
+    <object class="ProxyEffect" id="{7e4a4779-9f24-4fac-9738-80cc847ce973}">
+        <property name="inputFormat">
+            <value>0</value>
+        </property>
+        <relationship name="preset">
+            <destination>{2d30d573-4e89-0139-3fce-3d9c8b01cf1c}</destination>
+        </relationship>
+    </object>
     <object class="MixerBusFader" id="{ad3ebd8b-22b3-4745-b2cd-f848dce435c9}"/>
 </objects>

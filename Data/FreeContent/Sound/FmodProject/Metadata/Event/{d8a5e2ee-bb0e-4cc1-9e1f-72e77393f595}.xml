@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.01.09.00">
+<objects serializationModel="Studio.01.10.00">
     <object class="Event" id="{d8a5e2ee-bb0e-4cc1-9e1f-72e77393f595}">
         <property name="name">
             <value>Photon Torpedo</value>
@@ -143,6 +143,13 @@
     </object>
     <object class="MixerBusPanner" id="{8b603dea-6c55-4b76-9378-fd35b561173d}"/>
     <object class="MixerBusFader" id="{45b93660-ae2a-45ed-82e8-444d9ab58864}"/>
-    <object class="SpatialiserEffect" id="{b08012f8-dcef-4036-87f0-42e133aa11da}"/>
+    <object class="ProxyEffect" id="{b08012f8-dcef-4036-87f0-42e133aa11da}">
+        <property name="inputFormat">
+            <value>0</value>
+        </property>
+        <relationship name="preset">
+            <destination>{2d30d573-4e89-0139-3fce-3d9c8b01cf1c}</destination>
+        </relationship>
+    </object>
     <object class="MixerBusFader" id="{215798a7-9d68-4d28-82d1-708a4589f713}"/>
 </objects>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.01.09.00">
+<objects serializationModel="Studio.01.10.00">
     <object class="Event" id="{d4e58c28-450f-449a-a920-7e0459066700}">
         <property name="name">
             <value>SniperRifle</value>
@@ -136,6 +136,13 @@
     </object>
     <object class="MixerBusPanner" id="{5b316eca-bce6-4679-b034-f9dc6abeba64}"/>
     <object class="MixerBusFader" id="{ba265376-4a82-4e88-93f0-b95d27b0aa5d}"/>
-    <object class="SpatialiserEffect" id="{7fd3878e-48e3-4ff9-be4b-9c57d092a243}"/>
+    <object class="ProxyEffect" id="{7fd3878e-48e3-4ff9-be4b-9c57d092a243}">
+        <property name="inputFormat">
+            <value>1</value>
+        </property>
+        <relationship name="preset">
+            <destination>{2d30d573-4e89-0139-3fce-3d9c8b01cf1c}</destination>
+        </relationship>
+    </object>
     <object class="MixerBusFader" id="{90117d23-98b3-4439-892c-bdd55981f26e}"/>
 </objects>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.01.09.00">
+<objects serializationModel="Studio.01.10.00">
     <object class="Event" id="{32cb0079-08cc-4f6b-a94b-0832e602ee1a}">
         <property name="name">
             <value>PunchImpact</value>
@@ -153,6 +153,13 @@
     </object>
     <object class="MixerBusPanner" id="{c27707b0-f7d9-4db7-bbdc-8ae3a47c6e63}"/>
     <object class="MixerBusFader" id="{8abf2613-faa3-4672-9378-ac9c94de708d}"/>
-    <object class="SpatialiserEffect" id="{b04e81b2-0ad8-4cd6-8279-120563c3b47f}"/>
+    <object class="ProxyEffect" id="{b04e81b2-0ad8-4cd6-8279-120563c3b47f}">
+        <property name="inputFormat">
+            <value>1</value>
+        </property>
+        <relationship name="preset">
+            <destination>{2d30d573-4e89-0139-3fce-3d9c8b01cf1c}</destination>
+        </relationship>
+    </object>
     <object class="MixerBusFader" id="{a384653b-1a2b-4fee-b9e9-ce45f88ef231}"/>
 </objects>

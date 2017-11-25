@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.01.09.00">
+<objects serializationModel="Studio.01.10.00">
     <object class="Event" id="{ca2907cf-f167-4003-a685-b460cabe9f7d}">
         <property name="name">
             <value>Blastershot</value>
@@ -136,6 +136,13 @@
     </object>
     <object class="MixerBusPanner" id="{6c661f5c-a24b-4485-94bb-f76f3864831d}"/>
     <object class="MixerBusFader" id="{925c2abe-2bb2-40ef-bb7d-167e68c5c7cb}"/>
-    <object class="SpatialiserEffect" id="{a0ec5150-d4c6-4f8e-84c9-c0e692e86a07}"/>
+    <object class="ProxyEffect" id="{a0ec5150-d4c6-4f8e-84c9-c0e692e86a07}">
+        <property name="inputFormat">
+            <value>1</value>
+        </property>
+        <relationship name="preset">
+            <destination>{2d30d573-4e89-0139-3fce-3d9c8b01cf1c}</destination>
+        </relationship>
+    </object>
     <object class="MixerBusFader" id="{b963fba6-cdc8-489b-b0ce-d0542d00e1d8}"/>
 </objects>

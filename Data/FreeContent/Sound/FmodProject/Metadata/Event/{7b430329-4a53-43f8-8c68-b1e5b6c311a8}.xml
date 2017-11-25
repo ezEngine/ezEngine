@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.01.09.00">
+<objects serializationModel="Studio.01.10.00">
     <object class="Event" id="{7b430329-4a53-43f8-8c68-b1e5b6c311a8}">
         <property name="name">
             <value>PlasmaBomb</value>
@@ -136,6 +136,13 @@
     </object>
     <object class="MixerBusPanner" id="{a996f812-22f6-46ae-912a-5df4ad2bf374}"/>
     <object class="MixerBusFader" id="{53a8eef2-aecb-4893-98bc-c254909d193c}"/>
-    <object class="SpatialiserEffect" id="{f31e0acc-a520-4a2f-b351-2d5459f2aff2}"/>
+    <object class="ProxyEffect" id="{f31e0acc-a520-4a2f-b351-2d5459f2aff2}">
+        <property name="inputFormat">
+            <value>1</value>
+        </property>
+        <relationship name="preset">
+            <destination>{2d30d573-4e89-0139-3fce-3d9c8b01cf1c}</destination>
+        </relationship>
+    </object>
     <object class="MixerBusFader" id="{dbafb82e-91e7-4a67-a905-4435f8fa88ae}"/>
 </objects>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<objects serializationModel="Studio.01.09.00">
+<objects serializationModel="Studio.01.10.00">
     <object class="Workspace" id="{2fb8ffa6-32a8-498d-b0d0-15313a0929cc}">
         <property name="builtBanksOutputDirectory">
             <value>../Soundbanks</value>
@@ -9,6 +9,12 @@
         </relationship>
         <relationship name="masterTagFolder">
             <destination>{f1dbbe52-f581-4a45-b81e-60a7cbedabcf}</destination>
+        </relationship>
+        <relationship name="masterEffectPresetFolder">
+            <destination>{6fbc3906-ba22-0a8a-0773-d68bc882ea6d}</destination>
+        </relationship>
+        <relationship name="masterParameterPresetFolder">
+            <destination>{670324cf-34cb-03a6-0735-176078c87507}</destination>
         </relationship>
         <relationship name="masterBankFolder">
             <destination>{0ab7647b-3a82-48a1-a9c7-41b9818b00c4}</destination>
@@ -22,19 +28,5 @@
         <relationship name="platforms">
             <destination>{aff20ba3-aeb0-43ac-8e46-65176c7ecf36}</destination>
         </relationship>
-    </object>
-    <object class="Platform" id="{aff20ba3-aeb0-43ac-8e46-65176c7ecf36}">
-        <property name="hardwareType">
-            <value>0</value>
-        </property>
-        <property name="name">
-            <value>Desktop</value>
-        </property>
-        <property name="subDirectory">
-            <value>Desktop</value>
-        </property>
-        <property name="speakerFormat">
-            <value>6</value>
-        </property>
     </object>
 </objects>
