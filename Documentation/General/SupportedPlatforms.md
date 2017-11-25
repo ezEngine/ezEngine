@@ -1,7 +1,7 @@
 Supported Platforms {#SupportedPlatforms}
 ===================
 
-ezEngine is developed primarily on Windows 7, using Visual Studio 2012 and 2013 typically in 64 Bit builds. As such those are the best tested and therefore most stable platforms.
+ezEngine is developed primarily on Windows 10, using Visual Studio 2017 typically in 64 Bit builds. As such this is the best tested and therefore most stable platform. The code uses C++ 11 and a couple of C++ 14 features.
 
 
 Windows
@@ -10,27 +10,28 @@ Windows
 Versions:
   * Windows Vista (not tested)
   * Windows 7
-  * Windows 8 (desktop)
-  * Windows 8.1 (desktop)
+  * Windows 8 (not tested)
+  * Windows 8.1 (not tested)
   * Windows 10
 
 Compilers:
-  * Visual Studio 2012 32 Bit
-  * Visual Studio 2012 64 Bit
-  * Visual Studio 2013 32 Bit
-  * Visual Studio 2013 64 Bit
+  * Visual Studio 2015 32 Bit
+  * Visual Studio 2015 64 Bit
+  * Visual Studio 2017 32 Bit
+  * Visual Studio 2017 64 Bit
 
-Dependencies:
-  * Qt5.5.0 (optional)
- 
-Not supported anymore, but might still work:
-  * Visual Studio 2010 32 Bit
-  * Visual Studio 2010 64 Bit
 
-Not Supported (and never will be):
-  * Windows XP and below
-  * Visual Studio 2008 and below
-  * Other IDEs than VS
+Windows UWP
+-----------
+
+Windows 10 UWP builds are supported. See \ref HowToBuildUWP for details.
+
+
+Windows Clang
+-------------
+
+It is possible to build with Clang on Windows through Visual Studio. See \ref HowToBuildClangOnWindows for details.
+
 
 MacOS
 -----
@@ -44,10 +45,6 @@ Compilers:
 
 Dependencies:
   * XQuartz 2.7.5 or higher
-  * Qt5.4.1 (optional)
-  
-Not Supported (and never will be):
-  * 32 Bit builds
 
 
 Linux
@@ -61,23 +58,6 @@ Compilers:
 
 Dependencies:
   * uuid-dev
-  * Qt5.4.1 (optional)
-  
-Not Supported (and never will be):
-  * 32 Bit builds
 
 
-Not officially Supported (and not planned)
-------------------------------------------
-
-  * Blackberry
-  * Tizen
-  * Windows Phone 7
-
-
-Not yet supported, but maybe someday
-------------------------------------
-  * Android
-  * iOS
-  * Windows Phone 8
 

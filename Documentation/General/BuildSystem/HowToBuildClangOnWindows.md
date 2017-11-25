@@ -8,6 +8,6 @@ Using the CMake Windows-UI
 ----------------
 * Specify your target Visual Studio compiler.
 * In the field _Optional toolset to use (-T parameter)_ type **v140\_clang\_c2**
-* Configure
-* In the settings, disable EZ\_USE\_PCH
-* Generate
+* Run 'Configure'
+* In the settings, disable **EZ\_USE\_PCH**
+* Run 'Generate'

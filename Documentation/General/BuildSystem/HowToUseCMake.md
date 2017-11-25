@@ -5,7 +5,7 @@ How to use CMake {#HowToUseCMake}
 
   * Run the CMake GUI.
 
-  * For "Where is the source code" select "Trunk".
+  * For "Where is the source code" select the ezEngine "Trunk" directory.
 
   * For "Where to build the binaries" select an empty folder, where you want the solution to end up in, for example "Trunk/Workspace", but it can also be somewhere completely different (e.g. another hard drive even).
 
@@ -22,12 +22,10 @@ How to use CMake {#HowToUseCMake}
   * Open up the solution, compile and have fun.
 
 
-Re-run CMake (ie. press "Configure" and "Generate") everytime changes have been done, that are not automatically detected (e.g. you added a file to a folder) -> Visual Studio will usually detect outside changes and reload the project. Usually that works without crashing ;-)
-
-Every once in a while you should clear the CMake cache ("File -> Delete Cache") and regenerate the solution completely, to ensure that no old stuff is still lying around (or just delete the entire workspace folder). This should only be necessary when major changes to the build system have been done.
+Re-run CMake (ie. press "Configure" and "Generate") everytime changes have been done, that are not automatically detected (e.g. you added a file to a folder) -> Visual Studio will detect outside changes and reload the project.
 
 
-Using ezEngine with Custom CMake Based Applications {#CMakeFindEZ}
+Using ezEngine with Custom CMake Based Applications
 ---------------------------------------------------
 
 In "Code\BuildSystem\CMake" you can find the file "FindezEngine.cmake" which makes it easier to integrate ezEngine into a project that already uses CMake.

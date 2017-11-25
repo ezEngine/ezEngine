@@ -17,7 +17,7 @@ The current version allows to monitor the following data:
   * __Time__: Displays all ezClock instances that are active. Shows the raw time step and the filtered time step, which allows to see hiccups and general performance characteristics of the application.
   * __Reflection__: Shows all reflected types and their class hierarchy. Also shows which properties each reflected type provides.
   * __Data Transfer__: This panel allows to pull data from an application. What data can be pulled is determined by what the application provides. For example an application might provide the G-Buffer as a set of images to be pulled. See ezDataTransfer for further details.
-  * __Resources__:* This panel shows all loaded resources. You can filter by type and name and you can sort the resources by various criteria.
+  * __Resources__: This panel shows all loaded resources. You can filter by type and name and you can sort the resources by various criteria.
 
 
 Setting up your game to support ezInspector
@@ -42,7 +42,7 @@ Additionally you need to make sure that ezTelemetry is updated once per frame, t
 
     // Call this once per frame to make sure all changes are transmitted
     ezTelemetry::PerFrameUpdate();
-    
+
 And that's it! The rest is done automatically.
 
 
@@ -51,7 +51,7 @@ How to get the best out of ezInspector
 
 Some tipps, what to do to benefit from the inspection functionality:
 
-  * Use the logging system ezLog to output what your application is doing, and which errors it encounters. Use EZ_LOG_BLOCK to group logging information.
+  * Use the logging system ezLog to output what your application is doing, and which errors it encounters. Use EZ\_LOG\_BLOCK to group logging information.
   * Use the ezStats system to write out information about what is going on in your application. The more information that you track, the easier you can figure out what is going wrong.
   * Use CVars to allow configuration of your code at runtime. It is easy to add CVars and thus you should use them whenever you are working on something new, to be able to tweak its behavior quickly. Once you are finished with something you should strip all unnecessary CVars again, but often it makes sense to still keep some configuration options for later.
   * When you are developing larger subsystems that you might want to know the memory consumption of, use a custom allocator for all allocations in that subsystem, then you can track its memory behavior better.
