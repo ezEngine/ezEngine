@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAssetManager.h>
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAsset.h>
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAssetWindow.moc.h>
@@ -153,8 +153,17 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
           szPath[iLen] = '\0';
 
           sEventName = szPath;
+
+          if (sEventName.StartsWith_NoCase("snapshot:/"))
+            continue;
+
           if (sEventName.StartsWith_NoCase("event:/"))
             sEventName.Shrink(7, 0);
+          else
+          {
+            ezLog::Warning("Skipping unknown fmod event type: '{0}", sEventName);
+            continue;
+          }
 
           events[i]->getID(&guid);
 
