@@ -3,6 +3,7 @@ Third Party Libraries {#ThirdPartyLibs}
 
 The following libraries are used in ezEngine:
 
+  * [UTF8-CPP](http://utfcpp.sourceforge.net/) A library that provides Unicode related functionality.
   * [zlib](http://www.zlib.net/): Provides algorithms for zip compression and decompression. It is used by ezCompressedStreamReader and ezCompressedStreamWriter.
   * [enet](http://enet.bespin.org/): An efficient and easy to use networking library, built on top of the UDP protocoll. It is used by ezTelemetry.
   * [SFML](http://www.sfml-dev.org/): This library provides a simple and portable interface for window creation, input handling and more. Used by ezWindow and ezStandardInputDevice on non-Windows platforms (Mac, Linux).
@@ -13,3 +14,4 @@ The following libraries are used in ezEngine:
   * [stb](https://github.com/nothings/stb): Public domain licensed code by Sean Barrett. Used by ezTexConv tool to import some of the supported formats.
   * [dear imgui](https://github.com/ocornut/imgui): Library for easy debug GUIs. MIT license. Also uses several files from [stb](https://github.com/nothings/stb)
   * [Assimp](http://www.assimp.org/): Open Asset Import Library, a portable Open Source library to import various well-known 3D model formats in a uniform manner.
+  * [Recast](https://github.com/recastnavigation/recastnavigation) A library to generate navigation meshes from arbitrary 3D geometry.

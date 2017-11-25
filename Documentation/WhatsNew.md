@@ -4,169 +4,76 @@ What's New {#WhatsNew}
 Milestone 8
 -----------
 
-  * Added ezStaticCast and ezDynamicCast for easier and save casting of reflected types
-  * Added ezAngle as a supported type to ezVariant
-  * Added a random number generator, based on the WELL512 algorithm
-  * Added a preliminary PhysX integration
-  * Added selection highlight rendering to the editor
-  * Added a play-the-game mode to the editor
-  * Every ezWorld now has its own clock
-  * Removed all global clocks except for one
-  * Changed component initialization order a bit to make writing init functions easier
-  * Simulation of ezWorlds can now be paused
-  * Added ezWorldModule, which allows to hook into the initialization and update of ezWorld, enabling custom plugins like PhysX or Fmod
-  * Added shape icon rendering in the editor, which also allows to select objects
-  * Improved display of components in the editor (icons etc.)
-  * Improved performance when syncing state between editor and engine (sending property diffs only)
-  * Added support for Tag properties in the editor
-  * Added support for clamping property values in the editor UI
-  * Component managers do not need to be explicitly registered anymore
-  * Added ezSpawnComponent for spawning prefabs at runtime
-  * Added ezTimedDeathComponent for deleting nodes after a timeout
+Start Revision: 1192
+#### UP TO REVISION: 2300
+
+General features:
+  * Added PhysX support
+  * Added 'Surface' assets / resources, which describe the physical properties (e.g. friction) and interactions with objects. E.g. which effects to spawn when shooting a surface or which sounds to play when walking on them.
+  * Added Fmod support for sound and music.
+  * Added a particle effect system and editor.
+  * Added a Visual Shader editor. Can be used to easily create custom material shaders.
+
+Editor:
+  * Shortcuts can now be configured with a hotkey editor
+  * All UI actions can now be translated
+  * Objects can now be hidden for easier editing
+  * Added editor prefabs, objects that can be edited like scenes and added to other scenes. Modifications to the original will be synchronized to all instances.
+  * Scenes can now be exported to a binary format and run through ezPlayer
+  * Various improvements to orthographic views, eg most gizmos work
+  * Scenes can now be simulated or played directly from the editor, simulation can be done at different speeds
+  * Added "shape icons" for objects that are otherwise invisible (e.g. sound sources)
+  * Added a "Duplicate Special" dialog for quickly duplicating objects in certain patterns
+  * Added drag&drop for material assets to assign materials to objects in the 3D viewport
+  * Added a dialog to configure which plugins to load into the editor and the runtime
+  * The input bindings (which keys trigger which action) can now be configured from the editor
+  * Added manipulators for visualizing and modifying property values. For instance light source cones can now be modified in the 3D viewport.
+  * Editor can now spawn multiple 'container windows' to display documents on multiple monitors
+
+Engine Runtime:
+  * Added ezWorldReader and ezWorldWriter for importing and exporting ezWorld's in binary format
+  * Added ezPrefabResource and ezSpawnComponent which are used for instantiating prefabs at runtime
+  * Added ezTimedDeathComponent which deletes an object after a timeout
+  * Added ezInputComponent for handling input events at specific nodes
+  * Added ezProjectileComponent for implementing weapons
+  * ezGameObject now has a 'GlobalKey' property to identify very important objects
+  * Added 'Collection' assets/resources which are used to preload assets at startup and to access resources through a custom name
+  * Added an ingame console for modifying CVars. Can be opened in ezPlayer with F1.
   * Added ezCameraComponent for managing runtime cameras
-  * Added ezInputComponent, which sends input event messages to components on the same node
-  * Added an editor to configure the input bindings and save it to JSON
-  * Refactored ezGameApplication to handle all engine initialization
-  * Added ezGameState which is the base class to build all C++ game logic in, works closely with ezGameApplication
-  * ezGameApplication now automatically loads plugins for a project through a config file
-  * ezGameApplication now automatically configures input bindings for a project through a config file
-  * ezGameApplication now automatically sets up data directories for a project through a config file
-  * Added a renderpipeline asset for data driven renderer configuration
-  * Every ezWorld now has a default random number generator
-  * Added ezWorldReader and ezWorldWriter for exporting and importing scene or prefab data in binary form
-  * Added ezPrefabResource for binary prefab loading at runtime
-  * Editor now supports drag&drop of material assets into the scene
-  * Editor now renders bounding boxes of the selection
-  * Added a "Duplicate Special" action that allows to make multiple copies of an object with different positions and rotations
   * Editor can now ignore unknown component types. Shows warnings when opening and saving such a scene, but does not crash.
-  * Implemented line and point rendering in the D3D abstraction
-  * RTTI types can now have attributes, e.g. for for categories in menus
-  * Added Surface assets for defining physics properties (fricition etc.)
-  * Added orthographic render modes and basic editing functionality (rotate, translate)
-  * Added ezPlayer, a stand-alone tool for running scenes
-  * Added scene and prefab binary export
+
+Rendering:
+  * Support for point and line rendering
+  * Added ambient, point, spot and directional light sources
+  * Added dynamic shadows for all light types
+  * Added ezDebugRenderer, which allows to easily display shapes for debugging purposes
+  * Added functionality to enumerate all available screens on Windows
+  * Added a Bloom post processor.
+  * Added a tonemapping post processor.
+  * Added ezSkyboxComponent for rendering a skybox.
+  * Added MSAA support
+  * Added support for JPG and PNG as texture files
+  * Added two different SSAO post processors with different speed/quality trade offs
+  * Added emissive and occlusion to the material model
+  * Embedded a font in code for debug text output
+
+Infrastructure:
   * Added ezDeferredFileWriter for only writing files to disk after everything succeeded
-  * Added editor prefabs that can be instantiated in the scene. Changes can be merged into them at a later point.
-  * Some aspects of the editor can now be localized
-  * Objects can now be hidden in the editor
-  * Added a shortcut editing dialog to the editor
-  * Added 'settings' components that can be used to configure scene specific properties (e.g. for gravity in PhysX)
-  * Lots of render pipeline related work
-  * Resource handles can now be serialized easier and more efficiently
-  * Added debug break on DX11 errors
-  * Better renderdata sorting by separating batch id and sorting key
-  * Added "uniform scaling factor" to ezGameObject
-  * Implemented proper hashing and re-use of depth stencil, rasterizer and sampler states in GALDevice
-  * Added hashing and re-use of shader resource views and render target views
-  * Introduced ezSingletonRegistry and two macros to turn a class into a singleton
-  * Editor now stores and restores all recently open documents one project loading
-  * Added ezStringView, int vector and ezDataBuffer (typedef ezDynamicArray<ezUInt8> ezDataBuffer;) support ezVariant
-  * Added support for the PhysX character controller
-  * Added guarded memory allocator which can be easily activated by uncommenting the corresponding lines in UserConfig.h
-  * Added code to properly do progressbars
-  * Added visual manipulators for properties
-  * Added visualizers for propertiers
-  * Properties can now be hidden, deactivated or get custom tooltips, depending on the selected value
-  * Added a tags editor
-  * Tags are now automatically loaded by ezGameApplication
-  * PhysX meshes can now have a different surface per sub-mesh
-  * PhysX integration now supports raycasting
-  * New container type ezHashSet
-  * Improved support for line rendering
-  * Surface assets can now define interactions, e.g. what prefab to spawn when a bullet hits it, etc.
-  * ezGeometry now automatically handles flipped winding due to negative determinant in transform
-  * Added a 'settings' base component and a simple component manager that allows to easily access the single settings component of a given type
-  * Added ezPxSettingsComponent, which currently allows to configure the PhysX world gravity
-  * Added a projectile component
-  * Added a timed death component, that deletes an entity after a given timeout
-  * Improved rendering infrastructure (materials, shaders)
-  * Proper tangent generation for geometry
-  * Messages can now use a sorting key for ordering
-  * GameObjects now also have a unique key for looking up specific objects at runtime
-  * Added ezTexConv, a tool to combine textures, generate mipmaps and compress to DXT format
-  * Integrated ezTexConv as the new texture asset transformation
-  * Editor viewport: CTRL+MMB now opens the picked material asset
-  * Added proper Preferences handling to the editor and improved the UI
-  * Added assets for level greyboxing
-  * Improvements to editor camera handling to be more like Maya and Unity
-  * Improved drag&drop functionality, can now also drop on the scene tree. Implemented it for Meshes, Prefabs, Materials, Particle Effects.
-  * Debug renderer can now print simple ASCII text
-  * PhysX interface now supports capsule sweep tests
-  * Implemented full 3-way merge for prefabs
-  * "Focus on Selection" now only translates the camera on first, and only zooms in when executed again.
-  * Improved component initialization behavior. Added OnSimulationStarted to handle non-simulating scenarios better.
-  * Added PostMessage methods for components so messages can be queued and then directly send to components.
-  * CMake now allows to generate "Unity" build files to speed up compilation considerably.
-  * All spinboxes in the property grid can now reset their value to default on right click.
-  * Added EnsureInitialized and EnsureSimulationStarted methods to ezComponent so initialization order can be ensured on dependent component types.
-  * FileSystem: Writing to files can now only be done using either absolute paths ("C:\bla\...") or using 'rooted' paths, which start with a colon and then a data directory root name.
-  * Materials now use the new prefab infrastructure and can query properties from the referenced shader.
-  * Added a sample game plugin.
-  * Properties in the editor property grid can now be reset to the "default" value or reverted to the prefab default using the context menu.
-  * Added an action to create an empty node at the picked position. Shortcut is CTRL+SHIFT+X.
-  * The resource manager can now redirect a "nice" name to the actual resource, which can be used to register a GUID under a name that is easier to use elsewhere in code
-  * Added 'Collection' resources and assets, which hold a key value table of nice names -> resources
-  * StaticLinkUtil does not rewrite PCH.h anymore.
-  * Implemented rendering of ezConsole in GameApplication, can be toggled with the "F1" key. Simple FPS Counter can be toggled with F5.
-  * One can now query after acquiring a resource, whether the returned resource is the "missing resource".
-  * added ezDGMLGraph, ezDGMLGraphWriter and ezDGMLGraphCreator with a sample method in the creator to create a tree from an ezWorld object containing all game objects and components.
-  * Materials and meshes can now be previewed
-  * Added functionality to the resource system to update a resource with custom in-memory data.
-  * Added functionality to wait for resources to be loaded.
-  * Added a function to enumerate all available screens and their geometry (Windows only).
-  * Implemented dynamic buffer update on DX11.
-  * Debug renderer now renders stuff in multiple passes if it doesn't fit into its buffers.
-  * New asset documents can now be created from a context menu in the asset browser. Path is automatically set to the folder of the selection.
-  * Added asset thumbnails for materials, meshes, prefabs, curves, particle effects and color gradients.
-  * Implemented dynamic texture update in DX11
-  * Added function to ezFileSystem to find a folder that contains a certain sub-path
-  * Added string functions to identify 'rooted' paths and to extract the path root name
-  * Data dir configuration now uses paths relative to the SDK, instead of relative to the project.
-  * Added EZ_SCOPE_EXIT macro to execute code when a scope closes.
-  * Implemented automatic instancing for mesh rendering. Still WIP.
-  * Implemented proper transformations of normals with non uniform scaling.
-  * Added stream operators for ezEnum, ezHashedString, ezTransform.
-  * Added ezSharedPtr which works similar to std::shared_ptr.
-  * Propagate camera component properties like fov, clip planes and render pipeline resource to views. This allows to configure camera properties in the editor and runtime.
-  * Added ezProcessingStream, which allows to efficiently operate on a large amounts of data in a "structure-of-arrays" way
-  * Asset transformation can now be done in the background and a filesystem watcher is used to detect external changes
-  * Added debug names to DX11 textures, buffers and shaders.
-  * Added a basic tonemapper for physically based rendering.
-  * Added ezShaderExplorer Sample.
-  * Changes to the plugin infrastructure, to allow static linking to a plugin that is also loaded dynamically.
-  * Added color gradient asset, resource and editor.
-  * Added particle effects (asset, resource, component)
-  * Added 1D curve (asset, resource) for interpolating data over time
-  * Added a simple "Property Animation" asset that allows to animate object properties over time.
-  * Added dynamic lighting: point light, spot light, directional light, ambient light
-  * Added a basic Skybox component
-  * Added float spinner hold&drag functionality to change value.
-  * Added address mode to texture assets.
-  * The Drag-To-Position gizmo now supports shift+drag for duplication
-  * ezIdTable now ensures that ID 0 is never valid.
-  * Added new ezModelImporter infrastructure for loading / processing / converting mesh data.
-  * Added a function to ezMath to evaluate a Bezier curve.
-  * Editor: Added a node search box to the editor scene tree.
-  * Added Sprite Component and rendering which is also used shape icons in the editor.
-  * Editor: Added "Align Camera to Object" action -> moves the camera in the hovered view to the object position.
-  * Editor: Added "Align Object with Camera" action.
-  * Editor: Added "Move Camera Here" action.
-  * Editor: Added actions "Attach to This" and "Detach from Parent".
-  * Added ambient lighting to materials, meshes and prefab thumbnails.
-  * Editor: Added an option to insert ambient light into a scene. On by default for prefabs, off for scenes.
-  * Editor: Added names to all transactions. Displayed by the Undo and Redo commands.
-  * Editor: Added actions to convert prefabs to and from Engine / Editor prefab.
-  * Editor: Nested prefabs in prefab documents are not possible anymore, they are created as regular objects instead
-  * Editor: Added hierarchical selection: First top-most parent, then gradually the children. CTRL for toggling objects, ALT to prevent hierarchy and pick an object directly.
-  * Editor: Added a grid to the translation gizmo for easier placement (can be disabled)
-  * Editor: Added ability to move windows to others containers. Currently only via document tab context menu.
-  * Editor: Implemented support for PBRT file format (mesh import).
-  * Added support for MSAA
-  * Support for png & jpeg images via stb_image (new third party lib).
-  * Editor: Added a Visual Shader Editor to material asssets.
-  * Added separated gaussian blur postprocess pass.
-  * Added emissive and occlusion to our material model.
-  * UP TO REVISION: 2000
+  * Added a random number generator
+  * Added readers and writers for OpenDLL files
+  * Added ezGameApplication and ezGameState which decouple the application framework and custom game code, which allows to load game code via a plugin into the editor
+  * Added ezDGMLGraph, ezDGMLGraphWriter and ezDGMLGraphCreator for generating DGML diagrams
+  * Added ezProcessingStream for efficient, data oriented processing. Used by the particle system.
+  * Added color gradient and curve resources and respective editors. Used by the property animation system and the particle effects.
+  * Added ezModelImporter for loading and processing mesh data
+  * Added a typesafe printf replacement to ezStringBuffer
+
+Tools / Samples:
+  * Added ezPlayer, a stand-alone application to run exported scenes
+  * Added ezTexConv for converting image files to optimized formats
+  * Added ezShaderCompiler for compiling shaders in a separate process. Used by the Visual Shader editor for verification purposes.
+  * Added the ComputeShaderHistogram sample
+
 
 Milestone 7
 -----------
