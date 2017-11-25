@@ -225,6 +225,12 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
         }
       }
       break;
+    case ezGALVertexAttributeSemantic::BoneIndices0:
+    case ezGALVertexAttributeSemantic::BoneIndices1:
+    case ezGALVertexAttributeSemantic::BoneWeights0:
+    case ezGALVertexAttributeSemantic::BoneWeights1:
+      // Don't error out for these semantics as they may be used by the user (e.g. breakable mesh construction)
+      break;
     default:
       {
         ezLog::Error("Streams semantic '{0}' is not supported.", (int)si.m_Semantic);

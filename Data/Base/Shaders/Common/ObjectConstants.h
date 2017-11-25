@@ -15,6 +15,11 @@ struct EZ_ALIGN_16(ezPerInstanceData)
 
 #if EZ_ENABLED(PLATFORM_DX11)
   StructuredBuffer<ezPerInstanceData> perInstanceData;
+
+  #if defined(USE_SKINNING)
+  StructuredBuffer<float4x4> skinningMatrices;
+  #endif
+
 #else
   EZ_CHECK_AT_COMPILETIME(sizeof(ezPerInstanceData) == 128);
 #endif

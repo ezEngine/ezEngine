@@ -12,7 +12,6 @@
 /// This class provides simple functions to create frequently used basic shapes. It allows to transform the shapes, merge them
 /// into a single mesh, compute normals, etc.
 /// It is meant for debug and editor geometry (gizmos, etc.). Vertices can have position, normal, color and 'shape index'.
-/// UV coordinates are currently not supported.
 class EZ_CORE_DLL ezGeometry
 {
 public:

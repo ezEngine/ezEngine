@@ -14,6 +14,8 @@ class EZ_RENDERERCORE_DLL ezMeshRenderData : public ezRenderData
 public:
   ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;
+  ezGALBufferHandle m_hSkinningMatrices;
+  ezArrayPtr<const ezUInt8> m_pNewSkinningMatricesData; // Optional - if set the buffer specified in m_hSkinningMatrices will be updated with this data
 
   ezUInt32 m_uiPartIndex : 30;
   ezUInt32 m_uiFlipWinding : 1;

@@ -60,6 +60,23 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
     pContext->SetShaderPermutationVariable("FLIP_WINDING", "FALSE");
   }
 
+  // Bind skinning matrices if supplied and set the appropriate permutation variable
+  if (pRenderData->m_hSkinningMatrices.IsInvalidated())
+  {
+    pContext->SetShaderPermutationVariable("VERTEX_SKINNING", "FALSE");
+  }
+  else
+  {
+    pContext->SetShaderPermutationVariable("VERTEX_SKINNING", "TRUE");
+
+    if (!pRenderData->m_pNewSkinningMatricesData.IsEmpty())
+    {
+      pContext->GetGALContext()->UpdateBuffer(pRenderData->m_hSkinningMatrices, 0, pRenderData->m_pNewSkinningMatricesData);
+    }
+
+    pContext->BindBuffer(ezGALShaderStage::VertexShader, "skinningMatrices", pDevice->GetDefaultResourceView(pRenderData->m_hSkinningMatrices));
+  }
+
   pContext->BindMaterial(hMaterial);
   pContext->BindMeshBuffer(pMesh->GetMeshBuffer());
 

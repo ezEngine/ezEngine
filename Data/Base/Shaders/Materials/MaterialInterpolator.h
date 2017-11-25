@@ -9,6 +9,7 @@
 // USE_TEXCOORD0
 // USE_TEXCOORD1
 // USE_COLOR
+// USE_SKINNING
 
 struct VS_IN
 {
@@ -32,6 +33,11 @@ struct VS_IN
 
 	#if defined(USE_COLOR)
 		float4 Color : COLOR;
+	#endif
+
+	#if defined(USE_SKINNING)
+		float4 BoneWeights : BONEWEIGHTS0;
+		uint4 BoneIndices : BONEINDICES0;
 	#endif
 
 	uint InstanceID : SV_InstanceID;

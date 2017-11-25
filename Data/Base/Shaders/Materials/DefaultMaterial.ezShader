@@ -12,6 +12,7 @@ FORWARD_PASS_WRITE_DEPTH
 MSAA
 CAMERA_MODE
 SHADING_QUALITY
+VERTEX_SKINNING
 
 [MATERIALPARAMETER]
 
@@ -50,6 +51,10 @@ Texture2D OcclusionTexture;
 #define USE_NORMAL
 #define USE_TANGENT
 #define USE_TEXCOORD0
+
+#if VERTEX_SKINNING
+    #define USE_SKINNING
+#endif
 
 #include <Shaders/Materials/DefaultMaterialCB.h>
 #include <Shaders/Materials/MaterialVertexShader.h>

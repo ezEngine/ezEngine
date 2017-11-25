@@ -30,7 +30,13 @@ static const char* GALSemanticToDX11[ezGALVertexAttributeSemantic::ENUM_COUNT] =
   "TEXCOORD",
   "TEXCOORD",
   "TEXCOORD",
-  "TEXCOORD"
+  "TEXCOORD",
+  "TEXCOORD",
+  "BITANGENT",
+  "BONEINDICES",
+  "BONEINDICES",
+  "BONEWEIGHTS",
+  "BONEWEIGHTS"
 };
 
 static UINT GALSemanticToIndexDX11[ezGALVertexAttributeSemantic::ENUM_COUNT] =
@@ -48,7 +54,12 @@ static UINT GALSemanticToIndexDX11[ezGALVertexAttributeSemantic::ENUM_COUNT] =
   6,
   7,
   8,
-  9
+  9,
+  0,
+  0,
+  1,
+  0,
+  1
 };
 
 // ??
