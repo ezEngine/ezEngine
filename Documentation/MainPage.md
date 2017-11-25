@@ -7,6 +7,6 @@ The following pages contain some documentation about the [ezEngine](http://www.e
  * \subpage WhatsNew
  * \subpage General
  * \subpage UsageGuidelines
- * \subpage ThirdPartyLibs 
+ * \subpage ThirdPartyCode
  * \subpage Editor
  * \subpage Rendering
