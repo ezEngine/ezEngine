@@ -110,7 +110,7 @@ o
 		u1 %NumSpritesX{1}
 		u1 %NumSpritesY{1}
 		s %RenderMode{"ezParticleTypeRenderMode::Blended"}
-		s %Texture{"{ 0c5ce0a7-7218-427d-9a9d-47ef5e9aa33f }"}
+		s %Texture{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
 		s %TintColorParam{""}
 	}
 }
@@ -164,7 +164,7 @@ o
 		u1 %NumSpritesX{1}
 		u1 %NumSpritesY{1}
 		s %RenderMode{"ezParticleTypeRenderMode::Blended"}
-		s %Texture{"{ 0c5ce0a7-7218-427d-9a9d-47ef5e9aa33f }"}
+		s %Texture{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
 		s %TintColorParam{""}
 	}
 }
@@ -454,16 +454,16 @@ AssetInfo
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{454749077023242116,5574305021158798414}}
-		u4 %Hash{2792175327411420471}
+		u4 %Hash{13269677420787586876}
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 0c5ce0a7-7218-427d-9a9d-47ef5e9aa33f }"}
 			s{"{ 4e992106-a0f2-4eea-907d-76e8e5eb1613 }"}
 			s{"{ 5c9d3e28-e23d-4305-a16e-2db6836ef5d6 }"}
 			s{"{ 7725f22e-b01b-4b40-bbde-ce55d9fdddce }"}
 			s{"{ a1f3f932-460e-405a-8512-a0f3ce341d1b }"}
 			s{"{ ab745bdf-bc09-9e34-77b5-734904059b96 }"}
+			s{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
 			s{"{ d26eb0e2-d440-4595-92df-bbf6ccf7aa6b }"}
 		}
 	}
@@ -691,7 +691,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

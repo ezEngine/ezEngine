@@ -32,12 +32,12 @@ AssetInfo
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10551485956599081379,4726986834568871887}}
-		u4 %Hash{17185836116491314250}
+		u4 %Hash{15141787134451225957}
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 2ac22a06-756a-88bf-19d5-f9a52cefe0c6 }"}
 			s{"{ ab745bdf-bc09-9e34-77b5-734904059b96 }"}
+			s{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
 			s{"{ d26eb0e2-d440-4595-92df-bbf6ccf7aa6b }"}
 		}
 	}
@@ -178,7 +178,7 @@ o
 		u1 %NumSpritesX{1}
 		u1 %NumSpritesY{1}
 		s %RenderMode{"ezParticleTypeRenderMode::Additive"}
-		s %Texture{"{ 2ac22a06-756a-88bf-19d5-f9a52cefe0c6 }"}
+		s %Texture{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
 		s %TintColorParam{""}
 	}
 }
@@ -275,7 +275,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

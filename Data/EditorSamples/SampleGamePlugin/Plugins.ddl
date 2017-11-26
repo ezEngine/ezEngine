@@ -12,6 +12,12 @@ Plugin
 }
 Plugin
 {
+	string %Path{"ezEnginePluginPhysX"}
+	bool %LoadCopy{false}
+	string %DependencyOf{"EditorPluginPhysX"}
+}
+Plugin
+{
 	string %Path{"ezEnginePluginScene"}
 	bool %LoadCopy{false}
 	string %DependencyOf{"EditorPluginScene"}

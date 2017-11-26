@@ -22,11 +22,11 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9806294794305770135,5052761689686868269}}
-		u4 %Hash{14228297054540004320}
+		u4 %Hash{3200447836744112669}
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 309d7ff1-19c6-435e-821d-584426d01365 }"}
+			s{"{ 0bbfbc3c-b5e2-4194-af38-84e13516bbc2 }"}
 			s{"{ 32cb0079-08cc-4f6b-a94b-0832e602ee1a }"}
 		}
 	}
@@ -54,8 +54,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		s %Decal{"{ 309d7ff1-19c6-435e-821d-584426d01365 }"}
-		Vec3 %Extents{f{0x00000040,0x00000040,0x00000040}}
+		s %Decal{"{ 0bbfbc3c-b5e2-4194-af38-84e13516bbc2 }"}
+		Vec3 %Extents{f{0x00004040,0x00004040,0x00004040}}
 		Uuid %FadeOutDelay{u4{800467086460903338,729124739966304029}}
 		Time %FadeOutDuration{d{0x0000000000000040}}
 		Angle %InnerFadeAngle{f{0xDB0FC93F}}
@@ -138,7 +138,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
