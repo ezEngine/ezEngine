@@ -115,6 +115,12 @@ FileStats GetFileStats(const char* szFile)
 
   FileContent.PushBack('\0');
 
+  if (!ezUnicodeUtils::IsValidUtf8((const char*)&FileContent[0]))
+  {
+    ezLog::Warning("File is not valid Utf-8: '{0}'", szFile);
+    return s;
+  }
+
   // We should not append that directly at the ezStringBuilder, as the file read operations may end
   // in between a Utf8 sequence and then ezStringBuilder will complain about invalid Utf8 strings.
   ezStringBuilder sContent = (const char*) &FileContent[0];
