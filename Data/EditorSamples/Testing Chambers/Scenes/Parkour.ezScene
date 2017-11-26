@@ -2658,7 +2658,7 @@ AssetInfo
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{15219499901229111282}
+		u4 %Hash{12870478843194670739}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -2674,7 +2674,6 @@ AssetInfo
 			s{"{ 5451b35f-d73c-402e-a540-c542d3e52be0 }"}
 			s{"{ 5bbea795-0358-4dd8-86a9-c277f7a59f53 }"}
 			s{"{ 6ae73fcf-e09c-1c3f-54a8-8a80498519fb }"}
-			s{"{ 7658057c-4541-4284-bfe5-b31c2bacd163 }"}
 			s{"{ 778150d4-9e85-4d17-85dd-f59df122b7b4 }"}
 			s{"{ 90a2e76b-291c-43d2-8c21-4e1bccd22ea1 }"}
 			s{"{ 94ac1de9-5cbe-4581-a57c-7caf78ab7294 }"}
@@ -2682,6 +2681,7 @@ AssetInfo
 			s{"{ 9d903a8c-556a-4564-a678-3ebd5f03720b }"}
 			s{"{ a2e664de-7b3e-47d8-99d3-d058896f7255 }"}
 			s{"{ a59d471e-7f13-4ccf-9776-36a655519c87 }"}
+			s{"{ a7548097-903a-292a-e37c-080a6ef6158c }"}
 			s{"{ ac0755c6-f78d-40ec-bfaa-55f2be674f87 }"}
 			s{"{ b727ba61-e20a-42d7-a170-860ede23e85d }"}
 			s{"{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }"}
@@ -2796,7 +2796,7 @@ o
 	p
 	{
 		b %Active{1}
-		s %CubeMap{"{ 7658057c-4541-4284-bfe5-b31c2bacd163 }"}
+		s %CubeMap{"{ a7548097-903a-292a-e37c-080a6ef6158c }"}
 		f %ExposureBias{0x0000803F}
 		b %InverseTonemap{0}
 		b %UseFog{1}

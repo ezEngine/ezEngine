@@ -2,7 +2,7 @@ Objects
 {
 AssetInfo
 {
-	Uuid %id{u4{11747523466012837785,4974603366428358493}}
+	Uuid %id{u4{10094245092295998691,2966341886166728855}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{1}
 	s %n{"Header"}
@@ -11,33 +11,17 @@ AssetInfo
 		s %AssetType{"Texture Cube"}
 		VarArray %Dependencies
 		{
-			s{"Cubemaps/SanFranciscoBeach.dds"}
+			s{"Skyboxes/Tenerife/negx.jpg"}
+			s{"Skyboxes/Tenerife/negy.jpg"}
+			s{"Skyboxes/Tenerife/negz.jpg"}
+			s{"Skyboxes/Tenerife/posx.jpg"}
+			s{"Skyboxes/Tenerife/posy.jpg"}
+			s{"Skyboxes/Tenerife/posz.jpg"}
 		}
-		Uuid %DocumentID{u4{11747523466012837785,4974603366428358493}}
-		u4 %Hash{17602591084942411652}
+		Uuid %DocumentID{u4{10094245092295998691,2966341886166728855}}
+		u4 %Hash{9182789555512678528}
 		VarArray %Outputs{}
 		VarArray %References{}
-	}
-}
-o
-{
-	Uuid %id{u4{3336002108729556632,5007116286673076272}}
-	s %t{"ezTextureCubeAssetProperties"}
-	u3 %v{2}
-	p
-	{
-		s %ChannelMapping{"ezTextureCubeChannelMappingEnum::RGB1"}
-		b %Compression{1}
-		s %Input1{"Cubemaps/SanFranciscoBeach.dds"}
-		s %Input2{""}
-		s %Input3{""}
-		s %Input4{""}
-		s %Input5{""}
-		s %Input6{""}
-		b %Mipmaps{1}
-		b %PremultipliedAlpha{0}
-		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTextureCubeUsageEnum::Skybox"}
 	}
 }
 o
@@ -50,8 +34,29 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{3336002108729556632,5007116286673076272}}
+			Uuid{u4{3466181958545295763,5469176089432456064}}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{3466181958545295763,5469176089432456064}}
+	s %t{"ezTextureCubeAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		s %ChannelMapping{"ezTextureCubeChannelMappingEnum::RGB1TO6"}
+		b %Compression{0}
+		s %Input1{"Skyboxes/Tenerife/posx.jpg"}
+		s %Input2{"Skyboxes/Tenerife/negx.jpg"}
+		s %Input3{"Skyboxes/Tenerife/posy.jpg"}
+		s %Input4{"Skyboxes/Tenerife/negy.jpg"}
+		s %Input5{"Skyboxes/Tenerife/posz.jpg"}
+		s %Input6{"Skyboxes/Tenerife/negz.jpg"}
+		b %Mipmaps{1}
+		b %PremultipliedAlpha{0}
+		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
+		s %Usage{"ezTextureCubeUsageEnum::Skybox"}
 	}
 }
 }
@@ -89,7 +94,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
