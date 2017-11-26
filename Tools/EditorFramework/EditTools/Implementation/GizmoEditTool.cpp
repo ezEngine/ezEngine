@@ -38,6 +38,15 @@ void ezGameObjectGizmoEditTool::OnConfigured()
   ezManipulatorManager::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::ManipulatorManagerEventHandler, this));
   GetWindow()->m_EngineWindowEvent.AddEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::EngineWindowEventHandler, this));
   GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::ObjectStructureEventHandler, this));
+
+  // subscribe to all views that already exist
+  for (ezQtEngineViewWidget* pView : GetWindow()->GetViewWidgets())
+  {
+    if (ezQtGameObjectViewWidget* pViewWidget = qobject_cast<ezQtGameObjectViewWidget*>(pView))
+    {
+      pViewWidget->m_pOrthoGizmoContext->m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::TransformationGizmoEventHandler, this));
+    }
+  }
 }
 
 void ezGameObjectGizmoEditTool::UpdateGizmoSelectionList()
@@ -160,9 +169,6 @@ void ezGameObjectGizmoEditTool::EngineWindowEventHandler(const ezEngineWindowEve
     {
     case ezEngineWindowEvent::Type::ViewCreated:
       pViewWidget->m_pOrthoGizmoContext->m_GizmoEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::TransformationGizmoEventHandler, this));
-      break;
-    case ezEngineWindowEvent::Type::ViewDestroyed:
-      pViewWidget->m_pOrthoGizmoContext->m_GizmoEvents.RemoveEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::TransformationGizmoEventHandler, this));
       break;
     }
   }

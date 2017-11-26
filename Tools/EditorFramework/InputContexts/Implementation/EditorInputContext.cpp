@@ -34,6 +34,8 @@ void ezEditorInputContext::FocusLost(bool bCancel)
 
   // reset mouse mode, if necessary
   SetMouseMode(MouseMode::Normal);
+
+  UpdateStatusBarText(GetOwnerWindow());
 }
 
 ezEditorInput ezEditorInputContext::DoKeyPressEvent(QKeyEvent* e)

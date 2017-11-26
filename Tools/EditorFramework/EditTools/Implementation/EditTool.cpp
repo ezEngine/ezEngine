@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/EditTools/EditTool.h>
+#include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectEditTool, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -23,5 +24,11 @@ void ezGameObjectEditTool::SetActive(bool active)
     return;
 
   m_bIsActive = active;
+  OnActiveChanged(m_bIsActive);
+
+  if (!m_bIsActive)
+  {
+    m_pWindow->SetPermanentStatusBarMsg("");
+  }
 }
 

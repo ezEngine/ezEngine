@@ -80,6 +80,8 @@ public:
   /// Should be used to update a "Last Mouse Position" variable.
   ezVec2I32 UpdateMouseMode(QMouseEvent* e);
 
+  virtual void UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow) {}
+
 protected:
   virtual void DoFocusLost(bool bCancel) {}
 

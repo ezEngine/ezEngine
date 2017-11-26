@@ -12,6 +12,7 @@
 #include <QMessageBox>
 #include <QTimer>
 #include <QStatusBar>
+#include <QLabel>
 
 ezEvent<const ezQtDocumentWindowEvent&> ezQtDocumentWindow::s_Events;
 ezDynamicArray<ezQtDocumentWindow*> ezQtDocumentWindow::s_AllDocumentWindows;
@@ -205,7 +206,7 @@ void ezQtDocumentWindow::DocumentEventHandler(const ezDocumentEvent& e)
 
   case ezDocumentEvent::Type::DocumentStatusMsg:
     {
-      ShowStatusBarMsgNoArgs(e.m_szStatusMsg);
+      ShowTemporaryStatusBarMsg(e.m_szStatusMsg);
     }
     break;
 
@@ -338,30 +339,40 @@ ezStatus ezQtDocumentWindow::SaveDocument()
 
     if (res.m_Result.Failed())
     {
-      ShowStatusBarMsg("Failed to save document");
+      ShowTemporaryStatusBarMsg("Failed to save document");
       return res;
     }
   }
 
-  ShowStatusBarMsg("Document saved");
+  ShowTemporaryStatusBarMsg("Document saved");
   return ezStatus(EZ_SUCCESS);
 
 }
 
-void ezQtDocumentWindow::ShowStatusBarMsgNoArgs(const char* szText)
+void ezQtDocumentWindow::ShowTemporaryStatusBarMsg(const ezFormatString& sMsg)
 {
   if (statusBar() == nullptr)
     setStatusBar(new QStatusBar());
 
-  statusBar()->showMessage(QString::fromUtf8(szText), 5000);
-}
-
-void ezQtDocumentWindow::ShowStatusBarMsg(const ezFormatString& sMsg)
-{
   ezStringBuilder tmp;
-  ShowStatusBarMsgNoArgs(sMsg.GetText(tmp));
+  statusBar()->showMessage(QString::fromUtf8(sMsg.GetText(tmp)), 5000);
 }
 
+
+void ezQtDocumentWindow::SetPermanentStatusBarMsg(const ezFormatString& sText)
+{
+  if (statusBar() == nullptr)
+    setStatusBar(new QStatusBar());
+
+  if (m_pPermanentStatusMsg == nullptr)
+  {
+    m_pPermanentStatusMsg = new QLabel(statusBar());
+    statusBar()->insertWidget(0, m_pPermanentStatusMsg);
+  }
+
+  ezStringBuilder tmp;
+  m_pPermanentStatusMsg->setText(QString::fromUtf8(sText.GetText(tmp)));
+}
 
 bool ezQtDocumentWindow::CanCloseWindow()
 {

@@ -54,7 +54,7 @@ void ezDrawBoxGizmo::DoFocusLost(bool bCancel)
 
 ezEditorInput ezDrawBoxGizmo::DoMousePressEvent(QMouseEvent* e)
 {
-  if (e->buttons() == Qt::LeftButton && e->modifiers() == Qt::NoModifier)
+  if (e->buttons() == Qt::LeftButton && e->modifiers() == Qt::ControlModifier)
   {
     if (m_ManipulateMode == ManipulateMode::None)
     {
@@ -200,6 +200,8 @@ void ezDrawBoxGizmo::SwitchMode(bool bCancel)
 
 void ezDrawBoxGizmo::UpdateBox()
 {
+  UpdateStatusBarText(GetOwnerWindow());
+
   if (m_ManipulateMode == ManipulateMode::DrawBase)
   {
     m_vSecondCorner = m_vCurrentPosition;
@@ -271,6 +273,22 @@ void ezDrawBoxGizmo::GetResult(ezVec3& out_Origin, float& out_fSizeNegX, float& 
   {
     out_fSizeNegZ = -m_fBoxHeight;
     out_fSizePosZ = 0;
+  }
+}
+
+void ezDrawBoxGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow)
+{
+  switch (m_ManipulateMode)
+  {
+  case ManipulateMode::None:
+    pWindow->SetPermanentStatusBarMsg("Hold CTRL and click-drag to draw a box.");
+    break;
+  case ManipulateMode::DrawBase:
+    pWindow->SetPermanentStatusBarMsg("Release the mouse to finish the base. ESC to cancel.");
+    break;
+  case ManipulateMode::DrawHeight:
+    pWindow->SetPermanentStatusBarMsg("Draw up/down to specify the box height. Click to finish, ESC to cancel.");
+    break;
   }
 }
 

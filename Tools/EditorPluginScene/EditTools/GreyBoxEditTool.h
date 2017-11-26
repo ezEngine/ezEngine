@@ -22,6 +22,7 @@ public:
 
 protected:
   virtual void OnConfigured() override;
+  virtual void OnActiveChanged(bool bIsActive) override;
 
 private:
   void UpdateGizmoState();

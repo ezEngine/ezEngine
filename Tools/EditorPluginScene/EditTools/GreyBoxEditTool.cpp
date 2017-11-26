@@ -118,6 +118,14 @@ void ezGreyBoxEditTool::OnConfigured()
   m_DrawBoxGizmo.SetOwner(GetWindow(), nullptr);
 }
 
+void ezGreyBoxEditTool::OnActiveChanged(bool bIsActive)
+{
+  if (bIsActive)
+  {
+    m_DrawBoxGizmo.UpdateStatusBarText(GetWindow());
+  }
+}
+
 void ezGreyBoxEditTool::GizmoEventHandler(const ezGizmoEvent& e)
 {
   if (e.m_Type == ezGizmoEvent::Type::EndInteractions)

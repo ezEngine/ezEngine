@@ -47,6 +47,7 @@ public:
 
 protected:
   virtual void OnConfigured() = 0;
+  virtual void OnActiveChanged(bool bIsActive) {}
 
 private:
   bool m_bIsActive = false;

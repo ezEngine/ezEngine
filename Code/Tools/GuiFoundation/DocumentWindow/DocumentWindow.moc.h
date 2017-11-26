@@ -11,6 +11,7 @@
 class ezQtContainerWindow;
 class ezDocument;
 class ezQtDocumentWindow;
+class QLabel;
 
 struct ezQtDocumentWindowEvent
 {
@@ -72,8 +73,8 @@ public:
   static ezQtDocumentWindow* FindWindowByDocument(const ezDocument* pDocument);
   ezQtContainerWindow* GetContainerWindow() const;
 
-  void ShowStatusBarMsgNoArgs(const char* szText);
-  void ShowStatusBarMsg(const ezFormatString& sText);
+  void ShowTemporaryStatusBarMsg(const ezFormatString& sText);
+  void SetPermanentStatusBarMsg(const ezFormatString& sText);
 
   /// \brief Sets at which tab order index this window is located
   void SetWindowIndex(ezUInt32 uiIndex) { m_uiWindowIndex = uiIndex; }
@@ -108,6 +109,7 @@ private:
   ezDocument* m_pDocument;
   ezQtContainerWindow* m_pContainerWindow;
   ezUInt32 m_uiWindowIndex;
+  QLabel* m_pPermanentStatusMsg = nullptr;
 
 private:
   void Constructor();

@@ -25,6 +25,8 @@ public:
   ManipulateMode GetCurrentMode() const { return m_ManipulateMode; }
   const ezVec3& GetStartPosition() const { return m_vFirstCorner; }
 
+  virtual void UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow) override;
+
 protected:
   virtual void DoFocusLost(bool bCancel) override;
 
