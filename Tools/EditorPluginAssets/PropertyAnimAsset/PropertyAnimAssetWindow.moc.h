@@ -31,9 +31,11 @@ public:
 
 signals:
   void DeleteSelectedItemsEvent();
+  void FrameSelectedItemsEvent();
 
 protected:
   virtual void keyPressEvent(QKeyEvent* e) override;
+  virtual void contextMenuEvent(QContextMenuEvent *event) override;
 };
 
 class ezQtPropertyAnimAssetDocumentWindow : public ezQtGameObjectDocumentWindow, public ezGameObjectGizmoInterface
@@ -69,6 +71,7 @@ private slots:
   void onPlayPauseClicked();
   void onRepeatClicked();
   void onTreeItemDoubleClicked(const QModelIndex& index);
+  void onFrameSelectedTracks();
 
   //////////////////////////////////////////////////////////////////////////
   // Curve editor events

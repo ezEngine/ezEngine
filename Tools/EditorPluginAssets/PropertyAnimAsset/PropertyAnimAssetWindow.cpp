@@ -108,6 +108,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     connect(m_pPropertyTreeView, &ezQtPropertyAnimAssetTreeView::DeleteSelectedItemsEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onDeleteSelectedItems);
 
     connect(m_pPropertyTreeView, &QTreeView::doubleClicked, this, &ezQtPropertyAnimAssetDocumentWindow::onTreeItemDoubleClicked);
+    connect(m_pPropertyTreeView, &ezQtPropertyAnimAssetTreeView::FrameSelectedItemsEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onFrameSelectedTracks);
 
     addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanel);
   }
@@ -473,6 +474,20 @@ void ezQtPropertyAnimAssetDocumentWindow::onTreeItemDoubleClicked(const QModelIn
       m_pGradientEditor->FrameGradient();
       m_pColorGradientPanel->raise();
     }
+  }
+}
+
+void ezQtPropertyAnimAssetDocumentWindow::onFrameSelectedTracks()
+{
+  if (!m_CurvesToDisplay.m_Curves.IsEmpty())
+  {
+    m_pCurveEditor->FrameCurve();
+    m_pCurvePanel->raise();
+  }
+  else if (m_pGradientToDisplay != nullptr)
+  {
+    m_pGradientEditor->FrameGradient();
+    m_pColorGradientPanel->raise();
   }
 }
 
@@ -1123,7 +1138,7 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientNormalizeRange()
 ezQtPropertyAnimAssetTreeView::ezQtPropertyAnimAssetTreeView(QWidget* parent)
   : QTreeView(parent)
 {
-
+  setContextMenuPolicy(Qt::ContextMenuPolicy::DefaultContextMenu);
 }
 
 void ezQtPropertyAnimAssetTreeView::keyPressEvent(QKeyEvent* e)
@@ -1136,4 +1151,19 @@ void ezQtPropertyAnimAssetTreeView::keyPressEvent(QKeyEvent* e)
   {
     QTreeView::keyPressEvent(e);
   }
+}
+
+void ezQtPropertyAnimAssetTreeView::contextMenuEvent(QContextMenuEvent *event)
+{
+  QMenu m;
+  QAction* pFrameAction = m.addAction("Frame Curve");
+  QAction* pRemoveAction = m.addAction("Remove Track");
+  m.setDefaultAction(pFrameAction);
+
+  pRemoveAction->setShortcut(Qt::Key_Delete);
+
+  connect(pFrameAction, &QAction::triggered, this, [this](bool) { emit FrameSelectedItemsEvent(); });
+  connect(pRemoveAction, &QAction::triggered, this, [this](bool) { emit DeleteSelectedItemsEvent(); });
+
+  m.exec(QCursor::pos());
 }
