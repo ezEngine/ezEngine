@@ -119,7 +119,7 @@ void SimpleMeshRendererGameState::CreateGameLevel()
   ezMeshComponent* pMesh;
   //ezRotorComponent* pRotor;
 
-  ezMeshResourceHandle hMeshSponza = ezResourceManager::LoadResource<ezMeshResource>("Sponza/Meshes/Sponza.ezMesh");
+  ezMeshResourceHandle hMeshSponza = ezResourceManager::LoadResource<ezMeshResource>("Sponza/Sponza.ezMesh");
   ezMeshResourceHandle hMeshBarrel = ezResourceManager::LoadResource<ezMeshResource>("{ c227019a-92d3-4bf5-b391-9320e11ca7ff }");
   ezMeshResourceHandle hMeshTree = ezResourceManager::LoadResource<ezMeshResource>("{ 5bbea795-0358-4dd8-86a9-c277f7a59f53 }");
 
