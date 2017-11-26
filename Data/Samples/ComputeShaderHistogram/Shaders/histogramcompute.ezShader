@@ -1,4 +1,4 @@
-[PLATFORMS] 
+[PLATFORMS]
 ALL
 
 [PERMUTATIONS]
@@ -25,11 +25,11 @@ groupshared uint GroupHistogram[3 * NUM_BINS];
 [numthreads(NUM_THREADS, NUM_THREADS, 1)]
 void main(uint3 PixCoord : SV_DispatchThreadID, uint GroupIndex : SV_GroupIndex)
 {
-  float2 pixCoordF = PixCoord.xy / Viewport.zw;
+  float2 pixCoordF = PixCoord.xy / ViewportSize.xy;
   float3 screenColor = ScreenTexture.SampleLevel(PointSampler, pixCoordF, 0.0f);
   uint3 screenColorDiscrete = uint3(screenColor * (NUM_BINS-1) + 0.5f);
 
-  bool isOutsideOfScreen = PixCoord.x >= uint(Viewport.z) || PixCoord.y >= uint(Viewport.w);
+  bool isOutsideOfScreen = PixCoord.x >= uint(ViewportSize.x) || PixCoord.y >= uint(ViewportSize.y);
 
 #ifdef BRUTEFORCE
 

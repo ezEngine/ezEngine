@@ -167,11 +167,14 @@ void ezGameApplication::CreateGameStateForWorld(ezWorld* pWorld)
     }
   }
 
-  pCurState->m_pApplication = this;
+  if (pCurState)
+  {
+    pCurState->m_pApplication = this;
 
-  GameStateData& gsd = m_GameStates.ExpandAndGetRef();
-  gsd.m_pState = pCurState;
-  gsd.m_pLinkedToWorld = pWorld;
+    GameStateData& gsd = m_GameStates.ExpandAndGetRef();
+    gsd.m_pState = pCurState;
+    gsd.m_pLinkedToWorld = pWorld;
+  }
 }
 
 

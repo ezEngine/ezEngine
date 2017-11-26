@@ -1,4 +1,4 @@
-[PLATFORMS] 
+[PLATFORMS]
 ALL
 
 [PERMUTATIONS]
@@ -57,7 +57,7 @@ float3 GetBarHeight(int barIndex)
   int3 histogramValues;
   histogramValues.r = HistogramTexture.Load(int3(barIndex, 0, 0));
   histogramValues.g = HistogramTexture.Load(int3(barIndex, 1, 0));
-  histogramValues.b = HistogramTexture.Load(int3(barIndex, 2, 0)); 
+  histogramValues.b = HistogramTexture.Load(int3(barIndex, 2, 0));
   return float3(histogramValues * 0.00003f); // Need a max function on all histogram buckets to get normalization factor.
 }
 
@@ -65,13 +65,13 @@ float4 main(PS_IN Input) : SV_Target
 {
   // Leave some border in all 4 dirs.
   const float borderThickness = 0.01f;
-  float aspectRatio = Viewport.z / Viewport.w; 
+  float aspectRatio = ViewportSize.z / ViewportSize.w;
   float2 border = float2(borderThickness, borderThickness * aspectRatio);
   float2 usableArea = float2(1.0f, 1.0f) - border * 2.0f;
 
   // Compute which bar we are on.
   float2 posInUsableArea = (Input.TexCoord - border) / usableArea;
-  if(posInUsableArea.x < 0.0f || posInUsableArea.x > 1.0f || 
+  if(posInUsableArea.x < 0.0f || posInUsableArea.x > 1.0f ||
      posInUsableArea.y < 0.0f || posInUsableArea.y > 1.0f)
   {
     return float4(0.0f, 0.0f, 0.0f, 1.0f);

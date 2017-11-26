@@ -1,7 +1,8 @@
-[PLATFORMS] 
+[PLATFORMS]
 ALL
 
 [PERMUTATIONS]
+CAMERA_MODE
 
 [RENDERSTATE]
 DepthTest = false
@@ -31,7 +32,7 @@ float Gradient(float uv, float frequency, float speed)
 float4 main(PS_IN Input) : SV_Target
 {
   float4 outColor;
-  
+
   // Some psychedelic weirdness to get an interesting histogram.
 
   float crot = cos(WorldTime * 0.1);
