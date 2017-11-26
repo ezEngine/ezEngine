@@ -996,6 +996,13 @@ void ezWorld::RecreateHierarchyData(ezGameObject* pObject, bool bWasDynamic)
     pObject->m_uiHierarchyLevel = uiNewHierarchyLevel;
     pObject->m_pTransformationData = pNewTransformationData;
 
+    // fix parent transform data for children as well
+    for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
+    {
+      ezGameObject::TransformationData* pTransformData = it->m_pTransformationData;
+      pTransformData->m_pParentData = pNewTransformationData;
+    }
+
     m_Data.DeleteTransformationData(bWasDynamic, uiOldHierarchyLevel, pOldTransformationData);
   }
 }
