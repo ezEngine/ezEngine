@@ -449,8 +449,6 @@ bool ezGameObjectDocument::GetGizmoMoveParentOnly() const
 
 void ezGameObjectDocument::DeallocateEditTools()
 {
-  SetActiveEditTool(nullptr);
-
   for (auto it = m_CreatedEditTools.GetIterator(); it.IsValid(); ++it)
   {
     it.Value()->GetDynamicRTTI()->GetAllocator()->Deallocate(it.Value());

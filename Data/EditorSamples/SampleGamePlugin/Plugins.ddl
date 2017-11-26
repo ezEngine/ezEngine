@@ -38,7 +38,7 @@ Plugin
 {
 	string %Path{"ezPhysXPlugin"}
 	bool %LoadCopy{false}
-	string %DependencyOf{"<manual>","EditorPluginPhysX"}
+	string %DependencyOf{"EditorPluginPhysX"}
 }
 Plugin
 {
