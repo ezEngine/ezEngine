@@ -168,19 +168,19 @@ struct ezObjectFlags
   {
     None = 0,
     Dynamic = EZ_BIT(0),
-    Active = EZ_BIT(1),
-    Initialized = EZ_BIT(2),
-    Initializing = EZ_BIT(3),
-    SimulationStarted = EZ_BIT(4),
-    SimulationStarting = EZ_BIT(5),
-    UnhandledMessageHandler = EZ_BIT(6), ///< For components, when a message is not handled, a virtual function is called
-
-    Default = Dynamic | Active
+    ForceDynamic = EZ_BIT(1),
+    Active = EZ_BIT(2),
+    Initialized = EZ_BIT(3),
+    Initializing = EZ_BIT(4),
+    SimulationStarted = EZ_BIT(5),
+    SimulationStarting = EZ_BIT(6),
+    UnhandledMessageHandler = EZ_BIT(7), ///< For components, when a message is not handled, a virtual function is called
   };
 
   struct Bits
   {
     StorageType Dynamic : 1;
+    StorageType ForceDynamic : 1;
     StorageType Active : 1;
     StorageType Initialized : 1;
     StorageType Initializing : 1;
@@ -191,6 +191,32 @@ struct ezObjectFlags
 };
 
 EZ_DECLARE_FLAGS_OPERATORS(ezObjectFlags);
+
+/// \brief Specifies the mode of an object. Only relevant in editor.
+struct ezObjectMode
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    Automatic,
+    ForceDynamic,
+
+    Default = Automatic
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezObjectMode);
+
+/// \brief Specifies the mode of a component. Dynamic components may change an object's transform, static components must not.
+struct ezComponentMode
+{
+  enum Enum
+  {
+    Static,
+    Dynamic
+  };
+};
 
 /// \brief Specifies at which phase the queued message should be processed.
 struct ezObjectMsgQueueType

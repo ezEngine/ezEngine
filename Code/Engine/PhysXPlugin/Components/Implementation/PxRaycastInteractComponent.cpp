@@ -15,7 +15,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezPxRaycastInteractComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezPxRaycastInteractComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {

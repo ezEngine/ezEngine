@@ -8,7 +8,7 @@
 
 ezEvent<const ezVisualScriptComponentActivityEvent&> ezVisualScriptComponent::s_ActivityEvents;
 
-EZ_BEGIN_COMPONENT_TYPE(ezVisualScriptComponent, 2);
+EZ_BEGIN_COMPONENT_TYPE(ezVisualScriptComponent, 2, ezComponentMode::Dynamic);
 {
   EZ_BEGIN_PROPERTIES
   {

@@ -20,6 +20,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
   {
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
     EZ_ACCESSOR_PROPERTY("GlobalKey", GetGlobalKey, SetGlobalKey),
+    EZ_ENUM_ACCESSOR_PROPERTY("Mode", ezObjectMode, Reflection_GetMode, Reflection_SetMode),
     EZ_ACCESSOR_PROPERTY("LocalPosition", GetLocalPosition, SetLocalPosition)->AddAttributes(new ezSuffixAttribute(" m")),
     EZ_ACCESSOR_PROPERTY("LocalRotation", GetLocalRotation, SetLocalRotation),
     EZ_ACCESSOR_PROPERTY("LocalScaling", GetLocalScaling, SetLocalScaling)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f, 1.0f, 1.0f))),
@@ -39,12 +40,30 @@ EZ_END_STATIC_REFLECTED_TYPE
 
 void ezGameObject::Reflection_AddChild(ezGameObject* pChild)
 {
+  if (IsDynamic())
+  {
+    pChild->MakeDynamic();
+  }
+
   AddChild(pChild->GetHandle(), TransformPreservation::PreserveLocal);
+
+  // Check whether the child object was only dynamic because of its old parent
+  // If that's the case make it static now.
+  if (!pChild->DetermineDynamicMode())
+  {
+    pChild->MakeStatic();
+  }
 }
 
 void ezGameObject::Reflection_DetachChild(ezGameObject* pChild)
 {
   DetachChild(pChild->GetHandle(), TransformPreservation::PreserveLocal);
+
+  // The child object is now a top level object, check whether it should be static now.
+  if (!pChild->DetermineDynamicMode())
+  {
+    pChild->MakeStatic();
+  }
 }
 
 ezHybridArray<ezGameObject*, 8> ezGameObject::Reflection_GetChildren() const
@@ -61,6 +80,106 @@ ezHybridArray<ezGameObject*, 8> ezGameObject::Reflection_GetChildren() const
   }
 
   return all;
+}
+
+void ezGameObject::Reflection_AddComponent(ezComponent* pComponent)
+{
+  if (pComponent->IsDynamic())
+  {
+    MakeDynamic();
+  }
+
+  AddComponent(pComponent);
+}
+
+void ezGameObject::Reflection_RemoveComponent(ezComponent* pComponent)
+{
+  /*Don't call RemoveComponent here, Component is automatically removed when deleted.*/
+
+  if (pComponent->IsDynamic() && !DetermineDynamicMode(pComponent))
+  {
+    MakeStatic();
+  }
+}
+
+const ezHybridArray<ezComponent*, ezGameObject::NUM_INPLACE_COMPONENTS>& ezGameObject::Reflection_GetComponents() const
+{
+  return m_Components;
+}
+
+ezObjectMode::Enum ezGameObject::Reflection_GetMode() const
+{
+  return m_Flags.IsSet(ezObjectFlags::ForceDynamic) ? ezObjectMode::ForceDynamic : ezObjectMode::Automatic;
+}
+
+void ezGameObject::Reflection_SetMode(ezObjectMode::Enum mode)
+{
+  if (Reflection_GetMode() == mode)
+  {
+    return;
+  }
+
+  if (mode == ezObjectMode::ForceDynamic)
+  {
+    m_Flags.Add(ezObjectFlags::ForceDynamic);
+    MakeDynamic();
+  }
+  else
+  {
+    m_Flags.Remove(ezObjectFlags::ForceDynamic);
+    if (!DetermineDynamicMode())
+    {
+      MakeStatic();
+    }
+  }
+}
+
+bool ezGameObject::DetermineDynamicMode(ezComponent* pComponentToIgnore /*= nullptr*/) const
+{
+  if (m_Flags.IsSet(ezObjectFlags::ForceDynamic))
+  {
+    return true;
+  }
+
+  const ezGameObject* pParent = GetParent();
+  if (pParent != nullptr && pParent->IsDynamic())
+  {
+    return true;
+  }
+
+  for (auto pComponent : m_Components)
+  {
+    if (pComponent != pComponentToIgnore && pComponent->IsDynamic())
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+void ezGameObject::UpdateGlobalTransformAndBoundsRecursive()
+{
+  if (IsStatic() && GetWorld()->ReportErrorWhenStaticObjectMoves())
+  {
+    ezLog::Error("Static object '{0}' was moved during runtime.", GetName());
+  }
+
+  if (m_pTransformationData->m_pParentData != nullptr)
+  {
+    m_pTransformationData->UpdateGlobalTransformWithParent();
+  }
+  else
+  {
+    m_pTransformationData->UpdateGlobalTransform();
+  }
+
+  m_pTransformationData->UpdateGlobalBounds();
+
+  for (auto it = GetChildren(); it.IsValid(); ++it)
+  {
+    it->UpdateGlobalTransformAndBoundsRecursive();
+  }
 }
 
 void ezGameObject::ConstChildIterator::Next()
@@ -102,6 +221,32 @@ void ezGameObject::operator=(const ezGameObject& other)
   }
 
   m_Tags = other.m_Tags;
+}
+
+void ezGameObject::MakeDynamic()
+{
+  if (IsDynamic())
+  {
+    return;
+  }
+
+  m_Flags.Add(ezObjectFlags::Dynamic);
+
+  m_pWorld->RecreateHierarchyData(this, false);
+}
+
+void ezGameObject::MakeStatic()
+{
+  if (IsStatic())
+  {
+    return;
+  }
+
+  EZ_ASSERT_DEV(!DetermineDynamicMode(), "This object can't be static because it has a dynamic parent or dynamic component(s) attached.");
+
+  m_Flags.Remove(ezObjectFlags::Dynamic);
+
+  m_pWorld->RecreateHierarchyData(this, true);
 }
 
 void ezGameObject::Activate()
@@ -217,7 +362,7 @@ ezGameObject* ezGameObject::FindChildByPath(const char* path)
 
   const char* szSep = ezStringUtils::FindSubString(path, "/");
   ezUInt32 uiNameHash = 0;
-  
+
   if (szSep == nullptr)
     uiNameHash = ezHashing::MurmurHash(path, (size_t)ezStringUtils::GetStringElementCount(path));
   else
@@ -328,6 +473,11 @@ void ezGameObject::UpdateLocalBounds()
 
   m_pTransformationData->m_localBounds = ezSimdConversion::ToBBoxSphere(msg.m_ResultingLocalBounds);
   m_pTransformationData->m_localBounds.m_BoxHalfExtents.SetW(msg.m_bAlwaysVisible ? 1.0f : 0.0f);
+
+  if (IsStatic())
+  {
+    m_pTransformationData->UpdateGlobalBounds();
+  }
 }
 
 bool ezGameObject::TryGetComponentOfBaseType(const ezRTTI* pType, ezComponent*& out_pComponent) const

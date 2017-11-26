@@ -7,7 +7,7 @@
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <Foundation/Configuration/CVar.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ShipComponent, 1);
+EZ_BEGIN_COMPONENT_TYPE(ShipComponent, 1, ezComponentMode::Dynamic);
 EZ_END_COMPONENT_TYPE
 
 ezCVarFloat CVar_MaxAmmo("g_MaxAmmo", 20.0f, ezCVarFlags::Default, "How much ammo a ship can store");
@@ -99,6 +99,7 @@ void ShipComponent::Update()
     m_CurShootCooldown = ezTime::Seconds(CVar_ShotDelay);
 
     ezGameObjectDesc desc;
+    desc.m_bDynamic = true;
     desc.m_LocalPosition = GetOwner()->GetLocalPosition();
     desc.m_LocalRotation = GetOwner()->GetGlobalRotation();
 

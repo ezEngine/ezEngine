@@ -92,7 +92,7 @@ void ezPxJointComponent::Deinitialize()
 {
   if (m_pJoint != nullptr)
   {
-    ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
+    ezPhysXWorldModule* pModule = GetWorld()->GetModule<ezPhysXWorldModule>();
     EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
 
     m_pJoint->release();

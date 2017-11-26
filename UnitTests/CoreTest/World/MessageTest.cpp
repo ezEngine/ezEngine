@@ -60,7 +60,7 @@ namespace
     ezInt32 m_iSomeData2;
   };
 
-  EZ_BEGIN_COMPONENT_TYPE(TestComponentMsg, 1)
+  EZ_BEGIN_COMPONENT_TYPE(TestComponentMsg, 1, ezComponentMode::Static)
   {
     EZ_BEGIN_MESSAGEHANDLERS
     {

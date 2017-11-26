@@ -14,7 +14,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezSpatialAnchorComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezSpatialAnchorComponent, 1, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -134,10 +134,10 @@ void ezSpatialAnchorComponent::Update()
   mFinalFinal.SetColumn(1, -mFinal.GetColumn(2));
   mFinalFinal.SetColumn(2, mFinal.GetColumn(1));
   mFinalFinal.SetColumn(3, mFinal.GetColumn(3));
-  
+
   ezVec3 vPos = mFinalFinal.GetTranslationVector();
   ezMath::Swap(vPos.y, vPos.z); // Y up in other coordinate system
-  
+
   ezQuat qRot;
   //qRot.SetIdentity();
   qRot.SetFromMat3(mFinalFinal.GetRotationalPart());

@@ -104,7 +104,7 @@ namespace
   ezInt32 TestComponent::s_iSimulationStartedCounter = 0;
   bool TestComponent::s_bSpawnOther = false;
 
-  EZ_BEGIN_COMPONENT_TYPE(TestComponent, 1)
+  EZ_BEGIN_COMPONENT_TYPE(TestComponent, 1, ezComponentMode::Static)
   EZ_END_COMPONENT_TYPE
 
   void TestComponentManager::Update(const ezWorldModule::UpdateContext& context)
@@ -154,7 +154,7 @@ namespace
     }
   };
 
-  EZ_BEGIN_COMPONENT_TYPE(TestComponent2, 1)
+  EZ_BEGIN_COMPONENT_TYPE(TestComponent2, 1, ezComponentMode::Static)
   EZ_END_COMPONENT_TYPE
 
   void TestComponent::SpawnOther()

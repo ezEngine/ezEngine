@@ -6,7 +6,7 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezPxVisColMeshComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezPxVisColMeshComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {

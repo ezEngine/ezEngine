@@ -9,7 +9,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpriteRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 2)
+EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {

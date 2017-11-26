@@ -14,7 +14,7 @@ ScriptContainerBase::ScriptContainerBase()
 
 }
 
-EZ_BEGIN_COMPONENT_TYPE(ScriptTestComponent, 2)
+EZ_BEGIN_COMPONENT_TYPE(ScriptTestComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {

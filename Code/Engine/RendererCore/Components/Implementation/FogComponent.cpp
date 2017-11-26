@@ -8,7 +8,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFogRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_COMPONENT_TYPE(ezFogComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezFogComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {

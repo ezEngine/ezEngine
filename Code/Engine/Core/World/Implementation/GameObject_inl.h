@@ -251,7 +251,7 @@ EZ_ALWAYS_INLINE void ezGameObject::SetLocalPosition(const ezSimdVec4f& position
 
   if (IsStatic())
   {
-    UpdateGlobalTransformAndBounds();
+    UpdateGlobalTransformAndBoundsRecursive();
   }
 }
 
@@ -267,7 +267,7 @@ EZ_ALWAYS_INLINE void ezGameObject::SetLocalRotation(const ezSimdQuat& rotation)
 
   if (IsStatic())
   {
-    UpdateGlobalTransformAndBounds();
+    UpdateGlobalTransformAndBoundsRecursive();
   }
 }
 
@@ -285,7 +285,7 @@ EZ_ALWAYS_INLINE void ezGameObject::SetLocalScaling(const ezSimdVec4f& scaling)
 
   if (IsStatic())
   {
-    UpdateGlobalTransformAndBounds();
+    UpdateGlobalTransformAndBoundsRecursive();
   }
 }
 
@@ -301,7 +301,7 @@ EZ_ALWAYS_INLINE void ezGameObject::SetLocalUniformScaling(const ezSimdFloat& sc
 
   if (IsStatic())
   {
-    UpdateGlobalTransformAndBounds();
+    UpdateGlobalTransformAndBoundsRecursive();
   }
 }
 
@@ -319,7 +319,7 @@ EZ_ALWAYS_INLINE void ezGameObject::SetGlobalPosition(const ezSimdVec4f& positio
 
   if (IsStatic())
   {
-    m_pTransformationData->UpdateGlobalBounds();
+    UpdateGlobalTransformAndBoundsRecursive();
   }
 }
 
@@ -337,7 +337,7 @@ EZ_ALWAYS_INLINE void ezGameObject::SetGlobalRotation(const ezSimdQuat& rotation
 
   if (IsStatic())
   {
-    m_pTransformationData->UpdateGlobalBounds();
+    UpdateGlobalTransformAndBoundsRecursive();
   }
 }
 
@@ -355,7 +355,7 @@ EZ_ALWAYS_INLINE void ezGameObject::SetGlobalScaling(const ezSimdVec4f& scaling)
 
   if (IsStatic())
   {
-    m_pTransformationData->UpdateGlobalBounds();
+    UpdateGlobalTransformAndBoundsRecursive();
   }
 }
 
@@ -373,7 +373,7 @@ EZ_ALWAYS_INLINE void ezGameObject::SetGlobalTransform(const ezSimdTransform& tr
 
   if (IsStatic())
   {
-    m_pTransformationData->UpdateGlobalBounds();
+    UpdateGlobalTransformAndBoundsRecursive();
   }
 }
 

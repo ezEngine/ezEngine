@@ -6,7 +6,7 @@
 
 using namespace physx;
 
-EZ_BEGIN_COMPONENT_TYPE(ezPxFixedJointComponent, 1);
+EZ_BEGIN_COMPONENT_TYPE(ezPxFixedJointComponent, 1, ezComponentMode::Static);
 {
 
 }

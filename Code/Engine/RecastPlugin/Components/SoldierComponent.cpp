@@ -10,7 +10,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezSoldierComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezSoldierComponent, 1, ezComponentMode::Dynamic)
 {
   //EZ_BEGIN_PROPERTIES
   //{

@@ -122,6 +122,8 @@ void ezEngineProcessDocumentContext::Initialize(const ezUuid& DocumentGuid, ezEn
 
   ezStringBuilder tmp;
   ezWorldDesc desc(ezConversionUtils::ToString(m_DocumentGuid, tmp));
+  desc.m_bReportErrorWhenStaticObjectMoves = false;
+
   m_pWorld = ezGameApplication::GetGameApplicationInstance()->CreateWorld(desc);
 
   m_Context.m_pWorld = m_pWorld;

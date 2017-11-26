@@ -179,6 +179,7 @@ private:
     const ComponentManagerType* GetManager() const; \
     virtual ezUInt16 GetTypeId() const override { return TYPE_ID; } \
     static EZ_ALWAYS_INLINE ezUInt16 TypeId() { return TYPE_ID; } \
+    virtual ezComponentMode::Enum GetMode() const override; \
     static ezComponentHandle CreateComponent(ezGameObject* pOwnerObject, componentType*& pComponent); \
     static void DeleteComponent(componentType* pComponent); \
     void DeleteComponent(); \
@@ -205,10 +206,11 @@ private:
 /// \brief Implements rtti and component specific functionality. Add this macro to a cpp file.
 ///
 /// \see EZ_BEGIN_DYNAMIC_REFLECTED_TYPE
-#define EZ_BEGIN_COMPONENT_TYPE(componentType, version) \
+#define EZ_BEGIN_COMPONENT_TYPE(componentType, version, mode) \
   ezUInt16 componentType::TYPE_ID = ezComponentManagerFactory::GetInstance()->RegisterComponentManager<componentType>(); \
   componentType::ComponentManagerType* componentType::GetManager() { return static_cast<componentType::ComponentManagerType*>(ezComponent::GetManager()); } \
   const componentType::ComponentManagerType* componentType::GetManager() const { return static_cast<const componentType::ComponentManagerType*>(ezComponent::GetManager()); } \
+  ezComponentMode::Enum componentType::GetMode() const { return mode; } \
   ezComponentHandle componentType::CreateComponent(ezGameObject* pOwnerObject, componentType*& out_pComponent) { \
     return pOwnerObject->GetWorld()->GetOrCreateComponentManager<ComponentManagerType>()->CreateComponent(pOwnerObject, out_pComponent); } \
   void componentType::DeleteComponent(componentType* pComponent) { \

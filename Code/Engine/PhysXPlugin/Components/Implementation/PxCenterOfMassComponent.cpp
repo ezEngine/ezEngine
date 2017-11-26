@@ -3,7 +3,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezPxCenterOfMassComponent, 1);
+EZ_BEGIN_COMPONENT_TYPE(ezPxCenterOfMassComponent, 1, ezComponentMode::Static);
   //EZ_BEGIN_PROPERTIES
   //EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE

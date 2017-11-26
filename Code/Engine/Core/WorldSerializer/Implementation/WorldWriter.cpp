@@ -11,7 +11,7 @@ void ezWorldWriter::Write(ezStreamWriter& stream, ezWorld& world, const ezTagSet
 
   EZ_LOCK(m_pWorld->GetReadMarker());
 
-  const ezUInt8 uiVersion = 4;
+  const ezUInt8 uiVersion = 5;
   stream << uiVersion;
 
   m_AllRootObjects.Clear();
@@ -232,7 +232,6 @@ void ezWorldWriter::WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<con
       WriteComponentHandle(pComp->GetHandle());
 
       s << pComp->IsActive();
-      s << pComp->IsDynamic();
 
       pComp->SerializeComponent(*this);
     }

@@ -6,7 +6,7 @@
 #include <GameEngine/Curves/Curve1DResource.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 1, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {

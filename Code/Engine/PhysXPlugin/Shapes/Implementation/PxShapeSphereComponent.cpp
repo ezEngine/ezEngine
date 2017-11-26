@@ -6,7 +6,7 @@
 
 using namespace physx;
 
-EZ_BEGIN_COMPONENT_TYPE(ezPxShapeSphereComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezPxShapeSphereComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {

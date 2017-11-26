@@ -43,7 +43,7 @@ const char* ezMeshComponent_SetMaterialMsg::GetMaterialFile() const
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_COMPONENT_TYPE(ezMeshComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezMeshComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {

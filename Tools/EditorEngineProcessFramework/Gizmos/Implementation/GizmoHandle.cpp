@@ -609,6 +609,7 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
   god.m_LocalRotation = m_Transformation.m_qRotation;
   god.m_LocalScaling = m_Transformation.m_vScale;
   god.m_sName.Assign(sName.GetData());
+  god.m_bDynamic = true;
 
   ezGameObject* pObject;
   m_hGameObject = pWorld->CreateObject(god, pObject);

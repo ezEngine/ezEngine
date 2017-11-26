@@ -7,7 +7,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <GameEngine/Messages/BuildNavMeshMessage.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezPxStaticActorComponent, 2)
+EZ_BEGIN_COMPONENT_TYPE(ezPxStaticActorComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -68,7 +68,8 @@ void ezPxStaticActorComponent::Deinitialize()
 {
   if (m_pActor != nullptr)
   {
-    EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
+    ezPhysXWorldModule* pModule = GetWorld()->GetModule<ezPhysXWorldModule>();
+    EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
 
     m_pActor->release();
     m_pActor = nullptr;
@@ -157,14 +158,9 @@ void ezPxStaticActorComponent::OnSimulationStarted()
     }
   }
 
-  // Hacky feature to add a ground plane for static actors that have no shapes at all
   if (m_pActor->getNbShapes() == 0)
   {
     ezLog::Error("Static Physics Actor component without shape is used.");
-
-    //pShape = m_pActor->createShape(PxPlaneGeometry(), *ezPhysX::GetSingleton()->GetDefaultMaterial());
-    //pShape->setLocalPose(PxTransform(PxQuat(ezAngle::Degree(270.0f).GetRadian(), PxVec3(0.0f, 1.0f, 0.0f))));
-
     return;
   }
 

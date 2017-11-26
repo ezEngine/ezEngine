@@ -15,7 +15,7 @@
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezCVarBool ezRenderPipeline::s_DebugCulling("r_DebugCulling", false, ezCVarFlags::Default, "Enables debug visualization of visibility culling");
 
-  ezCVarBool CVarCullingStats("r_CullingStats", false, ezCVarFlags::Default, "Display same stats of the visibility culling");
+  ezCVarBool CVarCullingStats("r_CullingStats", false, ezCVarFlags::Default, "Display some stats of the visibility culling");
 #endif
 
 ezRenderPipeline::ezRenderPipeline() : m_PipelineState(PipelineState::Uninitialized)

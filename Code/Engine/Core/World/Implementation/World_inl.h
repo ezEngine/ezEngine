@@ -496,3 +496,10 @@ EZ_ALWAYS_INLINE ezGameObject* ezWorld::GetObjectUnchecked(ezUInt32 uiIndex) con
 {
   return m_Data.m_Objects.GetValueUnchecked(uiIndex);
 }
+
+EZ_ALWAYS_INLINE bool ezWorld::ReportErrorWhenStaticObjectMoves() const
+{
+  return m_Data.m_bReportErrorWhenStaticObjectMoves;
+}
+
+

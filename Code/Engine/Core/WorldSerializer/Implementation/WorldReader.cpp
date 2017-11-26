@@ -19,7 +19,7 @@ void ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
   m_uiVersion = 0;
   stream >> m_uiVersion;
 
-  EZ_ASSERT_DEV(m_uiVersion <= 4, "Invalid version {0}", m_uiVersion);
+  EZ_ASSERT_DEV(m_uiVersion <= 5, "Invalid version {0}", m_uiVersion);
 
   if (m_uiVersion >= 3)
   {
@@ -314,8 +314,11 @@ void ezWorldReader::ReadComponentsOfType(ezUInt32 uiComponentTypeIdx)
       bool bActive = true;
       *m_pStream >> bActive;
 
-      bool bDynamic = true;
-      *m_pStream >> bDynamic;
+      if (m_uiVersion <= 4)
+      {
+        bool bDynamic = true;
+        *m_pStream >> bDynamic;
+      }
 
       ezGameObject* pParentObject = nullptr;
       m_pWorld->TryGetObject(hOwner, pParentObject);
@@ -325,7 +328,6 @@ void ezWorldReader::ReadComponentsOfType(ezUInt32 uiComponentTypeIdx)
       m_IndexToComponentHandle[uiComponentIdx] = hComponent;
 
       pComponent->SetActive(bActive);
-      /// \todo currently everything is always dynamic
 
       pComponent->DeserializeComponent(*this);
     }

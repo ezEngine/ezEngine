@@ -129,6 +129,8 @@ ezSurfaceInteractionAlignment::ReflectedDirection;Reflected Direction
 ezSurfaceInteractionAlignment::ReverseSurfaceNormal;Reverse Surface Normal
 ezSurfaceInteractionAlignment::ReverseIncidentDirection;Reverse Incoming Direction
 ezSurfaceInteractionAlignment::ReverseReflectedDirection;Reverse Reflected Direction
+ezObjectMode::Automatic;Automatic
+ezObjectMode::ForceDynamic;Force Dynamic
 ezOnComponentFinishedAction::None;None
 ezOnComponentFinishedAction::DeleteComponent;Delete Component
 ezOnComponentFinishedAction::DeleteGameObject;Delete Object

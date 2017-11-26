@@ -18,7 +18,7 @@ namespace
     ezGameObject* pObjects[4];
   };
 
-  TestWorldObjects CreateTestWorld(ezWorld& world)
+  TestWorldObjects CreateTestWorld(ezWorld& world, bool bDynamic)
   {
     TestWorldObjects testWorldObjects;
     ezMemoryUtils::ZeroFill(&testWorldObjects);
@@ -26,6 +26,7 @@ namespace
     ezQuat q; q.SetFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), ezAngle::Degree(90.0f));
 
     ezGameObjectDesc desc;
+    desc.m_bDynamic = bDynamic;
     desc.m_LocalPosition = ezVec3(100.0f, 0.0f, 0.0f);
     desc.m_LocalRotation = q;
     desc.m_LocalScaling = ezVec3(1.5f, 1.5f, 1.5f);
@@ -47,21 +48,21 @@ namespace
     return testWorldObjects;
   }
 
-  void TestTransforms(const TestWorldObjects& o)
+  void TestTransforms(const TestWorldObjects& o, ezVec3 offset = ezVec3(100.0f, 0.0f, 0.0f))
   {
     const float eps = ezMath::BasicType<float>::DefaultEpsilon();
     ezQuat q; q.SetFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), ezAngle::Degree(90.0f));
 
     for (ezUInt32 i = 0; i < 2; ++i)
     {
-      EZ_TEST_VEC3(o.pObjects[i]->GetGlobalPosition(), ezVec3(100.0f, 0.0f, 0.0f), 0);
+      EZ_TEST_VEC3(o.pObjects[i]->GetGlobalPosition(), offset, 0);
       EZ_TEST_BOOL(o.pObjects[i]->GetGlobalRotation().IsEqualRotation(q, eps * 10.0f));
       EZ_TEST_VEC3(o.pObjects[i]->GetGlobalScaling(), ezVec3(1.5f, 1.5f, 1.5f), 0);
     }
 
     for (ezUInt32 i = 2; i < 4; ++i)
     {
-      EZ_TEST_VEC3(o.pObjects[i]->GetGlobalPosition(), ezVec3(100.0f, 150.0f, 0.0f), eps * 2.0f);
+      EZ_TEST_VEC3(o.pObjects[i]->GetGlobalPosition(), offset + ezVec3(0.0f, 150.0f, 0.0f), eps * 2.0f);
       EZ_TEST_BOOL(o.pObjects[i]->GetGlobalRotation().IsEqualRotation(q * q, eps * 10.0f));
       EZ_TEST_VEC3(o.pObjects[i]->GetGlobalScaling(), ezVec3(2.25f, 2.25f, 2.25f), 0);
     }
@@ -143,6 +144,43 @@ public:
 
 EZ_CREATE_SIMPLE_TEST(World, World)
 {
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Transforms dynamic")
+  {
+    ezWorldDesc worldDesc("Test");
+    ezWorld world(worldDesc);
+    EZ_LOCK(world.GetWriteMarker());
+
+    TestWorldObjects o = CreateTestWorld(world, true);
+
+    ezVec3 offset = ezVec3(200.0f, 0.0f, 0.0f);
+    o.pParent1->SetLocalPosition(offset);
+    o.pParent2->SetLocalPosition(offset);
+
+    world.Update();
+
+    TestTransforms(o, offset);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Transforms static")
+  {
+    ezWorldDesc worldDesc("Test");
+    worldDesc.m_bReportErrorWhenStaticObjectMoves = false;
+
+    ezWorld world(worldDesc);
+    EZ_LOCK(world.GetWriteMarker());
+
+    TestWorldObjects o = CreateTestWorld(world, false);
+
+    ezVec3 offset = ezVec3(200.0f, 0.0f, 0.0f);
+    o.pParent1->SetLocalPosition(offset);
+    o.pParent2->SetLocalPosition(offset);
+
+    // No need to call world update since global transform is updated immediately for static objects.
+    //world.Update();
+
+    TestTransforms(o, offset);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GameObject parenting")
   {
     ezWorldDesc worldDesc("Test");
@@ -279,7 +317,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     ezWorld world(worldDesc);
     EZ_LOCK(world.GetWriteMarker());
 
-    TestWorldObjects o = CreateTestWorld(world);
+    TestWorldObjects o = CreateTestWorld(world, true);
 
     o.pParent1->AddChild(o.pParent2->GetHandle());
     o.pParent2->SetParent(o.pParent1->GetHandle());
@@ -314,7 +352,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     ezWorld world(worldDesc);
     EZ_LOCK(world.GetWriteMarker());
 
-    TestWorldObjects o = CreateTestWorld(world);
+    TestWorldObjects o = CreateTestWorld(world, true);
 
     o.pChild21->SetParent(ezGameObjectHandle());
     SanityCheckWorld(world);
@@ -344,7 +382,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     ezWorld world(worldDesc);
     EZ_LOCK(world.GetWriteMarker());
 
-    TestWorldObjects o = CreateTestWorld(world);
+    TestWorldObjects o = CreateTestWorld(world, true);
     SanityCheckWorld(world);
     // Here we test whether the sibling information is correctly cleared.
 
@@ -369,7 +407,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     ezWorld world(worldDesc);
     EZ_LOCK(world.GetWriteMarker());
 
-    TestWorldObjects o = CreateTestWorld(world);
+    TestWorldObjects o = CreateTestWorld(world, false);
 
     {
       struct BreadthFirstTest

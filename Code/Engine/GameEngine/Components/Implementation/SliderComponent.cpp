@@ -5,7 +5,7 @@
 
 float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration, ezTime& fTimeSinceStartInSec);
 
-EZ_BEGIN_COMPONENT_TYPE(ezSliderComponent, 2)
+EZ_BEGIN_COMPONENT_TYPE(ezSliderComponent, 2, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {

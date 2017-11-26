@@ -93,18 +93,19 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   ezGameObject::TransformationData* pParentData = nullptr;
   ezUInt32 uiParentIndex = 0;
   ezUInt32 uiHierarchyLevel = 0;
+  bool bDynamic = desc.m_bDynamic;
 
   if (TryGetObject(desc.m_hParent, pParentObject))
   {
     pParentData = pParentObject->m_pTransformationData;
     uiParentIndex = desc.m_hParent.m_InternalId.m_InstanceIndex;
-    uiHierarchyLevel = pParentObject->m_uiHierarchyLevel;
+    uiHierarchyLevel = pParentObject->m_uiHierarchyLevel + 1; // if there is a parent hierarchy level is parent level + 1
     EZ_ASSERT_DEV(uiHierarchyLevel < (1 << 12), "Max hierarchy level reached");
-    ++uiHierarchyLevel; // if there is a parent hierarchy level is parent level + 1
+    bDynamic |= pParentObject->IsDynamic();
   }
 
   // get storage for the transformation data
-  ezGameObject::TransformationData* pTransformationData = m_Data.CreateTransformationData(desc.m_bDynamic, uiHierarchyLevel);
+  ezGameObject::TransformationData* pTransformationData = m_Data.CreateTransformationData(bDynamic, uiHierarchyLevel);
 
   // get storage for the object itself
   ezGameObject* pNewObject = m_Data.m_ObjectStorage.Create();
@@ -116,7 +117,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   // fill out some data
   pNewObject->m_InternalId = newId;
   pNewObject->m_Flags = ezObjectFlags::None;
-  pNewObject->m_Flags.AddOrRemove(ezObjectFlags::Dynamic, desc.m_bDynamic);
+  pNewObject->m_Flags.AddOrRemove(ezObjectFlags::Dynamic, bDynamic);
   pNewObject->m_Flags.AddOrRemove(ezObjectFlags::Active, desc.m_bActive);
   pNewObject->m_sName = desc.m_sName;
   pNewObject->m_pWorld = this;
@@ -391,6 +392,7 @@ void ezWorld::Update()
 void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameObject::TransformPreservation preserve)
 {
   EZ_ASSERT_DEV(pObject != pNewParent, "Object can't be its own parent!");
+  EZ_ASSERT_DEV(pObject->IsDynamic() || pNewParent->IsStatic(), "Can't attach a static object to a dynamic parent!");
   CheckForWriteAccess();
 
   if (GetObjectUnchecked(pObject->m_ParentIndex) == pNewParent)
@@ -955,21 +957,7 @@ void ezWorld::PatchHierarchyData(ezGameObject* pObject, ezGameObject::TransformP
 {
   ezGameObject* pParent = pObject->GetParent();
 
-  ezUInt32 uiNewHierarchyLevel = pParent != nullptr ? pParent->m_uiHierarchyLevel + 1 : 0;
-
-  if (uiNewHierarchyLevel != pObject->m_uiHierarchyLevel)
-  {
-    ezUInt32 uiOldHierarchyLevel = pObject->m_uiHierarchyLevel;
-    ezGameObject::TransformationData* pOldTransformationData = pObject->m_pTransformationData;
-
-    ezGameObject::TransformationData* pNewTransformationData = m_Data.CreateTransformationData(pObject->IsDynamic(), uiNewHierarchyLevel);
-    ezMemoryUtils::Copy(pNewTransformationData, pOldTransformationData, 1);
-
-    pObject->m_uiHierarchyLevel = uiNewHierarchyLevel;
-    pObject->m_pTransformationData = pNewTransformationData;
-
-    m_Data.DeleteTransformationData(pObject->IsDynamic(), uiOldHierarchyLevel, pOldTransformationData);
-  }
+  RecreateHierarchyData(pObject, pObject->IsDynamic());
 
   pObject->m_pTransformationData->m_pParentData = pParent != nullptr ? pParent->m_pTransformationData : nullptr;
 
@@ -987,6 +975,29 @@ void ezWorld::PatchHierarchyData(ezGameObject* pObject, ezGameObject::TransformP
     PatchHierarchyData(it, preserve);
   }
   EZ_ASSERT_DEBUG(pObject->m_pTransformationData != pObject->m_pTransformationData->m_pParentData, "Hierarchy corrupted!");
+}
+
+void ezWorld::RecreateHierarchyData(ezGameObject* pObject, bool bWasDynamic)
+{
+  ezGameObject* pParent = pObject->GetParent();
+
+  const ezUInt32 uiNewHierarchyLevel = pParent != nullptr ? pParent->m_uiHierarchyLevel + 1 : 0;
+  const ezUInt32 uiOldHierarchyLevel = pObject->m_uiHierarchyLevel;
+
+  const bool bIsDynamic = pObject->IsDynamic();
+
+  if (uiNewHierarchyLevel != uiOldHierarchyLevel || bIsDynamic != bWasDynamic)
+  {
+    ezGameObject::TransformationData* pOldTransformationData = pObject->m_pTransformationData;
+
+    ezGameObject::TransformationData* pNewTransformationData = m_Data.CreateTransformationData(bIsDynamic, uiNewHierarchyLevel);
+    ezMemoryUtils::Copy(pNewTransformationData, pOldTransformationData, 1);
+
+    pObject->m_uiHierarchyLevel = uiNewHierarchyLevel;
+    pObject->m_pTransformationData = pNewTransformationData;
+
+    m_Data.DeleteTransformationData(bWasDynamic, uiOldHierarchyLevel, pOldTransformationData);
+  }
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_World);

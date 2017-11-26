@@ -7,7 +7,7 @@
 
 using namespace physx;
 
-EZ_BEGIN_COMPONENT_TYPE(ezPxShapeConvexComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezPxShapeConvexComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {

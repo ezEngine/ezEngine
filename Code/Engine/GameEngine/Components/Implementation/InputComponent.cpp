@@ -16,7 +16,7 @@ EZ_IMPLEMENT_MESSAGE_TYPE(ezInputEventMessage);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputEventMessage, 1, ezRTTIDefaultAllocator<ezInputEventMessage>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_COMPONENT_TYPE(ezInputComponent, 2)
+EZ_BEGIN_COMPONENT_TYPE(ezInputComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {

@@ -14,7 +14,7 @@ EZ_ENUM_CONSTANTS(ezGreyBoxShape::Box, ezGreyBoxShape::RampX, ezGreyBoxShape::Ra
 EZ_ENUM_CONSTANTS(ezGreyBoxShape::StairsX, ezGreyBoxShape::StairsY, ezGreyBoxShape::ArchX, ezGreyBoxShape::ArchY, ezGreyBoxShape::SpiralStairs)
 EZ_END_STATIC_REFLECTED_ENUM()
 
-EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {

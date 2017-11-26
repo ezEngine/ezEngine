@@ -288,6 +288,9 @@ private:
   void DeleteDeadComponents();
 
   void PatchHierarchyData(ezGameObject* pObject, ezGameObject::TransformPreservation preserve);
+  void RecreateHierarchyData(ezGameObject* pObject, bool bWasDynamic);
+
+  bool ReportErrorWhenStaticObjectMoves() const;
 
   ezDelegateTask<void> m_UpdateTask;
 

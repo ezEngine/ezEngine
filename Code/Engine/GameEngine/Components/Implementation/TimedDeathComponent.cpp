@@ -7,7 +7,7 @@
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Core/Messages/TriggerMessage.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezTimedDeathComponent, 2)
+EZ_BEGIN_COMPONENT_TYPE(ezTimedDeathComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {

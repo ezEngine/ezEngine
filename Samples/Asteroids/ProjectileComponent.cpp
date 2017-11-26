@@ -7,7 +7,7 @@
 #include <Foundation/Utilities/Stats.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ProjectileComponent, 1);
+EZ_BEGIN_COMPONENT_TYPE(ProjectileComponent, 1, ezComponentMode::Dynamic);
 EZ_END_COMPONENT_TYPE
 
 ezCVarFloat CVar_ProjectileTimeToLive("g_ProjectileTimeToLive", 0.5f, ezCVarFlags::Default, "Projectile time to Live");
@@ -96,6 +96,7 @@ void ProjectileComponent::Update()
 
           {
             ezGameObjectDesc desc;
+            desc.m_bDynamic = true;
             desc.m_LocalPosition = GetOwner()->GetLocalPosition();
             desc.m_LocalRotation = qRot * GetOwner()->GetLocalRotation();
 

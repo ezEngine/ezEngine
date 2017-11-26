@@ -2,7 +2,7 @@
 
 EZ_ALWAYS_INLINE ezComponent::ezComponent() :
   m_pMessageDispatchType(nullptr),
-  m_ComponentFlags(ezObjectFlags::Default),
+  m_ComponentFlags(ezObjectFlags::Active),
   m_pManager(nullptr),
   m_pOwner(nullptr)
 {
@@ -17,7 +17,7 @@ EZ_ALWAYS_INLINE ezComponent::~ezComponent()
   m_InternalId.Invalidate();
 }
 
-EZ_FORCE_INLINE bool ezComponent::IsDynamic() const
+EZ_ALWAYS_INLINE bool ezComponent::IsDynamic() const
 {
   return m_ComponentFlags.IsSet(ezObjectFlags::Dynamic);
 }

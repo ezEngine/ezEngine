@@ -45,6 +45,7 @@ WorldData::WorldData(ezWorldDesc& desc)
   , m_WriteThreadID((ezThreadID)0)
   , m_iWriteCounter(0)
   , m_bSimulateWorld(true)
+  , m_bReportErrorWhenStaticObjectMoves(desc.m_bReportErrorWhenStaticObjectMoves)
   , m_ReadMarker(*this)
   , m_WriteMarker(*this)
   , m_pUserData(nullptr)
@@ -134,7 +135,7 @@ ezGameObject::TransformationData* WorldData::CreateTransformationData(bool bDyna
 {
   Hierarchy& hierarchy = m_Hierarchies[GetHierarchyType(bDynamic)];
 
-  if (uiHierarchyLevel >= hierarchy.m_Data.GetCount())
+  while (uiHierarchyLevel >= hierarchy.m_Data.GetCount())
   {
     hierarchy.m_Data.PushBack(EZ_NEW(&m_Allocator, Hierarchy::DataBlockArray, &m_Allocator));
   }

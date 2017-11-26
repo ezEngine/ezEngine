@@ -56,9 +56,9 @@ void ezPxDynamicActorComponentManager::UpdateDynamicActors(ezArrayPtr<const PxAc
 
     ezGameObject* pObject = pComponent->GetOwner();
 
-    /// \todo Apparently this can happen when you delete an entity!
+    // this can happen when the object was deleted in the meantime
     if (pObject == nullptr)
-      return;
+      continue;
 
     // preserve scaling
     ezSimdTransform t = ezPxConversionUtils::ToSimdTransform(activeTransform.actor2World);
@@ -83,7 +83,7 @@ void ezPxDynamicActorComponentManager::UpdateMaxDepenetrationVelocity(float fMax
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 1, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -102,7 +102,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 1)
   }
   EZ_END_MESSAGEHANDLERS
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_COMPONENT_TYPE
 
 ezPxDynamicActorComponent::ezPxDynamicActorComponent()
   : m_UserData(this)
@@ -180,6 +180,7 @@ void ezPxDynamicActorComponent::SetDisableGravity(bool b)
     EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
 
     m_pActor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, m_bDisableGravity);
+    m_pActor->wakeUp();
   }
 }
 
@@ -280,7 +281,8 @@ void ezPxDynamicActorComponent::Deinitialize()
 
   if (m_pActor)
   {
-    EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
+    ezPhysXWorldModule* pModule = GetWorld()->GetModule<ezPhysXWorldModule>();
+    EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
 
     m_pActor->release();
     m_pActor = nullptr;

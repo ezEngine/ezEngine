@@ -29,7 +29,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProjectileSurfaceInteraction, ezNoBase, 3, ezRT
 }
 EZ_END_STATIC_REFLECTED_TYPE
 
-EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 4)
+EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 4, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {

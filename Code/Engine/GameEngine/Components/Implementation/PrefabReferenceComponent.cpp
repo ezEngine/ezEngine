@@ -2,7 +2,7 @@
 #include <GameEngine/Components/PrefabReferenceComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezPrefabReferenceComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezPrefabReferenceComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {

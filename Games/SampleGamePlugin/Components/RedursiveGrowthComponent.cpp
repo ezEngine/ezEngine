@@ -3,7 +3,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
-EZ_BEGIN_COMPONENT_TYPE(RecursiveGrowthComponent, 2)
+EZ_BEGIN_COMPONENT_TYPE(RecursiveGrowthComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -60,7 +60,7 @@ void RecursiveGrowthComponent::DeserializeComponent(ezWorldReader& stream)
 
 void RecursiveGrowthComponent::OnSimulationStarted()
 {
-  RecursiveGrowthComponentManager* pManager = GetWorld()->GetOrCreateComponentManager<RecursiveGrowthComponentManager>();
+  RecursiveGrowthComponentManager* pManager = GetManager();
 
   EZ_LOG_BLOCK("RecursiveGrowthComponent::OnSimulationStarted");
 

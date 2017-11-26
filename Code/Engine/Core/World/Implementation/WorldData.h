@@ -160,6 +160,7 @@ namespace ezInternal
     mutable ezAtomicInteger32 m_iReadCounter;
 
     bool m_bSimulateWorld;
+    bool m_bReportErrorWhenStaticObjectMoves;
 
   public:
     class ReadMarker

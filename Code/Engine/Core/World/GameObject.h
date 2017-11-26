@@ -18,9 +18,6 @@ struct ezDeleteObjectMessage;
 /// object handle instead.
 /// \see ezWorld
 /// \see ezComponent
-///
-/// \todo Implement Clone
-/// \todo Implement switching dynamic and static
 
 class EZ_CORE_DLL ezGameObject
 {
@@ -94,10 +91,12 @@ public:
   /// \brief Returns a handle to this object.
   ezGameObjectHandle GetHandle() const;
 
-  //ezGameObjectHandle Clone() const;
+  /// \brief Makes this object dynamic. Dynamic objects might move during runtime.
+  void MakeDynamic();
 
-  //void MakeDynamic();
-  //void MakeStatic();
+  /// \brief Makes this object static. Static objects don't move during runtime.
+  void MakeStatic();
+
   /// \brief Returns whether this object is dynamic.
   bool IsDynamic() const;
 
@@ -323,9 +322,16 @@ private:
   void Reflection_AddChild(ezGameObject* pChild);
   void Reflection_DetachChild(ezGameObject* pChild);
   ezHybridArray<ezGameObject*, 8> Reflection_GetChildren() const;
-  void Reflection_AddComponent(ezComponent* pComponent) { AddComponent(pComponent); }
-  void Reflection_RemoveComponent(ezComponent* pComponent) { /*Do nothing, Component is automatically removed when deleted.*/ }
-  const ezHybridArray<ezComponent*, NUM_INPLACE_COMPONENTS>& Reflection_GetComponents() const { return m_Components; }
+  void Reflection_AddComponent(ezComponent* pComponent);
+  void Reflection_RemoveComponent(ezComponent* pComponent);
+  const ezHybridArray<ezComponent*, NUM_INPLACE_COMPONENTS>& Reflection_GetComponents() const;
+
+  ezObjectMode::Enum Reflection_GetMode() const;
+  void Reflection_SetMode(ezObjectMode::Enum mode);
+
+  bool DetermineDynamicMode(ezComponent* pComponentToIgnore = nullptr) const;
+
+  void UpdateGlobalTransformAndBoundsRecursive();
 
   void OnDeleteObject(ezDeleteObjectMessage& msg);
 

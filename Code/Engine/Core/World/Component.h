@@ -27,9 +27,6 @@ protected:
   virtual ~ezComponent();
 
 public:
-  /// \brief Returns whether this component is dynamic and thus can only be attached to dynamic game objects.
-  bool IsDynamic() const;
-
   /// \brief Sets the active state of the component. Note that it is up to the manager if he differentiates between active and inactive components.
   void SetActive(bool bActive);
 
@@ -109,7 +106,11 @@ protected:
   friend class ezGameObject;
   friend class ezComponentManagerBase;
 
+  /// \brief Returns whether this component is dynamic and thus can only be attached to dynamic game objects.
+  bool IsDynamic() const;
+
   virtual ezUInt16 GetTypeId() const = 0;
+  virtual ezComponentMode::Enum GetMode() const = 0;
 
   /// \brief Can be overridden for basic initialization that depends on a valid hierarchy and position.
   ///

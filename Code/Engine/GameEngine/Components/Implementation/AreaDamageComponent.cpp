@@ -6,7 +6,7 @@
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <GameEngine/Messages/DamageMessage.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezAreaDamageComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezAreaDamageComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -63,7 +63,7 @@ void ezAreaDamageComponent::ApplyAreaDamage()
         const ezVec3 vDistToTarget = vTargetPos - vOwnPosition;
         ezVec3 vDirToTarget = vDistToTarget;
         const float fDistance = vDirToTarget.GetLength();
-        
+
         if (fDistance >= 0.01f)
         {
           vDirToTarget /= fDistance;

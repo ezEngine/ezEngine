@@ -95,7 +95,7 @@ void ezCameraComponentManager::OnViewCreated(ezView* pView)
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 5)
+EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 5, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {

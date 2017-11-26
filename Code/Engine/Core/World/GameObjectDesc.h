@@ -13,7 +13,7 @@ struct ezGameObjectDesc
   ezGameObjectDesc()
   {
     m_bActive = true;
-    m_bDynamic = true;
+    m_bDynamic = false;
 
     m_LocalPosition.SetZero();
     m_LocalRotation.SetIdentity();

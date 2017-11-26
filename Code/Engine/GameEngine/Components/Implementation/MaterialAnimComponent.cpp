@@ -5,7 +5,7 @@
 #include <GameEngine/Curves/ColorGradientResource.h>
 #include <GameEngine/Curves/Curve1DResource.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezMaterialAnimComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezMaterialAnimComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {

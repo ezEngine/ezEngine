@@ -36,7 +36,7 @@ namespace
     }
   };
 
-  EZ_BEGIN_COMPONENT_TYPE(TestBoundsComponent, 1)
+  EZ_BEGIN_COMPONENT_TYPE(TestBoundsComponent, 1, ezComponentMode::Static)
   {
     EZ_BEGIN_MESSAGEHANDLERS
     {

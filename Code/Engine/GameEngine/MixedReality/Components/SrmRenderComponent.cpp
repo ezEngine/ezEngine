@@ -9,7 +9,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezSrmRenderComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezSrmRenderComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {

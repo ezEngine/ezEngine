@@ -7,7 +7,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/Graphics/Geometry.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezSkyBoxComponent, 4)
+EZ_BEGIN_COMPONENT_TYPE(ezSkyBoxComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {

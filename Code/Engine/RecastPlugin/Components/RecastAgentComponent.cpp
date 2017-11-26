@@ -11,7 +11,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezRcAgentComponent, 2)
+EZ_BEGIN_COMPONENT_TYPE(ezRcAgentComponent, 2, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -315,7 +315,7 @@ void ezRcAgentComponent::ApplySteering(const ezVec3& vDirection, float fSpeed)
     const float fTimeDiff = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
     const ezVec3 vOwnerPos = GetOwner()->GetGlobalPosition();
     const ezVec3 vDesiredNewPosition = vOwnerPos + vDirection * fSpeed * fTimeDiff;
-    
+
     GetOwner()->SetGlobalPosition(vDesiredNewPosition);
   }
 }

@@ -8,7 +8,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezParticleFinisherComponent, 1)
+EZ_BEGIN_COMPONENT_TYPE(ezParticleFinisherComponent, 1, ezComponentMode::Static)
 {
   //EZ_BEGIN_PROPERTIES
   //{

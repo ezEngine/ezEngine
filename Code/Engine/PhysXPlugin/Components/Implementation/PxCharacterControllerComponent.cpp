@@ -49,7 +49,7 @@ void ezPxCharacterControllerComponentManager::Update(const ezWorldModule::Update
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 5)
+EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 5, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -271,7 +271,7 @@ void ezPxCharacterControllerComponent::Update()
 
   vNewVelocity.z = m_fVelocityUp;
 
-  
+
   {
     const ezVec3 vMoveDiff = vNewVelocity * tDiff;
     RawMove(vMoveDiff);

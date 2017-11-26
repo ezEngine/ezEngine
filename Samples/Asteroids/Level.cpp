@@ -145,6 +145,7 @@ void Level::CreatePlayerShip(ezInt32 iPlayer)
   // then attach a ship component to that object
 
   ezGameObjectDesc desc;
+  desc.m_bDynamic = true;
   desc.m_LocalPosition.x = -15 + iPlayer * 5.0f;
 
   ezGameObject* pGameObject = nullptr;
@@ -179,6 +180,7 @@ void Level::CreatePlayerShip(ezInt32 iPlayer)
 void Level::CreateAsteroid()
 {
   ezGameObjectDesc desc;
+  desc.m_bDynamic = true;
   desc.m_LocalPosition.x = (((rand() % 1000) / 999.0f) * 40.0f) - 20.0f;
   desc.m_LocalPosition.y = (((rand() % 1000) / 999.0f) * 40.0f) - 20.0f;
 

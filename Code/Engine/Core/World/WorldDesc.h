@@ -15,6 +15,7 @@ struct ezWorldDesc
   {
     m_sName.Assign(szWorldName);
     m_uiRandomNumberGeneratorSeed = 0;
+    m_bReportErrorWhenStaticObjectMoves = true;
   }
 
   ezHashedString m_sName;
@@ -22,4 +23,6 @@ struct ezWorldDesc
 
   ezUniquePtr<ezSpatialSystem> m_pSpatialSystem;
   ezUniquePtr<ezCoordinateSystemProvider> m_pCoordinateSystemProvider;
+
+  bool m_bReportErrorWhenStaticObjectMoves;
 };

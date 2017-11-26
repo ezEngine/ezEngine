@@ -35,6 +35,7 @@ ezComponentHandle ezComponentManagerBase::CreateComponent(ezGameObject* pOwnerOb
 
   pComponent->m_pManager = this;
   pComponent->m_InternalId = newId;
+  pComponent->m_ComponentFlags.AddOrRemove(ezObjectFlags::Dynamic, pComponent->GetMode() == ezComponentMode::Dynamic);
 
   InitializeComponent(pOwnerObject, pComponent);
 

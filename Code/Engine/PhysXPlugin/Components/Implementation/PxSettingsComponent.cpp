@@ -3,7 +3,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezPxSettingsComponent, 3)
+EZ_BEGIN_COMPONENT_TYPE(ezPxSettingsComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
