@@ -11,7 +11,7 @@
 
 # disables auto-linking to qtmain (new in Qt 5.1)
 if (POLICY CMP0020)
-  cmake_policy(SET CMP0020 OLD)
+  cmake_policy(SET CMP0020 NEW)
 endif ()
 
 if (POLICY CMP0022)
@@ -153,7 +153,11 @@ if (BUILDSYSTEM_MSVC)
   message (STATUS "Compiler is MSVC (BUILDSYSTEM_COMPILER_MSVC)")
   set (BUILDSYSTEM_COMPILER_MSVC ON)
 
-  if (MSVC14) # nobody knows what happened to MSVC13
+  if (MSVC15)
+    message (STATUS "Compiler is Visual Studio 2017 (BUILDSYSTEM_COMPILER_MSVC_150)")
+    set (BUILDSYSTEM_COMPILER_MSVC_150 ON)
+    set (COMPILER_POSTFIX "2017")
+  elseif (MSVC14) # nobody knows what happened to MSVC13
     message (STATUS "Compiler is Visual Studio 2015 (BUILDSYSTEM_COMPILER_MSVC_140)")
     set (BUILDSYSTEM_COMPILER_MSVC_140 ON)
     set (COMPILER_POSTFIX "2015")
