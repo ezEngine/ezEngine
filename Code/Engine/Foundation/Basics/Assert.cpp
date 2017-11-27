@@ -4,7 +4,15 @@
 
 bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
-  printf("%s(%u): Expression '%s' failed: %s\n", szSourceFile, uiLine, szExpression, szAssertMsg);
+  char szTemp[1024 * 4] = "";
+  ezStringUtils::snprintf(szTemp, EZ_ARRAY_SIZE(szTemp), "\n\n *** Assertion ***\n\n    Expression: \"%s\"\n    Function: \"%s\"\n    File: \"%s\"\n    Line: %u\n    Message: \"%s\"\n\n", szExpression, szFunction, szSourceFile, uiLine, szAssertMsg);
+  szTemp[1024 * 4 - 1] = '\0';
+
+  printf(szTemp);
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  OutputDebugStringW(ezStringWChar(szTemp).GetData());
+#endif
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   if (IsDebuggerPresent())
@@ -39,17 +47,12 @@ bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const cha
     }
 
   #else
-    char szTemp[1024 * 4] = "";
-    ezStringUtils::snprintf(szTemp, EZ_ARRAY_SIZE(szTemp), " *** Assertion ***\n\nExpression: \"%s\"\nFunction: \"%s\"\nFile: \"%s\"\nLine: %u\nMessage: \"%s\"", szExpression, szFunction, szSourceFile, uiLine, szAssertMsg);
-    szTemp[1024 * 4 - 1] = '\0';
+
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
     MessageBox(nullptr, szTemp, "Assertion", MB_ICONERROR);
 #endif
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-    OutputDebugStringW(ezStringWChar(szTemp).GetData());
-#endif
   #endif
 
 #endif
