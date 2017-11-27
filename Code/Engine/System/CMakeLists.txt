@@ -15,7 +15,7 @@ SET (LINK_LIBRARIES
   Core
 )
 
-if (BUILDSYSTEM_COMPILER_MSVC_110 OR BUILDSYSTEM_COMPILER_MSVC_120)
+if (BUILDSYSTEM_COMPILER_MSVC_120)
 
   if (BUILDSYSTEM_PLATFORM_64BIT)
   
@@ -35,32 +35,6 @@ if (BUILDSYSTEM_COMPILER_MSVC_110 OR BUILDSYSTEM_COMPILER_MSVC_120)
       debug ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2012x32/sfml-window-s-d.lib
       optimized ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2012x32/sfml-system-s.lib
       optimized ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2012x32/sfml-window-s.lib
-    )
-
-  endif()
-
-endif()
-
-if (BUILDSYSTEM_COMPILER_MSVC_100)
-
-  if (BUILDSYSTEM_PLATFORM_64BIT)
-  
-    SET (LINK_LIBRARIES
-      ${LINK_LIBRARIES}
-      debug ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2010x64/sfml-system-s-d.lib
-      debug ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2010x64/sfml-window-s-d.lib
-      optimized ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2010x64/sfml-system-s.lib
-      optimized ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2010x64/sfml-window-s.lib
-    )
-
-  else()
-
-    SET (LINK_LIBRARIES
-      ${LINK_LIBRARIES}
-      debug ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2010x32/sfml-system-s-d.lib
-      debug ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2010x32/sfml-window-s-d.lib
-      optimized ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2010x32/sfml-system-s.lib
-      optimized ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2010x32/sfml-window-s.lib
     )
 
   endif()
