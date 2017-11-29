@@ -408,14 +408,29 @@ void ezQtPropertyAnimAssetDocumentWindow::onDeleteSelectedItems()
     pHistory->AddCommand(cmd);
   }
 
+  // delete the tracks with the highest index first, otherwise the lower indices become invalid
+  ezHybridArray<ezInt32, 16> sortedTrackIDs;
+
   for (ezInt32 iTrack : m_MapSelectionToTrack)
   {
+    sortedTrackIDs.PushBack(iTrack);
+  }
+
+  sortedTrackIDs.Sort();
+
+  for (ezUInt32 i = sortedTrackIDs.GetCount(); i > 0; --i)
+  {
+    const ezInt32 iTrack = sortedTrackIDs[i - 1];
+
     const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrack);
 
-    ezRemoveObjectCommand cmd;
-    cmd.m_Object = trackGuid.Get<ezUuid>();
+    if (trackGuid.IsValid())
+    {
+      ezRemoveObjectCommand cmd;
+      cmd.m_Object = trackGuid.Get<ezUuid>();
 
-    pHistory->AddCommand(cmd);
+      pHistory->AddCommand(cmd);
+    }
   }
 
   m_MapSelectionToTrack.Clear();

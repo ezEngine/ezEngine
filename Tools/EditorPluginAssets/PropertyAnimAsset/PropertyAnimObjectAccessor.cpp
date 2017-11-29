@@ -33,7 +33,7 @@ ezStatus ezPropertyAnimObjectAccessor::SetValue(const ezDocumentObject* pObject,
     ezVariantType::Enum type = pProp->GetSpecificType()->GetVariantType();
     if (type >= ezVariantType::Bool && type <= ezVariantType::Double)
     {
-      return SetCurveCp(pObject, pProp, index, ezPropertyAnimTarget::Number, newValue.ConvertTo<double>());
+      return SetCurveCp(pObject, pProp, index, ezPropertyAnimTarget::Number, oldValue.ConvertTo<double>(), newValue.ConvertTo<double>());
     }
     else if (type >= ezVariantType::Vector2 && type <= ezVariantType::Vector4U)
     {
@@ -44,7 +44,7 @@ ezStatus ezPropertyAnimObjectAccessor::SetValue(const ezDocumentObject* pObject,
         const double fValue = ezReflectionUtils::GetComponent(newValue, c);
         if (ezMath::IsEqual(fOldValue, fValue, ezMath::BasicType<double>::SmallEpsilon()))
           continue;
-        ezStatus res = SetCurveCp(pObject, pProp, index, static_cast<ezPropertyAnimTarget::Enum>((int)ezPropertyAnimTarget::VectorX + c), fValue);
+        ezStatus res = SetCurveCp(pObject, pProp, index, static_cast<ezPropertyAnimTarget::Enum>((int)ezPropertyAnimTarget::VectorX + c), fOldValue, fValue);
         if (res.Failed())
           return res;
       }
@@ -145,14 +145,14 @@ bool ezPropertyAnimObjectAccessor::IsTemporary(const ezDocumentObject* pParent, 
 }
 
 
-ezStatus ezPropertyAnimObjectAccessor::SetCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target, double fValue)
+ezStatus ezPropertyAnimObjectAccessor::SetCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target, double fOldValue, double fNewValue)
 {
-  ezUuid track = FindOrAddTrack(pObject, pProp, index, target);
-  SetOrInsertCurveCp(track, fValue);
+  ezUuid track = FindOrAddTrack(pObject, pProp, index, target, fOldValue);
+  SetOrInsertCurveCp(track, fNewValue);
   return ezStatus(EZ_SUCCESS);
 }
 
-ezUuid ezPropertyAnimObjectAccessor::FindOrAddTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target)
+ezUuid ezPropertyAnimObjectAccessor::FindOrAddTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target, double fOldValue)
 {
   ezUuid track = m_pDocument->FindTrack(pObject, pProp, index, target);
   if (!track.IsValid())
@@ -164,6 +164,10 @@ ezUuid ezPropertyAnimObjectAccessor::FindOrAddTrack(const ezDocumentObject* pObj
       pHistory->SuspendTemporaryTransaction();
     }
     track = m_pDocument->CreateTrack(pObject, pProp, index, target);
+
+    // add a control point at the start of the curve with the original value
+    m_pDocument->InsertCurveCpAt(track, 0, fOldValue);
+
     if (bWasTemporaryTransaction)
     {
       pHistory->ResumeTemporaryTransaction();
