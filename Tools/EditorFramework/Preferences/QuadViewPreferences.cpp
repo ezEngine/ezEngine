@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorFramework/Preferences/QuadViewPreferences.h>
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 #include <Foundation/Serialization/GraphPatch.h>
@@ -48,7 +48,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezQuadViewPreferencesUser, 1, ezRTTIDefaultAlloc
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezQuadViewPreferencesUser::ezQuadViewPreferencesUser() : ezPreferences(Domain::Document, "Scene")
+ezQuadViewPreferencesUser::ezQuadViewPreferencesUser() : ezPreferences(Domain::Document, "View")
 {
   m_bQuadView = false;
 

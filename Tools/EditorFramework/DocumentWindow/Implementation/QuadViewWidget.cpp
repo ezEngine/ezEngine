@@ -65,7 +65,7 @@ void ezQtQuadViewWidget::LoadViewConfig(ezEngineViewConfig& cfg, ezEngineViewPre
 void ezQtQuadViewWidget::SaveViewConfigs() const
 {
   ezQuadViewPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezQuadViewPreferencesUser>(m_pDocument);
-  pPreferences->m_bQuadView = m_pWindow->GetViewWidgets().GetCount() == 4;
+  pPreferences->m_bQuadView = m_ActiveMainViews.GetCount() == 4;
 
   SaveViewConfig(m_ViewConfigSingle, pPreferences->m_ViewSingle);
   SaveViewConfig(m_ViewConfigQuad[0], pPreferences->m_ViewQuad0);
