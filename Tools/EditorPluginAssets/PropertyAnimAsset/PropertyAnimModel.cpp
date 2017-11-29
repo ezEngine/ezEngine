@@ -45,6 +45,9 @@ QVariant ezQtPropertyAnimModel::data(const QModelIndex& index, int role) const
 
   case UserRoles::TrackIdx:
     return pItem->m_iTrackIdx;
+
+  case UserRoles::Path:
+    return QString(pItem->m_sPathToItem.GetData());
   }
 
   return QVariant();
@@ -259,6 +262,17 @@ void ezQtPropertyAnimModel::BuildMapping(ezInt32 iToUse, ezInt32 iTrackIdx, ezPr
     }
 
     pThisEntry->m_sDisplay = name;
+
+    if (iParentEntry >= 0)
+    {
+      ezStringBuilder tmp = m_AllEntries[iToUse][iParentEntry].m_sPathToItem;
+      tmp.AppendPath(name);
+      pThisEntry->m_sPathToItem = tmp;
+    }
+    else
+    {
+      pThisEntry->m_sPathToItem = name;
+    }
   }
 }
 

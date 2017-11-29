@@ -60,16 +60,6 @@ void ezQtTimeScrubberWidget::paintEvent(QPaintEvent* event)
   QPen linePen;
   linePen.setCosmetic(true);
 
-  // Scrubber line
-  {
-    linePen.setColor(palette().highlight().color());
-    linePen.setWidth(m_bDragging ? 3 : 1);
-    p.setPen(linePen);
-
-    const int posX = (int)(rect().width() * m_fNormScrubberPosition);
-    p.drawLine(QLine(posX, 0, posX, rect().height()));
-  }
-
   const double fMaxDuration = m_Duration.GetSeconds();
   double fFineGridDensity = 0.01;
   double fRoughGridDensity = 0.01;
@@ -136,6 +126,16 @@ void ezQtTimeScrubberWidget::paintEvent(QPaintEvent* event)
 
       p.drawText(textRect, tmp.GetData(), textOpt);
     }
+  }
+
+  // Scrubber line
+  {
+    linePen.setColor(palette().highlight().color());
+    linePen.setWidth(m_bDragging ? 3 : 1);
+    p.setPen(linePen);
+
+    const int posX = (int)(rect().width() * m_fNormScrubberPosition);
+    p.drawLine(QLine(posX, 0, posX, rect().height()));
   }
 }
 

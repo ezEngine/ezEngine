@@ -28,14 +28,24 @@ class ezQtPropertyAnimAssetTreeView : public QTreeView
 
 public:
   ezQtPropertyAnimAssetTreeView(QWidget* parent);
+  void initialize();
 
 signals:
   void DeleteSelectedItemsEvent();
   void FrameSelectedItemsEvent();
 
+protected slots:
+  void onBeforeModelReset();
+  void onAfterModelReset();
+
 protected:
   virtual void keyPressEvent(QKeyEvent* e) override;
   virtual void contextMenuEvent(QContextMenuEvent *event) override;
+  void storeExpandState(const QModelIndex& parent);
+  void restoreExpandState(const QModelIndex& parent, QModelIndexList& newSelection);
+
+  QSet<QString> m_notExpandedState;
+  QSet<QString> m_selectedItems;
 };
 
 class ezQtPropertyAnimAssetDocumentWindow : public ezQtGameObjectDocumentWindow, public ezGameObjectGizmoInterface

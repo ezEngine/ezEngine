@@ -374,7 +374,7 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
   m_contextMenuScenePos = scenePos;
 
   QMenu m(this);
-  m.addAction("Add Point", this, SLOT(onAddPoint()));
+  m.setDefaultAction(m.addAction("Add Point", this, SLOT(onAddPoint())));
 
   const auto& selection = CurveEdit->GetSelection();
 
@@ -414,7 +414,7 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
   cm->addAction("Loop: Adjust Last Point", this, [this]() { MakeRepeatable(true); });
   cm->addAction("Loop: Adjust First Point", this, [this]() { MakeRepeatable(false); });
 
-  m.addAction("Frame", this, [this]() { FrameCurve(); }, QKeySequence(Qt::Key_F));
+  m.addAction("Frame", this, [this]() { FrameCurve(); }, QKeySequence(Qt::ControlModifier | Qt::Key_F));
 
   m.exec(pos);
 }
@@ -505,9 +505,6 @@ bool ezQtCurve1DEditorWidget::PickCurveAt(double x, double y, double fMaxDistanc
 
     double minVal, maxVal;
     CurveData.QueryExtents(minVal, maxVal);
-
-    if (x < minVal || x > maxVal)
-      continue;
 
     const double val = CurveData.Evaluate(x);
 

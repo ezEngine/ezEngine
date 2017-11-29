@@ -117,7 +117,8 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
   {
     m_pPropertiesModel = new ezQtPropertyAnimModel(GetPropertyAnimDocument(), this);
     m_pPropertyTreeView->setModel(m_pPropertiesModel);
-    m_pPropertyTreeView->expandToDepth(1);
+    m_pPropertyTreeView->expandToDepth(2);
+    m_pPropertyTreeView->initialize();
   }
 
   // Selection Model
@@ -169,7 +170,8 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     addToolBar(Qt::ToolBarArea::BottomToolBarArea, m_pScrubberToolbar);
   }
 
-  pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
+  // this would show the document properties
+  //pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
 
   // Curve editor events
   {
@@ -541,14 +543,15 @@ void ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler(const ezDocument
 
 void ezQtPropertyAnimAssetDocumentWindow::SelectionEventHandler(const ezSelectionManagerEvent& e)
 {
-  if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
-  {
-    // delayed execution
-    QTimer::singleShot(1, [this]()
-    {
-      GetDocument()->GetSelectionManager()->SetSelection(GetPropertyAnimDocument()->GetPropertyObject());
-    });
-  }
+  // this would show the document properties
+  //if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
+  //{
+  //  // delayed execution
+  //  QTimer::singleShot(1, [this]()
+  //  {
+  //    GetDocument()->GetSelectionManager()->SetSelection(GetPropertyAnimDocument()->GetPropertyObject());
+  //  });
+  //}
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::UpdateCurveEditor()
@@ -1089,71 +1092,93 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientEndOperation(bool commit)
     history->CancelTemporaryCommands();
 }
 
-/*
-void ezQtPropertyAnimAssetDocumentWindow::onGradientNormalizeRange()
-{
-  if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("This will adjust the positions of all control points, such that the minimum is at 0 and the maximum at 1.\n\nContinue?", QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::Yes) != QMessageBox::StandardButton::Yes)
-    return;
-
-  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
-
-  ezColorGradient GradientData;
-  pDoc->GetProperties()->FillGradientData(GradientData);
-
-  float minX, maxX;
-  if (!GradientData.GetExtents(minX, maxX))
-    return;
-
-  if ((minX == 0 && maxX == 1) || (minX >= maxX))
-    return;
-
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
-
-  const float rangeNorm = 1.0f / (maxX - minX);
-
-  history->StartTransaction("Normalize Gradient Range");
-
-  ezUInt32 numRgb, numAlpha, numInt;
-  GradientData.GetNumControlPoints(numRgb, numAlpha, numInt);
-
-  for (ezUInt32 i = 0; i < numRgb; ++i)
-  {
-    float x = GradientData.GetColorControlPoint(i).m_PosX;
-    x -= minX;
-    x *= rangeNorm;
-
-    MoveGradientCP(i, x, "ColorCPs");
-  }
-
-  for (ezUInt32 i = 0; i < numAlpha; ++i)
-  {
-    float x = GradientData.GetAlphaControlPoint(i).m_PosX;
-    x -= minX;
-    x *= rangeNorm;
-
-    MoveGradientCP(i, x, "AlphaCPs");
-  }
-
-  for (ezUInt32 i = 0; i < numInt; ++i)
-  {
-    float x = GradientData.GetIntensityControlPoint(i).m_PosX;
-    x -= minX;
-    x *= rangeNorm;
-
-    MoveGradientCP(i, x, "IntensityCPs");
-  }
-
-  history->FinishTransaction();
-
-  m_pGradientEditor->FrameGradient();
-}
-*/
-
+//////////////////////////////////////////////////////////////////////////
 
 ezQtPropertyAnimAssetTreeView::ezQtPropertyAnimAssetTreeView(QWidget* parent)
   : QTreeView(parent)
 {
   setContextMenuPolicy(Qt::ContextMenuPolicy::DefaultContextMenu);
+}
+
+void ezQtPropertyAnimAssetTreeView::initialize()
+{
+  connect(model(), &QAbstractItemModel::modelAboutToBeReset, this, &ezQtPropertyAnimAssetTreeView::onBeforeModelReset);
+  connect(model(), &QAbstractItemModel::modelReset, this, &ezQtPropertyAnimAssetTreeView::onAfterModelReset);
+}
+
+void ezQtPropertyAnimAssetTreeView::onBeforeModelReset()
+{
+  m_notExpandedState.clear();
+  m_selectedItems.clear();
+
+  storeExpandState(QModelIndex());
+
+  const QAbstractItemModel* pModel = model();
+
+  for (QModelIndex idx : selectionModel()->selectedRows())
+  {
+    QString path = pModel->data(idx, ezQtPropertyAnimModel::UserRoles::Path).toString();
+    m_selectedItems.insert(path);
+  }
+}
+
+void ezQtPropertyAnimAssetTreeView::storeExpandState(const QModelIndex& parent)
+{
+  const QAbstractItemModel* pModel = model();
+
+  const ezUInt32 numRows = pModel->rowCount(parent);
+  for (ezUInt32 row = 0; row < numRows; ++row)
+  {
+    QModelIndex idx = pModel->index(row, 0, parent);
+
+    const bool expanded = isExpanded(idx);
+
+    QString path = pModel->data(idx, ezQtPropertyAnimModel::UserRoles::Path).toString();
+
+    if (!expanded)
+      m_notExpandedState.insert(path);
+
+    storeExpandState(idx);
+  }
+}
+
+void ezQtPropertyAnimAssetTreeView::restoreExpandState(const QModelIndex& parent, QModelIndexList& newSelection)
+{
+  const QAbstractItemModel* pModel = model();
+
+  const ezUInt32 numRows = pModel->rowCount(parent);
+  for (ezUInt32 row = 0; row < numRows; ++row)
+  {
+    QModelIndex idx = pModel->index(row, 0, parent);
+
+    QString path = pModel->data(idx, ezQtPropertyAnimModel::UserRoles::Path).toString();
+
+    const bool notExpanded = m_notExpandedState.contains(path);
+
+    if (!notExpanded)
+      setExpanded(idx, true);
+
+    if (m_selectedItems.contains(path))
+      newSelection.append(idx);
+
+    restoreExpandState(idx, newSelection);
+  }
+}
+
+void ezQtPropertyAnimAssetTreeView::onAfterModelReset()
+{
+  QModelIndexList newSelection;
+  restoreExpandState(QModelIndex(), newSelection);
+
+  // TODO: this doesn't work right
+  QTimer::singleShot(100, this, [this, newSelection]()
+  {
+    selectionModel()->reset();
+    for (const auto& idx : newSelection)
+    {
+      selectionModel()->select(idx, QItemSelectionModel::SelectionFlag::Select | QItemSelectionModel::SelectionFlag::Rows);
+    }
+  });
 }
 
 void ezQtPropertyAnimAssetTreeView::keyPressEvent(QKeyEvent* e)

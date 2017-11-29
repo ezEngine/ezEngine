@@ -14,6 +14,7 @@ class ezPropertyAnimationTrack;
 
 struct ezQtPropertyAnimModelTreeEntry
 {
+  ezString m_sPathToItem;
   ezInt32 m_iParent = -1;
   ezUInt16 m_uiOwnRowIndex = 0;
   ezPropertyAnimationTrack* m_pTrack = nullptr;
@@ -46,6 +47,7 @@ public:
     TrackPtr = Qt::UserRole + 1,
     TreeItem = Qt::UserRole + 2,
     TrackIdx = Qt::UserRole + 3,
+    Path = Qt::UserRole + 4,
   };
 
   const ezDeque<ezQtPropertyAnimModelTreeEntry>& GetAllEntries() const { return m_AllEntries[m_iInUse]; }

@@ -726,13 +726,13 @@ void ezQtCurveEditWidget::keyPressEvent(QKeyEvent* e)
 {
   QWidget::keyPressEvent(e);
 
+  if (e->modifiers() == Qt::ControlModifier && e->key() == Qt::Key_F)
+  {
+    FrameCurve();
+  }
+
   if (e->modifiers() == Qt::NoModifier)
   {
-    if (e->key() == Qt::Key_F)
-    {
-      FrameCurve();
-    }
-
     if (e->key() == Qt::Key_Escape)
     {
       ClearSelection();
