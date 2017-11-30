@@ -53,11 +53,11 @@ public:
   const ezDeque<ezQtPropertyAnimModelTreeEntry>& GetAllEntries() const { return m_AllEntries[m_iInUse]; }
 
 private slots:
+  void onBuildMappingTriggered();
 
 public: //QAbstractItemModel interface
   virtual QVariant data(const QModelIndex& index, int role) const override;
   virtual Qt::ItemFlags flags(const QModelIndex& index) const override;
-  //virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
   virtual QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
   virtual QModelIndex parent(const QModelIndex& index) const override;
   virtual int rowCount(const QModelIndex& parent = QModelIndex()) const override;
@@ -65,12 +65,13 @@ public: //QAbstractItemModel interface
 
 private:
 
-  void DocumentObjectEventHandler(const ezDocumentObjectPropertyEvent& e);
   void DocumentStructureEventHandler(const ezDocumentObjectStructureEvent& e);
+  void TriggerBuildMapping();
   void BuildMapping();
   void BuildMapping(ezInt32 iToUse);
   void BuildMapping(ezInt32 iToUse, ezInt32 iTrackIdx, ezPropertyAnimationTrack* pTrack, ezDynamicArray<ezInt32>& treeItems, ezInt32 iParentEntry, const char* szPath);
 
+  bool m_bBuildMappingQueued = false;
   ezInt32 m_iInUse = 0;
   ezDynamicArray<ezInt32> m_TopLevelEntries[2];
   ezDeque<ezQtPropertyAnimModelTreeEntry> m_AllEntries[2];

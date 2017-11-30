@@ -1106,22 +1106,6 @@ void ezQtPropertyAnimAssetTreeView::initialize()
   connect(model(), &QAbstractItemModel::modelReset, this, &ezQtPropertyAnimAssetTreeView::onAfterModelReset);
 }
 
-void ezQtPropertyAnimAssetTreeView::onBeforeModelReset()
-{
-  m_notExpandedState.clear();
-  m_selectedItems.clear();
-
-  storeExpandState(QModelIndex());
-
-  const QAbstractItemModel* pModel = model();
-
-  for (QModelIndex idx : selectionModel()->selectedRows())
-  {
-    QString path = pModel->data(idx, ezQtPropertyAnimModel::UserRoles::Path).toString();
-    m_selectedItems.insert(path);
-  }
-}
-
 void ezQtPropertyAnimAssetTreeView::storeExpandState(const QModelIndex& parent)
 {
   const QAbstractItemModel* pModel = model();
@@ -1165,15 +1149,32 @@ void ezQtPropertyAnimAssetTreeView::restoreExpandState(const QModelIndex& parent
   }
 }
 
+void ezQtPropertyAnimAssetTreeView::onBeforeModelReset()
+{
+  m_notExpandedState.clear();
+  m_selectedItems.clear();
+
+  storeExpandState(QModelIndex());
+
+  const QAbstractItemModel* pModel = model();
+
+  for (QModelIndex idx : selectionModel()->selectedRows())
+  {
+    QString path = pModel->data(idx, ezQtPropertyAnimModel::UserRoles::Path).toString();
+    m_selectedItems.insert(path);
+  }
+}
+
 void ezQtPropertyAnimAssetTreeView::onAfterModelReset()
 {
   QModelIndexList newSelection;
   restoreExpandState(QModelIndex(), newSelection);
 
-  // TODO: this doesn't work right
-  QTimer::singleShot(100, this, [this, newSelection]()
+  // changing the selection is not possible in onAfterModelReset, probably because the items are not yet fully valid
+  // has to be done shortly after
+  QTimer::singleShot(0, this, [this, newSelection]()
   {
-    selectionModel()->reset();
+    selectionModel()->clearSelection();
     for (const auto& idx : newSelection)
     {
       selectionModel()->select(idx, QItemSelectionModel::SelectionFlag::Select | QItemSelectionModel::SelectionFlag::Rows);

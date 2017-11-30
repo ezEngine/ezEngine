@@ -4,20 +4,19 @@
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAsset.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <QTimer>
 
 ezQtPropertyAnimModel::ezQtPropertyAnimModel(ezPropertyAnimAssetDocument* pDocument, QObject* pParent)
   : QAbstractItemModel(pParent)
   , m_pAssetDoc(pDocument)
 {
-  m_pAssetDoc->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimModel::DocumentObjectEventHandler, this));
   m_pAssetDoc->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimModel::DocumentStructureEventHandler, this));
 
-  BuildMapping();
+  TriggerBuildMapping();
 }
 
 ezQtPropertyAnimModel::~ezQtPropertyAnimModel()
 {
-  m_pAssetDoc->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimModel::DocumentObjectEventHandler, this));
   m_pAssetDoc->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimModel::DocumentStructureEventHandler, this));
 }
 
@@ -107,17 +106,6 @@ int ezQtPropertyAnimModel::columnCount(const QModelIndex& parent /*= QModelIndex
   return 1;
 }
 
-void ezQtPropertyAnimModel::DocumentObjectEventHandler(const ezDocumentObjectPropertyEvent& e)
-{
-  // TODO: do not execute this on property changes! (it's quite inefficient)
-  // only temporarily here until the property grid has been removed
-  if (e.m_sProperty == "Property" || e.m_sProperty == "ObjectPath" || e.m_sProperty == "ComponentType")
-  {
-    BuildMapping();
-  }
-}
-
-
 void ezQtPropertyAnimModel::DocumentStructureEventHandler(const ezDocumentObjectStructureEvent& e)
 {
   switch (e.m_EventType)
@@ -125,9 +113,24 @@ void ezQtPropertyAnimModel::DocumentStructureEventHandler(const ezDocumentObject
   case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
   case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
   case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
-    BuildMapping();
+    TriggerBuildMapping();
     break;
   }
+}
+
+void ezQtPropertyAnimModel::TriggerBuildMapping()
+{
+  if (m_bBuildMappingQueued)
+    return;
+
+  m_bBuildMappingQueued = true;
+  QTimer::singleShot(100, this, SLOT(onBuildMappingTriggered()));
+}
+
+void ezQtPropertyAnimModel::onBuildMappingTriggered()
+{
+  BuildMapping();
+  m_bBuildMappingQueued = false;
 }
 
 void ezQtPropertyAnimModel::BuildMapping()
@@ -218,6 +221,17 @@ void ezQtPropertyAnimModel::BuildMapping(ezInt32 iToUse, ezInt32 iTrackIdx, ezPr
     {
       sDisplayString.Set(":/TypeIcons/", name);
       pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(sDisplayString);
+    }
+
+    if (iParentEntry >= 0)
+    {
+      ezStringBuilder tmp = m_AllEntries[iToUse][iParentEntry].m_sPathToItem;
+      tmp.AppendPath(name);
+      pThisEntry->m_sPathToItem = tmp;
+    }
+    else
+    {
+      pThisEntry->m_sPathToItem = name;
     }
   }
   else
