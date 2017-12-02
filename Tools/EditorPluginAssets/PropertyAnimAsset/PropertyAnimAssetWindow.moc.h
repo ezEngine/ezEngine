@@ -80,6 +80,8 @@ private slots:
   void onPlaybackTick();
   void onPlayPauseClicked();
   void onRepeatClicked();
+  void onAdjustDurationClicked();
+  void onDurationChangedEvent(double duration);
   void onTreeItemDoubleClicked(const QModelIndex& index);
   void onFrameSelectedTracks();
 

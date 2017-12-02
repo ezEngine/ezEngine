@@ -20,10 +20,11 @@ class EZ_GUIFOUNDATION_DLL ezQtCurveEditWidget : public QWidget
 public:
   ezQtCurveEditWidget(QWidget* parent);
 
-  void SetCurves(ezCurveGroupData* pCurveEditData, double fMinCurveLength);
+  void SetCurves(ezCurveGroupData* pCurveEditData, double fMinCurveLength, bool bCurveLengthIsFixed);
   void SetGridBarWidget(ezQGridBarWidget* pGridBar) { m_pGridBar = pGridBar; }
 
   void SetScrubberPosition(double fPosition);
+  double GetMaxCurveExtent() const { return m_fMaxCurveExtent; }
 
   void FrameCurve();
 

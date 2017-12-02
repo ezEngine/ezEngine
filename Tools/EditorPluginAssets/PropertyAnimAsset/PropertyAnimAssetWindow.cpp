@@ -162,10 +162,10 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
   {
     m_pScrubberToolbar = new ezQtTimeScrubberToolbar(this);
     connect(m_pScrubberToolbar, &ezQtTimeScrubberToolbar::ScrubberPosChangedEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onScrubberPosChanged);
-
     connect(m_pScrubberToolbar, &ezQtTimeScrubberToolbar::PlayPauseEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onPlayPauseClicked);
-
     connect(m_pScrubberToolbar, &ezQtTimeScrubberToolbar::RepeatEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onRepeatClicked);
+    connect(m_pScrubberToolbar, &ezQtTimeScrubberToolbar::DurationChangedEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onDurationChangedEvent);
+    connect(m_pScrubberToolbar, &ezQtTimeScrubberToolbar::AdjustDurationEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onAdjustDurationClicked);
 
     addToolBar(Qt::ToolBarArea::BottomToolBarArea, m_pScrubberToolbar);
   }
@@ -217,8 +217,11 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   FinishWindowCreation();
 
-  // trigger initial computation of the animation length
-  pDocument->GetAnimationDurationTicks();
+  {
+    const ezUInt64 uiDuration = GetPropertyAnimDocument()->GetAnimationDurationTicks();
+    m_pScrubberToolbar->SetDuration(uiDuration, GetPropertyAnimDocument()->GetProperties()->m_uiFramesPerSecond);
+    UpdateCurveEditor();
+  }
 }
 
 ezQtPropertyAnimAssetDocumentWindow::~ezQtPropertyAnimAssetDocumentWindow()
@@ -294,9 +297,9 @@ void ezQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler(const ez
 {
   if (e.m_Type == ezPropertyAnimAssetDocumentEvent::Type::AnimationLengthChanged)
   {
-    const ezInt64 iDuration = e.m_pDocument->GetAnimationDurationTicks();
+    const ezUInt64 uiDuration = e.m_pDocument->GetAnimationDurationTicks();
 
-    m_pScrubberToolbar->SetDuration(iDuration, e.m_pDocument->GetProperties()->m_uiFramesPerSecond);
+    m_pScrubberToolbar->SetDuration(uiDuration, e.m_pDocument->GetProperties()->m_uiFramesPerSecond);
     UpdateCurveEditor();
   }
   else if (e.m_Type == ezPropertyAnimAssetDocumentEvent::Type::ScrubberPositionChanged)
@@ -462,6 +465,16 @@ void ezQtPropertyAnimAssetDocumentWindow::onRepeatClicked()
   GetPropertyAnimDocument()->SetRepeatAnimation(!GetPropertyAnimDocument()->GetRepeatAnimation());
 }
 
+void ezQtPropertyAnimAssetDocumentWindow::onAdjustDurationClicked()
+{
+  GetPropertyAnimDocument()->AdjustDuration();
+}
+
+void ezQtPropertyAnimAssetDocumentWindow::onDurationChangedEvent(double duration)
+{
+  GetPropertyAnimDocument()->SetAnimationDurationTicks((ezUInt64)(duration * 4800.0));
+}
+
 void ezQtPropertyAnimAssetDocumentWindow::onTreeItemDoubleClicked(const QModelIndex& index)
 {
   ezQtPropertyAnimModelTreeEntry* pTreeItem = reinterpret_cast<ezQtPropertyAnimModelTreeEntry*>(m_pPropertiesModel->data(index, ezQtPropertyAnimModel::UserRoles::TreeItem).value<void*>());
@@ -557,7 +570,7 @@ void ezQtPropertyAnimAssetDocumentWindow::SelectionEventHandler(const ezSelectio
 void ezQtPropertyAnimAssetDocumentWindow::UpdateCurveEditor()
 {
   ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
-  m_pCurveEditor->SetCurves(m_CurvesToDisplay, pDoc->GetAnimationDurationTime().GetSeconds());
+  m_pCurveEditor->SetCurves(m_CurvesToDisplay, pDoc->GetAnimationDurationTime().GetSeconds(), true);
 }
 
 
@@ -649,8 +662,6 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveCpMoved(ezUInt32 uiCurveIdx, ez
   cmdSet.m_sProperty = "Value";
   cmdSet.m_NewValue = newPosY;
   pDoc->GetCommandHistory()->AddCommand(cmdSet);
-
-  pDoc->ClearCachedAnimationDuration();
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onCurveCpDeleted(ezUInt32 uiCurveIdx, ezUInt32 cpIdx)
@@ -676,8 +687,6 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveCpDeleted(ezUInt32 uiCurveIdx, 
   ezRemoveObjectCommand cmdSet;
   cmdSet.m_Object = cpGuid.Get<ezUuid>();
   pDoc->GetCommandHistory()->AddCommand(cmdSet);
-
-  pDoc->ClearCachedAnimationDuration();
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onCurveTangentMoved(ezUInt32 uiCurveIdx, ezUInt32 cpIdx, float newPosX, float newPosY, bool rightTangent)
@@ -816,8 +825,6 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpAdded(double posX, co
   history->AddCommand(cmdSet);
 
   history->FinishTransaction();
-
-  pDoc->ClearCachedAnimationDuration();
 }
 
 
@@ -856,8 +863,6 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpAdded(double posX, ez
   history->AddCommand(cmdSet);
 
   history->FinishTransaction();
-
-  pDoc->ClearCachedAnimationDuration();
 }
 
 
@@ -896,8 +901,6 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpAdded(double posX
   history->AddCommand(cmdSet);
 
   history->FinishTransaction();
-
-  pDoc->ClearCachedAnimationDuration();
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::MoveGradientCP(ezInt32 idx, double newPosX, const char* szArrayName)
@@ -925,8 +928,6 @@ void ezQtPropertyAnimAssetDocumentWindow::MoveGradientCP(ezInt32 idx, double new
   history->AddCommand(cmdSet);
 
   history->FinishTransaction();
-
-  pDoc->ClearCachedAnimationDuration();
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpMoved(ezInt32 idx, double newPosX)
@@ -967,8 +968,6 @@ void ezQtPropertyAnimAssetDocumentWindow::RemoveGradientCP(ezInt32 idx, const ch
   history->AddCommand(cmdSet);
 
   history->FinishTransaction();
-
-  pDoc->ClearCachedAnimationDuration();
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpDeleted(ezInt32 idx)

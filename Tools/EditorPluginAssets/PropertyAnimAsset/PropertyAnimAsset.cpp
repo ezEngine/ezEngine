@@ -28,6 +28,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimationTrackGroup, 1, ezRTTIDefaultA
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("FPS", m_uiFramesPerSecond)->AddAttributes(new ezDefaultValueAttribute(60)),
+    EZ_MEMBER_PROPERTY("Duration", m_uiCurveDuration)->AddAttributes(new ezDefaultValueAttribute(480)),
     EZ_ARRAY_MEMBER_PROPERTY("Tracks", m_Tracks)->AddFlags(ezPropertyFlags::PointerOwner),
   }
   EZ_END_PROPERTIES
@@ -50,14 +51,11 @@ ezPropertyAnimAssetDocument::ezPropertyAnimAssetDocument(const char* szDocumentP
 {
   m_GameObjectContextEvents.AddEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocument::GameObjectContextEventHandler, this));
   m_pAccessor = EZ_DEFAULT_NEW(ezPropertyAnimObjectAccessor, this, GetCommandHistory());
-
-  GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocument::CommandHistoryEventHandler, this));
 }
 
 ezPropertyAnimAssetDocument::~ezPropertyAnimAssetDocument()
 {
   m_GameObjectContextEvents.RemoveEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocument::GameObjectContextEventHandler, this));
-  GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocument::CommandHistoryEventHandler, this));
 
   GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocument::TreeStructureEventHandler, this));
   GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocument::TreePropertyEventHandler, this));
@@ -68,52 +66,39 @@ ezObjectAccessorBase* ezPropertyAnimAssetDocument::GetObjectAccessor() const
   return m_pAccessor.Borrow();
 }
 
-ezUInt64 ezPropertyAnimAssetDocument::GetAnimationDurationTicks() const
+void ezPropertyAnimAssetDocument::SetAnimationDurationTicks(ezUInt64 uiNumTicks)
 {
-  if (m_uiCachedAnimationDuration != 0)
-    return m_uiCachedAnimationDuration;
-
   const ezPropertyAnimationTrackGroup* pProp = GetProperties();
 
-  // minimum duration
-  m_uiCachedAnimationDuration = 480; // 1/10th second
+  if (pProp->m_uiCurveDuration == uiNumTicks)
+    return;
 
-  for (ezUInt32 i = 0; i < pProp->m_Tracks.GetCount(); ++i)
   {
-    const ezPropertyAnimationTrack* pTrack = pProp->m_Tracks[i];
+    ezCommandHistory* history = GetCommandHistory();
+    history->StartTransaction("Set Animation Duration");
 
-    for (const auto& cp : pTrack->m_FloatCurve.m_ControlPoints)
-    {
-      m_uiCachedAnimationDuration = ezMath::Max(m_uiCachedAnimationDuration, (ezUInt64)cp.m_iTick);
-    }
+    ezSetObjectPropertyCommand cmdSet;
+    cmdSet.m_Object = GetPropertyObject()->GetGuid();
+    cmdSet.m_sProperty = "Duration";
+    cmdSet.m_NewValue = uiNumTicks;
+    history->AddCommand(cmdSet);
 
-    for (const auto& cp : pTrack->m_ColorGradient.m_ColorCPs)
-    {
-      m_uiCachedAnimationDuration = ezMath::Max<ezInt64>(m_uiCachedAnimationDuration, cp.m_iTick);
-    }
-
-    for (const auto& cp : pTrack->m_ColorGradient.m_AlphaCPs)
-    {
-      m_uiCachedAnimationDuration = ezMath::Max<ezInt64>(m_uiCachedAnimationDuration, cp.m_iTick);
-    }
-
-    for (const auto& cp : pTrack->m_ColorGradient.m_IntensityCPs)
-    {
-      m_uiCachedAnimationDuration = ezMath::Max<ezInt64>(m_uiCachedAnimationDuration, cp.m_iTick);
-    }
+    history->FinishTransaction();
   }
 
-  if (m_uiLastAnimationDuration != m_uiCachedAnimationDuration)
   {
-    m_uiLastAnimationDuration = m_uiCachedAnimationDuration;
-
     ezPropertyAnimAssetDocumentEvent e;
     e.m_pDocument = this;
     e.m_Type = ezPropertyAnimAssetDocumentEvent::Type::AnimationLengthChanged;
     m_PropertyAnimEvents.Broadcast(e);
   }
+}
 
-  return m_uiCachedAnimationDuration;
+ezUInt64 ezPropertyAnimAssetDocument::GetAnimationDurationTicks() const
+{
+  const ezPropertyAnimationTrackGroup* pProp = GetProperties();
+
+  return pProp->m_uiCurveDuration;
 }
 
 
@@ -122,6 +107,40 @@ ezTime ezPropertyAnimAssetDocument::GetAnimationDurationTime() const
   const ezInt64 ticks = GetAnimationDurationTicks();
 
   return ezTime::Seconds(ticks / 4800.0);
+}
+
+void ezPropertyAnimAssetDocument::AdjustDuration()
+{
+  ezUInt64 uiDuration = 480;
+
+  const ezPropertyAnimationTrackGroup* pProp = GetProperties();
+
+  for (ezUInt32 i = 0; i < pProp->m_Tracks.GetCount(); ++i)
+  {
+    const ezPropertyAnimationTrack* pTrack = pProp->m_Tracks[i];
+
+    for (const auto& cp : pTrack->m_FloatCurve.m_ControlPoints)
+    {
+      uiDuration = ezMath::Max(uiDuration, (ezUInt64)cp.m_iTick);
+    }
+
+    for (const auto& cp : pTrack->m_ColorGradient.m_ColorCPs)
+    {
+      uiDuration = ezMath::Max<ezInt64>(uiDuration, cp.m_iTick);
+    }
+
+    for (const auto& cp : pTrack->m_ColorGradient.m_AlphaCPs)
+    {
+      uiDuration = ezMath::Max<ezInt64>(uiDuration, cp.m_iTick);
+    }
+
+    for (const auto& cp : pTrack->m_ColorGradient.m_IntensityCPs)
+    {
+      uiDuration = ezMath::Max<ezInt64>(uiDuration, cp.m_iTick);
+    }
+  }
+
+  SetAnimationDurationTicks(uiDuration);
 }
 
 bool ezPropertyAnimAssetDocument::SetScrubberPosition(ezUInt64 uiTick)
@@ -249,18 +268,6 @@ void ezPropertyAnimAssetDocument::GameObjectContextEventHandler(const ezGameObje
   case ezGameObjectContextEvent::Type::ContextChanged:
     static_cast<ezPropertyAnimObjectManager*>(GetObjectManager())->SetAllowStructureChangeOnTemporaries(false);
     RebuildMapping();
-    break;
-  }
-}
-
-void ezPropertyAnimAssetDocument::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
-{
-  switch (e.m_Type)
-  {
-  case ezCommandHistoryEvent::Type::UndoEnded:
-  case ezCommandHistoryEvent::Type::RedoEnded:
-    ClearCachedAnimationDuration();
-    GetAnimationDurationTicks();
     break;
   }
 }
@@ -765,8 +772,6 @@ ezUuid ezPropertyAnimAssetDocument::InsertCurveCpAt(const ezUuid& track, ezInt64
   history->AddCommand(cmdSet);
 
   history->FinishTransaction();
-
-  ClearCachedAnimationDuration();
 
   return cmdAdd.m_NewObjectGuid;
 }

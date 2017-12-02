@@ -205,25 +205,56 @@ ezQtTimeScrubberToolbar::ezQtTimeScrubberToolbar(QWidget* parent)
 
   m_pPlayButton = new QPushButton(this);
   m_pPlayButton->setIcon(QIcon(":/GuiFoundation/Icons/ControlPlay16.png"));
+  m_pPlayButton->setToolTip("Play Animation");
 
   m_pRepeatButton = new QPushButton(this);
   m_pRepeatButton->setIcon(QIcon(":/GuiFoundation/Icons/ControlRepeat16.png"));
   m_pRepeatButton->setCheckable(true);
+  m_pRepeatButton->setToolTip("Repeat Animation");
+
+  m_pDuration = new QLineEdit(this);
+  m_pDuration->setMaximumWidth(50);
+  m_pDuration->setToolTip("Duration in seconds");
+  m_pDuration->setPlaceholderText("Duration (sec)");
+
+  m_pAdjustDurationButton = new QPushButton(this);
+  m_pAdjustDurationButton->setIcon(QIcon(":/GuiFoundation/Icons/AdjustDuration16.png"));
+  m_pAdjustDurationButton->setToolTip("Adjust Duration");
 
   addWidget(m_pPlayButton);
   addWidget(m_pRepeatButton);
   addWidget(m_pScrubber);
+  addWidget(m_pDuration);
+  addWidget(m_pAdjustDurationButton);
 
   // Pass event through
   connect(m_pScrubber, &ezQtTimeScrubberWidget::ScrubberPosChangedEvent, this, [this](ezUInt64 uiNewScrubberTickPos) {emit ScrubberPosChangedEvent(uiNewScrubberTickPos); });
 
   connect(m_pPlayButton, &QPushButton::clicked, this, [this](bool) { emit PlayPauseEvent(); });
   connect(m_pRepeatButton, &QPushButton::clicked, this, [this](bool) { emit RepeatEvent(); });
+  connect(m_pDuration, &QLineEdit::textChanged, this, [this](const QString& text)
+  {
+    bool ok = false;
+    double val = text.toDouble(&ok);
+
+    if (ok)
+      emit DurationChangedEvent(val);
+  });
+  connect(m_pAdjustDurationButton, &QPushButton::clicked, this, [this](bool) { emit AdjustDurationEvent(); });
 }
 
-void ezQtTimeScrubberToolbar::SetDuration(ezUInt64 iNumTicks, ezUInt32 uiFramesPerSecond)
+void ezQtTimeScrubberToolbar::SetDuration(ezUInt64 uiNumTicks, ezUInt32 uiFramesPerSecond)
 {
-  m_pScrubber->SetDuration(iNumTicks, uiFramesPerSecond);
+  ezQtScopedBlockSignals _1(m_pDuration);
+
+  const double oldVal = m_pDuration->text().toDouble();
+  const double newVal = (double)uiNumTicks / 4800.0;
+
+  if (ezMath::IsEqual(oldVal, newVal, 0.01))
+    return;
+
+  m_pDuration->setText(QString("%1").arg(newVal, 0, 'f', 2));
+  m_pScrubber->SetDuration(uiNumTicks, uiFramesPerSecond);
 }
 
 void ezQtTimeScrubberToolbar::SetScrubberPosition(ezUInt64 uiTick)

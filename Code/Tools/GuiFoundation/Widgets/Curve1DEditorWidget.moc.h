@@ -14,7 +14,7 @@ public:
   explicit ezQtCurve1DEditorWidget(QWidget* pParent);
   ~ezQtCurve1DEditorWidget();
 
-  void SetCurves(ezCurveGroupData& curveData, double fMinCurveLength);
+  void SetCurves(ezCurveGroupData& curveData, double fMinCurveLength, bool bCurveLengthIsFixed);
   void SetScrubberPosition(ezUInt64 uiTick);
   void ClearSelection();
 
@@ -62,6 +62,7 @@ private:
   void UpdateSpinBoxes();
   void SetTangentMode(ezCurveTangentMode::Enum mode, bool bLeft, bool bRight);
 
+  double m_fCurveDuration;
   ezVec2 m_TangentMove;
   ezVec2d m_ControlPointMove;
   ezCurveGroupData m_Curves;

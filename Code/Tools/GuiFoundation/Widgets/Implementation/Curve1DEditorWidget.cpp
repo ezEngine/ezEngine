@@ -35,14 +35,15 @@ ezQtCurve1DEditorWidget::~ezQtCurve1DEditorWidget()
 {
 }
 
-void ezQtCurve1DEditorWidget::SetCurves(ezCurveGroupData& curves, double fMinCurveLength)
+void ezQtCurve1DEditorWidget::SetCurves(ezCurveGroupData& curves, double fMinCurveLength, bool bCurveLengthIsFixed)
 {
   ezQtScopedUpdatesDisabled ud(this);
   ezQtScopedBlockSignals bs(this);
 
   m_Curves.CloneFrom(curves);
 
-  CurveEdit->SetCurves(&curves, fMinCurveLength);
+  CurveEdit->SetCurves(&curves, fMinCurveLength, bCurveLengthIsFixed);
+  m_fCurveDuration = CurveEdit->GetMaxCurveExtent();
 
   UpdateSpinBoxes();
 }
@@ -105,12 +106,12 @@ void ezQtCurve1DEditorWidget::MakeRepeatable(bool bAdjustLastPoint)
 
     if (bAdjustLastPoint)
     {
-      emit CpMovedEvent(iCurveIdx, uiMaxCp, cpRight.m_iTick, cpLeft.m_fValue);
+      emit CpMovedEvent(iCurveIdx, uiMaxCp, (ezInt64)(m_fCurveDuration * 4800.0), cpLeft.m_fValue);
       emit TangentMovedEvent(iCurveIdx, uiMaxCp, -cpLeft.m_RightTangent.x, -cpLeft.m_RightTangent.y, false);
     }
     else
     {
-      emit CpMovedEvent(iCurveIdx, uiMinCp, cpLeft.m_iTick, cpRight.m_fValue);
+      emit CpMovedEvent(iCurveIdx, uiMinCp, 0, cpRight.m_fValue);
       emit TangentMovedEvent(iCurveIdx, uiMinCp, -cpRight.m_LeftTangent.x, -cpRight.m_LeftTangent.y, true);
 
     }

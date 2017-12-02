@@ -31,7 +31,7 @@ ezQtCurveEditWidget::ezQtCurveEditWidget(QWidget* parent)
   m_TangentHandleBrush.setStyle(Qt::BrushStyle::SolidPattern);
 }
 
-void ezQtCurveEditWidget::SetCurves(ezCurveGroupData* pCurveEditData, double fMinCurveLength)
+void ezQtCurveEditWidget::SetCurves(ezCurveGroupData* pCurveEditData, double fMinCurveLength, bool bCurveLengthIsFixed)
 {
   m_pCurveEditData = pCurveEditData;
 
@@ -77,7 +77,9 @@ void ezQtCurveEditWidget::SetCurves(ezCurveGroupData* pCurveEditData, double fMi
     double fMin, fMax;
     curve.QueryExtremeValues(fMin, fMax);
 
-    m_fMaxCurveExtent = ezMath::Max(m_fMaxCurveExtent, m_CurveExtents[i].y);
+    if (!bCurveLengthIsFixed)
+      m_fMaxCurveExtent = ezMath::Max(m_fMaxCurveExtent, m_CurveExtents[i].y);
+
     m_fMinValue = ezMath::Min(m_fMinValue, fMin);
     m_fMaxValue = ezMath::Max(m_fMaxValue, fMax);
   }
@@ -772,10 +774,15 @@ void ezQtCurveEditWidget::PaintCurveSegments(QPainter* painter, float fOffsetX, 
 
     QPainterPath path;
 
+    // line from zero to first cp
     {
       const ezCurve1D::ControlPoint& cp = curve.GetControlPoint(0);
       path.moveTo(MapFromScene(QPointF(fOffsetX, cp.m_Position.y)));
-      path.lineTo(MapFromScene(QPointF(fOffsetX + cp.m_Position.x, cp.m_Position.y)));
+
+      if (cp.m_Position.x > 0)
+      {
+        path.lineTo(MapFromScene(QPointF(fOffsetX + cp.m_Position.x, cp.m_Position.y)));
+      }
     }
 
     for (ezUInt32 cpIdx = 1; cpIdx < numCps; ++cpIdx)
@@ -794,9 +801,14 @@ void ezQtCurveEditWidget::PaintCurveSegments(QPainter* painter, float fOffsetX, 
       path.cubicTo(MapFromScene(ctrlPt1), MapFromScene(ctrlPt2), MapFromScene(endPt));
     }
 
+    // line from last cp to end
     {
       const ezCurve1D::ControlPoint& cp = curve.GetControlPoint(numCps - 1);
-      path.lineTo(MapFromScene(QPointF(fOffsetX + m_fMaxCurveExtent, cp.m_Position.y)));
+
+      if (cp.m_Position.x < m_fMaxCurveExtent)
+      {
+        path.lineTo(MapFromScene(QPointF(fOffsetX + m_fMaxCurveExtent, cp.m_Position.y)));
+      }
     }
 
     painter->drawPath(path);
