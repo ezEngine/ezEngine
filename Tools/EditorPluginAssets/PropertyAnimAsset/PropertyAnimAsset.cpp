@@ -592,6 +592,34 @@ ezUuid ezPropertyAnimAssetDocument::FindTrack(const ezDocumentObject* pObject, c
   return ezUuid();
 }
 
+static ezColorGammaUB g_CurveColors[10][3] =
+{
+  { ezColorGammaUB(255, 102, 0), ezColorGammaUB(76, 255, 0), ezColorGammaUB(0, 255, 255) },
+  { ezColorGammaUB(239, 35, 0), ezColorGammaUB(127, 255, 0), ezColorGammaUB(0, 0 ,255) },
+  { ezColorGammaUB(205, 92, 92), ezColorGammaUB(120, 158, 39), ezColorGammaUB(81, 120, 188) },
+  { ezColorGammaUB(255, 105, 180), ezColorGammaUB(0, 250, 154), ezColorGammaUB(0, 191, 255) },
+  { ezColorGammaUB(220, 20, 60), ezColorGammaUB(0, 255, 127), ezColorGammaUB(30, 144, 255) },
+  { ezColorGammaUB(240, 128, 128), ezColorGammaUB(60, 179, 113), ezColorGammaUB(135, 206, 250) },
+  { ezColorGammaUB(178, 34, 34), ezColorGammaUB(46, 139, 87), ezColorGammaUB(65, 105, 225) },
+  { ezColorGammaUB(211, 122, 122), ezColorGammaUB(144, 238, 144), ezColorGammaUB(135, 206, 235) },
+  { ezColorGammaUB(219, 112, 147), ezColorGammaUB(0, 128, 0), ezColorGammaUB(70, 130, 180) },
+  { ezColorGammaUB(255, 182, 193), ezColorGammaUB(102, 205, 170), ezColorGammaUB(100, 149, 237) },
+};
+
+static ezColorGammaUB g_FloatColors[10] =
+{
+  ezColorGammaUB(138, 43, 226),
+  ezColorGammaUB(139, 0, 139),
+  ezColorGammaUB(153, 50, 204),
+  ezColorGammaUB(148, 0, 211),
+  ezColorGammaUB(218, 112, 214),
+  ezColorGammaUB(221, 160, 221),
+  ezColorGammaUB(128, 0, 128),
+  ezColorGammaUB(102, 51, 153),
+  ezColorGammaUB(106, 90, 205),
+  ezColorGammaUB(238, 130, 238),
+};
+
 ezUuid ezPropertyAnimAssetDocument::CreateTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target)
 {
   ezObjectCommandAccessor accessor(GetCommandHistory());
@@ -639,6 +667,40 @@ ezUuid ezPropertyAnimAssetDocument::CreateTrack(const ezDocumentObject* pObject,
   EZ_VERIFY(accessor.SetValue(pTrackObj, pTrackType->FindPropertyByName("Property"), value).Succeeded(), "Adding track failed.");
   value = (int)target;
   EZ_VERIFY(accessor.SetValue(pTrackObj, pTrackType->FindPropertyByName("Target"), value).Succeeded(), "Adding track failed.");
+
+  {
+    const ezAbstractProperty* pFloatCurveProp = pTrackType->FindPropertyByName("FloatCurve");
+    ezUuid floatCurveGuid = accessor.Get<ezUuid>(pTrackObj, pFloatCurveProp);
+    const ezDocumentObject* pFloatCurveObject = GetObjectManager()->GetObject(floatCurveGuid);
+
+    const ezAbstractProperty* pColorProp = ezGetStaticRTTI<ezSingleCurveData>()->FindPropertyByName("Color");
+
+    ezColorGammaUB color = ezColor::White;
+
+    const ezUInt32 uiNameHash = ezHashing::CRC32Hash(sObjectSearchSequence.GetData(), sObjectSearchSequence.GetElementCount());
+    const ezUInt32 uiColorIdx = uiNameHash % EZ_ARRAY_SIZE(g_CurveColors);
+
+    switch (target)
+    {
+    case ezPropertyAnimTarget::Number:
+      color = g_FloatColors[uiColorIdx];
+      break;
+    case ezPropertyAnimTarget::VectorX:
+      color = g_CurveColors[uiColorIdx][0];
+      break;
+    case ezPropertyAnimTarget::VectorY:
+      color = g_CurveColors[uiColorIdx][1];
+      break;
+    case ezPropertyAnimTarget::VectorZ:
+      color = g_CurveColors[uiColorIdx][2];
+      break;
+    case ezPropertyAnimTarget::VectorW:
+      color = ezColor::Beige;
+      break;
+    }
+
+    accessor.SetValue(pFloatCurveObject, pColorProp, color);
+  }
 
   return newTrack;
 }

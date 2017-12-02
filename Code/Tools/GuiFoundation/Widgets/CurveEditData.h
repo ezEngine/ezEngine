@@ -41,7 +41,6 @@ public:
   double GetTickAsTime() const { return m_iTick / 4800.0; }
   void SetTickFromTime(double time, ezInt64 fps);
 
-  //double m_fTime;
   ezInt64 m_iTick; // 4800 ticks per second
   double m_fValue;
   ezVec2 m_LeftTangent;
