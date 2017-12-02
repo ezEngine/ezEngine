@@ -8,6 +8,7 @@
 
 class QMouseEvent;
 class QPushButton;
+class QLineEdit;
 
 class EZ_GUIFOUNDATION_DLL ezQtTimeScrubberWidget : public QWidget
 {
