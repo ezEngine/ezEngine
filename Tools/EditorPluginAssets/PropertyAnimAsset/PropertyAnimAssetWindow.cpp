@@ -322,6 +322,11 @@ void ezQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler(const ez
 
 void ezQtPropertyAnimAssetDocumentWindow::onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
 {
+  UpdateSelectionData();
+}
+
+void ezQtPropertyAnimAssetDocumentWindow::UpdateSelectionData()
+{
   ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
 
   m_MapSelectionToTrack.Clear();
@@ -358,6 +363,10 @@ void ezQtPropertyAnimAssetDocumentWindow::onSelectionChanged(const QItemSelectio
   for (auto it = tracks.GetIterator(); it.IsValid(); ++it)
   {
     const ezInt32 iTrackIdx = it.Key();
+
+    // this can happen during undo/redo when the selection still names data that has just been removed
+    if (iTrackIdx >= (ezInt32)trackArray.GetCount())
+      continue;
 
     if (trackArray[iTrackIdx]->m_Target != ezPropertyAnimTarget::Color)
     {
@@ -547,8 +556,7 @@ void ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler(const ezDocument
   case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
   case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
   case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
-    UpdateCurveEditor();
-    UpdateGradientEditor();
+    UpdateSelectionData();
     break;
   }
 }

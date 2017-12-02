@@ -101,8 +101,9 @@ void ezQtCurve1DEditorWidget::MakeRepeatable(bool bAdjustLastPoint)
     if (uiMinCp == uiMaxCp)
       continue;
 
-    const auto& cpLeft = curve.m_ControlPoints[uiMinCp];
-    const auto& cpRight = curve.m_ControlPoints[uiMaxCp];
+    // copy data, the first emit may change the backing store
+    const ezCurveControlPointData cpLeft = curve.m_ControlPoints[uiMinCp];
+    const ezCurveControlPointData cpRight = curve.m_ControlPoints[uiMaxCp];
 
     if (bAdjustLastPoint)
     {

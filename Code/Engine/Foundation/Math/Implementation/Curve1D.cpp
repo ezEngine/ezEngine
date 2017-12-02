@@ -235,21 +235,24 @@ void ezCurve1D::Load(ezStreamReader& stream)
 
 void ezCurve1D::CreateLinearApproximation(double fMaxError /*= 0.01f*/)
 {
+  m_LinearApproximation.Clear();
+
   /// \todo Since we do this, we actually don't need the linear approximation anymore and could just evaluate the full curve
   ApplyTangentModes();
 
   ClampTangents();
-
-  const double rangeY = ezMath::Max(0.1, m_fMaxY - m_fMinY);
-  fMaxError = fMaxError * rangeY;
-
-  m_LinearApproximation.Clear();
 
   if (m_ControlPoints.IsEmpty())
   {
     m_LinearApproximation.PushBack(ezVec2d::ZeroVector());
     return;
   }
+
+  double fMinY, fMaxY;
+  ApproximateMinMaxValues(fMinY, fMaxY);
+
+  const double rangeY = ezMath::Max(0.1, fMaxY - fMinY);
+  fMaxError = fMaxError * rangeY;
 
   for (ezUInt32 i = 1; i < m_ControlPoints.GetCount(); ++i)
   {
@@ -264,7 +267,7 @@ void ezCurve1D::CreateLinearApproximation(double fMaxError /*= 0.01f*/)
 
   m_LinearApproximation.PushBack(m_ControlPoints.PeekBack().m_Position);
 
-  RecomputeExtremes();
+  RecomputeLinearApproxExtremes();
 }
 
 void ezCurve1D::RecomputeExtents()
@@ -289,7 +292,7 @@ void ezCurve1D::RecomputeExtents()
 }
 
 
-void ezCurve1D::RecomputeExtremes()
+void ezCurve1D::RecomputeLinearApproxExtremes()
 {
   m_fMinY = ezMath::BasicType<float>::MaxValue();
   m_fMaxY = -ezMath::BasicType<float>::MaxValue();
@@ -298,6 +301,21 @@ void ezCurve1D::RecomputeExtremes()
   {
     m_fMinY = ezMath::Min(m_fMinY, cp.y);
     m_fMaxY = ezMath::Max(m_fMaxY, cp.y);
+  }
+}
+
+void ezCurve1D::ApproximateMinMaxValues(double& fMinY, double& fMaxY)
+{
+  fMinY = m_ControlPoints[0].m_Position.y;
+  fMaxY = m_ControlPoints[0].m_Position.y;
+
+  for (const auto& cp : m_ControlPoints)
+  {
+    const double y1 = cp.m_Position.y + cp.m_LeftTangent.y;
+    const double y2 = cp.m_Position.y + cp.m_RightTangent.y;
+
+    fMinY = ezMath::Min(fMinY, y1, y2);
+    fMaxY = ezMath::Max(fMaxY, y1, y2);
   }
 }
 

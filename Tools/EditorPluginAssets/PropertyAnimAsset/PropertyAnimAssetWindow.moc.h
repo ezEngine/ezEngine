@@ -130,6 +130,7 @@ private:
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
   void UpdateCurveEditor();
   void UpdateGradientEditor();
+  void UpdateSelectionData();
 
   ezQtQuadViewWidget* m_pQuadViewWidget;
   ezCurveGroupData m_CurvesToDisplay;

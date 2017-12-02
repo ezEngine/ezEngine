@@ -7,6 +7,7 @@
 #include <Foundation/Strings/StringBuilder.h>
 #include <qevent.h>
 #include <QPushButton>
+#include <QLineEdit>
 
 ezQtTimeScrubberWidget::ezQtTimeScrubberWidget(QWidget* pParent)
   : QWidget(pParent)
@@ -245,6 +246,8 @@ ezQtTimeScrubberToolbar::ezQtTimeScrubberToolbar(QWidget* parent)
 
 void ezQtTimeScrubberToolbar::SetDuration(ezUInt64 uiNumTicks, ezUInt32 uiFramesPerSecond)
 {
+  m_pScrubber->SetDuration(uiNumTicks, uiFramesPerSecond);
+
   ezQtScopedBlockSignals _1(m_pDuration);
 
   const double oldVal = m_pDuration->text().toDouble();
@@ -254,7 +257,6 @@ void ezQtTimeScrubberToolbar::SetDuration(ezUInt64 uiNumTicks, ezUInt32 uiFrames
     return;
 
   m_pDuration->setText(QString("%1").arg(newVal, 0, 'f', 2));
-  m_pScrubber->SetDuration(uiNumTicks, uiFramesPerSecond);
 }
 
 void ezQtTimeScrubberToolbar::SetScrubberPosition(ezUInt64 uiTick)

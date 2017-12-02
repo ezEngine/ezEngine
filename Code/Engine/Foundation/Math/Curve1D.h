@@ -145,7 +145,8 @@ public:
   void MakeAutoTangentRight(ezUInt32 uiCpIdx);
 
 private:
-  void RecomputeExtremes();
+  void RecomputeLinearApproxExtremes();
+  void ApproximateMinMaxValues(double& fMinY, double& fMaxY);
   void ApproximateCurve(const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double fMaxError);
   void ApproximateCurvePiece(const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double tLeft, const ezVec2d& pLeft, double tRight, const ezVec2d& pRight, double fMaxError, double fPrevError);
   ezInt32 FindApproxControlPoint(double x) const;
