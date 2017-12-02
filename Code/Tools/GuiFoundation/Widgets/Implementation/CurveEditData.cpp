@@ -118,17 +118,21 @@ void ezSingleCurveData::ConvertToRuntimeData(ezCurve1D& out_Result) const
 double ezSingleCurveData::Evaluate(ezInt64 iTick) const
 {
   ezCurve1D temp;
+  const ezCurveControlPointData* llhs = nullptr;
   const ezCurveControlPointData* lhs = nullptr;
   const ezCurveControlPointData* rhs = nullptr;
-  FindNearestControlPoints(m_ControlPoints.GetArrayPtr(), iTick, lhs, rhs);
+  const ezCurveControlPointData* rrhs = nullptr;
+  FindNearestControlPoints(m_ControlPoints.GetArrayPtr(), iTick, llhs, lhs, rhs, rrhs);
+
+  if (llhs)
+    ConvertControlPoint(*llhs, temp);
   if (lhs)
-  {
     ConvertControlPoint(*lhs, temp);
-  }
   if (rhs)
-  {
     ConvertControlPoint(*rhs, temp);
-  }
+  if (rrhs)
+    ConvertControlPoint(*rrhs, temp);
+
   //#TODO: This is rather slow as we eval lots of points but only need one
   temp.CreateLinearApproximation();
   return temp.Evaluate(iTick / 4800.0);

@@ -12,23 +12,51 @@ class ezCurve1D;
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GUIFOUNDATION_DLL, ezCurveTangentMode);
 
 template<typename T>
-void FindNearestControlPoints(ezArrayPtr<T> cps, ezInt64 iTick, T*& lhs, T*& rhs)
+void FindNearestControlPoints(ezArrayPtr<T> cps, ezInt64 iTick, T*& llhs, T*& lhs, T*& rhs, T*& rrhs)
 {
+  llhs = nullptr;
   lhs = nullptr;
   rhs = nullptr;
+  rrhs = nullptr;
   ezInt64 lhsTick = std::numeric_limits<ezInt64>::min();
+  ezInt64 llhsTick = std::numeric_limits<ezInt64>::min();
   ezInt64 rhsTick = std::numeric_limits<ezInt64>::max();
+  ezInt64 rrhsTick = std::numeric_limits<ezInt64>::max();
+
   for (decltype(auto) cp : cps)
   {
-    if (cp.m_iTick <= iTick && cp.m_iTick > lhsTick)
+    if (cp.m_iTick <= iTick )
     {
-      lhs = &cp;
-      lhsTick = cp.m_iTick;
+      if (cp.m_iTick > lhsTick)
+      {
+        llhs = lhs;
+        llhsTick = lhsTick;
+
+        lhs = &cp;
+        lhsTick = cp.m_iTick;
+      }
+      else if (cp.m_iTick > llhsTick)
+      {
+        llhs = &cp;
+        llhsTick = cp.m_iTick;
+      }
     }
-    if (cp.m_iTick > iTick && cp.m_iTick < rhsTick)
+
+    if (cp.m_iTick > iTick)
     {
-      rhs = &cp;
-      rhsTick = cp.m_iTick;
+      if (cp.m_iTick < rhsTick)
+      {
+        rrhs = rhs;
+        rrhsTick = rhsTick;
+
+        rhs = &cp;
+        rhsTick = cp.m_iTick;
+      }
+      else if (cp.m_iTick < rrhsTick)
+      {
+        rrhs = &cp;
+        rrhsTick = cp.m_iTick;
+      }
     }
   }
 }

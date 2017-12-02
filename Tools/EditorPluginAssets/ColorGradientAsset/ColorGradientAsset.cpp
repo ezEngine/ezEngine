@@ -118,43 +118,52 @@ ezColor ezColorGradientAssetData::Evaluate(ezInt64 iTick) const
 {
   ezColorGradient temp;
   {
+    const ezColorControlPoint* llhs = nullptr;
     const ezColorControlPoint* lhs = nullptr;
     const ezColorControlPoint* rhs = nullptr;
-    FindNearestControlPoints(m_ColorCPs.GetArrayPtr(), iTick, lhs, rhs);
+    const ezColorControlPoint* rrhs = nullptr;
+    FindNearestControlPoints(m_ColorCPs.GetArrayPtr(), iTick, llhs, lhs, rhs, rrhs);
+
+    if (llhs)
+      temp.AddColorControlPoint(llhs->GetTickAsTime(), ezColorGammaUB(llhs->m_Red, llhs->m_Green, llhs->m_Blue));
     if (lhs)
-    {
       temp.AddColorControlPoint(lhs->GetTickAsTime(), ezColorGammaUB(lhs->m_Red, lhs->m_Green, lhs->m_Blue));
-    }
     if (rhs)
-    {
       temp.AddColorControlPoint(rhs->GetTickAsTime(), ezColorGammaUB(rhs->m_Red, rhs->m_Green, rhs->m_Blue));
-    }
+    if (rrhs)
+      temp.AddColorControlPoint(rrhs->GetTickAsTime(), ezColorGammaUB(rrhs->m_Red, rrhs->m_Green, rrhs->m_Blue));
   }
   {
+    const ezAlphaControlPoint* llhs = nullptr;
     const ezAlphaControlPoint* lhs = nullptr;
     const ezAlphaControlPoint* rhs = nullptr;
-    FindNearestControlPoints(m_AlphaCPs.GetArrayPtr(), iTick, lhs, rhs);
+    const ezAlphaControlPoint* rrhs = nullptr;
+    FindNearestControlPoints(m_AlphaCPs.GetArrayPtr(), iTick, llhs, lhs, rhs, rrhs);
+
+    if (llhs)
+      temp.AddAlphaControlPoint(llhs->GetTickAsTime(), llhs->m_Alpha);
     if (lhs)
-    {
       temp.AddAlphaControlPoint(lhs->GetTickAsTime(), lhs->m_Alpha);
-    }
     if (rhs)
-    {
       temp.AddAlphaControlPoint(rhs->GetTickAsTime(), rhs->m_Alpha);
-    }
+    if (rrhs)
+      temp.AddAlphaControlPoint(rrhs->GetTickAsTime(), rrhs->m_Alpha);
   }
   {
+    const ezIntensityControlPoint* llhs = nullptr;
     const ezIntensityControlPoint* lhs = nullptr;
     const ezIntensityControlPoint* rhs = nullptr;
-    FindNearestControlPoints(m_IntensityCPs.GetArrayPtr(), iTick, lhs, rhs);
+    const ezIntensityControlPoint* rrhs = nullptr;
+    FindNearestControlPoints(m_IntensityCPs.GetArrayPtr(), iTick, llhs, lhs, rhs, rrhs);
+
+    if (llhs)
+      temp.AddIntensityControlPoint(llhs->GetTickAsTime(), llhs->m_fIntensity);
     if (lhs)
-    {
       temp.AddIntensityControlPoint(lhs->GetTickAsTime(), lhs->m_fIntensity);
-    }
     if (rhs)
-    {
       temp.AddIntensityControlPoint(rhs->GetTickAsTime(), rhs->m_fIntensity);
-    }
+    if (rrhs)
+      temp.AddIntensityControlPoint(rrhs->GetTickAsTime(), rrhs->m_fIntensity);
   }
   ezColor color;
   //#TODO: This is rather slow as we eval lots of points but only need one
