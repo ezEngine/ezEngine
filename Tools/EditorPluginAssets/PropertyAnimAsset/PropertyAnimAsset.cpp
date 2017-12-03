@@ -479,6 +479,7 @@ void ezPropertyAnimAssetDocument::ApplyAnimation(const PropertyKey& key, const P
         }
       }
       break;
+
     case ezPropertyAnimTarget::VectorX:
     case ezPropertyAnimTarget::VectorY:
     case ezPropertyAnimTarget::VectorZ:
@@ -492,6 +493,13 @@ void ezPropertyAnimAssetDocument::ApplyAnimation(const PropertyKey& key, const P
         }
       }
       break;
+
+    case ezPropertyAnimTarget::RotationX:
+    case ezPropertyAnimTarget::RotationY:
+    case ezPropertyAnimTarget::RotationZ:
+      // TODO
+      break;
+
     case ezPropertyAnimTarget::Color:
       {
         if (pPropRtti->GetVariantType() == ezVariantType::Color || pPropRtti->GetVariantType() == ezVariantType::ColorGamma)
@@ -693,12 +701,15 @@ ezUuid ezPropertyAnimAssetDocument::CreateTrack(const ezDocumentObject* pObject,
       color = g_FloatColors[uiColorIdx];
       break;
     case ezPropertyAnimTarget::VectorX:
+    case ezPropertyAnimTarget::RotationX:
       color = g_CurveColors[uiColorIdx][0];
       break;
     case ezPropertyAnimTarget::VectorY:
+    case ezPropertyAnimTarget::RotationY:
       color = g_CurveColors[uiColorIdx][1];
       break;
     case ezPropertyAnimTarget::VectorZ:
+    case ezPropertyAnimTarget::RotationZ:
       color = g_CurveColors[uiColorIdx][2];
       break;
     case ezPropertyAnimTarget::VectorW:

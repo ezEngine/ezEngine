@@ -171,7 +171,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
   }
 
   // this would show the document properties
-  //pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
+  pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
 
   // Curve editor events
   {
@@ -411,26 +411,22 @@ void ezQtPropertyAnimAssetDocumentWindow::onDeleteSelectedItems()
   m_pGradientToDisplay = nullptr;
   m_CurvesToDisplay.Clear();
 
-  if (m_iMapGradientToTrack >= 0)
-  {
-    const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
-    m_iMapGradientToTrack = -1;
-
-    ezRemoveObjectCommand cmd;
-    cmd.m_Object = trackGuid.Get<ezUuid>();
-
-    pHistory->AddCommand(cmd);
-  }
-
   // delete the tracks with the highest index first, otherwise the lower indices become invalid
+  // do this before modifying anything, as m_MapSelectionToTrack will change once the remove commands are executed
   ezHybridArray<ezInt32, 16> sortedTrackIDs;
-
-  for (ezInt32 iTrack : m_MapSelectionToTrack)
   {
-    sortedTrackIDs.PushBack(iTrack);
-  }
+    for (ezInt32 iTrack : m_MapSelectionToTrack)
+    {
+      sortedTrackIDs.PushBack(iTrack);
+    }
 
-  sortedTrackIDs.Sort();
+    if (m_iMapGradientToTrack >= 0)
+    {
+      sortedTrackIDs.PushBack(m_iMapGradientToTrack);
+    }
+
+    sortedTrackIDs.Sort();
+  }
 
   for (ezUInt32 i = sortedTrackIDs.GetCount(); i > 0; --i)
   {
@@ -448,6 +444,8 @@ void ezQtPropertyAnimAssetDocumentWindow::onDeleteSelectedItems()
   }
 
   m_MapSelectionToTrack.Clear();
+  m_iMapGradientToTrack = -1;
+
   pHistory->FinishTransaction();
 }
 
@@ -565,14 +563,14 @@ void ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler(const ezDocument
 void ezQtPropertyAnimAssetDocumentWindow::SelectionEventHandler(const ezSelectionManagerEvent& e)
 {
   // this would show the document properties
-  //if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
-  //{
-  //  // delayed execution
-  //  QTimer::singleShot(1, [this]()
-  //  {
-  //    GetDocument()->GetSelectionManager()->SetSelection(GetPropertyAnimDocument()->GetPropertyObject());
-  //  });
-  //}
+  if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
+  {
+    // delayed execution
+    QTimer::singleShot(1, [this]()
+    {
+      GetDocument()->GetSelectionManager()->SetSelection(GetPropertyAnimDocument()->GetPropertyObject());
+    });
+  }
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::UpdateCurveEditor()

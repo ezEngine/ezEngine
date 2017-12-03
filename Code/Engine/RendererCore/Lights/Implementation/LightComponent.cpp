@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <RendererCore/Lights/LightComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -53,7 +53,7 @@ ezColorGammaUB ezLightComponent::GetLightColor() const
 
 void ezLightComponent::SetIntensity(float fIntensity)
 {
-  m_fIntensity = fIntensity;
+  m_fIntensity = ezMath::Max(fIntensity, 0.0f);
 
   TriggerLocalBoundsUpdate();
 }
@@ -145,6 +145,9 @@ float ezLightComponent::CalculateEffectiveRange(float fRange, float fIntensity)
 {
   const float fThreshold = 0.10f; // aggressive threshold to prevent large lights
   const float fEffectiveRange = ezMath::Sqrt(fIntensity) / ezMath::Sqrt(fThreshold);
+
+  EZ_ASSERT_DEBUG(!ezMath::IsNaN(fEffectiveRange), "Light range is NaN");
+
   if (fRange <= 0.0f)
   {
     return fEffectiveRange;

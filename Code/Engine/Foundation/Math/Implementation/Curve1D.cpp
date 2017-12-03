@@ -233,7 +233,7 @@ void ezCurve1D::Load(ezStreamReader& stream)
   }
 }
 
-void ezCurve1D::CreateLinearApproximation(double fMaxError /*= 0.01f*/)
+void ezCurve1D::CreateLinearApproximation(double fMaxError /*= 0.01f*/, ezUInt8 uiMaxSubDivs /*= 8*/)
 {
   m_LinearApproximation.Clear();
 
@@ -248,21 +248,23 @@ void ezCurve1D::CreateLinearApproximation(double fMaxError /*= 0.01f*/)
     return;
   }
 
-  double fMinY, fMaxY;
-  ApproximateMinMaxValues(fMinY, fMaxY);
-
-  const double rangeY = ezMath::Max(0.1, fMaxY - fMinY);
-  fMaxError = fMaxError * rangeY;
-
   for (ezUInt32 i = 1; i < m_ControlPoints.GetCount(); ++i)
   {
+    double fMinY, fMaxY;
+    ApproximateMinMaxValues(m_ControlPoints[i - 1], m_ControlPoints[i], fMinY, fMaxY);
+
+    const double rangeY = ezMath::Max(0.1, fMaxY - fMinY);
+    const double fMaxErrorY = fMaxError * rangeY;
+    const double fMaxErrorX = (m_ControlPoints[i].m_Position.x - m_ControlPoints[i - 1].m_Position.x) * fMaxError;
+
+
     m_LinearApproximation.PushBack(m_ControlPoints[i - 1].m_Position);
 
     ApproximateCurve(m_ControlPoints[i - 1].m_Position,
       m_ControlPoints[i - 1].m_Position + ezVec2d(m_ControlPoints[i - 1].m_RightTangent.x, m_ControlPoints[i - 1].m_RightTangent.y),
       m_ControlPoints[i].m_Position + ezVec2d(m_ControlPoints[i].m_LeftTangent.x, m_ControlPoints[i].m_LeftTangent.y),
       m_ControlPoints[i].m_Position,
-      fMaxError);
+      fMaxErrorX, fMaxErrorY, uiMaxSubDivs);
   }
 
   m_LinearApproximation.PushBack(m_ControlPoints.PeekBack().m_Position);
@@ -304,39 +306,38 @@ void ezCurve1D::RecomputeLinearApproxExtremes()
   }
 }
 
-void ezCurve1D::ApproximateMinMaxValues(double& fMinY, double& fMaxY)
+void ezCurve1D::ApproximateMinMaxValues(const ControlPoint& lhs, const ControlPoint& rhs, double& fMinY, double& fMaxY)
 {
-  fMinY = m_ControlPoints[0].m_Position.y;
-  fMaxY = m_ControlPoints[0].m_Position.y;
+  fMinY = ezMath::Min(lhs.m_Position.y, rhs.m_Position.y);
+  fMaxY = ezMath::Max(lhs.m_Position.y, rhs.m_Position.y);
 
-  for (const auto& cp : m_ControlPoints)
-  {
-    const double y1 = cp.m_Position.y + cp.m_LeftTangent.y;
-    const double y2 = cp.m_Position.y + cp.m_RightTangent.y;
+  fMinY = ezMath::Min(fMinY, lhs.m_Position.y + lhs.m_RightTangent.y);
+  fMaxY = ezMath::Max(fMaxY, lhs.m_Position.y + lhs.m_RightTangent.y);
 
-    fMinY = ezMath::Min(fMinY, y1, y2);
-    fMaxY = ezMath::Max(fMaxY, y1, y2);
-  }
+  fMinY = ezMath::Min(fMinY, rhs.m_Position.y + rhs.m_LeftTangent.y);
+  fMaxY = ezMath::Max(fMaxY, rhs.m_Position.y + rhs.m_LeftTangent.y);
 }
 
-void ezCurve1D::ApproximateCurve(const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double fMaxError)
+void ezCurve1D::ApproximateCurve(const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double fMaxErrorX, double fMaxErrorY, ezInt32 iSubDivLeft)
 {
   const ezVec2d cubicCenter = ezMath::EvaluateBezierCurve(0.5, p0, p1, p2, p3);
-  const ezVec2d linearCenter = ezMath::Lerp(p0, p3, 0.5);
-  const double fThisError = ezMath::Abs(cubicCenter.y - linearCenter.y);
 
-  ApproximateCurvePiece(p0, p1, p2, p3, 0.0f, p0, 0.5, cubicCenter, fMaxError, fThisError);
+  ApproximateCurvePiece(p0, p1, p2, p3, 0.0f, p0, 0.5, cubicCenter, fMaxErrorX, fMaxErrorY, iSubDivLeft);
 
   // always insert the center point
   // with an S curve the cubicCenter and the linearCenter can be identical even though the rest of the curve is absolutely not linear
   m_LinearApproximation.PushBack(cubicCenter);
 
-  ApproximateCurvePiece(p0, p1, p2, p3, 0.5, cubicCenter, 1.0, p3, fMaxError, fThisError);
+  ApproximateCurvePiece(p0, p1, p2, p3, 0.5, cubicCenter, 1.0, p3, fMaxErrorX, fMaxErrorY, iSubDivLeft);
 
 }
 
-void ezCurve1D::ApproximateCurvePiece(const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double tLeft, const ezVec2d& pLeft, double tRight, const ezVec2d& pRight, double fMaxError, double fPrevError)
+void ezCurve1D::ApproximateCurvePiece(const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double tLeft, const ezVec2d& pLeft, double tRight, const ezVec2d& pRight, double fMaxErrorX, double fMaxErrorY, ezInt32 iSubDivLeft)
 {
+  // this is a safe guard
+  if (iSubDivLeft <= 0)
+    return;
+
   const double tCenter = ezMath::Lerp(tLeft, tRight, 0.5);
 
   const ezVec2d cubicCenter = ezMath::EvaluateBezierCurve(tCenter, p0, p1, p2, p3);
@@ -345,21 +346,17 @@ void ezCurve1D::ApproximateCurvePiece(const ezVec2d& p0, const ezVec2d& p1, cons
   // check whether the linear interpolation between pLeft and pRight would already result in a good enough approximation
   // if not, subdivide the curve further
 
-  const double fThisError = ezMath::Abs(cubicCenter.y - linearCenter.y);
-  if (fThisError < fMaxError)
+  const double fThisErrorX = ezMath::Abs(cubicCenter.x - linearCenter.x);
+  const double fThisErrorY = ezMath::Abs(cubicCenter.y - linearCenter.y);
+
+  if (fThisErrorX < fMaxErrorX && fThisErrorY < fMaxErrorY)
     return;
 
-  if (fThisError >= fPrevError)
-  {
-    // this is a safe guard, it shouldn't happen, but it does, especially when tangents are zero
-    return;
-  }
-
-  ApproximateCurvePiece(p0, p1, p2, p3, tLeft, pLeft, tCenter, cubicCenter, fMaxError, fThisError);
+  ApproximateCurvePiece(p0, p1, p2, p3, tLeft, pLeft, tCenter, cubicCenter, fMaxErrorX, fMaxErrorY, iSubDivLeft - 1);
 
   m_LinearApproximation.PushBack(cubicCenter);
 
-  ApproximateCurvePiece(p0, p1, p2, p3, tCenter, cubicCenter, tRight, pRight, fMaxError, fThisError);
+  ApproximateCurvePiece(p0, p1, p2, p3, tCenter, cubicCenter, tRight, pRight, fMaxErrorX, fMaxErrorY, iSubDivLeft - 1);
 }
 
 void ezCurve1D::ClampTangents()

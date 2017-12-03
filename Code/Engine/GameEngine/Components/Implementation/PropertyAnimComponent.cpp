@@ -125,7 +125,7 @@ void ezPropertyAnimComponent::CreatePropertyBindings()
 
 void ezPropertyAnimComponent::CreateGameObjectBinding(const ezFloatPropertyAnimEntry* pAnim, const ezRTTI* pOwnerRtti, void* pObject, const ezGameObjectHandle& hGameObject)
 {
-  if (pAnim->m_Target < ezPropertyAnimTarget::Number || pAnim->m_Target > ezPropertyAnimTarget::VectorW)
+  if (pAnim->m_Target < ezPropertyAnimTarget::Number || pAnim->m_Target > ezPropertyAnimTarget::RotationZ)
     return;
 
   ezAbstractProperty* pAbstract = pOwnerRtti->FindPropertyByName(pAnim->m_sPropertyPath);
@@ -140,9 +140,14 @@ void ezPropertyAnimComponent::CreateGameObjectBinding(const ezFloatPropertyAnimE
 
   if (pAnim->m_Target == ezPropertyAnimTarget::Number)
   {
-    // Game objects only support to animate Position, Rotation (TBD),
+    // Game objects only support to animate Position, Rotation,
     // Non-Uniform Scale and the one single-float Uniform scale value
     if (pPropRtti != ezGetStaticRTTI<float>())
+      return;
+  }
+  else if (pAnim->m_Target >= ezPropertyAnimTarget::RotationX && pAnim->m_Target <= ezPropertyAnimTarget::RotationZ)
+  {
+    if (pPropRtti != ezGetStaticRTTI<ezQuat>())
       return;
   }
   else
@@ -153,11 +158,45 @@ void ezPropertyAnimComponent::CreateGameObjectBinding(const ezFloatPropertyAnimE
       return;
   }
 
-  GameObjectBinding& binding = m_GoFloatBindings.ExpandAndGetRef();
-  binding.m_hObject = hGameObject;
-  binding.m_pObject = pObject;
-  binding.m_pAnimation = pAnim; // we can store a direct pointer here, because our sharedptr keeps the descriptor alive
-  binding.m_pMemberProperty = pMember;
+  GameObjectBinding* binding = nullptr;
+  for (ezUInt32 i = 0; i < m_GoFloatBindings.GetCount(); ++i)
+  {
+    auto& b = m_GoFloatBindings[i];
+
+    if (b.m_hObject == hGameObject && b.m_pMemberProperty == pMember && b.m_pObject == pObject)
+    {
+      binding = &b;
+      break;
+    }
+  }
+
+  if (binding == nullptr)
+  {
+    binding = &m_GoFloatBindings.ExpandAndGetRef();
+  }
+
+  binding->m_hObject = hGameObject;
+  binding->m_pObject = pObject;
+  binding->m_pMemberProperty = pMember;
+
+  // we can store a direct pointer here, because our sharedptr keeps the descriptor alive
+
+  if (pAnim->m_Target >= ezPropertyAnimTarget::VectorX && pAnim->m_Target <= ezPropertyAnimTarget::VectorW)
+  {
+    binding->m_pAnimation[(int)pAnim->m_Target - (int)ezPropertyAnimTarget::VectorX] = pAnim;
+  }
+  else if (pAnim->m_Target >= ezPropertyAnimTarget::RotationX && pAnim->m_Target <= ezPropertyAnimTarget::RotationZ)
+  {
+    binding->m_pAnimation[(int)pAnim->m_Target - (int)ezPropertyAnimTarget::RotationX] = pAnim;
+  }
+  else if (pAnim->m_Target >= ezPropertyAnimTarget::Number)
+  {
+    binding->m_pAnimation[0] = pAnim;
+  }
+  else
+  {
+    EZ_REPORT_FAILURE("Invalid animation target type '{0}'", pAnim->m_Target.GetValue());
+  }
 }
 
 void ezPropertyAnimComponent::CreateFloatPropertyBinding(const ezFloatPropertyAnimEntry* pAnim, const ezRTTI* pOwnerRtti, void* pObject, const ezComponentHandle& hComponent)
@@ -180,12 +219,16 @@ void ezPropertyAnimComponent::CreateFloatPropertyBinding(const ezFloatPropertyAn
     if (pPropRtti != ezGetStaticRTTI<float>() &&
       pPropRtti != ezGetStaticRTTI<double>() &&
       pPropRtti != ezGetStaticRTTI<bool>() &&
+      pPropRtti != ezGetStaticRTTI<ezInt64>() &&
       pPropRtti != ezGetStaticRTTI<ezInt32>() &&
       pPropRtti != ezGetStaticRTTI<ezInt16>() &&
       pPropRtti != ezGetStaticRTTI<ezInt8>() &&
+      pPropRtti != ezGetStaticRTTI<ezUInt64>() &&
       pPropRtti != ezGetStaticRTTI<ezUInt32>() &&
       pPropRtti != ezGetStaticRTTI<ezUInt16>() &&
-      pPropRtti != ezGetStaticRTTI<ezUInt8>())
+      pPropRtti != ezGetStaticRTTI<ezUInt8>() &&
+      pPropRtti != ezGetStaticRTTI<ezAngle>() &&
+      pPropRtti != ezGetStaticRTTI<ezTime>())
       return;
   }
   else if (pAnim->m_Target >= ezPropertyAnimTarget::VectorX && pAnim->m_Target <= ezPropertyAnimTarget::VectorW)
@@ -196,13 +239,49 @@ void ezPropertyAnimComponent::CreateFloatPropertyBinding(const ezFloatPropertyAn
       return;
   }
   else
+  {
+    // Quaternions are not supported for regular types
     return;
+  }
 
-  ComponentFloatBinding& binding = m_ComponentFloatBindings.ExpandAndGetRef();
-  binding.m_hComponent = hComponent;
-  binding.m_pObject = pObject;
-  binding.m_pAnimation = pAnim; // we can store a direct pointer here, because our sharedptr keeps the descriptor alive
-  binding.m_pMemberProperty = pMember;
+  ComponentFloatBinding* binding = nullptr;
+  for (ezUInt32 i = 0; i < m_ComponentFloatBindings.GetCount(); ++i)
+  {
+    auto& b = m_ComponentFloatBindings[i];
+
+    if (b.m_hComponent == hComponent && b.m_pMemberProperty == pMember && b.m_pObject == pObject)
+    {
+      binding = &b;
+      break;
+    }
+  }
+
+  if (binding == nullptr)
+  {
+    binding = &m_ComponentFloatBindings.ExpandAndGetRef();
+  }
+
+  binding->m_hComponent = hComponent;
+  binding->m_pObject = pObject;
+  binding->m_pMemberProperty = pMember;
+
+  // we can store a direct pointer here, because our sharedptr keeps the descriptor alive
+  if (pAnim->m_Target >= ezPropertyAnimTarget::VectorX && pAnim->m_Target <= ezPropertyAnimTarget::VectorW)
+  {
+    binding->m_pAnimation[(int)pAnim->m_Target - (int)ezPropertyAnimTarget::VectorX] = pAnim;
+  }
+  else if (pAnim->m_Target >= ezPropertyAnimTarget::RotationX && pAnim->m_Target <= ezPropertyAnimTarget::RotationZ)
+  {
+    binding->m_pAnimation[(int)pAnim->m_Target - (int)ezPropertyAnimTarget::RotationX] = pAnim;
+  }
+  else if (pAnim->m_Target >= ezPropertyAnimTarget::Number)
+  {
+    binding->m_pAnimation[0] = pAnim;
+  }
+  else
+  {
+    EZ_REPORT_FAILURE("Invalid animation target type '{0}'", pAnim->m_Target.GetValue());
+  }
 }
 
 
@@ -345,85 +424,141 @@ double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
   return m_AnimationTime.GetSeconds();
 }
 
-void ezPropertyAnimComponent::ApplyFloatAnimation(const FloatBinding& binding, double lookupTime)
+void ezPropertyAnimComponent::ApplySingleFloatAnimation(const FloatBinding& binding, double lookupTime)
 {
   const ezRTTI* pRtti = binding.m_pMemberProperty->GetSpecificType();
 
-  // and now for the tedious task of applying different type values...
-  // there might be better ways to do this, but I haven't checked
-
-  float fFinalValue = 0;
+  double fFinalValue = 0;
   {
-    const ezCurve1D& curve = binding.m_pAnimation->m_Curve;
+    const ezCurve1D& curve = binding.m_pAnimation[0]->m_Curve;
 
     if (curve.IsEmpty())
       return;
 
-    fFinalValue = (float)curve.Evaluate(lookupTime);
-  }
-
-  if (pRtti == ezGetStaticRTTI<ezVec3>())
-  {
-    ezTypedMemberProperty<ezVec3>* pTyped = static_cast<ezTypedMemberProperty<ezVec3>*>(binding.m_pMemberProperty);
-    ezVec3 value = pTyped->GetValue(binding.m_pObject);
-
-    if (binding.m_pAnimation->m_Target == ezPropertyAnimTarget::VectorX)
-      value.x = fFinalValue;
-    else if (binding.m_pAnimation->m_Target == ezPropertyAnimTarget::VectorY)
-      value.y = fFinalValue;
-    else if (binding.m_pAnimation->m_Target == ezPropertyAnimTarget::VectorZ)
-      value.z = fFinalValue;
-
-    pTyped->SetValue(binding.m_pObject, value);
-    return;
-  }
-
-  if (pRtti == ezGetStaticRTTI<ezVec2>())
-  {
-    ezTypedMemberProperty<ezVec2>* pTyped = static_cast<ezTypedMemberProperty<ezVec2>*>(binding.m_pMemberProperty);
-    ezVec2 value = pTyped->GetValue(binding.m_pObject);
-
-    if (binding.m_pAnimation->m_Target == ezPropertyAnimTarget::VectorX)
-      value.x = fFinalValue;
-    else if (binding.m_pAnimation->m_Target == ezPropertyAnimTarget::VectorY)
-      value.y = fFinalValue;
-
-    pTyped->SetValue(binding.m_pObject, value);
-    return;
-  }
-
-  if (pRtti == ezGetStaticRTTI<ezVec4>())
-  {
-    ezTypedMemberProperty<ezVec4>* pTyped = static_cast<ezTypedMemberProperty<ezVec4>*>(binding.m_pMemberProperty);
-    ezVec4 value = pTyped->GetValue(binding.m_pObject);
-
-    if (binding.m_pAnimation->m_Target == ezPropertyAnimTarget::VectorX)
-      value.x = fFinalValue;
-    else if (binding.m_pAnimation->m_Target == ezPropertyAnimTarget::VectorY)
-      value.y = fFinalValue;
-    else if (binding.m_pAnimation->m_Target == ezPropertyAnimTarget::VectorZ)
-      value.z = fFinalValue;
-    else if (binding.m_pAnimation->m_Target == ezPropertyAnimTarget::VectorW)
-      value.w = fFinalValue;
-
-    pTyped->SetValue(binding.m_pObject, value);
-    return;
+    fFinalValue = curve.Evaluate(lookupTime);
   }
 
   if (pRtti == ezGetStaticRTTI<bool>())
   {
     ezTypedMemberProperty<bool>* pTyped = static_cast<ezTypedMemberProperty<bool>*>(binding.m_pMemberProperty);
 
-    pTyped->SetValue(binding.m_pObject, fFinalValue < 0.5f);
+    pTyped->SetValue(binding.m_pObject, fFinalValue < 0.5);
+    return;
+  }
+  else if (pRtti == ezGetStaticRTTI<ezAngle>())
+  {
+    ezTypedMemberProperty<ezAngle>* pTyped = static_cast<ezTypedMemberProperty<ezAngle>*>(binding.m_pMemberProperty);
+
+    pTyped->SetValue(binding.m_pObject, ezAngle::Degree((float)fFinalValue));
+    return;
+  }
+  else if (pRtti == ezGetStaticRTTI<ezTime>())
+  {
+    ezTypedMemberProperty<ezTime>* pTyped = static_cast<ezTypedMemberProperty<ezTime>*>(binding.m_pMemberProperty);
+
+    pTyped->SetValue(binding.m_pObject, ezTime::Seconds(fFinalValue));
     return;
   }
 
-  /// \todo etc. int types
-
+  // this handles float, double, all int types, etc.
   ezVariant value = fFinalValue;
   if (pRtti->GetVariantType() != ezVariantType::Invalid && value.CanConvertTo(pRtti->GetVariantType()))
   {
     ezReflectionUtils::SetMemberPropertyValue(binding.m_pMemberProperty, binding.m_pObject, value);
+  }
+}
+
+void ezPropertyAnimComponent::ApplyFloatAnimation(const FloatBinding& binding, double lookupTime)
+{
+  if (binding.m_pAnimation[0] != nullptr && binding.m_pAnimation[0]->m_Target == ezPropertyAnimTarget::Number)
+  {
+    ApplySingleFloatAnimation(binding, lookupTime);
+    return;
+  }
+
+  const ezRTTI* pRtti = binding.m_pMemberProperty->GetSpecificType();
+
+  float fCurValue[4] = { 0, 0, 0, 0 };
+
+  if (pRtti == ezGetStaticRTTI<ezVec2>())
+  {
+    ezTypedMemberProperty<ezVec2>* pTyped = static_cast<ezTypedMemberProperty<ezVec2>*>(binding.m_pMemberProperty);
+    const ezVec2 value = pTyped->GetValue(binding.m_pObject);
+
+    fCurValue[0] = value.x;
+    fCurValue[1] = value.y;
+  }
+  else if (pRtti == ezGetStaticRTTI<ezVec3>())
+  {
+    ezTypedMemberProperty<ezVec3>* pTyped = static_cast<ezTypedMemberProperty<ezVec3>*>(binding.m_pMemberProperty);
+    const ezVec3 value = pTyped->GetValue(binding.m_pObject);
+
+    fCurValue[0] = value.x;
+    fCurValue[1] = value.y;
+    fCurValue[2] = value.z;
+  }
+  else if (pRtti == ezGetStaticRTTI<ezVec4>())
+  {
+    ezTypedMemberProperty<ezVec4>* pTyped = static_cast<ezTypedMemberProperty<ezVec4>*>(binding.m_pMemberProperty);
+    const ezVec4 value = pTyped->GetValue(binding.m_pObject);
+
+    fCurValue[0] = value.x;
+    fCurValue[1] = value.y;
+    fCurValue[2] = value.z;
+    fCurValue[3] = value.w;
+  }
+  else if (pRtti == ezGetStaticRTTI<ezQuat>())
+  {
+    ezTypedMemberProperty<ezQuat>* pTyped = static_cast<ezTypedMemberProperty<ezQuat>*>(binding.m_pMemberProperty);
+    const ezQuat value = pTyped->GetValue(binding.m_pObject);
+
+    ezAngle euler[3];
+    value.GetAsEulerAngles(euler[0], euler[1], euler[2]);
+    fCurValue[0] = euler[0].GetDegree();
+    fCurValue[1] = euler[1].GetDegree();
+    fCurValue[2] = euler[2].GetDegree();
+  }
+
+  // evaluate all available curves
+  for (ezUInt32 i = 0; i < 4; ++i)
+  {
+    if (binding.m_pAnimation[i] != nullptr)
+    {
+      const ezCurve1D& curve = binding.m_pAnimation[i]->m_Curve;
+
+      if (!curve.IsEmpty())
+      {
+        fCurValue[i] = (float)curve.Evaluate(lookupTime);
+      }
+    }
+  }
+
+  if (pRtti == ezGetStaticRTTI<ezVec2>())
+  {
+    ezTypedMemberProperty<ezVec2>* pTyped = static_cast<ezTypedMemberProperty<ezVec2>*>(binding.m_pMemberProperty);
+
+    pTyped->SetValue(binding.m_pObject, ezVec2(fCurValue[0], fCurValue[1]));
+  }
+  else if (pRtti == ezGetStaticRTTI<ezVec3>())
+  {
+    ezTypedMemberProperty<ezVec3>* pTyped = static_cast<ezTypedMemberProperty<ezVec3>*>(binding.m_pMemberProperty);
+
+    pTyped->SetValue(binding.m_pObject, ezVec3(fCurValue[0], fCurValue[1], fCurValue[2]));
+  }
+  else if (pRtti == ezGetStaticRTTI<ezVec4>())
+  {
+    ezTypedMemberProperty<ezVec4>* pTyped = static_cast<ezTypedMemberProperty<ezVec4>*>(binding.m_pMemberProperty);
+
+    pTyped->SetValue(binding.m_pObject, ezVec4(fCurValue[0], fCurValue[1], fCurValue[2], fCurValue[3]));
+  }
+  else if (pRtti == ezGetStaticRTTI<ezQuat>())
+  {
+    ezTypedMemberProperty<ezQuat>* pTyped = static_cast<ezTypedMemberProperty<ezQuat>*>(binding.m_pMemberProperty);
+
+    ezQuat rot;
+    rot.SetFromEulerAngles(ezAngle::Degree(fCurValue[0]), ezAngle::Degree(fCurValue[1]), ezAngle::Degree(fCurValue[2]));
+
+    pTyped->SetValue(binding.m_pObject, rot);
   }
 }
 

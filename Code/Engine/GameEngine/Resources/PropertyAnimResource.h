@@ -17,6 +17,9 @@ struct EZ_GAMEENGINE_DLL ezPropertyAnimTarget
     VectorY,
     VectorZ,
     VectorW,
+    RotationX,
+    RotationY,
+    RotationZ,
     Color,
 
     Default = Number,

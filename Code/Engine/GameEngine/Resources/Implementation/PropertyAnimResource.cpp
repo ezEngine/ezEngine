@@ -10,7 +10,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimResource, 1, ezRTTIDefaultAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezPropertyAnimTarget, 1)
-EZ_ENUM_CONSTANTS(ezPropertyAnimTarget::Number, ezPropertyAnimTarget::VectorX, ezPropertyAnimTarget::VectorY, ezPropertyAnimTarget::VectorZ, ezPropertyAnimTarget::VectorW, ezPropertyAnimTarget::Color)
+EZ_ENUM_CONSTANTS(ezPropertyAnimTarget::Number, ezPropertyAnimTarget::VectorX, ezPropertyAnimTarget::VectorY, ezPropertyAnimTarget::VectorZ, ezPropertyAnimTarget::VectorW)
+EZ_ENUM_CONSTANTS(ezPropertyAnimTarget::RotationX, ezPropertyAnimTarget::RotationY, ezPropertyAnimTarget::RotationZ, ezPropertyAnimTarget::Color)
 EZ_END_STATIC_REFLECTED_ENUM()
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezPropertyAnimMode, 1)

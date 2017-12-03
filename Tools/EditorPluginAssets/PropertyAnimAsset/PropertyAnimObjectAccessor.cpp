@@ -42,12 +42,13 @@ ezStatus ezPropertyAnimObjectAccessor::SetValue(const ezDocumentObject* pObject,
       {
         const double fOldValue = ezReflectionUtils::GetComponent(oldValue, c);
         const double fValue = ezReflectionUtils::GetComponent(newValue, c);
+
         if (ezMath::IsEqual(fOldValue, fValue, ezMath::BasicType<double>::SmallEpsilon()))
           continue;
-        ezStatus res = SetCurveCp(pObject, pProp, index, static_cast<ezPropertyAnimTarget::Enum>((int)ezPropertyAnimTarget::VectorX + c), fOldValue, fValue);
-        if (res.Failed())
-          return res;
+
+        EZ_SUCCEED_OR_RETURN(SetCurveCp(pObject, pProp, index, static_cast<ezPropertyAnimTarget::Enum>((int)ezPropertyAnimTarget::VectorX + c), fOldValue, fValue));
       }
+
       return ezStatus(EZ_SUCCESS);
     }
     else if (type == ezVariantType::Color)
@@ -95,6 +96,27 @@ ezStatus ezPropertyAnimObjectAccessor::SetValue(const ezDocumentObject* pObject,
       }
       return res;
     }
+    else if (type == ezVariantType::Quaternion)
+    {
+      const ezQuat qOldRot = oldValue.Get<ezQuat>();
+      const ezQuat qNewRot = newValue.Get<ezQuat>();
+
+      ezAngle oldEuler[3];
+      qOldRot.GetAsEulerAngles(oldEuler[0], oldEuler[1], oldEuler[2]);
+      ezAngle newEuler[3];
+      qNewRot.GetAsEulerAngles(newEuler[0], newEuler[1], newEuler[2]);
+
+      for (ezUInt32 c = 0; c < 3; c++)
+      {
+        if (oldEuler[c].IsEqualSimple(newEuler[c], ezAngle::Degree(1.0)))
+          continue;
+
+        EZ_SUCCEED_OR_RETURN(SetCurveCp(pObject, pProp, index, static_cast<ezPropertyAnimTarget::Enum>((int)ezPropertyAnimTarget::RotationX + c), oldEuler[c].GetDegree(), newEuler[c].GetDegree()));
+      }
+
+      return ezStatus(EZ_SUCCESS);
+    }
+
     return ezStatus(ezFmt("The property '{0}' cannot be animated.", pProp->GetPropertyName()));
   }
   else

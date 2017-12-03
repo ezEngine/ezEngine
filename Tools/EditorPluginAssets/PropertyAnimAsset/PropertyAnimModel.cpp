@@ -258,14 +258,17 @@ void ezQtPropertyAnimModel::BuildMapping(ezInt32 iToUse, ezInt32 iTrackIdx, ezPr
       pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/AssetIcons/Curve1D.png");
       break;
     case ezPropertyAnimTarget::VectorX:
+    case ezPropertyAnimTarget::RotationX:
       pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveX.png");
       name.Append(".x");
       break;
     case ezPropertyAnimTarget::VectorY:
+    case ezPropertyAnimTarget::RotationY:
       pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveY.png");
       name.Append(".y");
       break;
     case ezPropertyAnimTarget::VectorZ:
+    case ezPropertyAnimTarget::RotationZ:
       pThisEntry->m_Icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveZ.png");
       name.Append(".z");
       break;

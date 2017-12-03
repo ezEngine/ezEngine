@@ -32,13 +32,13 @@ public:
 protected:
   struct Binding
   {
-    ezAbstractMemberProperty* m_pMemberProperty;
-    void* m_pObject;
+    ezAbstractMemberProperty* m_pMemberProperty = nullptr;
+    void* m_pObject = nullptr;
   };
 
   struct FloatBinding : public Binding
   {
-    const ezFloatPropertyAnimEntry* m_pAnimation;
+    const ezFloatPropertyAnimEntry* m_pAnimation[4] = { nullptr, nullptr, nullptr, nullptr };
   };
 
   struct ComponentFloatBinding : public FloatBinding
@@ -54,7 +54,7 @@ protected:
   struct ColorBinding : public Binding
   {
     ezComponentHandle m_hComponent;
-    const ezColorPropertyAnimEntry* m_pAnimation;
+    const ezColorPropertyAnimEntry* m_pAnimation = nullptr;
   };
 
   void CreatePropertyBindings();
@@ -63,6 +63,7 @@ protected:
   void CreateColorPropertyBinding(const ezColorPropertyAnimEntry* pAnim, const ezRTTI* pRtti, void* pObject, const ezComponentHandle& hComponent);
   void ApplyAnimations(const ezTime& tDiff);
   void ApplyFloatAnimation(const FloatBinding& binding, double lookupTime);
+  void ApplySingleFloatAnimation(const FloatBinding& binding, double lookupTime);
   void ApplyColorAnimation(const ColorBinding& binding, double lookupTime);
   double ComputeAnimationLookup(ezTime tDiff);
 
