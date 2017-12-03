@@ -5,10 +5,10 @@
 
 ezPropertyAnimObjectAccessor::ezPropertyAnimObjectAccessor(ezPropertyAnimAssetDocument* pDoc, ezCommandHistory* pHistory)
   : ezObjectCommandAccessor(pHistory)
-  , m_ObjAccessor(pHistory)
   , m_pDocument(pDoc)
   , m_pObjectManager(static_cast<ezPropertyAnimObjectManager*>(pDoc->GetObjectManager()))
 {
+  m_ObjAccessor = EZ_DEFAULT_NEW(ezObjectCommandAccessor, pHistory);
 }
 
 ezStatus ezPropertyAnimObjectAccessor::GetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value, ezVariant index /*= ezVariant()*/)
@@ -28,7 +28,7 @@ ezStatus ezPropertyAnimObjectAccessor::SetValue(const ezDocumentObject* pObject,
   if (IsTemporary(pObject))
   {
     ezVariant oldValue;
-    EZ_VERIFY(m_ObjAccessor.GetValue(pObject, pProp, oldValue, index).Succeeded(), "Property does not exist, can't animate");
+    EZ_VERIFY(m_ObjAccessor->GetValue(pObject, pProp, oldValue, index).Succeeded(), "Property does not exist, can't animate");
 
     ezVariantType::Enum type = pProp->GetSpecificType()->GetVariantType();
     if (type >= ezVariantType::Bool && type <= ezVariantType::Double)
@@ -50,9 +50,50 @@ ezStatus ezPropertyAnimObjectAccessor::SetValue(const ezDocumentObject* pObject,
       }
       return ezStatus(EZ_SUCCESS);
     }
-    else if (type == ezVariantType::Color || type == ezVariantType::ColorGamma)
+    else if (type == ezVariantType::Color)
     {
-      //#TODO: case ezPropertyAnimTarget::Color:
+      auto oldColor = oldValue.Get<ezColor>();
+      ezColorGammaUB oldColorGamma; ezUInt8 oldAlpha; float oldIntensity;
+      SeparateColor(oldColor, oldColorGamma, oldAlpha, oldIntensity);
+      auto newColor = newValue.Get<ezColor>();
+      ezColorGammaUB newColorGamma; ezUInt8 newAlpha; float newIntensity;
+      SeparateColor(newColor, newColorGamma, newAlpha, newIntensity);
+
+      ezStatus res(EZ_SUCCESS);
+      if (oldColorGamma != newColorGamma)
+      {
+        res = SetColorCurveCp(pObject, pProp, index, oldColorGamma, newColorGamma);
+      }
+      if (oldAlpha != newAlpha && res.Succeeded())
+      {
+        res = SetAlphaCurveCp(pObject, pProp, index, oldAlpha, newAlpha);
+      }
+      if (!ezMath::IsEqual(oldIntensity, newIntensity, ezMath::BasicType<float>::SmallEpsilon()) && res.Succeeded())
+      {
+        res = SetIntensityCurveCp(pObject, pProp, index, oldIntensity, newIntensity);
+      }
+      return res;
+    }
+    else if (type == ezVariantType::ColorGamma)
+    {
+      auto oldColorGamma = oldValue.Get<ezColorGammaUB>();
+      ezUInt8 oldAlpha = oldColorGamma.a;
+      oldColorGamma.a = 255;
+
+      auto newColorGamma = newValue.Get<ezColorGammaUB>();
+      ezUInt8 newAlpha = newColorGamma.a;
+      newColorGamma.a = 255;
+
+      ezStatus res(EZ_SUCCESS);
+      if (oldColorGamma != newColorGamma)
+      {
+        res = SetColorCurveCp(pObject, pProp, index, oldColorGamma, newColorGamma);
+      }
+      if (oldAlpha != newAlpha && res.Succeeded())
+      {
+        res = SetAlphaCurveCp(pObject, pProp, index, oldAlpha, newAlpha);
+      }
+      return res;
     }
     return ezStatus(ezFmt("The property '{0}' cannot be animated.", pProp->GetPropertyName()));
   }
@@ -147,12 +188,15 @@ bool ezPropertyAnimObjectAccessor::IsTemporary(const ezDocumentObject* pParent, 
 
 ezStatus ezPropertyAnimObjectAccessor::SetCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target, double fOldValue, double fNewValue)
 {
-  ezUuid track = FindOrAddTrack(pObject, pProp, index, target, fOldValue);
-  SetOrInsertCurveCp(track, fNewValue);
-  return ezStatus(EZ_SUCCESS);
+  ezUuid track = FindOrAddTrack(pObject, pProp, index, target, [this, fOldValue](const ezUuid& trackGuid)
+  {
+    // add a control point at the start of the curve with the original value
+    m_pDocument->InsertCurveCpAt(trackGuid, 0, fOldValue);
+  });
+  return SetOrInsertCurveCp(track, fNewValue);
 }
 
-ezUuid ezPropertyAnimObjectAccessor::FindOrAddTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target, double fOldValue)
+ezUuid ezPropertyAnimObjectAccessor::FindOrAddTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target, OnAddTrack onAddTrack)
 {
   ezUuid track = m_pDocument->FindTrack(pObject, pProp, index, target);
   if (!track.IsValid())
@@ -164,9 +208,7 @@ ezUuid ezPropertyAnimObjectAccessor::FindOrAddTrack(const ezDocumentObject* pObj
       pHistory->SuspendTemporaryTransaction();
     }
     track = m_pDocument->CreateTrack(pObject, pProp, index, target);
-
-    // add a control point at the start of the curve with the original value
-    m_pDocument->InsertCurveCpAt(track, 0, fOldValue);
+    onAddTrack(track);
 
     if (bWasTemporaryTransaction)
     {
@@ -184,8 +226,7 @@ ezStatus ezPropertyAnimObjectAccessor::SetOrInsertCurveCp(const ezUuid& track, d
   if (cpGuid.IsValid())
   {
     auto pCP = GetObject(cpGuid);
-    const ezAbstractProperty* pValueProp = ezGetStaticRTTI<ezCurveControlPointData>()->FindPropertyByName("Value");
-    m_ObjAccessor.SetValue(pCP, pValueProp, fValue);
+    EZ_VERIFY(m_ObjAccessor->SetValue(pCP, "Value", fValue).Succeeded(), "");
   }
   else
   {
@@ -202,4 +243,134 @@ ezStatus ezPropertyAnimObjectAccessor::SetOrInsertCurveCp(const ezUuid& track, d
     }
   }
   return ezStatus(EZ_SUCCESS);
+}
+
+ezStatus ezPropertyAnimObjectAccessor::SetColorCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, const ezColorGammaUB& oldValue, const ezColorGammaUB& newValue)
+{
+  ezUuid track = FindOrAddTrack(pObject, pProp, index, ezPropertyAnimTarget::Color, [this, &oldValue](const ezUuid& trackGuid)
+  {
+    // add a control point at the start of the curve with the original value
+    m_pDocument->InsertGradientColorCpAt(trackGuid, 0, oldValue);
+  });
+  SetOrInsertColorCurveCp(track, newValue);
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezStatus ezPropertyAnimObjectAccessor::SetOrInsertColorCurveCp(const ezUuid& track, const ezColorGammaUB& value)
+{
+  const ezInt64 iScrubberPos = (ezInt64)m_pDocument->GetScrubberPosition();
+  ezUuid cpGuid = m_pDocument->FindGradientColorCp(track, iScrubberPos);
+  if (cpGuid.IsValid())
+  {
+    auto pCP = GetObject(cpGuid);
+    EZ_VERIFY(m_ObjAccessor->SetValue(pCP, "Red", value.r).Succeeded(), "");
+    EZ_VERIFY(m_ObjAccessor->SetValue(pCP, "Green", value.g).Succeeded(), "");
+    EZ_VERIFY(m_ObjAccessor->SetValue(pCP, "Blue", value.b).Succeeded(), "");
+  }
+  else
+  {
+    auto pHistory = m_pDocument->GetCommandHistory();
+    bool bWasTemporaryTransaction = pHistory->InTemporaryTransaction();
+    if (bWasTemporaryTransaction)
+    {
+      pHistory->SuspendTemporaryTransaction();
+    }
+    cpGuid = m_pDocument->InsertGradientColorCpAt(track, iScrubberPos, value);
+    if (bWasTemporaryTransaction)
+    {
+      pHistory->ResumeTemporaryTransaction();
+    }
+  }
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezStatus ezPropertyAnimObjectAccessor::SetAlphaCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezUInt8 oldValue, ezUInt8 newValue)
+{
+  ezUuid track = FindOrAddTrack(pObject, pProp, index, ezPropertyAnimTarget::Color, [this, &oldValue](const ezUuid& trackGuid)
+  {
+    // add a control point at the start of the curve with the original value
+    m_pDocument->InsertGradientAlphaCpAt(trackGuid, 0, oldValue);
+  });
+  SetOrInsertAlphaCurveCp(track, newValue);
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezStatus ezPropertyAnimObjectAccessor::SetOrInsertAlphaCurveCp(const ezUuid& track, ezUInt8 value)
+{
+  const ezInt64 iScrubberPos = (ezInt64)m_pDocument->GetScrubberPosition();
+  ezUuid cpGuid = m_pDocument->FindGradientAlphaCp(track, iScrubberPos);
+  if (cpGuid.IsValid())
+  {
+    auto pCP = GetObject(cpGuid);
+    EZ_VERIFY(m_ObjAccessor->SetValue(pCP, "Alpha", value).Succeeded(), "");
+  }
+  else
+  {
+    auto pHistory = m_pDocument->GetCommandHistory();
+    bool bWasTemporaryTransaction = pHistory->InTemporaryTransaction();
+    if (bWasTemporaryTransaction)
+    {
+      pHistory->SuspendTemporaryTransaction();
+    }
+    cpGuid = m_pDocument->InsertGradientAlphaCpAt(track, iScrubberPos, value);
+    if (bWasTemporaryTransaction)
+    {
+      pHistory->ResumeTemporaryTransaction();
+    }
+  }
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezStatus ezPropertyAnimObjectAccessor::SetIntensityCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, float oldValue, float newValue)
+{
+  ezUuid track = FindOrAddTrack(pObject, pProp, index, ezPropertyAnimTarget::Color, [this, &oldValue](const ezUuid& trackGuid)
+  {
+    // add a control point at the start of the curve with the original value
+    m_pDocument->InsertGradientIntensityCpAt(trackGuid, 0, oldValue);
+  });
+  SetOrInsertIntensityCurveCp(track, newValue);
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezStatus ezPropertyAnimObjectAccessor::SetOrInsertIntensityCurveCp(const ezUuid& track, float value)
+{
+  const ezInt64 iScrubberPos = (ezInt64)m_pDocument->GetScrubberPosition();
+  ezUuid cpGuid = m_pDocument->FindGradientIntensityCp(track, iScrubberPos);
+  if (cpGuid.IsValid())
+  {
+    auto pCP = GetObject(cpGuid);
+    EZ_VERIFY(m_ObjAccessor->SetValue(pCP, "Intensity", value).Succeeded(), "");
+  }
+  else
+  {
+    auto pHistory = m_pDocument->GetCommandHistory();
+    bool bWasTemporaryTransaction = pHistory->InTemporaryTransaction();
+    if (bWasTemporaryTransaction)
+    {
+      pHistory->SuspendTemporaryTransaction();
+    }
+    cpGuid = m_pDocument->InsertGradientIntensityCpAt(track, iScrubberPos, value);
+    if (bWasTemporaryTransaction)
+    {
+      pHistory->ResumeTemporaryTransaction();
+    }
+  }
+  return ezStatus(EZ_SUCCESS);
+}
+
+void ezPropertyAnimObjectAccessor::SeparateColor(const ezColor& color, ezColorGammaUB& gamma, ezUInt8& alpha, float& intensity)
+{
+  alpha = static_cast<ezColorGammaUB>(color).a;
+  intensity = ezMath::Max(color.r, color.g, color.b);
+  if (intensity > 1.0f)
+  {
+    gamma = (color / intensity);
+    gamma.a = 255;
+  }
+  else
+  {
+    intensity = 1.0f;
+    gamma = color;
+    gamma.a = 255;
+  }
 }

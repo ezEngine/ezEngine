@@ -7,6 +7,7 @@ class ezDocumentObject;
 class EZ_TOOLSFOUNDATION_DLL ezObjectAccessorBase
 {
 public:
+  virtual ~ezObjectAccessorBase();
   /// \name Transaction Operations
   ///@{
 

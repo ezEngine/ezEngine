@@ -127,6 +127,11 @@ ezObjectAccessorBase::ezObjectAccessorBase(ezDocumentObjectManager* pManager)
 {
 }
 
+ezObjectAccessorBase::~ezObjectAccessorBase()
+{
+
+}
+
 void ezObjectAccessorBase::FireDocumentObjectStructureEvent(const ezDocumentObjectStructureEvent& e)
 {
   m_pManager->m_StructureEvents.Broadcast(e);

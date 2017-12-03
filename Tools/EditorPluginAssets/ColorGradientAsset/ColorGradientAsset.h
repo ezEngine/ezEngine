@@ -54,7 +54,7 @@ public:
   ezDynamicArray<ezAlphaControlPoint> m_AlphaCPs;
   ezDynamicArray<ezIntensityControlPoint> m_IntensityCPs;
 
-  ezInt64 TickFromTime(double time);
+  static ezInt64 TickFromTime(double time);
 
   /// \brief Fills out the ezColorGradient structure with an exact copy of the data in the asset.
   /// Does NOT yet sort the control points, so before evaluating the color gradient, that must be called manually.

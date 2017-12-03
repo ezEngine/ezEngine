@@ -24,11 +24,24 @@ public:
 private:
   bool IsTemporary(const ezDocumentObject* pObject) const;
   bool IsTemporary(const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp) const;
+  typedef ezDelegate<void (const ezUuid&)> OnAddTrack;
+  ezUuid FindOrAddTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target, OnAddTrack onAddTrack);
+
   ezStatus SetCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target, double fOldValue, double fNewValue);
-  ezUuid FindOrAddTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target, double fOldValue);
   ezStatus SetOrInsertCurveCp(const ezUuid& track, double fValue);
 
-  ezObjectCommandAccessor m_ObjAccessor;
+  ezStatus SetColorCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, const ezColorGammaUB& oldValue, const ezColorGammaUB& newValue);
+  ezStatus SetOrInsertColorCurveCp(const ezUuid& track, const ezColorGammaUB& value);
+
+  ezStatus SetAlphaCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezUInt8 oldValue, ezUInt8 newValue);
+  ezStatus SetOrInsertAlphaCurveCp(const ezUuid& track, ezUInt8 value);
+
+  ezStatus SetIntensityCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, float oldValue, float newValue);
+  ezStatus SetOrInsertIntensityCurveCp(const ezUuid& track, float value);
+
+  void SeparateColor(const ezColor& color, ezColorGammaUB& gamma, ezUInt8& alpha, float& intensity);
+
+  ezUniquePtr<ezObjectAccessorBase> m_ObjAccessor;
   ezPropertyAnimAssetDocument* m_pDocument = nullptr;
   ezPropertyAnimObjectManager* m_pObjectManager = nullptr;
 };

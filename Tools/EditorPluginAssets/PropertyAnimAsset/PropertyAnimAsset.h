@@ -91,6 +91,15 @@ public:
   ezUuid FindCurveCp(const ezUuid& trackGuid, ezInt64 tickX);
   ezUuid InsertCurveCpAt(const ezUuid& trackGuid, ezInt64 tickX, double newPosY);
 
+  ezUuid FindGradientColorCp(const ezUuid& trackGuid, ezInt64 tickX);
+  ezUuid InsertGradientColorCpAt(const ezUuid& trackGuid, ezInt64 tickX, const ezColorGammaUB& color);
+
+  ezUuid FindGradientAlphaCp(const ezUuid& trackGuid, ezInt64 tickX);
+  ezUuid InsertGradientAlphaCpAt(const ezUuid& trackGuid, ezInt64 tickX, ezUInt8 alpha);
+
+  ezUuid FindGradientIntensityCp(const ezUuid& trackGuid, ezInt64 tickX);
+  ezUuid InsertGradientIntensityCpAt(const ezUuid& trackGuid, ezInt64 tickX, float intensity);
+
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
   virtual void InitializeAfterLoading() override;

@@ -798,41 +798,8 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientColorCpAdded(double posX, co
     return;
 
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
-  const ezDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<ezUuid>());
-  const ezUuid gradientGuid = trackObject->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
-
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
-  history->StartTransaction("Add Color Control Point");
-
-  ezAddObjectCommand cmdAdd;
-  cmdAdd.m_Parent = gradientGuid;
-  cmdAdd.m_NewObjectGuid.CreateNewUuid();
-  cmdAdd.m_sParentProperty = "ColorCPs";
-  cmdAdd.m_pType = ezGetStaticRTTI<ezColorControlPoint>();
-  cmdAdd.m_Index = -1;
-
-  history->AddCommand(cmdAdd);
-
-  ezSetObjectPropertyCommand cmdSet;
-  cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
-
-  cmdSet.m_sProperty = "Tick";
-  cmdSet.m_NewValue = pDoc->GetProperties()->m_Tracks[m_iMapGradientToTrack]->m_ColorGradient.TickFromTime(posX);
-  history->AddCommand(cmdSet);
-
-  cmdSet.m_sProperty = "Red";
-  cmdSet.m_NewValue = color.r;
-  history->AddCommand(cmdSet);
-
-  cmdSet.m_sProperty = "Green";
-  cmdSet.m_NewValue = color.g;
-  history->AddCommand(cmdSet);
-
-  cmdSet.m_sProperty = "Blue";
-  cmdSet.m_NewValue = color.b;
-  history->AddCommand(cmdSet);
-
-  history->FinishTransaction();
+  ezInt64 tickX = ezColorGradientAssetData::TickFromTime(posX);
+  pDoc->InsertGradientColorCpAt(trackGuid.Get<ezUuid>(), tickX, color);
 }
 
 
@@ -844,33 +811,8 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientAlphaCpAdded(double posX, ez
     return;
 
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
-  const ezDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<ezUuid>());
-  const ezUuid gradientGuid = trackObject->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
-
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
-  history->StartTransaction("Add Alpha Control Point");
-
-  ezAddObjectCommand cmdAdd;
-  cmdAdd.m_Parent = gradientGuid;
-  cmdAdd.m_NewObjectGuid.CreateNewUuid();
-  cmdAdd.m_sParentProperty = "AlphaCPs";
-  cmdAdd.m_pType = ezGetStaticRTTI<ezAlphaControlPoint>();
-  cmdAdd.m_Index = -1;
-
-  history->AddCommand(cmdAdd);
-
-  ezSetObjectPropertyCommand cmdSet;
-  cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
-
-  cmdSet.m_sProperty = "Tick";
-  cmdSet.m_NewValue = pDoc->GetProperties()->m_Tracks[m_iMapGradientToTrack]->m_ColorGradient.TickFromTime(posX);
-  history->AddCommand(cmdSet);
-
-  cmdSet.m_sProperty = "Alpha";
-  cmdSet.m_NewValue = alpha;
-  history->AddCommand(cmdSet);
-
-  history->FinishTransaction();
+  ezInt64 tickX = ezColorGradientAssetData::TickFromTime(posX);
+  pDoc->InsertGradientAlphaCpAt(trackGuid.Get<ezUuid>(), tickX, alpha);
 }
 
 
@@ -882,33 +824,8 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientIntensityCpAdded(double posX
     return;
 
   const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
-  const ezDocumentObject* trackObject = pDoc->GetObjectManager()->GetObject(trackGuid.Get<ezUuid>());
-  const ezUuid gradientGuid = trackObject->GetTypeAccessor().GetValue("Gradient").Get<ezUuid>();
-
-  ezCommandHistory* history = GetDocument()->GetCommandHistory();
-  history->StartTransaction("Add Intensity Control Point");
-
-  ezAddObjectCommand cmdAdd;
-  cmdAdd.m_Parent = gradientGuid;
-  cmdAdd.m_NewObjectGuid.CreateNewUuid();
-  cmdAdd.m_sParentProperty = "IntensityCPs";
-  cmdAdd.m_pType = ezGetStaticRTTI<ezIntensityControlPoint>();
-  cmdAdd.m_Index = -1;
-
-  history->AddCommand(cmdAdd);
-
-  ezSetObjectPropertyCommand cmdSet;
-  cmdSet.m_Object = cmdAdd.m_NewObjectGuid;
-
-  cmdSet.m_sProperty = "Tick";
-  cmdSet.m_NewValue = pDoc->GetProperties()->m_Tracks[m_iMapGradientToTrack]->m_ColorGradient.TickFromTime(posX);
-  history->AddCommand(cmdSet);
-
-  cmdSet.m_sProperty = "Intensity";
-  cmdSet.m_NewValue = intensity;
-  history->AddCommand(cmdSet);
-
-  history->FinishTransaction();
+  ezInt64 tickX = ezColorGradientAssetData::TickFromTime(posX);
+  pDoc->InsertGradientIntensityCpAt(trackGuid.Get<ezUuid>(), tickX, intensity);
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::MoveGradientCP(ezInt32 idx, double newPosX, const char* szArrayName)
