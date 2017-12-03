@@ -33,6 +33,7 @@ public:
 signals:
   void DeleteSelectedItemsEvent();
   void FrameSelectedItemsEvent();
+  void RebindSelectedItemsEvent();
 
 protected slots:
   void onBeforeModelReset();
@@ -77,6 +78,7 @@ private slots:
   void onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
   void onScrubberPosChanged(ezUInt64 uiTick);
   void onDeleteSelectedItems();
+  void onRebindSelectedItems();
   void onPlaybackTick();
   void onPlayPauseClicked();
   void onRepeatClicked();

@@ -28,6 +28,7 @@
 #include <QToolBar>
 #include <QPushButton>
 #include <qevent.h>
+#include <QInputDialog>
 
 ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPropertyAnimAssetDocument* pDocument) : ezQtGameObjectDocumentWindow(pDocument)
 {
@@ -106,6 +107,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     pPanel->setWidget(m_pPropertyTreeView);
 
     connect(m_pPropertyTreeView, &ezQtPropertyAnimAssetTreeView::DeleteSelectedItemsEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onDeleteSelectedItems);
+    connect(m_pPropertyTreeView, &ezQtPropertyAnimAssetTreeView::RebindSelectedItemsEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onRebindSelectedItems);
 
     connect(m_pPropertyTreeView, &QTreeView::doubleClicked, this, &ezQtPropertyAnimAssetDocumentWindow::onTreeItemDoubleClicked);
     connect(m_pPropertyTreeView, &ezQtPropertyAnimAssetTreeView::FrameSelectedItemsEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onFrameSelectedTracks);
@@ -445,6 +447,56 @@ void ezQtPropertyAnimAssetDocumentWindow::onDeleteSelectedItems()
 
   m_MapSelectionToTrack.Clear();
   m_iMapGradientToTrack = -1;
+
+  pHistory->FinishTransaction();
+}
+
+void ezQtPropertyAnimAssetDocumentWindow::onRebindSelectedItems()
+{
+  auto pDoc = GetPropertyAnimDocument();
+  auto pHistory = pDoc->GetCommandHistory();
+
+  ezHybridArray<ezUuid, 16> rebindTracks;
+
+  for (ezInt32 iTrack : m_MapSelectionToTrack)
+  {
+    const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", iTrack);
+
+    if (trackGuid.IsValid())
+      rebindTracks.PushBack(trackGuid.Get<ezUuid>());
+  }
+
+  if (m_iMapGradientToTrack >= 0)
+  {
+    const ezVariant trackGuid = pDoc->GetPropertyObject()->GetTypeAccessor().GetValue("Tracks", m_iMapGradientToTrack);
+
+    if (trackGuid.IsValid())
+      rebindTracks.PushBack(trackGuid.Get<ezUuid>());
+  }
+
+  bool ok = false;
+  QString result = QInputDialog::getText(this, "Change Animation Binding", "New Binding Path:", QLineEdit::Normal, "", &ok);
+
+  if (!ok)
+    return;
+
+  m_pSelectionModel->clear();
+
+  ezStringBuilder path = result.toUtf8().data();;
+  path.MakeCleanPath();
+  const ezVariant varRes = path.GetData();
+
+  pHistory->StartTransaction("Rebind Tracks");
+
+  for (const ezUuid guid : rebindTracks)
+  {
+    ezSetObjectPropertyCommand cmdSet;
+    cmdSet.m_Object = guid;
+
+    cmdSet.m_sProperty = "ObjectPath";
+    cmdSet.m_NewValue = varRes;
+    pDoc->GetCommandHistory()->AddCommand(cmdSet);
+  }
 
   pHistory->FinishTransaction();
 }
@@ -1121,12 +1173,14 @@ void ezQtPropertyAnimAssetTreeView::contextMenuEvent(QContextMenuEvent *event)
   QMenu m;
   QAction* pFrameAction = m.addAction("Frame Curve");
   QAction* pRemoveAction = m.addAction("Remove Track");
+  QAction* pBindingAction = m.addAction("Change Binding...");
   m.setDefaultAction(pFrameAction);
 
   pRemoveAction->setShortcut(Qt::Key_Delete);
 
   connect(pFrameAction, &QAction::triggered, this, [this](bool) { emit FrameSelectedItemsEvent(); });
   connect(pRemoveAction, &QAction::triggered, this, [this](bool) { emit DeleteSelectedItemsEvent(); });
+  connect(pBindingAction, &QAction::triggered, this, [this](bool) { emit RebindSelectedItemsEvent(); });
 
   m.exec(QCursor::pos());
 }

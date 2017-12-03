@@ -11,12 +11,14 @@ ezQtPropertyAnimModel::ezQtPropertyAnimModel(ezPropertyAnimAssetDocument* pDocum
   , m_pAssetDoc(pDocument)
 {
   m_pAssetDoc->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimModel::DocumentStructureEventHandler, this));
+  m_pAssetDoc->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimModel::DocumentPropertyEventHandler, this));
 
   TriggerBuildMapping();
 }
 
 ezQtPropertyAnimModel::~ezQtPropertyAnimModel()
 {
+  m_pAssetDoc->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimModel::DocumentPropertyEventHandler, this));
   m_pAssetDoc->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimModel::DocumentStructureEventHandler, this));
 }
 
@@ -115,6 +117,18 @@ void ezQtPropertyAnimModel::DocumentStructureEventHandler(const ezDocumentObject
   case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
     TriggerBuildMapping();
     break;
+  }
+}
+
+void ezQtPropertyAnimModel::DocumentPropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+{
+  if (e.m_EventType == ezDocumentObjectPropertyEvent::Type::PropertySet)
+  {
+    if (e.m_sProperty == "ObjectPath")
+    {
+      TriggerBuildMapping();
+      return;
+    }
   }
 }
 

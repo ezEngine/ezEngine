@@ -66,6 +66,7 @@ public: //QAbstractItemModel interface
 private:
 
   void DocumentStructureEventHandler(const ezDocumentObjectStructureEvent& e);
+  void DocumentPropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void TriggerBuildMapping();
   void BuildMapping();
   void BuildMapping(ezInt32 iToUse);
