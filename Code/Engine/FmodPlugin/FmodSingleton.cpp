@@ -31,8 +31,6 @@ void ezFmod::Startup()
   if (m_bInitialized)
     return;
 
-  m_bInitialized = true;
-
   m_pData = EZ_DEFAULT_NEW(Data);
 
   DetectPlatform();
@@ -129,29 +127,34 @@ void ezFmod::Startup()
     return;
   }
 
+  m_bInitialized = true;
+
   UpdateSound();
 }
 
 void ezFmod::Shutdown()
 {
-  if (!m_bInitialized)
-    return;
+  if (m_bInitialized)
+  {
+    // delete all fmod resources, except the master bank
+    ezResourceManager::FreeUnusedResources(true);
 
-  // delete all fmod resources, except the master bank
-  ezResourceManager::FreeUnusedResources(true);
+    m_bInitialized = false;
+    m_pData->m_hMasterBank.Invalidate();
 
-  m_bInitialized = false;
-  m_pData->m_hMasterBank.Invalidate();
+    // now also delete the master bank
+    ezResourceManager::FreeUnusedResources(true);
 
-  // now also delete the master bank
-  ezResourceManager::FreeUnusedResources(true);
+    // now actually delete the sound bank data
+    ClearSoundBankDataDeletionQueue();
 
-  // now actually delete the sound bank data
-  ClearSoundBankDataDeletionQueue();
-
-  m_pStudioSystem->release();
-  m_pStudioSystem = nullptr;
-  m_pLowLevelSystem = nullptr;
+    if (m_pStudioSystem != nullptr)
+    {
+      m_pStudioSystem->release();
+      m_pStudioSystem = nullptr;
+      m_pLowLevelSystem = nullptr;
+    }
+  }
 
   // finally delete all data
   m_pData.Reset();
@@ -388,8 +391,11 @@ void ezFmod::ClearSoundBankDataDeletionQueue()
 
   EZ_LOCK(m_DeletionQueueMutex);
 
-  // make sure the data is not in use anymore
-  m_pStudioSystem->flushCommands();
+  if (m_pStudioSystem != nullptr)
+  {
+    // make sure the data is not in use anymore
+    m_pStudioSystem->flushCommands();
+  }
 
   for (auto pData : m_pData->m_SbDeletionQueue)
   {
