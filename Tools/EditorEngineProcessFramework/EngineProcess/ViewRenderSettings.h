@@ -68,7 +68,7 @@ struct EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezEngineViewConfig
   ezCamera m_Camera;
   ezEngineViewConfig* m_pLinkedViewConfig; // used to store which other view config this is linked to, for resetting values when switching views
 
-  void ApplyPerspectiveSetting(float fov = 0.0f);
+  void ApplyPerspectiveSetting(float fov = 0.0f, float nearPlane = 0.1f, float farPlane = 1000.0f);
 };
 
 

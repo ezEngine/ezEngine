@@ -67,7 +67,7 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
     SetTargetFramerate(25);
 
     m_ViewConfig.m_Camera.LookAt(ezVec3(-1.6, 0, 0), ezVec3(0, 0, 0), ezVec3(0, 0, 1));
-    m_ViewConfig.ApplyPerspectiveSetting(90);
+    m_ViewConfig.ApplyPerspectiveSetting(90, 0.01f, 100.0f);
 
     m_pViewWidget = new ezQtMaterialViewWidget(nullptr, this, &m_ViewConfig);
     AddViewWidget(m_pViewWidget);

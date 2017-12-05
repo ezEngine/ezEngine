@@ -12,7 +12,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSceneViewPerspective, 1)
 EZ_BITFLAGS_CONSTANTS(ezSceneViewPerspective::Orthogonal_Front, ezSceneViewPerspective::Orthogonal_Right, ezSceneViewPerspective::Orthogonal_Top, ezSceneViewPerspective::Perspective)
 EZ_END_STATIC_REFLECTED_ENUM();
 
-void ezEngineViewConfig::ApplyPerspectiveSetting(float fov)
+void ezEngineViewConfig::ApplyPerspectiveSetting(float fov, float nearPlane, float farPlane)
 {
   const float fOrthoRange = 1000.0f;
 
@@ -20,7 +20,7 @@ void ezEngineViewConfig::ApplyPerspectiveSetting(float fov)
   {
   case ezSceneViewPerspective::Perspective:
     {
-      m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, fov == 0.0f ? 70.0f : fov, 0.1f, 1000.0f);
+      m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, fov == 0.0f ? 70.0f : fov, nearPlane, farPlane);
     }
     break;
 
