@@ -7,6 +7,7 @@
 #include <Foundation/Strings/StringBuilder.h>
 #include <GameEngine/Basics.h>
 #include <GameEngine/Console/ConsoleFunction.h>
+#include <Foundation/Threading/Mutex.h>
 
 
 /// \brief A Quake-style console for in-game configuration of ezCVar and ezConsoleFunction.
@@ -206,6 +207,9 @@ public:
   /// \name Helpers
   /// @{
 
+  /// \brief Returns the internal mutex to prevent multi-threaded access
+  ezMutex& GetMutex() const { return m_Mutex; }
+
   /// \brief Returns a nice string containing all the important information about the cvar.
   static ezString GetFullInfoAsString(ezCVar* pCVar);
 
@@ -243,6 +247,7 @@ private:
   virtual bool ProcessInputCharacter(ezUInt32 uiChar);
   virtual bool FilterInputCharacter(ezUInt32 uiChar);
 
+  mutable ezMutex m_Mutex;
   ezCommandProcessor m_CommandProcessor;
   ezDeque<ConsoleString> m_ConsoleStrings;
   ezUInt32 m_uiMaxConsoleStrings;

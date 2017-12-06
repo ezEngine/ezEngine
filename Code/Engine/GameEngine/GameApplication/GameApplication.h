@@ -29,9 +29,12 @@ struct ezGameApplicationEvent
     AfterUpdatePlugins,
     BeforePresent,
     EndAppTick,
+    AfterWorldCreated, // m_pData -> ezWorld*
+    BeforeWorldDestroyed, // m_pData -> ezWorld*
   };
 
   Type m_Type;
+  void* m_pData = nullptr;
 };
 
 /// \brief The base class for all typical game applications made with ezEngine

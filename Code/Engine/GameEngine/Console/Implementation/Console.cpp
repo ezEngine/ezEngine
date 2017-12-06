@@ -23,6 +23,8 @@ ezConsole::~ezConsole()
 
 void ezConsole::AddConsoleString(const char* szText, const ezColor& color, bool bShowOnScreen)
 {
+  EZ_LOCK(m_Mutex);
+
   m_ConsoleStrings.PushFront();
 
   ConsoleString& cs = m_ConsoleStrings.PeekFront();
@@ -46,6 +48,8 @@ void ezConsole::AddConsoleString(const char* szText, const ezColor& color, bool 
 
 void ezConsole::AddToInputHistory(const char* szString)
 {
+  EZ_LOCK(m_Mutex);
+
   m_iCurrentInputHistoryElement = -1;
 
   if (ezStringUtils::IsNullOrEmpty(szString))
@@ -77,6 +81,8 @@ void ezConsole::AddToInputHistory(const char* szString)
 
 void ezConsole::SearchInputHistory(ezInt32 iHistoryUp)
 {
+  EZ_LOCK(m_Mutex);
+
   if (m_InputHistory.IsEmpty())
     return;
 
@@ -153,6 +159,8 @@ void ezConsole::EnableLogOutput(bool bEnable)
 
 void ezConsole::SaveState(ezStreamWriter& Stream) const
 {
+  EZ_LOCK(m_Mutex);
+
   const ezUInt8 uiVersion = 1;
   Stream << uiVersion;
 
@@ -172,6 +180,8 @@ void ezConsole::SaveState(ezStreamWriter& Stream) const
 
 void ezConsole::LoadState(ezStreamReader& Stream)
 {
+  EZ_LOCK(m_Mutex);
+
   ezUInt8 uiVersion = 0;
   Stream >> uiVersion;
 

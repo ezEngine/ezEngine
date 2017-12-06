@@ -343,9 +343,13 @@ ezWorld* ezGameApplication::CreateWorld(ezWorldDesc& desc)
   wd.m_pWorld = EZ_DEFAULT_NEW(ezWorld, desc);
   wd.m_pWorld->GetClock().SetTimeStepSmoothing(wd.m_pTimeStepSmoothing);
 
+  ezGameApplicationEvent e;
+  e.m_Type = ezGameApplicationEvent::Type::AfterWorldCreated;
+  e.m_pData = wd.m_pWorld;
+  m_Events.Broadcast(e);
+
   return wd.m_pWorld;
 }
-
 
 void ezGameApplication::DestroyWorld(ezWorld* pWorld)
 {
@@ -365,6 +369,12 @@ void ezGameApplication::DestroyWorld(ezWorld* pWorld)
 
   if (wd == nullptr)
     return;
+
+  ezGameApplicationEvent e;
+  e.m_Type = ezGameApplicationEvent::Type::BeforeWorldDestroyed;
+  e.m_pData = wd->m_pWorld;
+  m_Events.Broadcast(e);
+
 
   wd->m_pWorld->GetClock().SetTimeStepSmoothing(nullptr);
   wd->m_pWorld = nullptr;
@@ -798,6 +808,8 @@ void ezGameApplication::RenderConsole()
   }
 
   {
+    EZ_LOCK(m_pConsole->GetMutex());
+
     auto& consoleStrings = m_pConsole->GetConsoleStrings();
 
     ezUInt32 uiNumConsoleLines = (ezUInt32)(ezMath::Ceil(fConsoleTextAreaHeight / fTextHeight));
