@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Threading/ThreadUtils.h>
@@ -21,9 +21,10 @@ static ezUInt64 HighLowToUInt64(ezUInt32 uiHigh32, ezUInt32 uiLow32)
 
 ezResult ezOSFile::InternalOpen(const char* szFile, ezFileMode::Enum OpenMode)
 {
-  ezTime sleepTime = ezTime::Milliseconds(10);
+  const ezTime sleepTime = ezTime::Milliseconds(20);
+  ezInt32 iRetries = 20;
 
-  while (true)
+  while (iRetries > 0)
   {
     GetLastError();
 
@@ -64,8 +65,8 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileMode::Enum OpenMode)
       {
         if (m_bRetryOnSharingViolation)
         {
+          --iRetries;
           ezThreadUtils::Sleep(sleepTime);
-          sleepTime = ezMath::Min<ezTime>(sleepTime + ezTime::Milliseconds(20), ezTime::Milliseconds(300));
           continue; // try again
         }
         else
@@ -80,6 +81,8 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileMode::Enum OpenMode)
 
     return res;
   }
+
+  return EZ_FAILURE;
 }
 
 void ezOSFile::InternalClose()
