@@ -462,6 +462,9 @@ void ezPropertyAnimAssetDocument::ApplyAnimation()
 void ezPropertyAnimAssetDocument::ApplyAnimation(const PropertyKey& key, const PropertyValue& value)
 {
   ezVariant animValue = value.m_InitialValue;
+  ezAngle euler[3];
+  bool bIsRotation = false;
+
   for (const ezUuid& track : value.m_Tracks)
   {
     auto pTrack = GetTrack(track);
@@ -487,9 +490,9 @@ void ezPropertyAnimAssetDocument::ApplyAnimation(const PropertyKey& key, const P
       {
         if (pPropRtti->GetVariantType() >= ezVariantType::Vector2 && pPropRtti->GetVariantType() <= ezVariantType::Vector4U)
         {
-          double fValue = pTrack->m_FloatCurve.Evaluate(m_uiScrubberTickPos);
-          EZ_CHECK_AT_COMPILETIME_MSG(ezPropertyAnimTarget::VectorX == 1, "Need to fix enum index code below");
-          ezReflectionUtils::SetComponent(animValue, (ezUInt32)pTrack->m_Target - 1, fValue);
+          const double fValue = pTrack->m_FloatCurve.Evaluate(m_uiScrubberTickPos);
+
+          ezReflectionUtils::SetComponent(animValue, (ezUInt32)pTrack->m_Target - ezPropertyAnimTarget::VectorX, fValue);
         }
       }
       break;
@@ -497,7 +500,15 @@ void ezPropertyAnimAssetDocument::ApplyAnimation(const PropertyKey& key, const P
     case ezPropertyAnimTarget::RotationX:
     case ezPropertyAnimTarget::RotationY:
     case ezPropertyAnimTarget::RotationZ:
-      // TODO
+    {
+      if (pPropRtti->GetVariantType() == ezVariantType::Quaternion)
+      {
+        bIsRotation = true;
+        const double fValue = pTrack->m_FloatCurve.Evaluate(m_uiScrubberTickPos);
+
+        euler[(ezUInt32)pTrack->m_Target - ezPropertyAnimTarget::RotationX] = ezAngle::Degree(fValue);
+      }
+    }
       break;
 
     case ezPropertyAnimTarget::Color:
@@ -511,6 +522,14 @@ void ezPropertyAnimAssetDocument::ApplyAnimation(const PropertyKey& key, const P
       break;
     }
   }
+
+  if (bIsRotation)
+  {
+    ezQuat qRotation;
+    qRotation.SetFromEulerAngles(euler[0], euler[1], euler[2]);
+    animValue = qRotation;
+  }
+
   ezDocumentObject* pObj = GetObjectManager()->GetObject(key.m_Object);
   ezVariant oldValue;
   EZ_VERIFY(m_pAccessor->GetValue(pObj, key.m_pProperty, oldValue, key.m_Index).Succeeded(), "Retrieving old value failed.");
