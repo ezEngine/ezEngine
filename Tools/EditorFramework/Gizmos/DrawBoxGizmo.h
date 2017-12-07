@@ -53,6 +53,8 @@ private:
   ezVec3 m_vCurrentPosition;
   ezVec3 m_vFirstCorner;
   ezVec3 m_vSecondCorner;
+  ezVec3 m_vUpAxis;
+  ezVec3 m_vLastStartPoint;
   float m_fBoxHeight = 0.5f;
   float m_fOriginalBoxHeight = 0.5f;
 };

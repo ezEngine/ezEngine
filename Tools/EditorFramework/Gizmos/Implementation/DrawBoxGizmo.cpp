@@ -17,6 +17,7 @@ ezDrawBoxGizmo::ezDrawBoxGizmo()
 {
   m_ManipulateMode = ManipulateMode::None;
 
+  m_vLastStartPoint.SetZero();
   m_Box.Configure(this, ezEngineGizmoHandleType::LineBox, ezColorLinearUB(255, 100, 0), false, false, false, true, false);
 
   SetVisible(false);
@@ -62,14 +63,19 @@ ezEditorInput ezDrawBoxGizmo::DoMousePressEvent(QMouseEvent* e)
 
       const ezObjectPickingResult& res = GetOwnerView()->PickObject(mousePos.x(), mousePos.y());
 
+      m_vUpAxis = GetOwnerView()->GetFallbackPickingPlane().m_vNormal;
+      m_vUpAxis.x = ezMath::Abs(m_vUpAxis.x);
+      m_vUpAxis.y = ezMath::Abs(m_vUpAxis.y);
+      m_vUpAxis.z = ezMath::Abs(m_vUpAxis.z);
+
       if (res.m_PickedObject.IsValid())
+      {
         m_vCurrentPosition = res.m_vPickedPosition;
+        m_vLastStartPoint = res.m_vPickedPosition;
+      }
       else
       {
-        ezPlane plane;
-        plane.SetFromNormalAndPoint(ezVec3(0, 0, 1), ezVec3(0, 0, 0));
-
-        if (GetOwnerView()->PickPlane(e->pos().x(), e->pos().y(), plane, m_vCurrentPosition).Failed())
+        if (GetOwnerView()->PickPlane(e->pos().x(), e->pos().y(), GetOwnerView()->GetFallbackPickingPlane(m_vLastStartPoint), m_vCurrentPosition).Failed())
           return ezEditorInput::WasExclusivelyHandled; // failed to pick anything
       }
 
@@ -115,7 +121,7 @@ ezEditorInput ezDrawBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
   else
   {
     ezPlane plane;
-    plane.SetFromNormalAndPoint(ezVec3(0, 0, 1), m_vFirstCorner);
+    plane.SetFromNormalAndPoint(m_vUpAxis, m_vFirstCorner);
 
     GetOwnerView()->PickPlane(e->pos().x(), e->pos().y(), plane, m_vCurrentPosition);
 
@@ -205,7 +211,9 @@ void ezDrawBoxGizmo::UpdateBox()
   if (m_ManipulateMode == ManipulateMode::DrawBase)
   {
     m_vSecondCorner = m_vCurrentPosition;
-    m_vSecondCorner.z = m_vFirstCorner.z;
+    m_vSecondCorner.x = ezMath::Lerp(m_vSecondCorner.x, m_vFirstCorner.x, m_vUpAxis.x);
+    m_vSecondCorner.y = ezMath::Lerp(m_vSecondCorner.y, m_vFirstCorner.y, m_vUpAxis.y);
+    m_vSecondCorner.z = ezMath::Lerp(m_vSecondCorner.z, m_vFirstCorner.z, m_vUpAxis.z);
   }
 
   if (m_ManipulateMode == ManipulateMode::None || m_vFirstCorner == m_vSecondCorner)
@@ -220,16 +228,34 @@ void ezDrawBoxGizmo::UpdateBox()
     m_fBoxHeight = m_fOriginalBoxHeight + ((float)m_iHeightChange * 0.1f * ezSnapProvider::GetTranslationSnapValue());
     ezVec3 snapDummy(m_fBoxHeight);
     ezSnapProvider::SnapTranslation(snapDummy);
-    m_fBoxHeight = snapDummy.z;
+    m_fBoxHeight = m_vUpAxis.Dot(snapDummy);
   }
 
   ezVec3 vCenter = ezMath::Lerp(m_vFirstCorner, m_vSecondCorner, 0.5f);
-  vCenter.z += m_fBoxHeight * 0.5f;
+  vCenter.x += m_fBoxHeight * 0.5f * m_vUpAxis.x;
+  vCenter.y += m_fBoxHeight * 0.5f * m_vUpAxis.y;
+  vCenter.z += m_fBoxHeight * 0.5f * m_vUpAxis.z;
 
   ezVec3 vSize;
-  vSize.x = ezMath::Abs(m_vSecondCorner.x - m_vFirstCorner.x);
-  vSize.y = ezMath::Abs(m_vSecondCorner.y - m_vFirstCorner.y);
-  vSize.z = m_fBoxHeight;
+
+  if (m_vUpAxis.z != 0)
+  {
+    vSize.x = ezMath::Abs(m_vSecondCorner.x - m_vFirstCorner.x);
+    vSize.y = ezMath::Abs(m_vSecondCorner.y - m_vFirstCorner.y);
+    vSize.z = m_fBoxHeight;
+  }
+  else if (m_vUpAxis.x != 0)
+  {
+    vSize.z = ezMath::Abs(m_vSecondCorner.z - m_vFirstCorner.z);
+    vSize.y = ezMath::Abs(m_vSecondCorner.y - m_vFirstCorner.y);
+    vSize.x = m_fBoxHeight;
+  }
+  else if (m_vUpAxis.y != 0)
+  {
+    vSize.x = ezMath::Abs(m_vSecondCorner.x - m_vFirstCorner.x);
+    vSize.z = ezMath::Abs(m_vSecondCorner.z - m_vFirstCorner.z);
+    vSize.y = m_fBoxHeight;
+  }
 
   m_Box.SetTransformation(ezTransform(vCenter, ezQuat::IdentityQuaternion(), vSize));
   m_Box.SetVisible(true);
@@ -239,39 +265,54 @@ void ezDrawBoxGizmo::GetResult(ezVec3& out_Origin, float& out_fSizeNegX, float& 
 {
   out_Origin = m_vFirstCorner;
 
-  const float fBoxWidth = m_vSecondCorner.x - m_vFirstCorner.x;
-  const float fBoxDepth = m_vSecondCorner.y - m_vFirstCorner.y;
+  float fBoxX = m_vSecondCorner.x - m_vFirstCorner.x;
+  float fBoxY = m_vSecondCorner.y - m_vFirstCorner.y;
+  float fBoxZ = m_fBoxHeight;
 
-  if (fBoxWidth > 0)
+  if (m_vUpAxis.x != 0)
+  {
+    fBoxY = m_vSecondCorner.y - m_vFirstCorner.y;
+    fBoxZ = m_vSecondCorner.z - m_vFirstCorner.z;
+    fBoxX = m_fBoxHeight;
+  }
+
+  if (m_vUpAxis.y != 0)
+  {
+    fBoxX = m_vSecondCorner.x - m_vFirstCorner.x;
+    fBoxZ = m_vSecondCorner.z - m_vFirstCorner.z;
+    fBoxY = m_fBoxHeight;
+  }
+
+  if (fBoxX > 0)
   {
     out_fSizeNegX = 0;
-    out_fSizePosX = fBoxWidth;
+    out_fSizePosX = fBoxX;
   }
   else
   {
-    out_fSizeNegX = -fBoxWidth;
+    out_fSizeNegX = -fBoxX;
     out_fSizePosX = 0;
   }
 
-  if (fBoxDepth > 0)
+  if (fBoxY > 0)
   {
     out_fSizeNegY = 0;
-    out_fSizePosY = fBoxDepth;
+    out_fSizePosY = fBoxY;
   }
   else
   {
-    out_fSizeNegY = -fBoxDepth;
+    out_fSizeNegY = -fBoxY;
     out_fSizePosY = 0;
   }
 
-  if (m_fBoxHeight > 0)
+  if (fBoxZ > 0)
   {
     out_fSizeNegZ = 0;
-    out_fSizePosZ = m_fBoxHeight;
+    out_fSizePosZ = fBoxZ;
   }
   else
   {
-    out_fSizeNegZ = -m_fBoxHeight;
+    out_fSizeNegZ = -fBoxZ;
     out_fSizePosZ = 0;
   }
 }

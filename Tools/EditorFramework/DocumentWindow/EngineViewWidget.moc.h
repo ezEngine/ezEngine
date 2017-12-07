@@ -90,6 +90,10 @@ public:
   /// \brief Processes incoming messages from the engine that are meant for this particular view. Mostly picking results.
   void HandleViewMessage(const ezEditorEngineViewMsg* pMsg);
 
+  /// \brief Returns a plane that can be used for picking, when nothing else is available
+  /// Orthographic views would typically return their projection planes, perspective views may return the ground plane
+  virtual ezPlane GetFallbackPickingPlane(ezVec3 vPointOnPlane = ezVec3(0)) const;
+
 protected:
   /// \brief Used to deactivate shortcuts
   virtual bool eventFilter(QObject* object, QEvent* event) override;

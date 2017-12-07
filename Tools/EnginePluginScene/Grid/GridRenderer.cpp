@@ -100,11 +100,20 @@ void ezGridRenderer::CreateGrid(const ezGridRenderData& rd)
     cCenter = ezColorGammaUB(85, 120, 20);
     cTen = ezColorGammaUB(50, 90, 128);
     cOther = ezColorGammaUB(80, 80, 80);
-  }
 
-  if (rd.m_bGlobal)
+    // in ortho mode, the origin lines are highlighted when global space is enabled
+    if (!rd.m_bGlobal)
+    {
+      cCenter = cTen;
+    }
+  }
+  else
   {
-    cCenter = cTen;
+    // in perspective mode, the lines through the object are highlighted when local space is enabled
+    if (rd.m_bGlobal)
+    {
+      cCenter = cTen;
+    }
   }
 
   const ezVec3 vCorner = vCenter + rd.m_iFirstLine1 * rd.m_fDensity * vTangent1 + rd.m_iFirstLine2 * rd.m_fDensity * vTangent2;

@@ -262,6 +262,18 @@ void ezQtEngineViewWidget::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
   }
 }
 
+ezPlane ezQtEngineViewWidget::GetFallbackPickingPlane(ezVec3 vPointOnPlane) const
+{
+  if (m_pViewConfig->m_Camera.IsPerspective())
+  {
+    return ezPlane(ezVec3(0, 0, 1), vPointOnPlane);
+  }
+  else
+  {
+    return ezPlane(-m_pViewConfig->m_Camera.GetCenterDirForwards(), vPointOnPlane);
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////
 // ezQtEngineViewWidget qt overrides
 ////////////////////////////////////////////////////////////////////////
