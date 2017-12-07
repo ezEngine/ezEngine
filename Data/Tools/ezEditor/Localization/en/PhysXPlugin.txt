@@ -27,3 +27,4 @@ ezPxRaycastInteractComponent;Raycast Interaction
 ezPxVisColMeshComponent;Collision Mesh Visualization
 CollisionMeshImport.TriangleMesh;Triangle Collision Mesh
 CollisionMeshImport.ConvexMesh;Convex Collision Mesh
+ezBreakableSheetComponent;Breakable Sheet

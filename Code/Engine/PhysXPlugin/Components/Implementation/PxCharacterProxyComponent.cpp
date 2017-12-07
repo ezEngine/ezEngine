@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <PhysXPlugin/Components/PxCharacterProxyComponent.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
@@ -67,6 +67,9 @@ namespace
       {
         ezPxCharacterProxyComponent* pCharacterProxyComponent = ezPxUserData::GetCharacterProxyComponent(hit.controller->getUserData());
         ezPxDynamicActorComponent* pDynamicActorComponent = ezPxUserData::GetDynamicActorComponent(hit.actor->userData);
+
+        if (pCharacterProxyComponent == nullptr || pDynamicActorComponent == nullptr)
+          return;
 
         ezGameObject* pCharacterObject = pCharacterProxyComponent->GetOwner();
         const float fMass = hit.controller->getActor()->getMass();

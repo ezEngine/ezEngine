@@ -16,6 +16,7 @@
 	<file>ezPxCharacterControllerComponent.png</file>
 	<file>ezPxSettingsComponent.png</file>
 	<file>ezPxTriggerComponent.png</file>
+	<file>ezBreakableSheetComponent.png</file>
   </qresource>  
 </RCC>
 

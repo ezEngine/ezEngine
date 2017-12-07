@@ -840,6 +840,32 @@ void ezBreakableSheetComponent::UpdateBrokenPiecesBoundingSphere()
   GetOwner()->UpdateLocalBounds();
 }
 
+static PxMaterial* GetPxMaterial(const ezMaterialResourceHandle& hMaterial)
+{
+  PxMaterial* pPxMaterial = ezPhysX::GetSingleton()->GetDefaultMaterial();
+
+  if (hMaterial.IsValid())
+  {
+    ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::NoFallback);
+
+    ezHashedString sSurface = pMaterial->GetSurface();
+    if (!sSurface.IsEmpty())
+    {
+      ezSurfaceResourceHandle hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(sSurface.GetString());
+
+      if (hSurface.IsValid())
+      {
+        ezResourceLock<ezSurfaceResource> pSurface(hSurface, ezResourceAcquireMode::NoFallback);
+        if (pSurface->m_pPhysicsMaterial != nullptr)
+        {
+          pPxMaterial = static_cast<PxMaterial*>(pSurface->m_pPhysicsMaterial);
+        }
+      }
+    }
+  }
+
+  return pPxMaterial;
+}
 
 void ezBreakableSheetComponent::CreateUnbrokenPhysicsObject()
 {
@@ -866,8 +892,7 @@ void ezBreakableSheetComponent::CreateUnbrokenPhysicsObject()
   PxBoxGeometry box;
   box.halfExtents = ezPxConversionUtils::ToVec3(m_vExtents.CompMul(vScale) * 0.5f);
 
-  // TODO: Allow the user to set a surface material
-  pShape = m_pUnbrokenActor->createShape(box, *ezPhysX::GetSingleton()->GetDefaultMaterial());
+  pShape = m_pUnbrokenActor->createShape(box, *GetPxMaterial(m_hMaterial));
 
   if (pShape != nullptr)
   {
@@ -920,8 +945,7 @@ void ezBreakableSheetComponent::CreatePiecesPhysicsObjects(ezVec3 vImpulse, ezVe
   ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
   const ezSimdTransform& globalTransform = GetOwner()->GetGlobalTransformSimd();
 
-  // TODO: Use custom material?
-  physx::PxMaterial* pPhysXMat = ezPhysX::GetSingleton()->GetDefaultMaterial();
+  physx::PxMaterial* pPhysXMat = GetPxMaterial(m_hBrokenMaterial);
 
   ezVec3 vScale = ezSimdConversion::ToVec3(globalTransform.m_Scale.Abs());
 
@@ -963,6 +987,7 @@ void ezBreakableSheetComponent::CreatePiecesPhysicsObjects(ezVec3 vImpulse, ezVe
 
     pShape->setSimulationFilterData(filterData);
     pShape->setQueryFilterData(filterData);
+    pShape->userData = &m_PieceUserDatas[i];
 
     // TODO: Expose
     pActor->setLinearDamping(0.1f);
