@@ -1,6 +1,7 @@
 ﻿#include <PCH.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
 #include <PhysXPlugin/Components/PxCenterOfMassComponent.h>
+#include <PhysXPlugin/Components/BreakableSheet.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <PhysXPlugin/Shapes/PxShapeComponent.h>
