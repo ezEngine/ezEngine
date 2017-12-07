@@ -51,7 +51,19 @@ void ezPxDynamicActorComponentManager::UpdateDynamicActors(ezArrayPtr<const PxAc
   for (auto& activeTransform : activeTransforms)
   {
     ezPxDynamicActorComponent* pComponent = ezPxUserData::GetDynamicActorComponent(activeTransform.userData);
-    if (pComponent == nullptr || pComponent->GetKinematic())
+    if (pComponent == nullptr)
+    {
+      // Check if this is a breakable sheet component piece
+      ezBreakableSheetComponent* pSheetComponent = ezPxUserData::GetBreakableSheetComponent(activeTransform.userData);
+      if (pSheetComponent)
+      {
+        pSheetComponent->SetPieceTransform(activeTransform.actor2World, ezPxUserData::GetAdditionalUserData(activeTransform.userData));
+      }
+
+      continue;
+    }
+
+    if(pComponent->GetKinematic())
       continue;
 
     ezGameObject* pObject = pComponent->GetOwner();

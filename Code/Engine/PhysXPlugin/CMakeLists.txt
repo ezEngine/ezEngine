@@ -27,6 +27,7 @@ SET (LINK_LIBRARIES
   Foundation
   Core
   GameEngine
+  RendererFoundation
   RendererCore
 )
 AddPhysX(FALSE)
