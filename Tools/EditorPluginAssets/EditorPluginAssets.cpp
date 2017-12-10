@@ -275,7 +275,7 @@ void OnLoadPlugin(bool bReloading)
       ezDocumentActions::MapActions("PropertyAnimAssetToolBar", "", true);
       ezCommandHistoryActions::MapActions("PropertyAnimAssetToolBar", "");
       ezAssetActions::MapActions("PropertyAnimAssetToolBar", true);
-      ezGameObjectContextActions::MapActions("PropertyAnimAssetToolBar", "");
+      ezGameObjectContextActions::MapToolbarActions("PropertyAnimAssetToolBar", "");
       ezGameObjectDocumentActions::MapToolbarActions("PropertyAnimAssetToolBar", "");
       ezTransformGizmoActions::MapToolbarActions("PropertyAnimAssetToolBar", "");
       ezRotateGizmoAction::MapActions("PropertyAnimAssetToolBar", "");
@@ -294,6 +294,7 @@ void OnLoadPlugin(bool bReloading)
     {
       ezActionMapManager::RegisterActionMap("PropertyAnimAsset_ScenegraphContextMenu");
       ezGameObjectSelectionActions::MapContextMenuActions("PropertyAnimAsset_ScenegraphContextMenu", "");
+      ezGameObjectContextActions::MapContextMenuActions("PropertyAnimAsset_ScenegraphContextMenu", "");
     }
   }
 
