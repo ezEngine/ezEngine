@@ -493,10 +493,10 @@ void ezParticleEffectInstance::CombineSystemBoundingVolumes()
   {
     effectVolume = ezBoundingSphere(ezVec3::ZeroVector(), 0.25f);
   }
-
-  // transform the bounding volume to local space, unless it was already created there
-  if (!m_bSimulateInLocalSpace)
+  else if (!m_bSimulateInLocalSpace)
   {
+    // transform the bounding volume to local space, unless it was already created there
+
     const ezTransform invTrans = GetTransform().GetInverse();
     effectVolume.Transform(invTrans.GetAsMat4());
   }

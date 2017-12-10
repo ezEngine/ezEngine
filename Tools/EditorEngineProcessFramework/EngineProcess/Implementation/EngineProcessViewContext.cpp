@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 #include <RendererFoundation/Device/Device.h>
@@ -156,7 +156,7 @@ bool ezEngineProcessViewContext::FocusCameraOnObject(ezCamera& camera, const ezB
   ezVec3 vCameraPos = camera.GetCenterPosition();
   ezVec3 vCenterPos = objectBounds.GetSphere().m_vCenter;
 
-  const float fDist = objectBounds.GetSphere().m_fRadius / ezMath::Sin(ezAngle::Degree(fFov / 2));
+  const float fDist = ezMath::Max(0.1f, objectBounds.GetSphere().m_fRadius) / ezMath::Sin(ezAngle::Degree(fFov / 2));
   vDir.Normalize();
   ezVec3 vNewCameraPos = vCenterPos - vDir * fDist;
   if (!vNewCameraPos.IsEqual(vCameraPos, 0.01f))
