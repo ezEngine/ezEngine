@@ -91,7 +91,7 @@ public:
   /// \brief Returns a handle to this object.
   ezGameObjectHandle GetHandle() const;
 
-  /// \brief Makes this object dynamic. Dynamic objects might move during runtime.
+  /// \brief Makes this object and all its children dynamic. Dynamic objects might move during runtime.
   void MakeDynamic();
 
   /// \brief Makes this object static. Static objects don't move during runtime.
@@ -330,6 +330,8 @@ private:
   void Reflection_SetMode(ezObjectMode::Enum mode);
 
   bool DetermineDynamicMode(ezComponent* pComponentToIgnore = nullptr) const;
+  void ConditionalMakeStatic(ezComponent* pComponentToIgnore = nullptr);
+  void MakeStaticInternal();
 
   void UpdateGlobalTransformAndBoundsRecursive();
 

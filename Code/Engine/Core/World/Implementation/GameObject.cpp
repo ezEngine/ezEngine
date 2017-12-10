@@ -49,10 +49,7 @@ void ezGameObject::Reflection_AddChild(ezGameObject* pChild)
 
   // Check whether the child object was only dynamic because of its old parent
   // If that's the case make it static now.
-  if (!pChild->DetermineDynamicMode())
-  {
-    pChild->MakeStatic();
-  }
+  pChild->ConditionalMakeStatic();
 }
 
 void ezGameObject::Reflection_DetachChild(ezGameObject* pChild)
@@ -60,10 +57,7 @@ void ezGameObject::Reflection_DetachChild(ezGameObject* pChild)
   DetachChild(pChild->GetHandle(), TransformPreservation::PreserveLocal);
 
   // The child object is now a top level object, check whether it should be static now.
-  if (!pChild->DetermineDynamicMode())
-  {
-    pChild->MakeStatic();
-  }
+  pChild->ConditionalMakeStatic();
 }
 
 ezHybridArray<ezGameObject*, 8> ezGameObject::Reflection_GetChildren() const
@@ -96,9 +90,9 @@ void ezGameObject::Reflection_RemoveComponent(ezComponent* pComponent)
 {
   /*Don't call RemoveComponent here, Component is automatically removed when deleted.*/
 
-  if (pComponent->IsDynamic() && !DetermineDynamicMode(pComponent))
+  if (pComponent->IsDynamic())
   {
-    MakeStatic();
+    ConditionalMakeStatic(pComponent);
   }
 }
 
@@ -127,10 +121,7 @@ void ezGameObject::Reflection_SetMode(ezObjectMode::Enum mode)
   else
   {
     m_Flags.Remove(ezObjectFlags::ForceDynamic);
-    if (!DetermineDynamicMode())
-    {
-      MakeStatic();
-    }
+    ConditionalMakeStatic();
   }
 }
 
@@ -156,6 +147,31 @@ bool ezGameObject::DetermineDynamicMode(ezComponent* pComponentToIgnore /*= null
   }
 
   return false;
+}
+
+void ezGameObject::ConditionalMakeStatic(ezComponent* pComponentToIgnore /*= nullptr*/)
+{
+  if (!DetermineDynamicMode(pComponentToIgnore))
+  {
+    MakeStaticInternal();
+
+    for (auto it = GetChildren(); it.IsValid(); ++it)
+    {
+      it->ConditionalMakeStatic();
+    }
+  }
+}
+
+void ezGameObject::MakeStaticInternal()
+{
+  if (IsStatic())
+  {
+    return;
+  }
+
+  m_Flags.Remove(ezObjectFlags::Dynamic);
+
+  m_pWorld->RecreateHierarchyData(this, true);
 }
 
 void ezGameObject::UpdateGlobalTransformAndBoundsRecursive()
@@ -233,20 +249,18 @@ void ezGameObject::MakeDynamic()
   m_Flags.Add(ezObjectFlags::Dynamic);
 
   m_pWorld->RecreateHierarchyData(this, false);
+
+  for (auto it = GetChildren(); it.IsValid(); ++it)
+  {
+    it->MakeDynamic();
+  }
 }
 
 void ezGameObject::MakeStatic()
 {
-  if (IsStatic())
-  {
-    return;
-  }
-
   EZ_ASSERT_DEV(!DetermineDynamicMode(), "This object can't be static because it has a dynamic parent or dynamic component(s) attached.");
 
-  m_Flags.Remove(ezObjectFlags::Dynamic);
-
-  m_pWorld->RecreateHierarchyData(this, true);
+  MakeStaticInternal();
 }
 
 void ezGameObject::Activate()
