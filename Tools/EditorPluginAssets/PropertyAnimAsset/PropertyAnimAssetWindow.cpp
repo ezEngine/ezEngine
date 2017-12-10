@@ -173,7 +173,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
   }
 
   // this would show the document properties
-  pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
+  //pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
 
   // Curve editor events
   {
@@ -615,14 +615,14 @@ void ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler(const ezDocument
 void ezQtPropertyAnimAssetDocumentWindow::SelectionEventHandler(const ezSelectionManagerEvent& e)
 {
   // this would show the document properties
-  if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
-  {
-    // delayed execution
-    QTimer::singleShot(1, [this]()
-    {
-      GetDocument()->GetSelectionManager()->SetSelection(GetPropertyAnimDocument()->GetPropertyObject());
-    });
-  }
+  //if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
+  //{
+  //  // delayed execution
+  //  QTimer::singleShot(1, [this]()
+  //  {
+  //    GetDocument()->GetSelectionManager()->SetSelection(GetPropertyAnimDocument()->GetPropertyObject());
+  //  });
+  //}
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::UpdateCurveEditor()

@@ -145,6 +145,8 @@ void ezParticleComponent::DeserializeComponent(ezWorldReader& stream)
       s >> m_FloatParams[i].m_Value;
     }
 
+    m_bFloatParamsChanged = numFloats > 0;
+
     s >> numColors;
     m_ColorParams.SetCount(numColors);
 
@@ -153,6 +155,8 @@ void ezParticleComponent::DeserializeComponent(ezWorldReader& stream)
       s >> m_ColorParams[i].m_sName;
       s >> m_ColorParams[i].m_Value;
     }
+
+    m_bColorParamsChanged = numColors > 0;
   }
 
   if (uiVersion >= 3)

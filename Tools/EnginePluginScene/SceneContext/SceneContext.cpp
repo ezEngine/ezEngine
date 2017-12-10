@@ -215,7 +215,7 @@ void ezSceneContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg)
   bounds.SetInvalid();
 
   {
-    EZ_LOCK(m_pWorld->GetReadMarker());
+    EZ_LOCK(m_pWorld->GetWriteMarker());
 
     for (const auto& obj : m_Selection)
     {

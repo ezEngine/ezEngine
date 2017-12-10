@@ -103,3 +103,6 @@ Animation;Animation
 FX;FX
 Scripting;Scripting
 Project.ImportAsset;Import Assets...
+GameObjectContext.PickContextScene;Pick Context Scene
+GameObjectContext.PickContextObject;Use Object as Context
+GameObjectContext.ClearContextObject;Clear Context Object

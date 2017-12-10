@@ -144,7 +144,7 @@ void ezLightComponent::DeserializeComponent(ezWorldReader& stream)
 float ezLightComponent::CalculateEffectiveRange(float fRange, float fIntensity)
 {
   const float fThreshold = 0.10f; // aggressive threshold to prevent large lights
-  const float fEffectiveRange = ezMath::Sqrt(fIntensity) / ezMath::Sqrt(fThreshold);
+  const float fEffectiveRange = ezMath::Sqrt(ezMath::Max(0.0f, fIntensity)) / ezMath::Sqrt(fThreshold);
 
   EZ_ASSERT_DEBUG(!ezMath::IsNaN(fEffectiveRange), "Light range is NaN");
 
