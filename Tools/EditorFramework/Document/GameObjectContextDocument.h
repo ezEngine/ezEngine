@@ -21,7 +21,7 @@ public:
   ezStatus SetContext(ezUuid documentGuid, ezUuid objectGuid);
   ezUuid GetContextDocumentGuid() const;
   ezUuid GetContextObjectGuid() const;
-  const ezDocumentObject* GetContextObject();
+  const ezDocumentObject* GetContextObject() const;
 
   mutable ezEvent<const ezGameObjectContextEvent&> m_GameObjectContextEvents;
 

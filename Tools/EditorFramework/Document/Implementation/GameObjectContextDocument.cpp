@@ -93,7 +93,7 @@ ezUuid ezGameObjectContextDocument::GetContextObjectGuid() const
 
 }
 
-const ezDocumentObject* ezGameObjectContextDocument::GetContextObject()
+const ezDocumentObject* ezGameObjectContextDocument::GetContextObject() const
 {
   if (m_ContextDocument.IsValid())
   {

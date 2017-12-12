@@ -98,6 +98,7 @@ ezStatus ezPropertyAnimObjectAccessor::SetValue(const ezDocumentObject* pObject,
     }
     else if (type == ezVariantType::Quaternion)
     {
+
       const ezQuat qOldRot = oldValue.Get<ezQuat>();
       const ezQuat qNewRot = newValue.Get<ezQuat>();
 
@@ -108,7 +109,26 @@ ezStatus ezPropertyAnimObjectAccessor::SetValue(const ezDocumentObject* pObject,
 
       for (ezUInt32 c = 0; c < 3; c++)
       {
-        if (oldEuler[c].IsEqualSimple(newEuler[c], ezAngle::Degree(1.0)))
+        EZ_SUCCEED_OR_RETURN(m_pDocument->CanAnimate(pObject, pProp, index, static_cast<ezPropertyAnimTarget::Enum>((int)ezPropertyAnimTarget::RotationX + c)));
+        float oldValue = oldEuler[c].GetDegree();
+        ezUuid track = FindOrAddTrack(pObject, pProp, index, static_cast<ezPropertyAnimTarget::Enum>((int)ezPropertyAnimTarget::RotationX + c),
+          [this, oldValue](const ezUuid& trackGuid)
+        {
+          // add a control point at the start of the curve with the original value
+          m_pDocument->InsertCurveCpAt(trackGuid, 0, oldValue);
+        });
+        const auto* pTrack = m_pDocument->GetTrack(track);
+        oldEuler[c] = ezAngle::Degree(pTrack->m_FloatCurve.Evaluate(m_pDocument->GetScrubberPosition()));
+      }
+
+      for (ezUInt32 c = 0; c < 3; c++)
+      {
+        // We assume the change is less than 180 degrees from the old value
+        float fDiff = (newEuler[c] - oldEuler[c]).GetDegree();
+        float iRounds = ezMath::Round(fDiff, 360.0f);
+        fDiff -= iRounds;
+        newEuler[c] = oldEuler[c] + ezAngle::Degree(fDiff);
+        if (oldEuler[c].IsEqualSimple(newEuler[c], ezAngle::Degree(0.01)))
           continue;
 
         EZ_SUCCEED_OR_RETURN(SetCurveCp(pObject, pProp, index, static_cast<ezPropertyAnimTarget::Enum>((int)ezPropertyAnimTarget::RotationX + c), oldEuler[c].GetDegree(), newEuler[c].GetDegree()));
@@ -210,6 +230,7 @@ bool ezPropertyAnimObjectAccessor::IsTemporary(const ezDocumentObject* pParent, 
 
 ezStatus ezPropertyAnimObjectAccessor::SetCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target, double fOldValue, double fNewValue)
 {
+  EZ_SUCCEED_OR_RETURN(m_pDocument->CanAnimate(pObject, pProp, index, target));
   ezUuid track = FindOrAddTrack(pObject, pProp, index, target, [this, fOldValue](const ezUuid& trackGuid)
   {
     // add a control point at the start of the curve with the original value
@@ -269,6 +290,7 @@ ezStatus ezPropertyAnimObjectAccessor::SetOrInsertCurveCp(const ezUuid& track, d
 
 ezStatus ezPropertyAnimObjectAccessor::SetColorCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, const ezColorGammaUB& oldValue, const ezColorGammaUB& newValue)
 {
+  EZ_SUCCEED_OR_RETURN(m_pDocument->CanAnimate(pObject, pProp, index, ezPropertyAnimTarget::Color));
   ezUuid track = FindOrAddTrack(pObject, pProp, index, ezPropertyAnimTarget::Color, [this, &oldValue](const ezUuid& trackGuid)
   {
     // add a control point at the start of the curve with the original value
@@ -308,6 +330,7 @@ ezStatus ezPropertyAnimObjectAccessor::SetOrInsertColorCurveCp(const ezUuid& tra
 
 ezStatus ezPropertyAnimObjectAccessor::SetAlphaCurveCp(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezUInt8 oldValue, ezUInt8 newValue)
 {
+  EZ_SUCCEED_OR_RETURN(m_pDocument->CanAnimate(pObject, pProp, index, ezPropertyAnimTarget::Color));
   ezUuid track = FindOrAddTrack(pObject, pProp, index, ezPropertyAnimTarget::Color, [this, &oldValue](const ezUuid& trackGuid)
   {
     // add a control point at the start of the curve with the original value

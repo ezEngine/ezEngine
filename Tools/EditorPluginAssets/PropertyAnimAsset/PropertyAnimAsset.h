@@ -85,6 +85,8 @@ public:
   const ezPropertyAnimationTrack* GetTrack(const ezUuid& trackGuid) const;
   ezPropertyAnimationTrack* GetTrack(const ezUuid& trackGuid);
 
+  ezStatus CanAnimate(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target) const;
+
   ezUuid FindTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target) const;
   ezUuid CreateTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target);
 
@@ -111,6 +113,12 @@ private:
 
   struct PropertyKey
   {
+    bool operator==(const PropertyKey& rhs) const
+    {
+      return m_Object == rhs.m_Object &&
+        m_pProperty == rhs.m_pProperty &&
+        m_Index == rhs.m_Index;
+    }
     ezUuid m_Object;
     const ezAbstractProperty* m_pProperty;
     ezVariant m_Index;
@@ -138,6 +146,9 @@ private:
   void RebuildMapping();
   void RemoveTrack(const ezUuid& track);
   void AddTrack(const ezUuid& track);
+  void FindTrackKeys(const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath, ezHybridArray<PropertyKey, 1>& keys) const;
+  void GenerateTrackInfo(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index,
+    ezStringBuilder& sObjectSearchSequence, ezStringBuilder& sComponentType, ezStringBuilder& sPropertyPath) const;
   void ApplyAnimation();
   void ApplyAnimation(const PropertyKey& key, const PropertyValue& value);
 

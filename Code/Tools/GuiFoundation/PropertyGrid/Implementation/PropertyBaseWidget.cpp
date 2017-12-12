@@ -209,7 +209,7 @@ void ezQtStandardPropertyWidget::BroadcastValueChanged(const ezVariant& NewValue
   ed.m_Value = NewValue;
   ed.m_pItems = &m_Items;
 
-  m_Events.Broadcast(ed);
+  m_Events.Broadcast(ed, 2);
 }
 
 
