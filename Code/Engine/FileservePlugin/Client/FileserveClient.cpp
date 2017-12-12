@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <FileservePlugin/Client/FileserveClient.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Communication/RemoteInterfaceEnet.h>
@@ -173,6 +173,10 @@ void ezFileserveClient::AddServerAddressToTry(const char* szAddress)
 void ezFileserveClient::UploadFile(ezUInt16 uiDataDirID, const char* szFile, const ezDynamicArray<ezUInt8>& fileContent)
 {
   EZ_LOCK(m_Mutex);
+
+  if (m_Network == nullptr)
+    return;
+
   // update meta state and cache
   {
     const ezString& sMountPoint = m_MountedDataDirs[uiDataDirID].m_sMountPoint;

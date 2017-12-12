@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <FileservePlugin/Client/FileserveDataDir.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Communication/RemoteInterfaceEnet.h>
@@ -136,6 +136,9 @@ void ezDataDirectory::FileserveDataDirectoryWriter::InternalClose()
 
 void ezDataDirectory::FileserveType::FinishedWriting(FolderWriter* pWriter)
 {
+  if (ezFileserveClient::GetSingleton() == nullptr)
+    return;
+
   ezStringBuilder sAbsPath = pWriter->GetDataDirectory()->GetRedirectedDataDirectoryPath();
   sAbsPath.AppendPath(pWriter->GetFilePath());
 
