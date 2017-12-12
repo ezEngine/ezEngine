@@ -4,7 +4,7 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Strings/String.h>
 
-class ezStringView;
+struct ezStringView;
 class ezLogInterface;
 
 template<typename T> struct ezDelegate;

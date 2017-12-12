@@ -7,7 +7,7 @@
 /// It offers convenient functions to get the time in other units.
 /// ezTime is a high-precision time using the OS specific high-precision timing functions
 /// and may thus be used for profiling as well as simulation code.
-class EZ_FOUNDATION_DLL ezTime
+struct EZ_FOUNDATION_DLL ezTime
 {
 public:
 

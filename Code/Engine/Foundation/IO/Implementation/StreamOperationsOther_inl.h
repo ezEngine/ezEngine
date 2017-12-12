@@ -7,7 +7,7 @@ EZ_FOUNDATION_DLL void operator<< (ezStreamWriter& Stream, const ezAllocatorBase
 /// \brief Operator to serialize ezIAllocator::Stats objects.
 EZ_FOUNDATION_DLL void operator>> (ezStreamReader& Stream, ezAllocatorBase::Stats& rhs);
 
-class ezTime;
+struct ezTime;
 
 /// \brief Operator to serialize ezTime objects.
 EZ_FOUNDATION_DLL void operator<< (ezStreamWriter& Stream, ezTime Value);

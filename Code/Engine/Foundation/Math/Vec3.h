@@ -5,7 +5,7 @@
 
 /// \brief A 3-component vector class.
 template<typename Type>
-class ezVec3Template
+struct ezVec3Template
 {
 public:
   // Means that vectors can be copied using memcpy instead of copy construction.

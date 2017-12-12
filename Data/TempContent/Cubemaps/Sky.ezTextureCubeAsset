@@ -9,7 +9,7 @@ o
 	{
 		s %ChannelMapping{"ezTextureCubeChannelMappingEnum::RGB1"}
 		b %Compression{1}
-		s %Input1{"Cubemaps/Sky.jpg"}
+		s %Input1{"Sky.jpg"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
@@ -46,10 +46,10 @@ AssetInfo
 		s %AssetType{"Texture Cube"}
 		VarArray %Dependencies
 		{
-			s{"Cubemaps/Sky.jpg"}
+			s{"Sky.jpg"}
 		}
 		Uuid %DocumentID{u4{13925925426885276288,5424885730035344596}}
-		u4 %Hash{15035514369029936671}
+		u4 %Hash{8715562379661641988}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -89,7 +89,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

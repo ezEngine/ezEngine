@@ -63,7 +63,7 @@ struct ezGameObjectId
 /// Never store a direct pointer to a game object. Always store a handle instead. A pointer to a game object can
 /// be received by calling ezWorld::TryGetObject with the handle.
 /// Note that the object might have been deleted so always check the return value of TryGetObject.
-class ezGameObjectHandle
+struct ezGameObjectHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezGameObjectHandle, ezGameObjectId);
 
@@ -150,7 +150,7 @@ struct ezComponentId : public ezGenericComponentId
 /// Never store a direct pointer to a component. Always store a handle instead. A pointer to a component can
 /// be received by calling ezWorld::TryGetComponent or TryGetComponent on the corresponding component manager.
 /// Note that the component might have been deleted so always check the return value of TryGetComponent.
-class ezComponentHandle
+struct ezComponentHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezComponentHandle, ezComponentId);
 

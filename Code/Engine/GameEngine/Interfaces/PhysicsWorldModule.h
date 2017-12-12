@@ -5,7 +5,7 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Communication/Message.h>
 
-class ezGameObjectHandle;
+struct ezGameObjectHandle;
 
 typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
 

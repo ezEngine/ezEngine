@@ -12,6 +12,8 @@ template <typename T, ezUInt32 Capacity>
 class ezStaticArray : public ezArrayBase<T, ezStaticArray<T, Capacity> >
 {
 public:
+  EZ_DECLARE_MEM_RELOCATABLE_TYPE();
+
   /// \brief Creates an empty array.
   ezStaticArray(); // [tested]
 
@@ -38,8 +40,15 @@ public:
   /// \brief Copies the data from some other contiguous array into this one.
   void operator= (const ezArrayPtr<const T>& rhs); // [tested]
 
+protected:
+
+  T* GetElementsPtr();
+  const T* GetElementsPtr() const;
+  friend class ezArrayBase < T, ezStaticArray<T, Capacity> > ;
+
 private:
   T* GetStaticArray();
+  const T* GetStaticArray() const;
 
   /// \brief The fixed size array.
   struct : ezAligned<EZ_ALIGNMENT_OF(T)>
@@ -50,6 +59,9 @@ private:
   friend class ezArrayBase<T, ezStaticArray<T, Capacity> >;
   void Reserve(ezUInt32 uiCapacity);
 };
+
+// TODO EZ_CHECK_AT_COMPILETIME_MSG with a ',' in the expression does not work
+// EZ_CHECK_AT_COMPILETIME_MSG(ezGetTypeClass< ezStaticArray<int, 4> >::value == 2, "static array is not memory relocatable");
 
 #include <Foundation/Containers/Implementation/StaticArray_inl.h>
 

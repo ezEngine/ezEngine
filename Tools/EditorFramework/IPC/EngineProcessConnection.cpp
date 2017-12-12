@@ -258,6 +258,10 @@ ezResult ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageT
 
 ezResult ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& assetGuid, const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback /*= nullptr*/)
 {
+  if(!m_bProcessShouldBeRunning)
+  {
+    return EZ_FAILURE; // if the process is not running, we can't wait for a message
+  }
   EZ_ASSERT_DEBUG(pMessageType->IsDerivedFrom(ezGetStaticRTTI<ezEditorEngineDocumentMsg>()), "The type of the message to wait for must be a document message.");
   struct WaitData
   {
@@ -294,6 +298,13 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
   ShutdownProcess();
 
   Initialize(ezGetStaticRTTI<ezSetupProjectMsgToEngine>());
+
+  if (m_bProcessCrashed)
+  {
+    ezLog::Error("Engine process crashed during startup.");
+    ShutdownProcess();
+    return EZ_FAILURE;
+  }
 
   {
     // Send project setup.

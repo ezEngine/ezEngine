@@ -33,6 +33,11 @@ protected:
   /// \brief Moves the data from some other contiguous array into this one.
   void operator= (ezDynamicArrayBase<T>&& rhs); // [tested]
 
+  T* GetElementsPtr();
+  const T* GetElementsPtr() const;
+
+  friend class ezArrayBase < T, ezDynamicArrayBase<T> > ;
+
 public:
 
   /// \brief Expands the array so it can at least store the given capacity.

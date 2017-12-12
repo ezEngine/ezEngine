@@ -3,7 +3,7 @@
 #include <Foundation/Strings/Implementation/FormatStringArgs.h>
 
 class ezStringBuilder;
-class ezStringView;
+struct ezStringView;
 
 class EZ_FOUNDATION_DLL ezFormatString
 {

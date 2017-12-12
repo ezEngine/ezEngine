@@ -12,13 +12,13 @@ struct ezDirectoryWatcherImpl
   bool m_watchSubdirs;
   DWORD m_filter;
   OVERLAPPED m_overlapped;
-  ezStaticArray<ezUInt8, 4096> m_buffer;
+  ezDynamicArray<ezUInt8> m_buffer;
 };
 
 ezDirectoryWatcher::ezDirectoryWatcher()
   : m_pImpl(EZ_DEFAULT_NEW(ezDirectoryWatcherImpl))
 {
-  m_pImpl->m_buffer.SetCountUninitialized(4096);
+  m_pImpl->m_buffer.SetCountUninitialized(1024 * 1024);
 }
 
 ezResult ezDirectoryWatcher::OpenDirectory(const ezString& absolutePath, ezBitflags<Watch> whatToWatch)
@@ -26,6 +26,8 @@ ezResult ezDirectoryWatcher::OpenDirectory(const ezString& absolutePath, ezBitfl
   EZ_ASSERT_DEV(m_sDirectoryPath.IsEmpty(), "Directory already open, call CloseDirectory first!");
   ezStringBuilder sPath(absolutePath);
   sPath.MakeCleanPath();
+  sPath.ReplaceAll("/", "\\");
+  sPath.Trim("\\");
 
   m_pImpl->m_watchSubdirs = whatToWatch.IsSet(Watch::Subdirectories);
   m_pImpl->m_filter = 0;
@@ -94,11 +96,15 @@ void ezDirectoryWatcher::EnumerateChanges(ezDelegate<void(const char* filename, 
   OVERLAPPED* lpOverlapped;
   DWORD numberOfBytes;
   ULONG_PTR completionKey;
-  while (GetQueuedCompletionStatus(m_pImpl->m_completionPort, &numberOfBytes, &completionKey, &lpOverlapped, 0) != 0)
+  while (GetQueuedCompletionStatus(m_pImpl->m_completionPort, &numberOfBytes, &completionKey, &lpOverlapped, 10) != 0)
   {
-    //Copy the buffer
-    if (numberOfBytes == 0)
+    if (numberOfBytes <= 0)
+    {
+      ezLog::Debug("GetQueuedCompletionStatus with size 0. Should not happen according to msdn.");
+      m_pImpl->DoRead();
       continue;
+    }
+    //Copy the buffer
 
     ezHybridArray<ezUInt8, 4096> buffer;
     buffer.SetCountUninitialized(numberOfBytes);
@@ -146,5 +152,13 @@ void ezDirectoryWatcher::EnumerateChanges(ezDelegate<void(const char* filename, 
         info = (const FILE_NOTIFY_INFORMATION*)(((ezUInt8*)info) + info->NextEntryOffset);
     }
   }
+
+  if (lpOverlapped != nullptr)
+  {
+    EZ_ASSERT_DEV(false, "GetQueuedCompletionStatus returned false but lpOverlapped is not null");
+  }
+
+  DWORD dwError = GetLastError();
+  EZ_ASSERT_DEV(dwError == WAIT_TIMEOUT, "GetQueuedCompletionStatus gave an error");
 }
 

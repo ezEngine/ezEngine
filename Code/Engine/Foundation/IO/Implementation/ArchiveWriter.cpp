@@ -101,7 +101,7 @@ ezUInt32 ezArchiveWriter::WriteObjectReference(const void* pReference)
 
 void ezArchiveWriter::WriteReflectedObject(const ezReflectedClass* pReflected)
 {
-  BeginTypedObject(pReflected->GetDynamicRTTI(), pReflected);
+  BeginTypedObject(pReflected->GetDynamicRTTI(ezReflectedClass::RttiFor::Other), pReflected);
 
   pReflected->Serialize(*this);
 

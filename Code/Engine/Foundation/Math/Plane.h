@@ -16,7 +16,7 @@ struct ezPositionOnPlane
 
 /// \brief A class that represents a mathematical plane.
 template<typename Type>
-class ezPlaneTemplate
+struct ezPlaneTemplate
 {
 public:
   // Means this object can be copied using memcpy instead of copy construction.

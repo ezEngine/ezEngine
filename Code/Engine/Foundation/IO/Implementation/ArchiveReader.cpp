@@ -215,7 +215,7 @@ ezReflectedClass* ezArchiveReader::ReadReflectedObject()
 
   ezReflectedClass* pReflected = (ezReflectedClass*) pObject;
 
-  EZ_ASSERT_DEBUG(pReflected->GetDynamicRTTI()->IsDerivedFrom<ezReflectedClass>(), "Invalid type was created during deserialization.");
+  EZ_ASSERT_DEBUG(pReflected->GetDynamicRTTI(ezReflectedClass::RttiFor::Other)->IsDerivedFrom<ezReflectedClass>(), "Invalid type was created during deserialization.");
 
   m_DeserializedReflected.PushBack(pReflected);
 

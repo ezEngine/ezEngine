@@ -3,7 +3,7 @@
 #include <Foundation/Strings/StringUtils.h>
 
 template <typename Derived>
-class ezStringBase;
+struct ezStringBase;
 
 /// \brief STL forward iterator used by all string classes. Iterates over unicode characters.
 ///  The iterator starts at the first character of the string and ends at the address beyond the last character of the string.

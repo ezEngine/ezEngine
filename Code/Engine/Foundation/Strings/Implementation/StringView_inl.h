@@ -30,11 +30,7 @@ inline void ezStringView::operator++()
 
 inline void ezStringView::operator+=(ezUInt32 d)
 {
-  while (d > 0)
-  {
-    ++(*this);
-    --d;
-  }
+  ezUnicodeUtils::MoveToNextUtf8(m_pStart, d);
 }
 
 inline ezUInt32 ezStringView::GetCharacter() const

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <StochasticRendering/Basics.h>
+#include <StochasticRenderingPlugin/Basics.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <Foundation/Math/Random.h>
 
@@ -26,6 +26,6 @@ private:
 
   ezMat4 m_lastViewProjection;  // Not stereo aware.
   ezGALBufferHandle m_randomNumberBuffer;
-  ezDynamicArray<float> m_randomNumbers;
+  ezArrayPtr<float> m_randomNumbers;
   ezRandom m_randomGenerator;
 };

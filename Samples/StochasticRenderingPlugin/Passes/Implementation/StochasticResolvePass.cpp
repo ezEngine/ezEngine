@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <StochasticRendering/Passes/StochasticResolvePass.h>
+#include <StochasticRenderingPlugin/Passes/StochasticResolvePass.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererCore/Pipeline/View.h>

@@ -9,13 +9,13 @@ namespace ezInternal
 }
 
 /// Base class which marks a class as containing string data
-class ezThisIsAString
+struct ezThisIsAString
 {
 };
 
 /// Base class for strings, which implements all read-only string functions.
 template <typename Derived>
-class ezStringBase : public ezThisIsAString
+struct ezStringBase : public ezThisIsAString
 {
 public:
   typedef ezStringIterator<Derived> iterator;

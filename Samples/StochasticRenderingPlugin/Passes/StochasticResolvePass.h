@@ -1,6 +1,6 @@
 #pragma once
 
-#include <StochasticRendering/Basics.h>
+#include <StochasticRenderingPlugin/Basics.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 

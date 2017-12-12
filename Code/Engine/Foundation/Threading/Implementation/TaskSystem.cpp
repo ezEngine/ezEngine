@@ -10,6 +10,8 @@ ezThreadSignal ezTaskSystem::s_TasksAvailableSignal[ezWorkerThreadType::ENUM_COU
 ezDynamicArray<ezTaskWorkerThread*> ezTaskSystem::s_WorkerThreads[ezWorkerThreadType::ENUM_COUNT];
 ezDeque<ezTaskGroup> ezTaskSystem::s_TaskGroups;
 ezList<ezTaskSystem::TaskData> ezTaskSystem::s_Tasks[ezTaskPriority::ENUM_COUNT];
+ezDynamicArray<ezDelegate<void()>> ezTaskSystem::s_OnWorkerThreadStarted;
+ezDynamicArray<ezDelegate<void()>> ezTaskSystem::s_OnWorkerThreadStopped;
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, TaskSystem)
 
@@ -38,6 +40,8 @@ void ezTaskSystem::Startup()
 void ezTaskSystem::Shutdown()
 {
   StopWorkerThreads();
+  s_OnWorkerThreadStarted.Clear();
+  s_OnWorkerThreadStopped.Clear();
 }
 
 ezTaskGroupID ezTaskSystem::StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority, ezTaskGroupID Dependency)
@@ -239,6 +243,42 @@ void ezTaskSystem::FinishFrameTasks()
         }
       }
     }
+  }
+}
+
+void ezTaskSystem::SubscribeToWorkerThreadStarted(ezDelegate<void()> callback)
+{
+  EZ_LOCK(s_TaskSystemMutex);
+
+  s_OnWorkerThreadStarted.PushBack(callback);
+}
+
+
+void ezTaskSystem::SubscribeToWorkerThreadStopped(ezDelegate<void()> callback)
+{
+  EZ_LOCK(s_TaskSystemMutex);
+
+  s_OnWorkerThreadStopped.PushBack(callback);
+}
+
+void ezTaskSystem::FireWorkerThreadStarted()
+{
+  EZ_LOCK(s_TaskSystemMutex);
+
+  for (auto& callback : s_OnWorkerThreadStarted)
+  {
+    callback();
+  }
+}
+
+
+void ezTaskSystem::FireWorkerThreadStopped()
+{
+  EZ_LOCK(s_TaskSystemMutex);
+
+  for (auto& callback : s_OnWorkerThreadStopped)
+  {
+    callback();
   }
 }
 

@@ -3,7 +3,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Threading/Implementation/ThreadingDeclarations.h>
 
-class ezTime;
+struct ezTime;
 
 /// \brief Contains general thread functions.
 class EZ_FOUNDATION_DLL ezThreadUtils

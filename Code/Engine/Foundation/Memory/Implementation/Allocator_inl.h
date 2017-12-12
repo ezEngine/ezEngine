@@ -39,7 +39,7 @@
 };
 
 template <typename A, ezUInt32 TrackingFlags>
-EZ_FORCE_INLINE ezInternal::ezAllocatorImpl<A, TrackingFlags>::ezAllocatorImpl(const char* szName, ezAllocatorBase* pParent /* = nullptr */) : 
+EZ_FORCE_INLINE ezInternal::ezAllocatorImpl<A, TrackingFlags>::ezAllocatorImpl(const char* szName, ezAllocatorBase* pParent /* = nullptr */) :
   m_allocator(pParent),
   m_ThreadID(ezThreadUtils::GetCurrentThreadID())
 {
@@ -55,7 +55,7 @@ EZ_FORCE_INLINE ezInternal::ezAllocatorImpl<A, TrackingFlags>::ezAllocatorImpl(c
 template <typename A, ezUInt32 TrackingFlags>
 ezInternal::ezAllocatorImpl<A, TrackingFlags>::~ezAllocatorImpl()
 {
-  EZ_ASSERT_RELEASE(m_ThreadID == ezThreadUtils::GetCurrentThreadID(), "Allocator is deleted from another thread");
+  //EZ_ASSERT_RELEASE(m_ThreadID == ezThreadUtils::GetCurrentThreadID(), "Allocator is deleted from another thread");
 
   if ((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
   {

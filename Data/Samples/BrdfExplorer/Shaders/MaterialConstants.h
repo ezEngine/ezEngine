@@ -16,6 +16,7 @@ struct VS_IN
 {
   float3 Position : POSITION;
   float3 Normal : NORMAL;
+  uint InstanceID : SV_InstanceID;
 };
 
 struct VS_OUT

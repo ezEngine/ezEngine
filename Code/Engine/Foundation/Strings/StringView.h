@@ -13,7 +13,7 @@
 /// That means that an ezStringView is only valid as long as its source data is not modified. Once you make any kind
 /// of modification to the source data, you should not continue using the ezStringView to that data anymore,
 /// as it might now point into invalid memory.
-class EZ_FOUNDATION_DLL ezStringView : public ezStringBase<ezStringView>
+struct EZ_FOUNDATION_DLL ezStringView : public ezStringBase<ezStringView>
 {
 public:
   EZ_DECLARE_POD_TYPE();

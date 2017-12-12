@@ -94,7 +94,7 @@ typedef ezVec2Template<ezInt32> ezVec2I32;
 typedef ezVec2Template<ezUInt32> ezVec2U32;
 
 template<typename Type>
-class ezVec3Template;
+struct ezVec3Template;
 
 typedef ezVec3Template<float> ezVec3;
 typedef ezVec3Template<double> ezVec3d;
@@ -122,7 +122,7 @@ typedef ezMat4Template<float> ezMat4;
 typedef ezMat4Template<double> ezMat4d;
 
 template<typename Type>
-class ezPlaneTemplate;
+struct ezPlaneTemplate;
 
 typedef ezPlaneTemplate<float> ezPlane;
 typedef ezPlaneTemplate<double> ezPlaned;

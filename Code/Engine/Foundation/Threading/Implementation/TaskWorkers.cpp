@@ -160,6 +160,8 @@ ezUInt32 ezTaskWorkerThread::Run()
 
   m_bExecutingTask = false;
 
+  ezTaskSystem::FireWorkerThreadStarted();
+
   while (m_bActive)
   {
     if (!m_bExecutingTask)
@@ -179,6 +181,8 @@ ezUInt32 ezTaskWorkerThread::Run()
     else
       m_iTasksExecutionCounter.Increment();
   }
+
+  ezTaskSystem::FireWorkerThreadStopped();
 
   return 0;
 }

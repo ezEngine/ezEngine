@@ -10,6 +10,7 @@ DIFFUSE_BRDF
 SPECULAR_BRDF
 DISTRIBUTION
 GEOMETRY_TERM
+CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
 
 [MATERIALPARAMETER]
 
@@ -57,17 +58,9 @@ SourceBlend1 = Blend_One
 
 #ifdef PLATFORM_DX11
 
-ezPerInstanceData GetInstanceData(VS_IN Input)
-{
-	#if INSTANCING
-		return perInstanceData[Input.InstanceID];
-	#else
-		return perInstanceData;
-	#endif
-}
-
 VS_OUT main(VS_IN Input)
 {
+
   VS_OUT RetVal;
   
   ezPerInstanceData data = GetInstanceData(Input);
@@ -76,7 +69,7 @@ VS_OUT main(VS_IN Input)
 
   RetVal.WorldPosition = mul(objectToWorld, float4(Input.Position, 1.0)).xyz;
 
-  RetVal.Position = mul(WorldToScreenMatrix, float4(RetVal.WorldPosition, 1.0));
+  RetVal.Position = mul(GetWorldToScreenMatrix(), float4(RetVal.WorldPosition, 1.0));
   
   RetVal.Normal = mul(objectToWorldNormal, Input.Normal);
 
@@ -103,15 +96,6 @@ struct PS_OUT
 	float4 color : SV_Target0;
 	float numSamples : SV_Target1;
 };
-
-ezPerInstanceData GetInstanceData(PS_IN Input)
-{
-	#if INSTANCING
-		return perInstanceData[Input.InstanceID];
-	#else
-		return perInstanceData;
-	#endif
-}
 
 #if STOCHASTIC_PASS == TRUE
 StructuredBuffer<float> randomNumbers;
@@ -583,7 +567,7 @@ float4 main(PS_IN Input) : SV_Target
 		ppd.Normal = normalize(Input.Normal);
 		ppd.Tangent = normalize(perp_hm(ppd.Normal));
 		ppd.BiTangent = normalize(cross(ppd.Normal, ppd.Tangent));
-		ppd.ViewVector = WorldSpaceToTangentSpace(normalize(CameraPosition - Input.WorldPosition), ppd);
+		ppd.ViewVector = WorldSpaceToTangentSpace(normalize(GetCameraPosition() - Input.WorldPosition), ppd);
 		
 		// Monte carlo solving
 		const int numSamples = 100;

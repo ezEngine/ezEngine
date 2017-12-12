@@ -9,7 +9,7 @@ o
 	{
 		s %ChannelMapping{"ezTextureCubeChannelMappingEnum::RGB1"}
 		b %Compression{1}
-		s %Input1{"Cubemaps/uffizi_cross.hdr"}
+		s %Input1{"uffizi_cross.hdr"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
@@ -18,7 +18,7 @@ o
 		b %Mipmaps{0}
 		b %PremultipliedAlpha{0}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTextureCubeUsageEnum::Skybox"}
+		s %Usage{"ezTextureCubeUsageEnum::SkyboxHDR"}
 	}
 }
 AssetInfo
@@ -32,10 +32,10 @@ AssetInfo
 		s %AssetType{"Texture Cube"}
 		VarArray %Dependencies
 		{
-			s{"Cubemaps/uffizi_cross.hdr"}
+			s{"uffizi_cross.hdr"}
 		}
 		Uuid %DocumentID{u4{16570251626035375497,5377630440112190531}}
-		u4 %Hash{7096249134854607676}
+		u4 %Hash{3883895226354456664}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -89,7 +89,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

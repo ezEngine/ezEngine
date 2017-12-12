@@ -33,6 +33,11 @@ protected:
   /// \brief Moves the data from some other contiguous array into this one.
   void operator= (ezHybridArrayBase<T, Size>&& rhs); // [tested]
 
+  EZ_FORCE_INLINE T* GetElementsPtr();
+  EZ_FORCE_INLINE const T* GetElementsPtr() const;
+
+  friend class ezArrayBase < T, ezHybridArrayBase<T, Size> > ;
+
 public:
 
   /// \brief Expands the array so it can at least store the given capacity.
@@ -52,6 +57,7 @@ public:
 
 private:
   T* GetStaticArray();
+  const T* GetStaticArray() const;
 
   /// \brief The fixed size array.
   struct : ezAligned<EZ_ALIGNMENT_OF(T)>
@@ -71,6 +77,8 @@ template <typename T, ezUInt32 Size, typename AllocatorWrapper = ezDefaultAlloca
 class ezHybridArray : public ezHybridArrayBase<T, Size>
 {
 public:
+  EZ_DECLARE_MEM_RELOCATABLE_TYPE();
+
   ezHybridArray();
   ezHybridArray(ezAllocatorBase* pAllocator);
 

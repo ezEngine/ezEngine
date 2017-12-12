@@ -218,6 +218,12 @@ public:
   /// Also optionally returns the number of tasks that were finished during the last frame.
   static double GetThreadUtilization(ezWorkerThreadType::Enum Type, ezUInt32 iThread, ezUInt32* pNumTasksExecuted = nullptr) { if (pNumTasksExecuted) *pNumTasksExecuted = s_WorkerThreads[Type][iThread]->m_uiNumTasksExecuted; return s_WorkerThreads[Type][iThread]->m_ThreadUtilization; }
 
+  /// \brief Subscribes to the worker thread started event. The callback will be called on each new started worker thread.
+  static void SubscribeToWorkerThreadStarted(ezDelegate<void()> callback);
+
+  /// \brief Subscribes to the worker thread stopped event. The callback will be called on each worker thread before it stops.
+  static void SubscribeToWorkerThreadStopped(ezDelegate<void()> callback);
+
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, TaskSystem);
   friend class ezTaskWorkerThread;
@@ -265,6 +271,12 @@ private:
   // Executes up to uiSomeFrameTasks tasks of priority 'SomeFrameMainThread', as long as the last duration between frames is no longer than fSmoothFrameMS.
   static void ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, double fSmoothFrameMS);
 
+  // Executes the on worker thread started callbacks
+  static void FireWorkerThreadStarted();
+
+  // Executes the on worker thread stopped callbacks
+  static void FireWorkerThreadStopped();
+
 private:
   // *** Internal Data ***
 
@@ -276,6 +288,9 @@ private:
 
   // The lists of all scheduled tasks, for each priority.
   static ezList<TaskData> s_Tasks[ezTaskPriority::ENUM_COUNT];
+
+  static ezDynamicArray<ezDelegate<void()>> s_OnWorkerThreadStarted;
+  static ezDynamicArray<ezDelegate<void()>> s_OnWorkerThreadStopped;
 
   // Thread signals to wake up a worker thread of the proper type, whenever new work becomes available.
   static ezThreadSignal s_TasksAvailableSignal[ezWorkerThreadType::ENUM_COUNT];

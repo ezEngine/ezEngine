@@ -10,10 +10,10 @@
 #include <Foundation/Strings/FormatString.h>
 
 template <ezUInt16 Size>
-class ezHybridStringBase;
+struct ezHybridStringBase;
 
 template <ezUInt16 Size, typename AllocatorWrapper>
-class ezHybridString;
+struct ezHybridString;
 
 class ezStreamReader;
 class ezFormatString;
@@ -417,7 +417,7 @@ private:
 
   // needed for better copy construction
   template<ezUInt16 T>
-  friend class ezHybridStringBase;
+  friend struct ezHybridStringBase;
 
   ezUInt32 m_uiCharacterCount;
   ezHybridArray<char, 128> m_Data;

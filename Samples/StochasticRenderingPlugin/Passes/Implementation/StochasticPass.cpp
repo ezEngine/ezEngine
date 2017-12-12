@@ -1,5 +1,5 @@
 ﻿#include <PCH.h>
-#include <StochasticRendering/Passes/StochasticPass.h>
+#include <StochasticRenderingPlugin/Passes/StochasticPass.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererCore/Pipeline/View.h>
@@ -34,6 +34,7 @@ ezStochasticPass::~ezStochasticPass()
   {
     pDevice->DestroyBuffer(m_randomNumberBuffer);
   }
+  ezFoundation::GetAlignedAllocator()->Deallocate(m_randomNumbers.GetPtr());
 }
 
 bool ezStochasticPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription * const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
@@ -129,7 +130,7 @@ void ezStochasticPass::Execute(const ezRenderViewContext& renderViewContext, con
       number = (float)m_randomGenerator.DoubleZeroToOneInclusive();
     }
 
-    pGALContext->UpdateBuffer(m_randomNumberBuffer, 0, m_randomNumbers.GetByteArrayPtr());
+    pGALContext->UpdateBuffer(m_randomNumberBuffer, 0, m_randomNumbers.ToByteArray());
 
     renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::PixelShader, "randomNumbers", pDevice->GetDefaultResourceView(m_randomNumberBuffer));
   }
@@ -144,7 +145,12 @@ void ezStochasticPass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelineP
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  m_randomNumbers.SetCountUninitialized(8196);
+  const ezUInt32 numRandomNumbers = 8196;
+
+  if (m_randomNumbers.IsEmpty())
+  {
+    m_randomNumbers = ezMakeArrayPtr((float*)ezFoundation::GetAlignedAllocator()->Allocate(numRandomNumbers * sizeof(float), 16), numRandomNumbers);
+  }
 
   ezGALBufferCreationDescription desc;
   desc.m_bAllowShaderResourceView = true;

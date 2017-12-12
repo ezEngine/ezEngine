@@ -23,7 +23,7 @@ class ezStreamReader;
 /// Use \a ezString, which is a typedef'ed ezHybridString to use a cache size that is sufficient for more than 90%
 /// of all use cases.
 template <ezUInt16 Size>
-class ezHybridStringBase : public ezStringBase<ezHybridStringBase<Size> >
+struct ezHybridStringBase : public ezStringBase<ezHybridStringBase<Size> >
 {
 protected:
 
@@ -131,9 +131,11 @@ private:
 
 /// \brief \see ezHybridStringBase
 template <ezUInt16 Size, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
-class ezHybridString : public ezHybridStringBase<Size>
+struct ezHybridString : public ezHybridStringBase<Size>
 {
 public:
+  EZ_DECLARE_MEM_RELOCATABLE_TYPE();
+
   ezHybridString();
   ezHybridString(ezAllocatorBase* pAllocator);
 
@@ -161,7 +163,6 @@ public:
   void operator=(ezHybridStringBase<Size>&& rhs);
 };
 
-
 typedef ezHybridString<1> ezDynamicString;
 /// \brief String that uses the static allocator to prevent leak reports in RTTI attributes.
 typedef ezHybridString<32, ezStaticAllocatorWrapper> ezUntrackedString;
@@ -174,6 +175,7 @@ typedef ezHybridString<64> ezString64;
 typedef ezHybridString<128> ezString128;
 typedef ezHybridString<256> ezString256;
 
+EZ_CHECK_AT_COMPILETIME_MSG(ezGetTypeClass< ezString >::value == 2, "string is not memory relocatable");
 template<>
 struct ezCompareHelper<ezString>
 {
