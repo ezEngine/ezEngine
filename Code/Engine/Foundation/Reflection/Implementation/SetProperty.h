@@ -42,7 +42,6 @@ class ezAccessorSetProperty : public ezTypedSetProperty<Type>
 {
 public:
   typedef typename ezTypeTraits<Container>::NonConstReferenceType ContainerType;
-  typedef typename ezContainerSubTypeResolver<ContainerType>::Type ContainerSubType;
   typedef typename ezTypeTraits<Type>::NonConstReferenceType RealType;
 
   typedef void (Class::*InsertFunc)(Type value);
@@ -86,13 +85,13 @@ public:
   virtual void Insert(void* pInstance, void* pObject) override
   {
     EZ_ASSERT_DEBUG(m_Insert != nullptr, "The property '{0}' has no insert function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
-    (static_cast<Class*>(pInstance)->*m_Insert)(*static_cast<const ContainerSubType*>(pObject));
+    (static_cast<Class*>(pInstance)->*m_Insert)(*static_cast<const RealType*>(pObject));
   }
 
   virtual void Remove(void* pInstance, void* pObject) override
   {
     EZ_ASSERT_DEBUG(m_Remove != nullptr, "The property '{0}' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
-    (static_cast<Class*>(pInstance)->*m_Remove)(*static_cast<const ContainerSubType*>(pObject));
+    (static_cast<Class*>(pInstance)->*m_Remove)(*static_cast<const RealType*>(pObject));
   }
 
   virtual bool Contains(const void* pInstance, void* pObject) const override
