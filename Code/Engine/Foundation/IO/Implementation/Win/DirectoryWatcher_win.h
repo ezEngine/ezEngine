@@ -1,7 +1,8 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/IO/DirectoryWatcher.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Logging/Log.h>
 
 struct ezDirectoryWatcherImpl
 {
