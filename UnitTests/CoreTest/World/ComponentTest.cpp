@@ -29,11 +29,12 @@ namespace
       descAsync.m_Phase = ezComponentManagerBase::UpdateFunctionDesc::Phase::Async;
       descAsync.m_uiGranularity = 20;
 
-      this->RegisterUpdateFunction(desc);
-      this->RegisterUpdateFunction(desc2);
-      this->RegisterUpdateFunction(desc3);
-      this->RegisterUpdateFunction(desc4);
+      // Update functions are now registered in reverse order, so we can test whether dependencies work.
       this->RegisterUpdateFunction(descAsync);
+      this->RegisterUpdateFunction(desc4);
+      this->RegisterUpdateFunction(desc3);
+      this->RegisterUpdateFunction(desc2);
+      this->RegisterUpdateFunction(desc);
     }
 
     void Update(const ezWorldModule::UpdateContext& context);

@@ -312,7 +312,6 @@ void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, ezMessage&
 void ezWorld::Update()
 {
   CheckForWriteAccess();
-  EZ_ASSERT_DEV(m_Data.m_UnresolvedUpdateFunctions.IsEmpty(), "There are update functions with unresolved dependencies.");
 
   EZ_LOG_BLOCK(m_Data.m_sName.GetData());
 
@@ -320,6 +319,7 @@ void ezWorld::Update()
   m_Data.m_Clock.Update();
 
   ProcessComponentsToInitialize();
+  ProcessUpdateFunctionsToRegister();
 
   // Send the 'WhenInitialized' messages
   {
@@ -622,87 +622,19 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ezResult ezWorld::RegisterUpdateFunction(const ezComponentManagerBase::UpdateFunctionDesc& desc)
+void ezWorld::RegisterUpdateFunction(const ezComponentManagerBase::UpdateFunctionDesc& desc)
 {
   CheckForWriteAccess();
 
   EZ_ASSERT_DEV(desc.m_Phase == ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_uiGranularity == 0, "Granularity must be 0 for synchronous update functions");
   EZ_ASSERT_DEV(desc.m_Phase != ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_DependsOn.GetCount() == 0, "Asynchronous update functions must not have dependencies");
 
-  if (RegisterUpdateFunctionInternal(desc, true).Failed())
-  {
-    return EZ_FAILURE;
-  }
-
-  // new function was registered successfully, try to insert unresolved functions
-  for (ezUInt32 i = m_Data.m_UnresolvedUpdateFunctions.GetCount(); i-- > 0;)
-  {
-    if (RegisterUpdateFunctionInternal(m_Data.m_UnresolvedUpdateFunctions[i], false).Succeeded())
-    {
-      m_Data.m_UnresolvedUpdateFunctions.RemoveAt(i);
-    }
-  }
-
-  return EZ_SUCCESS;
+  m_Data.m_UpdateFunctionsToRegister.PushBack(desc);
 }
 
-ezResult ezWorld::RegisterUpdateFunctionInternal(const ezComponentManagerBase::UpdateFunctionDesc& desc,
-  bool bInsertAsUnresolved)
-{
-  ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[desc.m_Phase];
-  ezUInt32 uiInsertionIndex = 0;
-
-  for (ezUInt32 i = 0; i < desc.m_DependsOn.GetCount(); ++i)
-  {
-    ezUInt32 uiDependencyIndex = ezInvalidIndex;
-
-    for (ezUInt32 j = 0; j < updateFunctions.GetCount(); ++j)
-    {
-      if (updateFunctions[j].m_sFunctionName == desc.m_DependsOn[i])
-      {
-        uiDependencyIndex = j;
-        break;
-      }
-    }
-
-    if (uiDependencyIndex == ezInvalidIndex) // dependency not found
-    {
-      if (bInsertAsUnresolved)
-      {
-        m_Data.m_UnresolvedUpdateFunctions.PushBack(desc);
-      }
-      return EZ_FAILURE;
-    }
-    else
-    {
-      uiInsertionIndex = ezMath::Max(uiInsertionIndex, uiDependencyIndex + 1);
-    }
-  }
-
-  ezInternal::WorldData::RegisteredUpdateFunction newFunction;
-  newFunction.FillFromDesc(desc);
-
-  while (uiInsertionIndex < updateFunctions.GetCount())
-  {
-    const auto& existingFunction = updateFunctions[uiInsertionIndex];
-    if (newFunction < existingFunction)
-    {
-      break;
-    }
-
-    ++uiInsertionIndex;
-  }
-
-  updateFunctions.Insert(newFunction, uiInsertionIndex);
-
-  return EZ_SUCCESS;
-}
-
-ezResult ezWorld::DeregisterUpdateFunction(const ezComponentManagerBase::UpdateFunctionDesc& desc)
+void ezWorld::DeregisterUpdateFunction(const ezComponentManagerBase::UpdateFunctionDesc& desc)
 {
   CheckForWriteAccess();
-
-  ezResult result = EZ_FAILURE;
 
   ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[desc.m_Phase];
 
@@ -711,11 +643,8 @@ ezResult ezWorld::DeregisterUpdateFunction(const ezComponentManagerBase::UpdateF
     if (updateFunctions[i].m_Function == desc.m_Function)
     {
       updateFunctions.RemoveAt(i);
-      result = EZ_SUCCESS;
     }
   }
-
-  return result;
 }
 
 void ezWorld::DeregisterUpdateFunctions(ezWorldModule* pModule)
@@ -748,6 +677,71 @@ void ezWorld::UpdateFromThread()
   Update();
 }
 
+void ezWorld::UpdateSynchronous(const ezArrayPtr<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions)
+{
+  ezWorldModule::UpdateContext context;
+  context.m_uiFirstComponentIndex = 0;
+  context.m_uiComponentCount = ezInvalidIndex;
+
+  for (auto& updateFunction : updateFunctions)
+  {
+    if (updateFunction.m_bOnlyUpdateWhenSimulating && !m_Data.m_bSimulateWorld)
+      continue;
+
+    {
+      EZ_PROFILE(updateFunction.m_sFunctionName);
+      updateFunction.m_Function(context);
+    }
+  }
+}
+
+void ezWorld::UpdateAsynchronous()
+{
+  ezTaskGroupID taskGroupId = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
+
+  ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions =
+    m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Phase::Async];
+
+  ezUInt32 uiCurrentTaskIndex = 0;
+
+  for (auto& updateFunction : updateFunctions)
+  {
+    if (updateFunction.m_bOnlyUpdateWhenSimulating && !m_Data.m_bSimulateWorld)
+      continue;
+
+    ezComponentManagerBase* pManager = static_cast<ezComponentManagerBase*>(updateFunction.m_Function.GetClassInstance());
+
+    const ezUInt32 uiTotalCount = pManager->GetComponentCount();
+    ezUInt32 uiStartIndex = 0;
+    ezUInt32 uiGranularity = (updateFunction.m_uiGranularity != 0) ? updateFunction.m_uiGranularity : uiTotalCount;
+
+    while (uiStartIndex < uiTotalCount)
+    {
+      ezInternal::WorldData::UpdateTask* pTask;
+      if (uiCurrentTaskIndex < m_Data.m_UpdateTasks.GetCount())
+      {
+        pTask = m_Data.m_UpdateTasks[uiCurrentTaskIndex];
+      }
+      else
+      {
+        pTask = EZ_NEW(&m_Data.m_Allocator, ezInternal::WorldData::UpdateTask);
+        m_Data.m_UpdateTasks.PushBack(pTask);
+      }
+
+      pTask->SetTaskName(updateFunction.m_sFunctionName);
+      pTask->m_Function = updateFunction.m_Function;
+      pTask->m_uiStartIndex = uiStartIndex;
+      pTask->m_uiCount = (uiStartIndex + uiGranularity < uiTotalCount) ? uiGranularity : ezInvalidIndex;
+      ezTaskSystem::AddTaskToGroup(taskGroupId, pTask);
+
+      ++uiCurrentTaskIndex;
+      uiStartIndex += uiGranularity;
+    }
+  }
+
+  ezTaskSystem::StartTaskGroup(taskGroupId);
+  ezTaskSystem::WaitForGroup(taskGroupId);
+}
 
 void ezWorld::ProcessComponentsToInitialize()
 {
@@ -815,70 +809,76 @@ void ezWorld::ProcessComponentsToInitialize()
   }
 }
 
-void ezWorld::UpdateSynchronous(const ezArrayPtr<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions)
+void ezWorld::ProcessUpdateFunctionsToRegister()
 {
-  ezWorldModule::UpdateContext context;
-  context.m_uiFirstComponentIndex = 0;
-  context.m_uiComponentCount = ezInvalidIndex;
+  CheckForWriteAccess();
 
-  for (auto& updateFunction : updateFunctions)
+  if (m_Data.m_UpdateFunctionsToRegister.IsEmpty())
+    return;
+
+  EZ_PROFILE("Register update functions");
+
+  while (!m_Data.m_UpdateFunctionsToRegister.IsEmpty())
   {
-    if (updateFunction.m_bOnlyUpdateWhenSimulating && !m_Data.m_bSimulateWorld)
-      continue;
+    const ezUInt32 uiNumFunctionsToRegister = m_Data.m_UpdateFunctionsToRegister.GetCount();
 
+    for (ezUInt32 i = uiNumFunctionsToRegister; i-- > 0; )
     {
-      EZ_PROFILE(updateFunction.m_sFunctionName);
-      updateFunction.m_Function(context);
+      if (RegisterUpdateFunctionInternal(m_Data.m_UpdateFunctionsToRegister[i]).Succeeded())
+      {
+        m_Data.m_UpdateFunctionsToRegister.RemoveAt(i);
+      }
     }
+
+    EZ_ASSERT_DEV(m_Data.m_UpdateFunctionsToRegister.GetCount() < uiNumFunctionsToRegister, "No functions have been registered because the dependencies could not be found.");
   }
 }
 
-void ezWorld::UpdateAsynchronous()
+ezResult ezWorld::RegisterUpdateFunctionInternal(const ezWorldModule::UpdateFunctionDesc& desc)
 {
-  ezTaskGroupID taskGroupId = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
+  ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[desc.m_Phase];
+  ezUInt32 uiInsertionIndex = 0;
 
-  ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions =
-    m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Phase::Async];
-
-  ezUInt32 uiCurrentTaskIndex = 0;
-
-  for (auto& updateFunction : updateFunctions)
+  for (ezUInt32 i = 0; i < desc.m_DependsOn.GetCount(); ++i)
   {
-    if (updateFunction.m_bOnlyUpdateWhenSimulating && !m_Data.m_bSimulateWorld)
-      continue;
+    ezUInt32 uiDependencyIndex = ezInvalidIndex;
 
-    ezComponentManagerBase* pManager = static_cast<ezComponentManagerBase*>(updateFunction.m_Function.GetClassInstance());
-
-    const ezUInt32 uiTotalCount = pManager->GetComponentCount();
-    ezUInt32 uiStartIndex = 0;
-    ezUInt32 uiGranularity = (updateFunction.m_uiGranularity != 0) ? updateFunction.m_uiGranularity : uiTotalCount;
-
-    while (uiStartIndex < uiTotalCount)
+    for (ezUInt32 j = 0; j < updateFunctions.GetCount(); ++j)
     {
-      ezInternal::WorldData::UpdateTask* pTask;
-      if (uiCurrentTaskIndex < m_Data.m_UpdateTasks.GetCount())
+      if (updateFunctions[j].m_sFunctionName == desc.m_DependsOn[i])
       {
-        pTask = m_Data.m_UpdateTasks[uiCurrentTaskIndex];
+        uiDependencyIndex = j;
+        break;
       }
-      else
-      {
-        pTask = EZ_NEW(&m_Data.m_Allocator, ezInternal::WorldData::UpdateTask);
-        m_Data.m_UpdateTasks.PushBack(pTask);
-      }
+    }
 
-      pTask->SetTaskName(updateFunction.m_sFunctionName);
-      pTask->m_Function = updateFunction.m_Function;
-      pTask->m_uiStartIndex = uiStartIndex;
-      pTask->m_uiCount = (uiStartIndex + uiGranularity < uiTotalCount) ? uiGranularity : ezInvalidIndex;
-      ezTaskSystem::AddTaskToGroup(taskGroupId, pTask);
-
-      ++uiCurrentTaskIndex;
-      uiStartIndex += uiGranularity;
+    if (uiDependencyIndex == ezInvalidIndex) // dependency not found
+    {
+      return EZ_FAILURE;
+    }
+    else
+    {
+      uiInsertionIndex = ezMath::Max(uiInsertionIndex, uiDependencyIndex + 1);
     }
   }
 
-  ezTaskSystem::StartTaskGroup(taskGroupId);
-  ezTaskSystem::WaitForGroup(taskGroupId);
+  ezInternal::WorldData::RegisteredUpdateFunction newFunction;
+  newFunction.FillFromDesc(desc);
+
+  while (uiInsertionIndex < updateFunctions.GetCount())
+  {
+    const auto& existingFunction = updateFunctions[uiInsertionIndex];
+    if (newFunction < existingFunction)
+    {
+      break;
+    }
+
+    ++uiInsertionIndex;
+  }
+
+  updateFunctions.Insert(newFunction, uiInsertionIndex);
+
+  return EZ_SUCCESS;
 }
 
 void ezWorld::DeleteDeadObjects()

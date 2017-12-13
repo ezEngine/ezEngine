@@ -272,18 +272,21 @@ private:
   void ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::Entry& entry);
   void ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType);
 
-  ezResult RegisterUpdateFunction(const ezWorldModule::UpdateFunctionDesc& desc);
-  ezResult RegisterUpdateFunctionInternal(const ezWorldModule::UpdateFunctionDesc& desc, bool bInsertAsUnresolved);
-  ezResult DeregisterUpdateFunction(const ezWorldModule::UpdateFunctionDesc& desc);
+  void RegisterUpdateFunction(const ezWorldModule::UpdateFunctionDesc& desc);
+  void DeregisterUpdateFunction(const ezWorldModule::UpdateFunctionDesc& desc);
   void DeregisterUpdateFunctions(ezWorldModule* pModule);
 
   /// \brief Used by component managers to queue a new component for initialization during the next update
   void AddComponentToInitialize(ezComponentHandle hComponent);
 
   void UpdateFromThread();
-  void ProcessComponentsToInitialize();
   void UpdateSynchronous(const ezArrayPtr<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions);
   void UpdateAsynchronous();
+
+  void ProcessComponentsToInitialize();
+  void ProcessUpdateFunctionsToRegister();
+  ezResult RegisterUpdateFunctionInternal(const ezWorldModule::UpdateFunctionDesc& desc);
+
   void DeleteDeadObjects();
   void DeleteDeadComponents();
 

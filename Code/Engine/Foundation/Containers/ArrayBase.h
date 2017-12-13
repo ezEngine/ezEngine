@@ -146,7 +146,7 @@ protected:
   void DoSwap(ezArrayBase<T, Derived>& other);
 
   /// \brief Element-type access to m_Data.
-  T* m_pElements_;
+  T* m_pElements;
 
   /// \brief The number of elements used from the array.
   ezUInt32 m_uiCount;

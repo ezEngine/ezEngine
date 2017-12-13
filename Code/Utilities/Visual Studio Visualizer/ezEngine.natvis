@@ -4,13 +4,13 @@
 	<!-- Strings-->
 	<Type Name="ezHybridStringBase&lt;*&gt;">
 		<AlternativeType Name="ezStringBuilder" />
-		<DisplayString Condition="m_Data.m_pElements_ != 0">{m_Data.m_pElements_,s8}</DisplayString>
-		<DisplayString Condition="m_Data.m_pElements_ == 0">{m_Data.m_StaticData,s8}</DisplayString>
-		<StringView Condition="m_Data.m_pElements_ != 0">m_Data.m_pElements_,s8</StringView>
-		<StringView Condition="m_Data.m_pElements_ == 0">m_Data.m_StaticData,s8</StringView>
+		<DisplayString Condition="m_Data.m_pElements != 0">{m_Data.m_pElements,s8}</DisplayString>
+		<DisplayString Condition="m_Data.m_pElements == 0">{m_Data.m_StaticData,s8}</DisplayString>
+		<StringView Condition="m_Data.m_pElements != 0">m_Data.m_pElements,s8</StringView>
+		<StringView Condition="m_Data.m_pElements == 0">m_Data.m_StaticData,s8</StringView>
 		<Expand>
-			<Item Condition="m_Data.m_pElements_ != 0" Name="String">m_Data.m_pElements_,s8</Item>
-			<Item Condition="m_Data.m_pElements_ == 0" Name="String">m_Data.m_StaticData,s8</Item>
+			<Item Condition="m_Data.m_pElements != 0" Name="String">m_Data.m_pElements,s8</Item>
+			<Item Condition="m_Data.m_pElements == 0" Name="String">m_Data.m_StaticData,s8</Item>
 			<Item Name="CharacterCount">m_uiCharacterCount</Item>
 			<Item Name="ElementCount">m_Data.m_uiCount</Item>
 		</Expand>
@@ -53,7 +53,7 @@
 			<Item Name="capacity">m_uiCapacity</Item>
 			<ArrayItems>
 				<Size>m_uiCount</Size>
-				<ValuePointer>(m_pElements_ == 0) ? ($T1*)&amp;m_StaticData[0] : m_pElements_</ValuePointer>
+				<ValuePointer>(m_pElements == 0) ? ($T1*)&amp;m_StaticData[0] : m_pElements</ValuePointer>
 			</ArrayItems>
 		</Expand>
 	</Type>
@@ -65,7 +65,7 @@
 			<Item Name="capacity">m_uiCapacity</Item>
 			<ArrayItems>
 				<Size>m_uiCount</Size>
-				<ValuePointer>m_pElements_</ValuePointer>
+				<ValuePointer>m_pElements</ValuePointer>
 			</ArrayItems>
 		</Expand>
 	</Type>

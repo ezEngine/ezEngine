@@ -2,7 +2,7 @@
 template <typename T, ezUInt32 Size>
 ezHybridArrayBase<T, Size>::ezHybridArrayBase(ezAllocatorBase* pAllocator)
 {
-  this->m_pElements_ = nullptr; // if m_pElements is null the static array is used
+  this->m_pElements = nullptr; // if m_pElements is null the static array is used
   this->m_uiCapacity = Size;
   this->m_pAllocator = pAllocator;
 }
@@ -10,7 +10,7 @@ ezHybridArrayBase<T, Size>::ezHybridArrayBase(ezAllocatorBase* pAllocator)
 template <typename T, ezUInt32 Size>
 ezHybridArrayBase<T, Size>::ezHybridArrayBase(const ezHybridArrayBase<T, Size>& other, ezAllocatorBase* pAllocator)
 {
-  this->m_pElements_ = nullptr; // if m_pElements is null the static array is used
+  this->m_pElements = nullptr; // if m_pElements is null the static array is used
   this->m_uiCapacity = Size;
   this->m_pAllocator = pAllocator;
 
@@ -20,7 +20,7 @@ ezHybridArrayBase<T, Size>::ezHybridArrayBase(const ezHybridArrayBase<T, Size>& 
 template <typename T, ezUInt32 Size>
 ezHybridArrayBase<T, Size>::ezHybridArrayBase(ezHybridArrayBase<T, Size>&& other, ezAllocatorBase* pAllocator)
 {
-  this->m_pElements_ = nullptr; // if m_pElements is null the static array is used
+  this->m_pElements = nullptr; // if m_pElements is null the static array is used
   this->m_uiCapacity = Size;
   this->m_pAllocator = pAllocator;
 
@@ -30,7 +30,7 @@ ezHybridArrayBase<T, Size>::ezHybridArrayBase(ezHybridArrayBase<T, Size>&& other
 template <typename T, ezUInt32 Size>
 ezHybridArrayBase<T, Size>::ezHybridArrayBase(const ezArrayPtr<const T>& other, ezAllocatorBase* pAllocator)
 {
-  this->m_pElements_ = nullptr; // if m_pElements is null the static array is used
+  this->m_pElements = nullptr; // if m_pElements is null the static array is used
   this->m_uiCapacity = Size;
   this->m_pAllocator = pAllocator;
 
@@ -42,10 +42,10 @@ ezHybridArrayBase<T, Size>::~ezHybridArrayBase()
 {
   this->Clear();
 
-  if (this->m_pElements_ != nullptr)
-    EZ_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements_);
+  if (this->m_pElements != nullptr)
+    EZ_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements);
 
-  this->m_pElements_ = nullptr;
+  this->m_pElements = nullptr;
 }
 
 template <typename T, ezUInt32 Size>
@@ -73,7 +73,7 @@ EZ_FORCE_INLINE void ezHybridArrayBase<T, Size>::operator= (ezHybridArrayBase<T,
   // Clear any existing data (calls destructors if necessary)
   this->Clear();
 
-  if (rhs.m_pElements_ == nullptr || (m_pAllocator != rhs.m_pAllocator))
+  if (rhs.m_pElements == nullptr || (m_pAllocator != rhs.m_pAllocator))
   {
     // Ensure we have enough data.
     this->SetCountUninitialized(rhs.m_uiCount);
@@ -88,15 +88,15 @@ EZ_FORCE_INLINE void ezHybridArrayBase<T, Size>::operator= (ezHybridArrayBase<T,
     // We cannot do this when the allocators of this and rhs are different,
     // because the memory will be freed by this and not by rhs anymore.
 
-    if (this->m_pElements_ != nullptr)
-      EZ_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements_);
+    if (this->m_pElements != nullptr)
+      EZ_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements);
 
-    this->m_pElements_ = rhs.m_pElements_;
+    this->m_pElements = rhs.m_pElements;
     this->m_uiCapacity = rhs.m_uiCapacity;
     this->m_uiCount = rhs.m_uiCount;
 
     rhs.m_uiCount = 0;
-    rhs.m_pElements_ = nullptr;
+    rhs.m_pElements = nullptr;
     rhs.m_uiCapacity = Size;
   }
 }
@@ -112,7 +112,7 @@ void ezHybridArrayBase<T, Size>::SetCapacity(ezUInt32 uiCapacity)
     this->m_uiCapacity = Size;
 
     // if we already use that static buffer, no reallocation is needed
-    if (this->m_pElements_ == nullptr)
+    if (this->m_pElements == nullptr)
       return;
 
     pNewData = GetStaticArray();
@@ -127,10 +127,10 @@ void ezHybridArrayBase<T, Size>::SetCapacity(ezUInt32 uiCapacity)
   ezMemoryUtils::RelocateConstruct(pNewData, this->GetElementsPtr(), this->m_uiCount);
 
   // if the previous buffer is not the static array, deallocate it
-  if (this->m_pElements_ != nullptr)
-    EZ_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements_);
+  if (this->m_pElements != nullptr)
+    EZ_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements);
 
-  this->m_pElements_ = (pNewData == GetStaticArray()) ? nullptr : pNewData;
+  this->m_pElements = (pNewData == GetStaticArray()) ? nullptr : pNewData;
 }
 
 template <typename T, ezUInt32 Size>
@@ -152,11 +152,11 @@ void ezHybridArrayBase<T, Size>::Compact()
   if (this->IsEmpty())
   {
     // completely deallocate all data, if the array is empty.
-    if (this->m_pElements_ != nullptr)
-      EZ_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements_);
+    if (this->m_pElements != nullptr)
+      EZ_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements);
 
     this->m_uiCapacity = Size;
-    this->m_pElements_ = nullptr;
+    this->m_pElements = nullptr;
   }
   else
   {
@@ -198,29 +198,29 @@ void ezHybridArrayBase<T, Size>::Swap(ezHybridArrayBase<T, Size>& other)
   // Fixup pElements pointer after swap
   if (this->m_uiCapacity <= Size)
   {
-    this->m_pElements_ = nullptr;
+    this->m_pElements = nullptr;
   }
 
   if (other.m_uiCapacity <= Size)
   {
-    other.m_pElements_ = nullptr;
+    other.m_pElements = nullptr;
   }
 }
 
 template <typename T, ezUInt32 Size>
-T* ezHybridArrayBase<T, Size>::GetElementsPtr()
+EZ_ALWAYS_INLINE T* ezHybridArrayBase<T, Size>::GetElementsPtr()
 {
-  if (this->m_pElements_ == nullptr)
+  if (this->m_pElements == nullptr)
     return GetStaticArray();
-  return this->m_pElements_;
+  return this->m_pElements;
 }
 
 template <typename T, ezUInt32 Size>
-const T* ezHybridArrayBase<T, Size>::GetElementsPtr() const
+EZ_ALWAYS_INLINE const T* ezHybridArrayBase<T, Size>::GetElementsPtr() const
 {
-  if (this->m_pElements_ == nullptr)
+  if (this->m_pElements == nullptr)
     return GetStaticArray();
-  return this->m_pElements_;
+  return this->m_pElements;
 }
 
 template <typename T, ezUInt32 Size, typename A>

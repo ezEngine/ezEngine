@@ -2,14 +2,14 @@
 template <typename T, ezUInt32 C>
 ezStaticArray<T, C>::ezStaticArray()
 {
-  EZ_ASSERT_DEBUG(m_pElements_ == nullptr, "static arrays should not use m_pElements");
+  EZ_ASSERT_DEBUG(m_pElements == nullptr, "static arrays should not use m_pElements");
   this->m_uiCapacity = C;
 }
 
 template <typename T, ezUInt32 C>
 ezStaticArray<T, C>::ezStaticArray(const ezStaticArray<T, C>& rhs)
 {
-  EZ_ASSERT_DEBUG(m_pElements_ == nullptr, "static arrays should not use m_pElements");
+  EZ_ASSERT_DEBUG(m_pElements == nullptr, "static arrays should not use m_pElements");
   this->m_uiCapacity = C;
   *this = (ezArrayPtr<const T>) rhs; // redirect this to the ezArrayPtr version
 }
@@ -20,7 +20,7 @@ ezStaticArray<T, C>::ezStaticArray(const ezStaticArray<T, OtherCapacity>& rhs)
 {
   EZ_CHECK_AT_COMPILETIME(OtherCapacity <= C);
 
-  EZ_ASSERT_DEBUG(m_pElements_ == nullptr, "static arrays should not use m_pElements");
+  EZ_ASSERT_DEBUG(m_pElements == nullptr, "static arrays should not use m_pElements");
   this->m_uiCapacity = C;
 
   *this = (ezArrayPtr<const T>) rhs; // redirect this to the ezArrayPtr version
@@ -29,7 +29,7 @@ ezStaticArray<T, C>::ezStaticArray(const ezStaticArray<T, OtherCapacity>& rhs)
 template <typename T, ezUInt32 C>
 ezStaticArray<T, C>::ezStaticArray(const ezArrayPtr<const T>& rhs)
 {
-  EZ_ASSERT_DEBUG(m_pElements_ == nullptr, "static arrays should not use m_pElements");
+  EZ_ASSERT_DEBUG(m_pElements == nullptr, "static arrays should not use m_pElements");
   this->m_uiCapacity = C;
 
   *this = rhs;
@@ -39,7 +39,7 @@ template <typename T, ezUInt32 C>
 ezStaticArray<T, C>::~ezStaticArray()
 {
   this->Clear();
-  EZ_ASSERT_DEBUG(m_pElements_ == nullptr, "static arrays should not use m_pElements");
+  EZ_ASSERT_DEBUG(m_pElements == nullptr, "static arrays should not use m_pElements");
 }
 
 template <typename T, ezUInt32 C>

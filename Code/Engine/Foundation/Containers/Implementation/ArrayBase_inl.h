@@ -2,7 +2,7 @@
 template <typename T, typename Derived>
 ezArrayBase<T, Derived>::ezArrayBase()
 {
-  m_pElements_ = nullptr;
+  m_pElements = nullptr;
   m_uiCount = 0;
   m_uiCapacity = 0;
 }
@@ -11,7 +11,7 @@ template <typename T, typename Derived>
 ezArrayBase<T, Derived>::~ezArrayBase()
 {
   EZ_ASSERT_DEBUG(m_uiCount == 0, "The derived class did not destruct all objects. Count is {0}.", m_uiCount);
-  EZ_ASSERT_DEBUG(m_pElements_ == nullptr, "The derived class did not free its memory.");
+  EZ_ASSERT_DEBUG(m_pElements == nullptr, "The derived class did not free its memory.");
 }
 
 template <typename T, typename Derived>
@@ -402,7 +402,7 @@ EZ_ALWAYS_INLINE ezArrayPtr<typename ezArrayPtr<const T>::ByteType> ezArrayBase<
 template <typename T, typename Derived>
 void ezArrayBase<T, Derived>::DoSwap(ezArrayBase<T, Derived>& other)
 {
-  ezMath::Swap(this->m_pElements_, other.m_pElements_);
+  ezMath::Swap(this->m_pElements, other.m_pElements);
   ezMath::Swap(this->m_uiCapacity, other.m_uiCapacity);
   ezMath::Swap(this->m_uiCount, other.m_uiCount);
 }

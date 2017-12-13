@@ -37,7 +37,7 @@ template <typename T>
 ezDynamicArrayBase<T>::~ezDynamicArrayBase()
 {
   this->Clear();
-  EZ_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements_);
+  EZ_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements);
   this->m_uiCapacity = 0;
 }
 
@@ -55,15 +55,15 @@ inline void ezDynamicArrayBase<T>::operator= (ezDynamicArrayBase<T>&& rhs)
 
   if (this->m_pAllocator == rhs.m_pAllocator)
   {
-    EZ_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements_);
+    EZ_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements);
 
     // move the data over from the other array
     this->m_uiCount = rhs.m_uiCount;
     this->m_uiCapacity = rhs.m_uiCapacity;
-    this->m_pElements_ = rhs.m_pElements_;
+    this->m_pElements = rhs.m_pElements;
 
     // reset the other array to not reference the data anymore
-    rhs.m_pElements_ = nullptr;
+    rhs.m_pElements = nullptr;
     rhs.m_uiCount = 0;
     rhs.m_uiCapacity = 0;
   }
@@ -73,7 +73,7 @@ inline void ezDynamicArrayBase<T>::operator= (ezDynamicArrayBase<T>&& rhs)
     this->SetCountUninitialized(rhs.m_uiCount);
     this->m_uiCount = rhs.m_uiCount;
 
-    ezMemoryUtils::RelocateConstruct(this->m_pElements_, rhs.m_pElements_, rhs.m_uiCount);
+    ezMemoryUtils::RelocateConstruct(this->m_pElements, rhs.m_pElements, rhs.m_uiCount);
 
     // Strictly speaking, clearing the other array is optional, but it makes it a bit more consistent to do so.
     rhs.Clear();
@@ -91,7 +91,7 @@ template <typename T>
 void ezDynamicArrayBase<T>::SetCapacity(ezUInt32 uiCapacity)
 {
   this->m_uiCapacity = uiCapacity;
-  this->m_pElements_ = EZ_EXTEND_RAW_BUFFER(this->m_pAllocator, this->m_pElements_, this->m_uiCount, this->m_uiCapacity);
+  this->m_pElements = EZ_EXTEND_RAW_BUFFER(this->m_pAllocator, this->m_pElements, this->m_uiCount, this->m_uiCapacity);
 }
 
 template <typename T>
@@ -111,7 +111,7 @@ void ezDynamicArrayBase<T>::Compact()
   if (this->IsEmpty())
   {
     // completely deallocate all data, if the array is empty.
-    EZ_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements_);
+    EZ_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements);
     this->m_uiCapacity = 0;
   }
   else
@@ -123,15 +123,15 @@ void ezDynamicArrayBase<T>::Compact()
 }
 
 template <typename T>
-EZ_FORCE_INLINE T* ezDynamicArrayBase<T>::GetElementsPtr()
+EZ_ALWAYS_INLINE T* ezDynamicArrayBase<T>::GetElementsPtr()
 {
-  return this->m_pElements_;
+  return this->m_pElements;
 }
 
 template <typename T>
-EZ_FORCE_INLINE const T* ezDynamicArrayBase<T>::GetElementsPtr() const
+EZ_ALWAYS_INLINE const T* ezDynamicArrayBase<T>::GetElementsPtr() const
 {
-  return this->m_pElements_;
+  return this->m_pElements;
 }
 
 template <typename T>

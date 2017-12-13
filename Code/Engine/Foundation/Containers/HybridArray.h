@@ -33,8 +33,8 @@ protected:
   /// \brief Moves the data from some other contiguous array into this one.
   void operator= (ezHybridArrayBase<T, Size>&& rhs); // [tested]
 
-  EZ_FORCE_INLINE T* GetElementsPtr();
-  EZ_FORCE_INLINE const T* GetElementsPtr() const;
+  T* GetElementsPtr();
+  const T* GetElementsPtr() const;
 
   friend class ezArrayBase < T, ezHybridArrayBase<T, Size> > ;
 
