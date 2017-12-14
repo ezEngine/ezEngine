@@ -1,0 +1,4 @@
+Samples {#Samples}
+===============
+
+* \subpage StochasticRendering

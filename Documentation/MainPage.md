@@ -10,3 +10,4 @@ The following pages contain some documentation about the [ezEngine](http://www.e
  * \subpage ThirdPartyCode
  * \subpage Editor
  * \subpage Rendering
+ * \subpage Samples
