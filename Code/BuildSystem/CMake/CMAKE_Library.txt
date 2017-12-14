@@ -38,6 +38,11 @@ set (ALL_SOURCE_FILES "")
 
 set (LIBRARY_PCH TRUE)
 
+#We need at least visual studio 2015 for this to work
+if ((NATVIS_FILE) AND ((MSVC_VERSION GREATER 1900) OR (MSVC_VERSION EQUAL 1900)))
+	SET(ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${NATVIS_FILE})
+endif()
+
 include (${CMAKE_CURRENT_LIST_DIR}/CMAKE_Qt.txt)
 include (${CMAKE_CURRENT_LIST_DIR}/CMAKE_LibraryFolder.txt)
 

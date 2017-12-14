@@ -15,6 +15,8 @@
 SET (LINK_LIBRARIES
   ThirdParty
  )
+ 
+SET(NATVIS_FILE "${CMAKE_SOURCE_DIR}/Code/Utilities/Visual Studio Visualizer/ezEngine.natvis")
 
 if (MSVC)
   SET (LINK_LIBRARIES
