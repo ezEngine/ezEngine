@@ -66,8 +66,8 @@ public:
   void SetBreakImpulseStrength(float fBreakImpulseStrength);
   float GetBreakImpulseStrength() const;
 
-  void SetDisappearTimeout(float fDisappearTimeout);
-  float GetDisappearTimeout() const;
+  void SetDisappearTimeout(ezTime fDisappearTimeout);
+  ezTime GetDisappearTimeout() const;
 
   void SetFixedBorder(bool bFixedBorder);
   bool GetFixedBorder() const;
@@ -99,7 +99,7 @@ protected:
   float m_fHeight = 1.0f;
   float m_fThickness = 0.1f;
   float m_fBreakImpulseStrength = 25.0f;
-  float m_fDisappearTimeout = 0.0f;
+  ezTime m_fDisappearTimeout;
   ezUInt32 m_uiFixedRandomSeed = 0;
   ezUInt32 m_uiNumPieces = 32;
   bool m_bFixedBorder = false;
@@ -138,6 +138,9 @@ protected:
   void CreatePiecesPhysicsObjects(ezVec3 vImpulse, ezVec3 vPointOfBreakage);
   void DestroyPiecesPhysicsObjects();
 
+  void ReinitMeshes();
+  void Cleanup();
+
   friend class ezPxDynamicActorComponentManager;
   void SetPieceTransform(const physx::PxTransform& transform, void* pAdditionalUserData);
 
@@ -147,5 +150,6 @@ protected:
   ezPxUserData m_UnbrokenUserData;
 
   ezDynamicArray<physx::PxRigidDynamic*> m_PieceActors;
+  ezDynamicArray<ezUInt32> m_PieceShapeIds;
   ezDynamicArray<ezPxUserData> m_PieceUserDatas;
 };
