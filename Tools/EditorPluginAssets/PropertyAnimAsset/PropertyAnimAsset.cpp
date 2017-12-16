@@ -430,7 +430,7 @@ void ezPropertyAnimAssetDocument::FindTrackKeys(const char* szObjectSearchSequen
         {
           ezVariant value = pObject->GetTypeAccessor().GetValue("Components", i);
           auto pChild = GetObjectManager()->GetObject(value.Get<ezUuid>());
-          if (szComponentType == pChild->GetType()->GetTypeName())
+          if (ezStringUtils::IsEqual(szComponentType, pChild->GetType()->GetTypeName()))
           {
             output.PushBack(pChild);
             continue; //#TODO: break on found component?
