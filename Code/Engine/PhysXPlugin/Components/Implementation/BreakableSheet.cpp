@@ -351,13 +351,27 @@ void ezBreakableSheetComponent::AddImpulseAtPos(ezPhysicsAddImpulseMsg& msg)
   if (msg.m_uiShapeId == ezInvalidIndex)
     return;
 
-  physx::PxRigidDynamic* pActor = m_ShapeIDsToActors.GetValueOrDefault(msg.m_uiShapeId, nullptr);
-
-  if (pActor != nullptr)
+  if (!m_bBroken)
   {
-    EZ_PX_WRITE_LOCK(*pActor->getScene());
+    if (msg.m_vImpulse.GetLength() > m_fBreakImpulseStrength)
+    {
+      ezCollisionMessage fakeMsg;
+      fakeMsg.m_vPosition = msg.m_vGlobalPosition;
+      fakeMsg.m_vImpulse = msg.m_vImpulse;
 
-    PxRigidBodyExt::addForceAtPos(*pActor, ezPxConversionUtils::ToVec3(msg.m_vImpulse), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
+      Break(&fakeMsg);
+    }
+  }
+  else
+  {
+    physx::PxRigidDynamic* pActor = m_ShapeIDsToActors.GetValueOrDefault(msg.m_uiShapeId, nullptr);
+
+    if (pActor != nullptr)
+    {
+      EZ_PX_WRITE_LOCK(*pActor->getScene());
+
+      PxRigidBodyExt::addForceAtPos(*pActor, ezPxConversionUtils::ToVec3(msg.m_vImpulse), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
+    }
   }
 }
 
@@ -1019,6 +1033,9 @@ void ezBreakableSheetComponent::CreatePiecesPhysicsObjects(ezVec3 vImpulse, ezVe
 
   ezVec3 vScale = ezSimdConversion::ToVec3(globalTransform.m_Scale.Abs());
 
+  ezRandom r;
+  r.Initialize(0);
+
   for (ezUInt32 i = 0; i < m_PieceActors.GetCount(); ++i)
   {
     // We don't create a dynamic actor for the border
@@ -1071,9 +1088,6 @@ void ezBreakableSheetComponent::CreatePiecesPhysicsObjects(ezVec3 vImpulse, ezVe
     pActor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, false);
     pActor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, false);
 
-    ezRandom r;
-    r.Initialize(0);
-
     m_PieceActors[i] = pActor;
     const float fExtentsLength = m_vExtents.GetLength();
     const float fImpulseStrength = vImpulse.GetLength();
@@ -1085,11 +1099,12 @@ void ezBreakableSheetComponent::CreatePiecesPhysicsObjects(ezVec3 vImpulse, ezVe
       {
         const ezVec3 BoundingBoxCenter = m_PieceBoundingBoxes[i].GetCenter();
         ezVec3 vec(BoundingBoxCenter - vPointOfBreakage);
-        float fStrength = ezMath::Max(1.0f - (vec.GetLength() / fExtentsLength), 0.2f) * static_cast<float>(r.DoubleMinMax(0.5, 1.0));
+        float fStrength = static_cast<float>(r.DoubleMinMax(0.5, 1.0));
 
-        vec.SetLength(fImpulseStrength * fStrength);
+        ezVec3 modifiedImpulse = vImpulse;
+        modifiedImpulse.SetLength(fImpulseStrength * fStrength);
 
-        PxRigidBodyExt::addForceAtPos(*pActor, ezPxConversionUtils::ToVec3(vec), ezPxConversionUtils::ToVec3(BoundingBoxCenter), PxForceMode::eIMPULSE);
+        PxRigidBodyExt::addForceAtPos(*pActor, ezPxConversionUtils::ToVec3(modifiedImpulse), ezPxConversionUtils::ToVec3(BoundingBoxCenter), PxForceMode::eIMPULSE);
       }
     }
   }
