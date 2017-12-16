@@ -41,6 +41,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBreakableSheetComponent, 1, ezComponentMode::Dynamic)
     EZ_ACCESSOR_PROPERTY("Width", GetWidth, SetWidth)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.001f, ezVariant()), new ezSuffixAttribute(" m")),
     EZ_ACCESSOR_PROPERTY("Height", GetHeight, SetHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.001f, ezVariant()), new ezSuffixAttribute(" m")),
     EZ_ACCESSOR_PROPERTY("Thickness", GetThickness, SetThickness)->AddAttributes(new ezDefaultValueAttribute(0.05f), new ezClampValueAttribute(0.001f, ezVariant()), new ezSuffixAttribute(" m")),
+    EZ_ACCESSOR_PROPERTY("Density", GetDensity, SetDensity)->AddAttributes(new ezDefaultValueAttribute(1500.0f), new ezClampValueAttribute(1.0f, ezVariant()), new ezSuffixAttribute(" kg/m^3")),
     EZ_ACCESSOR_PROPERTY("NumPieces", GetNumPieces, SetNumPieces)->AddAttributes(new ezDefaultValueAttribute(32), new ezClampValueAttribute(5, 1024)),
     EZ_ACCESSOR_PROPERTY("DisappearTimeout", GetDisappearTimeout, SetDisappearTimeout)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezMinValueTextAttribute("Never"), new ezSuffixAttribute(" s")),
     EZ_ACCESSOR_PROPERTY("BreakImpulseStrength", GetBreakImpulseStrength, SetBreakImpulseStrength)->AddAttributes(new ezDefaultValueAttribute(25.0f), new ezClampValueAttribute(0.0f, ezVariant())),
@@ -66,6 +67,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBreakableSheetComponent, 1, ezComponentMode::Dynamic)
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
     EZ_MESSAGE_HANDLER(ezBuildNavMeshMessage, OnBuildNavMesh),
     EZ_MESSAGE_HANDLER(ezCollisionMessage, OnCollision),
+    EZ_MESSAGE_HANDLER(ezPhysicsAddImpulseMsg, AddImpulseAtPos),
   }
   EZ_END_MESSAGEHANDLERS
 }
@@ -133,6 +135,7 @@ void ezBreakableSheetComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fWidth;
   s << m_fHeight;
   s << m_fThickness;
+  s << m_fDensity;
   s << m_fBreakImpulseStrength;
   s << m_fDisappearTimeout;
   s << m_bFixedBorder;
@@ -153,6 +156,7 @@ void ezBreakableSheetComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fWidth;
   s >> m_fHeight;
   s >> m_fThickness;
+  s >> m_fDensity;
   s >> m_fBreakImpulseStrength;
   s >> m_fDisappearTimeout;
   s >> m_bFixedBorder;
@@ -342,6 +346,21 @@ void ezBreakableSheetComponent::OnCollision(ezCollisionMessage& msg)
   }
 }
 
+void ezBreakableSheetComponent::AddImpulseAtPos(ezPhysicsAddImpulseMsg& msg)
+{
+  if (msg.m_uiShapeId == ezInvalidIndex)
+    return;
+
+  physx::PxRigidDynamic* pActor = m_ShapeIDsToActors.GetValueOrDefault(msg.m_uiShapeId, nullptr);
+
+  if (pActor != nullptr)
+  {
+    EZ_PX_WRITE_LOCK(*pActor->getScene());
+
+    PxRigidBodyExt::addForceAtPos(*pActor, ezPxConversionUtils::ToVec3(msg.m_vImpulse), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
+  }
+}
+
 void ezBreakableSheetComponent::SetWidth(float fWidth)
 {
   if (fWidth <= 0.0f)
@@ -388,6 +407,19 @@ void ezBreakableSheetComponent::SetThickness(float fThickness)
 float ezBreakableSheetComponent::GetThickness() const
 {
   return m_fThickness;
+}
+
+void ezBreakableSheetComponent::SetDensity(float fDensity)
+{
+  if (fDensity <= 0.0f)
+    return;
+
+  m_fDensity = fDensity;
+}
+
+float ezBreakableSheetComponent::GetDensity() const
+{
+  return m_fDensity;
 }
 
 void ezBreakableSheetComponent::SetBreakImpulseStrength(float fBreakImpulseStrength)
@@ -1022,6 +1054,7 @@ void ezBreakableSheetComponent::CreatePiecesPhysicsObjects(ezVec3 vImpulse, ezVe
     physx::PxShape* pShape = pActor->createShape(box, *pPhysXMat);
 
     m_PieceShapeIds[i] = pModule->CreateShapeId();
+    m_ShapeIDsToActors.Insert(m_PieceShapeIds[i], pActor);
     PxFilterData filterData = ezPhysX::CreateFilterData(m_uiCollisionLayerBrokenPieces, m_PieceShapeIds[i]);
 
     pShape->setSimulationFilterData(filterData);
@@ -1033,7 +1066,7 @@ void ezBreakableSheetComponent::CreatePiecesPhysicsObjects(ezVec3 vImpulse, ezVe
     pActor->setAngularDamping(0.05f);
     pActor->setMaxDepenetrationVelocity(pModule->GetMaxDepenetrationVelocity());
 
-    PxRigidBodyExt::updateMassAndInertia(*pActor, 1.0f /* density - TODO */, nullptr /* Center of mass = center of box */);
+    PxRigidBodyExt::updateMassAndInertia(*pActor, m_fDensity, nullptr /* Center of mass = center of box */);
 
     pActor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, false);
     pActor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, false);
@@ -1082,6 +1115,7 @@ void ezBreakableSheetComponent::DestroyPiecesPhysicsObjects()
 
   m_PieceActors.Clear();
   m_PieceShapeIds.Clear();
+  m_ShapeIDsToActors.Clear();
   m_PieceUserDatas.Clear();
   m_uiNumActiveBrokenPieceActors = 0;
 }

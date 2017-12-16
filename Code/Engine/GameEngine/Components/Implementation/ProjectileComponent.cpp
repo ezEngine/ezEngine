@@ -146,6 +146,7 @@ void ezProjectileComponent::Update()
               ezPhysicsAddImpulseMsg msg;
               msg.m_vGlobalPosition = hitResult.m_vPosition;
               msg.m_vImpulse = vCurDirection * interaction.m_fImpulse;
+              msg.m_uiShapeId = hitResult.m_uiShapeId;
 
               pObject->SendMessage(msg);
             }

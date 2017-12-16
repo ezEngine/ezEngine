@@ -19,6 +19,7 @@ struct ezPhysicsHitResult
   ezGameObjectHandle m_hShapeObject; ///< The game object to which the hit physics shape is attached.
   ezGameObjectHandle m_hActorObject; ///< The game object to which the parent actor of the hit physics shape is attached.
   ezSurfaceResourceHandle m_hSurface;
+  ezUInt32 m_uiShapeId; ///< The shape id of the hit physics shape
 };
 
 /// \brief Used to report overlap query results
@@ -28,6 +29,7 @@ struct ezPhysicsOverlapResult
   {
     ezGameObjectHandle m_hShapeObject; ///< The game object to which the hit physics shape is attached.
     ezGameObjectHandle m_hActorObject; ///< The game object to which the parent actor of the hit physics shape is attached.
+    ezUInt32 m_uiShapeId; ///< The shape id of the hit physics shape
   };
 
   ezDynamicArray<Hit> m_Results;
@@ -72,6 +74,7 @@ struct EZ_GAMEENGINE_DLL ezPhysicsAddImpulseMsg : public ezMessage
 
   ezVec3 m_vGlobalPosition;
   ezVec3 m_vImpulse;
+  ezUInt32 m_uiShapeId = ezInvalidIndex;
 };
 
 /// \brief Used to apply a physical force on the object

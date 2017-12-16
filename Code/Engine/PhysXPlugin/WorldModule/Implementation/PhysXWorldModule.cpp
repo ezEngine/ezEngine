@@ -189,6 +189,7 @@ namespace
       ezComponent* pShapeComponent = ezPxUserData::GetComponent(pHitShape->userData);
       EZ_ASSERT_DEBUG(pShapeComponent != nullptr, "Shape should have set a component as user data");
       out_HitResult.m_hShapeObject = pShapeComponent->GetOwner()->GetHandle();
+      out_HitResult.m_uiShapeId = pHitShape->getQueryFilterData().word2;
     }
 
     {
@@ -622,6 +623,7 @@ void ezPhysXWorldModule::QueryDynamicShapesInSphere(float fSphereRadius, const e
     {
       ezComponent* pShapeComponent = ezPxUserData::GetComponent(g_OverlapHits[i].shape->userData);
       out_Results.m_Results[i].m_hShapeObject = pShapeComponent->GetOwner()->GetHandle();
+      out_Results.m_Results[i].m_uiShapeId = g_OverlapHits[i].shape->getQueryFilterData().word2;
     }
 
     {

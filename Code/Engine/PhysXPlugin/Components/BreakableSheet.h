@@ -13,6 +13,7 @@ typedef ezComponentManagerSimple<class ezBreakableSheetComponent, ezComponentUpd
 struct ezExtractRenderDataMessage;
 struct ezBuildNavMeshMessage;
 struct ezCollisionMessage;
+struct ezPhysicsAddImpulseMsg;
 
 /// \brief Sent when a breakable sheet breaks
 struct EZ_PHYSXPLUGIN_DLL ezBreakableSheetBreakEventMessage : public ezEventMessage
@@ -41,6 +42,7 @@ public:
   void OnBuildNavMesh(ezBuildNavMeshMessage& msg) const;
   void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
   void OnCollision(ezCollisionMessage& msg);
+  void AddImpulseAtPos(ezPhysicsAddImpulseMsg& msg);
 
   bool IsBroken() const { return m_bBroken; }
 
@@ -62,6 +64,9 @@ public:
 
   void SetThickness(float fThickness);
   float GetThickness() const;
+
+  void SetDensity(float fDensity);
+  float GetDensity() const;
 
   void SetBreakImpulseStrength(float fBreakImpulseStrength);
   float GetBreakImpulseStrength() const;
@@ -99,6 +104,7 @@ protected:
   float m_fHeight = 1.0f;
   float m_fThickness = 0.1f;
   float m_fBreakImpulseStrength = 25.0f;
+  float m_fDensity = 1500.0f;
   ezTime m_fDisappearTimeout;
   ezUInt32 m_uiFixedRandomSeed = 0;
   ezUInt32 m_uiNumPieces = 32;
@@ -152,4 +158,5 @@ protected:
   ezDynamicArray<physx::PxRigidDynamic*> m_PieceActors;
   ezDynamicArray<ezUInt32> m_PieceShapeIds;
   ezDynamicArray<ezPxUserData> m_PieceUserDatas;
+  ezMap<ezUInt32, physx::PxRigidDynamic*> m_ShapeIDsToActors;
 };
