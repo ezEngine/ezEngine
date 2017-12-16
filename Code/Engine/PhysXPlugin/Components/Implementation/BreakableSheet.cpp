@@ -27,12 +27,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 // TODOs:
 // - Switch to box extents so box manipulator could be used OR
 // - Switch to breakable asset and breakable component, in theory most of the code in this class (except fracture generation) would be the same for different fracture types
-// - Look at unifying parts of OnExtractRenderData since it's similar to mesh component stuff
 // - Once we have skinned meshes & instancing working together the batch id generation needs to be fixed
-// - PhysX surface material support
 // - Better breaking behavior
 // - Only spawn X actors per frame to reduce the spike of actor spawning
-// - Implement disappear timeout (e.g. remove actors and set piece scale to 0)
 
 EZ_BEGIN_COMPONENT_TYPE(ezBreakableSheetComponent, 1, ezComponentMode::Dynamic)
 {
@@ -81,7 +78,6 @@ ezBreakableSheetComponent::ezBreakableSheetComponent()
   m_vExtents = ezVec3(m_fWidth, m_fThickness, m_fHeight);
 }
 
-
 void ezBreakableSheetComponent::Update()
 {
   if (m_bBroken)
@@ -96,6 +92,35 @@ void ezBreakableSheetComponent::Update()
     else
     {
       m_bPiecesMovedThisFrame = false;
+    }
+
+    // If this breakable sheet has a disappear timeout set we decrement the time since it was broken
+    if (m_fDisappearTimeout > 0.0f && m_fTimeUntilDisappear > 0.0f)
+    {
+      m_fTimeUntilDisappear -= GetWorld()->GetClock().GetTimeDiff().AsFloat();
+
+      if (m_fTimeUntilDisappear <= 0.0f)
+      {
+        DestroyPiecesPhysicsObjects();
+
+        // If this instance has a fixed border we need to set the scale of all pieces
+        // to 0 so the border is still rendered, otherwise we can deactivate the component
+        if (m_bFixedBorder)
+        {
+          ezMat4 scaleMatrix;
+          scaleMatrix.SetScalingMatrix(ezVec3(0, 0, 0));
+          for (ezUInt32 i = 1; i < m_PieceTransforms.GetCount(); ++i)
+          {
+            m_PieceTransforms[i] = m_PieceTransforms[i] * scaleMatrix;
+          }
+
+          m_bPiecesMovedThisFrame = true;
+        }
+        else
+        {
+          Deactivate();
+        }
+      }
     }
   }
 }
@@ -294,7 +319,6 @@ void ezBreakableSheetComponent::OnExtractRenderData(ezExtractRenderDataMessage& 
 
   ezRenderData::Category category = msg.m_OverrideCategory;
 
-  // TODO: This is copy pasted from the mesh component, should this be a common utility?
   if (category == ezInvalidIndex)
   {
     if (hMaterial.IsValid())
@@ -497,6 +521,9 @@ void ezBreakableSheetComponent::Break(const ezCollisionMessage* pMessage /*= nul
     return;
 
   m_bBroken = true;
+
+  m_fTimeUntilDisappear = m_fDisappearTimeout;
+
   DestroyUnbrokenPhysicsObject();
   CreatePiecesPhysicsObjects(pMessage ? pMessage->m_vImpulse : ezVec3::ZeroVector(), pMessage ? pMessage->m_vPosition : ezVec3::ZeroVector());
 
@@ -523,7 +550,7 @@ void ezBreakableSheetComponent::CreateMeshes()
   // Deal with the unbroken mesh first
   {
     ezStringBuilder unbrokenMeshName;
-    unbrokenMeshName.Format("ezBreakableSheetComponent_unbroken_{0}_{1}_{2}.createdAtRuntime.ezMesh", m_fWidth, m_fThickness, m_fHeight);
+    unbrokenMeshName.Format("ezBreakableSheetComponent_unbroken_{0}_{1}_{2}_{3}.createdAtRuntime.ezMesh", m_fWidth, m_fThickness, m_fHeight, m_bFixedBorder);
 
     m_hUnbrokenMesh = ezResourceManager::GetExistingResource<ezMeshResource>(unbrokenMeshName);
 
@@ -547,7 +574,7 @@ void ezBreakableSheetComponent::CreateMeshes()
   // Build broken mesh
   {
     ezStringBuilder piecesMeshName;
-    piecesMeshName.Format("ezBreakableSheetComponent_pieces_{0}_{1}_{2}_{3}_{4}.createdAtRuntime.ezMesh", m_fWidth, m_fThickness, m_fHeight, m_uiNumPieces, m_uiRandomSeedUsed);
+    piecesMeshName.Format("ezBreakableSheetComponent_pieces_{0}_{1}_{2}_{3}_{4}_{5}.createdAtRuntime.ezMesh", m_fWidth, m_fThickness, m_fHeight, m_uiNumPieces, m_uiRandomSeedUsed, m_bFixedBorder);
 
     m_hPiecesMesh = ezResourceManager::GetExistingResource<ezMeshResource>(piecesMeshName);
 
