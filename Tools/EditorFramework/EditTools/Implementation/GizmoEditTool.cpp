@@ -15,19 +15,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezGameObjectGizmoEditTool::ezGameObjectGizmoEditTool()
 {
+  ezQtDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::DocumentWindowEventHandler, this));
 }
 
 ezGameObjectGizmoEditTool::~ezGameObjectGizmoEditTool()
 {
-  // currently edit tools are only deallocated when a document is closed, so event handlers do not need to be removed
-  // additionally, the window is already destroyed at that time, so we actually should not try to remove those handlers
-
-  //GetDocument()->m_GameObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::GameObjectEventHandler, this));
-  //GetDocument()->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::CommandHistoryEventHandler, this));
-  //GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::SelectionManagerEventHandler, this));
-  //ezManipulatorManager::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::ManipulatorManagerEventHandler, this));
-  //GetWindow()->m_EngineWindowEvent.RemoveEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::EngineWindowEventHandler, this));
-  //GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::ObjectStructureEventHandler, this));
+  ezQtDocumentWindow::s_Events.RemoveEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::DocumentWindowEventHandler, this));
 }
 
 void ezGameObjectGizmoEditTool::OnConfigured()
@@ -100,6 +93,19 @@ void ezGameObjectGizmoEditTool::UpdateGizmoTransformation()
     }
 
     ApplyGizmoTransformation(mt);
+  }
+}
+
+void ezGameObjectGizmoEditTool::DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e)
+{
+  if (e.m_Type == ezQtDocumentWindowEvent::WindowClosing && e.m_pWindow == GetWindow())
+  {
+    GetDocument()->m_GameObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::GameObjectEventHandler, this));
+    GetDocument()->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::CommandHistoryEventHandler, this));
+    GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::SelectionManagerEventHandler, this));
+    ezManipulatorManager::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::ManipulatorManagerEventHandler, this));
+    GetWindow()->m_EngineWindowEvent.RemoveEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::EngineWindowEventHandler, this));
+    GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezGameObjectGizmoEditTool::ObjectStructureEventHandler, this));
   }
 }
 

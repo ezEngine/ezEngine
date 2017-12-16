@@ -39,6 +39,7 @@ protected:
   bool m_bMergeTransactions = false;
 
 private:
+  void DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e);
   void UpdateManipulatorVisibility();
   void GameObjectEventHandler(const ezGameObjectEvent& e);
   void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);

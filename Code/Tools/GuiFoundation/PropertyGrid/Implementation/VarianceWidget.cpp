@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/PropertyGrid/Implementation/VarianceWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
@@ -99,7 +99,7 @@ void ezQtVarianceTypeWidget::OnInit()
   m_pValueType = pValueProp->GetSpecificType();
   if (m_pValueType == ezGetStaticRTTI<ezTime>())
   {
-    m_pValueWidget->setDisplaySuffix(" (sec)");
+    m_pValueWidget->setDisplaySuffix(" sec");
   }
   else if (m_pValueType == ezGetStaticRTTI<ezAngle>())
   {

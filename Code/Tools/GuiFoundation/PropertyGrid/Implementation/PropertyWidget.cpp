@@ -359,7 +359,7 @@ ezQtPropertyEditorTimeWidget::ezQtPropertyEditorTimeWidget() : ezQtStandardPrope
 
   {
     m_pWidget = new ezQtDoubleSpinBox(this);
-    m_pWidget->setDisplaySuffix(" (sec)");
+    m_pWidget->setDisplaySuffix(" sec");
     m_pWidget->setMinimum(-ezMath::BasicType<double>::GetInfinity());
     m_pWidget->setMaximum(ezMath::BasicType<double>::GetInfinity());
     m_pWidget->setSingleStep(0.1f);
