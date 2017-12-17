@@ -13,14 +13,7 @@ ezPropertyAnimObjectAccessor::ezPropertyAnimObjectAccessor(ezPropertyAnimAssetDo
 
 ezStatus ezPropertyAnimObjectAccessor::GetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value, ezVariant index /*= ezVariant()*/)
 {
-  if (IsTemporary(pObject))
-  {
-    return ezObjectCommandAccessor::GetValue(pObject, pProp, out_value, index);
-  }
-  else
-  {
-    return ezObjectCommandAccessor::GetValue(pObject, pProp, out_value, index);
-  }
+  return ezObjectCommandAccessor::GetValue(pObject, pProp, out_value, index);
 }
 
 ezStatus ezPropertyAnimObjectAccessor::SetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index)

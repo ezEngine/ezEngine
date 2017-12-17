@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
@@ -123,7 +123,7 @@ void ezPipeChannel_win::InternalConnect()
 		ProcessOutgoingMessages(0);
 	}
 
-  m_Events.Broadcast(ezIpcChannelEvent(Mode::Client ? ezIpcChannelEvent::ConnectedToServer : ezIpcChannelEvent::ConnectedToClient, this));
+  m_Events.Broadcast(ezIpcChannelEvent(m_Mode == Mode::Client ? ezIpcChannelEvent::ConnectedToServer : ezIpcChannelEvent::ConnectedToClient, this));
 	return;
 }
 
@@ -155,7 +155,7 @@ void ezPipeChannel_win::InternalDisconnect()
     m_Connected = false;
   }
 
-  m_Events.Broadcast(ezIpcChannelEvent(Mode::Client ? ezIpcChannelEvent::DisconnectedFromServer : ezIpcChannelEvent::DisconnectedFromClient, this));
+  m_Events.Broadcast(ezIpcChannelEvent(m_Mode == Mode::Client ? ezIpcChannelEvent::DisconnectedFromServer : ezIpcChannelEvent::DisconnectedFromClient, this));
   // Raise in case another thread is waiting for new messages (as we would sleep forever otherwise).
   m_IncomingMessages.RaiseSignal();
 }

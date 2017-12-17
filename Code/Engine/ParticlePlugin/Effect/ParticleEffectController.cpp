@@ -4,8 +4,6 @@
 
 ezParticleEffectController::ezParticleEffectController()
 {
-  m_pSharedInstanceOwner = nullptr;
-  m_pModule = nullptr;
   m_hEffect.Invalidate();
 }
 
@@ -13,6 +11,7 @@ ezParticleEffectController::ezParticleEffectController(const ezParticleEffectCon
 {
   m_pModule = rhs.m_pModule;
   m_hEffect = rhs.m_hEffect;
+  m_pSharedInstanceOwner = rhs.m_pSharedInstanceOwner;
 }
 
 ezParticleEffectController::ezParticleEffectController(ezParticleWorldModule* pModule, ezParticleEffectHandle hEffect)
@@ -25,6 +24,7 @@ void ezParticleEffectController::operator=(const ezParticleEffectController& rhs
 {
   m_pModule = rhs.m_pModule;
   m_hEffect = rhs.m_hEffect;
+  m_pSharedInstanceOwner = rhs.m_pSharedInstanceOwner;
 }
 
 ezParticleEffectInstance* ezParticleEffectController::GetInstance() const
