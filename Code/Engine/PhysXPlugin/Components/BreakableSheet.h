@@ -93,8 +93,8 @@ public:
 
   ezMaterialResourceHandle GetBrokenMaterial() const;
 
-  ezUInt8 m_uiCollisionLayerUnbroken;
-  ezUInt8 m_uiCollisionLayerBrokenPieces;
+  ezUInt8 m_uiCollisionLayerUnbroken = 0;
+  ezUInt8 m_uiCollisionLayerBrokenPieces = 0;
   bool m_bIncludeInNavmesh = true;
 
 protected:
@@ -116,7 +116,7 @@ protected:
   ezEventMessageSender<ezBreakableSheetBreakEventMessage> m_BreakEventSender;
 
   // State
-  ezUInt32 m_uiRandomSeedUsed;
+  ezUInt32 m_uiRandomSeedUsed = 0;
   bool m_bBroken = false;
   bool m_bPiecesMovedThisFrame = false;
   ezMeshResourceHandle m_hUnbrokenMesh;

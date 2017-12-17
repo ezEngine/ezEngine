@@ -158,7 +158,7 @@ void ezGALContext::EndStreamOut()
 {
   AssertRenderingThread();
 
-  BeginStreamOutPlatform();
+  EndStreamOutPlatform();
 }
 
 

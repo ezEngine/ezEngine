@@ -89,8 +89,6 @@ bool ezAOPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<
     }
 
     ezGALTextureCreationDescription desc = *pDepthInput;
-    desc.m_uiWidth = desc.m_uiWidth;
-    desc.m_uiHeight = desc.m_uiHeight;
     desc.m_Format = ezGALResourceFormat::RGHalf;
 
     outputs[m_PinOutput.m_uiOutputIndex] = desc;

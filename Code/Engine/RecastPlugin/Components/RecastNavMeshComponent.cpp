@@ -233,8 +233,15 @@ void ezRcNavMeshComponent::VisualizePointsOfInterest()
 
 //////////////////////////////////////////////////////////////////////////
 
-ezRcNavMeshComponentManager::ezRcNavMeshComponentManager(ezWorld* pWorld) : SUPER(pWorld) { }
-ezRcNavMeshComponentManager::~ezRcNavMeshComponentManager() { }
+ezRcNavMeshComponentManager::ezRcNavMeshComponentManager(ezWorld* pWorld)
+  : SUPER(pWorld)
+  , m_pWorldModule(nullptr)
+{
+}
+
+ezRcNavMeshComponentManager::~ezRcNavMeshComponentManager()
+{
+}
 
 void ezRcNavMeshComponentManager::Initialize()
 {

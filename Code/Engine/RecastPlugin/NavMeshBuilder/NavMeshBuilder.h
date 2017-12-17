@@ -69,7 +69,7 @@ private:
   ezDynamicArray<Triangle> m_Triangles;
   ezDynamicArray<ezUInt8> m_TriangleAreaIDs;
 
-  ezRcBuildContext* m_pRecastContext;
+  ezRcBuildContext* m_pRecastContext = nullptr;
 
   ezResult CreateDetourNavMesh(const ezRecastConfig& config);
 };

@@ -200,8 +200,8 @@ namespace ezModelImporter
       VertexDataStream* targetStream = AddDataStream(static_cast<ezGALVertexAttributeSemantic::Enum>(it.Key()), sourceStream->GetNumElementsPerVertex(), sourceStream->GetElementType());
       if (!targetStream)
       {
-        ezLog::SeriousWarning("Cannot merge mesh {0} properly since it has a vertex data stream with semantic {1} that uses {2} elements instead of {3} which is used by the merge target. Skipping this data stream.",
-          mesh.m_Name, it.Key(), sourceStream->GetNumElementsPerVertex(), targetStream->GetNumElementsPerVertex());
+        ezLog::SeriousWarning("Cannot merge mesh {0} properly since it has a vertex data stream with semantic {1} that uses {2} elements instead of 'unkown' which is used by the merge target. Skipping this data stream.",
+          mesh.m_Name, it.Key(), sourceStream->GetNumElementsPerVertex());
         continue;
       }
 

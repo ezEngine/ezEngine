@@ -17,6 +17,7 @@ const char* ezTokenType::EnumNames[ezTokenType::ENUM_COUNT] =
 
 ezTokenizer::ezTokenizer()
 {
+  m_pLog = nullptr;
   m_CurMode = ezTokenType::Unknown;
   m_uiCurLine = 1;
   m_uiCurColumn = -1;

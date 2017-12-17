@@ -11,6 +11,7 @@ const char* ezMathExpression::s_szValidVariableCharacters = "abcdefghijklmnopqrs
 
 ezMathExpression::ezMathExpression(ezLogInterface* pLog)
   : m_pLog(pLog ? pLog : ezLog::GetThreadLocalLogSystem())
+  , m_bIsValid(false)
 {
 }
 

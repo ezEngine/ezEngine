@@ -13,7 +13,7 @@
 class ezWorldRttiConverterContext : public ezRttiConverterContext
 {
 public:
-  ezWorldRttiConverterContext() : m_pWorld(nullptr), m_uiNextComponentPickingID(1) {}
+  ezWorldRttiConverterContext() : m_pWorld(nullptr), m_uiNextComponentPickingID(1), m_uiHighlightID(1) {}
 
   virtual void Clear() override;
   void DeleteExistingObjects();

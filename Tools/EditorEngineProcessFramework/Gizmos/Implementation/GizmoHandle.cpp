@@ -466,6 +466,7 @@ ezEngineGizmoHandle::ezEngineGizmoHandle()
   m_bVisualizer = false;
   m_bShowInOrtho = false;
   m_Color = ezColor::CornflowerBlue; /* The Original! */
+  m_pWorld = nullptr;
 }
 
 ezEngineGizmoHandle::~ezEngineGizmoHandle()

@@ -165,10 +165,10 @@ ezEditorInput ezOrbitCameraContext::DoMouseMoveEvent(QMouseEvent* e)
   if (!IsActiveInputContext())
     return ezEditorInput::MayBeHandledByOthers;
 
-  if (!m_pCamera->IsPerspective())
+  if (m_pCamera == nullptr)
     return ezEditorInput::MayBeHandledByOthers;
 
-  if (m_pCamera == nullptr)
+  if (!m_pCamera->IsPerspective())
     return ezEditorInput::MayBeHandledByOthers;
 
   if (m_Mode == Mode::Off)

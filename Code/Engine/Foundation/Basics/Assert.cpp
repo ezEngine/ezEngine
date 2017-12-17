@@ -8,7 +8,7 @@ bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const cha
   ezStringUtils::snprintf(szTemp, EZ_ARRAY_SIZE(szTemp), "\n\n *** Assertion ***\n\n    Expression: \"%s\"\n    Function: \"%s\"\n    File: \"%s\"\n    Line: %u\n    Message: \"%s\"\n\n", szExpression, szFunction, szSourceFile, uiLine, szAssertMsg);
   szTemp[1024 * 4 - 1] = '\0';
 
-  printf(szTemp);
+  printf("%s", szTemp);
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   OutputDebugStringW(ezStringWChar(szTemp).GetData());

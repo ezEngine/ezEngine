@@ -109,6 +109,7 @@ public:
 
     ProcessingEvent()
     {
+      m_Type = Error;
       m_pToken = nullptr;
       m_szInfo = "";
     }

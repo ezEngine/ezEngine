@@ -214,7 +214,7 @@ ezStatus ezDocumentObjectManager::RemoveValue(ezDocumentObject* pObject, const c
 
 ezStatus ezDocumentObjectManager::MoveValue(ezDocumentObject* pObject, const char* szProperty, const ezVariant& oldIndex, const ezVariant& newIndex)
 {
-  if (!oldIndex.CanConvertTo<ezInt32>() || !oldIndex.CanConvertTo<ezInt32>())
+  if (!oldIndex.CanConvertTo<ezInt32>() || !newIndex.CanConvertTo<ezInt32>())
     return ezStatus("Move Property: Invalid indices provided.");
 
   ezIReflectedTypeAccessor& accessor = pObject->GetTypeAccessor();

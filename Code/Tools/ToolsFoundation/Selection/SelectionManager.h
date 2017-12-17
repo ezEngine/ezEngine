@@ -73,5 +73,5 @@ private:
 
   ezDeque<const ezDocumentObject*> m_SelectionList;
   ezSet<ezUuid> m_SelectionSet;
-  const ezDocument* m_pDocument;
+  const ezDocument* m_pDocument = nullptr;
 };

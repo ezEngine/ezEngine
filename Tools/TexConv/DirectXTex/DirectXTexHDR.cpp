@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------------------
 // DirectXTexHDR.cpp
-//  
+//
 // DirectX Texture Library - Radiance HDR (RGBE) file format reader/writer
 //
 // THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF
@@ -22,10 +22,10 @@
 //      +X width -Y height
 //      -X width +Y height
 //      -X width -Y height
-//      +Y height +X width 
-//      -Y height +X width 
-//      +Y height -X width 
-//      -Y height -X width 
+//      +Y height +X width
+//      -Y height +X width
+//      +Y height -X width
+//      -Y height -X width
 //
 // All HDR files we've encountered are always written as "-Y height +X width", so
 // we support only that one as that's what other Radiance parsing code does as well.
@@ -86,7 +86,7 @@ namespace
         memset(&metadata, 0, sizeof(TexMetadata));
 
         exposure = 1.f;
-        
+
         if (size < sizeof(g_Signature))
         {
             return HRESULT_FROM_WIN32(ERROR_INVALID_DATA);
@@ -483,7 +483,8 @@ namespace
                     {
                         if (spanPtr[(runLen - 1) * 4] != spanPtr[runLen * 4])
                         {
-                            scan[runLen++] = spanPtr[runLen * 4];
+                            const uint8_t spanVal = spanPtr[runLen * 4];
+                            scan[runLen++] = spanVal;
                         }
                         else
                             break;
@@ -637,7 +638,7 @@ HRESULT DirectX::LoadFromHDRMemory(const void* pSource, size_t size, TexMetadata
         pixelLen -= 4;
 
         auto scanLine = reinterpret_cast<float*>(destPtr);
-        
+
         if (inColor[0] == 2 && inColor[1] == 2 && inColor[2] < 128)
         {
             // Adaptive Run Length Encoding (RLE)

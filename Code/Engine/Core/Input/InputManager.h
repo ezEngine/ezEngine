@@ -239,6 +239,7 @@ public:
 
     InputEventData()
     {
+      m_EventType = InputSlotChanged;
       m_szInputSlot = nullptr;
       m_szInputSet = nullptr;
       m_szInputAction = nullptr;

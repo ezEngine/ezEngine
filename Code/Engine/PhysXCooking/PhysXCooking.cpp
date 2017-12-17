@@ -92,7 +92,7 @@ public:
   {
     if (ptr != nullptr)
     {
-      delete[] ptr;
+      delete[] static_cast<unsigned char*>(ptr);
     }
   }
 

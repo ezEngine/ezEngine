@@ -34,7 +34,7 @@ struct ezMeshComponent_SetMaterialMsg : public ezScriptFunctionMessage
   const char* GetMaterialFile() const;
 
   ezMaterialResourceHandle m_hMaterial;
-  ezUInt32 m_uiMaterialSlot;
+  ezUInt32 m_uiMaterialSlot = 0xFFFFFFFFu;
 };
 
 class EZ_RENDERERCORE_DLL ezMeshComponent : public ezRenderComponent

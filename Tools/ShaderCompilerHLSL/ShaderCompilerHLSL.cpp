@@ -128,9 +128,6 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
       }
     }
 
-    else if (shaderInputBindDesc.Type == D3D_SIT_UAV_RWTYPED)
-      shaderResourceBinding.m_Type = ezShaderResourceBinding::RWBuffer;
-
     else if (shaderInputBindDesc.Type == D3D_SIT_UAV_RWSTRUCTURED)
       shaderResourceBinding.m_Type = ezShaderResourceBinding::RWStructuredBuffer;
 

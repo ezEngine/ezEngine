@@ -151,10 +151,10 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceHandle& hScri
   m_pMessageHandlers = &resource.m_MessageHandlers;
 
   m_hScriptResource = hScript;
-  m_hOwner = pOwner->GetHandle();
 
   if (pOwner)
   {
+    m_hOwner = pOwner->GetHandle();
     m_pWorld = pOwner->GetWorld();
   }
 
