@@ -21,9 +21,19 @@ ezNonUniformBoxGizmo::ezNonUniformBoxGizmo()
 
   m_Outline.Configure(this, ezEngineGizmoHandleType::LineBox, ezColor::CornflowerBlue, false, false, false, true, false);
 
+  ezColor cols[6] =
+  {
+    ezColorGammaUB(255, 200, 200),
+    ezColorGammaUB(255, 200, 200),
+    ezColorGammaUB(200, 255, 200),
+    ezColorGammaUB(200, 255, 200),
+    ezColorGammaUB(200, 200, 255),
+    ezColorGammaUB(200, 200, 255),
+  };
+
   for (ezUInt32 i = 0; i < 6; ++i)
   {
-    m_Nobs[i].Configure(this, ezEngineGizmoHandleType::Box, ezColor::OrangeRed, true, true, false, true);
+    m_Nobs[i].Configure(this, ezEngineGizmoHandleType::Box, cols[i], true, true, false, true);
   }
 
   SetVisible(false);
@@ -285,15 +295,28 @@ ezResult ezNonUniformBoxGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScre
   if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, ezVec3(iScreenPosX, iScreenPosY, 0), vPos, &vRayDir).Failed())
     return EZ_FAILURE;
 
-  const ezVec3 vPlaneTangent = m_vMoveAxis.Cross(m_pCamera->GetDirForwards()).GetNormalized();
+  const ezVec3 vDir = m_pCamera->GetDirForwards();
+
+  if (ezMath::Abs(vDir.Dot(m_vMoveAxis)) > 0.999f)
+    return EZ_FAILURE;
+
+  const ezVec3 vPlaneTangent = m_vMoveAxis.Cross(vDir).GetNormalized();
   const ezVec3 vPlaneNormal = m_vMoveAxis.Cross(vPlaneTangent);
 
   ezPlane Plane;
   Plane.SetFromNormalAndPoint(vPlaneNormal, m_vStartPosition);
 
   ezVec3 vIntersection;
-  if (!Plane.GetRayIntersection(m_pCamera->GetPosition(), vRayDir, nullptr, &vIntersection))
-    return EZ_FAILURE;
+  if (m_pCamera->IsPerspective())
+  {
+    if (!Plane.GetRayIntersection(m_pCamera->GetPosition(), vRayDir, nullptr, &vIntersection))
+      return EZ_FAILURE;
+  }
+  else
+  {
+    if (!Plane.GetRayIntersectionBiDirectional(vPos - vRayDir, vRayDir, nullptr, &vIntersection))
+      return EZ_FAILURE;
+  }
 
   const ezVec3 vDirAlongRay = vIntersection - m_vStartPosition;
   const float fProjectedLength = vDirAlongRay.Dot(m_vMoveAxis);

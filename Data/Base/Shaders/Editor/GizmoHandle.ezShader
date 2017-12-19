@@ -6,6 +6,7 @@ ALL
 RENDER_PASS
 GIZMO_CONSTANT_SIZE
 PREPARE_DEPTH
+CAMERA_MODE
 
 [RENDERSTATE]
 
@@ -49,7 +50,12 @@ VS_OUT main(VS_IN Input)
 	float3 centerPosition = mul(ObjectToWorldMatrix, float4(0, 0, 0, 1)).xyz;
 
 	#if GIZMO_CONSTANT_SIZE == 1
-		float scale = length(centerPosition - GetCameraPosition()) * GizmoScale;
+		#if CAMERA_MODE == CAMERA_MODE_ORTHO
+			// TODO: not sure how to compensate for constant size
+			float scale = 1.0f;
+		#else
+			float scale = length(centerPosition - GetCameraPosition()) * GizmoScale;
+		#endif
 	#else
 		float scale = 1.0f;
 	#endif
