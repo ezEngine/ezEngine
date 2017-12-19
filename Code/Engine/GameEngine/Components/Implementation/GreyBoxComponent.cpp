@@ -20,12 +20,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 1, ezComponentMode::Static)
   {
     EZ_ENUM_ACCESSOR_PROPERTY("Shape", ezGreyBoxShape, GetShape, SetShape),
     EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("Material")),
-    EZ_ACCESSOR_PROPERTY("SizeNegX", GetSizeNegX, SetSizeNegX)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("SizePosX", GetSizePosX, SetSizePosX)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("SizeNegY", GetSizeNegY, SetSizeNegY)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("SizePosY", GetSizePosY, SetSizePosY)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("SizeNegZ", GetSizeNegZ, SetSizeNegZ)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("SizePosZ", GetSizePosZ, SetSizePosZ)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_ACCESSOR_PROPERTY("SizeNegX", GetSizeNegX, SetSizeNegX),//->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_ACCESSOR_PROPERTY("SizePosX", GetSizePosX, SetSizePosX),//->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_ACCESSOR_PROPERTY("SizeNegY", GetSizeNegY, SetSizeNegY),//->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_ACCESSOR_PROPERTY("SizePosY", GetSizePosY, SetSizePosY),//->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_ACCESSOR_PROPERTY("SizeNegZ", GetSizeNegZ, SetSizeNegZ),//->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_ACCESSOR_PROPERTY("SizePosZ", GetSizePosZ, SetSizePosZ),//->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("Detail", GetDetail, SetDetail)->AddAttributes(new ezDefaultValueAttribute(16), new ezClampValueAttribute(3, 32)),
     EZ_ACCESSOR_PROPERTY("Curvature", GetCurvature, SetCurvature),
     EZ_ACCESSOR_PROPERTY("Thickness", GetThickness, SetThickness)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
@@ -36,6 +36,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 1, ezComponentMode::Static)
     EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("General"),
+    new ezNonUniformBoxManipulatorAttribute("SizeNegX", "SizePosX", "SizeNegY", "SizePosY", "SizeNegZ", "SizePosZ"),
   }
   EZ_END_ATTRIBUTES
     EZ_BEGIN_MESSAGEHANDLERS

@@ -180,6 +180,10 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType)
           manipulatorMap[pManipAttr->m_sProperty3] = pManipAttr;
         if (!pManipAttr->m_sProperty4.IsEmpty())
           manipulatorMap[pManipAttr->m_sProperty4] = pManipAttr;
+        if (!pManipAttr->m_sProperty5.IsEmpty())
+          manipulatorMap[pManipAttr->m_sProperty5] = pManipAttr;
+        if (!pManipAttr->m_sProperty6.IsEmpty())
+          manipulatorMap[pManipAttr->m_sProperty6] = pManipAttr;
       }
     }
 

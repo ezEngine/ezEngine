@@ -176,7 +176,9 @@ void ezManipulatorManager::TransferToCurrentSelection(const ezDocument* pDoc)
           if (pOtherManip->m_sProperty1 == pAttribute->m_sProperty1 &&
               pOtherManip->m_sProperty2 == pAttribute->m_sProperty2 &&
               pOtherManip->m_sProperty3 == pAttribute->m_sProperty3 &&
-              pOtherManip->m_sProperty4 == pAttribute->m_sProperty4)
+              pOtherManip->m_sProperty4 == pAttribute->m_sProperty4 &&
+              pOtherManip->m_sProperty5 == pAttribute->m_sProperty5 &&
+              pOtherManip->m_sProperty6 == pAttribute->m_sProperty6)
           {
             auto& newItem = newSelection.ExpandAndGetRef();
             newItem.m_pObject = child;

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/Reflection/Reflection.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAttribute, 1, ezRTTINoAllocator)
@@ -247,18 +247,22 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezManipulatorAttribute, 1, ezRTTINoAllocator)
     EZ_MEMBER_PROPERTY("Property2", m_sProperty2),
     EZ_MEMBER_PROPERTY("Property3", m_sProperty3),
     EZ_MEMBER_PROPERTY("Property4", m_sProperty4),
+    EZ_MEMBER_PROPERTY("Property5", m_sProperty5),
+    EZ_MEMBER_PROPERTY("Property6", m_sProperty6),
   }
   EZ_END_PROPERTIES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
-ezManipulatorAttribute::ezManipulatorAttribute(const char* szProperty1, const char* szProperty2 /*= nullptr*/, const char* szProperty3 /*= nullptr*/, const char* szProperty4 /*= nullptr*/)
+ezManipulatorAttribute::ezManipulatorAttribute(const char* szProperty1, const char* szProperty2 /*= nullptr*/, const char* szProperty3 /*= nullptr*/, const char* szProperty4 /*= nullptr*/, const char* szProperty5 /*= nullptr*/, const char* szProperty6 /*= nullptr*/)
 {
   m_sProperty1 = szProperty1;
   m_sProperty2 = szProperty2;
   m_sProperty3 = szProperty3;
   m_sProperty4 = szProperty4;
+  m_sProperty5 = szProperty5;
+  m_sProperty6 = szProperty6;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -331,6 +335,28 @@ ezBoxManipulatorAttribute::ezBoxManipulatorAttribute(const char* szSize)
   : ezManipulatorAttribute(szSize)
 {
 
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezNonUniformBoxManipulatorAttribute, 1, ezRTTIDefaultAllocator<ezNonUniformBoxManipulatorAttribute>)
+{
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const char*, const char*, const char*),
+  }
+  EZ_END_FUNCTIONS
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezNonUniformBoxManipulatorAttribute::ezNonUniformBoxManipulatorAttribute()
+  : ezManipulatorAttribute(nullptr)
+{
+}
+
+ezNonUniformBoxManipulatorAttribute::ezNonUniformBoxManipulatorAttribute(const char* szNegXProp, const char* szPosXProp, const char* szNegYProp, const char* szPosYProp, const char* szNegZProp, const char* szPosZProp)
+  : ezManipulatorAttribute(szNegXProp, szPosXProp, szNegYProp, szPosYProp, szNegZProp, szPosZProp)
+{
 }
 
 //////////////////////////////////////////////////////////////////////////

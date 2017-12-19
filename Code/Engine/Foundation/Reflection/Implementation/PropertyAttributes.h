@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 /// \file
 
@@ -356,12 +356,14 @@ class EZ_FOUNDATION_DLL ezManipulatorAttribute : public ezPropertyAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezManipulatorAttribute, ezPropertyAttribute);
 
 public:
-  ezManipulatorAttribute(const char* szProperty1, const char* szProperty2 = nullptr, const char* szProperty3 = nullptr, const char* szProperty4 = nullptr);
+  ezManipulatorAttribute(const char* szProperty1, const char* szProperty2 = nullptr, const char* szProperty3 = nullptr, const char* szProperty4 = nullptr, const char* szProperty5 = nullptr, const char* szProperty6 = nullptr);
 
   ezUntrackedString m_sProperty1;
   ezUntrackedString m_sProperty2;
   ezUntrackedString m_sProperty3;
   ezUntrackedString m_sProperty4;
+  ezUntrackedString m_sProperty5;
+  ezUntrackedString m_sProperty6;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -413,6 +415,24 @@ public:
 
 };
 
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_FOUNDATION_DLL ezNonUniformBoxManipulatorAttribute : public ezManipulatorAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezNonUniformBoxManipulatorAttribute, ezManipulatorAttribute);
+
+public:
+  ezNonUniformBoxManipulatorAttribute();
+  ezNonUniformBoxManipulatorAttribute(const char* szNegXProp, const char* szPosXProp, const char* szNegYProp, const char* szPosYProp, const char* szNegZProp, const char* szPosZProp);
+
+  const ezUntrackedString& GetNegXProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetPosXProperty() const { return m_sProperty2; }
+  const ezUntrackedString& GetNegYProperty() const { return m_sProperty3; }
+  const ezUntrackedString& GetPosYProperty() const { return m_sProperty4; }
+  const ezUntrackedString& GetNegZProperty() const { return m_sProperty5; }
+  const ezUntrackedString& GetPosZProperty() const { return m_sProperty6; }
+
+};
 
 //////////////////////////////////////////////////////////////////////////
 

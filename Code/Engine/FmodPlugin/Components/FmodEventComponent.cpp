@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <FmodPlugin/Components/FmodEventComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -264,10 +264,7 @@ void ezFmodEventComponent::Restart()
     ezResourceLock<ezFmodSoundEventResource> pEvent(m_hSoundEvent, ezResourceAcquireMode::NoFallback);
 
     if (pEvent->IsMissingResource())
-    {
-      ezLog::Debug("Cannot start sound event, resource is missing.");
       return;
-    }
 
     m_pEventInstance = pEvent->CreateInstance();
     if (m_pEventInstance == nullptr)

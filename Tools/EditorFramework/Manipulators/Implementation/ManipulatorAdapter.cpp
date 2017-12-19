@@ -59,7 +59,9 @@ void ezManipulatorAdapter::DocumentObjectPropertyEventHandler(const ezDocumentOb
       if (e.m_sProperty == m_pManipulatorAttr->m_sProperty1 ||
           e.m_sProperty == m_pManipulatorAttr->m_sProperty2 ||
           e.m_sProperty == m_pManipulatorAttr->m_sProperty3 ||
-          e.m_sProperty == m_pManipulatorAttr->m_sProperty4)
+          e.m_sProperty == m_pManipulatorAttr->m_sProperty4 ||
+          e.m_sProperty == m_pManipulatorAttr->m_sProperty5 ||
+          e.m_sProperty == m_pManipulatorAttr->m_sProperty6)
       {
         Update();
       }
@@ -152,7 +154,7 @@ void ezManipulatorAdapter::ClampProperty(const char* szProperty, ezVariant& valu
   }
 }
 
-void ezManipulatorAdapter::ChangeProperties(const char* szProperty1, ezVariant value1, const char* szProperty2 /*= nullptr*/, ezVariant value2 /*= ezVariant()*/, const char* szProperty3 /*= nullptr*/, ezVariant value3 /*= ezVariant()*/, const char* szProperty4 /*= nullptr*/, ezVariant value4 /*= ezVariant()*/)
+void ezManipulatorAdapter::ChangeProperties(const char* szProperty1, ezVariant value1, const char* szProperty2 /*= nullptr*/, ezVariant value2 /*= ezVariant()*/, const char* szProperty3 /*= nullptr*/, ezVariant value3 /*= ezVariant()*/, const char* szProperty4 /*= nullptr*/, ezVariant value4 /*= ezVariant()*/, const char* szProperty5 /*= nullptr*/, ezVariant value5 /*= ezVariant()*/, const char* szProperty6 /*= nullptr*/, ezVariant value6 /*= ezVariant()*/)
 {
   ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
 
@@ -183,6 +185,18 @@ void ezManipulatorAdapter::ChangeProperties(const char* szProperty1, ezVariant v
   {
     ClampProperty(szProperty4, value4);
     pObjectAccessor->SetValue(m_pObject, GetProperty(szProperty4), value4);
+  }
+
+  if (!ezStringUtils::IsNullOrEmpty(szProperty5))
+  {
+    ClampProperty(szProperty5, value5);
+    pObjectAccessor->SetValue(m_pObject, GetProperty(szProperty5), value5);
+  }
+
+  if (!ezStringUtils::IsNullOrEmpty(szProperty6))
+  {
+    ClampProperty(szProperty6, value6);
+    pObjectAccessor->SetValue(m_pObject, GetProperty(szProperty6), value6);
   }
 
   pObjectAccessor->FinishTransaction();

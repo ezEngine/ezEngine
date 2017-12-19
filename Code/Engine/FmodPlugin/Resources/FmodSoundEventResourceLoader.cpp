@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
 #include <FmodPlugin/FmodSingleton.h>
@@ -12,6 +12,12 @@ ezResourceLoadData ezFmodSoundEventResourceLoader::OpenDataStream(const ezResour
   LoadedData* pData = EZ_DEFAULT_NEW(LoadedData);
 
   ezResourceLoadData res;
+
+  if (ezFmod::GetSingleton()->GetStudioSystem() == nullptr)
+  {
+    ezLog::Warning("Fmod not initialized, ignoring sound event.");
+    return res;
+  }
 
   ezStringBuilder sResID;
   ezFileSystem::ResolveAssetRedirection(pResource->GetResourceID(), sResID);

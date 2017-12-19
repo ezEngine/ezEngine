@@ -39,7 +39,9 @@ protected:
   void ChangeProperties(const char* szProperty1, ezVariant value1,
                         const char* szProperty2 = nullptr, ezVariant value2 = ezVariant(),
                         const char* szProperty3 = nullptr, ezVariant value3 = ezVariant(),
-                        const char* szProperty4 = nullptr, ezVariant value4 = ezVariant());
+                        const char* szProperty4 = nullptr, ezVariant value4 = ezVariant(),
+                        const char* szProperty5 = nullptr, ezVariant value5 = ezVariant(),
+                        const char* szProperty6 = nullptr, ezVariant value6 = ezVariant());
 
   bool m_bManipulatorIsVisible;
   const ezManipulatorAttribute* m_pManipulatorAttr;

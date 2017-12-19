@@ -219,6 +219,7 @@ o
 	{
 		b %Enabled{1}
 		u3 %HighlightID{0}
+		b %OnlyPickable{0}
 	}
 }
 AssetInfo
@@ -232,7 +233,7 @@ AssetInfo
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15507879570940844990,5062162254587685694}}
-		u4 %Hash{15719896833239014546}
+		u4 %Hash{10416444812060207450}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -421,6 +422,7 @@ o
 	{
 		b %Enabled{1}
 		u3 %HighlightID{0}
+		b %OnlyPickable{1}
 	}
 }
 o
@@ -853,7 +855,7 @@ o
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
-		s %ConstantValue{"Scene;Prefab"}
+		s %ConstantValue{"Scene;Prefab;PropertyAnim Asset"}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
 		s %Name{"DocumentType"}
 		s %Type{"ezString"}
@@ -942,7 +944,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1525,7 +1527,7 @@ o
 			Uuid{u4{16682888373256786419,235066711160160335}}
 		}
 		s %TypeName{"ezSceneContext"}
-		u3 %TypeSize{1352}
+		u3 %TypeSize{1384}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1788,7 +1790,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEngineProcessDocumentContext"}
-		u3 %TypeSize{1080}
+		u3 %TypeSize{1112}
 		u3 %TypeVersion{1}
 	}
 }

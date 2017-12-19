@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
 #include <FmodPlugin/FmodSingleton.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
@@ -52,6 +52,11 @@ ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourc
 
       // The fmod documentation says it is fully thread-safe, so I assume we can call loadBankMemory at any time
       auto pStudio = ezFmod::GetSingleton()->GetStudioSystem();
+
+      // this happens when fmod is not properly configured
+      if (pStudio == nullptr)
+        return res;
+
       auto fmodRes = pStudio->loadBankMemory((const char*)pAlignedData, (int)uiSoundBankSize, FMOD_STUDIO_LOAD_MEMORY_POINT, FMOD_STUDIO_LOAD_BANK_NORMAL, &pData->m_pSoundBank);
 
       // if this fails with res == FMOD_ERR_NOTREADY, that might be because two processes using fmod are running and both have the FMOD_STUDIO_INIT_LIVEUPDATE flag set
