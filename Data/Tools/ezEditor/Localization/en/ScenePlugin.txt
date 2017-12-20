@@ -113,6 +113,7 @@ ezRotorComponent;Rotor
 ezHeadBoneComponent;Head Bone
 ezSliderComponent;Slider
 ezCollectionComponent;Collection
+ezDebugTextComponent;Debug Text
 Components;Components
 Materials;Materials
 Surfaces;Surfaces

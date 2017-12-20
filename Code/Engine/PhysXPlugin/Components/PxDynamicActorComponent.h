@@ -20,7 +20,7 @@ private:
   friend class ezPxDynamicActorComponent;
 
   void UpdateKinematicActors();
-  void UpdateDynamicActors(ezArrayPtr<const physx::PxActiveTransform> activeTransforms);
+  void UpdateDynamicActors(ezArrayPtr<physx::PxActor*> activeActors);
 
   void UpdateMaxDepenetrationVelocity(float fMaxVelocity);
 
@@ -57,6 +57,7 @@ public:
   float m_fDensity;
   float m_fLinearDamping;
   float m_fAngularDamping;
+  float m_fMaxContactImpulse;
 
 public:
   virtual void OnSimulationStarted() override;

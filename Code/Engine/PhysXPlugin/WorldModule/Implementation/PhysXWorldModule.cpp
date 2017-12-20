@@ -359,7 +359,7 @@ void ezPhysXWorldModule::Initialize()
     PxSceneDesc desc = PxSceneDesc(PxTolerancesScale());
     desc.setToDefault(PxTolerancesScale());
 
-    desc.flags |= PxSceneFlag::eENABLE_ACTIVETRANSFORMS;
+    desc.flags |= PxSceneFlag::eENABLE_ACTIVE_ACTORS;
     desc.flags |= PxSceneFlag::eEXCLUDE_KINEMATICS_FROM_ACTIVE_ACTORS;
     desc.flags |= PxSceneFlag::eENABLE_KINEMATIC_PAIRS;
     desc.flags |= PxSceneFlag::eADAPTIVE_FORCE;
@@ -685,12 +685,12 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
   {
     EZ_PX_READ_LOCK(*m_pPxScene);
 
-    PxU32 numActiveTransforms = 0;
-    const PxActiveTransform* pActiveTransforms = m_pPxScene->getActiveTransforms(numActiveTransforms);
+    PxU32 numActiveActors = 0;
+    PxActor** pActiveActors = m_pPxScene->getActiveActors(numActiveActors);
 
-    if (numActiveTransforms > 0)
+    if (numActiveActors > 0)
     {
-      pDynamicActorManager->UpdateDynamicActors(ezMakeArrayPtr(pActiveTransforms, numActiveTransforms));
+      pDynamicActorManager->UpdateDynamicActors(ezMakeArrayPtr(pActiveActors, numActiveActors));
     }
   }
 }

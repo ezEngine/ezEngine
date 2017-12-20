@@ -45,26 +45,31 @@ void ezPxDynamicActorComponentManager::UpdateKinematicActors()
   }
 }
 
-void ezPxDynamicActorComponentManager::UpdateDynamicActors(ezArrayPtr<const PxActiveTransform> activeTransforms)
+void ezPxDynamicActorComponentManager::UpdateDynamicActors(ezArrayPtr<PxActor*> activeActors)
 {
   EZ_PROFILE("DynamicActors");
 
-  for (auto& activeTransform : activeTransforms)
+  for (const PxActor* activeActor : activeActors)
   {
-    ezPxDynamicActorComponent* pComponent = ezPxUserData::GetDynamicActorComponent(activeTransform.userData);
+    if (activeActor->getType() != PxActorType::eRIGID_DYNAMIC)
+      continue;
+
+    const PxRigidDynamic* dynamicActor = static_cast<const PxRigidDynamic*>(activeActor);
+
+    ezPxDynamicActorComponent* pComponent = ezPxUserData::GetDynamicActorComponent(activeActor->userData);
     if (pComponent == nullptr)
     {
       // Check if this is a breakable sheet component piece
-      ezBreakableSheetComponent* pSheetComponent = ezPxUserData::GetBreakableSheetComponent(activeTransform.userData);
+      ezBreakableSheetComponent* pSheetComponent = ezPxUserData::GetBreakableSheetComponent(activeActor->userData);
       if (pSheetComponent)
       {
-        pSheetComponent->SetPieceTransform(activeTransform.actor2World, ezPxUserData::GetAdditionalUserData(activeTransform.userData));
+        pSheetComponent->SetPieceTransform(dynamicActor->getGlobalPose(), ezPxUserData::GetAdditionalUserData(activeActor->userData));
       }
 
       continue;
     }
 
-    if(pComponent->GetKinematic())
+    if (pComponent->GetKinematic())
       continue;
 
     ezGameObject* pObject = pComponent->GetOwner();
@@ -74,7 +79,7 @@ void ezPxDynamicActorComponentManager::UpdateDynamicActors(ezArrayPtr<const PxAc
       continue;
 
     // preserve scaling
-    ezSimdTransform t = ezPxConversionUtils::ToSimdTransform(activeTransform.actor2World);
+    ezSimdTransform t = ezPxConversionUtils::ToSimdTransform(dynamicActor->getGlobalPose());
     t.m_Scale = ezSimdConversion::ToVec3(pObject->GetGlobalScaling());
 
     pObject->SetGlobalTransform(t);
@@ -96,7 +101,7 @@ void ezPxDynamicActorComponentManager::UpdateMaxDepenetrationVelocity(float fMax
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 1, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 2, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -106,6 +111,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 1, ezComponentMode::Dynamic)
     EZ_ACCESSOR_PROPERTY("DisableGravity", GetDisableGravity, SetDisableGravity),
     EZ_MEMBER_PROPERTY("LinearDamping", m_fLinearDamping)->AddAttributes(new ezDefaultValueAttribute(0.1f)),
     EZ_MEMBER_PROPERTY("AngularDamping", m_fAngularDamping)->AddAttributes(new ezDefaultValueAttribute(0.05f)),
+    EZ_MEMBER_PROPERTY("MaxContactImpulse", m_fMaxContactImpulse)->AddAttributes(new ezDefaultValueAttribute(1000000.0f), new ezClampValueAttribute(0.0f, ezVariant())),
   }
   EZ_END_PROPERTIES
   EZ_BEGIN_MESSAGEHANDLERS
@@ -126,6 +132,7 @@ ezPxDynamicActorComponent::ezPxDynamicActorComponent()
 
   m_fLinearDamping = 0.1f;
   m_fAngularDamping = 0.05f;
+  m_fMaxContactImpulse = 1000000.0f;
   m_fDensity = 1.0f;
   m_fMass = 0.0f;
 }
@@ -140,6 +147,9 @@ void ezPxDynamicActorComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fDensity;
   s << m_fMass;
   s << m_bDisableGravity;
+  s << m_fLinearDamping;
+  s << m_fAngularDamping;
+  s << m_fMaxContactImpulse;
 }
 
 void ezPxDynamicActorComponent::DeserializeComponent(ezWorldReader& stream)
@@ -147,13 +157,19 @@ void ezPxDynamicActorComponent::DeserializeComponent(ezWorldReader& stream)
   SUPER::DeserializeComponent(stream);
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
-
   auto& s = stream.GetStream();
 
   s >> m_bKinematic;
   s >> m_fDensity;
   s >> m_fMass;
   s >> m_bDisableGravity;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_fLinearDamping;
+    s >> m_fAngularDamping;
+    s >> m_fMaxContactImpulse;
+  }
 }
 
 void ezPxDynamicActorComponent::SetKinematic(bool b)
@@ -202,7 +218,7 @@ void ezPxDynamicActorComponent::SetMass(float fMass)
   if (m_fMass == fMass)
     return;
 
-  m_fMass = fMass;
+  m_fMass = ezMath::Max(fMass, 0.0f);
 
   if (m_pActor)
   {
@@ -245,6 +261,7 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
   m_pActor->setLinearDamping(ezMath::Clamp(m_fLinearDamping, 0.0f, 1000.0f));
   m_pActor->setAngularDamping(ezMath::Clamp(m_fAngularDamping, 0.0f, 1000.0f));
   m_pActor->setMaxDepenetrationVelocity(pModule->GetMaxDepenetrationVelocity());
+  m_pActor->setMaxContactImpulse(ezMath::Clamp(m_fMaxContactImpulse, 0.0f, ezMath::BasicType<float>::MaxValue()));
 
   ezVec3 vCenterOfMass(0.0f);
   if (FindCenterOfMass(GetOwner(), vCenterOfMass))

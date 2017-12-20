@@ -14,12 +14,12 @@
 namespace physx
 {
   struct PxFilterData;
-  struct PxActiveTransform;
   class PxTransform;
   class PxGeometry;
   class PxShape;
   class PxConvexMesh;
   class PxTriangleMesh;
+  class PxActor;
   class PxRigidActor;
   class PxRigidDynamic;
   class PxRigidStatic;
