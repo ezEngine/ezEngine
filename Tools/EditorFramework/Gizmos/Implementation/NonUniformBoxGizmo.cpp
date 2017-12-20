@@ -246,21 +246,33 @@ ezEditorInput ezNonUniformBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
     {
     case DragNegX:
       m_vNegSize.x -= vTranslate.x;
+      if (m_bLinkAxis)
+        m_vPosSize.x -= vTranslate.x;
       break;
     case DragPosX:
       m_vPosSize.x += vTranslate.x;
+      if (m_bLinkAxis)
+        m_vNegSize.x += vTranslate.x;
       break;
     case DragNegY:
       m_vNegSize.y -= vTranslate.y;
+      if (m_bLinkAxis)
+        m_vPosSize.y -= vTranslate.y;
       break;
     case DragPosY:
       m_vPosSize.y += vTranslate.y;
+      if (m_bLinkAxis)
+        m_vNegSize.y += vTranslate.y;
       break;
     case DragNegZ:
       m_vNegSize.z -= vTranslate.z;
+      if (m_bLinkAxis)
+        m_vPosSize.z -= vTranslate.z;
       break;
     case DragPosZ:
       m_vPosSize.z += vTranslate.z;
+      if (m_bLinkAxis)
+        m_vNegSize.z += vTranslate.z;
       break;
     }
   }
@@ -278,10 +290,11 @@ ezEditorInput ezNonUniformBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
   return ezEditorInput::WasExclusivelyHandled;
 }
 
-void ezNonUniformBoxGizmo::SetSize(const ezVec3& negSize, const ezVec3& posSize)
+void ezNonUniformBoxGizmo::SetSize(const ezVec3& negSize, const ezVec3& posSize, bool bLinkAxis)
 {
   m_vNegSize = negSize;
   m_vPosSize = posSize;
+  m_bLinkAxis = bLinkAxis;
 
   // update the scale
   OnTransformationChanged(GetTransformation());

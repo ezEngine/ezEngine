@@ -424,6 +424,9 @@ class EZ_FOUNDATION_DLL ezNonUniformBoxManipulatorAttribute : public ezManipulat
 public:
   ezNonUniformBoxManipulatorAttribute();
   ezNonUniformBoxManipulatorAttribute(const char* szNegXProp, const char* szPosXProp, const char* szNegYProp, const char* szPosYProp, const char* szNegZProp, const char* szPosZProp);
+  ezNonUniformBoxManipulatorAttribute(const char* szSizeX, const char* szSizeY, const char* szSizeZ);
+
+  bool HasSixAxis() const { return !m_sProperty4.IsEmpty(); }
 
   const ezUntrackedString& GetNegXProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetPosXProperty() const { return m_sProperty2; }
@@ -432,6 +435,9 @@ public:
   const ezUntrackedString& GetNegZProperty() const { return m_sProperty5; }
   const ezUntrackedString& GetPosZProperty() const { return m_sProperty6; }
 
+  const ezUntrackedString& GetSizeXProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetSizeYProperty() const { return m_sProperty2; }
+  const ezUntrackedString& GetSizeZProperty() const { return m_sProperty3; }
 };
 
 //////////////////////////////////////////////////////////////////////////

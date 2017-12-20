@@ -14,6 +14,7 @@
 #include <GameEngine/Messages/BuildNavMeshMessage.h>
 #include <GameEngine/AI/NavMesh/NavMeshDescription.h>
 #include <Foundation/Profiling/Profiling.h>
+#include  <Foundation/Reflection/Implementation/PropertyAttributes.h>
 
 #define JC_VORONOI_IMPLEMENTATION
 #include <ThirdParty/jc_voronoi/jc_voronoi.h>
@@ -55,6 +56,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBreakableSheetComponent, 1, ezComponentMode::Dynamic)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Physics"),
+    new ezNonUniformBoxManipulatorAttribute("Width", "Thickness", "Height"),
   }
   EZ_END_ATTRIBUTES
   EZ_BEGIN_MESSAGESENDERS

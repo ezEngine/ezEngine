@@ -36,6 +36,7 @@ void ezNonUniformBoxManipulatorAdapter::Update()
   ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
   const ezNonUniformBoxManipulatorAttribute* pAttr = static_cast<const ezNonUniformBoxManipulatorAttribute*>(m_pManipulatorAttr);
 
+  if (pAttr->HasSixAxis())
   {
     const float fNegX = pObjectAccessor->Get<float>(m_pObject, GetProperty(pAttr->GetNegXProperty()));
     const float fPosX = pObjectAccessor->Get<float>(m_pObject, GetProperty(pAttr->GetPosXProperty()));
@@ -45,6 +46,15 @@ void ezNonUniformBoxManipulatorAdapter::Update()
     const float fPosZ = pObjectAccessor->Get<float>(m_pObject, GetProperty(pAttr->GetPosZProperty()));
 
     m_Gizmo.SetSize(ezVec3(fNegX, fNegY, fNegZ), ezVec3(fPosX, fPosY, fPosZ));
+  }
+  else
+  {
+    const float fSizeX = pObjectAccessor->Get<float>(m_pObject, GetProperty(pAttr->GetSizeXProperty()));
+    const float fSizeY = pObjectAccessor->Get<float>(m_pObject, GetProperty(pAttr->GetSizeYProperty()));
+    const float fSizeZ = pObjectAccessor->Get<float>(m_pObject, GetProperty(pAttr->GetSizeZProperty()));
+
+    m_Gizmo.SetSize(ezVec3(fSizeX, fSizeY, fSizeZ) * 0.5f, ezVec3(fSizeX, fSizeY, fSizeZ) * 0.5f, true);
+
   }
 
   m_Gizmo.SetTransformation(GetObjectTransform());
@@ -73,12 +83,21 @@ void ezNonUniformBoxManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
       const ezVec3 neg = m_Gizmo.GetNegSize();
       const ezVec3 pos = m_Gizmo.GetPosSize();
 
-      ChangeProperties(pAttr->GetNegXProperty(), neg.x,
-                       pAttr->GetPosXProperty(), pos.x,
-                       pAttr->GetNegYProperty(), neg.y,
-                       pAttr->GetPosYProperty(), pos.y,
-                       pAttr->GetNegZProperty(), neg.z,
-                       pAttr->GetPosZProperty(), pos.z);
+      if (pAttr->HasSixAxis())
+      {
+        ChangeProperties(pAttr->GetNegXProperty(), neg.x,
+          pAttr->GetPosXProperty(), pos.x,
+          pAttr->GetNegYProperty(), neg.y,
+          pAttr->GetPosYProperty(), pos.y,
+          pAttr->GetNegZProperty(), neg.z,
+          pAttr->GetPosZProperty(), pos.z);
+      }
+      else
+      {
+        ChangeProperties(pAttr->GetSizeXProperty(), pos.x * 2,
+          pAttr->GetSizeYProperty(), pos.y * 2,
+          pAttr->GetSizeZProperty(), pos.z * 2);
+      }
     }
     break;
   }

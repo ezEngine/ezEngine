@@ -343,6 +343,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezNonUniformBoxManipulatorAttribute, 1, ezRTTIDe
 {
   EZ_BEGIN_FUNCTIONS
   {
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*),
     EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const char*, const char*, const char*, const char*),
   }
   EZ_END_FUNCTIONS
@@ -357,6 +358,12 @@ ezNonUniformBoxManipulatorAttribute::ezNonUniformBoxManipulatorAttribute()
 ezNonUniformBoxManipulatorAttribute::ezNonUniformBoxManipulatorAttribute(const char* szNegXProp, const char* szPosXProp, const char* szNegYProp, const char* szPosYProp, const char* szNegZProp, const char* szPosZProp)
   : ezManipulatorAttribute(szNegXProp, szPosXProp, szNegYProp, szPosYProp, szNegZProp, szPosZProp)
 {
+}
+
+ezNonUniformBoxManipulatorAttribute::ezNonUniformBoxManipulatorAttribute(const char* szSizeX, const char* szSizeY, const char* szSizeZ)
+  : ezManipulatorAttribute(szSizeX, szSizeY, szSizeZ)
+{
+
 }
 
 //////////////////////////////////////////////////////////////////////////

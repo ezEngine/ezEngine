@@ -12,7 +12,7 @@ class EZ_EDITORFRAMEWORK_DLL ezNonUniformBoxGizmo : public ezGizmo
 public:
   ezNonUniformBoxGizmo();
 
-  void SetSize(const ezVec3& negSize, const ezVec3& posSize);
+  void SetSize(const ezVec3& negSize, const ezVec3& posSize, bool bLinkAxis = false);
 
   const ezVec3& GetNegSize() const { return m_vNegSize; }
   const ezVec3& GetPosSize() const { return m_vPosSize; }
@@ -61,4 +61,5 @@ private:
   ezVec3 m_vStartPosition;
   ezVec3 m_vInteractionPivot;
   float m_fStartScale = 1.0f;
+  bool m_bLinkAxis = false;
 };

@@ -8,6 +8,7 @@
 #include <Preferences/EditorPreferences.h>
 #include <EditorFramework/DocumentWindow/GameObjectViewWidget.moc.h>
 #include <EditorFramework/InputContexts/CameraMoveContext.h>
+#include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 
 ezQtGameObjectDocumentWindow::ezQtGameObjectDocumentWindow(ezGameObjectDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
@@ -48,6 +49,7 @@ ezWorldSettingsMsgToEngine ezQtGameObjectDocumentWindow::GetWorldSettings() cons
 ezGridSettingsMsgToEngine ezQtGameObjectDocumentWindow::GetGridSettings() const
 {
   ezGridSettingsMsgToEngine msg;
+  const ezHybridArray<ezPropertySelection, 8>* selection = nullptr;
 
   if (auto pTool = GetGameObjectDocument()->GetActiveEditTool())
   {
