@@ -91,7 +91,7 @@ void ezPlayerApplication::SetupLevel()
 
       ezWorldReader reader;
       reader.ReadWorldDescription(file);
-      reader.InstantiateWorld(*m_pWorld);
+      reader.InstantiateWorld(*m_pWorld, nullptr);
       //reader.InstantiatePrefab(*m_pWorld, ezVec3(0, 2, 0), ezQuat::IdentityQuaternion(), ezVec3(0.1f));
     }
     else

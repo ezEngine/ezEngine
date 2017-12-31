@@ -26,7 +26,7 @@ public:
 
 typedef ezComponentManager<class ezMeshComponent, ezBlockStorageType::Compact> ezMeshComponentManager;
 
-struct ezMeshComponent_SetMaterialMsg : public ezScriptFunctionMessage
+struct EZ_RENDERERCORE_DLL ezMeshComponent_SetMaterialMsg : public ezScriptFunctionMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMeshComponent_SetMaterialMsg, ezScriptFunctionMessage);
 

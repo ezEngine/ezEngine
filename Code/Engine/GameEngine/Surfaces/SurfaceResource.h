@@ -6,6 +6,7 @@
 #include <GameEngine/Surfaces/SurfaceResourceDescriptor.h>
 
 class ezWorld;
+class ezUuid;
 
 class EZ_GAMEENGINE_DLL ezSurfaceResource : public ezResource<ezSurfaceResource, ezSurfaceResourceDescriptor>
 {
@@ -35,7 +36,7 @@ public:
 
   /// \brief Spawns the prefab that was defined for the given interaction at the given position and using the configured orientation.
   /// Returns false, if the interaction type was not defined in this surface or any of its base surfaces
-  bool InteractWithSurface(ezWorld* pWorld, const ezVec3& vPosition, const ezVec3& vSurfaceNormal, const ezVec3& vIncomingDirection, const ezTempHashedString& sInteraction);
+  bool InteractWithSurface(ezWorld* pWorld, const ezVec3& vPosition, const ezVec3& vSurfaceNormal, const ezVec3& vIncomingDirection, const ezTempHashedString& sInteraction, const ezUInt16* pOverrideTeamID);
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;

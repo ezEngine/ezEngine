@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/Components/ProjectileComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -317,7 +317,7 @@ ezInt32 ezProjectileComponent::FindSurfaceInteraction(const ezSurfaceResourceHan
 void ezProjectileComponent::TriggerSurfaceInteraction(const ezSurfaceResourceHandle& hSurface, const ezVec3& vPos, const ezVec3& vNormal, const ezVec3& vDirection, const char* szInteraction)
 {
   ezResourceLock<ezSurfaceResource> pSurface(hSurface, ezResourceAcquireMode::NoFallback);
-  pSurface->InteractWithSurface(GetWorld(), vPos, vNormal, vDirection, ezTempHashedString(szInteraction));
+  pSurface->InteractWithSurface(GetWorld(), vPos, vNormal, vDirection, ezTempHashedString(szInteraction), &GetOwner()->GetTeamID());
 }
 
 
@@ -349,7 +349,7 @@ void ezProjectileComponent::OnTriggered(ezInternalComponentMessage& msg)
   {
     ezResourceLock<ezPrefabResource> pPrefab(m_hTimeoutPrefab);
 
-    pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform());
+    pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID());
   }
 
   GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());

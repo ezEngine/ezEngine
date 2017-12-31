@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Core/World/World.h>
 #include <Foundation/IO/Stream.h>
@@ -26,14 +26,20 @@ public:
   ///
   /// This is identical to calling InstantiatePrefab() with identity values, however, it is a bit
   /// more efficient, as unnecessary computations are skipped.
-  void InstantiateWorld(ezWorld& world);
+  ///
+  /// If pOverrideTeamID is not null, every instantiated game object will get it passed in as its new value.
+  /// This can be used to identify that the object belongs to a specific player or team.
+  void InstantiateWorld(ezWorld& world, const ezUInt16* pOverrideTeamID);
 
   /// \brief Creates one instance of the world that was previously read by ReadWorldDescription().
   ///
   /// \param rootTransform is an additional transform that is applied to all root objects.
   /// \param hParent allows to attach the newly created objects immediately to a parent
   /// \param out_CreatedRootObjects If this is valid, all pointers the to created root objects are stored in this array
-  void InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects = nullptr);
+  ///
+  /// If pOverrideTeamID is not null, every instantiated game object will get it passed in as its new value.
+  /// This can be used to identify that the object belongs to a specific player or team.
+  void InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, const ezUInt16* pOverrideTeamID);
 
   /// \brief Gives access to the stream of data. Use this inside component deserialization functions to read data.
   ezStreamReader& GetStream() const { return *m_pStream; }
@@ -72,10 +78,10 @@ private:
   void ReadComponentInfo(ezUInt32 uiComponentTypeIdx);
   void ReadComponentsOfType(ezUInt32 uiComponentTypeIdx);
   void FulfillComponentHandleRequets();
-  void Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects);
+  void Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, const ezUInt16* pOverrideTeamID);
 
-  void CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects);
-  void CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects);
+  void CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, const ezUInt16* pOverrideTeamID);
+  void CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, const ezUInt16* pOverrideTeamID);
 
   ezStreamReader* m_pStream;
   ezWorld* m_pWorld;

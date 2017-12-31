@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/Surfaces/SurfaceResource.h>
 #include <Core/Assets/AssetFileHeader.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
@@ -111,7 +111,7 @@ ezResourceLoadDesc ezSurfaceResource::CreateResource(const ezSurfaceResourceDesc
 }
 
 
-bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, const ezVec3& vPosition, const ezVec3& vSurfaceNormal, const ezVec3& vIncomingDirection, const ezTempHashedString& sInteraction)
+bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, const ezVec3& vPosition, const ezVec3& vSurfaceNormal, const ezVec3& vIncomingDirection, const ezTempHashedString& sInteraction, const ezUInt16* pOverrideTeamID)
 {
   const ezSurfaceInteraction* pIA = nullptr;
   if (!m_Interactions.TryGetValue(sInteraction.GetHash(), pIA))
@@ -121,7 +121,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, const ezVec3& vPosi
     if (m_Descriptor.m_hBaseSurface.IsValid())
     {
       ezResourceLock<ezSurfaceResource> pBase(m_Descriptor.m_hBaseSurface, ezResourceAcquireMode::NoFallback);
-      return pBase->InteractWithSurface(pWorld, vPosition, vSurfaceNormal, vIncomingDirection, sInteraction);
+      return pBase->InteractWithSurface(pWorld, vPosition, vSurfaceNormal, vIncomingDirection, sInteraction, pOverrideTeamID);
     }
 
     return false;
@@ -230,7 +230,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, const ezVec3& vPosi
   t.m_qRotation.SetFromMat3(mRot);
   t.m_vScale.Set(1.0f);
 
-  pPrefab->InstantiatePrefab(*pWorld, t);
+  pPrefab->InstantiatePrefab(*pWorld, t, ezGameObjectHandle(), nullptr, pOverrideTeamID);
 
   return true;
 }

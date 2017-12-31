@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/Components/SpawnComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
@@ -91,14 +91,14 @@ bool ezSpawnComponent::SpawnOnce()
 
     if (m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::AttachAsChild))
     {
-      pResource->InstantiatePrefab(*GetWorld(), tLocalSpawn, GetOwner()->GetHandle());
+      pResource->InstantiatePrefab(*GetWorld(), tLocalSpawn, GetOwner()->GetHandle(), nullptr, &GetOwner()->GetTeamID());
     }
     else
     {
       ezTransform tGlobalSpawn;
       tGlobalSpawn.SetGlobalTransform(GetOwner()->GetGlobalTransform(), tLocalSpawn);
 
-      pResource->InstantiatePrefab(*GetWorld(), tGlobalSpawn, ezGameObjectHandle());
+      pResource->InstantiatePrefab(*GetWorld(), tGlobalSpawn, ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID());
     }
     return true;
   }

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <Foundation/IO/MemoryStream.h>
@@ -11,7 +11,7 @@ void ezWorldWriter::Write(ezStreamWriter& stream, ezWorld& world, const ezTagSet
 
   EZ_LOCK(m_pWorld->GetReadMarker());
 
-  const ezUInt8 uiVersion = 5;
+  const ezUInt8 uiVersion = 6;
   stream << uiVersion;
 
   m_AllRootObjects.Clear();
@@ -200,6 +200,7 @@ void ezWorldWriter::WriteGameObject(const ezGameObject* pObject)
   s << pObject->IsActive();
   s << pObject->IsDynamic();
   pObject->GetTags().Save(s);
+  s << pObject->GetTeamID();
 
   /// \todo write strings only once
 }

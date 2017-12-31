@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/Components/PrefabReferenceComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 
@@ -123,7 +123,7 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
     ezTransform id;
     id.SetIdentity();
 
-    pResource->InstantiatePrefab(*GetWorld(), id, GetOwner()->GetHandle());
+    pResource->InstantiatePrefab(*GetWorld(), id, GetOwner()->GetHandle(), nullptr, &GetOwner()->GetTeamID());
   }
 }
 

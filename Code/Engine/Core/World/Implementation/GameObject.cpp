@@ -174,6 +174,16 @@ void ezGameObject::MakeStaticInternal()
   m_pWorld->RecreateHierarchyData(this, true);
 }
 
+void ezGameObject::SetTeamID(ezUInt16 id)
+{
+  m_uiTeamID = id;
+
+  for (auto it = GetChildren(); it.IsValid(); ++it)
+  {
+    it->SetTeamID(id);
+  }
+}
+
 void ezGameObject::UpdateGlobalTransformAndBoundsRecursive()
 {
   if (IsStatic() && GetWorld()->ReportErrorWhenStaticObjectMoves())

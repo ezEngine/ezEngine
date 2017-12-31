@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <PhysXPlugin/Components/PxCharacterControllerComponent.h>
 #include <PhysXPlugin/Components/PxCharacterProxyComponent.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
@@ -310,7 +310,7 @@ void ezPxCharacterControllerComponent::Update()
             m_fAccumulatedWalkDistance = 0.0f;
 
             ezResourceLock<ezSurfaceResource> pSurface(hSurface);
-            pSurface->InteractWithSurface(GetWorld(), hitResult.m_vPosition, hitResult.m_vNormal, ezVec3(0, 0, 1), m_sWalkSurfaceInteraction);
+            pSurface->InteractWithSurface(GetWorld(), hitResult.m_vPosition, hitResult.m_vNormal, ezVec3(0, 0, 1), m_sWalkSurfaceInteraction, &GetOwner()->GetTeamID());
           }
         }
       }

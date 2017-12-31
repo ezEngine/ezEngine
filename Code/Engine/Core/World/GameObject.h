@@ -311,6 +311,15 @@ public:
   ezTagSet& GetTags();
   const ezTagSet& GetTags() const;
 
+  /// \brief Returns the 'team ID' that was given during creation (/see ezGameObjectDesc)
+  ///
+  /// It is automatically passed on to objects created by this object.
+  /// This makes it possible to identify which player or team an object belongs to.
+  const ezUInt16& GetTeamID() const { return m_uiTeamID; }
+
+  /// \brief Changes the team ID for this object and all children recursively.
+  void SetTeamID(ezUInt16 id);
+
 private:
   friend class ezComponentManagerBase;
   friend class ezGameObjectTest;
@@ -404,7 +413,9 @@ private:
   };
 
   ezUInt32 m_uiReserved;
-  ezUInt16 m_uiReserved2;
+
+  /// An int that will be passed on to objects spawned from this one, which allows to identify which team or player it belongs to.
+  ezUInt16 m_uiTeamID;
 
   ezUInt16 m_uiHierarchyLevel;
   TransformationData* m_pTransformationData;

@@ -4,9 +4,10 @@
 #include <Foundation/Math/Quat.h>
 
 #include <Core/World/Declarations.h>
+#include <Foundation/Types/Uuid.h>
 
 /// \brief Describes the initial state of a game object.
-struct ezGameObjectDesc
+struct EZ_CORE_DLL ezGameObjectDesc
 {
   EZ_DECLARE_POD_TYPE();
 
@@ -14,6 +15,7 @@ struct ezGameObjectDesc
   {
     m_bActive = true;
     m_bDynamic = false;
+    m_uiTeamID = 0;
 
     m_LocalPosition.SetZero();
     m_LocalRotation.SetIdentity();
@@ -23,6 +25,7 @@ struct ezGameObjectDesc
 
   bool m_bActive;
   bool m_bDynamic;
+  ezUInt16 m_uiTeamID;
 
   ezHashedString m_sName;
 

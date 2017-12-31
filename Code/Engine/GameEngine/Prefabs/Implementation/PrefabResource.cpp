@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
 #include <Core/Assets/AssetFileHeader.h>
 
@@ -11,12 +11,12 @@ ezPrefabResource::ezPrefabResource()
 
 }
 
-void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects)
+void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, const ezUInt16* pOverrideTeamID)
 {
   if (GetLoadingState() != ezResourceState::Loaded)
     return;
 
-  m_WorldReader.InstantiatePrefab(world, rootTransform, hParent, out_CreatedRootObjects);
+  m_WorldReader.InstantiatePrefab(world, rootTransform, hParent, out_CreatedRootObjects, pOverrideTeamID);
 }
 
 ezResourceLoadDesc ezPrefabResource::UnloadData(Unload WhatToUnload)

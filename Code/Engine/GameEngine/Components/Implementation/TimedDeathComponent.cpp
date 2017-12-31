@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/Components/TimedDeathComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -84,7 +84,7 @@ void ezTimedDeathComponent::OnTriggered(ezInternalComponentMessage& msg)
   {
     ezResourceLock<ezPrefabResource> pPrefab(m_hTimeoutPrefab);
 
-    pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform());
+    pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID());
   }
 
   GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
