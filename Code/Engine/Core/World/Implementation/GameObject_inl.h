@@ -408,6 +408,16 @@ EZ_ALWAYS_INLINE ezBoundingBoxSphere ezGameObject::GetGlobalBounds() const
   return ezSimdConversion::ToBBoxSphere(m_pTransformationData->m_globalBounds);
 }
 
+EZ_ALWAYS_INLINE const ezSimdBBoxSphere& ezGameObject::GetLocalBoundsSimd() const
+{
+  return m_pTransformationData->m_localBounds;
+}
+
+EZ_ALWAYS_INLINE const ezSimdBBoxSphere& ezGameObject::GetGlobalBoundsSimd() const
+{
+  return m_pTransformationData->m_globalBounds;
+}
+
 EZ_ALWAYS_INLINE void ezGameObject::UpdateGlobalTransformAndBounds()
 {
   m_pTransformationData->ConditionalUpdateGlobalBounds();

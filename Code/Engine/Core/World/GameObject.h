@@ -256,6 +256,9 @@ public:
   ezBoundingBoxSphere GetLocalBounds() const;
   ezBoundingBoxSphere GetGlobalBounds() const;
 
+  const ezSimdBBoxSphere& GetLocalBoundsSimd() const;
+  const ezSimdBBoxSphere& GetGlobalBoundsSimd() const;
+
   /// \brief Invalidates the local bounds and sends a message to all components so they can add their bounds.
   void UpdateLocalBounds();
 
