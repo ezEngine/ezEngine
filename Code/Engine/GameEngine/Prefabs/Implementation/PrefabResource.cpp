@@ -16,7 +16,7 @@ void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& root
   if (GetLoadingState() != ezResourceState::Loaded)
     return;
 
-  m_WorldReader.InstantiatePrefab(world, rootTransform, hParent, out_CreatedRootObjects, pOverrideTeamID);
+  m_WorldReader.InstantiatePrefab(world, rootTransform, hParent, out_CreatedRootObjects, nullptr, pOverrideTeamID);
 }
 
 ezResourceLoadDesc ezPrefabResource::UnloadData(Unload WhatToUnload)

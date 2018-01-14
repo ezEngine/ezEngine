@@ -32,8 +32,8 @@ namespace ezInternal
 
     static void SendMessage(ezComponent* pSenderComponent, ezComponentHandle hReceiver, ezEventMessage& msg);
     static void SendMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, ezEventMessage& msg);
-    static void PostMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, ezEventMessage& msg, ezObjectMsgQueueType::Enum queueType);
-    static void PostMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, ezEventMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay);
+    static void PostMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, const ezEventMessage& msg, ezObjectMsgQueueType::Enum queueType);
+    static void PostMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, const ezEventMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay);
   };
 }
 
@@ -63,18 +63,18 @@ public:
     ezInternal::EventMessageSenderHelper::SendMessage(pSenderComponent, m_hCachedReceiver, msg);
   }
 
-  EZ_ALWAYS_INLINE void PostMessage(EventMessageType& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject,
+  EZ_ALWAYS_INLINE void PostMessage(const EventMessageType& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject,
     ezObjectMsgQueueType::Enum queueType) const
   {
-    UpdateMessageAndCachedReceiver(msg, pSenderComponent, pSearchObject);
+    UpdateMessageAndCachedReceiver(const_cast<EventMessageType&>(msg), pSenderComponent, pSearchObject);
 
     ezInternal::EventMessageSenderHelper::PostMessage(pSenderComponent, m_hCachedReceiver, msg, queueType);
   }
 
-  EZ_ALWAYS_INLINE void PostMessage(EventMessageType& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject,
+  EZ_ALWAYS_INLINE void PostMessage(const EventMessageType& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject,
     ezObjectMsgQueueType::Enum queueType, ezTime delay) const
   {
-    UpdateMessageAndCachedReceiver(msg, pSenderComponent, pSearchObject);
+    UpdateMessageAndCachedReceiver(const_cast<EventMessageType&>(msg), pSenderComponent, pSearchObject);
 
     ezInternal::EventMessageSenderHelper::PostMessage(pSenderComponent, m_hCachedReceiver, msg, queueType, delay);
   }

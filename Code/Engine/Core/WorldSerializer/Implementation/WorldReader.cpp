@@ -92,15 +92,15 @@ void ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
 
 void ezWorldReader::InstantiateWorld(ezWorld& world, const ezUInt16* pOverrideTeamID)
 {
-  Instantiate(world, false, ezTransform(), ezGameObjectHandle(), nullptr, pOverrideTeamID);
+  Instantiate(world, false, ezTransform(), ezGameObjectHandle(), nullptr, nullptr, pOverrideTeamID);
 }
 
-void ezWorldReader::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, const ezUInt16* pOverrideTeamID)
+void ezWorldReader::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects, const ezUInt16* pOverrideTeamID)
 {
-  Instantiate(world, true, rootTransform, hParent, out_CreatedRootObjects, pOverrideTeamID);
+  Instantiate(world, true, rootTransform, hParent, out_CreatedRootObjects, out_CreatedChildObjects, pOverrideTeamID);
 }
 
-void ezWorldReader::Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, const ezUInt16* pOverrideTeamID)
+void ezWorldReader::Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects, const ezUInt16* pOverrideTeamID)
 {
   m_pWorld = &world;
 
@@ -121,7 +121,7 @@ void ezWorldReader::Instantiate(ezWorld& world, bool bUseTransform, const ezTran
     CreateGameObjects(m_RootObjectsToCreate, hParent, out_CreatedRootObjects, pOverrideTeamID);
   }
 
-  CreateGameObjects(m_ChildObjectsToCreate, ezGameObjectHandle(), nullptr, pOverrideTeamID);
+  CreateGameObjects(m_ChildObjectsToCreate, ezGameObjectHandle(), out_CreatedChildObjects, pOverrideTeamID);
 
   // read component data from copied memory stream
   if (m_ComponentStream.GetStorageSize() > 0)
@@ -349,7 +349,7 @@ void ezWorldReader::FulfillComponentHandleRequets()
   m_ComponentHandleRequests.Clear();
 }
 
-void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, const ezUInt16* pOverrideTeamID)
+void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedObjects, const ezUInt16* pOverrideTeamID)
 {
   if (hParent.IsInvalidated())
   {
@@ -369,8 +369,8 @@ void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& 
         pObject->SetGlobalKey(godesc.m_sGlobalKey);
       }
 
-      if (out_CreatedRootObjects)
-        out_CreatedRootObjects->PushBack(pObject);
+      if (out_CreatedObjects)
+        out_CreatedObjects->PushBack(pObject);
     }
   }
   else
@@ -388,8 +388,8 @@ void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& 
         pObject->SetGlobalKey(godesc.m_sGlobalKey);
       }
 
-      if (out_CreatedRootObjects)
-        out_CreatedRootObjects->PushBack(pObject);
+      if (out_CreatedObjects)
+        out_CreatedObjects->PushBack(pObject);
     }
   }
 }

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 /// \file
 
@@ -96,10 +96,10 @@ public:
   bool SendMessage(ezMessage& msg) const;
 
   /// \brief Queues the message for the given phase and processes it later in that phase.
-  void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType);
+  void PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType) const;
 
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
-  void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay);
+  void PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const;
 
 protected:
   friend class ezWorld;

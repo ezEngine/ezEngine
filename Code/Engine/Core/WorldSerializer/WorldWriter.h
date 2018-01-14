@@ -37,6 +37,12 @@ public:
   /// to write data to the stream.
   ezStreamWriter& GetStream() const { return *m_pStream; }
 
+  /// \brief Returns an array containing all game object pointers that were written to the stream as root objects
+  const ezDeque<const ezGameObject*>& GetAllWrittenRootObjects() const { return m_AllRootObjects; }
+
+  /// \brief Returns an array containing all game object pointers that were written to the stream as child objects
+  const ezDeque<const ezGameObject*>& GetAllWrittenChildObjects() const { return m_AllChildObjects; }
+
 private:
   void AssignGameObjectIndices();
   void AssignComponentHandleIndices();

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Core/Messages/EventMessage.h>
 #include <Core/World/EventMessageHandlerComponent.h>
 #include <Core/World/World.h>
@@ -93,7 +93,7 @@ namespace ezInternal
 #endif
   }
 
-  void EventMessageSenderHelper::PostMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, ezEventMessage& msg,
+  void EventMessageSenderHelper::PostMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, const ezEventMessage& msg,
     ezObjectMsgQueueType::Enum queueType)
   {
     if (!hReceiver.IsInvalidated())
@@ -109,7 +109,7 @@ namespace ezInternal
 #endif
   }
 
-  void EventMessageSenderHelper::PostMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, ezEventMessage& msg,
+  void EventMessageSenderHelper::PostMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, const ezEventMessage& msg,
     ezObjectMsgQueueType::Enum queueType, ezTime delay)
   {
     if (!hReceiver.IsInvalidated())

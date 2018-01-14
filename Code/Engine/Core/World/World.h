@@ -161,16 +161,16 @@ public:
   void SendMessageRecursive(const ezGameObjectHandle& receiverObject, ezMessage& msg);
 
   /// \brief Queues the message for the given phase. The message is send to the receiverObject after the given delay in the corresponding phase.
-  void PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
+  void PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
 
   /// \brief Queues the message for the given phase. The message is send to the receiverObject and all its children after the given delay in the corresponding phase.
-  void PostMessageRecursive(const ezGameObjectHandle& receiverObject, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
+  void PostMessageRecursive(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
 
   /// \brief Sends a message to the component.
   void SendMessage(const ezComponentHandle& receiverComponent, ezMessage& msg);
 
   /// \brief Queues the message for the given phase. The message is send to the receiverComponent after the given delay in the corresponding phase.
-  void PostMessage(const ezComponentHandle& receiverComponent, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
+  void PostMessage(const ezComponentHandle& receiverComponent, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
 
   ///@}
 
@@ -268,7 +268,7 @@ private:
   void SetObjectGlobalKey(ezGameObject* pObject, const ezHashedString& sGlobalKey);
   const char* GetObjectGlobalKey(const ezGameObject* pObject) const;
 
-  void PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const;
+  void PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const;
   void ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::Entry& entry);
   void ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType);
 

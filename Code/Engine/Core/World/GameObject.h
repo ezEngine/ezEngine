@@ -305,10 +305,10 @@ public:
 
 
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
-  void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
+  void PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
 
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
-  void PostMessageRecursive(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
+  void PostMessageRecursive(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
 
   /// \brief Returns the tag set associated with this object.
   ezTagSet& GetTags();

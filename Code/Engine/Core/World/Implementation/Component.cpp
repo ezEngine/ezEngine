@@ -170,12 +170,12 @@ bool ezComponent::SendMessage(ezMessage& msg) const
   return false;
 }
 
-void ezComponent::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType)
+void ezComponent::PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType) const
 {
   GetWorld()->PostMessage(GetHandle(), msg, queueType);
 }
 
-void ezComponent::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay)
+void ezComponent::PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
 {
   GetWorld()->PostMessage(GetHandle(), msg, queueType, delay);
 }

@@ -566,12 +566,12 @@ void ezGameObject::FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPt
   m_Components[uiIndex] = pNewPtr;
 }
 
-void ezGameObject::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
+void ezGameObject::PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
 {
   m_pWorld->PostMessage(GetHandle(), msg, queueType, delay);
 }
 
-void ezGameObject::PostMessageRecursive(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
+void ezGameObject::PostMessageRecursive(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
 {
   m_pWorld->PostMessageRecursive(GetHandle(), msg, queueType, delay);
 }

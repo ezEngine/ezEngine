@@ -262,7 +262,7 @@ const ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pRtti) 
   return nullptr;
 }
 
-void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const
+void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const
 {
   // This method is allowed to be called from multiple threads.
 
@@ -285,7 +285,7 @@ void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& m
   }
 }
 
-void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
+void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
 {
   // This method is allowed to be called from multiple threads.
 
