@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GameEngine/Basics.h>
 #include <GameEngine/Declarations.h>
@@ -8,10 +8,12 @@
 class EZ_GAMEENGINE_DLL ezGameStateWindow : public ezWindow
 {
 public:
-  ezGameStateWindow(const ezWindowCreationDesc& windowdesc);
+  ezGameStateWindow(const ezWindowCreationDesc& windowdesc, ezDelegate<void()> onClickClose = nullptr);
   ~ezGameStateWindow();
 
 private:
   virtual void OnResizeMessage(const ezSizeU32& newWindowSize) override;
+  virtual void OnClickCloseMessage() override;
 
+  ezDelegate<void()> m_OnClickClose;
 };

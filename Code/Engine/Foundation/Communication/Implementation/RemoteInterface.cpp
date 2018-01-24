@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/Communication/RemoteInterface.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
@@ -235,6 +235,9 @@ void ezRemoteInterface::StopUpdateThread()
 
 void ezRemoteInterface::ReportConnectionToServer(ezUInt32 uiServerID)
 {
+  if (m_uiConnectedToServerWithID == uiServerID)
+    return;
+
   m_uiConnectedToServerWithID = uiServerID;
 
   ezRemoteEvent e;

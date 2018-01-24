@@ -353,6 +353,9 @@ void ezGameApplication::DoLoadTags()
 
 void ezGameApplication::DoShutdownGraphicsDevice()
 {
+  if (!ezGALDevice::HasDefaultDevice())
+    return;
+
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   for (ezUInt32 i = 0; i < m_Windows.GetCount(); ++i)

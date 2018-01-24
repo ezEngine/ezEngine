@@ -1,4 +1,4 @@
-﻿
+
 /// \brief Used to guard ezGALDevice functions from multi-threaded access and to verify that executing them on non-main-threads is allowed
 #define EZ_GALDEVICE_LOCK_AND_CHECK() \
   EZ_LOCK(m_Mutex); \
@@ -117,6 +117,12 @@ EZ_ALWAYS_INLINE ezGALDevice* ezGALDevice::GetDefaultDevice()
 {
   EZ_ASSERT_DEBUG(s_pDefaultDevice != nullptr, "Default device not set.");
   return s_pDefaultDevice;
+}
+
+// static
+EZ_ALWAYS_INLINE bool ezGALDevice::HasDefaultDevice()
+{
+  return s_pDefaultDevice != nullptr;
 }
 
 template <typename HandleType>

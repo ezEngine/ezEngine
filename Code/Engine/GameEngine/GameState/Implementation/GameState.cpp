@@ -1,4 +1,4 @@
-﻿
+
 #include <PCH.h>
 #include <GameEngine/GameState/GameStateWindow.h>
 #include <GameEngine/GameApplication/GameApplication.h>
@@ -97,7 +97,7 @@ void ezGameState::CreateMainWindow()
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
   if (m_bMixedRealityMode)
   {
-    m_pMainWindow = EZ_DEFAULT_NEW(ezGameStateWindow, ezWindowCreationDesc());
+    m_pMainWindow = EZ_DEFAULT_NEW(ezGameStateWindow, ezWindowCreationDesc(), [this]() { RequestQuit(); });
     GetApplication()->AddWindow(m_pMainWindow, ezGALSwapChainHandle());
     return;
   }
@@ -127,7 +127,7 @@ void ezGameState::CreateMainWindow()
   wndDesc.LoadFromDDL(sWndCfg);
   //wndDesc.SaveToDDL(":project/Window.ddl");
 
-  m_pMainWindow = EZ_DEFAULT_NEW(ezGameStateWindow, wndDesc);
+  m_pMainWindow = EZ_DEFAULT_NEW(ezGameStateWindow, wndDesc, [this]() { RequestQuit(); });
   m_hMainSwapChain = GetApplication()->AddWindow(m_pMainWindow);
 }
 
