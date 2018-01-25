@@ -197,6 +197,8 @@ public:
   /// \brief Makes sure that no further resource loading will take place.
   static void EngineAboutToShutdown();
 
+  static void SetResourceLowResData(const ezTypelessResourceHandle& hResource, ezStreamReader* pStream);
+
 private:
   friend class ezResourceBase;
   friend class ezResourceManagerWorkerDiskRead;

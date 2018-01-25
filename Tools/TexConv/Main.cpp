@@ -1,4 +1,4 @@
-﻿#include "Main.h"
+#include "Main.h"
 #include <wincodec.h>
 
 /// \todo volume texture creation
@@ -104,6 +104,9 @@ ezApplication::ApplicationExecution ezTexConv::RunInternal()
     if (m_bHasOutput)
     {
       if (PassImageThrough().Failed())
+        return ezApplication::Quit;
+
+      if (SaveLowResImage(m_InputImages[0]).Failed())
         return ezApplication::Quit;
     }
 
@@ -291,6 +294,31 @@ ezResult ezTexConv::SaveThumbnail()
   return EZ_SUCCESS;
 }
 
+ezResult ezTexConv::SaveLowResImage(const ezImage& img)
+{
+  if (m_sOutputLowRes.IsEmpty())
+    return EZ_SUCCESS;
+
+  ezImage imgLow;
+
+  ezDeferredFileWriter file;
+  file.SetOutput(m_sOutputLowRes);
+
+  WriteTexHeader(file);
+
+  ezDdsFileFormat dds;
+
+  if (ezImageUtils::ExtractLowerMipChain(img, imgLow, m_uiLowResMipmaps).Failed() ||
+    dds.WriteImage(file, imgLow, ezLog::GetThreadLocalLogSystem()).Failed())
+  {
+    SetReturnCode(TexConvReturnCodes::FAILED_WRITE_LOWRES);
+    ezLog::Error("Failed to write the low resolution version");
+    return EZ_FAILURE;
+  }
+
+  return file.Close();
+}
+
 void ezTexConv::BeforeCoreStartup()
 {
   ezStartup::AddApplicationTag("tool");
@@ -331,6 +359,8 @@ const char* ezTexConv::TranslateReturnCode() const
     return "FAILED_COMBINE_CUBEMAP";
   case TexConvReturnCodes::FAILED_PREMULTIPLY_ALPHA:
     return "FAILED_PREMULTIPLY_ALPHA";
+  case TexConvReturnCodes::FAILED_WRITE_LOWRES:
+    return "FAILED_WRITE_LOWRES";
 
   default:
     return "UNKNOWN ERROR CODE";

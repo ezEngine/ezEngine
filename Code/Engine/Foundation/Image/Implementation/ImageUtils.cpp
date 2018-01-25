@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/Image/ImageUtils.h>
 
 template<typename TYPE>
@@ -432,6 +432,35 @@ void ezImageUtils::ScaleDownArbitrary(const ezImage& Image, ezUInt32 uiNewWidth,
       }
     }
   }
+}
+
+ezResult ezImageUtils::ExtractLowerMipChain(const ezImage& src, ezImage& dst, ezUInt8 uiNumMips)
+{
+  if (src.GetDepth() != 1 || src.GetNumFaces() != 1 || src.GetNumArrayIndices() != 1)
+    return EZ_FAILURE;
+
+  uiNumMips = ezMath::Min<ezUInt8>(uiNumMips, src.GetNumMipLevels());
+  const ezUInt8 uiMaxMip = src.GetNumMipLevels() - uiNumMips;
+
+  dst.SetImageFormat(src.GetImageFormat());
+  dst.SetWidth(src.GetWidth(uiMaxMip));
+  dst.SetHeight(src.GetHeight(uiMaxMip));
+  dst.SetDepth(1);
+  dst.SetNumArrayIndices(1);
+  dst.SetNumFaces(1);
+  dst.SetNumMipLevels(uiNumMips);
+  dst.AllocateImageData();
+
+  const ezUInt8* pStart = src.GetDataPointer<ezUInt8>();
+
+  const ezUInt32 uiStartOffset = src.GetDataOffSet(uiMaxMip);
+  const ezUInt32 uiEndOffset = src.GetDataSize();
+
+  ezUInt8* pTarget = dst.GetDataPointer<ezUInt8>();
+
+  ezMemoryUtils::Copy<ezUInt8>(pTarget, pStart + uiStartOffset, (size_t)(uiEndOffset - uiStartOffset));
+
+  return EZ_SUCCESS;
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Image_Implementation_ImageUtils);

@@ -50,12 +50,6 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
 
   ezResourceLoadData res;
 
-  bool bSRGB = false;
-  ezEnum<ezGALTextureAddressMode> addressModeU = ezGALTextureAddressMode::Wrap;
-  ezEnum<ezGALTextureAddressMode> addressModeV = ezGALTextureAddressMode::Wrap;
-  ezEnum<ezGALTextureAddressMode> addressModeW = ezGALTextureAddressMode::Wrap;
-  ezEnum<ezTextureFilterSetting> textureFilter = ezTextureFilterSetting::Default;
-
   // Solid Color Textures
   if (ezPathUtils::HasExtension(pResource->GetResourceID(), "color"))
   {
@@ -70,7 +64,7 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
       ezLog::Error("'{0}' is not a valid color name. Using 'RebeccaPurple' as fallback.", sName);
     }
 
-    bSRGB = true;
+    pData->m_bSRGB = true;
     pData->m_Image.SetWidth(4);
     pData->m_Image.SetHeight(4);
     pData->m_Image.SetDepth(1);
@@ -109,45 +103,11 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
 
     /// In case this is not a proper asset (ezTex format), this is a hack to get the SRGB information for the texture
     const ezStringBuilder sName = ezPathUtils::GetFileName(sAbsolutePath);
-    bSRGB = (sName.EndsWith_NoCase("_D") || sName.EndsWith_NoCase("_SRGB") || sName.EndsWith_NoCase("_diff"));
+    pData->m_bSRGB = (sName.EndsWith_NoCase("_D") || sName.EndsWith_NoCase("_SRGB") || sName.EndsWith_NoCase("_diff"));
 
     if (sAbsolutePath.HasExtension("ezTex"))
     {
-      // read the hash, ignore it
-      ezAssetFileHeader AssetHash;
-      AssetHash.Read(File);
-
-      // read the ezTex file format
-      ezUInt8 uiTexFileFormatVersion = 0;
-      File >> uiTexFileFormatVersion;
-
-      if (uiTexFileFormatVersion < 2)
-      {
-        // There is no version 0 or 1, some idiot forgot to add a version number to the format.
-        // However, the first byte in those versions is a bool, so either 0 or 1 and therefore we can detect
-        // old versions by making the minimum file format version 2. I'm so clever! And handsome.
-
-        bSRGB = (uiTexFileFormatVersion == 1);
-        uiTexFileFormatVersion = 1;
-      }
-      else
-      {
-        File >> bSRGB;
-      }
-
-      File >> addressModeU;
-      File >> addressModeV;
-      File >> addressModeW;
-
-      if (uiTexFileFormatVersion >= 2)
-      {
-        ezUInt8 uiFilter = 0;
-        File >> uiFilter;
-        textureFilter = (ezTextureFilterSetting::Enum) uiFilter;
-      }
-
-      ezDdsFileFormat fmt;
-      if (fmt.ReadImage(File, pData->m_Image, ezLog::GetThreadLocalLogSystem()).Failed())
+      if (LoadTexFile(File, *pData).Failed())
         return res;
     }
     else
@@ -171,14 +131,7 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
 
   ezMemoryStreamWriter w(&pData->m_Storage);
 
-  ezImage* pImage = &pData->m_Image;
-  w.WriteBytes(&pImage, sizeof(ezImage*));
-
-  w << bSRGB;
-  w << addressModeU;
-  w << addressModeV;
-  w << addressModeW;
-  w << textureFilter;
+  WriteTextureLoadStream(w, *pData);
 
   res.m_pDataStream = &pData->m_Reader;
   res.m_pCustomLoaderData = pData;
@@ -221,6 +174,59 @@ bool ezTextureResourceLoader::IsResourceOutdated(const ezResourceBase* pResource
 #endif
 
   return true;
+}
+
+ezResult ezTextureResourceLoader::LoadTexFile(ezStreamReader& stream, LoadedData& data)
+{
+  // read the hash, ignore it
+  ezAssetFileHeader AssetHash;
+  AssetHash.Read(stream);
+
+  // read the ezTex file format
+  ezUInt8 uiTexFileFormatVersion = 0;
+  stream >> uiTexFileFormatVersion;
+
+  if (uiTexFileFormatVersion < 2)
+  {
+    // There is no version 0 or 1, some idiot forgot to add a version number to the format.
+    // However, the first byte in those versions is a bool, so either 0 or 1 and therefore we can detect
+    // old versions by making the minimum file format version 2. I'm so clever! And handsome.
+
+    data.m_bSRGB = (uiTexFileFormatVersion == 1);
+    uiTexFileFormatVersion = 1;
+  }
+  else
+  {
+    stream >> data.m_bSRGB;
+  }
+
+  stream >> data.m_addressModeU;
+  stream >> data.m_addressModeV;
+  stream >> data.m_addressModeW;
+
+  if (uiTexFileFormatVersion >= 2)
+  {
+    ezUInt8 uiFilter = 0;
+    stream >> uiFilter;
+    data.m_textureFilter = (ezTextureFilterSetting::Enum) uiFilter;
+  }
+
+  ezDdsFileFormat fmt;
+  return fmt.ReadImage(stream, data.m_Image, ezLog::GetThreadLocalLogSystem());
+
+}
+
+void ezTextureResourceLoader::WriteTextureLoadStream(ezStreamWriter& w, const LoadedData& data)
+{
+  const ezImage* pImage = &data.m_Image;
+  w.WriteBytes(&pImage, sizeof(ezImage*));
+
+  w << data.m_bIsFallback;
+  w << data.m_bSRGB;
+  w << data.m_addressModeU;
+  w << data.m_addressModeV;
+  w << data.m_addressModeW;
+  w << data.m_textureFilter;
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_TextureLoader);

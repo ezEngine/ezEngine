@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAssetWindow.moc.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialAsset.h>
 #include <EditorPluginAssets/MaterialAsset/MaterialViewWidget.moc.h>
@@ -224,7 +224,7 @@ void ezQtMaterialAssetDocumentWindow::UpdatePreview()
   AssetHeader.SetFileHashAndVersion(uiHash, GetMaterialDocument()->GetAssetTypeVersion());
   AssetHeader.Write(memoryWriter);
   // Write Asset Data
-  GetMaterialDocument()->WriteMaterialAsset(memoryWriter, "PC");
+  GetMaterialDocument()->WriteMaterialAsset(memoryWriter, "PC", false);
   msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize());
 
   GetEditorEngineConnection()->SendMessage(&msg);

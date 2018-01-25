@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Image/Image.h>
 #include <Foundation/Math/Size.h>
@@ -31,7 +31,12 @@ public:
   /// If the target location leaves not enough room for the source image to be copied, bad stuff will happen.
   static void Copy(ezImage& dst, ezUInt32 uiPosX, ezUInt32 uiPosY, const ezImage& src, ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0);
 
-
+  /// \brief Scales an image down, allows arbitrary size changes. Slower than e.g. ScaleDownHalf()
   static void ScaleDownArbitrary(const ezImage& src, ezUInt32 uiNewWidth, ezUInt32 uiNewHeight, ezImage& out_Result);
+
+  /// \brief Copies the lower uiNumMips data of a 2D image into another one.
+  ///
+  /// Does not support 3D, cubemap or array textures.
+  static ezResult ExtractLowerMipChain(const ezImage& src, ezImage& dst, ezUInt8 uiNumMips);
 };
 

@@ -34,7 +34,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetProperties, 4, ezRTTIDefaultAlloc
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocument, 3, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocument, 4, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezUuid ezMaterialAssetDocument::s_LitBaseMaterial;
@@ -327,7 +327,7 @@ ezString ezMaterialAssetProperties::ResolveRelativeShaderPath() const
     if (pAsset)
     {
       EZ_ASSERT_DEV(pAsset->m_pAssetInfo->m_pManager == m_pDocument->GetDocumentManager(),
-                    "Referenced shader via guid by this material is not of type material asset (ezMaterialShaderMode::Custom).");
+        "Referenced shader via guid by this material is not of type material asset (ezMaterialShaderMode::Custom).");
       ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(pAsset->m_pAssetInfo->m_sAbsolutePath);
       ezStringBuilder sResult = pAsset->m_pAssetInfo->m_pManager->GetRelativeOutputFileName(sProjectDir, pAsset->m_pAssetInfo->m_sAbsolutePath, ezMaterialAssetDocumentManager::s_szShaderOutputTag);
       sResult.Prepend("AssetCache/");
@@ -705,7 +705,7 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 {
   EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szOutputTag), "Additional output '{0}' not implemented!", szOutputTag);
 
-  return WriteMaterialAsset(stream, szPlatform);
+  return WriteMaterialAsset(stream, szPlatform, true);
 }
 
 ezStatus ezMaterialAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader)
@@ -776,13 +776,15 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
   }
 }
 
-ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, const char* szPlatform) const
+ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, const char* szPlatform, bool bEmbedLowResData) const
 {
   const ezMaterialAssetProperties* pProp = GetProperties();
 
+  ezStringBuilder sValue;
+
   // now generate the .ezMaterialBin file
   {
-    const ezUInt8 uiVersion = 4;
+    const ezUInt8 uiVersion = 5;
 
     stream << uiVersion;
     stream << pProp->m_sBaseMaterial;
@@ -843,8 +845,6 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, con
 
       for (ezUInt32 p = 0; p < uiPermVars; ++p)
       {
-        ezString sValue;
-
         const char* szName = Permutation[p]->GetPropertyName();
         if (Permutation[p]->GetSpecificType()->GetVariantType() == ezVariantType::Bool)
         {
@@ -875,7 +875,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, con
       for (ezUInt32 p = 0; p < uiTextures; ++p)
       {
         const char* szName = Textures2D[p]->GetPropertyName();
-        ezString sValue = pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezString>();
+        sValue = pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezString>();
 
         stream << szName;
         stream << sValue;
@@ -890,7 +890,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, con
       for (ezUInt32 p = 0; p < uiTextures; ++p)
       {
         const char* szName = TexturesCube[p]->GetPropertyName();
-        ezString sValue = pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezString>();
+        sValue = pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezString>();
 
         stream << szName;
         stream << sValue;
@@ -910,6 +910,53 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream, con
         stream << szName;
         stream << value;
       }
+    }
+
+    // find and embed low res texture data
+    {
+      if (bEmbedLowResData)
+      {
+        ezStringBuilder sFilename, sResourceName;
+        ezDynamicArray<ezUInt32> content;
+
+        // embed 2D texture data
+        for (ezAbstractProperty* prop : Textures2D)
+        {
+          const char* szName = prop->GetPropertyName();
+          sValue = pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezString>();
+
+          if (sValue.IsEmpty())
+            continue;
+
+          sResourceName = sValue;
+
+          auto asset = ezAssetCurator::GetSingleton()->FindSubAsset(sValue);
+          if (!asset.isValid())
+            continue;
+
+          sValue = asset->m_pAssetInfo->m_pManager->GetAbsoluteOutputFileName(asset->m_pAssetInfo->m_sAbsolutePath, "", szPlatform);
+
+          sFilename = sValue.GetFileName();
+          sFilename.Append("-lowres");
+
+          sValue.ChangeFileName(sFilename);
+
+          ezFileReader file;
+          if (file.Open(sValue).Failed())
+            continue;
+
+          content.SetCountUninitialized(file.GetFileSize());
+
+          file.ReadBytes(content.GetData(), content.GetCount());
+
+          stream << sResourceName;
+          stream << content.GetCount();
+          stream.WriteBytes(content.GetData(), content.GetCount());
+        }
+      }
+
+      // marker: end of embedded data
+      stream << "";
     }
   }
 

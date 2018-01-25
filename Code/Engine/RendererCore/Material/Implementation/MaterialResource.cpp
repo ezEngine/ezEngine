@@ -7,6 +7,8 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlUtils.h>
+#include <Foundation/Image/Formats/DdsFileFormat.h>
+#include <RendererCore/Textures/TextureLoader.h>
 
 void ezMaterialResourceDescriptor::Clear()
 {
@@ -446,7 +448,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
     ezUInt8 uiVersion = 0;
     (*Stream) >> uiVersion;
-    EZ_ASSERT_DEV(uiVersion <= 4, "Unknown ezMaterialBin version {0}", uiVersion);
+    EZ_ASSERT_DEV(uiVersion <= 5, "Unknown ezMaterialBin version {0}", uiVersion);
 
     // Base material
     {
@@ -495,6 +497,50 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
       }
     }
 
+    // Fallback low res texture
+    //ezMemoryStreamStorage storage;
+    //ezImage img;
+    //{
+    //  const ezColorGammaUB color = ezColor::RebeccaPurple;
+
+    //  img.SetWidth(4);
+    //  img.SetHeight(4);
+    //  img.SetDepth(1);
+    //  img.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM_SRGB);
+    //  img.SetNumMipLevels(1);
+    //  img.SetNumFaces(1);
+    //  img.AllocateImageData();
+    //  ezUInt8* pPixels = img.GetPixelPointer<ezUInt8>();
+
+    //  for (ezUInt32 px = 0; px < 4 * 4 * 4; px += 4)
+    //  {
+    //    pPixels[px + 0] = color.r;
+    //    pPixels[px + 1] = color.g;
+    //    pPixels[px + 2] = color.b;
+    //    pPixels[px + 3] = color.a;
+    //  }
+
+    //  ezMemoryStreamWriter w(&storage);
+
+    //  ezImage* pImage = &img;
+    //  w.WriteBytes(&pImage, sizeof(ezImage*));
+
+    //  bool bSRGB = true;
+    //  bool bIsFallback = true;
+
+    //  ezEnum<ezGALTextureAddressMode> addressModeU = ezGALTextureAddressMode::Wrap;
+    //  ezEnum<ezGALTextureAddressMode> addressModeV = ezGALTextureAddressMode::Wrap;
+    //  ezEnum<ezGALTextureAddressMode> addressModeW = ezGALTextureAddressMode::Wrap;
+    //  ezEnum<ezTextureFilterSetting> textureFilter = ezTextureFilterSetting::Default;
+
+    //  w << bIsFallback;
+    //  w << bSRGB;
+    //  w << addressModeU;
+    //  w << addressModeV;
+    //  w << addressModeW;
+    //  w << textureFilter;
+    //}
+
     // 2D Textures
     {
       ezUInt16 uiTextures = 0;
@@ -510,9 +556,13 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
         if (sTemp.IsEmpty() || sTemp2.IsEmpty())
           continue;
 
+        //ezMemoryStreamReader fallbackTextureStream(&storage);
+
         ezMaterialResourceDescriptor::Texture2DBinding& tc = m_Desc.m_Texture2DBindings.ExpandAndGetRef();
         tc.m_Name.Assign(sTemp.GetData());
         tc.m_Value = ezResourceManager::LoadResource<ezTexture2DResource>(sTemp2, ezResourcePriority::Lowest, ezTexture2DResourceHandle());
+
+        //ezResourceManager::SetResourceLowResData(tc.m_Value, &fallbackTextureStream);
       }
     }
 
@@ -562,6 +612,37 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
         ezMaterialResourceDescriptor::Parameter& tc = m_Desc.m_Parameters.ExpandAndGetRef();
         tc.m_Name.Assign(sTemp.GetData());
         tc.m_Value = vTemp;
+      }
+    }
+
+    if (uiVersion >= 5)
+    {
+      auto& s = *Stream;
+
+      ezStringBuilder sResourceName;
+
+      s >> sResourceName;
+
+      ezTextureResourceLoader::LoadedData embedded;
+
+      while (!sResourceName.IsEmpty())
+      {
+        ezUInt32 dataSize = 0;
+        s >> dataSize;
+
+        ezTextureResourceLoader::LoadTexFile(s, embedded);
+        embedded.m_bIsFallback = true;
+
+        ezMemoryStreamStorage storage;
+        ezMemoryStreamWriter loadStreamWriter(&storage);
+        ezTextureResourceLoader::WriteTextureLoadStream(loadStreamWriter, embedded);
+
+        ezMemoryStreamReader loadStreamReader(&storage);
+
+        ezTexture2DResourceHandle hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sResourceName);
+        ezResourceManager::SetResourceLowResData(hTexture, &loadStreamReader);
+
+        s >> sResourceName;
       }
     }
   }
@@ -692,13 +773,13 @@ void ezMaterialResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezMaterialResource) +
     (ezUInt32)(m_Desc.m_PermutationVars.GetHeapMemoryUsage() +
-               m_Desc.m_Parameters.GetHeapMemoryUsage() +
-               m_Desc.m_Texture2DBindings.GetHeapMemoryUsage() +
-               m_Desc.m_TextureCubeBindings.GetHeapMemoryUsage() +
-               m_OriginalDesc.m_PermutationVars.GetHeapMemoryUsage() +
-               m_OriginalDesc.m_Parameters.GetHeapMemoryUsage() +
-               m_OriginalDesc.m_Texture2DBindings.GetHeapMemoryUsage() +
-               m_OriginalDesc.m_TextureCubeBindings.GetHeapMemoryUsage());
+      m_Desc.m_Parameters.GetHeapMemoryUsage() +
+      m_Desc.m_Texture2DBindings.GetHeapMemoryUsage() +
+      m_Desc.m_TextureCubeBindings.GetHeapMemoryUsage() +
+      m_OriginalDesc.m_PermutationVars.GetHeapMemoryUsage() +
+      m_OriginalDesc.m_Parameters.GetHeapMemoryUsage() +
+      m_OriginalDesc.m_Texture2DBindings.GetHeapMemoryUsage() +
+      m_OriginalDesc.m_TextureCubeBindings.GetHeapMemoryUsage());
 
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 

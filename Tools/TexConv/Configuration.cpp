@@ -1,4 +1,4 @@
-﻿#include "Main.h"
+#include "Main.h"
 
 #ifdef EZ_PLATFORM_WINDOWS
 #include <d3d11.h>
@@ -394,6 +394,12 @@ void ezTexConv::ParseCommandLine()
     m_sThumbnailFile = pCmd->GetStringOption("-thumbnail");
   }
 
+  // Low res version
+  {
+    m_sOutputLowRes = pCmd->GetStringOption("-outLowRes");
+    m_uiLowResMipmaps = (ezUInt8)ezMath::Clamp(pCmd->GetIntOption("-lowMips", m_uiLowResMipmaps), 1, 10);
+  }
+
   // input to output mappings
   {
     tmp = pCmd->GetStringOption("-rgba");
@@ -535,5 +541,6 @@ void ezTexConv::PrintConfig()
     }
   }
 
+  ezLog::Info("Low-res output: '{0}' - {1} mips", m_sOutputLowRes.IsEmpty() ? "<none>" : m_sOutputLowRes.GetData(), m_uiLowResMipmaps);
 
 }

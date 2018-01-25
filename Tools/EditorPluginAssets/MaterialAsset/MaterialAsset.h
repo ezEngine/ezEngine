@@ -95,7 +95,7 @@ public:
 
   void SetBaseMaterial(const char* szBaseMaterial);
 
-  ezStatus WriteMaterialAsset(ezStreamWriter& stream, const char* szPlatform) const;
+  ezStatus WriteMaterialAsset(ezStreamWriter& stream, const char* szPlatform, bool bEmbedLowResData) const;
 
   /// \brief Will make sure that the visual shader is rebuilt.
   /// Typically called during asset transformation, but can be triggered manually to enforce getting visual shader node changes in.

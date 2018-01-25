@@ -1,4 +1,5 @@
-﻿#include "Main.h"
+#include "Main.h"
+#include <Foundation\IO\MemoryStream.h>
 
 ezResult ezTexConv::PassImageThrough()
 {
@@ -135,6 +136,21 @@ ezResult ezTexConv::SaveResultToDDS(ezStreamWriter& stream)
   WriteTexHeader(stream);
 
   stream.WriteBytes(outputBlob.GetBufferPointer(), outputBlob.GetBufferSize());
+
+  ezRawMemoryStreamReader rawData(outputBlob.GetBufferPointer(), (ezUInt32) outputBlob.GetBufferSize());
+
+  if (!m_sOutputLowRes.IsEmpty())
+  {
+    ezImage img;
+
+    ezDdsFileFormat dds;
+    if (dds.ReadImage(rawData, img, nullptr).Failed() || SaveLowResImage(img).Failed())
+    {
+      SetReturnCode(TexConvReturnCodes::FAILED_SAVE_AS_DDS);
+      ezLog::Error("Failed to write image to file '{0}'", m_sOutputFile);
+      return EZ_FAILURE;
+    }
+  }
 
   return EZ_SUCCESS;
 }

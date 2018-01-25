@@ -529,8 +529,10 @@ ezResourceLoadData CustomTextureResourceLoader::OpenDataStream(const ezResourceB
 
   const ezStringBuilder sName = ezPathUtils::GetFileName(sFileToLoad);
 
+  bool bIsFallback = false;
   bool bSRGB = (sName.EndsWith_NoCase("_D") || sName.EndsWith_NoCase("_SRGB") || sName.EndsWith_NoCase("_diff"));
 
+  w << bIsFallback;
   w << bSRGB;
 
   res.m_pDataStream = &pData->m_Reader;

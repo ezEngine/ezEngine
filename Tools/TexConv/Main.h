@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
@@ -49,6 +49,7 @@ enum TexConvReturnCodes
   FAILED_INITIALIZE_CUBEMAP,
   FAILED_COMBINE_CUBEMAP,
   FAILED_PREMULTIPLY_ALPHA,
+  FAILED_WRITE_LOWRES,
 };
 
 class ezTexConv : public ezApplication
@@ -119,6 +120,9 @@ public:
   shared_ptr<ScratchImage> m_pCurrentImage;
   ID3D11Device* m_pD3dDevice = nullptr;
 
+  ezString m_sOutputLowRes;
+  ezUInt8 m_uiLowResMipmaps = 6;
+
   ChannelMapping m_2dSource[4];
 
   ezTexConv();
@@ -162,6 +166,7 @@ public:
   ezResult ConvertToOutputFormat();
   ezResult SaveResultToDDS(ezStreamWriter& stream);
   ezResult SaveThumbnail();
+  ezResult SaveLowResImage(const ezImage& img);
 
   ezResult CreateDecalAtlas();
 

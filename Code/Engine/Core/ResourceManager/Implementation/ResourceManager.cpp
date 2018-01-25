@@ -1003,7 +1003,6 @@ bool ezResourceManager::FinishLoadingOfResources()
   }
 }
 
-
 void ezResourceManager::ClearAllResourceFallbacks()
 {
   ezResourceManagerEvent e;
@@ -1043,6 +1042,54 @@ bool ezResourceManager::HelpResourceLoading()
   }
 
   return false;
+}
+
+void ezResourceManager::SetResourceLowResData(const ezTypelessResourceHandle& hResource, ezStreamReader* pStream)
+{
+  ezResourceBase* pResource = hResource.m_pResource;
+
+  if (pResource->GetBaseResourceFlags().IsSet(ezResourceFlags::HasLowResData))
+    return;
+
+  if (!pResource->GetBaseResourceFlags().IsSet(ezResourceFlags::IsReloadable))
+    return;
+
+  EZ_LOCK(s_ResourceMutex);
+
+  // set this, even if we don't end up using the data (because some thread is already loading the full thing)
+  pResource->m_Flags.Add(ezResourceFlags::HasLowResData);
+
+  if (pResource->GetBaseResourceFlags().IsSet(ezResourceFlags::IsPreloading))
+  {
+    LoadingInfo li;
+    li.m_pResource = pResource;
+
+    if (!m_RequireLoading.Remove(li))
+    {
+      // if we cannot find it in the queue anymore, some thread already started loading it
+      // in this case, do not try to modify it
+      return;
+    }
+
+    pResource->m_Flags.Remove(ezResourceFlags::IsPreloading);
+  }
+
+  pResource->CallUpdateContent(pStream);
+
+  EZ_ASSERT_DEV(pResource->GetLoadingState() != ezResourceState::Unloaded, "The resource should have changed its loading state.");
+
+  // Update Memory Usage
+  {
+    ezResourceBase::MemoryUsage MemUsage;
+    MemUsage.m_uiMemoryCPU = 0xFFFFFFFF;
+    MemUsage.m_uiMemoryGPU = 0xFFFFFFFF;
+    pResource->UpdateMemoryUsage(MemUsage);
+
+    EZ_ASSERT_DEV(MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its CPU memory usage", pResource->GetResourceID());
+    EZ_ASSERT_DEV(MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its GPU memory usage", pResource->GetResourceID());
+
+    pResource->m_MemoryUsage = MemUsage;
+  }
 }
 
 EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_ResourceManager);

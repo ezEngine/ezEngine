@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <Foundation/Image/Formats/DdsFileFormat.h>
@@ -70,6 +70,9 @@ ezResourceLoadDesc ezTextureCubeResource::UpdateContent(ezStreamReader* Stream)
 
   ezImage* pImage = nullptr;
   Stream->ReadBytes(&pImage, sizeof(ezImage*));
+
+  bool bIsFallback = false;
+  *Stream >> bIsFallback;
 
   bool bSRGB = false;
   *Stream >> bSRGB;

@@ -14,7 +14,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocument, 4, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocument, 5, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureChannelMode, 1)
@@ -68,6 +68,17 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
 
     arguments << "-thumbnail";
     arguments << QString::fromUtf8(sThumbnail.GetData());
+  }
+
+  // low resolution data
+  {
+    ezStringBuilder lowResPath = szTargetFile;
+    ezStringBuilder name = lowResPath.GetFileName();
+    name.Append("-lowres");
+    lowResPath.ChangeFileName(name);
+
+    arguments << "-outLowRes";
+    arguments << QString::fromUtf8(lowResPath.GetData());
   }
 
   arguments << "-channels";

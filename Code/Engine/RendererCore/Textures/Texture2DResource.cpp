@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <Foundation/Image/Formats/DdsFileFormat.h>
@@ -131,6 +131,9 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
   ezImage* pImage = nullptr;
   Stream->ReadBytes(&pImage, sizeof(ezImage*));
 
+  bool bIsFallback = false;
+  *Stream >> bIsFallback;
+
   bool bSRGB = false;
   *Stream >> bSRGB;
 
@@ -149,7 +152,7 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
   td.m_SamplerDesc.m_AddressV = addressModeV;
   td.m_SamplerDesc.m_AddressW = addressModeW;
 
-  const ezUInt32 uiNumMipmapsLowRes = ezTextureUtils::s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : 6;
+  const ezUInt32 uiNumMipmapsLowRes = ezTextureUtils::s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : ezMath::Min(pImage->GetNumMipLevels(), 6U);
   const ezUInt32 uiNumMipLevels = ezMath::Min(m_uiLoadedTextures == 0 ? uiNumMipmapsLowRes : pImage->GetNumMipLevels(), pImage->GetNumMipLevels());
     
   ezHybridArray<ezGALSystemMemoryDescription, 32> initData;
@@ -165,7 +168,7 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
     res.m_uiQualityLevelsDiscardable = m_uiLoadedTextures;
 
     const ezUInt32 uiHighestMipLevel = pImage->GetNumMipLevels() - uiNumMipLevels;
-    if (uiHighestMipLevel == 0)
+    if (uiHighestMipLevel == 0 && !bIsFallback)
       res.m_uiQualityLevelsLoadable = 0;
     else
       res.m_uiQualityLevelsLoadable = 1;

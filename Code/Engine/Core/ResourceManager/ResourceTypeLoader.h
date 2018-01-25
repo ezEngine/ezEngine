@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Core/ResourceManager/Implementation/Declarations.h>
 #include <Foundation/IO/Stream.h>
@@ -68,7 +68,7 @@ public:
 ///
 /// Use like this:
 /// Allocate a ezResourceLoaderFromMemory instance on the heap, using EZ_DEFAULT_NEW and store the result in a ezUniquePtr<ezResourceTypeLoader>.
-/// Then set the description, the modification time (simply use ezTimestamp::CurrentTimestamp()), and the custom date.
+/// Then set the description, the modification time (simply use ezTimestamp::CurrentTimestamp()), and the custom data.
 /// Use a ezMemoryStreamWriter to write your custom data. Make sure to write EXACTLY the same format that the targeted resource type would read, including all data
 /// that would typically be written by outside code, e.g. the default ezResourceLoaderFromFile additionally writes the path to the resource at the start of the stream.
 /// If such data is usually present in the stream, you must write this yourself.
