@@ -38,6 +38,22 @@ const char* ezMeshComponent_SetMaterialMsg::GetMaterialFile() const
   return m_hMaterial.GetResourceID();
 }
 
+void ezMeshComponent_SetMaterialMsg::Serialize(ezStreamWriter& stream) const
+{
+  // has to be stringyfied for transfer
+  stream << GetMaterialFile();
+  stream << m_uiMaterialSlot;
+}
+
+void ezMeshComponent_SetMaterialMsg::Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVersion)
+{
+  ezStringBuilder file;
+  stream >> file;
+  SetMaterialFile(file);
+
+  stream >> m_uiMaterialSlot;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderData, 1, ezRTTINoAllocator)
