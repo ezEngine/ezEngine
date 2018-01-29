@@ -27,6 +27,12 @@ private:
   void AddComponent(ezProceduralPlacementComponent* pComponent);
   void RemoveComponent(ezProceduralPlacementComponent* pComponent);
 
+  ezUInt32 AllocateTile(const ezPPInternal::TileDesc& desc, ezSharedPtr<const ezPPInternal::Layer>& pLayer);
+  void DeallocateTile(ezUInt32 uiTileIndex);
+
+  void RemoveTilesForResource(ezUInt32 uiResourceIdHash);
+  void OnResourceEvent(const ezResourceEvent& resourceEvent);
+
   void AddVisibleResource(const ezProceduralPlacementResourceHandle& hResource, const ezVec3& cameraPosition, const ezVec3& cameraDirection) const;
   void ClearVisibleResources();
 
@@ -40,9 +46,11 @@ private:
   mutable ezMutex m_VisibleResourcesMutex;
   mutable ezDynamicArray<VisibleResource> m_VisibleResources;
 
+  ezDynamicArray<ezProceduralPlacementResourceHandle> m_ResourcesToUpdate;
+
   struct ActiveLayer
   {
-    const ezPPInternal::Layer* m_pLayer;
+    ezSharedPtr<const ezPPInternal::Layer> m_pLayer;
 
     ezHashTable<ezUInt64, ezUInt32> m_TileIndices;
   };

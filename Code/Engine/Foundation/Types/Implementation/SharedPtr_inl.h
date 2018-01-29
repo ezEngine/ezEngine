@@ -282,7 +282,8 @@ EZ_ALWAYS_INLINE void ezSharedPtr<T>::ReleaseReferenceIfValid()
   {
     if (m_pInstance->ReleaseRef() == 0)
     {
-      EZ_DELETE(m_pAllocator, m_pInstance);
+      auto pNonConstInstance = const_cast<ezTypeTraits<T>::NonConstType*>(m_pInstance);
+      EZ_DELETE(m_pAllocator, pNonConstInstance);
     }
 
     m_pInstance = nullptr;

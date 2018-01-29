@@ -13,6 +13,7 @@
 
 #include <Foundation/SimdMath/SimdTransform.h>
 #include <Foundation/Strings/HashedString.h>
+#include <Foundation/Types/SharedPtr.h>
 
 namespace ezPPInternal
 {
@@ -31,7 +32,7 @@ namespace ezPPInternal
     float m_fSize;
   };
 
-  struct Layer
+  struct Layer : public ezRefCounted
   {
     Layer()
     {

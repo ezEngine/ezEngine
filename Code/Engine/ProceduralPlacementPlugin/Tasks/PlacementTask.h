@@ -19,7 +19,7 @@ namespace ezPPInternal
 
     virtual void Execute() override;
 
-    const Layer* m_pLayer;
+    ezSharedPtr<const Layer> m_pLayer;
 
     ezDynamicArray<PlacementPoint, ezAlignedAllocatorWrapper> m_InputPoints;
     ezDynamicArray<PlacementTransform, ezAlignedAllocatorWrapper> m_OutputTransforms;

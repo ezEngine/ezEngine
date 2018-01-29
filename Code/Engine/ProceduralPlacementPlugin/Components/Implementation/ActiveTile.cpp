@@ -1,6 +1,8 @@
 #include <PCH.h>
 #include <ProceduralPlacementPlugin/Components/Implementation/ActiveTile.h>
+#include <GameEngine/Components/PrefabReferenceComponent.h>
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <Core/World/World.h>
 #include <Foundation/SimdMath/SimdConversion.h>
 
 using namespace ezPPInternal;
@@ -20,14 +22,17 @@ ActiveTile::ActiveTile(ActiveTile&& other)
   m_pPlacementTask = std::move(other.m_pPlacementTask);
 
   m_State = other.m_State;
+  other.m_State = State::Invalid;
+
+  m_PlacedObjects = std::move(other.m_PlacedObjects);
 }
 
 ActiveTile::~ActiveTile()
 {
-  Deinitialize();
+  EZ_ASSERT_DEV(m_State == State::Invalid, "Implementation error");
 }
 
-void ActiveTile::Initialize(const TileDesc& desc, const Layer* pLayer)
+void ActiveTile::Initialize(const TileDesc& desc, ezSharedPtr<const Layer>& pLayer)
 {
   m_Desc = desc;
   m_pLayer = pLayer;
@@ -44,12 +49,18 @@ void ActiveTile::Initialize(const TileDesc& desc, const Layer* pLayer)
   m_State = State::Initialized;
 }
 
-void ActiveTile::Deinitialize()
+void ActiveTile::Deinitialize(ezWorld& world)
 {
   if (m_State == State::Scheduled)
   {
     ezTaskSystem::WaitForGroup(m_TaskGroupId);
   }
+
+  for (auto hObject : m_PlacedObjects)
+  {
+    world.DeleteObjectDelayed(hObject);
+  }
+  m_PlacedObjects.Clear();
 
   m_Desc.m_uiResourceIdHash = 0;
   m_pLayer = nullptr;
@@ -78,11 +89,6 @@ ezBoundingBox ActiveTile::GetBoundingBox() const
   ezVec3 vMax = (vMin.GetAsVec2() + ezVec2(fTileSize)).GetAsVec3(m_Desc.m_fMaxZ);
 
   return ezBoundingBox(vMin, vMax);
-}
-
-ezArrayPtr<const PlacementTransform> ActiveTile::GetObjectTransforms() const
-{
-  return m_pPlacementTask->GetOutputTransforms();
 }
 
 ezColor ActiveTile::GetDebugColor() const
@@ -167,4 +173,33 @@ void ActiveTile::Update(ezPhysicsWorldModuleInterface* pPhysicsModule)
 bool ActiveTile::IsFinished() const
 {
   return m_State == State::Finished;
+}
+
+ezUInt32 ezPPInternal::ActiveTile::PlaceObjects(ezWorld& world)
+{
+  ezGameObjectDesc desc;
+  auto& objectsToPlace = m_pLayer->m_ObjectsToPlace;
+
+  auto objectTransforms = m_pPlacementTask->GetOutputTransforms();
+  for (auto& objectTransform : objectTransforms)
+  {
+    desc.m_LocalPosition = ezSimdConversion::ToVec3(objectTransform.m_Transform.m_Position);
+    desc.m_LocalRotation = ezSimdConversion::ToQuat(objectTransform.m_Transform.m_Rotation);
+    desc.m_LocalScaling = ezSimdConversion::ToVec3(objectTransform.m_Transform.m_Scale);
+
+    ezGameObject* pObject = nullptr;
+    ezGameObjectHandle hObject = world.CreateObject(desc, pObject);
+
+    //pObject->GetTags().Set(tag);
+
+    ezPrefabReferenceComponent* pPrefabReferenceComponent = nullptr;
+    ezPrefabReferenceComponent::CreateComponent(pObject, pPrefabReferenceComponent);
+
+    auto& objectToPlace = objectsToPlace[objectTransform.m_uiObjectIndex];
+    pPrefabReferenceComponent->SetPrefabFile(objectToPlace);
+
+    m_PlacedObjects.PushBack(hObject);
+  }
+
+  return m_PlacedObjects.GetCount();
 }

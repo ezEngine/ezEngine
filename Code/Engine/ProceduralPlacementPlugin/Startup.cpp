@@ -1,8 +1,7 @@
 #include <PCH.h>
-#include <ProceduralPlacementPlugin/Basics.h>
+#include <ProceduralPlacementPlugin/Resources/ProceduralPlacementResource.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Configuration/Plugin.h>
-#include <Core/ResourceManager/ResourceManager.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(ProceduralPlacement, ProceduralPlacementPlugin)
 
@@ -13,16 +12,16 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(ProceduralPlacement, ProceduralPlacementPlugin)
 
   ON_CORE_STARTUP
   {
-    /*ezResourceManager::RegisterResourceForAssetType("Particle Effect", ezGetStaticRTTI<ezParticleEffectResource>());
+    ezResourceManager::RegisterResourceForAssetType("Procedural Placement", ezGetStaticRTTI<ezProceduralPlacementResource>());
 
-    ezParticleEffectResourceDescriptor desc;
-    ezParticleEffectResourceHandle hEffect = ezResourceManager::CreateResource<ezParticleEffectResource>("ParticleEffectMissing", desc, "Fallback for missing Particle Effects");
-    ezParticleEffectResource::SetTypeMissingResource(hEffect);*/
+    ezProceduralPlacementResourceDescriptor desc;
+    ezProceduralPlacementResourceHandle hResource = ezResourceManager::CreateResource<ezProceduralPlacementResource>("ProceduralPlacementMissing", desc, "Fallback for missing Procedural Placement Resource");
+    ezProceduralPlacementResource::SetTypeMissingResource(hResource);
   }
 
   ON_CORE_SHUTDOWN
   {
-    //ezParticleEffectResource::CleanupDynamicPluginReferences();
+    ezProceduralPlacementResource::CleanupDynamicPluginReferences();
   }
 
   ON_ENGINE_STARTUP

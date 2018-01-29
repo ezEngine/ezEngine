@@ -29,7 +29,7 @@ public:
   ///
   /// If pOverrideTeamID is not null, every instantiated game object will get it passed in as its new value.
   /// This can be used to identify that the object belongs to a specific player or team.
-  void InstantiateWorld(ezWorld& world, const ezUInt16* pOverrideTeamID);
+  void InstantiateWorld(ezWorld& world, const ezUInt16* pOverrideTeamID = nullptr);
 
   /// \brief Creates one instance of the world that was previously read by ReadWorldDescription().
   ///

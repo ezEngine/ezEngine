@@ -18,7 +18,7 @@ public:
   ezProceduralPlacementResource();
   ~ezProceduralPlacementResource();
 
-  ezArrayPtr<const ezPPInternal::Layer> GetLayers() const;
+  const ezDynamicArray<ezSharedPtr<const ezPPInternal::Layer>>& GetLayers() const;
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
@@ -28,6 +28,6 @@ private:
 
 private:
 
-  ezDynamicArray<ezPPInternal::Layer> m_Layers;
+  ezDynamicArray<ezSharedPtr<const ezPPInternal::Layer>> m_Layers;
 };
 

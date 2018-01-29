@@ -24,13 +24,13 @@ public:
   }
 
   /// \brief Increments the reference counter. Returns the new reference count.
-  inline ezInt32 AddRef() // [tested]
+  inline ezInt32 AddRef() const // [tested]
   {
     return ezAtomicUtils::Increment(m_iRefCount);
   }
 
   /// \brief Decrements the reference counter. Returns the new reference count.
-  inline ezInt32 ReleaseRef() // [tested]
+  inline ezInt32 ReleaseRef() const // [tested]
   {
     return ezAtomicUtils::Decrement(m_iRefCount);
   }
@@ -49,7 +49,7 @@ public:
 
 private:
 
-  ezInt32 m_iRefCount; ///< Stores the current reference count
+  mutable ezInt32 m_iRefCount; ///< Stores the current reference count
 };
 
 /// \brief Stores a pointer to a reference counted object and automatically increases / decreases the reference count.
@@ -57,7 +57,7 @@ private:
 /// Note that no automatic deletion etc. happens, this is just to have shared base functionality for reference
 /// counted objects. The actual action which, should happen once an object is no longer referenced, obliges
 /// to the system that is using the objects.
-template <typename T> 
+template <typename T>
 class ezScopedRefPointer
 {
 public:

@@ -83,10 +83,10 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
   ezUInt32 uiStartIndex = 0;
   while (uiStartIndex < batch.GetCount())
   {
-    const ezUInt32 uiCount = batch.GetCount() - uiStartIndex;
+    const ezUInt32 uiRemainingInstances = batch.GetCount() - uiStartIndex;
 
     ezUInt32 uiInstanceDataOffset = 0;
-    ezArrayPtr<ezPerInstanceData> instanceData = pInstanceData->GetInstanceData(uiCount, uiInstanceDataOffset);
+    ezArrayPtr<ezPerInstanceData> instanceData = pInstanceData->GetInstanceData(uiRemainingInstances, uiInstanceDataOffset);
 
     ezUInt32 uiFilteredCount = 0;
     FillPerInstanceData(instanceData, batch, uiStartIndex, uiFilteredCount);
@@ -103,7 +103,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
 
       if (pContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive, uiRenderedInstances).Failed())
       {
-        for (auto it = batch.GetIterator<ezMeshRenderData>(uiStartIndex, uiCount); it.IsValid(); ++it)
+        for (auto it = batch.GetIterator<ezMeshRenderData>(uiStartIndex, instanceData.GetCount()); it.IsValid(); ++it)
         {
           pRenderData = it;
 
@@ -116,7 +116,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
       }
     }
 
-    uiStartIndex += uiCount;
+    uiStartIndex += instanceData.GetCount();
   }
 }
 
@@ -131,7 +131,7 @@ void ezMeshRenderer::FillPerInstanceData(ezArrayPtr<ezPerInstanceData> instanceD
 
     ezMat4 objectToWorld = pRenderData->m_GlobalTransform.GetAsMat4();
 
-    auto& perInstanceData = instanceData[uiStartIndex + uiCurrentIndex];
+    auto& perInstanceData = instanceData[uiCurrentIndex];
     perInstanceData.ObjectToWorld = objectToWorld;
 
     if (pRenderData->m_uiUniformScale)
