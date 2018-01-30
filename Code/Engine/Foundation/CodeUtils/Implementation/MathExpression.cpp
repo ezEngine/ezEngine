@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/CodeUtils/MathExpression.h>
 #include <Foundation/CodeUtils/Tokenizer.h>
 #include <Foundation/CodeUtils/TokenParseUtils.h>
@@ -27,6 +27,10 @@ void ezMathExpression::Reset(const char* szExpressionString)
   m_OriginalExpression = szExpressionString;
   m_InstructionStream.Clear();
   m_Constants.Clear();
+  m_bIsValid = false;
+
+  if (ezStringUtils::IsNullOrEmpty(szExpressionString))
+    return;
 
   ezTokenizer tokenizer;
   tokenizer.Tokenize(ezMakeArrayPtr<ezUInt8>(const_cast<ezUInt8*>(reinterpret_cast<const ezUInt8*>(m_OriginalExpression.GetData())), m_OriginalExpression.GetElementCount()), m_pLog);
@@ -52,7 +56,7 @@ double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>&
 {
   static const double errorOutput = ezMath::BasicType<double>::GetNaN();
 
-  if (!IsValid())
+  if (!IsValid() || m_InstructionStream.IsEmpty())
   {
     ezLog::Error(m_pLog, "Can't evaluate invalid math expression '{0}'", m_OriginalExpression);
     return errorOutput;

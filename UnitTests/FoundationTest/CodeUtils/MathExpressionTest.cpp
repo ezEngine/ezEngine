@@ -14,6 +14,20 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, MathExpression)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Basics")
   {
     {
+      ezMathExpression expr("");
+      EZ_TEST_BOOL(!expr.IsValid());
+
+      expr.Reset("");
+      EZ_TEST_BOOL(!expr.IsValid());
+    }
+    {
+      ezMathExpression expr(nullptr, nullptr);
+      EZ_TEST_BOOL(!expr.IsValid());
+
+      expr.Reset(nullptr);
+      EZ_TEST_BOOL(!expr.IsValid());
+    }
+    {
       ezMathExpression expr("1 + 2");
       EZ_TEST_BOOL(expr.IsValid());
       EZ_TEST_DOUBLE(expr.Evaluate(), 3.0, 0.0);

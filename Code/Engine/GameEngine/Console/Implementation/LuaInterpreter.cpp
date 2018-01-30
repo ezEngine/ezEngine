@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/Console/LuaInterpreter.h>
 #include <Core/Scripting/LuaWrapper.h>
 
@@ -83,6 +83,8 @@ ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
     pConsole->AddConsoleString("");
     return EZ_SUCCESS;
   }
+
+  sCommand.Trim(" \t\n\r");
 
   ezStringView sCommandIt = sCommand;
 

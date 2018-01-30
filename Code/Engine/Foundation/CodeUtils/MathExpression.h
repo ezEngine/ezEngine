@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/CodeUtils/TokenParseUtils.h>
 #include <Foundation/Containers/DynamicArray.h>
@@ -26,16 +26,18 @@ public:
   /// \brief Creates a new invalid math expression.
   ///
   /// Need to call Reset before you can do anything with it.
-  ezMathExpression(ezLogInterface* pLog = nullptr);
+  explicit ezMathExpression(ezLogInterface* pLog = nullptr);
 
-  /// \brief Inits using a given expression.
+  /// \brief Initializes using a given expression.
   ///
   /// If anything goes wrong it is logged and the math expression is in an invalid state.
   /// \param log
   ///   If null, default log interface will be used.
   ezMathExpression(const char* szExpressionString, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem());  // [tested]
 
-  /// \brief Reinits using the given expression.
+  /// \brief Reinitializes using the given expression.
+  ///
+  /// An empty string or nullptr are considered to be 'invalid' expressions.
   void Reset(const char* szExpressionString);
 
   /// Whether the expression is valid and can be evaluated.

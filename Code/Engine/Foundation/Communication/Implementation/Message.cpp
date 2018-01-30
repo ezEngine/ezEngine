@@ -25,8 +25,7 @@ ezMessage* ezMessage::ReplicatePackedMessage(ezStreamReader& stream)
   ezUInt8 uiTypeVersion = 0;
   stream >> uiTypeVersion;
 
-  static ezHashTable<ezUInt32, const ezRTTI*> MessageTypes;
-
+  static ezHashTable<ezUInt32, const ezRTTI*, ezHashHelper<ezUInt32>, ezStaticAllocatorWrapper> MessageTypes;
 
   const ezRTTI* pRtti = nullptr;
   if (!MessageTypes.TryGetValue(uiTypeHash, pRtti))
