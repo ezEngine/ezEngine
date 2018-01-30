@@ -127,6 +127,8 @@ void ezGameState::CreateMainWindow()
   wndDesc.LoadFromDDL(sWndCfg);
   //wndDesc.SaveToDDL(":project/Window.ddl");
 
+  GetApplication()->AdjustWindowCreation(wndDesc);
+
   m_pMainWindow = EZ_DEFAULT_NEW(ezGameStateWindow, wndDesc, [this]() { RequestQuit(); });
   m_hMainSwapChain = GetApplication()->AddWindow(m_pMainWindow);
 }

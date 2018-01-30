@@ -15,6 +15,7 @@ class ezDefaultTimeStepSmoothing;
 class ezConsole;
 struct ezWorldDesc;
 class ezImage;
+struct ezWindowCreationDesc;
 
 /// Allows custom code to inject logic at specific update points.
 /// The events are listed in the order in which they typically happen.
@@ -96,6 +97,10 @@ public:
 
   /// \brief Removes a previously added window. Destroys its swapchain. Should be called at application shutdown.
   void RemoveWindow(ezWindowBase* pWindow);
+
+  /// \brief Can be called by code that creates windows (e.g. a gamestate) to adjust or override settings, such as the window title.
+  virtual void AdjustWindowCreation(ezWindowCreationDesc& desc) {}
+
 
   /// \brief Returns the swapchain for the given window. The window must have been added via AddWindow()
   ezGALSwapChainHandle GetSwapChain(const ezWindowBase* pWindow) const;
