@@ -3,21 +3,15 @@
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <Foundation/IO/MemoryStream.h>
 
-void ezWorldWriter::Write(ezStreamWriter& stream, ezWorld& world, const ezTagSet* pExclude)
+void ezWorldWriter::Clear()
 {
-  m_pStream = &stream;
-  m_pWorld = &world;
-  m_pExclude = pExclude;
-
-  EZ_LOCK(m_pWorld->GetReadMarker());
-
-  const ezUInt8 uiVersion = 6;
-  stream << uiVersion;
-
   m_AllRootObjects.Clear();
   m_AllChildObjects.Clear();
   m_AllComponents.Clear();
   m_uiNumComponents = 0;
+
+  m_pStream = nullptr;
+  m_pExclude = nullptr;
 
   // invalid handles
   {
@@ -27,8 +21,58 @@ void ezWorldWriter::Write(ezStreamWriter& stream, ezWorld& world, const ezTagSet
     m_WrittenGameObjectHandles[ezGameObjectHandle()] = 0;
     m_WrittenComponentHandles[ezComponentHandle()] = 0;
   }
+}
 
-  m_pWorld->Traverse(ezMakeDelegate(&ezWorldWriter::ObjectTraverser, this), ezWorld::TraversalMethod::DepthFirst);
+void ezWorldWriter::WriteWorld(ezStreamWriter& stream, ezWorld& world, const ezTagSet* pExclude)
+{
+  Clear();
+
+  m_pStream = &stream;
+  m_pExclude = pExclude;
+
+  EZ_LOCK(world.GetReadMarker());
+
+  world.Traverse(ezMakeDelegate(&ezWorldWriter::ObjectTraverser, this), ezWorld::TraversalMethod::DepthFirst);
+
+  WriteToStream();
+}
+
+void ezWorldWriter::WriteObjects(ezStreamWriter& stream, const ezDeque<const ezGameObject*>& rootObjects)
+{
+  Clear();
+
+  m_pStream = &stream;
+
+  for (const ezGameObject* pObject : rootObjects)
+  {
+    // traversal function takes a non-const object, but we only read it anyway
+    Traverse(const_cast<ezGameObject*>(pObject));
+  }
+
+  WriteToStream();
+}
+
+void ezWorldWriter::WriteObjects(ezStreamWriter& stream, ezArrayPtr<const ezGameObject*> rootObjects)
+{
+  Clear();
+
+  m_pStream = &stream;
+
+  for (const ezGameObject* pObject : rootObjects)
+  {
+    // traversal function takes a non-const object, but we only read it anyway
+    Traverse(const_cast<ezGameObject*>(pObject));
+  }
+
+  WriteToStream();
+}
+
+void ezWorldWriter::WriteToStream()
+{
+  auto& stream = *m_pStream;
+
+  const ezUInt8 uiVersion = 6;
+  stream << uiVersion;
 
   IncludeAllComponentBaseTypes();
 
@@ -129,6 +173,18 @@ void ezWorldWriter::IncludeAllComponentBaseTypes(const ezRTTI* pRtti)
   m_AllComponents[pRtti];
 
   IncludeAllComponentBaseTypes(pRtti->GetParentType());
+}
+
+
+void ezWorldWriter::Traverse(ezGameObject* pObject)
+{
+  if (ObjectTraverser(pObject) == ezVisitorExecution::Continue)
+  {
+    for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
+    {
+      Traverse(&(*it));
+    }
+  }
 }
 
 void ezWorldWriter::WriteGameObjectHandle(const ezGameObjectHandle& hObject)

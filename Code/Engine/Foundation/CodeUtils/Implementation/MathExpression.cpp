@@ -291,7 +291,7 @@ ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCu
 
     return EZ_SUCCESS;
   }
-  // Consume paranthesis.
+  // Consume parenthesis.
   else if (Accept(tokens, uiCurToken, "("))
   {
     // A new expression!
@@ -299,14 +299,20 @@ ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCu
 
     if (!Accept(tokens, uiCurToken, ")"))
     {
-      ezLog::Error(m_pLog, "Syntax error, ')' after token '{0}' in column {1}.", tokens[uiCurToken - 1]->m_DataView, tokens[uiCurToken - 1]->m_uiColumn);
+      ezLog::Error(m_pLog, "Syntax error, expected ')' after token '{0}' in column {1}.", tokens[uiCurToken]->m_DataView, tokens[uiCurToken]->m_uiColumn);
       return EZ_FAILURE;
     }
     else
       return EZ_SUCCESS;
   }
 
-  ezLog::Error(m_pLog, "Syntax error, expected identifier, number or '(' after token '{0}' in column {1}.", tokens[uiCurToken - 1]->m_DataView, tokens[uiCurToken - 1]->m_uiColumn);
+  if (uiCurToken >= tokens.GetCount())
+  {
+    ezLog::Error(m_pLog, "Syntax error, unexpected end of expression after token '{0}' in column {1}.", tokens.PeekBack()->m_DataView, tokens.PeekBack()->m_uiColumn);
+    return EZ_FAILURE;
+  }
+
+  ezLog::Error(m_pLog, "Syntax error, expected identifier, number or '(' after token '{0}' in column {1}.", tokens[uiCurToken]->m_DataView, tokens[uiCurToken]->m_uiColumn);
   return EZ_FAILURE;
 }
 

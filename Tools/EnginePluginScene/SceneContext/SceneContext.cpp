@@ -510,7 +510,7 @@ bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
     tags.Set(tagEditorPrefabInstance);
 
     ezWorldWriter ww;
-    ww.Write(file, *m_pWorld, &tags);
+    ww.WriteWorld(file, *m_pWorld, &tags);
   }
 
   // do the actual file writing

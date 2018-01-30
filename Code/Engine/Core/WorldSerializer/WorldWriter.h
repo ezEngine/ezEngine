@@ -19,7 +19,13 @@ public:
   /// \brief Writes all content in \a world to \a stream.
   ///
   /// All game objects with tags that overlap with \a pExclude will be ignored.
-  void Write(ezStreamWriter& stream, ezWorld& world, const ezTagSet* pExclude = nullptr);
+  void WriteWorld(ezStreamWriter& stream, ezWorld& world, const ezTagSet* pExclude = nullptr);
+
+  /// \brief Only writes the given root objects and all their children to the stream.
+  void WriteObjects(ezStreamWriter& stream, const ezDeque<const ezGameObject*>& rootObjects);
+
+  /// \brief Only writes the given root objects and all their children to the stream.
+  void WriteObjects(ezStreamWriter& stream, ezArrayPtr<const ezGameObject*> rootObjects);
 
   /// \brief Writes the given game object handle to the stream.
   ///
@@ -44,19 +50,21 @@ public:
   const ezDeque<const ezGameObject*>& GetAllWrittenChildObjects() const { return m_AllChildObjects; }
 
 private:
+  void Clear();
+  void WriteToStream();
   void AssignGameObjectIndices();
   void AssignComponentHandleIndices();
   void IncludeAllComponentBaseTypes();
   void IncludeAllComponentBaseTypes(const ezRTTI* pRtti);
+  void Traverse(ezGameObject* pObject);
 
   ezVisitorExecution::Enum ObjectTraverser(ezGameObject* pObject);
   void WriteGameObject(const ezGameObject* pObject);
   void WriteComponentInfo(const ezRTTI* pRtti);
   void WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<const ezComponent*>& components, ezResourceHandleWriteContext& ResHandleWriter);
 
-  ezStreamWriter* m_pStream;
-  ezWorld* m_pWorld;
-  const ezTagSet* m_pExclude;
+  ezStreamWriter* m_pStream = nullptr;
+  const ezTagSet* m_pExclude = nullptr;
 
   ezDeque<const ezGameObject*> m_AllRootObjects;
   ezDeque<const ezGameObject*> m_AllChildObjects;
