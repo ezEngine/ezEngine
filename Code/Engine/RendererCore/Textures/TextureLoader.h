@@ -4,6 +4,7 @@
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/Image/Image.h>
+#include <RendererFoundation/Basics.h>
 
 class EZ_RENDERERCORE_DLL ezTextureResourceLoader : public ezResourceTypeLoader
 {

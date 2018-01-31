@@ -299,6 +299,12 @@ ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCu
 
     if (!Accept(tokens, uiCurToken, ")"))
     {
+      if (uiCurToken >= tokens.GetCount())
+      {
+        ezLog::Error(m_pLog, "Syntax error, expected ')' after token '{0}' in column {1}.", tokens.PeekBack()->m_DataView, tokens.PeekBack()->m_uiColumn);
+        return EZ_FAILURE;
+      }
+
       ezLog::Error(m_pLog, "Syntax error, expected ')' after token '{0}' in column {1}.", tokens[uiCurToken]->m_DataView, tokens[uiCurToken]->m_uiColumn);
       return EZ_FAILURE;
     }
