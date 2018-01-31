@@ -18,7 +18,7 @@ Document.Save;&Save
 Document.SaveAll;Save All
 Document.SaveAs;Save &As...
 Document.Close;Close
-Document.OpenContainingFolder;Open Containing &Folder
+Document.OpenContainingFolder;Open in Explorer
 Document.CopyAssetGuid;Copy Asset Guid
 Document.MoveWindow;Move to Container Window
 Document.NewWindow;New Container Window

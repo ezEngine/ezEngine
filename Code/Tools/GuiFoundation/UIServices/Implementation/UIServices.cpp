@@ -137,10 +137,15 @@ bool ezQtUiServices::OpenFileInDefaultProgram(const char* szPath)
   return QDesktopServices::openUrl(QUrl::fromLocalFile(szPath));
 }
 
-void ezQtUiServices::OpenInExplorer(const char* szPath)
+void ezQtUiServices::OpenInExplorer(const char* szPath, bool bIsFile)
 {
   QStringList args;
-  args << "/select," << QDir::toNativeSeparators(szPath);
+
+  if (bIsFile)
+    args << "/select,";
+
+  args << QDir::toNativeSeparators(szPath);
+
   QProcess::startDetached("explorer", args);
 }
 

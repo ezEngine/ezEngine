@@ -572,7 +572,7 @@ void ezQtAssetBrowserWidget::OnTreeOpenExplorer()
   if (!ezQtEditorApp::GetSingleton()->MakeParentDataDirectoryRelativePathAbsolute(sPath, true))
     return;
 
-  ezQtUiServices::OpenInExplorer(sPath);
+  ezQtUiServices::OpenInExplorer(sPath, false);
 }
 
 void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoint& pt)
@@ -588,7 +588,7 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
 
     m.addAction(QIcon(QLatin1String(":/EditorFramework/Icons/AssetNeedsTransform16.png")), QLatin1String("Transform"), this, SLOT(OnTransform()));
 
-    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open Containing Folder"), this, SLOT(OnListOpenExplorer()));
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this, SLOT(OnListOpenExplorer()));
     m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Asset Guid"), this, SLOT(OnListCopyAssetGuid()));
   }
 
@@ -655,7 +655,7 @@ void ezQtAssetBrowserWidget::OnListOpenExplorer()
 
   ezString sPath = m_pModel->data(ListAssets->currentIndex(), ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
 
-  ezQtUiServices::OpenInExplorer(sPath);
+  ezQtUiServices::OpenInExplorer(sPath, true);
 }
 
 void ezQtAssetBrowserWidget::OnListCopyAssetGuid()

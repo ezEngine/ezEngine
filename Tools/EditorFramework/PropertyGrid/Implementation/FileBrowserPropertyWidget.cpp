@@ -81,7 +81,7 @@ void ezQtFilePropertyWidget::on_customContextMenuRequested(const QPoint& pt)
 
   m.setDefaultAction(m.addAction(QIcon(), QLatin1String("Select File"), this, SLOT(on_BrowseFile_clicked())));
   m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open File"), this, SLOT(OnOpenFile()))->setEnabled(!m_pWidget->text().isEmpty());
-  m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open Containing Folder"), this, SLOT(OnOpenExplorer()));
+  m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this, SLOT(OnOpenExplorer()));
 
   m.exec(m_pButton->mapToGlobal(pt));
 }
@@ -92,7 +92,7 @@ void ezQtFilePropertyWidget::OnOpenExplorer()
   if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
     return;
 
-  ezQtUiServices::OpenInExplorer(sPath);
+  ezQtUiServices::OpenInExplorer(sPath, true);
 }
 
 

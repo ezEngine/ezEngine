@@ -115,6 +115,10 @@ bool ezQtEditorApp::MakeParentDataDirectoryRelativePathAbsolute(ezStringBuilder&
   {
     sDataDirName.SetSubString_FromTo(sPath.GetData(), szEnd);
   }
+  else
+  {
+    sDataDirName = sPath;
+  }
 
   for (ezUInt32 i = m_FileSystemConfig.m_DataDirs.GetCount(); i > 0; --i)
   {

@@ -37,7 +37,7 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
 
   setCentralWidget(m_pQuadViewWidget);
 
-  SetTargetFramerate(25);
+  SetTargetFramerate(60);
 
   {
     // Menu Bar

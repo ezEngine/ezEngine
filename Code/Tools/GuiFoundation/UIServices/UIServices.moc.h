@@ -69,7 +69,7 @@ public:
   static bool OpenFileInDefaultProgram(const char* szPath);
 
   /// \brief Opens the given file or folder in the Explorer
-  static void OpenInExplorer(const char* szPath);
+  static void OpenInExplorer(const char* szPath, bool bIsFile);
 
   /// \brief Loads some global state used by ezQtUiServices from the registry. E.g. the last position of the color dialog.
   void LoadState();

@@ -37,6 +37,12 @@ public:
     }
   }
 
+  /// \brief Returns a typed resource handle to this resource
+  ezTypedResourceHandle<SELF> GetHandle() const
+  {
+    return ezTypedResourceHandle<SELF>(const_cast<ezResource<SELF>>(this));
+  }
+
   /// \brief Sets the fallback resource that can be used while this resource is not yet loaded.
   ///
   /// By default there is no fallback resource, so all resource will block the application when requested for the first time.
