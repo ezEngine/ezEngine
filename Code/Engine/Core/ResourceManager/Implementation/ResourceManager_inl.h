@@ -41,7 +41,7 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::GetExistingResource(const
   EZ_LOCK(s_ResourceMutex);
 
   if (m_LoadedResources.TryGetValue(sResourceHash, pResource))
-    return (ResourceType*) pResource;
+    return ezTypedResourceHandle<ResourceType>((ResourceType*) pResource);
 
   return ezTypedResourceHandle<ResourceType>();
 }

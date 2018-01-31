@@ -122,7 +122,7 @@ public:
   ezTypedResourceHandle() {}
 
   /// \brief Increases the refcount of the given resource.
-  ezTypedResourceHandle(ResourceType* pResource) : m_Typeless(pResource)
+  explicit ezTypedResourceHandle(ResourceType* pResource) : m_Typeless(pResource)
   {
   }
 
