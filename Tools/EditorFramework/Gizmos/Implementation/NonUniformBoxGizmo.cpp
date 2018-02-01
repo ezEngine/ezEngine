@@ -8,6 +8,7 @@
 #include <Foundation/Math/Mat4.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <QMouseEvent>
+#include <EditorFramework/Gizmos/SnapProvider.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezNonUniformBoxGizmo, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE

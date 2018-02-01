@@ -8,6 +8,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <Foundation/Configuration/CVar.h>
+#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 
 namespace
 {
