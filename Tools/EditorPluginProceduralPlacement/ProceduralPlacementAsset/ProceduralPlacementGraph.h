@@ -5,6 +5,7 @@
 #include <GuiFoundation/NodeEditor/Pin.h>
 #include <GuiFoundation/NodeEditor/Node.h>
 #include <GuiFoundation/NodeEditor/Connection.h>
+#include <Foundation/Configuration/Singleton.h>
 
 class ezProceduralPlacementNodeRegistry
 {
