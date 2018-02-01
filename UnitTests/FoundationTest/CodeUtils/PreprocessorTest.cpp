@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/CodeUtils/Preprocessor.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
@@ -94,7 +94,7 @@ public:
 
 EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
 {
-  ezStringBuilder sReadDir  = ">sdk/Data/UnitTests/FoundationTest";
+  ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
   ezStringBuilder sWriteDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
 
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);

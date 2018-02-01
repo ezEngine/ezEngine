@@ -115,8 +115,16 @@
     <addaction name="actionKeepConsoleOpen"/>
     <addaction name="actionShowMessageBox"/>
    </widget>
+   <widget class="QMenu" name="menuTest_Data">
+    <property name="title">
+     <string>Test Data</string>
+    </property>
+    <addaction name="actionOpenTestDataFolder"/>
+    <addaction name="actionOpenOutputFolder"/>
+   </widget>
    <addaction name="menuRun"/>
    <addaction name="menuSettings"/>
+   <addaction name="menuTest_Data"/>
   </widget>
   <action name="actionAssertOnTestFail">
    <property name="checkable">
@@ -228,6 +236,22 @@
   <action name="actionEnableOnlyFailed">
    <property name="text">
     <string>Enable Only Failed</string>
+   </property>
+  </action>
+  <action name="actionOpenTestDataFolder">
+   <property name="text">
+    <string>Open Test Data Folder</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="actionOpenOutputFolder">
+   <property name="text">
+    <string>Open Output Folder</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
    </property>
   </action>
  </widget>

@@ -47,6 +47,9 @@ private slots:
 
   void onSelectionModelCurrentRowChanged(const QModelIndex& index);
 
+  void on_actionOpenTestDataFolder_triggered();
+  void on_actionOpenOutputFolder_triggered();
+
 private:
   void UpdateButtonStates();
   void SaveGUILayout();

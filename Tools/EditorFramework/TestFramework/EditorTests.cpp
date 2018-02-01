@@ -25,16 +25,16 @@ ezEditorTests::~ezEditorTests()
 
 void ezEditorTests::ShowTests()
 {
-  if (m_TestFramework == nullptr)
-  {
-    ezStringBuilder sTestsDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
-    sTestsDir.Append("Tests");
+  //if (m_TestFramework == nullptr)
+  //{
+  //  ezStringBuilder sTestsDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
+  //  sTestsDir.Append("Tests");
 
-    const char* argv = "";
-    m_TestFramework = EZ_DEFAULT_NEW(ezTestFramework, "Editor Tests", sTestsDir, 0, &argv);
-  }
+  //  const char* argv = "";
+  //  m_TestFramework = EZ_DEFAULT_NEW(ezTestFramework, "Editor Tests", sTestsDir, 0, &argv);
+  //}
 
-  m_TestFramework->RunTestExecutionLoop();
+  //m_TestFramework->RunTestExecutionLoop();
 }
 
 ezEditorTest::ezEditorTest()

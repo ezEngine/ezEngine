@@ -6,8 +6,8 @@
 
 #include <Foundation/Logging/Log.h>
 
-ezUwpTestFramework::ezUwpTestFramework(const char* szTestName, const char* szAbsTestDir, int argc, const char** argv)
-  : ezTestFramework(szTestName, szAbsTestDir, argc, argv)
+ezUwpTestFramework::ezUwpTestFramework(const char* szTestName, const char* szAbsTestDir, const char* szRelTestDataDir, int argc, const char** argv)
+  : ezTestFramework(szTestName, szAbsTestDir, szRelTestDataDir, argc, argv)
 {
   if (FAILED(RoInitialize(RO_INIT_MULTITHREADED)))
   {

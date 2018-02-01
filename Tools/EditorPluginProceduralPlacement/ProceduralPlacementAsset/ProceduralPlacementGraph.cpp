@@ -4,6 +4,7 @@
 #include <ToolsFoundation/Command/NodeCommands.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Utilities/Node.h>
+#include <Foundation/Configuration/Singleton.h>
 
 EZ_IMPLEMENT_SINGLETON(ezProceduralPlacementNodeRegistry);
 

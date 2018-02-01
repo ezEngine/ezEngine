@@ -57,11 +57,11 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
   addDockWidget(Qt::RightDockWidgetArea, m_pMessageLogDock);
 
   // connect custom context menu
-  connect(testTreeView, SIGNAL( customContextMenuRequested(const QPoint&) ), this, SLOT( onTestTreeViewCustomContextMenuRequested(const QPoint&) ));
+  connect(testTreeView, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(onTestTreeViewCustomContextMenuRequested(const QPoint&)));
 
   // connect current row changed signal
   QItemSelectionModel* pSelectionModel = testTreeView->selectionModel();
-  connect(pSelectionModel, SIGNAL( currentRowChanged(const QModelIndex&, const QModelIndex&) ), this, SLOT( onSelectionModelCurrentRowChanged(const QModelIndex&) ));
+  connect(pSelectionModel, SIGNAL(currentRowChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(onSelectionModelCurrentRowChanged(const QModelIndex&)));
 
   // Sync actions with test framework settings
   TestSettings settings = m_pTestFramework->GetSettings();
@@ -76,7 +76,7 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
     ShowWindow(GetConsoleWindow(), SW_HIDE);
 #endif
 
-  connect(m_pTestFramework, SIGNAL( TestResultReceived(qint32, qint32) ), this, SLOT( onTestFrameworkTestResultReceived(qint32, qint32) ) );
+  connect(m_pTestFramework, SIGNAL(TestResultReceived(qint32, qint32)), this, SLOT(onTestFrameworkTestResultReceived(qint32, qint32)));
 
   UpdateButtonStates();
   LoadGUILayout();
@@ -239,7 +239,7 @@ void ezQtTestGUI::on_actionEnableAllChildren_triggered()
   QModelIndex CurrentIndex = testTreeView->currentIndex();
   if (!CurrentIndex.isValid())
     return;
-  
+
   // Need to set data on column 0
   CurrentIndex = m_pModel->index(CurrentIndex.row(), 0, CurrentIndex.parent());
   SetCheckStateRecursive(CurrentIndex, true);
@@ -248,13 +248,13 @@ void ezQtTestGUI::on_actionEnableAllChildren_triggered()
 void ezQtTestGUI::on_actionEnableAll_triggered()
 {
   m_pTestFramework->SetAllTestsEnabledStatus(true);
-  m_pModel->dataChanged(QModelIndex(),QModelIndex());
+  m_pModel->dataChanged(QModelIndex(), QModelIndex());
 }
 
 void ezQtTestGUI::on_actionDisableAll_triggered()
 {
   m_pTestFramework->SetAllTestsEnabledStatus(false);
-  m_pModel->dataChanged(QModelIndex(),QModelIndex());
+  m_pModel->dataChanged(QModelIndex(), QModelIndex());
 }
 
 void ezQtTestGUI::on_actionExpandAll_triggered()
@@ -272,7 +272,7 @@ void ezQtTestGUI::onTestFrameworkTestResultReceived(qint32 iTestIndex, qint32 iS
   m_pModel->TestDataChanged(iTestIndex, iSubTestIndex);
 
   QModelIndex TestModelIndex = m_pModel->index(iTestIndex, 0);
-  QModelIndex LastSubTest = m_pModel->index(m_pModel->rowCount(TestModelIndex)-1, 0, TestModelIndex);
+  QModelIndex LastSubTest = m_pModel->index(m_pModel->rowCount(TestModelIndex) - 1, 0, TestModelIndex);
 
   if (iSubTestIndex != -1)
   {
@@ -344,12 +344,38 @@ void ezQtTestGUI::onSelectionModelCurrentRowChanged(const QModelIndex& index)
     m_pMessageLogDock->currentTestSelectionChanged(nullptr);
   }
 
-  const ezQtTestModelEntry* pEntry = (ezQtTestModelEntry*) index.internalPointer();
+  const ezQtTestModelEntry* pEntry = (ezQtTestModelEntry*)index.internalPointer();
   const ezTestResultData* pTestResult = pEntry->GetTestResult();
 
   m_pMessageLogDock->currentTestSelectionChanged(pTestResult);
 }
 
+void OpenInExplorer(const char* szPath)
+{
+  QStringList args;
+
+  args << QDir::toNativeSeparators(szPath);
+
+  QProcess::startDetached("explorer", args);
+}
+
+void ezQtTestGUI::on_actionOpenTestDataFolder_triggered()
+{
+  ezStringBuilder sDir;
+  if (ezFileSystem::ResolveSpecialDirectory(">sdk", sDir).Failed())
+    return;
+
+  sDir.AppendPath(m_pTestFramework->GetRelTestDataPath());
+  OpenInExplorer(sDir);
+}
+
+void ezQtTestGUI::on_actionOpenOutputFolder_triggered()
+{
+  m_pTestFramework->CreateOutputFolder();
+  const char* szDir = m_pTestFramework->GetAbsOutputPath();
+
+  OpenInExplorer(szDir);
+}
 
 ////////////////////////////////////////////////////////////////////////
 // ezQtTestGUI private functions
@@ -378,7 +404,7 @@ void ezQtTestGUI::SaveGUILayout()
   Settings.setValue("WindowState", saveState());
   Settings.setValue("IsMaximized", isMaximized());
 
-  if (!isMaximized()) 
+  if (!isMaximized())
   {
     Settings.setValue("WindowPosition", pos());
     Settings.setValue("WindowSize", size());
@@ -392,7 +418,7 @@ void ezQtTestGUI::LoadGUILayout()
   QSettings Settings;
   Settings.beginGroup("MainWindow");
 
-  restoreGeometry(Settings.value("WindowGeometry", saveGeometry() ).toByteArray());
+  restoreGeometry(Settings.value("WindowGeometry", saveGeometry()).toByteArray());
   restoreState(Settings.value("WindowState", saveState()).toByteArray());
   move(Settings.value("WindowPosition", pos()).toPoint());
   resize(Settings.value("WindowSize", size()).toSize());
@@ -415,7 +441,7 @@ void ezQtTestGUI::SetCheckStateRecursive(const QModelIndex& index, bool bChecked
 }
 
 void ezQtTestGUI::EnableAllParents(const QModelIndex& index)
-{ 
+{
   QModelIndex ParentIndex = m_pModel->parent(index);
   while (ParentIndex.isValid())
   {

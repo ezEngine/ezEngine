@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include "TestClass.h"
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
@@ -72,7 +72,7 @@ void ezGameEngineTestApplication::BeforeCoreStartup()
 {
   ezGameApplication::BeforeCoreStartup();
 
-  ezStringBuilder sProjectPath(">sdk/Data/UnitTests/GameEngineTest/", m_sProjectDirName);
+  ezStringBuilder sProjectPath(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath(), "/", m_sProjectDirName);
 
   ezStringBuilder sProject;
   ezFileSystem::ResolveSpecialDirectory(sProjectPath, sProject);
@@ -120,7 +120,7 @@ void ezGameEngineTestApplication::DoSetupDataDirectories()
     ezFileSystem::SetSpecialDirectory("testout", ezTestFramework::GetInstance()->GetAbsOutputPath());
 
     ezStringBuilder sBaseDir = ">sdk/Data/Base/";
-    ezStringBuilder sReadDir = ">sdk/Data/UnitTests/GameEngineTest";
+    ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
 
     ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites);
     ezFileSystem::AddDataDirectory(sReadDir, "ImageComparisonDataDir");

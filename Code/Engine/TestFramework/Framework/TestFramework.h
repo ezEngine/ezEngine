@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <TestFramework/Basics.h>
 #include <TestFramework/Framework/Declarations.h>
@@ -10,7 +10,7 @@
 class EZ_TEST_DLL ezTestFramework
 {
 public:
-  ezTestFramework(const char* szTestName, const char* szAbsTestDir, int argc, const char** argv);
+  ezTestFramework(const char* szTestName, const char* szAbsTestOutputDir, const char* szRelTestDataDir, int argc, const char** argv);
   virtual ~ezTestFramework();
 
   typedef void(*OutputHandler)(ezTestOutput::Enum Type, const char* szMsg);
@@ -19,6 +19,7 @@ public:
   void CreateOutputFolder();
   const char* GetTestName() const;
   const char* GetAbsOutputPath() const;
+  const char* GetRelTestDataPath() const;
   void RegisterOutputHandler(OutputHandler Handler);
   void GatherAllTests();
   void LoadTestOrder();
@@ -97,7 +98,8 @@ private:
 
 private:
   std::string m_sTestName;  ///< The name of the tests being done
-  std::string m_sAbsTestDir; ///< Absolute path to the output folder where results and temp data is stored
+  std::string m_sAbsTestOutputDir; ///< Absolute path to the output folder where results and temp data is stored
+  std::string m_sRelTestDataDir; ///< Relative path from the SDK to where the unit test data is located
   ezInt32 m_iErrorCount;
   ezInt32 m_iTestsFailed;
   ezInt32 m_iTestsPassed;

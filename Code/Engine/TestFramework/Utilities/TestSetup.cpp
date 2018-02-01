@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <TestFramework/Utilities/TestSetup.h>
 
 #include <TestFramework/Utilities/ConsoleOutput.h>
@@ -158,13 +158,16 @@ ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const ch
   sTestFolder.append("ezEngine Tests/");
   sTestFolder.append(szTestName);
 
+  std::string sTestDataSubFolder = "Data/UnitTests/";
+  sTestDataSubFolder.append(szTestName);
+
 #ifdef EZ_USE_QT
-  ezTestFramework* pTestFramework = new ezQtTestFramework(szNiceTestName, sTestFolder.c_str(), argc, argv);
+  ezTestFramework* pTestFramework = new ezQtTestFramework(szNiceTestName, sTestFolder.c_str(), sTestDataSubFolder.c_str(), argc, argv);
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   // Command line args in UWP are handled differently and can't be retrieved from the main function.
-  ezTestFramework* pTestFramework = new ezUwpTestFramework(szNiceTestName, sTestFolder.c_str(), 0, nullptr);
+  ezTestFramework* pTestFramework = new ezUwpTestFramework(szNiceTestName, sTestFolder.c_str(), sTestDataSubFolder.c_str(), 0, nullptr);
 #else
-  ezTestFramework* pTestFramework = new ezTestFramework(szNiceTestName, sTestFolder.c_str(), argc, argv);
+  ezTestFramework* pTestFramework = new ezTestFramework(szNiceTestName, sTestFolder.c_str(), sTestDataSubFolder.c_str(), argc, argv);
 #endif
 
   // Register some output handlers to forward all the messages to the console and to an HTML file

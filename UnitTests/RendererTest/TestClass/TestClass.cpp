@@ -50,7 +50,8 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
     ezFileSystem::SetSpecialDirectory("testout", ezTestFramework::GetInstance()->GetAbsOutputPath());
 
     ezStringBuilder sBaseDir = ">sdk/Data/Base/";
-    ezStringBuilder sReadDir = ">sdk/Data/UnitTests";
+    ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
+    sReadDir.PathParentDirectory();
 
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
@@ -65,7 +66,7 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
     if (ezFileSystem::AddDataDirectory(sReadDir, "UnitTestData").Failed())
       return EZ_FAILURE;
 
-    sReadDir.AppendPath("RendererTest");
+    sReadDir.Set(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
     if (ezFileSystem::AddDataDirectory(sReadDir, "ImageComparisonDataDir").Failed())
       return EZ_FAILURE;
   }

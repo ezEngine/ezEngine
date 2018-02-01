@@ -7,7 +7,7 @@
 
 EZ_CREATE_SIMPLE_TEST(Image, ImageUtils)
 {
-  ezStringBuilder sReadDir = ">sdk/Data/UnitTests/FoundationTest";
+  ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
   ezStringBuilder sWriteDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
 
   EZ_TEST_BOOL(ezOSFile::CreateDirectoryStructure(sWriteDir.GetData()) == EZ_SUCCESS);

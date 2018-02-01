@@ -10,7 +10,7 @@ class EZ_TEST_DLL ezQtTestFramework : public QObject, public ezTestFramework
 {
   Q_OBJECT
 public:
-  ezQtTestFramework(const char* szTestName, const char* szAbsTestDir, int argc, const char** argv);
+  ezQtTestFramework(const char* szTestName, const char* szAbsTestDir, const char* szRelTestDataDir, int argc, const char** argv);
   virtual ~ezQtTestFramework();
 
 private:

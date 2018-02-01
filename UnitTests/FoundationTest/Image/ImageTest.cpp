@@ -21,7 +21,7 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
 {
   ezLogIgnore LogIgnore;
 
-  const ezStringBuilder sReadDir = ">sdk/Data/UnitTests/FoundationTest";
+  const ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
   const ezStringBuilder sWriteDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
 
   EZ_TEST_BOOL(ezOSFile::CreateDirectoryStructure(sWriteDir.GetData()) == EZ_SUCCESS);

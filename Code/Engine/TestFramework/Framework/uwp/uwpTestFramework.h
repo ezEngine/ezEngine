@@ -10,7 +10,7 @@
 class EZ_TEST_DLL ezUwpTestFramework : public ezTestFramework
 {
 public:
-  ezUwpTestFramework(const char* szTestName, const char* szAbsTestDir, int argc, const char** argv);
+  ezUwpTestFramework(const char* szTestName, const char* szAbsTestDir, const char* szRelTestDataDir, int argc, const char** argv);
   virtual ~ezUwpTestFramework();
 
   ezUwpTestFramework(ezUwpTestFramework&) = delete;

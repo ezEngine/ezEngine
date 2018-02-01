@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <TestFramework/Utilities/TestOrder.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Utilities/StackTracer.h>
@@ -49,8 +49,8 @@ static bool TestAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const c
 // ezTestFramework public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezTestFramework::ezTestFramework(const char* szTestName, const char* szAbsTestDir, int argc, const char** argv)
-  : m_sTestName(szTestName), m_sAbsTestDir(szAbsTestDir), m_iErrorCount(0), m_iTestsFailed(0), m_iTestsPassed(0), m_PreviousAssertHandler(nullptr), m_iCurrentTestIndex(-1), m_iCurrentSubTestIndex(-1), m_bTestsRunning(false), m_bIsInitialized(false)
+ezTestFramework::ezTestFramework(const char* szTestName, const char* szAbsTestOutputDir, const char* szRelTestDataDir, int argc, const char** argv)
+  : m_sTestName(szTestName), m_sAbsTestOutputDir(szAbsTestOutputDir), m_sRelTestDataDir(szRelTestDataDir), m_iErrorCount(0), m_iTestsFailed(0), m_iTestsPassed(0), m_PreviousAssertHandler(nullptr), m_iCurrentTestIndex(-1), m_iCurrentSubTestIndex(-1), m_bTestsRunning(false), m_bIsInitialized(false)
 {
   s_pInstance = this;
 
@@ -106,7 +106,13 @@ const char* ezTestFramework::GetTestName() const
 
 const char* ezTestFramework::GetAbsOutputPath() const
 {
-  return m_sAbsTestDir.c_str();
+  return m_sAbsTestOutputDir.c_str();
+}
+
+
+const char* ezTestFramework::GetRelTestDataPath() const
+{
+  return m_sRelTestDataDir.c_str();
 }
 
 void ezTestFramework::RegisterOutputHandler(OutputHandler Handler)
@@ -210,7 +216,7 @@ void ezTestFramework::GetTestSettingsFromCommandLine(int argc, const char** argv
 
 void ezTestFramework::LoadTestOrder()
 {
-  std::string sTestSettingsFile = m_sAbsTestDir + std::string("/TestSettings.txt");
+  std::string sTestSettingsFile = m_sAbsTestOutputDir + std::string("/TestSettings.txt");
   ::LoadTestOrder(sTestSettingsFile.c_str(), m_TestEntries, m_Settings);
   if (m_Settings.m_bEnableAllTests)
     SetAllTestsEnabledStatus(true);
@@ -218,9 +224,9 @@ void ezTestFramework::LoadTestOrder()
 
 void ezTestFramework::CreateOutputFolder()
 {
-  ezOSFile::CreateDirectoryStructure(m_sAbsTestDir.c_str());
+  ezOSFile::CreateDirectoryStructure(m_sAbsTestOutputDir.c_str());
 
-  EZ_ASSERT_RELEASE(ezOSFile::ExistsDirectory(m_sAbsTestDir.c_str()), "Failed to create output directory '{0}'", m_sAbsTestDir.c_str());
+  EZ_ASSERT_RELEASE(ezOSFile::ExistsDirectory(m_sAbsTestOutputDir.c_str()), "Failed to create output directory '{0}'", m_sAbsTestOutputDir.c_str());
 }
 
 void ezTestFramework::SaveTestOrder()
@@ -228,7 +234,7 @@ void ezTestFramework::SaveTestOrder()
   if (m_Settings.m_bNoSaving)
     return;
 
-  std::string sTestSettingsFile = m_sAbsTestDir + std::string("/TestSettings.txt");
+  std::string sTestSettingsFile = m_sAbsTestOutputDir + std::string("/TestSettings.txt");
   ::SaveTestOrder(sTestSettingsFile.c_str(), m_TestEntries, m_Settings);
 }
 
