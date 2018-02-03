@@ -55,8 +55,7 @@ ezWorld::~ezWorld()
   {
     if (pModule != nullptr)
     {
-      pModule->DeleteAllComponents();
-      pModule->Deinitialize();
+      pModule->DeinitializeInternal();
     }
   }
 
@@ -205,63 +204,6 @@ void ezWorld::DeleteObjectDelayed(const ezGameObjectHandle& hObject)
   PostMessage(hObject, msg, ezObjectMsgQueueType::NextFrame);
 }
 
-ezComponentManagerBase* ezWorld::GetOrCreateComponentManager(const ezRTTI* pRtti)
-{
-  if (pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract))
-    return nullptr;
-
-  CheckForWriteAccess();
-
-  const ezUInt16 uiTypeId = ezComponentManagerFactory::GetInstance()->GetTypeId(pRtti);
-  EZ_ASSERT_DEV(uiTypeId != 0xFFFF, "Invalid type id");
-
-  if (uiTypeId >= m_Data.m_Modules.GetCount())
-  {
-    m_Data.m_Modules.SetCount(uiTypeId + 1);
-  }
-
-  ezWorldModule* pModule = m_Data.m_Modules[uiTypeId];
-  if (pModule == nullptr)
-  {
-    pModule = ezComponentManagerFactory::GetInstance()->CreateComponentManager(uiTypeId, this);
-    pModule->Initialize();
-
-    m_Data.m_Modules[uiTypeId] = pModule;
-  }
-
-  return static_cast<ezComponentManagerBase*>(pModule);
-}
-
-ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pRtti)
-{
-  CheckForWriteAccess();
-
-  const ezUInt16 uiTypeId = ezComponentManagerFactory::GetInstance()->GetTypeId(pRtti);
-  EZ_ASSERT_DEV(uiTypeId != 0xFFFF, "Invalid type id");
-
-  if (uiTypeId < m_Data.m_Modules.GetCount())
-  {
-    return static_cast<ezComponentManagerBase*>(m_Data.m_Modules[uiTypeId]);
-  }
-
-  return nullptr;
-}
-
-const ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pRtti) const
-{
-  CheckForReadAccess();
-
-  const ezUInt16 uiTypeId = ezComponentManagerFactory::GetInstance()->GetTypeId(pRtti);
-  EZ_ASSERT_DEV(uiTypeId != 0xFFFF, "Invalid type id");
-
-  if (uiTypeId < m_Data.m_Modules.GetCount())
-  {
-    return static_cast<const ezComponentManagerBase*>(m_Data.m_Modules[uiTypeId]);
-  }
-
-  return nullptr;
-}
-
 void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const
 {
   // This method is allowed to be called from multiple threads.
@@ -389,6 +331,79 @@ void ezWorld::Update()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ezWorldModule* ezWorld::GetOrCreateModule(const ezRTTI* pRtti)
+{
+  if (pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract))
+  {
+    return nullptr;
+  }
+
+  CheckForWriteAccess();
+
+  const ezUInt16 uiTypeId = ezWorldModuleFactory::GetInstance()->GetTypeId(pRtti);
+  EZ_ASSERT_DEV(uiTypeId != 0xFFFF, "Invalid type id");
+
+  if (uiTypeId >= m_Data.m_Modules.GetCount())
+  {
+    m_Data.m_Modules.SetCount(uiTypeId + 1);
+  }
+
+  ezWorldModule* pModule = m_Data.m_Modules[uiTypeId];
+  if (pModule == nullptr)
+  {
+    pModule = ezWorldModuleFactory::GetInstance()->CreateWorldModule(uiTypeId, this);
+    pModule->InitializeInternal();
+
+    m_Data.m_Modules[uiTypeId] = pModule;
+  }
+
+  return pModule;
+}
+
+void ezWorld::DeleteModule(const ezRTTI* pRtti)
+{
+  CheckForWriteAccess();
+
+  const ezUInt16 uiTypeId = ezWorldModuleFactory::GetInstance()->GetTypeId(pRtti);
+  if (uiTypeId < m_Data.m_Modules.GetCount())
+  {
+    if (ezWorldModule* pModule = m_Data.m_Modules[uiTypeId])
+    {
+      m_Data.m_Modules[uiTypeId] = nullptr;
+
+      pModule->DeinitializeInternal();
+      DeregisterUpdateFunctions(pModule);
+      EZ_DELETE(&m_Data.m_Allocator, pModule);
+    }
+  }
+}
+
+ezWorldModule* ezWorld::GetModule(const ezRTTI* pRtti)
+{
+  CheckForWriteAccess();
+
+  const ezUInt16 uiTypeId = ezWorldModuleFactory::GetInstance()->GetTypeId(pRtti);
+  if (uiTypeId < m_Data.m_Modules.GetCount())
+  {
+    return m_Data.m_Modules[uiTypeId];
+  }
+
+  return nullptr;
+}
+
+const ezWorldModule* ezWorld::GetModule(const ezRTTI* pRtti) const
+{
+  CheckForReadAccess();
+
+  const ezUInt16 uiTypeId = ezWorldModuleFactory::GetInstance()->GetTypeId(pRtti);
+  if (uiTypeId < m_Data.m_Modules.GetCount())
+  {
+    return m_Data.m_Modules[uiTypeId];
+  }
+
+  return nullptr;
+}
 
 void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameObject::TransformPreservation preserve)
 {

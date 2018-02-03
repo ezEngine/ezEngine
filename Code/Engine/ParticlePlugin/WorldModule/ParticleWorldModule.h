@@ -25,6 +25,7 @@ class ezParticleStreamFactory;
 class EZ_PARTICLEPLUGIN_DLL ezParticleWorldModule : public ezWorldModule
 {
   EZ_DECLARE_WORLD_MODULE();
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleWorldModule, ezWorldModule);
 
 public:
   ezParticleWorldModule(ezWorld* pWorld);

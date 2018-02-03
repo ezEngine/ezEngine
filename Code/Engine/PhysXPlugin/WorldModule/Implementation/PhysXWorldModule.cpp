@@ -456,7 +456,7 @@ void ezPhysXWorldModule::SetGravity(const ezVec3& objectGravity, const ezVec3& c
 }
 
 bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer,
-                                 ezPhysicsHitResult& out_HitResult, bool bIncludeDynamic, ezUInt32 uiIgnoreShapeId)
+                                 ezPhysicsHitResult& out_HitResult, bool bIncludeDynamic, ezUInt32 uiIgnoreShapeId) const
 {
   if (fDistance <= 0.001f || vDir.IsZero())
     return false;
@@ -475,7 +475,7 @@ bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
-  if (m_pPxScene->raycast(ezPxConversionUtils::ToVec3(vStart), ezPxConversionUtils::ToVec3(vDir), fDistance,
+  if (GetPxScene()->raycast(ezPxConversionUtils::ToVec3(vStart), ezPxConversionUtils::ToVec3(vDir), fDistance,
                           closestHit, PxHitFlag::eDEFAULT, filterData, &queryFilter))
   {
     FillHitResult(closestHit.block, out_HitResult);
@@ -486,7 +486,7 @@ bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float
   return false;
 }
 
-bool ezPhysXWorldModule::SweepTestSphere(float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/)
+bool ezPhysXWorldModule::SweepTestSphere(float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/) const
 {
   PxSphereGeometry sphere;
   sphere.radius = fSphereRadius;
@@ -496,7 +496,7 @@ bool ezPhysXWorldModule::SweepTestSphere(float fSphereRadius, const ezVec3& vSta
   return SweepTest(sphere, transform, vDir, fDistance, uiCollisionLayer, out_HitResult, uiIgnoreShapeId);
 }
 
-bool ezPhysXWorldModule::SweepTestBox(ezVec3 vBoxExtends, const ezTransform& start, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/)
+bool ezPhysXWorldModule::SweepTestBox(ezVec3 vBoxExtends, const ezTransform& start, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/) const
 {
   PxBoxGeometry box;
   box.halfExtents = ezPxConversionUtils::ToVec3(vBoxExtends * 0.5f);
@@ -507,7 +507,7 @@ bool ezPhysXWorldModule::SweepTestBox(ezVec3 vBoxExtends, const ezTransform& sta
 }
 
 bool ezPhysXWorldModule::SweepTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& start, const ezVec3& vDir, float fDistance,
-                                          ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId)
+                                          ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId) const
 {
   PxCapsuleGeometry capsule;
   capsule.radius = fCapsuleRadius;
@@ -527,7 +527,7 @@ bool ezPhysXWorldModule::SweepTestCapsule(float fCapsuleRadius, float fCapsuleHe
 }
 
 bool ezPhysXWorldModule::SweepTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezVec3& vDir, float fDistance,
-                                   ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId)
+                                   ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId) const
 {
   PxQueryFilterData filterData;
   filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId);
@@ -538,7 +538,7 @@ bool ezPhysXWorldModule::SweepTest(const physx::PxGeometry& geometry, const phys
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
-  if (m_pPxScene->sweep(geometry, transform, ezPxConversionUtils::ToVec3(vDir), fDistance,
+  if (GetPxScene()->sweep(geometry, transform, ezPxConversionUtils::ToVec3(vDir), fDistance,
                         closestHit, PxHitFlag::eDEFAULT, filterData, &queryFilter))
   {
     FillHitResult(closestHit.block, out_HitResult);
@@ -549,7 +549,7 @@ bool ezPhysXWorldModule::SweepTest(const physx::PxGeometry& geometry, const phys
   return false;
 }
 
-bool ezPhysXWorldModule::OverlapTestSphere(float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/)
+bool ezPhysXWorldModule::OverlapTestSphere(float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/) const
 {
   PxSphereGeometry sphere;
   sphere.radius = fSphereRadius;
@@ -560,7 +560,7 @@ bool ezPhysXWorldModule::OverlapTestSphere(float fSphereRadius, const ezVec3& vP
 
 }
 
-bool ezPhysXWorldModule::OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& start, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/)
+bool ezPhysXWorldModule::OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& start, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/) const
 {
   PxCapsuleGeometry capsule;
   capsule.radius = fCapsuleRadius;
@@ -579,7 +579,7 @@ bool ezPhysXWorldModule::OverlapTestCapsule(float fCapsuleRadius, float fCapsule
   return OverlapTest(capsule, transform, uiCollisionLayer, uiIgnoreShapeId);
 }
 
-bool ezPhysXWorldModule::OverlapTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId)
+bool ezPhysXWorldModule::OverlapTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId) const
 {
   PxQueryFilterData filterData;
   filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId);
@@ -590,12 +590,12 @@ bool ezPhysXWorldModule::OverlapTest(const physx::PxGeometry& geometry, const ph
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
-  return m_pPxScene->overlap(geometry, transform, closestHit, filterData, &queryFilter);
+  return GetPxScene()->overlap(geometry, transform, closestHit, filterData, &queryFilter);
 }
 
 static PxOverlapHit g_OverlapHits[256];
 
-void ezPhysXWorldModule::QueryDynamicShapesInSphere(float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer, ezPhysicsOverlapResult& out_Results, ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/)
+void ezPhysXWorldModule::QueryDynamicShapesInSphere(float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer, ezPhysicsOverlapResult& out_Results, ezUInt32 uiIgnoreShapeId /*= ezInvalidIndex*/) const
 {
   PxQueryFilterData filterData;
   filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId);
@@ -615,7 +615,7 @@ void ezPhysXWorldModule::QueryDynamicShapesInSphere(float fSphereRadius, const e
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
-  m_pPxScene->overlap(sphere, transform, allOverlaps, filterData, &queryFilter);
+  GetPxScene()->overlap(sphere, transform, allOverlaps, filterData, &queryFilter);
 
   out_Results.m_Results.SetCountUninitialized(allOverlaps.nbTouches);
   for (ezUInt32 i = 0; i < allOverlaps.nbTouches; ++i)

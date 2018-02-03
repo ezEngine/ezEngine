@@ -65,10 +65,3 @@ void ezSettingsComponentManager<ComponentType>::DeleteComponentStorage(ezCompone
   out_pMovedComponent = m_pSingletonComponent.Borrow();
   m_pSingletonComponent.Reset();
 }
-
-//static
-template <typename ComponentType>
-EZ_ALWAYS_INLINE ezUInt16 ezSettingsComponentManager<ComponentType>::GetNextTypeId()
-{
-  return ezWorldModule::GetNextTypeId();
-}

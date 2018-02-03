@@ -410,18 +410,7 @@ void ezProjectileComponentManager::Initialize()
 {
   ezComponentManagerSimple<ezProjectileComponent, ezComponentUpdateType::WhenSimulating>::Initialize();
 
-  m_pPhysicsInterface = GetWorld()->GetModuleOfBaseType<ezPhysicsWorldModuleInterface>();
-}
-
-
-void ezProjectileComponentManager::SimpleUpdate(const ezWorldModule::UpdateContext& context)
-{
-  if (m_pPhysicsInterface == nullptr)
-  {
-    m_pPhysicsInterface = GetWorld()->GetModuleOfBaseType<ezPhysicsWorldModuleInterface>();
-  }
-
-  SUPER::SimpleUpdate(context);
+  m_pPhysicsInterface = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
 }
 
 //////////////////////////////////////////////////////////////////////////

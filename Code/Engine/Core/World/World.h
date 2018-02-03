@@ -90,25 +90,21 @@ public:
   /// \name Module Functions
   ///@{
 
-  /// \brief Creates an instance of the given module type or returns a pointer to an already existing instance.
+  /// \brief Creates an instance of the given module type or derived type or returns a pointer to an already existing instance.
   template <typename ModuleType>
   ModuleType* GetOrCreateModule();
 
-  /// \brief Deletes the module of the given type.
+  /// \brief Deletes the module of the given type or derived types.
   template <typename ModuleType>
   void DeleteModule();
 
-  /// \brief Returns the instance to the given module type.
+  /// \brief Returns the instance to the given module type or derived types.
   template <typename ModuleType>
   ModuleType* GetModule();
 
-  /// \brief Returns the instance to the given module type.
+  /// \brief Returns the instance to the given module type or derived types.
   template <typename ModuleType>
   const ModuleType* GetModule() const;
-
-  /// \brief Searches for a module of the given type or derived types. The result should be cached since this is an expensive function.
-  template <typename ModuleType>
-  ModuleType* GetModuleOfBaseType();
 
   ///@}
   /// \name Component Functions
@@ -134,10 +130,10 @@ public:
   const ManagerType* GetComponentManager() const;
 
   /// \brief Returns the component manager that handles the given rtti component type.
-  ezComponentManagerBase* GetComponentManager(const ezRTTI* pRtti);
+  ezComponentManagerBase* GetComponentManager(const ezRTTI* pComponentRtti);
 
   /// \brief Returns the component manager that handles the given rtti component type.
-  const ezComponentManagerBase* GetComponentManager(const ezRTTI* pRtti) const;
+  const ezComponentManagerBase* GetComponentManager(const ezRTTI* pComponentRtti) const;
 
   /// \brief Checks whether the given handle references a valid component.
   bool IsValidComponent(const ezComponentHandle& component) const;
@@ -260,6 +256,11 @@ private:
   void CheckForWriteAccess() const;
 
   ezGameObject* GetObjectUnchecked(ezUInt32 uiIndex) const;
+
+  ezWorldModule* GetOrCreateModule(const ezRTTI* pRtti);
+  void DeleteModule(const ezRTTI* pRtti);
+  ezWorldModule* GetModule(const ezRTTI* pRtti);
+  const ezWorldModule* GetModule(const ezRTTI* pRtti) const;
 
   void SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameObject::TransformPreservation preserve = ezGameObject::TransformPreservation::PreserveGlobal);
   void LinkToParent(ezGameObject* pObject);

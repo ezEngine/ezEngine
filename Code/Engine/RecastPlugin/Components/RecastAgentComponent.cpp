@@ -559,6 +559,8 @@ void ezRcAgentComponentManager::Initialize()
   // make sure this world module exists
   m_pWorldModule = GetWorld()->GetOrCreateModule<ezRecastWorldModule>();
 
+  m_pPhysicsInterface = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
+
   auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezRcAgentComponentManager::Update, this);
 
   RegisterUpdateFunction(desc);
@@ -566,11 +568,6 @@ void ezRcAgentComponentManager::Initialize()
 
 void ezRcAgentComponentManager::Update(const ezWorldModule::UpdateContext& context)
 {
-  if (m_pPhysicsInterface == nullptr)
-  {
-    m_pPhysicsInterface = GetWorld()->GetModuleOfBaseType<ezPhysicsWorldModuleInterface>();
-  }
-
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
   {
     if (it->IsActive())

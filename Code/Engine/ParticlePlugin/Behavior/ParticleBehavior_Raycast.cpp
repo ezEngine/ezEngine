@@ -92,7 +92,7 @@ void ezParticleBehaviorFactory_Raycast::Load(ezStreamReader& stream)
 
 void ezParticleBehavior_Raycast::AfterPropertiesConfigured(bool bFirstTime)
 {
-  m_pPhysicsModule = GetOwnerSystem()->GetWorld()->GetModuleOfBaseType<ezPhysicsWorldModuleInterface>();
+  m_pPhysicsModule = GetOwnerSystem()->GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
 }
 
 

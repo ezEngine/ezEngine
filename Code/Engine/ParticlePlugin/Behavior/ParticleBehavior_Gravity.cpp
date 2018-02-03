@@ -56,7 +56,7 @@ void ezParticleBehaviorFactory_Gravity::Load(ezStreamReader& stream)
 
 void ezParticleBehavior_Gravity::AfterPropertiesConfigured(bool bFirstTime)
 {
-  m_pPhysicsModule = GetOwnerSystem()->GetWorld()->GetModuleOfBaseType<ezPhysicsWorldModuleInterface>();
+  m_pPhysicsModule = GetOwnerSystem()->GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
 }
 
 void ezParticleBehavior_Gravity::CreateRequiredStreams()

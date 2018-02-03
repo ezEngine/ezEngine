@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <Core/World/Declarations.h>
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/Strings/HashedString.h>
 
 class ezWorld;
@@ -87,11 +88,10 @@ protected:
   /// \brief Returns whether the world simulation is enabled.
   bool GetWorldSimulationEnabled() const;
 
-  /// \brief Internal only.
-  static ezUInt16 GetNextTypeId();
-
 protected:
-  virtual void DeleteAllComponents() { }
+  /// \brief Internal methods called by the world
+  virtual void InitializeInternal();
+  virtual void DeinitializeInternal();
 
   /// \brief This method is called after the constructor. A derived type can override this method to do initialization work. Typically this is the method where updates function are registered.
   virtual void Initialize() { }
@@ -105,6 +105,39 @@ protected:
   ezWorld* m_pWorld;
 };
 
+//////////////////////////////////////////////////////////////////////////
+
+/// \brief Helper class to get component type ids and create new instances of world modules from rtti.
+class EZ_CORE_DLL ezWorldModuleFactory
+{
+public:
+  static ezWorldModuleFactory* GetInstance();
+
+  template <typename ModuleType, typename RTTIType>
+  ezUInt16 RegisterWorldModule();
+
+  /// \brief Returns the module type id to the given rtti module/component type.
+  ezUInt16 GetTypeId(const ezRTTI* pRtti);
+
+  /// \brief Creates a new instance of the world module with the given type id and world.
+  ezWorldModule* CreateWorldModule(ezUInt16 typeId, ezWorld* pWorld);
+
+private:
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Core, WorldModuleFactory);
+
+  typedef ezWorldModule* (*CreatorFunc)(ezAllocatorBase*, ezWorld*);
+
+  ezWorldModuleFactory();
+  ezUInt16 RegisterWorldModule(const ezRTTI* pRtti, CreatorFunc creatorFunc);
+
+  static void PluginEventHandler(const ezPlugin::PluginEvent& EventData);
+  void FillBaseTypeIds();
+
+  ezHashTable<const ezRTTI*, ezUInt16> m_TypeToId;
+
+  ezDynamicArray<CreatorFunc> m_CreatorFuncs;
+};
+
 /// \brief Add this macro to the declaration of your module type.
 #define EZ_DECLARE_WORLD_MODULE() \
   public: \
@@ -114,7 +147,7 @@ protected:
 
 /// \brief Implements the given module type. Add this macro to a cpp outside of the type declaration.
 #define EZ_IMPLEMENT_WORLD_MODULE(moduleType) \
-  ezUInt16 moduleType::TYPE_ID = ezWorldModule::GetNextTypeId();
+  ezUInt16 moduleType::TYPE_ID = ezWorldModuleFactory::GetInstance()->RegisterWorldModule<moduleType, moduleType>();
 
 /// \brief Helper macro to create an update function description with proper name
 #define EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(func, instance) \

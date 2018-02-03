@@ -25,7 +25,7 @@ namespace ezPPInternal
     ezBoundingBox GetBoundingBox() const;
     ezColor GetDebugColor() const;
 
-    void Update(ezPhysicsWorldModuleInterface* pPhysicsModule);
+    void Update(const ezPhysicsWorldModuleInterface* pPhysicsModule);
 
     bool IsFinished() const;
 

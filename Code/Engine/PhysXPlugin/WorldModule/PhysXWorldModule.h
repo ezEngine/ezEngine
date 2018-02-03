@@ -22,8 +22,10 @@ public:
   virtual void Deinitialize() override;
   virtual void OnSimulationStarted() override;
 
-  physx::PxScene* GetPxScene() const { return m_pPxScene; }
-  physx::PxControllerManager* GetCharacterManager() const { return m_pCharacterManager; }
+  physx::PxScene* GetPxScene() { return m_pPxScene; }
+  const physx::PxScene* GetPxScene() const { return m_pPxScene; }
+  physx::PxControllerManager* GetCharacterManager() { return m_pCharacterManager; }
+  const physx::PxControllerManager* GetCharacterManager() const { return m_pCharacterManager; }
 
   ezUInt32 CreateShapeId();
   void DeleteShapeId(ezUInt32 uiShapeId);
@@ -35,26 +37,26 @@ public:
 
   // ezPhysicsWorldModuleInterface implementation
   virtual bool CastRay(const ezVec3& vStart, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer,
-    ezPhysicsHitResult& out_HitResult, bool bIncludeDynamic = true, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) override;
+    ezPhysicsHitResult& out_HitResult, bool bIncludeDynamic = true, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const override;
 
   virtual bool SweepTestSphere(float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance,
-    ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) override;
+    ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const override;
 
   virtual bool SweepTestBox(ezVec3 vBoxExtends, const ezTransform& start, const ezVec3& vDir, float fDistance,
-    ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) override;
+    ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const override;
 
   virtual bool SweepTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& start, const ezVec3& vDir, float fDistance,
-    ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) override;
+    ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const override;
 
-  virtual bool OverlapTestSphere(float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) override;
-  virtual bool OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& vPosition, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) override;
+  virtual bool OverlapTestSphere(float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const override;
+  virtual bool OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& vPosition, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const override;
 
-  virtual void QueryDynamicShapesInSphere(float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer, ezPhysicsOverlapResult& out_Results, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) override;
+  virtual void QueryDynamicShapesInSphere(float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer, ezPhysicsOverlapResult& out_Results, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const override;
 
 private:
-  bool SweepTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer, 
-                 ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId);
-  bool OverlapTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId);
+  bool SweepTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer,
+                 ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId) const;
+  bool OverlapTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId) const;
 
   void StartSimulation(const ezWorldModule::UpdateContext& context);
   void FetchResults(const ezWorldModule::UpdateContext& context);

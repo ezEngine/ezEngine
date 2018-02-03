@@ -32,8 +32,6 @@ private:
   virtual ezComponent* CreateComponentStorage() override;
   virtual void DeleteComponentStorage(ezComponent* pComponent, ezComponent*& out_pMovedComponent) override;
 
-  static ezUInt16 GetNextTypeId();
-
   ezUniquePtr<ComponentType> m_pSingletonComponent;
 };
 

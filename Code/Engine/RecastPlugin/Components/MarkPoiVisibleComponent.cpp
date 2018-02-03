@@ -50,7 +50,7 @@ void ezRcMarkPoiVisibleComponent::Update()
 
   if (m_pPhysicsModule == nullptr)
   {
-    m_pPhysicsModule = GetWorld()->GetModuleOfBaseType<ezPhysicsWorldModuleInterface>();
+    m_pPhysicsModule = GetWorld()->GetModule<ezPhysicsWorldModuleInterface>();
 
     if (m_pPhysicsModule == nullptr)
       return;

@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <ProceduralPlacementPlugin/Components/ProceduralPlacementComponent.h>
 #include <ProceduralPlacementPlugin/Components/Implementation/ActiveTile.h>
+#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/View.h>
@@ -8,7 +9,6 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <Foundation/Configuration/CVar.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 
 namespace
 {
@@ -207,12 +207,17 @@ void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateCo
     }
   }
 
+  const ezWorld* pWorld = GetWorld();
+
   // Update processing tiles
-  if (ezPhysicsWorldModuleInterface* pPhysicsModule = GetWorld()->GetModuleOfBaseType<ezPhysicsWorldModuleInterface>())
+  if (GetWorldSimulationEnabled())
   {
-    for (auto& uiTileIndex : m_ProcessingTiles)
+    if (const ezPhysicsWorldModuleInterface* pPhysicsModule = pWorld->GetModule<ezPhysicsWorldModuleInterface>())
     {
-      m_ActiveTiles[uiTileIndex].Update(pPhysicsModule);
+      for (auto& uiTileIndex : m_ProcessingTiles)
+      {
+        m_ActiveTiles[uiTileIndex].Update(pPhysicsModule);
+      }
     }
   }
 
@@ -227,7 +232,7 @@ void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateCo
       ezBoundingBox bbox = activeTile.GetBoundingBox();
       ezColor color = activeTile.GetDebugColor();
 
-      ezDebugRenderer::DrawLineBox(GetWorld(), bbox, color);
+      ezDebugRenderer::DrawLineBox(pWorld, bbox, color);
     }
   }
 }
@@ -385,7 +390,7 @@ void ezProceduralPlacementComponentManager::OnResourceEvent(const ezResourceEven
 
   if (auto pResource = ezDynamicCast<const ezProceduralPlacementResource*>(resourceEvent.m_pResource))
   {
-    ezProceduralPlacementResourceHandle hResource(const_cast<ezProceduralPlacementResource*>(pResource));
+    ezProceduralPlacementResourceHandle hResource = pResource->GetHandle();
 
     if (!m_ResourcesToUpdate.Contains(hResource))
     {

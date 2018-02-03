@@ -4,8 +4,6 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezWorldModule, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-static ezUInt16 s_uiNextTypeId = 0;
-
 ezWorldModule::ezWorldModule(ezWorld* pWorld)
   : m_pWorld(pWorld)
 {
@@ -43,13 +41,144 @@ bool ezWorldModule::GetWorldSimulationEnabled() const
   return m_pWorld->GetWorldSimulationEnabled();
 }
 
-ezUInt16 ezWorldModule::GetNextTypeId()
+void ezWorldModule::InitializeInternal()
 {
-  return s_uiNextTypeId++;
+  Initialize();
 }
 
+void ezWorldModule::DeinitializeInternal()
+{
+  Deinitialize();
+}
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, WorldModuleFactory)
+
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "Reflection"
+  END_SUBSYSTEM_DEPENDENCIES
+
+  ON_CORE_STARTUP
+  {
+    ezPlugin::s_PluginEvents.AddEventHandler(ezWorldModuleFactory::PluginEventHandler);
+    ezWorldModuleFactory::GetInstance()->FillBaseTypeIds();
+  }
+
+  ON_CORE_SHUTDOWN
+  {
+    ezPlugin::s_PluginEvents.RemoveEventHandler(ezWorldModuleFactory::PluginEventHandler);
+  }
+
+EZ_END_SUBSYSTEM_DECLARATION
+
+static ezUInt16 s_uiNextTypeId = 0;
+
+ezWorldModuleFactory::ezWorldModuleFactory()
+{
+}
+
+// static
+ezWorldModuleFactory* ezWorldModuleFactory::GetInstance()
+{
+  static ezWorldModuleFactory* pInstance = new ezWorldModuleFactory();
+  return pInstance;
+}
+
+ezUInt16 ezWorldModuleFactory::GetTypeId(const ezRTTI* pRtti)
+{
+  ezUInt16 uiTypeId = 0xFFFF;
+  m_TypeToId.TryGetValue(pRtti, uiTypeId);
+  return uiTypeId;
+}
+
+ezWorldModule* ezWorldModuleFactory::CreateWorldModule(ezUInt16 typeId, ezWorld* pWorld)
+{
+  if (typeId < m_CreatorFuncs.GetCount())
+  {
+    CreatorFunc func = m_CreatorFuncs[typeId];
+    return (*func)(pWorld->GetAllocator(), pWorld);
+  }
+
+  return nullptr;
+}
+
+ezUInt16 ezWorldModuleFactory::RegisterWorldModule(const ezRTTI* pRtti, CreatorFunc creatorFunc)
+{
+  EZ_ASSERT_DEV(pRtti != ezGetStaticRTTI<ezWorldModule>(), "Trying to register a world module that is not reflected!");
+
+  ezUInt16 uiTypeId = -1;
+  if (m_TypeToId.TryGetValue(pRtti, uiTypeId))
+  {
+    return uiTypeId;
+  }
+
+  uiTypeId = s_uiNextTypeId++;
+  m_TypeToId.Insert(pRtti, uiTypeId);
+
+  if (uiTypeId >= m_CreatorFuncs.GetCount())
+  {
+    m_CreatorFuncs.SetCount(uiTypeId + 1);
+  }
+
+  m_CreatorFuncs[uiTypeId] = creatorFunc;
+
+  return uiTypeId;
+}
+
+// static
+void ezWorldModuleFactory::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
+{
+  if (EventData.m_EventType == ezPlugin::PluginEvent::AfterLoadingBeforeInit)
+  {
+    ezWorldModuleFactory::GetInstance()->FillBaseTypeIds();
+  }
+}
+
+namespace
+{
+  struct NewEntry
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    const ezRTTI* m_pRtti;
+    ezUInt16 m_uiTypeId;
+  };
+
+  static ezDynamicArray<NewEntry, ezStaticAllocatorWrapper> newEntries;
+}
+
+void ezWorldModuleFactory::FillBaseTypeIds()
+{
+  const ezRTTI* pModuleRtti = ezGetStaticRTTI<ezWorldModule>();
+
+  for (auto it = m_TypeToId.GetIterator(); it.IsValid(); ++it)
+  {
+    const ezRTTI* pRtti = it.Key();
+    if (!pRtti->IsDerivedFrom<ezComponent>()) // is not a component manager entry
+    {
+      ezUInt16 uiTypeId = it.Value();
+      const ezRTTI* pParentRtti = pRtti->GetParentType();
+      while (pParentRtti != pModuleRtti)
+      {
+        if (!m_TypeToId.Contains(pParentRtti))
+        {
+          auto& newEntry = newEntries.ExpandAndGetRef();
+          newEntry.m_pRtti = pParentRtti;
+          newEntry.m_uiTypeId = uiTypeId;
+        }
+
+        pParentRtti = pParentRtti->GetParentType();
+      }
+    }
+  }
+
+  for (auto& newEntry : newEntries)
+  {
+    m_TypeToId.Insert(newEntry.m_pRtti, newEntry.m_uiTypeId);
+  }
+  newEntries.Clear();
+}
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_WorldModule);
 

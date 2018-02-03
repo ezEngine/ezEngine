@@ -106,7 +106,7 @@ ezColor ActiveTile::GetDebugColor() const
   return ezColor::DarkRed;
 }
 
-void ActiveTile::Update(ezPhysicsWorldModuleInterface* pPhysicsModule)
+void ActiveTile::Update(const ezPhysicsWorldModuleInterface* pPhysicsModule)
 {
   if (m_State == State::Initialized)
   {

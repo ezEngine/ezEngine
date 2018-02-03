@@ -57,17 +57,6 @@ ezComponentManager<T, StorageType>::ezComponentManager(ezWorld* pWorld) :
 template <typename T, ezBlockStorageType::Enum StorageType>
 ezComponentManager<T, StorageType>::~ezComponentManager()
 {
-  // at this point usually all components should be deleted already
-  DeleteAllComponents();
-}
-
-template <typename T, ezBlockStorageType::Enum StorageType>
-void ezComponentManager<T, StorageType>::DeleteAllComponents()
-{
-  for (auto it = this->m_ComponentStorage.GetIterator(); it.IsValid(); ++it)
-  {
-    DeinitializeComponent(it);
-  }
 }
 
 template <typename T, ezBlockStorageType::Enum StorageType>
@@ -165,13 +154,6 @@ EZ_FORCE_INLINE void ezComponentManager<T, StorageType>::RegisterUpdateFunction(
   ezComponentManagerBase::RegisterUpdateFunction(desc);
 }
 
-//static
-template <typename T, ezBlockStorageType::Enum StorageType>
-EZ_ALWAYS_INLINE ezUInt16 ezComponentManager<T, StorageType>::GetNextTypeId()
-{
-  return ezWorldModule::GetNextTypeId();
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename ComponentType, ezComponentUpdateType::Enum UpdateType>
@@ -217,37 +199,4 @@ void ezComponentManagerSimple<ComponentType, UpdateType>::SimpleUpdateName(ezStr
 
   out_sName = sChoppedName;
   out_sName.Append("::SimpleUpdate");
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-template <typename ComponentType>
-ezUInt16 ezComponentManagerFactory::RegisterComponentManager()
-{
-  const ezRTTI* pRtti = ezGetStaticRTTI<ComponentType>();
-  ezUInt16 uiTypeId = -1;
-  if (m_TypeToId.TryGetValue(pRtti, uiTypeId))
-  {
-    return uiTypeId;
-  }
-
-  uiTypeId = ComponentType::ComponentManagerType::GetNextTypeId();
-  m_TypeToId.Insert(pRtti, uiTypeId);
-
-  struct Helper
-  {
-    static ezComponentManagerBase* Create(ezAllocatorBase* pAllocator, ezWorld* pWorld)
-    {
-      return EZ_NEW(pAllocator, typename ComponentType::ComponentManagerType, pWorld);
-    }
-  };
-
-  if (uiTypeId >= m_CreatorFuncs.GetCount())
-  {
-    m_CreatorFuncs.SetCount(uiTypeId + 1);
-  }
-
-  m_CreatorFuncs[uiTypeId] = &Helper::Create;
-
-  return uiTypeId;
 }

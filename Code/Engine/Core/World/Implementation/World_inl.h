@@ -104,23 +104,60 @@ EZ_FORCE_INLINE void ezWorld::Traverse(VisitorFunc visitorFunc, TraversalMethod 
 }
 
 template <typename ModuleType>
-ModuleType* ezWorld::GetOrCreateModule()
+EZ_ALWAYS_INLINE ModuleType* ezWorld::GetOrCreateModule()
 {
-  CheckForWriteAccess();
   EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezWorldModule, ModuleType),
     "Not a valid module type");
 
-  const ezUInt16 uiTypeId = ModuleType::TypeId();
+  return ezStaticCast<ModuleType*>(GetOrCreateModule(ezGetStaticRTTI<ModuleType>()));
+}
+
+template <typename ModuleType>
+EZ_ALWAYS_INLINE void ezWorld::DeleteModule()
+{
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezWorldModule, ModuleType),
+    "Not a valid module type");
+
+  DeleteModule(ezGetStaticRTTI<ModuleType>());
+}
+
+template <typename ModuleType>
+EZ_ALWAYS_INLINE ModuleType* ezWorld::GetModule()
+{
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezWorldModule, ModuleType),
+    "Not a valid module type");
+
+  return ezStaticCast<ModuleType*>(GetModule(ezGetStaticRTTI<ModuleType>()));
+}
+
+template <typename ModuleType>
+EZ_ALWAYS_INLINE const ModuleType* ezWorld::GetModule() const
+{
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezWorldModule, ModuleType),
+    "Not a valid module type");
+
+  return ezStaticCast<const ModuleType*>(GetModule(ezGetStaticRTTI<ModuleType>()));
+}
+
+template <typename ManagerType>
+ManagerType* ezWorld::GetOrCreateComponentManager()
+{
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType),
+    "Not a valid component manager type");
+
+  CheckForWriteAccess();
+
+  const ezUInt16 uiTypeId = ManagerType::TypeId();
   if (uiTypeId >= m_Data.m_Modules.GetCount())
   {
     m_Data.m_Modules.SetCount(uiTypeId + 1);
   }
 
-  ModuleType* pModule = static_cast<ModuleType*>(m_Data.m_Modules[uiTypeId]);
+  ManagerType* pModule = static_cast<ManagerType*>(m_Data.m_Modules[uiTypeId]);
   if (pModule == nullptr)
   {
-    pModule = EZ_NEW(&m_Data.m_Allocator, ModuleType, this);
-    pModule->Initialize();
+    pModule = EZ_NEW(&m_Data.m_Allocator, ManagerType, this);
+    pModule->InitializeInternal();
 
     m_Data.m_Modules[uiTypeId] = pModule;
     m_Data.m_ModulesToStartSimulation.PushBack(pModule);
@@ -129,89 +166,33 @@ ModuleType* ezWorld::GetOrCreateModule()
   return pModule;
 }
 
-template <typename ModuleType>
-void ezWorld::DeleteModule()
+EZ_ALWAYS_INLINE ezComponentManagerBase* ezWorld::GetOrCreateComponentManager(const ezRTTI* pComponentRtti)
 {
-  CheckForWriteAccess();
+  EZ_ASSERT_DEV(pComponentRtti->IsDerivedFrom<ezComponent>(), "Invalid component type '%s'", pComponentRtti->GetTypeName());
 
-  const ezUInt16 uiTypeId = ModuleType::TypeId();
-  if (uiTypeId < m_Data.m_Modules.GetCount())
-  {
-    if (ModuleType* pModule = static_cast<ModuleType*>(m_Data.m_Modules[uiTypeId]))
-    {
-      m_Data.m_Modules[uiTypeId] = nullptr;
-
-      pModule->Deinitialize();
-      DeregisterUpdateFunctions(pModule);
-      EZ_DELETE(&m_Data.m_Allocator, pModule);
-    }
-  }
-}
-
-template <typename ModuleType>
-EZ_FORCE_INLINE ModuleType* ezWorld::GetModule()
-{
-  CheckForWriteAccess();
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezWorldModule, ModuleType),
-    "Not a valid module type");
-
-  const ezUInt16 uiTypeId = ModuleType::TypeId();
-  if (uiTypeId < m_Data.m_Modules.GetCount())
-  {
-    return static_cast<ModuleType*>(m_Data.m_Modules[uiTypeId]);
-  }
-
-  return nullptr;
-}
-
-template <typename ModuleType>
-EZ_FORCE_INLINE const ModuleType* ezWorld::GetModule() const
-{
-  CheckForReadAccess();
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezWorldModule, ModuleType),
-    "Not a valid module type");
-
-  const ezUInt16 uiTypeId = ModuleType::TypeId();
-  if (uiTypeId < m_Data.m_Modules.GetCount())
-  {
-    return static_cast<const ModuleType*>(m_Data.m_Modules[uiTypeId]);
-  }
-
-  return nullptr;
-}
-
-template <typename ModuleType>
-ModuleType* ezWorld::GetModuleOfBaseType()
-{
-  CheckForReadAccess();
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezWorldModule, ModuleType),
-    "Not a valid module type");
-
-  const ezRTTI* pRtti = ezGetStaticRTTI<ModuleType>();
-  for (ezWorldModule* pModule : m_Data.m_Modules)
-  {
-    if (pModule != nullptr && pModule->IsInstanceOf(pRtti))
-    {
-      return static_cast<ModuleType*>(pModule);
-    }
-  }
-
-  return nullptr;
+  return ezStaticCast<ezComponentManagerBase*>(GetOrCreateModule(pComponentRtti));
 }
 
 template <typename ManagerType>
-EZ_FORCE_INLINE ManagerType* ezWorld::GetOrCreateComponentManager()
+void ezWorld::DeleteComponentManager()
 {
   EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType),
     "Not a valid component manager type");
 
-  return GetOrCreateModule<ManagerType>();
-}
+  CheckForWriteAccess();
 
-template <typename ManagerType>
-EZ_FORCE_INLINE void ezWorld::DeleteComponentManager()
-{
-  DeleteModule<ManagerType>();
+  const ezUInt16 uiTypeId = ManagerType::TypeId();
+  if (uiTypeId < m_Data.m_Modules.GetCount())
+  {
+    if (ManagerType* pModule = static_cast<ManagerType*>(m_Data.m_Modules[uiTypeId]))
+    {
+      m_Data.m_Modules[uiTypeId] = nullptr;
+
+      pModule->DeinitializeInternal();
+      DeregisterUpdateFunctions(pModule);
+      EZ_DELETE(&m_Data.m_Allocator, pModule);
+    }
+  }
 }
 
 template <typename ManagerType>
@@ -220,7 +201,15 @@ EZ_FORCE_INLINE ManagerType* ezWorld::GetComponentManager()
   EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType),
     "Not a valid component manager type");
 
-  return GetModule<ManagerType>();
+  CheckForWriteAccess();
+
+  const ezUInt16 uiTypeId = ManagerType::TypeId();
+  if (uiTypeId < m_Data.m_Modules.GetCount())
+  {
+    return ezStaticCast<ManagerType*>(m_Data.m_Modules[uiTypeId]);
+  }
+
+  return nullptr;
 }
 
 template <typename ManagerType>
@@ -229,7 +218,29 @@ EZ_FORCE_INLINE const ManagerType* ezWorld::GetComponentManager() const
   EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType),
     "Not a valid component manager type");
 
-  return GetModule<ManagerType>();
+  CheckForReadAccess();
+
+  const ezUInt16 uiTypeId = ManagerType::TypeId();
+  if (uiTypeId < m_Data.m_Modules.GetCount())
+  {
+    return ezStaticCast<const ManagerType*>(m_Data.m_Modules[uiTypeId]);
+  }
+
+  return nullptr;
+}
+
+EZ_ALWAYS_INLINE ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pComponentRtti)
+{
+  EZ_ASSERT_DEV(pComponentRtti->IsDerivedFrom<ezComponent>(), "Invalid component type '{0}'", pComponentRtti->GetTypeName());
+
+  return ezStaticCast<ezComponentManagerBase*>(GetModule(pComponentRtti));
+}
+
+EZ_ALWAYS_INLINE const ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pComponentRtti) const
+{
+  EZ_ASSERT_DEV(pComponentRtti->IsDerivedFrom<ezComponent>(), "Invalid component type '{0}'", pComponentRtti->GetTypeName());
+
+  return ezStaticCast<const ezComponentManagerBase*>(GetModule(pComponentRtti));
 }
 
 inline bool ezWorld::IsValidComponent(const ezComponentHandle& component) const

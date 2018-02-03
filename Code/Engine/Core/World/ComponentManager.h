@@ -19,6 +19,8 @@
 /// Use ezWorld::CreateComponentManager to create an instance of a component manager within a specific world.
 class EZ_CORE_DLL ezComponentManagerBase : public ezWorldModule
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezComponentManagerBase, ezWorldModule);
+
 protected:
   ezComponentManagerBase(ezWorld* pWorld);
   virtual ~ezComponentManagerBase();
@@ -54,12 +56,15 @@ public:
   /// Prefer to use more efficient methods on derived classes, only use this if you need to go through a ezComponentManagerBase pointer.
   virtual void CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents) = 0;
 
-protected:
+private:
+  /// \cond
+  // internal methods
   friend class ezWorld;
   friend class ezInternal::WorldData;
 
-  /// \cond
-  // internal methods
+  void DeinitializeInternal() override;
+
+protected:
   void InitializeComponent(ezGameObject* pOwnerObject, ezComponent* pComponent);
   void DeinitializeComponent(ezComponent* pComponent);
   void PatchIdTable(ezComponent* pComponent);
@@ -104,14 +109,10 @@ protected:
   friend ComponentType;
   friend class ezComponentManagerFactory;
 
-  virtual void DeleteAllComponents() override;
-
   virtual ezComponent* CreateComponentStorage() override;
   virtual void DeleteComponentStorage(ezComponent* pComponent, ezComponent*& out_pMovedComponent) override;
 
   void RegisterUpdateFunction(UpdateFunctionDesc& desc);
-
-  static ezUInt16 GetNextTypeId();
 
   ezBlockStorage<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE, StorageType> m_ComponentStorage;
 };
@@ -138,39 +139,13 @@ public:
   virtual void Initialize() override;
 
   /// \brief A simple update function that iterates over all components and calls Update() on every component
-  virtual void SimpleUpdate(const ezWorldModule::UpdateContext& context);
+  void SimpleUpdate(const ezWorldModule::UpdateContext& context);
 
 private:
   static void SimpleUpdateName(ezStringBuilder& out_sName);
 };
 
-
 //////////////////////////////////////////////////////////////////////////
-
-
-/// \brief Helper class to get component type ids and create new instances of component managers from rtti.
-class EZ_CORE_DLL ezComponentManagerFactory
-{
-public:
-  static ezComponentManagerFactory* GetInstance();
-
-  template <typename ComponentType>
-  ezUInt16 RegisterComponentManager();
-
-  /// \brief Returns the component type id to the given rtti component type.
-  ezUInt16 GetTypeId(const ezRTTI* pRtti);
-
-  /// \brief Creates a new instance of the component manager with the given type id and world.
-  ezComponentManagerBase* CreateComponentManager(ezUInt16 typeId, ezWorld* pWorld);
-
-private:
-  ezComponentManagerFactory();
-
-  ezHashTable<const ezRTTI*, ezUInt16> m_TypeToId;
-
-  typedef ezComponentManagerBase* (*CreatorFunc)(ezAllocatorBase*, ezWorld*);
-  ezDynamicArray<CreatorFunc> m_CreatorFuncs;
-};
 
 #define EZ_ADD_COMPONENT_FUNCTIONALITY(componentType, baseType, managerType) \
   public: \
@@ -207,7 +182,7 @@ private:
 ///
 /// \see EZ_BEGIN_DYNAMIC_REFLECTED_TYPE
 #define EZ_BEGIN_COMPONENT_TYPE(componentType, version, mode) \
-  ezUInt16 componentType::TYPE_ID = ezComponentManagerFactory::GetInstance()->RegisterComponentManager<componentType>(); \
+  ezUInt16 componentType::TYPE_ID = ezWorldModuleFactory::GetInstance()->RegisterWorldModule<typename componentType::ComponentManagerType, componentType>(); \
   componentType::ComponentManagerType* componentType::GetManager() { return static_cast<componentType::ComponentManagerType*>(ezComponent::GetManager()); } \
   const componentType::ComponentManagerType* componentType::GetManager() const { return static_cast<const componentType::ComponentManagerType*>(ezComponent::GetManager()); } \
   ezComponentMode::Enum componentType::GetMode() const { return mode; } \

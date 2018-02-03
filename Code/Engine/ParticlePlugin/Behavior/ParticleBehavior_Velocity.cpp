@@ -74,7 +74,7 @@ void ezParticleBehaviorFactory_Velocity::Load(ezStreamReader& stream)
 
 void ezParticleBehavior_Velocity::AfterPropertiesConfigured(bool bFirstTime)
 {
-  m_pPhysicsModule = GetOwnerSystem()->GetWorld()->GetModuleOfBaseType<ezPhysicsWorldModuleInterface>();
+  m_pPhysicsModule = GetOwnerSystem()->GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
 }
 
 void ezParticleBehavior_Velocity::CreateRequiredStreams()

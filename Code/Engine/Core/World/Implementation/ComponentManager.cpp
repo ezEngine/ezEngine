@@ -1,6 +1,9 @@
 #include <PCH.h>
 #include <Core/World/World.h>
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponentManagerBase, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
 ezComponentManagerBase::ezComponentManagerBase(ezWorld* pWorld)
   : ezWorldModule(pWorld)
   , m_Components(pWorld->GetAllocator())
@@ -31,6 +34,16 @@ void ezComponentManagerBase::DeleteComponent(const ezComponentHandle& component)
   pComponent->m_ComponentFlags.Remove(ezObjectFlags::Active);
 
   GetWorld()->m_Data.m_DeadComponents.PushBack(pComponent);
+}
+
+void ezComponentManagerBase::DeinitializeInternal()
+{
+  for (auto it = m_Components.GetIterator(); it.IsValid(); ++it)
+  {
+    DeinitializeComponent(it.Value());
+  }
+
+  SUPER::DeinitializeInternal();
 }
 
 void ezComponentManagerBase::InitializeComponent(ezGameObject* pOwnerObject, ezComponent* pComponent)
@@ -64,36 +77,6 @@ void ezComponentManagerBase::PatchIdTable(ezComponent* pComponent)
   ezGenericComponentId id = pComponent->m_InternalId;
   if (id.m_InstanceIndex != ezGenericComponentId::INVALID_INSTANCE_INDEX)
     m_Components[id] = pComponent;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-ezComponentManagerFactory::ezComponentManagerFactory()
-{
-}
-
-ezComponentManagerFactory* ezComponentManagerFactory::GetInstance()
-{
-  static ezComponentManagerFactory* pInstance = new ezComponentManagerFactory();
-  return pInstance;
-}
-
-ezUInt16 ezComponentManagerFactory::GetTypeId(const ezRTTI* pRtti)
-{
-  ezUInt16 uiTypeId = 0xFFFF;
-  m_TypeToId.TryGetValue(pRtti, uiTypeId);
-  return uiTypeId;
-}
-
-ezComponentManagerBase* ezComponentManagerFactory::CreateComponentManager(ezUInt16 typeId, ezWorld* pWorld)
-{
-  if (typeId < m_CreatorFuncs.GetCount())
-  {
-    CreatorFunc func = m_CreatorFuncs[typeId];
-    return (*func)(pWorld->GetAllocator(), pWorld);
-  }
-
-  return nullptr;
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_ComponentManager);

@@ -150,7 +150,7 @@ void ezAreaDamageComponentManager::Initialize()
 
   RegisterUpdateFunction(desc);
 
-  m_pPhysicsInterface = GetWorld()->GetModuleOfBaseType<ezPhysicsWorldModuleInterface>();
+  m_pPhysicsInterface = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
 }
 
 void ezAreaDamageComponentManager::Update(const ezWorldModule::UpdateContext& context)
