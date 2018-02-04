@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RecastPlugin/Basics.h>
 #include <Core/World/WorldModule.h>
@@ -10,6 +10,7 @@ class dtNavMesh;
 class EZ_RECASTPLUGIN_DLL ezRecastWorldModule : public ezWorldModule
 {
   EZ_DECLARE_WORLD_MODULE();
+  EZ_ADD_DYNAMIC_REFLECTION(ezRecastWorldModule, ezWorldModule);
 
 public:
   ezRecastWorldModule(ezWorld* pWorld);

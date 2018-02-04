@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Pipeline/Declarations.h>
@@ -100,6 +100,8 @@ private:
   float m_fExposureCompensation;
 
   void MarkAsModified();
+  void MarkAsModified(ezCameraComponentManager* pCameraManager);
+
   bool m_bIsModified;
   bool m_bShowStats;
 };

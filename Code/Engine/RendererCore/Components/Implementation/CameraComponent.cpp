@@ -89,7 +89,7 @@ void ezCameraComponentManager::OnViewCreated(ezView* pView)
   // Mark all cameras as modified so the new view gets the proper settings
   for (auto it = GetComponents(); it.IsValid(); ++it)
   {
-    it->MarkAsModified();
+    it->MarkAsModified(this);
   }
 }
 
@@ -425,11 +425,20 @@ void ezCameraComponent::MarkAsModified()
 {
   if (!m_bIsModified)
   {
-    GetWorld()->GetOrCreateComponentManager<ezCameraComponentManager>()->m_modifiedCameras.PushBack(GetHandle());
+    GetWorld()->GetComponentManager<ezCameraComponentManager>()->m_modifiedCameras.PushBack(GetHandle());
     m_bIsModified = true;
   }
 }
 
+
+void ezCameraComponent::MarkAsModified(ezCameraComponentManager* pCameraManager)
+{
+  if (!m_bIsModified)
+  {
+    pCameraManager->m_modifiedCameras.PushBack(GetHandle());
+    m_bIsModified = true;
+  }
+}
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

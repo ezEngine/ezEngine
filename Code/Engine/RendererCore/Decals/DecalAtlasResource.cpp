@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <RendererCore/Decals/DecalAtlasResource.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Core/Assets/AssetFileHeader.h>
@@ -203,5 +203,11 @@ void ezDecalAtlasResource::ReadDecalInfo(ezStreamReader* Stream)
 
 void ezDecalAtlasResource::ReportResourceIsMissing()
 {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  // normal during development, don't care much
+  ezLog::Debug("Decal Atlas Resource is missing: '{0}' ('{1}')", GetResourceID(), GetResourceDescription());
+#else
+  // should probably exist for shipped applications, report this
   ezLog::Warning("Decal Atlas Resource is missing: '{0}' ('{1}')", GetResourceID(), GetResourceDescription());
+#endif
 }
