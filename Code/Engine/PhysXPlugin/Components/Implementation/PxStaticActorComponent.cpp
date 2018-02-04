@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <PhysXPlugin/Components/PxStaticActorComponent.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
@@ -69,9 +69,14 @@ void ezPxStaticActorComponent::Deinitialize()
   if (m_pActor != nullptr)
   {
     ezPhysXWorldModule* pModule = GetWorld()->GetModule<ezPhysXWorldModule>();
-    EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
 
-    m_pActor->release();
+    if (pModule->GetPxScene() != nullptr)
+    {
+      EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
+
+      m_pActor->release();
+    }
+
     m_pActor = nullptr;
   }
 

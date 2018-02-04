@@ -312,9 +312,14 @@ void ezPxDynamicActorComponent::Deinitialize()
   if (m_pActor)
   {
     ezPhysXWorldModule* pModule = GetWorld()->GetModule<ezPhysXWorldModule>();
-    EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
 
-    m_pActor->release();
+    if (pModule->GetPxScene())
+    {
+      EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
+
+      m_pActor->release();
+    }
+
     m_pActor = nullptr;
   }
 }

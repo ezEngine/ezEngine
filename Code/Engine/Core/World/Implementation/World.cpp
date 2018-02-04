@@ -334,15 +334,13 @@ void ezWorld::Update()
 
 ezWorldModule* ezWorld::GetOrCreateModule(const ezRTTI* pRtti)
 {
-  if (pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract))
-  {
-    return nullptr;
-  }
-
   CheckForWriteAccess();
 
   const ezUInt16 uiTypeId = ezWorldModuleFactory::GetInstance()->GetTypeId(pRtti);
-  EZ_ASSERT_DEV(uiTypeId != 0xFFFF, "Invalid type id");
+  if (uiTypeId == 0xFFFF)
+  {
+    return nullptr;
+  }
 
   if (uiTypeId >= m_Data.m_Modules.GetCount())
   {
