@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <RecastPlugin/Components/RecastAgentComponent.h>
 #include <RecastPlugin/WorldModule/RecastWorldModule.h>
 #include <ThirdParty/Recast/DetourCrowd.h>
@@ -46,10 +46,10 @@ ezResult ezRcAgentComponent::InitializeRecast()
   if (m_bRecastInitialized)
     return EZ_SUCCESS;
 
-  if (!GetManager()->GetRecastWorldModule()->IsInitialized())
+  if (!GetWorld()->GetOrCreateModule<ezRecastWorldModule>()->IsInitialized())
     return EZ_FAILURE;
 
-  dtNavMesh* pNavMesh = GetManager()->GetRecastWorldModule()->GetNavMesh();
+  dtNavMesh* pNavMesh = GetWorld()->GetOrCreateModule<ezRecastWorldModule>()->GetNavMesh();
   if (pNavMesh == nullptr)
     return EZ_FAILURE;
 

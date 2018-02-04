@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <PhysXPlugin/Components/PxTriggerComponent.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
@@ -146,7 +146,7 @@ void ezPxTriggerComponent::OnSimulationStarted()
 
   if (m_bKinematic)
   {
-    GetManager()->m_KinematicActorComponents.PushBack(this);
+    GetWorld()->GetOrCreateComponentManager<ezPxTriggerComponentManager>()->m_KinematicActorComponents.PushBack(this);
   }
 }
 
@@ -171,11 +171,11 @@ void ezPxTriggerComponent::SetKinematic(bool b)
   if (m_bKinematic && m_pActor)
   {
     // do not insert this, until we actually have an actor pointer
-    GetManager()->m_KinematicActorComponents.PushBack(this);
+    GetWorld()->GetOrCreateComponentManager<ezPxTriggerComponentManager>()->m_KinematicActorComponents.PushBack(this);
   }
   else
   {
-    GetManager()->m_KinematicActorComponents.RemoveSwap(this);
+    GetWorld()->GetOrCreateComponentManager<ezPxTriggerComponentManager>()->m_KinematicActorComponents.RemoveSwap(this);
   }
 }
 

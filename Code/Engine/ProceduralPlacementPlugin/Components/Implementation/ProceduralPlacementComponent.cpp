@@ -464,13 +464,13 @@ ezProceduralPlacementComponent::~ezProceduralPlacementComponent()
 void ezProceduralPlacementComponent::OnActivated()
 {
   GetOwner()->UpdateLocalBounds();
-  GetManager()->AddComponent(this);
+  GetWorld()->GetOrCreateModule<ezProceduralPlacementComponentManager>()->AddComponent(this);
 }
 
 void ezProceduralPlacementComponent::OnDeactivated()
 {
   GetOwner()->UpdateLocalBounds();
-  GetManager()->RemoveComponent(this);
+  GetWorld()->GetOrCreateModule<ezProceduralPlacementComponentManager>()->RemoveComponent(this);
 }
 
 void ezProceduralPlacementComponent::SetResourceFile(const char* szFile)
@@ -498,14 +498,14 @@ void ezProceduralPlacementComponent::SetResource(const ezProceduralPlacementReso
 {
   if (IsActiveAndInitialized())
   {
-    GetManager()->RemoveComponent(this);
+    GetWorld()->GetOrCreateModule<ezProceduralPlacementComponentManager>()->RemoveComponent(this);
   }
 
   m_hResource = hResource;
 
   if (IsActiveAndInitialized())
   {
-    GetManager()->AddComponent(this);
+    GetWorld()->GetOrCreateModule<ezProceduralPlacementComponentManager>()->AddComponent(this);
   }
 }
 
@@ -515,11 +515,11 @@ void ezProceduralPlacementComponent::SetExtents(const ezVec3& value)
 
   if (IsActiveAndInitialized())
   {
-    GetManager()->RemoveComponent(this);
+    GetWorld()->GetOrCreateModule<ezProceduralPlacementComponentManager>()->RemoveComponent(this);
 
     GetOwner()->UpdateLocalBounds();
 
-    GetManager()->AddComponent(this);
+    GetWorld()->GetOrCreateModule<ezProceduralPlacementComponentManager>()->AddComponent(this);
   }
 }
 
@@ -544,7 +544,7 @@ void ezProceduralPlacementComponent::OnExtractRenderData(ezExtractRenderDataMess
 
     if (m_hResource.IsValid())
     {
-      GetManager()->AddVisibleResource(m_hResource, cameraPosition, cameraDirection);
+      GetWorld()->GetModule<ezProceduralPlacementComponentManager>()->AddVisibleResource(m_hResource, cameraPosition, cameraDirection);
     }
   }
 }

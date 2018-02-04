@@ -88,7 +88,7 @@ ezProjectileComponent::ezProjectileComponent()
 
 void ezProjectileComponent::Update()
 {
-  ezPhysicsWorldModuleInterface* pPhysicsInterface = GetManager()->m_pPhysicsInterface;
+  ezPhysicsWorldModuleInterface* pPhysicsInterface = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
 
   if (pPhysicsInterface)
   {

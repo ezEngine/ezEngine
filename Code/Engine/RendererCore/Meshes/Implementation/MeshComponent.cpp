@@ -56,6 +56,56 @@ void ezMeshComponent_SetMaterialMsg::Deserialize(ezStreamReader& stream, ezUInt8
 
 //////////////////////////////////////////////////////////////////////////
 
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMeshComponent_SetMaterialOverrideMsg);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshComponent_SetMaterialOverrideMsg, 1, ezRTTIDefaultAllocator<ezMeshComponent_SetMaterialOverrideMsg>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("Material")),
+    EZ_MEMBER_PROPERTY("MaterialSlot", m_uiMaterialSlot),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+void ezMeshComponent_SetMaterialOverrideMsg::SetMaterialFile(const char* szFile)
+{
+  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  {
+    m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(szFile);
+  }
+  else
+  {
+    m_hMaterial.Invalidate();
+  }
+}
+
+const char* ezMeshComponent_SetMaterialOverrideMsg::GetMaterialFile() const
+{
+  if (!m_hMaterial.IsValid())
+    return "";
+
+  return m_hMaterial.GetResourceID();
+}
+
+void ezMeshComponent_SetMaterialOverrideMsg::Serialize(ezStreamWriter& stream) const
+{
+  // has to be stringyfied for transfer
+  stream << GetMaterialFile();
+  stream << m_uiMaterialSlot;
+}
+
+void ezMeshComponent_SetMaterialOverrideMsg::Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVersion)
+{
+  ezStringBuilder file;
+  stream >> file;
+  SetMaterialFile(file);
+
+  stream >> m_uiMaterialSlot;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -76,6 +126,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezMeshComponent, 1, ezComponentMode::Static)
   {
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
     EZ_MESSAGE_HANDLER(ezMeshComponent_SetMaterialMsg, OnSetMaterialMsg),
+    EZ_MESSAGE_HANDLER(ezMeshComponent_SetMaterialOverrideMsg, OnSetMaterialOverrideMsg),
   }
   EZ_END_MESSAGEHANDLERS
 }
@@ -115,6 +166,11 @@ void ezMeshComponent::OnSetMaterialMsg(ezMeshComponent_SetMaterialMsg& msg)
   SetMaterial(msg.m_uiMaterialSlot, msg.m_hMaterial);
 }
 
+void ezMeshComponent::OnSetMaterialOverrideMsg(ezMeshComponent_SetMaterialOverrideMsg& msg)
+{
+  SetMaterialOverride(msg.m_uiMaterialSlot, msg.m_hMaterial);
+}
+
 void ezMeshComponent::SetMaterial(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial)
 {
   if (uiIndex >= m_Materials.GetCount())
@@ -129,6 +185,22 @@ ezMaterialResourceHandle ezMeshComponent::GetMaterial(ezUInt32 uiIndex) const
     return ezMaterialResourceHandle();
 
   return m_Materials[uiIndex];
+}
+
+void ezMeshComponent::SetMaterialOverride(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial)
+{
+  if (uiIndex >= m_MaterialOverrides.GetCount())
+    m_MaterialOverrides.SetCount(uiIndex + 1);
+
+  m_MaterialOverrides[uiIndex] = hMaterial;
+}
+
+ezMaterialResourceHandle ezMeshComponent::GetMaterialOverride(ezUInt32 uiIndex) const
+{
+  if (uiIndex >= m_MaterialOverrides.GetCount())
+    return ezMaterialResourceHandle();
+
+  return m_MaterialOverrides[uiIndex];
 }
 
 void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
@@ -150,7 +222,9 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
     ezMaterialResourceHandle hMaterial;
 
     // If we have a material override, use that otherwise use the default mesh material.
-    if (GetMaterial(uiMaterialIndex).IsValid())
+    if (GetMaterialOverride(uiMaterialIndex).IsValid())
+      hMaterial = m_MaterialOverrides[uiMaterialIndex];
+    else    if (GetMaterial(uiMaterialIndex).IsValid())
       hMaterial = m_Materials[uiMaterialIndex];
     else
       hMaterial = pMesh->GetMaterials()[uiMaterialIndex];

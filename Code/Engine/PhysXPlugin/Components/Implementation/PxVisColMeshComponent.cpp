@@ -55,7 +55,7 @@ void ezPxVisColMeshComponent::DeserializeComponent(ezWorldReader& stream)
 
   s >> m_hCollisionMesh;
 
-  GetManager()->EnqueueUpdate(GetHandle());
+  GetWorld()->GetOrCreateComponentManager<ezPxVisColMeshComponentManager>()->EnqueueUpdate(GetHandle());
 }
 
 ezResult ezPxVisColMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
@@ -112,7 +112,7 @@ void ezPxVisColMeshComponent::SetMesh(const ezPxMeshResourceHandle& hMesh)
     m_hCollisionMesh = hMesh;
     m_hMesh.Invalidate();
 
-    GetManager()->EnqueueUpdate(GetHandle());
+    GetWorld()->GetOrCreateComponentManager<ezPxVisColMeshComponentManager>()->EnqueueUpdate(GetHandle());
   }
 }
 
@@ -122,7 +122,7 @@ void ezPxVisColMeshComponent::ResourceEventHandler(const ezResourceEvent& e)
   {
   case ezResourceEventType::ResourceContentUnloading:
   case ezResourceEventType::ResourceContentUpdated:
-    GetManager()->EnqueueUpdate(GetHandle());
+    GetWorld()->GetOrCreateComponentManager<ezPxVisColMeshComponentManager>()->EnqueueUpdate(GetHandle());
     break;
   }
 }

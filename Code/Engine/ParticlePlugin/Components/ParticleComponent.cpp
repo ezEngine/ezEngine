@@ -333,7 +333,7 @@ void ezParticleComponent::Update()
     }
     else if (m_OnFinishedAction == ezOnComponentFinishedAction2::DeleteComponent)
     {
-      GetManager()->DeleteComponent(GetHandle());
+      GetOwningManager()->DeleteComponent(GetHandle());
     }
   }
 }

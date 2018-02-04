@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
@@ -425,7 +425,7 @@ void ezCameraComponent::MarkAsModified()
 {
   if (!m_bIsModified)
   {
-    GetManager()->m_modifiedCameras.PushBack(GetHandle());
+    GetWorld()->GetOrCreateComponentManager<ezCameraComponentManager>()->m_modifiedCameras.PushBack(GetHandle());
     m_bIsModified = true;
   }
 }

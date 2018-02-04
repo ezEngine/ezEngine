@@ -182,11 +182,11 @@ void ezPxDynamicActorComponent::SetKinematic(bool b)
   if (m_bKinematic && m_pActor)
   {
     // do not insert this, until we actually have an actor pointer
-    GetManager()->m_KinematicActorComponents.PushBack(this);
+    GetWorld()->GetOrCreateComponentManager<ezPxDynamicActorComponentManager>()->m_KinematicActorComponents.PushBack(this);
   }
   else
   {
-    GetManager()->m_KinematicActorComponents.RemoveSwap(this);
+    GetWorld()->GetOrCreateComponentManager<ezPxDynamicActorComponentManager>()->m_KinematicActorComponents.RemoveSwap(this);
   }
 
   if (m_pActor)
@@ -293,7 +293,7 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
 
   if (m_bKinematic)
   {
-    GetManager()->m_KinematicActorComponents.PushBack(this);
+    GetWorld()->GetOrCreateComponentManager<ezPxDynamicActorComponentManager>()->m_KinematicActorComponents.PushBack(this);
   }
 
   {
@@ -306,7 +306,7 @@ void ezPxDynamicActorComponent::Deinitialize()
 {
   if (m_bKinematic)
   {
-    GetManager()->m_KinematicActorComponents.RemoveSwap(this);
+    GetWorld()->GetOrCreateComponentManager<ezPxDynamicActorComponentManager>()->m_KinematicActorComponents.RemoveSwap(this);
   }
 
   if (m_pActor)

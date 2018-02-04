@@ -417,7 +417,7 @@ void ezFmodEventComponent::Update()
       }
       else if (m_OnFinishedAction == ezOnComponentFinishedAction::DeleteComponent)
       {
-        GetManager()->DeleteComponent(GetHandle());
+        GetOwningManager()->DeleteComponent(GetHandle());
       }
     }
   }

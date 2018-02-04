@@ -57,7 +57,7 @@ void ezPrefabReferenceComponent::DeserializeComponent(ezWorldReader& stream)
 
   if (m_bRequiresInstantiation)
   {
-    GetManager()->AddToUpdateList(this);
+    GetWorld()->GetComponentManager<ezPrefabReferenceComponentManager>()->AddToUpdateList(this);
   }
 }
 
@@ -91,7 +91,7 @@ void ezPrefabReferenceComponent::SetPrefab(const ezPrefabResourceHandle& hPrefab
   m_hPrefab = hPrefab;
   m_bRequiresInstantiation = true;
 
-  GetManager()->AddToUpdateList(this);
+  GetWorld()->GetComponentManager<ezPrefabReferenceComponentManager>()->AddToUpdateList(this);
 }
 
 

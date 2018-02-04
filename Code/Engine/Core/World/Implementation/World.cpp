@@ -182,7 +182,7 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& object)
   for (ezUInt32 c = 0; c < components.GetCount(); ++c)
   {
     ezComponent* pComponent = components[c];
-    pComponent->GetManager()->DeleteComponent(pComponent->GetHandle());
+    pComponent->GetOwningManager()->DeleteComponent(pComponent->GetHandle());
   }
   EZ_ASSERT_DEV(pObject->m_Components.GetCount() == 0, "Components should already be removed");
 
@@ -942,7 +942,7 @@ void ezWorld::DeleteDeadComponents()
     ezComponent* pComponent = m_Data.m_DeadComponents.PeekBack();
     m_Data.m_DeadComponents.PopBack();
 
-    ezComponentManagerBase* pManager = pComponent->GetManager();
+    ezComponentManagerBase* pManager = pComponent->GetOwningManager();
     ezComponent* pMovedComponent = nullptr;
     pManager->DeleteComponentStorage(pComponent, pMovedComponent);
 

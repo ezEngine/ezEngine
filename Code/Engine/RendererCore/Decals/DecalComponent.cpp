@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <RendererCore/Decals/DecalComponent.h>
 #include <RendererCore/Decals/DecalAtlasResource.h>
 #include <RendererCore/Decals/DecalResource.h>
@@ -263,7 +263,7 @@ void ezDecalComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) cons
   if (finalColor.a <= 0.0f)
     return;
 
-  auto hDecalAtlas = GetManager()->m_hDecalAtlas;
+  auto hDecalAtlas = GetWorld()->GetComponentManager<ezDecalComponentManager>()->m_hDecalAtlas;
   ezVec2 baseAtlasScale = ezVec2(0.5f);
   ezVec2 baseAtlasOffset = ezVec2(0.5f);
 
@@ -347,6 +347,6 @@ void ezDecalComponent::OnTriggered(ezInternalComponentMessage& msg)
   }
   else if (m_OnFinishedAction == ezOnComponentFinishedAction::DeleteComponent)
   {
-    GetManager()->DeleteComponent(GetHandle());
+    GetOwningManager()->DeleteComponent(GetHandle());
   }
 }

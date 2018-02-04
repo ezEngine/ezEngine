@@ -46,10 +46,10 @@ public:
   bool IsActiveAndSimulating() const;
 
   /// \brief Returns the corresponding manager for this component.
-  ezComponentManagerBase* GetManager();
+  ezComponentManagerBase* GetOwningManager();
 
   /// \brief Returns the corresponding manager for this component.
-  const ezComponentManagerBase* GetManager() const;
+  const ezComponentManagerBase* GetOwningManager() const;
 
   /// \brief Returns the owner game object if the component is attached to one or nullptr.
   ezGameObject* GetOwner();

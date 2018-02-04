@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/Components/AreaDamageComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -41,7 +41,7 @@ void ezAreaDamageComponent::ApplyAreaDamage()
   if (!IsActiveAndSimulating())
     return;
 
-  ezPhysicsWorldModuleInterface* pPhysicsInterface = GetManager()->m_pPhysicsInterface;
+  ezPhysicsWorldModuleInterface* pPhysicsInterface = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
 
   if (pPhysicsInterface == nullptr)
     return;

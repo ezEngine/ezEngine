@@ -40,6 +40,20 @@ struct EZ_RENDERERCORE_DLL ezMeshComponent_SetMaterialMsg : public ezScriptFunct
   virtual void Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVersion);
 };
 
+struct EZ_RENDERERCORE_DLL ezMeshComponent_SetMaterialOverrideMsg : public ezScriptFunctionMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMeshComponent_SetMaterialOverrideMsg, ezScriptFunctionMessage);
+
+  void SetMaterialFile(const char* szFile);
+  const char* GetMaterialFile() const;
+
+  ezMaterialResourceHandle m_hMaterial;
+  ezUInt32 m_uiMaterialSlot = 0xFFFFFFFFu;
+
+  virtual void Serialize(ezStreamWriter& stream) const;
+  virtual void Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVersion);
+};
+
 class EZ_RENDERERCORE_DLL ezMeshComponent : public ezRenderComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezMeshComponent, ezRenderComponent, ezMeshComponentManager);
@@ -74,12 +88,16 @@ public:
   void SetMaterial(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial);
   ezMaterialResourceHandle GetMaterial(ezUInt32 uiIndex) const;
 
+  void SetMaterialOverride(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial);
+  ezMaterialResourceHandle GetMaterialOverride(ezUInt32 uiIndex) const;
+
   EZ_ALWAYS_INLINE void SetRenderDataCategory(ezRenderData::Category category) { m_RenderDataCategory = category; }
 
   void SetMeshFile(const char* szFile);
   const char* GetMeshFile() const;
 
   void OnSetMaterialMsg(ezMeshComponent_SetMaterialMsg& msg);
+  void OnSetMaterialOverrideMsg(ezMeshComponent_SetMaterialOverrideMsg& msg);
 
 protected:
   virtual ezMeshRenderData* CreateRenderData(ezUInt32 uiBatchId) const;
@@ -94,5 +112,7 @@ private:
   ezRenderData::Category m_RenderDataCategory;
   ezMeshResourceHandle m_hMesh;
   ezDynamicArray<ezMaterialResourceHandle> m_Materials;
+
+  ezDynamicArray<ezMaterialResourceHandle> m_MaterialOverrides;
 };
 

@@ -1,4 +1,4 @@
-﻿#include <Foundation/Logging/Log.h>
+#include <Foundation/Logging/Log.h>
 
 EZ_ALWAYS_INLINE ezComponent::ezComponent() :
   m_pMessageDispatchType(nullptr),
@@ -32,12 +32,12 @@ EZ_ALWAYS_INLINE bool ezComponent::IsActiveAndInitialized() const
   return m_ComponentFlags.AreAllSet(ezObjectFlags::Active | ezObjectFlags::Initialized);
 }
 
-EZ_ALWAYS_INLINE ezComponentManagerBase* ezComponent::GetManager()
+EZ_ALWAYS_INLINE ezComponentManagerBase* ezComponent::GetOwningManager()
 {
   return m_pManager;
 }
 
-EZ_ALWAYS_INLINE const ezComponentManagerBase* ezComponent::GetManager() const
+EZ_ALWAYS_INLINE const ezComponentManagerBase* ezComponent::GetOwningManager() const
 {
   return m_pManager;
 }

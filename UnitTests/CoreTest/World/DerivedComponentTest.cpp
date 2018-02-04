@@ -77,7 +77,7 @@ EZ_CREATE_SIMPLE_TEST(World, DerivedComponents)
     EZ_TEST_BOOL(world.TryGetComponent(hComponentBase, pTestBase));
     EZ_TEST_BOOL(pTestBase == pComponentBase);
     EZ_TEST_BOOL(pComponentBase->GetHandle() == hComponentBase);
-    EZ_TEST_BOOL(pComponentBase->GetManager() == pManagerBase);
+    EZ_TEST_BOOL(pComponentBase->GetOwningManager() == pManagerBase);
 
     TestComponentDerived1* pComponentDerived1 = nullptr;
     ezComponentHandle hComponentDerived1 = TestComponentDerived1::CreateComponent(pObject2, pComponentDerived1);
@@ -86,7 +86,7 @@ EZ_CREATE_SIMPLE_TEST(World, DerivedComponents)
     EZ_TEST_BOOL(world.TryGetComponent(hComponentDerived1, pTestDerived1));
     EZ_TEST_BOOL(pTestDerived1 == pComponentDerived1);
     EZ_TEST_BOOL(pComponentDerived1->GetHandle() == hComponentDerived1);
-    EZ_TEST_BOOL(pComponentDerived1->GetManager() == pManagerDerived1);
+    EZ_TEST_BOOL(pComponentDerived1->GetOwningManager() == pManagerDerived1);
 
     world.Update();
 

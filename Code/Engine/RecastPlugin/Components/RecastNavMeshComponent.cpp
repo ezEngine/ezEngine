@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <RecastPlugin/Components/RecastNavMeshComponent.h>
 #include <GameEngine/AI/NavMesh/NavMeshDescription.h>
 #include <GameEngine/Messages/BuildNavMeshMessage.h>
@@ -87,8 +87,8 @@ void ezRcNavMeshComponent::Update()
   if (m_NavMeshBuilder.m_pNavMesh == nullptr)
     return;
 
-  GetManager()->GetRecastWorldModule()->SetNavMesh(m_NavMeshBuilder.m_pNavMesh);
-  GetManager()->GetRecastWorldModule()->m_NavMeshPointsOfInterest.ExtractInterestPointsFromMesh(*m_NavMeshBuilder.m_polyMesh, true);
+  GetWorld()->GetOrCreateModule<ezRecastWorldModule>()->SetNavMesh(m_NavMeshBuilder.m_pNavMesh);
+  GetWorld()->GetOrCreateModule<ezRecastWorldModule>()->m_NavMeshPointsOfInterest.ExtractInterestPointsFromMesh(*m_NavMeshBuilder.m_polyMesh, true);
 }
 
 EZ_ALWAYS_INLINE static ezVec3 GetNavMeshVertex(const rcPolyMesh* pMesh, ezUInt16 uiVertex, const ezVec3& vMeshOrigin, float fCellSize, float fCellHeight)
@@ -181,7 +181,7 @@ void ezRcNavMeshComponent::VisualizePointsOfInterest()
   if (!m_bShowNavMesh && !g_AiShowNavMesh)
     return;
 
-  const auto& poi = GetManager()->GetRecastWorldModule()->m_NavMeshPointsOfInterest;
+  const auto& poi = GetWorld()->GetOrCreateModule<ezRecastWorldModule>()->m_NavMeshPointsOfInterest;
   const auto& graph = poi.GetGraph();
 
   const ezUInt32 uiCheckTimeStamp = poi.GetCheckVisibilityTimeStamp();
