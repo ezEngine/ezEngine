@@ -87,7 +87,6 @@ protected:
   float m_fVelocityUp = 0.0f;
   ezVec3 m_vVelocityLateral = ezVec3(0.0f);
 
-  ezVec3 m_vExternalVelocity = ezVec3(0.0f);
   float m_fAccumulatedWalkDistance = 0.0f;
 };
 

@@ -98,6 +98,11 @@ namespace
       return PxFilterFlag::eSUPPRESS;
     }
 
+    if (kinematic0 && kinematic1)
+    {
+      return PxFilterFlag::eSUPPRESS;
+    }
+
     pairFlags = (PxPairFlag::Enum)0;
 
     // trigger the contact callback for pairs (A,B) where
@@ -116,14 +121,7 @@ namespace
         pairFlags |= (PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_PERSISTS | PxPairFlag::eNOTIFY_CONTACT_POINTS);
       }
 
-      if (kinematic0 && kinematic1)
-      {
-        pairFlags |= PxPairFlag::eDETECT_DISCRETE_CONTACT;
-      }
-      else
-      {
-        pairFlags |= PxPairFlag::eCONTACT_DEFAULT;
-      }
+      pairFlags |= PxPairFlag::eCONTACT_DEFAULT;
 
       return PxFilterFlag::eDEFAULT;
     }

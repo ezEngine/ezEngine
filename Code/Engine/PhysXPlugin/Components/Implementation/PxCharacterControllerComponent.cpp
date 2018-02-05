@@ -91,7 +91,6 @@ ezPxCharacterControllerComponent::ezPxCharacterControllerComponent()
   m_fPushingForce = 500.0f;
   m_fVelocityUp = 0.0f;
   m_vVelocityLateral.SetZero();
-  m_vExternalVelocity.SetZero();
   m_sWalkSurfaceInteraction.Assign("Footstep");
   m_fWalkInteractionDistance = 1.0f;
   m_fRunInteractionDistance = 3.0f;
@@ -249,24 +248,17 @@ void ezPxCharacterControllerComponent::Update()
   ezVec3 vNewVelocity(0.0f);
 
   float fAddWalkDistance = 0.0f;
-  if (m_vExternalVelocity.IsZero())
-  {
-    if (isOnGround)
-    {
-      vNewVelocity = vIntendedMovement;
-      fAddWalkDistance = vIntendedMovement.GetLength();
-    }
-    else
-    {
-      m_vVelocityLateral *= ezMath::Pow(1.0f - m_fAirFriction, tDiff);
 
-      vNewVelocity = m_vVelocityLateral + vIntendedMovement;
-    }
+  if (isOnGround)
+  {
+    vNewVelocity = vIntendedMovement;
+    fAddWalkDistance = vIntendedMovement.GetLength();
   }
   else
   {
-    vNewVelocity = m_vExternalVelocity;
-    m_vExternalVelocity.SetZero();
+    m_vVelocityLateral *= ezMath::Pow(1.0f - m_fAirFriction, tDiff);
+
+    vNewVelocity = m_vVelocityLateral + vIntendedMovement;
   }
 
   vNewVelocity.z = m_fVelocityUp;
@@ -466,20 +458,6 @@ void ezPxCharacterControllerComponent::OnCollision(ezCollisionMessage& msg)
         msg.m_vForce = vForce;
         msg.m_vGlobalPosition = vHitPos;
         pDynamicActorComponent->AddForceAtPos(msg);
-      }
-    }
-  }
-  else if (msg.m_hObjectB == pOwner->GetHandle())
-  {
-    // Another object was the source of collision so the CC is pushed by the another body.
-    ezPxDynamicActorComponent* pDynamicActorComponent = nullptr;
-    if (pWorld->TryGetComponent(msg.m_hComponentA, pDynamicActorComponent))
-    {
-      if (pDynamicActorComponent->GetKinematic())
-      {
-        ezVec3 vNormal = -msg.m_vNormal; // the normal is from B to A but we're interested in the other direction
-        ezVec3 vVelocity = pDynamicActorComponent->GetOwner()->GetVelocity();
-        m_vExternalVelocity = vNormal * ezMath::Max(vNormal.Dot(vVelocity), 0.0f); // reduce effect if normal and velocity are in different directions
       }
     }
   }

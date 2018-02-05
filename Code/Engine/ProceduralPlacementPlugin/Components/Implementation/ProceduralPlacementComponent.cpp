@@ -464,13 +464,13 @@ ezProceduralPlacementComponent::~ezProceduralPlacementComponent()
 void ezProceduralPlacementComponent::OnActivated()
 {
   GetOwner()->UpdateLocalBounds();
-  GetWorld()->GetOrCreateModule<ezProceduralPlacementComponentManager>()->AddComponent(this);
+  GetWorld()->GetComponentManager<ezProceduralPlacementComponentManager>()->AddComponent(this);
 }
 
 void ezProceduralPlacementComponent::OnDeactivated()
 {
   GetOwner()->UpdateLocalBounds();
-  GetWorld()->GetOrCreateModule<ezProceduralPlacementComponentManager>()->RemoveComponent(this);
+  GetWorld()->GetComponentManager<ezProceduralPlacementComponentManager>()->RemoveComponent(this);
 }
 
 void ezProceduralPlacementComponent::SetResourceFile(const char* szFile)
@@ -498,14 +498,14 @@ void ezProceduralPlacementComponent::SetResource(const ezProceduralPlacementReso
 {
   if (IsActiveAndInitialized())
   {
-    GetWorld()->GetOrCreateModule<ezProceduralPlacementComponentManager>()->RemoveComponent(this);
+    GetWorld()->GetComponentManager<ezProceduralPlacementComponentManager>()->RemoveComponent(this);
   }
 
   m_hResource = hResource;
 
   if (IsActiveAndInitialized())
   {
-    GetWorld()->GetOrCreateModule<ezProceduralPlacementComponentManager>()->AddComponent(this);
+    GetWorld()->GetComponentManager<ezProceduralPlacementComponentManager>()->AddComponent(this);
   }
 }
 
@@ -515,11 +515,11 @@ void ezProceduralPlacementComponent::SetExtents(const ezVec3& value)
 
   if (IsActiveAndInitialized())
   {
-    GetWorld()->GetOrCreateModule<ezProceduralPlacementComponentManager>()->RemoveComponent(this);
+    GetWorld()->GetComponentManager<ezProceduralPlacementComponentManager>()->RemoveComponent(this);
 
     GetOwner()->UpdateLocalBounds();
 
-    GetWorld()->GetOrCreateModule<ezProceduralPlacementComponentManager>()->AddComponent(this);
+    GetWorld()->GetComponentManager<ezProceduralPlacementComponentManager>()->AddComponent(this);
   }
 }
 
@@ -544,7 +544,7 @@ void ezProceduralPlacementComponent::OnExtractRenderData(ezExtractRenderDataMess
 
     if (m_hResource.IsValid())
     {
-      GetWorld()->GetModule<ezProceduralPlacementComponentManager>()->AddVisibleResource(m_hResource, cameraPosition, cameraDirection);
+      GetWorld()->GetComponentManager<ezProceduralPlacementComponentManager>()->AddVisibleResource(m_hResource, cameraPosition, cameraDirection);
     }
   }
 }

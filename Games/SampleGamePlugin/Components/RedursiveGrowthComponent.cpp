@@ -60,7 +60,7 @@ void RecursiveGrowthComponent::DeserializeComponent(ezWorldReader& stream)
 
 void RecursiveGrowthComponent::OnSimulationStarted()
 {
-  RecursiveGrowthComponentManager* pManager = GetWorld()->GetOrCreateModule<RecursiveGrowthComponentManager>();
+  RecursiveGrowthComponentManager* pManager = GetWorld()->GetComponentManager<RecursiveGrowthComponentManager>();
 
   EZ_LOG_BLOCK("RecursiveGrowthComponent::OnSimulationStarted");
 
