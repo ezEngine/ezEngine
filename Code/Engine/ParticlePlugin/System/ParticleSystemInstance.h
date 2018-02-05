@@ -68,6 +68,8 @@ public:
   void SetBoundingVolume(const ezBoundingBoxSphere& volume, float fMaxParticleSize);
   void GetBoundingVolume(ezBoundingBoxSphere& volume) const;
 
+  bool IsContinuous() const;
+
 private:
   bool IsEmitterConfigEqual(const ezParticleSystemDescriptor* pTemplate) const;
   bool IsInitializerConfigEqual(const ezParticleSystemDescriptor* pTemplate) const;

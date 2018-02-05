@@ -114,6 +114,17 @@ void ezParticleEffectInstance::ClearParticleSystems()
   m_ParticleSystems.Clear();
 }
 
+bool ezParticleEffectInstance::IsContinuous() const
+{
+  for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
+  {
+    if (m_ParticleSystems[i]->IsContinuous())
+      return true;
+  }
+
+  return false;
+}
+
 void ezParticleEffectInstance::PreSimulate()
 {
   // Pre-simulate the effect, if desired, to get it into a 'good looking' state

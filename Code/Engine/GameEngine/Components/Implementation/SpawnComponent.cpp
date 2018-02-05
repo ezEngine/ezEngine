@@ -68,8 +68,6 @@ bool ezSpawnComponent::SpawnOnce()
 {
   if (m_hPrefab.IsValid())
   {
-    ezResourceLock<ezPrefabResource> pResource(m_hPrefab);
-
     ezTransform tLocalSpawn;
     tLocalSpawn.SetIdentity();
 
@@ -89,21 +87,30 @@ bool ezSpawnComponent::SpawnOnce()
       tLocalSpawn.m_qRotation = qDeviate;
     }
 
-    if (m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::AttachAsChild))
-    {
-      pResource->InstantiatePrefab(*GetWorld(), tLocalSpawn, GetOwner()->GetHandle(), nullptr, &GetOwner()->GetTeamID());
-    }
-    else
-    {
-      ezTransform tGlobalSpawn;
-      tGlobalSpawn.SetGlobalTransform(GetOwner()->GetGlobalTransform(), tLocalSpawn);
+    DoSpawn(tLocalSpawn);
 
-      pResource->InstantiatePrefab(*GetWorld(), tGlobalSpawn, ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID());
-    }
     return true;
   }
 
   return false;
+}
+
+
+void ezSpawnComponent::DoSpawn(const ezTransform& tLocalSpawn)
+{
+  ezResourceLock<ezPrefabResource> pResource(m_hPrefab);
+
+  if (m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::AttachAsChild))
+  {
+    pResource->InstantiatePrefab(*GetWorld(), tLocalSpawn, GetOwner()->GetHandle(), nullptr, &GetOwner()->GetTeamID());
+  }
+  else
+  {
+    ezTransform tGlobalSpawn;
+    tGlobalSpawn.SetGlobalTransform(GetOwner()->GetGlobalTransform(), tLocalSpawn);
+
+    pResource->InstantiatePrefab(*GetWorld(), tGlobalSpawn, ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID());
+  }
 }
 
 void ezSpawnComponent::ScheduleSpawn()

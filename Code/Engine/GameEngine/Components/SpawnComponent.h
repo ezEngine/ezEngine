@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Core/Messages/ScriptFunctionMessage.h>
@@ -35,7 +35,7 @@ EZ_DECLARE_FLAGS_OPERATORS(ezSpawnComponentFlags);
 typedef ezComponentManager<class ezSpawnComponent, ezBlockStorageType::Compact> ezSpawnComponentManager;
 
 /// \brief Message to initiate a spawn on ezSpawnComponent
-struct ezSpawnComponent_SpawnMsg : public ezScriptFunctionMessage
+struct EZ_GAMEENGINE_DLL ezSpawnComponent_SpawnMsg : public ezScriptFunctionMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezSpawnComponent_SpawnMsg, ezScriptFunctionMessage);
 
@@ -110,6 +110,7 @@ protected:
   virtual void OnSimulationStarted() override;
 
   bool SpawnOnce();
+  virtual void DoSpawn(const ezTransform& tLocalSpawn);
 
 
 private:

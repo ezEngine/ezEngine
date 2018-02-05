@@ -576,5 +576,17 @@ void ezParticleSystemInstance::GetBoundingVolume(ezBoundingBoxSphere& volume) co
   volume = m_BoundingVolume;
 }
 
+
+bool ezParticleSystemInstance::IsContinuous() const
+{
+  for (const ezParticleEmitter* pEmitter : m_Emitters)
+  {
+    if (pEmitter->IsContinuous())
+      return true;
+  }
+
+  return false;
+}
+
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_System_ParticleSystemInstance);
 

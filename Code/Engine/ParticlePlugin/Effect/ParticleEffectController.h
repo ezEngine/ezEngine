@@ -18,6 +18,8 @@ public:
   bool IsAlive() const;
   bool IsSharedInstance() const { return m_pSharedInstanceOwner != nullptr; }
 
+  bool IsContinuousEffect() const { return GetInstance()->IsContinuous(); }
+
   void SetTransform(const ezTransform& t) const;
 
   void Tick(const ezTime& tDiff) const;

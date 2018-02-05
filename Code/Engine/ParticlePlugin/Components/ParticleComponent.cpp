@@ -277,6 +277,11 @@ void ezParticleComponent::Update()
     if (StartEffect())
     {
       m_bSpawnAtStart = false;
+
+      if (m_EffectController.IsContinuousEffect())
+      {
+        m_bSpawnAtStart = true;
+      }
     }
   }
 

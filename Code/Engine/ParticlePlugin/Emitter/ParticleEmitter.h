@@ -40,6 +40,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter : public ezParticleModule
   friend class ezParticleEmitterFactory;
 
 protected:
+  virtual bool IsContinuous() const { return false; }
+
   virtual void Process(ezUInt64 uiNumElements) final override {}
 
   /// \brief Called once per update. Must return how many new particles are to be spawned.

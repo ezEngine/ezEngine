@@ -54,6 +54,8 @@ public:
   virtual void CreateRequiredStreams() override {}
 
 protected:
+  virtual bool IsContinuous() const override { return true; }
+
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override {}
   virtual void OnFinalize() override;
 

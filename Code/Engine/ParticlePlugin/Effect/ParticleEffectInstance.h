@@ -50,6 +50,7 @@ public:
 
   void ClearParticleSystems();
 
+  bool IsContinuous() const;
 
   ezWorld* GetWorld() const { return m_pWorld; }
   ezParticleWorldModule* GetOwnerWorldModule() const { return m_pOwnerModule; }
