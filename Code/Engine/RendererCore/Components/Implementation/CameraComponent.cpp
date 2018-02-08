@@ -398,8 +398,8 @@ void ezCameraComponent::ApplySettingsToView(ezView* pView) const
     {
       const ezGameObject* pOwner = GetOwner();
       ezVec3 vPosition = pOwner->GetGlobalPosition();
-      ezVec3 vForward = pOwner->GetDirForwards();
-      ezVec3 vUp = pOwner->GetDirUp();
+      ezVec3 vForward = pOwner->GetGlobalDirForwards();
+      ezVec3 vUp = pOwner->GetGlobalDirUp();
 
       ezMat4 viewMatrix;
       viewMatrix.SetLookAtMatrix(vPosition, vPosition + vForward, vUp);

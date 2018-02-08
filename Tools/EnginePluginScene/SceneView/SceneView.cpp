@@ -142,8 +142,8 @@ void ezSceneViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
       {
         const ezGameObject* pOwner = pCameraComponent->GetOwner();
         ezVec3 vPosition = pOwner->GetGlobalPosition();
-        ezVec3 vForward = pOwner->GetDirForwards();
-        ezVec3 vUp = pOwner->GetDirUp();
+        ezVec3 vForward = pOwner->GetGlobalDirForwards();
+        ezVec3 vUp = pOwner->GetGlobalDirUp();
 
         m_CullingCamera.LookAt(vPosition, vPosition + vForward, vUp);
       }

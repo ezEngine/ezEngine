@@ -464,7 +464,7 @@ ezGameObject* ezGameObject::SearchForChildByNameSequence(const char* szObjectSeq
   return nullptr;
 }
 
-ezVec3 ezGameObject::GetDirForwards() const
+ezVec3 ezGameObject::GetGlobalDirForwards() const
 {
   ezCoordinateSystem coordinateSystem;
   m_pWorld->GetCoordinateSystem(GetGlobalPosition(), coordinateSystem);
@@ -472,7 +472,7 @@ ezVec3 ezGameObject::GetDirForwards() const
   return GetGlobalRotation() * coordinateSystem.m_vForwardDir;
 }
 
-ezVec3 ezGameObject::GetDirRight() const
+ezVec3 ezGameObject::GetGlobalDirRight() const
 {
   ezCoordinateSystem coordinateSystem;
   m_pWorld->GetCoordinateSystem(GetGlobalPosition(), coordinateSystem);
@@ -480,7 +480,7 @@ ezVec3 ezGameObject::GetDirRight() const
   return GetGlobalRotation() * coordinateSystem.m_vRightDir;
 }
 
-ezVec3 ezGameObject::GetDirUp() const
+ezVec3 ezGameObject::GetGlobalDirUp() const
 {
   ezCoordinateSystem coordinateSystem;
   m_pWorld->GetCoordinateSystem(GetGlobalPosition(), coordinateSystem);

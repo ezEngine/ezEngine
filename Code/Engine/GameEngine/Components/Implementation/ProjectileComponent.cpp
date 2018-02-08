@@ -337,7 +337,7 @@ void ezProjectileComponent::OnSimulationStarted()
     }
   }
 
-  m_vVelocity = GetOwner()->GetDirForwards() * m_fMetersPerSecond;
+  m_vVelocity = GetOwner()->GetGlobalDirForwards() * m_fMetersPerSecond;
 }
 
 void ezProjectileComponent::OnTriggered(ezInternalComponentMessage& msg)

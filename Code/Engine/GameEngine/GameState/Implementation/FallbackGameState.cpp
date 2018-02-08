@@ -201,8 +201,8 @@ void ezFallbackGameState::AfterWorldUpdate()
   {
     const ezGameObject* pOwner = pCamComp->GetOwner();
     ezVec3 vPosition = pOwner->GetGlobalPosition();
-    ezVec3 vForward = pOwner->GetDirForwards();
-    ezVec3 vUp = pOwner->GetDirUp();
+    ezVec3 vForward = pOwner->GetGlobalDirForwards();
+    ezVec3 vUp = pOwner->GetGlobalDirUp();
 
     m_MainCamera.LookAt(vPosition, vPosition + vForward, vUp);
   }

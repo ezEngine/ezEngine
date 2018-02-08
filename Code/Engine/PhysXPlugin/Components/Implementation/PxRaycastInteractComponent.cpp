@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <PhysXPlugin/Components/PxRaycastInteractComponent.h>
 #include <PhysXPlugin/Components/PxCharacterProxyComponent.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
@@ -66,7 +66,7 @@ void ezPxRaycastInteractComponent::Execute(ezPxRaycastInteractComponent_Execute&
 {
   ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
 
-  const ezVec3 vDirection = GetOwner()->GetDirForwards().GetNormalized();
+  const ezVec3 vDirection = GetOwner()->GetGlobalDirForwards().GetNormalized();
 
   ezUInt32 uiIgnoreShapeID = ezInvalidIndex;
 

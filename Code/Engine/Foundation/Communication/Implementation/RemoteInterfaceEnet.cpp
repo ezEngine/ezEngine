@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/Communication/RemoteInterfaceEnet.h>
 
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
@@ -225,10 +225,13 @@ void ezRemoteInterfaceEnet::InternalUpdateRemoteInterface()
 
           case 'AKID':
             {
-              m_EnetPeerToClientID[NetworkEvent.peer] = uiApplicationID;
+              if (m_EnetPeerToClientID[NetworkEvent.peer] != uiApplicationID)
+              {
+                m_EnetPeerToClientID[NetworkEvent.peer] = uiApplicationID;
 
-              // the client received the server ID -> the connection has been established properly
-              ReportConnectionToClient(uiApplicationID);
+                // the client received the server ID -> the connection has been established properly
+                ReportConnectionToClient(uiApplicationID);
+              }
             }
             break;
           }

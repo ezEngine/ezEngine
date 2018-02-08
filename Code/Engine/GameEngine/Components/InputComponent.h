@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Core/Input/Declarations.h>
@@ -26,6 +26,7 @@ struct EZ_GAMEENGINE_DLL ezInputMessageGranularity
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezInputMessageGranularity);
 
+/// \brief ezInputComponent raises this event when it detects input
 struct EZ_GAMEENGINE_DLL ezInputEventMessage : public ezEventMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezInputEventMessage, ezEventMessage);

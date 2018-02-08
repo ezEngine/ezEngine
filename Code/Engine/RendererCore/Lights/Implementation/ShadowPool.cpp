@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/Implementation/ShadowPool.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
@@ -438,8 +438,8 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
   };
 
   const ezGameObject* pOwner = pDirLight->GetOwner();
-  ezVec3 vForward = pOwner->GetDirForwards();
-  ezVec3 vUp = pOwner->GetDirUp();
+  ezVec3 vForward = pOwner->GetGlobalDirForwards();
+  ezVec3 vUp = pOwner->GetGlobalDirUp();
 
   float fAspectRatio = pReferenceView->GetViewport().width / pReferenceView->GetViewport().height;
 
@@ -623,8 +623,8 @@ ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, floa
   {
     const ezGameObject* pOwner = pSpotLight->GetOwner();
     ezVec3 vPosition = pOwner->GetGlobalPosition();
-    ezVec3 vForward = pOwner->GetDirForwards();
-    ezVec3 vUp = pOwner->GetDirUp();
+    ezVec3 vForward = pOwner->GetGlobalDirForwards();
+    ezVec3 vUp = pOwner->GetGlobalDirUp();
 
     float fFov = AddSafeBorder(pSpotLight->GetOuterSpotAngle(), pSpotLight->GetPenumbraSize());
     float fNearPlane = 0.1f; ///\todo expose somewhere

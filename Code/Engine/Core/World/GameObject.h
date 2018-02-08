@@ -238,11 +238,17 @@ public:
   void SetGlobalTransform(const ezSimdTransform& transform);
   const ezSimdTransform& GetGlobalTransformSimd() const;
 
-  // Local axis
-  ezVec3 GetDirForwards() const;
-  ezVec3 GetDirRight() const;
-  ezVec3 GetDirUp() const;
+  /// \brief Returns the 'forwards' direction of the world's ezCoordinateSystem, rotated into the object's global space
+  ezVec3 GetGlobalDirForwards() const;
+  /// \brief Returns the 'right' direction of the world's ezCoordinateSystem, rotated into the object's global space
+  ezVec3 GetGlobalDirRight() const;
+  /// \brief Returns the 'up' direction of the world's ezCoordinateSystem, rotated into the object's global space
+  ezVec3 GetGlobalDirUp() const;
 
+  /// \brief Sets the object's velocity.
+  ///
+  /// This is used for some rendering techniques or for the computation of sound Doppler effect.
+  /// It has no effect on the object's subsequent position.
   void SetVelocity(const ezVec3& vVelocity);
 
   /// \brief Returns the velocity of the object in units per second. This is not only the diff between last frame's position and this frame's position, but
