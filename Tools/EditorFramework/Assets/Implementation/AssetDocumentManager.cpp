@@ -5,6 +5,7 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/Serialization/RttiConverter.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentManager, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE

@@ -1,4 +1,4 @@
-﻿
+
 EZ_FORCE_INLINE bool ezComponentManagerBase::IsValidComponent(const ezComponentHandle& component) const
 {
   return m_Components.Contains(component);
@@ -195,7 +195,12 @@ void ezComponentManagerSimple<ComponentType, UpdateType>::SimpleUpdateName(ezStr
 {
   ezStringView sName(EZ_SOURCE_FUNCTION);
   const char* szEnd = sName.FindSubString(",");
+
+  EZ_ASSERT_DEV(szEnd != nullptr, "EZ_SOURCE_FUNCTION does not contain an expected comma: '{0}'", sName);
+
   ezStringView sChoppedName(sName.GetData() + ::strlen("ezComponentManagerSimple<class "), szEnd);
+
+  EZ_ASSERT_DEV(!sChoppedName.IsEmpty(), "Chopped name is empty: '{0}'", sName);
 
   out_sName = sChoppedName;
   out_sName.Append("::SimpleUpdate");
