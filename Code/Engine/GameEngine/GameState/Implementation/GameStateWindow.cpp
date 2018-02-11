@@ -17,7 +17,7 @@ ezGameStateWindow::~ezGameStateWindow()
 }
 
 
-void ezGameStateWindow::OnClickCloseMessage()
+void ezGameStateWindow::OnClickClose()
 {
   if (m_OnClickClose.IsValid())
   {
@@ -25,7 +25,7 @@ void ezGameStateWindow::OnClickCloseMessage()
   }
 }
 
-void ezGameStateWindow::OnResizeMessage(const ezSizeU32& newWindowSize)
+void ezGameStateWindow::OnResize(const ezSizeU32& newWindowSize)
 {
   ezLog::Info("Resolution changed to {0} * {1}", newWindowSize.width, newWindowSize.height);
 

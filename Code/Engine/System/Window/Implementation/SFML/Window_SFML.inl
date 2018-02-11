@@ -1,4 +1,4 @@
-﻿
+
 #include <PCH.h>
 #include <System/Window/Window.h>
 #include <Foundation/Math/Size.h>
@@ -47,7 +47,7 @@ ezResult ezWindow::Initialize()
   m_pInputDevice->SetShowMouseCursor(m_CreationDescription.m_bShowMouseCursor);
 
   // make sure the system knows about the actual window dimensions (especially for fullscreen windows)
-  OnResizeMessage(ezSizeU32(m_WindowHandle->getSize().x, m_WindowHandle->getSize().y));
+  OnResize(ezSizeU32(m_WindowHandle->getSize().x, m_WindowHandle->getSize().y));
 
   return CreateGraphicsContext();
 }
@@ -81,19 +81,19 @@ void ezWindow::ProcessWindowMessages()
     switch (event.type)
     {
     case sf::Event::Closed:
-      OnClickCloseMessage();
+      OnClickClose();
       break;
 
     case sf::Event::Resized:
-      OnResizeMessage(ezSizeU32(event.size.width, event.size.height));
+      OnResize(ezSizeU32(event.size.width, event.size.height));
       break;
 
     case sf::Event::LostFocus:
-      OnFocusMessage(false);
+      OnFocus(false);
       break;
 
     case sf::Event::GainedFocus:
-      OnFocusMessage(true);
+      OnFocus(true);
       break;
     }
 
@@ -134,7 +134,7 @@ ezResult ezWindow::DestroyGraphicsContext()
   return EZ_FAILURE;
 }
 
-void ezWindow::OnResizeMessage(const ezSizeU32& newWindowSize)
+void ezWindow::OnResize(const ezSizeU32& newWindowSize)
 {
   ezLog::Info("Window resized to ({0}, {1})", newWindowSize.width, newWindowSize.height);
 }

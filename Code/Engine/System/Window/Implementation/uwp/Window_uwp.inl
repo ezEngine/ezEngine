@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/Basics.h>
 #include <System/Basics.h>
 #include <System/Window/Window.h>
@@ -168,7 +168,7 @@ void ezWindow::ProcessWindowMessages()
   }
 }
 
-void ezWindow::OnResizeMessage(const ezSizeU32& newWindowSize)
+void ezWindow::OnResize(const ezSizeU32& newWindowSize)
 {
   ezLog::Info("Window resized to ({0}, {1})", newWindowSize.width, newWindowSize.height);
 }

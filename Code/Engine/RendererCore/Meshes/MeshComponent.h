@@ -86,7 +86,7 @@ public:
   void SetColor(const ezColor& color);
   const ezColor& GetColor() const;
 
-  void OnSetMaterialMsg(ezMeshComponent_SetMaterialMsg& msg);
+  void OnSetMaterial(ezMeshComponent_SetMaterialMsg& msg);
   void OnSetColor(ezSetColorMessage& msg);
 
 protected:

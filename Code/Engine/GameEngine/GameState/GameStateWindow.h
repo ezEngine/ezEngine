@@ -12,8 +12,8 @@ public:
   ~ezGameStateWindow();
 
 private:
-  virtual void OnResizeMessage(const ezSizeU32& newWindowSize) override;
-  virtual void OnClickCloseMessage() override;
+  virtual void OnResize(const ezSizeU32& newWindowSize) override;
+  virtual void OnClickClose() override;
 
   ezDelegate<void()> m_OnClickClose;
 };

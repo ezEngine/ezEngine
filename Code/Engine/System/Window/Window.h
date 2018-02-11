@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <System/Basics.h>
 #include <Foundation/Math/Rect.h>
@@ -50,7 +50,7 @@ public:
   virtual ezSizeU32 GetClientAreaSize() const = 0;
   virtual ezWindowHandle GetNativeWindowHandle() const = 0;
 
-  /// \brief Whether the window is a fullscren window
+  /// \brief Whether the window is a fullscreen window
   /// or should be one - some platforms may enforce this via the GALSwapchain)
   ///
   /// If bOnlyProperFullscreenMode, the caller accepts borderless windows that cover the entire screen as "fullscreen".
@@ -130,7 +130,7 @@ struct EZ_SYSTEM_DLL ezWindowCreationDesc
   /// \see ezStandardInputDevice::SetClipMouseCursor
   bool m_bClipMouseCursor = true;
 
-  /// Whether the mouse cursor should be visilbe or not.
+  /// Whether the mouse cursor should be visible or not.
   /// \see ezStandardInputDevice::SetShowMouseCursor
   bool m_bShowMouseCursor = false;
 };
@@ -223,16 +223,16 @@ public:
   /// \param newWindowSize
   ///   New window size in pixel.
   /// \see OnWindowMessage
-  virtual void OnResizeMessage(const ezSizeU32& newWindowSize);
+  virtual void OnResize(const ezSizeU32& newWindowSize);
 
   /// \brief Called when the window position is changed. Not possible on all OSes.
-  virtual void OnWindowMoveMessage(const ezInt32 newPosX, const ezInt32 newPosY) {}
+  virtual void OnWindowMove(const ezInt32 newPosX, const ezInt32 newPosY) {}
 
   /// \brief Called when the window gets focus or loses focus.
-  virtual void OnFocusMessage(bool bHasFocus) {}
+  virtual void OnFocus(bool bHasFocus) {}
 
   /// \brief Called when the close button of the window is clicked. Does nothing by default.
-  virtual void OnClickCloseMessage() { }
+  virtual void OnClickClose() { }
 
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
@@ -241,7 +241,7 @@ public:
   /// You can use this function for example to dispatch the message to another system.
   ///
   /// \remarks
-  ///   Will be called <i>after</i> the On[...]Message callbacks!
+  ///   Will be called <i>after</i> the On[...] callbacks!
   ///
   /// \see OnResizeMessage
   virtual void OnWindowMessage(HWND hWnd, UINT Msg, WPARAM WParam, LPARAM LParam) {}

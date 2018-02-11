@@ -77,7 +77,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezMeshComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMeshComponent_SetMaterialMsg, OnSetMaterialMsg),
+    EZ_MESSAGE_HANDLER(ezMeshComponent_SetMaterialMsg, OnSetMaterial),
     EZ_MESSAGE_HANDLER(ezSetColorMessage, OnSetColor),
   }
   EZ_END_MESSAGEHANDLERS
@@ -292,7 +292,7 @@ const ezColor& ezMeshComponent::GetColor() const
   return m_Color;
 }
 
-void ezMeshComponent::OnSetMaterialMsg(ezMeshComponent_SetMaterialMsg& msg)
+void ezMeshComponent::OnSetMaterial(ezMeshComponent_SetMaterialMsg& msg)
 {
   SetMaterial(msg.m_uiMaterialSlot, msg.m_hMaterial);
 }

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/Basics.h>
 #include <System/Basics.h>
 #include <System/Window/Window.h>
@@ -16,27 +16,27 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPAR
     switch (Msg)
     {
     case WM_CLOSE:
-      pWindow->OnClickCloseMessage();
+      pWindow->OnClickClose();
       return 0;
 
     case WM_SETFOCUS:
-      pWindow->OnFocusMessage(true);
+      pWindow->OnFocus(true);
       return 0;
 
     case WM_KILLFOCUS:
-      pWindow->OnFocusMessage(false);
+      pWindow->OnFocus(false);
       return 0;
 
     case WM_SIZE:
       {
         ezSizeU32 size(LOWORD(LParam), HIWORD(LParam));
-        pWindow->OnResizeMessage(size);
+        pWindow->OnResize(size);
       }
       break;
 
     case WM_MOVE:
       {
-        pWindow->OnWindowMoveMessage((int)(short)LOWORD(LParam), (int)(short)HIWORD(LParam));
+        pWindow->OnWindowMove((int)(short)LOWORD(LParam), (int)(short)HIWORD(LParam));
       }
       break;
     }
@@ -260,7 +260,7 @@ void ezWindow::ProcessWindowMessages()
   }
 }
 
-void ezWindow::OnResizeMessage(const ezSizeU32& newWindowSize)
+void ezWindow::OnResize(const ezSizeU32& newWindowSize)
 {
   ezLog::Info("Window resized to ({0}, {1})", newWindowSize.width, newWindowSize.height);
 }

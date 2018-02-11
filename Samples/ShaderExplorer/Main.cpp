@@ -35,7 +35,7 @@ public:
     m_bCloseRequested = false;
   }
 
-  virtual void OnClickCloseMessage() override
+  virtual void OnClickClose() override
   {
     m_bCloseRequested = true;
   }
