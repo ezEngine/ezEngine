@@ -134,6 +134,21 @@ Node %VertexColor
   }
 }
 
+Node %InstanceData
+{
+  string %Category { "Input" }
+  unsigned_int8 %Color { 38, 105, 0 }
+  
+  OutputPin %Color
+  {
+    string %Type { "float4" }
+    unsigned_int8 %Color { 128, 0, 0 }
+    string %Inline { "GetInstanceData(Input).Color" }
+    string %Tooltip { "Per instance color." }
+  }
+  
+}
+
 Node %Camera
 {
   string %Category { "Input" }

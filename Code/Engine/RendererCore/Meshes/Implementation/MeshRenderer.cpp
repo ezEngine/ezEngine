@@ -146,6 +146,7 @@ void ezMeshRenderer::FillPerInstanceData(ezArrayPtr<ezPerInstanceData> instanceD
     }
 
     perInstanceData.GameObjectID = pRenderData->m_uiUniqueID;
+    perInstanceData.Color = pRenderData->m_Color;
 
     ++uiCurrentIndex;
   }

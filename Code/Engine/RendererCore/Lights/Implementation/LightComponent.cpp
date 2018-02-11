@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <RendererCore/Lights/LightComponent.h>
+#include <RendererCore/Messages/SetColorMessage.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/Graphics/Camera.h>
@@ -24,6 +25,11 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 4)
     new ezCategoryAttribute("Rendering/Lighting"),
   }
   EZ_END_ATTRIBUTES
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezSetColorMessage, OnSetColor),
+  }
+  EZ_END_MESSAGEHANDLERS
 }
 EZ_END_ABSTRACT_COMPONENT_TYPE
 
@@ -138,6 +144,11 @@ void ezLightComponent::DeserializeComponent(ezWorldReader& stream)
   }
 
   s >> m_bCastShadows;
+}
+
+void ezLightComponent::OnSetColor(ezSetColorMessage& msg)
+{
+  msg.ModifyColor(m_LightColor);
 }
 
 //static

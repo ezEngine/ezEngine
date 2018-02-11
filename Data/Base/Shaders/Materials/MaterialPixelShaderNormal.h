@@ -57,7 +57,7 @@ PS_OUT main(PS_IN Input)
       #endif
     #endif
 
-  #elif BLEND_MODE != BLEND_MODE_OPAQUE
+  #elif BLEND_MODE != BLEND_MODE_OPAQUE && BLEND_MODE != BLEND_MODE_MASKED
     opacity = GetOpacity(Input);
   #endif
 

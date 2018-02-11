@@ -7,6 +7,7 @@
 
 class ezAbstractObjectNode;
 struct ezInternalComponentMessage;
+struct ezSetColorMessage;
 
 class EZ_RENDERERCORE_DLL ezDecalComponentManager : public ezComponentManager<class ezDecalComponent, ezBlockStorageType::Compact>
 {
@@ -111,6 +112,7 @@ protected:
   // Internal
 
   void OnTriggered(ezInternalComponentMessage& msg);
+  void OnSetColor(ezSetColorMessage& msg);
 
   ezTime m_StartFadeOutTime;
   ezUInt32 m_uiInternalSortKey;

@@ -41,6 +41,8 @@ if(WIN32) # The only platform it makes sense to check for DirectX11 SDK
 
 	# Windows 8 SDK has custom layout
 	set(DirectX11_INC_SEARCH_PATH
+	"C:/Program Files (x86)/Windows Kits/10/Include/10.0.10586.0/shared"
+	"C:/Program Files (x86)/Windows Kits/10/Include/10.0.10586.0/um"
 	"C:/Program Files (x86)/Windows Kits/8.1/Include/shared"
 	"C:/Program Files (x86)/Windows Kits/8.1/Include/um"
 	"C:/Program Files (x86)/Windows Kits/8.0/Include/shared"
@@ -48,6 +50,7 @@ if(WIN32) # The only platform it makes sense to check for DirectX11 SDK
 
 	)
 	set(DirectX11_LIB_SEARCH_PATH
+  "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.10586.0/um"
 	"C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um"
 	"C:/Program Files (x86)/Windows Kits/8.0/Lib/win8/um"
 	)

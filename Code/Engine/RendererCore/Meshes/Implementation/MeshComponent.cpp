@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <RendererCore/Meshes/MeshComponent.h>
+#include <RendererCore/Messages/SetColorMessage.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -59,11 +60,12 @@ void ezMeshComponent_SetMaterialMsg::Deserialize(ezStreamReader& stream, ezUInt8
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_COMPONENT_TYPE(ezMeshComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezMeshComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Mesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Mesh")),
+    EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
     EZ_ARRAY_ACCESSOR_PROPERTY("Materials", Materials_GetCount, Materials_GetValue, Materials_SetValue, Materials_Insert, Materials_Remove)->AddAttributes(new ezAssetBrowserAttribute("Material")),
   }
   EZ_END_PROPERTIES
@@ -76,6 +78,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezMeshComponent, 1, ezComponentMode::Static)
   {
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
     EZ_MESSAGE_HANDLER(ezMeshComponent_SetMaterialMsg, OnSetMaterialMsg),
+    EZ_MESSAGE_HANDLER(ezSetColorMessage, OnSetColor),
   }
   EZ_END_MESSAGEHANDLERS
 }
@@ -84,11 +87,58 @@ EZ_END_COMPONENT_TYPE
 ezMeshComponent::ezMeshComponent()
 {
   m_RenderDataCategory = ezInvalidIndex;
+  m_Color = ezColor::White;
 }
 
 ezMeshComponent::~ezMeshComponent()
 {
 
+}
+
+void ezMeshComponent::SerializeComponent(ezWorldWriter& stream) const
+{
+  SUPER::SerializeComponent(stream);
+  ezStreamWriter& s = stream.GetStream();
+
+  // ignore components that have created meshes (?)
+
+  s << m_hMesh;
+  s << m_RenderDataCategory;
+
+  s << m_Materials.GetCount();
+
+  for (const auto& mat : m_Materials)
+  {
+    s << mat;
+  }
+
+  s << m_Color;
+}
+
+void ezMeshComponent::DeserializeComponent(ezWorldReader& stream)
+{
+  SUPER::DeserializeComponent(stream);
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+
+  ezStreamReader& s = stream.GetStream();
+
+  s >> m_hMesh;
+  s >> m_RenderDataCategory;
+
+  ezUInt32 uiMaterials = 0;
+  s >> uiMaterials;
+
+  m_Materials.SetCount(uiMaterials);
+
+  for (auto& mat : m_Materials)
+  {
+    s >> mat;
+  }
+
+  if (uiVersion >= 2)
+  {
+    s >> m_Color;
+  }
 }
 
 ezResult ezMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
@@ -101,34 +151,6 @@ ezResult ezMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlw
   }
 
   return EZ_FAILURE;
-}
-
-void ezMeshComponent::SetMesh(const ezMeshResourceHandle& hMesh)
-{
-  m_hMesh = hMesh;
-
-  TriggerLocalBoundsUpdate();
-}
-
-void ezMeshComponent::OnSetMaterialMsg(ezMeshComponent_SetMaterialMsg& msg)
-{
-  SetMaterial(msg.m_uiMaterialSlot, msg.m_hMaterial);
-}
-
-void ezMeshComponent::SetMaterial(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial)
-{
-  if (uiIndex >= m_Materials.GetCount())
-    m_Materials.SetCount(uiIndex + 1);
-
-  m_Materials[uiIndex] = hMaterial;
-}
-
-ezMaterialResourceHandle ezMeshComponent::GetMaterial(ezUInt32 uiIndex) const
-{
-  if (uiIndex >= m_Materials.GetCount())
-    return ezMaterialResourceHandle();
-
-  return m_Materials[uiIndex];
 }
 
 void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
@@ -167,6 +189,7 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
       pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
       pRenderData->m_hMesh = m_hMesh;
       pRenderData->m_hMaterial = hMaterial;
+      pRenderData->m_Color = m_Color;
 
       pRenderData->m_uiPartIndex = uiPartIndex;
       pRenderData->m_uiFlipWinding = uiFlipWinding;
@@ -216,6 +239,29 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
   }
 }
 
+void ezMeshComponent::SetMesh(const ezMeshResourceHandle& hMesh)
+{
+  m_hMesh = hMesh;
+
+  TriggerLocalBoundsUpdate();
+}
+
+void ezMeshComponent::SetMaterial(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial)
+{
+  if (uiIndex >= m_Materials.GetCount())
+    m_Materials.SetCount(uiIndex + 1);
+
+  m_Materials[uiIndex] = hMaterial;
+}
+
+ezMaterialResourceHandle ezMeshComponent::GetMaterial(ezUInt32 uiIndex) const
+{
+  if (uiIndex >= m_Materials.GetCount())
+    return ezMaterialResourceHandle();
+
+  return m_Materials[uiIndex];
+}
+
 void ezMeshComponent::SetMeshFile(const char* szFile)
 {
   ezMeshResourceHandle hMesh;
@@ -236,46 +282,25 @@ const char* ezMeshComponent::GetMeshFile() const
   return m_hMesh.GetResourceID();
 }
 
-
-void ezMeshComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezMeshComponent::SetColor(const ezColor& color)
 {
-  SUPER::SerializeComponent(stream);
-  ezStreamWriter& s = stream.GetStream();
-
-  // ignore components that have created meshes (?)
-
-  s << m_hMesh;
-  s << m_RenderDataCategory;
-
-  s << m_Materials.GetCount();
-
-  for (const auto& mat : m_Materials)
-  {
-    s << mat;
-  }
+  m_Color = color;
 }
 
-void ezMeshComponent::DeserializeComponent(ezWorldReader& stream)
+const ezColor& ezMeshComponent::GetColor() const
 {
-  SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-
-  ezStreamReader& s = stream.GetStream();
-
-  s >> m_hMesh;
-  s >> m_RenderDataCategory;
-
-  ezUInt32 uiMaterials = 0;
-  s >> uiMaterials;
-
-  m_Materials.SetCount(uiMaterials);
-
-  for (auto& mat : m_Materials)
-  {
-    s >> mat;
-  }
+  return m_Color;
 }
 
+void ezMeshComponent::OnSetMaterialMsg(ezMeshComponent_SetMaterialMsg& msg)
+{
+  SetMaterial(msg.m_uiMaterialSlot, msg.m_hMaterial);
+}
+
+void ezMeshComponent::OnSetColor(ezSetColorMessage& msg)
+{
+  msg.ModifyColor(m_Color);
+}
 
 ezMeshRenderData* ezMeshComponent::CreateRenderData(ezUInt32 uiBatchId) const
 {

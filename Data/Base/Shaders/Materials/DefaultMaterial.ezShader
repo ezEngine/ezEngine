@@ -122,15 +122,15 @@ float3 GetNormal(PS_IN Input)
 
 float3 GetBaseColor(PS_IN Input)
 {
+  float3 baseColor = BaseColor.rgb * GetInstanceData(Input).Color.rgb;
+
   [branch]
   if (UseBaseTexture)
   {
-    return BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).rgb * BaseColor.rgb;
+    baseColor *= BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).rgb;
   }
-  else
-  {
-    return BaseColor.rgb;
-  }
+  
+  return baseColor;
 }
 
 float GetMetallic(PS_IN Input)
@@ -166,18 +166,14 @@ float GetRoughness(PS_IN Input)
 
 float GetOpacity(PS_IN Input)
 {
-  float opacity;
+  float opacity = BaseColor.a * GetInstanceData(Input).Color.a;
 
   [branch]
   if (UseBaseTexture)
   {
-    opacity = BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).a * BaseColor.a;
+    opacity *= BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).a;
   }
-  else
-  {
-    opacity = BaseColor.a;
-  }
-
+  
   #if BLEND_MODE == BLEND_MODE_MASKED
     return opacity - MaskThreshold;
   #else

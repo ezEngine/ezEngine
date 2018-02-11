@@ -2,6 +2,7 @@
 #include <RendererCore/Decals/DecalComponent.h>
 #include <RendererCore/Decals/DecalAtlasResource.h>
 #include <RendererCore/Decals/DecalResource.h>
+#include <RendererCore/Messages/SetColorMessage.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -60,6 +61,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 3, ezComponentMode::Static)
   {
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
     EZ_MESSAGE_HANDLER(ezInternalComponentMessage, OnTriggered),
+    EZ_MESSAGE_HANDLER(ezSetColorMessage, OnSetColor),
   }
   EZ_END_MESSAGEHANDLERS
 }
@@ -349,4 +351,9 @@ void ezDecalComponent::OnTriggered(ezInternalComponentMessage& msg)
   {
     GetOwningManager()->DeleteComponent(GetHandle());
   }
+}
+
+void ezDecalComponent::OnSetColor(ezSetColorMessage& msg)
+{
+  msg.ModifyColor(m_Color);
 }

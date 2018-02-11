@@ -5,6 +5,8 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 
+struct ezSetColorMessage;
+
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
 
 class EZ_RENDERERCORE_DLL ezSpriteRenderData : public ezRenderData
@@ -56,6 +58,8 @@ public:
 
   void SetMaxScreenSize(float fSize);
   float GetMaxScreenSize() const;
+
+  void OnSetColor(ezSetColorMessage& msg);
 
 private:
 

@@ -7,6 +7,8 @@
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
+struct ezSetColorMessage;
+
 class EZ_RENDERERCORE_DLL ezMeshRenderData : public ezRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMeshRenderData, ezRenderData);
@@ -14,6 +16,7 @@ class EZ_RENDERERCORE_DLL ezMeshRenderData : public ezRenderData
 public:
   ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;
+  ezColor m_Color;
   ezGALBufferHandle m_hSkinningMatrices;
   ezArrayPtr<const ezUInt8> m_pNewSkinningMatricesData; // Optional - if set the buffer specified in m_hSkinningMatrices will be updated with this data
 
@@ -22,6 +25,7 @@ public:
   ezUInt32 m_uiUniformScale : 1;
 
   ezUInt32 m_uiUniqueID;
+
 };
 
 typedef ezComponentManager<class ezMeshComponent, ezBlockStorageType::Compact> ezMeshComponentManager;
@@ -79,7 +83,11 @@ public:
   void SetMeshFile(const char* szFile);
   const char* GetMeshFile() const;
 
+  void SetColor(const ezColor& color);
+  const ezColor& GetColor() const;
+
   void OnSetMaterialMsg(ezMeshComponent_SetMaterialMsg& msg);
+  void OnSetColor(ezSetColorMessage& msg);
 
 protected:
   virtual ezMeshRenderData* CreateRenderData(ezUInt32 uiBatchId) const;
@@ -94,5 +102,6 @@ private:
   ezRenderData::Category m_RenderDataCategory;
   ezMeshResourceHandle m_hMesh;
   ezDynamicArray<ezMaterialResourceHandle> m_Materials;
+  ezColor m_Color;
 };
 

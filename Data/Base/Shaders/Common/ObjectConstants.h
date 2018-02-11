@@ -10,7 +10,7 @@ struct EZ_ALIGN_16(ezPerInstanceData)
   INT1(GameObjectID);
 
   INT3(Reserved);
-  FLOAT4(Reserved2);
+  COLOR4F(Color);
 };
 
 #if EZ_ENABLED(PLATFORM_DX11)

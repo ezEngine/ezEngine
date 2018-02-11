@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <RendererCore/Components/SpriteComponent.h>
+#include <RendererCore/Messages/SetColorMessage.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/View.h>
@@ -27,6 +28,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 2, ezComponentMode::Static)
     EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezSetColorMessage, OnSetColor),
   }
   EZ_END_MESSAGEHANDLERS
 }
@@ -179,8 +181,10 @@ float ezSpriteComponent::GetMaxScreenSize() const
   return m_fMaxScreenSize;
 }
 
-
-
+void ezSpriteComponent::OnSetColor(ezSetColorMessage& msg)
+{
+  msg.ModifyColor(m_Color);
+}
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
