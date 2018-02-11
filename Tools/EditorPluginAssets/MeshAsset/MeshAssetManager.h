@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <Foundation/Types/Status.h>
@@ -19,6 +19,8 @@ public:
   }
 
   virtual ezBitflags<ezAssetDocumentFlags> GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const override;
+
+  virtual ezResult OpenPickedDocument(const ezDocumentObject* pPickedComponent, ezUInt32 uiPartIndex) override;
 
 private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);

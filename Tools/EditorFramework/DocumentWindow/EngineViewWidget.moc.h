@@ -14,7 +14,7 @@ class QPushButton;
 class QVBoxLayout;
 class ezViewMarqueePickingResultMsgToEditor;
 
-struct ezObjectPickingResult
+struct EZ_EDITORFRAMEWORK_DLL ezObjectPickingResult
 {
   ezObjectPickingResult() { Reset(); }
   void Reset();

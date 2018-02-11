@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
@@ -142,6 +142,33 @@ ezString ezAssetDocumentManager::DetermineFinalTargetPlatform(const char* szPlat
   }
 
   return szPlatform;
+}
+
+ezResult ezAssetDocumentManager::TryOpenAssetDocument(const char* szPathOrGuid)
+{
+  ezAssetCurator::ezLockedSubAsset pSubAsset;
+
+  if (ezConversionUtils::IsStringUuid(szPathOrGuid))
+  {
+    ezUuid matGuid;
+    matGuid = ezConversionUtils::ConvertStringToUuid(szPathOrGuid);
+
+    pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(matGuid);
+  }
+  else
+  {
+    // I think this is even wrong, either the string is a GUID, or it is not an asset at all, in which case we cannot find it this way either
+    // left as an exercise for whoever needs non-asset references
+    pSubAsset = ezAssetCurator::GetSingleton()->FindSubAsset(szPathOrGuid);
+  }
+
+  if (pSubAsset)
+  {
+    ezQtEditorApp::GetSingleton()->OpenDocument(pSubAsset->m_pAssetInfo->m_sAbsolutePath);
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
 }
 
 bool ezAssetDocumentManager::IsResourceUpToDate(const char* szResourceFile, ezUInt64 uiHash, ezUInt16 uiTypeVersion)

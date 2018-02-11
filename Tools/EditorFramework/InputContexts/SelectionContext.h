@@ -33,8 +33,7 @@ protected:
   virtual void DoFocusLost(bool bCancel) override;
 
 private:
-  void OpenPickedMaterial(const ezObjectPickingResult& res) const;
-  bool TryOpenMaterial(const ezString& sMatRef) const;
+  void OpenDocumentForPickedObject(const ezObjectPickingResult& res) const;
   void SendMarqueeMsg(QMouseEvent* e, ezUInt8 uiWhatToDo);
 
   const ezCamera* m_pCamera;

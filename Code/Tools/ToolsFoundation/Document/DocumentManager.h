@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <ToolsFoundation/Basics.h>
 #include <Foundation/Types/Status.h>

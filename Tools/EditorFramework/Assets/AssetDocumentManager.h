@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
@@ -50,6 +50,11 @@ public:
   ///@}
 
   static ezString DetermineFinalTargetPlatform(const char* szPlatform);
+
+  /// \brief Called by the editor to try to open a document for the matching picking result
+  virtual ezResult OpenPickedDocument(const ezDocumentObject* pPickedComponent, ezUInt32 uiPartIndex) { return EZ_FAILURE; }
+
+  ezResult TryOpenAssetDocument(const char* szPathOrGuid);
 
 protected:
   static bool IsResourceUpToDate(const char* szResourceFile, ezUInt64 uiHash, ezUInt16 uiTypeVersion);
