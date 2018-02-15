@@ -328,7 +328,7 @@ float3 CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, f
 
   float ssao = SampleSSAO(screenPosition);
   float occlusion = matData.occlusion * ssao;
-  
+
   if (ApplySSAOToDirectLighting)
   {
     totalLight *= occlusion;
@@ -388,7 +388,7 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData)
 
         matData.diffuseColor = lerp(matData.diffuseColor, decalBaseColor.xyz, fade);
         //matData.specularColor = lerp(matData.specularColor, 0.04f, fade);
-        
+
         //matData.worldNormal = normalize(lerp(matData.worldNormal, matData.vertexNormal, fade));
         //matData.occlusion = lerp(matData.occlusion, 1.0f, fade);
       }
@@ -402,17 +402,17 @@ float3 ApplyFog(float3 color, float3 worldPosition)
   {
     float3 cameraToWorldPos = worldPosition - GetCameraPosition();
     float fogDensity = FogDensity;
-    
+
     if (FogHeightFalloff != 0.0)
     {
       float range = FogHeightFalloff * cameraToWorldPos.z;
       fogDensity *= saturate((exp(FogHeightFalloff * worldPosition.z + FogHeight) - FogDensityAtCameraPos) / range);
     }
-    
+
     float fogAmount = saturate(exp(-fogDensity * length(cameraToWorldPos)));
-    
-    color = lerp(FogColor, color, fogAmount);
+
+    color = lerp(FogColor.xyz, color, fogAmount);
   }
-  
+
   return color;
 }

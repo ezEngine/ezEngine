@@ -135,6 +135,7 @@ void ezGreyBoxComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) co
       pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
       pRenderData->m_hMesh = m_hMesh;
       pRenderData->m_hMaterial = hMaterial;
+      pRenderData->m_Color = ezColor::White;
 
       pRenderData->m_uiPartIndex = uiPartIndex;
       pRenderData->m_uiFlipWinding = uiFlipWinding;

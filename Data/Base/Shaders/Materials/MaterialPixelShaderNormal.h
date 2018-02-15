@@ -41,6 +41,10 @@ PS_OUT main(PS_IN Input)
 
   PS_OUT Output;
 
+#if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
+  Output.Coverage = 1.0;
+#endif
+
   float opacity = 1.0f;
 
   #if BLEND_MODE == BLEND_MODE_MASKED
