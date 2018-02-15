@@ -127,6 +127,29 @@ protected:
   bool m_bTestsRunning;
 };
 
+/// \brief Macro to define the application entry point for all test applications
+#define EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName)                    \
+  /* Enables that on machines with multiple GPUs the NVIDIA GPU is preferred */           \
+  extern "C" { _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001; }             \
+  int main(int argc, char **argv)                                                         \
+  {                                                                                       \
+    ezTestSetup::InitTestFramework(szTestName, szNiceTestName, argc, (const char**)argv); \
+    /* Execute custom init code here by using the BEGIN/END macros directly */
+
+
+#define EZ_TESTFRAMEWORK_ENTRY_POINT_END()                                                \
+    while (ezTestSetup::RunTests() == ezTestAppRun::Continue) { }                         \
+    const ezInt32 iFailedTests = ezTestSetup::GetFailedTestCount();                       \
+    ezTestSetup::DeInitTestFramework();                                                   \
+    return iFailedTests;                                                                  \
+  }
+
+
+#define EZ_TESTFRAMEWORK_ENTRY_POINT(szTestName, szNiceTestName) \
+  EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName) \
+  /* Execute custom init code here by using the BEGIN/END macros directly */ \
+  EZ_TESTFRAMEWORK_ENTRY_POINT_END()
+
 /// \brief Enum for usage in EZ_TEST_BLOCK to enable or disable the block.
 struct ezTestBlock
 {

@@ -182,7 +182,7 @@ public:
     m_bReportMemoryLeaks = bEnable;
   }
 
-  bool IsMemoryLeakReportingEnalbed() const
+  bool IsMemoryLeakReportingEnabled() const
   {
     return m_bReportMemoryLeaks;
   }
