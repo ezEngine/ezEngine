@@ -78,10 +78,10 @@ template <typename T, ezBlockStorageType::Enum StorageType>
 EZ_FORCE_INLINE bool ezComponentManager<T, StorageType>::TryGetComponent(const ezComponentHandle& component, const ComponentType*& out_pComponent) const
 {
   EZ_ASSERT_DEV(ComponentType::TypeId() == component.GetInternalID().m_TypeId,
-                "The given component handle is not of the expected type. Expected type id {0}, got type id {1}",
+    "The given component handle is not of the expected type. Expected type id {0}, got type id {1}",
     ComponentType::TypeId(), component.GetInternalID().m_TypeId);
   EZ_ASSERT_DEV(component.GetInternalID().m_WorldIndex == GetWorld()->GetIndex(),
-                "Component does not belong to this world. Expected world id {0} got id {1}", GetWorld()->GetIndex(), component.GetInternalID().m_WorldIndex);
+    "Component does not belong to this world. Expected world id {0} got id {1}", GetWorld()->GetIndex(), component.GetInternalID().m_WorldIndex);
 
   const ezComponent* pComponent = nullptr;
   bool bResult = ezComponentManagerBase::TryGetComponent(component, pComponent);
@@ -196,12 +196,17 @@ void ezComponentManagerSimple<ComponentType, UpdateType>::SimpleUpdateName(ezStr
   ezStringView sName(EZ_SOURCE_FUNCTION);
   const char* szEnd = sName.FindSubString(",");
 
-  EZ_ASSERT_DEV(szEnd != nullptr, "EZ_SOURCE_FUNCTION does not contain an expected comma: '{0}'", sName);
+  if (szEnd != nullptr && sName.StartsWith("ezComponentManagerSimple<class "))
+  {
+    ezStringView sChoppedName(sName.GetData() + ezStringUtils::GetStringElementCount("ezComponentManagerSimple<class "), szEnd);
 
-  ezStringView sChoppedName(sName.GetData() + ::strlen("ezComponentManagerSimple<class "), szEnd);
+    EZ_ASSERT_DEV(!sChoppedName.IsEmpty(), "Chopped name is empty: '{0}'", sName);
 
-  EZ_ASSERT_DEV(!sChoppedName.IsEmpty(), "Chopped name is empty: '{0}'", sName);
-
-  out_sName = sChoppedName;
-  out_sName.Append("::SimpleUpdate");
+    out_sName = sChoppedName;
+    out_sName.Append("::SimpleUpdate");
+  }
+  else
+  {
+    out_sName = sName;
+  }
 }
