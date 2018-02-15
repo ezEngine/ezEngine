@@ -5,6 +5,7 @@
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezMeshAssetDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE

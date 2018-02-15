@@ -10,7 +10,7 @@
 
 #define EZ_DEBUG_BREAK { __builtin_trap(); }
 
-#define EZ_SOURCE_FUNCTION __FUNCTION__
+#define EZ_SOURCE_FUNCTION __PRETTY_FUNCTION__
 #define EZ_SOURCE_LINE __LINE__
 #define EZ_SOURCE_FILE __FILE__
 
