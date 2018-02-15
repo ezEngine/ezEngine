@@ -127,10 +127,20 @@ protected:
   bool m_bTestsRunning;
 };
 
+#ifdef EZ_NV_OPTIMUS
+#undef EZ_NV_OPTIMUS
+#endif
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  #define EZ_NV_OPTIMUS extern "C" { _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001; }
+#else
+  #define EZ_NV_OPTIMUS
+#endif
+
 /// \brief Macro to define the application entry point for all test applications
 #define EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName)                    \
   /* Enables that on machines with multiple GPUs the NVIDIA GPU is preferred */           \
-  extern "C" { _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001; }             \
+  EZ_NV_OPTIMUS                                                                           \
   int main(int argc, char **argv)                                                         \
   {                                                                                       \
     ezTestSetup::InitTestFramework(szTestName, szNiceTestName, argc, (const char**)argv); \
