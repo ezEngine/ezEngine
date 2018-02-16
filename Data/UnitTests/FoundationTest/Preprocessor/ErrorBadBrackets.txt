@@ -1,0 +1,12 @@
+a
+#define EXPAND_NONE(var)
+
+b
+#define INSERT stuff1; \
+stuff2; \
+EXPAND_NONE(stuff3;
+
+c
+INSERT
+
+d

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/CodeUtils/Preprocessor.h>
 
 using namespace ezTokenParseUtils;
@@ -93,7 +93,9 @@ ezResult ezPreprocessor::ExpandOnce(const TokenStream& Tokens, TokenStream& Outp
 
     if (!itMacro.Value().m_bIsFunction)
     {
-      ExpandObjectMacro(itMacro.Value(), Output, Tokens[uiIdentifierToken]);
+      if (ExpandObjectMacro(itMacro.Value(), Output, Tokens[uiIdentifierToken]).Failed())
+        return EZ_FAILURE;
+
       ++uiCurToken; // move uiCurToken after the object macro token
       continue;
     }

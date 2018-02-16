@@ -203,6 +203,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
       PPTestSettings("ErrorBadQuotes2"),
       PPTestSettings("ErrorLineBreaks"),
       PPTestSettings("Redefine"),
+      PPTestSettings("ErrorBadBrackets"),
     };
 
     ezStringBuilder sOutput;

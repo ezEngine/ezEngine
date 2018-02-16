@@ -1,0 +1,4 @@
+Processing failed
+Preprocessor/ErrorBadBrackets.txt: Line 10 [1]: In Macro: 'INSERT'
+Preprocessor/ErrorBadBrackets.txt: Line 7 [13]: Error: Unexpected end of file during macro parameter extraction
+Log: 'File 'Preprocessor/ErrorBadBrackets.txt', Line 7 (13): Unexpected end of file during macro parameter extraction'
