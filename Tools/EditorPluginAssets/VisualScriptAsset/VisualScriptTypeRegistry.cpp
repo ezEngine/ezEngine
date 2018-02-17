@@ -367,13 +367,23 @@ void ezVisualScriptTypeRegistry::CreateMessageNodeType(const ezRTTI* pRtti)
     nd.m_Properties.PushBack(prd);
   }
 
+  // Recursive Delivery Property
+  {
+    ezReflectedPropertyDescriptor prd;
+    prd.m_Flags = ezPropertyFlags::StandardType | ezPropertyFlags::Phantom;
+    prd.m_Category = ezPropertyCategory::Member;
+    prd.m_sName = "Recursive";
+    prd.m_sType = ezGetStaticRTTI<bool>()->GetTypeName();
+
+    nd.m_Properties.PushBack(prd);
+  }
+
   ezInt32 iDataPinIndex = 1; // the first valid index is '2', because of the object and component data pins
   for (auto prop : properties)
   {
-    ++iDataPinIndex;
-    const auto varType = prop->GetSpecificType()->GetVariantType();
+    if (prop->GetCategory() == ezPropertyCategory::Constant)
+      continue;
 
-    if (varType >= ezVariantType::FirstStandardType && varType <= ezVariantType::LastStandardType)
     {
       ezReflectedPropertyDescriptor prd;
       prd.m_Flags = prop->GetFlags();
@@ -389,6 +399,8 @@ void ezVisualScriptTypeRegistry::CreateMessageNodeType(const ezRTTI* pRtti)
       nd.m_Properties.PushBack(prd);
     }
 
+    ++iDataPinIndex;
+    const auto varType = prop->GetSpecificType()->GetVariantType();
     if (varType != ezVariantType::Bool && varType != ezVariantType::Double && varType != ezVariantType::Vector3)
       continue;
 

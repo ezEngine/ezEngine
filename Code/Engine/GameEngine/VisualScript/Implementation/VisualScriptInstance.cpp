@@ -242,6 +242,10 @@ void ezVisualScriptInstance::CreateMessageNode(ezUInt32 uiNodeIdx, const ezVisua
       {
         pNode->m_Delay = prop.m_Value.ConvertTo<ezTime>();
       }
+      if (prop.m_sName == "Recursive" && prop.m_Value.CanConvertTo<bool>())
+      {
+        pNode->m_bRecursive = prop.m_Value.ConvertTo<bool>();
+      }
 
       continue;
     }

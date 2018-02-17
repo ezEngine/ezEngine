@@ -114,6 +114,7 @@ ezHeadBoneComponent;Head Bone
 ezSliderComponent;Slider
 ezCollectionComponent;Collection
 ezDebugTextComponent;Debug Text
+ezProceduralPlacementComponent;Procedural Placement
 Components;Components
 Materials;Materials
 Surfaces;Surfaces
@@ -147,6 +148,12 @@ ezLogicOperator::Less;<
 ezLogicOperator::LessEqual;<=
 ezLogicOperator::Greater;>
 ezLogicOperator::GreaterEqual;>=
+ezSetColorMode::SetRGBA;Set RGBA
+ezSetColorMode::SetRGB;Set RGB
+ezSetColorMode::SetAlpha;Set Alpha
+ezSetColorMode::AlphaBlend;Alpha Blend
+ezSetColorMode::Additive;Additive
+ezSetColorMode::Modulate;Modulate
 ezShapeIconComponent;Shape Icon
 ezGreyBoxShape::Box;Box
 ezGreyBoxShape::RampX;Ramp X

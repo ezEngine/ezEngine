@@ -2,7 +2,7 @@
 #include <RendererCore/Messages/SetColorMessage.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSetColorMode, 1)
-EZ_ENUM_CONSTANTS(ezSetColorMode::SetAll, ezSetColorMode::SetRGB, ezSetColorMode::SetAlpha, ezSetColorMode::AlphaBlend, ezSetColorMode::Additive, ezSetColorMode::Modulate)
+EZ_ENUM_CONSTANTS(ezSetColorMode::SetRGBA, ezSetColorMode::SetRGB, ezSetColorMode::SetAlpha, ezSetColorMode::AlphaBlend, ezSetColorMode::Additive, ezSetColorMode::Modulate)
 EZ_END_STATIC_REFLECTED_ENUM();
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezSetColorMessage);
@@ -41,7 +41,7 @@ void ezSetColorMessage::ModifyColor(ezColor& color) const
     color *= m_Color;
     break;
 
-  case ezSetColorMode::SetAll:
+  case ezSetColorMode::SetRGBA:
   default:
     color = m_Color;
     break;

@@ -92,7 +92,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_MessageSender, 1, ezRTTIDefau
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezVisualScriptNode_MessageSender::ezVisualScriptNode_MessageSender() { }
+ezVisualScriptNode_MessageSender::ezVisualScriptNode_MessageSender()
+{
+  m_bRecursive = false;
+}
+
 ezVisualScriptNode_MessageSender::~ezVisualScriptNode_MessageSender()
 {
   if (m_pMessageToSend != nullptr)
@@ -120,20 +124,20 @@ void ezVisualScriptNode_MessageSender::Execute(ezVisualScriptInstance* pInstance
           pComponent->SendMessage(*m_pMessageToSend);
         }
       }
-      else if (!m_hObject.IsInvalidated())
-      {
-        ezGameObject* pObject = nullptr;
-        if (pWorld->TryGetObject(m_hObject, pObject))
-        {
-          pObject->SendMessage(*m_pMessageToSend);
-        }
-      }
       else
       {
+        ezGameObjectHandle hObject = m_hObject.IsInvalidated() ? pInstance->GetOwner() : m_hObject;
         ezGameObject* pObject = nullptr;
-        if (pWorld->TryGetObject(pInstance->GetOwner(), pObject))
+        if (pWorld->TryGetObject(hObject, pObject))
         {
-          pObject->SendMessage(*m_pMessageToSend);
+          if (m_bRecursive)
+          {
+            pObject->SendMessageRecursive(*m_pMessageToSend);
+          }
+          else
+          {
+            pObject->SendMessage(*m_pMessageToSend);
+          }
         }
       }
     }
@@ -145,13 +149,17 @@ void ezVisualScriptNode_MessageSender::Execute(ezVisualScriptInstance* pInstance
       {
         pWorld->PostMessage(m_hComponent, *m_pMessageToSend, ezObjectMsgQueueType::AfterInitialized, m_Delay);
       }
-      else if (!m_hObject.IsInvalidated())
-      {
-        pWorld->PostMessage(m_hObject, *m_pMessageToSend, ezObjectMsgQueueType::AfterInitialized, m_Delay);
-      }
       else
       {
-        pWorld->PostMessage(pInstance->GetOwner(), *m_pMessageToSend, ezObjectMsgQueueType::AfterInitialized, m_Delay);
+        ezGameObjectHandle hObject = m_hObject.IsInvalidated() ? pInstance->GetOwner() : m_hObject;
+        if (m_bRecursive)
+        {
+          pWorld->PostMessageRecursive(hObject, *m_pMessageToSend, ezObjectMsgQueueType::AfterInitialized, m_Delay);
+        }
+        else
+        {
+          pWorld->PostMessage(hObject, *m_pMessageToSend, ezObjectMsgQueueType::AfterInitialized, m_Delay);
+        }
       }
     }
   }

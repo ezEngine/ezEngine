@@ -57,6 +57,7 @@ public:
   ezGameObjectHandle m_hObject;
   ezComponentHandle m_hComponent;
   ezTime m_Delay;
+  bool m_bRecursive;
   ezMessage* m_pMessageToSend = nullptr;
 };
 

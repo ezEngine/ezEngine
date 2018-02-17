@@ -9,7 +9,7 @@ struct ezSetColorMode
 
   enum Enum
   {
-    SetAll,
+    SetRGBA,
     SetRGB,
     SetAlpha,
 
@@ -17,7 +17,7 @@ struct ezSetColorMode
     Additive,
     Modulate,
 
-    Default = SetAll
+    Default = SetRGBA
   };
 };
 
