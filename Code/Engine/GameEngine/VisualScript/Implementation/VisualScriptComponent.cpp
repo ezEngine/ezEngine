@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/VisualScript/VisualScriptComponent.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -8,7 +8,7 @@
 
 ezEvent<const ezVisualScriptComponentActivityEvent&> ezVisualScriptComponent::s_ActivityEvents;
 
-EZ_BEGIN_COMPONENT_TYPE(ezVisualScriptComponent, 2, ezComponentMode::Dynamic);
+EZ_BEGIN_COMPONENT_TYPE(ezVisualScriptComponent, 2, ezComponentMode::Static);
 {
   EZ_BEGIN_PROPERTIES
   {
