@@ -7,6 +7,7 @@
 
 class ezAbstractObjectNode;
 struct ezInternalComponentMessage;
+struct ezApplyOnlyToMessage;
 struct ezSetColorMessage;
 
 class EZ_RENDERERCORE_DLL ezDecalComponentManager : public ezComponentManager<class ezDecalComponent, ezBlockStorageType::Compact>
@@ -27,6 +28,7 @@ class EZ_RENDERERCORE_DLL ezDecalRenderData : public ezRenderData
 
 public:
   ezVec3 m_vHalfExtents;
+  ezUInt32 m_uiApplyOnlyToId;
   ezUInt8 m_uiDecalMode;
   bool m_bWrapAround;
   ezColor m_Color;
@@ -93,6 +95,9 @@ public:
   void SetDecalFile(const char* szFile);
   const char* GetDecalFile() const;
 
+  void SetApplyOnlyTo(ezGameObjectHandle hObject);
+  ezGameObjectHandle GetApplyOnlyTo() const;
+
   ezVarianceTypeTime m_FadeOutDelay;
   ezTime m_FadeOutDuration;
   ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction;
@@ -108,10 +113,14 @@ protected:
   bool m_bWrapAround;
   ezDecalResourceHandle m_hDecal;
 
+  ezGameObjectHandle m_hApplyOnlyToObject;
+  ezUInt32 m_uiApplyOnlyToId;
+
   //////////////////////////////////////////////////////////////////////////
   // Internal
 
   void OnTriggered(ezInternalComponentMessage& msg);
+  void OnApplyOnlyTo(ezApplyOnlyToMessage& msg);
   void OnSetColor(ezSetColorMessage& msg);
 
   ezTime m_StartFadeOutTime;

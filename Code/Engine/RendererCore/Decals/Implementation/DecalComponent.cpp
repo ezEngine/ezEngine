@@ -2,6 +2,7 @@
 #include <RendererCore/Decals/DecalComponent.h>
 #include <RendererCore/Decals/DecalAtlasResource.h>
 #include <RendererCore/Decals/DecalResource.h>
+#include <RendererCore/Messages/ApplyOnlyToMessage.h>
 #include <RendererCore/Messages/SetColorMessage.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -61,6 +62,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 3, ezComponentMode::Static)
   {
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
     EZ_MESSAGE_HANDLER(ezInternalComponentMessage, OnTriggered),
+    EZ_MESSAGE_HANDLER(ezApplyOnlyToMessage, OnApplyOnlyTo),
     EZ_MESSAGE_HANDLER(ezSetColorMessage, OnSetColor),
   }
   EZ_END_MESSAGEHANDLERS
@@ -77,6 +79,7 @@ ezDecalComponent::ezDecalComponent()
   , m_OuterFadeAngle(ezAngle::Degree(80.0f))
   , m_fSortOrder(0.0f)
   , m_bWrapAround(false)
+  , m_uiApplyOnlyToId(0)
   , m_uiInternalSortKey(s_uiNextSortKey++)
 {
 }
@@ -242,6 +245,30 @@ const char* ezDecalComponent::GetDecalFile() const
   return m_hDecal.GetResourceID();
 }
 
+void ezDecalComponent::SetApplyOnlyTo(ezGameObjectHandle hObject)
+{
+  if (m_hApplyOnlyToObject != hObject)
+  {
+    m_hApplyOnlyToObject = hObject;
+    m_uiApplyOnlyToId = 0;
+
+    ezGameObject* pObject = nullptr;
+    if (!GetWorld()->TryGetObject(hObject, pObject))
+      return;
+
+    ezRenderComponent* pRenderComponent = nullptr;
+    if (pObject->TryGetComponentOfBaseType(pRenderComponent))
+    {
+      m_uiApplyOnlyToId = pRenderComponent->GetUniqueIdForRendering();
+    }
+  }
+}
+
+ezGameObjectHandle ezDecalComponent::GetApplyOnlyTo() const
+{
+  return m_hApplyOnlyToObject;
+}
+
 void ezDecalComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 {
   // Don't extract decal render data for selection.
@@ -287,6 +314,7 @@ void ezDecalComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) cons
 
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
   pRenderData->m_vHalfExtents = m_vExtents * 0.5f;
+  pRenderData->m_uiApplyOnlyToId = m_uiApplyOnlyToId;
   pRenderData->m_uiDecalMode = 0;
   pRenderData->m_bWrapAround = m_bWrapAround;
   pRenderData->m_Color = finalColor;
@@ -351,6 +379,11 @@ void ezDecalComponent::OnTriggered(ezInternalComponentMessage& msg)
   {
     GetOwningManager()->DeleteComponent(GetHandle());
   }
+}
+
+void ezDecalComponent::OnApplyOnlyTo(ezApplyOnlyToMessage& msg)
+{
+  SetApplyOnlyTo(msg.m_hObject);
 }
 
 void ezDecalComponent::OnSetColor(ezSetColorMessage& msg)

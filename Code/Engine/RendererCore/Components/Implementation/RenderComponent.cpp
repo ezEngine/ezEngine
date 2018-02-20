@@ -62,6 +62,22 @@ void ezRenderComponent::TriggerLocalBoundsUpdate()
   }
 }
 
+ezUInt32 ezRenderComponent::GetUniqueIdForRendering(ezUInt32 uiInnerIndex /*= 0*/, ezUInt32 uiInnerIndexShift /*= 24*/) const
+{
+  ezUInt32 uniqueId = GetUniqueID();
+  if (uniqueId == ezInvalidIndex)
+  {
+    uniqueId = GetOwner()->GetHandle().GetInternalID().m_Data;
+  }
+  else
+  {
+    uniqueId |= (uiInnerIndex << uiInnerIndexShift);
+  }
+
+  const ezUInt32 dynamicBit = (1 << 31);
+  const ezUInt32 dynamicBitMask = ~dynamicBit;
+  return (uniqueId & dynamicBitMask) | (GetOwner()->IsDynamic() ? dynamicBit : 0);
+}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_RenderComponent);
 

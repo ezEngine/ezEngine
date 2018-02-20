@@ -88,7 +88,8 @@ void ezGizmoRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
     EZ_ASSERT_DEV(pRenderData->m_uiPartIndex == uiPartIndex, "Invalid batching (part)");
 
     ezColor color = pRenderData->m_GizmoColor;
-    if (pRenderData->m_uiUniqueID == m_uiHighlightID)
+    // Highest bit is used to indicate whether the object is dynamic, so exclude it in this check
+    if ((pRenderData->m_uiUniqueID & ~(1 << 31)) == m_uiHighlightID)
     {
       color = ezColor(0.9f, 0.9f, 0.1f, color.a);
     }

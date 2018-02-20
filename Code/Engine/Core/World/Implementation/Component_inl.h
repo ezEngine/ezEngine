@@ -6,7 +6,7 @@ EZ_ALWAYS_INLINE ezComponent::ezComponent() :
   m_pManager(nullptr),
   m_pOwner(nullptr)
 {
-  m_uiUniqueID = 0xFFFFFFFF;
+  m_uiUniqueID = ezInvalidIndex;
 }
 
 EZ_ALWAYS_INLINE ezComponent::~ezComponent()

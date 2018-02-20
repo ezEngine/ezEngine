@@ -68,9 +68,10 @@ PS_OUT main(PS_IN Input)
   ezMaterialData matData = FillMaterialData(Input);
 
   ezPerClusterData clusterData = GetClusterData(Input.Position.xyw);
+  uint gameObjectId = GetInstanceData(Input).GameObjectID;
 
   #if defined(USE_DECALS)
-    ApplyDecals(matData, clusterData);
+    ApplyDecals(matData, clusterData, gameObjectId);
   #endif
 
   #if RENDER_PASS == RENDER_PASS_EDITOR
@@ -187,6 +188,10 @@ PS_OUT main(PS_IN Input)
       float depth = Input.Position.w * ClipPlanes.z;
       Output.Color = float4(SrgbToLinear(depth), 1);
     }
+    else if (RenderPass == EDITOR_RENDER_PASS_STATIC_VS_DYNAMIC)
+    {
+      Output.Color = ColorizeGameObjectId(gameObjectId);
+    }
     else
     {
       Output.Color = float4(1.0f, 0.0f, 1.0f, 1.0f);
@@ -203,7 +208,7 @@ PS_OUT main(PS_IN Input)
     }
 
   #elif (RENDER_PASS == RENDER_PASS_PICKING || RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
-    Output.Color = RGBA8ToFloat4(GetInstanceData(Input).GameObjectID);
+    Output.Color = RGBA8ToFloat4(gameObjectId);
 
   #elif RENDER_PASS == RENDER_PASS_DEPTH_ONLY
 

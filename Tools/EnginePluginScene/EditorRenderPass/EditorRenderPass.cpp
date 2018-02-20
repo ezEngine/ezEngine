@@ -91,6 +91,11 @@ void ezEditorRenderPass::SetupPermutationVars(const ezRenderViewContext& renderV
     sRenderPass = "RENDER_PASS_EDITOR";
     uiRenderPass = EDITOR_RENDER_PASS_DEPTH;
     break;
+  case ezViewRenderMode::StaticVsDynamic:
+    sRenderPass = "RENDER_PASS_EDITOR";
+    uiRenderPass = EDITOR_RENDER_PASS_STATIC_VS_DYNAMIC;
+    sDebugText = "Static objects are shown in green, dynamic objects are shown in red.";
+    break;
   default:
     EZ_ASSERT_NOT_IMPLEMENTED;
   }

@@ -13,32 +13,32 @@ const static float PI = 3.1415926535897932f;
 float4 RGBA8ToFloat4(uint x)
 {
   float4 result;
-  result.r = (x & 0xFF) / 255.0;
-  result.g = ((x >> 8)  & 0xFF) / 255.0;
-  result.b = ((x >> 16) & 0xFF) / 255.0;
-  result.a = ((x >> 24) & 0xFF) / 255.0;
+  result.r = x & 0xFF;
+  result.g = (x >> 8)  & 0xFF;
+  result.b = (x >> 16) & 0xFF;
+  result.a = (x >> 24) & 0xFF;
 
-  return result;
+  return result / 255.0;
 }
 
 float3 RGB8ToFloat3(uint x)
 {
   float3 result;
-  result.r = (x & 0xFF) / 255.0;
-  result.g = ((x >> 8)  & 0xFF) / 255.0;
-  result.b = ((x >> 16) & 0xFF) / 255.0;
+  result.r = x & 0xFF;
+  result.g = (x >> 8)  & 0xFF;
+  result.b = (x >> 16) & 0xFF;
 
-  return result;
+  return result / 255.0;
 }
 
 float3 RGB10ToFloat3(uint x)
 {
   float3 result;
-  result.r = (x & 0x3FF) / 1023.0;
-  result.g = ((x >> 10) & 0x3FF) / 1023.0;
-  result.b = ((x >> 20) & 0x3FF) / 1023.0;
+  result.r = x & 0x3FF;
+  result.g = (x >> 10) & 0x3FF;
+  result.b = (x >> 20) & 0x3FF;
 
-  return result;
+  return result / 1023.0;
 }
 
 float2 RG16FToFloat2(uint x)

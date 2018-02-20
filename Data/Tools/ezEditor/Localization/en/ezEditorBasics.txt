@@ -73,6 +73,7 @@ ezViewRenderMode::EmissiveColor;Emissive Color
 ezViewRenderMode::Roughness;Roughness
 ezViewRenderMode::Occlusion;Ambient Occlusion
 ezViewRenderMode::Depth;Depth
+ezViewRenderMode::StaticVsDynamic;Static vs. Dynamic
 ezBasisAxis::PositiveX;Positive X
 ezBasisAxis::PositiveY;Positive Y
 ezBasisAxis::PositiveZ;Positive Z

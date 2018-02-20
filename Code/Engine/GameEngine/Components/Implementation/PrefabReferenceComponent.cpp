@@ -42,7 +42,7 @@ void ezPrefabReferenceComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_hPrefab;
 
-  const bool instantiate = GetUniqueID() != 0xFFFFFFFF;
+  const bool instantiate = GetUniqueID() != ezInvalidIndex;
   s << instantiate;
 }
 
@@ -195,7 +195,7 @@ void ezPrefabReferenceComponentManager::Update(const ezWorldModule::UpdateContex
 
     // if this ID is valid, this prefab is instantiated at editor runtime
     // replicate the same ID across all instantiated sub components to get correct picking behavior
-    if (pPrefab->GetUniqueID() != 0xFFFFFFFF)
+    if (pPrefab->GetUniqueID() != ezInvalidIndex)
     {
       // while exporting a scene all game objects with this tag are ignored and not exported
       // set this tag on all game objects that were created by instantiating this prefab

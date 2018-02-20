@@ -195,7 +195,7 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
       pRenderData->m_uiFlipWinding = uiFlipWinding;
       pRenderData->m_uiUniformScale = uiUniformScale;
 
-      pRenderData->m_uiUniqueID = GetUniqueID() | (uiMaterialIndex << 24);
+      pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
     }
 
     // Determine render data category.

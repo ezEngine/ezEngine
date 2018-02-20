@@ -79,10 +79,14 @@ struct EZ_ALIGN_16(ezDirShadowData)
 struct EZ_ALIGN_16(ezPerDecalData)
 {
   TRANSFORM(worldToDecalMatrix);
-  COLOR4F(color);
-
+  
+  UINT1(applyOnlyToId);
   UINT1(decalModeAndFlags);
   UINT1(angleFadeParams); // scale and offset as 16 bit floats
+  UINT1(padding0);
+  
+  UINT1(colorRG); // as 16 bit floats
+  UINT1(colorBA); // as 16 bit floats
 
   UINT1(baseAtlasScale); // xy as 16 bit floats
   UINT1(baseAtlasOffset); // xy as 16 bit floats

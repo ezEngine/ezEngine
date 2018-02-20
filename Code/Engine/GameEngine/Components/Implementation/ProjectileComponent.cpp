@@ -130,7 +130,7 @@ void ezProjectileComponent::Update()
 
         if (!interaction.m_sInteraction.IsEmpty())
         {
-          TriggerSurfaceInteraction(hSurface, hitResult.m_vPosition, hitResult.m_vNormal, vCurDirection, interaction.m_sInteraction);
+          TriggerSurfaceInteraction(hSurface, hitResult.m_hActorObject, hitResult.m_vPosition, hitResult.m_vNormal, vCurDirection, interaction.m_sInteraction);
         }
 
         // if we hit some valid object
@@ -314,10 +314,10 @@ ezInt32 ezProjectileComponent::FindSurfaceInteraction(const ezSurfaceResourceHan
 }
 
 
-void ezProjectileComponent::TriggerSurfaceInteraction(const ezSurfaceResourceHandle& hSurface, const ezVec3& vPos, const ezVec3& vNormal, const ezVec3& vDirection, const char* szInteraction)
+void ezProjectileComponent::TriggerSurfaceInteraction(const ezSurfaceResourceHandle& hSurface, ezGameObjectHandle hObject, const ezVec3& vPos, const ezVec3& vNormal, const ezVec3& vDirection, const char* szInteraction)
 {
   ezResourceLock<ezSurfaceResource> pSurface(hSurface, ezResourceAcquireMode::NoFallback);
-  pSurface->InteractWithSurface(GetWorld(), vPos, vNormal, vDirection, ezTempHashedString(szInteraction), &GetOwner()->GetTeamID());
+  pSurface->InteractWithSurface(GetWorld(), hObject, vPos, vNormal, vDirection, ezTempHashedString(szInteraction), &GetOwner()->GetTeamID());
 }
 
 

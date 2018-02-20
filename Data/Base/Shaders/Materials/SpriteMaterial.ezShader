@@ -18,7 +18,11 @@ DepthWrite = true
 #define USE_TEXCOORD0
 #define USE_COLOR
 
-#if (RENDER_PASS == RENDER_PASS_PICKING) || (RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
+#if (RENDER_PASS == RENDER_PASS_EDITOR) || (RENDER_PASS == RENDER_PASS_PICKING) || (RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
+  #define USE_GAME_OBJECT_ID
+#endif
+
+#if defined(USE_GAME_OBJECT_ID)
 	#define CUSTOM_INTERPOLATOR float4 GameObjectID : GAME_OBJECT_ID;
 #endif
 
@@ -80,16 +84,16 @@ VS_OUT main(uint VertexID : SV_VertexID)
 	float2 texCoordScale = RG16FToFloat2(data.texCoordScale);
 	float2 texCoordOffset = RG16FToFloat2(data.texCoordOffset);
 
-	VS_OUT RetVal;
-	RetVal.Position = screenPosition;
-	RetVal.TexCoords = texCoords * texCoordScale + texCoordOffset;
-	RetVal.Color = RGBA8ToFloat4(data.color);
+	VS_OUT Output;
+	Output.Position = screenPosition;
+	Output.TexCoords = texCoords * texCoordScale + texCoordOffset;
+	Output.Color = RGBA8ToFloat4(data.color);
 
-	#if (RENDER_PASS == RENDER_PASS_PICKING) || (RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
-		RetVal.GameObjectID = RGBA8ToFloat4(data.gameObjectID);
+	#if defined(USE_GAME_OBJECT_ID)
+		Output.GameObjectID = RGBA8ToFloat4(data.gameObjectID);
 	#endif
 
-	return RetVal;
+	return Output;
 }
 
 #endif
@@ -100,7 +104,11 @@ VS_OUT main(uint VertexID : SV_VertexID)
 #define USE_TEXCOORD0
 #define USE_COLOR
 
-#if (RENDER_PASS == RENDER_PASS_PICKING) || (RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
+#if (RENDER_PASS == RENDER_PASS_EDITOR) || (RENDER_PASS == RENDER_PASS_PICKING) || (RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
+  #define USE_GAME_OBJECT_ID
+#endif
+
+#if defined(USE_GAME_OBJECT_ID)
 	#define CUSTOM_INTERPOLATOR float4 GameObjectID : GAME_OBJECT_ID;
 #endif
 
@@ -139,20 +147,31 @@ PS_OUT main(PS_IN Input)
 	{
 		discard;
 	}
+  
+  float4 color = SpriteTexture.Sample(SpriteTexture_AutoSampler, Input.TexCoords.xy) * Input.Color;
 
-	PS_OUT RetVal;
-
+	PS_OUT Output;
+  
 	#if (RENDER_PASS == RENDER_PASS_PICKING) || (RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
-		RetVal.Color = Input.GameObjectID;
+		Output.Color = Input.GameObjectID;
+  #elif RENDER_PASS == RENDER_PASS_EDITOR
+    if (RenderPass == EDITOR_RENDER_PASS_STATIC_VS_DYNAMIC)
+    {
+      Output.Color = ColorizeGameObjectId(gameObjectId);
+    }
+    else
+    {
+      Output.Color = color;
+    }
 	#elif RENDER_PASS != RENDER_PASS_DEPTH_ONLY
-		RetVal.Color = SpriteTexture.Sample(SpriteTexture_AutoSampler, Input.TexCoords.xy) * Input.Color;
+		Output.Color = color;
 	#endif
 
 	#if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
-		RetVal.Coverage = coverage;
+		Output.Coverage = coverage;
 	#endif
 
-	return RetVal;
+	return Output;
 }
 
 #endif

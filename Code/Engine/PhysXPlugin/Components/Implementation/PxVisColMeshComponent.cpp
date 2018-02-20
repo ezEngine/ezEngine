@@ -282,7 +282,7 @@ void ezPxVisColMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& ms
       pRenderData->m_hMesh = m_hMesh;
       pRenderData->m_hMaterial = hMaterial;
       pRenderData->m_uiPartIndex = uiPartIndex;
-      pRenderData->m_uiUniqueID = GetUniqueID() | (uiMaterialIndex << 24);
+      pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
     }
 
     // Determine render data category.

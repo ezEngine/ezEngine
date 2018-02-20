@@ -100,7 +100,7 @@ private:
   /// \brief If an unknown surface type is hit, the projectile will just delete itself without further interaction
   ezInt32 FindSurfaceInteraction(const ezSurfaceResourceHandle& hSurface) const;
 
-  void TriggerSurfaceInteraction(const ezSurfaceResourceHandle& hSurface, const ezVec3& vPos, const ezVec3& vNormal, const ezVec3& vDirection, const char* szInteraction);
+  void TriggerSurfaceInteraction(const ezSurfaceResourceHandle& hSurface, ezGameObjectHandle hObject, const ezVec3& vPos, const ezVec3& vNormal, const ezVec3& vDirection, const char* szInteraction);
 
 protected:
   virtual void OnSimulationStarted() override;

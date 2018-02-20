@@ -341,10 +341,12 @@ float3 CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, f
   return totalLight;
 }
 
-void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData)
+void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uint gameObjectId)
 {
   uint firstItemIndex = clusterData.offset;
   uint lastItemIndex = firstItemIndex + GET_DECAL_INDEX(clusterData.counts);
+  
+  uint applyOnlyToId = (gameObjectId & (1 << 31)) ? gameObjectId : 0;
 
   [loop]
   for (uint i = firstItemIndex; i < lastItemIndex; ++i)
@@ -353,45 +355,47 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData)
     uint decalIndex = GET_DECAL_INDEX(itemIndex);
 
     ezPerDecalData decalData = perDecalDataBuffer[decalIndex];
+    if (decalData.applyOnlyToId != applyOnlyToId)
+      continue;
 
     float4x4 worldToDecalMatrix = TransformToMatrix(decalData.worldToDecalMatrix);
     float3 decalPosition = mul(worldToDecalMatrix, float4(matData.worldPosition, 1.0f)).xyz;
 
-    if (all(abs(decalPosition) < 1.0f))
+    if (any(abs(decalPosition) >= 1.0f))
+      continue;
+    
+    uint decalModeAndFlags = decalData.decalModeAndFlags;
+    float2 angleFadeParams = RG16FToFloat2(decalData.angleFadeParams);
+
+    float3 decalNormal = normalize(mul((float3x3)worldToDecalMatrix, matData.vertexNormal));
+
+    float fade = saturate(-decalNormal.z * angleFadeParams.x + angleFadeParams.y);
+    fade *= fade;
+
+    float3 borderFade = 1.0f - decalPosition * decalPosition;
+    //fade *= min(borderFade.x, min(borderFade.y, borderFade.z));
+    fade *= borderFade.z;
+
+    if (fade > 0.0f)
     {
-      uint decalModeAndFlags = decalData.decalModeAndFlags;
-      float2 angleFadeParams = RG16FToFloat2(decalData.angleFadeParams);
-
-      float3 decalNormal = normalize(mul((float3x3)worldToDecalMatrix, matData.vertexNormal));
-
-      float fade = saturate(-decalNormal.z * angleFadeParams.x + angleFadeParams.y);
-      fade *= fade;
-
-      float3 borderFade = 1.0f - decalPosition * decalPosition;
-      //fade *= min(borderFade.x, min(borderFade.y, borderFade.z));
-      fade *= borderFade.z;
-
-      if (fade > 0.0f)
+      if (decalModeAndFlags & DECAL_WRAP_AROUND_FLAG)
       {
-        if (decalModeAndFlags & DECAL_WRAP_AROUND_FLAG)
-        {
-          decalPosition.xy += decalNormal.xy * decalPosition.z;
-          decalPosition.xy = clamp(decalPosition.xy, -1.0f, 1.0f);
-        }
-
-        float2 baseAtlasScale = RG16FToFloat2(decalData.baseAtlasScale);
-        float2 baseAtlasOffset = RG16FToFloat2(decalData.baseAtlasOffset);
-
-        float4 decalBaseColor = decalData.color;
-        decalBaseColor *= DecalAtlasBaseColorTexture.SampleLevel(LinearClampSampler, decalPosition.xy * baseAtlasScale + baseAtlasOffset, 0);
-        fade *= decalBaseColor.a;
-
-        matData.diffuseColor = lerp(matData.diffuseColor, decalBaseColor.xyz, fade);
-        //matData.specularColor = lerp(matData.specularColor, 0.04f, fade);
-
-        //matData.worldNormal = normalize(lerp(matData.worldNormal, matData.vertexNormal, fade));
-        //matData.occlusion = lerp(matData.occlusion, 1.0f, fade);
+        decalPosition.xy += decalNormal.xy * decalPosition.z;
+        decalPosition.xy = clamp(decalPosition.xy, -1.0f, 1.0f);
       }
+
+      float2 baseAtlasScale = RG16FToFloat2(decalData.baseAtlasScale);
+      float2 baseAtlasOffset = RG16FToFloat2(decalData.baseAtlasOffset);
+
+      float4 decalBaseColor = float4(RG16FToFloat2(decalData.colorRG), RG16FToFloat2(decalData.colorBA));
+      decalBaseColor *= DecalAtlasBaseColorTexture.SampleLevel(LinearClampSampler, decalPosition.xy * baseAtlasScale + baseAtlasOffset, 0);
+      fade *= decalBaseColor.a;
+
+      matData.diffuseColor = lerp(matData.diffuseColor, decalBaseColor.xyz, fade);
+      //matData.specularColor = lerp(matData.specularColor, 0.04f, fade);
+
+      //matData.worldNormal = normalize(lerp(matData.worldNormal, matData.vertexNormal, fade));
+      //matData.occlusion = lerp(matData.occlusion, 1.0f, fade);
     }
   }
 }

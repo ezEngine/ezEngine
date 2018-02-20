@@ -20,4 +20,6 @@ public:
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) = 0;
 
   void TriggerLocalBoundsUpdate();
+
+  ezUInt32 GetUniqueIdForRendering(ezUInt32 uiInnerIndex = 0, ezUInt32 uiInnerIndexShift = 24) const;
 };

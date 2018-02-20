@@ -141,7 +141,7 @@ void ezGreyBoxComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) co
       pRenderData->m_uiFlipWinding = uiFlipWinding;
       pRenderData->m_uiUniformScale = uiUniformScale;
 
-      pRenderData->m_uiUniqueID = GetUniqueID() | (uiMaterialIndex << 24);
+      pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
     }
 
     // Determine render data category.

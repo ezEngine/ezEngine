@@ -27,6 +27,7 @@ struct EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewRenderMode
     Roughness,
     Occlusion,
     Depth,
+    StaticVsDynamic,
 
     Default = None
   };

@@ -148,3 +148,11 @@ float4 SampleTexture3Way(Texture2D tex, SamplerState samplerState, float3 worldN
 
   return color1 * blendWeights.x + color2 * blendWeights.y + color3 * blendWeights.z;
 }
+
+float4 ColorizeGameObjectId(uint gameObjectId)
+{
+  float intensity = saturate(0.5f + (gameObjectId & 0xF) / 31.0f);
+  bool isDynamic = gameObjectId & (1 << 31);
+  return float4(isDynamic ? intensity : 0.0f, isDynamic ? 0.0f : intensity, 0.0f, 1.0f);
+}
+

@@ -261,12 +261,12 @@ void ezWorld::Update()
   m_Data.m_Clock.SetPaused(!m_Data.m_bSimulateWorld);
   m_Data.m_Clock.Update();
 
-  ProcessComponentsToInitialize();
-  ProcessUpdateFunctionsToRegister();
-
-  // Send the 'WhenInitialized' messages
+  // initialize phase
   {
-    EZ_PROFILE("After Initialized Phase");
+    EZ_PROFILE("Initialize Phase");
+    ProcessComponentsToInitialize();
+    ProcessUpdateFunctionsToRegister();
+
     ProcessQueuedMessages(ezObjectMsgQueueType::AfterInitialized);
   }
 
@@ -324,7 +324,12 @@ void ezWorld::Update()
   }
 
   // Process again so new component can receive render messages, otherwise we introduce a frame delay.
-  ProcessComponentsToInitialize();
+  {
+    EZ_PROFILE("Initialize Phase 2");
+    ProcessComponentsToInitialize();
+
+    ProcessQueuedMessages(ezObjectMsgQueueType::AfterInitialized);
+  }
 
   // Swap our double buffered stack allocator
   m_Data.m_StackAllocator.Swap();

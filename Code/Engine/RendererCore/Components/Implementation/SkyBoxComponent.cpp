@@ -117,7 +117,7 @@ void ezSkyBoxComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) con
     pRenderData->m_hMesh = m_hMesh;
     pRenderData->m_hMaterial = hMaterial;
     pRenderData->m_uiPartIndex = 0;
-    pRenderData->m_uiUniqueID = GetUniqueID();
+    pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
   }
 
   // Sort by material and then by mesh

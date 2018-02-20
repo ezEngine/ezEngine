@@ -297,7 +297,7 @@ void ezBreakableSheetComponent::OnExtractRenderData(ezExtractRenderDataMessage& 
     pRenderData->m_uiFlipWinding = uiFlipWinding;
     pRenderData->m_uiUniformScale = uiUniformScale;
 
-    pRenderData->m_uiUniqueID = GetUniqueID();
+    pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
   }
 
   uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE) | uiFlipWinding;
