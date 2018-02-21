@@ -29,7 +29,29 @@ Node %UV
   {
     string %Type { "float2" }
     unsigned_int8 %Color { 50, 50, 128 }
-    string %Inline { "Input.TexCoords" }
+    string %Inline { "Input.TexCoords.xy" }
+    string %Tooltip { "The UV 0 texture coordinate." }
+  }
+}
+
+Node %UV2
+{
+  string %Category { "Input" }
+  unsigned_int8 %Color { 38, 105, 0 }
+  
+  string %CodeVertexShader { "
+#define USE_TEXCOORD1
+" }
+  
+  string %CodePixelDefines { "
+#define USE_TEXCOORD1
+" }
+
+  OutputPin %UV
+  {
+    string %Type { "float2" }
+    unsigned_int8 %Color { 50, 50, 128 }
+    string %Inline { "Input.TexCoords.zw" }
     string %Tooltip { "The UV 0 texture coordinate." }
   }
 }
