@@ -19,7 +19,7 @@
 #include <Foundation/Strings/TranslationLookup.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, 2, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, 3, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab)
@@ -610,11 +610,11 @@ bool ezSceneDocument::PasteAt(const ezArrayPtr<PasteInfo>& info, const ezVec3& v
 
     if (pi.m_pParent == nullptr || pi.m_pParent == GetObjectManager()->GetRootObject())
     {
-      GetObjectManager()->AddObject(pi.m_pObject, nullptr, "Children", -1);
+      GetObjectManager()->AddObject(pi.m_pObject, nullptr, "Children", pi.m_Index);
     }
     else
     {
-      GetObjectManager()->AddObject(pi.m_pObject, pi.m_pParent, "Children", -1);
+      GetObjectManager()->AddObject(pi.m_pObject, pi.m_pParent, "Children", pi.m_Index);
     }
   }
 
@@ -627,11 +627,11 @@ bool ezSceneDocument::PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info)
   {
     if (pi.m_pParent == nullptr || pi.m_pParent == GetObjectManager()->GetRootObject())
     {
-      GetObjectManager()->AddObject(pi.m_pObject, nullptr, "Children", -1);
+      GetObjectManager()->AddObject(pi.m_pObject, nullptr, "Children", pi.m_Index);
     }
     else
     {
-      GetObjectManager()->AddObject(pi.m_pObject, pi.m_pParent, "Children", -1);
+      GetObjectManager()->AddObject(pi.m_pObject, pi.m_pParent, "Children", pi.m_Index);
     }
   }
 

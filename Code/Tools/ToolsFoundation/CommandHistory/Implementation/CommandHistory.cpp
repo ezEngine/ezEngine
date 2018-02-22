@@ -129,8 +129,8 @@ ezStatus ezCommandHistory::UndoInternal()
 
   ezCommandTransaction* pTransaction = m_UndoHistory.PeekBack();
 
-  ezStatus status(EZ_FAILURE);
-  if (pTransaction->Undo(true).m_Result == EZ_SUCCESS)
+  ezStatus status = pTransaction->Undo(true);
+  if (status.m_Result == EZ_SUCCESS)
   {
     m_UndoHistory.PopBack();
     m_RedoHistory.PushBack(pTransaction);

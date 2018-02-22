@@ -113,6 +113,7 @@ protected:
   void SetGameMode(GameMode::Enum mode);
 
   virtual void InitializeAfterLoading() override;
+  virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab) override;
 
   template<typename Func>
   void ApplyRecursive(const ezDocumentObject* pObject, Func f)
@@ -124,7 +125,6 @@ protected:
       ApplyRecursive<Func>(pChild, f);
     }
   }
-
 
 private:
 

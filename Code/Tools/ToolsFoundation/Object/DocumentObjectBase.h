@@ -42,11 +42,11 @@ public:
   ezAbstractProperty* GetParentPropertyType() const;
   ezVariant GetPropertyIndex() const;
   bool IsOnHeap() const;
+  ezUInt32 GetChildIndex(const ezDocumentObject* pChild) const;
 
 private:
   friend class ezDocumentObjectManager;
   void HashPropertiesRecursive(const ezIReflectedTypeAccessor& acc, ezUInt64& uiHash, const ezRTTI* pType) const;
-  ezUInt32 GetChildIndex(ezDocumentObject* pChild) const;
 
 protected:
   ezUuid m_Guid;

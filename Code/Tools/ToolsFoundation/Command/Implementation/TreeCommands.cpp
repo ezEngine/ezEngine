@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
@@ -44,6 +44,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInstantiatePrefabCommand, 1, ezRTTIDefaultAllo
     EZ_MEMBER_PROPERTY("RemapGuid", m_RemapGuid),
     EZ_MEMBER_PROPERTY("CreatedObjects", m_CreatedRootObject),
     EZ_MEMBER_PROPERTY("AllowPickedPos", m_bAllowPickedPosition),
+    EZ_MEMBER_PROPERTY("Index", m_Index),
   }
   EZ_END_PROPERTIES
 }
@@ -361,32 +362,44 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
 
   if (!bRedo)
   {
+    // TODO: this is hard-coded, it only works for scene documents !
+    const ezRTTI* pRootObjectType = ezRTTI::FindTypeByName("ezGameObject");
+    const char* szParentProperty = "Children";
+
+    ezDocumentObject* pRootObject = nullptr;
+    ezHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
     ezAbstractObjectGraph graph;
 
-    if (!m_sObjectGraph.IsEmpty())
-      ezPrefabUtils::LoadGraph(graph, m_sObjectGraph);
-    else
-      ezPrefabUtils::LoadGraph(graph, m_sBasePrefabGraph);
-
-    // Remap
-    graph.ReMapNodeGuids(m_RemapGuid);
-
-    ezHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
-    auto* pRealRootNode = ezPrefabUtils::GetFirstRootNode(graph);
-    if (pRealRootNode)
+    // create root object
     {
-      ezDocumentObjectConverterReader reader(&graph, pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateOnly);
-      auto* pNewObject = reader.CreateObjectFromNode(pRealRootNode);
+      EZ_SUCCEED_OR_RETURN(pDocument->GetObjectManager()->CanAdd(pRootObjectType, pParent, szParentProperty, m_Index));
 
-      if (pNewObject)
+      // use the same GUID for the root object ID as the remap GUID, this way the object ID is deterministic and reproducible
+      m_CreatedRootObject = m_RemapGuid;
+
+      pRootObject = pDocument->GetObjectManager()->CreateObject(pRootObjectType, m_CreatedRootObject);
+
+      auto& ref = ToBePasted.ExpandAndGetRef();
+      ref.m_pObject = pRootObject;
+      ref.m_pParent = pParent;
+      ref.m_Index = m_Index;
+    }
+
+    // update meta data
+    // this is read when Paste is executed, to determine a good node name
+    {
+      // if prefabs are not allowed in this document, just create this as a regular object, with no link to the prefab template
+      if (pDocument->ArePrefabsAllowed())
       {
-        reader.ApplyPropertiesToObject(pRealRootNode, pNewObject);
-
-        auto& ref = ToBePasted.ExpandAndGetRef();
-        ref.m_pObject = pNewObject;
-        ref.m_pParent = pParent;
-
-        m_CreatedRootObject = pNewObject->GetGuid();
+        auto pMeta = pDocument->m_DocumentObjectMetaData.BeginModifyMetaData(m_CreatedRootObject);
+        pMeta->m_CreateFromPrefab = m_CreateFromPrefab;
+        pMeta->m_PrefabSeedGuid = m_RemapGuid;
+        pMeta->m_sBasePrefab = m_sBasePrefabGraph;
+        pDocument->m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
+      }
+      else
+      {
+        pDocument->ShowDocumentStatus("Nested prefabs are not allowed. Instantiated object will not be linked to prefab template.");
       }
     }
 
@@ -407,18 +420,35 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
       {
         pDocument->GetObjectManager()->DestroyObject(item.m_pObject);
       }
+
+      ToBePasted.Clear();
     }
 
     if (m_PastedObjects.IsEmpty())
       return ezStatus("Paste Objects: nothing was pasted!");
 
-    if (m_CreatedRootObject.IsValid())
+    if (!m_sObjectGraph.IsEmpty())
+      ezPrefabUtils::LoadGraph(graph, m_sObjectGraph);
+    else
+      ezPrefabUtils::LoadGraph(graph, m_sBasePrefabGraph);
+
+    graph.ReMapNodeGuids(m_RemapGuid);
+
+    // a prefab can have multiple top level nodes
+    ezHybridArray<ezAbstractObjectNode*, 4> rootNodes;
+    ezPrefabUtils::GetRootNodes(graph, rootNodes);
+
+    for (auto* pPrefabRoot : rootNodes)
     {
-      auto pMeta = pDocument->m_DocumentObjectMetaData.BeginReadMetaData(m_CreatedRootObject);
-      m_OldCreateFromPrefab = pMeta->m_CreateFromPrefab;
-      m_OldRemapGuid = pMeta->m_PrefabSeedGuid;
-      m_sOldGraphTextFormat = pMeta->m_sBasePrefab;
-      pDocument->m_DocumentObjectMetaData.EndReadMetaData();
+      ezDocumentObjectConverterReader reader(&graph, pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateOnly);
+
+      if (auto* pNewObject = reader.CreateObjectFromNode(pPrefabRoot))
+      {
+        reader.ApplyPropertiesToObject(pPrefabRoot, pNewObject);
+
+        // attach all prefab nodes to the main group node
+        pDocument->GetObjectManager()->AddObject(pNewObject, pRootObject, szParentProperty, -1);
+      }
     }
   }
   else
@@ -430,22 +460,6 @@ ezStatus ezInstantiatePrefabCommand::DoInternal(bool bRedo)
     }
   }
 
-  if (m_CreatedRootObject.IsValid())
-  {
-    // if prefabs are not allowed in this document, just create this as a regular object, with no link to the prefab template
-    if (pDocument->ArePrefabsAllowed())
-    {
-      auto pMeta = pDocument->m_DocumentObjectMetaData.BeginModifyMetaData(m_CreatedRootObject);
-      pMeta->m_CreateFromPrefab = m_CreateFromPrefab;
-      pMeta->m_PrefabSeedGuid = m_RemapGuid;
-      pMeta->m_sBasePrefab = m_sBasePrefabGraph;
-      pDocument->m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
-    }
-    else
-    {
-      pDocument->ShowDocumentStatus("Nested prefabs are not allowed. Instantiated object will not be linked to prefab template.");
-    }
-  }
   return ezStatus(EZ_SUCCESS);
 }
 
@@ -461,15 +475,6 @@ ezStatus ezInstantiatePrefabCommand::UndoInternal(bool bFireEvents)
     pDocument->GetObjectManager()->RemoveObject(po.m_pObject);
   }
 
-  if (m_CreatedRootObject.IsValid())
-  {
-    // simply restore the values, this is independent of pDocument->ArePrefabsAllowed
-    auto pMeta = pDocument->m_DocumentObjectMetaData.BeginModifyMetaData(m_CreatedRootObject);
-    pMeta->m_CreateFromPrefab = m_OldCreateFromPrefab;
-    pMeta->m_PrefabSeedGuid = m_OldRemapGuid;
-    pMeta->m_sBasePrefab = m_sOldGraphTextFormat;
-    pDocument->m_DocumentObjectMetaData.EndModifyMetaData(ezDocumentObjectMetaData::PrefabFlag);
-  }
   return ezStatus(EZ_SUCCESS);
 }
 

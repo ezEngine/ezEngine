@@ -1210,10 +1210,10 @@ bool ezMaterialAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezA
   for (const PasteInfo& pi : info)
   {
     // only add nodes that are allowed to be added
-    if (GetObjectManager()->CanAdd(pi.m_pObject->GetTypeAccessor().GetType(), nullptr, "Children", -1).m_Result.Succeeded())
+    if (GetObjectManager()->CanAdd(pi.m_pObject->GetTypeAccessor().GetType(), nullptr, "Children", pi.m_Index).m_Result.Succeeded())
     {
       AddedNodes.PushBack(pi.m_pObject);
-      GetObjectManager()->AddObject(pi.m_pObject, nullptr, "Children", -1);
+      GetObjectManager()->AddObject(pi.m_pObject, nullptr, "Children", pi.m_Index);
     }
     else
     {

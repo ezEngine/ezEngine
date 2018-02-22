@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
@@ -126,6 +126,7 @@ ezUuid ezDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const ch
   remCmd.m_Object = pRootObject->GetGuid();
 
   ezInstantiatePrefabCommand instCmd;
+  instCmd.m_Index = pRootObject->GetParent()->GetChildIndex(pRootObject);
   instCmd.m_bAllowPickedPosition = false;
   instCmd.m_CreateFromPrefab = PrefabAsset;
   instCmd.m_Parent = pRootObject->GetParent() == GetObjectManager()->GetRootObject() ? ezUuid() : pRootObject->GetParent()->GetGuid();
@@ -156,6 +157,7 @@ ezUuid ezDocument::RevertPrefab(const ezDocumentObject* pObject)
   remCmd.m_Object = pObject->GetGuid();
 
   ezInstantiatePrefabCommand instCmd;
+  instCmd.m_Index = pObject->GetParent()->GetChildIndex(pObject);
   instCmd.m_bAllowPickedPosition = false;
   instCmd.m_CreateFromPrefab = PrefabAsset;
   instCmd.m_Parent = pObject->GetParent() == GetObjectManager()->GetRootObject() ? ezUuid() : pObject->GetParent()->GetGuid();
@@ -194,8 +196,8 @@ void ezDocument::UpdatePrefabsRecursive(ezDocumentObject* pObject)
     }
     else
     {
-      // only recurse (currently), if no prefab was found
-      // that means nested prefabs are currently not possible, that needs to be handled a bit differently later
+      // only recurse if no prefab was found
+      // nested prefabs are not allowed
       UpdatePrefabsRecursive(pChild);
     }
   }
@@ -206,7 +208,7 @@ void ezDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& Pre
   const ezStringBuilder& sNewBasePrefab = ezPrefabCache::GetSingleton()->GetCachedPrefabDocument(PrefabAsset);
 
   ezStringBuilder sNewMergedGraph;
-  ezPrefabUtils::Merge(szBasePrefab, sNewBasePrefab, pObject, PrefabSeed, sNewMergedGraph);
+  ezPrefabUtils::Merge(szBasePrefab, sNewBasePrefab, pObject, true, PrefabSeed, sNewMergedGraph);
 
   // remove current object
   ezRemoveObjectCommand rm;
@@ -214,6 +216,7 @@ void ezDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& Pre
 
   // instantiate prefab again
   ezInstantiatePrefabCommand inst;
+  inst.m_Index = pObject->GetParent()->GetChildIndex(pObject);
   inst.m_bAllowPickedPosition = false;
   inst.m_CreateFromPrefab = PrefabAsset;
   inst.m_Parent = pObject->GetParent() == GetObjectManager()->GetRootObject() ? ezUuid() : pObject->GetParent()->GetGuid();

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <GameEngine/Components/PrefabReferenceComponent.h>
@@ -126,6 +126,39 @@ ezUuid ezSceneDocument::RevertPrefab(const ezDocumentObject* pObject)
   return newGuid;
 }
 
+void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab)
+{
+  auto pHistory = GetCommandHistory();
+  const ezVec3 vLocalPos = pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
+  const ezQuat vLocalRot = pObject->GetTypeAccessor().GetValue("LocalRotation").ConvertTo<ezQuat>();
+  const ezVec3 vLocalScale = pObject->GetTypeAccessor().GetValue("LocalScaling").ConvertTo<ezVec3>();
+  const float fLocalUniformScale = pObject->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>();
+
+  SUPER::UpdatePrefabObject(pObject, PrefabAsset, PrefabSeed, szBasePrefab);
+
+  // the root object has the same GUID as the PrefabSeed
+  if (PrefabSeed.IsValid())
+  {
+    ezSetObjectPropertyCommand setCmd;
+    setCmd.m_Object = PrefabSeed;
+
+    setCmd.m_sProperty = "LocalPosition";
+    setCmd.m_NewValue = vLocalPos;
+    pHistory->AddCommand(setCmd);
+
+    setCmd.m_sProperty = "LocalRotation";
+    setCmd.m_NewValue = vLocalRot;
+    pHistory->AddCommand(setCmd);
+
+    setCmd.m_sProperty = "LocalScaling";
+    setCmd.m_NewValue = vLocalScale;
+    pHistory->AddCommand(setCmd);
+
+    setCmd.m_sProperty = "LocalUniformScaling";
+    setCmd.m_NewValue = fLocalUniformScale;
+    pHistory->AddCommand(setCmd);
+  }
+}
 
 void ezSceneDocument::ConvertToEditorPrefab(const ezDeque<const ezDocumentObject*>& Selection)
 {

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <ToolsFoundation/Document/PrefabUtils.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
@@ -62,6 +62,38 @@ ezAbstractObjectNode* ezPrefabUtils::GetFirstRootNode(ezAbstractObjectGraph& gra
   return nullptr;
 }
 
+void ezPrefabUtils::GetRootNodes(ezAbstractObjectGraph& graph, ezHybridArray<ezAbstractObjectNode*, 4>& out_Nodes)
+{
+  auto& nodes = graph.GetAllNodes();
+  for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
+  {
+    auto* pNode = it.Value();
+    if (ezStringUtils::IsEqual(pNode->GetNodeName(), "ObjectTree"))
+    {
+      for (const auto& ObjectTreeProp : pNode->GetProperties())
+      {
+        if (ezStringUtils::IsEqual(ObjectTreeProp.m_szPropertyName, "Children") && ObjectTreeProp.m_Value.IsA<ezVariantArray>())
+        {
+          const ezVariantArray& RootChildren = ObjectTreeProp.m_Value.Get<ezVariantArray>();
+
+          for (const ezVariant& childGuid : RootChildren)
+          {
+            if (!childGuid.IsA<ezUuid>())
+              continue;
+
+            const ezUuid& rootObjectGuid = childGuid.Get<ezUuid>();
+
+            out_Nodes.PushBack(graph.GetNode(rootObjectGuid));
+          }
+
+          return;
+        }
+      }
+
+      return;
+    }
+  }
+}
 
 ezUuid ezPrefabUtils::GetPrefabRoot(const ezDocumentObject* pObject, const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>& documentObjectMetaData)
 {
@@ -190,7 +222,7 @@ void ezPrefabUtils::Merge(const ezAbstractObjectGraph& baseGraph, const ezAbstra
   }
 }
 
-void ezPrefabUtils::Merge(const char* szBase, const char* szLeft, ezDocumentObject* pRight, const ezUuid& PrefabSeed, ezStringBuilder& out_sNewGraph)
+void ezPrefabUtils::Merge(const char* szBase, const char* szLeft, ezDocumentObject* pRight, bool bRightIsNotPartOfPrefab, const ezUuid& PrefabSeed, ezStringBuilder& out_sNewGraph)
 {
   // prepare the original prefab as a graph
   ezAbstractObjectGraph baseGraph;
@@ -213,7 +245,19 @@ void ezPrefabUtils::Merge(const char* szBase, const char* szLeft, ezDocumentObje
     ezAbstractObjectGraph rightGraph;
     {
       ezDocumentObjectConverterWriter writer(&rightGraph, pRight->GetDocumentObjectManager());
-      writer.AddObjectToGraph(pRight);
+
+      if (bRightIsNotPartOfPrefab)
+      {
+        for (ezDocumentObject* pChild : pRight->GetChildren())
+        {
+          writer.AddObjectToGraph(pChild);
+        }
+      }
+      else
+      {
+        writer.AddObjectToGraph(pRight);
+      }
+
       rightGraph.ReMapNodeGuids(PrefabSeed, true);
       // just take the entire ObjectTree node as is TODO: this may cause a crash if the root object is replaced
       rightGraph.CopyNodeIntoGraph(leftGraph.GetNodeByName("ObjectTree"));

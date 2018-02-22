@@ -82,6 +82,7 @@ public:
 
 public: // Properties
   ezUuid m_Parent;
+  ezInt32 m_Index = -1;
   ezUuid m_CreateFromPrefab;
   ezUuid m_RemapGuid;
   ezString m_sBasePrefabGraph;
@@ -104,11 +105,8 @@ private:
     ezVariant m_Index;
   };
 
+  // at the moment this array always only holds a single item, the group node for the prefab
   ezHybridArray<PastedObject, 4> m_PastedObjects;
-
-  ezUuid m_OldCreateFromPrefab;
-  ezUuid m_OldRemapGuid;
-  ezString m_sOldGraphTextFormat;
 };
 
 //////////////////////////////////////////////////////////////////////////

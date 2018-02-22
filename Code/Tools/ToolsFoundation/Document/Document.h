@@ -105,6 +105,7 @@ public:
 
     ezDocumentObject* m_pObject;
     ezDocumentObject* m_pParent;
+    ezInt32 m_Index = -1;
   };
 
   /// \brief Whether this document supports pasting the given mime format into it

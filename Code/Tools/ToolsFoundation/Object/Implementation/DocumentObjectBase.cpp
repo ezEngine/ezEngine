@@ -8,9 +8,9 @@ ezIReflectedTypeAccessor& ezDocumentObject::GetTypeAccessor()
   return const_cast<ezIReflectedTypeAccessor&>(pMe->GetTypeAccessor());
 }
 
-ezUInt32 ezDocumentObject::GetChildIndex(ezDocumentObject* pChild) const
+ezUInt32 ezDocumentObject::GetChildIndex(const ezDocumentObject* pChild) const
 {
-  return m_Children.IndexOf(pChild);
+  return m_Children.IndexOf(const_cast<ezDocumentObject*>(pChild));
 }
 
 void ezDocumentObject::InsertSubObject(ezDocumentObject* pObject, const char* szProperty, const ezVariant& index)

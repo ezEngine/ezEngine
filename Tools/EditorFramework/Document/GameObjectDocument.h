@@ -190,7 +190,7 @@ public:
   /// \brief Generates a good name for pObject. Queries the "Name" property, child components and asset properties, if necessary.
   void DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_Result, QIcon* out_pIcon = nullptr) const;
 
-  /// \brief Similar to DetermineNodeName() but prefers to return the last cached value from scene meta data. This is more efficient, but may give in an outdated result.
+  /// \brief Similar to DetermineNodeName() but prefers to return the last cached value from scene meta data. This is more efficient, but may give an outdated result.
   void QueryCachedNodeName(const ezDocumentObject* pObject, ezStringBuilder& out_Result, ezUuid* out_pPrefabGuid = nullptr, QIcon* out_pIcon = nullptr) const;
 
   /// \brief Creates a full "path" to a scene object for display in UIs. No guarantee for uniqueness.
