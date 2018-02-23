@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginAssets/EditorPluginAssets.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
@@ -12,6 +12,7 @@
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
+#include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
 #include <EditorPluginAssets/Actions/EditorPluginAssetsActions.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <EditorFramework/Actions/ViewActions.h>
@@ -349,6 +350,33 @@ void OnLoadPlugin(bool bReloading)
       ezViewActions::MapActions("DecalAssetViewToolBar", "", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
     }
   }
+
+  // Animation Clip Asset
+  {
+    // Menu Bar
+    {
+      ezActionMapManager::RegisterActionMap("AnimationClipAssetMenuBar");
+      ezProjectActions::MapActions("AnimationClipAssetMenuBar");
+      ezStandardMenus::MapActions("AnimationClipAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezDocumentActions::MapActions("AnimationClipAssetMenuBar", "Menu.File", false);
+      ezCommandHistoryActions::MapActions("AnimationClipAssetMenuBar", "Menu.Edit");
+    }
+
+    // Tool Bar
+    {
+      ezActionMapManager::RegisterActionMap("AnimationClipAssetToolBar");
+      ezDocumentActions::MapActions("AnimationClipAssetToolBar", "", true);
+      ezCommandHistoryActions::MapActions("AnimationClipAssetToolBar", "");
+      ezAssetActions::MapActions("AnimationClipAssetToolBar", true);
+    }
+
+    // View Tool Bar
+    {
+      ezActionMapManager::RegisterActionMap("AnimationClipAssetViewToolBar");
+      ezViewActions::MapActions("AnimationClipAssetViewToolBar", "", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+    }
+  }
+
 
   // General editor plugin actions
   {

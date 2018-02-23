@@ -15,18 +15,20 @@
     <file>ColorGradient.png</file>
     <file>Curve1D.png</file>
     <file>PropertyAnim.png</file>
-	<file>Visual_Script.png</file>
-	<file>Decal.png</file>
-	<file>Texture_Normals.png</file>
-	<file>Texture_Linear.png</file>
+    <file>Visual_Script.png</file>
+    <file>Decal.png</file>
+    <file>Texture_Normals.png</file>
+    <file>Texture_Linear.png</file>
+    <file>Animation_Clip.png</file>
+    <file>Skeleton.png</file>
   </qresource>
   <qresource prefix="EditorPluginAssets">
-	<file>VSE_CleanGraph16.png</file>
-	<file>PickTarget16.png</file>
-	<file>CurveX.png</file>
-	<file>CurveY.png</file>
-	<file>CurveZ.png</file>
-	<file>CurveW.png</file>
+    <file>VSE_CleanGraph16.png</file>
+    <file>PickTarget16.png</file>
+    <file>CurveX.png</file>
+    <file>CurveY.png</file>
+    <file>CurveZ.png</file>
+    <file>CurveW.png</file>
   </qresource>
 </RCC>
 

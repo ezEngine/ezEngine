@@ -853,7 +853,7 @@ ezStatus ezMeshAssetDocumentGenerator::Generate(const char* szDataDirRelativePat
 
   ezMeshAssetDocument* pAssetDoc = ezDynamicCast<ezMeshAssetDocument*>(out_pGeneratedDocument);
   if (pAssetDoc == nullptr)
-    return ezStatus("Target document is not a valid ezCollisionMeshAssetDocument");
+    return ezStatus("Target document is not a valid ezMeshAssetDocument");
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
   accessor.SetValue("MeshFile", szDataDirRelativePath);
