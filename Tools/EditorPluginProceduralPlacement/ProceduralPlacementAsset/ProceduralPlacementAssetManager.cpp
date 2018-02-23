@@ -18,12 +18,11 @@ ezProceduralPlacementAssetDocumentManager::ezProceduralPlacementAssetDocumentMan
   m_AssetDesc.m_bCanCreate = true;
   m_AssetDesc.m_sDocumentTypeName = "Procedural Placement Asset";
   m_AssetDesc.m_sFileExtension = "ezProceduralPlacementAsset";
-  //m_AssetDesc.m_sIcon = ":/AssetIcons/Sound_Bank.png";
+  m_AssetDesc.m_sIcon = ":/AssetIcons/Procedural_Placement.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezProceduralPlacementAssetDocument>();
   m_AssetDesc.m_pManager = this;
 
-  //TODO:
-  //ezQtImageCache::GetSingleton()->RegisterTypeImage("Sound Bank", QPixmap(":/AssetIcons/Sound_Bank.png"));
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("Procedural Placement", QPixmap(":/AssetIcons/Procedural_Placement.png"));
 }
 
 ezProceduralPlacementAssetDocumentManager::~ezProceduralPlacementAssetDocumentManager()

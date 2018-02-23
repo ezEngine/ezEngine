@@ -186,13 +186,32 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezGeo
       desc.SetMaterial(0, "");
   }
 
-  desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-  desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);
-  desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
-  desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Tangent, ezGALResourceFormat::XYZFloat);
-  desc.MeshBufferDesc().AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+  auto& mbd = desc.MeshBufferDesc();
+  mbd.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+  mbd.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);
+  mbd.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
+  mbd.AddStream(ezGALVertexAttributeSemantic::Tangent, ezGALResourceFormat::XYZFloat);
 
-  desc.AddSubMesh(desc.MeshBufferDesc().GetPrimitiveCount(), 0, 0);
+  // TODO: This is just test code for testing skinning
+
+  const bool bWithSkinningData = true;
+  if (bWithSkinningData)
+  {
+    mbd.AddStream(ezGALVertexAttributeSemantic::BoneWeights0, ezGALResourceFormat::XYZWFloat);
+    mbd.AddStream(ezGALVertexAttributeSemantic::BoneIndices0, ezGALResourceFormat::RGBAUShort);
+  }
+
+  mbd.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+  desc.AddSubMesh(mbd.GetPrimitiveCount(), 0, 0);
+
+  if (bWithSkinningData)
+  {
+    for (ezUInt32 v = 0; v < mbd.GetVertexCount(); ++v)
+    {
+      mbd.SetVertexData<ezVec4>(4, v, ezVec4(1, 0, 0, 0)); // first bone has full influence
+      mbd.SetVertexData<ezUInt32>(5, v, 0); // bone 0 influences everything
+    }
+  }
 }
 
 ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, ezMeshResourceDescriptor &desc, const ezMat3 &mTransformation)

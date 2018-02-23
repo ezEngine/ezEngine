@@ -181,6 +181,13 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 
     // Generate batch id from mesh, material and part index.
     ezUInt32 data[] = { uiMeshIDHash, uiMaterialIDHash, uiPartIndex, uiFlipWinding };
+
+    if (!m_SkinningMatrices.IsEmpty())
+    {
+      // TODO: When skinning is enabled, batching is prevented. Review this.
+      data[2] = GetUniqueID();
+    }
+
     ezUInt32 uiBatchId = ezHashing::MurmurHash(data, sizeof(data));
 
     ezMeshRenderData* pRenderData = CreateRenderData(uiBatchId);
@@ -196,6 +203,12 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
       pRenderData->m_uiUniformScale = uiUniformScale;
 
       pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
+
+      if (!m_SkinningMatrices.IsEmpty())
+      {
+        pRenderData->m_hSkinningMatrices = m_hSkinningTransformsBuffer;
+        pRenderData->m_pNewSkinningMatricesData = ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(m_SkinningMatrices.GetPtr()), m_SkinningMatrices.GetCount() * sizeof(ezMat4));;
+      }
     }
 
     // Determine render data category.
