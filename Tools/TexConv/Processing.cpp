@@ -55,6 +55,25 @@ ezResult ezTexConv::ApplyPremultiplyAlpha()
   return EZ_SUCCESS;
 }
 
+ezResult ezTexConv::FlipAndRotate()
+{
+  if (m_bFlipHorizontal)
+  {
+    shared_ptr<ScratchImage> pNewScratch = make_shared<ScratchImage>();
+
+    if (FAILED(FlipRotate(m_pCurrentImage->GetImages(), m_pCurrentImage->GetImageCount(), m_pCurrentImage->GetMetadata(), TEX_FR_FLIP_VERTICAL, *pNewScratch.get())))
+    {
+      SetReturnCode(TexConvReturnCodes::FAILED_FLIP_OR_ROTATE);
+      ezLog::Error("Flip horizontal failed");
+      return EZ_FAILURE;
+    }
+
+    m_pCurrentImage = pNewScratch;
+  }
+
+  return EZ_SUCCESS;
+}
+
 ezResult ezTexConv::ConvertToOutputFormat()
 {
   const ezImageFormat::Enum outputFormat = ChooseOutputFormat(false /*m_bSRGBOutput*/, m_bAlphaIsMaskOnly); // we don't want the implicit sRGB conversion of MS TexConv, so just write to non-sRGB target

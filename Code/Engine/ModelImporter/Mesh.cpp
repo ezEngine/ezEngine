@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <ModelImporter/Mesh.h>
 #include <ModelImporter/VertexData.h>
 #include <Foundation/Logging/Log.h>
@@ -329,7 +329,7 @@ namespace ezModelImporter
     const VertexDataStream* positionStreamRaw = GetDataStream(ezGALVertexAttributeSemantic::Position);
     if (positionStreamRaw == nullptr)
     {
-      ezLog::Error("Can't compute vertex normals for the mesh {0}, because it doesn't have vertex positions.", m_Name);
+      ezLog::Error("Can't compute vertex normals for the mesh '{0}', because it doesn't have vertex positions.", m_Name);
       return EZ_FAILURE;
     }
     const TypedVertexDataStreamView<ezVec3> positionStream(*positionStreamRaw);
@@ -348,17 +348,21 @@ namespace ezModelImporter
     // This way large triangles have an higher influence on the vertex normal.
     for (const Triangle& triangle : m_Triangles)
     {
-      ezVec3 p0 = positionStream.GetValue(triangle.m_Vertices[0]);
-      ezVec3 p1 = positionStream.GetValue(triangle.m_Vertices[1]);
-      ezVec3 p2 = positionStream.GetValue(triangle.m_Vertices[2]);
+      const VertexIndex v0 = triangle.m_Vertices[0];
+      const VertexIndex v1 = triangle.m_Vertices[1];
+      const VertexIndex v2 = triangle.m_Vertices[2];
 
-      ezVec3 d01 = p1 - p0;
-      ezVec3 d02 = p2 - p0;
+      const ezVec3 p0 = positionStream.GetValue(v0);
+      const ezVec3 p1 = positionStream.GetValue(v1);
+      const ezVec3 p2 = positionStream.GetValue(v2);
 
-      ezVec3 triNormal = d01.Cross(d02);
-      normalStream.SetValue(triangle.m_Vertices[0], normalStream.GetValue(triangle.m_Vertices[0]) + triNormal); // (possible optimization: have a special addValue to avoid unnecessary lookup)
-      normalStream.SetValue(triangle.m_Vertices[1], normalStream.GetValue(triangle.m_Vertices[1]) + triNormal);
-      normalStream.SetValue(triangle.m_Vertices[2], normalStream.GetValue(triangle.m_Vertices[2]) + triNormal);
+      const ezVec3 d01 = p1 - p0;
+      const ezVec3 d02 = p2 - p0;
+
+      const ezVec3 triNormal = d01.Cross(d02);
+      normalStream.SetValue(v0, normalStream.GetValue(v0) + triNormal); // (possible optimization: have a special addValue to avoid unnecessary lookup)
+      normalStream.SetValue(v1, normalStream.GetValue(v1) + triNormal);
+      normalStream.SetValue(v2, normalStream.GetValue(v2) + triNormal);
     }
 
     // Normalize normals.

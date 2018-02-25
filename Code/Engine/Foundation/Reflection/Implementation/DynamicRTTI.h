@@ -75,13 +75,6 @@
       &Allocator, Properties, Functions, Attributes, MessageHandlers, MessageSenders, EZ_REFLECTION_DEBUG_GETPARENTFUNC);  \
   }
 
-#ifdef EZ_SUPPORT_EZARCHIVE
-
-class ezArchiveWriter;
-class ezArchiveReader;
-
-#endif
-
 /// \brief All classes that should be dynamically reflectable, need to be derived from this base class.
 class EZ_FOUNDATION_DLL ezReflectedClass : public ezNoBase
 {
@@ -109,44 +102,5 @@ public:
   {
     return GetDynamicRTTI()->IsDerivedFrom<T>();
   }
-
-#ifdef EZ_SUPPORT_EZARCHIVE
-
-  /// \brief This function is called to serialize the instance.
-  ///
-  /// It should be overridden by deriving classes. In general each overridden version should always call the
-  /// function of the base class. Only classes directly derived from ezReflectedClass must not do this, due to the assert in the
-  /// base implementation.
-  virtual void Serialize(ezArchiveWriter& stream) const
-  {
-    EZ_REPORT_FAILURE("Serialize is not overridden by deriving class.");
-  }
-
-  /// \brief This function is called to deserialize the instance.
-  ///
-  /// During deserialization only data should be read from the stream. References to other objects will not be valid,
-  /// thus no setup should take place. Leave this to the OnDeserialized() function.
-  ///
-  /// It should be overridden by deriving classes. In general each overridden version should always call the
-  /// function of the base class. Only classes directly derived from ezReflectedClass must not do this, due to the assert in the
-  /// base implementation.
-  virtual void Deserialize(ezArchiveReader& stream)
-  {
-    EZ_REPORT_FAILURE("Deserialize is not overridden by deriving class.");
-  }
-
-  /// \brief This function is called after all objects are deserialized and thus all references to other objects are valid.
-  ///
-  /// This functions should do any object setup that might depend on other objects being available.
-  ///
-  /// It should be overridden by deriving classes. In general each overridden version should always call the
-  /// function of the base class. Only classes directly derived from ezReflectedClass must not do this, due to the assert in the
-  /// base implementation.
-  virtual void OnDeserialized()
-  {
-    EZ_REPORT_FAILURE("OnDeserialized is not overridden by deriving class.");
-  }
-
-#endif
 };
 

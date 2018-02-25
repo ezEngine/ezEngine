@@ -1,4 +1,4 @@
-﻿#include "Main.h"
+#include "Main.h"
 
 void ezTexConv::WriteTexHeader(ezStreamWriter& stream)
 {
@@ -114,6 +114,9 @@ bool ezTexConv::CanPassThroughInput() const
 
   // this is a bit drastic, but not sure whether there are cases where we could still pass through
   if (m_bPremultiplyAlpha)
+    return false;
+
+  if (m_bFlipHorizontal)
     return false;
 
   if (m_TextureType == TextureType::Cubemap)

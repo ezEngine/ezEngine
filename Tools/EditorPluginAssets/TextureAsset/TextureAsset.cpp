@@ -99,8 +99,8 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   if (pProp->m_bPremultipliedAlpha)
     arguments << "-premulalpha";
 
-  //if (pProp->IsTextureCube())
-  //  arguments << "-cubemap";
+  if (pProp->m_bFlipHorizontal)
+    arguments << "-flip_horz";
 
   arguments << "-addressU" << QString::number(pProp->m_AddressModeU.GetValue());
   arguments << "-addressV" << QString::number(pProp->m_AddressModeV.GetValue());

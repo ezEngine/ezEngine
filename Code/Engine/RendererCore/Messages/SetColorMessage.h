@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererCore/Basics.h>
 #include <Core/Messages/ScriptFunctionMessage.h>
@@ -32,4 +32,11 @@ struct EZ_RENDERERCORE_DLL ezSetColorMessage : public ezScriptFunctionMessage
 
   void ModifyColor(ezColor& color) const;
   void ModifyColor(ezColorGammaUB& color) const;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezMessage interface
+  //
+
+  virtual void Serialize(ezStreamWriter& stream) const override;
+  virtual void Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVersion) override;
 };

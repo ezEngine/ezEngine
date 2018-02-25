@@ -1,4 +1,4 @@
-﻿#include "Main.h"
+#include "Main.h"
 #include <Foundation/Image/ImageUtils.h>
 #include <Utilities/Textures/TextureGroupDesc.h>
 #include <Foundation/Math/Rect.h>
@@ -25,6 +25,7 @@ ezResult ezTexConv::CreateDecalLayerTexture(ezDynamicArray<DecalDesc>& decals, e
   m_bHDROutput = false;
   m_uiOutputChannels = 4;
   m_bPremultiplyAlpha = false;
+  m_bFlipHorizontal = false;
   EZ_SUCCEED_OR_RETURN(ConvertToOutputFormat());
 
   EZ_SUCCEED_OR_RETURN(SaveResultToDDS(stream));

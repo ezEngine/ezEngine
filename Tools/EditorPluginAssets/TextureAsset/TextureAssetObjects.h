@@ -108,6 +108,7 @@ public:
   bool m_bMipmaps;
   bool m_bCompression;
   bool m_bPremultipliedAlpha;
+  bool m_bFlipHorizontal;
 
   ezEnum<ezTextureFilterSetting> m_TextureFilter;
   ezEnum<ezTexture2DAddressMode> m_AddressModeU;

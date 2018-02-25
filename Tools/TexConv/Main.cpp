@@ -159,6 +159,9 @@ ezApplication::ApplicationExecution ezTexConv::RunInternal()
     if (ApplyPremultiplyAlpha().Failed())
       return ezApplication::Quit;
 
+    if (FlipAndRotate().Failed())
+      return ezApplication::Quit;
+
     SaveThumbnail();
 
     if (m_bHasOutput)
@@ -178,8 +181,6 @@ ezApplication::ApplicationExecution ezTexConv::RunInternal()
 
   return ezApplication::Quit;
 }
-
-
 
 ezResult ezTexConv::SaveThumbnail()
 {

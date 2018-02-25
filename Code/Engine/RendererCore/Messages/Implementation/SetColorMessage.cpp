@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <RendererCore/Messages/SetColorMessage.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSetColorMode, 1)
@@ -53,4 +53,16 @@ void ezSetColorMessage::ModifyColor(ezColorGammaUB& color) const
   ezColor temp = color;
   ModifyColor(temp);
   color = temp;
+}
+
+void ezSetColorMessage::Serialize(ezStreamWriter& stream) const
+{
+  stream << m_Color;
+  stream << m_Mode;
+}
+
+void ezSetColorMessage::Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVersion)
+{
+  stream >> m_Color;
+  stream >> m_Mode;
 }

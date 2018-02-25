@@ -50,6 +50,7 @@ enum TexConvReturnCodes
   FAILED_COMBINE_CUBEMAP,
   FAILED_PREMULTIPLY_ALPHA,
   FAILED_WRITE_LOWRES,
+  FAILED_FLIP_OR_ROTATE,
 };
 
 class ezTexConv : public ezApplication
@@ -104,6 +105,7 @@ public:
   bool m_bSRGBOutput = false;
   bool m_bHDROutput = false;
   bool m_bPremultiplyAlpha = false;
+  bool m_bFlipHorizontal = false;
   ezUInt8 m_uiFilterSetting;
   ezUInt8 m_uiAddressU = 0;
   ezUInt8 m_uiAddressV = 0;
@@ -163,6 +165,7 @@ public:
   ezResult PassImageThrough();
   ezResult GenerateMipmaps();
   ezResult ApplyPremultiplyAlpha();
+  ezResult FlipAndRotate();
   ezResult ConvertToOutputFormat();
   ezResult SaveResultToDDS(ezStreamWriter& stream);
   ezResult SaveThumbnail();

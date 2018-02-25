@@ -382,6 +382,7 @@ void ezTexConv::ParseCommandLine()
     m_bHDROutput = pCmd->GetBoolOption("-hdr", false);
     m_uiOutputChannels = pCmd->GetIntOption("-channels", 4);
     m_bPremultiplyAlpha = pCmd->GetBoolOption("-premulalpha", false);
+    m_bFlipHorizontal = pCmd->GetBoolOption("-flip_horz", false);
 
     m_uiFilterSetting = pCmd->GetIntOption("-filter", 9); // ezTextureFilterSetting::DefaultQuality
     m_uiAddressU = pCmd->GetIntOption("-addressU", 0);
@@ -528,6 +529,7 @@ void ezTexConv::PrintConfig()
   ezLog::Info("Output is {0}", m_bSRGBOutput ? "sRGB" : "Linear");
   ezLog::Info("HDR Output: {0}", m_bHDROutput ? "yes" : "no");
   ezLog::Info("Pre-multiply alpha: {0}", m_bPremultiplyAlpha ? "yes" : "no");
+  ezLog::Info("Flip horizontal: {0}", m_bFlipHorizontal ? "yes" : "no");
 
   for (ezUInt32 i = 0; i < m_uiOutputChannels; ++i)
   {
