@@ -574,6 +574,14 @@ void ezPropertyAnimAssetDocument::ApplyAnimation(const PropertyKey& key, const P
   EZ_VERIFY(m_pAccessor->GetValue(pObj, key.m_pProperty, oldValue, key.m_Index).Succeeded(), "Retrieving old value failed.");
   if (oldValue != animValue)
     GetObjectManager()->SetValue(pObj, key.m_pProperty->GetPropertyName(), animValue, key.m_Index);
+
+  // tell the gizmos and manipulators that they should update their transform
+  // usually they listen to the command history and selection events, but in this case no commands are executed
+  {
+    ezGameObjectEvent e;
+    e.m_Type = ezGameObjectEvent::Type::GizmoTransformMayBeInvalid;
+    m_GameObjectEvents.Broadcast(e);
+  }
 }
 
 void ezPropertyAnimAssetDocument::SetPlayAnimation(bool play)

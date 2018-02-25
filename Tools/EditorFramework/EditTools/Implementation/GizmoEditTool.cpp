@@ -119,6 +119,7 @@ void ezGameObjectGizmoEditTool::GameObjectEventHandler(const ezGameObjectEvent& 
   switch (e.m_Type)
   {
   case ezGameObjectEvent::Type::ActiveEditToolChanged:
+  case ezGameObjectEvent::Type::GizmoTransformMayBeInvalid:
     UpdateGizmoVisibleState();
     UpdateManipulatorVisibility();
     break;

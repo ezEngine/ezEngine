@@ -39,14 +39,14 @@ void ezStartup::PrintAllSubsystems()
     ezLog::Info("Subsystem: '{0}::{1}'", pSub->GetGroupName(), pSub->GetSubSystemName());
 
     if (pSub->GetDependency(0) == nullptr)
-      ezLog::Info("  <no dependencies>");
+      ezLog::Dev("  <no dependencies>");
     else
     {
       for (ezInt32 i = 0; pSub->GetDependency(i) != nullptr; ++i)
-        ezLog::Info("  -> '{0}'", pSub->GetDependency(i));
+        ezLog::Dev("  depends on '{0}'", pSub->GetDependency(i));
     }
 
-    ezLog::Info("");
+    ezLog::Dev("");
 
     pSub = pSub->GetNextInstance();
   }
@@ -251,25 +251,26 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
   {
     if (!Order[i]->m_bStartupDone[stage])
     {
-      ezLog::Dev("Starting Sub-System '{0}' from Group '{1}'", Order[i]->GetSubSystemName(), Order[i]->GetGroupName());
+      Order[i]->m_bStartupDone[stage] = true;
 
       switch (stage)
       {
       case ezStartupStage::Base:
+        ezLog::Dev("Executing 'Base' startup for sub-system '{1}::{0}'", Order[i]->GetSubSystemName(), Order[i]->GetGroupName());
         Order[i]->OnBaseStartup();
         break;
       case ezStartupStage::Core:
+        ezLog::Dev("Executing 'Core' startup for sub-system '{1}::{0}'", Order[i]->GetSubSystemName(), Order[i]->GetGroupName());
         Order[i]->OnCoreStartup();
         break;
       case ezStartupStage::Engine:
+        ezLog::Dev("Executing 'Engine' startup for sub-system '{1}::{0}'", Order[i]->GetSubSystemName(), Order[i]->GetGroupName());
         Order[i]->OnEngineStartup();
         break;
 
       default:
         break;
       }
-
-      Order[i]->m_bStartupDone[stage] = true;
     }
   }
 
@@ -375,15 +376,15 @@ void ezStartup::Shutdown(ezStartupStage::Enum stage)
     {
       if (Order[i]->m_bStartupDone[stage])
       {
-        ezLog::Info("Shutting down Sub-System '{0}::{1}'", Order[i]->GetGroupName(), Order[i]->GetSubSystemName());
-
         switch (stage)
         {
         case ezStartupStage::Core:
+          ezLog::Dev("Executing 'Core' shutdown of sub-system '{0}::{1}'", Order[i]->GetGroupName(), Order[i]->GetSubSystemName());
           Order[i]->OnCoreShutdown();
           break;
 
         case ezStartupStage::Engine:
+          ezLog::Dev("Executing 'Engine' shutdown of sub-system '{0}::{1}'", Order[i]->GetGroupName(), Order[i]->GetSubSystemName());
           Order[i]->OnEngineShutdown();
           break;
 

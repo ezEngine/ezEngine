@@ -46,6 +46,8 @@ struct EZ_EDITORFRAMEWORK_DLL ezGameObjectEvent
     BeforeTriggerGameModePlay,
     TriggerGameModePlay,
     TriggerStopGameModePlay,
+
+    GizmoTransformMayBeInvalid, ///< Sent when a change was made that may affect the current gizmo / manipulator state (ie. objects have been moved)
   };
 
   Type m_Type;
