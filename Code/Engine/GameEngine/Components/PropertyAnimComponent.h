@@ -15,19 +15,32 @@ class EZ_GAMEENGINE_DLL ezPropertyAnimComponent : public ezComponent
 public:
   ezPropertyAnimComponent();
 
-  void Update();
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent interface
+  //
+
+public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  // ************************************* PROPERTIES ***********************************
+protected:
+
+  virtual void OnSimulationStarted() override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezPropertyAnimComponent interface
+  //
+
+public:
+
+  void Update();
 
   void SetPropertyAnimFile(const char* szFile);
   const char* GetPropertyAnimFile() const;
 
   void SetPropertyAnim(const ezPropertyAnimResourceHandle& hResource);
   EZ_ALWAYS_INLINE const ezPropertyAnimResourceHandle& GetPropertyAnim() const { return m_hPropertyAnim; }
-
 
 protected:
   struct Binding
@@ -67,13 +80,16 @@ protected:
   void ApplyColorAnimation(const ColorBinding& binding, double lookupTime);
   double ComputeAnimationLookup(ezTime tDiff);
 
-  bool m_bReverse = false;
+  ezEnum<ezPropertyAnimMode> m_AnimationMode;
+  ezTime m_RandomOffset;
   ezTime m_AnimationTime;
+  float m_fSpeed = 1.0f;
+  bool m_bReverse = false;
+
   ezHybridArray<GameObjectBinding, 4> m_GoFloatBindings;
   ezHybridArray<ComponentFloatBinding, 4> m_ComponentFloatBindings;
   ezHybridArray<ColorBinding, 4> m_ColorBindings;
   ezPropertyAnimResourceHandle m_hPropertyAnim;
-  ezEnum<ezPropertyAnimMode> m_AnimationMode;
 
   // we do not want to recreate the binding when the resource changes at runtime
   // therefore we use a sharedptr to keep the data around as long as necessary
@@ -84,4 +100,6 @@ protected:
   // instead we go with one animation state until this component is reset entirely
   // that means you need to restart a level to see the updated animation
   ezSharedPtr<ezPropertyAnimResourceDescriptor> m_AnimDesc;
+
+
 };

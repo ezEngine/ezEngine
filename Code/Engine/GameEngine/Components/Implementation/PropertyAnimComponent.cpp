@@ -6,12 +6,14 @@
 #include <GameEngine/Curves/Curve1DResource.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 1, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 2, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Animation", GetPropertyAnimFile, SetPropertyAnimFile)->AddAttributes(new ezAssetBrowserAttribute("PropertyAnim")),
     EZ_ENUM_MEMBER_PROPERTY("Mode", ezPropertyAnimMode, m_AnimationMode),
+    EZ_MEMBER_PROPERTY("RandomOffset", m_RandomOffset)->AddAttributes(new ezClampValueAttribute(ezTime::Seconds(0), ezVariant())),
+    EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(-10.0f, +10.0f)),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES
@@ -32,6 +34,11 @@ void ezPropertyAnimComponent::SerializeComponent(ezWorldWriter& stream) const
   auto& s = stream.GetStream();
 
   s << m_hPropertyAnim;
+  s << m_AnimationMode;
+  s << m_RandomOffset;
+  s << m_fSpeed;
+  s << m_AnimationTime;
+  s << m_bReverse;
 
   /// \todo Somehow store the animation state (not necessary for new scenes, but for quicksaves)
 }
@@ -39,10 +46,19 @@ void ezPropertyAnimComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezPropertyAnimComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
   s >> m_hPropertyAnim;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_AnimationMode;
+    s >> m_RandomOffset;
+    s >> m_fSpeed;
+    s >> m_AnimationTime;
+    s >> m_bReverse;
+  }
 }
 
 void ezPropertyAnimComponent::SetPropertyAnimFile(const char* szFile)
@@ -377,6 +393,11 @@ void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
 
 double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
 {
+  if (m_AnimDesc->m_AnimationDuration.IsZero())
+    return 0;
+
+  tDiff = m_fSpeed * tDiff;
+
   const ezTime duration = m_AnimDesc->m_AnimationDuration;
 
   if (m_AnimationMode == ezPropertyAnimMode::Once)
@@ -395,10 +416,15 @@ double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
 
     while (m_AnimationTime > duration)
       m_AnimationTime -= duration;
+
+    while (m_AnimationTime < ezTime::Zero())
+      m_AnimationTime += duration;
   }
   else if (m_AnimationMode == ezPropertyAnimMode::BackAndForth)
   {
-    if (m_bReverse)
+    const bool bReverse = m_fSpeed < 0 ? !m_bReverse : m_bReverse;
+
+    if (bReverse)
       m_AnimationTime -= tDiff;
     else
       m_AnimationTime += tDiff;
@@ -422,6 +448,24 @@ double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
   }
 
   return m_AnimationTime.GetSeconds();
+}
+
+
+void ezPropertyAnimComponent::OnSimulationStarted()
+{
+  CreatePropertyBindings();
+
+  if (!m_RandomOffset.IsZero() && !m_AnimDesc->m_AnimationDuration.IsZeroOrLess())
+  {
+    m_AnimationTime = ezTime::Seconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, m_RandomOffset.GetSeconds()));
+
+    // adjust current time to be inside the valid range
+    // do not clamp, as that would give a skewed random chance
+    while (m_AnimationTime > m_AnimDesc->m_AnimationDuration)
+    {
+      m_AnimationTime -= m_AnimDesc->m_AnimationDuration;
+    }
+  }
 }
 
 void ezPropertyAnimComponent::ApplySingleFloatAnimation(const FloatBinding& binding, double lookupTime)
