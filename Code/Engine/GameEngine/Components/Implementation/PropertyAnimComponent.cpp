@@ -14,6 +14,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 2, ezComponentMode::Dynamic)
     EZ_ENUM_MEMBER_PROPERTY("Mode", ezPropertyAnimMode, m_AnimationMode),
     EZ_MEMBER_PROPERTY("RandomOffset", m_RandomOffset)->AddAttributes(new ezClampValueAttribute(ezTime::Seconds(0), ezVariant())),
     EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(-10.0f, +10.0f)),
+    EZ_MEMBER_PROPERTY("RangeLow", m_AnimationRangeLow)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("RangeHigh", m_AnimationRangeHigh)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(ezTime::Seconds(60 * 60))),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES
@@ -26,6 +28,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezPropertyAnimComponent::ezPropertyAnimComponent()
 {
+  m_AnimationRangeHigh = ezTime::Seconds(60.0 * 60.0);
 }
 
 void ezPropertyAnimComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -39,6 +42,8 @@ void ezPropertyAnimComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fSpeed;
   s << m_AnimationTime;
   s << m_bReverse;
+  s << m_AnimationRangeLow;
+  s << m_AnimationRangeHigh;
 
   /// \todo Somehow store the animation state (not necessary for new scenes, but for quicksaves)
 }
@@ -58,6 +63,9 @@ void ezPropertyAnimComponent::DeserializeComponent(ezWorldReader& stream)
     s >> m_fSpeed;
     s >> m_AnimationTime;
     s >> m_bReverse;
+    s >> m_AnimationRangeLow;
+    s >> m_AnimationRangeHigh;
+
   }
 }
 
@@ -393,32 +401,47 @@ void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
 
 double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
 {
-  if (m_AnimDesc->m_AnimationDuration.IsZero())
-    return 0;
+  const ezTime duration = m_AnimationRangeHigh - m_AnimationRangeLow;
+
+  if (duration.IsZero())
+    return m_AnimationRangeLow.GetSeconds();
 
   tDiff = m_fSpeed * tDiff;
-
-  const ezTime duration = m_AnimDesc->m_AnimationDuration;
 
   if (m_AnimationMode == ezPropertyAnimMode::Once)
   {
     m_AnimationTime += tDiff;
 
-    if (m_AnimationTime > duration)
+    if (m_fSpeed > 0 && m_AnimationTime >= m_AnimationRangeHigh)
     {
-      m_AnimationTime = duration;
+      m_AnimationTime = m_AnimationRangeHigh;
       SetActive(false);
+
+      // TODO: send event
+    }
+    else if (m_fSpeed < 0 && m_AnimationTime <= m_AnimationRangeLow)
+    {
+      m_AnimationTime = m_AnimationRangeLow;
+      SetActive(false);
+
+      // TODO: send event
     }
   }
   else if (m_AnimationMode == ezPropertyAnimMode::Loop)
   {
     m_AnimationTime += tDiff;
 
-    while (m_AnimationTime > duration)
+    while (m_AnimationTime > m_AnimationRangeHigh)
+    {
       m_AnimationTime -= duration;
+      // TODO: send event
+    }
 
-    while (m_AnimationTime < ezTime::Zero())
+    while (m_AnimationTime < m_AnimationRangeLow)
+    {
       m_AnimationTime += duration;
+      // TODO: send event
+    }
   }
   else if (m_AnimationMode == ezPropertyAnimMode::BackAndForth)
   {
@@ -432,15 +455,19 @@ double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
     // ping pong back and forth as long as the current animation time is outside the valid range
     while (true)
     {
-      if (m_AnimationTime > duration)
+      if (m_AnimationTime > m_AnimationRangeHigh)
       {
-        m_AnimationTime = duration - (m_AnimationTime - duration);
+        m_AnimationTime = m_AnimationRangeHigh - (m_AnimationTime - m_AnimationRangeHigh);
         m_bReverse = true;
+
+        // TODO: send event
       }
-      else if (m_AnimationTime < ezTime::Zero())
+      else if (m_AnimationTime < m_AnimationRangeLow)
       {
-        m_AnimationTime = -m_AnimationTime;
+        m_AnimationTime = m_AnimationRangeLow + (m_AnimationRangeLow - m_AnimationTime);
         m_bReverse = false;
+
+        // TODO: send event
       }
       else
         break;
@@ -455,15 +482,40 @@ void ezPropertyAnimComponent::OnSimulationStarted()
 {
   CreatePropertyBindings();
 
+  m_AnimationRangeLow = ezMath::Clamp(m_AnimationRangeLow, ezTime::Zero(), m_AnimDesc->m_AnimationDuration);
+  m_AnimationRangeHigh = ezMath::Clamp(m_AnimationRangeHigh, m_AnimationRangeLow, m_AnimDesc->m_AnimationDuration);
+
+  // when starting with a negative speed, start at the end of the animation and play backwards
+  // important for play-once mode
+  if (m_fSpeed < 0.0f)
+  {
+    m_AnimationTime = m_AnimationRangeHigh;
+  }
+
   if (!m_RandomOffset.IsZero() && !m_AnimDesc->m_AnimationDuration.IsZeroOrLess())
   {
-    m_AnimationTime = ezTime::Seconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, m_RandomOffset.GetSeconds()));
+    // should the random offset also be scaled by the speed factor? I guess not
+    m_AnimationTime += ezMath::Abs(m_fSpeed) * ezTime::Seconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, m_RandomOffset.GetSeconds()));
 
-    // adjust current time to be inside the valid range
-    // do not clamp, as that would give a skewed random chance
-    while (m_AnimationTime > m_AnimDesc->m_AnimationDuration)
+    const ezTime duration = m_AnimationRangeHigh - m_AnimationRangeLow;
+
+    if (duration.IsZeroOrLess())
     {
-      m_AnimationTime -= m_AnimDesc->m_AnimationDuration;
+      m_AnimationTime = m_AnimationRangeLow;
+    }
+    else
+    {
+      // adjust current time to be inside the valid range
+      // do not clamp, as that would give a skewed random chance
+      while (m_AnimationTime > m_AnimationRangeHigh)
+      {
+        m_AnimationTime -= duration;
+      }
+
+      while (m_AnimationTime < m_AnimationRangeLow)
+      {
+        m_AnimationTime += duration;
+      }
     }
   }
 }

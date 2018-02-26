@@ -86,6 +86,10 @@ protected:
   float m_fSpeed = 1.0f;
   bool m_bReverse = false;
 
+  // for only playing a sub-set of the animation
+  ezTime m_AnimationRangeLow;
+  ezTime m_AnimationRangeHigh;
+
   ezHybridArray<GameObjectBinding, 4> m_GoFloatBindings;
   ezHybridArray<ComponentFloatBinding, 4> m_ComponentFloatBindings;
   ezHybridArray<ColorBinding, 4> m_ColorBindings;
@@ -100,6 +104,4 @@ protected:
   // instead we go with one animation state until this component is reset entirely
   // that means you need to restart a level to see the updated animation
   ezSharedPtr<ezPropertyAnimResourceDescriptor> m_AnimDesc;
-
-
 };
