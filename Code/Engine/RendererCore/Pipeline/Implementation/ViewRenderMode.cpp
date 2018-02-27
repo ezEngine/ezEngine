@@ -1,6 +1,8 @@
 ﻿#include <PCH.h>
 #include <RendererCore/Pipeline/ViewRenderMode.h>
 
+#include <RendererCore/../../../Data/Base/Shaders/Common/GlobalConstants.h>
+
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezViewRenderMode, 1)
 EZ_ENUM_CONSTANTS(ezViewRenderMode::None, ezViewRenderMode::WireframeColor, ezViewRenderMode::WireframeMonochrome, ezViewRenderMode::LitOnly, ezViewRenderMode::LightCount, ezViewRenderMode::DecalCount, ezViewRenderMode::TexCoordsUV0)
 EZ_ENUM_CONSTANTS(ezViewRenderMode::PixelNormals, ezViewRenderMode::VertexNormals, ezViewRenderMode::VertexTangents, ezViewRenderMode::DiffuseColor, ezViewRenderMode::DiffuseColorRange, ezViewRenderMode::SpecularColor)

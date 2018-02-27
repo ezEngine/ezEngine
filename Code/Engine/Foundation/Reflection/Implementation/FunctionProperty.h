@@ -95,7 +95,6 @@ public:
 
   virtual void Execute(void* pInstance, ezArrayPtr<ezVariant> arguments, ezVariant& returnValue) const override
   {
-    CLASS* pTargetInstance = (CLASS*)pInstance;
     ExecuteImpl(ezTraitInt<std::is_same<R, void>::value>(), pInstance, returnValue, arguments, std::make_index_sequence<sizeof...(Args)>{});
   }
 

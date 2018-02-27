@@ -40,8 +40,8 @@ struct EZ_RENDERERCORE_DLL ezMeshComponent_SetMaterialMsg : public ezScriptFunct
   ezMaterialResourceHandle m_hMaterial;
   ezUInt32 m_uiMaterialSlot = 0xFFFFFFFFu;
 
-  virtual void Serialize(ezStreamWriter& stream) const;
-  virtual void Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVersion);
+  virtual void Serialize(ezStreamWriter& stream) const override;
+  virtual void Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVersion) override;
 };
 
 class EZ_RENDERERCORE_DLL ezMeshComponent : public ezRenderComponent
