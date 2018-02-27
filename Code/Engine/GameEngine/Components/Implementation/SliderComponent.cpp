@@ -5,14 +5,15 @@
 
 float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration, ezTime& fTimeSinceStartInSec);
 
-EZ_BEGIN_COMPONENT_TYPE(ezSliderComponent, 2, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezSliderComponent, 3, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("Axis", ezBasisAxis, m_Axis),
-    EZ_MEMBER_PROPERTY("Distance", m_fDistanceToTravel),
-    EZ_MEMBER_PROPERTY("Acceleration", m_fAcceleration),
-    EZ_MEMBER_PROPERTY("Deceleration", m_fDeceleration),
+    EZ_ENUM_MEMBER_PROPERTY("Axis", ezBasisAxis, m_Axis)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveZ)),
+    EZ_MEMBER_PROPERTY("Distance", m_fDistanceToTravel)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("Acceleration", m_fAcceleration)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("Deceleration", m_fDeceleration)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("RandomStart", m_RandomStart)->AddAttributes(new ezClampValueAttribute(ezTime::Zero(), ezVariant())),
   }
   EZ_END_PROPERTIES
 }
@@ -23,7 +24,7 @@ ezSliderComponent::ezSliderComponent()
   m_fDistanceToTravel = 1.0f;
   m_fAcceleration = 0.0f;
   m_fDeceleration = 0.0;
-  m_Axis = ezBasisAxis::PositiveX;
+  m_Axis = ezBasisAxis::PositiveZ;
   m_fLastDistance = 0.0f;
 }
 
@@ -109,6 +110,14 @@ void ezSliderComponent::Update()
 
 
 
+void ezSliderComponent::OnSimulationStarted()
+{
+  if (!m_RandomStart.IsZeroOrLess())
+  {
+    m_AnimationTime = ezTime::Seconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, m_RandomStart.GetSeconds()));
+  }
+}
+
 void ezSliderComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
@@ -120,13 +129,14 @@ void ezSliderComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fDeceleration;
   s << m_Axis.GetValue();
   s << m_fLastDistance;
+  s << m_RandomStart;
 }
 
 
 void ezSliderComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = stream.GetStream();
 
@@ -138,6 +148,10 @@ void ezSliderComponent::DeserializeComponent(ezWorldReader& stream)
   m_Axis.SetValue(axis);
   s >> m_fLastDistance;
 
+  if (uiVersion >= 3)
+  {
+    s >> m_RandomStart;
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////

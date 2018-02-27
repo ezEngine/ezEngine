@@ -215,7 +215,7 @@ namespace ezModelImporter
 
       switch (pMaterialElement->GetMappingMode())
       {
-        case FbxGeometryElement::eAllSame:
+      case FbxGeometryElement::eAllSame:
         {
           FbxSurfaceMaterial* pMaterial = pMesh->GetNode()->GetMaterial(pMaterialElement->GetIndexArray().GetAt(0));
 
@@ -228,13 +228,13 @@ namespace ezModelImporter
         }
         break;
 
-        case FbxGeometryElement::eByPolygon:
+      case FbxGeometryElement::eByPolygon:
         {
           // Mapping is handled with sub mesh creation
         }
         break;
 
-        default:
+      default:
         {
           ezLog::Warning("FBX import encountered unsupported material mapping mode, currently supported are: eAllSame, eByPolygon.");
         }
@@ -285,11 +285,11 @@ namespace ezModelImporter
               break;
 
             case FbxGeometryElement::eIndexToDirect:
-            {
-              int id = pNormalElement->GetIndexArray().GetAt(vertexId);
-              vertex.normal = ConvertFromFBX(pNormalElement->GetDirectArray().GetAt(id)).GetAsVec3();
-            }
-            break;
+              {
+                int id = pNormalElement->GetIndexArray().GetAt(vertexId);
+                vertex.normal = ConvertFromFBX(pNormalElement->GetDirectArray().GetAt(id)).GetAsVec3();
+              }
+              break;
 
             default:
               break; // other reference modes not shown here!
@@ -309,11 +309,11 @@ namespace ezModelImporter
               break;
 
             case FbxGeometryElement::eIndexToDirect:
-            {
-              int id = pTangentElement->GetIndexArray().GetAt(vertexId);
-              vertex.tangent = ConvertFromFBX(pTangentElement->GetDirectArray().GetAt(id)).GetAsVec3();
-            }
-            break;
+              {
+                int id = pTangentElement->GetIndexArray().GetAt(vertexId);
+                vertex.tangent = ConvertFromFBX(pTangentElement->GetDirectArray().GetAt(id)).GetAsVec3();
+              }
+              break;
 
             default:
               break; // other reference modes not shown here!
@@ -333,11 +333,11 @@ namespace ezModelImporter
               break;
 
             case FbxGeometryElement::eIndexToDirect:
-            {
-              int id = pBinormalElement->GetIndexArray().GetAt(vertexId);
-              vertex.binormal = ConvertFromFBX(pBinormalElement->GetDirectArray().GetAt(id)).GetAsVec3();
-            }
-            break;
+              {
+                int id = pBinormalElement->GetIndexArray().GetAt(vertexId);
+                vertex.binormal = ConvertFromFBX(pBinormalElement->GetDirectArray().GetAt(id)).GetAsVec3();
+              }
+              break;
 
             default:
               break; // other reference modes not shown here!
@@ -362,32 +362,32 @@ namespace ezModelImporter
               uv = ConvertFromFBX(pUVElement->GetDirectArray().GetAt(iIndex));
               break;
             case FbxGeometryElement::eIndexToDirect:
-            {
-              int id = pUVElement->GetIndexArray().GetAt(iIndex);
-              uv = ConvertFromFBX(pUVElement->GetDirectArray().GetAt(id));
-            }
-            break;
+              {
+                int id = pUVElement->GetIndexArray().GetAt(iIndex);
+                uv = ConvertFromFBX(pUVElement->GetDirectArray().GetAt(id));
+              }
+              break;
             default:
               break; // other reference modes not implemented yet
             }
             break;
 
           case FbxGeometryElement::eByPolygonVertex:
-          {
-            int textureUVIndex = pMesh->GetTextureUVIndex(poly, polyVertex);
-            switch (pUVElement->GetReferenceMode())
             {
-            case FbxGeometryElement::eDirect:
-            case FbxGeometryElement::eIndexToDirect:
-            {
-              uv = ConvertFromFBX(pUVElement->GetDirectArray().GetAt(textureUVIndex));
+              int textureUVIndex = pMesh->GetTextureUVIndex(poly, polyVertex);
+              switch (pUVElement->GetReferenceMode())
+              {
+              case FbxGeometryElement::eDirect:
+              case FbxGeometryElement::eIndexToDirect:
+                {
+                  uv = ConvertFromFBX(pUVElement->GetDirectArray().GetAt(textureUVIndex));
+                }
+                break;
+              default:
+                break; // other reference modes not shown here!
+              }
             }
             break;
-            default:
-              break; // other reference modes not shown here!
-            }
-          }
-          break;
 
           case FbxGeometryElement::eByPolygon: // doesn't make much sense for UVs
           case FbxGeometryElement::eAllSame:   // doesn't make much sense for UVs
@@ -396,6 +396,10 @@ namespace ezModelImporter
           default:
             break;
           }
+
+          // make the V coordinate conform with the expected convention
+          // TODO: I could not find a flag in the FBX SDK that defines the V coordinate origin
+          uv.y = 1.0f - uv.y;
 
           switch (uvElement)
           {
@@ -425,34 +429,34 @@ namespace ezModelImporter
               vertex.color = ConvertFromFBX(pVertexColorElement->GetDirectArray().GetAt(iIndex));
               break;
             case FbxGeometryElement::eIndexToDirect:
-            {
-              int id = pVertexColorElement->GetIndexArray().GetAt(iIndex);
-              vertex.color = ConvertFromFBX(pVertexColorElement->GetDirectArray().GetAt(id));
-            }
-            break;
+              {
+                int id = pVertexColorElement->GetIndexArray().GetAt(iIndex);
+                vertex.color = ConvertFromFBX(pVertexColorElement->GetDirectArray().GetAt(id));
+              }
+              break;
             default:
               break; // other reference modes not implemented
             }
             break;
 
           case FbxGeometryElement::eByPolygonVertex:
-          {
-            switch (pVertexColorElement->GetReferenceMode())
             {
-            case FbxGeometryElement::eDirect:
-              vertex.color = ConvertFromFBX(pVertexColorElement->GetDirectArray().GetAt(vertexId));
-              break;
-            case FbxGeometryElement::eIndexToDirect:
-            {
-              int id = pVertexColorElement->GetIndexArray().GetAt(vertexId);
-              vertex.color = ConvertFromFBX(pVertexColorElement->GetDirectArray().GetAt(id));
+              switch (pVertexColorElement->GetReferenceMode())
+              {
+              case FbxGeometryElement::eDirect:
+                vertex.color = ConvertFromFBX(pVertexColorElement->GetDirectArray().GetAt(vertexId));
+                break;
+              case FbxGeometryElement::eIndexToDirect:
+                {
+                  int id = pVertexColorElement->GetIndexArray().GetAt(vertexId);
+                  vertex.color = ConvertFromFBX(pVertexColorElement->GetDirectArray().GetAt(id));
+                }
+                break;
+              default:
+                break; // other reference modes not shown here!
+              }
             }
             break;
-            default:
-              break; // other reference modes not shown here!
-            }
-          }
-          break;
 
           case FbxGeometryElement::eByPolygon: // doesn't make much sense for UVs
           case FbxGeometryElement::eAllSame:   // doesn't make much sense for UVs
@@ -642,12 +646,16 @@ namespace ezModelImporter
 
     node->m_Name = pNode->GetName();
 
-    auto transform = pNode->GetTransform();
-    node->m_RelativeTransform.m_vPosition = ConvertFromFBX(pNode->LclTranslation.Get());
-    node->m_RelativeTransform.m_vScale = ConvertFromFBX(pNode->LclScaling.Get());
+    {
+      FbxAMatrix localTransform = pNode->EvaluateLocalTransform();
 
-    FbxAMatrix rotationMatrix; rotationMatrix.SetR(pNode->LclRotation.Get());
-    node->m_RelativeTransform.m_qRotation = ConvertFromFBX(rotationMatrix.GetQ());
+      node->m_RelativeTransform.m_vPosition = ConvertFromFBX(localTransform.GetT()).GetAsVec3();
+      node->m_RelativeTransform.m_vScale = ConvertFromFBX(localTransform.GetS()).GetAsVec3();
+      node->m_RelativeTransform.m_qRotation = ConvertFromFBX(localTransform.GetQ());
+
+      // for inexplicable reasons, EvaluateLocalTransform returns a different (correct) value,
+      // than what is stored in pNode->LclRotation, so don't try to use that
+    }
 
     for (int i = 0; i < pNode->GetChildCount(); ++i)
     {
@@ -767,6 +775,9 @@ namespace ezModelImporter
       return nullptr;
     }
 
+    FbxAxisSystem converToGL(FbxAxisSystem::eOpenGL);
+    converToGL.ConvertScene(pScene);
+
     ezSharedPtr<Scene> outScene = EZ_DEFAULT_NEW(Scene);
 
     {
@@ -808,4 +819,4 @@ namespace ezModelImporter
 
 #endif
 
-}
+  }
