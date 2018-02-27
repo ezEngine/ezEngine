@@ -2,7 +2,7 @@
 
 #include <Foundation/Math/Rect.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
-#include <RendererCore/Pipeline/Declarations.h>
+#include <RendererCore/Pipeline/ViewRenderMode.h>
 #include <Core/Graphics/Camera.h>
 
 /// \brief Holds view data like the viewport, view and projection matrices
@@ -11,6 +11,7 @@ struct EZ_RENDERERCORE_DLL ezViewData
   ezViewData()
   {
     m_ViewPortRect = ezRectFloat(0.0f, 0.0f);
+    m_ViewRenderMode = ezViewRenderMode::None;
 
     for (int i = 0; i < 2; ++i)
     {
@@ -24,6 +25,7 @@ struct EZ_RENDERERCORE_DLL ezViewData
   }
 
   ezRectFloat m_ViewPortRect;
+  ezEnum<ezViewRenderMode> m_ViewRenderMode;
 
   // Each matrix is there for both left and right camera lens.
   ezMat4 m_ViewMatrix[2];

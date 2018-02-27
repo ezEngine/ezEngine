@@ -1,4 +1,5 @@
 ﻿#include <PCH.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/ClusteredDataProvider.h>
 #include <RendererCore/Pipeline/Passes/ForwardRenderPass.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
@@ -10,16 +11,13 @@
 #include <RendererFoundation/Resources/Texture.h>
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezForwardRenderPass, 1, ezRTTIDefaultAllocator<ezForwardRenderPass>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezForwardRenderPass, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Color", m_PinColor),
     EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
-    EZ_MEMBER_PROPERTY("SSAO", m_PinSSAO),
     EZ_ENUM_MEMBER_PROPERTY("ShadingQuality", ezForwardRenderShadingQuality, m_ShadingQuality)->AddAttributes(new ezDefaultValueAttribute((int)ezForwardRenderShadingQuality::Normal)),
-    EZ_MEMBER_PROPERTY("WriteDepth", m_bWriteDepth)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("ApplySSAOToDirectLighting", m_bApplySSAOToDirectLighting),
   }
   EZ_END_PROPERTIES
 }
@@ -33,10 +31,7 @@ EZ_END_STATIC_REFLECTED_ENUM();
 ezForwardRenderPass::ezForwardRenderPass(const char* szName)
   : ezRenderPipelinePass(szName, true)
   , m_ShadingQuality(ezForwardRenderShadingQuality::Normal)
-  , m_bWriteDepth(true)
-  , m_bApplySSAOToDirectLighting(false)
 {
-  m_hWhiteTexture = ezResourceManager::LoadResource<ezTexture2DResource>("White.color");
 }
 
 ezForwardRenderPass::~ezForwardRenderPass()
@@ -68,25 +63,20 @@ bool ezForwardRenderPass::GetRenderTargetDescriptions(const ezView& view, const 
     return false;
   }
 
-  if (inputs[m_PinSSAO.m_uiInputIndex])
-  {
-    if (inputs[m_PinSSAO.m_uiInputIndex]->m_uiWidth != inputs[m_PinColor.m_uiInputIndex]->m_uiWidth ||
-        inputs[m_PinSSAO.m_uiInputIndex]->m_uiHeight != inputs[m_PinColor.m_uiInputIndex]->m_uiHeight)
-    {
-      ezLog::Warning("Expected same resolution for SSAO and color input to pass '{0}'!", GetName());
-    }
-
-    if (m_ShadingQuality == ezForwardRenderShadingQuality::Simplified)
-    {
-      ezLog::Warning("SSAO input will be ignored for pass '{0}' since simplified shading is activated.", GetName());
-    }
-  }
-
   return true;
 }
 
 void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
   const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+{
+  SetupResources(renderViewContext, inputs, outputs);
+  SetupPermutationVars(renderViewContext);
+  SetupLighting(renderViewContext);
+
+  RenderObjects(renderViewContext);
+}
+
+void ezForwardRenderPass::SetupResources(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
@@ -103,16 +93,23 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   }
 
   renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
+}
 
-  SetupPermutationVars(renderViewContext);
-
-  if (m_bWriteDepth)
+void ezForwardRenderPass::SetupPermutationVars(const ezRenderViewContext& renderViewContext)
+{
+  ezTempHashedString sRenderPass("RENDER_PASS_FORWARD");
+  if (renderViewContext.m_pViewData->m_ViewRenderMode != ezViewRenderMode::None)
   {
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("FORWARD_PASS_WRITE_DEPTH", "TRUE");
+    sRenderPass = ezViewRenderMode::GetRenderPassPermutationValue(renderViewContext.m_pViewData->m_ViewRenderMode);
   }
-  else
+
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", sRenderPass);
+
+  ezStringBuilder sDebugText;
+  ezViewRenderMode::GetDebugText(renderViewContext.m_pViewData->m_ViewRenderMode, sDebugText);
+  if (!sDebugText.IsEmpty())
   {
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("FORWARD_PASS_WRITE_DEPTH", "FALSE");
+    ezDebugRenderer::DrawText(*renderViewContext.m_pViewDebugContext, sDebugText, ezVec2I32(10, 10), ezColor::White);
   }
 
   // Set permutation for shading quality
@@ -128,55 +125,22 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   {
     EZ_REPORT_FAILURE("Unknown shading quality setting.");
   }
+}
 
+void ezForwardRenderPass::SetupLighting(const ezRenderViewContext& renderViewContext)
+{
   // Setup clustered data
   if (m_ShadingQuality == ezForwardRenderShadingQuality::Normal)
   {
     auto pClusteredData = GetPipeline()->GetFrameDataProvider<ezClusteredDataProvider>()->GetData(renderViewContext);
-    pClusteredData->m_bApplySSAOToDirectLighting = m_bApplySSAOToDirectLighting;
     pClusteredData->BindResources(renderViewContext.m_pRenderContext);
   }
   // Or other light properties.
   else
   {
-     // todo
+    // todo
   }
-
-  // SSAO texture
-  if (m_ShadingQuality == ezForwardRenderShadingQuality::Normal)
-  {
-    if (inputs[m_PinSSAO.m_uiInputIndex])
-    {
-      ezGALResourceViewHandle ssaoResourceViewHandle = pDevice->GetDefaultResourceView(inputs[m_PinSSAO.m_uiInputIndex]->m_TextureHandle);
-      renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "SSAOTexture", ssaoResourceViewHandle);
-    }
-    else
-    {
-      renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "SSAOTexture", m_hWhiteTexture, ezResourceAcquireMode::NoFallback);
-    }
-  }
-
-  // Render
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque);
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMasked);
-
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Sky);
-
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitTransparent);
-
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
-
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
-  RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
 }
-
-void ezForwardRenderPass::SetupPermutationVars(const ezRenderViewContext& renderViewContext)
-{
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_FORWARD");
-}
-
-
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_ForwardRenderPass);
 

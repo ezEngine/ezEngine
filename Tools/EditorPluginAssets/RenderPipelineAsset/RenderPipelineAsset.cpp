@@ -10,7 +10,7 @@
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Serialization/BinarySerializer.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineAssetDocument, 2, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineAssetDocument, 3, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 bool ezRenderPipelineNodeManager::InternalIsNode(const ezDocumentObject* pObject) const

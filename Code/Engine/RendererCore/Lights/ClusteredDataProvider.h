@@ -23,8 +23,6 @@ public:
 
   ezDecalAtlasResourceHandle m_hDecalAtlas;
 
-  bool m_bApplySSAOToDirectLighting;
-
   void BindResources(ezRenderContext* pRenderContext);
 };
 

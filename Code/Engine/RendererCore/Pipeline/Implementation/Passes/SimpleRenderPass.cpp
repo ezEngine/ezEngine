@@ -102,7 +102,14 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
 
   renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
 
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_FORWARD");
+  // Setup Permutation Vars
+  ezTempHashedString sRenderPass("RENDER_PASS_FORWARD");
+  if (renderViewContext.m_pViewData->m_ViewRenderMode != ezViewRenderMode::None)
+  {
+    sRenderPass = ezViewRenderMode::GetRenderPassPermutationValue(renderViewContext.m_pViewData->m_ViewRenderMode);
+  }
+
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", sRenderPass);
 
   // Execute render functions
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleOpaque);

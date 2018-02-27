@@ -62,12 +62,13 @@ void ezRenderComponent::TriggerLocalBoundsUpdate()
   }
 }
 
-ezUInt32 ezRenderComponent::GetUniqueIdForRendering(ezUInt32 uiInnerIndex /*= 0*/, ezUInt32 uiInnerIndexShift /*= 24*/) const
+//static
+ezUInt32 ezRenderComponent::GetUniqueIdForRendering(const ezComponent* pComponent, ezUInt32 uiInnerIndex /*= 0*/, ezUInt32 uiInnerIndexShift /*= 24*/)
 {
-  ezUInt32 uniqueId = GetUniqueID();
+  ezUInt32 uniqueId = pComponent->GetUniqueID();
   if (uniqueId == ezInvalidIndex)
   {
-    uniqueId = GetOwner()->GetHandle().GetInternalID().m_Data;
+    uniqueId = pComponent->GetOwner()->GetHandle().GetInternalID().m_Data;
   }
   else
   {
@@ -76,7 +77,7 @@ ezUInt32 ezRenderComponent::GetUniqueIdForRendering(ezUInt32 uiInnerIndex /*= 0*
 
   const ezUInt32 dynamicBit = (1 << 31);
   const ezUInt32 dynamicBitMask = ~dynamicBit;
-  return (uniqueId & dynamicBitMask) | (GetOwner()->IsDynamic() ? dynamicBit : 0);
+  return (uniqueId & dynamicBitMask) | (pComponent->GetOwner()->IsDynamic() ? dynamicBit : 0);
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_RenderComponent);

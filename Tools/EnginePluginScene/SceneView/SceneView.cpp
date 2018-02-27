@@ -4,23 +4,15 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
-#include <EnginePluginScene/EditorRenderPass/EditorRenderPass.h>
-#include <EnginePluginScene/PickingRenderPass/PickingRenderPass.h>
 #include <EnginePluginScene/SceneContext/SceneContext.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/Interfaces/SoundInterface.h>
 #include <RendererCore/Components/CameraComponent.h>
-#include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/Device/SwapChain.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <RenderPipeline/EditorSelectedObjectsExtractor.h>
 
 ezSceneViewContext::ezSceneViewContext(ezSceneContext* pSceneContext)
   : ezEngineProcessViewContext(pSceneContext)
@@ -87,9 +79,8 @@ bool ezSceneViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds
   ezView* pView = nullptr;
   if (ezRenderWorld::TryGetView(m_hView, pView))
   {
+    pView->SetViewRenderMode(ezViewRenderMode::Default);
     pView->SetRenderPassProperty("EditorSelectionPass", "Active", false);
-    pView->SetRenderPassProperty("EditorRenderPass", "ViewRenderMode", (ezUInt8)ezViewRenderMode::Default);
-    pView->SetRenderPassProperty("EditorPickingPass", "ViewRenderMode", (ezUInt8)ezViewRenderMode::Default);
     pView->SetExtractorProperty("EditorShapeIconsExtractor", "Active", false);
     pView->SetExtractorProperty("EditorGridExtractor", "Active", false);
     pView->SetRenderPassProperty("EditorPickingPass", "PickSelected", true);

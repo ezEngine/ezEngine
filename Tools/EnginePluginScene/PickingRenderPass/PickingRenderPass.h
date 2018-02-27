@@ -26,7 +26,6 @@ public:
 
   virtual void ReadBackProperties(ezView* pView) override;
 
-  ezViewRenderMode::Enum m_ViewRenderMode;
   bool m_bPickSelected;
 
   ezVec2 m_PickingPosition;

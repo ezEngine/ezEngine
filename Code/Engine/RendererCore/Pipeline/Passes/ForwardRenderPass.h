@@ -34,15 +34,15 @@ public:
 
 protected:
 
+  virtual void SetupResources(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+    const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs);
   virtual void SetupPermutationVars(const ezRenderViewContext& renderViewContext);
+  virtual void SetupLighting(const ezRenderViewContext& renderViewContext);
+
+  virtual void RenderObjects(const ezRenderViewContext& renderViewContext) = 0;
 
   ezPassThroughNodePin m_PinColor;
   ezPassThroughNodePin m_PinDepthStencil;
-  ezInputNodePin m_PinSSAO;
 
   ezEnum<ezForwardRenderShadingQuality> m_ShadingQuality;
-  bool m_bWriteDepth;
-  bool m_bApplySSAOToDirectLighting;
-
-  ezTexture2DResourceHandle m_hWhiteTexture;
 };

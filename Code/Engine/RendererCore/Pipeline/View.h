@@ -6,8 +6,8 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Utilities/Node.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <RendererCore/Pipeline/ViewData.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
+#include <RendererCore/Pipeline/ViewData.h>
 
 class ezFrustum;
 class ezWorld;
@@ -54,6 +54,9 @@ public:
   /// \brief Sets the camera usage hint for the view. If not 'None', the camera component of the same usage will be auto-connected
   ///   to this view.
   void SetCameraUsageHint(ezEnum<ezCameraUsageHint> val);
+
+  void SetViewRenderMode(ezEnum<ezViewRenderMode> value);
+  ezEnum<ezViewRenderMode> GetViewRenderMode() const;
 
   void SetViewport(const ezRectFloat& viewport);
   const ezRectFloat& GetViewport() const;

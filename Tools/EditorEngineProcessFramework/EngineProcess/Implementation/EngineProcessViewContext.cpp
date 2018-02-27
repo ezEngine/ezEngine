@@ -176,6 +176,7 @@ bool ezEngineProcessViewContext::FocusCameraOnObject(ezCamera& camera, const ezB
 
 void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 {
+  ezViewRenderMode::Enum renderMode = (ezViewRenderMode::Enum)pMsg->m_uiRenderMode;
   bool bModeFromCamera = false;
 
   ezView* pView = nullptr;
@@ -197,7 +198,7 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
       }
     }
 
-    if (pMsg->m_uiRenderMode == ezViewRenderMode::None)
+    if (renderMode == ezViewRenderMode::None)
     {
       if (bResetDefaultPipeline)
       {
@@ -222,12 +223,11 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 
   if (pView)
   {
-    bool bUseDepthPrePass = pMsg->m_uiRenderMode != ezViewRenderMode::WireframeColor && pMsg->m_uiRenderMode != ezViewRenderMode::WireframeMonochrome;
+    pView->SetViewRenderMode(renderMode);
+
+    bool bUseDepthPrePass = renderMode != ezViewRenderMode::WireframeColor && renderMode != ezViewRenderMode::WireframeMonochrome;
     pView->SetRenderPassProperty("DepthPrePass", "Active", bUseDepthPrePass);
     pView->SetRenderPassProperty("AOPass", "Active", bUseDepthPrePass); // Also disable SSAO to save some performance
-
-    pView->SetRenderPassProperty("EditorRenderPass", "ViewRenderMode", pMsg->m_uiRenderMode);
-    pView->SetRenderPassProperty("EditorPickingPass", "ViewRenderMode", pMsg->m_uiRenderMode);
 
     // by default this stuff is disabled, derived classes can enable it
     pView->SetRenderPassProperty("EditorSelectionPass", "Active", false);

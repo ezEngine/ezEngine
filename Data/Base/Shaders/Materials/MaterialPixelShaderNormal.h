@@ -102,9 +102,9 @@ PS_OUT main(PS_IN Input)
     {
       Output.Color =  float4(SrgbToLinear(litColor * Exposure), opacity);
     }
-    else if (RenderPass == EDITOR_RENDER_PASS_LIGHT_COUNT)
+    else if (RenderPass == EDITOR_RENDER_PASS_LIGHT_COUNT || RenderPass == EDITOR_RENDER_PASS_DECAL_COUNT)
     {
-      float lightCount = clusterData.counts;
+      float lightCount = RenderPass == EDITOR_RENDER_PASS_LIGHT_COUNT ? GET_LIGHT_INDEX(clusterData.counts) : GET_DECAL_INDEX(clusterData.counts);
       if (lightCount == 0)
       {
         Output.Color = float4(0, 0, 0, 1);

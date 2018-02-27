@@ -23,7 +23,7 @@ DepthWrite = true
 #endif
 
 #if defined(USE_GAME_OBJECT_ID)
-	#define CUSTOM_INTERPOLATOR float4 GameObjectID : GAME_OBJECT_ID;
+  #define CUSTOM_INTERPOLATOR uint GameObjectID : GAME_OBJECT_ID;
 #endif
 
 #include <Shaders/Common/GlobalConstants.h>
@@ -33,67 +33,67 @@ DepthWrite = true
 
 struct SpriteData
 {
-	float3 worldSpacePosition;
-	uint size;
-	uint color;
-	uint texCoordScale;
-	uint texCoordOffset;
-	uint gameObjectID;
+  float3 worldSpacePosition;
+  uint size;
+  uint color;
+  uint texCoordScale;
+  uint texCoordOffset;
+  uint gameObjectID;
 };
 
 StructuredBuffer<SpriteData> spriteData;
 
 VS_OUT main(uint VertexID : SV_VertexID)
 {
-	float2 vertexPositions[6] =
-	{
-		float2(0.0, 0.0),
-		float2(0.0, 1.0),
-		float2(1.0, 1.0),
-		float2(0.0, 0.0),
-		float2(1.0, 1.0),
-		float2(1.0, 0.0),
-	};
+  float2 vertexPositions[6] =
+  {
+    float2(0.0, 0.0),
+    float2(0.0, 1.0),
+    float2(1.0, 1.0),
+    float2(0.0, 0.0),
+    float2(1.0, 1.0),
+    float2(1.0, 0.0),
+  };
 
-	uint index = VertexID / 6;
-	uint vertexIndex = VertexID % 6;
+  uint index = VertexID / 6;
+  uint vertexIndex = VertexID % 6;
 
-	float2 texCoords = vertexPositions[vertexIndex];
-	float2 vertexPosition = (texCoords - 0.5);
+  float2 texCoords = vertexPositions[vertexIndex];
+  float2 vertexPosition = (texCoords - 0.5);
 
-	texCoords.y = 1.0 - texCoords.y;
+  texCoords.y = 1.0 - texCoords.y;
 
-	SpriteData data = spriteData[index];
-	float3 worldPosition = data.worldSpacePosition;
-	float4 screenPosition = mul(GetWorldToScreenMatrix(), float4(worldPosition, 1.0));
+  SpriteData data = spriteData[index];
+  float3 worldPosition = data.worldSpacePosition;
+  float4 screenPosition = mul(GetWorldToScreenMatrix(), float4(worldPosition, 1.0));
 
-	float distance = screenPosition.w;
-	float2 scale = mul(GetCameraToScreenMatrix(), float4(1.0, 1.0, distance, 1.0)).xy;
+  float distance = screenPosition.w;
+  float2 scale = mul(GetCameraToScreenMatrix(), float4(1.0, 1.0, distance, 1.0)).xy;
 
-	float2 size = RG16FToFloat2(data.size);
-	scale *= size.x;
+  float2 size = RG16FToFloat2(data.size);
+  scale *= size.x;
 
-	if (size.y > 0.0)
-	{
-		float2 maxScreenSize = (size.y * distance * 2.0) * ViewportSize.zw;
-		scale = min(scale, maxScreenSize);
-	}
+  if (size.y > 0.0)
+  {
+    float2 maxScreenSize = (size.y * distance * 2.0) * ViewportSize.zw;
+    scale = min(scale, maxScreenSize);
+  }
 
-	screenPosition.xy += vertexPosition * scale;
+  screenPosition.xy += vertexPosition * scale;
 
-	float2 texCoordScale = RG16FToFloat2(data.texCoordScale);
-	float2 texCoordOffset = RG16FToFloat2(data.texCoordOffset);
+  float2 texCoordScale = RG16FToFloat2(data.texCoordScale);
+  float2 texCoordOffset = RG16FToFloat2(data.texCoordOffset);
 
-	VS_OUT Output;
-	Output.Position = screenPosition;
-	Output.TexCoords = texCoords * texCoordScale + texCoordOffset;
-	Output.Color = RGBA8ToFloat4(data.color);
+  VS_OUT Output;
+  Output.Position = screenPosition;
+  Output.TexCoords = texCoords * texCoordScale + texCoordOffset;
+  Output.Color = RGBA8ToFloat4(data.color);
 
-	#if defined(USE_GAME_OBJECT_ID)
-		Output.GameObjectID = RGBA8ToFloat4(data.gameObjectID);
-	#endif
+  #if defined(USE_GAME_OBJECT_ID)
+    Output.GameObjectID = data.gameObjectID;
+  #endif
 
-	return Output;
+  return Output;
 }
 
 #endif
@@ -109,11 +109,11 @@ VS_OUT main(uint VertexID : SV_VertexID)
 #endif
 
 #if defined(USE_GAME_OBJECT_ID)
-	#define CUSTOM_INTERPOLATOR float4 GameObjectID : GAME_OBJECT_ID;
+  #define CUSTOM_INTERPOLATOR uint GameObjectID : GAME_OBJECT_ID;
 #endif
 
 #if MSAA
-	#define USE_ALPHA_TEST_SUPER_SAMPLING
+  #define USE_ALPHA_TEST_SUPER_SAMPLING
 #endif
 
 #include <Shaders/Materials/MaterialHelper.h>
@@ -122,13 +122,13 @@ VS_OUT main(uint VertexID : SV_VertexID)
 
 struct PS_OUT
 {
-	#if RENDER_PASS != RENDER_PASS_DEPTH_ONLY
-		float4 Color : SV_Target;
-	#endif
+  #if RENDER_PASS != RENDER_PASS_DEPTH_ONLY
+    float4 Color : SV_Target;
+  #endif
 
-	#if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
-		uint Coverage : SV_Coverage;
-	#endif
+  #if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
+    uint Coverage : SV_Coverage;
+  #endif
 };
 
 Texture2D SpriteTexture;
@@ -136,42 +136,42 @@ SamplerState SpriteTexture_AutoSampler;
 
 float GetOpacity(PS_IN Input)
 {
-	float alpha = SpriteTexture.Sample(SpriteTexture_AutoSampler, Input.TexCoords.xy).a * Input.Color.a;
-	return alpha - 0.5;
+  float alpha = SpriteTexture.Sample(SpriteTexture_AutoSampler, Input.TexCoords.xy).a * Input.Color.a;
+  return alpha - 0.5;
 }
 
 PS_OUT main(PS_IN Input)
 {
-	uint coverage = CalculateCoverage(Input);
-	if (coverage == 0)
-	{
-		discard;
-	}
-  
+  uint coverage = CalculateCoverage(Input);
+  if (coverage == 0)
+  {
+    discard;
+  }
+
   float4 color = SpriteTexture.Sample(SpriteTexture_AutoSampler, Input.TexCoords.xy) * Input.Color;
 
-	PS_OUT Output;
-  
-	#if (RENDER_PASS == RENDER_PASS_PICKING) || (RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
-		Output.Color = Input.GameObjectID;
+  PS_OUT Output;
+
+  #if (RENDER_PASS == RENDER_PASS_PICKING) || (RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
+    Output.Color = RGBA8ToFloat4(Input.GameObjectID);
   #elif RENDER_PASS == RENDER_PASS_EDITOR
     if (RenderPass == EDITOR_RENDER_PASS_STATIC_VS_DYNAMIC)
     {
-      Output.Color = ColorizeGameObjectId(gameObjectId);
+      Output.Color = ColorizeGameObjectId(Input.GameObjectID);
     }
     else
     {
       Output.Color = color;
     }
-	#elif RENDER_PASS != RENDER_PASS_DEPTH_ONLY
-		Output.Color = color;
-	#endif
+  #elif RENDER_PASS != RENDER_PASS_DEPTH_ONLY
+    Output.Color = color;
+  #endif
 
-	#if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
-		Output.Coverage = coverage;
-	#endif
+  #if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
+    Output.Coverage = coverage;
+  #endif
 
-	return Output;
+  return Output;
 }
 
 #endif

@@ -17,7 +17,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPickingRenderPass, 1, ezRTTIDefaultAllocator<e
     EZ_MEMBER_PROPERTY("MarqueePickPos0", m_MarqueePickPosition0),
     EZ_MEMBER_PROPERTY("MarqueePickPos1", m_MarqueePickPosition1),
     EZ_MEMBER_PROPERTY("MarqueeActionID", m_uiMarqueeActionID),
-    EZ_ENUM_MEMBER_PROPERTY("ViewRenderMode", ezViewRenderMode, m_ViewRenderMode),
   }
   EZ_END_PROPERTIES
 }
@@ -78,7 +77,8 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
   ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
   pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f));
 
-  if (m_ViewRenderMode == ezViewRenderMode::WireframeColor || m_ViewRenderMode == ezViewRenderMode::WireframeMonochrome)
+  ezViewRenderMode::Enum viewRenderMode = renderViewContext.m_pViewData->m_ViewRenderMode;
+  if (viewRenderMode == ezViewRenderMode::WireframeColor || viewRenderMode == ezViewRenderMode::WireframeMonochrome)
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_PICKING_WIREFRAME");
   else
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_PICKING");

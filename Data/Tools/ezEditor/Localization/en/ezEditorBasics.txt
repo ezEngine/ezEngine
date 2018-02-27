@@ -62,6 +62,7 @@ ezViewRenderMode::WireframeColor;Wireframe Color
 ezViewRenderMode::WireframeMonochrome;Wireframe Monochrome
 ezViewRenderMode::LitOnly;Lit Only
 ezViewRenderMode::LightCount;Light Count
+ezViewRenderMode::DecalCount;Decal Count
 ezViewRenderMode::TexCoordsUV0;Texture Coordinates (UV0)
 ezViewRenderMode::PixelNormals;Pixel Normals
 ezViewRenderMode::VertexNormals;Vertex Normals

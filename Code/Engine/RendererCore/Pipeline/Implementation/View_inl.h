@@ -59,6 +59,16 @@ EZ_ALWAYS_INLINE const ezCamera* ezView::GetCullingCamera() const
   return m_pCullingCamera != nullptr ? m_pCullingCamera : m_pCamera;
 }
 
+EZ_ALWAYS_INLINE ezEnum<ezCameraUsageHint> ezView::GetCameraUsageHint() const
+{
+  return m_CameraUsageHint;
+}
+
+EZ_ALWAYS_INLINE ezEnum<ezViewRenderMode> ezView::GetViewRenderMode() const
+{
+  return m_Data.m_ViewRenderMode;
+}
+
 EZ_ALWAYS_INLINE const ezRectFloat& ezView::GetViewport() const
 {
   return m_Data.m_ViewPortRect;
