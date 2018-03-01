@@ -32,8 +32,6 @@ ezPxVisColMeshComponent::ezPxVisColMeshComponent()
 
 ezPxVisColMeshComponent::~ezPxVisColMeshComponent()
 {
-  // unsubscribe from resource events
-  SetMesh(ezPxMeshResourceHandle());
 }
 
 void ezPxVisColMeshComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -97,33 +95,10 @@ void ezPxVisColMeshComponent::SetMesh(const ezPxMeshResourceHandle& hMesh)
 {
   if (m_hCollisionMesh != hMesh)
   {
-    if (m_hCollisionMesh.IsValid())
-    {
-      ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::NoFallback);
-
-      EZ_LOCK(ezResourceManager::GetMutex());
-
-      if (pMesh->m_ResourceEvents.HasEventHandler(ezMakeDelegate(&ezPxVisColMeshComponent::ResourceEventHandler, this)))
-      {
-        pMesh->m_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezPxVisColMeshComponent::ResourceEventHandler, this));
-      }
-    }
-
     m_hCollisionMesh = hMesh;
     m_hMesh.Invalidate();
 
     GetWorld()->GetOrCreateComponentManager<ezPxVisColMeshComponentManager>()->EnqueueUpdate(GetHandle());
-  }
-}
-
-void ezPxVisColMeshComponent::ResourceEventHandler(const ezResourceEvent& e)
-{
-  switch (e.m_EventType)
-  {
-  case ezResourceEventType::ResourceContentUnloading:
-  case ezResourceEventType::ResourceContentUpdated:
-    GetWorld()->GetOrCreateComponentManager<ezPxVisColMeshComponentManager>()->EnqueueUpdate(GetHandle());
-    break;
   }
 }
 
@@ -141,13 +116,6 @@ void ezPxVisColMeshComponent::CreateCollisionRenderMesh()
 
   if (pMesh->IsMissingResource())
     return;
-
-  EZ_LOCK(ezResourceManager::GetMutex());
-
-  if (!pMesh->m_ResourceEvents.HasEventHandler(ezMakeDelegate(&ezPxVisColMeshComponent::ResourceEventHandler, this)))
-  {
-    pMesh->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezPxVisColMeshComponent::ResourceEventHandler, this));
-  }
 
   ezStringBuilder sColMeshName = pMesh->GetResourceID();
   sColMeshName.AppendFormat("_{0}_VisColMesh", pMesh->GetCurrentResourceChangeCounter()); // the change counter allows to react to resource updates
@@ -306,10 +274,23 @@ void ezPxVisColMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& ms
 
 void ezPxVisColMeshComponentManager::Initialize()
 {
+  SUPER::Initialize();
+
   ezWorldModule::UpdateFunctionDesc desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezPxVisColMeshComponentManager::Update, this);
   desc.m_Phase = UpdateFunctionDesc::Phase::PreAsync;
 
   RegisterUpdateFunction(desc);
+
+  ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezPxVisColMeshComponentManager::ResourceEventHandler, this));
+}
+
+void ezPxVisColMeshComponentManager::Deinitialize()
+{
+  EZ_LOCK(m_Mutex);
+
+  ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezPxVisColMeshComponentManager::ResourceEventHandler, this));
+
+  SUPER::Deinitialize();
 }
 
 void ezPxVisColMeshComponentManager::Update(const ezWorldModule::UpdateContext& context)
@@ -329,4 +310,25 @@ void ezPxVisColMeshComponentManager::Update(const ezWorldModule::UpdateContext& 
 void ezPxVisColMeshComponentManager::EnqueueUpdate(ezComponentHandle hComponent)
 {
   m_RequireUpdate.PushBack(hComponent);
+}
+
+void ezPxVisColMeshComponentManager::ResourceEventHandler(const ezResourceEvent& e)
+{
+  if ((e.m_EventType == ezResourceEventType::ResourceContentUnloading ||e.m_EventType == ezResourceEventType::ResourceContentUpdated) &&
+    e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezPxMeshResource>())
+  {
+    EZ_LOCK(m_Mutex);
+
+    ezPxMeshResourceHandle hResource((ezPxMeshResource*)(e.m_pResource));
+
+    for (auto it = m_Components.GetIterator(); it.IsValid(); ++it)
+    {
+      const ezPxVisColMeshComponent* pComponent = static_cast<ezPxVisColMeshComponent*>(it.Value());
+
+      if (pComponent->GetMesh() == hResource)
+      {
+        m_RequireUpdate.PushBack(pComponent->GetHandle());
+      }
+    }
+  }
 }

@@ -16,14 +16,18 @@ public:
   {
   }
 
-  virtual void Initialize() override;
-
   void Update(const ezWorldModule::UpdateContext& context);
-
   void EnqueueUpdate(ezComponentHandle hComponent);
 
 private:
+  void ResourceEventHandler(const ezResourceEvent& e);
+
+  mutable ezMutex m_Mutex;
   ezDeque<ezComponentHandle> m_RequireUpdate;
+
+protected:
+  virtual void Initialize() override;
+  virtual void Deinitialize() override;
 };
 
 class EZ_PHYSXPLUGIN_DLL ezPxVisColMeshComponent : public ezRenderComponent
@@ -61,8 +65,6 @@ public:
   EZ_ALWAYS_INLINE const ezPxMeshResourceHandle& GetMesh() const { return m_hCollisionMesh; }
 
 private:
-  void ResourceEventHandler(const ezResourceEvent& e);
-
   ezPxMeshResourceHandle m_hCollisionMesh;
   mutable ezMeshResourceHandle m_hMesh;
 };

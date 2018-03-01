@@ -223,7 +223,9 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
 
   using namespace ezModelImporter;
 
-  const bool bFlipTriangles = (mTransformation.GetColumn(0).Cross(mTransformation.GetColumn(1)).Dot(mTransformation.GetColumn(2)) < 0.0f);
+  const ezMat3 mTransformNormals = mTransformation.GetInverse().GetTranspose();
+
+  const bool bFlipTriangles = (mTransformNormals.GetColumn(0).Cross(mTransformNormals.GetColumn(1)).Dot(mTransformNormals.GetColumn(2)) < 0.0f);
 
   ezSharedPtr<Scene> scene;
   Mesh* mesh = nullptr;
@@ -349,7 +351,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
     desc.MeshBufferDesc().AllocateStreams(uiNumVertices, ezGALPrimitiveTopology::Triangles, uiNumTriangles);
 
     // Read in vertices.
-    // Set positions and normals (should always be there.
+    // Set positions and normals (should always be there)
     for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
     {
       Mesh::DataIndexBundle<maxNumMeshStreams> dataIndices = it.Key();
@@ -359,7 +361,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
       vPosition = mTransformation * vPosition;
 
       ezVec3 vNormal = streamNormal.GetValue(dataIndices[Normal]);
-      vNormal = mTransformation.TransformDirection(vNormal);
+      vNormal = mTransformNormals.TransformDirection(vNormal);
       vNormal.NormalizeIfNotZero();
 
       if (pProp->m_bInvertNormals)
@@ -379,7 +381,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
         ezUInt32 uiVertexIndex = it.Value();
 
         ezVec3 vTangent = streamTangent.GetValue(dataIndices[Tangent]);
-        vTangent = mTransformation.TransformDirection(vTangent);
+        vTangent = mTransformNormals.TransformDirection(vTangent);
         vTangent.NormalizeIfNotZero();
 
         float biTangentSign;
@@ -389,7 +391,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
         else
         {
           ezVec3 vBiTangent = ezModelImporter::TypedVertexDataStreamView<ezVec3>(*dataStreams[BiTangent]).GetValue(dataIndices[BiTangent]);
-          vBiTangent = mTransformation.TransformDirection(vBiTangent);
+          vBiTangent = mTransformNormals.TransformDirection(vBiTangent);
           vBiTangent.NormalizeIfNotZero();
           biTangentSign = -vBiTangent.Dot(vTangent);
         }

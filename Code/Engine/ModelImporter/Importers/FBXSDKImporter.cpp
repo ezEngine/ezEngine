@@ -25,6 +25,7 @@ namespace ezModelImporter
     FbxScene* pScene;
     ezSharedPtr<Scene> pOutScene;
     ezMap<FbxSurfaceMaterial*, MaterialHandle> fbxMaterialsToEz;
+    ezMap<FbxMesh*, ObjectHandle> processedMeshes;
   };
 
   ezVec3 ConvertFromFBX(const FbxDouble3& fbxDouble3)
@@ -57,6 +58,8 @@ namespace ezModelImporter
   // indexed mesh
   struct FBXVertex
   {
+    EZ_DECLARE_POD_TYPE();
+
     FBXVertex()
       : pos(ezVec3::ZeroVector())
       , normal(ezVec3::ZeroVector())
@@ -102,6 +105,11 @@ namespace ezModelImporter
 
   ObjectHandle ImportMesh(FbxMesh* pMesh, FBXImportContext& ImportContext)
   {
+    if (ImportContext.processedMeshes.Find(pMesh).IsValid())
+    {
+      return ImportContext.processedMeshes[pMesh];
+    }
+
     if (!pMesh->IsTriangleMesh())
     {
       ezLog::Error("FBX mesh '{0}' is not triangulated. Select \"Triangulate\" during export.", pMesh->GetName());
@@ -477,7 +485,15 @@ namespace ezModelImporter
 
     for (const auto& vertex : uniqueVertices)
     {
-      ezUInt32 deduplicatedIndex = deduplicatedVertices.IndexOf(vertex);
+      // TODO: Unfortunately it is a problem to deduplicate vertices this way:
+      // when data streams such as normals, tangents etc. are not available, or contain garbage data (normals are all zero, this happens)
+      // it will deduplicate vertices that must not be merged, ie. from triangles that face into different directions (e.g. double-sided geometry)
+      // Additionally, even if the data is 'good', but the user enabled 'recalculate normals', we must not deduplicate this BEFORE we have the final,
+      // recomputed data, otherwise we merge vertices into one, that may be different after the recomputation
+      //
+      // since this breaks some meshes, I deactivated deduplication for now
+
+      ezUInt32 deduplicatedIndex = ezInvalidIndex;// deduplicatedVertices.IndexOf(vertex);
       if (deduplicatedIndex != ezInvalidIndex)
       {
         indices.PushBack(deduplicatedIndex);
@@ -637,7 +653,10 @@ namespace ezModelImporter
       mesh->MergeSubMeshesWithSameMaterials();
     }
 
-    return ImportContext.pOutScene->AddMesh(std::move(mesh));
+    auto meshHandle = ImportContext.pOutScene->AddMesh(std::move(mesh));
+    ImportContext.processedMeshes[pMesh] = meshHandle;
+
+    return meshHandle;
   }
 
   ObjectHandle ImportNodeRecursive(FbxNode* pNode, FBXImportContext& ImportContext)
