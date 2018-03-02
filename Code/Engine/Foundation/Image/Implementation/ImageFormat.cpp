@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Image/ImageFormat.h>
 
@@ -112,7 +112,7 @@ static void SetupImageFormatTable()
   DEFINE_FORMAT(B8G8R8_UNORM, 24, 0x00FF0000, 0x0000FF00, 0x000000FF, 0x00000000, LINEAR);
 
   DEFINE_FORMAT(R8G8_TYPELESS, 16, 0, 0, 0, 0, LINEAR);
-  DEFINE_FORMAT(R8G8_UNORM, 16, 0, 0, 0, 0, LINEAR);
+  DEFINE_FORMAT(R8G8_UNORM, 16, 0x000000FF, 0, 0, 0x0000FF00, LINEAR);
   DEFINE_FORMAT(R8G8_UINT, 16, 0, 0, 0, 0, LINEAR);
   DEFINE_FORMAT(R8G8_SNORM, 16, 0, 0, 0, 0, LINEAR);
   DEFINE_FORMAT(R8G8_SINT, 16, 0, 0, 0, 0, LINEAR);

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <RendererCore/Textures/TextureUtils.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
@@ -142,6 +142,9 @@ ezGALResourceFormat::Enum ezTextureUtils::ImageFormatToGalFormat(ezImageFormat::
 
   case ezImageFormat::A8_UNORM:
     return ezGALResourceFormat::AUByteNormalized;
+
+  case ezImageFormat::R8G8_UNORM:
+    return ezGALResourceFormat::RGUByteNormalized;
 
   default:
     EZ_ASSERT_NOT_IMPLEMENTED;

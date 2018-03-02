@@ -163,11 +163,11 @@ ezResult ezTexConv::SaveResultToDDS(ezStreamWriter& stream)
     ezImage img;
 
     ezDdsFileFormat dds;
-    if (dds.ReadImage(rawData, img, nullptr).Failed() || SaveLowResImage(img).Failed())
+    if (dds.ReadImage(rawData, img, ezLog::GetThreadLocalLogSystem()).Failed() || SaveLowResImage(img).Failed())
     {
       SetReturnCode(TexConvReturnCodes::FAILED_SAVE_AS_DDS);
-      ezLog::Error("Failed to write image to file '{0}'", m_sOutputFile);
-      return EZ_FAILURE;
+      ezLog::Error("Failed to write low-res image to file '{0}'", m_sOutputLowRes);
+      //return EZ_FAILURE;
     }
   }
 

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/Image/Formats/DdsFileFormat.h>
 #include <Foundation/Image/Image.h>
 #include <Foundation/Image/Formats/ImageFormatMappings.h>
@@ -75,13 +75,14 @@ struct ezDdsdFlags
 
 struct ezDdpfFlags
 {
-  enum Enum {
+  enum Enum
+  {
     ALPHAPIXELS = 0x00001,
     ALPHA = 0x00002,
     FOURCC = 0x00004,
     RGB = 0x00040,
-   YUV = 0x00200,
-   LUMINANCE = 0x20000,
+    YUV = 0x00200,
+    LUMINANCE = 0x20000,
   };
 };
 
@@ -164,9 +165,9 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   ezImageFormat::Enum format = ezImageFormat::UNKNOWN;
 
   // Data format specified in RGBA masks
-  if ((fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::ALPHAPIXELS) != 0 || 
-    (fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::RGB) != 0 || 
-      (fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::ALPHA) != 0)
+  if ((fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::ALPHAPIXELS) != 0 ||
+    (fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::RGB) != 0 ||
+    (fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::ALPHA) != 0)
   {
     format = ezImageFormat::FromPixelMask(
       fileHeader.m_ddspf.m_uiRBitMask, fileHeader.m_ddspf.m_uiGBitMask,
@@ -176,11 +177,11 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     if (format == ezImageFormat::UNKNOWN)
     {
       ezLog::Error(pLog, "The pixel mask specified was not recognized (R: {0}, G: {1}, B: {2}, A: {3}, Bpp: {4}).",
-                   ezArgU(fileHeader.m_ddspf.m_uiRBitMask, 1, false, 16),
-                   ezArgU(fileHeader.m_ddspf.m_uiGBitMask, 1, false, 16),
-                   ezArgU(fileHeader.m_ddspf.m_uiBBitMask, 1, false, 16),
-                   ezArgU(fileHeader.m_ddspf.m_uiABitMask, 1, false, 16), 
-                   fileHeader.m_ddspf.m_uiRGBBitCount);
+        ezArgU(fileHeader.m_ddspf.m_uiRBitMask, 1, false, 16),
+        ezArgU(fileHeader.m_ddspf.m_uiGBitMask, 1, false, 16),
+        ezArgU(fileHeader.m_ddspf.m_uiBBitMask, 1, false, 16),
+        ezArgU(fileHeader.m_ddspf.m_uiABitMask, 1, false, 16),
+        fileHeader.m_ddspf.m_uiRGBBitCount);
       return EZ_FAILURE;
     }
 

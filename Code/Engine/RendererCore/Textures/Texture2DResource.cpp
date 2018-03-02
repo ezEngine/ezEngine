@@ -128,51 +128,91 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
     return res;
   }
 
-  ezImage* pImage = nullptr;
-  Stream->ReadBytes(&pImage, sizeof(ezImage*));
-
-  bool bIsFallback = false;
-  *Stream >> bIsFallback;
-
-  bool bSRGB = false;
-  *Stream >> bSRGB;
-
-  ezEnum<ezGALTextureAddressMode> addressModeU;
-  ezEnum<ezGALTextureAddressMode> addressModeV;
-  ezEnum<ezGALTextureAddressMode> addressModeW;
-  ezEnum<ezTextureFilterSetting> textureFilter;
-  *Stream >> addressModeU;
-  *Stream >> addressModeV;
-  *Stream >> addressModeW;
-  *Stream >> textureFilter;
-
-
   ezTexture2DResourceDescriptor td;
-  td.m_SamplerDesc.m_AddressU = addressModeU;
-  td.m_SamplerDesc.m_AddressV = addressModeV;
-  td.m_SamplerDesc.m_AddressW = addressModeW;
+  ezEnum<ezTextureFilterSetting> textureFilter;
+  ezImage* pImage = nullptr;
+  bool bIsFallback = false;
+  bool bSRGB = false;
+
+  // load image data
+  {
+    Stream->ReadBytes(&pImage, sizeof(ezImage*));
+    *Stream >> bIsFallback;
+    *Stream >> bSRGB;
+
+    ezEnum<ezGALTextureAddressMode> addressModeU;
+    ezEnum<ezGALTextureAddressMode> addressModeV;
+    ezEnum<ezGALTextureAddressMode> addressModeW;
+    
+    *Stream >> addressModeU;
+    *Stream >> addressModeV;
+    *Stream >> addressModeW;
+    *Stream >> textureFilter;
+    
+    td.m_SamplerDesc.m_AddressU = addressModeU;
+    td.m_SamplerDesc.m_AddressV = addressModeV;
+    td.m_SamplerDesc.m_AddressW = addressModeW;
+  }
 
   const ezUInt32 uiNumMipmapsLowRes = ezTextureUtils::s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : ezMath::Min(pImage->GetNumMipLevels(), 6U);
-  const ezUInt32 uiNumMipLevels = ezMath::Min(m_uiLoadedTextures == 0 ? uiNumMipmapsLowRes : pImage->GetNumMipLevels(), pImage->GetNumMipLevels());
-    
-  ezHybridArray<ezGALSystemMemoryDescription, 32> initData;
-  FillOutDescriptor(td, pImage, bSRGB, uiNumMipLevels, m_uiMemoryGPU[m_uiLoadedTextures], initData);
+  ezUInt32 uiUploadNumMipLevels = 0;
+  bool bCouldLoadMore = false;
 
-  ezTextureUtils::ConfigureSampler(textureFilter, td.m_SamplerDesc);
+  if (bIsFallback)
+  {
+    if (m_uiLoadedTextures == 0)
+    {
+      // only upload fallback textures, if we don't have any texture data at all, yet
+      bCouldLoadMore = true;
+      uiUploadNumMipLevels = uiNumMipmapsLowRes;
+    }
+    else if (m_uiLoadedTextures == 1)
+    {
+      // ignore this texture entirely, if we already have low res data
+      // but assume we could load a higher resolution version
+      bCouldLoadMore = true;
+      ezLog::Debug("Ignoring fallback texture data, low-res resource data is already loaded.");
+    }
+    else
+    {
+      ezLog::Debug("Ignoring fallback texture data, resource is already fully loaded.");
+    }
+  }
+  else
+  {
+    if (m_uiLoadedTextures == 0)
+    {
+      bCouldLoadMore = uiNumMipmapsLowRes < pImage->GetNumMipLevels();
+      uiUploadNumMipLevels = uiNumMipmapsLowRes;
+    }
+    else if (m_uiLoadedTextures == 1)
+    {
+      uiUploadNumMipLevels = pImage->GetNumMipLevels();
+    }
+    else
+    {
+      // ignore the texture, if we already have fully loaded data
+      ezLog::Debug("Ignoring texture data, resource is already fully loaded.");
+    }
+  }
 
-  // ignore its return value here, we build our own
-  CreateResource(td);
+  if (uiUploadNumMipLevels > 0)
+  {
+    EZ_ASSERT_DEBUG(m_uiLoadedTextures < 2, "Invalid texture upload");
+
+    ezHybridArray<ezGALSystemMemoryDescription, 32> initData;
+    FillOutDescriptor(td, pImage, bSRGB, uiUploadNumMipLevels, m_uiMemoryGPU[m_uiLoadedTextures], initData);
+
+    ezTextureUtils::ConfigureSampler(textureFilter, td.m_SamplerDesc);
+
+    // ignore its return value here, we build our own
+    CreateResource(td);
+  }
 
   {
     ezResourceLoadDesc res;
     res.m_uiQualityLevelsDiscardable = m_uiLoadedTextures;
-
-    const ezUInt32 uiHighestMipLevel = pImage->GetNumMipLevels() - uiNumMipLevels;
-    if (uiHighestMipLevel == 0 && !bIsFallback)
-      res.m_uiQualityLevelsLoadable = 0;
-    else
-      res.m_uiQualityLevelsLoadable = 1;
-
+    res.m_uiQualityLevelsLoadable = bCouldLoadMore ? 1 : 0;
     res.m_State = ezResourceState::Loaded;
 
     return res;
