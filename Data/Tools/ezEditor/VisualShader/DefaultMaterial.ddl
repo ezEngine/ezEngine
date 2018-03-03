@@ -122,9 +122,9 @@ float GetRoughness(PS_IN Input)
 float GetOpacity(PS_IN Input)
 {
   #if BLEND_MODE == BLEND_MODE_MASKED
-    return ToFloat1($in5) - MaskThreshold;
+    return saturate(ToFloat1($in5)) - MaskThreshold;
   #else
-    return ToFloat1($in5);
+    return saturate(ToFloat1($in5));
   #endif
 }
 

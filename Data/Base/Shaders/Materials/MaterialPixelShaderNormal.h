@@ -79,12 +79,12 @@ PS_OUT main(PS_IN Input)
   litColor += matData.emissiveColor;
 
   #if RENDER_PASS == RENDER_PASS_FORWARD
-    #if BLEND_MODE == BLEND_MODE_OPAQUE || BLEND_MODE == BLEND_MODE_MASKED
-      litColor = ApplyFog(litColor, matData.worldPosition);
+    #if BLEND_MODE == BLEND_MODE_ADDITIVE
+      matData.opacity *= GetFogAmount(matData.worldPosition);      
     #elif BLEND_MODE == BLEND_MODE_MODULATE
       litColor = lerp(1.0, litColor, GetFogAmount(matData.worldPosition));
     #else
-      matData.opacity *= GetFogAmount(matData.worldPosition);
+      litColor = ApplyFog(litColor, matData.worldPosition);      
     #endif
 
     Output.Color = float4(litColor, matData.opacity);

@@ -319,12 +319,13 @@ o
 			Uuid{u4{12719194606322351730,7408372385826451812}}
 			Uuid{u4{14381442418394061831,17168957903826676507}}
 		}
-		Vec2 %Node::Pos{f{0x46E41AC4,0x66F875C3}}
+		Vec2 %Node::Pos{f{0x2DEE16C4,0xA7A13DC3}}
 		VarArray %Renderers
 		{
 			Uuid{u4{17561063011637801369,5711330016916472034}}
 			Uuid{u4{11867141582701966512,4630528323127588664}}
 		}
+		Uuid %ResolvedDepth{u4{2391904944184151378,9843902214012391608}}
 		s %ShadingQuality{"ezForwardRenderShadingQuality::Normal"}
 	}
 }
@@ -482,6 +483,18 @@ o
 }
 o
 {
+	Uuid %id{u4{5443100053315851378,5166149909474549657}}
+	s %t{"ConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"Output"}
+		Uuid %Target{u4{8995459236970174898,4802786286143765285}}
+		s %TargetPin{"ResolvedDepth"}
+	}
+}
+o
+{
 	Uuid %id{u4{57808724729679253,5212296071092730789}}
 	s %t{"ezSourcePass"}
 	u3 %v{2}
@@ -583,7 +596,7 @@ AssetInfo
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5189305147899033520,5264929536831011917}}
-		u4 %Hash{10968677223885079025}
+		u4 %Hash{15549003601736847794}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -651,7 +664,7 @@ o
 		{
 			Uuid{u4{16072448865213224844,9040603412699404922}}
 		}
-		Vec2 %Node::Pos{f{0x7123AAC4,0xF8D851C2}}
+		Vec2 %Node::Pos{f{0xC4B2A9C4,0xC263B6C2}}
 		Uuid %Output{u4{427482753494843062,3919292173742580045}}
 		f %PositionBias{0x0000A040}
 		f %Radius{0x0000803F}
@@ -752,8 +765,9 @@ o
 		VarArray %Node::Connections
 		{
 			Uuid{u4{16608044481860909406,5748421475699884542}}
+			Uuid{u4{5443100053315851378,5166149909474549657}}
 		}
-		Vec2 %Node::Pos{f{0x2F94C3C4,0x72F97EC2}}
+		Vec2 %Node::Pos{f{0x2742C2C4,0xB1F28941}}
 		Uuid %Output{u4{6952408285085148522,2117451602272986804}}
 		VarArray %Renderers{}
 	}
@@ -1015,6 +1029,13 @@ o
 {
 	Uuid %id{u4{1545663226431943560,9805769975719846327}}
 	s %t{"ezPassThroughNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{2391904944184151378,9843902214012391608}}
+	s %t{"ezInputNodePin"}
 	u3 %v{1}
 	p{}
 }
@@ -1986,7 +2007,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezTransparentForwardRenderPass"}
-		u3 %TypeSize{208}
+		u3 %TypeSize{224}
 		u3 %TypeVersion{1}
 	}
 }

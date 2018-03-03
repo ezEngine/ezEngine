@@ -13,5 +13,9 @@ public:
 
 protected:
 
+  virtual void SetupResources(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection * const> inputs,
+    const ezArrayPtr<ezRenderPipelinePassConnection * const> outputs) override;
   virtual void RenderObjects(const ezRenderViewContext& renderViewContext) override;
+
+  ezInputNodePin m_PinResolvedDepth;
 };

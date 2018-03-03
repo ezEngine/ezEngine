@@ -175,8 +175,8 @@ float4 main(PS_IN Input) : SV_Target
       aoSample = max(aoSample.xy, stepSample.xy);
     }
 
-    occlusion += square(1 - aoSample.x);
-    occlusion += square(1 - aoSample.y);
+    occlusion += Square(1 - aoSample.x);
+    occlusion += Square(1 - aoSample.y);
     totalWeight += 2.0f;
   }
 

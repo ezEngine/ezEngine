@@ -188,8 +188,9 @@ o
 		{
 			Uuid{u4{10186750766222725158,14730356951024868470}}
 			Uuid{u4{15259758600013157000,6329530700661552412}}
+			Uuid{u4{3166693703373019560,11930298468936174878}}
 		}
-		Vec2 %Node::Pos{f{0x093DB6C4,0xAD4EBEC3}}
+		Vec2 %Node::Pos{f{0x6EAEB8C4,0x34E0C1C3}}
 		Uuid %Output{u4{1274249901806187935,528223914354702831}}
 		VarArray %Renderers{}
 	}
@@ -242,7 +243,7 @@ o
 		{
 			Uuid{u4{8282653485448939509,5577434206779283353}}
 		}
-		Vec2 %Node::Pos{f{0xFC88D9C4,0xA87EF2C3}}
+		Vec2 %Node::Pos{f{0x6A81ECC4,0x0731DFC3}}
 		Uuid %Output{u4{14249063597274481687,16366600835580842682}}
 		VarArray %Renderers{}
 	}
@@ -277,7 +278,7 @@ AssetInfo
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{15507879570940844990,5062162254587685694}}
-		u4 %Hash{8643840287738934758}
+		u4 %Hash{6496264197557576809}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -348,7 +349,7 @@ o
 		u3 %LineToLineDistance{5}
 		s %Name{""}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0xBB919EC4,0x55F58EC3}}
+		Vec2 %Node::Pos{f{0xF1C49DC4,0xC2B68DC3}}
 		f %OcclusionFalloff{0x9A99193E}
 		VarArray %Renderers{}
 	}
@@ -511,12 +512,13 @@ o
 			Uuid{u4{6478781228471216313,5431043123294718259}}
 			Uuid{u4{16267816107046696198,5838773412363059320}}
 		}
-		Vec2 %Node::Pos{f{0xFD130AC4,0x0ADF16C4}}
+		Vec2 %Node::Pos{f{0xCABE09C4,0x033B06C4}}
 		VarArray %Renderers
 		{
 			Uuid{u4{9688190089415970487,4752528895746665928}}
 			Uuid{u4{4152682540101464483,5586938190585241928}}
 		}
+		Uuid %ResolvedDepth{u4{7950063716148100482,14138971833852015278}}
 		s %ShadingQuality{"ezForwardRenderShadingQuality::Normal"}
 	}
 }
@@ -580,7 +582,7 @@ o
 		{
 			Uuid{u4{6089576267943593886,11201054183058671822}}
 		}
-		Vec2 %Node::Pos{f{0x28D29EC4,0xDCC5BEC3}}
+		Vec2 %Node::Pos{f{0x46959DC4,0x4732EBC3}}
 		Uuid %Output{u4{1658534751608327602,10821022326767997830}}
 		f %PositionBias{0x0000A040}
 		f %Radius{0x0000803F}
@@ -616,7 +618,7 @@ o
 			Uuid{u4{15047630005220324798,5736669138922324241}}
 			Uuid{u4{11985688365771949098,9197239912491587397}}
 		}
-		Vec2 %Node::Pos{f{0xFB0FC0C4,0x0DA506C4}}
+		Vec2 %Node::Pos{f{0x6908D3C4,0x79FCF9C3}}
 		VarArray %Renderers
 		{
 			Uuid{u4{18006142286075838397,5753952985944765643}}
@@ -803,6 +805,18 @@ o
 }
 o
 {
+	Uuid %id{u4{3166693703373019560,11930298468936174878}}
+	s %t{"ConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"Output"}
+		Uuid %Target{u4{10889004687494879139,5575773074875235436}}
+		s %TargetPin{"ResolvedDepth"}
+	}
+}
+o
+{
 	Uuid %id{u4{10219275257347176486,12018597521976474027}}
 	s %t{"ConnectionInternal"}
 	u3 %v{1}
@@ -849,6 +863,13 @@ o
 o
 {
 	Uuid %id{u4{12032788958806667816,14050651437212261905}}
+	s %t{"ezInputNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{7950063716148100482,14138971833852015278}}
 	s %t{"ezInputNodePin"}
 	u3 %v{1}
 	p{}
@@ -1686,7 +1707,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezTransparentForwardRenderPass"}
-		u3 %TypeSize{208}
+		u3 %TypeSize{224}
 		u3 %TypeVersion{1}
 	}
 }

@@ -16,6 +16,9 @@ SamplerComparisonState ShadowSampler;
 Texture2D DecalAtlasBaseColorTexture;
 Texture2D DecalAtlasNormalTexture;
 
+Texture2D SceneDepth;
+Texture2D SceneColor;
+
 ///////////////////////////////////////////////////////////////////////////////////
 
 ezPerClusterData GetClusterData(float3 screenPosition)
@@ -51,6 +54,18 @@ float MicroShadow(float occlusion, float3 normal, float3 lightDir)
 {
   float aperture = 2.0f * occlusion * occlusion;
   return saturate(abs(dot(normal, lightDir)) + aperture - 1.0f);
+}
+
+float SampleSceneDepth(float2 screenPosition)
+{
+  float depthFromZBuffer = SceneDepth.SampleLevel(PointClampSampler, screenPosition.xy * ViewportSize.zw, 0.0f).r;
+  return LinearizeZBufferDepth(depthFromZBuffer);
+}
+
+float DepthFade(float3 screenPosition, float fadeDistance)
+{
+  float distance = SampleSceneDepth(screenPosition.xy) - screenPosition.z;
+  return saturate(distance / fadeDistance);
 }
 
 float SampleSSAO(float3 screenPosition)

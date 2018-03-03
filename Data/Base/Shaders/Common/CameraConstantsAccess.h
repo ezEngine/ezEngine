@@ -19,6 +19,15 @@ float3 GetCameraDirForwards()  { return GetCameraToWorldMatrix()._m02_m12_m22; }
 float3 GetCameraDirRight()     { return GetCameraToWorldMatrix()._m00_m10_m20; };
 float3 GetCameraDirUp()        { return GetCameraToWorldMatrix()._m01_m11_m21; };
 
+// Computes linear depth from depth buffer depth.
+// Note that computations like this are not set in stone as we may want to move to a different way of storing Z
+// (for example flipped near/far plane is quite common for better float precision)
+//
+// Basically removes the w division from z again.
+float LinearizeZBufferDepth(float depthFromZBuffer)
+{
+  return 1.0f / (depthFromZBuffer * GetScreenToCameraMatrix()._43 + GetScreenToCameraMatrix()._44);
+}
 
 #elif EZ_ENABLED(PLATFORM_OPENGL)
 

@@ -89,19 +89,19 @@ float3 NormalizeAndGetLength(float3 v, out float len)
   return v * reciprocalLen;
 }
 
-float square(float x)
+float Square(float x)
 {
   return x * x;
 }
-float2 square(float2 x)
+float2 Square(float2 x)
 {
   return x * x;
 }
-float3 square(float3 x)
+float3 Square(float3 x)
 {
   return x * x;
 }
-float4 square(float4 x)
+float4 Square(float4 x)
 {
   return x * x;
 }

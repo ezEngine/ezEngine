@@ -50,6 +50,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -82,6 +83,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -114,6 +116,7 @@ o
 		Quat %LocalRotation{f{0,0,0xF304353F,0xF304353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -135,6 +138,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -156,6 +160,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -177,6 +182,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -209,6 +215,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -230,6 +237,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -251,6 +259,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -283,6 +292,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -304,6 +314,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -347,6 +358,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -368,6 +380,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -389,6 +402,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -421,6 +435,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -475,6 +490,7 @@ o
 		Quat %LocalRotation{f{0,0x000080A4,0x00000626,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -496,6 +512,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -517,6 +534,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -571,6 +589,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -620,6 +639,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -652,6 +672,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -673,6 +694,7 @@ o
 		Quat %LocalRotation{f{0,0x000080A4,0x00000626,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -716,6 +738,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -737,6 +760,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -758,6 +782,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -790,6 +815,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -811,6 +837,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -832,6 +859,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -853,6 +881,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -896,6 +925,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -917,6 +947,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -938,6 +969,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -959,6 +991,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -980,6 +1013,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1023,6 +1057,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1088,6 +1123,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1170,6 +1206,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1191,6 +1228,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1234,6 +1272,7 @@ o
 		Quat %LocalRotation{f{0xF204B5A6,0xF20435BF,0x62C004B3,0xF404353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1293,6 +1332,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Column"}
 		VarArray %Tags{}
 	}
@@ -1314,6 +1354,7 @@ o
 		Quat %LocalRotation{f{0,0,0xF40435BF,0xF204353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1346,6 +1387,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1444,6 +1486,7 @@ o
 		Quat %LocalRotation{f{0,0x000080A4,0x00000626,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1476,6 +1519,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1497,6 +1541,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1518,6 +1563,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1539,6 +1585,7 @@ o
 		Quat %LocalRotation{f{0,0x000080A4,0x00000626,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1560,6 +1607,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1581,6 +1629,7 @@ o
 		Quat %LocalRotation{f{0,0xEE83843E,0x985C4232,0xEA46773F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1602,6 +1651,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1623,6 +1673,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1644,8 +1695,25 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{17404766149719349383,4611743411575304665}}
+	s %t{"ezMeshComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x16E0F340,0xA5F4B33F,0,0xCAC8C83E}}
+		VarArray %Materials
+		{
+			s{"{ 4795f5c4-4a78-4c13-937e-cf3e6bdecb7c }"}
+		}
+		s %Mesh{"{ ebc03b01-2f4d-43ea-a973-0ab6d5b30242 }"}
 	}
 }
 o
@@ -1665,6 +1733,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1700,6 +1769,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1721,6 +1791,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1742,6 +1813,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1763,6 +1835,7 @@ o
 		Quat %LocalRotation{f{0xF104B5A6,0xF104353F,0x61C00433,0xF504353F}}
 		Vec3 %LocalScaling{f{0xFFFF7F3F,0x0000803F,0xFFFF7F3F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"StairsLight"}
 		VarArray %Tags{}
 	}
@@ -1784,6 +1857,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1805,6 +1879,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1826,6 +1901,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1834,7 +1910,7 @@ o
 {
 	Uuid %id{u4{6494525407338986381,4714454733381948021}}
 	s %t{"ezPxDynamicActorComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -1844,6 +1920,7 @@ o
 		b %Kinematic{1}
 		f %LinearDamping{0xCDCCCC3D}
 		f %Mass{0}
+		f %MaxContactImpulse{0x00247449}
 	}
 }
 o
@@ -1902,6 +1979,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1935,6 +2013,7 @@ o
 		s %MetaBasePrefab{"{\n \"Objects\" : [ {\n   \"#\" : { \"$t\" : \"uuid\", \"$b\" : \"0x025AD134792022000F1C97FFF0308122\" },\n   \"t\" : \"ezPointLightComponent\",\n   \"p\" : {\n    \"Active\" : true,\n    \"Intensity\" : { \"$t\" : \"float\", \"$v\" : \"10.0000\", \"$b\" : \"0x00002041\" },\n    \"Light Color\" : { \"$t\" : \"color\", \"$v\" : \"(1.0000, 0.0000, 0.0000, 1.0000)\", \"$b\" : \"0x0000803F00000000000000000000803F\" },\n    \"Range\" : { \"$t\" : \"float\", \"$v\" : \"1.3700\", \"$b\" : \"0x295CAF3F\" }\n   }\n  },\n  {\n   \"#\" : { \"$t\" : \"uuid\", \"$b\" : \"0x4DC026FE3AF7D000129E44DDB7081F4D\" },\n   \"t\" : \"ezSpotLightComponent\",\n   \"p\" : {\n    \"Active\" : true,\n    \"Inner Spot Angle\" : { \"$t\" : \"angle\", \"$v\" : \"15.0000\", \"$b\" : \"0x920A863E\" },\n    \"Intensity\" : { \"$t\" : \"float\", \"$v\" : \"10.0000\", \"$b\" : \"0x00002041\" },\n    \"Light Color\" : { \"$t\" : \"color\", \"$v\" : \"(1.0000, 1.0000, 1.0000, 1.0000)\", \"$b\" : \"0x0000803F0000803F0000803F0000803F\" },\n    \"Outer Spot Angle\" : { \"$t\" : \"angle\", \"$v\" : \"69.0000\", \"$b\" : \"0xC2259A3F\" },\n    \"Range\" : { \"$t\" : \"float\", \"$v\" : \"1.5000\", \"$b\" : \"0x0000C03F\" }\n   }\n  },\n  {\n   \"#\" : { \"$t\" : \"uuid\", \"$b\" : \"0x26535BB39145AF40882009844694BDFB\" },\n   \"t\" : \"ezGameObject\",\n   \"p\" : {\n    \"Children\" : [  ],\n    \"Components\" : [ { \"$t\" : \"uuid\", \"$b\" : \"0xE64EA5931E1ADA499F1EEEA0BB87D7F7\" } ],\n    \"GlobalKey\" : \"\",\n    \"LocalPosition\" : { \"$t\" : \"vec3\", \"$v\" : \"(0.2240, 1.6312, 0.2657)\", \"$b\" : \"0xA06C653E60CAD03FC00B883E\" },\n    \"LocalRotation\" : { \"$t\" : \"quat\", \"$b\" : \"0x0000000000000000000000000000803F\" },\n    \"LocalScaling\" : { \"$t\" : \"vec3\", \"$v\" : \"(1.0000, 1.0000, 1.0000)\", \"$b\" : \"0x0000803F0000803F0000803F\" },\n    \"LocalUniformScaling\" : { \"$t\" : \"float\", \"$v\" : \"1.0000\", \"$b\" : \"0x0000803F\" },\n    \"Name\" : \"\",\n    \"Tags\" : [  ]\n   }\n  },\n  {\n   \"#\" : { \"$t\" : \"uuid\", \"$b\" : \"0x368619C8CC8001418D1E555A0B27EC38\" },\n   \"t\" : \"ezMeshComponent\",\n   \"p\" : {\n    \"Active\" : true,\n    \"Materials\" : [  ],\n    \"Mesh\" : \"{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }\"\n   }\n  },\n  {\n   \"#\" : { \"$t\" : \"uuid\", \"$b\" : \"0x22035E7FCFFA21449A73029016309FF9\" },\n   \"t\" : \"ezPointLightComponent\",\n   \"p\" : {\n    \"Active\" : true,\n    \"Intensity\" : { \"$t\" : \"float\", \"$v\" : \"0.6800\", \"$b\" : \"0x7B142E3F\" },\n    \"Light Color\" : { \"$t\" : \"color\", \"$v\" : \"(1.0000, 0.4125, 0.0382, 1.0000)\", \"$b\" : \"0x0000803FCC38D33E317C1C3D0000803F\" },\n    \"Range\" : { \"$t\" : \"float\", \"$v\" : \"0.5200\", \"$b\" : \"0xB81E053F\" }\n   }\n  },\n  {\n   \"#\" : { \"$t\" : \"uuid\", \"$b\" : \"0xE64EA5931E1ADA499F1EEEA0BB87D7F7\" },\n   \"t\" : \"ezPointLightComponent\",\n   \"p\" : {\n    \"Active\" : true,\n    \"Intensity\" : { \"$t\" : \"float\", \"$v\" : \"10.0000\", \"$b\" : \"0x00002041\" },\n    \"Light Color\" : { \"$t\" : \"color\", \"$v\" : \"(1.0000, 0.0000, 0.0000, 1.0000)\", \"$b\" : \"0x0000803F00000000000000000000803F\" },\n    \"Range\" : { \"$t\" : \"float\", \"$v\" : \"1.3700\", \"$b\" : \"0x295CAF3F\" }\n   }\n  },\n  {\n   \"#\" : { \"$t\" : \"uuid\", \"$b\" : \"0x3F062C70DFD6AD4A9F8D3000A414FC3E\" },\n   \"t\" : \"ezDocumentRoot\",\n   \"n\" : \"ObjectTree\",\n   \"p\" : {\n    \"Children\" : [ { \"$t\" : \"uuid\", \"$b\" : \"0xE8B3893AD8AA7EFD0F9901ACF2F1E3CE\" } ]\n   }\n  },\n  {\n   \"#\" : { \"$t\" : \"uuid\", \"$b\" : \"0x2068BC932DAE924BA8EA5761F7DF8A30\" },\n   \"t\" : \"ezGameObject\",\n   \"p\" : {\n    \"Children\" : [  ],\n    \"Components\" : [ { \"$t\" : \"uuid\", \"$b\" : \"0x368619C8CC8001418D1E555A0B27EC38\" } ],\n    \"GlobalKey\" : \"\",\n    \"LocalPosition\" : { \"$t\" : \"vec3\", \"$v\" : \"(0.6230, -0.0035, -0.1545)\", \"$b\" : \"0x487A1F3F00E066BB802C1EBE\" },\n    \"LocalRotation\" : { \"$t\" : \"quat\", \"$b\" : \"0x0000000000000000000000000000803F\" },\n    \"LocalScaling\" : { \"$t\" : \"vec3\", \"$v\" : \"(1.0000, 1.0000, 1.0000)\", \"$b\" : \"0x0000803F0000803F0000803F\" },\n    \"LocalUniformScaling\" : { \"$t\" : \"float\", \"$v\" : \"0.1000\", \"$b\" : \"0xCDCCCC3D\" },\n    \"Name\" : \"\",\n    \"Tags\" : [  ]\n   }\n  },\n  {\n   \"#\" : { \"$t\" : \"uuid\", \"$b\" : \"0xFA138A6CD3F76C4C846A30241E1ED121\" },\n   \"t\" : \"ezGameObject\",\n   \"p\" : {\n    \"Children\" : [  ],\n    \"Components\" : [ { \"$t\" : \"uuid\", \"$b\" : \"0x22035E7FCFFA21449A73029016309FF9\" } ],\n    \"GlobalKey\" : \"\",\n    \"LocalPosition\" : { \"$t\" : \"vec3\", \"$v\" : \"(0.8590, -0.6440, 0.3843)\", \"$b\" : \"0x18E65B3F80DB24BF40C6C43E\" },\n    \"LocalRotation\" : { \"$t\" : \"quat\", \"$b\" : \"0x0000000000000000000000000000803F\" },\n    \"LocalScaling\" : { \"$t\" : \"vec3\", \"$v\" : \"(1.0000, 1.0000, 1.0000)\", \"$b\" : \"0x0000803F0000803F0000803F\" },\n    \"LocalUniformScaling\" : { \"$t\" : \"float\", \"$v\" : \"1.0000\", \"$b\" : \"0x0000803F\" },\n    \"Name\" : \"\",\n    \"Tags\" : [  ]\n   }\n  },\n  {\n   \"#\" : { \"$t\" : \"uuid\", \"$b\" : \"0x77B431F68A480F4DB9D8D067BD8D519E\" },\n   \"t\" : \"ezAssetDocumentInfo\",\n   \"n\" : \"Header\",\n   \"p\" : {\n    \"AssetType\" : \"Prefab\",\n    \"Dependencies\" : [  ],\n    \"DocumentID\" : { \"$t\" : \"uuid\", \"$b\" : \"0x77B431F68A480F4DB9D8D067BD8D519E\" },\n    \"Hash\" : { \"$t\" : \"uint64\", \"$v\" : \"4767962418324406209\", \"$b\" : \"0xC17FA3C68E342B42\" },\n    \"References\" : [ \"{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }\" ]\n   }\n  },\n  {\n   \"#\" : { \"$t\" : \"uuid\", \"$b\" : \"0x6BA71A8DBE9FA38F0BD48EA69707820A\" },\n   \"t\" : \"ezGameObject\",\n   \"p\" : {\n    \"Children\" : [  ],\n    \"Components\" : [ { \"$t\" : \"uuid\", \"$b\" : \"0x2BA3646D4B74CE9822D273C30CFB9B06\" } ],\n    \"GlobalKey\" : \"\",\n    \"LocalPosition\" : { \"$t\" : \"vec3\", \"$v\" : \"(-3.0260, 1.6312, 0.2657)\", \"$b\" : \"0x36A941C060CAD03FC00B883E\" },\n    \"LocalRotation\" : { \"$t\" : \"quat\", \"$b\" : \"0x0000000000000000000000000000803F\" },\n    \"LocalScaling\" : { \"$t\" : \"vec3\", \"$v\" : \"(1.0000, 1.0000, 1.0000)\", \"$b\" : \"0x0000803F0000803F0000803F\" },\n    \"LocalUniformScaling\" : { \"$t\" : \"float\", \"$v\" : \"1.0000\", \"$b\" : \"0x0000803F\" },\n    \"Name\" : \"\",\n    \"Tags\" : [  ]\n   }\n  },\n  {\n   \"#\" : { \"$t\" : \"uuid\", \"$b\" : \"0xFECC00F68E62279149EF81DBB657095F\" },\n   \"t\" : \"ezPointLightComponent\",\n   \"p\" : {\n    \"Active\" : true,\n    \"Intensity\" : { \"$t\" : \"float\", \"$v\" : \"0.6800\", \"$b\" : \"0x7B142E3F\" },\n    \"Light Color\" : { \"$t\" : \"color\", \"$v\" : \"(1.0000, 0.4125, 0.0382, 1.0000)\", \"$b\" : \"0x0000803FCC38D33E317C1C3D0000803F\" },\n    \"Range\" : { \"$t\" : \"float\", \"$v\" : \"0.5200\", \"$b\" : \"0xB81E053F\" }\n   }\n  },\n  {\n   \"#\" : { \"$t\" : \"uuid\", \"$b\" : \"0x2BA3646D4B74CE9822D273C30CFB9B06\" },\n   \"t\" : \"ezPointLightComponent\",\n   \"p\" : {\n    \"Active\" : true,\n    \"Intensity\" : { \"$t\" : \"float\", \"$v\" : \"10.0000\", \"$b\" : \"0x00002041\" },\n    \"Light Color\" : { \"$t\" : \"color\", \"$v\" : \"(0.0044, 0.4508, 1.0000, 1.0000)\", \"$b\" : \"0x16E68F3B67CDE63E0000803F0000803F\" },\n    \"Range\" : { \"$t\" : \"float\", \"$v\" : \"1.6300\", \"$b\" : \"0xD7A3D03F\" }\n   }\n  },\n  {\n   \"#\" : { \"$t\" : \"uuid\", \"$b\" : \"0xD6DD2CE3925F729933E6AF6FBE453B87\" },\n   \"t\" : \"ezGameObject\",\n   \"p\" : {\n    \"Children\" : [  ],\n    \"Components\" : [ { \"$t\" : \"uuid\", \"$b\" : \"0xFECC00F68E62279149EF81DBB657095F\" } ],\n    \"GlobalKey\" : \"\",\n    \"LocalPosition\" : { \"$t\" : \"vec3\", \"$v\" : \"(0.8590, 0.6560, 0.3843)\", \"$b\" : \"0x18E65B3F40F1273F40C6C43E\" },\n    \"LocalRotation\" : { \"$t\" : \"quat\", \"$b\" : \"0x0000000000000000000000000000803F\" },\n    \"LocalScaling\" : { \"$t\" : \"vec3\", \"$v\" : \"(1.0000, 1.0000, 1.0000)\", \"$b\" : \"0x0000803F0000803F0000803F\" },\n    \"LocalUniformScaling\" : { \"$t\" : \"float\", \"$v\" : \"1.0000\", \"$b\" : \"0x0000803F\" },\n    \"Name\" : \"\",\n    \"Tags\" : [  ]\n   }\n  },\n  {\n   \"#\" : { \"$t\" : \"uuid\", \"$b\" : \"0xC1791F1F3CF696D4E227A49B0FA675F8\" },\n   \"t\" : \"ezPointLightComponent\",\n   \"p\" : {\n    \"Active\" : true,\n    \"Intensity\" : { \"$t\" : \"float\", \"$v\" : \"0.6800\", \"$b\" : \"0x7B142E3F\" },\n    \"Light Color\" : { \"$t\" : \"color\", \"$v\" : \"(0.1022, 0.4452, 1.0000, 1.0000)\", \"$b\" : \"0x1F64D13D6BF1E33E0000803F0000803F\" },\n    \"Range\" : { \"$t\" : \"float\", \"$v\" : \"0.5200\", \"$b\" : \"0xB81E053F\" }\n   }\n  },\n  {\n   \"#\" : { \"$t\" : \"uuid\", \"$b\" : \"0x45EFAF49A25211D58EB3556FBF66D3FC\" },\n   \"t\" : \"ezGameObject\",\n   \"p\" : {\n    \"Children\" : [  ],\n    \"Components\" : [ { \"$t\" : \"uuid\", \"$b\" : \"0x05EBF9292F273CDEA5B13A8C345AEDF8\" } ],\n    \"GlobalKey\" : \"\",\n    \"LocalPosition\" : { \"$t\" : \"vec3\", \"$v\" : \"(-3.0260, -1.6188, 0.2657)\", \"$b\" : \"0x36A941C0A035CFBFC00B883E\" },\n    \"LocalRotation\" : { \"$t\" : \"quat\", \"$b\" : \"0x0000000000000000000000000000803F\" },\n    \"LocalScaling\" : { \"$t\" : \"vec3\", \"$v\" : \"(1.0000, 1.0000, 1.0000)\", \"$b\" : \"0x0000803F0000803F0000803F\" },\n    \"LocalUniformScaling\" : { \"$t\" : \"float\", \"$v\" : \"1.0000\", \"$b\" : \"0x0000803F\" },\n    \"Name\" : \"\",\n    \"Tags\" : [  ]\n   }\n  },\n  {\n   \"#\" : { \"$t\" : \"uuid\", \"$b\" : \"0x998A4B0C40F3E1DCCC1ED22F1794A720\" },\n   \"t\" : \"ezGameObject\",\n   \"p\" : {\n    \"Children\" : [  ],\n    \"Components\" : [ { \"$t\" : \"uuid\", \"$b\" : \"0xC1791F1F3CF696D4E227A49B0FA675F8\" } ],\n    \"GlobalKey\" : \"\",\n    \"LocalPosition\" : { \"$t\" : \"vec3\", \"$v\" : \"(1.1730, -0.0035, -0.8545)\", \"$b\" : \"0x8C23963F00E066BB60BE5ABF\" },\n    \"LocalRotation\" : { \"$t\" : \"quat\", \"$b\" : \"0x0000000000000000000000000000803F\" },\n    \"LocalScaling\" : { \"$t\" : \"vec3\", \"$v\" : \"(1.0000, 1.0000, 1.0000)\", \"$b\" : \"0x0000803F0000803F0000803F\" },\n    \"LocalUniformScaling\" : { \"$t\" : \"float\", \"$v\" : \"1.0000\", \"$b\" : \"0x0000803F\" },\n    \"Name\" : \"\",\n    \"Tags\" : [  ]\n   }\n  },\n  {\n   \"#\" : { \"$t\" : \"uuid\", \"$b\" : \"0x05EBF9292F273CDEA5B13A8C345AEDF8\" },\n   \"t\" : \"ezPointLightComponent\",\n   \"p\" : {\n    \"Active\" : true,\n    \"Intensity\" : { \"$t\" : \"float\", \"$v\" : \"10.0000\", \"$b\" : \"0x00002041\" },\n    \"Light Color\" : { \"$t\" : \"color\", \"$v\" : \"(0.0044, 0.4508, 1.0000, 1.0000)\", \"$b\" : \"0x16E68F3B67CDE63E0000803F0000803F\" },\n    \"Range\" : { \"$t\" : \"float\", \"$v\" : \"1.6300\", \"$b\" : \"0xD7A3D03F\" }\n   }\n  },\n  {\n   \"#\" : { \"$t\" : \"uuid\", \"$b\" : \"0x425E8754EC4BF7F6F81DB2E27B3D6726\" },\n   \"t\" : \"ezGameObject\",\n   \"p\" : {\n    \"Children\" : [  ],\n    \"Components\" : [ { \"$t\" : \"uuid\", \"$b\" : \"0x025AD134792022000F1C97FFF0308122\" } ],\n    \"GlobalKey\" : \"\",\n    \"LocalPosition\" : { \"$t\" : \"vec3\", \"$v\" : \"(0.2240, -1.6188, 0.2657)\", \"$b\" : \"0xA06C653EA035CFBFC00B883E\" },\n    \"LocalRotation\" : { \"$t\" : \"quat\", \"$b\" : \"0x0000000000000000000000000000803F\" },\n    \"LocalScaling\" : { \"$t\" : \"vec3\", \"$v\" : \"(1.0000, 1.0000, 1.0000)\", \"$b\" : \"0x0000803F0000803F0000803F\" },\n    \"LocalUniformScaling\" : { \"$t\" : \"float\", \"$v\" : \"1.0000\", \"$b\" : \"0x0000803F\" },\n    \"Name\" : \"\",\n    \"Tags\" : [  ]\n   }\n  },\n  {\n   \"#\" : { \"$t\" : \"uuid\", \"$b\" : \"0xB498EAB1ACCF47F7DD12B465FD09B541\" },\n   \"t\" : \"ezGameObject\",\n   \"p\" : {\n    \"Children\" : [  ],\n    \"Components\" : [ { \"$t\" : \"uuid\", \"$b\" : \"0x4DC026FE3AF7D000129E44DDB7081F4D\" } ],\n    \"GlobalKey\" : \"\",\n    \"LocalPosition\" : { \"$t\" : \"vec3\", \"$v\" : \"(2.9959, -0.0071, 0.2784)\", \"$b\" : \"0x7EBD3F400040E8BB008B8E3E\" },\n    \"LocalRotation\" : { \"$t\" : \"quat\", \"$b\" : \"0x00000000EE83843E985C4232EA46773F\" },\n    \"LocalScaling\" : { \"$t\" : \"vec3\", \"$v\" : \"(1.0000, 1.0000, 1.0000)\", \"$b\" : \"0x0000803F0000803F0000803F\" },\n    \"LocalUniformScaling\" : { \"$t\" : \"float\", \"$v\" : \"1.0000\", \"$b\" : \"0x0000803F\" },\n    \"Name\" : \"\",\n    \"Tags\" : [  ]\n   }\n  },\n  {\n   \"#\" : { \"$t\" : \"uuid\", \"$b\" : \"0x636C5E90349687F7E3E3A448FFCE2489\" },\n   \"t\" : \"ezGameObject\",\n   \"p\" : {\n    \"Children\" : [  ],\n    \"Components\" : [ { \"$t\" : \"uuid\", \"$b\" : \"0xE664D3A06557C0FCD85587C7CCDFF8B9\" } ],\n    \"GlobalKey\" : \"\",\n    \"LocalPosition\" : { \"$t\" : \"vec3\", \"$v\" : \"(2.4849, -0.0141, -0.6868)\", \"$b\" : \"0xC6081F4000E866BC60D32FBF\" },\n    \"LocalRotation\" : { \"$t\" : \"quat\", \"$b\" : \"0x0000000000000000000000000000803F\" },\n    \"LocalScaling\" : { \"$t\" : \"vec3\", \"$v\" : \"(1.0000, 1.0000, 1.0000)\", \"$b\" : \"0x0000803F0000803F0000803F\" },\n    \"LocalUniformScaling\" : { \"$t\" : \"float\", \"$v\" : \"1.0000\", \"$b\" : \"0x0000803F\" },\n    \"Name\" : \"\",\n    \"Tags\" : [  ]\n   }\n  },\n  {\n   \"#\" : { \"$t\" : \"uuid\", \"$b\" : \"0xE664D3A06557C0FCD85587C7CCDFF8B9\" },\n   \"t\" : \"ezPointLightComponent\",\n   \"p\" : {\n    \"Active\" : true,\n    \"Intensity\" : { \"$t\" : \"float\", \"$v\" : \"4.3100\", \"$b\" : \"0x85EB8940\" },\n    \"Light Color\" : { \"$t\" : \"color\", \"$v\" : \"(0.0802, 0.5029, 1.0000, 1.0000)\", \"$b\" : \"0x4B4AA43D2DBD003F0000803F0000803F\" },\n    \"Range\" : { \"$t\" : \"float\", \"$v\" : \"0.9300\", \"$b\" : \"0x7B146E3F\" }\n   }\n  },\n  {\n   \"#\" : { \"$t\" : \"uuid\", \"$b\" : \"0xE8B3893AD8AA7EFD0F9901ACF2F1E3CE\" },\n   \"t\" : \"ezGameObject\",\n   \"p\" : {\n    \"Children\" : [ { \"$t\" : \"uuid\", \"$b\" : \"0x2068BC932DAE924BA8EA5761F7DF8A30\" }, { \"$t\" : \"uuid\", \"$b\" : \"0x425E8754EC4BF7F6F81DB2E27B3D6726\" }, { \"$t\" : \"uuid\", \"$b\" : \"0x26535BB39145AF40882009844694BDFB\" }, { \"$t\" : \"uuid\", \"$b\" : \"0x6BA71A8DBE9FA38F0BD48EA69707820A\" }, { \"$t\" : \"uuid\", \"$b\" : \"0x45EFAF49A25211D58EB3556FBF66D3FC\" }, { \"$t\" : \"uuid\", \"$b\" : \"0xB498EAB1ACCF47F7DD12B465FD09B541\" }, { \"$t\" : \"uuid\", \"$b\" : \"0x636C5E90349687F7E3E3A448FFCE2489\" }, { \"$t\" : \"uuid\", \"$b\" : \"0xFA138A6CD3F76C4C846A30241E1ED121\" }, { \"$t\" : \"uuid\", \"$b\" : \"0xD6DD2CE3925F729933E6AF6FBE453B87\" }, { \"$t\" : \"uuid\", \"$b\" : \"0x998A4B0C40F3E1DCCC1ED22F1794A720\" } ],\n    \"Components\" : [  ],\n    \"GlobalKey\" : \"\",\n    \"LocalPosition\" : { \"$t\" : \"vec3\", \"$v\" : \"(0.0000, 0.0000, 0.0000)\", \"$b\" : \"0x000000000000000000000000\" },\n    \"LocalRotation\" : { \"$t\" : \"quat\", \"$b\" : \"0x0000000000000000000000000000803F\" },\n    \"LocalScaling\" : { \"$t\" : \"vec3\", \"$v\" : \"(1.0000, 1.0000, 1.0000)\", \"$b\" : \"0x0000803F0000803F0000803F\" },\n    \"LocalUniformScaling\" : { \"$t\" : \"float\", \"$v\" : \"1.0000\", \"$b\" : \"0x0000803F\" },\n    \"Name\" : \"Calypso\",\n    \"Tags\" : [  ]\n   }\n  } ],\n \"Types\" : [  ]\n}"}
 		Uuid %MetaFromPrefab{u4{11408055175736252601,5552736627244250231}}
 		Uuid %MetaPrefabSeed{u4{2221365085722793651,4954832875397492528}}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Calypso"}
 		VarArray %Tags{}
 	}
@@ -1956,6 +2035,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1964,10 +2044,11 @@ o
 {
 	Uuid %id{u4{2223491083798705025,4806780389637440475}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ 90a2e76b-291c-43d2-8c21-4e1bccd22ea1 }"}
 	}
@@ -1990,8 +2071,35 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{13256857643491756432,4809897692107024916}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{17404766149719349383,4611743411575304665}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x00004040}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
 	}
 }
 o
@@ -2025,6 +2133,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -2036,10 +2145,11 @@ o
 {
 	Uuid %id{u4{74780314755360671,4828241271682820355}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 03bb62c3-6b77-4641-99d0-ad6e3d3c2121 }"}
@@ -2075,6 +2185,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -2132,10 +2243,11 @@ o
 {
 	Uuid %id{u4{3603276572286352791,4945382739323541421}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ 9d903a8c-556a-4564-a678-3ebd5f03720b }"}
 	}
@@ -2219,6 +2331,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -2227,10 +2340,11 @@ o
 {
 	Uuid %id{u4{1699606103116250005,4996132928338790239}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ 778150d4-9e85-4d17-85dd-f59df122b7b4 }"}
 	}
@@ -2252,6 +2366,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -2290,6 +2405,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Wall"}
 		VarArray %Tags{}
 	}
@@ -2311,6 +2427,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -2359,7 +2476,7 @@ o
 {
 	Uuid %id{u4{11610370495906530747,5018032378901610128}}
 	s %t{"ezPxDynamicActorComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -2369,6 +2486,7 @@ o
 		b %Kinematic{0}
 		f %LinearDamping{0xCDCCCC3D}
 		f %Mass{0}
+		f %MaxContactImpulse{0x00247449}
 	}
 }
 o
@@ -2426,6 +2544,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -2485,6 +2604,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -2528,6 +2648,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -2560,6 +2681,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -2585,6 +2707,7 @@ o
 		Quat %LocalRotation{f{0xA9A8053E,0,0xF209C431,0x55CF7D3F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Ramp"}
 		VarArray %Tags{}
 	}
@@ -2630,7 +2753,11 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Children{}
+		VarArray %Children
+		{
+			Uuid{u4{13256857643491756432,4809897692107024916}}
+			Uuid{u4{6838313841835930689,9833183503975742652}}
+		}
 		VarArray %Components
 		{
 			Uuid{u4{10930877781915852983,5199116863181522261}}
@@ -2640,6 +2767,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -2658,7 +2786,7 @@ AssetInfo
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{12870478843194670739}
+		u4 %Hash{13696806263807706799}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -2671,6 +2799,7 @@ AssetInfo
 			s{"{ 309d7ff1-19c6-435e-821d-584426d01365 }"}
 			s{"{ 317e4b00-3e99-4f42-a175-2f7cdfc3fd7f }"}
 			s{"{ 3ebe2790-7cc4-40c8-bde6-e760b96b2636 }"}
+			s{"{ 4795f5c4-4a78-4c13-937e-cf3e6bdecb7c }"}
 			s{"{ 5451b35f-d73c-402e-a540-c542d3e52be0 }"}
 			s{"{ 5bbea795-0358-4dd8-86a9-c277f7a59f53 }"}
 			s{"{ 6ae73fcf-e09c-1c3f-54a8-8a80498519fb }"}
@@ -2709,6 +2838,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -2717,7 +2847,7 @@ o
 {
 	Uuid %id{u4{10897387785303972014,5181348854395788040}}
 	s %t{"ezPxDynamicActorComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -2727,6 +2857,7 @@ o
 		b %Kinematic{1}
 		f %LinearDamping{0xCDCCCC3D}
 		f %Mass{0}
+		f %MaxContactImpulse{0x00247449}
 	}
 }
 o
@@ -2740,7 +2871,7 @@ o
 		b %CastShadows{0}
 		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x00004842}
-		ColorGamma %LightColor{u1{255,255,255,255}}
+		ColorGamma %LightColor{u1{255,119,0,255}}
 		f %PenumbraSize{0xCDCCCC3D}
 		f %Range{0x0000A040}
 		f %SlopeBias{0x0000803E}
@@ -2763,6 +2894,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -2784,6 +2916,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -2832,10 +2965,11 @@ o
 {
 	Uuid %id{u4{3738527641329180814,5231052418081104135}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ d75e6ba0-47da-4c0f-86b5-55a53996dfe1 }"}
 	}
@@ -2854,6 +2988,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -2894,6 +3029,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -2902,7 +3038,7 @@ o
 {
 	Uuid %id{u4{839000985074305693,5257171098418855293}}
 	s %t{"ezPxDynamicActorComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -2912,6 +3048,7 @@ o
 		b %Kinematic{0}
 		f %LinearDamping{0xCDCCCC3D}
 		f %Mass{0}
+		f %MaxContactImpulse{0x00247449}
 	}
 }
 o
@@ -2937,6 +3074,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -2958,6 +3096,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -2990,6 +3129,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -3167,6 +3307,7 @@ o
 		Quat %LocalRotation{f{0,0,0xF30435BF,0xF304353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -3191,6 +3332,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Walls"}
 		VarArray %Tags{}
 	}
@@ -3212,6 +3354,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -3238,6 +3381,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Column"}
 		VarArray %Tags{}
 	}
@@ -3260,6 +3404,7 @@ o
 		Quat %LocalRotation{f{0x5CA25D3E,0x0000C032,0x8AEE79BF,0}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -3285,6 +3430,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -3293,7 +3439,7 @@ o
 {
 	Uuid %id{u4{4686398142178157965,5449937627422122336}}
 	s %t{"ezPxDynamicActorComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -3303,6 +3449,7 @@ o
 		b %Kinematic{1}
 		f %LinearDamping{0xCDCCCC3D}
 		f %Mass{0}
+		f %MaxContactImpulse{0x00247449}
 	}
 }
 o
@@ -3320,7 +3467,7 @@ o
 {
 	Uuid %id{u4{9632179706687299738,5461969821820588824}}
 	s %t{"ezSliderComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		f %Acceleration{0x00002041}
@@ -3329,6 +3476,7 @@ o
 		s %Axis{"ezBasisAxis::PositiveY"}
 		f %Deceleration{0x00002041}
 		f %Distance{0x0000B040}
+		Time %RandomStart{d{0}}
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{1}
 		b %RunAtStartup{1}
@@ -3339,10 +3487,11 @@ o
 {
 	Uuid %id{u4{9896750456075416645,5462405668481873158}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ 778150d4-9e85-4d17-85dd-f59df122b7b4 }"}
 	}
@@ -3375,6 +3524,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -3398,6 +3548,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -3428,10 +3579,11 @@ o
 {
 	Uuid %id{u4{7607999398463960744,5499504110856530322}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 6ae73fcf-e09c-1c3f-54a8-8a80498519fb }"}
@@ -3486,6 +3638,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -3521,6 +3674,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -3542,6 +3696,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -3550,10 +3705,11 @@ o
 {
 	Uuid %id{u4{10327930229809105293,5584995126100406967}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ 5bbea795-0358-4dd8-86a9-c277f7a59f53 }"}
 	}
@@ -3575,6 +3731,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -3636,6 +3793,7 @@ o
 		Quat %LocalRotation{f{0,0,0xF3B3513F,0xE8D5123F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -3657,6 +3815,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -3678,6 +3837,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -3713,6 +3873,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -3756,6 +3917,7 @@ o
 		Quat %LocalRotation{f{0x1B07BF3D,0x26C8BE3D,0x515233BF,0xB78E333F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0xCDCCCC3D}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -3780,6 +3942,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -3801,6 +3964,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -3822,6 +3986,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -3854,6 +4019,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -3889,6 +4055,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -3907,6 +4074,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -3944,6 +4112,7 @@ o
 		Quat %LocalRotation{f{0,0xEE83843E,0x985C4232,0xEA46773F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -3976,6 +4145,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -3997,6 +4167,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4018,6 +4189,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4050,6 +4222,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4071,6 +4244,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4092,6 +4266,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4117,6 +4292,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Box1"}
 		VarArray %Tags
 		{
@@ -4141,6 +4317,7 @@ o
 		Quat %LocalRotation{f{0,0,0xF304353F,0xF304353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4162,6 +4339,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4183,6 +4361,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4226,6 +4405,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4247,6 +4427,7 @@ o
 		Quat %LocalRotation{f{0,0,0xF304353F,0xF304353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4279,6 +4460,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4333,6 +4515,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4376,6 +4559,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4452,6 +4636,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4484,6 +4669,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4505,6 +4691,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4526,6 +4713,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4547,6 +4735,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4579,6 +4768,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4600,6 +4790,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4621,6 +4812,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4653,6 +4845,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4707,6 +4900,7 @@ o
 		Quat %LocalRotation{f{0,0x000080A4,0x00000626,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4739,6 +4933,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4760,6 +4955,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4814,6 +5010,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4835,6 +5032,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4911,6 +5109,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4944,6 +5143,7 @@ o
 		Quat %LocalRotation{f{0,0,0xF304353F,0xF304353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4965,6 +5165,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -4997,6 +5198,7 @@ o
 		Quat %LocalRotation{f{0xF204B5A6,0xF20435BF,0x62C004B3,0xF404353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -5029,6 +5231,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -5094,6 +5297,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -5102,7 +5306,7 @@ o
 {
 	Uuid %id{u4{3064421418622694143,8239720984993416742}}
 	s %t{"ezPxDynamicActorComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -5112,6 +5316,7 @@ o
 		b %Kinematic{0}
 		f %LinearDamping{0xCDCCCC3D}
 		f %Mass{0}
+		f %MaxContactImpulse{0x00247449}
 	}
 }
 o
@@ -5211,6 +5416,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -5232,6 +5438,7 @@ o
 		Quat %LocalRotation{f{0,0x000080A4,0x00000626,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -5253,6 +5460,7 @@ o
 		Quat %LocalRotation{f{0,0x000080A4,0x00000626,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -5275,6 +5483,7 @@ o
 		Quat %LocalRotation{f{0x6D751BBA,0x3F77673A,0xEA0435BF,0xEF04353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Imp"}
 		VarArray %Tags{}
 	}
@@ -5311,6 +5520,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -5332,6 +5542,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -5353,6 +5564,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -5393,6 +5605,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -5414,8 +5627,25 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{10986222348063523640,9635029223444022401}}
+	s %t{"ezMeshComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x16E0F340,0xA5F4B33F,0,0xCAC8483E}}
+		VarArray %Materials
+		{
+			s{"{ 4795f5c4-4a78-4c13-937e-cf3e6bdecb7c }"}
+		}
+		s %Mesh{"{ ebc03b01-2f4d-43ea-a973-0ab6d5b30242 }"}
 	}
 }
 o
@@ -5435,6 +5665,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -5443,10 +5674,11 @@ o
 {
 	Uuid %id{u4{6323061376064124224,9638999579858318694}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }"}
 	}
@@ -5479,6 +5711,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -5487,10 +5720,11 @@ o
 {
 	Uuid %id{u4{10139694055424586320,9652047697001185168}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ 9d903a8c-556a-4564-a678-3ebd5f03720b }"}
 	}
@@ -5512,6 +5746,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -5533,6 +5768,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -5554,6 +5790,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -5562,10 +5799,11 @@ o
 {
 	Uuid %id{u4{3325596480554756166,9789628545208389818}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 03bb62c3-6b77-4641-99d0-ad6e3d3c2121 }"}
@@ -5623,6 +5861,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -5644,6 +5883,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -5665,6 +5905,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -5688,6 +5929,32 @@ o
 		f %SizeVariance{0}
 		f %SortOrder{0}
 		b %WrapAround{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6838313841835930689,9833183503975742652}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{10986222348063523640,9635029223444022401}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000C040}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
 	}
 }
 o
@@ -5724,6 +5991,7 @@ o
 		Quat %LocalRotation{f{0,0,0xF30435BF,0xF304353F}}
 		Vec3 %LocalScaling{f{0xFFFF7F3F,0xFFFF7F3F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Wall"}
 		VarArray %Tags{}
 	}
@@ -5745,6 +6013,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -5783,6 +6052,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -5804,6 +6074,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -5826,6 +6097,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0xCDCC4C3D}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -5861,6 +6133,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -5926,6 +6199,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -5947,6 +6221,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -5968,6 +6243,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -5989,6 +6265,7 @@ o
 		Quat %LocalRotation{f{0xF18565BE,0xEC25563F,0xEF8304BE,0xE646F73E}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000A040}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -6010,6 +6287,7 @@ o
 		Quat %LocalRotation{f{0,0,0xF304353F,0xF304353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -6031,6 +6309,7 @@ o
 		Quat %LocalRotation{f{0,0,0x0000803F,0x2EBD3B33}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -6055,6 +6334,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -6063,7 +6343,7 @@ o
 {
 	Uuid %id{u4{4089817150873701188,10218558371944424756}}
 	s %t{"ezPxDynamicActorComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -6073,6 +6353,7 @@ o
 		b %Kinematic{0}
 		f %LinearDamping{0xCDCCCC3D}
 		f %Mass{0}
+		f %MaxContactImpulse{0x00247449}
 	}
 }
 o
@@ -6092,6 +6373,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -6113,6 +6395,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -6132,7 +6415,7 @@ o
 {
 	Uuid %id{u4{14834326696129711134,10242213491089649954}}
 	s %t{"ezSliderComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		f %Acceleration{0x00002041}
@@ -6141,6 +6424,7 @@ o
 		s %Axis{"ezBasisAxis::PositiveY"}
 		f %Deceleration{0x00002041}
 		f %Distance{0x0000B040}
+		Time %RandomStart{d{0}}
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{1}
 		b %RunAtStartup{1}
@@ -6151,10 +6435,11 @@ o
 {
 	Uuid %id{u4{7255650740247080511,10250368480255506242}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ 778150d4-9e85-4d17-85dd-f59df122b7b4 }"}
 	}
@@ -6191,10 +6476,11 @@ o
 {
 	Uuid %id{u4{17080479640193425483,10279422454965367465}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ 9d903a8c-556a-4564-a678-3ebd5f03720b }"}
 	}
@@ -6216,6 +6502,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -6237,6 +6524,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -6279,6 +6567,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -6316,6 +6605,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Column"}
 		VarArray %Tags{}
 	}
@@ -6369,6 +6659,7 @@ o
 		Quat %LocalRotation{f{0xA805BDBD,0x5929753F,0xB005BD3D,0xB46183BE}}
 		Vec3 %LocalScaling{f{0x0100803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -6401,6 +6692,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -6455,6 +6747,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0xCDCCCC3D}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -6476,6 +6769,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -6543,6 +6837,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -6592,6 +6887,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -6613,6 +6909,7 @@ o
 		Quat %LocalRotation{f{0,0,0xF30435BF,0xF304353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -6634,6 +6931,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -6655,6 +6953,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -6676,6 +6975,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -6697,6 +6997,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -6722,6 +7023,7 @@ o
 		Quat %LocalRotation{f{0xA9A8053E,0,0xF209C431,0x55CF7D3F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x000000C0}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Ramp"}
 		VarArray %Tags{}
 	}
@@ -6765,6 +7067,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -6808,6 +7111,7 @@ o
 		Quat %LocalRotation{f{0xD7B35D3F,0,0xD8B35DB3,0xFFFFFF3E}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -6829,6 +7133,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -6862,6 +7167,7 @@ o
 		Quat %LocalRotation{f{0,0x16EFC33E,0x70B08F32,0x5E836C3F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -6898,6 +7204,7 @@ o
 		Quat %LocalRotation{f{0,0,0x0000803F,0x2EBD3B33}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Wall"}
 		VarArray %Tags{}
 	}
@@ -6930,6 +7237,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -6951,6 +7259,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -6970,7 +7279,7 @@ o
 {
 	Uuid %id{u4{14806192797656934973,10841186902009008452}}
 	s %t{"ezPxDynamicActorComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -6980,6 +7289,7 @@ o
 		b %Kinematic{1}
 		f %LinearDamping{0xCDCCCC3D}
 		f %Mass{0}
+		f %MaxContactImpulse{0x00247449}
 	}
 }
 o
@@ -6997,10 +7307,11 @@ o
 {
 	Uuid %id{u4{4641766599614633488,10884957313885470687}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ d75e6ba0-47da-4c0f-86b5-55a53996dfe1 }"}
 	}
@@ -7009,10 +7320,11 @@ o
 {
 	Uuid %id{u4{7647332653682143773,10890890465694324547}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ d75e6ba0-47da-4c0f-86b5-55a53996dfe1 }"}
 	}
@@ -7034,6 +7346,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7066,6 +7379,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7120,6 +7434,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7141,6 +7456,7 @@ o
 		Quat %LocalRotation{f{0xA1B21C3F,0x908BF0BE,0xAF3301BF,0x5539C6BE}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x8FC2F53C}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -7165,6 +7481,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7186,6 +7503,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7210,6 +7528,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7231,6 +7550,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7239,7 +7559,7 @@ o
 {
 	Uuid %id{u4{13540984719040262697,11121807869433809236}}
 	s %t{"ezSliderComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		f %Acceleration{0x00002041}
@@ -7248,6 +7568,7 @@ o
 		s %Axis{"ezBasisAxis::NegativeZ"}
 		f %Deceleration{0x00002041}
 		f %Distance{0x14AE9F40}
+		Time %RandomStart{d{0}}
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{1}
 		b %RunAtStartup{1}
@@ -7269,10 +7590,11 @@ o
 {
 	Uuid %id{u4{1162429912178810336,11187335019075917404}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ 778150d4-9e85-4d17-85dd-f59df122b7b4 }"}
 	}
@@ -7341,6 +7663,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7362,6 +7685,7 @@ o
 		Quat %LocalRotation{f{0,0,0xF304353F,0xF304353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7383,6 +7707,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7404,6 +7729,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7458,6 +7784,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7479,6 +7806,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7511,6 +7839,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7547,6 +7876,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Box2"}
 		VarArray %Tags
 		{
@@ -7571,6 +7901,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7592,6 +7923,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7635,6 +7967,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7700,6 +8033,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7743,6 +8077,7 @@ o
 		Quat %LocalRotation{f{0,0,0xF304353F,0xF304353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7764,6 +8099,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7785,6 +8121,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7819,6 +8156,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7840,6 +8178,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7872,6 +8211,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7893,6 +8233,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7925,6 +8266,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -7979,6 +8321,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8034,6 +8377,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8075,7 +8419,7 @@ o
 {
 	Uuid %id{u4{12776844948435639450,13964650335587460988}}
 	s %t{"ezPxDynamicActorComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -8085,6 +8429,7 @@ o
 		b %Kinematic{0}
 		f %LinearDamping{0xCDCCCC3D}
 		f %Mass{0}
+		f %MaxContactImpulse{0x00247449}
 	}
 }
 o
@@ -8140,6 +8485,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8172,6 +8518,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8193,6 +8540,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8214,6 +8562,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8235,6 +8584,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8256,6 +8606,7 @@ o
 		Quat %LocalRotation{f{0,0x000080A4,0x00000626,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8277,6 +8628,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8298,6 +8650,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8319,6 +8672,7 @@ o
 		Quat %LocalRotation{f{0,0x000080A4,0x00000626,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8340,6 +8694,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8361,6 +8716,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8393,6 +8749,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8425,6 +8782,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8446,6 +8804,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8467,6 +8826,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8488,6 +8848,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8520,6 +8881,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8585,6 +8947,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8606,6 +8969,7 @@ o
 		Quat %LocalRotation{f{0,0,0x0000803F,0x2EBD3B33}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8627,6 +8991,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8635,10 +9000,11 @@ o
 {
 	Uuid %id{u4{9720124422906948610,15222846133841727733}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ 317e4b00-3e99-4f42-a175-2f7cdfc3fd7f }"}
 	}
@@ -8682,6 +9048,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8714,6 +9081,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8735,6 +9103,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8771,6 +9140,7 @@ o
 		Quat %LocalRotation{f{0,0,0xF30435BF,0xF304353F}}
 		Vec3 %LocalScaling{f{0xFFFF7F3F,0xFFFF7F3F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Wall"}
 		VarArray %Tags{}
 	}
@@ -8803,6 +9173,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8824,6 +9195,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8845,6 +9217,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8883,6 +9256,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8937,6 +9311,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8958,6 +9333,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -8979,6 +9355,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9011,6 +9388,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9054,6 +9432,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9086,6 +9465,7 @@ o
 		Quat %LocalRotation{f{0,0,0xF304353F,0xF304353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9094,7 +9474,7 @@ o
 {
 	Uuid %id{u4{10484345093225893632,15651775960577762671}}
 	s %t{"ezPxDynamicActorComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -9104,6 +9484,7 @@ o
 		b %Kinematic{0}
 		f %LinearDamping{0xCDCCCC3D}
 		f %Mass{0}
+		f %MaxContactImpulse{0x00247449}
 	}
 }
 o
@@ -9134,6 +9515,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9177,6 +9559,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9198,6 +9581,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9219,6 +9603,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9240,6 +9625,7 @@ o
 		Quat %LocalRotation{f{0,0,0xF304353F,0xF304353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9261,6 +9647,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9282,6 +9669,7 @@ o
 		Quat %LocalRotation{f{0,0,0xF40435BF,0xF204353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9361,6 +9749,7 @@ o
 		Quat %LocalRotation{f{0xF204B5A6,0xF20435BF,0x62C004B3,0xF404353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9395,6 +9784,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -9458,6 +9848,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9484,6 +9875,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Column"}
 		VarArray %Tags{}
 	}
@@ -9560,6 +9952,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9625,6 +10018,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9657,6 +10051,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9711,6 +10106,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9765,6 +10161,7 @@ o
 		Quat %LocalRotation{f{0,0x000080A4,0x00000626,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9797,6 +10194,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9818,6 +10216,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9839,6 +10238,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9860,6 +10260,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9881,6 +10282,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9902,6 +10304,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9923,6 +10326,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9944,6 +10348,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -9978,6 +10383,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -10004,6 +10410,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -10093,8 +10500,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSliderComponent"}
-		u3 %TypeSize{88}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -10147,7 +10554,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxShapeComponent"}
-		u3 %TypeSize{80}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{2}
 	}
 }
@@ -10201,8 +10608,8 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxDynamicActorComponent"}
-		u3 %TypeSize{96}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{104}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -10435,8 +10842,26 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDecalComponent"}
-		u3 %TypeSize{152}
+		u3 %TypeSize{160}
 		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{15626900963732327278,8724655806046315562}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezObjectMode"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -10453,7 +10878,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxShapeBoxComponent"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{104}
 		u3 %TypeVersion{1}
 	}
 }
@@ -10597,7 +11022,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxShapeSphereComponent"}
-		u3 %TypeSize{88}
+		u3 %TypeSize{96}
 		u3 %TypeVersion{1}
 	}
 }
@@ -10633,8 +11058,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponent"}
-		u3 %TypeSize{88}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -10651,7 +11076,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxTriggerComponent"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{104}
 		u3 %TypeVersion{1}
 	}
 }

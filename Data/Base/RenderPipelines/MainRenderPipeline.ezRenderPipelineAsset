@@ -171,12 +171,13 @@ o
 		{
 			Uuid{u4{6643674050548658176,10532921922797070161}}
 		}
-		Vec2 %Node::Pos{f{0x21100FC4,0xE4AF7FC3}}
+		Vec2 %Node::Pos{f{0x26AE0EC4,0x36A965C3}}
 		VarArray %Renderers
 		{
 			Uuid{u4{17118200511077512124,5585576549109102666}}
 			Uuid{u4{10545754141288669367,5575206532188284996}}
 		}
+		Uuid %ResolvedDepth{u4{17921715465924242458,16910659068934808329}}
 		s %ShadingQuality{"ezForwardRenderShadingQuality::Normal"}
 	}
 }
@@ -324,7 +325,7 @@ o
 		{
 			Uuid{u4{17304078844041792371,8828842289773024929}}
 		}
-		Vec2 %Node::Pos{f{0x87D99EC4,0xE7C793C2}}
+		Vec2 %Node::Pos{f{0x6BF4A0C4,0x1CE5CAC2}}
 		Uuid %Output{u4{9986565663282033582,18243061412813709350}}
 		f %PositionBias{0x0000A040}
 		f %Radius{0x0000803F}
@@ -401,6 +402,7 @@ o
 		{
 			Uuid{u4{8885271718945736074,8038724492364506280}}
 			Uuid{u4{1300364773138385847,12836615023600263575}}
+			Uuid{u4{17917809428815315766,16766495664040476059}}
 		}
 		Vec2 %Node::Pos{f{0x3230B6C4,0xE4838C40}}
 		Uuid %Output{u4{321395160873795197,15581556794423472924}}
@@ -633,7 +635,7 @@ AssetInfo
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12099190295688988325,5711173786673602835}}
-		u4 %Hash{18012486619218353155}
+		u4 %Hash{6045924665783980983}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -882,6 +884,25 @@ o
 {
 	Uuid %id{u4{5276229737650855506,16393626965493704539}}
 	s %t{"ezOutputNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{17917809428815315766,16766495664040476059}}
+	s %t{"ConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"Output"}
+		Uuid %Target{u4{15217573783965038497,4632251886641546667}}
+		s %TargetPin{"ResolvedDepth"}
+	}
+}
+o
+{
+	Uuid %id{u4{17921715465924242458,16910659068934808329}}
+	s %t{"ezInputNodePin"}
 	u3 %v{1}
 	p{}
 }
@@ -1426,7 +1447,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezTransparentForwardRenderPass"}
-		u3 %TypeSize{208}
+		u3 %TypeSize{224}
 		u3 %TypeVersion{1}
 	}
 }
