@@ -101,7 +101,7 @@ void ezPropertyAnimResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 
 void ezPropertyAnimResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 5;
+  const ezUInt8 uiVersion = 6;
   const ezUInt8 uiIdentifier = 0x0A; // dummy to fill the header to 32 Bit
   const ezUInt16 uiNumFloatAnimations = m_FloatAnimations.GetCount();
   const ezUInt16 uiNumColorAnimations = m_ColorAnimations.GetCount();
@@ -142,6 +142,9 @@ void ezPropertyAnimResourceDescriptor::Save(ezStreamWriter& stream) const
     tmpGradient.SortControlPoints();
     tmpGradient.Save(stream);
   }
+
+  // Version 6
+  m_EventTrack.Save(stream);
 }
 
 void ezPropertyAnimResourceDescriptor::Load(ezStreamReader& stream)
@@ -154,7 +157,7 @@ void ezPropertyAnimResourceDescriptor::Load(ezStreamReader& stream)
   stream >> uiIdentifier;
 
   EZ_ASSERT_DEV(uiIdentifier == 0x0A, "File does not contain a valid ezPropertyAnimResourceDescriptor");
-  EZ_ASSERT_DEV(uiVersion == 4 || uiVersion == 5, "Invalid file version {0}", uiVersion);
+  EZ_ASSERT_DEV(uiVersion == 4 || uiVersion == 5 || uiVersion == 6, "Invalid file version {0}", uiVersion);
 
   stream >> m_AnimationDuration;
 
@@ -199,5 +202,13 @@ void ezPropertyAnimResourceDescriptor::Load(ezStreamReader& stream)
     if (!anim.m_sComponentType.IsEmpty())
       anim.m_pComponentRtti = ezRTTI::FindTypeByName(anim.m_sComponentType);
   }
+
+  if (uiVersion >= 6)
+  {
+    m_EventTrack.Load(stream);
+  }
+
+  //m_EventTrack.AddControlPoint(ezTime::Seconds(5.0), "Test Event 1");
+  //m_EventTrack.AddControlPoint(ezTime::Seconds(10.0), "Test Event 2");
 }
 

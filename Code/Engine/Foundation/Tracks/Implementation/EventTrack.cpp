@@ -83,6 +83,35 @@ ezUInt32 ezEventTrack::FindControlPointAfter(ezTime x) const
   return m_ControlPoints.GetCount();
 }
 
+ezInt32 ezEventTrack::FindControlPointBefore(ezTime x) const
+{
+  ezInt32 uiLowIdx = 0;
+  ezInt32 uiHighIdx = (ezInt32)m_ControlPoints.GetCount();
+
+  // do a binary search to reduce the search space
+  while (uiHighIdx - uiLowIdx > 8)
+  {
+    const ezInt32 uiMidIdx = uiLowIdx + ((uiHighIdx - uiLowIdx) >> 1); // lerp
+
+                                                                        // doesn't matter whether to use > or >=
+    if (m_ControlPoints[uiMidIdx].m_Time >= x)
+      uiHighIdx = uiMidIdx;
+    else
+      uiLowIdx = uiMidIdx;
+  }
+
+  // now do a linear search to find the final item
+  for (ezInt32 idx = uiHighIdx; idx > uiLowIdx; --idx)
+  {
+    if (m_ControlPoints[idx - 1].m_Time <= x)
+    {
+      return idx - 1;
+    }
+  }
+
+  return -1;
+}
+
 void ezEventTrack::Sample(ezTime rangeStart, ezTime rangeEnd, ezHybridArray<ezHashedString, 8>& out_Events) const
 {
   out_Events.Clear();
@@ -93,24 +122,95 @@ void ezEventTrack::Sample(ezTime rangeStart, ezTime rangeEnd, ezHybridArray<ezHa
     m_ControlPoints.Sort();
   }
 
-  ezUInt32 uiCurCpIdx = FindControlPointAfter(rangeStart);
+  if (rangeStart <= rangeEnd)
+  {
+    ezUInt32 curCpIdx = FindControlPointAfter(rangeStart);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  if (uiCurCpIdx > 0)
-  {
-    // make sure we didn't accidentally skip an important control point
-    EZ_ASSERT_DEBUG(m_ControlPoints[uiCurCpIdx - 1].m_Time < rangeStart, "Invalid control point computation");
-  }
+    if (curCpIdx > 0)
+    {
+      // make sure we didn't accidentally skip an important control point
+      EZ_ASSERT_DEBUG(m_ControlPoints[curCpIdx - 1].m_Time < rangeStart, "Invalid control point computation");
+    }
 #endif
 
-  const ezUInt32 uiNumCPs = m_ControlPoints.GetCount();
-  while (uiCurCpIdx < uiNumCPs && m_ControlPoints[uiCurCpIdx].m_Time < rangeEnd)
+    const ezUInt32 uiNumCPs = m_ControlPoints.GetCount();
+    while (curCpIdx < uiNumCPs && m_ControlPoints[curCpIdx].m_Time < rangeEnd)
+    {
+      const ezHashedString& sEvent = m_Events[m_ControlPoints[curCpIdx].m_uiEvent];
+
+      out_Events.PushBack(sEvent);
+
+      ++curCpIdx;
+    }
+  }
+  else
   {
-    const ezHashedString& sEvent = m_Events[m_ControlPoints[uiCurCpIdx].m_uiEvent];
+    ezInt32 curCpIdx = FindControlPointBefore(rangeStart);
 
-    out_Events.PushBack(sEvent);
+    while (curCpIdx >= 0 && m_ControlPoints[curCpIdx].m_Time > rangeEnd)
+    {
+      const ezHashedString& sEvent = m_Events[m_ControlPoints[curCpIdx].m_uiEvent];
 
-    ++uiCurCpIdx;
+      out_Events.PushBack(sEvent);
+
+      --curCpIdx;
+    }
+  }
+}
+
+void ezEventTrack::Save(ezStreamWriter& stream) const
+{
+  if (m_bSort)
+  {
+    m_bSort = false;
+    m_ControlPoints.Sort();
+  }
+
+  ezUInt8 uiVersion = 1;
+  stream << uiVersion;
+
+  stream << m_Events.GetCount();
+  for (const ezHashedString& name : m_Events)
+  {
+    stream << name.GetString();
+  }
+
+  stream << m_ControlPoints.GetCount();
+  for (const ControlPoint& cp : m_ControlPoints)
+  {
+    stream << cp.m_Time;
+    stream << cp.m_uiEvent;
+  }
+}
+
+void ezEventTrack::Load(ezStreamReader& stream)
+{
+  // don't rely on the data being sorted
+  m_bSort = true;
+
+  ezUInt8 uiVersion = 0;
+  stream >> uiVersion;
+
+  EZ_ASSERT_DEV(uiVersion == 1, "Invalid event track version {0}", uiVersion);
+
+  ezUInt32 count = 0;
+  ezStringBuilder tmp;
+
+  stream >> count;
+  m_Events.SetCount(count);
+  for (ezHashedString& name : m_Events)
+  {
+    stream >> tmp;
+    name.Assign(tmp.GetData());
+  }
+
+  stream >> count;
+  m_ControlPoints.SetCount(count);
+  for (ControlPoint& cp : m_ControlPoints)
+  {
+    stream >> cp.m_Time;
+    stream >> cp.m_uiEvent;
   }
 }
 

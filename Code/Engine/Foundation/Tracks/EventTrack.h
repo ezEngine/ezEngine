@@ -31,6 +31,9 @@ public:
   /// Note that the range is inclusive for the start time, and exclusive for the end time.
   void Sample(ezTime rangeStart, ezTime rangeEnd, ezHybridArray<ezHashedString, 8>& out_Events) const;
 
+  void Save(ezStreamWriter& stream) const;
+  void Load(ezStreamReader& stream);
+
 private:
   struct ControlPoint
   {
@@ -41,9 +44,9 @@ private:
   };
 
   ezUInt32 FindControlPointAfter(ezTime x) const;
+  ezInt32 FindControlPointBefore(ezTime x) const;
 
   mutable bool m_bSort = false;
   mutable ezDynamicArray<ControlPoint> m_ControlPoints;
   ezHybridArray<ezHashedString, 4> m_Events;
 };
-

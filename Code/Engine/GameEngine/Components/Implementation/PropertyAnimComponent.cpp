@@ -336,6 +336,9 @@ void ezPropertyAnimComponent::CreateColorPropertyBinding(const ezColorPropertyAn
 
 void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
 {
+  if (m_fSpeed == 0.0f)
+    return;
+
   const double fLookupPos = ComputeAnimationLookup(tDiff);
 
   for (ezUInt32 i = 0; i < m_ComponentFloatBindings.GetCount(); )
@@ -408,6 +411,8 @@ double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
 
   tDiff = m_fSpeed * tDiff;
 
+  ezTime tStart = m_AnimationTime;
+
   if (m_AnimationMode == ezPropertyAnimMode::Once)
   {
     m_AnimationTime += tDiff;
@@ -426,6 +431,8 @@ double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
 
       // TODO: send event
     }
+
+    EvaluateEventTrack(tStart, m_AnimationTime);
   }
   else if (m_AnimationMode == ezPropertyAnimMode::Loop)
   {
@@ -435,13 +442,21 @@ double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
     {
       m_AnimationTime -= duration;
       // TODO: send event
+
+      EvaluateEventTrack(tStart, m_AnimationRangeHigh);
+      tStart = m_AnimationRangeLow;
     }
 
     while (m_AnimationTime < m_AnimationRangeLow)
     {
       m_AnimationTime += duration;
       // TODO: send event
+
+      EvaluateEventTrack(tStart, m_AnimationRangeLow);
+      tStart = m_AnimationRangeHigh;
     }
+
+    EvaluateEventTrack(tStart, m_AnimationTime);
   }
   else if (m_AnimationMode == ezPropertyAnimMode::BackAndForth)
   {
@@ -460,6 +475,9 @@ double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
         m_AnimationTime = m_AnimationRangeHigh - (m_AnimationTime - m_AnimationRangeHigh);
         m_bReverse = true;
 
+        EvaluateEventTrack(tStart, m_AnimationRangeHigh);
+        tStart = m_AnimationRangeHigh;
+
         // TODO: send event
       }
       else if (m_AnimationTime < m_AnimationRangeLow)
@@ -467,16 +485,38 @@ double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
         m_AnimationTime = m_AnimationRangeLow + (m_AnimationRangeLow - m_AnimationTime);
         m_bReverse = false;
 
+        EvaluateEventTrack(tStart, m_AnimationRangeLow);
+        tStart = m_AnimationRangeLow;
+
         // TODO: send event
       }
       else
+      {
+        EvaluateEventTrack(tStart, m_AnimationTime);
         break;
+      }
     }
   }
 
   return m_AnimationTime.GetSeconds();
 }
 
+void ezPropertyAnimComponent::EvaluateEventTrack(ezTime startTime, ezTime endTime)
+{
+  const ezEventTrack& et = m_AnimDesc->m_EventTrack;
+
+  if (et.IsEmpty())
+    return;
+
+  ezHybridArray<ezHashedString, 8> events;
+  et.Sample(startTime, endTime, events);
+
+  for (const ezHashedString& sEvent : events)
+  {
+    // TODO: raise event
+    ezLog::Info("Property Anim Event: '{0}'", sEvent.GetString());
+  }
+}
 
 void ezPropertyAnimComponent::OnSimulationStarted()
 {

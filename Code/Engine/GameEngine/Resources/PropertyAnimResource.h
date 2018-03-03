@@ -5,6 +5,7 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Tracks/Curve1D.h>
 #include <Foundation/Tracks/ColorGradient.h>
+#include <Foundation/Tracks/EventTrack.h>
 
 struct EZ_GAMEENGINE_DLL ezPropertyAnimTarget
 {
@@ -75,6 +76,7 @@ struct EZ_GAMEENGINE_DLL ezPropertyAnimResourceDescriptor : public ezRefCounted
   ezTime m_AnimationDuration;
   ezDynamicArray<ezFloatPropertyAnimEntry> m_FloatAnimations;
   ezDynamicArray<ezColorPropertyAnimEntry> m_ColorAnimations;
+  ezEventTrack m_EventTrack;
 
   void Save(ezStreamWriter& stream) const;
   void Load(ezStreamReader& stream);

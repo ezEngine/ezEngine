@@ -42,6 +42,12 @@ public:
   void SetPropertyAnim(const ezPropertyAnimResourceHandle& hResource);
   EZ_ALWAYS_INLINE const ezPropertyAnimResourceHandle& GetPropertyAnim() const { return m_hPropertyAnim; }
 
+  // TODO: probably as message handlers
+  // SetAnimationTime
+  // SetAnimationSpeed
+  // SetAnimationRange(low, high) -> resets time to start or end or range ?
+  // Start / Stop playback
+
 protected:
   struct Binding
   {
@@ -79,6 +85,7 @@ protected:
   void ApplySingleFloatAnimation(const FloatBinding& binding, double lookupTime);
   void ApplyColorAnimation(const ColorBinding& binding, double lookupTime);
   double ComputeAnimationLookup(ezTime tDiff);
+  void EvaluateEventTrack(ezTime startTime, ezTime endTime);
 
   ezEnum<ezPropertyAnimMode> m_AnimationMode;
   ezTime m_RandomOffset;
