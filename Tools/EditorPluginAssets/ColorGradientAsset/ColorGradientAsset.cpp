@@ -7,7 +7,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Image/Image.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
-#include <Foundation/Math/ColorGradient.h>
+#include <Foundation/Tracks/ColorGradient.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
 #include <GuiFoundation/Widgets/CurveEditData.h>
 

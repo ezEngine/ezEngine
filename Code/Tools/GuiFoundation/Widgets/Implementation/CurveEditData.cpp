@@ -1,7 +1,7 @@
 #include <PCH.h>
 #include <GuiFoundation/Widgets/CurveEditData.h>
 #include <Foundation/Math/Math.h>
-#include <Foundation/Math/Curve1D.h>
+#include <Foundation/Tracks/Curve1D.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCurveTangentMode, 1)
 EZ_ENUM_CONSTANTS(ezCurveTangentMode::Bezier, ezCurveTangentMode::FixedLength, ezCurveTangentMode::Linear, ezCurveTangentMode::Auto)

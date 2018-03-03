@@ -3,8 +3,8 @@
 #include <GameEngine/Basics.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Foundation/Types/SharedPtr.h>
-#include <Foundation/Math/Curve1D.h>
-#include <Foundation/Math/ColorGradient.h>
+#include <Foundation/Tracks/Curve1D.h>
+#include <Foundation/Tracks/ColorGradient.h>
 
 struct EZ_GAMEENGINE_DLL ezPropertyAnimTarget
 {

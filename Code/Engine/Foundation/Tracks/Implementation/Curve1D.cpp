@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <Foundation/Math/Curve1D.h>
+#include <Foundation/Tracks/Curve1D.h>
 #include <Foundation/IO/Stream.h>
 
 ezCurve1D::ControlPoint::ControlPoint()

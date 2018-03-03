@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <Foundation/Math/ColorGradient.h>
+#include <Foundation/Tracks/ColorGradient.h>
 #include <Foundation/IO/Stream.h>
 
 ezColorGradient::ezColorGradient()

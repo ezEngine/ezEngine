@@ -5,7 +5,7 @@
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Containers/DynamicArray.h>
-#include <Foundation/Math/Curve1D.h>
+#include <Foundation/Tracks/Curve1D.h>
 
 class ezCurve1D;
 

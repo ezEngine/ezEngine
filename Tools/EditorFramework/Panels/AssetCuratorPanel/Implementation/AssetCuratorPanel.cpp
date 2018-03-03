@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorFramework/Panels/AssetCuratorPanel/AssetCuratorPanel.moc.h>
 #include <GuiFoundation/Models/LogModel.moc.h>
 #include <EditorFramework/Assets/AssetProcessor.h>
@@ -18,7 +18,7 @@ bool ezQtAssetCuratorFilter::IsAssetFiltered(const ezSubAsset* pInfo) const
 
 bool ezQtAssetCuratorFilter::Less(const ezSubAsset* pInfoA, const ezSubAsset* pInfoB) const
 {
-  // TODO: We can't sort on mutable data here as it destoys the set order, need to add a sorting model on top.
+  // TODO: We can't sort on mutable data here as it destroys the set order, need to add a sorting model on top.
   //if (pInfoA->m_pAssetInfo->m_TransformState != pInfoB->m_pAssetInfo->m_TransformState)
   //  return pInfoA->m_pAssetInfo->m_TransformState < pInfoB->m_pAssetInfo->m_TransformState;
 
@@ -57,6 +57,12 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel()
     {
       UpdateIssueInfo();
     }
+  }), "signal/slot connection failed");
+
+  EZ_VERIFY(connect(m_pModel, &QAbstractItemModel::modelReset, this, [this]()
+  {
+    m_selectedIndex = QPersistentModelIndex();
+    UpdateIssueInfo();
   }), "signal/slot connection failed");
 }
 

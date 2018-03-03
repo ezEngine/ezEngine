@@ -158,6 +158,29 @@ ezQtMaterialAssetDocumentWindow::~ezQtMaterialAssetDocumentWindow()
 
   if (bCustom)
   {
+    SetupDirectoryWatcher(false);
+  }
+}
+
+void ezQtMaterialAssetDocumentWindow::SetupDirectoryWatcher(bool needIt)
+{
+  if (needIt)
+  {
+    ++s_iNodeConfigWatchers;
+
+    if (s_pNodeConfigWatcher == nullptr)
+    {
+      s_pNodeConfigWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
+
+      ezStringBuilder sSearchDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
+      sSearchDir.AppendPath("VisualShader");
+
+      if (s_pNodeConfigWatcher->OpenDirectory(sSearchDir, ezDirectoryWatcher::Watch::Writes).Failed())
+        ezLog::Warning("Could not register a file system watcher for changes to '{0}'", sSearchDir);
+    }
+  }
+  else
+  {
     --s_iNodeConfigWatchers;
 
     if (s_iNodeConfigWatchers == 0)
@@ -286,21 +309,7 @@ void ezQtMaterialAssetDocumentWindow::UpdateNodeEditorVisibility()
   {
     m_bVisualShaderEnabled = bCustom;
 
-    if (bCustom)
-      ++s_iNodeConfigWatchers;
-    else
-      --s_iNodeConfigWatchers;
-
-    if (bCustom && s_pNodeConfigWatcher == nullptr)
-    {
-      s_pNodeConfigWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
-
-      ezStringBuilder sSearchDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
-      sSearchDir.AppendPath("VisualShader");
-
-      if (s_pNodeConfigWatcher->OpenDirectory(sSearchDir, ezDirectoryWatcher::Watch::Writes).Failed())
-        ezLog::Warning("Could not register a file system watcher for changes to '{0}'", sSearchDir);
-    }
+    SetupDirectoryWatcher(bCustom);
   }
 }
 
@@ -357,4 +366,6 @@ void ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler(const ezMaterialV
   m_pOutputLine->setAcceptRichText(true);
   m_pOutputLine->setHtml(text.GetData());
 }
+
+
 

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 
 // This file includes everything from Foundation to ensure that all template code is looked at when building the Foundation library.
 // For non-template code this is not really necessary, but to be sure, just include everything.
@@ -134,6 +134,10 @@
 #include <Foundation/Time/DefaultTimeStepSmoothing.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Time/Time.h>
+
+#include <Foundation/Tracks/ColorGradient.h>
+#include <Foundation/Tracks/Curve1D.h>
+#include <Foundation/Tracks/EventTrack.h>
 
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <Foundation/Utilities/ConversionUtils.h>

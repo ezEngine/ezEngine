@@ -1,7 +1,7 @@
 #pragma once
 
 #include <GuiFoundation/Basics.h>
-#include <Foundation/Math/Curve1D.h>
+#include <Foundation/Tracks/Curve1D.h>
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <GuiFoundation/Widgets/CurveEditData.h>

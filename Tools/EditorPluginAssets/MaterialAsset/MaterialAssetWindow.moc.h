@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
@@ -45,6 +45,7 @@ private:
   void UpdateNodeEditorVisibility();
   void OnVseConfigChanged(const char* filename, ezDirectoryWatcherAction action);
   void VisualShaderEventHandler(const ezMaterialVisualShaderEvent& e);
+  void SetupDirectoryWatcher(bool needIt);
 
   ezEngineViewConfig m_ViewConfig;
   ezQtMaterialViewWidget* m_pViewWidget = nullptr;

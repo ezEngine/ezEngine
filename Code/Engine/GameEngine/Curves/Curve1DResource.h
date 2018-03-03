@@ -2,7 +2,7 @@
 
 #include <GameEngine/Basics.h>
 #include <Core/ResourceManager/Resource.h>
-#include <Foundation/Math/Curve1D.h>
+#include <Foundation/Tracks/Curve1D.h>
 
 /// \brief A curve resource can contain more than one curve, but all of the same type.
 struct EZ_GAMEENGINE_DLL ezCurve1DResourceDescriptor
