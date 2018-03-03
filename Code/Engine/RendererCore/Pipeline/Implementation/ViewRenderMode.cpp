@@ -10,7 +10,7 @@ EZ_ENUM_CONSTANTS(ezViewRenderMode::EmissiveColor, ezViewRenderMode::Roughness, 
 EZ_END_STATIC_REFLECTED_ENUM();
 
 //static
-ezTempHashedString ezViewRenderMode::GetRenderPassPermutationValue(Enum renderMode)
+ezTempHashedString ezViewRenderMode::GetPermutationValue(Enum renderMode)
 {
   if (renderMode >= WireframeColor && renderMode <= WireframeMonochrome)
   {

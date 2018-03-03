@@ -7,6 +7,26 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSpriteBlendMode, 1)
+EZ_ENUM_CONSTANTS(ezSpriteBlendMode::Masked, ezSpriteBlendMode::Transparent, ezSpriteBlendMode::Additive)
+EZ_END_STATIC_REFLECTED_ENUM();
+
+//static
+ezTempHashedString ezSpriteBlendMode::GetPermutationValue(Enum blendMode)
+{
+  switch (blendMode)
+  {
+  case ezSpriteBlendMode::Masked:
+    return "BLEND_MODE_MASKED";
+  case ezSpriteBlendMode::Transparent:
+    return "BLEND_MODE_TRANSPARENT";
+  case ezSpriteBlendMode::Additive:
+    return "BLEND_MODE_ADDITIVE";
+  }
+
+  return "";
+}
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpriteRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -15,9 +35,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Texture", GetTextureFile, SetTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
+    EZ_ENUM_MEMBER_PROPERTY("BlendMode", ezSpriteBlendMode, m_BlendMode),
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
     EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f), new ezSuffixAttribute(" m")),
     EZ_ACCESSOR_PROPERTY("MaxScreenSize", GetMaxScreenSize, SetMaxScreenSize)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(64.0f), new ezSuffixAttribute(" px")),
+    EZ_MEMBER_PROPERTY("AspectRatio", m_fAspectRatio)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES
@@ -38,6 +60,7 @@ ezSpriteComponent::ezSpriteComponent()
   : m_Color(ezColor::White)
   , m_fSize(1.0f)
   , m_fMaxScreenSize(64.0f)
+  , m_fAspectRatio(1.0f)
 {
 }
 
@@ -63,7 +86,7 @@ void ezSpriteComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) con
   const ezUInt32 uiTextureIDHash = m_hTexture.GetResourceIDHash();
 
   // Generate batch id from mode and texture
-  ezUInt32 data[] = { 0, uiTextureIDHash };
+  ezUInt32 data[] = { m_BlendMode, uiTextureIDHash };
   ezUInt32 uiBatchId = ezHashing::MurmurHash(data, sizeof(data));
 
   ezSpriteRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezSpriteRenderData>(GetOwner(), uiBatchId);
@@ -73,6 +96,8 @@ void ezSpriteComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) con
     pRenderData->m_hTexture = m_hTexture;
     pRenderData->m_fSize = m_fSize;
     pRenderData->m_fMaxScreenSize = m_fMaxScreenSize;
+    pRenderData->m_fAspectRatio = m_fAspectRatio;
+    pRenderData->m_BlendMode = m_BlendMode;
     pRenderData->m_color = m_Color;
     pRenderData->m_texCoordScale = ezVec2(1.0f);
     pRenderData->m_texCoordOffset = ezVec2(0.0f);
@@ -91,7 +116,7 @@ void ezSpriteComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) con
   }
 
   // Sort by mode and then by texture
-  ezUInt32 uiSortingKey = (0u << 31) | (uiTextureIDHash & 0x7FFFFFFF);
+  ezUInt32 uiSortingKey = (m_BlendMode << 30) | (uiTextureIDHash & 0x3FFFFFFF);
   msg.m_pExtractedRenderData->AddRenderData(pRenderData, category, uiSortingKey);
 }
 
@@ -149,12 +174,12 @@ const char* ezSpriteComponent::GetTextureFile() const
   return m_hTexture.GetResourceID();
 }
 
-void ezSpriteComponent::SetColor(ezColorGammaUB color)
+void ezSpriteComponent::SetColor(ezColor color)
 {
   m_Color = color;
 }
 
-ezColorGammaUB ezSpriteComponent::GetColor() const
+ezColor ezSpriteComponent::GetColor() const
 {
   return m_Color;
 }
@@ -211,4 +236,3 @@ ezSpriteComponentPatch_1_2 g_ezSpriteComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_SpriteComponent);
-

@@ -6,8 +6,25 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 
 struct ezSetColorMessage;
-
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
+
+struct ezSpriteBlendMode
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    Masked,
+    Transparent,
+    Additive,
+
+    Default = Masked
+  };
+
+  static ezTempHashedString GetPermutationValue(Enum blendMode);
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSpriteBlendMode);
 
 class EZ_RENDERERCORE_DLL ezSpriteRenderData : public ezRenderData
 {
@@ -18,7 +35,10 @@ public:
 
   float m_fSize;
   float m_fMaxScreenSize;
-  ezColorLinearUB m_color;
+  float m_fAspectRatio;
+  ezEnum<ezSpriteBlendMode> m_BlendMode;
+
+  ezColor m_color;
 
   ezVec2 m_texCoordScale;
   ezVec2 m_texCoordOffset;
@@ -50,8 +70,8 @@ public:
   void SetTextureFile(const char* szFile);
   const char* GetTextureFile() const;
 
-  void SetColor(ezColorGammaUB color);
-  ezColorGammaUB GetColor() const;
+  void SetColor(ezColor color);
+  ezColor GetColor() const;
 
   void SetSize(float fSize);
   float GetSize() const;
@@ -64,9 +84,11 @@ public:
 private:
 
   ezTexture2DResourceHandle m_hTexture;
-  ezColorGammaUB m_Color;
+  ezEnum<ezSpriteBlendMode> m_BlendMode;
+  ezColor m_Color;
 
   float m_fSize;
   float m_fMaxScreenSize;
+  float m_fAspectRatio;
 };
 

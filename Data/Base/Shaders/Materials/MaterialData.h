@@ -15,4 +15,5 @@ struct ezMaterialData
   float3 emissiveColor;
   float roughness;
   float occlusion;
+  float opacity;
 };

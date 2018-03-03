@@ -387,11 +387,12 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
       float2 baseAtlasScale = RG16FToFloat2(decalData.baseAtlasScale);
       float2 baseAtlasOffset = RG16FToFloat2(decalData.baseAtlasOffset);
 
-      float4 decalBaseColor = float4(RG16FToFloat2(decalData.colorRG), RG16FToFloat2(decalData.colorBA));
+      float4 decalBaseColor = RGBA16FToFloat4(decalData.colorRG, decalData.colorBA);
       decalBaseColor *= DecalAtlasBaseColorTexture.SampleLevel(LinearClampSampler, decalPosition.xy * baseAtlasScale + baseAtlasOffset, 0);
       fade *= decalBaseColor.a;
 
       matData.diffuseColor = lerp(matData.diffuseColor, decalBaseColor.xyz, fade);
+      matData.opacity = max(matData.opacity, fade);
       //matData.specularColor = lerp(matData.specularColor, 0.04f, fade);
 
       //matData.worldNormal = normalize(lerp(matData.worldNormal, matData.vertexNormal, fade));
@@ -400,22 +401,25 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
   }
 }
 
+float GetFogAmount(float3 worldPosition)
+{
+  float3 cameraToWorldPos = worldPosition - GetCameraPosition();
+  float fogDensity = FogDensity;
+
+  if (FogHeightFalloff != 0.0)
+  {
+    float range = FogHeightFalloff * cameraToWorldPos.z;
+    fogDensity *= saturate((exp(FogHeightFalloff * worldPosition.z + FogHeight) - FogDensityAtCameraPos) / range);
+  }
+
+  return saturate(exp(-fogDensity * length(cameraToWorldPos)));
+}
+
 float3 ApplyFog(float3 color, float3 worldPosition)
 {
   if (FogDensity > 0.0)
   {
-    float3 cameraToWorldPos = worldPosition - GetCameraPosition();
-    float fogDensity = FogDensity;
-
-    if (FogHeightFalloff != 0.0)
-    {
-      float range = FogHeightFalloff * cameraToWorldPos.z;
-      fogDensity *= saturate((exp(FogHeightFalloff * worldPosition.z + FogHeight) - FogDensityAtCameraPos) / range);
-    }
-
-    float fogAmount = saturate(exp(-fogDensity * length(cameraToWorldPos)));
-
-    color = lerp(FogColor.xyz, color, fogAmount);
+    color = lerp(FogColor.xyz, color, GetFogAmount(worldPosition));
   }
 
   return color;

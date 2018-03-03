@@ -144,7 +144,7 @@ namespace ezMath
 
   EZ_ALWAYS_INLINE float Log2(float f)
   {
-    return log10f(f) / log10f (2.0f);
+    return log2f(f);
   }
 
   EZ_ALWAYS_INLINE float Log10(float f)
@@ -159,7 +159,7 @@ namespace ezMath
 
   EZ_ALWAYS_INLINE float Pow2(float f)
   {
-    return powf(2.0f, f);
+    return exp2f(f);
   }
 
   EZ_ALWAYS_INLINE float Pow(float base, float exp)

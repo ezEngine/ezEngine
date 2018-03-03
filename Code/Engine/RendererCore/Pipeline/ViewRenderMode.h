@@ -31,7 +31,7 @@ struct EZ_RENDERERCORE_DLL ezViewRenderMode
     Default = None
   };
 
-  static ezTempHashedString GetRenderPassPermutationValue(Enum renderMode);
+  static ezTempHashedString GetPermutationValue(Enum renderMode);
   static int GetRenderPassForShader(Enum renderMode);
   static void GetDebugText(Enum renderMode, ezStringBuilder& out_sDebugText);
 };

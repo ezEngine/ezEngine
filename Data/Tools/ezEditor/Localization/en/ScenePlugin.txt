@@ -165,3 +165,6 @@ ezGreyBoxShape::ArchX;Arch X
 ezGreyBoxShape::ArchY;Arch Y
 ezGreyBoxShape::SpiralStairs;Spiral Stairs
 ezGreyBoxComponent;Grey Boxing
+ezSpriteBlendMode::Masked;Masked
+ezSpriteBlendMode::Transparent;Transparent
+ezSpriteBlendMode::Additive;Additive

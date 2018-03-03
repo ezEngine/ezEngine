@@ -52,7 +52,7 @@ private:
   ezUInt8 m_GammaBlue;
 
   ezUInt8 m_Alpha;
-  ezUInt32 m_uiExposureValue;
+  float m_fExposureValue;
 
   ezColor m_CurrentColor;
 

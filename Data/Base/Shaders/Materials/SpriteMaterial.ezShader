@@ -3,15 +3,17 @@ ALL
 
 [PERMUTATIONS]
 
+BLEND_MODE
 RENDER_PASS
 MSAA
 TWO_SIDED = FALSE
+FLIP_WINDING = FALSE
 CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
 
 [RENDERSTATE]
 
-DepthTest = true
-DepthWrite = true
+#include <Shaders/Materials/MaterialState.h>
+WireFrame = false
 
 [VERTEXSHADER]
 
@@ -34,11 +36,15 @@ DepthWrite = true
 struct SpriteData
 {
   float3 worldSpacePosition;
-  uint size;
-  uint color;
+  float size;
+  float maxScreenSize;
+  float aspectRatio;
+  uint colorRG;
+  uint colorBA;
   uint texCoordScale;
   uint texCoordOffset;
   uint gameObjectID;
+  uint reserved;
 };
 
 StructuredBuffer<SpriteData> spriteData;
@@ -70,15 +76,15 @@ VS_OUT main(uint VertexID : SV_VertexID)
   float distance = screenPosition.w;
   float2 scale = mul(GetCameraToScreenMatrix(), float4(1.0, 1.0, distance, 1.0)).xy;
 
-  float2 size = RG16FToFloat2(data.size);
-  scale *= size.x;
+  scale *= data.size;
 
-  if (size.y > 0.0)
+  if (data.maxScreenSize > 0.0)
   {
-    float2 maxScreenSize = (size.y * distance * 2.0) * ViewportSize.zw;
+    float2 maxScreenSize = (data.maxScreenSize * distance * 2.0) * ViewportSize.zw;
     scale = min(scale, maxScreenSize);
   }
-
+  
+  scale.x *= data.aspectRatio;
   screenPosition.xy += vertexPosition * scale;
 
   float2 texCoordScale = RG16FToFloat2(data.texCoordScale);
@@ -87,7 +93,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
   VS_OUT Output;
   Output.Position = screenPosition;
   Output.TexCoords = texCoords * texCoordScale + texCoordOffset;
-  Output.Color = RGBA8ToFloat4(data.color);
+  Output.Color = RGBA16FToFloat4(data.colorRG, data.colorBA);
 
   #if defined(USE_GAME_OBJECT_ID)
     Output.GameObjectID = data.gameObjectID;
@@ -112,7 +118,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
   #define CUSTOM_INTERPOLATOR uint GameObjectID : GAME_OBJECT_ID;
 #endif
 
-#if MSAA
+#if BLEND_MODE == BLEND_MODE_MASKED && MSAA
   #define USE_ALPHA_TEST_SUPER_SAMPLING
 #endif
 
@@ -136,8 +142,13 @@ SamplerState SpriteTexture_AutoSampler;
 
 float GetOpacity(PS_IN Input)
 {
-  float alpha = SpriteTexture.Sample(SpriteTexture_AutoSampler, Input.TexCoords.xy).a * Input.Color.a;
-  return alpha - 0.5;
+  float opacity = SpriteTexture.Sample(SpriteTexture_AutoSampler, Input.TexCoords.xy).a * Input.Color.a;
+  
+  #if BLEND_MODE == BLEND_MODE_MASKED
+    return opacity - 0.5;
+  #else
+    return opacity;
+  #endif
 }
 
 PS_OUT main(PS_IN Input)

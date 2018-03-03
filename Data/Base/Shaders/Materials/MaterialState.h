@@ -50,7 +50,7 @@ DepthTestFunc = CompareFunc_LessEqual
     BlendingEnabled0 = true
     BlendOp0 = BlendOp_Add
     DestBlend0 = Blend_One
-    SourceBlend0 = Blend_One
+    SourceBlend0 = Blend_SrcAlpha
 
   #elif BLEND_MODE == BLEND_MODE_MODULATE
     BlendingEnabled0 = true

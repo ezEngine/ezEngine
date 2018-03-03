@@ -295,15 +295,12 @@ public:
   /// \brief Returns 1 for an LDR color (all components < 1). Otherwise the value of the largest component.
   float ComputeHdrMultiplier() const;
 
-  /// \brief Computes the next larger power-of-two multiplier. 1 for LDR colors, 2, 4, 8, etc. for HDR colors.
-  ezUInt32 ComputeHdrMultiplierPOT() const;
-
-  /// \brief Returns the base-2 logarithm of ComputeHdrMultiplierPOT().
+  /// \brief Returns the base-2 logarithm of ComputeHdrMultiplier().
   /// 0 for LDR colors, +1, +2, etc. for HDR colors.
-  ezUInt32 ComputeHdrExposureValue() const;
+  float ComputeHdrExposureValue() const;
 
   /// \brief Raises 2 to the power \a ev and multiplies RGB with that factor.
-  void ApplyHdrExposureValue(ezUInt32 ev);
+  void ApplyHdrExposureValue(float ev);
 
   /// \brief If this is an HDR color, the largest component value is used to normalize RGB to LDR range. Alpha is unaffected.
   void NormalizeToLdrRange();

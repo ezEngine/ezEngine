@@ -32,6 +32,7 @@ ezQtColorDialog::ezQtColorDialog(const ezColor& initial, QWidget* parent)
   m_bAlpha = false;
   m_bHDR = false;
 
+  m_fExposureValue = initial.ComputeHdrExposureValue();
   ComputeRgbAndHsv(initial);
 
   {
@@ -114,8 +115,8 @@ void ezQtColorDialog::ApplyColor()
   ezQtScopedBlockSignals _3(ColorRange, ColorArea);
 
   SpinAlpha->setValue(m_Alpha);
-  SliderExposure->setValue(m_uiExposureValue);
-  LineExposure->setText(QString("+%1").arg(m_uiExposureValue));
+  SliderExposure->setValue(m_fExposureValue * 100.0f);
+  LineExposure->setText(QString("+%1").arg(m_fExposureValue, 0, 'f', 2));
 
   SpinRed->setValue(m_GammaRed);
   SpinGreen->setValue(m_GammaGreen);
@@ -174,7 +175,7 @@ void ezQtColorDialog::ChangedAlpha()
 
 void ezQtColorDialog::ChangedExposure()
 {
-  m_uiExposureValue = SliderExposure->value();
+  m_fExposureValue = SliderExposure->value() / 100.0f;
 
   RecomputeHDR();
   ApplyColor();
@@ -258,9 +259,10 @@ void ezQtColorDialog::ExtractColorHSV()
 
 void ezQtColorDialog::ComputeRgbAndHsv(const ezColor& color)
 {
-  m_uiExposureValue = color.ComputeHdrExposureValue();
+  ezColor ldrColor = color;
+  ldrColor.NormalizeToLdrRange();
 
-  ezColorGammaUB gamma = color;
+  ezColorGammaUB gamma = ldrColor;
   m_GammaRed = gamma.r;
   m_GammaGreen = gamma.g;
   m_GammaBlue = gamma.b;
@@ -293,11 +295,7 @@ void ezQtColorDialog::RecomputeHSV()
 
 void ezQtColorDialog::RecomputeHDR()
 {
-  //ezColorGammaUB gamma(m_GammaRed, m_GammaGreen, m_GammaBlue, m_Alpha);
-  //m_CurrentColor = gamma;
-  //m_CurrentColor.ApplyHdrExposureValue(m_uiExposureValue);
-
-  // not sure whether this is better than just scaling RGB, no test data yet
-  m_CurrentColor.SetHSV(m_fHue, m_fSaturation, m_fValue * (1U << m_uiExposureValue));
+  m_CurrentColor.SetHSV(m_fHue, m_fSaturation, m_fValue);
+  m_CurrentColor.ApplyHdrExposureValue(m_fExposureValue);
   m_CurrentColor.a = ezMath::ColorByteToFloat(m_Alpha);
 }

@@ -485,7 +485,7 @@
        </item>
       </layout>
      </item>
-     <item row="2" column="0">
+     <item row="2" column="0" colspan="2">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <widget class="QLabel" name="LabelExposure">
@@ -497,7 +497,7 @@
        <item>
         <widget class="QSlider" name="SliderExposure">
          <property name="maximum">
-          <number>20</number>
+          <number>2000</number>
          </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -514,7 +514,7 @@
          </property>
          <property name="maximumSize">
           <size>
-           <width>30</width>
+           <width>40</width>
            <height>16777215</height>
           </size>
          </property>

@@ -11,14 +11,18 @@
 struct EZ_ALIGN_16(SpriteData)
 {
   ezVec3 m_worldSpacePosition;
-  ezUInt32 m_size;
-  ezColorLinearUB m_color;
+  float m_size;
+  float m_maxScreenSize;
+  float m_aspectRatio;
+  ezUInt32 m_colorRG;
+  ezUInt32 m_colorBA;
   ezUInt32 m_texCoordScale;
   ezUInt32 m_texCoordOffset;
   ezUInt32 m_gameObjectID;
+  ezUInt32 m_reserved;
 };
 
-EZ_CHECK_AT_COMPILETIME(sizeof(SpriteData) == 32);
+EZ_CHECK_AT_COMPILETIME(sizeof(SpriteData) == 48);
 
 namespace
 {
@@ -70,6 +74,8 @@ void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext,
   renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::VertexShader, "spriteData", pDevice->GetDefaultResourceView(hSpriteData));
   renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "SpriteTexture", pRenderData->m_hTexture);
 
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLEND_MODE", ezSpriteBlendMode::GetPermutationValue(pRenderData->m_BlendMode));
+
   ezUInt32 uiStartIndex = 0;
   while (uiStartIndex < batch.GetCount())
   {
@@ -119,11 +125,15 @@ void ezSpriteRenderer::FillSpriteData(const ezRenderDataBatch& batch, ezUInt32 u
     auto& spriteData = m_spriteData.ExpandAndGetRef();
 
     spriteData.m_worldSpacePosition = pRenderData->m_GlobalTransform.m_vPosition;
-    spriteData.m_size = Float2ToRG16F(ezVec2(pRenderData->m_fSize, pRenderData->m_fMaxScreenSize));
-    spriteData.m_color = pRenderData->m_color;
+    spriteData.m_size = pRenderData->m_fSize;
+    spriteData.m_maxScreenSize = pRenderData->m_fMaxScreenSize;
+    spriteData.m_aspectRatio = pRenderData->m_fAspectRatio;
+    spriteData.m_colorRG = Float2ToRG16F(ezVec2(pRenderData->m_color.r, pRenderData->m_color.g));
+    spriteData.m_colorBA = Float2ToRG16F(ezVec2(pRenderData->m_color.b, pRenderData->m_color.a));
     spriteData.m_texCoordScale = Float2ToRG16F(pRenderData->m_texCoordScale);
     spriteData.m_texCoordOffset = Float2ToRG16F(pRenderData->m_texCoordOffset);
     spriteData.m_gameObjectID = pRenderData->m_uiUniqueID;
+    spriteData.m_reserved = 0;
   }
 }
 

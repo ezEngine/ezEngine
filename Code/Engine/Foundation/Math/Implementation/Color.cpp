@@ -217,21 +217,14 @@ float ezColor::ComputeHdrMultiplier() const
   return ezMath::Max(1.0f, r, g, b);
 }
 
-ezUInt32 ezColor::ComputeHdrMultiplierPOT() const
+float ezColor::ComputeHdrExposureValue() const
 {
-  const float mult = ComputeHdrMultiplier();
-  return (ezUInt32)ezMath::PowerOfTwo_Ceil((ezUInt32)mult);
+  return ezMath::Log2(ComputeHdrMultiplier());
 }
 
-ezUInt32 ezColor::ComputeHdrExposureValue() const
+void ezColor::ApplyHdrExposureValue(float ev)
 {
-  const ezUInt32 mult = ComputeHdrMultiplierPOT();
-  return ezMath::Log2i(mult);
-}
-
-void ezColor::ApplyHdrExposureValue(ezUInt32 ev)
-{
-  const float factor = (float)(1U << ev);
+  const float factor = ezMath::Pow2(ev);
   r *= factor;
   g *= factor;
   b *= factor;

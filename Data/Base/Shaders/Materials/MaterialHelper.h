@@ -109,6 +109,12 @@ ezMaterialData FillMaterialData(PS_IN Input)
   #else
     matData.occlusion = 1.0f;
   #endif
+  
+  #if BLEND_MODE != BLEND_MODE_OPAQUE && BLEND_MODE != BLEND_MODE_MASKED
+    matData.opacity = GetOpacity(Input);
+  #else
+    matData.opacity = 1.0f;
+  #endif
 
   return matData;
 }

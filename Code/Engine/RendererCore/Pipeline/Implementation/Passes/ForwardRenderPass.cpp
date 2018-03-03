@@ -100,7 +100,7 @@ void ezForwardRenderPass::SetupPermutationVars(const ezRenderViewContext& render
   ezTempHashedString sRenderPass("RENDER_PASS_FORWARD");
   if (renderViewContext.m_pViewData->m_ViewRenderMode != ezViewRenderMode::None)
   {
-    sRenderPass = ezViewRenderMode::GetRenderPassPermutationValue(renderViewContext.m_pViewData->m_ViewRenderMode);
+    sRenderPass = ezViewRenderMode::GetPermutationValue(renderViewContext.m_pViewData->m_ViewRenderMode);
   }
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", sRenderPass);

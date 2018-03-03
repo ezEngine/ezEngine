@@ -50,6 +50,11 @@ float2 RG16FToFloat2(uint x)
   return result;
 }
 
+float4 RGBA16FToFloat4(uint rg, uint ba)
+{
+  return float4(RG16FToFloat2(rg), RG16FToFloat2(ba));
+}
+
 float GetLuminance(float3 color)
 {
   return dot(color, float3(0.2126, 0.7152, 0.0722));

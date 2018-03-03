@@ -41,28 +41,16 @@ PS_OUT main(PS_IN Input)
 
   PS_OUT Output;
 
-#if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
-  Output.Coverage = 1.0;
-#endif
+  #if defined(USE_ALPHA_TEST)
+    uint coverage = CalculateCoverage(Input);
+    if (coverage == 0)
+    {
+      discard;
+    }
 
-  float opacity = 1.0f;
-
-  #if BLEND_MODE == BLEND_MODE_MASKED
-
-    #if defined(USE_ALPHA_TEST)
-      uint coverage = CalculateCoverage(Input);
-      if (coverage == 0)
-      {
-        discard;
-      }
-
-      #if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
-        Output.Coverage = coverage;
-      #endif
+    #if defined(USE_ALPHA_TEST_SUPER_SAMPLING)
+      Output.Coverage = coverage;
     #endif
-
-  #elif BLEND_MODE != BLEND_MODE_OPAQUE && BLEND_MODE != BLEND_MODE_MASKED
-    opacity = GetOpacity(Input);
   #endif
 
   ezMaterialData matData = FillMaterialData(Input);
@@ -91,16 +79,20 @@ PS_OUT main(PS_IN Input)
   litColor += matData.emissiveColor;
 
   #if RENDER_PASS == RENDER_PASS_FORWARD
-    #if SHADING_MODE == SHADING_MODE_LIT
+    #if BLEND_MODE == BLEND_MODE_OPAQUE || BLEND_MODE == BLEND_MODE_MASKED
       litColor = ApplyFog(litColor, matData.worldPosition);
+    #elif BLEND_MODE == BLEND_MODE_MODULATE
+      litColor = lerp(1.0, litColor, GetFogAmount(matData.worldPosition));
+    #else
+      matData.opacity *= GetFogAmount(matData.worldPosition);
     #endif
 
-    Output.Color = float4(litColor, opacity);
+    Output.Color = float4(litColor, matData.opacity);
 
   #elif RENDER_PASS == RENDER_PASS_EDITOR
     if (RenderPass == EDITOR_RENDER_PASS_LIT_ONLY)
     {
-      Output.Color =  float4(SrgbToLinear(litColor * Exposure), opacity);
+      Output.Color = float4(SrgbToLinear(litColor * Exposure), matData.opacity);
     }
     else if (RenderPass == EDITOR_RENDER_PASS_LIGHT_COUNT || RenderPass == EDITOR_RENDER_PASS_DECAL_COUNT)
     {
@@ -148,40 +140,40 @@ PS_OUT main(PS_IN Input)
     }
     else if (RenderPass == EDITOR_RENDER_PASS_DIFFUSE_COLOR)
     {
-      Output.Color = float4(matData.diffuseColor, opacity);
+      Output.Color = float4(matData.diffuseColor, matData.opacity);
     }
     else if (RenderPass == EDITOR_RENDER_PASS_DIFFUSE_COLOR_RANGE)
     {
-      Output.Color = float4(matData.diffuseColor, opacity);
+      Output.Color = float4(matData.diffuseColor, matData.opacity);
 
       float luminance = GetLuminance(matData.diffuseColor);
       if (luminance < 0.017) // 40 srgb
       {
-        Output.Color = float4(1, 0, 1, opacity);
+        Output.Color = float4(1, 0, 1, matData.opacity);
       }
       else if (luminance > 0.9) // 243 srgb
       {
-        Output.Color = float4(0, 1, 0, opacity);
+        Output.Color = float4(0, 1, 0, matData.opacity);
       }
     }
     else if (RenderPass == EDITOR_RENDER_PASS_SPECULAR_COLOR)
     {
-      Output.Color = float4(matData.specularColor, opacity);
+      Output.Color = float4(matData.specularColor, matData.opacity);
     }
     else if (RenderPass == EDITOR_RENDER_PASS_EMISSIVE_COLOR)
     {
-      Output.Color = float4(matData.emissiveColor, opacity);
+      Output.Color = float4(matData.emissiveColor, matData.opacity);
     }
     else if (RenderPass == EDITOR_RENDER_PASS_ROUGHNESS)
     {
-      Output.Color = float4(SrgbToLinear(matData.roughness), opacity);
+      Output.Color = float4(SrgbToLinear(matData.roughness), matData.opacity);
     }
     else if (RenderPass == EDITOR_RENDER_PASS_OCCLUSION)
     {
       float ssao = SampleSSAO(Input.Position.xyw);
       float occlusion = matData.occlusion * ssao;
 
-      Output.Color = float4(SrgbToLinear(occlusion), opacity);
+      Output.Color = float4(SrgbToLinear(occlusion), matData.opacity);
     }
     else if (RenderPass == EDITOR_RENDER_PASS_DEPTH)
     {
@@ -213,7 +205,7 @@ PS_OUT main(PS_IN Input)
   #elif RENDER_PASS == RENDER_PASS_DEPTH_ONLY
 
   #else
-    Output.Color = float4(litColor, opacity);
+    Output.Color = float4(litColor, matData.opacity);
     #error "RENDER_PASS uses undefined value."
   #endif
 

@@ -84,14 +84,22 @@ void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, 
   ShapeIconInfo* pShapeIconInfo = nullptr;
   if (m_ShapeIconInfos.TryGetValue(pRtti, pShapeIconInfo))
   {
+    ezEnum<ezSpriteBlendMode> blendMode = ezSpriteBlendMode::Masked;
+
     const ezUInt32 uiTextureIDHash = pShapeIconInfo->m_hTexture.GetResourceIDHash();
-    ezSpriteRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezSpriteRenderData>(pObject, uiTextureIDHash);
+
+    ezUInt32 data[] = { blendMode, uiTextureIDHash };
+    ezUInt32 uiBatchId = ezHashing::MurmurHash(data, sizeof(data));
+
+    ezSpriteRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezSpriteRenderData>(pObject, uiBatchId);
     {
       pRenderData->m_GlobalTransform = pObject->GetGlobalTransform();
       pRenderData->m_GlobalBounds = pObject->GetGlobalBounds();
       pRenderData->m_hTexture = pShapeIconInfo->m_hTexture;
       pRenderData->m_fSize = m_fSize;
       pRenderData->m_fMaxScreenSize = m_fMaxScreenSize;
+      pRenderData->m_fAspectRatio = 1.0f;
+      pRenderData->m_BlendMode = blendMode;
       pRenderData->m_texCoordScale = ezVec2(1.0f);
       pRenderData->m_texCoordOffset = ezVec2(0.0f);
       pRenderData->m_uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(pComponent);
@@ -110,10 +118,11 @@ void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, 
         pRenderData->m_color = ezColor::White;
       }
 
-      pRenderData->m_color.a = 255;
+      pRenderData->m_color.a = 1.0f;
     }
 
-    pExtractedRenderData->AddRenderData(pRenderData, category, uiTextureIDHash);
+    ezUInt32 uiSortingKey = (blendMode << 30) | (uiTextureIDHash & 0x3FFFFFFF);
+    pExtractedRenderData->AddRenderData(pRenderData, category, uiSortingKey);
   }
 }
 
