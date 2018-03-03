@@ -10,11 +10,15 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdQuat)
     ezSimdQuat vDefCtor;
     EZ_TEST_BOOL(vDefCtor.IsNaN());
 #else
+
+#if !EZ_ENABLED(EZ_COMPILER_GCC)
     // Placement new of the default constructor should not have any effect on the previous data.
     float EZ_ALIGN_16(testBlock[4]) = { 1, 2, 3, 4 };
     ezSimdQuat* pDefCtor = ::new ((void*)&testBlock[0]) ezSimdQuat;
     EZ_TEST_BOOL(pDefCtor->m_v.x() == 1.0f && pDefCtor->m_v.y() == 2.0f &&
       pDefCtor->m_v.z() == 3.0f && pDefCtor->m_v.w() == 4.0f);
+#endif
+
 #endif
 
     // Make sure the class didn't accidentally change in size.
