@@ -15,33 +15,33 @@ public:
   static ezTime Now(); // [tested]
 
   /// \brief Creates an instance of ezTime that was initialized from nanoseconds.
-  constexpr static ezTime Nanoseconds(double fNanoseconds)    { return ezTime(fNanoseconds * 0.000000001); }
+  EZ_ALWAYS_INLINE constexpr static ezTime Nanoseconds(double fNanoseconds)    { return ezTime(fNanoseconds * 0.000000001); }
 
   /// \brief Creates an instance of ezTime that was initialized from microseconds.
-  constexpr static ezTime Microseconds(double fMicroseconds)  { return ezTime(fMicroseconds * 0.000001); }
+  EZ_ALWAYS_INLINE constexpr static ezTime Microseconds(double fMicroseconds)  { return ezTime(fMicroseconds * 0.000001); }
 
   /// \brief Creates an instance of ezTime that was initialized from milliseconds.
-  constexpr static ezTime Milliseconds(double fMilliseconds)  { return ezTime(fMilliseconds * 0.001); }
+  EZ_ALWAYS_INLINE constexpr static ezTime Milliseconds(double fMilliseconds)  { return ezTime(fMilliseconds * 0.001); }
 
   /// \brief Creates an instance of ezTime that was initialized from seconds.
-  constexpr static ezTime Seconds(double fSeconds)            { return ezTime(fSeconds); }
+  EZ_ALWAYS_INLINE constexpr static ezTime Seconds(double fSeconds)            { return ezTime(fSeconds); }
 
   /// \brief Creates an instance of ezTime that was initialized with zero.
-  constexpr static ezTime Zero() { return ezTime(0.0); }
+  EZ_ALWAYS_INLINE constexpr static ezTime Zero() { return ezTime(0.0); }
 
   EZ_DECLARE_POD_TYPE();
 
   /// \brief The default constructor sets the time to zero.
-  constexpr ezTime() : m_fTime(0.0) { }
+  EZ_ALWAYS_INLINE constexpr ezTime() : m_fTime(0.0) { }
 
   /// \brief Sets the time value to zero.
   void SetZero();
 
   /// \brief Returns true if the stored time is exactly zero. That typically means the value was not changed from the default.
-  constexpr bool IsZero() const { return m_fTime == 0.0; }
+  EZ_ALWAYS_INLINE constexpr bool IsZero() const { return m_fTime == 0.0; }
 
   /// \brief Returns true if the stored time is zero or negative.
-  constexpr bool IsZeroOrLess() const { return m_fTime <= 0.0; }
+  EZ_ALWAYS_INLINE constexpr bool IsZeroOrLess() const { return m_fTime <= 0.0; }
 
   /// \brief Returns the time as a float value (in seconds).
   ///

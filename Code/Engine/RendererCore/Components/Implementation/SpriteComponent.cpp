@@ -30,7 +30,7 @@ ezTempHashedString ezSpriteBlendMode::GetPermutationValue(Enum blendMode)
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpriteRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 2, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -126,22 +126,40 @@ void ezSpriteComponent::SerializeComponent(ezWorldWriter& stream) const
   ezStreamWriter& s = stream.GetStream();
 
   s << m_hTexture;
-  s << m_Color;
   s << m_fSize;
   s << m_fMaxScreenSize;
+
+  // Version 3
+  s << m_Color; // HDR now
+  s << m_fAspectRatio;
+  s << m_BlendMode;
 }
 
 void ezSpriteComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   ezStreamReader& s = stream.GetStream();
 
   s >> m_hTexture;
-  s >> m_Color;
+
+  if (uiVersion < 3)
+  {
+    ezColorGammaUB color;
+    s >> color;
+    m_Color = color;
+  }
+
   s >> m_fSize;
   s >> m_fMaxScreenSize;
+
+  if (uiVersion >= 3)
+  {
+    s >> m_Color;
+    s >> m_fAspectRatio;
+    s >> m_BlendMode;
+  }
 }
 
 void ezSpriteComponent::SetTexture(const ezTexture2DResourceHandle& hTexture)

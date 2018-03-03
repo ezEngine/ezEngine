@@ -42,8 +42,6 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_IO_FileSystem_Implementation_FileReader);
   EZ_STATICLINK_REFERENCE(Foundation_IO_FileSystem_Implementation_FileSystem);
   EZ_STATICLINK_REFERENCE(Foundation_IO_FileSystem_Implementation_FileWriter);
-  EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_ArchiveReader);
-  EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_ArchiveWriter);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_ChunkStream);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_CompressedStream);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_DependencyFile);
