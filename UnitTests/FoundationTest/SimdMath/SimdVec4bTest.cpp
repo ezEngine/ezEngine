@@ -5,7 +5,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4b)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
-#if !EZ_ENABLED(EZ_COMPILER_GCC)
+#if EZ_DISABLED(EZ_COMPILER_GCC)
     // Placement new of the default constructor should not have any effect on the previous data.
     float EZ_ALIGN_16(testBlock[4]) = { 1, 2, 3, 4 };
     ezSimdVec4b* pDefCtor = ::new ((void*)&testBlock[0]) ezSimdVec4b;
