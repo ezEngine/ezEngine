@@ -1191,7 +1191,7 @@ bool ezAssetCurator::GetNextAssetToUpdate(ezUuid& guid, ezStringBuilder& out_sAb
     guid = it.Key();
 
     auto pAssetInfo = GetAssetInfo(guid);
-    EZ_ASSERT_DEBUG(pAssetInfo != nullptr, "Non-exitent assets should not have a tracked transform state.");
+    EZ_ASSERT_DEBUG(pAssetInfo != nullptr, "Non-existent assets should not have a tracked transform state.");
     out_sAbsPath = GetAssetInfo(guid)->m_sAbsolutePath;
     return true;
   }

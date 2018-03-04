@@ -30,6 +30,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimationTrackGroup, 1, ezRTTIDefaultA
     EZ_MEMBER_PROPERTY("FPS", m_uiFramesPerSecond)->AddAttributes(new ezDefaultValueAttribute(60)),
     EZ_MEMBER_PROPERTY("Duration", m_uiCurveDuration)->AddAttributes(new ezDefaultValueAttribute(480)),
     EZ_ARRAY_MEMBER_PROPERTY("Tracks", m_Tracks)->AddFlags(ezPropertyFlags::PointerOwner),
+    EZ_MEMBER_PROPERTY("EventTrack", m_EventTrack),
   }
   EZ_END_PROPERTIES
 }
@@ -228,6 +229,8 @@ ezStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& str
       return lhs.m_sComponentType < rhs.m_sComponentType;
     });
   }
+
+  pProp->m_EventTrack.ConvertToRuntimeData(desc.m_EventTrack);
 
   desc.Save(stream);
 

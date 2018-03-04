@@ -86,11 +86,14 @@ bool ezPipeChannel_win::CreatePipe(const char* szAddress)
 
 void ezPipeChannel_win::AddToMessageLoop(ezMessageLoop* pMsgLoop)
 {
-  ezMessageLoop_win* pMsgLoopWin = static_cast<ezMessageLoop_win*>(pMsgLoop);
+  if (m_PipeHandle != INVALID_HANDLE_VALUE)
+  {
+    ezMessageLoop_win* pMsgLoopWin = static_cast<ezMessageLoop_win*>(pMsgLoop);
 
-  ULONG_PTR key = reinterpret_cast<ULONG_PTR>(this);
-  HANDLE port = CreateIoCompletionPort(m_PipeHandle, pMsgLoopWin->GetPort(), key, 1);
-  EZ_ASSERT_DEBUG(pMsgLoopWin->GetPort() == port, "Failed to CreateIoCompletionPort: {0}", ezArgErrorCode(GetLastError()));
+    ULONG_PTR key = reinterpret_cast<ULONG_PTR>(this);
+    HANDLE port = CreateIoCompletionPort(m_PipeHandle, pMsgLoopWin->GetPort(), key, 1);
+    EZ_ASSERT_DEBUG(pMsgLoopWin->GetPort() == port, "Failed to CreateIoCompletionPort: {0}", ezArgErrorCode(GetLastError()));
+  }
 }
 
 void ezPipeChannel_win::InternalConnect()

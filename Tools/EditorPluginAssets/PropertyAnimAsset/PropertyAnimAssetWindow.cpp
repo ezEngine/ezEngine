@@ -15,6 +15,7 @@
 #include <EditorFramework/Panels/GameObjectPanel/GameObjectPanel.moc.h>
 #include <EditorFramework/Panels/GameObjectPanel/GameObjectModel.moc.h>
 #include <GuiFoundation/Widgets/ColorGradientEditorWidget.moc.h>
+#include <GuiFoundation/Widgets/EventTrackEditorWidget.moc.h>
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimViewWidget.moc.h>
 #include <EditorFramework/EditTools/EditTool.h>
@@ -158,6 +159,19 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     m_pColorGradientPanel->setWidget(m_pGradientEditor);
 
     addDockWidget(Qt::DockWidgetArea::BottomDockWidgetArea, m_pColorGradientPanel);
+  }
+
+  // Event Track Panel
+  {
+    m_pEventTrackPanel = new ezQtDocumentPanel(this);
+    m_pEventTrackPanel->setObjectName("PropertyAnimEventTrackDockWidget");
+    m_pEventTrackPanel->setWindowTitle("Event Track");
+    m_pEventTrackPanel->show();
+
+    m_pEventTrackEditor = new ezQtEventTrackEditorWidget(m_pEventTrackPanel);
+    m_pEventTrackPanel->setWidget(m_pEventTrackEditor);
+
+    addDockWidget(Qt::DockWidgetArea::BottomDockWidgetArea, m_pEventTrackPanel);
   }
 
   // Time Scrubber
@@ -309,6 +323,7 @@ void ezQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler(const ez
     m_pScrubberToolbar->SetScrubberPosition(e.m_pDocument->GetScrubberPosition());
     m_pCurveEditor->SetScrubberPosition(e.m_pDocument->GetScrubberPosition());
     m_pGradientEditor->SetScrubberPosition(e.m_pDocument->GetScrubberPosition());
+    m_pEventTrackEditor->SetScrubberPosition(e.m_pDocument->GetScrubberPosition());
   }
   else if (e.m_Type == ezPropertyAnimAssetDocumentEvent::Type::PlaybackChanged)
   {

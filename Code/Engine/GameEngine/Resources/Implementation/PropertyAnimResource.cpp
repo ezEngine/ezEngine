@@ -207,8 +207,5 @@ void ezPropertyAnimResourceDescriptor::Load(ezStreamReader& stream)
   {
     m_EventTrack.Load(stream);
   }
-
-  //m_EventTrack.AddControlPoint(ezTime::Seconds(5.0), "Test Event 1");
-  //m_EventTrack.AddControlPoint(ezTime::Seconds(10.0), "Test Event 2");
 }
 

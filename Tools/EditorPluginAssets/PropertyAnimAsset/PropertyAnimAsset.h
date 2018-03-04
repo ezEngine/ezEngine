@@ -6,6 +6,7 @@
 #include <GuiFoundation/Widgets/CurveEditData.h>
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
 #include <Foundation/Communication/Event.h>
+#include <GuiFoundation/Widgets/EventTrackEditData.h>
 
 struct ezGameObjectContextEvent;
 class ezPropertyAnimObjectAccessor;
@@ -39,6 +40,7 @@ public:
   ezUInt64 m_uiCurveDuration = 480;
   ezEnum<ezPropertyAnimMode> m_Mode;
   ezDynamicArray<ezPropertyAnimationTrack*> m_Tracks;
+  ezEventTrackData m_EventTrack;
 };
 
 struct ezPropertyAnimAssetDocumentEvent
