@@ -38,7 +38,7 @@ namespace ezInternal
 }
 
 /// \brief A message sender that sends all messages to the next component derived from ezEventMessageHandlerComponent
-///   up in the hierarchy starting with the given search object. If none is found the message is send to
+///   up in the hierarchy starting with the given search object. If none is found the message is sent to
 ///   all components registered as global event message handler. The receiver is cached after the first send/post call.
 template <typename EventMessageType>
 class ezEventMessageSender : public ezMessageSenderBase<EventMessageType>

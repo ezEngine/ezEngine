@@ -6,6 +6,14 @@
 #include <GameEngine/Curves/Curve1DResource.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 
+//////////////////////////////////////////////////////////////////////////
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezPropertyAnimationReachedEndEventMessage);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimationReachedEndEventMessage, 1, ezRTTIDefaultAllocator<ezPropertyAnimationReachedEndEventMessage>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+//////////////////////////////////////////////////////////////////////////
+
 EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 2, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
@@ -18,11 +26,17 @@ EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 2, ezComponentMode::Dynamic)
     EZ_MEMBER_PROPERTY("RangeHigh", m_AnimationRangeHigh)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(ezTime::Seconds(60 * 60))),
   }
   EZ_END_PROPERTIES
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Animation"),
   }
   EZ_END_ATTRIBUTES
+  EZ_BEGIN_MESSAGESENDERS
+  {
+    EZ_MESSAGE_SENDER(m_EventTrackMsgSender),
+    EZ_MESSAGE_SENDER(m_ReachedEndMsgSender),
+  }
+  EZ_END_MESSAGESENDERS
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -411,6 +425,7 @@ double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
 
   tDiff = m_fSpeed * tDiff;
 
+  ezPropertyAnimationReachedEndEventMessage reachedEndMsg;
   ezTime tStart = m_AnimationTime;
 
   if (m_AnimationMode == ezPropertyAnimMode::Once)
@@ -422,14 +437,14 @@ double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
       m_AnimationTime = m_AnimationRangeHigh;
       SetActive(false);
 
-      // TODO: send event
+      m_ReachedEndMsgSender.SendMessage(reachedEndMsg, this, GetOwner());
     }
     else if (m_fSpeed < 0 && m_AnimationTime <= m_AnimationRangeLow)
     {
       m_AnimationTime = m_AnimationRangeLow;
       SetActive(false);
 
-      // TODO: send event
+      m_ReachedEndMsgSender.SendMessage(reachedEndMsg, this, GetOwner());
     }
 
     EvaluateEventTrack(tStart, m_AnimationTime);
@@ -441,7 +456,8 @@ double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
     while (m_AnimationTime > m_AnimationRangeHigh)
     {
       m_AnimationTime -= duration;
-      // TODO: send event
+
+      m_ReachedEndMsgSender.SendMessage(reachedEndMsg, this, GetOwner());
 
       EvaluateEventTrack(tStart, m_AnimationRangeHigh);
       tStart = m_AnimationRangeLow;
@@ -450,7 +466,8 @@ double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
     while (m_AnimationTime < m_AnimationRangeLow)
     {
       m_AnimationTime += duration;
-      // TODO: send event
+
+      m_ReachedEndMsgSender.SendMessage(reachedEndMsg, this, GetOwner());
 
       EvaluateEventTrack(tStart, m_AnimationRangeLow);
       tStart = m_AnimationRangeHigh;
@@ -478,7 +495,7 @@ double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
         EvaluateEventTrack(tStart, m_AnimationRangeHigh);
         tStart = m_AnimationRangeHigh;
 
-        // TODO: send event
+        m_ReachedEndMsgSender.SendMessage(reachedEndMsg, this, GetOwner());
       }
       else if (m_AnimationTime < m_AnimationRangeLow)
       {
@@ -488,7 +505,7 @@ double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
         EvaluateEventTrack(tStart, m_AnimationRangeLow);
         tStart = m_AnimationRangeLow;
 
-        // TODO: send event
+        m_ReachedEndMsgSender.SendMessage(reachedEndMsg, this, GetOwner());
       }
       else
       {
@@ -513,8 +530,9 @@ void ezPropertyAnimComponent::EvaluateEventTrack(ezTime startTime, ezTime endTim
 
   for (const ezHashedString& sEvent : events)
   {
-    // TODO: raise event
-    ezLog::Info("Property Anim Event: '{0}'", sEvent.GetString());
+    ezSimpleUserEventMessage msg;
+    msg.m_sMessage = sEvent.GetString();
+    m_EventTrackMsgSender.SendMessage(msg, this, GetOwner());
   }
 }
 

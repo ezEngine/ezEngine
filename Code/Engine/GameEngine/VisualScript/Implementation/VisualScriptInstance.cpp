@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <Foundation/Strings/HashedString.h>
@@ -287,6 +287,9 @@ void ezVisualScriptInstance::ExecuteScript(ezVisualScriptInstanceActivity* pActi
 
 void ezVisualScriptInstance::HandleMessage(ezMessage& msg)
 {
+  if (m_pMessageHandlers == nullptr)
+    return;
+
   ezUInt32 uiFirstHandler = m_pMessageHandlers->LowerBound(msg.GetId());
 
   while (uiFirstHandler < m_pMessageHandlers->GetCount())
@@ -384,5 +387,8 @@ ezVisualScriptDataPinAssignFunc ezVisualScriptInstance::FindDataPinAssignFunctio
 
 bool ezVisualScriptInstance::HandlesEventMessage(const ezEventMessage& msg) const
 {
+  if (m_pMessageHandlers == nullptr)
+    return false;
+
   return m_pMessageHandlers->LowerBound(msg.GetId()) != ezInvalidIndex;
 }

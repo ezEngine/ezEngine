@@ -104,6 +104,8 @@ void ezQtAssetPropertyWidget::UpdateThumbnail(const ezUuid& guid, const char* sz
     pThumbnailPixmap = ezQtImageCache::GetSingleton()->QueryPixmapForType(sTypeFilter, szThumbnailPath, QModelIndex(), QVariant(uiUserData1), QVariant(uiUserData2), &m_uiThumbnailID);
   }
 
+  m_pButton->setCursor(Qt::WhatsThisCursor);
+
   if (pThumbnailPixmap)
   {
     m_pButton->setIcon(QIcon(pThumbnailPixmap->scaledToWidth(16, Qt::TransformationMode::SmoothTransformation)));
@@ -249,6 +251,7 @@ void ezQtAssetPropertyWidget::OnOpenAssetDocument()
 void ezQtAssetPropertyWidget::OnSelectInAssetBrowser()
 {
   ezQtAssetBrowserPanel::GetSingleton()->AssetBrowserWidget->SetSelectedAsset(m_AssetGuid);
+  ezQtAssetBrowserPanel::GetSingleton()->raise();
 }
 
 void ezQtAssetPropertyWidget::OnOpenExplorer()

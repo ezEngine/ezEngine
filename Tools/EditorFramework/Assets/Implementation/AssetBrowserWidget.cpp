@@ -831,6 +831,8 @@ void ezQtAssetBrowserWidget::OnScrollToItem(ezUuid preselectedAsset)
       return;
     }
   }
+
+  raise();
 }
 
 void ezQtAssetBrowserWidget::ShowOnlyTheseTypeFilters(const char* szFilters)
