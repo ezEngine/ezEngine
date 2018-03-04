@@ -1,10 +1,10 @@
 
 #pragma once
 
-#if !defined(__clang__) && (defined(__GNUC__) || defined(__GNUG__))
+#ifdef __clang__
 
-#undef EZ_COMPILER_GCC
-#define EZ_COMPILER_GCC EZ_ON
+#undef EZ_COMPILER_CLANG
+#define EZ_COMPILER_CLANG EZ_ON
 
 /// \todo re-investigate: attribute(always inline) does not work for some reason
 #define EZ_ALWAYS_INLINE inline

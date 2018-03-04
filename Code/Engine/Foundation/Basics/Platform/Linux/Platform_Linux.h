@@ -19,8 +19,8 @@
   #undef max
 #endif
 
-/// \todo Detect / differentiate between GCC / CLANG?
 #include <Foundation/Basics/Compiler/GCC/GCC.h>
+#include <Foundation/Basics/Compiler/Clang/Clang.h>
 
 #undef EZ_PLATFORM_LITTLE_ENDIAN
 #define EZ_PLATFORM_LITTLE_ENDIAN EZ_ON

@@ -5,6 +5,7 @@
 #include <Core/World/Component.h>
 #include <GameEngine/Resources/PropertyAnimResource.h>
 #include <Foundation/Types/SharedPtr.h>
+#include <Core/Messages/EventMessage.h>
 
 typedef ezComponentManagerSimple<class ezPropertyAnimComponent, ezComponentUpdateType::WhenSimulating> ezPropertyAnimComponentManager;
 
