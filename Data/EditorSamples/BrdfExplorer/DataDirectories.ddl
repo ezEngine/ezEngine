@@ -18,7 +18,7 @@ DataDir
 }
 DataDir
 {
-	string %Path{">sdk/Data/TempContent/Cubemaps"}
+	string %Path{">sdk/Data/TempContent"}
 	string %RootName{""}
 	bool %Writable{false}
 }

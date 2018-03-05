@@ -14,7 +14,7 @@ EZ_ENUM_CONSTANTS(ezGreyBoxShape::Box, ezGreyBoxShape::RampX, ezGreyBoxShape::Ra
 EZ_ENUM_CONSTANTS(ezGreyBoxShape::StairsX, ezGreyBoxShape::StairsY, ezGreyBoxShape::ArchX, ezGreyBoxShape::ArchY, ezGreyBoxShape::SpiralStairs)
 EZ_END_STATIC_REFLECTED_ENUM()
 
-EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -70,6 +70,12 @@ void ezGreyBoxComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fSizeNegZ;
   s << m_fSizePosZ;
   s << m_uiDetail;
+
+  // Version 2
+  s << m_Curvature;
+  s << m_fThickness;
+  s << m_bSlopedTop;
+  s << m_bSlopedBottom;
 }
 
 void ezGreyBoxComponent::DeserializeComponent(ezWorldReader& stream)
@@ -87,6 +93,14 @@ void ezGreyBoxComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fSizeNegZ;
   s >> m_fSizePosZ;
   s >> m_uiDetail;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_Curvature;
+    s >> m_fThickness;
+    s >> m_bSlopedTop;
+    s >> m_bSlopedBottom;
+  }
 }
 
 ezResult ezGreyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
