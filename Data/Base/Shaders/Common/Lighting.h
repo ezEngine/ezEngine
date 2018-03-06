@@ -62,6 +62,15 @@ float SampleSceneDepth(float2 screenPosition)
   return LinearizeZBufferDepth(depthFromZBuffer);
 }
 
+float3 SampleScenePosition(float2 screenPosition)
+{
+  float2 normalizedScreenPosition = screenPosition.xy * ViewportSize.zw;
+  float depthFromZBuffer = SceneDepth.SampleLevel(PointClampSampler, normalizedScreenPosition, 0.0f).r;
+  float4 fullScreenPosition = float4(normalizedScreenPosition * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f), depthFromZBuffer, 1.0f);
+  float4 scenePosition = mul(GetScreenToWorldMatrix(), fullScreenPosition);
+  return scenePosition.xyz / scenePosition.w;
+}
+
 float DepthFade(float3 screenPosition, float fadeDistance)
 {
   float distance = SampleSceneDepth(screenPosition.xy) - screenPosition.z;

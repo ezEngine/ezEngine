@@ -1,3 +1,44 @@
+
+Node %SceneDepth
+{
+  string %Category { "Utils" }
+  unsigned_int8 %Color { 38, 105, 0 }
+  
+  InputPin %ScreenPosition
+  {
+    unsigned_int8 %Color { 50, 50, 128 }
+    string %Type { "float2" }
+    string %DefaultValue { "Input.Position.xy" }
+  }
+
+  OutputPin %Depth
+  {
+    string %Type { "float3" }
+    unsigned_int8 %Color { 200, 0, 0 }
+    string %Inline { "SampleSceneDepth(ToFloat2($in0))" }
+  }
+}
+
+Node %ScenePosition
+{
+  string %Category { "Utils" }
+  unsigned_int8 %Color { 38, 105, 0 }
+  
+  InputPin %ScreenPosition
+  {
+    unsigned_int8 %Color { 50, 50, 128 }
+    string %Type { "float2" }
+    string %DefaultValue { "Input.Position.xy" }
+  }
+
+  OutputPin %Position
+  {
+    string %Type { "float3" }
+    unsigned_int8 %Color { 200, 0, 0 }
+    string %Inline { "SampleScenePosition(ToFloat2($in0))" }
+  }
+}
+
 Node %DepthFade
 {
   string %Category { "Utils" }
