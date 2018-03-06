@@ -1,0 +1,10 @@
+Processing succeeded
+true evaluates to true
+
+false evaluates to false
+
+
+var_true evaluates to true
+
+
+var_false evaluates to false

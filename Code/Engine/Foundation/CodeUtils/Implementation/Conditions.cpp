@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/CodeUtils/Preprocessor.h>
 
 using namespace ezTokenParseUtils;
@@ -141,7 +141,15 @@ ezResult ezPreprocessor::ParseFactor(const TokenStream& Tokens, ezUInt32& uiCurT
 
     ezInt32 iResult32 = 0;
 
-    if (ezConversionUtils::StringToInt(sVal.GetData(), iResult32).Failed())
+    if (sVal == "true")
+    {
+      iResult32 = 1;
+    }
+    else if (sVal == "false")
+    {
+      iResult32 = 0;
+    }
+    else if (ezConversionUtils::StringToInt(sVal.GetData(), iResult32).Failed())
     {
       // this is not an error, all unknown identifiers are assumed to be zero
 

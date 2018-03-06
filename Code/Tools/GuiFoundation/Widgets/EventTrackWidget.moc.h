@@ -3,6 +3,7 @@
 #include <GuiFoundation/Basics.h>
 #include <Foundation/Containers/DynamicArray.h>
 //#include <GuiFoundation/Widgets/CurveEditData.h>
+#include <Foundation/Math/Vec2.h>
 
 #include <QWidget>
 #include <QPen>

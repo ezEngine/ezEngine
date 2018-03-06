@@ -1,0 +1,27 @@
+#if true
+true evaluates to true
+#else
+true evaluates to false
+#endif
+
+#if false
+false evaluates to true
+#else
+false evaluates to false
+#endif
+
+#define VAR_true true
+
+#if VAR_true
+var_true evaluates to true
+#else
+var_true evaluates to false
+#endif
+
+#define VAR_false false
+
+#if VAR_false
+var_false evaluates to true
+#else
+var_false evaluates to false
+#endif

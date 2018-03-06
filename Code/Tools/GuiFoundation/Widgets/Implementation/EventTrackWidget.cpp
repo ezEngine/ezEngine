@@ -2,6 +2,7 @@
 #include <GuiFoundation/Widgets/EventTrackWidget.moc.h>
 #include <GuiFoundation/Widgets/GridBarWidget.moc.h>
 #include <GuiFoundation/Widgets/WidgetUtils.h>
+#include <Foundation/Containers/HybridArray.h>
 #include <QPainter>
 #include <qevent.h>
 #include <QRubberBand>
