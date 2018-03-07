@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <PhysXPlugin/Basics.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
@@ -20,7 +20,8 @@ public:
 
   virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
-  void PxTriggerMessageHandler(ezPxTriggerEventMessage& msg);
+  virtual ezInt32 HandlesMessagesWithID() const override;
+  virtual void HandleMessage(ezMessage* pMsg) override;
 
   const char* GetTriggerMessage() const { return m_sTriggerMessage.GetData(); }
   void SetTriggerMessage(const char* s) { m_sTriggerMessage.Assign(s); }

@@ -299,7 +299,7 @@ void ezVisualScriptInstance::HandleMessage(ezMessage& msg)
       return;
 
     const ezUInt32 uiNodeId = data.value;
-    m_Nodes[uiNodeId]->GetDynamicRTTI()->DispatchMessage(m_Nodes[uiNodeId], msg);
+    m_Nodes[uiNodeId]->HandleMessage(&msg);
 
     ++uiFirstHandler;
   }

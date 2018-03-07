@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Foundation/Reflection/Reflection.h>
@@ -18,6 +18,14 @@ public:
 
   virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) = 0;
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) = 0;
+
+  /// \brief Should return the message ID of the message type that this node wants to handle
+  /// 
+  /// ie. ezMessage::GetTypeMsgId() of the desired message type
+  virtual ezInt32 HandlesMessagesWithID() const;
+
+  /// \brief If HandlesMessagesWithID() returns a valid message ID, messages of that type may be delivered through this function
+  virtual void HandleMessage(ezMessage* pMsg);
 
   /// \brief Whether the node has an execution pin (input or output) and thus must be stepped manually. Otherwise it will be implicitly executed on demand.
   bool IsManuallyStepped() const;

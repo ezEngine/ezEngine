@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Core/Messages/ScriptFunctionMessage.h>
@@ -11,7 +11,6 @@ struct EZ_GAMEENGINE_DLL ezDamageMessage : public ezScriptFunctionMessage
   double m_fDamage;
 };
 
-
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_DamageEvent : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_DamageEvent, ezVisualScriptNode);
@@ -21,7 +20,8 @@ public:
 
   virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
-  void DamageMsgHandler(ezDamageMessage& msg);
+  virtual ezInt32 HandlesMessagesWithID() const override;
+  virtual void HandleMessage(ezMessage* pMsg) override;
 
 private:
   ezDamageMessage m_Msg;

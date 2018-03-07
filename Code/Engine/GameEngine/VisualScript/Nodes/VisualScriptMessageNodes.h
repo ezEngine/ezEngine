@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GameEngine/Basics.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
@@ -18,7 +18,8 @@ public:
 
   virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
-  void SimpleUserEventMsgHandler(ezSimpleUserEventMessage& msg);
+  virtual ezInt32 HandlesMessagesWithID() const override;
+  virtual void HandleMessage(ezMessage* pMsg) override;
 
   const char* GetMessage() const { return m_sMessage.GetData(); }
   void SetMessage(const char* s) { m_sMessage = s; }
@@ -67,7 +68,8 @@ public:
 
   virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
-  void InputEventMsgHandler(ezInputEventMessage& msg);
+  virtual ezInt32 HandlesMessagesWithID() const override;
+  virtual void HandleMessage(ezMessage* pMsg) override;
 
   const char* GetInputAction() const { return m_sInputAction.GetData(); }
   void SetInputAction(const char* s) { m_sInputAction.Assign(s); }

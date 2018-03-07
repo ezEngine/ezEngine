@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/VisualScript/Nodes/VisualScriptMessageNodes.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <Core/World/World.h>
@@ -23,11 +23,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SimpleUserEvent, 1, ezRTTIDef
     // Data Pins
   }
   EZ_END_PROPERTIES
-    EZ_BEGIN_MESSAGEHANDLERS
-  {
-    EZ_MESSAGE_HANDLER(ezSimpleUserEventMessage, SimpleUserEventMsgHandler),
-  }
-  EZ_END_MESSAGEHANDLERS
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -39,8 +34,15 @@ void ezVisualScriptNode_SimpleUserEvent::Execute(ezVisualScriptInstance* pInstan
   pInstance->ExecuteConnectedNodes(this, 0);
 }
 
-void ezVisualScriptNode_SimpleUserEvent::SimpleUserEventMsgHandler(ezSimpleUserEventMessage& msg)
+ezInt32 ezVisualScriptNode_SimpleUserEvent::HandlesMessagesWithID() const
 {
+  return ezSimpleUserEventMessage::GetTypeMsgId();
+}
+
+void ezVisualScriptNode_SimpleUserEvent::HandleMessage(ezMessage* pMsg)
+{
+  ezSimpleUserEventMessage& msg = *static_cast<ezSimpleUserEventMessage*>(pMsg);
+
   if (msg.m_sMessage == m_sMessage)
   {
     m_bStepNode = true;
@@ -151,12 +153,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_InputEvent, 1, ezRTTIDefaultA
     EZ_OUTPUT_DATA_PIN("Component", 1, ezVisualScriptDataPinType::ComponentHandle),
   }
   EZ_END_PROPERTIES
-
-    EZ_BEGIN_MESSAGEHANDLERS
-  {
-    EZ_MESSAGE_HANDLER(ezInputEventMessage, InputEventMsgHandler),
-  }
-  EZ_END_MESSAGEHANDLERS
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -182,8 +178,15 @@ void ezVisualScriptNode_InputEvent::Execute(ezVisualScriptInstance* pInstance, e
   }
 }
 
-void ezVisualScriptNode_InputEvent::InputEventMsgHandler(ezInputEventMessage& msg)
+ezInt32 ezVisualScriptNode_InputEvent::HandlesMessagesWithID() const
 {
+  return ezInputEventMessage::GetTypeMsgId();
+}
+
+void ezVisualScriptNode_InputEvent::HandleMessage(ezMessage* pMsg)
+{
+  ezInputEventMessage& msg = *static_cast<ezInputEventMessage*>(pMsg);
+
   if (msg.m_uiInputActionHash == m_sInputAction.GetHash())
   {
     m_bStepNode = true;

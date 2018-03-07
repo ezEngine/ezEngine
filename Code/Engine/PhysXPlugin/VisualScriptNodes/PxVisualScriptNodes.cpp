@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <PhysXPlugin/VisualScriptNodes/PxVisualScriptNodes.h>
 #include <PhysXPlugin/Components/PxTriggerComponent.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
@@ -21,12 +21,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_PxTriggerEvent, 1, ezRTTIDefa
     EZ_OUTPUT_DATA_PIN("Object", 0, ezVisualScriptDataPinType::GameObjectHandle),
   }
   EZ_END_PROPERTIES
-
-    EZ_BEGIN_MESSAGEHANDLERS
-  {
-    EZ_MESSAGE_HANDLER(ezPxTriggerEventMessage, PxTriggerMessageHandler),
-  }
-  EZ_END_MESSAGEHANDLERS
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -47,8 +41,16 @@ void ezVisualScriptNode_PxTriggerEvent::Execute(ezVisualScriptInstance* pInstanc
   }
 }
 
-void ezVisualScriptNode_PxTriggerEvent::PxTriggerMessageHandler(ezPxTriggerEventMessage& msg)
+
+ezInt32 ezVisualScriptNode_PxTriggerEvent::HandlesMessagesWithID() const
 {
+  return ezPxTriggerEventMessage::GetTypeMsgId();
+}
+
+void ezVisualScriptNode_PxTriggerEvent::HandleMessage(ezMessage* pMsg)
+{
+  ezPxTriggerEventMessage& msg = *static_cast<ezPxTriggerEventMessage*>(pMsg);
+
   if (msg.m_uiMessageStringHash == m_sTriggerMessage.GetHash())
   {
     m_bStepNode = true;

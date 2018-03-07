@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <Core/Messages/TriggerMessage.h>
@@ -61,6 +61,16 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezVisualScriptNode::ezVisualScriptNode() { }
 ezVisualScriptNode::~ezVisualScriptNode() { }
+
+
+ezInt32 ezVisualScriptNode::HandlesMessagesWithID() const
+{
+  return -1;
+}
+
+void ezVisualScriptNode::HandleMessage(ezMessage* pMsg)
+{
+}
 
 bool ezVisualScriptNode::IsManuallyStepped() const
 {

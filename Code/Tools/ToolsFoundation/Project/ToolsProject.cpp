@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <Foundation/IO/OSFile.h>
@@ -155,7 +155,7 @@ ezStringBuilder ezToolsProject::GetPathForDocumentGuid(const ezUuid& guid)
   ezToolsProjectRequest e;
   e.m_Type = ezToolsProjectRequest::Type::GetPathForDocumentGuid;
   e.m_documentGuid = guid;
-  s_Requests.Broadcast(e);
+  s_Requests.Broadcast(e, 1); // this can be sent while CanCloseProject is processed, so allow one additional recursion depth
   return e.m_sAbsDocumentPath;
 }
 

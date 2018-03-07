@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
 #include <Core/Assets/AssetFileHeader.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -211,24 +211,22 @@ void ezVisualScriptResourceDescriptor::PrecomputeMessageHandlers()
   for (ezUInt32 uiNode = 0; uiNode < m_Nodes.GetCount(); ++uiNode)
   {
     auto& node = m_Nodes[uiNode];
-
     const ezRTTI* pType = node.m_pType;
 
-    while (pType != nullptr)
+    if (!pType->IsDerivedFrom<ezVisualScriptNode>())
+      continue;
+
+    // TODO: this is a bit inefficient, we create each node type to call a virtual function on it
+    // instead we should do this once for every type derived from ezVisualScriptNode and cache the result
+    ezVisualScriptNode* pNode = static_cast<ezVisualScriptNode*>(pType->GetAllocator()->Allocate());
+
+    const ezInt32 iMsgID = pNode->HandlesMessagesWithID();
+
+    if (iMsgID >= 0)
     {
-      const auto& handlers = node.m_pType->GetMessageHandlers();
-
-      for (const auto& msgType : handlers)
-      {
-        // make sure no node is inserted twice
-        // this may happen if a derived class overrides a message handler
-        if (!m_MessageHandlers.Contains(msgType->GetMessageId(), (ezUInt16)uiNode))
-        {
-          m_MessageHandlers.Insert(msgType->GetMessageId(), (ezUInt16)uiNode);
-        }
-      }
-
-      pType = pType->GetParentType();
+      m_MessageHandlers.Insert(iMsgID, (ezUInt16)uiNode);
     }
+
+    pType->GetAllocator()->Deallocate(pNode);
   }
 }

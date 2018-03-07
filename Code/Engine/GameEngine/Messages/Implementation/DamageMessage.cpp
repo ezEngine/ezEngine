@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/Messages/DamageMessage.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 
@@ -23,11 +23,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_DamageEvent, 1, ezRTTIDefault
     EZ_OUTPUT_DATA_PIN("Damage", 0, ezVisualScriptDataPinType::Number)
   }
   EZ_END_PROPERTIES
-    EZ_BEGIN_MESSAGEHANDLERS
-  {
-    EZ_MESSAGE_HANDLER(ezDamageMessage, DamageMsgHandler),
-  }
-  EZ_END_MESSAGEHANDLERS
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -42,8 +37,15 @@ void ezVisualScriptNode_DamageEvent::Execute(ezVisualScriptInstance* pInstance, 
   pInstance->ExecuteConnectedNodes(this, 0);
 }
 
-void ezVisualScriptNode_DamageEvent::DamageMsgHandler(ezDamageMessage& msg)
+ezInt32 ezVisualScriptNode_DamageEvent::HandlesMessagesWithID() const
 {
+  return ezDamageMessage::GetTypeMsgId();
+}
+
+void ezVisualScriptNode_DamageEvent::HandleMessage(ezMessage* pMsg)
+{
+  ezDamageMessage& msg = *static_cast<ezDamageMessage*>(pMsg);
+
   m_Msg = msg;
   m_bStepNode = true;
 }

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
@@ -98,11 +98,6 @@ namespace
       return PxFilterFlag::eSUPPRESS;
     }
 
-    if (kinematic0 && kinematic1)
-    {
-      return PxFilterFlag::eSUPPRESS;
-    }
-
     pairFlags = (PxPairFlag::Enum)0;
 
     // trigger the contact callback for pairs (A,B) where
@@ -110,6 +105,8 @@ namespace
     if ((filterData0.word0 & filterData1.word1) || (filterData1.word0 & filterData0.word1))
     {
       // let triggers through
+      // note that triggers are typically kinematic
+      // same for character controllers
       if (PxFilterObjectIsTrigger(attributes0) || PxFilterObjectIsTrigger(attributes1))
       {
         pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
@@ -119,6 +116,12 @@ namespace
       if (filterData0.word3 != 0 || filterData1.word3 != 0)
       {
         pairFlags |= (PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_PERSISTS | PxPairFlag::eNOTIFY_CONTACT_POINTS);
+      }
+
+      // if neither object is a trigger and both are kinematic, just suppress the contact
+      if (kinematic0 && kinematic1)
+      {
+        return PxFilterFlag::eSUPPRESS;
       }
 
       pairFlags |= PxPairFlag::eCONTACT_DEFAULT;
