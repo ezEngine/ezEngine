@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptTypeRegistry.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptAssetManager.h>
@@ -12,6 +12,7 @@
 #include <Core/World/Component.h>
 #include <Core/Messages/ScriptFunctionMessage.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
+#include <Core/Messages/EventMessage.h>
 
 EZ_IMPLEMENT_SINGLETON(ezVisualScriptTypeRegistry);
 
@@ -135,6 +136,12 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
   if (pRtti->IsDerivedFrom<ezScriptFunctionMessage>() && pRtti != ezGetStaticRTTI<ezScriptFunctionMessage>())
   {
     CreateMessageNodeType(pRtti);
+    return;
+  }
+
+  if (pRtti->IsDerivedFrom<ezEventMessage>() && pRtti != ezGetStaticRTTI<ezEventMessage>())
+  {
+    CreateEventMessageNodeType(pRtti);
     return;
   }
 
@@ -429,3 +436,89 @@ void ezVisualScriptTypeRegistry::CreateMessageNodeType(const ezRTTI* pRtti)
 
   m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);
 }
+
+void ezVisualScriptTypeRegistry::CreateEventMessageNodeType(const ezRTTI* pRtti)
+{
+  ezVisualScriptNodeDescriptor nd;
+  nd.m_sTypeName = pRtti->GetTypeName();
+  nd.m_Color = ezColor::OrangeRed;
+  nd.m_sCategory = "EventHandler";
+
+  if (const ezCategoryAttribute* pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
+  {
+    nd.m_sCategory = pAttr->GetCategory();
+  }
+
+  if (const ezColorAttribute* pAttr = pRtti->GetAttributeByType<ezColorAttribute>())
+  {
+    nd.m_Color = pAttr->GetColor();
+  }
+
+  ezHybridArray<ezAbstractProperty*, 32> properties;
+  pRtti->GetAllProperties(properties);
+
+  // Add an output execution pin
+  {
+    static const ezColor ExecutionPinColor = ezColor::LightSlateGrey;
+
+    ezVisualScriptPinDescriptor pd;
+    pd.m_sName = "OnEvent";
+    pd.m_sTooltip = "";
+    pd.m_PinType = ezVisualScriptPinDescriptor::Execution;
+    pd.m_Color = ExecutionPinColor;
+    pd.m_uiPinIndex = 0;
+    nd.m_OutputPins.PushBack(pd);
+  }
+
+  ezInt32 iDataPinIndex = -1;
+  for (auto prop : properties)
+  {
+    if (prop->GetCategory() == ezPropertyCategory::Constant)
+      continue;
+
+    {
+      ezReflectedPropertyDescriptor prd;
+      prd.m_Flags = prop->GetFlags();
+      prd.m_Category = prop->GetCategory();
+      prd.m_sName = prop->GetPropertyName();
+      prd.m_sType = prop->GetSpecificType()->GetTypeName();
+
+      for (ezPropertyAttribute* const pAttr : prop->GetAttributes())
+      {
+        prd.m_Attributes.PushBack(ezReflectionSerializer::Clone(pAttr));
+      }
+
+      nd.m_Properties.PushBack(prd);
+    }
+
+    ++iDataPinIndex;
+    const auto varType = prop->GetSpecificType()->GetVariantType();
+    if (varType != ezVariantType::Bool && varType != ezVariantType::Double && varType != ezVariantType::Vector3)
+      continue;
+
+    ezVisualScriptPinDescriptor pid;
+
+    switch (varType)
+    {
+    case ezVariantType::Bool:
+      pid.m_DataType = ezVisualScriptDataPinType::Boolean;
+      break;
+    case ezVariantType::Double:
+      pid.m_DataType = ezVisualScriptDataPinType::Number;
+      break;
+    case ezVariantType::Vector3:
+      pid.m_DataType = ezVisualScriptDataPinType::Vec3;
+      break;
+    }
+
+    pid.m_sName = prop->GetPropertyName();
+    pid.m_sTooltip = ""; /// \todo Use ezTranslateTooltip
+    pid.m_PinType = ezVisualScriptPinDescriptor::Data;
+    pid.m_Color = PinTypeColor(pid.m_DataType);
+    pid.m_uiPinIndex = iDataPinIndex;
+    nd.m_OutputPins.PushBack(pid);
+  }
+
+  m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);
+}
+

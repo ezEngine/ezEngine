@@ -51,6 +51,59 @@ void ezVisualScriptNode_SimpleUserEvent::HandleMessage(ezMessage* pMsg)
 
 //////////////////////////////////////////////////////////////////////////
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GenericEvent, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_GenericEvent>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Events"),
+    new ezTitleAttribute("Event '{EventType}'"),
+  }
+  EZ_END_ATTRIBUTES
+    EZ_BEGIN_PROPERTIES
+  {
+    //Properties
+    EZ_ACCESSOR_PROPERTY("EventType", GetEventType, SetEventType),
+    // Execution Pins
+    EZ_OUTPUT_EXECUTION_PIN("OnEvent", 0),
+    // Data Pins
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezVisualScriptNode_GenericEvent::ezVisualScriptNode_GenericEvent() { }
+ezVisualScriptNode_GenericEvent::~ezVisualScriptNode_GenericEvent() { }
+
+void ezVisualScriptNode_GenericEvent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
+{
+  pInstance->ExecuteConnectedNodes(this, 0);
+}
+
+ezInt32 ezVisualScriptNode_GenericEvent::HandlesMessagesWithID() const
+{
+  const ezRTTI* pRtti = ezRTTI::FindTypeByName(m_sEventType);
+
+  ezInt32 res = -1;
+
+  if (pRtti != nullptr && pRtti->IsDerivedFrom<ezMessage>() && pRtti->GetAllocator()->CanAllocate())
+  {
+    ezMessage* pMsg = static_cast<ezMessage*>(pRtti->GetAllocator()->Allocate());
+    res = pMsg->GetId();
+    pRtti->GetAllocator()->Deallocate(pMsg);
+  }
+
+  return res;
+}
+
+void ezVisualScriptNode_GenericEvent::HandleMessage(ezMessage* pMsg)
+{
+  ezLog::Info("Got generic message of type '{0}'", pMsg->GetDynamicRTTI()->GetTypeName());
+  m_bStepNode = true;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_ScriptUpdateEvent, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_ScriptUpdateEvent>)
 {
   EZ_BEGIN_ATTRIBUTES

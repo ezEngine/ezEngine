@@ -2,6 +2,7 @@
 #include <GameEngine/VisualScript/VisualScriptResource.h>
 #include <Core/Assets/AssetFileHeader.h>
 #include <Core/WorldSerializer/WorldReader.h>
+#include <GameEngine/VisualScript/VisualScriptNode.h>
 
 //////////////////////////////////////////////////////////////////////////
 /// ezVisualScriptResource
@@ -213,12 +214,24 @@ void ezVisualScriptResourceDescriptor::PrecomputeMessageHandlers()
     auto& node = m_Nodes[uiNode];
     const ezRTTI* pType = node.m_pType;
 
-    if (!pType->IsDerivedFrom<ezVisualScriptNode>())
-      continue;
+    ezVisualScriptNode* pNode = nullptr;
 
-    // TODO: this is a bit inefficient, we create each node type to call a virtual function on it
-    // instead we should do this once for every type derived from ezVisualScriptNode and cache the result
-    ezVisualScriptNode* pNode = static_cast<ezVisualScriptNode*>(pType->GetAllocator()->Allocate());
+    if (pType->IsDerivedFrom<ezEventMessage>())
+    {
+      // TODO: just do the generic node logic here without allocating the node
+      ezVisualScriptNode_GenericEvent* pEvent = static_cast<ezVisualScriptNode_GenericEvent*>(ezVisualScriptNode_GenericEvent::GetStaticRTTI()->GetAllocator()->Allocate());
+      pNode = pEvent;
+
+      pEvent->m_sEventType = pType->GetTypeName();
+    }
+    else if (pType->IsDerivedFrom<ezVisualScriptNode>())
+    {
+      pNode = static_cast<ezVisualScriptNode*>(pType->GetAllocator()->Allocate());
+    }
+    else
+    {
+      continue;
+    }
 
     const ezInt32 iMsgID = pNode->HandlesMessagesWithID();
 

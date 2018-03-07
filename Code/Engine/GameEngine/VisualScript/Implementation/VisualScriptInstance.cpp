@@ -8,6 +8,8 @@
 #include <Core/World/GameObject.h>
 #include <Foundation/Communication/Message.h>
 #include <Core/Messages/EventMessage.h>
+#include <Core/Messages/ScriptFunctionMessage.h>
+#include <GameEngine/VisualScript/Nodes/VisualScriptMessageNodes.h>
 
 ezMap<ezVisualScriptInstance::AssignFuncKey, ezVisualScriptDataPinAssignFunc> ezVisualScriptInstance::s_DataPinAssignFunctions;
 
@@ -164,9 +166,13 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceHandle& hScri
   {
     const auto& node = resource.m_Nodes[n];
 
-    if (node.m_pType->IsDerivedFrom<ezMessage>())
+    if (node.m_pType->IsDerivedFrom<ezScriptFunctionMessage>())
     {
-      CreateMessageNode(n, resource);
+      CreateFunctionMessageNode(n, resource);
+    }
+    else if (node.m_pType->IsDerivedFrom<ezEventMessage>())
+    {
+      CreateEventMessageNode(n, resource);
     }
     else if (node.m_pType->IsDerivedFrom<ezVisualScriptNode>())
     {
@@ -220,7 +226,7 @@ void ezVisualScriptInstance::CreateVisualScriptNode(ezUInt32 uiNodeIdx, const ez
   m_Nodes.PushBack(pNode);
 }
 
-void ezVisualScriptInstance::CreateMessageNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource)
+void ezVisualScriptInstance::CreateFunctionMessageNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource)
 {
   const auto& node = resource.m_Nodes[uiNodeIdx];
 
@@ -256,6 +262,19 @@ void ezVisualScriptInstance::CreateMessageNode(ezUInt32 uiNodeIdx, const ezVisua
     ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbstract);
     ezReflectionUtils::SetMemberPropertyValue(pMember, pNode->m_pMessageToSend, prop.m_Value);
   }
+
+  m_Nodes.PushBack(pNode);
+}
+
+
+void ezVisualScriptInstance::CreateEventMessageNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource)
+{
+  const auto& node = resource.m_Nodes[uiNodeIdx];
+
+  ezVisualScriptNode_GenericEvent* pNode = static_cast<ezVisualScriptNode_GenericEvent*>(ezGetStaticRTTI<ezVisualScriptNode_GenericEvent>()->GetAllocator()->Allocate());
+  pNode->m_uiNodeID = uiNodeIdx;
+
+  pNode->m_sEventType = node.m_sTypeName;
 
   m_Nodes.PushBack(pNode);
 }

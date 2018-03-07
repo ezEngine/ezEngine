@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Configuration/Singleton.h>
@@ -51,6 +51,7 @@ private:
   void UpdateNodeType(const ezRTTI* pRtti);
   const ezRTTI* GenerateTypeFromDesc(const ezVisualScriptNodeDescriptor& desc);
   void CreateMessageNodeType(const ezRTTI* pRtti);
+  void CreateEventMessageNodeType(const ezRTTI* pRtti);
 
     ezMap<const ezRTTI*, ezVisualScriptNodeDescriptor> m_NodeDescriptors;
 

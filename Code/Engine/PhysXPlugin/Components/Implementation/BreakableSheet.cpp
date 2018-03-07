@@ -278,6 +278,7 @@ void ezBreakableSheetComponent::OnExtractRenderData(ezExtractRenderDataMessage& 
     pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
     pRenderData->m_hMesh = hMesh;
     pRenderData->m_hMaterial = hMaterial;
+    pRenderData->m_Color = ezColor::White;
 
     if (m_bBroken)
     {
