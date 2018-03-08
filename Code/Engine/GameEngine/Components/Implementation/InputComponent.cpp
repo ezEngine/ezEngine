@@ -12,8 +12,8 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezInputMessageGranularity, 1)
   EZ_ENUM_CONSTANT(ezInputMessageGranularity::PressReleaseAndDown),
 EZ_END_STATIC_REFLECTED_ENUM();
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezInputEventMessage);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputEventMessage, 1, ezRTTIDefaultAllocator<ezInputEventMessage>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgInputActionTriggered);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgInputActionTriggered, 1, ezRTTIDefaultAllocator<ezMsgInputActionTriggered>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_BEGIN_COMPONENT_TYPE(ezInputComponent, 2, ezComponentMode::Static)
@@ -63,7 +63,7 @@ void ezInputComponent::Update()
   ezHybridArray<ezString, 24> AllActions;
   ezInputManager::GetAllInputActions(m_sInputSet, AllActions);
 
-  ezInputEventMessage msg;
+  ezMsgInputActionTriggered msg;
 
   for (const ezString& actionName : AllActions)
   {

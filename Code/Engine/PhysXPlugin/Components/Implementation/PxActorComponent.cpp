@@ -52,7 +52,7 @@ void ezPxActorComponent::AddShapesFromObject(ezGameObject* pObject, PxRigidActor
   }
 }
 
-void ezPxActorComponent::AddShapesToNavMesh(const ezGameObject* pObject, ezBuildNavMeshMessage& msg) const
+void ezPxActorComponent::AddShapesToNavMesh(const ezGameObject* pObject, ezMsgBuildNavMesh& msg) const
 {
   ezHybridArray<ezPxShapeComponent*, 8> shapes;
   pObject->TryGetComponentsOfBaseType(shapes);

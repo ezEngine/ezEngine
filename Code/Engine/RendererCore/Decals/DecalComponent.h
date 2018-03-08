@@ -6,9 +6,9 @@
 #include <Foundation/Types/VarianceTypes.h>
 
 class ezAbstractObjectNode;
-struct ezInternalComponentMessage;
-struct ezApplyOnlyToMessage;
-struct ezSetColorMessage;
+struct ezMsgComponentInternalTrigger;
+struct ezMsgOnlyApplyToObject;
+struct ezMsgSetColor;
 
 class EZ_RENDERERCORE_DLL ezDecalComponentManager : public ezComponentManager<class ezDecalComponent, ezBlockStorageType::Compact>
 {
@@ -57,7 +57,7 @@ public:
   // ezRenderComponent Interface
 
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
-  void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
+  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   //////////////////////////////////////////////////////////////////////////
   // Editor Interface
@@ -119,9 +119,9 @@ protected:
   //////////////////////////////////////////////////////////////////////////
   // Internal
 
-  void OnTriggered(ezInternalComponentMessage& msg);
-  void OnApplyOnlyTo(ezApplyOnlyToMessage& msg);
-  void OnSetColor(ezSetColorMessage& msg);
+  void OnTriggered(ezMsgComponentInternalTrigger& msg);
+  void OnApplyOnlyTo(ezMsgOnlyApplyToObject& msg);
+  void OnSetColor(ezMsgSetColor& msg);
 
   ezTime m_StartFadeOutTime;
   ezUInt32 m_uiInternalSortKey;

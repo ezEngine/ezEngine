@@ -7,8 +7,8 @@ EZ_IMPLEMENT_MESSAGE_TYPE(ezEventMessage);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventMessage, 1, ezRTTIDefaultAllocator<ezEventMessage>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezSimpleUserEventMessage);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleUserEventMessage, 1, ezRTTIDefaultAllocator<ezSimpleUserEventMessage>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgGenericUserEvent);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgGenericUserEvent, 1, ezRTTIDefaultAllocator<ezMsgGenericUserEvent>)
 {
   EZ_BEGIN_PROPERTIES
   {

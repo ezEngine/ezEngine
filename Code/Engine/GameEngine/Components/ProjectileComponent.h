@@ -5,7 +5,7 @@
 #include <Core/World/Component.h>
 #include <GameEngine/Surfaces/SurfaceResource.h>
 
-struct ezInternalComponentMessage;
+struct ezMsgComponentInternalTrigger;
 class ezPhysicsWorldModuleInterface;
 
 class EZ_GAMEENGINE_DLL ezProjectileComponentManager : public ezComponentManagerSimple<class ezProjectileComponent, ezComponentUpdateType::WhenSimulating>
@@ -58,7 +58,7 @@ struct EZ_GAMEENGINE_DLL ezProjectileSurfaceInteraction
   /// \brief The force (or rather impulse) that is applied on the object
   float m_fImpulse = 0.0f;
 
-  /// \brief How much damage to do on this type of surface. Send via ezDamageMessage
+  /// \brief How much damage to do on this type of surface. Send via ezMsgDamage
   float m_fDamage = 0.0f;
 };
 
@@ -76,7 +76,7 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  void OnTriggered(ezInternalComponentMessage& msg);
+  void OnTriggered(ezMsgComponentInternalTrigger& msg);
 
   // ************************************* PROPERTIES ***********************************
 

@@ -6,7 +6,7 @@
 typedef ezTypedResourceHandle<class ezPxMeshResource> ezPxMeshResourceHandle;
 typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
 
-struct ezBuildNavMeshMessage;
+struct ezMsgBuildNavMesh;
 
 struct EZ_PHYSXPLUGIN_DLL ezPxMeshResourceDescriptor
 {
@@ -34,7 +34,7 @@ public:
   const ezDynamicArray<ezSurfaceResourceHandle>& GetSurfaces() const { return m_Surfaces; }
 
   /// \brief Adds the geometry of the triangle or convex mesh to the nav mesh descriptor
-  void AddToNavMesh(const ezTransform& transform, ezBuildNavMeshMessage& msg) const;
+  void AddToNavMesh(const ezTransform& transform, ezMsgBuildNavMesh& msg) const;
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;

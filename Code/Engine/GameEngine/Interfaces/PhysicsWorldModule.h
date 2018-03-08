@@ -68,9 +68,9 @@ private:
 };
 
 /// \brief Used to apply a physical impulse on the object
-struct EZ_GAMEENGINE_DLL ezPhysicsAddImpulseMsg : public ezMessage
+struct EZ_GAMEENGINE_DLL ezMsgPhysicsAddImpulse : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezPhysicsAddImpulseMsg, ezMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgPhysicsAddImpulse, ezMessage);
 
   ezVec3 m_vGlobalPosition;
   ezVec3 m_vImpulse;
@@ -78,9 +78,9 @@ struct EZ_GAMEENGINE_DLL ezPhysicsAddImpulseMsg : public ezMessage
 };
 
 /// \brief Used to apply a physical force on the object
-struct EZ_GAMEENGINE_DLL ezPhysicsAddForceMsg : public ezMessage
+struct EZ_GAMEENGINE_DLL ezMsgPhysicsAddForce : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezPhysicsAddForceMsg, ezMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgPhysicsAddForce, ezMessage);
 
   ezVec3 m_vGlobalPosition;
   ezVec3 m_vForce;
@@ -114,9 +114,9 @@ struct EZ_GAMEENGINE_DLL ezSmcDescription
   ezDeque<ezString> m_Surfaces;
 };
 
-struct EZ_GAMEENGINE_DLL ezBuildStaticMeshMessage : public ezMessage
+struct EZ_GAMEENGINE_DLL ezMsgBuildStaticMesh : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezBuildStaticMeshMessage, ezMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgBuildStaticMesh, ezMessage);
 
   /// \brief Append data to this description to add meshes to the automatic static mesh generation
   ezSmcDescription* m_pStaticMeshDescription;

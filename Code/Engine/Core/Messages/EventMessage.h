@@ -14,11 +14,11 @@ struct EZ_CORE_DLL ezEventMessage : public ezMessage
 
 /// \brief For use in scripts to signal a custom event that some game event has occurred.
 ///
-/// This is a simple message for simple use cases. Create custom message for more elaborate cases where a string is not sufficient information.
+/// This is a simple message for simple use cases. Create custom messages for more elaborate cases where a string is not sufficient information.
 /// Also be aware that passing this message is not the most efficient due to the string copy overhead.
-struct EZ_CORE_DLL ezSimpleUserEventMessage : public ezEventMessage
+struct EZ_CORE_DLL ezMsgGenericUserEvent : public ezEventMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezSimpleUserEventMessage, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgGenericUserEvent, ezEventMessage);
 
   /// A custom string to identify the intent.
   ezString m_sMessage;

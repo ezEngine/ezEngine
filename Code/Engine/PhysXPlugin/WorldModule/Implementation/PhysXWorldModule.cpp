@@ -235,7 +235,7 @@ public:
       return;
     }
 
-    ezCollisionMessage msg;
+    ezMsgCollision msg;
     msg.m_vPosition.SetZero();
     msg.m_vNormal.SetZero();
     msg.m_vImpulse.SetZero();

@@ -25,9 +25,9 @@ private:
 //////////////////////////////////////////////////////////////////////////
 
 /// \brief Sent when something enters or leaves the trigger
-struct EZ_PHYSXPLUGIN_DLL ezPxTriggerEventMessage : public ezEventMessage
+struct EZ_PHYSXPLUGIN_DLL ezMsgPxTriggerTriggered : public ezEventMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezPxTriggerEventMessage, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgPxTriggerTriggered, ezEventMessage);
 
   /// Identifies what the message should trigger. Only stores the hashed string, because one should only check for equality with some expected string. Use ezTempHashedString::GetHash() to assign and compare the value.
   ezUInt32 m_uiMessageStringHash;
@@ -78,7 +78,7 @@ private:
   bool m_bKinematic = false;
   ezHashedString m_sTriggerMessage;
 
-  ezEventMessageSender<ezPxTriggerEventMessage> m_TriggerEventSender;
+  ezEventMessageSender<ezMsgPxTriggerTriggered> m_TriggerEventSender;
 
   ezPxUserData m_UserData;
 };

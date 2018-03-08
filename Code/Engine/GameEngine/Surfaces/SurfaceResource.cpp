@@ -247,7 +247,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
 
   if (pObject != nullptr && pObject->IsDynamic())
   {
-    ezApplyOnlyToMessage msg;
+    ezMsgOnlyApplyToObject msg;
     msg.m_hObject = hParent;
 
     for (auto pRootObject : rootObjects)

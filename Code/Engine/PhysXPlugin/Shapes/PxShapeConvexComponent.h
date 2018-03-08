@@ -32,7 +32,7 @@ public:
 
   virtual physx::PxShape* CreateShape(physx::PxRigidActor* pActor, physx::PxTransform& out_ShapeTransform) override;
 
-  virtual void AddToNavMesh(ezBuildNavMeshMessage& msg) const override;
+  virtual void AddToNavMesh(ezMsgBuildNavMesh& msg) const override;
 
 protected:
 

@@ -8,8 +8,8 @@
 
 class ezMeshRenderData;
 class ezGeometry;
-struct ezExtractRenderDataMessage;
-struct ezBuildStaticMeshMessage;
+struct ezMsgExtractRenderData;
+struct ezMsgBuildStaticMesh;
 typedef ezTypedResourceHandle<class ezMeshResource> ezMeshResourceHandle;
 typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
 
@@ -55,7 +55,7 @@ public:
   // ezRenderComponent Interface
 public:
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
-  void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
+  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   //////////////////////////////////////////////////////////////////////////
   // ezGreyBoxComponent Interface
@@ -89,7 +89,7 @@ public:
   void SetThickness(float f);
   float GetThickness() const { return m_fThickness; }
 
-  void OnBuildStaticMesh(ezBuildStaticMeshMessage& msg) const;
+  void OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const;
 
 protected:
   ezEnum<ezGreyBoxShape> m_Shape;

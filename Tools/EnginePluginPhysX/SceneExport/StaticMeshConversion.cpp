@@ -20,7 +20,7 @@ void ezSceneExportModifier_StaticMeshConversion::ModifyWorld(ezWorld& world, con
   ezSmcDescription desc;
   desc.m_Surfaces.PushBack(); // add a dummy empty material
 
-  ezBuildStaticMeshMessage msg;
+  ezMsgBuildStaticMesh msg;
   msg.m_pStaticMeshDescription = &desc;
 
   for (auto it = world.GetObjects(); it.IsValid(); ++it)

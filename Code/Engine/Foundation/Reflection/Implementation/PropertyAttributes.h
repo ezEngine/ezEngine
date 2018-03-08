@@ -664,7 +664,20 @@ public:
 
 };
 
+//////////////////////////////////////////////////////////////////////////
 
+/// \brief Attribute for ezMessages to instruct the visual script framework to automatically generate a node for sending this type of message
+class EZ_FOUNDATION_DLL ezAutoGenVisScriptMsgSender : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezAutoGenVisScriptMsgSender, ezPropertyAttribute);
+};
+
+
+/// \brief Attribute for ezMessages to instruct the visual script framework to automatically generate a node for handling this type of message
+class EZ_FOUNDATION_DLL ezAutoGenVisScriptMsgHandler : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezAutoGenVisScriptMsgHandler, ezPropertyAttribute);
+};
 
 
 

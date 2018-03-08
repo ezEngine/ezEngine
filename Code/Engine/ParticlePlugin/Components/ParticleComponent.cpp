@@ -12,14 +12,20 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezParticleComponent_PlayEffectMsg);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleComponent_PlayEffectMsg, 1, ezRTTIDefaultAllocator<ezParticleComponent_PlayEffectMsg>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPlayParticleEffect);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPlayParticleEffect, 1, ezRTTIDefaultAllocator<ezMsgPlayParticleEffect>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Play", m_bPlay)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES
+
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezAutoGenVisScriptMsgSender,
+  }
+  EZ_END_ATTRIBUTES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -47,8 +53,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 3, ezComponentMode::Static)
   EZ_END_ATTRIBUTES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezParticleComponent_PlayEffectMsg, Play),
-    EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgPlayParticleEffect, Play),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS
 
@@ -200,7 +206,7 @@ bool ezParticleComponent::IsEffectActive() const
 }
 
 
-void ezParticleComponent::Play(ezParticleComponent_PlayEffectMsg& msg)
+void ezParticleComponent::Play(ezMsgPlayParticleEffect& msg)
 {
   if (msg.m_bPlay)
   {
@@ -261,7 +267,7 @@ ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& 
 }
 
 
-void ezParticleComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
+void ezParticleComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // do not extract particles during shadow map rendering
   if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)

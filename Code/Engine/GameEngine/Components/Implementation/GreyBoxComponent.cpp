@@ -41,8 +41,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 2, ezComponentMode::Static)
   EZ_END_ATTRIBUTES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezBuildStaticMeshMessage, OnBuildStaticMesh),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgBuildStaticMesh, OnBuildStaticMesh),
   }
   EZ_END_MESSAGEHANDLERS
 }
@@ -117,7 +117,7 @@ ezResult ezGreyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& b
   return EZ_FAILURE;
 }
 
-void ezGreyBoxComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
+void ezGreyBoxComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   GenerateRenderMesh();
 
@@ -267,7 +267,7 @@ void ezGreyBoxComponent::SetThickness(float f)
   InvalidateMesh();
 }
 
-void ezGreyBoxComponent::OnBuildStaticMesh(ezBuildStaticMeshMessage& msg) const
+void ezGreyBoxComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
 {
   ezGeometry geom;
   BuildGeometry(geom);

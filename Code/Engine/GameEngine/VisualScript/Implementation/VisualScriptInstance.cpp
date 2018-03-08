@@ -8,7 +8,6 @@
 #include <Core/World/GameObject.h>
 #include <Foundation/Communication/Message.h>
 #include <Core/Messages/EventMessage.h>
-#include <Core/Messages/ScriptFunctionMessage.h>
 #include <GameEngine/VisualScript/Nodes/VisualScriptMessageNodes.h>
 
 ezMap<ezVisualScriptInstance::AssignFuncKey, ezVisualScriptDataPinAssignFunc> ezVisualScriptInstance::s_DataPinAssignFunctions;
@@ -166,13 +165,16 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceHandle& hScri
   {
     const auto& node = resource.m_Nodes[n];
 
-    if (node.m_pType->IsDerivedFrom<ezScriptFunctionMessage>())
+    if (node.m_pType->IsDerivedFrom<ezMessage>())
     {
-      CreateFunctionMessageNode(n, resource);
-    }
-    else if (node.m_pType->IsDerivedFrom<ezEventMessage>())
-    {
-      CreateEventMessageNode(n, resource);
+      if (node.m_isMsgSender)
+      {
+        CreateFunctionMessageNode(n, resource);
+      }
+      else if (node.m_isMsgHandler)
+      {
+        CreateEventMessageNode(n, resource);
+      }
     }
     else if (node.m_pType->IsDerivedFrom<ezVisualScriptNode>())
     {

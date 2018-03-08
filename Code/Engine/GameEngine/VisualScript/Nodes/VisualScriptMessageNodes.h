@@ -5,7 +5,7 @@
 #include <Core/Messages/EventMessage.h>
 #include <Core/Messages/TriggerMessage.h>
 
-struct ezInputEventMessage;
+struct ezMsgInputActionTriggered;
 
 //////////////////////////////////////////////////////////////////////////
 

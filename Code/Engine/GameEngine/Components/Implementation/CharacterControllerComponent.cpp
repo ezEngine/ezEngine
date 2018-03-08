@@ -1,12 +1,12 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/Components/CharacterControllerComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezCharacterController_MoveCharacterMsg);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCharacterController_MoveCharacterMsg, 1, ezRTTIDefaultAllocator<ezCharacterController_MoveCharacterMsg>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgMoveCharacterController);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgMoveCharacterController, 1, ezRTTIDefaultAllocator<ezMsgMoveCharacterController>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -21,6 +21,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCharacterController_MoveCharacterMsg, 1, ezRTT
     EZ_MEMBER_PROPERTY("Crouch", m_bCrouch),
   }
   EZ_END_PROPERTIES
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezAutoGenVisScriptMsgSender
+  }
+  EZ_END_ATTRIBUTES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -37,7 +42,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezCharacterControllerComponent, 1)
   EZ_END_ATTRIBUTES
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezCharacterController_MoveCharacterMsg, MoveCharacter),
+    EZ_MESSAGE_HANDLER(ezMsgMoveCharacterController, MoveCharacter),
   }
   EZ_END_MESSAGEHANDLERS
 }

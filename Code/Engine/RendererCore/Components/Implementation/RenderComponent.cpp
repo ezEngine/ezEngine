@@ -5,7 +5,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezRenderComponent, 1)
 {
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds)
+    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds)
   }
   EZ_END_MESSAGEHANDLERS
 }
@@ -33,7 +33,7 @@ void ezRenderComponent::OnDeactivated()
   GetOwner()->UpdateLocalBounds();
 }
 
-void ezRenderComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg)
+void ezRenderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 {
   ezBoundingBoxSphere bounds;
   bounds.SetInvalid();

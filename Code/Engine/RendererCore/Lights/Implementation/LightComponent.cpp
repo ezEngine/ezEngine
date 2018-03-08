@@ -27,7 +27,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 4)
   EZ_END_ATTRIBUTES
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezSetColorMessage, OnSetColor),
+    EZ_MESSAGE_HANDLER(ezMsgSetColor, OnSetColor),
   }
   EZ_END_MESSAGEHANDLERS
 }
@@ -146,7 +146,7 @@ void ezLightComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_bCastShadows;
 }
 
-void ezLightComponent::OnSetColor(ezSetColorMessage& msg)
+void ezLightComponent::OnSetColor(ezMsgSetColor& msg)
 {
   msg.ModifyColor(m_LightColor);
 }

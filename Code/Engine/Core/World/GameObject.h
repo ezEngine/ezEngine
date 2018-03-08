@@ -8,7 +8,7 @@
 #include <Core/World/ComponentManager.h>
 #include <Core/World/GameObjectDesc.h>
 
-struct ezDeleteObjectMessage;
+struct ezMsgDeleteGameObject;
 
 /// \brief This class represents an object inside the world.
 ///
@@ -353,7 +353,7 @@ private:
 
   void UpdateGlobalTransformAndBoundsRecursive();
 
-  void OnDeleteObject(ezDeleteObjectMessage& msg);
+  void OnDeleteObject(ezMsgDeleteGameObject& msg);
 
   void AddComponent(ezComponent* pComponent);
   void RemoveComponent(ezComponent* pComponent);

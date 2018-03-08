@@ -3,7 +3,7 @@
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
-struct ezSetColorMessage;
+struct ezMsgSetColor;
 
 /// \brief Base class for light render data objects.
 class EZ_RENDERERCORE_DLL ezLightRenderData : public ezRenderData
@@ -46,7 +46,7 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  void OnSetColor(ezSetColorMessage& msg);
+  void OnSetColor(ezMsgSetColor& msg);
 
   static float CalculateEffectiveRange(float fRange, float fIntensity);
   static float CalculateScreenSpaceSize(const ezBoundingSphere& sphere, const ezCamera& camera);

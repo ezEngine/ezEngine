@@ -15,7 +15,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxShapeSphereComponent, 1, ezComponentMode::Static)
   EZ_END_PROPERTIES
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds),
+    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
   }
   EZ_END_MESSAGEHANDLERS
   EZ_BEGIN_ATTRIBUTES
@@ -54,7 +54,7 @@ void ezPxShapeSphereComponent::DeserializeComponent(ezWorldReader& stream)
 }
 
 
-void ezPxShapeSphereComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const
+void ezPxShapeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
 {
   msg.AddBounds(ezBoundingSphere(ezVec3::ZeroVector(), m_fRadius));
 }

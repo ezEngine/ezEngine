@@ -6,7 +6,7 @@
 #include <Core/World/Declarations.h>
 
 class ezVisualScriptInstance;
-struct ezCollisionMessage;
+struct ezMsgCollision;
 
 class EZ_GAMEENGINE_DLL ezVisualScriptNode : public ezReflectedClass
 {

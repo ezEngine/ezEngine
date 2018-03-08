@@ -1,7 +1,6 @@
 #pragma once
 
 #include <ParticlePlugin/Basics.h>
-#include <Core/Messages/ScriptFunctionMessage.h>
 #include <Core/World/World.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <Core/ResourceManager/ResourceHandle.h>
@@ -10,8 +9,8 @@
 #include <ParticlePlugin/Effect/ParticleEffectController.h>
 
 class ezParticleRenderData;
-struct ezUpdateLocalBoundsMessage;
-struct ezExtractRenderDataMessage;
+struct ezMsgUpdateLocalBounds;
+struct ezMsgExtractRenderData;
 class ezParticleSystemInstance;
 class ezParticleComponent;
 
@@ -20,9 +19,9 @@ typedef ezTypedResourceHandle<class ezParticleEffectResource> ezParticleEffectRe
 typedef ezComponentManagerSimple<ezParticleComponent, ezComponentUpdateType::WhenSimulating> ezParticleComponentManager;
 
 /// \brief This message makes an ezParticleComponent start or stop it's effect.
-struct ezParticleComponent_PlayEffectMsg : public ezScriptFunctionMessage
+struct ezMsgPlayParticleEffect : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezParticleComponent_PlayEffectMsg, ezScriptFunctionMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgPlayParticleEffect, ezMessage);
 
   /// If true, StartEffect() is called, otherwise StopEffect() is called.
   bool m_bPlay = true;
@@ -55,8 +54,8 @@ public:
   /// \brief Returns true, if an effect is currently in a state where it might emit new particles
   bool IsEffectActive() const;
 
-  /// Message Handler for ezParticleComponent_PlayEffectMsg
-  void Play(ezParticleComponent_PlayEffectMsg& msg);
+  /// Message Handler for ezMsgPlayParticleEffect
+  void Play(ezMsgPlayParticleEffect& msg);
 
   //////////////////////////////////////////////////////////////////////////
   // Properties
@@ -79,7 +78,7 @@ public:
 
 
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
-  void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
+  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   ezParticleEffectController m_EffectController;
 

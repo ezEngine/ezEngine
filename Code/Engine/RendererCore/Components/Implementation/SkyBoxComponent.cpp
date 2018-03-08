@@ -25,7 +25,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkyBoxComponent, 4, ezComponentMode::Static)
   EZ_END_ATTRIBUTES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS
 }
@@ -94,7 +94,7 @@ ezResult ezSkyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bA
   return EZ_SUCCESS;
 }
 
-void ezSkyBoxComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
+void ezSkyBoxComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // Don't extract sky render data for selection or in orthographic views.
   if (msg.m_OverrideCategory != ezInvalidIndex || msg.m_pView->GetCamera()->IsOrthographic())

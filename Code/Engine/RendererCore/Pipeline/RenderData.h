@@ -66,9 +66,9 @@ struct EZ_RENDERERCORE_DLL ezDefaultRenderDataCategories
   static ezRenderData::Category GUI;
 };
 
-struct EZ_RENDERERCORE_DLL ezExtractRenderDataMessage : public ezMessage
+struct EZ_RENDERERCORE_DLL ezMsgExtractRenderData : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezExtractRenderDataMessage, ezMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgExtractRenderData, ezMessage);
 
   const ezView* m_pView;
   ezExtractedRenderData* m_pExtractedRenderData;

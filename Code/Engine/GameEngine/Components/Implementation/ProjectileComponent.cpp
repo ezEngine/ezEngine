@@ -44,7 +44,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 4, ezComponentMode::Dynamic)
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezInternalComponentMessage, OnTriggered),
+    EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnTriggered),
   }
   EZ_END_MESSAGEHANDLERS
     EZ_BEGIN_ATTRIBUTES
@@ -143,7 +143,7 @@ void ezProjectileComponent::Update()
           {
             if (GetWorld()->TryGetObject(hitResult.m_hActorObject, pObject))
             {
-              ezPhysicsAddImpulseMsg msg;
+              ezMsgPhysicsAddImpulse msg;
               msg.m_vGlobalPosition = hitResult.m_vPosition;
               msg.m_vImpulse = vCurDirection * interaction.m_fImpulse;
               msg.m_uiShapeId = hitResult.m_uiShapeId;
@@ -158,7 +158,7 @@ void ezProjectileComponent::Update()
             // skip the TryGetObject if we already did that above
             if (pObject != nullptr || GetWorld()->TryGetObject(hitResult.m_hActorObject, pObject))
             {
-              ezDamageMessage msg;
+              ezMsgDamage msg;
               msg.m_fDamage = interaction.m_fDamage;
 
               pObject->SendMessage(msg);
@@ -325,7 +325,7 @@ void ezProjectileComponent::OnSimulationStarted()
 {
   if (m_MaxLifetime.GetSeconds() > 0.0)
   {
-    ezInternalComponentMessage msg;
+    ezMsgComponentInternalTrigger msg;
     msg.m_uiUsageStringHash = ezTempHashedString::ComputeHash("Suicide");
 
     PostMessage(msg, ezObjectMsgQueueType::NextFrame, m_MaxLifetime);
@@ -340,7 +340,7 @@ void ezProjectileComponent::OnSimulationStarted()
   m_vVelocity = GetOwner()->GetGlobalDirForwards() * m_fMetersPerSecond;
 }
 
-void ezProjectileComponent::OnTriggered(ezInternalComponentMessage& msg)
+void ezProjectileComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
 {
   if (msg.m_uiUsageStringHash != ezTempHashedString::ComputeHash("Suicide"))
     return;

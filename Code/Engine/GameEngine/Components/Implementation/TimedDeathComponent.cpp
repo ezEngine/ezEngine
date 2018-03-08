@@ -18,7 +18,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezTimedDeathComponent, 2, ezComponentMode::Static)
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezInternalComponentMessage, OnTriggered),
+    EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnTriggered),
   }
   EZ_END_MESSAGEHANDLERS
     EZ_BEGIN_ATTRIBUTES
@@ -59,7 +59,7 @@ void ezTimedDeathComponent::DeserializeComponent(ezWorldReader& stream)
 
 void ezTimedDeathComponent::OnSimulationStarted()
 {
-  ezInternalComponentMessage msg;
+  ezMsgComponentInternalTrigger msg;
   msg.m_uiUsageStringHash = ezTempHashedString::ComputeHash("Suicide");
 
   ezWorld* pWorld = GetWorld();
@@ -75,7 +75,7 @@ void ezTimedDeathComponent::OnSimulationStarted()
   }
 }
 
-void ezTimedDeathComponent::OnTriggered(ezInternalComponentMessage& msg)
+void ezTimedDeathComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
 {
   if (msg.m_uiUsageStringHash != ezTempHashedString::ComputeHash("Suicide"))
     return;

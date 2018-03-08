@@ -1,11 +1,10 @@
 ﻿#pragma once
 
 #include <PhysXPlugin/Components/PxComponent.h>
-#include <Core/Messages/ScriptFunctionMessage.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <GameEngine/Components/CharacterControllerComponent.h>
 
-struct ezCollisionMessage;
+struct ezMsgCollision;
 typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
 
 class ezPxCharacterControllerComponentManager : public ezComponentManager<class ezPxCharacterControllerComponent, ezBlockStorageType::Compact>
@@ -66,8 +65,8 @@ protected:
 
 public:
 
-  virtual void MoveCharacter(ezCharacterController_MoveCharacterMsg& msg) override;
-  void OnCollision(ezCollisionMessage& msg);
+  virtual void MoveCharacter(ezMsgMoveCharacterController& msg) override;
+  void OnCollision(ezMsgCollision& msg);
 
 protected:
   ezComponentHandle m_hProxy;

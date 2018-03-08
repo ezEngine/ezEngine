@@ -104,7 +104,7 @@ PxShape* ezPxShapeConvexComponent::CreateShape(PxRigidActor* pActor, PxTransform
   return pActor->createShape(PxConvexMeshGeometry(pMesh->GetConvexMesh(), scale), *pMaterial);
 }
 
-void ezPxShapeConvexComponent::AddToNavMesh(ezBuildNavMeshMessage& msg) const
+void ezPxShapeConvexComponent::AddToNavMesh(ezMsgBuildNavMesh& msg) const
 {
   if (m_hCollisionMesh.IsValid())
   {

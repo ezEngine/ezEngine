@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include <FmodPlugin/Components/FmodComponent.h>
-#include <Core/Messages/ScriptFunctionMessage.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Core/Messages/EventMessage.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
@@ -24,34 +23,34 @@ struct ezResourceEvent;
 
 //////////////////////////////////////////////////////////////////////////
 
-struct EZ_FMODPLUGIN_DLL ezFmodEventComponent_RestartSoundMsg : public ezScriptFunctionMessage
+struct EZ_FMODPLUGIN_DLL ezMsgFmodRestartSound : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezFmodEventComponent_RestartSoundMsg, ezScriptFunctionMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgFmodRestartSound, ezMessage);
 
   /// If true, a separate one-shot instance is started, which will play till completion. 
   /// If false, the sound is played on the component itself, which allows to move it, restart, stop it, etc.
   bool m_bOneShotInstance = true;
 };
 
-struct EZ_FMODPLUGIN_DLL ezFmodEventComponent_StopSoundMsg : public ezScriptFunctionMessage
+struct EZ_FMODPLUGIN_DLL ezMsgFmodStopSound : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezFmodEventComponent_StopSoundMsg, ezScriptFunctionMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgFmodStopSound, ezMessage);
 
   /// If true, the sound is interrupted immediately. Otherwise it is allows to fade out.
   bool m_bImmediate = false;
 };
 
 /// \brief Sent when a ezFmodEventComponent finishes playing a sound. Not sent for one-shot sound events.
-struct EZ_FMODPLUGIN_DLL ezFmodSoundFinishedEventMessage : public ezEventMessage
+struct EZ_FMODPLUGIN_DLL ezMsgFmodSoundFinished : public ezEventMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezFmodSoundFinishedEventMessage, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgFmodSoundFinished, ezEventMessage);
 
 };
 
 /// \brief Triggers an fmod sound cue on the sound event.
-struct EZ_FMODPLUGIN_DLL ezFmodEventComponent_SoundCueMsg : public ezScriptFunctionMessage
+struct EZ_FMODPLUGIN_DLL ezMsgFmodAddSoundCue : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezFmodEventComponent_SoundCueMsg, ezScriptFunctionMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgFmodAddSoundCue, ezMessage);
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -119,13 +118,13 @@ public:
   ///
   /// One-shot sounds play in parallel.
   /// For not one-shot sounds, if it is already playing, it is interrupted and started from the beginning.
-  void RestartSound(ezFmodEventComponent_RestartSoundMsg& msg);
+  void RestartSound(ezMsgFmodRestartSound& msg);
 
   /// Stops the current sound from playing. Typically allows the sound to fade out briefly, unless specified otherwise.
-  void StopSound(ezFmodEventComponent_StopSoundMsg& msg);
+  void StopSound(ezMsgFmodStopSound& msg);
 
   /// \brief Triggers an fmod sound cue. Whatever that is useful for.
-  void SoundCue(ezFmodEventComponent_SoundCueMsg& msg);
+  void SoundCue(ezMsgFmodAddSoundCue& msg);
 
   /// \brief Tries to find the fmod event parameter by name. Returns the parameter index or -1, if no such parameter exists.
   ezInt32 FindParameter(const char* szName) const;
@@ -147,7 +146,7 @@ protected:
   FMOD::Studio::EventDescription* m_pEventDesc;
   FMOD::Studio::EventInstance* m_pEventInstance;
 
-  ezEventMessageSender<ezFmodSoundFinishedEventMessage> m_SoundFinishedEventSender;
+  ezEventMessageSender<ezMsgFmodSoundFinished> m_SoundFinishedEventSender;
 };
 
 

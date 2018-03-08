@@ -42,8 +42,8 @@ void ezPxTriggerComponentManager::UpdateKinematicActors()
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezPxTriggerEventMessage)
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPxTriggerEventMessage, 1, ezRTTIDefaultAllocator<ezPxTriggerEventMessage>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPxTriggerTriggered)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPxTriggerTriggered, 1, ezRTTIDefaultAllocator<ezMsgPxTriggerTriggered>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
@@ -181,7 +181,7 @@ void ezPxTriggerComponent::SetKinematic(bool b)
 
 void ezPxTriggerComponent::PostTriggerMessage(const ezComponent* pOtherComponent, ezTriggerState::Enum triggerState) const
 {
-  ezPxTriggerEventMessage msg;
+  ezMsgPxTriggerTriggered msg;
 
   msg.m_TriggerState = triggerState;
   msg.m_uiMessageStringHash = m_sTriggerMessage.GetHash();

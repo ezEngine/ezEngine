@@ -6,7 +6,7 @@
 #include <RendererCore/Components/RenderComponent.h>
 #include <ParticlePlugin/Effect/ParticleEffectController.h>
 
-struct ezExtractRenderDataMessage;
+struct ezMsgExtractRenderData;
 
 typedef ezComponentManagerSimple<class ezParticleFinisherComponent, ezComponentUpdateType::WhenSimulating> ezParticleFinisherComponentManager;
 
@@ -49,7 +49,7 @@ public:
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
 
 protected:
-  void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
+  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   //////////////////////////////////////////////////////////////////////////
   // Implementation

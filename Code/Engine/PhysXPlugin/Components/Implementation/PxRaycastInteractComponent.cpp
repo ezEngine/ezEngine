@@ -9,8 +9,15 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezPxRaycastInteractComponent_Execute);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPxRaycastInteractComponent_Execute, 1, ezRTTIDefaultAllocator<ezPxRaycastInteractComponent_Execute>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgTriggerRaycastInteractionComponent);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgTriggerRaycastInteractionComponent, 1, ezRTTIDefaultAllocator<ezMsgTriggerRaycastInteractionComponent>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezAutoGenVisScriptMsgSender,
+  }
+  EZ_END_ATTRIBUTES
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 //////////////////////////////////////////////////////////////////////////
@@ -26,7 +33,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxRaycastInteractComponent, 1, ezComponentMode::Static
   EZ_END_PROPERTIES
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezPxRaycastInteractComponent_Execute, Execute),
+    EZ_MESSAGE_HANDLER(ezMsgTriggerRaycastInteractionComponent, OnTrigger),
   }
   EZ_END_MESSAGEHANDLERS
   EZ_BEGIN_ATTRIBUTES
@@ -62,7 +69,7 @@ void ezPxRaycastInteractComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_sUserMessage;
 }
 
-void ezPxRaycastInteractComponent::Execute(ezPxRaycastInteractComponent_Execute& msg)
+void ezPxRaycastInteractComponent::OnTrigger(ezMsgTriggerRaycastInteractionComponent& msg)
 {
   ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
 
@@ -92,7 +99,7 @@ void ezPxRaycastInteractComponent::Execute(ezPxRaycastInteractComponent_Execute&
 
 void ezPxRaycastInteractComponent::SendMessage(const ezPhysicsHitResult& hit)
 {
-  ezSimpleUserEventMessage msg;
+  ezMsgGenericUserEvent msg;
   msg.m_sMessage = m_sUserMessage;
 
   GetWorld()->SendMessage(hit.m_hActorObject, msg);

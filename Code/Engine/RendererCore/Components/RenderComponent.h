@@ -15,7 +15,7 @@ public:
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
-  void OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg);
+  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
 
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) = 0;
 

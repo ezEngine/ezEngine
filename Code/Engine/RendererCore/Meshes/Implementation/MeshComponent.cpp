@@ -7,8 +7,8 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMeshComponent_SetMaterialMsg);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshComponent_SetMaterialMsg, 1, ezRTTIDefaultAllocator<ezMeshComponent_SetMaterialMsg>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSetMeshMaterial);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetMeshMaterial, 1, ezRTTIDefaultAllocator<ezMsgSetMeshMaterial>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -16,10 +16,16 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshComponent_SetMaterialMsg, 1, ezRTTIDefault
     EZ_MEMBER_PROPERTY("MaterialSlot", m_uiMaterialSlot),
   }
   EZ_END_PROPERTIES
+
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezAutoGenVisScriptMsgSender,
+  }
+  EZ_END_ATTRIBUTES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-void ezMeshComponent_SetMaterialMsg::SetMaterialFile(const char* szFile)
+void ezMsgSetMeshMaterial::SetMaterialFile(const char* szFile)
 {
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
@@ -31,7 +37,7 @@ void ezMeshComponent_SetMaterialMsg::SetMaterialFile(const char* szFile)
   }
 }
 
-const char* ezMeshComponent_SetMaterialMsg::GetMaterialFile() const
+const char* ezMsgSetMeshMaterial::GetMaterialFile() const
 {
   if (!m_hMaterial.IsValid())
     return "";
@@ -39,14 +45,14 @@ const char* ezMeshComponent_SetMaterialMsg::GetMaterialFile() const
   return m_hMaterial.GetResourceID();
 }
 
-void ezMeshComponent_SetMaterialMsg::Serialize(ezStreamWriter& stream) const
+void ezMsgSetMeshMaterial::Serialize(ezStreamWriter& stream) const
 {
   // has to be stringyfied for transfer
   stream << GetMaterialFile();
   stream << m_uiMaterialSlot;
 }
 
-void ezMeshComponent_SetMaterialMsg::Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVersion)
+void ezMsgSetMeshMaterial::Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVersion)
 {
   ezStringBuilder file;
   stream >> file;
@@ -76,9 +82,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezMeshComponent, 2, ezComponentMode::Static)
   EZ_END_ATTRIBUTES
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMeshComponent_SetMaterialMsg, OnSetMaterial),
-    EZ_MESSAGE_HANDLER(ezSetColorMessage, OnSetColor),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgSetMeshMaterial, OnSetMaterial),
+    EZ_MESSAGE_HANDLER(ezMsgSetColor, OnSetColor),
   }
   EZ_END_MESSAGEHANDLERS
 }
@@ -153,7 +159,7 @@ ezResult ezMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlw
   return EZ_FAILURE;
 }
 
-void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
+void ezMeshComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   if (!m_hMesh.IsValid())
     return;
@@ -305,12 +311,12 @@ const ezColor& ezMeshComponent::GetColor() const
   return m_Color;
 }
 
-void ezMeshComponent::OnSetMaterial(ezMeshComponent_SetMaterialMsg& msg)
+void ezMeshComponent::OnSetMaterial(ezMsgSetMeshMaterial& msg)
 {
   SetMaterial(msg.m_uiMaterialSlot, msg.m_hMaterial);
 }
 
-void ezMeshComponent::OnSetColor(ezSetColorMessage& msg)
+void ezMeshComponent::OnSetColor(ezMsgSetColor& msg)
 {
   msg.ModifyColor(m_Color);
 }

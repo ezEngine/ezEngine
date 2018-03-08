@@ -1,13 +1,12 @@
 #pragma once
 
-#include <Core/Messages/ScriptFunctionMessage.h>
 #include <Core/World/World.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
-struct ezSetColorMessage;
+struct ezMsgSetColor;
 
 class EZ_RENDERERCORE_DLL ezMeshRenderData : public ezRenderData
 {
@@ -30,9 +29,9 @@ public:
 
 typedef ezComponentManager<class ezMeshComponent, ezBlockStorageType::Compact> ezMeshComponentManager;
 
-struct EZ_RENDERERCORE_DLL ezMeshComponent_SetMaterialMsg : public ezScriptFunctionMessage
+struct EZ_RENDERERCORE_DLL ezMsgSetMeshMaterial : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezMeshComponent_SetMaterialMsg, ezScriptFunctionMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgSetMeshMaterial, ezMessage);
 
   void SetMaterialFile(const char* szFile);
   const char* GetMaterialFile() const;
@@ -65,7 +64,7 @@ public:
 
 public:
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
-  void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
+  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   //////////////////////////////////////////////////////////////////////////
   // ezMeshComponent Interface
@@ -86,8 +85,8 @@ public:
   void SetColor(const ezColor& color);
   const ezColor& GetColor() const;
 
-  void OnSetMaterial(ezMeshComponent_SetMaterialMsg& msg);
-  void OnSetColor(ezSetColorMessage& msg);
+  void OnSetMaterial(ezMsgSetMeshMaterial& msg);
+  void OnSetColor(ezMsgSetColor& msg);
 
 protected:
   virtual ezMeshRenderData* CreateRenderData(ezUInt32 uiBatchId) const;

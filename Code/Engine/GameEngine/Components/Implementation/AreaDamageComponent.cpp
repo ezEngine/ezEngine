@@ -19,7 +19,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAreaDamageComponent, 1, ezComponentMode::Static)
   EZ_END_PROPERTIES
     //  EZ_BEGIN_MESSAGEHANDLERS
     //{
-    //  EZ_MESSAGE_HANDLER(ezInternalComponentMessage, OnTriggered),
+    //  EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnTriggered),
     //}
     //EZ_END_MESSAGEHANDLERS
     EZ_BEGIN_ATTRIBUTES
@@ -79,7 +79,7 @@ void ezAreaDamageComponent::ApplyAreaDamage()
         // apply a physical impulse
         if (m_fImpulse > 0.0f)
         {
-          ezPhysicsAddImpulseMsg msg;
+          ezMsgPhysicsAddImpulse msg;
           msg.m_vGlobalPosition = vTargetPos;
           msg.m_vImpulse = vDirToTarget * m_fImpulse * fScale;
           msg.m_uiShapeId = hit.m_uiShapeId;
@@ -90,7 +90,7 @@ void ezAreaDamageComponent::ApplyAreaDamage()
         // apply damage
         if (m_fDamage > 0.0f)
         {
-          ezDamageMessage msg;
+          ezMsgDamage msg;
           msg.m_fDamage = m_fDamage * fScale;
 
           pObject->SendMessage(msg);

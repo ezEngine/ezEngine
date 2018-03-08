@@ -6,14 +6,20 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezSpawnComponent_SpawnMsg);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpawnComponent_SpawnMsg, 1, ezRTTIDefaultAllocator<ezSpawnComponent_SpawnMsg>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgTriggerSpawnComponent);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgTriggerSpawnComponent, 1, ezRTTIDefaultAllocator<ezMsgTriggerSpawnComponent>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Continuous", m_bContinuousSpawn),
   }
   EZ_END_PROPERTIES
+
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezAutoGenVisScriptMsgSender,
+  }
+  EZ_END_ATTRIBUTES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -42,8 +48,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 2, ezComponentMode::Static)
   EZ_END_ATTRIBUTES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezInternalComponentMessage, OnTriggered),
-    EZ_MESSAGE_HANDLER(ezSpawnComponent_SpawnMsg, Spawn),
+    EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnTriggered),
+    EZ_MESSAGE_HANDLER(ezMsgTriggerSpawnComponent, OnSpawn),
   }
   EZ_END_MESSAGEHANDLERS
 }
@@ -118,7 +124,7 @@ void ezSpawnComponent::ScheduleSpawn()
   if (m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::SpawnInFlight))
     return;
 
-  ezInternalComponentMessage msg;
+  ezMsgComponentInternalTrigger msg;
   msg.m_uiUsageStringHash = ezTempHashedString::ComputeHash("scheduled_spawn");
 
   m_SpawnFlags.Add(ezSpawnComponentFlags::SpawnInFlight);
@@ -200,7 +206,7 @@ void ezSpawnComponent::SetPrefab(const ezPrefabResourceHandle& hPrefab)
   m_hPrefab = hPrefab;
 }
 
-void ezSpawnComponent::Spawn(ezSpawnComponent_SpawnMsg& msg)
+void ezSpawnComponent::OnSpawn(ezMsgTriggerSpawnComponent& msg)
 {
   if (msg.m_bContinuousSpawn)
   {
@@ -212,7 +218,7 @@ void ezSpawnComponent::Spawn(ezSpawnComponent_SpawnMsg& msg)
   }
 }
 
-void ezSpawnComponent::OnTriggered(ezInternalComponentMessage& msg)
+void ezSpawnComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
 {
   if (msg.m_uiUsageStringHash == ezTempHashedString::ComputeHash("scheduled_spawn"))
   {

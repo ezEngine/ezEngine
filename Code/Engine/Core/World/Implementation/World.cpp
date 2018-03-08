@@ -200,7 +200,7 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& object)
 
 void ezWorld::DeleteObjectDelayed(const ezGameObjectHandle& hObject)
 {
-  ezDeleteObjectMessage msg;
+  ezMsgDeleteGameObject msg;
   PostMessage(hObject, msg, ezObjectMsgQueueType::NextFrame);
 }
 

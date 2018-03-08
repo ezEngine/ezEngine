@@ -1,11 +1,10 @@
 #pragma once
 
 #include <GameEngine/Basics.h>
-#include <Core/Messages/ScriptFunctionMessage.h>
 #include <Core/World/World.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
 
-struct ezInternalComponentMessage;
+struct ezMsgComponentInternalTrigger;
 
 struct ezSpawnComponentFlags
 {
@@ -35,9 +34,9 @@ EZ_DECLARE_FLAGS_OPERATORS(ezSpawnComponentFlags);
 typedef ezComponentManager<class ezSpawnComponent, ezBlockStorageType::Compact> ezSpawnComponentManager;
 
 /// \brief Message to initiate a spawn on ezSpawnComponent
-struct EZ_GAMEENGINE_DLL ezSpawnComponent_SpawnMsg : public ezScriptFunctionMessage
+struct EZ_GAMEENGINE_DLL ezMsgTriggerSpawnComponent : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezSpawnComponent_SpawnMsg, ezScriptFunctionMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgTriggerSpawnComponent, ezMessage);
 
   /// If true ScheduleSpawn() is called, otherwise TriggerManualSpawn()
   bool m_bContinuousSpawn = false;
@@ -95,11 +94,11 @@ public:
   //////////////////////////////////////////////////////////////////////////
   // Message Handlers
 
-  void Spawn(ezSpawnComponent_SpawnMsg& msg);
+  void OnSpawn(ezMsgTriggerSpawnComponent& msg);
 
 private:
 
-  void OnTriggered(ezInternalComponentMessage& msg);
+  void OnTriggered(ezMsgComponentInternalTrigger& msg);
 
 protected:
   ezBitflags<ezSpawnComponentFlags> m_SpawnFlags;

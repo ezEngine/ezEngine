@@ -3,9 +3,19 @@
 
 namespace
 {
-  struct TestMessage : public ezMessage
+  struct ezMsgTest : public ezMessage
   {
-    EZ_DECLARE_MESSAGE_TYPE(TestMessage, ezMessage);
+    EZ_DECLARE_MESSAGE_TYPE(ezMsgTest, ezMessage);
+
+  };
+
+  EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgTest);
+  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgTest, 1, ezRTTIDefaultAllocator<ezMsgTest>)
+    EZ_END_DYNAMIC_REFLECTED_TYPE
+
+  struct TestMessage : public ezMsgTest
+  {
+    EZ_DECLARE_MESSAGE_TYPE(TestMessage, ezMsgTest);
 
     int x;
     int y;

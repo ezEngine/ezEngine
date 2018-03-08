@@ -10,15 +10,15 @@
 //typedef ezComponentManager<class ezBreakableSheetComponent, ezBlockStorageType::FreeList> ezBreakableSheetComponentManager;
 typedef ezComponentManagerSimple<class ezBreakableSheetComponent, ezComponentUpdateType::Always /* TODO: When simulating */> ezBreakableSheetComponentManager;
 
-struct ezExtractRenderDataMessage;
-struct ezBuildNavMeshMessage;
-struct ezCollisionMessage;
-struct ezPhysicsAddImpulseMsg;
+struct ezMsgExtractRenderData;
+struct ezMsgBuildNavMesh;
+struct ezMsgCollision;
+struct ezMsgPhysicsAddImpulse;
 
 /// \brief Sent when a breakable sheet breaks
-struct EZ_PHYSXPLUGIN_DLL ezBreakableSheetBreakEventMessage : public ezEventMessage
+struct EZ_PHYSXPLUGIN_DLL ezMsgBreakableSheetBroke : public ezEventMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezBreakableSheetBreakEventMessage, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgBreakableSheetBroke, ezEventMessage);
 
   /// The object that broke the sheet.
   ezGameObjectHandle m_hInstigatorObject;
@@ -39,10 +39,10 @@ public:
 
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
 
-  void OnBuildNavMesh(ezBuildNavMeshMessage& msg) const;
-  void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
-  void OnCollision(ezCollisionMessage& msg);
-  void AddImpulseAtPos(ezPhysicsAddImpulseMsg& msg);
+  void OnBuildNavMesh(ezMsgBuildNavMesh& msg) const;
+  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnCollision(ezMsgCollision& msg);
+  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg);
 
   bool IsBroken() const { return m_bBroken; }
 
@@ -113,7 +113,7 @@ protected:
   ezMaterialResourceHandle m_hMaterial;
   ezMaterialResourceHandle m_hBrokenMaterial;
 
-  ezEventMessageSender<ezBreakableSheetBreakEventMessage> m_BreakEventSender;
+  ezEventMessageSender<ezMsgBreakableSheetBroke> m_BreakEventSender;
 
   // State
   ezUInt32 m_uiRandomSeedUsed = 0;
@@ -132,7 +132,7 @@ protected:
   ezGALBufferHandle m_hPieceTransformsBuffer;
 
   // ************************************* FUNCTIONS *****************************
-  void Break(const ezCollisionMessage* pMessage = nullptr);
+  void Break(const ezMsgCollision* pMessage = nullptr);
   void CreateMeshes();
   void AddSkirtPolygons(ezVec2 Point0, ezVec2 Point1, float fHalfThickness, ezInt32 iPieceMatrixIndex, ezGeometry& Geometry) const;
   void BuildMeshResourceFromGeometry(ezGeometry& Geometry, ezMeshResourceDescriptor& MeshDesc, bool bWithSkinningData) const;

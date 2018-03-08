@@ -152,7 +152,7 @@ ezVisibleObjectsExtractor::ezVisibleObjectsExtractor(const char* szName)
 void ezVisibleObjectsExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
   ezExtractedRenderData* pExtractedRenderData)
 {
-  ezExtractRenderDataMessage msg;
+  ezMsgExtractRenderData msg;
   msg.m_pView = &view;
   msg.m_pExtractedRenderData = pExtractedRenderData;
   msg.m_OverrideCategory = ezInvalidIndex;
@@ -201,7 +201,7 @@ void ezSelectedObjectsExtractor::Extract(const ezView& view, const ezDynamicArra
   if (pSelection == nullptr)
     return;
 
-  ezExtractRenderDataMessage msg;
+  ezMsgExtractRenderData msg;
   msg.m_pView = &view;
   msg.m_pExtractedRenderData = pExtractedRenderData;
   msg.m_OverrideCategory = m_OverrideCategory;

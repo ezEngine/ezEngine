@@ -42,7 +42,7 @@ public:
   void SetNearPlaneOffset(float fNearPlaneOffset);
   float GetNearPlaneOffset() const;
 
-  void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
+  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;

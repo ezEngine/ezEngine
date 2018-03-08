@@ -22,7 +22,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDirectionalLightComponent, 3, ezComponentMode::Static)
   EZ_END_PROPERTIES
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS
     EZ_BEGIN_ATTRIBUTES
@@ -104,7 +104,7 @@ float ezDirectionalLightComponent::GetNearPlaneOffset() const
   return m_fNearPlaneOffset;
 }
 
-void ezDirectionalLightComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
+void ezDirectionalLightComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // Don't extract light render data for selection or in shadow views.
   if (msg.m_OverrideCategory != ezInvalidIndex || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)

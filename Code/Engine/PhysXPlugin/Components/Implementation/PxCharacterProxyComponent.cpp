@@ -74,7 +74,7 @@ namespace
         ezGameObject* pCharacterObject = pCharacterProxyComponent->GetOwner();
         const float fMass = hit.controller->getActor()->getMass();
 
-        ezCollisionMessage msg;
+        ezMsgCollision msg;
 
         msg.m_hObjectA = pCharacterObject->GetHandle();
         msg.m_hObjectB = pDynamicActorComponent->GetOwner()->GetHandle();
@@ -134,7 +134,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterProxyComponent, 3, ezComponentMode::Dynamic
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds),
+    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
   }
   EZ_END_MESSAGEHANDLERS
     EZ_BEGIN_ATTRIBUTES
@@ -301,7 +301,7 @@ void ezPxCharacterProxyComponent::OnSimulationStarted()
   }
 }
 
-void ezPxCharacterProxyComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const
+void ezPxCharacterProxyComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
 {
   msg.AddBounds(ezBoundingSphere(ezVec3(0, 0, -m_fCapsuleHeight * 0.5f), m_fCapsuleRadius));
   msg.AddBounds(ezBoundingSphere(ezVec3(0, 0,  m_fCapsuleHeight * 0.5f), m_fCapsuleRadius));

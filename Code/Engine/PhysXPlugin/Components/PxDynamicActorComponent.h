@@ -4,8 +4,8 @@
 #include <PhysXPlugin/Utilities/PxUserData.h>
 
 class ezPxDynamicActorComponent;
-struct ezPhysicsAddImpulseMsg;
-struct ezPhysicsAddForceMsg;
+struct ezMsgPhysicsAddImpulse;
+struct ezMsgPhysicsAddForce;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -39,8 +39,8 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  void AddImpulseAtPos(ezPhysicsAddImpulseMsg& msg);
-  void AddForceAtPos(ezPhysicsAddForceMsg& msg);
+  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg);
+  void AddForceAtPos(ezMsgPhysicsAddForce& msg);
 
   //////////////////////////////////////////////////////////////////////////
   // Properties

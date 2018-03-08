@@ -116,6 +116,21 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
   for (auto& node : m_Nodes)
   {
     stream >> sType;
+
+    node.m_isMsgSender = 0;
+    node.m_isMsgHandler = 0;
+
+    if (sType.EndsWith("<send>"))
+    {
+      sType.Shrink(0, 6);
+      node.m_isMsgSender = 1;
+    }
+    else if (sType.EndsWith("<handle>"))
+    {
+      sType.Shrink(0, 8);
+      node.m_isMsgHandler = 1;
+    }
+
     node.m_sTypeName = sType;
 
     node.m_pType = ezRTTI::FindTypeByName(sType);
@@ -167,16 +182,25 @@ void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
   stream << uiNumDataCon;
   stream << uiNumProps;
 
+  ezStringBuilder sType;
+
   for (const auto& node : m_Nodes)
   {
     if (node.m_pType != nullptr)
     {
-      stream << node.m_pType->GetTypeName();
+      sType  = node.m_pType->GetTypeName();
     }
     else
     {
-      stream << node.m_sTypeName;
+      sType = node.m_sTypeName;
     }
+
+    if (node.m_isMsgSender)
+      sType.Append("<send>");
+    else if (node.m_isMsgHandler)
+      sType.Append("<handle>");
+
+    stream << sType;
 
     stream << node.m_uiFirstProperty;
     stream << node.m_uiNumProperties;

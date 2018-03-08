@@ -3,9 +3,9 @@
 #include <Foundation/Communication/Message.h>
 #include <Core/World/Declarations.h>
 
-struct EZ_CORE_DLL ezCollisionMessage : public ezMessage
+struct EZ_CORE_DLL ezMsgCollision : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezCollisionMessage, ezMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgCollision, ezMessage);
 
   ezGameObjectHandle m_hObjectA;
   ezGameObjectHandle m_hObjectB;

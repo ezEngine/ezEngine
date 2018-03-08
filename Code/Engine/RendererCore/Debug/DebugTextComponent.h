@@ -3,7 +3,7 @@
 #include <RendererCore/Basics.h>
 #include <Core/World/World.h>
 
-struct ezExtractRenderDataMessage;
+struct ezMsgExtractRenderData;
 
 typedef ezComponentManager<class ezDebugTextComponent, ezBlockStorageType::Compact> ezDebugTextComponentManager;
 
@@ -19,7 +19,7 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
+  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   // ************************************* PROPERTIES ***********************************
 

@@ -60,10 +60,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 3, ezComponentMode::Static)
   EZ_END_FUNCTIONS
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezInternalComponentMessage, OnTriggered),
-    EZ_MESSAGE_HANDLER(ezApplyOnlyToMessage, OnApplyOnlyTo),
-    EZ_MESSAGE_HANDLER(ezSetColorMessage, OnSetColor),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnTriggered),
+    EZ_MESSAGE_HANDLER(ezMsgOnlyApplyToObject, OnApplyOnlyTo),
+    EZ_MESSAGE_HANDLER(ezMsgSetColor, OnSetColor),
   }
   EZ_END_MESSAGEHANDLERS
 }
@@ -269,7 +269,7 @@ ezGameObjectHandle ezDecalComponent::GetApplyOnlyTo() const
   return m_hApplyOnlyToObject;
 }
 
-void ezDecalComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
+void ezDecalComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // Don't extract decal render data for selection.
   if (msg.m_OverrideCategory != ezInvalidIndex)
@@ -348,7 +348,7 @@ void ezDecalComponent::OnSimulationStarted()
 
     if (m_OnFinishedAction != ezOnComponentFinishedAction::None)
     {
-      ezInternalComponentMessage msg;
+      ezMsgComponentInternalTrigger msg;
       msg.m_uiUsageStringHash = ezTempHashedString::ComputeHash("Suicide");
 
       const ezTime tKill = tFadeOutDelay + m_FadeOutDuration;
@@ -366,7 +366,7 @@ void ezDecalComponent::OnSimulationStarted()
   }
 }
 
-void ezDecalComponent::OnTriggered(ezInternalComponentMessage& msg)
+void ezDecalComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
 {
   if (msg.m_uiUsageStringHash != ezTempHashedString::ComputeHash("Suicide"))
     return;
@@ -381,12 +381,12 @@ void ezDecalComponent::OnTriggered(ezInternalComponentMessage& msg)
   }
 }
 
-void ezDecalComponent::OnApplyOnlyTo(ezApplyOnlyToMessage& msg)
+void ezDecalComponent::OnApplyOnlyTo(ezMsgOnlyApplyToObject& msg)
 {
   SetApplyOnlyTo(msg.m_hObject);
 }
 
-void ezDecalComponent::OnSetColor(ezSetColorMessage& msg)
+void ezDecalComponent::OnSetColor(ezMsgSetColor& msg)
 {
   msg.ModifyColor(m_Color);
 }

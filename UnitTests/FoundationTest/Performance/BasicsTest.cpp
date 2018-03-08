@@ -55,9 +55,20 @@
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Performance);
 
-struct GetValueMessage : public ezMessage
+struct ezMsgTest : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(GetValueMessage, ezMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgTest, ezMessage);
+
+};
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgTest);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgTest, 1, ezRTTIDefaultAllocator<ezMsgTest>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+
+struct GetValueMessage : public ezMsgTest
+{
+  EZ_DECLARE_MESSAGE_TYPE(GetValueMessage, ezMsgTest);
 
   ezInt32 m_iValue;
 };

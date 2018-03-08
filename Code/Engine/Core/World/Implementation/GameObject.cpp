@@ -32,7 +32,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezDeleteObjectMessage, OnDeleteObject),
+    EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnDeleteObject),
   }
   EZ_END_MESSAGEHANDLERS
 }
@@ -490,7 +490,7 @@ ezVec3 ezGameObject::GetGlobalDirUp() const
 
 void ezGameObject::UpdateLocalBounds()
 {
-  ezUpdateLocalBoundsMessage msg;
+  ezMsgUpdateLocalBounds msg;
   msg.m_ResultingLocalBounds.SetInvalid();
 
   SendMessage(msg);
@@ -535,7 +535,7 @@ void ezGameObject::TryGetComponentsOfBaseType(const ezRTTI* pType, ezHybridArray
   }
 }
 
-void ezGameObject::OnDeleteObject(ezDeleteObjectMessage& msg)
+void ezGameObject::OnDeleteObject(ezMsgDeleteGameObject& msg)
 {
   m_pWorld->DeleteObjectNow(GetHandle());
 }

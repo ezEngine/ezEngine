@@ -5,7 +5,7 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 
-struct ezSetColorMessage;
+struct ezMsgSetColor;
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
 
 struct ezSpriteBlendMode
@@ -59,7 +59,7 @@ public:
   // ezRenderComponent interface
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
 
-  void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
+  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
@@ -79,7 +79,7 @@ public:
   void SetMaxScreenSize(float fSize);
   float GetMaxScreenSize() const;
 
-  void OnSetColor(ezSetColorMessage& msg);
+  void OnSetColor(ezMsgSetColor& msg);
 
 private:
 

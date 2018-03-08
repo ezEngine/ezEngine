@@ -5,27 +5,39 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezHeadBoneComponent_SetVerticalRotationMsg);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezHeadBoneComponent_SetVerticalRotationMsg, 1, ezRTTIDefaultAllocator<ezHeadBoneComponent_SetVerticalRotationMsg>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSetVerticalHeadBoneRotation);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetVerticalHeadBoneRotation, 1, ezRTTIDefaultAllocator<ezMsgSetVerticalHeadBoneRotation>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Angle", m_Angle),
   }
   EZ_END_PROPERTIES
+
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezAutoGenVisScriptMsgSender,
+  }
+  EZ_END_ATTRIBUTES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezHeadBoneComponent_ChangeVerticalRotationMsg);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezHeadBoneComponent_ChangeVerticalRotationMsg, 1, ezRTTIDefaultAllocator<ezHeadBoneComponent_ChangeVerticalRotationMsg>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgChangeVerticalHeadBoneRotation);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgChangeVerticalHeadBoneRotation, 1, ezRTTIDefaultAllocator<ezMsgChangeVerticalHeadBoneRotation>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Angle", m_Angle),
   }
   EZ_END_PROPERTIES
+
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezAutoGenVisScriptMsgSender,
+  }
+  EZ_END_ATTRIBUTES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -40,8 +52,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezHeadBoneComponent, 1, ezComponentMode::Dynamic)
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezHeadBoneComponent_SetVerticalRotationMsg, SetVerticalRotation),
-    EZ_MESSAGE_HANDLER(ezHeadBoneComponent_ChangeVerticalRotationMsg, ChangeVerticalRotation),
+    EZ_MESSAGE_HANDLER(ezMsgSetVerticalHeadBoneRotation, OnSetVerticalRotation),
+    EZ_MESSAGE_HANDLER(ezMsgChangeVerticalHeadBoneRotation, OnChangeVerticalRotation),
   }
   EZ_END_MESSAGEHANDLERS
     EZ_BEGIN_ATTRIBUTES
@@ -100,12 +112,12 @@ void ezHeadBoneComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_CurVerticalRotation;
 }
 
-void ezHeadBoneComponent::SetVerticalRotation(ezHeadBoneComponent_SetVerticalRotationMsg& msg)
+void ezHeadBoneComponent::OnSetVerticalRotation(ezMsgSetVerticalHeadBoneRotation& msg)
 {
   m_NewVerticalRotation = ezAngle::Radian((float)msg.m_Angle);
 }
 
-void ezHeadBoneComponent::ChangeVerticalRotation(ezHeadBoneComponent_ChangeVerticalRotationMsg& msg)
+void ezHeadBoneComponent::OnChangeVerticalRotation(ezMsgChangeVerticalHeadBoneRotation& msg)
 {
   m_NewVerticalRotation += ezAngle::Radian((float)msg.m_Angle);
 }

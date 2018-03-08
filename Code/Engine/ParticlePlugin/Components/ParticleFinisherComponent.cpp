@@ -22,7 +22,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleFinisherComponent, 1, ezComponentMode::Static)
   EZ_END_ATTRIBUTES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS
 
@@ -73,7 +73,7 @@ ezResult ezParticleFinisherComponent::GetLocalBounds(ezBoundingBoxSphere& bounds
   return EZ_FAILURE;
 }
 
-void ezParticleFinisherComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
+void ezParticleFinisherComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // do not extract particles during shadow map rendering
   if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)

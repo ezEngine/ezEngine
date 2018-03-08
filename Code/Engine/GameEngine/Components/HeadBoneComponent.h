@@ -2,24 +2,23 @@
 
 #include <GameEngine/Basics.h>
 #include <GameEngine/Components/TransformComponent.h>
-#include <Core/Messages/ScriptFunctionMessage.h>
 
 typedef ezComponentManagerSimple<class ezHeadBoneComponent, ezComponentUpdateType::WhenSimulating> ezHeadBoneComponentManager;
 
 //////////////////////////////////////////////////////////////////////////
 
-struct EZ_GAMEENGINE_DLL ezHeadBoneComponent_SetVerticalRotationMsg : public ezScriptFunctionMessage
+struct EZ_GAMEENGINE_DLL ezMsgSetVerticalHeadBoneRotation : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezHeadBoneComponent_SetVerticalRotationMsg, ezScriptFunctionMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgSetVerticalHeadBoneRotation, ezMessage);
 
   double m_Angle; // in radians
 };
 
 //////////////////////////////////////////////////////////////////////////
 
-struct EZ_GAMEENGINE_DLL ezHeadBoneComponent_ChangeVerticalRotationMsg : public ezScriptFunctionMessage
+struct EZ_GAMEENGINE_DLL ezMsgChangeVerticalHeadBoneRotation : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezHeadBoneComponent_ChangeVerticalRotationMsg, ezScriptFunctionMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgChangeVerticalHeadBoneRotation, ezMessage);
 
   double m_Angle; // in radians
 };
@@ -38,8 +37,8 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  void SetVerticalRotation(ezHeadBoneComponent_SetVerticalRotationMsg& msg);
-  void ChangeVerticalRotation(ezHeadBoneComponent_ChangeVerticalRotationMsg& msg);
+  void OnSetVerticalRotation(ezMsgSetVerticalHeadBoneRotation& msg);
+  void OnChangeVerticalRotation(ezMsgChangeVerticalHeadBoneRotation& msg);
 
 public:
   ezAngle m_MaxVerticalRotation;

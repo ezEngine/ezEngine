@@ -8,8 +8,8 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezPropertyAnimationReachedEndEventMessage);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimationReachedEndEventMessage, 1, ezRTTIDefaultAllocator<ezPropertyAnimationReachedEndEventMessage>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPropertyAnimationEndReached);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPropertyAnimationEndReached, 1, ezRTTIDefaultAllocator<ezMsgPropertyAnimationEndReached>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 //////////////////////////////////////////////////////////////////////////
@@ -425,7 +425,7 @@ double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
 
   tDiff = m_fSpeed * tDiff;
 
-  ezPropertyAnimationReachedEndEventMessage reachedEndMsg;
+  ezMsgPropertyAnimationEndReached reachedEndMsg;
   ezTime tStart = m_AnimationTime;
 
   if (m_AnimationMode == ezPropertyAnimMode::Once)
@@ -530,7 +530,7 @@ void ezPropertyAnimComponent::EvaluateEventTrack(ezTime startTime, ezTime endTim
 
   for (const ezHashedString& sEvent : events)
   {
-    ezSimpleUserEventMessage msg;
+    ezMsgGenericUserEvent msg;
     msg.m_sMessage = sEvent.GetString();
     m_EventTrackMsgSender.SendMessage(msg, this, GetOwner());
   }

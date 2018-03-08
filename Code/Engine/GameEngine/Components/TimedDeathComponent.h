@@ -6,7 +6,7 @@
 #include <Foundation/Time/Time.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 
-struct ezInternalComponentMessage;
+struct ezMsgComponentInternalTrigger;
 typedef ezComponentManager<class ezTimedDeathComponent, ezBlockStorageType::Compact> ezTimedDeathComponentManager;
 typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
 
@@ -28,7 +28,7 @@ public:
   /// \brief Once this function has been executed, the timeout for deletion is fixed and cannot be reset.
   virtual void OnSimulationStarted() override;
 
-  void OnTriggered(ezInternalComponentMessage& msg);
+  void OnTriggered(ezMsgComponentInternalTrigger& msg);
 
   // ************************************* PROPERTIES ***********************************
 

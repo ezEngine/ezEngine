@@ -1,22 +1,21 @@
 #pragma once
 
 #include <GameEngine/Basics.h>
-#include <Core/Messages/ScriptFunctionMessage.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 
-struct EZ_GAMEENGINE_DLL ezDamageMessage : public ezScriptFunctionMessage
+struct EZ_GAMEENGINE_DLL ezMsgDamage : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezDamageMessage, ezScriptFunctionMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgDamage, ezMessage);
 
   double m_fDamage;
 };
 
-class EZ_GAMEENGINE_DLL ezVisualScriptNode_DamageEvent : public ezVisualScriptNode
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_OnDamage : public ezVisualScriptNode
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_DamageEvent, ezVisualScriptNode);
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_OnDamage, ezVisualScriptNode);
 public:
-  ezVisualScriptNode_DamageEvent();
-  ~ezVisualScriptNode_DamageEvent();
+  ezVisualScriptNode_OnDamage();
+  ~ezVisualScriptNode_OnDamage();
 
   virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override { return nullptr; }
@@ -24,5 +23,5 @@ public:
   virtual void HandleMessage(ezMessage* pMsg) override;
 
 private:
-  ezDamageMessage m_Msg;
+  ezMsgDamage m_Msg;
 };

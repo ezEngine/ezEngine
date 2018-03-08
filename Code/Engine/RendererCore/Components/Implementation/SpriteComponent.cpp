@@ -49,8 +49,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 3, ezComponentMode::Static)
   EZ_END_ATTRIBUTES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezSetColorMessage, OnSetColor),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgSetColor, OnSetColor),
   }
   EZ_END_MESSAGEHANDLERS
 }
@@ -74,7 +74,7 @@ ezResult ezSpriteComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bA
   return EZ_SUCCESS;
 }
 
-void ezSpriteComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
+void ezSpriteComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // Don't render in orthographic views
   if (msg.m_pView->GetCamera()->IsOrthographic())
@@ -224,7 +224,7 @@ float ezSpriteComponent::GetMaxScreenSize() const
   return m_fMaxScreenSize;
 }
 
-void ezSpriteComponent::OnSetColor(ezSetColorMessage& msg)
+void ezSpriteComponent::OnSetColor(ezMsgSetColor& msg)
 {
   msg.ModifyColor(m_Color);
 }

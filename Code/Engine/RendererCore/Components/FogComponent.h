@@ -4,7 +4,7 @@
 #include <Core/World/SettingsComponentManager.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
-struct ezUpdateLocalBoundsMessage;
+struct ezMsgUpdateLocalBounds;
 
 typedef ezSettingsComponentManager<class ezFogComponent> ezFogComponentManager;
 
@@ -39,8 +39,8 @@ public:
   void SetHeightFalloff(float fHeightFalloff);
   float GetHeightFalloff() const;
 
-  void OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg);
-  void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
+  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
+  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;

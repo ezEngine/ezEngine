@@ -10,40 +10,59 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezFmodEventComponent_RestartSoundMsg);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodEventComponent_RestartSoundMsg, 1, ezRTTIDefaultAllocator<ezFmodEventComponent_RestartSoundMsg>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgFmodRestartSound);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgFmodRestartSound, 1, ezRTTIDefaultAllocator<ezMsgFmodRestartSound>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("OneShot", m_bOneShotInstance)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES
+
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezAutoGenVisScriptMsgSender,
+  }
+  EZ_END_ATTRIBUTES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezFmodEventComponent_StopSoundMsg);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodEventComponent_StopSoundMsg, 1, ezRTTIDefaultAllocator<ezFmodEventComponent_StopSoundMsg>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgFmodStopSound);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgFmodStopSound, 1, ezRTTIDefaultAllocator<ezMsgFmodStopSound>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Immediate", m_bImmediate),
   }
   EZ_END_PROPERTIES
+
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezAutoGenVisScriptMsgSender,
+  }
+  EZ_END_ATTRIBUTES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezFmodSoundFinishedEventMessage);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodSoundFinishedEventMessage, 1, ezRTTIDefaultAllocator<ezFmodSoundFinishedEventMessage>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgFmodSoundFinished);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgFmodSoundFinished, 1, ezRTTIDefaultAllocator<ezMsgFmodSoundFinished>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezFmodEventComponent_SoundCueMsg);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodEventComponent_SoundCueMsg, 1, ezRTTIDefaultAllocator<ezFmodEventComponent_SoundCueMsg>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgFmodAddSoundCue);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgFmodAddSoundCue, 1, ezRTTIDefaultAllocator<ezMsgFmodAddSoundCue>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezAutoGenVisScriptMsgSender,
+  }
+  EZ_END_ATTRIBUTES
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 //////////////////////////////////////////////////////////////////////////
@@ -62,9 +81,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 2, ezComponentMode::Static)
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezFmodEventComponent_RestartSoundMsg, RestartSound),
-    EZ_MESSAGE_HANDLER(ezFmodEventComponent_StopSoundMsg, StopSound),
-    EZ_MESSAGE_HANDLER(ezFmodEventComponent_SoundCueMsg, SoundCue),
+    EZ_MESSAGE_HANDLER(ezMsgFmodRestartSound, RestartSound),
+    EZ_MESSAGE_HANDLER(ezMsgFmodStopSound, StopSound),
+    EZ_MESSAGE_HANDLER(ezMsgFmodAddSoundCue, SoundCue),
   }
   EZ_END_MESSAGEHANDLERS
     EZ_BEGIN_MESSAGESENDERS
@@ -209,7 +228,7 @@ void ezFmodEventComponent::SetSoundEvent(const ezFmodSoundEventResourceHandle& h
 {
   if (m_pEventInstance)
   {
-    ezFmodEventComponent_StopSoundMsg msg;
+    ezMsgFmodStopSound msg;
     msg.m_bImmediate = false;
     StopSound(msg);
 
@@ -329,14 +348,14 @@ void ezFmodEventComponent::StartOneShot()
   EZ_FMOD_ASSERT(pEventInstance->release());
 }
 
-void ezFmodEventComponent::RestartSound(ezFmodEventComponent_RestartSoundMsg& msg)
+void ezFmodEventComponent::RestartSound(ezMsgFmodRestartSound& msg)
 {
   if (msg.m_bOneShotInstance)
     StartOneShot();
   else
     Restart();
 }
-void ezFmodEventComponent::StopSound(ezFmodEventComponent_StopSoundMsg& msg)
+void ezFmodEventComponent::StopSound(ezMsgFmodStopSound& msg)
 {
   if (m_pEventInstance != nullptr)
   {
@@ -345,7 +364,7 @@ void ezFmodEventComponent::StopSound(ezFmodEventComponent_StopSoundMsg& msg)
   }
 }
 
-void ezFmodEventComponent::SoundCue(ezFmodEventComponent_SoundCueMsg& msg)
+void ezFmodEventComponent::SoundCue(ezMsgFmodAddSoundCue& msg)
 {
   if (m_pEventInstance != nullptr && m_pEventInstance->isValid())
   {
@@ -408,7 +427,7 @@ void ezFmodEventComponent::Update()
     {
       m_iTimelinePosition = -1;
 
-      ezFmodSoundFinishedEventMessage msg;
+      ezMsgFmodSoundFinished msg;
       m_SoundFinishedEventSender.SendMessage(msg, this, GetOwner());
 
       if (m_OnFinishedAction == ezOnComponentFinishedAction::DeleteGameObject)

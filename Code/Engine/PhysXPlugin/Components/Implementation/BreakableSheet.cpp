@@ -21,8 +21,8 @@
 
 EZ_DEFINE_AS_POD_TYPE(jcv_point);
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezBreakableSheetBreakEventMessage)
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBreakableSheetBreakEventMessage, 1, ezRTTIDefaultAllocator<ezBreakableSheetBreakEventMessage>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgBreakableSheetBroke)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgBreakableSheetBroke, 1, ezRTTIDefaultAllocator<ezMsgBreakableSheetBroke>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 // TODOs:
@@ -66,10 +66,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezBreakableSheetComponent, 1, ezComponentMode::Dynamic)
   EZ_END_MESSAGESENDERS
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezBuildNavMeshMessage, OnBuildNavMesh),
-    EZ_MESSAGE_HANDLER(ezCollisionMessage, OnCollision),
-    EZ_MESSAGE_HANDLER(ezPhysicsAddImpulseMsg, AddImpulseAtPos),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgBuildNavMesh, OnBuildNavMesh),
+    EZ_MESSAGE_HANDLER(ezMsgCollision, OnCollision),
+    EZ_MESSAGE_HANDLER(ezMsgPhysicsAddImpulse, AddImpulseAtPos),
   }
   EZ_END_MESSAGEHANDLERS
 }
@@ -191,7 +191,7 @@ ezResult ezBreakableSheetComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, 
   return EZ_FAILURE;
 }
 
-void ezBreakableSheetComponent::OnBuildNavMesh(ezBuildNavMeshMessage& msg) const
+void ezBreakableSheetComponent::OnBuildNavMesh(ezMsgBuildNavMesh& msg) const
 {
   if (!m_bIncludeInNavmesh)
     return;
@@ -241,7 +241,7 @@ void ezBreakableSheetComponent::Deinitialize()
   Cleanup();
 }
 
-void ezBreakableSheetComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
+void ezBreakableSheetComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   if (!m_hUnbrokenMesh.IsValid())
     return;
@@ -333,7 +333,7 @@ void ezBreakableSheetComponent::OnExtractRenderData(ezExtractRenderDataMessage& 
   msg.m_pExtractedRenderData->AddRenderData(pRenderData, category, uiSortingKey);
 }
 
-void ezBreakableSheetComponent::OnCollision(ezCollisionMessage& msg)
+void ezBreakableSheetComponent::OnCollision(ezMsgCollision& msg)
 {
   if (m_bBroken)
     return;
@@ -349,7 +349,7 @@ void ezBreakableSheetComponent::OnCollision(ezCollisionMessage& msg)
   }
 }
 
-void ezBreakableSheetComponent::AddImpulseAtPos(ezPhysicsAddImpulseMsg& msg)
+void ezBreakableSheetComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
 {
   if (msg.m_uiShapeId == ezInvalidIndex)
     return;
@@ -358,7 +358,7 @@ void ezBreakableSheetComponent::AddImpulseAtPos(ezPhysicsAddImpulseMsg& msg)
   {
     if (msg.m_vImpulse.GetLength() > m_fBreakImpulseStrength)
     {
-      ezCollisionMessage fakeMsg;
+      ezMsgCollision fakeMsg;
       fakeMsg.m_vPosition = msg.m_vGlobalPosition;
       fakeMsg.m_vImpulse = msg.m_vImpulse;
 
@@ -560,7 +560,7 @@ ezMaterialResourceHandle ezBreakableSheetComponent::GetBrokenMaterial() const
   return m_hBrokenMaterial;
 }
 
-void ezBreakableSheetComponent::Break(const ezCollisionMessage* pMessage /*= nullptr*/)
+void ezBreakableSheetComponent::Break(const ezMsgCollision* pMessage /*= nullptr*/)
 {
   if (m_bBroken)
     return;
@@ -572,7 +572,7 @@ void ezBreakableSheetComponent::Break(const ezCollisionMessage* pMessage /*= nul
   DestroyUnbrokenPhysicsObject();
   CreatePiecesPhysicsObjects(pMessage ? pMessage->m_vImpulse : ezVec3::ZeroVector(), pMessage ? pMessage->m_vPosition : ezVec3::ZeroVector());
 
-  ezBreakableSheetBreakEventMessage msg;
+  ezMsgBreakableSheetBroke msg;
 
   // Set the handle of the instigator object (e.g. which object broke this component)
   if (pMessage)

@@ -3,13 +3,12 @@
 #include <GameEngine/Basics.h>
 #include <Core/World/World.h>
 #include <Core/World/Component.h>
-#include <Core/Messages/ScriptFunctionMessage.h>
 
 //////////////////////////////////////////////////////////////////////////
 
-struct EZ_GAMEENGINE_DLL ezCharacterController_MoveCharacterMsg : public ezScriptFunctionMessage
+struct EZ_GAMEENGINE_DLL ezMsgMoveCharacterController : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezCharacterController_MoveCharacterMsg, ezScriptFunctionMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgMoveCharacterController, ezMessage);
 
   double m_fMoveForwards = 0;
   double m_fMoveBackwards = 0;
@@ -39,7 +38,7 @@ public:
 
   /// \brief Instructs the CC to move in certain directions. An implementation can queue the request for later processing.
   /// It can also add further functionality, such as adding gravity, stair stepping, etc.
-  virtual void MoveCharacter(ezCharacterController_MoveCharacterMsg& msg) = 0;
+  virtual void MoveCharacter(ezMsgMoveCharacterController& msg) = 0;
 
   /// \brief Attempts to move the character into the given direction.
   /// 

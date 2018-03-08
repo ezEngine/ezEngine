@@ -1,28 +1,23 @@
 ﻿#include <PCH.h>
 #include <Core/Messages/CollisionMessage.h>
 #include <Core/Messages/DeleteObjectMessage.h>
-#include <Core/Messages/ScriptFunctionMessage.h>
 #include <Core/Messages/TriggerMessage.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezCollisionMessage);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMessage, 1, ezRTTIDefaultAllocator<ezCollisionMessage>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgCollision);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgCollision, 1, ezRTTIDefaultAllocator<ezMsgCollision>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezDeleteObjectMessage);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDeleteObjectMessage, 1, ezRTTIDefaultAllocator<ezDeleteObjectMessage>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgDeleteGameObject);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgDeleteGameObject, 1, ezRTTIDefaultAllocator<ezMsgDeleteGameObject>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezInternalComponentMessage);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInternalComponentMessage, 1, ezRTTIDefaultAllocator<ezInternalComponentMessage>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgComponentInternalTrigger);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgComponentInternalTrigger, 1, ezRTTIDefaultAllocator<ezMsgComponentInternalTrigger>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezScriptFunctionMessage);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScriptFunctionMessage, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE
-
-EZ_IMPLEMENT_MESSAGE_TYPE(ezUpdateLocalBoundsMessage);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezUpdateLocalBoundsMessage, 1, ezRTTIDefaultAllocator<ezUpdateLocalBoundsMessage>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgUpdateLocalBounds);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgUpdateLocalBounds, 1, ezRTTIDefaultAllocator<ezMsgUpdateLocalBounds>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 

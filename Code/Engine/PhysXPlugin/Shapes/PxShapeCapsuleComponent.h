@@ -14,7 +14,7 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  void OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const;
+  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
 
   // ************************************* PROPERTIES ***********************************
 public:

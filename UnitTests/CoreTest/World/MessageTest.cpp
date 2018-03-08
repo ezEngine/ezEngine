@@ -5,16 +5,26 @@
 
 namespace
 {
-  struct TestMessage1 : public ezMessage
+  struct ezMsgTest : public ezMessage
   {
-    EZ_DECLARE_MESSAGE_TYPE(TestMessage1, ezMessage);
+    EZ_DECLARE_MESSAGE_TYPE(ezMsgTest, ezMessage);
+
+  };
+
+  EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgTest);
+  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgTest, 1, ezRTTIDefaultAllocator<ezMsgTest>)
+  EZ_END_DYNAMIC_REFLECTED_TYPE
+
+  struct TestMessage1 : public ezMsgTest
+  {
+    EZ_DECLARE_MESSAGE_TYPE(TestMessage1, ezMsgTest);
 
     int m_iValue;
   };
 
-  struct TestMessage2 : public ezMessage
+  struct TestMessage2 : public ezMsgTest
   {
-    EZ_DECLARE_MESSAGE_TYPE(TestMessage2, ezMessage);
+    EZ_DECLARE_MESSAGE_TYPE(TestMessage2, ezMsgTest);
 
     virtual ezInt32 GetSortingKey() const override
     {

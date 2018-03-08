@@ -4,7 +4,7 @@
 
 typedef ezComponentManager<class ezPxShapeBoxComponent, ezBlockStorageType::FreeList> ezPxShapeBoxComponentManager;
 
-struct ezBuildNavMeshMessage;
+struct ezMsgBuildNavMesh;
 
 class EZ_PHYSXPLUGIN_DLL ezPxShapeBoxComponent : public ezPxShapeComponent
 {
@@ -16,7 +16,7 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  void OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const;
+  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
   
 
   // ************************************* PROPERTIES ***********************************
@@ -34,7 +34,7 @@ protected:
 public:
 
   virtual physx::PxShape* CreateShape(physx::PxRigidActor* pActor, physx::PxTransform& out_ShapeTransform) override;
-  virtual void AddToNavMesh(ezBuildNavMeshMessage& msg) const override;
+  virtual void AddToNavMesh(ezMsgBuildNavMesh& msg) const override;
 
 protected:
 

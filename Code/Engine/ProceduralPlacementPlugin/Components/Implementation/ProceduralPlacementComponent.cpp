@@ -437,8 +437,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezProceduralPlacementComponent, 1, ezComponentMode::Stat
   EZ_END_PROPERTIES
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds),
-    EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS
   EZ_BEGIN_ATTRIBUTES
@@ -523,12 +523,12 @@ void ezProceduralPlacementComponent::SetExtents(const ezVec3& value)
   }
 }
 
-void ezProceduralPlacementComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg)
+void ezProceduralPlacementComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 {
   msg.AddBounds(ezBoundingBox(-m_vExtents * 0.5f, m_vExtents * 0.5f));
 }
 
-void ezProceduralPlacementComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
+void ezProceduralPlacementComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // Don't extract render data for selection or in shadow views.
   if (msg.m_OverrideCategory != ezInvalidIndex)

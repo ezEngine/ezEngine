@@ -16,11 +16,19 @@ struct EZ_GAMEENGINE_DLL ezVisualScriptResourceDescriptor
 
   struct Node
   {
+    Node()
+    {
+      m_isMsgSender = 0;
+      m_isMsgHandler = 0;
+    }
+
     ezString m_sTypeName; ///< This is what gets written to the file if m_pType is null.
     const ezRTTI* m_pType = nullptr; ///< Cached resolved type pointer after loading
 
     ezUInt16 m_uiFirstProperty = 0;
     ezUInt8 m_uiNumProperties = 0;
+    ezUInt8 m_isMsgSender : 1;
+    ezUInt8 m_isMsgHandler : 1;
   };
 
   struct ExecutionConnection

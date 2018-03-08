@@ -4,9 +4,9 @@
 #include <Foundation/Communication/Message.h>
 #include <Foundation/Math/BoundingBoxSphere.h>
 
-struct EZ_CORE_DLL ezUpdateLocalBoundsMessage : public ezMessage
+struct EZ_CORE_DLL ezMsgUpdateLocalBounds : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezUpdateLocalBoundsMessage, ezMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgUpdateLocalBounds, ezMessage);
 
   EZ_ALWAYS_INLINE void AddBounds(const ezBoundingBoxSphere& bounds)
   {

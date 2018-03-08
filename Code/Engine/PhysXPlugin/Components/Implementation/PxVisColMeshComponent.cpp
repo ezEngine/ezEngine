@@ -15,7 +15,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxVisColMeshComponent, 1, ezComponentMode::Static)
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS
     EZ_BEGIN_ATTRIBUTES
@@ -218,7 +218,7 @@ void ezPxVisColMeshComponent::CreateCollisionRenderMesh()
   TriggerLocalBoundsUpdate();
 }
 
-void ezPxVisColMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
+void ezPxVisColMeshComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   if (!m_hMesh.IsValid())
     return;

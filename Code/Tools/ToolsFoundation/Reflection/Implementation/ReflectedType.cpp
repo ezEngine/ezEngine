@@ -25,7 +25,9 @@ ezAttributeHolder::ezAttributeHolder()
 ezAttributeHolder::~ezAttributeHolder()
 {
   for (auto pAttr : m_Attributes)
+  {
     pAttr->GetDynamicRTTI()->GetAllocator()->Deallocate(pAttr);
+  }
 }
 
 void ezAttributeHolder::operator=(const ezAttributeHolder& rhs)

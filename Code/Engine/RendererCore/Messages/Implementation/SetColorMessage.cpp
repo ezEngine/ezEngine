@@ -5,8 +5,8 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSetColorMode, 1)
 EZ_ENUM_CONSTANTS(ezSetColorMode::SetRGBA, ezSetColorMode::SetRGB, ezSetColorMode::SetAlpha, ezSetColorMode::AlphaBlend, ezSetColorMode::Additive, ezSetColorMode::Modulate)
 EZ_END_STATIC_REFLECTED_ENUM();
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezSetColorMessage);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetColorMessage, 1, ezRTTIDefaultAllocator<ezSetColorMessage>)
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSetColor);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetColor, 1, ezRTTIDefaultAllocator<ezMsgSetColor>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -14,10 +14,16 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetColorMessage, 1, ezRTTIDefaultAllocator<ezS
     EZ_ENUM_MEMBER_PROPERTY("Mode", ezSetColorMode, m_Mode)
   }
   EZ_END_PROPERTIES
+
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezAutoGenVisScriptMsgSender,
+  }
+  EZ_END_ATTRIBUTES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-void ezSetColorMessage::ModifyColor(ezColor& color) const
+void ezMsgSetColor::ModifyColor(ezColor& color) const
 {
   switch (m_Mode)
   {
@@ -48,20 +54,20 @@ void ezSetColorMessage::ModifyColor(ezColor& color) const
   }
 }
 
-void ezSetColorMessage::ModifyColor(ezColorGammaUB& color) const
+void ezMsgSetColor::ModifyColor(ezColorGammaUB& color) const
 {
   ezColor temp = color;
   ModifyColor(temp);
   color = temp;
 }
 
-void ezSetColorMessage::Serialize(ezStreamWriter& stream) const
+void ezMsgSetColor::Serialize(ezStreamWriter& stream) const
 {
   stream << m_Color;
   stream << m_Mode;
 }
 
-void ezSetColorMessage::Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVersion)
+void ezMsgSetColor::Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVersion)
 {
   stream >> m_Color;
   stream >> m_Mode;

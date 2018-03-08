@@ -71,7 +71,7 @@ ezResult ezRecastNavMeshBuilder::Build(const ezRecastConfig& config, const ezWor
 
   ezNavMeshDescription desc;
 
-  ezBuildNavMeshMessage msg;
+  ezMsgBuildNavMesh msg;
   msg.m_pNavMeshDescription = &desc;
 
   // gather all nav mesh related information from all objects in the world

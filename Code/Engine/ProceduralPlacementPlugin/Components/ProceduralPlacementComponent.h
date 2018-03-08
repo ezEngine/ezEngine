@@ -4,8 +4,8 @@
 #include <Core/World/World.h>
 
 class ezProceduralPlacementComponent;
-struct ezUpdateLocalBoundsMessage;
-struct ezExtractRenderDataMessage;
+struct ezMsgUpdateLocalBounds;
+struct ezMsgExtractRenderData;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -101,8 +101,8 @@ public:
   void SetExtents(const ezVec3& value);
   const ezVec3& GetExtents() const { return m_vExtents; }
 
-  void OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg);
-  void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
+  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
+  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;

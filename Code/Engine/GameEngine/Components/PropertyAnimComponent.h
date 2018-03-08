@@ -12,9 +12,9 @@ typedef ezComponentManagerSimple<class ezPropertyAnimComponent, ezComponentUpdat
 /// \brief Sent when a ezPropertyAnimComponent reaches the end of the property animation (either forwards or backwards playing)
 ///
 /// This is sent regardless of whether the animation is played once, looped or back and forth.
-struct EZ_GAMEENGINE_DLL ezPropertyAnimationReachedEndEventMessage : public ezEventMessage
+struct EZ_GAMEENGINE_DLL ezMsgPropertyAnimationEndReached : public ezEventMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezPropertyAnimationReachedEndEventMessage, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgPropertyAnimationEndReached, ezEventMessage);
 
 };
 
@@ -59,8 +59,8 @@ public:
   // Start / Stop playback
   
 protected:
-  ezEventMessageSender<ezPropertyAnimationReachedEndEventMessage> m_ReachedEndMsgSender;
-  ezEventMessageSender<ezSimpleUserEventMessage> m_EventTrackMsgSender;
+  ezEventMessageSender<ezMsgPropertyAnimationEndReached> m_ReachedEndMsgSender;
+  ezEventMessageSender<ezMsgGenericUserEvent> m_EventTrackMsgSender;
 
 
 protected:

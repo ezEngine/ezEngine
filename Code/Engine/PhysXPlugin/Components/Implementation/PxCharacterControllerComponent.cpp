@@ -69,7 +69,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 5, ezComponentMode::Dy
   EZ_END_PROPERTIES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezCollisionMessage, OnCollision)
+    EZ_MESSAGE_HANDLER(ezMsgCollision, OnCollision)
   }
   EZ_END_MESSAGEHANDLERS
 }
@@ -395,7 +395,7 @@ const char* ezPxCharacterControllerComponent::GetFallbackWalkSurfaceFile() const
   return m_hFallbackWalkSurface.GetResourceID();
 }
 
-void ezPxCharacterControllerComponent::MoveCharacter(ezCharacterController_MoveCharacterMsg& msg)
+void ezPxCharacterControllerComponent::MoveCharacter(ezMsgMoveCharacterController& msg)
 {
   const float fDistanceToMove = ezMath::Max(ezMath::Abs((float)(msg.m_fMoveForwards - msg.m_fMoveBackwards)), ezMath::Abs((float)(msg.m_fStrafeRight - msg.m_fStrafeLeft)));
 
@@ -431,7 +431,7 @@ void ezPxCharacterControllerComponent::RawMove(const ezVec3& vMove)
   pProxy->Move(vMove, m_bWantsCrouch);
 }
 
-void ezPxCharacterControllerComponent::OnCollision(ezCollisionMessage& msg)
+void ezPxCharacterControllerComponent::OnCollision(ezMsgCollision& msg)
 {
   ezWorld* pWorld = GetWorld();
   ezGameObject* pOwner = GetOwner();
@@ -454,7 +454,7 @@ void ezPxCharacterControllerComponent::OnCollision(ezCollisionMessage& msg)
         const ezVec3 vIntendedMovement = pOwner->GetGlobalRotation() * m_vRelativeMoveDirection;
         const ezVec3 vForce = vIntendedMovement * m_fPushingForce;
 
-        ezPhysicsAddForceMsg msg;
+        ezMsgPhysicsAddForce msg;
         msg.m_vForce = vForce;
         msg.m_vGlobalPosition = vHitPos;
         pDynamicActorComponent->AddForceAtPos(msg);

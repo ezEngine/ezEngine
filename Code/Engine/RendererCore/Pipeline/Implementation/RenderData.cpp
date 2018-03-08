@@ -8,8 +8,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderer, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_IMPLEMENT_MESSAGE_TYPE(ezExtractRenderDataMessage);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExtractRenderDataMessage, 1, ezRTTIDefaultAllocator<ezExtractRenderDataMessage>);
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgExtractRenderData);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractRenderData, 1, ezRTTIDefaultAllocator<ezMsgExtractRenderData>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezHybridArray<ezRenderData::CategoryData, 32> ezRenderData::s_CategoryData;

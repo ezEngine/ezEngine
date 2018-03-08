@@ -21,7 +21,7 @@ namespace
       GetOwner()->UpdateLocalBounds();
     }
 
-    void OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg)
+    void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
     {
       auto& rng = GetWorld()->GetRandomNumberGenerator();
 
@@ -40,7 +40,7 @@ namespace
   {
     EZ_BEGIN_MESSAGEHANDLERS
     {
-      EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds)
+      EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds)
     }
     EZ_END_MESSAGEHANDLERS
   }

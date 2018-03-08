@@ -19,8 +19,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezFogComponent, 1, ezComponentMode::Static)
   EZ_END_PROPERTIES
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds),
-    EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS
   EZ_BEGIN_ATTRIBUTES
@@ -87,12 +87,12 @@ float ezFogComponent::GetHeightFalloff() const
 }
 
 
-void ezFogComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg)
+void ezFogComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 {
   msg.SetAlwaysVisible();
 }
 
-void ezFogComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
+void ezFogComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   if (msg.m_OverrideCategory != ezInvalidIndex)
     return;

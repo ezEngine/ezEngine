@@ -44,7 +44,7 @@ public:
   // ezRenderComponent interface
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
 
-  void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
+  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
 protected:
   virtual ezMeshRenderData* CreateRenderData(ezUInt32 uiBatchId) const;

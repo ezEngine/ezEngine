@@ -116,8 +116,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 2, ezComponentMode::Dynamic)
   EZ_END_PROPERTIES
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezPhysicsAddForceMsg, AddForceAtPos),
-    EZ_MESSAGE_HANDLER(ezPhysicsAddImpulseMsg, AddImpulseAtPos),
+    EZ_MESSAGE_HANDLER(ezMsgPhysicsAddForce, AddForceAtPos),
+    EZ_MESSAGE_HANDLER(ezMsgPhysicsAddImpulse, AddImpulseAtPos),
   }
   EZ_END_MESSAGEHANDLERS
 }
@@ -389,7 +389,7 @@ void ezPxDynamicActorComponent::AddAngularImpulse(const ezVec3& vImpulse)
   }
 }
 
-void ezPxDynamicActorComponent::AddForceAtPos(ezPhysicsAddForceMsg& msg)
+void ezPxDynamicActorComponent::AddForceAtPos(ezMsgPhysicsAddForce& msg)
 {
   if (m_pActor != nullptr && !m_bKinematic)
   {
@@ -399,7 +399,7 @@ void ezPxDynamicActorComponent::AddForceAtPos(ezPhysicsAddForceMsg& msg)
   }
 }
 
-void ezPxDynamicActorComponent::AddImpulseAtPos(ezPhysicsAddImpulseMsg& msg)
+void ezPxDynamicActorComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
 {
   if (m_pActor != nullptr && !m_bKinematic)
   {

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <RendererCore/Basics.h>
-#include <Core/Messages/ScriptFunctionMessage.h>
 
 struct ezSetColorMode
 {
@@ -23,9 +22,9 @@ struct ezSetColorMode
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSetColorMode);
 
-struct EZ_RENDERERCORE_DLL ezSetColorMessage : public ezScriptFunctionMessage
+struct EZ_RENDERERCORE_DLL ezMsgSetColor : public ezMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezSetColorMessage, ezScriptFunctionMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgSetColor, ezMessage);
 
   ezColor m_Color;
   ezEnum<ezSetColorMode> m_Mode;

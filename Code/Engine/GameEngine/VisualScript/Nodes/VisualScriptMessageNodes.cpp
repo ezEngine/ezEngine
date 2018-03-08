@@ -36,12 +36,12 @@ void ezVisualScriptNode_SimpleUserEvent::Execute(ezVisualScriptInstance* pInstan
 
 ezInt32 ezVisualScriptNode_SimpleUserEvent::HandlesMessagesWithID() const
 {
-  return ezSimpleUserEventMessage::GetTypeMsgId();
+  return ezMsgGenericUserEvent::GetTypeMsgId();
 }
 
 void ezVisualScriptNode_SimpleUserEvent::HandleMessage(ezMessage* pMsg)
 {
-  ezSimpleUserEventMessage& msg = *static_cast<ezSimpleUserEventMessage*>(pMsg);
+  ezMsgGenericUserEvent& msg = *static_cast<ezMsgGenericUserEvent*>(pMsg);
 
   if (msg.m_sMessage == m_sMessage)
   {
@@ -233,12 +233,12 @@ void ezVisualScriptNode_InputEvent::Execute(ezVisualScriptInstance* pInstance, e
 
 ezInt32 ezVisualScriptNode_InputEvent::HandlesMessagesWithID() const
 {
-  return ezInputEventMessage::GetTypeMsgId();
+  return ezMsgInputActionTriggered::GetTypeMsgId();
 }
 
 void ezVisualScriptNode_InputEvent::HandleMessage(ezMessage* pMsg)
 {
-  ezInputEventMessage& msg = *static_cast<ezInputEventMessage*>(pMsg);
+  ezMsgInputActionTriggered& msg = *static_cast<ezMsgInputActionTriggered*>(pMsg);
 
   if (msg.m_uiInputActionHash == m_sInputAction.GetHash())
   {

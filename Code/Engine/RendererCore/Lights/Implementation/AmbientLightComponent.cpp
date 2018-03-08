@@ -19,8 +19,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezAmbientLightComponent, 2, ezComponentMode::Static)
   EZ_END_PROPERTIES
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezUpdateLocalBoundsMessage, OnUpdateLocalBounds),
-    EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS
   EZ_BEGIN_ATTRIBUTES
@@ -87,12 +87,12 @@ float ezAmbientLightComponent::GetIntensity() const
 }
 
 
-void ezAmbientLightComponent::OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg)
+void ezAmbientLightComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 {
   msg.SetAlwaysVisible();
 }
 
-void ezAmbientLightComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
+void ezAmbientLightComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   if (msg.m_OverrideCategory != ezInvalidIndex)
     return;

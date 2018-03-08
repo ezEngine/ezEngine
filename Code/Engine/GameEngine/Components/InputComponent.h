@@ -27,9 +27,9 @@ struct EZ_GAMEENGINE_DLL ezInputMessageGranularity
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezInputMessageGranularity);
 
 /// \brief ezInputComponent raises this event when it detects input
-struct EZ_GAMEENGINE_DLL ezInputEventMessage : public ezEventMessage
+struct EZ_GAMEENGINE_DLL ezMsgInputActionTriggered : public ezEventMessage
 {
-  EZ_DECLARE_MESSAGE_TYPE(ezInputEventMessage, ezEventMessage);
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgInputActionTriggered, ezEventMessage);
 
   /// The hash of the input action string.
   ezUInt32 m_uiInputActionHash;
@@ -67,5 +67,5 @@ public:
   ezString m_sInputSet;
   ezEnum<ezInputMessageGranularity> m_Granularity;
 
-  ezEventMessageSender<ezInputEventMessage> m_InputEventSender;
+  ezEventMessageSender<ezMsgInputActionTriggered> m_InputEventSender;
 };

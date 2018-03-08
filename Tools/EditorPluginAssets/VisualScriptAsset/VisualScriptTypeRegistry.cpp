@@ -10,7 +10,6 @@
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <Core/World/Component.h>
-#include <Core/Messages/ScriptFunctionMessage.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Core/Messages/EventMessage.h>
 
@@ -133,16 +132,17 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
   if (pRtti->GetAttributeByType<ezHiddenAttribute>() != nullptr)
     return;
 
-  if (pRtti->IsDerivedFrom<ezScriptFunctionMessage>() && pRtti != ezGetStaticRTTI<ezScriptFunctionMessage>())
+  if (pRtti->IsDerivedFrom<ezMessage>() && !pRtti->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
   {
-    CreateMessageNodeType(pRtti);
-    return;
-  }
+    if (pRtti->GetAttributeByType<ezAutoGenVisScriptMsgSender>())
+    {
+      CreateMessageNodeType(pRtti);
+    }
 
-  if (pRtti->IsDerivedFrom<ezEventMessage>() && pRtti != ezGetStaticRTTI<ezEventMessage>())
-  {
-    CreateEventMessageNodeType(pRtti);
-    return;
+    if (pRtti->GetAttributeByType<ezAutoGenVisScriptMsgHandler>())
+    {
+      CreateEventMessageNodeType(pRtti);
+    }
   }
 
   if (!pRtti->IsDerivedFrom<ezVisualScriptNode>() || pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract))
@@ -295,10 +295,12 @@ const ezRTTI* ezVisualScriptTypeRegistry::GenerateTypeFromDesc(const ezVisualScr
 
 void ezVisualScriptTypeRegistry::CreateMessageNodeType(const ezRTTI* pRtti)
 {
+  const ezStringBuilder tmp(pRtti->GetTypeName(), "<send>");
+
   ezVisualScriptNodeDescriptor nd;
-  nd.m_sTypeName = pRtti->GetTypeName();
+  nd.m_sTypeName = tmp;
   nd.m_Color = ezColor::MediumPurple;
-  nd.m_sCategory = "Messages";
+  nd.m_sCategory = "Message Senders";
 
   if (const ezCategoryAttribute* pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
   {
@@ -439,10 +441,12 @@ void ezVisualScriptTypeRegistry::CreateMessageNodeType(const ezRTTI* pRtti)
 
 void ezVisualScriptTypeRegistry::CreateEventMessageNodeType(const ezRTTI* pRtti)
 {
+  const ezStringBuilder tmp(pRtti->GetTypeName(), "<handle>");
+
   ezVisualScriptNodeDescriptor nd;
-  nd.m_sTypeName = pRtti->GetTypeName();
+  nd.m_sTypeName = tmp;
   nd.m_Color = ezColor::OrangeRed;
-  nd.m_sCategory = "EventHandler";
+  nd.m_sCategory = "Message Handlers";
 
   if (const ezCategoryAttribute* pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
   {
@@ -462,7 +466,7 @@ void ezVisualScriptTypeRegistry::CreateEventMessageNodeType(const ezRTTI* pRtti)
     static const ezColor ExecutionPinColor = ezColor::LightSlateGrey;
 
     ezVisualScriptPinDescriptor pd;
-    pd.m_sName = "OnEvent";
+    pd.m_sName = "OnMsg";
     pd.m_sTooltip = "";
     pd.m_PinType = ezVisualScriptPinDescriptor::Execution;
     pd.m_Color = ExecutionPinColor;

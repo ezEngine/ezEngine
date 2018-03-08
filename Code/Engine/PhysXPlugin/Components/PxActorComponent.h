@@ -2,7 +2,7 @@
 
 #include <PhysXPlugin/Components/PxComponent.h>
 
-struct ezBuildNavMeshMessage;
+struct ezMsgBuildNavMesh;
 
 class EZ_PHYSXPLUGIN_DLL ezPxActorComponent : public ezPxComponent
 {
@@ -16,7 +16,7 @@ public:
 
 protected:
   void AddShapesFromObject(ezGameObject* pObject, physx::PxRigidActor* pActor, const ezSimdTransform& ParentTransform);
-  void AddShapesToNavMesh(const ezGameObject* pObject, ezBuildNavMeshMessage& msg) const;
+  void AddShapesToNavMesh(const ezGameObject* pObject, ezMsgBuildNavMesh& msg) const;
 };
 
 

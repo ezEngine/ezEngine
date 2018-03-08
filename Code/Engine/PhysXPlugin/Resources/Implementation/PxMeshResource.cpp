@@ -163,7 +163,7 @@ ezResourceLoadDesc ezPxMeshResource::CreateResource(const ezPxMeshResourceDescri
   return res;
 }
 
-void ezPxMeshResource::AddToNavMesh(const ezTransform& transform, ezBuildNavMeshMessage& msg) const
+void ezPxMeshResource::AddToNavMesh(const ezTransform& transform, ezMsgBuildNavMesh& msg) const
 {
   if (GetConvexMesh() != nullptr)
   {

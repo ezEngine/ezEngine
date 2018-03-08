@@ -45,7 +45,7 @@ public:
 
   virtual void OnSimulationStarted() override;
 
-  void OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg) const;
+  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
 
   ezBitflags<ezPxCharacterCollisionFlags> Move(const ezVec3& vMotion, bool bCrouch);
   bool IsCrouching() const { return m_bIsCrouching; }

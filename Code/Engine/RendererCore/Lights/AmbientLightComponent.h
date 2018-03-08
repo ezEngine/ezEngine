@@ -4,7 +4,7 @@
 #include <Core/World/SettingsComponentManager.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
-struct ezUpdateLocalBoundsMessage;
+struct ezMsgUpdateLocalBounds;
 
 typedef ezSettingsComponentManager<class ezAmbientLightComponent> ezAmbientLightComponentManager;
 
@@ -38,8 +38,8 @@ public:
   void SetIntensity(float fIntensity);
   float GetIntensity() const;
 
-  void OnUpdateLocalBounds(ezUpdateLocalBoundsMessage& msg);
-  void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
+  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
+  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
