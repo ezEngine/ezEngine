@@ -2,6 +2,7 @@
 
 #include <GameEngine/Basics.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
+#include <Foundation/Communication/Message.h>
 
 struct EZ_GAMEENGINE_DLL ezMsgDamage : public ezMessage
 {

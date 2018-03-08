@@ -1,6 +1,7 @@
 #pragma once
 
 #include <RendererCore/Basics.h>
+#include <Foundation/Communication/Message.h>
 
 struct ezSetColorMode
 {

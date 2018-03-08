@@ -3,6 +3,8 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
+#include <Core/Messages/EventMessage.h>
+#include <GameEngine/VisualScript/Nodes/VisualScriptMessageNodes.h>
 
 //////////////////////////////////////////////////////////////////////////
 /// ezVisualScriptResource
