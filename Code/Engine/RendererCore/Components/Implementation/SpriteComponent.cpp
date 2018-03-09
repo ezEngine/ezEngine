@@ -112,7 +112,14 @@ void ezSpriteComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
   }
   else
   {
-    category = ezDefaultRenderDataCategories::LitOpaque;
+    if (m_BlendMode == ezSpriteBlendMode::Masked)
+    {
+      category = ezDefaultRenderDataCategories::LitMasked;
+    }
+    else
+    {
+      category = ezDefaultRenderDataCategories::LitTransparent;
+    }
   }
 
   // Sort by mode and then by texture
