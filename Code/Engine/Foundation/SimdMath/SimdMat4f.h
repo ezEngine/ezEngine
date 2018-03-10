@@ -42,7 +42,7 @@ public:
   ezResult Invert(const ezSimdFloat& fEpsilon = ezMath::BasicType<float>::SmallEpsilon()); // [tested]
 
   /// \brief Returns the inverse of this matrix.
-  ezSimdMat4f GetInverse() const; // [tested]
+  ezSimdMat4f GetInverse(const ezSimdFloat& fEpsilon = ezMath::BasicType<float>::SmallEpsilon()) const; // [tested]
 
 public:
 

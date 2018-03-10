@@ -165,10 +165,11 @@ const ezMat3Template<Type> ezMat3Template<Type>::GetTranspose() const
 }
 
 template<typename Type>
-const ezMat3Template<Type> ezMat3Template<Type>::GetInverse() const
+const ezMat3Template<Type> ezMat3Template<Type>::GetInverse(Type fEpsilon) const
 {
   ezMat3Template<Type> Inverse = *this;
-  Inverse.Invert();
+  ezResult res = Inverse.Invert(fEpsilon);
+  EZ_ASSERT_DEBUG(res.Succeeded(), "Could not invert the given Mat3.");
   return Inverse;
 }
 

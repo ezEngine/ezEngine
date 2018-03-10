@@ -213,7 +213,8 @@ template<typename Type>
 const ezMat4Template<Type> ezMat4Template<Type>::GetInverse(Type fEpsilon) const
 {
   ezMat4Template<Type> Inverse = *this;
-  Inverse.Invert(fEpsilon);
+  ezResult res = Inverse.Invert(fEpsilon);
+  EZ_ASSERT_DEBUG(res.Succeeded(), "Could not invert the given Mat4.");
   return Inverse;
 }
 

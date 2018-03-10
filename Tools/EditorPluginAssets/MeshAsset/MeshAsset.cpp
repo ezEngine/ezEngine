@@ -223,9 +223,9 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
 
   using namespace ezModelImporter;
 
-  const ezMat3 mTransformNormals = mTransformation.GetInverse().GetTranspose();
+  const ezMat3 mTransformNormals = mTransformation.GetInverse(0.0f).GetTranspose();
 
-  const bool bFlipTriangles = (mTransformNormals.GetColumn(0).Cross(mTransformNormals.GetColumn(1)).Dot(mTransformNormals.GetColumn(2)) < 0.0f);
+  const bool bFlipTriangles = (mTransformation.GetColumn(0).Cross(mTransformation.GetColumn(1)).Dot(mTransformation.GetColumn(2)) < 0.0f);
 
   ezSharedPtr<Scene> scene;
   Mesh* mesh = nullptr;

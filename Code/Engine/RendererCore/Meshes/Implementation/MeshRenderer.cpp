@@ -141,7 +141,7 @@ void ezMeshRenderer::FillPerInstanceData(ezArrayPtr<ezPerInstanceData> instanceD
     else
     {
       ezShaderTransform shaderT;
-      shaderT = objectToWorld.GetRotationalPart().GetInverse().GetTranspose();
+      shaderT = objectToWorld.GetRotationalPart().GetInverse(0.0f).GetTranspose();
       perInstanceData.ObjectToWorldNormal = shaderT;
     }
 
