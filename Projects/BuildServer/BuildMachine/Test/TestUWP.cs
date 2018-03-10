@@ -6,6 +6,7 @@ using System.Diagnostics;
 using Microsoft.Win32;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace BuildMachine
 {
@@ -233,60 +234,68 @@ namespace BuildMachine
       if (!deployResult.Success)
         return res;
 
-      // Start AppX
-      uint appXPid;
-      var startResult = StartAppX(fullPackageName, GetDefaultTestArgs(outputFilename, settings), out appXPid);
-      res.MergeIn(startResult);
-      if (!startResult.Success)
-        return res;
-      Process appXProcess;
-      try
-      {
-        appXProcess = Process.GetProcessById((int)appXPid);
-      }
-      catch (Exception e)
-      {
-        res.Error("Failed to get process handle to test app: {0}", e);
-        return res;
-      }
-
       // Start fileserver.
       string absFilerserveFilename = GetFileserverPath(settings);
       if (!File.Exists(absFilerserveFilename))
       {
         res.Error("No fileserver found. File '{0}' does not exist.", absFilerserveFilename);
+        return res;
       }
-      else
+
+      Func<ezProcessHelper.ProcessResult> startFileserve = () =>
       {
         string absBinDir = Path.Combine(settings.AbsBinPath, settings.Configuration);
         string absTestDataPath = Path.Combine(settings.AbsCodePath, relativeTestDataPath);
-        // 20s timeout for connect, 2s timeout for closing after connection loss.
-        string args = string.Format("-specialdirs project \"{0}\" eztest \"{1}\" -fs_start -fs_wait_timeout 20 -fs_close_timeout 4", absTestDataPath, settings.AbsOutputFolder);
-        res.ProcessRes = ezProcessHelper.RunExternalExe(absFilerserveFilename, args, absBinDir, res);
+        // 60s timeout for connect, 2s timeout for closing after connection loss.
+        string args = string.Format("-specialdirs project \"{0}\" eztest \"{1}\" -fs_start -fs_wait_timeout 60 -fs_close_timeout 4", absTestDataPath, settings.AbsOutputFolder);
+        return ezProcessHelper.RunExternalExe(absFilerserveFilename, args, absBinDir, res);
+      };
+
+      using (Task<ezProcessHelper.ProcessResult> runFileServe = Task.Factory.StartNew(startFileserve))
+      {
+        runFileServe.Wait(2000);
+
+        // Start AppX
+        uint appXPid;
+        var startResult = StartAppX(fullPackageName, GetDefaultTestArgs(outputFilename, settings), out appXPid);
+        res.MergeIn(startResult);
+        if (!startResult.Success)
+          return res;
+        Process appXProcess;
+        try
+        {
+          appXProcess = Process.GetProcessById((int)appXPid);
+        }
+        catch (Exception e)
+        {
+          res.Error("Failed to get process handle to test app: {0}", e);
+          return res;
+        }
+
+        Task.WaitAll(runFileServe);
+        res.ProcessRes = runFileServe.Result;
         res.Duration += res.ProcessRes.Duration;
         res.Success = (res.ProcessRes.ExitCode == 0);
-      }
 
-      // Top watch.
-      
-      // Check whether the AppX is dead by now.
-      if(!appXProcess.WaitForExit(5000))
-      {
-        res.Error("Fileserve is no longer running but the AppX is.");
-        //res.Success = false;
-        appXProcess.Kill();
-      }
-      // Can't read exit code: "Process was not started by this object, so requested information cannot be determined"
-      /*else
-      {
-        if (appXProcess.ExitCode != 0)
+        // Check whether the AppX is dead by now.
+        if (!appXProcess.WaitForExit(5000))
         {
-          res.Error("Test AppX exited with {0}", appXProcess.ExitCode);
-          res.Success = false;
+          res.Error("Fileserve is no longer running but the AppX is.");
+          //res.Success = false;
+          appXProcess.Kill();
         }
-      }*/
-      appXProcess.Dispose();
-      appXProcess = null;
+        // Can't read exit code: "Process was not started by this object, so requested information cannot be determined"
+        /*else
+        {
+          if (appXProcess.ExitCode != 0)
+          {
+            res.Error("Test AppX exited with {0}", appXProcess.ExitCode);
+            res.Success = false;
+          }
+        }*/
+        appXProcess.Dispose();
+        appXProcess = null;
+      }
 
       // Read test output.
       if (File.Exists(absOutputPath))
