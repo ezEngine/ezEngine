@@ -54,9 +54,9 @@ namespace BuildMachine
         // Run SVN update
         string sParams;
         if (iRevision < 0)
-          sParams = string.Format("update --username {0} --password {1}" /*tf"*/, _Settings.SVNUsername, _Settings.SVNPassword);
+          sParams = string.Format("update --trust-server-cert --non-interactive --username {0} --password {1}" /*tf"*/, _Settings.SVNUsername, _Settings.SVNPassword);
         else
-          sParams = string.Format("update -r {0} --username {1} --password {2}" /*tf"*/, iRevision, _Settings.SVNUsername, _Settings.SVNPassword);
+          sParams = string.Format("update --trust-server-cert --non-interactive -r {0} --username {1} --password {2}" /*tf"*/, iRevision, _Settings.SVNUsername, _Settings.SVNPassword);
 
         for (int iTry = 0; iTry < 2; ++iTry)
         {

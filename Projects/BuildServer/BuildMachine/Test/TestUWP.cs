@@ -261,19 +261,19 @@ namespace BuildMachine
         string absBinDir = Path.Combine(settings.AbsBinPath, settings.Configuration);
         string absTestDataPath = Path.Combine(settings.AbsCodePath, relativeTestDataPath);
         // 20s timeout for connect, 2s timeout for closing after connection loss.
-        string args = string.Format("-specialdirs project \"{0}\" eztest \"{1}\" -fs_start -fs_wait_timeout 20 -fs_close_timeout 2", absTestDataPath, settings.AbsOutputFolder);
+        string args = string.Format("-specialdirs project \"{0}\" eztest \"{1}\" -fs_start -fs_wait_timeout 20 -fs_close_timeout 4", absTestDataPath, settings.AbsOutputFolder);
         res.ProcessRes = ezProcessHelper.RunExternalExe(absFilerserveFilename, args, absBinDir, res);
         res.Duration += res.ProcessRes.Duration;
         res.Success = (res.ProcessRes.ExitCode == 0);
       }
 
       // Top watch.
-
+      
       // Check whether the AppX is dead by now.
-      if(!appXProcess.HasExited)
+      if(!appXProcess.WaitForExit(5000))
       {
         res.Error("Fileserve is no longer running but the AppX is.");
-        res.Success = false;
+        //res.Success = false;
         appXProcess.Kill();
       }
       // Can't read exit code: "Process was not started by this object, so requested information cannot be determined"

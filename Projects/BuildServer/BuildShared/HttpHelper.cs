@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -34,6 +34,7 @@ namespace BuildShared
     /// <returns>null if the server could not be reached.</returns>
     public static ResponseResult POST(string url, string sMessage)
     {
+      System.Net.ServicePointManager.Expect100Continue = false;
       ResponseResult res = new ResponseResult();
       try
       {
