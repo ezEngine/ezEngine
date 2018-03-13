@@ -4,7 +4,7 @@ o
 {
 	Uuid %id{u4{16654329716795353727,2250578481546007892}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -53,7 +53,7 @@ o
 {
 	Uuid %id{u4{10823855815713130919,4635305006234871013}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -76,7 +76,7 @@ o
 {
 	Uuid %id{u4{10016329379038511258,4640023150923691402}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -106,7 +106,7 @@ AssetInfo
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11683425167790577586,4745924491010228727}}
-		u4 %Hash{8746589782149036262}
+		u4 %Hash{1247008747600745265}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -175,7 +175,7 @@ o
 {
 	Uuid %id{u4{3430915651983358616,4849254747110311752}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -247,7 +247,7 @@ o
 {
 	Uuid %id{u4{5659330815971158719,4982616319025334652}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -318,7 +318,7 @@ o
 {
 	Uuid %id{u4{14938403745055576508,5081036648362405851}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -426,7 +426,7 @@ o
 {
 	Uuid %id{u4{6655913568043425958,5364937168113610949}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -534,7 +534,7 @@ o
 {
 	Uuid %id{u4{16931016798592462214,5401792310941291301}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -618,7 +618,7 @@ o
 {
 	Uuid %id{u4{13985333170142504103,5671128167924966020}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -641,7 +641,7 @@ o
 {
 	Uuid %id{u4{3475924618544834446,5697002396829007977}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -679,7 +679,7 @@ o
 {
 	Uuid %id{u4{10472052996177487971,9884454913708227001}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -754,7 +754,7 @@ o
 {
 	Uuid %id{u4{5663548902096853590,10317883092754764166}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -803,7 +803,7 @@ o
 {
 	Uuid %id{u4{2821944178934254600,10454859504554354316}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -852,7 +852,7 @@ o
 {
 	Uuid %id{u4{4849418264117042514,10537678159691989672}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -875,7 +875,7 @@ o
 {
 	Uuid %id{u4{15703218960523045202,10804500899951207323}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -924,7 +924,7 @@ o
 {
 	Uuid %id{u4{12882201209051745247,15112643701830794297}}
 	s %t{"ezGreyBoxComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -1357,7 +1357,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezGreyBoxComponent"}
 		u3 %TypeSize{112}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 }

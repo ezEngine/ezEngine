@@ -56,14 +56,13 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9948428539788972452,5693514604989640662}}
-		u4 %Hash{4138252359734778575}
+		u4 %Hash{8079531369744937577}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
 			s{"{ 69eca029-cda2-45a9-a90d-574b97fe2a0f }"}
 			s{"{ d3a7b89d-8af6-4e5c-a403-2f24ba5e5b61 }"}
-			s{"{ ebf96ed8-77cc-4c17-8357-18f9948882de }"}
 		}
 	}
 }
@@ -97,21 +96,6 @@ o
 }
 o
 {
-	Uuid %id{u4{16397042654655143761,9995491143102243932}}
-	s %t{"ezFmodEventComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{1}
-		s %OnFinishedAction{"ezOnComponentFinishedAction::DeleteComponent"}
-		b %Paused{0}
-		f %Pitch{0x0000803F}
-		s %SoundEvent{"{ ebf96ed8-77cc-4c17-8357-18f9948882de }"}
-		f %Volume{0x0000803F}
-	}
-}
-o
-{
 	Uuid %id{u4{7591883057963567146,10073051972631724214}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -128,6 +112,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Gun"}
 		VarArray %Tags{}
 	}
@@ -263,13 +248,13 @@ o
 			Uuid{u4{2663106629056406990,15251977847418270746}}
 			Uuid{u4{13565034080654770949,14763355487724406436}}
 			Uuid{u4{6077719088545909983,14673286384444732120}}
-			Uuid{u4{16397042654655143761,9995491143102243932}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Player"}
 		VarArray %Tags{}
 	}
@@ -297,6 +282,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Camera"}
 		VarArray %Tags{}
 	}
@@ -378,24 +364,6 @@ o
 }
 o
 {
-	Uuid %id{u4{11852399130965337762,1180647988113932230}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezFmodComponent"}
-		s %PluginName{"ezEditorPluginFmod"}
-		VarArray %Properties{}
-		s %TypeName{"ezFmodEventComponent"}
-		u3 %TypeSize{96}
-		u3 %TypeVersion{2}
-	}
-}
-o
-{
 	Uuid %id{u4{12984103802138964609,1901275426220383600}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -408,7 +376,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -576,7 +544,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxCharacterProxyComponent"}
-		u3 %TypeSize{128}
+		u3 %TypeSize{136}
 		u3 %TypeVersion{3}
 	}
 }
@@ -700,6 +668,24 @@ o
 }
 o
 {
+	Uuid %id{u4{15626900963732327278,8724655806046315562}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezObjectMode"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{1384393750607226200,9143286981169020248}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -754,24 +740,6 @@ o
 }
 o
 {
-	Uuid %id{u4{13785929886415839585,12184238587207108802}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezOnComponentFinishedAction"}
-		u3 %TypeSize{1}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{5063608185223743325,13011818405419475423}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -784,7 +752,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxCharacterControllerComponent"}
-		u3 %TypeSize{168}
+		u3 %TypeSize{160}
 		u3 %TypeVersion{5}
 	}
 }

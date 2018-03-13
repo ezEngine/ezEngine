@@ -25,6 +25,16 @@ o
 }
 o
 {
+	Uuid %id{u4{12132503114312747444,3412762409915243844}}
+	s %t{"ezEventTrackData"}
+	u3 %v{3}
+	p
+	{
+		VarArray %ControlPoints{}
+	}
+}
+o
+{
 	Uuid %id{u4{11248628684737555637,4632083218058051001}}
 	s %t{"ezCurveControlPointData"}
 	u3 %v{5}
@@ -202,6 +212,7 @@ o
 	p
 	{
 		u4 %Duration{19680}
+		Uuid %EventTrack{u4{12132503114312747444,3412762409915243844}}
 		u3 %FPS{60}
 		VarArray %Tracks
 		{
@@ -532,7 +543,7 @@ AssetInfo
 		s %AssetType{"PropertyAnim"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4994724443176325531,5726186809139790685}}
-		u4 %Hash{10746930777991283655}
+		u4 %Hash{11543661251094996925}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -828,6 +839,24 @@ o
 }
 o
 {
+	Uuid %id{u4{3174716116353875635,15782570281701080509}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEventTrackData"}
+		u3 %TypeSize{40}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
 	Uuid %id{u4{11630073242632498956,16345546015082321574}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -840,7 +869,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezPropertyAnimationTrackGroup"}
-		u3 %TypeSize{56}
+		u3 %TypeSize{96}
 		u3 %TypeVersion{1}
 	}
 }
@@ -877,6 +906,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezCurveTangentMode"}
 		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4289606471226284481,18059847783514351836}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEventTrackControlPointData"}
+		u3 %TypeSize{80}
 		u3 %TypeVersion{1}
 	}
 }

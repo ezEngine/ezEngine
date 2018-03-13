@@ -26,10 +26,11 @@ o
 {
 	Uuid %id{u4{10146658098248606852,1641752605210984070}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ e6110139-7301-4460-b32d-d53715c3d231 }"}
@@ -63,10 +64,11 @@ o
 {
 	Uuid %id{u4{16726616258364444781,2156723692197162677}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 381dcdf3-b253-456d-b9a4-7b5427491159 }"}
@@ -100,10 +102,11 @@ o
 {
 	Uuid %id{u4{5560795755009241262,2258265934041451138}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ f5990acf-3740-48f7-9d85-38816c573ce1 }"}
@@ -137,10 +140,11 @@ o
 {
 	Uuid %id{u4{16295535671205818566,2584000653378076821}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 1767ab66-2efa-4b24-9587-92493dcba299 }"}
@@ -174,10 +178,11 @@ o
 {
 	Uuid %id{u4{16444182079891389668,4508473512975746599}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 444e6dbe-4d09-453e-ad16-3d912cb8ba94 }"}
@@ -211,10 +216,11 @@ o
 {
 	Uuid %id{u4{3135359570667228570,4770054681724278973}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ dd685b73-c019-4ebf-b5c2-3cf0d6d0154d }"}
@@ -248,10 +254,11 @@ o
 {
 	Uuid %id{u4{467572877360649181,4907265917169060908}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 6efd911c-54b1-4bc0-ac65-e8460f4f4978 }"}
@@ -294,7 +301,7 @@ AssetInfo
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8054224939452134033,5141319650694349843}}
-		u4 %Hash{18359594563266692969}
+		u4 %Hash{2995373565805512236}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -448,10 +455,11 @@ o
 {
 	Uuid %id{u4{15301798159994000664,7114947468119336251}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 058fb05c-9159-410c-ab8d-961009012ba6 }"}
@@ -485,10 +493,11 @@ o
 {
 	Uuid %id{u4{4135977656638797145,7216489709963624712}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 82901ea2-034d-4896-8f6e-6d695928eb8d }"}
@@ -522,10 +531,11 @@ o
 {
 	Uuid %id{u4{8725142071412363802,7569351379674872395}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 0403bea9-b4bc-4958-a8d4-2c41c390546f }"}
@@ -559,10 +569,11 @@ o
 {
 	Uuid %id{u4{1710541472296784453,9728278457646452547}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 30b31523-3b99-4cc6-a0f0-0d3c84d836f4 }"}
@@ -596,10 +607,11 @@ o
 {
 	Uuid %id{u4{15133643883938457121,9825605086295901770}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 401bc9d5-0e22-43c9-95c3-1d0b5eb7eb51 }"}
@@ -633,10 +645,11 @@ o
 {
 	Uuid %id{u4{17489498852699756680,9865489693091234482}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 8dd82a2c-b2b0-4349-b15b-c32913a8e286 }"}
@@ -670,10 +683,11 @@ o
 {
 	Uuid %id{u4{194687636779572872,10518346482964758990}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 84eeada1-50e1-42ed-b225-13f2016c80e6 }"}
@@ -707,10 +721,11 @@ o
 {
 	Uuid %id{u4{7300323973041919685,12527575155597045969}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 36bd75cb-c6cf-4cec-bd0c-6bcfcb419fe2 }"}
@@ -744,10 +759,11 @@ o
 {
 	Uuid %id{u4{15968843748381305508,12585627938274059752}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 34d12b0e-b078-4876-8b2e-932c3800c682 }"}
@@ -781,10 +797,11 @@ o
 {
 	Uuid %id{u4{13708825785568013004,14783828862218075344}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 958423af-f5a3-435c-8391-69e76a0a1d72 }"}
@@ -818,10 +835,11 @@ o
 {
 	Uuid %id{u4{11571476196619050969,15130272902998362112}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 2eaa0b79-e827-40b9-89eb-a55c70e34b2a }"}
@@ -855,10 +873,11 @@ o
 {
 	Uuid %id{u4{17216613612118680371,15476570258886932564}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 4f4885d6-6977-4d5f-853d-6e891d0dc9bc }"}
@@ -892,10 +911,11 @@ o
 {
 	Uuid %id{u4{17720353769576262683,16072520951165454863}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ a2307383-1dfb-45b7-af7b-4fb5f81975b4 }"}
@@ -929,10 +949,11 @@ o
 {
 	Uuid %id{u4{14544025650010861391,17543851714196233326}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ fa2e654a-e75d-4687-ad4c-64f8dacc506d }"}
@@ -966,10 +987,11 @@ o
 {
 	Uuid %id{u4{17869000178261833785,17996993810763124641}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ fa2a081b-b9f4-49e9-ba7c-78fbad195f4a }"}
@@ -1192,8 +1214,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponent"}
-		u3 %TypeSize{88}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{2}
 	}
 }
 }
