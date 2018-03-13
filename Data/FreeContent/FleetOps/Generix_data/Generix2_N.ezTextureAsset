@@ -14,7 +14,7 @@ AssetInfo
 			s{"FleetOps/Generix_data/romGenerix1_bump_Normal.tga"}
 		}
 		Uuid %DocumentID{u4{16851323767018333590,4901687252489865602}}
-		u4 %Hash{8495113952477111864}
+		u4 %Hash{13500727576365391865}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -45,6 +45,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{0}
+		b %FlipHorizontal{0}
 		s %Input1{"FleetOps/Generix_data/romGenerix1_bump_Normal.tga"}
 		s %Input2{""}
 		s %Input3{""}
@@ -72,7 +73,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

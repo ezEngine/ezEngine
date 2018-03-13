@@ -14,7 +14,7 @@ AssetInfo
 			s{"Particles/Textures/weapon_phaserflare.tga"}
 		}
 		Uuid %DocumentID{u4{2415774349062023809,5232117736346593917}}
-		u4 %Hash{8993378621805646173}
+		u4 %Hash{8308443028099321115}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -31,6 +31,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Clamp"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
+		b %FlipHorizontal{0}
 		s %Input1{"Particles/Textures/weapon_phaserflare.tga"}
 		s %Input2{""}
 		s %Input3{""}
@@ -72,7 +73,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

@@ -12,6 +12,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{0}
+		b %FlipHorizontal{0}
 		s %Input1{"FleetOps/Shashura_data/romShashura0_bump_Normal.tga"}
 		s %Input2{""}
 		s %Input3{""}
@@ -50,7 +51,7 @@ AssetInfo
 			s{"FleetOps/Shashura_data/romShashura0_bump_Normal.tga"}
 		}
 		Uuid %DocumentID{u4{9516716831661666739,5731688537165904341}}
-		u4 %Hash{1878474807595648982}
+		u4 %Hash{2175417802701926763}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -72,7 +73,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

@@ -14,7 +14,7 @@ AssetInfo
 			s{"Particles/Textures/Rainring.tga"}
 		}
 		Uuid %DocumentID{u4{9844269683962087124,1993136426476909423}}
-		u4 %Hash{13202370133810799210}
+		u4 %Hash{6909758846000321485}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -45,6 +45,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Clamp"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_A2"}
 		b %Compression{1}
+		b %FlipHorizontal{0}
 		s %Input1{"Particles/Textures/Rainring.tga"}
 		s %Input2{"Particles/Textures/Rainring.tga"}
 		s %Input3{""}
@@ -72,7 +73,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

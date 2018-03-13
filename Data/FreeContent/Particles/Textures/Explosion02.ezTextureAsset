@@ -14,7 +14,7 @@ AssetInfo
 			s{"Particles/Textures/explosion02.tga"}
 		}
 		Uuid %DocumentID{u4{6089262614411144367,4768019219048700937}}
-		u4 %Hash{2678095458570717540}
+		u4 %Hash{9827418848943805651}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -45,6 +45,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Clamp"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
+		b %FlipHorizontal{0}
 		s %Input1{"Particles/Textures/explosion02.tga"}
 		s %Input2{""}
 		s %Input3{""}
@@ -72,7 +73,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

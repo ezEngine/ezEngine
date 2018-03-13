@@ -14,7 +14,7 @@ AssetInfo
 			s{"Textures/normalCube.tga"}
 		}
 		Uuid %DocumentID{u4{13785639026660106886,4664732193746503514}}
-		u4 %Hash{12428955574888682991}
+		u4 %Hash{8146845949263774904}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -31,6 +31,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
+		b %FlipHorizontal{0}
 		s %Input1{"Textures/normalCube.tga"}
 		s %Input2{""}
 		s %Input3{""}
@@ -72,7 +73,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

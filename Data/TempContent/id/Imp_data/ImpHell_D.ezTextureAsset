@@ -14,7 +14,7 @@ AssetInfo
 			s{"id/Imp_data/Diffuse2.tga"}
 		}
 		Uuid %DocumentID{u4{14444537978262200199,4790281877677650125}}
-		u4 %Hash{2829070990979742819}
+		u4 %Hash{6380580580783188536}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -31,6 +31,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
+		b %FlipHorizontal{0}
 		s %Input1{"id/Imp_data/Diffuse2.tga"}
 		s %Input2{""}
 		s %Input3{""}
@@ -72,7 +73,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

@@ -28,7 +28,7 @@ AssetInfo
 			s{"Trees/Textures/Bark/deviantart.com/Pinetree_D.dds"}
 		}
 		Uuid %DocumentID{u4{5400539902483527357,5415206553939410678}}
-		u4 %Hash{1659518973518240452}
+		u4 %Hash{747571363731545735}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -45,6 +45,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
+		b %FlipHorizontal{0}
 		s %Input1{"Trees/Textures/Bark/deviantart.com/Pinetree_D.dds"}
 		s %Input2{""}
 		s %Input3{""}
@@ -72,7 +73,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

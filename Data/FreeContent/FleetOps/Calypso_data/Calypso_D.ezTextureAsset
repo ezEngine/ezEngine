@@ -12,6 +12,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
+		b %FlipHorizontal{0}
 		s %Input1{"FleetOps/Calypso_data/Calypso_D.dds"}
 		s %Input2{""}
 		s %Input3{""}
@@ -50,7 +51,7 @@ AssetInfo
 			s{"FleetOps/Calypso_data/Calypso_D.dds"}
 		}
 		Uuid %DocumentID{u4{12013350895396097210,5416215417293213352}}
-		u4 %Hash{5018453128276435940}
+		u4 %Hash{13795551591594010899}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -72,7 +73,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

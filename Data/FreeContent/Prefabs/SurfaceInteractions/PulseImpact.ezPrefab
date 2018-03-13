@@ -22,7 +22,7 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9806294794305770135,5052761689686868269}}
-		u4 %Hash{3200447836744112669}
+		u4 %Hash{14196497130493556607}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -84,6 +84,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"PulseImpact"}
 		VarArray %Tags{}
 	}
@@ -246,8 +247,26 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDecalComponent"}
-		u3 %TypeSize{152}
+		u3 %TypeSize{160}
 		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{15626900963732327278,8724655806046315562}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezObjectMode"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
 	}
 }
 o

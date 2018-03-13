@@ -14,7 +14,7 @@ AssetInfo
 			s{"Particles/Textures/Smoke.tga"}
 		}
 		Uuid %DocumentID{u4{4585678578125348250,4791111026204270759}}
-		u4 %Hash{708822555054950350}
+		u4 %Hash{12494256882838780095}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -31,6 +31,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Clamp"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_A2"}
 		b %Compression{0}
+		b %FlipHorizontal{0}
 		s %Input1{"Particles/Textures/Smoke.tga"}
 		s %Input2{"Particles/Textures/Smoke.tga"}
 		s %Input3{""}
@@ -72,7 +73,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

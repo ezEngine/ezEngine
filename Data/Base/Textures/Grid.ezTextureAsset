@@ -14,7 +14,7 @@ AssetInfo
 			s{"Textures/Grid.tga"}
 		}
 		Uuid %DocumentID{u4{17339766635678476197,5214154738922355752}}
-		u4 %Hash{12468327392910175524}
+		u4 %Hash{2228827413656710960}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -45,6 +45,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{0}
+		b %FlipHorizontal{0}
 		s %Input1{"Textures/Grid.tga"}
 		s %Input2{""}
 		s %Input3{""}

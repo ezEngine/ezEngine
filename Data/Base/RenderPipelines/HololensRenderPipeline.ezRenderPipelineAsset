@@ -113,6 +113,7 @@ o
 			Uuid{u4{7246327590047600058,4880685393370455810}}
 			Uuid{u4{8055280535232871558,5634593584185253786}}
 		}
+		Uuid %ResolvedDepth{u4{17155919406537109626,18194067701394389634}}
 		s %ShadingQuality{"ezForwardRenderShadingQuality::Simplified"}
 	}
 }
@@ -297,7 +298,7 @@ AssetInfo
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2725015508337577781,9195918795680669165}}
-		u4 %Hash{4148407979361194601}
+		u4 %Hash{7768875775934010924}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -390,6 +391,13 @@ o
 o
 {
 	Uuid %id{u4{15353347585536835105,17722997505682566795}}
+	s %t{"ezInputNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{17155919406537109626,18194067701394389634}}
 	s %t{"ezInputNodePin"}
 	u3 %v{1}
 	p{}
@@ -735,7 +743,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezTransparentForwardRenderPass"}
-		u3 %TypeSize{208}
+		u3 %TypeSize{224}
 		u3 %TypeVersion{1}
 	}
 }

@@ -26,6 +26,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Clamp"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_A2"}
 		b %Compression{1}
+		b %FlipHorizontal{0}
 		s %Input1{"Particles/Textures/Electric.tga"}
 		s %Input2{"Particles/Textures/Electric_A.tga"}
 		s %Input3{""}
@@ -51,7 +52,7 @@ AssetInfo
 			s{"Particles/Textures/Electric_A.tga"}
 		}
 		Uuid %DocumentID{u4{279970371350006561,6420449116315854195}}
-		u4 %Hash{5717324119045182397}
+		u4 %Hash{5750266042279273963}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -73,7 +74,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

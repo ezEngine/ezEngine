@@ -19,6 +19,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -70,10 +71,11 @@ o
 {
 	Uuid %id{u4{10630084414788693911,1946637405674125843}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -100,6 +102,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -153,10 +156,11 @@ o
 {
 	Uuid %id{u4{17870822776047746771,4636477825799041582}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -201,7 +205,7 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{6766697876757573793,4816566862146419297}}
-		u4 %Hash{14106874666340274413}
+		u4 %Hash{3231654031618571540}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -232,6 +236,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -258,6 +263,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -323,10 +329,11 @@ o
 {
 	Uuid %id{u4{17378013018292093065,5053340289914242264}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -352,10 +359,11 @@ o
 {
 	Uuid %id{u4{17912165762976631750,5095959398270783891}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -367,10 +375,11 @@ o
 {
 	Uuid %id{u4{17321546061257853590,5126036904613927605}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -397,6 +406,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -477,6 +487,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -529,10 +540,11 @@ o
 {
 	Uuid %id{u4{4652177255993837177,9742529195841109889}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -544,10 +556,11 @@ o
 {
 	Uuid %id{u4{13753893471271920463,9745680246994528640}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -587,6 +600,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -613,6 +627,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -639,6 +654,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -677,10 +693,11 @@ o
 {
 	Uuid %id{u4{4159367498238183471,10159391659956310571}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -707,6 +724,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -731,10 +749,11 @@ o
 {
 	Uuid %id{u4{860549899826620229,10198851479809990261}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -746,10 +765,11 @@ o
 {
 	Uuid %id{u4{4102900541203943996,10232088274655995912}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -761,10 +781,11 @@ o
 {
 	Uuid %id{u4{5356678104119413579,10275600524487242752}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -791,6 +812,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -817,6 +839,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -828,10 +851,11 @@ o
 {
 	Uuid %id{u4{1789025514133480452,14895243866867843787}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -858,6 +882,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -883,10 +908,11 @@ o
 {
 	Uuid %id{u4{6088648453482262251,15304902849852058568}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -913,6 +939,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
 		{
@@ -990,6 +1017,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
 	}
@@ -1012,10 +1040,11 @@ o
 {
 	Uuid %id{u4{12684067209320989728,18436652101938267200}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
@@ -1058,8 +1087,26 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxShapeComponent"}
-		u3 %TypeSize{80}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{11061541817101818123,3867562407177176337}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -1118,6 +1165,24 @@ o
 }
 o
 {
+	Uuid %id{u4{15626900963732327278,8724655806046315562}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezObjectMode"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{11372668100846884931,8737947288923677544}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1130,7 +1195,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxShapeBoxComponent"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{104}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1166,7 +1231,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxStaticActorComponent"}
-		u3 %TypeSize{88}
+		u3 %TypeSize{96}
 		u3 %TypeVersion{2}
 	}
 }
@@ -1220,8 +1285,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponent"}
-		u3 %TypeSize{88}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{2}
 	}
 }
 }

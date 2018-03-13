@@ -14,7 +14,7 @@ AssetInfo
 			s{"Shaders/Materials/SkyMaterial.ezShader"}
 		}
 		Uuid %DocumentID{u4{10074911756598670976,5336416775761779484}}
-		u4 %Hash{9413697960641759359}
+		u4 %Hash{1569484677779389714}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -47,6 +47,7 @@ o
 		s %Shader{"Shaders/Materials/SkyMaterial.ezShader"}
 		s %ShaderMode{"ezMaterialShaderMode::File"}
 		Uuid %ShaderProperties{u4{10957423177690619059,6511872893103196178}}
+		s %Surface{""}
 	}
 }
 o
@@ -131,7 +132,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -174,7 +175,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMaterialAssetProperties"}
-		u3 %TypeSize{264}
+		u3 %TypeSize{328}
 		u3 %TypeVersion{4}
 	}
 }

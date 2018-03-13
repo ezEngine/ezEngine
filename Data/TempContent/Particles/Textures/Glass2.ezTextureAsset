@@ -15,7 +15,7 @@ AssetInfo
 			s{"Particles/Textures/Glass2_A.tga"}
 		}
 		Uuid %DocumentID{u4{13632726160902047641,3450680948984523420}}
-		u4 %Hash{6644945128261438007}
+		u4 %Hash{16127281416968313460}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -46,6 +46,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Clamp"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_A2"}
 		b %Compression{1}
+		b %FlipHorizontal{0}
 		s %Input1{"Particles/Textures/Glass2.tga"}
 		s %Input2{"Particles/Textures/Glass2_A.tga"}
 		s %Input3{""}
@@ -73,7 +74,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

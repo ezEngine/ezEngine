@@ -15,7 +15,7 @@ AssetInfo
 			s{"Particles/Textures/FlareBlue_A.tga"}
 		}
 		Uuid %DocumentID{u4{17705452178861538488,608694005136718356}}
-		u4 %Hash{14366678194698927748}
+		u4 %Hash{17571225978203057844}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -46,6 +46,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Clamp"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_A2"}
 		b %Compression{1}
+		b %FlipHorizontal{0}
 		s %Input1{"Particles/Textures/FlareBlue.tga"}
 		s %Input2{"Particles/Textures/FlareBlue_A.tga"}
 		s %Input3{""}
@@ -73,7 +74,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

@@ -12,6 +12,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
+		b %FlipHorizontal{0}
 		s %Input1{"Stuff/Box_normal.png"}
 		s %Input2{""}
 		s %Input3{""}
@@ -36,7 +37,7 @@ AssetInfo
 			s{"Stuff/Box_normal.png"}
 		}
 		Uuid %DocumentID{u4{13423566644680107182,5273041318484840117}}
-		u4 %Hash{4121676681789172524}
+		u4 %Hash{326993185882082861}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -72,7 +73,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

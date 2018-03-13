@@ -12,6 +12,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Clamp"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
+		b %FlipHorizontal{0}
 		s %Input1{"Particles/Textures/weapon_phaser.tga"}
 		s %Input2{""}
 		s %Input3{""}
@@ -36,7 +37,7 @@ AssetInfo
 			s{"Particles/Textures/weapon_phaser.tga"}
 		}
 		Uuid %DocumentID{u4{8353182475125195704,5161974220859579813}}
-		u4 %Hash{2111916696636587361}
+		u4 %Hash{2705124966730435381}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -72,7 +73,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

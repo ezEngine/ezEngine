@@ -4,13 +4,13 @@ o
 {
 	Uuid %id{u4{13347535340992225690,4962704477831406559}}
 	s %t{"ezColorControlPoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		u1 %Blue{255}
 		u1 %Green{23}
-		f %Position{0x9F53103F}
 		u1 %Red{167}
+		i4 %Tick{2720}
 	}
 }
 AssetInfo
@@ -24,7 +24,7 @@ AssetInfo
 		s %AssetType{"ColorGradient"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2986112466052021416,5075615748124971574}}
-		u4 %Hash{12794810460618082937}
+		u4 %Hash{12140629165566144651}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -33,26 +33,26 @@ o
 {
 	Uuid %id{u4{12742236013242080665,5161732206650470500}}
 	s %t{"ezColorControlPoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		u1 %Blue{255}
 		u1 %Green{170}
-		f %Position{0xC59E8B3E}
 		u1 %Red{85}
+		i4 %Tick{1280}
 	}
 }
 o
 {
 	Uuid %id{u4{15282398839961720208,5256689089867195866}}
 	s %t{"ezColorControlPoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		u1 %Blue{127}
 		u1 %Green{0}
-		f %Position{0xB3BF463F}
 		u1 %Red{170}
+		i4 %Tick{3760}
 	}
 }
 o
@@ -73,13 +73,13 @@ o
 {
 	Uuid %id{u4{17511340676789645485,5429557628593648796}}
 	s %t{"ezColorControlPoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		u1 %Blue{127}
 		u1 %Green{0}
-		f %Position{0}
 		u1 %Red{0}
+		i4 %Tick{0}
 	}
 }
 o
@@ -106,26 +106,26 @@ o
 {
 	Uuid %id{u4{8932009231129857921,5622959210544493354}}
 	s %t{"ezColorControlPoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		u1 %Blue{127}
 		u1 %Green{0}
-		f %Position{0x0000803F}
 		u1 %Red{85}
+		i4 %Tick{4800}
 	}
 }
 o
 {
 	Uuid %id{u4{16352335904209212331,5741143693655365266}}
 	s %t{"ezColorControlPoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		u1 %Blue{255}
 		u1 %Green{85}
-		f %Position{0x78940A3E}
 		u1 %Red{85}
+		i4 %Tick{640}
 	}
 }
 }
@@ -145,7 +145,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -181,8 +181,8 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezIntensityControlPoint"}
-		u3 %TypeSize{16}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{24}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -217,8 +217,8 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezColorControlPoint"}
-		u3 %TypeSize{16}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{24}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -235,8 +235,8 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezAlphaControlPoint"}
-		u3 %TypeSize{16}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{24}
+		u3 %TypeVersion{2}
 	}
 }
 }

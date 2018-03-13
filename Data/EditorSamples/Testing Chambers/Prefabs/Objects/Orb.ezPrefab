@@ -59,12 +59,16 @@ o
 {
 	Uuid %id{u4{10887795267839832746,5054685925522009491}}
 	s %t{"ezPropertyAnimComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
 		s %Animation{"{ 3b73680e-9190-4d47-877b-b58fa279cf54 }"}
 		s %Mode{"ezPropertyAnimMode::Loop"}
+		Time %RandomOffset{d{0}}
+		Time %RangeHigh{d{0x000000000020AC40}}
+		Time %RangeLow{d{0}}
+		f %Speed{0x0000803F}
 	}
 }
 o
@@ -136,10 +140,11 @@ o
 {
 	Uuid %id{u4{15546018771684316080,5558859035026355612}}
 	s %t{"ezMeshComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
 			s{"{ 6742f1c2-bd06-45e4-9126-8a3ce7ecb4dc }"}
@@ -158,7 +163,7 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16245568532407448708,5676920758848092975}}
-		u4 %Hash{1364483985726605799}
+		u4 %Hash{12801769936705357149}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -222,8 +227,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezPropertyAnimComponent"}
-		u3 %TypeSize{744}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{784}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -366,8 +371,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponent"}
-		u3 %TypeSize{88}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{2}
 	}
 }
 o

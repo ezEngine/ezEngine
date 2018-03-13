@@ -14,7 +14,7 @@ AssetInfo
 			s{"Sponza/Sponza_data/vase_round.dds"}
 		}
 		Uuid %DocumentID{u4{5895025858826839201,5103975785320087454}}
-		u4 %Hash{15883187447152008598}
+		u4 %Hash{16725460478753586969}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -45,6 +45,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
+		b %FlipHorizontal{0}
 		s %Input1{"Sponza/Sponza_data/vase_round.dds"}
 		s %Input2{""}
 		s %Input3{""}
@@ -72,7 +73,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

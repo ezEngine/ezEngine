@@ -25,7 +25,7 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{1092965785348279721,5019769357126639657}}
-		u4 %Hash{5532357948120707307}
+		u4 %Hash{2102264819878536051}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -68,7 +68,7 @@ o
 {
 	Uuid %id{u4{13474270006615379462,17864947019639413729}}
 	s %t{"ezSpriteComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -193,7 +193,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezSpriteComponent"}
 		u3 %TypeSize{88}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o

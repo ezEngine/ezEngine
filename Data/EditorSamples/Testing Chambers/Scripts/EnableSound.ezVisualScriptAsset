@@ -2,18 +2,6 @@ Objects
 {
 o
 {
-	Uuid %id{u4{17320009377351608474,552402555701451045}}
-	s %t{"ConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"Component"}
-		Uuid %Target{u4{3938253108198898832,4933782507504572849}}
-		s %TargetPin{"Component"}
-	}
-}
-o
-{
 	Uuid %id{u4{1757881369689933984,4895606140135269551}}
 	s %t{"VisualScriptNode::ezFmodEventComponent_RestartSoundMsg"}
 	u3 %v{1}
@@ -49,7 +37,7 @@ AssetInfo
 		s %AssetType{"Visual Script"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5336644324662651325,4950288046211376178}}
-		u4 %Hash{12765127883073252178}
+		u4 %Hash{17691743305636118676}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -74,18 +62,6 @@ o
 }
 o
 {
-	Uuid %id{u4{5998016244721106930,6494304480674529560}}
-	s %t{"ConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"Component"}
-		Uuid %Target{u4{1757881369689933984,4895606140135269551}}
-		s %TargetPin{"Component"}
-	}
-}
-o
-{
 	Uuid %id{u4{11815404820084356954,9673854888088166977}}
 	s %t{"VisualScriptNode::ezVisualScriptNode_ToggleBool"}
 	u3 %v{1}
@@ -93,11 +69,7 @@ o
 	{
 		b %Default{0}
 		s %Name{"OnOff"}
-		VarArray %Node::Connections
-		{
-			Uuid{u4{11021641273161779692,13236676352320882413}}
-			Uuid{u4{4623047347002385773,17917698160151587857}}
-		}
+		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0x5EC67FC2,0xA65E4BC3}}
 	}
 }
@@ -123,25 +95,9 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Node::Connections
-		{
-			Uuid{u4{5998016244721106930,6494304480674529560}}
-			Uuid{u4{17320009377351608474,552402555701451045}}
-		}
+		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0x6D87BAC2,0x3C11C941}}
 		s %Type{"ezFmodEventComponent"}
-	}
-}
-o
-{
-	Uuid %id{u4{11021641273161779692,13236676352320882413}}
-	s %t{"ConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"OnTrue"}
-		Uuid %Target{u4{1757881369689933984,4895606140135269551}}
-		s %TargetPin{"send"}
 	}
 }
 o
@@ -154,18 +110,6 @@ o
 		s %SourcePin{"OnEvent"}
 		Uuid %Target{u4{11815404820084356954,9673854888088166977}}
 		s %TargetPin{"run"}
-	}
-}
-o
-{
-	Uuid %id{u4{4623047347002385773,17917698160151587857}}
-	s %t{"ConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"OnFalse"}
-		Uuid %Target{u4{3938253108198898832,4933782507504572849}}
-		s %TargetPin{"send"}
 	}
 }
 }
@@ -221,7 +165,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

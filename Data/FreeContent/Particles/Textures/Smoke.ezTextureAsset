@@ -26,6 +26,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Clamp"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_A2"}
 		b %Compression{1}
+		b %FlipHorizontal{0}
 		s %Input1{"Particles/Textures/Smoke.tga"}
 		s %Input2{"Particles/Textures/Smoke.tga"}
 		s %Input3{""}
@@ -50,7 +51,7 @@ AssetInfo
 			s{"Particles/Textures/Smoke.tga"}
 		}
 		Uuid %DocumentID{u4{2240240678938434209,5706274247040111737}}
-		u4 %Hash{8512201808508282879}
+		u4 %Hash{5123310232032836427}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

@@ -12,6 +12,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
+		b %FlipHorizontal{0}
 		s %Input1{"Stuff/barrel2.png"}
 		s %Input2{""}
 		s %Input3{""}
@@ -50,7 +51,7 @@ AssetInfo
 			s{"Stuff/barrel2.png"}
 		}
 		Uuid %DocumentID{u4{8252961257044626612,5690646120073061922}}
-		u4 %Hash{9375508453745725812}
+		u4 %Hash{16262438929358520060}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -72,7 +73,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

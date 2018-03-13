@@ -81,7 +81,7 @@ AssetInfo
 			s{":app/VisualShader/Textures.ddl"}
 		}
 		Uuid %DocumentID{u4{17367252347845481899,5099121145089259863}}
-		u4 %Hash{17750481801132588351}
+		u4 %Hash{15775268356117279598}
 		VarArray %Outputs
 		{
 			s{"VISUAL_SHADER"}
@@ -124,6 +124,7 @@ o
 		s %Shader{"{ 47ba7957-b7aa-46c3-ab15-e6a5fedf04f1 }"}
 		s %ShaderMode{"ezMaterialShaderMode::Custom"}
 		Uuid %ShaderProperties{u4{6681209884315485326,6211889553266144504}}
+		s %Surface{""}
 	}
 }
 o
@@ -372,7 +373,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -514,7 +515,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMaterialAssetProperties"}
-		u3 %TypeSize{264}
+		u3 %TypeSize{328}
 		u3 %TypeVersion{4}
 	}
 }

@@ -12,6 +12,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1"}
 		b %Compression{1}
+		b %FlipHorizontal{0}
 		s %Input1{"Sponza/Sponza_data/sponza_fabric_green_diff.dds"}
 		s %Input2{""}
 		s %Input3{""}
@@ -36,7 +37,7 @@ AssetInfo
 			s{"Sponza/Sponza_data/sponza_fabric_green_diff.dds"}
 		}
 		Uuid %DocumentID{u4{1171484781611469456,5350490299940126824}}
-		u4 %Hash{5497303869895321220}
+		u4 %Hash{10028571404509143034}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -72,7 +73,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

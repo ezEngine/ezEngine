@@ -23,7 +23,7 @@ AssetInfo
 		s %AssetType{"Visual Script"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16155794887602519711,5313392516916248077}}
-		u4 %Hash{1542743823072360388}
+		u4 %Hash{7076032160693448129}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -60,30 +60,6 @@ o
 }
 o
 {
-	Uuid %id{u4{1851777075865865961,6235571985998021972}}
-	s %t{"ConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"OnFalse"}
-		Uuid %Target{u4{5178428625082739086,5715540145471853661}}
-		s %TargetPin{"send"}
-	}
-}
-o
-{
-	Uuid %id{u4{10781035360184377551,6418824740856762977}}
-	s %t{"ConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"OnTrue"}
-		Uuid %Target{u4{3929834693229416540,9515720387813449790}}
-		s %TargetPin{"send"}
-	}
-}
-o
-{
 	Uuid %id{u4{3929834693229416540,9515720387813449790}}
 	s %t{"VisualScriptNode::ezFmodEventComponent_RestartSoundMsg"}
 	u3 %v{1}
@@ -104,11 +80,7 @@ o
 	{
 		b %Default{0}
 		s %Name{"OnOff"}
-		VarArray %Node::Connections
-		{
-			Uuid{u4{10781035360184377551,6418824740856762977}}
-			Uuid{u4{1851777075865865961,6235571985998021972}}
-		}
+		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0xFADA5143,0x66F61CC4}}
 	}
 }
@@ -134,37 +106,9 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Node::Connections
-		{
-			Uuid{u4{835172840133643761,16795334669058902066}}
-			Uuid{u4{6082122013549126087,16872215489461374163}}
-		}
+		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0xDC883443,0x66ACC7C3}}
 		s %Type{"ezFmodEventComponent"}
-	}
-}
-o
-{
-	Uuid %id{u4{835172840133643761,16795334669058902066}}
-	s %t{"ConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"Component"}
-		Uuid %Target{u4{3929834693229416540,9515720387813449790}}
-		s %TargetPin{"Component"}
-	}
-}
-o
-{
-	Uuid %id{u4{6082122013549126087,16872215489461374163}}
-	s %t{"ConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"Component"}
-		Uuid %Target{u4{5178428625082739086,5715540145471853661}}
-		s %TargetPin{"Component"}
 	}
 }
 }
@@ -241,7 +185,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

@@ -15,7 +15,7 @@ AssetInfo
 			s{"Particles/Textures/Spark_A.tga"}
 		}
 		Uuid %DocumentID{u4{4553544716901126466,55119026618217137}}
-		u4 %Hash{1493158829742005062}
+		u4 %Hash{8869643822398782086}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -46,6 +46,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Clamp"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_A2"}
 		b %Compression{0}
+		b %FlipHorizontal{0}
 		s %Input1{"Particles/Textures/Spark.tga"}
 		s %Input2{"Particles/Textures/Spark_A.tga"}
 		s %Input3{""}
@@ -73,7 +74,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

@@ -28,7 +28,7 @@ AssetInfo
 			s{"Stuff/Box_basecolor.png"}
 		}
 		Uuid %DocumentID{u4{7426557848921589900,5501373919580532739}}
-		u4 %Hash{16138391200035649458}
+		u4 %Hash{2076198975098614127}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -45,6 +45,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
+		b %FlipHorizontal{0}
 		s %Input1{"Stuff/Box_basecolor.png"}
 		s %Input2{""}
 		s %Input3{""}
@@ -72,7 +73,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

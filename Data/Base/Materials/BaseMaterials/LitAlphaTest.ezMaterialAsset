@@ -25,6 +25,7 @@ o
 		s %Shader{"Shaders/Materials/DefaultMaterial.ezShader"}
 		s %ShaderMode{"ezMaterialShaderMode::File"}
 		Uuid %ShaderProperties{u4{11698566805421329601,6541543389204958835}}
+		s %Surface{""}
 	}
 }
 AssetInfo
@@ -41,7 +42,7 @@ AssetInfo
 			s{"Shaders/Materials/DefaultMaterial.ezShader"}
 		}
 		Uuid %DocumentID{u4{10395467537468811668,5742640322974183534}}
-		u4 %Hash{7835903644006369158}
+		u4 %Hash{6398082567093476495}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -207,7 +208,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -342,7 +343,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMaterialAssetProperties"}
-		u3 %TypeSize{264}
+		u3 %TypeSize{328}
 		u3 %TypeVersion{4}
 	}
 }

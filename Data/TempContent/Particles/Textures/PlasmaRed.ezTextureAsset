@@ -15,7 +15,7 @@ AssetInfo
 			s{"Particles/Textures/PlasmaRed_A.tga"}
 		}
 		Uuid %DocumentID{u4{16422279237286382603,1024127726547563280}}
-		u4 %Hash{6514931135404628126}
+		u4 %Hash{5130458743701769536}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -46,6 +46,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Clamp"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_A2"}
 		b %Compression{1}
+		b %FlipHorizontal{0}
 		s %Input1{"Particles/Textures/PlasmaRed.tga"}
 		s %Input2{"Particles/Textures/PlasmaRed_A.tga"}
 		s %Input3{""}
@@ -73,7 +74,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

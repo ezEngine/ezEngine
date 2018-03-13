@@ -28,7 +28,7 @@ AssetInfo
 			s{"Sponza/Sponza_data/sponza_thorn_diff.dds"}
 		}
 		Uuid %DocumentID{u4{1048261483494797200,5428741134133429720}}
-		u4 %Hash{13793811542502642481}
+		u4 %Hash{14745033205693203668}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -45,6 +45,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1"}
 		b %Compression{1}
+		b %FlipHorizontal{0}
 		s %Input1{"Sponza/Sponza_data/sponza_thorn_diff.dds"}
 		s %Input2{""}
 		s %Input3{""}
@@ -72,7 +73,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

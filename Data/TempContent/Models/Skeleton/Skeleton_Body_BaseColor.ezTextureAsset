@@ -12,6 +12,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
+		b %FlipHorizontal{0}
 		s %Input1{"Models/Skeleton/Skeleton_Body_BaseColor.png"}
 		s %Input2{""}
 		s %Input3{""}
@@ -36,7 +37,7 @@ AssetInfo
 			s{"Models/Skeleton/Skeleton_Body_BaseColor.png"}
 		}
 		Uuid %DocumentID{u4{2865017030083323325,5266693996760184825}}
-		u4 %Hash{2851479286276869988}
+		u4 %Hash{7207533494488232232}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}

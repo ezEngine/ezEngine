@@ -2,30 +2,6 @@ Objects
 {
 o
 {
-	Uuid %id{u4{10552188792096203211,191062425283257729}}
-	s %t{"ConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"then"}
-		Uuid %Target{u4{9107657595979759745,5517030635638432664}}
-		s %TargetPin{"Activate"}
-	}
-}
-o
-{
-	Uuid %id{u4{16686742752731925500,814900797965800409}}
-	s %t{"ConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"OnFalse"}
-		Uuid %Target{u4{671013654010708512,10171477931104788362}}
-		s %TargetPin{"send"}
-	}
-}
-o
-{
 	Uuid %id{u4{12202658156080346525,4721865697989751962}}
 	s %t{"VisualScriptNode::ezVisualScriptNode_ToggleBool"}
 	u3 %v{1}
@@ -33,11 +9,7 @@ o
 	{
 		b %Default{0}
 		s %Name{"OnOff"}
-		VarArray %Node::Connections
-		{
-			Uuid{u4{3079024281129360231,10157667097802621218}}
-			Uuid{u4{16686742752731925500,814900797965800409}}
-		}
+		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0x9BCB8841,0xA1BF8043}}
 	}
 }
@@ -52,7 +24,7 @@ AssetInfo
 		s %AssetType{"Visual Script"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14317149559100545161,4749641291993989672}}
-		u4 %Hash{6054652756590125680}
+		u4 %Hash{1617479158352230453}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -119,10 +91,7 @@ o
 		Time %Delay{d{0}}
 		s %Material{"{ 6742f1c2-bd06-45e4-9126-8a3ce7ecb4dc }"}
 		u3 %MaterialSlot{0}
-		VarArray %Node::Connections
-		{
-			Uuid{u4{10552188792096203211,191062425283257729}}
-		}
+		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0xAA889D43,0x9CFF3F43}}
 	}
 }
@@ -139,30 +108,6 @@ o
 }
 o
 {
-	Uuid %id{u4{6582072676038013792,7218114235508052641}}
-	s %t{"ConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"then"}
-		Uuid %Target{u4{9107657595979759745,5517030635638432664}}
-		s %TargetPin{"Deactivate"}
-	}
-}
-o
-{
-	Uuid %id{u4{3079024281129360231,10157667097802621218}}
-	s %t{"ConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"OnTrue"}
-		Uuid %Target{u4{10445629479426106245,5432910867009203491}}
-		s %TargetPin{"send"}
-	}
-}
-o
-{
 	Uuid %id{u4{671013654010708512,10171477931104788362}}
 	s %t{"VisualScriptNode::ezMeshComponent_SetMaterialMsg"}
 	u3 %v{1}
@@ -171,10 +116,7 @@ o
 		Time %Delay{d{0}}
 		s %Material{""}
 		u3 %MaterialSlot{0}
-		VarArray %Node::Connections
-		{
-			Uuid{u4{6582072676038013792,7218114235508052641}}
-		}
+		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0x5D359D43,0x06469943}}
 	}
 }
@@ -233,7 +175,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

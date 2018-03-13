@@ -4,72 +4,72 @@ o
 {
 	Uuid %id{u4{18354046238239374980,4612598115370939516}}
 	s %t{"ezColorControlPoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		u1 %Blue{140}
 		u1 %Green{174}
-		f %Position{0xCC16B53E}
 		u1 %Red{245}
+		i4 %Tick{1680}
 	}
 }
 o
 {
 	Uuid %id{u4{16261850765062874795,4621366707119180280}}
 	s %t{"ezColorControlPoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		u1 %Blue{231}
 		u1 %Green{211}
-		f %Position{0x7FA31D3F}
 		u1 %Red{203}
+		i4 %Tick{2960}
 	}
 }
 o
 {
 	Uuid %id{u4{7396759559066079111,4632816730441549658}}
 	s %t{"ezAlphaControlPoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		u1 %Alpha{255}
-		f %Position{0}
+		i4 %Tick{0}
 	}
 }
 o
 {
 	Uuid %id{u4{519267766575694778,4897167247852279865}}
 	s %t{"ezColorControlPoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		u1 %Blue{142}
 		u1 %Green{178}
-		f %Position{0x2E3FE73E}
 		u1 %Red{241}
+		i4 %Tick{2160}
 	}
 }
 o
 {
 	Uuid %id{u4{819453063539847084,5014487822008506472}}
 	s %t{"ezAlphaControlPoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		u1 %Alpha{168}
-		f %Position{0xFFFF313F}
+		i4 %Tick{3360}
 	}
 }
 o
 {
 	Uuid %id{u4{12603006260386974875,5238652937596763535}}
 	s %t{"ezAlphaControlPoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		u1 %Alpha{228}
-		f %Position{0xFFFF893E}
+		i4 %Tick{1280}
 	}
 }
 o
@@ -117,24 +117,24 @@ o
 {
 	Uuid %id{u4{6721238323674717092,5442749239764649392}}
 	s %t{"ezColorControlPoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		u1 %Blue{56}
 		u1 %Green{221}
-		f %Position{0xBBE02F3E}
 		u1 %Red{250}
+		i4 %Tick{800}
 	}
 }
 o
 {
 	Uuid %id{u4{4059601919775956645,5544951054840021623}}
 	s %t{"ezAlphaControlPoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		u1 %Alpha{0}
-		f %Position{0x0000803F}
+		i4 %Tick{4800}
 	}
 }
 AssetInfo
@@ -148,7 +148,7 @@ AssetInfo
 		s %AssetType{"ColorGradient"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17168120231808330883,5599342839892717855}}
-		u4 %Hash{4561237524766195829}
+		u4 %Hash{14218126429910688236}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -157,37 +157,37 @@ o
 {
 	Uuid %id{u4{16529822410988562326,5657849539273122148}}
 	s %t{"ezAlphaControlPoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		u1 %Alpha{222}
-		f %Position{0xCCCCF03E}
+		i4 %Tick{2240}
 	}
 }
 o
 {
 	Uuid %id{u4{10919848286681788600,5731060220209987533}}
 	s %t{"ezColorControlPoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		u1 %Blue{0}
 		u1 %Green{255}
-		f %Position{0}
 		u1 %Red{255}
+		i4 %Tick{0}
 	}
 }
 o
 {
 	Uuid %id{u4{10872244314007459461,5745365761368523573}}
 	s %t{"ezColorControlPoint"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		u1 %Blue{255}
 		u1 %Green{192}
-		f %Position{0x0000803F}
 		u1 %Red{144}
+		i4 %Tick{4800}
 	}
 }
 }
@@ -207,7 +207,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -243,8 +243,8 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezIntensityControlPoint"}
-		u3 %TypeSize{16}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{24}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -279,8 +279,8 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezColorControlPoint"}
-		u3 %TypeSize{16}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{24}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -297,8 +297,8 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezAlphaControlPoint"}
-		u3 %TypeSize{16}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{24}
+		u3 %TypeVersion{2}
 	}
 }
 }

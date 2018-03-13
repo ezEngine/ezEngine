@@ -71,10 +71,7 @@ o
 	p
 	{
 		Time %Delay{d{0}}
-		VarArray %Node::Connections
-		{
-			Uuid{u4{11158019978525320895,13181005216310794333}}
-		}
+		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0xF7D94C44,0x27310F44}}
 		b %OneShot{0}
 	}
@@ -118,10 +115,7 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Node::Connections
-		{
-			Uuid{u4{16630674994160029301,14176611214787632935}}
-		}
+		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0x817B3944,0x11474044}}
 		s %Parameter{"Param"}
 		d %Value{0}
@@ -171,7 +165,7 @@ AssetInfo
 		s %AssetType{"Visual Script"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7699565866622227894,5514260846147157181}}
-		u4 %Hash{6417541766712898672}
+		u4 %Hash{3045664242098802715}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -199,7 +193,7 @@ o
 	p
 	{
 		s %SourcePin{"Component"}
-		Uuid %Target{u4{555628065363968643,4713756394396862177}}
+		Uuid %Target{u4{2488193442045669042,4888733731424732982}}
 		s %TargetPin{"Component"}
 	}
 }
@@ -225,7 +219,6 @@ o
 		VarArray %Node::Connections
 		{
 			Uuid{u4{15387116926777862335,8468968062922976432}}
-			Uuid{u4{17351835736743658152,12455037755263626400}}
 		}
 		Vec2 %Node::Pos{f{0xB5F5A043,0x821E2444}}
 		s %Type{"ezFmodEventComponent"}
@@ -248,18 +241,6 @@ o
 }
 o
 {
-	Uuid %id{u4{17351835736743658152,12455037755263626400}}
-	s %t{"ConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"Component"}
-		Uuid %Target{u4{2488193442045669042,4888733731424732982}}
-		s %TargetPin{"Component"}
-	}
-}
-o
-{
 	Uuid %id{u4{17965878500636960725,12885883744405697895}}
 	s %t{"ConnectionInternal"}
 	u3 %v{1}
@@ -268,30 +249,6 @@ o
 		s %SourcePin{"Value"}
 		Uuid %Target{u4{2488193442045669042,4888733731424732982}}
 		s %TargetPin{"Value"}
-	}
-}
-o
-{
-	Uuid %id{u4{11158019978525320895,13181005216310794333}}
-	s %t{"ConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"then"}
-		Uuid %Target{u4{13638604787591274678,4955724623470471848}}
-		s %TargetPin{"Activate"}
-	}
-}
-o
-{
-	Uuid %id{u4{16630674994160029301,14176611214787632935}}
-	s %t{"ConnectionInternal"}
-	u3 %v{1}
-	p
-	{
-		s %SourcePin{"then"}
-		Uuid %Target{u4{555628065363968643,4713756394396862177}}
-		s %TargetPin{"send"}
 	}
 }
 }
@@ -397,7 +354,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

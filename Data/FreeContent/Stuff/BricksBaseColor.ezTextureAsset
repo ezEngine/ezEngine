@@ -14,7 +14,7 @@ AssetInfo
 			s{"Stuff/Bricks_BaseColor.png"}
 		}
 		Uuid %DocumentID{u4{12367571580951632575,5266549402132519093}}
-		u4 %Hash{9903949136814999251}
+		u4 %Hash{9628227632017617222}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -45,6 +45,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
+		b %FlipHorizontal{0}
 		s %Input1{"Stuff/Bricks_BaseColor.png"}
 		s %Input2{""}
 		s %Input3{""}
@@ -72,7 +73,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

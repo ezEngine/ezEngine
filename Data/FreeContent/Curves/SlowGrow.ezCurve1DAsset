@@ -11,6 +11,7 @@ o
 		{
 			Uuid{u4{884552959020896664,5190795205460198973}}
 		}
+		u2 %FPS{60}
 	}
 }
 o
@@ -69,7 +70,7 @@ AssetInfo
 		s %AssetType{"Curve1D"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14906349451555561147,5422527583363658286}}
-		u4 %Hash{8397474386339996851}
+		u4 %Hash{9873990019206814104}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -107,7 +108,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
@@ -179,7 +180,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCurveGroupData"}
-		u3 %TypeSize{40}
+		u3 %TypeSize{48}
 		u3 %TypeVersion{2}
 	}
 }

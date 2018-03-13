@@ -15,7 +15,7 @@ AssetInfo
 			s{"Particles/Textures/MuzzleFront_A.tga"}
 		}
 		Uuid %DocumentID{u4{12742230877651323742,4212135066429903022}}
-		u4 %Hash{2910993316162395560}
+		u4 %Hash{11803314225950558159}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -46,6 +46,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Clamp"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_A2"}
 		b %Compression{1}
+		b %FlipHorizontal{0}
 		s %Input1{"Particles/Textures/MuzzleFront.tga"}
 		s %Input2{"Particles/Textures/MuzzleFront_A.tga"}
 		s %Input3{""}
@@ -73,7 +74,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

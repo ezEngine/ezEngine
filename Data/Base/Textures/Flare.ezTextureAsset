@@ -14,7 +14,7 @@ AssetInfo
 			s{"Textures/Flare.tga"}
 		}
 		Uuid %DocumentID{u4{104150515546721672,4824860388845839080}}
-		u4 %Hash{5205791299939568275}
+		u4 %Hash{1967947964475754145}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -45,6 +45,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Clamp"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_A2"}
 		b %Compression{0}
+		b %FlipHorizontal{0}
 		s %Input1{"Textures/Flare.tga"}
 		s %Input2{"Textures/Flare.tga"}
 		s %Input3{""}
@@ -72,7 +73,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

@@ -12,6 +12,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1"}
 		b %Compression{1}
+		b %FlipHorizontal{0}
 		s %Input1{"FleetOps/Cassiopeia_data/fedCassiopeia0.tga"}
 		s %Input2{""}
 		s %Input3{""}
@@ -50,7 +51,7 @@ AssetInfo
 			s{"FleetOps/Cassiopeia_data/fedCassiopeia0.tga"}
 		}
 		Uuid %DocumentID{u4{16159780687570004134,5745454315371220956}}
-		u4 %Hash{16198251405804757974}
+		u4 %Hash{15586261697916801368}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -72,7 +73,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

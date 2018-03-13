@@ -12,6 +12,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{0}
+		b %FlipHorizontal{0}
 		s %Input1{"FleetOps/ExcelsiorII_data/fedExcelsiorII0_bump_Normal.tga"}
 		s %Input2{""}
 		s %Input3{""}
@@ -36,7 +37,7 @@ AssetInfo
 			s{"FleetOps/ExcelsiorII_data/fedExcelsiorII0_bump_Normal.tga"}
 		}
 		Uuid %DocumentID{u4{6614093533713722021,4921138711723877565}}
-		u4 %Hash{18269034487187676734}
+		u4 %Hash{7966981094149347930}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -72,7 +73,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }

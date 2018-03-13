@@ -14,7 +14,7 @@ AssetInfo
 			s{"Sponza/Sponza_data/sponza_curtain_green_diff.dds"}
 		}
 		Uuid %DocumentID{u4{12160099347681570209,5119287818513104878}}
-		u4 %Hash{7399560881491494305}
+		u4 %Hash{7916443067640637837}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -45,6 +45,7 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
+		b %FlipHorizontal{0}
 		s %Input1{"Sponza/Sponza_data/sponza_curtain_green_diff.dds"}
 		s %Input2{""}
 		s %Input3{""}
@@ -72,7 +73,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
