@@ -321,8 +321,10 @@ ezStatus ezVisualShaderCodeGenerator::ReplaceInputPinsByCode(const ezDocumentObj
 
   ezStringBuilder sPinName, sValue;
 
-  for (ezUInt32 i = 0; i < inputPins.GetCount(); ++i)
+  for (ezUInt32 i0 = inputPins.GetCount(); i0 > 0; --i0)
   {
+    const ezUInt32 i = i0 - 1;
+
     sPinName.Format("$in{0}", i);
 
     if (inputPins[i]->GetConnections().IsEmpty())
@@ -481,8 +483,10 @@ ezStatus ezVisualShaderCodeGenerator::InsertPropertyValues(const ezDocumentObjec
   ezStringBuilder sPropName, sPropValue;
 
   const auto& props = pDesc->m_Properties;
-  for (ezUInt32 p = 0; p < props.GetCount(); ++p)
+  for (ezUInt32 p0 = props.GetCount(); p0 > 0; --p0)
   {
+    const ezUInt32 p = p0 - 1;
+
     sPropName.Format("$prop{0}", p);
 
     const ezVariant value = TypeAccess.GetValue(props[p].m_sName);
