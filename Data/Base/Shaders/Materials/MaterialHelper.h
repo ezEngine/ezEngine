@@ -21,6 +21,10 @@ float3 GetNormal(PS_IN Input);
   float3 GetEmissiveColor(PS_IN Input);
 #endif
 
+#if defined(USE_MATERIAL_REFRACTION)
+  float4 GetRefractionColor(PS_IN Input);
+#endif
+
 float GetRoughness(PS_IN Input);
 float GetOpacity(PS_IN Input);
 
@@ -95,6 +99,12 @@ ezMaterialData FillMaterialData(PS_IN Input)
     matData.emissiveColor = GetEmissiveColor(Input);
   #else
     matData.emissiveColor = 0.0f;
+  #endif
+  
+  #if defined(USE_MATERIAL_REFRACTION)
+    matData.refractionColor = GetRefractionColor(Input);
+  #else
+    matData.refractionColor = float4(0, 0, 0, 1);
   #endif
 
   matData.roughness = max(GetRoughness(Input), 0.04f);

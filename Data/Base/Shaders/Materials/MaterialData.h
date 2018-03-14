@@ -13,6 +13,7 @@ struct ezMaterialData
   float3 diffuseColor;
   float3 specularColor;
   float3 emissiveColor;
+  float4 refractionColor;
   float roughness;
   float occlusion;
   float opacity;

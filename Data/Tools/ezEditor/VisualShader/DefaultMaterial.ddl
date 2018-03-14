@@ -32,8 +32,14 @@ CAMERA_MODE=CAMERA_MODE_PERSPECTIVE
 #define USE_NORMAL
 #define USE_TANGENT
 #define USE_TEXCOORD0
-#define USE_OBJECT_POSITION_OFFSET
-#define USE_WORLD_POSITION_OFFSET
+
+#if INPUT_PIN_9_CONNECTED
+  #define USE_OBJECT_POSITION_OFFSET
+#endif
+
+#if INPUT_PIN_10_CONNECTED
+  #define USE_WORLD_POSITION_OFFSET
+#endif
 
 #include <Shaders/Materials/DefaultMaterialCB.h>
 #include <Shaders/Materials/MaterialVertexShader.h>
@@ -44,15 +50,19 @@ VS_OUT main(VS_IN Input)
   return FillVertexData(Input);
 }
 
+#if defined(USE_OBJECT_POSITION_OFFSET)
 float3 GetObjectPositionOffset(VS_IN Input, ezPerInstanceData data)
-{
-  return ToFloat3($in8);
-}
-
-float3 GetWorldPositionOffset(VS_IN Input, ezPerInstanceData data, float3 worldPosition)
 {
   return ToFloat3($in9);
 }
+#endif
+
+#if defined(USE_WORLD_POSITION_OFFSET)
+float3 GetWorldPositionOffset(VS_IN Input, ezPerInstanceData data, float3 worldPosition)
+{
+  return ToFloat3($in10);
+}
+#endif
 
 " }
 
@@ -82,6 +92,10 @@ float MaskThreshold @Default($prop0);
 #define USE_MATERIAL_OCCLUSION
 #define USE_TWO_SIDED_LIGHTING
 #define USE_DECALS
+
+#if INPUT_PIN_8_CONNECTED
+  #define USE_MATERIAL_REFRACTION
+#endif
 " }
 
   string %CodePixelIncludes { "
@@ -138,6 +152,13 @@ float GetOcclusion(PS_IN Input)
   return saturate(ToFloat1($in7));
 }
 
+#if defined USE_MATERIAL_REFRACTION
+float4 GetRefractionColor(PS_IN Input)
+{
+  return ToColor4($in8);
+}
+#endif
+
 " }
 
   Property %MaskThreshold
@@ -152,7 +173,7 @@ float GetOcclusion(PS_IN Input)
     string %Type { "float3" }
     unsigned_int8 %Color { 255, 255, 255 }
     bool %Expose { true }
-    string %DefaultValue { "1" }
+    string %DefaultValue { "1, 1, 1" }
   }
 
   // Pin 1
@@ -217,8 +238,17 @@ float GetOcclusion(PS_IN Input)
     bool %Expose { true }
     string %DefaultValue { "1" }
   }
-
+  
   // Pin 8
+  InputPin %RefractionColor
+  {
+    string %Type { "float4" }
+    unsigned_int8 %Color { 255, 106, 0 }
+    bool %Expose { true }
+    string %DefaultValue { "0, 0, 0, 1" }
+  }
+
+  // Pin 9
   InputPin %LocalPosOffset
   {
     string %Type { "float3" }
@@ -226,7 +256,7 @@ float GetOcclusion(PS_IN Input)
     string %DefaultValue { "0" }
   }
 
-  // Pin 9
+  // Pin 10
   InputPin %GlobalPosOffset
   {
     string %Type { "float3" }

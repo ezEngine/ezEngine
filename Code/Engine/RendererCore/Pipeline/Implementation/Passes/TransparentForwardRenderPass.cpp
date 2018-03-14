@@ -19,6 +19,46 @@ ezTransparentForwardRenderPass::ezTransparentForwardRenderPass(const char* szNam
 
 ezTransparentForwardRenderPass::~ezTransparentForwardRenderPass()
 {
+  if (!m_hSceneColorSamplerState.IsInvalidated())
+  {
+    ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSceneColorSamplerState);
+    m_hSceneColorSamplerState.Invalidate();
+  }
+}
+
+void ezTransparentForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+{
+  auto pColorInput = inputs[m_PinColor.m_uiInputIndex];
+  if (pColorInput == nullptr)
+  {
+    return;
+  }
+
+  CreateSamplerState();
+
+  ezUInt32 uiWidth = pColorInput->m_Desc.m_uiWidth;
+  ezUInt32 uiHeight = pColorInput->m_Desc.m_uiHeight;
+
+  ezGALTextureCreationDescription desc;
+  desc.SetAsRenderTarget(uiWidth, uiHeight, pColorInput->m_Desc.m_Format);
+  desc.m_uiMipLevelCount = 1;
+
+  ezGALTextureHandle hSceneColor = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(desc);
+
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  ezGALResourceViewHandle colorResourceViewHandle = pDevice->GetDefaultResourceView(hSceneColor);
+  renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "SceneColor", colorResourceViewHandle);
+  renderViewContext.m_pRenderContext->BindSamplerState(ezGALShaderStage::PixelShader, "SceneColorSampler", m_hSceneColorSamplerState);
+
+  UpdateSceneColorTexture(renderViewContext, hSceneColor, pColorInput->m_TextureHandle);
+
+  SetupResources(renderViewContext, inputs, outputs);
+  SetupPermutationVars(renderViewContext);
+  SetupLighting(renderViewContext);
+
+  RenderObjects(renderViewContext);
+
+  ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(hSceneColor);
 }
 
 void ezTransparentForwardRenderPass::SetupResources(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection * const> inputs,
@@ -44,4 +84,32 @@ void ezTransparentForwardRenderPass::RenderObjects(const ezRenderViewContext& re
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
+}
+
+void ezTransparentForwardRenderPass::UpdateSceneColorTexture(const ezRenderViewContext& renderViewContext, ezGALTextureHandle hSceneColorTexture,
+  ezGALTextureHandle hCurrentColorTexture)
+{
+  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
+
+  ezGALTextureSubresource subresource;
+  subresource.m_uiMipLevel = 0;
+  subresource.m_uiArraySlice = 0;
+
+  pGALContext->ResolveTexture(hSceneColorTexture, subresource, hCurrentColorTexture, subresource);
+}
+
+void ezTransparentForwardRenderPass::CreateSamplerState()
+{
+  if (m_hSceneColorSamplerState.IsInvalidated())
+  {
+    ezGALSamplerStateCreationDescription desc;
+    desc.m_MinFilter = ezGALTextureFilterMode::Linear;
+    desc.m_MagFilter = ezGALTextureFilterMode::Linear;
+    desc.m_MipFilter = ezGALTextureFilterMode::Linear;
+    desc.m_AddressU = ezGALTextureAddressMode::Clamp;
+    desc.m_AddressV = ezGALTextureAddressMode::Mirror;
+    desc.m_AddressW = ezGALTextureAddressMode::Mirror;
+
+    m_hSceneColorSamplerState = ezGALDevice::GetDefaultDevice()->CreateSamplerState(desc);
+  }
 }

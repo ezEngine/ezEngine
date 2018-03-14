@@ -18,6 +18,7 @@ Texture2D DecalAtlasNormalTexture;
 
 Texture2D SceneDepth;
 Texture2D SceneColor;
+SamplerState SceneColorSampler;
 
 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -54,6 +55,12 @@ float MicroShadow(float occlusion, float3 normal, float3 lightDir)
 {
   float aperture = 2.0f * occlusion * occlusion;
   return saturate(abs(dot(normal, lightDir)) + aperture - 1.0f);
+}
+
+float3 SampleSceneColor(float2 screenPosition)
+{
+  float3 sceneColor = SceneColor.SampleLevel(SceneColorSampler, screenPosition.xy * ViewportSize.zw, 0.0f).rgb;
+  return sceneColor;
 }
 
 float SampleSceneDepth(float2 screenPosition)
@@ -270,7 +277,7 @@ float CalculateShadowTerm(ezMaterialData matData, float3 lightVector, float dist
   return 1.0f;
 }
 
-float3 CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, float3 screenPosition)
+float3 CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, float3 screenPosition, bool applySSAO)
 {
   float3 viewVector = matData.normalizedViewVector;
 
@@ -350,12 +357,12 @@ float3 CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, f
 
   totalLight *= (1.0f / PI);
 
-  float ssao = SampleSSAO(screenPosition);
-  float occlusion = matData.occlusion * ssao;
+  float occlusion = matData.occlusion;
 
-  if (ApplySSAOToDirectLighting)
+  if (applySSAO)
   {
-    totalLight *= occlusion;
+    float ssao = SampleSSAO(screenPosition);
+    occlusion *= ssao;
   }
 
   // simple two color diffuse ambient
@@ -415,7 +422,7 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
       decalBaseColor *= DecalAtlasBaseColorTexture.SampleLevel(LinearClampSampler, decalPosition.xy * baseAtlasScale + baseAtlasOffset, 0);
       fade *= decalBaseColor.a;
 
-      matData.diffuseColor = lerp(matData.diffuseColor, decalBaseColor.xyz, fade);
+      matData.diffuseColor = lerp(matData.diffuseColor, decalBaseColor.rgb, fade);
       matData.opacity = max(matData.opacity, fade);
       //matData.specularColor = lerp(matData.specularColor, 0.04f, fade);
 
@@ -423,6 +430,32 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
       //matData.occlusion = lerp(matData.occlusion, 1.0f, fade);
     }
   }
+}
+
+float4 CalculateRefraction(float3 worldPosition, float3 worldNormal, float IoR, float thickness, float3 tintColor, float newOpacity = 1.0f)
+{
+  float3 normalizedViewVector = normalize(GetCameraPosition() - worldPosition);
+  float r = 1.0f / IoR;
+  float NdotV = dot(worldNormal, normalizedViewVector);
+  float k = 1.0f - r * r * (1.0f - NdotV * NdotV);
+  float3 refractVector = r * -normalizedViewVector + (r * NdotV - sqrt(k)) * worldNormal;
+  
+  float4 projectedRefractVector = mul(GetWorldToScreenMatrix(), float4(worldPosition + refractVector * thickness, 1.0f));
+  projectedRefractVector.xy /= projectedRefractVector.w;
+    
+  float2 refractCoords = projectedRefractVector.xy * float2(0.5f, -0.5f) + 0.5f;
+  float3 refractionColor = SceneColor.SampleLevel(SceneColorSampler, refractCoords, 0.0f).rgb;
+  
+  float fresnel = pow(1.0f - NdotV, 5.0f);
+  refractionColor *= tintColor * (1.0f - fresnel);
+  
+  return float4(refractionColor, newOpacity);
+}
+
+void ApplyRefraction(inout ezMaterialData matData, inout float3 litColor)
+{
+  litColor = lerp(matData.refractionColor.rgb, litColor, matData.opacity);
+  matData.opacity = matData.refractionColor.a;
 }
 
 float GetFogAmount(float3 worldPosition)

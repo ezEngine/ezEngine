@@ -2050,7 +2050,7 @@ o
 		b %Active{1}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
-		s %Mesh{"{ 90a2e76b-291c-43d2-8c21-4e1bccd22ea1 }"}
+		s %Mesh{"{ 28c91430-27d7-4b6b-bfc8-5d1f510dc16d }"}
 	}
 }
 o
@@ -2786,7 +2786,7 @@ AssetInfo
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{2296192141500362762}
+		u4 %Hash{3797184754365041655}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -2796,15 +2796,15 @@ AssetInfo
 			s{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
 			s{"{ 23d44228-1d97-41ea-8918-5422abbbb0c6 }"}
 			s{"{ 27eef412-bd5d-424b-9d58-48725a829568 }"}
+			s{"{ 28c91430-27d7-4b6b-bfc8-5d1f510dc16d }"}
+			s{"{ 2aab509f-d165-4cab-8d56-68d19856c77c }"}
 			s{"{ 309d7ff1-19c6-435e-821d-584426d01365 }"}
 			s{"{ 317e4b00-3e99-4f42-a175-2f7cdfc3fd7f }"}
 			s{"{ 3ebe2790-7cc4-40c8-bde6-e760b96b2636 }"}
 			s{"{ 4795f5c4-4a78-4c13-937e-cf3e6bdecb7c }"}
 			s{"{ 5451b35f-d73c-402e-a540-c542d3e52be0 }"}
 			s{"{ 5bbea795-0358-4dd8-86a9-c277f7a59f53 }"}
-			s{"{ 6ae73fcf-e09c-1c3f-54a8-8a80498519fb }"}
 			s{"{ 778150d4-9e85-4d17-85dd-f59df122b7b4 }"}
-			s{"{ 90a2e76b-291c-43d2-8c21-4e1bccd22ea1 }"}
 			s{"{ 94ac1de9-5cbe-4581-a57c-7caf78ab7294 }"}
 			s{"{ 95f9db13-7fa3-4832-b349-4e00a23b3b10 }"}
 			s{"{ 9d903a8c-556a-4564-a678-3ebd5f03720b }"}
@@ -2945,7 +2945,7 @@ o
 	{
 		b %Active{1}
 		u1 %CollisionLayer{0}
-		Vec3 %Extents{f{0x00008040,0x00008040,0x00008040}}
+		Vec3 %Extents{f{0x00000040,0x00000040,0x00000040}}
 		b %ReportContact{1}
 		s %Surface{""}
 	}
@@ -3547,7 +3547,7 @@ o
 		Vec3 %LocalPosition{f{0,0,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
+		f %LocalUniformScaling{0x00000040}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
@@ -3586,7 +3586,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
-			s{"{ 6ae73fcf-e09c-1c3f-54a8-8a80498519fb }"}
+			s{"{ 2aab509f-d165-4cab-8d56-68d19856c77c }"}
 		}
 		s %Mesh{"{ ebc03b01-2f4d-43ea-a973-0ab6d5b30242 }"}
 	}
@@ -3698,7 +3698,10 @@ o
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
-		VarArray %Tags{}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -6428,7 +6431,7 @@ o
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{1}
 		b %RunAtStartup{1}
-		f %Speed{0x0000A040}
+		f %Speed{0x00000040}
 	}
 }
 o

@@ -71,9 +71,19 @@ PS_OUT main(PS_IN Input)
   #endif
 
   #if SHADING_MODE == SHADING_MODE_LIT
-    float3 litColor = CalculateLighting(matData, clusterData, Input.Position.xyw);
+    #if BLEND_MODE == BLEND_MODE_OPAQUE || BLEND_MODE == BLEND_MODE_MASKED
+      bool applySSAO = true;
+    #else
+      bool applySSAO = false;
+    #endif
+    
+    float3 litColor = CalculateLighting(matData, clusterData, Input.Position.xyw, applySSAO);
   #else
     float3 litColor = matData.diffuseColor;
+  #endif
+  
+  #if defined(USE_MATERIAL_REFRACTION) && BLEND_MODE != BLEND_MODE_OPAQUE && BLEND_MODE != BLEND_MODE_MASKED
+    ApplyRefraction(matData, litColor);
   #endif
 
   litColor += matData.emissiveColor;
