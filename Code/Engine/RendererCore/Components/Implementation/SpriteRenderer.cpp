@@ -71,8 +71,8 @@ void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext,
   EZ_SCOPE_EXIT(DeleteSpriteDataBuffer(hSpriteData));
 
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
-  renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::VertexShader, "spriteData", pDevice->GetDefaultResourceView(hSpriteData));
-  renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "SpriteTexture", pRenderData->m_hTexture);
+  renderViewContext.m_pRenderContext->BindBuffer("spriteData", pDevice->GetDefaultResourceView(hSpriteData));
+  renderViewContext.m_pRenderContext->BindTexture2D("SpriteTexture", pRenderData->m_hTexture);
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLEND_MODE", ezSpriteBlendMode::GetPermutationValue(pRenderData->m_BlendMode));
 

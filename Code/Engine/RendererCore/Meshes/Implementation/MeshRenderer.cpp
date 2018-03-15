@@ -74,7 +74,7 @@ void ezMeshRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, e
       pContext->GetGALContext()->UpdateBuffer(pRenderData->m_hSkinningMatrices, 0, pRenderData->m_pNewSkinningMatricesData);
     }
 
-    pContext->BindBuffer(ezGALShaderStage::VertexShader, "skinningMatrices", pDevice->GetDefaultResourceView(pRenderData->m_hSkinningMatrices));
+    pContext->BindBuffer("skinningMatrices", pDevice->GetDefaultResourceView(pRenderData->m_hSkinningMatrices));
   }
 
   pContext->BindMaterial(hMaterial);

@@ -87,21 +87,18 @@ void ezClusteredDataGPU::BindResources(ezRenderContext* pRenderContext)
   auto hShadowDataBufferView = pDevice->GetDefaultResourceView(ezShadowPool::UpdateShadowDataBuffer(pRenderContext->GetGALContext()));
   auto hShadowAtlasTextureView = pDevice->GetDefaultResourceView(ezShadowPool::GetShadowAtlasTexture());
 
-  for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
-  {
-    pRenderContext->BindBuffer((ezGALShaderStage::Enum)stage, "perLightDataBuffer", pDevice->GetDefaultResourceView(m_hLightDataBuffer));
-    pRenderContext->BindBuffer((ezGALShaderStage::Enum)stage, "perDecalDataBuffer", pDevice->GetDefaultResourceView(m_hDecalDataBuffer));
-    pRenderContext->BindBuffer((ezGALShaderStage::Enum)stage, "perClusterDataBuffer", pDevice->GetDefaultResourceView(m_hClusterDataBuffer));
-    pRenderContext->BindBuffer((ezGALShaderStage::Enum)stage, "clusterItemBuffer", pDevice->GetDefaultResourceView(m_hClusterItemBuffer));
+  pRenderContext->BindBuffer("perLightDataBuffer", pDevice->GetDefaultResourceView(m_hLightDataBuffer));
+  pRenderContext->BindBuffer("perDecalDataBuffer", pDevice->GetDefaultResourceView(m_hDecalDataBuffer));
+  pRenderContext->BindBuffer("perClusterDataBuffer", pDevice->GetDefaultResourceView(m_hClusterDataBuffer));
+  pRenderContext->BindBuffer("clusterItemBuffer", pDevice->GetDefaultResourceView(m_hClusterItemBuffer));
 
-    pRenderContext->BindBuffer((ezGALShaderStage::Enum)stage, "shadowDataBuffer", hShadowDataBufferView);
-    pRenderContext->BindTexture2D((ezGALShaderStage::Enum)stage, "ShadowAtlasTexture", hShadowAtlasTextureView);
-    pRenderContext->BindSamplerState((ezGALShaderStage::Enum)stage, "ShadowSampler", m_hShadowSampler);
-  }
+  pRenderContext->BindBuffer("shadowDataBuffer", hShadowDataBufferView);
+  pRenderContext->BindTexture2D("ShadowAtlasTexture", hShadowAtlasTextureView);
+  pRenderContext->BindSamplerState("ShadowSampler", m_hShadowSampler);
 
   ezResourceLock<ezDecalAtlasResource> pDecalAtlas(m_hDecalAtlas);
-  pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "DecalAtlasBaseColorTexture", pDecalAtlas->GetBaseColorTexture());
-  pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "DecalAtlasNormalTexture", pDecalAtlas->GetNormalTexture());
+  pRenderContext->BindTexture2D("DecalAtlasBaseColorTexture", pDecalAtlas->GetBaseColorTexture());
+  pRenderContext->BindTexture2D("DecalAtlasNormalTexture", pDecalAtlas->GetNormalTexture());
 
   pRenderContext->BindConstantBuffer("ezClusteredDataConstants", m_hConstantBuffer);
 }

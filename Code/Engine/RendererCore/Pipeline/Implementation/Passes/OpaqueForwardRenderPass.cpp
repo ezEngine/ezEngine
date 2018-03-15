@@ -66,11 +66,11 @@ void ezOpaqueForwardRenderPass::SetupResources(const ezRenderViewContext& render
     if (inputs[m_PinSSAO.m_uiInputIndex])
     {
       ezGALResourceViewHandle ssaoResourceViewHandle = pDevice->GetDefaultResourceView(inputs[m_PinSSAO.m_uiInputIndex]->m_TextureHandle);
-      renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "SSAOTexture", ssaoResourceViewHandle);
+      renderViewContext.m_pRenderContext->BindTexture2D("SSAOTexture", ssaoResourceViewHandle);
     }
     else
     {
-      renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "SSAOTexture", m_hWhiteTexture, ezResourceAcquireMode::NoFallback);
+      renderViewContext.m_pRenderContext->BindTexture2D("SSAOTexture", m_hWhiteTexture, ezResourceAcquireMode::NoFallback);
     }
   }
 }

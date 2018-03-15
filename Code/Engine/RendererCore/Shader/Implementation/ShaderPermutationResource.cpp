@@ -151,6 +151,16 @@ void ezShaderPermutationResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUs
   out_NewMemoryUsage.m_uiMemoryGPU = ModifyMemoryUsage().m_uiMemoryGPU;
 }
 
+ezResourceLoadDesc ezShaderPermutationResource::CreateResource(const ezShaderPermutationResourceDescriptor& descriptor)
+{
+  ezResourceLoadDesc ret;
+  ret.m_State = ezResourceState::Loaded;
+  ret.m_uiQualityLevelsDiscardable = 0;
+  ret.m_uiQualityLevelsLoadable = 0;
+
+  return ret;
+}
+
 ezResourceTypeLoader* ezShaderPermutationResource::GetDefaultResourceTypeLoader() const
 {
   return &g_PermutationResourceLoader;

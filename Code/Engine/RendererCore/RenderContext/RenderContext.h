@@ -53,20 +53,20 @@ public:
 
   void BindMaterial(const ezMaterialResourceHandle& hMaterial);
 
-  void BindTexture2D(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, const ezTexture2DResourceHandle& hTexture,
+  void BindTexture2D(const ezTempHashedString& sSlotName, const ezTexture2DResourceHandle& hTexture,
                      ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowFallback);
-  void BindTextureCube(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, const ezTextureCubeResourceHandle& hTexture,
+  void BindTextureCube(const ezTempHashedString& sSlotName, const ezTextureCubeResourceHandle& hTexture,
                      ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowFallback);
 
-  void BindTexture2D(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
-  void BindTextureCube(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
+  void BindTexture2D(const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
+  void BindTextureCube(const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
 
   /// Binds a read+write texture or buffer
   void BindUAV(const ezTempHashedString& sSlotName, ezGALUnorderedAccessViewHandle hUnorderedAccessViewHandle);
 
-  void BindSamplerState(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALSamplerStateHandle hSamplerSate);
+  void BindSamplerState(const ezTempHashedString& sSlotName, ezGALSamplerStateHandle hSamplerSate);
 
-  void BindBuffer(ezGALShaderStage::Enum stage, const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
+  void BindBuffer(const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
 
   void BindConstantBuffer(const ezTempHashedString& sSlotName, ezGALBufferHandle hConstantBuffer);
   void BindConstantBuffer(const ezTempHashedString& sSlotName, ezConstantBufferStorageHandle hConstantBufferStorage);
@@ -107,6 +107,9 @@ public:
   /// If it is one of LowestQuality to HighestQuality, the adjusted default filter is returned.
   /// When the default filter is used (with adjustments), the allowed range is Bilinear to Aniso16x, the Nearest filter is never used.
   ezTextureFilterSetting::Enum GetSpecificTextureFilter(ezTextureFilterSetting::Enum configuration) const;
+
+  /// \brief Set async shader loading. During runtime all shaders should be preloaded so this is off by default.
+  void SetAllowAsyncShaderLoading(bool bAllow);
 
   // Static Functions
 public:
@@ -190,12 +193,13 @@ private:
   ezGALPrimitiveTopology::Enum m_Topology;
   ezUInt32 m_uiMeshBufferPrimitiveCount;
   ezEnum<ezTextureFilterSetting> m_DefaultTextureFilter;
+  bool m_bAllowAsyncShaderLoading;
 
-  ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundTextures2D[ezGALShaderStage::ENUM_COUNT];
-  ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundTexturesCube[ezGALShaderStage::ENUM_COUNT];
+  ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundTextures2D;
+  ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundTexturesCube;
   ezHashTable<ezUInt32, ezGALUnorderedAccessViewHandle> m_BoundUAVs;
-  ezHashTable<ezUInt32, ezGALSamplerStateHandle> m_BoundSamplers[ezGALShaderStage::ENUM_COUNT];
-  ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundBuffer[ezGALShaderStage::ENUM_COUNT];
+  ezHashTable<ezUInt32, ezGALSamplerStateHandle> m_BoundSamplers;
+  ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundBuffer;
 
   struct BoundConstantBuffer
   {
@@ -251,6 +255,7 @@ private: // Per Renderer States
   // Member Functions
   void UploadConstants();
 
+  void SetShaderPermutationVariableInternal(const ezHashedString& sName, const ezHashedString& sValue);
   void BindShaderInternal(const ezShaderResourceHandle& hShader, ezBitflags<ezShaderBindFlags> flags);
   ezShaderPermutationResource* ApplyShaderState();
   ezMaterialResource* ApplyMaterialState();

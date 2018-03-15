@@ -189,7 +189,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
     renderViewContext.m_pRenderContext->BindShader(m_hDownscaleShader);
 
     CreateSamplerState();
-    renderViewContext.m_pRenderContext->BindSamplerState(ezGALShaderStage::PixelShader, "DepthSampler", m_hSSAOSamplerState);
+    renderViewContext.m_pRenderContext->BindSamplerState("DepthSampler", m_hSSAOSamplerState);
 
     for (ezUInt32 i = 0; i < uiNumMips; ++i)
     {
@@ -218,7 +218,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
       constants->PixelSize = pixelSize;
       constants->LinearizeDepth = (i == 0);
 
-      renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "DepthTexture", hInputView);
+      renderViewContext.m_pRenderContext->BindTexture2D("DepthTexture", hInputView);
       renderViewContext.m_pRenderContext->DrawMeshBuffer();
     }
   }
@@ -251,11 +251,11 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
 
     renderViewContext.m_pRenderContext->BindShader(m_hSSAOShader);
 
-    renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "DepthTexture", pDevice->GetDefaultResourceView(pDepthInput->m_TextureHandle));
-    renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "LowResDepthTexture", pDevice->GetDefaultResourceView(hzbTexture));
-    renderViewContext.m_pRenderContext->BindSamplerState(ezGALShaderStage::PixelShader, "DepthSampler", m_hSSAOSamplerState);
+    renderViewContext.m_pRenderContext->BindTexture2D("DepthTexture", pDevice->GetDefaultResourceView(pDepthInput->m_TextureHandle));
+    renderViewContext.m_pRenderContext->BindTexture2D("LowResDepthTexture", pDevice->GetDefaultResourceView(hzbTexture));
+    renderViewContext.m_pRenderContext->BindSamplerState("DepthSampler", m_hSSAOSamplerState);
 
-    renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::NoFallback);
+    renderViewContext.m_pRenderContext->BindTexture2D("NoiseTexture", m_hNoiseTexture, ezResourceAcquireMode::NoFallback);
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer();
   }
@@ -268,7 +268,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
     renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
 
     renderViewContext.m_pRenderContext->BindShader(m_hBlurShader);
-    renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "SSAOTexture", pDevice->GetDefaultResourceView(tempSSAOTexture));
+    renderViewContext.m_pRenderContext->BindTexture2D("SSAOTexture", pDevice->GetDefaultResourceView(tempSSAOTexture));
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer();
   }

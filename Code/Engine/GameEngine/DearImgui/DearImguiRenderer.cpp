@@ -143,7 +143,7 @@ void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, ezRe
       if (batch.m_uiVertexCount > 0 && batch.m_uiTextureID < numTextures)
       {
         pGALContext->SetScissorRect(batch.m_ScissorRect);
-        pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "BaseTexture", textures[batch.m_uiTextureID]);
+        pRenderContext->BindTexture2D("BaseTexture", textures[batch.m_uiTextureID]);
         pRenderContext->DrawMeshBuffer(batch.m_uiVertexCount / 3, uiFirstIndex / 3);
       }
 

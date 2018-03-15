@@ -86,7 +86,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
     m_hTexture2D = ezResourceManager::LoadResource<ezTexture2DResource>("SharedData/Textures/ezLogo_R5G6B5_MipsD.dds");
   }
 
-  ezRenderContext::GetDefaultInstance()->BindTexture2D(ezGALShaderStage::PixelShader, "DiffuseTexture", m_hTexture2D);
+  ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", m_hTexture2D);
 
   ClearScreen(ezColor::Black);
 
@@ -115,7 +115,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures3D()
     m_hTexture2D = ezResourceManager::LoadResource<ezTexture2DResource>("SharedData/Textures/Volume/ezLogo_Volume_A8_NoMips_D.dds");
   }
 
-  ezRenderContext::GetDefaultInstance()->BindTexture2D(ezGALShaderStage::PixelShader, "DiffuseTexture", m_hTexture2D);
+  ezRenderContext::GetDefaultInstance()->BindTexture2D("DiffuseTexture", m_hTexture2D);
 
   ClearScreen(ezColor::Black);
 
@@ -199,7 +199,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTexturesCube()
     m_hTextureCube = ezResourceManager::LoadResource<ezTextureCubeResource>("SharedData/Textures/Cubemap/ezLogo_Cube_RGB_Mips_D.dds");
   }
 
-  ezRenderContext::GetDefaultInstance()->BindTextureCube(ezGALShaderStage::PixelShader, "DiffuseTexture", m_hTextureCube);
+  ezRenderContext::GetDefaultInstance()->BindTextureCube("DiffuseTexture", m_hTextureCube);
 
   ClearScreen(ezColor::Black);
 

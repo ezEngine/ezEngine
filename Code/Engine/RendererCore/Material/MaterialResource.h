@@ -108,6 +108,8 @@ private:
   void OnBaseMaterialModified(const ezMaterialResource* pModifiedMaterial);
   void OnResourceEvent(const ezResourceEvent& resourceEvent);
 
+  void AddPermutationVar(const char* szName, const char* szValue);
+
   ezAtomicInteger32 m_iLastModified;
   ezAtomicInteger32 m_iLastConstantsModified;
   ezInt32 m_iLastUpdated;

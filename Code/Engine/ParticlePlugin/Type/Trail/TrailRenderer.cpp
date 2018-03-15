@@ -152,7 +152,7 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
   // make sure our structured buffer is allocated and bound
   {
     CreateDataBuffer();
-    renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::VertexShader, "particleData", pDevice->GetDefaultResourceView(m_hParticleDataBuffer));
+    renderViewContext.m_pRenderContext->BindBuffer("particleData", pDevice->GetDefaultResourceView(m_hParticleDataBuffer));
   }
 
   // now render all particle effects of type Trail
@@ -163,7 +163,7 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
     if (!ConfigureShader(pRenderData, renderViewContext))
       continue;
 
-    renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::VertexShader, "particlePointsData", pDevice->GetDefaultResourceView(m_hActiveTrailPointsDataBuffer));
+    renderViewContext.m_pRenderContext->BindBuffer("particlePointsData", pDevice->GetDefaultResourceView(m_hActiveTrailPointsDataBuffer));
 
     const ezUInt32 uiBucketSize = ezParticleTypeTrail::ComputeTrailPointBucketSize(pRenderData->m_uiMaxTrailPoints);
     const ezUInt32 uiMaxTrailSegments = uiBucketSize - 1;
@@ -174,7 +174,7 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
     const ezTrailParticleData* pParticleData = pRenderData->m_ParticleDataShared.GetPtr();
     const ezVec4* pParticlePointsData = pRenderData->m_TrailPointsShared.GetPtr();
 
-    renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "ParticleTexture", pRenderData->m_hTexture);
+    renderViewContext.m_pRenderContext->BindTexture2D("ParticleTexture", pRenderData->m_hTexture);
 
     // fill the constant buffer
     {

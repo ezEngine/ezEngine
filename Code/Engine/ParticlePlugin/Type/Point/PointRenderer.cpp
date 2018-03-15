@@ -70,7 +70,7 @@ void ezParticlePointRenderer::RenderBatch(const ezRenderViewContext& renderViewC
   {
     CreateDataBuffer();
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Points, s_uiParticlesPerBatch);
-    renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::VertexShader, "particleData", pDevice->GetDefaultResourceView(m_hDataBuffer));
+    renderViewContext.m_pRenderContext->BindBuffer("particleData", pDevice->GetDefaultResourceView(m_hDataBuffer));
   }
 
   // now render all particle effects of type Point

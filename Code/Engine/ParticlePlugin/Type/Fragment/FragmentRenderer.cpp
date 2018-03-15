@@ -71,7 +71,7 @@ void ezParticleFragmentRenderer::RenderBatch(const ezRenderViewContext& renderVi
   {
     CreateDataBuffer();
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, s_uiParticlesPerBatch * 2);
-    renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::VertexShader, "particleData", pDevice->GetDefaultResourceView(m_hDataBuffer));
+    renderViewContext.m_pRenderContext->BindBuffer("particleData", pDevice->GetDefaultResourceView(m_hDataBuffer));
   }
 
   // now render all particle effects of type Fragment
@@ -82,7 +82,7 @@ void ezParticleFragmentRenderer::RenderBatch(const ezRenderViewContext& renderVi
 
     const ezFragmentParticleData* pParticleData = pRenderData->m_ParticleData.GetPtr();
 
-    renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "ParticleTexture", pRenderData->m_hTexture);
+    renderViewContext.m_pRenderContext->BindTexture2D("ParticleTexture", pRenderData->m_hTexture);
 
     // fill the constant buffer
     {

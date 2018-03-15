@@ -47,8 +47,8 @@ void ezTransparentForwardRenderPass::Execute(const ezRenderViewContext& renderVi
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALResourceViewHandle colorResourceViewHandle = pDevice->GetDefaultResourceView(hSceneColor);
-  renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "SceneColor", colorResourceViewHandle);
-  renderViewContext.m_pRenderContext->BindSamplerState(ezGALShaderStage::PixelShader, "SceneColorSampler", m_hSceneColorSamplerState);
+  renderViewContext.m_pRenderContext->BindTexture2D("SceneColor", colorResourceViewHandle);
+  renderViewContext.m_pRenderContext->BindSamplerState("SceneColorSampler", m_hSceneColorSamplerState);
 
   UpdateSceneColorTexture(renderViewContext, hSceneColor, pColorInput->m_TextureHandle);
 
@@ -71,7 +71,7 @@ void ezTransparentForwardRenderPass::SetupResources(const ezRenderViewContext& r
   if (inputs[m_PinResolvedDepth.m_uiInputIndex])
   {
     ezGALResourceViewHandle depthResourceViewHandle = pDevice->GetDefaultResourceView(inputs[m_PinResolvedDepth.m_uiInputIndex]->m_TextureHandle);
-    renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "SceneDepth", depthResourceViewHandle);
+    renderViewContext.m_pRenderContext->BindTexture2D("SceneDepth", depthResourceViewHandle);
   }
 }
 

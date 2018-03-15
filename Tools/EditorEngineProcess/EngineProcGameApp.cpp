@@ -3,6 +3,7 @@
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
@@ -265,6 +266,8 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
       DoSetupGraphicsDevice();
       DoSetupDefaultResources();
       ezStartup::StartupEngine();
+
+      ezRenderContext::GetDefaultInstance()->SetAllowAsyncShaderLoading(true);
     }
 
     // after the ezSetupProjectMsgToEngine was processed, all dynamic plugins should be loaded and we can finally send the reflection information over

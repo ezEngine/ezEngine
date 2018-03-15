@@ -26,12 +26,12 @@ public:
   static void GetPermutationValues(const ezHashedString& sName, ezHybridArray<ezHashedString, 4>& out_Values);
 
   static void PreloadPermutations(ezShaderResourceHandle hShader, const ezHashTable<ezHashedString, ezHashedString>& permVars, ezTime tShouldBeAvailableIn);
-  static ezShaderPermutationResourceHandle PreloadSinglePermutation(ezShaderResourceHandle hShader, const ezHashTable<ezHashedString, ezHashedString>& permVars, ezTime tShouldBeAvailableIn);
+  static ezShaderPermutationResourceHandle PreloadSinglePermutation(ezShaderResourceHandle hShader, const ezHashTable<ezHashedString, ezHashedString>& permVars, ezTime tShouldBeAvailableIn, bool bAllowFallback);
 
 private:
 
   static ezUInt32 FilterPermutationVars(const ezArrayPtr<const ezHashedString>& usedVars, const ezHashTable<ezHashedString, ezHashedString>& permVars);
-  static ezShaderPermutationResourceHandle PreloadSinglePermutationInternal(const char* szResourceId, ezUInt32 uiPermutationHash, ezTime tShouldBeAvailableIn);
+  static ezShaderPermutationResourceHandle PreloadSinglePermutationInternal(const char* szResourceId, ezUInt32 uiResourceIdHash, ezUInt32 uiPermutationHash, ezTime tShouldBeAvailableIn);
 
   static bool s_bEnableRuntimeCompilation;
   static ezString s_sPlatform;

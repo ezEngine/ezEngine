@@ -3,6 +3,7 @@
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/OpenDdlReader.h>
@@ -490,9 +491,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
         if (!sTemp.IsEmpty() && !sTemp2.IsEmpty())
         {
-          ezPermutationVar& pv = m_Desc.m_PermutationVars.ExpandAndGetRef();
-          pv.m_sName.Assign(sTemp.GetData());
-          pv.m_sValue.Assign(sTemp2.GetData());
+          AddPermutationVar(sTemp, sTemp2);
         }
       }
     }
@@ -649,7 +648,7 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
   if (sAbsFilePath.HasExtension("ezMaterial"))
   {
-    ezStringBuilder tmp;
+    ezStringBuilder tmp, tmp2;
     ezOpenDdlReader reader;
 
     if (reader.ParseDocument(*Stream, 0, ezLog::GetThreadLocalLogSystem()).Failed())
@@ -687,13 +686,10 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReader* Stream)
 
         if (pName && pValue)
         {
-          ezPermutationVar& pv = m_Desc.m_PermutationVars.ExpandAndGetRef();
-
           tmp = pName->GetPrimitivesString()[0];
-          pv.m_sName.Assign(tmp.GetData());
+          tmp2 = pValue->GetPrimitivesString()[0];
 
-          tmp = pValue->GetPrimitivesString()[0];
-          pv.m_sValue.Assign(tmp.GetData());
+          AddPermutationVar(tmp, tmp2);
         }
       }
 
@@ -825,6 +821,19 @@ void ezMaterialResource::OnResourceEvent(const ezResourceEvent& resourceEvent)
   if (m_hCachedShader == resourceEvent.m_pResource)
   {
     m_iLastConstantsModified.Increment();
+  }
+}
+
+void ezMaterialResource::AddPermutationVar(const char* szName, const char* szValue)
+{
+  ezHashedString sName; sName.Assign(szName);
+  ezHashedString sValue; sValue.Assign(szValue);
+
+  if (ezShaderManager::IsPermutationValueAllowed(sName, sValue))
+  {
+    ezPermutationVar& pv = m_Desc.m_PermutationVars.ExpandAndGetRef();
+    pv.m_sName = sName;
+    pv.m_sValue = sValue;
   }
 }
 

@@ -9,6 +9,7 @@
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
+#include <RendererCore/Shader/ShaderPermutationResource.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
@@ -146,9 +147,19 @@ void ezGameApplication::DoSetupDefaultResources()
   // Shaders
   {
     ezShaderResourceDescriptor desc;
+    ezShaderResourceHandle hFallbackShader = ezResourceManager::CreateResource<ezShaderResource>("FallbackShaderResource", desc, "FallbackShaderResource");
     ezShaderResourceHandle hMissingShader = ezResourceManager::CreateResource<ezShaderResource>("MissingShaderResource", desc, "MissingShaderResource");
 
+    ezShaderResource::SetTypeFallbackResource(hFallbackShader);
     ezShaderResource::SetTypeMissingResource(hMissingShader);
+  }
+
+  // Shader Permutation
+  {
+    ezShaderPermutationResourceDescriptor desc;
+    ezShaderPermutationResourceHandle hFallbackShaderPermutation = ezResourceManager::CreateResource<ezShaderPermutationResource>("FallbackShaderPermutationResource", desc, "FallbackShaderPermutationResource");
+
+    ezShaderPermutationResource::SetTypeFallbackResource(hFallbackShaderPermutation);
   }
 
   // 2D Textures

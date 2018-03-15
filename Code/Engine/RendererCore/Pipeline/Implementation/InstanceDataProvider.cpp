@@ -26,11 +26,7 @@ void ezInstanceData::BindResources(ezRenderContext* pRenderContext)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
-  {
-    pRenderContext->BindBuffer((ezGALShaderStage::Enum)stage, "perInstanceData", pDevice->GetDefaultResourceView(m_hInstanceDataBuffer));
-  }
-
+  pRenderContext->BindBuffer("perInstanceData", pDevice->GetDefaultResourceView(m_hInstanceDataBuffer));
   pRenderContext->BindConstantBuffer("ezObjectConstants", m_hConstantBuffer);
 }
 

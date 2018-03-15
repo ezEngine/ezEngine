@@ -92,7 +92,7 @@ void ezAntialiasingPass::Execute(const ezRenderViewContext& renderViewContext, c
 
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
   renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-  renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "ColorTexture", pDevice->GetDefaultResourceView(pInput->m_TextureHandle));
+  renderViewContext.m_pRenderContext->BindTexture2D("ColorTexture", pDevice->GetDefaultResourceView(pInput->m_TextureHandle));
 
   renderViewContext.m_pRenderContext->DrawMeshBuffer();
 }

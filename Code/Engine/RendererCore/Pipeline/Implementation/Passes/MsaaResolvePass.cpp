@@ -91,7 +91,7 @@ void ezMsaaResolvePass::Execute(const ezRenderViewContext& renderViewContext, co
 
     renderViewContext.m_pRenderContext->BindShader(m_hDepthResolveShader);
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
-    renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "DepthTexture", pDevice->GetDefaultResourceView(pInput->m_TextureHandle));
+    renderViewContext.m_pRenderContext->BindTexture2D("DepthTexture", pDevice->GetDefaultResourceView(pInput->m_TextureHandle));
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer();
   }

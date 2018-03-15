@@ -36,6 +36,7 @@ private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
+  virtual ezResourceLoadDesc CreateResource(const ezShaderPermutationResourceDescriptor& descriptor) override;
   virtual ezResourceTypeLoader* GetDefaultResourceTypeLoader() const override;
 
 private:

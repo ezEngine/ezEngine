@@ -71,7 +71,7 @@ void ezParticleSpriteRenderer::RenderBatch(const ezRenderViewContext& renderView
   {
     CreateDataBuffer();
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, s_uiParticlesPerBatch * 2);
-    renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::VertexShader, "particleData", pDevice->GetDefaultResourceView(m_hDataBuffer));
+    renderViewContext.m_pRenderContext->BindBuffer("particleData", pDevice->GetDefaultResourceView(m_hDataBuffer));
   }
 
   // now render all particle effects of type Sprite
@@ -95,7 +95,7 @@ void ezParticleSpriteRenderer::RenderBatch(const ezRenderViewContext& renderView
       break;
     }
 
-    renderViewContext.m_pRenderContext->BindTexture2D(ezGALShaderStage::PixelShader, "ParticleTexture", pRenderData->m_hTexture);
+    renderViewContext.m_pRenderContext->BindTexture2D("ParticleTexture", pRenderData->m_hTexture);
 
     // fill the constant buffer
     {

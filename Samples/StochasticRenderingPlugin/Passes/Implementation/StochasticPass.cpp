@@ -132,7 +132,7 @@ void ezStochasticPass::Execute(const ezRenderViewContext& renderViewContext, con
 
     pGALContext->UpdateBuffer(m_randomNumberBuffer, 0, m_randomNumbers.ToByteArray());
 
-    renderViewContext.m_pRenderContext->BindBuffer(ezGALShaderStage::PixelShader, "randomNumbers", pDevice->GetDefaultResourceView(m_randomNumberBuffer));
+    renderViewContext.m_pRenderContext->BindBuffer("randomNumbers", pDevice->GetDefaultResourceView(m_randomNumberBuffer));
   }
 
   // Execute render functions
