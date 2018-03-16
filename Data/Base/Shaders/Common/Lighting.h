@@ -57,6 +57,8 @@ float MicroShadow(float occlusion, float3 normal, float3 lightDir)
   return saturate(abs(dot(normal, lightDir)) + aperture - 1.0f);
 }
 
+///////////////////////////////////////////////////////////////////////////////////
+
 float3 SampleSceneColor(float2 screenPosition)
 {
   float3 sceneColor = SceneColor.SampleLevel(SceneColorSampler, screenPosition.xy * ViewportSize.zw, 0.0f).rgb;
@@ -83,6 +85,8 @@ float DepthFade(float3 screenPosition, float fadeDistance)
   float distance = SampleSceneDepth(screenPosition.xy) - screenPosition.z;
   return saturate(distance / fadeDistance);
 }
+
+///////////////////////////////////////////////////////////////////////////////////
 
 float SampleSSAO(float3 screenPosition)
 {
@@ -277,11 +281,11 @@ float CalculateShadowTerm(ezMaterialData matData, float3 lightVector, float dist
   return 1.0f;
 }
 
-float3 CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, float3 screenPosition, bool applySSAO)
+AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, float3 screenPosition, bool applySSAO)
 {
   float3 viewVector = matData.normalizedViewVector;
 
-  float3 totalLight = 0.0f;
+  AccumulatedLight totalLight = InitializeLight(0.0f, 0.0f);
 
   float noise = InterleavedGradientNoise(screenPosition.xy);
   float2 randomAngle; sincos(noise * 2.0f * PI, randomAngle.x, randomAngle.y);
@@ -350,12 +354,12 @@ float3 CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, f
       #if 0
         lightColor = lerp(1.0f, debugColor, 0.5f);
       #endif
-
-      totalLight += DefaultShading(matData, lightVector, viewVector, float2(1.0f, 1.0f)) * lightColor * (intensity * attenuation);
+      
+      lightColor *= (intensity * attenuation * (1.0f / PI));
+      
+      AccumulateLight(totalLight, DefaultShading(matData, lightVector, viewVector, float2(1.0f, 1.0f)), lightColor);
     }
   }
-
-  totalLight *= (1.0f / PI);
 
   float occlusion = matData.occlusion;
 
@@ -367,7 +371,7 @@ float3 CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, f
 
   // simple two color diffuse ambient
   float3 ambientLight = lerp(AmbientBottomColor.rgb, AmbientTopColor.rgb, matData.worldNormal.z * 0.5f + 0.5f);
-  totalLight += matData.diffuseColor * ambientLight * occlusion;
+  totalLight.diffuseLight += matData.diffuseColor * ambientLight * occlusion;
 
   return totalLight;
 }
@@ -452,9 +456,9 @@ float4 CalculateRefraction(float3 worldPosition, float3 worldNormal, float IoR, 
   return float4(refractionColor, newOpacity);
 }
 
-void ApplyRefraction(inout ezMaterialData matData, inout float3 litColor)
+void ApplyRefraction(inout ezMaterialData matData, inout AccumulatedLight light)
 {
-  litColor = lerp(matData.refractionColor.rgb, litColor, matData.opacity);
+  light.diffuseLight = lerp(matData.refractionColor.rgb, light.diffuseLight, matData.opacity);
   matData.opacity = matData.refractionColor.a;
 }
 

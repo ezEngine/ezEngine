@@ -77,15 +77,23 @@ PS_OUT main(PS_IN Input)
       bool applySSAO = false;
     #endif
     
-    float3 litColor = CalculateLighting(matData, clusterData, Input.Position.xyw, applySSAO);
+    AccumulatedLight light = CalculateLighting(matData, clusterData, Input.Position.xyw, applySSAO);
   #else
-    float3 litColor = matData.diffuseColor;
+    AccumulatedLight light = InitializeLight(matData.diffuseColor, 0.0f);
   #endif
   
-  #if defined(USE_MATERIAL_REFRACTION) && BLEND_MODE != BLEND_MODE_OPAQUE && BLEND_MODE != BLEND_MODE_MASKED
-    ApplyRefraction(matData, litColor);
+  #if BLEND_MODE != BLEND_MODE_OPAQUE && BLEND_MODE != BLEND_MODE_MASKED
+    if (matData.opacity > 0.01f)
+    {
+      light.specularLight /= matData.opacity;
+    }
+  
+    #if defined(USE_MATERIAL_REFRACTION)
+      ApplyRefraction(matData, light);
+    #endif
   #endif
 
+  float3 litColor = light.diffuseLight + light.specularLight;
   litColor += matData.emissiveColor;
 
   #if RENDER_PASS == RENDER_PASS_FORWARD
