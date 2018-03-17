@@ -38,7 +38,7 @@ void ezPreprocessor::CopyTokensReplaceParams(const TokenStream& Source, ezUInt32
           if (Source[i]->m_DataView == parameters[p])
           {
             // create a custom token for the parameter, for better error messages
-            ezToken* pParamToken = AddCustomToken(Source[i], parameters[p].GetData());
+            ezToken* pParamToken = AddCustomToken(Source[i], parameters[p]);
             pParamToken->m_iType = s_MacroParameter0 + p;
 
             Destination.PushBack(pParamToken);
@@ -209,7 +209,7 @@ void ezPreprocessor::StringifyTokens(const TokenStream& Tokens, ezStringBuilder&
       sTemp.ReplaceAll("\"", "\\\"");
     }
 
-    sResult.Append(sTemp.GetData());
+    sResult.Append(sTemp.GetView());
   }
 
   if (bSurroundWithQuotes)

@@ -149,7 +149,7 @@ ezResult ezPreprocessor::ParseFactor(const TokenStream& Tokens, ezUInt32& uiCurT
     {
       iResult32 = 0;
     }
-    else if (ezConversionUtils::StringToInt(sVal.GetData(), iResult32).Failed())
+    else if (ezConversionUtils::StringToInt(sVal, iResult32).Failed())
     {
       // this is not an error, all unknown identifiers are assumed to be zero
 

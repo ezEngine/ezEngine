@@ -151,7 +151,7 @@ namespace ezTokenParseUtils
         continue;
 
       sTemp = Tokens[t]->m_DataView;
-      sResult.Append(sTemp.GetData());
+      sResult.Append(sTemp.GetView());
     }
   }
 
@@ -233,7 +233,7 @@ namespace ezTokenParseUtils
       }
 
       sTemp = Tokens[t]->m_DataView;
-      sResult.Append(sTemp.GetData());
+      sResult.Append(sTemp.GetView());
     }
   }
 }

@@ -23,7 +23,7 @@ ezPreprocessor::ezPreprocessor()
     s_ParamNames[i] = s;
 
     m_ParameterTokens[i].m_iType = s_MacroParameter0 + i;
-    m_ParameterTokens[i].m_DataView = ezStringView(s_ParamNames[i].GetData());
+    m_ParameterTokens[i].m_DataView = s_ParamNames[i].GetView();
   }
 
   ezToken dummy;
@@ -42,12 +42,12 @@ void ezPreprocessor::SetCustomFileCache(ezTokenizedFileCache* pFileCache)
     m_pUsedFileCache = pFileCache;
 }
 
-ezToken* ezPreprocessor::AddCustomToken(const ezToken* pPrevious, const char* szNewText)
+ezToken* ezPreprocessor::AddCustomToken(const ezToken* pPrevious, const ezStringView& sNewText)
 {
   m_CustomTokens.SetCount(m_CustomTokens.GetCount() + 1);
   CustomToken* pToken = &m_CustomTokens.PeekBack();
 
-  pToken->m_sIdentifierString = szNewText;
+  pToken->m_sIdentifierString = sNewText;
   pToken->m_Token = *pPrevious;
   pToken->m_Token.m_DataView = pToken->m_sIdentifierString;
 
@@ -62,8 +62,8 @@ ezResult ezPreprocessor::ProcessFile(const char* szFile, TokenStream& TokenOutpu
     return EZ_FAILURE;
 
   FileData fd;
-  fd.m_sFileName = szFile;
-  fd.m_sVirtualFileName = szFile;
+  fd.m_sFileName.Assign(szFile);
+  fd.m_sVirtualFileName = fd.m_sFileName;
 
   m_sCurrentFileStack.PushBack(fd);
 
@@ -153,14 +153,14 @@ ezResult ezPreprocessor::Process(const char* szMainFile, TokenStream& TokenOutpu
   m_IfdefActiveStack.Clear();
   m_IfdefActiveStack.PushBack(IfDefActivity::IsActive);
 
-  ezString sFileToOpen;
+  ezStringBuilder sFileToOpen;
   if (m_FileLocatorCallback("", szMainFile, IncludeType::MainFile, sFileToOpen).Failed())
   {
     ezLog::Error(m_pLog, "Could not locate file '{0}'", szMainFile);
     return EZ_FAILURE;
   }
 
-  if (ProcessFile(sFileToOpen.GetData(), TokenOutput).Failed())
+  if (ProcessFile(sFileToOpen, TokenOutput).Failed())
     return EZ_FAILURE;
 
   m_IfdefActiveStack.PopBack();
@@ -327,7 +327,7 @@ ezResult ezPreprocessor::HandleLine(const TokenStream& Tokens, ezUInt32 uiCurTok
   ezInt32 iNextLine = 0;
 
   const ezString sNumber = Tokens[uiNumberToken]->m_DataView;
-  if (ezConversionUtils::StringToInt(sNumber.GetData(), iNextLine).Failed())
+  if (ezConversionUtils::StringToInt(sNumber, iNextLine).Failed())
   {
     PP_LOG(Error, "Could not parse '{0}' as a line number", Tokens[uiNumberToken], sNumber);
     return EZ_FAILURE;
@@ -501,7 +501,7 @@ ezResult ezPreprocessor::HandleUndef(const TokenStream& Tokens, ezUInt32 uiCurTo
     return EZ_FAILURE;
 
   const ezString sUndef = Tokens[uiIdentifierToken]->m_DataView;
-  if (!RemoveDefine(sUndef.GetData()))
+  if (!RemoveDefine(sUndef))
   {
     PP_LOG(Warning, "'#undef' of undefined macro '{0}'", Tokens[uiIdentifierToken], sUndef);
     return EZ_SUCCESS;

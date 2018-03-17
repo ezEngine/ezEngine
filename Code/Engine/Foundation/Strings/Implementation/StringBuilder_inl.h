@@ -92,6 +92,12 @@ EZ_ALWAYS_INLINE ezStringBuilder::operator ezStringView() const
   return ezStringView(GetData(), GetData() + GetElementCount());
 }
 
+
+EZ_ALWAYS_INLINE ezStringView ezStringBuilder::GetView() const
+{
+  return ezStringView(GetData(), GetData() + GetElementCount());
+}
+
 EZ_FORCE_INLINE void ezStringBuilder::Clear()
 {
   m_uiCharacterCount = 0;

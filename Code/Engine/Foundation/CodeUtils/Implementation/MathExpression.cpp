@@ -260,7 +260,7 @@ ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCu
     double fConstant = 0;
 
     // It's either a double or a variable
-    if (ezConversionUtils::StringToFloat(sVal.GetData(), fConstant).Succeeded())
+    if (ezConversionUtils::StringToFloat(sVal, fConstant).Succeeded())
     {
       m_InstructionStream.PushBack(InstructionType::PushConstant);
       m_InstructionStream.PushBack(m_Constants.GetCount());

@@ -79,7 +79,7 @@ const ezTokenizer* ezTokenizedFileCache::Tokenize(const ezString& sFileName, ezA
           ezInt32 iNextLine = 0;
 
           const ezString sNumber = Tokens[uiNext].m_DataView;
-          if (ezConversionUtils::StringToInt(sNumber.GetData(), iNextLine).Succeeded())
+          if (ezConversionUtils::StringToInt(sNumber, iNextLine).Succeeded())
           {
             iLineOffset = (iNextLine - uiCurLine) - 1;
 
@@ -121,9 +121,9 @@ void ezPreprocessor::SetFileLocatorFunction(FileLocatorCB LocateAbsFileCB)
   m_FileLocatorCallback = LocateAbsFileCB;
 }
 
-ezResult ezPreprocessor::DefaultFileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType IncType, ezString& out_sAbsoluteFilePath)
+ezResult ezPreprocessor::DefaultFileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType IncType, ezStringBuilder& out_sAbsoluteFilePath)
 {
-  ezStringBuilder s;
+  ezStringBuilder& s = out_sAbsoluteFilePath;
 
   if (IncType == ezPreprocessor::RelativeInclude)
   {
@@ -138,7 +138,6 @@ ezResult ezPreprocessor::DefaultFileLocator(const char* szCurAbsoluteFile, const
     s.MakeCleanPath();
   }
 
-  out_sAbsoluteFilePath = s;
   return EZ_SUCCESS;
 }
 
@@ -150,7 +149,7 @@ ezResult ezPreprocessor::DefaultFileOpen(const char* szAbsoluteFile, ezDynamicAr
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   ezFileStats stats;
-  if (ezOSFile::GetFileStats(r.GetFilePathAbsolute().GetData(), stats).Succeeded())
+  if (ezOSFile::GetFileStats(r.GetFilePathAbsolute(), stats).Succeeded())
     out_FileModification = stats.m_LastModificationTime;
 #endif
 
@@ -273,19 +272,21 @@ ezResult ezPreprocessor::HandleInclude(const TokenStream& Tokens, ezUInt32 uiCur
 
   EZ_ASSERT_DEV(!m_sCurrentFileStack.IsEmpty(), "Implementation error.");
 
-  ezString sOtherFile;
+  ezStringBuilder sOtherFile;
 
-  if (m_FileLocatorCallback(m_sCurrentFileStack.PeekBack().m_sFileName.GetData(), sPath.GetData(), IncType, sOtherFile).Failed())
+  if (m_FileLocatorCallback(m_sCurrentFileStack.PeekBack().m_sFileName.GetData(), sPath, IncType, sOtherFile).Failed())
   {
     PP_LOG(Error, "#include file '{0}' could not be located", Tokens[uiAccepted], sPath);
     return EZ_FAILURE;
   }
 
+  const ezTempHashedString sOtherFileHashed(sOtherFile.GetData());
+
   // if this has been included before, and contains a #pragma once, do not include it again
-  if (m_PragmaOnce.Find(sOtherFile.GetData()).IsValid())
+  if (m_PragmaOnce.Find(sOtherFileHashed).IsValid())
     return EZ_SUCCESS;
 
-  if (ProcessFile(sOtherFile.GetData(), TokenOutput).Failed())
+  if (ProcessFile(sOtherFile, TokenOutput).Failed())
     return EZ_FAILURE;
 
   if (uiCurToken < Tokens.GetCount() && (Tokens[uiCurToken]->m_iType == ezTokenType::Newline || Tokens[uiCurToken]->m_iType == ezTokenType::EndOfFile))

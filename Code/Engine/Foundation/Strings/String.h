@@ -80,6 +80,9 @@ public:
   /// \brief Returns a string view to this string's data.
   operator ezStringView() const; // [tested]
 
+  /// \brief Returns a string view to this string's data.
+  ezStringView GetView() const;
+
   /// \brief Returns a pointer to the internal Utf8 string.
   EZ_ALWAYS_INLINE operator const char*() const { return GetData(); }
 

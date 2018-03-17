@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <Foundation/CodeUtils/Preprocessor.h>
+#include <Foundation/Strings/StringView.h>
 
 using namespace ezTokenParseUtils;
 
@@ -64,8 +65,8 @@ ezResult ezPreprocessor::ExpandOnce(const TokenStream& Tokens, TokenStream& Outp
     // if we are not inside some macro expansion, but on the top level, adjust the line counter
     if (bIsOutermost)
     {
-      m_sCurrentFileStack.PeekBack().m_sVirtualFileName = Tokens[uiCurToken]->m_File.GetData();
-      m_sCurrentFileStack.PeekBack().m_iCurrentLine = (ezInt32) Tokens[uiCurToken]->m_uiLine;
+      m_sCurrentFileStack.PeekBack().m_sVirtualFileName = Tokens[uiCurToken]->m_File;
+      m_sCurrentFileStack.PeekBack().m_iCurrentLine = (ezInt32)Tokens[uiCurToken]->m_uiLine;
     }
 
     // if it is no identifier, it cannot be a macro -> just pass it through
@@ -140,11 +141,11 @@ ezResult ezPreprocessor::ExpandOnce(const TokenStream& Tokens, TokenStream& Outp
 
 void ezPreprocessor::OutputNotExpandableMacro(MacroDefinition& Macro, TokenStream& Output)
 {
-  const ezString sMacroName = Macro.m_MacroIdentifier->m_DataView;
+  const ezStringView& sMacroName = Macro.m_MacroIdentifier->m_DataView;
 
   EZ_ASSERT_DEV(Macro.m_bCurrentlyExpanding, "Implementation Error.");
 
-  ezToken* pNewToken = AddCustomToken(Macro.m_MacroIdentifier, sMacroName.GetData());
+  ezToken* pNewToken = AddCustomToken(Macro.m_MacroIdentifier, sMacroName);
   pNewToken->m_uiCustomFlags = TokenFlags::NoFurtherExpansion;
 
   Output.PushBack(pNewToken);
@@ -173,9 +174,10 @@ ezResult ezPreprocessor::ExpandObjectMacro(MacroDefinition& Macro, TokenStream& 
     EZ_ASSERT_DEV(!m_sCurrentFileStack.IsEmpty(), "Implementation error");
 
     ezStringBuilder sName = "\"";
-    sName.Append(m_sCurrentFileStack.PeekBack().m_sVirtualFileName.GetData(), "\"");
+    sName.Append(m_sCurrentFileStack.PeekBack().m_sVirtualFileName.GetView());
+    sName.Append("\"");
 
-    ezToken* pNewToken = AddCustomToken(pMacroToken, sName.GetData());
+    ezToken* pNewToken = AddCustomToken(pMacroToken, sName);
     pNewToken->m_iType = ezTokenType::String1;
 
     Output.PushBack(pNewToken);
@@ -189,7 +191,7 @@ ezResult ezPreprocessor::ExpandObjectMacro(MacroDefinition& Macro, TokenStream& 
     ezStringBuilder sLine;
     sLine.Format("{0}", m_sCurrentFileStack.PeekBack().m_iCurrentLine);
 
-    ezToken* pNewToken = AddCustomToken(pMacroToken, sLine.GetData());
+    ezToken* pNewToken = AddCustomToken(pMacroToken, sLine);
     pNewToken->m_iType = ezTokenType::Identifier;
 
     Output.PushBack(pNewToken);
@@ -252,7 +254,7 @@ ezToken* ezPreprocessor::CreateStringifiedParameter(ezUInt32 uiParam, const ezTo
         if (i > uiParam) // second, third, etc.
           sStringifiedParam.Append(", ");
 
-        sStringifiedParam.Append(sOneParam.GetData());
+        sStringifiedParam.Append(sOneParam.GetView());
       }
 
       // remove redundant whitespace at end (can happen when having empty parameters
@@ -265,7 +267,7 @@ ezToken* ezPreprocessor::CreateStringifiedParameter(ezUInt32 uiParam, const ezTo
       StringifyTokens((*m_MacroParamStack.PeekBack())[uiParam], sStringifiedParam, true);
   }
 
-  ezToken* pStringifiedToken = AddCustomToken(pParamToken, sStringifiedParam.GetData());
+  ezToken* pStringifiedToken = AddCustomToken(pParamToken, sStringifiedParam);
   pStringifiedToken->m_iType = ezTokenType::String1;
   return pStringifiedToken;
 }
@@ -298,8 +300,8 @@ ezResult ezPreprocessor::InsertStringifiedParameters(const TokenStream& Tokens, 
     }
 
     if (bStringifyParameter &&
-        Tokens[i]->m_iType < s_MacroParameter0 &&
-        Tokens[i]->m_iType != ezTokenType::Whitespace)
+      Tokens[i]->m_iType < s_MacroParameter0 &&
+      Tokens[i]->m_iType != ezTokenType::Whitespace)
     {
       PP_LOG0(Error, "Expected a macro parameter name", Tokens[i]);
       return EZ_FAILURE;
@@ -334,10 +336,10 @@ ezResult ezPreprocessor::InsertStringifiedParameters(const TokenStream& Tokens, 
     }
 
     if (!bTokenIsHash &&
-        (Tokens[i]->m_iType != ezTokenType::BlockComment) &&
-        (Tokens[i]->m_iType != ezTokenType::LineComment) &&
-        (Tokens[i]->m_iType != ezTokenType::Whitespace))
-        iConsecutiveHashes = 0;
+      (Tokens[i]->m_iType != ezTokenType::BlockComment) &&
+      (Tokens[i]->m_iType != ezTokenType::LineComment) &&
+      (Tokens[i]->m_iType != ezTokenType::Whitespace))
+      iConsecutiveHashes = 0;
   }
 
   // hash at  the end of a macro is already forbidden as 'invalid character at end of macro'
@@ -352,7 +354,7 @@ void ezPreprocessor::MergeTokens(const ezToken* pFirst, const ezToken* pSecond, 
   {
     ezUInt32 uiParam = pFirst->m_iType - s_MacroParameter0;
 
-    if (uiParam  < m_MacroParamStack.PeekBack()->GetCount())
+    if (uiParam < m_MacroParamStack.PeekBack()->GetCount())
     {
       // fucking var-args
       if (Macro.m_bHasVarArgs && uiParam + 1 == Macro.m_iNumParameters)
@@ -382,7 +384,7 @@ void ezPreprocessor::MergeTokens(const ezToken* pFirst, const ezToken* pSecond, 
   {
     const ezUInt32 uiParam = pSecond->m_iType - s_MacroParameter0;
 
-    if (uiParam  < m_MacroParamStack.PeekBack()->GetCount() && !(*m_MacroParamStack.PeekBack())[uiParam].IsEmpty())
+    if (uiParam < m_MacroParamStack.PeekBack()->GetCount() && !(*m_MacroParamStack.PeekBack())[uiParam].IsEmpty())
     {
       MergeTokens(pFirst, (*m_MacroParamStack.PeekBack())[uiParam][0], Output, Macro);
 
@@ -408,8 +410,8 @@ void ezPreprocessor::MergeTokens(const ezToken* pFirst, const ezToken* pSecond, 
   }
 
   if (pFirst == nullptr || pSecond == nullptr ||
-      pFirst->m_iType != ezTokenType::Identifier ||
-      pSecond->m_iType != ezTokenType::Identifier)
+    pFirst->m_iType != ezTokenType::Identifier ||
+    pSecond->m_iType != ezTokenType::Identifier)
   {
     if (pFirst != nullptr)
       Output.PushBack(pFirst);
@@ -420,13 +422,11 @@ void ezPreprocessor::MergeTokens(const ezToken* pFirst, const ezToken* pSecond, 
     return;
   }
 
-  ezString sParam1 = pFirst->m_DataView;
-  ezString sParam2 = pSecond->m_DataView;
-
   ezStringBuilder sMerged;
-  sMerged.Append(sParam1.GetData(), sParam2.GetData());
+  sMerged.Append(pFirst->m_DataView);
+  sMerged.Append(pSecond->m_DataView);
 
-  const ezToken* pMergedToken = AddCustomToken(pFirst, sMerged.GetData());
+  const ezToken* pMergedToken = AddCustomToken(pFirst, sMerged);
 
   Output.PushBack(pMergedToken);
 }
@@ -442,8 +442,8 @@ ezResult ezPreprocessor::ConcatenateParameters(const TokenStream& Tokens, TokenS
 
     // do this extra check for whitespace here, because 'Accept' would just skip it, but we want the whitespace in our output
     if (Tokens[uiCurToken]->m_iType != ezTokenType::Whitespace &&
-        Tokens[uiCurToken]->m_iType != ezTokenType::Newline &&
-        Accept(Tokens, uiCurToken, "#", "#", &uiConcatToken))
+      Tokens[uiCurToken]->m_iType != ezTokenType::Newline &&
+      Accept(Tokens, uiCurToken, "#", "#", &uiConcatToken))
     {
       // we have already removed all single hashes during the stringification, so here we will only encounter double hashes
       // (and quadruple, etc.)
@@ -452,8 +452,8 @@ ezResult ezPreprocessor::ConcatenateParameters(const TokenStream& Tokens, TokenS
 
       // remove whitespace at end of current output
       while (!Output.IsEmpty() &&
-             (Output.PeekBack()->m_iType == ezTokenType::Whitespace ||
-              Output.PeekBack()->m_iType == ezTokenType::Newline))
+        (Output.PeekBack()->m_iType == ezTokenType::Whitespace ||
+          Output.PeekBack()->m_iType == ezTokenType::Newline))
         Output.PopBack();
 
       if (Output.IsEmpty())

@@ -7,9 +7,9 @@
 
 EZ_CREATE_SIMPLE_TEST_GROUP(CodeUtils);
 
-ezResult FileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType IncType, ezString& out_sAbsoluteFilePath)
+ezResult FileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType IncType, ezStringBuilder& out_sAbsoluteFilePath)
 {
-  ezStringBuilder s;
+  ezStringBuilder& s = out_sAbsoluteFilePath;
 
   if (IncType == ezPreprocessor::RelativeInclude)
   {
@@ -27,7 +27,6 @@ ezResult FileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, e
   else
     s = szIncludeFile;
 
-  out_sAbsoluteFilePath = s;
   return EZ_SUCCESS;
 }
 

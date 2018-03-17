@@ -77,7 +77,7 @@ public:
   /// Note that you should ensure that \a out_sAbsoluteFilePath is always identical (including casing and path slashes) when it is supposed to point
   /// to the same file, as this exact name is used for file lookup (and therefore also file caching).
   /// If it is not identical, file caching will not work, and on different OSes the file may be found or not.
-  typedef ezDelegate<ezResult (const char* szCurAbsoluteFile, const char* szIncludeFile, IncludeType IncType, ezString& out_sAbsoluteFilePath)> FileLocatorCB;
+  typedef ezDelegate<ezResult (const char* szCurAbsoluteFile, const char* szIncludeFile, IncludeType IncType, ezStringBuilder& out_sAbsoluteFilePath)> FileLocatorCB;
 
   /// \brief Every time an unknown command (e.g. '#version') is encountered, this callback is used to determine whether the command shall be passed through.
   ///
@@ -192,8 +192,8 @@ private:
       m_iExpandDepth = 0;
     }
 
-    ezString m_sVirtualFileName;
-    ezString m_sFileName;
+    ezHashedString m_sVirtualFileName;
+    ezHashedString m_sFileName;
     ezInt32 m_iCurrentLine;
     ezInt32 m_iExpandDepth;
   };
@@ -242,12 +242,12 @@ private:
 
 private: // *** File Handling ***
   ezResult OpenFile(const char* szFile, const ezTokenizer** pTokenizer);
-  static ezResult DefaultFileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType IncType, ezString& out_sAbsoluteFilePath);
+  static ezResult DefaultFileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType IncType, ezStringBuilder& out_sAbsoluteFilePath);
   static ezResult DefaultFileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification);
 
   FileOpenCB m_FileOpenCallback;
   FileLocatorCB m_FileLocatorCallback;
-  ezSet<ezString> m_PragmaOnce;
+  ezSet<ezTempHashedString> m_PragmaOnce;
 
 private: // *** Macro Definition ***
 
@@ -307,7 +307,7 @@ private: // *** Macro Expansion ***
   ezResult ExpandFunctionMacro(MacroDefinition& Macro, const MacroParameters& Parameters, ezTokenParseUtils::TokenStream& Output, const ezToken* pMacroToken);
   ezResult ExpandMacroParam(const ezToken& MacroToken, ezUInt32 uiParam, ezTokenParseUtils::TokenStream& Output, const MacroDefinition& Macro);
   void PassThroughFunctionMacro(MacroDefinition& Macro, const MacroParameters& Parameters, ezTokenParseUtils::TokenStream& Output);
-  ezToken* AddCustomToken(const ezToken* pPrevious, const char* szNewText);
+  ezToken* AddCustomToken(const ezToken* pPrevious, const ezStringView& sNewText);
   void OutputNotExpandableMacro(MacroDefinition& Macro, ezTokenParseUtils::TokenStream& Output);
   ezResult ExtractAllMacroParameters(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezDeque< ezTokenParseUtils::TokenStream >& AllParameters);
   ezResult ExtractParameterValue(const ezTokenParseUtils::TokenStream& Tokens, ezUInt32& uiCurToken, ezTokenParseUtils::TokenStream& ParamTokens);

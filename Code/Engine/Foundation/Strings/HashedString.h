@@ -109,7 +109,10 @@ public:
   void Clear();
 
   /// \brief Returns a string view to this string's data.
-  EZ_ALWAYS_INLINE operator ezStringView() const { return GetString(); }
+  EZ_ALWAYS_INLINE operator ezStringView() const { return GetString().GetView(); }
+
+  /// \brief Returns a string view to this string's data.
+  EZ_ALWAYS_INLINE ezStringView GetView() const { return GetString().GetView(); }
 
   /// \brief Returns a pointer to the internal Utf8 string.
   EZ_ALWAYS_INLINE operator const char*() const { return GetData(); }
