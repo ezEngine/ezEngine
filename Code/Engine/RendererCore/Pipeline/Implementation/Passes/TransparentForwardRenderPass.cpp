@@ -1,6 +1,7 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <RendererCore/Pipeline/Passes/TransparentForwardRenderPass.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransparentForwardRenderPass, 1, ezRTTIDefaultAllocator<ezTransparentForwardRenderPass>)
 {

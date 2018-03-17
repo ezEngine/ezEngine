@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 template<typename Type>
 ezMat3Template<Type>::ezMat3Template()
@@ -170,6 +170,7 @@ const ezMat3Template<Type> ezMat3Template<Type>::GetInverse(Type fEpsilon) const
   ezMat3Template<Type> Inverse = *this;
   ezResult res = Inverse.Invert(fEpsilon);
   EZ_ASSERT_DEBUG(res.Succeeded(), "Could not invert the given Mat3.");
+  EZ_IGNORE_UNUSED(res);
   return Inverse;
 }
 
