@@ -64,7 +64,7 @@ struct EZ_RENDERERCORE_DLL ezCameraUsageHint
     None,
     MainView,
     EditorView,
-    Thumbnail,
+    RenderTarget,
     Culling,
     Shadow,
 

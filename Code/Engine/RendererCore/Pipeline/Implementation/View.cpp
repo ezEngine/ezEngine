@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
@@ -12,7 +12,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCameraUsageHint, 1)
   EZ_ENUM_CONSTANT(ezCameraUsageHint::None),
   EZ_ENUM_CONSTANT(ezCameraUsageHint::MainView),
   EZ_ENUM_CONSTANT(ezCameraUsageHint::EditorView),
-  EZ_ENUM_CONSTANT(ezCameraUsageHint::Thumbnail),
+  EZ_ENUM_CONSTANT(ezCameraUsageHint::RenderTarget),
   EZ_ENUM_CONSTANT(ezCameraUsageHint::Culling),
 EZ_END_STATIC_REFLECTED_ENUM();
 

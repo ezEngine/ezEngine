@@ -164,6 +164,11 @@ void ezRenderWorld::AddViewToRender(const ezViewHandle& hView)
   if (!pView->IsValid())
     return;
 
+  if (pView->m_uiFrameCounterWhenAddedLast >= s_uiFrameCounter)
+    return;
+
+  pView->m_uiFrameCounterWhenAddedLast = s_uiFrameCounter;
+
   {
     EZ_LOCK(s_ViewsToRenderMutex);
     EZ_ASSERT_DEV(s_bInExtract, "Render views need to be collected during extraction");

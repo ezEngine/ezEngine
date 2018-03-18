@@ -121,6 +121,7 @@ private:
   ezDelegateTask<void> m_ExtractTask;
 
   ezWorld* m_pWorld;
+  ezUInt64 m_uiFrameCounterWhenAddedLast = 0;
 
   ezGALRenderTagetSetup m_RenderTargetSetup;
   ezRenderPipelineResourceHandle m_hRenderPipeline;
