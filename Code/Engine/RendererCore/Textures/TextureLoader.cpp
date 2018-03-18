@@ -211,9 +211,21 @@ ezResult ezTextureResourceLoader::LoadTexFile(ezStreamReader& stream, LoadedData
     data.m_textureFilter = (ezTextureFilterSetting::Enum) uiFilter;
   }
 
-  ezDdsFileFormat fmt;
-  return fmt.ReadImage(stream, data.m_Image, ezLog::GetThreadLocalLogSystem());
+  if (uiTexFileFormatVersion >= 3)
+  {
+    stream >> data.m_iRenderTargetResolutionX;
+    stream >> data.m_iRenderTargetResolutionY;
+  }
 
+  if (data.m_iRenderTargetResolutionX == 0)
+  {
+    ezDdsFileFormat fmt;
+    return fmt.ReadImage(stream, data.m_Image, ezLog::GetThreadLocalLogSystem());
+  }
+  else
+  {
+    return EZ_SUCCESS;
+  }
 }
 
 void ezTextureResourceLoader::WriteTextureLoadStream(ezStreamWriter& w, const LoadedData& data)
@@ -227,6 +239,8 @@ void ezTextureResourceLoader::WriteTextureLoadStream(ezStreamWriter& w, const Lo
   w << data.m_addressModeV;
   w << data.m_addressModeW;
   w << data.m_textureFilter;
+  w << data.m_iRenderTargetResolutionX;
+  w << data.m_iRenderTargetResolutionY;
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_TextureLoader);

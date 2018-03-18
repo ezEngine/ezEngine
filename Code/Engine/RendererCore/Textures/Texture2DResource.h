@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererCore/Basics.h>
 #include <Core/ResourceManager/Resource.h>
@@ -8,6 +8,7 @@
 #include <RendererFoundation/Basics.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
+#include <RendererCore/Pipeline/Declarations.h>
 
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
 
@@ -48,6 +49,12 @@ public:
 
   static void FillOutDescriptor(ezTexture2DResourceDescriptor& td, const ezImage* pImage, bool bSRGB, ezUInt32 uiNumMipLevels, ezUInt32& out_MemoryUsed, ezHybridArray<ezGALSystemMemoryDescription, 32>& initData);
 
+  ezGALRenderTargetViewHandle GetRenderTargetView() const;
+
+  void AddRenderView(ezViewHandle hView);
+  void RemoveRenderView(ezViewHandle hView);
+  const ezDynamicArray<ezViewHandle>& GetAllRenderViews() const;
+
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
@@ -71,6 +78,9 @@ private:
   ezUInt32 m_uiHeight;
 
   ezGALSamplerStateHandle m_hSamplerState;
+
+  // other views that use this texture as their target
+  ezDynamicArray<ezViewHandle> m_RenderViews;
 };
 
 

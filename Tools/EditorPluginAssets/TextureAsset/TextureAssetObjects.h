@@ -25,6 +25,7 @@ struct ezTexture2DUsageEnum
     Mask,
     LookupTable,
     HDR,
+    RenderTarget,
 
     Default = Unknown,
   };
@@ -76,6 +77,25 @@ struct ezTexture2DAddressMode
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTexture2DAddressMode);
 
+struct ezTexture2DResolution
+{
+  typedef ezInt8 StorageType;
+
+  enum Enum
+  {
+    Fixed64x64,
+    Fixed128x128,
+    Fixed256x256,
+    Fixed512x512,
+    Fixed1024x1024,
+    ScreenSize,
+    HalfScreenSize,
+
+    Default = Fixed256x256
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTexture2DResolution);
 
 class ezTextureAssetProperties : public ezReflectedClass
 {
@@ -114,9 +134,10 @@ public:
   ezEnum<ezTexture2DAddressMode> m_AddressModeU;
   ezEnum<ezTexture2DAddressMode> m_AddressModeV;
   ezEnum<ezTexture2DAddressMode> m_AddressModeW;
+  ezEnum<ezTexture2DResolution> m_Resolution;
+  ezEnum<ezTexture2DUsageEnum> m_TextureUsage;
 
 private:
-  ezEnum<ezTexture2DUsageEnum> m_TextureUsage;
   ezEnum<ezTexture2DChannelMappingEnum> m_ChannelMapping;
   ezString m_Input[4];
 };

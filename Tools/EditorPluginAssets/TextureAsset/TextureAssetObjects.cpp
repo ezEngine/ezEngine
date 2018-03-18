@@ -9,6 +9,7 @@ EZ_ENUM_CONSTANTS(ezTexture2DUsageEnum::Unknown, ezTexture2DUsageEnum::Diffuse, 
 EZ_ENUM_CONSTANTS(ezTexture2DUsageEnum::EmissiveColor, ezTexture2DUsageEnum::Height, ezTexture2DUsageEnum::Mask, ezTexture2DUsageEnum::LookupTable)
 EZ_ENUM_CONSTANTS(ezTexture2DUsageEnum::HDR)
 EZ_ENUM_CONSTANTS(ezTexture2DUsageEnum::Other_sRGB, ezTexture2DUsageEnum::Other_Linear)//, ezTexture2DUsageEnum::Other_sRGB_Auto, ezTexture2DUsageEnum::Other_Linear_Auto)
+EZ_ENUM_CONSTANTS(ezTexture2DUsageEnum::RenderTarget)
 EZ_END_STATIC_REFLECTED_ENUM();
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexture2DChannelMappingEnum, 1)
@@ -22,12 +23,19 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexture2DAddressMode, 1)
 EZ_ENUM_CONSTANTS(ezTexture2DAddressMode::Wrap, ezTexture2DAddressMode::Mirror, ezTexture2DAddressMode::Clamp)
 EZ_END_STATIC_REFLECTED_ENUM();
 
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexture2DResolution, 1)
+EZ_ENUM_CONSTANTS(ezTexture2DResolution::Fixed64x64, ezTexture2DResolution::Fixed128x128, ezTexture2DResolution::Fixed256x256, ezTexture2DResolution::Fixed512x512, ezTexture2DResolution::Fixed1024x1024)
+EZ_ENUM_CONSTANTS(ezTexture2DResolution::ScreenSize, ezTexture2DResolution::HalfScreenSize)
+EZ_END_STATIC_REFLECTED_ENUM();
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 2, ezRTTIDefaultAllocator<ezTextureAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
     /// \todo Accessor properties with enums don't link
     EZ_ENUM_MEMBER_PROPERTY("Usage", ezTexture2DUsageEnum, m_TextureUsage),
+
+    EZ_ENUM_MEMBER_PROPERTY("Resolution", ezTexture2DResolution, m_Resolution),
 
     EZ_MEMBER_PROPERTY("Mipmaps", m_bMipmaps)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("Compression", m_bCompression)->AddAttributes(new ezDefaultValueAttribute(true)),
@@ -53,47 +61,74 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
 {
-  if (e.m_pObject->GetTypeAccessor().GetType() == ezRTTI::FindTypeByName("ezTextureAssetProperties"))
+  if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezTextureAssetProperties>())
   {
-    const ezInt64 mapping = e.m_pObject->GetTypeAccessor().GetValue("ChannelMapping").ConvertTo<ezInt64>();
-
     auto& props = *e.m_pPropertyStates;
 
-    props["Usage"].m_Visibility = ezPropertyUiState::Default;
-    props["Input1"].m_Visibility = ezPropertyUiState::Default;
-    props["Input2"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Input3"].m_Visibility = ezPropertyUiState::Invisible;
-    props["Input4"].m_Visibility = ezPropertyUiState::Invisible;
+    const ezInt64 usage = e.m_pObject->GetTypeAccessor().GetValue("Usage").ConvertTo<ezInt64>();
 
+    if (usage == ezTexture2DUsageEnum::RenderTarget)
     {
-      props["Input1"].m_sNewLabelText = "Input 1";
-      props["Input2"].m_sNewLabelText = "Input 2";
-      props["Input3"].m_sNewLabelText = "Input 3";
-      props["Input4"].m_sNewLabelText = "Input 4";
+      props["Mipmaps"].m_Visibility = ezPropertyUiState::Invisible;
+      props["Compression"].m_Visibility = ezPropertyUiState::Invisible;
+      props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Invisible;
+      props["FlipHorizontal"].m_Visibility = ezPropertyUiState::Invisible;
+      props["ChannelMapping"].m_Visibility = ezPropertyUiState::Invisible;
+
+      props["Input1"].m_Visibility = ezPropertyUiState::Invisible;
+      props["Input2"].m_Visibility = ezPropertyUiState::Invisible;
+      props["Input3"].m_Visibility = ezPropertyUiState::Invisible;
+      props["Input4"].m_Visibility = ezPropertyUiState::Invisible;
+
+      props["Resolution"].m_Visibility = ezPropertyUiState::Default;
     }
-
-    switch (mapping)
+    else
     {
-    case ezTexture2DChannelMappingEnum::R1_G2:
-      props["Input2"].m_Visibility = ezPropertyUiState::Default;
-      // fall through
+      props["Mipmaps"].m_Visibility = ezPropertyUiState::Default;
+      props["Compression"].m_Visibility = ezPropertyUiState::Default;
+      props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Default;
+      props["FlipHorizontal"].m_Visibility = ezPropertyUiState::Default;
+      props["ChannelMapping"].m_Visibility = ezPropertyUiState::Default;
+      props["Resolution"].m_Visibility = ezPropertyUiState::Invisible;
 
-    case ezTexture2DChannelMappingEnum::RG1:
-    case ezTexture2DChannelMappingEnum::R1:
-      props["Usage"].m_Visibility = ezPropertyUiState::Disabled;
-      break;
+      const ezInt64 mapping = e.m_pObject->GetTypeAccessor().GetValue("ChannelMapping").ConvertTo<ezInt64>();
 
-    case ezTexture2DChannelMappingEnum::R1_G2_B3_A4:
-      props["Input4"].m_Visibility = ezPropertyUiState::Default;
-      // fall through
+      props["Usage"].m_Visibility = ezPropertyUiState::Default;
+      props["Input1"].m_Visibility = ezPropertyUiState::Default;
+      props["Input2"].m_Visibility = ezPropertyUiState::Invisible;
+      props["Input3"].m_Visibility = ezPropertyUiState::Invisible;
+      props["Input4"].m_Visibility = ezPropertyUiState::Invisible;
 
-    case ezTexture2DChannelMappingEnum::R1_G2_B3:
-      props["Input3"].m_Visibility = ezPropertyUiState::Default;
-      // fall through
+      {
+        props["Input1"].m_sNewLabelText = "Input 1";
+        props["Input2"].m_sNewLabelText = "Input 2";
+        props["Input3"].m_sNewLabelText = "Input 3";
+        props["Input4"].m_sNewLabelText = "Input 4";
+      }
 
-    case ezTexture2DChannelMappingEnum::RGB1_A2:
-      props["Input2"].m_Visibility = ezPropertyUiState::Default;
-      // fall through
+      switch (mapping)
+      {
+      case ezTexture2DChannelMappingEnum::R1_G2:
+        props["Input2"].m_Visibility = ezPropertyUiState::Default;
+        // fall through
+
+      case ezTexture2DChannelMappingEnum::RG1:
+      case ezTexture2DChannelMappingEnum::R1:
+        props["Usage"].m_Visibility = ezPropertyUiState::Disabled;
+        break;
+
+      case ezTexture2DChannelMappingEnum::R1_G2_B3_A4:
+        props["Input4"].m_Visibility = ezPropertyUiState::Default;
+        // fall through
+
+      case ezTexture2DChannelMappingEnum::R1_G2_B3:
+        props["Input3"].m_Visibility = ezPropertyUiState::Default;
+        // fall through
+
+      case ezTexture2DChannelMappingEnum::RGB1_A2:
+        props["Input2"].m_Visibility = ezPropertyUiState::Default;
+        // fall through
+      }
     }
   }
 }

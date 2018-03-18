@@ -116,6 +116,29 @@ void ezTexture2DResource::FillOutDescriptor(ezTexture2DResourceDescriptor& td, c
   td.m_InitialContent = InitDataPtr;
 }
 
+
+ezGALRenderTargetViewHandle ezTexture2DResource::GetRenderTargetView() const
+{
+  // TODO: validate
+
+  return ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(m_hGALTexture[0]);
+}
+
+void ezTexture2DResource::AddRenderView(ezViewHandle hView)
+{
+  m_RenderViews.PushBack(hView);
+}
+
+void ezTexture2DResource::RemoveRenderView(ezViewHandle hView)
+{
+  m_RenderViews.RemoveSwap(hView);
+}
+
+const ezDynamicArray<ezViewHandle>& ezTexture2DResource::GetAllRenderViews() const
+{
+  return m_RenderViews;
+}
+
 ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
 {
   if (Stream == nullptr)
@@ -133,6 +156,7 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
   ezImage* pImage = nullptr;
   bool bIsFallback = false;
   bool bSRGB = false;
+  ezInt16 iRenderTargetResX = 0, iRenderTargetResY = 0;
 
   // load image data
   {
@@ -143,79 +167,109 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
     ezEnum<ezGALTextureAddressMode> addressModeU;
     ezEnum<ezGALTextureAddressMode> addressModeV;
     ezEnum<ezGALTextureAddressMode> addressModeW;
-    
+
     *Stream >> addressModeU;
     *Stream >> addressModeV;
     *Stream >> addressModeW;
     *Stream >> textureFilter;
-    
+
     td.m_SamplerDesc.m_AddressU = addressModeU;
     td.m_SamplerDesc.m_AddressV = addressModeV;
     td.m_SamplerDesc.m_AddressW = addressModeW;
+
+    *Stream >> iRenderTargetResX;
+    *Stream >> iRenderTargetResY;
   }
 
-  const ezUInt32 uiNumMipmapsLowRes = ezTextureUtils::s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : ezMath::Min(pImage->GetNumMipLevels(), 6U);
-  ezUInt32 uiUploadNumMipLevels = 0;
-  bool bCouldLoadMore = false;
+  const bool bIsRenderTarget = iRenderTargetResX != 0;
 
-  if (bIsFallback)
+  if (bIsRenderTarget)
   {
-    if (m_uiLoadedTextures == 0)
+    EZ_ASSERT_DEV(m_uiLoadedTextures == 0, "not implemented");
+
+    td.m_DescGAL.SetAsRenderTarget(iRenderTargetResX, iRenderTargetResY, ezGALResourceFormat::RGBAUByteNormalizedsRGB);
+
+    ezTextureUtils::ConfigureSampler(textureFilter, td.m_SamplerDesc);
+
+    m_uiLoadedTextures = 0;
+
+    CreateResource(td);
+
     {
-      // only upload fallback textures, if we don't have any texture data at all, yet
-      bCouldLoadMore = true;
-      uiUploadNumMipLevels = uiNumMipmapsLowRes;
-    }
-    else if (m_uiLoadedTextures == 1)
-    {
-      // ignore this texture entirely, if we already have low res data
-      // but assume we could load a higher resolution version
-      bCouldLoadMore = true;
-      ezLog::Debug("Ignoring fallback texture data, low-res resource data is already loaded.");
-    }
-    else
-    {
-      ezLog::Debug("Ignoring fallback texture data, resource is already fully loaded.");
+      ezResourceLoadDesc res;
+      res.m_uiQualityLevelsDiscardable = 1;
+      res.m_uiQualityLevelsLoadable = 0;
+      res.m_State = ezResourceState::Loaded;
+
+      return res;
     }
   }
   else
   {
-    if (m_uiLoadedTextures == 0)
+
+    const ezUInt32 uiNumMipmapsLowRes = ezTextureUtils::s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : ezMath::Min(pImage->GetNumMipLevels(), 6U);
+    ezUInt32 uiUploadNumMipLevels = 0;
+    bool bCouldLoadMore = false;
+
+    if (bIsFallback)
     {
-      bCouldLoadMore = uiNumMipmapsLowRes < pImage->GetNumMipLevels();
-      uiUploadNumMipLevels = uiNumMipmapsLowRes;
-    }
-    else if (m_uiLoadedTextures == 1)
-    {
-      uiUploadNumMipLevels = pImage->GetNumMipLevels();
+      if (m_uiLoadedTextures == 0)
+      {
+        // only upload fallback textures, if we don't have any texture data at all, yet
+        bCouldLoadMore = true;
+        uiUploadNumMipLevels = uiNumMipmapsLowRes;
+      }
+      else if (m_uiLoadedTextures == 1)
+      {
+        // ignore this texture entirely, if we already have low res data
+        // but assume we could load a higher resolution version
+        bCouldLoadMore = true;
+        ezLog::Debug("Ignoring fallback texture data, low-res resource data is already loaded.");
+      }
+      else
+      {
+        ezLog::Debug("Ignoring fallback texture data, resource is already fully loaded.");
+      }
     }
     else
     {
-      // ignore the texture, if we already have fully loaded data
-      ezLog::Debug("Ignoring texture data, resource is already fully loaded.");
+      if (m_uiLoadedTextures == 0)
+      {
+        bCouldLoadMore = uiNumMipmapsLowRes < pImage->GetNumMipLevels();
+        uiUploadNumMipLevels = uiNumMipmapsLowRes;
+      }
+      else if (m_uiLoadedTextures == 1)
+      {
+        uiUploadNumMipLevels = pImage->GetNumMipLevels();
+      }
+      else
+      {
+        // ignore the texture, if we already have fully loaded data
+        ezLog::Debug("Ignoring texture data, resource is already fully loaded.");
+      }
     }
-  }
 
-  if (uiUploadNumMipLevels > 0)
-  {
-    EZ_ASSERT_DEBUG(m_uiLoadedTextures < 2, "Invalid texture upload");
+    if (uiUploadNumMipLevels > 0)
+    {
+      EZ_ASSERT_DEBUG(m_uiLoadedTextures < 2, "Invalid texture upload");
 
-    ezHybridArray<ezGALSystemMemoryDescription, 32> initData;
-    FillOutDescriptor(td, pImage, bSRGB, uiUploadNumMipLevels, m_uiMemoryGPU[m_uiLoadedTextures], initData);
+      ezHybridArray<ezGALSystemMemoryDescription, 32> initData;
+      FillOutDescriptor(td, pImage, bSRGB, uiUploadNumMipLevels, m_uiMemoryGPU[m_uiLoadedTextures], initData);
 
-    ezTextureUtils::ConfigureSampler(textureFilter, td.m_SamplerDesc);
+      ezTextureUtils::ConfigureSampler(textureFilter, td.m_SamplerDesc);
 
-    // ignore its return value here, we build our own
-    CreateResource(td);
-  }
+      // ignore its return value here, we build our own
+      CreateResource(td);
+    }
 
-  {
-    ezResourceLoadDesc res;
-    res.m_uiQualityLevelsDiscardable = m_uiLoadedTextures;
-    res.m_uiQualityLevelsLoadable = bCouldLoadMore ? 1 : 0;
-    res.m_State = ezResourceState::Loaded;
+    {
+      ezResourceLoadDesc res;
+      res.m_uiQualityLevelsDiscardable = m_uiLoadedTextures;
+      res.m_uiQualityLevelsLoadable = bCouldLoadMore ? 1 : 0;
+      res.m_State = ezResourceState::Loaded;
 
-    return res;
+      return res;
+    }
   }
 }
 

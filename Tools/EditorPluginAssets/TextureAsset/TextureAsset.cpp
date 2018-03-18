@@ -217,20 +217,88 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
 ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
-  const bool bUpdateThumbnail = ezStringUtils::IsEqual(szPlatform, "PC");
 
-  ezStatus result = RunTexConv(szTargetFile, AssetHeader, bUpdateThumbnail);
+  const auto props = GetProperties();
 
-  ezFileStats stat;
-  if (ezOSFile::GetFileStats(szTargetFile, stat).Succeeded() && stat.m_uiFileSize == 0)
+  if (props->m_TextureUsage == ezTexture2DUsageEnum::RenderTarget)
   {
-    // if the file was touched, but nothing written to it, delete the file
-    // might happen if TexConv crashed or had an error
-    ezOSFile::DeleteFile(szTargetFile);
-    result.m_Result = EZ_FAILURE;
-  }
+    ezDeferredFileWriter file;
+    file.SetOutput(szTargetFile);
 
-  return result;
+    AssetHeader.Write(file);
+
+    // TODO: move this into a shared location, reuse in ezTexConv::WriteTexHeader
+    const ezUInt8 uiTexFileFormatVersion = 3;
+    file << uiTexFileFormatVersion;
+
+    file << props->IsSRGB();
+    file << (ezUInt8)props->m_AddressModeU;
+    file << (ezUInt8)props->m_AddressModeV;
+    file << (ezUInt8)props->m_AddressModeW;
+    file << (ezUInt8)props->m_TextureFilter;
+
+    ezInt16 resX = 0, resY = 0;
+
+    switch (props->m_Resolution)
+    {
+    case ezTexture2DResolution::Fixed64x64:
+      resX = 64;
+      resY = 64;
+      break;
+    case ezTexture2DResolution::Fixed128x128:
+      resX = 128;
+      resY = 128;
+      break;
+    case ezTexture2DResolution::Fixed256x256:
+      resX = 256;
+      resY = 256;
+      break;
+    case ezTexture2DResolution::Fixed512x512:
+      resX = 512;
+      resY = 512;
+      break;
+    case ezTexture2DResolution::Fixed1024x1024:
+      resX = 1024;
+      resY = 1024;
+      break;
+    case ezTexture2DResolution::ScreenSize:
+      resX = -1;
+      resY = -1;
+      break;
+    case ezTexture2DResolution::HalfScreenSize:
+      resX = -2;
+      resY = -2;
+      break;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+    }
+
+    file << resX;
+    file << resY;
+
+
+    if (file.Close().Failed())
+      return ezStatus(ezFmt("Writing to target file failed: '{0}'", szTargetFile));
+
+    return ezStatus(EZ_SUCCESS);
+  }
+  else
+  {
+    const bool bUpdateThumbnail = ezStringUtils::IsEqual(szPlatform, "PC");
+
+    ezStatus result = RunTexConv(szTargetFile, AssetHeader, bUpdateThumbnail);
+
+    ezFileStats stat;
+    if (ezOSFile::GetFileStats(szTargetFile, stat).Succeeded() && stat.m_uiFileSize == 0)
+    {
+      // if the file was touched, but nothing written to it, delete the file
+      // might happen if TexConv crashed or had an error
+      ezOSFile::DeleteFile(szTargetFile);
+      result.m_Result = EZ_FAILURE;
+    }
+
+    return result;
+  }
 }
 
 const char* ezTextureAssetDocument::QueryAssetType() const
