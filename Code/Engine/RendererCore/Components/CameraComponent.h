@@ -24,9 +24,13 @@ public:
 private:
   friend class ezCameraComponent;
 
+  void AddRenderTargetCamera(ezCameraComponent* pComponent);
+  void RemoveRenderTargetCamera(ezCameraComponent* pComponent);
+
   void OnViewCreated(ezView* pView);
 
   ezDynamicArray<ezComponentHandle> m_modifiedCameras;
+  ezDynamicArray<ezComponentHandle> m_RenderTargetCameras;
 };
 
 
@@ -38,11 +42,30 @@ public:
   ezCameraComponent();
   ~ezCameraComponent();
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent interface
+  // 
+
+public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
+protected:
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezCameraComponent interface
+  // 
+
+public:
+  void UpdateRenderTargetCamera();
+
   ezEnum<ezCameraUsageHint> GetUsageHint() const { return m_UsageHint; }
   void SetUsageHint(ezEnum<ezCameraUsageHint> val);
+
+  void SetRenderTargetFile(const char* szFile);
+  const char* GetRenderTargetFile() const;
 
   ezEnum<ezCameraMode> GetCameraMode() const { return m_Mode; }
   void SetCameraMode(ezEnum<ezCameraMode> val);
@@ -85,6 +108,7 @@ public:
 private:
   ezEnum<ezCameraUsageHint> m_UsageHint;
   ezEnum<ezCameraMode> m_Mode;
+  ezTexture2DResourceHandle m_hRenderTarget;
   float m_fNearPlane;
   float m_fFarPlane;
   float m_fPerspectiveFieldOfView;
@@ -104,4 +128,10 @@ private:
 
   bool m_bIsModified;
   bool m_bShowStats;
+
+  void ActivateRenderToTexture();
+  void DeactivateRenderToTexture();
+
+  ezViewHandle m_hRenderTargetView;
+  ezCamera m_RenderTargetCamera;
 };

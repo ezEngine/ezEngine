@@ -101,6 +101,14 @@ ezTexture2DUsageEnum::EmissiveMask;Emissive (Mask)
 ezTexture2DUsageEnum::Other_sRGB;Other sRGB
 ezTexture2DUsageEnum::Other_Linear;Other Linear
 ezTexture2DUsageEnum::HDR;HDR
+ezTexture2DUsageEnum::RenderTarget;Render Target
+ezTexture2DResolution::Fixed64x64;64 * 64
+ezTexture2DResolution::Fixed128x128;128 * 128
+ezTexture2DResolution::Fixed256x256;256 * 256
+ezTexture2DResolution::Fixed512x512;512 * 512
+ezTexture2DResolution::Fixed1024x1024;1024 * 1024
+ezTexture2DResolution::ScreenSize;Screen Size
+ezTexture2DResolution::HalfScreenSize;Half Screen Size
 ezTextureCubeUsageEnum::Unknown;Unknown
 ezTextureCubeUsageEnum::Skybox;Skybox
 ezTextureCubeUsageEnum::LookupTable;Lookup Table

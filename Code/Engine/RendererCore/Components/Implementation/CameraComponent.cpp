@@ -6,18 +6,15 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 
 
 ezCameraComponentManager::ezCameraComponentManager(ezWorld* pWorld)
   : ezComponentManager<ezCameraComponent, ezBlockStorageType::Compact>(pWorld)
 {
-
 }
 
-ezCameraComponentManager::~ezCameraComponentManager()
-{
-
-}
+ezCameraComponentManager::~ezCameraComponentManager() = default;
 
 void ezCameraComponentManager::Initialize()
 {
@@ -56,6 +53,17 @@ void ezCameraComponentManager::Update(const ezWorldModule::UpdateContext& contex
   }
 
   m_modifiedCameras.Clear();
+
+  for (auto hCameraComponent : m_RenderTargetCameras)
+  {
+    ezCameraComponent* pCameraComponent = nullptr;
+    if (!TryGetComponent(hCameraComponent, pCameraComponent))
+    {
+      continue;
+    }
+
+    pCameraComponent->UpdateRenderTargetCamera();
+  }
 }
 
 const ezCameraComponent* ezCameraComponentManager::GetCameraByUsageHint(ezCameraUsageHint::Enum usageHint) const
@@ -84,6 +92,16 @@ ezCameraComponent* ezCameraComponentManager::GetCameraByUsageHint(ezCameraUsageH
   return nullptr;
 }
 
+void ezCameraComponentManager::AddRenderTargetCamera(ezCameraComponent* pComponent)
+{
+  m_RenderTargetCameras.PushBack(pComponent->GetHandle());
+}
+
+void ezCameraComponentManager::RemoveRenderTargetCamera(ezCameraComponent* pComponent)
+{
+  m_RenderTargetCameras.RemoveSwap(pComponent->GetHandle());
+}
+
 void ezCameraComponentManager::OnViewCreated(ezView* pView)
 {
   // Mark all cameras as modified so the new view gets the proper settings
@@ -95,12 +113,13 @@ void ezCameraComponentManager::OnViewCreated(ezView* pView)
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 5, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 6, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_ACCESSOR_PROPERTY("UsageHint", ezCameraUsageHint, GetUsageHint, SetUsageHint),
     EZ_ENUM_ACCESSOR_PROPERTY("Mode", ezCameraMode, GetCameraMode, SetCameraMode),
+    EZ_ACCESSOR_PROPERTY("RenderTarget", GetRenderTargetFile, SetRenderTargetFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
     EZ_ACCESSOR_PROPERTY("NearPlane", GetNearPlane, SetNearPlane)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.01f, 4.0f)),
     EZ_ACCESSOR_PROPERTY("FarPlane", GetFarPlane, SetFarPlane)->AddAttributes(new ezDefaultValueAttribute(1000.0f), new ezClampValueAttribute(5.0, 10000.0f)),
     EZ_ACCESSOR_PROPERTY("FOV", GetFieldOfView, SetFieldOfView)->AddAttributes(new ezDefaultValueAttribute(60.0f), new ezClampValueAttribute(1.0f, 170.0f)),
@@ -143,10 +162,7 @@ ezCameraComponent::ezCameraComponent()
   m_bShowStats = false;
 }
 
-ezCameraComponent::~ezCameraComponent()
-{
-
-}
+ezCameraComponent::~ezCameraComponent() = default;
 
 void ezCameraComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -172,6 +188,9 @@ void ezCameraComponent::SerializeComponent(ezWorldWriter& stream) const
   // Version 4
   m_IncludeTags.Save(s);
   m_ExcludeTags.Save(s);
+
+  // Version 6
+  s << m_hRenderTarget;
 }
 
 void ezCameraComponent::DeserializeComponent(ezWorldReader& stream)
@@ -213,7 +232,32 @@ void ezCameraComponent::DeserializeComponent(ezWorldReader& stream)
     m_ExcludeTags.Load(s, ezTagRegistry::GetGlobalRegistry());
   }
 
+  if (uiVersion >= 6)
+  {
+    s >> m_hRenderTarget;
+  }
+  
   MarkAsModified();
+}
+
+void ezCameraComponent::UpdateRenderTargetCamera()
+{
+  if (m_hRenderTargetView.IsInvalidated())
+    return;
+
+  ezView* pView = nullptr;
+  if (!ezRenderWorld::TryGetView(m_hRenderTargetView, pView))
+    return;
+
+  //ezLog::Debug("Moving camera view");
+  ApplySettingsToView(pView);
+
+  if (m_Mode == ezCameraMode::PerspectiveFixedFovX || m_Mode == ezCameraMode::PerspectiveFixedFovY)
+    m_RenderTargetCamera.SetCameraMode(GetCameraMode(), m_fPerspectiveFieldOfView, m_fNearPlane, m_fFarPlane);
+  else
+    m_RenderTargetCamera.SetCameraMode(GetCameraMode(), m_fOrthoDimension, m_fNearPlane, m_fFarPlane);
+
+  m_RenderTargetCamera.LookAt(GetOwner()->GetGlobalPosition(), GetOwner()->GetGlobalPosition() + GetOwner()->GetGlobalDirForwards(), GetOwner()->GetGlobalDirUp());
 }
 
 void ezCameraComponent::SetUsageHint(ezEnum<ezCameraUsageHint> val)
@@ -225,6 +269,32 @@ void ezCameraComponent::SetUsageHint(ezEnum<ezCameraUsageHint> val)
   MarkAsModified();
 }
 
+void ezCameraComponent::SetRenderTargetFile(const char* szFile)
+{
+  DeactivateRenderToTexture();
+
+  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  {
+    m_hRenderTarget = ezResourceManager::LoadResource<ezTexture2DResource>(szFile);
+  }
+  else
+  {
+    m_hRenderTarget.Invalidate();
+  }
+
+  if (IsActiveAndInitialized())
+  {
+    ActivateRenderToTexture();
+  }
+}
+
+const char* ezCameraComponent::GetRenderTargetFile() const
+{
+  if (!m_hRenderTarget.IsValid())
+    return "";
+
+  return m_hRenderTarget.GetResourceID();
+}
 
 void ezCameraComponent::SetCameraMode(ezEnum<ezCameraMode> val)
 {
@@ -438,6 +508,70 @@ void ezCameraComponent::MarkAsModified(ezCameraComponentManager* pCameraManager)
     pCameraManager->m_modifiedCameras.PushBack(GetHandle());
     m_bIsModified = true;
   }
+}
+
+void ezCameraComponent::ActivateRenderToTexture()
+{
+  if (!m_hRenderTarget.IsValid() || !m_hRenderPipeline.IsValid())
+    return;
+
+  EZ_ASSERT_DEV(m_hRenderTargetView.IsInvalidated(), "Render target view is already created");
+
+  ezStringBuilder name;
+  name.Format("Camera RT: {0}", GetOwner()->GetName());
+
+  ezView* pRenderTargetView = nullptr;
+  m_hRenderTargetView = ezRenderWorld::CreateView(name, pRenderTargetView);
+
+  pRenderTargetView->SetRenderPipelineResource(m_hRenderPipeline);
+
+  pRenderTargetView->SetWorld(GetWorld());
+  pRenderTargetView->SetCamera(&m_RenderTargetCamera);
+
+  ezResourceLock<ezTexture2DResource> pRenderTarget(m_hRenderTarget, ezResourceAcquireMode::NoFallback);
+  pRenderTarget->AddRenderView(m_hRenderTargetView);
+
+  // TODO: listen to resource change events and update GetRenderTargetView
+  //pRenderTarget->m_ResourceEvents
+
+  ezGALRenderTagetSetup renderTargetSetup;
+  renderTargetSetup.SetRenderTarget(0, pRenderTarget->GetRenderTargetView());
+  pRenderTargetView->SetRenderTargetSetup(renderTargetSetup);
+
+  pRenderTargetView->SetViewport(ezRectFloat(0.0f, 0.0f, 256.0f, 256.0f));
+
+  GetWorld()->GetComponentManager<ezCameraComponentManager>()->AddRenderTargetCamera(this);
+}
+
+void ezCameraComponent::DeactivateRenderToTexture()
+{
+  if (m_hRenderTargetView.IsInvalidated())
+    return;
+
+  if (m_hRenderTarget.IsValid())
+  {
+    ezResourceLock<ezTexture2DResource> pRenderTarget(m_hRenderTarget, ezResourceAcquireMode::NoFallback);
+    pRenderTarget->RemoveRenderView(m_hRenderTargetView);
+  }
+
+  ezRenderWorld::DeleteView(m_hRenderTargetView);
+  m_hRenderTargetView.Invalidate();
+
+  GetWorld()->GetComponentManager<ezCameraComponentManager>()->RemoveRenderTargetCamera(this);
+}
+
+void ezCameraComponent::OnActivated()
+{
+  SUPER::OnActivated();
+
+  ActivateRenderToTexture();
+}
+
+void ezCameraComponent::OnDeactivated()
+{
+  DeactivateRenderToTexture();
+
+  SUPER::OnDeactivated();
 }
 
 //////////////////////////////////////////////////////////////////////////

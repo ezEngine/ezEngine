@@ -115,6 +115,7 @@ ezSliderComponent;Slider
 ezCollectionComponent;Collection
 ezDebugTextComponent;Debug Text
 ezProceduralPlacementComponent;Procedural Placement
+ezRenderTargetActivatorComponent;Render Target Activator
 Components;Components
 Materials;Materials
 Surfaces;Surfaces

@@ -94,7 +94,7 @@ ezCameraMode::OrthoFixedHeight;Ortho Fixed Height
 ezCameraUsageHint::None;None
 ezCameraUsageHint::MainView;Main View
 ezCameraUsageHint::EditorView;Editor View
-ezCameraUsageHint::Thumbnail;Thumbnail
+ezCameraUsageHint::RenderTarget;Render to Texture
 ezCameraUsageHint::Culling;Culling
 ezInputMessageGranularity::PressOnly;Only Key Pressed
 ezInputMessageGranularity::PressAndRelease;Key Pressed and Released
