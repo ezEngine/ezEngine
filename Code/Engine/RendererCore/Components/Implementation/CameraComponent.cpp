@@ -622,10 +622,18 @@ void ezCameraComponent::ActivateRenderToTexture()
   const float maxSizeX = 1.0f - m_RenderTargetRectOffset.x;
   const float maxSizeY = 1.0f - m_RenderTargetRectOffset.y;
 
-  const float width = (float)pRenderTarget->GetWidth() * ezMath::Min(maxSizeX, m_RenderTargetRectSize.x);
-  const float height = (float)pRenderTarget->GetHeight() * ezMath::Min(maxSizeY, m_RenderTargetRectSize.y);
+  const float resX = (float)pRenderTarget->GetWidth();
+  const float resY = (float)pRenderTarget->GetHeight();
 
-  pRenderTargetView->SetViewport(ezRectFloat(m_RenderTargetRectOffset.x, m_RenderTargetRectOffset.y, width, height));
+  const float width = resX * ezMath::Min(maxSizeX, m_RenderTargetRectSize.x);
+  const float height = resY * ezMath::Min(maxSizeY, m_RenderTargetRectSize.y);
+
+  const float offsetX = m_RenderTargetRectOffset.x * resX;
+  const float offsetY = m_RenderTargetRectOffset.y * resY;
+
+  // TODO: adding the offset makes no sense, but somehow it works
+  // TODO: also, the rendered image area moves when changing the offset, which should not be the case (view-projection matrix wrong?)
+  pRenderTargetView->SetViewport(ezRectFloat(offsetX, offsetY, offsetX + width, offsetY + height));
 
   pRenderTarget->AddRenderView(m_hRenderTargetView);
 
