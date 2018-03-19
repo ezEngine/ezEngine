@@ -58,6 +58,7 @@ void ezDepthOnlyPass::Execute(const ezRenderViewContext& renderViewContext, cons
   renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_DEPTH_ONLY");
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("SHADING_QUALITY", "SHADING_QUALITY_NORMAL");
 
   // Render
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque);

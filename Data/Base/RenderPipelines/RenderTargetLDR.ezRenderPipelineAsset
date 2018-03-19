@@ -56,7 +56,7 @@ o
 		}
 		Uuid %SSAO{u4{2283936945899933578,16100938682744915966}}
 		s %ShadingQuality{"ezForwardRenderShadingQuality::Normal"}
-		b %WriteDepth{1}
+		b %WriteDepth{0}
 	}
 }
 AssetInfo
@@ -70,7 +70,7 @@ AssetInfo
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9340082855766888863,4792825339744186213}}
-		u4 %Hash{12212561340785339305}
+		u4 %Hash{7445337733467362680}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
