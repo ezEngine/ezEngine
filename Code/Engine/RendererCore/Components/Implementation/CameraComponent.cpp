@@ -270,7 +270,12 @@ void ezCameraComponent::SetUsageHint(ezEnum<ezCameraUsageHint> val)
 {
   if (val == m_UsageHint)
     return;
+
+  DeactivateRenderToTexture();
+
   m_UsageHint = val;
+
+  ActivateRenderToTexture();
 
   MarkAsModified();
 }
@@ -289,6 +294,8 @@ void ezCameraComponent::SetRenderTargetFile(const char* szFile)
   }
 
   ActivateRenderToTexture();
+
+  MarkAsModified();
 }
 
 const char* ezCameraComponent::GetRenderTargetFile() const
@@ -352,7 +359,12 @@ void ezCameraComponent::SetRenderPipeline(ezRenderPipelineResourceHandle hRender
 {
   if (hRenderPipeline == m_hRenderPipeline)
     return;
+
+  DeactivateRenderToTexture();
+
   m_hRenderPipeline = hRenderPipeline;
+
+  ActivateRenderToTexture();
 
   MarkAsModified();
 }
@@ -541,8 +553,18 @@ void ezCameraComponent::MarkAsModified(ezCameraComponentManager* pCameraManager)
 
 void ezCameraComponent::ActivateRenderToTexture()
 {
+  if (m_UsageHint != ezCameraUsageHint::RenderTarget)
+    return;
+
   if (m_bRenderTargetInitialized || !m_hRenderTarget.IsValid() || !m_hRenderPipeline.IsValid() || !IsActiveAndInitialized())
     return;
+
+  ezResourceLock<ezTexture2DResource> pRenderTarget(m_hRenderTarget, ezResourceAcquireMode::NoFallback);
+
+  if (pRenderTarget->IsMissingResource())
+  {
+    return;
+  }
 
   m_bRenderTargetInitialized = true;
 
@@ -559,9 +581,6 @@ void ezCameraComponent::ActivateRenderToTexture()
   pRenderTargetView->SetWorld(GetWorld());
   pRenderTargetView->SetCamera(&m_RenderTargetCamera);
 
-  ezResourceLock<ezTexture2DResource> pRenderTarget(m_hRenderTarget, ezResourceAcquireMode::NoFallback);
-  pRenderTarget->AddRenderView(m_hRenderTargetView);
-
   pRenderTarget->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezCameraComponent::ResourceChangeEventHandler, this));
 
   ezGALRenderTagetSetup renderTargetSetup;
@@ -569,6 +588,8 @@ void ezCameraComponent::ActivateRenderToTexture()
   pRenderTargetView->SetRenderTargetSetup(renderTargetSetup);
 
   pRenderTargetView->SetViewport(ezRectFloat(0.0f, 0.0f, 256.0f, 256.0f));
+
+  pRenderTarget->AddRenderView(m_hRenderTargetView);
 
   GetWorld()->GetComponentManager<ezCameraComponentManager>()->AddRenderTargetCamera(this);
 }

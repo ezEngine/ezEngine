@@ -42,7 +42,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 void ezTextureCubeAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
 {
-  if (e.m_pObject->GetTypeAccessor().GetType() == ezRTTI::FindTypeByName("ezTextureCubeAssetProperties"))
+  if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezTextureCubeAssetProperties>())
   {
     const ezInt64 mapping = e.m_pObject->GetTypeAccessor().GetValue("ChannelMapping").ConvertTo<ezInt64>();
 

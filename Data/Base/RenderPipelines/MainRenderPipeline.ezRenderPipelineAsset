@@ -433,7 +433,7 @@ o
 		b %Active{1}
 		s %Name{""}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0x4D5CA0C3,0xEC8F29C4}}
+		Vec2 %Node::Pos{f{0xCD06A1C3,0x2CE529C4}}
 	}
 }
 o
@@ -483,7 +483,7 @@ o
 		b %Active{1}
 		s %Name{""}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0x37C38143,0x0B852DC4}}
+		Vec2 %Node::Pos{f{0xA62E8EC3,0x5EE1FEC3}}
 	}
 }
 o
@@ -542,7 +542,7 @@ o
 		b %Active{1}
 		s %Name{""}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0xF410A2C3,0x9FAE0DC4}}
+		Vec2 %Node::Pos{f{0xF410A2C3,0xDF030EC4}}
 	}
 }
 o
@@ -613,7 +613,7 @@ o
 		Uuid %DepthStencil{u4{17777586325303666767,13918173746689575637}}
 		s %Name{""}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0xA1014244,0xA6D468C3}}
+		Vec2 %Node::Pos{f{0x88D32844,0xD5BA5AC3}}
 		VarArray %Renderers{}
 	}
 }
@@ -1447,7 +1447,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezTransparentForwardRenderPass"}
-		u3 %TypeSize{224}
+		u3 %TypeSize{232}
 		u3 %TypeVersion{1}
 	}
 }

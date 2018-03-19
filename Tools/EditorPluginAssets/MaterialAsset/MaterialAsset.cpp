@@ -298,7 +298,7 @@ ezString ezMaterialAssetProperties::GetAutoGenShaderPathAbs() const
 
 void ezMaterialAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
 {
-  if (e.m_pObject->GetTypeAccessor().GetType() == ezRTTI::FindTypeByName("ezMaterialAssetProperties"))
+  if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezMaterialAssetProperties>())
   {
     ezInt64 shaderMode = e.m_pObject->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>();
 

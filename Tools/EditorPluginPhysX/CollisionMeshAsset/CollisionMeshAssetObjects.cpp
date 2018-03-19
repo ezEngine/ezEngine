@@ -71,7 +71,7 @@ const ezString ezCollisionMeshAssetProperties::GetResourceSlotProperty(ezUInt32 
 
 void ezCollisionMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
 {
-  if (e.m_pObject->GetTypeAccessor().GetType() != ezRTTI::FindTypeByName("ezCollisionMeshAssetProperties"))
+  if (e.m_pObject->GetTypeAccessor().GetType() != ezGetStaticRTTI<ezCollisionMeshAssetProperties>())
     return;
 
   ezInt64 meshType = e.m_pObject->GetTypeAccessor().GetValue("MeshType").ConvertTo<ezInt64>();

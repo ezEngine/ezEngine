@@ -2813,7 +2813,7 @@ AssetInfo
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{16613448865354618313}
+		u4 %Hash{7861865480124460277}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -2842,7 +2842,7 @@ AssetInfo
 			s{"{ a7548097-903a-292a-e37c-080a6ef6158c }"}
 			s{"{ ac0755c6-f78d-40ec-bfaa-55f2be674f87 }"}
 			s{"{ b727ba61-e20a-42d7-a170-860ede23e85d }"}
-			s{"{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }"}
+			s{"{ c5f16f65-8940-4283-9f91-b316dfa39e81 }"}
 			s{"{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }"}
 			s{"{ d65cd59b-50e0-44f3-aefb-a88943b81900 }"}
 			s{"{ d75e6ba0-47da-4c0f-86b5-55a53996dfe1 }"}
@@ -2925,7 +2925,7 @@ o
 		VarArray %IncludeTags{}
 		s %Mode{"ezCameraMode::PerspectiveFixedFovY"}
 		f %NearPlane{0x0000803E}
-		s %RenderPipeline{"{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }"}
+		s %RenderPipeline{"{ c5f16f65-8940-4283-9f91-b316dfa39e81 }"}
 		s %RenderTarget{"{ 7f9c0caa-e97d-42a1-9876-aea78054f1bb }"}
 		b %ShowStats{0}
 		f %ShutterTime{0x0000803F}
@@ -4098,7 +4098,7 @@ o
 			Uuid{u4{12694216666925527941,5087125832614702950}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x00001841,0x0100B0C0,0x0000003F}}
+		Vec3 %LocalPosition{f{0x00001841,0x0100B0C0,0x0000403F}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -10686,24 +10686,6 @@ o
 }
 o
 {
-	Uuid %id{u4{8027525669203888082,1823118923835687825}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezRenderTargetActivatorComponent"}
-		u3 %TypeSize{56}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{12984103802138964609,1901275426220383600}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -10879,6 +10861,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezPrefabReferenceComponent"}
 		u3 %TypeSize{64}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{8726278895412603129,6640596615055318561}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezRenderTargetActivatorComponent"}
+		u3 %TypeSize{56}
 		u3 %TypeVersion{1}
 	}
 }

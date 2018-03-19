@@ -25,6 +25,7 @@
 #include <EditorFramework/Actions/GameObjectSelectionActions.h>
 #include <EditorFramework/Actions/QuadViewActions.h>
 #include <EditorFramework/Actions/TransformGizmoActions.h>
+#include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
 void OnDocumentManagerEvent(const ezDocumentManager::Event& e)
 {
@@ -48,6 +49,8 @@ void ToolsProjectEventHandler(const ezEditorAppEvent& e)
     //ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency(">sdk/Data/Base", "base");
   }
 }
+
+void ezCameraComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
 void OnLoadPlugin(bool bReloading)
 {
@@ -112,6 +115,9 @@ void OnLoadPlugin(bool bReloading)
   ezGameObjectSelectionActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu", "");
   ezSelectionActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu", "");
   ezEditActions::MapContextMenuActions("EditorPluginScene_ScenegraphContextMenu", "");
+
+  // component property meta states
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezCameraComponent_PropertyMetaStateEventHandler);
 }
 
 void OnUnloadPlugin(bool bReloading)
@@ -125,5 +131,23 @@ void OnUnloadPlugin(bool bReloading)
 }
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
+
+
+void ezCameraComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  static const ezRTTI* pRtti = ezRTTI::FindTypeByName("ezCameraComponent");
+
+  if (e.m_pObject->GetTypeAccessor().GetType() != pRtti)
+    return;
+
+  const ezInt64 usage = e.m_pObject->GetTypeAccessor().GetValue("UsageHint").ConvertTo<ezInt64>();
+  const bool isRenderTarget = (usage == 3); // ezCameraUsageHint::RenderTarget
+
+  auto& props = *e.m_pPropertyStates;
+
+  props["RenderTarget"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Disabled;
+}
+
+
 
 EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(EZ_EDITORPLUGINSCENE_DLL, ezEditorPluginScene);

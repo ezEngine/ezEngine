@@ -107,7 +107,7 @@ ezMeshAssetProperties::ezMeshAssetProperties()
 
 void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
 {
-  if (e.m_pObject->GetTypeAccessor().GetType() == ezRTTI::FindTypeByName("ezMeshAssetProperties"))
+  if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezMeshAssetProperties>())
   {
     ezInt64 primType = e.m_pObject->GetTypeAccessor().GetValue("PrimitiveType").ConvertTo<ezInt64>();
 

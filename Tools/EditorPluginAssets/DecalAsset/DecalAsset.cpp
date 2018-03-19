@@ -44,7 +44,7 @@ ezDecalAssetProperties::ezDecalAssetProperties()
 
 void ezDecalAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
 {
-  if (e.m_pObject->GetTypeAccessor().GetType() == ezRTTI::FindTypeByName("ezDecalAssetProperties"))
+  if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezDecalAssetProperties>())
   {
     ezInt64 mode = e.m_pObject->GetTypeAccessor().GetValue("Mode").ConvertTo<ezInt64>();
 
