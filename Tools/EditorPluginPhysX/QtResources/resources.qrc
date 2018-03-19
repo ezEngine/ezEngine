@@ -4,19 +4,20 @@
     <file>Collision_Mesh_Convex.png</file>
   </qresource>
   <qresource prefix="TypeIcons">
-	<file>ezPxShapeCapsuleComponent.png</file>
-	<file>ezPxShapeBoxComponent.png</file>
-	<file>ezPxShapeSphereComponent.png</file>
-	<file>ezPxStaticActorComponent.png</file>
-	<file>ezPxDynamicActorComponent.png</file>
-	<file>ezPxDistanceJointComponent.png</file>
-	<file>ezPxFixedJointComponent.png</file>
-	<file>ezPxCenterOfMassComponent.png</file>
-	<file>ezPxShapeConvexComponent.png</file>
-	<file>ezPxCharacterControllerComponent.png</file>
-	<file>ezPxSettingsComponent.png</file>
-	<file>ezPxTriggerComponent.png</file>
-	<file>ezBreakableSheetComponent.png</file>
+    <file>ezPxShapeCapsuleComponent.png</file>
+    <file>ezPxShapeBoxComponent.png</file>
+    <file>ezPxShapeSphereComponent.png</file>
+    <file>ezPxStaticActorComponent.png</file>
+    <file>ezPxDynamicActorComponent.png</file>
+    <file>ezPxDistanceJointComponent.png</file>
+    <file>ezPxFixedJointComponent.png</file>
+    <file>ezPxCenterOfMassComponent.png</file>
+    <file>ezPxShapeConvexComponent.png</file>
+    <file>ezPxCharacterControllerComponent.png</file>
+    <file>ezPxSettingsComponent.png</file>
+    <file>ezPxTriggerComponent.png</file>
+    <file>ezBreakableSheetComponent.png</file>
+    <file>ezPxRaycastInteractComponent.png</file>
   </qresource>  
 </RCC>
 

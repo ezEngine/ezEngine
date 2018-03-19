@@ -43,5 +43,8 @@
     <file>ezDecalComponent.png</file>
     <file>ezFogComponent.png</file>
     <file>ezGreyBoxEditTool.png</file>
+    <file>ezRenderTargetActivatorComponent.png</file>
+    <file>ezGreyBoxComponent.png</file>
+    <file>ezDebugTextComponent.png</file>
   </qresource>  
 </RCC>

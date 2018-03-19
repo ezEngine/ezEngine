@@ -140,8 +140,13 @@ void ezMeshRenderer::FillPerInstanceData(ezArrayPtr<ezPerInstanceData> instanceD
     }
     else
     {
+      ezMat3 mInverse = objectToWorld.GetRotationalPart();
+      mInverse.Invert(0.0f);
+      // we explicitly ignore the return value here (success / failure)
+      // because when we have a scale of 0 (which happens temporarily during editing) that would be annoying
+
       ezShaderTransform shaderT;
-      shaderT = objectToWorld.GetRotationalPart().GetInverse(0.0f).GetTranspose();
+      shaderT = mInverse.GetTranspose();
       perInstanceData.ObjectToWorldNormal = shaderT;
     }
 
