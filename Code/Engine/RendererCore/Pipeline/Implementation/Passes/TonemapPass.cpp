@@ -61,15 +61,15 @@ bool ezTonemapPass::GetRenderTargetDescriptions(const ezView& view, const ezArra
     {
       const ezGALTexture* pTexture = pTargetView->GetTexture();
       const ezGALTextureCreationDescription& desc = pTexture->GetDescription();
-      if (desc.m_uiWidth != pColorInput->m_uiWidth || desc.m_uiHeight != pColorInput->m_uiHeight)
-      {
-        ezLog::Error("Render target sizes don't match");
-        return false;
-      }
+      //if (desc.m_uiWidth != pColorInput->m_uiWidth || desc.m_uiHeight != pColorInput->m_uiHeight)
+      //{
+      //  ezLog::Error("Render target sizes don't match");
+      //  return false;
+      //}
 
       // TODO: Andreas: This line breaks stuff, probably because SetAsRenderTarget would ensure other settings are correct
       //outputs[m_PinOutput.m_uiOutputIndex] = desc;
-      outputs[m_PinOutput.m_uiOutputIndex].SetAsRenderTarget(desc.m_uiWidth, desc.m_uiHeight, desc.m_Format);
+      outputs[m_PinOutput.m_uiOutputIndex].SetAsRenderTarget(pColorInput->m_uiWidth, pColorInput->m_uiHeight, desc.m_Format);
     }
     else
     {

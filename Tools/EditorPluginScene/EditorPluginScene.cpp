@@ -146,6 +146,8 @@ void ezCameraComponent_PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e
   auto& props = *e.m_pPropertyStates;
 
   props["RenderTarget"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Disabled;
+  props["RenderTargetOffset"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  props["RenderTargetSize"].m_Visibility = isRenderTarget ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
 }
 
 

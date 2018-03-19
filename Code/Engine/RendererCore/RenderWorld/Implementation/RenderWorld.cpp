@@ -168,10 +168,10 @@ void ezRenderWorld::AddViewToRender(const ezViewHandle& hView)
     EZ_LOCK(s_ViewsToRenderMutex);
     EZ_ASSERT_DEV(s_bInExtract, "Render views need to be collected during extraction");
 
-    if (!s_ViewsToRender.Contains(pView))
-    {
-      s_ViewsToRender.PushBack(pView);
-    }
+    if (s_ViewsToRender.Contains(pView))
+      return;
+    
+    s_ViewsToRender.PushBack(pView);
   }
 
   if (CVarMultithreadedRendering)

@@ -68,6 +68,12 @@ public:
   void SetRenderTargetFile(const char* szFile);
   const char* GetRenderTargetFile() const;
 
+  void SetRenderTargetRectOffset(ezVec2 value);
+  ezVec2 GetRenderTargetRectOffset() const { return m_RenderTargetRectOffset; }
+
+  void SetRenderTargetRectSize(ezVec2 value);
+  ezVec2 GetRenderTargetRectSize() const { return m_RenderTargetRectSize; }
+
   ezEnum<ezCameraMode> GetCameraMode() const { return m_Mode; }
   void SetCameraMode(ezEnum<ezCameraMode> val);
 
@@ -137,5 +143,7 @@ private:
   void DeactivateRenderToTexture();
 
   ezViewHandle m_hRenderTargetView;
+  ezVec2 m_RenderTargetRectOffset = ezVec2(0.0f);
+  ezVec2 m_RenderTargetRectSize = ezVec2(1.0f);
   ezCamera m_RenderTargetCamera;
 };

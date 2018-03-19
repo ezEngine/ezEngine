@@ -114,13 +114,15 @@ void ezCameraComponentManager::OnViewCreated(ezView* pView)
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 6, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 7, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_ACCESSOR_PROPERTY("UsageHint", ezCameraUsageHint, GetUsageHint, SetUsageHint),
     EZ_ENUM_ACCESSOR_PROPERTY("Mode", ezCameraMode, GetCameraMode, SetCameraMode),
     EZ_ACCESSOR_PROPERTY("RenderTarget", GetRenderTargetFile, SetRenderTargetFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
+    EZ_ACCESSOR_PROPERTY("RenderTargetOffset", GetRenderTargetRectOffset, SetRenderTargetRectOffset)->AddAttributes(new ezClampValueAttribute(ezVec2(0.0f), ezVec2(0.9f))),
+    EZ_ACCESSOR_PROPERTY("RenderTargetSize", GetRenderTargetRectSize, SetRenderTargetRectSize)->AddAttributes(new ezDefaultValueAttribute(ezVec2(1.0f)), new ezClampValueAttribute(ezVec2(0.1f), ezVec2(1.0f))),
     EZ_ACCESSOR_PROPERTY("NearPlane", GetNearPlane, SetNearPlane)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.01f, 4.0f)),
     EZ_ACCESSOR_PROPERTY("FarPlane", GetFarPlane, SetFarPlane)->AddAttributes(new ezDefaultValueAttribute(1000.0f), new ezClampValueAttribute(5.0, 10000.0f)),
     EZ_ACCESSOR_PROPERTY("FOV", GetFieldOfView, SetFieldOfView)->AddAttributes(new ezDefaultValueAttribute(60.0f), new ezClampValueAttribute(1.0f, 170.0f)),
@@ -192,6 +194,10 @@ void ezCameraComponent::SerializeComponent(ezWorldWriter& stream) const
 
   // Version 6
   s << m_hRenderTarget;
+
+  // Version 7
+  s << m_RenderTargetRectOffset;
+  s << m_RenderTargetRectSize;
 }
 
 void ezCameraComponent::DeserializeComponent(ezWorldReader& stream)
@@ -236,6 +242,12 @@ void ezCameraComponent::DeserializeComponent(ezWorldReader& stream)
   if (uiVersion >= 6)
   {
     s >> m_hRenderTarget;
+  }
+
+  if (uiVersion >= 7)
+  {
+    s >> m_RenderTargetRectOffset;
+    s >> m_RenderTargetRectSize;
   }
   
   MarkAsModified();
@@ -304,6 +316,26 @@ const char* ezCameraComponent::GetRenderTargetFile() const
     return "";
 
   return m_hRenderTarget.GetResourceID();
+}
+
+void ezCameraComponent::SetRenderTargetRectOffset(ezVec2 value)
+{
+  DeactivateRenderToTexture();
+
+  m_RenderTargetRectOffset.x = ezMath::Clamp(value.x, 0.0f, 0.9f);
+  m_RenderTargetRectOffset.y = ezMath::Clamp(value.y, 0.0f, 0.9f);
+
+  ActivateRenderToTexture();
+}
+
+void ezCameraComponent::SetRenderTargetRectSize(ezVec2 value)
+{
+  DeactivateRenderToTexture();
+
+  m_RenderTargetRectSize.x = ezMath::Clamp(value.x, 0.1f, 1.0f);
+  m_RenderTargetRectSize.y = ezMath::Clamp(value.y, 0.1f, 1.0f);
+
+  ActivateRenderToTexture();
 }
 
 void ezCameraComponent::SetCameraMode(ezEnum<ezCameraMode> val)
@@ -587,7 +619,13 @@ void ezCameraComponent::ActivateRenderToTexture()
   renderTargetSetup.SetRenderTarget(0, pRenderTarget->GetRenderTargetView());
   pRenderTargetView->SetRenderTargetSetup(renderTargetSetup);
 
-  pRenderTargetView->SetViewport(ezRectFloat(0.0f, 0.0f, 256.0f, 256.0f));
+  const float maxSizeX = 1.0f - m_RenderTargetRectOffset.x;
+  const float maxSizeY = 1.0f - m_RenderTargetRectOffset.y;
+
+  const float width = (float)pRenderTarget->GetWidth() * ezMath::Min(maxSizeX, m_RenderTargetRectSize.x);
+  const float height = (float)pRenderTarget->GetHeight() * ezMath::Min(maxSizeY, m_RenderTargetRectSize.y);
+
+  pRenderTargetView->SetViewport(ezRectFloat(m_RenderTargetRectOffset.x, m_RenderTargetRectOffset.y, width, height));
 
   pRenderTarget->AddRenderView(m_hRenderTargetView);
 
