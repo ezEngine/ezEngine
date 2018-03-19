@@ -6,6 +6,7 @@
 #include <Core/Graphics/Camera.h>
 
 class ezView;
+struct ezResourceEvent;
 
 class EZ_RENDERERCORE_DLL ezCameraComponentManager : public ezComponentManager<class ezCameraComponent, ezBlockStorageType::Compact>
 {
@@ -106,6 +107,8 @@ public:
   void ApplySettingsToView(ezView* pView) const;
 
 private:
+  void ResourceChangeEventHandler(const ezResourceEvent& e);
+
   ezEnum<ezCameraUsageHint> m_UsageHint;
   ezEnum<ezCameraMode> m_Mode;
   ezTexture2DResourceHandle m_hRenderTarget;
@@ -128,6 +131,7 @@ private:
 
   bool m_bIsModified;
   bool m_bShowStats;
+  bool m_bRenderTargetInitialized = false;
 
   void ActivateRenderToTexture();
   void DeactivateRenderToTexture();

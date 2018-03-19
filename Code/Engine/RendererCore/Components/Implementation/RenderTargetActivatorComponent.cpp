@@ -3,6 +3,8 @@
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 
 EZ_BEGIN_COMPONENT_TYPE(ezRenderTargetActivatorComponent, 1, ezComponentMode::Static)
 {
@@ -38,7 +40,7 @@ void ezRenderTargetActivatorComponent::SerializeComponent(ezWorldWriter& stream)
 void ezRenderTargetActivatorComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   ezStreamReader& s = stream.GetStream();
 

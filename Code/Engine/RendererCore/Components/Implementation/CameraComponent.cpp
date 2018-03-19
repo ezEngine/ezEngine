@@ -7,6 +7,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <RendererCore/Textures/Texture2DResource.h>
+#include <Core/ResourceManager/ResourceBase.h>
 
 
 ezCameraComponentManager::ezCameraComponentManager(ezWorld* pWorld)
@@ -242,14 +243,19 @@ void ezCameraComponent::DeserializeComponent(ezWorldReader& stream)
 
 void ezCameraComponent::UpdateRenderTargetCamera()
 {
-  if (m_hRenderTargetView.IsInvalidated())
+  if (!m_bRenderTargetInitialized)
     return;
+
+  if (m_hRenderTargetView.IsInvalidated())
+  {
+    DeactivateRenderToTexture();
+    ActivateRenderToTexture();
+  }
 
   ezView* pView = nullptr;
   if (!ezRenderWorld::TryGetView(m_hRenderTargetView, pView))
     return;
 
-  //ezLog::Debug("Moving camera view");
   ApplySettingsToView(pView);
 
   if (m_Mode == ezCameraMode::PerspectiveFixedFovX || m_Mode == ezCameraMode::PerspectiveFixedFovY)
@@ -282,10 +288,7 @@ void ezCameraComponent::SetRenderTargetFile(const char* szFile)
     m_hRenderTarget.Invalidate();
   }
 
-  if (IsActiveAndInitialized())
-  {
-    ActivateRenderToTexture();
-  }
+  ActivateRenderToTexture();
 }
 
 const char* ezCameraComponent::GetRenderTargetFile() const
@@ -491,6 +494,32 @@ void ezCameraComponent::ApplySettingsToView(ezView* pView) const
   }
 }
 
+void ezCameraComponent::ResourceChangeEventHandler(const ezResourceEvent& e)
+{
+  switch (e.m_EventType)
+  {
+  case ezResourceEventType::ResourceExists:
+  case ezResourceEventType::ResourceCreated:
+  case ezResourceEventType::ResourceInPreloadQueue:
+  case ezResourceEventType::ResourceOutOfPreloadQueue:
+  case ezResourceEventType::ResourcePriorityChanged:
+  case ezResourceEventType::ResourceDueDateChanged:
+    return;
+
+  case ezResourceEventType::ResourceDeleted:
+  case ezResourceEventType::ResourceContentUnloading:
+  case ezResourceEventType::ResourceContentUpdated:
+    // triggers a recreation of the view
+    ezRenderWorld::DeleteView(m_hRenderTargetView);
+    m_hRenderTargetView.Invalidate();
+    break;
+    
+  default:
+    EZ_ASSERT_NOT_IMPLEMENTED;
+    break;
+  }
+}
+
 void ezCameraComponent::MarkAsModified()
 {
   if (!m_bIsModified)
@@ -512,8 +541,10 @@ void ezCameraComponent::MarkAsModified(ezCameraComponentManager* pCameraManager)
 
 void ezCameraComponent::ActivateRenderToTexture()
 {
-  if (!m_hRenderTarget.IsValid() || !m_hRenderPipeline.IsValid())
+  if (m_bRenderTargetInitialized || !m_hRenderTarget.IsValid() || !m_hRenderPipeline.IsValid() || !IsActiveAndInitialized())
     return;
+
+  m_bRenderTargetInitialized = true;
 
   EZ_ASSERT_DEV(m_hRenderTargetView.IsInvalidated(), "Render target view is already created");
 
@@ -531,8 +562,7 @@ void ezCameraComponent::ActivateRenderToTexture()
   ezResourceLock<ezTexture2DResource> pRenderTarget(m_hRenderTarget, ezResourceAcquireMode::NoFallback);
   pRenderTarget->AddRenderView(m_hRenderTargetView);
 
-  // TODO: listen to resource change events and update GetRenderTargetView
-  //pRenderTarget->m_ResourceEvents
+  pRenderTarget->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezCameraComponent::ResourceChangeEventHandler, this));
 
   ezGALRenderTagetSetup renderTargetSetup;
   renderTargetSetup.SetRenderTarget(0, pRenderTarget->GetRenderTargetView());
@@ -545,17 +575,24 @@ void ezCameraComponent::ActivateRenderToTexture()
 
 void ezCameraComponent::DeactivateRenderToTexture()
 {
-  if (m_hRenderTargetView.IsInvalidated())
+  if (!m_bRenderTargetInitialized)
     return;
+
+  m_bRenderTargetInitialized = false;
 
   if (m_hRenderTarget.IsValid())
   {
     ezResourceLock<ezTexture2DResource> pRenderTarget(m_hRenderTarget, ezResourceAcquireMode::NoFallback);
     pRenderTarget->RemoveRenderView(m_hRenderTargetView);
+
+    pRenderTarget->m_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezCameraComponent::ResourceChangeEventHandler, this));
   }
 
-  ezRenderWorld::DeleteView(m_hRenderTargetView);
-  m_hRenderTargetView.Invalidate();
+  if (!m_hRenderTargetView.IsInvalidated())
+  {
+    ezRenderWorld::DeleteView(m_hRenderTargetView);
+    m_hRenderTargetView.Invalidate();
+  }
 
   GetWorld()->GetComponentManager<ezCameraComponentManager>()->RemoveRenderTargetCamera(this);
 }
