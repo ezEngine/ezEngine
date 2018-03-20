@@ -8,7 +8,7 @@ o
 	p
 	{
 		b %Active{1}
-		s %Texture{"{ 7f9c0caa-e97d-42a1-9876-aea78054f1bb }"}
+		s %Texture{"{ 045da91f-697c-4263-8910-5f752ec262b2 }"}
 	}
 }
 o
@@ -106,13 +106,13 @@ AssetInfo
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{6028645562929625279,5599727518380253252}}
-		u4 %Hash{9087912691128122414}
+		u4 %Hash{8537293201137645653}
 		VarArray %Outputs{}
 		VarArray %References
 		{
+			s{"{ 045da91f-697c-4263-8910-5f752ec262b2 }"}
 			s{"{ 778150d4-9e85-4d17-85dd-f59df122b7b4 }"}
 			s{"{ 7bcc99a5-96bc-40a5-9a4e-1d8e143c320a }"}
-			s{"{ 7f9c0caa-e97d-42a1-9876-aea78054f1bb }"}
 			s{"{ d615cd66-0904-00ca-81f9-768ff4fc24ee }"}
 		}
 	}

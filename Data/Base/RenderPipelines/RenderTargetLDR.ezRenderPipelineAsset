@@ -157,7 +157,7 @@ o
 		Uuid %DepthStencil{u4{12877740614784363525,6341231878583231987}}
 		s %Name{""}
 		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0xD0FBBD44,0xCF1FE343}}
+		Vec2 %Node::Pos{f{0x51BBBD44,0xD69CE143}}
 		VarArray %Renderers{}
 	}
 }
@@ -206,7 +206,7 @@ o
 		{
 			Uuid{u4{6448608134179885883,5732462307017155733}}
 		}
-		Vec2 %Node::Pos{f{0x09849F44,0xD393DC43}}
+		Vec2 %Node::Pos{f{0x8C62A044,0x15B1E143}}
 		Uuid %Output{u4{9508631447697938536,5321309659819446674}}
 		VarArray %Renderers{}
 		f %Saturation{0x0000803F}

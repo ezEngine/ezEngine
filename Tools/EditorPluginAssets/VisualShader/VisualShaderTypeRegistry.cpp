@@ -422,7 +422,7 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElem
 
           // apparently the attributes are deallocated using the type allocator, so we must allocate them here through RTTI as well
           ezAssetBrowserAttribute* pAttr = static_cast<ezAssetBrowserAttribute*>(ezAssetBrowserAttribute::GetStaticRTTI()->GetAllocator()->Allocate());
-          pAttr->SetTypeFilter("Texture 2D");
+          pAttr->SetTypeFilter("Texture 2D;Render Target");
           prop.m_Attributes.PushBack(pAttr);
         }
         else

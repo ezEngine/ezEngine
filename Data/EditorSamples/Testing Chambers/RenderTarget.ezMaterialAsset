@@ -41,14 +41,14 @@ AssetInfo
 			s{":app/VisualShader/Textures.ddl"}
 		}
 		Uuid %DocumentID{u4{734715748196109978,4658295125859670437}}
-		u4 %Hash{14108865102576430380}
+		u4 %Hash{15386880659530283802}
 		VarArray %Outputs
 		{
 			s{"VISUAL_SHADER"}
 		}
 		VarArray %References
 		{
-			s{"{ 7f9c0caa-e97d-42a1-9876-aea78054f1bb }"}
+			s{"{ 045da91f-697c-4263-8910-5f752ec262b2 }"}
 			s{"{ df2b3baa-c49c-4875-b43d-89e082c6db12 }"}
 		}
 	}
@@ -93,7 +93,7 @@ o
 			Uuid{u4{7102680239746268696,2944477324470530961}}
 		}
 		Vec2 %Node::Pos{f{0x8C56A8C2,0x6173B042}}
-		s %Texture{"{ 7f9c0caa-e97d-42a1-9876-aea78054f1bb }"}
+		s %Texture{""}
 	}
 }
 o
@@ -233,7 +233,7 @@ o
 	p
 	{
 		s %BLEND_MODE{"BLEND_MODE::BLEND_MODE_OPAQUE"}
-		s %BaseTexture{"{ 7f9c0caa-e97d-42a1-9876-aea78054f1bb }"}
+		s %BaseTexture{"{ 045da91f-697c-4263-8910-5f752ec262b2 }"}
 		s %CustomTexture{"{ df2b3baa-c49c-4875-b43d-89e082c6db12 }"}
 		f %MaskThreshold{0x0000803E}
 		s %SHADING_MODE{"SHADING_MODE::SHADING_MODE_LIT"}
@@ -592,7 +592,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Filter{";Texture 2D;"}
+		s %Filter{";Texture 2D;Render Target;"}
 	}
 }
 o
@@ -757,7 +757,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Filter{";Texture 2D;"}
+		s %Filter{";Texture 2D;Render Target;"}
 	}
 }
 o
@@ -921,7 +921,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Filter{";Texture 2D;"}
+		s %Filter{";Texture 2D;Render Target;"}
 	}
 }
 o
@@ -998,7 +998,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Filter{";Texture 2D;"}
+		s %Filter{";Texture 2D;Render Target;"}
 	}
 }
 o

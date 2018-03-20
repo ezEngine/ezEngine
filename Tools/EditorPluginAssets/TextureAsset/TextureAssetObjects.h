@@ -25,7 +25,6 @@ struct ezTexture2DUsageEnum
     Mask,
     LookupTable,
     HDR,
-    RenderTarget,
 
     Default = Unknown,
   };
@@ -125,6 +124,7 @@ public:
   bool IsSRGB() const;
   bool IsHDR() const;
 
+  bool m_bIsRenderTarget = false;
   bool m_bMipmaps;
   bool m_bCompression;
   bool m_bPremultipliedAlpha;

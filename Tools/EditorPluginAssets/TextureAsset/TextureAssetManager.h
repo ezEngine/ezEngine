@@ -16,6 +16,7 @@ public:
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
   {
     inout_AssetTypeNames.Insert("Texture 2D");
+    inout_AssetTypeNames.Insert("Render Target");
   }
 
 
@@ -31,5 +32,6 @@ private:
 
 private:
   ezDocumentTypeDescriptor m_AssetDesc;
+  ezDocumentTypeDescriptor m_AssetDescRT;
 };
 

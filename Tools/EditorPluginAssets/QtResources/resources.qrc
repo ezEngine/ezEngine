@@ -21,6 +21,7 @@
     <file>Texture_Linear.png</file>
     <file>Animation_Clip.png</file>
     <file>Skeleton.png</file>
+    <file>Render_Target.png</file>
   </qresource>
   <qresource prefix="EditorPluginAssets">
     <file>VSE_CleanGraph16.png</file>

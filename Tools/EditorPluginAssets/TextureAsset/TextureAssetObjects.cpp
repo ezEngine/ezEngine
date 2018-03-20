@@ -9,7 +9,6 @@ EZ_ENUM_CONSTANTS(ezTexture2DUsageEnum::Unknown, ezTexture2DUsageEnum::Diffuse, 
 EZ_ENUM_CONSTANTS(ezTexture2DUsageEnum::EmissiveColor, ezTexture2DUsageEnum::Height, ezTexture2DUsageEnum::Mask, ezTexture2DUsageEnum::LookupTable)
 EZ_ENUM_CONSTANTS(ezTexture2DUsageEnum::HDR)
 EZ_ENUM_CONSTANTS(ezTexture2DUsageEnum::Other_sRGB, ezTexture2DUsageEnum::Other_Linear)//, ezTexture2DUsageEnum::Other_sRGB_Auto, ezTexture2DUsageEnum::Other_Linear_Auto)
-EZ_ENUM_CONSTANTS(ezTexture2DUsageEnum::RenderTarget)
 EZ_END_STATIC_REFLECTED_ENUM();
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexture2DChannelMappingEnum, 1)
@@ -33,6 +32,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 2, ezRTTIDefaultAlloca
   EZ_BEGIN_PROPERTIES
   {
     /// \todo Accessor properties with enums don't link
+    EZ_MEMBER_PROPERTY("IsRenderTarget", m_bIsRenderTarget)->AddAttributes(new ezHiddenAttribute),
     EZ_ENUM_MEMBER_PROPERTY("Usage", ezTexture2DUsageEnum, m_TextureUsage),
 
     EZ_ENUM_MEMBER_PROPERTY("Resolution", ezTexture2DResolution, m_Resolution),
@@ -65,10 +65,11 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
   {
     auto& props = *e.m_pPropertyStates;
 
-    const ezInt64 usage = e.m_pObject->GetTypeAccessor().GetValue("Usage").ConvertTo<ezInt64>();
+    const bool isRenderTarget = e.m_pObject->GetTypeAccessor().GetValue("IsRenderTarget").ConvertTo<bool>();
 
-    if (usage == ezTexture2DUsageEnum::RenderTarget)
+    if (isRenderTarget)
     {
+      props["Usage"].m_Visibility = ezPropertyUiState::Invisible;
       props["Mipmaps"].m_Visibility = ezPropertyUiState::Invisible;
       props["Compression"].m_Visibility = ezPropertyUiState::Invisible;
       props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Invisible;
@@ -84,6 +85,7 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
     }
     else
     {
+      props["Usage"].m_Visibility = ezPropertyUiState::Default;
       props["Mipmaps"].m_Visibility = ezPropertyUiState::Default;
       props["Compression"].m_Visibility = ezPropertyUiState::Default;
       props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Default;

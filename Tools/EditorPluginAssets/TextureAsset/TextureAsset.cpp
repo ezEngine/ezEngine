@@ -214,13 +214,30 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   return ezStatus(EZ_SUCCESS);
 }
 
+
+void ezTextureAssetDocument::InitializeAfterLoading()
+{
+  SUPER::InitializeAfterLoading();
+
+  if (m_bIsRenderTarget)
+  {
+    if (GetProperties()->m_bIsRenderTarget == false)
+    {
+      GetCommandHistory()->StartTransaction("MakeRenderTarget");
+      GetObjectAccessor()->SetValue(GetPropertyObject(), "IsRenderTarget", true);
+      GetCommandHistory()->FinishTransaction();
+      GetCommandHistory()->ClearUndoHistory();
+    }
+  }
+}
+
 ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
 
   const auto props = GetProperties();
 
-  if (props->m_TextureUsage == ezTexture2DUsageEnum::RenderTarget)
+  if (m_bIsRenderTarget)
   {
     ezDeferredFileWriter file;
     file.SetOutput(szTargetFile);
@@ -303,6 +320,11 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile
 
 const char* ezTextureAssetDocument::QueryAssetType() const
 {
+  if (m_bIsRenderTarget)
+  {
+    return "Render Target";
+  }
+
   return "Texture 2D";
 }
 

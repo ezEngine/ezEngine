@@ -1,14 +1,30 @@
 Objects
 {
+AssetInfo
+{
+	Uuid %id{u4{12854049791262265481,4783783210567706911}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Render Target"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{12854049791262265481,4783783210567706911}}
+		u4 %Hash{8099415144996230679}
+		VarArray %Outputs{}
+		VarArray %References{}
+	}
+}
 o
 {
-	Uuid %id{u4{5008534345009017527,4747806167108538054}}
+	Uuid %id{u4{1737695103068179391,4795022255073360184}}
 	s %t{"ezTextureAssetProperties"}
 	u3 %v{2}
 	p
 	{
-		s %AddressModeU{"ezTexture2DAddressMode::Clamp"}
-		s %AddressModeV{"ezTexture2DAddressMode::Clamp"}
+		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
@@ -17,27 +33,12 @@ o
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
+		b %IsRenderTarget{1}
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %Resolution{"ezTexture2DResolution::Fixed256x256"}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTexture2DUsageEnum::RenderTarget"}
-	}
-}
-AssetInfo
-{
-	Uuid %id{u4{13542698466025567896,4801375402974776490}}
-	s %t{"ezAssetDocumentInfo"}
-	u3 %v{1}
-	s %n{"Header"}
-	p
-	{
-		s %AssetType{"Texture 2D"}
-		VarArray %Dependencies{}
-		Uuid %DocumentID{u4{13542698466025567896,4801375402974776490}}
-		u4 %Hash{7570495827803877079}
-		VarArray %Outputs{}
-		VarArray %References{}
+		s %Usage{"ezTexture2DUsageEnum::Unknown"}
 	}
 }
 o
@@ -50,7 +51,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{5008534345009017527,4747806167108538054}}
+			Uuid{u4{1737695103068179391,4795022255073360184}}
 		}
 	}
 }

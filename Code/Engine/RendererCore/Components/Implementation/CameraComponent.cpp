@@ -120,7 +120,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 7, ezComponentMode::Static)
   {
     EZ_ENUM_ACCESSOR_PROPERTY("UsageHint", ezCameraUsageHint, GetUsageHint, SetUsageHint),
     EZ_ENUM_ACCESSOR_PROPERTY("Mode", ezCameraMode, GetCameraMode, SetCameraMode),
-    EZ_ACCESSOR_PROPERTY("RenderTarget", GetRenderTargetFile, SetRenderTargetFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
+    EZ_ACCESSOR_PROPERTY("RenderTarget", GetRenderTargetFile, SetRenderTargetFile)->AddAttributes(new ezAssetBrowserAttribute("Render Target")),
     EZ_ACCESSOR_PROPERTY("RenderTargetOffset", GetRenderTargetRectOffset, SetRenderTargetRectOffset)->AddAttributes(new ezClampValueAttribute(ezVec2(0.0f), ezVec2(0.9f))),
     EZ_ACCESSOR_PROPERTY("RenderTargetSize", GetRenderTargetRectSize, SetRenderTargetRectSize)->AddAttributes(new ezDefaultValueAttribute(ezVec2(1.0f)), new ezClampValueAttribute(ezVec2(0.1f), ezVec2(1.0f))),
     EZ_ACCESSOR_PROPERTY("NearPlane", GetNearPlane, SetNearPlane)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.01f, 4.0f)),
@@ -631,9 +631,7 @@ void ezCameraComponent::ActivateRenderToTexture()
   const float offsetX = m_RenderTargetRectOffset.x * resX;
   const float offsetY = m_RenderTargetRectOffset.y * resY;
 
-  // TODO: adding the offset makes no sense, but somehow it works
-  // TODO: also, the rendered image area moves when changing the offset, which should not be the case (view-projection matrix wrong?)
-  pRenderTargetView->SetViewport(ezRectFloat(offsetX, offsetY, offsetX + width, offsetY + height));
+  pRenderTargetView->SetViewport(ezRectFloat(offsetX, offsetY, width, height));
 
   pRenderTarget->AddRenderView(m_hRenderTargetView);
 

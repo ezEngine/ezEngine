@@ -2,7 +2,8 @@
 #include <EditorPluginAssets/TextureAsset/TextureAssetManager.h>
 #include <EditorPluginAssets/TextureAsset/TextureAsset.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetWindow.moc.h>
-#include "ToolsFoundation/Assets/AssetFileExtensionWhitelist.h"
+#include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
+#include <GuiFoundation/UIServices/ImageCache.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezTextureAssetDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -25,6 +26,15 @@ ezTextureAssetDocumentManager::ezTextureAssetDocumentManager()
   m_AssetDesc.m_sIcon = ":/AssetIcons/Texture_2D.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezTextureAssetDocument>();
   m_AssetDesc.m_pManager = this;
+
+  m_AssetDescRT.m_bCanCreate = true;
+  m_AssetDescRT.m_sDocumentTypeName = "Render Target Asset";
+  m_AssetDescRT.m_sFileExtension = "ezRenderTargetAsset";
+  m_AssetDescRT.m_sIcon = ":/AssetIcons/Render_Target.png";
+  m_AssetDescRT.m_pDocumentType = ezGetStaticRTTI<ezTextureAssetDocument>();
+  m_AssetDescRT.m_pManager = this;
+
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("Render Target", QPixmap(":/AssetIcons/Render_Target.png"));
 }
 
 ezTextureAssetDocumentManager::~ezTextureAssetDocumentManager()
@@ -35,7 +45,14 @@ ezTextureAssetDocumentManager::~ezTextureAssetDocumentManager()
 
 ezBitflags<ezAssetDocumentFlags> ezTextureAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
 {
-  return ezAssetDocumentFlags::AutoThumbnailOnTransform;
+  if (pDescriptor->m_sDocumentTypeName == "Render Target Asset")
+  {
+    return ezAssetDocumentFlags::AutoTransformOnSave;
+  }
+  else // Texture 2D
+  {
+    return ezAssetDocumentFlags::AutoThumbnailOnTransform;
+  }
 }
 
 void ezTextureAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
@@ -55,7 +72,13 @@ void ezTextureAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
 
 ezStatus ezTextureAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument)
 {
-  out_pDocument = new ezTextureAssetDocument(szPath);
+  ezTextureAssetDocument* pDoc = new ezTextureAssetDocument(szPath);
+  out_pDocument = pDoc;
+
+  if (ezStringUtils::IsEqual(szDocumentTypeName, "Render Target Asset"))
+  {
+    pDoc->m_bIsRenderTarget = true;
+  }
 
   return ezStatus(EZ_SUCCESS);
 }
@@ -63,6 +86,7 @@ ezStatus ezTextureAssetDocumentManager::InternalCreateDocument(const char* szDoc
 void ezTextureAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_AssetDescRT);
 }
 
 
