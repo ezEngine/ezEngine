@@ -27,6 +27,10 @@ EZ_ENUM_CONSTANTS(ezTexture2DResolution::Fixed64x64, ezTexture2DResolution::Fixe
 EZ_ENUM_CONSTANTS(ezTexture2DResolution::CVarRtResolution1, ezTexture2DResolution::CVarRtResolution2)
 EZ_END_STATIC_REFLECTED_ENUM();
 
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRenderTargetFormat, 1)
+EZ_ENUM_CONSTANTS(ezRenderTargetFormat::RGBA8sRgb, ezRenderTargetFormat::RGBA8, ezRenderTargetFormat::RGB10, ezRenderTargetFormat::RGBA16)
+EZ_END_STATIC_REFLECTED_ENUM();
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 2, ezRTTIDefaultAllocator<ezTextureAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
@@ -35,6 +39,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 2, ezRTTIDefaultAlloca
     EZ_MEMBER_PROPERTY("IsRenderTarget", m_bIsRenderTarget)->AddAttributes(new ezHiddenAttribute),
     EZ_ENUM_MEMBER_PROPERTY("Usage", ezTexture2DUsageEnum, m_TextureUsage),
 
+    EZ_ENUM_MEMBER_PROPERTY("Format", ezRenderTargetFormat, m_RtFormat),
     EZ_ENUM_MEMBER_PROPERTY("Resolution", ezTexture2DResolution, m_Resolution),
     EZ_MEMBER_PROPERTY("CVarResScale", m_fCVarResolutionScale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
 
@@ -86,6 +91,7 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
       props["Input3"].m_Visibility = ezPropertyUiState::Invisible;
       props["Input4"].m_Visibility = ezPropertyUiState::Invisible;
 
+      props["Format"].m_Visibility = ezPropertyUiState::Default;
       props["Resolution"].m_Visibility = ezPropertyUiState::Default;
     }
     else
@@ -97,6 +103,7 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
       props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Default;
       props["FlipHorizontal"].m_Visibility = ezPropertyUiState::Default;
       props["ChannelMapping"].m_Visibility = ezPropertyUiState::Default;
+      props["Format"].m_Visibility = ezPropertyUiState::Invisible;
       props["Resolution"].m_Visibility = ezPropertyUiState::Invisible;
 
       const ezInt64 mapping = e.m_pObject->GetTypeAccessor().GetValue("ChannelMapping").ConvertTo<ezInt64>();

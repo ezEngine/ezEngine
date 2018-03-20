@@ -67,8 +67,6 @@ bool ezTonemapPass::GetRenderTargetDescriptions(const ezView& view, const ezArra
       //  return false;
       //}
 
-      // TODO: Andreas: This line breaks stuff, probably because SetAsRenderTarget would ensure other settings are correct
-      //outputs[m_PinOutput.m_uiOutputIndex] = desc;
       outputs[m_PinOutput.m_uiOutputIndex].SetAsRenderTarget(pColorInput->m_uiWidth, pColorInput->m_uiHeight, desc.m_Format);
     }
     else

@@ -222,6 +222,12 @@ ezResult ezTextureResourceLoader::LoadTexFile(ezStreamReader& stream, LoadedData
     stream >> data.m_fResolutionScale;
   }
 
+  data.m_GalRenderTargetFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+  if (uiTexFileFormatVersion >= 5)
+  {
+    stream >> data.m_GalRenderTargetFormat;
+  }
+
   if (data.m_iRenderTargetResolutionX == 0)
   {
     ezDdsFileFormat fmt;
@@ -247,6 +253,7 @@ void ezTextureResourceLoader::WriteTextureLoadStream(ezStreamWriter& w, const Lo
   w << data.m_iRenderTargetResolutionX;
   w << data.m_iRenderTargetResolutionY;
   w << data.m_fResolutionScale;
+  w << data.m_GalRenderTargetFormat;
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_TextureLoader);

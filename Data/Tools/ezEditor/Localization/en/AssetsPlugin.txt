@@ -147,3 +147,7 @@ MeshImport.NoMaterials;Mesh only
 DecalImport.All;Decal
 CubemapImport.Skybox;Skybox
 CubemapImport.SkyboxHDR;HDR Skybox
+ezRenderTargetFormat::RGBA8;RGBA8 (linear)
+ezRenderTargetFormat::RGBA8sRgb;RGBA8 (sRGB)
+ezRenderTargetFormat::RGB10;RGB10
+ezRenderTargetFormat::RGBA16;RGBA16

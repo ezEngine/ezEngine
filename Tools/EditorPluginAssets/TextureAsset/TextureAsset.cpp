@@ -245,7 +245,7 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile
     AssetHeader.Write(file);
 
     // TODO: move this into a shared location, reuse in ezTexConv::WriteTexHeader
-    const ezUInt8 uiTexFileFormatVersion = 4;
+    const ezUInt8 uiTexFileFormatVersion = 5;
     file << uiTexFileFormatVersion;
 
     file << props->IsSRGB();
@@ -294,9 +294,31 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile
       EZ_ASSERT_NOT_IMPLEMENTED;
     }
 
+    ezGALResourceFormat::Enum format = ezGALResourceFormat::Invalid;
+
+    switch (props->m_RtFormat)
+    {
+    case ezRenderTargetFormat::RGBA8:
+      format = ezGALResourceFormat::RGBAUByteNormalized;
+      break;
+
+    case ezRenderTargetFormat::RGBA8sRgb:
+      format = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+      break;
+
+    case ezRenderTargetFormat::RGB10:
+      format = ezGALResourceFormat::RG11B10Float;
+      break;
+
+    case ezRenderTargetFormat::RGBA16:
+      format = ezGALResourceFormat::RGBAHalf;
+      break;
+    }
+
     file << resX;
     file << resY;
     file << props->m_fCVarResolutionScale;
+    file << (int)format;
 
 
     if (file.Close().Failed())

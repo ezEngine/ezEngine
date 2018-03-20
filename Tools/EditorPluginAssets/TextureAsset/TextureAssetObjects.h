@@ -97,6 +97,23 @@ struct ezTexture2DResolution
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTexture2DResolution);
 
+struct ezRenderTargetFormat
+{
+  typedef ezInt8 StorageType;
+
+  enum Enum
+  {
+    RGBA8sRgb,
+    RGBA8,
+    RGB10,
+    RGBA16,
+
+    Default = RGBA8sRgb
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezRenderTargetFormat);
+
 class ezTextureAssetProperties : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezTextureAssetProperties, ezReflectedClass);
@@ -138,6 +155,7 @@ public:
   ezEnum<ezTexture2DAddressMode> m_AddressModeW;
   ezEnum<ezTexture2DResolution> m_Resolution;
   ezEnum<ezTexture2DUsageEnum> m_TextureUsage;
+  ezEnum<ezRenderTargetFormat> m_RtFormat;
 
 private:
   ezEnum<ezTexture2DChannelMappingEnum> m_ChannelMapping;

@@ -171,6 +171,7 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
   bool bSRGB = false;
   ezInt16 iRenderTargetResX = 0, iRenderTargetResY = 0;
   float fResolutionScale = 1.0f;
+  int galFormat = 0;
 
   // load image data
   {
@@ -194,6 +195,7 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
     *Stream >> iRenderTargetResX;
     *Stream >> iRenderTargetResY;
     *Stream >> fResolutionScale;
+    *Stream >> galFormat;
   }
 
   const bool bIsRenderTarget = iRenderTargetResX != 0;
@@ -220,7 +222,7 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
       }
     }
 
-    td.m_DescGAL.SetAsRenderTarget(iRenderTargetResX, iRenderTargetResY, ezGALResourceFormat::RGBAUByteNormalizedsRGB);
+    td.m_DescGAL.SetAsRenderTarget(iRenderTargetResX, iRenderTargetResY, static_cast<ezGALResourceFormat::Enum>(galFormat));
 
     ezTextureUtils::ConfigureSampler(textureFilter, td.m_SamplerDesc);
 
