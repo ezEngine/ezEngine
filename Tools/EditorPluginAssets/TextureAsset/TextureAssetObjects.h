@@ -87,8 +87,9 @@ struct ezTexture2DResolution
     Fixed256x256,
     Fixed512x512,
     Fixed1024x1024,
-    ScreenSize,
-    HalfScreenSize,
+    Fixed2048x2048,
+    CVarRtResolution1,
+    CVarRtResolution2,
 
     Default = Fixed256x256
   };
@@ -129,6 +130,7 @@ public:
   bool m_bCompression;
   bool m_bPremultipliedAlpha;
   bool m_bFlipHorizontal;
+  float m_fCVarResolutionScale = 1.0f;
 
   ezEnum<ezTextureFilterSetting> m_TextureFilter;
   ezEnum<ezTexture2DAddressMode> m_AddressModeU;

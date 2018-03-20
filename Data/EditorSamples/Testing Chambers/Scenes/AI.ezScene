@@ -4162,10 +4162,11 @@ AssetInfo
 			s{"{ 3a6a429e-a1b3-44cb-804c-eea15431d041 }"}
 		}
 		Uuid %DocumentID{u4{9682502431587507847,5134723567953877979}}
-		u4 %Hash{6194101864851951824}
+		u4 %Hash{17549663377709783165}
 		VarArray %Outputs{}
 		VarArray %References
 		{
+			s{"{ 045da91f-697c-4263-8910-5f752ec262b2 }"}
 			s{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
 			s{"{ 27eef412-bd5d-424b-9d58-48725a829568 }"}
 			s{"{ 3a6a429e-a1b3-44cb-804c-eea15431d041 }"}
@@ -4175,7 +4176,6 @@ AssetInfo
 			s{"{ 671e9e4b-557d-4e2b-8c99-b3891ca57020 }"}
 			s{"{ 695188cc-c0d9-4cfc-b1cf-6ac83787d285 }"}
 			s{"{ 6b7bcc15-ba46-4793-9e22-4051d11482c8 }"}
-			s{"{ 7f9c0caa-e97d-42a1-9876-aea78054f1bb }"}
 			s{"{ 94ac1de9-5cbe-4581-a57c-7caf78ab7294 }"}
 			s{"{ 95f9db13-7fa3-4832-b349-4e00a23b3b10 }"}
 			s{"{ ac0755c6-f78d-40ec-bfaa-55f2be674f87 }"}
@@ -5275,7 +5275,7 @@ o
 {
 	Uuid %id{u4{403480058135448968,5746257829549965984}}
 	s %t{"ezCameraComponent"}
-	u3 %v{6}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
@@ -5290,7 +5290,9 @@ o
 		s %Mode{"ezCameraMode::PerspectiveFixedFovY"}
 		f %NearPlane{0x0000803E}
 		s %RenderPipeline{"{ c5f16f65-8940-4283-9f91-b316dfa39e81 }"}
-		s %RenderTarget{"{ 7f9c0caa-e97d-42a1-9876-aea78054f1bb }"}
+		s %RenderTarget{"{ 045da91f-697c-4263-8910-5f752ec262b2 }"}
+		Vec2 %RenderTargetOffset{f{0,0}}
+		Vec2 %RenderTargetSize{f{0x0000803F,0x0000803F}}
 		b %ShowStats{0}
 		f %ShutterTime{0x0000803F}
 		s %UsageHint{"ezCameraUsageHint::RenderTarget"}
@@ -17272,8 +17274,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
-		u3 %TypeSize{504}
-		u3 %TypeVersion{6}
+		u3 %TypeSize{520}
+		u3 %TypeVersion{7}
 	}
 }
 o

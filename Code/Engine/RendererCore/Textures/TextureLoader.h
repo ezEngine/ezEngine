@@ -23,6 +23,7 @@ public:
     bool m_bSRGB = false;
     ezInt16 m_iRenderTargetResolutionX = 0;
     ezInt16 m_iRenderTargetResolutionY = 0;
+    float m_fResolutionScale = 1.0f;
     ezEnum<ezGALTextureAddressMode> m_addressModeU = ezGALTextureAddressMode::Wrap;
     ezEnum<ezGALTextureAddressMode> m_addressModeV = ezGALTextureAddressMode::Wrap;
     ezEnum<ezGALTextureAddressMode> m_addressModeW = ezGALTextureAddressMode::Wrap;

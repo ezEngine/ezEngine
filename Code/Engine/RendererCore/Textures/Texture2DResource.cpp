@@ -5,9 +5,13 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Textures/TextureUtils.h>
+#include <Foundation/Configuration/CVar.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTexture2DResource, 1, ezRTTIDefaultAllocator<ezTexture2DResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezCVarInt CVarRenderTargetResolution1("r_RenderTargetResolution1", 256, ezCVarFlags::Default, "Configurable render target resolution");
+ezCVarInt CVarRenderTargetResolution2("r_RenderTargetResolution2", 512, ezCVarFlags::Default, "Configurable render target resolution");
 
 ezTexture2DResource::ezTexture2DResource() : ezResource<ezTexture2DResource, ezTexture2DResourceDescriptor>(DoUpdate::OnAnyThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
 {
@@ -139,6 +143,15 @@ const ezDynamicArray<ezViewHandle>& ezTexture2DResource::GetAllRenderViews() con
   return m_RenderViews;
 }
 
+static int GetNextBestResolution(float res)
+{
+  res = ezMath::Clamp(res, 8.0f, 4096.0f);
+
+  int mulEight = (int)ezMath::Floor((res + 7.9f) / 8.0f);
+
+  return mulEight * 8;
+}
+
 ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
 {
   if (Stream == nullptr)
@@ -157,6 +170,7 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
   bool bIsFallback = false;
   bool bSRGB = false;
   ezInt16 iRenderTargetResX = 0, iRenderTargetResY = 0;
+  float fResolutionScale = 1.0f;
 
   // load image data
   {
@@ -179,6 +193,7 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
 
     *Stream >> iRenderTargetResX;
     *Stream >> iRenderTargetResY;
+    *Stream >> fResolutionScale;
   }
 
   const bool bIsRenderTarget = iRenderTargetResX != 0;
@@ -186,6 +201,24 @@ ezResourceLoadDesc ezTexture2DResource::UpdateContent(ezStreamReader* Stream)
   if (bIsRenderTarget)
   {
     EZ_ASSERT_DEV(m_uiLoadedTextures == 0, "not implemented");
+
+    if (iRenderTargetResX == -1)
+    {
+      if (iRenderTargetResY == 1)
+      {
+        iRenderTargetResX = GetNextBestResolution(CVarRenderTargetResolution1 * fResolutionScale);
+        iRenderTargetResY = iRenderTargetResX;
+      }
+      else if (iRenderTargetResY == 2)
+      {
+        iRenderTargetResX = GetNextBestResolution(CVarRenderTargetResolution2 * fResolutionScale);
+        iRenderTargetResY = iRenderTargetResX;
+      }
+      else
+      {
+        EZ_REPORT_FAILURE("Invalid render target configuration: {0} x {1}", iRenderTargetResX, iRenderTargetResY);
+      }
+    }
 
     td.m_DescGAL.SetAsRenderTarget(iRenderTargetResX, iRenderTargetResY, ezGALResourceFormat::RGBAUByteNormalizedsRGB);
 

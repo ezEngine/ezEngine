@@ -23,8 +23,8 @@ EZ_ENUM_CONSTANTS(ezTexture2DAddressMode::Wrap, ezTexture2DAddressMode::Mirror, 
 EZ_END_STATIC_REFLECTED_ENUM();
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTexture2DResolution, 1)
-EZ_ENUM_CONSTANTS(ezTexture2DResolution::Fixed64x64, ezTexture2DResolution::Fixed128x128, ezTexture2DResolution::Fixed256x256, ezTexture2DResolution::Fixed512x512, ezTexture2DResolution::Fixed1024x1024)
-EZ_ENUM_CONSTANTS(ezTexture2DResolution::ScreenSize, ezTexture2DResolution::HalfScreenSize)
+EZ_ENUM_CONSTANTS(ezTexture2DResolution::Fixed64x64, ezTexture2DResolution::Fixed128x128, ezTexture2DResolution::Fixed256x256, ezTexture2DResolution::Fixed512x512, ezTexture2DResolution::Fixed1024x1024, ezTexture2DResolution::Fixed2048x2048)
+EZ_ENUM_CONSTANTS(ezTexture2DResolution::CVarRtResolution1, ezTexture2DResolution::CVarRtResolution2)
 EZ_END_STATIC_REFLECTED_ENUM();
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 2, ezRTTIDefaultAllocator<ezTextureAssetProperties>)
@@ -36,6 +36,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 2, ezRTTIDefaultAlloca
     EZ_ENUM_MEMBER_PROPERTY("Usage", ezTexture2DUsageEnum, m_TextureUsage),
 
     EZ_ENUM_MEMBER_PROPERTY("Resolution", ezTexture2DResolution, m_Resolution),
+    EZ_MEMBER_PROPERTY("CVarResScale", m_fCVarResolutionScale)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.1f, 10.0f)),
 
     EZ_MEMBER_PROPERTY("Mipmaps", m_bMipmaps)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("Compression", m_bCompression)->AddAttributes(new ezDefaultValueAttribute(true)),
@@ -69,6 +70,10 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
 
     if (isRenderTarget)
     {
+      const ezInt32 resMode = e.m_pObject->GetTypeAccessor().GetValue("Resolution").ConvertTo<ezInt32>();
+      const bool resIsCVar = resMode == ezTexture2DResolution::CVarRtResolution1 || resMode == ezTexture2DResolution::CVarRtResolution2;
+
+      props["CVarResScale"].m_Visibility = resIsCVar ? ezPropertyUiState::Default : ezPropertyUiState::Disabled;
       props["Usage"].m_Visibility = ezPropertyUiState::Invisible;
       props["Mipmaps"].m_Visibility = ezPropertyUiState::Invisible;
       props["Compression"].m_Visibility = ezPropertyUiState::Invisible;
@@ -85,6 +90,7 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
     }
     else
     {
+      props["CVarResScale"].m_Visibility = ezPropertyUiState::Invisible;
       props["Usage"].m_Visibility = ezPropertyUiState::Default;
       props["Mipmaps"].m_Visibility = ezPropertyUiState::Default;
       props["Compression"].m_Visibility = ezPropertyUiState::Default;

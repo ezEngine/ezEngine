@@ -2849,11 +2849,12 @@ AssetInfo
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{13252154356808752745}
+		u4 %Hash{8055776842481505727}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 03bb62c3-6b77-4641-99d0-ad6e3d3c2121 }"}
+			s{"{ 045da91f-697c-4263-8910-5f752ec262b2 }"}
 			s{"{ 15723cbd-9706-4c86-b695-bd945c5ada6a }"}
 			s{"{ 1ce6f3e5-326b-4dce-8cef-03cc8c06b40b }"}
 			s{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
@@ -2869,7 +2870,6 @@ AssetInfo
 			s{"{ 5bbea795-0358-4dd8-86a9-c277f7a59f53 }"}
 			s{"{ 6408e044-3a82-4db6-bfb8-27c7320daa53 }"}
 			s{"{ 778150d4-9e85-4d17-85dd-f59df122b7b4 }"}
-			s{"{ 7f9c0caa-e97d-42a1-9876-aea78054f1bb }"}
 			s{"{ 94ac1de9-5cbe-4581-a57c-7caf78ab7294 }"}
 			s{"{ 95f9db13-7fa3-4832-b349-4e00a23b3b10 }"}
 			s{"{ 9d903a8c-556a-4564-a678-3ebd5f03720b }"}
@@ -2958,7 +2958,7 @@ o
 {
 	Uuid %id{u4{15936806453817812373,5202652778140485841}}
 	s %t{"ezCameraComponent"}
-	u3 %v{6}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
@@ -2973,9 +2973,9 @@ o
 		s %Mode{"ezCameraMode::PerspectiveFixedFovY"}
 		f %NearPlane{0x0000803E}
 		s %RenderPipeline{"{ c5f16f65-8940-4283-9f91-b316dfa39e81 }"}
-		s %RenderTarget{"{ 7f9c0caa-e97d-42a1-9876-aea78054f1bb }"}
-		Vec2 %RenderTargetRectOffset{f{0,0}}
-		Vec2 %RenderTargetRectSize{f{0x0000803F,0x0000803F}}
+		s %RenderTarget{"{ 045da91f-697c-4263-8910-5f752ec262b2 }"}
+		Vec2 %RenderTargetOffset{f{0,0}}
+		Vec2 %RenderTargetSize{f{0x0000803F,0x0000803F}}
 		b %ShowStats{0}
 		f %ShutterTime{0x0000803F}
 		s %UsageHint{"ezCameraUsageHint::RenderTarget"}
@@ -11189,7 +11189,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
 		u3 %TypeSize{520}
-		u3 %TypeVersion{6}
+		u3 %TypeVersion{7}
 	}
 }
 o

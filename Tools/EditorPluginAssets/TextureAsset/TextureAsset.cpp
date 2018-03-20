@@ -245,7 +245,7 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile
     AssetHeader.Write(file);
 
     // TODO: move this into a shared location, reuse in ezTexConv::WriteTexHeader
-    const ezUInt8 uiTexFileFormatVersion = 3;
+    const ezUInt8 uiTexFileFormatVersion = 4;
     file << uiTexFileFormatVersion;
 
     file << props->IsSRGB();
@@ -278,13 +278,17 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile
       resX = 1024;
       resY = 1024;
       break;
-    case ezTexture2DResolution::ScreenSize:
-      resX = -1;
-      resY = -1;
+    case ezTexture2DResolution::Fixed2048x2048:
+      resX = 2048;
+      resY = 2048;
       break;
-    case ezTexture2DResolution::HalfScreenSize:
-      resX = -2;
-      resY = -2;
+    case ezTexture2DResolution::CVarRtResolution1:
+      resX = -1;
+      resY = 1;
+      break;
+    case ezTexture2DResolution::CVarRtResolution2:
+      resX = -1;
+      resY = 2;
       break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -292,6 +296,7 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile
 
     file << resX;
     file << resY;
+    file << props->m_fCVarResolutionScale;
 
 
     if (file.Close().Failed())
