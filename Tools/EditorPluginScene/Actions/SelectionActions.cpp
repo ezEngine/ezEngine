@@ -331,8 +331,7 @@ void ezSelectionAction::OpenPrefabDocument()
   ezUuid PrefabAsset;
   if (pScene->IsObjectEnginePrefab(sel[0]->GetGuid(), &PrefabAsset))
   {
-    // TODO: Get prefab property
-
+    // PrefabAsset is all we need 
   }
   else
   {

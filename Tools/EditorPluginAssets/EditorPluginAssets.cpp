@@ -128,6 +128,7 @@ void OnLoadPlugin(bool bReloading)
       ezStandardMenus::MapActions("RenderPipelineAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
       ezDocumentActions::MapActions("RenderPipelineAssetMenuBar", "Menu.File", false);
       ezCommandHistoryActions::MapActions("RenderPipelineAssetMenuBar", "Menu.Edit");
+      ezEditActions::MapActions("RenderPipelineAssetMenuBar", "Menu.Edit", false, false);
     }
 
     // Tool Bar
