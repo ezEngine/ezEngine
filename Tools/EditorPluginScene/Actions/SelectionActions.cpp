@@ -327,9 +327,19 @@ void ezSelectionAction::OpenPrefabDocument()
 
   const ezSceneDocument* pScene = static_cast<const ezSceneDocument*>(m_Context.m_pDocument);
 
-  auto pMeta = pScene->m_DocumentObjectMetaData.BeginReadMetaData(sel[0]->GetGuid());
-  const ezUuid PrefabAsset = pMeta->m_CreateFromPrefab;
-  pScene->m_DocumentObjectMetaData.EndReadMetaData();
+
+  ezUuid PrefabAsset;
+  if (pScene->IsObjectEnginePrefab(sel[0]->GetGuid(), &PrefabAsset))
+  {
+    // TODO: Get prefab property
+
+  }
+  else
+  {
+    auto pMeta = pScene->m_DocumentObjectMetaData.BeginReadMetaData(sel[0]->GetGuid());
+    PrefabAsset = pMeta->m_CreateFromPrefab;
+    pScene->m_DocumentObjectMetaData.EndReadMetaData();
+  }
 
   auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(PrefabAsset);
   if (pAsset)
@@ -340,6 +350,7 @@ void ezSelectionAction::OpenPrefabDocument()
   {
     ezQtUiServices::MessageBoxWarning("The prefab asset of this instance is currently unknown. It may have been deleted. Try updating the asset library ('Check FileSystem'), if it should be there.");
   }
+
 }
 
 void ezSelectionAction::CreatePrefab()
@@ -403,11 +414,16 @@ void ezSelectionAction::UpdateEnableState()
       SetEnabled(false);
       return;
     }
+
+    const ezSceneDocument* pScene = static_cast<const ezSceneDocument*>(m_Context.m_pDocument);
+    const bool bIsPrefab = pScene->IsObjectEditorPrefab(sel[0]->GetGuid()) || pScene->IsObjectEnginePrefab(sel[0]->GetGuid());
+
+    SetEnabled(bIsPrefab );
+    return;
   }
 
   if (m_Type == ActionType::RevertPrefab ||
       m_Type == ActionType::UnlinkFromPrefab ||
-      m_Type == ActionType::OpenPrefabDocument ||
       m_Type == ActionType::ConvertToEnginePrefab||
       m_Type == ActionType::CreatePrefab)
   {
@@ -424,15 +440,7 @@ void ezSelectionAction::UpdateEnableState()
       SetEnabled(sel.GetCount() == 1);
       return;
     }
-
-    if (m_Type == ActionType::OpenPrefabDocument && (sel.GetCount() != 1))
-    {
-      SetEnabled(false);
-      return;
-    }
-
     const bool bShouldBePrefab = (m_Type == ActionType::RevertPrefab) ||
-                                 (m_Type == ActionType::OpenPrefabDocument) ||
                                  (m_Type == ActionType::ConvertToEnginePrefab) ||
                                  (m_Type == ActionType::UnlinkFromPrefab);
 

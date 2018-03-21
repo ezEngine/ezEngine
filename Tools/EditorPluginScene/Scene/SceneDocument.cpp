@@ -231,6 +231,7 @@ void ezSceneDocument::AttachToObject()
   ezMoveObjectCommand cmd;
   cmd.m_sParentProperty = "Children";
   cmd.m_NewParent = ctxt.m_pLastPickingResult->m_PickedObject;
+  cmd.m_Index = -1;
 
   auto* pHistory = GetCommandHistory();
 
@@ -240,7 +241,13 @@ void ezSceneDocument::AttachToObject()
     {
       cmd.m_Object = pObject->GetGuid();
 
-      pHistory->AddCommand(cmd);
+      auto res = pHistory->AddCommand(cmd);
+      if (res.Failed())
+      {
+        ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Attach to object failed");
+        pHistory->CancelTransaction();
+        return;
+      }
     }
   }
   pHistory->FinishTransaction();
@@ -265,7 +272,13 @@ void ezSceneDocument::DetachFromParent()
     {
       cmd.m_Object = pObject->GetGuid();
 
-      pHistory->AddCommand(cmd);
+      auto res = pHistory->AddCommand(cmd);
+      if (res.Failed())
+      {
+        ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Detach from parent failed");
+        pHistory->CancelTransaction();
+        return;
+      }
     }
   }
   pHistory->FinishTransaction();

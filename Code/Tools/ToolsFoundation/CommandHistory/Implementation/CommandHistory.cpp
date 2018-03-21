@@ -356,7 +356,14 @@ ezStatus ezCommandHistory::AddCommand(ezCommand& command)
   EZ_ASSERT_DEV(!m_TransactionStack.IsEmpty(), "Cannot add command while no transaction is started");
   EZ_ASSERT_DEV(!m_ActiveCommandStack.IsEmpty(), "Transaction stack is not synced anymore with m_ActiveCommandStack");
 
-  return m_ActiveCommandStack.PeekBack()->AddSubCommand(command);
+  auto res = m_ActiveCommandStack.PeekBack()->AddSubCommand(command);
+
+  if (res.Failed() && !res.m_sMessage.IsEmpty())
+  {
+    ezLog::Error("Command failed: '{0}'", res.m_sMessage);
+  }
+
+  return res;
 }
 
 void ezCommandHistory::ClearUndoHistory()
