@@ -3,6 +3,8 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Configuration/Plugin.h>
 
+#include <ProceduralPlacementPlugin/VM/VM.h>
+
 EZ_BEGIN_SUBSYSTEM_DECLARATION(ProceduralPlacement, ProceduralPlacementPlugin)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -17,6 +19,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(ProceduralPlacement, ProceduralPlacementPlugin)
     ezProceduralPlacementResourceDescriptor desc;
     ezProceduralPlacementResourceHandle hResource = ezResourceManager::CreateResource<ezProceduralPlacementResource>("ProceduralPlacementMissing", desc, "Fallback for missing Procedural Placement Resource");
     ezProceduralPlacementResource::SetTypeMissingResource(hResource);
+
+    //ezExpressionVM::Test();
   }
 
   ON_CORE_SHUTDOWN
