@@ -7,7 +7,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventTrackControlPointData, 1, ezRTTIDefaultAl
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Tick", m_iTick),
-    EZ_MEMBER_PROPERTY("Event", m_sEvent),
+    EZ_ACCESSOR_PROPERTY("Event", GetEventName, SetEventName),
   }
   EZ_END_PROPERTIES
 }
@@ -29,7 +29,7 @@ void ezEventTrackControlPointData::SetTickFromTime(double time, ezInt64 fps)
   m_iTick = (ezInt64)ezMath::Round(time * 4800.0, (double)uiTicksPerStep);
 }
 
-ezInt64 ezEventTrackData::TickFromTime(double time)
+ezInt64 ezEventTrackData::TickFromTime(double time) const
 {
   const ezUInt32 uiTicksPerStep = 4800 / m_uiFramesPerSecond;
   return (ezInt64)ezMath::Round(time * 4800.0, (double)uiTicksPerStep);

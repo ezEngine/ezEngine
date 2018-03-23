@@ -2,7 +2,7 @@
 
 #include <GuiFoundation/Basics.h>
 #include <Foundation/Containers/DynamicArray.h>
-//#include <GuiFoundation/Widgets/CurveEditData.h>
+#include <GuiFoundation/Widgets/EventTrackEditData.h>
 #include <Foundation/Math/Vec2.h>
 
 #include <QWidget>
@@ -12,25 +12,23 @@
 class ezQGridBarWidget;
 class QRubberBand;
 
-class EZ_GUIFOUNDATION_DLL ezQEventTrackWidget : public QWidget
+class EZ_GUIFOUNDATION_DLL ezQtEventTrackWidget : public QWidget
 {
   Q_OBJECT
 
 public:
-  ezQEventTrackWidget(QWidget* parent);
+  ezQtEventTrackWidget(QWidget* parent);
 
-  //void SetCurves(ezCurveGroupData* pCurveEditData, double fMinCurveLength, bool bCurveLengthIsFixed);
+  void SetData(const ezEventTrackData* pData, double fMinCurveLength);
   void SetGridBarWidget(ezQGridBarWidget* pGridBar) { m_pGridBar = pGridBar; }
 
   void SetScrubberPosition(double fPosition);
-  //double GetMaxCurveExtent() const { return m_fMaxCurveExtent; }
 
   void FrameCurve();
 
   QPoint MapFromScene(const QPointF& pos) const;
   //QPoint MapFromScene(const ezVec2d& pos) const { return MapFromScene(QPointF(pos.x, pos.y)); }
   QPointF MapToScene(const QPoint& pos) const;
-  ezVec2 MapDirFromScene(const ezVec2& pos) const;
 
   void ClearSelection();
   //const ezDynamicArray<ezSelectedCurveCP>& GetSelection() const { return m_SelectedCPs; }
@@ -40,12 +38,12 @@ public:
   //void SetSelected(const ezSelectedCurveCP& cp, bool set);
 
 signals:
-  void DoubleClickEvent(const QPointF& scenePos, const QPointF& epsilon);
+  void DoubleClickEvent(double scenePosX, double epsilon);
   void DeleteControlPointsEvent();
-  void MoveControlPointsEvent(double moveX, double moveY);
+  //void MoveControlPointsEvent(double moveX, double moveY);
   void BeginOperationEvent(QString name);
   void EndOperationEvent(bool bCommit);
-  void ScaleControlPointsEvent(const QPointF& centerPos, double scaleX, double scaleY);
+  //void ScaleControlPointsEvent(const QPointF& centerPos, double scaleX, double scaleY);
   void ContextMenuEvent(QPoint pos, QPointF scenePos);
   void SelectionChangedEvent();
 
@@ -60,7 +58,7 @@ protected:
 
 private:
   //enum class ClickTarget { Nothing, SelectedPoint, TangentHandle };
-  enum class EditState { None, DraggingPoints, DraggingPointsHorz, DraggingPointsVert, DraggingTangents, MultiSelect, RightClick, Panning, ScaleLeftRight, ScaleUpDown, DraggingCurve };
+  enum class EditState { None, DraggingPoints, MultiSelect, RightClick, Panning, ScaleLeftRight };
 
   void PaintOutsideAreaOverlay(QPainter* painter) const;
   void PaintControlPoints(QPainter* painter) const;
@@ -68,7 +66,6 @@ private:
   void PaintMultiSelectionSquare(QPainter* painter) const;
   void PaintScrubber(QPainter& p) const;
   void RenderVerticalGrid(QPainter* painter, const QRectF& viewportSceneRect, double fRoughGridDensity);
-  void RenderSideLinesAndText(QPainter* painter, const QRectF& viewportSceneRect);
   QRectF ComputeViewportSceneRect() const;
   //bool PickCpAt(const QPoint& pos, float fMaxPixelDistance, ezSelectedCurveCP& out_Result) const;
   //ClickTarget DetectClickTarget(const QPoint& pos);
@@ -82,11 +79,10 @@ private:
 
   EditState m_State = EditState::None;
 
-  //ezCurveGroupData* m_pCurveEditData;
-  //ezHybridArray<ezVec2d, 4> m_CurveExtents;
-  //double m_fMaxCurveExtent;
+  const ezEventTrackData* m_pEditData = nullptr;
 
-  QPointF m_SceneTranslation;
+  double m_fMaxCurveExtent = 0;
+  double m_fSceneTranslationX = 0;
   QPointF m_SceneToPixelScale;
   QPoint m_LastMousePos;
 
@@ -97,13 +93,13 @@ private:
   bool m_bBegunChanges = false;
   bool m_bFrameBeforePaint = true;
 
-  //QPoint m_multiSelectionStart;
-  //QRect m_multiSelectRect;
+  QPoint m_multiSelectionStart;
+  QRect m_multiSelectRect;
   //QRectF m_selectionBRect;
   //QPointF m_scaleReferencePoint;
   //QPointF m_scaleStartPoint;
   //QPointF m_totalPointDrag;
-  //QRubberBand* m_pRubberband = nullptr;
+  QRubberBand* m_pRubberband = nullptr;
 
   bool m_bShowScrubber = false;
   double m_fScrubberPosition = 0;

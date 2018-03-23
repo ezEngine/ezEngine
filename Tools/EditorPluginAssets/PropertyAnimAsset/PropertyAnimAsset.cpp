@@ -1001,3 +1001,23 @@ ezUuid ezPropertyAnimAssetDocument::InsertGradientIntensityCpAt(const ezUuid& tr
   return newObjectGuid;
 }
 
+ezUuid ezPropertyAnimAssetDocument::InsertEventTrackCpAt(ezInt64 tickX, const char* szValue)
+{
+  ezObjectCommandAccessor accessor(GetCommandHistory());
+  ezObjectAccessorBase& acc = accessor;
+  acc.StartTransaction("Insert Event");
+
+  const ezAbstractProperty* pTrackProp = ezGetStaticRTTI<ezPropertyAnimationTrackGroup>()->FindPropertyByName("EventTrack");
+  ezUuid trackGuid = m_pAccessor->Get<ezUuid>(GetPropertyObject(), pTrackProp);
+
+  ezUuid newObjectGuid;
+  EZ_VERIFY(acc.AddObject(accessor.GetObject(trackGuid), "ControlPoints", -1, ezGetStaticRTTI<ezEventTrackControlPointData>(), newObjectGuid).Succeeded(), "");
+  const ezDocumentObject* pCPObj = accessor.GetObject(newObjectGuid);
+  EZ_VERIFY(acc.SetValue(pCPObj, "Tick", tickX).Succeeded(), "");
+  EZ_VERIFY(acc.SetValue(pCPObj, "Event", szValue).Succeeded(), "");
+
+  acc.FinishTransaction();
+
+  return newObjectGuid;
+}
+

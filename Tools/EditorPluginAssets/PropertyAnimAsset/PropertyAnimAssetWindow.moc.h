@@ -125,6 +125,10 @@ private slots:
   //void onGradientNormalizeRange();
 
   //////////////////////////////////////////////////////////////////////////
+  // Event track editor events
+  void onEventTrackInsertCpAt(ezInt64 tickX, QString value);
+
+  //////////////////////////////////////////////////////////////////////////
 
 private:
   ezPropertyAnimAssetDocument* GetPropertyAnimDocument();
@@ -133,6 +137,7 @@ private:
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
   void UpdateCurveEditor();
   void UpdateGradientEditor();
+  void UpdateEventTrackEditor();
   void UpdateSelectionData();
 
   ezQtQuadViewWidget* m_pQuadViewWidget;

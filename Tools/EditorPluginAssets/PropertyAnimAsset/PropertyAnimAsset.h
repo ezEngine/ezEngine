@@ -104,6 +104,8 @@ public:
   ezUuid FindGradientIntensityCp(const ezUuid& trackGuid, ezInt64 tickX);
   ezUuid InsertGradientIntensityCpAt(const ezUuid& trackGuid, ezInt64 tickX, float intensity);
 
+  ezUuid InsertEventTrackCpAt(ezInt64 tickX, const char* szValue);
+
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
   virtual void InitializeAfterLoading() override;

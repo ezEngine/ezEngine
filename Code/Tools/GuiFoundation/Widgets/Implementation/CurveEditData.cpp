@@ -89,7 +89,7 @@ void ezCurveGroupData::Clear()
   m_Curves.Clear();
 }
 
-ezInt64 ezCurveGroupData::TickFromTime(double time)
+ezInt64 ezCurveGroupData::TickFromTime(double time) const
 {
   const ezUInt32 uiTicksPerStep = 4800 / m_uiFramesPerSecond;
   return (ezInt64)ezMath::Round(time * 4800.0, (double)uiTicksPerStep);

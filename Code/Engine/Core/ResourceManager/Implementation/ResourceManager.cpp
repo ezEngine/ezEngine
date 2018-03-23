@@ -638,7 +638,15 @@ void ezResourceManager::ReloadResource(ezResourceBase* pResource, bool bForce)
     // everything else will be loaded on demand
     if (pResource->GetLastAcquireTime() >= tNow - ezTime::Seconds(30.0))
     {
-      // for some reason, preloading sound bank resources will actually make them fail to load
+      // this will deadlock fmod soundbank loading
+      // what happens is that PreloadResource sets the "IsPreloading" flag, because the soundbank is now in the queue
+      // in case a soundevent is needed right away (very likely), to load that soundevent, the soundbank is needed, so the soundevent loader blocks until the soundbank is loaded
+      // however, both loaders would currently run on the single "loading thread", so now the loading thread will wait for itself to finish, which never happens
+      // instead, it SHOULD just load the soundbank itself, which is theoretically implemented, but does not happen when the "IsPreloading" flag is already set
+      // there are multiple solutions
+      // 1. do not depend on other resources while loading a resource, though this does not work for fmod soundevents
+      // 2. trigger the 'bDoItYourself' code path above when on the loading thread, this would require InternalPreloadResource to somehow change
+      // 3. move the soundevent loader off the loading thread, ie. by finally implementing ezResourceFlags::NoFileAccessRequired
 
       //ezLog::Info("Preloading resource: {0} ({1})", pResource->GetResourceID(), pResource->GetResourceDescription());
       //PreloadResource(pResource, tNow - pResource->GetLastAcquireTime());

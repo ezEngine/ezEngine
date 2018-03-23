@@ -322,7 +322,8 @@ ezStatus ezAssetDocument::DoTransformAsset(const char* szPlatform /*= nullptr*/,
 
   ezUInt64 uiHash = 0;
   ezUInt64 uiThumbHash = 0;
-  if (ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), szPlatform, GetDocumentTypeDescriptor(), uiHash, uiThumbHash) == ezAssetInfo::TransformState::UpToDate)
+  ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), szPlatform, GetDocumentTypeDescriptor(), uiHash, uiThumbHash);
+  if (state == ezAssetInfo::TransformState::UpToDate && !bTriggeredManually)
     return ezStatus(EZ_SUCCESS, "Transformed asset is already up to date");
 
   if (uiHash == 0)

@@ -13,16 +13,16 @@ public:
   explicit ezQtEventTrackEditorWidget(QWidget* pParent);
   ~ezQtEventTrackEditorWidget();
 
-  //void SetCurves(ezCurveGroupData& curveData, double fMinCurveLength, bool bCurveLengthIsFixed);
+  void SetData(const ezEventTrackData& data, double fMinCurveLength);
   void SetScrubberPosition(ezUInt64 uiTick);
   void ClearSelection();
 
   void FrameCurve();
 
 signals:
-  void CpMovedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx, ezInt64 iTickX, double newPosY);
-  void CpDeletedEvent(ezUInt32 curveIdx, ezUInt32 cpIdx);
-  void InsertCpEvent(ezUInt32 uiCurveIdx, ezInt64 tickX, double value);
+  void CpMovedEvent(ezUInt32 cpIdx, ezInt64 iTickX, double newPosY);
+  void CpDeletedEvent(ezUInt32 cpIdx);
+  void InsertCpEvent(ezInt64 tickX, const char* value);
 
   void BeginCpChangesEvent(QString name);
   void EndCpChangesEvent();
@@ -33,7 +33,7 @@ signals:
 private slots:
   //void on_LinePosition_editingFinished();
   //void onDeleteControlPoints();
-  //void onDoubleClick(const QPointF& scenePos, const QPointF& epsilon);
+  void onDoubleClick(double scenePosX, double epsilon);
   //void onMoveControlPoints(double x, double y);
   //void onBeginOperation(QString name);
   //void onEndOperation(bool commit);
@@ -43,10 +43,11 @@ private slots:
   //void onSelectionChanged();
 
 private:
-  //void InsertCpAt(double posX, double value, ezVec2d epsilon);
+  void InsertCpAt(double posX, double epsilon);
   //bool PickControlPointAt(double x, double y, ezVec2d vMaxDistance, ezInt32& out_iCurveIdx, ezInt32& out_iCpIdx) const;
   //void UpdateSpinBoxes();
 
+  const ezEventTrackData* m_pData = nullptr;
   //double m_fCurveDuration;
   //ezVec2d m_ControlPointMove;
   //ezCurveGroupData m_Curves;

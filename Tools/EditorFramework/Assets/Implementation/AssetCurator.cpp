@@ -796,7 +796,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
   {
     if (ezAssetInfo* pInfo = GetAssetInfo(dep))
     {
-      EZ_SUCCEED_OR_RETURN(ProcessAsset(pInfo, szPlatform, bTriggeredManually));
+      EZ_SUCCEED_OR_RETURN(ProcessAsset(pInfo, szPlatform, false));
     }
   }
 
@@ -805,7 +805,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
   {
     if (ezAssetInfo* pInfo = GetAssetInfo(ref))
     {
-      resReferences = ProcessAsset(pInfo, szPlatform, bTriggeredManually);
+      resReferences = ProcessAsset(pInfo, szPlatform, false);
       if (resReferences.m_Result.Failed())
         break;
     }
@@ -832,7 +832,13 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
 
   ezUInt64 uiHash = 0;
   ezUInt64 uiThumbHash = 0;
-  auto state = IsAssetUpToDate(pAssetInfo->m_Info.m_DocumentID, szPlatform, pTypeDesc, uiHash, uiThumbHash);
+  ezAssetInfo::TransformState state = IsAssetUpToDate(pAssetInfo->m_Info.m_DocumentID, szPlatform, pTypeDesc, uiHash, uiThumbHash);
+
+  if (bTriggeredManually)
+  {
+    state = ezAssetInfo::NeedsTransform;
+  }
+
   if (state == ezAssetInfo::TransformState::UpToDate)
     return ezStatus(EZ_SUCCESS);
 

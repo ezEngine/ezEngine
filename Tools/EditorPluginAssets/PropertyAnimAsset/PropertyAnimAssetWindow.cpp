@@ -202,11 +202,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::EndOperationEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveEndOperation);
     connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::BeginCpChangesEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveBeginCpChanges);
     connect(m_pCurveEditor, &ezQtCurve1DEditorWidget::EndCpChangesEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveEndCpChanges);
-
-    GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler, this));
-    GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler, this));
   }
-  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::SelectionEventHandler, this));
 
   // Gradient editor events
   {
@@ -231,13 +227,31 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     //connect(m_pGradientEditor, &ezQtColorGradientEditorWidget::NormalizeRange, this, &ezQtPropertyAnimAssetDocumentWindow::onGradientNormalizeRange);
   }
 
+  // Event track editor events
+  {
+    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::InsertCpEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onEventTrackInsertCpAt);
+    //connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::CpMovedEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveCpMoved);
+    //connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::CpDeletedEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveCpDeleted);
+
+    //connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::BeginOperationEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveBeginOperation);
+    //connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::EndOperationEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveEndOperation);
+    //connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::BeginCpChangesEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveBeginCpChanges);
+    //connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::EndCpChangesEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveEndCpChanges);
+  }
+
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::SelectionEventHandler, this));
+
   FinishWindowCreation();
 
   {
     const ezUInt64 uiDuration = GetPropertyAnimDocument()->GetAnimationDurationTicks();
     m_pScrubberToolbar->SetDuration(uiDuration, GetPropertyAnimDocument()->GetProperties()->m_uiFramesPerSecond);
-    UpdateCurveEditor();
   }
+
+  UpdateCurveEditor();
+  UpdateEventTrackEditor();
 }
 
 ezQtPropertyAnimAssetDocumentWindow::~ezQtPropertyAnimAssetDocumentWindow()
@@ -317,6 +331,7 @@ void ezQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler(const ez
 
     m_pScrubberToolbar->SetDuration(uiDuration, e.m_pDocument->GetProperties()->m_uiFramesPerSecond);
     UpdateCurveEditor();
+    UpdateEventTrackEditor();
   }
   else if (e.m_Type == ezPropertyAnimAssetDocumentEvent::Type::ScrubberPositionChanged)
   {
@@ -605,8 +620,11 @@ void ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler(const ezDocumentO
   if (static_cast<ezPropertyAnimObjectManager*>(GetDocument()->GetObjectManager())->IsTemporary(e.m_pObject, e.m_sProperty))
     return;
 
+  // TODO: only update what needs to be updated
+
   UpdateCurveEditor();
   UpdateGradientEditor();
+  UpdateEventTrackEditor();
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
@@ -663,6 +681,13 @@ void ezQtPropertyAnimAssetDocumentWindow::UpdateGradientEditor()
     m_pGradientToDisplay->FillGradientData(gradient);
     m_pGradientEditor->SetColorGradient(gradient);
   }
+}
+
+
+void ezQtPropertyAnimAssetDocumentWindow::UpdateEventTrackEditor()
+{
+  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
+  m_pEventTrackEditor->SetData(GetPropertyAnimDocument()->GetProperties()->m_EventTrack, pDoc->GetAnimationDurationTime().GetSeconds());
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onCurveBeginOperation(QString name)
@@ -1079,6 +1104,13 @@ void ezQtPropertyAnimAssetDocumentWindow::onGradientEndOperation(bool commit)
     history->FinishTemporaryCommands();
   else
     history->CancelTemporaryCommands();
+}
+
+void ezQtPropertyAnimAssetDocumentWindow::onEventTrackInsertCpAt(ezInt64 tickX, QString value)
+{
+  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
+  pDoc->InsertEventTrackCpAt(tickX, value.toUtf8().data());
+
 }
 
 //////////////////////////////////////////////////////////////////////////

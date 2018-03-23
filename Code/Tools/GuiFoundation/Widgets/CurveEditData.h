@@ -109,7 +109,7 @@ public:
   ezDynamicArray<ezSingleCurveData*> m_Curves;
   ezUInt16 m_uiFramesPerSecond = 60;
 
-  ezInt64 TickFromTime(double time);
+  ezInt64 TickFromTime(double time) const;
 
   void ConvertToRuntimeData(ezUInt32 uiCurveIdx, ezCurve1D& out_Result) const;
 };
