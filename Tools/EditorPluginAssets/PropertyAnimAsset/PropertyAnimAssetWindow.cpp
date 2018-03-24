@@ -242,6 +242,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
   GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler, this));
   GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler, this));
   GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::SelectionEventHandler, this));
+  GetDocument()->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::CommandHistoryEventHandler, this));
 
   FinishWindowCreation();
 
@@ -260,6 +261,7 @@ ezQtPropertyAnimAssetDocumentWindow::~ezQtPropertyAnimAssetDocumentWindow()
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler, this));
   GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler, this));
   GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::SelectionEventHandler, this));
+  GetDocument()->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::CommandHistoryEventHandler, this));
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::ToggleViews(QWidget* pView)
@@ -418,7 +420,10 @@ void ezQtPropertyAnimAssetDocumentWindow::UpdateSelectionData()
   UpdateCurveEditor();
   UpdateGradientEditor();
 
-  if (!m_CurvesToDisplay.m_Curves.IsEmpty())
+  if (m_pEventTrackPanel->hasFocus() || m_pEventTrackEditor->hasFocus() || m_pEventTrackEditor->EventTrackEdit->hasFocus())
+  {
+  }
+  else if (!m_CurvesToDisplay.m_Curves.IsEmpty())
   {
     m_pCurvePanel->raise();
   }
@@ -622,9 +627,9 @@ void ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler(const ezDocumentO
 
   // TODO: only update what needs to be updated
 
-  UpdateCurveEditor();
-  UpdateGradientEditor();
-  UpdateEventTrackEditor();
+  m_bUpdateEventTrackEditor = true;
+  m_bUpdateCurveEditor = true;
+  m_bUpdateGradientEditor = true;
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
@@ -656,6 +661,28 @@ void ezQtPropertyAnimAssetDocumentWindow::SelectionEventHandler(const ezSelectio
   //    GetDocument()->GetSelectionManager()->SetSelection(GetPropertyAnimDocument()->GetPropertyObject());
   //  });
   //}
+}
+
+
+void ezQtPropertyAnimAssetDocumentWindow::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
+{
+  if (e.m_Type == ezCommandHistoryEvent::Type::TransactionEnded ||
+    e.m_Type == ezCommandHistoryEvent::Type::UndoEnded ||
+    e.m_Type == ezCommandHistoryEvent::Type::RedoEnded)
+  {
+    if (m_bUpdateCurveEditor)
+      UpdateCurveEditor();
+
+    if (m_bUpdateGradientEditor)
+      UpdateGradientEditor();
+
+    if (m_bUpdateEventTrackEditor)
+      UpdateEventTrackEditor();
+
+    m_bUpdateEventTrackEditor = false;
+    m_bUpdateCurveEditor = false;
+    m_bUpdateGradientEditor = false;
+  }
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::UpdateCurveEditor()

@@ -31,11 +31,6 @@ public:
   QPointF MapToScene(const QPoint& pos) const;
 
   void ClearSelection();
-  //const ezDynamicArray<ezSelectedCurveCP>& GetSelection() const { return m_SelectedCPs; }
-  //bool IsSelected(const ezSelectedCurveCP& cp) const;
-  //void SetSelection(const ezSelectedCurveCP& cp);
-  //void ToggleSelected(const ezSelectedCurveCP& cp);
-  //void SetSelected(const ezSelectedCurveCP& cp, bool set);
 
 signals:
   void DoubleClickEvent(double scenePosX, double epsilon);
@@ -57,23 +52,52 @@ protected:
   virtual void keyPressEvent(QKeyEvent* e) override;
 
 private:
-  //enum class ClickTarget { Nothing, SelectedPoint, TangentHandle };
+  enum class ClickTarget { Nothing, SelectedPoint };
   enum class EditState { None, DraggingPoints, MultiSelect, RightClick, Panning, ScaleLeftRight };
+
+  struct Point
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    ezUInt32 m_uiOrgIndex;
+    bool m_bSelected;
+    double m_fPosX;
+  };
+
+  struct SelectedPoint
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    ezUInt32 m_uiCategory;
+    ezUInt32 m_uiSortedIdx;
+  };
+
+  struct PointCategory
+  {
+    ezHashedString m_sName;
+    ezHybridArray<Point, 32> m_Points;
+  };
+
+  //const ezDynamicArray<ezUInt32>& GetSelection() const { return m_SelectedCPs; }
+  //bool IsSelected(ezUInt32 cp) const;
+  void SetSelection(SelectedPoint cp);
+  //void ToggleSelected(ezUInt32 cp);
+  //void SetSelected(ezUInt32 cp, bool set);
 
   void PaintOutsideAreaOverlay(QPainter* painter) const;
   void PaintControlPoints(QPainter* painter) const;
-  void PaintSelectedControlPoints(QPainter* painter) const;
   void PaintMultiSelectionSquare(QPainter* painter) const;
   void PaintScrubber(QPainter& p) const;
   void RenderVerticalGrid(QPainter* painter, const QRectF& viewportSceneRect, double fRoughGridDensity);
   QRectF ComputeViewportSceneRect() const;
-  //bool PickCpAt(const QPoint& pos, float fMaxPixelDistance, ezSelectedCurveCP& out_Result) const;
-  //ClickTarget DetectClickTarget(const QPoint& pos);
+  bool PickCpAt(const QPoint& pos, float fMaxPixelDistance, SelectedPoint& out_Result) const;
+  ClickTarget DetectClickTarget(const QPoint& pos);
   //void ExecMultiSelection(ezDynamicArray<ezSelectedCurveCP>& out_Selection);
   //bool CombineSelection(ezDynamicArray<ezSelectedCurveCP>& inout_Selection, const ezDynamicArray<ezSelectedCurveCP>& change, bool add);
   //void ComputeSelectionRect();
   //SelectArea WhereIsPoint(QPoint pos) const;
   void ClampZoomPan();
+  void RecreateSortedData();
 
   ezQGridBarWidget* m_pGridBar = nullptr;
 
@@ -88,8 +112,9 @@ private:
 
   QBrush m_ControlPointBrush;
   QBrush m_SelectedControlPointBrush;
+  QPen m_ControlPointPen;
 
-  //ezDynamicArray<ezSelectedCurveCP> m_SelectedCPs;
+  //ezDynamicArray<ezUInt32> m_SelectedCPs;
   bool m_bBegunChanges = false;
   bool m_bFrameBeforePaint = true;
 
@@ -103,4 +128,8 @@ private:
 
   bool m_bShowScrubber = false;
   double m_fScrubberPosition = 0;
+
+  ezHashTable<ezHashedString, ezUInt32> m_NameToCategory;
+  ezHybridArray<PointCategory, 8> m_Categories;
+  ezHybridArray<SelectedPoint, 32> m_SelectedPoints;
 };

@@ -20,6 +20,9 @@ ezQtEventTrackWidget::ezQtEventTrackWidget(QWidget* parent)
   m_ControlPointBrush.setColor(QColor(200, 150, 0));
   m_ControlPointBrush.setStyle(Qt::BrushStyle::SolidPattern);
 
+  m_ControlPointPen.setStyle(Qt::PenStyle::DashLine);
+  m_ControlPointPen.setCosmetic(true);
+
   m_SelectedControlPointBrush.setColor(QColor(220, 200, 50));
   m_SelectedControlPointBrush.setStyle(Qt::BrushStyle::SolidPattern);
 }
@@ -29,6 +32,8 @@ void ezQtEventTrackWidget::SetData(const ezEventTrackData* pData, double fMinCur
 {
   m_pEditData = pData;
   m_fMaxCurveExtent = fMinCurveLength;
+
+  RecreateSortedData();
 
   //  // make sure the selection does not contain points that got deleted
   //  for (ezUInt32 i = 0; i < m_SelectedCPs.GetCount(); )
@@ -48,47 +53,40 @@ void ezQtEventTrackWidget::SetData(const ezEventTrackData* pData, double fMinCur
   update();
 }
 
-//void ezQtEventTrackWidget::SetCurves(ezCurveGroupData* pCurveEditData, double fMinCurveLength, bool bCurveLengthIsFixed)
-//{
-//  m_pCurveEditData = pCurveEditData;
-//
-//  m_Curves.Clear();
-//  m_Curves.Reserve(pCurveEditData->m_Curves.GetCount());
-//
-//  for (ezUInt32 i = 0; i < pCurveEditData->m_Curves.GetCount(); ++i)
-//  {
-//    auto& data = m_Curves.ExpandAndGetRef();
-//
-//    pCurveEditData->ConvertToRuntimeData(i, data);
-//  }
+void ezQtEventTrackWidget::RecreateSortedData()
+{
+  for (auto& cat : m_Categories)
+  {
+    cat.m_Points.Clear();
+  }
 
-//
-//  m_CurvesSorted = m_Curves;
-//  m_CurveExtents.SetCount(m_Curves.GetCount());
-//  m_fMaxCurveExtent = fMinCurveLength;
-//  m_fMinValue = ezMath::BasicType<float>::MaxValue();
-//  m_fMaxValue = -ezMath::BasicType<float>::MaxValue();
-//
-//  for (ezUInt32 i = 0; i < m_CurvesSorted.GetCount(); ++i)
-//  {
-//    ezCurve1D& curve = m_CurvesSorted[i];
-//
-//    curve.SortControlPoints();
-//    curve.CreateLinearApproximation();
-//
-//    curve.QueryExtents(m_CurveExtents[i].x, m_CurveExtents[i].y);
-//
-//    double fMin, fMax;
-//    curve.QueryExtremeValues(fMin, fMax);
-//
-//    if (!bCurveLengthIsFixed)
-//      m_fMaxCurveExtent = ezMath::Max(m_fMaxCurveExtent, m_CurveExtents[i].y);
-//
-//    m_fMinValue = ezMath::Min(m_fMinValue, fMin);
-//    m_fMaxValue = ezMath::Max(m_fMaxValue, fMax);
-//  }
+  for (ezUInt32 idx = 0; idx < m_pEditData->m_ControlPoints.GetCount(); ++idx)
+  {
+    const auto& pt = m_pEditData->m_ControlPoints[idx];
 
-//}
+    ezUInt32 uiCategory = 0;
+    if (!m_NameToCategory.TryGetValue(pt.m_sEvent, uiCategory))
+    {
+      uiCategory = m_Categories.GetCount();
+      m_NameToCategory[pt.m_sEvent] = uiCategory;
+      m_Categories.ExpandAndGetRef().m_sName = pt.m_sEvent;
+    }
+
+    auto& npt = m_Categories[uiCategory].m_Points.ExpandAndGetRef();
+
+    npt.m_uiOrgIndex = idx;
+    npt.m_fPosX = pt.GetTickAsTime();
+  }
+
+  // sort points by X position
+  for (auto& cat : m_Categories)
+  {
+    cat.m_Points.Sort([](const ezQtEventTrackWidget::Point& lhs, const ezQtEventTrackWidget::Point& rhs) -> bool
+    {
+      return lhs.m_fPosX < rhs.m_fPosX;
+    });
+  }
+}
 
 void ezQtEventTrackWidget::SetScrubberPosition(double fPosition)
 {
@@ -161,57 +159,52 @@ void ezQtEventTrackWidget::ClearSelection()
 {
   //m_selectionBRect = QRectF();
 
-  //if (!m_SelectedCPs.IsEmpty())
-  //{
-  //  m_SelectedCPs.Clear();
-  //  update();
-  //}
+  if (!m_SelectedPoints.IsEmpty())
+  {
+    for (const auto& cpSel : m_SelectedPoints)
+    {
+      m_Categories[cpSel.m_uiCategory].m_Points[cpSel.m_uiSortedIdx].m_bSelected = false;
+    }
+
+    m_SelectedPoints.Clear();
+    update();
+  }
 
   emit SelectionChangedEvent();
 }
 
-//bool ezQtEventTrackWidget::IsSelected(const ezSelectedCurveCP& cp) const
+//bool ezQtEventTrackWidget::IsSelected(ezUInt32 cp) const
 //{
-//  for (const auto& other : m_SelectedCPs)
-//  {
-//    if (other.m_uiCurve == cp.m_uiCurve && other.m_uiPoint == cp.m_uiPoint)
-//      return true;
-//  }
-//
-//  return false;
+//  return m_SelectedCPs.IndexOf(cp) != ezInvalidIndex;
 //}
-//
-//void ezQtEventTrackWidget::SetSelection(const ezSelectedCurveCP& cp)
-//{
-//  m_SelectedCPs.Clear();
-//  m_SelectedCPs.PushBack(cp);
-//
-//  ComputeSelectionRect();
-//
-//  emit SelectionChangedEvent();
-//}
-//
-//void ezQtEventTrackWidget::ToggleSelected(const ezSelectedCurveCP& cp)
+
+void ezQtEventTrackWidget::SetSelection(SelectedPoint cp)
+{
+  ClearSelection();
+
+  m_SelectedPoints.PushBack(cp);
+
+  m_Categories[cp.m_uiCategory].m_Points[cp.m_uiSortedIdx].m_bSelected = true;
+
+  //ComputeSelectionRect();
+
+  emit SelectionChangedEvent();
+}
+
+//void ezQtEventTrackWidget::ToggleSelected(ezUInt32 cp)
 //{
 //  SetSelected(cp, !IsSelected(cp));
 //
-//  ComputeSelectionRect();
+//  //ComputeSelectionRect();
 //
 //  emit SelectionChangedEvent();
 //}
 //
-//void ezQtEventTrackWidget::SetSelected(const ezSelectedCurveCP& cp, bool set)
+//void ezQtEventTrackWidget::SetSelected(ezUInt32 cp, bool set)
 //{
 //  if (!set)
 //  {
-//    for (ezUInt32 i = 0; i < m_SelectedCPs.GetCount(); ++i)
-//    {
-//      if (m_SelectedCPs[i].m_uiCurve == cp.m_uiCurve && m_SelectedCPs[i].m_uiPoint == cp.m_uiPoint)
-//      {
-//        m_SelectedCPs.RemoveAt(i);
-//        break;
-//      }
-//    }
+//    m_SelectedCPs.Remove(cp);
 //  }
 //  else
 //  {
@@ -221,7 +214,7 @@ void ezQtEventTrackWidget::ClearSelection()
 //    }
 //  }
 //
-//  ComputeSelectionRect();
+//  //ComputeSelectionRect();
 //  emit SelectionChangedEvent();
 //}
 
@@ -232,6 +225,20 @@ QRectF ezQtEventTrackWidget::ComputeViewportSceneRect() const
 
   return QRectF(topLeft, bottomRight);
 }
+
+static ezColorGammaUB g_EventColors[10 * 3] =
+{
+  ezColorGammaUB(255, 102, 0), ezColorGammaUB(76, 255, 0), ezColorGammaUB(0, 255, 255),
+  ezColorGammaUB(239, 35, 0), ezColorGammaUB(127, 255, 0), ezColorGammaUB(0, 0 ,255),
+  ezColorGammaUB(205, 92, 92), ezColorGammaUB(120, 158, 39), ezColorGammaUB(81, 120, 188),
+  ezColorGammaUB(255, 105, 180), ezColorGammaUB(0, 250, 154), ezColorGammaUB(0, 191, 255),
+  ezColorGammaUB(220, 20, 60), ezColorGammaUB(0, 255, 127), ezColorGammaUB(30, 144, 255),
+  ezColorGammaUB(240, 128, 128), ezColorGammaUB(60, 179, 113), ezColorGammaUB(135, 206, 250),
+  ezColorGammaUB(178, 34, 34), ezColorGammaUB(46, 139, 87), ezColorGammaUB(65, 105, 225),
+  ezColorGammaUB(211, 122, 122), ezColorGammaUB(144, 238, 144), ezColorGammaUB(135, 206, 235),
+  ezColorGammaUB(219, 112, 147), ezColorGammaUB(0, 128, 0), ezColorGammaUB(70, 130, 180),
+  ezColorGammaUB(255, 182, 193), ezColorGammaUB(102, 205, 170), ezColorGammaUB(100, 149, 237),
+};
 
 void ezQtEventTrackWidget::paintEvent(QPaintEvent* e)
 {
@@ -264,7 +271,6 @@ void ezQtEventTrackWidget::paintEvent(QPaintEvent* e)
 
   PaintOutsideAreaOverlay(&painter);
   PaintControlPoints(&painter);
-  PaintSelectedControlPoints(&painter);
   PaintMultiSelectionSquare(&painter);
   PaintScrubber(painter);
 }
@@ -292,7 +298,7 @@ void ezQtEventTrackWidget::mousePressEvent(QMouseEvent* e)
 
   if (e->buttons() == Qt::LeftButton) // nothing else pressed
   {
-    //  const ClickTarget clickedOn = DetectClickTarget(e->pos());
+      //const ClickTarget clickedOn = DetectClickTarget(e->pos());
 
     //  if (clickedOn == ClickTarget::Nothing || clickedOn == ClickTarget::SelectedPoint)
     //  {
@@ -305,14 +311,6 @@ void ezQtEventTrackWidget::mousePressEvent(QMouseEvent* e)
     //      case ezQtEventTrackWidget::SelectArea::Center:
     //        m_State = EditState::DraggingPoints;
     //        m_totalPointDrag = QPointF();
-    //        break;
-    //      case ezQtEventTrackWidget::SelectArea::Top:
-    //        m_scaleReferencePoint = m_selectionBRect.topLeft();
-    //        m_State = EditState::ScaleUpDown;
-    //        break;
-    //      case ezQtEventTrackWidget::SelectArea::Bottom:
-    //        m_scaleReferencePoint = m_selectionBRect.bottomRight();
-    //        m_State = EditState::ScaleUpDown;
     //        break;
     //      case ezQtEventTrackWidget::SelectArea::Left:
     //        m_State = EditState::ScaleLeftRight;
@@ -327,30 +325,30 @@ void ezQtEventTrackWidget::mousePressEvent(QMouseEvent* e)
 
     //    if (m_State == EditState::None)
     //    {
-    //      ezSelectedCurveCP cp;
-    //      if (PickCpAt(e->pos(), 8, cp))
-    //      {
-    //        if (e->modifiers().testFlag(Qt::ControlModifier))
-    //        {
-    //          ToggleSelected(cp);
-    //        }
-    //        else if (e->modifiers().testFlag(Qt::ShiftModifier))
-    //        {
-    //          SetSelected(cp, true);
-    //        }
-    //        else if (e->modifiers().testFlag(Qt::AltModifier))
-    //        {
-    //          SetSelected(cp, false);
-    //        }
-    //        else
-    //        {
-    //          if (clickedOn == ClickTarget::Nothing)
-    //            SetSelection(cp);
+          SelectedPoint selectedCP;
+          if (PickCpAt(e->pos(), 8, selectedCP))
+          {
+            if (e->modifiers().testFlag(Qt::ControlModifier))
+            {
+              //ToggleSelected(uiSelectedCP);
+            }
+            else if (e->modifiers().testFlag(Qt::ShiftModifier))
+            {
+              //SetSelected(uiSelectedCP, true);
+            }
+            else if (e->modifiers().testFlag(Qt::AltModifier))
+            {
+              //SetSelected(uiSelectedCP, false);
+            }
+            else
+            {
+              //if (clickedOn == ClickTarget::Nothing)
+                SetSelection(selectedCP);
 
-    //          m_State = EditState::DraggingPoints;
-    //          m_totalPointDrag = QPointF();
-    //        }
-    //      }
+              //m_State = EditState::DraggingPoints;
+              //m_totalPointDrag = QPointF();
+            }
+          }
     //    }
 
     //    if (m_State == EditState::None && e->modifiers() == Qt::AltModifier)
@@ -389,7 +387,7 @@ void ezQtEventTrackWidget::mousePressEvent(QMouseEvent* e)
     //      m_bBegunChanges = true;
     //    }
 
-    //    update();
+        update();
     //  }
   }
 
@@ -696,48 +694,87 @@ void ezQtEventTrackWidget::PaintOutsideAreaOverlay(QPainter* painter) const
 
 void ezQtEventTrackWidget::PaintControlPoints(QPainter* painter) const
 {
+  if (m_Categories.IsEmpty())
+    return;
+
   painter->save();
-  painter->setBrush(m_ControlPointBrush);
 
-  QPen pen(palette().light(), 1.0f);
-  pen.setCosmetic(true);
-  painter->setPen(pen);
+  ezHybridArray<QLineF, 100> lines;
+  ezHybridArray<QRectF, 100> rects;
+  ezHybridArray<QLineF, 100> linesSelected;
+  ezHybridArray<QRectF, 100> rectsSelected;
 
-  const int iy = rect().bottom();
-  ezHybridArray<QLine, 100> lines;
+  const double fRectLeft = rect().left() - 10;
+  const double fRectRight = rect().right() + 10;
+  const double fHeight = rect().bottom() - rect().top();
+  const double fStepY = fHeight / m_Categories.GetCount();
+  const double fLineStepY = fStepY / 3.5;
+  double fOffsetY = rect().top() + fStepY * 0.5;
 
-  for (ezUInt32 ptIdx = 0; ptIdx < m_pEditData->m_ControlPoints.GetCount(); ++ptIdx)
+  QBrush brush = m_ControlPointBrush;
+  QPen pen = m_ControlPointPen;
+
+  for (ezUInt32 catIdx = 0; catIdx < m_Categories.GetCount(); ++catIdx)
   {
-    const ezEventTrackControlPointData& point = m_pEditData->m_ControlPoints[ptIdx];
+    const PointCategory& cat = m_Categories[catIdx];
 
-    const int ix = MapFromScene(QPointF(point.GetTickAsTime(), 0)).x();
+    const auto& allPoints = cat.m_Points;
 
-    QLine& l = lines.ExpandAndGetRef();
-    l.setLine(ix, 0, ix, iy);
+    for (const auto& point : allPoints)
+    {
+      double ptPosX = MapFromScene(QPointF(point.m_fPosX, 0)).x();
 
-    //painter->drawEllipse(ptPos, 3.5, 3.5);
+      if (ptPosX < fRectLeft || ptPosX > fRectRight)
+        continue;
+
+      QLineF& l = point.m_bSelected ? linesSelected.ExpandAndGetRef() : lines.ExpandAndGetRef();
+      l.setLine(ptPosX, fOffsetY - fLineStepY, ptPosX, fOffsetY + fLineStepY);
+
+      QRectF& r = point.m_bSelected ? rectsSelected.ExpandAndGetRef() : rects.ExpandAndGetRef();
+      r.setX(ptPosX - 5.0);
+      r.setY(fOffsetY - 5.0);
+      r.setWidth(10.0);
+      r.setHeight(10.0);
+    }
+
+    if (!rects.IsEmpty())
+    {
+      const ezColorGammaUB& col = g_EventColors[catIdx % EZ_ARRAY_SIZE(g_EventColors)];
+
+      brush.setColor(qRgb(col.r, col.g, col.b));
+      pen.setColor(qRgb(col.r, col.g, col.b));
+
+      painter->setBrush(brush);
+      painter->setPen(pen);
+
+      painter->drawLines(lines.GetData(), lines.GetCount());
+
+      painter->setPen(Qt::NoPen);
+      painter->drawRects(rects.GetData(), rects.GetCount());
+
+      lines.Clear();
+      rects.Clear();
+    }
+
+    if (!rectsSelected.IsEmpty())
+    {
+      const QColor hlCol = palette().highlight().color();
+
+      brush.setColor(hlCol);
+      pen.setColor(hlCol);
+
+      painter->setBrush(brush);
+      painter->setPen(pen);
+
+      painter->drawLines(linesSelected.GetData(), linesSelected.GetCount());
+      painter->drawRects(rectsSelected.GetData(), rectsSelected.GetCount());
+
+      linesSelected.Clear();
+      rectsSelected.Clear();
+    }
+
+    fOffsetY += fStepY;
   }
-
-  painter->drawLines(lines.GetData(), lines.GetCount());
-
-  painter->restore();
-}
-
-void ezQtEventTrackWidget::PaintSelectedControlPoints(QPainter* painter) const
-{
-  painter->save();
-  painter->setBrush(m_SelectedControlPointBrush);
-  painter->setPen(Qt::NoPen);
-
-  //for (const auto& cpSel : m_SelectedCPs)
-  //{
-  //  const ezCurve1D& curve = m_Curves[cpSel.m_uiCurve];
-  //  const ezCurve1D::ControlPoint& cp = curve.GetControlPoint(cpSel.m_uiPoint);
-
-  //  const QPointF ptPos = MapFromScene(QPointF(cp.m_Position.x, cp.m_Position.y));
-
-  //  painter->drawEllipse(ptPos, 4.5, 4.5);
-  //}
 
   painter->restore();
 }
@@ -829,121 +866,78 @@ void ezQtEventTrackWidget::RenderVerticalGrid(QPainter* painter, const QRectF& v
   }
 }
 
-//bool ezQtEventTrackWidget::PickCpAt(const QPoint& pos, float fMaxPixelDistance, ezSelectedCurveCP& out_Result) const
-//{
-//  const ezVec2 at((float)pos.x(), (float)pos.y());
-//  float fMaxDistSqr = ezMath::Square(fMaxPixelDistance);
-//
-//  out_Result.m_uiCurve = 0xFFFF;
-//
-//  for (ezUInt32 uiCurve = 0; uiCurve < m_Curves.GetCount(); ++uiCurve)
-//  {
-//    const ezCurve1D& curve = m_Curves[uiCurve];
-//
-//    for (ezUInt32 uiCP = 0; uiCP < curve.GetNumControlPoints(); ++uiCP)
-//    {
-//      const auto& cp = curve.GetControlPoint(uiCP);
-//
-//      const QPoint diff = MapFromScene(cp.m_Position) - pos;
-//      const ezVec2 fDiff(diff.x(), diff.y());
-//
-//      const float fDistSqr = fDiff.GetLengthSquared();
-//      if (fDistSqr <= fMaxDistSqr)
-//      {
-//        fMaxDistSqr = fDistSqr;
-//        out_Result.m_uiCurve = uiCurve;
-//        out_Result.m_uiPoint = uiCP;
-//      }
-//    }
-//  }
-//
-//  return out_Result.m_uiCurve != 0xFFFF;
-//}
+bool ezQtEventTrackWidget::PickCpAt(const QPoint& pos, float fMaxPixelDistance, SelectedPoint& out_Result) const
+{
+  const ezVec2 at((float)pos.x(), (float)pos.y());
+  float fMaxDistSqr = ezMath::Square(fMaxPixelDistance);
 
-//static inline ezVec2d ToVec(const QPoint& pt)
-//{
-//  return ezVec2d(pt.x(), pt.y());
-//}
-//
-//ezQtEventTrackWidget::ClickTarget ezQtEventTrackWidget::DetectClickTarget(const QPoint& pos)
-//{
-//  const ezVec2d vScreenPos(pos.x(), pos.y());
-//  float fMinDistSQR = ezMath::Square(15);
-//  ezInt32 iBestCurve = -1;
-//  ezInt32 iBestCP = -1;
-//  ezInt32 iBestComp = -1;
-//
-//  for (ezUInt32 i = 0; i < m_SelectedCPs.GetCount(); ++i)
-//  {
-//    const auto& cpSel = m_SelectedCPs[i];
-//    const auto& cp = m_pCurveEditData->m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint];
-//
-//    const ezVec2d point(cp.GetTickAsTime(), cp.m_fValue);
-//
-//    const ezVec2d ptPos = ToVec(MapFromScene(point));
-//    ezVec2d ptLeft;
-//    ezVec2d ptRight;
-//
-//    //if (cp.m_LeftTangentMode == ezCurveTangentMode::Bezier)
-//    ptLeft = ToVec(MapFromScene(point + ezVec2d(cp.m_LeftTangent.x, cp.m_LeftTangent.y)));
-//    //else
-//      //ptLeft = ToVec(MapFromScene(cp.m_Point)) + MapDirFromScene(cp.m_LeftTangent).GetNormalized() * 50.0f;
-//
-//    //if (cp.m_RightTangentMode == ezCurveTangentMode::Bezier)
-//    ptRight = ToVec(MapFromScene(point + ezVec2d(cp.m_RightTangent.x, cp.m_RightTangent.y)));
-//    //else
-//      //ptRight = ToVec(MapFromScene(cp.m_Point)) + MapDirFromScene(cp.m_RightTangent).GetNormalized() * 50.0f;
-//
-//    {
-//      const float distSQR = (ptPos - vScreenPos).GetLengthSquared();
-//      if (distSQR < fMinDistSQR)
-//      {
-//        fMinDistSQR = distSQR;
-//        iBestCurve = cpSel.m_uiCurve;
-//        iBestCP = cpSel.m_uiPoint;
-//        iBestComp = 0;
-//      }
-//    }
-//    {
-//      const float distSQR = (ptLeft - vScreenPos).GetLengthSquared();
-//      if (distSQR < fMinDistSQR)
-//      {
-//        fMinDistSQR = distSQR;
-//        iBestCurve = cpSel.m_uiCurve;
-//        iBestCP = cpSel.m_uiPoint;
-//        iBestComp = 1;
-//      }
-//    }
-//    {
-//      const float distSQR = (ptRight - vScreenPos).GetLengthSquared();
-//      if (distSQR < fMinDistSQR)
-//      {
-//        fMinDistSQR = distSQR;
-//        iBestCurve = cpSel.m_uiCurve;
-//        iBestCP = cpSel.m_uiPoint;
-//        iBestComp = 2;
-//      }
-//    }
-//  }
-//
-//  m_iSelectedTangentCurve = -1;
-//  m_iSelectedTangentPoint = -1;
-//  m_bSelectedTangentLeft = false;
-//
-//  if (iBestComp > 0)
-//  {
-//    m_iSelectedTangentCurve = iBestCurve;
-//    m_iSelectedTangentPoint = iBestCP;
-//    m_bSelectedTangentLeft = (iBestComp == 1);
-//
-//    return ClickTarget::TangentHandle;
-//  }
-//
-//  if (iBestComp == 0)
-//    return ClickTarget::SelectedPoint;
-//
-//  return ClickTarget::Nothing;
-//}
+  out_Result.m_uiCategory = 0xFFFFFFFF;
+  out_Result.m_uiSortedIdx = 0xFFFFFFFF;
+
+  const double fHeight = rect().bottom() - rect().top();
+  const double fStepY = fHeight / m_Categories.GetCount();
+  double fOffsetY = rect().top() + fStepY * 0.5;
+
+  for (ezUInt32 catIdx = 0; catIdx < m_Categories.GetCount(); ++catIdx)
+  {
+    const auto& cat = m_Categories[catIdx];
+
+    const double diffY = fOffsetY - pos.y();
+
+    if (ezMath::Abs(diffY) < 20)
+    {
+      const auto& allPoints = cat.m_Points;
+
+      for (ezUInt32 ptIdx = 0; ptIdx < allPoints.GetCount(); ++ptIdx)
+      {
+        const auto& point = allPoints[ptIdx];
+
+        double ptPosX = MapFromScene(QPointF(point.m_fPosX, 0)).x();
+        const ezVec2 fDiff(ptPosX - pos.x(), diffY);
+
+        const float fDistSqr = fDiff.GetLengthSquared();
+        if (fDistSqr <= fMaxDistSqr)
+        {
+          fMaxDistSqr = fDistSqr;
+          out_Result.m_uiCategory = catIdx;
+          out_Result.m_uiSortedIdx = ptIdx;
+        }
+      }
+    }
+
+    fOffsetY += fStepY;
+  }
+
+  return out_Result.m_uiSortedIdx != 0xFFFFFFFF;
+}
+
+ezQtEventTrackWidget::ClickTarget ezQtEventTrackWidget::DetectClickTarget(const QPoint& pos)
+{
+  //const ezVec2d vScreenPos(pos.x(), pos.y());
+  //float fMinDistSQR = ezMath::Square(15);
+  //ezInt32 iBestCP = -1;
+
+  //for (ezUInt32 i = 0; i < m_SelectedCPs.GetCount(); ++i)
+  //{
+  //  const auto& cpSel = m_pEditData->m_ControlPoints[m_SelectedCPs[i]];
+
+  //  const ezVec2d point(cpSel.GetTickAsTime(), cp.m_fValue);
+
+  //  const ezVec2d ptPos = ToVec(MapFromScene(point));
+
+  //    const float distSQR = (ptPos - vScreenPos).GetLengthSquared();
+  //    if (distSQR < fMinDistSQR)
+  //    {
+  //      fMinDistSQR = distSQR;
+  //      iBestCP = cpSel.m_uiPoint;
+  //    }
+  //}
+
+  //if (iBestCP != 0)
+  //  return ClickTarget::SelectedPoint;
+
+  return ClickTarget::Nothing;
+}
 //
 //void ezQtEventTrackWidget::ExecMultiSelection(ezDynamicArray<ezSelectedCurveCP>& out_Selection)
 //{

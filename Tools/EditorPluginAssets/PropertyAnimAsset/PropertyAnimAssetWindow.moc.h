@@ -135,6 +135,7 @@ private:
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
+  void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);
   void UpdateCurveEditor();
   void UpdateGradientEditor();
   void UpdateEventTrackEditor();
@@ -156,4 +157,7 @@ private:
   ezQtDocumentPanel* m_pColorGradientPanel = nullptr;
   ezQtDocumentPanel* m_pEventTrackPanel = nullptr;
   bool m_bAnimTimerInFlight = false;
+  bool m_bUpdateEventTrackEditor = false;
+  bool m_bUpdateCurveEditor = false;
+  bool m_bUpdateGradientEditor = false;
 };
