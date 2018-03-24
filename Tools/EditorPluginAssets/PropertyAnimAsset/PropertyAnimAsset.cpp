@@ -1008,7 +1008,7 @@ ezUuid ezPropertyAnimAssetDocument::InsertEventTrackCpAt(ezInt64 tickX, const ch
   acc.StartTransaction("Insert Event");
 
   const ezAbstractProperty* pTrackProp = ezGetStaticRTTI<ezPropertyAnimationTrackGroup>()->FindPropertyByName("EventTrack");
-  ezUuid trackGuid = m_pAccessor->Get<ezUuid>(GetPropertyObject(), pTrackProp);
+  ezUuid trackGuid = accessor.Get<ezUuid>(GetPropertyObject(), pTrackProp);
 
   ezUuid newObjectGuid;
   EZ_VERIFY(acc.AddObject(accessor.GetObject(trackGuid), "ControlPoints", -1, ezGetStaticRTTI<ezEventTrackControlPointData>(), newObjectGuid).Succeeded(), "");

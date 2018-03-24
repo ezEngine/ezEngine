@@ -17,6 +17,14 @@ class EZ_GUIFOUNDATION_DLL ezQtEventTrackWidget : public QWidget
   Q_OBJECT
 
 public:
+  struct SelectedPoint
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    ezUInt32 m_uiCategory;
+    ezUInt32 m_uiSortedIdx;
+  };
+
   ezQtEventTrackWidget(QWidget* parent);
 
   void SetData(const ezEventTrackData* pData, double fMinCurveLength);
@@ -27,18 +35,18 @@ public:
   void FrameCurve();
 
   QPoint MapFromScene(const QPointF& pos) const;
-  //QPoint MapFromScene(const ezVec2d& pos) const { return MapFromScene(QPointF(pos.x, pos.y)); }
   QPointF MapToScene(const QPoint& pos) const;
 
   void ClearSelection();
+  void GetSelection(ezHybridArray<ezUInt32, 32>& out_Selection) const;
 
 signals:
   void DoubleClickEvent(double scenePosX, double epsilon);
   void DeleteControlPointsEvent();
-  //void MoveControlPointsEvent(double moveX, double moveY);
+  void MoveControlPointsEvent(double moveX);
   void BeginOperationEvent(QString name);
   void EndOperationEvent(bool bCommit);
-  //void ScaleControlPointsEvent(const QPointF& centerPos, double scaleX, double scaleY);
+  void ScaleControlPointsEvent(const QPointF& centerPos, double scaleX);
   void ContextMenuEvent(QPoint pos, QPointF scenePos);
   void SelectionChangedEvent();
 
@@ -54,6 +62,7 @@ protected:
 private:
   enum class ClickTarget { Nothing, SelectedPoint };
   enum class EditState { None, DraggingPoints, MultiSelect, RightClick, Panning, ScaleLeftRight };
+  enum class SelectArea { None, Center, Left, Right };
 
   struct Point
   {
@@ -64,25 +73,17 @@ private:
     double m_fPosX;
   };
 
-  struct SelectedPoint
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    ezUInt32 m_uiCategory;
-    ezUInt32 m_uiSortedIdx;
-  };
-
   struct PointCategory
   {
     ezHashedString m_sName;
-    ezHybridArray<Point, 32> m_Points;
+    ezHybridArray<Point, 32> m_SortedPoints;
   };
 
-  //const ezDynamicArray<ezUInt32>& GetSelection() const { return m_SelectedCPs; }
-  //bool IsSelected(ezUInt32 cp) const;
+  bool IsSelected(SelectedPoint cp) const;
   void SetSelection(SelectedPoint cp);
-  //void ToggleSelected(ezUInt32 cp);
-  //void SetSelected(ezUInt32 cp, bool set);
+  void SetSelection(const ezHybridArray<SelectedPoint, 32>& selection);
+  void ToggleSelected(SelectedPoint cp);
+  void SetSelected(SelectedPoint cp, bool set);
 
   void PaintOutsideAreaOverlay(QPainter* painter) const;
   void PaintControlPoints(QPainter* painter) const;
@@ -92,10 +93,10 @@ private:
   QRectF ComputeViewportSceneRect() const;
   bool PickCpAt(const QPoint& pos, float fMaxPixelDistance, SelectedPoint& out_Result) const;
   ClickTarget DetectClickTarget(const QPoint& pos);
-  //void ExecMultiSelection(ezDynamicArray<ezSelectedCurveCP>& out_Selection);
-  //bool CombineSelection(ezDynamicArray<ezSelectedCurveCP>& inout_Selection, const ezDynamicArray<ezSelectedCurveCP>& change, bool add);
-  //void ComputeSelectionRect();
-  //SelectArea WhereIsPoint(QPoint pos) const;
+  void ExecMultiSelection(ezHybridArray<SelectedPoint, 32>& out_Selection);
+  bool CombineSelection(ezHybridArray<SelectedPoint, 32>& inout_Selection, const ezHybridArray<SelectedPoint, 32>& change, bool add);
+  void ComputeSelectionRect();
+  SelectArea WhereIsPoint(QPoint pos) const;
   void ClampZoomPan();
   void RecreateSortedData();
 
@@ -114,16 +115,15 @@ private:
   QBrush m_SelectedControlPointBrush;
   QPen m_ControlPointPen;
 
-  //ezDynamicArray<ezUInt32> m_SelectedCPs;
   bool m_bBegunChanges = false;
   bool m_bFrameBeforePaint = true;
 
   QPoint m_multiSelectionStart;
   QRect m_multiSelectRect;
-  //QRectF m_selectionBRect;
-  //QPointF m_scaleReferencePoint;
-  //QPointF m_scaleStartPoint;
-  //QPointF m_totalPointDrag;
+  QRectF m_selectionBRect;
+  QPointF m_scaleReferencePoint;
+  QPointF m_scaleStartPoint;
+  QPointF m_totalPointDrag;
   QRubberBand* m_pRubberband = nullptr;
 
   bool m_bShowScrubber = false;

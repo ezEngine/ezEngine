@@ -127,6 +127,12 @@ private slots:
   //////////////////////////////////////////////////////////////////////////
   // Event track editor events
   void onEventTrackInsertCpAt(ezInt64 tickX, QString value);
+  void onEventTrackCpMoved(ezUInt32 cpIdx, ezInt64 iTickX);
+  void onEventTrackCpDeleted(ezUInt32 cpIdx);
+  void onEventTrackBeginOperation(QString name);
+  void onEventTrackEndOperation(bool commit);
+  void onEventTrackBeginCpChanges(QString name);
+  void onEventTrackEndCpChanges();
 
   //////////////////////////////////////////////////////////////////////////
 

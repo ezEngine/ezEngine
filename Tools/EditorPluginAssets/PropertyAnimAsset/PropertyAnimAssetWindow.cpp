@@ -230,13 +230,13 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
   // Event track editor events
   {
     connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::InsertCpEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onEventTrackInsertCpAt);
-    //connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::CpMovedEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveCpMoved);
-    //connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::CpDeletedEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveCpDeleted);
+    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::CpMovedEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onEventTrackCpMoved);
+    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::CpDeletedEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onEventTrackCpDeleted);
 
-    //connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::BeginOperationEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveBeginOperation);
-    //connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::EndOperationEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveEndOperation);
-    //connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::BeginCpChangesEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveBeginCpChanges);
-    //connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::EndCpChangesEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onCurveEndCpChanges);
+    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::BeginOperationEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onEventTrackBeginOperation);
+    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::EndOperationEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onEventTrackEndOperation);
+    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::BeginCpChangesEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onEventTrackBeginCpChanges);
+    connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::EndCpChangesEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onEventTrackEndCpChanges);
   }
 
   GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler, this));
@@ -731,8 +731,6 @@ void ezQtPropertyAnimAssetDocumentWindow::onCurveEndOperation(bool commit)
     history->FinishTemporaryCommands();
   else
     history->CancelTemporaryCommands();
-
-  UpdateCurveEditor();
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onCurveBeginCpChanges(QString name)
@@ -1138,6 +1136,61 @@ void ezQtPropertyAnimAssetDocumentWindow::onEventTrackInsertCpAt(ezInt64 tickX, 
   ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
   pDoc->InsertEventTrackCpAt(tickX, value.toUtf8().data());
 
+}
+
+void ezQtPropertyAnimAssetDocumentWindow::onEventTrackCpMoved(ezUInt32 cpIdx, ezInt64 iTickX)
+{
+  iTickX = ezMath::Max<ezInt64>(iTickX, 0);
+
+  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
+
+  ezObjectCommandAccessor accessor(pDoc->GetCommandHistory());
+
+  const ezAbstractProperty* pTrackProp = ezGetStaticRTTI<ezPropertyAnimationTrackGroup>()->FindPropertyByName("EventTrack");
+  const ezUuid trackGuid = accessor.Get<ezUuid>(pDoc->GetPropertyObject(), pTrackProp);
+  const ezDocumentObject* pTrackObj = accessor.GetObject(trackGuid);
+
+  const ezVariant cpGuid = pTrackObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+
+  ezSetObjectPropertyCommand cmdSet;
+  cmdSet.m_Object = cpGuid.Get<ezUuid>();
+
+  cmdSet.m_sProperty = "Tick";
+  cmdSet.m_NewValue = iTickX;
+  pDoc->GetCommandHistory()->AddCommand(cmdSet);
+}
+
+void ezQtPropertyAnimAssetDocumentWindow::onEventTrackCpDeleted(ezUInt32 cpIdx)
+{
+
+}
+
+void ezQtPropertyAnimAssetDocumentWindow::onEventTrackBeginOperation(QString name)
+{
+  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+  history->BeginTemporaryCommands("Modify Events");
+}
+
+void ezQtPropertyAnimAssetDocumentWindow::onEventTrackEndOperation(bool commit)
+{
+  ezCommandHistory* history = GetDocument()->GetCommandHistory();
+
+  if (commit)
+    history->FinishTemporaryCommands();
+  else
+    history->CancelTemporaryCommands();
+}
+
+void ezQtPropertyAnimAssetDocumentWindow::onEventTrackBeginCpChanges(QString name)
+{
+  GetDocument()->GetCommandHistory()->StartTransaction(name.toUtf8().data());
+}
+
+void ezQtPropertyAnimAssetDocumentWindow::onEventTrackEndCpChanges()
+{
+  GetDocument()->GetCommandHistory()->FinishTransaction();
+
+  UpdateEventTrackEditor();
 }
 
 //////////////////////////////////////////////////////////////////////////

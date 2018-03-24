@@ -15,24 +15,19 @@ ezQtEventTrackEditorWidget::ezQtEventTrackEditorWidget(QWidget* pParent)
 
   EventTrackEdit->SetGridBarWidget(GridBarWidget);
 
-  //connect(EventTrackEdit, &ezQtEventTrackEditWidget::DeleteControlPointsEvent, this, &ezQtEventTrackEditorWidget::onDeleteControlPoints);
+  connect(EventTrackEdit, &ezQtEventTrackWidget::DeleteControlPointsEvent, this, &ezQtEventTrackEditorWidget::onDeleteControlPoints);
   connect(EventTrackEdit, &ezQtEventTrackWidget::DoubleClickEvent, this, &ezQtEventTrackEditorWidget::onDoubleClick);
-  //connect(EventTrackEdit, &ezQtEventTrackEditWidget::MoveControlPointsEvent, this, &ezQtEventTrackEditorWidget::onMoveControlPoints);
-  //connect(EventTrackEdit, &ezQtEventTrackEditWidget::MoveTangentsEvent, this, &ezQtEventTrackEditorWidget::onMoveTangents);
-  //connect(EventTrackEdit, &ezQtEventTrackEditWidget::BeginOperationEvent, this, &ezQtEventTrackEditorWidget::onBeginOperation);
-  //connect(EventTrackEdit, &ezQtEventTrackEditWidget::EndOperationEvent, this, &ezQtEventTrackEditorWidget::onEndOperation);
-  //connect(EventTrackEdit, &ezQtEventTrackEditWidget::ScaleControlPointsEvent, this, &ezQtEventTrackEditorWidget::onScaleControlPoints);
-  //connect(EventTrackEdit, &ezQtEventTrackEditWidget::ContextMenuEvent, this, &ezQtEventTrackEditorWidget::onContextMenu);
-  //connect(EventTrackEdit, &ezQtEventTrackEditWidget::SelectionChangedEvent, this, &ezQtEventTrackEditorWidget::onSelectionChanged);
-  //connect(EventTrackEdit, &ezQtEventTrackEditWidget::MoveCurveEvent, this, &ezQtEventTrackEditorWidget::onMoveCurve);
+  connect(EventTrackEdit, &ezQtEventTrackWidget::MoveControlPointsEvent, this, &ezQtEventTrackEditorWidget::onMoveControlPoints);
+  connect(EventTrackEdit, &ezQtEventTrackWidget::BeginOperationEvent, this, &ezQtEventTrackEditorWidget::onBeginOperation);
+  connect(EventTrackEdit, &ezQtEventTrackWidget::EndOperationEvent, this, &ezQtEventTrackEditorWidget::onEndOperation);
+  //connect(EventTrackEdit, &ezQtEventTrackWidget::ScaleControlPointsEvent, this, &ezQtEventTrackEditorWidget::onScaleControlPoints);
+  //connect(EventTrackEdit, &ezQtEventTrackWidget::ContextMenuEvent, this, &ezQtEventTrackEditorWidget::onContextMenu);
+  //connect(EventTrackEdit, &ezQtEventTrackWidget::SelectionChangedEvent, this, &ezQtEventTrackEditorWidget::onSelectionChanged);
 
   LinePosition->setEnabled(false);
 }
 
-ezQtEventTrackEditorWidget::~ezQtEventTrackEditorWidget()
-{
-}
-
+ezQtEventTrackEditorWidget::~ezQtEventTrackEditorWidget() = default;
 
 void ezQtEventTrackEditorWidget::SetData(const ezEventTrackData& data, double fMinCurveLength)
 {
@@ -62,79 +57,62 @@ void ezQtEventTrackEditorWidget::FrameCurve()
   EventTrackEdit->FrameCurve();
 }
 
-//struct PtToDelete
-//{
-//  EZ_DECLARE_POD_TYPE();
-//
-//  ezUInt32 m_uiCurveIdx;
-//  ezUInt32 m_uiPointIdx;
-//
-//  bool operator<(const PtToDelete& rhs) const
-//  {
-//    return m_uiPointIdx > rhs.m_uiPointIdx;
-//  }
-//};
-//
-//void ezQtEventTrackEditorWidget::onDeleteControlPoints()
-//{
-//  const auto selection = EventTrackEdit->GetSelection();
-//
-//  if (selection.IsEmpty())
-//    return;
-//
-//  EventTrackEdit->ClearSelection();
-//
-//  emit BeginCpChangesEvent("Delete Points");
-//
-//  ezHybridArray<PtToDelete, 16> delOrder;
-//
-//  for (const auto& item : selection)
-//  {
-//    auto& pt = delOrder.ExpandAndGetRef();
-//    pt.m_uiCurveIdx = item.m_uiCurve;
-//    pt.m_uiPointIdx = item.m_uiPoint;
-//  }
-//
-//  delOrder.Sort();
-//
-//  // delete sorted from back to front to prevent point indices becoming invalidated
-//  for (const auto& pt : delOrder)
-//  {
-//    emit CpDeletedEvent(pt.m_uiCurveIdx, pt.m_uiPointIdx);
-//  }
-//
-//  emit EndCpChangesEvent();
-//}
+void ezQtEventTrackEditorWidget::onDeleteControlPoints()
+{
+  ezHybridArray<ezUInt32, 32> selection;
+  EventTrackEdit->GetSelection(selection);
+
+  if (selection.IsEmpty())
+    return;
+
+  EventTrackEdit->ClearSelection();
+
+  emit BeginCpChangesEvent("Delete Events");
+
+  selection.Sort([](ezUInt32 lhs, ezUInt32 rhs) -> bool
+  {
+    return lhs > rhs;
+  });
+
+  // delete sorted from back to front to prevent point indices becoming invalidated
+  for (ezUInt32 pt : selection)
+  {
+    emit CpDeletedEvent(pt);
+  }
+
+  emit EndCpChangesEvent();
+}
 
 void ezQtEventTrackEditorWidget::onDoubleClick(double scenePosX, double epsilon)
 {
   InsertCpAt(scenePosX, ezMath::Abs(epsilon));
 }
 
-//void ezQtEventTrackEditorWidget::onMoveControlPoints(double x, double y)
-//{
-//  m_ControlPointMove += ezVec2d(x, y);
-//
-//  const auto selection = EventTrackEdit->GetSelection();
-//
-//  if (selection.IsEmpty())
-//    return;
-//
-//  emit BeginCpChangesEvent("Move Points");
-//
-//  for (const auto& cpSel : selection)
-//  {
-//    const auto& cp = m_CurvesBackup.m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint];
-//    ezVec2d newPos = ezVec2d(cp.GetTickAsTime(), cp.m_fValue) + m_ControlPointMove;
-//    newPos.x = ezMath::Max(newPos.x, 0.0);
-//    newPos.y = ezMath::Clamp(newPos.y, -100000.0, +100000.0);
-//
-//    emit CpMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, m_Curves.TickFromTime(newPos.x), newPos.y);
-//  }
-//
-//  emit EndCpChangesEvent();
-//}
-//
+void ezQtEventTrackEditorWidget::onMoveControlPoints(double x)
+{
+  m_ControlPointMove += x;
+
+  ezHybridArray<ezUInt32, 32> selection;
+  EventTrackEdit->GetSelection(selection);
+
+  if (selection.IsEmpty())
+    return;
+
+  emit BeginCpChangesEvent("Move Events");
+
+  for (const auto& cpSel : selection)
+  {
+    auto& cp = m_DataCopy.m_ControlPoints[cpSel];
+
+    double newPos = cp.GetTickAsTime() + m_ControlPointMove;
+    newPos = ezMath::Max(newPos, 0.0);
+
+    emit CpMovedEvent(cpSel, m_pData->TickFromTime(newPos));
+  }
+
+  emit EndCpChangesEvent();
+}
+
 //void ezQtEventTrackEditorWidget::onScaleControlPoints(QPointF refPt, double scaleX, double scaleY)
 //{
 //  const auto selection = EventTrackEdit->GetSelection();
@@ -160,20 +138,19 @@ void ezQtEventTrackEditorWidget::onDoubleClick(double scenePosX, double epsilon)
 //  emit EndCpChangesEvent();
 //}
 
-//void ezQtEventTrackEditorWidget::onBeginOperation(QString name)
-//{
-//  m_CurvesBackup.CloneFrom(m_Curves);
-//  m_TangentMove.SetZero();
-//  m_ControlPointMove.SetZero();
-//
-//  emit BeginOperationEvent(name);
-//}
-//
-//void ezQtEventTrackEditorWidget::onEndOperation(bool commit)
-//{
-//  emit EndOperationEvent(commit);
-//}
-//
+void ezQtEventTrackEditorWidget::onBeginOperation(QString name)
+{
+  m_ControlPointMove = 0;
+  m_DataCopy = *m_pData;
+
+  emit BeginOperationEvent(name);
+}
+
+void ezQtEventTrackEditorWidget::onEndOperation(bool commit)
+{
+  emit EndOperationEvent(commit);
+}
+
 //void ezQtEventTrackEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
 //{
 //  if (m_Curves.m_Curves.IsEmpty())
@@ -189,38 +166,9 @@ void ezQtEventTrackEditorWidget::onDoubleClick(double scenePosX, double epsilon)
 //  if (!selection.IsEmpty())
 //  {
 //    m.addAction("Delete Points", this, SLOT(onDeleteControlPoints()), QKeySequence(Qt::Key_Delete));
-//    m.addSeparator();
-//    m.addAction("Link Tangents", this, SLOT(onLinkTangents()));
-//    m.addAction("Break Tangents", this, SLOT(onBreakTangents()));
-//    m.addAction("Flatten Tangents", this, SLOT(onFlattenTangents()));
-//
-//    QMenu* cmLT = m.addMenu("Left Tangents");
-//    QMenu* cmRT = m.addMenu("Right Tangents");
-//    QMenu* cmBT = m.addMenu("Both Tangents");
-//
-//    cmLT->addAction("Auto", this, [this]() { SetTangentMode(ezCurveTangentMode::Auto, true, false); });
-//    cmLT->addAction("Bezier", this, [this]() { SetTangentMode(ezCurveTangentMode::Bezier, true, false); });
-//    cmLT->addAction("Fixed Length", this, [this]() { SetTangentMode(ezCurveTangentMode::FixedLength, true, false); });
-//    cmLT->addAction("Linear", this, [this]() { SetTangentMode(ezCurveTangentMode::Linear, true, false); });
-//
-//    cmRT->addAction("Auto", this, [this]() { SetTangentMode(ezCurveTangentMode::Auto, false, true); });
-//    cmRT->addAction("Bezier", this, [this]() { SetTangentMode(ezCurveTangentMode::Bezier, false, true); });
-//    cmRT->addAction("Fixed Length", this, [this]() { SetTangentMode(ezCurveTangentMode::FixedLength, false, true); });
-//    cmRT->addAction("Linear", this, [this]() { SetTangentMode(ezCurveTangentMode::Linear, false, true); });
-//
-//    cmBT->addAction("Auto", this, [this]() { SetTangentMode(ezCurveTangentMode::Auto, true, true); });
-//    cmBT->addAction("Bezier", this, [this]() { SetTangentMode(ezCurveTangentMode::Bezier, true, true); });
-//    cmBT->addAction("Fixed Length", this, [this]() { SetTangentMode(ezCurveTangentMode::FixedLength, true, true); });
-//    cmBT->addAction("Linear", this, [this]() { SetTangentMode(ezCurveTangentMode::Linear, true, true); });
 //  }
 //
 //  m.addSeparator();
-//  QMenu* cm = m.addMenu("Curve");
-//  cm->addSeparator();
-//  cm->addAction("Normalize X", this, [this]() { NormalizeCurveX(0); });
-//  cm->addAction("Normalize Y", this, [this]() { NormalizeCurveY(0); });
-//  cm->addAction("Loop: Adjust Last Point", this, [this]() { MakeRepeatable(true); });
-//  cm->addAction("Loop: Adjust First Point", this, [this]() { MakeRepeatable(false); });
 //
 //  m.addAction("Frame", this, [this]() { FrameCurve(); }, QKeySequence(Qt::ControlModifier | Qt::Key_F));
 //
@@ -236,54 +184,17 @@ void ezQtEventTrackEditorWidget::InsertCpAt(double posX, double epsilon)
 {
   int curveIdx = 0, cpIdx = 0;
   posX = ezMath::Max(posX, 0.0);
-  //value = ezMath::Clamp(value, -100000.0, +100000.0);
-
-  // do not insert at a point where a CP already exists
-  //if (PickControlPointAt(posX, value, epsilon, curveIdx, cpIdx))
-    //return;
 
   emit InsertCpEvent(m_pData->TickFromTime(posX), "test");
 }
 
-//bool ezQtEventTrackEditorWidget::PickControlPointAt(double x, double y, ezVec2d vMaxDistance, ezInt32& out_iCurveIdx, ezInt32& out_iCpIdx) const
-//{
-//  const ezVec2d at(x, y);
-//
-//  out_iCurveIdx = -1;
-//  out_iCpIdx = -1;
-//
-//  ezCurve1D CurveData;
-//
-//  for (ezUInt32 iCurve = 0; iCurve < m_Curves.m_Curves.GetCount(); ++iCurve)
-//  {
-//    m_Curves.ConvertToRuntimeData(iCurve, CurveData);
-//
-//    for (ezUInt32 iCP = 0; iCP < CurveData.GetNumControlPoints(); ++iCP)
-//    {
-//      const auto& cp = CurveData.GetControlPoint(iCP);
-//      const ezVec2d dist = cp.m_Position - at;
-//
-//      if (ezMath::Abs(dist.x) <= vMaxDistance.x && ezMath::Abs(dist.y) <= vMaxDistance.y)
-//      {
-//        vMaxDistance.x = ezMath::Abs(dist.x);
-//        vMaxDistance.y = ezMath::Abs(dist.y);
-//
-//        out_iCurveIdx = iCurve;
-//        out_iCpIdx = iCP;
-//      }
-//    }
-//  }
-//
-//  return out_iCpIdx >= 0;
-//}
-//
-//void ezQtEventTrackEditorWidget::onSelectionChanged()
-//{
-//  UpdateSpinBoxes();
-//}
+void ezQtEventTrackEditorWidget::onSelectionChanged()
+{
+  UpdateSpinBoxes();
+}
 
-//void ezQtEventTrackEditorWidget::UpdateSpinBoxes()
-//{
+void ezQtEventTrackEditorWidget::UpdateSpinBoxes()
+{
 //  const auto& selection = EventTrackEdit->GetSelection();
 //
 //  ezQtScopedBlockSignals _1(LinePosition, LineValue);
@@ -332,7 +243,7 @@ void ezQtEventTrackEditorWidget::InsertCpAt(double posX, double epsilon)
 //
 //  LinePosition->setText(bMultipleTicks ? QString() : QString::number(fPos, 'f', 2));
 //  LineValue->setText(bMultipleValues ? QString() : QString::number(fVal, 'f', 3));
-//}
+}
 
 //void ezQtEventTrackEditorWidget::on_LinePosition_editingFinished()
 //{

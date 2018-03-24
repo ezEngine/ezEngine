@@ -57,7 +57,7 @@ void ezQtEventTrackWidget::RecreateSortedData()
 {
   for (auto& cat : m_Categories)
   {
-    cat.m_Points.Clear();
+    cat.m_SortedPoints.Clear();
   }
 
   for (ezUInt32 idx = 0; idx < m_pEditData->m_ControlPoints.GetCount(); ++idx)
@@ -72,7 +72,7 @@ void ezQtEventTrackWidget::RecreateSortedData()
       m_Categories.ExpandAndGetRef().m_sName = pt.m_sEvent;
     }
 
-    auto& npt = m_Categories[uiCategory].m_Points.ExpandAndGetRef();
+    auto& npt = m_Categories[uiCategory].m_SortedPoints.ExpandAndGetRef();
 
     npt.m_uiOrgIndex = idx;
     npt.m_fPosX = pt.GetTickAsTime();
@@ -81,7 +81,7 @@ void ezQtEventTrackWidget::RecreateSortedData()
   // sort points by X position
   for (auto& cat : m_Categories)
   {
-    cat.m_Points.Sort([](const ezQtEventTrackWidget::Point& lhs, const ezQtEventTrackWidget::Point& rhs) -> bool
+    cat.m_SortedPoints.Sort([](const ezQtEventTrackWidget::Point& lhs, const ezQtEventTrackWidget::Point& rhs) -> bool
     {
       return lhs.m_fPosX < rhs.m_fPosX;
     });
@@ -107,19 +107,18 @@ void ezQtEventTrackWidget::FrameCurve()
   {
     fWidth = 10.0;
   }
-  //else if (m_SelectedCPs.GetCount() > 1)
-  //{
-  //  fWidth = m_selectionBRect.width();
+  else if (m_SelectedPoints.GetCount() > 1)
+  {
+    fWidth = m_selectionBRect.width();
 
-  //  fOffsetX = m_selectionBRect.left();
-  //}
-  //else if (m_SelectedCPs.GetCount() == 1)
-  //{
-  //  fWidth = 0.1f;
+    fOffsetX = m_selectionBRect.left();
+  }
+  else if (m_SelectedPoints.GetCount() == 1)
+  {
+    fWidth = 0.1f;
 
-  //  const auto& point = m_pCurveEditData->m_Curves[m_SelectedCPs[0].m_uiCurve]->m_ControlPoints[m_SelectedCPs[0].m_uiPoint];
-  //  fOffsetX = point.GetTickAsTime() - 0.05;
-  //}
+    fOffsetX = m_Categories[m_SelectedPoints[0].m_uiCategory].m_SortedPoints[m_SelectedPoints[0].m_uiSortedIdx].m_fPosX - 0.05;
+  }
 
   fWidth = ezMath::Max(fWidth, 0.1);
 
@@ -157,13 +156,13 @@ QPointF ezQtEventTrackWidget::MapToScene(const QPoint& pos) const
 
 void ezQtEventTrackWidget::ClearSelection()
 {
-  //m_selectionBRect = QRectF();
+  m_selectionBRect = QRectF();
 
   if (!m_SelectedPoints.IsEmpty())
   {
     for (const auto& cpSel : m_SelectedPoints)
     {
-      m_Categories[cpSel.m_uiCategory].m_Points[cpSel.m_uiSortedIdx].m_bSelected = false;
+      m_Categories[cpSel.m_uiCategory].m_SortedPoints[cpSel.m_uiSortedIdx].m_bSelected = false;
     }
 
     m_SelectedPoints.Clear();
@@ -173,10 +172,21 @@ void ezQtEventTrackWidget::ClearSelection()
   emit SelectionChangedEvent();
 }
 
-//bool ezQtEventTrackWidget::IsSelected(ezUInt32 cp) const
-//{
-//  return m_SelectedCPs.IndexOf(cp) != ezInvalidIndex;
-//}
+
+void ezQtEventTrackWidget::GetSelection(ezHybridArray<ezUInt32, 32>& out_Selection) const
+{
+  out_Selection.Clear();
+
+  for (const auto& pt : m_SelectedPoints)
+  {
+    out_Selection.PushBack(m_Categories[pt.m_uiCategory].m_SortedPoints[pt.m_uiSortedIdx].m_uiOrgIndex);
+  }
+}
+
+bool ezQtEventTrackWidget::IsSelected(SelectedPoint cp) const
+{
+  return m_Categories[cp.m_uiCategory].m_SortedPoints[cp.m_uiSortedIdx].m_bSelected;
+}
 
 void ezQtEventTrackWidget::SetSelection(SelectedPoint cp)
 {
@@ -184,39 +194,58 @@ void ezQtEventTrackWidget::SetSelection(SelectedPoint cp)
 
   m_SelectedPoints.PushBack(cp);
 
-  m_Categories[cp.m_uiCategory].m_Points[cp.m_uiSortedIdx].m_bSelected = true;
+  m_Categories[cp.m_uiCategory].m_SortedPoints[cp.m_uiSortedIdx].m_bSelected = true;
 
-  //ComputeSelectionRect();
+  ComputeSelectionRect();
 
   emit SelectionChangedEvent();
 }
 
-//void ezQtEventTrackWidget::ToggleSelected(ezUInt32 cp)
-//{
-//  SetSelected(cp, !IsSelected(cp));
-//
-//  //ComputeSelectionRect();
-//
-//  emit SelectionChangedEvent();
-//}
-//
-//void ezQtEventTrackWidget::SetSelected(ezUInt32 cp, bool set)
-//{
-//  if (!set)
-//  {
-//    m_SelectedCPs.Remove(cp);
-//  }
-//  else
-//  {
-//    if (!IsSelected(cp))
-//    {
-//      m_SelectedCPs.PushBack(cp);
-//    }
-//  }
-//
-//  //ComputeSelectionRect();
-//  emit SelectionChangedEvent();
-//}
+void ezQtEventTrackWidget::SetSelection(const ezHybridArray<SelectedPoint, 32>& selection)
+{
+  for (const auto& cpSel : m_SelectedPoints)
+  {
+    m_Categories[cpSel.m_uiCategory].m_SortedPoints[cpSel.m_uiSortedIdx].m_bSelected = false;
+  }
+
+  m_SelectedPoints = selection;
+
+  for (const auto& cpSel : m_SelectedPoints)
+  {
+    m_Categories[cpSel.m_uiCategory].m_SortedPoints[cpSel.m_uiSortedIdx].m_bSelected = true;
+  }
+
+  emit SelectionChangedEvent();
+}
+
+void ezQtEventTrackWidget::ToggleSelected(SelectedPoint cp)
+{
+  SetSelected(cp, !IsSelected(cp));
+
+  ComputeSelectionRect();
+
+  emit SelectionChangedEvent();
+}
+
+void ezQtEventTrackWidget::SetSelected(SelectedPoint cp, bool set)
+{
+  if (m_Categories[cp.m_uiCategory].m_SortedPoints[cp.m_uiSortedIdx].m_bSelected == set)
+    return;
+
+  m_Categories[cp.m_uiCategory].m_SortedPoints[cp.m_uiSortedIdx].m_bSelected = set;
+
+  if (!set)
+  {
+    m_SelectedPoints.Remove(cp);
+  }
+  else
+  {
+    m_SelectedPoints.PushBack(cp);
+  }
+
+  ComputeSelectionRect();
+  emit SelectionChangedEvent();
+}
 
 QRectF ezQtEventTrackWidget::ComputeViewportSceneRect() const
 {
@@ -298,97 +327,79 @@ void ezQtEventTrackWidget::mousePressEvent(QMouseEvent* e)
 
   if (e->buttons() == Qt::LeftButton) // nothing else pressed
   {
-      //const ClickTarget clickedOn = DetectClickTarget(e->pos());
+    const ClickTarget clickedOn = DetectClickTarget(e->pos());
 
-    //  if (clickedOn == ClickTarget::Nothing || clickedOn == ClickTarget::SelectedPoint)
-    //  {
-    //    if (e->modifiers() == Qt::NoModifier)
-    //    {
-    //      m_scaleStartPoint = MapToScene(e->pos());
+    if (clickedOn == ClickTarget::Nothing || clickedOn == ClickTarget::SelectedPoint)
+    {
+      if (e->modifiers() == Qt::NoModifier)
+      {
+        m_scaleStartPoint = MapToScene(e->pos());
 
-    //      switch (WhereIsPoint(e->pos()))
-    //      {
-    //      case ezQtEventTrackWidget::SelectArea::Center:
-    //        m_State = EditState::DraggingPoints;
-    //        m_totalPointDrag = QPointF();
-    //        break;
-    //      case ezQtEventTrackWidget::SelectArea::Left:
-    //        m_State = EditState::ScaleLeftRight;
-    //        m_scaleReferencePoint = m_selectionBRect.topRight();
-    //        break;
-    //      case ezQtEventTrackWidget::SelectArea::Right:
-    //        m_State = EditState::ScaleLeftRight;
-    //        m_scaleReferencePoint = m_selectionBRect.topLeft();
-    //        break;
-    //      }
-    //    }
+        switch (WhereIsPoint(e->pos()))
+        {
+        case ezQtEventTrackWidget::SelectArea::Center:
+          m_State = EditState::DraggingPoints;
+          m_totalPointDrag = QPointF();
+          break;
+        case ezQtEventTrackWidget::SelectArea::Left:
+          m_State = EditState::ScaleLeftRight;
+          m_scaleReferencePoint = m_selectionBRect.topRight();
+          break;
+        case ezQtEventTrackWidget::SelectArea::Right:
+          m_State = EditState::ScaleLeftRight;
+          m_scaleReferencePoint = m_selectionBRect.topLeft();
+          break;
+        }
+      }
 
-    //    if (m_State == EditState::None)
-    //    {
-          SelectedPoint selectedCP;
-          if (PickCpAt(e->pos(), 8, selectedCP))
+      if (m_State == EditState::None)
+      {
+        SelectedPoint selectedCP;
+        if (PickCpAt(e->pos(), 8, selectedCP))
+        {
+          if (e->modifiers().testFlag(Qt::ControlModifier))
           {
-            if (e->modifiers().testFlag(Qt::ControlModifier))
-            {
-              //ToggleSelected(uiSelectedCP);
-            }
-            else if (e->modifiers().testFlag(Qt::ShiftModifier))
-            {
-              //SetSelected(uiSelectedCP, true);
-            }
-            else if (e->modifiers().testFlag(Qt::AltModifier))
-            {
-              //SetSelected(uiSelectedCP, false);
-            }
-            else
-            {
-              //if (clickedOn == ClickTarget::Nothing)
-                SetSelection(selectedCP);
-
-              //m_State = EditState::DraggingPoints;
-              //m_totalPointDrag = QPointF();
-            }
+            ToggleSelected(selectedCP);
           }
-    //    }
+          else if (e->modifiers().testFlag(Qt::ShiftModifier))
+          {
+            SetSelected(selectedCP, true);
+          }
+          else if (e->modifiers().testFlag(Qt::AltModifier))
+          {
+            SetSelected(selectedCP, false);
+          }
+          else
+          {
+            if (clickedOn == ClickTarget::Nothing)
+              SetSelection(selectedCP);
 
-    //    if (m_State == EditState::None && e->modifiers() == Qt::AltModifier)
-    //    {
-    //      m_iDraggedCurve = PickCurveAt(e->pos());
+            m_State = EditState::DraggingPoints;
+            m_totalPointDrag = QPointF();
+          }
+        }
+      }
 
-    //      if (m_iDraggedCurve >= 0)
-    //        m_State = EditState::DraggingCurve;
-    //    }
+      if (m_State == EditState::None)
+      {
+        m_State = EditState::MultiSelect;
+      }
 
-    //    if (m_State == EditState::None)
-    //    {
-    //      m_State = EditState::MultiSelect;
-    //    }
+      EZ_ASSERT_DEBUG(!m_bBegunChanges, "Invalid State");
 
-    //    EZ_ASSERT_DEBUG(!m_bBegunChanges, "Invalid State");
+      if (m_State == EditState::DraggingPoints)
+      {
+        emit BeginOperationEvent("Drag Points");
+        m_bBegunChanges = true;
+      }
+      else if (m_State == EditState::ScaleLeftRight)
+      {
+        emit BeginOperationEvent("Scale Points Left / Right");
+        m_bBegunChanges = true;
+      }
 
-    //    if (m_State == EditState::DraggingCurve)
-    //    {
-    //      emit BeginOperationEvent("Drag Curve");
-    //      m_bBegunChanges = true;
-    //    }
-    //    else if (m_State == EditState::DraggingPoints)
-    //    {
-    //      emit BeginOperationEvent("Drag Points");
-    //      m_bBegunChanges = true;
-    //    }
-    //    else if (m_State == EditState::ScaleLeftRight)
-    //    {
-    //      emit BeginOperationEvent("Scale Points Left / Right");
-    //      m_bBegunChanges = true;
-    //    }
-    //    else if (m_State == EditState::ScaleUpDown)
-    //    {
-    //      emit BeginOperationEvent("Scale Points Up / Down");
-    //      m_bBegunChanges = true;
-    //    }
-
-        update();
-    //  }
+      update();
+    }
   }
 
   if (m_State == EditState::MultiSelect && m_pRubberband == nullptr)
@@ -418,29 +429,22 @@ void ezQtEventTrackWidget::mouseReleaseEvent(QMouseEvent* e)
     }
   }
 
-  //if (e->button() == Qt::LeftButton &&
-  //  (m_State == EditState::DraggingPoints ||
-  //    m_State == EditState::DraggingPointsHorz ||
-  //    m_State == EditState::DraggingPointsVert ||
-  //    m_State == EditState::DraggingTangents ||
-  //    m_State == EditState::DraggingCurve ||
-  //    m_State == EditState::ScaleLeftRight ||
-  //    m_State == EditState::ScaleUpDown ||
-  //    m_State == EditState::MultiSelect))
-  //{
-  //  m_State = EditState::None;
-  //  m_iSelectedTangentCurve = -1;
-  //  m_iSelectedTangentPoint = -1;
-  //  m_totalPointDrag = QPointF();
+  if (e->button() == Qt::LeftButton &&
+    (m_State == EditState::DraggingPoints ||
+      m_State == EditState::ScaleLeftRight ||
+      m_State == EditState::MultiSelect))
+  {
+    m_State = EditState::None;
+    m_totalPointDrag = QPointF();
 
-  //  if (m_bBegunChanges)
-  //  {
-  //    m_bBegunChanges = false;
-  //    emit EndOperationEvent(true);
-  //  }
+    if (m_bBegunChanges)
+    {
+      m_bBegunChanges = false;
+      emit EndOperationEvent(true);
+    }
 
-  //  update();
-  //}
+    update();
+  }
 
   if (m_State != EditState::MultiSelect && m_pRubberband)
   {
@@ -449,24 +453,27 @@ void ezQtEventTrackWidget::mouseReleaseEvent(QMouseEvent* e)
 
     if (!m_multiSelectRect.isEmpty())
     {
-      //    ezDynamicArray<ezSelectedCurveCP> change;
-      //    ExecMultiSelection(change);
-      //    m_multiSelectRect = QRect();
+      ezHybridArray<SelectedPoint, 32> newSelection = m_SelectedPoints;
+      ezHybridArray<SelectedPoint, 32> change;
+      ExecMultiSelection(change);
+      m_multiSelectRect = QRect();
 
-      //    if (e->modifiers().testFlag(Qt::AltModifier))
-      //    {
-      //      CombineSelection(m_SelectedCPs, change, false);
-      //    }
-      //    else if (e->modifiers().testFlag(Qt::ShiftModifier) || e->modifiers().testFlag(Qt::ControlModifier))
-      //    {
-      //      CombineSelection(m_SelectedCPs, change, true);
-      //    }
-      //    else
-      //    {
-      //      m_SelectedCPs = change;
-      //    }
+      if (e->modifiers().testFlag(Qt::AltModifier))
+      {
+        CombineSelection(newSelection, change, false);
+      }
+      else if (e->modifiers().testFlag(Qt::ShiftModifier) || e->modifiers().testFlag(Qt::ControlModifier))
+      {
+        CombineSelection(newSelection, change, true);
+      }
+      else
+      {
+        newSelection = change;
+      }
 
-      //    ComputeSelectionRect();
+      SetSelection(newSelection);
+      ComputeSelectionRect();
+
       update();
 
       emit SelectionChangedEvent();
@@ -479,11 +486,11 @@ void ezQtEventTrackWidget::mouseReleaseEvent(QMouseEvent* e)
 
     m_State = EditState::None;
 
-    //  if (m_bBegunChanges)
-    //  {
-    //    m_bBegunChanges = false;
-    //    emit EndOperationEvent(true);
-    //  }
+    if (m_bBegunChanges)
+    {
+      m_bBegunChanges = false;
+      emit EndOperationEvent(true);
+    }
 
     update();
   }
@@ -510,37 +517,11 @@ void ezQtEventTrackWidget::mouseMoveEvent(QMouseEvent* e)
     update();
   }
 
-  //if (m_State == EditState::DraggingPoints)
-  //{
-  //  if (e->modifiers() == Qt::ShiftModifier)
-  //  {
-  //    if (ezMath::Abs(m_totalPointDrag.x()) > ezMath::Abs(m_totalPointDrag.y()))
-  //    {
-  //      moveY = -m_totalPointDrag.y();
-  //      m_State = EditState::DraggingPointsHorz;
-  //    }
-  //    else
-  //    {
-  //      moveX = -m_totalPointDrag.x();
-  //      m_State = EditState::DraggingPointsVert;
-  //    }
-  //  }
-
-  //  MoveControlPointsEvent(moveX, moveY);
-  //  m_totalPointDrag += QPointF(moveX, moveY);
-  //}
-  //else
-  //{
-  //  if (m_State == EditState::DraggingPointsHorz)
-  //  {
-  //    MoveControlPointsEvent(moveX, 0);
-  //  }
-
-  //  if (m_State == EditState::DraggingPointsVert)
-  //  {
-  //    MoveControlPointsEvent(0, moveY);
-  //  }
-  //}
+  if (m_State == EditState::DraggingPoints)
+  {
+    MoveControlPointsEvent(moveX);
+    m_totalPointDrag += QPointF(moveX, moveY);
+  }
 
   if (m_State == EditState::MultiSelect && m_pRubberband)
   {
@@ -549,34 +530,30 @@ void ezQtEventTrackWidget::mouseMoveEvent(QMouseEvent* e)
     m_pRubberband->show();
   }
 
-  //if (m_State == EditState::None && !m_selectionBRect.isEmpty())
-  //{
-  //  switch (WhereIsPoint(e->pos()))
-  //  {
-  //  case ezQtEventTrackWidget::SelectArea::Center:
-  //    //cursor = Qt::SizeAllCursor;
-  //    break;
-  //  case ezQtEventTrackWidget::SelectArea::Top:
-  //  case ezQtEventTrackWidget::SelectArea::Bottom:
-  //    cursor = Qt::SizeVerCursor;
-  //    break;
-  //  case ezQtEventTrackWidget::SelectArea::Left:
-  //  case ezQtEventTrackWidget::SelectArea::Right:
-  //    cursor = Qt::SizeHorCursor;
-  //    break;
-  //  }
-  //}
+  if (m_State == EditState::None && !m_selectionBRect.isEmpty())
+  {
+    switch (WhereIsPoint(e->pos()))
+    {
+    case ezQtEventTrackWidget::SelectArea::Center:
+      //cursor = Qt::SizeAllCursor;
+      break;
+    case ezQtEventTrackWidget::SelectArea::Left:
+    case ezQtEventTrackWidget::SelectArea::Right:
+      cursor = Qt::SizeHorCursor;
+      break;
+    }
+  }
 
-  //if (m_State == EditState::ScaleLeftRight)
-  //{
-  //  cursor = Qt::SizeHorCursor;
+  if (m_State == EditState::ScaleLeftRight)
+  {
+    cursor = Qt::SizeHorCursor;
 
-  //  const QPointF wsPos = MapToScene(e->pos());
-  //  const QPointF norm = m_scaleReferencePoint - m_scaleStartPoint;
-  //  const QPointF wsDiff = m_scaleReferencePoint - wsPos;
+    const QPointF wsPos = MapToScene(e->pos());
+    const QPointF norm = m_scaleReferencePoint - m_scaleStartPoint;
+    const QPointF wsDiff = m_scaleReferencePoint - wsPos;
 
-  //  ScaleControlPointsEvent(m_scaleReferencePoint, wsDiff.x() / norm.x(), 1);
-  //}
+    ScaleControlPointsEvent(m_scaleReferencePoint, wsDiff.x() / norm.x());
+  }
 
   setCursor(cursor);
   m_LastMousePos = e->pos();
@@ -588,12 +565,12 @@ void ezQtEventTrackWidget::mouseDoubleClickEvent(QMouseEvent* e)
 
   if (e->button() == Qt::LeftButton)
   {
-    //  ezSelectedCurveCP cp;
-    //  if (PickCpAt(e->pos(), 15, cp))
-    //  {
-    //    SetSelection(cp);
-    //  }
-    //  else
+    SelectedPoint selPt;
+    if (PickCpAt(e->pos(), 15, selPt))
+    {
+      SetSelection(selPt);
+    }
+    else
     {
       const QPointF epsilon = MapToScene(QPoint(15, 15)) - MapToScene(QPoint(0, 0));
       const QPointF scenePos = MapToScene(e->pos());
@@ -669,6 +646,8 @@ void ezQtEventTrackWidget::keyPressEvent(QKeyEvent* e)
     if (e->key() == Qt::Key_Delete)
     {
       emit DeleteControlPointsEvent();
+
+      ClearSelection();
     }
   }
 }
@@ -711,14 +690,11 @@ void ezQtEventTrackWidget::PaintControlPoints(QPainter* painter) const
   const double fLineStepY = fStepY / 3.5;
   double fOffsetY = rect().top() + fStepY * 0.5;
 
-  QBrush brush = m_ControlPointBrush;
-  QPen pen = m_ControlPointPen;
-
   for (ezUInt32 catIdx = 0; catIdx < m_Categories.GetCount(); ++catIdx)
   {
     const PointCategory& cat = m_Categories[catIdx];
 
-    const auto& allPoints = cat.m_Points;
+    const auto& allPoints = cat.m_SortedPoints;
 
     for (const auto& point : allPoints)
     {
@@ -736,6 +712,9 @@ void ezQtEventTrackWidget::PaintControlPoints(QPainter* painter) const
       r.setWidth(10.0);
       r.setHeight(10.0);
     }
+
+    QBrush brush = m_ControlPointBrush;
+    QPen pen = m_ControlPointPen;
 
     if (!rects.IsEmpty())
     {
@@ -762,6 +741,7 @@ void ezQtEventTrackWidget::PaintControlPoints(QPainter* painter) const
 
       brush.setColor(hlCol);
       pen.setColor(hlCol);
+      pen.setStyle(Qt::PenStyle::SolidLine);
 
       painter->setBrush(brush);
       painter->setPen(pen);
@@ -781,37 +761,37 @@ void ezQtEventTrackWidget::PaintControlPoints(QPainter* painter) const
 
 void ezQtEventTrackWidget::PaintMultiSelectionSquare(QPainter* painter) const
 {
-  //if (m_selectionBRect.isEmpty())
-  //  return;
+  if (m_selectionBRect.isEmpty())
+    return;
 
-  //painter->save();
-  //painter->setPen(Qt::NoPen);
+  painter->save();
+  painter->setPen(Qt::NoPen);
 
-  //QColor col = palette().highlight().color();
-  //col.setAlpha(100);
-  //painter->setBrush(col);
+  QColor col = palette().highlight().color();
+  col.setAlpha(100);
+  painter->setBrush(col);
 
-  //const QPoint tl = MapFromScene(m_selectionBRect.topLeft());
-  //const QPoint br = MapFromScene(m_selectionBRect.bottomRight());
-  //QRectF r = QRect(tl, br);
-  //r.adjust(-4.5, +4.5, +3.5, -5.5);
+  const QPoint tl = MapFromScene(m_selectionBRect.topLeft());
+  const QPoint br = MapFromScene(m_selectionBRect.bottomRight());
+  QRectF r = QRect(tl, br);
+  r.adjust(-4.5, +4.5, +3.5, -5.5);
 
-  //painter->drawRect(r);
+  painter->drawRect(r);
 
-  //col.setAlpha(255);
-  //QPen pen(col);
-  //pen.setStyle(Qt::PenStyle::SolidLine);
-  //pen.setCosmetic(true);
-  //pen.setWidth(1);
-  //pen.setCapStyle(Qt::PenCapStyle::SquareCap);
-  //painter->setPen(pen);
+  col.setAlpha(255);
+  QPen pen(col);
+  pen.setStyle(Qt::PenStyle::SolidLine);
+  pen.setCosmetic(true);
+  pen.setWidth(1);
+  pen.setCapStyle(Qt::PenCapStyle::SquareCap);
+  painter->setPen(pen);
 
-  //painter->drawLine(tl.x() - 10, tl.y(), tl.x() - 10, br.y());
-  //painter->drawLine(br.x() + 10, tl.y(), br.x() + 10, br.y());
+  painter->drawLine(tl.x() - 10, tl.y(), tl.x() - 10, br.y());
+  painter->drawLine(br.x() + 10, tl.y(), br.x() + 10, br.y());
   //painter->drawLine(tl.x(), br.y() - 10, br.x(), br.y() - 10);
   //painter->drawLine(tl.x(), tl.y() + 10, br.x(), tl.y() + 10);
 
-  //painter->restore();
+  painter->restore();
 }
 
 void ezQtEventTrackWidget::PaintScrubber(QPainter& p) const
@@ -886,7 +866,7 @@ bool ezQtEventTrackWidget::PickCpAt(const QPoint& pos, float fMaxPixelDistance, 
 
     if (ezMath::Abs(diffY) < 20)
     {
-      const auto& allPoints = cat.m_Points;
+      const auto& allPoints = cat.m_SortedPoints;
 
       for (ezUInt32 ptIdx = 0; ptIdx < allPoints.GetCount(); ++ptIdx)
       {
@@ -913,132 +893,119 @@ bool ezQtEventTrackWidget::PickCpAt(const QPoint& pos, float fMaxPixelDistance, 
 
 ezQtEventTrackWidget::ClickTarget ezQtEventTrackWidget::DetectClickTarget(const QPoint& pos)
 {
-  //const ezVec2d vScreenPos(pos.x(), pos.y());
-  //float fMinDistSQR = ezMath::Square(15);
-  //ezInt32 iBestCP = -1;
-
-  //for (ezUInt32 i = 0; i < m_SelectedCPs.GetCount(); ++i)
-  //{
-  //  const auto& cpSel = m_pEditData->m_ControlPoints[m_SelectedCPs[i]];
-
-  //  const ezVec2d point(cpSel.GetTickAsTime(), cp.m_fValue);
-
-  //  const ezVec2d ptPos = ToVec(MapFromScene(point));
-
-  //    const float distSQR = (ptPos - vScreenPos).GetLengthSquared();
-  //    if (distSQR < fMinDistSQR)
-  //    {
-  //      fMinDistSQR = distSQR;
-  //      iBestCP = cpSel.m_uiPoint;
-  //    }
-  //}
-
-  //if (iBestCP != 0)
-  //  return ClickTarget::SelectedPoint;
+  SelectedPoint ptSel;
+  if (PickCpAt(pos, 15.0f, ptSel))
+  {
+    if (IsSelected(ptSel))
+      return ClickTarget::SelectedPoint;
+  }
 
   return ClickTarget::Nothing;
 }
-//
-//void ezQtEventTrackWidget::ExecMultiSelection(ezDynamicArray<ezSelectedCurveCP>& out_Selection)
-//{
-//  out_Selection.Clear();
-//
-//  for (ezUInt32 uiCurve = 0; uiCurve < m_Curves.GetCount(); ++uiCurve)
-//  {
-//    const ezCurve1D& curve = m_Curves[uiCurve];
-//
-//    for (ezUInt32 uiCP = 0; uiCP < curve.GetNumControlPoints(); ++uiCP)
-//    {
-//      const auto& cp = curve.GetControlPoint(uiCP);
-//
-//      const QPoint cpPos = MapFromScene(cp.m_Position);
-//
-//      if (m_multiSelectRect.contains(cpPos))
-//      {
-//        auto& sel = out_Selection.ExpandAndGetRef();
-//        sel.m_uiCurve = uiCurve;
-//        sel.m_uiPoint = uiCP;
-//      }
-//    }
-//  }
-//}
-//
-//bool ezQtEventTrackWidget::CombineSelection(ezDynamicArray<ezSelectedCurveCP>& inout_Selection, const ezDynamicArray<ezSelectedCurveCP>& change, bool add)
-//{
-//  bool bChange = false;
-//
-//  for (ezUInt32 i = 0; i < change.GetCount(); ++i)
-//  {
-//    const auto& cp = change[i];
-//
-//    if (!add)
-//    {
-//      bChange |= inout_Selection.Remove(cp);
-//    }
-//    else if (!inout_Selection.Contains(cp))
-//    {
-//      inout_Selection.PushBack(cp);
-//      bChange = true;
-//    }
-//  }
-//
-//  return bChange;
-//}
-//
-//void ezQtEventTrackWidget::ComputeSelectionRect()
-//{
-//  m_selectionBRect = QRectF();
-//
-//  if (m_SelectedCPs.GetCount() < 2)
-//    return;
-//
-//  ezBoundingBox bbox;
-//  bbox.SetInvalid();
-//
-//  for (const auto& cpSel : m_SelectedCPs)
-//  {
-//    const ezCurve1D& curve = m_Curves[cpSel.m_uiCurve];
-//    const ezCurve1D::ControlPoint& cp = curve.GetControlPoint(cpSel.m_uiPoint);
-//
-//    bbox.ExpandToInclude(ezVec3(cp.m_Position.x, cp.m_Position.y, cp.m_Position.x));
-//  }
-//
-//  if (bbox.IsValid())
-//  {
-//    m_selectionBRect.setCoords(bbox.m_vMin.x, bbox.m_vMin.y, bbox.m_vMax.x, bbox.m_vMax.y);
-//    m_selectionBRect.normalized();
-//  }
-//}
-//
-//ezQtEventTrackWidget::SelectArea ezQtEventTrackWidget::WhereIsPoint(QPoint pos) const
-//{
-//  if (m_selectionBRect.isEmpty())
-//    return SelectArea::None;
-//
-//  const QPoint tl = MapFromScene(m_selectionBRect.topLeft());
-//  const QPoint br = MapFromScene(m_selectionBRect.bottomRight());
-//  QRect selectionRectSS = QRect(tl, br);
-//  selectionRectSS.adjust(-4.5, +4.5, +3.5, -5.5);
-//
-//  const QRect barTop(selectionRectSS.left(), selectionRectSS.bottom() - 10, selectionRectSS.width(), 10);
-//  const QRect barBottom(selectionRectSS.left(), selectionRectSS.top(), selectionRectSS.width(), 10);
-//  const QRect barLeft(selectionRectSS.left() - 10, selectionRectSS.top(), 10, selectionRectSS.height());
-//  const QRect barRight(selectionRectSS.right(), selectionRectSS.top(), 10, selectionRectSS.height());
-//
-//  if (barTop.contains(pos))
-//    return SelectArea::Top;
-//
-//  if (barBottom.contains(pos))
-//    return SelectArea::Bottom;
-//
-//  if (barLeft.contains(pos))
-//    return SelectArea::Left;
-//
-//  if (barRight.contains(pos))
-//    return SelectArea::Right;
-//
-//  if (selectionRectSS.contains(pos))
-//    return SelectArea::Center;
-//
-//  return SelectArea::None;
-//}
+
+void ezQtEventTrackWidget::ExecMultiSelection(ezHybridArray<SelectedPoint, 32>& out_Selection)
+{
+  out_Selection.Clear();
+
+  const double fHeight = rect().bottom() - rect().top();
+  const double fStepY = fHeight / m_Categories.GetCount();
+  double fOffsetY = rect().top() + fStepY * 0.5;
+
+  for (ezUInt32 catIdx = 0; catIdx < m_Categories.GetCount(); ++catIdx)
+  {
+    const PointCategory& cat = m_Categories[catIdx];
+
+    const auto& allPoints = cat.m_SortedPoints;
+
+    const int iY = (int)fOffsetY;
+
+    for (ezUInt32 ptIdx = 0; ptIdx < allPoints.GetCount(); ++ptIdx)
+    {
+      const auto& point = allPoints[ptIdx];
+
+      QPoint cpPos = MapFromScene(QPointF(point.m_fPosX, 0));
+      cpPos.setY(iY);
+
+      if (m_multiSelectRect.contains(cpPos))
+      {
+        auto& sel = out_Selection.ExpandAndGetRef();
+        sel.m_uiCategory = catIdx;
+        sel.m_uiSortedIdx = ptIdx;
+      }
+    }
+
+    fOffsetY += fStepY;
+  }
+}
+
+bool ezQtEventTrackWidget::CombineSelection(ezHybridArray<SelectedPoint, 32 >& inout_Selection, const ezHybridArray<SelectedPoint, 32>& change, bool add)
+{
+  bool bChange = false;
+
+  for (ezUInt32 i = 0; i < change.GetCount(); ++i)
+  {
+    const auto& cp = change[i];
+
+    if (!add)
+    {
+      bChange |= inout_Selection.Remove(cp);
+    }
+    else if (!inout_Selection.Contains(cp))
+    {
+      inout_Selection.PushBack(cp);
+      bChange = true;
+    }
+  }
+
+  return bChange;
+}
+
+void ezQtEventTrackWidget::ComputeSelectionRect()
+{
+  m_selectionBRect = QRectF();
+
+  if (m_SelectedPoints.GetCount() < 2)
+    return;
+
+  ezBoundingBox bbox;
+  bbox.SetInvalid();
+
+  //  for (const auto& cpSel : m_SelectedCPs)
+  //  {
+  //    const ezCurve1D& curve = m_Curves[cpSel.m_uiCurve];
+  //    const ezCurve1D::ControlPoint& cp = curve.GetControlPoint(cpSel.m_uiPoint);
+  //
+  //    bbox.ExpandToInclude(ezVec3(cp.m_Position.x, cp.m_Position.y, cp.m_Position.x));
+  //  }
+
+  if (bbox.IsValid())
+  {
+    m_selectionBRect.setCoords(bbox.m_vMin.x, bbox.m_vMin.y, bbox.m_vMax.x, bbox.m_vMax.y);
+    m_selectionBRect.normalized();
+  }
+}
+
+ezQtEventTrackWidget::SelectArea ezQtEventTrackWidget::WhereIsPoint(QPoint pos) const
+{
+  if (m_selectionBRect.isEmpty())
+    return SelectArea::None;
+
+  const QPoint tl = MapFromScene(m_selectionBRect.topLeft());
+  const QPoint br = MapFromScene(m_selectionBRect.bottomRight());
+  QRect selectionRectSS = QRect(tl, br);
+  selectionRectSS.adjust(-4.5, +4.5, +3.5, -5.5);
+
+  const QRect barLeft(selectionRectSS.left() - 10, selectionRectSS.top(), 10, selectionRectSS.height());
+  const QRect barRight(selectionRectSS.right(), selectionRectSS.top(), 10, selectionRectSS.height());
+
+  if (barLeft.contains(pos))
+    return SelectArea::Left;
+
+  if (barRight.contains(pos))
+    return SelectArea::Right;
+
+  if (selectionRectSS.contains(pos))
+    return SelectArea::Center;
+
+  return SelectArea::None;
+}
