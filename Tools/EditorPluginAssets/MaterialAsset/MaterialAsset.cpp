@@ -559,6 +559,10 @@ void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, cons
       if (op.m_sProperty == "ShaderMode")
         continue;
 
+      // these properties may not exist and we do not want to change them either
+      if (op.m_sProperty == "MetaBasePrefab" || op.m_sProperty == "MetaPrefabSeed" || op.m_sProperty == "MetaFromPrefab")
+        continue;
+
       ezSetObjectPropertyCommand cmd;
       cmd.m_Object = op.m_Node;
       cmd.m_Object.CombineWithSeed(PrefabSeed);
