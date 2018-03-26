@@ -244,6 +244,7 @@ namespace BuildMachine
 
       Func<ezProcessHelper.ProcessResult> startFileserve = () =>
       {
+        Console.WriteLine("Starting Fileserve ...");
         string absBinDir = Path.Combine(settings.AbsBinPath, settings.Configuration);
         string absTestDataPath = Path.Combine(settings.AbsCodePath, relativeTestDataPath);
         // 60s timeout for connect, 2s timeout for closing after connection loss.
@@ -251,9 +252,9 @@ namespace BuildMachine
         return ezProcessHelper.RunExternalExe(absFilerserveFilename, args, absBinDir, res);
       };
 
-      using (Task<ezProcessHelper.ProcessResult> runFileServe = Task.Factory.StartNew(startFileserve))
+      using (Task<ezProcessHelper.ProcessResult> runFileServe = Task.Factory.StartNew(startFileserve, System.Threading.Tasks.TaskCreationOptions.LongRunning))
       {
-        runFileServe.Wait(2000);
+        runFileServe.Wait(5000);
 
         // Start AppX
         uint appXPid;
@@ -281,18 +282,22 @@ namespace BuildMachine
         if (!appXProcess.WaitForExit(5000))
         {
           res.Error("Fileserve is no longer running but the AppX is.");
+          Console.WriteLine("Fileserve is no longer running but the AppX is.");
+          try
+          {
+            string args = string.Format("-ma {0}", appXPid);
+            string absBinDir = Path.Combine(settings.AbsBinPath, settings.Configuration);
+            ezProcessHelper.RunExternalExe("procdump", args, absBinDir, res);
+          }
+          catch (Exception e)
+          {
+            res.Success = false;
+            res.Error("Failed to run procdump: '{0}'", e.ToString());
+          }
           //res.Success = false;
           appXProcess.Kill();
         }
         // Can't read exit code: "Process was not started by this object, so requested information cannot be determined"
-        /*else
-        {
-          if (appXProcess.ExitCode != 0)
-          {
-            res.Error("Test AppX exited with {0}", appXProcess.ExitCode);
-            res.Success = false;
-          }
-        }*/
         appXProcess.Dispose();
         appXProcess = null;
       }
