@@ -31,28 +31,27 @@ signals:
   void EndOperationEvent(bool commit);
 
 private slots:
-  //void on_LinePosition_editingFinished();
+  void on_LinePosition_editingFinished();
+  void on_AddEventButton_clicked();
   void onDeleteControlPoints();
   void onDoubleClick(double scenePosX, double epsilon);
   void onMoveControlPoints(double x);
   void onBeginOperation(QString name);
   void onEndOperation(bool commit);
   //void onScaleControlPoints(QPointF refPt, double scaleX);
-  //void onContextMenu(QPoint pos, QPointF scenePos);
-  //void onAddPoint();
+  void onContextMenu(QPoint pos, QPointF scenePos);
+  void onAddPoint();
   void onSelectionChanged();
 
 private:
   void InsertCpAt(double posX, double epsilon);
   void UpdateSpinBoxes();
   void DetermineAvailableEvents();
-  void AddUsedEvents();
-  void FillEventComboBox();
+  void FillEventComboBox(const char* szCurrent = nullptr);
 
   const ezEventTrackData* m_pData = nullptr;
   ezEventTrackData m_DataCopy;
 
-  //double m_fCurveDuration;
   double m_ControlPointMove;
   QPointF m_contextMenuScenePos;
   ezEventSet m_EventSet;

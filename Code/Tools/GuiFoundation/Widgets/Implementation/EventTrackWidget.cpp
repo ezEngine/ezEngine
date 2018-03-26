@@ -48,7 +48,8 @@ void ezQtEventTrackWidget::SetData(const ezEventTrackData* pData, double fMinCur
   //      ++i;
   //    }
   //  }
-  //  ComputeSelectionRect();
+
+  ComputeSelectionRect();
 
   update();
 }
@@ -78,14 +79,17 @@ void ezQtEventTrackWidget::RecreateSortedData()
     npt.m_fPosX = pt.GetTickAsTime();
   }
 
+  // actually this is not needed (or used)
+  // and when we sort, the selection index does not match when moving points around
+
   // sort points by X position
-  for (auto& cat : m_Categories)
-  {
-    cat.m_SortedPoints.Sort([](const ezQtEventTrackWidget::Point& lhs, const ezQtEventTrackWidget::Point& rhs) -> bool
-    {
-      return lhs.m_fPosX < rhs.m_fPosX;
-    });
-  }
+  //for (auto& cat : m_Categories)
+  //{
+  //  cat.m_SortedPoints.Sort([](const ezQtEventTrackWidget::Point& lhs, const ezQtEventTrackWidget::Point& rhs) -> bool
+  //  {
+  //    return lhs.m_fPosX < rhs.m_fPosX;
+  //  });
+  //}
 }
 
 void ezQtEventTrackWidget::SetScrubberPosition(double fPosition)
@@ -109,9 +113,20 @@ void ezQtEventTrackWidget::FrameCurve()
   }
   else if (m_SelectedPoints.GetCount() > 1)
   {
-    fWidth = m_selectionBRect.width();
+    double minX = m_Categories[m_SelectedPoints[0].m_uiCategory].m_SortedPoints[m_SelectedPoints[0].m_uiSortedIdx].m_fPosX;
+    double maxX = minX;
 
-    fOffsetX = m_selectionBRect.left();
+    for (const auto& cpSel : m_SelectedPoints)
+    {
+      const double pos = m_Categories[cpSel.m_uiCategory].m_SortedPoints[cpSel.m_uiSortedIdx].m_fPosX;
+      minX = ezMath::Min(minX, pos);
+      maxX = ezMath::Max(maxX, pos);
+    }
+
+    //fWidth = m_selectionBRect.width();
+    //fOffsetX = m_selectionBRect.left();
+    fWidth = maxX - minX;
+    fOffsetX = minX;
   }
   else if (m_SelectedPoints.GetCount() == 1)
   {
@@ -970,13 +985,14 @@ void ezQtEventTrackWidget::ComputeSelectionRect()
   ezBoundingBox bbox;
   bbox.SetInvalid();
 
-  //  for (const auto& cpSel : m_SelectedCPs)
-  //  {
-  //    const ezCurve1D& curve = m_Curves[cpSel.m_uiCurve];
-  //    const ezCurve1D::ControlPoint& cp = curve.GetControlPoint(cpSel.m_uiPoint);
-  //
-  //    bbox.ExpandToInclude(ezVec3(cp.m_Position.x, cp.m_Position.y, cp.m_Position.x));
-  //  }
+  // TODO: properly implement the Y value
+  //for (const auto& cpSel : m_SelectedPoints)
+  //{
+  //  const double pos = m_Categories[cpSel.m_uiCategory].m_SortedPoints[cpSel.m_uiSortedIdx].m_fPosX;
+
+  //  bbox.ExpandToInclude(ezVec3(pos, cpSel.m_uiCategory - 1, 0));
+  //  bbox.ExpandToInclude(ezVec3(pos, cpSel.m_uiCategory + 1, 0));
+  //}
 
   if (bbox.IsValid())
   {

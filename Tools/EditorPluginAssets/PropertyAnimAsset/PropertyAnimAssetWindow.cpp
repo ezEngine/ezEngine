@@ -76,7 +76,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
   // Game Object Graph
   {
     std::unique_ptr<ezQtDocumentTreeModel> ptr(new ezQtGameObjectModel(pDocument, "TempObjects"));
-    ezQtDocumentPanel* pGameObjectPanel = new ezQtGameObjectPanel(this, pDocument,"PropertyAnimAsset_ScenegraphContextMenu", std::move(ptr));
+    ezQtDocumentPanel* pGameObjectPanel = new ezQtGameObjectPanel(this, pDocument, "PropertyAnimAsset_ScenegraphContextMenu", std::move(ptr));
     addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pGameObjectPanel);
   }
 
@@ -239,7 +239,7 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
     connect(m_pEventTrackEditor, &ezQtEventTrackEditorWidget::EndCpChangesEvent, this, &ezQtPropertyAnimAssetDocumentWindow::onEventTrackEndCpChanges);
   }
 
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler, this));
+  //GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler, this));
   GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler, this));
   GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::SelectionEventHandler, this));
   GetDocument()->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::CommandHistoryEventHandler, this));
@@ -252,13 +252,14 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
   }
 
   UpdateCurveEditor();
+  UpdateGradientEditor();
   UpdateEventTrackEditor();
 }
 
 ezQtPropertyAnimAssetDocumentWindow::~ezQtPropertyAnimAssetDocumentWindow()
 {
   GetPropertyAnimDocument()->m_PropertyAnimEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler, this));
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler, this));
+  //GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler, this));
   GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler, this));
   GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::SelectionEventHandler, this));
   GetDocument()->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyAnimAssetDocumentWindow::CommandHistoryEventHandler, this));
@@ -333,6 +334,7 @@ void ezQtPropertyAnimAssetDocumentWindow::PropertyAnimAssetEventHandler(const ez
 
     m_pScrubberToolbar->SetDuration(uiDuration, e.m_pDocument->GetProperties()->m_uiFramesPerSecond);
     UpdateCurveEditor();
+    UpdateGradientEditor();
     UpdateEventTrackEditor();
   }
   else if (e.m_Type == ezPropertyAnimAssetDocumentEvent::Type::ScrubberPositionChanged)
@@ -620,17 +622,17 @@ ezPropertyAnimAssetDocument* ezQtPropertyAnimAssetDocumentWindow::GetPropertyAni
   return static_cast<ezPropertyAnimAssetDocument*>(GetDocument());
 }
 
-void ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
-{
-  if (static_cast<ezPropertyAnimObjectManager*>(GetDocument()->GetObjectManager())->IsTemporary(e.m_pObject, e.m_sProperty))
-    return;
-
-  // TODO: only update what needs to be updated
-
-  m_bUpdateEventTrackEditor = true;
-  m_bUpdateCurveEditor = true;
-  m_bUpdateGradientEditor = true;
-}
+//void ezQtPropertyAnimAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+//{
+//  if (static_cast<ezPropertyAnimObjectManager*>(GetDocument()->GetObjectManager())->IsTemporary(e.m_pObject, e.m_sProperty))
+//    return;
+//
+//  // TODO: only update what needs to be updated
+//
+//  //m_bUpdateEventTrackEditor = true;
+//  //m_bUpdateCurveEditor = true;
+//  //m_bUpdateGradientEditor = true;
+//}
 
 void ezQtPropertyAnimAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
 {
@@ -670,18 +672,9 @@ void ezQtPropertyAnimAssetDocumentWindow::CommandHistoryEventHandler(const ezCom
     e.m_Type == ezCommandHistoryEvent::Type::UndoEnded ||
     e.m_Type == ezCommandHistoryEvent::Type::RedoEnded)
   {
-    if (m_bUpdateCurveEditor)
-      UpdateCurveEditor();
-
-    if (m_bUpdateGradientEditor)
-      UpdateGradientEditor();
-
-    if (m_bUpdateEventTrackEditor)
-      UpdateEventTrackEditor();
-
-    m_bUpdateEventTrackEditor = false;
-    m_bUpdateCurveEditor = false;
-    m_bUpdateGradientEditor = false;
+    UpdateCurveEditor();
+    UpdateGradientEditor();
+    UpdateEventTrackEditor();
   }
 }
 

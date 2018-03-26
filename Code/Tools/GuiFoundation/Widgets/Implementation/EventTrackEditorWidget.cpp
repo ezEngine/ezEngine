@@ -7,6 +7,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Math/Math.h>
 #include <QMenu>
+#include <QInputDialog>
 
 ezQtEventTrackEditorWidget::ezQtEventTrackEditorWidget(QWidget* pParent)
   : QWidget(pParent)
@@ -21,7 +22,7 @@ ezQtEventTrackEditorWidget::ezQtEventTrackEditorWidget(QWidget* pParent)
   connect(EventTrackEdit, &ezQtEventTrackWidget::BeginOperationEvent, this, &ezQtEventTrackEditorWidget::onBeginOperation);
   connect(EventTrackEdit, &ezQtEventTrackWidget::EndOperationEvent, this, &ezQtEventTrackEditorWidget::onEndOperation);
   //connect(EventTrackEdit, &ezQtEventTrackWidget::ScaleControlPointsEvent, this, &ezQtEventTrackEditorWidget::onScaleControlPoints);
-  //connect(EventTrackEdit, &ezQtEventTrackWidget::ContextMenuEvent, this, &ezQtEventTrackEditorWidget::onContextMenu);
+  connect(EventTrackEdit, &ezQtEventTrackWidget::ContextMenuEvent, this, &ezQtEventTrackEditorWidget::onContextMenu);
   connect(EventTrackEdit, &ezQtEventTrackWidget::SelectionChangedEvent, this, &ezQtEventTrackEditorWidget::onSelectionChanged);
 
   LinePosition->setEnabled(false);
@@ -36,17 +37,9 @@ void ezQtEventTrackEditorWidget::SetData(const ezEventTrackData& data, double fM
   ezQtScopedUpdatesDisabled ud(this);
   ezQtScopedBlockSignals bs(this);
 
-  const bool bFirstTime = m_pData == nullptr;
-
   m_pData = &data;
   EventTrackEdit->SetData(&data, fMinCurveLength);
 
-  if (bFirstTime)
-  {
-    AddUsedEvents();
-  }
-
-  //m_fCurveDuration = EventTrackEdit->GetMaxCurveExtent();
   UpdateSpinBoxes();
 }
 
@@ -64,6 +57,20 @@ void ezQtEventTrackEditorWidget::ClearSelection()
 void ezQtEventTrackEditorWidget::FrameCurve()
 {
   EventTrackEdit->FrameCurve();
+}
+
+void ezQtEventTrackEditorWidget::on_AddEventButton_clicked()
+{
+  QString name = QInputDialog::getText(this, "Add Type", "Event Type Name:");
+
+  m_EventSet.AddAvailableEvent(name.toUtf8().data());
+
+  if (m_EventSet.IsModified())
+  {
+    m_EventSet.WriteToDDL(":project/Events.ddl");
+
+    FillEventComboBox(name.toUtf8().data());
+  }
 }
 
 void ezQtEventTrackEditorWidget::onDeleteControlPoints()
@@ -160,34 +167,32 @@ void ezQtEventTrackEditorWidget::onEndOperation(bool commit)
   emit EndOperationEvent(commit);
 }
 
-//void ezQtEventTrackEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
-//{
-//  if (m_Curves.m_Curves.IsEmpty())
-//    return;
-//
-//  m_contextMenuScenePos = scenePos;
-//
-//  QMenu m(this);
-//  m.setDefaultAction(m.addAction("Add Point", this, SLOT(onAddPoint())));
-//
-//  const auto& selection = EventTrackEdit->GetSelection();
-//
-//  if (!selection.IsEmpty())
-//  {
-//    m.addAction("Delete Points", this, SLOT(onDeleteControlPoints()), QKeySequence(Qt::Key_Delete));
-//  }
-//
-//  m.addSeparator();
-//
-//  m.addAction("Frame", this, [this]() { FrameCurve(); }, QKeySequence(Qt::ControlModifier | Qt::Key_F));
-//
-//  m.exec(pos);
-//}
-//
-//void ezQtEventTrackEditorWidget::onAddPoint()
-//{
-//  InsertCpAt(m_contextMenuScenePos.x(), m_contextMenuScenePos.y(), ezVec2d::ZeroVector());
-//}
+void ezQtEventTrackEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
+{
+  m_contextMenuScenePos = scenePos;
+
+  QMenu m(this);
+  m.setDefaultAction(m.addAction("Add Event", this, SLOT(onAddPoint())));
+
+  ezHybridArray<ezUInt32, 32> selection;
+  EventTrackEdit->GetSelection(selection);
+
+  if (!selection.IsEmpty())
+  {
+    m.addAction("Delete Events", this, SLOT(onDeleteControlPoints()), QKeySequence(Qt::Key_Delete));
+  }
+
+  m.addSeparator();
+
+  m.addAction("Frame", this, [this]() { FrameCurve(); }, QKeySequence(Qt::ControlModifier | Qt::Key_F));
+
+  m.exec(pos);
+}
+
+void ezQtEventTrackEditorWidget::onAddPoint()
+{
+  InsertCpAt(m_contextMenuScenePos.x(), 0.0f);
+}
 
 void ezQtEventTrackEditorWidget::InsertCpAt(double posX, double epsilon)
 {
@@ -204,84 +209,60 @@ void ezQtEventTrackEditorWidget::onSelectionChanged()
 
 void ezQtEventTrackEditorWidget::UpdateSpinBoxes()
 {
-  //  const auto& selection = EventTrackEdit->GetSelection();
-  //
-  //  ezQtScopedBlockSignals _1(LinePosition, LineValue);
-  //
-  //  if (selection.IsEmpty())
-  //  {
-  //    LinePosition->setText(QString());
-  //    LineValue->setText(QString());
-  //
-  //    LinePosition->setEnabled(false);
-  //    LineValue->setEnabled(false);
-  //    return;
-  //  }
-  //
-  //  const auto& pt0 = m_Curves.m_Curves[selection[0].m_uiCurve]->m_ControlPoints[selection[0].m_uiPoint];
-  //  const double fPos = pt0.GetTickAsTime();
-  //  const double fVal = pt0.m_fValue;
-  //
-  //  LinePosition->setEnabled(true);
-  //  LineValue->setEnabled(true);
-  //
-  //  bool bMultipleTicks = false;
-  //  for (ezUInt32 i = 1; i < selection.GetCount(); ++i)
-  //  {
-  //    const auto& pt = m_Curves.m_Curves[selection[i].m_uiCurve]->m_ControlPoints[selection[i].m_uiPoint];
-  //
-  //    if (pt.GetTickAsTime() != fPos)
-  //    {
-  //      bMultipleTicks = true;
-  //      break;
-  //    }
-  //  }
-  //
-  //  bool bMultipleValues = false;
-  //  for (ezUInt32 i = 1; i < selection.GetCount(); ++i)
-  //  {
-  //    const auto& pt = m_Curves.m_Curves[selection[i].m_uiCurve]->m_ControlPoints[selection[i].m_uiPoint];
-  //
-  //    if (pt.m_fValue != fVal)
-  //    {
-  //      bMultipleValues = true;
-  //      LineValue->setText(QString());
-  //      break;
-  //    }
-  //  }
-  //
-  //  LinePosition->setText(bMultipleTicks ? QString() : QString::number(fPos, 'f', 2));
-  //  LineValue->setText(bMultipleValues ? QString() : QString::number(fVal, 'f', 3));
+  ezHybridArray<ezUInt32, 32> selection;
+  EventTrackEdit->GetSelection(selection);
+
+  ezQtScopedBlockSignals _1(LinePosition, SelectedTypeLabel);
+
+  if (selection.IsEmpty())
+  {
+    LinePosition->setText(QString());
+    LinePosition->setEnabled(false);
+    SelectedTypeLabel->setText("Event: none");
+    return;
+  }
+
+  const double fPos = m_pData->m_ControlPoints[selection[0]].GetTickAsTime();
+
+  LinePosition->setEnabled(true);
+
+  ezStringBuilder labelText("Event: ", m_pData->m_ControlPoints[selection[0]].m_sEvent.GetString());
+
+  bool bMultipleTicks = false;
+  for (ezUInt32 i = 1; i < selection.GetCount(); ++i)
+  {
+    const ezString& sName = m_pData->m_ControlPoints[selection[i]].m_sEvent.GetString();
+    const double fPos2 = m_pData->m_ControlPoints[selection[i]].GetTickAsTime();
+
+    if (!labelText.FindSubString(sName))
+    {
+      labelText.Append(", ", sName);
+    }
+
+    if (fPos2 != fPos)
+    {
+      bMultipleTicks = true;
+      break;
+    }
+  }
+
+  LinePosition->setText(bMultipleTicks ? QString() : QString::number(fPos, 'f', 2));
+  SelectedTypeLabel->setText(labelText.GetData());
 }
 
 void ezQtEventTrackEditorWidget::DetermineAvailableEvents()
 {
   m_EventSet.ReadFromDDL(":project/Events.ddl");
 
-  FillEventComboBox();
+  FillEventComboBox(nullptr);
 }
 
-void ezQtEventTrackEditorWidget::AddUsedEvents()
+void ezQtEventTrackEditorWidget::FillEventComboBox(const char* szCurrent)
 {
-  if (m_pData == nullptr)
-    return;
+  QString prev = szCurrent;
 
-  for (const auto& cp : m_pData->m_ControlPoints)
-  {
-    m_EventSet.AddAvailableEvent(cp.m_sEvent.GetString());
-  }
-
-  if (m_EventSet.IsModified())
-  {
-    m_EventSet.WriteToDDL(":projectEevents.ddl");
-
-    FillEventComboBox();
-  }
-}
-
-void ezQtEventTrackEditorWidget::FillEventComboBox()
-{
-  const QString prev = ComboType->currentText();
+  if (prev.isEmpty())
+    prev = ComboType->currentText();
 
   ComboType->clear();
 
@@ -293,33 +274,33 @@ void ezQtEventTrackEditorWidget::FillEventComboBox()
   ComboType->setCurrentText(prev);
 }
 
-//void ezQtEventTrackEditorWidget::on_LinePosition_editingFinished()
-//{
-//  QString sValue = LinePosition->text();
-//
-//  bool ok = false;
-//  const double value = sValue.toDouble(&ok);
-//  if (!ok)
-//    return;
-//
-//  if (value < 0)
-//    return;
-//
-//  const auto& selection = EventTrackEdit->GetSelection();
-//  if (selection.IsEmpty())
-//    return;
-//
-//  emit BeginCpChangesEvent("Set Time");
-//
-//  for (const auto& cpSel : selection)
-//  {
-//    const auto& cp = m_Curves.m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint];
-//
-//    ezInt32 iTick = m_Curves.TickFromTime(value);
-//    if (cp.m_iTick != iTick)
-//      emit CpMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, iTick, cp.m_fValue);
-//  }
-//
-//  emit EndCpChangesEvent();
-//}
-//
+void ezQtEventTrackEditorWidget::on_LinePosition_editingFinished()
+{
+  QString sValue = LinePosition->text();
+
+  bool ok = false;
+  const double value = sValue.toDouble(&ok);
+  if (!ok)
+    return;
+
+  if (value < 0)
+    return;
+
+  ezHybridArray<ezUInt32, 32> selection;
+  EventTrackEdit->GetSelection(selection);
+  if (selection.IsEmpty())
+    return;
+
+  emit BeginCpChangesEvent("Set Event Time");
+
+  ezInt64 tick = m_pData->TickFromTime(value);
+
+  for (const auto& cpSel : selection)
+  {
+    if (m_pData->m_ControlPoints[cpSel].m_iTick != tick)
+      emit CpMovedEvent(cpSel, tick);
+  }
+
+  emit EndCpChangesEvent();
+}
+

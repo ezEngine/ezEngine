@@ -138,7 +138,7 @@ private slots:
 
 private:
   ezPropertyAnimAssetDocument* GetPropertyAnimDocument();
-  void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  //void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
   void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);
@@ -163,7 +163,4 @@ private:
   ezQtDocumentPanel* m_pColorGradientPanel = nullptr;
   ezQtDocumentPanel* m_pEventTrackPanel = nullptr;
   bool m_bAnimTimerInFlight = false;
-  bool m_bUpdateEventTrackEditor = false;
-  bool m_bUpdateCurveEditor = false;
-  bool m_bUpdateGradientEditor = false;
 };

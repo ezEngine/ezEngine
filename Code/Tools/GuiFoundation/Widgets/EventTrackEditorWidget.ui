@@ -100,6 +100,13 @@
       <widget class="QWidget" name="ColorWidget" native="true"/>
      </item>
      <item>
+      <widget class="QLabel" name="SelectedTypeLabel">
+       <property name="text">
+        <string>Event: none</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -118,7 +125,11 @@
      <item>
       <widget class="QPushButton" name="AddEventButton">
        <property name="text">
-        <string>+</string>
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../QtResources/resources.qrc">
+         <normaloff>:/GuiFoundation/Icons/Add16.png</normaloff>:/GuiFoundation/Icons/Add16.png</iconset>
        </property>
       </widget>
      </item>
