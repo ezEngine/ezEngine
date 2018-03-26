@@ -22,6 +22,7 @@
 #include <EditorFramework/DocumentWindow/QuadViewWidget.moc.h>
 #include <GuiFoundation/Widgets/TimeScrubberWidget.moc.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
+#include <ToolsFoundation/Reflection/IReflectedTypeAccessor.h>
 #include <QItemSelectionModel>
 #include <QLabel>
 #include <QLayout>
