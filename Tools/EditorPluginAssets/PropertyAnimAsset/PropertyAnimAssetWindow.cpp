@@ -1162,7 +1162,22 @@ void ezQtPropertyAnimAssetDocumentWindow::onEventTrackCpMoved(ezUInt32 cpIdx, ez
 
 void ezQtPropertyAnimAssetDocumentWindow::onEventTrackCpDeleted(ezUInt32 cpIdx)
 {
+  ezPropertyAnimAssetDocument* pDoc = GetPropertyAnimDocument();
 
+  ezObjectCommandAccessor accessor(pDoc->GetCommandHistory());
+
+  const ezAbstractProperty* pTrackProp = ezGetStaticRTTI<ezPropertyAnimationTrackGroup>()->FindPropertyByName("EventTrack");
+  const ezUuid trackGuid = accessor.Get<ezUuid>(pDoc->GetPropertyObject(), pTrackProp);
+  const ezDocumentObject* pTrackObj = accessor.GetObject(trackGuid);
+
+  const ezVariant cpGuid = pTrackObj->GetTypeAccessor().GetValue("ControlPoints", cpIdx);
+
+  if (!cpGuid.IsValid())
+    return;
+
+  ezRemoveObjectCommand cmdSet;
+  cmdSet.m_Object = cpGuid.Get<ezUuid>();
+  pDoc->GetCommandHistory()->AddCommand(cmdSet);
 }
 
 void ezQtPropertyAnimAssetDocumentWindow::onEventTrackBeginOperation(QString name)
