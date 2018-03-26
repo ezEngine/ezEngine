@@ -256,10 +256,9 @@ void ezQtEventTrackEditorWidget::UpdateSpinBoxes()
 
 void ezQtEventTrackEditorWidget::DetermineAvailableEvents()
 {
-  m_AvailableEvents.Insert("Event 1");
-  m_AvailableEvents.Insert("Event a");
-  m_AvailableEvents.Insert("Test Event");
-  m_AvailableEvents.Insert("Best Event");
+  m_EventSet.ReadFromDDL(":project/Events.ddl");
+
+  FillEventComboBox();
 }
 
 void ezQtEventTrackEditorWidget::AddUsedEvents()
@@ -267,7 +266,31 @@ void ezQtEventTrackEditorWidget::AddUsedEvents()
   if (m_pData == nullptr)
     return;
 
-  //m_pData->m_ControlPoints
+  for (const auto& cp : m_pData->m_ControlPoints)
+  {
+    m_EventSet.AddAvailableEvent(cp.m_sEvent.GetString());
+  }
+
+  if (m_EventSet.IsModified())
+  {
+    m_EventSet.WriteToDDL(":projectEevents.ddl");
+
+    FillEventComboBox();
+  }
+}
+
+void ezQtEventTrackEditorWidget::FillEventComboBox()
+{
+  const QString prev = ComboType->currentText();
+
+  ComboType->clear();
+
+  for (const ezString& type : m_EventSet.GetAvailableEvents())
+  {
+    ComboType->addItem(type.GetData());
+  }
+
+  ComboType->setCurrentText(prev);
 }
 
 //void ezQtEventTrackEditorWidget::on_LinePosition_editingFinished()

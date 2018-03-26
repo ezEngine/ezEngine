@@ -33,3 +33,20 @@ public:
   ezDynamicArray<ezEventTrackControlPointData> m_ControlPoints;
 };
 
+class EZ_GUIFOUNDATION_DLL ezEventSet
+{
+public:
+  bool IsModified() const { return m_bModified; }
+
+  const ezSet<ezString>& GetAvailableEvents() const { return m_AvailableEvents; }
+
+  void AddAvailableEvent(const char* szEvent);
+
+  ezResult WriteToDDL(const char* szFile);
+  ezResult ReadFromDDL(const char* szFile);
+
+private:
+  bool m_bModified = false;
+  ezSet<ezString> m_AvailableEvents;
+};
+

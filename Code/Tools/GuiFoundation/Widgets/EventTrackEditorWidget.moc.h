@@ -47,6 +47,7 @@ private:
   void UpdateSpinBoxes();
   void DetermineAvailableEvents();
   void AddUsedEvents();
+  void FillEventComboBox();
 
   const ezEventTrackData* m_pData = nullptr;
   ezEventTrackData m_DataCopy;
@@ -54,5 +55,5 @@ private:
   //double m_fCurveDuration;
   double m_ControlPointMove;
   QPointF m_contextMenuScenePos;
-  ezSet<ezString> m_AvailableEvents;
+  ezEventSet m_EventSet;
 };

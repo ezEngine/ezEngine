@@ -115,6 +115,13 @@
      <item>
       <widget class="QComboBox" name="ComboType"/>
      </item>
+     <item>
+      <widget class="QPushButton" name="AddEventButton">
+       <property name="text">
+        <string>+</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
   </layout>

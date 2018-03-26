@@ -1,6 +1,11 @@
 #include <PCH.h>
 #include <GuiFoundation/Widgets/EventTrackEditData.h>
 #include <Foundation/Tracks/EventTrack.h>
+#include <Foundation/IO/OpenDdlWriter.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/OpenDdlReader.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventTrackControlPointData, 1, ezRTTIDefaultAllocator<ezEventTrackControlPointData>)
 {
@@ -43,4 +48,65 @@ void ezEventTrackData::ConvertToRuntimeData(ezEventTrack& out_Result) const
   {
     out_Result.AddControlPoint(ezTime::Seconds(cp.GetTickAsTime()), cp.m_sEvent);
   }
+}
+
+void ezEventSet::AddAvailableEvent(const char* szEvent)
+{
+  if (ezStringUtils::IsNullOrEmpty(szEvent))
+    return;
+
+  if (m_AvailableEvents.Contains(szEvent))
+    return;
+
+  m_bModified = true;
+  m_AvailableEvents.Insert(szEvent);
+}
+
+ezResult ezEventSet::WriteToDDL(const char* szFile)
+{
+  ezDeferredFileWriter file;
+  file.SetOutput(szFile);
+
+  ezOpenDdlWriter ddl;
+  ddl.SetOutputStream(&file);
+
+  for (const auto& s : m_AvailableEvents)
+  {
+    ddl.BeginObject("Event", s.GetData());
+    ddl.EndObject();
+  }
+
+  if (file.Close().Succeeded())
+  {
+    m_bModified = false;
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
+}
+
+ezResult ezEventSet::ReadFromDDL(const char* szFile)
+{
+  m_AvailableEvents.Clear();
+
+  ezFileReader file;
+  if (file.Open(szFile).Failed())
+    return EZ_FAILURE;
+
+  ezOpenDdlReader ddl;
+  if (ddl.ParseDocument(file).Failed())
+    return EZ_FAILURE;
+
+  auto* pRoot = ddl.GetRootElement();
+
+  for (auto* pChild = pRoot->GetFirstChild(); pChild != nullptr; pChild = pChild->GetSibling())
+  {
+    if (pChild->IsCustomType("Event"))
+    {
+      AddAvailableEvent(pChild->GetName());
+    }
+  }
+
+  m_bModified = false;
+  return EZ_SUCCESS;
 }
