@@ -18,6 +18,19 @@ struct EZ_GAMEENGINE_DLL ezMsgPropertyAnimationEndReached : public ezEventMessag
 
 };
 
+struct EZ_GAMEENGINE_DLL ezMsgPropertyAnimationPlayRange : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgPropertyAnimationPlayRange, ezMessage);
+
+  ezTime m_RangeLow;
+  ezTime m_RangeHigh;
+};
+
+/// \brief Animates properties on other objects and components according to the property animation resource
+///
+/// Notes:
+///  - There is no paused/playing state for this component. Simply activate/deactivate it to play/pause the playback.
+///  - There is also no messages to change speed, simply modify the speed property.
 class EZ_GAMEENGINE_DLL ezPropertyAnimComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPropertyAnimComponent, ezComponent, ezPropertyAnimComponentManager);
@@ -44,19 +57,22 @@ protected:
 
 public:
 
-  void Update();
-
   void SetPropertyAnimFile(const char* szFile);
   const char* GetPropertyAnimFile() const;
 
   void SetPropertyAnim(const ezPropertyAnimResourceHandle& hResource);
   EZ_ALWAYS_INLINE const ezPropertyAnimResourceHandle& GetPropertyAnim() const { return m_hPropertyAnim; }
 
-  // TODO: probably as message handlers
-  // SetAnimationTime
-  // SetAnimationSpeed
-  // SetAnimationRange(low, high) -> resets time to start or end or range ?
-  // Start / Stop playback
+  /// \brief Sets the animation playback range and resets the playing position to the range start position. Also activates the component if it isn't.
+  void OnPlayAnimationRange(ezMsgPropertyAnimationPlayRange& msg);
+
+  // public properties:
+  ezEnum<ezPropertyAnimMode> m_AnimationMode;
+  ezTime m_RandomOffset;
+  float m_fSpeed = 1.0f;
+  // for only playing a sub-set of the animation
+  ezTime m_AnimationRangeLow;
+  ezTime m_AnimationRangeHigh;
   
 protected:
   ezEventMessageSender<ezMsgPropertyAnimationEndReached> m_ReachedEndMsgSender;
@@ -91,6 +107,7 @@ protected:
     const ezColorPropertyAnimEntry* m_pAnimation = nullptr;
   };
 
+  void Update();
   void CreatePropertyBindings();
   void CreateGameObjectBinding(const ezFloatPropertyAnimEntry* pAnim, const ezRTTI* pRtti, void* pObject, const ezGameObjectHandle& hGameObject);
   void CreateFloatPropertyBinding(const ezFloatPropertyAnimEntry* pAnim, const ezRTTI* pRtti, void* pObject, const ezComponentHandle& hComponent);
@@ -101,17 +118,11 @@ protected:
   void ApplyColorAnimation(const ColorBinding& binding, double lookupTime);
   double ComputeAnimationLookup(ezTime tDiff);
   void EvaluateEventTrack(ezTime startTime, ezTime endTime);
+  void StartPlayback();
 
-  ezEnum<ezPropertyAnimMode> m_AnimationMode;
-  ezTime m_RandomOffset;
-  ezTime m_AnimationTime;
-  float m_fSpeed = 1.0f;
   bool m_bReverse = false;
 
-  // for only playing a sub-set of the animation
-  ezTime m_AnimationRangeLow;
-  ezTime m_AnimationRangeHigh;
-
+  ezTime m_AnimationTime;
   ezHybridArray<GameObjectBinding, 4> m_GoFloatBindings;
   ezHybridArray<ComponentFloatBinding, 4> m_ComponentFloatBindings;
   ezHybridArray<ColorBinding, 4> m_ColorBindings;

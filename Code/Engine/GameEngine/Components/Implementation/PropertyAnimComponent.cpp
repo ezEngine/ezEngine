@@ -10,6 +10,30 @@
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPropertyAnimationEndReached);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPropertyAnimationEndReached, 1, ezRTTIDefaultAllocator<ezMsgPropertyAnimationEndReached>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezAutoGenVisScriptMsgHandler(),
+  }
+  EZ_END_ATTRIBUTES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPropertyAnimationPlayRange);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPropertyAnimationPlayRange, 1, ezRTTIDefaultAllocator<ezMsgPropertyAnimationPlayRange>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("RangeLow", m_RangeLow)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
+    EZ_MEMBER_PROPERTY("RangeHigh", m_RangeHigh)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::Seconds(60 * 60))),
+  }
+  EZ_END_PROPERTIES
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezAutoGenVisScriptMsgSender(),
+  }
+  EZ_END_ATTRIBUTES
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 //////////////////////////////////////////////////////////////////////////
@@ -22,8 +46,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 2, ezComponentMode::Dynamic)
     EZ_ENUM_MEMBER_PROPERTY("Mode", ezPropertyAnimMode, m_AnimationMode),
     EZ_MEMBER_PROPERTY("RandomOffset", m_RandomOffset)->AddAttributes(new ezClampValueAttribute(ezTime::Seconds(0), ezVariant())),
     EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(-10.0f, +10.0f)),
-    EZ_MEMBER_PROPERTY("RangeLow", m_AnimationRangeLow)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("RangeHigh", m_AnimationRangeHigh)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(ezTime::Seconds(60 * 60))),
+    EZ_MEMBER_PROPERTY("RangeLow", m_AnimationRangeLow)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
+    EZ_MEMBER_PROPERTY("RangeHigh", m_AnimationRangeHigh)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::Seconds(60 * 60))),
   }
   EZ_END_PROPERTIES
   EZ_BEGIN_ATTRIBUTES
@@ -31,6 +55,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 2, ezComponentMode::Dynamic)
     new ezCategoryAttribute("Animation"),
   }
   EZ_END_ATTRIBUTES
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezMsgPropertyAnimationPlayRange, OnPlayAnimationRange),
+  }
+  EZ_END_MESSAGEHANDLERS
   EZ_BEGIN_MESSAGESENDERS
   {
     EZ_MESSAGE_SENDER(m_EventTrackMsgSender),
@@ -79,7 +108,6 @@ void ezPropertyAnimComponent::DeserializeComponent(ezWorldReader& stream)
     s >> m_bReverse;
     s >> m_AnimationRangeLow;
     s >> m_AnimationRangeHigh;
-
   }
 }
 
@@ -106,6 +134,18 @@ const char* ezPropertyAnimComponent::GetPropertyAnimFile() const
 void ezPropertyAnimComponent::SetPropertyAnim(const ezPropertyAnimResourceHandle& hPropertyAnim)
 {
   m_hPropertyAnim = hPropertyAnim;
+}
+
+void ezPropertyAnimComponent::OnPlayAnimationRange(ezMsgPropertyAnimationPlayRange& msg)
+{
+  SetActive(true);
+
+  m_AnimationRangeLow = msg.m_RangeLow;
+  m_AnimationRangeHigh = msg.m_RangeHigh;
+
+  m_AnimationTime = m_AnimationRangeLow;
+
+  StartPlayback();
 }
 
 void ezPropertyAnimComponent::CreatePropertyBindings()
@@ -540,6 +580,11 @@ void ezPropertyAnimComponent::OnSimulationStarted()
 {
   CreatePropertyBindings();
 
+  StartPlayback();
+}
+
+void ezPropertyAnimComponent::StartPlayback()
+{
   m_AnimationRangeLow = ezMath::Clamp(m_AnimationRangeLow, ezTime::Zero(), m_AnimDesc->m_AnimationDuration);
   m_AnimationRangeHigh = ezMath::Clamp(m_AnimationRangeHigh, m_AnimationRangeLow, m_AnimDesc->m_AnimationDuration);
 
