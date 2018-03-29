@@ -35,6 +35,16 @@ namespace
 
   EZ_CHECK_AT_COMPILETIME(sizeof(Vertex) == 16);
 
+  struct EZ_ALIGN_16(TexVertex)
+  {
+    ezVec3 m_position;
+    ezColorLinearUB m_color;
+    ezVec2 m_texCoord;
+    float padding[2];
+  };
+
+  EZ_CHECK_AT_COMPILETIME(sizeof(TexVertex) == 32);
+
   struct EZ_ALIGN_16(BoxData)
   {
     ezShaderTransform m_transform;
@@ -61,6 +71,7 @@ namespace
     ezDynamicArray<BoxData, ezAlignedAllocatorWrapper> m_lineBoxes;
     ezDynamicArray<BoxData, ezAlignedAllocatorWrapper> m_solidBoxes;
     ezDynamicArray<GlyphData, ezAlignedAllocatorWrapper> m_glyphs;
+    ezMap<ezTexture2DResourceHandle, ezDynamicArray<TexVertex, ezAlignedAllocatorWrapper> > m_texTriangle2DVertices;
   };
 
   struct DoubleBufferedPerContextData
@@ -110,6 +121,7 @@ namespace
         pData->m_solidBoxes.Clear();
         pData->m_triangleVertices.Clear();
         pData->m_triangle2DVertices.Clear();
+        pData->m_texTriangle2DVertices.Clear();
         pData->m_glyphs.Clear();
       }
     }
@@ -124,6 +136,7 @@ namespace
       SolidBoxes,
       Triangles3D,
       Triangles2D,
+      TexTriangles2D,
       Glyphs,
 
       Count
@@ -135,10 +148,12 @@ namespace
   ezMeshBufferResourceHandle s_hLineBoxMeshBuffer;
   ezMeshBufferResourceHandle s_hSolidBoxMeshBuffer;
   ezVertexDeclarationInfo s_VertexDeclarationInfo;
+  ezVertexDeclarationInfo s_TexVertexDeclarationInfo;
   ezTexture2DResourceHandle s_hDebugFontTexture;
 
   ezShaderResourceHandle s_hDebugGeometryShader;
   ezShaderResourceHandle s_hDebugPrimitiveShader;
+  ezShaderResourceHandle s_hDebugTexturedPrimitiveShader;
   ezShaderResourceHandle s_hDebugTextShader;
 
   enum
@@ -147,6 +162,7 @@ namespace
     BOXES_PER_BATCH = DEBUG_BUFFER_SIZE / sizeof(BoxData),
     LINE_VERTICES_PER_BATCH = DEBUG_BUFFER_SIZE / sizeof(Vertex),
     TRIANGLE_VERTICES_PER_BATCH = (DEBUG_BUFFER_SIZE / sizeof(Vertex) / 3) * 3,
+    TEX_TRIANGLE_VERTICES_PER_BATCH = (DEBUG_BUFFER_SIZE / sizeof(TexVertex) / 3) * 3,
     GLYPHS_PER_BATCH = DEBUG_BUFFER_SIZE / sizeof(GlyphData),
   };
 
@@ -468,6 +484,36 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
   data.m_triangle2DVertices.PushBackRange(ezMakeArrayPtr(vertices));
 }
 
+void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, const ezTexture2DResourceHandle& hTexture)
+{
+  TexVertex vertices[6];
+
+  vertices[0].m_position = ezVec3(rectInPixel.Left(), rectInPixel.Top(), fDepth);
+  vertices[0].m_texCoord = ezVec2(0, 1);
+  vertices[1].m_position = ezVec3(rectInPixel.Right(), rectInPixel.Bottom(), fDepth);
+  vertices[1].m_texCoord = ezVec2(1, 0);
+  vertices[2].m_position = ezVec3(rectInPixel.Left(), rectInPixel.Bottom(), fDepth);
+  vertices[2].m_texCoord = ezVec2(0, 0);
+  vertices[3].m_position = ezVec3(rectInPixel.Left(), rectInPixel.Top(), fDepth);
+  vertices[3].m_texCoord = ezVec2(0, 1);
+  vertices[4].m_position = ezVec3(rectInPixel.Right(), rectInPixel.Top(), fDepth);
+  vertices[4].m_texCoord = ezVec2(1, 1);
+  vertices[5].m_position = ezVec3(rectInPixel.Right(), rectInPixel.Bottom(), fDepth);
+  vertices[5].m_texCoord = ezVec2(1, 0);
+
+  for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(vertices); ++i)
+  {
+    vertices[i].m_color = color;
+  }
+
+
+  EZ_LOCK(s_Mutex);
+
+  auto& data = GetDataForExtraction(context);
+
+  data.m_texTriangle2DVertices[hTexture].PushBackRange(ezMakeArrayPtr(vertices));
+}
+
 void ezDebugRenderer::DrawText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec2I32& topLeftCornerInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/)
 {
   if (text.IsEmpty())
@@ -658,6 +704,40 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
     }
   }
 
+  // Textured 2D Rectangles
+  {
+    for (auto itTex = pData->m_texTriangle2DVertices.GetIterator(); itTex.IsValid(); ++itTex)
+    {
+      renderViewContext.m_pRenderContext->BindTexture2D("BaseTexture", itTex.Key());
+
+      const auto& verts = itTex.Value();
+
+      ezUInt32 uiNum2DVertices = verts.GetCount();
+      if (uiNum2DVertices != 0)
+      {
+        CreateVertexBuffer(BufferType::TexTriangles2D, sizeof(TexVertex));
+
+        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PRE_TRANSFORMED_VERTICES", "TRUE");
+        renderViewContext.m_pRenderContext->BindShader(s_hDebugTexturedPrimitiveShader);
+
+        const TexVertex* pTriangleData = verts.GetData();
+        while (uiNum2DVertices > 0)
+        {
+          const ezUInt32 uiNum2DVerticesInBatch = ezMath::Min<ezUInt32>(uiNum2DVertices, TEX_TRIANGLE_VERTICES_PER_BATCH);
+          EZ_ASSERT_DEV(uiNum2DVerticesInBatch % 3 == 0, "Vertex count must be a multiple of 3.");
+          pGALContext->UpdateBuffer(s_hDataBuffer[BufferType::TexTriangles2D], 0, ezMakeArrayPtr(pTriangleData, uiNum2DVerticesInBatch).ToByteArray());
+
+          renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::TexTriangles2D], ezGALBufferHandle(), &s_TexVertexDeclarationInfo,
+            ezGALPrimitiveTopology::Triangles, uiNum2DVerticesInBatch / 3);
+          renderViewContext.m_pRenderContext->DrawMeshBuffer();
+
+          uiNum2DVertices -= uiNum2DVerticesInBatch;
+          pTriangleData += TEX_TRIANGLE_VERTICES_PER_BATCH;
+        }
+      }
+    }
+  }
+
   // Text
   {
     ezUInt32 uiNumGlyphs = pData->m_glyphs.GetCount();
@@ -711,23 +791,62 @@ void ezDebugRenderer::OnEngineStartup()
     s_hSolidBoxMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>("DebugSolidBox", desc, "Mesh for Rendering Debug Solid Boxes");
   }
 
-  // reset, if already used before
-  s_VertexDeclarationInfo.m_VertexStreams.Clear();
-
   {
-    ezVertexStreamInfo& si = s_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-    si.m_Semantic = ezGALVertexAttributeSemantic::Position;
-    si.m_Format = ezGALResourceFormat::XYZFloat;
-    si.m_uiOffset = 0;
-    si.m_uiElementSize = 12;
+    // reset, if already used before
+    s_VertexDeclarationInfo.m_VertexStreams.Clear();
+
+    {
+      ezVertexStreamInfo& si = s_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
+      si.m_Semantic = ezGALVertexAttributeSemantic::Position;
+      si.m_Format = ezGALResourceFormat::XYZFloat;
+      si.m_uiOffset = 0;
+      si.m_uiElementSize = 12;
+    }
+
+    {
+      ezVertexStreamInfo& si = s_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
+      si.m_Semantic = ezGALVertexAttributeSemantic::Color;
+      si.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
+      si.m_uiOffset = 12;
+      si.m_uiElementSize = 4;
+    }
   }
 
   {
-    ezVertexStreamInfo& si = s_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-    si.m_Semantic = ezGALVertexAttributeSemantic::Color;
-    si.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
-    si.m_uiOffset = 12;
-    si.m_uiElementSize = 4;
+    // reset, if already used before
+    s_TexVertexDeclarationInfo.m_VertexStreams.Clear();
+
+    {
+      ezVertexStreamInfo& si = s_TexVertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
+      si.m_Semantic = ezGALVertexAttributeSemantic::Position;
+      si.m_Format = ezGALResourceFormat::XYZFloat;
+      si.m_uiOffset = 0;
+      si.m_uiElementSize = 12;
+    }
+
+    {
+      ezVertexStreamInfo& si = s_TexVertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
+      si.m_Semantic = ezGALVertexAttributeSemantic::Color;
+      si.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
+      si.m_uiOffset = 12;
+      si.m_uiElementSize = 4;
+    }
+
+    {
+      ezVertexStreamInfo& si = s_TexVertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
+      si.m_Semantic = ezGALVertexAttributeSemantic::TexCoord0;
+      si.m_Format = ezGALResourceFormat::XYFloat;
+      si.m_uiOffset = 16;
+      si.m_uiElementSize = 8;
+    }
+
+    {
+      ezVertexStreamInfo& si = s_TexVertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
+      si.m_Semantic = ezGALVertexAttributeSemantic::TexCoord1; // padding
+      si.m_Format = ezGALResourceFormat::XYFloat;
+      si.m_uiOffset = 24;
+      si.m_uiElementSize = 8;
+    }
   }
 
   {
@@ -750,6 +869,7 @@ void ezDebugRenderer::OnEngineStartup()
 
   s_hDebugGeometryShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Debug/DebugGeometry.ezShader");
   s_hDebugPrimitiveShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Debug/DebugPrimitive.ezShader");
+  s_hDebugTexturedPrimitiveShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Debug/DebugTexturedPrimitive.ezShader");
   s_hDebugTextShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Debug/DebugText.ezShader");
 
   ezRenderWorld::s_EndFrameEvent.AddEventHandler(&ClearRenderData);

@@ -78,6 +78,12 @@ public:
     return m_pResource != rhs.m_pResource;
   }
 
+  /// \brief For storing handles as keys in maps
+  EZ_ALWAYS_INLINE bool operator<(const ezTypelessResourceHandle& rhs) const
+  {
+    return m_pResource < rhs.m_pResource;
+  }
+
   /// \brief Checks whether the handle points to the given resource.
   EZ_ALWAYS_INLINE bool operator==(const ezResourceBase* rhs) const
   {
@@ -161,6 +167,12 @@ public:
     return m_Typeless != rhs.m_Typeless;
   }
 
+  /// \brief For storing handles as keys in maps
+  EZ_ALWAYS_INLINE bool operator<(const ezTypedResourceHandle<ResourceType>& rhs) const
+  {
+    return m_Typeless < rhs.m_Typeless;
+  }
+
   /// \brief Checks whether the handle points to the given resource.
   EZ_ALWAYS_INLINE bool operator==(const ezResourceBase* rhs) const
   {
@@ -172,6 +184,7 @@ public:
   {
     return m_Typeless != rhs;
   }
+
 
   /// \brief Returns the corresponding typeless resource handle.
   EZ_ALWAYS_INLINE operator const ezTypelessResourceHandle() const

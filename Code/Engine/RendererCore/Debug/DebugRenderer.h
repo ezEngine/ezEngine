@@ -1,6 +1,7 @@
 #pragma once
 
 #include <RendererCore/Basics.h>
+#include <RendererCore/Declarations.h>
 #include <RendererCore/Debug/DebugRendererContext.h>
 #include <Foundation/Math/Transform.h>
 #include <Foundation/Math/Color.h>
@@ -56,6 +57,8 @@ public:
   static void DrawSolidTriangles(const ezDebugRendererContext& context, ezArrayPtr<Triangle> triangles, const ezColor& color);
 
   static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color);
+
+  static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, const ezTexture2DResourceHandle& hTexture);
 
   static void DrawText(const ezDebugRendererContext& context, const ezStringView& text, const ezVec2I32& topLeftCornerInPixel, const ezColor& color, ezUInt32 uiSizeInPixel = 16);
 

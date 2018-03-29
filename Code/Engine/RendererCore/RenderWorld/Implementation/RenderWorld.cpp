@@ -168,9 +168,15 @@ void ezRenderWorld::AddViewToRender(const ezViewHandle& hView)
     EZ_LOCK(s_ViewsToRenderMutex);
     EZ_ASSERT_DEV(s_bInExtract, "Render views need to be collected during extraction");
 
+    // make sure the view is put at the end of the array, if it is already there, reorder it
+    // this ensures that the views that have been referenced by the last other view, get rendered first
     if (s_ViewsToRender.Contains(pView))
+    {
+      s_ViewsToRender.Remove(pView);
+      s_ViewsToRender.PushBack(pView);
       return;
-    
+    }
+
     s_ViewsToRender.PushBack(pView);
   }
 
