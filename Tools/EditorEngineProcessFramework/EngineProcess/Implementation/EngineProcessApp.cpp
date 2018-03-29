@@ -65,6 +65,7 @@ void ezEditorEngineProcessApp::DestroyRemoteWindow()
 
 ezRenderPipelineResourceHandle ezEditorEngineProcessApp::CreateDefaultMainRenderPipeline()
 {
+  // EditorRenderPipeline.ezRenderPipelineAsset
   return ezResourceManager::LoadResource<ezRenderPipelineResource>("{ da463c4d-c984-4910-b0b7-a0b3891d0448 }");
 }
 
@@ -97,7 +98,7 @@ ezViewHandle ezEditorEngineProcessApp::CreateRemoteWindowAndView(ezCamera* pCame
       ezView* pView = nullptr;
       m_hRemoteView = ezRenderWorld::CreateView("Remote Process", pView);
 
-      // default render pipeline
+      // EditorRenderPipeline.ezRenderPipelineAsset
       pView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>("{ da463c4d-c984-4910-b0b7-a0b3891d0448 }"));
 
       pView->SetRenderTargetSetup(BackBufferRenderTargetSetup);

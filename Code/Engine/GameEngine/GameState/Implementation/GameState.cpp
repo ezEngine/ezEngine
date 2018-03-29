@@ -156,7 +156,7 @@ void ezGameState::ConfigureInputActions()
 
 void ezGameState::SetupMainView(ezGALRenderTargetViewHandle hBackBuffer)
 {
-  // Use MainRenderPipeline
+  // MainRenderPipeline.ezRenderPipelineAsset
   SetupMainView(hBackBuffer, ezResourceManager::LoadResource<ezRenderPipelineResource>("{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }"));
 }
 

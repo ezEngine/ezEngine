@@ -350,6 +350,13 @@ o
 }
 o
 {
+	Uuid %id{u4{16043269771357318050,4954949595661142610}}
+	s %t{"ezCameraViewRenderer"}
+	u3 %v{1}
+	p{}
+}
+o
+{
 	Uuid %id{u4{13512004893985912757,4978219606405866132}}
 	s %t{"ezInputNodePin"}
 	u3 %v{1}
@@ -370,7 +377,7 @@ o
 		{
 			Uuid{u4{18367299399809657297,4155934147862596677}}
 		}
-		Vec2 %Node::Pos{f{0x19FF4A44,0xB62478C3}}
+		Vec2 %Node::Pos{f{0x19FF4A44,0x352679C3}}
 		VarArray %Renderers
 		{
 			Uuid{u4{15908379640670307974,5435930448957772873}}
@@ -478,6 +485,7 @@ o
 			Uuid{u4{17992563033076071050,5694931789517870114}}
 			Uuid{u4{15243059149680400804,4683295213883254142}}
 			Uuid{u4{839328558132542655,5513437849599105357}}
+			Uuid{u4{16043269771357318050,4954949595661142610}}
 		}
 	}
 }
@@ -596,7 +604,7 @@ AssetInfo
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5189305147899033520,5264929536831011917}}
-		u4 %Hash{15549003601736847794}
+		u4 %Hash{5143390670412952256}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -1545,7 +1553,7 @@ o
 			Uuid{u4{17681360642012237503,918567023148729502}}
 		}
 		s %TypeName{"ezEditorSelectedObjectsExtractor"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{424}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2007,7 +2015,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezTransparentForwardRenderPass"}
-		u3 %TypeSize{224}
+		u3 %TypeSize{232}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2247,6 +2255,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleExtractor"}
 		u3 %TypeSize{80}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12702589637813334548,14950121633415726863}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderer"}
+		s %PluginName{"ezEnginePluginScene"}
+		VarArray %Properties{}
+		s %TypeName{"ezCameraViewRenderer"}
+		u3 %TypeSize{152}
 		u3 %TypeVersion{1}
 	}
 }

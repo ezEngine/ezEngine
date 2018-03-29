@@ -112,6 +112,9 @@ public:
 
   void ApplySettingsToView(ezView* pView) const;
 
+  ezTagSet m_IncludeTags;
+  ezTagSet m_ExcludeTags;
+
 private:
   void ResourceChangeEventHandler(const ezResourceEvent& e);
 
@@ -123,9 +126,6 @@ private:
   float m_fPerspectiveFieldOfView;
   float m_fOrthoDimension;
   ezRenderPipelineResourceHandle m_hRenderPipeline;
-
-  ezTagSet m_IncludeTags;
-  ezTagSet m_ExcludeTags;
 
   float m_fAperture;
   float m_fShutterTime;
