@@ -23,6 +23,7 @@
 #include <GuiFoundation/Widgets/TimeScrubberWidget.moc.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <ToolsFoundation/Reflection/IReflectedTypeAccessor.h>
+#include <ToolsFoundation/Object/ObjectCommandAccessor.h>
 #include <QItemSelectionModel>
 #include <QLabel>
 #include <QLayout>
