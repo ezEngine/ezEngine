@@ -152,7 +152,14 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
         }
         */
 
-        m_PickingInverseViewProjectionMatrix = (mProj * mView).GetInverse();
+        ezMat4 inv = mProj * mView;
+        if (inv.Invert(0).Failed())
+        {
+          ezLog::Warning("Inversion of View-Projection-Matrix failed. Picking results will be wrong.");
+          return;
+        }
+
+        m_PickingInverseViewProjectionMatrix = inv;
 
         m_PickingResultsDepth.Clear();
         m_PickingResultsDepth.SetCountUninitialized(m_uiWindowWidth * m_uiWindowHeight);
@@ -198,7 +205,14 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, 
       }
       */
 
-      m_PickingInverseViewProjectionMatrix = (mProj * mView).GetInverse();
+      ezMat4 inv = mProj * mView;
+      if (inv.Invert(0).Failed())
+      {
+        ezLog::Warning("Inversion of View-Projection-Matrix failed. Picking results will be wrong.");
+        return;
+      }
+
+      m_PickingInverseViewProjectionMatrix = inv;
 
       m_PickingResultsID.Clear();
       m_PickingResultsID.SetCountUninitialized(m_uiWindowWidth * m_uiWindowHeight);
