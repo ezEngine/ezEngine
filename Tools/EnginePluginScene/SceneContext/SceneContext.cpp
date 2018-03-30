@@ -42,7 +42,7 @@ void ezSceneContext::ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSph
   }
 }
 
-void ezSceneContext::DrawSelectionBounds()
+void ezSceneContext::DrawSelectionBounds(const ezViewHandle& hView)
 {
   if (!m_bRenderSelectionBoxes)
     return;
@@ -62,7 +62,7 @@ void ezSceneContext::DrawSelectionBounds()
 
     if (bounds.IsValid())
     {
-      ezDebugRenderer::DrawLineBoxCorners(m_pWorld, bounds.GetBox(), 0.25f, ezColor::Yellow);
+      ezDebugRenderer::DrawLineBoxCorners(hView, bounds.GetBox(), 0.25f, ezColor::Yellow);
     }
   }
 }
@@ -137,9 +137,9 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
   if (pMsg->IsInstanceOf<ezViewRedrawMsgToEngine>())
   {
-    /// \todo We are actually doing this once per view, but the data is going to be rendered in every view
-    /// That means in 4-view mode we render this stuff 3 times more than necessary
-    DrawSelectionBounds();
+    auto pDocView = GetViewContext(static_cast<const ezViewRedrawMsgToEngine*>(pMsg)->m_uiViewID);
+    if (pDocView)
+      DrawSelectionBounds(pDocView->GetViewHandle());
 
     // fall through
   }

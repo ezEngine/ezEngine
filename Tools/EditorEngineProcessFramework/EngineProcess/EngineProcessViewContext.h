@@ -55,6 +55,8 @@ public:
   /// \brief Focuses camera on the given object
   static bool FocusCameraOnObject(ezCamera& camera, const ezBoundingBoxSphere& objectBounds, float fFov, const ezVec3& vViewDir);
 
+  ezViewHandle GetViewHandle() const { return m_hView; }
+
 protected:
   void SendViewMessage(ezEditorEngineViewMsg* pViewMsg);
   void HandleWindowUpdate(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight);

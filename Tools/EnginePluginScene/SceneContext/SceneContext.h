@@ -2,6 +2,7 @@
 
 #include <EnginePluginScene/Plugin.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
+#include <RendererCore/Pipeline/Declarations.h>
 
 class ezObjectSelectionMsgToEngine;
 class ezRenderContext;
@@ -59,7 +60,7 @@ private:
   void HandleObjectsForDebugVisMsg(const ezObjectsForDebugVisMsgToEngine* pMsg);
   void ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds);
 
-  void DrawSelectionBounds();
+  void DrawSelectionBounds(const ezViewHandle& hView);
 
   void InsertSelectedChildren(const ezGameObject* pObject);
   void QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg);

@@ -108,6 +108,9 @@ protected:
   /// \brief Clears the given tag on the object and all children.
   void ClearTagRecursive(ezGameObject* pObject, const ezTag& tag);
 
+protected:
+  const ezEngineProcessViewContext* GetViewContext(ezUInt32 uiView) const { return uiView >= m_ViewContexts.GetCount() ? nullptr : m_ViewContexts[uiView]; }
+
 private:
   friend class ezEditorEngineSyncObject;
 
