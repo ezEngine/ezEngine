@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Core/World/World.h>
@@ -42,3 +42,4 @@ protected:
   ezMaterialResourceHandle m_hMaterial;
   ezPropertyAnimResourceHandle m_hPropertyAnim;
 };
+

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Core/Basics.h>
 #include <Foundation/IO/Stream.h>
@@ -36,3 +36,4 @@ private:
   ezUInt64 m_uiHash;
   ezUInt16 m_uiVersion;
 };
+

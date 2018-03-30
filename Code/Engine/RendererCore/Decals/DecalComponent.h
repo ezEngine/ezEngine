@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Components/RenderComponent.h>
@@ -127,3 +127,4 @@ protected:
   ezUInt32 m_uiInternalSortKey;
   static ezUInt16 s_uiNextSortKey;
 };
+

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Core/Messages/CollisionMessage.h>
 #include <Core/Messages/DeleteObjectMessage.h>
 #include <Core/Messages/TriggerMessage.h>
@@ -23,5 +23,5 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
 
-EZ_STATICLINK_FILE(Core, Core_Messages_Messages);
+EZ_STATICLINK_FILE(Core, Core_Messages_Implementation_Messages);
 

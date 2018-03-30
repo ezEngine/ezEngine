@@ -299,3 +299,4 @@ private:
 };
 
 #include <RendererFoundation/Context/Implementation/Context_inl.h>
+

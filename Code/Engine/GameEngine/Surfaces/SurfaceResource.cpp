@@ -259,3 +259,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
   return true;
 }
 
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Surfaces_SurfaceResource);
+

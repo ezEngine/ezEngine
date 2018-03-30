@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/Types/VarianceTypes.h>
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVarianceTypeBase, ezNoBase, 1, ezRTTINoAllocator)
@@ -40,4 +40,8 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVarianceTypeAngle, ezVarianceTypeBase, 1, ezRTT
     EZ_END_PROPERTIES
 }
 EZ_END_STATIC_REFLECTED_TYPE
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_VarianceTypes);
 

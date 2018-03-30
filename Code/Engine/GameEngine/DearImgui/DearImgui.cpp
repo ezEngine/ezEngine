@@ -168,3 +168,8 @@ void ezImgui::BeginNewFrame(ezSizeU32 windowResolution)
 
   m_bImguiWantsInput = cfg.WantCaptureKeyboard || cfg.WantCaptureMouse;
 }
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_DearImgui_DearImgui);
+

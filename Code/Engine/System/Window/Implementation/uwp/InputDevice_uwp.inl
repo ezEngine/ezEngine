@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/Logging/Log.h>
 #include <System/Window/Implementation/uwp/InputDevice_uwp.h>
 #include <Core/Input/InputManager.h>
@@ -582,3 +582,4 @@ bool ezStandardInputDevice::GetShowMouseCursor() const
 {
   return m_bShowCursor;
 }
+

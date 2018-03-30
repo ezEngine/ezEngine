@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Strings/String.h>
@@ -28,3 +28,4 @@ inline ezResult ezToResult(HRESULT result)
   do { HRESULT s = (code); \
   EZ_ASSERT_DEV(SUCCEEDED(s), "Call '{0}' failed with: {1}", EZ_STRINGIZE(code), ezHRESULTtoString(s)); \
   } while (false)
+

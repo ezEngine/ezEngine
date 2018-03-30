@@ -17,3 +17,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgOnlyApplyToObject, 1, ezRTTIDefaultAllocato
   EZ_END_ATTRIBUTES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Messages_Implementation_ApplyOnlyToMessage);
+

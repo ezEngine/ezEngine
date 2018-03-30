@@ -215,5 +215,5 @@ void ezConsole::DoDefaultInputHandling(bool bConsoleOpen)
 
 
 
-EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Console_Implementation_Input);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Console_Implementation_Input);
 

@@ -75,3 +75,4 @@ struct EZ_RENDERERCORE_DLL ezCameraUsageHint
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezCameraUsageHint);
+

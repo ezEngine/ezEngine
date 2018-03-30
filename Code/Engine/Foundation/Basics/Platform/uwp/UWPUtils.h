@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
   #error "uwp util header should only be included in UWP builds!"
@@ -150,3 +150,4 @@ namespace ezUwpUtils
   ezUuid EZ_FOUNDATION_DLL ConvertGuid(const GUID& in);
   void EZ_FOUNDATION_DLL ConvertGuid(const ezUuid& in, GUID& out);
 }
+

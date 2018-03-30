@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
@@ -22,3 +22,8 @@ EZ_FOUNDATION_DLL ezString ezHRESULTtoString(HRESULT result)
 }
 
 #endif
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Basics_Platform_Win_HResultUtils);
+

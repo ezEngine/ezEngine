@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/MixedReality/Components/SrmRenderComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -220,4 +220,8 @@ void ezSrmRenderComponent::CreateSurfaceRepresentation(const ezUuid& guid, SrmRe
 
   pMeshComp->SetMesh(hMeshResource);
 }
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_MixedReality_Components_SrmRenderComponent);
 

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <TestFramework/Basics.h>
 #include <Foundation/Algorithm/Hashing.h>
@@ -142,3 +142,4 @@ struct ezHashHelper<ezConstructionCounter>
     return a == b;
   }
 };
+

@@ -1,4 +1,4 @@
-﻿
+
 template <typename T, ezUInt32 C>
 ezStaticArray<T, C>::ezStaticArray()
 {
@@ -91,3 +91,4 @@ EZ_FORCE_INLINE const T* ezStaticArray<T, C>::GetElementsPtr() const
 {
   return GetStaticArray();
 }
+

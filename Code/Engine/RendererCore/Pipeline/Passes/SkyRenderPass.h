@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererCore/Pipeline/Passes/ForwardRenderPass.h>
 
@@ -15,3 +15,4 @@ protected:
 
   virtual void RenderObjects(const ezRenderViewContext& renderViewContext) override;
 };
+

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Math/Color.h>
@@ -273,3 +273,4 @@ inline void ezConversionUtils::ConvertBinaryToHex(const void* pBinaryData, ezUIn
     append(tmp);
   }
 }
+

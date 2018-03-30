@@ -31,3 +31,4 @@ protected:
   ezConstantBufferStorageHandle m_hBlurCB;
   ezShaderResourceHandle m_hShader;
 };
+

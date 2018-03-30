@@ -428,5 +428,5 @@ void ezColorGradient::Load(ezStreamReader& stream)
 
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_ColorGradient);
+EZ_STATICLINK_FILE(Foundation, Foundation_Tracks_Implementation_ColorGradient);
 

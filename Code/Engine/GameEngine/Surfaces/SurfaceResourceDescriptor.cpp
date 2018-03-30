@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <GameEngine/Surfaces/SurfaceResource.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
@@ -158,4 +158,8 @@ public:
 };
 
 ezSurfaceResourceDescriptorPatch_1_2 g_ezSurfaceResourceDescriptorPatch_1_2;
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Surfaces_SurfaceResourceDescriptor);
 

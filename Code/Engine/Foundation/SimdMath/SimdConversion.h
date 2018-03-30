@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Math/BoundingBoxSphere.h>
 #include <Foundation/Math/Transform.h>
@@ -94,3 +94,4 @@ namespace ezSimdConversion
     return ezSimdBSphere(ToVec3(s.m_vCenter), s.m_fRadius);
   }
 };
+

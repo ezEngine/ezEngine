@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererCore/Pipeline/Passes/ForwardRenderPass.h>
 
@@ -28,3 +28,4 @@ protected:
 
   ezGALSamplerStateHandle m_hSceneColorSamplerState;
 };
+

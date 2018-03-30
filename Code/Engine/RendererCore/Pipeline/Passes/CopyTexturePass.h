@@ -21,3 +21,4 @@ protected:
   ezInputNodePin m_PinInput;
   ezOutputNodePin m_PinOutput;
 };
+

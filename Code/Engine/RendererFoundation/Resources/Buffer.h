@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include <RendererFoundation/Resources/Resource.h>
@@ -24,3 +24,4 @@ protected:
 };
 
 #include <RendererFoundation/Resources/Implementation/Buffer_inl.h>
+

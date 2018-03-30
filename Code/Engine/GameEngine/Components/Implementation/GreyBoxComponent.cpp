@@ -487,3 +487,8 @@ void ezGreyBoxComponent::GenerateRenderMesh() const
 
   m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(sResourceName, desc, sResourceName);
 }
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_GreyBoxComponent);
+

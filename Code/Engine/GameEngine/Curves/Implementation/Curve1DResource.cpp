@@ -113,3 +113,8 @@ void ezCurve1DResourceDescriptor::Load(ezStreamReader& stream)
     m_Curves[i].CreateLinearApproximation();
   }
 }
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Curves_Implementation_Curve1DResource);
+

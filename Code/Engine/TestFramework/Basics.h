@@ -18,3 +18,4 @@ enum class ezTestAppRun
   Continue,
   Quit
 };
+

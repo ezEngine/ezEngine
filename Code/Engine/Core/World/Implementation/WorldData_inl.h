@@ -1,4 +1,4 @@
-﻿
+
 namespace ezInternal
 {
   //static
@@ -120,3 +120,4 @@ namespace ezInternal
   }
 
 }
+

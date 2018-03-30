@@ -61,3 +61,4 @@ protected:
   bool m_bCastShadows;
 
 };
+

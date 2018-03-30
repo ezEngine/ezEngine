@@ -961,3 +961,7 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
   }
 }
 
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_ShadowPool);
+

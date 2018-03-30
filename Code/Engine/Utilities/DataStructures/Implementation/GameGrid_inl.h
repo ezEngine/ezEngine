@@ -183,3 +183,4 @@ bool ezGameGrid<CellData>::GetRayIntersectionExpandedBBox(const ezVec3& vRayStar
 
   return true;
 }
+

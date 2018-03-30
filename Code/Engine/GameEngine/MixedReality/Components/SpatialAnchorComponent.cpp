@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/MixedReality/Components/SpatialAnchorComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -164,4 +164,8 @@ void ezSpatialAnchorComponent::OnDeactivated()
 {
   PersistCurrentLocation();
 }
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_MixedReality_Components_SpatialAnchorComponent);
 

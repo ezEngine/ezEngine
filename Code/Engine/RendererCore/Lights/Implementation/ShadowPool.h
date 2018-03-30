@@ -27,3 +27,4 @@ private:
 
   static void OnBeginFrame(ezUInt64 uiFrameNumber);
 };
+

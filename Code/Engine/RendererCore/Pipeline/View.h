@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Threading/DelegateTask.h>
@@ -176,3 +176,4 @@ private:
 };
 
 #include <RendererCore/Pipeline/Implementation/View_inl.h>
+

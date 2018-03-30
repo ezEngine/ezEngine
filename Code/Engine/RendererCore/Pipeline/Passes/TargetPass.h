@@ -31,3 +31,4 @@ protected:
   ezInputNodePin m_PinColor7;
   ezInputNodePin m_PinDepthStencil;
 };
+

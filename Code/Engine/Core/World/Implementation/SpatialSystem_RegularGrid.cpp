@@ -584,3 +584,8 @@ ezSpatialSystem_RegularGrid::Cell* ezSpatialSystem_RegularGrid::GetOrCreateCell(
     return m_pOverflowCell;
   }
 }
+
+
+
+EZ_STATICLINK_FILE(Core, Core_World_Implementation_SpatialSystem_RegularGrid);
+

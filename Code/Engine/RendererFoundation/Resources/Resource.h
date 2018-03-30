@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include <RendererFoundation/Basics.h>
@@ -48,3 +48,4 @@ public:
 protected:
   const CreationDescription m_Description;
 };
+

@@ -135,3 +135,8 @@ void ezGameAppInputConfig::ApplyAll(const ezArrayPtr<ezGameAppInputConfig>& acti
     config.Apply();
   }
 }
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_InputConfig);
+

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererCore/Basics.h>
 #include <Foundation/Strings/HashedString.h>
@@ -30,3 +30,4 @@ struct EZ_RENDERERCORE_DLL ezPermutationVar
     return m_sName == other.m_sName && m_sValue == other.m_sValue;
   }
 };
+

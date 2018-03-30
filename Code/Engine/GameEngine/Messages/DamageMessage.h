@@ -26,3 +26,4 @@ public:
 private:
   ezMsgDamage m_Msg;
 };
+

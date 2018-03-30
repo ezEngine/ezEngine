@@ -371,3 +371,4 @@ struct ezGALDeviceEvent
 };
 
 #include <RendererFoundation/Descriptors/Implementation/Descriptors_inl.h>
+

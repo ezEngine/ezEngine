@@ -97,3 +97,4 @@ protected:
   ezShaderResourceHandle m_hShaderGather;
   ezShaderResourceHandle m_hShaderAverage;
 };
+

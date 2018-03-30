@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <RendererCore/Decals/DecalResource.h>
 #include <Foundation/Configuration/Startup.h>
 
@@ -110,4 +110,8 @@ bool ezDecalResourceLoader::IsResourceOutdated(const ezResourceBase* pResource) 
 }
 
 
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Decals_Implementation_DecalResource);
 

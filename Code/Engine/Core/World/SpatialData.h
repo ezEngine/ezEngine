@@ -34,3 +34,4 @@ struct EZ_ALIGN_16(ezSpatialData)
 
   ezSimdBBoxSphere m_Bounds;
 };
+

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/RenderDataBatch.h>
@@ -97,3 +97,4 @@ private:
   ezHybridArray< DataPerCategory, 16 > m_DataPerCategory;
   ezHybridArray<const ezRenderData*, 16> m_FrameData;
 };
+

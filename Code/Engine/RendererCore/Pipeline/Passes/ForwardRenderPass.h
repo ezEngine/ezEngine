@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
@@ -46,3 +46,4 @@ protected:
 
   ezEnum<ezForwardRenderShadingQuality> m_ShadingQuality;
 };
+

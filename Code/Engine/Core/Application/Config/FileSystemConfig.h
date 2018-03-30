@@ -44,3 +44,4 @@ typedef ezApplicationFileSystemConfig::DataDirConfig ezApplicationFileSystemConf
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezApplicationFileSystemConfig);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezApplicationFileSystemConfig_DataDirConfig);
+

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererCore/Basics.h>
 #include <Foundation/Algorithm/Hashing.h>
@@ -40,3 +40,4 @@ struct ezHashHelper<ezDebugRendererContext>
     return a == b;
   }
 };
+

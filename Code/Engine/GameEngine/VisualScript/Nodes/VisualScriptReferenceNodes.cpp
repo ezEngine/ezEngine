@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/VisualScript/Nodes/VisualScriptReferenceNodes.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <Core/World/GameObject.h>
@@ -343,4 +343,8 @@ void* ezVisualScriptNode_FindParent::GetInputPinDataPointer(ezUInt8 uiPin)
 
 //////////////////////////////////////////////////////////////////////////
 
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Nodes_VisualScriptReferenceNodes);
 

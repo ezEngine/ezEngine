@@ -127,3 +127,4 @@ EZ_ALWAYS_INLINE bool ezSimdBBoxSphere::operator!=(const ezSimdBBoxSphere& rhs) 
 {
   return !(*this == rhs);
 }
+

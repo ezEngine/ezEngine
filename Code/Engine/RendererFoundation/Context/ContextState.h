@@ -51,3 +51,4 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALContextState
 
   ezGALPrimitiveTopology::Enum m_Topology;
 };
+

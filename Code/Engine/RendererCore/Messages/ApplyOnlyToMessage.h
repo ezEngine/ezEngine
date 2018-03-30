@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererCore/Basics.h>
 #include <Core/World/Declarations.h>
@@ -10,3 +10,4 @@ struct EZ_RENDERERCORE_DLL ezMsgOnlyApplyToObject : public ezMessage
 
   ezGameObjectHandle m_hObject;
 };
+

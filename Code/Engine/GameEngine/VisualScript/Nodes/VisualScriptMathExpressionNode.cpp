@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/VisualScript/Nodes/VisualScriptMathExpressionNode.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 
@@ -77,4 +77,8 @@ void ezVisualScriptNode_MathExpression::SetExpression(const char* e)
 {
   m_MathExpression.Reset(e);
 }
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Nodes_VisualScriptMathExpressionNode);
 

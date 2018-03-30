@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GameEngine/GameState/GameState.h>
 #include <Core/Graphics/Camera.h>
@@ -34,3 +34,4 @@ protected:
   ezInt32 m_iActiveCameraComponentIndex;
 
 };
+

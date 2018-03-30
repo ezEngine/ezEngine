@@ -208,3 +208,7 @@ void ezFallbackGameState::AfterWorldUpdate()
   }
 }
 
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_GameState_Implementation_FallbackGameState);
+

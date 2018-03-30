@@ -211,3 +211,8 @@ void ezDecalAtlasResource::ReportResourceIsMissing()
   ezLog::Warning("Decal Atlas Resource is missing: '{0}' ('{1}')", GetResourceID(), GetResourceDescription());
 #endif
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Decals_Implementation_DecalAtlasResource);
+

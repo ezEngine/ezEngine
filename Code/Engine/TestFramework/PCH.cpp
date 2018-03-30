@@ -14,6 +14,8 @@ EZ_STATICLINK_LIBRARY(TestFramework)
   EZ_STATICLINK_REFERENCE(TestFramework_Framework_TestBaseClass);
   EZ_STATICLINK_REFERENCE(TestFramework_Framework_TestFramework);
   EZ_STATICLINK_REFERENCE(TestFramework_Framework_TestResults);
+  EZ_STATICLINK_REFERENCE(TestFramework_Framework_uwp_uwpTestApplication);
+  EZ_STATICLINK_REFERENCE(TestFramework_Framework_uwp_uwpTestFramework);
   EZ_STATICLINK_REFERENCE(TestFramework_Utilities_TestOrder);
   EZ_STATICLINK_REFERENCE(TestFramework_Utilities_TestSetup);
 }

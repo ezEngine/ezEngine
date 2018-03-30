@@ -19,3 +19,4 @@ protected:
 /// \brief Profiles the current scope using the given name and also inserts a marker with the given GALContext.
 #define EZ_PROFILE_AND_MARKER(GALContext, szName) \
   ezProfilingScopeAndMarker EZ_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(GALContext, szName, EZ_SOURCE_FUNCTION)
+

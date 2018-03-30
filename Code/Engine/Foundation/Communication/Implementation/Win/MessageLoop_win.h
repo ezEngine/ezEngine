@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
@@ -11,19 +11,19 @@ struct IOContext;
 class EZ_FOUNDATION_DLL ezMessageLoop_win : public ezMessageLoop
 {
 public:
-	struct IOItem
-	{
+  struct IOItem
+  {
     EZ_DECLARE_POD_TYPE();
 
-		ezIpcChannel* pChannel;
-		IOContext* pContext;
-		DWORD uiBytesTransfered;
-		DWORD uiError;
-	};
+    ezIpcChannel* pChannel;
+    IOContext* pContext;
+    DWORD uiBytesTransfered;
+    DWORD uiError;
+  };
 
 public:
-	ezMessageLoop_win();
-	~ezMessageLoop_win();
+  ezMessageLoop_win();
+  ~ezMessageLoop_win();
 
   HANDLE GetPort() const { return m_Port; }
 
@@ -42,3 +42,4 @@ private:
 };
 
 #endif
+

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererCore/Pipeline/Extractor.h>
 #include <Foundation/Types/UniquePtr.h>
@@ -66,3 +66,4 @@ private:
 
   ezDynamicArray<ezSimdBSphere, ezAlignedAllocatorWrapper> m_ClusterBoundingSpheres;
 };
+

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/AI/PointOfInterestGraph.h>
 
 struct ezDummyPointType
@@ -17,3 +17,8 @@ static void CompileDummy()
   ezDynamicArray<ezUInt32> points;
   graph.FindPointsOfInterest(ezVec3::ZeroVector(), 0, points);
 }
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_AI_Implementation_PointOfInterestGraph);
+

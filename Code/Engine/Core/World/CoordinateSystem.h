@@ -31,3 +31,4 @@ protected:
 
   const ezWorld* m_pOwnerWorld;
 };
+

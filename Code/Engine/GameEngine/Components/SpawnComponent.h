@@ -116,3 +116,4 @@ private:
   ezTime m_LastManualSpawn;
   ezPrefabResourceHandle m_hPrefab;
 };
+

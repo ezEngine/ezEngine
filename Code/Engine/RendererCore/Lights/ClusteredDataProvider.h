@@ -40,3 +40,4 @@ private:
 
   ezClusteredDataGPU m_Data;
 };
+

@@ -1,4 +1,4 @@
-﻿
+
 //static
 EZ_ALWAYS_INLINE ezUInt32 ezGALResourceFormat::GetBitsPerElement(ezGALResourceFormat::Enum format)
 {
@@ -116,3 +116,4 @@ void ezGALFormatLookupTable<FormatClass>::SetFormatInfo(ezGALResourceFormat::Enu
 {
   m_Formats[eFormat] = NewFormatInfo;
 }
+

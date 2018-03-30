@@ -1,4 +1,4 @@
-﻿#include <Core/World/GameObject.h>
+#include <Core/World/GameObject.h>
 
 //static
 EZ_FORCE_INLINE const char* ezRenderData::GetCategoryName(Category category)
@@ -30,3 +30,4 @@ static T* ezCreateRenderDataForThisFrame(const ezGameObject* pOwner, ezUInt32 ui
 
   return pRenderData;
 }
+

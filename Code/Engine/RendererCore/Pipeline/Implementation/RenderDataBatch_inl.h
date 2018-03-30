@@ -1,4 +1,4 @@
-﻿
+
 template <typename T>
 EZ_ALWAYS_INLINE const T& ezRenderDataBatch::Iterator<T>::operator*() const
 {
@@ -94,3 +94,4 @@ EZ_FORCE_INLINE ezRenderDataBatch ezRenderDataBatchList::GetBatch(ezUInt32 uiInd
 
   return batch;
 }
+

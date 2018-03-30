@@ -927,5 +927,5 @@ bool ezGameApplication::HasAnyActiveGameState() const
   return false;
 }
 
-EZ_STATICLINK_FILE(GameFoundation, GameFoundation_GameApplication);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_GameApplication);
 

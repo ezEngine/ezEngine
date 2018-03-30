@@ -391,3 +391,7 @@ void ezGameApplication::DoShutdownLogWriters()
 
 }
 
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_ProjectSetup);
+

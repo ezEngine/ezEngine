@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/Communication/IpcChannel.h>
 #include <Foundation/Communication/Implementation/MessageLoop.h>
 #include <Foundation/Communication/RemoteMessage.h>
@@ -181,3 +181,4 @@ void ezMessageLoop::RemoveChannel(ezIpcChannel* pChannel)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_MessageLoop);
+

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/Components/InputComponent.h>
 #include <Core/Input/InputManager.h>
 #include <Core/Messages/TriggerMessage.h>
@@ -144,3 +144,8 @@ public:
 };
 
 ezInputComponentPatch_1_2 g_ezInputComponentPatch_1_2;
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_InputComponent);
+

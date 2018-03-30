@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Utilities/Textures/TexturePacker.h>
 
 ezTexturePacker::ezTexturePacker()
@@ -123,3 +123,8 @@ bool ezTexturePacker::TryPlaceAt(ezVec2U32 pos, ezVec2U32 size)
 
   return true;
 }
+
+
+
+EZ_STATICLINK_FILE(Utilities, Utilities_Textures_Implementation_TexturePacker);
+

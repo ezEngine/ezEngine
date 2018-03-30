@@ -130,3 +130,4 @@ private:
   ezHashTable<ezHashedString, ezTexture2DResourceHandle> m_CachedTexture2DBindings;
   ezHashTable<ezHashedString, ezTextureCubeResourceHandle> m_CachedTextureCubeBindings;
 };
+

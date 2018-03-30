@@ -65,3 +65,4 @@ namespace ezShaderHelper
 
   ezUInt32 CalculateHash(const ezArrayPtr<ezPermutationVar>& vars);
 }
+

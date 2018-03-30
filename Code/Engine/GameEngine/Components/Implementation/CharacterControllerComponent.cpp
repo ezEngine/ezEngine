@@ -67,3 +67,7 @@ void ezCharacterControllerComponent::DeserializeComponent(ezWorldReader& stream)
 
 }
 
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_CharacterControllerComponent);
+

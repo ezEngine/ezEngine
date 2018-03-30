@@ -22,3 +22,4 @@ struct EZ_FOUNDATION_DLL ezHashHelperString_NoCase
 };
 
 #include <Foundation/Algorithm/Implementation/HashHelperString_inl.h>
+

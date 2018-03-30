@@ -140,3 +140,4 @@ EZ_ALWAYS_INLINE bool ezSimdQuat::operator!=(const ezSimdQuat& q2) const
 {
   return (m_v != q2.m_v).AnySet<4>();
 }
+

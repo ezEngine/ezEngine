@@ -1,4 +1,4 @@
-﻿
+
 template <typename Derived>
 ezUInt32 ezHashHelperString_NoCase::Hash(const ezStringBase<Derived>& value)
 {
@@ -20,3 +20,4 @@ bool ezHashHelperString_NoCase::Equal(const ezStringBase<DerivedLhs>& lhs, const
 {
   return lhs.IsEqual_NoCase(rhs);
 }
+

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Threading/Mutex.h>
@@ -59,3 +59,4 @@ protected:
   ezDynamicArray<ezIpcChannel*> m_SendQueue;
   ezDynamicArray<ezIpcChannel*> m_AllAddedChannels;
 };
+

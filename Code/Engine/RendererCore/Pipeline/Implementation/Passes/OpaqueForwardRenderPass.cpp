@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <RendererCore/Pipeline/Passes/OpaqueForwardRenderPass.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Textures/Texture2DResource.h>
@@ -94,3 +94,8 @@ void ezOpaqueForwardRenderPass::RenderObjects(const ezRenderViewContext& renderV
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque);
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMasked);
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_OpaqueForwardRenderPass);
+

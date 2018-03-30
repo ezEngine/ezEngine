@@ -1,4 +1,4 @@
-﻿
+
 EZ_ALWAYS_INLINE ezDebugRenderer::Line::Line()
 {
 }
@@ -18,3 +18,4 @@ EZ_ALWAYS_INLINE ezDebugRenderer::Triangle::Triangle(const ezVec3& p0, const ezV
   : m_p0(p0), m_p1(p1), m_p2(p2)
 {
 }
+

@@ -88,3 +88,7 @@ ezResourceLoadDesc ezPrefabResource::CreateResource(const ezPrefabResourceDescri
   return desc;
 }
 
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Prefabs_Implementation_PrefabResource);
+

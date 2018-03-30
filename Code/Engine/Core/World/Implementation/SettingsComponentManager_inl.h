@@ -1,4 +1,4 @@
-﻿
+
 template <typename ComponentType>
 ezSettingsComponentManager<ComponentType>::ezSettingsComponentManager(ezWorld* pWorld)
   : ezComponentManagerBase(pWorld)
@@ -65,3 +65,4 @@ void ezSettingsComponentManager<ComponentType>::DeleteComponentStorage(ezCompone
   out_pMovedComponent = m_pSingletonComponent.Borrow();
   m_pSingletonComponent.Reset();
 }
+

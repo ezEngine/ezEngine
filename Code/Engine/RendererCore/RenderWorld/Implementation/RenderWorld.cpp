@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
@@ -383,5 +383,5 @@ void ezRenderWorld::OnEngineShutdown()
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_RenderLoop_Implementation_RenderLoop);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_RenderWorld_Implementation_RenderWorld);
 

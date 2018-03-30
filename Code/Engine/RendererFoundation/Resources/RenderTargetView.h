@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include <RendererFoundation/Resources/Resource.h>
@@ -26,3 +26,4 @@ protected:
 
   ezGALTexture* m_pTexture;
 };
+

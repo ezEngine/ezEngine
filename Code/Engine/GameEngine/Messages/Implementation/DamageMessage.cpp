@@ -62,3 +62,8 @@ void ezVisualScriptNode_OnDamage::HandleMessage(ezMessage* pMsg)
   m_Msg = msg;
   m_bStepNode = true;
 }
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Messages_Implementation_DamageMessage);
+

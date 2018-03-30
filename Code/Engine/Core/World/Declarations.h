@@ -282,3 +282,4 @@ class ezSpatialDataHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezSpatialDataHandle, ezSpatialDataId);
 };
+

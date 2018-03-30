@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Communication/IpcChannel.h>
@@ -31,3 +31,4 @@ protected:
 };
 
 #endif
+

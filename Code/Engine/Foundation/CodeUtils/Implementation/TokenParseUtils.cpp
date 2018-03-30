@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/CodeUtils/TokenParseUtils.h>
 #include <Foundation/CodeUtils/Tokenizer.h>
 
@@ -239,3 +239,4 @@ namespace ezTokenParseUtils
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_TokenParseUtils);
+

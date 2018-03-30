@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Shader/ShaderResource.h>
@@ -23,3 +23,4 @@ protected:
 
   ezShaderResourceHandle m_hShader;
 };
+

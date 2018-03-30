@@ -48,3 +48,4 @@ private:
 
   ezInstanceData m_Data;
 };
+

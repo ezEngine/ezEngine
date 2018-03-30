@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <RendererCore/Debug/DebugTextComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/RenderData.h>
@@ -109,4 +109,8 @@ void ezDebugTextComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
     }
   }
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Debug_Implementation_DebugTextComponent);
 

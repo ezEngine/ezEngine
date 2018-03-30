@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Communication/RemoteMessage.h>
@@ -124,3 +124,4 @@ protected:
   ezDeque<ezUniquePtr<ezProcessMessage>> m_IncomingQueue;
   ezThreadSignal m_IncomingMessages;
 };
+

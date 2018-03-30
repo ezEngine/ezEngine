@@ -45,3 +45,4 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessMessage, 1, ezRTTIDefaultAllocator<ezPr
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_RemoteMessage);
+

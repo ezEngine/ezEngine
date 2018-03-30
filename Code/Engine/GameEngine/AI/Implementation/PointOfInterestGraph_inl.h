@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GameEngine/AI/PointOfInterestGraph.h>
 
@@ -47,3 +47,4 @@ void ezPointOfInterestGraph<POINTTYPE>::FindPointsOfInterest(const ezVec3& posit
 
   m_Octree.FindObjectsInRange(position, radius, cb, &data);
 }
+

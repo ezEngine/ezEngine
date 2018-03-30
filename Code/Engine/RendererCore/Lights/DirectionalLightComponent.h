@@ -54,3 +54,4 @@ private:
   float m_fSplitModeWeight;
   float m_fNearPlaneOffset;
 };
+

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <RendererCore/Decals/DecalAtlasResource.h>
 #include <RendererCore/Lights/ClusteredDataExtractor.h>
 #include <RendererCore/Lights/ClusteredDataProvider.h>
@@ -173,5 +173,5 @@ void* ezClusteredDataProvider::UpdateData(const ezRenderViewContext& renderViewC
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_DataProviders_ClusteredDataProvider);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_ClusteredDataProvider);
 

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 
@@ -67,3 +67,8 @@ void ezUwpUtils::ConvertGuid(const ezUuid& in, GUID& out)
 
 
 #endif
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Basics_Platform_uwp_UWPUtils);
+

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererCore/Pipeline/Passes/ForwardRenderPass.h>
 
@@ -30,3 +30,4 @@ protected:
 
   ezTexture2DResourceHandle m_hWhiteTexture;
 };
+

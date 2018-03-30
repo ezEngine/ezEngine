@@ -18,7 +18,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameState, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_STATICLINK_FILE(GameFoundation, GameFoundation_GameState);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_GameState_Implementation_GameState);
 
 ezGameState::ezGameState()
 {
@@ -222,3 +222,4 @@ void ezGameState::ConfigureMainCamera()
     m_MainCamera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 60.0f, 0.1f, 1000.0f);
   }
 }
+

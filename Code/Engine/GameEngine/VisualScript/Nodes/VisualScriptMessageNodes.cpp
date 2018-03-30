@@ -252,3 +252,7 @@ void ezVisualScriptNode_InputEvent::HandleMessage(ezMessage* pMsg)
 
 //////////////////////////////////////////////////////////////////////////
 
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Nodes_VisualScriptMessageNodes);
+

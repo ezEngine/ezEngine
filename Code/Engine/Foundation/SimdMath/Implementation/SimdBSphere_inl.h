@@ -153,3 +153,4 @@ EZ_ALWAYS_INLINE bool ezSimdBSphere::operator!=(const ezSimdBSphere& rhs) const
 {
   return (m_CenterAndRadius != rhs.m_CenterAndRadius).AnySet();
 }
+

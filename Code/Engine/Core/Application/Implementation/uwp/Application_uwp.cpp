@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 #include <Core/Application/Implementation/uwp/Application_uwp.h>
@@ -111,5 +111,5 @@ EZ_CORE_DLL ezResult ezUWPRun(ezApplication* pApp)
 
 #endif
 
-EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_uwp_uwpTestFramework);
+EZ_STATICLINK_FILE(Core, Core_Application_Implementation_uwp_Application_uwp);
 

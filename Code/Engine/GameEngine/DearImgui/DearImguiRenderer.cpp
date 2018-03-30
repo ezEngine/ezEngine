@@ -211,3 +211,8 @@ void ezImguiRenderer::SetupRenderer()
     }
   }
 }
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_DearImgui_DearImguiRenderer);
+

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Containers/DynamicArray.h>
@@ -133,3 +133,4 @@ private: // Member data
   ezDynamicArray<ezUniquePtr<ezFrameDataProviderBase>> m_DataProviders;
   ezHashTable<const ezRTTI*, ezUInt32> m_TypeToDataProviderIndex;
 };
+

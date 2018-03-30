@@ -17,3 +17,4 @@ struct EZ_CORE_DLL ezMsgCollision : public ezMessage
   ezVec3 m_vNormal; ///< The collision normal on the surface of object B.
   ezVec3 m_vImpulse; ///< The collision impulse applied from object A to object B.
 };
+

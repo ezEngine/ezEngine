@@ -138,3 +138,4 @@ protected:
   // that means you need to restart a level to see the updated animation
   ezSharedPtr<ezPropertyAnimResourceDescriptor> m_AnimDesc;
 };
+

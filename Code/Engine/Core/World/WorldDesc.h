@@ -26,3 +26,4 @@ struct ezWorldDesc
 
   bool m_bReportErrorWhenStaticObjectMoves;
 };
+

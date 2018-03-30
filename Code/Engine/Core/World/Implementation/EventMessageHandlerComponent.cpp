@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Core/World/EventMessageHandlerComponent.h>
 #include <Core/World/World.h>
 
@@ -104,4 +104,8 @@ ezArrayPtr<ezComponentHandle> ezEventMessageHandlerComponent::GetAllGlobalEventH
 
   return ezArrayPtr<ezComponentHandle>();
 }
+
+
+
+EZ_STATICLINK_FILE(Core, Core_World_Implementation_EventMessageHandlerComponent);
 

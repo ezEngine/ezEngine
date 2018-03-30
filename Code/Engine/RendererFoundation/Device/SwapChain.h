@@ -27,3 +27,4 @@ protected:
 };
 
 #include <RendererFoundation/Device/Implementation/SwapChain_inl.h>
+

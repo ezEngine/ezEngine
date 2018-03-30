@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Types/Bitflags.h>
 #include <Core/Basics.h>
@@ -412,3 +412,4 @@ EZ_DECLARE_FLAGS_OPERATORS(ezInputSlotFlags);
 #define ezInputSlot_Spatial_Head_UpNegX "spatial_head_up_negx"
 #define ezInputSlot_Spatial_Head_UpNegY "spatial_head_up_negy"
 #define ezInputSlot_Spatial_Head_UpNegZ "spatial_head_up_negz"
+

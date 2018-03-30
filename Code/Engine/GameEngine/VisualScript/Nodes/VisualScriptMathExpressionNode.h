@@ -32,3 +32,4 @@ private:
 
   ezMathExpression m_MathExpression;
 };
+

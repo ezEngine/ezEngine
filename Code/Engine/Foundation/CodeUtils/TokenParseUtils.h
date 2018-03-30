@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/CodeUtils/Tokenizer.h>
@@ -21,3 +21,4 @@ namespace ezTokenParseUtils
   void CombineRelevantTokensToString(const TokenStream& Tokens, ezUInt32 uiCurToken, ezStringBuilder& sResult);
   void CreateCleanTokenStream(const TokenStream& Tokens, ezUInt32 uiCurToken, TokenStream& Destination, bool bKeepComments);
 }
+

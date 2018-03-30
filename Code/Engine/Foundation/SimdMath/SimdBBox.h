@@ -100,3 +100,4 @@ public:
 };
 
 #include <Foundation/SimdMath/Implementation/SimdBBox_inl.h>
+

@@ -13,3 +13,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezOnComponentFinishedAction2, 1)
 EZ_ENUM_CONSTANTS(ezOnComponentFinishedAction2::None, ezOnComponentFinishedAction2::DeleteComponent, ezOnComponentFinishedAction2::DeleteGameObject, ezOnComponentFinishedAction2::Restart)
 EZ_END_STATIC_REFLECTED_ENUM()
 
+
+
+EZ_STATICLINK_FILE(Core, Core_World_Implementation_Declarations);
+

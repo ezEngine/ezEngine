@@ -64,3 +64,4 @@ public:
 
   ezRenderData::Category m_OverrideCategory;
 };
+

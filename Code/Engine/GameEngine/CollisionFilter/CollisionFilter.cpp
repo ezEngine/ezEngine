@@ -139,3 +139,7 @@ void ezCollisionFilterConfig::Load(ezStreamReader& stream)
   stream.ReadBytes(m_GroupNames, sizeof(char) * 32 * 32);
 }
 
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_CollisionFilter_CollisionFilter);
+

@@ -214,5 +214,5 @@ void ezConsole::LoadState(ezStreamReader& Stream)
 
 
 
-EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Console_Implementation_Console);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Console_Implementation_Console);
 

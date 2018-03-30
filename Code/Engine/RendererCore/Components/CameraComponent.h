@@ -147,3 +147,4 @@ private:
   ezVec2 m_RenderTargetRectSize = ezVec2(1.0f);
   ezCamera m_RenderTargetCamera;
 };
+

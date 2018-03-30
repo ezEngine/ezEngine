@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include <RendererFoundation/Basics.h>
@@ -176,3 +176,4 @@ private:
 };
 
 #include <RendererFoundation/Resources/Implementation/ResourceFormats_inl.h>
+

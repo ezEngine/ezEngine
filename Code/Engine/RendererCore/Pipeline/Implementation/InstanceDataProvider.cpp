@@ -110,5 +110,5 @@ void* ezInstanceDataProvider::UpdateData(const ezRenderViewContext& renderViewCo
 
 
 
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_DataProviders_ClusteredDataProvider);
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_InstanceDataProvider);
 

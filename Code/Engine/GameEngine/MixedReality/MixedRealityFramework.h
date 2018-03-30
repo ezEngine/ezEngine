@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Foundation/Configuration/Singleton.h>
@@ -67,3 +67,4 @@ private:
 };
 
 #endif
+

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Core/World/SettingsComponent.h>
@@ -59,3 +59,4 @@ protected:
   ezMaterialResourceHandle m_hMaterial;
   ezMap<ezUuid, SrmRenderObject> m_SrmRenderObjects;
 };
+

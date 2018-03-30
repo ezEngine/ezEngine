@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Math/Rect.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
@@ -66,3 +66,4 @@ struct EZ_RENDERERCORE_DLL ezViewData
     return EZ_FAILURE;
   }
 };
+

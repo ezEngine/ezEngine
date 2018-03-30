@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Core/World/World.h>
@@ -58,3 +58,4 @@ private:
   ezPrefabResourceHandle m_hPrefab;
   bool m_bRequiresInstantiation;
 };
+

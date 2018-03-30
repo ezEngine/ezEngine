@@ -23,3 +23,4 @@ protected:
   ezColor m_ClearColor;
   bool m_bClear;
 };
+

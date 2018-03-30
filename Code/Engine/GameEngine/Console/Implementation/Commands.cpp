@@ -88,5 +88,5 @@ void ezConsole::ExecuteBoundKey(const char* szKey)
 
 
 
-EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Console_Implementation_Commands);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Console_Implementation_Commands);
 

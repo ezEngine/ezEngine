@@ -24,3 +24,4 @@ protected:
   ezGALMSAASampleCount::Enum m_MsaaMode;
   ezShaderResourceHandle m_hShader;
 };
+

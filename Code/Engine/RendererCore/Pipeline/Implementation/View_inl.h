@@ -1,4 +1,4 @@
-﻿
+
 EZ_ALWAYS_INLINE ezViewHandle ezView::GetHandle() const
 {
   return ezViewHandle(m_InternalId);
@@ -137,3 +137,4 @@ EZ_ALWAYS_INLINE const ezMat4& ezView::GetInverseViewProjectionMatrix(ezCameraEy
   UpdateCachedMatrices();
   return m_Data.m_InverseViewProjectionMatrix[static_cast<int>(eye)];
 }
+

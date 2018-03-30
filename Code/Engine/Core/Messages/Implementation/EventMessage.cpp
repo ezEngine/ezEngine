@@ -126,3 +126,8 @@ namespace ezInternal
   }
 
 }
+
+
+
+EZ_STATICLINK_FILE(Core, Core_Messages_Implementation_EventMessage);
+

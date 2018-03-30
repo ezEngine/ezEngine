@@ -34,3 +34,4 @@ protected:
 };
 
 #include <RendererFoundation/Resources/Implementation/RenderTargetSetup_inl.h>
+

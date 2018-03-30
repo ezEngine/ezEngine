@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Foundation/Math/Vec3.h>
@@ -23,3 +23,4 @@ private:
 };
 
 #include <GameEngine/AI/Implementation/PointOfInterestGraph_inl.h>
+

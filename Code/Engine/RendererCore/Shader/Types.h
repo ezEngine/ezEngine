@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererCore/Basics.h>
 
@@ -100,3 +100,4 @@ public:
 private:
   ezUInt32 m_Data;
 };
+

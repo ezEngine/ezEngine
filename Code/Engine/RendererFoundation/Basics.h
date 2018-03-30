@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Types/Id.h>
@@ -439,3 +439,4 @@ class ezGALQueryHandle
   friend struct ezGALContextState;
   friend class ezGALContext;
 };
+

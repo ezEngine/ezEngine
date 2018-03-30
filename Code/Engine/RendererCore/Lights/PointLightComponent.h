@@ -65,3 +65,4 @@ public:
   const ezUntrackedString& GetIntensityProperty() const { return m_sProperty2; }
   const ezUntrackedString& GetColorProperty() const { return m_sProperty3; }
 };
+

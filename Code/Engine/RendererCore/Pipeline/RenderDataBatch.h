@@ -75,3 +75,4 @@ private:
 };
 
 #include <RendererCore/Pipeline/Implementation/RenderDataBatch_inl.h>
+

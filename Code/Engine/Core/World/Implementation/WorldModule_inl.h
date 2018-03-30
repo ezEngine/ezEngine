@@ -1,4 +1,4 @@
-﻿
+
 EZ_ALWAYS_INLINE ezWorld* ezWorldModule::GetWorld()
 {
   return m_pWorld;
@@ -25,3 +25,4 @@ ezUInt16 ezWorldModuleFactory::RegisterWorldModule()
   const ezRTTI* pRtti = ezGetStaticRTTI<RTTIType>();
   return RegisterWorldModule(pRtti, &Helper::Create);
 }
+

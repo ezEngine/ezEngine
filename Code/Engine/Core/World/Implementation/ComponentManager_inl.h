@@ -210,3 +210,4 @@ void ezComponentManagerSimple<ComponentType, UpdateType>::SimpleUpdateName(ezStr
     out_sName = sName;
   }
 }
+

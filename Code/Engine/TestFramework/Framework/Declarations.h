@@ -61,3 +61,4 @@ struct TestSettings
   bool m_bEnableAllTests;   /// Enables all test.
   ezUInt8 m_uiFullPasses;   /// All tests are done this often, to check whether some tests fail only when executed multiple times.
 };
+

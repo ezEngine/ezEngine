@@ -11,3 +11,7 @@ void ezNavMeshDescription::Clear()
   m_Triangles.Clear();
 }
 
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_AI_NavMesh_NavMeshDescription);
+

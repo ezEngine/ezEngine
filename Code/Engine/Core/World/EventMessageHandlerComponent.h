@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Core/World/Component.h>
 
@@ -36,3 +36,4 @@ private:
   bool m_bDebugOutput;
   bool m_bIsGlobalEventHandler;
 };
+

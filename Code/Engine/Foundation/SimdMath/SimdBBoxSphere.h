@@ -60,3 +60,4 @@ public:
 };
 
 #include <Foundation/SimdMath/Implementation/SimdBBoxSphere_inl.h>
+

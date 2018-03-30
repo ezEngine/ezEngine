@@ -413,3 +413,8 @@ bool ezVisualScriptInstance::HandlesEventMessage(const ezEventMessage& msg) cons
 
   return m_pMessageHandlers->LowerBound(msg.GetId()) != ezInvalidIndex;
 }
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Implementation_VisualScriptInstance);
+

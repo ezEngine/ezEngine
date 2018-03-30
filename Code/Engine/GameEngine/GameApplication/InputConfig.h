@@ -33,3 +33,4 @@ public:
 
   bool m_bApplyTimeScaling;
 };
+

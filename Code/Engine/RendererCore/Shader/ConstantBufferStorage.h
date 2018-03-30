@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererCore/Basics.h>
 #include <RendererFoundation/Basics.h>
@@ -59,3 +59,4 @@ class ezConstantBufferStorageHandle
 
   friend class ezRenderContext;
 };
+

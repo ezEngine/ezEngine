@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 #include <TestFramework/Framework/uwp/uwpTestApplication.h>
@@ -91,5 +91,5 @@ HRESULT ezUwpTestApplication::OnActivated(ICoreApplicationView* applicationView,
 
 #endif
 
-EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_uwp_uwpTestFramework);
+EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_uwp_uwpTestApplication);
 

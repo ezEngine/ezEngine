@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
@@ -65,3 +65,4 @@ private:
 };
 
 #endif
+

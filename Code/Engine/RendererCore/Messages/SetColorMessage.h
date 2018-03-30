@@ -40,3 +40,4 @@ struct EZ_RENDERERCORE_DLL ezMsgSetColor : public ezMessage
   virtual void Serialize(ezStreamWriter& stream) const override;
   virtual void Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVersion) override;
 };
+

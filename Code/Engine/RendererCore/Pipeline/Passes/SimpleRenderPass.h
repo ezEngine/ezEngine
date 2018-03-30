@@ -28,3 +28,4 @@ protected:
 
   ezString m_sMessage;
 };
+

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/Communication/Implementation/IpcChannelEnet.h>
 
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
@@ -110,3 +110,8 @@ void ezIpcChannelEnet::EnetEventHandler(const ezRemoteEvent& e)
 }
 
 #endif
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_IpcChannelEnet);
+

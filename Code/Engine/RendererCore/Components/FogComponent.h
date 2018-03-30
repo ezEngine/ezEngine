@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Core/World/SettingsComponent.h>
 #include <Core/World/SettingsComponentManager.h>
@@ -51,3 +51,4 @@ private:
   float m_fDensity;
   float m_fHeightFalloff;
 };
+

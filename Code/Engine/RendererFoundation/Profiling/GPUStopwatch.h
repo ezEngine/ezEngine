@@ -56,3 +56,4 @@ private:
   ezGALDevice& m_device;
   ezTime m_lastResult;
 };
+

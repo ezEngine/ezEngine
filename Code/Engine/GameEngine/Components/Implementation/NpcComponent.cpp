@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/Components/NpcComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -33,4 +33,8 @@ void ezNpcComponent::DeserializeComponent(ezWorldReader& stream)
   auto& s = stream.GetStream();
 
 }
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_NpcComponent);
 

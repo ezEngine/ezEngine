@@ -28,3 +28,4 @@ public:
     return GetUniqueIdForRendering(this, uiInnerIndex, uiInnerIndexShift);
   }
 };
+

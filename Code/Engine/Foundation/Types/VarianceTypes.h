@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Reflection/Reflection.h>
@@ -38,3 +38,4 @@ struct EZ_FOUNDATION_DLL ezVarianceTypeAngle : public ezVarianceTypeBase
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezVarianceTypeAngle);
+

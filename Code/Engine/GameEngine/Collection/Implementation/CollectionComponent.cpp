@@ -85,3 +85,8 @@ void ezCollectionComponent::InitiatePreload()
     pCollection->PreloadResources(m_TimeToLoad);
   }
 }
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Collection_Implementation_CollectionComponent);
+

@@ -236,3 +236,4 @@ inline ezGALQueryCreationDescription::ezGALQueryCreationDescription() :
   m_bDrawIfUnknown(true)
 {
 }
+

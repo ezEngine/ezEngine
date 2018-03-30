@@ -186,3 +186,8 @@ void ezSpatialSystem::FindVisibleObjects(const ezFrustum& frustum, ezDynamicArra
   }
 #endif
 }
+
+
+
+EZ_STATICLINK_FILE(Core, Core_World_Implementation_SpatialSystem);
+

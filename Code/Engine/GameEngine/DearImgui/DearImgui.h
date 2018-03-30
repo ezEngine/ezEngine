@@ -51,3 +51,4 @@ private:
   bool m_bImguiWantsInput = false;
   ezHybridArray<ezTexture2DResourceHandle, 4> m_hTextures;
 };
+

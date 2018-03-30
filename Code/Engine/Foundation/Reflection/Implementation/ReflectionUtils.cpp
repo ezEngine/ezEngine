@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Logging/Log.h>

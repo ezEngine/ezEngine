@@ -390,3 +390,8 @@ void ezDecalComponent::OnSetColor(ezMsgSetColor& msg)
 {
   msg.ModifyColor(m_Color);
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Decals_Implementation_DecalComponent);
+

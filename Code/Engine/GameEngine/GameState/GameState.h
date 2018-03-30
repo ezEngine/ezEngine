@@ -136,3 +136,4 @@ private:
   ezGameApplication* m_pApplication = nullptr;
   bool m_bMixedRealityMode = false;
 };
+

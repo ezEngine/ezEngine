@@ -161,3 +161,7 @@ bool ezVisualScriptComponent::OnUnhandledMessage(ezMessage& msg) const
   return false;
 }
 
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Implementation_VisualScriptComponent);
+

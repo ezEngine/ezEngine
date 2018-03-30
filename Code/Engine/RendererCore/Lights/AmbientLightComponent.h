@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Core/World/SettingsComponent.h>
 #include <Core/World/SettingsComponentManager.h>
@@ -50,3 +50,4 @@ private:
   ezColorGammaUB m_BottomColor;
   float m_fIntensity;
 };
+

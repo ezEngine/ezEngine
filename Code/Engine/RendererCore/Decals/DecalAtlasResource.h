@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererCore/Basics.h>
 #include <Core/ResourceManager/Resource.h>
@@ -56,3 +56,4 @@ private:
   ezVec2U32 m_BaseColorSize;
   ezVec2U32 m_NormalSize;
 };
+

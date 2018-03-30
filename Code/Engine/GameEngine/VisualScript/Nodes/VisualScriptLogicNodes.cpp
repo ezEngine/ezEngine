@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/VisualScript/Nodes/VisualScriptLogicNodes.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 
@@ -299,4 +299,8 @@ void* ezVisualScriptNode_Logic::GetInputPinDataPointer(ezUInt8 uiPin)
 //////////////////////////////////////////////////////////////////////////
 
 
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Nodes_VisualScriptLogicNodes);
 

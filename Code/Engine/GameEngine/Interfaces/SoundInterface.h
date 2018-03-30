@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 class ezSoundInterface
 {
@@ -41,3 +41,4 @@ public:
   virtual void SetListenerOverrideMode(bool enabled) = 0;
   virtual void SetListener(ezInt32 iIndex, const ezVec3& vPosition, const ezVec3& vForward, const ezVec3& vUp, const ezVec3& vVelocity) = 0;
 };
+

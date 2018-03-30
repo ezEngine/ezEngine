@@ -154,3 +154,4 @@ struct EZ_GAMEENGINE_DLL ezVisualScriptInstanceActivity
     return m_ActiveDataConnections.IsEmpty() && m_ActiveExecutionConnections.IsEmpty();
   }
 };
+

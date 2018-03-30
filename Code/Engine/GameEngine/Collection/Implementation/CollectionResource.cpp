@@ -180,3 +180,8 @@ void ezCollectionResourceDescriptor::Load(ezStreamReader& stream)
     stream >> m_Resources[i].m_sRedirectionName;
   }
 }
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Collection_Implementation_CollectionResource);
+

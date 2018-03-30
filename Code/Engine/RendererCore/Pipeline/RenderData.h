@@ -76,3 +76,4 @@ struct EZ_RENDERERCORE_DLL ezMsgExtractRenderData : public ezMessage
 };
 
 #include <RendererCore/Pipeline/Implementation/RenderData_inl.h>
+

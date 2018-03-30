@@ -95,3 +95,4 @@ private:
 
   bool m_bIsValid;
 };
+

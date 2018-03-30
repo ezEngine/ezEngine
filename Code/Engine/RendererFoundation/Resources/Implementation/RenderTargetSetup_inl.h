@@ -22,3 +22,4 @@ ezGALRenderTargetViewHandle ezGALRenderTagetSetup::GetDepthStencilTarget() const
 {
   return m_hDSTarget;
 }
+

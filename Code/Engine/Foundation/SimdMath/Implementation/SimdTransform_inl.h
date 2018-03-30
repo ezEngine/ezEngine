@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 EZ_ALWAYS_INLINE ezSimdTransform::ezSimdTransform()
 {
@@ -197,3 +197,4 @@ EZ_ALWAYS_INLINE bool operator!=(const ezSimdTransform& lhs, const ezSimdTransfo
 {
   return !(lhs == rhs);
 }
+

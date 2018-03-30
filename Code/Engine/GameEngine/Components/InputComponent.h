@@ -69,3 +69,4 @@ public:
 
   ezEventMessageSender<ezMsgInputActionTriggered> m_InputEventSender;
 };
+

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererCore/Basics.h>
 #include <Core/World/World.h>
@@ -32,3 +32,4 @@ public:
 
   ezColorGammaUB m_Color;
 };
+

@@ -23,3 +23,4 @@ protected:
 };
 
 #include <RendererFoundation/Shader/Implementation/Shader_inl.h>
+

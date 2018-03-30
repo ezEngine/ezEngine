@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererCore/Decals/DecalComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
@@ -433,3 +433,4 @@ namespace
     });
   }
 }
+

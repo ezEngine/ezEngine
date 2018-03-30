@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/SimdMath/SimdQuat.h>
 
@@ -97,3 +97,4 @@ EZ_ALWAYS_INLINE bool operator!=(const ezSimdTransform& t1, const ezSimdTransfor
 
 
 #include <Foundation/SimdMath/Implementation/SimdTransform_inl.h>
+

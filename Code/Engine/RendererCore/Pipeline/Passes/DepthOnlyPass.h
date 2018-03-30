@@ -20,3 +20,4 @@ protected:
 
   ezPassThroughNodePin m_PinDepthStencil;
 };
+

@@ -31,3 +31,4 @@ public:
     return static_cast<T*>(ezFrameDataProviderBase::GetData(renderViewContext));
   }
 };
+

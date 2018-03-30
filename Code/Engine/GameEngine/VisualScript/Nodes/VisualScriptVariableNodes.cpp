@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/VisualScript/Nodes/VisualScriptVariableNodes.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <Core/World/World.h>
@@ -421,4 +421,8 @@ void ezVisualScriptNode_ToggleBool::Execute(ezVisualScriptInstance* pInstance, e
 }
 
 //////////////////////////////////////////////////////////////////////////
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Nodes_VisualScriptVariableNodes);
 

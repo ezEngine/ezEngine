@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/Types/Status.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Logging/Log.h>
@@ -18,3 +18,8 @@ void ezStatus::LogFailure(ezLogInterface* pLog)
     ezLog::Error(pInterface, "{0}", m_sMessage);
   }
 }
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_Status);
+

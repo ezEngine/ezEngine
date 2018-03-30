@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Communication/RemoteInterface.h>
 
@@ -32,3 +32,4 @@ private:
 };
 
 #endif
+

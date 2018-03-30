@@ -38,3 +38,4 @@ private:
   static ezString s_sPermVarSubDir;
   static ezString s_ShaderCacheDirectory;
 };
+

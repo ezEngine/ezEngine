@@ -43,3 +43,4 @@ protected:
   ezConstantBufferStorageHandle m_hBilateralBlurCB;
   ezShaderResourceHandle m_hShader;
 };
+

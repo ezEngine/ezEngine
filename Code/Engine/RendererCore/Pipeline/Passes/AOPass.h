@@ -57,3 +57,4 @@ protected:
   ezShaderResourceHandle m_hSSAOShader;
   ezShaderResourceHandle m_hBlurShader;
 };
+

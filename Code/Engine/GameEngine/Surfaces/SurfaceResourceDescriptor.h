@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Core/ResourceManager/Resource.h>
@@ -64,3 +64,4 @@ public:
 
   ezHybridArray<ezSurfaceInteraction, 16> m_Interactions;
 };
+

@@ -31,3 +31,4 @@ protected:
 };
 
 #include <RendererFoundation/Shader/Implementation/ShaderByteCode_inl.h>
+

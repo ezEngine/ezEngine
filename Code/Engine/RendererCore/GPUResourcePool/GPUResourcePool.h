@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <RendererCore/Basics.h>
 #include <Foundation/Containers/Map.h>
@@ -68,3 +68,4 @@ private:
   static ezGPUResourcePool* s_pDefaultInstance;
 
 };
+

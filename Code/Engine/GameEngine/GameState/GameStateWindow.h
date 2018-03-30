@@ -17,3 +17,4 @@ private:
 
   ezDelegate<void()> m_OnClickClose;
 };
+

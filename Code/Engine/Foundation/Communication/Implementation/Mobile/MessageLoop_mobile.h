@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
@@ -20,3 +20,4 @@ private:
 };
 
 #endif
+

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/MixedReality/MixedRealityFramework.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <RendererCore/Pipeline/Declarations.h>
@@ -233,3 +233,8 @@ void ezMixedRealityFramework::SynchronizeCameraOrientationToGameObject(ezGameObj
 }
 
 #endif
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_MixedReality_MixedRealityFramework);
+

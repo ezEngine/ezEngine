@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/Logging/Log.h>
 
 #include <Foundation/Basics/Platform/uwp/UWPUtils.h>
@@ -34,3 +34,4 @@ ezResult ezScreen::EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_Screens)
 
   return EZ_SUCCESS;
 }
+

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <RendererCore/Pipeline/ViewRenderMode.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/GlobalConstants.h>
@@ -101,3 +101,8 @@ void ezViewRenderMode::GetDebugText(Enum renderMode, ezStringBuilder& out_sDebug
     out_sDebugText = "Static objects are shown in green, dynamic objects are shown in red.";
   }
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_ViewRenderMode);
+

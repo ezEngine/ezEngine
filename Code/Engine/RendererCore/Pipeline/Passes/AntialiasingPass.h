@@ -24,3 +24,4 @@ protected:
   ezHashedString m_sMsaaSampleCount;
   ezShaderResourceHandle m_hShader;
 };
+

@@ -218,3 +218,8 @@ void ezPrefabReferenceComponentManager::AddToUpdateList(ezPrefabReferenceCompone
 {
   m_PrefabComponentsToUpdate.PushBack(pComponent->GetHandle());
 }
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_PrefabReferenceComponent);
+

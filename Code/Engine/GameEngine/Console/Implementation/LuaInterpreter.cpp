@@ -306,5 +306,5 @@ __metatable = \"Access Denied\",\n\
 #endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
 
-EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Console_Implementation_LuaInterpreter);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Console_Implementation_LuaInterpreter);
 

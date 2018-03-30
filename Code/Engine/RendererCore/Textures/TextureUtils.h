@@ -14,3 +14,4 @@ struct EZ_RENDERERCORE_DLL ezTextureUtils
   /// \brief If enabled, textures are always loaded to full quality immediately. Mostly necessary for image comparison unit tests.
   static bool s_bForceFullQualityAlways;
 };
+

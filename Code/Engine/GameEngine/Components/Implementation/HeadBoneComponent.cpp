@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GameEngine/Components/HeadBoneComponent.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -121,3 +121,8 @@ void ezHeadBoneComponent::OnChangeVerticalRotation(ezMsgChangeVerticalHeadBoneRo
 {
   m_NewVerticalRotation += ezAngle::Radian((float)msg.m_Angle);
 }
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_HeadBoneComponent);
+

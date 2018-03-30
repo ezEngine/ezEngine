@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Utilities/Textures/TextureGroupDesc.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -66,4 +66,8 @@ ezResult ezTextureGroupDesc::Load(const char* szFile)
   return EZ_SUCCESS;
 }
 
+
+
+
+EZ_STATICLINK_FILE(Utilities, Utilities_Textures_Implementation_TextureGroupDesc);
 

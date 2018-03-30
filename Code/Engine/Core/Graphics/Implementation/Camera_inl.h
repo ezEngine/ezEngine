@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 EZ_ALWAYS_INLINE ezVec3 ezCamera::GetPosition(ezCameraEye eye) const
 { 
@@ -102,3 +102,4 @@ EZ_ALWAYS_INLINE const ezMat4& ezCamera::GetViewMatrix(ezCameraEye eye) const
 {
   return m_mViewMatrix[static_cast<int>(eye)];
 }
+

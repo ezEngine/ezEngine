@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 
@@ -41,3 +41,4 @@ private:
 };
 
 #endif
+

@@ -257,5 +257,5 @@ public:
 ezTransformComponentPatch_1_2 g_ezTransformComponentPatch_1_2;
 
 
-EZ_STATICLINK_FILE(GameUtils, GameUtils_Components_TransformComponent);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_TransformComponent);
 

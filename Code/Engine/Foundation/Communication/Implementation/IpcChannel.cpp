@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/Communication/IpcChannel.h>
 #include <Foundation/Communication/Implementation/MessageLoop.h>
 #include <Foundation/Communication/RemoteMessage.h>
@@ -208,4 +208,8 @@ void ezIpcChannel::FlushPendingOperations()
 {
   m_pOwner->WaitForMessages(-1, this);
 }
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_IpcChannel);
 

@@ -323,3 +323,4 @@ ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCu
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_MathExpression);
+

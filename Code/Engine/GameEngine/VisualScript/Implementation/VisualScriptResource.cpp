@@ -269,3 +269,8 @@ void ezVisualScriptResourceDescriptor::PrecomputeMessageHandlers()
     pType->GetAllocator()->Deallocate(pNode);
   }
 }
+
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Implementation_VisualScriptResource);
+
