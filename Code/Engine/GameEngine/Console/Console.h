@@ -8,6 +8,7 @@
 #include <GameEngine/Basics.h>
 #include <GameEngine/Console/ConsoleFunction.h>
 #include <Foundation/Threading/Mutex.h>
+#include <Foundation/Containers/StaticArray.h>
 
 
 /// \brief A Quake-style console for in-game configuration of ezCVar and ezConsoleFunction.

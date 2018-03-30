@@ -1,8 +1,8 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Core/WorldSerializer/ResourceHandleReader.h>
 #include <Core/ResourceManager/ResourceManager.h>
 
-ezThreadLocalPointer<ezResourceHandleReadContext> ezResourceHandleReadContext::s_ActiveContext;
+static thread_local ezResourceHandleReadContext* s_pActiveReadContext = nullptr;
 
 ezResourceHandleReadContext::ezResourceHandleReadContext()
 {
@@ -11,7 +11,7 @@ ezResourceHandleReadContext::ezResourceHandleReadContext()
 
 ezResourceHandleReadContext::~ezResourceHandleReadContext()
 {
-  EZ_ASSERT_DEV(s_ActiveContext != this, "ezResourceHandleReadContext::EndRestoringHandles() was not called");
+  EZ_ASSERT_DEV(s_pActiveReadContext != this, "ezResourceHandleReadContext::EndRestoringHandles() was not called");
 }
 
 void ezResourceHandleReadContext::Reset()
@@ -25,7 +25,7 @@ void ezResourceHandleReadContext::Reset()
 
 void ezResourceHandleReadContext::ReadHandle(ezStreamReader* pStream, ezTypelessResourceHandle* pResourceHandle)
 {
-  ezResourceHandleReadContext* pContext = s_ActiveContext;
+  ezResourceHandleReadContext* pContext = s_pActiveReadContext;
   EZ_ASSERT_DEBUG(pContext != nullptr, "No ezResourceHandleReadContext is active on this thread");
 
   pContext->ReadResourceReference(pStream, pResourceHandle);
@@ -50,8 +50,8 @@ void ezResourceHandleReadContext::ReadResourceReference(ezStreamReader* pStream,
 
 void ezResourceHandleReadContext::BeginRestoringHandles(ezStreamReader* pStream)
 {
-  EZ_ASSERT_DEV(s_ActiveContext == nullptr, "Instances of ezResourceHandleReadContext cannot be nested on the callstack");
-  s_ActiveContext = this;
+  EZ_ASSERT_DEV(s_pActiveReadContext == nullptr, "Instances of ezResourceHandleReadContext cannot be nested on the callstack");
+  s_pActiveReadContext = this;
 
   EZ_ASSERT_DEV(m_uiVersion != 0, "ezResourceHandleReadContext::BeginRestoringHandles must be called after ezResourceHandleReadContext::BeginReadingFromStream");
 
@@ -60,7 +60,7 @@ void ezResourceHandleReadContext::BeginRestoringHandles(ezStreamReader* pStream)
 
 void ezResourceHandleReadContext::EndRestoringHandles()
 {
-  EZ_ASSERT_DEV(s_ActiveContext == this, "Incorrect usage of ezResourceHandleReadContext::BeginRestoringHandles / EndRestoringHandles");
+  EZ_ASSERT_DEV(s_pActiveReadContext == this, "Incorrect usage of ezResourceHandleReadContext::BeginRestoringHandles / EndRestoringHandles");
   EZ_ASSERT_DEV(m_bReadData, "ezResourceHandleReadContext::EndRestoringHandles must be called AFTER ezResourceHandleReadContext::EndReadingFromStream");
 
   for (const auto& hd : m_StoredHandles)
@@ -70,7 +70,7 @@ void ezResourceHandleReadContext::EndRestoringHandles()
 
   m_StoredHandles.Clear();
 
-  s_ActiveContext = nullptr;
+  s_pActiveReadContext = nullptr;
 }
 
 void ezResourceHandleReadContext::BeginReadingFromStream(ezStreamReader* pStream)

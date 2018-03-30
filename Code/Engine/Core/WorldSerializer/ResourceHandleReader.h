@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Core/Basics.h>
-#include <Foundation/Threading/ThreadLocalPointer.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/DynamicArray.h>
@@ -59,8 +58,6 @@ public:
 private:
   static void ReadHandle(ezStreamReader* pStream, ezTypelessResourceHandle* pResourceHandle);
   void ReadResourceReference(ezStreamReader* pStream, ezTypelessResourceHandle* pResourceHandle);
-
-  static ezThreadLocalPointer<ezResourceHandleReadContext> s_ActiveContext;
 
   struct HandleData
   {

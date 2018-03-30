@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Core/Basics.h>
-#include <Foundation/Threading/ThreadLocalPointer.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/Deque.h>
@@ -49,8 +48,6 @@ public:
 private:
   static void WriteHandle(ezStreamWriter* pStream, const ezResourceBase* pResource);
   void WriteResourceReference(ezStreamWriter* pStream, const ezResourceBase* pResource);
-
-  static ezThreadLocalPointer<ezResourceHandleWriteContext> s_ActiveContext;
 
   ezHashTable<const ezResourceBase*, ezUInt32> m_StoredHandles;
   ezDeque<const ezResourceBase*> m_ResourcesToStore;

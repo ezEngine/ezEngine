@@ -1,6 +1,4 @@
-﻿#pragma once
-
-#include <Foundation/Threading/ThreadLocalPointer.h>
+#pragma once
 
 struct ezNullAllocatorWrapper
 {
@@ -37,22 +35,9 @@ struct ezAlignedAllocatorWrapper
 
 struct EZ_FOUNDATION_DLL ezLocalAllocatorWrapper
 {
-  EZ_ALWAYS_INLINE ezLocalAllocatorWrapper(ezAllocatorBase* pAllocator)
-  {
-    m_pAllocator = pAllocator;
-  }
+  ezLocalAllocatorWrapper(ezAllocatorBase* pAllocator);
 
-  EZ_ALWAYS_INLINE void Reset()
-  {
-    m_pAllocator = nullptr;
-  }
+  void Reset();
 
-  EZ_ALWAYS_INLINE static ezAllocatorBase* GetAllocator()
-  {
-    return m_pAllocator;
-  }
-
-private:
-  static ezThreadLocalPointer<ezAllocatorBase> m_pAllocator;
+  static ezAllocatorBase* GetAllocator();
 };
-

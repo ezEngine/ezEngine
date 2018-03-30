@@ -2,7 +2,6 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Strings/String.h>
-#include <Foundation/Threading/ThreadLocalStorage.h>
 #include <Foundation/Threading/ThreadUtils.h>
 
 #include <Foundation/Threading/Implementation/OSThread.h>
@@ -70,8 +69,6 @@ private:
 
 
   volatile ezThreadStatus m_ThreadStatus;
-
-  ezThreadLocalPointerTable m_ThreadLocalPointerTable;
 
   ezString m_Name;
   

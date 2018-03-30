@@ -2,7 +2,7 @@
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <Core/ResourceManager/ResourceBase.h>
 
-ezThreadLocalPointer<ezResourceHandleWriteContext> ezResourceHandleWriteContext::s_ActiveContext;
+static thread_local ezResourceHandleWriteContext* s_pActiveWriteContext = nullptr;
 
 ezResourceHandleWriteContext::ezResourceHandleWriteContext()
 {
@@ -16,7 +16,7 @@ ezResourceHandleWriteContext::~ezResourceHandleWriteContext()
 
 void ezResourceHandleWriteContext::WriteHandle(ezStreamWriter* pStream, const ezResourceBase* pResource)
 {
-  ezResourceHandleWriteContext* pContext = s_ActiveContext;
+  ezResourceHandleWriteContext* pContext = s_pActiveWriteContext;
   EZ_ASSERT_DEBUG(pContext != nullptr, "No ezResourceHandleWriteContext is active on this thread");
 
   pContext->WriteResourceReference(pStream, pResource);
@@ -43,12 +43,12 @@ void ezResourceHandleWriteContext::WriteResourceReference(ezStreamWriter* pStrea
 
 void ezResourceHandleWriteContext::BeginWritingToStream(ezStreamWriter* pStream)
 {
-  EZ_ASSERT_DEV(s_ActiveContext == nullptr, "Instances of ezResourceHandleWriteContext cannot be nested on the callstack");
+  EZ_ASSERT_DEV(s_pActiveWriteContext == nullptr, "Instances of ezResourceHandleWriteContext cannot be nested on the callstack");
   EZ_ASSERT_DEV(m_State == State::NotStarted, "ezResourceHandleWriteContext::BeginWritingToStream cannot be called twice on the same instance");
 
   m_State = State::Writing;
 
-  s_ActiveContext = this;
+  s_pActiveWriteContext = this;
 
   const ezUInt8 uiVersion = 1;
   *pStream << uiVersion;
@@ -96,7 +96,7 @@ void ezResourceHandleWriteContext::EndWritingToStream(ezStreamWriter* pStream)
   }
 
   m_State = State::Finished;
-  s_ActiveContext = nullptr;
+  s_pActiveWriteContext = nullptr;
 }
 
 

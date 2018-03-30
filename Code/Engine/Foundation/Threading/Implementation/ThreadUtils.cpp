@@ -10,7 +10,6 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ThreadUtils)
 
   ON_BASE_STARTUP
   {
-    ezThreadLocalStorage::Initialize();
     ezThreadUtils::Initialize();
   }
 

@@ -43,7 +43,7 @@ namespace
     ezUInt64 m_uiThreadId = 0;
   };
 
-  static ezThreadLocalPointer<EventBuffer> s_EventBuffers;
+  static thread_local EventBuffer* s_EventBuffers = nullptr;
   static ezDynamicArray<EventBuffer*> s_AllEventBuffers;
   static ezMutex s_AllEventBuffersMutex;
 

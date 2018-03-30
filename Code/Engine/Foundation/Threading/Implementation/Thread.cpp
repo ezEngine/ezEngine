@@ -11,7 +11,6 @@ ezUInt32 RunThread(ezThread* pThread)
   if (pThread == nullptr)
     return 0;
 
-  ezThreadLocalStorage::SetPerThreadPointerTable(&(pThread->m_ThreadLocalPointerTable));
   ezProfilingSystem::SetThreadName(pThread->m_Name.GetData());
 
   pThread->m_ThreadStatus = ezThread::Running;
@@ -22,7 +21,6 @@ ezUInt32 RunThread(ezThread* pThread)
   pThread->m_ThreadStatus = ezThread::Finished;
 
   ezProfilingSystem::RemoveThread();
-  ezThreadLocalStorage::SetPerThreadPointerTable(nullptr);
 
   return uiReturnCode;
 }

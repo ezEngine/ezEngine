@@ -1,8 +1,7 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Threading/AtomicInteger.h>
-#include <Foundation/Threading/ThreadLocalPointer.h>
 #include <Foundation/Strings/StringUtils.h>
 #include <Foundation/Strings/FormatString.h>
 
@@ -266,9 +265,6 @@ public:
 private:
   // Needed to call 'EndLogBlock'
   friend class ezLogBlock;
-
-  /// \brief The log system that messages are sent to when the user specifies no system himself.
-  static ezThreadLocalPointer<ezLogInterface> s_DefaultLogSystem;
 
   /// \brief Which messages to filter out.
   static ezLogMsgType::Enum s_LogLevel;

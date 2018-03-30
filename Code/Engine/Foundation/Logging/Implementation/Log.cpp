@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/StringBuilder.h>
 
@@ -6,7 +6,9 @@ ezLogMsgType::Enum ezLog::s_LogLevel = ezLogMsgType::All;
 ezAtomicInteger32 ezGlobalLog::s_uiMessageCount[ezLogMsgType::ENUM_COUNT];
 ezLoggingEvent ezGlobalLog::s_LoggingEvent;
 
-ezThreadLocalPointer<ezLogInterface> ezLog::s_DefaultLogSystem;
+/// \brief The log system that messages are sent to when the user specifies no system himself.
+static thread_local ezLogInterface* s_DefaultLogSystem = nullptr;
+
 
 void ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler handler)
 {
