@@ -890,6 +890,7 @@ void ezDebugRenderer::OnEngineShutdown()
 
   s_hDebugGeometryShader.Invalidate();
   s_hDebugPrimitiveShader.Invalidate();
+  s_hDebugTexturedPrimitiveShader.Invalidate();
   s_hDebugTextShader.Invalidate();
 }
 
