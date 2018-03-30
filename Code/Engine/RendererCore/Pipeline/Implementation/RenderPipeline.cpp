@@ -910,14 +910,15 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
   ezFrustum frustum;
   view.ComputeCullingFrustum(frustum);
 
-  bool bIsMainView = (view.GetCameraUsageHint() == ezCameraUsageHint::MainView || view.GetCameraUsageHint() == ezCameraUsageHint::EditorView);
-  bool bRecordStats = CVarCullingStats && bIsMainView;
-  ezSpatialSystem::QueryStats stats;
-
   EZ_LOCK(view.GetWorld()->GetReadMarker());
-  view.GetWorld()->GetSpatialSystem().FindVisibleObjects(frustum, m_visibleObjects, bRecordStats ? &stats : nullptr);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  const bool bIsMainView = (view.GetCameraUsageHint() == ezCameraUsageHint::MainView || view.GetCameraUsageHint() == ezCameraUsageHint::EditorView);
+  const bool bRecordStats = CVarCullingStats && bIsMainView;
+  ezSpatialSystem::QueryStats stats;
+
+  view.GetWorld()->GetSpatialSystem().FindVisibleObjects(frustum, m_visibleObjects, bRecordStats ? &stats : nullptr);
+
   ezViewHandle hView = view.GetHandle();
 
   if (s_DebugCulling && bIsMainView)
@@ -946,6 +947,8 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
     sb.Format("Time Taken: {0}ms", m_fAverageCullingTime * 1000.0f);
     ezDebugRenderer::DrawText(hView, sb, ezVec2I32(10, 280), ezColor::LimeGreen);
   }
+#else
+  view.GetWorld()->GetSpatialSystem().FindVisibleObjects(frustum, m_visibleObjects, nullptr);
 #endif
 }
 

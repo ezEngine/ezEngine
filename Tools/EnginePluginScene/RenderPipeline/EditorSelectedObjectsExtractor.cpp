@@ -12,148 +12,6 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
-class ezCameraViewRenderData : public ezRenderData
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezCameraViewRenderData, ezRenderData);
-
-public:
-
-  ezTexture2DResourceHandle m_hRenderTarget;
-};
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCameraViewRenderData, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE
-
-struct EZ_ALIGN_16(ezCamViewVertex)
-{
-  EZ_DECLARE_POD_TYPE();
-
-  ezVec3 m_Position;
-  ezVec2 m_TexCoord;
-};
-
-class ezCameraViewRenderer : public ezRenderer
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezCameraViewRenderer, ezRenderer);
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezCameraViewRenderer);
-
-public:
-  ezCameraViewRenderer() {}
-  ~ezCameraViewRenderer()
-  {
-    m_hShader.Invalidate();
-
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hVertexBuffer);
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hIndexBuffer);
-
-    m_hVertexBuffer.Invalidate();
-    m_hIndexBuffer.Invalidate();
-  }
-
-  virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) override
-  {
-    types.PushBack(ezGetStaticRTTI<ezCameraViewRenderData>());
-  }
-
-  virtual void RenderBatch(const ezRenderViewContext& renderContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) override
-  {
-    SetupRenderer();
-
-    ezRenderContext* pRenderContext = renderContext.m_pRenderContext;
-
-    ezTexture2DResourceHandle hTexture = ezResourceManager::LoadResource<ezTexture2DResource>("Textures/MissingTexture_D.dds");
-
-    for (auto it = batch.GetIterator<ezCameraViewRenderData>(); it.IsValid(); ++it)
-    {
-      const ezCameraViewRenderData* pRenderData = pRenderData = it;
-
-      pRenderContext->BindShader(m_hShader);
-      pRenderContext->BindTexture2D("BaseTexture", pRenderData->m_hRenderTarget);
-
-      pRenderContext->BindMeshBuffer(m_hVertexBuffer, m_hIndexBuffer, &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, 2);
-
-      pRenderContext->DrawMeshBuffer(2);
-    }
-  }
-
-protected:
-  void SetupRenderer()
-  {
-    if (!m_hVertexBuffer.IsInvalidated())
-      return;
-
-    // load the shader
-    {
-      m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Editor/ViewportOverlay.ezShader");
-    }
-
-    // Create the vertex buffer
-    {
-      ezGALBufferCreationDescription desc;
-      desc.m_uiStructSize = sizeof(ezCamViewVertex);
-      desc.m_uiTotalSize = 4 * desc.m_uiStructSize;
-      desc.m_BufferType = ezGALBufferType::VertexBuffer;
-      desc.m_ResourceAccess.m_bImmutable = true;
-
-      ezCamViewVertex data[4] =
-      {
-        ezCamViewVertex{ ezVec3(20, 20, 0), ezVec2(0, 0) },
-        ezCamViewVertex{ ezVec3(270, 20, 0), ezVec2(1, 0) },
-        ezCamViewVertex{ ezVec3(270, 155, 0), ezVec2(1, 1) },
-        ezCamViewVertex{ ezVec3(20, 155, 0), ezVec2(0, 1) }
-      };
-
-      m_hVertexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc, ezArrayPtr<const ezUInt8>((const ezUInt8*)data, sizeof(ezCamViewVertex) * 4));
-    }
-
-    // Create the index buffer
-    {
-      ezGALBufferCreationDescription desc;
-      desc.m_uiStructSize = sizeof(ezUInt16);
-      desc.m_uiTotalSize = 6 * desc.m_uiStructSize;
-      desc.m_BufferType = ezGALBufferType::IndexBuffer;
-      desc.m_ResourceAccess.m_bImmutable = true;
-
-      ezUInt16 data[6] =
-      {
-        0, 1, 2, 0, 2, 3
-      };
-
-      m_hIndexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc, ezArrayPtr<const ezUInt8>((const ezUInt8*)data, EZ_ARRAY_SIZE(data) * sizeof(ezUInt16)));
-    }
-
-    // Setup the vertex declaration
-    {
-      {
-        ezVertexStreamInfo& si = m_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-        si.m_Semantic = ezGALVertexAttributeSemantic::Position;
-        si.m_Format = ezGALResourceFormat::XYZFloat;
-        si.m_uiOffset = 0;
-        si.m_uiElementSize = 12;
-      }
-
-      {
-        ezVertexStreamInfo& si = m_VertexDeclarationInfo.m_VertexStreams.ExpandAndGetRef();
-        si.m_Semantic = ezGALVertexAttributeSemantic::TexCoord0;
-        si.m_Format = ezGALResourceFormat::UVFloat;
-        si.m_uiOffset = 12;
-        si.m_uiElementSize = 8;
-      }
-    }
-  }
-
-  ezShaderResourceHandle m_hShader;
-  ezGALBufferHandle m_hVertexBuffer;
-  ezGALBufferHandle m_hIndexBuffer;
-  ezVertexDeclarationInfo m_VertexDeclarationInfo;
-};
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCameraViewRenderer, 1, ezRTTIDefaultAllocator<ezCameraViewRenderer>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
-
-//////////////////////////////////////////////////////////////////////////
-
-
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorSelectedObjectsExtractor, 1, ezRTTIDefaultAllocator<ezEditorSelectedObjectsExtractor>)
 {
@@ -181,7 +39,7 @@ const ezDeque<ezGameObjectHandle>* ezEditorSelectedObjectsExtractor::GetSelectio
 
 void ezEditorSelectedObjectsExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData* pExtractedRenderData)
 {
-  const bool bShowCameraOverlays = view.GetCameraUsageHint() == ezCameraUsageHint::EditorView /*&& view.GetCamera()->IsPerspective()*/;
+  const bool bShowCameraOverlays = view.GetCameraUsageHint() == ezCameraUsageHint::EditorView;
 
   if (bShowCameraOverlays)
   {
@@ -208,22 +66,10 @@ void ezEditorSelectedObjectsExtractor::Extract(const ezView& view, const ezDynam
       {
         UpdateRenderTargetCamera(pCamComp);
 
-        if (true)
-        {
-          ezCameraViewRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezCameraViewRenderData>(nullptr, 0);
-          pRenderData->m_GlobalTransform = pObject->GetGlobalTransform();
-          pRenderData->m_GlobalBounds = ezBoundingBoxSphere(pRenderData->m_GlobalTransform.m_vPosition, ezVec3::ZeroVector(), 0.1f);
-          pRenderData->m_hRenderTarget = m_hRenderTarget;
+        const float fAspect = 9.0f / 16.0f;
 
-          pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::GUI, 0);
-        }
-        else
-        {
-          // TODO: this code path creates abstract art
-
-          // TODO: use aspect ratio of camera render target, if available
-          ezDebugRenderer::Draw2DRectangle(view.GetWorld(), ezRectFloat(20, 20, 250, 135), 0, ezColor::White, m_hRenderTarget);
-        }
+        // TODO: use aspect ratio of camera render target, if available
+        ezDebugRenderer::Draw2DRectangle(view.GetHandle(), ezRectFloat(20, 20, 256, 256 * fAspect), 0, ezColor::White, m_hRenderTarget);
 
         // TODO: if the camera renders to a texture anyway, use its view + render target instead
 

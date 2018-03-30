@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -489,17 +489,17 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
   TexVertex vertices[6];
 
   vertices[0].m_position = ezVec3(rectInPixel.Left(), rectInPixel.Top(), fDepth);
-  vertices[0].m_texCoord = ezVec2(0, 1);
+  vertices[0].m_texCoord = ezVec2(0, 0);
   vertices[1].m_position = ezVec3(rectInPixel.Right(), rectInPixel.Bottom(), fDepth);
-  vertices[1].m_texCoord = ezVec2(1, 0);
+  vertices[1].m_texCoord = ezVec2(1, 1);
   vertices[2].m_position = ezVec3(rectInPixel.Left(), rectInPixel.Bottom(), fDepth);
-  vertices[2].m_texCoord = ezVec2(0, 0);
+  vertices[2].m_texCoord = ezVec2(0, 1);
   vertices[3].m_position = ezVec3(rectInPixel.Left(), rectInPixel.Top(), fDepth);
-  vertices[3].m_texCoord = ezVec2(0, 1);
+  vertices[3].m_texCoord = ezVec2(0, 0);
   vertices[4].m_position = ezVec3(rectInPixel.Right(), rectInPixel.Top(), fDepth);
-  vertices[4].m_texCoord = ezVec2(1, 1);
+  vertices[4].m_texCoord = ezVec2(1, 0);
   vertices[5].m_position = ezVec3(rectInPixel.Right(), rectInPixel.Bottom(), fDepth);
-  vertices[5].m_texCoord = ezVec2(1, 0);
+  vertices[5].m_texCoord = ezVec2(1, 1);
 
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(vertices); ++i)
   {
