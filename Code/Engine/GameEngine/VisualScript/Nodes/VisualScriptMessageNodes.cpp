@@ -36,12 +36,12 @@ void ezVisualScriptNode_SimpleUserEvent::Execute(ezVisualScriptInstance* pInstan
 
 ezInt32 ezVisualScriptNode_SimpleUserEvent::HandlesMessagesWithID() const
 {
-  return ezMsgGenericUserEvent::GetTypeMsgId();
+  return ezMsgGenericEvent::GetTypeMsgId();
 }
 
 void ezVisualScriptNode_SimpleUserEvent::HandleMessage(ezMessage* pMsg)
 {
-  ezMsgGenericUserEvent& msg = *static_cast<ezMsgGenericUserEvent*>(pMsg);
+  ezMsgGenericEvent& msg = *static_cast<ezMsgGenericEvent*>(pMsg);
 
   if (msg.m_sMessage == m_sMessage)
   {

@@ -76,7 +76,7 @@ public:
   
 protected:
   ezEventMessageSender<ezMsgPropertyAnimationEndReached> m_ReachedEndMsgSender;
-  ezEventMessageSender<ezMsgGenericUserEvent> m_EventTrackMsgSender;
+  ezEventMessageSender<ezMsgGenericEvent> m_EventTrackMsgSender;
 
 
 protected:

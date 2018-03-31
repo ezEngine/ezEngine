@@ -99,7 +99,7 @@ void ezPxRaycastInteractComponent::OnTrigger(ezMsgTriggerRaycastInteractionCompo
 
 void ezPxRaycastInteractComponent::SendMessage(const ezPhysicsHitResult& hit)
 {
-  ezMsgGenericUserEvent msg;
+  ezMsgGenericEvent msg;
   msg.m_sMessage = m_sUserMessage;
 
   GetWorld()->SendMessage(hit.m_hActorObject, msg);
