@@ -378,6 +378,31 @@ void OnLoadPlugin(bool bReloading)
     }
   }
 
+  // Skeleton Asset
+  {
+    // Menu Bar
+    {
+      ezActionMapManager::RegisterActionMap("SkeletonAssetMenuBar");
+      ezProjectActions::MapActions("SkeletonAssetMenuBar");
+      ezStandardMenus::MapActions("SkeletonAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezDocumentActions::MapActions("SkeletonAssetMenuBar", "Menu.File", false);
+      ezCommandHistoryActions::MapActions("SkeletonAssetMenuBar", "Menu.Edit");
+    }
+
+    // Tool Bar
+    {
+      ezActionMapManager::RegisterActionMap("SkeletonAssetToolBar");
+      ezDocumentActions::MapActions("SkeletonAssetToolBar", "", true);
+      ezCommandHistoryActions::MapActions("SkeletonAssetToolBar", "");
+      ezAssetActions::MapActions("SkeletonAssetToolBar", true);
+    }
+
+    // View Tool Bar
+    {
+      ezActionMapManager::RegisterActionMap("SkeletonAssetViewToolBar");
+      ezViewActions::MapActions("SkeletonAssetViewToolBar", "", ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
+    }
+  }
 
   // General editor plugin actions
   {
