@@ -133,7 +133,6 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_TaskWorkers);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_Tasks);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_Thread);
-  EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_ThreadLocalStorage);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_ThreadSignal);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_ThreadUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Time_Implementation_Clock);

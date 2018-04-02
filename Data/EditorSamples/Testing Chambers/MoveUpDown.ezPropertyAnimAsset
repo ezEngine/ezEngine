@@ -115,7 +115,7 @@ AssetInfo
 		s %AssetType{"PropertyAnim"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14416072379724892317,5137667082026569700}}
-		u4 %Hash{17444997708972426215}
+		u4 %Hash{11630826563626786691}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -143,7 +143,7 @@ o
 	u3 %v{1}
 	p
 	{
-		u4 %Duration{480}
+		u4 %Duration{9600}
 		Uuid %EventTrack{u4{15122038352919025928,3089269535471733865}}
 		u3 %FPS{60}
 		VarArray %Tracks
@@ -634,7 +634,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEventTrackControlPointData"}
-		u3 %TypeSize{80}
+		u3 %TypeSize{24}
 		u3 %TypeVersion{1}
 	}
 }
