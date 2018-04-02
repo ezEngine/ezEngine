@@ -218,14 +218,6 @@ void ezTestSetup::DeInitTestFramework()
 {
   ezTestFramework* pTestFramework = ezTestFramework::GetInstance();
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  // UWP tests run on SHCore thread which does core startup etc.
-  // This thread has no TLS because nothing is ever done here and this
-  // is the first entry point we have AFTER SHCore thread got init.
-  // Thus here we do our thread init otherwise log calls will crash.
-  ezThreadLocalPointerTable ThreadLocalPointerTable;
-  ezThreadLocalStorage::SetPerThreadPointerTable(&(ThreadLocalPointerTable));
-#endif
   ezStartup::ShutdownCore();
 
   // In the UWP case we never initialized this thread for ez, so we can't do log output now.

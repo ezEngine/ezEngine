@@ -10,7 +10,6 @@ typedef pthread_t ezThreadHandle;
 typedef pthread_t ezThreadID;
 typedef pthread_mutex_t ezMutexHandle;
 typedef void* (*ezOSThreadEntryPoint)(void* pThreadParameter);
-typedef pthread_key_t ezThreadLocalStorageKey;
 
 #define EZ_THREAD_CLASS_ENTRY_POINT void* ezThreadClassEntryPoint(void* pThreadParameter);
 
