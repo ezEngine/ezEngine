@@ -217,12 +217,11 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
     ezInputManager::SetActionDisplayName("test_action_3", "Test Action 3 Name");
     ezInputManager::SetActionDisplayName("test_action_4", "Test Action 4 Name");
 
-    EZ_TEST_BOOL(ezStringUtils::IsEqual(ezInputManager::GetActionDisplayName("test_action_1"), "Test Action 1 Name"));
-    EZ_TEST_BOOL(ezStringUtils::IsEqual(ezInputManager::GetActionDisplayName("test_action_2"), "Test Action 2 Name"));
-    EZ_TEST_BOOL(ezStringUtils::IsEqual(ezInputManager::GetActionDisplayName("test_action_3"), "Test Action 3 Name"));
-    EZ_TEST_BOOL(ezStringUtils::IsEqual(ezInputManager::GetActionDisplayName("test_action_4"), "Test Action 4 Name"));
+    EZ_TEST_STRING(ezInputManager::GetActionDisplayName("test_action_1"), "Test Action 1 Name");
+    EZ_TEST_STRING(ezInputManager::GetActionDisplayName("test_action_2"), "Test Action 2 Name");
+    EZ_TEST_STRING(ezInputManager::GetActionDisplayName("test_action_3"), "Test Action 3 Name");
+    EZ_TEST_STRING(ezInputManager::GetActionDisplayName("test_action_4"), "Test Action 4 Name");
   }
-
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Input Sets")
   {
