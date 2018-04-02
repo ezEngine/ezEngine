@@ -7,6 +7,8 @@
 #include <Foundation/Types/SharedPtr.h>
 #include <Core/Messages/EventMessage.h>
 
+struct ezMsgSetPlaying;
+
 typedef ezComponentManagerSimple<class ezPropertyAnimComponent, ezComponentUpdateType::WhenSimulating> ezPropertyAnimComponentManager;
 
 /// \brief Sent when a ezPropertyAnimComponent reaches the end of the property animation (either forwards or backwards playing)
@@ -29,8 +31,7 @@ struct EZ_GAMEENGINE_DLL ezMsgPropertyAnimationPlayRange : public ezMessage
 /// \brief Animates properties on other objects and components according to the property animation resource
 ///
 /// Notes:
-///  - There is no paused/playing state for this component. Simply activate/deactivate it to play/pause the playback.
-///  - There is also no messages to change speed, simply modify the speed property.
+///  - There is no messages to change speed, simply modify the speed property.
 class EZ_GAMEENGINE_DLL ezPropertyAnimComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPropertyAnimComponent, ezComponent, ezPropertyAnimComponentManager);
@@ -65,6 +66,9 @@ public:
 
   /// \brief Sets the animation playback range and resets the playing position to the range start position. Also activates the component if it isn't.
   void OnPlayAnimationRange(ezMsgPropertyAnimationPlayRange& msg);
+
+  /// \brief Pauses or resumes animation playback. Does not reset any state.
+  void OnSetPlaying(ezMsgSetPlaying& msg);
 
   // public properties:
   ezEnum<ezPropertyAnimMode> m_AnimationMode;
@@ -120,6 +124,7 @@ protected:
   void EvaluateEventTrack(ezTime startTime, ezTime endTime);
   void StartPlayback();
 
+  bool m_bPlaying = true;
   bool m_bReverse = false;
 
   ezTime m_AnimationTime;

@@ -3,6 +3,7 @@
 #include <Core/Messages/DeleteObjectMessage.h>
 #include <Core/Messages/TriggerMessage.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
+#include <Core/Messages/CommonMessages.h>
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgCollision);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgCollision, 1, ezRTTIDefaultAllocator<ezMsgCollision>)
@@ -20,7 +21,21 @@ EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgUpdateLocalBounds);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgUpdateLocalBounds, 1, ezRTTIDefaultAllocator<ezMsgUpdateLocalBounds>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSetPlaying);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetPlaying, 1, ezRTTIDefaultAllocator<ezMsgSetPlaying>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Play", m_bPlay)->AddAttributes(new ezDefaultValueAttribute(true)),
+  }
+  EZ_END_PROPERTIES
+    EZ_BEGIN_ATTRIBUTES
+  {
+    new ezAutoGenVisScriptMsgSender(),
+  }
+  EZ_END_ATTRIBUTES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
 
 
 EZ_STATICLINK_FILE(Core, Core_Messages_Implementation_Messages);

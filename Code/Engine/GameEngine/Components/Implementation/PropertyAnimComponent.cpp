@@ -5,6 +5,7 @@
 #include <GameEngine/Curves/ColorGradientResource.h>
 #include <GameEngine/Curves/Curve1DResource.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <Core/Messages/CommonMessages.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -38,11 +39,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 2, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 3, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Animation", GetPropertyAnimFile, SetPropertyAnimFile)->AddAttributes(new ezAssetBrowserAttribute("PropertyAnim")),
+    EZ_MEMBER_PROPERTY("Playing", m_bPlaying)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ENUM_MEMBER_PROPERTY("Mode", ezPropertyAnimMode, m_AnimationMode),
     EZ_MEMBER_PROPERTY("RandomOffset", m_RandomOffset)->AddAttributes(new ezClampValueAttribute(ezTime::Seconds(0), ezVariant())),
     EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(-10.0f, +10.0f)),
@@ -58,6 +60,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 2, ezComponentMode::Dynamic)
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgPropertyAnimationPlayRange, OnPlayAnimationRange),
+    EZ_MESSAGE_HANDLER(ezMsgSetPlaying, OnSetPlaying),
   }
   EZ_END_MESSAGEHANDLERS
   EZ_BEGIN_MESSAGESENDERS
@@ -88,6 +91,8 @@ void ezPropertyAnimComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_AnimationRangeLow;
   s << m_AnimationRangeHigh;
 
+  s << m_bPlaying;
+
   /// \todo Somehow store the animation state (not necessary for new scenes, but for quicksaves)
 }
 
@@ -108,6 +113,11 @@ void ezPropertyAnimComponent::DeserializeComponent(ezWorldReader& stream)
     s >> m_bReverse;
     s >> m_AnimationRangeLow;
     s >> m_AnimationRangeHigh;
+  }
+
+  if (uiVersion >= 3)
+  {
+    s >> m_bPlaying;
   }
 }
 
@@ -138,14 +148,19 @@ void ezPropertyAnimComponent::SetPropertyAnim(const ezPropertyAnimResourceHandle
 
 void ezPropertyAnimComponent::OnPlayAnimationRange(ezMsgPropertyAnimationPlayRange& msg)
 {
-  SetActive(true);
-
   m_AnimationRangeLow = msg.m_RangeLow;
   m_AnimationRangeHigh = msg.m_RangeHigh;
 
   m_AnimationTime = m_AnimationRangeLow;
+  m_bPlaying = true;
 
   StartPlayback();
+}
+
+
+void ezPropertyAnimComponent::OnSetPlaying(ezMsgSetPlaying& msg)
+{
+  m_bPlaying = msg.m_bPlay;
 }
 
 void ezPropertyAnimComponent::CreatePropertyBindings()
@@ -362,7 +377,6 @@ void ezPropertyAnimComponent::CreateFloatPropertyBinding(const ezFloatPropertyAn
   }
 }
 
-
 void ezPropertyAnimComponent::CreateColorPropertyBinding(const ezColorPropertyAnimEntry* pAnim, const ezRTTI* pOwnerRtti, void* pObject, const ezComponentHandle& hComponent)
 {
   if (pAnim->m_Target != ezPropertyAnimTarget::Color)
@@ -475,14 +489,14 @@ double ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
     if (m_fSpeed > 0 && m_AnimationTime >= m_AnimationRangeHigh)
     {
       m_AnimationTime = m_AnimationRangeHigh;
-      SetActive(false);
+      m_bPlaying = false;
 
       m_ReachedEndMsgSender.SendMessage(reachedEndMsg, this, GetOwner());
     }
     else if (m_fSpeed < 0 && m_AnimationTime <= m_AnimationRangeLow)
     {
       m_AnimationTime = m_AnimationRangeLow;
-      SetActive(false);
+      m_bPlaying = false;
 
       m_ReachedEndMsgSender.SendMessage(reachedEndMsg, this, GetOwner());
     }
@@ -789,7 +803,7 @@ void ezPropertyAnimComponent::ApplyColorAnimation(const ColorBinding& binding, d
 
 void ezPropertyAnimComponent::Update()
 {
-  if (!m_hPropertyAnim.IsValid())
+  if (m_bPlaying == false || !m_hPropertyAnim.IsValid())
     return;
 
   if (m_AnimDesc == nullptr)

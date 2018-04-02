@@ -9,25 +9,7 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <ParticlePlugin/Components/ParticleFinisherComponent.h>
 #include <RendererCore/Pipeline/View.h>
-
-//////////////////////////////////////////////////////////////////////////
-
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPlayParticleEffect);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPlayParticleEffect, 1, ezRTTIDefaultAllocator<ezMsgPlayParticleEffect>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("Play", m_bPlay)->AddAttributes(new ezDefaultValueAttribute(true)),
-  }
-  EZ_END_PROPERTIES
-
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezAutoGenVisScriptMsgSender,
-  }
-  EZ_END_ATTRIBUTES
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE
+#include <Core/Messages/CommonMessages.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -53,7 +35,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 3, ezComponentMode::Static)
   EZ_END_ATTRIBUTES
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgPlayParticleEffect, Play),
+    EZ_MESSAGE_HANDLER(ezMsgSetPlaying, OnSetPlaying),
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS
@@ -206,7 +188,7 @@ bool ezParticleComponent::IsEffectActive() const
 }
 
 
-void ezParticleComponent::Play(ezMsgPlayParticleEffect& msg)
+void ezParticleComponent::OnSetPlaying(ezMsgSetPlaying& msg)
 {
   if (msg.m_bPlay)
   {

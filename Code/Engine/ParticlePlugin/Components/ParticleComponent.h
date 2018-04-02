@@ -13,19 +13,11 @@ struct ezMsgUpdateLocalBounds;
 struct ezMsgExtractRenderData;
 class ezParticleSystemInstance;
 class ezParticleComponent;
+struct ezMsgSetPlaying;
 
 typedef ezTypedResourceHandle<class ezParticleEffectResource> ezParticleEffectResourceHandle;
 
 typedef ezComponentManagerSimple<ezParticleComponent, ezComponentUpdateType::WhenSimulating> ezParticleComponentManager;
-
-/// \brief This message makes an ezParticleComponent start or stop it's effect.
-struct ezMsgPlayParticleEffect : public ezMessage
-{
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgPlayParticleEffect, ezMessage);
-
-  /// If true, StartEffect() is called, otherwise StopEffect() is called.
-  bool m_bPlay = true;
-};
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleComponent : public ezRenderComponent
 {
@@ -54,8 +46,7 @@ public:
   /// \brief Returns true, if an effect is currently in a state where it might emit new particles
   bool IsEffectActive() const;
 
-  /// Message Handler for ezMsgPlayParticleEffect
-  void Play(ezMsgPlayParticleEffect& msg);
+  void OnSetPlaying(ezMsgSetPlaying& msg);
 
   //////////////////////////////////////////////////////////////////////////
   // Properties
