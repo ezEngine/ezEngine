@@ -318,7 +318,7 @@ void ezInputManager::SetActionDisplayName(const char* szAction, const char* szDi
   GetInternals().s_ActionDisplayNames[szAction] = szDisplayName;
 }
 
-const char* ezInputManager::GetActionDisplayName(const char* szAction)
+const ezString ezInputManager::GetActionDisplayName(const char* szAction)
 {
   return GetInternals().s_ActionDisplayNames.GetValueOrDefault(szAction, szAction);
 }

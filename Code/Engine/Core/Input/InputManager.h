@@ -177,7 +177,7 @@ public:
   static void SetActionDisplayName(const char* szAction, const char* szDisplayName); // [tested]
 
   /// \brief Returns the display name for the given action, or the action name itself, if no special display name was specified yet.
-  static const char* GetActionDisplayName(const char* szAction); // [tested]
+  static const ezString GetActionDisplayName(const char* szAction); // [tested]
 
   /// \brief Returns the names of all currently registered input sets.
   static void GetAllInputSets(ezDynamicArray<ezString>& out_InputSetNames); // [tested]

@@ -291,7 +291,7 @@ EZ_ALWAYS_INLINE ValueType* ezMapBase<KeyType, ValueType, Comparer>::GetValue(co
 
 template <typename KeyType, typename ValueType, typename Comparer>
 template <typename CompatibleKeyType>
-EZ_ALWAYS_INLINE ValueType ezMapBase<KeyType, ValueType, Comparer>::GetValueOrDefault(const CompatibleKeyType& key, const ValueType& defaultValue) const
+EZ_ALWAYS_INLINE const ValueType& ezMapBase<KeyType, ValueType, Comparer>::GetValueOrDefault(const CompatibleKeyType& key, const ValueType& defaultValue) const
 {
   Node* pNode = Internal_Find<CompatibleKeyType>(key);
   return pNode ? pNode->m_Value : defaultValue;

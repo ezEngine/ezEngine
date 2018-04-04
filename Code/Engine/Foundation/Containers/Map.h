@@ -177,9 +177,9 @@ public:
   template <typename CompatibleKeyType>
   ValueType* GetValue(const CompatibleKeyType& key); // [tested]
 
-  /// \brief Returns a pointer to the value of the entry with the given key if found, otherwise returns nullptr.
+  /// \brief Either returns the value of the entry with the given key, if found, or the provided default value.
   template <typename CompatibleKeyType>
-  ValueType GetValueOrDefault(const CompatibleKeyType& key, const ValueType& defaultValue) const; // [tested]
+  const ValueType& GetValueOrDefault(const CompatibleKeyType& key, const ValueType& defaultValue) const; // [tested]
 
   /// \brief Searches for key, returns an Iterator to it or an invalid iterator, if no such key is found. O(log n) operation.
   template<typename CompatibleKeyType>
