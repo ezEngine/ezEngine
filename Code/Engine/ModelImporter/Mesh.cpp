@@ -65,6 +65,13 @@ namespace ezModelImporter
       EZ_ASSERT_DEBUG((uiNumElementsPerVertex == 3 || uiNumElementsPerVertex == 1) &&
                        elementType == VertexElementType::FLOAT, "BiTangent vertex streams should have either 3 float elements (vector) or 1 float element (sign).");
       break;
+
+    case ezGALVertexAttributeSemantic::BoneIndices0:
+    case ezGALVertexAttributeSemantic::BoneIndices1:
+    case ezGALVertexAttributeSemantic::BoneWeights0:
+    case ezGALVertexAttributeSemantic::BoneWeights1:
+      EZ_ASSERT_DEBUG(uiNumElementsPerVertex == 4 || uiNumElementsPerVertex == 1, "Bone weights and index streams should have 1 or 4 elements (single bone / standard skinning).");
+      break;
     }
 
     VertexDataStream* existingStream = nullptr;
@@ -254,6 +261,25 @@ namespace ezModelImporter
     for (ezUInt32 i = oldSubMeshCount; i < m_SubMeshes.GetCount(); ++i)
     {
       m_SubMeshes[i].m_uiFirstTriangle += oldTriangleCount;
+    }
+
+    // Add skeleton if existent
+    // TODO: What if multiple, incompatible skeletons are found(?)
+    // For now: Remove skeleton and import unskinned
+    if (mesh.m_pSkeleton)
+    {
+      if (m_pSkeleton)
+      {
+        if (!m_pSkeleton->IsCompatibleWith(mesh.m_pSkeleton.Borrow()))
+        {
+          ezLog::Warning("Found incompatible skeletons during mesh merging in mesh '{0}', import will be without skeletons!", m_Name.GetData());
+          m_pSkeleton.Reset();
+        }
+      }
+      else
+      {
+        m_pSkeleton = EZ_DEFAULT_NEW(ezSkeleton, *mesh.m_pSkeleton);
+      }
     }
   }
 

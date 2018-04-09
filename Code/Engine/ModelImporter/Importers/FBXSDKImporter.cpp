@@ -10,10 +10,15 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Containers/DynamicArray.h>
 
+#include <RendererCore/AnimationSystem/SkeletonBuilder.h>
+#include <RendererCore/AnimationSystem/Skeleton.h>
+#include <RendererCore/AnimationSystem/AnimationPose.h>
+
 #if defined(BUILDSYSTEM_BUILD_WITH_OFFICIAL_FBX_SDK)
 #include <fbxsdk.h>
 using namespace fbxsdk;
 #endif
+
 
 namespace ezModelImporter
 {
@@ -53,6 +58,17 @@ namespace ezModelImporter
     return ezQuat(static_cast<float>(fbxQuat.mData[0]), static_cast<float>(fbxQuat.mData[1]), static_cast<float>(fbxQuat.mData[2]), static_cast<float>(fbxQuat.mData[3]));
   }
 
+  ezMat4 ConvertFromFBX(const FbxAMatrix& fbxMatrix)
+  {
+    ezMat4 mat;
+    mat.SetColumn(0, ConvertFromFBX(fbxMatrix.GetColumn(0)));
+    mat.SetColumn(1, ConvertFromFBX(fbxMatrix.GetColumn(1)));
+    mat.SetColumn(2, ConvertFromFBX(fbxMatrix.GetColumn(2)));
+    mat.SetColumn(3, ConvertFromFBX(fbxMatrix.GetColumn(3)));
+
+    return mat;
+  }
+
   // Helper structure, due to the nature of FBX mapping the elements of vertices potentially
   // differently we build a list of unique vertices and de-duplicate them later to build a properly
   // indexed mesh
@@ -68,6 +84,8 @@ namespace ezModelImporter
       , uv0(ezVec2::ZeroVector())
       , uv1(ezVec2::ZeroVector())
       , color(1, 1, 1, 1)
+      , boneIndices(ezInvalidIndex, ezInvalidIndex, ezInvalidIndex, ezInvalidIndex)
+      , boneWeights(ezVec4::ZeroVector())
     {}
 
     bool operator == (const FBXVertex& other) const
@@ -82,6 +100,26 @@ namespace ezModelImporter
     ezVec2 uv0;
     ezVec2 uv1;
     ezVec4 color;
+    ezVec4U32 boneIndices;
+    ezVec4 boneWeights;
+  };
+
+  struct BlendWeightAndBone
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    BlendWeightAndBone()
+      : pBone(nullptr)
+      , fBlendWeight(0)
+    {}
+
+    BlendWeightAndBone(FbxNode* pBone, float fBlendWeight)
+      : pBone(pBone)
+      , fBlendWeight(fBlendWeight)
+    {}
+
+    FbxNode* pBone;
+    float fBlendWeight;
   };
 
   void TryAddTextureReference(fbxsdk::FbxSurfaceMaterial* pMaterial, const char* szFBXName, SemanticHint::Enum semanticHint, const char* szSemantic, ezModelImporter::Material* pMat)
@@ -103,7 +141,7 @@ namespace ezModelImporter
     }
   }
 
-  ObjectHandle ImportMesh(FbxMesh* pMesh, FBXImportContext& ImportContext)
+  ObjectHandle ImportMesh(FbxMesh* pMesh, ezSkeleton* pSkeleton, FBXImportContext& ImportContext)
   {
     if (ImportContext.processedMeshes.Find(pMesh).IsValid())
     {
@@ -249,6 +287,64 @@ namespace ezModelImporter
       }
     }
 
+    ezMap<int, ezHybridArray<BlendWeightAndBone, 4>> boneWeights;
+    bool anyVertexWithMoreThanOneWeight = false;
+
+    // Prepare blend weights and indices
+    for (int deformerIdx = 0; deformerIdx < pMesh->GetDeformerCount(); ++deformerIdx)
+    {
+      if (const auto pSkin = static_cast<FbxSkin*>(pMesh->GetDeformer(deformerIdx, FbxDeformer::eSkin)))
+      {
+        for (int clusterIdx = 0; clusterIdx < pSkin->GetClusterCount(); ++clusterIdx)
+        {
+          const auto pCluster = pSkin->GetCluster(clusterIdx);
+          FbxNode* pSkeletonNode = pCluster->GetLink();
+
+          FbxAMatrix transformMatrix, transformLinkMatrix;
+          pCluster->GetTransformMatrix(transformMatrix);
+          pCluster->GetTransformLinkMatrix(transformLinkMatrix);
+
+          for (int controlPointIndex = 0; controlPointIndex < pCluster->GetControlPointIndicesCount(); ++controlPointIndex)
+          {
+            int controlPoint = pCluster->GetControlPointIndices()[controlPointIndex];
+
+            float blendWeight = static_cast<float>(pCluster->GetControlPointWeights()[controlPointIndex]);
+
+            BlendWeightAndBone bwi(pSkeletonNode, blendWeight);
+
+            boneWeights[controlPoint].PushBack(bwi);
+
+            if (boneWeights.GetCount() > 1)
+            {
+              anyVertexWithMoreThanOneWeight = true;
+            }
+          }
+        }
+      }
+    }
+
+    // Ensure that all bones have 4 indices and 4 weights
+    if (anyVertexWithMoreThanOneWeight)
+    {
+      bool anyVertexWithMoreThanFourWeights = false;
+
+      for (auto& weights : boneWeights)
+      {
+        if (weights.GetCount() > 4)
+        {
+          anyVertexWithMoreThanFourWeights = true;
+        }
+
+        weights.SetCount(4);
+      }
+
+      if (anyVertexWithMoreThanFourWeights)
+      {
+        ezLog::Warning("Found vertex with more than four blend weights, truncating.");
+      }
+    }
+
+
     ezUniquePtr<Mesh> mesh = EZ_DEFAULT_NEW(Mesh);
 
     const int iPolygonCount = pMesh->GetPolygonCount();
@@ -262,6 +358,7 @@ namespace ezModelImporter
     const bool bHasTangent = pMesh->GetElementTangentCount() > 0;
     const bool bHasBinormal = pMesh->GetElementBinormalCount() > 0;
     const bool bHasPolygonGroups = pMesh->GetElementPolygonGroupCount() > 0;
+    const bool bHasBoneWeights = !boneWeights.IsEmpty() && pSkeleton != nullptr;
 
 
     ezDynamicArray<FBXVertex> uniqueVertices;
@@ -473,6 +570,58 @@ namespace ezModelImporter
           }
         }
 
+        // Get blend weights into blend weight & bone index data of vertices
+        if (bHasBoneWeights)
+        {
+          const auto& blendWeightsForVertex = boneWeights[iIndex];
+
+          if (!blendWeightsForVertex.IsEmpty())
+          {
+            if (anyVertexWithMoreThanOneWeight)
+            {
+              vertex.boneWeights.x = blendWeightsForVertex[0].fBlendWeight;
+              vertex.boneWeights.y = blendWeightsForVertex[1].fBlendWeight;
+              vertex.boneWeights.z = blendWeightsForVertex[2].fBlendWeight;
+              vertex.boneWeights.w = blendWeightsForVertex[3].fBlendWeight;
+
+              for (int iSubBone = 0; iSubBone < 4; ++iSubBone)
+              {
+                ezUInt32 uiTemp = 0;
+                if (vertex.boneWeights.GetData()[iSubBone] > 0.0f)
+                {
+                  if (pSkeleton->FindBoneByName(blendWeightsForVertex[iSubBone].pBone->GetName(), uiTemp))
+                  {
+                    vertex.boneIndices.GetData()[iSubBone] = uiTemp;
+                  }
+                  else
+                  {
+                    ezLog::Error("Couldn't find bone '{0}' in skeleton, aborting import.", blendWeightsForVertex[iSubBone].pBone->GetName());
+                    return ObjectHandle();
+                  }
+                }
+              }
+            }
+            else
+            {
+              vertex.boneWeights.x = blendWeightsForVertex[0].fBlendWeight;
+
+              if (vertex.boneWeights.x > 0.0f)
+              {
+                ezUInt32 uiTemp = 0;
+                if (pSkeleton->FindBoneByName(blendWeightsForVertex[0].pBone->GetName(), uiTemp))
+                {
+                  vertex.boneIndices.x = uiTemp;
+                }
+                else
+                {
+                  ezLog::Error("Couldn't find bone '{0}' in skeleton, aborting import.", blendWeightsForVertex[0].pBone->GetName());
+                  return ObjectHandle();
+                }
+              }
+            }
+          }
+        }
+
         vertexId++;
         uniqueVertices.PushBack(vertex);
       }
@@ -553,6 +702,18 @@ namespace ezModelImporter
       streams.PushBack(colorDataStream);
     }
 
+    VertexDataStream* boneWeightStream = nullptr;
+    VertexDataStream* boneIndicesStream = nullptr;
+    if (bHasBoneWeights)
+    {
+      // TODO: Handle single bone skinning
+      boneWeightStream = mesh->AddDataStream(ezGALVertexAttributeSemantic::BoneWeights0, 4, VertexElementType::FLOAT);
+      streams.PushBack(boneWeightStream);
+
+      boneIndicesStream = mesh->AddDataStream(ezGALVertexAttributeSemantic::BoneIndices0, 4, VertexElementType::UINT32);
+      streams.PushBack(boneIndicesStream);
+    }
+
     for (auto& vertex : deduplicatedVertices)
     {
       positionDataStream->AddValues(ezArrayPtr<char>(reinterpret_cast<char*>(&vertex.pos.x), 3 * sizeof(float)));
@@ -585,6 +746,13 @@ namespace ezModelImporter
       if (bHasColor0)
       {
         colorDataStream->AddValues(ezArrayPtr<char>(reinterpret_cast<char*>(&vertex.color.x), 4 * sizeof(float)));
+      }
+
+      if (bHasBoneWeights)
+      {
+        // TODO: Handle single bone skinning
+        boneWeightStream->AddValues(ezArrayPtr<char>(reinterpret_cast<char*>(&vertex.boneWeights.x), 4 * sizeof(float)));
+        boneIndicesStream->AddValues(ezArrayPtr<char>(reinterpret_cast<char*>(&vertex.boneIndices.x), 4 * sizeof(ezUInt32)));
       }
     }
 
@@ -659,7 +827,7 @@ namespace ezModelImporter
     return meshHandle;
   }
 
-  ObjectHandle ImportNodeRecursive(FbxNode* pNode, FBXImportContext& ImportContext)
+  ObjectHandle ImportNodeRecursive(FbxNode* pNode, ezSkeleton* pSkeleton, FBXImportContext& ImportContext)
   {
     ezUniquePtr<Node> node = EZ_DEFAULT_NEW(Node);
 
@@ -678,14 +846,14 @@ namespace ezModelImporter
 
     for (int i = 0; i < pNode->GetChildCount(); ++i)
     {
-      node->m_Children.PushBack(ImportNodeRecursive(pNode->GetChild(i), ImportContext));
+      node->m_Children.PushBack(ImportNodeRecursive(pNode->GetChild(i), pSkeleton, ImportContext));
     }
 
     if (auto* pNodeAttribute = pNode->GetNodeAttribute())
     {
       if (pNodeAttribute->GetAttributeType() == FbxNodeAttribute::eMesh)
       {
-        ObjectHandle meshHandle = ImportMesh(static_cast<FbxMesh*>(pNodeAttribute), ImportContext);
+        ObjectHandle meshHandle = ImportMesh(static_cast<FbxMesh*>(pNodeAttribute), pSkeleton, ImportContext);
         if (!meshHandle.IsValid())
         {
           ezLog::Error("Couldn't import mesh for node '{0}'", pNode->GetName());
@@ -697,6 +865,45 @@ namespace ezModelImporter
     }
 
     return ImportContext.pOutScene->AddNode(std::move(node));
+  }
+
+  ezResult ImportSkeletonRecursive(FbxNode* pNode, ezSkeletonBuilder& SkeletonBuilder, ezUInt32 uiParentBoneIndex, FBXImportContext& ImportContext)
+  {
+    ezUInt32 uiBoneIndex = uiParentBoneIndex;
+
+    if (const auto pSkeleton = pNode->GetSkeleton())
+    {
+      if (pSkeleton->IsSkeletonRoot())
+      {
+        if (SkeletonBuilder.HasBones())
+        {
+          ezLog::Error("Skeleton has more than one root bone. This is currently not supported, aborting skeleton import.");
+          return EZ_FAILURE;
+        }
+      }
+      else
+      {
+        if(!SkeletonBuilder.HasBones())
+        {
+          ezLog::Error("Malformed skeleton: Bone found before any root bone, aborting skeleton import.");
+          return EZ_FAILURE;
+        }
+      }
+
+      const FbxAMatrix localTransform = pNode->EvaluateLocalTransform();
+
+      uiBoneIndex = SkeletonBuilder.AddBone(pNode->GetName(), ConvertFromFBX(localTransform), uiParentBoneIndex);
+    }
+
+    for (int i = 0; i < pNode->GetChildCount(); ++i)
+    {
+      if (ImportSkeletonRecursive(pNode->GetChild(i), SkeletonBuilder, uiBoneIndex, ImportContext).Failed())
+      {
+        return EZ_FAILURE;
+      }
+    }
+
+    return EZ_SUCCESS;
   }
 
 
@@ -805,11 +1012,37 @@ namespace ezModelImporter
       // Import hierarchy
       if (pScene->GetRootNode())
       {
-        if (!ImportNodeRecursive(pScene->GetRootNode(), ImportContext).IsValid())
+        ezUniquePtr<ezSkeleton> pSkeleton;
+
+        // Import the skeleton first so bone names can be used to properly get the bone indices
+        {
+          ezSkeletonBuilder SkeletonBuilder;
+          if (ImportSkeletonRecursive(pScene->GetRootNode(), SkeletonBuilder, 0xFFFFFFFFu, ImportContext).Failed())
+          {
+            ezLog::Error("Errors during FBX import of '{0}'", szFileName);
+            return nullptr;
+          }
+
+          if (!SkeletonBuilder.HasBones())
+          {
+            ezLog::Info("FBX '{0}' has no skeleton associated");
+          }
+          else
+          {
+            pSkeleton = SkeletonBuilder.CreateSkeletonInstance();
+
+            auto pose = pSkeleton->CreatePose();
+            pSkeleton->SetAnimationPoseToBindPose(pose.Borrow());
+            pSkeleton->CalculateObjectSpaceAnimationPoseMatrices(pose.Borrow());
+          }
+        }
+
+        if (!ImportNodeRecursive(pScene->GetRootNode(), pSkeleton.Borrow(), ImportContext).IsValid())
         {
           ezLog::Error("Errors during FBX import of '{0}'", szFileName);
           return nullptr;
         }
+
       }
     }
 

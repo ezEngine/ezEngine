@@ -2,6 +2,8 @@
 
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
+#include <Foundation/Types/UniquePtr.h>
+#include <RendererCore/AnimationSystem/Skeleton.h>
 
 typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
 
@@ -36,6 +38,12 @@ public:
     return m_Bounds;
   }
 
+  /// \brief Returns the skeleton of this mesh, returns nullptr if the mesh has no skeleton.
+  const ezSkeleton* GetSkeleton() const
+  {
+    return m_pSkeleton.Borrow();
+  }
+
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
@@ -45,6 +53,8 @@ private:
   ezDynamicArray<ezMeshResourceDescriptor::SubMesh> m_SubMeshes;
   ezMeshBufferResourceHandle m_hMeshBuffer;
   ezDynamicArray<ezMaterialResourceHandle> m_Materials;
+
+  ezUniquePtr<ezSkeleton> m_pSkeleton;
 
   ezBoundingBoxSphere m_Bounds;
 

@@ -65,6 +65,23 @@ void ezMeshResourceDescriptor::SetMaterial(ezUInt32 uiMaterialIndex, const char*
   m_Materials[uiMaterialIndex].m_sPath = szPathToMaterial;
 }
 
+void ezMeshResourceDescriptor::SetSkeleton(const ezSkeleton* pSkeleton)
+{
+  if (pSkeleton)
+  {
+    m_pSkeleton = EZ_DEFAULT_NEW(ezSkeleton, *pSkeleton);
+  }
+  else
+  {
+    m_pSkeleton.Reset();
+  }
+}
+
+const ezSkeleton* ezMeshResourceDescriptor::GetSkeleton() const
+{
+  return m_pSkeleton.Borrow();
+}
+
 ezResult ezMeshResourceDescriptor::Save(const char* szFile)
 {
   EZ_LOG_BLOCK("ezMeshResourceDescriptor::Save", szFile);
@@ -182,6 +199,16 @@ void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
 
     if (!m_MeshBufferDescriptor.GetIndexBufferData().IsEmpty())
       chunk.WriteBytes(m_MeshBufferDescriptor.GetIndexBufferData().GetData(), m_MeshBufferDescriptor.GetIndexBufferData().GetCount());
+
+    chunk.EndChunk();
+  }
+
+  // Write skeleton chunk if this mesh has one
+  if (m_pSkeleton)
+  {
+    chunk.BeginChunk("Skeleton", 1);
+
+    m_pSkeleton->Save(chunk);
 
     chunk.EndChunk();
   }
@@ -360,6 +387,18 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
 
       if (!m_MeshBufferDescriptor.GetIndexBufferData().IsEmpty())
         chunk.ReadBytes(m_MeshBufferDescriptor.GetIndexBufferData().GetData(), m_MeshBufferDescriptor.GetIndexBufferData().GetCount());
+    }
+
+    if (ci.m_sChunkName == "Skeleton")
+    {
+      if (ci.m_uiChunkVersion != 1)
+      {
+        ezLog::Error("Version of chunk '{0}' is invalid ({1})", ci.m_sChunkName.GetData(), ci.m_uiChunkVersion);
+        return EZ_FAILURE;
+      }
+
+      m_pSkeleton = EZ_DEFAULT_NEW(ezSkeleton);
+      m_pSkeleton->Load(chunk);
     }
 
     chunk.NextChunk();

@@ -5,6 +5,7 @@
 #include <ModelImporter/VertexData.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <Foundation/Containers/HashTable.h>
+#include <RendererCore/AnimationSystem/Skeleton.h>
 
 namespace ezModelImporter
 {
@@ -77,6 +78,11 @@ namespace ezModelImporter
     SubMesh& GetSubMesh(ezUInt32 idx);
     void AddSubMesh(SubMesh& mesh);
 
+    // Skeleton
+  public:
+
+    ezUniquePtr<ezSkeleton> m_pSkeleton;
+
     // Processing
   public:
 
@@ -134,7 +140,7 @@ namespace ezModelImporter
     static void GenerateInterleavedVertexMapping(const ezArrayPtr<const Triangle>& triangles, const VertexDataStream* (&dataStreams)[NumStreams],
       ezHashTable<DataIndexBundle<NumStreams>, ezUInt32>& outDataIndices_to_InterleavedVertexIndices, ezDynamicArray<ezUInt32>& outTriangleVertexIndices);
 
-  private:  
+  private:
 
     ezDynamicArray<Triangle> m_Triangles;
     ezUInt32 m_uiNextUnusedVertexIndex;

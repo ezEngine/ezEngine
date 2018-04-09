@@ -3,6 +3,7 @@
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Math/BoundingBoxSphere.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
+#include <RendererCore/AnimationSystem/Skeleton.h>
 
 class EZ_RENDERERCORE_DLL ezMeshResourceDescriptor
 {
@@ -36,6 +37,9 @@ public:
 
   void SetMaterial(ezUInt32 uiMaterialIndex, const char* szPathToMaterial);
 
+  void SetSkeleton(const ezSkeleton* pSkeleton);
+  const ezSkeleton* GetSkeleton() const;
+
   void Save(ezStreamWriter& stream);
   ezResult Save(const char* szFile);
 
@@ -57,6 +61,8 @@ private:
   ezHybridArray<SubMesh, 32> m_SubMeshes;
   ezMeshBufferResourceDescriptor m_MeshBufferDescriptor;
   ezMeshBufferResourceHandle m_hMeshBuffer;
+
+  ezUniquePtr<ezSkeleton> m_pSkeleton;
 
   ezBoundingBoxSphere m_Bounds;
 };

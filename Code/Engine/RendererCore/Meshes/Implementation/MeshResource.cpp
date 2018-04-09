@@ -31,6 +31,8 @@ ezResourceLoadDesc ezMeshResource::UnloadData(Unload WhatToUnload)
     res.m_uiQualityLevelsDiscardable = 0;
     res.m_uiQualityLevelsLoadable = 0;
     res.m_State = ezResourceState::Unloaded;
+
+    m_pSkeleton.Reset();
   }
 
   return res;
@@ -102,6 +104,12 @@ ezResourceLoadDesc ezMeshResource::CreateResource(const ezMeshResourceDescriptor
       hMat = ezResourceManager::LoadResource<ezMaterialResource>(mat.m_sPath);
 
     m_Materials.PushBack(hMat); // may be an invalid handle
+  }
+
+  // Copy skeleton
+  if (const ezSkeleton* pSkeleton = desc.GetSkeleton())
+  {
+    m_pSkeleton = EZ_DEFAULT_NEW(ezSkeleton, *pSkeleton);
   }
 
   m_Bounds = desc.GetBounds();

@@ -19,6 +19,7 @@
 
 SET (LINK_LIBRARIES
   Foundation
+  RendererCore
   ThirdParty
 )
 
