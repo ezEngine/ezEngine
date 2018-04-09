@@ -9,8 +9,13 @@ class ezSkeletonAssetProperties : public ezReflectedClass
 
 public:
   ezSkeletonAssetProperties();
+  ~ezSkeletonAssetProperties();
 
   ezString m_sAnimationFile;
+
+  ezEnum<ezBasisAxis> m_ForwardDir;
+  ezEnum<ezBasisAxis> m_RightDir;
+  ezEnum<ezBasisAxis> m_UpDir;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -21,6 +26,7 @@ class ezSkeletonAssetDocument : public ezSimpleAssetDocument<ezSkeletonAssetProp
 
 public:
   ezSkeletonAssetDocument(const char* szDocumentPath);
+  ~ezSkeletonAssetDocument();
 
   virtual const char* QueryAssetType() const override { return "Skeleton"; }
 
@@ -42,5 +48,5 @@ public:
   virtual void GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const override;
   virtual ezStatus Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument) override;
   virtual const char* GetDocumentExtension() const override { return "ezSkeletonAsset"; }
-  virtual const char* GetGeneratorGroup() const override { return "Animations"; }
+  virtual const char* GetGeneratorGroup() const override { return "AnimationSkeletonGroup"; }
 };

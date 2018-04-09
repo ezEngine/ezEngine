@@ -11,6 +11,7 @@ public:
   ezAnimationClipAssetProperties();
 
   ezString m_sAnimationFile;
+  ezString m_sSkeletonResourceFile;
   ezUInt32 m_uiFirstFrame;
   ezUInt32 m_uiLastFrame;
 
@@ -45,5 +46,5 @@ public:
   virtual void GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const override;
   virtual ezStatus Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument) override;
   virtual const char* GetDocumentExtension() const override { return "ezAnimationClipAsset"; }
-  virtual const char* GetGeneratorGroup() const override { return "Animations"; }
+  virtual const char* GetGeneratorGroup() const override { return "AnimationClipGroup"; }
 };

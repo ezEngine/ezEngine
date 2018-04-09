@@ -10,15 +10,17 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetProperties, 1, ezRTTIDefaultAlloc
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("File", m_sAnimationFile),
+    EZ_MEMBER_PROPERTY("File", m_sAnimationFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", "*.fbx")),
+    EZ_ENUM_MEMBER_PROPERTY("ForwardDir", ezBasisAxis, m_ForwardDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::NegativeZ)),
+    EZ_ENUM_MEMBER_PROPERTY("RightDir", ezBasisAxis, m_RightDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveX)),
+    EZ_ENUM_MEMBER_PROPERTY("UpDir", ezBasisAxis, m_UpDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
   }
   EZ_END_PROPERTIES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezSkeletonAssetProperties::ezSkeletonAssetProperties()
-{
-}
+ezSkeletonAssetProperties::ezSkeletonAssetProperties() = default;
+ezSkeletonAssetProperties::~ezSkeletonAssetProperties() = default;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -30,6 +32,8 @@ ezSkeletonAssetDocument::ezSkeletonAssetDocument(const char* szDocumentPath)
 {
 }
 
+ezSkeletonAssetDocument::~ezSkeletonAssetDocument() = default;
+
 ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   ezProgressRange range("Transforming Asset", 2, false);
@@ -37,7 +41,7 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
   ezSkeletonAssetProperties* pProp = GetProperties();
 
   range.SetStepWeighting(0, 0.9);
-  range.BeginNextStep("Importing Mesh");
+  range.BeginNextStep("Importing Skeleton");
 
   range.BeginNextStep("Writing Result");
 
@@ -60,10 +64,7 @@ ezSkeletonAssetDocumentGenerator::ezSkeletonAssetDocumentGenerator()
   AddSupportedFileType("fbx");
 }
 
-ezSkeletonAssetDocumentGenerator::~ezSkeletonAssetDocumentGenerator()
-{
-
-}
+ezSkeletonAssetDocumentGenerator::~ezSkeletonAssetDocumentGenerator() = default;
 
 void ezSkeletonAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {

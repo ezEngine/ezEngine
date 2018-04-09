@@ -10,7 +10,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 1, ezRTTIDefault
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("File", m_sAnimationFile),
+    EZ_MEMBER_PROPERTY("File", m_sAnimationFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", "*.fbx")),
+    EZ_MEMBER_PROPERTY("Skeleton", m_sSkeletonResourceFile)->AddAttributes(new ezAssetBrowserAttribute("Skeleton")),
     EZ_MEMBER_PROPERTY("FirstFrame", m_uiFirstFrame)->AddAttributes(new ezDefaultValueAttribute(0)),
     EZ_MEMBER_PROPERTY("LastFrame", m_uiLastFrame)->AddAttributes(new ezDefaultValueAttribute(0xFFFFFFFF)),
   }
