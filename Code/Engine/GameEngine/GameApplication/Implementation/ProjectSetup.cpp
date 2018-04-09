@@ -26,6 +26,8 @@
 #include <VisualScript/VisualScriptResource.h>
 #include <Foundation/Configuration/CVar.h>
 #include <GameEngine/Resources/PropertyAnimResource.h>
+#include <RendererCore/AnimationSystem/SkeletonResource.h>
+#include <RendererCore/AnimationSystem/AnimationClipResource.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <RendererDX11/Device/DeviceDX11.h>
@@ -257,7 +259,22 @@ void ezGameApplication::DoSetupDefaultResources()
 
     ezPropertyAnimResourceHandle hResource = ezResourceManager::CreateResource<ezPropertyAnimResource>("MissingPropertyAnim", desc, "Missing Property Animation Resource");
     ezPropertyAnimResource::SetTypeMissingResource(hResource);
+  }
 
+  // Animation Skeleton
+  {
+    ezSkeletonResourceDescriptor desc;
+
+    ezSkeletonResourceHandle hResource = ezResourceManager::CreateResource<ezSkeletonResource>("MissingSkeleton", desc, "Missing Skeleton Resource");
+    ezSkeletonResource::SetTypeMissingResource(hResource);
+  }
+
+  // Animation Clip
+  {
+    ezAnimationClipResourceDescriptor desc;
+
+    ezAnimationClipResourceHandle hResource = ezResourceManager::CreateResource<ezAnimationClipResource>("MissingAnimationClip", desc, "Missing Animation Clip Resource");
+    ezAnimationClipResource::SetTypeMissingResource(hResource);
   }
 }
 

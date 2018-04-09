@@ -20,6 +20,7 @@
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <SharedPluginAssets/Common/Messages.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
+#include <RendererCore/AnimationSystem/VisualizeSkeletonComponent.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonContext, 1, ezRTTIDefaultAllocator<ezSkeletonContext>)
 {
@@ -53,21 +54,21 @@ void ezSkeletonContext::OnInitialize()
   EZ_LOCK(pWorld->GetWriteMarker());
 
   ezGameObjectDesc obj;
-  ezMeshComponent* pMesh;
+  ezVisualizeSkeletonComponent* pMesh;
 
   // Preview Mesh
   {
-    obj.m_sName.Assign("MeshPreview");
+    obj.m_sName.Assign("SkeletonPreview");
     pWorld->CreateObject(obj, m_pGameObject);
 
-    const ezTag& tagCastShadows = ezTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
-    m_pGameObject->GetTags().Set(tagCastShadows);
+    //const ezTag& tagCastShadows = ezTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
+    //m_pGameObject->GetTags().Set(tagCastShadows);
 
-    ezMeshComponent::CreateComponent(m_pGameObject, pMesh);
+    ezVisualizeSkeletonComponent::CreateComponent(m_pGameObject, pMesh);
     ezStringBuilder sSkeletonGuid;
     ezConversionUtils::ToString(GetDocumentGuid(), sSkeletonGuid);
-    //ezSkeletonResourceHandle hSkeleton = ezResourceManager::LoadResource<ezSkeletonResource>(sSkeletonGuid);
-    //pMesh->SetMesh(hSkeleton);
+    ezSkeletonResourceHandle hSkeleton = ezResourceManager::LoadResource<ezSkeletonResource>(sSkeletonGuid);
+    pMesh->SetSkeleton(hSkeleton);
   }
 
   // Lights

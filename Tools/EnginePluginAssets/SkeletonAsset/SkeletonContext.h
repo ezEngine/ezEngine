@@ -3,6 +3,7 @@
 #include <EnginePluginAssets/Plugin.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <RendererCore/Declarations.h>
+#include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 class EZ_ENGINEPLUGINASSETS_DLL ezSkeletonContext : public ezEngineProcessDocumentContext
 {
@@ -24,7 +25,7 @@ private:
   void QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg);
 
   ezGameObject* m_pGameObject = nullptr;
-  //ezSkeletonResourceHandle m_hMesh;
+  ezSkeletonResourceHandle m_hMesh;
 };
 
 

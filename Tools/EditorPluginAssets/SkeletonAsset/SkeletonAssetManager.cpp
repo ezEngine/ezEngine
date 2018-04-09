@@ -20,7 +20,7 @@ ezSkeletonAssetDocumentManager::ezSkeletonAssetDocumentManager()
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezSkeletonAssetDocument>();
   m_AssetDesc.m_pManager = this;
 
-  ezQtImageCache::GetSingleton()->RegisterTypeImage("Skeleton", QPixmap(":/AssetIcons/Skeleton.png"));
+  //ezQtImageCache::GetSingleton()->RegisterTypeImage("Skeleton", QPixmap(":/AssetIcons/Skeleton.png"));
 }
 
 ezSkeletonAssetDocumentManager::~ezSkeletonAssetDocumentManager()
@@ -32,7 +32,7 @@ ezSkeletonAssetDocumentManager::~ezSkeletonAssetDocumentManager()
 ezBitflags<ezAssetDocumentFlags> ezSkeletonAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
 {
   EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::None;
+  return ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 void ezSkeletonAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
