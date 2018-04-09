@@ -5,6 +5,7 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/Graphics/Geometry.h>
+#include <RendererCore/AnimationSystem/SkeletonBuilder.h>
 
 ezVisualizeSkeletonComponentManager::ezVisualizeSkeletonComponentManager(ezWorld* pWorld) : SUPER(pWorld)
 {
