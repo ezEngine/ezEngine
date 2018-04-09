@@ -1,5 +1,5 @@
 
-#include <RendererCore/PCH.h>
+#include <PCH.h>
 #include <RendererCore/AnimationSystem/SkeletonBuilder.h>
 
 ezSkeletonBuilder::ezSkeletonBuilder()

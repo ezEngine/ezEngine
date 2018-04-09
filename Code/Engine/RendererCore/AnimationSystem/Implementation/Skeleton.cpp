@@ -1,5 +1,5 @@
 
-#include <RendererCore/PCH.h>
+#include <PCH.h>
 #include <RendererCore/AnimationSystem/Skeleton.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <Foundation/Reflection/Reflection.h>
