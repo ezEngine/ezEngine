@@ -86,7 +86,7 @@ void ezSpriteComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
   const ezUInt32 uiTextureIDHash = m_hTexture.GetResourceIDHash();
 
   // Generate batch id from mode and texture
-  ezUInt32 data[] = { m_BlendMode, uiTextureIDHash };
+  ezUInt32 data[] = { (ezUInt32)m_BlendMode, uiTextureIDHash };
   ezUInt32 uiBatchId = ezHashing::MurmurHash(data, sizeof(data));
 
   ezSpriteRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezSpriteRenderData>(GetOwner(), uiBatchId);
