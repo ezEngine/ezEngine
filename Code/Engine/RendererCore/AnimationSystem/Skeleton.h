@@ -10,6 +10,8 @@
 class ezStreamWriter;
 class ezStreamReader;
 class ezAnimationPose;
+class ezSkeletonBuilder;
+class ezSkeleton;
 
 // TODOs:
 // - decide if bone name should be hashed string
@@ -35,8 +37,8 @@ class EZ_RENDERERCORE_DLL ezSkeleton : public ezReflectedClass
 
     protected:
 
-    friend class ezSkeletonBuilder;
-    friend class ezSkeleton;
+    friend ezSkeletonBuilder;
+    friend ezSkeleton;
 
     ezMat4 m_BoneTransform;
     ezMat4 m_InverseBindPoseTransform;
@@ -102,7 +104,7 @@ class EZ_RENDERERCORE_DLL ezSkeleton : public ezReflectedClass
 
   protected:
 
-    friend class ezSkeletonBuilder;
+    friend ezSkeletonBuilder;
 
     ezDynamicArray<Bone> m_Bones;
 
