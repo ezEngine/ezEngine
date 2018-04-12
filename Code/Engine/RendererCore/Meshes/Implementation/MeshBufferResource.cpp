@@ -164,6 +164,7 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
         }
       }
       break;
+
     case ezGALVertexAttributeSemantic::Normal:
       {
         if (si.m_Format == ezGALResourceFormat::XYZFloat)
@@ -179,6 +180,7 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
         }
       }
       break;
+
     case ezGALVertexAttributeSemantic::Tangent:
       {
         if (si.m_Format == ezGALResourceFormat::XYZFloat)
@@ -194,6 +196,7 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
         }
       }
       break;
+
     case ezGALVertexAttributeSemantic::Color:
       {
         if (si.m_Format == ezGALResourceFormat::RGBAUByteNormalized)
@@ -209,6 +212,7 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
         }
       }
       break;
+
     case ezGALVertexAttributeSemantic::TexCoord0:
     case ezGALVertexAttributeSemantic::TexCoord1:
       {
@@ -225,12 +229,43 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
         }
       }
       break;
+
     case ezGALVertexAttributeSemantic::BoneIndices0:
-    case ezGALVertexAttributeSemantic::BoneIndices1:
+      {
+        // if a bone index array is available, move the custom index into it
+
+        if (si.m_Format == ezGALResourceFormat::RGBAUShort)
+        {
+          for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
+          {
+            ezVec4Template<ezUInt16> storage(geom.GetVertices()[v].m_iCustomIndex, 0, 0, 0);
+            SetVertexData<ezVec4Template<ezUInt16>>(s, v, storage);
+          }
+        }
+      }
+      break;
+
     case ezGALVertexAttributeSemantic::BoneWeights0:
+      {
+        // if a bone weight array is available, set it to fully use the first bone
+
+        if (si.m_Format == ezGALResourceFormat::XYZWFloat)
+        {
+          ezVec4 storage(1, 0, 0, 0);
+
+          for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
+          {
+            SetVertexData<ezVec4>(s, v, storage);
+          }
+        }
+      }
+      break;
+
+    case ezGALVertexAttributeSemantic::BoneIndices1:
     case ezGALVertexAttributeSemantic::BoneWeights1:
       // Don't error out for these semantics as they may be used by the user (e.g. breakable mesh construction)
       break;
+
     default:
       {
         ezLog::Error("Streams semantic '{0}' is not supported.", (int)si.m_Semantic);

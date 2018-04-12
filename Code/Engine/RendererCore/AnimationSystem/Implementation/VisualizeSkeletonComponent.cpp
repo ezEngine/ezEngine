@@ -43,7 +43,6 @@ void ezVisualizeSkeletonComponent::SerializeComponent(ezWorldWriter& stream) con
   s << m_hSkeleton;
 }
 
-
 void ezVisualizeSkeletonComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
@@ -182,23 +181,27 @@ void ezVisualizeSkeletonComponent::CreateRenderMesh()
     pSkeletonData = builder.CreateSkeletonInstance();
   }
 
-  const ezUInt32 uiNumBones = pSkeletonData->GetBoneCount();
 
   {
     ezGeometry geo;
+
+    //const ezAnimationPose* pPose = pSkeletonData->GetBindSpacePoseInObjectSpace();
+    //const ezUInt32 uiNumBones = pPose->GetBoneTransformCount();
+    const ezUInt32 uiNumBones = pSkeletonData->GetBoneCount();
 
     for (ezUInt32 b = 0; b < uiNumBones; ++b)
     {
       const auto& bone = pSkeletonData->GetBone(b);
 
       const ezMat4 mBone = ComputeBoneMatrix(*pSkeletonData, bone);
+      //const ezMat4 mBone = pPose->GetBoneTransform(b);
 
-      geo.AddSphere(0.03f, 10, 10, ezColor::RebeccaPurple, mBone);
+      geo.AddSphere(0.03f, 10, 10, ezColor::RebeccaPurple, mBone, b);
       
       if (!bone.IsRootBone())
       {
-        // TODO: all the bone matrix computations could be made a lot more efficient
         const ezMat4 mParentBone = ComputeBoneMatrix(*pSkeletonData, pSkeletonData->GetBone(bone.GetParentIndex()));
+        //const ezMat4 mParentBone = pPose->GetBoneTransform(bone.GetParentIndex());
 
         const ezVec3 vTargetPos = mBone.GetTranslationVector();
         const ezVec3 vSourcePos = mParentBone.GetTranslationVector();
@@ -216,21 +219,22 @@ void ezVisualizeSkeletonComponent::CreateRenderMesh()
         mTransform = qRot.GetAsMat4() * mScale;
         mTransform.SetTranslationVector(vSourcePos);
 
-        geo.AddCone(0.02f, 1.0f, false, 4, ezColor::CornflowerBlue /* The Original! */, mTransform);
+        geo.AddCone(0.02f, 1.0f, false, 4, ezColor::CornflowerBlue /* The Original! */, mTransform, b);
       }
     }
 
     buffer.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+    buffer.AddStream(ezGALVertexAttributeSemantic::BoneWeights0, ezGALResourceFormat::XYZWFloat);
+    buffer.AddStream(ezGALVertexAttributeSemantic::BoneIndices0, ezGALResourceFormat::RGBAUShort);
+
+    // this will move the custom index into the first bone index
     buffer.AllocateStreamsFromGeometry(geo);
 
     md.AddSubMesh(buffer.GetPrimitiveCount(), 0, 0);
   }
 
-
   md.ComputeBounds();
-
-  // TODO: different material
-  md.SetMaterial(0, "Materials/Common/ColMesh.ezMaterial");
+  md.SetMaterial(0, "Materials/Common/SkeletonVisualization.ezMaterial");
 
   m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(sVisMeshName, md, "Skeleton Visualization");
 

@@ -6,21 +6,21 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetProperties, 1, ezRTTIDefaultAllocator<ezSkeletonAssetProperties>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("File", m_sAnimationFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", "*.fbx")),
-    EZ_ENUM_MEMBER_PROPERTY("ForwardDir", ezBasisAxis, m_ForwardDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::NegativeZ)),
-    EZ_ENUM_MEMBER_PROPERTY("RightDir", ezBasisAxis, m_RightDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveX)),
-    EZ_ENUM_MEMBER_PROPERTY("UpDir", ezBasisAxis, m_UpDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
-  }
-  EZ_END_PROPERTIES
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE
-
-ezSkeletonAssetProperties::ezSkeletonAssetProperties() = default;
-ezSkeletonAssetProperties::~ezSkeletonAssetProperties() = default;
+//EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetProperties, 1, ezRTTIDefaultAllocator<ezSkeletonAssetProperties>)
+//{
+//  EZ_BEGIN_PROPERTIES
+//  {
+//    EZ_MEMBER_PROPERTY("File", m_sAnimationFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", "*.fbx")),
+//    EZ_ENUM_MEMBER_PROPERTY("ForwardDir", ezBasisAxis, m_ForwardDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::NegativeZ)),
+//    EZ_ENUM_MEMBER_PROPERTY("RightDir", ezBasisAxis, m_RightDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveX)),
+//    EZ_ENUM_MEMBER_PROPERTY("UpDir", ezBasisAxis, m_UpDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
+//  }
+//  EZ_END_PROPERTIES
+//}
+//EZ_END_DYNAMIC_REFLECTED_TYPE
+//
+//ezSkeletonAssetProperties::ezSkeletonAssetProperties() = default;
+//ezSkeletonAssetProperties::~ezSkeletonAssetProperties() = default;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -28,7 +28,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezSkeletonAssetDocument::ezSkeletonAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezSkeletonAssetProperties>(szDocumentPath, true)
+  : ezSimpleAssetDocument<ezEditableSkeleton>(szDocumentPath, true)
 {
 }
 
@@ -38,7 +38,7 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 {
   ezProgressRange range("Transforming Asset", 2, false);
 
-  ezSkeletonAssetProperties* pProp = GetProperties();
+  ezEditableSkeleton* pProp = GetProperties();
 
   range.SetStepWeighting(0, 0.9);
   range.BeginNextStep("Importing Skeleton");
