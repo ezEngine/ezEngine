@@ -1,6 +1,8 @@
 #include <PCH.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonPanel.moc.h>
+#include <EditorPluginAssets/SkeletonAsset/SkeletonModel.moc.h>
 #include <QTreeView>
+#include <QLayout>
 
 ezQtSkeletonPanel::ezQtSkeletonPanel(QWidget* pParent, ezSkeletonAssetDocument* pDocument)
   : ezQtDocumentPanel(pParent)

@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <EditorPluginAssets/SkeletonAsset/SkeletonModel.moc.h>
+#include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
 
 ezQtSkeletonModel::ezQtSkeletonModel(QWidget* parent, const ezSkeletonAssetDocument* pDocument)
   : QAbstractItemModel(parent)
