@@ -5,7 +5,7 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/HashedString.h>
 
-class ezEditableSkeletonBone : public ezReflectedClass
+class EZ_RENDERERCORE_DLL ezEditableSkeletonBone : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEditableSkeletonBone, ezReflectedClass);
 
@@ -35,7 +35,7 @@ public:
   ezEnum<ezBasisAxis> m_RightDir;
   ezEnum<ezBasisAxis> m_UpDir;
 
-  ezHybridArray<ezEditableSkeletonBone*, 4> m_Children;
+  ezEditableSkeletonBone m_RootBone;
 
 };
 

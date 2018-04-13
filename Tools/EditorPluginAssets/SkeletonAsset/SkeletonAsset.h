@@ -4,21 +4,6 @@
 #include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <RendererCore/AnimationSystem/EditableSkeleton.h>
 
-//class ezSkeletonAssetProperties : public ezReflectedClass
-//{
-//  EZ_ADD_DYNAMIC_REFLECTION(ezSkeletonAssetProperties, ezReflectedClass);
-//
-//public:
-//  ezSkeletonAssetProperties();
-//  ~ezSkeletonAssetProperties();
-//
-//  ezString m_sAnimationFile;
-//
-//  ezEnum<ezBasisAxis> m_ForwardDir;
-//  ezEnum<ezBasisAxis> m_RightDir;
-//  ezEnum<ezBasisAxis> m_UpDir;
-//};
-
 //////////////////////////////////////////////////////////////////////////
 
 class ezSkeletonAssetDocument : public ezSimpleAssetDocument<ezEditableSkeleton>

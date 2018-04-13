@@ -3,24 +3,7 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Utilities/Progress.h>
-
-//////////////////////////////////////////////////////////////////////////
-
-//EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetProperties, 1, ezRTTIDefaultAllocator<ezSkeletonAssetProperties>)
-//{
-//  EZ_BEGIN_PROPERTIES
-//  {
-//    EZ_MEMBER_PROPERTY("File", m_sAnimationFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", "*.fbx")),
-//    EZ_ENUM_MEMBER_PROPERTY("ForwardDir", ezBasisAxis, m_ForwardDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::NegativeZ)),
-//    EZ_ENUM_MEMBER_PROPERTY("RightDir", ezBasisAxis, m_RightDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveX)),
-//    EZ_ENUM_MEMBER_PROPERTY("UpDir", ezBasisAxis, m_UpDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
-//  }
-//  EZ_END_PROPERTIES
-//}
-//EZ_END_DYNAMIC_REFLECTED_TYPE
-//
-//ezSkeletonAssetProperties::ezSkeletonAssetProperties() = default;
-//ezSkeletonAssetProperties::~ezSkeletonAssetProperties() = default;
+#include <Foundation/Math/Random.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +27,45 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
   range.BeginNextStep("Importing Skeleton");
 
   range.BeginNextStep("Writing Result");
+
+  {
+    //delete pProp->m_RootBone;
+    ezEditableSkeletonBone* pCur;
+
+    //pCur = new ezEditableSkeletonBone;
+    //pCur->SetName("Root");
+    pProp->m_RootBone.SetName("Root");
+    //pProp->m_RootBone.m_Children.Clear();
+
+    ezRandom r;
+    r.InitializeFromCurrentTime();
+
+    ezStringBuilder name;
+
+    pCur = pProp->m_RootBone.m_Children[0];
+
+    if (pCur == nullptr)
+    {
+      pCur = new ezEditableSkeletonBone;
+      pProp->m_RootBone.m_Children.PushBack(pCur);
+    }
+
+    name.Format("Body {0}", r.UInt());
+    pCur->SetName(name);
+
+    pCur = pProp->m_RootBone.m_Children[0]->m_Children[0];
+
+    if (pCur == nullptr)
+    {
+      pCur = new ezEditableSkeletonBone;
+      pProp->m_RootBone.m_Children[0]->m_Children.PushBack(pCur);
+    }
+
+    name.Format("Head {0}", r.UInt());
+    pCur->SetName(name);
+
+    ApplyNativePropertyChangesToObjectManager();
+  }
 
   return ezStatus(EZ_SUCCESS);
 }

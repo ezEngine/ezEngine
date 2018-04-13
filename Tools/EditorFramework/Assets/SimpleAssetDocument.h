@@ -5,6 +5,7 @@
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 template<typename ObjectProperties>
 class ezSimpleDocumentObjectManager : public ezDocumentObjectManager
