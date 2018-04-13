@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <QAbstractItemModel>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
@@ -22,6 +22,7 @@ public:
   virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
 
 protected:
-  const ezSkeletonAssetDocument* m_pDocument;
+  const ezSkeletonAssetDocument* m_pDocument = nullptr;
+  const ezDocumentObjectManager* m_pManager = nullptr;
 };
 

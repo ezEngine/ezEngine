@@ -35,7 +35,6 @@ public:
   ezEnum<ezBasisAxis> m_RightDir;
   ezEnum<ezBasisAxis> m_UpDir;
 
-  ezEditableSkeletonBone m_RootBone;
-
+  ezHybridArray<ezEditableSkeletonBone*, 4> m_Children;
 };
 

@@ -22,7 +22,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeleton, 1, ezRTTIDefaultAllocator<ez
     EZ_ENUM_MEMBER_PROPERTY("RightDir", ezBasisAxis, m_RightDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveX)),
     EZ_ENUM_MEMBER_PROPERTY("UpDir", ezBasisAxis, m_UpDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
 
-    EZ_MEMBER_PROPERTY/*_READ_ONLY*/("Root", m_RootBone)// ->AddFlags(ezPropertyFlags::PointerOwner /*| ezPropertyFlags::Hidden*/),
+    EZ_ARRAY_MEMBER_PROPERTY/*_READ_ONLY*/("Children", m_Children)->AddFlags(ezPropertyFlags::PointerOwner/* | ezPropertyFlags::Hidden*/),
   }
     EZ_END_PROPERTIES
 }

@@ -29,37 +29,40 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
   range.BeginNextStep("Writing Result");
 
   {
-    //delete pProp->m_RootBone;
-    ezEditableSkeletonBone* pCur;
-
-    //pCur = new ezEditableSkeletonBone;
-    //pCur->SetName("Root");
-    pProp->m_RootBone.SetName("Root");
-    //pProp->m_RootBone.m_Children.Clear();
-
+    ezStringBuilder name;
     ezRandom r;
     r.InitializeFromCurrentTime();
 
-    ezStringBuilder name;
+    ezEditableSkeletonBone* pCur;
 
-    pCur = pProp->m_RootBone.m_Children[0];
-
-    if (pCur == nullptr)
+    if (pProp->m_Children.IsEmpty())
     {
       pCur = new ezEditableSkeletonBone;
-      pProp->m_RootBone.m_Children.PushBack(pCur);
+      pProp->m_Children.PushBack(pCur);
     }
+
+    pCur = pProp->m_Children[0];
+    name.Format("Root {0}", r.UInt());
+    pCur->SetName(name);
+
+    if (pProp->m_Children[0]->m_Children.IsEmpty())
+    {
+      pCur = new ezEditableSkeletonBone;
+      pProp->m_Children[0]->m_Children.PushBack(pCur);
+    }
+
+    pCur = pProp->m_Children[0]->m_Children[0];
 
     name.Format("Body {0}", r.UInt());
     pCur->SetName(name);
 
-    pCur = pProp->m_RootBone.m_Children[0]->m_Children[0];
-
-    if (pCur == nullptr)
+    if (pProp->m_Children[0]->m_Children[0]->m_Children.IsEmpty())
     {
       pCur = new ezEditableSkeletonBone;
-      pProp->m_RootBone.m_Children[0]->m_Children.PushBack(pCur);
+      pProp->m_Children[0]->m_Children[0]->m_Children.PushBack(pCur);
     }
+
+    pCur = pProp->m_Children[0]->m_Children[0]->m_Children[0];
 
     name.Format("Head {0}", r.UInt());
     pCur->SetName(name);
