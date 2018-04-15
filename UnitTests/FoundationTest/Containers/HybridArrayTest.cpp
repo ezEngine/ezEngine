@@ -760,26 +760,82 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Swap")
   {
-    ezHybridArray<ezInt32, 8> a1, a2;
 
     ezInt32 content1[] = { 1, 2, 3, 4 };
     ezInt32 content2[] = { 5, 6, 7, 8, 9 };
+    ezInt32 contentHeap1[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 };
+    ezInt32 contentHeap2[] = { 11, 12, 13, 14, 15, 16, 17, 18, 19, 110, 111, 112, 113 };
 
-    a1 = ezMakeArrayPtr(content1);
-    a2 = ezMakeArrayPtr(content2);
+    {
+      // local <-> local
+      ezHybridArray<ezInt32, 8> a1, a2;
+      a1 = ezMakeArrayPtr(content1);
+      a2 = ezMakeArrayPtr(content2);
 
-    ezInt32* a1Ptr = a1.GetData();
-    ezInt32* a2Ptr = a2.GetData();
+      ezInt32* a1Ptr = a1.GetData();
+      ezInt32* a2Ptr = a2.GetData();
 
-    a1.Swap(a2);
+      a1.Swap(a2);
 
-    // Because the data points to the internal storage the pointers shouldn't change when swapping
-    EZ_TEST_BOOL(a1Ptr == a1.GetData());
-    EZ_TEST_BOOL(a2Ptr == a2.GetData());
+      // Because the data points to the internal storage the pointers shouldn't change when swapping
+      EZ_TEST_BOOL(a1Ptr == a1.GetData());
+      EZ_TEST_BOOL(a2Ptr == a2.GetData());
 
-    // The data however should be swapped
-    EZ_TEST_BOOL(a1.GetArrayPtr() == ezMakeArrayPtr(content2));
-    EZ_TEST_BOOL(a2.GetArrayPtr() == ezMakeArrayPtr(content1));
+      // The data however should be swapped
+      EZ_TEST_BOOL(a1.GetArrayPtr() == ezMakeArrayPtr(content2));
+      EZ_TEST_BOOL(a2.GetArrayPtr() == ezMakeArrayPtr(content1));
+    }
+
+    {
+      // local <-> heap
+      ezHybridArray<ezInt32, 8> a1, a2;
+      a1 = ezMakeArrayPtr(content1);
+      a2 = ezMakeArrayPtr(contentHeap1);
+      ezInt32* a1Ptr = a1.GetData();
+      ezInt32* a2Ptr = a2.GetData();
+      a1.Swap(a2);
+      EZ_TEST_BOOL(a1Ptr != a1.GetData());
+      EZ_TEST_BOOL(a2Ptr != a2.GetData());
+      EZ_TEST_BOOL(a1.GetArrayPtr() == ezMakeArrayPtr(contentHeap1));
+      EZ_TEST_BOOL(a2.GetArrayPtr() == ezMakeArrayPtr(content1));
+    }
+
+    {
+      // heap <-> local
+      ezHybridArray<ezInt32, 8> a1, a2;
+      a1 = ezMakeArrayPtr(content1);
+      a2 = ezMakeArrayPtr(contentHeap1);
+      ezInt32* a1Ptr = a1.GetData();
+      ezInt32* a2Ptr = a2.GetData();
+      a2.Swap(a1); // Swap is opposite direction as before
+      EZ_TEST_BOOL(a1Ptr != a1.GetData());
+      EZ_TEST_BOOL(a2Ptr != a2.GetData());
+      EZ_TEST_BOOL(a1.GetArrayPtr() == ezMakeArrayPtr(contentHeap1));
+      EZ_TEST_BOOL(a2.GetArrayPtr() == ezMakeArrayPtr(content1));
+    }
+
+    {
+      // heap <-> heap
+      ezHybridArray<ezInt32, 8> a1, a2;
+      a1 = ezMakeArrayPtr(contentHeap1);
+      a2 = ezMakeArrayPtr(contentHeap2);
+      ezInt32* a1Ptr = a1.GetData();
+      ezInt32* a2Ptr = a2.GetData();
+      a2.Swap(a1);
+      EZ_TEST_BOOL(a1Ptr != a1.GetData());
+      EZ_TEST_BOOL(a2Ptr != a2.GetData());
+      EZ_TEST_BOOL(a1.GetArrayPtr() == ezMakeArrayPtr(contentHeap2));
+      EZ_TEST_BOOL(a2.GetArrayPtr() == ezMakeArrayPtr(contentHeap1));
+    }
+
+    {
+      // empty <-> local
+      ezHybridArray<ezInt32, 8> a1, a2;
+      a2 = ezMakeArrayPtr(content2);
+      a1.Swap(a2);
+      EZ_TEST_BOOL(a1.GetArrayPtr() == ezMakeArrayPtr(content2));
+      EZ_TEST_BOOL(a2.IsEmpty());
+    }
   }
 }
 

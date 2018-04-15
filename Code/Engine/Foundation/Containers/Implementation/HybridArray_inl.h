@@ -184,12 +184,14 @@ void ezHybridArrayBase<T, Size>::Swap(ezHybridArrayBase<T, Size>& other)
   };
 
   // If there is stuff in the local array we need to swap it
-  if (this->m_uiCapacity <= Size)
+  const ezUInt32 localSize = this->m_uiCapacity <= Size ? this->m_uiCount : 0;
+  const ezUInt32 otherLocalSize = other.m_uiCapacity <= Size ? other.m_uiCount : 0;
+  if (localSize != 0 || otherLocalSize != 0)
   {
     Tmp tmp;
-    ezMemoryUtils::RelocateConstruct(reinterpret_cast<T*>(tmp.m_StaticData), this->GetStaticArray(), this->m_uiCount);
-    ezMemoryUtils::RelocateConstruct(this->GetStaticArray(), other.GetStaticArray(), other.m_uiCount);
-    ezMemoryUtils::RelocateConstruct(other.GetStaticArray(), reinterpret_cast<T*>(tmp.m_StaticData), this->m_uiCount);
+    ezMemoryUtils::RelocateConstruct(reinterpret_cast<T*>(tmp.m_StaticData), this->GetStaticArray(), localSize);
+    ezMemoryUtils::RelocateConstruct(this->GetStaticArray(), other.GetStaticArray(), otherLocalSize);
+    ezMemoryUtils::RelocateConstruct(other.GetStaticArray(), reinterpret_cast<T*>(tmp.m_StaticData), localSize);
   }
 
   ezMath::Swap(this->m_pAllocator, other.m_pAllocator);
