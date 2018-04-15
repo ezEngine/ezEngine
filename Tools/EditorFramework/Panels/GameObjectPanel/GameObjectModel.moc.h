@@ -7,24 +7,29 @@
 
 class ezSceneDocument;
 
+class EZ_EDITORFRAMEWORK_DLL ezQtGameObjectAdapter : public ezQtNameableAdapter
+{
+  Q_OBJECT;
+public:
+  ezQtGameObjectAdapter(ezGameObjectDocument* pDocument);
+  ~ezQtGameObjectAdapter();
+  virtual QVariant data(const ezDocumentObject* pObject, int column, int role) const override;
+  virtual bool setData(const ezDocumentObject* pObject, int column, const QVariant& value, int role) const override;
+
+private:
+  void DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e);
+  void GameObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezGameObjectMetaData>::EventData& e);
+
+private:
+  ezGameObjectDocument* m_pGameObjectDocument;
+};
+
 class EZ_EDITORFRAMEWORK_DLL ezQtGameObjectModel : public ezQtDocumentTreeModel
 {
   Q_OBJECT
 
 public:
 
-  ezQtGameObjectModel(ezGameObjectDocument* pDocument, const char* szRootProperty = "Children");
+  ezQtGameObjectModel(ezGameObjectDocument* pDocument);
   ~ezQtGameObjectModel();
-
-  virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-  virtual bool setData(const QModelIndex& index, const QVariant& value, int role) override;
-
-protected:
-  virtual void TreeEventHandler(const ezDocumentObjectStructureEvent& e) override;
-
-private:
-  void DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e);
-  void GameObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezGameObjectMetaData>::EventData& e);
-
-  ezGameObjectDocument* m_pGameObjectDocument;
 };

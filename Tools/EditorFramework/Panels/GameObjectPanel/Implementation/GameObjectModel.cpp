@@ -7,25 +7,23 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <Foundation/Strings/TranslationLookup.h>
 
-ezQtGameObjectModel::ezQtGameObjectModel(ezGameObjectDocument* pDocument, const char* szRootProperty)
-  : ezQtDocumentTreeModel(pDocument->GetObjectManager(), ezGetStaticRTTI<ezGameObject>(), "Children", szRootProperty)
+ezQtGameObjectAdapter::ezQtGameObjectAdapter(ezGameObjectDocument* pDocument)
+  : ezQtNameableAdapter(pDocument->GetObjectManager(), ezGetStaticRTTI<ezGameObject>(), "Children", "Name")
 {
   m_pGameObjectDocument = pDocument;
+  m_pGameObjectDocument->m_GameObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezQtGameObjectAdapter::GameObjectMetaDataEventHandler, this));
+  m_pGameObjectDocument->m_DocumentObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezQtGameObjectAdapter::DocumentObjectMetaDataEventHandler, this));
 
-  m_pGameObjectDocument->m_GameObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezQtGameObjectModel::GameObjectMetaDataEventHandler, this));
-  m_pGameObjectDocument->m_DocumentObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezQtGameObjectModel::DocumentObjectMetaDataEventHandler, this));
 }
 
-ezQtGameObjectModel::~ezQtGameObjectModel()
+ezQtGameObjectAdapter::~ezQtGameObjectAdapter()
 {
-  m_pGameObjectDocument->m_GameObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezQtGameObjectModel::GameObjectMetaDataEventHandler, this));
-  m_pGameObjectDocument->m_DocumentObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezQtGameObjectModel::DocumentObjectMetaDataEventHandler, this));
+  m_pGameObjectDocument->m_GameObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezQtGameObjectAdapter::GameObjectMetaDataEventHandler, this));
+  m_pGameObjectDocument->m_DocumentObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezQtGameObjectAdapter::DocumentObjectMetaDataEventHandler, this));
 }
 
-QVariant ezQtGameObjectModel::data(const QModelIndex &index, int role) const
+QVariant ezQtGameObjectAdapter::data(const ezDocumentObject* pObject, int column, int role) const
 {
-  const ezDocumentObject* pObject = (const ezDocumentObject*)index.internalPointer();
-
   switch (role)
   {
   case Qt::DisplayRole:
@@ -134,15 +132,13 @@ QVariant ezQtGameObjectModel::data(const QModelIndex &index, int role) const
     break;
   }
 
-  return ezQtDocumentTreeModel::data(index, role);
+  return ezQtNameableAdapter::data(pObject, column, role);
 }
 
-bool ezQtGameObjectModel::setData(const QModelIndex& index, const QVariant& value, int role)
+bool ezQtGameObjectAdapter::setData(const ezDocumentObject* pObject, int column, const QVariant& value, int role) const
 {
   if (role == Qt::EditRole)
   {
-    const ezDocumentObject* pObject = (const ezDocumentObject*)index.internalPointer();
-
     auto pMetaWrite = m_pGameObjectDocument->m_GameObjectMetaData.BeginModifyMetaData(pObject->GetGuid());
 
     ezStringBuilder sNewValue = value.toString().toUtf8().data();
@@ -157,19 +153,13 @@ bool ezQtGameObjectModel::setData(const QModelIndex& index, const QVariant& valu
 
     sNewValue.Trim("[]{}() \t\r"); // forbid these
 
-    return ezQtDocumentTreeModel::setData(index, QString::fromUtf8(sNewValue.GetData()), role);
+    return ezQtNameableAdapter::setData(pObject, column, QString::fromUtf8(sNewValue.GetData()), role);
   }
 
   return false;
 }
 
-
-void ezQtGameObjectModel::TreeEventHandler(const ezDocumentObjectStructureEvent& e)
-{
-  ezQtDocumentTreeModel::TreeEventHandler(e);
-}
-
-void ezQtGameObjectModel::DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e)
+void ezQtGameObjectAdapter::DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e)
 {
   if ((e.m_uiModifiedFlags & (ezDocumentObjectMetaData::HiddenFlag | ezDocumentObjectMetaData::PrefabFlag)) == 0)
     return;
@@ -187,14 +177,12 @@ void ezQtGameObjectModel::DocumentObjectMetaDataEventHandler(const ezObjectMetaD
   if (!pObject->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
     return;
 
-  auto index = ComputeModelIndex(pObject);
-
   QVector<int> v;
   v.push_back(Qt::FontRole);
-  dataChanged(index, index, v);
+  dataChanged(pObject, v);
 }
 
-void ezQtGameObjectModel::GameObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezGameObjectMetaData>::EventData& e)
+void ezQtGameObjectAdapter::GameObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezGameObjectMetaData>::EventData& e)
 {
   if (e.m_uiModifiedFlags == 0)
     return;
@@ -212,12 +200,16 @@ void ezQtGameObjectModel::GameObjectMetaDataEventHandler(const ezObjectMetaData<
   if (!pObject->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
     return;
 
-  auto index = ComputeModelIndex(pObject);
-
   QVector<int> v;
   v.push_back(Qt::FontRole);
-  dataChanged(index, index, v);
+  dataChanged(pObject, v);
 }
 
+ezQtGameObjectModel::ezQtGameObjectModel(ezGameObjectDocument* pDocument)
+  : ezQtDocumentTreeModel(pDocument->GetObjectManager())
+{
+}
 
-
+ezQtGameObjectModel::~ezQtGameObjectModel()
+{
+}

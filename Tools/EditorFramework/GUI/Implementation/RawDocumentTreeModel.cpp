@@ -11,50 +11,223 @@
 #include <DragDrop/DragDropHandler.h>
 #include <DragDrop/DragDropInfo.h>
 
-ezQtDocumentTreeModel::ezQtDocumentTreeModel(const ezDocumentObjectManager* pTree, const ezRTTI* pBaseClass, const char* szChildProperty, const char* szRootProperty) :
-  QAbstractItemModel(nullptr)
+ezQtDocumentTreeModelAdapter::ezQtDocumentTreeModelAdapter(const ezDocumentObjectManager* pTree, const ezRTTI* pType, const char* sChildProperty)
+  : m_pTree(pTree)
+  , m_pType(pType)
+  , m_sChildProperty(sChildProperty)
 {
-  m_bAllowDragDrop = false;
-  m_pDocumentTree = pTree;
-  m_pBaseClass = pBaseClass;
-  m_sChildProperty = szChildProperty;
-  m_sRootProperty = szRootProperty;
-
   if (!m_sChildProperty.IsEmpty())
   {
-    auto pProp = m_pBaseClass->FindPropertyByName(m_sChildProperty);
+    auto pProp = pType->FindPropertyByName(m_sChildProperty);
     EZ_ASSERT_DEV(pProp != nullptr && (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set),
-                  "The visualized object property tree must either be a set or array!");
+      "The visualized object property tree must either be a set or array!");
     EZ_ASSERT_DEV(!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner),
-                  "The visualized object must have ownership of the property objects!");
+      "The visualized object must have ownership of the property objects!");
+  }
+}
+
+const ezRTTI* ezQtDocumentTreeModelAdapter::GetType() const
+{
+  return m_pType;
+}
+
+
+const ezString& ezQtDocumentTreeModelAdapter::GetChildProperty() const
+{
+  return m_sChildProperty;
+}
+
+bool ezQtDocumentTreeModelAdapter::setData(const ezDocumentObject* pObject, int column, const QVariant& value, int role) const
+{
+  return false;
+}
+
+Qt::ItemFlags ezQtDocumentTreeModelAdapter::flags(const ezDocumentObject* pObject, int column) const
+{
+  if (column == 0)
+  {
+    return (Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled);
   }
 
+  return Qt::ItemFlag::NoItemFlags;
+}
+
+
+ezQtDummyAdapter::ezQtDummyAdapter(const ezDocumentObjectManager* pTree, const ezRTTI* pType, const char* m_sChildProperty)
+  : ezQtDocumentTreeModelAdapter(pTree, pType, m_sChildProperty)
+{
+}
+
+QVariant ezQtDummyAdapter::data(const ezDocumentObject* pObject, int column, int role) const
+{
+  if (column == 0)
+  {
+    switch (role)
+    {
+    case Qt::DisplayRole:
+    case Qt::EditRole:
+      {
+        return QString::fromUtf8(pObject->GetTypeAccessor().GetType()->GetTypeName());
+      }
+      break;
+    }
+  }
+  return QVariant();
+}
+
+ezQtNamedAdapter::ezQtNamedAdapter(const ezDocumentObjectManager* pTree, const ezRTTI* pType, const char* m_sChildProperty, const char* szNameProperty)
+  : ezQtDocumentTreeModelAdapter(pTree, pType, m_sChildProperty)
+  , m_sNameProperty(szNameProperty)
+{
+  auto pProp = pType->FindPropertyByName(m_sNameProperty);
+  EZ_ASSERT_DEV(pProp != nullptr && pProp->GetCategory() == ezPropertyCategory::Member
+    && pProp->GetSpecificType()->GetVariantType() == ezVariantType::String,
+    "THe name property must be a string member property.");
+
+  m_pTree->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtNameableAdapter::TreePropertyEventHandler, this));
+}
+
+ezQtNamedAdapter::~ezQtNamedAdapter()
+{
+  m_pTree->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtNameableAdapter::TreePropertyEventHandler, this));
+}
+
+QVariant ezQtNamedAdapter::data(const ezDocumentObject* pObject, int column, int role) const
+{
+  if (column == 0)
+  {
+    switch (role)
+    {
+    case Qt::DisplayRole:
+    case Qt::EditRole:
+      {
+        return QString::fromUtf8(pObject->GetTypeAccessor().GetValue(m_sNameProperty).ConvertTo<ezString>().GetData());
+      }
+      break;
+    }
+  }
+  return QVariant();
+}
+
+void ezQtNamedAdapter::TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+{
+  if (e.m_sProperty == m_sNameProperty)
+  {
+    QVector<int> v;
+    v.push_back(Qt::DisplayRole);
+    v.push_back(Qt::EditRole);
+    emit dataChanged(e.m_pObject, v);
+  }
+}
+
+ezQtNameableAdapter::ezQtNameableAdapter(const ezDocumentObjectManager* pTree, const ezRTTI* pType, const char* m_sChildProperty, const char* szNameProperty)
+  : ezQtNamedAdapter(pTree, pType, m_sChildProperty, szNameProperty)
+{
+}
+
+ezQtNameableAdapter::~ezQtNameableAdapter()
+{
+}
+
+bool ezQtNameableAdapter::setData(const ezDocumentObject* pObject, int column, const QVariant& value, int role) const
+{
+  if (column == 0 && role == Qt::EditRole)
+  {
+    auto pHistory = m_pTree->GetDocument()->GetCommandHistory();
+
+    pHistory->StartTransaction(ezFmt("Rename to '{0}'", value.toString().toUtf8().data()));
+
+    ezSetObjectPropertyCommand cmd;
+    cmd.m_NewValue = value.toString().toUtf8().data();
+    cmd.m_Object = pObject->GetGuid();
+    cmd.m_sProperty = m_sNameProperty;
+
+    pHistory->AddCommand(cmd);
+
+    pHistory->FinishTransaction();
+
+    return true;
+  }
+  return false;
+}
+
+Qt::ItemFlags ezQtNameableAdapter::flags(const ezDocumentObject* pObject, int column) const
+{
+  if (column == 0)
+  {
+    return (Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled);
+  }
+
+  return Qt::ItemFlag::NoItemFlags;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+ezQtDocumentTreeModel::ezQtDocumentTreeModel(const ezDocumentObjectManager* pTree)
+  : QAbstractItemModel(nullptr)
+  , m_pDocumentTree(pTree)
+
+{
   m_pDocumentTree->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtDocumentTreeModel::TreeEventHandler, this));
-  m_pDocumentTree->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtDocumentTreeModel::TreePropertyEventHandler, this));
 }
 
 ezQtDocumentTreeModel::~ezQtDocumentTreeModel()
 {
   m_pDocumentTree->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtDocumentTreeModel::TreeEventHandler, this));
-  m_pDocumentTree->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtDocumentTreeModel::TreePropertyEventHandler, this));
 }
 
-void ezQtDocumentTreeModel::TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
+void ezQtDocumentTreeModel::AddAdapter(ezQtDocumentTreeModelAdapter* adapter)
 {
-  if (e.m_sProperty != "Name")
-    return;
+  EZ_ASSERT_DEV(!m_Adapters.Contains(adapter->GetType()), "An adapter for the given type was already registered.");
 
-  auto index = ComputeModelIndex(e.m_pObject);
-  QVector<int> v;
-  v.push_back(Qt::DisplayRole);
-  dataChanged(index, index, v);
+  adapter->setParent(this);
+  connect(adapter, &ezQtDocumentTreeModelAdapter::dataChanged, this, [this](const ezDocumentObject* pObject, QVector<int> roles)
+  {
+    auto index = ComputeModelIndex(pObject);
+    dataChanged(index, index, roles);
+  });
+  m_Adapters.Insert(adapter->GetType(), adapter);
+  beginResetModel();
+  endResetModel();
+}
+
+const ezQtDocumentTreeModelAdapter* ezQtDocumentTreeModel::GetAdapter(const ezRTTI* pType) const
+{
+  while (pType != nullptr)
+  {
+    if (const ezQtDocumentTreeModelAdapter*const* adapter = m_Adapters.GetValue(pType))
+    {
+      return *adapter;
+    }
+    pType = pType->GetParentType();
+  }
+  return nullptr;
 }
 
 void ezQtDocumentTreeModel::TreeEventHandler(const ezDocumentObjectStructureEvent& e)
 {
-  if (!e.m_pObject->GetTypeAccessor().GetType()->IsDerivedFrom(m_pBaseClass))
+  const ezDocumentObject* pParent = nullptr;
+  switch (e.m_EventType)
+  {
+  case ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
+  case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
+    pParent = e.m_pPreviousParent;
+    break;
+  case ezDocumentObjectStructureEvent::Type::BeforeObjectAdded:
+  case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
+  case ezDocumentObjectStructureEvent::Type::BeforeObjectMoved:
+  case ezDocumentObjectStructureEvent::Type::AfterObjectMoved:
+  case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
+    pParent = e.m_pNewParent;
+    break;
+  }
+  EZ_ASSERT_DEV(pParent != nullptr, "Each structure event should have a parent set.");
+  auto pType = pParent->GetTypeAccessor().GetType();
+  auto pAdapter = GetAdapter(pType);
+  if (!pAdapter)
     return;
-  if (!e.m_sParentProperty.IsEqual(m_sChildProperty) && !e.m_sParentProperty.IsEqual(m_sRootProperty))
+
+  if (pAdapter->GetChildProperty() != e.m_sParentProperty)
     return;
 
   // TODO: BLA root object could have other objects instead of m_pBaseClass, in which case indices are broken on root.
@@ -62,67 +235,68 @@ void ezQtDocumentTreeModel::TreeEventHandler(const ezDocumentObjectStructureEven
   switch (e.m_EventType)
   {
   case ezDocumentObjectStructureEvent::Type::BeforeObjectAdded:
-    {
-      ezInt32 iIndex = (ezInt32)e.m_NewPropertyIndex.ConvertTo<ezInt32>();
-      if (e.m_pNewParent == m_pDocumentTree->GetRootObject())
-        beginInsertRows(QModelIndex(), iIndex, iIndex);
-      else
-        beginInsertRows(ComputeModelIndex(e.m_pNewParent), iIndex, iIndex);
-    }
-    break;
+  {
+    ezInt32 iIndex = (ezInt32)e.m_NewPropertyIndex.ConvertTo<ezInt32>();
+    if (e.m_pNewParent == m_pDocumentTree->GetRootObject())
+      beginInsertRows(QModelIndex(), iIndex, iIndex);
+    else
+      beginInsertRows(ComputeModelIndex(e.m_pNewParent), iIndex, iIndex);
+  }
+  break;
   case ezDocumentObjectStructureEvent::Type::AfterObjectAdded:
-    {
-      endInsertRows();
-    }
-    break;
+  {
+    endInsertRows();
+  }
+  break;
   case ezDocumentObjectStructureEvent::Type::BeforeObjectRemoved:
-    {
-      ezInt32 iIndex = ComputeIndex(e.m_pObject);
+  {
+    ezInt32 iIndex = ComputeIndex(e.m_pObject);
 
-      beginRemoveRows(ComputeParent(e.m_pObject), iIndex, iIndex);
-    }
-    break;
+    beginRemoveRows(ComputeParent(e.m_pObject), iIndex, iIndex);
+  }
+  break;
   case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
-    {
-      endRemoveRows();
-    }
-    break;
+  {
+    endRemoveRows();
+  }
+  break;
   case ezDocumentObjectStructureEvent::Type::BeforeObjectMoved:
-    {
-      ezInt32 iNewIndex = (ezInt32)e.m_NewPropertyIndex.ConvertTo<ezInt32>();
-      ezInt32 iIndex = ComputeIndex(e.m_pObject);
-      beginMoveRows(ComputeModelIndex(e.m_pPreviousParent), iIndex, iIndex, ComputeModelIndex(e.m_pNewParent), iNewIndex);
-    }
-    break;
+  {
+    ezInt32 iNewIndex = (ezInt32)e.m_NewPropertyIndex.ConvertTo<ezInt32>();
+    ezInt32 iIndex = ComputeIndex(e.m_pObject);
+    beginMoveRows(ComputeModelIndex(e.m_pPreviousParent), iIndex, iIndex, ComputeModelIndex(e.m_pNewParent), iNewIndex);
+  }
+  break;
   case ezDocumentObjectStructureEvent::Type::AfterObjectMoved:
-    {
-      endMoveRows();
-    }
-    break;
+  {
+    endMoveRows();
+  }
+  break;
   }
 }
 
 QModelIndex ezQtDocumentTreeModel::index(int row, int column, const QModelIndex& parent) const
 {
+  const ezDocumentObject* pObject = nullptr;
   if (!parent.isValid())
   {
-    const ezDocumentObject* pRoot = m_pDocumentTree->GetRootObject();
-
-    if (pRoot->GetTypeAccessor().GetCount(m_sRootProperty) == 0)
-      return QModelIndex();
-
-    ezVariant value = pRoot->GetTypeAccessor().GetValue(m_sRootProperty, row);
-    EZ_ASSERT_DEV(value.IsValid() && value.IsA<ezUuid>(), "Tree corruption!");
-
-    const ezDocumentObject* pObject = m_pDocumentTree->GetObject(value.Get<ezUuid>());
-    return createIndex(row, column, const_cast<ezDocumentObject*>(pObject));
+    pObject = m_pDocumentTree->GetRootObject();
+  }
+  else
+  {
+    pObject = (const ezDocumentObject*)parent.internalPointer();
   }
 
-  const ezDocumentObject* pParent = (const ezDocumentObject*) parent.internalPointer();
-  ezVariant value = pParent->GetTypeAccessor().GetValue(m_sChildProperty, row);
+  auto pType = pObject->GetTypeAccessor().GetType();
+  auto pAdapter = GetAdapter(pType);
+  if (!pAdapter)
+    return QModelIndex();
+  if (row >=pObject->GetTypeAccessor().GetCount(pAdapter->GetChildProperty()))
+    return QModelIndex();
+
+  ezVariant value = pObject->GetTypeAccessor().GetValue(pAdapter->GetChildProperty(), row);
   EZ_ASSERT_DEV(value.IsValid() && value.IsA<ezUuid>(), "Tree corruption!");
   const ezDocumentObject* pChild = m_pDocumentTree->GetObject(value.Get<ezUuid>());
-
   return createIndex(row, column, const_cast<ezDocumentObject*>(pChild));
 }
 
@@ -134,21 +308,18 @@ ezInt32 ezQtDocumentTreeModel::ComputeIndex(const ezDocumentObject* pObject) con
 
 QModelIndex ezQtDocumentTreeModel::ComputeModelIndex(const ezDocumentObject* pObject) const
 {
-  // Filter out objects that are not under the root property 'm_sRootProperty' or any of
-  // its children under the property 'm_sChildProperty'.
+  // Filter out objects that are not under the child property of the
+  // parents adapter.
   if (pObject == m_pDocumentTree->GetRootObject())
     return QModelIndex();
 
-  if (pObject->GetParent() == m_pDocumentTree->GetRootObject())
-  {
-    if (m_sRootProperty != pObject->GetParentProperty())
-      return QModelIndex();
-  }
-  else
-  {
-    if (m_sChildProperty != pObject->GetParentProperty())
-      return QModelIndex();
-  }
+  auto pType = pObject->GetParent()->GetTypeAccessor().GetType();
+  auto pAdapter = GetAdapter(pType);
+  if (!pAdapter)
+    return QModelIndex();
+
+  if (pAdapter->GetChildProperty() != pObject->GetParentProperty())
+    return QModelIndex();
 
   return index(ComputeIndex(pObject), 0, ComputeParent(pObject));
 }
@@ -173,7 +344,7 @@ QModelIndex ezQtDocumentTreeModel::ComputeParent(const ezDocumentObject* pObject
 
 QModelIndex ezQtDocumentTreeModel::parent(const QModelIndex& child) const
 {
-  const ezDocumentObject* pObject = (const ezDocumentObject*) child.internalPointer();
+  const ezDocumentObject* pObject = (const ezDocumentObject*)child.internalPointer();
 
   return ComputeParent(pObject);
 }
@@ -181,17 +352,23 @@ QModelIndex ezQtDocumentTreeModel::parent(const QModelIndex& child) const
 int ezQtDocumentTreeModel::rowCount(const QModelIndex& parent) const
 {
   int iCount = 0;
-
+  const ezDocumentObject* pObject = nullptr;
   if (!parent.isValid())
   {
-    iCount = m_pDocumentTree->GetRootObject()->GetTypeAccessor().GetCount(m_sRootProperty);
+    pObject = m_pDocumentTree->GetRootObject();
   }
   else
   {
-    const ezDocumentObject* pObject = (const ezDocumentObject*) parent.internalPointer();
+    pObject = (const ezDocumentObject*)parent.internalPointer();
+  }
 
-    if (!m_sChildProperty.IsEmpty())
-      iCount = pObject->GetTypeAccessor().GetCount(m_sChildProperty);
+  auto pType = pObject->GetTypeAccessor().GetType();
+  if (auto pAdapter = GetAdapter(pType))
+  {
+    if (!pAdapter->GetChildProperty().IsEmpty())
+    {
+      iCount = pObject->GetTypeAccessor().GetCount(pAdapter->GetChildProperty());
+    }
   }
 
   return iCount;
@@ -206,16 +383,11 @@ QVariant ezQtDocumentTreeModel::data(const QModelIndex& index, int role) const
 {
   //if (index.isValid())
   {
-    const ezDocumentObject* pObject = (const ezDocumentObject*) index.internalPointer();
-
-    switch (role)
+    const ezDocumentObject* pObject = (const ezDocumentObject*)index.internalPointer();
+    auto pType = pObject->GetTypeAccessor().GetType();
+    if (auto pAdapter = GetAdapter(pType))
     {
-    case Qt::DisplayRole:
-    case Qt::EditRole:
-      {
-        return QString::fromUtf8(pObject->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>().GetData());
-      }
-      break;
+      return pAdapter->data(pObject, index.column(), role);
     }
   }
 
@@ -235,9 +407,11 @@ Qt::ItemFlags ezQtDocumentTreeModel::flags(const QModelIndex &index) const
   if (!index.isValid())
     return Qt::ItemIsDropEnabled;
 
-  if (index.column() == 0)
+  const ezDocumentObject* pObject = (const ezDocumentObject*)index.internalPointer();
+  auto pType = pObject->GetTypeAccessor().GetType();
+  if (auto pAdapter = GetAdapter(pType))
   {
-    return (/*Qt::ItemIsUserCheckable | */ Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled);
+    return pAdapter->flags(pObject, index.column());
   }
 
   return Qt::ItemFlag::NoItemFlags;
@@ -290,9 +464,10 @@ bool ezQtDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction a
 
   if (data->hasFormat("application/ezEditor.ObjectSelection"))
   {
-    ezDocumentObject* pNewParent = (ezDocumentObject*) parent.internalPointer();
-
-    ezHybridArray<ezDocumentObject*, 32> Dragged;
+    const ezDocumentObject* pNewParent = (const ezDocumentObject*)parent.internalPointer();
+    if (!pNewParent)
+      pNewParent = m_pDocumentTree->GetRootObject();
+    ezHybridArray<const ezDocumentObject*, 32> Dragged;
 
     QByteArray encodedData = data->data("application/ezEditor.ObjectSelection");
     QDataStream stream(&encodedData, QIODevice::ReadOnly);
@@ -305,9 +480,9 @@ bool ezQtDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction a
       void* p = nullptr;
 
       uint len = sizeof(void*);
-      stream.readRawData((char*) &p, len);
+      stream.readRawData((char*)&p, len);
 
-      ezDocumentObject* pDocObject = (ezDocumentObject*) p;
+      const ezDocumentObject* pDocObject = (const ezDocumentObject*)p;
 
       Dragged.PushBack(pDocObject);
 
@@ -335,22 +510,21 @@ bool ezQtDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction a
       }
     }
 
+    auto pType = pNewParent->GetTypeAccessor().GetType();
+    auto pAdapter = GetAdapter(pType);
     auto pDoc = m_pDocumentTree->GetDocument();
     auto pHistory = pDoc->GetCommandHistory();
     pHistory->StartTransaction("Reparent Object");
+
 
     ezStatus res(EZ_SUCCESS);
     for (ezUInt32 i = 0; i < Dragged.GetCount(); ++i)
     {
       ezMoveObjectCommand cmd;
       cmd.m_Object = Dragged[i]->GetGuid();
-      cmd.m_sParentProperty = m_sChildProperty;
       cmd.m_Index = row;
-
-      if (pNewParent)
-        cmd.m_NewParent = pNewParent->GetGuid();
-      else
-        cmd.m_sParentProperty = m_sRootProperty;
+      cmd.m_sParentProperty = pAdapter->GetChildProperty();
+      cmd.m_NewParent = pNewParent->GetGuid();
 
       res = pHistory->AddCommand(cmd);
       if (res.m_Result.Failed())
@@ -405,7 +579,7 @@ QMimeData* ezQtDocumentTreeModel::mimeData(const QModelIndexList& indexes) const
     if (index.isValid())
     {
       void* pObject = index.internalPointer();
-      stream.writeRawData((const char*) &pObject, sizeof(void*));
+      stream.writeRawData((const char*)&pObject, sizeof(void*));
     }
   }
 
@@ -415,30 +589,12 @@ QMimeData* ezQtDocumentTreeModel::mimeData(const QModelIndexList& indexes) const
 
 bool ezQtDocumentTreeModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
-  if (role == Qt::EditRole)
+  const ezDocumentObject* pObject = (const ezDocumentObject*)index.internalPointer();
+  auto pType = pObject->GetTypeAccessor().GetType();
+  if (auto pAdapter = GetAdapter(pType))
   {
-    const ezDocumentObject* pObject = (const ezDocumentObject*) index.internalPointer();
-
-    auto pHistory = m_pDocumentTree->GetDocument()->GetCommandHistory();
-
-    pHistory->StartTransaction(ezFmt("Rename to '{0}'", value.toString().toUtf8().data()));
-
-    ezSetObjectPropertyCommand cmd;
-    cmd.m_NewValue = value.toString().toUtf8().data();
-    cmd.m_Object = pObject->GetGuid();
-    cmd.m_sProperty = "Name";
-
-    pHistory->AddCommand(cmd);
-
-    pHistory->FinishTransaction();
-
-    QVector<int> roles;
-    roles.push_back(Qt::DisplayRole);
-    roles.push_back(Qt::EditRole);
-
-    emit dataChanged(index, index, roles);
+    return pAdapter->setData(pObject, index.column(), value, role);
   }
 
   return false;
 }
-

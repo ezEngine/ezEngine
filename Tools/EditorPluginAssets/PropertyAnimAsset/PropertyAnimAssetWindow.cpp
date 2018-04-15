@@ -77,8 +77,11 @@ ezQtPropertyAnimAssetDocumentWindow::ezQtPropertyAnimAssetDocumentWindow(ezPrope
 
   // Game Object Graph
   {
-    std::unique_ptr<ezQtDocumentTreeModel> ptr(new ezQtGameObjectModel(pDocument, "TempObjects"));
-    ezQtDocumentPanel* pGameObjectPanel = new ezQtGameObjectPanel(this, pDocument, "PropertyAnimAsset_ScenegraphContextMenu", std::move(ptr));
+    std::unique_ptr<ezQtDocumentTreeModel> pModel(new ezQtGameObjectModel(pDocument));
+    pModel->AddAdapter(new ezQtDummyAdapter(pDocument->GetObjectManager(), ezGetStaticRTTI<ezDocumentRoot>(), "TempObjects"));
+    pModel->AddAdapter(new ezQtGameObjectAdapter(pDocument));
+
+    ezQtDocumentPanel* pGameObjectPanel = new ezQtGameObjectPanel(this, pDocument, "PropertyAnimAsset_ScenegraphContextMenu", std::move(pModel));
     addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pGameObjectPanel);
   }
 

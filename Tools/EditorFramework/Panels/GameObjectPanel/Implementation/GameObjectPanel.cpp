@@ -31,7 +31,7 @@ ezQtGameObjectPanel::ezQtGameObjectPanel(QWidget* pParent, ezGameObjectDocument*
 
   m_pMainWidget->layout()->addWidget(m_pFilterWidget);
 
-  m_pTreeWidget = new ezQtDocumentTreeView(this, pDocument, ezGetStaticRTTI<ezGameObject>(), "Children", std::move(pCustomModel));
+  m_pTreeWidget = new ezQtDocumentTreeView(this, pDocument, std::move(pCustomModel));
   m_pTreeWidget->SetAllowDragDrop(true);
   m_pMainWidget->layout()->addWidget(m_pTreeWidget);
 

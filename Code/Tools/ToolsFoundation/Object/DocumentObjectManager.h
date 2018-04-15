@@ -8,7 +8,7 @@
 class ezDocumentObjectManager;
 class ezDocument;
 
-class ezDocumentRoot : public ezReflectedClass
+class EZ_TOOLSFOUNDATION_DLL ezDocumentRoot : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDocumentRoot, ezReflectedClass);
 
@@ -19,7 +19,7 @@ class ezDocumentRoot : public ezReflectedClass
 class ezDocumentRootObject : public ezDocumentStorageObject
 {
 public:
-  ezDocumentRootObject() : ezDocumentStorageObject(ezDocumentRoot::GetStaticRTTI())
+  ezDocumentRootObject(const ezRTTI* pRootType) : ezDocumentStorageObject(pRootType)
   {
     m_Guid = ezUuid::StableUuidForString("DocumentRoot");
   }
@@ -49,10 +49,10 @@ struct ezDocumentObjectStructureEvent
   };
 
   Type m_EventType;
-  const ezDocument* m_pDocument;
-  const ezDocumentObject* m_pObject;
-  const ezDocumentObject* m_pPreviousParent;
-  const ezDocumentObject* m_pNewParent;
+  const ezDocument* m_pDocument = nullptr;
+  const ezDocumentObject* m_pObject = nullptr;
+  const ezDocumentObject* m_pPreviousParent = nullptr;
+  const ezDocumentObject* m_pNewParent = nullptr;
   ezString m_sParentProperty;
   ezVariant m_OldPropertyIndex;
   ezVariant m_NewPropertyIndex;
@@ -107,7 +107,7 @@ public:
   ezEvent<const ezDocumentObjectPropertyEvent&> m_PropertyEvents;
   ezEvent<const ezDocumentObjectEvent&> m_ObjectEvents;
 
-  ezDocumentObjectManager();
+  ezDocumentObjectManager(const ezRTTI* pRootType = ezDocumentRoot::GetStaticRTTI());
   virtual ~ezDocumentObjectManager();
   void SetDocument(const ezDocument* pDocument) { m_pDocument = pDocument; }
 

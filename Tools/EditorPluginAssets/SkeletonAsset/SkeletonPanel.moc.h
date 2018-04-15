@@ -5,7 +5,8 @@
 
 class ezSkeletonAssetDocument;
 class QTreeView;
-class ezQtSkeletonModel;
+class ezQtDocumentTreeView;
+class ezQtSearchWidget;
 
 class ezQtSkeletonPanel : public ezQtDocumentPanel
 {
@@ -18,6 +19,6 @@ public:
 private:
   ezSkeletonAssetDocument* m_pSkeletonDocument = nullptr;
   QWidget* m_pMainWidget = nullptr;
-  QTreeView* m_pTreeWidget = nullptr;
-  ezQtSkeletonModel* m_pSkeletonModel = nullptr;
+  ezQtDocumentTreeView* m_pTreeWidget = nullptr;
+  ezQtSearchWidget* m_pFilterWidget = nullptr;
 };

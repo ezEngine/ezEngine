@@ -58,8 +58,11 @@ ezQtPreferencesDlg::ezQtPreferencesDlg(QWidget* parent) : QDialog(parent)
 
   // if this is set, all properties are applied immediatly
   //m_pDocument->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtPreferencesDlg::PropertyChangedEventHandler, this));
+  std::unique_ptr<ezQtDocumentTreeModel> pModel(new ezQtDocumentTreeModel(m_pDocument->GetObjectManager()));
+  pModel->AddAdapter(new ezQtDummyAdapter(m_pDocument->GetObjectManager(), ezGetStaticRTTI<ezDocumentRoot>(), "Children"));
+  pModel->AddAdapter(new ezQtNamedAdapter(m_pDocument->GetObjectManager(), ezPreferences::GetStaticRTTI(), "", "Name"));
 
-  Tree->Initialize(m_pDocument, ezPreferences::GetStaticRTTI(), "");
+  Tree->Initialize(m_pDocument, std::move(pModel));
   Tree->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
   Tree->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
 

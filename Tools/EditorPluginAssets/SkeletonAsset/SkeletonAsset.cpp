@@ -37,7 +37,7 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 
     if (pProp->m_Children.IsEmpty())
     {
-      pCur = new ezEditableSkeletonBone;
+      pCur = EZ_DEFAULT_NEW(ezEditableSkeletonBone);
       pProp->m_Children.PushBack(pCur);
     }
 
@@ -47,7 +47,7 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 
     if (pProp->m_Children[0]->m_Children.IsEmpty())
     {
-      pCur = new ezEditableSkeletonBone;
+      pCur = EZ_DEFAULT_NEW(ezEditableSkeletonBone);
       pProp->m_Children[0]->m_Children.PushBack(pCur);
     }
 
@@ -58,7 +58,7 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 
     if (pProp->m_Children[0]->m_Children[0]->m_Children.IsEmpty())
     {
-      pCur = new ezEditableSkeletonBone;
+      pCur = EZ_DEFAULT_NEW(ezEditableSkeletonBone);
       pProp->m_Children[0]->m_Children[0]->m_Children.PushBack(pCur);
     }
 

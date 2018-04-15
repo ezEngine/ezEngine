@@ -15,10 +15,10 @@ class EZ_EDITORFRAMEWORK_DLL ezQtDocumentTreeView : public QTreeView
 public:
 
   ezQtDocumentTreeView(QWidget* pParent);
-  ezQtDocumentTreeView(QWidget* pParent, ezDocument* pDocument, const ezRTTI* pBaseClass, const char* szChildProperty, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel = nullptr);
+  ezQtDocumentTreeView(QWidget* pParent, ezDocument* pDocument, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel);
   ~ezQtDocumentTreeView();
 
-  void Initialize(ezDocument* pDocument, const ezRTTI* pBaseClass, const char* szChildProperty, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel = nullptr);
+  void Initialize(ezDocument* pDocument, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel);
 
   void EnsureLastSelectedItemVisible();
 

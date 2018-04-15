@@ -12,20 +12,16 @@ ezQtDocumentTreeView::ezQtDocumentTreeView(QWidget* parent)
 
 }
 
-ezQtDocumentTreeView::ezQtDocumentTreeView(QWidget* pParent, ezDocument* pDocument, const ezRTTI* pBaseClass, const char* szChildProperty, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel)
+ezQtDocumentTreeView::ezQtDocumentTreeView(QWidget* pParent, ezDocument* pDocument, std::unique_ptr<ezQtDocumentTreeModel> pModel)
   : QTreeView(pParent)
 {
-  Initialize(pDocument, pBaseClass, szChildProperty, std::move(pCustomModel));
+  Initialize(pDocument, std::move(pModel));
 }
 
-void ezQtDocumentTreeView::Initialize(ezDocument* pDocument, const ezRTTI* pBaseClass, const char* szChildProperty, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel)
+void ezQtDocumentTreeView::Initialize(ezDocument* pDocument, std::unique_ptr<ezQtDocumentTreeModel> pModel)
 {
   m_pDocument = pDocument;
-
-  if (pCustomModel)
-    m_pModel = std::move(pCustomModel);
-  else
-    m_pModel.reset(new ezQtDocumentTreeModel(pDocument->GetObjectManager(), pBaseClass, szChildProperty));
+  m_pModel = std::move(pModel);
 
   m_pFilterModel.reset(new ezQtTreeSearchFilterModel(this));
   m_pFilterModel->setSourceModel(m_pModel.get());

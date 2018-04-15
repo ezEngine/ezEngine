@@ -53,8 +53,9 @@ ezVariant ezDocumentObjectPropertyEvent::getInsertIndex() const
   return m_NewIndex;
 }
 
-ezDocumentObjectManager::ezDocumentObjectManager()
+ezDocumentObjectManager::ezDocumentObjectManager(const ezRTTI* pRootType)
   : m_pDocument(nullptr)
+  , m_RootObject(pRootType)
 {
   m_RootObject.m_pDocumentObjectManager = this;
 }

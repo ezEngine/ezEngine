@@ -13,8 +13,19 @@
 #include <QMenu>
 #include <EditorFramework/Actions/GameObjectSelectionActions.h>
 
+namespace
+{
+  std::unique_ptr<ezQtDocumentTreeModel> CreateSceneTreeModel(ezSceneDocument* pDocument)
+  {
+    std::unique_ptr<ezQtDocumentTreeModel> pModel(new ezQtScenegraphModel(pDocument));
+    pModel->AddAdapter(new ezQtDummyAdapter(pDocument->GetObjectManager(), ezGetStaticRTTI<ezDocumentRoot>(), "Children"));
+    pModel->AddAdapter(new ezQtGameObjectAdapter(pDocument));
+    return std::move(pModel);
+  }
+}
+
 ezQtScenegraphPanel::ezQtScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocument)
-  : ezQtGameObjectPanel(pParent, pDocument, "EditorPluginScene_ScenegraphContextMenu", std::unique_ptr<ezQtDocumentTreeModel>(new ezQtScenegraphModel(pDocument)))
+  : ezQtGameObjectPanel(pParent, pDocument, "EditorPluginScene_ScenegraphContextMenu", CreateSceneTreeModel(pDocument))
 {
   setObjectName("ScenegraphPanel");
   setWindowTitle("Scenegraph");
