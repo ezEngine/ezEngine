@@ -1,6 +1,9 @@
 ﻿#pragma once
 
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <ProceduralPlacementPlugin/VM/ExpressionAST.h>
+
+class ezDocumentObjectConverterWriter;
 
 class ezProceduralPlacementAssetDocument : public ezAssetDocument
 {
@@ -20,4 +23,12 @@ protected:
   virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable) override;
 
   void GetAllOutputNodes(ezDynamicArray<const ezDocumentObject*>& allNodes) const;
+
+private:
+  friend class ezProceduralPlacementAction;
+
+  ezExpressionAST::Node* GenerateExpressionAST(const ezDocumentObject* outputNode, ezDocumentObjectConverterWriter& objectWriter, ezRttiConverterReader& rttiConverter,
+    ezHashTable<const ezDocumentObject*, ezExpressionAST::Node*>& nodeCache, ezExpressionAST& out_Ast) const;
+
+  void DumpSelectedOutput(bool bAst, bool bDisassembly) const;
 };

@@ -3,12 +3,10 @@
 #include <EditorPluginProceduralPlacement/Plugin.h>
 #include <GuiFoundation/Basics.h>
 #include <GuiFoundation/Action/BaseActions.h>
-#include <Foundation/Configuration/CVar.h>
 
-#if 0
 class ezPreferences;
 
-class EZ_EDITORPLUGINFMOD_DLL ezFmodActions
+class EZ_EDITORPLUGINPROCEDURALPLACEMENT_DLL ezProceduralPlacementActions
 {
 public:
   static void RegisterActions();
@@ -16,26 +14,24 @@ public:
 
   static void MapMenuActions();
 
-  static ezActionDescriptorHandle s_hCategoryFmod;
-  static ezActionDescriptorHandle s_hProjectSettings;
-  static ezActionDescriptorHandle s_hMuteSound;
-  static ezActionDescriptorHandle s_hMasterVolume;
+  static ezActionDescriptorHandle s_hCategoryProceduralPlacement;
+  static ezActionDescriptorHandle s_hDumpAST;
+  static ezActionDescriptorHandle s_hDumpDisassembly;
 };
 
-
-class EZ_EDITORPLUGINFMOD_DLL ezFmodAction : public ezButtonAction
+class EZ_EDITORPLUGINPROCEDURALPLACEMENT_DLL ezProceduralPlacementAction : public ezButtonAction
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezFmodAction, ezButtonAction);
+  EZ_ADD_DYNAMIC_REFLECTION(ezProceduralPlacementAction, ezButtonAction);
 public:
 
   enum class ActionType
   {
-    ProjectSettings,
-    MuteSound,
+    DumpAST,
+    DumpDisassembly,
   };
 
-  ezFmodAction(const ezActionContext& context, const char* szName, ActionType type);
-  ~ezFmodAction();
+  ezProceduralPlacementAction(const ezActionContext& context, const char* szName, ActionType type);
+  ~ezProceduralPlacementAction();
 
   virtual void Execute(const ezVariant& value) override;
 
@@ -44,27 +40,3 @@ private:
 
   ActionType m_Type;
 };
-
-class EZ_EDITORPLUGINFMOD_DLL ezFmodSliderAction : public ezSliderAction
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezFmodSliderAction, ezSliderAction);
-
-public:
-
-  enum class ActionType
-  {
-    MasterVolume,
-  };
-
-  ezFmodSliderAction(const ezActionContext& context, const char* szName, ActionType type);
-  ~ezFmodSliderAction();
-
-  virtual void Execute(const ezVariant& value) override;
-
-private:
-  void OnPreferenceChange(ezPreferences* pref);
-  void UpdateState();
-
-  ActionType m_Type;
-};
-#endif

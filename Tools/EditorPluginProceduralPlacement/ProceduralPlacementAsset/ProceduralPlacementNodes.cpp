@@ -9,29 +9,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezProceduralPlacementLayerOutput::Save(ezStreamWriter& stream)
-{
-  stream << m_sName;
-
-  stream << m_ObjectsToPlace.GetCount();
-  for (auto& object : m_ObjectsToPlace)
-  {
-    stream << object;
-  }
-
-  stream << m_fFootprint;
-
-  stream << m_vMinOffset;
-  stream << m_vMaxOffset;
-
-  stream << m_fAlignToNormal;
-
-  stream << m_vMinScale;
-  stream << m_vMaxScale;
-
-  stream << m_fCullDistance;
-}
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementLayerOutput, 1, ezRTTIDefaultAllocator<ezProceduralPlacementLayerOutput>)
 {
   EZ_BEGIN_PROPERTIES
@@ -55,15 +32,97 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementLayerOutput, 1, ezRTTIDefau
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+ezExpressionAST::Node* ezProceduralPlacementLayerOutput::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast)
+{
+  for (auto input : inputs)
+  {
+    out_Ast.m_OutputNodes.PushBack(input);
+  }
+
+  return nullptr;
+}
+
+void ezProceduralPlacementLayerOutput::Save(ezStreamWriter& stream)
+{
+  stream << m_sName;
+
+  stream << m_ObjectsToPlace.GetCount();
+  for (auto& object : m_ObjectsToPlace)
+  {
+    stream << object;
+  }
+
+  stream << m_fFootprint;
+
+  stream << m_vMinOffset;
+  stream << m_vMaxOffset;
+
+  stream << m_fAlignToNormal;
+
+  stream << m_vMinScale;
+  stream << m_vMaxScale;
+
+  stream << m_fCullDistance;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementRandom, 1, ezRTTIDefaultAllocator<ezProceduralPlacementRandom>)
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_MEMBER_PROPERTY("Seed", m_iSeed)->AddAttributes(new ezClampValueAttribute(-1, ezVariant()), new ezDefaultValueAttribute(-1), new ezMinValueTextAttribute("Auto")),
+
     EZ_MEMBER_PROPERTY("Value", m_OutputValuePin)
   }
   EZ_END_PROPERTIES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+ezExpressionAST::Node* ezProceduralPlacementRandom::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast)
+{
+  auto pPointIndex = out_Ast.CreateInput(ezPPInternal::ExpressionInputs::PointIndex);
+  auto pSeedConstant = out_Ast.CreateConstant(m_iSeed);
+
+  auto pSeed = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Add, pPointIndex, pSeedConstant);
+
+  auto pFunctionCall = out_Ast.CreateFunctionCall("Random");
+  pFunctionCall->m_Arguments.PushBack(pSeed);
+
+  return pFunctionCall;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementBlend, 1, ezRTTIDefaultAllocator<ezProceduralPlacementBlend>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("InputA", m_fInputValueA)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("InputB", m_fInputValueB)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+
+    EZ_MEMBER_PROPERTY("A", m_InputValueAPin),
+    EZ_MEMBER_PROPERTY("B", m_InputValueBPin),
+    EZ_MEMBER_PROPERTY("Value", m_OutputValuePin)
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezExpressionAST::Node* ezProceduralPlacementBlend::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast)
+{
+  auto pInputA = inputs[0];
+  if (pInputA == nullptr)
+  {
+    pInputA = out_Ast.CreateConstant(m_fInputValueA);
+  }
+
+  auto pInputB = inputs[1];
+  if (pInputB == nullptr)
+  {
+    pInputB = out_Ast.CreateConstant(m_fInputValueB);
+  }
+
+  auto pBlend = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Multiply, pInputA, pInputB);
+  return pBlend;
+}

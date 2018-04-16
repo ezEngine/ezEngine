@@ -1,5 +1,6 @@
 ﻿#include <PCH.h>
 #include <EditorPluginProceduralPlacement/EditorPluginProceduralPlacement.h>
+#include <EditorPluginProceduralPlacement/Actions/ProceduralPlacementActions.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
@@ -40,8 +41,6 @@ void OnLoadPlugin(bool bReloading)
     }
   }
 
-#if 0
-
   // Scene
   {
     // Menu Bar
@@ -55,12 +54,11 @@ void OnLoadPlugin(bool bReloading)
 
     }
   }
-#endif
 }
 
 void OnUnloadPlugin(bool bReloading)
 {
-  //ezProceduralPlacementActions::UnregisterActions();
+  ezProceduralPlacementActions::UnregisterActions();
   //ezToolsProject::GetSingleton()->s_Events.RemoveEventHandler(ToolsProjectEventHandler);
 }
 

@@ -31,6 +31,7 @@ SET (LINK_LIBRARIES
   Core
   GameEngine
   ProceduralPlacementPlugin
+  Utilities
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)

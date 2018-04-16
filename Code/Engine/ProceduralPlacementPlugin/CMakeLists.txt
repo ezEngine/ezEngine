@@ -26,6 +26,7 @@ SET (LINK_LIBRARIES
   RendererFoundation
   RendererCore
   GameEngine
+  Utilities
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)

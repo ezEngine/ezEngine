@@ -3,7 +3,7 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Configuration/Plugin.h>
 
-#include <ProceduralPlacementPlugin/VM/VM.h>
+#include <ProceduralPlacementPlugin/VM/ExpressionVM.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(ProceduralPlacement, ProceduralPlacementPlugin)
 

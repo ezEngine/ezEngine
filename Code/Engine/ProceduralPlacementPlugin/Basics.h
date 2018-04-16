@@ -15,9 +15,10 @@
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/SharedPtr.h>
 
+class ezExpressionByteCode;
+
 namespace ezPPInternal
 {
-  class ByteCode;
   class ActiveTile;
 
   struct Pattern
@@ -45,7 +46,7 @@ namespace ezPPInternal
       m_vMaxScale.Set(1.0f);
       m_fCullDistance = 100.0f;
 
-      //m_ByteCode = nullptr;
+      m_ByteCode = nullptr;
     }
 
     float GetTileSize() const
@@ -72,7 +73,32 @@ namespace ezPPInternal
 
     //ColorGradient m_ColorGradient;
 
-    //ByteCode* m_ByteCode;
+    ezExpressionByteCode* m_ByteCode;
+  };
+
+  struct ExpressionInputs
+  {
+    enum Enum
+    {
+      PositionX,
+      PositionY,
+      PositionZ,
+      NormalX,
+      NormalY,
+      NormalZ,
+      PointIndex
+    };
+  };
+
+  struct ExpressionOutputs
+  {
+    enum Enum
+    {
+      Density,
+      Scale,
+      ColorIndex,
+      ObjectIndex
+    };
   };
 
   struct PlacementPoint
