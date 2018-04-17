@@ -178,7 +178,7 @@ void ezCamera::GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out
     break;
 
   default:
-      EZ_REPORT_FAILURE("Invalid Camera Mode.");
+      EZ_REPORT_FAILURE("Invalid Camera Mode {0}", (int)m_Mode);
   }
 }
 

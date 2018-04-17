@@ -191,7 +191,7 @@ namespace ezModelImporter
   void Mesh::AddData(const Mesh& mesh, const ezTransform& transform)
   {
     ezMat4 transformMat = transform.GetAsMat4();
-    ezMat4 normalTransformMat = transformMat.GetInverse().GetTranspose();
+    ezMat4 normalTransformMat = transformMat.GetInverse(0.0f).GetTranspose();
 
     // Create new triangles.
     ezUInt32 oldTriangleCount = GetNumTriangles();

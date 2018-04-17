@@ -1,4 +1,5 @@
-﻿#include <Fileserve/Main.h>
+#include <PCH.h>
+#include <Fileserve/Main.h>
 
 #ifdef EZ_USE_QT
 

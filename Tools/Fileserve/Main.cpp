@@ -1,4 +1,5 @@
-﻿#include <Fileserve/Main.h>
+﻿#include <PCH.h>
+#include <Fileserve/Main.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Configuration/Startup.h>

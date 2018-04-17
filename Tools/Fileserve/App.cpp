@@ -1,3 +1,4 @@
+#include <PCH.h>
 #include <Fileserve/Main.h>
 #include <FileservePlugin/Fileserver/Fileserver.h>
 #include <Foundation/Logging/Log.h>

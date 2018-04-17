@@ -51,8 +51,7 @@ if (EZ_ENABLE_QT_SUPPORT AND EZ_QTPROJECT)
   if (MOC_HEADERS)
     # QT5_WRAP_CPP appends to the MOC_FILES variable. So we have to empty it first.
     set (MOC_FILES "")
-    QT5_WRAP_CPP (MOC_FILES ${MOC_HEADERS})
-
+	QT5_WRAP_CPP (MOC_FILES ${MOC_HEADERS} OPTIONS -b PCH.h)
     set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${MOC_FILES})
     source_group (QT\\MOC FILES ${MOC_FILES})
   endif ()
