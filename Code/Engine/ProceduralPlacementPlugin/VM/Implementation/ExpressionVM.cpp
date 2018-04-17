@@ -127,63 +127,63 @@ void ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<co
     switch (opCode)
     {
     case ezExpressionByteCode::OpCode::Add_RR:
-      VMOperation2(pByteCode, pRegisters, uiNumRegisters, [](ezSimdVec4f a, ezSimdVec4f b) { return a + b; });
+      VMOperation2(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a + b; });
       break;
 
     case ezExpressionByteCode::OpCode::Add_CR:
-      VMOperation2_C(pByteCode, pRegisters, uiNumRegisters, [](ezSimdVec4f a, ezSimdVec4f b) { return a + b; });
+      VMOperation2_C(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a + b; });
       break;
 
     case ezExpressionByteCode::OpCode::Sub_RR:
-      VMOperation2(pByteCode, pRegisters, uiNumRegisters, [](ezSimdVec4f a, ezSimdVec4f b) { return a - b; });
+      VMOperation2(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a - b; });
       break;
 
     case ezExpressionByteCode::OpCode::Sub_CR:
-      VMOperation2_C(pByteCode, pRegisters, uiNumRegisters, [](ezSimdVec4f a, ezSimdVec4f b) { return a - b; });
+      VMOperation2_C(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a - b; });
       break;
 
     case ezExpressionByteCode::OpCode::Mul_RR:
-      VMOperation2(pByteCode, pRegisters, uiNumRegisters, [](ezSimdVec4f a, ezSimdVec4f b) { return a.CompMul(b); });
+      VMOperation2(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a.CompMul(b); });
       break;
 
     case ezExpressionByteCode::OpCode::Mul_CR:
-      VMOperation2_C(pByteCode, pRegisters, uiNumRegisters, [](ezSimdVec4f a, ezSimdVec4f b) { return a.CompMul(b); });
+      VMOperation2_C(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a.CompMul(b); });
       break;
 
     case ezExpressionByteCode::OpCode::Div_RR:
-      VMOperation2(pByteCode, pRegisters, uiNumRegisters, [](ezSimdVec4f a, ezSimdVec4f b) { return a.CompDiv(b); });
+      VMOperation2(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a.CompDiv(b); });
       break;
 
     case ezExpressionByteCode::OpCode::Div_CR:
-      VMOperation2_C(pByteCode, pRegisters, uiNumRegisters, [](ezSimdVec4f a, ezSimdVec4f b) { return a.CompDiv(b); });
+      VMOperation2_C(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a.CompDiv(b); });
       break;
 
     case ezExpressionByteCode::OpCode::Min_RR:
-      VMOperation2(pByteCode, pRegisters, uiNumRegisters, [](ezSimdVec4f a, ezSimdVec4f b) { return a.CompMin(b); });
+      VMOperation2(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a.CompMin(b); });
       break;
 
     case ezExpressionByteCode::OpCode::Min_CR:
-      VMOperation2_C(pByteCode, pRegisters, uiNumRegisters, [](ezSimdVec4f a, ezSimdVec4f b) { return a.CompMin(b); });
+      VMOperation2_C(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a.CompMin(b); });
       break;
 
     case ezExpressionByteCode::OpCode::Max_RR:
-      VMOperation2(pByteCode, pRegisters, uiNumRegisters, [](ezSimdVec4f a, ezSimdVec4f b) { return a.CompMax(b); });
+      VMOperation2(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a.CompMax(b); });
       break;
 
     case ezExpressionByteCode::OpCode::Max_CR:
-      VMOperation2_C(pByteCode, pRegisters, uiNumRegisters, [](ezSimdVec4f a, ezSimdVec4f b) { return a.CompMax(b); });
+      VMOperation2_C(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a.CompMax(b); });
       break;
 
     case ezExpressionByteCode::OpCode::Sqrt_R:
-      VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](ezSimdVec4f x) { return x.GetSqrt(); });
+      VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return x.GetSqrt(); });
       break;
 
     case ezExpressionByteCode::OpCode::Mov_R:
-      VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](ezSimdVec4f x) { return x; });
+      VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return x; });
       break;
 
     case ezExpressionByteCode::OpCode::Mov_C:
-      VMOperation1_C(pByteCode, pRegisters, uiNumRegisters, [](ezSimdVec4f x) { return x; });
+      VMOperation1_C(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return x; });
       break;
 
     default:
