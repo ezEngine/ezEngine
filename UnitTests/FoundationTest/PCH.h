@@ -6,6 +6,13 @@
 #include <Foundation/Types/Types.h>
 #include <Foundation/Types/TypeTraits.h>
 #include <Foundation/Types/Bitflags.h>
+#include <Foundation/Types/Variant.h>
+#include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/Containers/Deque.h>
+#include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Strings/StringBuilder.h>
+#include <Foundation/Strings/String.h>
 
 #include <Foundation/Math/Declarations.h>
 

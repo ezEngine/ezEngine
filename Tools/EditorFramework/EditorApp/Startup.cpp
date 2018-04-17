@@ -11,8 +11,8 @@
 #include <EditorFramework/PropertyGrid/AssetBrowserPropertyWidget.moc.h>
 #include <EditorFramework/PropertyGrid/DynamicEnumPropertyWidget.moc.h>
 #include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
-#include <PropertyGrid/FileBrowserPropertyWidget.moc.h>
-#include <PropertyGrid/DynamicStringEnumPropertyWidget.moc.h>
+#include <EditorFramework/PropertyGrid/FileBrowserPropertyWidget.moc.h>
+#include <EditorFramework/PropertyGrid/DynamicStringEnumPropertyWidget.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/UIServices/QtProgressbar.h>

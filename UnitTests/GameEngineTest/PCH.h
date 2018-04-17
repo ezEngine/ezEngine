@@ -1,4 +1,4 @@
-﻿#include <TestFramework/Framework/TestFramework.h>
+#include <TestFramework/Framework/TestFramework.h>
 
 #include <Foundation/Basics.h>
 #include <Foundation/Basics/Assert.h>
@@ -13,3 +13,10 @@
 #include <Foundation/Strings/StringBuilder.h>
 
 #include <Foundation/Math/Declarations.h>
+#include <Foundation/Math/Rect.h>
+
+#include <Core/World/World.h>
+#include <Core/World/WorldDesc.h>
+#include <Core/Assets/AssetFileHeader.h>
+#include <RendererCore/Meshes/MeshComponent.h>
+#include <RendererCore/Debug/DebugRenderer.h>

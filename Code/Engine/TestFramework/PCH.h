@@ -33,3 +33,7 @@
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <Foundation/Utilities/EnumerableClass.h>
 
+#ifdef EZ_USE_QT
+#include <QWidget>
+#include <QtWidgets>
+#endif

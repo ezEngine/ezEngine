@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorEngineProcessFramework/IPC/SyncObject.h>
@@ -7,7 +7,7 @@
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Logging/Log.h>
-#include <Gizmos/GizmoHandle.h>
+#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>

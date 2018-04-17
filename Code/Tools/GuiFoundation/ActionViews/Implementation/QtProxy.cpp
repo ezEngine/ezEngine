@@ -5,10 +5,10 @@
 #include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
 #include <Foundation/Configuration/Startup.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
-#include <QMenu>
-#include <QAction>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <QMenu>
+#include <QAction>
 #include <QSlider>
 #include <QWidgetAction>
 #include <QLabel>

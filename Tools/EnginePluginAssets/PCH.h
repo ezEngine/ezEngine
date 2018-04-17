@@ -8,4 +8,16 @@
 
 #include <Plugin.h>
 
-
+#include <Core/ResourceManager/ResourceManager.h>
+#include <SharedPluginAssets/Common/Messages.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Strings/StringBuilder.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/Pipeline/View.h>
+#include <GameEngine/GameApplication/GameApplication.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
+#include <Core/World/GameObject.h>
+#include <Core/World/Component.h>
+#include <Core/Graphics/Geometry.h>

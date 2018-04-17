@@ -14,6 +14,17 @@
 
 #include <Foundation/Math/Declarations.h>
 
+#include <Core/Graphics/Camera.h>
+#include <RendererCore/Textures/Texture2DResource.h>
+#include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/Device/SwapChain.h>
+#include <Foundation/Image/Image.h>
+#include <Foundation/Image/ImageUtils.h>
+#include <Foundation/Image/ImageConversion.h>
+#include <Core/ResourceManager/ResourceManager.h>
+#include <RendererCore/Shader/ShaderResource.h>
+
 typedef float ezMathTestType;
 
 typedef ezVec2Template<ezMathTestType> ezVec2T; ///< This is only for testing purposes
