@@ -137,6 +137,8 @@ ezVariant ezToolsReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enu
     return ezVariant(ezMat3::IdentityMatrix());
   case ezVariant::Type::Matrix4:
     return ezVariant(ezMat4::IdentityMatrix());
+  case ezVariant::Type::Transform:
+    return ezVariant(ezTransform::Identity());
   case ezVariant::Type::String:
     return ezVariant("");
   case ezVariant::Type::StringView:

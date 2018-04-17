@@ -21,54 +21,66 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 {
   ezProgressRange range("Transforming Asset", 2, false);
 
-  ezEditableSkeleton* pProp = GetProperties();
 
   range.SetStepWeighting(0, 0.9);
   range.BeginNextStep("Importing Skeleton");
 
-  range.BeginNextStep("Writing Result");
+  // TODO: Read FBX, extract data, store structure (bone names, hierarchy) in a new ezEditableSkeleton
+  ezEditableSkeleton* pNewSkeleton = EZ_DEFAULT_NEW(ezEditableSkeleton);
 
+  // sets up a dummy skeleton, remove this code
   {
+    pNewSkeleton->ClearBones();
+
     ezStringBuilder name;
     ezRandom r;
     r.InitializeFromCurrentTime();
 
     ezEditableSkeletonBone* pCur;
 
-    if (pProp->m_Children.IsEmpty())
+    if (pNewSkeleton->m_Children.IsEmpty())
     {
       pCur = EZ_DEFAULT_NEW(ezEditableSkeletonBone);
-      pProp->m_Children.PushBack(pCur);
+      pNewSkeleton->m_Children.PushBack(pCur);
     }
 
-    pCur = pProp->m_Children[0];
-    name.Format("Root {0}", r.UInt());
+    pCur = pNewSkeleton->m_Children[0];
+    name.Format("Root", r.UInt());
     pCur->SetName(name);
 
-    if (pProp->m_Children[0]->m_Children.IsEmpty())
+    if (pNewSkeleton->m_Children[0]->m_Children.IsEmpty())
     {
       pCur = EZ_DEFAULT_NEW(ezEditableSkeletonBone);
-      pProp->m_Children[0]->m_Children.PushBack(pCur);
+      pNewSkeleton->m_Children[0]->m_Children.PushBack(pCur);
     }
 
-    pCur = pProp->m_Children[0]->m_Children[0];
+    pCur = pNewSkeleton->m_Children[0]->m_Children[0];
 
-    name.Format("Body {0}", r.UInt());
+    name.Format("Body", r.UInt());
     pCur->SetName(name);
 
-    if (pProp->m_Children[0]->m_Children[0]->m_Children.IsEmpty())
+    if (pNewSkeleton->m_Children[0]->m_Children[0]->m_Children.IsEmpty())
     {
       pCur = EZ_DEFAULT_NEW(ezEditableSkeletonBone);
-      pProp->m_Children[0]->m_Children[0]->m_Children.PushBack(pCur);
+      pNewSkeleton->m_Children[0]->m_Children[0]->m_Children.PushBack(pCur);
     }
 
-    pCur = pProp->m_Children[0]->m_Children[0]->m_Children[0];
+    pCur = pNewSkeleton->m_Children[0]->m_Children[0]->m_Children[0];
 
-    name.Format("Head {0}", r.UInt());
+    name.Format("Head", r.UInt());
     pCur->SetName(name);
-
-    ApplyNativePropertyChangesToObjectManager();
   }
+
+  // synchronize the old data (collision geometry etc.) with the new hierarchy
+  // this function deletes pNewSkeleton when it's done
+  MergeWithNewSkeleton(pNewSkeleton);
+
+  // merge the new data with the actual asset document
+  ApplyNativePropertyChangesToObjectManager();
+
+  range.BeginNextStep("Writing Result");
+
+  // TODO: write transformed skeleton resource to the stream
 
   return ezStatus(EZ_SUCCESS);
 }
@@ -78,6 +90,63 @@ ezStatus ezSkeletonAssetDocument::InternalCreateThumbnail(const ezAssetFileHeade
   ezStatus status = ezAssetDocument::RemoteCreateThumbnail(AssetHeader);
   return status;
 }
+
+void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton* pNewSkeleton)
+{
+  ezEditableSkeleton* pOldSkeleton = GetProperties();
+  ezMap<ezString, const ezEditableSkeletonBone*> prevBones;
+
+  // map all old bones by name
+  {
+    auto TraverseBones = [&prevBones](const auto& self, ezEditableSkeletonBone* pBone)->void
+    {
+      prevBones[pBone->GetName()] = pBone;
+
+      for (ezEditableSkeletonBone* pChild : pBone->m_Children)
+      {
+        self(self, pChild);
+      }
+    };
+
+    for (ezEditableSkeletonBone* pChild : pOldSkeleton->m_Children)
+    {
+      TraverseBones(TraverseBones, pChild);
+    }
+  }
+
+  // copy old properties to new skeleton
+  {
+    auto TraverseBones = [&prevBones](const auto& self, ezEditableSkeletonBone* pBone)->void
+    {
+      auto it = prevBones.Find(pBone->GetName());
+      if (it.IsValid())
+      {
+        pBone->CopyPropertiesFrom(it.Value());
+      }
+
+      for (ezEditableSkeletonBone* pChild : pBone->m_Children)
+      {
+        self(self, pChild);
+      }
+    };
+
+    for (ezEditableSkeletonBone* pChild : pNewSkeleton->m_Children)
+    {
+      TraverseBones(TraverseBones, pChild);
+    }
+  }
+
+  // get rid of all old bones
+  pOldSkeleton->ClearBones();
+
+  // move the new top level bones over to our own skeleton
+  pOldSkeleton->m_Children = pNewSkeleton->m_Children;
+  pNewSkeleton->m_Children.Clear(); // prevent this skeleton from deallocating the bones
+
+  // there is no use for the new skeleton anymore
+  EZ_DEFAULT_DELETE(pNewSkeleton);
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 
