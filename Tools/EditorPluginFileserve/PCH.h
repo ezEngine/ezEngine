@@ -8,4 +8,17 @@
 
 #include <Plugin.h>
 
+#include <GuiFoundation/Basics.h>
+#include <FileservePlugin/Fileserver/Fileserver.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 
+#include <QWidget>
+#include <QTimer>
+#include <QMessageBox>
+#include <QTimer>
+#include <QHostAddress>
+#include <QAbstractSocket>
+#include <QNetworkInterface>
+#include <QTableWidget>
+#include <QInputDialog>
+#include <QSettings>

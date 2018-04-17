@@ -8,4 +8,15 @@
 
 #include <Plugin.h>
 
-
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Strings/StringBuilder.h>
+#include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Core/Graphics/Geometry.h>
+#include <GameEngine/GameApplication/GameApplication.h>
+#include <SharedPluginAssets/Common/Messages.h>
+#include <ParticlePlugin/Resources/ParticleEffectResource.h>
+#include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>

@@ -13,3 +13,5 @@
 
 #include <FileservePlugin/Plugin.h>
 
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Strings/StringBuilder.h>

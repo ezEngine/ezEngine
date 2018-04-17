@@ -9,3 +9,15 @@
 #include <Plugin.h>
 
 
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <RendererCore/Debug/DebugRenderer.h>
+#include <Foundation/Strings/StringBuilder.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Core/Graphics/Geometry.h>
+#include <GameEngine/GameApplication/GameApplication.h>
+#include <SharedPluginAssets/Common/Messages.h>
+#include <Core/ResourceManager/ResourceManager.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
+#include <Core/World/GameObject.h>
+#include <Core/World/Component.h>
+#include <GameEngine/Interfaces/PhysicsWorldModule.h>

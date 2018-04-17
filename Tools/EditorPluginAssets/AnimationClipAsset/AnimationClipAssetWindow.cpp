@@ -6,8 +6,6 @@
 #include <GuiFoundation/Widgets/ImageWidget.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <QLabel>
-#include <QLayout>
 #include <Foundation/Image/ImageConversion.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/Preferences/Preferences.h>
@@ -15,6 +13,8 @@
 #include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/InputContexts/OrbitCameraContext.h>
+#include <QLabel>
+#include <QLayout>
 
 ezQtAnimationClipAssetDocumentWindow::ezQtAnimationClipAssetDocumentWindow(ezAnimationClipAssetDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)

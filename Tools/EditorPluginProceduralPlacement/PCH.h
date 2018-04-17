@@ -9,3 +9,12 @@
 #include <Plugin.h>
 
 
+#include <Foundation/Strings/StringBuilder.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
+#include <GuiFoundation/Action/ActionMapManager.h>
+#include <Foundation/Strings/TranslationLookup.h>
+#include <Foundation/Utilities/Node.h>
+
+#include <QLabel>
+#include <QLayout>

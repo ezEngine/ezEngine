@@ -9,3 +9,11 @@
 #include <Plugin.h>
 
 
+#include <Foundation/Strings/StringBuilder.h>
+
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <Core/WorldSerializer/WorldReader.h>
+
+#include <RendererCore/Pipeline/Declarations.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <EnginePluginScene/SceneContext/SceneContext.h>

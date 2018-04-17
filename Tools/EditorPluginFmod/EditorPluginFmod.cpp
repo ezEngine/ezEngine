@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginFmod/EditorPluginFmod.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <Foundation/Reflection/Reflection.h>
@@ -13,7 +13,6 @@
 
 #include <EditorPluginFmod/Actions/FmodActions.h>
 #include <GuiFoundation/UIServices/DynamicEnums.h>
-#include <GameEngine/CollisionFilter/CollisionFilter.h>
 #include <EditorPluginFmod/Preferences/FmodPreferences.h>
 
 static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);

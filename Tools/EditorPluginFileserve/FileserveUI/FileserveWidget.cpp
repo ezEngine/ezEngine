@@ -1,17 +1,17 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginFileserve/FileserveUI/FileserveWidget.moc.h>
 #include <EditorPluginFileserve/FileserveUI/ActivityModel.moc.h>
 #include <EditorPluginFileserve/FileserveUI/AllFilesModel.moc.h>
 #include <FileservePlugin/Fileserver/Fileserver.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
+#include <GuiFoundation/Basics.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <QMessageBox>
 #include <QTimer>
 #include <QHostAddress>
 #include <QAbstractSocket>
 #include <QNetworkInterface>
-#include <GuiFoundation/Basics.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <QTableWidget>
-#include <Foundation/Utilities/CommandLineUtils.h>
 #include <QInputDialog>
 #include <QSettings>
 
