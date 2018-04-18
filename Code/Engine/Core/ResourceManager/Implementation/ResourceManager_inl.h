@@ -184,19 +184,21 @@ void ezResourceManager::RestoreResource(const ezTypedResourceHandle<ResourceType
 }
 
 template<typename ResourceType>
-void ezResourceManager::ReloadResource(const ezTypedResourceHandle<ResourceType>& hResource, bool bForce)
+bool ezResourceManager::ReloadResource(const ezTypedResourceHandle<ResourceType>& hResource, bool bForce)
 {
   ResourceType* pResource = BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly);
 
-  ReloadResource(pResource, bForce);
+  bool res = ReloadResource(pResource, bForce);
 
   EndAcquireResource(pResource);
+
+  return res;
 }
 
 template<typename ResourceType>
-void ezResourceManager::ReloadResourcesOfType(bool bForce)
+ezUInt32 ezResourceManager::ReloadResourcesOfType(bool bForce)
 {
-  ReloadResourcesOfType(ezGetStaticRTTI<ResourceType>(), bForce);
+  return ReloadResourcesOfType(ezGetStaticRTTI<ResourceType>(), bForce);
 }
 
 template<typename ResourceType>

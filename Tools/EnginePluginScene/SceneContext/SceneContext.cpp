@@ -17,6 +17,7 @@
 #include <Foundation/Configuration/Singleton.h>
 #include <EditorEngineProcessFramework/SceneExport/SceneExportModifier.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
+#include <Core/ResourceManager/ResourceManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>)
 {
@@ -77,11 +78,13 @@ ezSceneContext::ezSceneContext()
   m_pWorld = nullptr;
 
   ezVisualScriptComponent::s_ActivityEvents.AddEventHandler(ezMakeDelegate(&ezSceneContext::OnVisualScriptActivity, this));
+  ezResourceManager::s_ManagerEvents.AddEventHandler(ezMakeDelegate(&ezSceneContext::OnResourceManagerEvent, this));
 }
 
 ezSceneContext::~ezSceneContext()
 {
   ezVisualScriptComponent::s_ActivityEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneContext::OnVisualScriptActivity, this));
+  ezResourceManager::s_ManagerEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneContext::OnResourceManagerEvent, this));
 }
 
 void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
@@ -137,6 +140,18 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 
   if (pMsg->IsInstanceOf<ezViewRedrawMsgToEngine>())
   {
+    if (m_bUpdateAllLocalBounds)
+    {
+      m_bUpdateAllLocalBounds = false;
+
+      EZ_LOCK(m_pWorld->GetWriteMarker());
+
+      for (auto it = m_pWorld->GetObjects(); it.IsValid(); ++it)
+      {
+        it->UpdateLocalBounds();
+      }
+    }
+
     auto pDocView = GetViewContext(static_cast<const ezViewRedrawMsgToEngine*>(pMsg)->m_uiViewID);
     if (pDocView)
       DrawSelectionBounds(pDocView->GetViewHandle());
@@ -422,6 +437,15 @@ void ezSceneContext::OnVisualScriptActivity(const ezVisualScriptComponentActivit
   SendProcessMessage(&msg);
 }
 
+void ezSceneContext::OnResourceManagerEvent(const ezResourceManagerEvent& e)
+{
+  if (e.m_EventType == ezResourceManagerEventType::ReloadAllResources)
+  {
+    // when resources get reloaded, make sure to update all object bounds
+    // this is to prevent culling errors after meshes got transformed etc.
+    m_bUpdateAllLocalBounds = true;
+  }
+}
 
 void ezSceneContext::HandleObjectsForDebugVisMsg(const ezObjectsForDebugVisMsgToEngine* pMsg)
 {

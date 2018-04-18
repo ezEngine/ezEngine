@@ -565,15 +565,15 @@ void ezResourceManager::PreloadResource(const ezTypelessResourceHandle& hResourc
   }
 }
 
-void ezResourceManager::ReloadResource(ezResourceBase* pResource, bool bForce)
+bool ezResourceManager::ReloadResource(ezResourceBase* pResource, bool bForce)
 {
   EZ_LOCK(s_ResourceMutex);
 
   if (!pResource->m_Flags.IsAnySet(ezResourceFlags::IsReloadable))
-    return;
+    return false;
 
   if (!bForce && pResource->m_Flags.IsAnySet(ezResourceFlags::PreventFileReload))
-      return;
+      return false;
 
   ezResourceTypeLoader* pLoader = ezResourceManager::GetResourceTypeLoader(pResource->GetDynamicRTTI());
 
@@ -583,11 +583,11 @@ void ezResourceManager::ReloadResource(ezResourceBase* pResource, bool bForce)
     pLoader = pResource->GetDefaultResourceTypeLoader();
 
   if (pLoader == nullptr)
-    return;
+    return false;
 
   // no need to reload resources that are not loaded so far
   if (pResource->GetLoadingState() == ezResourceState::Unloaded)
-    return;
+    return false;
 
   bool bAllowPreloading = true;
 
@@ -606,7 +606,7 @@ void ezResourceManager::ReloadResource(ezResourceBase* pResource, bool bForce)
       // therefore we should not touch it (especially unload it), it might end up in an inconsistent state
 
       ezLog::Dev("Resource '{0}' is not being reloaded, because it is currently loaded already", pResource->GetResourceID());
-      return;
+      return false;
     }
   }
 
@@ -614,7 +614,7 @@ void ezResourceManager::ReloadResource(ezResourceBase* pResource, bool bForce)
   if (!bForce)
   {
     if (!pLoader->IsResourceOutdated(pResource))
-      return;
+      return false;
 
     if (pResource->GetLoadingState() == ezResourceState::LoadedResourceMissing)
     {
@@ -653,18 +653,27 @@ void ezResourceManager::ReloadResource(ezResourceBase* pResource, bool bForce)
       //PreloadResource(pResource, tNow - pResource->GetLastAcquireTime());
     }
   }
+
+  return true;
 }
 
-void ezResourceManager::ReloadResourcesOfType(const ezRTTI* pType, bool bForce)
+ezUInt32 ezResourceManager::ReloadResourcesOfType(const ezRTTI* pType, bool bForce)
 {
   EZ_LOCK(s_ResourceMutex);
   EZ_LOG_BLOCK("ezResourceManager::ReloadResourcesOfType", pType->GetTypeName());
 
+  ezUInt32 count = 0;
+
   for (auto it = m_LoadedResources.GetIterator(); it.IsValid(); ++it)
   {
     if (it.Value()->GetDynamicRTTI() == pType)
-      ReloadResource(it.Value(), bForce);
+    {
+      if (ReloadResource(it.Value(), bForce))
+        ++count;
+    }
   }
+
+  return count;
 }
 
 // To allow triggering this event without a link dependency
@@ -674,15 +683,28 @@ EZ_ON_GLOBAL_EVENT(ezResourceManager_ReloadAllResources)
   ezResourceManager::ReloadAllResources(false);
 }
 
-void ezResourceManager::ReloadAllResources(bool bForce)
+ezUInt32 ezResourceManager::ReloadAllResources(bool bForce)
 {
   EZ_LOCK(s_ResourceMutex);
   EZ_LOG_BLOCK("ezResourceManager::ReloadAllResources");
 
+  ezUInt32 count = 0;
+
   for (auto it = m_LoadedResources.GetIterator(); it.IsValid(); ++it)
   {
-    ReloadResource(it.Value(), bForce);
+    if (ReloadResource(it.Value(), bForce))
+      ++count;
   }
+
+  if (count > 0)
+  {
+    ezResourceManagerEvent e;
+    e.m_EventType = ezResourceManagerEventType::ReloadAllResources;
+
+    s_ManagerEvents.Broadcast(e);
+  }
+
+  return count;
 }
 
 

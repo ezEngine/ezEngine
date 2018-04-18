@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorEngineProcessFramework/Plugin.h>
 #include <Foundation/Types/Uuid.h>
@@ -55,8 +55,8 @@ public:
   ezWorld* GetWorld() const { return m_pWorld; }
 
 protected:
-  virtual void OnInitialize() {}
-  virtual void OnDeinitialize() {}
+  virtual void OnInitialize();
+  virtual void OnDeinitialize();
 
   /// \brief Needs to be implemented to create a view context used for windows and thumbnails rendering.
   virtual ezEngineProcessViewContext* CreateViewContext() = 0;
@@ -94,9 +94,9 @@ protected:
   virtual bool UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext);
 
   /// \brief Called after a thumbnail context was created. Allows to insert code before the thumbnail is generated.
-  virtual void OnThumbnailViewContextCreated() {}
+  virtual void OnThumbnailViewContextCreated();
   /// \brief Called before a thumbnail context is destroyed. Used for cleanup of what was done in OnThumbnailViewContextCreated()
-  virtual void OnDestroyThumbnailViewContext() {}
+  virtual void OnDestroyThumbnailViewContext();
 
   ezWorld* m_pWorld;
 

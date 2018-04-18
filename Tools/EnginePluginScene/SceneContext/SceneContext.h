@@ -14,6 +14,7 @@ struct ezVisualScriptComponentActivityEvent;
 class ezGlobalSettingsMsgToEngine;
 class ezGridSettingsMsgToEngine;
 class ezSimulationSettingsMsgToEngine;
+struct ezResourceManagerEvent;
 
 class EZ_ENGINEPLUGINSCENE_DLL ezSceneContext : public ezEngineProcessDocumentContext
 {
@@ -69,7 +70,9 @@ private:
   void OnPlayTheGameModeStarted();
 
   void OnVisualScriptActivity(const ezVisualScriptComponentActivityEvent& e);
+  void OnResourceManagerEvent(const ezResourceManagerEvent& e);
 
+  bool m_bUpdateAllLocalBounds = false;
   bool m_bRenderSelectionOverlay;
   bool m_bRenderShapeIcons;
   bool m_bRenderSelectionBoxes;

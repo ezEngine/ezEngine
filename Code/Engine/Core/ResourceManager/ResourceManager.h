@@ -17,8 +17,8 @@ enum class ezResourceManagerEventType
   ManagerShuttingDown,
   ResourceCategoryChanged,
   ClearResourceFallbacks, ///< Sent during system shutdown to cleanup all missing or loading resource fallbacks
+  ReloadAllResources, ///< Set by ReloadAllResources() if any resource got unloaded (not yet reloaded)
 };
-
 
 struct ezResourceManagerEvent
 {
@@ -132,17 +132,17 @@ public:
   static void RestoreResource(const ezTypedResourceHandle<ResourceType>& hResource);
 
   template<typename ResourceType>
-  static void ReloadResource(const ezTypedResourceHandle<ResourceType>& hResource, bool bForce);
+  static bool ReloadResource(const ezTypedResourceHandle<ResourceType>& hResource, bool bForce);
 
   /// \brief Goes through all resources of the given type and makes sure they are reloaded, if they have changed. If bForce is true, resources are updated, even if there is no indication that they have changed.
   template<typename ResourceType>
-  static void ReloadResourcesOfType(bool bForce);
+  static ezUInt32 ReloadResourcesOfType(bool bForce);
 
   /// \brief Goes through all resources of the given type and makes sure they are reloaded, if they have changed. If bForce is true, resources are updated, even if there is no indication that they have changed.
-  static void ReloadResourcesOfType(const ezRTTI* pType, bool bForce);
+  static ezUInt32 ReloadResourcesOfType(const ezRTTI* pType, bool bForce);
 
   /// \brief Goes through all resources and makes sure they are reloaded, if they have changed. If bForce is true, all reloadable resources are updated, even if there is no indication that they have changed.
-  static void ReloadAllResources(bool bForce);
+  static ezUInt32 ReloadAllResources(bool bForce);
 
   /// \brief Calls ezResourceBase::ResetResource() on all resources.
   ///
@@ -221,7 +221,7 @@ private:
 
   static bool HelpResourceLoading();
 
-  static void ReloadResource(ezResourceBase* pResource, bool bForce);
+  static bool ReloadResource(ezResourceBase* pResource, bool bForce);
 
   static void PreloadResource(ezResourceBase* pResource, ezTime tShouldBeAvailableIn);
 

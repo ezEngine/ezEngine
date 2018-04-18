@@ -369,7 +369,6 @@ void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEd
   pSyncObject->SetModified(true);
 }
 
-
 void ezEngineProcessDocumentContext::Reset()
 {
   ezUuid guid = m_DocumentGuid;
@@ -380,11 +379,13 @@ void ezEngineProcessDocumentContext::Reset()
   Initialize(guid, ipc);
 }
 
-
 void ezEngineProcessDocumentContext::ClearExistingObjects()
 {
   m_Context.DeleteExistingObjects();
 }
+
+void ezEngineProcessDocumentContext::OnInitialize() {}
+void ezEngineProcessDocumentContext::OnDeinitialize() {}
 
 bool ezEngineProcessDocumentContext::PendingOperationInProgress() const
 {
@@ -581,6 +582,9 @@ bool ezEngineProcessDocumentContext::UpdateThumbnailViewContext(ezEngineProcessV
   ezLog::Error("UpdateThumbnailViewContext not implemented for '{0}'", GetDynamicRTTI()->GetTypeName());
   return true;
 }
+
+void ezEngineProcessDocumentContext::OnThumbnailViewContextCreated() {}
+void ezEngineProcessDocumentContext::OnDestroyThumbnailViewContext() {}
 
 void ezEngineProcessDocumentContext::SetTagOnObject(const ezUuid& object, const char* szTag, bool bSet, bool recursive)
 {
