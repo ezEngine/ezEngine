@@ -12,6 +12,7 @@ class ezEditorSelectedObjectsExtractor : public ezSelectedObjectsExtractor
   EZ_ADD_DYNAMIC_REFLECTION(ezEditorSelectedObjectsExtractor, ezSelectedObjectsExtractor);
 public:
   ezEditorSelectedObjectsExtractor();
+  ~ezEditorSelectedObjectsExtractor();
 
   virtual const ezDeque<ezGameObjectHandle>* GetSelection() override;
 

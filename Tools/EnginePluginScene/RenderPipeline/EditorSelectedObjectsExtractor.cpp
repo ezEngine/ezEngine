@@ -29,6 +29,11 @@ ezEditorSelectedObjectsExtractor::ezEditorSelectedObjectsExtractor()
   m_pSceneContext = nullptr;
 }
 
+ezEditorSelectedObjectsExtractor::~ezEditorSelectedObjectsExtractor()
+{
+  ezRenderWorld::DeleteView(m_hRenderTargetView);
+}
+
 const ezDeque<ezGameObjectHandle>* ezEditorSelectedObjectsExtractor::GetSelection()
 {
   if (m_pSceneContext == nullptr)

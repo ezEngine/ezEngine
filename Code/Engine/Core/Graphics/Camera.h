@@ -38,7 +38,6 @@ class EZ_CORE_DLL ezCamera
 {
 public:
   ezCamera();
-  ~ezCamera() { }
 
   /// \brief Returns the position of the camera that should be used for rendering etc.
   ezVec3 GetPosition(ezCameraEye eye = ezCameraEye::Left) const;
