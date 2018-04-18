@@ -610,19 +610,20 @@ void ezResourceManager::ReloadResource(ezResourceBase* pResource, bool bForce)
     }
   }
 
-  if (pResource->GetLoadingState() != ezResourceState::LoadedResourceMissing)
+  // if bForce, skip the outdated check
+  if (!bForce)
   {
-    if (!bForce)
-    {
-      if (!pLoader->IsResourceOutdated(pResource))
-        return;
+    if (!pLoader->IsResourceOutdated(pResource))
+      return;
 
+    if (pResource->GetLoadingState() == ezResourceState::LoadedResourceMissing)
+    {
+      ezLog::Dev("Resource '{0}' is missing and will be tried to be reloaded ('{1}')", pResource->GetResourceID(), pResource->GetResourceDescription());
+    }
+    else
+    {
       ezLog::Dev("Resource '{0}' is outdated and will be reloaded ('{1}')", pResource->GetResourceID(), pResource->GetResourceDescription());
     }
-  }
-  else
-  {
-    ezLog::Dev("Resource '{0}' is missing and will be tried to be reloaded ('{1}')", pResource->GetResourceID(), pResource->GetResourceDescription());
   }
 
   // make sure existing data is purged

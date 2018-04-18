@@ -107,13 +107,14 @@ bool ezFmodSoundBankResourceLoader::IsResourceOutdated(const ezResourceBase* pRe
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 
+  // don't try to reload a file that cannot be found
+  ezStringBuilder sAbs;
+  if (ezFileSystem::ResolvePath(pResource->GetResourceID(), &sAbs, nullptr).Failed())
+    return false;
+
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   if (pResource->GetLoadedFileModificationTime().IsValid())
   {
-    ezStringBuilder sAbs;
-    if (ezFileSystem::ResolvePath(pResource->GetResourceID(), &sAbs, nullptr).Failed())
-      return false;
-
     ezFileStats stat;
     if (ezOSFile::GetFileStats(sAbs, stat).Failed())
       return false;

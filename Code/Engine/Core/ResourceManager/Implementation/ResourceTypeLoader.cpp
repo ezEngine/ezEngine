@@ -66,22 +66,24 @@ void ezResourceLoaderFromFile::CloseDataStream(const ezResourceBase* pResource, 
 
 bool ezResourceLoaderFromFile::IsResourceOutdated(const ezResourceBase* pResource) const
 {
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
-  if (pResource->GetLoadedFileModificationTime().IsValid())
-  {
+    // if we cannot find the target file, there is no point in trying to reload it -> claim it's up to date
     ezStringBuilder sAbs;
     if (ezFileSystem::ResolvePath(pResource->GetResourceID(), &sAbs, nullptr).Failed())
       return false;
 
-    ezFileStats stat;
-    if (ezOSFile::GetFileStats(sAbs, stat).Failed())
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+
+    if (pResource->GetLoadedFileModificationTime().IsValid())
+    {
+      ezFileStats stat;
+      if (ezOSFile::GetFileStats(sAbs, stat).Failed())
+        return false;
+
+      if (!stat.m_LastModificationTime.Compare(pResource->GetLoadedFileModificationTime(), ezTimestamp::CompareMode::FileTimeEqual))
+        return true;
+
       return false;
-
-    if (!stat.m_LastModificationTime.Compare(pResource->GetLoadedFileModificationTime(), ezTimestamp::CompareMode::FileTimeEqual))
-      return true;
-
-    return false;
-  }
+    }
 
 #endif
 

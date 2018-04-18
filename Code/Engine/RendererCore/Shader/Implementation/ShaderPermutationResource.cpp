@@ -219,13 +219,14 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pR
 
 bool ezShaderPermutationResourceLoader::IsResourceOutdated(const ezResourceBase* pResource) const
 {
+  // don't try to reload a file that cannot be found
+  ezStringBuilder sAbs;
+  if (ezFileSystem::ResolvePath(pResource->GetResourceID(), &sAbs, nullptr).Failed())
+    return false;
+
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   if (pResource->GetLoadedFileModificationTime().IsValid())
   {
-    ezStringBuilder sAbs;
-    if (ezFileSystem::ResolvePath(pResource->GetResourceID(), &sAbs, nullptr).Failed())
-      return false;
-
     ezFileStats stat;
     if (ezOSFile::GetFileStats(sAbs, stat).Failed())
       return false;
