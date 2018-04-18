@@ -19,14 +19,23 @@ enum class ezTranslationUsage
 class EZ_FOUNDATION_DLL ezTranslator
 {
 public:
-  ezTranslator() {}
-  virtual ~ezTranslator() {}
+  ezTranslator();
+  virtual ~ezTranslator();
 
   /// \brief The given string (with the given hash) shall be translated
   virtual const char* Translate(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage) = 0;
 
   /// \brief Called to reset internal state
-  virtual void Reset() {}
+  virtual void Reset();
+
+  /// \brief May reload the known translations
+  virtual void Reload();
+
+  /// \brief Will call Reload() on all currently active translators
+  static void ReloadAllTranslators();
+
+private:
+  static ezHybridArray<ezTranslator*, 4> s_AllTranslators;
 };
 
 /// \brief Just returns the same string that is passed into it. Can be used to display the actually untranslated strings
@@ -53,6 +62,9 @@ public:
   /// \brief Clears all stored translation strings
   virtual void Reset() override;
 
+  /// \brief Simply executes Reset() on this translator
+  virtual void Reload() override;
+
 protected:
   ezMap<ezUInt32, ezString> m_Translations[(int)ezTranslationUsage::ENUM_COUNT];
 };
@@ -61,6 +73,7 @@ protected:
 class EZ_FOUNDATION_DLL ezTranslatorLogMissing : public ezTranslatorStorage
 {
 public:
+  /// Can be used from external code to (temporarily) deactivate error logging (a bit hacky)
   static bool s_bActive;
 
   virtual const char* Translate(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage) override;
@@ -77,8 +90,12 @@ public:
   /// This function depends on ezFileSystemIterator to be available.
   void LoadTranslationFilesFromFolder(const char* szFolder);
 
+  virtual void Reload() override;
+
 private:
   void LoadTranslationFile(const char* szFullPath);
+
+  ezString m_sFolder;
 };
 
 /// \brief Handles looking up translations for strings.

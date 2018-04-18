@@ -5,6 +5,36 @@
 #include <Foundation/Algorithm/Hashing.h>
 #include <Foundation/IO/OSFile.h>
 
+ezHybridArray<ezTranslator*, 4> ezTranslator::s_AllTranslators;
+
+ezTranslator::ezTranslator()
+{
+  s_AllTranslators.PushBack(this);
+}
+
+ezTranslator::~ezTranslator()
+{
+  s_AllTranslators.RemoveSwap(this);
+}
+
+void ezTranslator::Reset()
+{
+}
+
+void ezTranslator::Reload()
+{
+}
+
+void ezTranslator::ReloadAllTranslators()
+{
+  for (ezTranslator* pTranslator : s_AllTranslators)
+  {
+    pTranslator->Reload();
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 ezHybridArray<ezUniquePtr<ezTranslator>, 16> ezTranslationLookup::s_pTranslators;
 
 void ezTranslationLookup::AddTranslator(ezUniquePtr<ezTranslator> pTranslator)
@@ -36,6 +66,12 @@ void ezTranslationLookup::Clear()
 
 void ezTranslatorFromFiles::LoadTranslationFilesFromFolder(const char* szFolder)
 {
+  if (m_sFolder != szFolder)
+  {
+    // prevent assigning to itself during Reload()
+    m_sFolder = szFolder;
+  }
+
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
   ezStringBuilder startPath;
   if (ezFileSystem::ResolvePath(szFolder, &startPath, nullptr).Failed())
@@ -56,6 +92,16 @@ void ezTranslatorFromFiles::LoadTranslationFilesFromFolder(const char* szFolder)
     while (it.Next().Succeeded());
   }
 #endif
+}
+
+void ezTranslatorFromFiles::Reload()
+{
+  ezTranslatorStorage::Reload();
+
+  if (!m_sFolder.IsEmpty())
+  {
+    LoadTranslationFilesFromFolder(m_sFolder);
+  }
 }
 
 void ezTranslatorFromFiles::LoadTranslationFile(const char* szFullPath)
@@ -139,6 +185,11 @@ void ezTranslatorStorage::Reset()
   {
     m_Translations[i].Clear();
   }
+}
+
+void ezTranslatorStorage::Reload()
+{
+  Reset();
 }
 
 //////////////////////////////////////////////////////////////////////////

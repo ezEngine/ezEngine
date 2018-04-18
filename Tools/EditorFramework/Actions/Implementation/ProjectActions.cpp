@@ -492,6 +492,8 @@ void ezProjectAction::Execute(const ezVariant& value)
       {
         m_Context.m_pDocument->ShowDocumentStatus("Reloading Resources");
       }
+
+      ezTranslator::ReloadAllTranslators();
     }
     break;
 

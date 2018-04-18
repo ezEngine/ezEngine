@@ -325,7 +325,6 @@ void ezQtTypeWidget::UpdatePropertyMetaState()
         bool temp = ezTranslatorLogMissing::s_bActive;
         ezTranslatorLogMissing::s_bActive = false;
 
-        // do NOT translate the first string (this comment is now out of date)
         // unless there is a specific override, we want to show the exact property name
         // also we don't want to force people to add translations for each and every property name
         it.Value().m_pLabel->setText(QString::fromUtf8(ezTranslate(it.Value().m_sOriginalLabelText.GetData())));
