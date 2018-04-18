@@ -1,4 +1,5 @@
 #pragma once
+
 #ifdef EZ_USE_QT
 
 #include <TestFramework/Basics.h>
