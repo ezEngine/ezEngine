@@ -5,11 +5,12 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonResource, 1, ezRTTIDefaultAllocator<ezSkeletonResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-
 ezSkeletonResource::ezSkeletonResource()
   : ezResource<ezSkeletonResource, ezSkeletonResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
 }
+
+ezSkeletonResource::~ezSkeletonResource() = default;
 
 ezResourceLoadDesc ezSkeletonResource::CreateResource(const ezSkeletonResourceDescriptor& descriptor)
 {
@@ -71,15 +72,20 @@ void ezSkeletonResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 
 void ezSkeletonResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  //const ezUInt8 uiVersion = 1;
-  //stream << uiVersion;
+  const ezUInt8 uiVersion = 1;
+  stream << uiVersion;
+
+  m_Skeleton.Save(stream);
 }
 
 void ezSkeletonResourceDescriptor::Load(ezStreamReader& stream)
 {
-  //ezUInt8 uiVersion = 0;
-  //stream >> uiVersion;
+  ezUInt8 uiVersion = 0;
+  stream >> uiVersion;
 
+  EZ_ASSERT_DEV(uiVersion == 1, "Invalid skeleton descriptor version {0}", uiVersion);
+
+  m_Skeleton.Load(stream);
 }
 
 

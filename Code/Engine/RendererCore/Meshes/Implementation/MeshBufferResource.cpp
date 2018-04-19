@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Buffer.h>
@@ -382,7 +382,11 @@ ezBoundingBoxSphere ezMeshBufferResourceDescriptor::ComputeBounds() const
 
       const ezUInt32 offset = m_VertexDeclaration.m_VertexStreams[i].m_uiOffset;
 
-      bounds.SetFromPoints(reinterpret_cast<const ezVec3*>(&m_VertexStreamData[offset]), m_uiVertexCount, m_uiVertexSize);
+      if (!m_VertexStreamData.IsEmpty() && m_uiVertexCount > 0)
+      {
+        bounds.SetFromPoints(reinterpret_cast<const ezVec3*>(&m_VertexStreamData[offset]), m_uiVertexCount, m_uiVertexSize);
+      }
+
       return bounds;
     }
   }

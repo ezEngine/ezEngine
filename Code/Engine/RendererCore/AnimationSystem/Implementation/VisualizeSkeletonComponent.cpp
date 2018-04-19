@@ -144,42 +144,47 @@ void ezVisualizeSkeletonComponent::CreateRenderMesh()
     return;
   }
 
-  ezUniquePtr<ezSkeleton> pSkeletonData;
+  
+
+  const ezSkeleton* pSkeletonData = &pSkeleton->GetDescriptor().m_Skeleton;
+
+  if (pSkeletonData->GetBoneCount() == 0)
+    return;
 
   ezMeshResourceDescriptor md;
   auto& buffer = md.MeshBufferDesc();
 
   // create a realistic humanoid dummy skeleton
-  {
-    ezMat4 m;
-    ezSkeletonBuilder builder;
+  //{
+  //  ezMat4 m;
+  //  ezSkeletonBuilder builder;
 
-    m.SetTranslationMatrix(ezVec3(0, 0, 0.0f));
-    const ezUInt32 root = builder.AddBone("Root", m);
+  //  m.SetTranslationMatrix(ezVec3(0, 0, 0.0f));
+  //  const ezUInt32 root = builder.AddBone("Root", m);
 
-    m.SetTranslationMatrix(ezVec3(0, 0, 1.0f));
-    const ezUInt32 body = builder.AddBone("Body", m, root);
+  //  m.SetTranslationMatrix(ezVec3(0, 0, 1.0f));
+  //  const ezUInt32 body = builder.AddBone("Body", m, root);
 
-    m.SetTranslationMatrix(ezVec3(0, 0, 0.6f));
-    const ezUInt32 head = builder.AddBone("Head", m, body);
+  //  m.SetTranslationMatrix(ezVec3(0, 0, 0.6f));
+  //  const ezUInt32 head = builder.AddBone("Head", m, body);
 
-    m.SetTranslationMatrix(ezVec3(0.2f, 0, 0));
-    const ezUInt32 nose = builder.AddBone("Nose", m, head);
+  //  m.SetTranslationMatrix(ezVec3(0.2f, 0, 0));
+  //  const ezUInt32 nose = builder.AddBone("Nose", m, head);
 
-    m.SetTranslationMatrix(ezVec3(0, 0.5f, 0));
-    const ezUInt32 rarm = builder.AddBone("RArm", m, body);
+  //  m.SetTranslationMatrix(ezVec3(0, 0.5f, 0));
+  //  const ezUInt32 rarm = builder.AddBone("RArm", m, body);
 
-    m.SetTranslationMatrix(ezVec3(0, 0.3f, 0.1f));
-    const ezUInt32 rarm2 = builder.AddBone("RArm2", m, rarm);
+  //  m.SetTranslationMatrix(ezVec3(0, 0.3f, 0.1f));
+  //  const ezUInt32 rarm2 = builder.AddBone("RArm2", m, rarm);
 
-    m.SetTranslationMatrix(ezVec3(0, -0.4f, -0.1f));
-    const ezUInt32 larm = builder.AddBone("LArm", m, body);
+  //  m.SetTranslationMatrix(ezVec3(0, -0.4f, -0.1f));
+  //  const ezUInt32 larm = builder.AddBone("LArm", m, body);
 
-    m.SetTranslationMatrix(ezVec3(0, -0.1f, -0.2f));
-    const ezUInt32 larm2 = builder.AddBone("LArm2", m, larm);
+  //  m.SetTranslationMatrix(ezVec3(0, -0.1f, -0.2f));
+  //  const ezUInt32 larm2 = builder.AddBone("LArm2", m, larm);
 
-    pSkeletonData = builder.CreateSkeletonInstance();
-  }
+  //  pSkeletonData = builder.CreateSkeletonInstance();
+  //}
 
 
   {

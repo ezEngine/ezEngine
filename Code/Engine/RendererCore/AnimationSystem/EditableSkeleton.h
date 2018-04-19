@@ -5,6 +5,8 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/HashedString.h>
 
+struct ezSkeletonResourceDescriptor;
+
 struct ezEditableBoneGeometry
 {
   typedef ezUInt8 StorageType;
@@ -59,6 +61,7 @@ public:
   ~ezEditableSkeleton();
 
   void ClearBones();
+  void FillResourceDescriptor(ezSkeletonResourceDescriptor& desc);
 
   ezString m_sAnimationFile;
 

@@ -1,6 +1,8 @@
 
 #include <PCH.h>
 #include <RendererCore/AnimationSystem/EditableSkeleton.h>
+#include <RendererCore/AnimationSystem/SkeletonBuilder.h>
+#include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezEditableBoneGeometry, 1)
 EZ_ENUM_CONSTANTS(ezEditableBoneGeometry::None, ezEditableBoneGeometry::Capsule, ezEditableBoneGeometry::Sphere, ezEditableBoneGeometry::Box)
@@ -51,6 +53,32 @@ void ezEditableSkeleton::ClearBones()
   }
 
   m_Children.Clear();
+}
+
+void ezEditableSkeleton::FillResourceDescriptor(ezSkeletonResourceDescriptor& desc)
+{
+  ezSkeletonBuilder sb;
+  sb.SetSkinningMode(ezSkeleton::Mode::FourBones); // TODO: make this configurable ?
+
+  auto AddChildBones = [&sb](auto& self, const ezEditableSkeletonBone* pBone, ezUInt32 uiBoneIdx)->void
+  {
+    for (const auto* pChildBone : pBone->m_Children)
+    {
+      const ezUInt32 idx = sb.AddBone(pChildBone->GetName(), pChildBone->m_Transform.GetAsMat4(), uiBoneIdx);
+
+      self(self, pChildBone, idx);
+    }
+  };
+
+  for (const auto* pBone : m_Children)
+  {
+    const ezUInt32 idx = sb.AddBone(pBone->GetName(), pBone->m_Transform.GetAsMat4());
+
+    AddChildBones(AddChildBones, pBone, idx);
+  }
+
+  // TODO: a bit wasteful to allocate an object that is discarded right away
+  desc.m_Skeleton = *sb.CreateSkeletonInstance();
 }
 
 ezEditableSkeletonBone::ezEditableSkeletonBone()

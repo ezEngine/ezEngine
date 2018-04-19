@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
@@ -56,6 +56,10 @@ void ezQtEditorApp::SlotTimedUpdate()
   m_pTimer->start(1);
 }
 
+void ezQtEditorApp::SlotSaveSettings()
+{
+  SaveSettings();
+}
 
 void ezQtEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e)
 {

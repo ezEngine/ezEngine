@@ -2,10 +2,11 @@
 
 #include <RendererCore/Basics.h>
 #include <Core/ResourceManager/Resource.h>
+#include <RendererCore/AnimationSystem/Skeleton.h>
 
 struct EZ_RENDERERCORE_DLL ezSkeletonResourceDescriptor
 {
-
+  ezSkeleton m_Skeleton;
 
   void Save(ezStreamWriter& stream) const;
   void Load(ezStreamReader& stream);
@@ -19,7 +20,9 @@ class EZ_RENDERERCORE_DLL ezSkeletonResource : public ezResource<ezSkeletonResou
 
 public:
   ezSkeletonResource();
+  ~ezSkeletonResource();
 
+  const ezSkeletonResourceDescriptor& GetDescriptor() const { return m_Descriptor; }
 
 private:
   virtual ezResourceLoadDesc CreateResource(const ezSkeletonResourceDescriptor& descriptor) override;

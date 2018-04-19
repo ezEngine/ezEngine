@@ -4,6 +4,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Utilities/Progress.h>
 #include <Foundation/Math/Random.h>
+#include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -47,6 +48,7 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
     pCur = pNewSkeleton->m_Children[0];
     name.Format("Root", r.UInt());
     pCur->SetName(name);
+    pCur->m_Transform.SetIdentity();
 
     if (pNewSkeleton->m_Children[0]->m_Children.IsEmpty())
     {
@@ -58,6 +60,8 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 
     name.Format("Body", r.UInt());
     pCur->SetName(name);
+    pCur->m_Transform.SetIdentity();
+    pCur->m_Transform.m_vPosition.Set(0, 0, 1);
 
     if (pNewSkeleton->m_Children[0]->m_Children[0]->m_Children.IsEmpty())
     {
@@ -69,18 +73,24 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 
     name.Format("Head", r.UInt());
     pCur->SetName(name);
+    pCur->m_Transform.SetIdentity();
+    pCur->m_Transform.m_vPosition.Set(0, 0, 1.7);
   }
 
   // synchronize the old data (collision geometry etc.) with the new hierarchy
   // this function deletes pNewSkeleton when it's done
   MergeWithNewSkeleton(pNewSkeleton);
+  pNewSkeleton = nullptr;
 
   // merge the new data with the actual asset document
   ApplyNativePropertyChangesToObjectManager();
 
   range.BeginNextStep("Writing Result");
 
-  // TODO: write transformed skeleton resource to the stream
+  ezSkeletonResourceDescriptor desc;
+  GetProperties()->FillResourceDescriptor(desc);
+
+  desc.Save(stream);
 
   return ezStatus(EZ_SUCCESS);
 }

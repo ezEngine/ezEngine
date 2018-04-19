@@ -183,6 +183,7 @@ private slots:
   void SlotQueuedOpenProject(QString sProject);
   void SlotQueuedOpenDocument(QString sProject, void* pOpenContext);
   void SlotQueuedGuiCreateOrOpenProject(bool bCreate);
+  void SlotSaveSettings();
 
 private:
   void UpdateGlobalStatusBarMessage();

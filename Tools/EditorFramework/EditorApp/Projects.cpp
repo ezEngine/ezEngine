@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Preferences/Preferences.h>
@@ -116,10 +116,17 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
       s_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile(), 0);
 
       // make sure preferences are saved, this is important when the project was just created
+      // however, if we switch to an existing project, no documents are yet open and saving the preferences now
+      // would then store that "no documents were open", so don't save stuff right away in the regular case
       if (m_bSavePreferencesAfterOpenProject)
       {
         m_bSavePreferencesAfterOpenProject = false;
         SaveSettings();
+      }
+      else
+      {
+        // instead, save the settings after a short delay, by then all documents should have been opened
+        QTimer::singleShot(1000, this, SLOT(SlotSaveSettings()));
       }
     }
     break;
