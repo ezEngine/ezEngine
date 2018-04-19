@@ -129,9 +129,6 @@ void ezLog::WriteBlockHeader(ezLogInterface* pInterface, ezLogBlock* pBlock)
 
 void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum type, const char* szString)
 {
-  if (pInterface->GetLogLevel() < type)
-    return;
-
   ezLogBlock* pTopBlock = pInterface->m_pCurrentBlock;
   ezInt32 iIndentation = 0;
 
@@ -192,7 +189,7 @@ ezLogInterface* ezLog::GetThreadLocalLogSystem()
 
 void ezLog::Error(ezLogInterface* pInterface, const ezFormatString& string)
 {
-  if (pInterface == nullptr)
+  if (pInterface == nullptr || pInterface->GetLogLevel() < ezLogMsgType::ErrorMsg)
     return;
 
   ezStringBuilder tmp;
@@ -201,7 +198,7 @@ void ezLog::Error(ezLogInterface* pInterface, const ezFormatString& string)
 
 void ezLog::SeriousWarning(ezLogInterface* pInterface, const ezFormatString& string)
 {
-  if (pInterface == nullptr)
+  if (pInterface == nullptr || pInterface->GetLogLevel() < ezLogMsgType::SeriousWarningMsg)
     return;
 
   ezStringBuilder tmp;
@@ -210,7 +207,7 @@ void ezLog::SeriousWarning(ezLogInterface* pInterface, const ezFormatString& str
 
 void ezLog::Warning(ezLogInterface* pInterface, const ezFormatString& string)
 {
-  if (pInterface == nullptr)
+  if (pInterface == nullptr || pInterface->GetLogLevel() < ezLogMsgType::WarningMsg)
     return;
 
   ezStringBuilder tmp;
@@ -219,7 +216,7 @@ void ezLog::Warning(ezLogInterface* pInterface, const ezFormatString& string)
 
 void ezLog::Success(ezLogInterface* pInterface, const ezFormatString& string)
 {
-  if (pInterface == nullptr)
+  if (pInterface == nullptr || pInterface->GetLogLevel() < ezLogMsgType::SuccessMsg)
     return;
 
   ezStringBuilder tmp;
@@ -228,7 +225,7 @@ void ezLog::Success(ezLogInterface* pInterface, const ezFormatString& string)
 
 void ezLog::Info(ezLogInterface* pInterface, const ezFormatString& string)
 {
-  if (pInterface == nullptr)
+  if (pInterface == nullptr || pInterface->GetLogLevel() < ezLogMsgType::InfoMsg)
     return;
 
   ezStringBuilder tmp;
@@ -239,7 +236,7 @@ void ezLog::Info(ezLogInterface* pInterface, const ezFormatString& string)
 
 void ezLog::Dev(ezLogInterface* pInterface, const ezFormatString& string)
 {
-  if (pInterface == nullptr)
+  if (pInterface == nullptr || pInterface->GetLogLevel() < ezLogMsgType::DevMsg)
     return;
 
   ezStringBuilder tmp;
@@ -252,7 +249,7 @@ void ezLog::Dev(ezLogInterface* pInterface, const ezFormatString& string)
 
 void ezLog::Debug(ezLogInterface* pInterface, const ezFormatString& string)
 {
-  if (pInterface == nullptr)
+  if (pInterface == nullptr || pInterface->GetLogLevel() < ezLogMsgType::DebugMsg)
     return;
 
   ezStringBuilder tmp;
