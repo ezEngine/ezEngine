@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/StringBuilder.h>
+#include <Foundation/Time/Time.h>
 
 ezLogMsgType::Enum ezLog::s_LogLevel = ezLogMsgType::All;
 ezAtomicInteger32 ezGlobalLog::s_uiMessageCount[ezLogMsgType::ENUM_COUNT];
@@ -48,6 +49,10 @@ ezLogBlock::ezLogBlock(const char* szName, const char* szContextInfo)
   m_pLogInterface->m_pCurrentBlock = this;
 
   m_iBlockDepth = m_pParentBlock ? (m_pParentBlock->m_iBlockDepth + 1) : 0;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  m_fSeconds = ezTime::Now().GetSeconds();
+#endif
 }
 
 
@@ -66,12 +71,22 @@ ezLogBlock::ezLogBlock(ezLogInterface* pInterface, const char* szName, const cha
   m_pLogInterface->m_pCurrentBlock = this;
 
   m_iBlockDepth = m_pParentBlock ? (m_pParentBlock->m_iBlockDepth + 1) : 0;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  m_fSeconds = ezTime::Now().GetSeconds();
+#endif
 }
 
 ezLogBlock::~ezLogBlock()
 {
   if (!m_pLogInterface)
     return;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  m_fSeconds = ezTime::Now().GetSeconds() - m_fSeconds;
+#else
+  m_fSeconds = 0;
+#endif
 
   m_pLogInterface->m_pCurrentBlock = m_pParentBlock;
 
@@ -88,6 +103,7 @@ void ezLog::EndLogBlock(ezLogInterface* pInterface, ezLogBlock* pBlock)
     le.m_szText = pBlock->m_szName;
     le.m_uiIndentation = pBlock->m_iBlockDepth;
     le.m_szTag = pBlock->m_szContextInfo;
+    le.m_fSeconds = pBlock->m_fSeconds;
 
     pInterface->HandleLogMessage(le);
   }

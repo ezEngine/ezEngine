@@ -14,10 +14,13 @@ namespace ezLogWriter
       ezTelemetryMessage msg;
       msg.SetMessageID(' LOG', ' MSG');
 
-      msg.GetWriter() << (ezInt16) eventData.m_EventType;
-      msg.GetWriter() << (ezUInt16) eventData.m_uiIndentation;
+      msg.GetWriter() << (ezInt8) eventData.m_EventType;
+      msg.GetWriter() << (ezUInt8) eventData.m_uiIndentation;
       msg.GetWriter() << eventData.m_szTag;
       msg.GetWriter() << eventData.m_szText;
+      
+      if (eventData.m_EventType == ezLogMsgType::EndGroup)
+        msg.GetWriter() << eventData.m_fSeconds;
 
       ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
     }

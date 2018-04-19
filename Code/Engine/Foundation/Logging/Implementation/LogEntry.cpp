@@ -14,6 +14,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezLogEntry, ezNoBase, 1, ezRTTIDefaultAllocator<e
     EZ_MEMBER_PROPERTY("Tag", m_sTag),
     EZ_ENUM_MEMBER_PROPERTY("Type", ezLogMsgType, m_Type),
     EZ_MEMBER_PROPERTY("Indentation", m_uiIndentation),
+    EZ_MEMBER_PROPERTY("Time", m_fSeconds),
   }
   EZ_END_PROPERTIES
 }
@@ -29,6 +30,7 @@ ezLogEntry::ezLogEntry(const ezLoggingEventData& le)
   m_sTag = le.m_szTag;
   m_Type = le.m_EventType;
   m_uiIndentation = le.m_uiIndentation;
+  m_fSeconds = le.m_fSeconds;
 }
 
 ezLogEntryDelegate::ezLogEntryDelegate(Callback callback, ezLogMsgType::Enum LogLevel) : m_Callback(callback)

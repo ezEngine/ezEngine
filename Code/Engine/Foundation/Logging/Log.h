@@ -38,19 +38,20 @@ struct EZ_FOUNDATION_DLL ezLogMsgType
 /// \brief The data that is sent through ezLogInterface.
 struct EZ_FOUNDATION_DLL ezLoggingEventData
 {
-  ezLoggingEventData();
-
   /// \brief The type of information that is sent.
-  ezLogMsgType::Enum m_EventType;
+  ezLogMsgType::Enum m_EventType = ezLogMsgType::None;
 
   /// \brief How many "levels" to indent.
-  ezUInt32 m_uiIndentation;
+  ezUInt32 m_uiIndentation = 0;
 
   /// \brief The information text.
-  const char* m_szText;
+  const char* m_szText = "";
 
   /// \brief An optional tag extracted from the log-string (if it started with "[SomeTag]Logging String.") Can be used by log-writers for additional configuration, or simply be ignored.
-  const char* m_szTag;
+  const char* m_szTag = "";
+
+  /// \brief Used by log-blocks for profiling the duration of the block
+  double m_fSeconds = 0;
 };
 
 typedef ezEvent<const ezLoggingEventData&, ezMutex> ezLoggingEvent;
@@ -304,11 +305,12 @@ private:
   friend class ezLog;
 
   ezLogInterface* m_pLogInterface;
-  ezInt32 m_iBlockDepth;
   ezLogBlock* m_pParentBlock;
   const char* m_szName;
   const char* m_szContextInfo;
+  ezInt32 m_iBlockDepth;
   bool m_bWritten;
+  double m_fSeconds; // for profiling
 };
 
 /// \brief A class that sets a custom ezLogInterface as the thread local default log system,

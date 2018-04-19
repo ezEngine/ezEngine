@@ -19,6 +19,7 @@ struct EZ_FOUNDATION_DLL ezLogEntry
   ezString m_sTag;
   ezEnum<ezLogMsgType> m_Type;
   ezUInt8 m_uiIndentation = 0;
+  double m_fSeconds = 0;
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezLogEntry);

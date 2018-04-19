@@ -40,20 +40,18 @@ void ezQtLogDockWidget::ProcessTelemetry(void* pUnuseed)
 
   while (ezTelemetry::RetrieveMessage(' LOG', Msg) == EZ_SUCCESS)
   {
-    ezInt16 iEventType = 0;
-    ezUInt16 uiIndentation = 0;
-    ezString sTag, sText;
+    ezLogEntry lm;
+    ezInt8 iEventType = 0;
 
     Msg.GetReader() >> iEventType;
-    Msg.GetReader() >> uiIndentation;
-    Msg.GetReader() >> sTag;
-    Msg.GetReader() >> sText;
+    Msg.GetReader() >> lm.m_uiIndentation;
+    Msg.GetReader() >> lm.m_sTag;
+    Msg.GetReader() >> lm.m_sMsg;
 
-    ezLogEntry lm;
-    lm.m_sMsg = sText;
-    lm.m_sTag = sTag;
+    if (iEventType == ezLogMsgType::EndGroup)
+      Msg.GetReader() >> lm.m_fSeconds;
+
     lm.m_Type = (ezLogMsgType::Enum) iEventType;
-    lm.m_uiIndentation = uiIndentation;
     s_pWidget->LogWidget->GetLog()->AddLogMsg(lm);
   }
 }

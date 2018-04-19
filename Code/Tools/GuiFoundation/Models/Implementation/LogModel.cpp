@@ -185,10 +185,18 @@ void ezQtLogModel::ProcessNewMessages()
     {
       s.Printf("%*s<<< %s", msg.m_uiIndentation, "", msg.m_sMsg.GetData());
 
-      if (!msg.m_sTag.IsEmpty())
+      if (msg.m_Type == ezLogMsgType::EndGroup)
+      {
+        s.AppendFormat(" ({0} sec) >>>", ezArgF(msg.m_fSeconds, 3));
+      }
+      else if (!msg.m_sTag.IsEmpty())
+      {
         s.Append(" (", msg.m_sTag, ") >>>");
+      }
       else
+      {
         s.Append(" >>>");
+      }
 
       m_AllMessages.PeekBack().m_sMsg = s;
     }

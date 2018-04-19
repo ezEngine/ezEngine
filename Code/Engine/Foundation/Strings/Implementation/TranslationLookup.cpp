@@ -27,6 +27,8 @@ void ezTranslator::Reload()
 
 void ezTranslator::ReloadAllTranslators()
 {
+  EZ_LOG_BLOCK("ReloadAllTranslators");
+
   for (ezTranslator* pTranslator : s_AllTranslators)
   {
     pTranslator->Reload();
@@ -66,6 +68,8 @@ void ezTranslationLookup::Clear()
 
 void ezTranslatorFromFiles::LoadTranslationFilesFromFolder(const char* szFolder)
 {
+  EZ_LOG_BLOCK("LoadTranslationFilesFromFolder", szFolder);
+
   if (m_sFolder != szFolder)
   {
     // prevent assigning to itself during Reload()

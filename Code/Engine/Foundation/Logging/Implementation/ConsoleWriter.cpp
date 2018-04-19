@@ -34,7 +34,7 @@ void ezLogWriter::Console::LogMessageHandler(const ezLoggingEventData& eventData
     break;
   case ezLogMsgType::EndGroup:
     SetConsoleColor(0x02);
-    printf("----- %s -----\n\n", eventData.m_szText);
+    printf("----- %s (%.6f sec)-----\n\n", eventData.m_szText, eventData.m_fSeconds);
     break;
   case ezLogMsgType::ErrorMsg:
     SetConsoleColor(0x0C);

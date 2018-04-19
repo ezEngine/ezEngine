@@ -98,7 +98,7 @@ void ezEditorEngineProcessConnection::Initialize(const ezRTTI* pFirstAllowedMess
   if (m_IPC.IsClientAlive())
     return;
 
-  ezLog::Info("Starting Client Engine Process");
+  ezLog::Dev("Starting Client Engine Process");
 
   m_bProcessShouldBeRunning = true;
   m_bProcessCrashed = false;

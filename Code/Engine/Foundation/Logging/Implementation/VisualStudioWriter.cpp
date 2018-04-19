@@ -24,7 +24,7 @@ void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& even
     OutputDebugStringW(ezStringWChar(sz).GetData());
     break;
   case ezLogMsgType::EndGroup:
-    ezStringUtils::snprintf(sz, 1024, "----- %s -----\n\n", eventData.m_szText);
+    ezStringUtils::snprintf(sz, 1024, "----- %s (%.6f sec) -----\n\n", eventData.m_szText, eventData.m_fSeconds);
     OutputDebugStringW(ezStringWChar(sz).GetData());
     break;
   case ezLogMsgType::ErrorMsg:
