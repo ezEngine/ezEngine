@@ -1,4 +1,4 @@
-﻿#cmake
+#cmake
 
 #
 # Copy this file into the folder of an engine library to add it to the solution.
@@ -46,41 +46,27 @@ SET (ADDITIONAL_DEPENDENCIES
   EnginePluginAssets
 )
 
-if (BUILDSYSTEM_PLATFORM_64BIT)
 
-SET (LINK_LIBRARIES
-    ${LINK_LIBRARIES}
-    debug ${CMAKE_SOURCE_DIR}/Code/ThirdParty/AssImp/lib64/assimp.lib
-    optimized ${CMAKE_SOURCE_DIR}/Code/ThirdParty/AssImp/lib64/assimp.lib
-)
+SET (ASSIMP_DIR "${CMAKE_SOURCE_DIR}/Code/ThirdParty/AssImp")
 
-else()
-
-SET (LINK_LIBRARIES
-    ${LINK_LIBRARIES}
-    debug ${CMAKE_SOURCE_DIR}/Code/ThirdParty/AssImp/lib32/assimp.lib
-    optimized ${CMAKE_SOURCE_DIR}/Code/ThirdParty/AssImp/lib32/assimp.lib
-)
-
+if (DEFINED BUILDSYSTEM_COMPILER_MSVC_140 OR DEFINED BUILDSYSTEM_COMPILER_MSVC_141)
+  SET (ASSIMP_DIR "${ASSIMP_DIR}/vc140")
 endif()
+if (DEFINED BUILDSYSTEM_COMPILER_MSVC_150)
+  SET (ASSIMP_DIR "${ASSIMP_DIR}/vc150")
+endif()
+
+if (${BUILDSYSTEM_PLATFORM_64BIT})
+  SET (ASSIMP_DIR "${ASSIMP_DIR}win64")
+else()
+  SET (ASSIMP_DIR "${ASSIMP_DIR}win32")
+endif()
+
+SET (LINK_LIBRARIES
+    ${LINK_LIBRARIES}
+    debug ${ASSIMP_DIR}/assimp-debug.lib
+    optimized ${ASSIMP_DIR}/assimp.lib
+)
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)
-
-if (BUILDSYSTEM_PLATFORM_64BIT)
-
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-          COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          ${CMAKE_SOURCE_DIR}/Code/ThirdParty/AssImp/bin64/assimp.dll
-          $<TARGET_FILE_DIR:${PROJECT_NAME}>)
-
-else()
-
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-          COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          ${CMAKE_SOURCE_DIR}/Code/ThirdParty/AssImp/bin32/assimp.dll
-          $<TARGET_FILE_DIR:${PROJECT_NAME}>)
-
-endif()
-
-
 

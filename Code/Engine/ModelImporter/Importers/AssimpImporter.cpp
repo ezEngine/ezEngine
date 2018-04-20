@@ -284,7 +284,7 @@ namespace ezModelImporter
         case AI_BOOL:
           data.m_Data = *static_cast<bool*> (assimpNode->mMetaData->mValues[metadataIdx].mData);
           break;
-        case AI_INT:
+        case AI_INT32:
           data.m_Data = *static_cast<ezInt32*>(assimpNode->mMetaData->mValues[metadataIdx].mData);
           break;
         case AI_UINT64:

@@ -2,8 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2017, assimp team
-
+Copyright (c) 2006-2016, assimp team
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -39,60 +38,55 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file  NullLogger.hpp
- *  @brief Dummy logger
-*/
+/** @file Android implementation of IOSystem using the standard C file functions.
+ * Aimed to ease the access to android assets */
 
-#ifndef INCLUDED_AI_NULLLOGGER_H
-#define INCLUDED_AI_NULLLOGGER_H
+#if __ANDROID__ and __ANDROID_API__ > 9 and defined(AI_CONFIG_ANDROID_JNI_ASSIMP_MANAGER_SUPPORT)
+#ifndef AI_ANDROIDJNIIOSYSTEM_H_INC
+#define AI_ANDROIDJNIIOSYSTEM_H_INC
 
-#include "Logger.hpp"
+#include <assimp/DefaultIOSystem.h>
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
+#include <android/native_activity.h>
 
-namespace Assimp {
+namespace Assimp	{
 
 // ---------------------------------------------------------------------------
-/** @brief CPP-API: Empty logging implementation.
- *
- * Does nothing! Used by default if the application hasn't requested a
- * custom logger via #DefaultLogger::set() or #DefaultLogger::create(); */
-class ASSIMP_API NullLogger
-    : public Logger {
-
+/** Android extension to DefaultIOSystem using the standard C file functions */
+class ASSIMP_API AndroidJNIIOSystem : public DefaultIOSystem
+{
 public:
 
-    /** @brief  Logs a debug message */
-    void OnDebug(const char* message) {
-        (void)message; //this avoids compiler warnings
-    }
+	/** Initialize android activity data */
+	std::string mApkWorkspacePath;
+	AAssetManager* mApkAssetManager;
 
-    /** @brief  Logs an info message */
-    void OnInfo(const char* message) {
-        (void)message; //this avoids compiler warnings
-    }
+	/** Constructor. */
+	AndroidJNIIOSystem(ANativeActivity* activity);
 
-    /** @brief  Logs a warning message */
-    void OnWarn(const char* message) {
-        (void)message; //this avoids compiler warnings
-    }
+	/** Destructor. */
+	~AndroidJNIIOSystem();
 
-    /** @brief  Logs an error message */
-    void OnError(const char* message) {
-        (void)message; //this avoids compiler warnings
-    }
+	// -------------------------------------------------------------------
+	/** Tests for the existence of a file at the given path. */
+	bool Exists( const char* pFile) const;
 
-    /** @brief  Detach a still attached stream from logger */
-    bool attachStream(LogStream *pStream, unsigned int severity) {
-        (void)pStream; (void)severity; //this avoids compiler warnings
-        return false;
-    }
+	// -------------------------------------------------------------------
+	/** Opens a file at the given path, with given mode */
+	IOStream* Open( const char* strFile, const char* strMode);
 
-    /** @brief  Detach a still attached stream from logger */
-    bool detatchStream(LogStream *pStream, unsigned int severity) {
-        (void)pStream; (void)severity; //this avoids compiler warnings
-        return false;
-    }
+	// ------------------------------------------------------------------------------------------------
+	// Inits Android extractor
+	void AndroidActivityInit(ANativeActivity* activity);
 
-private:
+	// ------------------------------------------------------------------------------------------------
+	// Extracts android asset
+	bool AndroidExtractAsset(std::string name);
+
 };
-}
-#endif // !! AI_NULLLOGGER_H_INCLUDED
+
+} //!ns Assimp
+
+#endif //AI_ANDROIDJNIIOSYSTEM_H_INC
+#endif //__ANDROID__ and __ANDROID_API__ > 9 and defined(AI_CONFIG_ANDROID_JNI_ASSIMP_MANAGER_SUPPORT)
