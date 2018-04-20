@@ -76,16 +76,43 @@ void ezSkeletonResourceDescriptor::Save(ezStreamWriter& stream) const
   stream << uiVersion;
 
   m_Skeleton.Save(stream);
+
+  const ezUInt16 uiNumGeom = m_Geometry.GetCount();
+  stream << uiNumGeom;
+
+  for (ezUInt32 i = 0; i < uiNumGeom; ++i)
+  {
+    const auto& geo = m_Geometry[i];
+
+    stream << geo.m_uiAttachedToBone;
+    stream << geo.m_Type;
+    stream << geo.m_Transform;
+  }
 }
 
 void ezSkeletonResourceDescriptor::Load(ezStreamReader& stream)
 {
+  m_Geometry.Clear();
+
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
 
   EZ_ASSERT_DEV(uiVersion == 1, "Invalid skeleton descriptor version {0}", uiVersion);
 
   m_Skeleton.Load(stream);
+
+  ezUInt16 uiNumGeom = 0;
+  stream >> uiNumGeom;
+  m_Geometry.Reserve(uiNumGeom);
+
+  for (ezUInt32 i = 0; i < uiNumGeom; ++i)
+  {
+    auto& geo = m_Geometry.ExpandAndGetRef();
+
+    stream >> geo.m_uiAttachedToBone;
+    stream >> geo.m_Type;
+    stream >> geo.m_Transform;
+  }
 }
 
 

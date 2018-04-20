@@ -52,6 +52,9 @@ protected:
   virtual ezMeshRenderData* CreateRenderData(ezUInt32 uiBatchId) const;
   void CreateRenderMesh();
 
+  void CreateSkeletonGeometry(const ezSkeleton* pSkeletonData, ezGeometry &geo);
+  void CreateHitBoxGeometry(const ezSkeletonResourceDescriptor* pDescriptor, ezGeometry &geo);
+
 
 
   // ************************************* PROPERTIES ***********************************

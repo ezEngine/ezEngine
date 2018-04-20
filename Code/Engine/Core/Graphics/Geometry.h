@@ -94,6 +94,9 @@ public:
   /// The tangent generation is done by Morten S. Mikkelsen's tangent space generation code.
   void ComputeTangents();
 
+  /// \brief Returns the number of triangles that the polygons are made up of
+  ezUInt32 CalculateTriangleCount() const;
+
   /// \brief Changes the custom index for all vertices (starting at vertex \a uiFirstVertex).
   void SetAllVertexCustomIndex(ezInt32 iCustomIndex, ezUInt32 uiFirstVertex = 0);
 

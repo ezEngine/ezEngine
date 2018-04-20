@@ -1,0 +1,233 @@
+Objects
+{
+o
+{
+	Uuid %id{u4{2060639235255542210,1652562238387457109}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{16574700091830608971,9193982633513439734}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::Capsule"}
+		f %Length{0x0000803F}
+		s %Name{"Body"}
+		f %Thickness{0xCDCCCC3D}
+		Transform %Transform{f{0,0,0x0000803F,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0}
+	}
+}
+o
+{
+	Uuid %id{u4{9926005669524511920,5016465521845043475}}
+	s %t{"ezEditableSkeleton"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{5993322452390027065,12557885916971026100}}
+		}
+		s %File{""}
+		s %ForwardDir{"ezBasisAxis::NegativeZ"}
+		s %RightDir{"ezBasisAxis::PositiveX"}
+		s %UpDir{"ezBasisAxis::PositiveY"}
+	}
+}
+AssetInfo
+{
+	Uuid %id{u4{8818264285624543651,5191221413138122962}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{1}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Skeleton"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{8818264285624543651,5191221413138122962}}
+		u4 %Hash{11721485884346487941}
+		VarArray %Outputs{}
+		VarArray %References{}
+	}
+}
+o
+{
+	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{9926005669524511920,5016465521845043475}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{16574700091830608971,9193982633513439734}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		s %Geometry{"ezSkeletonBoneGeometryType::Sphere"}
+		f %Length{0}
+		s %Name{"Head"}
+		f %Thickness{0x9A99193E}
+		Transform %Transform{f{0,0,0x9A99D93F,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0}
+	}
+}
+o
+{
+	Uuid %id{u4{5993322452390027065,12557885916971026100}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{2060639235255542210,1652562238387457109}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::Box"}
+		f %Length{0xCDCC4C3E}
+		s %Name{"Root"}
+		f %Thickness{0x0000803F}
+		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0xCDCC4C3E}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{16151412834014881353,455602171930801939}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBasisAxis"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5738553368297250782,463933041364657950}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEditableSkeleton"}
+		u3 %TypeSize{136}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12984103802138964609,1901275426220383600}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeSize{72}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11061541817101818123,3867562407177176337}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6467017751125590593,7158000587691918333}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{18348187285234501790,10465325200957920681}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSkeletonBoneGeometryType"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1864887861174280140,10949667652396632112}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEditableSkeletonBone"}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{1}
+	}
+}
+}

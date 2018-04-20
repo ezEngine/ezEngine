@@ -17,6 +17,8 @@ CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
 
 #include <Shaders/Materials/MaterialState.h>
 
+WireFrame = true
+
 [VERTEXSHADER]
 
 #if VERTEX_SKINNING
@@ -90,13 +92,6 @@ void main( triangle GS_IN input[3], inout TriangleStream<GS_OUT> outputStream )
 Texture2D BaseTexture;
 SamplerState BaseTexture_AutoSampler;
 
-float edgeFactor(PS_IN Input)
-{
-  float3 d = fwidth(Input.Barycentric);
-  float3 a3 = smoothstep(float3(0.0, 0.0, 0.0), d, Input.Barycentric);
-  return min(min(a3.x, a3.y), a3.z);
-}
-
 float3 GetNormal(PS_IN Input)
 {
   #if TOPOLOGY == TOPOLOGY_TRIANGLES
@@ -108,10 +103,7 @@ float3 GetNormal(PS_IN Input)
 
 float3 GetDiffuseColor(PS_IN Input)
 {
-  float3 color = lerp(0.2, 0.5, edgeFactor(Input));
-
-  float light = clamp(dot(Input.Normal.xyz, normalize(float3(-1, -0.5, 2))), 0.3, 0.9);
-  return color * light;
+  return float3(0.1, 0.7, 0.1);
 }
 
 float3 GetSpecularColor(PS_IN Input)

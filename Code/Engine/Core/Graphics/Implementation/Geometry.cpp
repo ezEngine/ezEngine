@@ -306,6 +306,19 @@ void ezGeometry::ComputeTangents()
   m_Vertices = std::move(context.m_Vertices);
 }
 
+ezUInt32 ezGeometry::CalculateTriangleCount() const
+{
+  const ezUInt32 numPolys = m_Polygons.GetCount();
+  ezUInt32 numTris = 0;
+
+  for (ezUInt32 p = 0; p < numPolys; ++p)
+  {
+    numTris += m_Polygons[p].m_Vertices.GetCount() - 2;
+  }
+
+  return numTris;
+}
+
 void ezGeometry::SetAllVertexCustomIndex(ezInt32 iCustomIndex, ezUInt32 uiFirstVertex)
 {
   for (ezUInt32 v = uiFirstVertex; v < m_Vertices.GetCount(); ++v)

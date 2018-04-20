@@ -1,0 +1,13 @@
+string %Shader { "Shaders/Materials/HitBoxVisualization.ezShader" }
+
+Permutation
+{
+  string %Variable { "BLEND_MODE" }
+  string %Value { "BLEND_MODE_OPAQUE" }
+}
+
+Texture2D
+{
+  string %Variable { "BaseTexture" }
+  string %Value { "White.color" }
+}

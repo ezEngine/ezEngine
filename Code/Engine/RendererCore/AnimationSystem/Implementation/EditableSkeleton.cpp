@@ -4,8 +4,8 @@
 #include <RendererCore/AnimationSystem/SkeletonBuilder.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezEditableBoneGeometry, 1)
-EZ_ENUM_CONSTANTS(ezEditableBoneGeometry::None, ezEditableBoneGeometry::Capsule, ezEditableBoneGeometry::Sphere, ezEditableBoneGeometry::Box)
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSkeletonBoneGeometryType, 1)
+EZ_ENUM_CONSTANTS(ezSkeletonBoneGeometryType::None, ezSkeletonBoneGeometryType::Capsule, ezSkeletonBoneGeometryType::Sphere, ezSkeletonBoneGeometryType::Box)
 EZ_END_STATIC_REFLECTED_ENUM()
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeletonBone, 1, ezRTTIDefaultAllocator<ezEditableSkeletonBone>)
@@ -15,7 +15,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeletonBone, 1, ezRTTIDefaultAllocato
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
     EZ_MEMBER_PROPERTY("Transform", m_Transform)->AddFlags(ezPropertyFlags::Hidden)->AddAttributes(new ezDefaultValueAttribute(ezTransform::Identity())),
     EZ_ARRAY_MEMBER_PROPERTY("Children", m_Children)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
-    EZ_ENUM_MEMBER_PROPERTY("Geometry", ezEditableBoneGeometry, m_Geometry),
+    EZ_ENUM_MEMBER_PROPERTY("Geometry", ezSkeletonBoneGeometryType, m_Geometry),
     EZ_MEMBER_PROPERTY("Length", m_fLength),
     EZ_MEMBER_PROPERTY("Width", m_fWidth),
     EZ_MEMBER_PROPERTY("Thickness", m_fThickness),
@@ -35,7 +35,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeleton, 1, ezRTTIDefaultAllocator<ez
 
     EZ_ARRAY_MEMBER_PROPERTY("Children", m_Children)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
   }
-    EZ_END_PROPERTIES
+  EZ_END_PROPERTIES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -57,28 +57,42 @@ void ezEditableSkeleton::ClearBones()
 
 void ezEditableSkeleton::FillResourceDescriptor(ezSkeletonResourceDescriptor& desc)
 {
-  ezSkeletonBuilder sb;
-  sb.SetSkinningMode(ezSkeleton::Mode::FourBones); // TODO: make this configurable ?
+  desc.m_Geometry.Clear();
 
-  auto AddChildBones = [&sb](auto& self, const ezEditableSkeletonBone* pBone, ezUInt32 uiBoneIdx)->void
+  // create the ezSkeleton
   {
-    for (const auto* pChildBone : pBone->m_Children)
+    ezSkeletonBuilder sb;
+    sb.SetSkinningMode(ezSkeleton::Mode::FourBones); // TODO: make this configurable ?
+
+    auto AddChildBones = [&sb, &desc](auto& self, const ezEditableSkeletonBone* pBone, ezUInt32 uiBoneIdx)->void
     {
-      const ezUInt32 idx = sb.AddBone(pChildBone->GetName(), pChildBone->m_Transform.GetAsMat4(), uiBoneIdx);
+      if (pBone->m_Geometry != ezSkeletonBoneGeometryType::None)
+      {
+        auto& geo = desc.m_Geometry.ExpandAndGetRef();
+        geo.m_Type = pBone->m_Geometry;
+        geo.m_uiAttachedToBone = uiBoneIdx;
+        geo.m_Transform.SetIdentity();
+        geo.m_Transform.m_vScale.Set(pBone->m_fLength, pBone->m_fWidth, pBone->m_fThickness);
+      }
 
-      self(self, pChildBone, idx);
+      for (const auto* pChildBone : pBone->m_Children)
+      {
+        const ezUInt32 idx = sb.AddBone(pChildBone->GetName(), pChildBone->m_Transform.GetAsMat4(), uiBoneIdx);
+
+        self(self, pChildBone, idx);
+      }
+    };
+
+    for (const auto* pBone : m_Children)
+    {
+      const ezUInt32 idx = sb.AddBone(pBone->GetName(), pBone->m_Transform.GetAsMat4());
+
+      AddChildBones(AddChildBones, pBone, idx);
     }
-  };
 
-  for (const auto* pBone : m_Children)
-  {
-    const ezUInt32 idx = sb.AddBone(pBone->GetName(), pBone->m_Transform.GetAsMat4());
-
-    AddChildBones(AddChildBones, pBone, idx);
+    // TODO: a bit wasteful to allocate an object that is discarded right away
+    desc.m_Skeleton = *sb.CreateSkeletonInstance();
   }
-
-  // TODO: a bit wasteful to allocate an object that is discarded right away
-  desc.m_Skeleton = *sb.CreateSkeletonInstance();
 }
 
 ezEditableSkeletonBone::ezEditableSkeletonBone()

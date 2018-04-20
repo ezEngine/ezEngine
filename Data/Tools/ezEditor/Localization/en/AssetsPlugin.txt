@@ -153,7 +153,7 @@ ezRenderTargetFormat::RGBA8;RGBA8 (linear)
 ezRenderTargetFormat::RGBA8sRgb;RGBA8 (sRGB)
 ezRenderTargetFormat::RGB10;RGB10
 ezRenderTargetFormat::RGBA16;RGBA16
-ezEditableBoneGeometry::None;None
-ezEditableBoneGeometry::Capsule;Capsule
-ezEditableBoneGeometry::Sphere;Sphere
-ezEditableBoneGeometry::Box;Box
+ezSkeletonBoneGeometryType::None;None
+ezSkeletonBoneGeometryType::Capsule;Capsule
+ezSkeletonBoneGeometryType::Sphere;Sphere
+ezSkeletonBoneGeometryType::Box;Box

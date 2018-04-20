@@ -3,10 +3,20 @@
 #include <RendererCore/Basics.h>
 #include <Core/ResourceManager/Resource.h>
 #include <RendererCore/AnimationSystem/Skeleton.h>
+#include <RendererCore/AnimationSystem/Declarations.h>
+
+struct ezSkeletonResourceGeometry
+{
+  // scale is used to resize a unit sphere / box / capsule
+  ezTransform m_Transform;
+  ezUInt16 m_uiAttachedToBone = 0;
+  ezEnum<ezSkeletonBoneGeometryType> m_Type;
+};
 
 struct EZ_RENDERERCORE_DLL ezSkeletonResourceDescriptor
 {
   ezSkeleton m_Skeleton;
+  ezDynamicArray<ezSkeletonResourceGeometry> m_Geometry;
 
   void Save(ezStreamWriter& stream) const;
   void Load(ezStreamReader& stream);

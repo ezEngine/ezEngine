@@ -130,8 +130,8 @@ void ezVisualizeSkeletonComponent::CreateRenderMesh()
 
   ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::NoFallback);
 
-  //if (pSkeleton->IsMissingResource())
-    //return;
+  if (pSkeleton->IsMissingResource())
+    return;
 
   ezStringBuilder sVisMeshName = pSkeleton->GetResourceID();
   sVisMeshName.AppendFormat("_{0}_VisSkeletonMesh", pSkeleton->GetCurrentResourceChangeCounter()); // the change counter allows to react to resource updates
@@ -189,44 +189,10 @@ void ezVisualizeSkeletonComponent::CreateRenderMesh()
 
   {
     ezGeometry geo;
-
-    //const ezAnimationPose* pPose = pSkeletonData->GetBindSpacePoseInObjectSpace();
-    //const ezUInt32 uiNumBones = pPose->GetBoneTransformCount();
-    const ezUInt32 uiNumBones = pSkeletonData->GetBoneCount();
-
-    for (ezUInt32 b = 0; b < uiNumBones; ++b)
-    {
-      const auto& bone = pSkeletonData->GetBone(b);
-
-      const ezMat4 mBone = ComputeBoneMatrix(*pSkeletonData, bone);
-      //const ezMat4 mBone = pPose->GetBoneTransform(b);
-
-      geo.AddSphere(0.03f, 10, 10, ezColor::RebeccaPurple, mBone, b);
-      
-      if (!bone.IsRootBone())
-      {
-        const ezMat4 mParentBone = ComputeBoneMatrix(*pSkeletonData, pSkeletonData->GetBone(bone.GetParentIndex()));
-        //const ezMat4 mParentBone = pPose->GetBoneTransform(bone.GetParentIndex());
-
-        const ezVec3 vTargetPos = mBone.GetTranslationVector();
-        const ezVec3 vSourcePos = mParentBone.GetTranslationVector();
-
-        ezVec3 vBoneDir = vTargetPos - vSourcePos;
-        const float fBoneLen = vBoneDir.GetLengthAndNormalize();
-
-        ezMat4 mScale;
-        mScale.SetScalingMatrix(ezVec3(1, 1, fBoneLen));
-
-        ezQuat qRot;
-        qRot.SetShortestRotation(ezVec3(0, 0, 1), vBoneDir);
-
-        ezMat4 mTransform;
-        mTransform = qRot.GetAsMat4() * mScale;
-        mTransform.SetTranslationVector(vSourcePos);
-
-        geo.AddCone(0.02f, 1.0f, false, 4, ezColor::CornflowerBlue /* The Original! */, mTransform, b);
-      }
-    }
+    CreateSkeletonGeometry(pSkeletonData, geo);
+    const ezUInt32 uiSubmeshTris1 = geo.CalculateTriangleCount();
+    CreateHitBoxGeometry(&pSkeleton->GetDescriptor(), geo);
+    const ezUInt32 uiSubmeshTris2 = geo.CalculateTriangleCount() - uiSubmeshTris1;
 
     buffer.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
     buffer.AddStream(ezGALVertexAttributeSemantic::BoneWeights0, ezGALResourceFormat::XYZWFloat);
@@ -235,15 +201,88 @@ void ezVisualizeSkeletonComponent::CreateRenderMesh()
     // this will move the custom index into the first bone index
     buffer.AllocateStreamsFromGeometry(geo);
 
-    md.AddSubMesh(buffer.GetPrimitiveCount(), 0, 0);
+    md.AddSubMesh(uiSubmeshTris1, 0, 0);
+    md.AddSubMesh(uiSubmeshTris2, uiSubmeshTris1, 1);
   }
 
   md.ComputeBounds();
   md.SetMaterial(0, "Materials/Common/SkeletonVisualization.ezMaterial");
+  md.SetMaterial(1, "Materials/Common/HitBoxVisualization.ezMaterial");
 
   m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(sVisMeshName, md, "Skeleton Visualization");
 
   TriggerLocalBoundsUpdate();
+}
+
+void ezVisualizeSkeletonComponent::CreateSkeletonGeometry(const ezSkeleton* pSkeletonData, ezGeometry& geo)
+{
+  //const ezAnimationPose* pPose = pSkeletonData->GetBindSpacePoseInObjectSpace();
+  //const ezUInt32 uiNumBones = pPose->GetBoneTransformCount();
+  const ezUInt32 uiNumBones = pSkeletonData->GetBoneCount();
+
+  for (ezUInt32 b = 0; b < uiNumBones; ++b)
+  {
+    const auto& bone = pSkeletonData->GetBone(b);
+
+    const ezMat4 mBone = ComputeBoneMatrix(*pSkeletonData, bone);
+    //const ezMat4 mBone = pPose->GetBoneTransform(b);
+
+    geo.AddSphere(0.03f, 10, 10, ezColor::RebeccaPurple, mBone, b);
+
+    if (!bone.IsRootBone())
+    {
+      const ezMat4 mParentBone = ComputeBoneMatrix(*pSkeletonData, pSkeletonData->GetBone(bone.GetParentIndex()));
+      //const ezMat4 mParentBone = pPose->GetBoneTransform(bone.GetParentIndex());
+
+      const ezVec3 vTargetPos = mBone.GetTranslationVector();
+      const ezVec3 vSourcePos = mParentBone.GetTranslationVector();
+
+      ezVec3 vBoneDir = vTargetPos - vSourcePos;
+      const float fBoneLen = vBoneDir.GetLengthAndNormalize();
+
+      ezMat4 mScale;
+      mScale.SetScalingMatrix(ezVec3(1, 1, fBoneLen));
+
+      ezQuat qRot;
+      qRot.SetShortestRotation(ezVec3(0, 0, 1), vBoneDir);
+
+      ezMat4 mTransform;
+      mTransform = qRot.GetAsMat4() * mScale;
+      mTransform.SetTranslationVector(vSourcePos);
+
+      geo.AddCone(0.02f, 1.0f, false, 4, ezColor::CornflowerBlue /* The Original! */, mTransform, b);
+    }
+  }
+}
+
+void ezVisualizeSkeletonComponent::CreateHitBoxGeometry(const ezSkeletonResourceDescriptor* pDescriptor, ezGeometry &geo)
+{
+  for (const auto& boneGeo : pDescriptor->m_Geometry)
+  {
+    const auto& bone = pDescriptor->m_Skeleton.GetBone(boneGeo.m_uiAttachedToBone);
+    const ezMat4 boneTransform = bone.GetBoneTransform();
+
+    switch (boneGeo.m_Type)
+    {
+    case ezSkeletonBoneGeometryType::Box:
+      {
+        geo.AddBox(boneGeo.m_Transform.m_vScale, ezColor::White, boneTransform, boneGeo.m_uiAttachedToBone);
+      }
+      break;
+
+    case ezSkeletonBoneGeometryType::Capsule:
+      {
+        geo.AddCapsule(boneGeo.m_Transform.m_vScale.z, boneGeo.m_Transform.m_vScale.x, 16, 4, ezColor::White, boneTransform, boneGeo.m_uiAttachedToBone);
+      }
+      break;
+
+    case ezSkeletonBoneGeometryType::Sphere:
+      {
+        geo.AddGeodesicSphere(boneGeo.m_Transform.m_vScale.z, 1, ezColor::White, boneTransform, boneGeo.m_uiAttachedToBone);
+      }
+      break;
+    }
+  }
 }
 
 void ezVisualizeSkeletonComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
