@@ -10,6 +10,22 @@ public:
   {
     enum Enum
     {
+      // Unary
+      FirstUnary,
+
+      Abs_R,
+      Sqrt_R,
+
+      Mov_R,
+      Mov_C,
+      Mov_I,
+      Mov_O,
+
+      LastUnary,
+
+      // Binary
+      FirstBinary,
+
       Add_RR,
       Add_CR,
 
@@ -28,10 +44,9 @@ public:
       Max_RR,
       Max_CR,
 
-      Sqrt_R,
+      LastBinary,
 
-      Mov_R,
-      Mov_C,
+      Call,
 
       Count
     };
@@ -45,12 +60,14 @@ public:
   const StorageType* GetByteCode() const;
   const StorageType* GetByteCodeEnd() const;
 
-  ezUInt32 GetNumInputRegisters() const;
+  ezUInt32 GetNumInstructions() const;
   ezUInt32 GetNumTempRegisters() const;
 
   static OpCode::Enum GetOpCode(const StorageType*& pByteCode);
   static ezUInt32 GetRegisterIndex(const StorageType*& pByteCode, ezUInt32 uiNumRegisters);
   static ezSimdVec4f GetConstant(const StorageType*& pByteCode);
+  static ezUInt32 GetFunctionNameHash(const StorageType*& pByteCode);
+  static ezUInt32 GetFunctionArgCount(const StorageType*& pByteCode);
 
   void Disassemble(ezStringBuilder& out_sDisassembly) const;
 
@@ -59,7 +76,7 @@ private:
 
   ezDynamicArray<StorageType> m_ByteCode;
 
-  ezUInt32 m_uiNumInputRegisters;
+  ezUInt32 m_uiNumInstructions;
   ezUInt32 m_uiNumTempRegisters;
 };
 

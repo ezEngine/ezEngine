@@ -79,7 +79,7 @@ ezExpressionAST::~ezExpressionAST()
 {
 }
 
-ezExpressionAST::ezExpressionAST::UnaryOperator* ezExpressionAST::CreateUnaryOperator(NodeType::Enum type, Node* pOperand)
+ezExpressionAST::UnaryOperator* ezExpressionAST::CreateUnaryOperator(NodeType::Enum type, Node* pOperand)
 {
   auto pUnaryOperator = EZ_NEW(&m_Allocator, UnaryOperator, type);
   pUnaryOperator->m_pOperand = pOperand;
@@ -87,7 +87,7 @@ ezExpressionAST::ezExpressionAST::UnaryOperator* ezExpressionAST::CreateUnaryOpe
   return pUnaryOperator;
 }
 
-ezExpressionAST::ezExpressionAST::BinaryOperator* ezExpressionAST::CreateBinaryOperator(NodeType::Enum type, Node* pLeftOperand, Node* pRightOperand)
+ezExpressionAST::BinaryOperator* ezExpressionAST::CreateBinaryOperator(NodeType::Enum type, Node* pLeftOperand, Node* pRightOperand)
 {
   auto pBinaryOperator = EZ_NEW(&m_Allocator, BinaryOperator, type);
   pBinaryOperator->m_pLeftOperand = pLeftOperand;
@@ -98,13 +98,15 @@ ezExpressionAST::ezExpressionAST::BinaryOperator* ezExpressionAST::CreateBinaryO
 
 ezExpressionAST::Constant* ezExpressionAST::CreateConstant(const ezVariant& value)
 {
+  EZ_ASSERT_DEV(value.IsA<float>(), "value needs to be float");
+
   auto pConstant = EZ_NEW(&m_Allocator, Constant, NodeType::FloatConstant);
   pConstant->m_Value = value;
 
   return pConstant;
 }
 
-ezExpressionAST::ezExpressionAST::Input* ezExpressionAST::CreateInput(ezUInt32 uiIndex)
+ezExpressionAST::Input* ezExpressionAST::CreateInput(ezUInt32 uiIndex)
 {
   auto pInput = EZ_NEW(&m_Allocator, Input, NodeType::FloatInput);
   pInput->m_uiIndex = uiIndex;
@@ -112,12 +114,58 @@ ezExpressionAST::ezExpressionAST::Input* ezExpressionAST::CreateInput(ezUInt32 u
   return pInput;
 }
 
-ezExpressionAST::ezExpressionAST::FunctionCall* ezExpressionAST::CreateFunctionCall(const char* szName)
+ezExpressionAST::FunctionCall* ezExpressionAST::CreateFunctionCall(const char* szName)
 {
   auto pFunctionCall = EZ_NEW(&m_Allocator, FunctionCall, NodeType::FunctionCall);
   pFunctionCall->m_sName.Assign(szName);
 
   return pFunctionCall;
+}
+
+//static
+ezArrayPtr<ezExpressionAST::Node*> ezExpressionAST::GetChildren(Node* pNode)
+{
+  NodeType::Enum nodeType = pNode->m_Type;
+  if (NodeType::IsUnary(nodeType))
+  {
+    auto& pChild = static_cast<UnaryOperator*>(pNode)->m_pOperand;
+    return ezMakeArrayPtr(&pChild, 1);
+  }
+  else if (NodeType::IsBinary(nodeType))
+  {
+    auto& pChildren = static_cast<BinaryOperator*>(pNode)->m_pLeftOperand;
+    return ezMakeArrayPtr(&pChildren, 2);
+  }
+  else if (nodeType == NodeType::FunctionCall)
+  {
+    auto& args = static_cast<FunctionCall*>(pNode)->m_Arguments;
+    return args;
+  }
+
+  return ezArrayPtr<Node*>();
+}
+
+//static
+ezArrayPtr<const ezExpressionAST::Node*> ezExpressionAST::GetChildren(const Node* pNode)
+{
+  NodeType::Enum nodeType = pNode->m_Type;
+  if (NodeType::IsUnary(nodeType))
+  {
+    auto& pChild = static_cast<const UnaryOperator*>(pNode)->m_pOperand;
+    return ezMakeArrayPtr((const Node**)&pChild, 1);
+  }
+  else if (NodeType::IsBinary(nodeType))
+  {
+    auto& pChildren = static_cast<const BinaryOperator*>(pNode)->m_pLeftOperand;
+    return ezMakeArrayPtr((const Node**)&pChildren, 2);
+  }
+  else if (nodeType == NodeType::FunctionCall)
+  {
+    auto& args = static_cast<const FunctionCall*>(pNode)->m_Arguments;
+    return ezArrayPtr<const Node*>((const Node**)args.GetData(), args.GetCount());
+  }
+
+  return ezArrayPtr<const Node*>();
 }
 
 namespace
@@ -180,24 +228,10 @@ void ezExpressionAST::PrintGraph(ezDGMLGraph& graph) const
         nodeCache.Insert(currentNodeInfo.m_pNode, uiGraphNode);
 
         // push children
-        if (NodeType::IsUnary(nodeType))
+        auto children = GetChildren(currentNodeInfo.m_pNode);
+        for (auto pChild : children)
         {
-          auto pUnaryOperator = static_cast<const UnaryOperator*>(currentNodeInfo.m_pNode);
-          nodeStack.PushBack({ pUnaryOperator->m_pOperand, uiGraphNode });
-        }
-        else if (NodeType::IsBinary(nodeType))
-        {
-          auto pBinaryOperator = static_cast<const BinaryOperator*>(currentNodeInfo.m_pNode);
-          nodeStack.PushBack({ pBinaryOperator->m_pLeftOperand, uiGraphNode });
-          nodeStack.PushBack({ pBinaryOperator->m_pRightOperand, uiGraphNode });
-        }
-        else if (nodeType == NodeType::FunctionCall)
-        {
-          auto pFunctionCall = static_cast<const FunctionCall*>(currentNodeInfo.m_pNode);
-          for (auto arg : pFunctionCall->m_Arguments)
-          {
-            nodeStack.PushBack({ arg, uiGraphNode });
-          }
+          nodeStack.PushBack({ pChild, uiGraphNode });
         }
       }
     }

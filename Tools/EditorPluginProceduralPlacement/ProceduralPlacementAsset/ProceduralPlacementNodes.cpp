@@ -82,7 +82,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 ezExpressionAST::Node* ezProceduralPlacementRandom::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast)
 {
   auto pPointIndex = out_Ast.CreateInput(ezPPInternal::ExpressionInputs::PointIndex);
-  auto pSeedConstant = out_Ast.CreateConstant(m_iSeed);
+  auto pSeedConstant = out_Ast.CreateConstant((float)m_iSeed);
 
   auto pSeed = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Add, pPointIndex, pSeedConstant);
 

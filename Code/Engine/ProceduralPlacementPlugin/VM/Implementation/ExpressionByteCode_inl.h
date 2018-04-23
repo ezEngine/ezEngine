@@ -9,9 +9,9 @@ EZ_ALWAYS_INLINE const ezExpressionByteCode::StorageType* ezExpressionByteCode::
   return m_ByteCode.GetData() + m_ByteCode.GetCount();
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezExpressionByteCode::GetNumInputRegisters() const
+EZ_ALWAYS_INLINE ezUInt32 ezExpressionByteCode::GetNumInstructions() const
 {
-  return m_uiNumInputRegisters;
+  return m_uiNumInstructions;
 }
 
 EZ_ALWAYS_INLINE ezUInt32 ezExpressionByteCode::GetNumTempRegisters() const
@@ -42,3 +42,21 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezExpressionByteCode::GetConstant(const StorageType
   ++pByteCode;
   return ezSimdVec4f(c);
 }
+
+// static
+EZ_ALWAYS_INLINE ezUInt32 ezExpressionByteCode::GetFunctionNameHash(const StorageType*& pByteCode)
+{
+  ezUInt32 uiNameHash = *pByteCode;
+  ++pByteCode;
+  return uiNameHash;
+}
+
+// static
+EZ_ALWAYS_INLINE ezUInt32 ezExpressionByteCode::GetFunctionArgCount(const StorageType*& pByteCode)
+{
+  ezUInt32 uiArgCount = *pByteCode;
+  ++pByteCode;
+  return uiArgCount;
+}
+
+

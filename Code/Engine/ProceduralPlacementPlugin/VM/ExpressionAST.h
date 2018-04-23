@@ -123,11 +123,14 @@ public:
   ezExpressionAST();
   ~ezExpressionAST();
 
-  ezExpressionAST::UnaryOperator* CreateUnaryOperator(NodeType::Enum type, Node* pOperand);
-  ezExpressionAST::BinaryOperator* CreateBinaryOperator(NodeType::Enum type, Node* pLeftOperand, Node* pRightOperand);
-  ezExpressionAST::Constant* CreateConstant(const ezVariant& value);
-  ezExpressionAST::Input* CreateInput(ezUInt32 uiIndex);
-  ezExpressionAST::FunctionCall* CreateFunctionCall(const char* szName);
+  UnaryOperator* CreateUnaryOperator(NodeType::Enum type, Node* pOperand);
+  BinaryOperator* CreateBinaryOperator(NodeType::Enum type, Node* pLeftOperand, Node* pRightOperand);
+  Constant* CreateConstant(const ezVariant& value);
+  Input* CreateInput(ezUInt32 uiIndex);
+  FunctionCall* CreateFunctionCall(const char* szName);
+
+  static ezArrayPtr<Node*> GetChildren(Node* pNode);
+  static ezArrayPtr<const Node*> GetChildren(const Node* pNode);
 
   void PrintGraph(ezDGMLGraph& graph) const;
 

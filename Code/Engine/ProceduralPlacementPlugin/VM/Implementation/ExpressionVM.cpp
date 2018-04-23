@@ -87,7 +87,7 @@ void ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<co
   const ezUInt32 uiNumRegisters = (uiNumInstances + 3) / 4;
   const ezUInt32 uiLastInstanceIndex = uiNumInstances - 1;
 
-  const ezUInt32 uiTotalNumRegisters = (byteCode.GetNumInputRegisters() + byteCode.GetNumTempRegisters()) * uiNumRegisters;
+  const ezUInt32 uiTotalNumRegisters = byteCode.GetNumTempRegisters() * uiNumRegisters;
   if (uiTotalNumRegisters > m_Registers.GetCount())
   {
     EZ_REPORT_FAILURE("Not enough registers to execute bytecode. Needs {0} but only has {1}.",
@@ -96,6 +96,7 @@ void ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<co
   }
 
   // Load inputs
+#if 0
   const ezUInt32 uiNumInputs = inputs.GetCount() / uiNumInstances;
   EZ_ASSERT_DEV(uiNumInputs == byteCode.GetNumInputRegisters(), "Provided num inputs {0} does not match bytecode inputs {1}", uiNumInputs, byteCode.GetNumInputRegisters());
   for (ezUInt32 uiInputIndex = 0; uiInputIndex < uiNumInputs; ++uiInputIndex)
@@ -115,6 +116,7 @@ void ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<co
       ++r;
     }
   }
+#endif
 
   // Execute bytecode
   const ezExpressionByteCode::StorageType* pByteCode = byteCode.GetByteCode();
@@ -193,6 +195,7 @@ void ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<co
   }
 
   // Store outputs
+#if 0
   const ezUInt32 uiNumOutputs = outputs.GetCount() / uiNumInstances;
   for (ezUInt32 uiOutputIndex = 0; uiOutputIndex < uiNumOutputs; ++uiOutputIndex)
   {
@@ -213,6 +216,7 @@ void ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<co
       ++r;
     }
   }
+#endif
 }
 
 // static
