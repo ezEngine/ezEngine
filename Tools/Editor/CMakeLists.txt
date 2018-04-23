@@ -42,13 +42,9 @@ SET (ADDITIONAL_DEPENDENCIES
   EditorEngineProcess
   EditorPluginScene
   EditorPluginAssets
-  EditorPluginPhysX
-  EditorPluginFmod
   EditorPluginParticle
   EditorPluginFileserve
   EditorPluginProceduralPlacement
-  PhysXPlugin
-  FmodPlugin
   ParticlePlugin
   TexConv
   Player
@@ -57,6 +53,15 @@ SET (ADDITIONAL_DEPENDENCIES
   RecastPlugin
   InputXBox360
 )
+
+if (EZ_BUILD_FMOD)
+	SET (ADDITIONAL_DEPENDENCIES ${ADDITIONAL_DEPENDENCIES} EditorPluginFmod FmodPlugin)
+endif()
+
+if (EZ_BUILD_PHYSX)
+	SET (ADDITIONAL_DEPENDENCIES ${ADDITIONAL_DEPENDENCIES} EditorPluginPhysX PhysXPlugin)
+endif()
+
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)
 

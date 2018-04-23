@@ -40,12 +40,16 @@ SET (ADDITIONAL_DEPENDENCIES
   EditorEngineProcess
   EditorPluginScene
   EditorPluginAssets
-  EditorPluginPhysX
-  EditorPluginFmod
-  PhysXPlugin
-  FmodPlugin
   TexConv
 )
+
+if (EZ_BUILD_FMOD)
+	SET (ADDITIONAL_DEPENDENCIES ${ADDITIONAL_DEPENDENCIES} EditorPluginFmod FmodPlugin)
+endif()
+
+if (EZ_BUILD_PHYSX)
+	SET (ADDITIONAL_DEPENDENCIES ${ADDITIONAL_DEPENDENCIES} EditorPluginPhysX PhysXPlugin)
+endif()
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)
 
