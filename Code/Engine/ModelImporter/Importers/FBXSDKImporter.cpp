@@ -16,8 +16,10 @@
 
 #if defined(BUILDSYSTEM_BUILD_WITH_OFFICIAL_FBX_SDK)
 #include <fbxsdk.h>
+#include <fbxsdk/utils/fbxgeometryconverter.h>
 using namespace fbxsdk;
 #endif
+
 
 
 namespace ezModelImporter
@@ -1008,6 +1010,18 @@ namespace ezModelImporter
 
     {
       FBXImportContext ImportContext{ pImporter, pScene, outScene };
+
+      // Triangulate all meshes in the scene
+      {
+        ::FbxGeometryConverter converter(m_pFBXManager);
+
+        converter.RemoveBadPolygonsFromMeshes(pScene);
+
+        if (!converter.Triangulate(pScene, true))
+        {
+          ezLog::Warning("Triangulating the scene failed, trying to continue import.");
+        }
+      }
 
       // Import hierarchy
       if (pScene->GetRootNode())
