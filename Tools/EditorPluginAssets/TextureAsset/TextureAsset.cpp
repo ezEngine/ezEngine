@@ -388,6 +388,15 @@ void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRela
   const bool isNormalMap = !isHDR && (baseFilename.EndsWith_NoCase("_n") ||
     baseFilename.EndsWith_NoCase("normal") || baseFilename.EndsWith_NoCase("normals") || baseFilename.EndsWith_NoCase("norm"));
 
+  const bool isLinear = !isHDR && !isNormalMap &&
+    (baseFilename.EndsWith_NoCase("_ao") ||
+      baseFilename.EndsWith_NoCase("_rough") ||
+      baseFilename.EndsWith_NoCase("roughness") ||
+      baseFilename.EndsWith_NoCase("_height") ||
+      baseFilename.EndsWith_NoCase("_alpha") ||
+      baseFilename.EndsWith_NoCase("_metal") ||
+      baseFilename.EndsWith_NoCase("metallic"));
+
   if (isHDR)
   {
     {
@@ -419,7 +428,7 @@ void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRela
 
     {
       ezAssetDocumentGenerator::Info& info = out_Modes.ExpandAndGetRef();
-      info.m_Priority = ezAssetDocGeneratorPriority::LowPriority;
+      info.m_Priority = isLinear ? ezAssetDocGeneratorPriority::HighPriority : ezAssetDocGeneratorPriority::LowPriority;
       info.m_sName = "TextureImport.Linear";
       info.m_sOutputFileParentRelative = baseOutputFile;
       info.m_sIcon = ":/AssetIcons/Texture_Linear.png";

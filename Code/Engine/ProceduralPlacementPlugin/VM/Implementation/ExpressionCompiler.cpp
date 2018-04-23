@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <ProceduralPlacementPlugin/VM/ExpressionCompiler.h>
+#include <ProceduralPlacementPlugin/VM/ExpressionByteCode.h>
 
 namespace
 {
