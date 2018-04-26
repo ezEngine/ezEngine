@@ -14,6 +14,8 @@ public:
 protected:
   void CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const char* szValue, ezUuid parent, ezInt32 iInsertChildIndex);
 
+  void AttachComponentToObject(const char* szType, const char* szProperty, const char* szValue, ezUuid ObjectGuid);
+
   void MoveObjectToPosition(const ezUuid& guid, const ezVec3& vPosition);
 
   void MoveDraggedObjectsToPosition(ezVec3 vPosition, bool bAllowSnap);
