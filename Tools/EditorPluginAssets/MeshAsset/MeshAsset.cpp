@@ -577,7 +577,7 @@ ezString ezMeshAssetDocument::ImportOrResolveTexture(const char* szImportSourceF
 
   ezStringBuilder newAssetPathAbs = szImportTargetFolder;
   newAssetPathAbs.AppendPath(ezStringBuilder(szTexturePath).GetFileName().GetData());
-  newAssetPathAbs.Append(".ezTextureAsset");
+  newAssetPathAbs.ChangeFileExtension("ezTextureAsset");
 
   // Try to resolve.
   auto textureAssetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(newAssetPathAbs);
@@ -600,7 +600,11 @@ ezString ezMeshAssetDocument::ImportOrResolveTexture(const char* szImportSourceF
     pAccessor->StartTransaction("Import Texture");
     ezDocumentObject* pTextureAsset = textureDocument->GetPropertyObject();
 
+    // TODO: we already have a list of allowed texture formats somewhere (file browse attribute?), use that
+    ezString allowedExtensions[] = { "dds", "png", "tga", "jpg" };
+
     // Set filename.
+    ezAssetCurator::GetSingleton()->FindBestMatchForFile(relTexturePath, allowedExtensions);
     pAccessor->SetValue(pTextureAsset, "Input1", relTexturePath.GetData()).LogFailure();
 
     // Try to map usage.

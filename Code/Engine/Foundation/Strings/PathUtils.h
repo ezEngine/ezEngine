@@ -17,10 +17,15 @@ public:
   static const char OsSpecificPathSeparator;
 
   /// \brief Returns whether c is any known path separator.
-  static bool IsPathSeparator (ezUInt32 c); // [tested]
+  static bool IsPathSeparator(ezUInt32 c); // [tested]
 
   /// \brief Checks if a given character is allowed in a filename (not path!)
   static bool IsValidFilenameChar(ezUInt32 character);
+
+  /// \brief Checks every character in the string with IsValidFilenameChar()
+  ///
+  /// This is a basic check, only because each character passes the test, it does not guarantee that the full string is a valid path.
+  static bool ContainsInvalidFilenameChars(const char* szPath, const char* szPathEnd = ezMaxStringEnd);
 
   /// \brief Searches for the previous path separator before szStartSearchAt. Will return nullptr if it reaches szPathStart before finding any separator.
   static const char* FindPreviousSeparator(const char* szPathStart, const char* szStartSearchAt); // [tested]

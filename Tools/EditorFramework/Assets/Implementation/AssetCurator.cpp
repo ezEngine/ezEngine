@@ -710,6 +710,84 @@ ezString ezAssetCurator::FindDataDirectoryForAsset(const char* szAbsoluteAssetPa
   return ezFileSystem::GetSdkRootDirectory();
 }
 
+ezResult ezAssetCurator::FindBestMatchForFile(ezStringBuilder& sFile, ezArrayPtr<ezString> AllowedFileExtensions) const
+{
+  sFile.MakeCleanPath();
+
+  ezStringBuilder testName = sFile;
+
+  for (const auto& ext : AllowedFileExtensions)
+  {
+    testName.ChangeFileExtension(ext);
+
+    if (ezFileSystem::ExistsFile(testName))
+    {
+      sFile = testName;
+      return EZ_SUCCESS;
+    }
+  }
+
+  testName = sFile.GetFileNameAndExtension();
+
+  if (testName.IsEmpty())
+  {
+    sFile = "";
+    return EZ_FAILURE;
+  }
+
+  if (ezPathUtils::ContainsInvalidFilenameChars(testName))
+  {
+    // not much we can do here, if the filename is already invalid, we will probably not find it in out known files list
+
+    ezPathUtils::MakeValidFilename(testName, '_', sFile);
+    return EZ_FAILURE;
+  }
+
+  EZ_LOCK(m_CuratorMutex);
+
+  auto SearchFile = [this](ezStringBuilder& name) -> bool
+  {
+    for (auto it = m_ReferencedFiles.GetIterator(); it.IsValid(); ++it)
+    {
+      if (it.Value().m_Status != ezFileStatus::Status::Valid)
+        continue;
+
+      const ezString& key = it.Key();
+
+      if (key.EndsWith_NoCase(name))
+      {
+        name = it.Key();
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  // search for the full name
+  {
+    testName.Prepend("/"); // make sure to not find partial names
+
+    for (const auto& ext : AllowedFileExtensions)
+    {
+      testName.ChangeFileExtension(ext);
+
+      if (SearchFile(testName))
+        goto found;
+    }
+  }
+
+  return EZ_FAILURE;
+
+found:
+  if (ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(testName))
+  {
+    sFile = testName;
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
+}
 
 ////////////////////////////////////////////////////////////////////////
 // ezAssetCurator Manual and Automatic Change Notification
@@ -871,7 +949,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
   }
 
   if (assetFlags.IsSet(ezAssetDocumentFlags::SupportsThumbnail) && !assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform)
-      && !resReferences.m_Result.Failed())
+    && !resReferences.m_Result.Failed())
   {
     if (ret.m_Result.Succeeded() && state <= ezAssetInfo::TransformState::NeedsThumbnail)
     {
@@ -1309,8 +1387,7 @@ void ezAssetCurator::IterateDataDirectory(const char* szDataDir, const ezSet<ezS
     sPath.MakeCleanPath();
 
     HandleSingleFile(sPath, validExtensions, iterator.GetStats());
-  }
-  while (iterator.Next().Succeeded());
+  } while (iterator.Next().Succeeded());
 }
 
 

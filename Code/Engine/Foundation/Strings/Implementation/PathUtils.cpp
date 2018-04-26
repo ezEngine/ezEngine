@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <Foundation/Strings/StringBuilder.h>
+#include <Foundation/Strings/Implementation/StringIterator.h>
 
 const char* ezPathUtils::FindPreviousSeparator(const char* szPathStart, const char* szStartSearchAt)
 {
@@ -198,6 +199,8 @@ ezStringView ezPathUtils::GetRootedPathRootName(const char* szPath)
 
 bool ezPathUtils::IsValidFilenameChar(ezUInt32 character)
 {
+  /// \test Not tested yet
+
   // Windows: https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
   // Unix: https://en.wikipedia.org/wiki/Filename#Reserved_characters_and_words
   // Details can be more complicated (there might be reserved names depending on the filesystem), but in general all platforms behave like this:
@@ -210,6 +213,25 @@ bool ezPathUtils::IsValidFilenameChar(ezUInt32 character)
   }
 
   return true;
+}
+
+bool ezPathUtils::ContainsInvalidFilenameChars(const char* szPath, const char* szPathEnd /*= ezMaxStringEnd*/)
+{
+  /// \test Not tested yet
+
+  // make sure szPathEnd is valid
+  ezStringUtils::UpdateStringEnd(szPath, szPathEnd);
+
+  ezStringView view(szPath, szPathEnd);
+  ezStringIterator<ezStringView> it = view.GetIteratorFront();
+
+  for (; it.IsValid(); ++it)
+  {
+    if (!IsValidFilenameChar(it.GetCharacter()))
+      return true;
+  }
+
+  return false;
 }
 
 ezResult ezPathUtils::MakeValidFilename(const char* szFilename, ezUInt32 replacementCharacter, ezStringBuilder& outFilename)

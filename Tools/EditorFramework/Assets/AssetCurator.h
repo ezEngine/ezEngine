@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <EditorFramework/Assets/Declarations.h>
@@ -208,6 +208,12 @@ public:
 
   /// \brief The curator gathers all folders in which assets have been found. This list can only grow over the lifetime of the application.
   const ezSet<ezString>& GetAllAssetFolders() const { return m_AssetFolders; }
+
+  /// \brief Uses knowledge about all existing files on disk to find the best match for a file. Very slow.
+  ///
+  /// \param sFile
+  ///   File name (may include a path) to search for. Will be modified both on success and failure to give a 'reasonable' result.
+  ezResult FindBestMatchForFile(ezStringBuilder& sFile, ezArrayPtr<ezString> AllowedFileExtensions) const;
 
   ///@}
   /// \name Manual and Automatic Change Notification
