@@ -235,7 +235,10 @@ void ezPhysX::StartupVDB()
   // setup connection parameters
   const char* pvd_host_ip = "127.0.0.1"; // IP of the PC which is running PVD
   int port = 5425; // TCP port to connect to, where PVD is listening
-  unsigned int timeout = 100; // timeout in milliseconds to wait for PVD to respond, consoles and remote PCs need a higher timeout.
+
+  // timeout in milliseconds to wait for PVD to respond, consoles and remote PCs need a higher timeout.
+  // for some reason having a timeout of 100ms will block indefinitely when a second process tries to connect and should fail
+  unsigned int timeout = 10; 
 
   pTransport = PxDefaultPvdSocketTransportCreate(pvd_host_ip, port, timeout);
   m_PvdConnection->connect(*pTransport, PxPvdInstrumentationFlag::eALL);

@@ -359,6 +359,7 @@ ezWorldModule* ezWorld::GetOrCreateModule(const ezRTTI* pRtti)
     pModule->InitializeInternal();
 
     m_Data.m_Modules[uiTypeId] = pModule;
+    m_Data.m_ModulesToStartSimulation.PushBack(pModule);
   }
 
   return pModule;
