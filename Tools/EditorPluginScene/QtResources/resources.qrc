@@ -46,5 +46,6 @@
     <file>ezRenderTargetActivatorComponent.png</file>
     <file>ezGreyBoxComponent.png</file>
     <file>ezDebugTextComponent.png</file>
+	<file>ezVisualizeSkeletonComponent.png</file>
   </qresource>  
 </RCC>

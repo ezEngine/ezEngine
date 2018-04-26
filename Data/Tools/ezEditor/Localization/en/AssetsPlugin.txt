@@ -157,3 +157,5 @@ ezSkeletonBoneGeometryType::None;None
 ezSkeletonBoneGeometryType::Capsule;Capsule
 ezSkeletonBoneGeometryType::Sphere;Sphere
 ezSkeletonBoneGeometryType::Box;Box
+ezSimpleAnimationComponent;Simple Animation
+ezVisualizeSkeletonComponent;Visualize Skeleton

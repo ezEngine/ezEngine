@@ -38,17 +38,30 @@ public:
   ezPxVisColMeshComponent();
   ~ezPxVisColMeshComponent();
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent interface
+
+protected:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void Initialize() override;
 
+  //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent interface
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
 
+public:
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
   void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
 protected:
   virtual ezMeshRenderData* CreateRenderData(ezUInt32 uiBatchId) const;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezPxVisColMeshComponent interface
+  
+protected:
   void CreateCollisionRenderMesh();
+
 
   // ************************************* PROPERTIES ***********************************
 public:

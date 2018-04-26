@@ -110,6 +110,15 @@ ezMeshRenderData* ezPxVisColMeshComponent::CreateRenderData(ezUInt32 uiBatchId) 
 void ezPxVisColMeshComponent::CreateCollisionRenderMesh()
 {
   if (!m_hCollisionMesh.IsValid())
+  {
+    ezPxStaticActorComponent* pSibling;
+    if (!GetOwner()->TryGetComponentOfBaseType(pSibling))
+      return;
+
+    m_hCollisionMesh = pSibling->GetMesh();
+  }
+
+  if (!m_hCollisionMesh.IsValid())
     return;
 
   ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::NoFallback);
@@ -216,6 +225,14 @@ void ezPxVisColMeshComponent::CreateCollisionRenderMesh()
   m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(sColMeshName, md, "Collision Mesh Visualization");
 
   TriggerLocalBoundsUpdate();
+}
+
+
+void ezPxVisColMeshComponent::Initialize()
+{
+  SUPER::Initialize();
+
+  GetWorld()->GetOrCreateComponentManager<ezPxVisColMeshComponentManager>()->EnqueueUpdate(GetHandle());
 }
 
 void ezPxVisColMeshComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const

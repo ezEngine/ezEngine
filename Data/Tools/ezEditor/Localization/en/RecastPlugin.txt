@@ -2,3 +2,5 @@ AI;AI
 ezRcAgentComponent;Recast Agent
 ezRcNavMeshComponent;Recast Navmesh
 NavMeshConfig;Navmesh Config
+ezRcMarkPoiVisibleComponent;Mark POI Visible
+ezSoldierComponent;Soldier

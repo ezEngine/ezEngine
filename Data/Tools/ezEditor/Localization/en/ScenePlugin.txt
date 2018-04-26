@@ -114,7 +114,6 @@ ezHeadBoneComponent;Head Bone
 ezSliderComponent;Slider
 ezCollectionComponent;Collection
 ezDebugTextComponent;Debug Text
-ezProceduralPlacementComponent;Procedural Placement
 ezRenderTargetActivatorComponent;Render Target Activator
 Components;Components
 Materials;Materials
@@ -169,3 +168,6 @@ ezGreyBoxComponent;Grey Boxing
 ezSpriteBlendMode::Masked;Masked
 ezSpriteBlendMode::Transparent;Transparent
 ezSpriteBlendMode::Additive;Additive
+Mixed Reality;Mixed Reality
+ezSpatialAnchorComponent;Spatial Anchor
+ezSrmRenderComponent;Visualize Surface Reconstruction Mesh

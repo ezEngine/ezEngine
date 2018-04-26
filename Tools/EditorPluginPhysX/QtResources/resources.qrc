@@ -18,6 +18,7 @@
     <file>ezPxTriggerComponent.png</file>
     <file>ezBreakableSheetComponent.png</file>
     <file>ezPxRaycastInteractComponent.png</file>
+	<file>ezPxVisColMeshComponent.png</file>
   </qresource>  
 </RCC>
 
