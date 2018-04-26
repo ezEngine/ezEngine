@@ -85,6 +85,7 @@ void ezSkeletonContext::OnInitialize()
 
     ezAmbientLightComponent* pAmbLight;
     ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);
+    pAmbLight->SetIntensity(5.0f);
   }
 }
 
@@ -118,6 +119,7 @@ void ezSkeletonContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg* pMsg
   {
     EZ_LOCK(m_pWorld->GetWriteMarker());
 
+    m_pGameObject->UpdateLocalBounds();
     m_pGameObject->UpdateGlobalTransformAndBounds();
     const auto& b = m_pGameObject->GetGlobalBounds();
 

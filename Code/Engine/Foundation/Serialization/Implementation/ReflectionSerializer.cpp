@@ -93,6 +93,9 @@ void ezReflectionSerializer::ReadObjectPropertiesFromDDL(ezStreamReader& stream,
 
   EZ_ASSERT_DEV(pRootNode != nullptr, "invalid document");
 
+  if (pRootNode == nullptr)
+    return;
+
   convRead.ApplyPropertiesToObject(pRootNode, &rtti, pObject);
 }
 

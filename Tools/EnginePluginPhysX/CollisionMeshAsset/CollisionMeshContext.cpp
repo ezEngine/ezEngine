@@ -88,6 +88,7 @@ void ezCollisionMeshContext::OnInitialize()
 
     ezAmbientLightComponent* pAmbLight;
     ezAmbientLightComponent::CreateComponent(pObj, pAmbLight);
+    pAmbLight->SetIntensity(5.0f);
   }
 }
 
@@ -121,6 +122,7 @@ void ezCollisionMeshContext::QuerySelectionBBox(const ezEditorEngineDocumentMsg*
   {
     EZ_LOCK(m_pWorld->GetReadMarker());
 
+    m_pMeshObject->UpdateLocalBounds();
     m_pMeshObject->UpdateGlobalTransformAndBounds();
     const auto& b = m_pMeshObject->GetGlobalBounds();
 

@@ -71,7 +71,7 @@ ezQtCollisionMeshAssetDocumentWindow::ezQtCollisionMeshAssetDocumentWindow(ezAss
 
   FinishWindowCreation();
 
-  QueryObjectBBox();
+  QueryObjectBBox(0);
 }
 
 
@@ -87,13 +87,15 @@ void ezQtCollisionMeshAssetDocumentWindow::SendRedrawMsg()
     pView->UpdateCameraInterpolation();
     pView->SyncToEngine();
   }
+
+  QueryObjectBBox(1);
 }
 
-void ezQtCollisionMeshAssetDocumentWindow::QueryObjectBBox()
+void ezQtCollisionMeshAssetDocumentWindow::QueryObjectBBox(ezInt32 iPurpose)
 {
   ezQuerySelectionBBoxMsgToEngine msg;
   msg.m_uiViewID = 0xFFFFFFFF;
-  msg.m_iPurpose = 0;
+  msg.m_iPurpose = iPurpose;
   GetDocument()->SendMessageToEngine(&msg);
 }
 
@@ -110,14 +112,14 @@ void ezQtCollisionMeshAssetDocumentWindow::ProcessMessageEventHandler(const ezEd
   {
     const ezQuerySelectionBBoxResultMsgToEditor* pMessage = static_cast<const ezQuerySelectionBBoxResultMsgToEditor*>(pMsg);
 
-    if (pMessage->m_iPurpose == 0 && pMessage->m_vCenter.IsValid() && pMessage->m_vHalfExtents.IsValid() && pMessage->m_vHalfExtents.x >= 0 && pMessage->m_vHalfExtents.y >= 0 && pMessage->m_vHalfExtents.z >= 0)
+    if (pMessage->m_vCenter.IsValid() && pMessage->m_vHalfExtents.IsValid() && pMessage->m_vHalfExtents.x >= 0 && pMessage->m_vHalfExtents.y >= 0 && pMessage->m_vHalfExtents.z >= 0)
     {
-      m_pViewWidget->GetOrbitCamera()->SetOrbitVolume(pMessage->m_vCenter, pMessage->m_vHalfExtents * 2.0f, ezVec3(5, -1, 2) * pMessage->m_vHalfExtents.GetLength() * 0.3f);
+      m_pViewWidget->GetOrbitCamera()->SetOrbitVolume(pMessage->m_vCenter, pMessage->m_vHalfExtents * 2.0f, pMessage->m_vCenter + ezVec3(5, -2, 3) * pMessage->m_vHalfExtents.GetLength() * 0.3f, pMessage->m_iPurpose == 0);
     }
-    else
+    else if (pMessage->m_iPurpose == 0)
     {
       // try again
-      QueryObjectBBox();
+      QueryObjectBBox(pMessage->m_iPurpose);
     }
 
     return;

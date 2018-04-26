@@ -105,7 +105,7 @@ float3 GetDiffuseColor(PS_IN Input)
 {
   float3 color = lerp(0.2, 0.5, edgeFactor(Input));
 
-  float light = clamp(dot(Input.Normal.xyz, normalize(float3(-1, -0.5, 2))), 0.1, 0.9);
+  float light = clamp(dot(Input.Normal.xyz, normalize(float3(1, 0.5, 2))), 0.2, 0.9);
   return color * light;
 }
 

@@ -18,7 +18,7 @@
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Utilities/Progress.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetDocument, 3, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetDocument, 4, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 static ezVec3 GetBasisVector(ezBasisAxis::Enum basisAxis)

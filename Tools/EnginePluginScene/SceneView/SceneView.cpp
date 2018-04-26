@@ -86,7 +86,7 @@ bool ezSceneViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds
     pView->SetRenderPassProperty("EditorPickingPass", "PickSelected", true);
   }
 
-  bool bResult = !FocusCameraOnObject(m_Camera, bounds, 45.0f, ezVec3(1.0f, 1.0f, -1.0f));
+  bool bResult = !FocusCameraOnObject(m_Camera, bounds, 45.0f, -ezVec3(5, -2, 3));
   m_CullingCamera = m_Camera;
   return bResult;
 }

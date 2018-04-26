@@ -27,7 +27,7 @@ protected:
 
 private:
   void SendRedrawMsg();
-  void QueryObjectBBox();
+  void QueryObjectBBox(ezInt32 iPurpose);
 
   ezEngineViewConfig m_ViewConfig;
   ezQtMeshViewWidget* m_pViewWidget;

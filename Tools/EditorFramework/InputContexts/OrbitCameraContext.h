@@ -15,7 +15,7 @@ public:
   ezCamera* GetCamera() const;
 
   /// \brief Defines the box in which the user may move the camera around
-  void SetOrbitVolume(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize, const ezVec3& vDefaultCameraPosition);
+  void SetOrbitVolume(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize, const ezVec3& vDefaultCameraPosition, bool bSetCamLookat);
 
   /// \brief The center point around which the camera can be moved and rotated.
   ezVec3 GetVolumeCenter() const { return m_Volume.GetCenter(); }

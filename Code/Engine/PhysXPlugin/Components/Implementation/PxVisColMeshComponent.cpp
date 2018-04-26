@@ -5,6 +5,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
+#include <PhysXPlugin/Components/PxStaticActorComponent.h>
 
 EZ_BEGIN_COMPONENT_TYPE(ezPxVisColMeshComponent, 1, ezComponentMode::Static)
 {

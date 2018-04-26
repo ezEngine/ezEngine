@@ -33,7 +33,7 @@ ezAnimationClipViewContext::~ezAnimationClipViewContext()
 
 bool ezAnimationClipViewContext::UpdateThumbnailCamera(const ezBoundingBoxSphere& bounds)
 {
-  return !FocusCameraOnObject(m_Camera, bounds, 45.0f, ezVec3(1.0f, 1.0f, -1.0f));
+  return !FocusCameraOnObject(m_Camera, bounds, 45.0f, -ezVec3(5, -2, 3));
 }
 
 

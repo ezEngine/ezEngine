@@ -10,15 +10,19 @@ o
 		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
+		f %CVarResScale{0x0000803F}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
-		b %FlipHorizontal{0}
+		b %FlipHorizontal{1}
+		s %Format{"ezRenderTargetFormat::RGBA8sRgb"}
 		s %Input1{"Models/Skeleton/Skeleton_Body_Normal.png"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
+		b %IsRenderTarget{0}
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
+		s %Resolution{"ezTexture2DResolution::Fixed256x256"}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
 		s %Usage{"ezTexture2DUsageEnum::NormalMap"}
 	}
@@ -37,7 +41,7 @@ AssetInfo
 			s{"Models/Skeleton/Skeleton_Body_Normal.png"}
 		}
 		Uuid %DocumentID{u4{5478602702639399297,5079503839146298470}}
-		u4 %Hash{200272913410966873}
+		u4 %Hash{8956840296354123671}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
@@ -91,7 +95,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezTextureAssetProperties"}
-		u3 %TypeSize{280}
+		u3 %TypeSize{288}
 		u3 %TypeVersion{2}
 	}
 }
@@ -151,6 +155,24 @@ o
 }
 o
 {
+	Uuid %id{u4{2168276592288316325,5107382156598739079}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezTexture2DResolution"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{6467017751125590593,7158000587691918333}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -164,6 +186,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
 		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16619705300148282385,9497488427007284400}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezRenderTargetFormat"}
+		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }

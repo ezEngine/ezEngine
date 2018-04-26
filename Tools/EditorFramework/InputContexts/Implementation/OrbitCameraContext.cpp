@@ -15,7 +15,7 @@ ezOrbitCameraContext::ezOrbitCameraContext(ezQtEngineDocumentWindow* pOwnerWindo
 
   m_Mode = Mode::Off;
 
-  SetOrbitVolume(ezVec3(0.0f), ezVec3(5.0f), ezVec3(-2, 0, 0));
+  SetOrbitVolume(ezVec3(0.0f), ezVec3(5.0f), ezVec3(-2, 0, 0), true);
 
   // while the camera moves, ignore all other shortcuts
   SetShortcutsDisabled(true);
@@ -36,13 +36,13 @@ ezCamera* ezOrbitCameraContext::GetCamera() const
   return m_pCamera;
 }
 
-void ezOrbitCameraContext::SetOrbitVolume(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize, const ezVec3& vDefaultCameraPosition)
+void ezOrbitCameraContext::SetOrbitVolume(const ezVec3& vCenterPos, const ezVec3& vHalfBoxSize, const ezVec3& vDefaultCameraPosition, bool bSetCamLookat)
 {
   m_vOrbitPoint = vCenterPos;
   m_Volume.SetCenterAndHalfExtents(vCenterPos, vHalfBoxSize);
   m_vDefaultCameraPosition = vDefaultCameraPosition;
 
-  if (m_pCamera)
+  if (m_pCamera && bSetCamLookat)
   {
     m_pCamera->LookAt(vDefaultCameraPosition, vCenterPos, ezVec3(0, 0, 1));
   }
@@ -286,7 +286,7 @@ ezEditorInput ezOrbitCameraContext::DoWheelEvent(QWheelEvent* e)
 
 ezEditorInput ezOrbitCameraContext::DoKeyPressEvent(QKeyEvent* e)
 {
-  if (e->key() == Qt::Key_F)
+  if (e->key() == Qt::Key_Space)
   {
     const ezVec3 vDiff = m_Volume.GetCenter() - m_vOrbitPoint;
     m_vOrbitPoint = m_Volume.GetCenter();
@@ -295,7 +295,7 @@ ezEditorInput ezOrbitCameraContext::DoKeyPressEvent(QKeyEvent* e)
     return ezEditorInput::WasExclusivelyHandled;
   }
 
-  if (e->key() == Qt::Key_Space)
+  if (e->key() == Qt::Key_F)
   {
     m_pCamera->LookAt(m_vDefaultCameraPosition, m_vOrbitPoint, ezVec3(0, 0, 1));
     return ezEditorInput::WasExclusivelyHandled;

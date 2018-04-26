@@ -385,7 +385,16 @@ ezStatus ezAssetDocument::TransformAsset(bool bTriggeredManually, const char* sz
     }
   }
 
-  return DoTransformAsset(szPlatform, bTriggeredManually);
+  const ezStatus res = DoTransformAsset(szPlatform, bTriggeredManually);
+
+  // some assets modify the document during transformation
+  // make sure the state is saved, at least when the user actively executed the action
+  if (bTriggeredManually)
+  {
+    SaveDocument();
+  }
+
+  return res;
 }
 
 ezStatus ezAssetDocument::CreateThumbnail()

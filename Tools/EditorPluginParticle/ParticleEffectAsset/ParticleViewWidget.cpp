@@ -14,7 +14,7 @@ ezQtParticleViewWidget::ezQtParticleViewWidget(QWidget* pParent, ezQtParticleEff
 
   m_pOrbitCameraContext = EZ_DEFAULT_NEW(ezOrbitCameraContext, pOwnerWindow, this);
   m_pOrbitCameraContext->SetCamera(&m_pViewConfig->m_Camera);
-  m_pOrbitCameraContext->SetOrbitVolume(ezVec3(0), ezVec3(5.0f), ezVec3(-2, 0, 0.5f));
+  m_pOrbitCameraContext->SetOrbitVolume(ezVec3(0), ezVec3(5.0f), ezVec3(-2, 0, 0.5f), true);
 
   m_InputContexts.PushBack(m_pOrbitCameraContext.Borrow());
 }
