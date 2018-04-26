@@ -223,7 +223,13 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
 
   using namespace ezModelImporter;
 
-  const ezMat3 mTransformNormals = mTransformation.GetInverse(0.0f).GetTranspose();
+  ezMat3 mInverseTransform = mTransformation;
+  if (mInverseTransform.Invert(0.0f).Failed())
+  {
+    return ezStatus("Could not invert the mesh transform matrix. Make sure the forward/right/up settings are valid.");
+  }
+
+  const ezMat3 mTransformNormals = mInverseTransform.GetTranspose();
 
   const bool bFlipTriangles = (mTransformation.GetColumn(0).Cross(mTransformation.GetColumn(1)).Dot(mTransformation.GetColumn(2)) < 0.0f);
 

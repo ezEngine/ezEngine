@@ -40,7 +40,7 @@ public:
     ezString m_sInputFileParentRelative;
     ezString m_sInputFileAbsolute;
     ezInt32 m_iSelectedOption = -1;
-    ezString m_sImportError; // error text
+    ezString m_sImportMessage; // error text or "already exists"
     bool m_bDoNotImport = false;
 
     ezHybridArray<ezAssetDocumentGenerator::Info, 4> m_ImportOptions;

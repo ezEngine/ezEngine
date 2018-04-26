@@ -110,12 +110,12 @@ void ezAssetDocumentGenerator::ExecuteImport(ezDynamicArray<ImportData>& allImpo
 
     if (status.Failed())
     {
-      data.m_sImportError = status.m_sMessage;
+      data.m_sImportMessage = status.m_sMessage;
       ezLog::Error("Asset import failed: '{0}'", status.m_sMessage);
     }
     else
     {
-      data.m_sImportError.Clear();
+      data.m_sImportMessage.Clear();
       data.m_bDoNotImport = true;
       ezLog::Success("Generated asset document '{0}'", option.m_sOutputFileAbsolute);
     }
@@ -130,7 +130,7 @@ ezResult ezAssetDocumentGenerator::DetermineInputAndOutputFiles(ImportData& data
   ezStringBuilder inputFile = data.m_sInputFileParentRelative;
   if (!pApp->MakeParentDataDirectoryRelativePathAbsolute(inputFile, true))
   {
-    data.m_sImportError = "Input file could not be located";
+    data.m_sImportMessage = "Input file could not be located";
     return EZ_FAILURE;
   }
 
@@ -138,7 +138,7 @@ ezResult ezAssetDocumentGenerator::DetermineInputAndOutputFiles(ImportData& data
 
   if (!pApp->MakePathDataDirectoryRelative(inputFile))
   {
-    data.m_sImportError = "Input file is not in any known data directory";
+    data.m_sImportMessage = "Input file is not in any known data directory";
     return EZ_FAILURE;
   }
 
@@ -147,7 +147,7 @@ ezResult ezAssetDocumentGenerator::DetermineInputAndOutputFiles(ImportData& data
   ezStringBuilder outputFile = option.m_sOutputFileParentRelative;
   if (!pApp->MakeParentDataDirectoryRelativePathAbsolute(outputFile, false))
   {
-    data.m_sImportError = "Target file location could not be found";
+    data.m_sImportMessage = "Target file location could not be found";
     return EZ_FAILURE;
   }
 
@@ -156,7 +156,8 @@ ezResult ezAssetDocumentGenerator::DetermineInputAndOutputFiles(ImportData& data
   // don't create it when it already exists
   if (ezOSFile::ExistsFile(outputFile))
   {
-    data.m_sImportError = "Target file already exists";
+    data.m_bDoNotImport = true;
+    data.m_sImportMessage = "Target file already exists";
     return EZ_FAILURE;
   }
 
@@ -241,7 +242,7 @@ void ezAssetDocumentGenerator::CreateImportOptionList(const ezHybridArray<ezStri
       data.m_sInputFileAbsolute = sInputAbsolute;
       data.m_sInputFileParentRelative = sInputParentRelative;
       data.m_sInputFileRelative = sInputRelative;
-      data.m_sImportError = "File is not located in any data directory.";
+      data.m_sImportMessage = "File is not located in any data directory.";
       data.m_bDoNotImport = true;
       continue;
     }

@@ -116,7 +116,7 @@ void ezQtAssetImportDlg::UpdateRow(ezUInt32 uiRow)
   pBrowse->setEnabled(data.m_iSelectedOption >= 0);
 
   pStatusItem->setTextColor(QColor::fromRgba(qRgb(200, 0, 0)));
-  pStatusItem->setText(data.m_sImportError.GetData());
+  pStatusItem->setText(data.m_sImportMessage.GetData());
 
   if (data.m_bDoNotImport)
   {
@@ -125,11 +125,12 @@ void ezQtAssetImportDlg::UpdateRow(ezUInt32 uiRow)
     QComboBox* pCombo = qobject_cast<QComboBox*>(table->cellWidget(uiRow, Columns::Method));
     pCombo->setEnabled(false);
     
-    if (data.m_sImportError.IsEmpty())
+    pBrowse->setEnabled(true);
+    pBrowse->setText("Open");
+    pStatusItem->setTextColor(QColor::fromRgba(qRgb(0, 200, 0)));
+
+    if (data.m_sImportMessage.IsEmpty())
     {
-      pBrowse->setEnabled(true);
-      pBrowse->setText("Open");
-      pStatusItem->setTextColor(QColor::fromRgba(qRgb(0, 200, 0)));
       pStatusItem->setText("Asset Imported");
     }
   }
@@ -200,7 +201,7 @@ void ezQtAssetImportDlg::BrowseButtonClicked(bool)
 
   auto& option = data.m_ImportOptions[data.m_iSelectedOption];
 
-  if (data.m_bDoNotImport && data.m_sImportError.IsEmpty())
+  if (data.m_bDoNotImport)
   {
     // asset was already imported
 

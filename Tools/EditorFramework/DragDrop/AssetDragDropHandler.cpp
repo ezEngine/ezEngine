@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorFramework/DragDrop/AssetDragDropHandler.h>
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 #include <EditorFramework/Assets/AssetCurator.h>
@@ -22,7 +22,10 @@ ezString ezAssetDragDropHandler::GetAssetGuidString(const ezDragDropInfo* pInfo)
   int iGuids = 0;
   stream >> iGuids;
 
-  EZ_ASSERT_DEV(iGuids == 1, "Dragging more than one asset type is currently not supported");
+  if (iGuids > 1)
+  {
+    ezLog::Warning("Dragging more than one asset type is currently not supported");
+  }
 
   QString sGuid;
   stream >> sGuid;
