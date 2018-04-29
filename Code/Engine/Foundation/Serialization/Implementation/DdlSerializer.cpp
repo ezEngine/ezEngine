@@ -6,6 +6,54 @@
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/IO/OpenDdlReader.h>
 
+namespace
+{
+  ezSerializedBlock* FindBlock(ezHybridArray<ezSerializedBlock, 3>& blocks, const char* szName)
+  {
+    for (auto& block : blocks)
+    {
+      if (block.m_Name == szName)
+      {
+        return &block;
+      }
+    }
+    return nullptr;
+  }
+
+  ezSerializedBlock* FindHeaderBlock(ezHybridArray<ezSerializedBlock, 3>& blocks, ezInt32& out_iVersion)
+  {
+    ezStringBuilder sHeaderName = "HeaderV";
+    out_iVersion = 0;
+    for (auto& block : blocks)
+    {
+      if (block.m_Name.StartsWith(sHeaderName))
+      {
+        ezResult res = ezConversionUtils::StringToInt(block.m_Name.GetData() + sHeaderName.GetElementCount(), out_iVersion);
+        if (res.Failed())
+        {
+          ezLog::Error("Failed to parse version from header name '{0}'", block.m_Name);
+        }
+        return &block;
+      }
+    }
+    return nullptr;
+  }
+
+  ezSerializedBlock* GetOrCreateBlock(ezHybridArray<ezSerializedBlock, 3>& blocks, const char* szName)
+  {
+    ezSerializedBlock* pBlock = FindBlock(blocks, szName);
+    if (!pBlock)
+    {
+      pBlock = &blocks.ExpandAndGetRef();
+      pBlock->m_Name = szName;
+    }
+    if (!pBlock->m_Graph)
+    {
+      pBlock->m_Graph = EZ_DEFAULT_NEW(ezAbstractObjectGraph);
+    }
+    return pBlock;
+  }
+}
 
 static void WriteGraph(ezOpenDdlWriter &writer, const ezAbstractObjectGraph* pGraph, const char* szName)
 {
@@ -18,11 +66,7 @@ static void WriteGraph(ezOpenDdlWriter &writer, const ezAbstractObjectGraph* pGr
   {
     const auto& node = *itNode.Value();
 
-    // the object type is mostly ignored, but we need to tag the Header specifically, so that we can easily skip everything else when we only need this
-    if (ezStringUtils::IsEqual(node.GetType(), "ezAssetDocumentInfo"))
-      writer.BeginObject("AssetInfo");
-    else
-      writer.BeginObject("o");
+    writer.BeginObject("o");
 
     {
 
@@ -170,27 +214,135 @@ ezResult ezAbstractGraphDdlSerializer::Read(ezStreamReader& stream, ezAbstractOb
   return EZ_SUCCESS;
 }
 
+ezResult ezAbstractGraphDdlSerializer::ReadBlocks(ezStreamReader& stream, ezHybridArray<ezSerializedBlock, 3>& blocks)
+{
+  ezOpenDdlReader reader;
+  if (reader.ParseDocument(stream, 0, ezLog::GetThreadLocalLogSystem()).Failed())
+  {
+    ezLog::Error("Failed to parse DDL graph");
+    return EZ_FAILURE;
+  }
+
+  const ezOpenDdlReaderElement* pRoot = reader.GetRootElement();
+  for (const ezOpenDdlReaderElement* pChild = pRoot->GetFirstChild(); pChild != nullptr; pChild = pChild->GetSibling())
+  {
+    ezSerializedBlock* pBlock = GetOrCreateBlock(blocks, pChild->GetCustomType());
+    ReadGraph(pBlock->m_Graph.Borrow(), pChild);
+  }
+  return EZ_SUCCESS;
+}
+
+#define EZ_DOCUMENT_VERSION 2
+
+void ezAbstractGraphDdlSerializer::WriteDocument(ezStreamWriter& stream, const ezAbstractObjectGraph* pHeader, const ezAbstractObjectGraph* pGraph, const ezAbstractObjectGraph* pTypes, bool bCompactMode, ezOpenDdlWriter::TypeStringMode typeMode)
+{
+  ezOpenDdlWriter writer;
+  writer.SetOutputStream(&stream);
+  writer.SetCompactMode(bCompactMode);
+  writer.SetFloatPrecisionMode(ezOpenDdlWriter::FloatPrecisionMode::Exact);
+  writer.SetPrimitiveTypeStringMode(typeMode);
+
+  if (typeMode != ezOpenDdlWriter::TypeStringMode::Compliant)
+    writer.SetIndentation(-1);
+
+  ezStringBuilder sHeaderVersion;
+  sHeaderVersion.Format("HeaderV{0}", (int)EZ_DOCUMENT_VERSION);
+  WriteGraph(writer, pHeader, sHeaderVersion);
+  WriteGraph(writer, pGraph, "Objects");
+  WriteGraph(writer, pTypes, "Types");
+}
+
+ezResult ezAbstractGraphDdlSerializer::ReadDocument(ezStreamReader& stream, ezUniquePtr<ezAbstractObjectGraph>& pHeader, ezUniquePtr<ezAbstractObjectGraph>& pGraph, ezUniquePtr<ezAbstractObjectGraph>& pTypes, bool bApplyPatches)
+{
+  ezHybridArray<ezSerializedBlock, 3> blocks;
+  if (ReadBlocks(stream, blocks).Failed())
+  {
+    return EZ_FAILURE;
+  }
+
+  ezInt32 iVersion = 2;
+  ezSerializedBlock* pHB = FindHeaderBlock(blocks, iVersion);
+  ezSerializedBlock* pOB = FindBlock(blocks, "Objects");
+  ezSerializedBlock* pTB = FindBlock(blocks, "Types");
+  if (!pOB)
+  {
+    ezLog::Error("No 'Objects' block in document");
+    return EZ_FAILURE;
+  }
+  if (!pTB && !pHB)
+  {
+    iVersion = 0;
+  }
+  else if (!pHB)
+  {
+    iVersion = 1;
+  }
+  if (iVersion < 2)
+  {
+    // Move header into its own graph.
+    ezStringBuilder sHeaderVersion;
+    sHeaderVersion.Format("HeaderV{0}", iVersion);
+    pHB = GetOrCreateBlock(blocks, sHeaderVersion);
+    ezAbstractObjectGraph& graph = *pOB->m_Graph.Borrow();
+    auto* pHeaderNode = graph.GetNodeByName("Header");
+    ezAbstractObjectGraph& headerGraph = *pHB->m_Graph.Borrow();
+    auto* pNewHeaderNode = headerGraph.CopyNodeIntoGraph(pHeaderNode);
+    //pNewHeaderNode->AddProperty("DocVersion", iVersion);
+    graph.RemoveNode(pHeaderNode->GetGuid());
+  }
+
+  if (bApplyPatches && pTB)
+  {
+    ezGraphVersioning::GetSingleton()->PatchGraph(pTB->m_Graph.Borrow());
+    ezGraphVersioning::GetSingleton()->PatchGraph(pHB->m_Graph.Borrow(), pTB->m_Graph.Borrow());
+    ezGraphVersioning::GetSingleton()->PatchGraph(pOB->m_Graph.Borrow(), pTB->m_Graph.Borrow());
+  }
+
+  pHeader = std::move(pHB->m_Graph);
+  pGraph = std::move(pOB->m_Graph);
+  pTypes = std::move(pTB->m_Graph);
+  return EZ_SUCCESS;
+}
+
 // This is a handcrafted DDL reader that ignores everything that is not an 'AssetInfo' object
 // The purpose is to speed up reading asset information by skipping everything else
 //
+// Version 0 and 1:
 // The reader 'knows' the file format details and uses them.
 // Top-level (ie. depth 0) there is an "Objects" object -> we need to enter that
 // Inside that (depth 1) there is the "AssetInfo" object -> need to enter that as well
 // All objects inside that must be stored
 // Once the AssetInfo object is left everything else can be skipped
+//
+// Version 2:
+// The very first top level object is "Header" and only that is read and parsing is stopped afterwards.
 class HeaderReader : public ezOpenDdlReader
 {
 public:
   HeaderReader()
   {
-    m_iDepth = 0;
   }
 
-protected:
-  ezInt32 m_iDepth;
+  bool m_bHasHeader = false;
+  ezInt32 m_iDepth = 0;
 
   virtual void OnBeginObject(const char* szType, const char* szName, bool bGlobalName) override
   {
+    //////////////////////////////////////////////////////////////////////////
+    // New document format has header block.
+    if (m_iDepth == 0 && ezStringUtils::StartsWith(szType, "HeaderV"))
+    {
+      m_bHasHeader = true;
+    }
+    if (m_bHasHeader)
+    {
+      ++m_iDepth;
+      ezOpenDdlReader::OnBeginObject(szType, szName, bGlobalName);
+      return;
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+    // Old header is stored in the object block.
     // not yet entered the "Objects" group
     if (m_iDepth == 0 && ezStringUtils::IsEqual(szType, "Objects"))
     {
@@ -225,14 +377,23 @@ protected:
   virtual void OnEndObject() override
   {
     --m_iDepth;
-
-    if (m_iDepth <= 1)
+    if (m_bHasHeader)
     {
-      // we were inside "AssetInfo" or "Objects" and returned from it, so now skip the rest
-      m_iDepth = -1;
-      StopParsing();
+      if (m_iDepth == 0)
+      {
+        m_iDepth = -1;
+        StopParsing();
+      }
     }
-
+    else
+    {
+      if (m_iDepth <= 1)
+      {
+        // we were inside "AssetInfo" or "Objects" and returned from it, so now skip the rest
+        m_iDepth = -1;
+        StopParsing();
+      }
+    }
     ezOpenDdlReader::OnEndObject();
   }
 
@@ -247,7 +408,16 @@ ezResult ezAbstractGraphDdlSerializer::ReadHeader(ezStreamReader& stream, ezAbst
     return EZ_FAILURE;
   }
 
-  const ezOpenDdlReaderElement* pObjects = reader.GetRootElement()->FindChildOfType("Objects");
+  const ezOpenDdlReaderElement* pObjects = nullptr;
+  if (reader.m_bHasHeader)
+  {
+    pObjects = reader.GetRootElement()->GetFirstChild();
+  }
+  else
+  {
+    pObjects = reader.GetRootElement()->FindChildOfType("Objects");
+  }
+
   if (pObjects != nullptr)
   {
     ReadGraph(pGraph, pObjects);
@@ -257,7 +427,6 @@ ezResult ezAbstractGraphDdlSerializer::ReadHeader(ezStreamReader& stream, ezAbst
     EZ_REPORT_FAILURE("DDL graph does not contain an 'Objects' root object");
     return EZ_FAILURE;
   }
-
   return EZ_SUCCESS;
 }
 

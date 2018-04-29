@@ -53,7 +53,8 @@ public:
 
 struct ezAssetInfo
 {
-  void Update(const ezAssetInfo& rhs);
+  ezAssetInfo() = default;
+  void Update(ezUniquePtr<ezAssetInfo>& rhs);
 
   enum TransformState
   {
@@ -75,7 +76,7 @@ struct ezAssetInfo
   ezString m_sAbsolutePath;
   ezString m_sDataDirRelativePath;
 
-  ezAssetDocumentInfo m_Info;
+  ezUniquePtr<ezAssetDocumentInfo> m_Info;
 
   ezUInt64 m_LastAssetDependencyHash = 0; ///< For debugging only.
   ezSet<ezString> m_MissingDependencies;
@@ -84,7 +85,7 @@ struct ezAssetInfo
   ezSet<ezUuid> m_SubAssets; ///< Main asset uses the same GUID as this (see m_Info), but is NOT stored in m_SubAssets
 
 private:
-  void operator= (const ezAssetInfo& rhs) = delete;
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezAssetInfo);
 };
 
 /// \brief Information about an asset or sub-asset.
@@ -284,7 +285,7 @@ private:
   void UntrackDependencies(ezAssetInfo* pAssetInfo);
   void UpdateTrackedFiles(const ezUuid& assetGuid, const ezSet<ezString>& files, ezMap<ezString, ezHybridArray<ezUuid, 1> >& inverseTracker, ezSet<std::tuple<ezUuid, ezUuid> >& unresolved, bool bAdd);
   void UpdateUnresolvedTrackedFiles(ezMap<ezString, ezHybridArray<ezUuid, 1> >& inverseTracker, ezSet<std::tuple<ezUuid, ezUuid> >& unresolved);
-  ezResult ReadAssetDocumentInfo(const char* szAbsFilePath, ezFileStatus& stat, ezAssetInfo& assetInfo);
+  ezResult ReadAssetDocumentInfo(const char* szAbsFilePath, ezFileStatus& stat, ezUniquePtr<ezAssetInfo>& assetInfo);
   void UpdateSubAssets(ezAssetInfo& assetInfo);
   /// \brief Computes the hash of the given file. Optionally passes the data stream through into another stream writer.
   static ezUInt64 HashFile(ezStreamReader& InputStream, ezStreamWriter* pPassThroughStream);
@@ -334,6 +335,7 @@ private:
   ezSet<ezUuid> m_TransformStateStale;
 
   // Serialized cache
+  mutable ezCuratorMutex m_CachedAssetsMutex; ///< Only locks m_CachedAssets
   ezMap<ezString, ezUniquePtr<ezAssetDocumentInfo> > m_CachedAssets;
   ezMap<ezString, ezFileStatus > m_CachedFiles;
 

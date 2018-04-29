@@ -264,7 +264,7 @@ bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, 
 
   }
 
-  auto TestFunc = [this, &bComplete](ezSet<ezString>& Files) -> ezAssetInfo*
+  auto TestFunc = [this, &bComplete](const ezSet<ezString>& Files) -> ezAssetInfo*
   {
     for (const auto& sFile : Files)
     {
@@ -295,19 +295,19 @@ bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, 
     return nullptr;
   };
 
-  if (ezAssetInfo* pDepInfo = TestFunc(pInfo->m_Info.m_AssetTransformDependencies))
+  if (ezAssetInfo* pDepInfo = TestFunc(pInfo->m_Info->m_AssetTransformDependencies))
   {
     return GetNextAssetToProcess(pDepInfo, out_guid, out_sAbsPath);
   }
 
-  if (ezAssetInfo* pDepInfo = TestFunc(pInfo->m_Info.m_RuntimeDependencies))
+  if (ezAssetInfo* pDepInfo = TestFunc(pInfo->m_Info->m_RuntimeDependencies))
   {
     return GetNextAssetToProcess(pDepInfo, out_guid, out_sAbsPath);
   }
 
   if (bComplete)
   {
-    out_guid = pInfo->m_Info.m_DocumentID;
+    out_guid = pInfo->m_Info->m_DocumentID;
     out_sAbsPath = pInfo->m_sAbsolutePath;
     return true;
   }

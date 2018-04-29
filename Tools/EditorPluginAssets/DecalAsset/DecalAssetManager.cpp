@@ -107,7 +107,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const char* szPlatfor
     if (asset.m_pAssetInfo->m_pManager != this)
       continue;
 
-    uiSettingsHash += asset.m_pAssetInfo->m_Info.m_uiSettingsHash;
+    uiSettingsHash += asset.m_pAssetInfo->m_Info->m_uiSettingsHash;
   }
 
   ezStringBuilder decalFile = ezToolsProject::GetSingleton()->GetProjectDirectory();

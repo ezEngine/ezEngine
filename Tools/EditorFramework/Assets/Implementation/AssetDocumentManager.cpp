@@ -15,10 +15,8 @@ ezBitflags<ezAssetDocumentFlags> ezAssetDocumentManager::GetAssetDocumentTypeFla
   return ezAssetDocumentFlags::Default;
 }
 
-ezStatus ezAssetDocumentManager::ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamReader& stream) const
+ezStatus ezAssetDocumentManager::ReadAssetDocumentInfo(ezUniquePtr<ezAssetDocumentInfo>& out_pInfo, ezStreamReader& stream) const
 {
-  /// \todo PERF / DDL: We are only interested in the HEADER block, we should skip everything else !
-
   ezAbstractObjectGraph graph;
 
   if (ezAbstractGraphDdlSerializer::ReadHeader(stream, &graph).Failed())
@@ -32,8 +30,9 @@ ezStatus ezAssetDocumentManager::ReadAssetDocumentInfo(ezAssetDocumentInfo* pInf
   if (pHeaderNode == nullptr)
     return ezStatus("Document does not contain a 'Header'");
 
-  rttiConverter.ApplyPropertiesToObject(pHeaderNode, pInfo->GetDynamicRTTI(), pInfo);
-
+  ezAssetDocumentInfo* pEntry = static_cast<ezAssetDocumentInfo*>(rttiConverter.CreateObjectFromNode(pHeaderNode));
+  EZ_ASSERT_DEBUG(pEntry != nullptr, "Failed to deserialize ezAssetDocumentInfo!");
+  out_pInfo = ezUniquePtr<ezAssetDocumentInfo>(pEntry, ezFoundation::GetDefaultAllocator());
   return ezStatus(EZ_SUCCESS);
 }
 

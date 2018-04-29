@@ -159,7 +159,7 @@ void ezQtSceneImportDlg::on_accepted()
       const auto assetInfo = ezAssetCurator::GetSingleton()->FindSubAsset(meshFilename);
       if (assetInfo != nullptr)
       {
-        rawMeshToFile.Insert(meshIt.Value().Borrow(), ezConversionUtils::ToString(assetInfo->m_pAssetInfo->m_Info.m_DocumentID, tmp));
+        rawMeshToFile.Insert(meshIt.Value().Borrow(), ezConversionUtils::ToString(assetInfo->m_pAssetInfo->m_Info->m_DocumentID, tmp));
         continue;
       }
     }

@@ -143,7 +143,7 @@ public:
   void PruneGraph(const ezUuid& rootGuid);
 
   /// \brief Allows to copy a node from another graph into this graph.
-  void CopyNodeIntoGraph(const ezAbstractObjectNode* pNode);
+  ezAbstractObjectNode* CopyNodeIntoGraph(const ezAbstractObjectNode* pNode);
 
   void CreateDiffWithBaseGraph(const ezAbstractObjectGraph& base, ezDeque<ezAbstractGraphDiffOperation>& out_DiffResult) const;
 

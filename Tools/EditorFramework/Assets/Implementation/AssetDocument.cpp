@@ -13,27 +13,8 @@
 #include <Foundation/Utilities/Progress.h>
 #include <QPainter>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentInfo, 1, ezRTTIDefaultAllocator<ezAssetDocumentInfo>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_SET_MEMBER_PROPERTY("Dependencies", m_AssetTransformDependencies),
-    EZ_SET_MEMBER_PROPERTY("References", m_RuntimeDependencies),
-    EZ_SET_MEMBER_PROPERTY("Outputs", m_Outputs),
-    EZ_MEMBER_PROPERTY("Hash", m_uiSettingsHash),
-    EZ_ACCESSOR_PROPERTY("AssetType", GetAssetTypeName, SetAssetTypeName),
-  }
-  EZ_END_PROPERTIES
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE
-
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocument, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
-
-ezAssetDocumentInfo::ezAssetDocumentInfo()
-{
-  m_uiSettingsHash = 0;
-}
 
 ezAssetDocument::ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, bool bUseEngineConnection, bool bUseIPCObjectMirror)
   : ezDocument(szDocumentPath, pObjectManager)
@@ -93,7 +74,7 @@ ezStatus ezAssetDocument::InternalSaveDocument()
   pInfo->m_Outputs.Clear();
   pInfo->m_uiSettingsHash = GetDocumentHash();
   pInfo->m_sAssetTypeName.Assign(QueryAssetType());
-
+  pInfo->ClearMetaData();
   UpdateAssetDocumentInfo(pInfo);
 
   // In case someone added an empty reference.

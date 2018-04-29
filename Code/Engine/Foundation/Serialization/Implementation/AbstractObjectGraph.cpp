@@ -425,12 +425,13 @@ void ezAbstractObjectGraph::PruneGraph(const ezUuid& rootGuid)
   }
 }
 
-void ezAbstractObjectGraph::CopyNodeIntoGraph(const ezAbstractObjectNode* pNode)
+ezAbstractObjectNode* ezAbstractObjectGraph::CopyNodeIntoGraph(const ezAbstractObjectNode* pNode)
 {
   auto pNewNode = AddNode(pNode->GetGuid(), pNode->GetType(), pNode->GetTypeVersion(), pNode->GetNodeName());
 
   for (const auto& props : pNode->GetProperties())
     pNewNode->AddProperty(props.m_szPropertyName, props.m_Value);
+  return pNewNode;
 }
 
 

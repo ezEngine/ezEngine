@@ -198,7 +198,7 @@ ezString ezSoundBankAssetDocumentManager::GetSoundBankAssetTableEntry(const ezSu
 
   if (ezStringUtils::IsEqual(szPlatform, "PC"))
   {
-    for (const ezString& dep : pSubAsset->m_pAssetInfo->m_Info.m_AssetTransformDependencies)
+    for (const ezString& dep : pSubAsset->m_pAssetInfo->m_Info->m_AssetTransformDependencies)
     {
       if (dep.EndsWith_NoCase(".bank") && !dep.EndsWith_NoCase(".strings.bank"))
       {

@@ -169,10 +169,18 @@ ezStatus ezDocument::InternalSaveDocument()
   ezDeferredFileWriter file;
   file.SetOutput(m_sDocumentPath);
 
-  ezAbstractObjectGraph graph;
+
+  ezAbstractObjectGraph headerGraph;
+  ezAbstractObjectGraph objectGraph;
+  ezAbstractObjectGraph typesGraph;
   {
     ezRttiConverterContext context;
-    ezRttiConverterWriter rttiConverter(&graph, &context, true, true);
+    ezRttiConverterWriter rttiConverter(&headerGraph, &context, true, true);
+    context.RegisterObject(GetGuid(), m_pDocumentInfo->GetDynamicRTTI(), m_pDocumentInfo);
+    rttiConverter.AddObjectToGraph(m_pDocumentInfo, "Header");
+
+  }
+  {
     // Do not serialize any temporary properties into the document.
     auto filter = [](const ezAbstractProperty* pProp) -> bool
     {
@@ -180,22 +188,18 @@ ezStatus ezDocument::InternalSaveDocument()
         return false;
       return true;
     };
-    ezDocumentObjectConverterWriter objectConverter(&graph, GetObjectManager(), filter);
-    context.RegisterObject(GetGuid(), m_pDocumentInfo->GetDynamicRTTI(), m_pDocumentInfo);
-
-    rttiConverter.AddObjectToGraph(m_pDocumentInfo, "Header");
+    ezDocumentObjectConverterWriter objectConverter(&objectGraph, GetObjectManager(), filter);
     objectConverter.AddObjectToGraph(GetObjectManager()->GetRootObject(), "ObjectTree");
 
-    AttachMetaDataBeforeSaving(graph);
+    AttachMetaDataBeforeSaving(objectGraph);
   }
-  ezAbstractObjectGraph typesGraph;
   {
     ezSet<const ezRTTI*> types;
     ezToolsReflectionUtils::GatherObjectTypes(GetObjectManager()->GetRootObject(), types);
     ezToolsReflectionUtils::SerializeTypes(types, typesGraph);
   }
 
-  ezAbstractGraphDdlSerializer::Write(file, &graph, &typesGraph, false);
+  ezAbstractGraphDdlSerializer::WriteDocument(file, &headerGraph, &objectGraph, &typesGraph, false);
 
   if (file.Close() == EZ_FAILURE)
   {
@@ -211,8 +215,9 @@ ezStatus ezDocument::InternalLoadDocument()
   // this would currently crash in Qt, due to the processEvents in the QtProgressBar
   //ezProgressRange range("Loading Document", 5, false);
 
-  ezAbstractObjectGraph graph;
-  ezAbstractObjectGraph typesGraph;
+  ezUniquePtr<ezAbstractObjectGraph> header;
+  ezUniquePtr<ezAbstractObjectGraph> objects;
+  ezUniquePtr<ezAbstractObjectGraph> types;
 
   ezMemoryStreamStorage storage;
   ezMemoryStreamReader memreader(&storage);
@@ -232,7 +237,7 @@ ezStatus ezDocument::InternalLoadDocument()
     {
       EZ_PROFILE("parse DDL graph");
       ezStopwatch sw;
-      if (ezAbstractGraphDdlSerializer::Read(memreader, &graph, &typesGraph).Failed())
+      if (ezAbstractGraphDdlSerializer::ReadDocument(memreader, header, objects, types, true).Failed())
         return ezStatus("Failed to parse DDL graph");
 
       ezTime t = sw.GetRunningTotal();
@@ -247,10 +252,10 @@ ezStatus ezDocument::InternalLoadDocument()
     // Deserialize and register serialized phantom types.
     ezString sDescTypeName = ezGetStaticRTTI<ezReflectedTypeDescriptor>()->GetTypeName();
     ezDynamicArray<ezReflectedTypeDescriptor*> descriptors;
-    auto& nodes = typesGraph.GetAllNodes();
+    auto& nodes = types->GetAllNodes();
     descriptors.Reserve(nodes.GetCount()); // Overkill but doesn't matter much as it's just temporary.
     ezRttiConverterContext context;
-    ezRttiConverterReader rttiConverter(&typesGraph, &context);
+    ezRttiConverterReader rttiConverter(types.Borrow(), &context);
 
     for (auto it = nodes.GetIterator(); it.IsValid(); ++it)
     {
@@ -281,18 +286,19 @@ ezStatus ezDocument::InternalLoadDocument()
 
   }
 
-  ezRttiConverterContext context;
-  ezRttiConverterReader rttiConverter(&graph, &context);
-  ezDocumentObjectConverterReader objectConverter(&graph, GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
+  {
+    EZ_PROFILE("Restoring Header");
+    ezRttiConverterContext context;
+    ezRttiConverterReader rttiConverter(header.Borrow(), &context);
+    auto* pHeaderNode = header->GetNodeByName("Header");
+    rttiConverter.ApplyPropertiesToObject(pHeaderNode, m_pDocumentInfo->GetDynamicRTTI(), m_pDocumentInfo);
+  }
 
   {
     EZ_PROFILE("Restoring Objects");
+    ezDocumentObjectConverterReader objectConverter(objects.Borrow(), GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
     //range.BeginNextStep("Restoring Objects");
-
-    auto* pHeaderNode = graph.GetNodeByName("Header");
-    rttiConverter.ApplyPropertiesToObject(pHeaderNode, m_pDocumentInfo->GetDynamicRTTI(), m_pDocumentInfo);
-
-    auto* pRootNode = graph.GetNodeByName("ObjectTree");
+    auto* pRootNode = objects->GetNodeByName("ObjectTree");
     objectConverter.ApplyPropertiesToObject(pRootNode, GetObjectManager()->GetRootObject());
 
     SetUnknownObjectTypes(objectConverter.GetUnknownObjectTypes(), objectConverter.GetNumUnknownObjectCreations());
@@ -301,7 +307,7 @@ ezStatus ezDocument::InternalLoadDocument()
   {
     EZ_PROFILE("Restoring Meta-Data");
     //range.BeginNextStep("Restoring Meta-Data");
-    RestoreMetaDataAfterLoading(graph, false);
+    RestoreMetaDataAfterLoading(*objects.Borrow(), false);
   }
 
   SetModified(false);
