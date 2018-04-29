@@ -30,6 +30,10 @@ private:
   ezUInt32 AllocateTile(const ezPPInternal::TileDesc& desc, ezSharedPtr<const ezPPInternal::Layer>& pLayer);
   void DeallocateTile(ezUInt32 uiTileIndex);
 
+  ezUInt32 AllocatePlacementTask(ezUInt32 uiTileIndex);
+  void DeallocatePlacementTask(ezUInt32 uiPlacementTaskIndex);
+  ezUInt32 GetNumAllocatedPlacementTasks() const;
+
   void RemoveTilesForResource(ezUInt32 uiResourceIdHash);
   void OnResourceEvent(const ezResourceEvent& resourceEvent);
 
@@ -74,7 +78,20 @@ private:
 
   ezDynamicArray<ezPPInternal::ActiveTile, ezAlignedAllocatorWrapper> m_ActiveTiles;
   ezDynamicArray<ezUInt32> m_FreeTiles;
-  ezDynamicArray<ezUInt32> m_ProcessingTiles;
+
+  struct PlacementTaskInfo
+  {
+    EZ_ALWAYS_INLINE bool IsValid() const { return m_uiTileIndex != ezInvalidIndex; }
+    EZ_ALWAYS_INLINE bool IsScheduled() const { return m_taskGroupID.IsValid(); }
+    EZ_ALWAYS_INLINE void Invalidate() { m_taskGroupID = ezTaskGroupID(); m_uiTileIndex = ezInvalidIndex; }
+
+    ezUniquePtr<PlacementTask> m_pTask;
+    ezTaskGroupID m_taskGroupID;
+    ezUInt32 m_uiTileIndex;
+  };
+
+  ezDynamicArray<PlacementTaskInfo> m_PlacementTaskInfos;
+  ezDynamicArray<ezUInt32> m_FreePlacementTasks;
 
   ezDynamicArray<ezPPInternal::TileDesc, ezAlignedAllocatorWrapper> m_NewTiles;
 };

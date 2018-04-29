@@ -1,9 +1,7 @@
-#pragma once
+﻿#pragma once
 
-#include <ProceduralPlacementPlugin/Basics.h>
 #include <ProceduralPlacementPlugin/VM/ExpressionAST.h>
 
-class ezExpressionAST;
 class ezExpressionByteCode;
 
 class EZ_PROCEDURALPLACEMENTPLUGIN_DLL ezExpressionCompiler

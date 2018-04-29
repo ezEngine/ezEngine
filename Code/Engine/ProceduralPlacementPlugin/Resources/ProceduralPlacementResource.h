@@ -28,6 +28,7 @@ private:
 
 private:
 
+  ezDynamicArray<ezExpressionByteCode> m_ByteCode;
   ezDynamicArray<ezSharedPtr<const ezPPInternal::Layer>> m_Layers;
 };
 

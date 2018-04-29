@@ -60,92 +60,83 @@ ezResult ezExpressionCompiler::Compile(ezExpressionAST& ast, ezExpressionByteCod
 
 ezResult ezExpressionCompiler::BuildNodeInstructions(const ezExpressionAST& ast)
 {
+  m_NodeStack.Clear();
   m_NodeInstructions.Clear();
-  m_NodeToRegisterIndex.Clear();
-  m_LiveIntervals.Clear();
-  ezUInt32 uiNextRegisterIndex = 0;
 
-  // Build node instruction order aka post order tree traversal and assign virtual register indices and
-  // determine their lifetime start.
+  // Build node instruction order aka post order tree traversal
   for (const ezExpressionAST::Node* pOutputNode : ast.m_OutputNodes)
   {
     if (pOutputNode == nullptr)
       continue;
 
-    m_NodeStack.Clear();
+    EZ_ASSERT_DEV(m_NodeInstructions.IsEmpty(), "Implementation error");
 
-    m_NodeStack.PushBack(pOutputNode);
+    m_NodeInstructions.PushBack(pOutputNode);
 
-    while (!m_NodeStack.IsEmpty())
+    while (!m_NodeInstructions.IsEmpty())
     {
-      auto pCurrentNode = m_NodeStack.PeekBack();
-      m_NodeStack.PopBack();
+      auto pCurrentNode = m_NodeInstructions.PeekBack();
+      m_NodeInstructions.PopBack();
 
       if (pCurrentNode == nullptr)
       {
         return EZ_FAILURE;
       }
 
-      if (!m_NodeToRegisterIndex.Contains(pCurrentNode))
+      m_NodeStack.PushBack(pCurrentNode);
+
+      if (ezExpressionAST::NodeType::IsBinary(pCurrentNode->m_Type))
       {
-        m_NodeInstructions.PushBack(pCurrentNode);
-
-        m_NodeToRegisterIndex.Insert(pCurrentNode, uiNextRegisterIndex);
-        ++uiNextRegisterIndex;
-
-        ezUInt32 uiCurrentInstructionIndex = m_NodeInstructions.GetCount() - 1;
-        m_LiveIntervals.PushBack({ uiCurrentInstructionIndex, uiCurrentInstructionIndex, pCurrentNode });
-        EZ_ASSERT_DEV(m_LiveIntervals.GetCount() == uiNextRegisterIndex, "Implementation error");
-
-        if (ezExpressionAST::NodeType::IsBinary(pCurrentNode->m_Type))
+        // Do not push the left operand if it is a constant, we don't want a separate mov instruction for it
+        // since all binary operators can take a constant as left operand in place.
+        auto pBinary = static_cast<const ezExpressionAST::BinaryOperator*>(pCurrentNode);
+        bool bLeftIsConstant = ezExpressionAST::NodeType::IsConstant(pBinary->m_pLeftOperand->m_Type);
+        if (!bLeftIsConstant)
         {
-          // Do not push the left operand if it is a constant, we don't want a separate mov instruction for it
-          // since all binary operators can take a constant as left operand in place.
-          auto pBinary = static_cast<const ezExpressionAST::BinaryOperator*>(pCurrentNode);
-          bool bLeftIsConstant = ezExpressionAST::NodeType::IsConstant(pBinary->m_pLeftOperand->m_Type);
-          if (!bLeftIsConstant)
-          {
-            m_NodeStack.PushBack(pBinary->m_pLeftOperand);
-          }
-
-          m_NodeStack.PushBack(pBinary->m_pRightOperand);
+          m_NodeInstructions.PushBack(pBinary->m_pLeftOperand);
         }
-        else
+
+        m_NodeInstructions.PushBack(pBinary->m_pRightOperand);
+      }
+      else
+      {
+        auto children = ezExpressionAST::GetChildren(pCurrentNode);
+        for (auto pChild : children)
         {
-          auto children = ezExpressionAST::GetChildren(pCurrentNode);
-          for (auto pChild : children)
-          {
-            m_NodeStack.PushBack(pChild);
-          }
+          m_NodeInstructions.PushBack(pChild);
         }
       }
     }
   }
 
-  if (m_NodeInstructions.IsEmpty())
+  if (m_NodeStack.IsEmpty())
   {
     // Nothing to compile
     return EZ_FAILURE;
   }
 
-  // Reverse the order of instructions, they have been written in a stack based fashion.
-  // Strictly speaking this would not be necessary but makes the rest easier to understand.
-  {
-    const ezExpressionAST::Node** pLast = &m_NodeInstructions.PeekBack();
-    const ezExpressionAST::Node** pFirst = &m_NodeInstructions[0];
-    while (pLast > pFirst)
-    {
-      ezMath::Swap(*pFirst, *pLast);
-      --pLast;
-      ++pFirst;
-    }
+  EZ_ASSERT_DEV(m_NodeInstructions.IsEmpty(), "Implementation error");
 
-    // Also reverse lifetime
-    ezUInt32 uiLastInstructionIndex = m_NodeInstructions.GetCount() - 1;
-    for (auto& liveRegister : m_LiveIntervals)
+  m_NodeToRegisterIndex.Clear();
+  m_LiveIntervals.Clear();
+  ezUInt32 uiNextRegisterIndex = 0;
+
+  // De-duplicate nodes, build final instruction list and assign virtual register indices. Also determine their lifetime start.
+  while (!m_NodeStack.IsEmpty())
+  {
+    auto pCurrentNode = m_NodeStack.PeekBack();
+    m_NodeStack.PopBack();
+
+    if (!m_NodeToRegisterIndex.Contains(pCurrentNode))
     {
-      liveRegister.m_uiStart = uiLastInstructionIndex - liveRegister.m_uiStart;
-      liveRegister.m_uiEnd = uiLastInstructionIndex - liveRegister.m_uiEnd;
+      m_NodeInstructions.PushBack(pCurrentNode);
+
+      m_NodeToRegisterIndex.Insert(pCurrentNode, uiNextRegisterIndex);
+      ++uiNextRegisterIndex;
+
+      ezUInt32 uiCurrentInstructionIndex = m_NodeInstructions.GetCount() - 1;
+      m_LiveIntervals.PushBack({ uiCurrentInstructionIndex, uiCurrentInstructionIndex, pCurrentNode });
+      EZ_ASSERT_DEV(m_LiveIntervals.GetCount() == uiNextRegisterIndex, "Implementation error");
     }
   }
 
@@ -163,11 +154,18 @@ ezResult ezExpressionCompiler::UpdateRegisterLifetime(const ezExpressionAST& ast
     auto children = ezExpressionAST::GetChildren(pCurrentNode);
     for (auto pChild : children)
     {
-      ezUInt32 uiRegisterIndex = m_NodeToRegisterIndex[pChild];
-      auto& liveRegister = m_LiveIntervals[uiRegisterIndex];
+      ezUInt32 uiRegisterIndex = ezInvalidIndex;
+      if (m_NodeToRegisterIndex.TryGetValue(pChild, uiRegisterIndex))
+      {
+        auto& liveRegister = m_LiveIntervals[uiRegisterIndex];
 
-      EZ_ASSERT_DEV(liveRegister.m_uiEnd <= uiInstructionIndex, "Implementation error");
-      liveRegister.m_uiEnd = uiInstructionIndex;
+        EZ_ASSERT_DEV(liveRegister.m_uiEnd <= uiInstructionIndex, "Implementation error");
+        liveRegister.m_uiEnd = uiInstructionIndex;
+      }
+      else
+      {
+        EZ_ASSERT_DEV(ezExpressionAST::NodeType::IsConstant(pChild->m_Type), "Must have a valid register for nodes that are not constants");
+      }
     }
   }
 
@@ -176,7 +174,8 @@ ezResult ezExpressionCompiler::UpdateRegisterLifetime(const ezExpressionAST& ast
     if (pOutputNode == nullptr)
       continue;
 
-    ezUInt32 uiRegisterIndex = m_NodeToRegisterIndex[pOutputNode];
+    ezUInt32 uiRegisterIndex = ezInvalidIndex;
+    EZ_VERIFY(m_NodeToRegisterIndex.TryGetValue(pOutputNode, uiRegisterIndex), "Must have a valid register for outputs");
     auto& liveRegister = m_LiveIntervals[uiRegisterIndex];
 
     EZ_ASSERT_DEV(liveRegister.m_uiEnd <= uiInstructionIndex, "Implementation error");
@@ -239,6 +238,8 @@ ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezEx
   auto& byteCode = out_byteCode.m_ByteCode;
 
   ezUInt32 uiMaxRegisterIndex = 0;
+  ezUInt32 uiMaxInputIndex = 0;
+  ezUInt32 uiMaxOutputIndex = 0;
 
   for (auto pCurrentNode : m_NodeInstructions)
   {
@@ -287,9 +288,13 @@ ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezEx
     }
     else if (ezExpressionAST::NodeType::IsInput(nodeType))
     {
+      ezUInt32 uiInputIndex = static_cast<const ezExpressionAST::Input*>(pCurrentNode)->m_uiIndex;
+
       byteCode.PushBack(ezExpressionByteCode::OpCode::Mov_I);
       byteCode.PushBack(uiTargetRegister);
-      byteCode.PushBack(static_cast<const ezExpressionAST::Input*>(pCurrentNode)->m_uiIndex);
+      byteCode.PushBack(uiInputIndex);
+
+      uiMaxInputIndex = ezMath::Max(uiMaxInputIndex, uiInputIndex);
     }
     else if (nodeType == ezExpressionAST::NodeType::FunctionCall)
     {
@@ -321,11 +326,14 @@ ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezEx
     byteCode.PushBack(uiOutputIndex);
     byteCode.PushBack(m_NodeToRegisterIndex[pOutputNode]);
 
+    uiMaxOutputIndex = ezMath::Max(uiMaxOutputIndex, uiOutputIndex);
     ++uiNumInstructions;
   }
 
   out_byteCode.m_uiNumInstructions = uiNumInstructions;
   out_byteCode.m_uiNumTempRegisters = uiMaxRegisterIndex + 1;
+  out_byteCode.m_uiNumInputs = uiMaxInputIndex + 1;
+  out_byteCode.m_uiNumOutputs = uiMaxOutputIndex + 1;
 
   return EZ_SUCCESS;
 }

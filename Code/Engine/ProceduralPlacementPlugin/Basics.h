@@ -58,7 +58,7 @@ namespace ezPPInternal
 
     ezHybridArray<ezHashedString, 4> m_ObjectsToPlace;
 
-    Pattern* m_pPattern;
+    const Pattern* m_pPattern;
     float m_fFootprint;
 
     ezVec3 m_vMinOffset;
@@ -86,7 +86,8 @@ namespace ezPPInternal
       NormalX,
       NormalY,
       NormalZ,
-      PointIndex
+      PointIndex,
+      Count
     };
   };
 
@@ -97,7 +98,8 @@ namespace ezPPInternal
       Density,
       Scale,
       ColorIndex,
-      ObjectIndex
+      ObjectIndex,
+      Count
     };
   };
 

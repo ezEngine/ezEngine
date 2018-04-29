@@ -25,18 +25,13 @@ namespace ezPPInternal
     ezBoundingBox GetBoundingBox() const;
     ezColor GetDebugColor() const;
 
-    void Update(const ezPhysicsWorldModuleInterface* pPhysicsModule);
+    void PrepareTask(const ezPhysicsWorldModuleInterface* pPhysicsModule, PlacementTask& placementTask);
 
-    bool IsFinished() const;
-
-    ezUInt32 PlaceObjects(ezWorld& world);
+    ezUInt32 PlaceObjects(ezWorld& world, const PlacementTask& placementTask);
 
   private:
     TileDesc m_Desc;
     ezSharedPtr<const Layer> m_pLayer;
-
-    ezUniquePtr<PlacementTask> m_pPlacementTask;
-    ezTaskGroupID m_TaskGroupId;
 
     struct State
     {
@@ -50,7 +45,6 @@ namespace ezPPInternal
     };
 
     State::Enum m_State;
-
     ezDynamicArray<ezGameObjectHandle> m_PlacedObjects;
   };
 }

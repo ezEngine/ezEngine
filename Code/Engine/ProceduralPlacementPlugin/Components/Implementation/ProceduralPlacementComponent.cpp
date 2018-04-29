@@ -26,6 +26,8 @@ namespace
 
     return (sx << 42) | (sy << 21) | sz;
   }
+
+  #define EmptyTileIndex ezInvalidIndex
 }
 
 using namespace ezPPInternal;
@@ -167,7 +169,7 @@ void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateCo
                 ezUInt64 uiTileKey = GetTileKey(iPosX + iX, iPosY + iY, 0);
                 if (!activeLayer.m_TileIndices.Contains(uiTileKey))
                 {
-                  activeLayer.m_TileIndices.Insert(uiTileKey, ezInvalidIndex);
+                  activeLayer.m_TileIndices.Insert(uiTileKey, EmptyTileIndex);
 
                   auto& newTile = m_NewTiles.ExpandAndGetRef();
                   newTile.m_uiResourceIdHash = uiResourceIdHash;
@@ -194,15 +196,15 @@ void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateCo
     ClearVisibleResources();
   }
 
-  // Allocate new tiles
+  // Allocate new tiles and placement tasks
   {
-    while (!m_NewTiles.IsEmpty() && m_ProcessingTiles.GetCount() < (ezUInt32)CVarMaxProcessingTiles)
+    while (!m_NewTiles.IsEmpty() && GetNumAllocatedPlacementTasks() < (ezUInt32)CVarMaxProcessingTiles)
     {
       const TileDesc& newTile = m_NewTiles.PeekBack();
       auto& pLayer = m_ActiveResources[newTile.m_uiResourceIdHash].m_Layers[newTile.m_uiLayerIndex].m_pLayer;
       ezUInt32 uiNewTileIndex = AllocateTile(newTile, pLayer);
 
-      m_ProcessingTiles.PushBack(uiNewTileIndex);
+      AllocatePlacementTask(uiNewTileIndex);
       m_NewTiles.PopBack();
     }
   }
@@ -214,9 +216,24 @@ void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateCo
   {
     if (const ezPhysicsWorldModuleInterface* pPhysicsModule = pWorld->GetModule<ezPhysicsWorldModuleInterface>())
     {
-      for (auto& uiTileIndex : m_ProcessingTiles)
+      for (ezUInt32 i = 0; i < m_PlacementTaskInfos.GetCount(); ++i)
       {
-        m_ActiveTiles[uiTileIndex].Update(pPhysicsModule);
+        auto& taskInfo = m_PlacementTaskInfos[i];
+        if (!taskInfo.IsValid() || taskInfo.IsScheduled())
+          continue;
+
+        m_ActiveTiles[taskInfo.m_uiTileIndex].PrepareTask(pPhysicsModule, *taskInfo.m_pTask);
+
+        if (!taskInfo.m_pTask->GetInputPoints().IsEmpty())
+        {
+          taskInfo.m_taskGroupID = ezTaskSystem::StartSingleTask(taskInfo.m_pTask.Borrow(), ezTaskPriority::LongRunningHighPriority);
+        }
+        else
+        {
+          // mark tile & task for re-use
+          DeallocateTile(taskInfo.m_uiTileIndex);
+          DeallocatePlacementTask(i);
+        }
       }
     }
   }
@@ -239,15 +256,17 @@ void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateCo
 
 void ezProceduralPlacementComponentManager::PlaceObjects(const ezWorldModule::UpdateContext& context)
 {
-  for (ezUInt32 i = 0; i < m_ProcessingTiles.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < m_PlacementTaskInfos.GetCount(); ++i)
   {
-    ezUInt32 uiTileIndex = m_ProcessingTiles[i];
+    auto& taskInfo = m_PlacementTaskInfos[i];
+    if (!taskInfo.IsValid() || !taskInfo.IsScheduled())
+      continue;
 
-    auto& activeTile = m_ActiveTiles[uiTileIndex];
-
-    if (activeTile.IsFinished())
+    if (taskInfo.m_pTask->IsTaskFinished())
     {
-      if (activeTile.PlaceObjects(*GetWorld()) > 0)
+      ezUInt32 uiTileIndex = taskInfo.m_uiTileIndex;
+      auto& activeTile = m_ActiveTiles[uiTileIndex];
+      if (activeTile.PlaceObjects(*GetWorld(), *taskInfo.m_pTask) > 0)
       {
         auto& tileDesc = activeTile.GetDesc();
 
@@ -262,8 +281,8 @@ void ezProceduralPlacementComponentManager::PlaceObjects(const ezWorldModule::Up
         DeallocateTile(uiTileIndex);
       }
 
-      m_ProcessingTiles.RemoveAtSwap(i);
-      --i;
+      // mark task for re-use
+      DeallocatePlacementTask(i);
     }
   }
 }
@@ -347,6 +366,45 @@ void ezProceduralPlacementComponentManager::DeallocateTile(ezUInt32 uiTileIndex)
   m_FreeTiles.PushBack(uiTileIndex);
 }
 
+ezUInt32 ezProceduralPlacementComponentManager::AllocatePlacementTask(ezUInt32 uiTileIndex)
+{
+  ezUInt32 uiNewTaskIndex = ezInvalidIndex;
+  if (!m_FreePlacementTasks.IsEmpty())
+  {
+    uiNewTaskIndex = m_FreePlacementTasks.PeekBack();
+    m_FreePlacementTasks.PopBack();
+  }
+  else
+  {
+    uiNewTaskIndex = m_PlacementTaskInfos.GetCount();
+    auto& newTask = m_PlacementTaskInfos.ExpandAndGetRef();
+
+    newTask.m_pTask = EZ_DEFAULT_NEW(PlacementTask);
+  }
+
+  m_PlacementTaskInfos[uiNewTaskIndex].m_uiTileIndex = uiTileIndex;
+  return uiNewTaskIndex;
+}
+
+void ezProceduralPlacementComponentManager::DeallocatePlacementTask(ezUInt32 uiPlacementTaskIndex)
+{
+  auto& task = m_PlacementTaskInfos[uiPlacementTaskIndex];
+  if (task.IsScheduled())
+  {
+    ezTaskSystem::WaitForGroup(task.m_taskGroupID);
+  }
+
+  task.m_pTask->Clear();
+  task.Invalidate();
+
+  m_FreePlacementTasks.PushBack(uiPlacementTaskIndex);
+}
+
+ezUInt32 ezProceduralPlacementComponentManager::GetNumAllocatedPlacementTasks() const
+{
+  return m_PlacementTaskInfos.GetCount() - m_FreePlacementTasks.GetCount();
+}
+
 void ezProceduralPlacementComponentManager::RemoveTilesForResource(ezUInt32 uiResourceIdHash)
 {
   ActiveResource* pActiveResource = nullptr;
@@ -378,7 +436,14 @@ void ezProceduralPlacementComponentManager::RemoveTilesForResource(ezUInt32 uiRe
     {
       DeallocateTile(uiTileIndex);
 
-      m_ProcessingTiles.Remove(uiTileIndex);
+      for (ezUInt32 i = 0; i < m_PlacementTaskInfos.GetCount(); ++i)
+      {
+        auto& taskInfo = m_PlacementTaskInfos[i];
+        if (taskInfo.m_uiTileIndex == uiTileIndex)
+        {
+          DeallocatePlacementTask(i);
+        }
+      }
     }
   }
 }

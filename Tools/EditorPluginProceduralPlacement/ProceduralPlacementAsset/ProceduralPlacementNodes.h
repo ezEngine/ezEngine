@@ -37,6 +37,8 @@ public:
 
   float m_fCullDistance;
 
+  ezUInt32 m_uiByteCodeIndex;
+
   ezInputNodePin m_DensityPin;
   ezInputNodePin m_ScalePin;
   ezInputNodePin m_ColorIndexPin;

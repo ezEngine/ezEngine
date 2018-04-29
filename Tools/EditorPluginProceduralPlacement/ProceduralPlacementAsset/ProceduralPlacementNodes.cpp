@@ -1,6 +1,24 @@
 #include <PCH.h>
 #include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementNodes.h>
 
+namespace
+{
+  ezExpressionAST::Node* CreateRandom(float fSeed, ezExpressionAST& out_Ast)
+  {
+    auto pPointIndex = out_Ast.CreateInput(ezPPInternal::ExpressionInputs::PointIndex);
+    auto pSeedConstant = out_Ast.CreateConstant(fSeed);
+
+    auto pSeed = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Add, pPointIndex, pSeedConstant);
+
+    auto pFunctionCall = out_Ast.CreateFunctionCall("Random");
+    pFunctionCall->m_Arguments.PushBack(pSeed);
+
+    return pFunctionCall;
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementNodeBase, 1, ezRTTINoAllocator)
 {
   flags.Add(ezTypeFlags::Abstract);
@@ -39,6 +57,40 @@ ezExpressionAST::Node* ezProceduralPlacementLayerOutput::GenerateExpressionASTNo
     out_Ast.m_OutputNodes.PushBack(input);
   }
 
+  // set defaults
+  if (out_Ast.m_OutputNodes[ezPPInternal::ExpressionOutputs::Density] == nullptr)
+  {
+    out_Ast.m_OutputNodes[ezPPInternal::ExpressionOutputs::Density] = out_Ast.CreateConstant(1.0f);
+  }
+
+  if (out_Ast.m_OutputNodes[ezPPInternal::ExpressionOutputs::Scale] == nullptr)
+  {
+    out_Ast.m_OutputNodes[ezPPInternal::ExpressionOutputs::Scale] = CreateRandom(11.0f, out_Ast);
+  }
+
+  if (out_Ast.m_OutputNodes[ezPPInternal::ExpressionOutputs::ColorIndex] == nullptr)
+  {
+    out_Ast.m_OutputNodes[ezPPInternal::ExpressionOutputs::ColorIndex] = CreateRandom(13.0f, out_Ast);
+  }
+
+  if (out_Ast.m_OutputNodes[ezPPInternal::ExpressionOutputs::ObjectIndex] == nullptr)
+  {
+    out_Ast.m_OutputNodes[ezPPInternal::ExpressionOutputs::ObjectIndex] = CreateRandom(17.0f, out_Ast);
+  }
+
+  // scale into correct range
+  {
+    auto pColorIndexScale = out_Ast.CreateConstant(255.0f);
+    auto pColorIndexOutput = out_Ast.m_OutputNodes[ezPPInternal::ExpressionOutputs::ColorIndex];
+    out_Ast.m_OutputNodes[ezPPInternal::ExpressionOutputs::ColorIndex] = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Multiply, pColorIndexScale, pColorIndexOutput);
+  }
+
+  {
+    auto pObjectIndexScale = out_Ast.CreateConstant((float)m_ObjectsToPlace.GetCount());
+    auto pObjectIndexOutput = out_Ast.m_OutputNodes[ezPPInternal::ExpressionOutputs::ObjectIndex];
+    out_Ast.m_OutputNodes[ezPPInternal::ExpressionOutputs::ObjectIndex] = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Multiply, pObjectIndexScale, pObjectIndexOutput);
+  }
+
   return nullptr;
 }
 
@@ -63,6 +115,8 @@ void ezProceduralPlacementLayerOutput::Save(ezStreamWriter& stream)
   stream << m_vMaxScale;
 
   stream << m_fCullDistance;
+
+  stream << m_uiByteCodeIndex;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -81,15 +135,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezExpressionAST::Node* ezProceduralPlacementRandom::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast)
 {
-  auto pPointIndex = out_Ast.CreateInput(ezPPInternal::ExpressionInputs::PointIndex);
-  auto pSeedConstant = out_Ast.CreateConstant((float)m_iSeed);
-
-  auto pSeed = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Add, pPointIndex, pSeedConstant);
-
-  auto pFunctionCall = out_Ast.CreateFunctionCall("Random");
-  pFunctionCall->m_Arguments.PushBack(pSeed);
-
-  return pFunctionCall;
+  auto pRandom = CreateRandom(m_iSeed, out_Ast);
+  return pRandom;
 }
 
 //////////////////////////////////////////////////////////////////////////

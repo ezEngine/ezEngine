@@ -1,5 +1,6 @@
 ﻿#include <PCH.h>
 #include <ProceduralPlacementPlugin/Resources/ProceduralPlacementResource.h>
+#include <ProceduralPlacementPlugin/VM/ExpressionByteCode.h>
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/ChunkStream.h>
 
@@ -29,6 +30,7 @@ const ezDynamicArray<ezSharedPtr<const ezPPInternal::Layer>>& ezProceduralPlacem
 
 ezResourceLoadDesc ezProceduralPlacementResource::UnloadData(Unload WhatToUnload)
 {
+  m_ByteCode.Clear();
   m_Layers.Clear();
 
   ezResourceLoadDesc res;
@@ -71,10 +73,23 @@ ezResourceLoadDesc ezProceduralPlacementResource::UpdateContent(ezStreamReader* 
 
     ezStringBuilder sTemp;
 
+    ezHashTable<ezPPInternal::Layer*, ezUInt32> m_LayerToByteCodeIndex;
+
     // skip all chunks that we don't know
     while (chunk.GetCurrentChunk().m_bValid)
     {
-      if (chunk.GetCurrentChunk().m_sChunkName == "Layers")
+      if (chunk.GetCurrentChunk().m_sChunkName == "ByteCode")
+      {
+        ezUInt32 uiNumByteCodes = 0;
+        chunk >> uiNumByteCodes;
+
+        m_ByteCode.SetCount(uiNumByteCodes);
+        for (ezUInt32 uiByteCodeIndex = 0; uiByteCodeIndex < uiNumByteCodes; ++uiByteCodeIndex)
+        {
+          m_ByteCode[uiByteCodeIndex].Load(chunk);
+        }
+      }
+      else if (chunk.GetCurrentChunk().m_sChunkName == "Layers")
       {
         ezUInt32 uiNumLayers = 0;
         chunk >> uiNumLayers;
@@ -110,6 +125,10 @@ ezResourceLoadDesc ezProceduralPlacementResource::UpdateContent(ezStreamReader* 
 
           chunk >> pLayer->m_fCullDistance;
 
+          ezUInt32 uiByteCodeIndex = ezInvalidIndex;
+          chunk >> uiByteCodeIndex;
+          m_LayerToByteCodeIndex.Insert(pLayer, uiByteCodeIndex);
+
           m_Layers.PushBack(pLayer);
         }
       }
@@ -118,6 +137,17 @@ ezResourceLoadDesc ezProceduralPlacementResource::UpdateContent(ezStreamReader* 
     }
 
     chunk.EndStream();
+
+    // link bytecode
+    for (auto it = m_LayerToByteCodeIndex.GetIterator(); it.IsValid(); ++it)
+    {
+      ezPPInternal::Layer* pLayer = it.Key();
+      ezUInt32 uiByteCodeIndex = it.Value();
+      if (uiByteCodeIndex != ezInvalidIndex)
+      {
+        pLayer->m_ByteCode = &m_ByteCode[uiByteCodeIndex];
+      }
+    }
   }
 
   res.m_State = ezResourceState::Loaded;

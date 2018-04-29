@@ -19,6 +19,16 @@ EZ_ALWAYS_INLINE ezUInt32 ezExpressionByteCode::GetNumTempRegisters() const
   return m_uiNumTempRegisters;
 }
 
+EZ_ALWAYS_INLINE ezUInt32 ezExpressionByteCode::GetNumInputs() const
+{
+  return m_uiNumInputs;
+}
+
+EZ_ALWAYS_INLINE ezUInt32 ezExpressionByteCode::GetNumOutputs() const
+{
+  return m_uiNumOutputs;
+}
+
 // static
 EZ_ALWAYS_INLINE ezExpressionByteCode::OpCode::Enum ezExpressionByteCode::GetOpCode(const StorageType*& pByteCode)
 {

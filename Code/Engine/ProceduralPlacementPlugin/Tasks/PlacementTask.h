@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <ProceduralPlacementPlugin/Basics.h>
+#include <ProceduralPlacementPlugin/VM/ExpressionVM.h>
 #include <Foundation/Threading/TaskSystem.h>
 
 namespace ezPPInternal
@@ -12,6 +13,9 @@ namespace ezPPInternal
     PlacementTask();
     ~PlacementTask();
 
+    void Clear();
+
+    ezArrayPtr<const PlacementPoint> GetInputPoints() const { return m_InputPoints; }
     ezArrayPtr<const PlacementTransform> GetOutputTransforms() const { return m_OutputTransforms; }
 
   private:
@@ -23,6 +27,10 @@ namespace ezPPInternal
 
     ezDynamicArray<PlacementPoint, ezAlignedAllocatorWrapper> m_InputPoints;
     ezDynamicArray<PlacementTransform, ezAlignedAllocatorWrapper> m_OutputTransforms;
+    ezDynamicArray<float> m_TempData;
+    ezDynamicArray<ezUInt32> m_ValidPoints;
+
+    ezExpressionVM m_VM;
   };
 
 }

@@ -4,7 +4,7 @@
 
 namespace
 {
-  //#define DEBUG_VM
+  #define DEBUG_VM
 
   #ifdef DEBUG_VM
   #define VM_INLINE
@@ -16,8 +16,10 @@ namespace
   VM_INLINE void VMOperation1(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters, Func func)
   {
     ezSimdVec4f* r = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
-    ezSimdVec4f* x = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
     ezSimdVec4f* re = r + uiNumRegisters;
+
+    ezSimdVec4f* x = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
+
     while (r != re)
     {
       *r = func(*x);
@@ -29,8 +31,10 @@ namespace
   VM_INLINE void VMOperation1_C(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters, Func func)
   {
     ezSimdVec4f* r = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
-    ezSimdVec4f x = ezExpressionByteCode::GetConstant(pByteCode);
     ezSimdVec4f* re = r + uiNumRegisters;
+
+    ezSimdVec4f x = ezExpressionByteCode::GetConstant(pByteCode);
+
     while (r != re)
     {
       *r = func(x);
@@ -42,9 +46,11 @@ namespace
   VM_INLINE void VMOperation2(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters, Func func)
   {
     ezSimdVec4f* r = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
+    ezSimdVec4f* re = r + uiNumRegisters;
+
     ezSimdVec4f* a = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
     ezSimdVec4f* b = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
-    ezSimdVec4f* re = r + uiNumRegisters;
+
     while (r != re)
     {
       *r = func(*a, *b);
@@ -56,16 +62,158 @@ namespace
   VM_INLINE void VMOperation2_C(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters, Func func)
   {
     ezSimdVec4f* r = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
+    ezSimdVec4f* re = r + uiNumRegisters;
+
     ezSimdVec4f a = ezExpressionByteCode::GetConstant(pByteCode);
     ezSimdVec4f* b = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
-    ezSimdVec4f* re = r + uiNumRegisters;
+
     while (r != re)
     {
       *r = func(a, *b);
       ++r; ++b;
     }
   }
+
+  VM_INLINE float ReadInputData(const ezUInt8* pData)
+  {
+    return *reinterpret_cast<const float*>(pData);
+  }
+
+  void VMLoadInput(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters,
+    ezArrayPtr<const ezExpression::Stream> inputs)
+  {
+    ezSimdVec4f* r = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
+    ezSimdVec4f* re = r + uiNumRegisters;
+
+    ezUInt32 uiInputIndex = ezExpressionByteCode::GetRegisterIndex(pByteCode, 1);
+    auto& input = inputs[uiInputIndex];
+    ezUInt32 uiByteStride = input.m_uiByteStride;
+    const ezUInt8* pInputData = input.m_Data.GetPtr();
+    const ezUInt8* pInputDataEnd = pInputData + input.m_Data.GetCount() - uiByteStride;
+
+    while (r != re)
+    {
+      float x = ReadInputData(pInputData); pInputData += pInputData < pInputDataEnd ? uiByteStride : 0;
+      float y = ReadInputData(pInputData); pInputData += pInputData < pInputDataEnd ? uiByteStride : 0;
+      float z = ReadInputData(pInputData); pInputData += pInputData < pInputDataEnd ? uiByteStride : 0;
+      float w = ReadInputData(pInputData); pInputData += pInputData < pInputDataEnd ? uiByteStride : 0;
+
+      r->Set(x, y, z, w);
+      ++r;
+    }
+  }
+
+  VM_INLINE void StoreOutputData(ezUInt8* pData, float fData)
+  {
+    *reinterpret_cast<float*>(pData) = fData;
+  }
+
+  void VMStoreOutput(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters,
+    ezArrayPtr<ezExpression::Stream> outputs)
+  {
+    ezUInt32 uiOutputIndex = ezExpressionByteCode::GetRegisterIndex(pByteCode, 1);
+    auto& output = outputs[uiOutputIndex];
+    ezUInt32 uiByteStride = output.m_uiByteStride;
+    ezUInt8* pOutputData = output.m_Data.GetPtr();
+    ezUInt8* pOutputDataEnd = pOutputData + output.m_Data.GetCount() - uiByteStride;
+
+    ezSimdVec4f* r = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
+    ezSimdVec4f* re = r + uiNumRegisters;
+
+    while (r != re)
+    {
+      float data[4];
+      r->Store<4>(data);
+
+      StoreOutputData(pOutputData, data[0]); pOutputData += pOutputData < pOutputDataEnd ? uiByteStride : 0;
+      StoreOutputData(pOutputData, data[1]); pOutputData += pOutputData < pOutputDataEnd ? uiByteStride : 0;
+      StoreOutputData(pOutputData, data[2]); pOutputData += pOutputData < pOutputDataEnd ? uiByteStride : 0;
+      StoreOutputData(pOutputData, data[3]); pOutputData += pOutputData < pOutputDataEnd ? uiByteStride : 0;
+
+      ++r;
+    }
+  }
+
+  void VMCall(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters)
+  {
+    ezUInt32 uiNameHash = ezExpressionByteCode::GetFunctionNameHash(pByteCode);
+    ezSimdVec4f* r = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
+    ezUInt32 uiNumArgs = ezExpressionByteCode::GetFunctionArgCount(pByteCode);
+
+    ezHybridArray<ezArrayPtr<const ezSimdVec4f>, 32> inputs;
+    inputs.Reserve(uiNumArgs);
+    for (ezUInt32 uiArgIndex = 0; uiArgIndex < uiNumArgs; ++uiArgIndex)
+    {
+      ezSimdVec4f* x = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
+      inputs.PushBack(ezMakeArrayPtr(x, uiNumRegisters));
+    }
+
+    ezExpression::Output output = ezMakeArrayPtr(r, uiNumRegisters);
+
+    auto func = ezExpressionFunctionRegistry::GetFunction(uiNameHash);
+    func(inputs, output, ezExpression::UserData());
+  }
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+ezExpression::Stream::Stream()
+  : m_Type(Type::Float)
+  , m_uiByteStride(0)
+{
+
+}
+
+ezExpression::Stream::Stream(Type::Enum type, ezUInt32 uiByteStride)
+  : m_Type(type)
+  , m_uiByteStride(uiByteStride)
+{
+
+}
+
+ezExpression::Stream::Stream(ezArrayPtr<ezUInt8> data, Type::Enum type, ezUInt32 uiByteStride)
+  : m_Data(data)
+  , m_Type(type)
+  , m_uiByteStride(uiByteStride)
+{
+
+}
+
+ezExpression::Stream::~Stream() = default;
+
+ezUInt32 ezExpression::Stream::GetElementSize() const
+{
+  switch (m_Type)
+  {
+  case Type::Float:
+  //case Type::Int:
+    return 4;
+  /*case Type::Float2:
+  case Type::Int2:
+    return 8;
+  case Type::Float3:
+  case Type::Int3:
+    return 12;
+  case Type::Float4:
+  case Type::Int4:
+    return 16;*/
+  }
+
+  EZ_ASSERT_NOT_IMPLEMENTED;
+
+  return 0;
+}
+
+void ezExpression::Stream::ValidateDataSize(ezUInt32 uiNumInstances, const char* szDataName) const
+{
+  ezUInt32 uiElementSize = GetElementSize();
+  ezUInt32 uiExpectedSize = m_uiByteStride * (uiNumInstances - 1) + uiElementSize;
+
+  EZ_ASSERT_DEV(m_Data.GetCount() >= uiExpectedSize, "{0} data size must be {1} bytes or more. Only {2} bytes given",
+    szDataName, uiExpectedSize, m_Data.GetCount());
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 ezExpressionVM::ezExpressionVM(ezUInt32 uiTempRegistersInBytes /*= 256 * 1024*/)
 {
@@ -78,10 +226,21 @@ ezExpressionVM::~ezExpressionVM()
 
 }
 
-void ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<const float> inputs, ezArrayPtr<float> outputs, ezUInt32 uiNumInstances)
+void ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<const ezExpression::Stream> inputs, ezArrayPtr<ezExpression::Stream> outputs,
+  ezUInt32 uiNumInstances)
 {
-  EZ_ASSERT_DEV(inputs.GetCount() % uiNumInstances == 0, "Num inputs must be multiple of num instances");
-  EZ_ASSERT_DEV(outputs.GetCount() % uiNumInstances == 0, "Num outputs must be multiple of num instances");
+  EZ_ASSERT_DEV(byteCode.GetNumInputs() <= inputs.GetCount(), "Bytecode expects {0} inputs but only {1} given", byteCode.GetNumInputs(), inputs.GetCount());
+  EZ_ASSERT_DEV(byteCode.GetNumOutputs() <= outputs.GetCount(), "Bytecode expects {0} outputs but only {1} given", byteCode.GetNumOutputs(), outputs.GetCount());
+
+  for (auto& input : inputs)
+  {
+    input.ValidateDataSize(uiNumInstances, "Input");
+  }
+
+  for (auto& output : outputs)
+  {
+    output.ValidateDataSize(uiNumInstances, "Output");
+  }
 
   ezSimdVec4f* pRegisters = m_Registers.GetData();
   const ezUInt32 uiNumRegisters = (uiNumInstances + 3) / 4;
@@ -95,39 +254,42 @@ void ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<co
     return;
   }
 
-  // Load inputs
-#if 0
-  const ezUInt32 uiNumInputs = inputs.GetCount() / uiNumInstances;
-  EZ_ASSERT_DEV(uiNumInputs == byteCode.GetNumInputRegisters(), "Provided num inputs {0} does not match bytecode inputs {1}", uiNumInputs, byteCode.GetNumInputRegisters());
-  for (ezUInt32 uiInputIndex = 0; uiInputIndex < uiNumInputs; ++uiInputIndex)
-  {
-    ezUInt32 s = uiInputIndex * uiNumInstances;
-    ezUInt32 i = 0;
-    ezSimdVec4f* r = pRegisters + uiInputIndex * uiNumRegisters;
-    ezSimdVec4f* re = r + uiNumRegisters;
-    while (r != re)
-    {
-      float x = inputs[s+i]; i += i < uiLastInstanceIndex;
-      float y = inputs[s+i]; i += i < uiLastInstanceIndex;
-      float z = inputs[s+i]; i += i < uiLastInstanceIndex;
-      float w = inputs[s+i]; i += i < uiLastInstanceIndex;
-
-      r->Set(x, y, z, w);
-      ++r;
-    }
-  }
-#endif
-
   // Execute bytecode
   const ezExpressionByteCode::StorageType* pByteCode = byteCode.GetByteCode();
-  const ezExpressionByteCode::StorageType* pEndByteCode = byteCode.GetByteCodeEnd();
+  const ezExpressionByteCode::StorageType* pByteCodeEnd = byteCode.GetByteCodeEnd();
 
-  while (pByteCode < pEndByteCode)
+  while (pByteCode < pByteCodeEnd)
   {
     ezExpressionByteCode::OpCode::Enum opCode = ezExpressionByteCode::GetOpCode(pByteCode);
 
     switch (opCode)
     {
+      // unary
+    case ezExpressionByteCode::OpCode::Abs_R:
+      VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return x.Abs(); });
+      break;
+
+    case ezExpressionByteCode::OpCode::Sqrt_R:
+      VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return x.GetSqrt(); });
+      break;
+
+    case ezExpressionByteCode::OpCode::Mov_R:
+      VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return x; });
+      break;
+
+    case ezExpressionByteCode::OpCode::Mov_C:
+      VMOperation1_C(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return x; });
+      break;
+
+    case ezExpressionByteCode::OpCode::Mov_I:
+      VMLoadInput(pByteCode, pRegisters, uiNumRegisters, inputs);
+      break;
+
+    case ezExpressionByteCode::OpCode::Mov_O:
+      VMStoreOutput(pByteCode, pRegisters, uiNumRegisters, outputs);
+      break;
+
+      // binary
     case ezExpressionByteCode::OpCode::Add_RR:
       VMOperation2(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a + b; });
       break;
@@ -176,16 +338,9 @@ void ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<co
       VMOperation2_C(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& a, const ezSimdVec4f& b) { return a.CompMax(b); });
       break;
 
-    case ezExpressionByteCode::OpCode::Sqrt_R:
-      VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return x.GetSqrt(); });
-      break;
-
-    case ezExpressionByteCode::OpCode::Mov_R:
-      VMOperation1(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return x; });
-      break;
-
-    case ezExpressionByteCode::OpCode::Mov_C:
-      VMOperation1_C(pByteCode, pRegisters, uiNumRegisters, [](const ezSimdVec4f& x) { return x; });
+      //call
+    case ezExpressionByteCode::OpCode::Call:
+      VMCall(pByteCode, pRegisters, uiNumRegisters);
       break;
 
     default:
@@ -193,79 +348,4 @@ void ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<co
       return;
     }
   }
-
-  // Store outputs
-#if 0
-  const ezUInt32 uiNumOutputs = outputs.GetCount() / uiNumInstances;
-  for (ezUInt32 uiOutputIndex = 0; uiOutputIndex < uiNumOutputs; ++uiOutputIndex)
-  {
-    ezUInt32 s = uiOutputIndex * uiNumInstances;
-    ezUInt32 i = 0;
-    ezSimdVec4f* r = pRegisters + uiOutputIndex * uiNumRegisters;
-    ezSimdVec4f* re = r + uiNumRegisters;
-    while (r != re)
-    {
-      float output[4];
-      r->Store<4>(output);
-
-      outputs[s + i] = output[0]; i += i < uiLastInstanceIndex;
-      outputs[s + i] = output[1]; i += i < uiLastInstanceIndex;
-      outputs[s + i] = output[2]; i += i < uiLastInstanceIndex;
-      outputs[s + i] = output[3]; i += i < uiLastInstanceIndex;
-
-      ++r;
-    }
-  }
-#endif
 }
-
-// static
-void ezExpressionVM::Test()
-{
-#if 0
-  float input[10] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-  float output[5] = {};
-
-  ezExpressionByteCode byteCode;
-
-  ezUInt32 instruction[4];
-  {
-    instruction[0] = ezExpressionByteCode::OpCode::Add_RR;
-    instruction[1] = 2;
-    instruction[2] = 0;
-    instruction[3] = 1;
-    byteCode.m_ByteCode.PushBackRange(ezArrayPtr<ezUInt32>(instruction, 4));
-  }
-
-  {
-    instruction[0] = ezExpressionByteCode::OpCode::Sqrt_R;
-    instruction[1] = 2;
-    instruction[2] = 2;
-    byteCode.m_ByteCode.PushBackRange(ezArrayPtr<ezUInt32>(instruction, 3));
-  }
-
-  {
-    float c = 10.0f;
-
-    instruction[0] = ezExpressionByteCode::OpCode::Mul_CR;
-    instruction[1] = 0;
-    instruction[2] = *reinterpret_cast<ezExpressionByteCode::StorageType*>(&c);
-    instruction[3] = 2;
-    byteCode.m_ByteCode.PushBackRange(ezArrayPtr<ezUInt32>(instruction, 4));
-  }
-
-  byteCode.m_uiNumInputRegisters = 2;
-  byteCode.m_uiNumTempRegisters = 1;
-
-  ezExpressionVM vm;
-  vm.Execute(byteCode, ezMakeArrayPtr(input), ezMakeArrayPtr(output), 5);
-
-  for (int i = 0; i < 5; ++i)
-  {
-    float cmp = ezMath::Sqrt(input[i] + input[i + 5]) * 10.0f;
-    EZ_ASSERT_DEV(ezMath::IsEqual(output[i], cmp, ezMath::BasicType<float>::DefaultEpsilon()), "");
-  }
-#endif
-}
-
-

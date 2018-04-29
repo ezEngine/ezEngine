@@ -53,76 +53,61 @@ ezStatus ezProceduralPlacementAssetDocument::InternalTransformAsset(ezStreamWrit
   ezRttiConverterContext context;
   ezRttiConverterReader rttiConverter(&graph, &context);
 
+  ezHashTable<const ezDocumentObject*, ezExpressionAST::Node*> nodeCache;
+
   ezDynamicArray<const ezDocumentObject*> outputNodes;
   GetAllOutputNodes(outputNodes);
-
-  /*for (auto& outputNode : outputNodes)
-  {
-    ezExpressionAST ast;
-
-    GenerateExpressionAST(outputNode, objectWriter, rttiConverter, ast);
-  }*/
-
-
-
-
-
 
   ezChunkStreamWriter chunk(stream);
   chunk.BeginStream();
 
-  /*{
-    chunk.BeginChunk("ByteCode", 1);
-
-
-    chunk.EndChunk();
-  }*/
-
   {
-    chunk.BeginChunk("Layers", 1);
-
-    ezDynamicArray<const ezDocumentObject*> outputNodes;
-    GetAllOutputNodes(outputNodes);
+    chunk.BeginChunk("ByteCode", 1);
 
     chunk << outputNodes.GetCount();
 
-    ezProceduralPlacementLayerOutput output;
+    ezExpressionCompiler compiler;
 
     for (auto& outputNode : outputNodes)
     {
-      auto& typeAccessor = outputNode->GetTypeAccessor();
+      ezExpressionAST ast;
+      GenerateExpressionAST(outputNode, objectWriter, rttiConverter, nodeCache, ast);
 
-      output.m_sName = typeAccessor.GetValue("Name").Get<ezString>();
-
-      output.m_ObjectsToPlace.Clear();
-      ezUInt32 uiNumObjects = typeAccessor.GetCount("Objects");
-      for (ezUInt32 i = 0; i < uiNumObjects; ++i)
+      ezExpressionByteCode byteCode;
+      if (compiler.Compile(ast, byteCode).Failed())
       {
-        output.m_ObjectsToPlace.PushBack(typeAccessor.GetValue("Objects", i).Get<ezString>());
+        return ezStatus("Compilation failed");
       }
 
-      output.m_fFootprint = typeAccessor.GetValue("Footprint").Get<float>();
-
-      output.m_vMinOffset = typeAccessor.GetValue("MinOffset").Get<ezVec3>();
-      output. m_vMaxOffset = typeAccessor.GetValue("MaxOffset").Get<ezVec3>();
-
-      output.m_fAlignToNormal = typeAccessor.GetValue("AlignToNormal").Get<float>();
-
-      output. m_vMinScale = typeAccessor.GetValue("MinScale").Get<ezVec3>();
-      output. m_vMaxScale = typeAccessor.GetValue("MaxScale").Get<ezVec3>();
-
-      output.m_fCullDistance = typeAccessor.GetValue("CullDistance").Get<float>();
-
-
-      output.Save(chunk);
+      byteCode.Save(chunk);
     }
 
     chunk.EndChunk();
   }
 
+  {
+    chunk.BeginChunk("Layers", 1);
 
+    chunk << outputNodes.GetCount();
+
+    for (ezUInt32 uiLayerIndex = 0; uiLayerIndex < outputNodes.GetCount(); ++uiLayerIndex)
+    {
+      auto pAbstractNode = graph.GetNode(outputNodes[uiLayerIndex]->GetGuid());
+      auto pOutputNode = static_cast<ezProceduralPlacementLayerOutput*>(rttiConverter.CreateObjectFromNode(pAbstractNode));
+      pOutputNode->m_uiByteCodeIndex = uiLayerIndex;
+
+      pOutputNode->Save(chunk);
+    }
+
+    chunk.EndChunk();
+  }
 
   chunk.EndStream();
+
+  for (auto it = nodeCache.GetIterator(); it.IsValid(); ++it)
+  {
+    context.DeleteObject(it.Key()->GetGuid());
+  }
 
   return ezStatus(EZ_SUCCESS);
 }

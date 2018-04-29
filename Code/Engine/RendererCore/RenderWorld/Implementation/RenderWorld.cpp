@@ -138,9 +138,12 @@ void ezRenderWorld::AddMainView(const ezViewHandle& hView)
 
 void ezRenderWorld::RemoveMainView(const ezViewHandle& hView)
 {
-  EZ_ASSERT_DEV(!s_bInExtract, "Cannot remove main view during extraction");
-
-  s_MainViews.Remove(hView);
+  ezUInt32 uiIndex = s_MainViews.IndexOf(hView);
+  if (uiIndex != ezInvalidIndex)
+  {
+    EZ_ASSERT_DEV(!s_bInExtract, "Cannot remove main view during extraction");
+    s_MainViews.RemoveAt(uiIndex);
+  }
 }
 
 void ezRenderWorld::ClearMainViews()
@@ -170,9 +173,10 @@ void ezRenderWorld::AddViewToRender(const ezViewHandle& hView)
 
     // make sure the view is put at the end of the array, if it is already there, reorder it
     // this ensures that the views that have been referenced by the last other view, get rendered first
-    if (s_ViewsToRender.Contains(pView))
+    ezUInt32 uiIndex = s_ViewsToRender.IndexOf(pView);
+    if (uiIndex != ezInvalidIndex)
     {
-      s_ViewsToRender.Remove(pView);
+      s_ViewsToRender.RemoveAt(uiIndex);
       s_ViewsToRender.PushBack(pView);
       return;
     }
