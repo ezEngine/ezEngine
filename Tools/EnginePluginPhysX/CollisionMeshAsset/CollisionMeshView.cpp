@@ -15,6 +15,7 @@
 #include <Core/World/Component.h>
 #include <EnginePluginPhysX/CollisionMeshAsset/CollisionMeshContext.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 
 ezCollisionMeshViewContext::ezCollisionMeshViewContext(ezCollisionMeshContext* pMeshContext)
   : ezEngineProcessViewContext(pMeshContext)

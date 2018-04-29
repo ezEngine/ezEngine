@@ -15,6 +15,7 @@
 #include <Core/World/Component.h>
 #include <EnginePluginAssets/MeshAsset/MeshContext.h>
 #include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 
 ezMeshViewContext::ezMeshViewContext(ezMeshContext* pMeshContext)
   : ezEngineProcessViewContext(pMeshContext)
