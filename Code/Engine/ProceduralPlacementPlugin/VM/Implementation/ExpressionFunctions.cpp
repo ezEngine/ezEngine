@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <ProceduralPlacementPlugin/VM/ExpressionFunctions.h>
 #include <Foundation/SimdMath/SimdVec4i.h>
+#include <Foundation/Containers/HashTable.h>
 
 namespace
 {

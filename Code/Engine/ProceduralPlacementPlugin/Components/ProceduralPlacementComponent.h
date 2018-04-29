@@ -1,7 +1,9 @@
 ﻿#pragma once
 
 #include <ProceduralPlacementPlugin/Resources/ProceduralPlacementResource.h>
+#include <ProceduralPlacementPlugin/Tasks/PlacementTask.h>
 #include <Core/World/World.h>
+#include <Foundation/Types/UniquePtr.h>
 
 class ezProceduralPlacementComponent;
 struct ezMsgUpdateLocalBounds;
@@ -85,7 +87,7 @@ private:
     EZ_ALWAYS_INLINE bool IsScheduled() const { return m_taskGroupID.IsValid(); }
     EZ_ALWAYS_INLINE void Invalidate() { m_taskGroupID = ezTaskGroupID(); m_uiTileIndex = ezInvalidIndex; }
 
-    ezUniquePtr<PlacementTask> m_pTask;
+    ezUniquePtr<ezPPInternal::PlacementTask> m_pTask;
     ezTaskGroupID m_taskGroupID;
     ezUInt32 m_uiTileIndex;
   };
