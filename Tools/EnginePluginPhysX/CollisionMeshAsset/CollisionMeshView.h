@@ -14,6 +14,7 @@ public:
 
 protected:
   virtual ezViewHandle CreateView() override;
+  virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg) override;
 
   ezCollisionMeshContext* m_pMeshContext;
 };

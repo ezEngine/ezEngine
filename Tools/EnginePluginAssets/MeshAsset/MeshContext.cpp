@@ -69,8 +69,8 @@ void ezMeshContext::OnInitialize()
     ezMeshComponent::CreateComponent(m_pMeshObject, pMesh);
     ezStringBuilder sMeshGuid;
     ezConversionUtils::ToString(GetDocumentGuid(), sMeshGuid);
-    ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>(sMeshGuid);
-    pMesh->SetMesh(hMesh);
+    m_hMesh = ezResourceManager::LoadResource<ezMeshResource>(sMeshGuid);
+    pMesh->SetMesh(m_hMesh);
   }
 
   // Lights

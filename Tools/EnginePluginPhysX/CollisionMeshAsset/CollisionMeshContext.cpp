@@ -70,8 +70,8 @@ void ezCollisionMeshContext::OnInitialize()
     ezPxVisColMeshComponent::CreateComponent(m_pMeshObject, pMesh);
     ezStringBuilder sMeshGuid;
     ezConversionUtils::ToString(GetDocumentGuid(), sMeshGuid);
-    ezPxMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezPxMeshResource>(sMeshGuid);
-    pMesh->SetMesh(hMesh);
+    m_hMesh = ezResourceManager::LoadResource<ezPxMeshResource>(sMeshGuid);
+    pMesh->SetMesh(m_hMesh);
   }
 
   // Lights

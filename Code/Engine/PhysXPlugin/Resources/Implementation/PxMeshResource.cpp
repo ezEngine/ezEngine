@@ -13,6 +13,7 @@ ezPxMeshResource::ezPxMeshResource() : ezResource<ezPxMeshResource, ezPxMeshReso
 {
   m_pPxTriangleMesh = nullptr;
   m_pPxConvexMesh = nullptr;
+  m_Bounds = ezBoundingBoxSphere(ezVec3::ZeroVector(), ezVec3::ZeroVector(), 0);
 
   ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezPxMeshResource);
 }
@@ -111,6 +112,11 @@ ezResourceLoadDesc ezPxMeshResource::UpdateContent(ezStreamReader* Stream)
 
           m_Surfaces[surf] = ezResourceManager::LoadResource<ezSurfaceResource>(sTemp);
         }
+      }
+
+      if (chunk.GetCurrentChunk().m_sChunkName == "Details")
+      {
+        chunk >> m_Bounds;
       }
 
       if (chunk.GetCurrentChunk().m_sChunkName == "TriangleMesh")

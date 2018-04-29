@@ -49,3 +49,25 @@ ezViewHandle ezCollisionMeshViewContext::CreateView()
   pView->SetCamera(&m_Camera);
   return pView->GetHandle();
 }
+
+void ezCollisionMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
+{
+  ezEngineProcessViewContext::SetCamera(pMsg);
+
+  const ezUInt32 viewHeight = pMsg->m_uiWindowHeight;
+
+  ezBoundingBox bbox;
+  bbox.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3::ZeroVector());
+
+  auto hResource = m_pMeshContext->GetMesh();
+  if (hResource.IsValid())
+  {
+    ezResourceLock<ezPxMeshResource> pResource(hResource, ezResourceAcquireMode::AllowFallback);
+    bbox = pResource->GetBounds().GetBox();
+
+    ezStringBuilder sText;
+    sText.PrependFormat("Bounding Box: width={0}, depth={1}, height={2}", ezArgF(bbox.GetHalfExtents().x * 2, 2), ezArgF(bbox.GetHalfExtents().y * 2, 2), ezArgF(bbox.GetHalfExtents().z * 2, 2));
+
+    ezDebugRenderer::DrawText(m_hView, sText, ezVec2I32(10, viewHeight - 26), ezColor::White);
+  }
+}

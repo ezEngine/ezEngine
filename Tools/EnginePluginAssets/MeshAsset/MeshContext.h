@@ -18,6 +18,8 @@ public:
 
   virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg) override;
 
+  const ezMeshResourceHandle& GetMesh() const { return m_hMesh; }
+
 protected:
   virtual void OnInitialize() override;
 

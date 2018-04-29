@@ -7,6 +7,7 @@
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Utilities/Progress.h>
 #include <Foundation/IO/ChunkStream.h>
+#include <Foundation/Math/BoundingBoxSphere.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(PhysX, PhysXCooking)
 
@@ -304,6 +305,17 @@ ezStatus ezPhysXCooking::WriteResourceToStream(ezChunkStreamWriter& stream, cons
     {
       stream << slot;
     }
+
+    stream.EndChunk();
+  }
+
+  {
+    stream.BeginChunk("Details", 1);
+
+    ezBoundingBoxSphere aabb;
+    aabb.SetFromPoints(mesh.m_Vertices.GetData(), mesh.m_Vertices.GetCount());
+
+    stream << aabb;
 
     stream.EndChunk();
   }

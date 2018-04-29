@@ -216,6 +216,26 @@ inline ezStreamReader& operator >> (ezStreamReader& Stream, ezBoundingSphereTemp
   return Stream;
 }
 
+// ezBoundingBoxSphereTemplate
+
+template<typename Type>
+inline ezStreamWriter& operator << (ezStreamWriter& Stream, const ezBoundingBoxSphereTemplate<Type>& Value)
+{
+  Stream << Value.m_vCenter;
+  Stream << Value.m_fSphereRadius;
+  Stream << Value.m_vBoxHalfExtends;
+  return Stream;
+}
+
+template<typename Type>
+inline ezStreamReader& operator >> (ezStreamReader& Stream, ezBoundingBoxSphereTemplate<Type>& Value)
+{
+  Stream >> Value.m_vCenter;
+  Stream >> Value.m_fSphereRadius;
+  Stream >> Value.m_vBoxHalfExtends;
+  return Stream;
+}
+
 // ezColor
 inline ezStreamWriter& operator << (ezStreamWriter& Stream, const ezColor& Value)
 {

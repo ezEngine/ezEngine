@@ -2,6 +2,7 @@
 
 #include <PhysXPlugin/Basics.h>
 #include <Core/ResourceManager/Resource.h>
+#include <Foundation/Math/BoundingBoxSphere.h>
 
 typedef ezTypedResourceHandle<class ezPxMeshResource> ezPxMeshResourceHandle;
 typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
@@ -27,6 +28,9 @@ public:
   /// \brief Returns the convex collision mesh. If the mesh is a triangle mesh, this will be a nullptr.
   physx::PxConvexMesh* GetConvexMesh() const { return m_pPxConvexMesh; }
 
+  /// \brief Returns the bounds of the collision mesh
+  const ezBoundingBoxSphere& GetBounds() const { return m_Bounds; }
+
   /// \brief Returns the array of default surfaces to be used with this mesh.
   ///
   /// Note the array may contain less surfaces than the mesh does. It may also contain invalid surface handles.
@@ -46,5 +50,6 @@ private:
   ezDynamicArray<ezSurfaceResourceHandle> m_Surfaces;
   physx::PxTriangleMesh* m_pPxTriangleMesh = nullptr;
   physx::PxConvexMesh* m_pPxConvexMesh = nullptr;
+  ezBoundingBoxSphere m_Bounds;
 };
 
