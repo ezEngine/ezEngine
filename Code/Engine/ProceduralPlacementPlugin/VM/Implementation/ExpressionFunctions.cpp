@@ -1,6 +1,6 @@
 #include <PCH.h>
 #include <ProceduralPlacementPlugin/VM/ExpressionFunctions.h>
-#include <Foundation/SimdMath/SimdVec4i.h>
+#include <Foundation/SimdMath/SimdRandom.h>
 #include <Foundation/Containers/HashTable.h>
 
 namespace
@@ -74,22 +74,7 @@ static void ezExpressionRandom(ezExpression::Inputs inputs, ezExpression::Output
   {
     ezSimdVec4i seed = ezSimdVec4i::Truncate(*pSeeds);
 
-    // Rand Xor Shift
-    seed = seed ^ (seed << 13);
-    seed = seed ^ (seed >> 17);
-    seed = seed ^ (seed << 5);
-
-    // Wang Hash
-    seed = (seed ^ ezSimdVec4i(61)) ^ (seed >> 16);
-    seed = seed.CompMul(ezSimdVec4i(9));
-    seed = seed ^ (seed >> 4);
-    seed = seed.CompMul(ezSimdVec4i(0x27d4eb2d));
-    seed = seed ^ (seed >> 15);
-
-    // Convert to 0..1 range
-    ezSimdVec4f value = seed.ToFloat() * (1.0f / 2147483648.0f);
-
-    *pOutput = value;
+    *pOutput = ezSimdRandom::FloatZeroToOne(seed);
 
     ++pSeeds;
     ++pOutput;

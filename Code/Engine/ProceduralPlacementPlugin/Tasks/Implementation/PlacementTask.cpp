@@ -1,7 +1,8 @@
 #include <PCH.h>
 #include <ProceduralPlacementPlugin/Tasks/PlacementTask.h>
-#include <Foundation/Math/Random.h>
+#include <GameEngine/Curves/ColorGradientResource.h>
 #include <Foundation/SimdMath/SimdConversion.h>
+#include <Foundation/SimdMath/SimdRandom.h>
 
 using namespace ezPPInternal;
 
@@ -110,10 +111,21 @@ void PlacementTask::Execute()
   // Construct final transforms
   m_OutputTransforms.SetCountUninitialized(m_ValidPoints.GetCount());
 
-  //TODO: faster random, simd optimize
-  ezRandom rng;
-  ezVec3 vUp = ezVec3(0, 0, 1);
+  ezSimdVec4i seed = ezSimdVec4i(m_iTileSeed) + ezSimdVec4i(0, 3, 7, 11);
+
+  float fMinAngle = 0.0f;
+  float fMaxAngle = ezMath::BasicType<float>::Pi() * 2.0f;
+
+  ezSimdVec4f vMinValue = ezSimdVec4f(fMinAngle, m_pLayer->m_vMinOffset.z, 0.0f);
+  ezSimdVec4f vMaxValue = ezSimdVec4f(fMaxAngle, m_pLayer->m_vMaxOffset.z, 0.0f);
+  ezSimdVec4f vUp = ezSimdVec4f(0, 0, 1);
+  ezSimdVec4f vAlignToNormal = ezSimdVec4f(m_pLayer->m_fAlignToNormal);
+  ezSimdVec4f vMinScale = ezSimdConversion::ToVec3(m_pLayer->m_vMinScale);
+  ezSimdVec4f vMaxScale = ezSimdConversion::ToVec3(m_pLayer->m_vMaxScale);
   ezUInt8 uiMaxObjectIndex = (ezUInt8)(m_pLayer->m_ObjectsToPlace.GetCount() - 1);
+
+  ezResourceLock<ezColorGradientResource> pColorGradient(m_pLayer->m_hColorGradient, ezResourceAcquireMode::NoFallback);
+  const ezColorGradient& colorGradient = pColorGradient->GetDescriptor().m_Gradient;
 
   for (ezUInt32 i = 0; i < m_ValidPoints.GetCount(); ++i)
   {
@@ -121,26 +133,28 @@ void PlacementTask::Execute()
     auto& placementPoint = m_InputPoints[uiInputPointIndex];
     auto& placementTransform = m_OutputTransforms[i];
 
-    rng.Initialize(placementPoint.m_uiPointIndex + 1);
-
-    float offsetX = (float)rng.DoubleMinMax(m_pLayer->m_vMinOffset.x, m_pLayer->m_vMaxOffset.x);
-    float offsetY = (float)rng.DoubleMinMax(m_pLayer->m_vMinOffset.y, m_pLayer->m_vMaxOffset.y);
-    float offsetZ = (float)rng.DoubleMinMax(m_pLayer->m_vMinOffset.z, m_pLayer->m_vMaxOffset.z);
-    ezSimdVec4f offset(offsetX, offsetY, offsetZ);
-
-    ezAngle angle = ezAngle::Degree((float)rng.DoubleInRange(0.0f, 360.0f));
-    ezQuat qYawRot; qYawRot.SetFromAxisAndAngle(vUp, angle);
-    ezQuat qToNormalRot; qToNormalRot.SetShortestRotation(vUp, ezMath::Lerp(vUp, placementPoint.m_vNormal, m_pLayer->m_fAlignToNormal));
-
-    ezVec3 scale = ezMath::Lerp(m_pLayer->m_vMinScale, m_pLayer->m_vMaxScale, ezMath::Clamp(placementPoint.m_fScale, 0.0f, 1.0f));
+    ezSimdVec4f random = ezSimdRandom::FloatMinMax(seed + ezSimdVec4i(placementPoint.m_uiPointIndex), vMinValue, vMaxValue);
 
     placementTransform.m_Transform.SetIdentity();
+
+    ezSimdVec4f offset = ezSimdVec4f::ZeroVector(); offset.SetZ(random.y());
     placementTransform.m_Transform.m_Position = ezSimdConversion::ToVec3(placementPoint.m_vPosition) + offset;
-    placementTransform.m_Transform.m_Rotation = ezSimdConversion::ToQuat(qToNormalRot * qYawRot);
-    placementTransform.m_Transform.m_Scale = ezSimdConversion::ToVec3(scale);
+
+    ezSimdQuat qYawRot; qYawRot.SetFromAxisAndAngle(vUp, random.x());
+    ezSimdVec4f vNormal = ezSimdConversion::ToVec3(placementPoint.m_vNormal);
+    ezSimdQuat qToNormalRot; qToNormalRot.SetShortestRotation(vUp, ezSimdVec4f::Lerp(vUp, vNormal, vAlignToNormal));
+    placementTransform.m_Transform.m_Rotation = qToNormalRot * qYawRot;
+
+    ezSimdVec4f scale = ezSimdVec4f(ezMath::Clamp(placementPoint.m_fScale, 0.0f, 1.0f));
+    placementTransform.m_Transform.m_Scale = ezSimdVec4f::Lerp(vMinScale, vMaxScale, scale);
 
     float colorIndex = placementPoint.m_uiColorIndex / 255.0f;
-    placementTransform.m_Color = ezMath::Lerp(ezColor::White, ezColor::Red, colorIndex);
+    ezColorGammaUB objectColor;
+    ezUInt8 alpha;
+    colorGradient.EvaluateColor(colorIndex, objectColor);
+    colorGradient.EvaluateAlpha(colorIndex, alpha);
+    objectColor.a = alpha;
+    placementTransform.m_Color = objectColor;
 
     placementTransform.m_uiObjectIndex = ezMath::Min(placementPoint.m_uiObjectIndex, uiMaxObjectIndex);
     placementTransform.m_uiPointIndex = placementPoint.m_uiPointIndex;

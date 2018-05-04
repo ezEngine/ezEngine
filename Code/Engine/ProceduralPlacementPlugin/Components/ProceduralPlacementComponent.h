@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include <ProceduralPlacementPlugin/Resources/ProceduralPlacementResource.h>
-#include <ProceduralPlacementPlugin/Tasks/PlacementTask.h>
 #include <Core/World/World.h>
 #include <Foundation/Types/UniquePtr.h>
 

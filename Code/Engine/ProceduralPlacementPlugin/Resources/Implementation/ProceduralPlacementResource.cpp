@@ -1,6 +1,7 @@
 ﻿#include <PCH.h>
 #include <ProceduralPlacementPlugin/Resources/ProceduralPlacementResource.h>
 #include <ProceduralPlacementPlugin/VM/ExpressionByteCode.h>
+#include <GameEngine/Curves/ColorGradientResource.h>
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/ChunkStream.h>
 
@@ -124,6 +125,16 @@ ezResourceLoadDesc ezProceduralPlacementResource::UpdateContent(ezStreamReader* 
           chunk >> pLayer->m_vMaxScale;
 
           chunk >> pLayer->m_fCullDistance;
+
+          if (chunk.GetCurrentChunk().m_uiChunkVersion >= 2)
+          {
+            chunk >> sTemp;
+
+            if (!sTemp.IsEmpty())
+            {
+              pLayer->m_hColorGradient = ezResourceManager::LoadResource<ezColorGradientResource>(sTemp);
+            }
+          }
 
           ezUInt32 uiByteCodeIndex = ezInvalidIndex;
           chunk >> uiByteCodeIndex;

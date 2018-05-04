@@ -53,7 +53,7 @@ ezStatus ezProceduralPlacementAssetDocument::InternalTransformAsset(ezStreamWrit
   ezRttiConverterContext context;
   ezRttiConverterReader rttiConverter(&graph, &context);
 
-  ezHashTable<const ezDocumentObject*, ezExpressionAST::Node*> nodeCache;
+  ezHashTable<const ezDocumentObject*, CachedNode> nodeCache;
 
   ezDynamicArray<const ezDocumentObject*> outputNodes;
   GetAllOutputNodes(outputNodes);
@@ -86,14 +86,15 @@ ezStatus ezProceduralPlacementAssetDocument::InternalTransformAsset(ezStreamWrit
   }
 
   {
-    chunk.BeginChunk("Layers", 1);
+    chunk.BeginChunk("Layers", 2);
 
     chunk << outputNodes.GetCount();
 
     for (ezUInt32 uiLayerIndex = 0; uiLayerIndex < outputNodes.GetCount(); ++uiLayerIndex)
     {
-      auto pAbstractNode = graph.GetNode(outputNodes[uiLayerIndex]->GetGuid());
-      auto pOutputNode = static_cast<ezProceduralPlacementLayerOutput*>(rttiConverter.CreateObjectFromNode(pAbstractNode));
+      CachedNode cachedNode;
+      EZ_VERIFY(nodeCache.TryGetValue(outputNodes[uiLayerIndex], cachedNode), "Implementation error");
+      auto pOutputNode = static_cast<ezProceduralPlacementLayerOutput*>(cachedNode.m_pPPNode);
       pOutputNode->m_uiByteCodeIndex = uiLayerIndex;
 
       pOutputNode->Save(chunk);
@@ -143,7 +144,7 @@ void ezProceduralPlacementAssetDocument::GetAllOutputNodes(ezDynamicArray<const 
 }
 
 ezExpressionAST::Node* ezProceduralPlacementAssetDocument::GenerateExpressionAST(const ezDocumentObject* outputNode,
-  ezDocumentObjectConverterWriter& objectWriter, ezRttiConverterReader& rttiConverter, ezHashTable<const ezDocumentObject*, ezExpressionAST::Node*>& nodeCache,
+  ezDocumentObjectConverterWriter& objectWriter, ezRttiConverterReader& rttiConverter, ezHashTable<const ezDocumentObject*, CachedNode>& nodeCache,
   ezExpressionAST& out_Ast) const
 {
   const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
@@ -168,17 +169,17 @@ ezExpressionAST::Node* ezProceduralPlacementAssetDocument::GenerateExpressionAST
     inputAstNodes[i] = GenerateExpressionAST(pPinSource->GetParent(), objectWriter, rttiConverter, nodeCache, out_Ast);
   }
 
-  ezExpressionAST::Node* pASTNode = nullptr;
-  if (!nodeCache.TryGetValue(outputNode, pASTNode))
+  CachedNode cachedNode;
+  if (!nodeCache.TryGetValue(outputNode, cachedNode))
   {
     ezAbstractObjectNode* pAbstractNode = objectWriter.AddObjectToGraph(outputNode);
-    auto pPPNode = static_cast<ezProceduralPlacementNodeBase*>(rttiConverter.CreateObjectFromNode(pAbstractNode));
+    cachedNode.m_pPPNode = static_cast<ezProceduralPlacementNodeBase*>(rttiConverter.CreateObjectFromNode(pAbstractNode));
 
-    pASTNode = pPPNode->GenerateExpressionASTNode(inputAstNodes, out_Ast);
-    nodeCache.Insert(outputNode, pASTNode);
+    cachedNode.m_pASTNode = cachedNode.m_pPPNode->GenerateExpressionASTNode(inputAstNodes, out_Ast);
+    nodeCache.Insert(outputNode, cachedNode);
   }
 
-  return pASTNode;
+  return cachedNode.m_pASTNode;
 }
 
 
@@ -208,7 +209,7 @@ void ezProceduralPlacementAssetDocument::DumpSelectedOutput(bool bAst, bool bDis
   ezRttiConverterContext context;
   ezRttiConverterReader rttiConverter(&graph, &context);
 
-  ezHashTable<const ezDocumentObject*, ezExpressionAST::Node*> nodeCache;
+  ezHashTable<const ezDocumentObject*, CachedNode> nodeCache;
 
   ezExpressionAST ast;
   GenerateExpressionAST(pSelectedNode, objectWriter, rttiConverter, nodeCache, ast);

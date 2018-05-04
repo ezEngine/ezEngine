@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <ProceduralPlacementPlugin/Components/ProceduralPlacementComponent.h>
 #include <ProceduralPlacementPlugin/Components/Implementation/ActiveTile.h>
+#include <ProceduralPlacementPlugin/Tasks/PlacementTask.h>
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>

@@ -18,18 +18,12 @@ void ezSimdQuat::SetShortestRotation(const ezSimdVec4f& vDirFrom, const ezSimdVe
   }
   else if (fDot.IsEqual(-1.0f, 0.0001f)) // if both vectors are opposing
   {
-    // find an axis, that is not identical and not opposing, ezVec3Template::Cross-product to find perpendicular vector, rotate around that
-    if (v0.Dot<3>(ezSimdVec4f(1, 0, 0)).Abs() < 0.8f)
-      SetFromAxisAndAngle(v0.Cross(ezSimdVec4f(1, 0, 0)).GetNormalized<3>(), ezAngle::Radian(ezMath::BasicType<float>::Pi()));
-    else
-      SetFromAxisAndAngle(v0.Cross(ezSimdVec4f(0, 1, 0)).GetNormalized<3>(), ezAngle::Radian(ezMath::BasicType<float>::Pi()));
-
+    SetFromAxisAndAngle(v0.GetOrthogonalVector().GetNormalized<3>(), ezAngle::Radian(ezMath::BasicType<float>::Pi()));
     return;
   }
 
   const ezSimdVec4f c = v0.Cross(v1);
-  const ezSimdFloat d = v0.Dot<3>(v1);
-  const ezSimdFloat s = ((d + ezSimdFloat(1.0f)) * ezSimdFloat(2.0f)).GetSqrt();
+  const ezSimdFloat s = ((fDot + ezSimdFloat(1.0f)) * ezSimdFloat(2.0f)).GetSqrt();
 
   m_v = c / s;
   m_v.SetW(s * ezSimdFloat(0.5f));

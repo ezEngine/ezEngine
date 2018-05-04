@@ -1,10 +1,12 @@
 #include <PCH.h>
 #include <ProceduralPlacementPlugin/Components/Implementation/ActiveTile.h>
+#include <ProceduralPlacementPlugin/Tasks/PlacementTask.h>
 #include <GameEngine/Components/PrefabReferenceComponent.h>
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <RendererCore/Messages/SetColorMessage.h>
 #include <Core/World/World.h>
 #include <Foundation/SimdMath/SimdConversion.h>
+#include <Foundation/SimdMath/SimdRandom.h>
 
 using namespace ezPPInternal;
 
@@ -96,11 +98,16 @@ void ActiveTile::PrepareTask(const ezPhysicsWorldModuleInterface* pPhysicsModule
   EZ_ASSERT_DEV(pPhysicsModule != nullptr, "Physics module must be valid");
 
   placementTask.m_pLayer = m_pLayer;
+  placementTask.m_iTileSeed = (m_Desc.m_iPosX << 11) ^ (m_Desc.m_iPosY * 17);
+
+  ezSimdVec4i seed = ezSimdVec4i(placementTask.m_iTileSeed) + ezSimdVec4i(0, 3, 7, 11);
 
   ezBoundingBox bbox = GetBoundingBox();
-  float fZStart = bbox.m_vMax.z;
   float fZRange = bbox.GetExtents().z;
-  ezVec2 vXY = bbox.m_vMin.GetAsVec2();
+  ezSimdFloat fZStart = bbox.m_vMax.z;
+  ezSimdVec4f vXY = ezSimdConversion::ToVec3(bbox.m_vMin);
+  ezSimdVec4f vMinOffset = ezSimdConversion::ToVec3(m_pLayer->m_vMinOffset);
+  ezSimdVec4f vMaxOffset = ezSimdConversion::ToVec3(m_pLayer->m_vMaxOffset);
 
   ezVec3 rayDir = ezVec3(0, 0, -1);
 
@@ -109,11 +116,14 @@ void ActiveTile::PrepareTask(const ezPhysicsWorldModuleInterface* pPhysicsModule
   for (ezUInt32 i = 0; i < patternPoints.GetCount(); ++i)
   {
     auto& patternPoint = patternPoints[i];
+    ezSimdVec4f patternCoords = ezSimdConversion::ToVec3(patternPoint.m_Coordinates.GetAsVec3(0.0f));
 
-    ezVec3 rayStart = (vXY + patternPoint.m_Coordinates * m_pLayer->m_fFootprint).GetAsVec3(fZStart);
+    ezSimdVec4f rayStart = (vXY + patternCoords * m_pLayer->m_fFootprint);
+    rayStart += ezSimdRandom::FloatMinMax(seed + ezSimdVec4i(i), vMinOffset, vMaxOffset);
+    rayStart.SetZ(fZStart);
 
     ezPhysicsHitResult hitResult;
-    if (!pPhysicsModule->CastRay(rayStart, rayDir, fZRange, 0, hitResult, false))
+    if (!pPhysicsModule->CastRay(ezSimdConversion::ToVec3(rayStart), rayDir, fZRange, 0, hitResult, false))
       continue;
 
     bool bInBoundingBox = false;

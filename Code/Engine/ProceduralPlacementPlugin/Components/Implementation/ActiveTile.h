@@ -1,8 +1,8 @@
 ﻿#pragma once
 
+#include <ProceduralPlacementPlugin/Basics.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <Core/World/Declarations.h>
-#include <ProceduralPlacementPlugin/Tasks/PlacementTask.h>
 
 class ezPhysicsWorldModuleInterface;
 

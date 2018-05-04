@@ -14,12 +14,15 @@
 #include <Foundation/SimdMath/SimdTransform.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/SharedPtr.h>
+#include <Core/ResourceManager/ResourceHandle.h>
 
 class ezExpressionByteCode;
+typedef ezTypedResourceHandle<class ezColorGradientResource> ezColorGradientResourceHandle;
 
 namespace ezPPInternal
 {
   class ActiveTile;
+  class PlacementTask;
 
   struct Pattern
   {
@@ -71,7 +74,7 @@ namespace ezPPInternal
 
     float m_fCullDistance;
 
-    //ColorGradient m_ColorGradient;
+    ezColorGradientResourceHandle m_hColorGradient;
 
     ezExpressionByteCode* m_ByteCode;
   };

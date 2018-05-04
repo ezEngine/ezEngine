@@ -120,6 +120,8 @@ public:
 
   static ezSimdVec4f Select(const ezSimdVec4f& ifFalse, const ezSimdVec4f& ifTrue, const ezSimdVec4b& cmp); // [tested]
 
+  static ezSimdVec4f Lerp(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& t);
+
   ezSimdVec4f& operator+=(const ezSimdVec4f& v); // [tested]
   ezSimdVec4f& operator-=(const ezSimdVec4f& v); // [tested]
 

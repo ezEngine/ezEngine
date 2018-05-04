@@ -71,6 +71,12 @@ inline ezSimdFloat ezSimdVec4f::GetComponent(int i) const
   }
 }
 
+//static
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Lerp(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& t)
+{
+  return a + t.CompMul(b - a);
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4f::IsEqual(const ezSimdVec4f& rhs, const ezSimdFloat& fEpsilon) const
 {
   ezSimdVec4f minusEps = rhs - ezSimdVec4f(fEpsilon);

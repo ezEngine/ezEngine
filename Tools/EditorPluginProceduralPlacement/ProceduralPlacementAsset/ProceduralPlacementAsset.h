@@ -4,6 +4,7 @@
 #include <ProceduralPlacementPlugin/VM/ExpressionAST.h>
 
 class ezDocumentObjectConverterWriter;
+class ezProceduralPlacementNodeBase;
 
 class ezProceduralPlacementAssetDocument : public ezAssetDocument
 {
@@ -27,8 +28,14 @@ protected:
 private:
   friend class ezProceduralPlacementAction;
 
+  struct CachedNode
+  {
+    ezProceduralPlacementNodeBase* m_pPPNode = nullptr;
+    ezExpressionAST::Node* m_pASTNode = nullptr;
+  };
+
   ezExpressionAST::Node* GenerateExpressionAST(const ezDocumentObject* outputNode, ezDocumentObjectConverterWriter& objectWriter, ezRttiConverterReader& rttiConverter,
-    ezHashTable<const ezDocumentObject*, ezExpressionAST::Node*>& nodeCache, ezExpressionAST& out_Ast) const;
+    ezHashTable<const ezDocumentObject*, CachedNode>& nodeCache, ezExpressionAST& out_Ast) const;
 
   void DumpSelectedOutput(bool bAst, bool bDisassembly) const;
 };

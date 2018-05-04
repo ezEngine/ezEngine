@@ -6,7 +6,6 @@
 
 namespace ezPPInternal
 {
-
   class EZ_PROCEDURALPLACEMENTPLUGIN_DLL PlacementTask : public ezTask
   {
   public:
@@ -24,6 +23,7 @@ namespace ezPPInternal
     virtual void Execute() override;
 
     ezSharedPtr<const Layer> m_pLayer;
+    ezInt32 m_iTileSeed;
 
     ezDynamicArray<PlacementPoint, ezAlignedAllocatorWrapper> m_InputPoints;
     ezDynamicArray<PlacementTransform, ezAlignedAllocatorWrapper> m_OutputTransforms;
