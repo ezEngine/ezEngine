@@ -127,6 +127,14 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
   }
 }
 
+void ezPrefabReferenceComponent::Initialize()
+{
+  SUPER::Initialize();
+
+  // instantiate the prefab right away, such that game play code can access it as soon as possible
+  // additionally the manager may update the instance later on, to properly enable editor work flows
+  InstantiatePrefab();
+}
 
 ezPrefabReferenceComponentManager::ezPrefabReferenceComponentManager(ezWorld* pWorld)
   : ezComponentManager<ComponentType, ezBlockStorageType::Compact>(pWorld)
@@ -188,8 +196,9 @@ void ezPrefabReferenceComponentManager::Update(const ezWorldModule::UpdateContex
     if (!TryGetComponent(hComp, pPrefab))
       continue;
 
-    if (!pPrefab->IsActive())
-      continue;
+    // not implemented in all necessary code paths atm
+    //if (!pPrefab->IsActive())
+    //  continue;
 
     pPrefab->InstantiatePrefab();
 

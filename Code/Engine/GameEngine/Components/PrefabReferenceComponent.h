@@ -33,8 +33,6 @@ public:
   ezPrefabReferenceComponent();
   ~ezPrefabReferenceComponent();
 
-  virtual void Deinitialize() override;
-
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
@@ -49,6 +47,8 @@ public:
   void InstantiatePrefab();
 
 protected:
+  virtual void Initialize() override;
+  virtual void Deinitialize() override;
 
   // ************************************* FUNCTIONS *****************************
 
