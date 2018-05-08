@@ -128,6 +128,8 @@ ezResourceLoadDesc ezProceduralPlacementResource::UpdateContent(ezStreamReader* 
 
           if (chunk.GetCurrentChunk().m_uiChunkVersion >= 2)
           {
+            chunk >> pLayer->m_uiCollisionLayer;
+
             chunk >> sTemp;
 
             if (!sTemp.IsEmpty())
@@ -156,7 +158,7 @@ ezResourceLoadDesc ezProceduralPlacementResource::UpdateContent(ezStreamReader* 
       ezUInt32 uiByteCodeIndex = it.Value();
       if (uiByteCodeIndex != ezInvalidIndex)
       {
-        pLayer->m_ByteCode = &m_ByteCode[uiByteCodeIndex];
+        pLayer->m_pByteCode = &m_ByteCode[uiByteCodeIndex];
       }
     }
   }

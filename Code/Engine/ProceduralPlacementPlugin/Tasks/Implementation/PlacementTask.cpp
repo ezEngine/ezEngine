@@ -29,7 +29,7 @@ void ezPPInternal::PlacementTask::Clear()
 void PlacementTask::Execute()
 {
   // Execute bytecode
-  if (m_pLayer->m_ByteCode != nullptr)
+  if (m_pLayer->m_pByteCode != nullptr)
   {
     ezUInt32 uiNumInstances = m_InputPoints.GetCount();
     m_TempData.SetCountUninitialized(uiNumInstances * 5);
@@ -81,7 +81,7 @@ void PlacementTask::Execute()
     }
 
     // Execute expression bytecode
-    m_VM.Execute(*(m_pLayer->m_ByteCode), inputs, outputs, uiNumInstances);
+    m_VM.Execute(*(m_pLayer->m_pByteCode), inputs, outputs, uiNumInstances);
 
     // Test density against point threshold and fill remaining input point data from expression
     int iMaxObjectIndex = m_pLayer->m_ObjectsToPlace.GetCount() - 1;
@@ -124,8 +124,12 @@ void PlacementTask::Execute()
   ezSimdVec4f vMaxScale = ezSimdConversion::ToVec3(m_pLayer->m_vMaxScale);
   ezUInt8 uiMaxObjectIndex = (ezUInt8)(m_pLayer->m_ObjectsToPlace.GetCount() - 1);
 
-  ezResourceLock<ezColorGradientResource> pColorGradient(m_pLayer->m_hColorGradient, ezResourceAcquireMode::NoFallback);
-  const ezColorGradient& colorGradient = pColorGradient->GetDescriptor().m_Gradient;
+  const ezColorGradient* pColorGradient = nullptr;
+  if (m_pLayer->m_hColorGradient.IsValid())
+  {
+    ezResourceLock<ezColorGradientResource> pColorGradientResource(m_pLayer->m_hColorGradient, ezResourceAcquireMode::NoFallback);
+    pColorGradient = &(pColorGradientResource->GetDescriptor().m_Gradient);
+  }
 
   for (ezUInt32 i = 0; i < m_ValidPoints.GetCount(); ++i)
   {
@@ -148,12 +152,15 @@ void PlacementTask::Execute()
     ezSimdVec4f scale = ezSimdVec4f(ezMath::Clamp(placementPoint.m_fScale, 0.0f, 1.0f));
     placementTransform.m_Transform.m_Scale = ezSimdVec4f::Lerp(vMinScale, vMaxScale, scale);
 
-    float colorIndex = placementPoint.m_uiColorIndex / 255.0f;
-    ezColorGammaUB objectColor;
-    ezUInt8 alpha;
-    colorGradient.EvaluateColor(colorIndex, objectColor);
-    colorGradient.EvaluateAlpha(colorIndex, alpha);
-    objectColor.a = alpha;
+    ezColorGammaUB objectColor = ezColor::White;
+    if (pColorGradient != nullptr)
+    {
+      float colorIndex = placementPoint.m_uiColorIndex / 255.0f;
+      ezUInt8 alpha;
+      pColorGradient->EvaluateColor(colorIndex, objectColor);
+      pColorGradient->EvaluateAlpha(colorIndex, alpha);
+      objectColor.a = alpha;
+    }
     placementTransform.m_Color = objectColor;
 
     placementTransform.m_uiObjectIndex = ezMath::Min(placementPoint.m_uiObjectIndex, uiMaxObjectIndex);

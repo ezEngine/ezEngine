@@ -35,7 +35,7 @@ private:
   void DeallocatePlacementTask(ezUInt32 uiPlacementTaskIndex);
   ezUInt32 GetNumAllocatedPlacementTasks() const;
 
-  void RemoveTilesForResource(ezUInt32 uiResourceIdHash);
+  void RemoveTilesForResource(ezUInt32 uiResourceIdHash, bool* out_bAnyObjectsRemoved = nullptr);
   void OnResourceEvent(const ezResourceEvent& resourceEvent);
 
   void AddVisibleResource(const ezProceduralPlacementResourceHandle& hResource, const ezVec3& cameraPosition, const ezVec3& cameraDirection) const;

@@ -37,6 +37,8 @@ public:
 
   float m_fCullDistance;
 
+  ezUInt32 m_uiCollisionLayer;
+
   ezString m_sColorGradient;
 
   ezUInt32 m_uiByteCodeIndex;
@@ -75,6 +77,22 @@ public:
 
   ezInputNodePin m_InputValueAPin;
   ezInputNodePin m_InputValueBPin;
+  ezOutputNodePin m_OutputValuePin;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezProceduralPlacementHeight : public ezProceduralPlacementNodeBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezProceduralPlacementHeight, ezProceduralPlacementNodeBase);
+
+public:
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast) override;
+
+  float m_fMinHeight = 0.0f;
+  float m_fMaxHeight = 1000.0f;
+  float m_fFadeFraction = 0.2f;
+
   ezOutputNodePin m_OutputValuePin;
 };
 

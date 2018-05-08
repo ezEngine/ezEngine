@@ -81,24 +81,34 @@ void ezProceduralPlacementComponentManager::Deinitialize()
 void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateContext& context)
 {
   // Update resource data
+  bool bAnyObjectsRemoved = false;
+
   for (auto& hResource : m_ResourcesToUpdate)
   {
     ezUInt32 uiResourceIdHash = hResource.GetResourceIDHash();
-    RemoveTilesForResource(uiResourceIdHash);
+    RemoveTilesForResource(uiResourceIdHash, &bAnyObjectsRemoved);
 
     ActiveResource& activeResource = m_ActiveResources[uiResourceIdHash];
 
     ezResourceLock<ezProceduralPlacementResource> pResource(hResource, ezResourceAcquireMode::NoFallback);
     auto layers = pResource->GetLayers();
 
-    ezUInt32 uiLayerCount = layers.GetCount();
-    activeResource.m_Layers.SetCount(uiLayerCount);
-    for (ezUInt32 i = 0; i < uiLayerCount; ++i)
+    activeResource.m_Layers.Clear();
+    for (auto& pLayer : layers)
     {
-      activeResource.m_Layers[i].m_pLayer = layers[i];
+      if (pLayer->IsValid())
+      {
+        activeResource.m_Layers.ExpandAndGetRef().m_pLayer = pLayer;
+      }
     }
   }
   m_ResourcesToUpdate.Clear();
+
+  // If we removed any objects during resource update do nothing else this frame so objects are actually deleted before we place new ones.
+  if (bAnyObjectsRemoved)
+  {
+    return;
+  }
 
   // TODO: split this function into tasks
 
@@ -296,7 +306,8 @@ void ezProceduralPlacementComponentManager::AddComponent(ezProceduralPlacementCo
     return;
   }
 
-  if (!m_ResourcesToUpdate.Contains(hResource))
+  ezUInt32 uiResourceIdHash = hResource.GetResourceIDHash();
+  if (!m_ActiveResources.Contains(uiResourceIdHash))
   {
     m_ResourcesToUpdate.PushBack(hResource);
   }
@@ -305,7 +316,6 @@ void ezProceduralPlacementComponentManager::AddComponent(ezProceduralPlacementCo
   localBoundingBox.m_Scale = localBoundingBox.m_Scale.CompMul(ezSimdConversion::ToVec3(pComponent->GetExtents() * 0.5f));
   localBoundingBox.Invert();
 
-  ezUInt32 uiResourceIdHash = hResource.GetResourceIDHash();
   ActiveResource& activeResource = m_ActiveResources[uiResourceIdHash];
 
   auto& bounds = activeResource.m_Bounds.ExpandAndGetRef();
@@ -406,7 +416,7 @@ ezUInt32 ezProceduralPlacementComponentManager::GetNumAllocatedPlacementTasks() 
   return m_PlacementTaskInfos.GetCount() - m_FreePlacementTasks.GetCount();
 }
 
-void ezProceduralPlacementComponentManager::RemoveTilesForResource(ezUInt32 uiResourceIdHash)
+void ezProceduralPlacementComponentManager::RemoveTilesForResource(ezUInt32 uiResourceIdHash, bool* out_bAnyObjectsRemoved)
 {
   ActiveResource* pActiveResource = nullptr;
   if (!m_ActiveResources.TryGetValue(uiResourceIdHash, pActiveResource))
@@ -435,6 +445,11 @@ void ezProceduralPlacementComponentManager::RemoveTilesForResource(ezUInt32 uiRe
     auto& tileDesc = activeTile.GetDesc();
     if (tileDesc.m_uiResourceIdHash == uiResourceIdHash)
     {
+      if (out_bAnyObjectsRemoved != nullptr && !m_ActiveTiles[uiTileIndex].GetPlacedObjects().IsEmpty())
+      {
+        *out_bAnyObjectsRemoved = true;
+      }
+
       DeallocateTile(uiTileIndex);
 
       for (ezUInt32 i = 0; i < m_PlacementTaskInfos.GetCount(); ++i)

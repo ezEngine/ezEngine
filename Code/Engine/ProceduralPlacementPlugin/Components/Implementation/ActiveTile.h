@@ -22,6 +22,7 @@ namespace ezPPInternal
 
     const TileDesc& GetDesc() const;
     const Layer* GetLayer() const;
+    ezArrayPtr<const ezGameObjectHandle> GetPlacedObjects() const;
     ezBoundingBox GetBoundingBox() const;
     ezColor GetDebugColor() const;
 

@@ -48,13 +48,23 @@ namespace ezPPInternal
       m_vMinScale.Set(1.0f);
       m_vMaxScale.Set(1.0f);
       m_fCullDistance = 100.0f;
+      m_uiCollisionLayer = 0;
 
-      m_ByteCode = nullptr;
+      m_pByteCode = nullptr;
     }
 
     float GetTileSize() const
     {
       return m_pPattern->m_fSize * m_fFootprint;
+    }
+
+    bool IsValid() const
+    {
+      return !m_ObjectsToPlace.IsEmpty() &&
+        m_pPattern != nullptr &&
+        m_fFootprint > 0.0f &&
+        m_fCullDistance > 0.0f &&
+        m_pByteCode != nullptr;
     }
 
     ezHashedString m_sName;
@@ -74,9 +84,11 @@ namespace ezPPInternal
 
     float m_fCullDistance;
 
+    ezUInt32 m_uiCollisionLayer;
+
     ezColorGradientResourceHandle m_hColorGradient;
 
-    ezExpressionByteCode* m_ByteCode;
+    ezExpressionByteCode* m_pByteCode;
   };
 
   struct ExpressionInputs

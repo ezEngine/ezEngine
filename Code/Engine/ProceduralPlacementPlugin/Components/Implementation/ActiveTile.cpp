@@ -69,6 +69,11 @@ const Layer* ActiveTile::GetLayer() const
   return m_pLayer;
 }
 
+ezArrayPtr<const ezGameObjectHandle> ActiveTile::GetPlacedObjects() const
+{
+  return m_PlacedObjects;
+}
+
 ezBoundingBox ActiveTile::GetBoundingBox() const
 {
   float fTileSize = m_pLayer->GetTileSize();
@@ -110,6 +115,7 @@ void ActiveTile::PrepareTask(const ezPhysicsWorldModuleInterface* pPhysicsModule
   ezSimdVec4f vMaxOffset = ezSimdConversion::ToVec3(m_pLayer->m_vMaxOffset);
 
   ezVec3 rayDir = ezVec3(0, 0, -1);
+  ezUInt32 uiCollisionLayer = m_pLayer->m_uiCollisionLayer;
 
   auto& patternPoints = m_pLayer->m_pPattern->m_Points;
 
@@ -123,7 +129,7 @@ void ActiveTile::PrepareTask(const ezPhysicsWorldModuleInterface* pPhysicsModule
     rayStart.SetZ(fZStart);
 
     ezPhysicsHitResult hitResult;
-    if (!pPhysicsModule->CastRay(ezSimdConversion::ToVec3(rayStart), rayDir, fZRange, 0, hitResult, false))
+    if (!pPhysicsModule->CastRay(ezSimdConversion::ToVec3(rayStart), rayDir, fZRange, uiCollisionLayer, hitResult, false))
       continue;
 
     bool bInBoundingBox = false;
@@ -154,7 +160,7 @@ void ActiveTile::PrepareTask(const ezPhysicsWorldModuleInterface* pPhysicsModule
   m_State = State::Scheduled;
 }
 
-ezUInt32 ezPPInternal::ActiveTile::PlaceObjects(ezWorld& world, const PlacementTask& placementTask)
+ezUInt32 ActiveTile::PlaceObjects(ezWorld& world, const PlacementTask& placementTask)
 {
   ezGameObjectDesc desc;
   auto& objectsToPlace = m_pLayer->m_ObjectsToPlace;
