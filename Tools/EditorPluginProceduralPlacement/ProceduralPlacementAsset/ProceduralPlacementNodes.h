@@ -22,6 +22,8 @@ public:
 
   void Save(ezStreamWriter& stream);
 
+  bool m_bActive;
+
   ezString m_sName;
   ezHybridArray<ezString, 4> m_ObjectsToPlace;
 

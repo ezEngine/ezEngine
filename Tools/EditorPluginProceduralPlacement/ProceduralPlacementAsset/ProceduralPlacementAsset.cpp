@@ -12,6 +12,29 @@
 #include <Foundation/IO/ChunkStream.h>
 #include <Utilities/DGML/DGMLWriter.h>
 
+namespace
+{
+  void DumpAST(const ezExpressionAST& ast, ezStringView sAssetName, ezStringView sLayerName)
+  {
+    ezDGMLGraph dgmlGraph;
+    ast.PrintGraph(dgmlGraph);
+
+    ezStringBuilder sFileName;
+    sFileName.Format(":appdata/{0}_{1}_AST.dgml", sAssetName, sLayerName);
+
+    ezDGMLGraphWriter dgmlGraphWriter;
+    EZ_IGNORE_UNUSED(dgmlGraphWriter);
+    if (dgmlGraphWriter.WriteGraphToFile(sFileName, dgmlGraph).Succeeded())
+    {
+      ezLog::Info("AST was dumped to: {0}", sFileName);
+    }
+    else
+    {
+      ezLog::Error("Failed to dump AST to: {0}", sFileName);
+    }
+  }
+}
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementAssetDocument, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -57,6 +80,7 @@ ezStatus ezProceduralPlacementAssetDocument::InternalTransformAsset(ezStreamWrit
 
   ezDynamicArray<const ezDocumentObject*> outputNodes;
   GetAllOutputNodes(outputNodes);
+  ezUInt32 uiNumOutputNodes = outputNodes.GetCount();
 
   ezChunkStreamWriter chunk(stream);
   chunk.BeginStream();
@@ -64,14 +88,25 @@ ezStatus ezProceduralPlacementAssetDocument::InternalTransformAsset(ezStreamWrit
   {
     chunk.BeginChunk("ByteCode", 1);
 
-    chunk << outputNodes.GetCount();
+    chunk << uiNumOutputNodes;
 
+    ezExpressionAST ast;
     ezExpressionCompiler compiler;
 
-    for (auto& outputNode : outputNodes)
+    for (ezUInt32 uiOutputNodeIndex = 0; uiOutputNodeIndex < uiNumOutputNodes; ++uiOutputNodeIndex)
     {
-      ezExpressionAST ast;
-      GenerateExpressionAST(outputNode, objectWriter, rttiConverter, nodeCache, ast);
+      auto pOutputNode = outputNodes[uiOutputNodeIndex];
+
+      GenerateExpressionAST(pOutputNode, objectWriter, rttiConverter, nodeCache, ast);
+
+      if (true)
+      {
+        ezStringBuilder sDocumentPath = GetDocumentPath();
+        ezStringView sAssetName = sDocumentPath.GetFileNameAndExtension();
+        ezStringView sLayerName = pOutputNode->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
+
+        DumpAST(ast, sAssetName, sLayerName);
+      }
 
       ezExpressionByteCode byteCode;
       if (compiler.Compile(ast, byteCode).Failed())
@@ -88,14 +123,14 @@ ezStatus ezProceduralPlacementAssetDocument::InternalTransformAsset(ezStreamWrit
   {
     chunk.BeginChunk("Layers", 2);
 
-    chunk << outputNodes.GetCount();
+    chunk << uiNumOutputNodes;
 
-    for (ezUInt32 uiLayerIndex = 0; uiLayerIndex < outputNodes.GetCount(); ++uiLayerIndex)
+    for (ezUInt32 uiOutputNodeIndex = 0; uiOutputNodeIndex < uiNumOutputNodes; ++uiOutputNodeIndex)
     {
       CachedNode cachedNode;
-      EZ_VERIFY(nodeCache.TryGetValue(outputNodes[uiLayerIndex], cachedNode), "Implementation error");
+      EZ_VERIFY(nodeCache.TryGetValue(outputNodes[uiOutputNodeIndex], cachedNode), "Implementation error");
       auto pOutputNode = static_cast<ezProceduralPlacementLayerOutput*>(cachedNode.m_pPPNode);
-      pOutputNode->m_uiByteCodeIndex = uiLayerIndex;
+      pOutputNode->m_uiByteCodeIndex = uiOutputNodeIndex;
 
       pOutputNode->Save(chunk);
     }
@@ -139,7 +174,10 @@ void ezProceduralPlacementAssetDocument::GetAllOutputNodes(ezDynamicArray<const 
     if (!pRtti->IsDerivedFrom(pLayerOutputRtti))
       continue;
 
-    allNodes.PushBack(pObject);
+    if (pObject->GetTypeAccessor().GetValue("Active").ConvertTo<bool>())
+    {
+      allNodes.PushBack(pObject);
+    }
   }
 }
 
@@ -216,25 +254,11 @@ void ezProceduralPlacementAssetDocument::DumpSelectedOutput(bool bAst, bool bDis
 
   ezStringBuilder sDocumentPath = GetDocumentPath();
   ezStringView sAssetName = sDocumentPath.GetFileNameAndExtension();
+  ezStringView sLayerName = pSelectedNode->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
 
   if (bAst)
   {
-    ezDGMLGraph dgmlGraph;
-    ast.PrintGraph(dgmlGraph);
-
-    ezStringBuilder sFileName;
-    sFileName.Format(":appdata/{0}_AST.dgml", sAssetName);
-
-    ezDGMLGraphWriter dgmlGraphWriter;
-    EZ_IGNORE_UNUSED(dgmlGraphWriter);
-    if (dgmlGraphWriter.WriteGraphToFile(sFileName, dgmlGraph).Succeeded())
-    {
-      ezLog::Info("AST was dumped to: {0}", sFileName);
-    }
-    else
-    {
-      ezLog::Error("Failed to dump AST to: {0}", sFileName);
-    }
+    DumpAST(ast, sAssetName, sLayerName);
   }
 
   if (bDisassembly)

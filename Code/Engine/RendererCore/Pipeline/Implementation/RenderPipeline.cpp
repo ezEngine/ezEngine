@@ -942,7 +942,7 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
     ezDebugRenderer::DrawText(hView, sb, ezVec2I32(10, 260), ezColor::LimeGreen);
 
     // Exponential moving average for better readability.
-    m_fAverageCullingTime = ezMath::Lerp(m_fAverageCullingTime, stats.m_fTimeTaken, 0.01f);
+    m_fAverageCullingTime = ezMath::Lerp(m_fAverageCullingTime, stats.m_fTimeTaken, 0.05f);
 
     sb.Format("Time Taken: {0}ms", m_fAverageCullingTime * 1000.0f);
     ezDebugRenderer::DrawText(hView, sb, ezVec2I32(10, 280), ezColor::LimeGreen);
