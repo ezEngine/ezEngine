@@ -15,12 +15,13 @@
 #include <QGridLayout>
 #include <QLabel>
 
-ezQtTypeWidget::ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, const ezRTTI* pType)
+ezQtTypeWidget::ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, ezObjectAccessorBase* pObjectAccessor, const ezRTTI* pType)
   : QWidget(pParent)
+  , m_pGrid(pGrid)
+  , m_pObjectAccessor(pObjectAccessor)
+  , m_pType(pType)
 {
-  m_bUndead = false;
-  m_pGrid = pGrid;
-  m_pType = pType;
+  EZ_ASSERT_DEBUG(m_pGrid && m_pObjectAccessor && m_pType, "");
   m_pLayout = new QGridLayout(this);
   m_pLayout->setColumnStretch(0, 1);
   m_pLayout->setColumnStretch(1, 0);
@@ -29,7 +30,6 @@ ezQtTypeWidget::ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, 
   m_pLayout->setMargin(0);
   m_pLayout->setSpacing(0);
   setLayout(m_pLayout);
-  m_EventHandler.Init(pGrid);
 
   m_pGrid->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtTypeWidget::PropertyEventHandler, this));
   m_pGrid->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtTypeWidget::CommandHistoryEventHandler, this));
@@ -82,8 +82,6 @@ void ezQtTypeWidget::PrepareToDie()
   if (!m_bUndead)
   {
     m_bUndead = true;
-    m_EventHandler.PrepareToDie();
-
     for (auto it = m_PropertyWidgets.GetIterator(); it.IsValid(); ++it)
     {
       it.Value().m_pWidget->PrepareToDie();
@@ -119,9 +117,7 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ez
     ezQtPropertyWidget* pNewWidget = ezQtPropertyGridWidget::CreatePropertyWidget(pProp);
     EZ_ASSERT_DEV(pNewWidget != nullptr, "No property editor defined for '{0}'", pProp->GetPropertyName());
     pNewWidget->setParent(this);
-    pNewWidget->Init(m_pGrid, pProp);
-
-    pNewWidget->m_Events.AddEventHandler(ezMakeDelegate(&ezPropertyEventHandler::PropertyChangedHandler, &m_EventHandler));
+    pNewWidget->Init(m_pGrid, m_pObjectAccessor, pType, pProp);
     auto& ref = m_PropertyWidgets[pProp->GetPropertyName()];
 
     ref.m_pWidget = pNewWidget;

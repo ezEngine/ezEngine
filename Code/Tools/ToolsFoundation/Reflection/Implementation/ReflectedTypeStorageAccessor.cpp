@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeStorageAccessor.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
+#include <Foundation/Types/Status.h>
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -33,17 +34,27 @@ ezReflectedTypeStorageAccessor::~ezReflectedTypeStorageAccessor()
   ezReflectedTypeStorageManager::RemoveStorageAccessor(this);
 }
 
-const ezVariant ezReflectedTypeStorageAccessor::GetValue(const char* szProperty, ezVariant index) const
+const ezVariant ezReflectedTypeStorageAccessor::GetValue(const char* szProperty, ezVariant index, ezStatus* pRes) const
 {
+  const ezAbstractProperty* pProp = GetType()->FindPropertyByName(szProperty);
+  if (pProp == nullptr)
+  {
+    if (pRes)
+      *pRes = ezStatus(ezFmt("Property '{0}' not found in type '{1}'", szProperty, GetType()->GetTypeName()));
+    return ezVariant();
+  }
+
+  if (pRes)
+    *pRes = ezStatus(EZ_SUCCESS);
   const ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
   if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(szProperty, storageInfo))
   {
     if (storageInfo->m_Type == ezVariant::Type::Invalid)
+    {
+      if (pRes)
+        *pRes = ezStatus(ezFmt("No storage type defined for property '{0}'", szProperty));
       return ezVariant();
-
-    const ezAbstractProperty* pProp = GetType()->FindPropertyByName(szProperty);
-    if (pProp == nullptr)
-      return ezVariant();
+    }
 
     switch (pProp->GetCategory())
     {
@@ -61,6 +72,8 @@ const ezVariant ezReflectedTypeStorageAccessor::GetValue(const char* szProperty,
             return values[uiIndex];
           }
         }
+        if (pRes)
+          *pRes = ezStatus(ezFmt("Index '{0}' for property '{1}' is invalid or out of bounds.", index, szProperty));
       }
       break;
     case ezPropertyCategory::Map:
@@ -74,6 +87,8 @@ const ezVariant ezReflectedTypeStorageAccessor::GetValue(const char* szProperty,
             return *pValue;
           }
         }
+        if (pRes)
+          *pRes = ezStatus(ezFmt("Index '{0}' for property '{1}' is invalid or out of bounds.", index, szProperty));
       }
       break;
     default:
@@ -94,6 +109,7 @@ bool ezReflectedTypeStorageAccessor::SetValue(const char* szProperty, const ezVa
     const ezAbstractProperty* pProp = GetType()->FindPropertyByName(szProperty);
     if (pProp == nullptr)
       return false;
+    EZ_ASSERT_DEV(pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>() || value.IsValid(), "");
 
     switch (pProp->GetCategory())
     {
@@ -104,6 +120,11 @@ bool ezReflectedTypeStorageAccessor::SetValue(const char* szProperty, const ezVa
           ezInt64 iValue;
           ezReflectionUtils::StringToEnumeration(pProp->GetSpecificType(), value.Get<ezString>(), iValue);
           m_Data[storageInfo->m_uiIndex] = ezVariant(iValue).ConvertTo(storageInfo->m_Type);
+          return true;
+        }
+        else if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
+        {
+          m_Data[storageInfo->m_uiIndex] = value;
           return true;
         }
         else if (value.CanConvertTo(storageInfo->m_Type))
@@ -125,15 +146,28 @@ bool ezReflectedTypeStorageAccessor::SetValue(const char* szProperty, const ezVa
           if (uiIndex < values.GetCount())
           {
             ezVariantArray changedValues = values;
-            const auto SpecVarType = pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
-
-            if (value.CanConvertTo(SpecVarType))
+            if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
             {
-              // We are lenient here regarding the type, as we may have stored values in the undo-redo stack
-              // that may have a different type now as someone reloaded the type information and replaced a type.
-              changedValues[uiIndex] = value.ConvertTo(SpecVarType);
+              changedValues[uiIndex] = value;
               m_Data[storageInfo->m_uiIndex] = changedValues;
               return true;
+            }
+            else
+            {
+              const auto SpecVarType = pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+              if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
+              {
+                m_Data[storageInfo->m_uiIndex] = value;
+                return true;
+              }
+              else if (value.CanConvertTo(SpecVarType))
+              {
+                // We are lenient here regarding the type, as we may have stored values in the undo-redo stack
+                // that may have a different type now as someone reloaded the type information and replaced a type.
+                changedValues[uiIndex] = value.ConvertTo(SpecVarType);
+                m_Data[storageInfo->m_uiIndex] = changedValues;
+                return true;
+              }
             }
           }
         }
@@ -146,15 +180,23 @@ bool ezReflectedTypeStorageAccessor::SetValue(const char* szProperty, const ezVa
         {
           const ezString& sIndex = index.Get<ezString>();
           ezVariantDictionary changedValues = values;
-          const auto SpecVarType = pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
-
-          if (value.CanConvertTo(SpecVarType))
+          if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
           {
-            // We are lenient here regarding the type, as we may have stored values in the undo-redo stack
-            // that may have a different type now as someone reloaded the type information and replaced a type.
-            changedValues[sIndex] = value.ConvertTo(SpecVarType);
+            changedValues[sIndex] = value;
             m_Data[storageInfo->m_uiIndex] = changedValues;
             return true;
+          }
+          else
+          {
+            const auto SpecVarType = pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+            if (value.CanConvertTo(SpecVarType))
+            {
+              // We are lenient here regarding the type, as we may have stored values in the undo-redo stack
+              // that may have a different type now as someone reloaded the type information and replaced a type.
+              changedValues[sIndex] = value.ConvertTo(SpecVarType);
+              m_Data[storageInfo->m_uiIndex] = changedValues;
+              return true;
+            }
           }
         }
       }
@@ -269,8 +311,13 @@ bool ezReflectedTypeStorageAccessor::InsertValue(const char* szProperty, ezVaria
           {
             ezVariantArray changedValues = values;
             const auto SpecVarType = pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
-
-            if (value.CanConvertTo(SpecVarType))
+            if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
+            {
+              changedValues.Insert(value, uiIndex);
+              m_Data[storageInfo->m_uiIndex] = changedValues;
+              return true;
+            }
+            else if (value.CanConvertTo(SpecVarType))
             {
               // We are lenient here regarding the type, as we may have stored values in the undo-redo stack
               // that may have a different type now as someone reloaded the type information and replaced a type.
@@ -290,8 +337,13 @@ bool ezReflectedTypeStorageAccessor::InsertValue(const char* szProperty, ezVaria
           const ezString& sIndex = index.Get<ezString>();
           ezVariantDictionary changedValues = values;
           const auto SpecVarType = pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
-
-          if (value.CanConvertTo(SpecVarType))
+          if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
+          {
+            changedValues.Insert(sIndex, value);
+            m_Data[storageInfo->m_uiIndex] = changedValues;
+            return true;
+          }
+          else if (value.CanConvertTo(SpecVarType))
           {
             // We are lenient here regarding the type, as we may have stored values in the undo-redo stack
             // that may have a different type now as someone reloaded the type information and replaced a type.

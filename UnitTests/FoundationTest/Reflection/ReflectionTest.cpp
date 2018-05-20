@@ -911,7 +911,7 @@ void TestMapProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti,
   ezAbstractMapProperty* pMapProp = static_cast<ezAbstractMapProperty*>(pProp);
   const ezRTTI* pElemRtti = pProp->GetSpecificType();
   EZ_TEST_BOOL(pElemRtti == ezGetStaticRTTI<T>());
-  EZ_TEST_BOOL(ezReflectionUtils::IsBasicType(pElemRtti));
+  EZ_TEST_BOOL(ezReflectionUtils::IsBasicType(pElemRtti) || pElemRtti == ezGetStaticRTTI<ezVariant>());
 
   if (!pMapProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
   {
@@ -971,7 +971,6 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Maps)
     ezInt64 iValue1b = 5;
     ezInt64 iValue2b = -3;
     TestMapProperty<ezInt64>("AcMap", &containers, pRtti, iValue1b, iValue2b);
-    TestMapProperty<ezInt64>("AcMapRO", &containers, pRtti, iValue1b, iValue2b);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezHashMap")
@@ -984,9 +983,15 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Maps)
     ezString sValue1 = "Bla";
     ezString sValue2 = "Test";
     TestMapProperty<ezString>("AcHashTable", &containers, pRtti, sValue1, sValue2);
-    TestMapProperty<ezString>("AcHashTableRO", &containers, pRtti, sValue1, sValue2);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Accessor")
+  {
+    ezVariant sValue1 = "Test";
+    ezVariant sValue2 = ezVec4(1, 2, 3, 4);
+    TestMapProperty<ezVariant>("Accessor", &containers, pRtti, sValue1, sValue2);
+    TestMapProperty<ezVariant>("AccessorRO", &containers, pRtti, sValue1, sValue2);
+  }
   TestSerialization<ezTestMaps>(containers);
 }
 

@@ -41,6 +41,7 @@
     <file>Icons/Visualizers16.png</file>
     <file>Icons/Grid16.png</file>
     <file>Icons/Selection16.png</file>
+    <file>Icons/Attention16.png</file>
   </qresource>
   <qresource prefix="AssetIcons">
     <file>All.png</file>

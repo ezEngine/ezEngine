@@ -51,6 +51,10 @@ void ezQtInlinedGroupBox::SetIcon(const QIcon& icon)
 void ezQtInlinedGroupBox::SetFillColor(const QColor& color)
 {
   ezQtGroupBoxBase::SetFillColor(color);
+  if (color.isValid())
+    layout()->setContentsMargins(0, 1, 0, 1);
+  else
+    layout()->setContentsMargins(0, 0, 0, 0);
   update();
 }
 

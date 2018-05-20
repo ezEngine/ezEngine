@@ -16,6 +16,7 @@ public:
 
   /// \brief Returns the RTTI type matching the variant's type.
   static const ezRTTI* GetTypeFromVariant(const ezVariant& value);
+  static const ezRTTI* GetTypeFromVariant(ezVariantType::Enum type);
 
   /// \brief Sets the Nth component of the vector to the given value.
   ///

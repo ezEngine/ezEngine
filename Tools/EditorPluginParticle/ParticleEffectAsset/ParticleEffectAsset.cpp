@@ -5,6 +5,7 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <EditorFramework/GUI/ExposedParameters.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectAssetDocument, 3, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -75,6 +76,29 @@ void ezParticleEffectAssetDocument::SetSimulationSpeed(float speed)
   e.m_Type = ezParticleEffectAssetEvent::SimulationSpeedChanged;
 
   m_Events.Broadcast(e);
+}
+
+void ezParticleEffectAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+{
+  SUPER::UpdateAssetDocumentInfo(pInfo);
+
+  ezExposedParameters* pExposedParams = EZ_DEFAULT_NEW(ezExposedParameters);
+  auto* desc = GetProperties();
+  for (auto it = desc->m_FloatParameters.GetIterator(); it.IsValid(); ++it)
+  {
+    auto& param = pExposedParams->m_Parameters.ExpandAndGetRef();
+    param.m_sName = it.Key();
+    param.m_DefaultValue = it.Value();
+  }
+  for (auto it = desc->m_ColorParameters.GetIterator(); it.IsValid(); ++it)
+  {
+    auto& param = pExposedParams->m_Parameters.ExpandAndGetRef();
+    param.m_sName = it.Key();
+    param.m_DefaultValue = it.Value();
+  }
+
+  // Info takes ownership of meta data.
+  pInfo->m_MetaInfo.PushBack(pExposedParams);
 }
 
 ezStatus ezParticleEffectAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)

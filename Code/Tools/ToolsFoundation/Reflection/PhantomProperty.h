@@ -112,7 +112,6 @@ public:
   virtual void Remove(void* pInstance, const char* szKey) override {}
   virtual bool Contains(const void* pInstance, const char* szKey) const override { return false; }
   virtual bool GetValue(const void* pInstance, const char* szKey, void* pObject) const override { return false; }
-  virtual const void* GetValue(const void* pInstance, const char* szKey) const override { return nullptr; }
   virtual void GetKeys(const void* pInstance, ezHybridArray<ezString, 16>& out_keys) const override {}
 
 private:

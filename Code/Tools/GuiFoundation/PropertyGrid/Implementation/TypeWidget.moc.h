@@ -16,7 +16,7 @@ class EZ_GUIFOUNDATION_DLL ezQtTypeWidget : public QWidget
 {
   Q_OBJECT
 public:
-  ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, const ezRTTI* pType);
+  ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, ezObjectAccessorBase* pObjectAccessor, const ezRTTI* pType);
   ~ezQtTypeWidget();
   void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items);
   const ezHybridArray<ezPropertySelection, 8>& GetSelection() const { return m_Items; }
@@ -36,10 +36,10 @@ private:
   void UpdatePropertyMetaState();
 
 private:
-  ezPropertyEventHandler m_EventHandler;
-  bool m_bUndead;
-  ezQtPropertyGridWidget* m_pGrid;
-  const ezRTTI* m_pType;
+  bool m_bUndead = false;
+  ezQtPropertyGridWidget* m_pGrid = nullptr;
+  ezObjectAccessorBase* m_pObjectAccessor = nullptr;
+  const ezRTTI* m_pType = nullptr;
   ezHybridArray<ezPropertySelection, 8> m_Items;
 
   struct PropertyWidgetData

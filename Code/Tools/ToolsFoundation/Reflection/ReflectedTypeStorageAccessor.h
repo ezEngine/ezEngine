@@ -15,8 +15,8 @@ class EZ_TOOLSFOUNDATION_DLL ezReflectedTypeStorageAccessor : public ezIReflecte
 public:
   ezReflectedTypeStorageAccessor(const ezRTTI* hReflectedType, ezDocumentObject* pOwner); // [tested]
   ~ezReflectedTypeStorageAccessor();
- 
-  virtual const ezVariant GetValue(const char* szProperty, ezVariant index = ezVariant()) const override; // [tested]
+
+  virtual const ezVariant GetValue(const char* szProperty, ezVariant index = ezVariant(), ezStatus* res = nullptr) const override; // [tested]
   virtual bool SetValue(const char* szProperty, const ezVariant& value, ezVariant index = ezVariant()) override; // [tested]
 
   virtual ezInt32 GetCount(const char* szProperty) const override;

@@ -143,6 +143,21 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTagSetWidgetAttribute, 1, ezRTTIDefaultAllocat
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExposedParametersAttribute, 1, ezRTTIDefaultAllocator<ezExposedParametersAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("ParametersSource", m_sParametersSource),
+  }
+  EZ_END_PROPERTIES
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_CONSTRUCTOR_PROPERTY(const char*),
+  }
+  EZ_END_FUNCTIONS
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezContainerAttribute, 1, ezRTTIDefaultAllocator<ezContainerAttribute>)
 {
   EZ_BEGIN_PROPERTIES

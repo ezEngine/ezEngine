@@ -704,9 +704,12 @@ ezStatus ezSetObjectPropertyCommand::DoInternal(bool bRedo)
 
     ezIReflectedTypeAccessor& accessor0 = m_pObject->GetTypeAccessor();
 
-    m_OldValue = accessor0.GetValue(m_sProperty, m_Index);
+    ezStatus res;
+    m_OldValue = accessor0.GetValue(m_sProperty, m_Index, &res);
+    if (res.Failed())
+      return res;
     ezAbstractProperty* pProp = accessor0.GetType()->FindPropertyByName(m_sProperty);
-    if (pProp == nullptr || !m_OldValue.IsValid())
+    if (pProp == nullptr)
       return ezStatus(ezFmt("Set Property: The property '{0}' does not exist", m_sProperty));
 
     if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
@@ -861,6 +864,10 @@ ezStatus ezRemoveObjectPropertyCommand::DoInternal(bool bRedo)
       m_pObject = pDocument->GetObjectManager()->GetObject(m_Object);
       if (m_pObject == nullptr)
         return ezStatus("Remove Property: The given object does not exist!");
+      ezStatus res;
+      m_OldValue = m_pObject->GetTypeAccessor().GetValue(m_sProperty, m_Index, &res);
+      if (res.Failed())
+        return res;
     }
     else
       return ezStatus("Remove Property: The given object does not exist!");

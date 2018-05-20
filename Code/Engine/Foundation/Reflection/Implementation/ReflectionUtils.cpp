@@ -2,10 +2,42 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Types/ScopeExit.h>
 
 namespace
 {
-  struct GetTypeFunc
+  struct GetTypeFromVariantTypeFunc
+  {
+    template <typename T>
+    EZ_ALWAYS_INLINE void operator()()
+    {
+      m_pType = ezGetStaticRTTI<T>();
+    }
+    const ezRTTI* m_pType;
+  };
+
+  template <>
+  EZ_ALWAYS_INLINE void GetTypeFromVariantTypeFunc::operator() < ezVariantArray > ()
+  {
+    m_pType = nullptr;
+  }
+  template <>
+  EZ_ALWAYS_INLINE void GetTypeFromVariantTypeFunc::operator() < ezVariantDictionary > ()
+  {
+    m_pType = nullptr;
+  }
+  template <>
+  EZ_ALWAYS_INLINE void GetTypeFromVariantTypeFunc::operator() < ezReflectedClass* > ()
+  {
+    m_pType = ezGetStaticRTTI<ezReflectedClass>();
+  }
+  template <>
+  EZ_ALWAYS_INLINE void GetTypeFromVariantTypeFunc::operator() < void* > ()
+  {
+    m_pType = nullptr;
+  }
+
+  struct GetTypeFromVariantFunc
   {
     template <typename T>
     EZ_ALWAYS_INLINE void operator()()
@@ -19,22 +51,22 @@ namespace
 
 
   template <>
-  EZ_ALWAYS_INLINE void GetTypeFunc::operator() < ezVariantArray > ()
+  EZ_ALWAYS_INLINE void GetTypeFromVariantFunc::operator() < ezVariantArray > ()
   {
     m_pType = nullptr;
   }
   template <>
-  EZ_ALWAYS_INLINE void GetTypeFunc::operator() < ezVariantDictionary > ()
+  EZ_ALWAYS_INLINE void GetTypeFromVariantFunc::operator() < ezVariantDictionary > ()
   {
     m_pType = nullptr;
   }
   template <>
-  EZ_ALWAYS_INLINE void GetTypeFunc::operator() < ezReflectedClass* > ()
+  EZ_ALWAYS_INLINE void GetTypeFromVariantFunc::operator() < ezReflectedClass* > ()
   {
     m_pType = m_pVariant->Get<ezReflectedClass*>()->GetDynamicRTTI();
   }
   template <>
-  EZ_ALWAYS_INLINE void GetTypeFunc::operator() < void* > ()
+  EZ_ALWAYS_INLINE void GetTypeFromVariantFunc::operator() < void* > ()
   {
     m_pType = nullptr;
   }
@@ -217,9 +249,10 @@ namespace
     template <typename T>
     EZ_FORCE_INLINE void operator()()
     {
-      if (const T* value = static_cast<const T*>(m_pProp->GetValue(m_pObject, m_szKey)))
+      T temp;
+      if (m_pProp->GetValue(m_pObject, m_szKey, &temp))
       {
-        *m_pValue = *value;
+        *m_pValue = temp;
       }
     }
 
@@ -232,10 +265,11 @@ namespace
   template <>
   EZ_FORCE_INLINE void GetMapValueFunc::operator() < ezString > ()
   {
+    ezString temp;
     EZ_ASSERT_DEBUG(m_pProp->GetSpecificType() == ezGetStaticRTTI<ezString>(), "Other string types not implemented");
-    if (const ezString* value = static_cast<const ezString*>(m_pProp->GetValue(m_pObject, m_szKey)))
+    if (m_pProp->GetValue(m_pObject, m_szKey, &temp))
     {
-      *m_pValue = *value;
+      *m_pValue = temp;
     }
   }
 
@@ -484,10 +518,19 @@ bool ezReflectionUtils::IsBasicType(const ezRTTI* pRtti)
 
 const ezRTTI* ezReflectionUtils::GetTypeFromVariant(const ezVariant& value)
 {
-  GetTypeFunc func;
+  GetTypeFromVariantFunc func;
   func.m_pVariant = &value;
   func.m_pType = nullptr;
   ezVariant::DispatchTo(func, value.GetType());
+
+  return func.m_pType;
+}
+
+const ezRTTI* ezReflectionUtils::GetTypeFromVariant(ezVariantType::Enum type)
+{
+  GetTypeFromVariantTypeFunc func;
+  func.m_pType = nullptr;
+  ezVariant::DispatchTo(func, type);
 
   return func.m_pType;
 }
@@ -762,9 +805,10 @@ ezVariant ezReflectionUtils::GetMapPropertyValue(const ezAbstractMapProperty* pP
 
   if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
   {
-    if (const ezVariant* value = static_cast<const ezVariant*>(pProp->GetValue(pObject, szKey)))
+    ezVariant value;
+    if (pProp->GetValue(pObject, szKey, &value))
     {
-      return *value;
+      return value;
     }
     return ezVariant();
   }
@@ -1380,21 +1424,40 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
           if (!bEqual)
             break;
 
-          if (!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+          if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
           {
-            const void* value1 = pSpecific->GetValue(pObject, keys[i]);
-            const void* value2 = pSpecific->GetValue(pObject2, keys[i]);
-            bEqual = IsEqual(value1, value2, pPropType);
-          }
-          else
-          {
-            void* const* value1 = static_cast<void* const*>(pSpecific->GetValue(pObject, keys[i]));
-            void* const* value2 = static_cast<void* const*>(pSpecific->GetValue(pObject2, keys[i]));
+            const void* value1 = nullptr;
+            const void* value2 = nullptr;
+            pSpecific->GetValue(pObject, keys[i], &value1);
+            pSpecific->GetValue(pObject2, keys[i], &value2);
             if ((value1 == nullptr) != (value2 == nullptr))
               return false;
             if ((value1 == nullptr) && (value2 == nullptr))
               continue;
-            bEqual = IsEqual(*value1, *value2, pPropType);
+            bEqual = IsEqual(value1, value2, pPropType);
+          }
+          else
+          {
+            if (pPropType->GetAllocator()->CanAllocate())
+            {
+              void* value1 = pPropType->GetAllocator()->Allocate();
+              EZ_SCOPE_EXIT(pPropType->GetAllocator()->Deallocate(value1););
+              void* value2 = pPropType->GetAllocator()->Allocate();
+              EZ_SCOPE_EXIT(pPropType->GetAllocator()->Deallocate(value2););
+
+              bool bRes1 = pSpecific->GetValue(pObject, keys[i], value1);
+              bool bRes2 = pSpecific->GetValue(pObject2, keys[i], value2);
+              if (bRes1 != bRes2)
+                return false;
+              if (!bRes1 && !bRes2)
+                continue;
+              bEqual = IsEqual(value1, value2, pPropType);
+            }
+            else
+            {
+              ezLog::Error("The property '{}' can not be compared as the type '{}' cannot be allocated."
+              , pProp->GetPropertyName(), pPropType->GetTypeName());
+            }
           }
           if (!bEqual)
             break;

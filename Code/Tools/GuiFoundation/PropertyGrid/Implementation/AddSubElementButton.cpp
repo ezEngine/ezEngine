@@ -232,13 +232,12 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
 
   if (m_uiMaxElements > 0) // 0 means unlimited
   {
-    ezObjectAccessorBase* pObjectAccessor = m_pGrid->GetObjectAccessor();
     QList<QAction*> actions = m_pMenu->actions();
 
     for (auto& item : m_Items)
     {
       ezInt32 iCount = 0;
-      pObjectAccessor->GetCount(item.m_pObject, m_pProp, iCount);
+      m_pObjectAccessor->GetCount(item.m_pObject, m_pProp, iCount);
 
       if (iCount >= (ezInt32)m_uiMaxElements)
       {
@@ -273,21 +272,20 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
 
   if (m_bPreventDuplicates)
   {
-    ezObjectAccessorBase* pObjectAccessor = m_pGrid->GetObjectAccessor();
     ezSet<const ezRTTI*> UsedTypes;
 
     for (auto& item : m_Items)
     {
       ezInt32 iCount = 0;
-      pObjectAccessor->GetCount(item.m_pObject, m_pProp, iCount);
+      m_pObjectAccessor->GetCount(item.m_pObject, m_pProp, iCount);
 
       for (ezInt32 i = 0; i < iCount; ++i)
       {
-        ezUuid guid = pObjectAccessor->Get<ezUuid>(item.m_pObject, m_pProp, i);
+        ezUuid guid = m_pObjectAccessor->Get<ezUuid>(item.m_pObject, m_pProp, i);
 
         if (guid.IsValid())
         {
-          UsedTypes.Insert(pObjectAccessor->GetObject(guid)->GetType());
+          UsedTypes.Insert(m_pObjectAccessor->GetObject(guid)->GetType());
         }
       }
 
@@ -323,7 +321,7 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
 {
   EZ_ASSERT_DEV(pRtti != nullptr, "user data retrieval failed");
   ezVariant index = (ezInt32)-1;
-  ezObjectAccessorBase* pObjectAccessor = m_pGrid->GetObjectAccessor();
+
   if (m_pProp->GetCategory() == ezPropertyCategory::Map)
   {
     QString text;
@@ -338,7 +336,7 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
       for (auto& item : m_Items)
       {
         ezVariant value;
-        ezStatus res = pObjectAccessor->GetValue(item.m_pObject, m_pProp, value, index);
+        ezStatus res = m_pObjectAccessor->GetValue(item.m_pObject, m_pProp, value, index);
         if (res.m_Result.Succeeded())
         {
           bOk = false;
@@ -352,14 +350,14 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
     }
   }
 
-  pObjectAccessor->StartTransaction("Add Element");
+  m_pObjectAccessor->StartTransaction("Add Element");
 
   ezStatus res;
   if (GetProperty()->GetFlags().IsSet(ezPropertyFlags::StandardType))
   {
     for (auto& item : m_Items)
     {
-      res = pObjectAccessor->InsertValue(item.m_pObject, m_pProp, ezToolsReflectionUtils::GetDefaultValue(GetProperty()), index);
+      res = m_pObjectAccessor->InsertValue(item.m_pObject, m_pProp, ezToolsReflectionUtils::GetDefaultValue(GetProperty()), index);
       if (res.m_Result.Failed())
         break;
     }
@@ -369,16 +367,16 @@ void ezQtAddSubElementButton::OnAction(const ezRTTI* pRtti)
     for (auto& item : m_Items)
     {
       ezUuid guid;
-      res = pObjectAccessor->AddObject(item.m_pObject, m_pProp, index, pRtti, guid);
+      res = m_pObjectAccessor->AddObject(item.m_pObject, m_pProp, index, pRtti, guid);
       if (res.m_Result.Failed())
         break;
     }
   }
 
   if (res.m_Result.Failed())
-    pObjectAccessor->CancelTransaction();
+    m_pObjectAccessor->CancelTransaction();
   else
-    pObjectAccessor->FinishTransaction();
+    m_pObjectAccessor->FinishTransaction();
 
   ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Adding sub-element to the property failed.");
 }

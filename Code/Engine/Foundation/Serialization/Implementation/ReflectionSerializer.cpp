@@ -4,6 +4,8 @@
 #include <Foundation/Serialization/BinarySerializer.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Serialization/DdlSerializer.h>
+#include <Foundation/Types/ScopeExit.h>
+#include <Foundation/Logging/Log.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezReflectionSerializer public static functions
@@ -303,12 +305,37 @@ namespace
 
         for (ezUInt32 i = 0; i < keys.GetCount(); ++i)
         {
-          const void* pValue = pSpecific->GetValue(pObject, keys[i]);
-          if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner) && pValue)
+          if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ||
+            (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)))
           {
-            pValue = ezReflectionSerializer::Clone(pValue, pPropType);
+            ezVariant value = ezReflectionUtils::GetMapPropertyValue(pSpecific, pObject, keys[i]);
+            ezReflectionUtils::SetMapPropertyValue(pSpecific, pClone, keys[i], value);
           }
-          pSpecific->Insert(pClone, keys[i], pValue);
+          else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class))
+          {
+            if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
+            {
+              void* pValue = nullptr;
+              pSpecific->GetValue(pObject, keys[i], &pValue);
+              pValue = ezReflectionSerializer::Clone(pValue, pPropType);
+              pSpecific->Insert(pClone, keys[i], &pValue);
+            }
+            else
+            {
+              if (pPropType->GetAllocator()->CanAllocate())
+              {
+                void* pValue = pPropType->GetAllocator()->Allocate();
+                EZ_SCOPE_EXIT(pPropType->GetAllocator()->Deallocate(pValue););
+                EZ_VERIFY(pSpecific->GetValue(pObject, keys[i], pValue), "Previously retrieved key does not exist.");
+                pSpecific->Insert(pClone, keys[i], pValue);
+              }
+              else
+              {
+                ezLog::Error("The property '{}' can not be cloned as the type '{}' cannot be allocated."
+                  , pProp->GetPropertyName(), pPropType->GetTypeName());
+              }
+            }
+          }
         }
       }
       break;

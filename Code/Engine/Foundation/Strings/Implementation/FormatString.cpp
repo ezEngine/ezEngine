@@ -3,6 +3,7 @@
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/HashedString.h>
+#include <Foundation/Types/Variant.h>
 
 ezFormatString::ezFormatString(const ezStringBuilder& s)
 {
@@ -138,6 +139,13 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezResult result)
     return "<failed>";
   else
     return "<succeeded>";
+}
+
+ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezVariant& result)
+{
+  ezString sString = result.ConvertTo<ezString>();
+  ezStringUtils::snprintf(tmp, uiLength, "%s", sString.GetData());
+  return ezStringView(tmp);
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

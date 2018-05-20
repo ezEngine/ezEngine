@@ -4,6 +4,7 @@
 
 ezObjectDirectAccessor::ezObjectDirectAccessor(ezDocumentObjectManager* pManager)
   : ezObjectAccessorBase(pManager)
+  , m_pManager(pManager)
 {
 
 }
@@ -18,11 +19,9 @@ ezStatus ezObjectDirectAccessor::GetValue(const ezDocumentObject* pObject, const
   if (pProp == nullptr)
     return ezStatus("Property is null.");
 
-  out_value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), index);
-  if (!out_value.IsValid())
-    return ezStatus("GetValue returned an invalid value.");
-  else
-    return ezStatus(EZ_SUCCESS);
+  ezStatus res;
+  out_value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName(), index, &res);
+  return res;
 }
 
 ezStatus ezObjectDirectAccessor::SetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index)

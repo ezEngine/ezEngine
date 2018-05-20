@@ -19,6 +19,11 @@ static ezQtPropertyWidget* StandardTypeCreator(const ezRTTI* pRtti)
 {
   EZ_ASSERT_DEV(pRtti->GetTypeFlags().IsSet(ezTypeFlags::StandardType), "This function is only valid for StandardType properties, regardless of category");
 
+  if (pRtti == ezGetStaticRTTI<ezVariant>())
+  {
+    return new ezQtVariantPropertyWidget();
+  }
+
   switch (pRtti->GetVariantType())
   {
   case ezVariant::Type::Bool:
@@ -131,6 +136,7 @@ ON_CORE_STARTUP
   ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezColor>(), StandardTypeCreator);
   ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezColorGammaUB>(), StandardTypeCreator);
   ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezAngle>(), StandardTypeCreator);
+  ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezVariant>(), StandardTypeCreator);
 
   // TODO: ezMat3, ezMat4, ezTransform, ezUuid, ezVariant
   ezQtPropertyGridWidget::GetFactory().RegisterCreator(ezGetStaticRTTI<ezEnumBase>(), EnumCreator);
@@ -258,7 +264,7 @@ void ezQtPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObject*>
     }
 
     const ezRTTI* pCommonType = ezQtPropertyWidget::GetCommonBaseType(Items);
-    m_pTypeWidget = new ezQtTypeWidget(m_pContent, this, pCommonType);
+    m_pTypeWidget = new ezQtTypeWidget(m_pContent, this, GetObjectAccessor(), pCommonType);
     m_pTypeWidget->SetSelection(Items);
 
     m_pContentLayout->insertWidget(0, m_pTypeWidget, 0);
@@ -298,7 +304,11 @@ ezQtPropertyWidget* ezQtPropertyGridWidget::CreateMemberPropertyWidget(const ezA
   }
 
   // Try to create a registered widget for the given property type.
-  return ezQtPropertyGridWidget::GetFactory().CreateObject(pProp->GetSpecificType());
+  ezQtPropertyWidget* pWidget = ezQtPropertyGridWidget::GetFactory().CreateObject(pProp->GetSpecificType());
+  if (pWidget != nullptr)
+    return pWidget;
+
+  return new ezQtUnsupportedPropertyWidget("No property grid widget registered");
 }
 
 ezQtPropertyWidget* ezQtPropertyGridWidget::CreatePropertyWidget(const ezAbstractProperty* pProp)

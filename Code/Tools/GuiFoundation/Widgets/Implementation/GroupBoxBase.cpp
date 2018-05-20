@@ -23,12 +23,21 @@ QString ezQtGroupBoxBase::GetTitle() const
   return m_sTitle;
 }
 
+void ezQtGroupBoxBase::SetBoldTitle(bool bBold)
+{
+  m_bBoldTitle = bBold;
+  update();
+}
+
+bool ezQtGroupBoxBase::GetBoldTitle() const
+{
+  return m_bBoldTitle;
+}
 
 void ezQtGroupBoxBase::SetIcon(const QIcon& icon)
 {
   m_Icon = icon;
 }
-
 
 QIcon ezQtGroupBoxBase::GetIcon() const
 {
@@ -80,7 +89,15 @@ void ezQtGroupBoxBase::DrawHeader(QPainter& p, const QRect& rect)
 
   QStyle* style = QWidget::style();
   int flags = Qt::AlignLeft | Qt::AlignVCenter | Qt::TextExpandTabs | Qt::TextForceLeftToRight;
+  QFont fontOld = p.font();
+  if (m_bBoldTitle)
+  {
+    QFont fontBold = fontOld;
+    fontBold.setBold(true);
+    p.setFont(fontBold);
+  }
   style->drawItemText(&p, remainingRect, flags, palette(), isEnabled(), m_sTitle, foregroundRole());
+  p.setFont(fontOld);
 }
 
 void ezQtGroupBoxBase::HeaderMousePress(QMouseEvent* me)

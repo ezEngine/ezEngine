@@ -8,6 +8,8 @@ class EZ_TOOLSFOUNDATION_DLL ezObjectAccessorBase
 {
 public:
   virtual ~ezObjectAccessorBase();
+  const ezDocumentObjectManager* GetObjectManager() const;
+
   /// \name Transaction Operations
   ///@{
 
@@ -61,12 +63,12 @@ public:
   ///@}
 
 protected:
-  ezObjectAccessorBase(ezDocumentObjectManager* pManager);
+  ezObjectAccessorBase(const ezDocumentObjectManager* pManager);
   void FireDocumentObjectStructureEvent(const ezDocumentObjectStructureEvent& e);
   void FireDocumentObjectPropertyEvent(const ezDocumentObjectPropertyEvent& e);
 
 protected:
-  ezDocumentObjectManager* m_pManager;
+  const ezDocumentObjectManager* m_pConstManager;
 };
 
 #include <ToolsFoundation/Object/Implementation/ObjectAccessorBase_inl.h>

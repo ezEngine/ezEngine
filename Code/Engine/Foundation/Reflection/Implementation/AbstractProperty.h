@@ -368,10 +368,6 @@ public:
   /// \brief Writes element at index uiIndex to the target of pObject.
   virtual bool GetValue(const void* pInstance, const char* szKey, void* pObject) const = 0;
 
-  /// \brief Returns a pointer to the value under the key or nullptr if the key is not present. If a valid pointer is returned, that pointer and the information from GetSpecificType() can
-  /// be used to step deeper into the type (if required).
-  virtual const void* GetValue(const void* pInstance, const char* szKey) const = 0;
-
   /// \brief Writes the content of the set to out_keys.
   virtual void GetKeys(const void* pInstance, ezHybridArray<ezString, 16>& out_keys) const = 0;
 
@@ -423,6 +419,17 @@ struct ezFunctionParameterTypeResolver<I, R(Class::*)(P...) >
   typedef R ReturnType;
 };
 
+template <int I, class Class, typename R, typename... P>
+struct ezFunctionParameterTypeResolver<I, R(Class::*)(P...) const >
+{
+  enum Constants
+  {
+    Arguments = sizeof...(P),
+  };
+  EZ_CHECK_AT_COMPILETIME_MSG(I < Arguments, "I needs to be smaller than the number of function parameters.");
+  typedef typename getArgument<I, P...>::Type ParameterType;
+  typedef R ReturnType;
+};
 
 /// \brief Template that allows to probe a single parameter function for parameter and return type.
 template <typename FUNC>

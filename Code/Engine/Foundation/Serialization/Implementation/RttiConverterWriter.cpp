@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <Foundation/Serialization/RttiConverter.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/Types/ScopeExit.h>
 
 void ezRttiConverterContext::Clear()
 {
@@ -379,7 +380,9 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
         {
           for (ezUInt32 i = 0; i < keys.GetCount(); ++i)
           {
-            const void* pSubObject = pSpecific->GetValue(pObject, keys[i]);
+            void* pSubObject = pPropType->GetAllocator()->Allocate();
+            EZ_SCOPE_EXIT(pPropType->GetAllocator()->Deallocate(pSubObject););
+            EZ_VERIFY(pSpecific->GetValue(pObject, keys[i], pSubObject), "Key should be valid.");
 
             ezConversionUtils::ToString(pNode->GetGuid(), sTemp);
             sTemp.AppendFormat("/{0}/{1}", pProp->GetPropertyName(), keys[i]);

@@ -122,8 +122,8 @@ ezStatus ezObjectAccessorBase::GetValues(const ezDocumentObject* pObject, const 
   return GetValues(pObject, pProp, out_values);
 }
 
-ezObjectAccessorBase::ezObjectAccessorBase(ezDocumentObjectManager* pManager)
-  : m_pManager(pManager)
+ezObjectAccessorBase::ezObjectAccessorBase(const ezDocumentObjectManager* pManager)
+  : m_pConstManager(pManager)
 {
 }
 
@@ -132,12 +132,17 @@ ezObjectAccessorBase::~ezObjectAccessorBase()
 
 }
 
+const ezDocumentObjectManager* ezObjectAccessorBase::GetObjectManager() const
+{
+  return m_pConstManager;
+}
+
 void ezObjectAccessorBase::FireDocumentObjectStructureEvent(const ezDocumentObjectStructureEvent& e)
 {
-  m_pManager->m_StructureEvents.Broadcast(e);
+  m_pConstManager->m_StructureEvents.Broadcast(e);
 }
 
 void ezObjectAccessorBase::FireDocumentObjectPropertyEvent(const ezDocumentObjectPropertyEvent& e)
 {
-  m_pManager->m_PropertyEvents.Broadcast(e);
+  m_pConstManager->m_PropertyEvents.Broadcast(e);
 }

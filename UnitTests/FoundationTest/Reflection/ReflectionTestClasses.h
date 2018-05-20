@@ -2,6 +2,7 @@
 
 #include <PCH.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Types/RangeView.h>
 
 struct ezExampleEnum
 {
@@ -363,6 +364,7 @@ public:
   ezDynamicArray<ezString> m_Array;
 };
 
+
 class ezTestMaps : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezTestMaps, ezReflectedClass);
@@ -372,10 +374,7 @@ public:
   {
   }
 
-  bool operator==(const ezTestMaps& rhs) const
-  {
-    return true;
-  }
+  bool operator==(const ezTestMaps& rhs) const;
 
   const ezMap<ezString, ezInt64>& GetContainer() const;
   void Insert(const char* szKey, ezInt64 value);
@@ -385,11 +384,23 @@ public:
   void Insert2(const char* szKey, const ezString& value);
   void Remove2(const char* szKey);
 
+  const ezRangeView<const char*, ezUInt32> GetKeys3() const;
+  void Insert3(const char* szKey, const ezVariant& value);
+  void Remove3(const char* szKey);
+  bool GetValue3(const char* szKey, ezVariant& out_value) const;
+
   ezMap<ezString, int> m_MapMember;
   ezMap<ezString, ezInt64> m_MapAccessor;
 
   ezHashTable<ezString, double> m_HashTableMember;
   ezHashTable<ezString, ezString> m_HashTableAccessor;
+
+  struct Tuple
+  {
+    ezString m_Key;
+    ezVariant m_Value;
+  };
+  ezHybridArray<Tuple, 2> m_Accessor3;
 };
 
 class ezTestPtr : public ezReflectedClass

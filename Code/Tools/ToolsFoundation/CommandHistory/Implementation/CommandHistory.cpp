@@ -358,10 +358,11 @@ ezStatus ezCommandHistory::AddCommand(ezCommand& command)
 
   auto res = m_ActiveCommandStack.PeekBack()->AddSubCommand(command);
 
-  if (res.Failed() && !res.m_sMessage.IsEmpty())
-  {
-    ezLog::Error("Command failed: '{0}'", res.m_sMessage);
-  }
+  // Error handling should be on the caller side.
+  //if (res.Failed() && !res.m_sMessage.IsEmpty())
+  //{
+  //  ezLog::Error("Command failed: '{0}'", res.m_sMessage);
+  //}
 
   return res;
 }

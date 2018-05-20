@@ -211,6 +211,31 @@ private:
   ezUntrackedString m_sTagFilter;
 };
 
+/// \brief Add this attribute to a variant map property to make it map to the exposed parameters
+/// of an asset. For this, the member property name of the asset reference needs to be passed in.
+/// The exposed parameters of the currently set asset on that property will be used as the source.
+///
+/// Usage:
+/// EZ_ACCESSOR_PROPERTY("Effect", GetParticleEffectFile, SetParticleEffectFile)->AddAttributes(new ezAssetBrowserAttribute("Particle Effect")),
+/// EZ_MAP_ACCESSOR_PROPERTY("Parameters",...)->AddAttributes(new ezExposedParametersAttribute("Effect")),
+class EZ_FOUNDATION_DLL ezExposedParametersAttribute : public ezContainerWidgetAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezExposedParametersAttribute, ezContainerWidgetAttribute);
+
+public:
+  ezExposedParametersAttribute() {}
+  ezExposedParametersAttribute(const char* szParametersSource)
+  {
+    m_sParametersSource = szParametersSource;
+  }
+
+  const char* GetParametersSource() const { return m_sParametersSource; }
+
+private:
+  ezUntrackedString m_sParametersSource;
+};
+
+
 /// \brief Sets the allowed actions on a container.
 class EZ_FOUNDATION_DLL ezContainerAttribute : public ezPropertyAttribute
 {

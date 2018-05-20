@@ -15,5 +15,8 @@ class EZ_EDITORFRAMEWORK_DLL ezExposedParameters : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezExposedParameters, ezReflectedClass);
 public:
   ezExposedParameters();
+
+  const ezExposedParameter* Find(const char* szParamName) const;
+
   ezDynamicArray<ezExposedParameter> m_Parameters;
 };

@@ -350,7 +350,8 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
   (new ezAccessorSetProperty<OwnType, EZ_SET_CONTAINER_SUB_TYPE(OwnType, GetValues), EZ_SET_CONTAINER_TYPE(OwnType, GetValues)>   \
     (PropertyName, &OwnType::GetValues, nullptr, nullptr)) \
 
-/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a property that uses custom functions to access a map.
+/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a property that uses custom functions to for write access to a map.
+///   Use this if you have a ezHashTable or ezMap to expose directly and just want to be informed of write operations.
 ///
 /// \param PropertyName
 ///   The unique (in this class) name under which the property should be registered.
@@ -362,14 +363,39 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 ///   Function signature: void Remove(const char* szKey);
 ///
 /// \note Container can be ezMap or ezHashTable
-#define EZ_MAP_ACCESSOR_PROPERTY(PropertyName, GetContainer, Insert, Remove)   \
-  (new ezAccessorMapProperty<OwnType, ezFunctionParameterTypeResolver<1, decltype(&OwnType::Insert)>::ParameterType, EZ_SET_CONTAINER_TYPE(OwnType, GetContainer)>   \
+#define EZ_MAP_WRITE_ACCESSOR_PROPERTY(PropertyName, GetContainer, Insert, Remove)   \
+  (new ezWriteAccessorMapProperty<OwnType, ezFunctionParameterTypeResolver<1, decltype(&OwnType::Insert)>::ParameterType, EZ_SET_CONTAINER_TYPE(OwnType, GetContainer)>   \
     (PropertyName, &OwnType::GetContainer, &OwnType::Insert, &OwnType::Remove)) \
 
+/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a property that uses custom functions to access a map.
+///   Use this if you you want to hide the implementation details of the map from the user.
+///
+/// \param PropertyName
+///   The unique (in this class) name under which the property should be registered.
+/// \param GetKeyRange
+///   Function signature: const Range GetValues() const;
+///   Range has to be an object that a ranged based for-loop can iterate over containing the keys
+///   implicitly convertible to Type / ezString.
+/// \param GetValue
+///   Function signature: bool GetValue(const char* szKey, Type& value);
+///   Returns whether the the key existed. value must be a non const ref as it is written to.
+/// \param Insert
+///   Function signature: void Insert(const char* szKey, Type value);
+///   value can also be const and/or a reference.
+/// \param Remove
+///   Function signature: void Remove(const char* szKey);
+///
+/// \note Container can be ezMap or ezHashTable
+#define EZ_MAP_ACCESSOR_PROPERTY(PropertyName, GetKeyRange, GetValue, Insert, Remove)   \
+  (new ezAccessorMapProperty<OwnType, ezFunctionParameterTypeResolver<1, decltype(&OwnType::Insert)>::ParameterType, EZ_SET_CONTAINER_TYPE(OwnType, GetKeyRange)>   \
+    (PropertyName, &OwnType::GetKeyRange, &OwnType::GetValue, &OwnType::Insert, &OwnType::Remove)) \
+
 /// \brief Same as EZ_MAP_ACCESSOR_PROPERTY, but no setter is provided, thus making the property read-only.
-#define EZ_MAP_ACCESSOR_PROPERTY_READ_ONLY(PropertyName, GetContainer)   \
-  (new ezAccessorMapProperty<OwnType, EZ_SET_CONTAINER_SUB_TYPE(OwnType, GetContainer), EZ_SET_CONTAINER_TYPE(OwnType, GetContainer)>   \
-    (PropertyName, &OwnType::GetContainer, nullptr, nullptr)) \
+#define EZ_MAP_ACCESSOR_PROPERTY_READ_ONLY(PropertyName, GetKeyRange, GetValue)   \
+  (new ezAccessorMapProperty<OwnType, ezTypeTraits<ezFunctionParameterTypeResolver<1, decltype(&OwnType::GetValue)>::ParameterType>::NonConstReferenceType, EZ_SET_CONTAINER_TYPE(OwnType, GetKeyRange)>   \
+    (PropertyName, &OwnType::GetKeyRange, &OwnType::GetValue, nullptr, nullptr)) \
+
+
 
 /// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a property that uses custom getter / setter functions.
 ///

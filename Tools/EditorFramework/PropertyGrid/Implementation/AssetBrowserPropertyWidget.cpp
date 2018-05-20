@@ -185,6 +185,20 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
   }
 }
 
+void ezQtAssetPropertyWidget::ExtendContextMenu(QMenu& menu)
+{
+  if (!menu.isEmpty())
+    menu.addSeparator();
+  const bool bAsset = m_AssetGuid.IsValid();
+  menu.setDefaultAction(menu.addAction(QIcon(), QLatin1String("Select Asset"), this, SLOT(on_BrowseFile_clicked())));
+  menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open Asset"), this, SLOT(OnOpenAssetDocument()))->setEnabled(bAsset);
+  menu.addAction(QIcon(), QLatin1String("Select in Asset Browser"), this, SLOT(OnSelectInAssetBrowser()))->setEnabled(bAsset);
+  menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this, SLOT(OnOpenExplorer()));
+  menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Asset Guid"), this, SLOT(OnCopyAssetGuid()));
+  menu.addAction(QIcon(), QLatin1String("Create New Asset"), this, SLOT(OnCreateNewAsset()));
+  menu.addAction(QIcon(":/GuiFoundation/Icons/Delete16.png"), QLatin1String("Clear Asset Reference"), this, SLOT(OnClearReference()));
+}
+
 void ezQtAssetPropertyWidget::on_TextFinished_triggered()
 {
   ezStringBuilder sText = m_pWidget->text().toUtf8().data();
@@ -229,16 +243,7 @@ void ezQtAssetPropertyWidget::ThumbnailInvalidated(QString sPath, ezUInt32 uiIma
 void ezQtAssetPropertyWidget::on_customContextMenuRequested(const QPoint& pt)
 {
   QMenu m;
-
-  const bool bAsset =m_AssetGuid.IsValid();
-
-  m.setDefaultAction(m.addAction(QIcon(), QLatin1String("Select Asset"), this, SLOT(on_BrowseFile_clicked())));
-  m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open Asset"), this, SLOT(OnOpenAssetDocument()))->setEnabled(bAsset);
-  m.addAction(QIcon(), QLatin1String("Select in Asset Browser"), this, SLOT(OnSelectInAssetBrowser()))->setEnabled(bAsset);
-  m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this, SLOT(OnOpenExplorer()));
-  m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Asset Guid"), this, SLOT(OnCopyAssetGuid()));
-  m.addAction(QIcon(), QLatin1String("Create New Asset"), this, SLOT(OnCreateNewAsset()));
-  m.addAction(QIcon(":/GuiFoundation/Icons/Delete16.png"), QLatin1String("Clear Asset Reference"), this, SLOT(OnClearReference()));
+  ExtendContextMenu(m);
 
   m.exec(m_pButton->mapToGlobal(pt));
 }

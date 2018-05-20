@@ -15,6 +15,9 @@ public:
   virtual void SetTitle(const char* szTitle);
   QString GetTitle() const;
 
+  virtual void SetBoldTitle(bool bBold);
+  bool GetBoldTitle() const;
+
   virtual void SetIcon(const QIcon& icon);
   QIcon GetIcon() const;
 
@@ -46,9 +49,10 @@ protected:
   void HeaderMouseMove(QMouseEvent* me);
   void HeaderMouseRelease(QMouseEvent* me);
 
-  bool m_bDragging = false;
   QPoint m_startCursor;
+  bool m_bDragging = false;
 
+  bool m_bBoldTitle = false;
   bool m_bCollapsible = false;
   bool m_bDraggable = false;
   QColor m_FillColor;

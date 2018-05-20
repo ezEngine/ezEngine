@@ -29,6 +29,93 @@ class ezAccessorMapProperty : public ezTypedMapProperty<Type>
 {
 public:
   typedef typename ezTypeTraits<Container>::NonConstReferenceType ContainerType;
+  typedef typename ezTypeTraits<Type>::NonConstReferenceType RealType;
+
+  typedef void (Class::*InsertFunc)(const char* szKey, Type value);
+  typedef void (Class::*RemoveFunc)(const char* szKey);
+  typedef bool (Class::*GetValueFunc)(const char* szKey, RealType& value) const;
+  typedef Container(Class::*GetKeyRangeFunc)() const;
+
+  ezAccessorMapProperty(const char* szPropertyName, GetKeyRangeFunc getKeys, GetValueFunc getValue, InsertFunc insert, RemoveFunc remove)
+    : ezTypedMapProperty<Type>(szPropertyName)
+  {
+    EZ_ASSERT_DEBUG(getKeys != nullptr, "The getKeys function of a map property cannot be nullptr.");
+    EZ_ASSERT_DEBUG(getValue != nullptr, "The GetValueFunc function of a map property cannot be nullptr.");
+
+    m_GetKeyRange = getKeys;
+    m_GetValue = getValue;
+    m_Insert = insert;
+    m_Remove = remove;
+
+    if (m_Insert == nullptr || remove == nullptr)
+      ezAbstractMapProperty::m_Flags.Add(ezPropertyFlags::ReadOnly);
+  }
+
+  virtual bool IsEmpty(const void* pInstance) const override
+  {
+    decltype(auto) c = (static_cast<const Class*>(pInstance)->*m_GetKeyRange)();
+    return begin(c) == end(c);
+  }
+
+  virtual void Clear(void* pInstance) override
+  {
+    while (true)
+    {
+      decltype(auto) c = (static_cast<const Class*>(pInstance)->*m_GetKeyRange)();
+      auto it = begin(c);
+      if (it != end(c))
+        Remove(pInstance, *it);
+      else
+        return;
+    }
+  }
+
+  virtual void Insert(void* pInstance, const char* szKey, const void* pObject) override
+  {
+    EZ_ASSERT_DEBUG(m_Insert != nullptr, "The property '{0}' has no insert function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    (static_cast<Class*>(pInstance)->*m_Insert)(szKey, *static_cast<const RealType*>(pObject));
+  }
+
+  virtual void Remove(void* pInstance, const char* szKey) override
+  {
+    EZ_ASSERT_DEBUG(m_Remove != nullptr, "The property '{0}' has no remove function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    (static_cast<Class*>(pInstance)->*m_Remove)(szKey);
+  }
+
+  virtual bool Contains(const void* pInstance, const char* szKey) const override
+  {
+    RealType value;
+    return (static_cast<const Class*>(pInstance)->*m_GetValue)(szKey, value);
+  }
+
+  virtual bool GetValue(const void* pInstance, const char* szKey, void* pObject) const override
+  {
+    return (static_cast<const Class*>(pInstance)->*m_GetValue)(szKey, *static_cast<RealType*>(pObject));
+  }
+
+  virtual void GetKeys(const void* pInstance, ezHybridArray<ezString, 16>& out_keys) const override
+  {
+    out_keys.Clear();
+    decltype(auto) c = (static_cast<const Class*>(pInstance)->*m_GetKeyRange)();
+    for (const auto& key : c)
+    {
+      out_keys.PushBack(key);
+    }
+  }
+
+private:
+  GetKeyRangeFunc m_GetKeyRange;
+  GetValueFunc m_GetValue;
+  InsertFunc m_Insert;
+  RemoveFunc m_Remove;
+};
+
+
+template<typename Class, typename Type, typename Container>
+class ezWriteAccessorMapProperty : public ezTypedMapProperty<Type>
+{
+public:
+  typedef typename ezTypeTraits<Container>::NonConstReferenceType ContainerType;
   typedef typename ezContainerSubTypeResolver<ContainerType>::Type ContainerSubType;
   typedef typename ezTypeTraits<Type>::NonConstReferenceType RealType;
 
@@ -36,7 +123,7 @@ public:
   typedef void (Class::*RemoveFunc)(const char* szKey);
   typedef Container (Class::*GetContainerFunc)() const;
 
-  ezAccessorMapProperty(const char* szPropertyName, GetContainerFunc getContainer, InsertFunc insert, RemoveFunc remove)
+  ezWriteAccessorMapProperty(const char* szPropertyName, GetContainerFunc getContainer, InsertFunc insert, RemoveFunc remove)
     : ezTypedMapProperty<Type>(szPropertyName)
   {
     EZ_ASSERT_DEBUG(getContainer != nullptr, "The get count function of a map property cannot be nullptr.");
@@ -83,18 +170,13 @@ public:
 
   virtual bool GetValue(const void* pInstance, const char* szKey, void* pObject) const override
   {
-    const RealType* value = (static_cast<const Class*>(pInstance)->*m_GetContainer)().GetValue(szKey);
+    decltype(auto) c = (static_cast<const Class*>(pInstance)->*m_GetContainer)();
+    const RealType* value = c.GetValue(szKey);
     if (value)
     {
       *static_cast<RealType*>(pObject) = *value;
     }
     return value != nullptr;
-  }
-
-  virtual const void* GetValue(const void* pInstance, const char* szKey) const override
-  {
-    const RealType* value = (static_cast<const Class*>(pInstance)->*m_GetContainer)().GetValue(szKey);
-    return value;
   }
 
   virtual void GetKeys(const void* pInstance, ezHybridArray<ezString, 16>& out_keys) const override
@@ -189,12 +271,6 @@ public:
       *static_cast<RealType*>(pObject) = *value;
     }
     return value != nullptr;
-  }
-
-  virtual const void* GetValue(const void* pInstance, const char* szKey) const override
-  {
-    const RealType* value = m_ConstGetter(static_cast<const Class*>(pInstance)).GetValue(szKey);
-    return value;
   }
 
   virtual void GetKeys(const void* pInstance, ezHybridArray<ezString, 16>& out_keys) const override

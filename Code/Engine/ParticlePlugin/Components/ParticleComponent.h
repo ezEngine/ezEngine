@@ -7,6 +7,7 @@
 #include <Core/ResourceManager/ResourceBase.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <ParticlePlugin/Effect/ParticleEffectController.h>
+#include <Foundation/Types/RangeView.h>
 
 class ezParticleRenderData;
 struct ezMsgUpdateLocalBounds;
@@ -86,16 +87,12 @@ protected:
   //////////////////////////////////////////////////////////////////////////
   // Exposed Parameters
 public:
-
-  void SetFloatParam(const char* szKey, float value);
-  void SetColorParam(const char* szKey, const ezColor& value);
+  const ezRangeView<const char*, ezUInt32> GetParameters() const;
+  void SetParameter(const char* szKey, const ezVariant& value);
+  void RemoveParameter(const char* szKey);
+  bool GetParameter(const char* szKey, ezVariant& out_value) const;
 
 private:
-  ezMap<ezString, float> GetFloatParams() const;
-  ezMap<ezString, ezColor> GetColorParams() const;
-  void RemoveFloatParam(const char* szKey);
-  void RemoveColorParam(const char* szKey);
-
   struct FloatParam
   {
     EZ_DECLARE_POD_TYPE();

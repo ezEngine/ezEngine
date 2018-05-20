@@ -147,7 +147,6 @@ ezDocumentObject* ezDocumentObjectManager::GetObject(const ezUuid& guid)
 ezStatus ezDocumentObjectManager::SetValue(ezDocumentObject* pObject, const char* szProperty, const ezVariant& newValue, ezVariant index)
 {
   EZ_ASSERT_DEBUG(pObject, "Object must not be null.");
-  EZ_ASSERT_DEBUG(newValue.IsValid(), "Value must be valid");
   ezIReflectedTypeAccessor& accessor = pObject->GetTypeAccessor();
   ezVariant oldValue = accessor.GetValue(szProperty, index);
 
@@ -174,7 +173,11 @@ ezStatus ezDocumentObjectManager::InsertValue(ezDocumentObject* pObject, const c
   ezIReflectedTypeAccessor& accessor = pObject->GetTypeAccessor();
   if (!accessor.InsertValue(szProperty, index, newValue))
   {
-    return ezStatus(ezFmt("Insert Property: The property '{0}' does not exist", szProperty));
+    if (!accessor.GetType()->FindPropertyByName(szProperty))
+    {
+      return ezStatus(ezFmt("Insert Property: The property '{0}' does not exist", szProperty));
+    }
+    return ezStatus(ezFmt("Insert Property: The property '{0}' already has the key '{1}'", szProperty, index));
   }
 
   ezDocumentObjectPropertyEvent e;
@@ -193,8 +196,6 @@ ezStatus ezDocumentObjectManager::RemoveValue(ezDocumentObject* pObject, const c
 {
   ezIReflectedTypeAccessor& accessor = pObject->GetTypeAccessor();
   ezVariant oldValue = accessor.GetValue(szProperty, index);
-  if (!oldValue.IsValid())
-    return ezStatus(ezFmt("Remove Property: The index '{0}' in property '{1}' does not exist", index.ConvertTo<ezString>(), szProperty));
 
   if (!accessor.RemoveValue(szProperty, index))
   {

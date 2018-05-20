@@ -65,28 +65,26 @@ void ezQtVarianceTypeWidget::SlotValueChanged()
 {
   onBeginTemporary();
 
-  ezObjectAccessorBase* pObjectAccessor = m_pGrid->GetObjectAccessor();
   ezStringBuilder sTemp; sTemp.Format("Change Property '{0}'", ezTranslate(m_pProp->GetPropertyName()));
-  pObjectAccessor->StartTransaction(sTemp);
+  m_pObjectAccessor->StartTransaction(sTemp);
   {
     ezVariant value;
     ezToolsReflectionUtils::GetVariantFromFloat(m_pValueWidget->value(), m_pValueType->GetVariantType(), value);
     SetPropertyValue(m_pResolvedType->FindPropertyByName("Value"), value);
   }
-  pObjectAccessor->FinishTransaction();
+  m_pObjectAccessor->FinishTransaction();
 }
 
 
 void ezQtVarianceTypeWidget::SlotVarianceChanged()
 {
-  ezObjectAccessorBase* pObjectAccessor = m_pGrid->GetObjectAccessor();
   ezStringBuilder sTemp; sTemp.Format("Change Property '{0}' Variance", ezTranslate(m_pProp->GetPropertyName()));
-  pObjectAccessor->StartTransaction(sTemp);
+  m_pObjectAccessor->StartTransaction(sTemp);
   {
     double variance = ezMath::Clamp<double>(m_pVarianceWidget->value() / 100.0, 0, 1);
     SetPropertyValue(m_pResolvedType->FindPropertyByName("Variance"), variance);
   }
-  pObjectAccessor->FinishTransaction();
+  m_pObjectAccessor->FinishTransaction();
 }
 
 void ezQtVarianceTypeWidget::OnInit()
@@ -129,8 +127,6 @@ void ezQtVarianceTypeWidget::DoPrepareToDie()
 
 void ezQtVarianceTypeWidget::OnPropertyChanged(const ezString& sProperty)
 {
-  ezObjectAccessorBase* pObjectAccessor = m_pGrid->GetObjectAccessor();
-
   if (sProperty == "Value")
   {
     ezQtScopedBlockSignals _(m_pValueWidget);

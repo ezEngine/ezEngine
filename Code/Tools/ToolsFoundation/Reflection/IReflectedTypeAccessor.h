@@ -4,6 +4,7 @@
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
 class ezDocumentObject;
+struct ezStatus;
 
 /// \brief Provides access to the properties of an ezRTTI compatible data storage.
 class EZ_TOOLSFOUNDATION_DLL ezIReflectedTypeAccessor
@@ -20,7 +21,7 @@ public:
   const ezRTTI* GetType() const { return m_pRtti; } // [tested]
 
   /// \brief Returns the value of the property defined by its path. Return value is invalid iff the path was invalid.
-  virtual const ezVariant GetValue(const char* szProperty, ezVariant index = ezVariant()) const = 0;
+  virtual const ezVariant GetValue(const char* szProperty, ezVariant index = ezVariant(), ezStatus* res = nullptr) const = 0;
 
   /// \brief Sets a property defined by its path to the given value. Returns whether the operation was successful.
   virtual bool SetValue(const char* szProperty, const ezVariant& value, ezVariant index = ezVariant()) = 0;

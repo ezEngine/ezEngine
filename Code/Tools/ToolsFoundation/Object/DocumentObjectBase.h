@@ -62,9 +62,9 @@ protected:
 class EZ_TOOLSFOUNDATION_DLL ezDocumentStorageObject : public ezDocumentObject
 {
 public:
-  ezDocumentStorageObject(const ezRTTI* pObject)
+  ezDocumentStorageObject(const ezRTTI* pType)
     : ezDocumentObject()
-    , m_ObjectPropertiesAccessor(pObject, this)
+    , m_ObjectPropertiesAccessor(pType, this)
   {
   }
 

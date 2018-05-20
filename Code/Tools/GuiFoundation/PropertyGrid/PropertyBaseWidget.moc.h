@@ -25,14 +25,12 @@ struct ezCommandHistoryEvent;
 class EZ_GUIFOUNDATION_DLL ezQtPropertyWidget : public QWidget
 {
   Q_OBJECT;
-public:
-  ezEvent<const ezPropertyEvent&> m_Events;
 
 public:
   explicit ezQtPropertyWidget();
   virtual ~ezQtPropertyWidget();
 
-  void Init(ezQtPropertyGridWidget* pGrid, const ezAbstractProperty* pProp);
+  void Init(ezQtPropertyGridWidget* pGrid, ezObjectAccessorBase* pObjectAccessor, const ezRTTI* pType, const ezAbstractProperty* pProp);
   const ezAbstractProperty* GetProperty() const { return m_pProp; }
 
   /// \brief This is called whenever the selection in the editor changes and thus the widget may need to display a different value.
@@ -48,10 +46,16 @@ public:
   /// \brief The return value is used to display a label, if HasLabel() returns true.
   virtual const char* GetLabel() const { return m_pProp->GetPropertyName(); }
 
+  virtual void ExtendContextMenu(QMenu& menu) {}
+
   /// \brief Whether the variable that the widget represents is currently set to the default value or has been modified.
   void SetIsDefault(bool isDefault) { m_bIsDefault = isDefault; }
 
   static const ezRTTI* GetCommonBaseType(const ezHybridArray<ezPropertySelection, 8>& items);
+  /// \brief If the property is of type ezVariant this function returns whether all items have the same type.
+  /// If true is returned, out_Type contains the common type. Note that 'invalid' can be a common type.
+  bool GetCommonVariantSubType(const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProperty, ezVariantType::Enum& out_Type);
+
   ezVariant GetCommonValue(const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProperty);
   void PrepareToDie();
 
@@ -60,16 +64,18 @@ public slots:
 
 protected:
   void Broadcast(ezPropertyEvent::Type type);
+  void PropertyChangedHandler(const ezPropertyEvent& ed);
+
   virtual void OnInit() = 0;
   bool IsUndead() const { return m_bUndead; }
-
-  virtual void ExtendContextMenu(QMenu& menu) {}
 
 protected:
   virtual void DoPrepareToDie() = 0;
 
-  ezQtPropertyGridWidget* m_pGrid;
-  const ezAbstractProperty* m_pProp;
+  ezQtPropertyGridWidget* m_pGrid = nullptr;
+  ezObjectAccessorBase* m_pObjectAccessor = nullptr;
+  const ezRTTI* m_pType = nullptr;
+  const ezAbstractProperty* m_pProp = nullptr;
   ezHybridArray<ezPropertySelection, 8> m_Items;
 
 private:
@@ -218,6 +224,7 @@ public:
 public slots:
   void OnElementButtonClicked();
   void OnDragStarted(QMimeData& mimeData);
+  void OnCustomElementContextMenu(const QPoint& pt);
 
 protected:
   struct Element
@@ -230,11 +237,12 @@ protected:
   };
 
   virtual ezQtGroupBoxBase* CreateElement(QWidget* pParent);
+  virtual ezQtPropertyWidget* CreateWidget(ezUInt32 index);
   virtual Element& AddElement(ezUInt32 index);
   virtual void RemoveElement(ezUInt32 index);
   virtual void UpdateElement(ezUInt32 index) = 0;
   void UpdateElements();
-  ezUInt32 GetRequiredElementCount() const;
+  virtual ezUInt32 GetRequiredElementCount() const;
 
   void Clear();
   virtual void OnInit() override;
@@ -273,11 +281,10 @@ public:
 
 protected:
   virtual ezQtGroupBoxBase* CreateElement(QWidget* pParent) override;
+  virtual ezQtPropertyWidget* CreateWidget(ezUInt32 index) override;
   virtual Element& AddElement(ezUInt32 index) override;
   virtual void RemoveElement(ezUInt32 index) override;
   virtual void UpdateElement(ezUInt32 index) override;
-
-  void PropertyChangedHandler(const ezPropertyEvent& ed);
 };
 
 class EZ_GUIFOUNDATION_DLL ezQtPropertyTypeContainerWidget : public ezQtPropertyContainerWidget
@@ -296,4 +303,27 @@ protected:
 
 private:
   bool m_bNeedsUpdate;
+};
+
+class EZ_GUIFOUNDATION_DLL ezQtVariantPropertyWidget : public ezQtStandardPropertyWidget
+{
+  Q_OBJECT;
+public:
+  ezQtVariantPropertyWidget();
+  virtual ~ezQtVariantPropertyWidget();
+
+  virtual void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items) override;
+  virtual bool HasLabel() const override { return false; }
+  virtual void ExtendContextMenu(QMenu& menu) override;
+
+protected:
+  virtual void OnInit() override {};
+  virtual void InternalSetValue(const ezVariant& value) override;
+  void ChangeVariantType(ezVariantType::Enum type);
+
+private:
+  QHBoxLayout* m_pLayout = nullptr;
+  QWidget* m_pSelectType = nullptr;
+  ezQtPropertyWidget* m_pWidget = nullptr;
+  const ezRTTI* m_pCurrentSubType = nullptr;
 };

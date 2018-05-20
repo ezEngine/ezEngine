@@ -24,8 +24,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 3, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("RestartDelayRange", m_RestartDelayRange),
     EZ_MEMBER_PROPERTY("RandomSeed", m_uiRandomSeed),
     EZ_MEMBER_PROPERTY("SharedInstanceName", m_sSharedInstanceName),
-    EZ_MAP_ACCESSOR_PROPERTY("FloatParams", GetFloatParams, SetFloatParam, RemoveFloatParam),
-    EZ_MAP_ACCESSOR_PROPERTY("ColorParams", GetColorParams, SetColorParam, RemoveColorParam)->AddAttributes(new ezExposeColorAlphaAttribute),
+    EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Effect"), new ezExposeColorAlphaAttribute),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES
@@ -367,41 +366,71 @@ void ezParticleComponent::CheckBVolumeUpdate()
   }
 }
 
-ezMap<ezString, float> ezParticleComponent::GetFloatParams() const
+const ezRangeView<const char*, ezUInt32> ezParticleComponent::GetParameters() const
 {
-  ezMap<ezString, float> map;
-  for (const auto& e : m_FloatParams)
+  return ezRangeView<const char*, ezUInt32>(
+    [this]()-> ezUInt32 { return 0; },
+    [this]()-> ezUInt32 { return m_FloatParams.GetCount() + m_ColorParams.GetCount(); },
+    [this](ezUInt32& it) { ++it; },
+    [this](const ezUInt32& it)-> const char*
   {
-    map[e.m_sName.GetString()] = e.m_Value;
-  }
-
-  return map;
+    if (it < m_FloatParams.GetCount())
+      return m_FloatParams[it].m_sName.GetData();
+    else
+      return m_ColorParams[it - m_FloatParams.GetCount()].m_sName.GetData();
+  });
 }
 
-void ezParticleComponent::SetFloatParam(const char* szKey, float value)
+void ezParticleComponent::SetParameter(const char* szKey, const ezVariant& var)
 {
   const ezTempHashedString th(szKey);
-
-  for (ezUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
+  if (var.CanConvertTo<float>())
   {
-    if (m_FloatParams[i].m_sName == th)
-    {
-      if (m_FloatParams[i].m_Value != value)
-      {
-        m_bFloatParamsChanged = true;
-        m_FloatParams[i].m_Value = value;
-      }
-      return;
-    }
-  }
+    float value = var.ConvertTo<float>();
 
-  m_bFloatParamsChanged = true;
-  auto& e = m_FloatParams.ExpandAndGetRef();
-  e.m_sName.Assign(szKey);
-  e.m_Value = value;
+    for (ezUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
+    {
+      if (m_FloatParams[i].m_sName == th)
+      {
+        if (m_FloatParams[i].m_Value != value)
+        {
+          m_bFloatParamsChanged = true;
+          m_FloatParams[i].m_Value = value;
+        }
+        return;
+      }
+    }
+
+    m_bFloatParamsChanged = true;
+    auto& e = m_FloatParams.ExpandAndGetRef();
+    e.m_sName.Assign(szKey);
+    e.m_Value = value;
+  }
+  else if (var.CanConvertTo<ezColor>())
+  {
+    ezColor value = var.ConvertTo<ezColor>();
+
+    for (ezUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
+    {
+      if (m_ColorParams[i].m_sName == th)
+      {
+        if (m_ColorParams[i].m_Value != value)
+        {
+          m_bColorParamsChanged = true;
+          m_ColorParams[i].m_Value = value;
+        }
+        return;
+      }
+    }
+
+    m_bColorParamsChanged = true;
+    auto& e = m_ColorParams.ExpandAndGetRef();
+    e.m_sName.Assign(szKey);
+    e.m_Value = value;
+  }
 }
 
-void ezParticleComponent::RemoveFloatParam(const char* szKey)
+void ezParticleComponent::RemoveParameter(const char* szKey)
 {
   const ezTempHashedString th(szKey);
 
@@ -413,45 +442,6 @@ void ezParticleComponent::RemoveFloatParam(const char* szKey)
       return;
     }
   }
-}
-
-ezMap<ezString, ezColor> ezParticleComponent::GetColorParams() const
-{
-  ezMap<ezString, ezColor> map;
-  for (const auto& e : m_ColorParams)
-  {
-    map[e.m_sName.GetString()] = e.m_Value;
-  }
-
-  return map;
-}
-
-void ezParticleComponent::SetColorParam(const char* szKey, const ezColor& value)
-{
-  const ezTempHashedString th(szKey);
-
-  for (ezUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
-  {
-    if (m_ColorParams[i].m_sName == th)
-    {
-      if (m_ColorParams[i].m_Value != value)
-      {
-        m_bColorParamsChanged = true;
-        m_ColorParams[i].m_Value = value;
-      }
-      return;
-    }
-  }
-
-  m_bColorParamsChanged = true;
-  auto& e = m_ColorParams.ExpandAndGetRef();
-  e.m_sName.Assign(szKey);
-  e.m_Value = value;
-}
-
-void ezParticleComponent::RemoveColorParam(const char* szKey)
-{
-  const ezTempHashedString th(szKey);
 
   for (ezUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
   {
@@ -461,6 +451,29 @@ void ezParticleComponent::RemoveColorParam(const char* szKey)
       return;
     }
   }
+}
+
+bool ezParticleComponent::GetParameter(const char* szKey, ezVariant& out_value) const
+{
+  const ezTempHashedString th(szKey);
+
+  for (const auto& e : m_FloatParams)
+  {
+    if (e.m_sName == th)
+    {
+      out_value = e.m_Value;
+      return true;
+    }
+  }
+  for (const auto& e : m_ColorParams)
+  {
+    if (e.m_sName == th)
+    {
+      out_value = e.m_Value;
+      return true;
+    }
+  }
+  return false;
 }
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Components_ParticleComponent);

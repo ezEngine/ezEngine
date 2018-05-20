@@ -312,14 +312,41 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestMaps, 1, ezRTTIDefaultAllocator<ezTestMaps
     EZ_MAP_MEMBER_PROPERTY_READ_ONLY("MapRO", m_MapMember),
     EZ_MAP_MEMBER_PROPERTY("HashTable", m_HashTableMember),
     EZ_MAP_MEMBER_PROPERTY_READ_ONLY("HashTableRO", m_HashTableMember),
-    EZ_MAP_ACCESSOR_PROPERTY("AcMap", GetContainer, Insert, Remove),
-    EZ_MAP_ACCESSOR_PROPERTY_READ_ONLY("AcMapRO", GetContainer),
-    EZ_MAP_ACCESSOR_PROPERTY("AcHashTable", GetContainer2, Insert2, Remove2),
-    EZ_MAP_ACCESSOR_PROPERTY_READ_ONLY("AcHashTableRO", GetContainer2),
+    EZ_MAP_WRITE_ACCESSOR_PROPERTY("AcMap", GetContainer, Insert, Remove),
+    EZ_MAP_WRITE_ACCESSOR_PROPERTY("AcHashTable", GetContainer2, Insert2, Remove2),
+    EZ_MAP_ACCESSOR_PROPERTY("Accessor", GetKeys3, GetValue3, Insert3, Remove3),
+    EZ_MAP_ACCESSOR_PROPERTY_READ_ONLY("AccessorRO", GetKeys3, GetValue3),
   }
   EZ_END_PROPERTIES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
+
+bool ezTestMaps::operator==(const ezTestMaps& rhs) const
+{
+  for (ezUInt32 i = 0; i < m_Accessor3.GetCount(); i++)
+  {
+    bool bRes = false;
+    for (ezUInt32 j = 0; j < rhs.m_Accessor3.GetCount(); j++)
+    {
+      if (m_Accessor3[i].m_Key == rhs.m_Accessor3[i].m_Key)
+      {
+        if (m_Accessor3[i].m_Value == rhs.m_Accessor3[i].m_Value)
+          bRes = true;
+      }
+    }
+    if (!bRes)
+      return false;
+  }
+  return m_MapMember == rhs.m_MapMember &&
+    m_MapAccessor == rhs.m_MapAccessor &&
+    m_HashTableMember == rhs.m_HashTableMember &&
+    m_HashTableAccessor == rhs.m_HashTableAccessor;
+}
+
+const ezMap<ezString, ezInt64>& ezTestMaps::GetContainer() const
+{
+  return m_MapAccessor;
+}
 
 void ezTestMaps::Insert(const char* szKey, ezInt64 value)
 {
@@ -331,12 +358,10 @@ void ezTestMaps::Remove(const char* szKey)
   m_MapAccessor.Remove(szKey);
 }
 
-
 const ezHashTable<ezString, ezString>& ezTestMaps::GetContainer2() const
 {
   return m_HashTableAccessor;
 }
-
 
 void ezTestMaps::Insert2(const char* szKey, const ezString& value)
 {
@@ -349,11 +374,55 @@ void ezTestMaps::Remove2(const char* szKey)
   m_HashTableAccessor.Remove(szKey);
 }
 
-const ezMap<ezString, ezInt64>& ezTestMaps::GetContainer() const
+const ezRangeView<const char*, ezUInt32> ezTestMaps::GetKeys3() const
 {
-  return m_MapAccessor;
+  return ezRangeView<const char*, ezUInt32>(
+    [this]()-> ezUInt32 { return 0; },
+    [this]()-> ezUInt32 { return m_Accessor3.GetCount(); },
+    [this](ezUInt32& it) { ++it; },
+    [this](const ezUInt32& it)-> const char* { return m_Accessor3[it].m_Key; });
 }
 
+void ezTestMaps::Insert3(const char* szKey, const ezVariant& value)
+{
+  for (auto&& t : m_Accessor3)
+  {
+    if (t.m_Key == szKey)
+    {
+      t.m_Value = value;
+      return;
+    }
+  }
+  auto&& t = m_Accessor3.ExpandAndGetRef();
+  t.m_Key = szKey;
+  t.m_Value = value;
+}
+
+void ezTestMaps::Remove3(const char* szKey)
+{
+  for (ezUInt32 i = 0; i < m_Accessor3.GetCount(); i++)
+  {
+    const Tuple& t = m_Accessor3[i];
+    if (t.m_Key == szKey)
+    {
+      m_Accessor3.RemoveAtSwap(i);
+      break;
+    }
+  }
+}
+
+bool ezTestMaps::GetValue3(const char* szKey, ezVariant& out_value) const
+{
+  for (const auto& t : m_Accessor3)
+  {
+    if (t.m_Key == szKey)
+    {
+      out_value = t.m_Value;
+      return true;
+    }
+  }
+  return false;
+}
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestPtr, 1, ezRTTIDefaultAllocator<ezTestPtr>)
 {
