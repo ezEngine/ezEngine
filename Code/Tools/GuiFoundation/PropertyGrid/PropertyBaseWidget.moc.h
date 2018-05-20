@@ -20,6 +20,7 @@ class ezQtPropertyGridWidget;
 class ezQtElementGroupButton;
 class QMimeData;
 struct ezCommandHistoryEvent;
+class ezObjectAccessorBase;
 
 /// \brief Base class for all property widgets
 class EZ_GUIFOUNDATION_DLL ezQtPropertyWidget : public QWidget

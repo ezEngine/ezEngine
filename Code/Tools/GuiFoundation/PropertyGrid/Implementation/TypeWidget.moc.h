@@ -11,6 +11,7 @@ class QGridLayout;
 class ezDocument;
 class ezQtManipulatorLabel;
 struct ezManipulatorManagerEvent;
+class ezObjectAccessorBase;
 
 class EZ_GUIFOUNDATION_DLL ezQtTypeWidget : public QWidget
 {
