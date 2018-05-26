@@ -33,7 +33,7 @@ EZ_FORCE_INLINE void ezHashedString::Assign(const char(&szString)[N])
   m_Data.Value().m_iRefCount.Decrement();
 
   // this function will already increase the refcount as needed
-  m_Data = AddHashedString(szString, ezHashing::MurmurHash32(szString));
+  m_Data = AddHashedString(szString, ezHashing::MurmurHash32String(szString));
 }
 
 EZ_FORCE_INLINE void ezHashedString::Assign(ezHashing::StringWrapper szString)
@@ -42,7 +42,7 @@ EZ_FORCE_INLINE void ezHashedString::Assign(ezHashing::StringWrapper szString)
   m_Data.Value().m_iRefCount.Decrement();
 
   // this function will already increase the refcount as needed
-  m_Data = AddHashedString(szString.m_str, ezHashing::MurmurHash32(szString));
+  m_Data = AddHashedString(szString.m_str, ezHashing::MurmurHash32String(szString));
 }
 
 inline bool ezHashedString::operator== (const ezHashedString& rhs) const
@@ -103,12 +103,12 @@ EZ_FORCE_INLINE ezHashedString ezMakeHashedString(const char(&szString)[N])
 template <size_t N>
 EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(const char(&szString)[N])
 {
-  m_uiHash = ezHashing::MurmurHash32(szString);
+  m_uiHash = ezHashing::MurmurHash32String<N>(szString);
 }
 
 EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(ezHashing::StringWrapper szString)
 {
-  m_uiHash = ezHashing::MurmurHash32(szString);
+  m_uiHash = ezHashing::MurmurHash32String(szString);
 }
 
 EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(const ezTempHashedString& rhs)
@@ -129,12 +129,12 @@ EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(ezUInt32 uiHash)
 template <size_t N>
 EZ_ALWAYS_INLINE void ezTempHashedString::operator= (const char(&szString)[N])
 {
-  m_uiHash = ezHashing::MurmurHash32<N>(szString);
+  m_uiHash = ezHashing::MurmurHash32String<N>(szString);
 }
 
 EZ_ALWAYS_INLINE void ezTempHashedString::operator= (ezHashing::StringWrapper szString)
 {
-  m_uiHash = ezHashing::MurmurHash32(szString);
+  m_uiHash = ezHashing::MurmurHash32String(szString);
 }
 
 EZ_ALWAYS_INLINE void ezTempHashedString::operator= (const ezTempHashedString& rhs)
@@ -170,12 +170,12 @@ EZ_ALWAYS_INLINE ezUInt32 ezTempHashedString::GetHash() const
 template <size_t N>
 EZ_ALWAYS_INLINE constexpr ezUInt32 ezTempHashedString::ComputeHash(const char(&szString)[N])
 {
-  return ezHashing::MurmurHash32<N>(szString);
+  return ezHashing::MurmurHash32String<N>(szString);
 }
 
 EZ_ALWAYS_INLINE ezUInt32 ezTempHashedString::ComputeHash(ezHashing::StringWrapper szString)
 {
-  return ezHashing::MurmurHash32(szString.m_str);
+  return ezHashing::MurmurHash32String(szString.m_str);
 }
 
 //////////////////////////////////////////////////////////////////////////

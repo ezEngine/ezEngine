@@ -388,7 +388,7 @@ ezGameObject* ezGameObject::FindChildByPath(const char* path)
   ezUInt32 uiNameHash = 0;
 
   if (szSep == nullptr)
-    uiNameHash = ezHashing::MurmurHash32(path, (size_t)ezStringUtils::GetStringElementCount(path));
+    uiNameHash = ezHashing::MurmurHash32String(path);
   else
     uiNameHash = ezHashing::MurmurHash32(path, szSep - path);
 

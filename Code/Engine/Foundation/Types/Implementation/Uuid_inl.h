@@ -52,7 +52,7 @@ struct ezHashHelper<ezUuid>
 {
   EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezUuid& value)
   {
-    return ezHashing::MurmurHash32(&value, sizeof(ezUuid));
+    return ezHashing::xxHash32(&value, sizeof(ezUuid));
   }
 
   EZ_ALWAYS_INLINE static bool Equal(const ezUuid& a, const ezUuid& b)

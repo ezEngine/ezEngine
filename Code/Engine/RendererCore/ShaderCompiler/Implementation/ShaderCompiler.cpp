@@ -372,21 +372,24 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
         pp.AddCustomDefine(define);
       }
 
+      ezUInt32 uiSourceStringLen = 0;
       if (pp.Process(m_StageSourceFile[stage], sProcessed[stage], true, true, true).Failed() || bFoundUndefinedVars)
       {
         sProcessed[stage].Clear();
-        spd.m_szShaderSource[stage] = m_StageSourceFile[stage].GetData();
+        spd.m_szShaderSource[stage] = m_StageSourceFile[stage];
+        uiSourceStringLen = m_StageSourceFile[stage].GetElementCount();
 
         ezLog::Error(pLog, "Shader preprocessing failed");
         return EZ_FAILURE;
       }
       else
       {
-        spd.m_szShaderSource[stage] = sProcessed[stage].GetData();
+        spd.m_szShaderSource[stage] = sProcessed[stage];
+        uiSourceStringLen = sProcessed[stage].GetElementCount();
       }
 
       spd.m_StageBinary[stage].m_Stage = (ezGALShaderStage::Enum) stage;
-      spd.m_StageBinary[stage].m_uiSourceHash = ezHashing::MurmurHash32(ezHashing::StringWrapper(spd.m_szShaderSource[stage]));
+      spd.m_StageBinary[stage].m_uiSourceHash = ezHashing::xxHash32(spd.m_szShaderSource[stage], uiSourceStringLen);
 
       if (spd.m_StageBinary[stage].m_uiSourceHash != 0)
       {

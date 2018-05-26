@@ -185,7 +185,7 @@ void ezRTTI::UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32
 
 void ezRTTI::RegisterType(ezRTTI* pType)
 {
-  m_uiTypeNameHash = ezHashing::MurmurHash32(m_szTypeName);
+  m_uiTypeNameHash = ezHashing::MurmurHash32String(m_szTypeName);
   static_cast<ezTypeHashTable*>(ezRTTI::GetTypeHashTable())->Insert(pType->m_szTypeName, pType);
 }
 

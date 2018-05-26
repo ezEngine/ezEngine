@@ -49,10 +49,10 @@ public:
     return m_uiSize;
   }
 
-  /// \brief Calculates a murmur hash of the message.
+  /// \brief Calculates a hash of the message.
   EZ_ALWAYS_INLINE ezUInt32 GetHash() const
   {
-    return ezHashing::MurmurHash32(this, m_uiSize);
+    return ezHashing::xxHash32(this, m_uiSize);
   }
 
   /// \brief Implement this for efficient transmission across process boundaries (e.g. network transfer etc.)

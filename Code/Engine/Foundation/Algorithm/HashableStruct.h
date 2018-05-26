@@ -8,7 +8,7 @@
 ///
 /// To help with this there are two parts:
 ///   1) memclear on initialization.
-///   2) a CalculateHash() function calculating the CRC32 hash of the object.
+///   2) a CalculateHash() function calculating the 32 bit hash of the object.
 ///
 /// You can make your own struct hashable by deriving from ezHashableStruct providing the type of
 /// your class / struct as the template parameter.
@@ -19,7 +19,7 @@ public:
 
   EZ_ALWAYS_INLINE ezHashableStruct();  // [tested]
 
-  /// \brief Calculates the (CRC32) hash of the struct and returns it
+  /// \brief Calculates the 32 bit hash of the struct and returns it
   EZ_ALWAYS_INLINE ezUInt32 CalculateHash() const;  // [tested]
 };
 

@@ -103,7 +103,7 @@ struct ezHashHelper<const char*>
 {
   EZ_ALWAYS_INLINE static ezUInt32 Hash(const char* szValue)
   {
-    return ezHashing::MurmurHash32(szValue);
+    return ezHashing::MurmurHash32String(szValue);
   }
 
   EZ_ALWAYS_INLINE static bool Equal(const char* a, const char* b)

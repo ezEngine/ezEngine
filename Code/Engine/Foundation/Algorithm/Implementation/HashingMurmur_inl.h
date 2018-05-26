@@ -80,7 +80,7 @@ namespace ezInternal
 }
 
 template <size_t N>
-constexpr EZ_ALWAYS_INLINE ezUInt32 ezHashing::MurmurHash32(const char (&str)[N], ezUInt32 uiSeed)
+constexpr EZ_ALWAYS_INLINE ezUInt32 ezHashing::MurmurHash32String(const char (&str)[N], ezUInt32 uiSeed)
 {
   // In C++11 constexpr local variables are not allowed. Need to express the following without "ezUInt32 h"
   // (this restriction is lifted in C++14's generalized constexpr)
@@ -98,7 +98,7 @@ constexpr EZ_ALWAYS_INLINE ezUInt32 ezHashing::MurmurHash32(const char (&str)[N]
          15);
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezHashing::MurmurHash32(StringWrapper str, ezUInt32 uiSeed)
+EZ_ALWAYS_INLINE ezUInt32 ezHashing::MurmurHash32String(StringWrapper str, ezUInt32 uiSeed)
 {
   return MurmurHash32(str.m_str, std::strlen(str.m_str), uiSeed);
 }

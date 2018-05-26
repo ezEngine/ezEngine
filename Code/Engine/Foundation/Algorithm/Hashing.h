@@ -26,12 +26,12 @@ public:
 
   /// \brief Calculates the 32bit murmur hash of a string constant at compile time. Encoding does not matter here.
   template <size_t N>
-  constexpr static ezUInt32 MurmurHash32(const char (&str)[N], ezUInt32 uiSeed = 0); // [tested]
+  constexpr static ezUInt32 MurmurHash32String(const char (&str)[N], ezUInt32 uiSeed = 0); // [tested]
 
   /// \brief Calculates the 32bit murmur hash of a string pointer during runtime. Encoding does not matter here.
   ///
   /// We cannot pass a string pointer directly since a string constant would be treated as pointer as well.
-  static ezUInt32 MurmurHash32(StringWrapper str, ezUInt32 uiSeed = 0); // [tested]
+  static ezUInt32 MurmurHash32String(StringWrapper str, ezUInt32 uiSeed = 0); // [tested]
 
   /// \brief Calculates the 32bit xxHash of the given key.
   static ezUInt32 xxHash32(const void* pKey, size_t uiSizeInByte, ezUInt32 uiSeed = 0); // [tested]

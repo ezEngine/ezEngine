@@ -259,7 +259,7 @@ void ezPxVisColMeshComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) c
 
     // Generate batch id from mesh, material and part index.
     ezUInt32 data[] = { uiMeshIDHash, uiMaterialIDHash, uiPartIndex, uiFlipWinding };
-    ezUInt32 uiBatchId = ezHashing::MurmurHash32(data, sizeof(data));
+    ezUInt32 uiBatchId = ezHashing::xxHash32(data, sizeof(data));
 
     ezMeshRenderData* pRenderData = CreateRenderData(uiBatchId);
     {

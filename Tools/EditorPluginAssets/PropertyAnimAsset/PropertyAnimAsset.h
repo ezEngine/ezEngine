@@ -136,8 +136,8 @@ private:
   {
     EZ_ALWAYS_INLINE static ezUInt32 Hash(const PropertyKey& key)
     {
-      return ezHashing::MurmurHash32(&key.m_Object, sizeof(ezUuid))
-        + ezHashing::MurmurHash32(&key.m_pProperty, sizeof(const ezAbstractProperty*))
+      return ezHashing::xxHash32(&key.m_Object, sizeof(ezUuid))
+        + ezHashing::xxHash32(&key.m_pProperty, sizeof(const ezAbstractProperty*))
         + (ezUInt32)key.m_Index.ComputeHash();
     }
 
