@@ -1,8 +1,59 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{9232318458447033284,9875258850771211040}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Texture 2D"}
+		VarArray %Dependencies
+		{
+			s{"Particles/Textures/Glass1.tga"}
+			s{"Particles/Textures/Glass1_A.tga"}
+		}
+		Uuid %DocumentID{u4{9232318458447033284,9875258850771211040}}
+		u4 %Hash{9794421770805646778}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %References{}
+	}
+}
+}
 Objects
 {
 o
 {
-	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	Uuid %id{u4{9669569387371063982,5447127060601251250}}
+	s %t{"ezTextureAssetProperties"}
+	u3 %v{2}
+	p
+	{
+		s %AddressModeU{"ezTexture2DAddressMode::Clamp"}
+		s %AddressModeV{"ezTexture2DAddressMode::Clamp"}
+		s %AddressModeW{"ezTexture2DAddressMode::Clamp"}
+		f %CVarResScale{0x0000803F}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_A2"}
+		b %Compression{1}
+		b %FlipHorizontal{0}
+		s %Format{"ezRenderTargetFormat::RGBA8sRgb"}
+		s %Input1{"Particles/Textures/Glass1.tga"}
+		s %Input2{"Particles/Textures/Glass1_A.tga"}
+		s %Input3{""}
+		s %Input4{""}
+		b %IsRenderTarget{0}
+		b %Mipmaps{1}
+		b %PremultipliedAlpha{0}
+		s %Resolution{"ezTexture2DResolution::Fixed256x256"}
+		s %TextureFilter{"ezTextureFilterSetting::LowQuality"}
+		s %Usage{"ezTexture2DUsageEnum::Diffuse"}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
 	s %t{"ezDocumentRoot"}
 	u3 %v{1}
 	s %n{"ObjectTree"}
@@ -14,91 +65,12 @@ o
 		}
 	}
 }
-o
-{
-	Uuid %id{u4{9669569387371063982,5447127060601251250}}
-	s %t{"ezTextureAssetProperties"}
-	u3 %v{2}
-	p
-	{
-		s %AddressModeU{"ezTexture2DAddressMode::Clamp"}
-		s %AddressModeV{"ezTexture2DAddressMode::Clamp"}
-		s %AddressModeW{"ezTexture2DAddressMode::Clamp"}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_A2"}
-		b %Compression{1}
-		b %FlipHorizontal{0}
-		s %Input1{"Particles/Textures/Glass1.tga"}
-		s %Input2{"Particles/Textures/Glass1_A.tga"}
-		s %Input3{""}
-		s %Input4{""}
-		b %Mipmaps{1}
-		b %PremultipliedAlpha{0}
-		s %TextureFilter{"ezTextureFilterSetting::LowQuality"}
-		s %Usage{"ezTexture2DUsageEnum::Diffuse"}
-	}
-}
-AssetInfo
-{
-	Uuid %id{u4{9232318458447033284,9875258850771211040}}
-	s %t{"ezAssetDocumentInfo"}
-	u3 %v{1}
-	s %n{"Header"}
-	p
-	{
-		s %AssetType{"Texture 2D"}
-		VarArray %Dependencies
-		{
-			s{"Particles/Textures/Glass1.tga"}
-			s{"Particles/Textures/Glass1_A.tga"}
-		}
-		Uuid %DocumentID{u4{9232318458447033284,9875258850771211040}}
-		u4 %Hash{1610364687818700366}
-		VarArray %Outputs{}
-		VarArray %References{}
-	}
-}
 }
 Types
 {
 o
 {
-	Uuid %id{u4{12984103802138964609,1901275426220383600}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{6491127374056931358,3252866561288315111}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"ezEditorPluginAssets"}
-		VarArray %Properties{}
-		s %TypeName{"ezTextureAssetProperties"}
-		u3 %TypeSize{280}
-		u3 %TypeVersion{2}
-	}
-}
-o
-{
-	Uuid %id{u4{17287610900598799232,3808707551365893644}}
+	Uuid %id{u4{16525015919620456114,1260764774871595735}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -116,7 +88,7 @@ o
 }
 o
 {
-	Uuid %id{u4{11061541817101818123,3867562407177176337}}
+	Uuid %id{u4{8056413000846340440,3023450138914009177}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -124,17 +96,17 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{""}
-		s %PluginName{"Static"}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
-		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
-		u3 %TypeVersion{1}
+		s %TypeName{"ezTextureAssetProperties"}
+		u3 %TypeSize{288}
+		u3 %TypeVersion{2}
 	}
 }
 o
 {
-	Uuid %id{u4{9317772140935837534,4689202898495384488}}
+	Uuid %id{u4{8978639096379244608,5602414126398036750}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -145,14 +117,32 @@ o
 		s %ParentTypeName{"ezEnumBase"}
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
-		s %TypeName{"ezTexture2DAddressMode"}
+		s %TypeName{"ezRenderTargetFormat"}
 		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
 o
 {
-	Uuid %id{u4{6467017751125590593,7158000587691918333}}
+	Uuid %id{u4{10141898220652821643,7992438720797374380}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezTexture2DResolution"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -160,17 +150,17 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{""}
+		s %ParentTypeName{"ezReflectedClass"}
 		s %PluginName{"Static"}
 		VarArray %Properties{}
-		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
 o
 {
-	Uuid %id{u4{2486599260985300546,9667514782466442203}}
+	Uuid %id{u4{15250044141338656666,8993131727605744715}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -188,7 +178,7 @@ o
 }
 o
 {
-	Uuid %id{u4{6757110434151349557,11256292168853347218}}
+	Uuid %id{u4{9760759588213427989,10521812630174686177}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -201,6 +191,60 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezTexture2DChannelMappingEnum"}
 		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{3803356223104059213,16351383165338240824}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezTexture2DAddressMode"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

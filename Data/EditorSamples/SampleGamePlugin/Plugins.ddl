@@ -42,6 +42,12 @@ Plugin
 }
 Plugin
 {
+	string %Path{"ezProceduralPlacementPlugin"}
+	bool %LoadCopy{false}
+	string %DependencyOf{"EditorPluginProceduralPlacement"}
+}
+Plugin
+{
 	string %Path{"ezSampleGamePlugin"}
 	bool %LoadCopy{false}
 	string %DependencyOf{"<manual>"}

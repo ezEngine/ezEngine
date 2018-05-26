@@ -1,3 +1,62 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{5903128649906562751,5170819896700819532}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Scene"}
+		VarArray %Dependencies
+		{
+			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
+		}
+		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
+		u4 %Hash{12939775938414913060}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ 03bb62c3-6b77-4641-99d0-ad6e3d3c2121 }"}
+			s{"{ 045da91f-697c-4263-8910-5f752ec262b2 }"}
+			s{"{ 15723cbd-9706-4c86-b695-bd945c5ada6a }"}
+			s{"{ 1ce6f3e5-326b-4dce-8cef-03cc8c06b40b }"}
+			s{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
+			s{"{ 23d44228-1d97-41ea-8918-5422abbbb0c6 }"}
+			s{"{ 27eef412-bd5d-424b-9d58-48725a829568 }"}
+			s{"{ 28c91430-27d7-4b6b-bfc8-5d1f510dc16d }"}
+			s{"{ 2aab509f-d165-4cab-8d56-68d19856c77c }"}
+			s{"{ 309d7ff1-19c6-435e-821d-584426d01365 }"}
+			s{"{ 317e4b00-3e99-4f42-a175-2f7cdfc3fd7f }"}
+			s{"{ 3ebe2790-7cc4-40c8-bde6-e760b96b2636 }"}
+			s{"{ 4795f5c4-4a78-4c13-937e-cf3e6bdecb7c }"}
+			s{"{ 5451b35f-d73c-402e-a540-c542d3e52be0 }"}
+			s{"{ 5bbea795-0358-4dd8-86a9-c277f7a59f53 }"}
+			s{"{ 6408e044-3a82-4db6-bfb8-27c7320daa53 }"}
+			s{"{ 778150d4-9e85-4d17-85dd-f59df122b7b4 }"}
+			s{"{ 94ac1de9-5cbe-4581-a57c-7caf78ab7294 }"}
+			s{"{ 95f9db13-7fa3-4832-b349-4e00a23b3b10 }"}
+			s{"{ 9d903a8c-556a-4564-a678-3ebd5f03720b }"}
+			s{"{ a2e664de-7b3e-47d8-99d3-d058896f7255 }"}
+			s{"{ a59d471e-7f13-4ccf-9776-36a655519c87 }"}
+			s{"{ a7548097-903a-292a-e37c-080a6ef6158c }"}
+			s{"{ ac0755c6-f78d-40ec-bfaa-55f2be674f87 }"}
+			s{"{ b727ba61-e20a-42d7-a170-860ede23e85d }"}
+			s{"{ c5f16f65-8940-4283-9f91-b316dfa39e81 }"}
+			s{"{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }"}
+			s{"{ d65cd59b-50e0-44f3-aefb-a88943b81900 }"}
+			s{"{ d75e6ba0-47da-4c0f-86b5-55a53996dfe1 }"}
+			s{"{ e6c495bb-9dd5-43ef-9f20-618828f20781 }"}
+			s{"{ ebc03b01-2f4d-43ea-a973-0ab6d5b30242 }"}
+			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
+			s{"{ f8684eee-6928-40d3-bd13-24e18c5ffe91 }"}
+			s{"{ f973c7be-27d0-7806-49d3-d0c8b75bbe24 }"}
+		}
+	}
+}
+}
 Objects
 {
 o
@@ -9,6 +68,17 @@ o
 	{
 		b %Active{1}
 		s %Prefab{"{ 27eef412-bd5d-424b-9d58-48725a829568 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{5355785904571458055,401311607521060611}}
+	s %t{"ezVarianceTypeTime"}
+	u3 %v{1}
+	p
+	{
+		Time %Value{d{0}}
+		f %Variance{0}
 	}
 }
 o
@@ -1702,6 +1772,17 @@ o
 }
 o
 {
+	Uuid %id{u4{17929782133666544318,4558455453157955218}}
+	s %t{"ezVarianceTypeTime"}
+	u3 %v{1}
+	p
+	{
+		Time %Value{d{0}}
+		f %Variance{0}
+	}
+}
+o
+{
 	Uuid %id{u4{17404766149719349383,4611743411575304665}}
 	s %t{"ezMeshComponent"}
 	u3 %v{2}
@@ -2506,7 +2587,7 @@ o
 		Color %Color{f{0xDF98073D,0x0000803F,0,0x0000803F}}
 		s %Decal{"{ 309d7ff1-19c6-435e-821d-584426d01365 }"}
 		Vec3 %Extents{f{0x0000803F,0x00002041,0x00002041}}
-		Uuid %FadeOutDelay{u4{2891052806865034540,5872029823386917038}}
+		Uuid %FadeOutDelay{u4{15953510213221998162,15003036911911525971}}
 		Time %FadeOutDuration{d{0}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
@@ -2833,61 +2914,6 @@ o
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
-	}
-}
-AssetInfo
-{
-	Uuid %id{u4{5903128649906562751,5170819896700819532}}
-	s %t{"ezAssetDocumentInfo"}
-	u3 %v{1}
-	s %n{"Header"}
-	p
-	{
-		s %AssetType{"Scene"}
-		VarArray %Dependencies
-		{
-			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
-		}
-		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{8055776842481505727}
-		VarArray %Outputs{}
-		VarArray %References
-		{
-			s{"{ 03bb62c3-6b77-4641-99d0-ad6e3d3c2121 }"}
-			s{"{ 045da91f-697c-4263-8910-5f752ec262b2 }"}
-			s{"{ 15723cbd-9706-4c86-b695-bd945c5ada6a }"}
-			s{"{ 1ce6f3e5-326b-4dce-8cef-03cc8c06b40b }"}
-			s{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
-			s{"{ 23d44228-1d97-41ea-8918-5422abbbb0c6 }"}
-			s{"{ 27eef412-bd5d-424b-9d58-48725a829568 }"}
-			s{"{ 28c91430-27d7-4b6b-bfc8-5d1f510dc16d }"}
-			s{"{ 2aab509f-d165-4cab-8d56-68d19856c77c }"}
-			s{"{ 309d7ff1-19c6-435e-821d-584426d01365 }"}
-			s{"{ 317e4b00-3e99-4f42-a175-2f7cdfc3fd7f }"}
-			s{"{ 3ebe2790-7cc4-40c8-bde6-e760b96b2636 }"}
-			s{"{ 4795f5c4-4a78-4c13-937e-cf3e6bdecb7c }"}
-			s{"{ 5451b35f-d73c-402e-a540-c542d3e52be0 }"}
-			s{"{ 5bbea795-0358-4dd8-86a9-c277f7a59f53 }"}
-			s{"{ 6408e044-3a82-4db6-bfb8-27c7320daa53 }"}
-			s{"{ 778150d4-9e85-4d17-85dd-f59df122b7b4 }"}
-			s{"{ 94ac1de9-5cbe-4581-a57c-7caf78ab7294 }"}
-			s{"{ 95f9db13-7fa3-4832-b349-4e00a23b3b10 }"}
-			s{"{ 9d903a8c-556a-4564-a678-3ebd5f03720b }"}
-			s{"{ a2e664de-7b3e-47d8-99d3-d058896f7255 }"}
-			s{"{ a59d471e-7f13-4ccf-9776-36a655519c87 }"}
-			s{"{ a7548097-903a-292a-e37c-080a6ef6158c }"}
-			s{"{ ac0755c6-f78d-40ec-bfaa-55f2be674f87 }"}
-			s{"{ b727ba61-e20a-42d7-a170-860ede23e85d }"}
-			s{"{ c5f16f65-8940-4283-9f91-b316dfa39e81 }"}
-			s{"{ c756fa70-df57-48f4-8fe4-7de1b2742c8a }"}
-			s{"{ d65cd59b-50e0-44f3-aefb-a88943b81900 }"}
-			s{"{ d75e6ba0-47da-4c0f-86b5-55a53996dfe1 }"}
-			s{"{ e6c495bb-9dd5-43ef-9f20-618828f20781 }"}
-			s{"{ ebc03b01-2f4d-43ea-a973-0ab6d5b30242 }"}
-			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
-			s{"{ f8684eee-6928-40d3-bd13-24e18c5ffe91 }"}
-			s{"{ f973c7be-27d0-7806-49d3-d0c8b75bbe24 }"}
-		}
 	}
 }
 o
@@ -3247,132 +3273,6 @@ o
 	{
 		b %Active{1}
 		s %Prefab{"{ b727ba61-e20a-42d7-a170-860ede23e85d }"}
-	}
-}
-o
-{
-	Uuid %id{u4{4538525219092991391,5381193384925595199}}
-	s %t{"ezDocumentRoot"}
-	u3 %v{1}
-	s %n{"ObjectTree"}
-	p
-	{
-		VarArray %Children
-		{
-			Uuid{u4{1669027488414291585,5625684701708839072}}
-			Uuid{u4{3080413600724839842,4656176706362876663}}
-			Uuid{u4{17696662465940803718,5385315092687889367}}
-			Uuid{u4{2336921589124949950,4699948962058672309}}
-			Uuid{u4{9371714950344991396,5629916349969969039}}
-			Uuid{u4{2566957617215038789,9854254793683516874}}
-			Uuid{u4{10429264312717416516,9994098566227140797}}
-			Uuid{u4{8905199877207275661,1535035520362757003}}
-			Uuid{u4{15944205484257786672,10575031828394818548}}
-			Uuid{u4{12245566485759853458,5387156067816716463}}
-			Uuid{u4{8071658761457659216,11119276369552444596}}
-			Uuid{u4{17405030134381401501,5700473566904023293}}
-			Uuid{u4{6791377739357568598,10313645311562775979}}
-			Uuid{u4{12574966206059600716,10920532447140723897}}
-			Uuid{u4{1961313811035767813,15533704191799476583}}
-			Uuid{u4{16068800268039089412,15797110840957882896}}
-			Uuid{u4{17444079378827272083,2579768424972702661}}
-			Uuid{u4{15700038768108950322,8032872613715704387}}
-			Uuid{u4{7407185877156286156,13482416945548805065}}
-			Uuid{u4{13618752389760735621,5407964320598597791}}
-			Uuid{u4{642735312048943115,10350509940868380707}}
-			Uuid{u4{16233010948771476649,16108843518573627569}}
-			Uuid{u4{3148888473251495226,2900772470066578247}}
-			Uuid{u4{3395734738977381505,5211933838029302402}}
-			Uuid{u4{4252386868510777002,4624422263433553187}}
-			Uuid{u4{6916624169166365106,5384121365533805686}}
-			Uuid{u4{13798112649412464737,10536408542650933400}}
-			Uuid{u4{12381023249657188449,9572843323263105674}}
-			Uuid{u4{18166725754193641514,10190727830117987835}}
-			Uuid{u4{7848618061630501345,15139148889947540322}}
-			Uuid{u4{9267007222145798284,4672149389172175599}}
-			Uuid{u4{10907151527267696695,10325193248901409714}}
-			Uuid{u4{13022730776347889580,4651190020063450271}}
-			Uuid{u4{1718275351457935688,9828342171438864735}}
-			Uuid{u4{467118551645518467,5279286060474569271}}
-			Uuid{u4{6023163188776348973,10533521612391285274}}
-			Uuid{u4{16393226502116241733,10236502986639614464}}
-			Uuid{u4{152229804584388277,5596309229023660882}}
-			Uuid{u4{13254464448004149350,10286142572402554803}}
-			Uuid{u4{8452358249001711339,14986219991238592468}}
-			Uuid{u4{6947408995254775419,2069618422055576691}}
-			Uuid{u4{16432056537598925724,5109568346852124072}}
-			Uuid{u4{4657164193891256644,10110484854680473541}}
-			Uuid{u4{5333468188561635977,4831277942436141711}}
-			Uuid{u4{14646087991952331072,10185834954686055941}}
-			Uuid{u4{7069539034781579229,15848860830395812774}}
-			Uuid{u4{16829227654745726435,15174954597278375752}}
-			Uuid{u4{11160353983371849780,10774790305319397884}}
-			Uuid{u4{6553674445529244397,15398148989999321503}}
-			Uuid{u4{2132669424872740300,15646492567928646840}}
-			Uuid{u4{733735826583140509,5468377682098563561}}
-			Uuid{u4{17919937527795189075,10385477590121950134}}
-			Uuid{u4{8985173821012737612,10540197061237652430}}
-			Uuid{u4{17372278311496649985,15619752631717334840}}
-			Uuid{u4{16951509521203477951,15888892661538507592}}
-			Uuid{u4{10935734719752158347,5210480737335951523}}
-			Uuid{u4{12726948319556614208,9659748972901469928}}
-			Uuid{u4{17403558943559992532,14759182147298247085}}
-			Uuid{u4{4495364811686466188,1042833930490861999}}
-			Uuid{u4{6355234545912410391,6443990969229016563}}
-			Uuid{u4{12627187951087973923,6198280336679199893}}
-			Uuid{u4{438311664427441831,11425714937321503712}}
-			Uuid{u4{2654168725583521914,2925669330307143638}}
-			Uuid{u4{15965519842966496417,5238364738951370966}}
-			Uuid{u4{3242737491232811681,5647830017602705294}}
-			Uuid{u4{6141515265703231680,2566063351885901146}}
-			Uuid{u4{15682033848360507729,7450802129576321276}}
-			Uuid{u4{10198437030544457831,7915475979546836659}}
-			Uuid{u4{1292211539492182264,12800214757237256789}}
-			Uuid{u4{5394409404017760795,12635935221654232484}}
-			Uuid{u4{14934927986675036844,17520673999344652614}}
-			Uuid{u4{12485361533996999272,3788974831360819404}}
-			Uuid{u4{2944842951339723223,17350980127379950890}}
-			Uuid{u4{11573179802592027995,3837365453947972691}}
-			Uuid{u4{2666954311539752428,8722104231638392821}}
-			Uuid{u4{11232621864770210268,9428597325969366532}}
-			Uuid{u4{2326396373717934701,14313336103659786662}}
-			Uuid{u4{9433509319568480254,7722695363136009825}}
-			Uuid{u4{2590160599875457705,12513006073991947108}}
-			Uuid{u4{8681008406389286059,5432033361141591529}}
-			Uuid{u4{5482175084546839168,5716997063287144105}}
-			Uuid{u4{10704584526265992497,10727077898827738548}}
-			Uuid{u4{8831918935845555673,15656485857360861448}}
-			Uuid{u4{13384247902853887381,5158092968336727659}}
-			Uuid{u4{1248990957044975524,5621890911637947906}}
-			Uuid{u4{16475036243075314844,5231522892080591008}}
-			Uuid{u4{11479659187694411711,5174041025291338669}}
-			Uuid{u4{15665298784122222478,5725843771057583409}}
-			Uuid{u4{12903990840493988757,5696089217231623871}}
-			Uuid{u4{17579521487756929563,9364763216043413610}}
-			Uuid{u4{7934449834691509833,11030128932873449915}}
-			Uuid{u4{8914895473801792674,5549354162315949644}}
-			Uuid{u4{12165711639601188169,10510741435841519107}}
-			Uuid{u4{113495508243828997,15943959024474857022}}
-			Uuid{u4{12589813418742249018,11091871408754811941}}
-			Uuid{u4{13883155395831697455,10212277030410652659}}
-			Uuid{u4{7104086957445601946,4819391465201389064}}
-			Uuid{u4{207785385419371927,5121331054296736568}}
-			Uuid{u4{2132077245700295982,10590157899333438312}}
-			Uuid{u4{18215258748948171147,5581893186821017665}}
-			Uuid{u4{859071080104405635,4809190045244865461}}
-			Uuid{u4{9894957836948437655,4781135172294323904}}
-			Uuid{u4{290121541412297032,6183518559115002447}}
-			Uuid{u4{10002545071225242339,11908447909709046693}}
-			Uuid{u4{5089728754503442715,9649220062168832485}}
-			Uuid{u4{4621858523936149664,5105293089154959260}}
-			Uuid{u4{89461557576906113,5328121027725050203}}
-			Uuid{u4{7593464672478252038,10634335326434642243}}
-			Uuid{u4{15823310223063427115,10673754772383999055}}
-			Uuid{u4{2729964177185219128,10146909135330458896}}
-			Uuid{u4{14599315822897363631,5004011859510770188}}
-			Uuid{u4{11625287949723358126,4812146077626625929}}
-			Uuid{u4{10601718036156301725,5679460196852717753}}
-		}
 	}
 }
 o
@@ -4267,17 +4167,6 @@ o
 }
 o
 {
-	Uuid %id{u4{2891052806865034540,5872029823386917038}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
-	}
-}
-o
-{
 	Uuid %id{u4{13268281244497417760,5898738500765942405}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -4527,17 +4416,6 @@ o
 }
 o
 {
-	Uuid %id{u4{3147663141206831049,6340358347878961291}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
-	}
-}
-o
-{
 	Uuid %id{u4{8567415971529175847,6416714829868152965}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -4578,6 +4456,132 @@ o
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{1669027488414291585,5625684701708839072}}
+			Uuid{u4{3080413600724839842,4656176706362876663}}
+			Uuid{u4{17696662465940803718,5385315092687889367}}
+			Uuid{u4{2336921589124949950,4699948962058672309}}
+			Uuid{u4{9371714950344991396,5629916349969969039}}
+			Uuid{u4{2566957617215038789,9854254793683516874}}
+			Uuid{u4{10429264312717416516,9994098566227140797}}
+			Uuid{u4{8905199877207275661,1535035520362757003}}
+			Uuid{u4{15944205484257786672,10575031828394818548}}
+			Uuid{u4{12245566485759853458,5387156067816716463}}
+			Uuid{u4{8071658761457659216,11119276369552444596}}
+			Uuid{u4{17405030134381401501,5700473566904023293}}
+			Uuid{u4{6791377739357568598,10313645311562775979}}
+			Uuid{u4{12574966206059600716,10920532447140723897}}
+			Uuid{u4{1961313811035767813,15533704191799476583}}
+			Uuid{u4{16068800268039089412,15797110840957882896}}
+			Uuid{u4{17444079378827272083,2579768424972702661}}
+			Uuid{u4{15700038768108950322,8032872613715704387}}
+			Uuid{u4{7407185877156286156,13482416945548805065}}
+			Uuid{u4{13618752389760735621,5407964320598597791}}
+			Uuid{u4{642735312048943115,10350509940868380707}}
+			Uuid{u4{16233010948771476649,16108843518573627569}}
+			Uuid{u4{3148888473251495226,2900772470066578247}}
+			Uuid{u4{3395734738977381505,5211933838029302402}}
+			Uuid{u4{4252386868510777002,4624422263433553187}}
+			Uuid{u4{6916624169166365106,5384121365533805686}}
+			Uuid{u4{13798112649412464737,10536408542650933400}}
+			Uuid{u4{12381023249657188449,9572843323263105674}}
+			Uuid{u4{18166725754193641514,10190727830117987835}}
+			Uuid{u4{7848618061630501345,15139148889947540322}}
+			Uuid{u4{9267007222145798284,4672149389172175599}}
+			Uuid{u4{10907151527267696695,10325193248901409714}}
+			Uuid{u4{13022730776347889580,4651190020063450271}}
+			Uuid{u4{1718275351457935688,9828342171438864735}}
+			Uuid{u4{467118551645518467,5279286060474569271}}
+			Uuid{u4{6023163188776348973,10533521612391285274}}
+			Uuid{u4{16393226502116241733,10236502986639614464}}
+			Uuid{u4{152229804584388277,5596309229023660882}}
+			Uuid{u4{13254464448004149350,10286142572402554803}}
+			Uuid{u4{8452358249001711339,14986219991238592468}}
+			Uuid{u4{6947408995254775419,2069618422055576691}}
+			Uuid{u4{16432056537598925724,5109568346852124072}}
+			Uuid{u4{4657164193891256644,10110484854680473541}}
+			Uuid{u4{5333468188561635977,4831277942436141711}}
+			Uuid{u4{14646087991952331072,10185834954686055941}}
+			Uuid{u4{7069539034781579229,15848860830395812774}}
+			Uuid{u4{16829227654745726435,15174954597278375752}}
+			Uuid{u4{11160353983371849780,10774790305319397884}}
+			Uuid{u4{6553674445529244397,15398148989999321503}}
+			Uuid{u4{2132669424872740300,15646492567928646840}}
+			Uuid{u4{733735826583140509,5468377682098563561}}
+			Uuid{u4{17919937527795189075,10385477590121950134}}
+			Uuid{u4{8985173821012737612,10540197061237652430}}
+			Uuid{u4{17372278311496649985,15619752631717334840}}
+			Uuid{u4{16951509521203477951,15888892661538507592}}
+			Uuid{u4{10935734719752158347,5210480737335951523}}
+			Uuid{u4{12726948319556614208,9659748972901469928}}
+			Uuid{u4{17403558943559992532,14759182147298247085}}
+			Uuid{u4{4495364811686466188,1042833930490861999}}
+			Uuid{u4{6355234545912410391,6443990969229016563}}
+			Uuid{u4{12627187951087973923,6198280336679199893}}
+			Uuid{u4{438311664427441831,11425714937321503712}}
+			Uuid{u4{2654168725583521914,2925669330307143638}}
+			Uuid{u4{15965519842966496417,5238364738951370966}}
+			Uuid{u4{3242737491232811681,5647830017602705294}}
+			Uuid{u4{6141515265703231680,2566063351885901146}}
+			Uuid{u4{15682033848360507729,7450802129576321276}}
+			Uuid{u4{10198437030544457831,7915475979546836659}}
+			Uuid{u4{1292211539492182264,12800214757237256789}}
+			Uuid{u4{5394409404017760795,12635935221654232484}}
+			Uuid{u4{14934927986675036844,17520673999344652614}}
+			Uuid{u4{12485361533996999272,3788974831360819404}}
+			Uuid{u4{2944842951339723223,17350980127379950890}}
+			Uuid{u4{11573179802592027995,3837365453947972691}}
+			Uuid{u4{2666954311539752428,8722104231638392821}}
+			Uuid{u4{11232621864770210268,9428597325969366532}}
+			Uuid{u4{2326396373717934701,14313336103659786662}}
+			Uuid{u4{9433509319568480254,7722695363136009825}}
+			Uuid{u4{2590160599875457705,12513006073991947108}}
+			Uuid{u4{8681008406389286059,5432033361141591529}}
+			Uuid{u4{5482175084546839168,5716997063287144105}}
+			Uuid{u4{10704584526265992497,10727077898827738548}}
+			Uuid{u4{8831918935845555673,15656485857360861448}}
+			Uuid{u4{13384247902853887381,5158092968336727659}}
+			Uuid{u4{1248990957044975524,5621890911637947906}}
+			Uuid{u4{16475036243075314844,5231522892080591008}}
+			Uuid{u4{11479659187694411711,5174041025291338669}}
+			Uuid{u4{15665298784122222478,5725843771057583409}}
+			Uuid{u4{12903990840493988757,5696089217231623871}}
+			Uuid{u4{17579521487756929563,9364763216043413610}}
+			Uuid{u4{7934449834691509833,11030128932873449915}}
+			Uuid{u4{8914895473801792674,5549354162315949644}}
+			Uuid{u4{12165711639601188169,10510741435841519107}}
+			Uuid{u4{113495508243828997,15943959024474857022}}
+			Uuid{u4{12589813418742249018,11091871408754811941}}
+			Uuid{u4{13883155395831697455,10212277030410652659}}
+			Uuid{u4{7104086957445601946,4819391465201389064}}
+			Uuid{u4{207785385419371927,5121331054296736568}}
+			Uuid{u4{2132077245700295982,10590157899333438312}}
+			Uuid{u4{18215258748948171147,5581893186821017665}}
+			Uuid{u4{859071080104405635,4809190045244865461}}
+			Uuid{u4{9894957836948437655,4781135172294323904}}
+			Uuid{u4{290121541412297032,6183518559115002447}}
+			Uuid{u4{10002545071225242339,11908447909709046693}}
+			Uuid{u4{5089728754503442715,9649220062168832485}}
+			Uuid{u4{4621858523936149664,5105293089154959260}}
+			Uuid{u4{89461557576906113,5328121027725050203}}
+			Uuid{u4{7593464672478252038,10634335326434642243}}
+			Uuid{u4{15823310223063427115,10673754772383999055}}
+			Uuid{u4{2729964177185219128,10146909135330458896}}
+			Uuid{u4{14599315822897363631,5004011859510770188}}
+			Uuid{u4{11625287949723358126,4812146077626625929}}
+			Uuid{u4{10601718036156301725,5679460196852717753}}
+		}
 	}
 }
 o
@@ -6069,7 +6073,7 @@ o
 		Color %Color{f{0x8888083E,0x0000803F,0,0x0000803F}}
 		s %Decal{"{ 309d7ff1-19c6-435e-821d-584426d01365 }"}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
-		Uuid %FadeOutDelay{u4{9358987345638346343,15658576986899043216}}
+		Uuid %FadeOutDelay{u4{5355785904571458055,401311607521060611}}
 		Time %FadeOutDuration{d{0}}
 		Angle %InnerFadeAngle{f{0xDB0FC93F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
@@ -6688,7 +6692,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		s %Decal{"{ f8684eee-6928-40d3-bd13-24e18c5ffe91 }"}
 		Vec3 %Extents{f{0x0000803F,0x00008040,0x00008040}}
-		Uuid %FadeOutDelay{u4{10891517948513136018,14834759133798655543}}
+		Uuid %FadeOutDelay{u4{5452832729355354968,13974309289794665022}}
 		Time %FadeOutDuration{d{0}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
@@ -6769,7 +6773,7 @@ o
 		Color %Color{f{0,0x9FAF893C,0x0000803F,0x8180003F}}
 		s %Decal{"{ 309d7ff1-19c6-435e-821d-584426d01365 }"}
 		Vec3 %Extents{f{0x0000803F,0x0000A041,0x00002041}}
-		Uuid %FadeOutDelay{u4{3147663141206831049,6340358347878961291}}
+		Uuid %FadeOutDelay{u4{17929782133666544318,4558455453157955218}}
 		Time %FadeOutDuration{d{0}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
@@ -8582,6 +8586,17 @@ o
 }
 o
 {
+	Uuid %id{u4{5452832729355354968,13974309289794665022}}
+	s %t{"ezVarianceTypeTime"}
+	u3 %v{1}
+	p
+	{
+		Time %Value{d{0}}
+		f %Variance{0}
+	}
+}
+o
+{
 	Uuid %id{u4{17961115799596652664,14042998748872489309}}
 	s %t{"ezPrefabReferenceComponent"}
 	u3 %v{1}
@@ -8871,17 +8886,6 @@ o
 }
 o
 {
-	Uuid %id{u4{10891517948513136018,14834759133798655543}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
-	}
-}
-o
-{
 	Uuid %id{u4{4382730660447559060,14866887035083491474}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -8999,6 +9003,17 @@ o
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{15953510213221998162,15003036911911525971}}
+	s %t{"ezVarianceTypeTime"}
+	u3 %v{1}
+	p
+	{
+		Time %Value{d{0}}
+		f %Variance{0}
 	}
 }
 o
@@ -9666,17 +9681,6 @@ o
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
-	}
-}
-o
-{
-	Uuid %id{u4{9358987345638346343,15658576986899043216}}
-	s %t{"ezVarianceTypeTime"}
-	u3 %v{1}
-	p
-	{
-		Time %Value{d{0}}
-		f %Variance{0}
 	}
 }
 o
@@ -10582,565 +10586,7 @@ Types
 {
 o
 {
-	Uuid %id{u4{16151412834014881353,455602171930801939}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezBasisAxis"}
-		u3 %TypeSize{1}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{1567432555074578483,843053238671793424}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezLightComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSpotLightComponent"}
-		u3 %TypeSize{96}
-		u3 %TypeVersion{2}
-	}
-}
-o
-{
-	Uuid %id{u4{12449305736677325230,1084758590379275432}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezCameraMode"}
-		u3 %TypeSize{1}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{11852399130965337762,1180647988113932230}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezFmodComponent"}
-		s %PluginName{"ezEditorPluginFmod"}
-		VarArray %Properties{}
-		s %TypeName{"ezFmodEventComponent"}
-		u3 %TypeSize{96}
-		u3 %TypeVersion{2}
-	}
-}
-o
-{
-	Uuid %id{u4{4559897724902541388,1191202069596281120}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezTransformComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSliderComponent"}
-		u3 %TypeSize{96}
-		u3 %TypeVersion{3}
-	}
-}
-o
-{
-	Uuid %id{u4{356552347070141117,1328304310120052522}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"ezPhysXPlugin"}
-		VarArray %Properties{}
-		s %TypeName{"ezPxSteppingMode"}
-		u3 %TypeSize{1}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{12984103802138964609,1901275426220383600}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{2249460009180721943,2020378876267430042}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezPxComponent"}
-		s %PluginName{"ezPhysXPlugin"}
-		VarArray %Properties{}
-		s %TypeName{"ezPxShapeComponent"}
-		u3 %TypeSize{88}
-		u3 %TypeVersion{2}
-	}
-}
-o
-{
-	Uuid %id{u4{7279348988424711398,2515784178376553072}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezCameraUsageHint"}
-		u3 %TypeSize{1}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{11061541817101818123,3867562407177176337}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{""}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{4364839988722085851,4256514474267485533}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezVarianceTypeBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezVarianceTypeTime"}
-		u3 %TypeSize{16}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{3746136308143840043,4417922703676566877}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezPxActorComponent"}
-		s %PluginName{"ezPhysXPlugin"}
-		VarArray %Properties{}
-		s %TypeName{"ezPxDynamicActorComponent"}
-		u3 %TypeSize{104}
-		u3 %TypeVersion{2}
-	}
-}
-o
-{
-	Uuid %id{u4{6711602873707722165,5059309845769870183}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEventMessageHandlerComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezVisualScriptComponent"}
-		u3 %TypeSize{104}
-		u3 %TypeVersion{2}
-	}
-}
-o
-{
-	Uuid %id{u4{14270314853994606438,6044130159099333730}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezComponent"}
-		u3 %TypeSize{48}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{4187033286860469507,6165309105987958142}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezLightComponent"}
-		u3 %TypeSize{72}
-		u3 %TypeVersion{4}
-	}
-}
-o
-{
-	Uuid %id{u4{9521870014458826871,6534207540846021154}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezPrefabReferenceComponent"}
-		u3 %TypeSize{64}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{18096584933610600270,6769222261053151553}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSkyBoxComponent"}
-		u3 %TypeSize{88}
-		u3 %TypeVersion{4}
-	}
-}
-o
-{
-	Uuid %id{u4{7032042322022679906,7054730992814210489}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezLightComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezPointLightComponent"}
-		u3 %TypeSize{88}
-		u3 %TypeVersion{2}
-	}
-}
-o
-{
-	Uuid %id{u4{13130591048047975191,7129114951128917426}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezEventMessageHandlerComponent"}
-		u3 %TypeSize{56}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{6467017751125590593,7158000587691918333}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{""}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{915440353964695395,7400812910450444469}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{""}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezGameObject"}
-		u3 %TypeSize{168}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{4708228624646272143,7445298746482350948}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezTransformComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezRotorComponent"}
-		u3 %TypeSize{96}
-		u3 %TypeVersion{2}
-	}
-}
-o
-{
-	Uuid %id{u4{16351841905165304260,7508494355706245574}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezSettingsComponent"}
-		s %PluginName{"ezPhysXPlugin"}
-		VarArray %Properties{}
-		s %TypeName{"ezPxSettingsComponent"}
-		u3 %TypeSize{104}
-		u3 %TypeVersion{3}
-	}
-}
-o
-{
-	Uuid %id{u4{11248068440447604189,8008839468070104082}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezLightComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezDirectionalLightComponent"}
-		u3 %TypeSize{96}
-		u3 %TypeVersion{3}
-	}
-}
-o
-{
-	Uuid %id{u4{16715922270988180198,8624083370425236338}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezDecalComponent"}
-		u3 %TypeSize{160}
-		u3 %TypeVersion{3}
-	}
-}
-o
-{
-	Uuid %id{u4{15626900963732327278,8724655806046315562}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezObjectMode"}
-		u3 %TypeSize{1}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{11372668100846884931,8737947288923677544}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezPxShapeComponent"}
-		s %PluginName{"ezPhysXPlugin"}
-		VarArray %Properties{}
-		s %TypeName{"ezPxShapeBoxComponent"}
-		u3 %TypeSize{104}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{1384393750607226200,9143286981169020248}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezRenderComponent"}
-		u3 %TypeSize{48}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{1949665634325955684,9834907768920370974}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{""}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezVarianceTypeBase"}
-		u3 %TypeSize{4}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{6509539527986478796,10227829769336365555}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezSettingsComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezAmbientLightComponent"}
-		u3 %TypeSize{72}
-		u3 %TypeVersion{2}
-	}
-}
-o
-{
-	Uuid %id{u4{10964627908253585417,11847310571565702910}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"ezPhysXPlugin"}
-		VarArray %Properties{}
-		s %TypeName{"ezPxComponent"}
-		u3 %TypeSize{48}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{15996205561521081011,11975365929692762812}}
+	Uuid %id{u4{5071404559084149669,954820518351224209}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -11158,7 +10604,61 @@ o
 }
 o
 {
-	Uuid %id{u4{13785929886415839585,12184238587207108802}}
+	Uuid %id{u4{6914292285925798136,1108246313736053318}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezComponent"}
+		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7306866003362116324,1480773640113041639}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezFmodComponent"}
+		s %PluginName{"ezEditorPluginFmod"}
+		VarArray %Properties{}
+		s %TypeName{"ezFmodEventComponent"}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{14111303022569467614,2386623797596195684}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDecalComponent"}
+		u3 %TypeSize{160}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{15272284220582915620,3290797833852729302}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -11169,86 +10669,14 @@ o
 		s %ParentTypeName{"ezEnumBase"}
 		s %PluginName{"Static"}
 		VarArray %Properties{}
-		s %TypeName{"ezOnComponentFinishedAction"}
+		s %TypeName{"ezCameraMode"}
 		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
 o
 {
-	Uuid %id{u4{10520739297958708185,13582377368764297950}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezCameraComponent"}
-		u3 %TypeSize{520}
-		u3 %TypeVersion{7}
-	}
-}
-o
-{
-	Uuid %id{u4{4602389488042006608,14293820608382133371}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezSettingsComponent"}
-		u3 %TypeSize{56}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{11855028835499484204,14411343514800125594}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezPxShapeComponent"}
-		s %PluginName{"ezPhysXPlugin"}
-		VarArray %Properties{}
-		s %TypeName{"ezPxShapeSphereComponent"}
-		u3 %TypeSize{96}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{17257203999626667165,14629053773625514456}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezPxComponent"}
-		s %PluginName{"ezPhysXPlugin"}
-		VarArray %Properties{}
-		s %TypeName{"ezPxActorComponent"}
-		u3 %TypeSize{48}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{9257402730400276231,14693459876838695567}}
+	Uuid %id{u4{14633628111157529947,3328384510238863063}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -11266,7 +10694,151 @@ o
 }
 o
 {
-	Uuid %id{u4{10989824307862018965,16229937946545152940}}
+	Uuid %id{u4{1168477127324465164,3417260966341483024}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPrefabReferenceComponent"}
+		u3 %TypeSize{64}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12988416931910697783,3614107907594852236}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezTransformComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSliderComponent"}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{13146435625671389871,5145262613012234345}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPxComponent"}
+		s %PluginName{"ezPhysXPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezPxShapeComponent"}
+		u3 %TypeSize{88}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{5109955776826617296,6026817826851389185}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEventMessageHandlerComponent"}
+		u3 %TypeSize{56}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14006718927935415587,6034394683520582586}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezVarianceTypeBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezVarianceTypeTime"}
+		u3 %TypeSize{16}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{10276195715960149106,6149987909253238229}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPxComponent"}
+		s %PluginName{"ezPhysXPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezPxActorComponent"}
+		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17853239083303459813,6311346648076434393}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezVarianceTypeBase"}
+		u3 %TypeSize{4}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13649880205026559927,7297274558339895637}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezGameObject"}
+		u3 %TypeSize{168}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9117014634596472380,7811057850526279831}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -11277,14 +10849,104 @@ o
 		s %ParentTypeName{"ezPxActorComponent"}
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
-		s %TypeName{"ezPxTriggerComponent"}
+		s %TypeName{"ezPxDynamicActorComponent"}
 		u3 %TypeSize{104}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{8781371220448777178,8391987746845008996}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSkyBoxComponent"}
+		u3 %TypeSize{88}
+		u3 %TypeVersion{4}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
 o
 {
-	Uuid %id{u4{15089475826961544260,17081924075655763987}}
+	Uuid %id{u4{14543630447052729839,9459039542380974471}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezObjectMode"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16508388108942581257,9601460247128054931}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCameraComponent"}
+		u3 %TypeSize{520}
+		u3 %TypeVersion{7}
+	}
+}
+o
+{
+	Uuid %id{u4{14619222012368174598,9914418461412086272}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezLightComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDirectionalLightComponent"}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{1059777785414581172,10096107093115669027}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -11302,7 +10964,169 @@ o
 }
 o
 {
-	Uuid %id{u4{4732357234453303022,17779129397819756135}}
+	Uuid %id{u4{879995022289447834,11615741642907926079}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezPhysXPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezPxSteppingMode"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2869469983493172804,11764438314605031013}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezOnComponentFinishedAction"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13157915159061735959,12012078319048480294}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezLightComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezPointLightComponent"}
+		u3 %TypeSize{88}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{14929650074649117491,12034915874076129355}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSettingsComponent"}
+		u3 %TypeSize{56}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16777871838542487558,12116962178824346014}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezRenderComponent"}
+		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16906105696366347135,12383969493308773263}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEventMessageHandlerComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezVisualScriptComponent"}
+		u3 %TypeSize{104}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{14063591547429035251,13671873621033464427}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPxShapeComponent"}
+		s %PluginName{"ezPhysXPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezPxShapeSphereComponent"}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11614631385586458092,13905727974786712609}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezSettingsComponent"}
+		s %PluginName{"ezPhysXPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezPxSettingsComponent"}
+		u3 %TypeSize{104}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{3106992448854867606,14177809816119438754}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezLightComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSpotLightComponent"}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{10519138687914176703,14437890910412567776}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -11316,6 +11140,186 @@ o
 		s %TypeName{"ezTransformComponent"}
 		u3 %TypeSize{64}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{12814930320360971966,14780945004767832345}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezLightComponent"}
+		u3 %TypeSize{72}
+		u3 %TypeVersion{4}
+	}
+}
+o
+{
+	Uuid %id{u4{6790462210332872474,14823813398562229253}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPxShapeComponent"}
+		s %PluginName{"ezPhysXPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezPxShapeBoxComponent"}
+		u3 %TypeSize{104}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17070673550512221710,14982893279506273667}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"ezPhysXPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezPxComponent"}
+		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11081527203184866822,15735316544108576551}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezSettingsComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezAmbientLightComponent"}
+		u3 %TypeSize{72}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{2150460544443279632,16656283025817099123}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezTransformComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezRotorComponent"}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{14469700887475489738,16951777026318265606}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBasisAxis"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7428566862802479531,16953577013819886111}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPxActorComponent"}
+		s %PluginName{"ezPhysXPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezPxTriggerComponent"}
+		u3 %TypeSize{104}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17965579125706971693,17079293274319994058}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCameraUsageHint"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
 	}
 }
 }

@@ -1,10 +1,10 @@
-Objects
+HeaderV2
 {
-AssetInfo
+o
 {
 	Uuid %id{u4{3368653996455012767,4981081860679884060}}
 	s %t{"ezAssetDocumentInfo"}
-	u3 %v{1}
+	u3 %v{2}
 	s %n{"Header"}
 	p
 	{
@@ -14,11 +14,15 @@ AssetInfo
 			s{"Sound/Soundbanks/Desktop/FleetOps.bank"}
 		}
 		Uuid %DocumentID{u4{3368653996455012767,4981081860679884060}}
-		u4 %Hash{3286594906490524294}
+		u4 %Hash{17852558965809770475}
+		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
 	}
 }
+}
+Objects
+{
 o
 {
 	Uuid %id{u4{18260148235030603937,5293242791059802467}}
@@ -31,7 +35,7 @@ o
 }
 o
 {
-	Uuid %id{u4{4538525219092991391,5381193384925595199}}
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
 	s %t{"ezDocumentRoot"}
 	u3 %v{1}
 	s %n{"ObjectTree"}
@@ -48,7 +52,7 @@ Types
 {
 o
 {
-	Uuid %id{u4{12984103802138964609,1901275426220383600}}
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -66,7 +70,7 @@ o
 }
 o
 {
-	Uuid %id{u4{12057902958764137413,3471354016943488115}}
+	Uuid %id{u4{14810330465744058532,14014135863210592018}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -84,7 +88,7 @@ o
 }
 o
 {
-	Uuid %id{u4{6467017751125590593,7158000587691918333}}
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p

@@ -1,10 +1,10 @@
-Objects
+HeaderV2
 {
-AssetInfo
+o
 {
 	Uuid %id{u4{8220560440358005944,5107141390371426082}}
 	s %t{"ezAssetDocumentInfo"}
-	u3 %v{1}
+	u3 %v{2}
 	s %n{"Header"}
 	p
 	{
@@ -14,7 +14,8 @@ AssetInfo
 			s{"Shaders/brdf.ezShader"}
 		}
 		Uuid %DocumentID{u4{8220560440358005944,5107141390371426082}}
-		u4 %Hash{5546243900279641547}
+		u4 %Hash{17394252365000019755}
+		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
@@ -22,37 +23,12 @@ AssetInfo
 		}
 	}
 }
-o
-{
-	Uuid %id{u4{11078492720706007459,5374609285135106591}}
-	s %t{"ezMaterialAssetProperties"}
-	u3 %v{4}
-	p
-	{
-		s %BaseMaterial{""}
-		s %Shader{"Shaders/brdf.ezShader"}
-		s %ShaderMode{"ezMaterialShaderMode::File"}
-		Uuid %ShaderProperties{u4{8055407734071610541,6190625416719545986}}
-		s %Surface{""}
-	}
 }
+Objects
+{
 o
 {
-	Uuid %id{u4{4538525219092991391,5381193384925595199}}
-	s %t{"ezDocumentRoot"}
-	u3 %v{1}
-	s %n{"ObjectTree"}
-	p
-	{
-		VarArray %Children
-		{
-			Uuid{u4{11078492720706007459,5374609285135106591}}
-		}
-	}
-}
-o
-{
-	Uuid %id{u4{8055407734071610541,6190625416719545986}}
+	Uuid %id{u4{16466324464146511091,5007644960236949420}}
 	s %t{"Shaders/brdf.ezShader"}
 	u3 %v{2}
 	p
@@ -70,49 +46,144 @@ o
 		Color %SpecularColor{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 	}
 }
+o
+{
+	Uuid %id{u4{11078492720706007459,5374609285135106591}}
+	s %t{"ezMaterialAssetProperties"}
+	u3 %v{4}
+	p
+	{
+		s %BaseMaterial{""}
+		s %Shader{"Shaders/brdf.ezShader"}
+		s %ShaderMode{"ezMaterialShaderMode::File"}
+		Uuid %ShaderProperties{u4{16466324464146511091,5007644960236949420}}
+		s %Surface{""}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{11078492720706007459,5374609285135106591}}
+		}
+	}
+}
 }
 Types
 {
 o
 {
-	Uuid %id{u4{5195496492053109770,386628853497140330}}
+	Uuid %id{u4{14975238606513659463,568890239789396943}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
 	p
 	{
 		VarArray %Attributes{}
 		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{1}
+		u3 %ConstantValue{0}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
-		s %Name{"SPECULAR_BRDF::SPECULAR_BRDF_COOK_TORRANCE"}
+		s %Name{"DISTRIBUTION::Default"}
 		s %Type{"ezUInt32"}
 	}
 }
 o
 {
-	Uuid %id{u4{13208409554016878480,1271058058959768461}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
+	Uuid %id{u4{4693081338286819186,690567040055419953}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Permutation"}
+	}
+}
+o
+{
+	Uuid %id{u4{6915980696936033190,1294969606840749312}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
 	p
 	{
 		VarArray %Attributes{}
-		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{3}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
-		s %Name{"DIFFUSE_BRDF::DIFFUSE_BRDF_DISNEY"}
-		s %Type{"ezUInt32"}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ShaderTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{607975046840254391,18357093630541121248}}
+			Uuid{u4{3230112922852611923,2250424861102568157}}
+			Uuid{u4{3870975696336966974,16859520672815583026}}
+			Uuid{u4{4816725069177668698,2252109084627530777}}
+			Uuid{u4{10817730876359809799,9922525546173593128}}
+		}
+		s %TypeName{"DIFFUSE_BRDF"}
+		u3 %TypeSize{0}
+		u3 %TypeVersion{1}
 	}
 }
 o
 {
-	Uuid %id{u4{4535437679292875504,1481418835667245355}}
+	Uuid %id{u4{7802120737730085794,2030553623751378672}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
 	p
 	{
 		VarArray %Attributes
 		{
-			Uuid{u4{9528829132087893799,12502315622767583048}}
+			Uuid{u4{610131455503138259,13298898473870573174}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"SpecularColor"}
+		s %Type{"ezColor"}
+	}
+}
+o
+{
+	Uuid %id{u4{3230112922852611923,2250424861102568157}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{0}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"DIFFUSE_BRDF::DIFFUSE_BRDF_NONE"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{4816725069177668698,2252109084627530777}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{2}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"DIFFUSE_BRDF::DIFFUSE_BRDF_ASHIKHMIN_SHIRLEY"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{7870084276746530189,2397635076699819102}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{678094994519582654,13665979926819013604}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
@@ -122,14 +193,31 @@ o
 }
 o
 {
-	Uuid %id{u4{6031511411153964961,1631242270343113482}}
+	Uuid %id{u4{2417646161883920448,2472226511413798685}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
 	p
 	{
 		VarArray %Attributes
 		{
-			Uuid{u4{11024902863948983256,12652139057443451175}}
+			Uuid{u4{13672400953366524529,13740571361532993187}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"InverseTonemap"}
+		s %Type{"bool"}
+	}
+}
+o
+{
+	Uuid %id{u4{17658795942818959027,2515900259243866183}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{10466806660592011492,13784245109363060685}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
@@ -139,7 +227,27 @@ o
 }
 o
 {
-	Uuid %id{u4{10320927909859832628,1851595930851730693}}
+	Uuid %id{u4{7918344662413292091,2892211323125141666}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Permutation"}
+	}
+}
+o
+{
+	Uuid %id{u4{48371849184051081,5125801723492738981}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Constant"}
+	}
+}
+o
+{
+	Uuid %id{u4{8594932520572537158,5230526936534341327}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
 	p
@@ -154,7 +262,87 @@ o
 }
 o
 {
-	Uuid %id{u4{12984103802138964609,1901275426220383600}}
+	Uuid %id{u4{9656014404229169398,5805504409317445227}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Permutation"}
+	}
+}
+o
+{
+	Uuid %id{u4{882727496574445294,5964347582234149040}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{12137482288057049375,17232692432353343542}}
+			Uuid{u4{1355970650401267449,15026085491569663660}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"CubeMap"}
+		s %Type{"ezString"}
+	}
+}
+o
+{
+	Uuid %id{u4{10885501860703787882,6680909801399342926}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Permutation"}
+	}
+}
+o
+{
+	Uuid %id{u4{16373393010275312407,6740960287620255546}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{2}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"GEOMETRY_TERM::GEOMETRY_TERM_SMITH_CORRELATED"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{9830078424138270691,7265591919474022247}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Constant"}
+	}
+}
+o
+{
+	Uuid %id{u4{11885070620513766721,7868966263645777067}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{4693081338286819186,690567040055419953}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
+		s %Name{"GEOMETRY_TERM"}
+		s %Type{"GEOMETRY_TERM"}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -172,7 +360,7 @@ o
 }
 o
 {
-	Uuid %id{u4{938549085873854819,2427698436719310518}}
+	Uuid %id{u4{16427708110068486580,8720181335602533941}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
 	p
@@ -181,358 +369,13 @@ o
 		s %Category{"ezPropertyCategory::Constant"}
 		u3 %ConstantValue{0}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
-		s %Name{"DISTRIBUTION::Default"}
+		s %Name{"DISTRIBUTION::DISTRIBUTION_GGX"}
 		s %Type{"ezUInt32"}
 	}
 }
 o
 {
-	Uuid %id{u4{3974435548235623709,2650897219790739171}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{8967827001030642004,13671794006891076864}}
-		}
-		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
-		s %Name{"DIFFUSE_BRDF"}
-		s %Type{"DIFFUSE_BRDF"}
-	}
-}
-o
-{
-	Uuid %id{u4{5391679430038489856,3689991665225187984}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes{}
-		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{0}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
-		s %Name{"DIFFUSE_BRDF::Default"}
-		s %Type{"ezUInt32"}
-	}
-}
-o
-{
-	Uuid %id{u4{11061541817101818123,3867562407177176337}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{""}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{10869066428599277230,3956597991755222461}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"ezEditorPluginAssets"}
-		VarArray %Properties{}
-		s %TypeName{"ezMaterialAssetProperties"}
-		u3 %TypeSize{328}
-		u3 %TypeVersion{4}
-	}
-}
-o
-{
-	Uuid %id{u4{2358143628920569767,4318526465474862834}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Phantom"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"ShaderTypes"}
-		VarArray %Properties
-		{
-			Uuid{u4{938549085873854819,2427698436719310518}}
-			Uuid{u4{16059238649202466032,14259619942827360747}}
-			Uuid{u4{4369035252751947204,14889238811615620552}}
-		}
-		s %TypeName{"DISTRIBUTION"}
-		u3 %TypeSize{0}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{12228792650850318982,4543448803333601770}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Phantom"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"ShaderTypes"}
-		VarArray %Properties
-		{
-			Uuid{u4{1409703620123128314,10192709973683039902}}
-			Uuid{u4{14579367881167742958,6408873605706428876}}
-			Uuid{u4{10320927909859832628,1851595930851730693}}
-			Uuid{u4{8726228097901593597,7778499168370281872}}
-		}
-		s %TypeName{"GEOMETRY_TERM"}
-		u3 %TypeSize{0}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{7322713208704629844,4890170432985969245}}
-	s %t{"ezAssetBrowserAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %Filter{";Texture Cube;"}
-	}
-}
-o
-{
-	Uuid %id{u4{5182776027571724455,5185453658931861913}}
-	s %t{"ezCategoryAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %Category{"Texture Cube"}
-	}
-}
-o
-{
-	Uuid %id{u4{5014321826708325414,5417483645199414509}}
-	s %t{"ezCategoryAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %Category{"Constant"}
-	}
-}
-o
-{
-	Uuid %id{u4{17721610036792808655,6383775971404515427}}
-	s %t{"ezCategoryAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %Category{"Constant"}
-	}
-}
-o
-{
-	Uuid %id{u4{14579367881167742958,6408873605706428876}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes{}
-		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{0}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
-		s %Name{"GEOMETRY_TERM::GEOMETRY_TERM_UE4_APPROX"}
-		s %Type{"ezUInt32"}
-	}
-}
-o
-{
-	Uuid %id{u4{12849732137590184936,7001204095431254339}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{17843123590385203231,18022100882531592032}}
-		}
-		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
-		s %Name{"GEOMETRY_TERM"}
-		s %Type{"GEOMETRY_TERM"}
-	}
-}
-o
-{
-	Uuid %id{u4{6467017751125590593,7158000587691918333}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{""}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{8726228097901593597,7778499168370281872}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes{}
-		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{2}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
-		s %Name{"GEOMETRY_TERM::GEOMETRY_TERM_SMITH_CORRELATED"}
-		s %Type{"ezUInt32"}
-	}
-}
-o
-{
-	Uuid %id{u4{4278233410534846724,8056689639874868443}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes{}
-		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{0}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
-		s %Name{"DIFFUSE_BRDF::DIFFUSE_BRDF_NONE"}
-		s %Type{"ezUInt32"}
-	}
-}
-o
-{
-	Uuid %id{u4{4119219596494776385,8097091096161882458}}
-	s %t{"ezCategoryAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %Category{"Permutation"}
-	}
-}
-o
-{
-	Uuid %id{u4{12789247497384929008,8617925000138166155}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Phantom"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"ShaderTypes"}
-		VarArray %Properties
-		{
-			Uuid{u4{5391679430038489856,3689991665225187984}}
-			Uuid{u4{4278233410534846724,8056689639874868443}}
-			Uuid{u4{17039526991504970575,8974920160259968971}}
-			Uuid{u4{16119812333200709464,16016078869350972628}}
-			Uuid{u4{13208409554016878480,1271058058959768461}}
-		}
-		s %TypeName{"DIFFUSE_BRDF"}
-		u3 %TypeSize{0}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{11123059914217754738,8948953927071955858}}
-	s %t{"ezCategoryAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %Category{"Permutation"}
-	}
-}
-o
-{
-	Uuid %id{u4{17039526991504970575,8974920160259968971}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes{}
-		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{1}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
-		s %Name{"DIFFUSE_BRDF::DIFFUSE_BRDF_LAMBERTIAN"}
-		s %Type{"ezUInt32"}
-	}
-}
-o
-{
-	Uuid %id{u4{3505244926294165312,9090853341995574943}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes{}
-		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{0}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
-		s %Name{"SPECULAR_BRDF::SPECULAR_BRDF_NONE"}
-		s %Type{"ezUInt32"}
-	}
-}
-o
-{
-	Uuid %id{u4{1409703620123128314,10192709973683039902}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes{}
-		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{0}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
-		s %Name{"GEOMETRY_TERM::Default"}
-		s %Type{"ezUInt32"}
-	}
-}
-o
-{
-	Uuid %id{u4{4075980197191202771,10512856929197241435}}
-	s %t{"ezCategoryAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %Category{"Constant"}
-	}
-}
-o
-{
-	Uuid %id{u4{2172685589931368864,10831060721593475617}}
-	s %t{"ezCategoryAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %Category{"Constant"}
-	}
-}
-o
-{
-	Uuid %id{u4{10181626492634853455,11589677527242783786}}
+	Uuid %id{u4{17717897218099796308,9033184167245688007}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -550,52 +393,84 @@ o
 }
 o
 {
-	Uuid %id{u4{9528829132087893799,12502315622767583048}}
-	s %t{"ezCategoryAttribute"}
-	u3 %v{1}
+	Uuid %id{u4{10817730876359809799,9922525546173593128}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
 	p
 	{
-		s %Category{"Permutation"}
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{3}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"DIFFUSE_BRDF::DIFFUSE_BRDF_DISNEY"}
+		s %Type{"ezUInt32"}
 	}
 }
 o
 {
-	Uuid %id{u4{189384574776706160,12611300945541075836}}
+	Uuid %id{u4{15110333944640239626,10070610546715498780}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
 	p
 	{
 		VarArray %Attributes
 		{
-			Uuid{u4{5182776027571724455,5185453658931861913}}
-			Uuid{u4{7322713208704629844,4890170432985969245}}
+			Uuid{u4{7918344662413292091,2892211323125141666}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"CubeMap"}
-		s %Type{"ezString"}
+		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
+		s %Name{"DIFFUSE_BRDF"}
+		s %Type{"DIFFUSE_BRDF"}
 	}
 }
 o
 {
-	Uuid %id{u4{11024902863948983256,12652139057443451175}}
-	s %t{"ezCategoryAttribute"}
+	Uuid %id{u4{18375542408421492346,10587199805494624033}}
+	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
 	{
-		s %Category{"Constant"}
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ShaderTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{14975238606513659463,568890239789396943}}
+			Uuid{u4{16427708110068486580,8720181335602533941}}
+			Uuid{u4{4604759936868391661,12432119248176866459}}
+		}
+		s %TypeName{"DISTRIBUTION"}
+		u3 %TypeSize{0}
+		u3 %TypeVersion{1}
 	}
 }
 o
 {
-	Uuid %id{u4{20930373913307119,12843330931808628432}}
+	Uuid %id{u4{9390413840642723723,11615252888837269925}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{0}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"GEOMETRY_TERM::Default"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{7240361131410998616,12304200947083096095}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
 	p
 	{
 		VarArray %Attributes
 		{
-			Uuid{u4{5014321826708325414,5417483645199414509}}
+			Uuid{u4{48371849184051081,5125801723492738981}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
@@ -605,80 +480,7 @@ o
 }
 o
 {
-	Uuid %id{u4{1255925901271779598,13210204694502336677}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezShaderTypeBase"}
-		s %PluginName{"ShaderTypes"}
-		VarArray %Properties
-		{
-			Uuid{u4{189384574776706160,12611300945541075836}}
-			Uuid{u4{17529332818105736092,17938704215806455358}}
-			Uuid{u4{6031511411153964961,1631242270343113482}}
-			Uuid{u4{3974435548235623709,2650897219790739171}}
-			Uuid{u4{17572572217409309706,15522938382771096381}}
-			Uuid{u4{6129668461422736443,16374801213681169781}}
-			Uuid{u4{12849732137590184936,7001204095431254339}}
-			Uuid{u4{4535437679292875504,1481418835667245355}}
-			Uuid{u4{20930373913307119,12843330931808628432}}
-			Uuid{u4{12728218583997790360,13809623258013729350}}
-			Uuid{u4{15626038210845902185,18256908008202689540}}
-		}
-		s %TypeName{"Shaders/brdf.ezShader"}
-		u3 %TypeSize{0}
-		u3 %TypeVersion{2}
-	}
-}
-o
-{
-	Uuid %id{u4{8967827001030642004,13671794006891076864}}
-	s %t{"ezCategoryAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %Category{"Permutation"}
-	}
-}
-o
-{
-	Uuid %id{u4{12728218583997790360,13809623258013729350}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{17721610036792808655,6383775971404515427}}
-		}
-		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"DiffuseColor"}
-		s %Type{"ezColor"}
-	}
-}
-o
-{
-	Uuid %id{u4{16059238649202466032,14259619942827360747}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes{}
-		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{0}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
-		s %Name{"DISTRIBUTION::DISTRIBUTION_GGX"}
-		s %Type{"ezUInt32"}
-	}
-}
-o
-{
-	Uuid %id{u4{4369035252751947204,14889238811615620552}}
+	Uuid %id{u4{4604759936868391661,12432119248176866459}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
 	p
@@ -693,14 +495,29 @@ o
 }
 o
 {
-	Uuid %id{u4{17572572217409309706,15522938382771096381}}
+	Uuid %id{u4{677208467462920322,12948305544840428504}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{0}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"GEOMETRY_TERM::GEOMETRY_TERM_UE4_APPROX"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{16848003686456116933,12983903632907802341}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
 	p
 	{
 		VarArray %Attributes
 		{
-			Uuid{u4{4119219596494776385,8097091096161882458}}
+			Uuid{u4{9656014404229169398,5805504409317445227}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
@@ -710,29 +527,54 @@ o
 }
 o
 {
-	Uuid %id{u4{16119812333200709464,16016078869350972628}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
+	Uuid %id{u4{610131455503138259,13298898473870573174}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
 	p
 	{
-		VarArray %Attributes{}
-		s %Category{"ezPropertyCategory::Constant"}
-		u3 %ConstantValue{2}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
-		s %Name{"DIFFUSE_BRDF::DIFFUSE_BRDF_ASHIKHMIN_SHIRLEY"}
-		s %Type{"ezUInt32"}
+		s %Category{"Constant"}
 	}
 }
 o
 {
-	Uuid %id{u4{6129668461422736443,16374801213681169781}}
+	Uuid %id{u4{678094994519582654,13665979926819013604}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Permutation"}
+	}
+}
+o
+{
+	Uuid %id{u4{13672400953366524529,13740571361532993187}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Constant"}
+	}
+}
+o
+{
+	Uuid %id{u4{10466806660592011492,13784245109363060685}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Constant"}
+	}
+}
+o
+{
+	Uuid %id{u4{18077491142930735417,13859309024989700040}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
 	p
 	{
 		VarArray %Attributes
 		{
-			Uuid{u4{11123059914217754738,8948953927071955858}}
+			Uuid{u4{10885501860703787882,6680909801399342926}}
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		s %Flags{"ezPropertyFlags::IsEnum|ezPropertyFlags::Phantom"}
@@ -742,7 +584,169 @@ o
 }
 o
 {
-	Uuid %id{u4{9818635850718460782,16602541045472804288}}
+	Uuid %id{u4{14514611724084073652,14269767176156257780}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{0}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"SPECULAR_BRDF::Default"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{17022067706365218226,14443991143064379361}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{9830078424138270691,7265591919474022247}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"DiffuseColor"}
+		s %Type{"ezColor"}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1355970650401267449,15026085491569663660}}
+	s %t{"ezAssetBrowserAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Filter{";Texture Cube;"}
+	}
+}
+o
+{
+	Uuid %id{u4{14040063942078553968,15658341204436754653}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{0}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"SPECULAR_BRDF::SPECULAR_BRDF_NONE"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{1082325661349907355,16414022259279617113}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ShaderTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{14514611724084073652,14269767176156257780}}
+			Uuid{u4{14040063942078553968,15658341204436754653}}
+			Uuid{u4{1369034475985842616,16663730799919449541}}
+		}
+		s %TypeName{"SPECULAR_BRDF"}
+		u3 %TypeSize{0}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1369034475985842616,16663730799919449541}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{1}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"SPECULAR_BRDF::SPECULAR_BRDF_COOK_TORRANCE"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{3870975696336966974,16859520672815583026}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Constant"}
+		u3 %ConstantValue{1}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
+		s %Name{"DIFFUSE_BRDF::DIFFUSE_BRDF_LAMBERTIAN"}
+		s %Type{"ezUInt32"}
+	}
+}
+o
+{
+	Uuid %id{u4{3730201362036373772,17192530008904707850}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ShaderTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{9390413840642723723,11615252888837269925}}
+			Uuid{u4{677208467462920322,12948305544840428504}}
+			Uuid{u4{8594932520572537158,5230526936534341327}}
+			Uuid{u4{16373393010275312407,6740960287620255546}}
+		}
+		s %TypeName{"GEOMETRY_TERM"}
+		u3 %TypeSize{0}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{12137482288057049375,17232692432353343542}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"Texture Cube"}
+	}
+}
+o
+{
+	Uuid %id{u4{8721322561248882817,17579066505604714242}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -760,7 +764,56 @@ o
 }
 o
 {
-	Uuid %id{u4{3770612856183697793,17514070822143432005}}
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{788266082711610335,17953068530623633984}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezShaderTypeBase"}
+		s %PluginName{"ShaderTypes"}
+		VarArray %Properties
+		{
+			Uuid{u4{882727496574445294,5964347582234149040}}
+			Uuid{u4{2417646161883920448,2472226511413798685}}
+			Uuid{u4{17658795942818959027,2515900259243866183}}
+			Uuid{u4{15110333944640239626,10070610546715498780}}
+			Uuid{u4{16848003686456116933,12983903632907802341}}
+			Uuid{u4{18077491142930735417,13859309024989700040}}
+			Uuid{u4{11885070620513766721,7868966263645777067}}
+			Uuid{u4{7870084276746530189,2397635076699819102}}
+			Uuid{u4{7240361131410998616,12304200947083096095}}
+			Uuid{u4{17022067706365218226,14443991143064379361}}
+			Uuid{u4{7802120737730085794,2030553623751378672}}
+		}
+		s %TypeName{"Shaders/brdf.ezShader"}
+		u3 %TypeSize{0}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{607975046840254391,18357093630541121248}}
 	s %t{"ezReflectedPropertyDescriptor"}
 	u3 %v{2}
 	p
@@ -769,75 +822,26 @@ o
 		s %Category{"ezPropertyCategory::Constant"}
 		u3 %ConstantValue{0}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::ReadOnly"}
-		s %Name{"SPECULAR_BRDF::Default"}
+		s %Name{"DIFFUSE_BRDF::Default"}
 		s %Type{"ezUInt32"}
 	}
 }
 o
 {
-	Uuid %id{u4{15527908896565093713,17702502441869426912}}
+	Uuid %id{u4{5030680158680079231,18410952876772242771}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"ShaderTypes"}
-		VarArray %Properties
-		{
-			Uuid{u4{3770612856183697793,17514070822143432005}}
-			Uuid{u4{3505244926294165312,9090853341995574943}}
-			Uuid{u4{5195496492053109770,386628853497140330}}
-		}
-		s %TypeName{"SPECULAR_BRDF"}
-		u3 %TypeSize{0}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{17529332818105736092,17938704215806455358}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{4075980197191202771,10512856929197241435}}
-		}
-		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"InverseTonemap"}
-		s %Type{"bool"}
-	}
-}
-o
-{
-	Uuid %id{u4{17843123590385203231,18022100882531592032}}
-	s %t{"ezCategoryAttribute"}
-	u3 %v{1}
-	p
-	{
-		s %Category{"Permutation"}
-	}
-}
-o
-{
-	Uuid %id{u4{15626038210845902185,18256908008202689540}}
-	s %t{"ezReflectedPropertyDescriptor"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{2172685589931368864,10831060721593475617}}
-		}
-		s %Category{"ezPropertyCategory::Member"}
-		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"SpecularColor"}
-		s %Type{"ezColor"}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginAssets"}
+		VarArray %Properties{}
+		s %TypeName{"ezMaterialAssetProperties"}
+		u3 %TypeSize{328}
+		u3 %TypeVersion{4}
 	}
 }
 }

@@ -1,3 +1,39 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{2066776411180025002,5593963395639352612}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Collection"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{2066776411180025002,5593963395639352612}}
+		u4 %Hash{9983192218014932314}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ 0416eb3e-69c0-4640-be5b-77354e0e37d7 }"}
+			s{"{ 05af8d07-0b38-44a6-8d50-49731ae2625d }"}
+			s{"{ 3edf10b3-36d2-434f-9683-c653909abe7e }"}
+			s{"{ 4800d341-755b-4367-a175-ffa5dd17bd29 }"}
+			s{"{ 4dc82890-39e3-4bfc-a97d-86a984d4d3db }"}
+			s{"{ 4f4d9f16-3d47-4c67-b821-a778f11dcaf5 }"}
+			s{"{ 7c71fc2d-2a1a-4938-9305-f3a0f26d73cc }"}
+			s{"{ aa700289-9aae-4ec5-81ea-9c381ec8309e }"}
+			s{"{ abb5f06e-f4f2-4fb1-94e9-eed4a51e4490 }"}
+			s{"{ b4b75b1c-c2c8-4a0e-8076-780bdd46d18b }"}
+			s{"{ c069b8a2-ccad-417f-bca4-8739efc222cf }"}
+			s{"{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }"}
+			s{"{ da463c4d-c984-4910-b0b7-a0b3891d0448 }"}
+			s{"{ e9e6b167-c18c-4260-9b0e-4cf4503c1463 }"}
+		}
+	}
+}
+}
 Objects
 {
 o
@@ -101,20 +137,6 @@ o
 }
 o
 {
-	Uuid %id{u4{4538525219092991391,5381193384925595199}}
-	s %t{"ezDocumentRoot"}
-	u3 %v{1}
-	s %n{"ObjectTree"}
-	p
-	{
-		VarArray %Children
-		{
-			Uuid{u4{14869427072941527221,5569673947838956507}}
-		}
-	}
-}
-o
-{
 	Uuid %id{u4{13588442909531881647,5467305167057274469}}
 	s %t{"ezCollectionAssetEntry"}
 	u3 %v{1}
@@ -147,38 +169,6 @@ o
 			Uuid{u4{3923904645024784529,4675135662736699802}}
 			Uuid{u4{9843610965560596146,5611556565053576528}}
 			Uuid{u4{471601352976005789,5739203681191106925}}
-		}
-	}
-}
-AssetInfo
-{
-	Uuid %id{u4{2066776411180025002,5593963395639352612}}
-	s %t{"ezAssetDocumentInfo"}
-	u3 %v{1}
-	s %n{"Header"}
-	p
-	{
-		s %AssetType{"Collection"}
-		VarArray %Dependencies{}
-		Uuid %DocumentID{u4{2066776411180025002,5593963395639352612}}
-		u4 %Hash{4177830003739481551}
-		VarArray %Outputs{}
-		VarArray %References
-		{
-			s{"{ 0416eb3e-69c0-4640-be5b-77354e0e37d7 }"}
-			s{"{ 05af8d07-0b38-44a6-8d50-49731ae2625d }"}
-			s{"{ 3edf10b3-36d2-434f-9683-c653909abe7e }"}
-			s{"{ 4800d341-755b-4367-a175-ffa5dd17bd29 }"}
-			s{"{ 4dc82890-39e3-4bfc-a97d-86a984d4d3db }"}
-			s{"{ 4f4d9f16-3d47-4c67-b821-a778f11dcaf5 }"}
-			s{"{ 7c71fc2d-2a1a-4938-9305-f3a0f26d73cc }"}
-			s{"{ aa700289-9aae-4ec5-81ea-9c381ec8309e }"}
-			s{"{ abb5f06e-f4f2-4fb1-94e9-eed4a51e4490 }"}
-			s{"{ b4b75b1c-c2c8-4a0e-8076-780bdd46d18b }"}
-			s{"{ c069b8a2-ccad-417f-bca4-8739efc222cf }"}
-			s{"{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }"}
-			s{"{ da463c4d-c984-4910-b0b7-a0b3891d0448 }"}
-			s{"{ e9e6b167-c18c-4260-9b0e-4cf4503c1463 }"}
 		}
 	}
 }
@@ -226,30 +216,26 @@ o
 		s %Name{"VignettingTexture"}
 	}
 }
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{14869427072941527221,5569673947838956507}}
+		}
+	}
+}
 }
 Types
 {
 o
 {
-	Uuid %id{u4{12984103802138964609,1901275426220383600}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{17898102431227564114,6378307020477087746}}
+	Uuid %id{u4{13590641013881919643,2844595810355963325}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -267,7 +253,7 @@ o
 }
 o
 {
-	Uuid %id{u4{6467017751125590593,7158000587691918333}}
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -275,17 +261,17 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{""}
+		s %ParentTypeName{"ezReflectedClass"}
 		s %PluginName{"Static"}
 		VarArray %Properties{}
-		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
 	}
 }
 o
 {
-	Uuid %id{u4{16103661653820218242,13945327938397422368}}
+	Uuid %id{u4{12165807254422627566,15044647769667105818}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -298,6 +284,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezCollectionAssetData"}
 		u3 %TypeSize{32}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
 	}
 }

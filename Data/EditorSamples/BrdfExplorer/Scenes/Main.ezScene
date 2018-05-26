@@ -1,3 +1,50 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{8054224939452134033,5141319650694349843}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Scene"}
+		VarArray %Dependencies{}
+		Uuid %DocumentID{u4{8054224939452134033,5141319650694349843}}
+		u4 %Hash{855574459869667017}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ 0403bea9-b4bc-4958-a8d4-2c41c390546f }"}
+			s{"{ 058fb05c-9159-410c-ab8d-961009012ba6 }"}
+			s{"{ 1767ab66-2efa-4b24-9587-92493dcba299 }"}
+			s{"{ 2eaa0b79-e827-40b9-89eb-a55c70e34b2a }"}
+			s{"{ 30b31523-3b99-4cc6-a0f0-0d3c84d836f4 }"}
+			s{"{ 34d12b0e-b078-4876-8b2e-932c3800c682 }"}
+			s{"{ 36bd75cb-c6cf-4cec-bd0c-6bcfcb419fe2 }"}
+			s{"{ 381dcdf3-b253-456d-b9a4-7b5427491159 }"}
+			s{"{ 401bc9d5-0e22-43c9-95c3-1d0b5eb7eb51 }"}
+			s{"{ 444e6dbe-4d09-453e-ad16-3d912cb8ba94 }"}
+			s{"{ 4f4885d6-6977-4d5f-853d-6e891d0dc9bc }"}
+			s{"{ 691e9ec9-904c-494a-8f00-7cede6f73947 }"}
+			s{"{ 6efd911c-54b1-4bc0-ac65-e8460f4f4978 }"}
+			s{"{ 82901ea2-034d-4896-8f6e-6d695928eb8d }"}
+			s{"{ 84eeada1-50e1-42ed-b225-13f2016c80e6 }"}
+			s{"{ 85120d2c-bed9-4da8-b59c-1a0134737d15 }"}
+			s{"{ 8dd82a2c-b2b0-4349-b15b-c32913a8e286 }"}
+			s{"{ 958423af-f5a3-435c-8391-69e76a0a1d72 }"}
+			s{"{ a2307383-1dfb-45b7-af7b-4fb5f81975b4 }"}
+			s{"{ a7548097-903a-292a-e37c-080a6ef6158c }"}
+			s{"{ dd685b73-c019-4ebf-b5c2-3cf0d6d0154d }"}
+			s{"{ e6110139-7301-4460-b32d-d53715c3d231 }"}
+			s{"{ f5990acf-3740-48f7-9d85-38816c573ce1 }"}
+			s{"{ fa2a081b-b9f4-49e9-ba7c-78fbad195f4a }"}
+			s{"{ fa2e654a-e75d-4687-ad4c-64f8dacc506d }"}
+		}
+	}
+}
+}
 Objects
 {
 o
@@ -270,7 +317,7 @@ o
 {
 	Uuid %id{u4{17800666859739869870,5012929096737822194}}
 	s %t{"ezCameraComponent"}
-	u3 %v{5}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
@@ -285,52 +332,12 @@ o
 		s %Mode{"ezCameraMode::PerspectiveFixedFovY"}
 		f %NearPlane{0x0000803E}
 		s %RenderPipeline{"{ 85120d2c-bed9-4da8-b59c-1a0134737d15 }"}
+		s %RenderTarget{""}
+		Vec2 %RenderTargetOffset{f{0,0}}
+		Vec2 %RenderTargetSize{f{0x0000803F,0x0000803F}}
 		b %ShowStats{0}
 		f %ShutterTime{0x0000803F}
 		s %UsageHint{"ezCameraUsageHint::MainView"}
-	}
-}
-AssetInfo
-{
-	Uuid %id{u4{8054224939452134033,5141319650694349843}}
-	s %t{"ezAssetDocumentInfo"}
-	u3 %v{1}
-	s %n{"Header"}
-	p
-	{
-		s %AssetType{"Scene"}
-		VarArray %Dependencies{}
-		Uuid %DocumentID{u4{8054224939452134033,5141319650694349843}}
-		u4 %Hash{2995373565805512236}
-		VarArray %Outputs{}
-		VarArray %References
-		{
-			s{"{ 0403bea9-b4bc-4958-a8d4-2c41c390546f }"}
-			s{"{ 058fb05c-9159-410c-ab8d-961009012ba6 }"}
-			s{"{ 1767ab66-2efa-4b24-9587-92493dcba299 }"}
-			s{"{ 2eaa0b79-e827-40b9-89eb-a55c70e34b2a }"}
-			s{"{ 30b31523-3b99-4cc6-a0f0-0d3c84d836f4 }"}
-			s{"{ 34d12b0e-b078-4876-8b2e-932c3800c682 }"}
-			s{"{ 36bd75cb-c6cf-4cec-bd0c-6bcfcb419fe2 }"}
-			s{"{ 381dcdf3-b253-456d-b9a4-7b5427491159 }"}
-			s{"{ 401bc9d5-0e22-43c9-95c3-1d0b5eb7eb51 }"}
-			s{"{ 444e6dbe-4d09-453e-ad16-3d912cb8ba94 }"}
-			s{"{ 4f4885d6-6977-4d5f-853d-6e891d0dc9bc }"}
-			s{"{ 691e9ec9-904c-494a-8f00-7cede6f73947 }"}
-			s{"{ 6efd911c-54b1-4bc0-ac65-e8460f4f4978 }"}
-			s{"{ 82901ea2-034d-4896-8f6e-6d695928eb8d }"}
-			s{"{ 84eeada1-50e1-42ed-b225-13f2016c80e6 }"}
-			s{"{ 85120d2c-bed9-4da8-b59c-1a0134737d15 }"}
-			s{"{ 8dd82a2c-b2b0-4349-b15b-c32913a8e286 }"}
-			s{"{ 958423af-f5a3-435c-8391-69e76a0a1d72 }"}
-			s{"{ a2307383-1dfb-45b7-af7b-4fb5f81975b4 }"}
-			s{"{ a7548097-903a-292a-e37c-080a6ef6158c }"}
-			s{"{ dd685b73-c019-4ebf-b5c2-3cf0d6d0154d }"}
-			s{"{ e6110139-7301-4460-b32d-d53715c3d231 }"}
-			s{"{ f5990acf-3740-48f7-9d85-38816c573ce1 }"}
-			s{"{ fa2a081b-b9f4-49e9-ba7c-78fbad195f4a }"}
-			s{"{ fa2e654a-e75d-4687-ad4c-64f8dacc506d }"}
-		}
 	}
 }
 o
@@ -353,43 +360,6 @@ o
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
-	}
-}
-o
-{
-	Uuid %id{u4{4538525219092991391,5381193384925595199}}
-	s %t{"ezDocumentRoot"}
-	u3 %v{1}
-	s %n{"ObjectTree"}
-	p
-	{
-		VarArray %Children
-		{
-			Uuid{u4{11415891658868336771,5534171008924279206}}
-			Uuid{u4{6741252488704288162,5173225220893522193}}
-			Uuid{u4{7811828695471064732,4759892533332212335}}
-			Uuid{u4{6387010597100620615,9718116309254385909}}
-			Uuid{u4{1363368935032741667,9815442937903835132}}
-			Uuid{u4{18385294910371849166,14773666713826008706}}
-			Uuid{u4{16247945321422887131,15120110754606295474}}
-			Uuid{u4{14823127223052443014,1631590456818917432}}
-			Uuid{u4{2956341309458729327,2146561543805096039}}
-			Uuid{u4{1531523211088285210,7104785319727269613}}
-			Uuid{u4{13401611196216199964,7559189231282805757}}
-			Uuid{u4{11976793097845755847,12517413007204979331}}
-			Uuid{u4{2198568799475590054,12575465789881993114}}
-			Uuid{u4{773750701105145937,17533689565804166688}}
-			Uuid{u4{2673907130985674214,4498311364583679961}}
-			Uuid{u4{4098725229356118331,17986831662371058003}}
-			Uuid{u4{5144042002164485343,4897103768776994270}}
-			Uuid{u4{3719223903794041226,9855327544699167844}}
-			Uuid{u4{4871156761583409034,10508184334572692352}}
-			Uuid{u4{3446338663212964917,15466408110494865926}}
-			Uuid{u4{2525260722300103112,2573838504986010183}}
-			Uuid{u4{3950078820670547229,16062358802773388225}}
-			Uuid{u4{10237264879813077424,2248103785649384500}}
-			Uuid{u4{8812446781442633307,7206327561571558074}}
-		}
 	}
 }
 o
@@ -427,6 +397,43 @@ o
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{11415891658868336771,5534171008924279206}}
+			Uuid{u4{6741252488704288162,5173225220893522193}}
+			Uuid{u4{7811828695471064732,4759892533332212335}}
+			Uuid{u4{6387010597100620615,9718116309254385909}}
+			Uuid{u4{1363368935032741667,9815442937903835132}}
+			Uuid{u4{18385294910371849166,14773666713826008706}}
+			Uuid{u4{16247945321422887131,15120110754606295474}}
+			Uuid{u4{14823127223052443014,1631590456818917432}}
+			Uuid{u4{2956341309458729327,2146561543805096039}}
+			Uuid{u4{1531523211088285210,7104785319727269613}}
+			Uuid{u4{13401611196216199964,7559189231282805757}}
+			Uuid{u4{11976793097845755847,12517413007204979331}}
+			Uuid{u4{2198568799475590054,12575465789881993114}}
+			Uuid{u4{773750701105145937,17533689565804166688}}
+			Uuid{u4{2673907130985674214,4498311364583679961}}
+			Uuid{u4{4098725229356118331,17986831662371058003}}
+			Uuid{u4{5144042002164485343,4897103768776994270}}
+			Uuid{u4{3719223903794041226,9855327544699167844}}
+			Uuid{u4{4871156761583409034,10508184334572692352}}
+			Uuid{u4{3446338663212964917,15466408110494865926}}
+			Uuid{u4{2525260722300103112,2573838504986010183}}
+			Uuid{u4{3950078820670547229,16062358802773388225}}
+			Uuid{u4{10237264879813077424,2248103785649384500}}
+			Uuid{u4{8812446781442633307,7206327561571558074}}
+		}
 	}
 }
 o
@@ -1004,79 +1011,7 @@ Types
 {
 o
 {
-	Uuid %id{u4{12449305736677325230,1084758590379275432}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezCameraMode"}
-		u3 %TypeSize{1}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{12984103802138964609,1901275426220383600}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{7279348988424711398,2515784178376553072}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezCameraUsageHint"}
-		u3 %TypeSize{1}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{11061541817101818123,3867562407177176337}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{""}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{14270314853994606438,6044130159099333730}}
+	Uuid %id{u4{6914292285925798136,1108246313736053318}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -1094,7 +1029,25 @@ o
 }
 o
 {
-	Uuid %id{u4{18096584933610600270,6769222261053151553}}
+	Uuid %id{u4{15272284220582915620,3290797833852729302}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCameraMode"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14633628111157529947,3328384510238863063}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -1105,32 +1058,14 @@ o
 		s %ParentTypeName{"ezRenderComponent"}
 		s %PluginName{"Static"}
 		VarArray %Properties{}
-		s %TypeName{"ezSkyBoxComponent"}
-		u3 %TypeSize{88}
-		u3 %TypeVersion{4}
+		s %TypeName{"ezMeshComponent"}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{2}
 	}
 }
 o
 {
-	Uuid %id{u4{6467017751125590593,7158000587691918333}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{""}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezReflectedClass"}
-		u3 %TypeSize{8}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{915440353964695395,7400812910450444469}}
+	Uuid %id{u4{13649880205026559927,7297274558339895637}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -1148,7 +1083,43 @@ o
 }
 o
 {
-	Uuid %id{u4{15626900963732327278,8724655806046315562}}
+	Uuid %id{u4{8781371220448777178,8391987746845008996}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSkyBoxComponent"}
+		u3 %TypeSize{88}
+		u3 %TypeVersion{4}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeSize{72}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14543630447052729839,9459039542380974471}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -1166,7 +1137,25 @@ o
 }
 o
 {
-	Uuid %id{u4{1384393750607226200,9143286981169020248}}
+	Uuid %id{u4{16508388108942581257,9601460247128054931}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCameraComponent"}
+		u3 %TypeSize{520}
+		u3 %TypeVersion{7}
+	}
+}
+o
+{
+	Uuid %id{u4{16777871838542487558,12116962178824346014}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -1184,7 +1173,7 @@ o
 }
 o
 {
-	Uuid %id{u4{10520739297958708185,13582377368764297950}}
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -1192,17 +1181,35 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
+		s %ParentTypeName{""}
 		s %PluginName{"Static"}
 		VarArray %Properties{}
-		s %TypeName{"ezCameraComponent"}
-		u3 %TypeSize{184}
-		u3 %TypeVersion{5}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
 	}
 }
 o
 {
-	Uuid %id{u4{9257402730400276231,14693459876838695567}}
+	Uuid %id{u4{17965579125706971693,17079293274319994058}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezCameraUsageHint"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -1210,12 +1217,12 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderComponent"}
+		s %ParentTypeName{""}
 		s %PluginName{"Static"}
 		VarArray %Properties{}
-		s %TypeName{"ezMeshComponent"}
-		u3 %TypeSize{128}
-		u3 %TypeVersion{2}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
 	}
 }
 }

@@ -1,3 +1,36 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{2160242316676500657,4769815895982398209}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Collision Mesh"}
+		VarArray %Dependencies
+		{
+			s{"Sponza/sponza.obj"}
+		}
+		Uuid %DocumentID{u4{2160242316676500657,4769815895982398209}}
+		u4 %Hash{9135959740702622461}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
+			s{"{ 14bf3313-89f3-4692-873c-d127980bf748 }"}
+			s{"{ 479c8816-d06c-48fd-a907-af5be24225cb }"}
+			s{"{ 56a944d9-3686-4730-8b7d-104d2f02e2b1 }"}
+			s{"{ 72115f7a-5947-4a21-899f-868368bd41d7 }"}
+			s{"{ a28bc6e0-f7ba-4e1a-9515-8ccf0ae28d1c }"}
+			s{"{ ccd32963-93f9-401c-95d1-bf4e491a2df3 }"}
+			s{"{ f1f2d899-331b-47f8-bbe3-e520a23b481e }"}
+		}
+	}
+}
+}
 Objects
 {
 o
@@ -64,49 +97,6 @@ o
 	{
 		s %Label{"SponzaColumnC"}
 		s %Resource{"{ 14bf3313-89f3-4692-873c-d127980bf748 }"}
-	}
-}
-AssetInfo
-{
-	Uuid %id{u4{2160242316676500657,4769815895982398209}}
-	s %t{"ezAssetDocumentInfo"}
-	u3 %v{1}
-	s %n{"Header"}
-	p
-	{
-		s %AssetType{"Collision Mesh"}
-		VarArray %Dependencies
-		{
-			s{"Sponza/sponza.obj"}
-		}
-		Uuid %DocumentID{u4{2160242316676500657,4769815895982398209}}
-		u4 %Hash{11331302227729727770}
-		VarArray %Outputs{}
-		VarArray %References
-		{
-			s{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
-			s{"{ 14bf3313-89f3-4692-873c-d127980bf748 }"}
-			s{"{ 479c8816-d06c-48fd-a907-af5be24225cb }"}
-			s{"{ 56a944d9-3686-4730-8b7d-104d2f02e2b1 }"}
-			s{"{ 72115f7a-5947-4a21-899f-868368bd41d7 }"}
-			s{"{ a28bc6e0-f7ba-4e1a-9515-8ccf0ae28d1c }"}
-			s{"{ ccd32963-93f9-401c-95d1-bf4e491a2df3 }"}
-			s{"{ f1f2d899-331b-47f8-bbe3-e520a23b481e }"}
-		}
-	}
-}
-o
-{
-	Uuid %id{u4{4538525219092991391,5381193384925595199}}
-	s %t{"ezDocumentRoot"}
-	u3 %v{1}
-	s %n{"ObjectTree"}
-	p
-	{
-		VarArray %Children
-		{
-			Uuid{u4{13234463231986827952,5451144115101194910}}
-		}
 	}
 }
 o
@@ -188,6 +178,20 @@ o
 	{
 		s %Label{"chain"}
 		s %Resource{"{ 72115f7a-5947-4a21-899f-868368bd41d7 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{13234463231986827952,5451144115101194910}}
+		}
 	}
 }
 o
@@ -360,25 +364,7 @@ Types
 {
 o
 {
-	Uuid %id{u4{11430702158661509795,453456434903338653}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"ezEditorPluginPhysX"}
-		VarArray %Properties{}
-		s %TypeName{"ezCollisionMeshAssetProperties"}
-		u3 %TypeSize{1232}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{16151412834014881353,455602171930801939}}
+	Uuid %id{u4{800524819073401600,4234007076145470586}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -387,34 +373,16 @@ o
 		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"Static"}
+		s %PluginName{"ezEditorPluginPhysX"}
 		VarArray %Properties{}
-		s %TypeName{"ezBasisAxis"}
+		s %TypeName{"ezCollisionMeshType"}
 		u3 %TypeSize{1}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
 {
-	Uuid %id{u4{12984103802138964609,1901275426220383600}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezReflectedClass"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezDocumentRoot"}
-		u3 %TypeSize{72}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{2619243749336552648,3707235020139473642}}
+	Uuid %id{u4{4804660000725455364,6811252556017389458}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -432,7 +400,25 @@ o
 }
 o
 {
-	Uuid %id{u4{11061541817101818123,3867562407177176337}}
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeSize{72}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -450,7 +436,43 @@ o
 }
 o
 {
-	Uuid %id{u4{6467017751125590593,7158000587691918333}}
+	Uuid %id{u4{14469700887475489738,16951777026318265606}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBasisAxis"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{10666774207481832673,17609779990587517893}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginPhysX"}
+		VarArray %Properties{}
+		s %TypeName{"ezCollisionMeshAssetProperties"}
+		u3 %TypeSize{1232}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
 	p
@@ -464,24 +486,6 @@ o
 		s %TypeName{"ezReflectedClass"}
 		u3 %TypeSize{8}
 		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{6200827302220788278,12043805384454163904}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"ezEditorPluginPhysX"}
-		VarArray %Properties{}
-		s %TypeName{"ezCollisionMeshType"}
-		u3 %TypeSize{1}
-		u3 %TypeVersion{2}
 	}
 }
 }
