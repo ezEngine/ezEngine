@@ -103,7 +103,7 @@ ezUInt32 CalculateHash(const ezArrayPtr<ezPermutationVar>& vars)
   }
 
   auto bytes = buffer.GetByteArrayPtr();
-  return ezHashing::MurmurHash(bytes.GetPtr(), bytes.GetCount());
+  return ezHashing::MurmurHash32(bytes.GetPtr(), bytes.GetCount());
 }
 
 }

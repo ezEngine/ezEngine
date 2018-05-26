@@ -1,4 +1,4 @@
-﻿#include <Foundation/Strings/Implementation/StringBase.h>
+#include <Foundation/Strings/Implementation/StringBase.h>
 
 namespace ezInternal
 {
@@ -14,7 +14,7 @@ namespace ezInternal
     template <class Derived>
     EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezStringBase<Derived>& string)
     {
-      return ezHashing::MurmurHash((void*)string.InternalGetData(), string.InternalGetElementCount());
+      return ezHashing::MurmurHash32((void*)string.InternalGetData(), string.InternalGetElementCount());
     }
   };
 
@@ -103,7 +103,7 @@ struct ezHashHelper<const char*>
 {
   EZ_ALWAYS_INLINE static ezUInt32 Hash(const char* szValue)
   {
-    return ezHashing::MurmurHash(szValue);
+    return ezHashing::MurmurHash32(szValue);
   }
 
   EZ_ALWAYS_INLINE static bool Equal(const char* a, const char* b)

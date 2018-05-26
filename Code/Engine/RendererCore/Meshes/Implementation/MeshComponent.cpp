@@ -194,7 +194,7 @@ void ezMeshComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
       data[2] = GetUniqueID();
     }
 
-    ezUInt32 uiBatchId = ezHashing::MurmurHash(data, sizeof(data));
+    ezUInt32 uiBatchId = ezHashing::MurmurHash32(data, sizeof(data));
 
     ezMeshRenderData* pRenderData = CreateRenderData(uiBatchId);
     {

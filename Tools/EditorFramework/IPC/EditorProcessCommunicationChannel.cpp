@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorFramework/IPC/EditorProcessCommunicationChannel.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Communication/IpcChannel.h>
@@ -18,10 +18,10 @@ ezResult ezEditorProcessCommunicationChannel::StartClientProcess(const char* szP
   static ezUInt64 uiUniqueHash = 0;
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   DWORD PID = GetCurrentProcessId();
-  uiUniqueHash = ezHashing::MurmurHash64(&PID, sizeof(PID), uiUniqueHash);
+  uiUniqueHash = ezHashing::xxHash64(&PID, sizeof(PID), uiUniqueHash);
 #endif
   ezTime time = ezTime::Now();
-  uiUniqueHash = ezHashing::MurmurHash64(&time, sizeof(time), uiUniqueHash);
+  uiUniqueHash = ezHashing::xxHash64(&time, sizeof(time), uiUniqueHash);
   ezStringBuilder sMemName;
   sMemName.Format("{0}", ezArgU(uiUniqueHash, 16, false, 16, true));
   ++uiUniqueHash;

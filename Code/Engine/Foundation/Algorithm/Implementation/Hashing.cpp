@@ -2,7 +2,7 @@
 #include <Foundation/Algorithm/Hashing.h>
 
 //static
-ezUInt32 ezHashing::MurmurHash(const void* pKey, size_t uiSizeInByte, ezUInt32 uiSeed /*= 0*/)
+ezUInt32 ezHashing::MurmurHash32(const void* pKey, size_t uiSizeInByte, ezUInt32 uiSeed /*= 0*/)
 {
   const ezUInt32 m = ezInternal::MURMUR_M;
   const ezUInt32 r = ezInternal::MURMUR_R;

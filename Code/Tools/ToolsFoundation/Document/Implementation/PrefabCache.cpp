@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <ToolsFoundation/Document/PrefabCache.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/MemoryStream.h>
@@ -58,7 +58,7 @@ const ezAbstractObjectGraph* ezPrefabCache::GetCachedPrefabGraph(const ezUuid& d
 
 void ezPrefabCache::LoadGraph(ezAbstractObjectGraph& out_graph, ezStringView sGraph)
 {
-  ezUInt64 uiHash = ezHashing::MurmurHash64(sGraph.GetData(), sGraph.GetElementCount());
+  ezUInt64 uiHash = ezHashing::xxHash64(sGraph.GetData(), sGraph.GetElementCount());
   auto it = m_CachedGraphs.Find(uiHash);
   if (!it.IsValid())
   {

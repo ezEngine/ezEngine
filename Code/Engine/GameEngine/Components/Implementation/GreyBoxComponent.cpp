@@ -141,7 +141,7 @@ void ezGreyBoxComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 
     // Generate batch id from mesh, material and part index.
     ezUInt32 data[] = { uiMeshIDHash, uiMaterialIDHash, uiPartIndex, uiFlipWinding };
-    ezUInt32 uiBatchId = ezHashing::MurmurHash(data, sizeof(data));
+    ezUInt32 uiBatchId = ezHashing::MurmurHash32(data, sizeof(data));
 
     ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner(), uiBatchId);
     {

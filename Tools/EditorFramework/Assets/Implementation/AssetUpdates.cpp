@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
@@ -690,7 +690,7 @@ ezUInt64 ezAssetCurator::HashFile(ezStreamReader& InputStream, ezStreamWriter* p
     if (uiRead == 0)
       break;
 
-    uiHash = ezHashing::MurmurHash64(uiCache, (size_t)uiRead, uiHash);
+    uiHash = ezHashing::xxHash64(uiCache, (size_t)uiRead, uiHash);
 
     if (pPassThroughStream != nullptr)
       pPassThroughStream->WriteBytes(uiCache, uiRead);

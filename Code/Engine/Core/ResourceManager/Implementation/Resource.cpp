@@ -60,7 +60,7 @@ void ezResourceBase::SetPriority(ezResourcePriority priority)
 void ezResourceBase::SetUniqueID(const char* szUniqueID, bool bIsReloadable)
 {
   m_UniqueID = szUniqueID;
-  m_uiUniqueIDHash = ezHashing::MurmurHash(szUniqueID);
+  m_uiUniqueIDHash = ezHashing::MurmurHash32(szUniqueID);
   SetIsReloadable(bIsReloadable);
 
   ezResourceEvent e;

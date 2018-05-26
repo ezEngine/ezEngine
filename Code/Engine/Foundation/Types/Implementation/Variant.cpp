@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
@@ -16,7 +16,7 @@ struct ComputeHashFunc
   {
     EZ_CHECK_AT_COMPILETIME_MSG(sizeof(typename ezVariant::TypeDeduction<T>::StorageType) <= sizeof(float) * 4 &&
                                 !ezVariant::TypeDeduction<T>::forceSharing, "This type requires special handling! Add a specialization below.");
-    m_uiHash = ezHashing::MurmurHash64(m_pData, sizeof(T), m_uiHash);
+    m_uiHash = ezHashing::xxHash64(m_pData, sizeof(T), m_uiHash);
   }
 
   const void* m_pData;
@@ -28,25 +28,25 @@ EZ_ALWAYS_INLINE void ComputeHashFunc::operator() < ezString > ()
 {
   ezString* pData = (ezString*) m_pData;
 
-  m_uiHash = ezHashing::MurmurHash64(pData->GetData(), pData->GetElementCount(), m_uiHash);
+  m_uiHash = ezHashing::xxHash64(pData->GetData(), pData->GetElementCount(), m_uiHash);
 }
 
 template <>
 EZ_ALWAYS_INLINE void ComputeHashFunc::operator() < ezMat3 > ()
 {
-  m_uiHash = ezHashing::MurmurHash64(m_pData, sizeof(ezMat3), m_uiHash);
+  m_uiHash = ezHashing::xxHash64(m_pData, sizeof(ezMat3), m_uiHash);
 }
 
 template <>
 EZ_ALWAYS_INLINE void ComputeHashFunc::operator() < ezMat4 > ()
 {
-  m_uiHash = ezHashing::MurmurHash64(m_pData, sizeof(ezMat4), m_uiHash);
+  m_uiHash = ezHashing::xxHash64(m_pData, sizeof(ezMat4), m_uiHash);
 }
 
 template <>
 EZ_ALWAYS_INLINE void ComputeHashFunc::operator() < ezTransform > ()
 {
-  m_uiHash = ezHashing::MurmurHash64(m_pData, sizeof(ezTransform), m_uiHash);
+  m_uiHash = ezHashing::xxHash64(m_pData, sizeof(ezTransform), m_uiHash);
 }
 
 template <>
@@ -54,7 +54,7 @@ EZ_ALWAYS_INLINE void ComputeHashFunc::operator() < ezDataBuffer > ()
 {
   ezDataBuffer* pData = (ezDataBuffer*)m_pData;
 
-  m_uiHash = ezHashing::MurmurHash64(pData->GetData(), pData->GetCount(), m_uiHash);
+  m_uiHash = ezHashing::xxHash64(pData->GetData(), pData->GetCount(), m_uiHash);
 }
 
 template <>
@@ -63,7 +63,7 @@ EZ_FORCE_INLINE void ComputeHashFunc::operator() < ezVariantArray > ()
   ezVariantArray* pData = (ezVariantArray*) m_pData;
 
   EZ_ASSERT_NOT_IMPLEMENTED;
-  //m_uiHash = ezHashing::MurmurHash64(pData, sizeof(ezMat4), m_uiHash);
+  //m_uiHash = ezHashing::xxHash64(pData, sizeof(ezMat4), m_uiHash);
 }
 
 template <>
@@ -72,7 +72,7 @@ EZ_FORCE_INLINE void ComputeHashFunc::operator() < ezVariantDictionary > ()
   ezVariantDictionary* pData = (ezVariantDictionary*) m_pData;
 
   EZ_ASSERT_NOT_IMPLEMENTED;
-  //m_uiHash = ezHashing::MurmurHash64(pData, sizeof(ezMat4), m_uiHash);
+  //m_uiHash = ezHashing::xxHash64(pData, sizeof(ezMat4), m_uiHash);
 }
 
 struct CompareFunc

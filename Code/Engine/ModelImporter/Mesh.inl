@@ -1,4 +1,4 @@
-﻿namespace ezModelImporter
+namespace ezModelImporter
 {
   inline void Mesh::Triangle::operator = (const Mesh::Triangle& rhs)
   {
@@ -83,7 +83,7 @@ struct ezHashHelper<typename ezModelImporter::Mesh::DataIndexBundle<NumStreams>>
 
   static ezUInt32 Hash(const ValueType& value)
   {
-    return ezHashing::MurmurHash(&value, sizeof(ValueType));
+    return ezHashing::MurmurHash32(&value, sizeof(ValueType));
   }
 
   static bool Equal(const ValueType& a, const ValueType& b)

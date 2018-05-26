@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
@@ -386,7 +386,7 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
       }
 
       spd.m_StageBinary[stage].m_Stage = (ezGALShaderStage::Enum) stage;
-      spd.m_StageBinary[stage].m_uiSourceHash = ezHashing::MurmurHash(ezHashing::StringWrapper(spd.m_szShaderSource[stage]));
+      spd.m_StageBinary[stage].m_uiSourceHash = ezHashing::MurmurHash32(ezHashing::StringWrapper(spd.m_szShaderSource[stage]));
 
       if (spd.m_StageBinary[stage].m_uiSourceHash != 0)
       {

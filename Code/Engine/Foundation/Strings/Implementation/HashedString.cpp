@@ -45,7 +45,7 @@ void ezHashedString::InitHashedString()
 
   g_bHashedStringsInitialized = true;
 
-  g_hsEmpty = AddHashedString("", ezHashing::MurmurHash(""));
+  g_hsEmpty = AddHashedString("", ezHashing::MurmurHash32(""));
 
   // this one should never get deleted, so make sure its refcount is 2
   g_hsEmpty.Value().m_iRefCount.Increment();

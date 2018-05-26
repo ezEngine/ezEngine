@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/Reflection/Implementation/RTTI.h>
 #include <Foundation/Reflection/Implementation/AbstractProperty.h>
 
@@ -185,7 +185,7 @@ void ezRTTI::UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32
 
 void ezRTTI::RegisterType(ezRTTI* pType)
 {
-  m_uiTypeNameHash = ezHashing::MurmurHash(m_szTypeName);
+  m_uiTypeNameHash = ezHashing::MurmurHash32(m_szTypeName);
   static_cast<ezTypeHashTable*>(ezRTTI::GetTypeHashTable())->Insert(pType->m_szTypeName, pType);
 }
 

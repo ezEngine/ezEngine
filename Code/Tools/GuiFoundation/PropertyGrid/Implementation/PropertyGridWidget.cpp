@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/TagSetPropertyWidget.moc.h>
@@ -491,7 +491,7 @@ ezUInt32 ezQtPropertyGridWidget::GetGroupBoxHash(ezQtGroupBoxBase* pBox) const
     ezQtGroupBoxBase* pCurBox = qobject_cast<ezQtGroupBoxBase*>(pCur);
     if (pCurBox != nullptr)
     {
-      uiHash = ezHashing::MurmurHash(ezHashing::StringWrapper(pCurBox->GetTitle().toUtf8().data()), uiHash);
+      uiHash = ezHashing::MurmurHash32(ezHashing::StringWrapper(pCurBox->GetTitle().toUtf8().data()), uiHash);
     }
     pCur = pCur->parentWidget();
   }

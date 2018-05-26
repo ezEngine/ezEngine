@@ -19,8 +19,8 @@ ezUuid ezUuid::StableUuidForString(const char* szString)
 	size_t length = std::strlen( szString );
 
 	ezUuid NewUuid;
-	NewUuid.m_uiLow = ezHashing::MurmurHash64( szString, length );
-	NewUuid.m_uiHigh = ezHashing::MurmurHash64( szString, length, 0x7FFFFFFFFFFFFFE7u );
+	NewUuid.m_uiLow = ezHashing::xxHash64( szString, length );
+	NewUuid.m_uiHigh = ezHashing::xxHash64( szString, length, 0x7FFFFFFFFFFFFFE7u );
 
 	return NewUuid;
 }
@@ -28,8 +28,8 @@ ezUuid ezUuid::StableUuidForString(const char* szString)
 ezUuid ezUuid::StableUuidForInt(ezInt64 iInt)
 {
   ezUuid NewUuid;
-  NewUuid.m_uiLow = ezHashing::MurmurHash64(&iInt, sizeof(ezInt64));
-  NewUuid.m_uiHigh = ezHashing::MurmurHash64(&iInt, sizeof(ezInt64), 0x7FFFFFFFFFFFFFE7u);
+  NewUuid.m_uiLow = ezHashing::xxHash64(&iInt, sizeof(ezInt64));
+  NewUuid.m_uiHigh = ezHashing::xxHash64(&iInt, sizeof(ezInt64), 0x7FFFFFFFFFFFFFE7u);
 
   return NewUuid;
 }

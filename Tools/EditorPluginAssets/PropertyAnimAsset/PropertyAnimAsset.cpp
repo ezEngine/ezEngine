@@ -792,7 +792,7 @@ ezUuid ezPropertyAnimAssetDocument::CreateTrack(const ezDocumentObject* pObject,
 
     ezColorGammaUB color = ezColor::White;
 
-    const ezUInt32 uiNameHash = ezHashing::CRC32Hash(sObjectSearchSequence.GetData(), sObjectSearchSequence.GetElementCount());
+    const ezUInt32 uiNameHash = ezHashing::xxHash32(sObjectSearchSequence.GetData(), sObjectSearchSequence.GetElementCount());
     const ezUInt32 uiColorIdx = uiNameHash % EZ_ARRAY_SIZE(g_CurveColors);
 
     switch (target)

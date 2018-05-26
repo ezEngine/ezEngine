@@ -256,7 +256,7 @@ void ezAssetDocument::EngineConnectionEventHandler(const ezEditorEngineProcessCo
 
 ezUInt64 ezAssetDocument::GetDocumentHash() const
 {
-  ezUInt64 uiHash = ezHashing::MurmurHash64(&m_pDocumentInfo->m_DocumentID, sizeof(ezUuid));
+  ezUInt64 uiHash = ezHashing::xxHash64(&m_pDocumentInfo->m_DocumentID, sizeof(ezUuid));
   for (auto pChild : GetObjectManager()->GetRootObject()->GetChildren())
   {
     if (pChild->GetParentPropertyType()->GetAttributeByType<ezTemporaryAttribute>() != nullptr)
@@ -277,9 +277,9 @@ ezUInt64 ezAssetDocument::GetDocumentHash() const
   typesSorted.Sort([](const ezRTTI* a, const ezRTTI* b) { return ezStringUtils::Compare(a->GetTypeName(), b->GetTypeName()) < 0; });
   for (const ezRTTI* pType : typesSorted)
   {
-    uiHash = ezHashing::MurmurHash64(pType->GetTypeName(), std::strlen(pType->GetTypeName()), uiHash);
+    uiHash = ezHashing::xxHash64(pType->GetTypeName(), std::strlen(pType->GetTypeName()), uiHash);
     const ezUInt32 uiType = pType->GetTypeVersion();
-    uiHash = ezHashing::MurmurHash64(&uiType, sizeof(uiType), uiHash);
+    uiHash = ezHashing::xxHash64(&uiType, sizeof(uiType), uiHash);
   }
   return uiHash;
 }
