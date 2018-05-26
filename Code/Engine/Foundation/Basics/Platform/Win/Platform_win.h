@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS)
   #error "This header should only be included on windows platforms"
@@ -49,6 +49,7 @@ enum ezWinRTSDKVersion
   EZ_WINDOWS_VERSION_10_RS1,  // The "Anniversary Update" ('Redstone 1')
   EZ_WINDOWS_VERSION_10_RS2,  // The "Creator's Update" ('Redstone 2')
   EZ_WINDOWS_VERSION_10_RS3,  // The "Fall Creator's Update" ('Redstone 3')
+  EZ_WINDOWS_VERSION_10_RS4,  // The "April 2018 Update" ('Redstone 4')
 
   // Assume newer version
   EZ_WINDOWS_VERSION_UNKNOWN = 127,
@@ -64,6 +65,8 @@ enum ezWinRTSDKVersion
 #     define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_10_RS2
 #  elif defined(NTDDI_WIN10_RS3) && WDK_NTDDI_VERSION == NTDDI_WIN10_RS3
 #     define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_10_RS3
+#  elif defined(NTDDI_WIN10_RS4) && WDK_NTDDI_VERSION == NTDDI_WIN10_RS4
+#     define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_10_RS4
 #  else
 #     define EZ_WINDOWS_SDK_VERSION EZ_WINDOWS_VERSION_UNKNOWN
 #     error Unknown Windows SDK Version
