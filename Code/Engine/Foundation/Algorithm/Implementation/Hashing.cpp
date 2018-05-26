@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <Foundation/Algorithm/Hashing.h>
+#include <ThirdParty/xxHash/xxhash.h>
 
 //static
 ezUInt32 ezHashing::MurmurHash(const void* pKey, size_t uiSizeInByte, ezUInt32 uiSeed /*= 0*/)
