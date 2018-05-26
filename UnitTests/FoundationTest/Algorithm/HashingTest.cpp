@@ -31,12 +31,21 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Hashing)
     static_assert(ezHashing::MurmurHash("This is a test string. 1234") == static_cast<ezUInt32>(0xb999d6c4), "Error in compile time murmur hash calculation!");
 
     // check 64bit hashes
-    ezUInt64 uiHash64 = ezHashing::MurmurHash64(sb.GetData(), sb.GetElementCount());
-    EZ_TEST_INT(uiHash64, 0xf8ebc5e8cb110786);
+    const ezUInt64 uiMurmurHash64 = ezHashing::MurmurHash64(sb.GetData(), sb.GetElementCount());
+    EZ_TEST_INT(uiMurmurHash64, 0xf8ebc5e8cb110786);
 
     // test crc32
-    ezUInt32 uiCrc = ezHashing::CRC32Hash(sb.GetData(), sb.GetElementCount());
-    EZ_TEST_INT(uiCrc, 0x73b5e898);
+    const ezUInt32 uiCrc32 = ezHashing::CRC32Hash(sb.GetData(), sb.GetElementCount());
+    EZ_TEST_INT(uiCrc32, 0x73b5e898);
+
+    // 32 Bit xxHash
+    const ezUInt32 uiXXHash32 = ezHashing::xxHash32(sb.GetData(), sb.GetElementCount());
+    EZ_TEST_INT(uiXXHash32, 0xff35b049);
+
+    // 64 Bit xxHash
+    const ezUInt64 uiXXHash64 = ezHashing::xxHash64(sb.GetData(), sb.GetElementCount());
+    EZ_TEST_INT(uiXXHash64, 0x141fb89c0bf32020);
+
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "HashHelper")

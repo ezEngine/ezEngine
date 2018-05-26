@@ -1,6 +1,5 @@
 #include <PCH.h>
 #include <Foundation/Algorithm/Hashing.h>
-#include <ThirdParty/xxHash/xxhash.h>
 
 //static
 ezUInt32 ezHashing::MurmurHash(const void* pKey, size_t uiSizeInByte, ezUInt32 uiSeed /*= 0*/)
@@ -139,6 +138,21 @@ ezUInt32 ezHashing::CRC32Hash(const void* pKey, size_t uiSizeInBytes)
     uiCRC32 = (uiCRC32 >> 8) ^ uiCRC32Table[(uiCRC32 & 0xFF) ^ static_cast<const ezUInt8*>(pKey)[i]];
 
   return static_cast<ezUInt32>(uiCRC32 ^ 0xFFFFFFFF);
+}
+
+#define XXH_INLINE_ALL
+#include <ThirdParty/xxHash/xxhash.h>
+
+// static
+ezUInt32 ezHashing::xxHash32(const void* pKey, size_t uiSizeInByte, ezUInt32 uiSeed /*= 0*/)
+{
+  return XXH32(pKey, uiSizeInByte, uiSeed);
+}
+
+// static
+ezUInt64 ezHashing::xxHash64(const void* pKey, size_t uiSizeInByte, ezUInt64 uiSeed /*= 0*/)
+{
+  return XXH64(pKey, uiSizeInByte, uiSeed);
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Algorithm_Implementation_Hashing);

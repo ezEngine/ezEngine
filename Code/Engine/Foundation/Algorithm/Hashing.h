@@ -32,6 +32,12 @@ public:
   ///
   /// We cannot pass a string pointer directly since a string constant would be treated as pointer as well.
   static ezUInt32 MurmurHash(StringWrapper str, ezUInt32 uiSeed = 0); // [tested]
+
+  /// \brief Calculates the 32bit xxHash of the given key.
+  static ezUInt32 xxHash32(const void* pKey, size_t uiSizeInByte, ezUInt32 uiSeed = 0); // [tested]
+
+  /// \brief Calculates the 64bit xxHash of the given key.
+  static ezUInt64 xxHash64(const void* pKey, size_t uiSizeInByte, ezUInt64 uiSeed = 0); // [tested]
 };
 
 /// \brief Helper struct to calculate the Hash of different types.
