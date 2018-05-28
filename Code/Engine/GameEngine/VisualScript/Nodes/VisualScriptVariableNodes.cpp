@@ -243,6 +243,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Number, 1, ezRTTIDefaultAlloc
   {
     EZ_MEMBER_PROPERTY("Name", m_sVariable),
     EZ_MEMBER_PROPERTY("Default", m_Value),
+    EZ_MEMBER_PROPERTY("ExposeParam", m_bExposeParameter),
     EZ_OUTPUT_DATA_PIN("Value", 0, ezVisualScriptDataPinType::Number),
   }
   EZ_END_PROPERTIES
@@ -318,6 +319,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Bool, 1, ezRTTIDefaultAllocat
   {
     EZ_MEMBER_PROPERTY("Name", m_sVariable),
     EZ_MEMBER_PROPERTY("Default", m_Value),
+    EZ_MEMBER_PROPERTY("ExposeParam", m_bExposeParameter),
     EZ_OUTPUT_DATA_PIN("Value", 0, ezVisualScriptDataPinType::Boolean),
   }
   EZ_END_PROPERTIES

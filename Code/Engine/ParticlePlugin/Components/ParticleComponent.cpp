@@ -405,8 +405,11 @@ void ezParticleComponent::SetParameter(const char* szKey, const ezVariant& var)
     auto& e = m_FloatParams.ExpandAndGetRef();
     e.m_sName.Assign(szKey);
     e.m_Value = value;
+
+    return;
   }
-  else if (var.CanConvertTo<ezColor>())
+
+  if (var.CanConvertTo<ezColor>())
   {
     ezColor value = var.ConvertTo<ezColor>();
 
@@ -427,6 +430,8 @@ void ezParticleComponent::SetParameter(const char* szKey, const ezVariant& var)
     auto& e = m_ColorParams.ExpandAndGetRef();
     e.m_sName.Assign(szKey);
     e.m_Value = value;
+
+    return;
   }
 }
 

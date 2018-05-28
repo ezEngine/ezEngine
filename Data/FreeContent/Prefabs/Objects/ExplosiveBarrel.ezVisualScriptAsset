@@ -2,6 +2,19 @@ HeaderV2
 {
 o
 {
+	Uuid %id{u4{13302809861787326036,3519864938252093989}}
+	s %t{"ezExposedParameters"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Parameters
+		{
+			Uuid{u4{7357326258215559427,9270590456616093714}}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{17027836698707757194,5326600946078905266}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
@@ -11,10 +24,24 @@ o
 		s %AssetType{"Visual Script"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17027836698707757194,5326600946078905266}}
-		u4 %Hash{2603143662892555242}
-		VarArray %MetaInfo{}
+		u4 %Hash{12881118011834680516}
+		VarArray %MetaInfo
+		{
+			Uuid{u4{13302809861787326036,3519864938252093989}}
+		}
 		VarArray %Outputs{}
 		VarArray %References{}
+	}
+}
+o
+{
+	Uuid %id{u4{7357326258215559427,9270590456616093714}}
+	s %t{"ezExposedParameter"}
+	u3 %v{1}
+	p
+	{
+		d %DefaultValue{0x0000000000002E40}
+		s %Name{"Health"}
 	}
 }
 }
@@ -44,7 +71,7 @@ o
 		{
 			Uuid{u4{2840482508446098892,482085799559416120}}
 		}
-		Vec2 %Node::Pos{f{0x6AA21144,0x2A8A7D42}}
+		Vec2 %Node::Pos{f{0xF5190C44,0xCF65E141}}
 		d %Value{0}
 	}
 }
@@ -85,7 +112,7 @@ o
 		{
 			Uuid{u4{983733281390159242,6915149781409105918}}
 		}
-		Vec2 %Node::Pos{f{0x75609043,0xECB4C643}}
+		Vec2 %Node::Pos{f{0x2ACA8143,0xA871EE43}}
 		s %Type{"ezSpawnComponent"}
 	}
 }
@@ -97,6 +124,7 @@ o
 	p
 	{
 		d %Default{0x0000000000002E40}
+		b %ExposeParam{1}
 		s %Name{"Health"}
 		VarArray %Node::Connections
 		{
@@ -354,6 +382,20 @@ o
 }
 o
 {
+	Uuid %id{u4{13917024263275651997,5823500989519486376}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"ExposeParam"}
+		s %Type{"bool"}
+	}
+}
+o
+{
 	Uuid %id{u4{7294869874293898189,6305022239309693053}}
 	s %t{"ezVisScriptDataPinInAttribute"}
 	u3 %v{1}
@@ -508,6 +550,7 @@ o
 		{
 			Uuid{u4{1541881813831676692,13317889090681514883}}
 			Uuid{u4{16994300278232008023,17665007446872709648}}
+			Uuid{u4{13917024263275651997,5823500989519486376}}
 		}
 		s %TypeName{"VisualScriptNode::ezVisualScriptNode_Number"}
 		u3 %TypeSize{0}

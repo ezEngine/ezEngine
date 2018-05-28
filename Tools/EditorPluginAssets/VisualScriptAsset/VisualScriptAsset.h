@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
@@ -30,6 +30,7 @@ public:
 
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
+  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
 
   virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const override;
   virtual bool Copy(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const override;
@@ -43,4 +44,6 @@ protected:
 
   void GetAllVsNodes(ezDynamicArray<const ezDocumentObject *> &allNodes) const;
   void HighlightConnections(const ezVisualScriptInstanceActivity& act);
+
+
 };

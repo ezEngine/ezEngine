@@ -1,9 +1,10 @@
-﻿#pragma once
+#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Core/World/World.h>
 #include <Core/World/EventMessageHandlerComponent.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Foundation/Types/RangeView.h>
 
 class ezVisualScriptInstance;
 struct ezVisualScriptInstanceActivity;
@@ -43,6 +44,34 @@ public:
   void Update();
 
   static ezEvent<const ezVisualScriptComponentActivityEvent&> s_ActivityEvents;
+
+  //////////////////////////////////////////////////////////////////////////
+  // Exposed Parameters
+public:
+  const ezRangeView<const char*, ezUInt32> GetParameters() const;
+  void SetParameter(const char* szKey, const ezVariant& value);
+  void RemoveParameter(const char* szKey);
+  bool GetParameter(const char* szKey, ezVariant& out_value) const;
+
+private:
+  struct NumberParam
+  {
+    EZ_DECLARE_POD_TYPE();
+    ezHashedString m_sName;
+    double m_Value;
+  };
+
+  struct BoolParam
+  {
+    EZ_DECLARE_POD_TYPE();
+    ezHashedString m_sName;
+    bool m_Value;
+  };
+
+  bool m_bNumberParamsChanged = false;
+  bool m_bBoolParamsChanged = false;
+  ezHybridArray<NumberParam, 2> m_NumberParams;
+  ezHybridArray<BoolParam, 2> m_BoolParams;
 
 protected:
   virtual bool OnUnhandledMessage(ezMessage& msg) override;

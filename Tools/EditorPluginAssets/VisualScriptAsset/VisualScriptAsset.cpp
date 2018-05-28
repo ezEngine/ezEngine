@@ -14,6 +14,8 @@
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <ToolsFoundation/Command/NodeCommands.h>
+#include <EditorFramework/GUI/ExposedParameters.h>
+#include <GameEngine/VisualScript/Nodes/VisualScriptVariableNodes.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ezVisualScriptAssetDocument
@@ -71,10 +73,10 @@ void ezVisualScriptAssetDocument::HandleVsActivityMsg(const ezVisualScriptActivi
 ezStatus ezVisualScriptAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   ezVisualScriptResourceDescriptor desc;
-  if ( GenerateVisualScriptDescriptor( desc ).Failed() )
+  if (GenerateVisualScriptDescriptor(desc).Failed())
   {
-    ezLog::Warning( "Couldn't generate visual script descriptor!" );
-    return ezStatus( EZ_FAILURE );
+    ezLog::Warning("Couldn't generate visual script descriptor!");
+    return ezStatus(EZ_FAILURE);
   }
 
   ezResourceHandleWriteContext context;
@@ -138,9 +140,9 @@ ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScr
     const ezDocumentObject* pObject = allNodes[i];
     const ezVisualScriptNodeDescriptor* pDesc = pTypeRegistry->GetDescriptorForType(pObject->GetType());
 
-    if ( !pDesc )
+    if (!pDesc)
     {
-      ezLog::SeriousWarning( "Couldn't get descriptor from type registry. Are all plugins loaded?" );
+      ezLog::SeriousWarning("Couldn't get descriptor from type registry. Are all plugins loaded?");
       return EZ_FAILURE;
     }
 
@@ -228,6 +230,50 @@ void ezVisualScriptAssetDocument::GetAllVsNodes(ezDynamicArray<const ezDocumentO
 
     allNodes.PushBack(pObject);
   }
+}
+
+void ezVisualScriptAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+{
+  SUPER::UpdateAssetDocumentInfo(pInfo);
+
+  ezExposedParameters* pExposedParams = EZ_DEFAULT_NEW(ezExposedParameters);
+
+  {
+    const ezVisualScriptTypeRegistry* pTypeRegistry = ezVisualScriptTypeRegistry::GetSingleton();
+
+    ezDynamicArray<const ezDocumentObject*> allNodes;
+    GetAllVsNodes(allNodes);
+
+    for (ezUInt32 i = 0; i < allNodes.GetCount(); ++i)
+    {
+      const ezDocumentObject* pObject = allNodes[i];
+      const ezVisualScriptNodeDescriptor* pDesc = pTypeRegistry->GetDescriptorForType(pObject->GetType());
+
+      // TODO: should gather all parameters (exposed and not), check that duplicate names use the same type and default value
+      // OR: improve how parameters are registered in general (single point of definition), maybe a script property
+
+      if (pDesc->m_sTypeName == "ezVisualScriptNode_Bool" || pDesc->m_sTypeName == "ezVisualScriptNode_Number")
+      {
+        const ezVariant varExpose = pObject->GetTypeAccessor().GetValue("ExposeParam");
+        const ezVariant varName = pObject->GetTypeAccessor().GetValue("Name");
+        const ezVariant varValue = pObject->GetTypeAccessor().GetValue("Default");
+
+        EZ_ASSERT_DEBUG(varExpose.IsA<bool>(), "Missing or invalid property");
+        EZ_ASSERT_DEBUG(varName.IsA<ezString>(), "Missing or invalid property");
+        EZ_ASSERT_DEBUG(varValue.IsA<bool>() || varValue.IsA<double>(), "Missing or invalid property");
+
+        if (varExpose.ConvertTo<bool>())
+        {
+          auto& param = pExposedParams->m_Parameters.ExpandAndGetRef();
+          param.m_sName = varName.ConvertTo<ezString>();
+          param.m_DefaultValue = varValue;
+        }
+      }
+    }
+  }
+
+  // Info takes ownership of meta data.
+  pInfo->m_MetaInfo.PushBack(pExposedParams);
 }
 
 void ezVisualScriptAssetDocument::GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const

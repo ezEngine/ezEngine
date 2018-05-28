@@ -15,3 +15,4 @@ The following libraries are used in ezEngine:
   * [dear imgui](https://github.com/ocornut/imgui): Library for easy debug GUIs. MIT license. Also uses several files from [stb](https://github.com/nothings/stb)
   * [Assimp](http://www.assimp.org/): Open Asset Import Library, a portable Open Source library to import various well-known 3D model formats in a uniform manner.
   * [Recast](https://github.com/recastnavigation/recastnavigation) A library to generate navigation meshes from arbitrary 3D geometry.
+  * [xxHash](https://github.com/Cyan4973/xxHash) A very fast hash algorithm.
