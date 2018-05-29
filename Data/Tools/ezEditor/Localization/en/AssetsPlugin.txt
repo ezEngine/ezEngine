@@ -159,3 +159,7 @@ ezSkeletonBoneGeometryType::Sphere;Sphere
 ezSkeletonBoneGeometryType::Box;Box
 ezSimpleAnimationComponent;Simple Animation
 ezVisualizeSkeletonComponent;Visualize Skeleton
+BoolParameters;Bool Variables
+NumberParameters;Number Variables
+ezVisualScriptParameterNumber;Number Variable
+ezVisualScriptParameterBool;Bool Variable

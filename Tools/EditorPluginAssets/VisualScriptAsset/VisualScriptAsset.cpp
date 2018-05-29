@@ -58,7 +58,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAssetProperties, 1, ezRTTIDefaultA
     EZ_ARRAY_MEMBER_PROPERTY("BoolParameters", m_BoolParameters),
     EZ_ARRAY_MEMBER_PROPERTY("NumberParameters", m_NumberParameters)
   }
-  EZ_END_PROPERTIES
+    EZ_END_PROPERTIES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -260,6 +260,12 @@ ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScr
 
     for (const auto& p : GetProperties()->m_BoolParameters)
     {
+      if (p.m_sName.IsEmpty())
+      {
+        ezLog::Warning("Visual script declared an unnamed bool variable. Variable is ignored.");
+        continue;
+      }
+
       auto& outP = desc.m_BoolParameters.ExpandAndGetRef();
       outP.m_sName.Assign(p.m_sName.GetData());
       outP.m_Value = p.m_DefaultValue;
@@ -270,10 +276,82 @@ ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScr
 
     for (const auto& p : GetProperties()->m_NumberParameters)
     {
+      if (p.m_sName.IsEmpty())
+      {
+        ezLog::Warning("Visual script declared an unnamed number variable. Variable is ignored.");
+        continue;
+      }
+
       auto& outP = desc.m_NumberParameters.ExpandAndGetRef();
       outP.m_sName.Assign(p.m_sName.GetData());
       outP.m_Value = p.m_DefaultValue;
     }
+  }
+
+  // verify used local variables
+  {
+    for (ezUInt32 i = 0; i < allNodes.GetCount(); ++i)
+    {
+      const ezDocumentObject* pObject = allNodes[i];
+      const ezVisualScriptNodeDescriptor* pDesc = pTypeRegistry->GetDescriptorForType(pObject->GetType());
+
+      if (pDesc->m_sTypeName == "ezVisualScriptNode_Bool"
+        || pDesc->m_sTypeName == "ezVisualScriptNode_Number"
+        || pDesc->m_sTypeName == "ezVisualScriptNode_StoreNumber"
+        || pDesc->m_sTypeName == "ezVisualScriptNode_StoreBool"
+        || pDesc->m_sTypeName == "ezVisualScriptNode_ToggleBool")
+      {
+        const ezVariant varName = pObject->GetTypeAccessor().GetValue("Name");
+        EZ_ASSERT_DEBUG(varName.IsA<ezString>(), "Missing or invalid property");
+
+        enum class ValueType { Bool, Number };
+
+        ValueType eValueType = ValueType::Number;
+
+        if (pDesc->m_sTypeName == "ezVisualScriptNode_Bool"
+          || pDesc->m_sTypeName == "ezVisualScriptNode_StoreBool"
+          || pDesc->m_sTypeName == "ezVisualScriptNode_ToggleBool")
+        {
+          eValueType = ValueType::Bool;
+        }
+
+        const ezString name = varName.ConvertTo<ezString>();
+
+        bool found = false;
+
+        if (eValueType == ValueType::Bool)
+        {
+          for (const auto& p : desc.m_BoolParameters)
+          {
+            if (p.m_sName == name)
+            {
+              found = true;
+              break;
+            }
+          }
+        }
+
+        if (eValueType == ValueType::Number)
+        {
+          for (const auto& p : desc.m_NumberParameters)
+          {
+            if (p.m_sName == name)
+            {
+              found = true;
+              break;
+            }
+          }
+        }
+
+        if (!found)
+        {
+          ezLog::Error("Visual Script uses undeclared {0} variable '{1}'.",
+            (eValueType == ValueType::Bool) ? "bool" : "number",
+            name);
+        }
+      }
+    }
+
   }
 
   return EZ_SUCCESS;
