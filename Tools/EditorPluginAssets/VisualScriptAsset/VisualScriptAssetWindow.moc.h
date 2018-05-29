@@ -9,6 +9,7 @@
 class ezQtVisualScriptAssetScene;
 class ezQtNodeView;
 struct ezVisualScriptInstanceActivity;
+class ezVisualScriptAssetDocument;
 
 class EZ_EDITORPLUGINASSETS_DLL ezQtVisualScriptAssetDocumentWindow : public ezQtDocumentWindow
 {
