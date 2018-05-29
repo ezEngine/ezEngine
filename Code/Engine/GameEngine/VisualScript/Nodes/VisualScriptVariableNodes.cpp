@@ -236,14 +236,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Number, 1, ezRTTIDefaultAlloc
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Variables"),
-    new ezTitleAttribute("Number '{Name}' (={Default})"),
+    new ezTitleAttribute("Number '{Name}'"),
   }
   EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sVariable),
-    EZ_MEMBER_PROPERTY("Default", m_Value),
-    EZ_MEMBER_PROPERTY("ExposeParam", m_bExposeParameter),
     EZ_OUTPUT_DATA_PIN("Value", 0, ezVisualScriptDataPinType::Number),
   }
   EZ_END_PROPERTIES
@@ -260,8 +258,8 @@ void ezVisualScriptNode_Number::Execute(ezVisualScriptInstance* pInstance, ezUIn
     m_VarName = m_sVariable.GetData();
   }
 
-  pInstance->GetLocalVariables().RetrieveDouble(m_VarName, m_Value, m_Value);
-  pInstance->SetOutputPinValue(this, 0, &m_Value);
+  pInstance->GetLocalVariables().RetrieveDouble(m_VarName, m_CurrentValue, 0.0);
+  pInstance->SetOutputPinValue(this, 0, &m_CurrentValue);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -312,14 +310,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Bool, 1, ezRTTIDefaultAllocat
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Variables"),
-    new ezTitleAttribute("Bool '{Name}' (={Default})"),
+    new ezTitleAttribute("Bool '{Name}'"),
   }
   EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sVariable),
-    EZ_MEMBER_PROPERTY("Default", m_Value),
-    EZ_MEMBER_PROPERTY("ExposeParam", m_bExposeParameter),
     EZ_OUTPUT_DATA_PIN("Value", 0, ezVisualScriptDataPinType::Boolean),
   }
   EZ_END_PROPERTIES
@@ -336,8 +332,8 @@ void ezVisualScriptNode_Bool::Execute(ezVisualScriptInstance* pInstance, ezUInt8
     m_VarName = m_sVariable.GetData();
   }
 
-  pInstance->GetLocalVariables().RetrieveBool(m_VarName, m_Value, m_Value);
-  pInstance->SetOutputPinValue(this, 0, &m_Value);
+  pInstance->GetLocalVariables().RetrieveBool(m_VarName, m_CurrentValue, false);
+  pInstance->SetOutputPinValue(this, 0, &m_CurrentValue);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -387,13 +383,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_ToggleBool, 1, ezRTTIDefaultA
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Variables"),
-    new ezTitleAttribute("Toggle Bool '{Name}' (={Default})"),
+    new ezTitleAttribute("Toggle Bool '{Name}'"),
   }
   EZ_END_ATTRIBUTES
     EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sVariable),
-    EZ_MEMBER_PROPERTY("Default", m_Value),
     EZ_INPUT_EXECUTION_PIN("run", 0),
     EZ_OUTPUT_EXECUTION_PIN("OnTrue", 0),
     EZ_OUTPUT_EXECUTION_PIN("OnFalse", 1),
@@ -413,13 +408,13 @@ void ezVisualScriptNode_ToggleBool::Execute(ezVisualScriptInstance* pInstance, e
     m_VarName = m_sVariable.GetData();
   }
 
-  pInstance->GetLocalVariables().RetrieveBool(m_VarName, m_Value, m_Value);
-  m_Value = !m_Value;
+  pInstance->GetLocalVariables().RetrieveBool(m_VarName, m_CurrentValue, false);
+  m_CurrentValue = !m_CurrentValue;
 
-  pInstance->GetLocalVariables().StoreBool(m_VarName, m_Value);
-  pInstance->SetOutputPinValue(this, 0, &m_Value);
+  pInstance->GetLocalVariables().StoreBool(m_VarName, m_CurrentValue);
+  pInstance->SetOutputPinValue(this, 0, &m_CurrentValue);
 
-  pInstance->ExecuteConnectedNodes(this, m_Value ? 0 : 1);
+  pInstance->ExecuteConnectedNodes(this, m_CurrentValue ? 0 : 1);
 }
 
 //////////////////////////////////////////////////////////////////////////

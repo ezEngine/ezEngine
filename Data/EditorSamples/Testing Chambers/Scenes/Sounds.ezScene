@@ -11,16 +11,15 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8509371654781092019,5438081593505794318}}
-		u4 %Hash{7321359702760455131}
+		u4 %Hash{7174019294776489992}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 05b0d291-1a2d-4dd7-b7af-34cba7871199 }"}
 			s{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
-			s{"{ 124aa432-f4c0-44b2-bd29-1f10bd910f4a }"}
 			s{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
-			s{"{ 23d44228-1d97-41ea-8918-5422abbbb0c6 }"}
+			s{"{ 2eb730ad-984a-4e68-8d8d-9588d49df38b }"}
 			s{"{ 39cedd81-1543-4145-9dff-fc694acc8b95 }"}
 			s{"{ 3e9e4d44-0673-43ed-ad7d-0a8970551944 }"}
 			s{"{ 47ba7957-b7aa-46c3-ab15-e6a5fedf04f1 }"}
@@ -39,7 +38,6 @@ o
 			s{"{ a3bdac8f-bd8c-48af-b1ed-4ab9760e3d9c }"}
 			s{"{ aa94baf7-2ddc-4080-a834-8ad2ccdf44d8 }"}
 			s{"{ b2751d1b-1a01-4ce1-bbad-78a11986cc39 }"}
-			s{"{ b302fe0d-f657-49bc-9fbe-9e6bdae934e0 }"}
 			s{"{ b727ba61-e20a-42d7-a170-860ede23e85d }"}
 			s{"{ c814fe78-9702-2f7d-71b0-c28cc6b8f57c }"}
 			s{"{ ccd32963-93f9-401c-95d1-bf4e491a2df3 }"}
@@ -49,7 +47,9 @@ o
 			s{"{ e904b847-a959-4eea-8835-91e35d68117a }"}
 			s{"{ ebc03b01-2f4d-43ea-a973-0ab6d5b30242 }"}
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
+			s{"{ f635f436-2861-48df-9efb-576b91f075e3 }"}
 			s{"{ f99e6517-2daa-4573-8085-b79bc3d27e34 }"}
+			s{"{ fbb64d2d-36b8-48e0-896b-fcf7c7be964c }"}
 		}
 	}
 }
@@ -1704,12 +1704,13 @@ o
 {
 	Uuid %id{u4{15745747613620332978,5213473774373988744}}
 	s %t{"ezVisualScriptComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		b %HandleGlobalEvents{0}
-		s %Script{"{ 124aa432-f4c0-44b2-bd29-1f10bd910f4a }"}
+		VarDict %Parameters{}
+		s %Script{"{ 2eb730ad-984a-4e68-8d8d-9588d49df38b }"}
 	}
 }
 o
@@ -2422,12 +2423,13 @@ o
 {
 	Uuid %id{u4{12849143274343056057,5582320114420840403}}
 	s %t{"ezVisualScriptComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		b %HandleGlobalEvents{0}
-		s %Script{"{ 23d44228-1d97-41ea-8918-5422abbbb0c6 }"}
+		VarDict %Parameters{}
+		s %Script{"{ fbb64d2d-36b8-48e0-896b-fcf7c7be964c }"}
 	}
 }
 o
@@ -4484,12 +4486,13 @@ o
 {
 	Uuid %id{u4{9129196678518331724,10906685270539227348}}
 	s %t{"ezVisualScriptComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		b %HandleGlobalEvents{0}
-		s %Script{"{ b302fe0d-f657-49bc-9fbe-9e6bdae934e0 }"}
+		VarDict %Parameters{}
+		s %Script{"{ 2eb730ad-984a-4e68-8d8d-9588d49df38b }"}
 	}
 }
 o
@@ -4806,12 +4809,13 @@ o
 {
 	Uuid %id{u4{6232592339241054803,11275531610586079007}}
 	s %t{"ezVisualScriptComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		b %HandleGlobalEvents{0}
-		s %Script{"{ 23d44228-1d97-41ea-8918-5422abbbb0c6 }"}
+		VarDict %Parameters{}
+		s %Script{"{ f635f436-2861-48df-9efb-576b91f075e3 }"}
 	}
 }
 o
@@ -6673,8 +6677,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptComponent"}
-		u3 %TypeSize{104}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{224}
+		u3 %TypeVersion{3}
 	}
 }
 o

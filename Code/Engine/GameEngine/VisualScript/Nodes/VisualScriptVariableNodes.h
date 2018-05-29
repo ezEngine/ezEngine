@@ -84,8 +84,7 @@ public:
 
   ezString m_sVariable;
   ezTempHashedString m_VarName;
-  double m_Value = 0;
-  bool m_bExposeParameter = false;
+  double m_CurrentValue = false;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -119,8 +118,7 @@ public:
 
   ezString m_sVariable;
   ezTempHashedString m_VarName;
-  bool m_Value = false;
-  bool m_bExposeParameter = false;
+  bool m_CurrentValue = false;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -154,7 +152,7 @@ public:
 
   ezString m_sVariable;
   ezTempHashedString m_VarName;
-  bool m_Value = false;
+  bool m_CurrentValue = false;
 };
 
 //////////////////////////////////////////////////////////////////////////

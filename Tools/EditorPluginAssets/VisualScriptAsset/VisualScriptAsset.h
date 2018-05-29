@@ -3,6 +3,7 @@
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 #include <EditorFramework/Preferences/Preferences.h>
+#include <EditorFramework/Assets/SimpleAssetDocument.h>
 
 struct ezVisualScriptResourceDescriptor;
 struct ezVisualScriptInstanceActivity;
@@ -13,9 +14,44 @@ struct ezVisualScriptActivityEvent
   const ezVisualScriptInstanceActivity* m_pActivityData;
 };
 
-class ezVisualScriptAssetDocument : public ezAssetDocument
+class ezVisualScriptParameter : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptAssetDocument, ezAssetDocument);
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptParameter, ezReflectedClass);
+
+public:
+  ezString m_sName;
+  bool m_bExpose = false;
+};
+
+class ezVisualScriptParameterBool : public ezVisualScriptParameter
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptParameterBool, ezVisualScriptParameter);
+
+public:
+  bool m_DefaultValue = false;
+};
+
+class ezVisualScriptParameterNumber : public ezVisualScriptParameter
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptParameterNumber, ezVisualScriptParameter);
+
+public:
+  double m_DefaultValue = 0;
+};
+
+class ezVisualScriptAssetProperties : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptAssetProperties, ezReflectedClass);
+
+public:
+
+  ezDynamicArray<ezVisualScriptParameterBool> m_BoolParameters;
+  ezDynamicArray<ezVisualScriptParameterNumber> m_NumberParameters;
+};
+
+class ezVisualScriptAssetDocument : public ezSimpleAssetDocument<ezVisualScriptAssetProperties>
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptAssetDocument, ezSimpleAssetDocument<ezVisualScriptAssetProperties>);
 
 public:
   ezVisualScriptAssetDocument(const char* szDocumentPath);

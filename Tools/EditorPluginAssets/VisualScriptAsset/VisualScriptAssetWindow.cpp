@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptAssetWindow.moc.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraphQt.moc.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptAsset.h>
@@ -81,8 +81,9 @@ ezQtVisualScriptAssetDocumentWindow::ezQtVisualScriptAssetDocumentWindow(ezDocum
   }
 
   static_cast<ezVisualScriptAssetDocument*>(pDocument)->m_ActivityEvents.AddEventHandler(ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler, m_pScene));
-
   static_cast<ezVisualScriptAssetDocument*>(pDocument)->m_InterDocumentMessages.AddEventHandler(ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptInterDocumentMessageHandler, m_pScene));
+
+  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtVisualScriptAssetDocumentWindow::SelectionEventHandler, this));
 
   if (pOpenContext != nullptr)
   {
@@ -96,16 +97,24 @@ ezQtVisualScriptAssetDocumentWindow::ezQtVisualScriptAssetDocumentWindow(ezDocum
   }
 
   FinishWindowCreation();
+
+  SelectionEventHandler(ezSelectionManagerEvent());
 }
 
 ezQtVisualScriptAssetDocumentWindow::~ezQtVisualScriptAssetDocumentWindow()
 {
   if (GetDocument() != nullptr)
   {
-    static_cast<ezVisualScriptAssetDocument*>(GetDocument())->m_ActivityEvents.RemoveEventHandler(ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler, m_pScene));
+    GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtVisualScriptAssetDocumentWindow::SelectionEventHandler, this));
 
-    static_cast<ezVisualScriptAssetDocument*>(GetDocument())->m_InterDocumentMessages.RemoveEventHandler(ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptInterDocumentMessageHandler, m_pScene));
+    GetVisualScriptDocument()->m_ActivityEvents.RemoveEventHandler(ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptActivityEventHandler, m_pScene));
+    GetVisualScriptDocument()->m_InterDocumentMessages.RemoveEventHandler(ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptInterDocumentMessageHandler, m_pScene));
   }
+}
+
+ezVisualScriptAssetDocument* ezQtVisualScriptAssetDocumentWindow::GetVisualScriptDocument()
+{
+  return static_cast<ezVisualScriptAssetDocument*>(GetDocument());
 }
 
 void ezQtVisualScriptAssetDocumentWindow::PickDebugTarget()
@@ -150,6 +159,18 @@ void ezQtVisualScriptAssetDocumentWindow::PickDebugTarget()
     pPreferences->m_DebugObject = dlg.m_pPickedObject->GetGuid();
 
     m_pScene->SetDebugObject(pPreferences->m_DebugObject);
+  }
+}
+
+void ezQtVisualScriptAssetDocumentWindow::SelectionEventHandler(const ezSelectionManagerEvent& e)
+{
+  if (GetDocument()->GetSelectionManager()->IsSelectionEmpty())
+  {
+    // delayed execution
+    QTimer::singleShot(1, [this]()
+    {
+      GetDocument()->GetSelectionManager()->SetSelection(GetVisualScriptDocument()->GetPropertyObject());
+    });
   }
 }
 

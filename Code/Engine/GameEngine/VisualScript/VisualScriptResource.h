@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GameEngine/Basics.h>
 #include <Core/ResourceManager/Resource.h>
@@ -59,11 +59,25 @@ struct EZ_GAMEENGINE_DLL ezVisualScriptResourceDescriptor
     ezVariant m_Value;
   };
 
+  struct LocalParameterBool
+  {
+    ezHashedString m_sName;
+    bool m_Value = false;
+  };
+
+  struct LocalParameterNumber
+  {
+    ezHashedString m_sName;
+    double m_Value = 0;
+  };
+
   ezDynamicArray<Node> m_Nodes;
   ezDynamicArray<ExecutionConnection> m_ExecutionPaths;
   ezDynamicArray<DataConnection> m_DataPaths;
   ezArrayMap<ezMessageId, ezUInt16> m_MessageHandlers;
   ezDeque<Property> m_Properties;
+  ezDynamicArray<LocalParameterBool> m_BoolParameters;
+  ezDynamicArray<LocalParameterNumber> m_NumberParameters;
 };
 
 class EZ_GAMEENGINE_DLL ezVisualScriptResource : public ezResource<ezVisualScriptResource, ezVisualScriptResourceDescriptor>

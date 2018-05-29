@@ -201,6 +201,19 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceHandle& hScri
   }
 
   ComputeNodeDependencies();
+
+  // initialize local variables
+  {
+    for (const auto& p : resource.m_BoolParameters)
+    {
+      m_LocalVariables.StoreBool(p.m_sName, p.m_Value);
+    }
+
+    for (const auto& p : resource.m_NumberParameters)
+    {
+      m_LocalVariables.StoreDouble(p.m_sName, p.m_Value);
+    }
+  }
 }
 
 

@@ -11,15 +11,15 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16727012133206772400,4646832044224837432}}
-		u4 %Hash{16735292286443229711}
+		u4 %Hash{9836056905307101063}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 22055c48-b4b3-4d49-bd2e-ce952f416263 }"}
+			s{"{ 6dac0e33-23b2-4ce6-a3ae-be0ab519ba51 }"}
 			s{"{ 72115f7a-5947-4a21-899f-868368bd41d7 }"}
 			s{"{ c227019a-92d3-4bf5-b391-9320e11ca7ff }"}
-			s{"{ c34af3b2-e356-49eb-8a08-d69742074fec }"}
 			s{"{ fc346a1e-e4c5-4bcf-a556-b1884fb32975 }"}
 		}
 	}
@@ -128,12 +128,13 @@ o
 {
 	Uuid %id{u4{15886921771153274252,5515676834501820324}}
 	s %t{"ezVisualScriptComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		b %HandleGlobalEvents{0}
-		s %Script{"{ c34af3b2-e356-49eb-8a08-d69742074fec }"}
+		VarDict %Parameters{}
+		s %Script{"{ 6dac0e33-23b2-4ce6-a3ae-be0ab519ba51 }"}
 	}
 }
 o
@@ -400,8 +401,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptComponent"}
-		u3 %TypeSize{104}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{224}
+		u3 %TypeVersion{3}
 	}
 }
 o

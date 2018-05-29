@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <EditorPluginAssets/Plugin.h>
@@ -20,11 +20,15 @@ public:
 
   virtual const char* GetWindowLayoutGroupName() const { return "VisualScriptAsset"; }
 
+  ezVisualScriptAssetDocument* GetVisualScriptDocument();
+
   void PickDebugTarget();
 
 private slots:
 
 private:
+  void SelectionEventHandler(const ezSelectionManagerEvent& e);
+
   ezQtVisualScriptAssetScene* m_pScene;
   ezQtNodeView* m_pView;
 };

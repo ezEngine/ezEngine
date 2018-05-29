@@ -15,21 +15,65 @@
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <ToolsFoundation/Command/NodeCommands.h>
 #include <EditorFramework/GUI/ExposedParameters.h>
-#include <GameEngine/VisualScript/Nodes/VisualScriptVariableNodes.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ezVisualScriptAssetDocument
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAssetDocument, 3, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptParameter, 1, ezRTTINoAllocator);
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Name", m_sName),
+    EZ_MEMBER_PROPERTY("Expose", m_bExpose),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptParameterBool, 1, ezRTTIDefaultAllocator<ezVisualScriptParameterBool>);
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Default", m_DefaultValue),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptParameterNumber, 1, ezRTTIDefaultAllocator<ezVisualScriptParameterNumber>);
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Default", m_DefaultValue),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAssetProperties, 1, ezRTTIDefaultAllocator<ezVisualScriptAssetProperties>);
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ARRAY_MEMBER_PROPERTY("BoolParameters", m_BoolParameters),
+    EZ_ARRAY_MEMBER_PROPERTY("NumberParameters", m_NumberParameters)
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+//////////////////////////////////////////////////////////////////////////
+// ezVisualScriptAssetDocument
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAssetDocument, 4, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezVisualScriptAssetDocument::ezVisualScriptAssetDocument(const char* szDocumentPath)
-  : ezAssetDocument(szDocumentPath, EZ_DEFAULT_NEW(ezVisualScriptNodeManager), false, false)
+  : ezSimpleAssetDocument<ezVisualScriptAssetProperties>(EZ_DEFAULT_NEW(ezVisualScriptNodeManager), szDocumentPath, false, false)
 {
   ezVisualScriptTypeRegistry::GetSingleton()->UpdateNodeTypes();
 }
-
 
 void ezVisualScriptAssetDocument::OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender)
 {
@@ -209,6 +253,29 @@ ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScr
     }
   }
 
+  // local variables
+  {
+    desc.m_BoolParameters.Clear();
+    desc.m_BoolParameters.Reserve(GetProperties()->m_BoolParameters.GetCount());
+
+    for (const auto& p : GetProperties()->m_BoolParameters)
+    {
+      auto& outP = desc.m_BoolParameters.ExpandAndGetRef();
+      outP.m_sName.Assign(p.m_sName.GetData());
+      outP.m_Value = p.m_DefaultValue;
+    }
+
+    desc.m_NumberParameters.Clear();
+    desc.m_NumberParameters.Reserve(GetProperties()->m_NumberParameters.GetCount());
+
+    for (const auto& p : GetProperties()->m_NumberParameters)
+    {
+      auto& outP = desc.m_NumberParameters.ExpandAndGetRef();
+      outP.m_sName.Assign(p.m_sName.GetData());
+      outP.m_Value = p.m_DefaultValue;
+    }
+  }
+
   return EZ_SUCCESS;
 }
 
@@ -239,35 +306,23 @@ void ezVisualScriptAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* p
   ezExposedParameters* pExposedParams = EZ_DEFAULT_NEW(ezExposedParameters);
 
   {
-    const ezVisualScriptTypeRegistry* pTypeRegistry = ezVisualScriptTypeRegistry::GetSingleton();
-
-    ezDynamicArray<const ezDocumentObject*> allNodes;
-    GetAllVsNodes(allNodes);
-
-    for (ezUInt32 i = 0; i < allNodes.GetCount(); ++i)
+    for (const auto& p : GetProperties()->m_BoolParameters)
     {
-      const ezDocumentObject* pObject = allNodes[i];
-      const ezVisualScriptNodeDescriptor* pDesc = pTypeRegistry->GetDescriptorForType(pObject->GetType());
-
-      // TODO: should gather all parameters (exposed and not), check that duplicate names use the same type and default value
-      // OR: improve how parameters are registered in general (single point of definition), maybe a script property
-
-      if (pDesc->m_sTypeName == "ezVisualScriptNode_Bool" || pDesc->m_sTypeName == "ezVisualScriptNode_Number")
+      if (p.m_bExpose)
       {
-        const ezVariant varExpose = pObject->GetTypeAccessor().GetValue("ExposeParam");
-        const ezVariant varName = pObject->GetTypeAccessor().GetValue("Name");
-        const ezVariant varValue = pObject->GetTypeAccessor().GetValue("Default");
+        auto& param = pExposedParams->m_Parameters.ExpandAndGetRef();
+        param.m_sName = p.m_sName;
+        param.m_DefaultValue = p.m_DefaultValue;
+      }
+    }
 
-        EZ_ASSERT_DEBUG(varExpose.IsA<bool>(), "Missing or invalid property");
-        EZ_ASSERT_DEBUG(varName.IsA<ezString>(), "Missing or invalid property");
-        EZ_ASSERT_DEBUG(varValue.IsA<bool>() || varValue.IsA<double>(), "Missing or invalid property");
-
-        if (varExpose.ConvertTo<bool>())
-        {
-          auto& param = pExposedParams->m_Parameters.ExpandAndGetRef();
-          param.m_sName = varName.ConvertTo<ezString>();
-          param.m_DefaultValue = varValue;
-        }
+    for (const auto& p : GetProperties()->m_NumberParameters)
+    {
+      if (p.m_bExpose)
+      {
+        auto& param = pExposedParams->m_Parameters.ExpandAndGetRef();
+        param.m_sName = p.m_sName;
+        param.m_DefaultValue = p.m_DefaultValue;
       }
     }
   }
@@ -361,3 +416,24 @@ bool ezVisualScriptAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const
   GetSelectionManager()->SetSelection(AddedNodes);
   return true;
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+// don't think this will work
+
+//#include <Foundation/Serialization/GraphPatch.h>
+//
+//class ezVisScriptAsset_3_4 : public ezGraphPatch
+//{
+//public:
+//  ezVisScriptAsset_3_4()
+//    : ezGraphPatch("ezVisualScriptAssetDocument", 4) {}
+//
+//  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+//  {
+//    ezVersionKey bases[] = { { "ezSimpleAssetDocument<ezVisualScriptAssetProperties>", 1 } };
+//    context.ChangeBaseClass(bases);
+//  }
+//};
+//
+//ezVisScriptAsset_3_4 g_ezVisScriptAsset_3_4;

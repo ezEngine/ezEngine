@@ -11,17 +11,17 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11683425167790577586,4745924491010228727}}
-		u4 %Hash{17146219562635847966}
+		u4 %Hash{9672768316866756942}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
 			s{"{ 49324140-a093-4a75-9c6c-efde65a39fc4 }"}
+			s{"{ 8efa7e5f-cbcc-43f1-8bb2-487e5399a399 }"}
 			s{"{ 9fc82cb4-e800-cc3d-feed-61a7c88e2a20 }"}
 			s{"{ a7548097-903a-292a-e37c-080a6ef6158c }"}
 			s{"{ aa1c5601-bc43-fbf8-4e07-6a3df3af51e7 }"}
-			s{"{ dd27e393-e1b1-4b08-b0e0-8d7384f43c93 }"}
 		}
 	}
 }
@@ -345,12 +345,13 @@ o
 {
 	Uuid %id{u4{3549271366549374640,5102857727811758641}}
 	s %t{"ezVisualScriptComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
 		b %HandleGlobalEvents{0}
-		s %Script{"{ dd27e393-e1b1-4b08-b0e0-8d7384f43c93 }"}
+		VarDict %Parameters{}
+		s %Script{"{ 8efa7e5f-cbcc-43f1-8bb2-487e5399a399 }"}
 	}
 }
 o
@@ -1255,8 +1256,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptComponent"}
-		u3 %TypeSize{104}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{224}
+		u3 %TypeVersion{3}
 	}
 }
 o
