@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAsset.h>
 #include <EditorPluginFmod/SoundBankAsset/SoundBankAssetManager.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -25,7 +25,7 @@ ezSoundBankAssetDocument::ezSoundBankAssetDocument(const char* szDocumentPath) :
 
 void ezSoundBankAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 {
-  ezAssetDocument::UpdateAssetDocumentInfo(pInfo);
+  SUPER::UpdateAssetDocumentInfo(pInfo);
 
   const ezSoundBankAssetProperties* pProp = GetProperties();
 

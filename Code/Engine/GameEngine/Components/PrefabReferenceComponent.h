@@ -57,5 +57,6 @@ private:
 
   ezPrefabResourceHandle m_hPrefab;
   bool m_bRequiresInstantiation;
+  ezMap<ezString, ezVariant> m_Parameters; // TODO: this is really heavy-weight, could we optimize this somehow?
 };
 

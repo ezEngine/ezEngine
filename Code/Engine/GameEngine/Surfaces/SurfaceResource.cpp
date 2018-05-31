@@ -243,7 +243,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
   }
 
   ezHybridArray<ezGameObject*, 8> rootObjects;
-  pPrefab->InstantiatePrefab(*pWorld, t, hParent, &rootObjects, pOverrideTeamID);
+  pPrefab->InstantiatePrefab(*pWorld, t, hParent, &rootObjects, pOverrideTeamID, nullptr);
 
   if (pObject != nullptr && pObject->IsDynamic())
   {

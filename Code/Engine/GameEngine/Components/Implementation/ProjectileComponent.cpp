@@ -349,7 +349,7 @@ void ezProjectileComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
   {
     ezResourceLock<ezPrefabResource> pPrefab(m_hTimeoutPrefab);
 
-    pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID());
+    pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(), nullptr);
   }
 
   GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());

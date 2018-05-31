@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementAsset.h>
 #include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementAssetManager.h>
 #include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementGraph.h>
@@ -45,7 +45,7 @@ ezProceduralPlacementAssetDocument::ezProceduralPlacementAssetDocument(const cha
 
 void ezProceduralPlacementAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 {
-  ezAssetDocument::UpdateAssetDocumentInfo(pInfo);
+  SUPER::UpdateAssetDocumentInfo(pInfo);
 
   ezDynamicArray<const ezDocumentObject*> outputNodes;
   GetAllOutputNodes(outputNodes);

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginFmod/SoundEventAsset/SoundEventAsset.h>
 #include <EditorPluginFmod/SoundEventAsset/SoundEventAssetManager.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
@@ -21,7 +21,7 @@ ezSoundEventAssetDocument::ezSoundEventAssetDocument(const char* szDocumentPath)
 
 void ezSoundEventAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 {
-  ezAssetDocument::UpdateAssetDocumentInfo(pInfo);
+  SUPER::UpdateAssetDocumentInfo(pInfo);
 
   const ezSoundEventAssetProperties* pProp = GetProperties();
 

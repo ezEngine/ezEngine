@@ -114,6 +114,7 @@ protected:
 
   virtual void InitializeAfterLoading() override;
   virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab) override;
+  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
 
   template<typename Func>
   void ApplyRecursive(const ezDocumentObject* pObject, Func f)

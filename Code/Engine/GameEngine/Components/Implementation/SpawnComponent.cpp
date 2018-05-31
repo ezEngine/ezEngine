@@ -108,14 +108,14 @@ void ezSpawnComponent::DoSpawn(const ezTransform& tLocalSpawn)
 
   if (m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::AttachAsChild))
   {
-    pResource->InstantiatePrefab(*GetWorld(), tLocalSpawn, GetOwner()->GetHandle(), nullptr, &GetOwner()->GetTeamID());
+    pResource->InstantiatePrefab(*GetWorld(), tLocalSpawn, GetOwner()->GetHandle(), nullptr, &GetOwner()->GetTeamID(), nullptr);
   }
   else
   {
     ezTransform tGlobalSpawn;
     tGlobalSpawn.SetGlobalTransform(GetOwner()->GetGlobalTransform(), tLocalSpawn);
 
-    pResource->InstantiatePrefab(*GetWorld(), tGlobalSpawn, ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID());
+    pResource->InstantiatePrefab(*GetWorld(), tGlobalSpawn, ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(), nullptr);
   }
 }
 

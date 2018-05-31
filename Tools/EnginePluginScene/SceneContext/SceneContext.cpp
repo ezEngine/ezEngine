@@ -18,6 +18,8 @@
 #include <EditorEngineProcessFramework/SceneExport/SceneExportModifier.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <RendererCore/Meshes/MeshComponent.h>
+#include <GameEngine/Prefabs/PrefabResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>)
 {
@@ -535,6 +537,60 @@ bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
 
     ezWorldWriter ww;
     ww.WriteWorld(file, *m_pWorld, &tags);
+
+    ezInt32 iFoundObjRoot = -1;
+    ezInt32 iFoundObjChild = -1;
+
+    {
+      const auto& objects = ww.GetAllWrittenRootObjects();
+      for (ezUInt32 i = 0; i < objects.GetCount(); ++i)
+      {
+        ezMeshComponent* pMesh;
+        if (objects[i]->TryGetComponentOfBaseType(pMesh))
+        {
+          iFoundObjRoot = i;
+          break;
+        }
+      }
+    }
+
+    if (iFoundObjRoot < 0)
+    {
+      const auto& objects = ww.GetAllWrittenChildObjects();
+      for (ezUInt32 i = 0; i < objects.GetCount(); ++i)
+      {
+        ezMeshComponent* pMesh;
+        if (objects[i]->TryGetComponentOfBaseType(pMesh))
+        {
+          iFoundObjChild = i;
+          break;
+        }
+      }
+    }
+
+    ezHybridArray<ezExposedPrefabParameterDesc, 16> exposedParams;
+
+    if (iFoundObjRoot >= 0 || iFoundObjChild >= 0)
+    {
+      ezExposedPrefabParameterDesc& paramdesc = exposedParams.ExpandAndGetRef();
+      paramdesc.m_sExposeName.Assign("PrefabColor");
+      paramdesc.m_uiWorldReaderChildObject = (iFoundObjChild >= 0) ? 1 : 0;
+      paramdesc.m_uiWorldReaderObjectIndex = (iFoundObjChild >= 0) ? iFoundObjChild : iFoundObjRoot;
+      paramdesc.m_uiComponentTypeHash = ezGetStaticRTTI<ezMeshComponent>()->GetTypeNameHash();
+      paramdesc.m_sProperty.Assign("Color");
+    }
+
+    exposedParams.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool
+    {
+      return lhs.m_sExposeName < rhs.m_sExposeName;
+    });
+
+    file << exposedParams.GetCount();
+
+    for (const auto& ep : exposedParams)
+    {
+      ep.Save(file);
+    }
   }
 
   // do the actual file writing

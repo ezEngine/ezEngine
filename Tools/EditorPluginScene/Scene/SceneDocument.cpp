@@ -18,8 +18,9 @@
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/GUI/ExposedParameters.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, 3, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, 4, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab)
@@ -52,6 +53,27 @@ void ezSceneDocument::InitializeAfterLoading()
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ToolsProjectEventHandler, this));
 
   ezEditorEngineProcessConnection::GetSingleton()->s_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::EngineConnectionEventHandler, this));
+}
+
+
+void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+{
+  SUPER::UpdateAssetDocumentInfo(pInfo);
+
+  // scenes do not have exposed parameters
+  if (!m_bIsPrefab)
+    return;
+
+  ezExposedParameters* pExposedParams = EZ_DEFAULT_NEW(ezExposedParameters);
+
+  {
+    auto& p = pExposedParams->m_Parameters.ExpandAndGetRef();
+    p.m_sName = "PrefabColor";
+    p.m_DefaultValue = ezColor::White;
+  }
+
+  // Info takes ownership of meta data.
+  pInfo->m_MetaInfo.PushBack(pExposedParams);
 }
 
 ezSceneDocument::~ezSceneDocument()

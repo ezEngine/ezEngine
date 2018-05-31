@@ -7,6 +7,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPrefabReferenceComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Prefab", GetPrefabFile, SetPrefabFile)->AddAttributes(new ezAssetBrowserAttribute("Prefab")),
+    EZ_MAP_MEMBER_PROPERTY("Parameters", m_Parameters)->AddAttributes(new ezExposedParametersAttribute("Prefab")),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES
@@ -123,7 +124,7 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
     ezTransform id;
     id.SetIdentity();
 
-    pResource->InstantiatePrefab(*GetWorld(), id, GetOwner()->GetHandle(), nullptr, &GetOwner()->GetTeamID());
+    pResource->InstantiatePrefab(*GetWorld(), id, GetOwner()->GetHandle(), nullptr, &GetOwner()->GetTeamID(), &m_Parameters);
   }
 }
 
