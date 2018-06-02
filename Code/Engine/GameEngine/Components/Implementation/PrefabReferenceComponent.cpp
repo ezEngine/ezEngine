@@ -7,7 +7,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPrefabReferenceComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Prefab", GetPrefabFile, SetPrefabFile)->AddAttributes(new ezAssetBrowserAttribute("Prefab")),
-    EZ_MAP_MEMBER_PROPERTY("Parameters", m_Parameters)->AddAttributes(new ezExposedParametersAttribute("Prefab")),
+    EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Prefab")),
   }
   EZ_END_PROPERTIES
     EZ_BEGIN_ATTRIBUTES
@@ -136,6 +136,52 @@ void ezPrefabReferenceComponent::Initialize()
   // additionally the manager may update the instance later on, to properly enable editor work flows
   InstantiatePrefab();
 }
+
+
+const ezRangeView<const char*, ezUInt32> ezPrefabReferenceComponent::GetParameters() const
+{
+  return ezRangeView<const char*, ezUInt32>(
+    [this]()-> ezUInt32 { return 0; },
+    [this]()-> ezUInt32 { return m_Parameters.GetCount(); },
+    [this](ezUInt32& it) { ++it; },
+    [this](const ezUInt32& it)-> const char*
+  {
+    return m_Parameters.GetKey(it).GetString().GetData();
+  });
+}
+
+void ezPrefabReferenceComponent::SetParameter(const char* szKey, const ezVariant& value)
+{
+  ezHashedString hs;
+  hs.Assign(szKey);
+
+  auto it = m_Parameters.Find(hs);
+  if (it != ezInvalidIndex && m_Parameters.GetValue(it) == value)
+    return;
+
+  m_Parameters[hs] = value;
+
+  m_bRequiresInstantiation = true;
+  GetWorld()->GetComponentManager<ezPrefabReferenceComponentManager>()->AddToUpdateList(this);
+}
+
+void ezPrefabReferenceComponent::RemoveParameter(const char* szKey)
+{
+  m_Parameters.Remove(ezTempHashedString(szKey));
+}
+
+bool ezPrefabReferenceComponent::GetParameter(const char* szKey, ezVariant& out_value) const
+{
+  ezUInt32 it = m_Parameters.Find(szKey);
+
+  if (it == ezInvalidIndex)
+    return false;
+
+  out_value = m_Parameters.GetValue(it);
+  return true;
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 ezPrefabReferenceComponentManager::ezPrefabReferenceComponentManager(ezWorld* pWorld)
   : ezComponentManager<ComponentType, ezBlockStorageType::Compact>(pWorld)

@@ -3,6 +3,7 @@
 #include <GameEngine/Basics.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Core/WorldSerializer/WorldReader.h>
+#include <Foundation/Containers/ArrayMap.h>
 
 typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
 
@@ -31,8 +32,7 @@ public:
   ezPrefabResource();
 
   /// \brief Creates an instance of this prefab in the given world.
-  void InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, const ezUInt16* pOverrideTeamID, const ezMap<ezString, ezVariant>
-* pExposedParamValues);
+  void InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, const ezUInt16* pOverrideTeamID, const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues);
 
 private:
 

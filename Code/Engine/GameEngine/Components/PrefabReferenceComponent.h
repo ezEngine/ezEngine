@@ -4,6 +4,8 @@
 #include <Core/World/World.h>
 #include <Core/World/Component.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
+#include <Foundation/Types/RangeView.h>
+#include <Foundation/Containers/ArrayMap.h>
 
 class ezPrefabReferenceComponent;
 
@@ -50,6 +52,14 @@ protected:
   virtual void Initialize() override;
   virtual void Deinitialize() override;
 
+  //////////////////////////////////////////////////////////////////////////
+  // Exposed Parameters
+public:
+  const ezRangeView<const char*, ezUInt32> GetParameters() const;
+  void SetParameter(const char* szKey, const ezVariant& value);
+  void RemoveParameter(const char* szKey);
+  bool GetParameter(const char* szKey, ezVariant& out_value) const;
+
   // ************************************* FUNCTIONS *****************************
 
 private:
@@ -57,6 +67,6 @@ private:
 
   ezPrefabResourceHandle m_hPrefab;
   bool m_bRequiresInstantiation;
-  ezMap<ezString, ezVariant> m_Parameters; // TODO: this is really heavy-weight, could we optimize this somehow?
+  ezArrayMap<ezHashedString, ezVariant> m_Parameters;
 };
 

@@ -12,8 +12,7 @@ ezPrefabResource::ezPrefabResource()
 
 }
 
-void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, const ezUInt16* pOverrideTeamID, const ezMap<ezString, ezVariant>
-  * pExposedParamValues)
+void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, const ezUInt16* pOverrideTeamID, const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues)
 {
   if (GetLoadingState() != ezResourceState::Loaded)
     return;
@@ -28,9 +27,9 @@ void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& root
 
     m_WorldReader.InstantiatePrefab(world, rootTransform, hParent, out_CreatedRootObjects, &createdChildObjects, pOverrideTeamID);
 
-    for (auto it = pExposedParamValues->GetIterator(); it.IsValid(); ++it)
+    for (ezUInt32 i = 0; i < pExposedParamValues->GetCount(); ++i)
     {
-      const ezTempHashedString name(it.Key().GetData());
+      const ezHashedString& name = pExposedParamValues->GetKey(i);
 
       // TODO: use a sorted array lookup (ArrayMap)
       for (const auto& ppd : m_PrefabParamDescs)
@@ -50,7 +49,7 @@ void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& root
 
               if (pAbstract && pAbstract->GetCategory() == ezPropertyCategory::Member)
               {
-                ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pAbstract), pComp, it.Value());
+                ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pAbstract), pComp, pExposedParamValues->GetValue(i));
               }
             }
           }
