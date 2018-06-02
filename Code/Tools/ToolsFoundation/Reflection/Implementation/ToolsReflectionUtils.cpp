@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
@@ -434,7 +434,7 @@ bool ezToolsReflectionUtils::DependencySortTypeDescriptorArray(ezDynamicArray<ez
     for (ezReflectedTypeDescriptor* desc : descriptors)
     {
       // Are the types dependencies met?
-      if (accu.Contains(dependencies[desc]))
+      if (accu.ContainsSet(dependencies[desc]))
       {
         sorted.PushBack(desc);
         bDeadEnd = false;

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
@@ -36,12 +36,12 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
     EZ_TEST_INT(sa.Find("y"), 4);
     EZ_TEST_INT(sa.Find("z"), 5);
 
-    EZ_TEST_INT(sa[sa.Find("a")].value, 5);
-    EZ_TEST_INT(sa[sa.Find("b")].value, 4);
-    EZ_TEST_INT(sa[sa.Find("c")].value, 3);
-    EZ_TEST_INT(sa[sa.Find("x")].value, 2);
-    EZ_TEST_INT(sa[sa.Find("y")].value, 1);
-    EZ_TEST_INT(sa[sa.Find("z")].value, 0);
+    EZ_TEST_INT(sa.GetPair(sa.Find("a")).value, 5);
+    EZ_TEST_INT(sa.GetPair(sa.Find("b")).value, 4);
+    EZ_TEST_INT(sa.GetPair(sa.Find("c")).value, 3);
+    EZ_TEST_INT(sa.GetPair(sa.Find("x")).value, 2);
+    EZ_TEST_INT(sa.GetPair(sa.Find("y")).value, 1);
+    EZ_TEST_INT(sa.GetPair(sa.Find("z")).value, 0);
 
     sa.Clear();
     EZ_TEST_BOOL(sa.IsEmpty());
@@ -167,8 +167,8 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
     EZ_TEST_INT(sa["b"], 9);
     EZ_TEST_INT(sa["y"], 3);
 
-    EZ_TEST_INT(sa[2].value, 7);
-    EZ_TEST_STRING(sa[4].key, "y");
+    EZ_TEST_INT(sa.GetPair(2).value, 7);
+    EZ_TEST_STRING(sa.GetPair(4).key, "y");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove")

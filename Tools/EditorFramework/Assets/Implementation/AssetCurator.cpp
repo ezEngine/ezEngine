@@ -430,7 +430,7 @@ void ezAssetCurator::ResaveAllAssets()
     for (auto it = dependencies.GetIterator(); it.IsValid(); ++it)
     {
       // Are the types dependencies met?
-      if (accu.Contains(it.Value()))
+      if (accu.ContainsSet(it.Value()))
       {
         sortedAssets.PushBack(it.Key());
         accu.Insert(it.Key());

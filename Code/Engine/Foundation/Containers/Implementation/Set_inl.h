@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Math/Math.h>
 
@@ -267,13 +267,14 @@ EZ_ALWAYS_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyTy
 }
 
 template <typename KeyType, typename Comparer>
-EZ_ALWAYS_INLINE bool ezSetBase<KeyType, Comparer>::Contains(const KeyType& key) const
+template <typename CompatibleKeyType>
+EZ_ALWAYS_INLINE bool ezSetBase<KeyType, Comparer>::Contains(const CompatibleKeyType& key) const
 {
   return Internal_Find(key) != nullptr;
 }
 
 template <typename KeyType, typename Comparer>
-EZ_FORCE_INLINE bool ezSetBase<KeyType, Comparer>::Contains(const ezSetBase<KeyType, Comparer>& operand) const
+EZ_FORCE_INLINE bool ezSetBase<KeyType, Comparer>::ContainsSet(const ezSetBase<KeyType, Comparer>& operand) const
 {
   for (const KeyType& key : operand)
   {
@@ -394,7 +395,8 @@ typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::In
 }
 
 template <typename KeyType, typename Comparer>
-bool ezSetBase<KeyType, Comparer>::Remove(const KeyType& key)
+template <typename CompatibleKeyType>
+bool ezSetBase<KeyType, Comparer>::Remove(const CompatibleKeyType& key)
 {
   bool bRemoved = true;
   m_pRoot = Remove(m_pRoot, key, bRemoved);
@@ -553,7 +555,8 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inser
 }
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Remove(Node* root, const KeyType& key, bool& bRemoved)
+template <typename CompatibleKeyType>
+typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Remove(Node* root, const CompatibleKeyType& key, bool& bRemoved)
 {
   bRemoved = false;
 

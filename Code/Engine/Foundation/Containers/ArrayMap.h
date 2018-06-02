@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Containers/DynamicArray.h>
 
@@ -64,11 +64,13 @@ public:
 
   /// \brief Returns an index to the element with a key equal or larger than the given key.
   /// Returns ezInvalidIndex when no such element exists.
-  ezUInt32 LowerBound(const KEY& key) const; // [tested]
+  template<typename CompatibleKeyType>
+  ezUInt32 LowerBound(const CompatibleKeyType& key) const; // [tested]
 
   /// \brief Returns an index to the element with a key that is LARGER than the given key.
   /// Returns ezInvalidIndex when no such element exists.
-  ezUInt32 UpperBound(const KEY& key) const; // [tested]
+  template<typename CompatibleKeyType>
+  ezUInt32 UpperBound(const CompatibleKeyType& key) const; // [tested]
 
   /// \brief Returns the key that is stored at the given index.
   const KEY& GetKey(ezUInt32 index) const; // [tested]
@@ -84,10 +86,11 @@ public:
   VALUE& FindOrAdd(const CompatibleKeyType& key, bool* bExisted = nullptr); // [tested]
 
   /// \brief Same as FindOrAdd.
-  VALUE& operator[](const KEY& key); // [tested]
+  template<typename CompatibleKeyType>
+  VALUE& operator[](const CompatibleKeyType& key); // [tested]
 
   /// \brief Returns the key/value pair at the given index.
-  const Pair& operator[](ezUInt32 index) const; // [tested]
+  const Pair& GetPair(ezUInt32 index) const; // [tested]
 
   /// \brief Removes the element at the given index.
   ///
@@ -101,13 +104,16 @@ public:
   /// If the map is sorted and bKeepSorted is true, the element will be removed such that the map stays sorted.
   /// This is only useful, if only a single (or very few) elements are removed before the next lookup. If multiple values
   /// are removed, or new values are going to be inserted, as well, \a bKeepSorted should be left to false.
-  bool Remove(const KEY& key, bool bKeepSorted = false); // [tested]
+  template<typename CompatibleKeyType>
+  bool Remove(const CompatibleKeyType& key, bool bKeepSorted = false); // [tested]
 
   /// \brief Returns whether an element with the given key exists.
-  bool Contains(const KEY& key) const; // [tested]
+  template<typename CompatibleKeyType>
+  bool Contains(const CompatibleKeyType& key) const; // [tested]
 
   /// \brief Returns whether an element with the given key and value already exists.
-  bool Contains(const KEY& key, const VALUE& value) const; // [tested]
+  template<typename CompatibleKeyType>
+  bool Contains(const CompatibleKeyType& key, const VALUE& value) const; // [tested]
 
   /// \brief Reserves enough memory to store \a size elements.
   void Reserve(ezUInt32 size); // [tested]

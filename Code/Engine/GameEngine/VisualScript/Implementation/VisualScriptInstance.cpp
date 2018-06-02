@@ -328,7 +328,7 @@ void ezVisualScriptInstance::HandleMessage(ezMessage& msg)
 
   while (uiFirstHandler < m_pMessageHandlers->GetCount())
   {
-    const auto& data = (*m_pMessageHandlers)[uiFirstHandler];
+    const auto& data = (*m_pMessageHandlers).GetPair(uiFirstHandler);
     if (data.key != msg.GetId())
       return;
 

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 template<typename KEY, typename VALUE>
 inline ezArrayMapBase<KEY, VALUE>::ezArrayMapBase(ezAllocatorBase* pAllocator) : m_Data(pAllocator)
@@ -95,7 +95,8 @@ ezUInt32 ezArrayMapBase<KEY, VALUE>::Find(const CompatibleKeyType& key) const
 }
 
 template<typename KEY, typename VALUE>
-ezUInt32 ezArrayMapBase<KEY, VALUE>::LowerBound(const KEY& key) const
+template<typename CompatibleKeyType>
+ezUInt32 ezArrayMapBase<KEY, VALUE>::LowerBound(const CompatibleKeyType& key) const
 {
   if (!m_bSorted)
   {
@@ -127,7 +128,8 @@ ezUInt32 ezArrayMapBase<KEY, VALUE>::LowerBound(const KEY& key) const
 }
 
 template<typename KEY, typename VALUE>
-ezUInt32 ezArrayMapBase<KEY, VALUE>::UpperBound(const KEY& key) const
+template<typename CompatibleKeyType>
+ezUInt32 ezArrayMapBase<KEY, VALUE>::UpperBound(const CompatibleKeyType& key) const
 {
   if (!m_bSorted)
   {
@@ -194,13 +196,14 @@ VALUE& ezArrayMapBase<KEY, VALUE>::FindOrAdd(const CompatibleKeyType& key, bool*
 }
 
 template<typename KEY, typename VALUE>
-EZ_ALWAYS_INLINE VALUE& ezArrayMapBase<KEY, VALUE>::operator[](const KEY& key)
+template<typename CompatibleKeyType>
+EZ_ALWAYS_INLINE VALUE& ezArrayMapBase<KEY, VALUE>::operator[](const CompatibleKeyType& key)
 {
   return FindOrAdd(key);
 }
 
 template<typename KEY, typename VALUE>
-EZ_ALWAYS_INLINE const typename ezArrayMapBase<KEY, VALUE>::Pair& ezArrayMapBase<KEY, VALUE>::operator[](ezUInt32 index) const
+EZ_ALWAYS_INLINE const typename ezArrayMapBase<KEY, VALUE>::Pair& ezArrayMapBase<KEY, VALUE>::GetPair(ezUInt32 index) const
 {
   return m_Data[index];
 }
@@ -220,7 +223,8 @@ void ezArrayMapBase<KEY, VALUE>::RemoveAt(ezUInt32 index, bool bKeepSorted)
 }
 
 template<typename KEY, typename VALUE>
-bool ezArrayMapBase<KEY, VALUE>::Remove(const KEY& key, bool bKeepSorted)
+template<typename CompatibleKeyType>
+bool ezArrayMapBase<KEY, VALUE>::Remove(const CompatibleKeyType& key, bool bKeepSorted)
 {
   const ezUInt32 uiIndex = Find(key);
 
@@ -232,13 +236,15 @@ bool ezArrayMapBase<KEY, VALUE>::Remove(const KEY& key, bool bKeepSorted)
 }
 
 template<typename KEY, typename VALUE>
-EZ_ALWAYS_INLINE bool ezArrayMapBase<KEY, VALUE>::Contains(const KEY& key) const
+template<typename CompatibleKeyType>
+EZ_ALWAYS_INLINE bool ezArrayMapBase<KEY, VALUE>::Contains(const CompatibleKeyType& key) const
 {
   return Find(key) != ezInvalidIndex;
 }
 
 template<typename KEY, typename VALUE>
-bool ezArrayMapBase<KEY, VALUE>::Contains(const KEY& key, const VALUE& value) const
+template<typename CompatibleKeyType>
+bool ezArrayMapBase<KEY, VALUE>::Contains(const CompatibleKeyType& key, const VALUE& value) const
 {
   ezUInt32 atpos = LowerBound(key);
 

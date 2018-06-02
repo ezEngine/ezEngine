@@ -177,40 +177,40 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     nonDisjunctNonEmptySubSet.Insert(4);
     nonDisjunctNonEmptySubSet.Insert(5);
 
-    // Contains
-    EZ_TEST_BOOL(base.Contains(base));
+    // ContainsSet
+    EZ_TEST_BOOL(base.ContainsSet(base));
 
-    EZ_TEST_BOOL(base.Contains(empty));
-    EZ_TEST_BOOL(!empty.Contains(base));
+    EZ_TEST_BOOL(base.ContainsSet(empty));
+    EZ_TEST_BOOL(!empty.ContainsSet(base));
 
-    EZ_TEST_BOOL(!base.Contains(disjunct));
-    EZ_TEST_BOOL(!disjunct.Contains(base));
+    EZ_TEST_BOOL(!base.ContainsSet(disjunct));
+    EZ_TEST_BOOL(!disjunct.ContainsSet(base));
 
-    EZ_TEST_BOOL(base.Contains(subSet));
-    EZ_TEST_BOOL(!subSet.Contains(base));
+    EZ_TEST_BOOL(base.ContainsSet(subSet));
+    EZ_TEST_BOOL(!subSet.ContainsSet(base));
 
-    EZ_TEST_BOOL(!base.Contains(superSet));
-    EZ_TEST_BOOL(superSet.Contains(base));
+    EZ_TEST_BOOL(!base.ContainsSet(superSet));
+    EZ_TEST_BOOL(superSet.ContainsSet(base));
 
-    EZ_TEST_BOOL(!base.Contains(nonDisjunctNonEmptySubSet));
-    EZ_TEST_BOOL(!nonDisjunctNonEmptySubSet.Contains(base));
+    EZ_TEST_BOOL(!base.ContainsSet(nonDisjunctNonEmptySubSet));
+    EZ_TEST_BOOL(!nonDisjunctNonEmptySubSet.ContainsSet(base));
 
     // Union
     {
       ezSet<ezUInt32> res;
 
       res.Union(base);
-      EZ_TEST_BOOL(res.Contains(base));
-      EZ_TEST_BOOL(base.Contains(res));
+      EZ_TEST_BOOL(res.ContainsSet(base));
+      EZ_TEST_BOOL(base.ContainsSet(res));
       res.Union(subSet);
-      EZ_TEST_BOOL(res.Contains(base));
-      EZ_TEST_BOOL(res.Contains(subSet));
-      EZ_TEST_BOOL(base.Contains(res));
+      EZ_TEST_BOOL(res.ContainsSet(base));
+      EZ_TEST_BOOL(res.ContainsSet(subSet));
+      EZ_TEST_BOOL(base.ContainsSet(res));
       res.Union(superSet);
-      EZ_TEST_BOOL(res.Contains(base));
-      EZ_TEST_BOOL(res.Contains(subSet));
-      EZ_TEST_BOOL(res.Contains(superSet));
-      EZ_TEST_BOOL(superSet.Contains(res));
+      EZ_TEST_BOOL(res.ContainsSet(base));
+      EZ_TEST_BOOL(res.ContainsSet(subSet));
+      EZ_TEST_BOOL(res.ContainsSet(superSet));
+      EZ_TEST_BOOL(superSet.ContainsSet(res));
     }
 
     // Difference
@@ -218,11 +218,11 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
       ezSet<ezUInt32> res;
       res.Union(base);
       res.Difference(empty);
-      EZ_TEST_BOOL(res.Contains(base));
-      EZ_TEST_BOOL(base.Contains(res));
+      EZ_TEST_BOOL(res.ContainsSet(base));
+      EZ_TEST_BOOL(base.ContainsSet(res));
       res.Difference(disjunct);
-      EZ_TEST_BOOL(res.Contains(base));
-      EZ_TEST_BOOL(base.Contains(res));
+      EZ_TEST_BOOL(res.ContainsSet(base));
+      EZ_TEST_BOOL(base.ContainsSet(res));
       res.Difference(subSet);
       EZ_TEST_INT(res.GetCount(), 1);
       res.Contains(3);
@@ -236,13 +236,13 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
       EZ_TEST_BOOL(res.IsEmpty());
       res.Union(base);
       res.Intersection(subSet);
-      EZ_TEST_BOOL(base.Contains(subSet));
-      EZ_TEST_BOOL(res.Contains(subSet));
-      EZ_TEST_BOOL(subSet.Contains(res));
+      EZ_TEST_BOOL(base.ContainsSet(subSet));
+      EZ_TEST_BOOL(res.ContainsSet(subSet));
+      EZ_TEST_BOOL(subSet.ContainsSet(res));
       res.Intersection(superSet);
-      EZ_TEST_BOOL(superSet.Contains(res));
-      EZ_TEST_BOOL(res.Contains(subSet));
-      EZ_TEST_BOOL(subSet.Contains(res));
+      EZ_TEST_BOOL(superSet.ContainsSet(res));
+      EZ_TEST_BOOL(res.ContainsSet(subSet));
+      EZ_TEST_BOOL(subSet.ContainsSet(res));
       res.Intersection(empty);
       EZ_TEST_BOOL(res.IsEmpty());
     }

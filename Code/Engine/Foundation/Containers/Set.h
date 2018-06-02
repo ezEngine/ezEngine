@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Containers/Deque.h>
 
@@ -116,7 +116,8 @@ public:
   Iterator Insert(CompatibleKeyType&& key); // [tested]
 
   /// \brief Erases the element with the given key, if it exists. O(log n) operation.
-  bool Remove(const KeyType& key); // [tested]
+  template <typename CompatibleKeyType>
+  bool Remove(const CompatibleKeyType& key); // [tested]
 
   /// \brief Erases the element at the given Iterator. O(log n) operation.
   Iterator Remove(const Iterator& pos); // [tested]
@@ -126,10 +127,11 @@ public:
   Iterator Find(const CompatibleKeyType& key) const; // [tested]
 
   /// \brief Checks whether the given key is in the container.
-  bool Contains(const KeyType& key) const; // [tested]
+  template <typename CompatibleKeyType>
+  bool Contains(const CompatibleKeyType& key) const; // [tested]
 
   /// \brief Checks whether the given key is in the container.
-  bool Contains(const ezSetBase<KeyType, Comparer>& operand) const; // [tested]
+  bool ContainsSet(const ezSetBase<KeyType, Comparer>& operand) const; // [tested]
 
   /// \brief Returns an Iterator to the element with a key equal or larger than the given key. Returns an invalid iterator, if there is no such element.
   template <typename CompatibleKeyType>
@@ -186,7 +188,8 @@ private:
 
   template <typename CompatibleKeyType>
   Node* Insert(Node* root, CompatibleKeyType&& key, Node*& pInsertedNode);
-  Node* Remove(Node* root, const KeyType& key, bool& bRemoved);
+  template <typename CompatibleKeyType>
+  Node* Remove(Node* root, const CompatibleKeyType& key, bool& bRemoved);
 
   /// \brief Returns the left-most node of the tree(smallest key).
   Node* GetLeftMost() const;

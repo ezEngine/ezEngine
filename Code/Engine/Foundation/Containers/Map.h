@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Containers/Deque.h>
 
@@ -157,7 +157,8 @@ public:
   Iterator Insert(CompatibleKeyType&& key, CompatibleValueType&& value); // [tested]
 
   /// \brief Erases the key/value pair with the given key, if it exists. O(log n) operation.
-  bool Remove(const KeyType& key); // [tested]
+  template<typename CompatibleKeyType>
+  bool Remove(const CompatibleKeyType& key); // [tested]
 
   /// \brief Erases the key/value pair at the given Iterator. O(log n) operation. Returns an iterator to the element after the given iterator.
   Iterator Remove(const Iterator& pos); // [tested]
@@ -167,7 +168,8 @@ public:
   Iterator FindOrAdd(CompatibleKeyType&& key, bool* bExisted = nullptr); // [tested]
 
   /// \brief Allows read/write access to the value stored under the given key. If there is no such key, a new element is default-constructed.
-  ValueType& operator[](const KeyType& key); // [tested]
+  template<typename CompatibleKeyType>
+  ValueType& operator[](const CompatibleKeyType& key); // [tested]
 
   /// \brief Returns a pointer to the value of the entry with the given key if found, otherwise returns nullptr.
   template <typename CompatibleKeyType>
@@ -186,23 +188,28 @@ public:
   Iterator Find(const CompatibleKeyType& key); // [tested]
 
   /// \brief Returns an Iterator to the element with a key equal or larger than the given key. Returns an invalid iterator, if there is no such element.
-  Iterator LowerBound(const KeyType& key); // [tested]
+  template<typename CompatibleKeyType>
+  Iterator LowerBound(const CompatibleKeyType& key); // [tested]
 
   /// \brief Returns an Iterator to the element with a key that is LARGER than the given key. Returns an invalid iterator, if there is no such element.
-  Iterator UpperBound(const KeyType& key); // [tested]
+  template<typename CompatibleKeyType>
+  Iterator UpperBound(const CompatibleKeyType& key); // [tested]
 
   /// \brief Searches for key, returns an Iterator to it or an invalid iterator, if no such key is found. O(log n) operation.
   template<typename CompatibleKeyType>
   ConstIterator Find(const CompatibleKeyType& key) const; // [tested]
 
   /// \brief Checks whether the given key is in the container.
-  bool Contains(const KeyType& key) const; // [tested]
+  template<typename CompatibleKeyType>
+  bool Contains(const CompatibleKeyType& key) const; // [tested]
 
   /// \brief Returns an Iterator to the element with a key equal or larger than the given key. Returns an invalid iterator, if there is no such element.
-  ConstIterator LowerBound(const KeyType& key) const; // [tested]
+  template<typename CompatibleKeyType>
+  ConstIterator LowerBound(const CompatibleKeyType& key) const; // [tested]
 
   /// \brief Returns an Iterator to the element with a key that is LARGER than the given key. Returns an invalid iterator, if there is no such element.
-  ConstIterator UpperBound(const KeyType& key) const; // [tested]
+  template<typename CompatibleKeyType>
+  ConstIterator UpperBound(const CompatibleKeyType& key) const; // [tested]
 
   /// \brief Returns the allocator that is used by this instance.
   ezAllocatorBase* GetAllocator() const { return m_Elements.GetAllocator(); }
@@ -219,8 +226,10 @@ public:
 private:
   template<typename CompatibleKeyType>
   Node* Internal_Find(const CompatibleKeyType& key) const;
-  Node* Internal_LowerBound(const KeyType& key) const;
-  Node* Internal_UpperBound(const KeyType& key) const;
+  template<typename CompatibleKeyType>
+  Node* Internal_LowerBound(const CompatibleKeyType& key) const;
+  template<typename CompatibleKeyType>
+  Node* Internal_UpperBound(const CompatibleKeyType& key) const;
 
 private:
   void Constructor();

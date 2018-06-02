@@ -1028,7 +1028,7 @@ bool ezReflectionUtils::CreateDependencySortedTypeArray(const ezSet<const ezRTTI
     for (auto it = dependencies.GetIterator(); it.IsValid(); ++it)
     {
       // Are the types dependencies met?
-      if (accu.Contains(it.Value()))
+      if (accu.ContainsSet(it.Value()))
       {
         out_sortedTypes.PushBack(it.Key());
         accu.Insert(it.Key());
