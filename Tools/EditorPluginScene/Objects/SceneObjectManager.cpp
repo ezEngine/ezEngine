@@ -4,7 +4,40 @@
 #include <Core/World/GameObject.h>
 #include <GameEngine/Components/PrefabReferenceComponent.h>
 
-ezSceneObjectManager::ezSceneObjectManager() : ezDocumentObjectManager()
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExposedSceneProperty, 1, ezRTTIDefaultAllocator<ezExposedSceneProperty>);
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Name", m_sName),
+    EZ_MEMBER_PROPERTY("Object", m_Object),
+    EZ_MEMBER_PROPERTY("PropertyPath", m_sPropertyPath),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentSettings, 1, ezRTTIDefaultAllocator<ezSceneDocumentSettings>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ARRAY_MEMBER_PROPERTY("ExposedProperties", m_ExposedProperties)
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentRoot, 1, ezRTTINoAllocator)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Settings", m_pSettings)->AddFlags(ezPropertyFlags::PointerOwner),
+  }
+  EZ_END_PROPERTIES
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
+ezSceneObjectManager::ezSceneObjectManager()
+  : ezDocumentObjectManager(ezGetStaticRTTI<ezSceneDocumentRoot>())
 {
 }
 
@@ -23,38 +56,40 @@ void ezSceneObjectManager::GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& 
 
 ezStatus ezSceneObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const
 {
-  if (pParent == nullptr)
+  if (IsUnderRootProperty("Children", pParent, szParentProperty))
   {
-    bool bIsDerived = pRtti->IsDerivedFrom<ezGameObject>();
-    if (!bIsDerived)
+    if (pParent == nullptr)
     {
-      return ezStatus("Only ezGameObject can be added to the root of the world!");
-    }
-  }
-  else
-  {
-    // only prevent adding game objects (as children) to objects that already have a prefab component
-    // do allow to attach components to objects with prefab components
-    if (pRtti->IsDerivedFrom<ezGameObject>())
-    {
-      if (pParent->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+      bool bIsDerived = pRtti->IsDerivedFrom<ezGameObject>();
+      if (!bIsDerived)
       {
-        auto children = pParent->GetChildren();
-        for (auto pChild : children)
-        {
-          if (pChild->GetType()->IsDerivedFrom<ezPrefabReferenceComponent>())
-            return ezStatus("Cannot add objects to a prefab node.");
-        }
+        return ezStatus("Only ezGameObject can be added to the root of the world!");
       }
     }
-
-    if (pRtti->IsDerivedFrom<ezPrefabReferenceComponent>())
+    else
     {
-      if (!pParent->GetChildren().IsEmpty())
-        return ezStatus("Prefab components can only be added to empty nodes.");
+      // only prevent adding game objects (as children) to objects that already have a prefab component
+      // do allow to attach components to objects with prefab components
+      if (pRtti->IsDerivedFrom<ezGameObject>())
+      {
+        if (pParent->GetTypeAccessor().GetType()->IsDerivedFrom<ezGameObject>())
+        {
+          auto children = pParent->GetChildren();
+          for (auto pChild : children)
+          {
+            if (pChild->GetType()->IsDerivedFrom<ezPrefabReferenceComponent>())
+              return ezStatus("Cannot add objects to a prefab node.");
+          }
+        }
+      }
+
+      if (pRtti->IsDerivedFrom<ezPrefabReferenceComponent>())
+      {
+        if (!pParent->GetChildren().IsEmpty())
+          return ezStatus("Prefab components can only be added to empty nodes.");
+      }
     }
   }
-
   return ezStatus(EZ_SUCCESS);
 }
 

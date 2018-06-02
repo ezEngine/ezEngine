@@ -17,6 +17,8 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <EditorFramework/Preferences/Preferences.h>
 #include <EditorFramework/DocumentWindow/QuadViewWidget.moc.h>
+#include <QInputDialog>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 
 ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
@@ -75,9 +77,27 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
 
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
+    EZ_VERIFY(connect(pPropertyGrid, &ezQtPropertyGridWidget::ExtendContextMenu, this, &ezQtSceneDocumentWindow::ExtendPropertyGridContextMenu), "");
 
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
     addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelTree);
+  }
+
+  // Exposed Parameters
+  if (GetSceneDocument()->IsPrefab())
+  {
+    ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(this);
+    pPanel->setObjectName("SceneSettingsDockWidget");
+    pPanel->setWindowTitle("Scene Settings");
+    pPanel->show();
+
+    ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPanel, pDocument, false);
+    ezDeque<const ezDocumentObject*> selection;
+    selection.PushBack(pDocument->GetSettingsObject());
+    pPropertyGrid->SetSelection(selection);
+    pPanel->setWidget(pPropertyGrid);
+
+    addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPanel);
   }
 
   FinishWindowCreation();
@@ -261,6 +281,63 @@ void ezQtSceneDocumentWindow::SendRedrawMsg()
     pView->SetEnablePicking(pView == pHoveredView);
     pView->UpdateCameraInterpolation();
     pView->SyncToEngine();
+  }
+}
+
+void ezQtSceneDocumentWindow::ExtendPropertyGridContextMenu(QMenu& menu, const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProp)
+{
+  if (!GetSceneDocument()->IsPrefab())
+    return;
+
+  ezUInt32 iExposed = 0;
+  for (ezUInt32 i = 0; i < items.GetCount(); i++)
+  {
+    ezInt32 index = GetSceneDocument()->FindExposedParameter(items[i].m_pObject, pProp, items[i].m_Index);
+    if (index != -1)
+      iExposed++;
+  }
+  menu.addSeparator();
+  {
+    QAction* pAction = menu.addAction("Expose as Parameter");
+    pAction->setEnabled(iExposed < items.GetCount());
+    connect(pAction, &QAction::triggered, pAction, [this, &menu, &items, pProp]()
+    {
+      QString name = pProp->GetPropertyName();
+      bool bOk = false;
+      name = QInputDialog::getText(this, "Set map key for new element", "Key:", QLineEdit::Normal, name, &bOk);
+      if (bOk)
+      {
+        auto pAccessor = GetSceneDocument()->GetObjectAccessor();
+        pAccessor->StartTransaction("Expose as Parameter");
+        for (const ezPropertySelection& sel : items)
+        {
+          ezInt32 index = GetSceneDocument()->FindExposedParameter(sel.m_pObject, pProp, sel.m_Index);
+          if (index == -1)
+          {
+            GetSceneDocument()->AddExposedParameter(name.toUtf8(), sel.m_pObject, pProp, sel.m_Index).LogFailure();
+          }
+        }
+        pAccessor->FinishTransaction();
+      }
+    });
+  }
+  {
+    QAction* pAction = menu.addAction("Remove Exposed Parameter");
+    pAction->setEnabled(iExposed > 0);
+    connect(pAction, &QAction::triggered, pAction, [this, &menu, &items, pProp]()
+    {
+      auto pAccessor = GetSceneDocument()->GetObjectAccessor();
+      pAccessor->StartTransaction("Remove Exposed Parameter");
+      for (const ezPropertySelection& sel : items)
+      {
+        ezInt32 index = GetSceneDocument()->FindExposedParameter(sel.m_pObject, pProp, sel.m_Index);
+        if (index != -1)
+        {
+          GetSceneDocument()->RemoveExposedParameter(index).LogFailure();
+        }
+      }
+      pAccessor->FinishTransaction();
+    });
   }
 }
 

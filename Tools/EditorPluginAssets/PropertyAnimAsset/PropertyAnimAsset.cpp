@@ -7,6 +7,7 @@
 #include <ToolsFoundation/Object/DocumentObjectVisitor.h>
 #include <Core/World/GameObject.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
+#include <EditorFramework/Object/ObjectPropertyPath.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimationTrack, 1, ezRTTIDefaultAllocator<ezPropertyAnimationTrack>);
 {
@@ -345,7 +346,7 @@ void ezPropertyAnimAssetDocument::RebuildMapping()
 void ezPropertyAnimAssetDocument::RemoveTrack(const ezUuid& track)
 {
   auto& keys = *m_TrackTable.GetValue(track);
-  for (const PropertyKey& key : keys)
+  for (const ezPropertyReference& key : keys)
   {
     PropertyValue& value = *m_PropertyTable.GetValue(key);
     value.m_Tracks.RemoveSwap(track);
@@ -367,7 +368,7 @@ void ezPropertyAnimAssetDocument::AddTrack(const ezUuid& track)
   auto pTrack = GetTrack(track);
   FindTrackKeys(pTrack->m_sObjectSearchSequence.GetData(), pTrack->m_sComponentType.GetData(), pTrack->m_sPropertyPath.GetData(), keys);
 
-  for (const PropertyKey& key : keys)
+  for (const ezPropertyReference& key : keys)
   {
     if (!m_PropertyTable.Contains(key))
     {
@@ -383,114 +384,21 @@ void ezPropertyAnimAssetDocument::AddTrack(const ezUuid& track)
   }
 }
 
-void ezPropertyAnimAssetDocument::FindTrackKeys(const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath, ezHybridArray<PropertyKey, 1>& keys) const
+
+void ezPropertyAnimAssetDocument::FindTrackKeys(const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath, ezHybridArray<ezPropertyReference, 1>& keys) const
 {
+  ezObjectPropertyPathContext context = { GetContextObject(), m_pAccessor.Borrow(), "TempObjects" };
+
   keys.Clear();
-  const ezDocumentObject* pContext = GetContextObject();
-  ezDocumentObjectVisitor visitor(GetObjectManager(), "Children", "TempObjects");
-  ezHybridArray<const ezDocumentObject*, 8> input;
-  input.PushBack(pContext);
-  ezHybridArray<const ezDocumentObject*, 8> output;
-
-  // Find objects that match the search path
-  ezStringBuilder sObjectSearchSequence = szObjectSearchSequence;
-  ezHybridArray<ezStringView, 4> names;
-  sObjectSearchSequence.Split(false, names, "/");
-  for (const ezStringView& sName : names)
-  {
-    for (const ezDocumentObject* pObj : input)
-    {
-      visitor.Visit(pContext, false, [&output, &sName](const ezDocumentObject* pObject) -> bool
-      {
-        const auto& sObjectName = pObject->GetTypeAccessor().GetValue("Name").Get<ezString>();
-        if (sObjectName == sName)
-        {
-          output.PushBack(pObject);
-          return false;
-        }
-        return true;
-      });
-    }
-    input.Clear();
-    input.Swap(output);
-  }
-
-  // Test found objects for component
-  for (const ezDocumentObject* pObject : input)
-  {
-    // Could also be the root object in which case we found nothing.
-    if (pObject->GetType() == ezGetStaticRTTI<ezGameObject>())
-    {
-      if (ezStringUtils::IsNullOrEmpty(szComponentType))
-      {
-        // We are animating the game object directly
-        output.PushBack(pObject);
-      }
-      else
-      {
-        const ezInt32 iComponents = pObject->GetTypeAccessor().GetCount("Components");
-        for (ezInt32 i = 0; i < iComponents; i++)
-        {
-          ezVariant value = pObject->GetTypeAccessor().GetValue("Components", i);
-          auto pChild = GetObjectManager()->GetObject(value.Get<ezUuid>());
-          if (ezStringUtils::IsEqual(szComponentType, pChild->GetType()->GetTypeName()))
-          {
-            output.PushBack(pChild);
-            continue; //#TODO: break on found component?
-          }
-        }
-      }
-    }
-  }
-  input.Clear();
-  input.Swap(output);
-
-  // Test found objects / components for property
-  for (const ezDocumentObject* pObject : input)
-  {
-    if (ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(szPropertyPath))
-    {
-      //#TODO: Support property path (sub-objects and indices into arrays / maps)
-      PropertyKey key;
-      key.m_Object = pObject->GetGuid();
-      key.m_pProperty = pProp;
-      keys.PushBack(key);
-    }
-  }
+  ezObjectPropertyPath::ResolvePath(context, keys, szObjectSearchSequence, szComponentType, szPropertyPath);
 }
 
 
 void ezPropertyAnimAssetDocument::GenerateTrackInfo(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezStringBuilder& sObjectSearchSequence, ezStringBuilder& sComponentType, ezStringBuilder& sPropertyPath) const
 {
-  const ezRTTI* pObjType = ezGetStaticRTTI<ezGameObject>();
-  const ezAbstractProperty* pName = pObjType->FindPropertyByName("Name");
-
-  sPropertyPath = pProp->GetPropertyName();
-  const ezDocumentObject* pObj = pObject;
-  while (pObj != GetContextObject())
-  {
-    if (pObj->GetType() == ezGetStaticRTTI<ezGameObject>())
-    {
-      ezString sName = m_pAccessor->Get<ezString>(pObj, pName);
-      if (!sName.IsEmpty())
-      {
-        if (!sObjectSearchSequence.IsEmpty())
-          sObjectSearchSequence.Prepend("/");
-        sObjectSearchSequence.Prepend(sName);
-      }
-    }
-    else if (pObj->GetType()->IsDerivedFrom(ezGetStaticRTTI<ezComponent>()))
-    {
-      sComponentType = pObj->GetType()->GetTypeName();
-    }
-    else
-    {
-      if (!sPropertyPath.IsEmpty())
-        sPropertyPath.Prepend("/");
-      sPropertyPath.Prepend(pObj->GetParentPropertyType()->GetPropertyName());
-    }
-    pObj = pObj->GetParent();
-  }
+  ezObjectPropertyPathContext context = { GetContextObject(), m_pAccessor.Borrow(), "TempObjects" };
+  ezPropertyReference propertyRef = { pObject->GetGuid(), pProp, index };
+  ezObjectPropertyPath::CreatePath(context, propertyRef, sObjectSearchSequence, sComponentType, sPropertyPath);
 }
 
 void ezPropertyAnimAssetDocument::ApplyAnimation()
@@ -501,7 +409,7 @@ void ezPropertyAnimAssetDocument::ApplyAnimation()
   }
 }
 
-void ezPropertyAnimAssetDocument::ApplyAnimation(const PropertyKey& key, const PropertyValue& value)
+void ezPropertyAnimAssetDocument::ApplyAnimation(const ezPropertyReference& key, const PropertyValue& value)
 {
   ezVariant animValue = value.m_InitialValue;
   ezAngle euler[3];
@@ -682,7 +590,7 @@ ezStatus ezPropertyAnimAssetDocument::CanAnimate(const ezDocumentObject* pObject
       return ezStatus("Object not below context sub-tree.");
     }
   }
-  PropertyKey key;
+  ezPropertyReference key;
   key.m_Object = pObject->GetGuid();
   key.m_pProperty = pProp;
   key.m_Index = index;
@@ -705,7 +613,7 @@ ezStatus ezPropertyAnimAssetDocument::CanAnimate(const ezDocumentObject* pObject
     return ezStatus("Empty node name only allowed on context root object animations.");
   }
 
-  ezHybridArray<PropertyKey, 1> keys;
+  ezHybridArray<ezPropertyReference, 1> keys;
   FindTrackKeys(sObjectSearchSequence.GetData(), sComponentType.GetData(), sPropertyPath.GetData(), keys);
   if (!keys.Contains(key))
     return ezStatus("No node name set or property is not reachable.");
@@ -715,7 +623,7 @@ ezStatus ezPropertyAnimAssetDocument::CanAnimate(const ezDocumentObject* pObject
 
 ezUuid ezPropertyAnimAssetDocument::FindTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target) const
 {
-  PropertyKey key;
+  ezPropertyReference key;
   key.m_Object = pObject->GetGuid();
   key.m_pProperty = pProp;
   key.m_Index = index;
@@ -761,12 +669,10 @@ static ezColorGammaUB g_FloatColors[10] =
 
 ezUuid ezPropertyAnimAssetDocument::CreateTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index, ezPropertyAnimTarget::Enum target)
 {
-
   ezStringBuilder sObjectSearchSequence;
   ezStringBuilder sComponentType;
   ezStringBuilder sPropertyPath;
   GenerateTrackInfo(pObject, pProp, index, sObjectSearchSequence, sComponentType, sPropertyPath);
-
 
   ezObjectCommandAccessor accessor(GetCommandHistory());
   const ezRTTI* pTrackType = ezGetStaticRTTI<ezPropertyAnimationTrack>();

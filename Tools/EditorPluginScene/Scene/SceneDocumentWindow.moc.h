@@ -12,6 +12,7 @@
 #include <EditorPluginScene/Actions/GizmoActions.h>
 #include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
 #include <EditorFramework/EditTools/EditTool.h>
+#include <GuiFoundation/PropertyGrid/Declarations.h>
 
 struct ezEngineViewPreferences;
 class QGridLayout;
@@ -23,6 +24,7 @@ class ezPreferences;
 class ezQtQuadViewWidget;
 struct ezEngineWindowEvent;
 class ezSceneDocument;
+class QMenu;
 
 Q_DECLARE_OPAQUE_POINTER(ezQtSceneViewWidget*);
 
@@ -56,6 +58,7 @@ private:
   void GameObjectEventHandler(const ezGameObjectEvent& e);
   void SnapSelectionToPosition(bool bSnapEachObject);
   void SendRedrawMsg();
+  void ExtendPropertyGridContextMenu(QMenu& menu, const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProp);
 
 private:
   ezQtQuadViewWidget* m_pQuadViewWidget = nullptr;

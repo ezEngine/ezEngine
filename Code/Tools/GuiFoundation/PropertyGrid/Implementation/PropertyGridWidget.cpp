@@ -158,7 +158,7 @@ ezRttiMappedObjectFactory<ezQtPropertyWidget>& ezQtPropertyGridWidget::GetFactor
   return s_Factory;
 }
 
-ezQtPropertyGridWidget::ezQtPropertyGridWidget(QWidget* pParent, ezDocument* pDocument)
+ezQtPropertyGridWidget::ezQtPropertyGridWidget(QWidget* pParent, ezDocument* pDocument, bool bBindToSelectionManager)
   : QWidget(pParent)
 {
   m_pDocument = nullptr;
@@ -191,7 +191,7 @@ ezQtPropertyGridWidget::ezQtPropertyGridWidget(QWidget* pParent, ezDocument* pDo
   s_Factory.m_Events.AddEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::FactoryEventHandler, this));
   ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::TypeEventHandler, this));
 
-  SetDocument(pDocument);
+  SetDocument(pDocument, bBindToSelectionManager);
 }
 
 ezQtPropertyGridWidget::~ezQtPropertyGridWidget()
@@ -207,8 +207,9 @@ ezQtPropertyGridWidget::~ezQtPropertyGridWidget()
 }
 
 
-void ezQtPropertyGridWidget::SetDocument(ezDocument* pDocument)
+void ezQtPropertyGridWidget::SetDocument(ezDocument* pDocument, bool bBindToSelectionManager)
 {
+  m_bBindToSelectionManager = bBindToSelectionManager;
   if (m_pDocument)
   {
     m_pDocument->m_ObjectAccessorChangeEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::ObjectAccessorChangeEventHandler, this));
@@ -454,6 +455,10 @@ void ezQtPropertyGridWidget::ObjectAccessorChangeEventHandler(const ezObjectAcce
 
 void ezQtPropertyGridWidget::SelectionEventHandler(const ezSelectionManagerEvent& e)
 {
+  // TODO: even when not binding to the selection manager we need to test whether our selection is still valid.
+  if (!m_bBindToSelectionManager)
+    return;
+
   switch (e.m_Type)
   {
   case ezSelectionManagerEvent::Type::SelectionCleared:

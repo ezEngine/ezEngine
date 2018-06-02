@@ -19,6 +19,8 @@
 #include <Foundation/Strings/TranslationLookup.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/GUI/ExposedParameters.h>
+#include <ToolsFoundation/Object/ObjectDirectAccessor.h>
+#include <EditorFramework/Object/ObjectPropertyPath.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, 4, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -46,34 +48,27 @@ ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab)
 
 void ezSceneDocument::InitializeAfterLoading()
 {
+  // (Local mirror only mirrors settings)
+  m_ObjectMirror.SetFilterFunction([this](const ezDocumentObject* pObject, const char* szProperty) -> bool
+  {
+    return GetObjectManager()->IsUnderRootProperty("Settings", pObject, szProperty);
+  });
+  // (Remote IPC mirror only sends scene)
+  m_Mirror.SetFilterFunction([this](const ezDocumentObject* pObject, const char* szProperty) -> bool
+  {
+    return GetObjectManager()->IsUnderRootProperty("Children", pObject, szProperty);
+  });
+
   ezGameObjectDocument::InitializeAfterLoading();
+  EnsureSettingsObjectExist();
 
   m_DocumentObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezSceneDocument::DocumentObjectMetaDataEventHandler, this));
-
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ToolsProjectEventHandler, this));
-
   ezEditorEngineProcessConnection::GetSingleton()->s_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::EngineConnectionEventHandler, this));
-}
 
-
-void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
-{
-  SUPER::UpdateAssetDocumentInfo(pInfo);
-
-  // scenes do not have exposed parameters
-  if (!m_bIsPrefab)
-    return;
-
-  ezExposedParameters* pExposedParams = EZ_DEFAULT_NEW(ezExposedParameters);
-
-  {
-    auto& p = pExposedParams->m_Parameters.ExpandAndGetRef();
-    p.m_sName = "PrefabColor";
-    p.m_DefaultValue = ezColor::White;
-  }
-
-  // Info takes ownership of meta data.
-  pInfo->m_MetaInfo.PushBack(pExposedParams);
+  m_ObjectMirror.InitSender(GetObjectManager());
+  m_ObjectMirror.InitReceiver(&m_Context);
+  m_ObjectMirror.SendDocument();
 }
 
 ezSceneDocument::~ezSceneDocument()
@@ -83,6 +78,9 @@ ezSceneDocument::~ezSceneDocument()
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ToolsProjectEventHandler, this));
 
   ezEditorEngineProcessConnection::GetSingleton()->s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::EngineConnectionEventHandler, this));
+
+  m_ObjectMirror.Clear();
+  m_ObjectMirror.DeInit();
 }
 
 
@@ -734,6 +732,104 @@ bool ezSceneDocument::Duplicate(const ezArrayPtr<PasteInfo>& info, const ezAbstr
   return true;
 }
 
+void ezSceneDocument::EnsureSettingsObjectExist()
+{
+  auto pRoot = GetObjectManager()->GetRootObject();
+  // Use the ezObjectDirectAccessor instead of calling GetObjectAccessor because we do not want
+  // undo ops for this operation.
+  ezObjectDirectAccessor accessor(GetObjectManager());
+  ezVariant value;
+  EZ_VERIFY(accessor.ezObjectAccessorBase::GetValue(pRoot, "Settings", value).Succeeded(), "The scene doc root should have a settings property.");
+  ezUuid id = value.Get<ezUuid>();
+  if (!id.IsValid())
+  {
+    EZ_VERIFY(accessor.ezObjectAccessorBase::AddObject(pRoot, "Settings", ezVariant(), ezGetStaticRTTI<ezSceneDocumentSettings>(), id).Succeeded(),
+      "Adding scene settings object to root failed.");
+  }
+}
+
+const ezDocumentObject* ezSceneDocument::GetSettingsObject() const
+{
+  auto pRoot = GetObjectManager()->GetRootObject();
+  ezVariant value;
+  EZ_VERIFY(GetObjectAccessor()->GetValue(pRoot, "Settings", value).Succeeded(), "The scene doc root should have a settings property.");
+  ezUuid id = value.Get<ezUuid>();
+  return GetObjectManager()->GetObject(id);
+}
+
+const ezSceneDocumentSettings* ezSceneDocument::GetSettings() const
+{
+  return static_cast<const ezSceneDocumentSettings*>(m_ObjectMirror.GetNativeObjectPointer(GetSettingsObject()));
+}
+
+ezStatus ezSceneDocument::CreateExposedProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index, ezExposedSceneProperty& out_key) const
+{
+  const ezDocumentObject* pNodeComponent = ezObjectPropertyPath::FindParentNodeComponent(pObject);
+  if (!pObject)
+    return ezStatus("No parent node or component found.");
+
+  ezObjectPropertyPathContext context = { pNodeComponent, GetObjectAccessor(), "Children" };
+  ezPropertyReference propertyRef = { pObject->GetGuid(), pProperty, index };
+  ezStringBuilder sPropertyPath;
+  ezStatus res = ezObjectPropertyPath::CreatePropertyPath(context, propertyRef, sPropertyPath);
+  if (res.Failed())
+    return res;
+
+  out_key.m_Object = pNodeComponent->GetGuid();
+  out_key.m_sPropertyPath = sPropertyPath;
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezStatus ezSceneDocument::AddExposedParameter(const char* szName, const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index)
+{
+  if (FindExposedParameter(pObject, pProperty, index) != -1)
+    return ezStatus("Exposed parameter already exists.");
+
+  ezExposedSceneProperty key;
+  ezStatus res = CreateExposedProperty(pObject, pProperty, index, key);
+  if (res.Failed())
+    return res;
+
+  ezUuid id;
+  res = GetObjectAccessor()->AddObject(GetSettingsObject(), "ExposedProperties", -1, ezGetStaticRTTI<ezExposedSceneProperty>(), id);
+  if (res.Failed())
+    return res;
+  const ezDocumentObject* pParam = GetObjectManager()->GetObject(id);
+  GetObjectAccessor()->SetValue(pParam, "Name", szName).LogFailure();
+  GetObjectAccessor()->SetValue(pParam, "Object", key.m_Object).LogFailure();
+  GetObjectAccessor()->SetValue(pParam, "PropertyPath", key.m_sPropertyPath).LogFailure();
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezInt32 ezSceneDocument::FindExposedParameter(const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index)
+{
+  ezExposedSceneProperty key;
+  ezStatus res = CreateExposedProperty(pObject, pProperty, index, key);
+  if (res.Failed())
+    return -1;
+
+  const ezSceneDocumentSettings* settings = GetSettings();
+  for (ezUInt32 i = 0; i < settings->m_ExposedProperties.GetCount(); i++)
+  {
+    const auto& param = settings->m_ExposedProperties[i];
+    if (param.m_Object == key.m_Object && param.m_sPropertyPath == key.m_sPropertyPath)
+      return (ezInt32)i;
+
+  }
+  return -1;
+}
+
+ezStatus ezSceneDocument::RemoveExposedParameter(ezInt32 index)
+{
+  ezVariant value;
+  auto res = GetObjectAccessor()->GetValue(GetSettingsObject(), "ExposedProperties", value, index);
+  if (res.Failed())
+    return res;
+
+  ezUuid id = value.Get<ezUuid>();
+  return GetObjectAccessor()->RemoveObject(GetObjectManager()->GetObject(id));
+}
+
 void ezSceneDocument::DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e)
 {
   if ((e.m_uiModifiedFlags & ezDocumentObjectMetaData::HiddenFlag) != 0)
@@ -881,6 +977,49 @@ const char* ezSceneDocument::QueryAssetType() const
     return "Prefab";
 
   return "Scene";
+}
+
+void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+{
+  SUPER::UpdateAssetDocumentInfo(pInfo);
+
+  // scenes do not have exposed parameters
+  if (!m_bIsPrefab)
+    return;
+
+  ezExposedParameters* pExposedParams = EZ_DEFAULT_NEW(ezExposedParameters);
+
+  {
+    auto pSettings = GetSettings();
+    for (auto prop : pSettings->m_ExposedProperties)
+    {
+      auto pObject = GetObjectManager()->GetObject(prop.m_Object);
+      if (!pObject)
+      {
+        ezLog::Warning("The exposed scene property '{0}' does not point to a valid object and is skipped.", prop.m_sName);
+        continue;
+      }
+
+      ezObjectPropertyPathContext context = { pObject, GetObjectAccessor(), "Children" };
+
+      ezPropertyReference key;
+      auto res = ezObjectPropertyPath::ResolvePropertyPath(context, prop.m_sPropertyPath, key);
+      if (res.Failed())
+      {
+        ezLog::Warning("The exposed scene property '{0}' can no longer be resolved and is skipped.", prop.m_sName);
+        continue;
+      }
+      ezVariant value;
+      res = context.m_pAccessor->GetValue(GetObjectManager()->GetObject(key.m_Object), key.m_pProperty, value, key.m_Index);
+      EZ_ASSERT_DEBUG(res.Succeeded(), "ResolvePropertyPath succeeded so GetValue should too");
+      auto& p = pExposedParams->m_Parameters.ExpandAndGetRef();
+      p.m_sName = prop.m_sName;
+      p.m_DefaultValue = value;
+    }
+  }
+
+  // Info takes ownership of meta data.
+  pInfo->m_MetaInfo.PushBack(pExposedParams);
 }
 
 ezStatus ezSceneDocument::ExportScene()

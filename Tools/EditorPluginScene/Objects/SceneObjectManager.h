@@ -5,6 +5,29 @@
 
 class ezDocument;
 
+class ezExposedSceneProperty : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezExposedSceneProperty, ezReflectedClass);
+public:
+  ezString m_sName;
+  ezUuid m_Object;
+  ezString m_sPropertyPath;
+};
+
+class ezSceneDocumentSettings : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSceneDocumentSettings, ezReflectedClass);
+
+  ezDynamicArray<ezExposedSceneProperty> m_ExposedProperties;
+};
+
+class ezSceneDocumentRoot : public ezDocumentRoot
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSceneDocumentRoot, ezDocumentRoot);
+
+  ezSceneDocumentSettings* m_pSettings;
+};
+
 class ezSceneObjectManager : public ezDocumentObjectManager
 {
 public:

@@ -7,6 +7,7 @@
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
 #include <Foundation/Communication/Event.h>
 #include <GuiFoundation/Widgets/EventTrackEditData.h>
+#include <EditorFramework/Object/ObjectPropertyPath.h>
 
 struct ezGameObjectContextEvent;
 class ezPropertyAnimObjectAccessor;
@@ -115,18 +116,6 @@ private:
   void TreeStructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
 
-  struct PropertyKey
-  {
-    bool operator==(const PropertyKey& rhs) const
-    {
-      return m_Object == rhs.m_Object &&
-        m_pProperty == rhs.m_pProperty &&
-        m_Index == rhs.m_Index;
-    }
-    ezUuid m_Object;
-    const ezAbstractProperty* m_pProperty;
-    ezVariant m_Index;
-  };
   struct PropertyValue
   {
     ezVariant m_InitialValue;
@@ -134,14 +123,14 @@ private:
   };
   struct PropertyKeyHash
   {
-    EZ_ALWAYS_INLINE static ezUInt32 Hash(const PropertyKey& key)
+    EZ_ALWAYS_INLINE static ezUInt32 Hash(const ezPropertyReference& key)
     {
       return ezHashing::xxHash32(&key.m_Object, sizeof(ezUuid))
         + ezHashing::xxHash32(&key.m_pProperty, sizeof(const ezAbstractProperty*))
         + (ezUInt32)key.m_Index.ComputeHash();
     }
 
-    EZ_ALWAYS_INLINE static bool Equal(const PropertyKey& a, const PropertyKey& b)
+    EZ_ALWAYS_INLINE static bool Equal(const ezPropertyReference& a, const ezPropertyReference& b)
     {
       return a.m_Object == b.m_Object && a.m_pProperty == b.m_pProperty && a.m_Index == b.m_Index;
     }
@@ -150,14 +139,14 @@ private:
   void RebuildMapping();
   void RemoveTrack(const ezUuid& track);
   void AddTrack(const ezUuid& track);
-  void FindTrackKeys(const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath, ezHybridArray<PropertyKey, 1>& keys) const;
+  void FindTrackKeys(const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath, ezHybridArray<ezPropertyReference, 1>& keys) const;
   void GenerateTrackInfo(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index,
     ezStringBuilder& sObjectSearchSequence, ezStringBuilder& sComponentType, ezStringBuilder& sPropertyPath) const;
   void ApplyAnimation();
-  void ApplyAnimation(const PropertyKey& key, const PropertyValue& value);
+  void ApplyAnimation(const ezPropertyReference& key, const PropertyValue& value);
 
-  ezHashTable<PropertyKey, PropertyValue, PropertyKeyHash> m_PropertyTable;
-  ezHashTable<ezUuid, ezHybridArray<PropertyKey, 1>> m_TrackTable;
+  ezHashTable<ezPropertyReference, PropertyValue, PropertyKeyHash> m_PropertyTable;
+  ezHashTable<ezUuid, ezHybridArray<ezPropertyReference, 1>> m_TrackTable;
 
   ezUniquePtr<ezPropertyAnimObjectAccessor> m_pAccessor;
 

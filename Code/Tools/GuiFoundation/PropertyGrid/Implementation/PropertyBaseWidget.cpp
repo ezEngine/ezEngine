@@ -167,6 +167,8 @@ void ezQtPropertyWidget::OnCustomContextMenu(const QPoint& pt)
   }
 
   ExtendContextMenu(m);
+  m_pGrid->ExtendContextMenu(m, m_Items, m_pProp);
+
   m.exec(pt); // pt is already in global space, because we fixed that
 }
 

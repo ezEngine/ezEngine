@@ -53,7 +53,7 @@ void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& root
               }
             }
           }
-
+          //#TODO: Should we remove the break so multiple properties can bind to the same name?
           break;
         }
       }

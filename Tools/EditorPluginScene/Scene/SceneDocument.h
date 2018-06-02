@@ -2,6 +2,9 @@
 
 #include <EditorFramework/Document/GameObjectDocument.h>
 
+class ezExposedSceneProperty;
+class ezSceneDocumentSettings;
+
 struct GameMode
 {
   enum Enum
@@ -109,6 +112,18 @@ public:
   void SendObjectMsg(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg);
   void SendObjectMsgRecursive(const ezDocumentObject* pObj, ezObjectTagMsgToEngine* pMsg);
 
+  /// \name Scene Settings
+  ///@{
+
+  const ezDocumentObject* GetSettingsObject() const;
+  const ezSceneDocumentSettings* GetSettings() const;
+
+  ezStatus CreateExposedProperty(const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index, ezExposedSceneProperty& out_key) const;
+  ezStatus AddExposedParameter(const char* szName, const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index);
+  ezInt32 FindExposedParameter(const ezDocumentObject* pObject, const ezAbstractProperty* pProperty, ezVariant index);
+  ezStatus RemoveExposedParameter(ezInt32 index);
+  ///@}
+
 protected:
   void SetGameMode(GameMode::Enum mode);
 
@@ -129,6 +144,7 @@ protected:
 
 private:
 
+  void EnsureSettingsObjectExist();
   void DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e);
   void EngineConnectionEventHandler(const ezEditorEngineProcessConnection::Event& e);
   void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
@@ -153,6 +169,9 @@ private:
 
   GameModeData m_GameModeData[3];
 
+  // Local mirror for settings
+  ezDocumentObjectMirror m_ObjectMirror;
+  ezRttiConverterContext m_Context;
 
   //////////////////////////////////////////////////////////////////////////
   /// Communication with other document types

@@ -480,6 +480,25 @@ ezStatus ezDocumentObjectManager::CanSelect(const ezDocumentObject* pObject) con
 }
 
 
+bool ezDocumentObjectManager::IsUnderRootProperty(const char* szRootProperty, const ezDocumentObject* pObject) const
+{
+  while (pObject->GetParent() != GetRootObject())
+  {
+    pObject = pObject->GetParent();
+  }
+  return ezStringUtils::IsEqual(pObject->GetParentProperty(), szRootProperty);
+}
+
+
+bool ezDocumentObjectManager::IsUnderRootProperty(const char* szRootProperty, const ezDocumentObject* pParent, const char* szParentProperty) const
+{
+  if (pParent == nullptr || pParent == GetRootObject())
+  {
+    return ezStringUtils::IsEqual(szParentProperty, szRootProperty);
+  }
+  return IsUnderRootProperty(szRootProperty, pParent);
+}
+
 ////////////////////////////////////////////////////////////////////////
 // ezDocumentObjectManager Private Functions
 ////////////////////////////////////////////////////////////////////////

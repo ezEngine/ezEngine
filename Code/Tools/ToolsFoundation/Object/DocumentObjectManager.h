@@ -146,6 +146,9 @@ public:
   ezStatus CanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const;
   ezStatus CanSelect(const ezDocumentObject* pObject) const;
 
+  bool IsUnderRootProperty(const char* szRootProperty, const ezDocumentObject* pObject) const;
+  bool IsUnderRootProperty(const char* szRootProperty, const ezDocumentObject* pParent, const char* szParentProperty) const;
+
 private:
   virtual ezDocumentObject* InternalCreateObject(const ezRTTI* pRtti) { return EZ_DEFAULT_NEW(ezDocumentStorageObject, pRtti); }
   virtual void InternalDestroyObject(ezDocumentObject* pObject) { EZ_DEFAULT_DELETE(pObject); }

@@ -27,10 +27,10 @@ class EZ_GUIFOUNDATION_DLL ezQtPropertyGridWidget : public QWidget
 {
   Q_OBJECT
 public:
-  ezQtPropertyGridWidget(QWidget* pParent, ezDocument* pDocument = nullptr);
+  ezQtPropertyGridWidget(QWidget* pParent, ezDocument* pDocument = nullptr, bool bBindToSelectionManager = true);
   ~ezQtPropertyGridWidget();
 
-  void SetDocument(ezDocument* pDocument);
+  void SetDocument(ezDocument* pDocument, bool bBindToSelectionManager = true);
 
   void ClearSelection();
   void SetSelection(const ezDeque<const ezDocumentObject*>& selection);
@@ -44,6 +44,9 @@ public:
   static ezQtPropertyWidget* CreatePropertyWidget(const ezAbstractProperty* pProp);
 
   void SetCollapseState(ezQtGroupBoxBase* pBox);
+
+signals:
+  void ExtendContextMenu(QMenu& menu, const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProp);
 
 public slots:
   void OnCollapseStateChanged(bool bCollapsed);
@@ -63,6 +66,7 @@ private:
 
 private:
   ezDocument* m_pDocument;
+  bool m_bBindToSelectionManager = false;
   ezDeque<const ezDocumentObject*> m_Selection;
   ezMap<ezUInt32, bool> m_CollapseState;
 
