@@ -13,15 +13,36 @@ ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
 
 EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(EZ_SHADERCOMPILERHLSL_DLL, ezShaderCompilerHLSLPlugin);
 
-ezResult CompileDXShader(const char* szFile, const char* szSource, const char* szProfile, const char* szEntryPoint, ezDynamicArray<ezUInt8>& out_ByteCode)
+ezResult CompileDXShader(const char* szFile, const char* szSource, bool bDebug, const char* szProfile, const char* szEntryPoint, ezDynamicArray<ezUInt8>& out_ByteCode)
 {
   out_ByteCode.Clear();
 
   ID3DBlob* pResultBlob = nullptr;
   ID3DBlob* pErrorBlob = nullptr;
 
-  if (FAILED(D3DCompile(szSource, strlen(szSource), szFile, nullptr, nullptr, szEntryPoint, szProfile, 0, 0, &pResultBlob, &pErrorBlob)))
+  const char* szCompileSource = szSource;
+  ezStringBuilder sDebugSource;
+  UINT flags1 = 0;
+  if (bDebug)
   {
+    flags1 = D3DCOMPILE_DEBUG | D3DCOMPILE_PREFER_FLOW_CONTROL | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_ENABLE_STRICTNESS;
+    // In debug mode we need to remove '#line' as any shader debugger won't work with them.
+    sDebugSource = szSource;
+    sDebugSource.ReplaceAll("#line ", "//ine ");
+    szCompileSource = sDebugSource;
+  }
+
+  if (FAILED(D3DCompile(szCompileSource, strlen(szCompileSource), szFile, nullptr, nullptr, szEntryPoint, szProfile, flags1, 0, &pResultBlob, &pErrorBlob)))
+  {
+    if (bDebug)
+    {
+      // Try again with '#line' intact to get correct error messages with file and line info.
+      pErrorBlob->Release();
+      pErrorBlob = nullptr;
+      EZ_VERIFY(FAILED(D3DCompile(szSource, strlen(szSource), szFile, nullptr, nullptr, szEntryPoint, szProfile, flags1, 0, &pResultBlob, &pErrorBlob)),
+        "Debug compilation with commented out '#line' failed but original version did not.");
+    }
+
     const char* szError = static_cast<const char*>(pErrorBlob->GetBufferPointer());
 
     EZ_LOG_BLOCK("Shader Compilation Failed", szFile);
@@ -343,7 +364,7 @@ ezResult ezShaderCompilerHLSL::Compile(ezShaderProgramData& inout_Data, ezLogInt
 
     if (uiLength > 0 && ezStringUtils::FindSubString(szShaderSource, "main") != nullptr)
     {
-      if (CompileDXShader(inout_Data.m_szSourceFile, szShaderSource, GetProfileName(inout_Data.m_szPlatform, (ezGALShaderStage::Enum) stage), "main", inout_Data.m_StageBinary[stage].GetByteCode()).Succeeded())
+      if (CompileDXShader(inout_Data.m_szSourceFile, szShaderSource, inout_Data.m_Flags.IsSet(ezShaderCompilerFlags::Debug), GetProfileName(inout_Data.m_szPlatform, (ezGALShaderStage::Enum) stage), "main", inout_Data.m_StageBinary[stage].GetByteCode()).Succeeded())
       {
         ReflectShaderStage(inout_Data, (ezGALShaderStage::Enum) stage);
       }

@@ -10,6 +10,24 @@
 #include <Foundation/CodeUtils/Preprocessor.h>
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>
 #include <RendererCore/Shader/ShaderPermutationBinary.h>
+#include <Foundation/Types/Bitflags.h>
+
+// \brief Flags that affect the compilation process of a shader
+struct ezShaderCompilerFlags
+{
+  typedef ezUInt8 StorageType;
+  enum Enum
+  {
+    Debug = EZ_BIT(0),
+    Default = 0,
+  };
+
+  struct Bits
+  {
+    StorageType Debug : 1;
+  };
+};
+EZ_DECLARE_FLAGS_OPERATORS(ezShaderCompilerFlags);
 
 class EZ_RENDERERCORE_DLL ezShaderProgramCompiler : public ezReflectedClass
 {
@@ -31,6 +49,7 @@ public:
       }
     }
 
+    ezBitflags<ezShaderCompilerFlags> m_Flags;
     const char* m_szPlatform;
     const char* m_szSourceFile;
     const char* m_szShaderSource[ezGALShaderStage::ENUM_COUNT];

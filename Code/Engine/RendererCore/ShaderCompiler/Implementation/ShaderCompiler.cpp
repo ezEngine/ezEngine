@@ -293,6 +293,8 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
     ezShaderProgramCompiler::ezShaderProgramData spd;
     spd.m_szSourceFile = szFile;
     spd.m_szPlatform = Platforms[p].GetData();
+    // #TODO: Expose this somehow dynamically.
+    //spd.m_Flags.Add(ezShaderCompilerFlags::Debug);
 
     m_IncludeFiles.Clear();
 
