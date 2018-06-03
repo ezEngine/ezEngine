@@ -2,17 +2,9 @@
 
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <SharedPluginScene/Common/Messages.h>
 
 class ezDocument;
-
-class ezExposedSceneProperty : public ezReflectedClass
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezExposedSceneProperty, ezReflectedClass);
-public:
-  ezString m_sName;
-  ezUuid m_Object;
-  ezString m_sPropertyPath;
-};
 
 class ezSceneDocumentSettings : public ezReflectedClass
 {

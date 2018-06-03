@@ -20,6 +20,7 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
+#include <SharedPluginScene/Common/Messages.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezSceneContext>)
 {
@@ -140,30 +141,39 @@ void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
     return;
   }
 
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezExposedDocumentObjectPropertiesMsgToEngine>())
+  {
+    HandleExposedPropertiesMsg(static_cast<const ezExposedDocumentObjectPropertiesMsgToEngine*>(pMsg));
+    return;
+  }
+
   if (pMsg->IsInstanceOf<ezViewRedrawMsgToEngine>())
   {
-    if (m_bUpdateAllLocalBounds)
-    {
-      m_bUpdateAllLocalBounds = false;
-
-      EZ_LOCK(m_pWorld->GetWriteMarker());
-
-      for (auto it = m_pWorld->GetObjects(); it.IsValid(); ++it)
-      {
-        it->UpdateLocalBounds();
-      }
-    }
-
-    auto pDocView = GetViewContext(static_cast<const ezViewRedrawMsgToEngine*>(pMsg)->m_uiViewID);
-    if (pDocView)
-      DrawSelectionBounds(pDocView->GetViewHandle());
-
+    HandleViewRedrawMsg(static_cast<const ezViewRedrawMsgToEngine*>(pMsg));
     // fall through
   }
 
   ezEngineProcessDocumentContext::HandleMessage(pMsg);
 }
 
+void ezSceneContext::HandleViewRedrawMsg(const ezViewRedrawMsgToEngine* pMsg)
+{
+  if (m_bUpdateAllLocalBounds)
+  {
+    m_bUpdateAllLocalBounds = false;
+
+    EZ_LOCK(m_pWorld->GetWriteMarker());
+
+    for (auto it = m_pWorld->GetObjects(); it.IsValid(); ++it)
+    {
+      it->UpdateLocalBounds();
+    }
+  }
+
+  auto pDocView = GetViewContext(pMsg->m_uiViewID);
+  if (pDocView)
+    DrawSelectionBounds(pDocView->GetViewHandle());
+}
 
 void ezSceneContext::HandleGridSettingsMsg(const ezGridSettingsMsgToEngine* pMsg)
 {
@@ -538,63 +548,93 @@ bool ezSceneContext::ExportDocument(const ezExportDocumentMsgToEngine* pMsg)
     ezWorldWriter ww;
     ww.WriteWorld(file, *m_pWorld, &tags);
 
+    ExportExposedParameters(ww, file);
+  }
+
+  // do the actual file writing
+  return file.Close().Succeeded();
+}
+
+void ezSceneContext::ExportExposedParameters(const ezWorldWriter& ww, ezDeferredFileWriter& file) const
+{
+  ezHybridArray<ezExposedPrefabParameterDesc, 16> exposedParams;
+
+  for (const auto& esp : m_ExposedSceneProperties)
+  {
+    ezGameObject* pTargetObject = nullptr;
+    const ezRTTI* pComponenType = nullptr;
+
+    ezRttiConverterObject obj = m_Context.GetObjectByGUID(esp.m_Object);
+
+    if (obj.m_pType->IsDerivedFrom<ezGameObject>())
+    {
+      pTargetObject = reinterpret_cast<ezGameObject*>(obj.m_pObject);
+    }
+    else if (obj.m_pType->IsDerivedFrom<ezComponent>())
+    {
+      ezComponent* pComponent = reinterpret_cast<ezComponent*>(obj.m_pObject);
+
+      pTargetObject = pComponent->GetOwner();
+      pComponenType = obj.m_pType;
+    }
+
+    if (pTargetObject == nullptr)
+      continue;
+
     ezInt32 iFoundObjRoot = -1;
     ezInt32 iFoundObjChild = -1;
 
+    // search for the target object in the exported objects
     {
       const auto& objects = ww.GetAllWrittenRootObjects();
       for (ezUInt32 i = 0; i < objects.GetCount(); ++i)
       {
-        ezMeshComponent* pMesh;
-        if (objects[i]->TryGetComponentOfBaseType(pMesh))
+        if (objects[i] == pTargetObject)
         {
           iFoundObjRoot = i;
           break;
         }
       }
-    }
 
-    if (iFoundObjRoot < 0)
-    {
-      const auto& objects = ww.GetAllWrittenChildObjects();
-      for (ezUInt32 i = 0; i < objects.GetCount(); ++i)
+      if (iFoundObjRoot < 0)
       {
-        ezMeshComponent* pMesh;
-        if (objects[i]->TryGetComponentOfBaseType(pMesh))
+        const auto& objects = ww.GetAllWrittenChildObjects();
+        for (ezUInt32 i = 0; i < objects.GetCount(); ++i)
         {
-          iFoundObjChild = i;
-          break;
+          if (objects[i] == pTargetObject)
+          {
+            iFoundObjChild = i;
+            break;
+          }
         }
       }
     }
 
-    ezHybridArray<ezExposedPrefabParameterDesc, 16> exposedParams;
+    // if exposed object not found, ignore parameter
+    if (iFoundObjRoot < 0 && iFoundObjChild < 0)
+      continue;
 
-    if (iFoundObjRoot >= 0 || iFoundObjChild >= 0)
-    {
-      ezExposedPrefabParameterDesc& paramdesc = exposedParams.ExpandAndGetRef();
-      paramdesc.m_sExposeName.Assign("PrefabColor");
-      paramdesc.m_uiWorldReaderChildObject = (iFoundObjChild >= 0) ? 1 : 0;
-      paramdesc.m_uiWorldReaderObjectIndex = (iFoundObjChild >= 0) ? iFoundObjChild : iFoundObjRoot;
-      paramdesc.m_uiComponentTypeHash = ezGetStaticRTTI<ezMeshComponent>()->GetTypeNameHash();
-      paramdesc.m_sProperty.Assign("Color");
-    }
-
-    exposedParams.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool
-    {
-      return lhs.m_sExposeName < rhs.m_sExposeName;
-    });
-
-    file << exposedParams.GetCount();
-
-    for (const auto& ep : exposedParams)
-    {
-      ep.Save(file);
-    }
+    // store the exposed parameter information
+    ezExposedPrefabParameterDesc& paramdesc = exposedParams.ExpandAndGetRef();
+    paramdesc.m_sExposeName.Assign(esp.m_sName.GetData());
+    paramdesc.m_uiWorldReaderChildObject = (iFoundObjChild >= 0) ? 1 : 0;
+    paramdesc.m_uiWorldReaderObjectIndex = (iFoundObjChild >= 0) ? iFoundObjChild : iFoundObjRoot;
+    paramdesc.m_uiComponentTypeHash = pComponenType ? pComponenType->GetTypeNameHash() : 0;
+    paramdesc.m_sProperty.Assign(esp.m_sPropertyPath.GetData());
   }
 
-  // do the actual file writing
-  return file.Close().Succeeded();
+  exposedParams.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool
+  {
+    return lhs.m_sExposeName < rhs.m_sExposeName;
+  });
+
+  file << exposedParams.GetCount();
+
+
+  for (const auto& ep : exposedParams)
+  {
+    ep.Save(file);
+  }
 }
 
 void ezSceneContext::OnThumbnailViewContextCreated()
@@ -704,5 +744,10 @@ void ezSceneContext::RemoveAmbientLight()
     GetWorld()->DeleteObjectDelayed(m_hAmbientLight[i]);
     m_hAmbientLight[i].Invalidate();
   }
+}
+
+void ezSceneContext::HandleExposedPropertiesMsg(const ezExposedDocumentObjectPropertiesMsgToEngine* pMsg)
+{
+  m_ExposedSceneProperties = pMsg->m_Properties;
 }
 

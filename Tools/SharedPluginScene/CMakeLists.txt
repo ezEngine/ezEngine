@@ -1,7 +1,7 @@
-#cmake
+﻿#cmake
 
 #
-# Copy this file into the folder of an engine library to add it to the solution.
+# Copy this file into the folder of an SHARED library to add it to the solution.
 # Below there are configuration options to add preprocessor definitions and link dependencies to the library.
 #
 # *** Modify this file as required ***
@@ -30,12 +30,7 @@ SET (LINK_LIBRARIES
   Foundation
   EditorEngineProcessFramework
   Core
-  System
-  RendererFoundation
-  RendererDX11
-  RendererCore
   GameEngine
-  SharedPluginScene
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)

@@ -167,7 +167,11 @@ void ezPrefabReferenceComponent::SetParameter(const char* szKey, const ezVariant
 
 void ezPrefabReferenceComponent::RemoveParameter(const char* szKey)
 {
-  m_Parameters.Remove(ezTempHashedString(szKey));
+  if (m_Parameters.Remove(ezTempHashedString(szKey)))
+  {
+    m_bRequiresInstantiation = true;
+    GetWorld()->GetComponentManager<ezPrefabReferenceComponentManager>()->AddToUpdateList(this);
+  }
 }
 
 bool ezPrefabReferenceComponent::GetParameter(const char* szKey, ezVariant& out_value) const

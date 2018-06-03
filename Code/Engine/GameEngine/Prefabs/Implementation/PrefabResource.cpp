@@ -27,34 +27,49 @@ void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& root
 
     m_WorldReader.InstantiatePrefab(world, rootTransform, hParent, out_CreatedRootObjects, &createdChildObjects, pOverrideTeamID);
 
+    const ezRTTI* pGameObjectRtti = ezGetStaticRTTI<ezGameObject>();
+
     for (ezUInt32 i = 0; i < pExposedParamValues->GetCount(); ++i)
     {
       const ezHashedString& name = pExposedParamValues->GetKey(i);
 
-      // TODO: use a sorted array lookup (ArrayMap)
+      // TODO: use a sorted array lookup / lower_bound (ArrayMap)
       for (const auto& ppd : m_PrefabParamDescs)
       {
         if (ppd.m_sExposeName == name)
         {
           ezGameObject* pTarget = ppd.m_uiWorldReaderChildObject ? createdChildObjects[ppd.m_uiWorldReaderObjectIndex] : (*out_CreatedRootObjects)[ppd.m_uiWorldReaderObjectIndex];
 
-          for (ezComponent* pComp : pTarget->GetComponents())
+          if (ppd.m_uiComponentTypeHash == 0)
           {
-            const ezRTTI* pRtti = pComp->GetDynamicRTTI();
+            ezAbstractProperty* pAbstract = pGameObjectRtti->FindPropertyByName(ppd.m_sProperty);
 
-            // TODO: use component index instead ?
-            if (pRtti->GetTypeNameHash() == ppd.m_uiComponentTypeHash)
+            if (pAbstract && pAbstract->GetCategory() == ezPropertyCategory::Member)
             {
-              ezAbstractProperty* pAbstract = pRtti->FindPropertyByName(ppd.m_sProperty);
+              ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pAbstract), pTarget, pExposedParamValues->GetValue(i));
+            }
+          }
+          else
+          {
+            for (ezComponent* pComp : pTarget->GetComponents())
+            {
+              const ezRTTI* pRtti = pComp->GetDynamicRTTI();
 
-              if (pAbstract && pAbstract->GetCategory() == ezPropertyCategory::Member)
+              // TODO: use component index instead ?
+              if (pRtti->GetTypeNameHash() == ppd.m_uiComponentTypeHash)
               {
-                ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pAbstract), pComp, pExposedParamValues->GetValue(i));
+                ezAbstractProperty* pAbstract = pRtti->FindPropertyByName(ppd.m_sProperty);
+
+                if (pAbstract && pAbstract->GetCategory() == ezPropertyCategory::Member)
+                {
+                  ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pAbstract), pComp, pExposedParamValues->GetValue(i));
+                }
               }
             }
           }
-          //#TODO: Should we remove the break so multiple properties can bind to the same name?
-          break;
+
+          // Allow to bind multiple properties to the same exposed parameter name
+          // Therefore, do not break here, but continue iterating
         }
       }
     }
@@ -138,7 +153,7 @@ ezResourceLoadDesc ezPrefabResource::UpdateContent(ezStreamReader* Stream)
 void ezPrefabResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
-  out_NewMemoryUsage.m_uiMemoryCPU = (ezUInt32) (m_WorldReader.GetHeapMemoryUsage() + sizeof(this));
+  out_NewMemoryUsage.m_uiMemoryCPU = (ezUInt32)(m_WorldReader.GetHeapMemoryUsage() + sizeof(this));
 }
 
 ezResourceLoadDesc ezPrefabResource::CreateResource(const ezPrefabResourceDescriptor& descriptor)

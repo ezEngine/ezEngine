@@ -3,6 +3,7 @@
 #include <EnginePluginScene/Plugin.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <RendererCore/Pipeline/Declarations.h>
+#include <SharedPluginScene/Common/Messages.h>
 
 class ezObjectSelectionMsgToEngine;
 class ezRenderContext;
@@ -15,6 +16,10 @@ class ezGlobalSettingsMsgToEngine;
 class ezGridSettingsMsgToEngine;
 class ezSimulationSettingsMsgToEngine;
 struct ezResourceManagerEvent;
+class ezExposedDocumentObjectPropertiesMsgToEngine;
+class ezViewRedrawMsgToEngine;
+class ezWorldWriter;
+class ezDeferredFileWriter;
 
 class EZ_ENGINEPLUGINSCENE_DLL ezSceneContext : public ezEngineProcessDocumentContext
 {
@@ -44,6 +49,8 @@ protected:
   virtual ezEngineProcessViewContext* CreateViewContext() override;
   virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
   virtual bool ExportDocument(const ezExportDocumentMsgToEngine* pMsg) override;
+  void ExportExposedParameters(const ezWorldWriter& ww, ezDeferredFileWriter& file) const;
+
   virtual bool UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext) override;
   virtual void OnThumbnailViewContextCreated() override;
   virtual void OnDestroyThumbnailViewContext() override;
@@ -52,6 +59,7 @@ protected:
 private:
   void AddAmbientLight(bool bSetEditorTag);
   void RemoveAmbientLight();
+  void HandleViewRedrawMsg(const ezViewRedrawMsgToEngine* pMsg);
   void HandleSelectionMsg(const ezObjectSelectionMsgToEngine* pMsg);
   void HandleGameModeMsg(const ezGameModeMsgToEngine* pMsg);
   void HandleSimulationSettingsMsg(const ezSimulationSettingsMsgToEngine* msg);
@@ -60,6 +68,7 @@ private:
   void HandleWorldSettingsMsg(const ezWorldSettingsMsgToEngine* msg);
   void HandleObjectsForDebugVisMsg(const ezObjectsForDebugVisMsgToEngine* pMsg);
   void ComputeHierarchyBounds(ezGameObject* pObj, ezBoundingBoxSphere& bounds);
+  void HandleExposedPropertiesMsg(const ezExposedDocumentObjectPropertiesMsgToEngine* pMsg);
 
   void DrawSelectionBounds(const ezViewHandle& hView);
 
@@ -83,6 +92,7 @@ private:
   ezDeque<ezGameObjectHandle> m_SelectionWithChildren;
   ezSet<ezGameObjectHandle> m_SelectionWithChildrenSet;
   ezGameObjectHandle m_hAmbientLight[3];
+  ezDynamicArray<ezExposedSceneProperty> m_ExposedSceneProperties;
 };
 
 

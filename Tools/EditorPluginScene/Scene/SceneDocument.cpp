@@ -21,6 +21,7 @@
 #include <EditorFramework/GUI/ExposedParameters.h>
 #include <ToolsFoundation/Object/ObjectDirectAccessor.h>
 #include <EditorFramework/Object/ObjectPropertyPath.h>
+#include <SharedPluginScene/Common/Messages.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, 4, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -1066,6 +1067,13 @@ void ezSceneDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
 
 ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
+  const ezSceneDocumentSettings* pSettings = GetSettings();
+
+  ezExposedDocumentObjectPropertiesMsgToEngine msg;
+  msg.m_Properties = pSettings->m_ExposedProperties;
+
+  SendMessageToEngine(&msg);
+
   return RequestExportScene(szTargetFile, AssetHeader);
 }
 
