@@ -1,4 +1,4 @@
-﻿#cmake
+#cmake
 
 #
 # Copy this file into the folder of an SHARED library to add it to the solution.
@@ -23,14 +23,10 @@ BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
 # Call this in case this project does not function without Qt.
 #BUILD_REQUIRES_QT()
 
-BUILD_REQUIRES_DX11()
-
 # Add all the libraries that this project needs to link against here
 SET (LINK_LIBRARIES
   Foundation
   EditorEngineProcessFramework
-  Core
-  GameEngine
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)

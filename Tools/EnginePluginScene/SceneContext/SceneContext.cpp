@@ -625,11 +625,10 @@ void ezSceneContext::ExportExposedParameters(const ezWorldWriter& ww, ezDeferred
 
   exposedParams.Sort([](const ezExposedPrefabParameterDesc& lhs, const ezExposedPrefabParameterDesc& rhs) -> bool
   {
-    return lhs.m_sExposeName < rhs.m_sExposeName;
+    return lhs.m_sExposeName.GetHash() < rhs.m_sExposeName.GetHash();
   });
 
   file << exposedParams.GetCount();
-
 
   for (const auto& ep : exposedParams)
   {

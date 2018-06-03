@@ -171,3 +171,6 @@ ezSpriteBlendMode::Additive;Additive
 Mixed Reality;Mixed Reality
 ezSpatialAnchorComponent;Spatial Anchor
 ezSrmRenderComponent;Visualize Surface Reconstruction Mesh
+ExposedProperties;Exposed Properties
+ezExposedSceneProperty;Exposed Property
+Parameters;Parameters

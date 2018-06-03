@@ -991,6 +991,8 @@ void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
   ezExposedParameters* pExposedParams = EZ_DEFAULT_NEW(ezExposedParameters);
 
   {
+    ezSet<ezString> alreadyExposed;
+
     auto pSettings = GetSettings();
     for (auto prop : pSettings->m_ExposedProperties)
     {
@@ -1013,6 +1015,15 @@ void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
       ezVariant value;
       res = context.m_pAccessor->GetValue(GetObjectManager()->GetObject(key.m_Object), key.m_pProperty, value, key.m_Index);
       EZ_ASSERT_DEBUG(res.Succeeded(), "ResolvePropertyPath succeeded so GetValue should too");
+
+      // do not show the same parameter twice, even if they have different types, as the UI doesn't handle that case properly
+      // TODO: we should prevent users from using the same name for differently typed parameters
+      // don't do this earlier, we do want to validate each exposed property with the code above
+      if (alreadyExposed.Contains(prop.m_sName))
+        continue;
+
+      alreadyExposed.Insert(prop.m_sName);
+
       auto& p = pExposedParams->m_Parameters.ExpandAndGetRef();
       p.m_sName = prop.m_sName;
       p.m_DefaultValue = value;

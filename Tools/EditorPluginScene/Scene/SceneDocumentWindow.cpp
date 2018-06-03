@@ -88,7 +88,7 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
   {
     ezQtDocumentPanel* pPanel = new ezQtDocumentPanel(this);
     pPanel->setObjectName("SceneSettingsDockWidget");
-    pPanel->setWindowTitle("Scene Settings");
+    pPanel->setWindowTitle(GetSceneDocument()->IsPrefab() ? "Prefab Settings" : "Scene Settings");
     pPanel->show();
 
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPanel, pDocument, false);
