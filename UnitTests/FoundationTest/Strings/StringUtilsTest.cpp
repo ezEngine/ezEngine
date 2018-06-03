@@ -795,6 +795,18 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
       EZ_TEST_BOOL(ezStringUtils::IsIdentifierDelimiter_C_Code(i) == !bCode);
     }
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsValidIdentifierName")
+  {
+    EZ_TEST_BOOL(!ezStringUtils::IsValidIdentifierName(""));
+    EZ_TEST_BOOL(!ezStringUtils::IsValidIdentifierName("1asdf"));
+    EZ_TEST_BOOL(!ezStringUtils::IsValidIdentifierName("as df"));
+    EZ_TEST_BOOL(!ezStringUtils::IsValidIdentifierName("asdf!"));
+
+    EZ_TEST_BOOL(ezStringUtils::IsValidIdentifierName("asdf1"));
+    EZ_TEST_BOOL(ezStringUtils::IsValidIdentifierName("_asdf"));
+
+  }
 }
 
 

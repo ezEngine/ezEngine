@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <ThirdParty/utf8/utf8.h>
 #include <Foundation/Basics.h>
@@ -225,6 +225,9 @@ public:
 
   /// \brief A default word delimiter function for identifiers in C code.
   static bool IsIdentifierDelimiter_C_Code(ezUInt32 uiChar); // [tested]
+
+  /// \brief Checks whether the given string is a valid identifier name in C code, ie has no white-spaces, starts with a literal etc.
+  static bool IsValidIdentifierName(const char* pString, const char* pStringEnd = ezMaxStringEnd); // [tested]
 
   /// \brief Searches szString for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is returned. Otherwise nullptr.
   static const char* FindWholeWord(const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER IsDelimiterCB, const char* pStringEnd = ezMaxStringEnd); // [tested]

@@ -861,5 +861,27 @@ bool ezStringUtils::IsIdentifierDelimiter_C_Code(ezUInt32 uiChar)
   return true;
 }
 
+bool ezStringUtils::IsValidIdentifierName(const char* pString, const char* pStringEnd /*= ezMaxStringEnd*/)
+{
+  if (IsNullOrEmpty(pString, pStringEnd))
+    return false;
+
+  ezUInt32 cur = ezUnicodeUtils::ConvertUtf8ToUtf32(pString);
+
+  // digits are not allowed as the first character
+  if ((cur >= '0') && (cur <= '9'))
+    return false;
+
+  while (*pString != '\0' && pString < pStringEnd)
+  {
+    cur = ezUnicodeUtils::DecodeUtf8ToUtf32(pString);
+
+    if (ezStringUtils::IsIdentifierDelimiter_C_Code(cur))
+      return false;
+  }
+
+  return true;
+}
+
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_StringUtils);
 

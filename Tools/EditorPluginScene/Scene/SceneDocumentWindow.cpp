@@ -302,11 +302,20 @@ void ezQtSceneDocumentWindow::ExtendPropertyGridContextMenu(QMenu& menu, const e
     pAction->setEnabled(iExposed < items.GetCount());
     connect(pAction, &QAction::triggered, pAction, [this, &menu, &items, pProp]()
     {
-      QString name = pProp->GetPropertyName();
-      bool bOk = false;
-      name = QInputDialog::getText(this, "Set map key for new element", "Key:", QLineEdit::Normal, name, &bOk);
-      if (bOk)
+      while (true)
       {
+        bool bOk = false;
+        QString name = QInputDialog::getText(this, "Parameter Name", "Name:", QLineEdit::Normal, pProp->GetPropertyName(), &bOk);
+
+        if (!bOk)
+          return;
+
+        if (!ezStringUtils::IsValidIdentifierName(name.toUtf8().data()))
+        {
+          ezQtUiServices::GetSingleton()->MessageBoxInformation("This name is not a valid identifier.\nAllowed characters are a-z, A-Z, 0-9 and _.\nWhitespace and special characters are not allowed.");
+          continue; // try again
+        }
+
         auto pAccessor = GetSceneDocument()->GetObjectAccessor();
         pAccessor->StartTransaction("Expose as Parameter");
         for (const ezPropertySelection& sel : items)
@@ -318,6 +327,7 @@ void ezQtSceneDocumentWindow::ExtendPropertyGridContextMenu(QMenu& menu, const e
           }
         }
         pAccessor->FinishTransaction();
+        return;
       }
     });
   }

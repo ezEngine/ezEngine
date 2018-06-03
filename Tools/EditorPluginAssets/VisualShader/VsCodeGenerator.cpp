@@ -412,30 +412,6 @@ void ezVisualShaderCodeGenerator::AppendStringIfUnique(ezStringBuilder& inout_St
   inout_String.Append(szAppend);
 }
 
-static bool IsValidIdentifier(const ezStringBuilder& val)
-{
-  if (val.IsEmpty())
-    return false;
-
-   auto it = val.GetIteratorFront();
-
-   const ezUInt32 first = it.GetCharacter();
-
-   // digits are not allowed as the first character
-   if ((first >= '0') && (first <= '9'))
-     return false;
-
-   while (it.IsValid())
-   {
-     if (ezStringUtils::IsIdentifierDelimiter_C_Code(it.GetCharacter()))
-       return false;
-
-     ++it;
-   }
-
-   return true;
-}
-
 ezStatus ezVisualShaderCodeGenerator::CheckPropertyValues(const ezDocumentObject* pNode, const ezVisualShaderNodeDescriptor* pDesc)
 {
   const auto& TypeAccess = pNode->GetTypeAccessor();
@@ -457,7 +433,7 @@ ezStatus ezVisualShaderCodeGenerator::CheckPropertyValues(const ezDocumentObject
         return ezStatus(ezFmt("A '{0}' node has an empty '{1}' property.", pDesc->m_sName, props[p].m_sName));
       }
 
-      if (!IsValidIdentifier(sPropValue))
+      if (!ezStringUtils::IsValidIdentifierName(sPropValue))
       {
         return ezStatus(ezFmt("A '{0}' node has a '{1}' property that is not a valid identifier: '{2}'. Only letters, digits and _ are allowed.", pDesc->m_sName, props[p].m_sName, sPropValue));
       }
