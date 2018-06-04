@@ -293,8 +293,15 @@ ezResult ezShaderCompiler::RunShaderCompiler(const char* szFile, const char* szP
     ezShaderProgramCompiler::ezShaderProgramData spd;
     spd.m_szSourceFile = szFile;
     spd.m_szPlatform = Platforms[p].GetData();
-    // #TODO: Expose this somehow dynamically.
-    //spd.m_Flags.Add(ezShaderCompilerFlags::Debug);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    // 'DEBUG' is a platform tag that enables additional compiler flags
+    if (PlatformEnabled(m_ShaderData.m_Platforms, "DEBUG"))
+    {
+      ezLog::Warning("Shader specifies the 'DEBUG' platform, which enables the debug shader compiler flag.");
+      spd.m_Flags.Add(ezShaderCompilerFlags::Debug);
+    }
+#endif
 
     m_IncludeFiles.Clear();
 

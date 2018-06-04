@@ -14,31 +14,32 @@ The Shader Render State Section
 Each shader is made up of several **sections**.
 
 ```{.c}
-[PLATFORMS] 
+[PLATFORMS]
 ALL
-    
+DEBUG
+
 [PERMUTATIONS]
-    
+
 ALPHATEST
 WIREFRAME
-    
+
 [RENDERSTATE]
-    
+
 #if WIREFRAME == 1
   WireFrame = true
 #endif
-    
+
 [VERTEXSHADER]
-    
+
 VS_OUT main(VS_IN Input)
 {
   ...
 }
-    
+
 [PIXELSHADER]
-    
+
     ...
-```  
+```
 
 The render pipeline state associated with the shader is defined in the **[RENDERSTATE]** section. It may use permutation variables just like the shader code. To have different state for different permutations, use standard C preprocessor syntax.
 
@@ -106,7 +107,7 @@ The following variables are available in the **[RENDERSTATE]** section. Simply o
     BackFaceFailOp = StencilOp_Increment
     BackFaceFailOp = StencilOp_Decrement
 ```
-  
+
   * enum **BackFacePassOp** = StencilOp_Keep
 
 ```{.c}
@@ -118,7 +119,7 @@ The following variables are available in the **[RENDERSTATE]** section. Simply o
     BackFacePassOp = StencilOp_Invert
     BackFacePassOp = StencilOp_Increment
     BackFacePassOp = StencilOp_Decrement
-```  
+```
 
   * enum **BackFaceStencilFunc** = CompareFunc_Always
 
@@ -132,7 +133,7 @@ The following variables are available in the **[RENDERSTATE]** section. Simply o
     BackFaceStencilFunc = CompareFunc_GreaterEqual
     BackFaceStencilFunc = CompareFunc_Always
 ```
-  
+
   * enum **FrontFaceDepthFailOp** = StencilOp_Keep
 
 ```{.c}
@@ -158,7 +159,7 @@ The following variables are available in the **[RENDERSTATE]** section. Simply o
     FrontFaceFailOp = CompareFunc_GreaterEqual
     FrontFaceFailOp = CompareFunc_Always
 ```
-  
+
   * enum **FrontFacePassOp** = StencilOp_Keep
 
 ```{.c}
@@ -171,7 +172,7 @@ The following variables are available in the **[RENDERSTATE]** section. Simply o
     FrontFacePassOp = CompareFunc_GreaterEqual
     FrontFacePassOp = CompareFunc_Always
 ```
-  
+
   * enum **FrontFaceStencilFunc** = CompareFunc_Always
 
 ```{.c}
@@ -230,7 +231,7 @@ The following variables exist with suffix 0 to 7. If **IndependentBlend** is dis
     BlendOp0 = BlendOp_Min
     BlendOp0 = BlendOp_Max
 ```
-  
+
   * enum **BlendOpAlpha0** = BlendOp_Add
 
 ```{.c}
@@ -276,7 +277,7 @@ The following variables exist with suffix 0 to 7. If **IndependentBlend** is dis
     DestBlendAlpha0 = Blend_BlendFactor
     DestBlendAlpha0 = Blend_InvBlendFactor
 ```
-  
+
   * enum **SourceBlend0** = Blend_One
 
 ```{.c}

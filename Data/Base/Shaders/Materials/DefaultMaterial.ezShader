@@ -129,7 +129,7 @@ float3 GetBaseColor(PS_IN Input)
   {
     baseColor *= BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).rgb;
   }
-  
+
   return baseColor;
 }
 
@@ -173,7 +173,7 @@ float GetOpacity(PS_IN Input)
   {
     opacity *= BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy).a;
   }
-  
+
   #if BLEND_MODE == BLEND_MODE_MASKED
     return opacity - MaskThreshold;
   #else
