@@ -80,7 +80,6 @@ float SampleGameState::CanHandleThis(ezGameApplicationType AppType, ezWorld* pWo
 
 void SampleGameState::ConfigureInputDevices()
 {
-  // ezFallbackGameState
   SUPER::ConfigureInputDevices();
 
   // setup devices here
@@ -88,7 +87,6 @@ void SampleGameState::ConfigureInputDevices()
 
 void SampleGameState::ConfigureInputActions()
 {
-  // ezFallbackGameState
   SUPER::ConfigureInputActions();
 
   // setup custom input actions here
@@ -108,7 +106,6 @@ void SampleGameState::ProcessInput()
       return;
   }
 
-  // ezFallbackGameState
   SUPER::ProcessInput();
 
   // do game input processing here
@@ -116,7 +113,6 @@ void SampleGameState::ProcessInput()
 
 void SampleGameState::ConfigureMainCamera()
 {
-  // ezFallbackGameState
   SUPER::ConfigureMainCamera();
 
   // do custom camera setup here

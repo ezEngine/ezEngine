@@ -30,6 +30,10 @@ namespace
     if (sPlatforms.FindWholeWord_NoCase(sTemp.GetData(), ezStringUtils::IsIdentifierDelimiter_C_Code) != nullptr)
       return true;
 
+    // do not enable this when ALL is specified
+    if (ezStringUtils::IsEqual(szPlatform, "DEBUG"))
+      return false;
+
     // if it contains 'ALL'
     if (sPlatforms.FindWholeWord_NoCase("ALL", ezStringUtils::IsIdentifierDelimiter_C_Code) != nullptr)
       return true;
