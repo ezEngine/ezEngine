@@ -213,16 +213,17 @@ void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, const ezMess
   metaData.m_uiReceiverIsComponent = false;
   metaData.m_uiRecursive = bRecursive;
 
+  ezRTTIAllocator* pMsgRTTIAllocator = msg.GetDynamicRTTI()->GetAllocator();
   if (delay.GetSeconds() > 0.0)
   {
-    ezMessage* pMsgCopy = msg.Clone(&m_Data.m_Allocator);
+    ezMessage* pMsgCopy = pMsgRTTIAllocator->Clone<ezMessage>(&msg, &m_Data.m_Allocator);
 
     metaData.m_Due = m_Data.m_Clock.GetAccumulatedTime() + delay;
     m_Data.m_TimedMessageQueues[queueType].Enqueue(pMsgCopy, metaData);
   }
   else
   {
-    ezMessage* pMsgCopy = msg.Clone(m_Data.m_StackAllocator.GetCurrentAllocator());
+    ezMessage* pMsgCopy = pMsgRTTIAllocator->Clone<ezMessage>(&msg, m_Data.m_StackAllocator.GetCurrentAllocator());
     m_Data.m_MessageQueues[queueType].Enqueue(pMsgCopy, metaData);
   }
 }
@@ -238,16 +239,17 @@ void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, const ezMe
   metaData.m_uiReceiverIsComponent = true;
   metaData.m_uiRecursive = false;
 
+  ezRTTIAllocator* pMsgRTTIAllocator = msg.GetDynamicRTTI()->GetAllocator();
   if (delay.GetSeconds() > 0.0)
   {
-    ezMessage* pMsgCopy = msg.Clone(&m_Data.m_Allocator);
+    ezMessage* pMsgCopy = pMsgRTTIAllocator->Clone<ezMessage>(&msg, &m_Data.m_Allocator);
 
     metaData.m_Due = m_Data.m_Clock.GetAccumulatedTime() + delay;
     m_Data.m_TimedMessageQueues[queueType].Enqueue(pMsgCopy, metaData);
   }
   else
   {
-    ezMessage* pMsgCopy = msg.Clone(m_Data.m_StackAllocator.GetCurrentAllocator());
+    ezMessage* pMsgCopy = pMsgRTTIAllocator->Clone<ezMessage>(&msg, m_Data.m_StackAllocator.GetCurrentAllocator());
     m_Data.m_MessageQueues[queueType].Enqueue(pMsgCopy, metaData);
   }
 }

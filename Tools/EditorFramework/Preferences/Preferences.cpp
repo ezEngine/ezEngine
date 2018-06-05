@@ -43,7 +43,7 @@ ezPreferences* ezPreferences::QueryPreferences(const ezRTTI* pRtti, const ezDocu
     return nullptr;
   }
 
-  ezPreferences* pPref = reinterpret_cast<ezPreferences*>(pAlloc->Allocate());
+  ezPreferences* pPref = pAlloc->Allocate<ezPreferences>();
   pPref->m_pDocument = pDocument;
   s_Preferences[pDocument][pRtti] = pPref;
 

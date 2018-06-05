@@ -21,7 +21,7 @@ ezDragDropHandler* ezDragDropHandler::FindDragDropHandler(const ezDragDropInfo* 
   {
     if (pRtti->IsDerivedFrom<ezDragDropHandler>() && pRtti->GetAllocator()->CanAllocate())
     {
-      ezDragDropHandler* pDnD = static_cast<ezDragDropHandler*>(pRtti->GetAllocator()->Allocate());
+      ezDragDropHandler* pDnD = pRtti->GetAllocator()->Allocate<ezDragDropHandler>();
 
       const float fValue = pDnD->CanHandle(pInfo);
       if (fValue > fBestValue)

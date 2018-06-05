@@ -185,7 +185,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
 
         EZ_TEST_STRING(pRtti->GetPluginName(), "ezFoundationTest_Plugin1");
 
-        void* pInstance = pRtti->GetAllocator()->Allocate();
+        void* pInstance = pRtti->GetAllocator()->Allocate<void>();
         EZ_TEST_BOOL(pInstance != nullptr);
 
         ezAbstractProperty* pProp = pRtti->FindPropertyByName("Float2");
@@ -251,7 +251,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Hierarchies)
 
     EZ_TEST_BOOL(pRtti->GetAllocator()->CanAllocate());
 
-    ezTestClass1* pInstance = (ezTestClass1*) pRtti->GetAllocator()->Allocate();
+    ezTestClass1* pInstance = pRtti->GetAllocator()->Allocate<ezTestClass1>();
     EZ_TEST_BOOL(pInstance != nullptr);
 
     EZ_TEST_BOOL(pInstance->GetDynamicRTTI() == ezGetStaticRTTI<ezTestClass1>());
@@ -282,7 +282,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Hierarchies)
     EZ_TEST_INT(ezTestClass2Allocator::m_iAllocs, 0);
     EZ_TEST_INT(ezTestClass2Allocator::m_iDeallocs, 0);
 
-    ezTestClass2* pInstance = (ezTestClass2*) pRtti->GetAllocator()->Allocate();
+    ezTestClass2* pInstance = pRtti->GetAllocator()->Allocate<ezTestClass2>();
     EZ_TEST_BOOL(pInstance != nullptr);
 
     EZ_TEST_BOOL(pInstance->GetDynamicRTTI() == ezGetStaticRTTI<ezTestClass2>());
@@ -679,7 +679,7 @@ void TestArrayProperty(const char* szPropName, void* pObject, const ezRTTI* pRtt
     // If we don't know the element type T but we can allocate it, we can handle it anyway.
     if (pElemRtti->GetAllocator()->CanAllocate())
     {
-      void* pData = pElemRtti->GetAllocator()->Allocate();
+      void* pData = pElemRtti->GetAllocator()->Allocate<void>();
 
       pArrayProp->SetCount(pObject, 2);
       EZ_TEST_INT(pArrayProp->GetCount(pObject), 2);
@@ -731,7 +731,7 @@ void TestArrayProperty(const char* szPropName, void* pObject, const ezRTTI* pRtt
   if (pElemRtti->GetAllocator()->CanAllocate())
   {
     // Current values should be different from default constructed version.
-    void* pData = pElemRtti->GetAllocator()->Allocate();
+    void* pData = pElemRtti->GetAllocator()->Allocate<void>();
 
     EZ_TEST_BOOL(*static_cast<T*>(pData) != v1);
     EZ_TEST_BOOL(*static_cast<T*>(pData) != v2);
@@ -1020,7 +1020,7 @@ void TestPointerMemberProperty(const char* szPropName, void* pObject, const ezRT
 
   // Set value to new instance.
   {
-    void* pNewData = pAbsMember->GetSpecificType()->GetAllocator()->Allocate();
+    void* pNewData = pAbsMember->GetSpecificType()->GetAllocator()->Allocate<void>();
     pAbsMember->SetValuePtr(pObject, &pNewData);
     void* pData2 = nullptr;
     pAbsMember->GetValuePtr(pObject, &pData2);

@@ -13,7 +13,7 @@ ezParticleBehavior* ezParticleBehaviorFactory::CreateBehavior(ezParticleSystemIn
 {
   const ezRTTI* pRtti = GetBehaviorType();
 
-  ezParticleBehavior* pBehavior = (ezParticleBehavior*)pRtti->GetAllocator()->Allocate();
+  ezParticleBehavior* pBehavior = pRtti->GetAllocator()->Allocate<ezParticleBehavior>();
   pBehavior->Reset(pOwner);
 
   CopyBehaviorProperties(pBehavior);

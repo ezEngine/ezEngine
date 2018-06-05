@@ -18,6 +18,22 @@ namespace ezInternal
       m_pAllocator = pAllocator;
     }
 
+    template <typename U>
+    EZ_ALWAYS_INLINE NewInstance(NewInstance<U>&& other)
+    {
+      m_pInstance = other.m_pInstance;
+      m_pAllocator = other.m_pAllocator;
+
+      other.m_pInstance = nullptr;
+      other.m_pAllocator = nullptr;
+    }
+
+    template <typename U>
+    EZ_ALWAYS_INLINE NewInstance<U> Cast()
+    {
+      return NewInstance<U>(static_cast<U*>(m_pInstance), m_pAllocator);
+    }
+
     EZ_ALWAYS_INLINE operator T*()
     {
       return m_pInstance;

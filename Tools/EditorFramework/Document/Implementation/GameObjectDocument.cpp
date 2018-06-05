@@ -80,7 +80,7 @@ void ezGameObjectDocument::SetActiveEditTool(const ezRTTI* pEditToolType)
     {
       EZ_ASSERT_DEBUG(m_EditToolConfigDelegate.IsValid(), "Window did not specify a delegate to configure edit tools");
 
-      pEditTool = reinterpret_cast<ezGameObjectEditTool*>(pEditToolType->GetAllocator()->Allocate());
+      pEditTool = pEditToolType->GetAllocator()->Allocate<ezGameObjectEditTool>();
       m_CreatedEditTools[pEditToolType] = pEditTool;
 
       m_EditToolConfigDelegate(pEditTool);

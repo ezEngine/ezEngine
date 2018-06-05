@@ -381,7 +381,7 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElem
           prop.m_sType = pRtti->GetTypeName();
 
           // always expose the alpha channel for color properties
-          ezExposeColorAlphaAttribute* pAttr = static_cast<ezExposeColorAlphaAttribute*>(ezExposeColorAlphaAttribute::GetStaticRTTI()->GetAllocator()->Allocate());
+          ezExposeColorAlphaAttribute* pAttr = ezExposeColorAlphaAttribute::GetStaticRTTI()->GetAllocator()->Allocate<ezExposeColorAlphaAttribute>();
           prop.m_Attributes.PushBack(pAttr);
         }
         else if (sType == "float4")
@@ -421,7 +421,7 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElem
           prop.m_sType = pRtti->GetTypeName();
 
           // apparently the attributes are deallocated using the type allocator, so we must allocate them here through RTTI as well
-          ezAssetBrowserAttribute* pAttr = static_cast<ezAssetBrowserAttribute*>(ezAssetBrowserAttribute::GetStaticRTTI()->GetAllocator()->Allocate());
+          ezAssetBrowserAttribute* pAttr = ezAssetBrowserAttribute::GetStaticRTTI()->GetAllocator()->Allocate<ezAssetBrowserAttribute>();
           pAttr->SetTypeFilter("Texture 2D;Render Target");
           prop.m_Attributes.PushBack(pAttr);
         }

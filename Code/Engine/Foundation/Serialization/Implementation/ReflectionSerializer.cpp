@@ -168,7 +168,7 @@ namespace
             // If the property is behind an accessor, we need to retrieve it first.
             else if (pPropType->GetAllocator()->CanAllocate())
             {
-              pSubObject = pPropType->GetAllocator()->Allocate();
+              pSubObject = pPropType->GetAllocator()->Allocate<void>();
               pSpecific->GetValuePtr(pObject, pSubObject);
               pSpecific->SetValuePtr(pClone, pSubObject);
               pPropType->GetAllocator()->Deallocate(pSubObject);
@@ -222,7 +222,7 @@ namespace
           }
           else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class) && pPropType->GetAllocator()->CanAllocate())
           {
-            void* pSubObject = pPropType->GetAllocator()->Allocate();
+            void* pSubObject = pPropType->GetAllocator()->Allocate<void>();
 
             for (ezUInt32 i = 0; i < uiCount; ++i)
             {
@@ -324,7 +324,7 @@ namespace
             {
               if (pPropType->GetAllocator()->CanAllocate())
               {
-                void* pValue = pPropType->GetAllocator()->Allocate();
+                void* pValue = pPropType->GetAllocator()->Allocate<void>();
                 EZ_SCOPE_EXIT(pPropType->GetAllocator()->Deallocate(pValue););
                 EZ_VERIFY(pSpecific->GetValue(pObject, keys[i], pValue), "Previously retrieved key does not exist.");
                 pSpecific->Insert(pClone, keys[i], pValue);
@@ -369,7 +369,7 @@ void* ezReflectionSerializer::Clone(const void* pObject, const ezRTTI* pType)
   }
 
   EZ_ASSERT_DEV(pType->GetAllocator()->CanAllocate(), "The type '{0}' can't be cloned!", pType->GetTypeName());
-  void* pClone = pType->GetAllocator()->Allocate();
+  void* pClone = pType->GetAllocator()->Allocate<void>();
   CloneProperties(pObject, pClone, pType);
   return pClone;
 }

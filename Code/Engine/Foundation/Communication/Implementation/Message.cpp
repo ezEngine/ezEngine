@@ -17,7 +17,7 @@ void ezMessage::PackageForTransfer(const ezMessage& msg, ezStreamWriter& stream)
   msg.Serialize(stream);
 }
 
-ezMessage* ezMessage::ReplicatePackedMessage(ezStreamReader& stream)
+ezUniquePtr<ezMessage> ezMessage::ReplicatePackedMessage(ezStreamReader& stream)
 {
   ezUInt32 uiTypeHash = 0;
   stream >> uiTypeHash;
@@ -43,9 +43,7 @@ ezMessage* ezMessage::ReplicatePackedMessage(ezStreamReader& stream)
   if (pRtti == nullptr || !pRtti->GetAllocator()->CanAllocate())
     return nullptr;
 
-  ezMessage* pMsg = reinterpret_cast<ezMessage*>(pRtti->GetAllocator()->Allocate());
-
-  /// \todo It would be nice if we could pack this into a ezUniquePtr such that it correctly deallocates the message
+  auto pMsg = pRtti->GetAllocator()->Allocate<ezMessage>();
 
   pMsg->Deserialize(stream, uiTypeVersion);
 

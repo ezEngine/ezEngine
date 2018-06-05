@@ -960,7 +960,7 @@ ezResourceBase* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* 
   EZ_ASSERT_DEV(pRtti != nullptr, "There is no RTTI information available for the given resource type '{0}'", EZ_STRINGIZE(ResourceType));
   EZ_ASSERT_DEV(pRtti->GetAllocator() != nullptr, "There is no RTTI allocator available for the given resource type '{0}'", EZ_STRINGIZE(ResourceType));
 
-  ezResourceBase* pNewResource = static_cast<ezResourceBase*>(pRtti->GetAllocator()->Allocate());
+  ezResourceBase* pNewResource = pRtti->GetAllocator()->Allocate<ezResourceBase>();
   pNewResource->SetUniqueID(szResourceID, bIsReloadable);
 
   m_LoadedResources.Insert(sResourceHash, pNewResource);

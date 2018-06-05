@@ -64,7 +64,7 @@ void ezAssetDocumentGenerator::CreateGenerators(ezHybridArray<ezAssetDocumentGen
     if (!pRtti->IsDerivedFrom<ezAssetDocumentGenerator>() || !pRtti->GetAllocator()->CanAllocate())
       continue;
 
-    out_Generators.PushBack(static_cast<ezAssetDocumentGenerator*>(pRtti->GetAllocator()->Allocate()));
+    out_Generators.PushBack(pRtti->GetAllocator()->Allocate<ezAssetDocumentGenerator>());
   }
 
   // sort by name

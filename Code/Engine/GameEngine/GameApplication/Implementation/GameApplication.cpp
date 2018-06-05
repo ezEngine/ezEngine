@@ -139,7 +139,7 @@ void ezGameApplication::CreateGameStateForWorld(ezWorld* pWorld)
       if (!pRtti->GetAllocator()->CanAllocate())
         continue;
 
-      ezGameState* pState = static_cast<ezGameState*>(pRtti->GetAllocator()->Allocate());
+      ezGameState* pState = pRtti->GetAllocator()->Allocate<ezGameState>();
 
       EZ_ASSERT_DEV(pState != nullptr, "Failed to allocate ezGameState object");
 
@@ -389,7 +389,7 @@ void ezGameApplication::AfterCoreStartup()
   DoProjectSetup();
 
   // Create gamestate.
-  if (m_AppType == ezGameApplicationType::StandAlone 
+  if (m_AppType == ezGameApplicationType::StandAlone
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
       || m_AppType == ezGameApplicationType::StandAloneMixedReality
 #endif
@@ -410,7 +410,7 @@ void ezGameApplication::AfterCoreStartup()
 
 
   // Activate gamestate
-  if (m_AppType == ezGameApplicationType::StandAlone 
+  if (m_AppType == ezGameApplicationType::StandAlone
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
       || m_AppType == ezGameApplicationType::StandAloneMixedReality
 #endif

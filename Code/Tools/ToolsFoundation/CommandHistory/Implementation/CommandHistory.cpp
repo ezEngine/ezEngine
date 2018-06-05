@@ -261,7 +261,7 @@ void ezCommandHistory::StartTransaction(const ezFormatString& sDisplayString)
 
   ezStringBuilder tmp;
 
-  pTransaction = (ezCommandTransaction*) ezGetStaticRTTI<ezCommandTransaction>()->GetAllocator()->Allocate();
+  pTransaction = ezGetStaticRTTI<ezCommandTransaction>()->GetAllocator()->Allocate<ezCommandTransaction>();
   pTransaction->m_pDocument = m_pDocument;
   pTransaction->m_sDisplayString = sDisplayString.GetText(tmp);
 

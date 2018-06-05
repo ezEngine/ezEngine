@@ -45,14 +45,14 @@ private:
 struct ezScriptContainerAllocator : public ezRTTIAllocator
 {
   ezScriptContainerAllocator(const ezRTTI* pType) : m_pType(pType) {}
-  virtual void* Allocate() override
+  virtual ezInternal::NewInstance<void> AllocateInternal(ezAllocatorBase* pAllocator) override
   {
-    ScriptContainerBase* pScriptContainer = EZ_DEFAULT_NEW(ScriptContainerBase);
+    auto pScriptContainer = EZ_DEFAULT_NEW(ScriptContainerBase);
     pScriptContainer->m_pType = m_pType;
     return pScriptContainer;
   }
 
-  virtual void Deallocate(void* pObject) override // [tested]
+  virtual void Deallocate(void* pObject, ezAllocatorBase* pAllocator) override // [tested]
   {
     ScriptContainerBase* pPointer = static_cast<ScriptContainerBase*>(pObject);
     EZ_DEFAULT_DELETE(pPointer);

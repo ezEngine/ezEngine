@@ -11,7 +11,7 @@ ezParticleType* ezParticleTypeFactory::CreateType(ezParticleSystemInstance* pOwn
 {
   const ezRTTI* pRtti = GetTypeType();
 
-  ezParticleType* pType = (ezParticleType*)pRtti->GetAllocator()->Allocate();
+  ezParticleType* pType = pRtti->GetAllocator()->Allocate<ezParticleType>();
   pType->Reset(pOwner);
 
   CopyTypeProperties(pType);

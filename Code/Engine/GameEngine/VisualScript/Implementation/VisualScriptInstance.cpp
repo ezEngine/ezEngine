@@ -221,7 +221,7 @@ void ezVisualScriptInstance::CreateVisualScriptNode(ezUInt32 uiNodeIdx, const ez
 {
   const auto& node = resource.m_Nodes[uiNodeIdx];
 
-  ezVisualScriptNode* pNode = static_cast<ezVisualScriptNode*>(node.m_pType->GetAllocator()->Allocate());
+  ezVisualScriptNode* pNode = node.m_pType->GetAllocator()->Allocate<ezVisualScriptNode>();
   pNode->m_uiNodeID = uiNodeIdx;
 
   // assign all property values
@@ -245,10 +245,10 @@ void ezVisualScriptInstance::CreateFunctionMessageNode(ezUInt32 uiNodeIdx, const
 {
   const auto& node = resource.m_Nodes[uiNodeIdx];
 
-  ezVisualScriptNode_MessageSender* pNode = static_cast<ezVisualScriptNode_MessageSender*>(ezGetStaticRTTI<ezVisualScriptNode_MessageSender>()->GetAllocator()->Allocate());
+  ezVisualScriptNode_MessageSender* pNode = ezGetStaticRTTI<ezVisualScriptNode_MessageSender>()->GetAllocator()->Allocate<ezVisualScriptNode_MessageSender>();
   pNode->m_uiNodeID = uiNodeIdx;
 
-  pNode->m_pMessageToSend = static_cast<ezMessage*>(node.m_pType->GetAllocator()->Allocate());
+  pNode->m_pMessageToSend = node.m_pType->GetAllocator()->Allocate<ezMessage>();
 
   // assign all property values
   for (ezUInt32 i = 0; i < node.m_uiNumProperties; ++i)
@@ -286,7 +286,7 @@ void ezVisualScriptInstance::CreateEventMessageNode(ezUInt32 uiNodeIdx, const ez
 {
   const auto& node = resource.m_Nodes[uiNodeIdx];
 
-  ezVisualScriptNode_GenericEvent* pNode = static_cast<ezVisualScriptNode_GenericEvent*>(ezGetStaticRTTI<ezVisualScriptNode_GenericEvent>()->GetAllocator()->Allocate());
+  ezVisualScriptNode_GenericEvent* pNode = ezGetStaticRTTI<ezVisualScriptNode_GenericEvent>()->GetAllocator()->Allocate<ezVisualScriptNode_GenericEvent>();
   pNode->m_uiNodeID = uiNodeIdx;
 
   pNode->m_sEventType = node.m_sTypeName;

@@ -87,7 +87,7 @@ ezInt32 ezVisualScriptNode_GenericEvent::HandlesMessagesWithID() const
 
   if (pRtti != nullptr && pRtti->IsDerivedFrom<ezMessage>() && pRtti->GetAllocator()->CanAllocate())
   {
-    ezMessage* pMsg = static_cast<ezMessage*>(pRtti->GetAllocator()->Allocate());
+    ezMessage* pMsg = pRtti->GetAllocator()->Allocate<ezMessage>();
     res = pMsg->GetId();
     pRtti->GetAllocator()->Deallocate(pMsg);
   }

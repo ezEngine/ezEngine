@@ -13,7 +13,7 @@ ezParticleInitializer* ezParticleInitializerFactory::CreateInitializer(ezParticl
 {
   const ezRTTI* pRtti = GetInitializerType();
 
-  ezParticleInitializer* pInitializer = (ezParticleInitializer*)pRtti->GetAllocator()->Allocate();
+  ezParticleInitializer* pInitializer = pRtti->GetAllocator()->Allocate<ezParticleInitializer>();
   pInitializer->Reset(pOwner);
 
   CopyInitializerProperties(pInitializer);

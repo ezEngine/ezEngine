@@ -72,8 +72,7 @@ void* ezRenderPipelineRttiConverterContext::CreateObject(const ezUuid& guid, con
       return nullptr;
     }
 
-    // TODO: Refactor rtti allocator to allow for different allocators and the same return value as EZ_DEFAULT_NEW.
-    ezUniquePtr<ezRenderPipelinePass> pass(static_cast<ezRenderPipelinePass*>(pRtti->GetAllocator()->Allocate()), ezFoundation::GetDefaultAllocator());
+    ezUniquePtr<ezRenderPipelinePass> pass = pRtti->GetAllocator()->Allocate<ezRenderPipelinePass>();
     ezRenderPipelinePass* pPass = pass.Borrow();
     m_pRenderPipeline->AddPass(std::move(pass));
 
@@ -88,8 +87,7 @@ void* ezRenderPipelineRttiConverterContext::CreateObject(const ezUuid& guid, con
       return nullptr;
     }
 
-    // TODO: Refactor rtti allocator to allow for different allocators and the same return value as EZ_DEFAULT_NEW.
-    ezUniquePtr<ezExtractor> extractor(static_cast<ezExtractor*>(pRtti->GetAllocator()->Allocate()), ezFoundation::GetDefaultAllocator());
+    ezUniquePtr<ezExtractor> extractor = pRtti->GetAllocator()->Allocate<ezExtractor>();
     ezExtractor* pExtractor = extractor.Borrow();
     m_pRenderPipeline->AddExtractor(std::move(extractor));
 

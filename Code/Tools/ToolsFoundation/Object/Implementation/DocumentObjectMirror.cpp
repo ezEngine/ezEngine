@@ -696,7 +696,7 @@ void ezDocumentObjectMirror::RetrieveObject(ezRttiConverterObject object, const 
           // If the property is behind an accessor, we need to retrieve it first.
           else if (pPropType->GetAllocator()->CanAllocate())
           {
-            subObject.m_pObject = pPropType->GetAllocator()->Allocate();
+            subObject.m_pObject = pPropType->GetAllocator()->Allocate<void>();
             pSpecific->GetValuePtr(object.m_pObject, subObject.m_pObject);
 
             RetrieveObject(subObject, change, path.GetSubArray(1));
@@ -718,7 +718,7 @@ void ezDocumentObjectMirror::RetrieveObject(ezRttiConverterObject object, const 
         if (pPropType->GetAllocator()->CanAllocate())
         {
           ezRttiConverterObject subObject;
-          subObject.m_pObject = pPropType->GetAllocator()->Allocate();
+          subObject.m_pObject = pPropType->GetAllocator()->Allocate<void>();
           subObject.m_pType = pPropType;
           pSpecific->GetValue(object.m_pObject, path[0].m_Index.ConvertTo<ezUInt32>(), subObject.m_pObject);
 
@@ -740,7 +740,7 @@ void ezDocumentObjectMirror::RetrieveObject(ezRttiConverterObject object, const 
         if (pPropType->GetAllocator()->CanAllocate())
         {
           ezRttiConverterObject subObject;
-          subObject.m_pObject = pPropType->GetAllocator()->Allocate();
+          subObject.m_pObject = pPropType->GetAllocator()->Allocate<void>();
           subObject.m_pType = pPropType;
           pSpecific->GetValue(object.m_pObject, path[0].m_Index.Get<ezString>(), subObject.m_pObject);
 

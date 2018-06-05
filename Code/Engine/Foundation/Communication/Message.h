@@ -2,6 +2,7 @@
 
 #include <Foundation/Algorithm/Hashing.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Types/UniquePtr.h>
 
 typedef ezUInt16 ezMessageId;
 class ezStreamWriter;
@@ -16,7 +17,7 @@ class ezStreamReader;
 /// For the automatic cloning to work and for efficiency the messages must only contain simple data members.
 /// For instance, everything that allocates internally (strings, arrays) should be avoided.
 /// Instead, such objects should be located somewhere else and the message should only contain pointers to the data.
-/// 
+///
 class EZ_FOUNDATION_DLL ezMessage : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMessage, ezReflectedClass);
@@ -30,9 +31,6 @@ public:
   }
 
   virtual ~ezMessage() {}
-
-  /// \brief Returns a copy of this allocated with the given allocator. This method is automatically implemented by adding EZ_DECLARE_MESSAGE_TYPE.
-  virtual ezMessage* Clone(ezAllocatorBase* pAllocator) const = 0;
 
   /// \brief Derived message types can override this method to influence sorting order. Smaller keys are processed first.
   virtual ezInt32 GetSortingKey() const { return 0; }
@@ -121,10 +119,7 @@ public:
   ///
   /// If the message type is unknown, nullptr is returned.
   /// \see PackageForTransfer()
-  ///
-  /// \note The returned message has been allocated through the ezRTTI allocator and needs to be manually
-  /// deallocated with it again.
-  static ezMessage* ReplicatePackedMessage(ezStreamReader& stream);
+  static ezUniquePtr<ezMessage> ReplicatePackedMessage(ezStreamReader& stream);
 
 private:
 
@@ -145,11 +140,6 @@ private:
     { \
       m_Id = messageType::MSG_ID; \
       m_uiSize = sizeof(messageType); \
-    } \
-    \
-    virtual ezMessage* Clone(ezAllocatorBase* pAllocator) const override \
-    { \
-      return EZ_NEW(pAllocator, messageType, *static_cast<const messageType*>(this)); \
     }
 
 /// \brief Implements the given message type. Add this macro to a cpp outside of the type declaration.

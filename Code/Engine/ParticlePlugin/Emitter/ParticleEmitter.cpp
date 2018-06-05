@@ -12,7 +12,7 @@ ezParticleEmitter* ezParticleEmitterFactory::CreateEmitter(ezParticleSystemInsta
 {
   const ezRTTI* pRtti = GetEmitterType();
 
-  ezParticleEmitter* pEmitter = (ezParticleEmitter*)pRtti->GetAllocator()->Allocate();
+  ezParticleEmitter* pEmitter = pRtti->GetAllocator()->Allocate<ezParticleEmitter>();
   pEmitter->Reset(pOwner);
 
   CopyEmitterProperties(pEmitter);

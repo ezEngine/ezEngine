@@ -347,7 +347,7 @@ void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEd
   {
     // object does not yet exist
     EZ_ASSERT_DEV(pRtti->GetAllocator() != nullptr, "Sync object of type '{0}' does not have a default allocator", msg.m_sObjectType);
-    void* pObject = pRtti->GetAllocator()->Allocate();
+    void* pObject = pRtti->GetAllocator()->Allocate<void>();
 
     pSyncObject = static_cast<ezEditorEngineSyncObject*>(pObject);
     bSetOwner = true;

@@ -16,7 +16,7 @@ void* ezRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI* pRt
   if (!pRtti->GetAllocator() || !pRtti->GetAllocator()->CanAllocate())
     return nullptr;
 
-  void* pObj = pRtti->GetAllocator()->Allocate();
+  void* pObj = pRtti->GetAllocator()->Allocate<void>();
   RegisterObject(guid, pRtti, pObj);
   return pObj;
 }
@@ -212,7 +212,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
           // If the property is behind an accessor, we need to retrieve it first.
           else if (pPropType->GetAllocator()->CanAllocate())
           {
-            pSubObject = pPropType->GetAllocator()->Allocate();
+            pSubObject = pPropType->GetAllocator()->Allocate<void>();
 
             pSpecific->GetValuePtr(pObject, pSubObject);
 
@@ -269,7 +269,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
         }
         else if (pSpecific->GetFlags().IsSet(ezPropertyFlags::Class) && pPropType->GetAllocator()->CanAllocate())
         {
-          void* pSubObject = pPropType->GetAllocator()->Allocate();
+          void* pSubObject = pPropType->GetAllocator()->Allocate<void>();
 
           for (ezUInt32 i = 0; i < uiCount; ++i)
           {
@@ -380,7 +380,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
         {
           for (ezUInt32 i = 0; i < keys.GetCount(); ++i)
           {
-            void* pSubObject = pPropType->GetAllocator()->Allocate();
+            void* pSubObject = pPropType->GetAllocator()->Allocate<void>();
             EZ_SCOPE_EXIT(pPropType->GetAllocator()->Deallocate(pSubObject););
             EZ_VERIFY(pSpecific->GetValue(pObject, keys[i], pSubObject), "Key should be valid.");
 

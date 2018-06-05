@@ -224,14 +224,14 @@ private:
 
 struct ezTestClass2Allocator : public ezRTTIAllocator
 {
-  virtual void* Allocate() override
+  virtual ezInternal::NewInstance<void> AllocateInternal(ezAllocatorBase* pAllocator) override
   {
     ++m_iAllocs;
 
     return EZ_DEFAULT_NEW(ezTestClass2);
   }
 
-  virtual void Deallocate(void* pObject) override
+  virtual void Deallocate(void* pObject, ezAllocatorBase* pAllocator) override
   {
     ++m_iDeallocs;
 

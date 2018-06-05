@@ -259,7 +259,7 @@ ezResult ezShaderCompiler::CompileShaderPermutationForPlatforms(const char* szFi
     ezRTTIAllocator* pAllocator = pRtti->GetAllocator();
     if (pRtti->IsDerivedFrom<ezShaderProgramCompiler>() && pAllocator->CanAllocate())
     {
-      ezShaderProgramCompiler* pCompiler = static_cast<ezShaderProgramCompiler*>(pAllocator->Allocate());
+      ezShaderProgramCompiler* pCompiler = pAllocator->Allocate<ezShaderProgramCompiler>();
 
       const ezResult ret = RunShaderCompiler(szFile, szPlatform, pCompiler, pLog);
       pAllocator->Deallocate(pCompiler);

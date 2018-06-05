@@ -19,7 +19,7 @@ void ezParticleStreamFactory::GetFullStreamName(const char* szName, ezProcessing
 ezParticleStream* ezParticleStreamFactory::CreateParticleStream(ezParticleSystemInstance* pOwner) const
 {
   const ezRTTI* pRtti = GetParticleStreamType();
-  ezParticleStream* pStream = (ezParticleStream*)pRtti->GetAllocator()->Allocate();
+  ezParticleStream* pStream = pRtti->GetAllocator()->Allocate<ezParticleStream>();
 
   pOwner->CreateStream(GetStreamName(), GetStreamDataType(), &pStream->m_pStream, pStream->m_StreamBinding, true);
   pStream->Initialize(pOwner);

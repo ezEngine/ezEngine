@@ -100,7 +100,7 @@ void ezDocumentManager::UpdatedAfterLoadingPlugins()
         if (pRtti->GetAllocator()->CanAllocate())
         {
           // create one instance of each manager type
-          ezDocumentManager* pManager = (ezDocumentManager*)pRtti->GetAllocator()->Allocate();
+          ezDocumentManager* pManager = pRtti->GetAllocator()->Allocate<ezDocumentManager>();
           s_AllDocumentManagers.PushBack(pManager);
 
           bChanges = true;

@@ -151,7 +151,7 @@ void ezParticleWorldModule::ConfigureParticleStreamFactories()
     if (!pRtti->IsDerivedFrom<ezParticleStreamFactory>() || !pRtti->GetAllocator()->CanAllocate())
       continue;
 
-    ezParticleStreamFactory* pFactory = reinterpret_cast<ezParticleStreamFactory*>(pRtti->GetAllocator()->Allocate());
+    ezParticleStreamFactory* pFactory = pRtti->GetAllocator()->Allocate<ezParticleStreamFactory>();
 
     ezParticleStreamFactory::GetFullStreamName(pFactory->GetStreamName(), pFactory->GetStreamDataType(), fullName);
 

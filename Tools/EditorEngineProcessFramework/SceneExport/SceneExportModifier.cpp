@@ -18,7 +18,7 @@ void ezSceneExportModifier::CreateModifiers(ezHybridArray<ezSceneExportModifier*
     if (pRtti->GetAllocator() == nullptr || !pRtti->GetAllocator()->CanAllocate())
       continue;
 
-    ezSceneExportModifier* pMod = static_cast<ezSceneExportModifier*>(pRtti->GetAllocator()->Allocate());
+    ezSceneExportModifier* pMod = pRtti->GetAllocator()->Allocate<ezSceneExportModifier>();
 
     modifiers.PushBack(pMod);
   }

@@ -835,7 +835,7 @@ ezFrameDataProviderBase* ezRenderPipeline::GetFrameDataProvider(const ezRTTI* pR
     return m_DataProviders[uiIndex].Borrow();
   }
 
-  ezUniquePtr<ezFrameDataProviderBase> pNewDataProvider(static_cast<ezFrameDataProviderBase*>(pRtti->GetAllocator()->Allocate()), ezFoundation::GetDefaultAllocator());
+  ezUniquePtr<ezFrameDataProviderBase> pNewDataProvider = pRtti->GetAllocator()->Allocate<ezFrameDataProviderBase>();
   ezFrameDataProviderBase* pResult = pNewDataProvider.Borrow();
   pResult->m_pOwnerPipeline = this;
 

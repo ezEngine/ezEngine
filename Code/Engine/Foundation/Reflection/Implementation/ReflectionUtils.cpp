@@ -1245,8 +1245,8 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
           // If the property is behind an accessor, we need to retrieve it first.
           else if (pPropType->GetAllocator()->CanAllocate())
           {
-            pSubObject = pPropType->GetAllocator()->Allocate();
-            pSubObject2 = pPropType->GetAllocator()->Allocate();
+            pSubObject = pPropType->GetAllocator()->Allocate<void>();
+            pSubObject2 = pPropType->GetAllocator()->Allocate<void>();
             pSpecific->GetValuePtr(pObject, pSubObject);
             pSpecific->GetValuePtr(pObject2, pSubObject2);
             bool bEqual = IsEqual(pSubObject, pSubObject2, pPropType);
@@ -1313,8 +1313,8 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
         }
         else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class) && pPropType->GetAllocator()->CanAllocate())
         {
-          void* pSubObject = pPropType->GetAllocator()->Allocate();
-          void* pSubObject2 = pPropType->GetAllocator()->Allocate();
+          void* pSubObject = pPropType->GetAllocator()->Allocate<void>();
+          void* pSubObject2 = pPropType->GetAllocator()->Allocate<void>();
 
           bool bEqual = true;
           for (ezUInt32 i = 0; i < uiCount; ++i)
@@ -1440,9 +1440,9 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
           {
             if (pPropType->GetAllocator()->CanAllocate())
             {
-              void* value1 = pPropType->GetAllocator()->Allocate();
+              void* value1 = pPropType->GetAllocator()->Allocate<void>();
               EZ_SCOPE_EXIT(pPropType->GetAllocator()->Deallocate(value1););
-              void* value2 = pPropType->GetAllocator()->Allocate();
+              void* value2 = pPropType->GetAllocator()->Allocate<void>();
               EZ_SCOPE_EXIT(pPropType->GetAllocator()->Deallocate(value2););
 
               bool bRes1 = pSpecific->GetValue(pObject, keys[i], value1);

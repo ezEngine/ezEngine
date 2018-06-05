@@ -154,7 +154,7 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& stream)
     const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
     EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown particle effect type '{0}'", sType);
 
-    pSystem = static_cast<ezParticleSystemDescriptor*>(pRtti->GetAllocator()->Allocate());
+    pSystem = pRtti->GetAllocator()->Allocate<ezParticleSystemDescriptor>();
 
     pSystem->Load(stream);
   }
