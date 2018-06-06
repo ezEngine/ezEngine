@@ -16,11 +16,24 @@ public:
   void ActivateMode(ezWorld* pMainWorld, ezViewHandle hView, ezCamera* pMainCamera);
   void DeactivateMode();
   void ProcessInput(ezUInt32 uiMousePosX, ezUInt32 uiMousePosY, ezKeyState::Enum LeftClickState, ezKeyState::Enum RightClickState);
-  virtual void AfterProcessInput() {}
   void BeforeWorldUpdate();
 
   //////////////////////////////////////////////////////////////////////////
+  // Picking
+public:
+  ezResult ComputePickingRay(ezVec3& out_vRayStart, ezVec3& out_vRayDir) const;
+  ezResult PickGroundPlanePosition(const ezVec3& vRayStart, const ezVec3& vRayDir, ezVec3& out_vPositon) const;
+
+  //////////////////////////////////////////////////////////////////////////
+  // Spawning Objects
+public:
+  ezGameObject* SpawnNamedObjectAt(const ezTransform& transform, const char* szObjectName, ezUInt16 uiTeamID);
+
+  //////////////////////////////////////////////////////////////////////////
   // Game Mode Interface
+public:
+  virtual void AfterProcessInput() {}
+
 protected:
   virtual void OnActivateMode() {}
   virtual void OnDeactivateMode() {}

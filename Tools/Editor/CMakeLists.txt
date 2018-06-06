@@ -62,6 +62,12 @@ if (EZ_BUILD_PHYSX)
 	SET (ADDITIONAL_DEPENDENCIES ${ADDITIONAL_DEPENDENCIES} EditorPluginPhysX PhysXPlugin)
 endif()
 
+if (EZ_BUILD_GAMES)
+	SET (ADDITIONAL_DEPENDENCIES ${ADDITIONAL_DEPENDENCIES}
+    RtsGamePlugin
+    SampleGamePlugin
+    )
+endif()
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)
 

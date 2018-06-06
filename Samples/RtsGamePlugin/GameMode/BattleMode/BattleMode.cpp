@@ -1,28 +1,28 @@
 #include <PCH.h>
-#include <RtsGamePlugin/GameMode/MainMenuMode/MainMenuMode.h>
+#include <RtsGamePlugin/GameMode/BattleMode/BattleMode.h>
 #include <GameEngine/DearImgui/DearImgui.h>
 #include <Core/Input/InputManager.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
 
-RtsMainMenuMode::RtsMainMenuMode() = default;
-RtsMainMenuMode::~RtsMainMenuMode() = default;
+RtsBattleMode::RtsBattleMode() = default;
+RtsBattleMode::~RtsBattleMode() = default;
 
-void RtsMainMenuMode::OnActivateMode()
+void RtsBattleMode::OnActivateMode()
 {
 }
 
-void RtsMainMenuMode::OnDeactivateMode()
+void RtsBattleMode::OnDeactivateMode()
 {
 }
 
-void RtsMainMenuMode::OnBeforeWorldUpdate()
+void RtsBattleMode::OnBeforeWorldUpdate()
 {
   DisplayMainUI();
 }
 
-void RtsMainMenuMode::UpdateCamera()
+void RtsBattleMode::UpdateCamera()
 {
   //m_pMainCamera->LookAt(vCamPos, vCamTarget, ezVec3(1, 0, 0));
   //m_pMainCamera->SetCameraMode(ezCameraMode::OrthoFixedHeight, fCameraZoom, m_pMainCamera->GetNearPlane(), m_pMainCamera->GetFarPlane());
@@ -34,12 +34,12 @@ void RtsMainMenuMode::UpdateCamera()
   const auto vp = pView->GetViewport();
 
   float movePosX, moveNegX, movePosY, moveNegY, zoomIn, zoomOut;
-  ezInputManager::GetInputActionState("MainMenuMode", "CamMovePosX", &movePosX);
-  ezInputManager::GetInputActionState("MainMenuMode", "CamMoveNegX", &moveNegX);
-  ezInputManager::GetInputActionState("MainMenuMode", "CamMovePosY", &movePosY);
-  ezInputManager::GetInputActionState("MainMenuMode", "CamMoveNegY", &moveNegY);
-  ezInputManager::GetInputActionState("MainMenuMode", "CamZoomIn", &zoomIn);
-  ezInputManager::GetInputActionState("MainMenuMode", "CamZoomOut", &zoomOut);
+  ezInputManager::GetInputActionState("BattleMode", "CamMovePosX", &movePosX);
+  ezInputManager::GetInputActionState("BattleMode", "CamMoveNegX", &moveNegX);
+  ezInputManager::GetInputActionState("BattleMode", "CamMovePosY", &movePosY);
+  ezInputManager::GetInputActionState("BattleMode", "CamMoveNegY", &moveNegY);
+  ezInputManager::GetInputActionState("BattleMode", "CamZoomIn", &zoomIn);
+  ezInputManager::GetInputActionState("BattleMode", "CamZoomOut", &zoomOut);
 
   const float moveX = movePosX - moveNegX;
   const float moveY = movePosY - moveNegY;
@@ -71,12 +71,12 @@ void RtsMainMenuMode::UpdateCamera()
   }
 }
 
-void RtsMainMenuMode::DisplayMainUI()
+void RtsBattleMode::DisplayMainUI()
 {
 
 }
 
-void RtsMainMenuMode::RegisterInputActions()
+void RtsBattleMode::RegisterInputActions()
 {
   RtsGameMode::RegisterInputActions();
 
@@ -85,26 +85,26 @@ void RtsMainMenuMode::RegisterInputActions()
     ezInputActionConfig cfg;
 
     cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseWheelUp;
-    ezInputManager::SetInputActionConfig("MainMenuMode", "CamZoomIn", cfg, true);
+    ezInputManager::SetInputActionConfig("BattleMode", "CamZoomIn", cfg, true);
 
     cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseWheelDown;
-    ezInputManager::SetInputActionConfig("MainMenuMode", "CamZoomOut", cfg, true);
+    ezInputManager::SetInputActionConfig("BattleMode", "CamZoomOut", cfg, true);
 
     cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseMovePosX;
-    ezInputManager::SetInputActionConfig("MainMenuMode", "CamMovePosX", cfg, true);
+    ezInputManager::SetInputActionConfig("BattleMode", "CamMovePosX", cfg, true);
 
     cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseMoveNegX;
-    ezInputManager::SetInputActionConfig("MainMenuMode", "CamMoveNegX", cfg, true);
+    ezInputManager::SetInputActionConfig("BattleMode", "CamMoveNegX", cfg, true);
 
     cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseMovePosY;
-    ezInputManager::SetInputActionConfig("MainMenuMode", "CamMovePosY", cfg, true);
+    ezInputManager::SetInputActionConfig("BattleMode", "CamMovePosY", cfg, true);
 
     cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseMoveNegY;
-    ezInputManager::SetInputActionConfig("MainMenuMode", "CamMoveNegY", cfg, true);
+    ezInputManager::SetInputActionConfig("BattleMode", "CamMoveNegY", cfg, true);
   }
 }
 
-void RtsMainMenuMode::OnProcessInput()
+void RtsBattleMode::OnProcessInput()
 {
   UpdateCamera();
 

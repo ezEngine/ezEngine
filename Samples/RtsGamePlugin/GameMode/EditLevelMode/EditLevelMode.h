@@ -2,11 +2,11 @@
 
 #include <RtsGamePlugin/GameMode/GameMode.h>
 
-class RtsMainMenuMode : public RtsGameMode
+class RtsEditLevelMode : public RtsGameMode
 {
 public:
-  RtsMainMenuMode();
-  ~RtsMainMenuMode();
+  RtsEditLevelMode();
+  ~RtsEditLevelMode();
 
 protected:
   virtual void OnActivateMode() override;

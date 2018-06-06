@@ -5,12 +5,29 @@
 #include <GameEngine/DearImgui/DearImgui.h>
 #include <System/Window/Window.h>
 #include <RtsGamePlugin/GameMode/GameMode.h>
+#include <Core/ResourceManager/ResourceManager.h>
+#include <GameEngine/Collection/CollectionResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(RtsGameState, 1, ezRTTIDefaultAllocator<RtsGameState>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+RtsGameState* RtsGameState::s_pSingleton = nullptr;
+
 RtsGameState::RtsGameState()
 {
+  s_pSingleton = this;
+}
+
+float RtsGameState::GetCameraZoom() const
+{
+  return m_fCameraZoom;
+}
+
+float RtsGameState::SetCameraZoom(float zoom)
+{
+  m_fCameraZoom = ezMath::Clamp(zoom, 5.0f, 300.0f);
+
+  return m_fCameraZoom;
 }
 
 float RtsGameState::CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const
@@ -29,7 +46,9 @@ void RtsGameState::OnActivation(ezWorld* pWorld)
     EZ_DEFAULT_NEW(ezImgui);
   }
 
-  SwitchToGameMode(RtsActiveGameMode::MainMenuMode);
+  PreloadAssets();
+
+  SwitchToGameMode(RtsActiveGameMode::EditLevelMode);
 }
 
 void RtsGameState::OnDeactivation()
@@ -47,10 +66,44 @@ void RtsGameState::OnDeactivation()
   SUPER::OnDeactivation();
 }
 
+void RtsGameState::PreloadAssets()
+{
+  // Load all assets that are referenced in some Collections
+
+  m_CollectionSpace = ezResourceManager::LoadResource<ezCollectionResource>("{ 7cd0dfa6-d2bb-433e-9fa2-b17bfae42b6b }");
+  m_CollectionFederation = ezResourceManager::LoadResource<ezCollectionResource>("{ 1edd3af8-6d59-4825-b853-ee8d7a60cb03 }");
+  m_CollectionKlingons = ezResourceManager::LoadResource<ezCollectionResource>("{ c683d049-0e54-4c42-9764-a122f9dbc69d }");
+
+  // Register the loaded assets with the names defined in the collections
+  // This allows to easily spawn those objects with human readable names instead of GUIDs
+  {
+    ezResourceLock<ezCollectionResource> pCollection(m_CollectionSpace, ezResourceAcquireMode::NoFallback);
+    pCollection->RegisterNames();
+  }
+  {
+    ezResourceLock<ezCollectionResource> pCollection(m_CollectionFederation, ezResourceAcquireMode::NoFallback);
+    pCollection->RegisterNames();
+  }
+  {
+    ezResourceLock<ezCollectionResource> pCollection(m_CollectionKlingons, ezResourceAcquireMode::NoFallback);
+    pCollection->RegisterNames();
+  }
+}
+
 void RtsGameState::BeforeWorldUpdate()
 {
   EZ_LOCK(m_pMainWorld->GetWriteMarker());
 
+  ActivateQueuedGameMode();
+
+  if (m_pActiveGameMode)
+  {
+    m_pActiveGameMode->BeforeWorldUpdate();
+  }
+}
+
+void RtsGameState::ActivateQueuedGameMode()
+{
   switch (m_GameModeToSwitchTo)
   {
   case RtsActiveGameMode::None:
@@ -59,14 +112,15 @@ void RtsGameState::BeforeWorldUpdate()
   case RtsActiveGameMode::MainMenuMode:
     SetActiveGameMode(&m_MainMenuMode);
     break;
+  case RtsActiveGameMode::BattleMode:
+    SetActiveGameMode(&m_BattleMode);
+    break;
+  case RtsActiveGameMode::EditLevelMode:
+    SetActiveGameMode(&m_EditLevelMode);
+    break;
 
   default:
     EZ_ASSERT_NOT_IMPLEMENTED;
-  }
-
-  if (m_pActiveGameMode)
-  {
-    m_pActiveGameMode->BeforeWorldUpdate();
   }
 }
 
@@ -96,6 +150,7 @@ void RtsGameState::ConfigureMainCamera()
 
 void RtsGameState::SwitchToGameMode(RtsActiveGameMode mode)
 {
+  // can't just switch game modes in the middle of a frame, so delay this to the next frame
   m_GameModeToSwitchTo = mode;
 }
 
