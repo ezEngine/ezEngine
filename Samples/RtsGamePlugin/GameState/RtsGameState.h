@@ -91,4 +91,29 @@ private:
   ezKeyState::Enum m_LeftClickState;
   ezKeyState::Enum m_RightClickState;
   float m_fCameraZoom = 10.0f;
+
+  //////////////////////////////////////////////////////////////////////////
+  // Picking
+public:
+  ezResult PickGroundPlanePosition(ezVec3& out_vPositon) const;
+  ezGameObject* PickSelectableObject() const;
+
+private:
+  ezResult ComputePickingRay();
+
+  ezVec3 m_vCurrentPickingRayStart;
+  ezVec3 m_vCurrentPickingRayDir;
+
+  //////////////////////////////////////////////////////////////////////////
+  // Spawning Objects
+public:
+  ezGameObject * SpawnNamedObjectAt(const ezTransform& transform, const char* szObjectName, ezUInt16 uiTeamID);
+
+  //////////////////////////////////////////////////////////////////////////
+  // Units
+public:
+  void SelectUnits();
+  void RenderUnitSelection() const;
+
+  ezObjectSelection m_SelectedUnits;
 };

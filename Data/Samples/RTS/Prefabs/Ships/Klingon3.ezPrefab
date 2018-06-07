@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{18357906720515209393,5689641222186483963}}
-		u4 %Hash{4702139652996686579}
+		u4 %Hash{17296382623594046563}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14632879883594778235,3882905214359672686}}
@@ -75,7 +75,7 @@ o
 		Vec3 %LocalPosition{f{0x2C237A44,0xDAF52B44,0xF1EEE6C2}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
+		f %LocalUniformScaling{0x0AD7233C}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags

@@ -6,6 +6,7 @@
 
 class ezWorld;
 class ezCamera;
+class RtsGameState;
 
 class RtsGameMode
 {
@@ -19,18 +20,6 @@ public:
   void BeforeWorldUpdate();
 
   //////////////////////////////////////////////////////////////////////////
-  // Picking
-public:
-  ezResult ComputePickingRay(ezVec3& out_vRayStart, ezVec3& out_vRayDir) const;
-  ezResult PickGroundPlanePosition(const ezVec3& vRayStart, const ezVec3& vRayDir, ezVec3& out_vPositon) const;
-  ezGameObject* PickSelectableObject(const ezVec3& vRayStart, const ezVec3& vRayDir) const;
-
-  //////////////////////////////////////////////////////////////////////////
-  // Spawning Objects
-public:
-  ezGameObject* SpawnNamedObjectAt(const ezTransform& transform, const char* szObjectName, ezUInt16 uiTeamID);
-
-  //////////////////////////////////////////////////////////////////////////
   // Game Mode Interface
 public:
   virtual void AfterProcessInput() {}
@@ -42,6 +31,7 @@ protected:
   virtual void OnProcessInput() {}
   virtual void OnBeforeWorldUpdate() {}
 
+  RtsGameState* m_pGameState = nullptr;
   ezUInt32 m_uiMousePosX;
   ezUInt32 m_uiMousePosY;
   ezKeyState::Enum m_LeftClickState;

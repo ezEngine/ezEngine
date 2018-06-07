@@ -19,6 +19,7 @@ void RtsEditLevelMode::OnDeactivateMode()
 
 void RtsEditLevelMode::OnBeforeWorldUpdate()
 {
+  m_pGameState->RenderUnitSelection();
   DisplayMainUI();
 }
 
@@ -47,30 +48,35 @@ void RtsEditLevelMode::UpdateCamera()
   const float fDimY = m_pMainCamera->GetFovOrDim();
   const float fDimX = (fDimY / vp.height) * vp.width;
 
+  float fZoom = m_pGameState->GetCameraZoom();
+
+  if (zoom != 0.0f)
+  {
+    if (zoom > 0)
+      fZoom *= 1.1f;
+    else
+      fZoom *= 1.0f / 1.1f;
+
+    fZoom = m_pGameState->SetCameraZoom(fZoom);
+
+    ezVec3 pos = m_pMainCamera->GetCenterPosition();
+    pos.z = fZoom;
+    m_pMainCamera->LookAt(pos, pos + m_pMainCamera->GetCenterDirForwards(), m_pMainCamera->GetCenterDirUp());
+  }
+
   if (bMoveCamera)
   {
-    const float fMoveScale = 0.1f;
+    const float fMoveScale = 0.005f * fZoom;
 
     const float fMoveX = fDimX * moveX * fMoveScale;
     const float fMoveY = fDimY * moveY * fMoveScale;
 
     m_pMainCamera->MoveGlobally(ezVec3(-fMoveY, fMoveX, 0));
   }
-
-  if (zoom != 0.0f)
-  {
-    float fZoom = RtsGameState::GetSingleton()->GetCameraZoom();
-
-    fZoom += zoom * 5.0f;
-    fZoom = RtsGameState::GetSingleton()->SetCameraZoom(fZoom);
-
-    m_pMainCamera->SetCameraMode(ezCameraMode::OrthoFixedHeight, fZoom, -20.0f, 20.0f);
-  }
 }
 
 void RtsEditLevelMode::DisplayMainUI()
 {
-
 }
 
 void RtsEditLevelMode::RegisterInputActions()
@@ -114,27 +120,32 @@ void RtsEditLevelMode::OnProcessInput()
 {
   UpdateCamera();
 
-  ezVec3 vPickingRayStart, vPickingRayDir, vPickedGroundPlanePos;
-  if (ComputePickingRay(vPickingRayStart, vPickingRayDir).Failed())
-    return;
-
-  if (PickGroundPlanePosition(vPickingRayStart, vPickingRayDir, vPickedGroundPlanePos).Failed())
+  ezVec3 vPickedGroundPlanePos;
+  if (m_pGameState->PickGroundPlanePosition(vPickedGroundPlanePos).Failed())
     return;
 
   if (ezInputManager::GetInputActionState("EditLevelMode", "PlaceObject") == ezKeyState::Pressed)
   {
-    SpawnNamedObjectAt(ezTransform(vPickedGroundPlanePos, ezQuat::IdentityQuaternion()), "FederationShip1", 0);
+    m_pGameState->SpawnNamedObjectAt(ezTransform(vPickedGroundPlanePos, ezQuat::IdentityQuaternion()), "FederationShip1", 0);
     return;
   }
 
-  if (m_LeftClickState == ezKeyState::Pressed)
-  {
-    ezGameObject* pSelected =  PickSelectableObject(vPickingRayStart, vPickingRayDir);
+  auto& unitSelection = m_pGameState->m_SelectedUnits;
 
-    if (pSelected != nullptr)
+  if (ezInputManager::GetInputActionState("EditLevelMode", "RemoveObject") == ezKeyState::Pressed)
+  {
+    for (ezUInt32 i = 0; i < unitSelection.GetCount(); ++i)
     {
-      ezLog::Info("Yay");
+      ezGameObjectHandle hObject = unitSelection.GetObject(i);
+      m_pMainWorld->DeleteObjectDelayed(hObject);
     }
+
+    return;
+  }
+
+  if (m_LeftClickState == ezKeyState::Released)
+  {
+    m_pGameState->SelectUnits();
   }
 }
 

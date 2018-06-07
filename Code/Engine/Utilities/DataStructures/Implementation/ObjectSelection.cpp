@@ -17,15 +17,13 @@ void ezObjectSelection::RemoveDeadObjects()
 {
   EZ_ASSERT_DEV(m_pWorld != nullptr, "The world has not been set.");
 
-  for (ezUInt32 i = m_Objects.GetCount(); i > 0; )
+  for (ezUInt32 i = m_Objects.GetCount(); i > 0; --i)
   {
     ezGameObject* pObject;
     if (!m_pWorld->TryGetObject(m_Objects[i - 1], pObject))
     {
       m_Objects.RemoveAt(i - 1); // keep the order
     }
-    else
-       --i;
   }
 }
 

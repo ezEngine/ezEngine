@@ -54,6 +54,8 @@ void RtsGameState::UpdateMousePosition()
 
   m_uiMousePosX = (ezUInt32)(valueX * vp.width);
   m_uiMousePosY = (ezUInt32)((1.0f - valueY) * vp.height);
+
+  ComputePickingRay();
 }
 
 void RtsGameState::ProcessInput()

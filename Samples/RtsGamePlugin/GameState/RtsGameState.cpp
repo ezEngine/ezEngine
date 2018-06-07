@@ -7,6 +7,12 @@
 #include <RtsGamePlugin/GameMode/GameMode.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <GameEngine/Collection/CollectionResource.h>
+#include <RtsGamePlugin/Components/SelectableComponent.h>
+#include <RendererCore/Debug/DebugRenderer.h>
+#include <Core/Input/InputManager.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Pipeline/View.h>
+#include <GameEngine/Prefabs/PrefabResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(RtsGameState, 1, ezRTTIDefaultAllocator<RtsGameState>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -25,7 +31,7 @@ float RtsGameState::GetCameraZoom() const
 
 float RtsGameState::SetCameraZoom(float zoom)
 {
-  m_fCameraZoom = ezMath::Clamp(zoom, 5.0f, 300.0f);
+  m_fCameraZoom = ezMath::Clamp(zoom, 1.0f, 50.0f);
 
   return m_fCameraZoom;
 }
@@ -40,6 +46,8 @@ void RtsGameState::OnActivation(ezWorld* pWorld)
   EZ_LOG_BLOCK("GameState::Activate");
 
   SUPER::OnActivation(pWorld);
+
+  m_SelectedUnits.SetWorld(m_pMainWorld);
 
   if (ezImgui::GetSingleton() == nullptr)
   {
@@ -96,6 +104,8 @@ void RtsGameState::BeforeWorldUpdate()
 
   ActivateQueuedGameMode();
 
+  m_SelectedUnits.RemoveDeadObjects();
+
   if (m_pActiveGameMode)
   {
     m_pActiveGameMode->BeforeWorldUpdate();
@@ -128,7 +138,8 @@ void RtsGameState::ConfigureMainCamera()
 {
   SUPER::ConfigureMainCamera();
 
-  ezVec3 vCameraPos = ezVec3(0.0f, 0.0f, 10.0f);
+  m_fCameraZoom = 20.0f;
+  ezVec3 vCameraPos = ezVec3(0.0f, 0.0f, m_fCameraZoom);
 
   ezCoordinateSystem coordSys;
 
@@ -143,8 +154,7 @@ void RtsGameState::ConfigureMainCamera()
     coordSys.m_vUpDir.Set(0, 0, 1);
   }
 
-  const float fCameraZoom = 10.0f;
-  m_MainCamera.SetCameraMode(ezCameraMode::OrthoFixedHeight, fCameraZoom, -20.0f, 20.0f);
+  m_MainCamera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 45.0f, 0.1f, 100);
   m_MainCamera.LookAt(vCameraPos, vCameraPos - coordSys.m_vUpDir, coordSys.m_vForwardDir);
 }
 
@@ -168,3 +178,115 @@ void RtsGameState::SetActiveGameMode(RtsGameMode* pMode)
     m_pActiveGameMode->ActivateMode(m_pMainWorld, m_hMainView, &m_MainCamera);
 }
 
+void RtsGameState::SelectUnits()
+{
+  ezGameObject* pSelected = PickSelectableObject();
+
+  if (pSelected != nullptr)
+  {
+    if (ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftCtrl) == ezKeyState::Down ||
+      ezInputManager::GetInputSlotState(ezInputSlot_KeyRightCtrl) == ezKeyState::Down)
+    {
+      m_SelectedUnits.ToggleSelection(pSelected->GetHandle());
+    }
+    else
+    {
+      m_SelectedUnits.Clear();
+      m_SelectedUnits.AddObject(pSelected->GetHandle());
+    }
+  }
+  else
+  {
+    m_SelectedUnits.Clear();
+  }
+}
+
+void RtsGameState::RenderUnitSelection() const
+{
+  ezBoundingBox bbox;
+
+  for (ezUInt32 i = 0; i < m_SelectedUnits.GetCount(); ++i)
+  {
+    ezGameObjectHandle hObject = m_SelectedUnits.GetObject(i);
+
+    ezGameObject* pObject;
+    if (!m_pMainWorld->TryGetObject(hObject, pObject))
+      continue;
+
+    RtsSelectableComponent* pSelectable;
+    if (!pObject->TryGetComponentOfBaseType(pSelectable))
+      continue;
+
+    ezTransform t = pObject->GetGlobalTransform();
+    t.m_vScale.Set(1.0f);
+
+    bbox.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(pSelectable->m_fSelectionRadius, pSelectable->m_fSelectionRadius, 0));
+    ezDebugRenderer::DrawLineBoxCorners(m_pMainWorld, bbox, 0.1f, ezColor::DodgerBlue, t);
+  }
+}
+
+ezResult RtsGameState::ComputePickingRay()
+{
+  ezView* pView = nullptr;
+  if (!ezRenderWorld::TryGetView(m_hMainView, pView))
+    return EZ_FAILURE;
+
+  const auto& vp = pView->GetViewport();
+
+  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(pView->GetInverseViewProjectionMatrix(ezCameraEye::Left), (ezUInt32)vp.x, (ezUInt32)vp.y, (ezUInt32)vp.width, (ezUInt32)vp.height, ezVec3((float)m_uiMousePosX, (float)m_uiMousePosY, 0), m_vCurrentPickingRayStart, &m_vCurrentPickingRayDir).Failed())
+    return EZ_FAILURE;
+
+  return EZ_SUCCESS;
+}
+
+ezResult RtsGameState::PickGroundPlanePosition(ezVec3& out_vPositon) const
+{
+  ezPlane p;
+  p.SetFromNormalAndPoint(ezVec3(0, 0, 1), ezVec3(0));
+
+  return p.GetRayIntersection(m_vCurrentPickingRayStart, m_vCurrentPickingRayDir, nullptr, &out_vPositon) ? EZ_SUCCESS : EZ_FAILURE;
+}
+
+ezGameObject* RtsGameState::PickSelectableObject() const
+{
+  ezVec3 vGroundPos;
+  if (PickGroundPlanePosition(vGroundPos).Failed())
+    return nullptr;
+
+  ezBoundingSphere sphere(vGroundPos, 100.0f);
+
+  ezDynamicArray<ezGameObject*> objects;
+  m_pMainWorld->GetSpatialSystem().FindObjectsInSphere(sphere, objects, nullptr);
+
+  ezGameObject* pBestObject = nullptr;
+  float fBestDistSQR = ezMath::Square(1000.0f);
+
+  for (ezUInt32 i = 0; i < objects.GetCount(); ++i)
+  {
+    RtsSelectableComponent* pSelectable = nullptr;
+    if (objects[i]->TryGetComponentOfBaseType(pSelectable))
+    {
+      const float dist = (objects[i]->GetGlobalTransform().m_vPosition - vGroundPos).GetLengthSquared();
+
+      if (dist < fBestDistSQR && dist <= ezMath::Square(pSelectable->m_fSelectionRadius))
+      {
+        fBestDistSQR = dist;
+        pBestObject = objects[i];
+      }
+    }
+  }
+
+  return pBestObject;
+}
+
+ezGameObject* RtsGameState::SpawnNamedObjectAt(const ezTransform& transform, const char* szObjectName, ezUInt16 uiTeamID)
+{
+  ezPrefabResourceHandle hPrefab = ezResourceManager::LoadResource<ezPrefabResource>(szObjectName);
+
+  ezResourceLock<ezPrefabResource> pPrefab(hPrefab, ezResourceAcquireMode::NoFallback);
+
+  ezHybridArray<ezGameObject*, 8> CreatedRootObjects;
+  pPrefab->InstantiatePrefab(*m_pMainWorld, transform, ezGameObjectHandle(), &CreatedRootObjects, &uiTeamID, nullptr);
+
+  return CreatedRootObjects[0];
+}

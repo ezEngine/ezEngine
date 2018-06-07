@@ -1,6 +1,7 @@
 #pragma once
 
 #include <RtsGamePlugin/GameMode/GameMode.h>
+#include <Utilities/DataStructures/ObjectSelection.h>
 
 class RtsEditLevelMode : public RtsGameMode
 {
