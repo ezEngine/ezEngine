@@ -124,6 +124,17 @@ void RtsEditLevelMode::OnProcessInput()
   if (ezInputManager::GetInputActionState("EditLevelMode", "PlaceObject") == ezKeyState::Pressed)
   {
     SpawnNamedObjectAt(ezTransform(vPickedGroundPlanePos, ezQuat::IdentityQuaternion()), "FederationShip1", 0);
+    return;
+  }
+
+  if (m_LeftClickState == ezKeyState::Pressed)
+  {
+    ezGameObject* pSelected =  PickSelectableObject(vPickingRayStart, vPickingRayDir);
+
+    if (pSelected != nullptr)
+    {
+      ezLog::Info("Yay");
+    }
   }
 }
 

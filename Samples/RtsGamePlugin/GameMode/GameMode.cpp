@@ -3,6 +3,7 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererCore/Pipeline/View.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
+#include <RtsGamePlugin/Components/SelectableComponent.h>
 
 RtsGameMode::RtsGameMode() = default;
 RtsGameMode::~RtsGameMode() = default;
@@ -62,6 +63,38 @@ ezResult RtsGameMode::PickGroundPlanePosition(const ezVec3& vRayStart, const ezV
   p.SetFromNormalAndPoint(ezVec3(0, 0, 1), ezVec3(0));
 
   return p.GetRayIntersection(vRayStart, vRayDir, nullptr, &out_vPositon) ? EZ_SUCCESS : EZ_FAILURE;
+}
+
+ezGameObject* RtsGameMode::PickSelectableObject(const ezVec3& vRayStart, const ezVec3& vRayDir) const
+{
+  ezVec3 vGroundPos;
+  if (PickGroundPlanePosition(vRayStart, vRayDir, vGroundPos).Failed())
+    return nullptr;
+
+  ezBoundingSphere sphere(vGroundPos, 100.0f);
+
+  ezDynamicArray<ezGameObject*> objects;
+  m_pMainWorld->GetSpatialSystem().FindObjectsInSphere(sphere, objects, nullptr);
+
+  ezGameObject* pBestObject = nullptr;
+  float fBestDistSQR = ezMath::Square(1000.0f);
+
+  for (ezUInt32 i = 0; i < objects.GetCount(); ++i)
+  {
+    RtsSelectableComponent* pSelectable = nullptr;
+    if (objects[i]->TryGetComponentOfBaseType(pSelectable))
+    {
+      const float dist = (objects[i]->GetGlobalTransform().m_vPosition - vGroundPos).GetLengthSquared();
+
+      if (dist < fBestDistSQR && dist <= ezMath::Square(pSelectable->m_fSelectionRadius))
+      {
+        fBestDistSQR = dist;
+        pBestObject = objects[i];
+      }
+    }
+  }
+
+  return pBestObject;
 }
 
 ezGameObject* RtsGameMode::SpawnNamedObjectAt(const ezTransform& transform, const char* szObjectName, ezUInt16 uiTeamID)

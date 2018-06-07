@@ -23,6 +23,7 @@ public:
 public:
   ezResult ComputePickingRay(ezVec3& out_vRayStart, ezVec3& out_vRayDir) const;
   ezResult PickGroundPlanePosition(const ezVec3& vRayStart, const ezVec3& vRayDir, ezVec3& out_vPositon) const;
+  ezGameObject* PickSelectableObject(const ezVec3& vRayStart, const ezVec3& vRayDir) const;
 
   //////////////////////////////////////////////////////////////////////////
   // Spawning Objects
