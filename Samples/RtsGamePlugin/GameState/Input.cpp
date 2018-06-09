@@ -1,11 +1,5 @@
 #include <PCH.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
-#include <Core/Input/InputManager.h>
-#include <System/Window/Window.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererCore/Pipeline/View.h>
-#include <GameEngine/DearImgui/DearImgui.h>
-#include <Core/World/World.h>
 
 void RtsGameState::ConfigureInputDevices()
 {
@@ -82,11 +76,26 @@ void RtsGameState::UpdateMousePosition()
   float valueX, valueY;
   ezInputManager::GetInputActionState("Game", "MousePosX", &valueX);
   ezInputManager::GetInputActionState("Game", "MousePosY", &valueY);
-  m_LeftClickState = ezInputManager::GetInputActionState("Game", "MouseLeftClick");
-  m_RightClickState = ezInputManager::GetInputActionState("Game", "MouseRightClick");
+  m_MouseInputState.m_LeftClickState = ezInputManager::GetInputActionState("Game", "MouseLeftClick");
+  m_MouseInputState.m_RightClickState = ezInputManager::GetInputActionState("Game", "MouseRightClick");
 
-  m_uiMousePosX = (ezUInt32)(valueX * vp.width);
-  m_uiMousePosY = (ezUInt32)((1.0f - valueY) * vp.height);
+  m_MouseInputState.m_MousePos.x = (ezUInt32)(valueX * vp.width);
+  m_MouseInputState.m_MousePos.y = (ezUInt32)((1.0f - valueY) * vp.height);
+
+  if (m_MouseInputState.m_LeftClickState == ezKeyState::Pressed)
+  {
+    m_MouseInputState.m_MousePosLeftClick = m_MouseInputState.m_MousePos;
+    m_MouseInputState.m_bLeftMouseMoved = false;
+  }
+
+  if (m_MouseInputState.m_RightClickState == ezKeyState::Pressed)
+  {
+    m_MouseInputState.m_MousePosRightClick = m_MouseInputState.m_MousePos;
+    m_MouseInputState.m_bRightMouseMoved = false;
+  }
+
+  m_MouseInputState.m_bLeftMouseMoved = m_MouseInputState.m_bLeftMouseMoved || RtsMouseInputState::HasMouseMoved(m_MouseInputState.m_MousePosLeftClick, m_MouseInputState.m_MousePos);
+  m_MouseInputState.m_bRightMouseMoved = m_MouseInputState.m_bRightMouseMoved || RtsMouseInputState::HasMouseMoved(m_MouseInputState.m_MousePosRightClick, m_MouseInputState.m_MousePos);
 
   ComputePickingRay();
 }
@@ -130,7 +139,7 @@ void RtsGameState::ProcessInput()
   if (m_pActiveGameMode)
   {
     if (bProcessInput)
-      m_pActiveGameMode->ProcessInput(m_uiMousePosX, m_uiMousePosY, m_LeftClickState, m_RightClickState);
+      m_pActiveGameMode->ProcessInput(m_MouseInputState);
 
     m_pActiveGameMode->AfterProcessInput();
   }

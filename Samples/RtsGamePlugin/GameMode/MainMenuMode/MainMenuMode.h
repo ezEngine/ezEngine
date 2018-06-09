@@ -11,6 +11,6 @@ public:
 protected:
   virtual void OnActivateMode() override;
   virtual void OnDeactivateMode() override;
-  virtual void OnProcessInput() override;
+  virtual void OnProcessInput(const RtsMouseInputState& MouseInput) override;
   virtual void OnBeforeWorldUpdate() override;
 };

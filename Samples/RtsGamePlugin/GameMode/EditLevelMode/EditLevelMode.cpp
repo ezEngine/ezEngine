@@ -1,9 +1,5 @@
 #include <PCH.h>
 #include <RtsGamePlugin/GameMode/EditLevelMode/EditLevelMode.h>
-#include <GameEngine/DearImgui/DearImgui.h>
-#include <Core/Input/InputManager.h>
-#include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
 
 RtsEditLevelMode::RtsEditLevelMode() = default;
@@ -36,9 +32,9 @@ void RtsEditLevelMode::RegisterInputActions()
   }
 }
 
-void RtsEditLevelMode::OnProcessInput()
+void RtsEditLevelMode::OnProcessInput(const RtsMouseInputState& MouseInput)
 {
-  DoDefaultCameraInput();
+  DoDefaultCameraInput(MouseInput);
 
   ezVec3 vPickedGroundPlanePos;
   if (m_pGameState->PickGroundPlanePosition(vPickedGroundPlanePos).Failed())
@@ -63,7 +59,7 @@ void RtsEditLevelMode::OnProcessInput()
     return;
   }
 
-  if (m_LeftClickState == ezKeyState::Released)
+  if (MouseInput.m_LeftClickState == ezKeyState::Released)
   {
     m_pGameState->SelectUnits();
   }

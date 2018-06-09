@@ -1,15 +1,9 @@
 #pragma once
 
 #include <RtsGamePlugin/RtsGamePlugin.h>
-#include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/GameState/GameState.h>
-#include <GameEngine/GameState/FallbackGameState.h>
-#include <Core/World/Declarations.h>
-#include <Core/Input/Declarations.h>
 #include <RtsGamePlugin/GameMode/MainMenuMode/MainMenuMode.h>
 #include <RtsGamePlugin/GameMode/BattleMode/BattleMode.h>
 #include <RtsGamePlugin/GameMode/EditLevelMode/EditLevelMode.h>
-#include <Core/ResourceManager/ResourceHandle.h>
 
 class RtsGameMode;
 typedef ezTypedResourceHandle<class ezCollectionResource> ezCollectionResourceHandle;
@@ -86,10 +80,7 @@ private:
   virtual void ProcessInput() override;
   void UpdateMousePosition();
 
-  ezUInt32 m_uiMousePosX;
-  ezUInt32 m_uiMousePosY;
-  ezKeyState::Enum m_LeftClickState;
-  ezKeyState::Enum m_RightClickState;
+  RtsMouseInputState m_MouseInputState;
   float m_fCameraZoom = 10.0f;
 
   //////////////////////////////////////////////////////////////////////////

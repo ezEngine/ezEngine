@@ -1,6 +1,5 @@
 #include <PCH.h>
 #include <RtsGamePlugin/GameMode/MainMenuMode/MainMenuMode.h>
-#include <GameEngine/DearImgui/DearImgui.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
 
 RtsMainMenuMode::RtsMainMenuMode() = default;
@@ -18,6 +17,6 @@ void RtsMainMenuMode::OnBeforeWorldUpdate()
 {
 }
 
-void RtsMainMenuMode::OnProcessInput()
+void RtsMainMenuMode::OnProcessInput(const RtsMouseInputState& MouseInput)
 {
 }

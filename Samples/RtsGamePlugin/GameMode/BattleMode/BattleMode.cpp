@@ -1,10 +1,7 @@
 #include <PCH.h>
 #include <RtsGamePlugin/GameMode/BattleMode/BattleMode.h>
-#include <GameEngine/DearImgui/DearImgui.h>
-#include <Core/Input/InputManager.h>
-#include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
+#include <RtsGamePlugin/Components/ComponentMessages.h>
 
 RtsBattleMode::RtsBattleMode() = default;
 RtsBattleMode::~RtsBattleMode() = default;
@@ -26,8 +23,30 @@ void RtsBattleMode::RegisterInputActions()
 {
 }
 
-void RtsBattleMode::OnProcessInput()
+void RtsBattleMode::OnProcessInput(const RtsMouseInputState& MouseInput)
 {
-  DoDefaultCameraInput();
+  DoDefaultCameraInput(MouseInput);
 
+  ezVec3 vPickedGroundPlanePos;
+  if (m_pGameState->PickGroundPlanePosition(vPickedGroundPlanePos).Failed())
+    return;
+
+  const auto& unitSelection = m_pGameState->m_SelectedUnits;
+
+  if (MouseInput.m_LeftClickState == ezKeyState::Released)
+  {
+    m_pGameState->SelectUnits();
+  }
+
+  if (MouseInput.m_RightClickState == ezKeyState::Released && !MouseInput.m_bRightMouseMoved)
+  {
+    RtsMsgNavigateTo msg;
+    msg.m_vTargetPosition = vPickedGroundPlanePos.GetAsVec2();
+
+    for (ezUInt32 i = 0; i < unitSelection.GetCount(); ++i)
+    {
+      ezGameObjectHandle hObject = unitSelection.GetObject(i);
+      m_pMainWorld->SendMessage(hObject, msg);
+    }
+  }
 }

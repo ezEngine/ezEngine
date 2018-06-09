@@ -1,18 +1,7 @@
 #include <PCH.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
-#include <Foundation/Logging/Log.h>
-#include <Core/World/World.h>
-#include <GameEngine/DearImgui/DearImgui.h>
-#include <System/Window/Window.h>
 #include <RtsGamePlugin/GameMode/GameMode.h>
-#include <Core/ResourceManager/ResourceManager.h>
-#include <GameEngine/Collection/CollectionResource.h>
 #include <RtsGamePlugin/Components/SelectableComponent.h>
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <Core/Input/InputManager.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererCore/Pipeline/View.h>
-#include <GameEngine/Prefabs/PrefabResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(RtsGameState, 1, ezRTTIDefaultAllocator<RtsGameState>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -233,7 +222,7 @@ ezResult RtsGameState::ComputePickingRay()
 
   const auto& vp = pView->GetViewport();
 
-  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(pView->GetInverseViewProjectionMatrix(ezCameraEye::Left), (ezUInt32)vp.x, (ezUInt32)vp.y, (ezUInt32)vp.width, (ezUInt32)vp.height, ezVec3((float)m_uiMousePosX, (float)m_uiMousePosY, 0), m_vCurrentPickingRayStart, &m_vCurrentPickingRayDir).Failed())
+  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(pView->GetInverseViewProjectionMatrix(ezCameraEye::Left), (ezUInt32)vp.x, (ezUInt32)vp.y, (ezUInt32)vp.width, (ezUInt32)vp.height, ezVec3((float)m_MouseInputState.m_MousePos.x, (float)m_MouseInputState.m_MousePos.y, 0), m_vCurrentPickingRayStart, &m_vCurrentPickingRayDir).Failed())
     return EZ_FAILURE;
 
   return EZ_SUCCESS;

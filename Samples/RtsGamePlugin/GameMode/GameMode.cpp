@@ -1,9 +1,6 @@
 #include <PCH.h>
 #include <RtsGamePlugin/GameMode/GameMode.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererCore/Pipeline/View.h>
-#include <Core/Input/InputManager.h>
 
 RtsGameMode::RtsGameMode() = default;
 RtsGameMode::~RtsGameMode() = default;
@@ -29,14 +26,9 @@ void RtsGameMode::DeactivateMode()
   OnDeactivateMode();
 }
 
-void RtsGameMode::ProcessInput(ezUInt32 uiMousePosX, ezUInt32 uiMousePosY, ezKeyState::Enum LeftClickState, ezKeyState::Enum RightClickState)
+void RtsGameMode::ProcessInput(const RtsMouseInputState& MouseInput)
 {
-  m_uiMousePosX = uiMousePosX;
-  m_uiMousePosY = uiMousePosY;
-  m_LeftClickState = LeftClickState;
-  m_RightClickState = RightClickState;
-
-  OnProcessInput();
+  OnProcessInput(MouseInput);
 }
 
 void RtsGameMode::BeforeWorldUpdate()
@@ -44,7 +36,7 @@ void RtsGameMode::BeforeWorldUpdate()
   OnBeforeWorldUpdate();
 }
 
-void RtsGameMode::DoDefaultCameraInput()
+void RtsGameMode::DoDefaultCameraInput(const RtsMouseInputState& MouseInput)
 {
   ezView* pView = nullptr;
   if (!ezRenderWorld::TryGetView(m_hMainView, pView))
@@ -64,7 +56,7 @@ void RtsGameMode::DoDefaultCameraInput()
   const float moveY = movePosY - moveNegY;
   const float zoom = -zoomIn + zoomOut;
 
-  const bool bMoveCamera = m_RightClickState != ezKeyState::Up;
+  const bool bMoveCamera = MouseInput.m_RightClickState != ezKeyState::Up;
 
   const float fDimY = m_pMainCamera->GetFovOrDim();
   const float fDimX = (fDimY / vp.height) * vp.width;
@@ -94,4 +86,12 @@ void RtsGameMode::DoDefaultCameraInput()
 
     m_pMainCamera->MoveGlobally(ezVec3(-fMoveY, fMoveX, 0));
   }
+}
+
+bool RtsMouseInputState::HasMouseMoved(ezVec2U32 start, ezVec2U32 now)
+{
+  const ezVec2 v1((float)now.x, (float)now.y);
+  const ezVec2 v2((float)start.x, (float)start.y);
+
+  return (v1 - v2).GetLength() > 3.0f;
 }

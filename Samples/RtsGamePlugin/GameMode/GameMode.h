@@ -1,12 +1,21 @@
 #pragma once
 
-#include <PCH.h>
-#include <RendererCore/Pipeline/Declarations.h>
-#include <Core/Input/Declarations.h>
-
 class ezWorld;
 class ezCamera;
 class RtsGameState;
+
+struct RtsMouseInputState
+{
+  ezVec2U32 m_MousePos;
+  ezVec2U32 m_MousePosLeftClick;
+  ezVec2U32 m_MousePosRightClick;
+  ezKeyState::Enum m_LeftClickState;
+  ezKeyState::Enum m_RightClickState;
+  bool m_bLeftMouseMoved = false;
+  bool m_bRightMouseMoved = false;
+
+  static bool HasMouseMoved(ezVec2U32 start, ezVec2U32 now);
+};
 
 class RtsGameMode
 {
@@ -16,7 +25,7 @@ public:
 
   void ActivateMode(ezWorld* pMainWorld, ezViewHandle hView, ezCamera* pMainCamera);
   void DeactivateMode();
-  void ProcessInput(ezUInt32 uiMousePosX, ezUInt32 uiMousePosY, ezKeyState::Enum LeftClickState, ezKeyState::Enum RightClickState);
+  void ProcessInput(const RtsMouseInputState& MouseInput);
   void BeforeWorldUpdate();
 
   //////////////////////////////////////////////////////////////////////////
@@ -28,7 +37,7 @@ protected:
   virtual void OnActivateMode() {}
   virtual void OnDeactivateMode() {}
   virtual void RegisterInputActions() {}
-  virtual void OnProcessInput() {}
+  virtual void OnProcessInput(const RtsMouseInputState& MouseInput) {}
   virtual void OnBeforeWorldUpdate() {}
 
   RtsGameState* m_pGameState = nullptr;
@@ -41,17 +50,7 @@ private:
   //////////////////////////////////////////////////////////////////////////
   // Camera
 protected:
-  void DoDefaultCameraInput();
+  void DoDefaultCameraInput(const RtsMouseInputState& MouseInput);
 
   ezCamera* m_pMainCamera = nullptr;
-
-  //////////////////////////////////////////////////////////////////////////
-  // Input
-
-protected:
-  ezUInt32 m_uiMousePosX;
-  ezUInt32 m_uiMousePosY;
-  ezKeyState::Enum m_LeftClickState;
-  ezKeyState::Enum m_RightClickState;
-
 };

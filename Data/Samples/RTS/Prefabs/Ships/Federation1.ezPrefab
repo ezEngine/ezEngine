@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{14040316349301344428,4940641418404401279}}
-		u4 %Hash{12589186972972991597}
+		u4 %Hash{2699061168314765262}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{10315289512380913270,3133905410577590002}}
@@ -44,6 +44,16 @@ o
 	p
 	{
 		VarArray %ExposedProperties{}
+	}
+}
+o
+{
+	Uuid %id{u4{8139912986502725773,4837689693852549949}}
+	s %t{"RtsShipSteeringComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
 	}
 }
 o
@@ -71,6 +81,7 @@ o
 		{
 			Uuid{u4{4990146705292895923,5083436773175569728}}
 			Uuid{u4{5091658296870213517,5418047094281216590}}
+			Uuid{u4{8139912986502725773,4837689693852549949}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
@@ -130,6 +141,27 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezComponent"}
 		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16458084052912754161,1607340067840664256}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{9266094770685806626,12875684917959858758}}
+		}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"ezRtsGamePlugin"}
+		VarArray %Properties{}
+		s %TypeName{"RtsShipSteeringComponent"}
+		u3 %TypeSize{64}
 		u3 %TypeVersion{1}
 	}
 }
@@ -303,6 +335,16 @@ o
 		s %TypeName{"ezRenderComponent"}
 		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9266094770685806626,12875684917959858758}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"RTS Sample"}
 	}
 }
 o

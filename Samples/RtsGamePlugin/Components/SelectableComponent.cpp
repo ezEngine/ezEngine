@@ -1,7 +1,5 @@
 #include <PCH.h>
 #include <RtsGamePlugin/Components/SelectableComponent.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
 
 EZ_BEGIN_COMPONENT_TYPE(RtsSelectableComponent, 1, ezComponentMode::Static)
 {
