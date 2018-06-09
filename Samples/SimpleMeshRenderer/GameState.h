@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <GameEngine/GameState/FallbackGameState.h>
 
@@ -17,7 +17,7 @@ private:
   virtual void OnActivation(ezWorld* pWorld) override;
   virtual void OnDeactivation() override;
 
-  virtual float CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const override;
+  virtual ezGameState::Priority DeterminePriority(ezGameApplicationType AppType, ezWorld* pWorld) const override;
   
   void CreateGameLevel();
   void DestroyGameLevel();

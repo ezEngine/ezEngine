@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <TestFramework/Framework/TestBaseClass.h>
 #include <GameEngine/GameApplication/GameApplication.h>
@@ -11,7 +11,7 @@ class ezGameEngineTestGameState : public ezFallbackGameState
 
 public:
   virtual void ProcessInput() override;
-  virtual float CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const override;
+  virtual ezGameState::Priority DeterminePriority(ezGameApplicationType AppType, ezWorld* pWorld) const override;
   virtual void ConfigureInputActions() override;
 };
 

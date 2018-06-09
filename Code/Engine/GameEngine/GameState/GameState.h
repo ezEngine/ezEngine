@@ -69,12 +69,20 @@ public:
   /// \brief Returns the ezGameApplication through which this state was created.
   EZ_ALWAYS_INLINE ezGameApplication* GetApplication() const { return m_pApplication; }
 
+  enum class Priority
+  {
+    None = -1, ///< This game state cannot be used for this app type or world
+    Fallback = 0, ///< This game state could be used, but it is only a fallback solution
+    Default = 5, ///< This game state is suitable for the given app type and world
+    Override = 10, ///< This game state should be preferred over all others
+  };
+
   /// \brief Called by ezGameApplication to determine which game state is best suited to handle a situation.
   ///
   /// The application type is passed along, such that game states that cannot run inside the editor can bail out (or vice versa).
   /// If the application already has a world that should be shown, the game state can inspect it.
   /// If the game state is expected to create a new world, pWorld will be nullptr.
-  virtual float CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const = 0;
+  virtual ezGameState::Priority DeterminePriority(ezGameApplicationType AppType, ezWorld* pWorld) const = 0;
 
   /// \brief Has to call ezRenderLoop::AddMainView for all views that need to be rendered
   virtual void AddAllMainViews();

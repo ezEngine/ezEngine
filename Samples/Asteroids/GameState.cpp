@@ -115,9 +115,10 @@ void AsteroidGameState::DestroyLevel()
   EZ_DEFAULT_DELETE(m_pLevel);
 }
 
-float AsteroidGameState::CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const
+
+ezGameState::Priority AsteroidGameState::DeterminePriority(ezGameApplicationType AppType, ezWorld* pWorld) const
 {
-  return 1.0f;
+  return ezGameState::Priority::Default;
 }
 
 void AsteroidGameState::ProcessInput()

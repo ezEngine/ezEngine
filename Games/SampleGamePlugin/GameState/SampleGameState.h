@@ -14,7 +14,7 @@ class EZ_SAMPLEGAMEPLUGIN_DLL SampleGameState : public ezFallbackGameState
 public:
   SampleGameState();
 
-  virtual float CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const override;
+  virtual ezGameState::Priority DeterminePriority(ezGameApplicationType AppType, ezWorld* pWorld) const override;
 
   virtual void ProcessInput() override;
 

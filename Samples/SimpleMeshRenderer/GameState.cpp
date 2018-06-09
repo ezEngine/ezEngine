@@ -23,13 +23,8 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(SimpleMeshRendererGameState, 1, ezRTTIDefaultAllocator<SimpleMeshRendererGameState>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-SimpleMeshRendererGameState::SimpleMeshRendererGameState()
-{
-}
-
-SimpleMeshRendererGameState::~SimpleMeshRendererGameState()
-{
-}
+SimpleMeshRendererGameState::SimpleMeshRendererGameState() = default;
+SimpleMeshRendererGameState::~SimpleMeshRendererGameState() = default;
 
 void SimpleMeshRendererGameState::ConfigureInputActions()
 {
@@ -92,9 +87,9 @@ void SimpleMeshRendererGameState::OnDeactivation()
   SUPER::OnDeactivation();
 }
 
-float SimpleMeshRendererGameState::CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const
+ezGameState::Priority SimpleMeshRendererGameState::DeterminePriority(ezGameApplicationType AppType, ezWorld* pWorld) const
 {
-  return 1.0f;
+  return ezGameState::Priority::Default;
 }
 
 void SimpleMeshRendererGameState::CreateGameLevel()

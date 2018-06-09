@@ -73,9 +73,9 @@ void SampleGameState::BeforeWorldUpdate()
   }
 }
 
-float SampleGameState::CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const
+ezGameState::Priority SampleGameState::DeterminePriority(ezGameApplicationType AppType, ezWorld* pWorld) const
 {
-  return 2.0f;
+  return ezGameState::Priority::Default;
 }
 
 void SampleGameState::ConfigureInputDevices()

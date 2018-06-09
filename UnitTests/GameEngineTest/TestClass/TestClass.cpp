@@ -145,9 +145,9 @@ void ezGameEngineTestGameState::ProcessInput()
   GetApplication()->TakeScreenshot();
 }
 
-float ezGameEngineTestGameState::CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const
+ezGameState::Priority ezGameEngineTestGameState::DeterminePriority(ezGameApplicationType AppType, ezWorld* pWorld) const
 {
-  return 0.0f;
+  return ezGameState::Priority::Default;
 }
 
 void ezGameEngineTestGameState::ConfigureInputActions()

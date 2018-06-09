@@ -24,8 +24,6 @@ void RtsEditLevelMode::OnBeforeWorldUpdate()
 
 void RtsEditLevelMode::RegisterInputActions()
 {
-  RtsGameMode::RegisterInputActions();
-
   ezInputActionConfig cfg;
 
   // Level Editing

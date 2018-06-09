@@ -36,7 +36,7 @@ public:
   //////////////////////////////////////////////////////////////////////////
   // Initialization & Setup
 public:
-  virtual float CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const override;
+  virtual ezGameState::Priority DeterminePriority(ezGameApplicationType AppType, ezWorld* pWorld) const override;
 
 private:
   virtual void OnActivation(ezWorld* pWorld) override;

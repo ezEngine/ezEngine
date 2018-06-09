@@ -19,6 +19,7 @@ void RtsBattleMode::OnDeactivateMode()
 
 void RtsBattleMode::OnBeforeWorldUpdate()
 {
+  m_pGameState->RenderUnitSelection();
 }
 
 void RtsBattleMode::RegisterInputActions()

@@ -12,12 +12,12 @@ ezFallbackGameState::ezFallbackGameState()
   m_iActiveCameraComponentIndex = -3;
 }
 
-float ezFallbackGameState::CanHandleThis(ezGameApplicationType AppType, ezWorld* pWorld) const
+ezGameState::Priority ezFallbackGameState::DeterminePriority(ezGameApplicationType AppType, ezWorld* pWorld) const
 {
   if (pWorld == nullptr)
-    return -1.0f;
+    return ezGameState::Priority::None;
 
-  return 0.0f;
+  return ezGameState::Priority::Fallback;
 }
 
 static ezHybridArray<ezGameAppInputConfig, 16> g_AllInput;

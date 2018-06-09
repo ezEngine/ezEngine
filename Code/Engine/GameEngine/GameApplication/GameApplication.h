@@ -56,7 +56,7 @@ struct ezGameApplicationEvent
 /// Instead see ezGameState.
 ///
 /// ezGameApplication will create exactly one ezGameState by looping over all available ezGameState types
-/// (through reflection) and picking the one whose ezGameState::CanHandleThis() function returns the highest score.
+/// (through reflection) and picking the one whose DeterminePriority function returns the highest priority.
 /// That game state will live throughout the entire application life-time and will be stepped every frame.
 class EZ_GAMEENGINE_DLL ezGameApplication : public ezApplication
 {

@@ -145,7 +145,7 @@ void ezGameApplication::CreateGameStateForWorld(ezWorld* pWorld)
 
       pState->m_pApplication = this;
 
-      float fPriority = pState->CanHandleThis(m_AppType, pWorld);
+      float fPriority = (float)pState->DeterminePriority(m_AppType, pWorld);
 
       if (fPriority < 0.0f)
       {
