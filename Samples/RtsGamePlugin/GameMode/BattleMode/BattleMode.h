@@ -14,8 +14,4 @@ protected:
   virtual void RegisterInputActions() override;
   virtual void OnProcessInput() override;
   virtual void OnBeforeWorldUpdate() override;
-
-private:
-  void UpdateCamera();
-  void DisplayMainUI();
 };

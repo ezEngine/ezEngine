@@ -32,14 +32,26 @@ protected:
   virtual void OnBeforeWorldUpdate() {}
 
   RtsGameState* m_pGameState = nullptr;
+  ezWorld* m_pMainWorld = nullptr;
+  ezViewHandle m_hMainView;
+
+private:
+  bool m_bInitialized = false;
+
+  //////////////////////////////////////////////////////////////////////////
+  // Camera
+protected:
+  void DoDefaultCameraInput();
+
+  ezCamera* m_pMainCamera = nullptr;
+
+  //////////////////////////////////////////////////////////////////////////
+  // Input
+
+protected:
   ezUInt32 m_uiMousePosX;
   ezUInt32 m_uiMousePosY;
   ezKeyState::Enum m_LeftClickState;
   ezKeyState::Enum m_RightClickState;
-  ezWorld* m_pMainWorld = nullptr;
-  ezViewHandle m_hMainView;
-  ezCamera* m_pMainCamera = nullptr;
 
-private:
-  bool m_bInitialized = false;
 };

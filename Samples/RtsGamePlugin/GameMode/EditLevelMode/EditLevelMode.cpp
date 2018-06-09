@@ -20,63 +20,6 @@ void RtsEditLevelMode::OnDeactivateMode()
 void RtsEditLevelMode::OnBeforeWorldUpdate()
 {
   m_pGameState->RenderUnitSelection();
-  DisplayMainUI();
-}
-
-void RtsEditLevelMode::UpdateCamera()
-{
-  ezView* pView = nullptr;
-  if (!ezRenderWorld::TryGetView(m_hMainView, pView))
-    return;
-
-  const auto vp = pView->GetViewport();
-
-  float movePosX, moveNegX, movePosY, moveNegY, zoomIn, zoomOut;
-  ezInputManager::GetInputActionState("EditLevelMode", "CamMovePosX", &movePosX);
-  ezInputManager::GetInputActionState("EditLevelMode", "CamMoveNegX", &moveNegX);
-  ezInputManager::GetInputActionState("EditLevelMode", "CamMovePosY", &movePosY);
-  ezInputManager::GetInputActionState("EditLevelMode", "CamMoveNegY", &moveNegY);
-  ezInputManager::GetInputActionState("EditLevelMode", "CamZoomIn", &zoomIn);
-  ezInputManager::GetInputActionState("EditLevelMode", "CamZoomOut", &zoomOut);
-
-  const float moveX = movePosX - moveNegX;
-  const float moveY = movePosY - moveNegY;
-  const float zoom = -zoomIn + zoomOut;
-
-  const bool bMoveCamera = m_RightClickState != ezKeyState::Up;
-
-  const float fDimY = m_pMainCamera->GetFovOrDim();
-  const float fDimX = (fDimY / vp.height) * vp.width;
-
-  float fZoom = m_pGameState->GetCameraZoom();
-
-  if (zoom != 0.0f)
-  {
-    if (zoom > 0)
-      fZoom *= 1.1f;
-    else
-      fZoom *= 1.0f / 1.1f;
-
-    fZoom = m_pGameState->SetCameraZoom(fZoom);
-
-    ezVec3 pos = m_pMainCamera->GetCenterPosition();
-    pos.z = fZoom;
-    m_pMainCamera->LookAt(pos, pos + m_pMainCamera->GetCenterDirForwards(), m_pMainCamera->GetCenterDirUp());
-  }
-
-  if (bMoveCamera)
-  {
-    const float fMoveScale = 0.005f * fZoom;
-
-    const float fMoveX = fDimX * moveX * fMoveScale;
-    const float fMoveY = fDimY * moveY * fMoveScale;
-
-    m_pMainCamera->MoveGlobally(ezVec3(-fMoveY, fMoveX, 0));
-  }
-}
-
-void RtsEditLevelMode::DisplayMainUI()
-{
 }
 
 void RtsEditLevelMode::RegisterInputActions()
@@ -84,27 +27,6 @@ void RtsEditLevelMode::RegisterInputActions()
   RtsGameMode::RegisterInputActions();
 
   ezInputActionConfig cfg;
-
-  // Camera
-  {
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseWheelUp;
-    ezInputManager::SetInputActionConfig("EditLevelMode", "CamZoomIn", cfg, true);
-
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseWheelDown;
-    ezInputManager::SetInputActionConfig("EditLevelMode", "CamZoomOut", cfg, true);
-
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseMovePosX;
-    ezInputManager::SetInputActionConfig("EditLevelMode", "CamMovePosX", cfg, true);
-
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseMoveNegX;
-    ezInputManager::SetInputActionConfig("EditLevelMode", "CamMoveNegX", cfg, true);
-
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseMovePosY;
-    ezInputManager::SetInputActionConfig("EditLevelMode", "CamMovePosY", cfg, true);
-
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseMoveNegY;
-    ezInputManager::SetInputActionConfig("EditLevelMode", "CamMoveNegY", cfg, true);
-  }
 
   // Level Editing
   {
@@ -118,7 +40,7 @@ void RtsEditLevelMode::RegisterInputActions()
 
 void RtsEditLevelMode::OnProcessInput()
 {
-  UpdateCamera();
+  DoDefaultCameraInput();
 
   ezVec3 vPickedGroundPlanePos;
   if (m_pGameState->PickGroundPlanePosition(vPickedGroundPlanePos).Failed())
