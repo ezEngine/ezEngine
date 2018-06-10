@@ -31,6 +31,10 @@ public:
   //////////////////////////////////////////////////////////////////////////
   // Properties
 public:
+  float m_fMaxSpeed = 5.0f;
+  float m_fMaxAcceleration = 5.0f;
+  float m_fMaxDeceleration = 10.0f;
+  ezAngle m_MaxTurnSpeed;
 
   //////////////////////////////////////////////////////////////////////////
   // Message Handlers
@@ -46,6 +50,7 @@ protected:
   enum class Mode { None, Steering };
 
   Mode m_Mode = Mode::None;
-  ezVec3 m_vTargetPosition;
+  ezVec2 m_vTargetPosition;
+  float m_fCurrentSpeed = 0;
 };
 
