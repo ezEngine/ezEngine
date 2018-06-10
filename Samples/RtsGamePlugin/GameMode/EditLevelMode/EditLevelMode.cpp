@@ -29,6 +29,12 @@ void RtsEditLevelMode::RegisterInputActions()
 
     cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyDelete;
     ezInputManager::SetInputActionConfig("EditLevelMode", "RemoveObject", cfg, true);
+
+    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyNumpadPlus;
+    ezInputManager::SetInputActionConfig("EditLevelMode", "NextShipType", cfg, true);
+
+    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyNumpadMinus;
+    ezInputManager::SetInputActionConfig("EditLevelMode", "PrevShipType", cfg, true);
   }
 }
 
@@ -42,8 +48,34 @@ void RtsEditLevelMode::OnProcessInput(const RtsMouseInputState& MouseInput)
 
   if (ezInputManager::GetInputActionState("EditLevelMode", "PlaceObject") == ezKeyState::Pressed)
   {
-    m_pGameState->SpawnNamedObjectAt(ezTransform(vPickedGroundPlanePos, ezQuat::IdentityQuaternion()), "FederationShip1", 0);
+    switch (m_iShipType)
+    {
+    case 0:
+      m_pGameState->SpawnNamedObjectAt(ezTransform(vPickedGroundPlanePos, ezQuat::IdentityQuaternion()), "FederationShip1", 0);
+      break;
+    case 1:
+      m_pGameState->SpawnNamedObjectAt(ezTransform(vPickedGroundPlanePos, ezQuat::IdentityQuaternion()), "KlingonShip1", 0);
+      break;
+    case 2:
+      m_pGameState->SpawnNamedObjectAt(ezTransform(vPickedGroundPlanePos, ezQuat::IdentityQuaternion()), "KlingonShip2", 0);
+      break;
+    case 3:
+      m_pGameState->SpawnNamedObjectAt(ezTransform(vPickedGroundPlanePos, ezQuat::IdentityQuaternion()), "KlingonShip3", 0);
+      break;
+
+    }
+
     return;
+  }
+
+  if (ezInputManager::GetInputActionState("EditLevelMode", "NextShipType") == ezKeyState::Pressed)
+  {
+    m_iShipType = ezMath::Clamp(m_iShipType + 1, 0, 3);
+  }
+
+  if (ezInputManager::GetInputActionState("EditLevelMode", "PrevShipType") == ezKeyState::Pressed)
+  {
+    m_iShipType = ezMath::Clamp(m_iShipType - 1, 0, 3);
   }
 
   auto& unitSelection = m_pGameState->m_SelectedUnits;

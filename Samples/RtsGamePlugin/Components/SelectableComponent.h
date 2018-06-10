@@ -12,6 +12,9 @@ public:
   RtsSelectableComponent();
   ~RtsSelectableComponent();
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent interface
+
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 

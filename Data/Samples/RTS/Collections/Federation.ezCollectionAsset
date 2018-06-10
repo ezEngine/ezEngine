@@ -11,12 +11,13 @@ o
 		s %AssetType{"Collection"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{273418281869530040,5198681574406437624}}
-		u4 %Hash{14697857823107128827}
+		u4 %Hash{2744082348420667012}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 8293907f-af31-4490-ac48-37b65439d9c2 }"}
+			s{"{ bacd6420-3b1f-41ed-a143-662c1e804029 }"}
 		}
 	}
 }
@@ -36,6 +37,17 @@ o
 }
 o
 {
+	Uuid %id{u4{7664633595144560051,5101459074695869227}}
+	s %t{"ezCollectionAssetEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Asset{"{ bacd6420-3b1f-41ed-a143-662c1e804029 }"}
+		s %Name{"ProtonTorpedo1"}
+	}
+}
+o
+{
 	Uuid %id{u4{4474691916872214179,5381764441294938652}}
 	s %t{"ezCollectionAssetData"}
 	u3 %v{1}
@@ -44,6 +56,7 @@ o
 		VarArray %Entries
 		{
 			Uuid{u4{15337512951172375169,4888353830784960079}}
+			Uuid{u4{7664633595144560051,5101459074695869227}}
 		}
 	}
 }

@@ -7,3 +7,11 @@ struct RtsMsgNavigateTo : public ezMessage
   ezVec2 m_vTargetPosition;
 };
 
+struct RtsMsgSetTarget : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(RtsMsgSetTarget, ezMessage);
+
+  ezVec2 m_vPosition;
+  ezGameObjectHandle m_hObject;
+};
+

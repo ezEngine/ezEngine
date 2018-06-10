@@ -14,4 +14,6 @@ protected:
   virtual void RegisterInputActions() override;
   virtual void OnProcessInput(const RtsMouseInputState& MouseInput) override;
   virtual void OnBeforeWorldUpdate() override;
+
+  ezInt32 m_iShipType = 0;
 };

@@ -40,13 +40,34 @@ void RtsBattleMode::OnProcessInput(const RtsMouseInputState& MouseInput)
 
   if (MouseInput.m_RightClickState == ezKeyState::Released && !MouseInput.m_bRightMouseMoved)
   {
-    RtsMsgNavigateTo msg;
-    msg.m_vTargetPosition = vPickedGroundPlanePos.GetAsVec2();
-
-    for (ezUInt32 i = 0; i < unitSelection.GetCount(); ++i)
+    if (ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftCtrl) == ezKeyState::Up)
     {
-      ezGameObjectHandle hObject = unitSelection.GetObject(i);
-      m_pMainWorld->SendMessage(hObject, msg);
+      RtsMsgNavigateTo msg;
+      msg.m_vTargetPosition = vPickedGroundPlanePos.GetAsVec2();
+
+      for (ezUInt32 i = 0; i < unitSelection.GetCount(); ++i)
+      {
+        ezGameObjectHandle hObject = unitSelection.GetObject(i);
+        m_pMainWorld->SendMessage(hObject, msg);
+      }
+    }
+    else
+    {
+      RtsMsgSetTarget msg;
+      msg.m_vPosition = vPickedGroundPlanePos.GetAsVec2();
+
+      for (ezUInt32 i = 0; i < unitSelection.GetCount(); ++i)
+      {
+        ezGameObjectHandle hObject = unitSelection.GetObject(i);
+        ezGameObject* pObject = nullptr;
+
+        if (!m_pMainWorld->TryGetObject(hObject, pObject))
+          continue;
+
+        ezGameObject* pSpawned = m_pGameState->SpawnNamedObjectAt(pObject->GetGlobalTransform(), "ProtonTorpedo1", pObject->GetTeamID());
+
+        pSpawned->PostMessage(msg, ezObjectMsgQueueType::AfterInitialized);
+      }
     }
   }
 }
