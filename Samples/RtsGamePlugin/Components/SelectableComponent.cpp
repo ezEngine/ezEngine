@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <RtsGamePlugin/Components/SelectableComponent.h>
+#include <Core/Messages/UpdateLocalBoundsMessage.h>
 
 EZ_BEGIN_COMPONENT_TYPE(RtsSelectableComponent, 1, ezComponentMode::Static)
 {
@@ -8,7 +9,11 @@ EZ_BEGIN_COMPONENT_TYPE(RtsSelectableComponent, 1, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("SelectionRadius", m_fSelectionRadius)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.1f, 10.0f)),
   }
   EZ_END_PROPERTIES
-
+    EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds)
+  }
+    EZ_END_MESSAGEHANDLERS
     EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("RTS Sample"),
@@ -39,3 +44,18 @@ void RtsSelectableComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fSelectionRadius;
 }
 
+
+void RtsSelectableComponent::OnActivated()
+{
+  GetOwner()->UpdateLocalBounds();
+}
+
+void RtsSelectableComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
+{
+  ezBoundingBoxSphere bounds;
+  bounds.m_fSphereRadius = m_fSelectionRadius;
+  bounds.m_vCenter.SetZero();
+  bounds.m_vBoxHalfExtends.Set(m_fSelectionRadius);
+
+  msg.AddBounds(bounds);
+}

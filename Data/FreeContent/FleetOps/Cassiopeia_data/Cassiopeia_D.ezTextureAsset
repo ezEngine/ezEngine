@@ -11,10 +11,11 @@ o
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"FleetOps/Cassiopeia_data/fedCassiopeia0.tga"}
+			s{"FleetOps/Cassiopeia_data/Cassiopeia_A.tga"}
+			s{"FleetOps/Cassiopeia_data/Cassiopeia_D.tga"}
 		}
 		Uuid %DocumentID{u4{16159780687570004134,5745454315371220956}}
-		u4 %Hash{5915714170910781750}
+		u4 %Hash{4869332216719238098}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -34,12 +35,12 @@ o
 		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		f %CVarResScale{0x0000803F}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_A2"}
 		b %Compression{1}
 		b %FlipHorizontal{0}
 		s %Format{"ezRenderTargetFormat::RGBA8sRgb"}
-		s %Input1{"FleetOps/Cassiopeia_data/fedCassiopeia0.tga"}
-		s %Input2{""}
+		s %Input1{"FleetOps/Cassiopeia_data/Cassiopeia_D.tga"}
+		s %Input2{"FleetOps/Cassiopeia_data/Cassiopeia_A.tga"}
 		s %Input3{""}
 		s %Input4{""}
 		b %IsRenderTarget{0}

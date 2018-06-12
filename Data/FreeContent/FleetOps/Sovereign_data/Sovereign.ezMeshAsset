@@ -14,7 +14,7 @@ o
 			s{"FleetOps/Sovereign_data/Sovereign.fbx"}
 		}
 		Uuid %DocumentID{u4{8162075323282421672,4738933399542900577}}
-		u4 %Hash{3582713827276927453}
+		u4 %Hash{12501391456626631509}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -49,7 +49,7 @@ o
 		b %Cap2{1}
 		u2 %Detail{1}
 		u2 %Detail2{1}
-		s %ForwardDir{"ezBasisAxis::NegativeZ"}
+		s %ForwardDir{"ezBasisAxis::PositiveX"}
 		f %Height{0x0000803F}
 		b %ImportMaterials{0}
 		b %InvertNormals{0}
@@ -64,7 +64,7 @@ o
 		f %Radius{0x0000003F}
 		f %Radius2{0x0000003F}
 		b %RecalculateNormals{0}
-		s %RightDir{"ezBasisAxis::PositiveX"}
+		s %RightDir{"ezBasisAxis::PositiveZ"}
 		s %SubmeshName{""}
 		f %UniformScaling{0x0000803F}
 		s %UpDir{"ezBasisAxis::PositiveY"}

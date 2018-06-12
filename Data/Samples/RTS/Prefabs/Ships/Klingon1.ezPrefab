@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9337215893643593608,4658919788212868328}}
-		u4 %Hash{9841841399898795820}
+		u4 %Hash{13504604292874120533}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{5612189056723162450,2852183780386057051}}
@@ -50,7 +50,6 @@ o
 		}
 		VarArray %Components
 		{
-			Uuid{u4{2470153586411321788,5094722507102330885}}
 			Uuid{u4{15555041576272500404,4731483106986753118}}
 			Uuid{u4{14745111060683720582,5244166592254996801}}
 		}
@@ -58,7 +57,7 @@ o
 		Vec3 %LocalPosition{f{0,0,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0AD7233C}
+		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
@@ -104,19 +103,6 @@ o
 }
 o
 {
-	Uuid %id{u4{2470153586411321788,5094722507102330885}}
-	s %t{"ezMeshComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{1}
-		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		VarArray %Materials{}
-		s %Mesh{"{ ad417552-5eb2-4bec-81d8-3960872cd7db }"}
-	}
-}
-o
-{
 	Uuid %id{u4{14745111060683720582,5244166592254996801}}
 	s %t{"RtsShipSteeringComponent"}
 	u3 %v{1}
@@ -131,6 +117,19 @@ o
 }
 o
 {
+	Uuid %id{u4{2176828409995215285,5587154554272266101}}
+	s %t{"ezMeshComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		VarArray %Materials{}
+		s %Mesh{"{ ad417552-5eb2-4bec-81d8-3960872cd7db }"}
+	}
+}
+o
+{
 	Uuid %id{u4{603631013979304878,5693448842608418194}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -139,13 +138,14 @@ o
 		VarArray %Children{}
 		VarArray %Components
 		{
+			Uuid{u4{2176828409995215285,5587154554272266101}}
 			Uuid{u4{765530131198553995,4681845106464497308}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
+		f %LocalUniformScaling{0x0AD7233C}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags

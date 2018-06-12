@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17857676686640486312,5759284195937129141}}
-		u4 %Hash{6352278300274670933}
+		u4 %Hash{13396090906811615223}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14132649849720055154,3952548188110317864}}
@@ -38,12 +38,51 @@ Objects
 {
 o
 {
+	Uuid %id{u4{13784068342847588274,4696385094210582704}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{10549400213719658160,5735333772820651114}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0AD7233C}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{13848701757919947178,5634985087205709097}}
 	s %t{"ezSceneDocumentSettings"}
 	u3 %v{1}
 	p
 	{
 		VarArray %ExposedProperties{}
+	}
+}
+o
+{
+	Uuid %id{u4{10549400213719658160,5735333772820651114}}
+	s %t{"ezMeshComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		VarArray %Materials{}
+		s %Mesh{"{ 81470810-3802-47d2-b88c-658bdbdf2924 }"}
 	}
 }
 o
@@ -77,28 +116,17 @@ o
 }
 o
 {
-	Uuid %id{u4{11748933682701503850,10377552162726051434}}
-	s %t{"ezMeshComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{1}
-		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		VarArray %Materials{}
-		s %Mesh{"{ 81470810-3802-47d2-b88c-658bdbdf2924 }"}
-	}
-}
-o
-{
 	Uuid %id{u4{7132538820253880647,10617691276923704390}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
 	p
 	{
-		VarArray %Children{}
+		VarArray %Children
+		{
+			Uuid{u4{13784068342847588274,4696385094210582704}}
+		}
 		VarArray %Components
 		{
-			Uuid{u4{11748933682701503850,10377552162726051434}}
 			Uuid{u4{11850445274278821444,10712162483831698296}}
 			Uuid{u4{14898699963911333700,10131805083403031655}}
 		}
@@ -106,7 +134,7 @@ o
 		Vec3 %LocalPosition{f{0,0,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0AD7233C}
+		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags

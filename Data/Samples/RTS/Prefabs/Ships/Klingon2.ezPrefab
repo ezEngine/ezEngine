@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{6804469773716537017,4810929876532937582}}
-		u4 %Hash{11175474927167242470}
+		u4 %Hash{16604973942920958471}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{3079442936796105859,3004193868706126305}}
@@ -38,17 +38,7 @@ Objects
 {
 o
 {
-	Uuid %id{u4{15854885050472034986,4754415930932354434}}
-	s %t{"ezSceneDocumentSettings"}
-	u3 %v{1}
-	p
-	{
-		VarArray %ExposedProperties{}
-	}
-}
-o
-{
-	Uuid %id{u4{4457370284449573259,4951336268191760419}}
+	Uuid %id{u4{12971252189702038154,4713704567704295259}}
 	s %t{"ezMeshComponent"}
 	u3 %v{2}
 	p
@@ -57,6 +47,42 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ 05b0d291-1a2d-4dd7-b7af-34cba7871199 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{12701240650663562637,4731428950261703807}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{12971252189702038154,4713704567704295259}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0AD7233C}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{15854885050472034986,4754415930932354434}}
+	s %t{"ezSceneDocumentSettings"}
+	u3 %v{1}
+	p
+	{
+		VarArray %ExposedProperties{}
 	}
 }
 o
@@ -91,10 +117,12 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Children{}
+		VarArray %Children
+		{
+			Uuid{u4{12701240650663562637,4731428950261703807}}
+		}
 		VarArray %Components
 		{
-			Uuid{u4{4457370284449573259,4951336268191760419}}
 			Uuid{u4{14919635455033248669,5092289582614838846}}
 			Uuid{u4{17657378684570911411,4964492549578113834}}
 		}
@@ -102,7 +130,7 @@ o
 		Vec3 %LocalPosition{f{0,0,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0AD7233C}
+		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
