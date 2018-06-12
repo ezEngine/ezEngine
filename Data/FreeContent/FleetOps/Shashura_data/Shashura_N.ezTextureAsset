@@ -11,10 +11,10 @@ o
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"FleetOps/Shashura_data/romShashura0_bump_Normal.tga"}
+			s{"FleetOps/Shashura_data/Shashura_N.tga"}
 		}
 		Uuid %DocumentID{u4{9516716831661666739,5731688537165904341}}
-		u4 %Hash{15717222826112675939}
+		u4 %Hash{11665476448070402672}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -38,7 +38,7 @@ o
 		b %Compression{0}
 		b %FlipHorizontal{0}
 		s %Format{"ezRenderTargetFormat::RGBA8sRgb"}
-		s %Input1{"FleetOps/Shashura_data/romShashura0_bump_Normal.tga"}
+		s %Input1{"FleetOps/Shashura_data/Shashura_N.tga"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}

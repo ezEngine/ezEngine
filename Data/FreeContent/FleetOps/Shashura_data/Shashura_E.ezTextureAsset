@@ -2,7 +2,7 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{5553974100690418601,4921130030552974835}}
+	Uuid %id{u4{9278934523799862442,4959580180627528204}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
 	s %n{"Header"}
@@ -11,10 +11,10 @@ o
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"FleetOps/Generix_data/romGenerix0_bump_Normal.tga"}
+			s{"FleetOps/Shashura_data/Shashura_E.tga"}
 		}
-		Uuid %DocumentID{u4{5553974100690418601,4921130030552974835}}
-		u4 %Hash{13131936654328919281}
+		Uuid %DocumentID{u4{9278934523799862442,4959580180627528204}}
+		u4 %Hash{13282802377485517284}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -25,7 +25,7 @@ Objects
 {
 o
 {
-	Uuid %id{u4{852688788364699834,5610011215379810954}}
+	Uuid %id{u4{1164173184834285232,5567802839273488095}}
 	s %t{"ezTextureAssetProperties"}
 	u3 %v{2}
 	p
@@ -35,10 +35,10 @@ o
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		f %CVarResScale{0x0000803F}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
-		b %Compression{0}
+		b %Compression{1}
 		b %FlipHorizontal{0}
 		s %Format{"ezRenderTargetFormat::RGBA8sRgb"}
-		s %Input1{"FleetOps/Generix_data/romGenerix0_bump_Normal.tga"}
+		s %Input1{"FleetOps/Shashura_data/Shashura_E.tga"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
@@ -46,8 +46,8 @@ o
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %Resolution{"ezTexture2DResolution::Fixed256x256"}
-		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTexture2DUsageEnum::NormalMap"}
+		s %TextureFilter{"ezTextureFilterSetting::LowQuality"}
+		s %Usage{"ezTexture2DUsageEnum::EmissiveColor"}
 	}
 }
 o
@@ -60,7 +60,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{852688788364699834,5610011215379810954}}
+			Uuid{u4{1164173184834285232,5567802839273488095}}
 		}
 	}
 }

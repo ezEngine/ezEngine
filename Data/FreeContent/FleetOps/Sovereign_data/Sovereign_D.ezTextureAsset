@@ -2,7 +2,7 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{6703208666448483508,5077350605220584747}}
+	Uuid %id{u4{15006231137471373225,5719705027336181274}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
 	s %n{"Header"}
@@ -11,10 +11,10 @@ o
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"FleetOps/ExcelsiorII_data/ExcelsiorII_D.tga"}
+			s{"FleetOps/Sovereign_data/Sovereign_D.png"}
 		}
-		Uuid %DocumentID{u4{6703208666448483508,5077350605220584747}}
-		u4 %Hash{13335827324465935604}
+		Uuid %DocumentID{u4{15006231137471373225,5719705027336181274}}
+		u4 %Hash{895941535598078378}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -25,7 +25,7 @@ Objects
 {
 o
 {
-	Uuid %id{u4{139937598421847175,5586598966383508621}}
+	Uuid %id{u4{12017229266047002773,5090482686560268603}}
 	s %t{"ezTextureAssetProperties"}
 	u3 %v{2}
 	p
@@ -34,11 +34,11 @@ o
 		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		f %CVarResScale{0x0000803F}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGBA1"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
 		b %FlipHorizontal{0}
 		s %Format{"ezRenderTargetFormat::RGBA8sRgb"}
-		s %Input1{"FleetOps/ExcelsiorII_data/ExcelsiorII_D.tga"}
+		s %Input1{"FleetOps/Sovereign_data/Sovereign_D.png"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
@@ -60,7 +60,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{139937598421847175,5586598966383508621}}
+			Uuid{u4{12017229266047002773,5090482686560268603}}
 		}
 	}
 }

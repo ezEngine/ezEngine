@@ -11,10 +11,10 @@ o
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"FleetOps/ExcelsiorII_data/fedExcelsiorII0_bump_Normal.tga"}
+			s{"FleetOps/ExcelsiorII_data/ExcelsiorII_N.tga"}
 		}
 		Uuid %DocumentID{u4{6614093533713722021,4921138711723877565}}
-		u4 %Hash{14397014565888757496}
+		u4 %Hash{250499884265117044}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -38,7 +38,7 @@ o
 		b %Compression{0}
 		b %FlipHorizontal{0}
 		s %Format{"ezRenderTargetFormat::RGBA8sRgb"}
-		s %Input1{"FleetOps/ExcelsiorII_data/fedExcelsiorII0_bump_Normal.tga"}
+		s %Input1{"FleetOps/ExcelsiorII_data/ExcelsiorII_N.tga"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}

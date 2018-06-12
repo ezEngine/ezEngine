@@ -2,7 +2,7 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{6703208666448483508,5077350605220584747}}
+	Uuid %id{u4{13139883668864730525,5556337304190536496}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
 	s %n{"Header"}
@@ -11,10 +11,10 @@ o
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"FleetOps/ExcelsiorII_data/ExcelsiorII_D.tga"}
+			s{"FleetOps/Generix_data/Generix1_D.tga"}
 		}
-		Uuid %DocumentID{u4{6703208666448483508,5077350605220584747}}
-		u4 %Hash{13335827324465935604}
+		Uuid %DocumentID{u4{13139883668864730525,5556337304190536496}}
+		u4 %Hash{7625063124502000569}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -25,7 +25,7 @@ Objects
 {
 o
 {
-	Uuid %id{u4{139937598421847175,5586598966383508621}}
+	Uuid %id{u4{16105273328023087753,5327660837258078575}}
 	s %t{"ezTextureAssetProperties"}
 	u3 %v{2}
 	p
@@ -38,7 +38,7 @@ o
 		b %Compression{1}
 		b %FlipHorizontal{0}
 		s %Format{"ezRenderTargetFormat::RGBA8sRgb"}
-		s %Input1{"FleetOps/ExcelsiorII_data/ExcelsiorII_D.tga"}
+		s %Input1{"FleetOps/Generix_data/Generix1_D.tga"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
@@ -60,7 +60,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{139937598421847175,5586598966383508621}}
+			Uuid{u4{16105273328023087753,5327660837258078575}}
 		}
 	}
 }

@@ -11,13 +11,14 @@ o
 		s %AssetType{"Collection"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{273418281869530040,5198681574406437624}}
-		u4 %Hash{414799088451932925}
+		u4 %Hash{16156602376883195580}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 535a92b5-1676-4fed-a817-fb1c5536d3f7 }"}
 			s{"{ 8293907f-af31-4490-ac48-37b65439d9c2 }"}
+			s{"{ a6bf8047-7966-4a1f-ab70-57e7d3207daa }"}
 			s{"{ bacd6420-3b1f-41ed-a143-662c1e804029 }"}
 		}
 	}
@@ -25,6 +26,17 @@ o
 }
 Objects
 {
+o
+{
+	Uuid %id{u4{5826599154507968154,4646437343849850959}}
+	s %t{"ezCollectionAssetEntry"}
+	u3 %v{1}
+	p
+	{
+		s %Asset{"{ a6bf8047-7966-4a1f-ab70-57e7d3207daa }"}
+		s %Name{"FederationShip3"}
+	}
+}
 o
 {
 	Uuid %id{u4{15337512951172375169,4888353830784960079}}
@@ -69,6 +81,7 @@ o
 		{
 			Uuid{u4{15337512951172375169,4888353830784960079}}
 			Uuid{u4{10053567635974398130,4998392134793502470}}
+			Uuid{u4{5826599154507968154,4646437343849850959}}
 			Uuid{u4{7664633595144560051,5101459074695869227}}
 		}
 	}

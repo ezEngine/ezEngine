@@ -11,10 +11,10 @@ o
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"FleetOps/Raptor_data/romRaptor0_bump_Normal.tga"}
+			s{"FleetOps/Raptor_data/Raptor_N.tga"}
 		}
 		Uuid %DocumentID{u4{232674509197489306,5393803915774733633}}
-		u4 %Hash{2776329648280914167}
+		u4 %Hash{14518346880595336415}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -38,7 +38,7 @@ o
 		b %Compression{0}
 		b %FlipHorizontal{0}
 		s %Format{"ezRenderTargetFormat::RGBA8sRgb"}
-		s %Input1{"FleetOps/Raptor_data/romRaptor0_bump_Normal.tga"}
+		s %Input1{"FleetOps/Raptor_data/Raptor_N.tga"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}

@@ -2,7 +2,7 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{7059252854588219020,5428568987676590687}}
+	Uuid %id{u4{17854623064659105213,4738874303038559598}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
 	s %n{"Header"}
@@ -11,10 +11,10 @@ o
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"FleetOps/Generix_data/Generix1_T.tga"}
+			s{"FleetOps/Generix_data/Generix0_E.tga"}
 		}
-		Uuid %DocumentID{u4{7059252854588219020,5428568987676590687}}
-		u4 %Hash{17825530418347727385}
+		Uuid %DocumentID{u4{17854623064659105213,4738874303038559598}}
+		u4 %Hash{1413130404966541377}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -25,7 +25,7 @@ Objects
 {
 o
 {
-	Uuid %id{u4{15275588136717048994,5340013097231228154}}
+	Uuid %id{u4{5991641721449568422,5331682654781250562}}
 	s %t{"ezTextureAssetProperties"}
 	u3 %v{2}
 	p
@@ -34,11 +34,11 @@ o
 		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		f %CVarResScale{0x0000803F}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::R1"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		b %Compression{1}
 		b %FlipHorizontal{0}
 		s %Format{"ezRenderTargetFormat::RGBA8sRgb"}
-		s %Input1{"FleetOps/Generix_data/Generix1_T.tga"}
+		s %Input1{"FleetOps/Generix_data/Generix0_E.tga"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
@@ -46,8 +46,8 @@ o
 		b %Mipmaps{1}
 		b %PremultipliedAlpha{0}
 		s %Resolution{"ezTexture2DResolution::Fixed256x256"}
-		s %TextureFilter{"ezTextureFilterSetting::LowestQuality"}
-		s %Usage{"ezTexture2DUsageEnum::Unknown"}
+		s %TextureFilter{"ezTextureFilterSetting::LowQuality"}
+		s %Usage{"ezTexture2DUsageEnum::EmissiveColor"}
 	}
 }
 o
@@ -60,7 +60,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{15275588136717048994,5340013097231228154}}
+			Uuid{u4{5991641721449568422,5331682654781250562}}
 		}
 	}
 }

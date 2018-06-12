@@ -2,7 +2,7 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{8451459430125969229,3946097577134638276}}
+	Uuid %id{u4{1309804272778650972,3929206642971789574}}
 	s %t{"ezExposedParameters"}
 	u3 %v{2}
 	p
@@ -12,7 +12,7 @@ o
 }
 o
 {
-	Uuid %id{u4{12176486267046400387,5752833584961449553}}
+	Uuid %id{u4{5034831109699082130,5735942650798600851}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
 	s %n{"Header"}
@@ -20,16 +20,16 @@ o
 	{
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
-		Uuid %DocumentID{u4{12176486267046400387,5752833584961449553}}
-		u4 %Hash{4528753212710346946}
+		Uuid %DocumentID{u4{5034831109699082130,5735942650798600851}}
+		u4 %Hash{17474561626685661507}
 		VarArray %MetaInfo
 		{
-			Uuid{u4{8451459430125969229,3946097577134638276}}
+			Uuid{u4{1309804272778650972,3929206642971789574}}
 		}
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 81470810-3802-47d2-b88c-658bdbdf2924 }"}
+			s{"{ a5fd2761-12d1-41c4-a8f7-3a1243844571 }"}
 		}
 	}
 }
@@ -38,67 +38,7 @@ Objects
 {
 o
 {
-	Uuid %id{u4{12636043394803502471,4881410540963454432}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{16973383969193518013,5004238659535415664}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-		}
-	}
-}
-o
-{
-	Uuid %id{u4{16973383969193518013,5004238659535415664}}
-	s %t{"ezMeshComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{1}
-		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0}}
-		VarArray %Materials{}
-		s %Mesh{"{ 81470810-3802-47d2-b88c-658bdbdf2924 }"}
-	}
-}
-o
-{
-	Uuid %id{u4{11793161549755028105,5453415637233409251}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Children
-		{
-			Uuid{u4{12636043394803502471,4881410540963454432}}
-		}
-		VarArray %Components{}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags{}
-	}
-}
-o
-{
-	Uuid %id{u4{16583597309594128258,5740926073206964006}}
+	Uuid %id{u4{13987897752069522849,5495631330478392123}}
 	s %t{"ezSceneDocumentSettings"}
 	u3 %v{1}
 	p
@@ -116,9 +56,47 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{11793161549755028105,5453415637233409251}}
+			Uuid{u4{9730724992010324509,9398954497152571465}}
 		}
-		Uuid %Settings{u4{16583597309594128258,5740926073206964006}}
+		Uuid %Settings{u4{13987897752069522849,5495631330478392123}}
+	}
+}
+o
+{
+	Uuid %id{u4{9730724992010324509,9398954497152571465}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{10871291821130628420,9933039642709395115}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{10871291821130628420,9933039642709395115}}
+	s %t{"ezMeshComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0}}
+		VarArray %Materials{}
+		s %Mesh{"{ a5fd2761-12d1-41c4-a8f7-3a1243844571 }"}
 	}
 }
 }
