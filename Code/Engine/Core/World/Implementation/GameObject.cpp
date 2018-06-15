@@ -464,6 +464,65 @@ ezGameObject* ezGameObject::SearchForChildByNameSequence(const char* szObjectSeq
   return nullptr;
 }
 
+
+void ezGameObject::SearchForChildrenByNameSequence(const char* szObjectSequence, const ezRTTI* pExpectedComponent, ezHybridArray<ezGameObject*, 8>& out_Objects)
+{
+  /// \test Needs a unit test
+
+  if (ezStringUtils::IsNullOrEmpty(szObjectSequence))
+  {
+    // in case we are searching for a specific component type, verify that it exists on this object
+    if (pExpectedComponent != nullptr)
+    {
+      ezComponent* pComp = nullptr;
+      if (!TryGetComponentOfBaseType(pExpectedComponent, pComp))
+        return;
+    }
+
+    out_Objects.PushBack(this);
+    return;
+  }
+
+  const char* szSep = ezStringUtils::FindSubString(szObjectSequence, "/");
+  const char* szNextSequence = nullptr;
+  ezUInt32 uiNameHash = 0;
+
+  if (szSep == nullptr)
+  {
+    const size_t len = (size_t)ezStringUtils::GetStringElementCount(szObjectSequence);
+    uiNameHash = ezHashing::MurmurHash32(szObjectSequence, len);
+    szNextSequence = szObjectSequence + len;
+  }
+  else
+  {
+    uiNameHash = ezHashing::MurmurHash32(szObjectSequence, szSep - szObjectSequence);
+    szNextSequence = szSep + 1;
+  }
+
+  const ezTempHashedString name(uiNameHash);
+
+  // first go through all direct children an see if any of them actually matches the current name
+  // if so, continue the recursion from there and give them the remaining search path to continue
+  for (auto it = GetChildren(); it.IsValid(); ++it)
+  {
+    if (it->m_sName == name)
+    {
+      it->SearchForChildrenByNameSequence(szNextSequence, pExpectedComponent, out_Objects);
+    }
+  }
+
+  // if no direct child fulfilled the requirements, just recurse with the full name sequence
+  // however, we can skip any child that already fulfilled the next sequence name,
+  // because that's definitely a lost cause
+  for (auto it = GetChildren(); it.IsValid(); ++it)
+  {
+    if (it->m_sName != name) // TODO: in this function it is actually debatable whether to skip these or not
+    {
+      it->SearchForChildrenByNameSequence(szObjectSequence, pExpectedComponent, out_Objects);
+    }
+  }
+}
+
 ezVec3 ezGameObject::GetGlobalDirForwards() const
 {
   ezCoordinateSystem coordinateSystem;

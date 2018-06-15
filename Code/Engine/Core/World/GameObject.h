@@ -182,6 +182,9 @@ public:
   /// contains a component of that type. If it doesn't the search continues (including back-tracking).
   ezGameObject* SearchForChildByNameSequence(const char* szObjectSequence, const ezRTTI* pExpectedComponent = nullptr);
 
+  /// \brief Same as SearchForChildByNameSequence but returns ALL matches, in case the given path could mean multiple objects
+  void SearchForChildrenByNameSequence(const char* szObjectSequence, const ezRTTI* pExpectedComponent, ezHybridArray<ezGameObject*, 8>& out_Objects);
+
   ezWorld* GetWorld();
   const ezWorld* GetWorld() const;
 

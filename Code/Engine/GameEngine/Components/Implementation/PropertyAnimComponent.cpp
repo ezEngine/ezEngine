@@ -183,35 +183,39 @@ void ezPropertyAnimComponent::CreatePropertyBindings()
 
   for (const ezFloatPropertyAnimEntry& anim : m_AnimDesc->m_FloatAnimations)
   {
-    ezGameObject* pTargetObject = GetOwner()->SearchForChildByNameSequence(anim.m_sObjectSearchSequence, anim.m_pComponentRtti);
-    if (pTargetObject == nullptr)
-      continue;
+    ezHybridArray<ezGameObject*, 8> targets;
+    GetOwner()->SearchForChildrenByNameSequence(anim.m_sObjectSearchSequence, anim.m_pComponentRtti, targets);
 
-    // allow to animate properties on the ezGameObject
-    if (anim.m_pComponentRtti == nullptr)
+    for (ezGameObject* pTargetObject : targets)
     {
-      CreateGameObjectBinding(&anim, ezGetStaticRTTI<ezGameObject>(), pTargetObject, pTargetObject->GetHandle());
-    }
-    else
-    {
-      ezComponent* pComp;
-      if (pTargetObject->TryGetComponentOfBaseType(anim.m_pComponentRtti, pComp))
+      // allow to animate properties on the ezGameObject
+      if (anim.m_pComponentRtti == nullptr)
       {
-        CreateFloatPropertyBinding(&anim, pComp->GetDynamicRTTI(), pComp, pComp->GetHandle());
+        CreateGameObjectBinding(&anim, ezGetStaticRTTI<ezGameObject>(), pTargetObject, pTargetObject->GetHandle());
+      }
+      else
+      {
+        ezComponent* pComp;
+        if (pTargetObject->TryGetComponentOfBaseType(anim.m_pComponentRtti, pComp))
+        {
+          CreateFloatPropertyBinding(&anim, pComp->GetDynamicRTTI(), pComp, pComp->GetHandle());
+        }
       }
     }
   }
 
   for (const ezColorPropertyAnimEntry& anim : m_AnimDesc->m_ColorAnimations)
   {
-    ezGameObject* pTargetObject = GetOwner()->SearchForChildByNameSequence(anim.m_sObjectSearchSequence, anim.m_pComponentRtti);
-    if (pTargetObject == nullptr)
-      continue;
+    ezHybridArray<ezGameObject*, 8> targets;
+    GetOwner()->SearchForChildrenByNameSequence(anim.m_sObjectSearchSequence, anim.m_pComponentRtti, targets);
 
-    ezComponent* pComp;
-    if (pTargetObject->TryGetComponentOfBaseType(anim.m_pComponentRtti, pComp))
+    for (ezGameObject* pTargetObject : targets)
     {
-      CreateColorPropertyBinding(&anim, pComp->GetDynamicRTTI(), pComp, pComp->GetHandle());
+      ezComponent* pComp;
+      if (pTargetObject->TryGetComponentOfBaseType(anim.m_pComponentRtti, pComp))
+      {
+        CreateColorPropertyBinding(&anim, pComp->GetDynamicRTTI(), pComp, pComp->GetHandle());
+      }
     }
   }
 }
