@@ -8,6 +8,8 @@
 
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
 
+struct ImGuiContext;
+
 /// \brief Singleton class through which one can control the third-party library 'Dear Imgui'
 ///
 /// Instance has to be manually created and destroyed. Do this for example in ezGameState::OnActivation()
@@ -50,6 +52,7 @@ private:
   void Startup();
   void Shutdown();
 
+  ImGuiContext* m_pContext = nullptr;
   bool m_bPassInputToImgui = true;
   bool m_bImguiWantsInput = false;
   ezSizeU32 m_CurrentWindowResolution;

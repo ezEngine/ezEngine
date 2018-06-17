@@ -1,19 +1,19 @@
 #include <PCH.h>
-#include <GameEngine/DearImgui/DearImgui.h>
-#include <Foundation/Configuration/Startup.h>
-#include <GameApplication/GameApplication.h>
-#include <RendererCore/Textures/Texture2DResource.h>
-#include <Foundation/Time/Clock.h>
+// Blank line to prevent Clang format from reordering this
 #include <Core/Input/InputManager.h>
+#include <Foundation/Configuration/Startup.h>
+#include <Foundation/Time/Clock.h>
+#include <GameApplication/GameApplication.h>
+#include <GameEngine/DearImgui/DearImgui.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 
 EZ_IMPLEMENT_SINGLETON(ezImgui);
 
 ezImgui::ezImgui()
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
   Startup();
 }
-
 
 ezImgui::~ezImgui()
 {
@@ -22,6 +22,9 @@ ezImgui::~ezImgui()
 
 void ezImgui::Startup()
 {
+  m_pContext = ImGui::CreateContext();
+  ImGui::SetCurrentContext(m_pContext);
+
   ImGuiIO& cfg = ImGui::GetIO();
 
   cfg.DisplaySize.x = 1650;
@@ -47,12 +50,11 @@ void ezImgui::Startup()
   cfg.KeyMap[ImGuiKey_Y] = ImGuiKey_Y;
   cfg.KeyMap[ImGuiKey_Z] = ImGuiKey_Z;
 
-
   {
     ImGuiIO& io = ImGui::GetIO();
     unsigned char* pixels;
     int width, height;
-    io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);   // Load as RGBA 32-bits (75% of the memory is wasted, but default font is so small) because it is more likely to be compatible with user's existing shaders. If your ImTextureId represent a higher-level concept than just a GL texture id, consider calling GetTexDataAsAlpha8() instead to save on GPU memory.
+    io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height); // Load as RGBA 32-bits (75% of the memory is wasted, but default font is so small) because it is more likely to be compatible with user's existing shaders. If your ImTextureId represent a higher-level concept than just a GL texture id, consider calling GetTexDataAsAlpha8() instead to save on GPU memory.
 
     ezTexture2DResourceHandle hFont = ezResourceManager::GetExistingResource<ezTexture2DResource>("ImguiFont");
 
@@ -77,14 +79,17 @@ void ezImgui::Startup()
     const size_t id = (size_t)m_hTextures.GetCount() - 1;
     io.Fonts->TexID = reinterpret_cast<void*>(id);
   }
-
-
-  ImGui::NewFrame();
 }
 
 void ezImgui::Shutdown()
 {
   m_hTextures.Clear();
+
+  if (m_pContext)
+  {
+    ImGui::DestroyContext(m_pContext);
+    m_pContext = nullptr;
+  }
 }
 
 void ezImgui::BeginNewFrame(ezSizeU32 windowResolution)
@@ -135,7 +140,7 @@ void ezImgui::BeginNewFrame(ezSizeU32 windowResolution)
     cfg.KeysDown[ImGuiKey_End] = ezInputManager::GetInputSlotState(ezInputSlot_KeyEnd) >= ezKeyState::Pressed;
     cfg.KeysDown[ImGuiKey_Delete] = ezInputManager::GetInputSlotState(ezInputSlot_KeyDelete) >= ezKeyState::Pressed;
     cfg.KeysDown[ImGuiKey_Backspace] = ezInputManager::GetInputSlotState(ezInputSlot_KeyBackspace) >= ezKeyState::Pressed;
-    cfg.KeysDown[ImGuiKey_Enter] = ezInputManager::GetInputSlotState(ezInputSlot_KeyReturn) >= ezKeyState::Pressed || ezInputManager::GetInputSlotState(ezInputSlot_KeyNumpadEnter) >= ezKeyState::Pressed;;
+    cfg.KeysDown[ImGuiKey_Enter] = ezInputManager::GetInputSlotState(ezInputSlot_KeyReturn) >= ezKeyState::Pressed || ezInputManager::GetInputSlotState(ezInputSlot_KeyNumpadEnter) >= ezKeyState::Pressed;
     cfg.KeysDown[ImGuiKey_Escape] = ezInputManager::GetInputSlotState(ezInputSlot_KeyEscape) >= ezKeyState::Pressed;
     cfg.KeysDown[ImGuiKey_A] = ezInputManager::GetInputSlotState(ezInputSlot_KeyA) >= ezKeyState::Pressed;
     cfg.KeysDown[ImGuiKey_C] = ezInputManager::GetInputSlotState(ezInputSlot_KeyC) >= ezKeyState::Pressed;
@@ -171,7 +176,4 @@ void ezImgui::BeginNewFrame(ezSizeU32 windowResolution)
   m_bImguiWantsInput = cfg.WantCaptureKeyboard || cfg.WantCaptureMouse;
 }
 
-
-
 EZ_STATICLINK_FILE(GameEngine, GameEngine_DearImgui_DearImgui);
-
