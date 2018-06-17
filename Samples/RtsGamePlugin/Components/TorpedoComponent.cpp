@@ -1,7 +1,10 @@
 #include <PCH.h>
-#include <RtsGamePlugin/Components/TorpedoComponent.h>
+// Blank line to prevent Clang format from reordering this
 #include <RtsGamePlugin/Components/ComponentMessages.h>
+#include <RtsGamePlugin/Components/TorpedoComponent.h>
+#include <RtsGamePlugin/GameState/RtsGameState.h>
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(RtsTorpedoComponent, 1, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
@@ -10,19 +13,20 @@ EZ_BEGIN_COMPONENT_TYPE(RtsTorpedoComponent, 1, ezComponentMode::Dynamic)
   }
   EZ_END_PROPERTIES
 
-    EZ_BEGIN_MESSAGEHANDLERS
+  EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(RtsMsgSetTarget, OnMsgSetTarget),
   }
   EZ_END_MESSAGEHANDLERS
 
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("RTS Sample"),
   }
   EZ_END_ATTRIBUTES
 }
-EZ_END_COMPONENT_TYPE
+EZ_END_COMPONENT_TYPE;
+// clang-format on
 
 RtsTorpedoComponent::RtsTorpedoComponent() = default;
 RtsTorpedoComponent::~RtsTorpedoComponent() = default;
@@ -45,7 +49,6 @@ void RtsTorpedoComponent::DeserializeComponent(ezWorldReader& stream)
 
   s >> m_fSpeed;
 }
-
 
 void RtsTorpedoComponent::OnMsgSetTarget(RtsMsgSetTarget& msg)
 {
@@ -99,4 +102,3 @@ void RtsTorpedoComponent::Update()
     GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
   }
 }
-

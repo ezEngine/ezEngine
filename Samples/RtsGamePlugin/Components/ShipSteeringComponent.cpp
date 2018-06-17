@@ -28,10 +28,10 @@ EZ_BEGIN_COMPONENT_TYPE(RtsShipSteeringComponent, 1, ezComponentMode::Dynamic)
   }
   EZ_END_ATTRIBUTES
 }
-EZ_END_COMPONENT_TYPE
-    // clang-format on
+EZ_END_COMPONENT_TYPE;
+// clang-format on
 
-    RtsShipSteeringComponent::RtsShipSteeringComponent() = default;
+RtsShipSteeringComponent::RtsShipSteeringComponent() = default;
 RtsShipSteeringComponent::~RtsShipSteeringComponent() = default;
 
 void RtsShipSteeringComponent::SerializeComponent(ezWorldWriter& stream) const
