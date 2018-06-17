@@ -55,6 +55,10 @@ void RtsTorpedoComponent::OnMsgSetTarget(RtsMsgSetTarget& msg)
 
 void RtsTorpedoComponent::Update()
 {
+  // TODO: do this check in the component manager
+  if (RtsGameState::GetSingleton()->GetActiveGameMode() != RtsActiveGameMode::BattleMode)
+    return;
+
   ezGameObject* pObject = nullptr;
   if (GetWorld()->TryGetObject(m_hTargetObject, pObject))
   {

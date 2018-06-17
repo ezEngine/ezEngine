@@ -178,6 +178,20 @@ void RtsGameState::SetActiveGameMode(RtsGameMode* pMode)
     m_pActiveGameMode->ActivateMode(m_pMainWorld, m_hMainView, &m_MainCamera);
 }
 
+ezGameObject* RtsGameState::DetectHoveredSelectable()
+{
+  m_hHoveredSelectable.Invalidate();
+  ezGameObject* pSelected = PickSelectableObject();
+
+  if (pSelected != nullptr)
+  {
+    m_hHoveredSelectable = pSelected->GetHandle();
+    return pSelected;
+  }
+
+  return nullptr;
+}
+
 void RtsGameState::SelectUnits()
 {
   ezGameObject* pSelected = PickSelectableObject();
@@ -219,9 +233,29 @@ void RtsGameState::RenderUnitSelection() const
 
     ezTransform t = pObject->GetGlobalTransform();
     t.m_vScale.Set(1.0f);
+    t.m_qRotation.SetIdentity();
 
     bbox.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(pSelectable->m_fSelectionRadius, pSelectable->m_fSelectionRadius, 0));
-    ezDebugRenderer::DrawLineBoxCorners(m_pMainWorld, bbox, 0.1f, ezColor::DodgerBlue, t);
+    ezDebugRenderer::DrawLineBoxCorners(m_pMainWorld, bbox, 0.1f, ezColor::White, t);
+  }
+
+  // hovered unit
+  {
+    ezGameObject* pObject;
+    if (m_pMainWorld->TryGetObject(m_hHoveredSelectable, pObject))
+    {
+      RtsSelectableComponent* pSelectable;
+      if (pObject->TryGetComponentOfBaseType(pSelectable))
+      {
+
+        ezTransform t = pObject->GetGlobalTransform();
+        t.m_vScale.Set(1.0f);
+        t.m_qRotation.SetIdentity();
+
+        bbox.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(pSelectable->m_fSelectionRadius, pSelectable->m_fSelectionRadius, 0));
+        ezDebugRenderer::DrawLineBoxCorners(m_pMainWorld, bbox, 0.1f, ezColor::DodgerBlue, t);
+      }
+    }
   }
 }
 

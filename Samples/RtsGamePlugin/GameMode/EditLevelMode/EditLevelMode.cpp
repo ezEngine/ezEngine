@@ -7,6 +7,7 @@ const char* g_BuildItemTypes[] =
     {
         "FederationShip1",
         "FederationShip2",
+        "FederationShip3",
         "KlingonShip1",
         "KlingonShip2",
         "KlingonShip3",
@@ -49,7 +50,6 @@ void RtsEditLevelMode::DisplayEditUI()
 
   if (ImGui::Combo("Build", &m_iShipType, g_BuildItemTypes, EZ_ARRAY_SIZE(g_BuildItemTypes)))
   {
-
   }
 
   ImGui::Text("Select: %s", ezInputManager::GetInputSlotDisplayName(ezInputSlot_MouseButton0));
@@ -107,6 +107,8 @@ void RtsEditLevelMode::OnProcessInput(const RtsMouseInputState& MouseInput)
 
     return;
   }
+
+  m_pGameState->DetectHoveredSelectable();
 
   if (MouseInput.m_LeftClickState == ezKeyState::Released)
   {

@@ -104,8 +104,10 @@ public:
   //////////////////////////////////////////////////////////////////////////
   // Units
 public:
+  ezGameObject* DetectHoveredSelectable();
   void SelectUnits();
   void RenderUnitSelection() const;
 
+  ezGameObjectHandle m_hHoveredSelectable;
   ezObjectSelection m_SelectedUnits;
 };

@@ -1,7 +1,10 @@
 #include <PCH.h>
-#include <RtsGamePlugin/Components/ShipSteeringComponent.h>
+// Blank line to prevent Clang format from reordering this
 #include <Foundation/Utilities/Stats.h>
+#include <RtsGamePlugin/Components/ShipSteeringComponent.h>
+#include <RtsGamePlugin/GameState/RtsGameState.h>
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(RtsShipSteeringComponent, 1, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
@@ -13,21 +16,22 @@ EZ_BEGIN_COMPONENT_TYPE(RtsShipSteeringComponent, 1, ezComponentMode::Dynamic)
   }
   EZ_END_PROPERTIES
 
-    EZ_BEGIN_MESSAGEHANDLERS
+  EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(RtsMsgNavigateTo, OnMsgNavigateTo)
   }
-    EZ_END_MESSAGEHANDLERS
+  EZ_END_MESSAGEHANDLERS
 
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("RTS Sample"),
   }
   EZ_END_ATTRIBUTES
 }
 EZ_END_COMPONENT_TYPE
+    // clang-format on
 
-RtsShipSteeringComponent::RtsShipSteeringComponent() = default;
+    RtsShipSteeringComponent::RtsShipSteeringComponent() = default;
 RtsShipSteeringComponent::~RtsShipSteeringComponent() = default;
 
 void RtsShipSteeringComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -125,13 +129,12 @@ void RtsShipSteeringComponent::UpdateSteering()
   }
 
   GetOwner()->SetGlobalTransform(transform);
-
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 RtsShipSteeringComponentManager::RtsShipSteeringComponentManager(ezWorld* pWorld)
-  : ezComponentManager<class RtsShipSteeringComponent, ezBlockStorageType::Compact>(pWorld)
+    : ezComponentManager<class RtsShipSteeringComponent, ezBlockStorageType::Compact>(pWorld)
 {
 }
 
@@ -149,6 +152,9 @@ void RtsShipSteeringComponentManager::Initialize()
 
 void RtsShipSteeringComponentManager::SteeringUpdate(const ezWorldModule::UpdateContext& context)
 {
+  if (RtsGameState::GetSingleton()->GetActiveGameMode() != RtsActiveGameMode::BattleMode)
+    return;
+
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
   {
     if (it->IsActive())

@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{6804469773716537017,4810929876532937582}}
-		u4 %Hash{16604973942920958471}
+		u4 %Hash{8675320439520122583}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{3079442936796105859,3004193868706126305}}
@@ -87,6 +87,16 @@ o
 }
 o
 {
+	Uuid %id{u4{4580801428229282695,4788684137288872806}}
+	s %t{"RtsUnitComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+	}
+}
+o
+{
 	Uuid %id{u4{17657378684570911411,4964492549578113834}}
 	s %t{"RtsShipSteeringComponent"}
 	u3 %v{1}
@@ -95,7 +105,7 @@ o
 		f %Acceleration{0x0000A040}
 		b %Active{1}
 		f %Deceleration{0x00002041}
-		f %Speed{0x0000A040}
+		f %Speed{0x0000C040}
 		Angle %TurnSpeed{f{0xDB0FC93F}}
 	}
 }
@@ -123,6 +133,7 @@ o
 		}
 		VarArray %Components
 		{
+			Uuid{u4{4580801428229282695,4788684137288872806}}
 			Uuid{u4{14919635455033248669,5092289582614838846}}
 			Uuid{u4{17657378684570911411,4964492549578113834}}
 		}
@@ -254,6 +265,27 @@ o
 		s %TypeName{"ezMeshComponent"}
 		u3 %TypeSize{128}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{10013516038438668171,4213427214367970714}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{2821526756211720636,15481772064487165216}}
+		}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"ezRtsGamePlugin"}
+		VarArray %Properties{}
+		s %TypeName{"RtsUnitComponent"}
+		u3 %TypeSize{80}
+		u3 %TypeVersion{1}
 	}
 }
 o
@@ -560,6 +592,16 @@ o
 	{
 		f %Max{0x0000C842}
 		f %Min{0xCDCCCC3D}
+	}
+}
+o
+{
+	Uuid %id{u4{2821526756211720636,15481772064487165216}}
+	s %t{"ezCategoryAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Category{"RTS Sample"}
 	}
 }
 o

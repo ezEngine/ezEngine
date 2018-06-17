@@ -35,6 +35,8 @@ void RtsBattleMode::OnProcessInput(const RtsMouseInputState& MouseInput)
 
   const auto& unitSelection = m_pGameState->m_SelectedUnits;
 
+  ezGameObject* pHoveredSelectable = m_pGameState->DetectHoveredSelectable();
+
   if (MouseInput.m_LeftClickState == ezKeyState::Released)
   {
     m_pGameState->SelectUnits();
@@ -49,26 +51,18 @@ void RtsBattleMode::OnProcessInput(const RtsMouseInputState& MouseInput)
 
       for (ezUInt32 i = 0; i < unitSelection.GetCount(); ++i)
       {
-        ezGameObjectHandle hObject = unitSelection.GetObject(i);
-        m_pMainWorld->SendMessage(hObject, msg);
+        m_pMainWorld->SendMessage(unitSelection.GetObject(i), msg);
       }
     }
     else
     {
       RtsMsgSetTarget msg;
       msg.m_vPosition = vPickedGroundPlanePos.GetAsVec2();
+      msg.m_hObject = pHoveredSelectable ? pHoveredSelectable->GetHandle() : ezGameObjectHandle();
 
       for (ezUInt32 i = 0; i < unitSelection.GetCount(); ++i)
       {
-        ezGameObjectHandle hObject = unitSelection.GetObject(i);
-        ezGameObject* pObject = nullptr;
-
-        if (!m_pMainWorld->TryGetObject(hObject, pObject))
-          continue;
-
-        ezGameObject* pSpawned = m_pGameState->SpawnNamedObjectAt(pObject->GetGlobalTransform(), "ProtonTorpedo1", pObject->GetTeamID());
-
-        pSpawned->PostMessage(msg, ezObjectMsgQueueType::AfterInitialized);
+        m_pMainWorld->SendMessage(unitSelection.GetObject(i), msg);
       }
     }
   }
