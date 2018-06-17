@@ -95,3 +95,40 @@ bool RtsMouseInputState::HasMouseMoved(ezVec2U32 start, ezVec2U32 now)
 
   return (v1 - v2).GetLength() > 3.0f;
 }
+
+ezColor RtsGameMode::GetTeamColor(ezInt32 iTeam)
+{
+  switch (iTeam)
+  {
+  case 0:
+    return ezColorGammaUB(255, 0, 0);
+  case 1:
+    return ezColorGammaUB(0, 255, 0);
+  case 2:
+    return ezColorGammaUB(0, 0, 255);
+  case 3:
+    return ezColorGammaUB(255, 255, 0);
+  }
+
+  return ezColor::White;
+}
+
+void RtsGameMode::DisplaySelectModeUI()
+{
+  ImGui::SetNextWindowPos(ImVec2(10, 10));
+  ImGui::SetNextWindowSize(ImVec2(120, 100));
+  ImGui::Begin("Game Mode", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
+
+  const RtsActiveGameMode mode = RtsGameState::GetSingleton()->GetActiveGameMode();
+
+  if (ImGui::RadioButton("Battle", mode == RtsActiveGameMode::BattleMode))
+    RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::BattleMode);
+
+  if (ImGui::RadioButton("Edit", mode == RtsActiveGameMode::EditLevelMode))
+    RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::EditLevelMode);
+
+  if (ImGui::RadioButton("Main Menu", mode == RtsActiveGameMode::MainMenuMode))
+    RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::MainMenuMode);
+
+  ImGui::End();
+}

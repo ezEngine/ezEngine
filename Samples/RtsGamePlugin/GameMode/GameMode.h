@@ -53,4 +53,15 @@ protected:
   void DoDefaultCameraInput(const RtsMouseInputState& MouseInput);
 
   ezCamera* m_pMainCamera = nullptr;
+
+  //////////////////////////////////////////////////////////////////////////
+  // User Interface
+public:
+  static ezColor GetTeamColor(ezInt32 iTeam);
+
+
+protected:
+  void DisplaySelectModeUI();
+
+
 };

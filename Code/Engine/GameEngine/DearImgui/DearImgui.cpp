@@ -89,6 +89,8 @@ void ezImgui::Shutdown()
 
 void ezImgui::BeginNewFrame(ezSizeU32 windowResolution)
 {
+  m_CurrentWindowResolution = windowResolution;
+
   ImGuiIO& cfg = ImGui::GetIO();
 
   cfg.DisplaySize.x = (float)windowResolution.width;

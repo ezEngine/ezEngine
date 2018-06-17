@@ -1,7 +1,7 @@
 #include <PCH.h>
-#include <RtsGamePlugin/GameState/RtsGameState.h>
-#include <RtsGamePlugin/GameMode/GameMode.h>
 #include <RtsGamePlugin/Components/SelectableComponent.h>
+#include <RtsGamePlugin/GameMode/GameMode.h>
+#include <RtsGamePlugin/GameState/RtsGameState.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(RtsGameState, 1, ezRTTIDefaultAllocator<RtsGameState>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -95,6 +95,17 @@ void RtsGameState::BeforeWorldUpdate()
 
   m_SelectedUnits.RemoveDeadObjects();
 
+  // prepare the UI for the next frame
+  if (ezImgui::GetSingleton() != nullptr)
+  {
+    ezView* pView = nullptr;
+    if (ezRenderWorld::TryGetView(m_hMainView, pView))
+    {
+      const ezRectFloat viewport = pView->GetViewport();
+      ezImgui::GetSingleton()->BeginNewFrame(ezSizeU32((ezUInt32)viewport.width, (ezUInt32)viewport.height));
+    }
+  }
+
   if (m_pActiveGameMode)
   {
     m_pActiveGameMode->BeforeWorldUpdate();
@@ -174,7 +185,7 @@ void RtsGameState::SelectUnits()
   if (pSelected != nullptr)
   {
     if (ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftCtrl) == ezKeyState::Down ||
-      ezInputManager::GetInputSlotState(ezInputSlot_KeyRightCtrl) == ezKeyState::Down)
+        ezInputManager::GetInputSlotState(ezInputSlot_KeyRightCtrl) == ezKeyState::Down)
     {
       m_SelectedUnits.ToggleSelection(pSelected->GetHandle());
     }

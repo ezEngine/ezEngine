@@ -408,7 +408,7 @@ void ezPropertyAnimComponent::CreateColorPropertyBinding(const ezColorPropertyAn
 
 void ezPropertyAnimComponent::ApplyAnimations(const ezTime& tDiff)
 {
-  if (m_fSpeed == 0.0f)
+  if (m_fSpeed == 0.0f || m_AnimDesc == nullptr)
     return;
 
   const double fLookupPos = ComputeAnimationLookup(tDiff);
@@ -603,6 +603,9 @@ void ezPropertyAnimComponent::OnSimulationStarted()
 
 void ezPropertyAnimComponent::StartPlayback()
 {
+  if (m_AnimDesc == nullptr)
+    return;
+
   m_AnimationRangeLow = ezMath::Clamp(m_AnimationRangeLow, ezTime::Zero(), m_AnimDesc->m_AnimationDuration);
   m_AnimationRangeHigh = ezMath::Clamp(m_AnimationRangeHigh, m_AnimationRangeLow, m_AnimDesc->m_AnimationDuration);
 

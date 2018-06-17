@@ -15,6 +15,11 @@ protected:
   virtual void OnProcessInput(const RtsMouseInputState& MouseInput) override;
   virtual void OnBeforeWorldUpdate() override;
 
+  //////////////////////////////////////////////////////////////////////////
+
+private:
+  void DisplayEditUI();
+
   ezUInt16 m_uiTeam = 0;
   ezInt32 m_iShipType = 0;
 };

@@ -32,6 +32,9 @@ public:
   /// The resolution is needed for proper GUI clipping. Use the ezWindow client area.
   void BeginNewFrame(ezSizeU32 windowResolution);
 
+  /// \brief Returns the value that was passed to BeginFrame(). Useful for positioning UI elements.
+  ezSizeU32 GetCurrentWindowResolution() const { return m_CurrentWindowResolution;}
+
   /// \brief When this is disabled, the GUI will be rendered, but it will not react to any input. Useful if something else shall get exclusive input.
   void SetPassInputToImgui(bool bPassInput) { m_bPassInputToImgui = bPassInput; }
 
@@ -49,6 +52,7 @@ private:
 
   bool m_bPassInputToImgui = true;
   bool m_bImguiWantsInput = false;
+  ezSizeU32 m_CurrentWindowResolution;
   ezHybridArray<ezTexture2DResourceHandle, 4> m_hTextures;
 };
 

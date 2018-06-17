@@ -1,15 +1,18 @@
-﻿#pragma once
+#pragma once
 
 #include <Core/Input/InputDevice.h>
-#include <Foundation/Containers/Map.h>
-#include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Communication/Event.h>
+#include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Containers/Map.h>
 
 /// \brief A struct that defines how to register an input action.
 struct EZ_CORE_DLL ezInputActionConfig
 {
   /// \brief Change this value to adjust how many input slots may trigger the same action.
-  enum { MaxInputSlotAlternatives = 3 };
+  enum
+  {
+    MaxInputSlotAlternatives = 3
+  };
 
   ezInputActionConfig();
 
@@ -51,21 +54,20 @@ struct EZ_CORE_DLL ezInputActionConfig
   /// \brief For Input Areas: Describes what happens when an action is currently triggered, but the input slots used for filtering leave their min/max values.
   enum OnLeaveArea
   {
-    LoseFocus,  ///< The input action will lose focus and thus get 'deactivated' immediately. Ie. it will return ezKeyState::Released.
-    KeepFocus,  ///< The input action will keep focus and continue to return ezKeyState::Down, until all trigger slots are actually released.
+    LoseFocus, ///< The input action will lose focus and thus get 'deactivated' immediately. Ie. it will return ezKeyState::Released.
+    KeepFocus, ///< The input action will keep focus and continue to return ezKeyState::Down, until all trigger slots are actually released.
   };
 
   /// \brief For Input Areas: Describes what happens when any trigger slot is already active will the input slots that are used for filtering enter the valid ranges.
   enum OnEnterArea
   {
-    ActivateImmediately,  ///< The input action will immediately get activated and return ezKeyState::Pressed, even though the input slots are already pressed for some time.
-    RequireKeyUp,         ///< The input action will not get triggered, unless some trigger input slot is actually pressed while the input slots that are used for filtering are actually within valid ranges.
+    ActivateImmediately, ///< The input action will immediately get activated and return ezKeyState::Pressed, even though the input slots are already pressed for some time.
+    RequireKeyUp,        ///< The input action will not get triggered, unless some trigger input slot is actually pressed while the input slots that are used for filtering are actually within valid ranges.
   };
 
   OnLeaveArea m_OnLeaveArea; ///< =LoseFocus
   OnEnterArea m_OnEnterArea; ///< =ActivateImmediately
 };
-
 
 /// \brief The central class to set up and query the state of all input.
 ///
@@ -80,7 +82,6 @@ struct EZ_CORE_DLL ezInputActionConfig
 class EZ_CORE_DLL ezInputManager
 {
 public:
-
   /// \brief Updates the state of the input manager. This should be called exactly once each frame.
   ///
   /// \param tTimeDifference The time elapsed since the last update. This will affect the value scaling of actions that
@@ -92,6 +93,13 @@ public:
 
   /// \brief Returns the display name that was assigned to the given input slot.
   static const char* GetInputSlotDisplayName(const char* szInputSlot); // [tested]
+
+  /// \brief A shortcut to get the display name of the input slot bound to a given action
+  ///
+  /// If iTrigger is set, the name of that trigger (0 .. ezInputActionConfig::MaxInputSlotAlternatives) will be used.
+  /// If iTrigger is less than 0, the first valid trigger is used.
+  /// If iTrigger is outside the valid range or no valid trigger is bound, nullptr is returned.
+  static const char* GetInputSlotDisplayName(const char* szInputSet, const char* szAction, ezInt32 iTrigger = -1);
 
   /// \brief Sets the dead zone for the given input slot. As long as the hardware reports values lower than this, the input slot will report a value of zero.
   static void SetInputSlotDeadZone(const char* szInputSlot, float fDeadZone); // [tested]
@@ -212,7 +220,6 @@ public:
   /// \brief Mostly for internal use. Converts a scan-code value to the string that is used inside the engine for that key.
   static const char* ConvertScanCodeToEngineName(ezUInt8 uiScanCode, bool bIsExtendedKey);
 
-
   /// \brief Helper for retrieving the input slot string for touch point with a given index.
   static const char* GetInputSlotTouchPoint(unsigned int index);
 
@@ -221,7 +228,6 @@ public:
 
   /// \brief Helper for retrieving the input slot string for touch point y position with a given index.
   static const char* GetInputSlotTouchPointPositionY(unsigned int index);
-
 
   /// \brief The data that is broadcast when certain events occur.
   struct InputEventData
@@ -249,10 +255,10 @@ public:
   typedef ezEvent<const InputEventData&> ezEventInput;
 
   /// \brief Adds an event handler that is called for input events.
-  static void AddEventHandler(ezEventInput::Handler handler)    { s_InputEvents.AddEventHandler   (handler);  }
+  static void AddEventHandler(ezEventInput::Handler handler) { s_InputEvents.AddEventHandler(handler); }
 
   /// \brief Removes a previously added event handler.
-  static void RemoveEventHandler(ezEventInput::Handler handler) { s_InputEvents.RemoveEventHandler (handler); }
+  static void RemoveEventHandler(ezEventInput::Handler handler) { s_InputEvents.RemoveEventHandler(handler); }
 
 private:
   friend class ezInputDevice;
@@ -263,9 +269,7 @@ private:
   /// specify a display name different from the input slot name.
   static void RegisterInputSlot(const char* szName, const char* szDefaultDisplayName, ezBitflags<ezInputSlotFlags> SlotFlags);
 
-
 private:
-
   /// \brief Stores the current state for one input slot.
   struct ezInputSlot
   {
@@ -285,8 +289,8 @@ private:
 
     ezInputActionConfig m_Config; ///< The configuration that was specified by the user.
 
-    float m_fValue;               ///< The current value. This is the maximum of all input slot values that trigger this action.
-    ezKeyState::Enum m_State;     ///< The current state. Derived from m_fValue.
+    float m_fValue;           ///< The current value. This is the maximum of all input slot values that trigger this action.
+    ezKeyState::Enum m_State; ///< The current state. Derived from m_fValue.
 
     ezInt8 m_iTriggeredViaAlternative;
   };
@@ -298,9 +302,9 @@ private:
   /// \brief The internal data of the ezInputManager. Not allocated until it is actually required.
   struct InternalData
   {
-    ezInputSetMap s_ActionMapping;                      ///< Maps input set names to their data.
-    ezInputSlotsMap s_InputSlots;                       ///< Maps input slot names to their data.
-    ezMap<ezString, ezString> s_ActionDisplayNames;     ///< Stores a display name for each input action.
+    ezInputSetMap s_ActionMapping;                  ///< Maps input set names to their data.
+    ezInputSlotsMap s_InputSlots;                   ///< Maps input slot names to their data.
+    ezMap<ezString, ezString> s_ActionDisplayNames; ///< Stores a display name for each input action.
     ezMap<ezString, float> s_InjectedInputSlots;
   };
 
@@ -342,6 +346,3 @@ private:
 
   static InternalData* s_pData;
 };
-
-
-

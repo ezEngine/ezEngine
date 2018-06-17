@@ -31,18 +31,6 @@ void RtsGameState::ConfigureInputActions()
     ezInputManager::SetInputActionConfig("Game", "MouseRightClick", cfg, true);
   }
 
-  // Switch Modes
-  {
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyF2;
-    ezInputManager::SetInputActionConfig("Game", "SwitchToBattleMode", cfg, true);
-
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyF3;
-    ezInputManager::SetInputActionConfig("Game", "SwitchToEditMode", cfg, true);
-
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyF4;
-    ezInputManager::SetInputActionConfig("Game", "SwitchToMenuMode", cfg, true);
-  }
-
   // Default Camera Navigation
   {
     cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseWheelUp;
@@ -117,24 +105,6 @@ void RtsGameState::ProcessInput()
   }
 
   UpdateMousePosition();
-
-  if (ezInputManager::GetInputActionState("Game", "SwitchToBattleMode") == ezKeyState::Pressed)
-  {
-    SwitchToGameMode(RtsActiveGameMode::BattleMode);
-    return;
-  }
-
-  if (ezInputManager::GetInputActionState("Game", "SwitchToEditMode") == ezKeyState::Pressed)
-  {
-    SwitchToGameMode(RtsActiveGameMode::EditLevelMode);
-    return;
-  }
-
-  if (ezInputManager::GetInputActionState("Game", "SwitchToMenuMode") == ezKeyState::Pressed)
-  {
-    SwitchToGameMode(RtsActiveGameMode::MainMenuMode);
-    return;
-  }
 
   if (m_pActiveGameMode)
   {

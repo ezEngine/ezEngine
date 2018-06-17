@@ -16,6 +16,8 @@ void RtsBattleMode::OnDeactivateMode()
 
 void RtsBattleMode::OnBeforeWorldUpdate()
 {
+  DisplaySelectModeUI();
+
   m_pGameState->RenderUnitSelection();
 }
 

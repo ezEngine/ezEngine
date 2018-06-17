@@ -59,6 +59,7 @@ protected:
   // Game Mode
 public:
   void SwitchToGameMode(RtsActiveGameMode mode);
+  RtsActiveGameMode GetActiveGameMode() const { return m_GameModeToSwitchTo; }
 
 private:
   void ActivateQueuedGameMode();

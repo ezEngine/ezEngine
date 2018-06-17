@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+// Blank line to prevent Clang format from reordering this
 #include <Core/Input/InputManager.h>
 
 ezInputManager::ezEventInput ezInputManager::s_InputEvents;
@@ -31,7 +32,6 @@ void ezInputManager::RegisterInputSlot(const char* szInputSlot, const char* szDe
 {
   ezMap<ezString, ezInputSlot>::Iterator it = GetInternals().s_InputSlots.Find(szInputSlot);
 
-
   if (it.IsValid())
   {
     if (it.Value().m_SlotFlags != SlotFlags)
@@ -50,7 +50,6 @@ void ezInputManager::RegisterInputSlot(const char* szInputSlot, const char* szDe
     if (it.Value().m_sDisplayName != it.Key())
       return;
   }
-
 
   //ezLog::Debug("Registered Input Slot: '{0}'", szInputSlot);
 
@@ -99,6 +98,27 @@ const char* ezInputManager::GetInputSlotDisplayName(const char* szInputSlot)
 
   ezLog::Warning("ezInputManager::GetInputSlotDisplayName: Input Slot '{0}' does not exist (yet).", szInputSlot);
   return szInputSlot;
+}
+
+const char* ezInputManager::GetInputSlotDisplayName(const char* szInputSet, const char* szAction, ezInt32 iTrigger)
+{
+  /// \test This is new
+
+  const auto cfg = GetInputActionConfig(szInputSet, szAction);
+
+  if (iTrigger < 0)
+  {
+    for (iTrigger = 0; iTrigger < ezInputActionConfig::MaxInputSlotAlternatives; ++iTrigger)
+    {
+      if (!cfg.m_sInputSlotTrigger[iTrigger].IsEmpty())
+        break;
+    }
+  }
+
+  if (iTrigger >= ezInputActionConfig::MaxInputSlotAlternatives)
+    return nullptr;
+
+  return GetInputSlotDisplayName(cfg.m_sInputSlotTrigger[iTrigger]);
 }
 
 void ezInputManager::SetInputSlotDeadZone(const char* szInputSlot, float fDeadZone)
@@ -207,7 +227,7 @@ void ezInputManager::GatherDeviceInputSlotValues()
 
   ezMap<ezString, float>::Iterator it = GetInternals().s_InjectedInputSlots.GetIterator();
 
-  for ( ; it.IsValid(); ++it)
+  for (; it.IsValid(); ++it)
   {
     ezInputManager::ezInputSlot& Slot = GetInternals().s_InputSlots[it.Key()];
 
@@ -283,7 +303,6 @@ const char* ezInputManager::GetPressedInputSlot(ezInputSlotFlags::Enum MustHaveF
 
   return ezInputSlot_None;
 }
-
 
 const char* ezInputManager::GetInputSlotTouchPoint(unsigned int index)
 {
@@ -375,10 +394,4 @@ const char* ezInputManager::GetInputSlotTouchPointPositionY(unsigned int index)
   }
 }
 
-
-
-
-
-
 EZ_STATICLINK_FILE(Core, Core_Input_Implementation_InputManager);
-

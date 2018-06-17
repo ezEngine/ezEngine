@@ -15,6 +15,7 @@ void RtsMainMenuMode::OnDeactivateMode()
 
 void RtsMainMenuMode::OnBeforeWorldUpdate()
 {
+  DisplaySelectModeUI();
 }
 
 void RtsMainMenuMode::OnProcessInput(const RtsMouseInputState& MouseInput)

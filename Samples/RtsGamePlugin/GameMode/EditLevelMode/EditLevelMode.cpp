@@ -1,7 +1,16 @@
 #include <PCH.h>
+#include <RendererCore/Messages/SetColorMessage.h>
 #include <RtsGamePlugin/GameMode/EditLevelMode/EditLevelMode.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
-#include <RendererCore/Messages/SetColorMessage.h>
+
+const char* g_BuildItemTypes[] =
+    {
+        "FederationShip1",
+        "FederationShip2",
+        "KlingonShip1",
+        "KlingonShip2",
+        "KlingonShip3",
+};
 
 RtsEditLevelMode::RtsEditLevelMode() = default;
 RtsEditLevelMode::~RtsEditLevelMode() = default;
@@ -16,7 +25,38 @@ void RtsEditLevelMode::OnDeactivateMode()
 
 void RtsEditLevelMode::OnBeforeWorldUpdate()
 {
+  DisplaySelectModeUI();
+  DisplayEditUI();
+
   m_pGameState->RenderUnitSelection();
+}
+
+void RtsEditLevelMode::DisplayEditUI()
+{
+  const ezSizeU32 resolution = ezImgui::GetSingleton()->GetCurrentWindowResolution();
+
+  const float ww = 200;
+
+  ImGui::SetNextWindowPos(ImVec2((float)resolution.width - ww - 10, 10));
+  ImGui::SetNextWindowSize(ImVec2(ww, 150));
+  ImGui::Begin("Edit Level", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
+
+  int iTeam = m_uiTeam;
+  if (ImGui::Combo("Team", &iTeam, "Red\0Green\0Blue\0Yellow\0\0", 4))
+  {
+    m_uiTeam = iTeam;
+  }
+
+  if (ImGui::Combo("Build", &m_iShipType, g_BuildItemTypes, EZ_ARRAY_SIZE(g_BuildItemTypes)))
+  {
+
+  }
+
+  ImGui::Text("Select: %s", ezInputManager::GetInputSlotDisplayName(ezInputSlot_MouseButton0));
+  ImGui::Text("Create: %s", ezInputManager::GetInputSlotDisplayName("EditLevelMode", "PlaceObject"));
+  ImGui::Text("Remove: %s", ezInputManager::GetInputSlotDisplayName("EditLevelMode", "RemoveObject"));
+
+  ImGui::End();
 }
 
 void RtsEditLevelMode::RegisterInputActions()
@@ -30,24 +70,6 @@ void RtsEditLevelMode::RegisterInputActions()
 
     cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyDelete;
     ezInputManager::SetInputActionConfig("EditLevelMode", "RemoveObject", cfg, true);
-
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyNumpadPlus;
-    ezInputManager::SetInputActionConfig("EditLevelMode", "NextShipType", cfg, true);
-
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyNumpadMinus;
-    ezInputManager::SetInputActionConfig("EditLevelMode", "PrevShipType", cfg, true);
-
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_Key1;
-    ezInputManager::SetInputActionConfig("EditLevelMode", "Team0", cfg, true);
-
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_Key2;
-    ezInputManager::SetInputActionConfig("EditLevelMode", "Team1", cfg, true);
-
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_Key3;
-    ezInputManager::SetInputActionConfig("EditLevelMode", "Team2", cfg, true);
-
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_Key4;
-    ezInputManager::SetInputActionConfig("EditLevelMode", "Team3", cfg, true);
   }
 }
 
@@ -63,74 +85,14 @@ void RtsEditLevelMode::OnProcessInput(const RtsMouseInputState& MouseInput)
   {
     ezGameObject* pSpawned = nullptr;
 
-    switch (m_iShipType)
-    {
-    case 0:
-      pSpawned = m_pGameState->SpawnNamedObjectAt(ezTransform(vPickedGroundPlanePos, ezQuat::IdentityQuaternion()), "FederationShip1", m_uiTeam);
-      break;
-    case 1:
-      pSpawned = m_pGameState->SpawnNamedObjectAt(ezTransform(vPickedGroundPlanePos, ezQuat::IdentityQuaternion()), "FederationShip2", m_uiTeam);
-      break;
-    case 2:
-      pSpawned = m_pGameState->SpawnNamedObjectAt(ezTransform(vPickedGroundPlanePos, ezQuat::IdentityQuaternion()), "KlingonShip1", m_uiTeam);
-      break;
-    case 3:
-      pSpawned = m_pGameState->SpawnNamedObjectAt(ezTransform(vPickedGroundPlanePos, ezQuat::IdentityQuaternion()), "KlingonShip2", m_uiTeam);
-      break;
-    case 4:
-      pSpawned = m_pGameState->SpawnNamedObjectAt(ezTransform(vPickedGroundPlanePos, ezQuat::IdentityQuaternion()), "KlingonShip3", m_uiTeam);
-      break;
-    }
+    pSpawned = m_pGameState->SpawnNamedObjectAt(ezTransform(vPickedGroundPlanePos, ezQuat::IdentityQuaternion()), g_BuildItemTypes[m_iShipType], m_uiTeam);
 
     ezMsgSetColor msg;
-
-    switch (m_uiTeam)
-    {
-    case 0:
-      msg.m_Color = ezColorGammaUB(255, 0, 0);
-      break;
-    case 1:
-      msg.m_Color = ezColorGammaUB(0, 255, 0);
-      break;
-    case 2:
-      msg.m_Color = ezColorGammaUB(0, 0, 255);
-      break;
-    case 3:
-      msg.m_Color = ezColorGammaUB(255, 255, 0);
-      break;
-    }
+    msg.m_Color = RtsGameMode::GetTeamColor(m_uiTeam);
 
     pSpawned->PostMessageRecursive(msg, ezObjectMsgQueueType::AfterInitialized);
 
     return;
-  }
-
-  if (ezInputManager::GetInputActionState("EditLevelMode", "Team0") == ezKeyState::Pressed)
-  {
-    m_uiTeam = 0;
-  }
-  if (ezInputManager::GetInputActionState("EditLevelMode", "Team1") == ezKeyState::Pressed)
-  {
-    m_uiTeam = 1;
-  }
-  if (ezInputManager::GetInputActionState("EditLevelMode", "Team2") == ezKeyState::Pressed)
-  {
-    m_uiTeam = 2;
-  }
-  if (ezInputManager::GetInputActionState("EditLevelMode", "Team3") == ezKeyState::Pressed)
-  {
-    m_uiTeam = 3;
-  }
-
-
-  if (ezInputManager::GetInputActionState("EditLevelMode", "NextShipType") == ezKeyState::Pressed)
-  {
-    m_iShipType = ezMath::Clamp(m_iShipType + 1, 0, 4);
-  }
-
-  if (ezInputManager::GetInputActionState("EditLevelMode", "PrevShipType") == ezKeyState::Pressed)
-  {
-    m_iShipType = ezMath::Clamp(m_iShipType - 1, 0, 4);
   }
 
   auto& unitSelection = m_pGameState->m_SelectedUnits;
@@ -151,4 +113,3 @@ void RtsEditLevelMode::OnProcessInput(const RtsMouseInputState& MouseInput)
     m_pGameState->SelectUnits();
   }
 }
-
