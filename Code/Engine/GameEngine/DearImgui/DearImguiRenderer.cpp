@@ -27,7 +27,7 @@ void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ez
   ezExtractedRenderData* pExtractedRenderData)
 {
   // ignore ImGui as long as it hasn't been used
-  if (!ImGui::GetCurrentContext()->Initialized)
+  if (ImGui::GetCurrentContext() == nullptr || !ImGui::GetCurrentContext()->Initialized)
     return;
 
   ImGui::Render();

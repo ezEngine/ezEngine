@@ -25,8 +25,8 @@
 
 // No support for clipboard functions in UWP, need to port first. (a great opportunity to support this project!)
 #if WINAPI_FAMILY==WINAPI_FAMILY_APP
-#define IMGUI_DISABLE_WIN32_DEFAULT_CLIPBOARD_FUNCS
-#define IMGUI_DISABLE_WIN32_DEFAULT_IME_FUNCS
+#define IMGUI_DISABLE_WIN32_DEFAULT_CLIPBOARD_FUNCTIONS
+#define IMGUI_DISABLE_WIN32_DEFAULT_IME_FUNCTIONS
 #endif
 
 #endif
