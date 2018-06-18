@@ -32,3 +32,14 @@ struct RtsMsgUnitHealthStatus : public ezMessage
   ezUInt16 m_uiMaxHealth;
   ezInt16 m_iDifference;
 };
+
+/// Used to query the health/shields status for display
+struct RtsMsgGatherUnitStats : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(RtsMsgGatherUnitStats, ezMessage);
+
+  ezUInt16 m_uiCurHealth = 0;
+  ezUInt16 m_uiMaxHealth = 0;
+  ezUInt16 m_uiCurShields = 0;
+  ezUInt16 m_uiMaxShields = 0;
+};

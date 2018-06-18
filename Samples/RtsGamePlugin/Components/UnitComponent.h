@@ -52,6 +52,7 @@ private:
   void OnMsgNavigateTo(RtsMsgNavigateTo& msg);
   void OnMsgSetTarget(RtsMsgSetTarget& msg);
   void OnMsgApplyDamage(RtsMsgApplyDamage& msg);
+  void OnMsgGatherUnitStats(RtsMsgGatherUnitStats& msg);
 
 public:
   //////////////////////////////////////////////////////////////////////////

@@ -1,4 +1,6 @@
 #include <PCH.h>
+
+#include <RtsGamePlugin/Components/ComponentMessages.h>
 #include <RtsGamePlugin/Components/SelectableComponent.h>
 #include <RtsGamePlugin/GameMode/GameMode.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
@@ -241,12 +243,16 @@ void RtsGameState::RenderUnitSelection() const
     if (!pObject->TryGetComponentOfBaseType(pSelectable))
       continue;
 
+    const float fRadius = pSelectable->m_fSelectionRadius * 1.1f;
+
     ezTransform t = pObject->GetGlobalTransform();
     t.m_vScale.Set(1.0f);
     t.m_qRotation.SetIdentity();
 
-    bbox.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(pSelectable->m_fSelectionRadius, pSelectable->m_fSelectionRadius, 0));
+    bbox.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(fRadius, fRadius, 0));
     ezDebugRenderer::DrawLineBoxCorners(m_pMainWorld, bbox, 0.1f, ezColor::White, t);
+
+    RenderUnitHealthbar(pObject, fRadius);
   }
 
   // hovered unit
@@ -257,15 +263,46 @@ void RtsGameState::RenderUnitSelection() const
       RtsSelectableComponent* pSelectable;
       if (pObject->TryGetComponentOfBaseType(pSelectable))
       {
+        const float fRadius = pSelectable->m_fSelectionRadius * 1.1f;
 
         ezTransform t = pObject->GetGlobalTransform();
         t.m_vScale.Set(1.0f);
         t.m_qRotation.SetIdentity();
 
-        bbox.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(pSelectable->m_fSelectionRadius, pSelectable->m_fSelectionRadius, 0));
+        bbox.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(fRadius, fRadius, 0));
         ezDebugRenderer::DrawLineBoxCorners(m_pMainWorld, bbox, 0.1f, ezColor::DodgerBlue, t);
+
+        RenderUnitHealthbar(pObject, fRadius);
       }
     }
+  }
+}
+
+void RtsGameState::RenderUnitHealthbar(ezGameObject* pObject, float fSelectableRadius) const
+{
+  RtsMsgGatherUnitStats msgStats;
+  pObject->SendMessageRecursive(msgStats);
+
+  if (msgStats.m_uiMaxHealth > 0)
+  {
+    const float percentage = msgStats.m_uiCurHealth / (float)msgStats.m_uiMaxHealth;
+    const float fOffset = 0.01f;
+
+    ezVec3 pos = pObject->GetGlobalPosition();
+    pos.x += fSelectableRadius - 0.04f - fOffset;
+
+    ezColor c = ezColor::Lime;
+
+    if (percentage < 0.3f)
+      c = ezColor::Red;
+    else if (percentage < 0.6f)
+      c = ezColor::Orange;
+    else if (percentage < 0.8f)
+      c = ezColor::Yellow;
+
+    ezBoundingBox bbox;
+    bbox.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(0.04f, fSelectableRadius * percentage - fOffset, 0));
+    ezDebugRenderer::DrawSolidBox(m_pMainWorld, bbox, c, ezTransform(pos));
   }
 }
 

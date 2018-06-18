@@ -1,9 +1,9 @@
 #pragma once
 
-#include <RtsGamePlugin/RtsGamePlugin.h>
-#include <RtsGamePlugin/GameMode/MainMenuMode/MainMenuMode.h>
 #include <RtsGamePlugin/GameMode/BattleMode/BattleMode.h>
 #include <RtsGamePlugin/GameMode/EditLevelMode/EditLevelMode.h>
+#include <RtsGamePlugin/GameMode/MainMenuMode/MainMenuMode.h>
+#include <RtsGamePlugin/RtsGamePlugin.h>
 
 class RtsGameMode;
 typedef ezTypedResourceHandle<class ezCollectionResource> ezCollectionResourceHandle;
@@ -99,7 +99,7 @@ private:
   //////////////////////////////////////////////////////////////////////////
   // Spawning Objects
 public:
-  ezGameObject * SpawnNamedObjectAt(const ezTransform& transform, const char* szObjectName, ezUInt16 uiTeamID);
+  ezGameObject* SpawnNamedObjectAt(const ezTransform& transform, const char* szObjectName, ezUInt16 uiTeamID);
 
   //////////////////////////////////////////////////////////////////////////
   // Units
@@ -107,6 +107,7 @@ public:
   ezGameObject* DetectHoveredSelectable();
   void SelectUnits();
   void RenderUnitSelection() const;
+  void RenderUnitHealthbar(ezGameObject* pObject, float fSelectableRadius) const;
 
   ezGameObjectHandle m_hHoveredSelectable;
   ezObjectSelection m_SelectedUnits;

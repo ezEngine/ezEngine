@@ -1,5 +1,5 @@
 #include <PCH.h>
-// Blank line to prevent Clang format from reordering this
+
 #include <Foundation/Utilities/Stats.h>
 #include <RtsGamePlugin/Components/UnitComponent.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
@@ -20,6 +20,7 @@ EZ_BEGIN_COMPONENT_TYPE(RtsUnitComponent, 2, ezComponentMode::Dynamic)
     EZ_MESSAGE_HANDLER(RtsMsgSetTarget, OnMsgSetTarget),
     EZ_MESSAGE_HANDLER(RtsMsgNavigateTo, OnMsgNavigateTo),
     EZ_MESSAGE_HANDLER(RtsMsgApplyDamage, OnMsgApplyDamage),
+    EZ_MESSAGE_HANDLER(RtsMsgGatherUnitStats, OnMsgGatherUnitStats),
   }
   EZ_END_MESSAGEHANDLERS
 
@@ -104,6 +105,12 @@ void RtsUnitComponent::OnMsgApplyDamage(RtsMsgApplyDamage& msg)
   {
     OnUnitDestroyed();
   }
+}
+
+void RtsUnitComponent::OnMsgGatherUnitStats(RtsMsgGatherUnitStats& msg)
+{
+  msg.m_uiCurHealth = m_uiCurHealth;
+  msg.m_uiMaxHealth = m_uiMaxHealth;
 }
 
 void RtsUnitComponent::OnUnitDestroyed()
