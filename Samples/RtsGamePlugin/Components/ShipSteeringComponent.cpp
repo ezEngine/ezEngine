@@ -152,7 +152,7 @@ void RtsShipSteeringComponentManager::Initialize()
 
 void RtsShipSteeringComponentManager::SteeringUpdate(const ezWorldModule::UpdateContext& context)
 {
-  if (RtsGameState::GetSingleton()->GetActiveGameMode() != RtsActiveGameMode::BattleMode)
+  if (RtsGameState::GetSingleton() == nullptr || RtsGameState::GetSingleton()->GetActiveGameMode() != RtsActiveGameMode::BattleMode)
     return;
 
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)

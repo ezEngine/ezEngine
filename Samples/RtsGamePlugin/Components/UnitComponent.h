@@ -33,20 +33,33 @@ public:
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
   // Properties
 public:
+  ezUInt16 m_uiMaxHealth = 100;
+  ezUInt16 m_uiCurHealth = 0;
+
+  void SetOnDestroyedPrefab(const char* szPrefab);
+  const char* GetOnDestroyedPrefab() const;
+
+private:
+  ezPrefabResourceHandle m_hOnDestroyedPrefab;
+
   //////////////////////////////////////////////////////////////////////////
   // Message Handlers
   void OnMsgNavigateTo(RtsMsgNavigateTo& msg);
   void OnMsgSetTarget(RtsMsgSetTarget& msg);
+  void OnMsgApplyDamage(RtsMsgApplyDamage& msg);
 
 public:
   //////////////////////////////////////////////////////////////////////////
   //
 
 protected:
+  virtual void OnUnitDestroyed();
+
   RtsUnitMode m_UnitMode;
   ezTime m_TimeLastShot;
   ezGameObjectHandle m_hShootAtUnit;

@@ -1,5 +1,5 @@
 #include <PCH.h>
-// Blank line to prevent Clang format from reordering this
+
 #include <RtsGamePlugin/Components/ComponentMessages.h>
 #include <RtsGamePlugin/Components/TorpedoComponent.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
@@ -10,6 +10,7 @@ EZ_BEGIN_COMPONENT_TYPE(RtsTorpedoComponent, 1, ezComponentMode::Dynamic)
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(10.0f)),
+    EZ_MEMBER_PROPERTY("Damage", m_iDamage)->AddAttributes(new ezDefaultValueAttribute(10)),
   }
   EZ_END_PROPERTIES
 
@@ -28,7 +29,11 @@ EZ_BEGIN_COMPONENT_TYPE(RtsTorpedoComponent, 1, ezComponentMode::Dynamic)
 EZ_END_COMPONENT_TYPE;
 // clang-format on
 
-RtsTorpedoComponent::RtsTorpedoComponent() = default;
+RtsTorpedoComponent::RtsTorpedoComponent()
+{
+  m_vTargetPosition.SetZero();
+}
+
 RtsTorpedoComponent::~RtsTorpedoComponent() = default;
 
 void RtsTorpedoComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -38,6 +43,7 @@ void RtsTorpedoComponent::SerializeComponent(ezWorldWriter& stream) const
   auto& s = stream.GetStream();
 
   s << m_fSpeed;
+  s << m_iDamage;
 }
 
 void RtsTorpedoComponent::DeserializeComponent(ezWorldReader& stream)
@@ -48,6 +54,7 @@ void RtsTorpedoComponent::DeserializeComponent(ezWorldReader& stream)
   auto& s = stream.GetStream();
 
   s >> m_fSpeed;
+  s >> m_iDamage;
 }
 
 void RtsTorpedoComponent::OnMsgSetTarget(RtsMsgSetTarget& msg)
@@ -59,7 +66,7 @@ void RtsTorpedoComponent::OnMsgSetTarget(RtsMsgSetTarget& msg)
 void RtsTorpedoComponent::Update()
 {
   // TODO: do this check in the component manager
-  if (RtsGameState::GetSingleton()->GetActiveGameMode() != RtsActiveGameMode::BattleMode)
+  if (RtsGameState::GetSingleton() == nullptr || RtsGameState::GetSingleton()->GetActiveGameMode() != RtsActiveGameMode::BattleMode)
     return;
 
   ezGameObject* pObject = nullptr;
@@ -99,6 +106,14 @@ void RtsTorpedoComponent::Update()
 
   if (bExplode)
   {
+    RtsMsgApplyDamage msg;
+    msg.m_iDamage = m_iDamage;
+
+    if (!m_hTargetObject.IsInvalidated())
+    {
+      GetWorld()->SendMessage(m_hTargetObject, msg);
+    }
+
     GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
   }
 }

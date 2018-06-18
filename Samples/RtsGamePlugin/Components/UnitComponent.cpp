@@ -5,17 +5,21 @@
 #include <RtsGamePlugin/GameState/RtsGameState.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(RtsUnitComponent, 1, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(RtsUnitComponent, 2, ezComponentMode::Dynamic)
 {
-  //EZ_BEGIN_PROPERTIES
-  //{
-  //}
-  //EZ_END_PROPERTIES
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("MaxHealth", m_uiMaxHealth)->AddAttributes(new ezDefaultValueAttribute(100)),
+    EZ_MEMBER_PROPERTY("CurHealth", m_uiCurHealth),
+    EZ_ACCESSOR_PROPERTY("OnDestroyedPrefab", GetOnDestroyedPrefab, SetOnDestroyedPrefab)->AddAttributes(new ezAssetBrowserAttribute("Prefab")),
+  }
+  EZ_END_PROPERTIES
 
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(RtsMsgSetTarget, OnMsgSetTarget),
     EZ_MESSAGE_HANDLER(RtsMsgNavigateTo, OnMsgNavigateTo),
+    EZ_MESSAGE_HANDLER(RtsMsgApplyDamage, OnMsgApplyDamage),
   }
   EZ_END_MESSAGEHANDLERS
 
@@ -35,6 +39,10 @@ void RtsUnitComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
   auto& s = stream.GetStream();
+
+  s << m_uiMaxHealth;
+  s << m_uiCurHealth;
+  s << m_hOnDestroyedPrefab;
 }
 
 void RtsUnitComponent::DeserializeComponent(ezWorldReader& stream)
@@ -42,6 +50,14 @@ void RtsUnitComponent::DeserializeComponent(ezWorldReader& stream)
   SUPER::DeserializeComponent(stream);
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
+
+  s >> m_uiMaxHealth;
+  s >> m_uiCurHealth;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_hOnDestroyedPrefab;
+  }
 }
 
 void RtsUnitComponent::OnMsgNavigateTo(RtsMsgNavigateTo& msg)
@@ -58,6 +74,48 @@ void RtsUnitComponent::OnMsgSetTarget(RtsMsgSetTarget& msg)
     m_UnitMode = RtsUnitMode::ShootAtUnit;
   else
     m_UnitMode = RtsUnitMode::ShootAtPosition;
+}
+
+void RtsUnitComponent::OnMsgApplyDamage(RtsMsgApplyDamage& msg)
+{
+  ezInt32 lastHealth = m_uiCurHealth;
+
+  if (msg.m_iDamage >= m_uiCurHealth)
+  {
+    m_uiCurHealth = 0;
+  }
+  else
+  {
+    m_uiCurHealth -= (ezInt16)msg.m_iDamage;
+  }
+
+  // in case damage was negative
+  m_uiCurHealth = ezMath::Min(m_uiCurHealth, m_uiMaxHealth);
+
+  RtsMsgUnitHealthStatus msg2;
+  msg2.m_uiCurHealth = m_uiCurHealth;
+  msg2.m_uiMaxHealth = m_uiMaxHealth;
+  msg2.m_iDifference = (m_uiCurHealth - lastHealth);
+
+  // theoretically the sub-systems could give us a health boost (or additional damage) here
+  GetOwner()->SendMessageRecursive(msg2);
+
+  if (m_uiCurHealth == 0)
+  {
+    OnUnitDestroyed();
+  }
+}
+
+void RtsUnitComponent::OnUnitDestroyed()
+{
+  if (m_hOnDestroyedPrefab.IsValid())
+  {
+    ezResourceLock<ezPrefabResource> pPrefab(m_hOnDestroyedPrefab);
+
+    pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(), nullptr);
+  }
+
+  GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
 }
 
 void RtsUnitComponent::UpdateUnit()
@@ -96,6 +154,37 @@ void RtsUnitComponent::UpdateUnit()
   }
 }
 
+void RtsUnitComponent::OnSimulationStarted()
+{
+  SUPER::OnSimulationStarted();
+
+  // 0 means 'whatever max Health is set to'
+  if (m_uiCurHealth == 0)
+    m_uiCurHealth = m_uiMaxHealth;
+
+  m_uiCurHealth = ezMath::Min(m_uiCurHealth, m_uiMaxHealth);
+}
+
+void RtsUnitComponent::SetOnDestroyedPrefab(const char* szPrefab)
+{
+  ezPrefabResourceHandle hPrefab;
+
+  if (!ezStringUtils::IsNullOrEmpty(szPrefab))
+  {
+    hPrefab = ezResourceManager::LoadResource<ezPrefabResource>(szPrefab);
+  }
+
+  m_hOnDestroyedPrefab = hPrefab;
+}
+
+const char* RtsUnitComponent::GetOnDestroyedPrefab() const
+{
+  if (!m_hOnDestroyedPrefab.IsValid())
+    return "";
+
+  return m_hOnDestroyedPrefab.GetResourceID();
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 RtsUnitComponentManager::RtsUnitComponentManager(ezWorld* pWorld)
@@ -117,7 +206,7 @@ void RtsUnitComponentManager::Initialize()
 
 void RtsUnitComponentManager::UnitUpdate(const ezWorldModule::UpdateContext& context)
 {
-  if (RtsGameState::GetSingleton()->GetActiveGameMode() != RtsActiveGameMode::BattleMode)
+  if (RtsGameState::GetSingleton() == nullptr || RtsGameState::GetSingleton()->GetActiveGameMode() != RtsActiveGameMode::BattleMode)
     return;
 
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)

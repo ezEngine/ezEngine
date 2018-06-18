@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9337215893643593608,4658919788212868328}}
-		u4 %Hash{13230173237942411600}
+		u4 %Hash{5549141768269060464}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{5612189056723162450,2852183780386057051}}
@@ -29,6 +29,7 @@ o
 		VarArray %Outputs{}
 		VarArray %References
 		{
+			s{"{ 5831c751-48e7-4828-a4a4-c00b2f0e1348 }"}
 			s{"{ 66eac2eb-5265-4ffe-88f6-1bf98fd85300 }"}
 			s{"{ ad417552-5eb2-4bec-81d8-3960872cd7db }"}
 		}
@@ -120,10 +121,13 @@ o
 {
 	Uuid %id{u4{4903017258194341006,5455191515960298238}}
 	s %t{"RtsUnitComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
+		u2 %CurHealth{0}
+		u2 %MaxHealth{100}
+		s %OnDestroyedPrefab{"{ 5831c751-48e7-4828-a4a4-c00b2f0e1348 }"}
 	}
 }
 o
@@ -221,6 +225,16 @@ o
 }
 o
 {
+	Uuid %id{u4{9502875788885190933,1271168460035455960}}
+	s %t{"ezAssetBrowserAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Filter{";Prefab;"}
+	}
+}
+o
+{
 	Uuid %id{u4{16458084052912754161,1607340067840664256}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -244,6 +258,23 @@ o
 		s %TypeName{"RtsShipSteeringComponent"}
 		u3 %TypeSize{80}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{10590362479667583969,2077634883847044996}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{3398373197440636434,13345979733966239498}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"MaxHealth"}
+		s %Type{"ezUInt16"}
 	}
 }
 o
@@ -297,10 +328,15 @@ o
 		VarArray %Functions{}
 		s %ParentTypeName{"ezComponent"}
 		s %PluginName{"ezRtsGamePlugin"}
-		VarArray %Properties{}
+		VarArray %Properties
+		{
+			Uuid{u4{10590362479667583969,2077634883847044996}}
+			Uuid{u4{10841268206468098319,13196507506563816522}}
+			Uuid{u4{16694865071112138468,8449567683625813074}}
+		}
 		s %TypeName{"RtsUnitComponent"}
-		u3 %TypeSize{80}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{96}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -426,6 +462,23 @@ o
 }
 o
 {
+	Uuid %id{u4{16694865071112138468,8449567683625813074}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{9502875788885190933,1271168460035455960}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Const|ezPropertyFlags::Phantom"}
+		s %Name{"OnDestroyedPrefab"}
+		s %Type{"ezConstCharPtr"}
+	}
+}
+o
+{
 	Uuid %id{u4{6089094783765586323,8705960867921430659}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -514,6 +567,30 @@ o
 	p
 	{
 		s %Category{"RTS Sample"}
+	}
+}
+o
+{
+	Uuid %id{u4{10841268206468098319,13196507506563816522}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"CurHealth"}
+		s %Type{"ezUInt16"}
+	}
+}
+o
+{
+	Uuid %id{u4{3398373197440636434,13345979733966239498}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		i3 %Value{100}
 	}
 }
 o

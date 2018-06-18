@@ -110,6 +110,16 @@ void RtsGameState::BeforeWorldUpdate()
   {
     m_pActiveGameMode->BeforeWorldUpdate();
   }
+
+  // update the sound listener position to be the same as the camera position
+  if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>("ezSoundInterface"))
+  {
+    const ezVec3 pos = m_MainCamera.GetCenterPosition();
+    const ezVec3 dir = m_MainCamera.GetCenterDirForwards();
+    const ezVec3 up = m_MainCamera.GetCenterDirUp();
+
+    pSoundInterface->SetListener(0, pos, dir, up, ezVec3::ZeroVector());
+  }
 }
 
 void RtsGameState::ActivateQueuedGameMode()
