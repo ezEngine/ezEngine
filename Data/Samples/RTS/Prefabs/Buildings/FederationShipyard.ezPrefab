@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8884069562381893537,5133694489471110196}}
-		u4 %Hash{5402025201973272811}
+		u4 %Hash{15921040880967949309}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{5159042725461462379,3326958481644298919}}
@@ -31,8 +31,8 @@ o
 		{
 			s{"{ 0e0577a6-1af7-4b8a-809e-7b124432bd76 }"}
 			s{"{ 66eac2eb-5265-4ffe-88f6-1bf98fd85300 }"}
+			s{"{ 873e3738-dc4d-40b0-93e8-236c2dd3165d }"}
 			s{"{ a7436951-20d5-4151-8614-527b836d089b }"}
-			s{"{ b50c8311-adec-4282-9476-5e9ea1ca4b79 }"}
 			s{"{ c7199d47-7252-4516-80ed-ff340bace24c }"}
 			s{"{ f78d56a7-c36c-4c44-bcc2-4cf619cecbe9 }"}
 		}
@@ -230,7 +230,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
-			s{"{ b50c8311-adec-4282-9476-5e9ea1ca4b79 }"}
+			s{"{ 873e3738-dc4d-40b0-93e8-236c2dd3165d }"}
 		}
 		s %Mesh{"{ 0e0577a6-1af7-4b8a-809e-7b124432bd76 }"}
 	}
@@ -313,7 +313,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
-			s{"{ b50c8311-adec-4282-9476-5e9ea1ca4b79 }"}
+			s{"{ 873e3738-dc4d-40b0-93e8-236c2dd3165d }"}
 		}
 		s %Mesh{"{ 66eac2eb-5265-4ffe-88f6-1bf98fd85300 }"}
 	}
@@ -461,7 +461,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
-			s{"{ b50c8311-adec-4282-9476-5e9ea1ca4b79 }"}
+			s{"{ 873e3738-dc4d-40b0-93e8-236c2dd3165d }"}
 		}
 		s %Mesh{"{ 66eac2eb-5265-4ffe-88f6-1bf98fd85300 }"}
 	}
@@ -514,7 +514,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
-			s{"{ b50c8311-adec-4282-9476-5e9ea1ca4b79 }"}
+			s{"{ 873e3738-dc4d-40b0-93e8-236c2dd3165d }"}
 		}
 		s %Mesh{"{ 66eac2eb-5265-4ffe-88f6-1bf98fd85300 }"}
 	}

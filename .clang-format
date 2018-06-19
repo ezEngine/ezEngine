@@ -10,3 +10,4 @@ AccessModifierOffset: -2
 PointerAlignment: Left
 IndentCaseLabels: false
 AllowShortFunctionsOnASingleLine: true
+MaxEmptyLinesToKeep: 3

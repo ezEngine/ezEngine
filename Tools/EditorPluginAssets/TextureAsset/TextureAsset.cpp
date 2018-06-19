@@ -1,18 +1,19 @@
 #include <PCH.h>
-#include <EditorPluginAssets/TextureAsset/TextureAsset.h>
-#include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
-#include <EditorPluginAssets/TextureAsset/TextureAssetManager.h>
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
+
+#include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorPluginAssets/TextureAsset/TextureAsset.h>
+#include <EditorPluginAssets/TextureAsset/TextureAssetManager.h>
+#include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/IO/OSFile.h>
 #include <Foundation/Image/Formats/DdsFileFormat.h>
 #include <Foundation/Image/ImageConversion.h>
-#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
-#include <Core/Assets/AssetFileHeader.h>
 #include <QStringList>
 #include <QTextStream>
-#include <Foundation/IO/OSFile.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocument, 5, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
@@ -22,7 +23,7 @@ EZ_ENUM_CONSTANTS(ezTextureChannelMode::RGB, ezTextureChannelMode::Red, ezTextur
 EZ_END_STATIC_REFLECTED_ENUM()
 
 ezTextureAssetDocument::ezTextureAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezTextureAssetProperties>(szDocumentPath, true)
+    : ezSimpleAssetDocument<ezTextureAssetProperties>(szDocumentPath, true)
 {
   m_iTextureLod = -1;
 }
@@ -122,75 +123,83 @@ ezStatus ezTextureAssetDocument::RunTexConv(const char* szTargetFile, const ezAs
   switch (pProp->GetChannelMapping())
   {
   case ezTexture2DChannelMappingEnum::R1:
-    {
-      arguments << "-r";
-      arguments << "in0.r"; // always linear
-    }
-    break;
+  {
+    arguments << "-r";
+    arguments << "in0.r"; // always linear
+  }
+  break;
+
   case ezTexture2DChannelMappingEnum::RG1:
-    {
-      arguments << "-rg";
-      arguments << "in0.rg"; // always linear
-    }
-    break;
+  {
+    arguments << "-rg";
+    arguments << "in0.rg"; // always linear
+  }
+  break;
+
   case ezTexture2DChannelMappingEnum::R1_G2:
-    {
-      arguments << "-r";
-      arguments << "in0.r";
-      arguments << "-g";
-      arguments << "in1.y"; // always linear
-    }
-    break;
+  {
+    arguments << "-r";
+    arguments << "in0.r";
+    arguments << "-g";
+    arguments << "in1.y"; // always linear
+  }
+  break;
+
   case ezTexture2DChannelMappingEnum::RGB1:
-    {
-      arguments << "-rgb";
-      arguments << "in0.rgb";
-    }
-    break;
+  {
+    arguments << "-rgb";
+    arguments << "in0.rgb";
+  }
+  break;
+
   case ezTexture2DChannelMappingEnum::RGB1_ABLACK:
-    {
-      arguments << "-rgb";
-      arguments << "in0.rgb";
-      arguments << "-a";
-      arguments << "black";
-    }
-    break;
+  {
+    arguments << "-rgb";
+    arguments << "in0.rgb";
+    arguments << "-a";
+    arguments << "black";
+  }
+  break;
+
   case ezTexture2DChannelMappingEnum::R1_G2_B3:
-    {
-      arguments << "-r";
-      arguments << "in0.r";
-      arguments << "-g";
-      arguments << "in1.r";
-      arguments << "-b";
-      arguments << "in2.r";
-    }
-    break;
+  {
+    arguments << "-r";
+    arguments << "in0.r";
+    arguments << "-g";
+    arguments << "in1.r";
+    arguments << "-b";
+    arguments << "in2.r";
+  }
+  break;
+
   case ezTexture2DChannelMappingEnum::RGBA1:
-    {
-      arguments << "-rgba";
-      arguments << "in0.rgba";
-    }
-    break;
+  {
+    arguments << "-rgba";
+    arguments << "in0.rgba";
+  }
+  break;
+
   case ezTexture2DChannelMappingEnum::RGB1_A2:
-    {
-      arguments << "-rgb";
-      arguments << "in0.rgb";
-      arguments << "-a";
-      arguments << "in1.r";
-    }
-    break;
+  {
+    arguments << "-rgb";
+    arguments << "in0.rgb";
+    arguments << "-a";
+    arguments << "in1.r";
+  }
+  break;
+
   case ezTexture2DChannelMappingEnum::R1_G2_B3_A4:
-    {
-      arguments << "-r";
-      arguments << "in0.r";
-      arguments << "-g";
-      arguments << "in1.r";
-      arguments << "-b";
-      arguments << "in2.r";
-      arguments << "-a";
-      arguments << "in3.r";
-    }
-    break;
+  {
+    arguments << "-r";
+    arguments << "in0.r";
+    arguments << "-g";
+    arguments << "in1.r";
+    arguments << "-b";
+    arguments << "in2.r";
+    arguments << "-a";
+    arguments << "in3.r";
+  }
+  break;
   }
 
   ezStringBuilder cmd;
@@ -370,10 +379,7 @@ ezTextureAssetDocumentGenerator::ezTextureAssetDocumentGenerator()
   AddSupportedFileType("png");
 }
 
-ezTextureAssetDocumentGenerator::~ezTextureAssetDocumentGenerator()
-{
-
-}
+ezTextureAssetDocumentGenerator::~ezTextureAssetDocumentGenerator() = default;
 
 void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
@@ -385,17 +391,24 @@ void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRela
   baseOutputFile.ChangeFileExtension(GetDocumentExtension());
 
   /// \todo make this configurable
-  const bool isNormalMap = !isHDR && (baseFilename.EndsWith_NoCase("_n") ||
-    baseFilename.EndsWith_NoCase("normal") || baseFilename.EndsWith_NoCase("normals") || baseFilename.EndsWith_NoCase("norm"));
+  const bool isNormalMap = !isHDR &&
+                           (baseFilename.EndsWith_NoCase("_n") ||
+                            baseFilename.EndsWith_NoCase("normal") ||
+                            baseFilename.EndsWith_NoCase("normals") ||
+                            baseFilename.EndsWith_NoCase("nrm") ||
+                            baseFilename.EndsWith_NoCase("norm"));
 
   const bool isLinear = !isHDR && !isNormalMap &&
-    (baseFilename.EndsWith_NoCase("_ao") ||
-      baseFilename.EndsWith_NoCase("_rough") ||
-      baseFilename.EndsWith_NoCase("roughness") ||
-      baseFilename.EndsWith_NoCase("_height") ||
-      baseFilename.EndsWith_NoCase("_alpha") ||
-      baseFilename.EndsWith_NoCase("_metal") ||
-      baseFilename.EndsWith_NoCase("metallic"));
+                        (baseFilename.EndsWith_NoCase("_ao") ||
+                         baseFilename.EndsWith_NoCase("_rough") ||
+                         baseFilename.EndsWith_NoCase("roughness") ||
+                         baseFilename.EndsWith_NoCase("_rgh") ||
+                         baseFilename.EndsWith_NoCase("_height") ||
+                         baseFilename.EndsWith_NoCase("_alpha") ||
+                         baseFilename.EndsWith_NoCase("_metal") ||
+                         baseFilename.EndsWith_NoCase("_met") ||
+                         baseFilename.EndsWith_NoCase("_disp") ||
+                         baseFilename.EndsWith_NoCase("metallic"));
 
   if (isHDR)
   {
@@ -406,7 +419,6 @@ void ezTextureAssetDocumentGenerator::GetImportModes(const char* szParentDirRela
       info.m_sOutputFileParentRelative = baseOutputFile;
       info.m_sIcon = ":/AssetIcons/Texture_2D.png";
     }
-
   }
   else
   {
@@ -471,7 +483,3 @@ ezStatus ezTextureAssetDocumentGenerator::Generate(const char* szDataDirRelative
 
   return ezStatus(EZ_SUCCESS);
 }
-
-
-
-
