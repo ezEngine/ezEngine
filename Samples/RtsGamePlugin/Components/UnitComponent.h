@@ -1,9 +1,9 @@
 #pragma once
 
+#include <RtsGamePlugin/AI/AiUtilitySystem.h>
 #include <RtsGamePlugin/Components/ComponentMessages.h>
-#include <RtsGamePlugin/RtsGamePlugin.h>
 
-class RtsUnitComponentManager : public ezComponentManager<class RtsUnitComponent, ezBlockStorageType::Compact>
+class RtsUnitComponentManager : public ezComponentManager<class RtsUnitComponent, ezBlockStorageType::FreeList>
 {
 public:
   RtsUnitComponentManager(ezWorld* pWorld);
@@ -17,7 +17,7 @@ enum class RtsUnitMode
 {
   Idle,
   ShootAtPosition,
-  ShootAtUnit,
+  AttackUnit,
 };
 
 class RtsUnitComponent : public ezComponent
@@ -49,7 +49,7 @@ private:
 
   //////////////////////////////////////////////////////////////////////////
   // Message Handlers
-  void OnMsgNavigateTo(RtsMsgNavigateTo& msg);
+  void OnMsgAssignPosition(RtsMsgAssignPosition& msg);
   void OnMsgSetTarget(RtsMsgSetTarget& msg);
   void OnMsgApplyDamage(RtsMsgApplyDamage& msg);
   void OnMsgGatherUnitStats(RtsMsgGatherUnitStats& msg);
@@ -61,10 +61,19 @@ public:
 protected:
   virtual void OnUnitDestroyed();
 
+  friend class RtsShootAtAiUtility;
+  friend class RtsHuntEnemyAiUtility;
+  friend class RtsMoveToPositionAiUtility;
+
   RtsUnitMode m_UnitMode;
+
+  ezVec2 m_vAssignedPosition;
+  ezVec2 m_vAssignedShootAtPosition;
+
+  ezGameObjectHandle m_hAssignedUnitToAttack;
+
   ezTime m_TimeLastShot;
-  ezGameObjectHandle m_hShootAtUnit;
-  ezVec2 m_vShootAtPosition;
+  ezUniquePtr<RtsAiUtilitySystem> m_pAiSystem; // has to be a pointer because RtsAiUtilitySystem isn't copyable 
 
   void UpdateUnit();
 };

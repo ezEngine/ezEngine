@@ -1,6 +1,9 @@
 #include <PCH.h>
 
 #include <Foundation/Utilities/Stats.h>
+#include <RtsGamePlugin/AI/HuntEnemyUtility.h>
+#include <RtsGamePlugin/AI/ShootAtUtility.h>
+#include <RtsGamePlugin/AI/MoveToPositionUtility.h>
 #include <RtsGamePlugin/Components/UnitComponent.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
 
@@ -18,7 +21,7 @@ EZ_BEGIN_COMPONENT_TYPE(RtsUnitComponent, 2, ezComponentMode::Dynamic)
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(RtsMsgSetTarget, OnMsgSetTarget),
-    EZ_MESSAGE_HANDLER(RtsMsgNavigateTo, OnMsgNavigateTo),
+    EZ_MESSAGE_HANDLER(RtsMsgAssignPosition, OnMsgAssignPosition),
     EZ_MESSAGE_HANDLER(RtsMsgApplyDamage, OnMsgApplyDamage),
     EZ_MESSAGE_HANDLER(RtsMsgGatherUnitStats, OnMsgGatherUnitStats),
   }
@@ -61,18 +64,19 @@ void RtsUnitComponent::DeserializeComponent(ezWorldReader& stream)
   }
 }
 
-void RtsUnitComponent::OnMsgNavigateTo(RtsMsgNavigateTo& msg)
+void RtsUnitComponent::OnMsgAssignPosition(RtsMsgAssignPosition& msg)
 {
   m_UnitMode = RtsUnitMode::Idle;
+  m_vAssignedPosition = msg.m_vTargetPosition;
 }
 
 void RtsUnitComponent::OnMsgSetTarget(RtsMsgSetTarget& msg)
 {
-  m_vShootAtPosition = msg.m_vPosition;
-  m_hShootAtUnit = msg.m_hObject;
+  m_vAssignedPosition = msg.m_vPosition;
+  m_hAssignedUnitToAttack = msg.m_hObject;
 
-  if (!m_hShootAtUnit.IsInvalidated())
-    m_UnitMode = RtsUnitMode::ShootAtUnit;
+  if (!m_hAssignedUnitToAttack.IsInvalidated())
+    m_UnitMode = RtsUnitMode::AttackUnit;
   else
     m_UnitMode = RtsUnitMode::ShootAtPosition;
 }
@@ -129,36 +133,8 @@ void RtsUnitComponent::UpdateUnit()
 {
   const ezTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
 
-  if (m_UnitMode == RtsUnitMode::ShootAtUnit)
-  {
-    // check whether the target has died or is invalid
-
-    ezGameObject* pTarget = nullptr;
-    if (!GetWorld()->TryGetObject(m_hShootAtUnit, pTarget) || pTarget == GetOwner())
-    {
-      m_hShootAtUnit.Invalidate();
-      m_UnitMode = RtsUnitMode::Idle;
-    }
-  }
-
-  if (m_UnitMode == RtsUnitMode::ShootAtPosition || m_UnitMode == RtsUnitMode::ShootAtUnit)
-  {
-    if (tNow - m_TimeLastShot >= ezTime::Seconds(0.75))
-    {
-      m_TimeLastShot = tNow;
-
-      RtsMsgSetTarget msg;
-
-      if (m_UnitMode == RtsUnitMode::ShootAtUnit)
-        msg.m_hObject = m_hShootAtUnit;
-      else
-        msg.m_vPosition = m_vShootAtPosition;
-
-      ezGameObject* pSpawned = RtsGameState::GetSingleton()->SpawnNamedObjectAt(GetOwner()->GetGlobalTransform(), "ProtonTorpedo1", GetOwner()->GetTeamID());
-
-      pSpawned->PostMessage(msg, ezObjectMsgQueueType::AfterInitialized);
-    }
-  }
+  m_pAiSystem->Reevaluate(GetOwner(), this, tNow, ezTime::Seconds(0.5));
+  m_pAiSystem->Execute(GetOwner(), this, tNow);
 }
 
 void RtsUnitComponent::OnSimulationStarted()
@@ -170,6 +146,28 @@ void RtsUnitComponent::OnSimulationStarted()
     m_uiCurHealth = m_uiMaxHealth;
 
   m_uiCurHealth = ezMath::Min(m_uiCurHealth, m_uiMaxHealth);
+  m_vAssignedPosition = GetOwner()->GetGlobalPosition().GetAsVec2();
+  m_vAssignedShootAtPosition.SetZero();
+
+  // Setup the AI system
+  {
+    m_pAiSystem = EZ_DEFAULT_NEW(RtsAiUtilitySystem);
+
+    {
+      ezUniquePtr<RtsHuntEnemyAiUtility> pUtility = EZ_DEFAULT_NEW(RtsHuntEnemyAiUtility);
+      m_pAiSystem->AddUtility(std::move(pUtility));
+    }
+
+    {
+      ezUniquePtr<RtsShootAtAiUtility> pUtility = EZ_DEFAULT_NEW(RtsShootAtAiUtility);
+      m_pAiSystem->AddUtility(std::move(pUtility));
+    }
+
+    {
+      ezUniquePtr<RtsMoveToPositionAiUtility> pUtility = EZ_DEFAULT_NEW(RtsMoveToPositionAiUtility);
+      m_pAiSystem->AddUtility(std::move(pUtility));
+    }
+  }
 }
 
 void RtsUnitComponent::SetOnDestroyedPrefab(const char* szPrefab)
@@ -195,7 +193,7 @@ const char* RtsUnitComponent::GetOnDestroyedPrefab() const
 //////////////////////////////////////////////////////////////////////////
 
 RtsUnitComponentManager::RtsUnitComponentManager(ezWorld* pWorld)
-    : ezComponentManager<class RtsUnitComponent, ezBlockStorageType::Compact>(pWorld)
+    : ezComponentManager<class RtsUnitComponent, ezBlockStorageType::FreeList>(pWorld)
 {
 }
 

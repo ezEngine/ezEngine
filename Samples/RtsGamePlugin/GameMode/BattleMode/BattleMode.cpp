@@ -46,7 +46,7 @@ void RtsBattleMode::OnProcessInput(const RtsMouseInputState& MouseInput)
   {
     if (ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftCtrl) == ezKeyState::Up)
     {
-      RtsMsgNavigateTo msg;
+      RtsMsgAssignPosition msg;
       msg.m_vTargetPosition = vPickedGroundPlanePos.GetAsVec2();
 
       for (ezUInt32 i = 0; i < unitSelection.GetCount(); ++i)

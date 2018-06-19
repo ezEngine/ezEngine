@@ -1,8 +1,17 @@
 #pragma once
 
+#include <RtsGamePlugin/RtsGamePlugin.h>
+
 struct RtsMsgNavigateTo : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(RtsMsgNavigateTo, ezMessage);
+
+  ezVec2 m_vTargetPosition;
+};
+
+struct RtsMsgAssignPosition : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(RtsMsgAssignPosition, ezMessage);
 
   ezVec2 m_vTargetPosition;
 };
