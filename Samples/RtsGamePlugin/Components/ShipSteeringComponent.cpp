@@ -18,7 +18,8 @@ EZ_BEGIN_COMPONENT_TYPE(RtsShipSteeringComponent, 1, ezComponentMode::Dynamic)
 
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(RtsMsgNavigateTo, OnMsgNavigateTo)
+    EZ_MESSAGE_HANDLER(RtsMsgNavigateTo, OnMsgNavigateTo),
+    EZ_MESSAGE_HANDLER(RtsMsgStopNavigation, OnMsgStopNavigation),
   }
   EZ_END_MESSAGEHANDLERS
 
@@ -63,8 +64,19 @@ void RtsShipSteeringComponent::OnMsgNavigateTo(RtsMsgNavigateTo& msg)
   m_Mode = RtsShipSteeringComponent::Mode::Steering;
 }
 
+void RtsShipSteeringComponent::OnMsgStopNavigation(RtsMsgStopNavigation& msg)
+{
+  if (m_Mode == RtsShipSteeringComponent::Mode::Steering)
+  {
+    m_Mode = RtsShipSteeringComponent::Mode::Stop;
+  }
+}
+
 void RtsShipSteeringComponent::UpdateSteering()
 {
+  if (m_Mode == RtsShipSteeringComponent::Mode::None)
+    return;
+
   const float tDiff = (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds();
 
   ezTransform transform = GetOwner()->GetGlobalTransform();
@@ -73,59 +85,55 @@ void RtsShipSteeringComponent::UpdateSteering()
   const ezVec2 vOwnerDir = GetOwner()->GetGlobalDirForwards().GetAsVec2();
   const ezVec2 vOwnerRight(-vOwnerDir.y, vOwnerDir.x);
 
-  if (m_Mode != RtsShipSteeringComponent::Mode::None)
+  const float fArriveDistance = m_fCurrentSpeed * m_fCurrentSpeed / m_fMaxDeceleration;
+
+  const ezVec2 vDistToTarget = m_vTargetPosition - vOwnerPos;
+  const float fDistToTarget = vDistToTarget.GetLength();
+  const ezVec2 vDirToTarget = (fDistToTarget <= 0) ? vOwnerDir : (vDistToTarget / fDistToTarget);
+
+  const bool bTargetIsInFront = vOwnerDir.Dot(vDirToTarget) > ezMath::Cos(ezAngle::Degree(60));
+  const bool bTargetIsRight = (vOwnerRight.Dot(m_vTargetPosition) - vOwnerRight.Dot(vOwnerPos)) > 0;
+
+  if (m_Mode == RtsShipSteeringComponent::Mode::Stop || fDistToTarget <= fArriveDistance)
   {
-    const float fArriveDistance = m_fCurrentSpeed * m_fCurrentSpeed / m_fMaxDeceleration;
-
-    const ezVec2 vDistToTarget = m_vTargetPosition - vOwnerPos;
-    const float fDistToTarget = vDistToTarget.GetLength();
-    const ezVec2 vDirToTarget = (fDistToTarget <= 0) ? vOwnerDir : (vDistToTarget / fDistToTarget);
-
-    const bool bTargetIsInFront = vOwnerDir.Dot(vDirToTarget) > ezMath::Cos(ezAngle::Degree(60));
-    const bool bTargetIsRight = (vOwnerRight.Dot(m_vTargetPosition) - vOwnerRight.Dot(vOwnerPos)) > 0;
-
-    if (fDistToTarget <= fArriveDistance)
+    m_fCurrentSpeed -= m_fMaxDeceleration * tDiff;
+  }
+  else
+  {
+    if (bTargetIsInFront)
     {
-      m_fCurrentSpeed -= m_fMaxDeceleration * tDiff;
-
-      if (m_fCurrentSpeed <= 0)
-      {
-        m_fCurrentSpeed = 0;
-        m_Mode = RtsShipSteeringComponent::Mode::None;
-      }
+      m_fCurrentSpeed = ezMath::Min(m_fCurrentSpeed + m_fMaxAcceleration * tDiff, m_fMaxSpeed);
     }
     else
     {
-      if (bTargetIsInFront)
-      {
-        m_fCurrentSpeed = ezMath::Min(m_fCurrentSpeed + m_fMaxAcceleration * tDiff, m_fMaxSpeed);
-      }
-      else
-      {
-        m_fCurrentSpeed = ezMath::Max(m_fCurrentSpeed - m_fMaxDeceleration * tDiff, 0.0f);
-      }
+      m_fCurrentSpeed = ezMath::Max(m_fCurrentSpeed - m_fMaxDeceleration * tDiff, 0.0f);
     }
+  }
 
-    if (fDistToTarget > 0.5f)
+  if (fDistToTarget > 0.5f)
+  {
+    const ezAngle angleToTurn = vDirToTarget.GetAngleBetween(vOwnerDir);
+
+    if (angleToTurn != ezAngle())
     {
-      const ezAngle angleToTurn = vDirToTarget.GetAngleBetween(vOwnerDir);
+      const ezAngle toTurnNow = (bTargetIsRight ? 1.0f : -1.0f) * ezMath::Min(angleToTurn, m_MaxTurnSpeed * tDiff);
 
-      if (angleToTurn != ezAngle())
-      {
-        const ezAngle toTurnNow = (bTargetIsRight ? 1.0f : -1.0f) * ezMath::Min(angleToTurn, m_MaxTurnSpeed * tDiff);
+      ezQuat qRot;
+      qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), toTurnNow);
 
-        ezQuat qRot;
-        qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), toTurnNow);
-
-        transform.m_qRotation = qRot * transform.m_qRotation;
-      }
+      transform.m_qRotation = qRot * transform.m_qRotation;
     }
+  }
+  else if (m_fCurrentSpeed <= 0)
+  {
+    m_fCurrentSpeed = 0;
+    m_Mode = RtsShipSteeringComponent::Mode::None;
+  }
 
-    {
-      const ezVec2 vMove = vOwnerDir * m_fCurrentSpeed * tDiff;
-      transform.m_vPosition += vMove.GetAsVec3(0);
-      transform.m_vPosition.z = 0;
-    }
+  {
+    const ezVec2 vMove = vOwnerDir * m_fCurrentSpeed * tDiff;
+    transform.m_vPosition += vMove.GetAsVec3(0);
+    transform.m_vPosition.z = 0;
   }
 
   GetOwner()->SetGlobalTransform(transform);

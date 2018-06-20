@@ -2,8 +2,8 @@
 
 #include <Foundation/Utilities/Stats.h>
 #include <RtsGamePlugin/AI/HuntEnemyUtility.h>
-#include <RtsGamePlugin/AI/ShootAtUtility.h>
 #include <RtsGamePlugin/AI/MoveToPositionUtility.h>
+#include <RtsGamePlugin/AI/AttackUnitAiUtility.h>
 #include <RtsGamePlugin/Components/UnitComponent.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
 
@@ -66,19 +66,16 @@ void RtsUnitComponent::DeserializeComponent(ezWorldReader& stream)
 
 void RtsUnitComponent::OnMsgAssignPosition(RtsMsgAssignPosition& msg)
 {
-  m_UnitMode = RtsUnitMode::Idle;
+  m_UnitMode = RtsUnitMode::MoveToPosition;
   m_vAssignedPosition = msg.m_vTargetPosition;
+  m_bModeChanged = true;
 }
 
 void RtsUnitComponent::OnMsgSetTarget(RtsMsgSetTarget& msg)
 {
-  m_vAssignedPosition = msg.m_vPosition;
   m_hAssignedUnitToAttack = msg.m_hObject;
-
-  if (!m_hAssignedUnitToAttack.IsInvalidated())
-    m_UnitMode = RtsUnitMode::AttackUnit;
-  else
-    m_UnitMode = RtsUnitMode::ShootAtPosition;
+  m_UnitMode = RtsUnitMode::AttackUnit;
+  m_bModeChanged = true;
 }
 
 void RtsUnitComponent::OnMsgApplyDamage(RtsMsgApplyDamage& msg)
@@ -133,8 +130,37 @@ void RtsUnitComponent::UpdateUnit()
 {
   const ezTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
 
-  m_pAiSystem->Reevaluate(GetOwner(), this, tNow, ezTime::Seconds(0.5));
+  // Unit state machine for defining what the unit is 'supposed to do'
+  // affects what the unit decides to actually do through the utility system
+  switch (m_UnitMode)
+  {
+    case RtsUnitMode::GuardLocation:
+      break;
+
+    case RtsUnitMode::MoveToPosition:
+      break;
+
+    case RtsUnitMode::AttackUnit:
+    {
+      // if the target unit is dead, revert to guarding the current location
+
+      ezGameObject* pTarget;
+      if (!GetWorld()->TryGetObject(m_hAssignedUnitToAttack, pTarget) || pTarget == GetOwner())
+      {
+        m_UnitMode = RtsUnitMode::GuardLocation;
+        m_vAssignedPosition = GetOwner()->GetGlobalPosition().GetAsVec2();
+
+        // could add an offset in the current travel direction for smoother stops
+      }
+
+      break;
+    }
+  }
+
+  m_pAiSystem->Reevaluate(GetOwner(), this, tNow, m_bModeChanged ? ezTime() : ezTime::Seconds(0.5));
   m_pAiSystem->Execute(GetOwner(), this, tNow);
+
+  m_bModeChanged = false;
 }
 
 void RtsUnitComponent::OnSimulationStarted()
@@ -147,7 +173,6 @@ void RtsUnitComponent::OnSimulationStarted()
 
   m_uiCurHealth = ezMath::Min(m_uiCurHealth, m_uiMaxHealth);
   m_vAssignedPosition = GetOwner()->GetGlobalPosition().GetAsVec2();
-  m_vAssignedShootAtPosition.SetZero();
 
   // Setup the AI system
   {
@@ -159,7 +184,7 @@ void RtsUnitComponent::OnSimulationStarted()
     }
 
     {
-      ezUniquePtr<RtsShootAtAiUtility> pUtility = EZ_DEFAULT_NEW(RtsShootAtAiUtility);
+      ezUniquePtr<RtsAttackUnitAiUtility> pUtility = EZ_DEFAULT_NEW(RtsAttackUnitAiUtility);
       m_pAiSystem->AddUtility(std::move(pUtility));
     }
 

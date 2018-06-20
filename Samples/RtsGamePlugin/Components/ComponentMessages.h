@@ -9,6 +9,12 @@ struct RtsMsgNavigateTo : public ezMessage
   ezVec2 m_vTargetPosition;
 };
 
+/// \brief Tell the unit to stop and stay where it currently is
+struct RtsMsgStopNavigation : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(RtsMsgStopNavigation, ezMessage);
+};
+
 struct RtsMsgAssignPosition : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(RtsMsgAssignPosition, ezMessage);
@@ -20,7 +26,6 @@ struct RtsMsgSetTarget : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(RtsMsgSetTarget, ezMessage);
 
-  ezVec2 m_vPosition;
   ezGameObjectHandle m_hObject;
 };
 

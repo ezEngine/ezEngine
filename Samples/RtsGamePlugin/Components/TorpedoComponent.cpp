@@ -59,7 +59,7 @@ void RtsTorpedoComponent::DeserializeComponent(ezWorldReader& stream)
 
 void RtsTorpedoComponent::OnMsgSetTarget(RtsMsgSetTarget& msg)
 {
-  m_vTargetPosition = msg.m_vPosition;
+  m_vTargetPosition.SetZero();
   m_hTargetObject = msg.m_hObject;
 }
 

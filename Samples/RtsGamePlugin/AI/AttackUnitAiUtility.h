@@ -2,7 +2,7 @@
 
 #include <RtsGamePlugin/AI/AiUtilitySystem.h>
 
-class RtsShootAtAiUtility : public RtsUnitComponentUtility
+class RtsAttackUnitAiUtility : public RtsUnitComponentUtility
 {
 public:
   virtual void Activate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) override;

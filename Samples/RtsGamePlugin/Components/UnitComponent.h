@@ -15,8 +15,8 @@ public:
 
 enum class RtsUnitMode
 {
-  Idle,
-  ShootAtPosition,
+  GuardLocation,
+  MoveToPosition,
   AttackUnit,
 };
 
@@ -61,16 +61,17 @@ public:
 protected:
   virtual void OnUnitDestroyed();
 
-  friend class RtsShootAtAiUtility;
+  friend class RtsAttackUnitAiUtility;
   friend class RtsHuntEnemyAiUtility;
   friend class RtsMoveToPositionAiUtility;
 
+  bool m_bModeChanged = true;
   RtsUnitMode m_UnitMode;
 
   ezVec2 m_vAssignedPosition;
-  ezVec2 m_vAssignedShootAtPosition;
 
   ezGameObjectHandle m_hAssignedUnitToAttack;
+  ezGameObjectHandle m_hCurrentUnitToAttack;
 
   ezTime m_TimeLastShot;
   ezUniquePtr<RtsAiUtilitySystem> m_pAiSystem; // has to be a pointer because RtsAiUtilitySystem isn't copyable 

@@ -57,7 +57,6 @@ void RtsBattleMode::OnProcessInput(const RtsMouseInputState& MouseInput)
     else
     {
       RtsMsgSetTarget msg;
-      msg.m_vPosition = vPickedGroundPlanePos.GetAsVec2();
       msg.m_hObject = pHoveredSelectable ? pHoveredSelectable->GetHandle() : ezGameObjectHandle();
 
       for (ezUInt32 i = 0; i < unitSelection.GetCount(); ++i)

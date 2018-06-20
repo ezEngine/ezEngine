@@ -40,6 +40,7 @@ public:
   // Message Handlers
 public:
   void OnMsgNavigateTo(RtsMsgNavigateTo& msg);
+  void OnMsgStopNavigation(RtsMsgStopNavigation& msg);
 
   //////////////////////////////////////////////////////////////////////////
   //
@@ -47,7 +48,7 @@ public:
 protected:
   void UpdateSteering();
 
-  enum class Mode { None, Steering };
+  enum class Mode { None, Steering, Stop };
 
   Mode m_Mode = Mode::None;
   ezVec2 m_vTargetPosition;
