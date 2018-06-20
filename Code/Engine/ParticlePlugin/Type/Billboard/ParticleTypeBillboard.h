@@ -42,7 +42,7 @@ public:
   ezUInt8 m_uiNumSpritesY = 1;
   ezTempHashedString m_sTintColorParameter;
 
-  virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override;
+  virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override;
 
 protected:
   virtual void Process(ezUInt64 uiNumElements) override {}

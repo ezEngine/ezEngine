@@ -26,6 +26,8 @@ public:
   ezAmbientLightComponent();
   ~ezAmbientLightComponent();
 
+  virtual void Deinitialize() override;
+
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 

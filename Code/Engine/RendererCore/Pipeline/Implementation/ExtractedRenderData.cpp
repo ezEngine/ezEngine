@@ -8,12 +8,12 @@ ezExtractedRenderData::ezExtractedRenderData()
 
 void ezExtractedRenderData::AddRenderData(const ezRenderData* pRenderData, ezRenderData::Category category, ezUInt32 uiRenderDataSortingKey)
 {
-  if (category >= m_DataPerCategory.GetCount())
+  if (category.m_uiValue >= m_DataPerCategory.GetCount())
   {
-    m_DataPerCategory.SetCount(category + 1);
+    m_DataPerCategory.SetCount(category.m_uiValue + 1);
   }
 
-  auto& sortableRenderData = m_DataPerCategory[category].m_SortableRenderData.ExpandAndGetRef();
+  auto& sortableRenderData = m_DataPerCategory[category.m_uiValue].m_SortableRenderData.ExpandAndGetRef();
   sortableRenderData.m_pRenderData = pRenderData;
   sortableRenderData.m_uiSortingKey = pRenderData->GetCategorySortingKey(category, uiRenderDataSortingKey, m_Camera);
 }
@@ -88,10 +88,10 @@ void ezExtractedRenderData::Clear()
 
 ezRenderDataBatchList ezExtractedRenderData::GetRenderDataBatchesWithCategory(ezRenderData::Category category, ezRenderDataBatch::Filter filter) const
 {
-  if (m_DataPerCategory.GetCount() > category)
+  if (category.m_uiValue < m_DataPerCategory.GetCount())
   {
     ezRenderDataBatchList list;
-    list.m_Batches = m_DataPerCategory[category].m_Batches;
+    list.m_Batches = m_DataPerCategory[category.m_uiValue].m_Batches;
     list.m_Filter = filter;
 
     return list;

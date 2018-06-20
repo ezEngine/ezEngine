@@ -174,7 +174,7 @@ ezClusteredDataExtractor::~ezClusteredDataExtractor()
 }
 
 void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-  ezExtractedRenderData* pExtractedRenderData)
+  ezExtractedRenderData& extractedRenderData)
 {
   const ezCamera* pCamera = view.GetCullingCamera();
   const float fAspectRatio = view.GetViewport().width / view.GetViewport().height;
@@ -196,7 +196,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
     m_TempLightData.Clear();
     ezMemoryUtils::ZeroFill(m_TempLightsClusters.GetData(), NUM_CLUSTERS);
 
-    auto batchList = pExtractedRenderData->GetRenderDataBatchesWithCategory(ezDefaultRenderDataCategories::Light);
+    auto batchList = extractedRenderData.GetRenderDataBatchesWithCategory(ezDefaultRenderDataCategories::Light);
     const ezUInt32 uiBatchCount = batchList.GetBatchCount();
     for (ezUInt32 i = 0; i < uiBatchCount; ++i)
     {
@@ -289,7 +289,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
     m_TempDecalData.Clear();
     ezMemoryUtils::ZeroFill(m_TempDecalsClusters.GetData(), NUM_CLUSTERS);
 
-    auto batchList = pExtractedRenderData->GetRenderDataBatchesWithCategory(ezDefaultRenderDataCategories::Decal);
+    auto batchList = extractedRenderData.GetRenderDataBatchesWithCategory(ezDefaultRenderDataCategories::Decal);
     const ezUInt32 uiBatchCount = batchList.GetBatchCount();
     for (ezUInt32 i = 0; i < uiBatchCount; ++i)
     {
@@ -324,7 +324,7 @@ void ezClusteredDataExtractor::PostSortAndBatch(const ezView& view, const ezDyna
 
   FillItemListAndClusterData(pData);
 
-  pExtractedRenderData->AddFrameData(pData);
+  extractedRenderData.AddFrameData(pData);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   VisualizeClusteredData(view, pData, m_ClusterBoundingSpheres);

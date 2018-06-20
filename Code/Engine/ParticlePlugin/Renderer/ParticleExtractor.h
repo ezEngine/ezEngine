@@ -13,5 +13,5 @@ public:
   ezParticleExtractor(const char* szName = "ParticleExtractor");
 
   virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-    ezExtractedRenderData* pExtractedRenderData) override;
+    ezExtractedRenderData& extractedRenderData) override;
 };

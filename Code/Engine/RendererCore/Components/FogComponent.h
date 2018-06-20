@@ -27,6 +27,8 @@ public:
   ezFogComponent();
   ~ezFogComponent();
 
+  virtual void Deinitialize() override;
+
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 

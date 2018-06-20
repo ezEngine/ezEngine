@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <RendererCore/Components/RenderComponent.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezRenderComponent, 1)
 {
@@ -20,6 +21,11 @@ ezRenderComponent::ezRenderComponent()
 ezRenderComponent::~ezRenderComponent()
 {
 
+}
+
+void ezRenderComponent::Deinitialize()
+{
+  ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
 }
 
 void ezRenderComponent::OnActivated()

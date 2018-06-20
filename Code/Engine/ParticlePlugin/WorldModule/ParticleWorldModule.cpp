@@ -72,7 +72,7 @@ void ezParticleWorldModule::EnsureUpdatesFinished(const ezWorldModule::UpdateCon
   ezTaskSystem::WaitForGroup(m_EffectUpdateTaskGroup);
 }
 
-void ezParticleWorldModule::ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData) const
+void ezParticleWorldModule::ExtractRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData) const
 {
   EZ_ASSERT_RELEASE(ezTaskSystem::IsTaskGroupFinished(m_EffectUpdateTaskGroup), "Particle Effect Update Task is not finished!");
 
@@ -91,18 +91,18 @@ void ezParticleWorldModule::ExtractRenderData(const ezView& view, ezExtractedRen
 
       for (ezUInt32 shi = 0; shi < shared.GetCount(); ++shi)
       {
-        ExtractEffectRenderData(pEffect, view, pExtractedRenderData, pEffect->GetTransform(shared[shi].m_pSharedInstanceOwner));
+        ExtractEffectRenderData(pEffect, view, extractedRenderData, pEffect->GetTransform(shared[shi].m_pSharedInstanceOwner));
       }
     }
     else
     {
-      ExtractEffectRenderData(pEffect, view, pExtractedRenderData, pEffect->GetTransform(nullptr));
+      ExtractEffectRenderData(pEffect, view, extractedRenderData, pEffect->GetTransform(nullptr));
     }
   }
 }
 
 
-void ezParticleWorldModule::ExtractEffectRenderData(const ezParticleEffectInstance* pEffect, const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& systemTransform) const
+void ezParticleWorldModule::ExtractEffectRenderData(const ezParticleEffectInstance* pEffect, const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& systemTransform) const
 {
   if (!pEffect->IsVisible())
     return;
@@ -117,7 +117,7 @@ void ezParticleWorldModule::ExtractEffectRenderData(const ezParticleEffectInstan
     if (!pSystem->HasActiveParticles() || !pSystem->IsVisible())
       continue;
 
-    pSystem->ExtractSystemRenderData(view, pExtractedRenderData, systemTransform, m_uiExtractedFrame);
+    pSystem->ExtractSystemRenderData(view, extractedRenderData, systemTransform, m_uiExtractedFrame);
   }
 }
 

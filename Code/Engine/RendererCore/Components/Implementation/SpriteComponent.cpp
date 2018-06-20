@@ -27,7 +27,7 @@ ezTempHashedString ezSpriteBlendMode::GetPermutationValue(Enum blendMode)
   return "";
 }
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpriteRenderData, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpriteRenderData, 1, ezRTTIDefaultAllocator<ezSpriteRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 3, ezComponentMode::Static)
@@ -105,26 +105,15 @@ void ezSpriteComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
   }
 
   // Determine render data category.
-  ezRenderData::Category category;
-  if (msg.m_OverrideCategory != ezInvalidIndex)
+  ezRenderData::Category category = ezDefaultRenderDataCategories::LitTransparent;
+  if (m_BlendMode == ezSpriteBlendMode::Masked)
   {
-    category = msg.m_OverrideCategory;
-  }
-  else
-  {
-    if (m_BlendMode == ezSpriteBlendMode::Masked)
-    {
-      category = ezDefaultRenderDataCategories::LitMasked;
-    }
-    else
-    {
-      category = ezDefaultRenderDataCategories::LitTransparent;
-    }
+    category = ezDefaultRenderDataCategories::LitMasked;
   }
 
   // Sort by mode and then by texture
   ezUInt32 uiSortingKey = (m_BlendMode << 30) | (uiTextureIDHash & 0x3FFFFFFF);
-  msg.m_pExtractedRenderData->AddRenderData(pRenderData, category, uiSortingKey);
+  msg.AddRenderData(pRenderData, category, uiSortingKey, ezRenderData::Caching::IfStatic);
 }
 
 void ezSpriteComponent::SerializeComponent(ezWorldWriter& stream) const

@@ -70,7 +70,7 @@ void ezParticleTypePoint::CreateRequiredStreams()
   CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor, false);
 }
 
-void ezParticleTypePoint::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+void ezParticleTypePoint::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
   EZ_PROFILE("PFX: Point");
 
@@ -107,7 +107,7 @@ void ezParticleTypePoint::ExtractTypeRenderData(const ezView& view, ezExtractedR
 
   /// \todo Generate a proper sorting key?
   const ezUInt32 uiSortingKey = 0;
-  pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleTransparent, uiSortingKey);
+  extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleTransparent, uiSortingKey);
 }
 
 

@@ -1,11 +1,11 @@
 #include <PCH.h>
 #include <RendererCore/Components/FogComponent.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFogRenderData, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFogRenderData, 1, ezRTTIDefaultAllocator<ezFogRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_BEGIN_COMPONENT_TYPE(ezFogComponent, 1, ezComponentMode::Static)
@@ -41,6 +41,11 @@ ezFogComponent::ezFogComponent()
 ezFogComponent::~ezFogComponent()
 {
 
+}
+
+void ezFogComponent::Deinitialize()
+{
+  ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
 }
 
 void ezFogComponent::OnActivated()
@@ -94,7 +99,7 @@ void ezFogComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 
 void ezFogComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
-  if (msg.m_OverrideCategory != ezInvalidIndex)
+  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
     return;
 
   ezUInt32 uiBatchId = 0;
@@ -106,7 +111,7 @@ void ezFogComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
   pRenderData->m_fDensity = m_fDensity / 100.0f;
   pRenderData->m_fHeightFalloff = m_fHeightFalloff;
 
-  msg.m_pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, uiBatchId);
+  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, uiBatchId, ezRenderData::Caching::IfStatic);
 }
 
 void ezFogComponent::SerializeComponent(ezWorldWriter& stream) const

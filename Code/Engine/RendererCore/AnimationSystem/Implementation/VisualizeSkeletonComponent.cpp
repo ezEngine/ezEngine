@@ -3,7 +3,6 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <RendererCore/Pipeline/RenderData.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/Graphics/Geometry.h>
 #include <RendererCore/AnimationSystem/SkeletonBuilder.h>
 
@@ -144,7 +143,7 @@ void ezVisualizeSkeletonComponent::CreateRenderMesh()
     return;
   }
 
-  
+
 
   const ezSkeleton* pSkeletonData = &pSkeleton->GetDescriptor().m_Skeleton;
 
@@ -320,20 +319,9 @@ void ezVisualizeSkeletonComponent::OnExtractRenderData(ezMsgExtractRenderData& m
       pRenderData->m_uiUniqueID = GetUniqueIdForRendering(uiMaterialIndex);
     }
 
-    // Determine render data category.
-    ezRenderData::Category category;
-    if (msg.m_OverrideCategory != ezInvalidIndex)
-    {
-      category = msg.m_OverrideCategory;
-    }
-    else
-    {
-      category = ezDefaultRenderDataCategories::LitOpaque;
-    }
-
     // Sort by material and then by mesh
     ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE) | uiFlipWinding;
-    msg.m_pExtractedRenderData->AddRenderData(pRenderData, category, uiSortingKey);
+    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, uiSortingKey);
   }
 }
 

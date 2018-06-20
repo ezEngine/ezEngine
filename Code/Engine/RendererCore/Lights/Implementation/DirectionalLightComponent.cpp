@@ -1,12 +1,11 @@
 #include <PCH.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Lights/Implementation/ShadowPool.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/View.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDirectionalLightRenderData, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDirectionalLightRenderData, 1, ezRTTIDefaultAllocator<ezDirectionalLightRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_BEGIN_COMPONENT_TYPE(ezDirectionalLightComponent, 3, ezComponentMode::Static)
@@ -107,7 +106,7 @@ float ezDirectionalLightComponent::GetNearPlaneOffset() const
 void ezDirectionalLightComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // Don't extract light render data for selection or in shadow views.
-  if (msg.m_OverrideCategory != ezInvalidIndex || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
+  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
     return;
 
   if (m_fIntensity <= 0.0f)
@@ -122,7 +121,8 @@ void ezDirectionalLightComponent::OnExtractRenderData(ezMsgExtractRenderData& ms
   pRenderData->m_fIntensity = m_fIntensity;
   pRenderData->m_uiShadowDataOffset = m_bCastShadows ? ezShadowPool::AddDirectionalLight(this, msg.m_pView) : ezInvalidIndex;
 
-  msg.m_pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, uiBatchId);
+  ezRenderData::Caching::Enum caching = m_bCastShadows ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic;
+  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, uiBatchId, caching);
 }
 
 void ezDirectionalLightComponent::SerializeComponent(ezWorldWriter& stream) const

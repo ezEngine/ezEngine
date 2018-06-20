@@ -42,7 +42,7 @@ const ezDeque<ezGameObjectHandle>* ezEditorSelectedObjectsExtractor::GetSelectio
   return &m_pSceneContext->GetSelectionWithChildren();
 }
 
-void ezEditorSelectedObjectsExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData* pExtractedRenderData)
+void ezEditorSelectedObjectsExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
 {
   const bool bShowCameraOverlays = view.GetCameraUsageHint() == ezCameraUsageHint::EditorView;
 
@@ -85,7 +85,7 @@ void ezEditorSelectedObjectsExtractor::Extract(const ezView& view, const ezDynam
     }
   }
 
-  ezSelectedObjectsExtractor::Extract(view, visibleObjects, pExtractedRenderData);
+  ezSelectedObjectsExtractor::Extract(view, visibleObjects, extractedRenderData);
 }
 
 void ezEditorSelectedObjectsExtractor::CreateRenderTargetTexture(const ezView& view)
@@ -150,7 +150,7 @@ void ezEditorSelectedObjectsExtractor::UpdateRenderTargetCamera(const ezCameraCo
   {
     m_RenderTargetCamera.SetCameraMode(pCamComp->GetCameraMode(), pCamComp->GetFieldOfView(), pCamComp->GetNearPlane(), pCamComp->GetFarPlane());
   }
-  
+
   ezView* pRenderTargetView = nullptr;
   if (!ezRenderWorld::TryGetView(m_hRenderTargetView, pRenderTargetView))
     return;

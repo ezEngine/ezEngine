@@ -1,11 +1,11 @@
 #include <PCH.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAmbientLightRenderData, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAmbientLightRenderData, 1, ezRTTIDefaultAllocator<ezAmbientLightRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_BEGIN_COMPONENT_TYPE(ezAmbientLightComponent, 2, ezComponentMode::Static)
@@ -41,6 +41,11 @@ ezAmbientLightComponent::ezAmbientLightComponent()
 ezAmbientLightComponent::~ezAmbientLightComponent()
 {
 
+}
+
+void ezAmbientLightComponent::Deinitialize()
+{
+  ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
 }
 
 void ezAmbientLightComponent::OnActivated()
@@ -94,7 +99,7 @@ void ezAmbientLightComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 
 void ezAmbientLightComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
-  if (msg.m_OverrideCategory != ezInvalidIndex)
+  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
     return;
 
   ezUInt32 uiBatchId = 0;
@@ -105,7 +110,7 @@ void ezAmbientLightComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) c
   pRenderData->m_TopColor = ezColor(m_TopColor) * m_fIntensity;
   pRenderData->m_BottomColor = ezColor(m_BottomColor) * m_fIntensity;
 
-  msg.m_pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, uiBatchId);
+  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, uiBatchId, ezRenderData::Caching::IfStatic);
 }
 
 void ezAmbientLightComponent::SerializeComponent(ezWorldWriter& stream) const

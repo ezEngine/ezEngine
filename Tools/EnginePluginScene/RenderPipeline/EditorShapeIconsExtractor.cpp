@@ -34,7 +34,7 @@ ezEditorShapeIconsExtractor::~ezEditorShapeIconsExtractor()
 }
 
 void ezEditorShapeIconsExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-  ezExtractedRenderData* pExtractedRenderData)
+  ezExtractedRenderData& extractedRenderData)
 {
   EZ_LOCK(view.GetWorld()->GetReadMarker());
 
@@ -45,7 +45,7 @@ void ezEditorShapeIconsExtractor::Extract(const ezView& view, const ezDynamicArr
     if (FilterByViewTags(view, pObject))
       continue;
 
-    ExtractShapeIcon(pObject, view, pExtractedRenderData, ezDefaultRenderDataCategories::SimpleOpaque);
+    ExtractShapeIcon(pObject, view, extractedRenderData, ezDefaultRenderDataCategories::SimpleOpaque);
   }
 
   if (m_pSceneContext != nullptr)
@@ -60,13 +60,13 @@ void ezEditorShapeIconsExtractor::Extract(const ezView& view, const ezDynamicArr
         if (FilterByViewTags(view, pObject))
           continue;
 
-        ExtractShapeIcon(pObject, view, pExtractedRenderData, ezDefaultRenderDataCategories::Selection);
+        ExtractShapeIcon(pObject, view, extractedRenderData, ezDefaultRenderDataCategories::Selection);
       }
     }
   }
 }
 
-void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, const ezView& view, ezExtractedRenderData* pExtractedRenderData, ezRenderData::Category category)
+void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, const ezView& view, ezExtractedRenderData& extractedRenderData, ezRenderData::Category category)
 {
   static const ezTag& tagHidden = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorHidden");
   static const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
@@ -122,7 +122,7 @@ void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, 
     }
 
     ezUInt32 uiSortingKey = (blendMode << 30) | (uiTextureIDHash & 0x3FFFFFFF);
-    pExtractedRenderData->AddRenderData(pRenderData, category, uiSortingKey);
+    extractedRenderData.AddRenderData(pRenderData, category, uiSortingKey);
   }
 }
 

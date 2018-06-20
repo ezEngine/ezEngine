@@ -13,13 +13,13 @@ public:
   ~ezEditorShapeIconsExtractor();
 
   virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-    ezExtractedRenderData* pExtractedRenderData) override;
+    ezExtractedRenderData& extractedRenderData) override;
 
   void SetSceneContext(ezSceneContext* pSceneContext) { m_pSceneContext = pSceneContext; }
   ezSceneContext* GetSceneContext() const { return m_pSceneContext; }
 
 private:
-  void ExtractShapeIcon(const ezGameObject* pObject, const ezView& view, ezExtractedRenderData* pExtractedRenderData, ezRenderData::Category category);
+  void ExtractShapeIcon(const ezGameObject* pObject, const ezView& view, ezExtractedRenderData& extractedRenderData, ezRenderData::Category category);
   const ezTypedMemberProperty<ezColor>* FindColorProperty(const ezRTTI* pRtti) const;
   const ezTypedMemberProperty<ezColorGammaUB>* FindColorGammaProperty(const ezRTTI* pRtti) const;
   void FillShapeIconInfo();

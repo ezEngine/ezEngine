@@ -149,6 +149,8 @@ private:
 
   mutable ezViewData m_Data;
 
+  ezInternal::RenderDataCache* m_pRenderDataCache;
+
   struct PropertyValue
   {
     ezString m_sObjectName;

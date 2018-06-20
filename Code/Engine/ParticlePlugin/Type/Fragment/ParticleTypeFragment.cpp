@@ -113,7 +113,7 @@ void ezParticleTypeFragment::CreateRequiredStreams()
   CreateStream("RotationSpeed", ezProcessingStream::DataType::Float, &m_pStreamRotationSpeed, false);
 }
 
-void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
   EZ_PROFILE("PFX: Fragment");
 
@@ -199,7 +199,7 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
 
   /// \todo Generate a proper sorting key?
   const ezUInt32 uiSortingKey = 0;
-  pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleTransparent, uiSortingKey);
+  extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleTransparent, uiSortingKey);
 }
 
 

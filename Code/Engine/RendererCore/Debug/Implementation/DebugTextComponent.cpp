@@ -75,7 +75,7 @@ void ezDebugTextComponent::DeserializeComponent(ezWorldReader& stream)
 
 void ezDebugTextComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
-  if (msg.m_OverrideCategory != ezInvalidIndex || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
+  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
     return;
 
   if (!m_sText.IsEmpty())
@@ -102,7 +102,7 @@ void ezDebugTextComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
 
       for (auto& line : lines)
       {
-        ezDebugRenderer::DrawText(GetWorld(), line, ezVec2I32(screenPosX, screenPosY), m_Color);
+        ezDebugRenderer::DrawText(msg.m_pView->GetHandle(), line, ezVec2I32(screenPosX, screenPosY), m_Color);
 
         screenPosY -= 20;
       }

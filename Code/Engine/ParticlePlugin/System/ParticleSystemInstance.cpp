@@ -538,11 +538,11 @@ ezParticleWorldModule* ezParticleSystemInstance::GetOwnerWorldModule() const
   return m_pOwnerEffect->GetOwnerWorldModule();
 }
 
-void ezParticleSystemInstance::ExtractSystemRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+void ezParticleSystemInstance::ExtractSystemRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
   for (auto pType : m_Types)
   {
-    pType->ExtractTypeRenderData(view, pExtractedRenderData, instanceTransform, uiExtractedFrame);
+    pType->ExtractTypeRenderData(view, extractedRenderData, instanceTransform, uiExtractedFrame);
   }
 
 }

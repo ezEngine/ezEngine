@@ -882,7 +882,7 @@ void ezRenderPipeline::ExtractData(const ezView& view)
     {
       EZ_PROFILE(pExtractor->m_sName.GetData());
 
-      pExtractor->Extract(view, m_visibleObjects, &data);
+      pExtractor->Extract(view, m_visibleObjects, data);
     }
   }
 
@@ -894,7 +894,7 @@ void ezRenderPipeline::ExtractData(const ezView& view)
     {
       EZ_PROFILE(pExtractor->m_sName.GetData());
 
-      pExtractor->PostSortAndBatch(view, m_visibleObjects, &data);
+      pExtractor->PostSortAndBatch(view, m_visibleObjects, data);
     }
   }
 

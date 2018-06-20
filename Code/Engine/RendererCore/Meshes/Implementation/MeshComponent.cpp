@@ -1,7 +1,6 @@
 #include <PCH.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Messages/SetColorMessage.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 
@@ -63,7 +62,7 @@ void ezMsgSetMeshMaterial::Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVer
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderData, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderData, 1, ezRTTIDefaultAllocator<ezMeshRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_BEGIN_COMPONENT_TYPE(ezMeshComponent, 2, ezComponentMode::Static)
@@ -92,7 +91,7 @@ EZ_END_COMPONENT_TYPE
 
 ezMeshComponent::ezMeshComponent()
 {
-  m_RenderDataCategory = ezInvalidIndex;
+  m_RenderDataCategory = ezInvalidRenderDataCategory;
   m_Color = ezColor::White;
 }
 
@@ -109,7 +108,9 @@ void ezMeshComponent::SerializeComponent(ezWorldWriter& stream) const
   // ignore components that have created meshes (?)
 
   s << m_hMesh;
-  s << m_RenderDataCategory;
+
+  ezUInt32 uiCategory = m_RenderDataCategory.m_uiValue;
+  s << uiCategory;
 
   s << m_Materials.GetCount();
 
@@ -129,7 +130,10 @@ void ezMeshComponent::DeserializeComponent(ezWorldReader& stream)
   ezStreamReader& s = stream.GetStream();
 
   s >> m_hMesh;
-  s >> m_RenderDataCategory;
+
+  ezUInt32 uiCategory = 0;
+  s >> uiCategory;
+  m_RenderDataCategory.m_uiValue = uiCategory;
 
   ezUInt32 uiMaterials = 0;
   s >> uiMaterials;
@@ -218,16 +222,8 @@ void ezMeshComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
     }
 
     // Determine render data category.
-    ezRenderData::Category category;
-    if (msg.m_OverrideCategory != ezInvalidIndex)
-    {
-      category = msg.m_OverrideCategory;
-    }
-    else if (m_RenderDataCategory != ezInvalidIndex)
-    {
-      category = m_RenderDataCategory;
-    }
-    else
+    ezRenderData::Category category = m_RenderDataCategory;
+    if (category == ezInvalidRenderDataCategory)
     {
       if (hMaterial.IsValid())
       {
@@ -254,7 +250,7 @@ void ezMeshComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 
     // Sort by material and then by mesh
     ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE) | uiFlipWinding;
-    msg.m_pExtractedRenderData->AddRenderData(pRenderData, category, uiSortingKey);
+    msg.AddRenderData(pRenderData, category, uiSortingKey, ezRenderData::Caching::IfStatic);
   }
 }
 

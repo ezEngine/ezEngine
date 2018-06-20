@@ -22,6 +22,22 @@ struct ezNodePin;
 struct ezRenderPipelinePassConnection;
 struct ezViewData;
 
+namespace ezInternal
+{
+  struct RenderDataCache;
+
+  struct RenderDataCacheEntry
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    const ezRenderData* m_pRenderData;
+    ezUInt32 m_uiSortingKey;
+    ezUInt16 m_uiCategory;
+    ezUInt16 m_uiComponentIndex : 15;
+    ezUInt16 m_uiCacheIfStatic : 1;
+  };
+}
+
 struct ezRenderViewContext
 {
   const ezCamera* m_pCamera;
@@ -39,6 +55,21 @@ class ezViewHandle
   EZ_DECLARE_HANDLE_TYPE(ezViewHandle, ezViewId);
 
   friend class ezRenderWorld;
+};
+
+/// \brief HashHelper implementation so view handles can be used as key in a hashtable.
+template <>
+struct ezHashHelper<ezViewHandle>
+{
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(ezViewHandle value)
+  {
+    return value.GetInternalID().m_Data * 2654435761U;
+  }
+
+  EZ_ALWAYS_INLINE static bool Equal(ezViewHandle a, ezViewHandle b)
+  {
+    return a == b;
+  }
 };
 
 /// \brief This is the base class for types that handle rendering of different object types.

@@ -127,7 +127,7 @@ void ezParticleTypeTrail::CreateRequiredStreams()
   CreateStream("TrailData", ezProcessingStream::DataType::Int, &m_pStreamTrailData, true);
 }
 
-void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
   EZ_PROFILE("PFX: Trail");
 
@@ -202,7 +202,7 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
 
   /// \todo Generate a proper sorting key?
   const ezUInt32 uiSortingKey = 0;
-  pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleTransparent, uiSortingKey);
+  extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleTransparent, uiSortingKey);
 }
 
 void ezParticleTypeTrail::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)

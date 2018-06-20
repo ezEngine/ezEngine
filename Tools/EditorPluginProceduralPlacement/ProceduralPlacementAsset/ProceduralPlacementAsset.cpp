@@ -99,7 +99,7 @@ ezStatus ezProceduralPlacementAssetDocument::InternalTransformAsset(ezStreamWrit
 
       GenerateExpressionAST(pOutputNode, objectWriter, rttiConverter, nodeCache, ast);
 
-      if (true)
+      if (false)
       {
         ezStringBuilder sDocumentPath = GetDocumentPath();
         ezStringView sAssetName = sDocumentPath.GetFileNameAndExtension();

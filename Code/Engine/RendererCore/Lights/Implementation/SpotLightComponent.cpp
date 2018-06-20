@@ -2,7 +2,6 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
 #include <RendererCore/Lights/Implementation/ShadowPool.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/View.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -12,7 +11,7 @@
   ezCVarBool CVarVisLightSize("r_VisLightScreenSpaceSize", false, ezCVarFlags::Default, "Enables debug visualization of light screen space size calculation");
 #endif
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpotLightRenderData, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpotLightRenderData, 1, ezRTTIDefaultAllocator<ezSpotLightRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 2, ezComponentMode::Static)
@@ -134,7 +133,7 @@ const char* ezSpotLightComponent::GetProjectedTextureFile() const
 void ezSpotLightComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // Don't extract light render data for selection or in shadow views.
-  if (msg.m_OverrideCategory != ezInvalidIndex || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
+  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
     return;
 
   if (m_fIntensity <= 0.0f || m_fEffectiveRange <= 0.0f || m_OuterSpotAngle.GetRadian() <= 0.0f)
@@ -170,7 +169,8 @@ void ezSpotLightComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
   pRenderData->m_hProjectedTexture = m_hProjectedTexture;
   pRenderData->m_uiShadowDataOffset = m_bCastShadows ? ezShadowPool::AddSpotLight(this, fScreenSpaceSize) : ezInvalidIndex;
 
-  msg.m_pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, uiBatchId);
+  ezRenderData::Caching::Enum caching = m_bCastShadows ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic;
+  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, uiBatchId, caching);
 }
 
 void ezSpotLightComponent::SerializeComponent(ezWorldWriter& stream) const

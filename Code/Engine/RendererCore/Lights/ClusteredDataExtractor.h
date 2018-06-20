@@ -45,7 +45,7 @@ public:
   ~ezClusteredDataExtractor();
 
   virtual void PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-    ezExtractedRenderData* pExtractedRenderData) override;
+    ezExtractedRenderData& extractedRenderData) override;
 
 private:
   void FillItemListAndClusterData(ezClusteredDataCPU* pData);

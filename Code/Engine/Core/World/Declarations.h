@@ -77,7 +77,7 @@ struct ezHashHelper<ezGameObjectHandle>
 {
   EZ_ALWAYS_INLINE static ezUInt32 Hash(ezGameObjectHandle value)
   {
-    return value.GetInternalID().m_Data * 2654435761U;
+    return ezHashHelper<ezUInt32>::Hash(value.GetInternalID().m_Data);
   }
 
   EZ_ALWAYS_INLINE static bool Equal(ezGameObjectHandle a, ezGameObjectHandle b)
@@ -157,6 +157,22 @@ struct ezComponentHandle
   friend class ezWorld;
   friend class ezComponentManagerBase;
   friend class ezComponent;
+};
+
+/// \brief HashHelper implementation so component handles can be used as key in a hashtable.
+template <>
+struct ezHashHelper<ezComponentHandle>
+{
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(ezComponentHandle value)
+  {
+    ezUInt64 data = *reinterpret_cast<ezUInt64*>(&value.GetInternalID());
+    return ezHashHelper<ezUInt64>::Hash(data);
+  }
+
+  EZ_ALWAYS_INLINE static bool Equal(ezComponentHandle a, ezComponentHandle b)
+  {
+    return a == b;
+  }
 };
 
 /// \brief Internal flags of game objects or components.

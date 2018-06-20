@@ -3,8 +3,6 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <Foundation/Strings/HashedString.h>
 
-class ezExtractedRenderData;
-
 class EZ_RENDERERCORE_DLL ezExtractor : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezExtractor, ezReflectedClass);
@@ -20,14 +18,19 @@ public:
   /// \brief returns the name of the extractor.
   const char* GetName() const;
 
+  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
+    ezExtractedRenderData& extractedRenderData);
+
+  virtual void PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
+    ezExtractedRenderData& extractedRenderData);
+
+protected:
+
   /// \brief returns true if the given object should be filtered by view tags.
   bool FilterByViewTags(const ezView& view, const ezGameObject* pObject) const;
 
-  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-    ezExtractedRenderData* pExtractedRenderData);
-
-  virtual void PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-    ezExtractedRenderData* pExtractedRenderData);
+  /// \brief extracts the render data for the given object.
+  void ExtractRenderData(const ezView& view, const ezGameObject* pObject, ezMsgExtractRenderData& msg, ezExtractedRenderData& extractedRenderData) const;
 
 private:
   friend class ezRenderPipeline;
@@ -38,6 +41,11 @@ private:
 
 protected:
   ezHybridArray<ezHashedString, 4> m_DependsOn;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  mutable ezUInt32 m_uiNumCachedRenderData;
+  mutable ezUInt32 m_uiNumUncachedRenderData;
+#endif
 };
 
 
@@ -48,7 +56,7 @@ public:
   ezVisibleObjectsExtractor(const char* szName = "VisibleObjectsExtractor");
 
   virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-    ezExtractedRenderData* pExtractedRenderData) override;
+    ezExtractedRenderData& extractedRenderData) override;
 };
 
 class EZ_RENDERERCORE_DLL ezSelectedObjectsExtractor : public ezExtractor
@@ -58,7 +66,7 @@ public:
   ezSelectedObjectsExtractor(const char* szName = "SelectedObjectsExtractor");
 
   virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-    ezExtractedRenderData* pExtractedRenderData) override;
+    ezExtractedRenderData& extractedRenderData) override;
 
   virtual const ezDeque<ezGameObjectHandle>* GetSelection() = 0;
 

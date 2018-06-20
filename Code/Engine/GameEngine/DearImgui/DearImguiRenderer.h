@@ -48,7 +48,7 @@ public:
   ezImguiExtractor(const char* szName = "ImguiExtractor");
 
   virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-    ezExtractedRenderData* pExtractedRenderData) override;
+    ezExtractedRenderData& extractedRenderData) override;
 };
 
 class EZ_GAMEENGINE_DLL ezImguiRenderer : public ezRenderer

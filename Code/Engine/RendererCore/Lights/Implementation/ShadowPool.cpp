@@ -85,6 +85,11 @@ namespace
 
     ~PoolData()
     {
+      for (auto& shadowView : m_ShadowViews)
+      {
+        ezRenderWorld::DeleteView(shadowView.m_hView);
+      }
+
       ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
       if (!m_hShadowAtlasTexture.IsInvalidated())
       {

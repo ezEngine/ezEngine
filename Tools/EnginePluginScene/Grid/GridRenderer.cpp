@@ -218,7 +218,7 @@ float AdjustGridDensity(float fDensity, ezUInt32 uiWindowWidth, float fOrthoDimX
 }
 
 void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-  ezExtractedRenderData* pExtractedRenderData)
+  ezExtractedRenderData& extractedRenderData)
 {
   if (m_pSceneContext == nullptr || m_pSceneContext->GetGridDensity() == 0.0f)
     return;
@@ -291,7 +291,7 @@ void ezEditorGridExtractor::Extract(const ezView& view, const ezDynamicArray<con
     pRenderData->m_iLastLine2 = iNumLines;
   }
 
-  pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleTransparent, 0);
+  extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleTransparent, 0);
 }
 
 

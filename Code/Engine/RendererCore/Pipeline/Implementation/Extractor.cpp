@@ -2,6 +2,7 @@
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <Core/World/World.h>
 #include <Core/World/SpatialSystem_RegularGrid.h>
 #include <Foundation/Configuration/CVar.h>
@@ -12,6 +13,8 @@
   ezCVarBool CVarVisSpatialData("r_VisSpatialData", false, ezCVarFlags::Default, "Enables debug visualization of the spatial data structure");
   ezCVarBool CVarVisObjectSelection("r_VisObjectSelection", false, ezCVarFlags::Default, "When set the debug visualization is only shown for selected objects");
   ezCVarString CVarVisObjectName("r_VisObjectName", "", ezCVarFlags::Default, "When set the debug visualization is only shown for objects with the given name");
+
+  ezCVarBool CVarExtractionStats("r_ExtractionStats", false, ezCVarFlags::Default, "Display some stats of the render data extraction");
 #endif
 
 namespace
@@ -97,6 +100,11 @@ ezExtractor::ezExtractor(const char* szName)
 {
   m_bActive = true;
   m_sName.Assign(szName);
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  m_uiNumCachedRenderData = 0;
+  m_uiNumUncachedRenderData = 0;
+#endif
 }
 
 ezExtractor::~ezExtractor()
@@ -128,12 +136,110 @@ bool ezExtractor::FilterByViewTags(const ezView& view, const ezGameObject* pObje
   return false;
 }
 
-void ezExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData* pExtractedRenderData)
+void ezExtractor::ExtractRenderData(const ezView& view, const ezGameObject* pObject, ezMsgExtractRenderData& msg, ezExtractedRenderData& extractedRenderData) const
+{
+  if (FilterByViewTags(view, pObject))
+  {
+    return;
+  }
+
+  msg.m_ExtractedRenderData.Clear();
+  ezUInt32 uiNumUncachedRenderData = 0;
+
+  if (pObject->IsStatic())
+  {
+    auto cachedRenderData = ezRenderWorld::GetCachedRenderData(view, pObject->GetHandle());
+    ezUInt32 uiCacheIndex = 0;
+
+    auto components = pObject->GetComponents();
+    const ezUInt32 uiNumComponents = components.GetCount();
+    for (ezUInt32 uiComponentIndex = 0; uiComponentIndex < uiNumComponents; ++uiComponentIndex)
+    {
+      bool bCacheFound = false;
+      while (uiCacheIndex < cachedRenderData.GetCount() && cachedRenderData[uiCacheIndex].m_uiComponentIndex == uiComponentIndex)
+      {
+        if (cachedRenderData[uiCacheIndex].m_pRenderData != nullptr)
+        {
+          msg.m_ExtractedRenderData.PushBack(cachedRenderData[uiCacheIndex]);
+        }
+        ++uiCacheIndex;
+
+        bCacheFound = true;
+      }
+
+      if (bCacheFound)
+      {
+        continue;
+      }
+
+      ezUInt32 uiOldRenderDataCount = msg.m_ExtractedRenderData.GetCount();
+      const ezComponent* pComponent = components[uiComponentIndex];
+      if (pComponent->SendMessage(msg))
+      {
+        if (msg.m_ExtractedRenderData.GetCount() > uiOldRenderDataCount)
+        {
+          auto newCacheEntries = msg.m_ExtractedRenderData.GetArrayPtr().GetSubArray(uiOldRenderDataCount);
+          if (newCacheEntries[0].m_uiCacheIfStatic)
+          {
+            for (auto& newCacheEntry : newCacheEntries)
+            {
+              newCacheEntry.m_uiComponentIndex = uiComponentIndex;
+            }
+
+            ezRenderWorld::CacheRenderData(view, pObject->GetHandle(), pComponent->GetHandle(), newCacheEntries);
+          }
+
+          uiNumUncachedRenderData += newCacheEntries.GetCount();
+        }
+      }
+      else // component does not handle extract message at all
+      {
+        // Create a dummy cache entry so we don't call send message next time
+        ezInternal::RenderDataCacheEntry dummyEntry;
+        dummyEntry.m_pRenderData = nullptr;
+        dummyEntry.m_uiSortingKey = 0;
+        dummyEntry.m_uiCategory = ezInvalidRenderDataCategory.m_uiValue;
+        dummyEntry.m_uiComponentIndex = uiComponentIndex;
+        dummyEntry.m_uiCacheIfStatic = true;
+
+        ezRenderWorld::CacheRenderData(view, pObject->GetHandle(), pComponent->GetHandle(), ezMakeArrayPtr(&dummyEntry, 1));
+      }
+    }
+  }
+  else
+  {
+    pObject->SendMessage(msg);
+
+    uiNumUncachedRenderData += msg.m_ExtractedRenderData.GetCount();
+  }
+
+  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
+  {
+    for (auto& cached : msg.m_ExtractedRenderData)
+    {
+      extractedRenderData.AddRenderData(cached.m_pRenderData, msg.m_OverrideCategory, cached.m_uiSortingKey);
+    }
+  }
+  else
+  {
+    for (auto& cached : msg.m_ExtractedRenderData)
+    {
+      extractedRenderData.AddRenderData(cached.m_pRenderData, ezRenderData::Category(cached.m_uiCategory), cached.m_uiSortingKey);
+    }
+  }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  m_uiNumCachedRenderData += msg.m_ExtractedRenderData.GetCount() - uiNumUncachedRenderData;
+  m_uiNumUncachedRenderData += uiNumUncachedRenderData;
+#endif
+}
+
+void ezExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
 {
 
 }
 
-void ezExtractor::PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData* pExtractedRenderData)
+void ezExtractor::PostSortAndBatch(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
 {
 
 }
@@ -150,25 +256,23 @@ ezVisibleObjectsExtractor::ezVisibleObjectsExtractor(const char* szName)
 }
 
 void ezVisibleObjectsExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-  ezExtractedRenderData* pExtractedRenderData)
+  ezExtractedRenderData& extractedRenderData)
 {
   ezMsgExtractRenderData msg;
   msg.m_pView = &view;
-  msg.m_pExtractedRenderData = pExtractedRenderData;
-  msg.m_OverrideCategory = ezInvalidIndex;
 
   EZ_LOCK(view.GetWorld()->GetReadMarker());
 
   #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     VisualizeSpatialData(view);
+
+    m_uiNumCachedRenderData = 0;
+    m_uiNumUncachedRenderData = 0;
   #endif
 
   for (auto pObject : visibleObjects)
   {
-    if (FilterByViewTags(view, pObject))
-      continue;
-
-    pObject->SendMessage(msg);
+    ExtractRenderData(view, pObject, msg, extractedRenderData);
 
     #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
       if (CVarVisBounds || CVarVisLocalBBox || CVarVisSpatialData)
@@ -181,6 +285,25 @@ void ezVisibleObjectsExtractor::Extract(const ezView& view, const ezDynamicArray
       }
     #endif
   }
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  const bool bIsMainView = (view.GetCameraUsageHint() == ezCameraUsageHint::MainView || view.GetCameraUsageHint() == ezCameraUsageHint::EditorView);
+
+  if (CVarExtractionStats && bIsMainView)
+  {
+    ezViewHandle hView = view.GetHandle();
+
+    ezStringBuilder sb;
+
+    ezDebugRenderer::DrawText(hView, "Extraction Stats", ezVec2I32(10, 200), ezColor::LimeGreen);
+
+    sb.Format("Num Cached Render Data: {0}", m_uiNumCachedRenderData);
+    ezDebugRenderer::DrawText(hView, sb, ezVec2I32(10, 220), ezColor::LimeGreen);
+
+    sb.Format("Num Uncached Render Data: {0}", m_uiNumUncachedRenderData);
+    ezDebugRenderer::DrawText(hView, sb, ezVec2I32(10, 240), ezColor::LimeGreen);
+  }
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -190,12 +313,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezSelectedObjectsExtractor::ezSelectedObjectsExtractor(const char* szName)
   : ezExtractor(szName)
+  , m_OverrideCategory(ezDefaultRenderDataCategories::Selection)
 {
-  m_OverrideCategory = ezDefaultRenderDataCategories::Selection;
 }
 
 void ezSelectedObjectsExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-  ezExtractedRenderData* pExtractedRenderData)
+  ezExtractedRenderData& extractedRenderData)
 {
   const ezDeque<ezGameObjectHandle>* pSelection = GetSelection();
   if (pSelection == nullptr)
@@ -203,7 +326,6 @@ void ezSelectedObjectsExtractor::Extract(const ezView& view, const ezDynamicArra
 
   ezMsgExtractRenderData msg;
   msg.m_pView = &view;
-  msg.m_pExtractedRenderData = pExtractedRenderData;
   msg.m_OverrideCategory = m_OverrideCategory;
 
   EZ_LOCK(view.GetWorld()->GetReadMarker());
@@ -214,10 +336,7 @@ void ezSelectedObjectsExtractor::Extract(const ezView& view, const ezDynamicArra
     if (!view.GetWorld()->TryGetObject(hObj, pObject))
       continue;
 
-    if (FilterByViewTags(view, pObject))
-      continue;
-
-    pObject->SendMessage(msg);
+    ExtractRenderData(view, pObject, msg, extractedRenderData);
 
     #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
       if (CVarVisBounds || CVarVisLocalBBox || CVarVisSpatialData)

@@ -15,13 +15,13 @@ ezParticleExtractor::ezParticleExtractor(const char* szName)
 }
 
 void ezParticleExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-  ezExtractedRenderData* pExtractedRenderData)
+  ezExtractedRenderData& extractedRenderData)
 {
   EZ_LOCK(view.GetWorld()->GetReadMarker());
 
   if (const ezParticleWorldModule* pModule = view.GetWorld()->GetModule<ezParticleWorldModule>())
   {
-    pModule->ExtractRenderData(view, pExtractedRenderData);
+    pModule->ExtractRenderData(view, extractedRenderData);
   }
 }
 

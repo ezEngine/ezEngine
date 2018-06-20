@@ -16,7 +16,7 @@ public:
 
   virtual const ezDeque<ezGameObjectHandle>* GetSelection() override;
 
-  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData* pExtractedRenderData) override;
+  virtual void Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData) override;
 
   void SetSceneContext(ezSceneContext* pSceneContext) { m_pSceneContext = pSceneContext; }
   ezSceneContext* GetSceneContext() const { return m_pSceneContext; }

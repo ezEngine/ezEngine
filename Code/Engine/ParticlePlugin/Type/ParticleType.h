@@ -29,7 +29,7 @@ public:
 
   virtual float GetMaxParticleRadius(float fParticleSize) const { return fParticleSize * 0.5f; }
 
-  virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const = 0;
+  virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const = 0;
 
 protected:
   ezParticleType();

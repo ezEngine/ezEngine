@@ -612,7 +612,7 @@ void ezProceduralPlacementComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds&
 void ezProceduralPlacementComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // Don't extract render data for selection or in shadow views.
-  if (msg.m_OverrideCategory != ezInvalidIndex)
+  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
     return;
 
   if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::MainView ||

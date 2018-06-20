@@ -9,7 +9,6 @@
 #include <Core/Messages/CollisionMessage.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererFoundation/Device/Device.h>
 #include <GameEngine/Messages/BuildNavMeshMessage.h>
 #include <GameEngine/AI/NavMesh/NavMeshDescription.h>
@@ -303,34 +302,26 @@ void ezBreakableSheetComponent::OnExtractRenderData(ezMsgExtractRenderData& msg)
 
   uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFE) | uiFlipWinding;
 
-  ezRenderData::Category category = msg.m_OverrideCategory;
-
-  if (category == ezInvalidIndex)
+  ezRenderData::Category category = ezDefaultRenderDataCategories::LitOpaque;
+  if (hMaterial.IsValid())
   {
-    if (hMaterial.IsValid())
-    {
-      ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowFallback);
-      ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
-      if (blendModeValue == "BLEND_MODE_OPAQUE" || blendModeValue == "")
-      {
-        category = ezDefaultRenderDataCategories::LitOpaque;
-      }
-      else if (blendModeValue == "BLEND_MODE_MASKED")
-      {
-        category = ezDefaultRenderDataCategories::LitMasked;
-      }
-      else
-      {
-        category = ezDefaultRenderDataCategories::LitTransparent;
-      }
-    }
-    else
+    ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowFallback);
+    ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
+    if (blendModeValue == "BLEND_MODE_OPAQUE" || blendModeValue == "")
     {
       category = ezDefaultRenderDataCategories::LitOpaque;
     }
+    else if (blendModeValue == "BLEND_MODE_MASKED")
+    {
+      category = ezDefaultRenderDataCategories::LitMasked;
+    }
+    else
+    {
+      category = ezDefaultRenderDataCategories::LitTransparent;
+    }
   }
 
-  msg.m_pExtractedRenderData->AddRenderData(pRenderData, category, uiSortingKey);
+  msg.AddRenderData(pRenderData, category, uiSortingKey);
 }
 
 void ezBreakableSheetComponent::OnCollision(ezMsgCollision& msg)

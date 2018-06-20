@@ -24,7 +24,7 @@ ezImguiExtractor::ezImguiExtractor(const char* szName)
 }
 
 void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-  ezExtractedRenderData* pExtractedRenderData)
+  ezExtractedRenderData& extractedRenderData)
 {
   // ignore ImGui as long as it hasn't been used
   if (ImGui::GetCurrentContext() == nullptr || !ImGui::GetCurrentContext()->Initialized)
@@ -83,7 +83,7 @@ void ezImguiExtractor::Extract(const ezView& view, const ezDynamicArray<const ez
         }
       }
 
-      pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::GUI, draw);
+      extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::GUI, draw);
     }
   }
 }

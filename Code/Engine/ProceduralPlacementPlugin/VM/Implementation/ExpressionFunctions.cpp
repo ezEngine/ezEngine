@@ -11,7 +11,7 @@ namespace
     ezExpressionFunction m_Func;
   };
 
-  static ezHashTable<ezUInt32, FunctionInfo> s_ExpressionFunctions;
+  static ezHashTable<ezUInt32, FunctionInfo, ezHashHelper<ezUInt32>, ezStaticAllocatorWrapper> s_ExpressionFunctions;
 }
 
 //static

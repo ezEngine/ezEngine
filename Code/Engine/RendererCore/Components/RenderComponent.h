@@ -12,6 +12,8 @@ public:
   ezRenderComponent();
   ~ezRenderComponent();
 
+  virtual void Deinitialize() override;
+
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 

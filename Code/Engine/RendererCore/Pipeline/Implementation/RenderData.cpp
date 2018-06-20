@@ -18,10 +18,10 @@ ezHybridArray<ezRenderData::CategoryData, 32> ezRenderData::s_CategoryData;
 ezRenderData::Category ezRenderData::RegisterCategory(const char* szCategoryName, SortingKeyFunc sortingKeyFunc)
 {
   Category oldCategory = FindCategory(szCategoryName);
-  if (oldCategory != ezInvalidIndex)
+  if (oldCategory != ezInvalidRenderDataCategory)
     return oldCategory;
 
-  Category newCategory = s_CategoryData.GetCount();
+  Category newCategory = Category(s_CategoryData.GetCount());
 
   auto& data = s_CategoryData.ExpandAndGetRef();
   data.m_sName.Assign(szCategoryName);
@@ -34,14 +34,16 @@ ezRenderData::Category ezRenderData::FindCategory(const char* szCategoryName)
 {
   ezTempHashedString categoryName(szCategoryName);
 
-  for (Category category = 0; category < s_CategoryData.GetCount(); ++category)
+  for (ezUInt32 uiCategoryIndex = 0; uiCategoryIndex < s_CategoryData.GetCount(); ++uiCategoryIndex)
   {
-    if (s_CategoryData[category].m_sName == categoryName)
-      return category;
+    if (s_CategoryData[uiCategoryIndex].m_sName == categoryName)
+      return Category(uiCategoryIndex);
   }
 
-  return ezInvalidIndex;
+  return ezInvalidRenderDataCategory;
 }
+
+//////////////////////////////////////////////////////////////////////////
 
 ezRenderData::Category ezDefaultRenderDataCategories::Light = ezRenderData::RegisterCategory("Light", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
 ezRenderData::Category ezDefaultRenderDataCategories::Decal = ezRenderData::RegisterCategory("Decal", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
@@ -56,7 +58,18 @@ ezRenderData::Category ezDefaultRenderDataCategories::SimpleForeground = ezRende
 ezRenderData::Category ezDefaultRenderDataCategories::Selection = ezRenderData::RegisterCategory("Selection", &ezRenderSortingFunctions::ByRenderDataThenFrontToBack);
 ezRenderData::Category ezDefaultRenderDataCategories::GUI = ezRenderData::RegisterCategory("GUI", &ezRenderSortingFunctions::BackToFrontThenByRenderData);
 
+//////////////////////////////////////////////////////////////////////////
 
+void ezMsgExtractRenderData::AddRenderData(ezRenderData* pRenderData, ezRenderData::Category category, ezUInt32 uiSortingKey,
+  ezRenderData::Caching::Enum cachingBehavior /*= ezRenderData::Caching::Never*/)
+{
+  auto& cached = m_ExtractedRenderData.ExpandAndGetRef();
+  cached.m_pRenderData = pRenderData;
+  cached.m_uiSortingKey = uiSortingKey;
+  cached.m_uiCategory = category.m_uiValue;
+  cached.m_uiComponentIndex = 0xFFFF;
+  cached.m_uiCacheIfStatic = (cachingBehavior == ezRenderData::Caching::IfStatic);
+}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderData);
 

@@ -1,7 +1,6 @@
 #include <PCH.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/View.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
@@ -97,7 +96,7 @@ ezResult ezSkyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bA
 void ezSkyBoxComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // Don't extract sky render data for selection or in orthographic views.
-  if (msg.m_OverrideCategory != ezInvalidIndex || msg.m_pView->GetCamera()->IsOrthographic())
+  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory || msg.m_pView->GetCamera()->IsOrthographic())
     return;
 
   const ezUInt32 uiMeshIDHash = m_hMesh.GetResourceIDHash();
@@ -122,7 +121,7 @@ void ezSkyBoxComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 
   // Sort by material and then by mesh
   ezUInt32 uiSortingKey = (uiMaterialIDHash << 16) | (uiMeshIDHash & 0xFFFF);
-  msg.m_pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Sky, uiSortingKey);
+  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Sky, uiSortingKey);
 }
 
 void ezSkyBoxComponent::SerializeComponent(ezWorldWriter& stream) const

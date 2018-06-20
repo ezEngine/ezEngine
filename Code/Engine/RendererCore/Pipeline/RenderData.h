@@ -13,7 +13,26 @@ class EZ_RENDERERCORE_DLL ezRenderData : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezRenderData, ezReflectedClass);
 
 public:
-  typedef ezUInt32 Category;
+
+  struct Category
+  {
+    Category();
+    explicit Category(ezUInt16 uiValue);
+
+    bool operator==(const Category& other) const;
+    bool operator!=(const Category& other) const;
+
+    ezUInt16 m_uiValue;
+  };
+
+  struct Caching
+  {
+    enum Enum
+    {
+      Never,
+      IfStatic
+    };
+  };
 
   /// \brief This function generates a 64bit sorting key for the given render data. Data with lower sorting key is rendered first.
   typedef ezDelegate<ezUInt64(const ezRenderData*, ezUInt32, const ezCamera&)> SortingKeyFunc;
@@ -66,13 +85,24 @@ struct EZ_RENDERERCORE_DLL ezDefaultRenderDataCategories
   static ezRenderData::Category GUI;
 };
 
+#define ezInvalidRenderDataCategory ezRenderData::Category()
+
 struct EZ_RENDERERCORE_DLL ezMsgExtractRenderData : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgExtractRenderData, ezMessage);
 
-  const ezView* m_pView;
-  ezExtractedRenderData* m_pExtractedRenderData;
-  ezRenderData::Category m_OverrideCategory;
+  const ezView* m_pView = nullptr;
+  ezRenderData::Category m_OverrideCategory = ezInvalidRenderDataCategory;
+
+  /// \brief Adds render data for the current view. This data can be cached depending on the specified caching behavior.
+  /// Non-cached data is only valid for this frame. Cached data must be manually deleted using the ezRenderWorld::DeleteCachedRenderData function.
+  void AddRenderData(ezRenderData* pRenderData, ezRenderData::Category category, ezUInt32 uiSortingKey,
+    ezRenderData::Caching::Enum cachingBehavior = ezRenderData::Caching::Never);
+
+private:
+  friend class ezExtractor;
+
+  ezHybridArray<ezInternal::RenderDataCacheEntry, 4> m_ExtractedRenderData;
 };
 
 #include <RendererCore/Pipeline/Implementation/RenderData_inl.h>

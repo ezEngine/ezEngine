@@ -117,7 +117,7 @@ void ezParticleTypeLight::CreateRequiredStreams()
 }
 
 
-void ezParticleTypeLight::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+void ezParticleTypeLight::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
   EZ_PROFILE("PFX: Light");
 
@@ -176,7 +176,7 @@ void ezParticleTypeLight::ExtractTypeRenderData(const ezView& view, ezExtractedR
     pRenderData->m_fRange = pSize[i] * sizeFactor;
     pRenderData->m_uiShadowDataOffset = ezInvalidIndex;
 
-    pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, uiBatchId);
+    extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Light, uiBatchId);
   }
 }
 

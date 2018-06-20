@@ -42,7 +42,7 @@ public:
   bool TryGetEffectInstance(const ezParticleEffectHandle& hEffect, ezParticleEffectInstance*& out_pEffect);
 
   /// \brief Extracts render data for all effects that are currently active.
-  void ExtractRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData) const;
+  void ExtractRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData) const;
 
   ezParticleEventQueueManager& GetEventQueueManager() { return m_QueueManager; }
 
@@ -61,7 +61,7 @@ private:
   ezParticleEffectHandle InternalCreateSharedEffectInstance(const char* szSharedName, const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const void* pSharedInstanceOwner);
   ezParticleEffectHandle InternalCreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, bool bIsShared);
 
-  void ExtractEffectRenderData(const ezParticleEffectInstance* pEffect, const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& systemTransform) const;
+  void ExtractEffectRenderData(const ezParticleEffectInstance* pEffect, const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& systemTransform) const;
 
   void ConfigureParticleStreamFactories();
   void ClearParticleStreamFactories();

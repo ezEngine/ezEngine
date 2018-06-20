@@ -4,7 +4,6 @@
 #include <RendererCore/Decals/DecalResource.h>
 #include <RendererCore/Messages/ApplyOnlyToMessage.h>
 #include <RendererCore/Messages/SetColorMessage.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/Graphics/Camera.h>
@@ -25,7 +24,7 @@ void ezDecalComponentManager::Initialize()
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalRenderData, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalRenderData, 1, ezRTTIDefaultAllocator<ezDecalRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 3, ezComponentMode::Static)
@@ -272,7 +271,7 @@ ezGameObjectHandle ezDecalComponent::GetApplyOnlyTo() const
 void ezDecalComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // Don't extract decal render data for selection.
-  if (msg.m_OverrideCategory != ezInvalidIndex)
+  if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
     return;
 
   if (!m_hDecal.IsValid() || m_vExtents.IsZero() || GetOwner()->GetLocalScaling().IsZero())
@@ -325,7 +324,7 @@ void ezDecalComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 
   ezUInt32 uiSortingId = (ezUInt32)(ezMath::Min(m_fSortOrder * 512.0f, 32767.0f) + 32768.0f);
   uiSortingId = (uiSortingId << 16) | (m_uiInternalSortKey & 0xFFFF);
-  msg.m_pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::Decal, uiSortingId);
+  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Decal, uiSortingId, ezRenderData::Caching::IfStatic);
 }
 
 void ezDecalComponent::OnObjectCreated(const ezAbstractObjectNode& node)

@@ -147,7 +147,7 @@ struct sodComparer
   EZ_ALWAYS_INLINE bool Equal(const sod& a, const sod& b) const { return a.dist == b.dist; }
 };
 
-void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData* pExtractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
   EZ_PROFILE("PFX: Billboard");
 
@@ -242,7 +242,7 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
 
   /// \todo Generate a proper sorting key?
   const ezUInt32 uiSortingKey = 0;
-  pExtractedRenderData->AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleTransparent, uiSortingKey);
+  extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleTransparent, uiSortingKey);
 }
 
 
