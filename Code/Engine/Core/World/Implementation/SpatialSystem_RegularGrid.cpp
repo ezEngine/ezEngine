@@ -278,7 +278,10 @@ void ezSpatialSystem_RegularGrid::FindObjectsInSphereInternal(const ezBoundingSp
             continue;
 
           ezSpatialData* pData = pCell->m_DataPointers[i];
-          callback(pData->m_pObject);
+
+          // TODO: The return value has to have more control
+          if (callback(pData->m_pObject) == ezVisitorExecution::Stop)
+            return;
 
           #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
             if (pStats != nullptr)
@@ -319,7 +322,9 @@ void ezSpatialSystem_RegularGrid::FindObjectsInBoxInternal(const ezBoundingBox& 
         if (!simdBox.Overlaps(pData->m_Bounds.GetBox()))
           continue;
 
-        callback(pData->m_pObject);
+        // TODO: The return value has to have more control
+        if (callback(pData->m_pObject) == ezVisitorExecution::Stop)
+          return;
 
         #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
           if (pStats != nullptr)

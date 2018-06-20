@@ -15,6 +15,11 @@ struct RtsMsgStopNavigation : public ezMessage
   EZ_DECLARE_MESSAGE_TYPE(RtsMsgStopNavigation, ezMessage);
 };
 
+struct RtsMsgArrivedAtLocation : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(RtsMsgArrivedAtLocation, ezMessage);
+};
+
 struct RtsMsgAssignPosition : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(RtsMsgAssignPosition, ezMessage);

@@ -1,9 +1,9 @@
 #include <PCH.h>
 
 #include <Foundation/Utilities/Stats.h>
-#include <RtsGamePlugin/AI/HuntEnemyUtility.h>
-#include <RtsGamePlugin/AI/MoveToPositionUtility.h>
 #include <RtsGamePlugin/AI/AttackUnitAiUtility.h>
+#include <RtsGamePlugin/AI/GuardLocationUtility.h>
+#include <RtsGamePlugin/AI/MoveToPositionUtility.h>
 #include <RtsGamePlugin/Components/UnitComponent.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
 
@@ -24,6 +24,7 @@ EZ_BEGIN_COMPONENT_TYPE(RtsUnitComponent, 2, ezComponentMode::Dynamic)
     EZ_MESSAGE_HANDLER(RtsMsgAssignPosition, OnMsgAssignPosition),
     EZ_MESSAGE_HANDLER(RtsMsgApplyDamage, OnMsgApplyDamage),
     EZ_MESSAGE_HANDLER(RtsMsgGatherUnitStats, OnMsgGatherUnitStats),
+    EZ_MESSAGE_HANDLER(RtsMsgArrivedAtLocation, OnMsgArrivedAtLocation),
   }
   EZ_END_MESSAGEHANDLERS
 
@@ -114,6 +115,16 @@ void RtsUnitComponent::OnMsgGatherUnitStats(RtsMsgGatherUnitStats& msg)
   msg.m_uiMaxHealth = m_uiMaxHealth;
 }
 
+
+void RtsUnitComponent::OnMsgArrivedAtLocation(RtsMsgArrivedAtLocation& msg)
+{
+  if (m_UnitMode == RtsUnitMode::MoveToPosition)
+  {
+    m_UnitMode = RtsUnitMode::GuardLocation;
+    m_vAssignedPosition = GetOwner()->GetGlobalPosition().GetAsVec2();
+  }
+}
+
 void RtsUnitComponent::OnUnitDestroyed()
 {
   if (m_hOnDestroyedPrefab.IsValid())
@@ -179,7 +190,7 @@ void RtsUnitComponent::OnSimulationStarted()
     m_pAiSystem = EZ_DEFAULT_NEW(RtsAiUtilitySystem);
 
     {
-      ezUniquePtr<RtsHuntEnemyAiUtility> pUtility = EZ_DEFAULT_NEW(RtsHuntEnemyAiUtility);
+      ezUniquePtr<RtsGuardLocationAiUtility> pUtility = EZ_DEFAULT_NEW(RtsGuardLocationAiUtility);
       m_pAiSystem->AddUtility(std::move(pUtility));
     }
 
@@ -246,4 +257,93 @@ void RtsUnitComponentManager::UnitUpdate(const ezWorldModule::UpdateContext& con
       it->UpdateUnit();
     }
   }
+}
+
+ezGameObject* RtsUnitComponent::FindClosestEnemy(float fMaxRadius) const
+{
+  struct Payload
+  {
+    ezGameObject* pBestObject = nullptr;
+    float fBestDistSQR;
+    ezVec3 m_vOwnPosition;
+    ezUInt16 m_uiOwnTeamID;
+  };
+
+  Payload pl;
+  pl.fBestDistSQR = ezMath::Square(fMaxRadius);
+  pl.m_vOwnPosition = GetOwner()->GetGlobalPosition();
+  pl.m_uiOwnTeamID = GetOwner()->GetTeamID();
+
+  ezSpatialSystem::QueryCallback cb = [&pl](ezGameObject* pObject) -> ezVisitorExecution::Enum {
+
+    if (pObject->GetTeamID() == pl.m_uiOwnTeamID)
+      return ezVisitorExecution::Skip;
+
+    RtsUnitComponent* pUnit = nullptr;
+    if (pObject->TryGetComponentOfBaseType(pUnit))
+    {
+      const float dist = (pObject->GetGlobalPosition() - pl.m_vOwnPosition).GetLengthSquared();
+
+      if (dist < pl.fBestDistSQR)
+      {
+        pl.fBestDistSQR = dist;
+        pl.pBestObject = pObject;
+      }
+    }
+
+    return ezVisitorExecution::Continue;
+  };
+
+  RtsGameState::GetSingleton()->InspectObjectsInArea(pl.m_vOwnPosition.GetAsVec2(), fMaxRadius, cb);
+
+  return pl.pBestObject;
+}
+
+void RtsUnitComponent::FireAt(ezGameObjectHandle hUnit)
+{
+  const ezTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
+
+  if (tNow - m_TimeLastShot >= ezTime::Seconds(0.75))
+  {
+    m_TimeLastShot = tNow;
+
+    RtsMsgSetTarget msg;
+    msg.m_hObject = hUnit;
+
+    ezGameObject* pSpawned = RtsGameState::GetSingleton()->SpawnNamedObjectAt(GetOwner()->GetGlobalTransform(), "ProtonTorpedo1", GetOwner()->GetTeamID());
+
+    pSpawned->PostMessage(msg, ezObjectMsgQueueType::AfterInitialized);
+  }
+}
+
+bool RtsUnitComponent::AttackClosestEnemey(float fSearchRadius, float fIgnoreRadius)
+{
+  if (m_hCurrentUnitToAttack.IsInvalidated())
+  {
+    // TODO: don't check all the time
+
+    if (ezGameObject* pEnemy = FindClosestEnemy(fSearchRadius))
+    {
+      m_hCurrentUnitToAttack = pEnemy->GetHandle();
+    }
+  }
+
+  if (m_hCurrentUnitToAttack.IsInvalidated())
+    return false;
+
+  ezGameObject* pEnemy = nullptr;
+  if (!GetWorld()->TryGetObject(m_hCurrentUnitToAttack, pEnemy))
+  {
+    m_hCurrentUnitToAttack.Invalidate();
+    return false;
+  }
+
+  if ((pEnemy->GetGlobalPosition() - GetOwner()->GetGlobalPosition()).GetLengthSquared() > ezMath::Square(fIgnoreRadius))
+  {
+    m_hCurrentUnitToAttack.Invalidate();
+    return false;
+  }
+
+  FireAt(m_hCurrentUnitToAttack);
+  return true;
 }

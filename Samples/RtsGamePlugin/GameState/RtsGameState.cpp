@@ -128,21 +128,21 @@ void RtsGameState::ActivateQueuedGameMode()
 {
   switch (m_GameModeToSwitchTo)
   {
-  case RtsActiveGameMode::None:
-    SetActiveGameMode(nullptr);
-    break;
-  case RtsActiveGameMode::MainMenuMode:
-    SetActiveGameMode(&m_MainMenuMode);
-    break;
-  case RtsActiveGameMode::BattleMode:
-    SetActiveGameMode(&m_BattleMode);
-    break;
-  case RtsActiveGameMode::EditLevelMode:
-    SetActiveGameMode(&m_EditLevelMode);
-    break;
+    case RtsActiveGameMode::None:
+      SetActiveGameMode(nullptr);
+      break;
+    case RtsActiveGameMode::MainMenuMode:
+      SetActiveGameMode(&m_MainMenuMode);
+      break;
+    case RtsActiveGameMode::BattleMode:
+      SetActiveGameMode(&m_BattleMode);
+      break;
+    case RtsActiveGameMode::EditLevelMode:
+      SetActiveGameMode(&m_EditLevelMode);
+      break;
 
-  default:
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
   }
 }
 
@@ -330,34 +330,45 @@ ezResult RtsGameState::PickGroundPlanePosition(ezVec3& out_vPositon) const
 
 ezGameObject* RtsGameState::PickSelectableObject() const
 {
-  ezVec3 vGroundPos;
-  if (PickGroundPlanePosition(vGroundPos).Failed())
+  struct Payload
+  {
+    ezGameObject* pBestObject = nullptr;
+    float fBestDistSQR = ezMath::Square(1000.0f);
+    ezVec3 vGroundPos;
+  };
+
+  Payload pl;
+
+  if (PickGroundPlanePosition(pl.vGroundPos).Failed())
     return nullptr;
 
-  ezBoundingSphere sphere(vGroundPos, 100.0f);
+  ezSpatialSystem::QueryCallback cb = [&pl](ezGameObject* pObject) {
 
-  ezDynamicArray<ezGameObject*> objects;
-  m_pMainWorld->GetSpatialSystem().FindObjectsInSphere(sphere, objects, nullptr);
-
-  ezGameObject* pBestObject = nullptr;
-  float fBestDistSQR = ezMath::Square(1000.0f);
-
-  for (ezUInt32 i = 0; i < objects.GetCount(); ++i)
-  {
     RtsSelectableComponent* pSelectable = nullptr;
-    if (objects[i]->TryGetComponentOfBaseType(pSelectable))
+    if (pObject->TryGetComponentOfBaseType(pSelectable))
     {
-      const float dist = (objects[i]->GetGlobalTransform().m_vPosition - vGroundPos).GetLengthSquared();
+      const float dist = (pObject->GetGlobalTransform().m_vPosition - pl.vGroundPos).GetLengthSquared();
 
-      if (dist < fBestDistSQR && dist <= ezMath::Square(pSelectable->m_fSelectionRadius))
+      if (dist < pl.fBestDistSQR && dist <= ezMath::Square(pSelectable->m_fSelectionRadius))
       {
-        fBestDistSQR = dist;
-        pBestObject = objects[i];
+        pl.fBestDistSQR = dist;
+        pl.pBestObject = pObject;
       }
     }
-  }
 
-  return pBestObject;
+    return ezVisitorExecution::Continue;
+  };
+
+  InspectObjectsInArea(pl.vGroundPos.GetAsVec2(), 1.0f, cb);
+
+  return pl.pBestObject;
+}
+
+
+void RtsGameState::InspectObjectsInArea(const ezVec2& position, float radius, ezSpatialSystem::QueryCallback callback) const
+{
+  ezBoundingSphere sphere(position.GetAsVec3(0), radius);
+  m_pMainWorld->GetSpatialSystem().FindObjectsInSphere(sphere, callback, nullptr);
 }
 
 ezGameObject* RtsGameState::SpawnNamedObjectAt(const ezTransform& transform, const char* szObjectName, ezUInt16 uiTeamID)

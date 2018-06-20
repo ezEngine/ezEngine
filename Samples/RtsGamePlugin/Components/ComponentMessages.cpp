@@ -12,6 +12,10 @@ EZ_IMPLEMENT_MESSAGE_TYPE(RtsMsgStopNavigation);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(RtsMsgStopNavigation, 1, ezRTTIDefaultAllocator<RtsMsgStopNavigation>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
+EZ_IMPLEMENT_MESSAGE_TYPE(RtsMsgArrivedAtLocation);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(RtsMsgArrivedAtLocation, 1, ezRTTIDefaultAllocator<RtsMsgArrivedAtLocation>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
 EZ_IMPLEMENT_MESSAGE_TYPE(RtsMsgAssignPosition);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(RtsMsgAssignPosition, 1, ezRTTIDefaultAllocator<RtsMsgAssignPosition>)
 EZ_END_DYNAMIC_REFLECTED_TYPE

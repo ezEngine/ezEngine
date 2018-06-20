@@ -53,16 +53,21 @@ private:
   void OnMsgSetTarget(RtsMsgSetTarget& msg);
   void OnMsgApplyDamage(RtsMsgApplyDamage& msg);
   void OnMsgGatherUnitStats(RtsMsgGatherUnitStats& msg);
+  void OnMsgArrivedAtLocation(RtsMsgArrivedAtLocation& msg);
 
 public:
   //////////////////////////////////////////////////////////////////////////
   //
 
+  ezGameObject* FindClosestEnemy(float fMaxRadius) const;
+  void FireAt(ezGameObjectHandle hUnit);
+  bool AttackClosestEnemey(float fSearchRadius, float fIgnoreRadius);
+
 protected:
   virtual void OnUnitDestroyed();
 
   friend class RtsAttackUnitAiUtility;
-  friend class RtsHuntEnemyAiUtility;
+  friend class RtsGuardLocationAiUtility;
   friend class RtsMoveToPositionAiUtility;
 
   bool m_bModeChanged = true;

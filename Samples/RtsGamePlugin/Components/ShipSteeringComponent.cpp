@@ -69,6 +69,9 @@ void RtsShipSteeringComponent::OnMsgStopNavigation(RtsMsgStopNavigation& msg)
   if (m_Mode == RtsShipSteeringComponent::Mode::Steering)
   {
     m_Mode = RtsShipSteeringComponent::Mode::Stop;
+
+    RtsMsgArrivedAtLocation msg;
+    GetOwner()->SendMessage(msg);
   }
 }
 
@@ -88,13 +91,18 @@ void RtsShipSteeringComponent::UpdateSteering()
   const float fArriveDistance = m_fCurrentSpeed * m_fCurrentSpeed / m_fMaxDeceleration;
 
   const ezVec2 vDistToTarget = m_vTargetPosition - vOwnerPos;
-  const float fDistToTarget = vDistToTarget.GetLength();
+  float fDistToTarget = vDistToTarget.GetLength();
   const ezVec2 vDirToTarget = (fDistToTarget <= 0) ? vOwnerDir : (vDistToTarget / fDistToTarget);
 
   const bool bTargetIsInFront = vOwnerDir.Dot(vDirToTarget) > ezMath::Cos(ezAngle::Degree(60));
   const bool bTargetIsRight = (vOwnerRight.Dot(m_vTargetPosition) - vOwnerRight.Dot(vOwnerPos)) > 0;
 
-  if (m_Mode == RtsShipSteeringComponent::Mode::Stop || fDistToTarget <= fArriveDistance)
+  if (m_Mode == RtsShipSteeringComponent::Mode::Stop)
+  {
+    fDistToTarget = 0;
+  }
+
+  if (fDistToTarget <= fArriveDistance)
   {
     m_fCurrentSpeed -= m_fMaxDeceleration * tDiff;
   }
@@ -124,10 +132,21 @@ void RtsShipSteeringComponent::UpdateSteering()
       transform.m_qRotation = qRot * transform.m_qRotation;
     }
   }
-  else if (m_fCurrentSpeed <= 0)
+  else
   {
-    m_fCurrentSpeed = 0;
-    m_Mode = RtsShipSteeringComponent::Mode::None;
+    if (m_Mode == RtsShipSteeringComponent::Mode::Steering)
+    {
+      m_Mode = RtsShipSteeringComponent::Mode::Stop;
+
+      RtsMsgArrivedAtLocation msg;
+      GetOwner()->SendMessage(msg);
+    }
+
+    if (m_fCurrentSpeed <= 0)
+    {
+      m_fCurrentSpeed = 0;
+      m_Mode = RtsShipSteeringComponent::Mode::None;
+    }
   }
 
   {

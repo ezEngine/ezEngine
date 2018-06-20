@@ -41,15 +41,5 @@ void RtsAttackUnitAiUtility::Execute(ezGameObject* pOwnerObject, ezComponent* pO
     return;
   }
 
-  if (tNow - pUnit->m_TimeLastShot >= ezTime::Seconds(0.75))
-  {
-    pUnit->m_TimeLastShot = tNow;
-
-    RtsMsgSetTarget msg;
-    msg.m_hObject = pUnit->m_hAssignedUnitToAttack;
-
-    ezGameObject* pSpawned = RtsGameState::GetSingleton()->SpawnNamedObjectAt(pOwnerObject->GetGlobalTransform(), "ProtonTorpedo1", pOwnerObject->GetTeamID());
-
-    pSpawned->PostMessage(msg, ezObjectMsgQueueType::AfterInitialized);
-  }
+  pUnit->FireAt(pUnit->m_hAssignedUnitToAttack);
 }

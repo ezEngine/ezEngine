@@ -25,7 +25,8 @@ void RtsMoveToPositionAiUtility::Execute(ezGameObject* pOwnerObject, ezComponent
 
   pOwnerObject->SendMessage(msg);
 
-  // TODO: shoot at close by enemies
+  // shoot at close by enemies
+  pUnit->AttackClosestEnemey(7.0f, 10.0f);
 }
 
 double RtsMoveToPositionAiUtility::ComputePriority(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) const
@@ -41,7 +42,12 @@ double RtsMoveToPositionAiUtility::ComputePriority(ezGameObject* pOwnerObject, e
   if (pUnit->m_UnitMode == RtsUnitMode::GuardLocation)
   {
     // return to assigned position when strayed too far from it
-    return (pOwnerObject->GetGlobalPosition().GetAsVec2() - pUnit->m_vAssignedPosition).GetLengthSquared();
+    float fDistSqr = (pOwnerObject->GetGlobalPosition().GetAsVec2() - pUnit->m_vAssignedPosition).GetLengthSquared();
+
+    // don't participate at all, when very close to the target
+    // otherwise this often gets activated and executes the shoot at action
+    if (fDistSqr > ezMath::Square(3.0f))
+      return fDistSqr;
   }
 
   return 0;

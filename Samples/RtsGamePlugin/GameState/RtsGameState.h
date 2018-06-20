@@ -89,6 +89,7 @@ private:
 public:
   ezResult PickGroundPlanePosition(ezVec3& out_vPositon) const;
   ezGameObject* PickSelectableObject() const;
+  void InspectObjectsInArea(const ezVec2& position, float radius, ezSpatialSystem::QueryCallback callback) const;
 
 private:
   ezResult ComputePickingRay();
