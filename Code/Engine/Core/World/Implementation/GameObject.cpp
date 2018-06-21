@@ -229,6 +229,8 @@ void ezGameObject::operator=(const ezGameObject& other)
   m_PrevSiblingIndex = other.m_PrevSiblingIndex;
   m_ChildCount = other.m_ChildCount;
 
+  m_uiTeamID = other.m_uiTeamID;
+
   m_uiHierarchyLevel = other.m_uiHierarchyLevel;
   m_pTransformationData = other.m_pTransformationData;
   m_pTransformationData->m_pObject = this;
