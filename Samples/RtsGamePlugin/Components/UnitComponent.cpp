@@ -316,7 +316,7 @@ void RtsUnitComponent::FireAt(ezGameObjectHandle hUnit)
   }
 }
 
-bool RtsUnitComponent::AttackClosestEnemey(float fSearchRadius, float fIgnoreRadius)
+ezGameObject* RtsUnitComponent::AttackClosestEnemey(float fSearchRadius, float fIgnoreRadius)
 {
   if (m_hCurrentUnitToAttack.IsInvalidated())
   {
@@ -328,22 +328,22 @@ bool RtsUnitComponent::AttackClosestEnemey(float fSearchRadius, float fIgnoreRad
     }
   }
 
-  if (m_hCurrentUnitToAttack.IsInvalidated())
-    return false;
-
   ezGameObject* pEnemy = nullptr;
+  if (m_hCurrentUnitToAttack.IsInvalidated())
+    return nullptr;
+
   if (!GetWorld()->TryGetObject(m_hCurrentUnitToAttack, pEnemy))
   {
     m_hCurrentUnitToAttack.Invalidate();
-    return false;
+    return nullptr;
   }
 
   if ((pEnemy->GetGlobalPosition() - GetOwner()->GetGlobalPosition()).GetLengthSquared() > ezMath::Square(fIgnoreRadius))
   {
     m_hCurrentUnitToAttack.Invalidate();
-    return false;
+    return nullptr;
   }
 
   FireAt(m_hCurrentUnitToAttack);
-  return true;
+  return pEnemy;
 }

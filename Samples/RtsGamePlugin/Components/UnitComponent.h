@@ -61,7 +61,7 @@ public:
 
   ezGameObject* FindClosestEnemy(float fMaxRadius) const;
   void FireAt(ezGameObjectHandle hUnit);
-  bool AttackClosestEnemey(float fSearchRadius, float fIgnoreRadius);
+  ezGameObject* AttackClosestEnemey(float fSearchRadius, float fIgnoreRadius);
 
 protected:
   virtual void OnUnitDestroyed();

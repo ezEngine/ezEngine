@@ -16,7 +16,23 @@ void RtsGuardLocationAiUtility::Execute(ezGameObject* pOwnerObject, ezComponent*
   RtsUnitComponent* pUnit = static_cast<RtsUnitComponent*>(pOwnerComponent);
 
   // shoot at close by enemies
-  pUnit->AttackClosestEnemey(7.0f, 10.0f);
+  ezGameObject* pEnemy = pUnit->AttackClosestEnemey(7.0f, 10.0f);
+
+  if (pEnemy)
+  {
+    ezVec3 vDiff = pEnemy->GetGlobalPosition() - pOwnerObject->GetGlobalPosition();
+
+    if (vDiff.GetLengthSquared() > ezMath::Square(5.0f))
+    {
+      vDiff.Normalize();
+
+      // harass the enemy when it moves away
+      RtsMsgNavigateTo msg;
+      msg.m_vTargetPosition = pOwnerObject->GetGlobalPosition().GetAsVec2() + vDiff.GetAsVec2();
+
+      pOwnerObject->SendMessage(msg);
+    }
+  }
 }
 
 double RtsGuardLocationAiUtility::ComputePriority(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) const
