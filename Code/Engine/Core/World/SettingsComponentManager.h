@@ -32,7 +32,7 @@ private:
   virtual ezComponent* CreateComponentStorage() override;
   virtual void DeleteComponentStorage(ezComponent* pComponent, ezComponent*& out_pMovedComponent) override;
 
-  ezUniquePtr<ComponentType> m_pSingletonComponent;
+  ezHybridArray<ezUniquePtr<ComponentType>, 2> m_Components;
 };
 
 #include <Core/World/Implementation/SettingsComponentManager_inl.h>
