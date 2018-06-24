@@ -49,7 +49,7 @@ ezLargeBlockAllocator<BlockSize>::ezLargeBlockAllocator(const char* szName, ezAl
 {
   EZ_CHECK_AT_COMPILETIME_MSG(BlockSize >= 4096, "Block size must be 4096 or bigger");
 
-  m_Id = ezMemoryTracker::RegisterAllocator(szName, flags);
+  m_Id = ezMemoryTracker::RegisterAllocator(szName, flags, ezPageAllocator::GetId());
   m_ThreadID = ezThreadUtils::GetCurrentThreadID();
 
   const ezUInt32 uiPageSize = ezSystemInformation::Get().GetMemoryPageSize();

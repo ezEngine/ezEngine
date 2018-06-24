@@ -2,7 +2,6 @@
 
 #include <Foundation/Memory/MemoryUtils.h>
 #include <Foundation/Containers/Implementation/ArrayIterator.h>
-#include <Foundation/Strings/FormatString.h>
 
 /// \brief This class encapsulates an array and it's size. It is recommended to use this class instead of plain C arrays.
 ///

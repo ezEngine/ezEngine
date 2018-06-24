@@ -16,9 +16,9 @@ namespace MemoryWidgetDetail
     QColor(0, 148, 255), // light blue
     QColor(255, 0, 0), // red
     QColor(0, 255, 255), // turquoise
-    QColor(178, 0, 255), // purple
-    QColor(0, 38, 255), // dark blue
-    QColor(72, 0, 255), // lilac
+    QColor(217, 128, 255), // purple
+    QColor(128, 147, 255), // dark blue
+    QColor(164, 128, 255), // lilac
   };
 }
 
@@ -116,29 +116,34 @@ void ezQtMemoryWidget::UpdateStats()
     ListAllocators->clear();
 
     {
-      ListAllocators->addItem("<Accumulated>");
+      m_Accu.m_pTreeItem = new QTreeWidgetItem();
+      m_Accu.m_pTreeItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
+      m_Accu.m_pTreeItem->setCheckState(0, m_Accu.m_bDisplay ? Qt::Checked : Qt::Unchecked);
+      m_Accu.m_pTreeItem->setData(0, Qt::UserRole, ezUInt32(ezInvalidIndex));
 
-      m_Accu.m_pListItem = ListAllocators->item(ListAllocators->count() - 1);
-      m_Accu.m_pListItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
-      m_Accu.m_pListItem->setCheckState(m_Accu.m_bDisplay ? Qt::Checked : Qt::Unchecked);
-      m_Accu.m_pListItem->setData(Qt::UserRole, QString("<Accumulated>"));
+      m_Accu.m_pTreeItem->setText(0, "<Accumulated>");
+      m_Accu.m_pTreeItem->setTextColor(0, QColor(255, 255, 255));
 
-      m_Accu.m_pListItem->setTextColor(QColor(255, 255, 255));
+      ListAllocators->addTopLevelItem(m_Accu.m_pTreeItem);
     }
 
-    for (ezMap<ezString, ezQtMemoryWidget::AllocatorData>::Iterator it = m_AllocatorData.GetIterator(); it.IsValid(); ++it)
+    for (auto it = m_AllocatorData.GetIterator(); it.IsValid(); ++it)
     {
-      ListAllocators->addItem(it.Key().GetData());
+      auto pParentData = m_AllocatorData.Find(it.Value().m_uiParentId);
+      QTreeWidgetItem* pParent = pParentData.IsValid() ? pParentData.Value().m_pTreeItem : m_Accu.m_pTreeItem;
 
-      QListWidgetItem* pItem = ListAllocators->item(ListAllocators->count() - 1);
+      QTreeWidgetItem* pItem = new QTreeWidgetItem(pParent);
       pItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
-      pItem->setCheckState(it.Value().m_bDisplay ? Qt::Checked : Qt::Unchecked);
-      pItem->setData(Qt::UserRole, QString(it.Key().GetData()));
+      pItem->setCheckState(0, it.Value().m_bDisplay ? Qt::Checked : Qt::Unchecked);
+      pItem->setData(0, Qt::UserRole, it.Key());
 
-      pItem->setTextColor(MemoryWidgetDetail::s_Colors[it.Value().m_iColor % s_uiMaxColors]);
+      pItem->setText(0, it.Value().m_sName.GetData());
+      pItem->setTextColor(0, MemoryWidgetDetail::s_Colors[it.Value().m_iColor % s_uiMaxColors]);
 
-      it.Value().m_pListItem = pItem;
+      it.Value().m_pTreeItem = pItem;
     }
+
+    ListAllocators->expandAll();
 
     ListAllocators->blockSignals(false);
   }
@@ -148,9 +153,9 @@ void ezQtMemoryWidget::UpdateStats()
   {
     m_LastUpdatedAllocatorList = ezTime::Now();
 
-    for (ezMap<ezString, ezQtMemoryWidget::AllocatorData>::Iterator it = m_AllocatorData.GetIterator(); it.IsValid(); ++it)
+    for (auto it = m_AllocatorData.GetIterator(); it.IsValid(); ++it)
     {
-      if (!it.Value().m_pListItem || it.Value().m_UsedMemory.IsEmpty())
+      if (!it.Value().m_pTreeItem || it.Value().m_UsedMemory.IsEmpty())
         continue;
 
       ezStringBuilder sSize;
@@ -159,18 +164,18 @@ void ezQtMemoryWidget::UpdateStats()
       ezStringBuilder sMaxSize;
       FormatSize(sMaxSize, "", it.Value().m_uiMaxUsedMemory);
 
-      ezStringBuilder sText = it.Key().GetData();
+      ezStringBuilder sText = it.Value().m_sName;
       sText.AppendFormat(" [{0}]", sSize);
 
       ezStringBuilder sTooltip;
       sTooltip.Format("<p>Current Memory Used: <b>{0}</b><br>Max Memory Used: <b>{1}</b><br>Live Allocations: <b>{2}</b><br>Allocations: <b>{3}</b><br>Deallocations: <b>{4}</b><br>",
                       sSize.GetData(), sMaxSize.GetData(), it.Value().m_uiLiveAllocs, it.Value().m_uiAllocs, it.Value().m_uiDeallocs);
 
-      it.Value().m_pListItem->setText(sText.GetData());
-      it.Value().m_pListItem->setToolTip(sTooltip.GetData());
+      it.Value().m_pTreeItem->setText(0, sText.GetData());
+      it.Value().m_pTreeItem->setToolTip(0, sTooltip.GetData());
     }
 
-    if (m_Accu.m_pListItem && !m_Accu.m_UsedMemory.IsEmpty())
+    if (m_Accu.m_pTreeItem && !m_Accu.m_UsedMemory.IsEmpty())
     {
       ezStringBuilder sSize;
       FormatSize(sSize, "", m_Accu.m_UsedMemory.PeekBack());
@@ -185,8 +190,8 @@ void ezQtMemoryWidget::UpdateStats()
       sTooltip.Format("<p>Current Memory Used: <b>{0}</b><br>Max Memory Used: <b>{1}</b><br>Live Allocations: <b>{2}</b><br>Allocations: <b>{3}</b><br>Deallocations: <b>{4}</b><br>",
                       sSize.GetData(), sMaxSize.GetData(), m_Accu.m_uiLiveAllocs, m_Accu.m_uiAllocs, m_Accu.m_uiDeallocs);
 
-      m_Accu.m_pListItem->setText(sText.GetData());
-      m_Accu.m_pListItem->setToolTip(sTooltip.GetData());
+      m_Accu.m_pTreeItem->setText(0, sText.GetData());
+      m_Accu.m_pTreeItem->setToolTip(0, sTooltip.GetData());
     }
   }
 
@@ -196,7 +201,7 @@ void ezQtMemoryWidget::UpdateStats()
 
     ezUInt64 uiSumMemory = 0;
 
-    for (ezMap<ezString, ezQtMemoryWidget::AllocatorData>::Iterator it = m_AllocatorData.GetIterator(); it.IsValid(); ++it)
+    for (auto it = m_AllocatorData.GetIterator(); it.IsValid(); ++it)
     {
       // sometimes no data arrives in time (game is too slow)
       // in this case simply assume the stats have not changed
@@ -237,7 +242,7 @@ void ezQtMemoryWidget::UpdateStats()
     m_Accu.m_uiMaxUsedMemory = 0;
   }
 
-  for (ezMap<ezString, AllocatorData>::Iterator it = s_pWidget->m_AllocatorData.GetIterator(); it.IsValid(); ++it)
+  for (auto it = s_pWidget->m_AllocatorData.GetIterator(); it.IsValid(); ++it)
   {
     if (it.Value().m_UsedMemory.IsEmpty() || !it.Value().m_bDisplay)
       continue;
@@ -264,6 +269,7 @@ void ezQtMemoryWidget::UpdateStats()
     uiMinUsedMemoryThis = ezMath::Min(uiMinUsedMemoryThis, it.Value().m_UsedMemory[uiFirstSample]);
     uiMaxUsedMemoryThis = ezMath::Max(uiMaxUsedMemoryThis, it.Value().m_UsedMemory[uiFirstSample]);
 
+    if (it.Value().m_uiParentId == ezInvalidIndex) // only accumulate top level allocators
     {
       m_Accu.m_uiAllocs += it.Value().m_uiAllocs;
       m_Accu.m_uiDeallocs += it.Value().m_uiDeallocs;
@@ -280,7 +286,10 @@ void ezQtMemoryWidget::UpdateStats()
       uiMinUsedMemoryThis = ezMath::Min(uiMinUsedMemoryThis, it.Value().m_UsedMemory[i]);
       uiMaxUsedMemoryThis = ezMath::Max(uiMaxUsedMemoryThis, it.Value().m_UsedMemory[i]);
 
-      m_Accu.m_UsedMemory[uiStartPos + i - uiFirstSample] += it.Value().m_UsedMemory[i];
+      if (it.Value().m_uiParentId == ezInvalidIndex)
+      {
+        m_Accu.m_UsedMemory[uiStartPos + i - uiFirstSample] += it.Value().m_UsedMemory[i];
+      }
 
       if (m_Accu.m_bDisplay)
         uiMaxUsedMemoryThis = ezMath::Max(uiMaxUsedMemoryThis, m_Accu.m_UsedMemory[uiStartPos + i - uiFirstSample]);
@@ -370,13 +379,19 @@ void ezQtMemoryWidget::ProcessTelemetry(void* pUnuseed)
   while (ezTelemetry::RetrieveMessage(' MEM', Msg) == EZ_SUCCESS)
   {
     ezString sAllocatorName;
+    ezUInt32 uiAllocatorId;
+    ezUInt32 uiParentId;
 
     ezAllocatorBase::Stats MemStat;
+    Msg.GetReader() >> uiAllocatorId;
     Msg.GetReader() >> sAllocatorName;
+    Msg.GetReader() >> uiParentId;
     Msg.GetReader() >> MemStat;
 
-    AllocatorData& ad = s_pWidget->m_AllocatorData[sAllocatorName];
+    AllocatorData& ad = s_pWidget->m_AllocatorData[uiAllocatorId];
     ad.m_bReceivedData = true;
+    ad.m_sName = sAllocatorName;
+    ad.m_uiParentId = uiParentId;
 
     if (ad.m_iColor < 0)
     {
@@ -393,15 +408,15 @@ void ezQtMemoryWidget::ProcessTelemetry(void* pUnuseed)
   }
 }
 
-void ezQtMemoryWidget::on_ListAllocators_itemChanged(QListWidgetItem* item)
+void ezQtMemoryWidget::on_ListAllocators_itemChanged(QTreeWidgetItem* item)
 {
-  if (item->data(Qt::UserRole).toString() == "<Accumulated>")
+  if (item->data(0, Qt::UserRole).toUInt() == ezInvalidIndex)
   {
-    m_Accu.m_bDisplay = (item->checkState() == Qt::Checked);
+    m_Accu.m_bDisplay = (item->checkState(0) == Qt::Checked);
     return;
   }
 
-  m_AllocatorData[item->data(Qt::UserRole).toString().toUtf8().data()].m_bDisplay = (item->checkState() == Qt::Checked);
+  m_AllocatorData[item->data(0, Qt::UserRole).toUInt()].m_bDisplay = (item->checkState(0) == Qt::Checked);
 }
 
 void ezQtMemoryWidget::on_ComboTimeframe_currentIndexChanged(int index)

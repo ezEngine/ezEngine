@@ -145,7 +145,7 @@
           </layout>
          </item>
          <item row="1" column="2">
-          <widget class="QListWidget" name="ListAllocators">
+          <widget class="QTreeWidget" name="ListAllocators">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Maximum" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -154,7 +154,7 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>200</width>
              <height>0</height>
             </size>
            </property>
@@ -164,6 +164,14 @@
              <height>16777215</height>
             </size>
            </property>
+           <property name="headerHidden">
+            <bool>true</bool>
+           </property>
+           <column>
+            <property name="text">
+             <string notr="true">1</string>
+            </property>
+           </column>
           </widget>
          </item>
          <item row="0" column="2">

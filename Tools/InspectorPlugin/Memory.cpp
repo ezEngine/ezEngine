@@ -14,7 +14,9 @@ namespace MemoryDetail
     {
       ezTelemetryMessage msg;
       msg.SetMessageID(' MEM', 'STAT');
+      msg.GetWriter() << it.Id().m_Data;
       msg.GetWriter() << it.Name();
+      msg.GetWriter() << (it.ParentId().IsInvalidated() ? ezInvalidIndex : it.ParentId().m_Data);
       msg.GetWriter() << it.Stats();
 
       uiTotalAllocations += it.Stats().m_uiNumAllocations;

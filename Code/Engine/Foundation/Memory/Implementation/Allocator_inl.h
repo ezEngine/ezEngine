@@ -11,6 +11,7 @@
     virtual void* Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc = nullptr) override;
     virtual void Deallocate(void* ptr) override;
     virtual size_t AllocatedSize(const void* ptr) override;
+    virtual ezAllocatorId GetId() const override;
     virtual Stats GetStats() const override;
 
     ezAllocatorBase* GetParent() const;
@@ -48,7 +49,7 @@ EZ_FORCE_INLINE ezInternal::ezAllocatorImpl<A, TrackingFlags>::ezAllocatorImpl(c
     EZ_CHECK_AT_COMPILETIME_MSG((TrackingFlags & ~ezMemoryTrackingFlags::All) == 0, "Invalid tracking flags");
     const ezUInt32 uiTrackingFlags = TrackingFlags;
     ezBitflags<ezMemoryTrackingFlags> flags = *reinterpret_cast<const ezBitflags<ezMemoryTrackingFlags>*>(&uiTrackingFlags);
-    this->m_Id = ezMemoryTracker::RegisterAllocator(szName, flags);
+    this->m_Id = ezMemoryTracker::RegisterAllocator(szName, flags, pParent != nullptr ? pParent->GetId() : ezAllocatorId());
   }
 }
 
@@ -103,6 +104,12 @@ size_t ezInternal::ezAllocatorImpl<A, TrackingFlags>::AllocatedSize(const void* 
   }
 
   return 0;
+}
+
+template <typename A, ezUInt32 TrackingFlags>
+ezAllocatorId ezInternal::ezAllocatorImpl<A, TrackingFlags>::GetId() const
+{
+  return this->m_Id;
 }
 
 template <typename A, ezUInt32 TrackingFlags>

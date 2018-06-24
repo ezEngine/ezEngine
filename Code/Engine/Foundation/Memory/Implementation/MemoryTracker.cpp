@@ -33,6 +33,8 @@ namespace
     ezHybridString<32, TrackerDataAllocatorWrapper> m_sName;
     ezBitflags<ezMemoryTrackingFlags> m_Flags;
 
+    ezAllocatorId m_ParentId;
+
     ezAllocatorBase::Stats m_Stats;
 
     ezHashTable<const void*, ezMemoryTracker::AllocationInfo, ezHashHelper<const void*>, TrackerDataAllocatorWrapper> m_Allocations;
@@ -110,9 +112,19 @@ namespace
 // Iterator
 #define CAST_ITER(ptr) static_cast<TrackerData::AllocatorTable::Iterator*>(ptr)
 
+ezAllocatorId ezMemoryTracker::Iterator::Id() const
+{
+  return CAST_ITER(m_pData)->Id();
+}
+
 const char* ezMemoryTracker::Iterator::Name() const
 {
   return CAST_ITER(m_pData)->Value().m_sName.GetData();
+}
+
+ezAllocatorId ezMemoryTracker::Iterator::ParentId() const
+{
+  return CAST_ITER(m_pData)->Value().m_ParentId;
 }
 
 const ezAllocatorBase::Stats& ezMemoryTracker::Iterator::Stats() const
@@ -139,7 +151,7 @@ ezMemoryTracker::Iterator::~Iterator()
 
 
 //static
-ezAllocatorId ezMemoryTracker::RegisterAllocator(const char* szName, ezBitflags<ezMemoryTrackingFlags> flags)
+ezAllocatorId ezMemoryTracker::RegisterAllocator(const char* szName, ezBitflags<ezMemoryTrackingFlags> flags, ezAllocatorId parentId)
 {
   Initialize();
 
@@ -148,6 +160,7 @@ ezAllocatorId ezMemoryTracker::RegisterAllocator(const char* szName, ezBitflags<
   AllocatorData data;
   data.m_sName = szName;
   data.m_Flags = flags;
+  data.m_ParentId = parentId;
 
   ezAllocatorId id = s_pTrackerData->m_AllocatorData.Insert(data);
 
@@ -258,6 +271,14 @@ const ezAllocatorBase::Stats& ezMemoryTracker::GetAllocatorStats(ezAllocatorId a
   EZ_LOCK(*s_pTrackerData);
 
   return s_pTrackerData->m_AllocatorData[allocatorId].m_Stats;
+}
+
+//static
+ezAllocatorId ezMemoryTracker::GetAllocatorParentId(ezAllocatorId allocatorId)
+{
+  EZ_LOCK(*s_pTrackerData);
+
+  return s_pTrackerData->m_AllocatorData[allocatorId].m_ParentId;
 }
 
 //static

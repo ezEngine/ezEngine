@@ -2,9 +2,6 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Types/Bitflags.h>
-#include <Foundation/Types/Id.h>
-
-typedef ezGenericId<24, 8> ezAllocatorId;
 
 struct ezMemoryTrackingFlags
 {
@@ -82,7 +79,9 @@ public:
   public:
     ~Iterator();
 
+    ezAllocatorId Id() const;
     const char* Name() const;
+    ezAllocatorId ParentId() const;
     const ezAllocatorBase::Stats& Stats() const;
 
     void Next();
@@ -94,11 +93,11 @@ public:
     friend class ezMemoryTracker;
 
     EZ_ALWAYS_INLINE Iterator(void* pData) : m_pData(pData) { }
-    
+
     void* m_pData;
   };
 
-  static ezAllocatorId RegisterAllocator(const char* szName, ezBitflags<ezMemoryTrackingFlags> flags);
+  static ezAllocatorId RegisterAllocator(const char* szName, ezBitflags<ezMemoryTrackingFlags> flags, ezAllocatorId parentId);
   static void DeregisterAllocator(ezAllocatorId allocatorId);
 
   static void AddAllocation(ezAllocatorId allocatorId, const void* ptr, size_t uiSize, size_t uiAlign);
@@ -107,6 +106,7 @@ public:
 
   static const char* GetAllocatorName(ezAllocatorId allocatorId);
   static const ezAllocatorBase::Stats& GetAllocatorStats(ezAllocatorId allocatorId);
+  static ezAllocatorId GetAllocatorParentId(ezAllocatorId allocatorId);
   static const AllocationInfo& GetAllocationInfo(ezAllocatorId allocatorId, const void* ptr);
 
   static void DumpMemoryLeaks();

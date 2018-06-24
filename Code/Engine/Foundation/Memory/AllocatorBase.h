@@ -2,9 +2,9 @@
 
 /// \file
 
-#include <Foundation/Basics.h>
-#include <utility>
 #include <Foundation/Types/ArrayPtr.h>
+#include <Foundation/Types/Id.h>
+#include <utility>
 
 
 #ifdef new
@@ -14,6 +14,8 @@
 #ifdef delete
   #undef delete
 #endif
+
+typedef ezGenericId<24, 8> ezAllocatorId;
 
 /// \brief Base class for all memory allocators.
 class EZ_FOUNDATION_DLL ezAllocatorBase
@@ -39,6 +41,7 @@ public:
   virtual void* Reallocate(void* ptr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign);
   virtual size_t AllocatedSize(const void* ptr) = 0;
 
+  virtual ezAllocatorId GetId() const = 0;
   virtual Stats GetStats() const = 0;
 
 private:

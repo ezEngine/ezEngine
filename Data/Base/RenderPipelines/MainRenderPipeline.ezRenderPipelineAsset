@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12099190295688988325,5711173786673602835}}
-		u4 %Hash{12876224071903483281}
+		u4 %Hash{9659468042435851577}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -345,6 +345,7 @@ o
 			Uuid{u4{5612059354165731997,4623304288142314691}}
 			Uuid{u4{4640316533029175983,5508914452238536392}}
 			Uuid{u4{12325205025592915074,5702981337413483727}}
+			Uuid{u4{875541364554114992,5510539528898110569}}
 		}
 	}
 }
@@ -427,6 +428,13 @@ o
 {
 	Uuid %id{u4{4640316533029175983,5508914452238536392}}
 	s %t{"ezParticleTrailRenderer"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{875541364554114992,5510539528898110569}}
+	s %t{"ezSpriteRenderer"}
 	u3 %v{1}
 	p{}
 }
@@ -1001,7 +1009,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezImguiExtractor"}
-		u3 %TypeSize{80}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1091,7 +1099,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleExtractor"}
-		u3 %TypeSize{80}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1379,7 +1387,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezClusteredDataExtractor"}
-		u3 %TypeSize{224}
+		u3 %TypeSize{232}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1541,7 +1549,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezExtractor"}
-		u3 %TypeSize{80}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1631,7 +1639,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisibleObjectsExtractor"}
-		u3 %TypeSize{80}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }

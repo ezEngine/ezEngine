@@ -63,7 +63,7 @@ namespace ezInternal
     RenderDataCache(ezAllocatorBase* pAllocator)
       : m_EntriesPerObject(pAllocator)
     {
-      m_NewEntriesPerComponent.SetCountUninitialized(m_NewEntriesPerComponent.GetCapacity());
+      m_NewEntriesPerComponent.SetCount(m_NewEntriesPerComponent.GetCapacity());
       for (auto& newEntry : m_NewEntriesPerComponent)
       {
         newEntry.m_CacheEntries = CacheEntriesPerObject(pAllocator);
@@ -76,8 +76,6 @@ namespace ezInternal
 
     struct NewEntryPerComponent
     {
-      EZ_DECLARE_POD_TYPE();
-
       ezGameObjectHandle m_hOwnerObject;
       ezComponentHandle m_hOwnerComponent;
       CacheEntriesPerObject m_CacheEntries;
@@ -227,7 +225,7 @@ void ezRenderWorld::CacheRenderData(const ezView& view, const ezGameObjectHandle
     }
 
     uiNewEntriesCount = view.m_pRenderDataCache->m_NewEntriesCount.Increment();
-    if (uiNewEntriesCount < MaxNumNewCacheEntries)
+    if (uiNewEntriesCount <= MaxNumNewCacheEntries)
     {
       auto& newEntry = view.m_pRenderDataCache->m_NewEntriesPerComponent[uiNewEntriesCount - 1];
       newEntry.m_hOwnerObject = hOwnerObject;
@@ -494,6 +492,7 @@ void ezRenderWorld::UpdateRenderDataCache()
     for (ezUInt32 uiNewEntryIndex = 0; uiNewEntryIndex < uiNumNewEntries; ++uiNewEntryIndex)
     {
       auto& newEntries = pView->m_pRenderDataCache->m_NewEntriesPerComponent[uiNewEntryIndex];
+      EZ_ASSERT_DEV(!newEntries.m_hOwnerObject.IsInvalidated(), "Implementation error");
 
       // find or create cached render data
       auto& cachedRenderDataPerComponent = s_CachedRenderData[newEntries.m_hOwnerComponent];
@@ -541,10 +540,7 @@ void ezRenderWorld::UpdateRenderDataCache()
       {
         EZ_ASSERT_DEV(!cacheEntries.Contains(newEntry), "");
 
-        if (!cacheEntries.Contains(newEntry))
-        {
-          cacheEntries.PushBack(newEntry);
-        }
+        cacheEntries.PushBack(newEntry);
       }
     }
   }

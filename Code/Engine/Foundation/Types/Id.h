@@ -16,6 +16,7 @@
   EZ_ALWAYS_INLINE bool operator!=(const name other) const { return m_Data != other.m_Data; } \
   EZ_ALWAYS_INLINE bool operator<(const name other) const { return m_Data < other.m_Data; } \
   EZ_ALWAYS_INLINE void Invalidate() { m_Data = INVALID_INSTANCE_INDEX; } \
+  EZ_ALWAYS_INLINE bool IsInvalidated() const { return m_Data == INVALID_INSTANCE_INDEX; } \
   EZ_ALWAYS_INLINE bool IsIndexAndGenerationEqual(const name other) const { \
     return (m_Data & INDEX_AND_GENERATION_MASK) == (other.m_Data & INDEX_AND_GENERATION_MASK); }
 
@@ -58,7 +59,7 @@ struct ezGenericId
     EZ_ALWAYS_INLINE bool operator!=(const name other) const { return m_InternalId != other.m_InternalId; } \
     EZ_ALWAYS_INLINE bool operator<(const name other) const { return m_InternalId < other.m_InternalId; } \
     EZ_ALWAYS_INLINE void Invalidate() { m_InternalId.Invalidate(); } \
-    EZ_ALWAYS_INLINE bool IsInvalidated() const { return m_InternalId == idType(); } \
+    EZ_ALWAYS_INLINE bool IsInvalidated() const { return m_InternalId.IsInvalidated(); } \
     EZ_ALWAYS_INLINE idType GetInternalID() const { return m_InternalId; } \
     typedef idType IdType; \
   protected: \

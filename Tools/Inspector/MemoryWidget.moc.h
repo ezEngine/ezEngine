@@ -8,7 +8,8 @@
 #include <QDockWidget>
 #include <Tools/Inspector/ui_MemoryWidget.h>
 #include <QGraphicsView>
-#include <QListWidgetItem>
+
+class QTreeWidgetItem;
 
 class ezQtMemoryWidget : public QDockWidget, public Ui_MemoryWidget
 {
@@ -24,7 +25,7 @@ public:
 
 private slots:
 
-  void on_ListAllocators_itemChanged(QListWidgetItem* item);
+  void on_ListAllocators_itemChanged(QTreeWidgetItem* item);
   void on_ComboTimeframe_currentIndexChanged(int index);
 
 public:
@@ -51,34 +52,37 @@ private:
   struct AllocatorData
   {
     ezDeque<ezUInt64> m_UsedMemory;
-  
+    ezString m_sName;
+
     bool m_bReceivedData;
     bool m_bDisplay;
     ezInt8 m_iColor;
+    ezUInt32 m_uiParentId;
     ezUInt64 m_uiAllocs;
     ezUInt64 m_uiDeallocs;
     ezUInt64 m_uiLiveAllocs;
     ezUInt64 m_uiMaxUsedMemoryRecently;
     ezUInt64 m_uiMaxUsedMemory;
-    QListWidgetItem* m_pListItem;
+    QTreeWidgetItem* m_pTreeItem;
 
     AllocatorData()
     {
       m_bReceivedData = false;
       m_bDisplay = true;
       m_iColor = -1;
+      m_uiParentId = ezInvalidIndex;
       m_uiAllocs = 0;
       m_uiDeallocs = 0;
       m_uiLiveAllocs = 0;
       m_uiMaxUsedMemoryRecently = 0;
       m_uiMaxUsedMemory = 0;
-      m_pListItem = nullptr;
+      m_pTreeItem = nullptr;
     }
   };
 
   AllocatorData m_Accu;
 
-  ezMap<ezString, AllocatorData> m_AllocatorData;
+  ezMap<ezUInt32, AllocatorData> m_AllocatorData;
 };
 
 

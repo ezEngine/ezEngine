@@ -8,5 +8,7 @@ class EZ_FOUNDATION_DLL ezPageAllocator
 public:
   static void* AllocatePage(size_t uiSize);
   static void DeallocatePage(void* ptr);
+
+  static ezAllocatorId GetId();
 };
 
