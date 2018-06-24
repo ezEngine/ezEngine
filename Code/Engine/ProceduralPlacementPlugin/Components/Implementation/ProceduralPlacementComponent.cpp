@@ -10,6 +10,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/Profiling/Profiling.h>
 
 namespace
 {
@@ -114,6 +115,8 @@ void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateCo
 
   // Find new active tiles
   {
+    EZ_PROFILE("Find new tiles");
+
     ezHybridArray<ezSimdTransform, 8, ezAlignedAllocatorWrapper> localBoundingBoxes;
 
     for (auto& visibleResource : m_VisibleResources)
@@ -131,6 +134,7 @@ void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateCo
         auto& activeLayer = activeLayers[uiLayerIndex];
 
         const float fTileSize = activeLayer.m_pLayer->GetTileSize();
+        const float fPatternSize = activeLayer.m_pLayer->m_pPattern->m_fSize;
         const float fCullDistance = activeLayer.m_pLayer->m_fCullDistance * CVarCullDistanceScale;
         ezSimdVec4f fHalfTileSize = ezSimdVec4f(fTileSize * 0.5f);
 
@@ -155,30 +159,30 @@ void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateCo
           {
             if (iX*iX + iY*iY <= iRadiusSqr)
             {
-              ezSimdVec4f testPos = ezSimdVec4f(fX, fY, 0.0f);
-              ezSimdFloat minZ = 10000.0f;
-              ezSimdFloat maxZ = -10000.0f;
-
-              localBoundingBoxes.Clear();
-
-              for (auto& bounds : pActiveResource->m_Bounds)
+              ezUInt64 uiTileKey = GetTileKey(iPosX + iX, iPosY + iY, 0);
+              if (!activeLayer.m_TileIndices.Contains(uiTileKey))
               {
-                ezSimdBBox extendedBox = bounds.m_GlobalBoundingBox;
-                extendedBox.Grow(fHalfTileSize);
+                ezSimdVec4f testPos = ezSimdVec4f(fX, fY, 0.0f);
+                ezSimdFloat minZ = 10000.0f;
+                ezSimdFloat maxZ = -10000.0f;
 
-                if (((testPos >= extendedBox.m_Min) && (testPos <= extendedBox.m_Max)).AllSet<2>())
+                localBoundingBoxes.Clear();
+
+                for (auto& bounds : pActiveResource->m_Bounds)
                 {
-                  minZ = minZ.Min(bounds.m_GlobalBoundingBox.m_Min.z());
-                  maxZ = maxZ.Max(bounds.m_GlobalBoundingBox.m_Max.z());
+                  ezSimdBBox extendedBox = bounds.m_GlobalBoundingBox;
+                  extendedBox.Grow(fHalfTileSize);
 
-                  localBoundingBoxes.PushBack(bounds.m_LocalBoundingBox);
+                  if (((testPos >= extendedBox.m_Min) && (testPos <= extendedBox.m_Max)).AllSet<2>())
+                  {
+                    minZ = minZ.Min(bounds.m_GlobalBoundingBox.m_Min.z());
+                    maxZ = maxZ.Max(bounds.m_GlobalBoundingBox.m_Max.z());
+
+                    localBoundingBoxes.PushBack(bounds.m_LocalBoundingBox);
+                  }
                 }
-              }
 
-              if (!localBoundingBoxes.IsEmpty())
-              {
-                ezUInt64 uiTileKey = GetTileKey(iPosX + iX, iPosY + iY, 0);
-                if (!activeLayer.m_TileIndices.Contains(uiTileKey))
+                if (!localBoundingBoxes.IsEmpty())
                 {
                   activeLayer.m_TileIndices.Insert(uiTileKey, EmptyTileIndex);
 
@@ -189,6 +193,8 @@ void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateCo
                   newTile.m_iPosY = iPosY + iY;
                   newTile.m_fMinZ = minZ;
                   newTile.m_fMaxZ = maxZ;
+                  newTile.m_fPatternSize = fPatternSize;
+                  newTile.m_fDistanceToCamera = -1.0f;
                   newTile.m_LocalBoundingBoxes = localBoundingBoxes;
                 }
               }
@@ -204,11 +210,38 @@ void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateCo
       }
     }
 
+    // Sort new tiles
+    {
+      EZ_PROFILE("Sort new tiles");
+
+      for (auto& newTile : m_NewTiles)
+      {
+        ezVec2 tilePos = ezVec2((float)newTile.m_iPosX, (float)newTile.m_iPosY) * newTile.m_fPatternSize;
+
+        float fMinDistance = ezMath::BasicType<float>::MaxValue();
+        for (auto& visibleResource : m_VisibleResources)
+        {
+          float fDistance = (tilePos - visibleResource.m_vCameraPosition.GetAsVec2()).GetLengthSquared();
+          fMinDistance = ezMath::Min(fMinDistance, fDistance);
+        }
+
+        newTile.m_fDistanceToCamera = fMinDistance;
+      }
+
+      // Sort by distance, larger distances come first since new tiles are processed in reverse order.
+      m_NewTiles.Sort([](auto& tileA, auto& tileB)
+      {
+        return tileA.m_fDistanceToCamera > tileB.m_fDistanceToCamera;
+      });
+    }
+
     ClearVisibleResources();
   }
 
   // Allocate new tiles and placement tasks
   {
+    EZ_PROFILE("Allocate new tiles");
+
     while (!m_NewTiles.IsEmpty() && GetNumAllocatedPlacementTasks() < (ezUInt32)CVarMaxProcessingTiles)
     {
       const TileDesc& newTile = m_NewTiles.PeekBack();
@@ -227,6 +260,8 @@ void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateCo
   {
     if (const ezPhysicsWorldModuleInterface* pPhysicsModule = pWorld->GetModule<ezPhysicsWorldModuleInterface>())
     {
+      EZ_PROFILE("Update processing tiles");
+
       for (ezUInt32 i = 0; i < m_PlacementTaskInfos.GetCount(); ++i)
       {
         auto& taskInfo = m_PlacementTaskInfos[i];
@@ -267,6 +302,8 @@ void ezProceduralPlacementComponentManager::Update(const ezWorldModule::UpdateCo
 
 void ezProceduralPlacementComponentManager::PlaceObjects(const ezWorldModule::UpdateContext& context)
 {
+  EZ_PROFILE("Place objects");
+
   for (ezUInt32 i = 0; i < m_PlacementTaskInfos.GetCount(); ++i)
   {
     auto& taskInfo = m_PlacementTaskInfos[i];

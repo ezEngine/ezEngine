@@ -148,6 +148,8 @@ namespace ezPPInternal
     ezInt32 m_iPosY;
     float m_fMinZ;
     float m_fMaxZ;
+    float m_fPatternSize;
+    float m_fDistanceToCamera;
 
     ezHybridArray<ezSimdTransform, 8, ezAlignedAllocatorWrapper> m_LocalBoundingBoxes;
   };
