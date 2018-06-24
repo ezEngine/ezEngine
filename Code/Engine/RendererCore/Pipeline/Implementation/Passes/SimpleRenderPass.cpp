@@ -13,7 +13,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleRenderPass, 1, ezRTTIDefaultAllocator<ez
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Color", m_PinColor),
-    EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
+    EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil)->AddAttributes(new ezColorAttribute(ezColor::LightCoral)),
     EZ_MEMBER_PROPERTY("Message", m_sMessage),
   }
   EZ_END_PROPERTIES

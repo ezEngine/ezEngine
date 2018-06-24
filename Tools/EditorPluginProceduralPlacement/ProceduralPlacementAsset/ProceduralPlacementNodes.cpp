@@ -44,10 +44,10 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementLayerOutput, 1, ezRTTIDefau
     EZ_MEMBER_PROPERTY("CullDistance", m_fCullDistance)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
 
-    EZ_MEMBER_PROPERTY("Density", m_DensityPin),
-    EZ_MEMBER_PROPERTY("Scale", m_ScalePin),
-    EZ_MEMBER_PROPERTY("ColorIndex", m_ColorIndexPin),
-    EZ_MEMBER_PROPERTY("ObjectIndex", m_ObjectIndexPin)
+    EZ_MEMBER_PROPERTY("Density", m_DensityPin)->AddAttributes(new ezColorAttribute(ezColor::White)),
+    EZ_MEMBER_PROPERTY("Scale", m_ScalePin)->AddAttributes(new ezColorAttribute(ezColor::LightCoral)),
+    EZ_MEMBER_PROPERTY("ColorIndex", m_ColorIndexPin)->AddAttributes(new ezColorAttribute(ezColor::Orchid)),
+    EZ_MEMBER_PROPERTY("ObjectIndex", m_ObjectIndexPin)->AddAttributes(new ezColorAttribute(ezColor::LightSkyBlue))
   }
   EZ_END_PROPERTIES
 }
@@ -139,6 +139,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementRandom, 1, ezRTTIDefaultAll
     EZ_MEMBER_PROPERTY("Value", m_OutputValuePin)
   }
   EZ_END_PROPERTIES
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezTitleAttribute("Random: {Seed}"),
+    new ezCategoryAttribute("Input"),
+  }
+  EZ_END_ATTRIBUTES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -162,6 +168,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementBlend, 1, ezRTTIDefaultAllo
     EZ_MEMBER_PROPERTY("Value", m_OutputValuePin)
   }
   EZ_END_PROPERTIES
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezTitleAttribute("Blend: {A} * {B}"),
+    new ezCategoryAttribute("Math"),
+  }
+  EZ_END_ATTRIBUTES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
@@ -196,6 +208,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementHeight, 1, ezRTTIDefaultAll
     EZ_MEMBER_PROPERTY("Value", m_OutputValuePin)
   }
   EZ_END_PROPERTIES
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezTitleAttribute("Height: [{MinHeight}, {MaxHeight}]"),
+    new ezCategoryAttribute("Input"),
+  }
+  EZ_END_ATTRIBUTES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 

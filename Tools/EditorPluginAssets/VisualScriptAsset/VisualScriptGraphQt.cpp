@@ -213,12 +213,6 @@ void ezQtVisualScriptPin::SetPin(const ezPin* pPin)
   }
 
   setToolTip(sTooltip.GetData());
-
-  const ezColorGammaUB col = pShaderPin->GetColor();
-
-  QPen p = pen();
-  p.setColor(qRgb(col.r, col.g, col.b));
-  setPen(p);
 }
 
 void ezQtVisualScriptPin::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
@@ -242,63 +236,6 @@ void ezQtVisualScriptPin::paint(QPainter* painter, const QStyleOptionGraphicsIte
   painter->restore();
 }
 
-void ezQtVisualScriptPin::ConnectedStateChanged(bool bConnected)
-{
-  if (bConnected)
-  {
-    setBrush(pen().color());
-  }
-  else
-  {
-    setBrush(QApplication::palette().base());
-  }
-}
-
-bool ezQtVisualScriptPin::AdjustRenderingForHighlight(ezQtPinHighlightState state)
-{
-  const ezVisualScriptPin* pShaderPin = ezDynamicCast<const ezVisualScriptPin*>(GetPin());
-  EZ_ASSERT_DEV(pShaderPin != nullptr, "Invalid pin type");
-
-  const ezColorGammaUB col = pShaderPin->GetColor();
-
-  switch (state)
-  {
-  case ezQtPinHighlightState::None:
-    {
-      QPen p = pen();
-      p.setColor(qRgb(col.r, col.g, col.b));
-      setPen(p);
-
-      setBrush(GetConnections().IsEmpty() ? QApplication::palette().base() : pen().color());
-    }
-    break;
-
-  case ezQtPinHighlightState::CannotConnect:
-  case ezQtPinHighlightState::CannotConnectSameDirection:
-    {
-      QPen p = pen();
-      p.setColor(QApplication::palette().base().color().lighter());
-      setPen(p);
-
-      setBrush(QApplication::palette().base());
-    }
-    break;
-
-  case ezQtPinHighlightState::CanReplaceConnection:
-  case ezQtPinHighlightState::CanAddConnection:
-    {
-      QPen p = pen();
-      p.setColor(qRgb(col.r, col.g, col.b));
-      setPen(p);
-
-      setBrush(QApplication::palette().base());
-    }
-    break;
-  }
-
-  return true;
-}
-
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -317,33 +254,7 @@ QPen ezQtVisualScriptConnection::DeterminePen() const
     return pen;
   }
 
-  const ezVisualScriptPin* pSourcePin = static_cast<const ezVisualScriptPin*>(m_pConnection->GetSourcePin());
-  const ezVisualScriptPin* pTargetPin = static_cast<const ezVisualScriptPin*>(m_pConnection->GetTargetPin());
-
-  ezColorGammaUB color;
-  const ezColorGammaUB color1 = pSourcePin->GetDescriptor()->m_Color;
-  const ezColorGammaUB color2 = pTargetPin->GetDescriptor()->m_Color;
-
-  const bool isGrey1 = (color1.r == color1.g && color1.r == color1.b);
-  const bool isGrey2 = (color2.r == color2.g && color2.r == color2.b);
-
-  if (!isGrey1)
-  {
-    color = ezMath::Lerp(color1, color2, 0.2f);
-  }
-  else if (!isGrey2)
-  {
-    color = ezMath::Lerp(color1, color2, 0.8f);
-  }
-  else
-  {
-    color = ezMath::Lerp(color1, color2, 0.5f);
-  }
-
-  auto palette = QApplication::palette();
-  QPen pen(QBrush(qRgb(color.r, color.g, color.b)), 3, Qt::SolidLine);
-
-  return pen;
+  return ezQtConnection::DeterminePen();
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -15,7 +15,6 @@ public:
 
   ezVisualScriptPin(Type type, const ezVisualScriptPinDescriptor* pDescriptor, const ezDocumentObject* pObject);
 
-  const ezColorGammaUB& GetColor() const;
   const ezString& GetTooltip() const;
   const ezVisualScriptPinDescriptor* GetDescriptor() const { return m_pDescriptor; }
 

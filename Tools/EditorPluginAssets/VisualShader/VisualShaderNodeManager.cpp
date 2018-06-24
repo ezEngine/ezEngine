@@ -11,23 +11,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualShaderPin, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezVisualShaderPin::ezVisualShaderPin(Type type, const ezVisualShaderPinDescriptor* pDescriptor, const ezDocumentObject* pObject)
-  : ezPin(type, pDescriptor->m_sName, pObject)
+  : ezPin(type, pDescriptor->m_sName, pDescriptor->m_Color, pObject)
 {
   m_pDescriptor = pDescriptor;
 }
-
 
 const ezRTTI* ezVisualShaderPin::GetDataType() const
 {
   return m_pDescriptor->m_pDataType;
 }
-
-
-const ezColorGammaUB& ezVisualShaderPin::GetColor() const
-{
-  return m_pDescriptor->m_Color;
-}
-
 
 const ezString& ezVisualShaderPin::GetTooltip() const
 {

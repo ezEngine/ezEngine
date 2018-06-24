@@ -38,21 +38,27 @@ void ezRenderPipelineNodeManager::InternalCreatePins(const ezDocumentObject* pOb
     if (!pProp->GetSpecificType()->IsDerivedFrom<ezNodePin>())
       continue;
 
+    ezColor pinColor = ezColor::Grey;
+    if (const ezColorAttribute* pAttr = pProp->GetAttributeByType<ezColorAttribute>())
+    {
+      pinColor = pAttr->GetColor();
+    }
+
     if (pProp->GetSpecificType()->IsDerivedFrom<ezInputNodePin>())
     {
-      ezPin* pPin = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Input, pProp->GetPropertyName(), pObject);
+      ezPin* pPin = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
       node.m_Inputs.PushBack(pPin);
     }
     else if (pProp->GetSpecificType()->IsDerivedFrom<ezOutputNodePin>())
     {
-      ezPin* pPin = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Output, pProp->GetPropertyName(), pObject);
+      ezPin* pPin = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
       node.m_Outputs.PushBack(pPin);
     }
     else if (pProp->GetSpecificType()->IsDerivedFrom<ezPassThroughNodePin>())
     {
-      ezPin* pPinIn = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Input, pProp->GetPropertyName(), pObject);
+      ezPin* pPinIn = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
       node.m_Inputs.PushBack(pPinIn);
-      ezPin* pPinOut = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Output, pProp->GetPropertyName(), pObject);
+      ezPin* pPinOut = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
       node.m_Outputs.PushBack(pPinOut);
     }
   }

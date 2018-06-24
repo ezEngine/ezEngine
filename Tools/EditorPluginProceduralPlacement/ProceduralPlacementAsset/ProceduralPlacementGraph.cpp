@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementGraph.h>
+#include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementGraphQt.moc.h>
 #include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementNodes.h>
 #include <ToolsFoundation/Command/NodeCommands.h>
 #include <Foundation/Configuration/Startup.h>
@@ -20,9 +21,8 @@ ON_CORE_STARTUP
   pRegistry->UpdateNodeTypes();
   const ezRTTI* pBaseType = pRegistry->GetBaseType();
 
-  /*ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualScriptPin(); });
-  ezQtNodeScene::GetConnectionFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptConnection>(), [](const ezRTTI* pRtti)->ezQtConnection* { return new ezQtVisualScriptConnection(); });
-  ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtVisualScriptNode(); });*/
+  //ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualScriptPin(); });
+  ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtProceduralPlacementNode(); });
 }
 
 ON_CORE_SHUTDOWN
@@ -78,17 +78,24 @@ void ezProceduralPlacementNodeManager::InternalCreatePins(const ezDocumentObject
     if (pProp->GetCategory() != ezPropertyCategory::Member)
       continue;
 
-    if (!pProp->GetSpecificType()->IsDerivedFrom<ezNodePin>())
+    const ezRTTI* pPropType = pProp->GetSpecificType();
+    if (!pPropType->IsDerivedFrom<ezNodePin>())
       continue;
 
-    if (pProp->GetSpecificType()->IsDerivedFrom<ezInputNodePin>())
+    ezColor pinColor = ezColor::Grey;
+    if (const ezColorAttribute* pAttr = pProp->GetAttributeByType<ezColorAttribute>())
     {
-      ezPin* pPin = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Input, pProp->GetPropertyName(), pObject);
+      pinColor = pAttr->GetColor();
+    }
+
+    if (pPropType->IsDerivedFrom<ezInputNodePin>())
+    {
+      ezPin* pPin = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Input, pProp->GetPropertyName(), pinColor, pObject);
       node.m_Inputs.PushBack(pPin);
     }
-    else if (pProp->GetSpecificType()->IsDerivedFrom<ezOutputNodePin>())
+    else if (pPropType->IsDerivedFrom<ezOutputNodePin>())
     {
-      ezPin* pPin = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Output, pProp->GetPropertyName(), pObject);
+      ezPin* pPin = EZ_DEFAULT_NEW(ezPin, ezPin::Type::Output, pProp->GetPropertyName(), pinColor, pObject);
       node.m_Outputs.PushBack(pPin);
     }
   }

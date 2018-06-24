@@ -3,7 +3,9 @@
 #include <QApplication>
 #include <QPalette>
 
-ezQtConnection::ezQtConnection(QGraphicsItem* parent) : QGraphicsPathItem(parent)
+ezQtConnection::ezQtConnection(QGraphicsItem* parent)
+  : QGraphicsPathItem(parent)
+  , m_pConnection(nullptr)
 {
   auto palette = QApplication::palette();
 
@@ -47,8 +49,32 @@ void ezQtConnection::SetDirOut(const QPointF& dir)
 
 QPen ezQtConnection::DeterminePen() const
 {
-  auto palette = QApplication::palette();
-  QPen pen(palette.highlightedText().color(), 3, Qt::SolidLine);
+  if (m_pConnection == nullptr)
+  {
+    return pen();
+  }
+
+  ezColorGammaUB color;
+  const ezColorGammaUB sourceColor = m_pConnection->GetSourcePin()->GetColor();
+  const ezColorGammaUB targetColor = m_pConnection->GetTargetPin()->GetColor();
+
+  const bool isSourceGrey = (sourceColor.r == sourceColor.g && sourceColor.r == sourceColor.b);
+  const bool isTargetGrey = (targetColor.r == targetColor.g && targetColor.r == targetColor.b);
+
+  if (!isSourceGrey)
+  {
+    color = ezMath::Lerp(sourceColor, targetColor, 0.2f);
+  }
+  else if (!isTargetGrey)
+  {
+    color = ezMath::Lerp(sourceColor, targetColor, 0.8f);
+  }
+  else
+  {
+    color = ezMath::Lerp(sourceColor, targetColor, 0.5f);
+  }
+
+  QPen pen(QBrush(qRgb(color.r, color.g, color.b)), 3, Qt::SolidLine);
 
   return pen;
 }

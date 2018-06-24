@@ -13,7 +13,6 @@ public:
   ezVisualShaderPin(Type type, const ezVisualShaderPinDescriptor* pDescriptor, const ezDocumentObject* pObject);
 
   const ezRTTI* GetDataType() const;
-  const ezColorGammaUB& GetColor() const;
   const ezString& GetTooltip() const;
   const ezVisualShaderPinDescriptor* GetDescriptor() const { return m_pDescriptor; }
 

@@ -57,13 +57,17 @@ public:
     Output
   };
 
-  ezPin(Type type, const char* szName, const ezDocumentObject* pObject)
-    : m_Type(type), m_sName(szName), m_pParent(pObject)
+  ezPin(Type type, const char* szName, const ezColorGammaUB& color, const ezDocumentObject* pObject)
+    : m_Type(type)
+    , m_Color(color)
+    , m_sName(szName)
+    , m_pParent(pObject)
   {
   }
 
   Type GetType() const { return m_Type; }
-  const char* GetName() const {return m_sName;}
+  const char* GetName() const { return m_sName; }
+  const ezColorGammaUB& GetColor() const { return m_Color; }
   const ezDocumentObject* GetParent() const { return m_pParent; }
   const ezArrayPtr<const ezConnection* const> GetConnections() const { return m_Connections; }
 
@@ -71,6 +75,7 @@ private:
   friend class ezDocumentNodeManager;
 
   Type m_Type;
+  ezColorGammaUB m_Color;
   ezString m_sName;
   const ezDocumentObject* m_pParent;
   ezHybridArray<const ezConnection*, 6> m_Connections;

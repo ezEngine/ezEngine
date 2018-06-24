@@ -12,14 +12,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptPin, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezVisualScriptPin::ezVisualScriptPin(Type type, const ezVisualScriptPinDescriptor* pDescriptor, const ezDocumentObject* pObject)
-  : ezPin(type, pDescriptor->m_sName, pObject)
+  : ezPin(type, pDescriptor->m_sName, pDescriptor->m_Color, pObject)
 {
   m_pDescriptor = pDescriptor;
-}
-
-const ezColorGammaUB& ezVisualScriptPin::GetColor() const
-{
-  return m_pDescriptor->m_Color;
 }
 
 const ezString& ezVisualScriptPin::GetTooltip() const

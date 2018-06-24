@@ -47,13 +47,11 @@ void ezQtPin::ConnectedStateChanged(bool bConnected)
 {
   if (bConnected)
   {
-    auto palette = QApplication::palette();
-    setBrush(palette.highlightedText());
+    setBrush(pen().color().darker(125));
   }
   else
   {
-    auto palette = QApplication::palette();
-    setBrush(palette.base());
+    setBrush(QApplication::palette().base());
   }
 }
 
@@ -85,6 +83,12 @@ void ezQtPin::SetPin(const ezPin* pPin)
     p.addEllipse(bounds);
     setPath(p);
   }
+
+  const ezColorGammaUB col = pPin->GetColor();
+
+  QPen p = pen();
+  p.setColor(qRgb(col.r, col.g, col.b));
+  setPen(p);
 }
 
 QPointF ezQtPin::GetPinPos() const
@@ -152,33 +156,39 @@ void ezQtPin::SetHighlightState(ezQtPinHighlightState state)
 
 bool ezQtPin::AdjustRenderingForHighlight(ezQtPinHighlightState state)
 {
-  auto palette = QApplication::palette();
+  const ezColorGammaUB pinColor = GetPin()->GetColor();
 
   switch (state)
   {
   case ezQtPinHighlightState::None:
     {
-      QPen pen(palette.light().color(), 3, Qt::SolidLine);
-      setPen(pen);
-      setBrush(m_Connections.IsEmpty() ? palette.base() : palette.highlightedText());
+      QPen p = pen();
+      p.setColor(qRgb(pinColor.r, pinColor.g, pinColor.b));
+      setPen(p);
+
+      setBrush(GetConnections().IsEmpty() ? QApplication::palette().base() : pen().color().darker(125));
     }
     break;
 
-  case ezQtPinHighlightState::CanAddConnection:
-  case ezQtPinHighlightState::CanReplaceConnection:
-    {
-      QPen pen(palette.highlight().color(), 3, Qt::SolidLine);
-      setPen(pen);
-      setBrush(palette.base());
-    }
-    break;
-    
   case ezQtPinHighlightState::CannotConnect:
   case ezQtPinHighlightState::CannotConnectSameDirection:
     {
-      QPen pen(QApplication::palette().base().color().lighter(), 3, Qt::SolidLine);
-      setPen(pen);
-      setBrush(palette.base());
+      QPen p = pen();
+      p.setColor(QApplication::palette().base().color().lighter());
+      setPen(p);
+
+      setBrush(QApplication::palette().base());
+    }
+    break;
+
+  case ezQtPinHighlightState::CanReplaceConnection:
+  case ezQtPinHighlightState::CanAddConnection:
+    {
+      QPen p = pen();
+      p.setColor(qRgb(pinColor.r, pinColor.g, pinColor.b));
+      setPen(p);
+
+      setBrush(QApplication::palette().base());
     }
     break;
   }
