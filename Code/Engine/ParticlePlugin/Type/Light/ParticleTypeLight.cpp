@@ -151,6 +151,13 @@ void ezParticleTypeLight::ExtractTypeRenderData(const ezView& view, ezExtractedR
   const float sizeFactor = m_fSizeFactor * sizeScale;
   const float intensity = intensityScale * m_fIntensity;
 
+  ezTransform transform;
+
+  if (this->GetOwnerEffect()->IsSimulatedInLocalSpace())
+    transform = instanceTransform;
+  else
+    transform.SetIdentity();
+
   for (ezUInt32 i = 0; i < uiNumParticles; ++i)
   {
     if (pOnOff)
@@ -170,7 +177,7 @@ void ezParticleTypeLight::ExtractTypeRenderData(const ezView& view, ezExtractedR
     auto pRenderData = ezCreateRenderDataForThisFrame<ezPointLightRenderData>(nullptr, uiBatchId);
 
     pRenderData->m_GlobalTransform.SetIdentity();
-    pRenderData->m_GlobalTransform.m_vPosition = instanceTransform * pPosition[i].GetAsVec3();
+    pRenderData->m_GlobalTransform.m_vPosition = transform * pPosition[i].GetAsVec3();
     pRenderData->m_LightColor = tintColor * pColor[i];
     pRenderData->m_fIntensity = intensity;
     pRenderData->m_fRange = pSize[i] * sizeFactor;
