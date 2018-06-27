@@ -1,0 +1,208 @@
+HeaderV2
+{
+o
+{
+	Uuid %id{u4{7314763331493852315,5607304442640664776}}
+	s %t{"ezAssetDocumentInfo"}
+	u3 %v{2}
+	s %n{"Header"}
+	p
+	{
+		s %AssetType{"Collision Mesh (Convex)"}
+		VarArray %Dependencies
+		{
+			s{"Prefabs/cc0Textures.com/ScannedRock02/ScannedRock02_LQ.obj"}
+		}
+		Uuid %DocumentID{u4{7314763331493852315,5607304442640664776}}
+		u4 %Hash{4914800028045873670}
+		VarArray %MetaInfo{}
+		VarArray %Outputs{}
+		VarArray %References
+		{
+			s{"{ 479c8816-d06c-48fd-a907-af5be24225cb }"}
+		}
+	}
+}
+}
+Objects
+{
+o
+{
+	Uuid %id{u4{8040606762352745138,4999767742347297935}}
+	s %t{"ezCollisionMeshAssetProperties"}
+	u3 %v{1}
+	p
+	{
+		u1 %Detail{1}
+		s %ForwardDir{"ezBasisAxis::NegativeZ"}
+		f %Height{0x0000803F}
+		s %MeshFile{"Prefabs/cc0Textures.com/ScannedRock02/ScannedRock02_LQ.obj"}
+		s %MeshType{"ezCollisionMeshType::ConvexHull"}
+		Vec3 %NonUniformScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %Radius{0x0000003F}
+		f %Radius2{0x0000003F}
+		s %RightDir{"ezBasisAxis::PositiveX"}
+		s %SubmeshName{""}
+		VarArray %Surfaces
+		{
+			Uuid{u4{3271707025375621303,17276307397593255433}}
+		}
+		f %UniformScaling{0x0000803F}
+		s %UpDir{"ezBasisAxis::PositiveY"}
+	}
+}
+o
+{
+	Uuid %id{u4{18096612296587978288,6449934965513159559}}
+	s %t{"ezDocumentRoot"}
+	u3 %v{1}
+	s %n{"ObjectTree"}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{8040606762352745138,4999767742347297935}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{3271707025375621303,17276307397593255433}}
+	s %t{"ezSurfaceResourceSlot"}
+	u3 %v{1}
+	p
+	{
+		s %Label{"Material"}
+		s %Resource{"{ 479c8816-d06c-48fd-a907-af5be24225cb }"}
+	}
+}
+}
+Types
+{
+o
+{
+	Uuid %id{u4{800524819073401600,4234007076145470586}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginPhysX"}
+		VarArray %Properties{}
+		s %TypeName{"ezCollisionMeshType"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{4804660000725455364,6811252556017389458}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"ezEditorPluginPhysX"}
+		VarArray %Properties{}
+		s %TypeName{"ezSurfaceResourceSlot"}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6089094783765586323,8705960867921430659}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDocumentRoot"}
+		u3 %TypeSize{72}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{2947336711354777548,15013008608905564043}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14469700887475489738,16951777026318265606}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBasisAxis"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{10666774207481832673,17609779990587517893}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginPhysX"}
+		VarArray %Properties{}
+		s %TypeName{"ezCollisionMeshAssetProperties"}
+		u3 %TypeSize{1232}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{983387834180907111,17935407260904399048}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezReflectedClass"}
+		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+}
