@@ -91,31 +91,23 @@ namespace ezPPInternal
     ezExpressionByteCode* m_pByteCode;
   };
 
-  struct ExpressionInputs
+  struct EZ_PROCEDURALPLACEMENTPLUGIN_DLL ExpressionInputs
   {
-    enum Enum
-    {
-      PositionX,
-      PositionY,
-      PositionZ,
-      NormalX,
-      NormalY,
-      NormalZ,
-      PointIndex,
-      Count
-    };
+    static ezHashedString s_sPositionX;
+    static ezHashedString s_sPositionY;
+    static ezHashedString s_sPositionZ;
+    static ezHashedString s_sNormalX;
+    static ezHashedString s_sNormalY;
+    static ezHashedString s_sNormalZ;
+    static ezHashedString s_sPointIndex;
   };
 
-  struct ExpressionOutputs
+  struct EZ_PROCEDURALPLACEMENTPLUGIN_DLL ExpressionOutputs
   {
-    enum Enum
-    {
-      Density,
-      Scale,
-      ColorIndex,
-      ObjectIndex,
-      Count
-    };
+    static ezHashedString s_sDensity;
+    static ezHashedString s_sScale;
+    static ezHashedString s_sColorIndex;
+    static ezHashedString s_sObjectIndex;
   };
 
   struct PlacementPoint

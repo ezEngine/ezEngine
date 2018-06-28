@@ -3,14 +3,16 @@
 
 namespace
 {
+  static ezHashedString s_sRandom = ezMakeHashedString("Random");
+
   ezExpressionAST::Node* CreateRandom(float fSeed, ezExpressionAST& out_Ast)
   {
-    auto pPointIndex = out_Ast.CreateInput(ezPPInternal::ExpressionInputs::PointIndex);
+    auto pPointIndex = out_Ast.CreateInput(ezPPInternal::ExpressionInputs::s_sPointIndex);
     auto pSeedConstant = out_Ast.CreateConstant(fSeed);
 
     auto pSeed = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Add, pPointIndex, pSeedConstant);
 
-    auto pFunctionCall = out_Ast.CreateFunctionCall("Random");
+    auto pFunctionCall = out_Ast.CreateFunctionCall(s_sRandom);
     pFunctionCall->m_Arguments.PushBack(pSeed);
 
     return pFunctionCall;
@@ -57,43 +59,52 @@ ezExpressionAST::Node* ezProceduralPlacementLayerOutput::GenerateExpressionASTNo
 {
   out_Ast.m_OutputNodes.Clear();
 
-  for (auto input : inputs)
+  // density
   {
-    out_Ast.m_OutputNodes.PushBack(input);
+    auto pDensity = inputs[0];
+    if (pDensity == nullptr)
+    {
+      pDensity = out_Ast.CreateConstant(1.0f);
+    }
+
+    out_Ast.m_OutputNodes.PushBack(out_Ast.CreateOutput(ezPPInternal::ExpressionOutputs::s_sDensity, pDensity));
   }
 
-  // set defaults
-  if (out_Ast.m_OutputNodes[ezPPInternal::ExpressionOutputs::Density] == nullptr)
+  // scale
   {
-    out_Ast.m_OutputNodes[ezPPInternal::ExpressionOutputs::Density] = out_Ast.CreateConstant(1.0f);
+    auto pScale = inputs[1];
+    if (pScale == nullptr)
+    {
+      pScale = CreateRandom(11.0f, out_Ast);
+    }
+
+    out_Ast.m_OutputNodes.PushBack(out_Ast.CreateOutput(ezPPInternal::ExpressionOutputs::s_sScale, pScale));
   }
 
-  if (out_Ast.m_OutputNodes[ezPPInternal::ExpressionOutputs::Scale] == nullptr)
+  // color index
   {
-    out_Ast.m_OutputNodes[ezPPInternal::ExpressionOutputs::Scale] = CreateRandom(11.0f, out_Ast);
-  }
+    auto pColorIndex = inputs[2];
+    if (pColorIndex == nullptr)
+    {
+      pColorIndex = CreateRandom(13.0f, out_Ast);
+    }
 
-  if (out_Ast.m_OutputNodes[ezPPInternal::ExpressionOutputs::ColorIndex] == nullptr)
-  {
-    out_Ast.m_OutputNodes[ezPPInternal::ExpressionOutputs::ColorIndex] = CreateRandom(13.0f, out_Ast);
-  }
-
-  if (out_Ast.m_OutputNodes[ezPPInternal::ExpressionOutputs::ObjectIndex] == nullptr)
-  {
-    out_Ast.m_OutputNodes[ezPPInternal::ExpressionOutputs::ObjectIndex] = CreateRandom(17.0f, out_Ast);
-  }
-
-  // scale into correct range
-  {
     auto pColorIndexScale = out_Ast.CreateConstant(255.0f);
-    auto pColorIndexOutput = out_Ast.m_OutputNodes[ezPPInternal::ExpressionOutputs::ColorIndex];
-    out_Ast.m_OutputNodes[ezPPInternal::ExpressionOutputs::ColorIndex] = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Multiply, pColorIndexScale, pColorIndexOutput);
+    pColorIndex = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Multiply, pColorIndexScale, pColorIndex);
+    out_Ast.m_OutputNodes.PushBack(out_Ast.CreateOutput(ezPPInternal::ExpressionOutputs::s_sColorIndex, pColorIndex));
   }
 
+  // object index
   {
+    auto pObjectIndex = inputs[3];
+    if (pObjectIndex == nullptr)
+    {
+      pObjectIndex = CreateRandom(17.0f, out_Ast);
+    }
+
     auto pObjectIndexScale = out_Ast.CreateConstant((float)m_ObjectsToPlace.GetCount());
-    auto pObjectIndexOutput = out_Ast.m_OutputNodes[ezPPInternal::ExpressionOutputs::ObjectIndex];
-    out_Ast.m_OutputNodes[ezPPInternal::ExpressionOutputs::ObjectIndex] = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Multiply, pObjectIndexScale, pObjectIndexOutput);
+    pObjectIndex = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Multiply, pObjectIndexScale, pObjectIndex);
+    out_Ast.m_OutputNodes.PushBack(out_Ast.CreateOutput(ezPPInternal::ExpressionOutputs::s_sObjectIndex, pObjectIndex));
   }
 
   return nullptr;
@@ -219,7 +230,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezExpressionAST::Node* ezProceduralPlacementHeight::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast)
 {
-  auto pHeight = out_Ast.CreateInput(ezPPInternal::ExpressionInputs::PositionZ);
+  auto pHeight = out_Ast.CreateInput(ezPPInternal::ExpressionInputs::s_sPositionZ);
   auto pOffset = out_Ast.CreateConstant(m_fMinHeight);
   ezExpressionAST::Node* pValue = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Subtract, pHeight, pOffset);
 

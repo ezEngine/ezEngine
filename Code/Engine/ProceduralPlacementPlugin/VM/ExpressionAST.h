@@ -41,6 +41,9 @@ public:
       // Input
       FloatInput,
 
+      // Output
+      FloatOutput,
+
       FunctionCall,
 
       Count
@@ -50,6 +53,7 @@ public:
     static bool IsBinary(Enum nodeType);
     static bool IsConstant(Enum nodeType);
     static bool IsInput(Enum nodeType);
+    static bool IsOutput(Enum nodeType);
 
     static const char* GetName(Enum nodeType);
   };
@@ -105,7 +109,18 @@ public:
     {
     }
 
-    ezUInt32 m_uiIndex;
+    ezHashedString m_sName;
+  };
+
+  struct Output : public Node
+  {
+    EZ_FORCE_INLINE Output(NodeType::Enum type)
+      : Node(type)
+    {
+    }
+
+    ezHashedString m_sName;
+    Node* m_pExpression;
   };
 
   struct FunctionCall : public Node
@@ -126,15 +141,16 @@ public:
   UnaryOperator* CreateUnaryOperator(NodeType::Enum type, Node* pOperand);
   BinaryOperator* CreateBinaryOperator(NodeType::Enum type, Node* pLeftOperand, Node* pRightOperand);
   Constant* CreateConstant(const ezVariant& value);
-  Input* CreateInput(ezUInt32 uiIndex);
-  FunctionCall* CreateFunctionCall(const char* szName);
+  Input* CreateInput(const ezHashedString& sName);
+  Output* CreateOutput(const ezHashedString& sName, Node* pExpression);
+  FunctionCall* CreateFunctionCall(const ezHashedString& sName);
 
   static ezArrayPtr<Node*> GetChildren(Node* pNode);
   static ezArrayPtr<const Node*> GetChildren(const Node* pNode);
 
   void PrintGraph(ezDGMLGraph& graph) const;
 
-  ezHybridArray<Node*, 8> m_OutputNodes;
+  ezHybridArray<Output*, 8> m_OutputNodes;
 
 private:
   ezStackAllocator<> m_Allocator;

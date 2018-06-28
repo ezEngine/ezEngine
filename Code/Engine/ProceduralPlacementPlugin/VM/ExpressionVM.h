@@ -31,13 +31,14 @@ namespace ezExpression
     };
 
     Stream();
-    Stream(Type::Enum type, ezUInt32 uiByteStride);
-    Stream(ezArrayPtr<ezUInt8> data, Type::Enum type, ezUInt32 uiByteStride);
+    Stream(const ezHashedString& sName, Type::Enum type, ezUInt32 uiByteStride);
+    Stream(const ezHashedString& sName, Type::Enum type, ezArrayPtr<ezUInt8> data, ezUInt32 uiByteStride);
     ~Stream();
 
     ezUInt32 GetElementSize() const;
     void ValidateDataSize(ezUInt32 uiNumInstances, const char* szDataName) const;
 
+    ezHashedString m_sName;
     ezArrayPtr<ezUInt8> m_Data;
     ezEnum<Type> m_Type;
     ezUInt16 m_uiByteStride;
@@ -54,5 +55,8 @@ public:
 
 private:
   ezDynamicArray<ezSimdVec4f, ezAlignedAllocatorWrapper> m_Registers;
+
+  ezDynamicArray<ezUInt32> m_InputMapping;
+  ezDynamicArray<ezUInt32> m_OutputMapping;
 };
 

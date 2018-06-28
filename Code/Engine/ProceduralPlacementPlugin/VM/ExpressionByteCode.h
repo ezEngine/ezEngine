@@ -62,8 +62,8 @@ public:
 
   ezUInt32 GetNumInstructions() const;
   ezUInt32 GetNumTempRegisters() const;
-  ezUInt32 GetNumInputs() const;
-  ezUInt32 GetNumOutputs() const;
+  ezArrayPtr<const ezHashedString> GetInputs() const;
+  ezArrayPtr<const ezHashedString> GetOutputs() const;
 
   static OpCode::Enum GetOpCode(const StorageType*& pByteCode);
   static ezUInt32 GetRegisterIndex(const StorageType*& pByteCode, ezUInt32 uiNumRegisters);
@@ -80,11 +80,11 @@ private:
   friend class ezExpressionCompiler;
 
   ezDynamicArray<StorageType> m_ByteCode;
+  ezDynamicArray<ezHashedString> m_Inputs;
+  ezDynamicArray<ezHashedString> m_Outputs;
 
   ezUInt32 m_uiNumInstructions;
   ezUInt32 m_uiNumTempRegisters;
-  ezUInt32 m_uiNumInputs;
-  ezUInt32 m_uiNumOutputs;
 };
 
 #include <ProceduralPlacementPlugin/VM/Implementation/ExpressionByteCode_inl.h>

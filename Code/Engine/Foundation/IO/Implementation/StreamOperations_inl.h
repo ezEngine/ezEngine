@@ -212,5 +212,31 @@ inline ezStreamReader& operator >> (ezStreamReader& Stream, ezEnum<T>& value)
   return Stream;
 }
 
+// ezArrayBase
 
+template <typename ARRAYTYPE>
+inline ezStreamWriter& operator << (ezStreamWriter& Stream, const ARRAYTYPE& ar)
+{
+  Stream << ar.GetCount();
+  for (auto& v : ar)
+  {
+    Stream << v;
+  }
+
+  return Stream;
+}
+
+template <typename ARRAYTYPE>
+inline ezStreamReader& operator >> (ezStreamReader& Stream, ARRAYTYPE& ar)
+{
+  ezUInt32 uiCount = 0;
+  Stream >> uiCount;
+  ar.Reserve(uiCount);
+  for (ezUInt32 i = 0; i < uiCount; ++i)
+  {
+    Stream >> ar.ExpandAndGetRef();
+  }
+
+  return Stream;
+}
 

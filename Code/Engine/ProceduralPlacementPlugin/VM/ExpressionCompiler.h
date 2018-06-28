@@ -22,6 +22,9 @@ private:
   ezHybridArray<const ezExpressionAST::Node*, 64> m_NodeInstructions;
   ezHashTable<const ezExpressionAST::Node*, ezUInt32> m_NodeToRegisterIndex;
 
+  ezHashTable<ezHashedString, ezUInt32> m_InputToIndex;
+  ezHashTable<ezHashedString, ezUInt32> m_OutputToIndex;
+
   struct LiveInterval
   {
     EZ_DECLARE_POD_TYPE();

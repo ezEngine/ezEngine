@@ -26,6 +26,12 @@ bool ezExpressionAST::NodeType::IsInput(Enum nodeType)
   return nodeType == FloatInput;
 }
 
+//static
+bool ezExpressionAST::NodeType::IsOutput(Enum nodeType)
+{
+  return nodeType == FloatOutput;
+}
+
 namespace
 {
   static const char* s_szNodeTypeNames[] =
@@ -54,6 +60,9 @@ namespace
 
     // Input
     "FloatInput",
+
+    // Output
+    "FloatOutput",
 
     "FunctionCall"
   };
@@ -106,18 +115,27 @@ ezExpressionAST::Constant* ezExpressionAST::CreateConstant(const ezVariant& valu
   return pConstant;
 }
 
-ezExpressionAST::Input* ezExpressionAST::CreateInput(ezUInt32 uiIndex)
+ezExpressionAST::Input* ezExpressionAST::CreateInput(const ezHashedString& sName)
 {
   auto pInput = EZ_NEW(&m_Allocator, Input, NodeType::FloatInput);
-  pInput->m_uiIndex = uiIndex;
+  pInput->m_sName = sName;
 
   return pInput;
 }
 
-ezExpressionAST::FunctionCall* ezExpressionAST::CreateFunctionCall(const char* szName)
+ezExpressionAST::Output* ezExpressionAST::CreateOutput(const ezHashedString& sName, Node* pExpression)
+{
+  auto pOutput = EZ_NEW(&m_Allocator, Output, NodeType::FloatOutput);
+  pOutput->m_sName = sName;
+  pOutput->m_pExpression = pExpression;
+
+  return pOutput;
+}
+
+ezExpressionAST::FunctionCall* ezExpressionAST::CreateFunctionCall(const ezHashedString& sName)
 {
   auto pFunctionCall = EZ_NEW(&m_Allocator, FunctionCall, NodeType::FunctionCall);
-  pFunctionCall->m_sName.Assign(szName);
+  pFunctionCall->m_sName = sName;
 
   return pFunctionCall;
 }
@@ -135,6 +153,11 @@ ezArrayPtr<ezExpressionAST::Node*> ezExpressionAST::GetChildren(Node* pNode)
   {
     auto& pChildren = static_cast<BinaryOperator*>(pNode)->m_pLeftOperand;
     return ezMakeArrayPtr(&pChildren, 2);
+  }
+  else if (NodeType::IsOutput(nodeType))
+  {
+    auto& pChild = static_cast<Output*>(pNode)->m_pExpression;
+    return ezMakeArrayPtr(&pChild, 1);
   }
   else if (nodeType == NodeType::FunctionCall)
   {
@@ -158,6 +181,11 @@ ezArrayPtr<const ezExpressionAST::Node*> ezExpressionAST::GetChildren(const Node
   {
     auto& pChildren = static_cast<const BinaryOperator*>(pNode)->m_pLeftOperand;
     return ezMakeArrayPtr((const Node**)&pChildren, 2);
+  }
+  else if (NodeType::IsOutput(nodeType))
+  {
+    auto& pChild = static_cast<const Output*>(pNode)->m_pExpression;
+    return ezMakeArrayPtr((const Node**)&pChild, 1);
   }
   else if (nodeType == NodeType::FunctionCall)
   {
@@ -184,17 +212,16 @@ void ezExpressionAST::PrintGraph(ezDGMLGraph& graph) const
   ezHybridArray<NodeInfo, 64> nodeStack;
 
   ezStringBuilder sTmp;
-  for (ezUInt32 i = 0; i < m_OutputNodes.GetCount(); ++i)
+  for (auto pOutputNode : m_OutputNodes)
   {
-    Node* pOutputNode = m_OutputNodes[i];
     if (pOutputNode == nullptr)
       continue;
 
-    sTmp.Format("Output{0}", i);
+    sTmp.Format("{0}: {1}", NodeType::GetName(pOutputNode->m_Type), pOutputNode->m_sName);
 
-    ezUInt32 uiGraphNode = graph.AddNode(sTmp, ezColor::CornflowerBlue);
+    ezUInt32 uiGraphNode = graph.AddNode(sTmp, ezColor::LightBlue);
 
-    nodeStack.PushBack({ pOutputNode, uiGraphNode });
+    nodeStack.PushBack({ pOutputNode->m_pExpression, uiGraphNode });
   }
 
   ezHashTable<const Node*, ezUInt32> nodeCache;
@@ -211,20 +238,24 @@ void ezExpressionAST::PrintGraph(ezDGMLGraph& graph) const
       {
         NodeType::Enum nodeType = currentNodeInfo.m_pNode->m_Type;
         sTmp = NodeType::GetName(nodeType);
+        ezColor color = ezColor::White;
+
         if (NodeType::IsConstant(nodeType))
         {
           sTmp.AppendFormat(": {0}", static_cast<const Constant*>(currentNodeInfo.m_pNode)->m_Value.ConvertTo<ezString>());
         }
         else if (NodeType::IsInput(nodeType))
         {
-          sTmp.AppendFormat(": {0}", static_cast<const Input*>(currentNodeInfo.m_pNode)->m_uiIndex);
+          sTmp.Append(": ", static_cast<const Input*>(currentNodeInfo.m_pNode)->m_sName);
+          color = ezColor::LightGreen;
         }
         else if (nodeType == NodeType::FunctionCall)
         {
           sTmp.Append(": ", static_cast<const FunctionCall*>(currentNodeInfo.m_pNode)->m_sName);
+          color = ezColor::LightGoldenRodYellow;
         }
 
-        uiGraphNode = graph.AddNode(sTmp);
+        uiGraphNode = graph.AddNode(sTmp, color);
         nodeCache.Insert(currentNodeInfo.m_pNode, uiGraphNode);
 
         // push children

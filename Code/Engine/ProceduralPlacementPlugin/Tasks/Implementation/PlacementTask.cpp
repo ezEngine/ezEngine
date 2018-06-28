@@ -9,6 +9,17 @@ using namespace ezPPInternal;
 EZ_CHECK_AT_COMPILETIME(sizeof(PlacementPoint) == 32);
 //EZ_CHECK_AT_COMPILETIME(sizeof(PlacementTransform) == 64); // TODO: Fails on Linux and Mac
 
+namespace
+{
+  template <typename T>
+  ezExpression::Stream MakeStream(ezArrayPtr<T> data, ezUInt32 uiOffset, const ezHashedString& sName)
+  {
+    auto byteData = data.ToByteArray().GetSubArray(uiOffset);
+
+    return ezExpression::Stream(sName, ezExpression::Stream::Type::Float, byteData, sizeof(T));
+  }
+}
+
 PlacementTask::PlacementTask()
 {
 }
@@ -34,21 +45,15 @@ void PlacementTask::Execute()
     ezUInt32 uiNumInstances = m_InputPoints.GetCount();
     m_TempData.SetCountUninitialized(uiNumInstances * 5);
 
-    ezExpression::Stream inputs[ExpressionInputs::Count];
+    ezHybridArray<ezExpression::Stream, 8> inputs;
     {
-      for (ezUInt32 i = 0; i < 3; ++i) // Position
-      {
-        ezUInt8* ptr = reinterpret_cast<ezUInt8*>(m_InputPoints.GetData()) + (i * sizeof(float));
-        inputs[ExpressionInputs::PositionX + i].m_Data = ezMakeArrayPtr(ptr, uiNumInstances * sizeof(PlacementPoint));
-        inputs[ExpressionInputs::PositionX + i].m_uiByteStride = sizeof(PlacementPoint);
-      }
+      inputs.PushBack(MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.x), ezPPInternal::ExpressionInputs::s_sPositionX));
+      inputs.PushBack(MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.y), ezPPInternal::ExpressionInputs::s_sPositionY));
+      inputs.PushBack(MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vPosition.z), ezPPInternal::ExpressionInputs::s_sPositionZ));
 
-      for (ezUInt32 i = 0; i < 3; ++i) // Normal
-      {
-        ezUInt8* ptr = reinterpret_cast<ezUInt8*>(m_InputPoints.GetData()) + ((i + 4) * sizeof(float));
-        inputs[ExpressionInputs::NormalX + i].m_Data = ezMakeArrayPtr(ptr, uiNumInstances * sizeof(PlacementPoint));
-        inputs[ExpressionInputs::NormalX + i].m_uiByteStride = sizeof(PlacementPoint);
-      }
+      inputs.PushBack(MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.x), ezPPInternal::ExpressionInputs::s_sNormalX));
+      inputs.PushBack(MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.y), ezPPInternal::ExpressionInputs::s_sNormalY));
+      inputs.PushBack(MakeStream(m_InputPoints.GetArrayPtr(), offsetof(PlacementPoint, m_vNormal.z), ezPPInternal::ExpressionInputs::s_sNormalZ));
 
       // Point index
       ezArrayPtr<float> pointIndex = m_TempData.GetArrayPtr().GetSubArray(0, uiNumInstances);
@@ -56,8 +61,7 @@ void PlacementTask::Execute()
       {
         pointIndex[i] = m_InputPoints[i].m_uiPointIndex;
       }
-      inputs[ExpressionInputs::PointIndex].m_Data = pointIndex.ToByteArray();
-      inputs[ExpressionInputs::PointIndex].m_uiByteStride = sizeof(float);
+      inputs.PushBack(MakeStream(pointIndex, 0, ezPPInternal::ExpressionInputs::s_sPointIndex));
     }
 
     ezArrayPtr<float> density = m_TempData.GetArrayPtr().GetSubArray(uiNumInstances * 1, uiNumInstances);
@@ -65,19 +69,12 @@ void PlacementTask::Execute()
     ezArrayPtr<float> colorIndex = m_TempData.GetArrayPtr().GetSubArray(uiNumInstances * 3, uiNumInstances);
     ezArrayPtr<float> objectIndex = m_TempData.GetArrayPtr().GetSubArray(uiNumInstances * 4, uiNumInstances);
 
-    ezExpression::Stream outputs[ExpressionOutputs::Count];
+    ezHybridArray<ezExpression::Stream, 8> outputs;
     {
-      outputs[ExpressionOutputs::Density].m_Data = density.ToByteArray();
-      outputs[ExpressionOutputs::Density].m_uiByteStride = sizeof(float);
-
-      outputs[ExpressionOutputs::Scale].m_Data = scale.ToByteArray();
-      outputs[ExpressionOutputs::Scale].m_uiByteStride = sizeof(float);
-
-      outputs[ExpressionOutputs::ColorIndex].m_Data = colorIndex.ToByteArray();
-      outputs[ExpressionOutputs::ColorIndex].m_uiByteStride = sizeof(float);
-
-      outputs[ExpressionOutputs::ObjectIndex].m_Data = objectIndex.ToByteArray();
-      outputs[ExpressionOutputs::ObjectIndex].m_uiByteStride = sizeof(float);
+      outputs.PushBack(MakeStream(density, 0, ezPPInternal::ExpressionOutputs::s_sDensity));
+      outputs.PushBack(MakeStream(scale, 0, ezPPInternal::ExpressionOutputs::s_sScale));
+      outputs.PushBack(MakeStream(colorIndex, 0, ezPPInternal::ExpressionOutputs::s_sColorIndex));
+      outputs.PushBack(MakeStream(objectIndex, 0, ezPPInternal::ExpressionOutputs::s_sObjectIndex));
     }
 
     // Execute expression bytecode

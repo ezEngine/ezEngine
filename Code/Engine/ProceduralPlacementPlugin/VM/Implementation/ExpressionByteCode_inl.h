@@ -19,14 +19,14 @@ EZ_ALWAYS_INLINE ezUInt32 ezExpressionByteCode::GetNumTempRegisters() const
   return m_uiNumTempRegisters;
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezExpressionByteCode::GetNumInputs() const
+EZ_ALWAYS_INLINE ezArrayPtr<const ezHashedString> ezExpressionByteCode::GetInputs() const
 {
-  return m_uiNumInputs;
+  return m_Inputs;
 }
 
-EZ_ALWAYS_INLINE ezUInt32 ezExpressionByteCode::GetNumOutputs() const
+EZ_ALWAYS_INLINE ezArrayPtr<const ezHashedString> ezExpressionByteCode::GetOutputs() const
 {
-  return m_uiNumOutputs;
+  return m_Outputs;
 }
 
 // static

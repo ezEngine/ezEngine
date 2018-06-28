@@ -80,12 +80,13 @@ namespace
   }
 
   void VMLoadInput(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters,
-    ezArrayPtr<const ezExpression::Stream> inputs)
+    ezArrayPtr<const ezExpression::Stream> inputs, ezArrayPtr<ezUInt32> inputMapping)
   {
     ezSimdVec4f* r = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
     ezSimdVec4f* re = r + uiNumRegisters;
 
     ezUInt32 uiInputIndex = ezExpressionByteCode::GetRegisterIndex(pByteCode, 1);
+    uiInputIndex = inputMapping[uiInputIndex];
     auto& input = inputs[uiInputIndex];
     ezUInt32 uiByteStride = input.m_uiByteStride;
     const ezUInt8* pInputData = input.m_Data.GetPtr();
@@ -109,9 +110,10 @@ namespace
   }
 
   void VMStoreOutput(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters,
-    ezArrayPtr<ezExpression::Stream> outputs)
+    ezArrayPtr<ezExpression::Stream> outputs, ezArrayPtr<ezUInt32> outputMapping)
   {
     ezUInt32 uiOutputIndex = ezExpressionByteCode::GetRegisterIndex(pByteCode, 1);
+    uiOutputIndex = outputMapping[uiOutputIndex];
     auto& output = outputs[uiOutputIndex];
     ezUInt32 uiByteStride = output.m_uiByteStride;
     ezUInt8* pOutputData = output.m_Data.GetPtr();
@@ -164,19 +166,19 @@ ezExpression::Stream::Stream()
 
 }
 
-ezExpression::Stream::Stream(Type::Enum type, ezUInt32 uiByteStride)
-  : m_Type(type)
-  , m_uiByteStride(uiByteStride)
-{
-
-}
-
-ezExpression::Stream::Stream(ezArrayPtr<ezUInt8> data, Type::Enum type, ezUInt32 uiByteStride)
-  : m_Data(data)
+ezExpression::Stream::Stream(const ezHashedString& sName, Type::Enum type, ezUInt32 uiByteStride)
+  : m_sName(sName)
   , m_Type(type)
   , m_uiByteStride(uiByteStride)
 {
+}
 
+ezExpression::Stream::Stream(const ezHashedString& sName, Type::Enum type, ezArrayPtr<ezUInt8> data, ezUInt32 uiByteStride)
+  : m_sName(sName)
+  , m_Data(data)
+  , m_Type(type)
+  , m_uiByteStride(uiByteStride)
+{
 }
 
 ezExpression::Stream::~Stream() = default;
@@ -229,17 +231,58 @@ ezExpressionVM::~ezExpressionVM()
 void ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<const ezExpression::Stream> inputs, ezArrayPtr<ezExpression::Stream> outputs,
   ezUInt32 uiNumInstances)
 {
-  EZ_ASSERT_DEV(byteCode.GetNumInputs() <= inputs.GetCount(), "Bytecode expects {0} inputs but only {1} given", byteCode.GetNumInputs(), inputs.GetCount());
-  EZ_ASSERT_DEV(byteCode.GetNumOutputs() <= outputs.GetCount(), "Bytecode expects {0} outputs but only {1} given", byteCode.GetNumOutputs(), outputs.GetCount());
-
-  for (auto& input : inputs)
+  // Input mapping
   {
-    input.ValidateDataSize(uiNumInstances, "Input");
+    auto inputNames = byteCode.GetInputs();
+
+    m_InputMapping.Clear();
+    m_InputMapping.Reserve(inputNames.GetCount());
+
+    for (auto& inputName : inputNames)
+    {
+      bool bInputFound = false;
+
+      for (ezUInt32 i = 0; i < inputs.GetCount(); ++i)
+      {
+        if (inputs[i].m_sName == inputName)
+        {
+          inputs[i].ValidateDataSize(uiNumInstances, "Input");
+
+          m_InputMapping.PushBack(i);
+          bInputFound = true;
+          break;
+        }
+      }
+
+      EZ_ASSERT_DEV(bInputFound, "Bytecode expects an input '{0}'", inputName);
+    }
   }
 
-  for (auto& output : outputs)
+  // Output mapping
   {
-    output.ValidateDataSize(uiNumInstances, "Output");
+    auto outputNames = byteCode.GetOutputs();
+
+    m_OutputMapping.Clear();
+    m_OutputMapping.Reserve(outputNames.GetCount());
+
+    for (auto& outputName : outputNames)
+    {
+      bool bOutputFound = false;
+
+      for (ezUInt32 i = 0; i < outputs.GetCount(); ++i)
+      {
+        if (outputs[i].m_sName == outputName)
+        {
+          outputs[i].ValidateDataSize(uiNumInstances, "Output");
+
+          m_OutputMapping.PushBack(i);
+          bOutputFound = true;
+          break;
+        }
+      }
+
+      EZ_ASSERT_DEV(bOutputFound, "Bytecode expects an output '{0}'", outputName);
+    }
   }
 
   ezSimdVec4f* pRegisters = m_Registers.GetData();
@@ -282,11 +325,11 @@ void ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<co
       break;
 
     case ezExpressionByteCode::OpCode::Mov_I:
-      VMLoadInput(pByteCode, pRegisters, uiNumRegisters, inputs);
+      VMLoadInput(pByteCode, pRegisters, uiNumRegisters, inputs, m_InputMapping);
       break;
 
     case ezExpressionByteCode::OpCode::Mov_O:
-      VMStoreOutput(pByteCode, pRegisters, uiNumRegisters, outputs);
+      VMStoreOutput(pByteCode, pRegisters, uiNumRegisters, outputs, m_OutputMapping);
       break;
 
       // binary

@@ -6,8 +6,6 @@
 ezExpressionByteCode::ezExpressionByteCode()
   : m_uiNumInstructions(0)
   , m_uiNumTempRegisters(0)
-  , m_uiNumInputs(0)
-  , m_uiNumOutputs(0)
 {
 
 }
@@ -76,9 +74,19 @@ namespace
 
 void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
 {
-  out_sDisassembly.AppendFormat("// Inputs: {0}\n", m_uiNumInputs);
-  out_sDisassembly.AppendFormat("// Outputs: {0}\n", m_uiNumOutputs);
-  out_sDisassembly.AppendFormat("// Temp Registers: {0}\n", m_uiNumTempRegisters);
+  out_sDisassembly.Append("// Inputs:\n");
+  for (ezUInt32 i = 0; i < m_Inputs.GetCount(); ++i)
+  {
+    out_sDisassembly.AppendFormat("//  {0}: {1}\n", i, m_Inputs[i]);
+  }
+
+  out_sDisassembly.Append("\n// Outputs:\n");
+  for (ezUInt32 i = 0; i < m_Outputs.GetCount(); ++i)
+  {
+    out_sDisassembly.AppendFormat("//  {0}: {1}\n", i, m_Outputs[i]);
+  }
+
+  out_sDisassembly.AppendFormat("\n// Temp Registers: {0}\n", m_uiNumTempRegisters);
   out_sDisassembly.AppendFormat("// Instructions: {0}\n\n", m_uiNumInstructions);
 
 
@@ -101,10 +109,18 @@ void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
       }
       else
       {
-        const char* szR = (opCode == OpCode::Mov_O) ? "o" : "r";
-        const char* szX = (opCode == OpCode::Mov_I) ? "i" : "r";
-
-        out_sDisassembly.AppendFormat("{0} {1}{2} {3}{4}\n", szOpCode, szR, r, szX, x);
+        if (opCode == OpCode::Mov_I)
+        {
+          out_sDisassembly.AppendFormat("{0} r{1} i{2}({3})\n", szOpCode, r, x, m_Inputs[x]);
+        }
+        else if (opCode == OpCode::Mov_O)
+        {
+          out_sDisassembly.AppendFormat("{0} o{1}({3}) r{2}\n", szOpCode, r, x, m_Outputs[r]);
+        }
+        else
+        {
+          out_sDisassembly.AppendFormat("{0} r{1} r{2}\n", szOpCode, r, x);
+        }
       }
     }
     else if (opCode > OpCode::FirstBinary && opCode < OpCode::LastBinary)
@@ -164,12 +180,12 @@ void ezExpressionByteCode::Save(ezStreamWriter& stream) const
   chunk.BeginStream();
 
   {
-    chunk.BeginChunk("MetaData", 1);
+    chunk.BeginChunk("MetaData", 2);
 
     chunk << m_uiNumInstructions;
     chunk << m_uiNumTempRegisters;
-    chunk << m_uiNumInputs;
-    chunk << m_uiNumOutputs;
+    chunk << m_Inputs;
+    chunk << m_Outputs;
 
     chunk.EndChunk();
   }
@@ -197,10 +213,17 @@ ezResult ezExpressionByteCode::Load(ezStreamReader& stream)
   {
     if (chunk.GetCurrentChunk().m_sChunkName == "MetaData")
     {
-      chunk >> m_uiNumInstructions;
-      chunk >> m_uiNumTempRegisters;
-      chunk >> m_uiNumInputs;
-      chunk >> m_uiNumOutputs;
+      if (chunk.GetCurrentChunk().m_uiChunkVersion >= 2)
+      {
+        chunk >> m_uiNumInstructions;
+        chunk >> m_uiNumTempRegisters;
+        chunk >> m_Inputs;
+        chunk >> m_Outputs;
+      }
+      else
+      {
+        ezLog::Error("Invalid MetaData Chunk Version {0}. Expected >= 2", chunk.GetCurrentChunk().m_uiChunkVersion);
+      }
     }
     else if (chunk.GetCurrentChunk().m_sChunkName == "Code")
     {

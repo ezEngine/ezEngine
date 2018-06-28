@@ -145,9 +145,8 @@ ezResult ezExpressionCompiler::BuildNodeInstructions(const ezExpressionAST& ast)
 
 ezResult ezExpressionCompiler::UpdateRegisterLifetime(const ezExpressionAST& ast)
 {
-  ezUInt32 uiInstructionIndex = 0;
   ezUInt32 uiNumInstructions = m_NodeInstructions.GetCount();
-  for (; uiInstructionIndex < uiNumInstructions; ++uiInstructionIndex)
+  for (ezUInt32 uiInstructionIndex = 0; uiInstructionIndex < uiNumInstructions; ++uiInstructionIndex)
   {
     auto pCurrentNode = m_NodeInstructions[uiInstructionIndex];
 
@@ -167,21 +166,6 @@ ezResult ezExpressionCompiler::UpdateRegisterLifetime(const ezExpressionAST& ast
         EZ_ASSERT_DEV(ezExpressionAST::NodeType::IsConstant(pChild->m_Type), "Must have a valid register for nodes that are not constants");
       }
     }
-  }
-
-  for (auto pOutputNode : ast.m_OutputNodes)
-  {
-    if (pOutputNode == nullptr)
-      continue;
-
-    ezUInt32 uiRegisterIndex = ezInvalidIndex;
-    EZ_VERIFY(m_NodeToRegisterIndex.TryGetValue(pOutputNode, uiRegisterIndex), "Must have a valid register for outputs");
-    auto& liveRegister = m_LiveIntervals[uiRegisterIndex];
-
-    EZ_ASSERT_DEV(liveRegister.m_uiEnd <= uiInstructionIndex, "Implementation error");
-    liveRegister.m_uiEnd = uiInstructionIndex;
-
-    uiInstructionIndex++;
   }
 
   return EZ_SUCCESS;
@@ -238,8 +222,11 @@ ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezEx
   auto& byteCode = out_byteCode.m_ByteCode;
 
   ezUInt32 uiMaxRegisterIndex = 0;
-  ezUInt32 uiMaxInputIndex = 0;
-  ezUInt32 uiMaxOutputIndex = 0;
+
+  m_InputToIndex.Clear();
+  m_OutputToIndex.Clear();
+  ezUInt32 uiNextInputIndex = 0;
+  ezUInt32 uiNextOutputIndex = 0;
 
   for (auto pCurrentNode : m_NodeInstructions)
   {
@@ -288,13 +275,36 @@ ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezEx
     }
     else if (ezExpressionAST::NodeType::IsInput(nodeType))
     {
-      ezUInt32 uiInputIndex = static_cast<const ezExpressionAST::Input*>(pCurrentNode)->m_uiIndex;
+      const ezHashedString& sName = static_cast<const ezExpressionAST::Input*>(pCurrentNode)->m_sName;
+      ezUInt32 uiInputIndex = 0;
+      if (!m_InputToIndex.TryGetValue(sName, uiInputIndex))
+      {
+        uiInputIndex = uiNextInputIndex;
+        m_InputToIndex.Insert(sName, uiInputIndex);
+
+        ++uiNextInputIndex;
+      }
 
       byteCode.PushBack(ezExpressionByteCode::OpCode::Mov_I);
       byteCode.PushBack(uiTargetRegister);
       byteCode.PushBack(uiInputIndex);
+    }
+    else if (ezExpressionAST::NodeType::IsOutput(nodeType))
+    {
+      auto pOutput = static_cast<const ezExpressionAST::Output*>(pCurrentNode);
+      const ezHashedString& sName = pOutput->m_sName;
+      ezUInt32 uiOutputIndex = 0;
+      if (!m_OutputToIndex.TryGetValue(sName, uiOutputIndex))
+      {
+        uiOutputIndex = uiNextOutputIndex;
+        m_OutputToIndex.Insert(sName, uiOutputIndex);
 
-      uiMaxInputIndex = ezMath::Max(uiMaxInputIndex, uiInputIndex);
+        ++uiNextOutputIndex;
+      }
+
+      byteCode.PushBack(ezExpressionByteCode::OpCode::Mov_O);
+      byteCode.PushBack(uiOutputIndex);
+      byteCode.PushBack(m_NodeToRegisterIndex[pOutput->m_pExpression]);
     }
     else if (nodeType == ezExpressionAST::NodeType::FunctionCall)
     {
@@ -311,29 +321,26 @@ ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezEx
         byteCode.PushBack(uiArgRegister);
       }
     }
+    else
+    {
+      EZ_ASSERT_NOT_IMPLEMENTED;
+    }
   }
 
-  ezUInt32 uiNumInstructions = m_NodeInstructions.GetCount();
-
-  // Move to outputs
-  for (ezUInt32 uiOutputIndex = 0; uiOutputIndex < ast.m_OutputNodes.GetCount(); ++uiOutputIndex)
-  {
-    auto pOutputNode = ast.m_OutputNodes[uiOutputIndex];
-    if (pOutputNode == nullptr)
-      continue;
-
-    byteCode.PushBack(ezExpressionByteCode::OpCode::Mov_O);
-    byteCode.PushBack(uiOutputIndex);
-    byteCode.PushBack(m_NodeToRegisterIndex[pOutputNode]);
-
-    uiMaxOutputIndex = ezMath::Max(uiMaxOutputIndex, uiOutputIndex);
-    ++uiNumInstructions;
-  }
-
-  out_byteCode.m_uiNumInstructions = uiNumInstructions;
+  out_byteCode.m_uiNumInstructions = m_NodeInstructions.GetCount();
   out_byteCode.m_uiNumTempRegisters = uiMaxRegisterIndex + 1;
-  out_byteCode.m_uiNumInputs = uiMaxInputIndex + 1;
-  out_byteCode.m_uiNumOutputs = uiMaxOutputIndex + 1;
+
+  out_byteCode.m_Inputs.SetCount(m_InputToIndex.GetCount());
+  for (auto it = m_InputToIndex.GetIterator(); it.IsValid(); ++it)
+  {
+    out_byteCode.m_Inputs[it.Value()] = it.Key();
+  }
+
+  out_byteCode.m_Outputs.SetCount(m_OutputToIndex.GetCount());
+  for (auto it = m_OutputToIndex.GetIterator(); it.IsValid(); ++it)
+  {
+    out_byteCode.m_Outputs[it.Value()] = it.Key();
+  }
 
   return EZ_SUCCESS;
 }
