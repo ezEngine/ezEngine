@@ -240,7 +240,7 @@ void ezTexConv::WriteDecalAtlasInfo(ezDynamicArray<DecalDesc> decals)
 
   for (const auto& decal : decals)
   {
-    const ezUInt32 uiHash = ezTempHashedString::ComputeHash(decal.m_sIdentifier.GetData());
+    const ezUInt32 uiHash = ezHashing::xxHash32(decal.m_sIdentifier.GetData(), decal.m_sIdentifier.GetElementCount());
 
     m_FileOut << decal.m_sIdentifier;
     m_FileOut << uiHash;

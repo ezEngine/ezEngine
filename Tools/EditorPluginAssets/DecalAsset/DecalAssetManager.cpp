@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginAssets/DecalAsset/DecalAssetManager.h>
 #include <EditorPluginAssets/DecalAsset/DecalAsset.h>
 #include <EditorPluginAssets/DecalAsset/DecalAssetWindow.moc.h>
@@ -186,7 +186,6 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const char* szPlatfor
     ezUInt16 uiVersion = ezGetStaticRTTI<ezDecalAssetDocument>()->GetTypeVersion() & 0xFF;
     uiVersion |= (ezGetStaticRTTI<ezDecalAssetProperties>()->GetTypeVersion() & 0xFF) << 8;
 
-    ezAssetFileHeader header;
     header.SetFileHashAndVersion(uiSettingsHash, uiVersion);
   }
 

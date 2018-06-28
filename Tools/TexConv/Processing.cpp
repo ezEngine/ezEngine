@@ -94,7 +94,7 @@ ezResult ezTexConv::ConvertToOutputFormat()
       }
     }
 
-    if(!bCompressionDone)
+    if (!bCompressionDone)
     {
       if (FAILED(Compress(m_pCurrentImage->GetImages(), m_pCurrentImage->GetImageCount(), m_pCurrentImage->GetMetadata(), dxgi, TEX_COMPRESS_DEFAULT, 1.0f, *pNewScratch.get())))
       {
