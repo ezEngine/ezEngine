@@ -1,23 +1,24 @@
 #include <PCH.h>
+
+#include <Core/World/GameObject.h>
+#include <Core/World/World.h>
 #include <Foundation/Math/Angle.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/Math/Vec3.h>
-
-#include <ParticlePlugin/Type/Sprite/ParticleTypeSprite.h>
-#include <RendererCore/Shader/ShaderResource.h>
-#include <RendererFoundation/Descriptors/Descriptors.h>
-#include <RendererFoundation/Device/Device.h>
-#include <RendererCore/Pipeline/Declarations.h>
-#include <RendererCore/Pipeline/RenderPipelinePass.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/Meshes/MeshBufferResource.h>
-#include <RendererCore/Textures/Texture2DResource.h>
-#include <Core/World/GameObject.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
-#include <Core/World/World.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
+#include <ParticlePlugin/Type/Sprite/ParticleTypeSprite.h>
+#include <RendererCore/Meshes/MeshBufferResource.h>
+#include <RendererCore/Pipeline/Declarations.h>
+#include <RendererCore/Pipeline/ExtractedRenderData.h>
+#include <RendererCore/Pipeline/RenderPipelinePass.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/Shader/ShaderResource.h>
+#include <RendererCore/Textures/Texture2DResource.h>
+#include <RendererFoundation/Descriptors/Descriptors.h>
+#include <RendererFoundation/Device/Device.h>
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSpriteAxis, 1)
 EZ_ENUM_CONSTANTS(ezSpriteAxis::EmitterDirection, ezSpriteAxis::WorldUp, ezSpriteAxis::Random)
 EZ_END_STATIC_REFLECTED_ENUM()
@@ -32,19 +33,20 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeSpriteFactory, 1, ezRTTIDefaultAll
     EZ_MEMBER_PROPERTY("NumSpritesY", m_uiNumSpritesY)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_ENUM_MEMBER_PROPERTY("RotationAxis", ezSpriteAxis, m_RotationAxis),
     EZ_MEMBER_PROPERTY("Deviation", m_MaxDeviation)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0), ezAngle::Degree(90))),
+    EZ_MEMBER_PROPERTY("TintColorParam", m_sTintColorParameter),
   }
   EZ_END_PROPERTIES
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeSprite, 1, ezRTTIDefaultAllocator<ezParticleTypeSprite>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 const ezRTTI* ezParticleTypeSpriteFactory::GetTypeType() const
 {
   return ezGetStaticRTTI<ezParticleTypeSprite>();
 }
-
 
 void ezParticleTypeSpriteFactory::CopyTypeProperties(ezParticleType* pObject) const
 {
@@ -56,6 +58,7 @@ void ezParticleTypeSpriteFactory::CopyTypeProperties(ezParticleType* pObject) co
   pType->m_hTexture.Invalidate();
   pType->m_uiNumSpritesX = m_uiNumSpritesX;
   pType->m_uiNumSpritesY = m_uiNumSpritesY;
+  pType->m_sTintColorParameter = ezTempHashedString(m_sTintColorParameter.GetData());
 
   if (!m_sTexture.IsEmpty())
     pType->m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sTexture);
@@ -67,6 +70,7 @@ enum class TypeSpriteVersion
   Version_1,
   Version_2, // added render mode
   Version_3, // added flipbook animation
+  Version_4, // added tint color parameter
 
   // insert new version numbers above
   Version_Count,
@@ -84,7 +88,7 @@ void ezParticleTypeSpriteFactory::Save(ezStreamWriter& stream) const
   stream << m_RenderMode;
   stream << m_uiNumSpritesX;
   stream << m_uiNumSpritesY;
-
+  stream << m_sTintColorParameter;
 }
 
 void ezParticleTypeSpriteFactory::Load(ezStreamReader& stream)
@@ -111,6 +115,11 @@ void ezParticleTypeSpriteFactory::Load(ezStreamReader& stream)
   {
     stream >> m_uiNumSpritesX;
     stream >> m_uiNumSpritesY;
+  }
+
+  if (uiVersion >= 4)
+  {
+    stream >> m_sTintColorParameter;
   }
 }
 
@@ -197,6 +206,8 @@ void ezParticleTypeSprite::ExtractTypeRenderData(const ezView& view, ezExtracted
   {
     m_uiLastExtractedFrame = uiExtractedFrame;
 
+    const ezColor tintColor = GetOwnerEffect()->GetColorParameter(m_sTintColorParameter, ezColor::White);
+
     const ezTime tCur = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
 
     const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
@@ -216,7 +227,7 @@ void ezParticleTypeSprite::ExtractTypeRenderData(const ezView& view, ezExtracted
     for (ezUInt32 p = 0; p < (ezUInt32)GetOwnerSystem()->GetNumActiveParticles(); ++p)
     {
       TempData[p].Size = pSize[p];
-      TempData[p].Color = pColor[p];
+      TempData[p].Color = pColor[p] * tintColor;
       m_ParticleData[p].Life = pLifeTime[p].x * pLifeTime[p].y;
     }
 
@@ -256,6 +267,4 @@ void ezParticleTypeSprite::ExtractTypeRenderData(const ezView& view, ezExtracted
 
 
 
-
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Sprite_ParticleTypeSprite);
-
