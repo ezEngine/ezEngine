@@ -11,7 +11,7 @@ o
 		s %AssetType{"Texture Cube"}
 		VarArray %Dependencies
 		{
-			s{"Skyboxes/kiara_noon.hdr"}
+			s{"Skyboxes/hdrihaven.com/kiara_noon.hdr"}
 		}
 		Uuid %DocumentID{u4{6725656380318145191,4795471578463733927}}
 		u4 %Hash{9233937876586503930}
@@ -32,7 +32,7 @@ o
 	{
 		s %ChannelMapping{"ezTextureCubeChannelMappingEnum::RGB1"}
 		b %Compression{1}
-		s %Input1{"Skyboxes/kiara_noon.hdr"}
+		s %Input1{"Skyboxes/hdrihaven.com/kiara_noon.hdr"}
 		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
