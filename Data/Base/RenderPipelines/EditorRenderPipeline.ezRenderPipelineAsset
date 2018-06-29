@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5189305147899033520,5264929536831011917}}
-		u4 %Hash{7788899317354892179}
+		u4 %Hash{15607705875486205300}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -136,6 +136,18 @@ o
 	s %t{"ezInputNodePin"}
 	u3 %v{1}
 	p{}
+}
+o
+{
+	Uuid %id{u4{10893226216929467313,2575537651011466170}}
+	s %t{"ConnectionInternal"}
+	u3 %v{1}
+	p
+	{
+		s %SourcePin{"Output"}
+		Uuid %Target{u4{12025421613094468508,5132296434815839289}}
+		s %TargetPin{"ResolvedDepth"}
+	}
 }
 o
 {
@@ -309,7 +321,7 @@ o
 			Uuid{u4{13529855614579537357,9149717108740737961}}
 			Uuid{u4{10778444518320057205,1104447737331323154}}
 		}
-		Vec2 %Node::Pos{f{0x2DEE16C4,0xA7A13DC3}}
+		Vec2 %Node::Pos{f{0x2DEE16C4,0x66293FC3}}
 		VarArray %Renderers
 		{
 			Uuid{u4{17561063011637801369,5711330016916472034}}
@@ -330,13 +342,6 @@ o
 		u3 %HighlightID{0}
 		b %OnlyPickable{0}
 	}
-}
-o
-{
-	Uuid %id{u4{1371213799285780408,4947141482123162704}}
-	s %t{"ezParticleBillboardRenderer"}
-	u3 %v{1}
-	p{}
 }
 o
 {
@@ -450,18 +455,19 @@ o
 			Uuid{u4{3950995032570001510,2427639785621624021}}
 			Uuid{u4{17848648130166237083,13168549246920158711}}
 		}
-		Vec2 %Node::Pos{f{0x23920B44,0xBB238CC3}}
+		Vec2 %Node::Pos{f{0xECDB0044,0x745B50C3}}
 		VarArray %Renderers
 		{
 			Uuid{u4{1150677171691235496,4943682069214822174}}
-			Uuid{u4{1371213799285780408,4947141482123162704}}
 			Uuid{u4{3250854308754996650,4681122858202631045}}
 			Uuid{u4{16883636273468668820,5091626474797130685}}
 			Uuid{u4{16088287691165484418,5230047715847829220}}
 			Uuid{u4{17992563033076071050,5694931789517870114}}
 			Uuid{u4{15243059149680400804,4683295213883254142}}
 			Uuid{u4{839328558132542655,5513437849599105357}}
+			Uuid{u4{1921850559112432315,5238670833637512470}}
 		}
+		Uuid %ResolvedDepth{u4{2279795259145776511,9601045094097476192}}
 	}
 }
 o
@@ -541,6 +547,13 @@ o
 			Uuid{u4{11720134540286111636,4778990587135628085}}
 		}
 	}
+}
+o
+{
+	Uuid %id{u4{1921850559112432315,5238670833637512470}}
+	s %t{"ezParticleBillboardRenderer"}
+	u3 %v{1}
+	p{}
 }
 o
 {
@@ -668,6 +681,7 @@ o
 		{
 			Uuid{u4{17853509231289357117,17218043141430913872}}
 			Uuid{u4{1486910380078966400,18319928677242991026}}
+			Uuid{u4{10893226216929467313,2575537651011466170}}
 		}
 		Vec2 %Node::Pos{f{0x2742C2C4,0xB1F28941}}
 		Uuid %Output{u4{11416726115319276326,18041643960643222238}}
@@ -968,6 +982,13 @@ o
 o
 {
 	Uuid %id{u4{2725560692618687699,9529164957605534258}}
+	s %t{"ezInputNodePin"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{2279795259145776511,9601045094097476192}}
 	s %t{"ezInputNodePin"}
 	u3 %v{1}
 	p{}
@@ -1323,7 +1344,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSelectedObjectsExtractor"}
-		u3 %TypeSize{88}
+		u3 %TypeSize{96}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1359,7 +1380,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSimpleRenderPass"}
-		u3 %TypeSize{264}
+		u3 %TypeSize{280}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1434,7 +1455,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleExtractor"}
-		u3 %TypeSize{80}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1483,7 +1504,7 @@ o
 			Uuid{u4{2012387899594327277,3950326609854899947}}
 		}
 		s %TypeName{"ezSceneContext"}
-		u3 %TypeSize{1312}
+		u3 %TypeSize{1408}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1591,7 +1612,7 @@ o
 			Uuid{u4{6854911006197083064,7746640694434617992}}
 		}
 		s %TypeName{"ezEditorSelectedObjectsExtractor"}
-		u3 %TypeSize{424}
+		u3 %TypeSize{432}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1849,7 +1870,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezClusteredDataExtractor"}
-		u3 %TypeSize{224}
+		u3 %TypeSize{232}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2064,7 +2085,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezExtractor"}
-		u3 %TypeSize{80}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2085,7 +2106,7 @@ o
 			Uuid{u4{15868110692668931867,14943561632443673429}}
 		}
 		s %TypeName{"ezEditorGridExtractor"}
-		u3 %TypeSize{88}
+		u3 %TypeSize{96}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2150,7 +2171,7 @@ o
 			Uuid{u4{16998480651558378128,16264935532857513760}}
 		}
 		s %TypeName{"ezEditorShapeIconsExtractor"}
-		u3 %TypeSize{128}
+		u3 %TypeSize{136}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2268,7 +2289,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisibleObjectsExtractor"}
-		u3 %TypeSize{80}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2300,7 +2321,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEngineProcessDocumentContext"}
-		u3 %TypeSize{1064}
+		u3 %TypeSize{1112}
 		u3 %TypeVersion{1}
 	}
 }

@@ -7,7 +7,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Color %DefaultValue{f{0xCB99503F,0x54406E3B,0x54406E3B,0x0000803F}}
+		Color %DefaultValue{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		s %Name{"Color"}
 	}
 }
@@ -36,7 +36,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4607189238494912230,4410921466201175968}}
-		u4 %Hash{12934641257146285680}
+		u4 %Hash{6165580711303370923}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{882162401574481072,2604185458374364691}}
@@ -104,7 +104,7 @@ o
 		b %AlwaysShared{0}
 		VarDict %ColorParameters
 		{
-			Color %Color{f{0xCB99503F,0x54406E3B,0x54406E3B,0x0000803F}}
+			Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		}
 		VarDict %FloatParameters
 		{
@@ -569,7 +569,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEffectDescriptor"}
-		u3 %TypeSize{288}
+		u3 %TypeSize{304}
 		u3 %TypeVersion{1}
 	}
 }

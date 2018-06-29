@@ -1,24 +1,27 @@
-﻿#include <PCH.h>
-#include <RendererCore/Pipeline/Passes/SimpleRenderPass.h>
-#include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderContext/RenderContext.h>
+#include <PCH.h>
 
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
 
 #include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/Pipeline/Passes/SimpleRenderPass.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleRenderPass, 1, ezRTTIDefaultAllocator<ezSimpleRenderPass>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Color", m_PinColor),
     EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil)->AddAttributes(new ezColorAttribute(ezColor::LightCoral)),
+    EZ_MEMBER_PROPERTY("ResolvedDepth", m_PinResolvedDepth),
     EZ_MEMBER_PROPERTY("Message", m_sMessage),
   }
   EZ_END_PROPERTIES
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezSimpleRenderPass::ezSimpleRenderPass(const char* szName) : ezRenderPipelinePass(szName)
 {
@@ -28,8 +31,8 @@ ezSimpleRenderPass::~ezSimpleRenderPass()
 {
 }
 
-bool ezSimpleRenderPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription*const> inputs,
-  ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezSimpleRenderPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
+                                                     ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   const ezGALRenderTagetSetup& setup = view.GetRenderTargetSetup();
@@ -55,7 +58,6 @@ bool ezSimpleRenderPass::GetRenderTargetDescriptions(const ezView& view, const e
         outputs[m_PinColor.m_uiOutputIndex].m_ResourceAccess.m_bReadBack = false;
         outputs[m_PinColor.m_uiOutputIndex].m_ResourceAccess.m_bImmutable = true;
         outputs[m_PinColor.m_uiOutputIndex].m_pExisitingNativeObject = nullptr;
-
       }
     }
   }
@@ -84,7 +86,7 @@ bool ezSimpleRenderPass::GetRenderTargetDescriptions(const ezView& view, const e
 }
 
 void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+                                 const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
@@ -98,6 +100,12 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext, c
   if (inputs[m_PinDepthStencil.m_uiInputIndex])
   {
     renderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(inputs[m_PinDepthStencil.m_uiInputIndex]->m_TextureHandle));
+  }
+
+  if (inputs[m_PinResolvedDepth.m_uiInputIndex])
+  {
+    ezGALResourceViewHandle depthResourceViewHandle = pDevice->GetDefaultResourceView(inputs[m_PinResolvedDepth.m_uiInputIndex]->m_TextureHandle);
+    renderViewContext.m_pRenderContext->BindTexture2D("SceneDepth", depthResourceViewHandle);
   }
 
   renderViewContext.m_pRenderContext->SetViewportAndRenderTargetSetup(renderViewContext.m_pViewData->m_ViewPortRect, renderTargetSetup);
@@ -139,4 +147,3 @@ void ezSimpleRenderPass::SetMessage(const char* szMessage)
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_SimpleRenderPass);
-
