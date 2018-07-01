@@ -25,7 +25,6 @@ public:
 protected:
   ezPassThroughNodePin m_PinColor;
   ezPassThroughNodePin m_PinDepthStencil;
-  ezInputNodePin m_PinResolvedDepth;
 
   ezString m_sMessage;
 };
