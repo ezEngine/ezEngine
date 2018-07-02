@@ -82,11 +82,7 @@ void ezParticleEmitter_OnEvent::InitializeElements(ezUInt64 uiStartIndex, ezUInt
 {
   EZ_PROFILE("PFX: Event Emitter");
 
-  if (uiStartIndex + uiNumElements > m_Events.GetCount())
-  {
-    ezLog::Error("OnEvent emitter must be the only emitter on a particle system");
-    return;
-  }
+  EZ_ASSERT_DEV(uiNumElements == m_Events.GetCount(), "Invalid spawn count");
 
   ezVec4* pPosition = m_pStreamPosition->GetWritableData<ezVec4>();
   ezVec3* pVelocity = m_pStreamVelocity->GetWritableData<ezVec3>();
@@ -98,6 +94,8 @@ void ezParticleEmitter_OnEvent::InitializeElements(ezUInt64 uiStartIndex, ezUInt
     pPosition[index] = m_Events[i].m_vPosition.GetAsVec4(0);
     pVelocity[index] = m_Events[i].m_vDirection; /// \todo whatever
   }
+
+  m_Events.Clear();
 }
 
 ezParticleEmitterState ezParticleEmitter_OnEvent::IsFinished()
@@ -117,7 +115,10 @@ void ezParticleEmitter_OnEvent::ProcessEventQueue(const ezParticleEventQueue* pQ
     // this is the event type we are waiting for!
 
     // copy all the data. quite inefficient though, have to see whether that could be done better
-    m_Events = pQueue->GetAllEvents();
+    if (!pQueue->GetAllEvents().IsEmpty())
+    {
+      m_Events = pQueue->GetAllEvents();
+    }
   }
 }
 

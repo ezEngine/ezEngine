@@ -9,6 +9,7 @@
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <Foundation/Profiling/Profiling.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Raycast, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Raycast>)
 {
   EZ_BEGIN_PROPERTIES
@@ -25,8 +26,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Raycast, 1, ezRTTIDefaultAllo
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleRaycastHitReaction, 1)
-EZ_ENUM_CONSTANTS(ezParticleRaycastHitReaction::Bounce, ezParticleRaycastHitReaction::Die)
-EZ_END_STATIC_REFLECTED_ENUM()
+  EZ_ENUM_CONSTANTS(ezParticleRaycastHitReaction::Bounce, ezParticleRaycastHitReaction::Die, ezParticleRaycastHitReaction::Stop)
+EZ_END_STATIC_REFLECTED_ENUM();
+// clang-format on
 
 ezParticleBehaviorFactory_Raycast::ezParticleBehaviorFactory_Raycast()
 {
@@ -144,6 +146,10 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
           {
             /// \todo Get current element index from iterator ?
             m_pStreamGroup->RemoveElement(i);
+          }
+          else if (m_Reaction == ezParticleRaycastHitReaction::Stop)
+          {
+            itVelocity.Current().SetZero();
           }
 
           if (m_sOnCollideEvent.GetHash() != 0)

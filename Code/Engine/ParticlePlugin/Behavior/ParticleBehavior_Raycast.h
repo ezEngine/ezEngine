@@ -13,6 +13,7 @@ struct EZ_PARTICLEPLUGIN_DLL ezParticleRaycastHitReaction
   {
     Bounce,
     Die,
+    Stop,
 
     Default = Bounce
   };

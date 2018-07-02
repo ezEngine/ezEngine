@@ -24,7 +24,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12907113733222061238,5577365460626278697}}
-		u4 %Hash{12832624888619602490}
+		u4 %Hash{12117460504764741656}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{9182086896301630080,3770629452799467420}}
@@ -81,7 +81,7 @@ o
 	{
 		u1 %CollisionLayer{0}
 		s %OnCollideEvent{""}
-		s %Reaction{"ezParticleRaycastHitReaction::Bounce"}
+		s %Reaction{"ezParticleRaycastHitReaction::Stop"}
 	}
 }
 o
