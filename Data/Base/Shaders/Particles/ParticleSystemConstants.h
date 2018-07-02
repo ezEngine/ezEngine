@@ -10,5 +10,6 @@ CONSTANT_BUFFER(ezParticleSystemConstants, 2)
   INT1(NumUsedTrailPoints);
   UINT1(NumSpritesX);
   UINT1(NumSpritesY);
+  FLOAT1(DistortionStrength);
 };
 

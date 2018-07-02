@@ -197,8 +197,7 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
   pRenderData->m_uiNumSpritesX = m_uiNumSpritesX;
   pRenderData->m_uiNumSpritesY = m_uiNumSpritesY;
 
-  /// \todo Generate a proper sorting key?
-  const ezUInt32 uiSortingKey = 0;
+  const ezUInt32 uiSortingKey = ComputeSortingKey(ezParticleTypeRenderMode::Opaque);
   extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitTransparent, uiSortingKey);
 }
 

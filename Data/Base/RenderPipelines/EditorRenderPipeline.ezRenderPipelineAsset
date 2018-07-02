@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5189305147899033520,5264929536831011917}}
-		u4 %Hash{15467659171925744058}
+		u4 %Hash{2247915469896028295}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -235,20 +235,6 @@ o
 }
 o
 {
-	Uuid %id{u4{3250854308754996650,4681122858202631045}}
-	s %t{"ezParticleFragmentRenderer"}
-	u3 %v{1}
-	p{}
-}
-o
-{
-	Uuid %id{u4{15243059149680400804,4683295213883254142}}
-	s %t{"ezParticleTrailRenderer"}
-	u3 %v{1}
-	p{}
-}
-o
-{
 	Uuid %id{u4{14597986153625371787,4692219363761142632}}
 	s %t{"ezGizmoRenderer"}
 	u3 %v{1}
@@ -309,27 +295,21 @@ o
 			Uuid{u4{13529855614579537357,9149717108740737961}}
 			Uuid{u4{10778444518320057205,1104447737331323154}}
 		}
-		Vec2 %Node::Pos{f{0x2DEE16C4,0xA7A13DC3}}
+		Vec2 %Node::Pos{f{0x2DEE16C4,0x3BA33EC3}}
 		VarArray %Renderers
 		{
 			Uuid{u4{17561063011637801369,5711330016916472034}}
 			Uuid{u4{11867141582701966512,4630528323127588664}}
-			Uuid{u4{18330968083402791051,5008287425230621340}}
-			Uuid{u4{8990968256956572036,5294872333297650234}}
-			Uuid{u4{1745917225718636711,5213866328677281275}}
-			Uuid{u4{9486156078335105690,4901634517233178667}}
-			Uuid{u4{11858024565282055552,5290755800208422971}}
+			Uuid{u4{18205950680626520507,5661672131757145868}}
+			Uuid{u4{18360095894153122692,5193015474839541301}}
+			Uuid{u4{15514910540818261424,5151710153145392579}}
+			Uuid{u4{12324170437460765602,5176959845674784846}}
+			Uuid{u4{13562148913608907652,5625885085449458433}}
+			Uuid{u4{2625035017369082524,5032299466589820388}}
 		}
 		Uuid %ResolvedDepth{u4{7082862411846815554,8575133905357388572}}
 		s %ShadingQuality{"ezForwardRenderShadingQuality::Normal"}
 	}
-}
-o
-{
-	Uuid %id{u4{9486156078335105690,4901634517233178667}}
-	s %t{"ezParticleSpriteRenderer"}
-	u3 %v{1}
-	p{}
 }
 o
 {
@@ -342,13 +322,6 @@ o
 		u3 %HighlightID{0}
 		b %OnlyPickable{0}
 	}
-}
-o
-{
-	Uuid %id{u4{1371213799285780408,4947141482123162704}}
-	s %t{"ezParticleBillboardRenderer"}
-	u3 %v{1}
-	p{}
 }
 o
 {
@@ -397,8 +370,8 @@ o
 }
 o
 {
-	Uuid %id{u4{18330968083402791051,5008287425230621340}}
-	s %t{"ezParticleBillboardRenderer"}
+	Uuid %id{u4{2625035017369082524,5032299466589820388}}
+	s %t{"ezParticleTrailRenderer"}
 	u3 %v{1}
 	p{}
 }
@@ -473,15 +446,31 @@ o
 		VarArray %Renderers
 		{
 			Uuid{u4{1150677171691235496,4943682069214822174}}
-			Uuid{u4{1371213799285780408,4947141482123162704}}
-			Uuid{u4{3250854308754996650,4681122858202631045}}
 			Uuid{u4{16883636273468668820,5091626474797130685}}
-			Uuid{u4{16088287691165484418,5230047715847829220}}
 			Uuid{u4{17992563033076071050,5694931789517870114}}
-			Uuid{u4{15243059149680400804,4683295213883254142}}
-			Uuid{u4{839328558132542655,5513437849599105357}}
 		}
 	}
+}
+o
+{
+	Uuid %id{u4{15514910540818261424,5151710153145392579}}
+	s %t{"ezParticleFragmentRenderer"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{12324170437460765602,5176959845674784846}}
+	s %t{"ezParticlePointRenderer"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{18360095894153122692,5193015474839541301}}
+	s %t{"ezParticleBillboardRenderer"}
+	u3 %v{1}
+	p{}
 }
 o
 {
@@ -507,13 +496,6 @@ o
 }
 o
 {
-	Uuid %id{u4{1745917225718636711,5213866328677281275}}
-	s %t{"ezParticlePointRenderer"}
-	u3 %v{1}
-	p{}
-}
-o
-{
 	Uuid %id{u4{16411398774033032383,5216678342510795943}}
 	s %t{"ezTonemapPass"}
 	u3 %v{1}
@@ -536,13 +518,6 @@ o
 		f %Saturation{0x0000803F}
 		s %VignettingTexture{"{ 3edf10b3-36d2-434f-9683-c653909abe7e }"}
 	}
-}
-o
-{
-	Uuid %id{u4{16088287691165484418,5230047715847829220}}
-	s %t{"ezParticleSpriteRenderer"}
-	u3 %v{1}
-	p{}
 }
 o
 {
@@ -616,20 +591,6 @@ o
 }
 o
 {
-	Uuid %id{u4{11858024565282055552,5290755800208422971}}
-	s %t{"ezParticleTrailRenderer"}
-	u3 %v{1}
-	p{}
-}
-o
-{
-	Uuid %id{u4{8990968256956572036,5294872333297650234}}
-	s %t{"ezParticleFragmentRenderer"}
-	u3 %v{1}
-	p{}
-}
-o
-{
 	Uuid %id{u4{16262109524692299682,5328279104252697333}}
 	s %t{"ezAOPass"}
 	u3 %v{1}
@@ -665,13 +626,6 @@ o
 }
 o
 {
-	Uuid %id{u4{839328558132542655,5513437849599105357}}
-	s %t{"ezParticlePointRenderer"}
-	u3 %v{1}
-	p{}
-}
-o
-{
 	Uuid %id{u4{579003740518963390,5540263777698901314}}
 	s %t{"ezSkyRenderPass"}
 	u3 %v{1}
@@ -693,6 +647,13 @@ o
 		}
 		s %ShadingQuality{"ezForwardRenderShadingQuality::Normal"}
 	}
+}
+o
+{
+	Uuid %id{u4{13562148913608907652,5625885085449458433}}
+	s %t{"ezParticleSpriteRenderer"}
+	u3 %v{1}
+	p{}
 }
 o
 {
@@ -738,6 +699,13 @@ o
 		VarArray %Renderers{}
 		f %Threshold{0x0000803F}
 	}
+}
+o
+{
+	Uuid %id{u4{18205950680626520507,5661672131757145868}}
+	s %t{"ezParticleDistortionRenderer"}
+	u3 %v{1}
+	p{}
 }
 o
 {
@@ -2006,6 +1974,24 @@ o
 		s %TypeName{"ezSourcePass"}
 		u3 %TypeSize{216}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{9543577854147286422,11312165328784956072}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezParticleRenderer"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleDistortionRenderer"}
+		u3 %TypeSize{24}
+		u3 %TypeVersion{1}
 	}
 }
 o

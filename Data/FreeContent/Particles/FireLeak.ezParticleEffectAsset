@@ -36,7 +36,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4607189238494912230,4410921466201175968}}
-		u4 %Hash{6165580711303370923}
+		u4 %Hash{9201780079643859327}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{882162401574481072,2604185458374364691}}
@@ -210,9 +210,12 @@ o
 	u3 %v{1}
 	p
 	{
+		f %DistortionStrength{0}
+		s %DistortionTexture{""}
 		u1 %NumSpritesX{7}
 		u1 %NumSpritesY{7}
 		s %RenderMode{"ezParticleTypeRenderMode::Additive"}
+		f %SceneColorMix{0}
 		s %Texture{"{ 5960875e-fd79-4e1a-a7f6-8c084e7fba9b }"}
 		s %TintColorParam{"Color"}
 	}
@@ -461,7 +464,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleTypeBillboardFactory"}
-		u3 %TypeSize{152}
+		u3 %TypeSize{224}
 		u3 %TypeVersion{1}
 	}
 }

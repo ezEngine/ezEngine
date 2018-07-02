@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12099190295688988325,5711173786673602835}}
-		u4 %Hash{13876938448699931649}
+		u4 %Hash{3924055764658654452}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -125,13 +125,6 @@ o
 }
 o
 {
-	Uuid %id{u4{5612059354165731997,4623304288142314691}}
-	s %t{"ezParticlePointRenderer"}
-	u3 %v{1}
-	p{}
-}
-o
-{
 	Uuid %id{u4{15217573783965038497,4632251886641546667}}
 	s %t{"ezTransparentForwardRenderPass"}
 	u3 %v{1}
@@ -150,6 +143,7 @@ o
 		{
 			Uuid{u4{17118200511077512124,5585576549109102666}}
 			Uuid{u4{10545754141288669367,5575206532188284996}}
+			Uuid{u4{5668477493396283056,5762261384002395223}}
 			Uuid{u4{4907461290481924002,4759363810899312180}}
 			Uuid{u4{10758576968449312131,5345384753677391389}}
 			Uuid{u4{5866629148714799258,5512820948564204248}}
@@ -181,13 +175,6 @@ o
 		Uuid %Output{u4{17090548153543632830,13319031493794220399}}
 		VarArray %Renderers{}
 	}
-}
-o
-{
-	Uuid %id{u4{4509218521063305629,4738054883286852966}}
-	s %t{"ezParticleFragmentRenderer"}
-	u3 %v{1}
-	p{}
 }
 o
 {
@@ -351,22 +338,10 @@ o
 		Vec2 %Node::Pos{f{0x84B7BA43,0xDACE56C3}}
 		VarArray %Renderers
 		{
-			Uuid{u4{7380404801823553958,5285337044802883910}}
-			Uuid{u4{4509218521063305629,4738054883286852966}}
-			Uuid{u4{9557668187309410208,5227290317545533962}}
-			Uuid{u4{5612059354165731997,4623304288142314691}}
-			Uuid{u4{4640316533029175983,5508914452238536392}}
 			Uuid{u4{12325205025592915074,5702981337413483727}}
 			Uuid{u4{875541364554114992,5510539528898110569}}
 		}
 	}
-}
-o
-{
-	Uuid %id{u4{9557668187309410208,5227290317545533962}}
-	s %t{"ezParticleSpriteRenderer"}
-	u3 %v{1}
-	p{}
 }
 o
 {
@@ -388,13 +363,6 @@ o
 		Uuid %Output{u4{920053572201142377,10962662567231694552}}
 		VarArray %Renderers{}
 	}
-}
-o
-{
-	Uuid %id{u4{7380404801823553958,5285337044802883910}}
-	s %t{"ezParticleBillboardRenderer"}
-	u3 %v{1}
-	p{}
 }
 o
 {
@@ -449,13 +417,6 @@ o
 		VarArray %Node::Connections{}
 		Vec2 %Node::Pos{f{0xA62E8EC3,0x5EE1FEC3}}
 	}
-}
-o
-{
-	Uuid %id{u4{4640316533029175983,5508914452238536392}}
-	s %t{"ezParticleTrailRenderer"}
-	u3 %v{1}
-	p{}
 }
 o
 {
@@ -606,6 +567,13 @@ o
 {
 	Uuid %id{u4{12325205025592915074,5702981337413483727}}
 	s %t{"ezImguiRenderer"}
+	u3 %v{1}
+	p{}
+}
+o
+{
+	Uuid %id{u4{5668477493396283056,5762261384002395223}}
+	s %t{"ezParticleDistortionRenderer"}
 	u3 %v{1}
 	p{}
 }
@@ -1501,6 +1469,24 @@ o
 		s %TypeName{"ezSourcePass"}
 		u3 %TypeSize{216}
 		u3 %TypeVersion{2}
+	}
+}
+o
+{
+	Uuid %id{u4{9543577854147286422,11312165328784956072}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezParticleRenderer"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleDistortionRenderer"}
+		u3 %TypeSize{24}
+		u3 %TypeVersion{1}
 	}
 }
 o

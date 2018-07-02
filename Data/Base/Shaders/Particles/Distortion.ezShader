@@ -12,15 +12,7 @@ SourceBlend0 = Blend_SrcAlpha
 
 DepthTest = true
 DepthWrite = false
-
-#if PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_ADDITIVE
-  DestBlend0 = Blend_One
-#elif PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_BLENDED
-  DestBlend0 = Blend_InvSrcAlpha
-#elif PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_OPAQUE
-  BlendingEnabled0 = false
-  DepthWrite = true
-#endif
+DestBlend0 = Blend_InvSrcAlpha
 
 [VERTEXSHADER]
 
@@ -90,22 +82,27 @@ VS_OUT main(uint VertexID : SV_VertexID)
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
-Texture2D ParticleTexture;
-SamplerState ParticleTexture_AutoSampler;
+Texture2D ParticleMaskTexture;
+SamplerState ParticleMaskTexture_AutoSampler;
+
+Texture2D ParticleDistortionTexture;
+SamplerState ParticleDistortionTexture_AutoSampler;
 
 float4 main(PS_IN Input) : SV_Target
 {
-  float4 texCol = ParticleTexture.Sample(ParticleTexture_AutoSampler, Input.TexCoords.xy);
+  float4 texCol = ParticleMaskTexture.Sample(ParticleMaskTexture_AutoSampler, Input.TexCoords.xy);
 
   float closeToGeometryFadeOut = DepthFade(Input.Position.xyw, 0.1);
-  //closeToGeometryFadeOut = 1;
   float distanceToCameraFadeOut = saturate(Input.Position.w / 0.5);
 
   float opacity = Input.Color.a * texCol.a * closeToGeometryFadeOut * distanceToCameraFadeOut;
 
   clip(opacity - 0.01);
 
-  return float4(texCol.rgb * Input.Color.rgb, opacity);
+  float4 texDistort = ParticleDistortionTexture.Sample(ParticleDistortionTexture_AutoSampler, Input.TexCoords.xy);
+  float3 sceneColor = SampleSceneColor(Input.Position.xy + (texDistort - 0.5) * float2(DistortionStrength, DistortionStrength));
+
+  return float4(sceneColor.rgb * Input.Color.rgb, opacity);
 }
 
 #endif

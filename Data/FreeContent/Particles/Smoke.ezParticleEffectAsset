@@ -2,12 +2,26 @@ HeaderV2
 {
 o
 {
+	Uuid %id{u4{9799807311077205040,3068576251979679814}}
+	s %t{"ezExposedParameter"}
+	u3 %v{1}
+	p
+	{
+		Color %DefaultValue{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		s %Name{"Color"}
+	}
+}
+o
+{
 	Uuid %id{u4{14698777452629637756,3222472653615281117}}
 	s %t{"ezExposedParameters"}
 	u3 %v{2}
 	p
 	{
-		VarArray %Parameters{}
+		VarArray %Parameters
+		{
+			Uuid{u4{9799807311077205040,3068576251979679814}}
+		}
 	}
 }
 o
@@ -21,7 +35,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{18423804289550068914,5029208661442092394}}
-		u4 %Hash{3924031102914446951}
+		u4 %Hash{752310256464143723}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14698777452629637756,3222472653615281117}}
@@ -29,7 +43,9 @@ o
 		VarArray %Outputs{}
 		VarArray %References
 		{
+			s{"{ 0c5ce0a7-7218-427d-9a9d-47ef5e9aa33f }"}
 			s{"{ a1f3f932-460e-405a-8512-a0f3ce341d1b }"}
+			s{"{ b89e395a-6e69-47e1-982d-ade04df8777a }"}
 			s{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
 			s{"{ f633ccad-b4d5-12e5-260a-bb050d602881 }"}
 		}
@@ -78,8 +94,24 @@ o
 		VarArray %Types
 		{
 			Uuid{u4{10407767271512645277,5120174477154541319}}
+			Uuid{u4{16895279146052600222,4868316090412478164}}
 		}
 		b %Visible{1}
+	}
+}
+o
+{
+	Uuid %id{u4{16895279146052600222,4868316090412478164}}
+	s %t{"ezParticleTypeDistortionFactory"}
+	u3 %v{1}
+	p
+	{
+		f %DistortionStrength{0x0000C842}
+		s %DistortionTexture{"{ b89e395a-6e69-47e1-982d-ade04df8777a }"}
+		s %MaskTexture{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
+		u1 %NumSpritesX{1}
+		u1 %NumSpritesY{1}
+		s %TintColorParam{""}
 	}
 }
 o
@@ -135,8 +167,8 @@ o
 		u1 %NumSpritesX{1}
 		u1 %NumSpritesY{1}
 		s %RenderMode{"ezParticleTypeRenderMode::Blended"}
-		s %Texture{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
-		s %TintColorParam{""}
+		s %Texture{"{ 0c5ce0a7-7218-427d-9a9d-47ef5e9aa33f }"}
+		s %TintColorParam{"Color"}
 	}
 }
 o
@@ -147,7 +179,10 @@ o
 	p
 	{
 		b %AlwaysShared{0}
-		VarDict %ColorParameters{}
+		VarDict %ColorParameters
+		{
+			Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		}
 		VarDict %FloatParameters{}
 		VarArray %ParticleSystems
 		{
@@ -306,6 +341,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezVarianceTypeBase"}
 		u3 %TypeSize{4}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9484015791349332952,6669333084682465428}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezParticleTypeFactory"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleTypeDistortionFactory"}
+		u3 %TypeSize{216}
 		u3 %TypeVersion{1}
 	}
 }

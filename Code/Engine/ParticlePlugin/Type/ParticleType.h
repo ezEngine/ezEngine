@@ -5,6 +5,14 @@
 #include <Foundation/DataProcessing/Stream/ProcessingStreamProcessor.h>
 #include <ParticlePlugin/Module/ParticleModule.h>
 
+// TODO: review this
+enum ezParticleTypeSortingKey
+{
+  Opaque = 0,
+  Additive  = 10,
+  Blended = 20,
+};
+
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeFactory : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeFactory, ezReflectedClass);
@@ -35,8 +43,9 @@ protected:
   ezParticleType();
 
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override {}
-
   virtual void StepParticleSystem(const ezTime& tDiff, ezUInt32 uiNumNewParticles) { m_TimeDiff = tDiff; }
+
+  static ezUInt32 ComputeSortingKey(ezParticleTypeRenderMode::Enum mode);
 
   ezTime m_TimeDiff;
   mutable ezUInt64 m_uiLastExtractedFrame;

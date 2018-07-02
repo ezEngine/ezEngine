@@ -5,7 +5,7 @@
 #include <Foundation/Algorithm/Sorting.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
-#include <ParticlePlugin/Type/Billboard/ParticleTypeBillboard.h>
+#include <ParticlePlugin/Type/Distortion/ParticleTypeDistortion.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Pipeline/Declarations.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
@@ -18,12 +18,13 @@
 #include <RendererFoundation/Device/Device.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeBillboardFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeBillboardFactory>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeDistortionFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeDistortionFactory>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ENUM_MEMBER_PROPERTY("RenderMode", ezParticleTypeRenderMode, m_RenderMode),
-    EZ_MEMBER_PROPERTY("Texture", m_sTexture)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
+    EZ_MEMBER_PROPERTY("MaskTexture", m_sMaskTexture)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
+    EZ_MEMBER_PROPERTY("DistortionTexture", m_sDistortionTexture)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
+    EZ_MEMBER_PROPERTY("DistortionStrength", m_fDistortionStrength)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(0.0f, 500.0f)),
     EZ_MEMBER_PROPERTY("NumSpritesX", m_uiNumSpritesX)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_MEMBER_PROPERTY("NumSpritesY", m_uiNumSpritesY)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_MEMBER_PROPERTY("TintColorParam", m_sTintColorParameter),
@@ -32,96 +33,76 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeBillboardFactory, 1, ezRTTIDefault
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeBillboard, 1, ezRTTIDefaultAllocator<ezParticleTypeBillboard>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeDistortion, 1, ezRTTIDefaultAllocator<ezParticleTypeDistortion>)
+EZ_END_DYNAMIC_REFLECTED_TYPE
+    // clang-format on
 
-const ezRTTI* ezParticleTypeBillboardFactory::GetTypeType() const
+    const ezRTTI* ezParticleTypeDistortionFactory::GetTypeType() const
 {
-  return ezGetStaticRTTI<ezParticleTypeBillboard>();
+  return ezGetStaticRTTI<ezParticleTypeDistortion>();
 }
 
 
-void ezParticleTypeBillboardFactory::CopyTypeProperties(ezParticleType* pObject) const
+void ezParticleTypeDistortionFactory::CopyTypeProperties(ezParticleType* pObject) const
 {
-  ezParticleTypeBillboard* pType = static_cast<ezParticleTypeBillboard*>(pObject);
+  ezParticleTypeDistortion* pType = static_cast<ezParticleTypeDistortion*>(pObject);
 
-  pType->m_hTexture.Invalidate();
-  pType->m_RenderMode = m_RenderMode;
+  pType->m_hMaskTexture.Invalidate();
+  pType->m_hDistortionTexture.Invalidate();
+  pType->m_fDistortionStrength = m_fDistortionStrength;
   pType->m_uiNumSpritesX = m_uiNumSpritesX;
   pType->m_uiNumSpritesY = m_uiNumSpritesY;
   pType->m_sTintColorParameter = ezTempHashedString(m_sTintColorParameter.GetData());
 
-  if (!m_sTexture.IsEmpty())
-    pType->m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sTexture);
+  if (!m_sMaskTexture.IsEmpty())
+    pType->m_hMaskTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sMaskTexture);
+
+  if (!m_sDistortionTexture.IsEmpty())
+    pType->m_hDistortionTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sDistortionTexture);
 }
 
-enum class TypeBillboardVersion
+enum class TypeDistortionVersion
 {
   Version_0 = 0,
   Version_1,
-  Version_2, // added texture
-  Version_3, // added opacity
-  Version_4, // added render mode
-  Version_5, // added num sprites XY
-  Version_6, // added tint color parameter
 
   // insert new version numbers above
   Version_Count,
   Version_Current = Version_Count - 1
 };
 
-void ezParticleTypeBillboardFactory::Save(ezStreamWriter& stream) const
+void ezParticleTypeDistortionFactory::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = (int)TypeBillboardVersion::Version_Current;
+  const ezUInt8 uiVersion = (int)TypeDistortionVersion::Version_Current;
   stream << uiVersion;
 
-  stream << m_sTexture;
-  stream << m_RenderMode;
+  stream << m_sMaskTexture;
+  stream << m_sDistortionTexture;
+  stream << m_fDistortionStrength;
   stream << m_uiNumSpritesX;
   stream << m_uiNumSpritesY;
   stream << m_sTintColorParameter;
 }
 
-void ezParticleTypeBillboardFactory::Load(ezStreamReader& stream)
+void ezParticleTypeDistortionFactory::Load(ezStreamReader& stream)
 {
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion <= (int)TypeBillboardVersion::Version_Current, "Invalid version {0}", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= (int)TypeDistortionVersion::Version_Current, "Invalid version {0}", uiVersion);
 
-  if (uiVersion >= 2)
-  {
-    stream >> m_sTexture;
-  }
-
-  if (uiVersion == 3)
-  {
-    float fOpacity;
-    stream >> fOpacity;
-  }
-
-  if (uiVersion >= 4)
-  {
-    stream >> m_RenderMode;
-  }
-
-  if (uiVersion >= 5)
-  {
-    stream >> m_uiNumSpritesX;
-    stream >> m_uiNumSpritesY;
-  }
-
-  if (uiVersion >= 6)
-  {
-    stream >> m_sTintColorParameter;
-  }
+  stream >> m_sMaskTexture;
+  stream >> m_sDistortionTexture;
+  stream >> m_fDistortionStrength;
+  stream >> m_uiNumSpritesX;
+  stream >> m_uiNumSpritesY;
+  stream >> m_sTintColorParameter;
 }
 
-ezParticleTypeBillboard::ezParticleTypeBillboard() = default;
-ezParticleTypeBillboard::~ezParticleTypeBillboard() = default;
+ezParticleTypeDistortion::ezParticleTypeDistortion() = default;
+ezParticleTypeDistortion::~ezParticleTypeDistortion() = default;
 
-void ezParticleTypeBillboard::CreateRequiredStreams()
+void ezParticleTypeDistortion::CreateRequiredStreams()
 {
   CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime, false);
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
@@ -145,11 +126,11 @@ struct sodComparer
   EZ_ALWAYS_INLINE bool Equal(const sod& a, const sod& b) const { return a.dist == b.dist; }
 };
 
-void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+void ezParticleTypeDistortion::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
-  EZ_PROFILE("PFX: Billboard");
+  EZ_PROFILE("PFX: Distortion");
 
-  if (!m_hTexture.IsValid())
+  if (!m_hMaskTexture.IsValid() || !m_hDistortionTexture.IsValid() || m_fDistortionStrength <= 0)
     return;
 
   const ezUInt32 numParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();
@@ -160,11 +141,11 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
   const ezTime tCur = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
 
   const ezVec3 vCameraPos = view.GetCamera()->GetCenterPosition();
-  const bool bNeedsSorting = m_RenderMode == ezParticleTypeRenderMode::Blended;
+  const bool bNeedsSorting = false; // not sure
 
   // don't copy the data multiple times in the same frame, if the effect is instanced
   if ((m_uiLastExtractedFrame != uiExtractedFrame)
-      /*&& !bNeedsSorting*/) // TODO: in theory every shared instance has to sort the billboards, in practice this maybe should be an option
+      /*&& !bNeedsSorting*/) // TODO: in theory every shared instance has to sort the Distortions, in practice this maybe should be an option
   {
     const ezColor tintColor = GetOwnerEffect()->GetColorParameter(m_sTintColorParameter, ezColor::White);
 
@@ -177,7 +158,7 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
     const float* pRotationSpeed = m_pStreamRotationSpeed->GetData<float>();
 
     // this will automatically be deallocated at the end of the frame
-    m_ParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBillboardParticleData, numParticles);
+    m_ParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezDistortionParticleData, numParticles);
 
     ezTransform trans;
     if (bNeedsSorting)
@@ -227,21 +208,26 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
   }
 
   /// \todo Is this batch ID correct?
-  const ezUInt32 uiBatchId = m_hTexture.GetResourceIDHash();
-  auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleBillboardRenderData>(nullptr, uiBatchId);
+  const ezUInt32 uiBatchId = m_hMaskTexture.GetResourceIDHash() + m_hDistortionTexture.GetResourceIDHash();
+  auto pRenderData = ezCreateRenderDataForThisFrame<ezParticleDistortionRenderData>(nullptr, uiBatchId);
+
+  // TODO: hack to render distortion effects first
+  ezTransform adjustedTransform = instanceTransform;
+  adjustedTransform.m_vPosition += view.GetCamera()->GetCenterDirForwards() * 0.1f;
 
   pRenderData->m_bApplyObjectTransform = GetOwnerEffect()->NeedsToApplyTransform();
-  pRenderData->m_GlobalTransform = instanceTransform;
-  pRenderData->m_RenderMode = m_RenderMode;
-  pRenderData->m_hTexture = m_hTexture;
+  pRenderData->m_GlobalTransform = adjustedTransform;
+  pRenderData->m_hMaskTexture = m_hMaskTexture;
+  pRenderData->m_hDistortionTexture = m_hDistortionTexture;
   pRenderData->m_ParticleData = m_ParticleData;
   pRenderData->m_uiNumSpritesX = m_uiNumSpritesX;
   pRenderData->m_uiNumSpritesY = m_uiNumSpritesY;
+  pRenderData->m_fDistortionStrength = m_fDistortionStrength;
 
-  const ezUInt32 uiSortingKey = ComputeSortingKey(m_RenderMode);
+  const ezUInt32 uiSortingKey = ComputeSortingKey(ezParticleTypeRenderMode::Opaque);
   extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitTransparent, uiSortingKey);
 }
 
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Billboard_ParticleTypeBillboard);
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Distortion_ParticleTypeDistortion);
