@@ -1,16 +1,17 @@
 #include <PCH.h>
+
+#include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/ReloadableVariable.h>
 #include <Foundation/Containers/Set.h>
-#include <Foundation/Configuration/Plugin.h>
-#include <Foundation/Logging/Log.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Logging/Log.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  #include <Foundation/Configuration/Implementation/Win/Plugin_Win.h>
+#include <Foundation/Configuration/Implementation/Win/Plugin_Win.h>
 #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
-  #include <Foundation/Configuration/Implementation/Posix/Plugin_Posix.h>
+#include <Foundation/Configuration/Implementation/Posix/Plugin_Posix.h>
 #else
-  #error "Plugins not implemented on this Platform."
+#error "Plugins not implemented on this Platform."
 #endif
 
 ezResult UnloadPluginModule(ezPluginModule& Module, const char* szPluginFile);
@@ -264,8 +265,8 @@ success:
     return EZ_FAILURE;
   }
 
-  // if the platform supports it, store the modification time of the plugin, so that we don't need to reload it, if not necessary
-  #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+// if the platform supports it, store the modification time of the plugin, so that we don't need to reload it, if not necessary
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   {
     ezFileStats stat;
     if (ezOSFile::GetFileStats(sOldPlugin.GetData(), stat) == EZ_SUCCESS)
@@ -273,7 +274,7 @@ success:
       g_LoadedPlugins[szPluginFile].m_LastModificationTime = stat.m_LastModificationTime;
     }
   }
-  #endif
+#endif
 
 
   // Find all known plugin objects
@@ -480,26 +481,26 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
         }
         else
         {
-          // if the platform supports file stat calls, we can check whether the plugin has been modified
-          // otherwise we always reload it (same as bForceReload)
-          #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+// if the platform supports file stat calls, we can check whether the plugin has been modified
+// otherwise we always reload it (same as bForceReload)
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
 
-            if (!bForceReload)
+          if (!bForceReload)
+          {
+            ezFileStats stat;
+            if (ezOSFile::GetFileStats(sOldPlugin.GetData(), stat) == EZ_SUCCESS)
             {
-              ezFileStats stat;
-              if (ezOSFile::GetFileStats(sOldPlugin.GetData(), stat) == EZ_SUCCESS)
+              if (g_LoadedPlugins[pPlugin->m_sLoadedFromFile].m_LastModificationTime.Compare(stat.m_LastModificationTime, ezTimestamp::CompareMode::FileTimeEqual))
               {
-                if (g_LoadedPlugins[pPlugin->m_sLoadedFromFile].m_LastModificationTime.Compare(stat.m_LastModificationTime, ezTimestamp::CompareMode::FileTimeEqual))
-                {
-                  ezLog::Debug("Plugin '{0}' is not modified.", pPlugin->GetPluginName());
-                  bModified = false;
-                }
-                else
-                  ezLog::Info("Plugin '{0}' is modified, reloading.", pPlugin->GetPluginName());
+                ezLog::Debug("Plugin '{0}' is not modified.", pPlugin->GetPluginName());
+                bModified = false;
               }
+              else
+                ezLog::Info("Plugin '{0}' is modified, reloading.", pPlugin->GetPluginName());
             }
+          }
 
-          #endif
+#endif
         }
 
         if (bModified)
@@ -529,7 +530,7 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
     {
       ezUInt32 iIndex = i - 1;
 
-      EZ_VERIFY (UnloadPluginInternal(PluginsToReload[iIndex].GetData(), true) == EZ_SUCCESS, "Could not unload plugin '{0}'.", PluginsToReload[iIndex]);
+      EZ_VERIFY(UnloadPluginInternal(PluginsToReload[iIndex].GetData(), true) == EZ_SUCCESS, "Could not unload plugin '{0}'.", PluginsToReload[iIndex]);
     }
   }
 
@@ -556,7 +557,7 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
         {
           // if we cannot reload a plugin (not even its backup), all we can do is crash with an error message
           // everything else would most probably result in crashes in very strange ways
-          EZ_VERIFY (LoadPluginInternal(PluginsToReload[i].GetData(), false, true) == EZ_SUCCESS, "Could not reload backup of plugin '{0}'", PluginsToReload[i]);
+          EZ_VERIFY(LoadPluginInternal(PluginsToReload[i].GetData(), false, true) == EZ_SUCCESS, "Could not reload backup of plugin '{0}'", PluginsToReload[i]);
         }
       }
 
@@ -572,4 +573,3 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Configuration_Implementation_Plugin);
-

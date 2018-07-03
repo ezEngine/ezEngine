@@ -1,15 +1,10 @@
-
 #include <PCH.h>
+
 #include <Foundation/Basics.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStream.h>
 
 ezProcessingStream::ezProcessingStream(const char* szName, ezProcessingStream::DataType Type, ezUInt64 uiAlignment /*= 64*/)
-  : m_pData(nullptr)
-  , m_uiAlignment(uiAlignment)
-  , m_uiNumElements(0)
-  , m_uiTypeSize(GetDataTypeSize(Type))
-  , m_Type(Type)
-  , m_Name()
+    : m_pData(nullptr), m_uiAlignment(uiAlignment), m_uiNumElements(0), m_uiTypeSize(GetDataTypeSize(Type)), m_Type(Type), m_Name()
 {
   m_Name.Assign(szName);
 }
@@ -66,21 +61,21 @@ size_t ezProcessingStream::GetDataTypeSize(DataType Type)
 {
   switch (Type)
   {
-  case DataType::Float:
-  case DataType::Int:
-    return 4;
-  case DataType::Float2:
-  case DataType::Int2:
-    return 8;
-  case DataType::Float3:
-  case DataType::Int3:
-    return 12;
-  case DataType::Float4:
-  case DataType::Int4:
-    return 16;
+    case DataType::Float:
+    case DataType::Int:
+      return 4;
+    case DataType::Float2:
+    case DataType::Int2:
+      return 8;
+    case DataType::Float3:
+    case DataType::Int3:
+      return 12;
+    case DataType::Float4:
+    case DataType::Int4:
+      return 16;
 
-  case DataType::Matrix4x4:
-    return 64;
+    case DataType::Matrix4x4:
+      return 64;
   }
 
   EZ_ASSERT_NOT_IMPLEMENTED;
@@ -91,4 +86,3 @@ size_t ezProcessingStream::GetDataTypeSize(DataType Type)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_DataProcessing_Stream_Implementation_ProcessingStream);
-

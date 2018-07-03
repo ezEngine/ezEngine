@@ -1,12 +1,13 @@
 #include <PCH.h>
+
 #include <Foundation/Communication/RemoteInterfaceEnet.h>
 
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
 
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Types/ScopeExit.h>
 #include <ThirdParty/enet/enet.h>
-#include <Foundation/Logging/Log.h>
 
 bool ezRemoteInterfaceEnet::s_bEnetInitialized = false;
 
@@ -148,7 +149,7 @@ void ezRemoteInterfaceEnet::InternalUpdateRemoteInterface()
 
     switch (NetworkEvent.type)
     {
-    case ENET_EVENT_TYPE_CONNECT:
+      case ENET_EVENT_TYPE_CONNECT:
       {
         if ((GetRemoteMode() == ezRemoteMode::Server) && (NetworkEvent.peer->eventData != GetConnectionToken()))
         {
@@ -183,7 +184,7 @@ void ezRemoteInterfaceEnet::InternalUpdateRemoteInterface()
       }
       break;
 
-    case ENET_EVENT_TYPE_DISCONNECT:
+      case ENET_EVENT_TYPE_DISCONNECT:
       {
         if (GetRemoteMode() == ezRemoteMode::Client)
         {
@@ -201,7 +202,7 @@ void ezRemoteInterfaceEnet::InternalUpdateRemoteInterface()
       }
       break;
 
-    case ENET_EVENT_TYPE_RECEIVE:
+      case ENET_EVENT_TYPE_RECEIVE:
       {
         const ezUInt32 uiApplicationID = *((ezUInt32*)&NetworkEvent.packet->data[0]);
         const ezUInt32 uiSystemID = *((ezUInt32*)&NetworkEvent.packet->data[4]);
@@ -212,7 +213,7 @@ void ezRemoteInterfaceEnet::InternalUpdateRemoteInterface()
         {
           switch (uiMsgID)
           {
-          case 'EZID':
+            case 'EZID':
             {
               // acknowledge that the ID has been received
               Send(GetConnectionToken(), 'AKID');
@@ -223,7 +224,7 @@ void ezRemoteInterfaceEnet::InternalUpdateRemoteInterface()
             }
             break;
 
-          case 'AKID':
+            case 'AKID':
             {
               if (m_EnetPeerToClientID[NetworkEvent.peer] != uiApplicationID)
               {
@@ -245,8 +246,8 @@ void ezRemoteInterfaceEnet::InternalUpdateRemoteInterface()
       }
       break;
 
-    default:
-      break;
+      default:
+        break;
     }
   }
 }
@@ -256,4 +257,3 @@ void ezRemoteInterfaceEnet::InternalUpdateRemoteInterface()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_RemoteInterfaceEnet);
-

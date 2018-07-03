@@ -1,4 +1,4 @@
-﻿
+
 template <typename T, typename Derived>
 ezArrayBase<T, Derived>::ezArrayBase()
 {
@@ -15,7 +15,7 @@ ezArrayBase<T, Derived>::~ezArrayBase()
 }
 
 template <typename T, typename Derived>
-void ezArrayBase<T, Derived>::operator= (const ezArrayPtr<const T>& rhs)
+void ezArrayBase<T, Derived>::operator=(const ezArrayPtr<const T>& rhs)
 {
   if (this->GetData() == rhs.GetPtr())
   {
@@ -62,7 +62,7 @@ EZ_ALWAYS_INLINE ezArrayBase<T, Derived>::operator ezArrayPtr<T>()
 }
 
 template <typename T, typename Derived>
-bool ezArrayBase<T, Derived>::operator== (const ezArrayPtr<const T>& rhs) const
+bool ezArrayBase<T, Derived>::operator==(const ezArrayPtr<const T>& rhs) const
 {
   if (m_uiCount != rhs.GetCount())
     return false;
@@ -71,7 +71,7 @@ bool ezArrayBase<T, Derived>::operator== (const ezArrayPtr<const T>& rhs) const
 }
 
 template <typename T, typename Derived>
-EZ_ALWAYS_INLINE bool ezArrayBase<T, Derived>::operator!= (const ezArrayPtr<const T>& rhs) const
+EZ_ALWAYS_INLINE bool ezArrayBase<T, Derived>::operator!=(const ezArrayPtr<const T>& rhs) const
 {
   return !(*this == rhs);
 }
@@ -378,13 +378,13 @@ EZ_ALWAYS_INLINE const T* ezArrayBase<T, Derived>::GetData() const
 template <typename T, typename Derived>
 EZ_ALWAYS_INLINE ezArrayPtr<T> ezArrayBase<T, Derived>::GetArrayPtr()
 {
-    return ezArrayPtr<T>(GetData(), GetCount());
+  return ezArrayPtr<T>(GetData(), GetCount());
 }
 
 template <typename T, typename Derived>
 EZ_ALWAYS_INLINE ezArrayPtr<const T> ezArrayBase<T, Derived>::GetArrayPtr() const
 {
-    return ezArrayPtr<const T>(GetData(), GetCount());
+  return ezArrayPtr<const T>(GetData(), GetCount());
 }
 
 template <typename T, typename Derived>
@@ -406,4 +406,3 @@ void ezArrayBase<T, Derived>::DoSwap(ezArrayBase<T, Derived>& other)
   ezMath::Swap(this->m_uiCapacity, other.m_uiCapacity);
   ezMath::Swap(this->m_uiCount, other.m_uiCount);
 }
-

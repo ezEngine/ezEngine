@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/CodeUtils/Preprocessor.h>
 
 using namespace ezTokenParseUtils;
@@ -23,13 +24,13 @@ void ezPreprocessor::CopyTokensReplaceParams(const TokenStream& Source, ezUInt32
     SkipWhitespace(Source, i);
 
     // add all the relevant tokens to the definition
-    for ( ; i < Source.GetCount(); ++i)
+    for (; i < Source.GetCount(); ++i)
     {
       if (Source[i]->m_iType == ezTokenType::BlockComment ||
           Source[i]->m_iType == ezTokenType::LineComment ||
           Source[i]->m_iType == ezTokenType::EndOfFile ||
           Source[i]->m_iType == ezTokenType::Newline)
-          continue;
+        continue;
 
       if (Source[i]->m_iType == ezTokenType::Identifier)
       {
@@ -88,7 +89,7 @@ ezResult ezPreprocessor::ExtractParameterName(const TokenStream& Tokens, ezUInt3
   return EZ_SUCCESS;
 }
 
-ezResult ezPreprocessor::ExtractAllMacroParameters(const TokenStream& Tokens, ezUInt32& uiCurToken, ezDeque< TokenStream >& AllParameters)
+ezResult ezPreprocessor::ExtractAllMacroParameters(const TokenStream& Tokens, ezUInt32& uiCurToken, ezDeque<TokenStream>& AllParameters)
 {
   if (Expect(Tokens, uiCurToken, "(").Failed())
     return EZ_FAILURE;
@@ -106,8 +107,7 @@ ezResult ezPreprocessor::ExtractAllMacroParameters(const TokenStream& Tokens, ez
     // reached the end of the parameter list
     if (Accept(Tokens, uiCurToken, ")"))
       return EZ_SUCCESS;
-  }
-  while (Accept(Tokens, uiCurToken, ",")); // continue with the next parameter
+  } while (Accept(Tokens, uiCurToken, ",")); // continue with the next parameter
 
   ezString s = Tokens[uiCurToken]->m_DataView;
   PP_LOG(Error, "',' or ')' expected, got '{0}' instead", Tokens[uiCurToken], s);
@@ -124,12 +124,12 @@ ezResult ezPreprocessor::ExtractParameterValue(const TokenStream& Tokens, ezUInt
 
   // get all tokens up until a comma or the last closing parenthesis
   // ignore commas etc. as long as they are surrounded with parenthesis
-  for ( ; uiCurToken < Tokens.GetCount(); ++uiCurToken)
+  for (; uiCurToken < Tokens.GetCount(); ++uiCurToken)
   {
     if (Tokens[uiCurToken]->m_iType == ezTokenType::BlockComment ||
         Tokens[uiCurToken]->m_iType == ezTokenType::LineComment ||
         Tokens[uiCurToken]->m_iType == ezTokenType::Newline)
-        continue;
+      continue;
 
     if (Tokens[uiCurToken]->m_iType == ezTokenType::EndOfFile)
       break; // outputs an error
@@ -148,8 +148,7 @@ ezResult ezPreprocessor::ExtractParameterValue(const TokenStream& Tokens, ezUInt
 
     if (Tokens[uiCurToken]->m_DataView == "(")
       ++iParenthesis;
-    else
-    if (Tokens[uiCurToken]->m_DataView == ")")
+    else if (Tokens[uiCurToken]->m_DataView == ")")
       --iParenthesis;
 
     ParamTokens.PushBack(Tokens[uiCurToken]);
@@ -181,7 +180,7 @@ void ezPreprocessor::StringifyTokens(const TokenStream& Tokens, ezStringBuilder&
         Tokens[uiLastNonWhitespace - 1]->m_iType != ezTokenType::Newline &&
         Tokens[uiLastNonWhitespace - 1]->m_iType != ezTokenType::BlockComment &&
         Tokens[uiLastNonWhitespace - 1]->m_iType != ezTokenType::LineComment)
-        break;
+      break;
 
     --uiLastNonWhitespace;
   }
@@ -193,7 +192,7 @@ void ezPreprocessor::StringifyTokens(const TokenStream& Tokens, ezStringBuilder&
         (Tokens[t]->m_iType == ezTokenType::BlockComment) ||
         (Tokens[t]->m_iType == ezTokenType::Newline) ||
         (Tokens[t]->m_iType == ezTokenType::EndOfFile))
-        continue;
+      continue;
 
     sTemp = Tokens[t]->m_DataView;
 
@@ -218,7 +217,4 @@ void ezPreprocessor::StringifyTokens(const TokenStream& Tokens, ezStringBuilder&
 
 
 
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_Macros);
-

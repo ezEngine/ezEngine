@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/IO/OSFile.h>
 
 ezString64 ezOSFile::s_ApplicationPath;
@@ -162,7 +163,7 @@ ezUInt64 ezOSFile::ReadAll(ezDynamicArray<ezUInt8>& out_FileContent)
   EZ_ASSERT_DEV(m_FileMode == ezFileMode::Read, "The file is not opened for reading.");
 
   out_FileContent.Clear();
-  out_FileContent.SetCountUninitialized((ezUInt32) GetFileSize());
+  out_FileContent.SetCountUninitialized((ezUInt32)GetFileSize());
 
   if (!out_FileContent.IsEmpty())
   {
@@ -386,111 +387,110 @@ done:
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
 
-  ezResult ezOSFile::GetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats)
+ezResult ezOSFile::GetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats)
+{
+  /// \todo We should implement this also on ezFileSystem, to be able to support stats through virtual filesystems
+
+  const ezTime t0 = ezTime::Now();
+
+  ezStringBuilder s = szFileOrFolder;
+  s.MakeCleanPath();
+  s.MakePathSeparatorsNative();
+
+  EZ_ASSERT_DEV(s.IsAbsolutePath(), "The path '{0}' is not absolute.", s);
+
+  const ezResult Res = InternalGetFileStats(s.GetData(), out_Stats);
+
+  const ezTime t1 = ezTime::Now();
+  const ezTime tdiff = t1 - t0;
+
+  EventData e;
+  e.m_bSuccess = Res == EZ_SUCCESS;
+  e.m_Duration = tdiff;
+  e.m_iFileID = s_FileCounter.Increment();
+  e.m_szFile = szFileOrFolder;
+  e.m_EventType = EventType::FileStat;
+
+  s_FileEvents.Broadcast(e);
+
+  return Res;
+}
+
+#if EZ_ENABLED(EZ_SUPPORTS_CASE_INSENSITIVE_PATHS) && EZ_ENABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
+ezResult ezOSFile::GetFileCasing(const char* szFileOrFolder, ezStringBuilder& out_sCorrectSpelling)
+{
+  /// \todo We should implement this also on ezFileSystem, to be able to support stats through virtual filesystems
+
+  const ezTime t0 = ezTime::Now();
+
+  ezStringBuilder s(szFileOrFolder);
+  s.MakeCleanPath();
+  s.MakePathSeparatorsNative();
+
+  EZ_ASSERT_DEV(s.IsAbsolutePath(), "The path '{0}' is not absolute.", s);
+
+  ezStringBuilder sCurPath;
+
+  auto it = s.GetIteratorFront();
+
+  out_sCorrectSpelling.Clear();
+
+  ezResult Res = EZ_SUCCESS;
+
+  while (it.IsValid())
   {
-    /// \todo We should implement this also on ezFileSystem, to be able to support stats through virtual filesystems
-
-    const ezTime t0 = ezTime::Now();
-
-    ezStringBuilder s = szFileOrFolder;
-    s.MakeCleanPath();
-    s.MakePathSeparatorsNative();
-
-    EZ_ASSERT_DEV(s.IsAbsolutePath(), "The path '{0}' is not absolute.", s);
-
-    const ezResult Res = InternalGetFileStats(s.GetData(), out_Stats);
-
-    const ezTime t1 = ezTime::Now();
-    const ezTime tdiff = t1 - t0;
-
-    EventData e;
-    e.m_bSuccess = Res == EZ_SUCCESS;
-    e.m_Duration = tdiff;
-    e.m_iFileID = s_FileCounter.Increment();
-    e.m_szFile = szFileOrFolder;
-    e.m_EventType = EventType::FileStat;
-
-    s_FileEvents.Broadcast(e);
-
-    return Res;
-  }
-
-  #if EZ_ENABLED(EZ_SUPPORTS_CASE_INSENSITIVE_PATHS) && EZ_ENABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
-  ezResult ezOSFile::GetFileCasing(const char* szFileOrFolder, ezStringBuilder& out_sCorrectSpelling)
-  {
-    /// \todo We should implement this also on ezFileSystem, to be able to support stats through virtual filesystems
-
-    const ezTime t0 = ezTime::Now();
-
-    ezStringBuilder s(szFileOrFolder);
-    s.MakeCleanPath();
-    s.MakePathSeparatorsNative();
-
-    EZ_ASSERT_DEV(s.IsAbsolutePath(), "The path '{0}' is not absolute.", s);
-
-    ezStringBuilder sCurPath;
-
-    auto it = s.GetIteratorFront();
-
-    out_sCorrectSpelling.Clear();
-
-    ezResult Res = EZ_SUCCESS;
-
-    while (it.IsValid())
+    while ((it.GetCharacter() != '\0') && (!ezPathUtils::IsPathSeparator(it.GetCharacter())))
     {
-      while ((it.GetCharacter() != '\0') && (!ezPathUtils::IsPathSeparator(it.GetCharacter())))
-      {
-        sCurPath.Append(it.GetCharacter());
-        ++it;
-      }
-
-      if (!sCurPath.IsEmpty())
-      {
-        ezFileStats stats;
-        if (GetFileStats(sCurPath.GetData(), stats) == EZ_FAILURE)
-        {
-          Res = EZ_FAILURE;
-          break;
-        }
-
-        out_sCorrectSpelling.AppendPath(stats.m_sFileName.GetData());
-      }
       sCurPath.Append(it.GetCharacter());
       ++it;
     }
 
-    const ezTime t1 = ezTime::Now();
-    const ezTime tdiff = t1 - t0;
+    if (!sCurPath.IsEmpty())
+    {
+      ezFileStats stats;
+      if (GetFileStats(sCurPath.GetData(), stats) == EZ_FAILURE)
+      {
+        Res = EZ_FAILURE;
+        break;
+      }
 
-    EventData e;
-    e.m_bSuccess = Res == EZ_SUCCESS;
-    e.m_Duration = tdiff;
-    e.m_iFileID = s_FileCounter.Increment();
-    e.m_szFile = szFileOrFolder;
-    e.m_EventType = EventType::FileCasing;
-
-    s_FileEvents.Broadcast(e);
-
-    return Res;
+      out_sCorrectSpelling.AppendPath(stats.m_sFileName.GetData());
+    }
+    sCurPath.Append(it.GetCharacter());
+    ++it;
   }
+
+  const ezTime t1 = ezTime::Now();
+  const ezTime tdiff = t1 - t0;
+
+  EventData e;
+  e.m_bSuccess = Res == EZ_SUCCESS;
+  e.m_Duration = tdiff;
+  e.m_iFileID = s_FileCounter.Increment();
+  e.m_szFile = szFileOrFolder;
+  e.m_EventType = EventType::FileCasing;
+
+  s_FileEvents.Broadcast(e);
+
+  return Res;
+}
 #endif // EZ_SUPPORTS_CASE_INSENSITIVE_PATHS && EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS
 
 
 #endif // EZ_SUPPORTS_FILE_STATS
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  #include <Foundation/IO/Implementation/Win/OSFile_win.h>
+#include <Foundation/IO/Implementation/Win/OSFile_win.h>
 
-  // For UWP we're currently using a mix of WinRT functions and posix.
-  #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-    #include <Foundation/IO/Implementation/Posix/OSFile_posix.h>
-  #endif
+// For UWP we're currently using a mix of WinRT functions and posix.
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+#include <Foundation/IO/Implementation/Posix/OSFile_posix.h>
+#endif
 #elif EZ_ENABLED(EZ_USE_POSIX_FILE_API)
-  #include <Foundation/IO/Implementation/Posix/OSFile_posix.h>
+#include <Foundation/IO/Implementation/Posix/OSFile_posix.h>
 #else
-  #error "Unknown Platform."
+#error "Unknown Platform."
 #endif
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_OSFile);
-

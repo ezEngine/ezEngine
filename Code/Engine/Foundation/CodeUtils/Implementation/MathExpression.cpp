@@ -1,7 +1,8 @@
 #include <PCH.h>
+
 #include <Foundation/CodeUtils/MathExpression.h>
-#include <Foundation/CodeUtils/Tokenizer.h>
 #include <Foundation/CodeUtils/TokenParseUtils.h>
+#include <Foundation/CodeUtils/Tokenizer.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
@@ -10,14 +11,13 @@ using namespace ezTokenParseUtils;
 const char* ezMathExpression::s_szValidVariableCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789";
 
 ezMathExpression::ezMathExpression(ezLogInterface* pLog)
-  : m_pLog(pLog ? pLog : ezLog::GetThreadLocalLogSystem())
-  , m_bIsValid(false)
+    : m_pLog(pLog ? pLog : ezLog::GetThreadLocalLogSystem()), m_bIsValid(false)
 {
 }
 
 
 ezMathExpression::ezMathExpression(const char* szExpressionString, ezLogInterface* pLog)
-  : m_pLog(pLog)
+    : m_pLog(pLog)
 {
   Reset(szExpressionString);
 }
@@ -70,82 +70,82 @@ double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>&
 
     switch (instruction)
     {
-    // Binary operations.
-    case InstructionType::Add:
-    case InstructionType::Subtract:
-    case InstructionType::Multiply:
-    case InstructionType::Divide:
-    {
-      if (evaluationStack.GetCount() < 2)
-      {
-        ezLog::Error(m_pLog, "Expected at least two operands on evaluation stack during evaluation of '{0}'.", m_OriginalExpression);
-        return errorOutput;
-      }
-
-      double operand1 = evaluationStack.PeekBack();
-      evaluationStack.PopBack();
-      double operand0 = evaluationStack.PeekBack();
-      //evaluationStack.PopBack();    // Don't pop, just overwrite directly.
-
-      switch (instruction)
-      {
+      // Binary operations.
       case InstructionType::Add:
-        evaluationStack.PeekBack() = operand0 + operand1;
-        break;
       case InstructionType::Subtract:
-        evaluationStack.PeekBack() = operand0 - operand1;
-        break;
       case InstructionType::Multiply:
-        evaluationStack.PeekBack() = operand0 * operand1;
-        break;
       case InstructionType::Divide:
-        evaluationStack.PeekBack() = operand0 / operand1;
-        break;
-      }
-    }
-    break;
-
-    // Unary operations.
-    case InstructionType::Negate:
-    {
-      if (evaluationStack.GetCount() < 1)
       {
-        ezLog::Error(m_pLog, "Expected at least operands on evaluation stack during evaluation of '{0}'.", m_OriginalExpression);
-        return errorOutput;
+        if (evaluationStack.GetCount() < 2)
+        {
+          ezLog::Error(m_pLog, "Expected at least two operands on evaluation stack during evaluation of '{0}'.", m_OriginalExpression);
+          return errorOutput;
+        }
+
+        double operand1 = evaluationStack.PeekBack();
+        evaluationStack.PopBack();
+        double operand0 = evaluationStack.PeekBack();
+        //evaluationStack.PopBack();    // Don't pop, just overwrite directly.
+
+        switch (instruction)
+        {
+          case InstructionType::Add:
+            evaluationStack.PeekBack() = operand0 + operand1;
+            break;
+          case InstructionType::Subtract:
+            evaluationStack.PeekBack() = operand0 - operand1;
+            break;
+          case InstructionType::Multiply:
+            evaluationStack.PeekBack() = operand0 * operand1;
+            break;
+          case InstructionType::Divide:
+            evaluationStack.PeekBack() = operand0 / operand1;
+            break;
+        }
       }
+      break;
 
-      evaluationStack.PeekBack() = -evaluationStack.PeekBack();
-    }
-    break;
+      // Unary operations.
+      case InstructionType::Negate:
+      {
+        if (evaluationStack.GetCount() < 1)
+        {
+          ezLog::Error(m_pLog, "Expected at least operands on evaluation stack during evaluation of '{0}'.", m_OriginalExpression);
+          return errorOutput;
+        }
 
-    // Push Constant.
-    case InstructionType::PushConstant:
-    {
-      EZ_ASSERT_DEBUG(m_InstructionStream.GetCount() > instructionIdx + 1, "ezMathExpression::InstructionType::PushConstant should always be followed by another integer in the instruction stream.");
+        evaluationStack.PeekBack() = -evaluationStack.PeekBack();
+      }
+      break;
 
-      ++instructionIdx;
-      ezUInt32 constantIndex = m_InstructionStream[instructionIdx];
-      evaluationStack.PushBack(m_Constants[constantIndex]); // constantIndex is not a user input, so it should be impossible for it to be outside!
-    }
-    break;
+      // Push Constant.
+      case InstructionType::PushConstant:
+      {
+        EZ_ASSERT_DEBUG(m_InstructionStream.GetCount() > instructionIdx + 1, "ezMathExpression::InstructionType::PushConstant should always be followed by another integer in the instruction stream.");
 
-    // Push Variable.
-    case InstructionType::PushVariable:
-    {
-      EZ_ASSERT_DEBUG(m_InstructionStream.GetCount() > instructionIdx + 2, "ezMathExpression::InstructionType::PushVariable should always be followed by two more integers in the instruction stream.");
+        ++instructionIdx;
+        ezUInt32 constantIndex = m_InstructionStream[instructionIdx];
+        evaluationStack.PushBack(m_Constants[constantIndex]); // constantIndex is not a user input, so it should be impossible for it to be outside!
+      }
+      break;
 
-      ezUInt32 variableSubstringStart = m_InstructionStream[instructionIdx + 1];
-      ezUInt32 variableSubstringEnd = m_InstructionStream[instructionIdx + 2];
-      instructionIdx += 2;
+      // Push Variable.
+      case InstructionType::PushVariable:
+      {
+        EZ_ASSERT_DEBUG(m_InstructionStream.GetCount() > instructionIdx + 2, "ezMathExpression::InstructionType::PushVariable should always be followed by two more integers in the instruction stream.");
 
-      ezStringView variableName(m_OriginalExpression + variableSubstringStart, m_OriginalExpression + variableSubstringEnd);
-      double variable = variableResolveFunction(variableName);
-      evaluationStack.PushBack(variable);
-    }
-    break;
+        ezUInt32 variableSubstringStart = m_InstructionStream[instructionIdx + 1];
+        ezUInt32 variableSubstringEnd = m_InstructionStream[instructionIdx + 2];
+        instructionIdx += 2;
 
-    default:
-      EZ_REPORT_FAILURE("Unknown instruction in MathExpression!");
+        ezStringView variableName(m_OriginalExpression + variableSubstringStart, m_OriginalExpression + variableSubstringEnd);
+        double variable = variableResolveFunction(variableName);
+        evaluationStack.PushBack(variable);
+      }
+      break;
+
+      default:
+        EZ_REPORT_FAILURE("Unknown instruction in MathExpression!");
     }
   }
 
@@ -164,15 +164,15 @@ double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>&
 namespace
 {
   const int s_operatorPrecedence[] =
-  {
-    // Binary
-    1, // Add
-    1, // Subtract
-    2, // Multiply
-    2, // Divide
+      {
+          // Binary
+          1, // Add
+          1, // Subtract
+          2, // Multiply
+          2, // Divide
 
-    // Unary
-    2, // Negate
+          // Unary
+          2, // Negate
   };
 
   // Accept/parses binary operator.
@@ -190,21 +190,21 @@ namespace
 
     switch (operatorChar)
     {
-    case '+':
-      outOperator = ezMathExpression::InstructionType::Add;
-      break;
-    case '-':
-      outOperator = ezMathExpression::InstructionType::Subtract;
-      break;
-    case '*':
-      outOperator = ezMathExpression::InstructionType::Multiply;
-      break;
-    case '/':
-      outOperator = ezMathExpression::InstructionType::Divide;
-      break;
+      case '+':
+        outOperator = ezMathExpression::InstructionType::Add;
+        break;
+      case '-':
+        outOperator = ezMathExpression::InstructionType::Subtract;
+        break;
+      case '*':
+        outOperator = ezMathExpression::InstructionType::Multiply;
+        break;
+      case '/':
+        outOperator = ezMathExpression::InstructionType::Divide;
+        break;
 
-    default:
-      return false;
+      default:
+        return false;
     }
 
     return true;
@@ -277,7 +277,7 @@ ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCu
           if (*validChar == varChar)
             break;
         }
-        if (*validChar == '\0')  // Walked to the end, so the varChar was not any of the valid chars!
+        if (*validChar == '\0') // Walked to the end, so the varChar was not any of the valid chars!
         {
           ezLog::Error(m_pLog, "Invalid character {0} in variable name: {1}", varChar, sVal);
           return EZ_FAILURE;
@@ -323,4 +323,3 @@ ezResult ezMathExpression::ParseFactor(const TokenStream& tokens, ezUInt32& uiCu
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_MathExpression);
-

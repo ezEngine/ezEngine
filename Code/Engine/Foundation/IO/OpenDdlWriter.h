@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/IO/OpenDdlParser.h>
@@ -12,7 +12,6 @@
 class EZ_FOUNDATION_DLL ezOpenDdlWriter
 {
 public:
-
   enum class TypeStringMode
   {
     Compliant,            ///< All primitive types are written as the OpenDDL standard defines them (very verbose)
@@ -22,14 +21,14 @@ public:
 
   enum class FloatPrecisionMode
   {
-    Readable,   ///< Float values are printed as readable numbers. Precision might get lost though.
-    Exact,      ///< Float values are printed as HEX, representing the exact binary data.
+    Readable, ///< Float values are printed as readable numbers. Precision might get lost though.
+    Exact,    ///< Float values are printed as HEX, representing the exact binary data.
   };
 
   /// \brief Constructor
   ezOpenDdlWriter();
 
-  virtual ~ezOpenDdlWriter() { }
+  virtual ~ezOpenDdlWriter() {}
 
   /// \brief All output is written to this binary stream.
   void SetOutputStream(ezStreamWriter* pOutput) { m_pOutput = pOutput; } // [tested]
@@ -153,4 +152,3 @@ protected:
 
   ezHybridArray<DdlState, 16> m_StateStack;
 };
-

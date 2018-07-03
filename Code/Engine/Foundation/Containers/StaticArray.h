@@ -9,7 +9,7 @@
 /// As such it can be used whenever a fixed size array is sufficient, but a more powerful interface is desired,
 /// and when the number of elements in an array is dynamic at run-time, but always capped at a fixed limit.
 template <typename T, ezUInt32 Capacity>
-class ezStaticArray : public ezArrayBase<T, ezStaticArray<T, Capacity> >
+class ezStaticArray : public ezArrayBase<T, ezStaticArray<T, Capacity>>
 {
 public:
   EZ_DECLARE_MEM_RELOCATABLE_TYPE();
@@ -21,7 +21,7 @@ public:
   ezStaticArray(const ezStaticArray<T, Capacity>& rhs); // [tested]
 
   /// \brief Creates a copy of the given array.
-  template<ezUInt32 OtherCapacity>
+  template <ezUInt32 OtherCapacity>
   ezStaticArray(const ezStaticArray<T, OtherCapacity>& rhs); // [tested]
 
   /// \brief Creates a copy of the given array.
@@ -29,22 +29,21 @@ public:
 
   /// \brief Destroys all objects.
   ~ezStaticArray(); // [tested]
-  
-  /// \brief Copies the data from some other contiguous array into this one.
-  void operator= (const ezStaticArray<T, Capacity>& rhs); // [tested]
 
   /// \brief Copies the data from some other contiguous array into this one.
-  template<ezUInt32 OtherCapacity>
-  void operator= (const ezStaticArray<T, OtherCapacity>& rhs); // [tested]
+  void operator=(const ezStaticArray<T, Capacity>& rhs); // [tested]
 
   /// \brief Copies the data from some other contiguous array into this one.
-  void operator= (const ezArrayPtr<const T>& rhs); // [tested]
+  template <ezUInt32 OtherCapacity>
+  void operator=(const ezStaticArray<T, OtherCapacity>& rhs); // [tested]
+
+  /// \brief Copies the data from some other contiguous array into this one.
+  void operator=(const ezArrayPtr<const T>& rhs); // [tested]
 
 protected:
-
   T* GetElementsPtr();
   const T* GetElementsPtr() const;
-  friend class ezArrayBase < T, ezStaticArray<T, Capacity> > ;
+  friend class ezArrayBase<T, ezStaticArray<T, Capacity>>;
 
 private:
   T* GetStaticArray();
@@ -56,7 +55,7 @@ private:
     ezUInt8 m_Data[Capacity * sizeof(T)];
   };
 
-  friend class ezArrayBase<T, ezStaticArray<T, Capacity> >;
+  friend class ezArrayBase<T, ezStaticArray<T, Capacity>>;
   void Reserve(ezUInt32 uiCapacity);
 };
 
@@ -64,4 +63,3 @@ private:
 // EZ_CHECK_AT_COMPILETIME_MSG(ezGetTypeClass< ezStaticArray<int, 4> >::value == 2, "static array is not memory relocatable");
 
 #include <Foundation/Containers/Implementation/StaticArray_inl.h>
-

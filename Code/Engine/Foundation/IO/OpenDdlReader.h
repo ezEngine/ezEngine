@@ -1,9 +1,9 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/IO/OpenDdlParser.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/Map.h>
+#include <Foundation/IO/OpenDdlParser.h>
 #include <Foundation/Logging/Log.h>
 
 /// \brief Represents a single 'object' in a DDL document, e.g. either a custom type or a primitives list.
@@ -142,7 +142,7 @@ protected:
   virtual void OnPrimitiveInt32(ezUInt32 count, const ezInt32* pData, bool bThisIsAll) override;
   virtual void OnPrimitiveInt64(ezUInt32 count, const ezInt64* pData, bool bThisIsAll) override;
 
-  virtual void OnPrimitiveUInt8 (ezUInt32 count, const ezUInt8* pData, bool bThisIsAll) override;
+  virtual void OnPrimitiveUInt8(ezUInt32 count, const ezUInt8* pData, bool bThisIsAll) override;
   virtual void OnPrimitiveUInt16(ezUInt32 count, const ezUInt16* pData, bool bThisIsAll) override;
   virtual void OnPrimitiveUInt32(ezUInt32 count, const ezUInt32* pData, bool bThisIsAll) override;
   virtual void OnPrimitiveUInt64(ezUInt32 count, const ezUInt64* pData, bool bThisIsAll) override;
@@ -177,4 +177,3 @@ protected:
 
   ezMap<ezString, ezOpenDdlReaderElement*> m_GlobalNames;
 };
-

@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/CodeUtils/Preprocessor.h>
 
 using namespace ezTokenParseUtils;
@@ -153,7 +154,7 @@ ezResult ezPreprocessor::AddCustomDefine(const char* szDefinition)
 {
   m_CustomDefines.PushBack();
   m_CustomDefines.PeekBack().m_Content.SetCountUninitialized(ezStringUtils::GetStringElementCount(szDefinition));
-  ezMemoryUtils::Copy(&m_CustomDefines.PeekBack().m_Content[0], (ezUInt8*) szDefinition, m_CustomDefines.PeekBack().m_Content.GetCount());
+  ezMemoryUtils::Copy(&m_CustomDefines.PeekBack().m_Content[0], (ezUInt8*)szDefinition, m_CustomDefines.PeekBack().m_Content.GetCount());
   m_CustomDefines.PeekBack().m_Tokenized.Tokenize(m_CustomDefines.PeekBack().m_Content, m_pLog);
 
   ezUInt32 uiFirstToken = 0;
@@ -162,7 +163,7 @@ ezResult ezPreprocessor::AddCustomDefine(const char* szDefinition)
   if (m_CustomDefines.PeekBack().m_Tokenized.GetNextLine(uiFirstToken, Tokens).Failed())
     return EZ_FAILURE;
 
-  ezDeque<ezToken>&  NewTokens = m_CustomDefines.PeekBack().m_Tokenized.GetTokens();
+  ezDeque<ezToken>& NewTokens = m_CustomDefines.PeekBack().m_Tokenized.GetTokens();
 
   ezHashedString sFile;
   sFile.Assign("<CustomDefines>");
@@ -183,7 +184,4 @@ ezResult ezPreprocessor::AddCustomDefine(const char* szDefinition)
 
 
 
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_Defines);
-

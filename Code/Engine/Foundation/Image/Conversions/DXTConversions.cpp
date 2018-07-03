@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Image/Conversions/DXTConversions.h>
 #include <Foundation/Image/Conversions/ImageConversionMixin.h>
 #include <Foundation/Image/Conversions/PixelConversions.h>
@@ -16,23 +17,23 @@ void ezDecompressBlockBC1(const ezUInt8* pSource, ezColorLinearUB* pTarget, bool
   if (uiColor0 > uiColor1 || bForceFourColorMode)
   {
     colors[2] = ezColorLinearUB(
-      (2 * colors[0].r + colors[1].r + 1) / 3,
-      (2 * colors[0].g + colors[1].g + 1) / 3,
-      (2 * colors[0].b + colors[1].b + 1) / 3,
-      0xFF);
+        (2 * colors[0].r + colors[1].r + 1) / 3,
+        (2 * colors[0].g + colors[1].g + 1) / 3,
+        (2 * colors[0].b + colors[1].b + 1) / 3,
+        0xFF);
     colors[3] = ezColorLinearUB(
-      (colors[0].r + 2 * colors[1].r + 1) / 3,
-      (colors[0].g + 2 * colors[1].g + 1) / 3,
-      (colors[0].b + 2 * colors[1].b + 1) / 3,
-      0xFF);
+        (colors[0].r + 2 * colors[1].r + 1) / 3,
+        (colors[0].g + 2 * colors[1].g + 1) / 3,
+        (colors[0].b + 2 * colors[1].b + 1) / 3,
+        0xFF);
   }
   else
   {
     colors[2] = ezColorLinearUB(
-      (colors[0].r + colors[1].r) / 2,
-      (colors[0].g + colors[1].g) / 2,
-      (colors[0].b + colors[1].b) / 2,
-      0xFF);
+        (colors[0].r + colors[1].r) / 2,
+        (colors[0].g + colors[1].g) / 2,
+        (colors[0].b + colors[1].b) / 2,
+        0xFF);
     colors[3] = ezColorLinearUB(0, 0, 0, 0);
   }
 
@@ -76,9 +77,9 @@ void ezDecompressBlockBC4(const ezUInt8* pSource, ezUInt8* pTarget, ezUInt32 uiS
   for (ezUInt32 uiTripleIdx = 0; uiTripleIdx < 2; uiTripleIdx++)
   {
     ezUInt32 uiIndices =
-      pSource[2 + uiTripleIdx * 3 + 0] << 0 |
-      pSource[2 + uiTripleIdx * 3 + 1] << 8 |
-      pSource[2 + uiTripleIdx * 3 + 2] << 16;
+        pSource[2 + uiTripleIdx * 3 + 0] << 0 |
+        pSource[2 + uiTripleIdx * 3 + 1] << 8 |
+        pSource[2 + uiTripleIdx * 3 + 2] << 16;
 
     pTarget[(8 * uiTripleIdx + 2) * uiStride] = uiAlphas[(uiIndices >> 6) & 0x07];
     pTarget[(8 * uiTripleIdx + 1) * uiStride] = uiAlphas[(uiIndices >> 3) & 0x07];
@@ -209,7 +210,4 @@ static ezImageConversion_BC5_RG g_conversionBC5;
 
 
 
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Image_Conversions_DXTConversions);
-

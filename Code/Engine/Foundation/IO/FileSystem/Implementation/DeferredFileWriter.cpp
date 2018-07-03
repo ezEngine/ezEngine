@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 
 ezDeferredFileWriter::ezDeferredFileWriter() : m_Writer(&m_Storage)
@@ -36,4 +37,3 @@ void ezDeferredFileWriter::Discard()
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_FileSystem_Implementation_DeferredFileWriter);
-

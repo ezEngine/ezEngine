@@ -57,7 +57,8 @@ bool ezMessageLoop_win::GetIOItem(ezInt32 iTimeout, IOItem* pItem)
   if (!GetQueuedCompletionStatus(m_Port, &pItem->uiBytesTransfered, &key, &overlapped, iTimeout))
   {
     //nothing queued
-    if (overlapped == NULL) return false;
+    if (overlapped == NULL)
+      return false;
 
     pItem->uiError = GetLastError();
     pItem->uiBytesTransfered = 0;
@@ -71,7 +72,7 @@ bool ezMessageLoop_win::GetIOItem(ezInt32 iTimeout, IOItem* pItem)
 bool ezMessageLoop_win::ProcessInternalIOItem(const IOItem& item)
 {
   if (reinterpret_cast<ezMessageLoop_win*>(item.pContext) == this &&
-    reinterpret_cast<ezMessageLoop_win*>(item.pChannel) == this)
+      reinterpret_cast<ezMessageLoop_win*>(item.pChannel) == this)
   {
     //internal notification
     EZ_ASSERT_DEBUG(item.uiBytesTransfered == 0, "");
@@ -104,11 +105,10 @@ void ezMessageLoop_win::WakeUp()
   }
   //wake up the loop
   BOOL res = PostQueuedCompletionStatus(m_Port, 0, reinterpret_cast<ULONG_PTR>(this),
-    reinterpret_cast<OVERLAPPED*>(this));
+                                        reinterpret_cast<OVERLAPPED*>(this));
   EZ_ASSERT_DEBUG(res, "Could not PostQueuedCompletionStatus: {0}", ezArgErrorCode(GetLastError()));
 }
 
 #endif
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_Win_MessageLoop_win);
-

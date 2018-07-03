@@ -1,12 +1,11 @@
-
 #include <PCH.h>
-#include <Foundation/IO/MemoryStream.h>
 
+#include <Foundation/IO/MemoryStream.h>
 
 // Reader implementation
 
 ezMemoryStreamReader::ezMemoryStreamReader(ezMemoryStreamStorageInterface* pStreamStorage)
-  : m_pStreamStorage(pStreamStorage), m_uiReadPosition(0)
+    : m_pStreamStorage(pStreamStorage), m_uiReadPosition(0)
 {
 }
 
@@ -65,7 +64,7 @@ void ezMemoryStreamReader::SetDebugSourceInformation(const char* szDebugSourceIn
 
 // Writer implementation
 ezMemoryStreamWriter::ezMemoryStreamWriter(ezMemoryStreamStorageInterface* pStreamStorage)
-  : m_pStreamStorage(pStreamStorage), m_uiWritePosition(0)
+    : m_pStreamStorage(pStreamStorage), m_uiWritePosition(0)
 {
 }
 
@@ -195,4 +194,3 @@ void ezRawMemoryStreamReader::SetDebugSourceInformation(const char* szDebugSourc
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_MemoryStream);
-

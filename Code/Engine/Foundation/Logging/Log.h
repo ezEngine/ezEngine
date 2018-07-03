@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Foundation/Communication/Event.h>
-#include <Foundation/Threading/AtomicInteger.h>
-#include <Foundation/Strings/StringUtils.h>
 #include <Foundation/Strings/FormatString.h>
+#include <Foundation/Strings/StringUtils.h>
+#include <Foundation/Threading/AtomicInteger.h>
 
 /// \brief Use this helper macro to easily create a scoped logging group. Will generate unique variable names to make the static code analysis happy.
 #define EZ_LOG_BLOCK ezLogBlock EZ_CONCAT(_logblock_, EZ_SOURCE_LINE)
@@ -19,17 +19,17 @@ struct EZ_FOUNDATION_DLL ezLogMsgType
 
   enum Enum
   {
-    BeginGroup          = -2,   ///< A logging group has been opened.
-    EndGroup            = -1,   ///< A logging group has been closed.
-    None                = 0,    ///< Can be used to disable all log message types.
-    ErrorMsg            = 1,    ///< An error message.
-    SeriousWarningMsg   = 2,    ///< A serious warning message.
-    WarningMsg          = 3,    ///< A warning message.
-    SuccessMsg          = 4,    ///< A success message.
-    InfoMsg             = 5,    ///< An info message.
-    DevMsg              = 6,    ///< A development message.
-    DebugMsg            = 7,    ///< A debug message.
-    All                 = 8,    ///< Can be used to enable all log message types.
+    BeginGroup = -2,       ///< A logging group has been opened.
+    EndGroup = -1,         ///< A logging group has been closed.
+    None = 0,              ///< Can be used to disable all log message types.
+    ErrorMsg = 1,          ///< An error message.
+    SeriousWarningMsg = 2, ///< A serious warning message.
+    WarningMsg = 3,        ///< A warning message.
+    SuccessMsg = 4,        ///< A success message.
+    InfoMsg = 5,           ///< An info message.
+    DevMsg = 6,            ///< A development message.
+    DebugMsg = 7,          ///< A debug message.
+    All = 8,               ///< Can be used to enable all log message types.
     ENUM_COUNT,
     Default = None,
   };
@@ -86,7 +86,6 @@ private:
 class EZ_FOUNDATION_DLL ezGlobalLog : public ezLogInterface
 {
 public:
-
   virtual void HandleLogMessage(const ezLoggingEventData& le) override;
 
   /// \brief Allows to register a function as an event receiver.
@@ -99,7 +98,6 @@ public:
   static ezUInt32 GetMessageCount(ezLogMsgType::Enum MessageType) { return s_uiMessageCount[MessageType]; }
 
 private:
-
   /// \brief Counts the number of messages of each type.
   static ezAtomicInteger32 s_uiMessageCount[ezLogMsgType::ENUM_COUNT];
 
@@ -137,14 +135,14 @@ public:
   static void Error(ezLogInterface* pInterface, const ezFormatString& string);
 
   /// \brief An error that needs to be fixed as soon as possible.
-  template<typename ... ARGS>
+  template <typename... ARGS>
   static void Error(const char* szFormat, ARGS&&... args)
   {
     Error(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of Error() to output messages to a specific log.
-  template<typename ... ARGS>
+  template <typename... ARGS>
   static void Error(ezLogInterface* pInterface, const char* szFormat, ARGS&&... args)
   {
     Error(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
@@ -154,14 +152,14 @@ public:
   static void SeriousWarning(ezLogInterface* pInterface, const ezFormatString& string);
 
   /// \brief Not an error, but definitely a big problem, that should be looked into very soon.
-  template<typename ... ARGS>
+  template <typename... ARGS>
   static void SeriousWarning(const char* szFormat, ARGS&&... args)
   {
     SeriousWarning(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of SeriousWarning() to output messages to a specific log.
-  template<typename ... ARGS>
+  template <typename... ARGS>
   static void SeriousWarning(ezLogInterface* pInterface, const char* szFormat, ARGS&&... args)
   {
     SeriousWarning(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
@@ -171,14 +169,14 @@ public:
   static void Warning(ezLogInterface* pInterface, const ezFormatString& string);
 
   /// \brief A potential problem or a performance warning. Might be possible to ignore it.
-  template<typename ... ARGS>
+  template <typename... ARGS>
   static void Warning(const char* szFormat, ARGS&&... args)
   {
     Warning(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of Warning() to output messages to a specific log.
-  template<typename ... ARGS>
+  template <typename... ARGS>
   static void Warning(ezLogInterface* pInterface, const char* szFormat, ARGS&&... args)
   {
     Warning(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
@@ -188,14 +186,14 @@ public:
   static void Success(ezLogInterface* pInterface, const ezFormatString& string);
 
   /// \brief Status information that something was completed successfully.
-  template<typename ... ARGS>
+  template <typename... ARGS>
   static void Success(const char* szFormat, ARGS&&... args)
   {
     Success(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of Success() to output messages to a specific log.
-  template<typename ... ARGS>
+  template <typename... ARGS>
   static void Success(ezLogInterface* pInterface, const char* szFormat, ARGS&&... args)
   {
     Success(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
@@ -205,14 +203,14 @@ public:
   static void Info(ezLogInterface* pInterface, const ezFormatString& string);
 
   /// \brief Status information that is important.
-  template<typename ... ARGS>
+  template <typename... ARGS>
   static void Info(const char* szFormat, ARGS&&... args)
   {
     Info(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of Info() to output messages to a specific log.
-  template<typename ... ARGS>
+  template <typename... ARGS>
   static void Info(ezLogInterface* pInterface, const char* szFormat, ARGS&&... args)
   {
     Info(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
@@ -226,14 +224,14 @@ public:
   /// \brief Status information that is nice to have during development.
   ///
   /// This function is compiled out in non-development builds.
-  template<typename ... ARGS>
+  template <typename... ARGS>
   static void Dev(const char* szFormat, ARGS&&... args)
   {
     Dev(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of Dev() to output messages to a specific log.
-  template<typename ... ARGS>
+  template <typename... ARGS>
   static void Dev(ezLogInterface* pInterface, const char* szFormat, ARGS&&... args)
   {
     Dev(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
@@ -247,14 +245,14 @@ public:
   /// \brief Status information during debugging. Very verbose. Usually only temporarily added to the code.
   ///
   /// This function is compiled out in non-debug builds.
-  template<typename ... ARGS>
+  template <typename... ARGS>
   static void Debug(const char* szFormat, ARGS&&... args)
   {
     Debug(GetThreadLocalLogSystem(), ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
   /// \brief Overload of Debug() to output messages to a specific log.
-  template<typename ... ARGS>
+  template <typename... ARGS>
   static void Debug(ezLogInterface* pInterface, const char* szFormat, ARGS&&... args)
   {
     Debug(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
@@ -281,7 +279,6 @@ private:
 class EZ_FOUNDATION_DLL ezLogBlock
 {
 public:
-
   /// \brief Creates a named grouping block for log messages.
   ///
   /// Use the szContextInfo to pass in a string that can give additional context information (e.g. a file name).
@@ -338,4 +335,3 @@ private:
 };
 
 #include <Foundation/Logging/Implementation/Log_inl.h>
-

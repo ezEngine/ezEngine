@@ -1,9 +1,9 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
+#include <Foundation/Containers/Deque.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Logging/Log.h>
-#include <Foundation/Containers/Deque.h>
 #include <Foundation/Strings/HashedString.h>
 
 /// \brief Describes which kind of token an ezToken is.
@@ -11,16 +11,16 @@ struct EZ_FOUNDATION_DLL ezTokenType
 {
   enum Enum
   {
-    Unknown,        ///< for internal use
-    Whitespace,     ///< The token is a space or tab
-    Identifier,     ///< a series of alphanumerics or underscores
-    NonIdentifier,  ///< Everything else
-    Newline,        ///< Either '\n' or '\r\n'
-    LineComment,    ///< A comment that starts with two slashes and ends at the next newline (or end of file)
-    BlockComment,   ///< A comment that starts with a slash and a star, and ends at the next star/slash combination (or end of file)
-    String1,        ///< A string enclosed in "
-    String2,        ///< A string enclosed in '
-    EndOfFile,      ///< End-of-file marker
+    Unknown,       ///< for internal use
+    Whitespace,    ///< The token is a space or tab
+    Identifier,    ///< a series of alphanumerics or underscores
+    NonIdentifier, ///< Everything else
+    Newline,       ///< Either '\n' or '\r\n'
+    LineComment,   ///< A comment that starts with two slashes and ends at the next newline (or end of file)
+    BlockComment,  ///< A comment that starts with a slash and a star, and ends at the next star/slash combination (or end of file)
+    String1,       ///< A string enclosed in "
+    String2,       ///< A string enclosed in '
+    EndOfFile,     ///< End-of-file marker
     ENUM_COUNT,
   };
 
@@ -132,5 +132,3 @@ private:
   ezDeque<ezToken> m_Tokens;
   ezDynamicArray<ezUInt8> m_Data;
 };
-
-

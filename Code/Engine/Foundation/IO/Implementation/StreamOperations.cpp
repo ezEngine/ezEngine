@@ -1,13 +1,14 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
+#include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
-#include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Types/Enum.h>
 
 // C-style strings
 // No read equivalent for C-style strings (but can be read as ezString & ezStringBuilder instances)
 
-ezStreamWriter& operator << (ezStreamWriter& Stream, const char* szValue)
+ezStreamWriter& operator<<(ezStreamWriter& Stream, const char* szValue)
 {
   ezUInt32 uiLength = 0;
 
@@ -24,12 +25,12 @@ ezStreamWriter& operator << (ezStreamWriter& Stream, const char* szValue)
 
 // ezStringBuilder
 
-ezStreamWriter& operator << (ezStreamWriter& Stream, const ezStringBuilder& sValue)
+ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezStringBuilder& sValue)
 {
   return Stream << sValue.GetData();
 }
 
-ezStreamReader& operator >> (ezStreamReader& Stream, ezStringBuilder& sValue)
+ezStreamReader& operator>>(ezStreamReader& Stream, ezStringBuilder& sValue)
 {
   ezUInt32 uiLength = 0;
 
@@ -54,4 +55,3 @@ ezStreamReader& operator >> (ezStreamReader& Stream, ezStringBuilder& sValue)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_StreamOperations);
-

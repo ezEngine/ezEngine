@@ -25,7 +25,6 @@ public:
   }
 
 private:
-
   /// \brief This function can be overridden to skip certain variables, however the overriding function must still call this.
   virtual bool OnVariable(const char* szVarName) override;
 
@@ -56,7 +55,6 @@ private:
   virtual void OnParsingError(const char* szMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn) override;
 
 protected:
-
   enum class ElementMode : ezInt8
   {
     Array,
@@ -76,4 +74,3 @@ protected:
   bool m_bParsingError;
   ezString m_sLastName;
 };
-

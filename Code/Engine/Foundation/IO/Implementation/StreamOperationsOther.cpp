@@ -1,17 +1,18 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/HashedString.h>
 
 // ezAllocatorBase::Stats
 
-void operator<< (ezStreamWriter& Stream, const ezAllocatorBase::Stats& rhs)
+void operator<<(ezStreamWriter& Stream, const ezAllocatorBase::Stats& rhs)
 {
   Stream << rhs.m_uiNumAllocations;
   Stream << rhs.m_uiNumDeallocations;
   Stream << rhs.m_uiAllocationSize;
 }
 
-void operator>> (ezStreamReader& Stream, ezAllocatorBase::Stats& rhs)
+void operator>>(ezStreamReader& Stream, ezAllocatorBase::Stats& rhs)
 {
   Stream >> rhs.m_uiNumAllocations;
   Stream >> rhs.m_uiNumDeallocations;
@@ -20,12 +21,12 @@ void operator>> (ezStreamReader& Stream, ezAllocatorBase::Stats& rhs)
 
 // ezTime
 
-void operator<< (ezStreamWriter& Stream, ezTime Value)
+void operator<<(ezStreamWriter& Stream, ezTime Value)
 {
   Stream << Value.GetSeconds();
 }
 
-void operator>> (ezStreamReader& Stream, ezTime& Value)
+void operator>>(ezStreamReader& Stream, ezTime& Value)
 {
   double d = 0;
   Stream.ReadQWordValue(&d);
@@ -35,13 +36,13 @@ void operator>> (ezStreamReader& Stream, ezTime& Value)
 
 // ezUuid
 
-void operator<< (ezStreamWriter& Stream, const ezUuid& Value)
+void operator<<(ezStreamWriter& Stream, const ezUuid& Value)
 {
   Stream << Value.m_uiHigh;
   Stream << Value.m_uiLow;
 }
 
-void operator>> (ezStreamReader& Stream, ezUuid& Value)
+void operator>>(ezStreamReader& Stream, ezUuid& Value)
 {
   Stream >> Value.m_uiHigh;
   Stream >> Value.m_uiLow;
@@ -49,12 +50,12 @@ void operator>> (ezStreamReader& Stream, ezUuid& Value)
 
 // ezHashedString
 
-void operator<< (ezStreamWriter& Stream, const ezHashedString& Value)
+void operator<<(ezStreamWriter& Stream, const ezHashedString& Value)
 {
   Stream << Value.GetData();
 }
 
-void operator>> (ezStreamReader& Stream, ezHashedString& Value)
+void operator>>(ezStreamReader& Stream, ezHashedString& Value)
 {
   ezString sTemp;
   Stream >> sTemp;
@@ -203,7 +204,7 @@ EZ_FORCE_INLINE void ReadValueFunc::operator()<ezDataBuffer>()
   *m_pValue = data;
 }
 
-void operator<< (ezStreamWriter& Stream, const ezVariant& Value)
+void operator<<(ezStreamWriter& Stream, const ezVariant& Value)
 {
   ezUInt8 variantVersion = (ezUInt8)ezGetStaticRTTI<ezVariant>()->GetTypeVersion();
   Stream << variantVersion;
@@ -223,7 +224,7 @@ void operator<< (ezStreamWriter& Stream, const ezVariant& Value)
   }
 }
 
-void operator>> (ezStreamReader& Stream, ezVariant& Value)
+void operator>>(ezStreamReader& Stream, ezVariant& Value)
 {
   ezUInt8 variantVersion;
   Stream >> variantVersion;
@@ -248,4 +249,3 @@ void operator>> (ezStreamReader& Stream, ezVariant& Value)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_StreamOperationsOther);
-

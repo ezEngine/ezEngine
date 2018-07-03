@@ -1,11 +1,10 @@
-﻿
+
 #define ezInvalidIndex 0xFFFFFFFF
 
 // ***** Const Iterator *****
 
 template <typename K, typename H>
-ezHashSetBase<K, H>::ConstIterator::ConstIterator(const ezHashSetBase<K, H>& hashSet) :
-  m_hashSet(hashSet), m_uiCurrentIndex(0), m_uiCurrentCount(0)
+ezHashSetBase<K, H>::ConstIterator::ConstIterator(const ezHashSetBase<K, H>& hashSet) : m_hashSet(hashSet), m_uiCurrentIndex(0), m_uiCurrentCount(0)
 {
 }
 
@@ -67,8 +66,7 @@ void ezHashSetBase<K, H>::ConstIterator::Next()
   do
   {
     ++m_uiCurrentIndex;
-  }
-  while (!m_hashSet.IsValidEntry(m_uiCurrentIndex));
+  } while (!m_hashSet.IsValidEntry(m_uiCurrentIndex));
 }
 
 template <typename K, typename H>
@@ -124,7 +122,7 @@ ezHashSetBase<K, H>::~ezHashSetBase()
 }
 
 template <typename K, typename H>
-void ezHashSetBase<K, H>::operator= (const ezHashSetBase<K, H>& rhs)
+void ezHashSetBase<K, H>::operator=(const ezHashSetBase<K, H>& rhs)
 {
   Clear();
   Reserve(rhs.GetCount());
@@ -141,7 +139,7 @@ void ezHashSetBase<K, H>::operator= (const ezHashSetBase<K, H>& rhs)
 }
 
 template <typename K, typename H>
-void ezHashSetBase<K, H>::operator= (ezHashSetBase<K, H>&& rhs)
+void ezHashSetBase<K, H>::operator=(ezHashSetBase<K, H>&& rhs)
 {
   // Clear any existing data (calls destructors if necessary)
   Clear();
@@ -182,7 +180,7 @@ void ezHashSetBase<K, H>::operator= (ezHashSetBase<K, H>&& rhs)
 }
 
 template <typename K, typename H>
-bool ezHashSetBase<K, H>::operator== (const ezHashSetBase<K, H>& rhs) const
+bool ezHashSetBase<K, H>::operator==(const ezHashSetBase<K, H>& rhs) const
 {
   if (m_uiCount != rhs.m_uiCount)
     return false;
@@ -203,7 +201,7 @@ bool ezHashSetBase<K, H>::operator== (const ezHashSetBase<K, H>& rhs) const
 }
 
 template <typename K, typename H>
-EZ_ALWAYS_INLINE bool ezHashSetBase<K, H>::operator!= (const ezHashSetBase<K, H>& rhs) const
+EZ_ALWAYS_INLINE bool ezHashSetBase<K, H>::operator!=(const ezHashSetBase<K, H>& rhs) const
 {
   return !(*this == rhs);
 }
@@ -378,7 +376,7 @@ EZ_ALWAYS_INLINE ezAllocatorBase* ezHashSetBase<K, H>::GetAllocator() const
 template <typename K, typename H>
 ezUInt64 ezHashSetBase<K, H>::GetHeapMemoryUsage() const
 {
-  return ((ezUInt64) m_uiCapacity * sizeof(K)) + (sizeof(ezUInt32) * (ezUInt64) GetFlagsCapacity());
+  return ((ezUInt64)m_uiCapacity * sizeof(K)) + (sizeof(ezUInt32) * (ezUInt64)GetFlagsCapacity());
 }
 
 // private methods
@@ -568,4 +566,3 @@ void ezHashSet<K, H, A>::operator=(ezHashSetBase<K, H>&& rhs)
 {
   ezHashSetBase<K, H>::operator=(std::move(rhs));
 }
-

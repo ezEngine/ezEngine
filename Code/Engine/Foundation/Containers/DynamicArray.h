@@ -9,7 +9,7 @@
 /// In the worst case, PushBack is in O(n).
 /// Look-up is guaranteed to always be in O(1).
 template <typename T>
-class ezDynamicArrayBase : public ezArrayBase<T, ezDynamicArrayBase<T> >
+class ezDynamicArrayBase : public ezArrayBase<T, ezDynamicArrayBase<T>>
 {
 protected:
   /// \brief Creates an empty array. Does not allocate any data yet.
@@ -28,18 +28,17 @@ protected:
   ~ezDynamicArrayBase(); // [tested]
 
   /// \brief Copies the data from some other contiguous array into this one.
-  void operator= (const ezDynamicArrayBase<T>& rhs); // [tested]
+  void operator=(const ezDynamicArrayBase<T>& rhs); // [tested]
 
   /// \brief Moves the data from some other contiguous array into this one.
-  void operator= (ezDynamicArrayBase<T>&& rhs); // [tested]
+  void operator=(ezDynamicArrayBase<T>&& rhs); // [tested]
 
   T* GetElementsPtr();
   const T* GetElementsPtr() const;
 
-  friend class ezArrayBase < T, ezDynamicArrayBase<T> > ;
+  friend class ezArrayBase<T, ezDynamicArrayBase<T>>;
 
 public:
-
   /// \brief Expands the array so it can at least store the given capacity.
   void Reserve(ezUInt32 uiCapacity); // [tested]
 
@@ -58,7 +57,10 @@ public:
 private:
   ezAllocatorBase* m_pAllocator;
 
-  enum { CAPACITY_ALIGNMENT = 16 };
+  enum
+  {
+    CAPACITY_ALIGNMENT = 16
+  };
 
   void SetCapacity(ezUInt32 uiCapacity);
 };
@@ -89,19 +91,18 @@ public:
 };
 
 /// Overload of ezMakeArrayPtr for const dynamic arrays of pointer pointing to const type.
-template<typename T, typename AllocatorWrapper>
+template <typename T, typename AllocatorWrapper>
 ezArrayPtr<const T* const> ezMakeArrayPtr(const ezDynamicArray<T*, AllocatorWrapper>& dynArray);
 
 /// Overload of ezMakeArrayPtr for const dynamic arrays.
-template<typename T, typename AllocatorWrapper>
+template <typename T, typename AllocatorWrapper>
 ezArrayPtr<const T> ezMakeArrayPtr(const ezDynamicArray<T, AllocatorWrapper>& dynArray);
 
 /// Overload of ezMakeArrayPtr for dynamic arrays.
-template<typename T, typename AllocatorWrapper>
+template <typename T, typename AllocatorWrapper>
 ezArrayPtr<T> ezMakeArrayPtr(ezDynamicArray<T, AllocatorWrapper>& dynArray);
 
 
 EZ_CHECK_AT_COMPILETIME_MSG(ezGetTypeClass<ezDynamicArray<int>>::value == 2, "dynamic array is not memory relocatable");
 
 #include <Foundation/Containers/Implementation/DynamicArray_inl.h>
-

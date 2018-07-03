@@ -1,10 +1,10 @@
-﻿#pragma once
+#pragma once
 
-#include <Foundation/IO/FileSystem/Implementation/DataDirType.h>
-#include <Foundation/IO/OSFile.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/IO/FileSystem/Implementation/DataDirType.h>
+#include <Foundation/IO/OSFile.h>
 
 namespace ezDataDirectory
 {
@@ -109,8 +109,4 @@ namespace ezDataDirectory
     bool m_bIsInUse;
     ezOSFile m_File;
   };
-
 }
-
-
-

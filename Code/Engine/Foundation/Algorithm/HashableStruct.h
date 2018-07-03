@@ -12,16 +12,14 @@
 ///
 /// You can make your own struct hashable by deriving from ezHashableStruct providing the type of
 /// your class / struct as the template parameter.
-template<typename DERIVED>
+template <typename DERIVED>
 class ezHashableStruct
 {
 public:
-
-  EZ_ALWAYS_INLINE ezHashableStruct();  // [tested]
+  EZ_ALWAYS_INLINE ezHashableStruct(); // [tested]
 
   /// \brief Calculates the 32 bit hash of the struct and returns it
-  EZ_ALWAYS_INLINE ezUInt32 CalculateHash() const;  // [tested]
+  EZ_ALWAYS_INLINE ezUInt32 CalculateHash() const; // [tested]
 };
 
 #include <Foundation/Algorithm/Implementation/HashableStruct_inl.h>
-

@@ -1,7 +1,8 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
+#include <Foundation/IO/Stream.h>
 #include <Foundation/Image/Formats/BmpFileFormat.h>
 #include <Foundation/Image/ImageConversion.h>
-#include <Foundation/IO/Stream.h>
 
 ezBmpFileFormat g_bmpFormat;
 
@@ -16,7 +17,7 @@ enum ezBmpCompression
 };
 
 
-#pragma pack(push,1)
+#pragma pack(push, 1)
 struct ezBmpFileHeader
 {
   ezUInt16 m_type;
@@ -29,17 +30,17 @@ struct ezBmpFileHeader
 
 struct ezBmpFileInfoHeader
 {
-  ezUInt32			m_size;
-  ezUInt32			m_width;
-  ezUInt32			m_height;
-  ezUInt16			m_planes;
-  ezUInt16			m_bitCount;
-  ezBmpCompression	m_compression;
-  ezUInt32			m_sizeImage;
-  ezUInt32			m_xPelsPerMeter;
-  ezUInt32			m_yPelsPerMeter;
-  ezUInt32			m_clrUsed;
-  ezUInt32			m_clrImportant;
+  ezUInt32 m_size;
+  ezUInt32 m_width;
+  ezUInt32 m_height;
+  ezUInt16 m_planes;
+  ezUInt16 m_bitCount;
+  ezBmpCompression m_compression;
+  ezUInt32 m_sizeImage;
+  ezUInt32 m_xPelsPerMeter;
+  ezUInt32 m_yPelsPerMeter;
+  ezUInt32 m_clrUsed;
+  ezUInt32 m_clrImportant;
 };
 
 struct ezCIEXYZ
@@ -58,15 +59,15 @@ struct ezCIEXYZTRIPLE
 
 struct ezBmpFileInfoHeaderV4
 {
-  ezUInt32        m_redMask;
-  ezUInt32        m_greenMask;
-  ezUInt32        m_blueMask;
-  ezUInt32        m_alphaMask;
-  ezUInt32        m_csType;
-  ezCIEXYZTRIPLE  m_endpoints;
-  ezUInt32        m_gammaRed;
-  ezUInt32        m_gammaGreen;
-  ezUInt32        m_gammaBlue;
+  ezUInt32 m_redMask;
+  ezUInt32 m_greenMask;
+  ezUInt32 m_blueMask;
+  ezUInt32 m_alphaMask;
+  ezUInt32 m_csType;
+  ezCIEXYZTRIPLE m_endpoints;
+  ezUInt32 m_gammaRed;
+  ezUInt32 m_gammaGreen;
+  ezUInt32 m_gammaBlue;
 };
 
 EZ_CHECK_AT_COMPILETIME(sizeof(ezCIEXYZTRIPLE) == 3 * 3 * 4);
@@ -78,10 +79,10 @@ EZ_CHECK_AT_COMPILETIME(sizeof(ezCIEXYZTRIPLE) == sizeof(CIEXYZTRIPLE));
 
 struct ezBmpFileInfoHeaderV5
 {
-  ezUInt32        m_intent;
-  ezUInt32        m_profileData;
-  ezUInt32        m_profileSize;
-  ezUInt32        m_reserved;
+  ezUInt32 m_intent;
+  ezUInt32 m_profileData;
+  ezUInt32 m_profileSize;
+  ezUInt32 m_reserved;
 };
 
 static const ezUInt16 ezBmpFileMagic = 0x4D42u;
@@ -108,13 +109,13 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
 {
   // Technically almost arbitrary formats are supported, but we only use the common ones.
   ezImageFormat::Enum compatibleFormats[] =
-  {
-    ezImageFormat::B8G8R8X8_UNORM,
-    ezImageFormat::B8G8R8A8_UNORM,
-    ezImageFormat::B8G8R8_UNORM,
-    ezImageFormat::B5G5R5X1_UNORM,
-    ezImageFormat::B5G6R5_UNORM,
-  };
+      {
+          ezImageFormat::B8G8R8X8_UNORM,
+          ezImageFormat::B8G8R8A8_UNORM,
+          ezImageFormat::B8G8R8_UNORM,
+          ezImageFormat::B5G5R5X1_UNORM,
+          ezImageFormat::B5G6R5_UNORM,
+      };
 
   // Find a compatible format closest to the one the image currently has
   ezImageFormat::Enum format = ezImageConversion::FindClosestCompatibleFormat(image.GetImageFormat(), compatibleFormats);
@@ -165,24 +166,24 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
 
   switch (format)
   {
-  case ezImageFormat::B8G8R8X8_UNORM:
-  case ezImageFormat::B5G5R5X1_UNORM:
-  case ezImageFormat::B8G8R8_UNORM:
-    fileInfoHeader.m_compression = RGB;
-    break;
+    case ezImageFormat::B8G8R8X8_UNORM:
+    case ezImageFormat::B5G5R5X1_UNORM:
+    case ezImageFormat::B8G8R8_UNORM:
+      fileInfoHeader.m_compression = RGB;
+      break;
 
-  case ezImageFormat::B8G8R8A8_UNORM:
-    fileInfoHeader.m_compression = BITFIELDS;
-    uiHeaderVersion = 4;
-    break;
+    case ezImageFormat::B8G8R8A8_UNORM:
+      fileInfoHeader.m_compression = BITFIELDS;
+      uiHeaderVersion = 4;
+      break;
 
-  case ezImageFormat::B5G6R5_UNORM:
-    fileInfoHeader.m_compression = BITFIELDS;
-    bWriteColorMask = true;
-    break;
+    case ezImageFormat::B5G6R5_UNORM:
+      fileInfoHeader.m_compression = BITFIELDS;
+      bWriteColorMask = true;
+      break;
 
-  default:
-    return EZ_FAILURE;
+    default:
+      return EZ_FAILURE;
   }
 
   EZ_ASSERT_DEV(!bWriteColorMask || uiHeaderVersion <= 3, "Internal bug");
@@ -349,89 +350,89 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
   switch (fileInfoHeader.m_compression)
   {
-    // RGB or indexed data
-  case  RGB:
-    switch (uiBpp)
-    {
-    case 1:
-    case 4:
-    case 8:
-      bIndexed = true;
-
-      // We always decompress indexed to BGRX, since the palette is specified in this format
-      format = ezImageFormat::B8G8R8X8_UNORM;
-      break;
-
-    case 16:
-      format = ezImageFormat::B5G5R5X1_UNORM;
-      break;
-
-    case 24:
-      format = ezImageFormat::B8G8R8_UNORM;
-      break;
-
-    case 32:
-      format = ezImageFormat::B8G8R8X8_UNORM;
-    }
-    break;
-
-    // RGB data, but with the color masks specified in place of the palette
-  case BITFIELDS:
-    switch (uiBpp)
-    {
-    case 16:
-    case 32:
-      // In case of old headers, the color masks appear after the header (and aren't counted as part of it)
-      if (uiHeaderVersion < 4)
+      // RGB or indexed data
+    case RGB:
+      switch (uiBpp)
       {
-        // Color masks (w/o alpha channel)
-        struct
-        {
-          ezUInt32 m_red;
-          ezUInt32 m_green;
-          ezUInt32 m_blue;
-        } colorMask;
+        case 1:
+        case 4:
+        case 8:
+          bIndexed = true;
 
-        if (stream.ReadBytes(&colorMask, sizeof(colorMask)) != sizeof(colorMask))
-        {
-          return EZ_FAILURE;
-        }
+          // We always decompress indexed to BGRX, since the palette is specified in this format
+          format = ezImageFormat::B8G8R8X8_UNORM;
+          break;
 
-        format = ezImageFormat::FromPixelMask(colorMask.m_red, colorMask.m_green, colorMask.m_blue, 0, uiBpp);
+        case 16:
+          format = ezImageFormat::B5G5R5X1_UNORM;
+          break;
+
+        case 24:
+          format = ezImageFormat::B8G8R8_UNORM;
+          break;
+
+        case 32:
+          format = ezImageFormat::B8G8R8X8_UNORM;
       }
-      else
-      {
-        // For header version four and higher, the color masks are part of the header
-        format = ezImageFormat::FromPixelMask(
-          fileInfoHeaderV4.m_redMask, fileInfoHeaderV4.m_greenMask,
-          fileInfoHeaderV4.m_blueMask, fileInfoHeaderV4.m_alphaMask,
-          uiBpp);
-      }
-
       break;
-    }
-    break;
 
-  case RLE4:
-    if (uiBpp == 4)
-    {
-      bIndexed = true;
-      bCompressed = true;
-      format = ezImageFormat::B8G8R8X8_UNORM;
-    }
-    break;
+      // RGB data, but with the color masks specified in place of the palette
+    case BITFIELDS:
+      switch (uiBpp)
+      {
+        case 16:
+        case 32:
+          // In case of old headers, the color masks appear after the header (and aren't counted as part of it)
+          if (uiHeaderVersion < 4)
+          {
+            // Color masks (w/o alpha channel)
+            struct
+            {
+              ezUInt32 m_red;
+              ezUInt32 m_green;
+              ezUInt32 m_blue;
+            } colorMask;
 
-  case RLE8:
-    if (uiBpp == 8)
-    {
-      bIndexed = true;
-      bCompressed = true;
-      format = ezImageFormat::B8G8R8X8_UNORM;
-    }
-    break;
+            if (stream.ReadBytes(&colorMask, sizeof(colorMask)) != sizeof(colorMask))
+            {
+              return EZ_FAILURE;
+            }
 
-  default:
-    EZ_ASSERT_NOT_IMPLEMENTED;
+            format = ezImageFormat::FromPixelMask(colorMask.m_red, colorMask.m_green, colorMask.m_blue, 0, uiBpp);
+          }
+          else
+          {
+            // For header version four and higher, the color masks are part of the header
+            format = ezImageFormat::FromPixelMask(
+                fileInfoHeaderV4.m_redMask, fileInfoHeaderV4.m_greenMask,
+                fileInfoHeaderV4.m_blueMask, fileInfoHeaderV4.m_alphaMask,
+                uiBpp);
+          }
+
+          break;
+      }
+      break;
+
+    case RLE4:
+      if (uiBpp == 4)
+      {
+        bIndexed = true;
+        bCompressed = true;
+        format = ezImageFormat::B8G8R8X8_UNORM;
+      }
+      break;
+
+    case RLE8:
+      if (uiBpp == 8)
+      {
+        bIndexed = true;
+        bCompressed = true;
+        format = ezImageFormat::B8G8R8X8_UNORM;
+      }
+      break;
+
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
   }
 
   if (format == ezImageFormat::UNKNOWN)
@@ -581,8 +582,8 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
           // Absolute mode - the first byte specifies a number of indices encoded separately, or is a special marker
           switch (uiByte2)
           {
-            // End of line marker
-          case 0:
+              // End of line marker
+            case 0:
             {
 
               // Fill up with palette entry 0
@@ -599,56 +600,56 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
             break;
 
-            // End of image marker
-          case 1:
-            // Check that we really reached the end of the image.
-            if (uiRow != 0 && uiCol != uiHeight - 1)
-            {
-              ezLog::Error(pLog, "Unexpected end of image marker found.");
+              // End of image marker
+            case 1:
+              // Check that we really reached the end of the image.
+              if (uiRow != 0 && uiCol != uiHeight - 1)
+              {
+                ezLog::Error(pLog, "Unexpected end of image marker found.");
+                return EZ_FAILURE;
+              }
+              break;
+
+            case 2:
+              ezLog::Error(pLog, "Found a RLE compression position delta - this is not supported.");
               return EZ_FAILURE;
-            }
-            break;
 
-          case 2:
-            ezLog::Error(pLog, "Found a RLE compression position delta - this is not supported.");
-            return EZ_FAILURE;
+            default:
+              // Read uiByte2 number of indices
 
-          default:
-            // Read uiByte2 number of indices
-
-            // More data than fits into the image or can be read?
-            if (uiCol + uiByte2 > uiWidth || pIn + (uiByte2 + 1) / 2 > pInEnd)
-            {
-              return EZ_FAILURE;
-            }
-
-            if (uiBpp == 4)
-            {
-              for (ezUInt32 uiRep = 0; uiRep < uiByte2 / 2; uiRep++)
+              // More data than fits into the image or can be read?
+              if (uiCol + uiByte2 > uiWidth || pIn + (uiByte2 + 1) / 2 > pInEnd)
               {
-                ezUInt32 uiIndices = *pIn++;
-                pLine[uiCol++] = palette[uiIndices >> 4];
-                pLine[uiCol++] = palette[uiIndices & 0x0f];
+                return EZ_FAILURE;
               }
 
-              if (uiByte2 & 1)
+              if (uiBpp == 4)
               {
-                pLine[uiCol++] = palette[*pIn++ >> 4];
-              }
+                for (ezUInt32 uiRep = 0; uiRep < uiByte2 / 2; uiRep++)
+                {
+                  ezUInt32 uiIndices = *pIn++;
+                  pLine[uiCol++] = palette[uiIndices >> 4];
+                  pLine[uiCol++] = palette[uiIndices & 0x0f];
+                }
 
-              // Pad to word boundary
-              pIn += (uiByte2 / 2 + uiByte2) & 1;
-            }
-            else /* if (uiBpp == 8) */
-            {
-              for (ezUInt32 uiRep = 0; uiRep < uiByte2; uiRep++)
+                if (uiByte2 & 1)
+                {
+                  pLine[uiCol++] = palette[*pIn++ >> 4];
+                }
+
+                // Pad to word boundary
+                pIn += (uiByte2 / 2 + uiByte2) & 1;
+              }
+              else /* if (uiBpp == 8) */
               {
-                pLine[uiCol++] = palette[*pIn++];
-              }
+                for (ezUInt32 uiRep = 0; uiRep < uiByte2; uiRep++)
+                {
+                  pLine[uiCol++] = palette[*pIn++];
+                }
 
-              // Pad to word boundary
-              pIn += uiByte2 & 1;
-            }
+                // Pad to word boundary
+                pIn += uiByte2 & 1;
+              }
           }
         }
       }
@@ -722,10 +723,9 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
 bool ezBmpFileFormat::CanReadFileType(const char* szExtension) const
 {
-  return
-    ezStringUtils::IsEqual_NoCase(szExtension, "bmp") ||
-    ezStringUtils::IsEqual_NoCase(szExtension, "dib") ||
-    ezStringUtils::IsEqual_NoCase(szExtension, "rle");
+  return ezStringUtils::IsEqual_NoCase(szExtension, "bmp") ||
+         ezStringUtils::IsEqual_NoCase(szExtension, "dib") ||
+         ezStringUtils::IsEqual_NoCase(szExtension, "rle");
 }
 
 bool ezBmpFileFormat::CanWriteFileType(const char* szExtension) const
@@ -735,7 +735,4 @@ bool ezBmpFileFormat::CanWriteFileType(const char* szExtension) const
 
 
 
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Image_Formats_BmpFileFormat);
-

@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <Foundation/Image/Conversions/PixelConversions.h>
+
 #include <Foundation/Image/Conversions/ImageConversionMixin.h>
+#include <Foundation/Image/Conversions/PixelConversions.h>
 #include <emmintrin.h>
 
 class ezImageConversion_4444_8888 : public ezImageConversionMixinLinear<ezImageConversion_4444_8888>
@@ -310,11 +311,11 @@ public:
   {
     /// \todo Not sure about the SRGB stuff and the Lossy flag. Also maybe this could be generalized, like the swizzle conversion ?
 
-    m_subConversions.PushBack(SubConversion(ezImageFormat::B8G8R8A8_UNORM,      ezImageFormat::B8G8R8_UNORM, ezImageConversionFlags::Lossy));
-    m_subConversions.PushBack(SubConversion(ezImageFormat::B8G8R8X8_UNORM,      ezImageFormat::B8G8R8_UNORM, ezImageConversionFlags::Lossy));
-    m_subConversions.PushBack(SubConversion(ezImageFormat::B8G8R8A8_TYPELESS,   ezImageFormat::B8G8R8_UNORM, ezImageConversionFlags::Lossy));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::B8G8R8A8_UNORM, ezImageFormat::B8G8R8_UNORM, ezImageConversionFlags::Lossy));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::B8G8R8X8_UNORM, ezImageFormat::B8G8R8_UNORM, ezImageConversionFlags::Lossy));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::B8G8R8A8_TYPELESS, ezImageFormat::B8G8R8_UNORM, ezImageConversionFlags::Lossy));
     m_subConversions.PushBack(SubConversion(ezImageFormat::B8G8R8A8_UNORM_SRGB, ezImageFormat::B8G8R8_UNORM, ezImageConversionFlags::Lossy));
-    m_subConversions.PushBack(SubConversion(ezImageFormat::B8G8R8X8_TYPELESS,   ezImageFormat::B8G8R8_UNORM, ezImageConversionFlags::Lossy));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::B8G8R8X8_TYPELESS, ezImageFormat::B8G8R8_UNORM, ezImageConversionFlags::Lossy));
     m_subConversions.PushBack(SubConversion(ezImageFormat::B8G8R8X8_UNORM_SRGB, ezImageFormat::B8G8R8_UNORM, ezImageConversionFlags::Lossy));
   }
 
@@ -389,7 +390,4 @@ static ezImageConversion_RGBA_RGB_F g_conversion_RGBA_RGB_F;
 
 
 
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Image_Conversions_PixelConversions);
-

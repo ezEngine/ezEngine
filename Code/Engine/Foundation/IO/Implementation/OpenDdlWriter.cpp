@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Utilities/ConversionUtils.h>
@@ -45,46 +46,46 @@ void ezOpenDdlWriter::OutputPrimitiveTypeNameCompliant(ezOpenDdlPrimitiveType ty
 {
   switch (type)
   {
-  case ezOpenDdlPrimitiveType::Bool:
-    OutputString("bool", 4);
-    break;
-  case ezOpenDdlPrimitiveType::Int8:
-    OutputString("int8", 4);
-    break;
-  case ezOpenDdlPrimitiveType::Int16:
-    OutputString("int16", 5);
-    break;
-  case ezOpenDdlPrimitiveType::Int32:
-    OutputString("int32", 5);
-    break;
-  case ezOpenDdlPrimitiveType::Int64:
-    OutputString("int64", 5);
-    break;
-  case ezOpenDdlPrimitiveType::UInt8:
-    OutputString("unsigned_int8", 13);
-    break;
-  case ezOpenDdlPrimitiveType::UInt16:
-    OutputString("unsigned_int16", 14);
-    break;
-  case ezOpenDdlPrimitiveType::UInt32:
-    OutputString("unsigned_int32", 14);
-    break;
-  case ezOpenDdlPrimitiveType::UInt64:
-    OutputString("unsigned_int64", 14);
-    break;
-  case ezOpenDdlPrimitiveType::Float:
-    OutputString("float", 5);
-    break;
-  case ezOpenDdlPrimitiveType::Double:
-    OutputString("double", 6);
-    break;
-  case ezOpenDdlPrimitiveType::String:
-    OutputString("string", 6);
-    break;
+    case ezOpenDdlPrimitiveType::Bool:
+      OutputString("bool", 4);
+      break;
+    case ezOpenDdlPrimitiveType::Int8:
+      OutputString("int8", 4);
+      break;
+    case ezOpenDdlPrimitiveType::Int16:
+      OutputString("int16", 5);
+      break;
+    case ezOpenDdlPrimitiveType::Int32:
+      OutputString("int32", 5);
+      break;
+    case ezOpenDdlPrimitiveType::Int64:
+      OutputString("int64", 5);
+      break;
+    case ezOpenDdlPrimitiveType::UInt8:
+      OutputString("unsigned_int8", 13);
+      break;
+    case ezOpenDdlPrimitiveType::UInt16:
+      OutputString("unsigned_int16", 14);
+      break;
+    case ezOpenDdlPrimitiveType::UInt32:
+      OutputString("unsigned_int32", 14);
+      break;
+    case ezOpenDdlPrimitiveType::UInt64:
+      OutputString("unsigned_int64", 14);
+      break;
+    case ezOpenDdlPrimitiveType::Float:
+      OutputString("float", 5);
+      break;
+    case ezOpenDdlPrimitiveType::Double:
+      OutputString("double", 6);
+      break;
+    case ezOpenDdlPrimitiveType::String:
+      OutputString("string", 6);
+      break;
 
-  default:
-    EZ_REPORT_FAILURE("Unknown DDL primitive type {0}", (ezUInt32)type);
-    break;
+    default:
+      EZ_REPORT_FAILURE("Unknown DDL primitive type {0}", (ezUInt32)type);
+      break;
   }
 }
 void ezOpenDdlWriter::OutputPrimitiveTypeNameShort(ezOpenDdlPrimitiveType type)
@@ -93,46 +94,46 @@ void ezOpenDdlWriter::OutputPrimitiveTypeNameShort(ezOpenDdlPrimitiveType type)
 
   switch (type)
   {
-  case ezOpenDdlPrimitiveType::Bool:
-    OutputString("bool", 4);
-    break;
-  case ezOpenDdlPrimitiveType::Int8:
-    OutputString("int8", 4);
-    break;
-  case ezOpenDdlPrimitiveType::Int16:
-    OutputString("int16", 5);
-    break;
-  case ezOpenDdlPrimitiveType::Int32:
-    OutputString("int32", 5);
-    break;
-  case ezOpenDdlPrimitiveType::Int64:
-    OutputString("int64", 5);
-    break;
-  case ezOpenDdlPrimitiveType::UInt8:
-    OutputString("uint8", 5);
-    break;
-  case ezOpenDdlPrimitiveType::UInt16:
-    OutputString("uint16", 6);
-    break;
-  case ezOpenDdlPrimitiveType::UInt32:
-    OutputString("uint32", 6);
-    break;
-  case ezOpenDdlPrimitiveType::UInt64:
-    OutputString("uint64", 6);
-    break;
-  case ezOpenDdlPrimitiveType::Float:
-    OutputString("float", 5);
-    break;
-  case ezOpenDdlPrimitiveType::Double:
-    OutputString("double", 6);
-    break;
-  case ezOpenDdlPrimitiveType::String:
-    OutputString("string", 6);
-    break;
+    case ezOpenDdlPrimitiveType::Bool:
+      OutputString("bool", 4);
+      break;
+    case ezOpenDdlPrimitiveType::Int8:
+      OutputString("int8", 4);
+      break;
+    case ezOpenDdlPrimitiveType::Int16:
+      OutputString("int16", 5);
+      break;
+    case ezOpenDdlPrimitiveType::Int32:
+      OutputString("int32", 5);
+      break;
+    case ezOpenDdlPrimitiveType::Int64:
+      OutputString("int64", 5);
+      break;
+    case ezOpenDdlPrimitiveType::UInt8:
+      OutputString("uint8", 5);
+      break;
+    case ezOpenDdlPrimitiveType::UInt16:
+      OutputString("uint16", 6);
+      break;
+    case ezOpenDdlPrimitiveType::UInt32:
+      OutputString("uint32", 6);
+      break;
+    case ezOpenDdlPrimitiveType::UInt64:
+      OutputString("uint64", 6);
+      break;
+    case ezOpenDdlPrimitiveType::Float:
+      OutputString("float", 5);
+      break;
+    case ezOpenDdlPrimitiveType::Double:
+      OutputString("double", 6);
+      break;
+    case ezOpenDdlPrimitiveType::String:
+      OutputString("string", 6);
+      break;
 
-  default:
-    EZ_REPORT_FAILURE("Unknown DDL primitive type {0}", (ezUInt32)type);
-    break;
+    default:
+      EZ_REPORT_FAILURE("Unknown DDL primitive type {0}", (ezUInt32)type);
+      break;
   }
 }
 
@@ -142,46 +143,46 @@ void ezOpenDdlWriter::OutputPrimitiveTypeNameShortest(ezOpenDdlPrimitiveType typ
 
   switch (type)
   {
-  case ezOpenDdlPrimitiveType::Bool:
-    OutputString("b", 1);
-    break;
-  case ezOpenDdlPrimitiveType::Int8:
-    OutputString("i1", 2);
-    break;
-  case ezOpenDdlPrimitiveType::Int16:
-    OutputString("i2", 2);
-    break;
-  case ezOpenDdlPrimitiveType::Int32:
-    OutputString("i3", 2);
-    break;
-  case ezOpenDdlPrimitiveType::Int64:
-    OutputString("i4", 2);
-    break;
-  case ezOpenDdlPrimitiveType::UInt8:
-    OutputString("u1", 2);
-    break;
-  case ezOpenDdlPrimitiveType::UInt16:
-    OutputString("u2", 2);
-    break;
-  case ezOpenDdlPrimitiveType::UInt32:
-    OutputString("u3", 2);
-    break;
-  case ezOpenDdlPrimitiveType::UInt64:
-    OutputString("u4", 2);
-    break;
-  case ezOpenDdlPrimitiveType::Float:
-    OutputString("f", 1);
-    break;
-  case ezOpenDdlPrimitiveType::Double:
-    OutputString("d", 1);
-    break;
-  case ezOpenDdlPrimitiveType::String:
-    OutputString("s", 1);
-    break;
+    case ezOpenDdlPrimitiveType::Bool:
+      OutputString("b", 1);
+      break;
+    case ezOpenDdlPrimitiveType::Int8:
+      OutputString("i1", 2);
+      break;
+    case ezOpenDdlPrimitiveType::Int16:
+      OutputString("i2", 2);
+      break;
+    case ezOpenDdlPrimitiveType::Int32:
+      OutputString("i3", 2);
+      break;
+    case ezOpenDdlPrimitiveType::Int64:
+      OutputString("i4", 2);
+      break;
+    case ezOpenDdlPrimitiveType::UInt8:
+      OutputString("u1", 2);
+      break;
+    case ezOpenDdlPrimitiveType::UInt16:
+      OutputString("u2", 2);
+      break;
+    case ezOpenDdlPrimitiveType::UInt32:
+      OutputString("u3", 2);
+      break;
+    case ezOpenDdlPrimitiveType::UInt64:
+      OutputString("u4", 2);
+      break;
+    case ezOpenDdlPrimitiveType::Float:
+      OutputString("f", 1);
+      break;
+    case ezOpenDdlPrimitiveType::Double:
+      OutputString("d", 1);
+      break;
+    case ezOpenDdlPrimitiveType::String:
+      OutputString("s", 1);
+      break;
 
-  default:
-    EZ_REPORT_FAILURE("Unknown DDL primitive type {0}", (ezUInt32)type);
-    break;
+    default:
+      EZ_REPORT_FAILURE("Unknown DDL primitive type {0}", (ezUInt32)type);
+      break;
   }
 }
 
@@ -261,9 +262,9 @@ void ezOpenDdlWriter::OutputObjectBeginning()
   if (state == State::ObjectSingleLine)
   {
     //if (m_bCompactMode)
-      OutputString("{", 1); // more compact
+    OutputString("{", 1); // more compact
     //else
-      //OutputString(" { ", 3);
+    //OutputString(" { ", 3);
   }
   else if (state == State::ObjectMultiLine)
   {
@@ -392,12 +393,11 @@ void ezOpenDdlWriter::BeginPrimitiveList(ezOpenDdlPrimitiveType type, const char
 
   // more compact
   //if (m_bCompactMode)
-    OutputString("{", 1);
+  OutputString("{", 1);
   //else
-    //OutputString(" {", 2);
+  //OutputString(" {", 2);
 
   m_StateStack.ExpandAndGetRef().m_State = static_cast<State>(type);
-
 }
 
 void ezOpenDdlWriter::EndPrimitiveList()
@@ -741,6 +741,4 @@ void ezOpenDdlWriter::WriteBinaryAsString(const void* pData, ezUInt32 uiBytes)
 
 
 
-
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_OpenDdlWriter);
-

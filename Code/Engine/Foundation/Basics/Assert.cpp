@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <Foundation/Strings/StringUtils.h>
+
 #include <Foundation/Strings/StringBuilder.h>
+#include <Foundation/Strings/StringUtils.h>
 
 bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
@@ -18,42 +19,42 @@ bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const cha
   if (IsDebuggerPresent())
     return true;
 
-  // make sure the cursor is definitely shown, since the user must be able to click buttons
-  #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+// make sure the cursor is definitely shown, since the user must be able to click buttons
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
     // Todo: Use modern Windows API to show cursor in current window.
     // http://stackoverflow.com/questions/37956628/change-mouse-pointer-in-uwp-app
-  #else
-    ezInt32 iHideCursor = 1;
-    while (ShowCursor(true) < 0)
-     ++iHideCursor;
-  #endif
+#else
+  ezInt32 iHideCursor = 1;
+  while (ShowCursor(true) < 0)
+    ++iHideCursor;
+#endif
 
-  #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
 
-    ezInt32 iRes = _CrtDbgReport(_CRT_ASSERT, szSourceFile, uiLine, nullptr, "'%s'\nFunction: %s\nMessage: %s", szExpression, szFunction, szAssertMsg);
+  ezInt32 iRes = _CrtDbgReport(_CRT_ASSERT, szSourceFile, uiLine, nullptr, "'%s'\nFunction: %s\nMessage: %s", szExpression, szFunction, szAssertMsg);
 
-    // currently we will ALWAYS trigger the breakpoint / crash (except for when the user presses 'ignore')
-    if (iRes == 0)
-    {
-      // when the user ignores the assert, restore the cursor show/hide state to the previous count
-      #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-        // Todo: Use modern Windows API to restore cursor.
-      #else
-        for (ezInt32 i = 0; i < iHideCursor; ++i)
-          ShowCursor(false);
-      #endif
+  // currently we will ALWAYS trigger the breakpoint / crash (except for when the user presses 'ignore')
+  if (iRes == 0)
+  {
+// when the user ignores the assert, restore the cursor show/hide state to the previous count
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  // Todo: Use modern Windows API to restore cursor.
+#else
+    for (ezInt32 i = 0; i < iHideCursor; ++i)
+      ShowCursor(false);
+#endif
 
-      return false;
-    }
+    return false;
+  }
 
-  #else
+#else
 
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-    MessageBox(nullptr, szTemp, "Assertion", MB_ICONERROR);
+  MessageBox(nullptr, szTemp, "Assertion", MB_ICONERROR);
 #endif
 
-  #endif
+#endif
 
 #endif
 
@@ -91,4 +92,3 @@ bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunc
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Basics_Assert);
-

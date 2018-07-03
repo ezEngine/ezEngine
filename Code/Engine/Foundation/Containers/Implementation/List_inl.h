@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Math/Math.h>
 
@@ -17,25 +17,23 @@ ezListBase<T>::ListElement::ListElement(const T& data) : m_Data(data)
 // **** ezListBase ****
 
 template <typename T>
-ezListBase<T>::ezListBase(ezAllocatorBase* pAllocator) :
-  m_End(reinterpret_cast<ListElement*>(&m_Last)),
-  m_uiCount(0),
-  m_Elements(pAllocator),
-  m_pFreeElementStack(nullptr)
+ezListBase<T>::ezListBase(ezAllocatorBase* pAllocator) : m_End(reinterpret_cast<ListElement*>(&m_Last)),
+                                                         m_uiCount(0),
+                                                         m_Elements(pAllocator),
+                                                         m_pFreeElementStack(nullptr)
 {
   m_First.m_pNext = reinterpret_cast<ListElement*>(&m_Last);
-  m_Last.m_pPrev  = reinterpret_cast<ListElement*>(&m_First);
+  m_Last.m_pPrev = reinterpret_cast<ListElement*>(&m_First);
 }
 
 template <typename T>
-ezListBase<T>::ezListBase(const ezListBase<T>& cc, ezAllocatorBase* pAllocator) :
-  m_End(reinterpret_cast<ListElement*>(&m_Last)),
-  m_uiCount(0),
-  m_Elements(pAllocator),
-  m_pFreeElementStack(nullptr)
+ezListBase<T>::ezListBase(const ezListBase<T>& cc, ezAllocatorBase* pAllocator) : m_End(reinterpret_cast<ListElement*>(&m_Last)),
+                                                                                  m_uiCount(0),
+                                                                                  m_Elements(pAllocator),
+                                                                                  m_pFreeElementStack(nullptr)
 {
   m_First.m_pNext = reinterpret_cast<ListElement*>(&m_Last);
-  m_Last.m_pPrev  = reinterpret_cast<ListElement*>(&m_First);
+  m_Last.m_pPrev = reinterpret_cast<ListElement*>(&m_First);
 
   operator=(cc);
 }
@@ -83,8 +81,7 @@ void ezListBase<T>::ReleaseNode(ListElement* pNode)
   {
     m_Elements.PopBack();
   }
-  else
-  if (pNode == &m_Elements.PeekFront())
+  else if (pNode == &m_Elements.PeekFront())
   {
     m_Elements.PopFront();
   }
@@ -361,4 +358,3 @@ void ezList<T, A>::operator=(const ezListBase<T>& rhs)
 {
   ezListBase<T>::operator=(rhs);
 }
-

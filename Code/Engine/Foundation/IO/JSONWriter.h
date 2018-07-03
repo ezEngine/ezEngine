@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/IO/Stream.h>
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/IO/Stream.h>
 #include <Foundation/Types/Variant.h>
 
 /// \brief The base class for JSON writers.
@@ -11,15 +11,14 @@
 class EZ_FOUNDATION_DLL ezJSONWriter
 {
 public:
-
   /// \brief Modes to configure how much whitespace the JSON writer will output
   enum class WhitespaceMode
   {
-    All,              ///< All whitespace is output. This is the default, it should be used for files that are read by humans.
-    LessIndentation,  ///< Saves some space by using less space for indentation
-    NoIndentation,    ///< Saves even more space by dropping all indentation from the output. The result will be noticeably less readable.
-    NewlinesOnly,     ///< All unnecessary whitespace, except for newlines, is not output.
-    None,             ///< No whitespace, not even newlines, is output. This should be used when JSON is used for data exchange, but probably not read by humans.
+    All,             ///< All whitespace is output. This is the default, it should be used for files that are read by humans.
+    LessIndentation, ///< Saves some space by using less space for indentation
+    NoIndentation,   ///< Saves even more space by dropping all indentation from the output. The result will be noticeably less readable.
+    NewlinesOnly,    ///< All unnecessary whitespace, except for newlines, is not output.
+    None,            ///< No whitespace, not even newlines, is output. This should be used when JSON is used for data exchange, but probably not read by humans.
   };
 
   /// \brief Constructor
@@ -28,7 +27,7 @@ public:
     m_WhitespaceMode = WhitespaceMode::All;
   }
 
-  virtual ~ezJSONWriter() { }
+  virtual ~ezJSONWriter() {}
 
   /// \brief Configures how much whitespace is output.
   void SetWhitespaceMode(WhitespaceMode wsm) { m_WhitespaceMode = wsm; }
@@ -251,7 +250,6 @@ public:
 
 protected:
   WhitespaceMode m_WhitespaceMode;
-
 };
 
 
@@ -368,7 +366,6 @@ public:
   virtual void EndObject() override; // [tested]
 
 protected:
-
   void End();
 
   enum State
@@ -408,4 +405,3 @@ protected:
 
   ezHybridArray<JSONState, 16> m_StateStack;
 };
-

@@ -19,7 +19,7 @@ public:
   ~ezArrayBase(); // [tested]
 
   /// \brief Copies the data from some other contiguous array into this one.
-  void operator= (const ezArrayPtr<const T>& rhs); // [tested]
+  void operator=(const ezArrayPtr<const T>& rhs); // [tested]
 
   /// \brief Conversion to const ezArrayPtr.
   operator ezArrayPtr<const T>() const; // [tested]
@@ -28,10 +28,10 @@ public:
   operator ezArrayPtr<T>(); // [tested]
 
   /// \brief Compares this array to another contiguous array type.
-  bool operator== (const ezArrayPtr<const T>& rhs) const; // [tested]
+  bool operator==(const ezArrayPtr<const T>& rhs) const; // [tested]
 
   /// \brief Compares this array to another contiguous array type.
-  bool operator!= (const ezArrayPtr<const T>& rhs) const; // [tested]
+  bool operator!=(const ezArrayPtr<const T>& rhs) const; // [tested]
 
   /// \brief Returns the element at the given index. Does bounds checks in debug builds.
   const T& operator[](ezUInt32 uiIndex) const; // [tested]
@@ -136,13 +136,12 @@ public:
   /// \brief Returns the reserved number of elements that the array can hold without reallocating.
   ezUInt32 GetCapacity() const { return m_uiCapacity; }
 
-  typedef T const * const_iterator;
+  typedef T const* const_iterator;
   typedef const_reverse_pointer_iterator<T> const_reverse_iterator;
-  typedef T * iterator;
+  typedef T* iterator;
   typedef reverse_pointer_iterator<T> reverse_iterator;
 
 protected:
-
   void DoSwap(ezArrayBase<T, Derived>& other);
 
   /// \brief Element-type access to m_Data.
@@ -159,7 +158,7 @@ template <typename T, typename Derived>
 typename ezArrayBase<T, Derived>::iterator begin(ezArrayBase<T, Derived>& container) { return container.GetData(); }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_iterator  begin(const ezArrayBase<T, Derived>& container) { return container.GetData(); }
+typename ezArrayBase<T, Derived>::const_iterator begin(const ezArrayBase<T, Derived>& container) { return container.GetData(); }
 
 template <typename T, typename Derived>
 typename ezArrayBase<T, Derived>::const_iterator cbegin(const ezArrayBase<T, Derived>& container) { return container.GetData(); }
@@ -186,11 +185,10 @@ template <typename T, typename Derived>
 typename ezArrayBase<T, Derived>::reverse_iterator rend(ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::reverse_iterator(container.GetData() - 1); }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_reverse_iterator  rend(const ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::const_reverse_iterator(container.GetData() - 1); }
+typename ezArrayBase<T, Derived>::const_reverse_iterator rend(const ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::const_reverse_iterator(container.GetData() - 1); }
 
 template <typename T, typename Derived>
 typename ezArrayBase<T, Derived>::const_reverse_iterator crend(const ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::const_reverse_iterator(container.GetData() - 1); }
 
 
 #include <Foundation/Containers/Implementation/ArrayBase_inl.h>
-

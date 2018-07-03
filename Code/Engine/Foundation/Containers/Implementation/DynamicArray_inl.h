@@ -42,13 +42,13 @@ ezDynamicArrayBase<T>::~ezDynamicArrayBase()
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezDynamicArrayBase<T>::operator= (const ezDynamicArrayBase<T>& rhs)
+EZ_ALWAYS_INLINE void ezDynamicArrayBase<T>::operator=(const ezDynamicArrayBase<T>& rhs)
 {
   ezArrayBase<T, ezDynamicArrayBase<T>>::operator=((ezArrayPtr<const T>)rhs); // redirect this to the ezArrayPtr version
 }
 
 template <typename T>
-inline void ezDynamicArrayBase<T>::operator= (ezDynamicArrayBase<T>&& rhs)
+inline void ezDynamicArrayBase<T>::operator=(ezDynamicArrayBase<T>&& rhs)
 {
   // Clear any existing data (calls destructors if necessary)
   this->Clear();
@@ -137,7 +137,7 @@ EZ_ALWAYS_INLINE const T* ezDynamicArrayBase<T>::GetElementsPtr() const
 template <typename T>
 ezUInt64 ezDynamicArrayBase<T>::GetHeapMemoryUsage() const
 {
-  return (ezUInt64) this->m_uiCapacity * (ezUInt64) sizeof(T);
+  return (ezUInt64)this->m_uiCapacity * (ezUInt64)sizeof(T);
 }
 
 template <typename T, typename A>
@@ -205,21 +205,20 @@ void ezDynamicArray<T, A>::operator=(ezDynamicArrayBase<T>&& rhs)
   ezDynamicArrayBase<T>::operator=(std::move(rhs));
 }
 
-template<typename T, typename AllocatorWrapper>
+template <typename T, typename AllocatorWrapper>
 ezArrayPtr<const T* const> ezMakeArrayPtr(const ezDynamicArray<T*, AllocatorWrapper>& dynArray)
 {
   return ezArrayPtr<const T* const>(dynArray.GetData(), dynArray.GetCount());
 }
 
-template<typename T, typename AllocatorWrapper>
+template <typename T, typename AllocatorWrapper>
 ezArrayPtr<const T> ezMakeArrayPtr(const ezDynamicArray<T, AllocatorWrapper>& dynArray)
 {
   return ezArrayPtr<const T>(dynArray.GetData(), dynArray.GetCount());
 }
 
-template<typename T, typename AllocatorWrapper>
+template <typename T, typename AllocatorWrapper>
 ezArrayPtr<T> ezMakeArrayPtr(ezDynamicArray<T, AllocatorWrapper>& dynArray)
 {
   return ezArrayPtr<T>(dynArray.GetData(), dynArray.GetCount());
 }
-

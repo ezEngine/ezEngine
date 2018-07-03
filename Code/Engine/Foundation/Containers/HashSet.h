@@ -1,9 +1,9 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Algorithm/Hashing.h>
-#include <Foundation/Types/ArrayPtr.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
+#include <Foundation/Types/ArrayPtr.h>
 
 /// \brief Implementation of a hashset.
 ///
@@ -70,18 +70,17 @@ protected:
   ~ezHashSetBase(); // [tested]
 
   /// \brief Copies the data from another hashset into this one.
-  void operator= (const ezHashSetBase<KeyType, Hasher>& rhs); // [tested]
+  void operator=(const ezHashSetBase<KeyType, Hasher>& rhs); // [tested]
 
   /// \brief Moves data from an existing hashset into this one.
-  void operator= (ezHashSetBase<KeyType, Hasher>&& rhs); // [tested]
+  void operator=(ezHashSetBase<KeyType, Hasher>&& rhs); // [tested]
 
 public:
+  /// \brief Compares this table to another table.
+  bool operator==(const ezHashSetBase<KeyType, Hasher>& rhs) const; // [tested]
 
   /// \brief Compares this table to another table.
-  bool operator== (const ezHashSetBase<KeyType, Hasher>& rhs) const; // [tested]
-
-   /// \brief Compares this table to another table.
-  bool operator!= (const ezHashSetBase<KeyType, Hasher>& rhs) const; // [tested]
+  bool operator!=(const ezHashSetBase<KeyType, Hasher>& rhs) const; // [tested]
 
   /// \brief Expands the hashset by over-allocating the internal storage so that the load factor is lower or equal to 60% when inserting the given number of entries.
   void Reserve(ezUInt32 uiCapacity); // [tested]
@@ -124,7 +123,6 @@ public:
   ezUInt64 GetHeapMemoryUsage() const; // [tested]
 
 private:
-
   KeyType* m_pEntries;
   ezUInt32* m_pEntryFlags;
 
@@ -193,4 +191,3 @@ template <typename KeyType, typename Hasher>
 typename ezHashSetBase<KeyType, Hasher>::ConstIterator cend(const ezHashSetBase<KeyType, Hasher>& set) { return set.GetEndIterator(); }
 
 #include <Foundation/Containers/Implementation/HashSet_inl.h>
-

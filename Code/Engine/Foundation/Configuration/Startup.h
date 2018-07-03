@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/SubSystem.h>
 #include <Foundation/Containers/Deque.h>
-#include <Foundation/Configuration/Plugin.h>
 
 #define EZ_GLOBALEVENT_STARTUP_CORE_BEGIN "ezStartup_StartupCore_Begin"
 #define EZ_GLOBALEVENT_STARTUP_CORE_END "ezStartup_StartupCore_End"
@@ -74,7 +74,6 @@
 class EZ_FOUNDATION_DLL ezStartup
 {
 public:
-
   // 'Base Startup' happens even before 'Core Startup', but only really low level stuff should  be done there
   // and those subsystems should not have any dependencies on each other.
   // 'Base Startup' is automatically done right before 'Core Startup'
@@ -140,7 +139,6 @@ public:
   static void ReinitToCurrentState();
 
 private:
-
   /// \brief Unloads all subsystems from the given plugin AND all subsystems that directly or indirectly depend on them.
   ///
   /// This can be used to shutdown all systems from certain DLLs before that DLL is unloaded (and possibly reloaded).
@@ -160,4 +158,3 @@ private:
   static ezStartupStage::Enum s_CurrentState;
   static ezDynamicArray<const char*> s_ApplicationTags;
 };
-

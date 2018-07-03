@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/MemoryStream.h>
@@ -10,7 +10,6 @@ class EZ_FOUNDATION_DLL ezDeferredFileWriter : public ezStreamWriter
   EZ_DISALLOW_COPY_AND_ASSIGN(ezDeferredFileWriter);
 
 public:
-
   ezDeferredFileWriter();
 
   /// \brief Upon destruction the file is closed and thus written, unless Discard was called before.
@@ -34,6 +33,3 @@ private:
   ezMemoryStreamStorage m_Storage;
   ezMemoryStreamWriter m_Writer;
 };
-
-
-

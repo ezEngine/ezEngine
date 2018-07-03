@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/IO/JSONWriter.h>
 
 ezStandardJSONWriter::JSONState::JSONState()
@@ -12,9 +13,10 @@ ezStandardJSONWriter::CommaWriter::CommaWriter(ezStandardJSONWriter* pWriter)
 {
   const ezStandardJSONWriter::State state = pWriter->m_StateStack.PeekBack().m_State;
   EZ_IGNORE_UNUSED(state);
-  EZ_ASSERT_DEV(state == ezStandardJSONWriter::Array      ||
-            state == ezStandardJSONWriter::NamedArray ||
-            state == ezStandardJSONWriter::Variable,  "Values can only be written inside BeginVariable() / EndVariable() and BeginArray() / EndArray().");
+  EZ_ASSERT_DEV(state == ezStandardJSONWriter::Array ||
+                    state == ezStandardJSONWriter::NamedArray ||
+                    state == ezStandardJSONWriter::Variable,
+                "Values can only be written inside BeginVariable() / EndVariable() and BeginArray() / EndArray().");
 
   m_pWriter = pWriter;
 
@@ -201,7 +203,7 @@ void ezStandardJSONWriter::WriteColor(const ezColor& value)
 {
   ezVec4 temp(value.r, value.g, value.b, value.a);
 
-  ezEndianHelper::NativeToLittleEndian((ezUInt32*) &temp, sizeof(temp) / sizeof(float));
+  ezEndianHelper::NativeToLittleEndian((ezUInt32*)&temp, sizeof(temp) / sizeof(float));
 
   ezStringBuilder s;
 
@@ -229,7 +231,7 @@ void ezStandardJSONWriter::WriteVec2(const ezVec2& value)
 {
   ezVec2 temp = value;
 
-  ezEndianHelper::NativeToLittleEndian((ezUInt32*) &temp, sizeof(temp) / sizeof(float));
+  ezEndianHelper::NativeToLittleEndian((ezUInt32*)&temp, sizeof(temp) / sizeof(float));
 
   ezStringBuilder s;
 
@@ -245,7 +247,7 @@ void ezStandardJSONWriter::WriteVec3(const ezVec3& value)
 {
   ezVec3 temp = value;
 
-  ezEndianHelper::NativeToLittleEndian((ezUInt32*) &temp, sizeof(temp) / sizeof(float));
+  ezEndianHelper::NativeToLittleEndian((ezUInt32*)&temp, sizeof(temp) / sizeof(float));
 
   ezStringBuilder s;
 
@@ -261,7 +263,7 @@ void ezStandardJSONWriter::WriteVec4(const ezVec4& value)
 {
   ezVec4 temp = value;
 
-  ezEndianHelper::NativeToLittleEndian((ezUInt32*) &temp, sizeof(temp) / sizeof(float));
+  ezEndianHelper::NativeToLittleEndian((ezUInt32*)&temp, sizeof(temp) / sizeof(float));
 
   ezStringBuilder s;
 
@@ -331,7 +333,7 @@ void ezStandardJSONWriter::WriteQuat(const ezQuat& value)
 {
   ezQuat temp = value;
 
-  ezEndianHelper::NativeToLittleEndian((ezUInt32*) &temp, sizeof(temp) / sizeof(float));
+  ezEndianHelper::NativeToLittleEndian((ezUInt32*)&temp, sizeof(temp) / sizeof(float));
 
   WriteBinaryData("quat", &temp, sizeof(temp));
 }
@@ -340,7 +342,7 @@ void ezStandardJSONWriter::WriteMat3(const ezMat3& value)
 {
   ezMat3 temp = value;
 
-  ezEndianHelper::NativeToLittleEndian((ezUInt32*) &temp, sizeof(temp) / sizeof(float));
+  ezEndianHelper::NativeToLittleEndian((ezUInt32*)&temp, sizeof(temp) / sizeof(float));
 
   WriteBinaryData("mat3", &temp, sizeof(temp));
 }
@@ -349,7 +351,7 @@ void ezStandardJSONWriter::WriteMat4(const ezMat4& value)
 {
   ezMat4 temp = value;
 
-  ezEndianHelper::NativeToLittleEndian((ezUInt32*) &temp, sizeof(temp) / sizeof(float));
+  ezEndianHelper::NativeToLittleEndian((ezUInt32*)&temp, sizeof(temp) / sizeof(float));
 
   WriteBinaryData("mat4", &temp, sizeof(temp));
 }
@@ -360,7 +362,7 @@ void ezStandardJSONWriter::WriteUuid(const ezUuid& value)
 
   ezUuid temp = value;
 
-  ezEndianHelper::NativeToLittleEndian((ezUInt64*) &temp, sizeof(temp) / sizeof(ezUInt64));
+  ezEndianHelper::NativeToLittleEndian((ezUInt64*)&temp, sizeof(temp) / sizeof(ezUInt64));
 
   WriteBinaryData("uuid", &temp, sizeof(temp));
 }
@@ -380,8 +382,9 @@ void ezStandardJSONWriter::BeginVariable(const char* szName)
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
   EZ_IGNORE_UNUSED(state);
   EZ_ASSERT_DEV(state == ezStandardJSONWriter::Empty ||
-            state == ezStandardJSONWriter::Object ||
-            state == ezStandardJSONWriter::NamedObject, "Variables can only be written inside objects.");
+                    state == ezStandardJSONWriter::Object ||
+                    state == ezStandardJSONWriter::NamedObject,
+                "Variables can only be written inside objects.");
 
   if (m_StateStack.PeekBack().m_bRequireComma)
   {
@@ -418,12 +421,12 @@ void ezStandardJSONWriter::BeginArray(const char* szName)
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
   EZ_IGNORE_UNUSED(state);
   EZ_ASSERT_DEV((state == ezStandardJSONWriter::Empty) ||
-            ((state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject) && !ezStringUtils::IsNullOrEmpty(szName)) ||
-            ((state == ezStandardJSONWriter::Array  || state == ezStandardJSONWriter::NamedArray) && szName == nullptr) ||
-            (state == ezStandardJSONWriter::Variable && szName == nullptr),
-            "Inside objects you can only begin arrays when also giving them a (non-empty) name.\n"
-            "Inside arrays you can only nest anonymous arrays, so names are forbidden.\n"
-            "Inside variables you cannot specify a name again.");
+                    ((state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject) && !ezStringUtils::IsNullOrEmpty(szName)) ||
+                    ((state == ezStandardJSONWriter::Array || state == ezStandardJSONWriter::NamedArray) && szName == nullptr) ||
+                    (state == ezStandardJSONWriter::Variable && szName == nullptr),
+                "Inside objects you can only begin arrays when also giving them a (non-empty) name.\n"
+                "Inside arrays you can only nest anonymous arrays, so names are forbidden.\n"
+                "Inside variables you cannot specify a name again.");
 
   if (szName != nullptr)
     BeginVariable(szName);
@@ -453,7 +456,7 @@ void ezStandardJSONWriter::EndArray()
 {
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
   EZ_IGNORE_UNUSED(state);
-  EZ_ASSERT_DEV(state == ezStandardJSONWriter::Array  || state == ezStandardJSONWriter::NamedArray, "EndArray() must be called in sync with BeginArray().");
+  EZ_ASSERT_DEV(state == ezStandardJSONWriter::Array || state == ezStandardJSONWriter::NamedArray, "EndArray() must be called in sync with BeginArray().");
 
 
   const State CurState = m_StateStack.PeekBack().m_State;
@@ -469,12 +472,12 @@ void ezStandardJSONWriter::BeginObject(const char* szName)
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
   EZ_IGNORE_UNUSED(state);
   EZ_ASSERT_DEV((state == ezStandardJSONWriter::Empty) ||
-            ((state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject) && !ezStringUtils::IsNullOrEmpty(szName)) ||
-            ((state == ezStandardJSONWriter::Array  || state == ezStandardJSONWriter::NamedArray) && szName == nullptr) ||
-            (state == ezStandardJSONWriter::Variable && szName == nullptr),
-            "Inside objects you can only begin objects when also giving them a (non-empty) name.\n"
-            "Inside arrays you can only nest anonymous objects, so names are forbidden.\n"
-            "Inside variables you cannot specify a name again.");
+                    ((state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject) && !ezStringUtils::IsNullOrEmpty(szName)) ||
+                    ((state == ezStandardJSONWriter::Array || state == ezStandardJSONWriter::NamedArray) && szName == nullptr) ||
+                    (state == ezStandardJSONWriter::Variable && szName == nullptr),
+                "Inside objects you can only begin objects when also giving them a (non-empty) name.\n"
+                "Inside arrays you can only nest anonymous objects, so names are forbidden.\n"
+                "Inside variables you cannot specify a name again.");
 
   if (szName != nullptr)
     BeginVariable(szName);
@@ -578,11 +581,11 @@ void ezStandardJSONWriter::WriteBinaryData(const char* szDataType, const void* p
 
   ezStringBuilder s;
 
-  ezUInt8* pBytes = (ezUInt8*) pData;
+  ezUInt8* pBytes = (ezUInt8*)pData;
 
   for (ezUInt32 i = 0; i < uiBytes; ++i)
   {
-    s.Format("{0}", ezArgU((ezUInt32) *pBytes, 2, true, 16, true));
+    s.Format("{0}", ezArgU((ezUInt32)*pBytes, 2, true, 16, true));
     ++pBytes;
 
     OutputString(s.GetData());
@@ -597,4 +600,3 @@ void ezStandardJSONWriter::WriteBinaryData(const char* szDataType, const void* p
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_StandardJSONWriter);
-

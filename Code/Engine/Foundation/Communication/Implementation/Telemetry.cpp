@@ -1,7 +1,8 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/Communication/Telemetry.h>
-#include <ThirdParty/enet/enet.h>
 #include <Foundation/Threading/ThreadUtils.h>
+#include <ThirdParty/enet/enet.h>
 
 class ezTelemetryThread;
 
@@ -60,7 +61,7 @@ void ezTelemetry::UpdateNetwork()
 
     switch (NetworkEvent.type)
     {
-    case ENET_EVENT_TYPE_CONNECT:
+      case ENET_EVENT_TYPE_CONNECT:
       {
         if ((ezTelemetry::s_ConnectionMode == ezTelemetry::Server) && (NetworkEvent.peer->eventData != 'EZBC'))
         {
@@ -93,7 +94,7 @@ void ezTelemetry::UpdateNetwork()
       }
       break;
 
-    case ENET_EVENT_TYPE_DISCONNECT:
+      case ENET_EVENT_TYPE_DISCONNECT:
       {
         if (s_ConnectionMode == Client)
         {
@@ -110,7 +111,6 @@ void ezTelemetry::UpdateNetwork()
           e.m_EventType = TelemetryEventData::DisconnectedFromServer;
 
           s_TelemetryEvents.Broadcast(e);
-
         }
         else
         {
@@ -122,23 +122,22 @@ void ezTelemetry::UpdateNetwork()
 
           s_TelemetryEvents.Broadcast(e);
         }
-
       }
       break;
 
-    case ENET_EVENT_TYPE_RECEIVE:
+      case ENET_EVENT_TYPE_RECEIVE:
       {
-        const ezUInt32 uiSystemID = *((ezUInt32*) &NetworkEvent.packet->data[0]);
-        const ezUInt32 uiMsgID    = *((ezUInt32*) &NetworkEvent.packet->data[4]);
+        const ezUInt32 uiSystemID = *((ezUInt32*)&NetworkEvent.packet->data[0]);
+        const ezUInt32 uiMsgID = *((ezUInt32*)&NetworkEvent.packet->data[4]);
         const ezUInt8* pData = &NetworkEvent.packet->data[8];
 
         if (uiSystemID == 'EZBC')
         {
           switch (uiMsgID)
           {
-          case 'EZID':
+            case 'EZID':
             {
-              s_uiServerID = *((ezUInt32*) pData);
+              s_uiServerID = *((ezUInt32*)pData);
 
               // connection to server is finalized
               s_bConnectedToServer = true;
@@ -155,7 +154,7 @@ void ezTelemetry::UpdateNetwork()
               FlushOutgoingQueues();
             }
             break;
-          case 'AKID':
+            case 'AKID':
             {
               // the client received the server ID -> the connection has been established properly
 
@@ -184,7 +183,7 @@ void ezTelemetry::UpdateNetwork()
 
             Msg.SetMessageID(uiSystemID, uiMsgID);
 
-            EZ_ASSERT_DEV((ezUInt32) NetworkEvent.packet->dataLength >= 8, "Message Length Invalid: {0}", (ezUInt32) NetworkEvent.packet->dataLength);
+            EZ_ASSERT_DEV((ezUInt32)NetworkEvent.packet->dataLength >= 8, "Message Length Invalid: {0}", (ezUInt32)NetworkEvent.packet->dataLength);
 
             Msg.GetWriter().WriteBytes(pData, NetworkEvent.packet->dataLength - 8);
           }
@@ -194,9 +193,8 @@ void ezTelemetry::UpdateNetwork()
       }
       break;
 
-    default:
-      break;
-
+      default:
+        break;
     }
   }
 
@@ -251,8 +249,7 @@ ezResult ezTelemetry::InitializeAsClient(const char* szConnectTo)
 
   if (sConnectTo.IsEmpty() || sConnectTo.IsEqual_NoCase("localhost"))
     enet_address_set_host(&g_pServerAddress, "localhost");
-  else
-  if (sConnectTo.FindSubString(".") != nullptr)
+  else if (sConnectTo.FindSubString(".") != nullptr)
   {
     ezHybridArray<ezString, 8> IP;
     sConnectTo.Split(false, IP, ".");
@@ -297,22 +294,22 @@ ezResult ezTelemetry::OpenConnection(ConnectionMode Mode, const char* szConnectT
     g_bInitialized = true;
   }
 
-  s_uiApplicationID = (ezUInt32) ezTime::Now().GetSeconds();
+  s_uiApplicationID = (ezUInt32)ezTime::Now().GetSeconds();
 
   switch (Mode)
   {
-  case ezTelemetry::Server:
-    InitializeAsServer();
-    break;
-  case ezTelemetry::Client:
-    if (InitializeAsClient(szConnectTo) == EZ_FAILURE)
-    {
-      CloseConnection();
-      return EZ_FAILURE;
-    }
-    break;
-  default:
-    break;
+    case ezTelemetry::Server:
+      InitializeAsServer();
+      break;
+    case ezTelemetry::Client:
+      if (InitializeAsClient(szConnectTo) == EZ_FAILURE)
+      {
+        CloseConnection();
+        return EZ_FAILURE;
+      }
+      break;
+    default:
+      break;
   }
 
   s_ConnectionMode = Mode;
@@ -359,11 +356,11 @@ void ezTelemetry::Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, c
 
     ezHybridArray<ezUInt8, 64> TempData;
     TempData.SetCountUninitialized(8 + uiDataBytes);
-    *((ezUInt32*) &TempData[0]) = uiSystemID;
-    *((ezUInt32*) &TempData[4]) = uiMsgID;
+    *((ezUInt32*)&TempData[0]) = uiSystemID;
+    *((ezUInt32*)&TempData[4]) = uiMsgID;
 
     if (pData && uiDataBytes > 0)
-      ezMemoryUtils::Copy((ezUInt8*) &TempData[8], (ezUInt8*) pData, uiDataBytes);
+      ezMemoryUtils::Copy((ezUInt8*)&TempData[8], (ezUInt8*)pData, uiDataBytes);
 
     Transmit(tm, &TempData[0], TempData.GetCount());
   }
@@ -380,8 +377,8 @@ void ezTelemetry::Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, e
 
   ezHybridArray<ezUInt8, uiStackSize + 8> TempData;
   TempData.SetCountUninitialized(8);
-  *((ezUInt32*) &TempData[0]) = uiSystemID;
-  *((ezUInt32*) &TempData[4]) = uiMsgID;
+  *((ezUInt32*)&TempData[0]) = uiSystemID;
+  *((ezUInt32*)&TempData[4]) = uiMsgID;
 
   // if we don't know how much to take out of the stream, read the data piece by piece from the input stream
   if (iDataBytes < 0)
@@ -400,7 +397,6 @@ void ezTelemetry::Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, e
         break;
       }
     }
-
   }
   else
   {
@@ -446,7 +442,7 @@ void ezTelemetry::CloseConnection()
   if (g_pHost)
   {
     // send all peers that we are disconnecting
-    for (ezUInt32 i = (ezUInt32) g_pHost->connectedPeers; i > 0; --i)
+    for (ezUInt32 i = (ezUInt32)g_pHost->connectedPeers; i > 0; --i)
       enet_peer_disconnect(&g_pHost->peers[i - 1], 0);
 
     // process the network messages (e.g. send the disconnect messages)
@@ -478,9 +474,4 @@ void ezTelemetry::CloseConnection()
 
 
 
-
-
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_Telemetry);
-

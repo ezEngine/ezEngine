@@ -7,7 +7,7 @@
 
 struct IOContext
 {
-  OVERLAPPED Overlapped;///< Must be first field in class so we can do a reinterpret cast from *Overlapped to *IOContext.
+  OVERLAPPED Overlapped;  ///< Must be first field in class so we can do a reinterpret cast from *Overlapped to *IOContext.
   ezIpcChannel* pChannel; ///< Owner of this IOContext.
 };
 
@@ -65,4 +65,3 @@ private:
 };
 
 #endif
-

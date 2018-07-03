@@ -1,6 +1,7 @@
-﻿#include <PCH.h>
-#include <Foundation/IO/OpenDdlUtils.h>
+#include <PCH.h>
+
 #include <Foundation/IO/OpenDdlReader.h>
+#include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Types/Uuid.h>
@@ -509,7 +510,7 @@ ezResult ezOpenDdlUtils::ConvertToTransform(const ezOpenDdlReaderElement* pEleme
   {
     const float* pValues = pElement->GetPrimitivesFloat();
 
-    out_result.m_vPosition.x    = pValues[0];
+    out_result.m_vPosition.x = pValues[0];
     out_result.m_vPosition.y = pValues[1];
     out_result.m_vPosition.z = pValues[2];
     out_result.m_qRotation.v.x = pValues[3];
@@ -878,53 +879,53 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
 
     switch (pElement->GetPrimitivesType())
     {
-    case ezOpenDdlPrimitiveType::Bool:
-      out_result = pElement->GetPrimitivesBool()[0];
-      return EZ_SUCCESS;
+      case ezOpenDdlPrimitiveType::Bool:
+        out_result = pElement->GetPrimitivesBool()[0];
+        return EZ_SUCCESS;
 
-    case ezOpenDdlPrimitiveType::Int8:
-      out_result = pElement->GetPrimitivesInt8()[0];
-      return EZ_SUCCESS;
+      case ezOpenDdlPrimitiveType::Int8:
+        out_result = pElement->GetPrimitivesInt8()[0];
+        return EZ_SUCCESS;
 
-    case ezOpenDdlPrimitiveType::Int16:
-      out_result = pElement->GetPrimitivesInt16()[0];
-      return EZ_SUCCESS;
+      case ezOpenDdlPrimitiveType::Int16:
+        out_result = pElement->GetPrimitivesInt16()[0];
+        return EZ_SUCCESS;
 
-    case ezOpenDdlPrimitiveType::Int32:
-      out_result = pElement->GetPrimitivesInt32()[0];
-      return EZ_SUCCESS;
+      case ezOpenDdlPrimitiveType::Int32:
+        out_result = pElement->GetPrimitivesInt32()[0];
+        return EZ_SUCCESS;
 
-    case ezOpenDdlPrimitiveType::Int64:
-      out_result = pElement->GetPrimitivesInt64()[0];
-      return EZ_SUCCESS;
+      case ezOpenDdlPrimitiveType::Int64:
+        out_result = pElement->GetPrimitivesInt64()[0];
+        return EZ_SUCCESS;
 
-    case ezOpenDdlPrimitiveType::UInt8:
-      out_result = pElement->GetPrimitivesUInt8()[0];
-      return EZ_SUCCESS;
+      case ezOpenDdlPrimitiveType::UInt8:
+        out_result = pElement->GetPrimitivesUInt8()[0];
+        return EZ_SUCCESS;
 
-    case ezOpenDdlPrimitiveType::UInt16:
-      out_result = pElement->GetPrimitivesUInt16()[0];
-      return EZ_SUCCESS;
+      case ezOpenDdlPrimitiveType::UInt16:
+        out_result = pElement->GetPrimitivesUInt16()[0];
+        return EZ_SUCCESS;
 
-    case ezOpenDdlPrimitiveType::UInt32:
-      out_result = pElement->GetPrimitivesUInt32()[0];
-      return EZ_SUCCESS;
+      case ezOpenDdlPrimitiveType::UInt32:
+        out_result = pElement->GetPrimitivesUInt32()[0];
+        return EZ_SUCCESS;
 
-    case ezOpenDdlPrimitiveType::UInt64:
-      out_result = pElement->GetPrimitivesUInt64()[0];
-      return EZ_SUCCESS;
+      case ezOpenDdlPrimitiveType::UInt64:
+        out_result = pElement->GetPrimitivesUInt64()[0];
+        return EZ_SUCCESS;
 
-    case ezOpenDdlPrimitiveType::Float:
-      out_result = pElement->GetPrimitivesFloat()[0];
-      return EZ_SUCCESS;
+      case ezOpenDdlPrimitiveType::Float:
+        out_result = pElement->GetPrimitivesFloat()[0];
+        return EZ_SUCCESS;
 
-    case ezOpenDdlPrimitiveType::Double:
-      out_result = pElement->GetPrimitivesDouble()[0];
-      return EZ_SUCCESS;
+      case ezOpenDdlPrimitiveType::Double:
+        out_result = pElement->GetPrimitivesDouble()[0];
+        return EZ_SUCCESS;
 
-    case ezOpenDdlPrimitiveType::String:
-      out_result = ezString(pElement->GetPrimitivesString()[0]); // make sure this isn't stored as a string view by copying to to an ezString first
-      return EZ_SUCCESS;
+      case ezOpenDdlPrimitiveType::String:
+        out_result = ezString(pElement->GetPrimitivesString()[0]); // make sure this isn't stored as a string view by copying to to an ezString first
+        return EZ_SUCCESS;
     }
   }
 
@@ -1164,162 +1165,162 @@ void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& writer, const ezVariant& valu
 {
   switch (value.GetType())
   {
-  case ezVariant::Type::Invalid:
-    return; // store anything ?
+    case ezVariant::Type::Invalid:
+      return; // store anything ?
 
-  case ezVariant::Type::Bool:
+    case ezVariant::Type::Bool:
     {
       StoreBool(writer, value.Get<bool>(), szName, bGlobalName);
     }
-    return;
+      return;
 
-  case ezVariant::Type::Int8:
+    case ezVariant::Type::Int8:
     {
       StoreInt8(writer, value.Get<ezInt8>(), szName, bGlobalName);
     }
-    return;
+      return;
 
-  case ezVariant::Type::UInt8:
+    case ezVariant::Type::UInt8:
     {
       StoreUInt8(writer, value.Get<ezUInt8>(), szName, bGlobalName);
     }
-    return;
+      return;
 
-  case ezVariant::Type::Int16:
+    case ezVariant::Type::Int16:
     {
       StoreInt16(writer, value.Get<ezInt16>(), szName, bGlobalName);
     }
-    return;
+      return;
 
-  case ezVariant::Type::UInt16:
+    case ezVariant::Type::UInt16:
     {
       StoreUInt16(writer, value.Get<ezUInt16>(), szName, bGlobalName);
     }
-    return;
+      return;
 
-  case ezVariant::Type::Int32:
+    case ezVariant::Type::Int32:
     {
       StoreInt32(writer, value.Get<ezInt32>(), szName, bGlobalName);
     }
-    return;
+      return;
 
-  case ezVariant::Type::UInt32:
+    case ezVariant::Type::UInt32:
     {
       StoreUInt32(writer, value.Get<ezUInt32>(), szName, bGlobalName);
     }
-    return;
+      return;
 
-  case ezVariant::Type::Int64:
+    case ezVariant::Type::Int64:
     {
       StoreInt64(writer, value.Get<ezInt64>(), szName, bGlobalName);
     }
-    return;
+      return;
 
-  case ezVariant::Type::UInt64:
+    case ezVariant::Type::UInt64:
     {
       StoreUInt64(writer, value.Get<ezUInt64>(), szName, bGlobalName);
     }
-    return;
+      return;
 
-  case ezVariant::Type::Float:
+    case ezVariant::Type::Float:
     {
       StoreFloat(writer, value.Get<float>(), szName, bGlobalName);
     }
-    return;
+      return;
 
-  case ezVariant::Type::Double:
+    case ezVariant::Type::Double:
     {
       StoreDouble(writer, value.Get<double>(), szName, bGlobalName);
     }
-    return;
+      return;
 
-  case ezVariant::Type::String:
+    case ezVariant::Type::String:
     {
       const ezString& var = value.Get<ezString>();
       ezOpenDdlUtils::StoreString(writer, var, szName, bGlobalName);
     }
-    return;
+      return;
 
-  case ezVariant::Type::StringView:
+    case ezVariant::Type::StringView:
     {
       const ezStringView& var = value.Get<ezStringView>();
       ezOpenDdlUtils::StoreString(writer, var, szName, bGlobalName);
     }
-    return;
+      return;
 
-  case ezVariant::Type::Color:
-    StoreColor(writer, value.Get<ezColor>(), szName, bGlobalName);
-    return;
+    case ezVariant::Type::Color:
+      StoreColor(writer, value.Get<ezColor>(), szName, bGlobalName);
+      return;
 
-  case ezVariant::Type::Vector2:
-    StoreVec2(writer, value.Get<ezVec2>(), szName, bGlobalName);
-    return;
+    case ezVariant::Type::Vector2:
+      StoreVec2(writer, value.Get<ezVec2>(), szName, bGlobalName);
+      return;
 
-  case ezVariant::Type::Vector3:
-    StoreVec3(writer, value.Get<ezVec3>(), szName, bGlobalName);
-    return;
+    case ezVariant::Type::Vector3:
+      StoreVec3(writer, value.Get<ezVec3>(), szName, bGlobalName);
+      return;
 
-  case ezVariant::Type::Vector4:
-    StoreVec4(writer, value.Get<ezVec4>(), szName, bGlobalName);
-    return;
+    case ezVariant::Type::Vector4:
+      StoreVec4(writer, value.Get<ezVec4>(), szName, bGlobalName);
+      return;
 
-  case ezVariant::Type::Vector2I:
-    StoreVec2I(writer, value.Get<ezVec2I32>(), szName, bGlobalName);
-    return;
+    case ezVariant::Type::Vector2I:
+      StoreVec2I(writer, value.Get<ezVec2I32>(), szName, bGlobalName);
+      return;
 
-  case ezVariant::Type::Vector3I:
-    StoreVec3I(writer, value.Get<ezVec3I32>(), szName, bGlobalName);
-    return;
+    case ezVariant::Type::Vector3I:
+      StoreVec3I(writer, value.Get<ezVec3I32>(), szName, bGlobalName);
+      return;
 
-  case ezVariant::Type::Vector4I:
-    StoreVec4I(writer, value.Get<ezVec4I32>(), szName, bGlobalName);
-    return;
+    case ezVariant::Type::Vector4I:
+      StoreVec4I(writer, value.Get<ezVec4I32>(), szName, bGlobalName);
+      return;
 
-  case ezVariant::Type::Vector2U:
-    StoreVec2U(writer, value.Get<ezVec2U32>(), szName, bGlobalName);
-    return;
+    case ezVariant::Type::Vector2U:
+      StoreVec2U(writer, value.Get<ezVec2U32>(), szName, bGlobalName);
+      return;
 
-  case ezVariant::Type::Vector3U:
-    StoreVec3U(writer, value.Get<ezVec3U32>(), szName, bGlobalName);
-    return;
+    case ezVariant::Type::Vector3U:
+      StoreVec3U(writer, value.Get<ezVec3U32>(), szName, bGlobalName);
+      return;
 
-  case ezVariant::Type::Vector4U:
-    StoreVec4U(writer, value.Get<ezVec4U32>(), szName, bGlobalName);
-    return;
+    case ezVariant::Type::Vector4U:
+      StoreVec4U(writer, value.Get<ezVec4U32>(), szName, bGlobalName);
+      return;
 
-  case ezVariant::Type::Quaternion:
-    StoreQuat(writer, value.Get<ezQuat>(), szName, bGlobalName);
-    return;
+    case ezVariant::Type::Quaternion:
+      StoreQuat(writer, value.Get<ezQuat>(), szName, bGlobalName);
+      return;
 
-  case ezVariant::Type::Matrix3:
-    StoreMat3(writer, value.Get<ezMat3>(), szName, bGlobalName);
-    return;
+    case ezVariant::Type::Matrix3:
+      StoreMat3(writer, value.Get<ezMat3>(), szName, bGlobalName);
+      return;
 
-  case ezVariant::Type::Matrix4:
-    StoreMat4(writer, value.Get<ezMat4>(), szName, bGlobalName);
-    return;
+    case ezVariant::Type::Matrix4:
+      StoreMat4(writer, value.Get<ezMat4>(), szName, bGlobalName);
+      return;
 
-  case ezVariant::Type::Transform:
-    StoreTransform(writer, value.Get<ezTransform>(), szName, bGlobalName);
-    return;
+    case ezVariant::Type::Transform:
+      StoreTransform(writer, value.Get<ezTransform>(), szName, bGlobalName);
+      return;
 
-  case ezVariant::Type::Time:
-    StoreTime(writer, value.Get<ezTime>(), szName, bGlobalName);
-    return;
+    case ezVariant::Type::Time:
+      StoreTime(writer, value.Get<ezTime>(), szName, bGlobalName);
+      return;
 
-  case ezVariant::Type::Uuid:
-    StoreUuid(writer, value.Get<ezUuid>(), szName, bGlobalName);
-    return;
+    case ezVariant::Type::Uuid:
+      StoreUuid(writer, value.Get<ezUuid>(), szName, bGlobalName);
+      return;
 
-  case ezVariant::Type::Angle:
-    StoreAngle(writer, value.Get<ezAngle>(), szName, bGlobalName);
-    return;
+    case ezVariant::Type::Angle:
+      StoreAngle(writer, value.Get<ezAngle>(), szName, bGlobalName);
+      return;
 
-  case ezVariant::Type::ColorGamma:
-    StoreColorGamma(writer, value.Get<ezColorGammaUB>(), szName, bGlobalName);
-    return;
+    case ezVariant::Type::ColorGamma:
+      StoreColorGamma(writer, value.Get<ezColorGammaUB>(), szName, bGlobalName);
+      return;
 
-  case ezVariant::Type::VariantArray:
+    case ezVariant::Type::VariantArray:
     {
       /// \test This is just quickly hacked
 
@@ -1333,9 +1334,9 @@ void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& writer, const ezVariant& valu
 
       writer.EndObject();
     }
-    return;
+      return;
 
-  case ezVariant::Type::VariantDictionary:
+    case ezVariant::Type::VariantDictionary:
     {
       /// \test This is just quickly hacked
 
@@ -1348,11 +1349,10 @@ void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& writer, const ezVariant& valu
       }
 
       writer.EndObject();
-
     }
-    return;
+      return;
 
-  case ezVariant::Type::DataBuffer:
+    case ezVariant::Type::DataBuffer:
     {
       /// \test This is just quickly hacked
 
@@ -1364,12 +1364,11 @@ void ezOpenDdlUtils::StoreVariant(ezOpenDdlWriter& writer, const ezVariant& valu
 
       writer.EndPrimitiveList();
       writer.EndObject();
-
     }
-    return;
+      return;
 
-  default:
-    EZ_REPORT_FAILURE("Can't write this type of Variant");
+    default:
+      EZ_REPORT_FAILURE("Can't write this type of Variant");
   }
 }
 
@@ -1459,6 +1458,4 @@ void ezOpenDdlUtils::StoreUInt64(ezOpenDdlWriter& writer, ezUInt64 value, const 
 
 
 
-
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_OpenDdlUtils);
-

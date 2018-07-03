@@ -1,18 +1,19 @@
 #include <PCH.h>
+
 #include <Foundation/Memory/CommonAllocators.h>
 
 #if EZ_ENABLED(EZ_USE_GUARDED_ALLOCATIONS)
-  typedef ezGuardedAllocator DefaultHeapType;
-  typedef ezGuardedAllocator DefaultAlignedHeapType;
-  typedef ezGuardedAllocator DefaultStaticHeapType;
+typedef ezGuardedAllocator DefaultHeapType;
+typedef ezGuardedAllocator DefaultAlignedHeapType;
+typedef ezGuardedAllocator DefaultStaticHeapType;
 #else
-  typedef ezHeapAllocator DefaultHeapType;
-  typedef ezAlignedHeapAllocator DefaultAlignedHeapType;
-  typedef ezHeapAllocator DefaultStaticHeapType;  
+typedef ezHeapAllocator DefaultHeapType;
+typedef ezAlignedHeapAllocator DefaultAlignedHeapType;
+typedef ezHeapAllocator DefaultStaticHeapType;
 #endif
 
-enum 
-{ 
+enum
+{
   HEAP_ALLOCATOR_BUFFER_SIZE = sizeof(DefaultHeapType),
   ALIGNED_ALLOCATOR_BUFFER_SIZE = sizeof(DefaultAlignedHeapType)
 };
@@ -34,7 +35,7 @@ void ezFoundation::Initialize()
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezMemoryUtils::ReserveLower4GBAddressSpace();
 #endif
-   
+
   if (s_pDefaultAllocator == nullptr)
   {
     s_pDefaultAllocator = new (s_DefaultAllocatorBuffer) DefaultHeapType("DefaultHeap");
@@ -49,7 +50,7 @@ void ezFoundation::Initialize()
 }
 
 #if defined(EZ_CUSTOM_STATIC_ALLOCATOR_FUNC)
-  extern ezAllocatorBase* EZ_CUSTOM_STATIC_ALLOCATOR_FUNC();
+extern ezAllocatorBase* EZ_CUSTOM_STATIC_ALLOCATOR_FUNC();
 #endif
 
 ezAllocatorBase* ezFoundation::GetStaticAllocator()
@@ -61,8 +62,8 @@ ezAllocatorBase* ezFoundation::GetStaticAllocator()
 #if defined(EZ_CUSTOM_STATIC_ALLOCATOR_FUNC)
 
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
-    
-  #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     typedef ezAllocatorBase* (*GetStaticAllocatorFunc)();
 
     HMODULE hThisModule = GetModuleHandle(nullptr);
@@ -72,9 +73,9 @@ ezAllocatorBase* ezFoundation::GetStaticAllocator()
       pStaticAllocator = (*func)();
       return pStaticAllocator;
     }
-  #else
-    #error "Customizing static allocator not implemented"
-  #endif
+#else
+#error "Customizing static allocator not implemented"
+#endif
 
 #else
     return EZ_CUSTOM_STATIC_ALLOCATOR_FUNC();
@@ -90,6 +91,4 @@ ezAllocatorBase* ezFoundation::GetStaticAllocator()
 
 
 
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Basics_Basics);
-

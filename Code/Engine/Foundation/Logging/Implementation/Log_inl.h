@@ -15,4 +15,3 @@ inline void ezLog::Debug(ezLogInterface* pInterface, const ezFormatString& strin
 }
 
 #endif
-

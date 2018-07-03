@@ -2,8 +2,8 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/IO/Stream.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/IO/Stream.h>
 
 #ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
 
@@ -47,17 +47,16 @@ private:
 class EZ_FOUNDATION_DLL ezCompressedStreamWriter : public ezStreamWriter
 {
 public:
-
   /// \brief Specifies the compression level of the stream.
   enum Compression
   {
-    Uncompressed    = 0,
-    Fastest         = 1,
-    Fast            = 3,
-    Average         = 5,
-    High            = 7,
-    Highest         = 9,
-    Default         = Fastest   ///< Should be preferred, good compression and good speed. Higher compression ratios save not much space but take considerably longer.
+    Uncompressed = 0,
+    Fastest = 1,
+    Fast = 3,
+    Average = 5,
+    High = 7,
+    Highest = 9,
+    Default = Fastest ///< Should be preferred, good compression and good speed. Higher compression ratios save not much space but take considerably longer.
   };
 
   /// \brief The constructor takes another stream writer to pass the output into, and a compression level.
@@ -107,4 +106,3 @@ private:
 };
 
 #endif // BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
-

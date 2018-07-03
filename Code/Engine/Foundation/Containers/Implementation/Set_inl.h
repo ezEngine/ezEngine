@@ -129,7 +129,7 @@ void ezSetBase<KeyType, Comparer>::Constructor()
   m_NilNode.m_uiLevel = 0;
   m_NilNode.m_pLink[0] = reinterpret_cast<Node*>(&m_NilNode);
   m_NilNode.m_pLink[1] = reinterpret_cast<Node*>(&m_NilNode);
-  m_NilNode.m_pParent  = reinterpret_cast<Node*>(&m_NilNode);
+  m_NilNode.m_pParent = reinterpret_cast<Node*>(&m_NilNode);
 
   m_pFreeElementStack = nullptr;
   m_pRoot = reinterpret_cast<Node*>(&m_NilNode);
@@ -178,7 +178,7 @@ void ezSetBase<KeyType, Comparer>::Clear()
   m_NilNode.m_uiLevel = 0;
   m_NilNode.m_pLink[0] = reinterpret_cast<Node*>(&m_NilNode);
   m_NilNode.m_pLink[1] = reinterpret_cast<Node*>(&m_NilNode);
-  m_NilNode.m_pParent  = reinterpret_cast<Node*>(&m_NilNode);
+  m_NilNode.m_pParent = reinterpret_cast<Node*>(&m_NilNode);
 
   m_pRoot = reinterpret_cast<Node*>(&m_NilNode);
 }
@@ -242,10 +242,10 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inter
 {
   Node* pNode = m_pRoot;
 
-  while (pNode != &m_NilNode)// && (pNode->m_Key != key))
+  while (pNode != &m_NilNode) // && (pNode->m_Key != key))
   {
-    const ezInt32 dir = (ezInt32) m_Comparer.Less(pNode->m_Key, key);
-    const ezInt32 dir2= (ezInt32) m_Comparer.Less(key, pNode->m_Key);
+    const ezInt32 dir = (ezInt32)m_Comparer.Less(pNode->m_Key, key);
+    const ezInt32 dir2 = (ezInt32)m_Comparer.Less(key, pNode->m_Key);
 
     if (dir == dir2)
       break;
@@ -294,8 +294,8 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inter
 
   while (pNode != &m_NilNode)
   {
-    const ezInt32 dir = (ezInt32) m_Comparer.Less(pNode->m_Key, key);
-    const ezInt32 dir2= (ezInt32) m_Comparer.Less(key, pNode->m_Key);
+    const ezInt32 dir = (ezInt32)m_Comparer.Less(pNode->m_Key, key);
+    const ezInt32 dir2 = (ezInt32)m_Comparer.Less(key, pNode->m_Key);
 
     if (dir == dir2)
       return pNode;
@@ -325,8 +325,8 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inter
 
   while (pNode != &m_NilNode)
   {
-    const ezInt32 dir = (ezInt32) m_Comparer.Less(pNode->m_Key, key);
-    const ezInt32 dir2= (ezInt32) m_Comparer.Less(key, pNode->m_Key);
+    const ezInt32 dir = (ezInt32)m_Comparer.Less(pNode->m_Key, key);
+    const ezInt32 dir2 = (ezInt32)m_Comparer.Less(key, pNode->m_Key);
 
     if (dir == dir2)
     {
@@ -388,7 +388,7 @@ typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::In
   Node* pInsertedNode = nullptr;
 
   m_pRoot = Insert(m_pRoot, std::forward<CompatibleKeyType>(key), pInsertedNode);
-  m_pRoot->m_pParent  = reinterpret_cast<Node*>(&m_NilNode);
+  m_pRoot->m_pParent = reinterpret_cast<Node*>(&m_NilNode);
   m_NilNode.m_pParent = reinterpret_cast<Node*>(&m_NilNode);
 
   return Iterator(pInsertedNode);
@@ -400,7 +400,7 @@ bool ezSetBase<KeyType, Comparer>::Remove(const CompatibleKeyType& key)
 {
   bool bRemoved = true;
   m_pRoot = Remove(m_pRoot, key, bRemoved);
-  m_pRoot->m_pParent  = reinterpret_cast<Node*>(&m_NilNode);
+  m_pRoot->m_pParent = reinterpret_cast<Node*>(&m_NilNode);
   m_NilNode.m_pParent = reinterpret_cast<Node*>(&m_NilNode);
 
   return bRemoved;
@@ -448,8 +448,7 @@ void ezSetBase<KeyType, Comparer>::ReleaseNode(Node* pNode)
   {
     m_Elements.PopBack();
   }
-  else
-  if (pNode == &m_Elements.PeekFront())
+  else if (pNode == &m_Elements.PeekFront())
   {
     m_Elements.PopFront();
   }
@@ -518,7 +517,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inser
       dir = m_Comparer.Less(it->m_Key, key) ? 1 : 0;
 
       // element is identical => do not insert
-      if ((ezInt32) m_Comparer.Less(key, it->m_Key) == dir)
+      if ((ezInt32)m_Comparer.Less(key, it->m_Key) == dir)
       {
         pInsertedNode = it;
         return root;
@@ -560,7 +559,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Remov
 {
   bRemoved = false;
 
-  Node* ToErase    = reinterpret_cast<Node*>(&m_NilNode);
+  Node* ToErase = reinterpret_cast<Node*>(&m_NilNode);
   Node* ToOverride = reinterpret_cast<Node*>(&m_NilNode);
 
   if (root != &m_NilNode)
@@ -577,9 +576,9 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Remov
       if (it == &m_NilNode)
         return root;
 
-      ezInt32 newdir = (ezInt32) (m_Comparer.Less(it->m_Key, key));
+      ezInt32 newdir = (ezInt32)(m_Comparer.Less(it->m_Key, key));
 
-      if (newdir == (ezInt32) (m_Comparer.Less(key, it->m_Key)))
+      if (newdir == (ezInt32)(m_Comparer.Less(key, it->m_Key)))
         break;
 
       dir = newdir;
@@ -762,4 +761,3 @@ void ezSet<KeyType, Comparer, AllocatorWrapper>::operator=(const ezSetBase<KeyTy
 {
   ezSetBase<KeyType, Comparer>::operator=(rhs);
 }
-

@@ -1,9 +1,9 @@
-﻿
+
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/IO/Stream.h>
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/IO/Stream.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Types/RefCounted.h>
 
@@ -51,13 +51,13 @@ private:
 /// \brief Templated implementation of ezMemoryStreamStorageInterface that adapts all standard ez containers to the interface.
 ///
 /// Note that ezMemoryStreamReader and ezMemoryStreamWriter assume contiguous storage, so using an ezDeque for storage will not work.
-template<typename CONTAINER>
+template <typename CONTAINER>
 class ezMemoryStreamContainerStorage : public ezMemoryStreamStorageInterface
 {
 public:
   /// \brief Creates the storage object for a memory stream. Use \a uiInitialCapacity to reserve a some memory up front, to reduce reallocations.
   ezMemoryStreamContainerStorage(ezUInt32 uiInitialCapacity = 0, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator())
-    : m_Storage(pAllocator)
+      : m_Storage(pAllocator)
   {
     m_Storage.Reserve(uiInitialCapacity);
   }
@@ -66,7 +66,12 @@ public:
   virtual void Clear() override { m_Storage.Clear(); }
   virtual void Compact() override { m_Storage.Compact(); }
   virtual ezUInt64 GetHeapMemoryUsage() const override { return m_Storage.GetHeapMemoryUsage(); }
-  virtual const ezUInt8* GetData() const override { if (m_Storage.IsEmpty()) return nullptr; return &m_Storage[0]; }
+  virtual const ezUInt8* GetData() const override
+  {
+    if (m_Storage.IsEmpty())
+      return nullptr;
+    return &m_Storage[0];
+  }
 
 private:
   virtual const ezUInt8* GetInternalData() const override { return &m_Storage[0]; }
@@ -82,13 +87,13 @@ class EZ_FOUNDATION_DLL ezMemoryStreamStorage : public ezMemoryStreamContainerSt
 {
 public:
   ezMemoryStreamStorage(ezUInt32 uiInitialCapacity = 0, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator())
-    : ezMemoryStreamContainerStorage<ezHybridArray<ezUInt8, 256>>(uiInitialCapacity, pAllocator)
+      : ezMemoryStreamContainerStorage<ezHybridArray<ezUInt8, 256>>(uiInitialCapacity, pAllocator)
   {
   }
 };
 
 /// \brief Wrapper around an existing container to implement ezMemoryStreamStorageInterface
-template<typename CONTAINER>
+template <typename CONTAINER>
 class ezMemoryStreamContainerWrapperStorage : public ezMemoryStreamStorageInterface
 {
 public:
@@ -101,7 +106,12 @@ public:
   virtual void Clear() override { m_pStorage->Clear(); }
   virtual void Compact() override { m_pStorage->Compact(); }
   virtual ezUInt64 GetHeapMemoryUsage() const override { return m_pStorage->GetHeapMemoryUsage(); }
-  virtual const ezUInt8* GetData() const override { if (m_pStorage->IsEmpty()) return nullptr; return &(*m_pStorage)[0]; }
+  virtual const ezUInt8* GetData() const override
+  {
+    if (m_pStorage->IsEmpty())
+      return nullptr;
+    return &(*m_pStorage)[0];
+  }
 
 private:
   virtual const ezUInt8* GetInternalData() const override { return &(*m_pStorage)[0]; }
@@ -126,7 +136,11 @@ public:
 
   /// \brief Sets the storage object upon which to operate. Resets the read position to zero.
   /// Pass nullptr if you want to detach from any previous storage stream, for example to ensure its reference count gets properly reduced.
-  void SetStorage(ezMemoryStreamStorageInterface* pStreamStorage) { m_pStreamStorage = pStreamStorage; m_uiReadPosition = 0; }
+  void SetStorage(ezMemoryStreamStorageInterface* pStreamStorage)
+  {
+    m_pStreamStorage = pStreamStorage;
+    m_uiReadPosition = 0;
+  }
 
   /// \brief Reads either uiBytesToRead or the amount of remaining bytes in the stream into pReadBuffer.
   ///
@@ -143,10 +157,9 @@ public:
   ezUInt32 GetByteCount() const; // [tested]
 
   /// \brief Allows to set a string as the source of information in the memory stream for debug purposes.
-  void SetDebugSourceInformation( const char* szDebugSourceInformation );
+  void SetDebugSourceInformation(const char* szDebugSourceInformation);
 
 private:
-
   ezScopedRefPointer<ezMemoryStreamStorageInterface> m_pStreamStorage;
 
   ezString m_DebugSourceInformation;
@@ -187,7 +200,6 @@ public:
   ezUInt32 GetByteCount() const; // [tested]
 
 private:
-
   ezScopedRefPointer<ezMemoryStreamStorageInterface> m_pStreamStorage;
 
   ezUInt32 m_uiWritePosition;
@@ -203,7 +215,7 @@ public:
 
   /// \brief Initialize the raw memory reader with the chunk of memory from a standard ez container.
   /// \note The container must store the data in a contiguous array.
-  template<typename CONTAINER>
+  template <typename CONTAINER>
   ezRawMemoryStreamReader(const CONTAINER& container) // [tested]
   {
     m_pRawMemory = static_cast<const ezUInt8*>(container.GetData());
@@ -231,7 +243,6 @@ public:
   void SetDebugSourceInformation(const char* szDebugSourceInformation);
 
 private:
-
   const ezUInt8* m_pRawMemory;
 
   ezUInt32 m_uiChunkSize;
@@ -239,4 +250,3 @@ private:
 
   ezString m_DebugSourceInformation;
 };
-

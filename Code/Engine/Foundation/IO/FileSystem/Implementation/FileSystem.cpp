@@ -1,8 +1,9 @@
-﻿#include <PCH.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <PCH.h>
+
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/Logging/Log.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Logging/Log.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, FileSystem)
 
@@ -134,7 +135,7 @@ ezUInt32 ezFileSystem::RemoveDataDirectoryGroup(const char* szGroup)
 
   ezUInt32 uiRemoved = 0;
 
-  for (ezUInt32 i = 0; i < s_Data->m_DataDirectories.GetCount(); )
+  for (ezUInt32 i = 0; i < s_Data->m_DataDirectories.GetCount();)
   {
     if (s_Data->m_DataDirectories[i].m_sGroup == szGroup)
     {
@@ -735,4 +736,3 @@ ezResult ezFileSystem::CreateDirectoryStructure(const char* szPath)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_FileSystem_Implementation_FileSystem);
-

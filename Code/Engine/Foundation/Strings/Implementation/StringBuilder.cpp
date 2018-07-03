@@ -1,7 +1,8 @@
-﻿#include <PCH.h>
-#include <Foundation/Strings/StringBuilder.h>
+#include <PCH.h>
+
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Strings/FormatString.h>
+#include <Foundation/Strings/StringBuilder.h>
 
 ezStringBuilder::ezStringBuilder(const char* pData1, const char* pData2, const char* pData3, const char* pData4, const char* pData5, const char* pData6)
 {
@@ -84,8 +85,8 @@ void ezStringBuilder::Append(const char* pData1, const char* pData2, const char*
 
   const ezUInt32 uiMaxParams = 6;
 
-  const char* pStrings[uiMaxParams] = { pData1, pData2, pData3, pData4, pData5, pData6 };
-  ezUInt32 uiStrLen[uiMaxParams] = { 0 };
+  const char* pStrings[uiMaxParams] = {pData1, pData2, pData3, pData4, pData5, pData6};
+  ezUInt32 uiStrLen[uiMaxParams] = {0};
 
   ezUInt32 uiMoreBytes = 0;
 
@@ -133,8 +134,8 @@ void ezStringBuilder::Prepend(const char* pData1, const char* pData2, const char
 
   const ezUInt32 uiMaxParams = 6;
 
-  const char* pStrings[uiMaxParams] = { pData1, pData2, pData3, pData4, pData5, pData6 };
-  ezUInt32 uiStrLen[uiMaxParams] = { 0 };
+  const char* pStrings[uiMaxParams] = {pData1, pData2, pData3, pData4, pData5, pData6};
+  ezUInt32 uiStrLen[uiMaxParams] = {0};
 
   ezUInt32 uiMoreBytes = 0;
 
@@ -772,7 +773,6 @@ void ezStringBuilder::MakeCleanPath()
   // make sure to write the terminating \0 and reset the count
   szCurWritePos[writeOffset] = '\0';
   m_Data.SetCountUninitialized(uiNewByteCount);
-
 }
 
 void ezStringBuilder::PathParentDirectory(ezUInt32 uiLevelsUp)
@@ -787,7 +787,7 @@ void ezStringBuilder::PathParentDirectory(ezUInt32 uiLevelsUp)
 
 void ezStringBuilder::AppendPath(const char* szPath1, const char* szPath2, const char* szPath3, const char* szPath4)
 {
-  const char* szPaths[4] = { szPath1, szPath2, szPath3, szPath4 };
+  const char* szPaths[4] = {szPath1, szPath2, szPath3, szPath4};
 
   for (ezUInt32 i = 0; i < 4; ++i)
   {
@@ -851,8 +851,10 @@ void ezStringBuilder::RemoveFileExtension()
 
 void ezStringBuilder::MakeRelativeTo(const char* szAbsolutePathToMakeThisRelativeTo)
 {
-  ezStringBuilder sAbsBase = szAbsolutePathToMakeThisRelativeTo;  sAbsBase.MakeCleanPath();
-  ezStringBuilder sAbsThis = *this;                               sAbsThis.MakeCleanPath();
+  ezStringBuilder sAbsBase = szAbsolutePathToMakeThisRelativeTo;
+  sAbsBase.MakeCleanPath();
+  ezStringBuilder sAbsThis = *this;
+  sAbsThis.MakeCleanPath();
 
   if (sAbsBase.IsEqual_NoCase(sAbsThis.GetData()))
   {
@@ -944,7 +946,7 @@ bool ezStringBuilder::IsPathBelowFolder(const char* szPathToFolder)
 
 void ezStringBuilder::MakePathSeparatorsNative()
 {
-  const char sep[2] = { ezPathUtils::OsSpecificPathSeparator, '\0' };
+  const char sep[2] = {ezPathUtils::OsSpecificPathSeparator, '\0'};
 
   MakeCleanPath();
   ReplaceAll("/", sep);
@@ -995,7 +997,6 @@ void ezStringBuilder::RemoveDoubleSlashesInPath()
   // make sure to write the terminating \0 and reset the count
   *szCurWritePos = '\0';
   m_Data.SetCountUninitialized(uiNewByteCount);
-
 }
 
 
@@ -1062,4 +1063,3 @@ void ezStringBuilder::PrependFormat(const ezFormatString& string)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_StringBuilder);
-

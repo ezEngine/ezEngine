@@ -15,4 +15,3 @@ ezResult LoadPluginModule(const char* szFileToLoad, ezPluginModule& Module, cons
 {
   return EZ_SUCCESS;
 }
-

@@ -1,11 +1,11 @@
-﻿
 #include <PCH.h>
+
 #include <Foundation/Basics.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStream.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamProcessor.h>
-#include <Foundation/DataProcessing/Stream/ProcessingStream.h>
-#include <Foundation/Memory/MemoryUtils.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Memory/MemoryUtils.h>
 
 ezProcessingStreamGroup::ezProcessingStreamGroup()
 {
@@ -296,4 +296,3 @@ void ezProcessingStreamGroup::SortProcessorsByPriority()
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_DataProcessing_Stream_Implementation_ProcessingStreamGroup);
-

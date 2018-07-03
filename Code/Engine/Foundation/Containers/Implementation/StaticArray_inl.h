@@ -11,7 +11,7 @@ ezStaticArray<T, C>::ezStaticArray(const ezStaticArray<T, C>& rhs)
 {
   EZ_ASSERT_DEBUG(m_pElements == nullptr, "static arrays should not use m_pElements");
   this->m_uiCapacity = C;
-  *this = (ezArrayPtr<const T>) rhs; // redirect this to the ezArrayPtr version
+  *this = (ezArrayPtr<const T>)rhs; // redirect this to the ezArrayPtr version
 }
 
 template <typename T, ezUInt32 C>
@@ -23,7 +23,7 @@ ezStaticArray<T, C>::ezStaticArray(const ezStaticArray<T, OtherCapacity>& rhs)
   EZ_ASSERT_DEBUG(m_pElements == nullptr, "static arrays should not use m_pElements");
   this->m_uiCapacity = C;
 
-  *this = (ezArrayPtr<const T>) rhs; // redirect this to the ezArrayPtr version
+  *this = (ezArrayPtr<const T>)rhs; // redirect this to the ezArrayPtr version
 }
 
 template <typename T, ezUInt32 C>
@@ -62,33 +62,32 @@ EZ_FORCE_INLINE void ezStaticArray<T, C>::Reserve(ezUInt32 uiCapacity)
 }
 
 template <typename T, ezUInt32 C>
-EZ_ALWAYS_INLINE void ezStaticArray<T, C>::operator= (const ezStaticArray<T, C>& rhs)
+EZ_ALWAYS_INLINE void ezStaticArray<T, C>::operator=(const ezStaticArray<T, C>& rhs)
 {
-  *this = (ezArrayPtr<const T>) rhs; // redirect this to the ezArrayPtr version
+  *this = (ezArrayPtr<const T>)rhs; // redirect this to the ezArrayPtr version
 }
 
 template <typename T, ezUInt32 C>
 template <ezUInt32 OtherCapacity>
-EZ_ALWAYS_INLINE void ezStaticArray<T, C>::operator= (const ezStaticArray<T, OtherCapacity>& rhs)
+EZ_ALWAYS_INLINE void ezStaticArray<T, C>::operator=(const ezStaticArray<T, OtherCapacity>& rhs)
 {
-  *this = (ezArrayPtr<const T>) rhs; // redirect this to the ezArrayPtr version
+  *this = (ezArrayPtr<const T>)rhs; // redirect this to the ezArrayPtr version
 }
 
 template <typename T, ezUInt32 C>
-EZ_ALWAYS_INLINE void ezStaticArray<T, C>::operator= (const ezArrayPtr<const T>& rhs)
+EZ_ALWAYS_INLINE void ezStaticArray<T, C>::operator=(const ezArrayPtr<const T>& rhs)
 {
   ezArrayBase<T, ezStaticArray<T, C>>::operator=(rhs);
 }
 
-template < typename T, ezUInt32 C >
+template <typename T, ezUInt32 C>
 EZ_FORCE_INLINE T* ezStaticArray<T, C>::GetElementsPtr()
 {
   return GetStaticArray();
 }
 
-template < typename T, ezUInt32 C >
+template <typename T, ezUInt32 C>
 EZ_FORCE_INLINE const T* ezStaticArray<T, C>::GetElementsPtr() const
 {
   return GetStaticArray();
 }
-

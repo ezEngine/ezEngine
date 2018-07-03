@@ -50,6 +50,5 @@ struct ezHashHelper
   static bool Equal(const T& a, const T& b);
 };
 
-#include <Foundation/Algorithm/Implementation/Hashing_inl.h>
 #include <Foundation/Algorithm/Implementation/HashingMurmur_inl.h>
-
+#include <Foundation/Algorithm/Implementation/Hashing_inl.h>

@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Image/ImageConversion.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezImageConversion);
@@ -58,9 +59,9 @@ void ezImageConversion::RebuildConversionTable()
       if (subConversion.m_flags.IsSet(ezImageConversionFlags::InPlace))
       {
         EZ_ASSERT_DEBUG(ezImageFormat::GetBitsPerPixel(subConversion.m_sourceFormat) == ezImageFormat::GetBitsPerPixel(subConversion.m_targetFormat),
-          "In-place conversions are only allowed between formats of the same number of bits per pixel");
+                        "In-place conversions are only allowed between formats of the same number of bits per pixel");
         EZ_ASSERT_DEBUG(ezImageFormat::GetType(subConversion.m_sourceFormat) == ezImageFormat::GetType(subConversion.m_targetFormat),
-          "In-place conversions are only allowed between formats of the same type");
+                        "In-place conversions are only allowed between formats of the same type");
       }
 
       ezUInt32 uiTableIndex = GetTableIndex(subConversion.m_sourceFormat, subConversion.m_targetFormat);
@@ -195,7 +196,4 @@ ezImageFormat::Enum ezImageConversion::FindClosestCompatibleFormat(ezImageFormat
 
 
 
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Image_Implementation_ImageConversion);
-

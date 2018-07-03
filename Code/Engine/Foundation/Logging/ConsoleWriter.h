@@ -10,7 +10,5 @@ namespace ezLogWriter
   public:
     /// \brief Register this at ezLog to write all log messages to the console using printf.
     static void LogMessageHandler(const ezLoggingEventData& eventData);
-
   };
 }
-

@@ -9,7 +9,7 @@
 /// In the worst case, PushBack is in O(n).
 /// Look-up is guaranteed to always be in O(1).
 template <typename T, ezUInt32 Size>
-class ezHybridArrayBase : public ezArrayBase<T, ezHybridArrayBase<T, Size> >
+class ezHybridArrayBase : public ezArrayBase<T, ezHybridArrayBase<T, Size>>
 {
 protected:
   /// \brief Creates an empty array. Does not allocate any data yet.
@@ -28,18 +28,17 @@ protected:
   ~ezHybridArrayBase(); // [tested]
 
   /// \brief Copies the data from some other contiguous array into this one.
-  void operator= (const ezHybridArrayBase<T, Size>& rhs); // [tested]
+  void operator=(const ezHybridArrayBase<T, Size>& rhs); // [tested]
 
   /// \brief Moves the data from some other contiguous array into this one.
-  void operator= (ezHybridArrayBase<T, Size>&& rhs); // [tested]
+  void operator=(ezHybridArrayBase<T, Size>&& rhs); // [tested]
 
   T* GetElementsPtr();
   const T* GetElementsPtr() const;
 
-  friend class ezArrayBase < T, ezHybridArrayBase<T, Size> > ;
+  friend class ezArrayBase<T, ezHybridArrayBase<T, Size>>;
 
 public:
-
   /// \brief Expands the array so it can at least store the given capacity.
   void Reserve(ezUInt32 uiCapacity); // [tested]
 
@@ -67,7 +66,10 @@ private:
 
   ezAllocatorBase* m_pAllocator;
 
-  enum { CAPACITY_ALIGNMENT = 16 };
+  enum
+  {
+    CAPACITY_ALIGNMENT = 16
+  };
 
   void SetCapacity(ezUInt32 uiCapacity);
 };
@@ -95,8 +97,6 @@ public:
 
   void operator=(ezHybridArray<T, Size, AllocatorWrapper>&& rhs);
   void operator=(ezHybridArrayBase<T, Size>&& rhs);
-
 };
 
 #include <Foundation/Containers/Implementation/HybridArray_inl.h>
-

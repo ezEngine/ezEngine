@@ -1,17 +1,18 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/CodeUtils/Tokenizer.h>
 
 const char* ezTokenType::EnumNames[ezTokenType::ENUM_COUNT] =
-{
-  "Unknown",
-  "Whitespace",
-  "Identifier",
-  "NonIdentifier",
-  "Newline",
-  "LineComment",
-  "BlockComment",
-  "String1",
-  "String2",
+    {
+        "Unknown",
+        "Whitespace",
+        "Identifier",
+        "NonIdentifier",
+        "Newline",
+        "LineComment",
+        "BlockComment",
+        "String1",
+        "String2",
 };
 
 
@@ -116,7 +117,7 @@ void ezTokenizer::Tokenize(ezArrayPtr<const ezUInt8> Data, ezLogInterface* pLog)
     m_szTokenStart = nullptr;
   }
 
-  m_Iterator = ezStringView((const char*) &m_Data[0], (const char*) &m_Data[0] + m_Data.GetCount() - 1);
+  m_Iterator = ezStringView((const char*)&m_Data[0], (const char*)&m_Data[0] + m_Data.GetCount() - 1);
 
   if (!m_Iterator.IsValid())
   {
@@ -136,42 +137,42 @@ void ezTokenizer::Tokenize(ezArrayPtr<const ezUInt8> Data, ezLogInterface* pLog)
   {
     switch (m_CurMode)
     {
-    case ezTokenType::Unknown:
-      HandleUnknown();
-      break;
+      case ezTokenType::Unknown:
+        HandleUnknown();
+        break;
 
-    case ezTokenType::String1:
-      HandleString('\"');
-      break;
+      case ezTokenType::String1:
+        HandleString('\"');
+        break;
 
-    case ezTokenType::String2:
-      HandleString('\'');
-      break;
+      case ezTokenType::String2:
+        HandleString('\'');
+        break;
 
-    case ezTokenType::LineComment:
-      HandleLineComment();
-      break;
+      case ezTokenType::LineComment:
+        HandleLineComment();
+        break;
 
-    case ezTokenType::BlockComment:
-      HandleBlockComment();
-      break;
+      case ezTokenType::BlockComment:
+        HandleBlockComment();
+        break;
 
-    case ezTokenType::Whitespace:
-      HandleWhitespace();
-      break;
+      case ezTokenType::Whitespace:
+        HandleWhitespace();
+        break;
 
-    case ezTokenType::Identifier:
-      HandleIdentifier();
-      break;
+      case ezTokenType::Identifier:
+        HandleIdentifier();
+        break;
 
-    case ezTokenType::NonIdentifier:
-      HandleNonIdentifier();
-      break;
+      case ezTokenType::NonIdentifier:
+        HandleNonIdentifier();
+        break;
 
-    case ezTokenType::Newline:
-    case ezTokenType::EndOfFile:
-    case ezTokenType::ENUM_COUNT:
-      break;
+      case ezTokenType::Newline:
+      case ezTokenType::EndOfFile:
+      case ezTokenType::ENUM_COUNT:
+        break;
     }
   }
 
@@ -462,7 +463,4 @@ ezResult ezTokenizer::GetNextLine(ezUInt32& uiFirstToken, ezHybridArray<const ez
 
 
 
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_Tokenizer);
-

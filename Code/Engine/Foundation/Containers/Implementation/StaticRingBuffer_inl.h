@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 template <typename T, ezUInt32 C>
 ezStaticRingBuffer<T, C>::ezStaticRingBuffer()
@@ -161,4 +161,3 @@ EZ_ALWAYS_INLINE T* ezStaticRingBuffer<T, C>::GetStaticArray()
 {
   return reinterpret_cast<T*>(m_Data);
 }
-

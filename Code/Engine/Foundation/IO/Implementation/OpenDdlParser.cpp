@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/IO/OpenDdlParser.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Utilities/ConversionUtils.h>
@@ -95,41 +96,41 @@ bool ezOpenDdlParser::ContinueParsing()
 
   switch (m_StateStack.PeekBack().m_State)
   {
-  case State::Finished:
-    ParsingError("More objects were closed than opened.", true);
-    return false;
+    case State::Finished:
+      ParsingError("More objects were closed than opened.", true);
+      return false;
 
-  case State::Idle:
-    ContinueIdle();
-    return true;
+    case State::Idle:
+      ContinueIdle();
+      return true;
 
-  case State::ReadingBool:
-    ContinueBool();
-    return true;
+    case State::ReadingBool:
+      ContinueBool();
+      return true;
 
-  case State::ReadingInt8:
-  case State::ReadingInt16:
-  case State::ReadingInt32:
-  case State::ReadingInt64:
-  case State::ReadingUInt8:
-  case State::ReadingUInt16:
-  case State::ReadingUInt32:
-  case State::ReadingUInt64:
-    ContinueInt();
-    return true;
+    case State::ReadingInt8:
+    case State::ReadingInt16:
+    case State::ReadingInt32:
+    case State::ReadingInt64:
+    case State::ReadingUInt8:
+    case State::ReadingUInt16:
+    case State::ReadingUInt32:
+    case State::ReadingUInt64:
+      ContinueInt();
+      return true;
 
-  case State::ReadingFloat:
-  case State::ReadingDouble:
-    ContinueFloat();
-    return true;
+    case State::ReadingFloat:
+    case State::ReadingDouble:
+      ContinueFloat();
+      return true;
 
-  case State::ReadingString:
-    ContinueString();
-    return true;
+    case State::ReadingString:
+      ContinueString();
+      return true;
 
-  default:
-    EZ_REPORT_FAILURE("Unknown State in OpenDDL parser state machine.");
-    return false;
+    default:
+      EZ_REPORT_FAILURE("Unknown State in OpenDDL parser state machine.");
+      return false;
   }
 }
 
@@ -257,8 +258,7 @@ void ezOpenDdlParser::SkipWhitespace()
 
     if (!ReadCharacterSkipComments())
       return; // stop when end of stream is encountered
-  }
-  while (ezStringUtils::IsWhiteSpace(m_uiCurByte));
+  } while (ezStringUtils::IsWhiteSpace(m_uiCurByte));
 }
 
 
@@ -266,18 +266,18 @@ void ezOpenDdlParser::ContinueIdle()
 {
   switch (m_uiCurByte)
   {
-  case '}': // end of current object
-    SkipWhitespace();
+    case '}': // end of current object
+      SkipWhitespace();
 
-    m_StateStack.PopBack();
+      m_StateStack.PopBack();
 
-    if (!m_bSkippingMode)
-    {
-      OnEndObject();
-    }
-    return;
+      if (!m_bSkippingMode)
+      {
+        OnEndObject();
+      }
+      return;
 
-  default:
+    default:
     {
       ezUInt32 uiIdTypeLen = 0;
       ReadIdentifier(m_szIdentifierType, uiIdTypeLen);
@@ -507,7 +507,7 @@ void ezOpenDdlParser::ReadIdentifier(ezUInt8* szString, ezUInt32& count)
 
     if (count == s_uiMaxIdentifierLength)
     {
-      szString[s_uiMaxIdentifierLength-1] = '\0';
+      szString[s_uiMaxIdentifierLength - 1] = '\0';
 
       ParsingError("Object type name is longer than 31 characters", false);
 
@@ -557,7 +557,7 @@ void ezOpenDdlParser::ReadIdentifier(ezUInt8* szString, ezUInt32& count)
 
     if (count == s_uiMaxIdentifierLength)
     {
-      szString[s_uiMaxIdentifierLength-1] = '\0';
+      szString[s_uiMaxIdentifierLength - 1] = '\0';
 
       ParsingError("Object type name is longer than 31 characters", false);
 
@@ -606,44 +606,44 @@ void ezOpenDdlParser::ReadString()
     {
       switch (m_uiCurByte)
       {
-      case '\"':
-        m_TempString[m_uiTempStringLength] = '\"';
-        ++m_uiTempStringLength;
-        break;
-      case '\\':
-        m_TempString[m_uiTempStringLength] = '\\';
-        ++m_uiTempStringLength;
-        m_uiCurByte = '\0'; // make sure the next character isn't interpreted as an escape sequence
-        break;
-      case '/':
-        m_TempString[m_uiTempStringLength] = '/';
-        ++m_uiTempStringLength;
-        break;
-      case 'b':
-        m_TempString[m_uiTempStringLength] = '\b';
-        ++m_uiTempStringLength;
-        break;
-      case 'f':
-        m_TempString[m_uiTempStringLength] = '\f';
-        ++m_uiTempStringLength;
-        break;
-      case 'n':
-        m_TempString[m_uiTempStringLength] = '\n';
-        ++m_uiTempStringLength;
-        break;
-      case 'r':
-        m_TempString[m_uiTempStringLength] = '\r';
-        ++m_uiTempStringLength;
-        break;
-      case 't':
-        m_TempString[m_uiTempStringLength] = '\t';
-        ++m_uiTempStringLength;
-        break;
-      case 'u':
-        ParsingError("Unicode literals are not supported.", false);
-        /// \todo Support escaped Unicode literals? (\u1234)
-        break;
-      default:
+        case '\"':
+          m_TempString[m_uiTempStringLength] = '\"';
+          ++m_uiTempStringLength;
+          break;
+        case '\\':
+          m_TempString[m_uiTempStringLength] = '\\';
+          ++m_uiTempStringLength;
+          m_uiCurByte = '\0'; // make sure the next character isn't interpreted as an escape sequence
+          break;
+        case '/':
+          m_TempString[m_uiTempStringLength] = '/';
+          ++m_uiTempStringLength;
+          break;
+        case 'b':
+          m_TempString[m_uiTempStringLength] = '\b';
+          ++m_uiTempStringLength;
+          break;
+        case 'f':
+          m_TempString[m_uiTempStringLength] = '\f';
+          ++m_uiTempStringLength;
+          break;
+        case 'n':
+          m_TempString[m_uiTempStringLength] = '\n';
+          ++m_uiTempStringLength;
+          break;
+        case 'r':
+          m_TempString[m_uiTempStringLength] = '\r';
+          ++m_uiTempStringLength;
+          break;
+        case 't':
+          m_TempString[m_uiTempStringLength] = '\t';
+          ++m_uiTempStringLength;
+          break;
+        case 'u':
+          ParsingError("Unicode literals are not supported.", false);
+          /// \todo Support escaped Unicode literals? (\u1234)
+          break;
+        default:
         {
           ezStringBuilder s;
           s.Format("Unknown escape-sequence '\\{0}'", ezArgC(m_uiCurByte));
@@ -682,8 +682,7 @@ void ezOpenDdlParser::ReadWord()
 
     if (!ReadCharacterSkipComments())
       break; // stop when end of stream is encountered
-  }
-  while (!ezStringUtils::IsIdentifierDelimiter_C_Code(m_uiCurByte));
+  } while (!ezStringUtils::IsIdentifierDelimiter_C_Code(m_uiCurByte));
 
   m_TempString[m_uiTempStringLength] = '\0';
 
@@ -697,49 +696,49 @@ void ezOpenDdlParser::PurgeCachedPrimitives(bool bThisIsAll)
   {
     switch (m_StateStack.PeekBack().m_State)
     {
-    case State::ReadingBool:
-      OnPrimitiveBool(m_uiNumCachedPrimitives, m_pBoolCache, bThisIsAll);
-      break;
+      case State::ReadingBool:
+        OnPrimitiveBool(m_uiNumCachedPrimitives, m_pBoolCache, bThisIsAll);
+        break;
 
-    case State::ReadingInt8:
-      OnPrimitiveInt8(m_uiNumCachedPrimitives, m_pInt8Cache, bThisIsAll);
-      break;
+      case State::ReadingInt8:
+        OnPrimitiveInt8(m_uiNumCachedPrimitives, m_pInt8Cache, bThisIsAll);
+        break;
 
-    case State::ReadingInt16:
-      OnPrimitiveInt16(m_uiNumCachedPrimitives, m_pInt16Cache, bThisIsAll);
-      break;
+      case State::ReadingInt16:
+        OnPrimitiveInt16(m_uiNumCachedPrimitives, m_pInt16Cache, bThisIsAll);
+        break;
 
-    case State::ReadingInt32:
-      OnPrimitiveInt32(m_uiNumCachedPrimitives, m_pInt32Cache, bThisIsAll);
-      break;
+      case State::ReadingInt32:
+        OnPrimitiveInt32(m_uiNumCachedPrimitives, m_pInt32Cache, bThisIsAll);
+        break;
 
-    case State::ReadingInt64:
-      OnPrimitiveInt64(m_uiNumCachedPrimitives, m_pInt64Cache, bThisIsAll);
-      break;
+      case State::ReadingInt64:
+        OnPrimitiveInt64(m_uiNumCachedPrimitives, m_pInt64Cache, bThisIsAll);
+        break;
 
-    case State::ReadingUInt8:
-      OnPrimitiveUInt8(m_uiNumCachedPrimitives, m_pUInt8Cache, bThisIsAll);
-      break;
+      case State::ReadingUInt8:
+        OnPrimitiveUInt8(m_uiNumCachedPrimitives, m_pUInt8Cache, bThisIsAll);
+        break;
 
-    case State::ReadingUInt16:
-      OnPrimitiveUInt16(m_uiNumCachedPrimitives, m_pUInt16Cache, bThisIsAll);
-      break;
+      case State::ReadingUInt16:
+        OnPrimitiveUInt16(m_uiNumCachedPrimitives, m_pUInt16Cache, bThisIsAll);
+        break;
 
-    case State::ReadingUInt32:
-      OnPrimitiveUInt32(m_uiNumCachedPrimitives, m_pUInt32Cache, bThisIsAll);
-      break;
+      case State::ReadingUInt32:
+        OnPrimitiveUInt32(m_uiNumCachedPrimitives, m_pUInt32Cache, bThisIsAll);
+        break;
 
-    case State::ReadingUInt64:
-      OnPrimitiveUInt64(m_uiNumCachedPrimitives, m_pUInt64Cache, bThisIsAll);
-      break;
+      case State::ReadingUInt64:
+        OnPrimitiveUInt64(m_uiNumCachedPrimitives, m_pUInt64Cache, bThisIsAll);
+        break;
 
-    case State::ReadingFloat:
-      OnPrimitiveFloat(m_uiNumCachedPrimitives, m_pFloatCache, bThisIsAll);
-      break;
+      case State::ReadingFloat:
+        OnPrimitiveFloat(m_uiNumCachedPrimitives, m_pFloatCache, bThisIsAll);
+        break;
 
-    case State::ReadingDouble:
-      OnPrimitiveDouble(m_uiNumCachedPrimitives, m_pDoubleCache, bThisIsAll);
-      break;
+      case State::ReadingDouble:
+        OnPrimitiveDouble(m_uiNumCachedPrimitives, m_pDoubleCache, bThisIsAll);
+        break;
     }
   }
 
@@ -750,7 +749,7 @@ bool ezOpenDdlParser::ContinuePrimitiveList()
 {
   switch (m_uiCurByte)
   {
-  case '}':
+    case '}':
     {
       PurgeCachedPrimitives(true);
 
@@ -765,7 +764,7 @@ bool ezOpenDdlParser::ContinuePrimitiveList()
       return false;
     }
 
-  case ',':
+    case ',':
     {
       // don't care about any number of semicolons
       /// \todo we could do an extra state 'expect , or }'
@@ -785,7 +784,7 @@ void ezOpenDdlParser::ContinueString()
 
   switch (m_uiCurByte)
   {
-  case '\"':
+    case '\"':
     {
       if (!m_bSkippingMode)
       {
@@ -808,7 +807,7 @@ void ezOpenDdlParser::ContinueString()
       return;
     }
 
-  default:
+    default:
     {
       /// \todo better error message
       ParsingError("Expected , or } or a \"", true);
@@ -833,8 +832,7 @@ void ezOpenDdlParser::SkipString()
 
       return; // stop when end of stream is encountered
     }
-  }
-  while (bEscapeSequence || m_uiCurByte != '\"');
+  } while (bEscapeSequence || m_uiCurByte != '\"');
 }
 
 void ezOpenDdlParser::ContinueBool()
@@ -844,10 +842,10 @@ void ezOpenDdlParser::ContinueBool()
 
   switch (m_uiCurByte)
   {
-  case '1':
-  case '0':
-  case 'f':
-  case 't':
+    case '1':
+    case '0':
+    case 'f':
+    case 't':
     {
       ReadWord();
 
@@ -948,7 +946,7 @@ void ezOpenDdlParser::ContinueInt()
 
   switch (curState)
   {
-  case ReadingInt8:
+    case ReadingInt8:
     {
       m_pInt8Cache[m_uiNumCachedPrimitives++] = sign * (ezInt8)value; // if user data is out of range, we don't care
 
@@ -958,7 +956,7 @@ void ezOpenDdlParser::ContinueInt()
       break;
     }
 
-  case ReadingInt16:
+    case ReadingInt16:
     {
       m_pInt16Cache[m_uiNumCachedPrimitives++] = sign * (ezInt16)value; // if user data is out of range, we don't care
 
@@ -968,7 +966,7 @@ void ezOpenDdlParser::ContinueInt()
       break;
     }
 
-  case ReadingInt32:
+    case ReadingInt32:
     {
       m_pInt32Cache[m_uiNumCachedPrimitives++] = sign * (ezInt32)value; // if user data is out of range, we don't care
 
@@ -978,7 +976,7 @@ void ezOpenDdlParser::ContinueInt()
       break;
     }
 
-  case ReadingInt64:
+    case ReadingInt64:
     {
       m_pInt64Cache[m_uiNumCachedPrimitives++] = sign * (ezInt64)value; // if user data is out of range, we don't care
 
@@ -989,7 +987,7 @@ void ezOpenDdlParser::ContinueInt()
     }
 
 
-  case ReadingUInt8:
+    case ReadingUInt8:
     {
       m_pUInt8Cache[m_uiNumCachedPrimitives++] = (ezUInt8)value; // if user data is out of range, we don't care
 
@@ -999,7 +997,7 @@ void ezOpenDdlParser::ContinueInt()
       break;
     }
 
-  case ReadingUInt16:
+    case ReadingUInt16:
     {
       m_pUInt16Cache[m_uiNumCachedPrimitives++] = (ezUInt16)value; // if user data is out of range, we don't care
 
@@ -1009,7 +1007,7 @@ void ezOpenDdlParser::ContinueInt()
       break;
     }
 
-  case ReadingUInt32:
+    case ReadingUInt32:
     {
       m_pUInt32Cache[m_uiNumCachedPrimitives++] = (ezUInt32)value; // if user data is out of range, we don't care
 
@@ -1019,7 +1017,7 @@ void ezOpenDdlParser::ContinueInt()
       break;
     }
 
-  case ReadingUInt64:
+    case ReadingUInt64:
     {
       m_pUInt64Cache[m_uiNumCachedPrimitives++] = (ezUInt64)value;
 
@@ -1110,7 +1108,7 @@ void ezOpenDdlParser::ContinueFloat()
 
   switch (curState)
   {
-  case ReadingFloat:
+    case ReadingFloat:
     {
       m_pFloatCache[m_uiNumCachedPrimitives++] = sign * fValue;
 
@@ -1120,7 +1118,7 @@ void ezOpenDdlParser::ContinueFloat()
       break;
     }
 
-  case ReadingDouble:
+    case ReadingDouble:
     {
       m_pDoubleCache[m_uiNumCachedPrimitives++] = sign * dValue;
 
@@ -1145,8 +1143,7 @@ void ezOpenDdlParser::ReadDecimalFloat()
 
     if (!ReadCharacterSkipComments())
       break; // stop when end of stream is encountered
-  }
-  while ((m_uiCurByte >= '0' && m_uiCurByte <= '9') || m_uiCurByte == '.' || m_uiCurByte == 'e' || m_uiCurByte == 'E' || m_uiCurByte == '-' || m_uiCurByte == '+' || m_uiCurByte == '_');
+  } while ((m_uiCurByte >= '0' && m_uiCurByte <= '9') || m_uiCurByte == '.' || m_uiCurByte == 'e' || m_uiCurByte == 'E' || m_uiCurByte == '-' || m_uiCurByte == '+' || m_uiCurByte == '_');
 
   m_TempString[m_uiTempStringLength] = '\0';
 
@@ -1168,8 +1165,7 @@ void ezOpenDdlParser::ReadHexString()
 
     if (!ReadCharacterSkipComments())
       break; // stop when end of stream is encountered
-  }
-  while ((m_uiCurByte >= '0' && m_uiCurByte <= '9') || (m_uiCurByte >= 'a' && m_uiCurByte <= 'f') || (m_uiCurByte >= 'A' && m_uiCurByte <= 'F'));
+  } while ((m_uiCurByte >= '0' && m_uiCurByte <= '9') || (m_uiCurByte >= 'a' && m_uiCurByte <= 'f') || (m_uiCurByte >= 'A' && m_uiCurByte <= 'F'));
 
   m_TempString[m_uiTempStringLength] = '\0';
 
@@ -1208,4 +1204,3 @@ ezUInt64 ezOpenDdlParser::ReadDecimalLiteral()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_OpenDdlParser);
-

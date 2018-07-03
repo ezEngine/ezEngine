@@ -14,10 +14,14 @@ public:
   EZ_ALWAYS_INLINE ezStreamReader& GetReader() { return m_Reader; }
   EZ_ALWAYS_INLINE ezStreamWriter& GetWriter() { return m_Writer; }
 
-  EZ_ALWAYS_INLINE ezUInt32 GetSystemID()  const { return m_uiSystemID; }
+  EZ_ALWAYS_INLINE ezUInt32 GetSystemID() const { return m_uiSystemID; }
   EZ_ALWAYS_INLINE ezUInt32 GetMessageID() const { return m_uiMsgID; }
 
-  EZ_ALWAYS_INLINE void SetMessageID(ezUInt32 uiSystemID, ezUInt32 uiMessageID) { m_uiSystemID = uiSystemID; m_uiMsgID = uiMessageID; }
+  EZ_ALWAYS_INLINE void SetMessageID(ezUInt32 uiSystemID, ezUInt32 uiMessageID)
+  {
+    m_uiSystemID = uiSystemID;
+    m_uiMsgID = uiMessageID;
+  }
 
 private:
   friend class ezTelemetry;
@@ -29,4 +33,3 @@ private:
   ezMemoryStreamReader m_Reader;
   ezMemoryStreamWriter m_Writer;
 };
-

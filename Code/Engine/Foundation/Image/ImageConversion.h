@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Utilities/EnumerableClass.h>
-#include <Foundation/Containers/StaticArray.h>
 
 #include <Foundation/Image/Image.h>
 
@@ -14,11 +14,12 @@ class EZ_FOUNDATION_DLL ezImageConversion : public ezEnumerable<ezImageConversio
 public:
   /// \brief Finds the image format from a given list of formats which is the cheapest to convert to.
   static ezImageFormat::Enum
-    FindClosestCompatibleFormat(ezImageFormat::Enum format, const ezImageFormat::Enum* pCompatibleFormats, ezUInt32 uiNumCompatible);
+  FindClosestCompatibleFormat(ezImageFormat::Enum format, const ezImageFormat::Enum* pCompatibleFormats, ezUInt32 uiNumCompatible);
 
   /// \brief Finds the image format from a given list of formats which is the cheapest to convert to.
-  template<int N> static ezImageFormat::Enum
-    FindClosestCompatibleFormat(ezImageFormat::Enum format, const ezImageFormat::Enum(&compatibleFormats)[N])
+  template <int N>
+  static ezImageFormat::Enum
+  FindClosestCompatibleFormat(ezImageFormat::Enum format, const ezImageFormat::Enum (&compatibleFormats)[N])
   {
     return FindClosestCompatibleFormat(format, compatibleFormats, N);
   }
@@ -59,4 +60,3 @@ protected:
 private:
   static void RebuildConversionTable();
 };
-

@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Communication/Message.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMessage, 1, ezRTTINoAllocator)
@@ -51,6 +52,3 @@ ezUniquePtr<ezMessage> ezMessage::ReplicatePackedMessage(ezStreamReader& stream)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_Message);
-
-
-

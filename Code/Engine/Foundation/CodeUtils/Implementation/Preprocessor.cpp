@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/CodeUtils/Preprocessor.h>
 
 ezString ezPreprocessor::s_ParamNames[32];
@@ -29,9 +30,9 @@ ezPreprocessor::ezPreprocessor()
   ezToken dummy;
   dummy.m_iType = ezTokenType::NonIdentifier;
 
-  m_TokenOpenParenthesis    = AddCustomToken(&dummy, "(");
-  m_TokenClosedParenthesis  = AddCustomToken(&dummy, ")");
-  m_TokenComma              = AddCustomToken(&dummy, ",");
+  m_TokenOpenParenthesis = AddCustomToken(&dummy, "(");
+  m_TokenClosedParenthesis = AddCustomToken(&dummy, ")");
+  m_TokenComma = AddCustomToken(&dummy, ",");
 }
 
 void ezPreprocessor::SetCustomFileCache(ezTokenizedFileCache* pFileCache)
@@ -227,10 +228,10 @@ ezResult ezPreprocessor::ProcessCmd(const TokenStream& Tokens, TokenStream& Toke
     }
   }
 
-  if (Accept(Tokens, uiCurToken,  "ifdef", &uiAccepted))
+  if (Accept(Tokens, uiCurToken, "ifdef", &uiAccepted))
     return HandleIfdef(Tokens, uiCurToken, uiAccepted, true);
 
-  if (Accept(Tokens, uiCurToken,  "ifndef", &uiAccepted))
+  if (Accept(Tokens, uiCurToken, "ifndef", &uiAccepted))
     return HandleIfdef(Tokens, uiCurToken, uiAccepted, false);
 
   if (Accept(Tokens, uiCurToken, "else", &uiAccepted))
@@ -256,7 +257,7 @@ ezResult ezPreprocessor::ProcessCmd(const TokenStream& Tokens, TokenStream& Toke
         Accept(Tokens, uiCurToken, "error", &uiAccepted) ||
         Accept(Tokens, uiCurToken, "warning", &uiAccepted) ||
         Accept(Tokens, uiCurToken, "pragma"))
-        return EZ_SUCCESS;
+      return EZ_SUCCESS;
 
     if (m_PassThroughUnknownCmdCB.IsValid())
     {
@@ -469,7 +470,6 @@ ezResult ezPreprocessor::HandleElif(const TokenStream& Tokens, ezUInt32 uiCurTok
 
   m_IfdefActiveStack.PushBack(iResult != 0 ? IfDefActivity::IsActive : IfDefActivity::IsInactive);
   return EZ_SUCCESS;
-
 }
 
 ezResult ezPreprocessor::HandleEndif(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken)
@@ -546,7 +546,4 @@ ezResult ezPreprocessor::HandleWarningDirective(const TokenStream& Tokens, ezUIn
 
 
 
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_Preprocessor);
-

@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Foundation/Algorithm/Hashing.h>
-#include <Foundation/Types/ArrayPtr.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
+#include <Foundation/Types/ArrayPtr.h>
 
 /// \brief Implementation of a hashtable which stores key/value pairs.
 ///
@@ -95,18 +95,17 @@ protected:
   ~ezHashTableBase(); // [tested]
 
   /// \brief Copies the data from another hashtable into this one.
-  void operator= (const ezHashTableBase<KeyType, ValueType, Hasher>& rhs); // [tested]
+  void operator=(const ezHashTableBase<KeyType, ValueType, Hasher>& rhs); // [tested]
 
   /// \brief Moves data from an existing hashtable into this one.
-  void operator= (ezHashTableBase<KeyType, ValueType, Hasher>&& rhs); // [tested]
+  void operator=(ezHashTableBase<KeyType, ValueType, Hasher>&& rhs); // [tested]
 
 public:
+  /// \brief Compares this table to another table.
+  bool operator==(const ezHashTableBase<KeyType, ValueType, Hasher>& rhs) const; // [tested]
 
   /// \brief Compares this table to another table.
-  bool operator== (const ezHashTableBase<KeyType, ValueType, Hasher>& rhs) const; // [tested]
-
-   /// \brief Compares this table to another table.
-  bool operator!= (const ezHashTableBase<KeyType, ValueType, Hasher>& rhs) const; // [tested]
+  bool operator!=(const ezHashTableBase<KeyType, ValueType, Hasher>& rhs) const; // [tested]
 
   /// \brief Expands the hashtable by over-allocating the internal storage so that the load factor is lower or equal to 60% when inserting the given number of entries.
   void Reserve(ezUInt32 uiCapacity); // [tested]
@@ -179,7 +178,6 @@ public:
   ezUInt64 GetHeapMemoryUsage() const; // [tested]
 
 private:
-
   struct Entry
   {
     KeyType key;
@@ -248,4 +246,3 @@ public:
 };
 
 #include <Foundation/Containers/Implementation/HashTable_inl.h>
-

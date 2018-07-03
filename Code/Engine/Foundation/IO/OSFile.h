@@ -1,19 +1,19 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Strings/StringBuilder.h>
-#include <Foundation/Strings/String.h>
-#include <Foundation/Threading/AtomicInteger.h>
 #include <Foundation/Communication/Event.h>
+#include <Foundation/Strings/String.h>
+#include <Foundation/Strings/StringBuilder.h>
+#include <Foundation/Threading/AtomicInteger.h>
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Time/Timestamp.h>
 
 struct ezOSFileData;
 
 #if EZ_ENABLED(EZ_USE_POSIX_FILE_API)
-  #include <Foundation/IO/Implementation/Posix/OSFileDeclarations_posix.h>
+#include <Foundation/IO/Implementation/Posix/OSFileDeclarations_posix.h>
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  #include <Foundation/IO/Implementation/Win/OSFileDeclarations_win.h>
+#include <Foundation/IO/Implementation/Win/OSFileDeclarations_win.h>
 #endif
 
 /// \brief Defines in which mode to open a file.
@@ -33,9 +33,9 @@ struct ezFilePos
 {
   enum Enum
   {
-    FromStart,    ///< The seek position is relative to the file's beginning
-    FromEnd,      ///< The seek position is relative to the file's end
-    FromCurrent,  ///< The seek position is relative to the file's current seek position
+    FromStart,   ///< The seek position is relative to the file's beginning
+    FromEnd,     ///< The seek position is relative to the file's end
+    FromCurrent, ///< The seek position is relative to the file's current seek position
   };
 };
 
@@ -59,67 +59,66 @@ struct EZ_FOUNDATION_DLL ezFileStats
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) || defined(EZ_DOCS)
 
-  struct ezFileIterationData;
+struct ezFileIterationData;
 
-  /// \brief An ezFileSystemIterator allows to iterate over all files in a certain directory.
+/// \brief An ezFileSystemIterator allows to iterate over all files in a certain directory.
+///
+/// The search can be recursive, and it can contain wildcards (* and ?) to limit the search to specific file types.
+class EZ_FOUNDATION_DLL ezFileSystemIterator
+{
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezFileSystemIterator);
+
+public:
+  ezFileSystemIterator();
+  ~ezFileSystemIterator();
+
+  /// \brief Starts a search at the given folder. Use * and ? as wildcards.
   ///
-  /// The search can be recursive, and it can contain wildcards (* and ?) to limit the search to specific file types.
-  class EZ_FOUNDATION_DLL ezFileSystemIterator
-  {
-    EZ_DISALLOW_COPY_AND_ASSIGN(ezFileSystemIterator);
+  /// To iterate all files from on folder, use '/Some/Folder/*'
+  /// To iterate over all files of a certain type (in one folder) use '/Some/Folder/*.ext'
+  /// Only the final path segment can use placeholders, folders in between must be fully named.
+  /// If bRecursive is false, the iterator will only iterate over the files in the start folder, and will not recurse into subdirectories.
+  /// If bReportFolders is false, only files will be reported, folders will be skipped (though they will be recursed into, if bRecursive is true).
+  ///
+  /// If EZ_SUCCESS is returned, the iterator points to a valid file, and the functions GetCurrentPath() and GetStats() will return
+  /// the information about that file. To advance to the next file, use Next() or SkipFolder().
+  /// When no iteration is possible (the directory does not exist or the wild-cards are used incorrectly), EZ_FAILURE is returned.
+  ezResult StartSearch(const char* szSearchStart, bool bRecursive = true, bool bReportFolders = true); // [tested]
 
-  public:
-    ezFileSystemIterator();
-    ~ezFileSystemIterator();
+  /// \brief Returns the current path in which files are searched. Changes when 'Next' moves in or out of a sub-folder.
+  ///
+  /// You can use this to get the full path of the current file, by appending this value and the filename from 'GetStats'
+  const ezStringBuilder& GetCurrentPath() const { return m_sCurPath; } // [tested]
 
-    /// \brief Starts a search at the given folder. Use * and ? as wildcards.
-    ///
-    /// To iterate all files from on folder, use '/Some/Folder/*'
-    /// To iterate over all files of a certain type (in one folder) use '/Some/Folder/*.ext'
-    /// Only the final path segment can use placeholders, folders in between must be fully named.
-    /// If bRecursive is false, the iterator will only iterate over the files in the start folder, and will not recurse into subdirectories.
-    /// If bReportFolders is false, only files will be reported, folders will be skipped (though they will be recursed into, if bRecursive is true).
-    ///
-    /// If EZ_SUCCESS is returned, the iterator points to a valid file, and the functions GetCurrentPath() and GetStats() will return
-    /// the information about that file. To advance to the next file, use Next() or SkipFolder().
-    /// When no iteration is possible (the directory does not exist or the wildcards are used incorrectly), EZ_FAILURE is returned.
-    ezResult StartSearch(const char* szSearchStart, bool bRecursive = true, bool bReportFolders = true); // [tested]
+  /// \brief Returns the file stats of the current object that the iterator points to.
+  const ezFileStats& GetStats() const { return m_CurFile; } // [tested]
 
-    /// \brief Returns the current path in which files are searched. Changes when 'Next' moves in or out of a sub-folder.
-    ///
-    /// You can use this to get the full path of the current file, by appending this value and the filename from 'GetStats'
-    const ezStringBuilder& GetCurrentPath() const { return m_sCurPath; } // [tested]
+  /// \brief Advances the iterator to the next file object. Might recurse into sub-folders.
+  ///
+  /// Returns false, if the search has reached its end.
+  ezResult Next(); // [tested]
 
-    /// \brief Returns the file stats of the current object that the iterator points to.
-    const ezFileStats& GetStats() const { return m_CurFile; } // [tested]
+  /// \brief The same as 'Next' only that the current folder will not be recursed into.
+  ///
+  /// Returns false, if the search has reached its end.
+  ezResult SkipFolder(); // [tested]
 
-    /// \brief Advances the iterator to the next file object. Might recurse into sub-folders.
-    ///
-    /// Returns false, if the search has reached its end.
-    ezResult Next(); // [tested]
+private:
+  /// \brief The current path of the folder, in which the iterator currently is.
+  ezStringBuilder m_sCurPath;
 
-    /// \brief The same as 'Next' only that the current folder will not be recursed into.
-    ///
-    /// Returns false, if the search has reached its end.
-    ezResult SkipFolder(); // [tested]
+  /// \brief Whether to do a recursive file search.
+  bool m_bRecursive;
 
-  private:
+  /// \brief Whether to report folders to the user, or to skip over them.
+  bool m_bReportFolders;
 
-    /// \brief The current path of the folder, in which the iterator currently is.
-    ezStringBuilder m_sCurPath;
+  /// \brief The stats about the file that the iterator currently points to.
+  ezFileStats m_CurFile;
 
-    /// \brief Whether to do a recursive file search.
-    bool m_bRecursive;
-
-    /// \brief Whether to report folders to the user, or to skip over them.
-    bool m_bReportFolders;
-
-    /// \brief The stats about the file that the iterator currently points to.
-    ezFileStats m_CurFile;
-
-    /// \brief Platform specific data, required by the implementation.
-    ezFileIterationData m_Data;
-  };
+  /// \brief Platform specific data, required by the implementation.
+  ezFileIterationData m_Data;
+};
 
 #endif
 
@@ -206,24 +205,23 @@ public:
   static ezString GetUserDataFolder(const char* szSubFolder = nullptr);
 
 public:
-
   /// \brief Describes the types of events that ezOSFile sends.
   struct EventType
   {
     enum Enum
     {
       None,
-      FileOpen,     ///< A file has been (attempted) to open.
-      FileClose,    ///< An open file has been closed.
-      FileExists,   ///< A check whether a file exists has been done.
+      FileOpen,        ///< A file has been (attempted) to open.
+      FileClose,       ///< An open file has been closed.
+      FileExists,      ///< A check whether a file exists has been done.
       DirectoryExists, ///< A check whether a directory exists has been done.
-      FileDelete,   ///< A file was attempted to be deleted.
-      FileRead,     ///< From an open file data was read.
-      FileWrite,    ///< Data was written to an open file.
-      MakeDir,      ///< A path has been created (recursive directory creation).
-      FileCopy,     ///< A file has been copied to another location.
-      FileStat,     ///< The stats of a file are queried
-      FileCasing,   ///< The exact spelling of a file/path is requested
+      FileDelete,      ///< A file was attempted to be deleted.
+      FileRead,        ///< From an open file data was read.
+      FileWrite,       ///< Data was written to an open file.
+      MakeDir,         ///< A path has been created (recursive directory creation).
+      FileCopy,        ///< A file has been copied to another location.
+      FileStat,        ///< The stats of a file are queried
+      FileCasing,      ///< The exact spelling of a file/path is requested
     };
   };
 
@@ -269,13 +267,12 @@ public:
   typedef ezEvent<const EventData&, ezMutex> Event;
 
   /// \brief Allows to register a function as an event receiver. All receivers will be notified in the order that they registered.
-  static void AddEventHandler(Event::Handler handler)    { s_FileEvents.AddEventHandler    (handler); }
+  static void AddEventHandler(Event::Handler handler) { s_FileEvents.AddEventHandler(handler); }
 
   /// \brief Unregisters a previously registered receiver. It is an error to unregister a receiver that was not registered.
-  static void RemoveEventHandler(Event::Handler handler) { s_FileEvents.RemoveEventHandler (handler); }
+  static void RemoveEventHandler(Event::Handler handler) { s_FileEvents.RemoveEventHandler(handler); }
 
 private:
-
   /// \brief Manages all the Event Handlers for the OSFile events.
   static Event s_FileEvents;
 
@@ -323,5 +320,3 @@ private:
   /// \brief Counts how many different files are touched.225
   static ezAtomicInteger32 s_FileCounter;
 };
-
-

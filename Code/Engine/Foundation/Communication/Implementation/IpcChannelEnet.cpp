@@ -1,15 +1,16 @@
 #include <PCH.h>
+
 #include <Foundation/Communication/Implementation/IpcChannelEnet.h>
 
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
 
 #include <Foundation/Communication/Implementation/MessageLoop.h>
-#include <Foundation/Communication/RemoteMessage.h>
 #include <Foundation/Communication/RemoteInterfaceEnet.h>
+#include <Foundation/Communication/RemoteMessage.h>
 #include <Foundation/Logging/Log.h>
 
 ezIpcChannelEnet::ezIpcChannelEnet(const char* szAddress, Mode::Enum mode)
-  : ezIpcChannel(szAddress, mode)
+    : ezIpcChannel(szAddress, mode)
 {
   m_sAddress = szAddress;
   m_Network = EZ_DEFAULT_NEW(ezRemoteInterfaceEnet);
@@ -99,8 +100,8 @@ void ezIpcChannelEnet::EnetEventHandler(const ezRemoteEvent& e)
 {
   if (e.m_Type == ezRemoteEvent::DisconnectedFromServer)
   {
-      ezLog::Info("Disconnected from remote engine process.");
-      Disconnect();
+    ezLog::Info("Disconnected from remote engine process.");
+    Disconnect();
   }
 
   if (e.m_Type == ezRemoteEvent::ConnectedToServer)
@@ -114,4 +115,3 @@ void ezIpcChannelEnet::EnetEventHandler(const ezRemoteEvent& e)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_IpcChannelEnet);
-

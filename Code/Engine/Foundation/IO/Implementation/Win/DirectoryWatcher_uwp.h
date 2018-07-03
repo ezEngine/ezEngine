@@ -3,7 +3,7 @@
 #include <Foundation/IO/DirectoryWatcher.h>
 
 ezDirectoryWatcher::ezDirectoryWatcher()
-  : m_pImpl(nullptr)
+    : m_pImpl(nullptr)
 {
 }
 
@@ -24,4 +24,3 @@ ezDirectoryWatcher::~ezDirectoryWatcher()
 void ezDirectoryWatcher::EnumerateChanges(ezDelegate<void(const char* filename, ezDirectoryWatcherAction action)> func)
 {
 }
-

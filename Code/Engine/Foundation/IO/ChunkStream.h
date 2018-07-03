@@ -1,12 +1,12 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/IO/Stream.h>
 #include <Foundation/Containers/Deque.h>
+#include <Foundation/IO/Stream.h>
 
 /// \brief A stream writer that separates data into 'chunks', which act like sub-streams.
 ///
-/// This stream writer allows to subdivide a stream into chunks, where each chunk stores a chunk name, 
+/// This stream writer allows to subdivide a stream into chunks, where each chunk stores a chunk name,
 /// version and size in bytes.
 class EZ_FOUNDATION_DLL ezChunkStreamWriter : public ezStreamWriter
 {
@@ -41,7 +41,7 @@ private:
 
 /// \brief Reader for the chunk format that ezChunkStreamWriter writes.
 ///
-/// 
+///
 class EZ_FOUNDATION_DLL ezChunkStreamReader : public ezStreamReader
 {
 public:
@@ -53,7 +53,7 @@ public:
   virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) override; // [tested]
 
   enum class EndChunkFileMode
-  { 
+  {
     SkipToEnd, ///< Makes sure all data is properly read, so that the stream read position is after the chunk file data. Useful if the chunk file is embedded in another file stream.
     JustClose  ///< Just stops, leaving the stream at the last read position. This should be used if definitely nothing more needs to be read from all underlying streams.
   };
@@ -77,11 +77,11 @@ public:
       m_uiUnreadChunkBytes = 0;
     }
 
-    bool m_bValid;                  ///< If this is false, the end of the chunk file has been reached and no further chunk is available.
-    ezString m_sChunkName;          ///< The name of the chunk.
-    ezUInt32 m_uiChunkVersion;      ///< The version number of the chunk.
-    ezUInt32 m_uiChunkBytes;        ///< The total size of the chunk.
-    ezUInt32 m_uiUnreadChunkBytes;  ///< The number of bytes in the chunk that have not yet been read.
+    bool m_bValid;                 ///< If this is false, the end of the chunk file has been reached and no further chunk is available.
+    ezString m_sChunkName;         ///< The name of the chunk.
+    ezUInt32 m_uiChunkVersion;     ///< The version number of the chunk.
+    ezUInt32 m_uiChunkBytes;       ///< The total size of the chunk.
+    ezUInt32 m_uiUnreadChunkBytes; ///< The number of bytes in the chunk that have not yet been read.
   };
 
   /// \brief Returns information about the current chunk.
@@ -98,4 +98,3 @@ private:
 
   ezStreamReader& m_Stream;
 };
-

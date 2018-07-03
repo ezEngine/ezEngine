@@ -7,7 +7,8 @@
 struct ezStringView;
 class ezLogInterface;
 
-template<typename T> struct ezDelegate;
+template <typename T>
+struct ezDelegate;
 
 /// \brief Parses a math expression from a string and allows efficient evaluation with different variable configurations.
 ///
@@ -16,8 +17,8 @@ template<typename T> struct ezDelegate;
 /// - Binary mathematical operators: * / - +
 /// - Unary mathematical operators: - +
 /// - Parenthesis: ( )
-/// - Variables consisting of an arbitrary chain of: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789 (s_szValidVariableCharacters) but musn't start with a number.
-/// Hardcoded to double.
+/// - Variables consisting of an arbitrary chain of: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789 (s_szValidVariableCharacters) but mustn't start with a number.
+/// Hard-coded to double.
 class EZ_FOUNDATION_DLL ezMathExpression
 {
 public:
@@ -33,7 +34,7 @@ public:
   /// If anything goes wrong it is logged and the math expression is in an invalid state.
   /// \param log
   ///   If null, default log interface will be used.
-  ezMathExpression(const char* szExpressionString, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem());  // [tested]
+  ezMathExpression(const char* szExpressionString, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem()); // [tested]
 
   /// \brief Reinitializes using the given expression.
   ///
@@ -54,10 +55,9 @@ public:
 
 
   // Parsing the expression - recursive parser using "precedence climbing".
-  // Note as of writing the ezPreprocessor parser uses a classic rescursive descent parser.
+  // Note as of writing the ezPreprocessor parser uses a classic recursive descent parser.
   // http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm
 private:
-
   ezResult ParseExpression(const ezTokenParseUtils::TokenStream& tokens, ezUInt32& uiCurToken, int precedence = 0);
   ezResult ParseFactor(const ezTokenParseUtils::TokenStream& tokens, ezUInt32& uiCurToken);
 
@@ -66,7 +66,6 @@ private:
 
   // Instruction stream.
 public:
-
   struct InstructionType
   {
     enum Enum : ezUInt32
@@ -78,7 +77,7 @@ public:
       Divide,   ///< Divide last two elements of evaluation stack and push result back.
 
       // Unary
-      Negate,   ///< Negate top element of the evaluation stack.
+      Negate, ///< Negate top element of the evaluation stack.
 
       // Special
       PushConstant, ///< Instruction is followed by an integer that determines which constant should be pushed onto the evaluation stack.
@@ -89,10 +88,8 @@ public:
   };
 
 private:
-
   ezDynamicArray<ezUInt32> m_InstructionStream;
   ezDynamicArray<double> m_Constants;
 
   bool m_bIsValid;
 };
-

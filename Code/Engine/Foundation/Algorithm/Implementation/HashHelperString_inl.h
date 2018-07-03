@@ -20,4 +20,3 @@ bool ezHashHelperString_NoCase::Equal(const ezStringBase<DerivedLhs>& lhs, const
 {
   return lhs.IsEqual_NoCase(rhs);
 }
-

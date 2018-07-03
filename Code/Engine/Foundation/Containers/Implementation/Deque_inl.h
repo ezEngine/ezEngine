@@ -1,21 +1,23 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Math/Math.h>
 
-#define REDUCE_SIZE(iReduction) \
+#define REDUCE_SIZE(iReduction)     \
   m_iReduceSizeTimer -= iReduction; \
-  if (m_iReduceSizeTimer <= 0) \
+  if (m_iReduceSizeTimer <= 0)      \
     ReduceSize(0);
 
-#define RESERVE(uiCount) \
-  if (uiCount > m_uiCount) { \
-    m_uiMaxCount = ezMath::Max(m_uiMaxCount, uiCount); \
+#define RESERVE(uiCount)                                         \
+  if (uiCount > m_uiCount)                                       \
+  {                                                              \
+    m_uiMaxCount = ezMath::Max(m_uiMaxCount, uiCount);           \
     if ((m_uiFirstElement <= 0) || (GetCurMaxCount() < uiCount)) \
-      Reserve(uiCount); }
+      Reserve(uiCount);                                          \
+  }
 
 #define CHUNK_SIZE(Type) \
   (4096 / sizeof(Type) < 32 ? 32 : 4096 / sizeof(Type))
-  //(sizeof(Type) <= 8 ? 256 : (sizeof(Type) <= 16 ? 128 : (sizeof(Type) <= 32 ? 64 : 32))) // although this is Pow(2), this is slower than just having larger chunks
+//(sizeof(Type) <= 8 ? 256 : (sizeof(Type) <= 16 ? 128 : (sizeof(Type) <= 32 ? 64 : 32))) // although this is Pow(2), this is slower than just having larger chunks
 
 template <typename T, bool Construct>
 void ezDequeBase<T, Construct>::Constructor(ezAllocatorBase* pAllocator)
@@ -68,11 +70,11 @@ ezDequeBase<T, Construct>::~ezDequeBase()
 }
 
 template <typename T, bool Construct>
-void ezDequeBase<T, Construct>::operator= (const ezDequeBase<T, Construct>& rhs)
+void ezDequeBase<T, Construct>::operator=(const ezDequeBase<T, Construct>& rhs)
 {
   EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
 
-  Clear(); // does not deallocate anything
+  Clear();                // does not deallocate anything
   RESERVE(rhs.m_uiCount); // allocates data, if required
   m_uiCount = rhs.m_uiCount;
 
@@ -82,7 +84,7 @@ void ezDequeBase<T, Construct>::operator= (const ezDequeBase<T, Construct>& rhs)
 }
 
 template <typename T, bool Construct>
-void ezDequeBase<T, Construct>::operator= (ezDequeBase<T, Construct>&& rhs)
+void ezDequeBase<T, Construct>::operator=(ezDequeBase<T, Construct>&& rhs)
 {
   EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
 
@@ -110,7 +112,7 @@ void ezDequeBase<T, Construct>::operator= (ezDequeBase<T, Construct>&& rhs)
 }
 
 template <typename T, bool Construct>
-bool ezDequeBase<T, Construct>::operator== (const ezDequeBase<T, Construct>& rhs) const
+bool ezDequeBase<T, Construct>::operator==(const ezDequeBase<T, Construct>& rhs) const
 {
   if (GetCount() != rhs.GetCount())
     return false;
@@ -125,7 +127,7 @@ bool ezDequeBase<T, Construct>::operator== (const ezDequeBase<T, Construct>& rhs
 }
 
 template <typename T, bool Construct>
-bool ezDequeBase<T, Construct>::operator!= (const ezDequeBase<T, Construct>& rhs) const
+bool ezDequeBase<T, Construct>::operator!=(const ezDequeBase<T, Construct>& rhs) const
 {
   return !operator==(rhs);
 }
@@ -148,14 +150,11 @@ void ezDequeBase<T, Construct>::Clear()
   // set the first element to a position that allows to add elements at the front
   if (m_uiChunks > 30)
     m_uiFirstElement = CHUNK_SIZE(T) * 16;
-  else
-  if (m_uiChunks > 8)
+  else if (m_uiChunks > 8)
     m_uiFirstElement = CHUNK_SIZE(T) * 4;
-  else
-  if (m_uiChunks > 1)
+  else if (m_uiChunks > 1)
     m_uiFirstElement = CHUNK_SIZE(T) * 1;
-  else
-  if (m_uiChunks > 0)
+  else if (m_uiChunks > 0)
     m_uiFirstElement = 1; // with the current implementation this case should not be possible.
   else
     m_uiFirstElement = 0; // must also work, if Clear is called on a deallocated (not yet allocated) deque
@@ -397,7 +396,7 @@ inline ezUInt32 ezDequeBase<T, Construct>::GetContiguousRange(ezUInt32 uiIndex) 
 
   const ezUInt32 uiChunkSize = CHUNK_SIZE(T);
 
-  const ezUInt32 uiRealIndex   = m_uiFirstElement + uiIndex;
+  const ezUInt32 uiRealIndex = m_uiFirstElement + uiIndex;
   const ezUInt32 uiChunkOffset = uiRealIndex % uiChunkSize;
 
   const ezUInt32 uiRange = uiChunkSize - uiChunkOffset;
@@ -413,7 +412,7 @@ inline T& ezDequeBase<T, Construct>::operator[](ezUInt32 uiIndex)
   const ezUInt32 uiRealIndex = m_uiFirstElement + uiIndex;
 
   const ezUInt32 uiChunkIndex = uiRealIndex / CHUNK_SIZE(T);
-  const ezUInt32 uiChunkOffset= uiRealIndex % CHUNK_SIZE(T);
+  const ezUInt32 uiChunkOffset = uiRealIndex % CHUNK_SIZE(T);
 
   return m_pChunks[uiChunkIndex][uiChunkOffset];
 }
@@ -426,7 +425,7 @@ inline const T& ezDequeBase<T, Construct>::operator[](ezUInt32 uiIndex) const
   const ezUInt32 uiRealIndex = m_uiFirstElement + uiIndex;
 
   const ezUInt32 uiChunkIndex = uiRealIndex / CHUNK_SIZE(T);
-  const ezUInt32 uiChunkOffset= uiRealIndex % CHUNK_SIZE(T);
+  const ezUInt32 uiChunkOffset = uiRealIndex % CHUNK_SIZE(T);
 
   return m_pChunks[uiChunkIndex][uiChunkOffset];
 }
@@ -477,7 +476,6 @@ void ezDequeBase<T, Construct>::PushBack(T&& element)
   ++m_uiCount;
 
   ezMemoryUtils::MoveConstruct<T>(&ElementAt(m_uiCount - 1), std::move(element));
-
 }
 
 template <typename T, bool Construct>
@@ -813,7 +811,7 @@ T& ezDequeBase<T, Construct>::ElementAt(ezUInt32 uiIndex)
   const ezUInt32 uiRealIndex = m_uiFirstElement + uiIndex;
 
   const ezUInt32 uiChunkIndex = uiRealIndex / CHUNK_SIZE(T);
-  const ezUInt32 uiChunkOffset= uiRealIndex % CHUNK_SIZE(T);
+  const ezUInt32 uiChunkOffset = uiRealIndex % CHUNK_SIZE(T);
 
   EZ_ASSERT_DEBUG(uiChunkIndex < m_uiChunks, "");
 
@@ -929,7 +927,7 @@ ezUInt64 ezDequeBase<T, Construct>::GetHeapMemoryUsage() const
   {
     if (m_pChunks[i] != nullptr)
     {
-      res += (ezUInt64) (CHUNK_SIZE(T)) * (ezUInt64) sizeof(T);
+      res += (ezUInt64)(CHUNK_SIZE(T)) * (ezUInt64)sizeof(T);
     }
   }
 
@@ -993,5 +991,3 @@ void ezDeque<T, A, Construct>::operator=(ezDequeBase<T, Construct>&& rhs)
 {
   ezDequeBase<T, Construct>::operator=(std::move(rhs));
 }
-
-

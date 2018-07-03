@@ -1,10 +1,10 @@
-﻿#pragma once
+#pragma once
 
-#include <Foundation/IO/FileSystem/Implementation/DataDirType.h>
-#include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Communication/Event.h>
-#include <Foundation/Threading/Mutex.h>
+#include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Containers/Map.h>
+#include <Foundation/IO/FileSystem/Implementation/DataDirType.h>
+#include <Foundation/Threading/Mutex.h>
 
 /// \brief The ezFileSystem provides high-level functionality to manage files in a virtual file system.
 ///
@@ -54,7 +54,6 @@ public:
   static void UnregisterEventHandler(ezEvent<const FileEvent&>::Handler handler);
 
 public:
-
   /// \brief Describes in which mode a data directory is mounted.
   enum DataDirUsage
   {
@@ -136,7 +135,6 @@ public:
   static ezResult CreateDirectoryStructure(const char* szPath);
 
 public:
-
   /// \brief Deletes the given file from all data directories, if possible.
   ///
   /// The path must be absolute or rooted, to uniquely identify which file to delete.
@@ -252,18 +250,18 @@ struct ezFileSystem::FileEventType
 {
   enum Enum
   {
-    None,                       ///< None. Should not occur.
-    OpenFileAttempt,            ///< A file is about to be opened for reading.
-    OpenFileSucceeded,          ///< A file has been successfully opened for reading.
-    OpenFileFailed,             ///< Opening a file for reading failed. Probably because it doesn't exist.
-    CreateFileAttempt,          ///< A file is about to be opened for writing.
-    CreateFileSucceeded,        ///< A file has been successfully opened for writing.
-    CreateFileFailed,           ///< Opening a file for writing failed.
-    CloseFile,                  ///< A file was closed.
-    AddDataDirectorySucceeded,  ///< A data directory was successfully added.
-    AddDataDirectoryFailed,     ///< Adding a data directory failed. No factory could handle it (or there were none).
-    RemoveDataDirectory,        ///< A data directory was removed. IMPORTANT: This is where ResourceManagers should check if some loaded resources need to be purged.
-    DeleteFile                  ///< A file is about to be deleted.
+    None,                      ///< None. Should not occur.
+    OpenFileAttempt,           ///< A file is about to be opened for reading.
+    OpenFileSucceeded,         ///< A file has been successfully opened for reading.
+    OpenFileFailed,            ///< Opening a file for reading failed. Probably because it doesn't exist.
+    CreateFileAttempt,         ///< A file is about to be opened for writing.
+    CreateFileSucceeded,       ///< A file has been successfully opened for writing.
+    CreateFileFailed,          ///< Opening a file for writing failed.
+    CloseFile,                 ///< A file was closed.
+    AddDataDirectorySucceeded, ///< A data directory was successfully added.
+    AddDataDirectoryFailed,    ///< Adding a data directory failed. No factory could handle it (or there were none).
+    RemoveDataDirectory,       ///< A data directory was removed. IMPORTANT: This is where ResourceManagers should check if some loaded resources need to be purged.
+    DeleteFile                 ///< A file is about to be deleted.
   };
 };
 
@@ -282,4 +280,3 @@ struct ezFileSystem::FileEvent
   /// \brief The data-directory, that was involved.
   const ezDataDirectoryType* m_pDataDir = nullptr;
 };
-

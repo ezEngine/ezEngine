@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Image/ImageFormat.h>
 
@@ -8,17 +9,18 @@ namespace
   {
   public:
     ezImageFormatMetaData() : m_szName("<invalid>"), m_uiBitsPerPixel(0), m_uiRedMask(0), m_uiGreenMask(0), m_uiBlueMask(0), m_uiAlphaMask(0),
-      m_formatType(ezImageFormatType::UNKNOWN)
-    {}
+                              m_formatType(ezImageFormatType::UNKNOWN)
+    {
+    }
 
     ezImageFormatMetaData(const char* name, ezUInt32 uiBitsPerPixel,
                           ezUInt32 uiRedMask, ezUInt32 uiGreenMask,
-                          ezUInt32 uiBlueMask, ezUInt32 uiAlphaMask, ezImageFormatType::Enum formatType) :
-      m_szName(name), m_uiBitsPerPixel(uiBitsPerPixel),
-      m_uiRedMask(uiRedMask), m_uiGreenMask(uiGreenMask),
-      m_uiBlueMask(uiBlueMask), m_uiAlphaMask(uiAlphaMask),
-      m_formatType(formatType)
-    {}
+                          ezUInt32 uiBlueMask, ezUInt32 uiAlphaMask, ezImageFormatType::Enum formatType) : m_szName(name), m_uiBitsPerPixel(uiBitsPerPixel),
+                                                                                                           m_uiRedMask(uiRedMask), m_uiGreenMask(uiGreenMask),
+                                                                                                           m_uiBlueMask(uiBlueMask), m_uiAlphaMask(uiAlphaMask),
+                                                                                                           m_formatType(formatType)
+    {
+    }
 
     const char* m_szName;
     ezUInt32 m_uiBitsPerPixel;
@@ -227,7 +229,4 @@ ezImageFormatType::Enum ezImageFormat::GetType(Enum format)
 
 
 
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Image_Implementation_ImageFormat);
-

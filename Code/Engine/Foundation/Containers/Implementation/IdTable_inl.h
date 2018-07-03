@@ -1,9 +1,8 @@
-﻿
+
 // ***** Const Iterator *****
 
 template <typename IdType, typename ValueType>
-ezIdTableBase<IdType, ValueType>::ConstIterator::ConstIterator(const ezIdTableBase<IdType, ValueType>& idTable) :
-  m_idTable(idTable), m_uiCurrentIndex(0), m_uiCurrentCount(0)
+ezIdTableBase<IdType, ValueType>::ConstIterator::ConstIterator(const ezIdTableBase<IdType, ValueType>& idTable) : m_idTable(idTable), m_uiCurrentIndex(0), m_uiCurrentCount(0)
 {
   if (m_idTable.IsEmpty())
     return;
@@ -54,8 +53,7 @@ void ezIdTableBase<IdType, ValueType>::ConstIterator::Next()
   do
   {
     ++m_uiCurrentIndex;
-  }
-  while (m_idTable.m_pEntries[m_uiCurrentIndex].id.m_InstanceIndex != m_uiCurrentIndex);
+  } while (m_idTable.m_pEntries[m_uiCurrentIndex].id.m_InstanceIndex != m_uiCurrentIndex);
 }
 
 template <typename IdType, typename ValueType>
@@ -68,8 +66,7 @@ EZ_ALWAYS_INLINE void ezIdTableBase<IdType, ValueType>::ConstIterator::operator+
 // ***** Iterator *****
 
 template <typename IdType, typename ValueType>
-ezIdTableBase<IdType, ValueType>::Iterator::Iterator(const ezIdTableBase<IdType, ValueType>& idTable) :
-  ConstIterator(idTable)
+ezIdTableBase<IdType, ValueType>::Iterator::Iterator(const ezIdTableBase<IdType, ValueType>& idTable) : ConstIterator(idTable)
 {
 }
 
@@ -122,7 +119,7 @@ ezIdTableBase<IdType, ValueType>::~ezIdTableBase()
 }
 
 template <typename IdType, typename ValueType>
-void ezIdTableBase<IdType, ValueType>::operator= (const ezIdTableBase<IdType, ValueType>& rhs)
+void ezIdTableBase<IdType, ValueType>::operator=(const ezIdTableBase<IdType, ValueType>& rhs)
 {
   Clear();
   Reserve(rhs.m_uiCapacity);
@@ -282,7 +279,7 @@ EZ_FORCE_INLINE const ValueType& ezIdTableBase<IdType, ValueType>::operator[](co
   EZ_ASSERT_DEV(id.m_InstanceIndex < m_uiCapacity, "Out of bounds access. Table has {0} elements, trying to access element at index {1}.", m_uiCapacity, id.m_InstanceIndex);
   const Entry& entry = m_pEntries[id.m_InstanceIndex];
   EZ_ASSERT_DEV(entry.id.IsIndexAndGenerationEqual(id),
-            "Stale access. Trying to access a value (generation: {0}) that has been removed and replaced by a new value (generation: {1})", entry.id.m_Generation, id.m_Generation);
+                "Stale access. Trying to access a value (generation: {0}) that has been removed and replaced by a new value (generation: {1})", entry.id.m_Generation, id.m_Generation);
 
   return entry.value;
 }
@@ -293,7 +290,7 @@ EZ_FORCE_INLINE ValueType& ezIdTableBase<IdType, ValueType>::operator[](const Id
   EZ_ASSERT_DEV(id.m_InstanceIndex < m_uiCapacity, "Out of bounds access. Table has {0} elements, trying to access element at index {1}.", m_uiCapacity, id.m_InstanceIndex);
   Entry& entry = m_pEntries[id.m_InstanceIndex];
   EZ_ASSERT_DEV(entry.id.IsIndexAndGenerationEqual(id),
-            "Stale access. Trying to access a value (generation: {0}) that has been removed and replaced by a new value (generation: {1})", static_cast<int>(entry.id.m_Generation), id.m_Generation);
+                "Stale access. Trying to access a value (generation: {0}) that has been removed and replaced by a new value (generation: {1})", static_cast<int>(entry.id.m_Generation), id.m_Generation);
 
   return entry.value;
 }
@@ -360,7 +357,7 @@ bool ezIdTableBase<IdType, ValueType>::IsFreelistValid() const
 template <typename IdType, typename ValueType>
 void ezIdTableBase<IdType, ValueType>::SetCapacity(IndexType uiCapacity)
 {
-  Entry* pNewEntries = EZ_NEW_RAW_BUFFER(m_pAllocator, Entry, (size_t) uiCapacity);
+  Entry* pNewEntries = EZ_NEW_RAW_BUFFER(m_pAllocator, Entry, (size_t)uiCapacity);
 
   for (IndexType i = 0; i < m_uiCapacity; ++i)
   {
@@ -423,4 +420,3 @@ void ezIdTable<IdType, V, A>::operator=(const ezIdTableBase<IdType, V>& rhs)
 {
   ezIdTableBase<IdType, V>::operator=(rhs);
 }
-

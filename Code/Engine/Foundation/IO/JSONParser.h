@@ -1,27 +1,26 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/IO/Stream.h>
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/IO/Stream.h>
 
 class ezLogInterface;
 
 /// \brief A low level JSON parser that can incrementally parse the structure of a JSON document.
 ///
-/// The document structure is returned through virtual functions that need to be overridden. 
+/// The document structure is returned through virtual functions that need to be overridden.
 class EZ_FOUNDATION_DLL ezJSONParser
 {
 public:
   /// \brief Constructor.
   ezJSONParser();
 
-  virtual ~ezJSONParser() { }
+  virtual ~ezJSONParser() {}
 
   /// \brief Allows to specify an ezLogInterface through which errors and warnings are reported.
   void SetLogInterface(ezLogInterface* pLog) { m_pLogInterface = pLog; }
 
 protected:
-
   /// \brief Resets the parser to the start state and configures it to read from the given stream.
   void SetInputStream(ezStreamReader& stream, ezUInt32 uiFirstLineOffset = 0);
 
@@ -50,7 +49,6 @@ protected:
   ezLogInterface* m_pLogInterface;
 
 private:
-
   /// \brief Called whenever a new variable is encountered. The variable name is passed along.
   /// At this point the type of the variable (simple, array, object) is not yet determined.
   ///
@@ -92,12 +90,12 @@ private:
   virtual void OnEndArray() = 0;
 
   /// \brief Called when something unexpected is encountered in the JSON document.
-  /// 
+  ///
   /// The error message describes what was expected and what was encountered.
   /// If bFatal is true, the error has left the parser in an unrecoverable state and thus it not continue parsing.
   /// In that case client code will need to clean up it's open state, as no further OnEndObject() / OnEndArray() will be called.
   /// If bFatal is false, the document does not contain valid JSON, but the parser is able to continue still.
-  virtual void OnParsingError(const char* szMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn) { }
+  virtual void OnParsingError(const char* szMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn) {}
 
 private:
   enum State
@@ -149,6 +147,4 @@ private:
   ezHybridArray<ezUInt8, 4096> m_TempString;
 
   bool m_bSkippingMode;
-  
 };
-

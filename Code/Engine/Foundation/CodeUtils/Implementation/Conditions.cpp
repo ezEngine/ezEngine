@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/CodeUtils/Preprocessor.h>
 
 using namespace ezTokenParseUtils;
@@ -21,8 +22,8 @@ ezResult ezPreprocessor::CopyTokensAndEvaluateDefined(const TokenStream& Source,
           Source[uiCurToken]->m_iType == ezTokenType::EndOfFile ||
           Source[uiCurToken]->m_iType == ezTokenType::Newline)
       {
-          ++uiCurToken;
-          continue;
+        ++uiCurToken;
+        continue;
       }
 
       if (ezString(Source[uiCurToken]->m_DataView) == "defined")
@@ -160,7 +161,7 @@ ezResult ezPreprocessor::ParseFactor(const TokenStream& Tokens, ezUInt32& uiCurT
       m_ProcessingEvents.Broadcast(pe);
     }
 
-    iResult = (ezInt64) iResult32;
+    iResult = (ezInt64)iResult32;
 
     return EZ_SUCCESS;
   }
@@ -403,27 +404,27 @@ ezResult ezPreprocessor::ParseCondition(const TokenStream& Tokens, ezUInt32& uiC
 
   switch (Operator)
   {
-  case Comparison::Equal:
-    iResult = (iResult1 == iResult2) ? 1 : 0;
-    return EZ_SUCCESS;
-  case Comparison::GreaterThan:
-    iResult = (iResult1 > iResult2) ? 1 : 0;
-    return EZ_SUCCESS;
-  case Comparison::GreaterThanEqual:
-    iResult = (iResult1 >= iResult2) ? 1 : 0;
-    return EZ_SUCCESS;
-  case Comparison::LessThan:
-    iResult = (iResult1 < iResult2) ? 1 : 0;
-    return EZ_SUCCESS;
-  case Comparison::LessThanEqual:
-    iResult = (iResult1 <= iResult2) ? 1 : 0;
-    return EZ_SUCCESS;
-  case Comparison::Unequal:
-    iResult = (iResult1 != iResult2) ? 1 : 0;
-    return EZ_SUCCESS;
-  case Comparison::None:
-    ezLog::Error(m_pLog, "Unknown operator");
-    return EZ_FAILURE;
+    case Comparison::Equal:
+      iResult = (iResult1 == iResult2) ? 1 : 0;
+      return EZ_SUCCESS;
+    case Comparison::GreaterThan:
+      iResult = (iResult1 > iResult2) ? 1 : 0;
+      return EZ_SUCCESS;
+    case Comparison::GreaterThanEqual:
+      iResult = (iResult1 >= iResult2) ? 1 : 0;
+      return EZ_SUCCESS;
+    case Comparison::LessThan:
+      iResult = (iResult1 < iResult2) ? 1 : 0;
+      return EZ_SUCCESS;
+    case Comparison::LessThanEqual:
+      iResult = (iResult1 <= iResult2) ? 1 : 0;
+      return EZ_SUCCESS;
+    case Comparison::Unequal:
+      iResult = (iResult1 != iResult2) ? 1 : 0;
+      return EZ_SUCCESS;
+    case Comparison::None:
+      ezLog::Error(m_pLog, "Unknown operator");
+      return EZ_FAILURE;
   }
 
   return EZ_FAILURE;
@@ -431,7 +432,4 @@ ezResult ezPreprocessor::ParseCondition(const TokenStream& Tokens, ezUInt32& uiC
 
 
 
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_Conditions);
-

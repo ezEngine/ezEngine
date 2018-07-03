@@ -4,16 +4,16 @@
 #include <Foundation/Image/ImageConversion.h>
 
 /// \brief A template mixin useful as a base for custom image conversion routines.
-template<typename Impl>
+template <typename Impl>
 struct ezImageConversionMixinBase : public ezImageConversion
 {
   /// \brief Converts an image by iterating over all sub-images and calling the implementation.
   virtual ezResult DoConvert(const ezImage& source, ezImage& target, ezImageFormat::Enum targetFormat) const override
   {
     EZ_ASSERT_DEV(
-      ezImageFormat::GetBitsPerPixel(source.GetImageFormat()) == Impl::s_uiSourceBpp &&
-      ezImageFormat::GetBitsPerPixel(targetFormat) == Impl::s_uiTargetBpp,
-      "Image format pixel size not supported by this conversion routine");
+        ezImageFormat::GetBitsPerPixel(source.GetImageFormat()) == Impl::s_uiSourceBpp &&
+            ezImageFormat::GetBitsPerPixel(targetFormat) == Impl::s_uiTargetBpp,
+        "Image format pixel size not supported by this conversion routine");
 
     static_cast<ezImageHeader&>(target) = source;
 
@@ -37,7 +37,7 @@ struct ezImageConversionMixinBase : public ezImageConversion
 };
 
 /// \brief A template mixin useful to implement block decompression routines.
-template<typename Impl>
+template <typename Impl>
 struct ezImageConversionMixinBlockDecompression : ezImageConversionMixinBase<Impl>
 {
   static void ConvertSubImage(const ezImage& source, ezImage& target, ezUInt32 uiFace, ezUInt32 uiMipLevel, ezUInt32 uiArrayIndex)
@@ -75,12 +75,12 @@ struct ezImageConversionMixinBlockDecompression : ezImageConversionMixinBase<Imp
           Impl::DecompressBlock(reinterpret_cast<const typename Impl::SourceType*>(pSource), reinterpret_cast<typename Impl::TargetType*>(tempBuffer));
 
           ezUInt8* pTarget = target.GetPixelPointer<ezUInt8>(
-            uiMipLevel, uiFace, uiArrayIndex,
-            uiBlockX * uiBlockSize, uiBlockY * uiBlockSize, uiSlice);
-          
+              uiMipLevel, uiFace, uiArrayIndex,
+              uiBlockX * uiBlockSize, uiBlockY * uiBlockSize, uiSlice);
+
           // Copy into actual target, clamping to image dimensions
           ezUInt32 uiCopyWidth = ezMath::Min(uiBlockSize, uiWidth - uiBlockX * uiBlockSize);
-          ezUInt32 uiCopyHeight= ezMath::Min(uiBlockSize, uiHeight - uiBlockY * uiBlockSize);
+          ezUInt32 uiCopyHeight = ezMath::Min(uiBlockSize, uiHeight - uiBlockY * uiBlockSize);
           for (ezUInt32 uiRow = 0; uiRow < uiCopyHeight; uiRow++)
           {
             memcpy(pTarget, &tempBuffer[uiRow * uiBlockSize * uiTargetBytesPerPixel], uiCopyWidth * uiTargetBytesPerPixel);
@@ -93,7 +93,7 @@ struct ezImageConversionMixinBlockDecompression : ezImageConversionMixinBase<Imp
 };
 
 /// \brief A template mixin useful to implement linear format conversion routines.
-template<typename Impl>
+template <typename Impl>
 struct ezImageConversionMixinLinear : ezImageConversionMixinBase<Impl>
 {
   static void ConvertSubImage(const ezImage& source, ezImage& target, ezUInt32 uiFace, ezUInt32 uiMipLevel, ezUInt32 uiArrayIndex)
@@ -111,8 +111,8 @@ struct ezImageConversionMixinLinear : ezImageConversionMixinBase<Impl>
     const ezUInt32 uiTargetRowPitch = target.GetRowPitch(uiMipLevel);
 
     const bool bConvertRowWise =
-      (uiSourceRowPitch % uiSourceBytesPerPixel != 0) ||
-      (uiTargetRowPitch % uiTargetBytesPerPixel != 0);
+        (uiSourceRowPitch % uiSourceBytesPerPixel != 0) ||
+        (uiTargetRowPitch % uiTargetBytesPerPixel != 0);
 
     for (ezUInt32 uiSlice = 0; uiSlice < source.GetDepth(uiMipLevel); uiSlice++)
     {
@@ -148,9 +148,9 @@ struct ezImageConversionMixinLinear : ezImageConversionMixinBase<Impl>
 
     // Check if we can reach a point where source and target are both aligned
     const bool bAlignmentMatches =
-      (uiLeadInSource % uiSourceBytesPerPixel == 0) &&
-      (uiLeadInTarget % uiTargetBytesPerPixel == 0) &&
-      (uiLeadInSource / uiSourceBytesPerPixel == uiLeadInTarget / uiTargetBytesPerPixel);
+        (uiLeadInSource % uiSourceBytesPerPixel == 0) &&
+        (uiLeadInTarget % uiTargetBytesPerPixel == 0) &&
+        (uiLeadInSource / uiSourceBytesPerPixel == uiLeadInTarget / uiTargetBytesPerPixel);
 
     if (bAlignmentMatches)
     {
@@ -159,20 +159,20 @@ struct ezImageConversionMixinLinear : ezImageConversionMixinBase<Impl>
       for (ezUInt32 uiElement = 0; uiElement < uiLeadInElements; uiElement++)
       {
         Impl::ConvertSingle(
-          reinterpret_cast<const typename Impl::SourceTypeSingle*>(pSource),
-          reinterpret_cast<typename Impl::TargetTypeSingle*>(pTarget));
+            reinterpret_cast<const typename Impl::SourceTypeSingle*>(pSource),
+            reinterpret_cast<typename Impl::TargetTypeSingle*>(pTarget));
         pSource += uiSourceBytesPerPixel;
         pTarget += uiTargetBytesPerPixel;
       }
 
       // Convert multiple elements for as long as possible
       const ezUInt32 uiMiddleElements =
-        ((uiElements - uiLeadInElements) / Impl::s_uiMultiConversionSize) * Impl::s_uiMultiConversionSize;
+          ((uiElements - uiLeadInElements) / Impl::s_uiMultiConversionSize) * Impl::s_uiMultiConversionSize;
       for (ezUInt32 uiElement = 0; uiElement < uiMiddleElements; uiElement += Impl::s_uiMultiConversionSize)
       {
         Impl::ConvertMultiple(
-          reinterpret_cast<const typename Impl::SourceTypeMultiple*>(pSource),
-          reinterpret_cast<typename Impl::TargetTypeMultiple*>(pTarget));
+            reinterpret_cast<const typename Impl::SourceTypeMultiple*>(pSource),
+            reinterpret_cast<typename Impl::TargetTypeMultiple*>(pTarget));
         pSource += Impl::s_uiMultiConversionSize * uiSourceBytesPerPixel;
         pTarget += Impl::s_uiMultiConversionSize * uiTargetBytesPerPixel;
       }
@@ -185,8 +185,8 @@ struct ezImageConversionMixinLinear : ezImageConversionMixinBase<Impl>
       for (ezUInt32 uiElement = 0; uiElement < uiLeadOutElements; uiElement++)
       {
         Impl::ConvertSingle(
-          reinterpret_cast<const typename Impl::SourceTypeSingle*>(pSource),
-          reinterpret_cast<typename Impl::TargetTypeSingle*>(pTarget));
+            reinterpret_cast<const typename Impl::SourceTypeSingle*>(pSource),
+            reinterpret_cast<typename Impl::TargetTypeSingle*>(pTarget));
         pSource += uiSourceBytesPerPixel;
         pTarget += uiTargetBytesPerPixel;
       }
@@ -197,12 +197,11 @@ struct ezImageConversionMixinLinear : ezImageConversionMixinBase<Impl>
       for (ezUInt32 uiElement = 0; uiElement < uiElements; uiElement++)
       {
         Impl::ConvertSingle(
-          reinterpret_cast<const typename Impl::SourceTypeSingle*>(pSource),
-          reinterpret_cast<typename Impl::TargetTypeSingle*>(pTarget));
+            reinterpret_cast<const typename Impl::SourceTypeSingle*>(pSource),
+            reinterpret_cast<typename Impl::TargetTypeSingle*>(pTarget));
         pSource += uiSourceBytesPerPixel;
         pTarget += uiTargetBytesPerPixel;
       }
     }
   }
 };
-

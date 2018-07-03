@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Communication/Implementation/TelemetryMessage.h>
 
 ezTelemetryMessage::ezTelemetryMessage() : m_Reader(&m_Storage), m_Writer(&m_Storage)
@@ -39,4 +40,3 @@ ezTelemetryMessage::~ezTelemetryMessage()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_TelemetryMessage);
-

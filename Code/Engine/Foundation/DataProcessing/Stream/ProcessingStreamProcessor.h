@@ -12,7 +12,6 @@ class EZ_FOUNDATION_DLL ezProcessingStreamProcessor : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezProcessingStreamProcessor, ezReflectedClass);
 
 public:
-
   /// \brief Base constructor
   ezProcessingStreamProcessor();
 
@@ -23,7 +22,6 @@ public:
   float m_fPriority = 0.0f;
 
 protected:
-
   friend class ezProcessingStreamGroup;
 
   /// \brief Internal method which needs to be implemented, gets the concrete stream bindings.
@@ -40,4 +38,3 @@ protected:
   /// Can be used to get stream pointers in UpdateStreamBindings();
   ezProcessingStreamGroup* m_pStreamGroup;
 };
-

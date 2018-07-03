@@ -1,12 +1,14 @@
 #include <PCH.h>
-#include <Foundation/Image/Formats/DdsFileFormat.h>
-#include <Foundation/Image/Image.h>
-#include <Foundation/Image/Formats/ImageFormatMappings.h>
+
 #include <Foundation/IO/Stream.h>
+#include <Foundation/Image/Formats/DdsFileFormat.h>
+#include <Foundation/Image/Formats/ImageFormatMappings.h>
+#include <Foundation/Image/Image.h>
 
 ezDdsFileFormat g_ddsFormat;
 
-struct ezDdsPixelFormat {
+struct ezDdsPixelFormat
+{
   ezUInt32 m_uiSize;
   ezUInt32 m_uiFlags;
   ezUInt32 m_uiFourCC;
@@ -17,25 +19,27 @@ struct ezDdsPixelFormat {
   ezUInt32 m_uiABitMask;
 };
 
-struct ezDdsHeader {
-  ezUInt32         m_uiMagic;
-  ezUInt32         m_uiSize;
-  ezUInt32         m_uiFlags;
-  ezUInt32         m_uiHeight;
-  ezUInt32         m_uiWidth;
-  ezUInt32         m_uiPitchOrLinearSize;
-  ezUInt32         m_uiDepth;
-  ezUInt32         m_uiMipMapCount;
-  ezUInt32         m_uiReserved1[11];
+struct ezDdsHeader
+{
+  ezUInt32 m_uiMagic;
+  ezUInt32 m_uiSize;
+  ezUInt32 m_uiFlags;
+  ezUInt32 m_uiHeight;
+  ezUInt32 m_uiWidth;
+  ezUInt32 m_uiPitchOrLinearSize;
+  ezUInt32 m_uiDepth;
+  ezUInt32 m_uiMipMapCount;
+  ezUInt32 m_uiReserved1[11];
   ezDdsPixelFormat m_ddspf;
-  ezUInt32         m_uiCaps;
-  ezUInt32         m_uiCaps2;
-  ezUInt32         m_uiCaps3;
-  ezUInt32         m_uiCaps4;
-  ezUInt32         m_uiReserved2;
+  ezUInt32 m_uiCaps;
+  ezUInt32 m_uiCaps2;
+  ezUInt32 m_uiCaps3;
+  ezUInt32 m_uiCaps4;
+  ezUInt32 m_uiReserved2;
 };
 
-struct ezDdsResourceDimension {
+struct ezDdsResourceDimension
+{
   enum Enum
   {
     TEXTURE1D = 2,
@@ -44,14 +48,16 @@ struct ezDdsResourceDimension {
   };
 };
 
-struct ezDdsResourceMiscFlags {
+struct ezDdsResourceMiscFlags
+{
   enum Enum
   {
     TEXTURECUBE = 0x4,
   };
 };
 
-struct ezDdsHeaderDxt10 {
+struct ezDdsHeaderDxt10
+{
   ezUInt32 m_uiDxgiFormat;
   ezUInt32 m_uiResourceDimension;
   ezUInt32 m_uiMiscFlag;
@@ -61,7 +67,8 @@ struct ezDdsHeaderDxt10 {
 
 struct ezDdsdFlags
 {
-  enum Enum {
+  enum Enum
+  {
     CAPS = 0x000001,
     HEIGHT = 0x000002,
     WIDTH = 0x000004,
@@ -88,7 +95,8 @@ struct ezDdpfFlags
 
 struct ezDdsCaps
 {
-  enum Enum {
+  enum Enum
+  {
     COMPLEX = 0x000008,
     MIPMAP = 0x400000,
     TEXTURE = 0x001000,
@@ -97,7 +105,8 @@ struct ezDdsCaps
 
 struct ezDdsCaps2
 {
-  enum Enum {
+  enum Enum
+  {
     CUBEMAP = 0x000200,
     CUBEMAP_POSITIVEX = 0x000400,
     CUBEMAP_NEGATIVEX = 0x000800,
@@ -136,8 +145,8 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   // Required in every .dds file. According to the spec, CAPS and PIXELFORMAT are also required, but D3DX outputs
   // files not conforming to this.
   if (
-    (fileHeader.m_uiFlags & ezDdsdFlags::WIDTH) == 0 ||
-    (fileHeader.m_uiFlags & ezDdsdFlags::HEIGHT) == 0)
+      (fileHeader.m_uiFlags & ezDdsdFlags::WIDTH) == 0 ||
+      (fileHeader.m_uiFlags & ezDdsdFlags::HEIGHT) == 0)
   {
     ezLog::Error(pLog, "The file header doesn't specify the mandatory WIDTH or HEIGHT flag.");
     return EZ_FAILURE;
@@ -166,22 +175,22 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
   // Data format specified in RGBA masks
   if ((fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::ALPHAPIXELS) != 0 ||
-    (fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::RGB) != 0 ||
-    (fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::ALPHA) != 0)
+      (fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::RGB) != 0 ||
+      (fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::ALPHA) != 0)
   {
     format = ezImageFormat::FromPixelMask(
-      fileHeader.m_ddspf.m_uiRBitMask, fileHeader.m_ddspf.m_uiGBitMask,
-      fileHeader.m_ddspf.m_uiBBitMask, fileHeader.m_ddspf.m_uiABitMask,
-      fileHeader.m_ddspf.m_uiRGBBitCount);
+        fileHeader.m_ddspf.m_uiRBitMask, fileHeader.m_ddspf.m_uiGBitMask,
+        fileHeader.m_ddspf.m_uiBBitMask, fileHeader.m_ddspf.m_uiABitMask,
+        fileHeader.m_ddspf.m_uiRGBBitCount);
 
     if (format == ezImageFormat::UNKNOWN)
     {
       ezLog::Error(pLog, "The pixel mask specified was not recognized (R: {0}, G: {1}, B: {2}, A: {3}, Bpp: {4}).",
-        ezArgU(fileHeader.m_ddspf.m_uiRBitMask, 1, false, 16),
-        ezArgU(fileHeader.m_ddspf.m_uiGBitMask, 1, false, 16),
-        ezArgU(fileHeader.m_ddspf.m_uiBBitMask, 1, false, 16),
-        ezArgU(fileHeader.m_ddspf.m_uiABitMask, 1, false, 16),
-        fileHeader.m_ddspf.m_uiRGBBitCount);
+                   ezArgU(fileHeader.m_ddspf.m_uiRBitMask, 1, false, 16),
+                   ezArgU(fileHeader.m_ddspf.m_uiGBitMask, 1, false, 16),
+                   ezArgU(fileHeader.m_ddspf.m_uiBBitMask, 1, false, 16),
+                   ezArgU(fileHeader.m_ddspf.m_uiABitMask, 1, false, 16),
+                   fileHeader.m_ddspf.m_uiRGBBitCount);
       return EZ_FAILURE;
     }
 
@@ -189,7 +198,7 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     if (ezImageFormat::GetBitsPerPixel(format) != fileHeader.m_ddspf.m_uiRGBBitCount)
     {
       ezLog::Error(pLog, "The number of bits per pixel specified in the file ({0}) does not match the expected value of {1} for the format '{2}'.",
-        fileHeader.m_ddspf.m_uiRGBBitCount, ezImageFormat::GetBitsPerPixel(format), ezImageFormat::GetName(format));
+                   fileHeader.m_ddspf.m_uiRGBBitCount, ezImageFormat::GetBitsPerPixel(format), ezImageFormat::GetName(format));
       return EZ_FAILURE;
     }
   }
@@ -218,10 +227,10 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
       if (format == ezImageFormat::UNKNOWN)
       {
         ezLog::Error(pLog, "The FourCC code '{0}{1}{2}{3}' was not recognized.",
-          ezArgC((char)(fileHeader.m_ddspf.m_uiFourCC >> 0)),
-          ezArgC((char)(fileHeader.m_ddspf.m_uiFourCC >> 8)),
-          ezArgC((char)(fileHeader.m_ddspf.m_uiFourCC >> 16)),
-          ezArgC((char)(fileHeader.m_ddspf.m_uiFourCC >> 24)));
+                     ezArgC((char)(fileHeader.m_ddspf.m_uiFourCC >> 0)),
+                     ezArgC((char)(fileHeader.m_ddspf.m_uiFourCC >> 8)),
+                     ezArgC((char)(fileHeader.m_ddspf.m_uiFourCC >> 16)),
+                     ezArgC((char)(fileHeader.m_ddspf.m_uiFourCC >> 24)));
         return EZ_FAILURE;
       }
     }
@@ -335,19 +344,19 @@ ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
 
   switch (ezImageFormat::GetType(image.GetImageFormat()))
   {
-  case ezImageFormatType::LINEAR:
-    fileHeader.m_uiFlags |= ezDdsdFlags::PITCH;
-    fileHeader.m_uiPitchOrLinearSize = image.GetRowPitch(0);
-    break;
+    case ezImageFormatType::LINEAR:
+      fileHeader.m_uiFlags |= ezDdsdFlags::PITCH;
+      fileHeader.m_uiPitchOrLinearSize = image.GetRowPitch(0);
+      break;
 
-  case ezImageFormatType::BLOCK_COMPRESSED:
-    fileHeader.m_uiFlags |= ezDdsdFlags::LINEARSIZE;
-    fileHeader.m_uiPitchOrLinearSize = 0;     /// \todo sub-image size
-    break;
+    case ezImageFormatType::BLOCK_COMPRESSED:
+      fileHeader.m_uiFlags |= ezDdsdFlags::LINEARSIZE;
+      fileHeader.m_uiPitchOrLinearSize = 0; /// \todo sub-image size
+      break;
 
-  default:
-    ezLog::Error(pLog, "Unknown image format type.");
-    return EZ_FAILURE;
+    default:
+      ezLog::Error(pLog, "Unknown image format type.");
+      return EZ_FAILURE;
   }
 
   fileHeader.m_uiCaps = ezDdsCaps::TEXTURE;
@@ -368,9 +377,9 @@ ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
 
     fileHeader.m_uiCaps |= ezDdsCaps::COMPLEX;
     fileHeader.m_uiCaps2 |= ezDdsCaps2::CUBEMAP |
-      ezDdsCaps2::CUBEMAP_POSITIVEX | ezDdsCaps2::CUBEMAP_NEGATIVEX |
-      ezDdsCaps2::CUBEMAP_POSITIVEY | ezDdsCaps2::CUBEMAP_NEGATIVEY |
-      ezDdsCaps2::CUBEMAP_POSITIVEZ | ezDdsCaps2::CUBEMAP_NEGATIVEZ;
+                            ezDdsCaps2::CUBEMAP_POSITIVEX | ezDdsCaps2::CUBEMAP_NEGATIVEX |
+                            ezDdsCaps2::CUBEMAP_POSITIVEY | ezDdsCaps2::CUBEMAP_NEGATIVEY |
+                            ezDdsCaps2::CUBEMAP_POSITIVEZ | ezDdsCaps2::CUBEMAP_NEGATIVEZ;
   }
 
   if (bArray)
@@ -434,7 +443,7 @@ ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
     if (uiDxgiFormat == 0)
     {
       ezLog::Error(pLog, "The image needs to be written as a DXT10 file, but no matching DXGI format was found for '{0}'.",
-        ezImageFormat::GetName(format));
+                   ezImageFormat::GetName(format));
       return EZ_FAILURE;
     }
 
@@ -504,7 +513,4 @@ bool ezDdsFileFormat::CanWriteFileType(const char* szExtension) const
 
 
 
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Image_Formats_DdsFileFormat);
-

@@ -231,6 +231,4 @@ namespace ezOpenDdlUtils
 
   /// \brief Writes a primitives list with a single value and an optional name.
   EZ_FOUNDATION_DLL void StoreUInt64(ezOpenDdlWriter& writer, ezUInt64 value, const char* szName = nullptr, bool bGlobalName = false); // [tested]
-
 }
-

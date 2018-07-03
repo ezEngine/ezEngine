@@ -6,11 +6,10 @@
 #include <Foundation/Memory/EndianHelper.h>
 
 /// \brief Interface for binary in (read) streams.
-class EZ_FOUNDATION_DLL ezStreamReader 
+class EZ_FOUNDATION_DLL ezStreamReader
 {
 
 public:
-
   /// \brief Constructor
   ezStreamReader()
   {
@@ -25,15 +24,15 @@ public:
   virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) = 0; // [tested]
 
   /// \brief Helper method to read a word value correctly (copes with potentially different endianess)
-  template <typename T> 
+  template <typename T>
   ezResult ReadWordValue(T* pWordValue); // [tested]
 
   /// \brief Helper method to read a dword value correctly (copes with potentially different endianess)
-  template <typename T> 
+  template <typename T>
   ezResult ReadDWordValue(T* pDWordValue); // [tested]
 
   /// \brief Helper method to read a qword value correctly (copes with potentially different endianess)
-  template <typename T> 
+  template <typename T>
   ezResult ReadQWordValue(T* pQWordValue); // [tested]
 
   /// \brief Helper method to skip a number of bytes (implementations of the stream reader may implement this more efficiently for example)
@@ -58,7 +57,6 @@ public:
 
     return uiBytesSkipped;
   }
-
 };
 
 /// \brief Interface for binary out (write) streams.
@@ -66,7 +64,6 @@ class EZ_FOUNDATION_DLL ezStreamWriter
 {
 
 public:
-
   /// \brief Constructor
   ezStreamWriter()
   {
@@ -87,17 +84,16 @@ public:
   }
 
   /// \brief Helper method to write a word value correctly (copes with potentially different endianess)
-  template <typename T> 
+  template <typename T>
   ezResult WriteWordValue(const T* pWordValue); // [tested]
 
   /// \brief Helper method to write a dword value correctly (copes with potentially different endianess)
-  template <typename T> 
+  template <typename T>
   ezResult WriteDWordValue(const T* pDWordValue); // [tested]
 
   /// \brief Helper method to write a qword value correctly (copes with potentially different endianess)
-  template <typename T> 
+  template <typename T>
   ezResult WriteQWordValue(const T* pQWordValue); // [tested]
-
 };
 
 // Contains the helper methods of both interfaces
@@ -105,6 +101,7 @@ public:
 
 // Standard operators for overloads of common data types
 #include <Foundation/IO/Implementation/StreamOperations_inl.h>
-#include <Foundation/IO/Implementation/StreamOperationsMath_inl.h>
-#include <Foundation/IO/Implementation/StreamOperationsOther_inl.h>
 
+#include <Foundation/IO/Implementation/StreamOperationsMath_inl.h>
+
+#include <Foundation/IO/Implementation/StreamOperationsOther_inl.h>

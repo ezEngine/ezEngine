@@ -1,14 +1,23 @@
 #pragma once
 
+#ifndef EZ_CONCAT
+
 /// \brief Concatenates two strings, even when the strings are macros themselves
 #define EZ_CONCAT(x,y) EZ_CONCAT_HELPER(x,y)
 #define EZ_CONCAT_HELPER(x,y) EZ_CONCAT_HELPER2(x,y)
 #define EZ_CONCAT_HELPER2(x,y) x##y
 
+#endif
+
+#ifndef EZ_STRINGIZE
+
 /// \brief Turns some piece of code (usually some identifier name) into a string. Even works on macros.
 #define EZ_STRINGIZE(str) EZ_STRINGIZE_HELPER(str)
 #define EZ_STRINGIZE_HELPER(x) #x
 
+#endif
+
+#ifndef EZ_ON
 
 /// \brief Used in conjunction with EZ_ENABLED and EZ_DISABLED for safe checks. Define something to EZ_ON or EZ_OFF to work with those macros.
 #define EZ_ON =
@@ -24,3 +33,5 @@
 
 /// \brief Checks whether x AND y are both defined as EZ_ON or EZ_OFF. Usually used to check whether configurations overlap, to issue an error.
 #define EZ_IS_NOT_EXCLUSIVE(x, y) ((1 EZ_CONCAT(x,=) 1) == (1 EZ_CONCAT(y,=) 1))
+
+#endif

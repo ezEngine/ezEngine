@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/IO/CompressedStream.h>
 #include <ThirdParty/zlib/zlib.h>
 
@@ -11,7 +12,7 @@ static voidpf zLibAlloc OF((voidpf opaque, uInt items, uInt size))
 
 static void zLibFree OF((voidpf opaque, voidpf address))
 {
-  ezUInt8* pData = (ezUInt8*) address;
+  ezUInt8* pData = (ezUInt8*)address;
   EZ_DEFAULT_DELETE_RAW_BUFFER(pData);
 }
 
@@ -72,7 +73,7 @@ ezUInt64 ezCompressedStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytes
   }
 
 
-  m_pZLibStream->next_out  = static_cast<Bytef*>(pReadBuffer);
+  m_pZLibStream->next_out = static_cast<Bytef*>(pReadBuffer);
   m_pZLibStream->avail_out = static_cast<ezUInt32>(uiBytesToRead);
   m_pZLibStream->total_out = 0;
 
@@ -213,7 +214,7 @@ ezResult ezCompressedStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64
 
   m_uiUncompressedSize += static_cast<ezUInt32>(uiBytesToWrite);
 
-  m_pZLibStream->next_in  = static_cast<Bytef*>(const_cast<void*>(pWriteBuffer)); // C libraries suck at type safety
+  m_pZLibStream->next_in = static_cast<Bytef*>(const_cast<void*>(pWriteBuffer)); // C libraries suck at type safety
   m_pZLibStream->avail_in = static_cast<ezUInt32>(uiBytesToWrite);
   m_pZLibStream->total_in = 0;
 
@@ -234,4 +235,3 @@ ezResult ezCompressedStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64
 #endif // BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_CompressedStream);
-

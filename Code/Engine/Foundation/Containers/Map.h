@@ -37,7 +37,6 @@ private:
   };
 
 public:
-
   /// \brief Base class for all iterators.
   struct ConstIterator
   {
@@ -50,7 +49,7 @@ public:
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Constructs an invalid iterator.
-    EZ_ALWAYS_INLINE ConstIterator() : m_pElement(nullptr) { } // [tested]
+    EZ_ALWAYS_INLINE ConstIterator() : m_pElement(nullptr) {} // [tested]
 
     /// \brief Checks whether this iterator points to a valid element.
     EZ_ALWAYS_INLINE bool IsValid() const { return (m_pElement != nullptr); } // [tested]
@@ -62,10 +61,18 @@ public:
     EZ_ALWAYS_INLINE bool operator!=(const typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator& it2) const { return (m_pElement != it2.m_pElement); }
 
     /// \brief Returns the 'key' of the element that this iterator points to.
-    EZ_FORCE_INLINE const KeyType&   Key ()  const { EZ_ASSERT_DEBUG(IsValid(), "Cannot access the 'key' of an invalid iterator."); return m_pElement->m_Key;   } // [tested]
+    EZ_FORCE_INLINE const KeyType& Key() const
+    {
+      EZ_ASSERT_DEBUG(IsValid(), "Cannot access the 'key' of an invalid iterator.");
+      return m_pElement->m_Key;
+    } // [tested]
 
     /// \brief Returns the 'value' of the element that this iterator points to.
-    EZ_FORCE_INLINE const ValueType& Value() const { EZ_ASSERT_DEBUG(IsValid(), "Cannot access the 'value' of an invalid iterator."); return m_pElement->m_Value; } // [tested]
+    EZ_FORCE_INLINE const ValueType& Value() const
+    {
+      EZ_ASSERT_DEBUG(IsValid(), "Cannot access the 'value' of an invalid iterator.");
+      return m_pElement->m_Value;
+    } // [tested]
 
     /// \brief Advances the iterator to the next element in the map. The iterator will not be valid anymore, if the end is reached.
     void Next(); // [tested]
@@ -74,7 +81,7 @@ public:
     void Prev(); // [tested]
 
     /// \brief Shorthand for 'Next'
-    EZ_ALWAYS_INLINE void operator++() { Next();  } // [tested]
+    EZ_ALWAYS_INLINE void operator++() { Next(); } // [tested]
 
     /// \brief Shorthand for 'Prev'
     EZ_ALWAYS_INLINE void operator--() { Prev(); } // [tested]
@@ -82,7 +89,7 @@ public:
   protected:
     friend class ezMapBase<KeyType, ValueType, Comparer>;
 
-    EZ_ALWAYS_INLINE explicit ConstIterator(Node* pInit)              : m_pElement(pInit) { }
+    EZ_ALWAYS_INLINE explicit ConstIterator(Node* pInit) : m_pElement(pInit) {}
 
     Node* m_pElement;
   };
@@ -102,10 +109,14 @@ public:
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Constructs an invalid iterator.
-    EZ_ALWAYS_INLINE Iterator()                   : ConstIterator()      { }
+    EZ_ALWAYS_INLINE Iterator() : ConstIterator() {}
 
     /// \brief Returns the 'value' of the element that this iterator points to.
-    EZ_FORCE_INLINE ValueType& Value() { EZ_ASSERT_DEBUG(this->IsValid(), "Cannot access the 'value' of an invalid iterator."); return this->m_pElement->m_Value; }
+    EZ_FORCE_INLINE ValueType& Value()
+    {
+      EZ_ASSERT_DEBUG(this->IsValid(), "Cannot access the 'value' of an invalid iterator.");
+      return this->m_pElement->m_Value;
+    }
 
     /// \brief Returns the 'value' of the element that this iterator points to.
     EZ_ALWAYS_INLINE ValueType& operator*() { return Value(); }
@@ -113,11 +124,10 @@ public:
   private:
     friend class ezMapBase<KeyType, ValueType, Comparer>;
 
-    EZ_ALWAYS_INLINE explicit Iterator(Node* pInit)        : ConstIterator(pInit) { }
+    EZ_ALWAYS_INLINE explicit Iterator(Node* pInit) : ConstIterator(pInit) {}
   };
 
 protected:
-
   /// \brief Initializes the map to be empty.
   ezMapBase(const Comparer& comparer, ezAllocatorBase* pAllocator); // [tested]
 
@@ -128,7 +138,7 @@ protected:
   ~ezMapBase(); // [tested]
 
   /// \brief Copies all key/value pairs from the given map into this one.
-  void operator= (const ezMapBase<KeyType, ValueType, Comparer>& rhs);
+  void operator=(const ezMapBase<KeyType, ValueType, Comparer>& rhs);
 
 public:
   /// \brief Returns whether there are no elements in the map. O(1) operation.
@@ -157,18 +167,18 @@ public:
   Iterator Insert(CompatibleKeyType&& key, CompatibleValueType&& value); // [tested]
 
   /// \brief Erases the key/value pair with the given key, if it exists. O(log n) operation.
-  template<typename CompatibleKeyType>
+  template <typename CompatibleKeyType>
   bool Remove(const CompatibleKeyType& key); // [tested]
 
   /// \brief Erases the key/value pair at the given Iterator. O(log n) operation. Returns an iterator to the element after the given iterator.
   Iterator Remove(const Iterator& pos); // [tested]
 
   /// \brief Searches for the given key and returns an iterator to it. If it did not exist yet, it is default-created. \a bExisted is set to true, if the key was found, false if it needed to be created.
-  template<typename CompatibleKeyType>
+  template <typename CompatibleKeyType>
   Iterator FindOrAdd(CompatibleKeyType&& key, bool* bExisted = nullptr); // [tested]
 
   /// \brief Allows read/write access to the value stored under the given key. If there is no such key, a new element is default-constructed.
-  template<typename CompatibleKeyType>
+  template <typename CompatibleKeyType>
   ValueType& operator[](const CompatibleKeyType& key); // [tested]
 
   /// \brief Returns a pointer to the value of the entry with the given key if found, otherwise returns nullptr.
@@ -184,31 +194,31 @@ public:
   const ValueType& GetValueOrDefault(const CompatibleKeyType& key, const ValueType& defaultValue) const; // [tested]
 
   /// \brief Searches for key, returns an Iterator to it or an invalid iterator, if no such key is found. O(log n) operation.
-  template<typename CompatibleKeyType>
+  template <typename CompatibleKeyType>
   Iterator Find(const CompatibleKeyType& key); // [tested]
 
   /// \brief Returns an Iterator to the element with a key equal or larger than the given key. Returns an invalid iterator, if there is no such element.
-  template<typename CompatibleKeyType>
+  template <typename CompatibleKeyType>
   Iterator LowerBound(const CompatibleKeyType& key); // [tested]
 
   /// \brief Returns an Iterator to the element with a key that is LARGER than the given key. Returns an invalid iterator, if there is no such element.
-  template<typename CompatibleKeyType>
+  template <typename CompatibleKeyType>
   Iterator UpperBound(const CompatibleKeyType& key); // [tested]
 
   /// \brief Searches for key, returns an Iterator to it or an invalid iterator, if no such key is found. O(log n) operation.
-  template<typename CompatibleKeyType>
+  template <typename CompatibleKeyType>
   ConstIterator Find(const CompatibleKeyType& key) const; // [tested]
 
   /// \brief Checks whether the given key is in the container.
-  template<typename CompatibleKeyType>
+  template <typename CompatibleKeyType>
   bool Contains(const CompatibleKeyType& key) const; // [tested]
 
   /// \brief Returns an Iterator to the element with a key equal or larger than the given key. Returns an invalid iterator, if there is no such element.
-  template<typename CompatibleKeyType>
+  template <typename CompatibleKeyType>
   ConstIterator LowerBound(const CompatibleKeyType& key) const; // [tested]
 
   /// \brief Returns an Iterator to the element with a key that is LARGER than the given key. Returns an invalid iterator, if there is no such element.
-  template<typename CompatibleKeyType>
+  template <typename CompatibleKeyType>
   ConstIterator UpperBound(const CompatibleKeyType& key) const; // [tested]
 
   /// \brief Returns the allocator that is used by this instance.
@@ -224,18 +234,18 @@ public:
   ezUInt64 GetHeapMemoryUsage() const { return m_Elements.GetHeapMemoryUsage(); } // [tested]
 
 private:
-  template<typename CompatibleKeyType>
+  template <typename CompatibleKeyType>
   Node* Internal_Find(const CompatibleKeyType& key) const;
-  template<typename CompatibleKeyType>
+  template <typename CompatibleKeyType>
   Node* Internal_LowerBound(const CompatibleKeyType& key) const;
-  template<typename CompatibleKeyType>
+  template <typename CompatibleKeyType>
   Node* Internal_UpperBound(const CompatibleKeyType& key) const;
 
 private:
   void Constructor();
 
   /// \brief Creates one new node and initializes it.
-  template<typename CompatibleKeyType>
+  template <typename CompatibleKeyType>
   Node* AcquireNode(CompatibleKeyType&& key, ValueType&& value, int m_uiLevel, Node* pParent);
 
   /// \brief Destroys the given node.
@@ -308,4 +318,3 @@ template <typename KeyType, typename ValueType, typename Comparer>
 typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator cend(const ezMapBase<KeyType, ValueType, Comparer>& container) { return typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator(); }
 
 #include <Foundation/Containers/Implementation/Map_inl.h>
-

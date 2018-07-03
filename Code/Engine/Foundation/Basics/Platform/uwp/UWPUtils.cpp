@@ -3,8 +3,8 @@
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 
 #include <Foundation/Basics/Platform/uwp/UWPUtils.h>
-#include <Windows.Foundation.numerics.h>
 #include <Foundation/Types/Uuid.h>
+#include <Windows.Foundation.numerics.h>
 
 ezMat4 ezUwpUtils::ConvertMat4(const ABI::Windows::Foundation::Numerics::Matrix4x4& in)
 {
@@ -62,7 +62,7 @@ ezUuid ezUwpUtils::ConvertGuid(const GUID& in)
 
 void ezUwpUtils::ConvertGuid(const ezUuid& in, GUID& out)
 {
-  ezMemoryUtils::Copy(reinterpret_cast<ezUInt32*>(&out), reinterpret_cast<const ezUInt32 *>(&in), 4);
+  ezMemoryUtils::Copy(reinterpret_cast<ezUInt32*>(&out), reinterpret_cast<const ezUInt32*>(&in), 4);
 }
 
 
@@ -71,4 +71,3 @@ void ezUwpUtils::ConvertGuid(const ezUuid& in, GUID& out)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Basics_Platform_uwp_UWPUtils);
-

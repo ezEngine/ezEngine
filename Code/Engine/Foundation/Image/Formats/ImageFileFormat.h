@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Utilities/EnumerableClass.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Utilities/EnumerableClass.h>
 
 class ezStreamReader;
 class ezStreamWriter;
@@ -19,7 +19,7 @@ public:
   virtual ezResult WriteImage(ezStreamWriter& stream, const ezImage& image, ezLogInterface* pLog) const = 0;
 
   /// \brief Should return true, if files with the given extension can be read.
-  virtual bool CanReadFileType (const char* szExtension) const = 0;
+  virtual bool CanReadFileType(const char* szExtension) const = 0;
 
   /// \brief Should return true, if files with the given extension can be written.
   virtual bool CanWriteFileType(const char* szExtension) const = 0;
@@ -27,4 +27,3 @@ public:
 
   EZ_DECLARE_ENUMERABLE_CLASS(ezImageFileFormat);
 };
-

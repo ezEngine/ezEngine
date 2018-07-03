@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Communication/GlobalEvent.h>
 #include <Foundation/Logging/Log.h>
 
@@ -87,4 +88,3 @@ void ezGlobalEvent::PrintGlobalEventStatistics()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_GlobalEvent);
-

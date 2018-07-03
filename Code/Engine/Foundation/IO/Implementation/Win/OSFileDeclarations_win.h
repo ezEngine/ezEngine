@@ -25,4 +25,3 @@ struct ezFileIterationData
 #endif
 
 /// \endcond
-

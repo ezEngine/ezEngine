@@ -11,3 +11,4 @@ IndentCaseLabels: true
 AllowShortFunctionsOnASingleLine: true
 MaxEmptyLinesToKeep: 3
 #IndentPPDirectives: PPDIS_AfterHash
+NamespaceIndentation: All

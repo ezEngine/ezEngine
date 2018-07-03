@@ -1,29 +1,29 @@
-﻿#pragma once
+#pragma once
 
-template<class Container>
+template <class Container>
 EZ_ALWAYS_INLINE ezUInt32 ezBitfield<Container>::GetBitInt(ezUInt32 uiBitIndex) const
 {
   return (uiBitIndex >> 5); // div 32
 }
 
-template<class Container>
+template <class Container>
 EZ_ALWAYS_INLINE ezUInt32 ezBitfield<Container>::GetBitMask(ezUInt32 uiBitIndex) const
 {
   return 1 << (uiBitIndex & 0x1F); // modulo 32, shifted to bit position
 }
 
-template<class Container>
+template <class Container>
 ezBitfield<Container>::ezBitfield() : m_uiCount(0)
 {
 }
 
-template<class Container>
+template <class Container>
 ezUInt32 ezBitfield<Container>::GetCount()
 {
   return m_uiCount;
 }
 
-template<class Container>
+template <class Container>
 void ezBitfield<Container>::SetCount(ezUInt32 uiBitCount)
 {
   const ezUInt32 uiInts = (uiBitCount + 31) >> 5;
@@ -32,7 +32,7 @@ void ezBitfield<Container>::SetCount(ezUInt32 uiBitCount)
   m_uiCount = uiBitCount;
 }
 
-template<class Container>
+template <class Container>
 void ezBitfield<Container>::SetCount(ezUInt32 uiBitCount, bool bSetNew)
 {
   if (m_uiCount == uiBitCount)
@@ -52,20 +52,20 @@ void ezBitfield<Container>::SetCount(ezUInt32 uiBitCount, bool bSetNew)
   }
 }
 
-template<class Container>
+template <class Container>
 bool ezBitfield<Container>::IsEmpty() const
 {
   return m_uiCount == 0;
 }
 
-template<class Container>
+template <class Container>
 void ezBitfield<Container>::Clear()
 {
   m_uiCount = 0;
   m_Container.Clear();
 }
 
-template<class Container>
+template <class Container>
 void ezBitfield<Container>::SetBit(ezUInt32 uiBit)
 {
   EZ_ASSERT_DEV(uiBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, m_uiCount);
@@ -73,7 +73,7 @@ void ezBitfield<Container>::SetBit(ezUInt32 uiBit)
   m_Container[GetBitInt(uiBit)] |= GetBitMask(uiBit);
 }
 
-template<class Container>
+template <class Container>
 void ezBitfield<Container>::ClearBit(ezUInt32 uiBit)
 {
   EZ_ASSERT_DEV(uiBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, m_uiCount);
@@ -81,7 +81,7 @@ void ezBitfield<Container>::ClearBit(ezUInt32 uiBit)
   m_Container[GetBitInt(uiBit)] &= ~GetBitMask(uiBit);
 }
 
-template<class Container>
+template <class Container>
 bool ezBitfield<Container>::IsSet(ezUInt32 uiBit) const
 {
   EZ_ASSERT_DEV(uiBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiBit, m_uiCount);
@@ -89,28 +89,28 @@ bool ezBitfield<Container>::IsSet(ezUInt32 uiBit) const
   return (m_Container[GetBitInt(uiBit)] & GetBitMask(uiBit)) != 0;
 }
 
-template<class Container>
+template <class Container>
 void ezBitfield<Container>::ClearAllBits()
 {
   for (ezUInt32 i = 0; i < m_Container.GetCount(); ++i)
     m_Container[i] = 0;
 }
 
-template<class Container>
+template <class Container>
 void ezBitfield<Container>::SetAllBits()
 {
   for (ezUInt32 i = 0; i < m_Container.GetCount(); ++i)
     m_Container[i] = 0xFFFFFFFF;
 }
 
-template<class Container>
+template <class Container>
 void ezBitfield<Container>::SetRange(ezUInt32 uiFirstBit, ezUInt32 uiLastBit)
 {
   EZ_ASSERT_DEV(uiFirstBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiFirstBit, m_uiCount);
   EZ_ASSERT_DEV(uiLastBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiLastBit, m_uiCount);
 
   const ezUInt32 uiFirstInt = GetBitInt(uiFirstBit);
-  const ezUInt32 uiLastInt  = GetBitInt(uiLastBit);
+  const ezUInt32 uiLastInt = GetBitInt(uiLastBit);
 
   // all within the same int
   if (uiFirstInt == uiLastInt)
@@ -122,7 +122,7 @@ void ezBitfield<Container>::SetRange(ezUInt32 uiFirstBit, ezUInt32 uiLastBit)
   }
 
   const ezUInt32 uiNextIntBit = (uiFirstInt + 1) * 32;
-  const ezUInt32 uiPrevIntBit = uiLastInt  * 32;
+  const ezUInt32 uiPrevIntBit = uiLastInt * 32;
 
   // set the bits in the first int individually
   for (ezUInt32 i = uiFirstBit; i < uiNextIntBit; ++i)
@@ -137,14 +137,14 @@ void ezBitfield<Container>::SetRange(ezUInt32 uiFirstBit, ezUInt32 uiLastBit)
     SetBit(i);
 }
 
-template<class Container>
+template <class Container>
 void ezBitfield<Container>::ClearRange(ezUInt32 uiFirstBit, ezUInt32 uiLastBit)
 {
   EZ_ASSERT_DEV(uiFirstBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiFirstBit, m_uiCount);
   EZ_ASSERT_DEV(uiLastBit < m_uiCount, "Cannot access bit {0}, the bitfield only has {1} bits.", uiLastBit, m_uiCount);
 
   const ezUInt32 uiFirstInt = GetBitInt(uiFirstBit);
-  const ezUInt32 uiLastInt  = GetBitInt(uiLastBit);
+  const ezUInt32 uiLastInt = GetBitInt(uiLastBit);
 
   // all within the same int
   if (uiFirstInt == uiLastInt)
@@ -156,7 +156,7 @@ void ezBitfield<Container>::ClearRange(ezUInt32 uiFirstBit, ezUInt32 uiLastBit)
   }
 
   const ezUInt32 uiNextIntBit = (uiFirstInt + 1) * 32;
-  const ezUInt32 uiPrevIntBit = uiLastInt  * 32;
+  const ezUInt32 uiPrevIntBit = uiLastInt * 32;
 
   // set the bits in the first int individually
   for (ezUInt32 i = uiFirstBit; i < uiNextIntBit; ++i)
@@ -170,4 +170,3 @@ void ezBitfield<Container>::ClearRange(ezUInt32 uiFirstBit, ezUInt32 uiLastBit)
   for (ezUInt32 i = uiPrevIntBit; i <= uiLastBit; ++i)
     ClearBit(i);
 }
-

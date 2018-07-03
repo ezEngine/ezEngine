@@ -1,37 +1,37 @@
 #pragma once
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 inline ezArrayMapBase<KEY, VALUE>::ezArrayMapBase(ezAllocatorBase* pAllocator) : m_Data(pAllocator)
 {
   m_bSorted = true;
 }
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 inline ezArrayMapBase<KEY, VALUE>::ezArrayMapBase(const ezArrayMapBase& rhs, ezAllocatorBase* pAllocator) : m_bSorted(rhs.m_bSorted), m_Data(pAllocator)
 {
   m_Data = rhs.m_Data;
 }
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 inline void ezArrayMapBase<KEY, VALUE>::operator=(const ezArrayMapBase& rhs)
 {
   m_bSorted = rhs.m_bSorted;
   m_Data = rhs.m_Data;
 }
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 EZ_ALWAYS_INLINE ezUInt32 ezArrayMapBase<KEY, VALUE>::GetCount() const
 {
   return m_Data.GetCount();
 }
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 EZ_ALWAYS_INLINE bool ezArrayMapBase<KEY, VALUE>::IsEmpty() const
 {
   return m_Data.IsEmpty();
 }
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 inline void ezArrayMapBase<KEY, VALUE>::Clear()
 {
   m_bSorted = true;
@@ -50,7 +50,7 @@ inline ezUInt32 ezArrayMapBase<KEY, VALUE>::Insert(CompatibleKeyType&& key, Comp
   return m_Data.GetCount() - 1;
 }
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 inline void ezArrayMapBase<KEY, VALUE>::Sort() const
 {
   if (m_bSorted)
@@ -60,8 +60,8 @@ inline void ezArrayMapBase<KEY, VALUE>::Sort() const
   m_Data.Sort();
 }
 
-template<typename KEY, typename VALUE>
-template<typename CompatibleKeyType>
+template <typename KEY, typename VALUE>
+template <typename CompatibleKeyType>
 ezUInt32 ezArrayMapBase<KEY, VALUE>::Find(const CompatibleKeyType& key) const
 {
   if (!m_bSorted)
@@ -94,8 +94,8 @@ ezUInt32 ezArrayMapBase<KEY, VALUE>::Find(const CompatibleKeyType& key) const
   return ezInvalidIndex;
 }
 
-template<typename KEY, typename VALUE>
-template<typename CompatibleKeyType>
+template <typename KEY, typename VALUE>
+template <typename CompatibleKeyType>
 ezUInt32 ezArrayMapBase<KEY, VALUE>::LowerBound(const CompatibleKeyType& key) const
 {
   if (!m_bSorted)
@@ -127,8 +127,8 @@ ezUInt32 ezArrayMapBase<KEY, VALUE>::LowerBound(const CompatibleKeyType& key) co
   return lb;
 }
 
-template<typename KEY, typename VALUE>
-template<typename CompatibleKeyType>
+template <typename KEY, typename VALUE>
+template <typename CompatibleKeyType>
 ezUInt32 ezArrayMapBase<KEY, VALUE>::UpperBound(const CompatibleKeyType& key) const
 {
   if (!m_bSorted)
@@ -160,26 +160,26 @@ ezUInt32 ezArrayMapBase<KEY, VALUE>::UpperBound(const CompatibleKeyType& key) co
   return ub;
 }
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 EZ_ALWAYS_INLINE const KEY& ezArrayMapBase<KEY, VALUE>::GetKey(ezUInt32 index) const
 {
   return m_Data[index].key;
 }
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 EZ_ALWAYS_INLINE const VALUE& ezArrayMapBase<KEY, VALUE>::GetValue(ezUInt32 index) const
 {
   return m_Data[index].value;
 }
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 VALUE& ezArrayMapBase<KEY, VALUE>::GetValue(ezUInt32 index)
 {
   return m_Data[index].value;
 }
 
-template<typename KEY, typename VALUE>
-template<typename CompatibleKeyType>
+template <typename KEY, typename VALUE>
+template <typename CompatibleKeyType>
 VALUE& ezArrayMapBase<KEY, VALUE>::FindOrAdd(const CompatibleKeyType& key, bool* bExisted)
 {
   ezUInt32 index = Find<CompatibleKeyType>(key);
@@ -195,20 +195,20 @@ VALUE& ezArrayMapBase<KEY, VALUE>::FindOrAdd(const CompatibleKeyType& key, bool*
   return GetValue(index);
 }
 
-template<typename KEY, typename VALUE>
-template<typename CompatibleKeyType>
+template <typename KEY, typename VALUE>
+template <typename CompatibleKeyType>
 EZ_ALWAYS_INLINE VALUE& ezArrayMapBase<KEY, VALUE>::operator[](const CompatibleKeyType& key)
 {
   return FindOrAdd(key);
 }
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 EZ_ALWAYS_INLINE const typename ezArrayMapBase<KEY, VALUE>::Pair& ezArrayMapBase<KEY, VALUE>::GetPair(ezUInt32 index) const
 {
   return m_Data[index];
 }
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 void ezArrayMapBase<KEY, VALUE>::RemoveAt(ezUInt32 index, bool bKeepSorted)
 {
   if (bKeepSorted && m_bSorted)
@@ -222,8 +222,8 @@ void ezArrayMapBase<KEY, VALUE>::RemoveAt(ezUInt32 index, bool bKeepSorted)
   }
 }
 
-template<typename KEY, typename VALUE>
-template<typename CompatibleKeyType>
+template <typename KEY, typename VALUE>
+template <typename CompatibleKeyType>
 bool ezArrayMapBase<KEY, VALUE>::Remove(const CompatibleKeyType& key, bool bKeepSorted)
 {
   const ezUInt32 uiIndex = Find(key);
@@ -235,15 +235,15 @@ bool ezArrayMapBase<KEY, VALUE>::Remove(const CompatibleKeyType& key, bool bKeep
   return true;
 }
 
-template<typename KEY, typename VALUE>
-template<typename CompatibleKeyType>
+template <typename KEY, typename VALUE>
+template <typename CompatibleKeyType>
 EZ_ALWAYS_INLINE bool ezArrayMapBase<KEY, VALUE>::Contains(const CompatibleKeyType& key) const
 {
   return Find(key) != ezInvalidIndex;
 }
 
-template<typename KEY, typename VALUE>
-template<typename CompatibleKeyType>
+template <typename KEY, typename VALUE>
+template <typename CompatibleKeyType>
 bool ezArrayMapBase<KEY, VALUE>::Contains(const CompatibleKeyType& key, const VALUE& value) const
 {
   ezUInt32 atpos = LowerBound(key);
@@ -266,19 +266,19 @@ bool ezArrayMapBase<KEY, VALUE>::Contains(const CompatibleKeyType& key, const VA
 }
 
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 EZ_ALWAYS_INLINE void ezArrayMapBase<KEY, VALUE>::Reserve(ezUInt32 size)
 {
   m_Data.Reserve(size);
 }
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 EZ_ALWAYS_INLINE void ezArrayMapBase<KEY, VALUE>::Compact()
 {
   m_Data.Compact();
 }
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 bool ezArrayMapBase<KEY, VALUE>::operator==(const ezArrayMapBase<KEY, VALUE>& rhs) const
 {
   Sort();
@@ -287,41 +287,40 @@ bool ezArrayMapBase<KEY, VALUE>::operator==(const ezArrayMapBase<KEY, VALUE>& rh
   return m_Data == rhs.m_Data;
 }
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 EZ_ALWAYS_INLINE bool ezArrayMapBase<KEY, VALUE>::operator!=(const ezArrayMapBase<KEY, VALUE>& rhs) const
 {
   return !(*this == rhs);
 }
 
-template<typename KEY, typename VALUE, typename A>
+template <typename KEY, typename VALUE, typename A>
 ezArrayMap<KEY, VALUE, A>::ezArrayMap() : ezArrayMapBase<KEY, VALUE>(A::GetAllocator())
 {
 }
 
-template<typename KEY, typename VALUE, typename A>
+template <typename KEY, typename VALUE, typename A>
 ezArrayMap<KEY, VALUE, A>::ezArrayMap(ezAllocatorBase* pAllocator) : ezArrayMapBase<KEY, VALUE>(pAllocator)
 {
 }
 
-template<typename KEY, typename VALUE, typename A>
+template <typename KEY, typename VALUE, typename A>
 ezArrayMap<KEY, VALUE, A>::ezArrayMap(const ezArrayMap<KEY, VALUE, A>& rhs) : ezArrayMapBase<KEY, VALUE>(rhs, A::GetAllocator())
 {
 }
 
-template<typename KEY, typename VALUE, typename A>
+template <typename KEY, typename VALUE, typename A>
 ezArrayMap<KEY, VALUE, A>::ezArrayMap(const ezArrayMapBase<KEY, VALUE>& rhs) : ezArrayMapBase<KEY, VALUE>(rhs, A::GetAllocator())
 {
 }
 
-template<typename KEY, typename VALUE, typename A>
+template <typename KEY, typename VALUE, typename A>
 void ezArrayMap<KEY, VALUE, A>::operator=(const ezArrayMap<KEY, VALUE, A>& rhs)
 {
   ezArrayMapBase<KEY, VALUE>::operator=(rhs);
 }
 
-template<typename KEY, typename VALUE, typename A>
+template <typename KEY, typename VALUE, typename A>
 void ezArrayMap<KEY, VALUE, A>::operator=(const ezArrayMapBase<KEY, VALUE>& rhs)
 {
   ezArrayMapBase<KEY, VALUE>::operator=(rhs);
 }
-

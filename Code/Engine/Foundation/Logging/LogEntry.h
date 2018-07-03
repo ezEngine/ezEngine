@@ -2,8 +2,8 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Logging/Log.h>
-#include <Foundation/Strings/String.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Strings/String.h>
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezLogMsgType);
 
@@ -49,4 +49,3 @@ public:
 private:
   Callback m_Callback;
 };
-

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Foundation/IO/Stream.h>
-#include <Foundation/IO/FileSystem/Implementation/DataDirType.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/IO/FileSystem/Implementation/DataDirType.h>
+#include <Foundation/IO/Stream.h>
 
 /// The base class for all file readers.
 /// Provides access to ezFileSystem::GetFileReader, which is necessary to get access to the streams that
@@ -76,7 +76,7 @@ public:
   bool IsOpen() const { return m_pDataDirWriter != nullptr; }
 
   /// \brief Returns the current total size of the file.
-  ezUInt64 GetFileSize() const { return m_pDataDirWriter->GetFileSize(); }  // [tested]
+  ezUInt64 GetFileSize() const { return m_pDataDirWriter->GetFileSize(); } // [tested]
 
 protected:
   ezDataDirectoryWriter* GetFileWriter(const char* szFile, bool bAllowFileEvents)
@@ -86,4 +86,3 @@ protected:
 
   ezDataDirectoryWriter* m_pDataDirWriter;
 };
-

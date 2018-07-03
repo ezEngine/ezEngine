@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/CodeUtils/Preprocessor.h>
 #include <Foundation/Strings/StringView.h>
 
@@ -300,8 +301,8 @@ ezResult ezPreprocessor::InsertStringifiedParameters(const TokenStream& Tokens, 
     }
 
     if (bStringifyParameter &&
-      Tokens[i]->m_iType < s_MacroParameter0 &&
-      Tokens[i]->m_iType != ezTokenType::Whitespace)
+        Tokens[i]->m_iType < s_MacroParameter0 &&
+        Tokens[i]->m_iType != ezTokenType::Whitespace)
     {
       PP_LOG0(Error, "Expected a macro parameter name", Tokens[i]);
       return EZ_FAILURE;
@@ -336,9 +337,9 @@ ezResult ezPreprocessor::InsertStringifiedParameters(const TokenStream& Tokens, 
     }
 
     if (!bTokenIsHash &&
-      (Tokens[i]->m_iType != ezTokenType::BlockComment) &&
-      (Tokens[i]->m_iType != ezTokenType::LineComment) &&
-      (Tokens[i]->m_iType != ezTokenType::Whitespace))
+        (Tokens[i]->m_iType != ezTokenType::BlockComment) &&
+        (Tokens[i]->m_iType != ezTokenType::LineComment) &&
+        (Tokens[i]->m_iType != ezTokenType::Whitespace))
       iConsecutiveHashes = 0;
   }
 
@@ -410,8 +411,8 @@ void ezPreprocessor::MergeTokens(const ezToken* pFirst, const ezToken* pSecond, 
   }
 
   if (pFirst == nullptr || pSecond == nullptr ||
-    pFirst->m_iType != ezTokenType::Identifier ||
-    pSecond->m_iType != ezTokenType::Identifier)
+      pFirst->m_iType != ezTokenType::Identifier ||
+      pSecond->m_iType != ezTokenType::Identifier)
   {
     if (pFirst != nullptr)
       Output.PushBack(pFirst);
@@ -442,18 +443,20 @@ ezResult ezPreprocessor::ConcatenateParameters(const TokenStream& Tokens, TokenS
 
     // do this extra check for whitespace here, because 'Accept' would just skip it, but we want the whitespace in our output
     if (Tokens[uiCurToken]->m_iType != ezTokenType::Whitespace &&
-      Tokens[uiCurToken]->m_iType != ezTokenType::Newline &&
-      Accept(Tokens, uiCurToken, "#", "#", &uiConcatToken))
+        Tokens[uiCurToken]->m_iType != ezTokenType::Newline &&
+        Accept(Tokens, uiCurToken, "#", "#", &uiConcatToken))
     {
       // we have already removed all single hashes during the stringification, so here we will only encounter double hashes
       // (and quadruple, etc.)
 
-      while (Accept(Tokens, uiCurToken, "#", "#")) { /* remove all double hashes ##, also skip whitespace in between */ }
+      while (Accept(Tokens, uiCurToken, "#", "#"))
+      { /* remove all double hashes ##, also skip whitespace in between */
+      }
 
       // remove whitespace at end of current output
       while (!Output.IsEmpty() &&
-        (Output.PeekBack()->m_iType == ezTokenType::Whitespace ||
-          Output.PeekBack()->m_iType == ezTokenType::Newline))
+             (Output.PeekBack()->m_iType == ezTokenType::Whitespace ||
+              Output.PeekBack()->m_iType == ezTokenType::Newline))
         Output.PopBack();
 
       if (Output.IsEmpty())
@@ -603,7 +606,4 @@ ezResult ezPreprocessor::ExpandMacroParam(const ezToken& MacroToken, ezUInt32 ui
 
 
 
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_Expand);
-

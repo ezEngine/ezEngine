@@ -44,43 +44,43 @@ public:
   inline ezUInt32 GetDataSize() const;
 
   /// \brief Returns a pointer to the beginning of the data contained in this image.
-  template<typename T>
+  template <typename T>
   T* GetDataPointer();
 
   /// \brief Returns a pointer to the beginning of the data contained in this image.
-  template<typename T>
+  template <typename T>
   const T* GetDataPointer() const;
 
   /// \brief Returns a pointer to the beginning of a given sub-image.
-  template<typename T>
+  template <typename T>
   const T* GetSubImagePointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0) const;
 
   /// \brief Returns a pointer to the beginning of a given sub-image.
-  template<typename T>
+  template <typename T>
   T* GetSubImagePointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0);
 
   /// \brief Returns a pointer to a given pixel contained in a sub-image.
   ///
   /// This method is only valid to use when the image format is a linear pixel format.
-  template<typename T>
+  template <typename T>
   const T* GetPixelPointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 x = 0, ezUInt32 y = 0, ezUInt32 z = 0) const;
 
   /// \brief Returns a pointer to a given pixel contained in a sub-image.
   ///
   /// This method is only valid to use when the image format is a linear pixel format.
-  template<typename T>
+  template <typename T>
   T* GetPixelPointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 x = 0, ezUInt32 y = 0, ezUInt32 z = 0);
 
   /// \brief Returns a pointer to a given block contained in a sub-image.
   ///
   /// This method is only valid to use when the image format is a block compressed format.
-  template<typename T>
+  template <typename T>
   const T* GetBlockPointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 uiBlockX = 0, ezUInt32 uiBlockY = 0, ezUInt32 z = 0) const;
 
   /// \brief Returns a pointer to a given block contained in a sub-image.
   ///
   /// This method is only valid to use when the image format is a block compressed format.
-  template<typename T>
+  template <typename T>
   T* GetBlockPointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 uiBlockX = 0, ezUInt32 uiBlockY = 0, ezUInt32 z = 0);
 
   /// \brief Allocates the storage space required for the configured number of sub-images.
@@ -124,4 +124,3 @@ private:
 };
 
 #include <Foundation/Image/Implementation/Image_inl.h>
-

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HybridArray.h>
@@ -9,7 +9,7 @@
 /// The underlying container is configurable, though it must support random access and a 'SetCount' function and it must use elements of type ezUInt32.
 /// In most cases a dynamic array should be used. For this case the ezDynamicBitfield typedef is already available.
 /// It is also useful to use an ezHybridArray, though there is not ezHybridBitfield typedef, due to language restrictions.
-template<class Container>
+template <class Container>
 class ezBitfield
 {
 public:
@@ -60,7 +60,7 @@ private:
 };
 
 /// \brief This should be the main type of bitfield to use, although other internal container types are possible.
-typedef ezBitfield<ezDynamicArray<ezUInt32> > ezDynamicBitfield;
+typedef ezBitfield<ezDynamicArray<ezUInt32>> ezDynamicBitfield;
 
 /// \brief An ezBitfield that uses a hybrid array as internal container.
 //template<ezUInt32 Size>
@@ -68,4 +68,3 @@ typedef ezBitfield<ezDynamicArray<ezUInt32> > ezDynamicBitfield;
 
 
 #include <Foundation/Containers/Implementation/Bitfield_inl.h>
-

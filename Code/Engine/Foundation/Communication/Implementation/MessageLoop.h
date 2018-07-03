@@ -1,11 +1,11 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Threading/Mutex.h>
-#include <Foundation/Containers/Deque.h>
-#include <Foundation/Threading/Thread.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Containers/Deque.h>
+#include <Foundation/Threading/Mutex.h>
+#include <Foundation/Threading/Thread.h>
 
 class ezProcessMessage;
 class ezIpcChannel;
@@ -19,9 +19,10 @@ class ezLoopThread;
 class EZ_FOUNDATION_DLL ezMessageLoop
 {
   EZ_DECLARE_SINGLETON(ezMessageLoop);
+
 public:
   ezMessageLoop();
-  virtual ~ezMessageLoop() {};
+  virtual ~ezMessageLoop(){};
 
   /// \brief Needs to be called by newly created channels' constructors.
   void AddChannel(ezIpcChannel* pChannel);
@@ -59,4 +60,3 @@ protected:
   ezDynamicArray<ezIpcChannel*> m_SendQueue;
   ezDynamicArray<ezIpcChannel*> m_AllAddedChannels;
 };
-

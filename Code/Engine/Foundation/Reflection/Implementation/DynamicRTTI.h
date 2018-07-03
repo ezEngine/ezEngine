@@ -3,7 +3,6 @@
 /// \file
 
 #include <Foundation/Reflection/Implementation/StaticRTTI.h>
-#include <Foundation/IO/SerializationContext.h>
 
 /// \brief This needs to be put into the class declaration of EVERY dynamically reflectable class.
 ///

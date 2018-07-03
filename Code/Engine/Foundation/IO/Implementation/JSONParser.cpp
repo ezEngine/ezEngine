@@ -1,7 +1,8 @@
 #include <PCH.h>
+
 #include <Foundation/IO/JSONParser.h>
-#include <Foundation/Utilities/ConversionUtils.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 
 ezJSONParser::ezJSONParser()
 {
@@ -53,11 +54,11 @@ void ezJSONParser::StartParsing()
 
   switch (m_uiCurByte)
   {
-  case '\0':
-    // document is empty
-    return;
+    case '\0':
+      // document is empty
+      return;
 
-  case '{':
+    case '{':
     {
       JSONState s;
       s.m_State = ReadingObject;
@@ -68,9 +69,9 @@ void ezJSONParser::StartParsing()
       if (!m_bSkippingMode)
         OnBeginObject();
     }
-    return;
+      return;
 
-  default:
+    default:
     {
       // document is malformed
 
@@ -78,7 +79,7 @@ void ezJSONParser::StartParsing()
       s.Format("Start of document: Expected a { or an empty document. Got '{0}' instead.", ezArgC(m_uiCurByte));
       ParsingError(s.GetData(), true);
     }
-    return;
+      return;
   }
 }
 
@@ -152,36 +153,36 @@ bool ezJSONParser::ContinueParsing()
 
   switch (m_StateStack.PeekBack().m_State)
   {
-  case NotStarted:
-    StartParsing();
-    break;
+    case NotStarted:
+      StartParsing();
+      break;
 
-  case Finished:
-    return false;
+    case Finished:
+      return false;
 
-  case ReadingObject:
-    ContinueObject();
-    break;
+    case ReadingObject:
+      ContinueObject();
+      break;
 
-  case ReadingArray:
-    ContinueArray();
-    break;
+    case ReadingArray:
+      ContinueArray();
+      break;
 
-  case ReadingVariable:
-    ContinueVariable();
-    break;
+    case ReadingVariable:
+      ContinueVariable();
+      break;
 
-  case ReadingValue:
-    ContinueValue();
-    break;
+    case ReadingValue:
+      ContinueValue();
+      break;
 
-  case ExpectSeparator:
-    ContinueSeparator();
-    break;
+    case ExpectSeparator:
+      ContinueSeparator();
+      break;
 
-  default:
-    EZ_REPORT_FAILURE("Unknown State in JSON parser state machine.");
-    break;
+    default:
+      EZ_REPORT_FAILURE("Unknown State in JSON parser state machine.");
+      break;
   }
 
   return true;
@@ -191,34 +192,34 @@ void ezJSONParser::ContinueObject()
 {
   switch (m_uiCurByte)
   {
-  case '\"':
+    case '\"':
     {
       JSONState s;
       s.m_State = ReadingVariable;
       m_StateStack.PushBack(s);
     }
-    return;
+      return;
 
-  case '}':
-    SkipWhitespace();
+    case '}':
+      SkipWhitespace();
 
-    m_StateStack.PopBack();
+      m_StateStack.PopBack();
 
-    if (!m_bSkippingMode)
-      OnEndObject();
-    return;
+      if (!m_bSkippingMode)
+        OnEndObject();
+      return;
 
-  case ',': // ignore superfluous commas
-    SkipWhitespace();
-    return;
+    case ',': // ignore superfluous commas
+      SkipWhitespace();
+      return;
 
-  default:
+    default:
     {
       ezStringBuilder s;
       s.Format("While parsing object: Expected \" to begin a new variable, or } to close the object. Got '{0}' instead.", ezArgC(m_uiCurByte));
       ParsingError(s.GetData(), true);
     }
-    return;
+      return;
   }
 }
 
@@ -226,7 +227,7 @@ void ezJSONParser::ContinueArray()
 {
   switch (m_uiCurByte)
   {
-  case ']':
+    case ']':
     {
       SkipWhitespace();
 
@@ -235,9 +236,9 @@ void ezJSONParser::ContinueArray()
       if (!m_bSkippingMode)
         OnEndArray();
     }
-    return;
+      return;
 
-  default:
+    default:
     {
       JSONState s;
 
@@ -247,7 +248,7 @@ void ezJSONParser::ContinueArray()
       s.m_State = ReadingValue;
       m_StateStack.PushBack(s);
     }
-    return;
+      return;
   }
 }
 
@@ -282,7 +283,7 @@ void ezJSONParser::ContinueVariable()
 
   if (!m_bSkippingMode)
   {
-    if (!OnVariable((const char*) &m_TempString[0]))
+    if (!OnVariable((const char*)&m_TempString[0]))
       SkipStack(ExpectSeparator);
   }
 }
@@ -292,10 +293,10 @@ void ezJSONParser::ContinueValue()
 {
   switch (m_uiCurByte)
   {
-  case '\0':
-    return;
+    case '\0':
+      return;
 
-  case '\"':
+    case '\"':
     {
       if (!m_bSkippingMode)
         ReadString();
@@ -308,23 +309,23 @@ void ezJSONParser::ContinueValue()
       m_StateStack.PopBack();
 
       if (!m_bSkippingMode)
-        OnReadValue((const char*) &m_TempString[0]);
+        OnReadValue((const char*)&m_TempString[0]);
     }
-    return;
+      return;
 
-  case '+':
-  case '-':
-  case '0':
-  case '1':
-  case '2':
-  case '3':
-  case '4':
-  case '5':
-  case '6':
-  case '7':
-  case '8':
-  case '9':
-  case '.':
+    case '+':
+    case '-':
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+    case '.':
     {
       const double fValue = ReadNumber();
 
@@ -334,10 +335,10 @@ void ezJSONParser::ContinueValue()
       if (!m_bSkippingMode)
         OnReadValue(fValue);
     }
-    return;
+      return;
 
-  case 't':
-  case 'f':
+    case 't':
+    case 'f':
     {
       // remove ReadingValue from the stack
       m_StateStack.PopBack();
@@ -345,20 +346,20 @@ void ezJSONParser::ContinueValue()
       ReadWord();
 
       bool bRes = false;
-      if (ezConversionUtils::StringToBool((const char*) &m_TempString[0], bRes) == EZ_FAILURE)
+      if (ezConversionUtils::StringToBool((const char*)&m_TempString[0], bRes) == EZ_FAILURE)
       {
         ezStringBuilder s;
-        s.Format("Parsing value: Expected 'true' or 'false', Got '{0}' instead.", (const char*) &m_TempString[0]);
+        s.Format("Parsing value: Expected 'true' or 'false', Got '{0}' instead.", (const char*)&m_TempString[0]);
         ParsingError(s.GetData(), false);
       }
 
       if (!m_bSkippingMode)
         OnReadValue(bRes);
     }
-    return;
+      return;
 
-  case 'n':
-  case 'N':
+    case 'n':
+    case 'N':
     {
       // remove ReadingValue from the stack
       m_StateStack.PopBack();
@@ -368,22 +369,22 @@ void ezJSONParser::ContinueValue()
       bool bIsNull = false;
 
       // if it's 'null' but with the wrong casing, output an error, but it is not fatal
-      if (ezStringUtils::IsEqual_NoCase((const char*) &m_TempString[0], "null"))
+      if (ezStringUtils::IsEqual_NoCase((const char*)&m_TempString[0], "null"))
         bIsNull = true;
 
-      if (!ezStringUtils::IsEqual((const char*) &m_TempString[0], "null"))
+      if (!ezStringUtils::IsEqual((const char*)&m_TempString[0], "null"))
       {
         ezStringBuilder s;
-        s.Format("Parsing value: Expected 'null', Got '{0}' instead.", (const char*) &m_TempString[0]);
+        s.Format("Parsing value: Expected 'null', Got '{0}' instead.", (const char*)&m_TempString[0]);
         ParsingError(s.GetData(), !bIsNull);
       }
 
       if (!m_bSkippingMode)
         OnReadValueNULL();
     }
-    return;
+      return;
 
-  case '[':
+    case '[':
     {
       // remove ReadingValue from the stack
       m_StateStack.PopBack();
@@ -397,9 +398,9 @@ void ezJSONParser::ContinueValue()
       if (!m_bSkippingMode)
         OnBeginArray();
     }
-    return;
+      return;
 
-  case '{':
+    case '{':
     {
       // remove ReadingValue from the stack
       m_StateStack.PopBack();
@@ -413,17 +414,16 @@ void ezJSONParser::ContinueValue()
       if (!m_bSkippingMode)
         OnBeginObject();
     }
-    return;
+      return;
 
-  default:
+    default:
     {
       ezStringBuilder s;
       s.Format("Parsing value: Expected [, {, f, t, \", 0-1, ., +, -, or even 'e'. Got '{0}' instead", ezArgC(m_uiCurByte));
       ParsingError(s.GetData(), true);
     }
-    return;
+      return;
   }
-
 }
 
 void ezJSONParser::ContinueSeparator()
@@ -436,24 +436,24 @@ void ezJSONParser::ContinueSeparator()
 
   switch (m_uiCurByte)
   {
-  case '\0':
-    return;
+    case '\0':
+      return;
 
-  case ',':
-    SkipWhitespace();
-    return;
+    case ',':
+      SkipWhitespace();
+      return;
 
-  case ']':
-  case '}':
-    return;
+    case ']':
+    case '}':
+      return;
 
-  default:
+    default:
     {
       ezStringBuilder s;
       s.Format("After parsing value: Expected a comma or closing brackets/braces (], }). Got '{0}' instead.", ezArgC(m_uiCurByte));
       ParsingError(s.GetData(), true);
     }
-    return;
+      return;
   }
 }
 
@@ -525,8 +525,7 @@ void ezJSONParser::SkipWhitespace()
 
     if (!ReadCharacter(true))
       return; // stop when end of stream is encountered
-  }
-  while (ezStringUtils::IsWhiteSpace(m_uiCurByte));
+  } while (ezStringUtils::IsWhiteSpace(m_uiCurByte));
 }
 
 void ezJSONParser::SkipString()
@@ -550,9 +549,7 @@ void ezJSONParser::SkipString()
 
       return; // stop when end of stream is encountered
     }
-  }
-  while (bEscapeSequence || m_uiCurByte != '\"');
-
+  } while (bEscapeSequence || m_uiCurByte != '\"');
 }
 
 void ezJSONParser::ReadString()
@@ -583,36 +580,36 @@ void ezJSONParser::ReadString()
     {
       switch (m_uiCurByte)
       {
-      case '\"':
-        m_TempString.PushBack('\"');
-        break;
-      case '\\':
-        m_TempString.PushBack('\\');
-        m_uiCurByte = '\0'; // make sure the next character isn't interpreted as an escape sequence
-        break;
-      case '/':
-        m_TempString.PushBack('/');
-        break;
-      case 'b':
-        m_TempString.PushBack('\b');
-        break;
-      case 'f':
-        m_TempString.PushBack('\f');
-        break;
-      case 'n':
-        m_TempString.PushBack('\n');
-        break;
-      case 'r':
-        m_TempString.PushBack('\r');
-        break;
-      case 't':
-        m_TempString.PushBack('\t');
-        break;
-      case 'u':
-        ParsingError("Unicode literals are not supported.", false);
-        /// \todo Support escaped Unicode literals? (\u1234)
-        break;
-      default:
+        case '\"':
+          m_TempString.PushBack('\"');
+          break;
+        case '\\':
+          m_TempString.PushBack('\\');
+          m_uiCurByte = '\0'; // make sure the next character isn't interpreted as an escape sequence
+          break;
+        case '/':
+          m_TempString.PushBack('/');
+          break;
+        case 'b':
+          m_TempString.PushBack('\b');
+          break;
+        case 'f':
+          m_TempString.PushBack('\f');
+          break;
+        case 'n':
+          m_TempString.PushBack('\n');
+          break;
+        case 'r':
+          m_TempString.PushBack('\r');
+          break;
+        case 't':
+          m_TempString.PushBack('\t');
+          break;
+        case 'u':
+          ParsingError("Unicode literals are not supported.", false);
+          /// \todo Support escaped Unicode literals? (\u1234)
+          break;
+        default:
         {
           ezStringBuilder s;
           s.Format("Unknown escape-sequence '\\{0}'", ezArgC(m_uiCurByte));
@@ -644,8 +641,7 @@ void ezJSONParser::ReadWord()
 
     if (!ReadCharacter(true))
       break; // stop when end of stream is encountered
-  }
-  while (!ezStringUtils::IsWhiteSpace(m_uiCurByte) && m_uiCurByte != ',' && m_uiCurByte != ']' && m_uiCurByte != '}');
+  } while (!ezStringUtils::IsWhiteSpace(m_uiCurByte) && m_uiCurByte != ',' && m_uiCurByte != ']' && m_uiCurByte != '}');
 
   m_TempString.PushBack('\0');
 }
@@ -664,16 +660,15 @@ double ezJSONParser::ReadNumber()
 
     if (!ReadCharacter(true))
       break; // stop when end of stream is encountered
-  }
-  while ((m_uiCurByte >= '0' && m_uiCurByte <= '9') || m_uiCurByte == '.' || m_uiCurByte == 'e' || m_uiCurByte == 'E' || m_uiCurByte == '-' || m_uiCurByte == '+');
+  } while ((m_uiCurByte >= '0' && m_uiCurByte <= '9') || m_uiCurByte == '.' || m_uiCurByte == 'e' || m_uiCurByte == 'E' || m_uiCurByte == '-' || m_uiCurByte == '+');
 
   m_TempString.PushBack('\0');
 
   double fResult = 0;
-  if (ezConversionUtils::StringToFloat((const char*) &m_TempString[0], fResult) == EZ_FAILURE)
+  if (ezConversionUtils::StringToFloat((const char*)&m_TempString[0], fResult) == EZ_FAILURE)
   {
     ezStringBuilder s;
-    s.Format("Reading number failed: Could not convert '{0}' to a floating point value.", (const char*) &m_TempString[0]);
+    s.Format("Reading number failed: Could not convert '{0}' to a floating point value.", (const char*)&m_TempString[0]);
     ParsingError(s.GetData(), true);
   }
 
@@ -683,4 +678,3 @@ double ezJSONParser::ReadNumber()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_JSONParser);
-

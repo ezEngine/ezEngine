@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/IO/OpenDdlReader.h>
 
 ezOpenDdlReader::ezOpenDdlReader()
@@ -332,7 +333,7 @@ const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChild(const char* szNa
   return nullptr;
 }
 
-const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChildOfType(ezOpenDdlPrimitiveType type, const char* szName, ezUInt32 uiMinNumberOfPrimitives/* = 1*/) const
+const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChildOfType(ezOpenDdlPrimitiveType type, const char* szName, ezUInt32 uiMinNumberOfPrimitives /* = 1*/) const
 {
   /// \test This is new
 
@@ -362,9 +363,9 @@ const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChildOfType(const char
   {
     if (pChild->GetPrimitivesType() == ezOpenDdlPrimitiveType::Custom &&
         ezStringUtils::IsEqual(pChild->GetCustomType(), szType) &&
-       (szName == nullptr || ezStringUtils::IsEqual(pChild->GetName(), szName)))
+        (szName == nullptr || ezStringUtils::IsEqual(pChild->GetName(), szName)))
     {
-        return pChild;
+      return pChild;
     }
 
     pChild = pChild->GetSibling();
@@ -376,4 +377,3 @@ const ezOpenDdlReaderElement* ezOpenDdlReaderElement::FindChildOfType(const char
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_OpenDdlReader);
-

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Strings/String.h>
@@ -20,8 +20,8 @@ class EZ_FOUNDATION_DLL ezDataDirectoryType
   EZ_DISALLOW_COPY_AND_ASSIGN(ezDataDirectoryType);
 
 public:
-  ezDataDirectoryType() { }
-  virtual ~ezDataDirectoryType() { }
+  ezDataDirectoryType() {}
+  virtual ~ezDataDirectoryType() {}
 
   /// \brief Returns the absolute path to the data directory.
   const ezString128& GetDataDirectoryPath() const { return m_sDataDirectoryPath; }
@@ -32,7 +32,7 @@ public:
   /// \brief Some data directory types may use external configuration files (e.g. asset lookup tables)
   ///        that may get updated, while the directory is mounted. This function allows each directory type to implement
   ///        reloading and reapplying of configurations, without dismounting and remounting the data directory.
-  virtual void ReloadExternalConfigs() { };
+  virtual void ReloadExternalConfigs(){};
 
 protected:
   friend class ezFileSystem;
@@ -62,7 +62,7 @@ protected:
   virtual void RemoveDataDirectory() = 0;
 
   /// \brief If a Data Directory Type supports it, this function will remove the given file from it.
-  virtual void DeleteFile(const char* szFile) { }
+  virtual void DeleteFile(const char* szFile) {}
 
   /// \brief This function checks whether the given file exists in this data directory.
   ///
@@ -84,7 +84,7 @@ protected:
   ///
   /// It allows the ezDataDirectoryType to return the reader/writer to a pool of reusable objects, or to destroy it
   /// using the proper allocator.
-  virtual void OnReaderWriterClose(ezDataDirectoryReaderWriterBase* pClosed) { }
+  virtual void OnReaderWriterClose(ezDataDirectoryReaderWriterBase* pClosed) {}
 
   /// \brief This function should only be used by a Factory (which should be a static function in the respective ezDataDirectoryType).
   ///
@@ -109,7 +109,7 @@ public:
   /// \brief The derived class should pass along whether it is a reader or writer.
   ezDataDirectoryReaderWriterBase(bool bIsReader);
 
-  virtual ~ezDataDirectoryReaderWriterBase() { }
+  virtual ~ezDataDirectoryReaderWriterBase() {}
 
   /// \brief Used by ezDataDirectoryType's to try to open the given file. They need to pass along their own pointer.
   ezResult Open(const char* szFilePath, ezDataDirectoryType* pOwnerDataDirectory);
@@ -149,7 +149,7 @@ class EZ_FOUNDATION_DLL ezDataDirectoryReader : public ezDataDirectoryReaderWrit
   EZ_DISALLOW_COPY_AND_ASSIGN(ezDataDirectoryReader);
 
 public:
-  ezDataDirectoryReader() : ezDataDirectoryReaderWriterBase(true) { }
+  ezDataDirectoryReader() : ezDataDirectoryReaderWriterBase(true) {}
 
   virtual ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes) = 0;
 };
@@ -162,11 +162,10 @@ class EZ_FOUNDATION_DLL ezDataDirectoryWriter : public ezDataDirectoryReaderWrit
   EZ_DISALLOW_COPY_AND_ASSIGN(ezDataDirectoryWriter);
 
 public:
-  ezDataDirectoryWriter() : ezDataDirectoryReaderWriterBase(false) { }
+  ezDataDirectoryWriter() : ezDataDirectoryReaderWriterBase(false) {}
 
   virtual ezResult Write(const void* pBuffer, ezUInt64 uiBytes) = 0;
 };
 
 
 #include <Foundation/IO/FileSystem/Implementation/DataDirType_inl.h>
-

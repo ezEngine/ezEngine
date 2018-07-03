@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/Logging/Log.h>
 
@@ -129,8 +130,7 @@ namespace ezDataDirectory
         {
           uiRead = file.Read(uiTemp, EZ_ARRAY_SIZE(uiTemp));
           content.PushBackRange(ezArrayPtr<char>(uiTemp, (ezUInt32)uiRead));
-        }
-        while (uiRead == EZ_ARRAY_SIZE(uiTemp));
+        } while (uiRead == EZ_ARRAY_SIZE(uiTemp));
 
         content.PushBack(0); // make sure the string is terminated
 
@@ -159,7 +159,7 @@ namespace ezDataDirectory
         //ezLog::Debug("Redirection file contains {0} entries", m_FileRedirection.GetCount());
       }
       //else
-        //ezLog::Debug("No Redirection file found in: '{0}'", sRedirectionFile);
+      //ezLog::Debug("No Redirection file found in: '{0}'", sRedirectionFile);
     }
   }
 
@@ -327,10 +327,8 @@ namespace ezDataDirectory
     // if it succeeds, we return the reader
     return pWriter;
   }
-
 }
 
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_FileSystem_Implementation_DataDirTypeFolder);
-

@@ -5,7 +5,7 @@
 inline ezDataDirectoryReaderWriterBase::ezDataDirectoryReaderWriterBase(bool bIsReader)
 {
   m_pDataDirectory = nullptr;
-  m_bIsReader = bIsReader; 
+  m_bIsReader = bIsReader;
 }
 
 inline ezResult ezDataDirectoryReaderWriterBase::Open(const char* szResourcePath, ezDataDirectoryType* pDataDirectory)
@@ -19,13 +19,12 @@ inline ezResult ezDataDirectoryReaderWriterBase::Open(const char* szResourcePath
   return EZ_FAILURE;
 }
 
-inline const ezString128& ezDataDirectoryReaderWriterBase::GetFilePath() const 
-{ 
-  return m_sFilePath; 
+inline const ezString128& ezDataDirectoryReaderWriterBase::GetFilePath() const
+{
+  return m_sFilePath;
 }
 
-inline ezDataDirectoryType* ezDataDirectoryReaderWriterBase::GetDataDirectory() const 
-{ 
-  return m_pDataDirectory; 
+inline ezDataDirectoryType* ezDataDirectoryReaderWriterBase::GetDataDirectory() const
+{
+  return m_pDataDirectory;
 }
-

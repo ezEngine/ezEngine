@@ -2,10 +2,10 @@
 
 /// \file
 
-#include <Foundation/Utilities/EnumerableClass.h>
+#include <Foundation/Communication/Event.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
-#include <Foundation/Communication/Event.h>
+#include <Foundation/Utilities/EnumerableClass.h>
 
 /// \brief ezPlugin allows to manage all dynamically loadable plugins. Each plugin DLL must contain one global instance of ezPlugin.
 ///
@@ -19,10 +19,10 @@ class EZ_FOUNDATION_DLL ezPlugin : public ezEnumerable<ezPlugin>
 
 public:
   /// \brief Callback type for when a plugin has just been loaded (not yet initialized). bReloading is true, if the plugin is currently being reloaded.
-  typedef void(*OnPluginLoadedFunction)(bool bReloading); // [tested]
+  typedef void (*OnPluginLoadedFunction)(bool bReloading); // [tested]
 
   /// \brief Callback type for when a plugin will be unloaded (after all deinitializations). bReloading is true, if the plugin is currently being reloaded.
-  typedef void(*OnPluginUnloadedFunction)(bool bReloading); // [tested]
+  typedef void (*OnPluginUnloadedFunction)(bool bReloading); // [tested]
 
   /// \brief Call this before loading / unloading several plugins in a row, to prevent unnecessary re-initializations.
   static void BeginPluginChanges();
@@ -41,7 +41,7 @@ public:
   /// \param szPluginDependency1
   ///   Allows to specify other modules that this plugin depends on. These will be automatically loaded and unloaded together with this plugin.
   ezPlugin(bool bIsReloadable, OnPluginLoadedFunction OnLoadPlugin = nullptr, OnPluginUnloadedFunction OnUnloadPlugin = nullptr,
-    const char* szPluginDependency1 = nullptr, const char* szPluginDependency2 = nullptr, const char* szPluginDependency3 = nullptr, const char* szPluginDependency4 = nullptr, const char* szPluginDependency5 = nullptr);
+           const char* szPluginDependency1 = nullptr, const char* szPluginDependency2 = nullptr, const char* szPluginDependency3 = nullptr, const char* szPluginDependency4 = nullptr, const char* szPluginDependency5 = nullptr);
 
   /// \brief Returns the name that was used to load the plugin from disk.
   const char* GetPluginName() const { return m_sLoadedFromFile.GetData(); } // [tested]
@@ -94,9 +94,9 @@ public:
       BeforeUnloading,        ///< Sent before a plugin is going to be unloaded
       StartupShutdown,        ///< Used by the startup system for automatic shutdown
       AfterStartupShutdown,
-      AfterUnloading,         ///< Sent after a plugin has been unloaded
-      BeforePluginChanges,    ///< Sent (once) before any (group) plugin changes (load/unload) are done.
-      AfterPluginChanges,     ///< Sent (once) after all (group) plugin changes (unload/load/reload) are finished.
+      AfterUnloading,      ///< Sent after a plugin has been unloaded
+      BeforePluginChanges, ///< Sent (once) before any (group) plugin changes (load/unload) are done.
+      AfterPluginChanges,  ///< Sent (once) after all (group) plugin changes (unload/load/reload) are finished.
     };
 
     Type m_EventType;           ///< Which type of event this is.
@@ -152,22 +152,21 @@ private:
 ///
 /// This macro also ensures that a plugin DLL exports any symbols at all, which is necessary on Windows to have a .lib and .exp file generated,
 /// which is in turn required to statically link against the library.
-#define EZ_DYNAMIC_PLUGIN_DECLARATION(LINKAGE, Plugin)           \
-                                                                 \
-LINKAGE void ezPluginHelper_##Plugin();                          \
-                                                                 \
-class ezDynamicPluginHelper_##Plugin                             \
-{                                                                \
-public:                                                          \
-  ezDynamicPluginHelper_##Plugin()                               \
-  {                                                              \
-    ezPluginHelper_##Plugin();                                   \
-  }                                                              \
-};                                                               \
-                                                                 \
-static ezDynamicPluginHelper_##Plugin ezPluginHelperVar_##Plugin \
+#define EZ_DYNAMIC_PLUGIN_DECLARATION(LINKAGE, Plugin) \
+                                                       \
+  LINKAGE void ezPluginHelper_##Plugin();              \
+                                                       \
+  class ezDynamicPluginHelper_##Plugin                 \
+  {                                                    \
+  public:                                              \
+    ezDynamicPluginHelper_##Plugin()                   \
+    {                                                  \
+      ezPluginHelper_##Plugin();                       \
+    }                                                  \
+  };                                                   \
+                                                       \
+  static ezDynamicPluginHelper_##Plugin ezPluginHelperVar_##Plugin
 
 /// \brief The counter part to EZ_DYNAMIC_PLUGIN_DECLARATION. Must be put into some cpp file of a plugin.
-#define EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(LINKAGE, Plugin)   \
-  LINKAGE void ezPluginHelper_##Plugin() { }
-
+#define EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(LINKAGE, Plugin) \
+  LINKAGE void ezPluginHelper_##Plugin() {}

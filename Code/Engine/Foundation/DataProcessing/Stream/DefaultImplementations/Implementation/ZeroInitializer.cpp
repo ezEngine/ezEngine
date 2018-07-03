@@ -1,16 +1,20 @@
-
 #include <PCH.h>
+
 #include <Foundation/Basics.h>
-#include <Foundation/DataProcessing/Stream/DefaultImplementations/ZeroInitializer.h>
-#include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
-#include <Foundation/DataProcessing/Stream/ProcessingStream.h>
 #include <Foundation/Memory/MemoryUtils.h>
 
+#include <Foundation/DataProcessing/Stream/ProcessingStream.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
+
+#include <Foundation/DataProcessing/Stream/DefaultImplementations/ZeroInitializer.h>
+
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessingStreamSpawnerZeroInitialized, 1, ezRTTIDefaultAllocator<ezProcessingStreamSpawnerZeroInitialized>)
 EZ_END_DYNAMIC_REFLECTED_TYPE
+// clang-format on
 
 ezProcessingStreamSpawnerZeroInitialized::ezProcessingStreamSpawnerZeroInitialized()
-  : m_pStream(nullptr)
+    : m_pStream(nullptr)
 {
 }
 
@@ -42,4 +46,3 @@ void ezProcessingStreamSpawnerZeroInitialized::InitializeElements(ezUInt64 uiSta
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_DataProcessing_Stream_DefaultImplementations_Implementation_ZeroInitializer);
-

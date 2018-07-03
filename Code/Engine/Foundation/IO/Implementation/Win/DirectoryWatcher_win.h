@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Foundation/IO/DirectoryWatcher.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/IO/DirectoryWatcher.h>
 #include <Foundation/Logging/Log.h>
 
 struct ezDirectoryWatcherImpl
@@ -17,7 +17,7 @@ struct ezDirectoryWatcherImpl
 };
 
 ezDirectoryWatcher::ezDirectoryWatcher()
-  : m_pImpl(EZ_DEFAULT_NEW(ezDirectoryWatcherImpl))
+    : m_pImpl(EZ_DEFAULT_NEW(ezDirectoryWatcherImpl))
 {
   m_pImpl->m_buffer.SetCountUninitialized(1024 * 1024);
 }
@@ -42,13 +42,13 @@ ezResult ezDirectoryWatcher::OpenDirectory(const ezString& absolutePath, ezBitfl
     m_pImpl->m_filter |= FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME;
 
   m_pImpl->m_directoryHandle = CreateFileW(
-    ezStringWChar(sPath).GetData(),
-    FILE_LIST_DIRECTORY,
-    FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-    nullptr,
-    OPEN_EXISTING,
-    FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,
-    nullptr);
+      ezStringWChar(sPath).GetData(),
+      FILE_LIST_DIRECTORY,
+      FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+      nullptr,
+      OPEN_EXISTING,
+      FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,
+      nullptr);
   if (m_pImpl->m_directoryHandle == INVALID_HANDLE_VALUE)
   {
     return EZ_FAILURE;
@@ -87,7 +87,7 @@ void ezDirectoryWatcherImpl::DoRead()
 {
   memset(&m_overlapped, 0, sizeof(m_overlapped));
   BOOL success = ReadDirectoryChangesW(m_directoryHandle, m_buffer.GetData(), m_buffer.GetCount(), m_watchSubdirs,
-    m_filter, nullptr, &m_overlapped, nullptr);
+                                       m_filter, nullptr, &m_overlapped, nullptr);
   EZ_ASSERT_DEV(success, "ReadDirectoryChangesW failed.");
 }
 
@@ -123,7 +123,7 @@ void ezDirectoryWatcher::EnumerateChanges(ezDelegate<void(const char* filename, 
       if (bytesNeeded > 0)
       {
         ezHybridArray<char, 1024> dir;
-        dir.SetCountUninitialized(bytesNeeded+1);
+        dir.SetCountUninitialized(bytesNeeded + 1);
         WideCharToMultiByte(CP_UTF8, 0, directory.GetPtr(), directory.GetCount(), dir.GetData(), dir.GetCount(), nullptr, nullptr);
         dir[bytesNeeded] = '\0';
         ezDirectoryWatcherAction action;
@@ -162,4 +162,3 @@ void ezDirectoryWatcher::EnumerateChanges(ezDelegate<void(const char* filename, 
   DWORD dwError = GetLastError();
   EZ_ASSERT_DEV(dwError == WAIT_TIMEOUT, "GetQueuedCompletionStatus gave an error");
 }
-

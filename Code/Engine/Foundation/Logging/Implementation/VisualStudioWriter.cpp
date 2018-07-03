@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Strings/StringConversion.h>
 
@@ -19,48 +20,48 @@ void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& even
 
   switch (eventData.m_EventType)
   {
-  case ezLogMsgType::BeginGroup:
-    ezStringUtils::snprintf(sz, 1024, "+++++ %s (%s) +++++\n", eventData.m_szText, eventData.m_szTag);
-    OutputDebugStringW(ezStringWChar(sz).GetData());
-    break;
-  case ezLogMsgType::EndGroup:
-    ezStringUtils::snprintf(sz, 1024, "----- %s (%.6f sec) -----\n\n", eventData.m_szText, eventData.m_fSeconds);
-    OutputDebugStringW(ezStringWChar(sz).GetData());
-    break;
-  case ezLogMsgType::ErrorMsg:
-    ezStringUtils::snprintf(sz, 1024, "Error: %s\n", eventData.m_szText);
-    OutputDebugStringW(ezStringWChar(sz).GetData());
-    break;
-  case ezLogMsgType::SeriousWarningMsg:
-    ezStringUtils::snprintf(sz, 1024, "Seriously: %s\n", eventData.m_szText);
-    OutputDebugStringW(ezStringWChar(sz).GetData());
-    break;
-  case ezLogMsgType::WarningMsg:
-    ezStringUtils::snprintf(sz, 1024, "Warning: %s\n", eventData.m_szText);
-    OutputDebugStringW(ezStringWChar(sz).GetData());
-    break;
-  case ezLogMsgType::SuccessMsg:
-    ezStringUtils::snprintf(sz, 1024, "%s\n", eventData.m_szText);
-    OutputDebugStringW(ezStringWChar(sz).GetData());
-    break;
-  case ezLogMsgType::InfoMsg:
-    ezStringUtils::snprintf(sz, 1024, "%s\n", eventData.m_szText);
-    OutputDebugStringW(ezStringWChar(sz).GetData());
-    break;
-  case ezLogMsgType::DevMsg:
-    ezStringUtils::snprintf(sz, 1024, "%s\n", eventData.m_szText);
-    OutputDebugStringW(ezStringWChar(sz).GetData());
-    break;
-  case ezLogMsgType::DebugMsg:
-    ezStringUtils::snprintf(sz, 1024, "%s\n", eventData.m_szText);
-    OutputDebugStringW(ezStringWChar(sz).GetData());
-    break;
-  default:
-    ezStringUtils::snprintf(sz, 1024, "%s\n", eventData.m_szText);
-    OutputDebugStringW(ezStringWChar(sz).GetData());
+    case ezLogMsgType::BeginGroup:
+      ezStringUtils::snprintf(sz, 1024, "+++++ %s (%s) +++++\n", eventData.m_szText, eventData.m_szTag);
+      OutputDebugStringW(ezStringWChar(sz).GetData());
+      break;
+    case ezLogMsgType::EndGroup:
+      ezStringUtils::snprintf(sz, 1024, "----- %s (%.6f sec) -----\n\n", eventData.m_szText, eventData.m_fSeconds);
+      OutputDebugStringW(ezStringWChar(sz).GetData());
+      break;
+    case ezLogMsgType::ErrorMsg:
+      ezStringUtils::snprintf(sz, 1024, "Error: %s\n", eventData.m_szText);
+      OutputDebugStringW(ezStringWChar(sz).GetData());
+      break;
+    case ezLogMsgType::SeriousWarningMsg:
+      ezStringUtils::snprintf(sz, 1024, "Seriously: %s\n", eventData.m_szText);
+      OutputDebugStringW(ezStringWChar(sz).GetData());
+      break;
+    case ezLogMsgType::WarningMsg:
+      ezStringUtils::snprintf(sz, 1024, "Warning: %s\n", eventData.m_szText);
+      OutputDebugStringW(ezStringWChar(sz).GetData());
+      break;
+    case ezLogMsgType::SuccessMsg:
+      ezStringUtils::snprintf(sz, 1024, "%s\n", eventData.m_szText);
+      OutputDebugStringW(ezStringWChar(sz).GetData());
+      break;
+    case ezLogMsgType::InfoMsg:
+      ezStringUtils::snprintf(sz, 1024, "%s\n", eventData.m_szText);
+      OutputDebugStringW(ezStringWChar(sz).GetData());
+      break;
+    case ezLogMsgType::DevMsg:
+      ezStringUtils::snprintf(sz, 1024, "%s\n", eventData.m_szText);
+      OutputDebugStringW(ezStringWChar(sz).GetData());
+      break;
+    case ezLogMsgType::DebugMsg:
+      ezStringUtils::snprintf(sz, 1024, "%s\n", eventData.m_szText);
+      OutputDebugStringW(ezStringWChar(sz).GetData());
+      break;
+    default:
+      ezStringUtils::snprintf(sz, 1024, "%s\n", eventData.m_szText);
+      OutputDebugStringW(ezStringWChar(sz).GetData());
 
-    ezLog::Warning("Unknown Message Type {0}", eventData.m_EventType);
-    break;
+      ezLog::Warning("Unknown Message Type {0}", eventData.m_EventType);
+      break;
   }
 }
 
@@ -74,6 +75,4 @@ void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& even
 
 
 
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Logging_Implementation_VisualStudioWriter);
-

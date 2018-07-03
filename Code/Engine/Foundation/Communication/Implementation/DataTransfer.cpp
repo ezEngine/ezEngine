@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Communication/DataTransfer.h>
 
 bool ezDataTransfer::s_bInitialized = false;
@@ -170,12 +171,12 @@ void ezDataTransfer::TelemetryEventsHandler(const ezTelemetry::TelemetryEventDat
 
   switch (e.m_EventType)
   {
-  case ezTelemetry::TelemetryEventData::ConnectedToClient:
-    SendAllDataTransfers();
-    break;
+    case ezTelemetry::TelemetryEventData::ConnectedToClient:
+      SendAllDataTransfers();
+      break;
 
-  default:
-    break;
+    default:
+      break;
   }
 }
 
@@ -193,7 +194,4 @@ void ezDataTransfer::SendAllDataTransfers()
 
 
 
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_DataTransfer);
-

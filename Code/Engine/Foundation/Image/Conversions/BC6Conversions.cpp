@@ -1,8 +1,9 @@
 #include <PCH.h>
+
 #include <Foundation/Image/Conversions/ImageConversionMixin.h>
 
-template<bool bSigned>
-class ezImageConversion_BC6_RGBA : public ezImageConversionMixinBlockDecompression<ezImageConversion_BC6_RGBA<bSigned> >
+template <bool bSigned>
+class ezImageConversion_BC6_RGBA : public ezImageConversionMixinBlockDecompression<ezImageConversion_BC6_RGBA<bSigned>>
 {
 public:
   static const ezUInt32 s_uiSourceBpp = 8;
@@ -39,73 +40,71 @@ public:
 
     switch (uiMode)
     {
-    case 0:
-      DecompressMode0(pSource, pTarget);
-      break;
+      case 0:
+        DecompressMode0(pSource, pTarget);
+        break;
 
-    case 1:
-      DecompressMode1(pSource, pTarget);
-      break;
+      case 1:
+        DecompressMode1(pSource, pTarget);
+        break;
 
-    case 2:
-      DecompressMode2(pSource, pTarget);
-      break;
+      case 2:
+        DecompressMode2(pSource, pTarget);
+        break;
 
-    case 3:
-      DecompressMode3(pSource, pTarget);
-      break;
+      case 3:
+        DecompressMode3(pSource, pTarget);
+        break;
 
-    case 6:
-      DecompressMode6(pSource, pTarget);
-      break;
+      case 6:
+        DecompressMode6(pSource, pTarget);
+        break;
 
-    case 7:
-      DecompressMode7(pSource, pTarget);
-      break;
+      case 7:
+        DecompressMode7(pSource, pTarget);
+        break;
 
-    case 10:
-      DecompressMode10(pSource, pTarget);
-      break;
+      case 10:
+        DecompressMode10(pSource, pTarget);
+        break;
 
-    case 11:
-      DecompressMode11(pSource, pTarget);
-      break;
+      case 11:
+        DecompressMode11(pSource, pTarget);
+        break;
 
-    case 14:
-      DecompressMode14(pSource, pTarget);
-      break;
+      case 14:
+        DecompressMode14(pSource, pTarget);
+        break;
 
-    case 15:
-      DecompressMode15(pSource, pTarget);
-      break;
+      case 15:
+        DecompressMode15(pSource, pTarget);
+        break;
 
-    case 18:
-      DecompressMode18(pSource, pTarget);
-      break;
+      case 18:
+        DecompressMode18(pSource, pTarget);
+        break;
 
-    case 22:
-      DecompressMode22(pSource, pTarget);
-      break;
+      case 22:
+        DecompressMode22(pSource, pTarget);
+        break;
 
-    case 26:
-      DecompressMode26(pSource, pTarget);
-      break;
+      case 26:
+        DecompressMode26(pSource, pTarget);
+        break;
 
-    case 30:
-      DecompressMode30(pSource, pTarget);
-      break;
+      case 30:
+        DecompressMode30(pSource, pTarget);
+        break;
 
-    default:
-      // Spec requires all invalid combinations to return 0.0f
-      memset(pTarget, 0, 256);
-      break;
+      default:
+        // Spec requires all invalid combinations to return 0.0f
+        memset(pTarget, 0, 256);
+        break;
     }
   }
 
 private:
-
-  union FP32
-  {
+  union FP32 {
     ezUInt32 u;
     float f;
   };
@@ -138,12 +137,12 @@ private:
     return out;
   }
 
-  static ezUInt32	SignExtend(ezUInt32 uiComponent, ezUInt32 uiBits)
+  static ezUInt32 SignExtend(ezUInt32 uiComponent, ezUInt32 uiBits)
   {
     return static_cast<ezInt32>(uiComponent << (32 - uiBits)) >> (32 - uiBits);
   }
 
-  static void	SignExtend(Color& color, ezUInt32 uiBitsR, ezUInt32 uiBitsG, ezUInt32 uiBitsB)
+  static void SignExtend(Color& color, ezUInt32 uiBitsR, ezUInt32 uiBitsG, ezUInt32 uiBitsB)
   {
     color.r = SignExtend(color.r, uiBitsR);
     color.g = SignExtend(color.g, uiBitsG);
@@ -173,28 +172,26 @@ private:
     ezUInt8 uiShape = ReadBits<5, 77>(pSource);
 
     static const ezUInt32 uiFixUpIndex[32] =
-    {
-      15, 15, 15, 15,
-      15, 15, 15, 15,
-      15, 15, 15, 15,
-      15, 15, 15, 15,
-      15, 2, 8, 2,
-      2, 8, 8, 15,
-      2, 8, 2, 2,
-      8, 8, 2, 2
-    };
+        {
+            15, 15, 15, 15,
+            15, 15, 15, 15,
+            15, 15, 15, 15,
+            15, 15, 15, 15,
+            15, 2, 8, 2,
+            2, 8, 8, 15,
+            2, 8, 2, 2,
+            8, 8, 2, 2};
 
     static const ezUInt32 uiPartitions[32] =
-    {
-      0xCCCC, 0x8888, 0xEEEE, 0xECC8,
-      0xC880, 0xFEEC, 0xFEC8, 0xEC80,
-      0xC800, 0xFFEC, 0xFE80, 0xE800,
-      0xFFE8, 0xFF00, 0xFFF0, 0xF000,
-      0xF710, 0x008E, 0x7100, 0x08CE,
-      0x008C, 0x7310, 0x3100, 0x8CCE,
-      0x088C, 0x3110, 0x6666, 0x366C,
-      0x17E8, 0x0FF0, 0x718E, 0x399C
-    };
+        {
+            0xCCCC, 0x8888, 0xEEEE, 0xECC8,
+            0xC880, 0xFEEC, 0xFEC8, 0xEC80,
+            0xC800, 0xFFEC, 0xFE80, 0xE800,
+            0xFFE8, 0xFF00, 0xFFF0, 0xF000,
+            0xF710, 0x008E, 0x7100, 0x08CE,
+            0x008C, 0x7310, 0x3100, 0x8CCE,
+            0x088C, 0x3110, 0x6666, 0x366C,
+            0x17E8, 0x0FF0, 0x718E, 0x399C};
 
     for (ezUInt32 uiIndex = 0; uiIndex < 16; uiIndex++)
     {
@@ -223,7 +220,6 @@ private:
       pTarget[uiIndex].b = HalfToFloat(FinishUnquantize(Interpolate8(A[uiRegion].b, B[uiRegion].b, i))).f;
       pTarget[uiIndex].a = 1.0f;
     }
-
   }
 
   static void DecompressMode0(const SourceType* pSource, TargetType* pTarget)
@@ -553,11 +549,11 @@ private:
   {
     Color A, B;
     A.r = ReadBits<10, 5>(pSource) | (ReadBits<1, 49>(pSource) << 10) | (ReadBits<1, 48>(pSource) << 11) | (ReadBits<1, 47>(pSource) << 12) |
-      (ReadBits<1, 46>(pSource) << 13) | (ReadBits<1, 45>(pSource) << 14) | (ReadBits<1, 44>(pSource) << 15) | (ReadBits<1, 43>(pSource) << 16);
+          (ReadBits<1, 46>(pSource) << 13) | (ReadBits<1, 45>(pSource) << 14) | (ReadBits<1, 44>(pSource) << 15) | (ReadBits<1, 43>(pSource) << 16);
     A.g = ReadBits<10, 15>(pSource) | (ReadBits<1, 59>(pSource) << 10) | (ReadBits<1, 58>(pSource) << 11) | (ReadBits<1, 57>(pSource) << 12) |
-      (ReadBits<1, 56>(pSource) << 13) | (ReadBits<1, 55>(pSource) << 14) | (ReadBits<1, 54>(pSource) << 15) | (ReadBits<1, 53>(pSource) << 16);
+          (ReadBits<1, 56>(pSource) << 13) | (ReadBits<1, 55>(pSource) << 14) | (ReadBits<1, 54>(pSource) << 15) | (ReadBits<1, 53>(pSource) << 16);
     A.b = ReadBits<10, 25>(pSource) | (ReadBits<1, 69>(pSource) << 10) | (ReadBits<1, 68>(pSource) << 11) | (ReadBits<1, 67>(pSource) << 12) |
-      (ReadBits<1, 66>(pSource) << 13) | (ReadBits<1, 65>(pSource) << 14) | (ReadBits<1, 64>(pSource) << 15) | (ReadBits<1, 63>(pSource) << 16);
+          (ReadBits<1, 66>(pSource) << 13) | (ReadBits<1, 65>(pSource) << 14) | (ReadBits<1, 64>(pSource) << 15) | (ReadBits<1, 63>(pSource) << 16);
 
     B.r = ReadBits<4, 35>(pSource);
     B.g = ReadBits<4, 45>(pSource);
@@ -804,14 +800,14 @@ private:
   {
     if (bSigned)
     {
-      iComponent = (iComponent < 0) ? -(((-iComponent) * 31) >> 5) : (iComponent * 31) >> 5;   // scale the magnitude by 31/32
+      iComponent = (iComponent < 0) ? -(((-iComponent) * 31) >> 5) : (iComponent * 31) >> 5; // scale the magnitude by 31/32
       int s = 0;
       if (iComponent < 0)
       {
         s = 0x8000;
         iComponent = -iComponent;
       }
-      return (unsigned short) (s | iComponent);
+      return (unsigned short)(s | iComponent);
     }
     else
     {
@@ -819,7 +815,7 @@ private:
     }
   }
 
-  template<ezUInt32 uiNumBits, ezUInt32 uiBitPosition>
+  template <ezUInt32 uiNumBits, ezUInt32 uiBitPosition>
   static ezUInt32 ReadBits(const ezUInt8* pSource)
   {
     return (*reinterpret_cast<const ezUInt32*>(pSource + (uiBitPosition >> 3)) >> (uiBitPosition & 7)) & ((1U << uiNumBits) - 1);
@@ -847,7 +843,4 @@ static ezImageConversion_BC6_RGBA<false> g_conversionBC6U;
 
 
 
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Image_Conversions_BC6Conversions);
-

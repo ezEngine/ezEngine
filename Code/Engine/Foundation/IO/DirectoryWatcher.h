@@ -30,10 +30,10 @@ public:
     /// \brief Enum values
     enum Enum
     {
-      Reads = EZ_BIT(0), ///< Watch for reads.
-      Writes = EZ_BIT(1), ///< Watch for writes.
-      Creates = EZ_BIT(2), ///< Watch for newly created files.
-      Renames = EZ_BIT(3), ///< Watch for renames.
+      Reads = EZ_BIT(0),         ///< Watch for reads.
+      Writes = EZ_BIT(1),        ///< Watch for writes.
+      Creates = EZ_BIT(2),       ///< Watch for newly created files.
+      Renames = EZ_BIT(3),       ///< Watch for renames.
       Subdirectories = EZ_BIT(4) ///< Watch files in subdirectories recursively.
     };
 
@@ -77,4 +77,3 @@ private:
 };
 
 EZ_DECLARE_FLAGS_OPERATORS(ezDirectoryWatcher::Watch);
-

@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
 
@@ -30,7 +31,7 @@ void ezDataDirectoryReaderWriterBase::Close()
 
   ezFileSystem::FileEvent fe;
   fe.m_EventType = ezFileSystem::FileEventType::CloseFile;
-  fe.m_szFileOrDirectory = GetFilePath ().GetData();
+  fe.m_szFileOrDirectory = GetFilePath().GetData();
   fe.m_pDataDir = m_pDataDirectory;
   ezFileSystem::s_Data->m_Event.Broadcast(fe);
 
@@ -40,4 +41,3 @@ void ezDataDirectoryReaderWriterBase::Close()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_FileSystem_Implementation_DataDirType);
-

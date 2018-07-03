@@ -1,8 +1,9 @@
 #include <PCH.h>
-#include <Foundation/Image/Image.h>
-#include <Foundation/Image/Formats/ImageFileFormat.h>
+
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Image/Formats/ImageFileFormat.h>
+#include <Foundation/Image/Image.h>
 
 void ezImage::AllocateImageData()
 {
@@ -124,7 +125,4 @@ ezResult ezImage::SaveTo(const char* szFileName, ezLogInterface* pLog)
 
 
 
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Image_Implementation_Image);
-

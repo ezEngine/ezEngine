@@ -37,4 +37,3 @@ bool ezMessageLoop_mobile::WaitForMessages(ezInt32 iTimeout, ezIpcChannel* pFilt
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_Mobile_MessageLoop_mobile);
-

@@ -6,18 +6,18 @@
 #undef EZ_USE_POSIX_FILE_API
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  #define EZ_USE_POSIX_FILE_API EZ_ON
+#define EZ_USE_POSIX_FILE_API EZ_ON
 #else
-  #define EZ_USE_POSIX_FILE_API EZ_OFF
+#define EZ_USE_POSIX_FILE_API EZ_OFF
 #endif
 
 /// Iterating through the file system is supported
 #undef EZ_SUPPORTS_FILE_ITERATORS
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  #define EZ_SUPPORTS_FILE_ITERATORS EZ_OFF
+#define EZ_SUPPORTS_FILE_ITERATORS EZ_OFF
 #else
-  #define EZ_SUPPORTS_FILE_ITERATORS EZ_ON
+#define EZ_SUPPORTS_FILE_ITERATORS EZ_ON
 #endif
 
 /// Getting the stats of a file (modification times etc.) is supported.
@@ -39,4 +39,3 @@
 /// Whether file accesses can be done through paths that do not match exact casing
 #undef EZ_SUPPORTS_CASE_INSENSITIVE_PATHS
 #define EZ_SUPPORTS_CASE_INSENSITIVE_PATHS EZ_ON
-

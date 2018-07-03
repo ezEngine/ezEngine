@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Containers/Map.h>
@@ -17,14 +17,13 @@
 class EZ_FOUNDATION_DLL ezSingletonRegistry
 {
 public:
-
   /// \todo Events for new/deleted singletons -> ezInspector integration
 
   /// \brief Retrieves a singleton instance by type name.
   static void* GetSingletonInstance(const char* szSingletonClassType); // [tested]
 
   /// \brief Retrieves a singleton instance by type name and casts it to the desired interface.
-  template<typename Interface>
+  template <typename Interface>
   static Interface* GetSingletonInstance(const char* szSingletonClassType) // [tested]
   {
     return static_cast<Interface*>(GetSingletonInstance(szSingletonClassType));
@@ -40,7 +39,7 @@ public:
   static void Unregister(const char* szTypeName); // [tested]
 
 private:
-  template<typename>
+  template <typename>
   friend class ezSingletonRegistrar;
 
   static ezMap<ezString, void*> s_Singletons;
@@ -61,16 +60,28 @@ private:
 ///        through GetSingleton(). This is necessary, if you want to decouple library link dependencies and thus not put
 ///        any singleton code into the interface declaration, to keep it a pure virtual interface.
 ///        You can then query that class pointer also through the name of the interface using ezSingletonRegistry.
-#define EZ_DECLARE_SINGLETON(self) \
-  public: \
-    static self* GetSingleton() { return s_pSingleton; } \
-  private: \
-    EZ_DISALLOW_COPY_AND_ASSIGN(self); \
-    void RegisterSingleton() { s_pSingleton = this; ezSingletonRegistry::Register(this, #self); } \
-    static void UnregisterSingleton() { if (s_pSingleton) { ezSingletonRegistry::Unregister(#self); s_pSingleton = nullptr; } } \
-    friend class ezSingletonRegistrar<self>; \
-    ezSingletonRegistrar<self> m_SingletonRegistrar; \
-    static self* s_pSingleton
+#define EZ_DECLARE_SINGLETON(self)                     \
+public:                                                \
+  static self* GetSingleton() { return s_pSingleton; } \
+                                                       \
+private:                                               \
+  EZ_DISALLOW_COPY_AND_ASSIGN(self);                   \
+  void RegisterSingleton()                             \
+  {                                                    \
+    s_pSingleton = this;                               \
+    ezSingletonRegistry::Register(this, #self);        \
+  }                                                    \
+  static void UnregisterSingleton()                    \
+  {                                                    \
+    if (s_pSingleton)                                  \
+    {                                                  \
+      ezSingletonRegistry::Unregister(#self);          \
+      s_pSingleton = nullptr;                          \
+    }                                                  \
+  }                                                    \
+  friend class ezSingletonRegistrar<self>;             \
+  ezSingletonRegistrar<self> m_SingletonRegistrar;     \
+  static self* s_pSingleton
 
 /// \brief Insert this into a class declaration to turn the class into a singleton.
 ///
@@ -87,14 +98,28 @@ private:
 ///        any singleton code into the interface declaration, to keep it a pure virtual interface.
 ///        You can then query that class pointer also through the name of the interface using ezSingletonRegistry.
 #define EZ_DECLARE_SINGLETON_OF_INTERFACE(self, interface) \
-  public: \
-    static self* GetSingleton() { return s_pSingleton; } \
-  private: \
-    void RegisterSingleton() { s_pSingleton = this; ezSingletonRegistry::Register(this, #self); ezSingletonRegistry::Register(this, #interface); } \
-    static void UnregisterSingleton() { if (s_pSingleton) { ezSingletonRegistry::Unregister(#interface); ezSingletonRegistry::Unregister(#self); s_pSingleton = nullptr; } } \
-    friend class ezSingletonRegistrar<self>; \
-    ezSingletonRegistrar<self> m_SingletonRegistrar; \
-    static self* s_pSingleton
+public:                                                    \
+  static self* GetSingleton() { return s_pSingleton; }     \
+                                                           \
+private:                                                   \
+  void RegisterSingleton()                                 \
+  {                                                        \
+    s_pSingleton = this;                                   \
+    ezSingletonRegistry::Register(this, #self);            \
+    ezSingletonRegistry::Register(this, #interface);       \
+  }                                                        \
+  static void UnregisterSingleton()                        \
+  {                                                        \
+    if (s_pSingleton)                                      \
+    {                                                      \
+      ezSingletonRegistry::Unregister(#interface);         \
+      ezSingletonRegistry::Unregister(#self);              \
+      s_pSingleton = nullptr;                              \
+    }                                                      \
+  }                                                        \
+  friend class ezSingletonRegistrar<self>;                 \
+  ezSingletonRegistrar<self> m_SingletonRegistrar;         \
+  static self* s_pSingleton
 
 
 /// \brief Put this into the cpp of a singleton class
@@ -107,7 +132,7 @@ private:
 ///
 /// Classes that use EZ_DECLARE_SINGLETON must pass their this pointer to their m_SingletonRegistrar member
 /// during construction.
-template<class TYPE>
+template <class TYPE>
 class ezSingletonRegistrar
 {
 public:
@@ -121,4 +146,3 @@ public:
     TYPE::UnregisterSingleton();
   }
 };
-

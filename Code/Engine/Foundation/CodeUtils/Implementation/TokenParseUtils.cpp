@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/CodeUtils/TokenParseUtils.h>
 #include <Foundation/CodeUtils/Tokenizer.h>
 
@@ -7,19 +8,19 @@ namespace ezTokenParseUtils
   void SkipWhitespace(const TokenStream& Tokens, ezUInt32& uiCurToken)
   {
     while (uiCurToken < Tokens.GetCount() &&
-      ((Tokens[uiCurToken]->m_iType == ezTokenType::Whitespace) ||
-      (Tokens[uiCurToken]->m_iType == ezTokenType::BlockComment) ||
-        (Tokens[uiCurToken]->m_iType == ezTokenType::LineComment)))
+           ((Tokens[uiCurToken]->m_iType == ezTokenType::Whitespace) ||
+            (Tokens[uiCurToken]->m_iType == ezTokenType::BlockComment) ||
+            (Tokens[uiCurToken]->m_iType == ezTokenType::LineComment)))
       ++uiCurToken;
   }
 
   void SkipWhitespaceAndNewline(const TokenStream& Tokens, ezUInt32& uiCurToken)
   {
     while (uiCurToken < Tokens.GetCount() &&
-      ((Tokens[uiCurToken]->m_iType == ezTokenType::Whitespace) ||
-      (Tokens[uiCurToken]->m_iType == ezTokenType::BlockComment) ||
-        (Tokens[uiCurToken]->m_iType == ezTokenType::Newline) ||
-        (Tokens[uiCurToken]->m_iType == ezTokenType::LineComment)))
+           ((Tokens[uiCurToken]->m_iType == ezTokenType::Whitespace) ||
+            (Tokens[uiCurToken]->m_iType == ezTokenType::BlockComment) ||
+            (Tokens[uiCurToken]->m_iType == ezTokenType::Newline) ||
+            (Tokens[uiCurToken]->m_iType == ezTokenType::LineComment)))
       ++uiCurToken;
   }
 
@@ -47,9 +48,9 @@ namespace ezTokenParseUtils
       for (; i < Source.GetCount(); ++i)
       {
         if (Source[i]->m_iType == ezTokenType::BlockComment ||
-          Source[i]->m_iType == ezTokenType::LineComment ||
-          Source[i]->m_iType == ezTokenType::EndOfFile ||
-          (!bPreserveNewLines && Source[i]->m_iType == ezTokenType::Newline))
+            Source[i]->m_iType == ezTokenType::LineComment ||
+            Source[i]->m_iType == ezTokenType::EndOfFile ||
+            (!bPreserveNewLines && Source[i]->m_iType == ezTokenType::Newline))
           continue;
 
         Destination.PushBack(Source[i]);
@@ -145,9 +146,9 @@ namespace ezTokenParseUtils
     for (ezUInt32 t = uiCurToken; t < Tokens.GetCount(); ++t)
     {
       if ((Tokens[t]->m_iType == ezTokenType::LineComment) ||
-        (Tokens[t]->m_iType == ezTokenType::BlockComment) ||
-        (Tokens[t]->m_iType == ezTokenType::Newline) ||
-        (Tokens[t]->m_iType == ezTokenType::EndOfFile))
+          (Tokens[t]->m_iType == ezTokenType::BlockComment) ||
+          (Tokens[t]->m_iType == ezTokenType::Newline) ||
+          (Tokens[t]->m_iType == ezTokenType::EndOfFile))
         continue;
 
       sTemp = Tokens[t]->m_DataView;
@@ -199,8 +200,8 @@ namespace ezTokenParseUtils
     {
       // skip all comments, if not desired
       if ((Tokens[t]->m_iType == ezTokenType::BlockComment ||
-        Tokens[t]->m_iType == ezTokenType::LineComment) &&
-        !bKeepComments)
+           Tokens[t]->m_iType == ezTokenType::LineComment) &&
+          !bKeepComments)
         continue;
 
       if (Tokens[t]->m_iType == ezTokenType::EndOfFile)
@@ -223,7 +224,7 @@ namespace ezTokenParseUtils
         if (t > 0 && Tokens[t - 1]->m_iType == ezTokenType::Newline)
         {
           if (Tokens[t]->m_uiLine != uiCurLine ||
-            Tokens[t]->m_File != sCurFile)
+              Tokens[t]->m_File != sCurFile)
           {
             sResult.AppendFormat("\n#line {0} \"{1}\"\n", Tokens[t]->m_uiLine, Tokens[t]->m_File);
             uiCurLine = Tokens[t]->m_uiLine;
@@ -239,4 +240,3 @@ namespace ezTokenParseUtils
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_TokenParseUtils);
-

@@ -5,11 +5,10 @@
 #include <Foundation/Memory/MemoryUtils.h>
 
 /// \brief Helper template class to iterate over stream elements.
-template<typename Type>
+template <typename Type>
 class ezProcessingStreamIterator
 {
 public:
-
   /// \brief Constructor.
   ezProcessingStreamIterator(const ezProcessingStream* pStream, ezUInt64 uiNumElements, ezUInt64 uiStartIndex);
 
@@ -25,7 +24,6 @@ public:
   // TODO: Add iterator interface? Only makes really sense for element spawners and processors which work on a single stream
 
 protected:
-
   void* m_pCurrentPtr;
   void* m_pEndPtr;
 
@@ -33,4 +31,3 @@ protected:
 };
 
 #include <Foundation/DataProcessing/Stream/Implementation/ProcessingStreamIterator_inl.h>
-

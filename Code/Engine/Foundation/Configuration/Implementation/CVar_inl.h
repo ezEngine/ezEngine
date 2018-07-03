@@ -2,9 +2,9 @@
 
 #include <Foundation/Configuration/CVar.h>
 
-template<typename Type, ezCVarType::Enum CVarType>
+template <typename Type, ezCVarType::Enum CVarType>
 ezTypedCVar<Type, CVarType>::ezTypedCVar(const char* szName, const Type& Value, ezBitflags<ezCVarFlags> Flags, const char* szDescription)
-  : ezCVar(szName, Flags, szDescription)
+    : ezCVar(szName, Flags, szDescription)
 {
   EZ_ASSERT_DEBUG(ezStringUtils::FindSubString(szName, " ") == nullptr, "CVar names must not contain whitespace");
 
@@ -12,16 +12,16 @@ ezTypedCVar<Type, CVarType>::ezTypedCVar(const char* szName, const Type& Value, 
     m_Values[i] = Value;
 }
 
-template<typename Type, ezCVarType::Enum CVarType>
+template <typename Type, ezCVarType::Enum CVarType>
 ezTypedCVar<Type, CVarType>::operator const Type&() const { return (m_Values[ezCVarValue::Current]); }
 
-template<typename Type, ezCVarType::Enum CVarType>
+template <typename Type, ezCVarType::Enum CVarType>
 ezCVarType::Enum ezTypedCVar<Type, CVarType>::GetType() const
 {
   return CVarType;
 }
 
-template<typename Type, ezCVarType::Enum CVarType>
+template <typename Type, ezCVarType::Enum CVarType>
 void ezTypedCVar<Type, CVarType>::SetToRestartValue()
 {
   if (m_Values[ezCVarValue::Current] == m_Values[ezCVarValue::Restart])
@@ -38,14 +38,14 @@ void ezTypedCVar<Type, CVarType>::SetToRestartValue()
   s_AllCVarEvents.Broadcast(e);
 }
 
-template<typename Type, ezCVarType::Enum CVarType>
+template <typename Type, ezCVarType::Enum CVarType>
 const Type& ezTypedCVar<Type, CVarType>::GetValue(ezCVarValue::Enum val) const
 {
   return (m_Values[val]);
 }
 
-template<typename Type, ezCVarType::Enum CVarType>
-void ezTypedCVar<Type, CVarType>::operator= (const Type& value)
+template <typename Type, ezCVarType::Enum CVarType>
+void ezTypedCVar<Type, CVarType>::operator=(const Type& value)
 {
   CVarEvent e(this);
 
@@ -72,4 +72,3 @@ void ezTypedCVar<Type, CVarType>::operator= (const Type& value)
   // broadcast the same to the 'all cvars' event handlers
   s_AllCVarEvents.Broadcast(e);
 }
-

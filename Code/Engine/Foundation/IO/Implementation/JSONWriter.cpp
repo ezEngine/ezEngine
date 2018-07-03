@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/IO/JSONWriter.h>
 
 void ezJSONWriter::AddVariableBool(const char* szName, bool value)
@@ -201,17 +202,17 @@ void ezJSONWriter::WriteVec4(const ezVec4& value)
   EZ_REPORT_FAILURE("The complex data type ezVec4 is not supported by this JSON writer.");
 }
 
-void ezJSONWriter::WriteVec2I32(const ezVec2I32 & value)
+void ezJSONWriter::WriteVec2I32(const ezVec2I32& value)
 {
   EZ_REPORT_FAILURE("The complex data type ezVec2I32 is not supported by this JSON writer.");
 }
 
-void ezJSONWriter::WriteVec3I32(const ezVec3I32 & value)
+void ezJSONWriter::WriteVec3I32(const ezVec3I32& value)
 {
   EZ_REPORT_FAILURE("The complex data type ezVec3I32 is not supported by this JSON writer.");
 }
 
-void ezJSONWriter::WriteVec4I32(const ezVec4I32 & value)
+void ezJSONWriter::WriteVec4I32(const ezVec4I32& value)
 {
   EZ_REPORT_FAILURE("The complex data type ezVec4I32 is not supported by this JSON writer.");
 }
@@ -240,98 +241,98 @@ void ezJSONWriter::WriteVariant(const ezVariant& value)
 {
   switch (value.GetType())
   {
-  case ezVariant::Type::Invalid:
-    //EZ_REPORT_FAILURE("Variant of Type 'Invalid' cannot be written as JSON.");
-    WriteNULL();
-    return;
-  case ezVariant::Type::Bool:
-    WriteBool(value.Get<bool>());
-    return;
-  case ezVariant::Type::Int8:
-    WriteInt32(value.Get<ezInt8>());
-    return;
-  case ezVariant::Type::UInt8:
-    WriteUInt32(value.Get<ezUInt8>());
-    return;
-  case ezVariant::Type::Int16:
-    WriteInt32(value.Get<ezInt16>());
-    return;
-  case ezVariant::Type::UInt16:
-    WriteUInt32(value.Get<ezUInt16>());
-    return;
-  case ezVariant::Type::Int32:
-    WriteInt32(value.Get<ezInt32>());
-    return;
-  case ezVariant::Type::UInt32:
-    WriteUInt32(value.Get<ezUInt32>());
-    return;
-  case ezVariant::Type::Int64:
-    WriteInt64(value.Get<ezInt64>());
-    return;
-  case ezVariant::Type::UInt64:
-    WriteUInt64(value.Get<ezUInt64>());
-    return;
-  case ezVariant::Type::Float:
-    WriteFloat(value.Get<float>());
-    return;
-  case ezVariant::Type::Double:
-    WriteDouble(value.Get<double>());
-    return;
-  case ezVariant::Type::Color:
-    WriteColor(value.Get<ezColor>());
-    return;
-  case ezVariant::Type::ColorGamma:
-    WriteColorGamma(value.Get<ezColorGammaUB>());
-    return;
-  case ezVariant::Type::Vector2:
-    WriteVec2(value.Get<ezVec2>());
-    return;
-  case ezVariant::Type::Vector3:
-    WriteVec3(value.Get<ezVec3>());
-    return;
-  case ezVariant::Type::Vector4:
-    WriteVec4(value.Get<ezVec4>());
-    return;
-  case ezVariant::Type::Vector2I:
-    WriteVec2I32(value.Get<ezVec2I32>());
-    return;
-  case ezVariant::Type::Vector3I:
-    WriteVec3I32(value.Get<ezVec3I32>());
-    return;
-  case ezVariant::Type::Vector4I:
-    WriteVec4I32(value.Get<ezVec4I32>());
-    return;
-  case ezVariant::Type::Quaternion:
-    WriteQuat(value.Get<ezQuat>());
-    return;
-  case ezVariant::Type::Matrix3:
-    WriteMat3(value.Get<ezMat3>());
-    return;
-  case ezVariant::Type::Matrix4:
-    WriteMat4(value.Get<ezMat4>());
-    return;
-  case ezVariant::Type::String:
-    WriteString(value.Get<ezString>().GetData());
-    return;
-  case ezVariant::Type::StringView:
+    case ezVariant::Type::Invalid:
+      //EZ_REPORT_FAILURE("Variant of Type 'Invalid' cannot be written as JSON.");
+      WriteNULL();
+      return;
+    case ezVariant::Type::Bool:
+      WriteBool(value.Get<bool>());
+      return;
+    case ezVariant::Type::Int8:
+      WriteInt32(value.Get<ezInt8>());
+      return;
+    case ezVariant::Type::UInt8:
+      WriteUInt32(value.Get<ezUInt8>());
+      return;
+    case ezVariant::Type::Int16:
+      WriteInt32(value.Get<ezInt16>());
+      return;
+    case ezVariant::Type::UInt16:
+      WriteUInt32(value.Get<ezUInt16>());
+      return;
+    case ezVariant::Type::Int32:
+      WriteInt32(value.Get<ezInt32>());
+      return;
+    case ezVariant::Type::UInt32:
+      WriteUInt32(value.Get<ezUInt32>());
+      return;
+    case ezVariant::Type::Int64:
+      WriteInt64(value.Get<ezInt64>());
+      return;
+    case ezVariant::Type::UInt64:
+      WriteUInt64(value.Get<ezUInt64>());
+      return;
+    case ezVariant::Type::Float:
+      WriteFloat(value.Get<float>());
+      return;
+    case ezVariant::Type::Double:
+      WriteDouble(value.Get<double>());
+      return;
+    case ezVariant::Type::Color:
+      WriteColor(value.Get<ezColor>());
+      return;
+    case ezVariant::Type::ColorGamma:
+      WriteColorGamma(value.Get<ezColorGammaUB>());
+      return;
+    case ezVariant::Type::Vector2:
+      WriteVec2(value.Get<ezVec2>());
+      return;
+    case ezVariant::Type::Vector3:
+      WriteVec3(value.Get<ezVec3>());
+      return;
+    case ezVariant::Type::Vector4:
+      WriteVec4(value.Get<ezVec4>());
+      return;
+    case ezVariant::Type::Vector2I:
+      WriteVec2I32(value.Get<ezVec2I32>());
+      return;
+    case ezVariant::Type::Vector3I:
+      WriteVec3I32(value.Get<ezVec3I32>());
+      return;
+    case ezVariant::Type::Vector4I:
+      WriteVec4I32(value.Get<ezVec4I32>());
+      return;
+    case ezVariant::Type::Quaternion:
+      WriteQuat(value.Get<ezQuat>());
+      return;
+    case ezVariant::Type::Matrix3:
+      WriteMat3(value.Get<ezMat3>());
+      return;
+    case ezVariant::Type::Matrix4:
+      WriteMat4(value.Get<ezMat4>());
+      return;
+    case ezVariant::Type::String:
+      WriteString(value.Get<ezString>().GetData());
+      return;
+    case ezVariant::Type::StringView:
     {
       ezStringBuilder s = value.Get<ezStringView>();
       WriteString(s.GetData());
       return;
     }
-  case ezVariant::Type::Time:
-    WriteTime(value.Get<ezTime>());
-    return;
-  case ezVariant::Type::Uuid:
-    WriteUuid(value.Get<ezUuid>());
-    return;
-  case ezVariant::Type::Angle:
-    WriteAngle(value.Get<ezAngle>());
-    return;
-  case ezVariant::Type::DataBuffer:
-    WriteDataBuffer(value.Get<ezDataBuffer>());
-    return;
-  case ezVariant::Type::VariantArray:
+    case ezVariant::Type::Time:
+      WriteTime(value.Get<ezTime>());
+      return;
+    case ezVariant::Type::Uuid:
+      WriteUuid(value.Get<ezUuid>());
+      return;
+    case ezVariant::Type::Angle:
+      WriteAngle(value.Get<ezAngle>());
+      return;
+    case ezVariant::Type::DataBuffer:
+      WriteDataBuffer(value.Get<ezDataBuffer>());
+      return;
+    case ezVariant::Type::VariantArray:
     {
       BeginArray();
 
@@ -344,10 +345,10 @@ void ezJSONWriter::WriteVariant(const ezVariant& value)
 
       EndArray();
     }
-    return;
+      return;
 
-  default:
-    break;
+    default:
+      break;
   }
 
   EZ_REPORT_FAILURE("The Variant Type {0} is not supported by ezJSONWriter::WriteVariant.", value.GetType());
@@ -355,6 +356,4 @@ void ezJSONWriter::WriteVariant(const ezVariant& value)
 
 
 
-
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_JSONWriter);
-

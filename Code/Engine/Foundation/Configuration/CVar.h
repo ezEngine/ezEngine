@@ -1,20 +1,20 @@
 #pragma once
 
-#include <Foundation/Utilities/EnumerableClass.h>
-#include <Foundation/Strings/String.h>
-#include <Foundation/Types/Bitflags.h>
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Configuration/Plugin.h>
+#include <Foundation/Strings/String.h>
+#include <Foundation/Types/Bitflags.h>
+#include <Foundation/Utilities/EnumerableClass.h>
 
 /// \brief Describes of which type a CVar is. Use that info to cast an ezCVar* to the proper derived class.
 struct ezCVarType
 {
   enum Enum
   {
-    Int,        ///< Can cast the ezCVar* to ezCVarInt*
-    Float,      ///< Can cast the ezCVar* to ezCVarFloat*
-    Bool,       ///< Can cast the ezCVar* to ezCVarBool*
-    String,     ///< Can cast the ezCVar* to ezCVarString*
+    Int,    ///< Can cast the ezCVar* to ezCVarInt*
+    Float,  ///< Can cast the ezCVar* to ezCVarFloat*
+    Bool,   ///< Can cast the ezCVar* to ezCVarBool*
+    String, ///< Can cast the ezCVar* to ezCVarString*
     ENUM_COUNT
   };
 };
@@ -26,24 +26,24 @@ struct ezCVarFlags
 
   enum Enum
   {
-    None              = 0,
+    None = 0,
 
     /// \brief If this flag is set, the CVar will be stored on disk and loaded again.
     /// Otherwise all changes to it will be lost on shutdown.
-    Save              = EZ_BIT(0),
+    Save = EZ_BIT(0),
 
     /// \brief Indicates that changing this cvar will only take effect after the proper subsystem has been reinitialized.
     /// This will always enforce the 'Save' flag as well.
     /// With this flag set, the 'Current' value never changes, unless 'SetToRestartValue' is called.
-    RequiresRestart   = EZ_BIT(1),
+    RequiresRestart = EZ_BIT(1),
 
     /// \brief By default CVars are not saved.
-    Default           = None
+    Default = None
   };
 
   struct Bits
   {
-    StorageType Save            : 1;
+    StorageType Save : 1;
     StorageType RequiresRestart : 1;
   };
 };
@@ -78,7 +78,6 @@ class EZ_FOUNDATION_DLL ezCVar : public ezEnumerable<ezCVar>
   EZ_DECLARE_ENUMERABLE_CLASS(ezCVar);
 
 public:
-
   /// \brief Sets the path (folder) in which all CVar setting files should be stored.
   ///
   /// The path is used by SaveCVars and LoadCVars. However those functions will create one settings file per plugin,
@@ -134,12 +133,12 @@ public:
   /// \brief The data that is broadcast whenever a cvar is changed.
   struct CVarEvent
   {
-    CVarEvent(ezCVar* pCVar) : m_EventType(ValueChanged), m_pCVar(pCVar) { }
+    CVarEvent(ezCVar* pCVar) : m_EventType(ValueChanged), m_pCVar(pCVar) {}
 
     enum Type
     {
-      ValueChanged,         ///< Sent whenever the 'Current' value of the CVar is changed.
-      RestartValueChanged,  ///< Sent whenever the 'Restart' value of the CVar changes. It might actually change back to the 'Current' value though.
+      ValueChanged,        ///< Sent whenever the 'Current' value of the CVar is changed.
+      RestartValueChanged, ///< Sent whenever the 'Restart' value of the CVar changes. It might actually change back to the 'Current' value though.
     };
 
     /// \brief The type of this event.
@@ -170,7 +169,7 @@ private:
 
   static void AssignSubSystemPlugin(const char* szPluginName);
   static void PluginEventHandler(const ezPlugin::PluginEvent& EventData);
-  
+
 
   bool m_bHasNeverBeenLoaded;
   const char* m_szName;
@@ -186,16 +185,16 @@ struct ezCVarValue
 {
   enum Enum
   {
-    Current,    ///< The value that should be used.
-    Default,    ///< The 'default' value of the CVar. Can be used to reset a variable to its default state.
-    Stored,     ///< The value that was read from disk (or the default). Can be used to reset a CVar to the 'saved' state, if desired.
-    Restart,    ///< The state that will be saved to disk. This is identical to 'Current' unless the 'RequiresRestart' flag is set (in which case the 'Current' value never changes).
+    Current, ///< The value that should be used.
+    Default, ///< The 'default' value of the CVar. Can be used to reset a variable to its default state.
+    Stored,  ///< The value that was read from disk (or the default). Can be used to reset a CVar to the 'saved' state, if desired.
+    Restart, ///< The state that will be saved to disk. This is identical to 'Current' unless the 'RequiresRestart' flag is set (in which case the 'Current' value never changes).
     ENUM_COUNT
   };
 };
 
 /// \brief [internal] Helper class to implement ezCVarInt, ezCVarFlag, ezCVarBool and ezCVarString.
-template<typename Type, ezCVarType::Enum CVarType>
+template <typename Type, ezCVarType::Enum CVarType>
 class ezTypedCVar : public ezCVar
 {
 public:
@@ -211,7 +210,7 @@ public:
   ///
   /// Usually the 'Current' value is changed, unless the 'RequiresRestart' flag is set.
   /// In that case only the 'Restart' value is modified.
-  void operator= (const Type& value); // [tested]
+  void operator=(const Type& value); // [tested]
 
   virtual ezCVarType::Enum GetType() const override;
   virtual void SetToRestartValue() override;
@@ -237,4 +236,3 @@ typedef ezTypedCVar<ezHybridString<32>, ezCVarType::String> ezCVarString;
 
 
 #include <Foundation/Configuration/Implementation/CVar_inl.h>
-

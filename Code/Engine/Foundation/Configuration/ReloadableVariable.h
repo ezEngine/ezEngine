@@ -2,10 +2,10 @@
 
 /// \file
 
-#include <Foundation/Utilities/EnumerableClass.h>
-#include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Containers/Map.h>
+#include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Utilities/EnumerableClass.h>
 
 /// \brief Allows to wrap a global/static variable such that its state will be preserved during plugin reloading.
 ///
@@ -27,7 +27,7 @@
 /// loaded for the first time (the save file might still exist due to a crash).
 /// Still, try to avoid global variables in general, and only use reloadable variables, if there is no better solution.
 #define EZ_MAKE_RELOADABLE(VarType, Variable) \
-  static ezReloadableVariableWrapper<VarType> EZ_CONCAT(g_ReloadableVar, EZ_SOURCE_LINE) (Variable, EZ_STRINGIZE(EZ_CONCAT(VarType, Variable)));
+  static ezReloadableVariableWrapper<VarType> EZ_CONCAT(g_ReloadableVar, EZ_SOURCE_LINE)(Variable, EZ_STRINGIZE(EZ_CONCAT(VarType, Variable)));
 
 
 /// \brief [internal] A helper class to implement persistent global variables during plugin reloading.
@@ -36,14 +36,14 @@ class EZ_FOUNDATION_DLL ezReloadableVariableBase : public ezEnumerable<ezReloada
   EZ_DECLARE_ENUMERABLE_CLASS(ezReloadableVariableBase);
 
 public:
-  virtual ~ezReloadableVariableBase() { }
+  virtual ~ezReloadableVariableBase() {}
 
   /// \brief Automatically called by ezPlugin whenever a plugin is unloaded, to preserve the current state of all reloadable global variables.
   static void StoreVariables();
 
 protected:
   /// \brief Protected constructor, because this class should never be instantiated directly.
-  ezReloadableVariableBase() : m_szVariableName(nullptr) { }
+  ezReloadableVariableBase() : m_szVariableName(nullptr) {}
 
   /// \brief Called by 'ezReloadableVariableWrapper' to retrieve the stored state of a reloadable variable (if available).
   static void RetrieveVariable(const char* szVarName, ezReloadableVariableBase* pVariable);
@@ -63,7 +63,7 @@ private:
 };
 
 /// \brief [internal] Helper class, derived from ezReloadableVariableBase, to implement type specific reloading of global variables.
-template<typename Type>
+template <typename Type>
 class ezReloadableVariableWrapper : public ezReloadableVariableBase
 {
 public:
@@ -80,4 +80,3 @@ private:
 
 
 #include <Foundation/Configuration/Implementation/ReloadableVariable_inl.h>
-

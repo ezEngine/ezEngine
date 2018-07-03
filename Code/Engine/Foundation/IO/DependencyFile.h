@@ -1,9 +1,9 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/IO/Stream.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Containers/Map.h>
+#include <Foundation/IO/Stream.h>
 #include <Foundation/Time/Timestamp.h>
 
 /// \brief This class represents a set of files of which one wants to know when any one of them changes.
@@ -58,4 +58,3 @@ private:
 
   static ezMap<ezString, FileCheckCache> s_FileTimestamps;
 };
-

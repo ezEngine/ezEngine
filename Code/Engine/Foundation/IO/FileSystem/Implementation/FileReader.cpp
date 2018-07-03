@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/IO/FileSystem/FileReader.h>
 
 ezResult ezFileReader::Open(const char* szFile, ezUInt32 uiCacheSize, bool bAllowFileEvents)
@@ -37,7 +38,7 @@ ezUInt64 ezFileReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
     return 0;
 
   ezUInt64 uiBufferPosition = 0; //how much was read, yet
-  ezUInt8* pBuffer = (ezUInt8*) pReadBuffer;
+  ezUInt8* pBuffer = (ezUInt8*)pReadBuffer;
 
   while (uiBytesToRead > 0)
   {
@@ -50,7 +51,7 @@ ezUInt64 ezFileReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
 
     // copy data into the buffer
     // uiChunkSize can never be larger than the cache size, which is limited to 32 Bit
-    ezMemoryUtils::Copy(&pBuffer[uiBufferPosition], &m_Cache[(ezUInt32) m_uiCacheReadPosition], (ezUInt32) uiChunkSize);
+    ezMemoryUtils::Copy(&pBuffer[uiBufferPosition], &m_Cache[(ezUInt32)m_uiCacheReadPosition], (ezUInt32)uiChunkSize);
 
     // store how much was read and how much is still left to read
     uiBufferPosition += uiChunkSize;
@@ -84,4 +85,3 @@ ezUInt64 ezFileReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_FileSystem_Implementation_FileReader);
-

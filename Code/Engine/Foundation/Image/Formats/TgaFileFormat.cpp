@@ -1,8 +1,9 @@
 #include <PCH.h>
+
 #include <Foundation/Image/Formats/TgaFileFormat.h>
 
-#include <Foundation/Image/ImageConversion.h>
 #include <Foundation/IO/Stream.h>
+#include <Foundation/Image/ImageConversion.h>
 
 
 ezTgaFileFormat g_TgaFormat;
@@ -32,24 +33,24 @@ static inline ezColorLinearUB GetPixelColor(const ezImage& image, ezUInt32 x, ez
 
   switch (image.GetImageFormat())
   {
-  case ezImageFormat::R8G8B8A8_UNORM:
-    c.r = pPixel[0];
-    c.g = pPixel[1];
-    c.b = pPixel[2];
-    c.a = pPixel[3];
-    break;
-  case ezImageFormat::B8G8R8A8_UNORM:
-    c.a = pPixel[3];
-    // fall through
-  case ezImageFormat::B8G8R8_UNORM:
-  case ezImageFormat::B8G8R8X8_UNORM:
-    c.r = pPixel[2];
-    c.g = pPixel[1];
-    c.b = pPixel[0];
-    break;
+    case ezImageFormat::R8G8B8A8_UNORM:
+      c.r = pPixel[0];
+      c.g = pPixel[1];
+      c.b = pPixel[2];
+      c.a = pPixel[3];
+      break;
+    case ezImageFormat::B8G8R8A8_UNORM:
+      c.a = pPixel[3];
+      // fall through
+    case ezImageFormat::B8G8R8_UNORM:
+    case ezImageFormat::B8G8R8X8_UNORM:
+      c.r = pPixel[2];
+      c.g = pPixel[1];
+      c.b = pPixel[0];
+      break;
 
-  default:
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
   }
 
   return c;
@@ -60,12 +61,12 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
 {
   // Technically almost arbitrary formats are supported, but we only use the common ones.
   ezImageFormat::Enum compatibleFormats[] =
-  {
-    ezImageFormat::R8G8B8A8_UNORM,
-    ezImageFormat::B8G8R8A8_UNORM,
-    ezImageFormat::B8G8R8X8_UNORM,
-    ezImageFormat::B8G8R8_UNORM,
-  };
+      {
+          ezImageFormat::R8G8B8A8_UNORM,
+          ezImageFormat::B8G8R8A8_UNORM,
+          ezImageFormat::B8G8R8X8_UNORM,
+          ezImageFormat::B8G8R8_UNORM,
+      };
 
   // Find a compatible format closest to the one the image currently has
   ezImageFormat::Enum format = ezImageConversion::FindClosestCompatibleFormat(image.GetImageFormat(), compatibleFormats);
@@ -167,13 +168,13 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
         {
           if (c == pc)
           {
-            iRLE = 2; // two values were equal
+            iRLE = 2;   // two values were equal
             iEqual = 2; // go into equal-mode
           }
           else
           {
             iRLE = 3; // two values were unequal
-            pc = c; // go into unequal-mode
+            pc = c;   // go into unequal-mode
             unequal.PushBack(c);
           }
         }
@@ -208,7 +209,7 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
           }
           else
           {
-            ezUInt8 uiRepeat = (unsigned char) (unequal.GetCount()) - 1;
+            ezUInt8 uiRepeat = (unsigned char)(unequal.GetCount()) - 1;
             stream << uiRepeat;
 
             for (ezUInt32 i = 0; i < unequal.GetCount(); ++i)
@@ -257,7 +258,7 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImage& imag
     }
     else if (iRLE == 3)
     {
-      ezUInt8 uiRepeat = (ezUInt8) (unequal.GetCount()) - 1;
+      ezUInt8 uiRepeat = (ezUInt8)(unequal.GetCount()) - 1;
       stream << uiRepeat;
 
       for (ezUInt32 i = 0; i < unequal.GetCount(); ++i)
@@ -295,7 +296,7 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
   // check whether width, height an BitsPerPixel are valid
   if ((Header.m_iImageWidth <= 0) || (Header.m_iImageHeight <= 0) || ((uiBytesPerPixel != 1) && (uiBytesPerPixel != 3) && (uiBytesPerPixel != 4)) ||
-    (Header.m_ImageType != 2 && Header.m_ImageType != 3 && Header.m_ImageType != 10 && Header.m_ImageType != 11))
+      (Header.m_ImageType != 2 && Header.m_ImageType != 3 && Header.m_ImageType != 10 && Header.m_ImageType != 11))
   {
     ezLog::Error(pLog, "TGA has an invalid header: Width = {0}, Height = {1}, BPP = {2}, ImageType = {3}", Header.m_iImageWidth, Header.m_iImageHeight, Header.m_iBitsPerPixel, Header.m_ImageType);
     return EZ_FAILURE;
@@ -361,7 +362,7 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
         uiChunkHeader++;
 
         // Read RAW color values
-        for (ezInt32 i = 0; i < (ezInt32) uiChunkHeader; ++i)
+        for (ezInt32 i = 0; i < (ezInt32)uiChunkHeader; ++i)
         {
           const ezInt32 x = iCurrentPixel % Header.m_iImageWidth;
           const ezInt32 y = iCurrentPixel / Header.m_iImageWidth;
@@ -375,7 +376,7 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
       {
         uiChunkHeader -= 127; // Subtract 127 to get rid of the ID bit
 
-        ezUInt8 uiBuffer[4] = { 255, 255, 255, 255 };
+        ezUInt8 uiBuffer[4] = {255, 255, 255, 255};
 
         // read the current color
         stream.ReadBytes(uiBuffer, uiBytesPerPixel);
@@ -383,7 +384,7 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
         // if it is a 24-Bit TGA (3 channels), the fourth channel stays at 255 all the time, since the 4th value in ucBuffer is never overwritten
 
         // copy the color into the image data as many times as dictated
-        for (ezInt32 i = 0; i < (ezInt32) uiChunkHeader; ++i)
+        for (ezInt32 i = 0; i < (ezInt32)uiChunkHeader; ++i)
         {
           const ezInt32 x = iCurrentPixel % Header.m_iImageWidth;
           const ezInt32 y = iCurrentPixel / Header.m_iImageWidth;
@@ -406,8 +407,7 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
           ++iCurrentPixel;
         }
       }
-    }
-    while (iCurrentPixel < iPixelCount);
+    } while (iCurrentPixel < iPixelCount);
   }
 
   return EZ_SUCCESS;
@@ -425,7 +425,4 @@ bool ezTgaFileFormat::CanWriteFileType(const char* szExtension) const
 
 
 
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Image_Formats_TgaFileFormat);
-

@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/IO/Stream.h>
-#include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Containers/HybridArray.h>
+#include <Foundation/IO/Stream.h>
 
 class ezLogInterface;
 
@@ -41,7 +41,6 @@ public:
   bool HadFatalParsingError() const { return m_bHadFatalParsingError; } // [tested]
 
 protected:
-
   /// \brief Sets an ezLogInterface through which errors and warnings are reported.
   void SetLogInterface(ezLogInterface* pLog) { m_pLogInterface = pLog; }
 
@@ -74,14 +73,13 @@ protected:
   ezLogInterface* m_pLogInterface;
 
 protected:
-
   /// \brief Called when something unexpected is encountered in the document.
   ///
   /// The error message describes what was expected and what was encountered.
   /// If bFatal is true, the error has left the parser in an unrecoverable state and thus it will not continue parsing.
   /// In that case client code will need to clean up it's open state, as no further callbacks will be called.
   /// If bFatal is false, the document is not entirely valid, but the parser is still able to continue.
-  virtual void OnParsingError(const char* szMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn) { }
+  virtual void OnParsingError(const char* szMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn) {}
 
   /// \brief Called when a new object is encountered.
   virtual void OnBeginObject(const char* szType, const char* szName, bool bGlobalName) = 0;
@@ -103,7 +101,7 @@ protected:
   virtual void OnPrimitiveBool(ezUInt32 count, const bool* pData, bool bThisIsAll) = 0;
 
   /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
-  virtual void OnPrimitiveInt8 (ezUInt32 count, const ezInt8* pData, bool bThisIsAll) = 0;
+  virtual void OnPrimitiveInt8(ezUInt32 count, const ezInt8* pData, bool bThisIsAll) = 0;
   /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
   virtual void OnPrimitiveInt16(ezUInt32 count, const ezInt16* pData, bool bThisIsAll) = 0;
   /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
@@ -112,7 +110,7 @@ protected:
   virtual void OnPrimitiveInt64(ezUInt32 count, const ezInt64* pData, bool bThisIsAll) = 0;
 
   /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
-  virtual void OnPrimitiveUInt8 (ezUInt32 count, const ezUInt8* pData, bool bThisIsAll) = 0;
+  virtual void OnPrimitiveUInt8(ezUInt32 count, const ezUInt8* pData, bool bThisIsAll) = 0;
   /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
   virtual void OnPrimitiveUInt16(ezUInt32 count, const ezUInt16* pData, bool bThisIsAll) = 0;
   /// \brief Called when data for a primitive type is available. More than one value may be reported at a time.
@@ -129,7 +127,6 @@ protected:
   virtual void OnPrimitiveString(ezUInt32 count, const ezStringView* pData, bool bThisIsAll) = 0;
 
 private:
-
   enum State
   {
     Finished,
@@ -150,7 +147,7 @@ private:
 
   struct DdlState
   {
-    DdlState() : m_State(Idle) { }
+    DdlState() : m_State(Idle) {}
     DdlState(State s) : m_State(s) {}
 
     State m_State;
@@ -206,4 +203,3 @@ private:
   float* m_pFloatCache;
   double* m_pDoubleCache;
 };
-

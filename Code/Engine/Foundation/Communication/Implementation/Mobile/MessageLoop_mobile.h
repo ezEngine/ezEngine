@@ -9,15 +9,13 @@ class EZ_FOUNDATION_DLL ezMessageLoop_mobile : public ezMessageLoop
 {
 public:
   ezMessageLoop_mobile();
-	~ezMessageLoop_mobile();
+  ~ezMessageLoop_mobile();
 
 protected:
   virtual void WakeUp() override;
   virtual bool WaitForMessages(ezInt32 iTimeout, ezIpcChannel* pFilter) override;
 
 private:
-
 };
 
 #endif
-

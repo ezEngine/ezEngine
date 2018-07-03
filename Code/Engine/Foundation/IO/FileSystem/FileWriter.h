@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Foundation/IO/Stream.h>
-#include <Foundation/IO/FileSystem/Implementation/FileReaderWriterBase.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/IO/FileSystem/Implementation/FileReaderWriterBase.h>
+#include <Foundation/IO/Stream.h>
 
 /// \brief The default class to use to write data to a file, implements the ezStreamWriter interface.
 ///
@@ -13,9 +13,8 @@ class EZ_FOUNDATION_DLL ezFileWriter : public ezFileWriterBase
   EZ_DISALLOW_COPY_AND_ASSIGN(ezFileWriter);
 
 public:
-
   /// \brief Constructor, does nothing.
-  ezFileWriter() { }
+  ezFileWriter() {}
 
   /// \brief Destructor, closes the file, if it is still open (RAII).
   ~ezFileWriter() { Close(); }
@@ -39,13 +38,9 @@ public:
   /// \note Flush only guarantees that the data is sent through the OS file functions. It does not guarantee that the OS
   /// actually wrote the data on the disk, it might still use buffer itself and thus an application that crashes might
   /// still see data loss even when 'Flush' had been called.
-  virtual ezResult Flush() override; 
+  virtual ezResult Flush() override;
 
 private:
   ezUInt64 m_uiCacheWritePosition;
   ezDynamicArray<ezUInt8> m_Cache;
-
 };
-
-
-

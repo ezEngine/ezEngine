@@ -2,9 +2,9 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <Foundation/Communication/Event.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStream.h>
-#include <Foundation/Communication/Event.h>
 
 class ezProcessingStreamProcessor;
 class ezProcessingStreamGroup;
@@ -24,7 +24,6 @@ struct ezStreamGroupElementsClearedEvent
 class EZ_FOUNDATION_DLL ezProcessingStreamGroup
 {
 public:
-
   /// \brief Constructor
   ezProcessingStreamGroup();
 
@@ -87,7 +86,6 @@ public:
   ezEvent<const ezStreamGroupElementRemovedEvent&> m_ElementRemovedEvent;
 
 private:
-
   /// \brief Internal helper function which removes any pending elements and spawns new elements as needed
   void RunPendingDeletions();
 
@@ -113,4 +111,3 @@ private:
 
   bool m_bStreamAssignmentDirty;
 };
-

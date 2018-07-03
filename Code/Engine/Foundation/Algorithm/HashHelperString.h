@@ -2,6 +2,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+
 #include <Foundation/Algorithm/Hashing.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Strings/StringUtils.h>
@@ -22,4 +23,3 @@ struct EZ_FOUNDATION_DLL ezHashHelperString_NoCase
 };
 
 #include <Foundation/Algorithm/Implementation/HashHelperString_inl.h>
-

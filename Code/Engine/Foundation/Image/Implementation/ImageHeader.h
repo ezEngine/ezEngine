@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Foundation/Basics/Assert.h>
-#include <Foundation/Math/Math.h>
 #include <Foundation/Math/Color8UNorm.h>
+#include <Foundation/Math/Math.h>
 
 #include <Foundation/Basics.h>
 #include <Foundation/Image/ImageFormat.h>
@@ -10,15 +10,14 @@
 /// \brief A class containing image meta data, such as format and dimensions.
 ///
 /// This class has no associated behavior or functionality, and its getters and setters have no effect other than changing
-/// the contained value. It is intended as a container to be modified by image utils and loaders. 
+/// the contained value. It is intended as a container to be modified by image utils and loaders.
 class EZ_FOUNDATION_DLL ezImageHeader
 {
 public:
   /// \brief Constructs an image using an unknown format and zero size.
-  ezImageHeader() :
-    m_uiNumMipLevels(1), m_uiNumFaces(1), m_uiNumArrayIndices(1),
-    m_uiWidth(0), m_uiHeight(0), m_uiDepth(1),
-    m_format(ezImageFormat::UNKNOWN)
+  ezImageHeader() : m_uiNumMipLevels(1), m_uiNumFaces(1), m_uiNumArrayIndices(1),
+                    m_uiWidth(0), m_uiHeight(0), m_uiDepth(1),
+                    m_format(ezImageFormat::UNKNOWN)
   {
   }
 
@@ -126,4 +125,3 @@ protected:
 
   ezImageFormat::Enum m_format;
 };
-

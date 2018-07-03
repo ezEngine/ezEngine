@@ -1,8 +1,9 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/CodeUtils/Preprocessor.h>
-#include <Foundation/Utilities/ConversionUtils.h>
-#include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/OSFile.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 
 using namespace ezTokenParseUtils;
 
@@ -28,10 +29,10 @@ void ezTokenizedFileCache::Clear()
 void ezTokenizedFileCache::SkipWhitespace(ezDeque<ezToken>& Tokens, ezUInt32& uiCurToken)
 {
   while (uiCurToken < Tokens.GetCount() &&
-          (Tokens[uiCurToken].m_iType == ezTokenType::BlockComment ||
-           Tokens[uiCurToken].m_iType == ezTokenType::LineComment ||
-           Tokens[uiCurToken].m_iType == ezTokenType::Newline ||
-           Tokens[uiCurToken].m_iType == ezTokenType::Whitespace))
+         (Tokens[uiCurToken].m_iType == ezTokenType::BlockComment ||
+          Tokens[uiCurToken].m_iType == ezTokenType::LineComment ||
+          Tokens[uiCurToken].m_iType == ezTokenType::Newline ||
+          Tokens[uiCurToken].m_iType == ezTokenType::Whitespace))
     ++uiCurToken;
 }
 
@@ -157,7 +158,7 @@ ezResult ezPreprocessor::DefaultFileOpen(const char* szAbsoluteFile, ezDynamicAr
 
   while (ezUInt64 uiRead = r.ReadBytes(Temp, 4096))
   {
-    FileContent.PushBackRange(ezArrayPtr<ezUInt8>(Temp, (ezUInt32) uiRead));
+    FileContent.PushBackRange(ezArrayPtr<ezUInt8>(Temp, (ezUInt32)uiRead));
   }
 
   return EZ_SUCCESS;
@@ -297,7 +298,4 @@ ezResult ezPreprocessor::HandleInclude(const TokenStream& Tokens, ezUInt32 uiCur
 
 
 
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_FileHandling);
-

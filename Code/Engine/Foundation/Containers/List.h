@@ -11,7 +11,6 @@ template <typename T>
 class ezListBase
 {
 private:
-
   struct ListElement;
 
   struct ListElementBase
@@ -25,7 +24,7 @@ private:
   /// \brief A list-node, containing data and prev/next pointers
   struct ListElement : public ListElementBase
   {
-    ListElement() : ListElementBase() { } 
+    ListElement() : ListElementBase() {}
     explicit ListElement(const T& data);
 
     T m_Data;
@@ -37,16 +36,16 @@ private:
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Constructor.
-    ConstIterator() : m_pElement (nullptr)  {} // [tested]
+    ConstIterator() : m_pElement(nullptr) {} // [tested]
 
     /// \brief Equality comparison operator.
-    bool operator== (typename ezListBase<T>::ConstIterator it2) const { return (m_pElement == it2.m_pElement); } // [tested]
+    bool operator==(typename ezListBase<T>::ConstIterator it2) const { return (m_pElement == it2.m_pElement); } // [tested]
 
     /// \brief Inequality comparison operator.
-    bool operator!= (typename ezListBase<T>::ConstIterator it2) const { return (m_pElement != it2.m_pElement); } // [tested]
+    bool operator!=(typename ezListBase<T>::ConstIterator it2) const { return (m_pElement != it2.m_pElement); } // [tested]
 
     /// \brief Grants access to the node-data.
-    const T& operator* () const { return (m_pElement->m_Data);  } // [tested]
+    const T& operator*() const { return (m_pElement->m_Data); } // [tested]
 
     /// \brief Grants access to the node-data.
     const T* operator->() const { return (&m_pElement->m_Data); } // [tested]
@@ -61,15 +60,15 @@ private:
     bool IsValid() const { return ((m_pElement != nullptr) && (m_pElement->m_pPrev != nullptr) && (m_pElement->m_pNext != nullptr)); } // [tested]
 
     /// \brief Moves the iterator to the next element in the list.
-    void operator++ () { Next();  } // [tested]
+    void operator++() { Next(); } // [tested]
 
     /// \brief Moves the iterator to the previous element in the list.
-    void operator-- () { Prev();  } // [tested]
+    void operator--() { Prev(); } // [tested]
 
   private:
     friend class ezListBase<T>;
 
-    ConstIterator(ListElement* pInit) : m_pElement (pInit) {}
+    ConstIterator(ListElement* pInit) : m_pElement(pInit) {}
 
     ListElement* m_pElement;
   };
@@ -85,10 +84,10 @@ public:
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Constructor.
-    Iterator() : ConstIterator () {} // [tested]
+    Iterator() : ConstIterator() {} // [tested]
 
     /// \brief Accesses the element stored in the node.
-    T& operator* () { return (this->m_pElement->m_Data);  } // [tested]
+    T& operator*() { return (this->m_pElement->m_Data); } // [tested]
 
     /// \brief Accesses the element stored in the node.
     T* operator->() { return (&this->m_pElement->m_Data); } // [tested]
@@ -96,7 +95,7 @@ public:
   private:
     friend class ezListBase<T>;
 
-    explicit Iterator(ListElement* pInit) : ConstIterator (pInit) {}
+    explicit Iterator(ListElement* pInit) : ConstIterator(pInit) {}
   };
 
 protected:
@@ -147,7 +146,7 @@ public:
   void PushFront(); // [tested]
 
   /// \brief Appends a copy of the given element to the front of the list.
-  void PushFront (const T& element); // [tested]
+  void PushFront(const T& element); // [tested]
 
   /// \brief Removes the very first element from the list.
   void PopFront(); // [tested]
@@ -240,4 +239,3 @@ public:
 };
 
 #include <Foundation/Containers/Implementation/List_inl.h>
-

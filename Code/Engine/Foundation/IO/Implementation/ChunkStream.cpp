@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/IO/ChunkStream.h>
 
 ezChunkStreamWriter::ezChunkStreamWriter(ezStreamWriter& pStream) : m_Stream(pStream)
@@ -56,7 +57,7 @@ void ezChunkStreamWriter::EndChunk()
   m_Stream << uiStorageSize;
   /// \todo Write Chunk CRC
 
-  for (ezUInt32 i = 0; i < uiStorageSize; )
+  for (ezUInt32 i = 0; i < uiStorageSize;)
   {
     const ezUInt32 uiRange = m_Storage.GetContiguousRange(i);
 
@@ -73,15 +74,13 @@ ezResult ezChunkStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBy
 {
   EZ_ASSERT_DEV(m_bWritingChunk, "No chunk is currently written to");
 
-  const ezUInt8* pBytes = (const ezUInt8*) pWriteBuffer;
+  const ezUInt8* pBytes = (const ezUInt8*)pWriteBuffer;
 
   for (ezUInt64 i = 0; i < uiBytesToWrite; ++i)
     m_Storage.PushBack(pBytes[i]);
 
   return EZ_SUCCESS;
 }
-
-
 
 
 
@@ -96,7 +95,7 @@ ezUInt64 ezChunkStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRea
   EZ_ASSERT_DEV(m_ChunkInfo.m_bValid, "No valid chunk available.");
 
   uiBytesToRead = ezMath::Min<ezUInt64>(uiBytesToRead, m_ChunkInfo.m_uiUnreadChunkBytes);
-  m_ChunkInfo.m_uiUnreadChunkBytes -= (ezUInt32) uiBytesToRead;
+  m_ChunkInfo.m_uiUnreadChunkBytes -= (ezUInt32)uiBytesToRead;
 
   return m_Stream.ReadBytes(pReadBuffer, uiBytesToRead);
 }
@@ -154,7 +153,7 @@ void ezChunkStreamReader::NextChunk()
   if (!m_ChunkInfo.m_bValid)
     return;
 
-  const ezUInt64 uiToSkip  = m_ChunkInfo.m_uiUnreadChunkBytes;
+  const ezUInt64 uiToSkip = m_ChunkInfo.m_uiUnreadChunkBytes;
   const ezUInt64 uiSkipped = SkipBytes(uiToSkip);
   EZ_VERIFY(uiSkipped == uiToSkip, "Corrupt chunk '{0}' (version {1}), tried to skip {2} bytes, could only read {3} bytes", m_ChunkInfo.m_sChunkName, m_ChunkInfo.m_uiChunkVersion, uiToSkip, uiSkipped);
 
@@ -163,6 +162,4 @@ void ezChunkStreamReader::NextChunk()
 
 
 
-
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_ChunkStream);
-

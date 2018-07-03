@@ -2,13 +2,12 @@
 
 ezImage::ezImage()
 {
-
 }
 
 ezUInt32 ezImage::GetNumBlocksX(ezUInt32 uiMipLevel) const
 {
   EZ_ASSERT_DEV(ezImageFormat::GetType(m_format) == ezImageFormatType::BLOCK_COMPRESSED,
-    "Number of blocks can only be retrieved for block compressed formats.");
+                "Number of blocks can only be retrieved for block compressed formats.");
   ezUInt32 uiBlockSize = 4;
   return (GetWidth(uiMipLevel) + uiBlockSize - 1) / uiBlockSize;
 }
@@ -16,7 +15,7 @@ ezUInt32 ezImage::GetNumBlocksX(ezUInt32 uiMipLevel) const
 ezUInt32 ezImage::GetNumBlocksY(ezUInt32 uiMipLevel) const
 {
   EZ_ASSERT_DEV(ezImageFormat::GetType(m_format) == ezImageFormatType::BLOCK_COMPRESSED,
-    "Number of blocks can only be retrieved for block compressed formats.");
+                "Number of blocks can only be retrieved for block compressed formats.");
   ezUInt32 uiBlockSize = 4;
   return (GetHeight(uiMipLevel) + uiBlockSize - 1) / uiBlockSize;
 }
@@ -27,31 +26,31 @@ ezUInt32 ezImage::GetDataSize() const
 }
 
 
-template<typename T>
+template <typename T>
 const T* ezImage::GetDataPointer() const
 {
   return reinterpret_cast<const T*>(&m_data[0]);
 }
 
-template<typename T>
+template <typename T>
 T* ezImage::GetDataPointer()
 {
   return const_cast<T*>(static_cast<const ezImage*>(this)->GetDataPointer<T>());
 }
 
-template<typename T>
+template <typename T>
 const T* ezImage::GetSubImagePointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const
 {
   return reinterpret_cast<const T*>(&m_data[GetSubImage(uiMipLevel, uiFace, uiArrayIndex).m_uiDataOffset]);
 }
 
-template<typename T>
+template <typename T>
 T* ezImage::GetSubImagePointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex)
 {
   return const_cast<T*>(static_cast<const ezImage*>(this)->GetSubImagePointer<T>(uiMipLevel, uiFace, uiArrayIndex));
 }
 
-template<typename T>
+template <typename T>
 const T* ezImage::GetPixelPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 x, ezUInt32 y, ezUInt32 z) const
 {
   EZ_ASSERT_DEBUG(ezImageFormat::GetType(m_format) == ezImageFormatType::LINEAR, "Pixel pointer can only be retrieved for linear formats.");
@@ -68,18 +67,18 @@ const T* ezImage::GetPixelPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32
   return reinterpret_cast<const T*>(pPointer);
 }
 
-template<typename T>
+template <typename T>
 T* ezImage::GetPixelPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 x, ezUInt32 y, ezUInt32 z)
 {
   return const_cast<T*>(static_cast<const ezImage*>(this)->GetPixelPointer<T>(uiMipLevel, uiFace, uiArrayIndex, x, y, z));
 }
 
 
-template<typename T>
+template <typename T>
 const T* ezImage::GetBlockPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 uiBlockX, ezUInt32 uiBlockY, ezUInt32 z) const
 {
   EZ_ASSERT_DEBUG(ezImageFormat::GetType(m_format) == ezImageFormatType::BLOCK_COMPRESSED,
-    "Block pointer can only be retrieved for block compressed formats.");
+                  "Block pointer can only be retrieved for block compressed formats.");
 
   const ezUInt8* basePointer = GetSubImagePointer<ezUInt8>(uiMipLevel, uiFace, uiArrayIndex);
 
@@ -96,7 +95,7 @@ const T* ezImage::GetBlockPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32
   return reinterpret_cast<const T*>(basePointer);
 }
 
-template<typename T>
+template <typename T>
 T* ezImage::GetBlockPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 uiBlockX, ezUInt32 uiBlockY, ezUInt32 z)
 {
   return const_cast<T*>(static_cast<const ezImage*>(this)->GetBlockPointer<T>(uiMipLevel, uiFace, uiArrayIndex, uiBlockX, uiBlockY, z));
@@ -137,4 +136,3 @@ ezUInt32 ezImage::GetDataOffSet(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 u
 {
   return GetSubImage(uiMipLevel, uiFace, uiArrayIndex).m_uiDataOffset;
 }
-

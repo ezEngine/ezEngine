@@ -1,19 +1,19 @@
 #pragma once
 
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
-  #error "uwp util header should only be included in UWP builds!"
+#error "uwp util header should only be included in UWP builds!"
 #endif
 
-#include <Foundation/Types/Types.h>
 #include <Foundation/Basics/Platform/Win/HResultUtils.h>
+#include <Foundation/Types/Types.h>
 
+#include <guiddef.h>
 #include <windows.foundation.h>
 #include <windows.foundation.numerics.h>
-#include <wrl/wrappers/corewrappers.h>
 #include <wrl/client.h>
-#include <wrl/implements.h>
 #include <wrl/event.h>
-#include <guiddef.h>
+#include <wrl/implements.h>
+#include <wrl/wrappers/corewrappers.h>
 
 class ezUuid;
 
@@ -25,7 +25,7 @@ namespace ezUwpUtils
   /// Helper function to iterate over all elements of a ABI::Windows::Foundation::Collections::IVectorView
   /// \param callback
   ///   Callable of signature bool(UINT index, const ComPtr<Interface>& pElement). Return value of false means discontinue.
-  template<typename ElementQueryType, typename ElementType, typename Callback>
+  template <typename ElementQueryType, typename ElementType, typename Callback>
   HRESULT ezWinRtIterateIVectorView(const ComPtr<ABI::Windows::Foundation::Collections::IVectorView<ElementType>>& pVectorView, const Callback& callback)
   {
     UINT numElements = 0;
@@ -50,13 +50,13 @@ namespace ezUwpUtils
   /// Helper function to iterate over all elements of a ABI::Windows::Foundation::Collections::IMapView
   /// \param callback
   ///   Callable of signature bool(const KeyType& key, const ValueInterfaceType& value). Return value of false means discontinue.
-  template<typename ValueInterfaceType, typename KeyType, typename ValueType, typename Callback>
+  template <typename ValueInterfaceType, typename KeyType, typename ValueType, typename Callback>
   void ezWinRtIterateIMapView(const ComPtr<ABI::Windows::Foundation::Collections::IMapView<KeyType, ValueType>>& pMapView, const Callback& callback)
   {
     using namespace ABI::Windows::Foundation::Collections;
     using namespace ABI::Windows::Foundation::Internal;
 
-    using MapInterface = IIterable< IKeyValuePair<KeyType, GetLogicalType<ValueType>::type> *>;
+    using MapInterface = IIterable<IKeyValuePair<KeyType, GetLogicalType<ValueType>::type>*>;
 
     ComPtr<MapInterface> pIterable;
     pMapView->QueryInterface<MapInterface>(&pIterable);
@@ -88,36 +88,36 @@ namespace ezUwpUtils
   }
 
   /// \brief Helper function to correctly execute 'put_Completed' on 'object'.
-  /// 
+  ///
   /// \param callback: A lambda of type void func(AsyncResultType param1);
   /// The callback gets the final result of the completed async function. Currently only when the async operation succeeds.
-  /// 
+  ///
   /// AsyncCompletedType is the type of the async function parameter. Unfortunately it cannot be deduced and therefore
   /// has to be passed in manually.
-  /// 
+  ///
   /// Search the code for usage examples.
-  template<typename AsyncCompletedType, typename AsyncResultType, typename Callback, typename ObjectType>
+  template <typename AsyncCompletedType, typename AsyncResultType, typename Callback, typename ObjectType>
   HRESULT ezWinRtPutCompleted(ObjectType& object, Callback callback)
   {
-    object->put_Completed(Microsoft::WRL::Callback<IAsyncOperationCompletedHandler<AsyncCompletedType> >(
-      [callback](IAsyncOperation<AsyncCompletedType>* pCompletion, AsyncStatus status)
-    {
-      if (status != Completed)
-        return S_OK;
+    object->put_Completed(Microsoft::WRL::Callback<IAsyncOperationCompletedHandler<AsyncCompletedType>>(
+                              [callback](IAsyncOperation<AsyncCompletedType>* pCompletion, AsyncStatus status) {
+                                if (status != Completed)
+                                  return S_OK;
 
-      AsyncResultType pResult;
-      pCompletion->GetResults(&pResult);
+                                AsyncResultType pResult;
+                                pCompletion->GetResults(&pResult);
 
-      callback(pResult);
+                                callback(pResult);
 
-      return S_OK;
-    }).Get());
+                                return S_OK;
+                              })
+                              .Get());
 
     return S_OK;
   }
 
   /// \brief Helper functions to get the statics / activation factory for a runtime class.
-  template<typename T>
+  template <typename T>
   void RetrieveStatics(const WCHAR* szRuntimeClassName, ComPtr<T>& out_Ptr)
   {
     if (FAILED(ABI::Windows::Foundation::GetActivationFactory(HStringReference(szRuntimeClassName).Get(), &out_Ptr)))
@@ -131,7 +131,7 @@ namespace ezUwpUtils
   ///
   /// \note Only use this function when there is no other way to create an instance of a type.
   /// Most types can be instantiated through the statics / activation factory.
-  template<typename T>
+  template <typename T>
   void CreateInstance(const WCHAR* szRuntimeClassName, ComPtr<T>& out_Ptr)
   {
     ::RoActivateInstance(HStringReference(szRuntimeClassName).Get(), &out_Ptr);
@@ -150,4 +150,3 @@ namespace ezUwpUtils
   ezUuid EZ_FOUNDATION_DLL ConvertGuid(const GUID& in);
   void EZ_FOUNDATION_DLL ConvertGuid(const ezUuid& in, GUID& out);
 }
-

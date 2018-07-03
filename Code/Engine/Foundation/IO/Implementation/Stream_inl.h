@@ -1,9 +1,8 @@
-
 #pragma once
 
 #if EZ_ENABLED(EZ_PLATFORM_BIG_ENDIAN)
 
-template <typename T> 
+template <typename T>
 ezResult ezStreamReader::ReadWordValue(T* pWordValue)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt16));
@@ -17,7 +16,7 @@ ezResult ezStreamReader::ReadWordValue(T* pWordValue)
   return (uiRead == sizeof(T)) ? EZ_SUCCESS : EZ_FAILURE;
 }
 
-template <typename T> 
+template <typename T>
 ezResult ezStreamReader::ReadDWordValue(T* pDWordValue)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt32));
@@ -31,7 +30,7 @@ ezResult ezStreamReader::ReadDWordValue(T* pDWordValue)
   return (uiRead == sizeof(T)) ? EZ_SUCCESS : EZ_FAILURE;
 }
 
-template <typename T> 
+template <typename T>
 ezResult ezStreamReader::ReadQWordValue(T* pQWordValue)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt64));
@@ -47,7 +46,7 @@ ezResult ezStreamReader::ReadQWordValue(T* pQWordValue)
 
 
 
-template <typename T> 
+template <typename T>
 ezResult ezStreamWriter::WriteWordValue(const T* pWordValue)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt16));
@@ -58,7 +57,7 @@ ezResult ezStreamWriter::WriteWordValue(const T* pWordValue)
   return WriteBytes(reinterpret_cast<ezUInt8*>(&uiTemp), sizeof(T));
 }
 
-template <typename T> 
+template <typename T>
 ezResult ezStreamWriter::WriteDWordValue(const T* pDWordValue)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt32));
@@ -69,7 +68,7 @@ ezResult ezStreamWriter::WriteDWordValue(const T* pDWordValue)
   return WriteBytes(reinterpret_cast<ezUInt8*>(&uiTemp), sizeof(T));
 }
 
-template <typename T> 
+template <typename T>
 ezResult ezStreamWriter::WriteQWordValue(const T* pQWordValue)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt64));
@@ -82,7 +81,7 @@ ezResult ezStreamWriter::WriteQWordValue(const T* pQWordValue)
 
 #else
 
-template <typename T> 
+template <typename T>
 ezResult ezStreamReader::ReadWordValue(T* pWordValue)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt16));
@@ -93,7 +92,7 @@ ezResult ezStreamReader::ReadWordValue(T* pWordValue)
   return EZ_SUCCESS;
 }
 
-template <typename T> 
+template <typename T>
 ezResult ezStreamReader::ReadDWordValue(T* pDWordValue)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt32));
@@ -104,7 +103,7 @@ ezResult ezStreamReader::ReadDWordValue(T* pDWordValue)
   return EZ_SUCCESS;
 }
 
-template <typename T> 
+template <typename T>
 ezResult ezStreamReader::ReadQWordValue(T* pQWordValue)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt64));
@@ -115,7 +114,7 @@ ezResult ezStreamReader::ReadQWordValue(T* pQWordValue)
   return EZ_SUCCESS;
 }
 
-template <typename T> 
+template <typename T>
 ezResult ezStreamWriter::WriteWordValue(const T* pWordValue)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt16));
@@ -123,7 +122,7 @@ ezResult ezStreamWriter::WriteWordValue(const T* pWordValue)
   return WriteBytes(reinterpret_cast<const ezUInt8*>(pWordValue), sizeof(T));
 }
 
-template <typename T> 
+template <typename T>
 ezResult ezStreamWriter::WriteDWordValue(const T* pDWordValue)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt32));
@@ -131,7 +130,7 @@ ezResult ezStreamWriter::WriteDWordValue(const T* pDWordValue)
   return WriteBytes(reinterpret_cast<const ezUInt8*>(pDWordValue), sizeof(T));
 }
 
-template <typename T> 
+template <typename T>
 ezResult ezStreamWriter::WriteQWordValue(const T* pQWordValue)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt64));
@@ -140,4 +139,3 @@ ezResult ezStreamWriter::WriteQWordValue(const T* pQWordValue)
 }
 
 #endif
-

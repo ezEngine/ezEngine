@@ -1,40 +1,43 @@
 #include <PCH.h>
-#include <Foundation/Communication/IpcChannel.h>
+
 #include <Foundation/Communication/Implementation/MessageLoop.h>
+#include <Foundation/Communication/IpcChannel.h>
 #include <Foundation/Communication/RemoteMessage.h>
 #include <Foundation/Configuration/Startup.h>
 
 EZ_IMPLEMENT_SINGLETON(ezMessageLoop);
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  #include <Foundation/Communication/Implementation/Win/MessageLoop_win.h>
+#include <Foundation/Communication/Implementation/Win/MessageLoop_win.h>
 #else
-  #include <Foundation/Communication/Implementation/Mobile/MessageLoop_mobile.h>
+#include <Foundation/Communication/Implementation/Mobile/MessageLoop_mobile.h>
 #endif
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, MessageLoop)
 
-BEGIN_SUBSYSTEM_DEPENDENCIES
-"TaskSystem",
-"ThreadUtils"
-END_SUBSYSTEM_DEPENDENCIES
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "TaskSystem",
+    "ThreadUtils"
+  END_SUBSYSTEM_DEPENDENCIES
 
-ON_CORE_STARTUP
-{
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  EZ_DEFAULT_NEW(ezMessageLoop_win);
-#else
-  EZ_DEFAULT_NEW(ezMessageLoop_mobile);
-#endif
-}
+  ON_CORE_STARTUP
+  {
+    #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+      EZ_DEFAULT_NEW(ezMessageLoop_win);
+    #else
+      EZ_DEFAULT_NEW(ezMessageLoop_mobile);
+    #endif
+  }
 
-ON_CORE_SHUTDOWN
-{
-  ezMessageLoop* pDummy = ezMessageLoop::GetSingleton();
-  EZ_DEFAULT_DELETE(pDummy);
-}
+  ON_CORE_SHUTDOWN
+  {
+    ezMessageLoop* pDummy = ezMessageLoop::GetSingleton();
+    EZ_DEFAULT_DELETE(pDummy);
+  }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 class ezLoopThread : public ezThread
 {
@@ -49,7 +52,7 @@ public:
 };
 
 ezMessageLoop::ezMessageLoop()
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
 }
 
@@ -181,4 +184,3 @@ void ezMessageLoop::RemoveChannel(ezIpcChannel* pChannel)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_MessageLoop);
-

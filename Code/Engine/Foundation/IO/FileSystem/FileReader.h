@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Foundation/IO/Stream.h>
-#include <Foundation/IO/FileSystem/Implementation/FileReaderWriterBase.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/IO/FileSystem/Implementation/FileReaderWriterBase.h>
+#include <Foundation/IO/Stream.h>
 
 /// \brief The default class to use to read data from a file, implements the ezStreamReader interface.
 ///
@@ -13,7 +13,6 @@ class EZ_FOUNDATION_DLL ezFileReader : public ezFileReaderBase
   EZ_DISALLOW_COPY_AND_ASSIGN(ezFileReader);
 
 public:
-
   /// \brief Constructor, does nothing.
   ezFileReader() : m_uiBytesCached(0), m_uiCacheReadPosition(0), m_bEOF(true) {}
 
@@ -38,5 +37,3 @@ private:
   ezDynamicArray<ezUInt8> m_Cache;
   bool m_bEOF;
 };
-
-

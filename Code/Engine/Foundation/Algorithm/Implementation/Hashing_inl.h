@@ -45,7 +45,7 @@ struct ezHashHelper<ezUInt32>
 {
   EZ_ALWAYS_INLINE static ezUInt32 Hash(ezUInt32 value)
   {
-    // knuth: multiplication by the golden ratio will minimize gaps in the hash space. 
+    // Knuth: multiplication by the golden ratio will minimize gaps in the hash space.
     // 2654435761U: prime close to 2^32/phi with phi = golden ratio (sqrt(5) - 1) / 2
     return value * 2654435761U;
   }
@@ -125,4 +125,3 @@ struct ezHashHelper<T*>
     return a == b;
   }
 };
-

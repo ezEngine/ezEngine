@@ -1,15 +1,15 @@
 #include <PCH.h>
-#include <Foundation/Communication/IpcChannel.h>
-#include <Foundation/Communication/Implementation/MessageLoop.h>
-#include <Foundation/Communication/RemoteMessage.h>
-#include <Serialization/ReflectionSerializer.h>
-#include <Logging/Log.h>
-#include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
+
 #include <Foundation/Communication/Implementation/IpcChannelEnet.h>
+#include <Foundation/Communication/Implementation/MessageLoop.h>
+#include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
+#include <Foundation/Communication/IpcChannel.h>
+#include <Foundation/Communication/RemoteMessage.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
 
 ezIpcChannel::ezIpcChannel(const char* szAddress, Mode::Enum mode)
-  : m_Mode(mode)
-  , m_pOwner(ezMessageLoop::GetSingleton())
+    : m_Mode(mode), m_pOwner(ezMessageLoop::GetSingleton())
 {
 }
 
@@ -212,4 +212,3 @@ void ezIpcChannel::FlushPendingOperations()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_IpcChannel);
-

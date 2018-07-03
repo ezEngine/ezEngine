@@ -1,9 +1,10 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/IO/DependencyFile.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/Logging/Log.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Logging/Log.h>
 
 enum class ezDependencyFileVersion : ezUInt8
 {
@@ -98,7 +99,7 @@ bool ezDependencyFile::HasAnyFileChanged()
 
 ezResult ezDependencyFile::WriteDependencyFile(ezStreamWriter& stream) const
 {
-  stream << (ezUInt8) ezDependencyFileVersion::Current;
+  stream << (ezUInt8)ezDependencyFileVersion::Current;
 
   stream << m_iMaxTimeStampStored;
   stream << m_uiSumTimeStampStored;
@@ -112,16 +113,16 @@ ezResult ezDependencyFile::WriteDependencyFile(ezStreamWriter& stream) const
 
 ezResult ezDependencyFile::ReadDependencyFile(ezStreamReader& stream)
 {
-  ezUInt8 uiVersion = (ezUInt8) ezDependencyFileVersion::Version0;
+  ezUInt8 uiVersion = (ezUInt8)ezDependencyFileVersion::Version0;
   stream >> uiVersion;
 
-  if (uiVersion > (ezUInt8) ezDependencyFileVersion::Current)
+  if (uiVersion > (ezUInt8)ezDependencyFileVersion::Current)
   {
     ezLog::Error("Dependency file has incorrect file version ({0})", uiVersion);
     return EZ_FAILURE;
   }
 
-  EZ_ASSERT_DEV(uiVersion <= (ezUInt8) ezDependencyFileVersion::Current, "Invalid file version {0}", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= (ezUInt8)ezDependencyFileVersion::Current, "Invalid file version {0}", uiVersion);
 
   stream >> m_iMaxTimeStampStored;
 
@@ -132,7 +133,7 @@ ezResult ezDependencyFile::ReadDependencyFile(ezStreamReader& stream)
 
   ezUInt32 count = 0;
   stream >> count;
-   m_AssetTransformDependencies.SetCount(count);
+  m_AssetTransformDependencies.SetCount(count);
 
   for (ezUInt32 i = 0; i < m_AssetTransformDependencies.GetCount(); ++i)
     stream >> m_AssetTransformDependencies[i];
@@ -205,4 +206,3 @@ ezResult ezDependencyFile::ReadDependencyFile(const char* szFile)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_DependencyFile);
-

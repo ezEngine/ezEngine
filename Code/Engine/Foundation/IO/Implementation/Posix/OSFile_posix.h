@@ -1,44 +1,44 @@
 #pragma once
 
-#include <errno.h>
-#include <sys/stat.h>
 #include <Foundation/Logging/Log.h>
 #include <Utilities/CommandLineUtils.h>
+#include <errno.h>
+#include <sys/stat.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  #include <direct.h>
-  #define EZ_USE_OLD_POSIX_FUNCTIONS EZ_ON
+#include <direct.h>
+#define EZ_USE_OLD_POSIX_FUNCTIONS EZ_ON
 #else
-  #include <unistd.h>
-  #include <sys/types.h>
-  #include <pwd.h>
-  #define EZ_USE_OLD_POSIX_FUNCTIONS EZ_OFF
+#include <pwd.h>
+#include <sys/types.h>
+#include <unistd.h>
+#define EZ_USE_OLD_POSIX_FUNCTIONS EZ_OFF
 #endif
 
 #if EZ_ENABLED(EZ_PLATFORM_OSX)
-  #include <CoreFoundation/CoreFoundation.h>
+#include <CoreFoundation/CoreFoundation.h>
 #endif
 
 ezResult ezOSFile::InternalOpen(const char* szFile, ezFileMode::Enum OpenMode)
 {
   switch (OpenMode)
   {
-  case ezFileMode::Read:
-    m_FileData.m_pFileHandle = fopen(szFile, "rb");
-    break;
-  case ezFileMode::Write:
-    m_FileData.m_pFileHandle = fopen(szFile, "wb");
-    break;
-  case ezFileMode::Append:
-    m_FileData.m_pFileHandle = fopen(szFile, "ab");
+    case ezFileMode::Read:
+      m_FileData.m_pFileHandle = fopen(szFile, "rb");
+      break;
+    case ezFileMode::Write:
+      m_FileData.m_pFileHandle = fopen(szFile, "wb");
+      break;
+    case ezFileMode::Append:
+      m_FileData.m_pFileHandle = fopen(szFile, "ab");
 
-    // in append mode we need to set the file pointer to the end explicitly, otherwise GetFilePosition might return 0 the first time
-    if (m_FileData.m_pFileHandle != nullptr)
-      InternalSetFilePosition(0, ezFilePos::FromEnd);
+      // in append mode we need to set the file pointer to the end explicitly, otherwise GetFilePosition might return 0 the first time
+      if (m_FileData.m_pFileHandle != nullptr)
+        InternalSetFilePosition(0, ezFilePos::FromEnd);
 
-    break;
-  default:
-    break;
+      break;
+    default:
+      break;
   }
 
   return m_FileData.m_pFileHandle != nullptr ? EZ_SUCCESS : EZ_FAILURE;
@@ -117,28 +117,28 @@ void ezOSFile::InternalSetFilePosition(ezInt64 iDistance, ezFilePos::Enum Pos) c
 #if EZ_ENABLED(EZ_USE_OLD_POSIX_FUNCTIONS)
   switch (Pos)
   {
-  case ezFilePos::FromStart:
-    EZ_VERIFY(fseek(m_FileData.m_pFileHandle, (long)iDistance, SEEK_SET) == 0, "Seek Failed");
-    break;
-  case ezFilePos::FromEnd:
-    EZ_VERIFY(fseek(m_FileData.m_pFileHandle, (long)iDistance, SEEK_END) == 0, "Seek Failed");
-    break;
-  case ezFilePos::FromCurrent:
-    EZ_VERIFY(fseek(m_FileData.m_pFileHandle, (long)iDistance, SEEK_CUR) == 0, "Seek Failed");
-    break;
+    case ezFilePos::FromStart:
+      EZ_VERIFY(fseek(m_FileData.m_pFileHandle, (long)iDistance, SEEK_SET) == 0, "Seek Failed");
+      break;
+    case ezFilePos::FromEnd:
+      EZ_VERIFY(fseek(m_FileData.m_pFileHandle, (long)iDistance, SEEK_END) == 0, "Seek Failed");
+      break;
+    case ezFilePos::FromCurrent:
+      EZ_VERIFY(fseek(m_FileData.m_pFileHandle, (long)iDistance, SEEK_CUR) == 0, "Seek Failed");
+      break;
   }
 #else
   switch (Pos)
   {
-  case ezFilePos::FromStart:
-    EZ_VERIFY(fseeko(m_FileData.m_pFileHandle, iDistance, SEEK_SET) == 0, "Seek Failed");
-    break;
-  case ezFilePos::FromEnd:
-    EZ_VERIFY(fseeko(m_FileData.m_pFileHandle, iDistance, SEEK_END) == 0, "Seek Failed");
-    break;
-  case ezFilePos::FromCurrent:
-    EZ_VERIFY(fseeko(m_FileData.m_pFileHandle, iDistance, SEEK_CUR) == 0, "Seek Failed");
-    break;
+    case ezFilePos::FromStart:
+      EZ_VERIFY(fseeko(m_FileData.m_pFileHandle, iDistance, SEEK_SET) == 0, "Seek Failed");
+      break;
+    case ezFilePos::FromEnd:
+      EZ_VERIFY(fseeko(m_FileData.m_pFileHandle, iDistance, SEEK_END) == 0, "Seek Failed");
+      break;
+    case ezFilePos::FromCurrent:
+      EZ_VERIFY(fseeko(m_FileData.m_pFileHandle, iDistance, SEEK_CUR) == 0, "Seek Failed");
+      break;
   }
 #endif
 }
@@ -156,7 +156,7 @@ bool ezOSFile::InternalExistsFile(const char* szFile)
 
 // this might not be defined on Windows
 #ifndef S_ISDIR
-#define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
+#define S_ISDIR(m) (((m)&S_IFMT) == S_IFDIR)
 #endif
 
 bool ezOSFile::InternalExistsDirectory(const char* szDirectory)
@@ -226,22 +226,22 @@ const char* ezOSFile::GetApplicationDirectory()
 {
   static ezString256 s_Path;
 
-  if(s_Path.IsEmpty())
+  if (s_Path.IsEmpty())
   {
 #if EZ_ENABLED(EZ_PLATFORM_OSX)
 
     CFBundleRef appBundle = CFBundleGetMainBundle();
     CFURLRef bundleURL = CFBundleCopyBundleURL(appBundle);
-    CFStringRef bundlePath = CFURLCopyFileSystemPath( bundleURL, kCFURLPOSIXPathStyle );
+    CFStringRef bundlePath = CFURLCopyFileSystemPath(bundleURL, kCFURLPOSIXPathStyle);
 
-    if(bundlePath != nullptr)
+    if (bundlePath != nullptr)
     {
       CFIndex length = CFStringGetLength(bundlePath);
       CFIndex maxSize = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8) + 1;
 
       ezArrayPtr<char> temp = EZ_DEFAULT_NEW_ARRAY(char, maxSize);
 
-      if(CFStringGetCString(bundlePath, temp.GetPtr(), maxSize, kCFStringEncodingUTF8))
+      if (CFStringGetCString(bundlePath, temp.GetPtr(), maxSize, kCFStringEncodingUTF8))
       {
         s_Path = temp.GetPtr();
       }
@@ -282,6 +282,3 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
 }
 
 #endif // EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
-
-
-

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Foundation/Logging/Log.h>
-#include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Strings/StringConversion.h>
+#include <Foundation/Threading/ThreadUtils.h>
 
 // Defined in Timestamp_win.h
 ezInt64 FileTimeToEpoch(FILETIME fileTime);
@@ -32,20 +32,20 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileMode::Enum OpenMode)
 
     switch (OpenMode)
     {
-    case ezFileMode::Read:
-      m_FileData.m_pFileHandle = CreateFileW(s.GetData(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-      break;
-    case ezFileMode::Write:
-      m_FileData.m_pFileHandle = CreateFileW(s.GetData(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
-      break;
-    case ezFileMode::Append:
-      m_FileData.m_pFileHandle = CreateFileW(s.GetData(), FILE_APPEND_DATA, 0, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+      case ezFileMode::Read:
+        m_FileData.m_pFileHandle = CreateFileW(s.GetData(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+        break;
+      case ezFileMode::Write:
+        m_FileData.m_pFileHandle = CreateFileW(s.GetData(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+        break;
+      case ezFileMode::Append:
+        m_FileData.m_pFileHandle = CreateFileW(s.GetData(), FILE_APPEND_DATA, 0, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 
-      // in append mode we need to set the file pointer to the end explicitly, otherwise GetFilePosition might return 0 the first time
-      if ((m_FileData.m_pFileHandle != nullptr) && (m_FileData.m_pFileHandle != INVALID_HANDLE_VALUE))
-        InternalSetFilePosition(0, ezFilePos::FromEnd);
+        // in append mode we need to set the file pointer to the end explicitly, otherwise GetFilePosition might return 0 the first time
+        if ((m_FileData.m_pFileHandle != nullptr) && (m_FileData.m_pFileHandle != INVALID_HANDLE_VALUE))
+          InternalSetFilePosition(0, ezFilePos::FromEnd);
 
-      break;
+        break;
     }
 
     const ezResult res = ((m_FileData.m_pFileHandle != nullptr) && (m_FileData.m_pFileHandle != INVALID_HANDLE_VALUE)) ? EZ_SUCCESS : EZ_FAILURE;
@@ -170,15 +170,15 @@ void ezOSFile::InternalSetFilePosition(ezInt64 iDistance, ezFilePos::Enum Pos) c
 
   switch (Pos)
   {
-  case ezFilePos::FromStart:
-    EZ_VERIFY(SetFilePointerEx(m_FileData.m_pFileHandle, pos, &newpos, FILE_BEGIN), "Seek Failed.");
-    break;
-  case ezFilePos::FromEnd:
-    EZ_VERIFY(SetFilePointerEx(m_FileData.m_pFileHandle, pos, &newpos, FILE_END), "Seek Failed.");
-    break;
-  case ezFilePos::FromCurrent:
-    EZ_VERIFY(SetFilePointerEx(m_FileData.m_pFileHandle, pos, &newpos, FILE_CURRENT), "Seek Failed.");
-    break;
+    case ezFilePos::FromStart:
+      EZ_VERIFY(SetFilePointerEx(m_FileData.m_pFileHandle, pos, &newpos, FILE_BEGIN), "Seek Failed.");
+      break;
+    case ezFilePos::FromEnd:
+      EZ_VERIFY(SetFilePointerEx(m_FileData.m_pFileHandle, pos, &newpos, FILE_END), "Seek Failed.");
+      break;
+    case ezFilePos::FromCurrent:
+      EZ_VERIFY(SetFilePointerEx(m_FileData.m_pFileHandle, pos, &newpos, FILE_CURRENT), "Seek Failed.");
+      break;
   }
 }
 
@@ -414,8 +414,8 @@ const char* ezOSFile::GetApplicationDirectory()
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  #include <Foundation/Basics/Platform/uwp/UWPUtils.h>
-  #include <windows.storage.h>
+#include <Foundation/Basics/Platform/uwp/UWPUtils.h>
+#include <windows.storage.h>
 #endif
 
 ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
@@ -454,4 +454,3 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
   s.MakeCleanPath();
   return s;
 }
-

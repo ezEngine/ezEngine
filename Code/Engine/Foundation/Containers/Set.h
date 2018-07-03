@@ -31,7 +31,6 @@ private:
   };
 
 public:
-
   /// \brief Base class for all iterators.
   struct Iterator
   {
@@ -44,7 +43,7 @@ public:
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Constructs an invalid iterator.
-    EZ_ALWAYS_INLINE Iterator() : m_pElement(nullptr) { } // [tested]
+    EZ_ALWAYS_INLINE Iterator() : m_pElement(nullptr) {} // [tested]
 
     /// \brief Checks whether this iterator points to a valid element.
     EZ_ALWAYS_INLINE bool IsValid() const { return (m_pElement != nullptr); } // [tested]
@@ -56,7 +55,11 @@ public:
     EZ_ALWAYS_INLINE bool operator!=(const typename ezSetBase<KeyType, Comparer>::Iterator& it2) const { return (m_pElement != it2.m_pElement); }
 
     /// \brief Returns the 'key' of the element that this iterator points to.
-    EZ_FORCE_INLINE const KeyType&   Key ()  const { EZ_ASSERT_DEBUG(IsValid(), "Cannot access the 'key' of an invalid iterator."); return m_pElement->m_Key;   } // [tested]
+    EZ_FORCE_INLINE const KeyType& Key() const
+    {
+      EZ_ASSERT_DEBUG(IsValid(), "Cannot access the 'key' of an invalid iterator.");
+      return m_pElement->m_Key;
+    } // [tested]
 
     /// \brief Returns the 'key' of the element that this iterator points to.
     EZ_ALWAYS_INLINE const KeyType& operator*() { return Key(); }
@@ -68,7 +71,7 @@ public:
     void Prev(); // [tested]
 
     /// \brief Shorthand for 'Next'
-    EZ_ALWAYS_INLINE void operator++() { Next();  } // [tested]
+    EZ_ALWAYS_INLINE void operator++() { Next(); } // [tested]
 
     /// \brief Shorthand for 'Prev'
     EZ_ALWAYS_INLINE void operator--() { Prev(); } // [tested]
@@ -76,13 +79,12 @@ public:
   protected:
     friend class ezSetBase<KeyType, Comparer>;
 
-    EZ_ALWAYS_INLINE explicit Iterator(Node* pInit)              : m_pElement(pInit) { }
+    EZ_ALWAYS_INLINE explicit Iterator(Node* pInit) : m_pElement(pInit) {}
 
     Node* m_pElement;
   };
 
 protected:
-
   /// \brief Initializes the set to be empty.
   ezSetBase(const Comparer& comparer, ezAllocatorBase* pAllocator); // [tested]
 
@@ -93,7 +95,7 @@ protected:
   ~ezSetBase(); // [tested]
 
   /// \brief Copies all keys from the given set into this one.
-  void operator= (const ezSetBase<KeyType, Comparer>& rhs); // [tested]
+  void operator=(const ezSetBase<KeyType, Comparer>& rhs); // [tested]
 
 public:
   /// \brief Returns whether there are no elements in the set. O(1) operation.
@@ -163,7 +165,7 @@ public:
   ezUInt64 GetHeapMemoryUsage() const { return m_Elements.GetHeapMemoryUsage(); } // [tested]
 
 private:
-  template<typename CompatibleKeyType>
+  template <typename CompatibleKeyType>
   Node* Internal_Find(const CompatibleKeyType& key) const;
   template <typename CompatibleKeyType>
   Node* Internal_LowerBound(const CompatibleKeyType& key) const;
@@ -252,4 +254,3 @@ typename ezSetBase<KeyType, Comparer>::Iterator cend(const ezSetBase<KeyType, Co
 
 
 #include <Foundation/Containers/Implementation/Set_inl.h>
-

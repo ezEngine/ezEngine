@@ -13,7 +13,10 @@
 #define EZ_ALIGN(decl, alignment) __attribute__((aligned(alignment))) decl
 #define EZ_ALIGNMENT_OF(type) __alignof(type)
 
-#define EZ_DEBUG_BREAK { __builtin_trap(); }
+#define EZ_DEBUG_BREAK \
+  {                    \
+    __builtin_trap();  \
+  }
 
 #define EZ_SOURCE_FUNCTION __PRETTY_FUNCTION__
 #define EZ_SOURCE_LINE __LINE__
@@ -28,4 +31,3 @@
 #define EZ_ANALYSIS_IGNORE_ALL_END
 
 #endif
-

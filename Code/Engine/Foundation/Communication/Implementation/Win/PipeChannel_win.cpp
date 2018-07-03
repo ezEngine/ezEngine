@@ -2,12 +2,12 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
-#include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
 #include <Foundation/Communication/Implementation/MessageLoop.h>
 #include <Foundation/Communication/Implementation/Win/MessageLoop_win.h>
+#include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
 #include <Foundation/Communication/RemoteMessage.h>
-#include <Serialization/ReflectionSerializer.h>
-#include <Logging/Log.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
 
 ezPipeChannel_win::State::State(ezPipeChannel_win* pChannel) : IsPending(false)
 {
@@ -21,13 +21,10 @@ ezPipeChannel_win::State::~State()
 }
 
 ezPipeChannel_win::ezPipeChannel_win(const char* szAddress, Mode::Enum mode)
-  : ezIpcChannel(szAddress, mode)
-  , m_InputState(this)
-  , m_OutputState(this)
+    : ezIpcChannel(szAddress, mode), m_InputState(this), m_OutputState(this)
 {
   CreatePipe(szAddress);
   m_pOwner->AddChannel(this);
-
 }
 
 ezPipeChannel_win::~ezPipeChannel_win()
@@ -50,29 +47,29 @@ bool ezPipeChannel_win::CreatePipe(const char* szAddress)
 
   if (m_Mode == Mode::Server)
   {
-    SECURITY_ATTRIBUTES attributes = { 0 };
+    SECURITY_ATTRIBUTES attributes = {0};
     attributes.nLength = sizeof(attributes);
     attributes.lpSecurityDescriptor = NULL;
     attributes.bInheritHandle = FALSE;
 
     m_PipeHandle = CreateNamedPipeW(ezStringWChar(sPipename).GetData(),
-      PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED | FILE_FLAG_FIRST_PIPE_INSTANCE,
-      PIPE_TYPE_BYTE | PIPE_READMODE_BYTE,
-      1,
-      BUFFER_SIZE,
-      BUFFER_SIZE,
-      5000,
-      &attributes);
+                                    PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED | FILE_FLAG_FIRST_PIPE_INSTANCE,
+                                    PIPE_TYPE_BYTE | PIPE_READMODE_BYTE,
+                                    1,
+                                    BUFFER_SIZE,
+                                    BUFFER_SIZE,
+                                    5000,
+                                    &attributes);
   }
   else
   {
     m_PipeHandle = CreateFileW(ezStringWChar(sPipename).GetData(),
-      GENERIC_READ | GENERIC_WRITE,
-      0,
-      NULL,
-      OPEN_EXISTING,
-      SECURITY_SQOS_PRESENT | SECURITY_IDENTIFICATION | FILE_FLAG_OVERLAPPED,
-      NULL);
+                               GENERIC_READ | GENERIC_WRITE,
+                               0,
+                               NULL,
+                               OPEN_EXISTING,
+                               SECURITY_SQOS_PRESENT | SECURITY_IDENTIFICATION | FILE_FLAG_OVERLAPPED,
+                               NULL);
   }
 
   if (m_PipeHandle == INVALID_HANDLE_VALUE)
@@ -193,17 +190,17 @@ bool ezPipeChannel_win::ProcessConnection()
   ezUInt32 error = GetLastError();
   switch (error)
   {
-  case ERROR_IO_PENDING:
-    m_InputState.IsPending = true;
-    break;
-  case ERROR_PIPE_CONNECTED:
-    m_Connected = true;
-    break;
-  case ERROR_NO_DATA:
-    return false;
-  default:
-    ezLog::Error("Could not connect to pipe (Error code: {0})", ezArgErrorCode(error));
-    return false;
+    case ERROR_IO_PENDING:
+      m_InputState.IsPending = true;
+      break;
+    case ERROR_PIPE_CONNECTED:
+      m_Connected = true;
+      break;
+    case ERROR_NO_DATA:
+      return false;
+    default:
+      ezLog::Error("Could not connect to pipe (Error code: {0})", ezArgErrorCode(error));
+      return false;
   }
 
   return true;
@@ -227,7 +224,7 @@ bool ezPipeChannel_win::ProcessIncomingMessages(DWORD uiBytesRead)
         return false;
 
       BOOL res = ReadFile(m_PipeHandle, m_InputBuffer, BUFFER_SIZE, &uiBytesRead,
-        &m_InputState.Context.Overlapped);
+                          &m_InputState.Context.Overlapped);
 
       if (!res)
       {
@@ -293,7 +290,7 @@ bool ezPipeChannel_win::ProcessOutgoingMessages(DWORD uiBytesWritten)
   }
 
   BOOL res = WriteFile(m_PipeHandle, storage->GetData(), storage->GetStorageSize(), &uiBytesWritten,
-    &m_OutputState.Context.Overlapped);
+                       &m_OutputState.Context.Overlapped);
 
   if (!res)
   {
@@ -348,4 +345,3 @@ void ezPipeChannel_win::OnIOCompleted(IOContext* pContext, DWORD uiBytesTransfer
 #endif
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_Win_PipeChannel_win);
-

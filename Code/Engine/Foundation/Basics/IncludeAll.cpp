@@ -9,16 +9,16 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Basics/Assert.h>
-#include <Foundation/Types/Types.h>
-#include <Foundation/Types/TypeTraits.h>
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Types/Delegate.h>
 #include <Foundation/Types/Id.h>
 #include <Foundation/Types/RefCounted.h>
 #include <Foundation/Types/Status.h>
+#include <Foundation/Types/TypeTraits.h>
+#include <Foundation/Types/Types.h>
+#include <Foundation/Types/Uuid.h>
 #include <Foundation/Types/VarianceTypes.h>
 #include <Foundation/Types/Variant.h>
-#include <Foundation/Types/Uuid.h>
 
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Communication/GlobalEvent.h>
@@ -32,6 +32,7 @@
 #include <Foundation/Configuration/SubSystem.h>
 
 #include <Foundation/Containers/ArrayBase.h>
+#include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/Containers/Bitfield.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/DynamicArray.h>
@@ -43,12 +44,10 @@
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Containers/StaticRingBuffer.h>
-#include <Foundation/Containers/ArrayMap.h>
 
-#include <Foundation/IO/Stream.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/OSFile.h>
-#include <Foundation/IO/SerializationContext.h>
+#include <Foundation/IO/Stream.h>
 
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
@@ -65,8 +64,8 @@
 #include <Foundation/Math/BoundingBox.h>
 #include <Foundation/Math/BoundingSphere.h>
 #include <Foundation/Math/Color.h>
-#include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Math/Color16f.h>
+#include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Math/Declarations.h>
 #include <Foundation/Math/FixedPoint.h>
 #include <Foundation/Math/Float16.h>
@@ -119,8 +118,8 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/StringConversion.h>
-#include <Foundation/Strings/StringView.h>
 #include <Foundation/Strings/StringUtils.h>
+#include <Foundation/Strings/StringView.h>
 #include <Foundation/Strings/UnicodeUtils.h>
 
 #include <Foundation/Threading/AtomicInteger.h>
@@ -148,12 +147,4 @@
 
 
 
-
-
-
-
-
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Basics_IncludeAll);
-

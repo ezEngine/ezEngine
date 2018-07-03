@@ -23,4 +23,3 @@
 /// Whether file accesses can be done through paths that do not match exact casing
 #undef EZ_SUPPORTS_CASE_INSENSITIVE_PATHS
 #define EZ_SUPPORTS_CASE_INSENSITIVE_PATHS EZ_OFF
-

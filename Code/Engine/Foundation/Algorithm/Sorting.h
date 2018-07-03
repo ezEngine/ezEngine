@@ -2,6 +2,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+
 #include <Foundation/Algorithm/Comparer.h>
 #include <Foundation/Math/Math.h>
 
@@ -27,9 +28,12 @@ public:
   static void InsertionSort(ezArrayPtr<T>& arrayPtr, const Comparer& comparer = Comparer()); // [tested]
 
 private:
-  enum { INSERTION_THRESHOLD = 16 };
+  enum
+  {
+    INSERTION_THRESHOLD = 16
+  };
 
-  // Perform comparision either with "Less(a,b)" (prefered) or with operator ()(a,b)
+  // Perform comparison either with "Less(a,b)" (prefered) or with operator ()(a,b)
   template <typename Element, typename Comparer>
   EZ_ALWAYS_INLINE constexpr static auto DoCompare(const Comparer& comparer, const Element& a, const Element& b, int) -> decltype(comparer.Less(a, b))
   {
@@ -71,4 +75,3 @@ private:
 };
 
 #include <Foundation/Algorithm/Implementation/Sorting_inl.h>
-

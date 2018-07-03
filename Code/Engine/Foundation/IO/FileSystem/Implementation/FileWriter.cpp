@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/IO/FileSystem/FileWriter.h>
 
 ezResult ezFileWriter::Open(const char* szFile, ezUInt32 uiCacheSize, bool bAllowFileEvents)
@@ -23,7 +24,7 @@ void ezFileWriter::Close()
     return;
 
   Flush();
-  
+
   m_pDataDirWriter->Close();
   m_pDataDirWriter = nullptr;
 }
@@ -40,7 +41,7 @@ ezResult ezFileWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWr
 {
   EZ_ASSERT_DEV(m_pDataDirWriter != nullptr, "The file has not been opened (successfully).");
 
-  ezUInt8* pBuffer = (ezUInt8*) pWriteBuffer;
+  ezUInt8* pBuffer = (ezUInt8*)pWriteBuffer;
 
   while (uiBytesToWrite > 0)
   {
@@ -53,7 +54,7 @@ ezResult ezFileWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWr
       uiChunkSize = uiRemainingCache;
 
     // copy memory
-    ezMemoryUtils::Copy(&m_Cache[(ezUInt32) m_uiCacheWritePosition], pBuffer, (ezUInt32) uiChunkSize);
+    ezMemoryUtils::Copy(&m_Cache[(ezUInt32)m_uiCacheWritePosition], pBuffer, (ezUInt32)uiChunkSize);
 
     pBuffer += uiChunkSize;
     m_uiCacheWritePosition += uiChunkSize;
@@ -73,4 +74,3 @@ ezResult ezFileWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWr
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_FileSystem_Implementation_FileWriter);
-

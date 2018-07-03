@@ -46,7 +46,7 @@ void ezMapBase<KeyType, ValueType, Comparer>::ConstIterator::Next()
 
     // if we are at the root node..
     if ((m_pElement->m_pParent == nullptr) ||
-         (m_pElement->m_pParent == m_pElement->m_pParent->m_pParent))
+        (m_pElement->m_pParent == m_pElement->m_pParent->m_pParent))
     {
       m_pElement = nullptr;
       return;
@@ -99,8 +99,8 @@ void ezMapBase<KeyType, ValueType, Comparer>::ConstIterator::Prev()
       m_pElement = m_pElement->m_pParent;
 
     // if we are at the root node..
-    if ( (m_pElement->m_pParent == nullptr) ||
-         (m_pElement->m_pParent == m_pElement->m_pParent->m_pParent))
+    if ((m_pElement->m_pParent == nullptr) ||
+        (m_pElement->m_pParent == m_pElement->m_pParent->m_pParent))
     {
       m_pElement = nullptr;
       return;
@@ -131,7 +131,7 @@ void ezMapBase<KeyType, ValueType, Comparer>::Constructor()
   m_NilNode.m_uiLevel = 0;
   m_NilNode.m_pLink[0] = reinterpret_cast<Node*>(&m_NilNode);
   m_NilNode.m_pLink[1] = reinterpret_cast<Node*>(&m_NilNode);
-  m_NilNode.m_pParent  = reinterpret_cast<Node*>(&m_NilNode);
+  m_NilNode.m_pParent = reinterpret_cast<Node*>(&m_NilNode);
 
   m_pFreeElementStack = nullptr;
   m_pRoot = reinterpret_cast<Node*>(&m_NilNode);
@@ -180,7 +180,7 @@ void ezMapBase<KeyType, ValueType, Comparer>::Clear()
   m_NilNode.m_uiLevel = 0;
   m_NilNode.m_pLink[0] = reinterpret_cast<Node*>(&m_NilNode);
   m_NilNode.m_pLink[1] = reinterpret_cast<Node*>(&m_NilNode);
-  m_NilNode.m_pParent  = reinterpret_cast<Node*>(&m_NilNode);
+  m_NilNode.m_pParent = reinterpret_cast<Node*>(&m_NilNode);
 
   m_pRoot = reinterpret_cast<Node*>(&m_NilNode);
 }
@@ -258,8 +258,8 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 
   while (pNode != &m_NilNode)
   {
-    const ezInt32 dir = (ezInt32) m_Comparer.Less(pNode->m_Key, key);
-    const ezInt32 dir2= (ezInt32) m_Comparer.Less(key, pNode->m_Key);
+    const ezInt32 dir = (ezInt32)m_Comparer.Less(pNode->m_Key, key);
+    const ezInt32 dir2 = (ezInt32)m_Comparer.Less(key, pNode->m_Key);
 
     if (dir == dir2)
       break;
@@ -312,14 +312,14 @@ EZ_ALWAYS_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-template<typename CompatibleKeyType>
+template <typename CompatibleKeyType>
 EZ_ALWAYS_INLINE bool ezMapBase<KeyType, ValueType, Comparer>::Contains(const CompatibleKeyType& key) const
 {
   return Internal_Find(key) != nullptr;
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-template<typename CompatibleKeyType>
+template <typename CompatibleKeyType>
 typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, ValueType, Comparer>::Internal_LowerBound(const CompatibleKeyType& key) const
 {
   Node* pNode = m_pRoot;
@@ -327,8 +327,8 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 
   while (pNode != &m_NilNode)
   {
-    const ezInt32 dir = (ezInt32) m_Comparer.Less(pNode->m_Key, key);
-    const ezInt32 dir2= (ezInt32) m_Comparer.Less(key, pNode->m_Key);
+    const ezInt32 dir = (ezInt32)m_Comparer.Less(pNode->m_Key, key);
+    const ezInt32 dir2 = (ezInt32)m_Comparer.Less(key, pNode->m_Key);
 
     if (dir == dir2)
       return pNode;
@@ -343,21 +343,21 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-template<typename CompatibleKeyType>
+template <typename CompatibleKeyType>
 EZ_ALWAYS_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, ValueType, Comparer>::LowerBound(const CompatibleKeyType& key)
 {
   return Iterator(Internal_LowerBound(key));
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-template<typename CompatibleKeyType>
+template <typename CompatibleKeyType>
 EZ_ALWAYS_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator ezMapBase<KeyType, ValueType, Comparer>::LowerBound(const CompatibleKeyType& key) const
 {
   return ConstIterator(Internal_LowerBound(key));
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-template<typename CompatibleKeyType>
+template <typename CompatibleKeyType>
 typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, ValueType, Comparer>::Internal_UpperBound(const CompatibleKeyType& key) const
 {
   Node* pNode = m_pRoot;
@@ -365,8 +365,8 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 
   while (pNode != &m_NilNode)
   {
-    const ezInt32 dir = (ezInt32) m_Comparer.Less(pNode->m_Key, key);
-    const ezInt32 dir2= (ezInt32) m_Comparer.Less(key, pNode->m_Key);
+    const ezInt32 dir = (ezInt32)m_Comparer.Less(pNode->m_Key, key);
+    const ezInt32 dir2 = (ezInt32)m_Comparer.Less(key, pNode->m_Key);
 
     if (dir == dir2)
     {
@@ -385,21 +385,21 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-template<typename CompatibleKeyType>
+template <typename CompatibleKeyType>
 EZ_ALWAYS_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, ValueType, Comparer>::UpperBound(const CompatibleKeyType& key)
 {
   return Iterator(Internal_UpperBound(key));
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-template<typename CompatibleKeyType>
+template <typename CompatibleKeyType>
 EZ_ALWAYS_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator ezMapBase<KeyType, ValueType, Comparer>::UpperBound(const CompatibleKeyType& key) const
 {
   return ConstIterator(Internal_UpperBound(key));
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-template<typename CompatibleKeyType>
+template <typename CompatibleKeyType>
 ValueType& ezMapBase<KeyType, ValueType, Comparer>::operator[](const CompatibleKeyType& key)
 {
   return FindOrAdd(key).Value();
@@ -471,7 +471,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, Va
     }
 
     m_pRoot = root;
-    m_pRoot->m_pParent  = pNilNode;
+    m_pRoot->m_pParent = pNilNode;
     m_NilNode.m_pParent = pNilNode;
   }
 
@@ -499,7 +499,7 @@ bool ezMapBase<KeyType, ValueType, Comparer>::Remove(const CompatibleKeyType& ke
 {
   bool bRemoved = true;
   m_pRoot = Remove(m_pRoot, key, bRemoved);
-  m_pRoot->m_pParent  = reinterpret_cast<Node*>(&m_NilNode);
+  m_pRoot->m_pParent = reinterpret_cast<Node*>(&m_NilNode);
   m_NilNode.m_pParent = reinterpret_cast<Node*>(&m_NilNode);
 
   return bRemoved;
@@ -549,8 +549,7 @@ void ezMapBase<KeyType, ValueType, Comparer>::ReleaseNode(Node* pNode)
   {
     m_Elements.PopBack();
   }
-  else
-  if (pNode == &m_Elements.PeekFront())
+  else if (pNode == &m_Elements.PeekFront())
   {
     m_Elements.PopFront();
   }
@@ -601,7 +600,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 {
   bRemoved = false;
 
-  Node* ToErase    = reinterpret_cast<Node*>(&m_NilNode);
+  Node* ToErase = reinterpret_cast<Node*>(&m_NilNode);
   Node* ToOverride = reinterpret_cast<Node*>(&m_NilNode);
 
   if (root != &m_NilNode)
@@ -818,4 +817,3 @@ void ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::operator=(const ezMa
 {
   ezMapBase<KeyType, ValueType, Comparer>::operator=(rhs);
 }
-

@@ -1,4 +1,4 @@
-﻿
+
 template <typename T, ezUInt32 Size>
 ezHybridArrayBase<T, Size>::ezHybridArrayBase(ezAllocatorBase* pAllocator)
 {
@@ -62,13 +62,13 @@ EZ_ALWAYS_INLINE const T* ezHybridArrayBase<T, Size>::GetStaticArray() const
 
 
 template <typename T, ezUInt32 Size>
-EZ_ALWAYS_INLINE void ezHybridArrayBase<T, Size>::operator= (const ezHybridArrayBase<T, Size>& rhs)
+EZ_ALWAYS_INLINE void ezHybridArrayBase<T, Size>::operator=(const ezHybridArrayBase<T, Size>& rhs)
 {
   ezArrayBase<T, ezHybridArrayBase<T, Size>>::operator=((ezArrayPtr<const T>)rhs); // redirect this to the ezArrayPtr version
 }
 
 template <typename T, ezUInt32 Size>
-EZ_FORCE_INLINE void ezHybridArrayBase<T, Size>::operator= (ezHybridArrayBase<T, Size>&& rhs)
+EZ_FORCE_INLINE void ezHybridArrayBase<T, Size>::operator=(ezHybridArrayBase<T, Size>&& rhs)
 {
   // Clear any existing data (calls destructors if necessary)
   this->Clear();
@@ -172,7 +172,7 @@ ezUInt64 ezHybridArrayBase<T, Size>::GetHeapMemoryUsage() const
   if (this->m_uiCapacity <= Size)
     return 0;
 
-  return (ezUInt64) sizeof(T) * (ezUInt64) this->m_uiCapacity;
+  return (ezUInt64)sizeof(T) * (ezUInt64)this->m_uiCapacity;
 }
 
 template <typename T, ezUInt32 Size>
@@ -289,4 +289,3 @@ void ezHybridArray<T, Size, A>::operator=(const ezArrayPtr<const T>& rhs)
 {
   ezArrayBase<T, ezHybridArrayBase<T, Size>>::operator=((ezArrayPtr<const T>)rhs);
 }
-

@@ -1,10 +1,12 @@
 #include <PCH.h>
+
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Containers/Map.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 
+// clang-format off
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezCVar);
 
 // The CVars need to be saved and loaded whenever plugins are loaded and unloaded.
@@ -44,7 +46,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, CVars)
   // The user is responsible to call 'ezCVar::SetStorageFolder' to define where the CVars are
   // actually stored. That call will automatically load all CVar states.
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 
 ezString ezCVar::s_StorageFolder;
@@ -67,7 +70,7 @@ void ezCVar::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
 {
   switch (EventData.m_EventType)
   {
-  case ezPlugin::PluginEvent::BeforeLoading:
+    case ezPlugin::PluginEvent::BeforeLoading:
     {
       // before a new plugin is loaded, make sure all currently available CVars
       // are assigned to the proper plugin
@@ -76,7 +79,7 @@ void ezCVar::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
     }
     break;
 
-  case ezPlugin::PluginEvent::AfterLoadingBeforeInit:
+    case ezPlugin::PluginEvent::AfterLoadingBeforeInit:
     {
       // after we loaded a new plugin, but before it is initialized,
       // find all new CVars and assign them to that new plugin
@@ -88,20 +91,20 @@ void ezCVar::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
     }
     break;
 
-  case ezPlugin::PluginEvent::BeforeUnloading:
+    case ezPlugin::PluginEvent::BeforeUnloading:
     {
       SaveCVars();
     }
     break;
 
-  default:
-    break;
+    default:
+      break;
   }
 }
 
 ezCVar::ezCVar(const char* szName, ezBitflags<ezCVarFlags> Flags, const char* szDescription)
 {
-  m_szPluginName = nullptr; // will be filled out when plugins are loaded
+  m_szPluginName = nullptr;     // will be filled out when plugins are loaded
   m_bHasNeverBeenLoaded = true; // next time 'LoadCVars' is called, its state will be changed
 
   m_szName = szName;
@@ -139,7 +142,7 @@ void ezCVar::SaveCVars()
     return;
 
   // first gather all the cvars by plugin
-  ezMap<ezString, ezHybridArray<ezCVar*, 128> > PluginCVars;
+  ezMap<ezString, ezHybridArray<ezCVar*, 128>> PluginCVars;
 
   {
     ezCVar* pCVar = ezCVar::GetFirstInstance();
@@ -158,7 +161,7 @@ void ezCVar::SaveCVars()
     }
   }
 
-  ezMap<ezString, ezHybridArray<ezCVar*, 128> >::Iterator it = PluginCVars.GetIterator();
+  ezMap<ezString, ezHybridArray<ezCVar*, 128>>::Iterator it = PluginCVars.GetIterator();
 
   ezStringBuilder sTemp;
 
@@ -178,33 +181,33 @@ void ezCVar::SaveCVars()
 
         switch (pCVar->GetType())
         {
-        case ezCVarType::Int:
+          case ezCVarType::Int:
           {
-            ezCVarInt* pInt = (ezCVarInt*) pCVar;
+            ezCVarInt* pInt = (ezCVarInt*)pCVar;
             sTemp.Format("{0} = {1}\n", pCVar->GetName(), pInt->GetValue(ezCVarValue::Restart));
           }
           break;
-        case ezCVarType::Bool:
+          case ezCVarType::Bool:
           {
-            ezCVarBool* pBool = (ezCVarBool*) pCVar;
+            ezCVarBool* pBool = (ezCVarBool*)pCVar;
             sTemp.Format("{0} = {1}\n", pCVar->GetName(), pBool->GetValue(ezCVarValue::Restart) ? "true" : "false");
           }
           break;
-        case ezCVarType::Float:
+          case ezCVarType::Float:
           {
-            ezCVarFloat* pFloat = (ezCVarFloat*) pCVar;
+            ezCVarFloat* pFloat = (ezCVarFloat*)pCVar;
             sTemp.Format("{0} = {1}\n", pCVar->GetName(), pFloat->GetValue(ezCVarValue::Restart));
           }
           break;
-        case ezCVarType::String:
+          case ezCVarType::String:
           {
-            ezCVarString* pString = (ezCVarString*) pCVar;
+            ezCVarString* pString = (ezCVarString*)pCVar;
             sTemp.Format("{0} = \"{1}\"\n", pCVar->GetName(), pString->GetValue(ezCVarValue::Restart));
           }
           break;
-        default:
-          EZ_REPORT_FAILURE("Unknown CVar Type: {0}", pCVar->GetType());
-          break;
+          default:
+            EZ_REPORT_FAILURE("Unknown CVar Type: {0}", pCVar->GetType());
+            break;
         }
 
         // add the one line for that cvar to the config file
@@ -215,7 +218,6 @@ void ezCVar::SaveCVars()
     // continue with the next plugin
     ++it;
   }
-
 }
 
 static ezResult ReadLine(ezStreamReader& Stream, ezStringBuilder& sLine)
@@ -308,7 +310,7 @@ void ezCVar::LoadCVars(bool bOnlyNewOnes, bool bSetAsCurrentValue)
     return;
 
   // first gather all the cvars by plugin
-  ezMap<ezString, ezHybridArray<ezCVar*, 128> > PluginCVars;
+  ezMap<ezString, ezHybridArray<ezCVar*, 128>> PluginCVars;
 
   {
     ezCVar* pCVar = ezCVar::GetFirstInstance();
@@ -333,7 +335,7 @@ void ezCVar::LoadCVars(bool bOnlyNewOnes, bool bSetAsCurrentValue)
     }
   }
 
-  ezMap<ezString, ezHybridArray<ezCVar*, 128> >::Iterator it = PluginCVars.GetIterator();
+  ezMap<ezString, ezHybridArray<ezCVar*, 128>>::Iterator it = PluginCVars.GetIterator();
 
   ezStringBuilder sTemp;
 
@@ -364,46 +366,47 @@ void ezCVar::LoadCVars(bool bOnlyNewOnes, bool bSetAsCurrentValue)
 
           switch (pCVar->GetType())
           {
-          case ezCVarType::Int:
+            case ezCVarType::Int:
             {
               // we probably need a class with conversion functions (atoi is ugly)
-              ezInt32 Value = atoi(sVarValue.GetData());;
+              ezInt32 Value = atoi(sVarValue.GetData());
+              ;
 
-              ezCVarInt* pTyped = (ezCVarInt*) pCVar;
+              ezCVarInt* pTyped = (ezCVarInt*)pCVar;
               pTyped->m_Values[ezCVarValue::Stored] = Value;
               *pTyped = Value;
             }
             break;
-          case ezCVarType::Bool:
+            case ezCVarType::Bool:
             {
               bool Value = sVarValue.IsEqual_NoCase("true");
 
-              ezCVarBool* pTyped = (ezCVarBool*) pCVar;
+              ezCVarBool* pTyped = (ezCVarBool*)pCVar;
               pTyped->m_Values[ezCVarValue::Stored] = Value;
               *pTyped = Value;
             }
             break;
-          case ezCVarType::Float:
+            case ezCVarType::Float:
             {
-              float Value = (float) atof(sVarValue.GetData());
+              float Value = (float)atof(sVarValue.GetData());
 
-              ezCVarFloat* pTyped = (ezCVarFloat*) pCVar;
+              ezCVarFloat* pTyped = (ezCVarFloat*)pCVar;
               pTyped->m_Values[ezCVarValue::Stored] = Value;
               *pTyped = Value;
             }
             break;
-          case ezCVarType::String:
+            case ezCVarType::String:
             {
               const char* Value = sVarValue.GetData();
 
-              ezCVarString* pTyped = (ezCVarString*) pCVar;
+              ezCVarString* pTyped = (ezCVarString*)pCVar;
               pTyped->m_Values[ezCVarValue::Stored] = Value;
               *pTyped = Value;
             }
             break;
-          default:
-            EZ_REPORT_FAILURE("Unknown CVar Type: {0}", pCVar->GetType());
-            break;
+            default:
+              EZ_REPORT_FAILURE("Unknown CVar Type: {0}", pCVar->GetType());
+              break;
           }
 
           if (bSetAsCurrentValue)
@@ -419,9 +422,4 @@ void ezCVar::LoadCVars(bool bOnlyNewOnes, bool bSetAsCurrentValue)
 
 
 
-
-
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Configuration_Implementation_CVar);
-

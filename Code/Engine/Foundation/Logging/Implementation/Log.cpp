@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Time/Time.h>
@@ -141,7 +142,7 @@ void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum
 
   char szTag[32] = "";
 
-  if (ezStringUtils::StartsWith (szString, "["))
+  if (ezStringUtils::StartsWith(szString, "["))
   {
     ++szString;
 
@@ -259,4 +260,3 @@ void ezLog::Debug(ezLogInterface* pInterface, const ezFormatString& string)
 #endif
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Logging_Implementation_Log);
-

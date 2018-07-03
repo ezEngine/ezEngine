@@ -1,13 +1,13 @@
 #pragma once
 
-#include <Foundation/Types/Id.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
+#include <Foundation/Types/Id.h>
 
 /// \brief Implementation of an id mapping table which stores id/value pairs.
 ///
 /// An id contains an index into the table and a generation counter to detect if a table entry was re-used.
-/// All insertion/erasure/lookup functions take O(1) time if the table does not need to be expanded. 
-/// Lookup is nearly as fast as a simple array lookup. 
+/// All insertion/erasure/lookup functions take O(1) time if the table does not need to be expanded.
+/// Lookup is nearly as fast as a simple array lookup.
 /// The table stores a free-list in its free elements to ensure fast insertion/erasure.
 ///
 /// \note Valid IDs will never be all zero (index + generation).
@@ -74,7 +74,7 @@ public:
 protected:
   /// \brief Creates an empty id-table. Does not allocate any data yet.
   ezIdTableBase(ezAllocatorBase* pAllocator); // [tested]
-  
+
   /// \brief Creates a copy of the given id-table.
   ezIdTableBase(const ezIdTableBase<IdType, ValueType>& rhs, ezAllocatorBase* pAllocator); // [tested]
 
@@ -82,7 +82,7 @@ protected:
   ~ezIdTableBase(); // [tested]
 
   /// \brief Copies the data from another table into this one.
-  void operator= (const ezIdTableBase<IdType, ValueType>& rhs); // [tested]
+  void operator=(const ezIdTableBase<IdType, ValueType>& rhs); // [tested]
 
 public:
   /// \brief Expands the table so it can at least store the given capacity.
@@ -97,10 +97,10 @@ public:
   /// \brief Clears the table.
   void Clear(); // [tested]
 
-  /// \brief Inserts the value into the table and returns the corresponding id. 
+  /// \brief Inserts the value into the table and returns the corresponding id.
   IdType Insert(const ValueType& value); // [tested]
 
-  /// \brief Inserts the temporary value into the table and returns the corresponding id. 
+  /// \brief Inserts the temporary value into the table and returns the corresponding id.
   IdType Insert(ValueType&& value);
 
   /// \brief Removes the entry with the given id. Returns if an entry was removed and optionally writes out the old value to out_oldValue.
@@ -140,7 +140,10 @@ public:
   bool IsFreelistValid() const;
 
 private:
-  enum { CAPACITY_ALIGNMENT = 16 };
+  enum
+  {
+    CAPACITY_ALIGNMENT = 16
+  };
 
   struct Entry
   {
@@ -149,13 +152,13 @@ private:
   };
 
   Entry* m_pEntries;
-  
+
   IndexType m_uiCount;
   IndexType m_uiCapacity;
 
   IndexType m_uiFreelistEnqueue;
   IndexType m_uiFreelistDequeue;
-  
+
   ezAllocatorBase* m_pAllocator;
 
   void SetCapacity(IndexType uiCapacity);
@@ -178,4 +181,3 @@ public:
 };
 
 #include <Foundation/Containers/Implementation/IdTable_inl.h>
-

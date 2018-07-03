@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Threading/Thread.h>
 
@@ -72,6 +73,4 @@ void ezTelemetry::StopTelemetryThread()
 
 
 
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_TelemetryThread);
-

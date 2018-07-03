@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Communication/RemoteInterface.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
@@ -357,7 +358,7 @@ ezResult ezRemoteInterface::DetermineTargetAddress(const char* szConnectTo, ezUI
 //////////////////////////////////////////////////////////////////////////
 
 ezRemoteThread::ezRemoteThread()
-  : ezThread("ezRemoteThread")
+    : ezThread("ezRemoteThread")
 {
 }
 
@@ -389,4 +390,3 @@ ezUInt32 ezRemoteThread::Run()
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_RemoteInterface);
-
