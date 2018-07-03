@@ -93,6 +93,10 @@ float MaskThreshold @Default($prop0);
 #define USE_TWO_SIDED_LIGHTING
 #define USE_DECALS
 
+#if $prop1
+  #define USE_FOG
+#endif
+
 #if INPUT_PIN_8_CONNECTED
   #define USE_MATERIAL_REFRACTION
 #endif
@@ -165,6 +169,12 @@ float4 GetRefractionColor(PS_IN Input)
   {
     string %Type { "float" }
     string %DefaultValue { "0.25" }
+  }
+  
+  Property %ApplyFog
+  {
+    string %Type { "bool" }
+    string %DefaultValue { "true" }
   }
 
   // Pin 0

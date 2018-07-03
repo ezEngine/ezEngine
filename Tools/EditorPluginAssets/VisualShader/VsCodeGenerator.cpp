@@ -44,9 +44,10 @@ static ezString ToShaderString(const ezVariant& value)
     break;
 
   case ezVariantType::Float:
+  case ezVariantType::Int32:
+  case ezVariantType::Bool:
     {
-      float v = value.Get<float>();
-      temp.Format("{0}", v);
+      temp.Format("{0}", value);
     }
     break;
 
@@ -228,6 +229,7 @@ ezStatus ezVisualShaderCodeGenerator::GenerateNode(const ezDocumentObject* pNode
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sGsBodyCode));
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sPsBodyCode));
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sMaterialParamCode));
+  EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sPixelDefines));
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sMaterialCB));
   EZ_SUCCEED_OR_RETURN(InsertPropertyValues(pNode, pDesc, sPixelSamplersCode));
 

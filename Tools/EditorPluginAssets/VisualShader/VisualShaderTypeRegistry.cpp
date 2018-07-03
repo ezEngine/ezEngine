@@ -23,19 +23,19 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, VisualShader)
 
   ON_CORE_STARTUP
   {
-    EZ_DEFAULT_NEW(ezVisualShaderTypeRegistry);
+  EZ_DEFAULT_NEW(ezVisualShaderTypeRegistry);
 
-    ezVisualShaderTypeRegistry::GetSingleton()->LoadNodeData();
-    const ezRTTI* pBaseType = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
+  ezVisualShaderTypeRegistry::GetSingleton()->LoadNodeData();
+  const ezRTTI* pBaseType = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
 
-    ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualShaderPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualShaderPin(); });
-    ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtVisualShaderNode(); });
+  ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualShaderPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualShaderPin(); });
+  ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtVisualShaderNode(); });
   }
 
   ON_CORE_SHUTDOWN
   {
-    ezVisualShaderTypeRegistry* pDummy = ezVisualShaderTypeRegistry::GetSingleton();
-    EZ_DEFAULT_DELETE(pDummy);
+  ezVisualShaderTypeRegistry* pDummy = ezVisualShaderTypeRegistry::GetSingleton();
+  EZ_DEFAULT_DELETE(pDummy);
   }
 
   ON_ENGINE_STARTUP
@@ -50,7 +50,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 ezVisualShaderTypeRegistry::ezVisualShaderTypeRegistry()
-    : m_SingletonRegistrar(this)
+  : m_SingletonRegistrar(this)
 {
   m_pBaseType = nullptr;
   m_pSamplerPinType = nullptr;
@@ -79,7 +79,7 @@ void ezVisualShaderTypeRegistry::UpdateNodeData()
     {
       UpdateNodeData(it.GetStats().m_sFileName);
     } while (it.Next().Succeeded());
-  }
+    }
 }
 
 
@@ -211,12 +211,24 @@ static ezVariant ExtractDefaultValue(const ezRTTI* pType, const char* szDefault)
     return ezVariant(szDefault);
   }
 
+  if (pType == ezGetStaticRTTI<bool>())
+  {
+    bool res = false;
+    ezConversionUtils::StringToBool(szDefault, res);
+    return ezVariant(res);
+  }
+
   float values[4] = {0, 0, 0, 0};
   ezConversionUtils::ExtractFloatsFromString(szDefault, 4, values);
 
   if (pType == ezGetStaticRTTI<float>())
   {
     return ezVariant(values[0]);
+  }
+
+  if (pType == ezGetStaticRTTI<int>())
+  {
+    return ezVariant((int)values[0]);
   }
 
   if (pType == ezGetStaticRTTI<ezVec2>())
@@ -379,7 +391,6 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElem
         if (sType == "color")
         {
           pRtti = ezGetStaticRTTI<ezColor>();
-          prop.m_sType = pRtti->GetTypeName();
 
           // always expose the alpha channel for color properties
           ezExposeColorAlphaAttribute* pAttr = ezExposeColorAlphaAttribute::GetStaticRTTI()->GetAllocator()->Allocate<ezExposeColorAlphaAttribute>();
@@ -388,38 +399,40 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElem
         else if (sType == "float4")
         {
           pRtti = ezGetStaticRTTI<ezVec4>();
-          prop.m_sType = pRtti->GetTypeName();
         }
         else if (sType == "float3")
         {
           pRtti = ezGetStaticRTTI<ezVec3>();
-          prop.m_sType = pRtti->GetTypeName();
         }
         else if (sType == "float2")
         {
           pRtti = ezGetStaticRTTI<ezVec2>();
-          prop.m_sType = pRtti->GetTypeName();
         }
         else if (sType == "float")
         {
           pRtti = ezGetStaticRTTI<float>();
-          prop.m_sType = pRtti->GetTypeName();
+        }
+        else if (sType == "int")
+        {
+          pRtti = ezGetStaticRTTI<int>();
+        }
+        else if (sType == "bool")
+        {
+          pRtti = ezGetStaticRTTI<bool>();
         }
         else if (sType == "string")
         {
           pRtti = ezGetStaticRTTI<ezString>();
-          prop.m_sType = pRtti->GetTypeName();
         }
         else if (sType == "identifier")
         {
           pRtti = ezGetStaticRTTI<ezString>();
-          prop.m_sType = pRtti->GetTypeName();
+
           iValueGroup = 1; // currently no way to specify the group
         }
         else if (sType == "Texture2D")
         {
           pRtti = ezGetStaticRTTI<ezString>();
-          prop.m_sType = pRtti->GetTypeName();
 
           // apparently the attributes are deallocated using the type allocator, so we must allocate them here through RTTI as well
           ezAssetBrowserAttribute* pAttr = ezAssetBrowserAttribute::GetStaticRTTI()->GetAllocator()->Allocate<ezAssetBrowserAttribute>();
@@ -432,6 +445,8 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElem
           continue;
         }
       }
+
+      prop.m_sType = pRtti->GetTypeName();
 
       const ezOpenDdlReaderElement* pValue = pElement->FindChild("DefaultValue");
       if (pValue && pRtti != nullptr && pValue->HasPrimitives(ezOpenDdlPrimitiveType::String))
