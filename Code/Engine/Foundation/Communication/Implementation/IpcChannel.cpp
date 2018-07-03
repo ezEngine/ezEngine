@@ -1,5 +1,6 @@
 #include <PCH.h>
 
+#include <Foundation/Strings/FormatString.h>
 #include <Foundation/Communication/Implementation/IpcChannelEnet.h>
 #include <Foundation/Communication/Implementation/MessageLoop.h>
 #include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
@@ -148,6 +149,7 @@ void ezIpcChannel::ReceiveMessageData(ezArrayPtr<const ezUInt8> data)
 
     // Read and verify header
     ezUInt32 uiMagic = *reinterpret_cast<const ezUInt32*>(m_MessageAccumulator.GetData());
+    EZ_IGNORE_UNUSED(uiMagic);
     EZ_ASSERT_DEBUG(uiMagic == MAGIC_VALUE, "Message received with wrong magic value.");
     ezUInt32 uiMessageSize = *reinterpret_cast<const ezUInt32*>(m_MessageAccumulator.GetData() + 4);
     EZ_ASSERT_DEBUG(uiMessageSize < MAX_MESSAGE_SIZE, "Message too big: {0}! Either the stream got corrupted or you need to increase MAX_MESSAGE_SIZE.", uiMessageSize);

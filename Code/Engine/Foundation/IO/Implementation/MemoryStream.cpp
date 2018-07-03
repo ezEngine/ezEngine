@@ -5,19 +5,19 @@
 // Reader implementation
 
 ezMemoryStreamReader::ezMemoryStreamReader(ezMemoryStreamStorageInterface* pStreamStorage)
-    : m_pStreamStorage(pStreamStorage), m_uiReadPosition(0)
+    : m_pStreamStorage(pStreamStorage)
+    , m_uiReadPosition(0)
 {
 }
 
-ezMemoryStreamReader::~ezMemoryStreamReader()
-{
-}
+ezMemoryStreamReader::~ezMemoryStreamReader() {}
 
 ezUInt64 ezMemoryStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
 {
   EZ_ASSERT_RELEASE(m_pStreamStorage != nullptr, "The memory stream reader needs a valid memory storage object!");
 
-  const ezUInt32 uiBytes = ezMath::Min<ezUInt32>(static_cast<ezUInt32>(uiBytesToRead), m_pStreamStorage->GetStorageSize() - m_uiReadPosition);
+  const ezUInt32 uiBytes =
+      ezMath::Min<ezUInt32>(static_cast<ezUInt32>(uiBytesToRead), m_pStreamStorage->GetStorageSize() - m_uiReadPosition);
 
   if (uiBytes == 0)
     return 0;
@@ -34,7 +34,8 @@ ezUInt64 ezMemoryStreamReader::SkipBytes(ezUInt64 uiBytesToSkip)
 {
   EZ_ASSERT_RELEASE(m_pStreamStorage != nullptr, "The memory stream reader needs a valid memory storage object!");
 
-  const ezUInt32 uiBytes = ezMath::Min<ezUInt32>(static_cast<ezUInt32>(uiBytesToSkip), m_pStreamStorage->GetStorageSize() - m_uiReadPosition);
+  const ezUInt32 uiBytes =
+      ezMath::Min<ezUInt32>(static_cast<ezUInt32>(uiBytesToSkip), m_pStreamStorage->GetStorageSize() - m_uiReadPosition);
 
   m_uiReadPosition += uiBytes;
 
@@ -64,13 +65,12 @@ void ezMemoryStreamReader::SetDebugSourceInformation(const char* szDebugSourceIn
 
 // Writer implementation
 ezMemoryStreamWriter::ezMemoryStreamWriter(ezMemoryStreamStorageInterface* pStreamStorage)
-    : m_pStreamStorage(pStreamStorage), m_uiWritePosition(0)
+    : m_pStreamStorage(pStreamStorage)
+    , m_uiWritePosition(0)
 {
 }
 
-ezMemoryStreamWriter::~ezMemoryStreamWriter()
-{
-}
+ezMemoryStreamWriter::~ezMemoryStreamWriter() {}
 
 ezResult ezMemoryStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite)
 {
@@ -116,6 +116,13 @@ ezUInt32 ezMemoryStreamWriter::GetByteCount() const
 
 //////////////////////////////////////////////////////////////////////////
 
+ezMemoryStreamStorageInterface::ezMemoryStreamStorageInterface() = default;
+
+ezMemoryStreamStorageInterface::~ezMemoryStreamStorageInterface()
+{
+  EZ_ASSERT_RELEASE(!IsReferenced(), "Memory stream storage destroyed while there are still references by reader / writer object(s)!");
+}
+
 void ezMemoryStreamStorageInterface::ReadAll(ezStreamReader& Stream)
 {
   Clear();
@@ -144,9 +151,7 @@ ezRawMemoryStreamReader::ezRawMemoryStreamReader(const void* pData, ezUInt32 uiD
   m_uiReadPosition = 0;
 }
 
-ezRawMemoryStreamReader::~ezRawMemoryStreamReader()
-{
-}
+ezRawMemoryStreamReader::~ezRawMemoryStreamReader() {}
 
 ezUInt64 ezRawMemoryStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
 {

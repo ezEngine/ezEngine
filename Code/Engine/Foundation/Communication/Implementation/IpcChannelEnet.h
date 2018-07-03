@@ -19,7 +19,7 @@ protected:
   virtual void InternalDisconnect() override;
   virtual void InternalSend() override;
   virtual bool NeedWakeup() const override;
-  virtual bool RequiresRegularTick() { return true; }
+  virtual bool RequiresRegularTick() override { return true; }
   virtual void Tick() override;
   void NetworkMessageHandler(ezRemoteMessage& msg);
   void EnetEventHandler(const ezRemoteEvent& e);

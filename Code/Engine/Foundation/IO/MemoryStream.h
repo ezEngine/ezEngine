@@ -14,12 +14,8 @@ class ezMemoryStreamWriter;
 class EZ_FOUNDATION_DLL ezMemoryStreamStorageInterface : public ezRefCounted
 {
 public:
-  ezMemoryStreamStorageInterface() {}
-
-  ~ezMemoryStreamStorageInterface()
-  {
-    EZ_ASSERT_RELEASE(!IsReferenced(), "Memory stream storage destroyed while there are still references by reader / writer object(s)!");
-  }
+  ezMemoryStreamStorageInterface();
+  virtual ~ezMemoryStreamStorageInterface();
 
   /// \brief Returns the number of bytes that is currently stored.
   virtual ezUInt32 GetStorageSize() const = 0;
@@ -55,7 +51,8 @@ template <typename CONTAINER>
 class ezMemoryStreamContainerStorage : public ezMemoryStreamStorageInterface
 {
 public:
-  /// \brief Creates the storage object for a memory stream. Use \a uiInitialCapacity to reserve a some memory up front, to reduce reallocations.
+  /// \brief Creates the storage object for a memory stream. Use \a uiInitialCapacity to reserve a some memory up front, to reduce
+  /// reallocations.
   ezMemoryStreamContainerStorage(ezUInt32 uiInitialCapacity = 0, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator())
       : m_Storage(pAllocator)
   {
@@ -81,8 +78,8 @@ private:
   CONTAINER m_Storage;
 };
 
-/// ezMemoryStreamStorage holds internally an ezHybridArray<ezUInt8, 256>, to prevent allocations when only small temporary memory streams are needed.
-/// That means it will have a memory overhead of that size.
+/// ezMemoryStreamStorage holds internally an ezHybridArray<ezUInt8, 256>, to prevent allocations when only small temporary memory streams
+/// are needed. That means it will have a memory overhead of that size.
 class EZ_FOUNDATION_DLL ezMemoryStreamStorage : public ezMemoryStreamContainerStorage<ezHybridArray<ezUInt8, 256>>
 {
 public:
@@ -97,10 +94,7 @@ template <typename CONTAINER>
 class ezMemoryStreamContainerWrapperStorage : public ezMemoryStreamStorageInterface
 {
 public:
-  ezMemoryStreamContainerWrapperStorage(CONTAINER* pContainer)
-  {
-    m_pStorage = pContainer;
-  }
+  ezMemoryStreamContainerWrapperStorage(CONTAINER* pContainer) { m_pStorage = pContainer; }
 
   virtual ezUInt32 GetStorageSize() const override { return m_pStorage->GetCount(); }
   virtual void Clear() override { m_pStorage->Clear(); }

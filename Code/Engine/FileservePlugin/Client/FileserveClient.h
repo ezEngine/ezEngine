@@ -1,8 +1,10 @@
-﻿#pragma once
+#pragma once
 
-#include <Foundation/Types/UniquePtr.h>
+#include <FileservePlugin/Plugin.h>
+
 #include <Foundation/Communication/RemoteInterface.h>
 #include <Foundation/Configuration/Singleton.h>
+#include <Foundation/Types/UniquePtr.h>
 #include <Foundation/Types/Uuid.h>
 
 namespace ezDataDirectory
@@ -92,8 +94,8 @@ private:
 
   struct DataDir
   {
-    //ezString m_sRootName;
-    //ezString m_sPathOnClient;
+    // ezString m_sRootName;
+    // ezString m_sPathOnClient;
     ezString m_sMountPoint;
     bool m_bMounted = false;
 
@@ -104,11 +106,12 @@ private:
   ezUInt16 MountDataDirectory(const char* szDataDir, const char* szRootName);
   void UnmountDataDirectory(ezUInt16 uiDataDir);
   static void ComputeDataDirMountPoint(const char* szDataDir, ezStringBuilder& out_sMountPoint);
-  void BuildPathInCache(const char* szFile, const char* szMountPoint, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sFullPathMeta) const;
+  void BuildPathInCache(const char* szFile, const char* szMountPoint, ezStringBuilder& out_sAbsPath,
+                        ezStringBuilder& out_sFullPathMeta) const;
   void GetFullDataDirCachePath(const char* szDataDir, ezStringBuilder& out_sFullPath, ezStringBuilder& out_sFullPathMeta) const;
   void NetworkMsgHandler(ezRemoteMessage& msg);
-  void HandleFileTransferMsg(ezRemoteMessage &msg);
-  void HandleFileTransferFinishedMsg(ezRemoteMessage &msg);
+  void HandleFileTransferMsg(ezRemoteMessage& msg);
+  void HandleFileTransferFinishedMsg(ezRemoteMessage& msg);
   static void WriteMetaFile(ezStringBuilder sCachedMetaFile, ezInt64 iFileTimeStamp, ezUInt64 uiFileHash);
   void WriteDownloadToDisk(ezStringBuilder sCachedFile);
   ezResult DownloadFile(ezUInt16 uiDataDirID, const char* szFile, bool bForceThisDataDir);
@@ -138,4 +141,3 @@ private:
   ezMap<ezString, ezUInt16> m_FileDataDir;
   ezHybridArray<DataDir, 8> m_MountedDataDirs;
 };
-
