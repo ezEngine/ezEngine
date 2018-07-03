@@ -1,7 +1,8 @@
 #pragma once
 
-#include <Foundation/Threading/AtomicUtils.h>
 #include <Foundation/Types/TypeTraits.h>
+
+#include <Foundation/Threading/AtomicUtils.h>
 
 /// \brief Integer class that can be manipulated in an atomic (i.e. thread-safe) fashion.
 template <typename T>

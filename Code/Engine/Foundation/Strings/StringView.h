@@ -2,8 +2,9 @@
 
 #include <ThirdParty/utf8/utf8.h>
 
-#include <Foundation/Strings/Implementation/StringBase.h>
 #include <Foundation/Strings/StringUtils.h>
+
+#include <Foundation/Strings/Implementation/StringBase.h>
 
 /// \brief ezStringView represent a read-only sub-string of a larger string, as it can store a dedicated string end position.
 /// It derives from ezStringBase and thus provides a large set of functions for search and comparisons.
