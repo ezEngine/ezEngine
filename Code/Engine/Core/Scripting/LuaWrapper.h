@@ -8,7 +8,7 @@
 
 extern "C" {
 #include <ThirdParty/Lua/lauxlib.h>
-#include <ThirdParty/Lua/Lua.h>
+#include <ThirdParty/Lua/lua.h>
 #include <ThirdParty/Lua/lualib.h>
 }
 

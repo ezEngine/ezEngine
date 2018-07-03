@@ -1,15 +1,16 @@
 #include <PCH.h>
 
-#include <Foundation/Communication/IpcChannel.h>
-#include <Foundation/Communication/Implementation/MessageLoop.h>
-#include <Foundation/Communication/RemoteMessage.h>
-#include <Foundation/Serialization/ReflectionSerializer.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
 #include <Foundation/Communication/Implementation/IpcChannelEnet.h>
+#include <Foundation/Communication/Implementation/MessageLoop.h>
+#include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
+#include <Foundation/Communication/IpcChannel.h>
+#include <Foundation/Communication/RemoteMessage.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
 
 ezIpcChannel::ezIpcChannel(const char* szAddress, Mode::Enum mode)
-    : m_Mode(mode), m_pOwner(ezMessageLoop::GetSingleton())
+    : m_Mode(mode)
+    , m_pOwner(ezMessageLoop::GetSingleton())
 {
 }
 
@@ -151,7 +152,8 @@ void ezIpcChannel::ReceiveMessageData(ezArrayPtr<const ezUInt8> data)
     EZ_IGNORE_UNUSED(uiMagic);
     EZ_ASSERT_DEBUG(uiMagic == MAGIC_VALUE, "Message received with wrong magic value.");
     ezUInt32 uiMessageSize = *reinterpret_cast<const ezUInt32*>(m_MessageAccumulator.GetData() + 4);
-    EZ_ASSERT_DEBUG(uiMessageSize < MAX_MESSAGE_SIZE, "Message too big: {0}! Either the stream got corrupted or you need to increase MAX_MESSAGE_SIZE.", uiMessageSize);
+    EZ_ASSERT_DEBUG(uiMessageSize < MAX_MESSAGE_SIZE,
+                    "Message too big: {0}! Either the stream got corrupted or you need to increase MAX_MESSAGE_SIZE.", uiMessageSize);
     if (uiMessageSize > remainingData.GetCount() + m_MessageAccumulator.GetCount())
     {
       m_MessageAccumulator.PushBackRange(remainingData);
