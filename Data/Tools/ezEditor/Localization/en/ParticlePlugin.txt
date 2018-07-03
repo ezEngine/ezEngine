@@ -29,7 +29,7 @@ ezParticleBehaviorFactory_FadeOut;Fade Out
 ezParticleEmitterFactory_Continuous;Continuous
 ezParticleEmitterFactory_OnEvent;On Event
 ezParticleEmitterFactory_Burst;Burst
-
+ezParticleTypeMeshFactory;Mesh
 ezParticleInitializerFactory_Life;Life
 ezParticleInitializerFactory_VelocityCone;Velocity Cone
 ezParticleComponent;Particle
@@ -49,6 +49,7 @@ ezParticleTypePointFactory;Points
 Types;Types
 ezParticleRaycastHitReaction::Bounce;Bounce
 ezParticleRaycastHitReaction::Die;Die
+ezParticleRaycastHitReaction::Stop;Stop
 ezFragmentAxis::OrthogonalEmitterDirection;Orthogonal to Emitter
 ezFragmentAxis::EmitterDirection;Emitter Direction
 ezParticleTypeRenderMode::Additive;Additive
@@ -65,3 +66,4 @@ ezEffectInvisibleUpdateRate::Pause;Pause
 ezEffectInvisibleUpdateRate::Discard;Discard
 FloatParameters;Number Parameters
 ColorParameters;Color Parameters
+ezParticleTypeDistortionFactory;Distortion

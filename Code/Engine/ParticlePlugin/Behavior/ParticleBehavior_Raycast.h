@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ParticlePlugin/Behavior/ParticleBehavior.h>
 #include <Foundation/Strings/String.h>
+#include <ParticlePlugin/Behavior/ParticleBehavior.h>
 
 class ezPhysicsWorldModuleInterface;
 
@@ -27,6 +27,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Raycast : public ezParticl
 
 public:
   ezParticleBehaviorFactory_Raycast();
+  ~ezParticleBehaviorFactory_Raycast();
 
   virtual const ezRTTI* GetBehaviorType() const override;
   virtual void CopyBehaviorProperties(ezParticleBehavior* pObject) const override;
@@ -35,11 +36,9 @@ public:
   virtual void Load(ezStreamReader& stream) override;
 
   ezEnum<ezParticleRaycastHitReaction> m_Reaction;
-  ezUInt8 m_uiCollisionLayer;
+  ezUInt8 m_uiCollisionLayer = 0;
   ezString m_sOnCollideEvent;
-
-  /// \todo On hit something: bounce, stick, die
-  /// \todo Collision Filter
+  float m_fBounceFactor = 0.6f;
 };
 
 
@@ -48,13 +47,13 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Raycast : public ezParticleBehavi
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Raycast, ezParticleBehavior);
 
 public:
-
   virtual void AfterPropertiesConfigured(bool bFirstTime) override;
   virtual void CreateRequiredStreams() override;
 
   ezEnum<ezParticleRaycastHitReaction> m_Reaction;
-  ezUInt8 m_uiCollisionLayer;
+  ezUInt8 m_uiCollisionLayer = 0;
   ezTempHashedString m_sOnCollideEvent;
+  float m_fBounceFactor = 0.6f;
 
 protected:
   virtual void Process(ezUInt64 uiNumElements) override;
@@ -65,4 +64,3 @@ protected:
   ezProcessingStream* m_pStreamLastPosition;
   ezProcessingStream* m_pStreamVelocity;
 };
-

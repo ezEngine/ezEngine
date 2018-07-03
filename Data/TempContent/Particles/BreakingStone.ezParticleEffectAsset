@@ -24,7 +24,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12907113733222061238,5577365460626278697}}
-		u4 %Hash{12117460504764741656}
+		u4 %Hash{6625453740114129830}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{9182086896301630080,3770629452799467420}}
@@ -79,9 +79,10 @@ o
 	u3 %v{1}
 	p
 	{
+		f %BounceFactor{0x0000003F}
 		u1 %CollisionLayer{0}
 		s %OnCollideEvent{""}
-		s %Reaction{"ezParticleRaycastHitReaction::Stop"}
+		s %Reaction{"ezParticleRaycastHitReaction::Bounce"}
 	}
 }
 o
@@ -398,7 +399,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleBehaviorFactory_Raycast"}
-		u3 %TypeSize{80}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }

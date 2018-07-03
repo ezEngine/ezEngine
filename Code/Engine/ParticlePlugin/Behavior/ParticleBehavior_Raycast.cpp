@@ -1,13 +1,14 @@
 #include <PCH.h>
-#include <ParticlePlugin/Behavior/ParticleBehavior_Raycast.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
-#include <ParticlePlugin/System/ParticleSystemInstance.h>
+
 #include <Core/World/World.h>
-#include <Foundation/Time/Clock.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
-#include <ParticlePlugin/Events/ParticleEvent.h>
-#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Time/Clock.h>
+#include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <ParticlePlugin/Behavior/ParticleBehavior_Raycast.h>
+#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
+#include <ParticlePlugin/Events/ParticleEvent.h>
+#include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Raycast, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Raycast>)
@@ -15,6 +16,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Raycast, 1, ezRTTIDefa
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_MEMBER_PROPERTY("Reaction", ezParticleRaycastHitReaction, m_Reaction),
+    EZ_MEMBER_PROPERTY("BounceFactor", m_fBounceFactor)->AddAttributes(new ezDefaultValueAttribute(0.6f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("OnCollideEvent", m_sOnCollideEvent),
   }
@@ -30,11 +32,8 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleRaycastHitReaction, 1)
 EZ_END_STATIC_REFLECTED_ENUM();
 // clang-format on
 
-ezParticleBehaviorFactory_Raycast::ezParticleBehaviorFactory_Raycast()
-{
-  m_uiCollisionLayer = 0;
-}
-
+ezParticleBehaviorFactory_Raycast::ezParticleBehaviorFactory_Raycast() = default;
+ezParticleBehaviorFactory_Raycast::~ezParticleBehaviorFactory_Raycast() = default;
 
 const ezRTTI* ezParticleBehaviorFactory_Raycast::GetBehaviorType() const
 {
@@ -48,6 +47,7 @@ void ezParticleBehaviorFactory_Raycast::CopyBehaviorProperties(ezParticleBehavio
   pBehavior->m_Reaction = m_Reaction;
   pBehavior->m_uiCollisionLayer = m_uiCollisionLayer;
   pBehavior->m_sOnCollideEvent = ezTempHashedString(m_sOnCollideEvent.GetData());
+  pBehavior->m_fBounceFactor = m_fBounceFactor;
 }
 
 enum class BehaviorRaycastVersion
@@ -55,6 +55,7 @@ enum class BehaviorRaycastVersion
   Version_0 = 0,
   Version_1,
   Version_2, // added event
+  Version_3, // added bounce factor
 
   // insert new version numbers above
   Version_Count,
@@ -72,6 +73,8 @@ void ezParticleBehaviorFactory_Raycast::Save(ezStreamWriter& stream) const
 
   ezParticleRaycastHitReaction::StorageType hr = m_Reaction.GetValue();
   stream << hr;
+
+  stream << m_fBounceFactor;
 }
 
 void ezParticleBehaviorFactory_Raycast::Load(ezStreamReader& stream)
@@ -89,6 +92,11 @@ void ezParticleBehaviorFactory_Raycast::Load(ezStreamReader& stream)
     ezParticleRaycastHitReaction::StorageType hr;
     stream >> hr;
     m_Reaction.SetValue(hr);
+  }
+
+  if (uiVersion >= 3)
+  {
+    stream >> m_fBounceFactor;
   }
 }
 
@@ -137,7 +145,7 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
         {
           if (m_Reaction == ezParticleRaycastHitReaction::Bounce)
           {
-            const ezVec3 vNewDir = vChange.GetAsVec3().GetReflectedVector(hitResult.m_vNormal);
+            const ezVec3 vNewDir = vChange.GetAsVec3().GetReflectedVector(hitResult.m_vNormal) * m_fBounceFactor;
 
             itPosition.Current() = ezVec3(hitResult.m_vPosition + hitResult.m_vNormal * 0.05f + vNewDir).GetAsVec4(0);
             itVelocity.Current() = vNewDir / tDiff;
@@ -178,4 +186,3 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_Raycast);
-
