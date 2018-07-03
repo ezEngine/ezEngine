@@ -1,16 +1,13 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezSimdQuat::ezSimdQuat()
-{
-
-}
+EZ_ALWAYS_INLINE ezSimdQuat::ezSimdQuat() {}
 
 EZ_ALWAYS_INLINE ezSimdQuat::ezSimdQuat(const ezSimdVec4f& v)
 {
   m_v = v;
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezSimdQuat ezSimdQuat::Identity()
 {
   return ezSimdQuat(ezSimdVec4f(0.0f, 0.0f, 0.0f, 1.0f));
@@ -140,4 +137,3 @@ EZ_ALWAYS_INLINE bool ezSimdQuat::operator!=(const ezSimdQuat& q2) const
 {
   return (m_v != q2.m_v).AnySet<4>();
 }
-

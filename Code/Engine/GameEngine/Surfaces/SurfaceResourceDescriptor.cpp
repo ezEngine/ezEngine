@@ -7,7 +7,7 @@
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSurfaceInteractionAlignment, 2)
 EZ_ENUM_CONSTANTS(ezSurfaceInteractionAlignment::SurfaceNormal, ezSurfaceInteractionAlignment::IncidentDirection, ezSurfaceInteractionAlignment::ReflectedDirection)
 EZ_ENUM_CONSTANTS(ezSurfaceInteractionAlignment::ReverseSurfaceNormal, ezSurfaceInteractionAlignment::ReverseIncidentDirection, ezSurfaceInteractionAlignment::ReverseReflectedDirection)
-EZ_END_STATIC_REFLECTED_ENUM();
+EZ_END_STATIC_REFLECTED_ENUM;
 
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezSurfaceInteraction, ezNoBase, 1, ezRTTIDefaultAllocator<ezSurfaceInteraction>)
@@ -19,9 +19,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezSurfaceInteraction, ezNoBase, 1, ezRTTIDefaultA
     EZ_ENUM_MEMBER_PROPERTY("Alignment", ezSurfaceInteractionAlignment, m_Alignment),
     EZ_MEMBER_PROPERTY("Deviation", m_Deviation)->AddAttributes(new ezClampValueAttribute(ezVariant(ezAngle::Degree(0.0f)), ezVariant(ezAngle::Degree(90.0f)))),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResourceDescriptor, 2, ezRTTIDefaultAllocator<ezSurfaceResourceDescriptor>)
@@ -34,9 +34,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResourceDescriptor, 2, ezRTTIDefaultAll
     EZ_MEMBER_PROPERTY("DynamicFriction", m_fPhysicsFrictionDynamic)->AddAttributes(new ezDefaultValueAttribute(0.4f)),
     EZ_ARRAY_MEMBER_PROPERTY("Interactions", m_Interactions),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 void ezSurfaceInteraction::SetPrefab(const char* szPrefab)

@@ -1,18 +1,17 @@
 #include <PCH.h>
+
 #include <Core/World/World.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponentManagerBase, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezComponentManagerBase::ezComponentManagerBase(ezWorld* pWorld)
-  : ezWorldModule(pWorld)
-  , m_Components(pWorld->GetAllocator())
+    : ezWorldModule(pWorld)
+    , m_Components(pWorld->GetAllocator())
 {
 }
 
-ezComponentManagerBase::~ezComponentManagerBase()
-{
-}
+ezComponentManagerBase::~ezComponentManagerBase() {}
 
 ezComponentHandle ezComponentManagerBase::CreateComponent(ezGameObject* pOwnerObject)
 {
@@ -80,4 +79,3 @@ void ezComponentManagerBase::PatchIdTable(ezComponent* pComponent)
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_ComponentManager);
-

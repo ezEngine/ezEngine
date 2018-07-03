@@ -17,9 +17,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAddObjectCommand, 1, ezRTTIDefaultAllocator<ez
     EZ_MEMBER_PROPERTY("Index", m_Index),
     EZ_MEMBER_PROPERTY("NewGuid", m_NewObjectGuid),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPasteObjectsCommand, 1, ezRTTIDefaultAllocator<ezPasteObjectsCommand>)
 {
@@ -29,9 +29,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPasteObjectsCommand, 1, ezRTTIDefaultAllocator
     EZ_MEMBER_PROPERTY("TextGraph", m_sGraphTextFormat),
     EZ_MEMBER_PROPERTY("Mime", m_sMimeType),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInstantiatePrefabCommand, 1, ezRTTIDefaultAllocator<ezInstantiatePrefabCommand>)
 {
@@ -46,9 +46,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInstantiatePrefabCommand, 1, ezRTTIDefaultAllo
     EZ_MEMBER_PROPERTY("AllowPickedPos", m_bAllowPickedPosition),
     EZ_MEMBER_PROPERTY("Index", m_Index),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezUnlinkPrefabCommand, 1, ezRTTIDefaultAllocator<ezUnlinkPrefabCommand>)
 {
@@ -56,9 +56,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezUnlinkPrefabCommand, 1, ezRTTIDefaultAllocator
   {
     EZ_MEMBER_PROPERTY("Object", m_Object),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRemoveObjectCommand, 1, ezRTTIDefaultAllocator<ezRemoveObjectCommand>)
 {
@@ -66,9 +66,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRemoveObjectCommand, 1, ezRTTIDefaultAllocator
   {
     EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMoveObjectCommand, 1, ezRTTIDefaultAllocator<ezMoveObjectCommand>)
 {
@@ -79,9 +79,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMoveObjectCommand, 1, ezRTTIDefaultAllocator<e
     EZ_MEMBER_PROPERTY("ParentProperty", m_sParentProperty),
     EZ_MEMBER_PROPERTY("Index", m_Index),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetObjectPropertyCommand, 1, ezRTTIDefaultAllocator<ezSetObjectPropertyCommand>)
 {
@@ -92,9 +92,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetObjectPropertyCommand, 1, ezRTTIDefaultAllo
     EZ_MEMBER_PROPERTY("Index", m_Index),
     EZ_MEMBER_PROPERTY("Property", m_sProperty),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResizeAndSetObjectPropertyCommand, 1, ezRTTIDefaultAllocator<ezResizeAndSetObjectPropertyCommand>)
 {
@@ -105,9 +105,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResizeAndSetObjectPropertyCommand, 1, ezRTTIDe
     EZ_MEMBER_PROPERTY("Index", m_Index),
     EZ_MEMBER_PROPERTY("Property", m_sProperty),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInsertObjectPropertyCommand, 1, ezRTTIDefaultAllocator<ezInsertObjectPropertyCommand>)
 {
@@ -118,9 +118,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInsertObjectPropertyCommand, 1, ezRTTIDefaultA
     EZ_MEMBER_PROPERTY("Index", m_Index),
     EZ_MEMBER_PROPERTY("Property", m_sProperty),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRemoveObjectPropertyCommand, 1, ezRTTIDefaultAllocator<ezRemoveObjectPropertyCommand>)
 {
@@ -130,9 +130,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRemoveObjectPropertyCommand, 1, ezRTTIDefaultA
     EZ_MEMBER_PROPERTY("Index", m_Index),
     EZ_MEMBER_PROPERTY("Property", m_sProperty),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMoveObjectPropertyCommand, 1, ezRTTIDefaultAllocator<ezMoveObjectPropertyCommand>)
 {
@@ -143,9 +143,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMoveObjectPropertyCommand, 1, ezRTTIDefaultAll
     EZ_MEMBER_PROPERTY("NewIndex", m_NewIndex),
     EZ_MEMBER_PROPERTY("Property", m_sProperty),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ////////////////////////////////////////////////////////////////////////
 // ezAddObjectCommand

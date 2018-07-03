@@ -552,7 +552,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProceduralPlacementComponent, 1, ezComponentMode::Stat
     EZ_ACCESSOR_PROPERTY("Resource", GetResourceFile, SetResourceFile)->AddAttributes(new ezAssetBrowserAttribute("Procedural Placement")),
     EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(10.0f)), new ezClampValueAttribute(ezVec3(0), ezVariant())),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
@@ -565,7 +565,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProceduralPlacementComponent, 1, ezComponentMode::Stat
     new ezBoxManipulatorAttribute("Extents"),
     new ezBoxVisualizerAttribute("Extents"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
 

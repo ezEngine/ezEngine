@@ -1,27 +1,24 @@
 #include <PCH.h>
+
 #include <Core/World/SpatialSystem.h>
 #include <Foundation/Time/Stopwatch.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpatialSystem, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpatialSystem, 1, ezRTTINoAllocator)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_CHECK_AT_COMPILETIME(sizeof(ezSpatialData) == 64);
 
 ezSpatialSystem::ezSpatialSystem()
-  : m_Allocator("Spatial System", ezFoundation::GetDefaultAllocator())
-  , m_AllocatorWrapper(&m_Allocator)
-  , m_BlockAllocator("Spatial System Blocks", &m_Allocator)
-  , m_DataTable(&m_Allocator)
-  , m_DataStorage(&m_BlockAllocator, &m_Allocator)
-  , m_DataAlwaysVisible(&m_Allocator)
+    : m_Allocator("Spatial System", ezFoundation::GetDefaultAllocator())
+    , m_AllocatorWrapper(&m_Allocator)
+    , m_BlockAllocator("Spatial System Blocks", &m_Allocator)
+    , m_DataTable(&m_Allocator)
+    , m_DataStorage(&m_BlockAllocator, &m_Allocator)
+    , m_DataAlwaysVisible(&m_Allocator)
 {
-
 }
 
-ezSpatialSystem::~ezSpatialSystem()
-{
-
-}
+ezSpatialSystem::~ezSpatialSystem() {}
 
 ezSpatialDataHandle ezSpatialSystem::CreateSpatialData(const ezSimdBBoxSphere& bounds, ezGameObject* pObject /*= nullptr*/)
 {
@@ -80,7 +77,8 @@ bool ezSpatialSystem::TryGetSpatialData(const ezSpatialDataHandle& hData, const 
   return res;
 }
 
-void ezSpatialSystem::UpdateSpatialData(const ezSpatialDataHandle& hData, const ezSimdBBoxSphere& bounds, ezGameObject* pObject /*= nullptr*/)
+void ezSpatialSystem::UpdateSpatialData(const ezSpatialDataHandle& hData, const ezSimdBBoxSphere& bounds,
+                                        ezGameObject* pObject /*= nullptr*/)
 {
   ezSpatialData* pData = nullptr;
   if (!m_DataTable.TryGetValue(hData.GetInternalID(), pData))
@@ -101,14 +99,16 @@ void ezSpatialSystem::UpdateSpatialData(const ezSpatialDataHandle& hData, const 
   }
 }
 
-void ezSpatialSystem::FindObjectsInSphere(const ezBoundingSphere& sphere, ezDynamicArray<ezGameObject*>& out_Objects, QueryStats* pStats /*= nullptr*/) const
+void ezSpatialSystem::FindObjectsInSphere(const ezBoundingSphere& sphere, ezDynamicArray<ezGameObject*>& out_Objects,
+                                          QueryStats* pStats /*= nullptr*/) const
 {
-  FindObjectsInSphere(sphere, [&](ezGameObject* pObject)
-  {
-    out_Objects.PushBack(pObject);
+  FindObjectsInSphere(sphere,
+                      [&](ezGameObject* pObject) {
+                        out_Objects.PushBack(pObject);
 
-    return ezVisitorExecution::Continue;
-  }, pStats);
+                        return ezVisitorExecution::Continue;
+                      },
+                      pStats);
 }
 
 void ezSpatialSystem::FindObjectsInSphere(const ezBoundingSphere& sphere, QueryCallback callback, QueryStats* pStats /*= nullptr*/) const
@@ -130,14 +130,16 @@ void ezSpatialSystem::FindObjectsInSphere(const ezBoundingSphere& sphere, QueryC
   }
 }
 
-void ezSpatialSystem::FindObjectsInBox(const ezBoundingBox& box, ezDynamicArray<ezGameObject*>& out_Objects, QueryStats* pStats /*= nullptr*/) const
+void ezSpatialSystem::FindObjectsInBox(const ezBoundingBox& box, ezDynamicArray<ezGameObject*>& out_Objects,
+                                       QueryStats* pStats /*= nullptr*/) const
 {
-  FindObjectsInBox(box, [&](ezGameObject* pObject)
-  {
-    out_Objects.PushBack(pObject);
+  FindObjectsInBox(box,
+                   [&](ezGameObject* pObject) {
+                     out_Objects.PushBack(pObject);
 
-    return ezVisitorExecution::Continue;
-  }, pStats);
+                     return ezVisitorExecution::Continue;
+                   },
+                   pStats);
 }
 
 void ezSpatialSystem::FindObjectsInBox(const ezBoundingBox& box, QueryCallback callback, QueryStats* pStats /*= nullptr*/) const
@@ -159,7 +161,8 @@ void ezSpatialSystem::FindObjectsInBox(const ezBoundingBox& box, QueryCallback c
   }
 }
 
-void ezSpatialSystem::FindVisibleObjects(const ezFrustum& frustum, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats /*= nullptr*/) const
+void ezSpatialSystem::FindVisibleObjects(const ezFrustum& frustum, ezDynamicArray<const ezGameObject*>& out_Objects,
+                                         QueryStats* pStats /*= nullptr*/) const
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezStopwatch timer;
@@ -190,4 +193,3 @@ void ezSpatialSystem::FindVisibleObjects(const ezFrustum& frustum, ezDynamicArra
 
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_SpatialSystem);
-

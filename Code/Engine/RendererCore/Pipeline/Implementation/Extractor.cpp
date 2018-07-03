@@ -89,14 +89,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezExtractor, 1, ezRTTINoAllocator)
     EZ_MEMBER_PROPERTY("Active", m_bActive)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezColorAttribute(ezColorGammaUB(128, 0, 0))
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezExtractor::ezExtractor(const char* szName)
 {
@@ -249,7 +249,7 @@ void ezExtractor::PostSortAndBatch(const ezView& view, const ezDynamicArray<cons
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisibleObjectsExtractor, 1, ezRTTIDefaultAllocator<ezVisibleObjectsExtractor>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisibleObjectsExtractor::ezVisibleObjectsExtractor(const char* szName)
   : ezExtractor(szName)
@@ -311,7 +311,7 @@ void ezVisibleObjectsExtractor::Extract(const ezView& view, const ezDynamicArray
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectedObjectsExtractor, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSelectedObjectsExtractor::ezSelectedObjectsExtractor(const char* szName)
   : ezExtractor(szName)

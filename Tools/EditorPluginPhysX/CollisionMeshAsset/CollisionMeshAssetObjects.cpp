@@ -10,9 +10,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezSurfaceResourceSlot, ezNoBase, 1, ezRTTIDefault
     EZ_MEMBER_PROPERTY("Label", m_sLabel)->AddAttributes(new ezReadOnlyAttribute()),
     EZ_MEMBER_PROPERTY("Resource", m_sResource)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCollisionMeshType, 2)
 EZ_ENUM_CONSTANT(ezCollisionMeshType::ConvexHull),
@@ -21,7 +21,7 @@ EZ_ENUM_CONSTANT(ezCollisionMeshType::Cylinder),
 //EZ_ENUM_CONSTANT(ezCollisionMeshType::Tetraeder),
 //EZ_ENUM_CONSTANT(ezCollisionMeshType::Oktaeder),
 //EZ_ENUM_CONSTANT(ezCollisionMeshType::Pyramid),
-EZ_END_STATIC_REFLECTED_ENUM();
+EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetProperties, 1, ezRTTIDefaultAllocator<ezCollisionMeshAssetProperties>)
 {
@@ -41,9 +41,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetProperties, 1, ezRTTIDefault
     EZ_MEMBER_PROPERTY("SubmeshName", m_sSubMeshName),
     EZ_ARRAY_MEMBER_PROPERTY("Surfaces", m_Slots)->AddAttributes(new ezContainerAttribute(false, false, true)),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezCollisionMeshAssetProperties::ezCollisionMeshAssetProperties()
 {

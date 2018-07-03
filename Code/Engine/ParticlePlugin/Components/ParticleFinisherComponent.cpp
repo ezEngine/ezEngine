@@ -14,12 +14,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleFinisherComponent, 1, ezComponentMode::Static)
   //{
   //  EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_OnFinishedAction),
   //}
-  //EZ_END_PROPERTIES
+  //EZ_END_PROPERTIES;
     EZ_BEGIN_ATTRIBUTES
   {
     new ezHiddenAttribute,
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
     EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),

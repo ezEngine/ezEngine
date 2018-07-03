@@ -1,13 +1,13 @@
-﻿#pragma once
+#pragma once
 
 #include <Core/Basics.h>
-#include <Foundation/Strings/HashedString.h>
-#include <Foundation/IO/Stream.h>
-#include <Foundation/Reflection/Reflection.h>
-#include <Foundation/Time/Time.h>
-#include <Foundation/Time/Timestamp.h>
 #include <Core/ResourceManager/Implementation/Declarations.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Foundation/IO/Stream.h>
+#include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Strings/HashedString.h>
+#include <Foundation/Time/Time.h>
+#include <Foundation/Time/Timestamp.h>
 
 class ezResourceTypeLoader;
 
@@ -64,10 +64,9 @@ protected:
   ezResourceBase(DoUpdate ResourceUpdateThread, ezUInt8 uiQualityLevelsLoadable);
 
   /// \brief virtual destructor.
-  virtual ~ezResourceBase() { }
+  virtual ~ezResourceBase() {}
 
 public:
-
   struct MemoryUsage
   {
     MemoryUsage()
@@ -80,16 +79,19 @@ public:
     ezUInt32 m_uiMemoryGPU;
   };
 
-  /// \brief Returns the unique ID that identifies this resource. On a file resource this might be a path. Can also be a GUID or any other scheme that uniquely identifies the resource.
+  /// \brief Returns the unique ID that identifies this resource. On a file resource this might be a path. Can also be a GUID or any other
+  /// scheme that uniquely identifies the resource.
   EZ_ALWAYS_INLINE const ezString& GetResourceID() const { return m_UniqueID; }
 
   /// \brief Returns the hash of the unique ID.
   EZ_ALWAYS_INLINE ezUInt32 GetResourceIDHash() const { return m_uiUniqueIDHash; }
 
-  /// \brief The resource description allows to store an additional string that might be more descriptive during debugging, than the unique ID.
+  /// \brief The resource description allows to store an additional string that might be more descriptive during debugging, than the unique
+  /// ID.
   void SetResourceDescription(const char* szDescription);
 
-  /// \brief The resource description allows to store an additional string that might be more descriptive during debugging, than the unique ID.
+  /// \brief The resource description allows to store an additional string that might be more descriptive during debugging, than the unique
+  /// ID.
   const ezString& GetResourceDescription() const { return m_sResourceDescription; }
 
   /// \brief Returns the current state in which this resource is in.
@@ -128,7 +130,8 @@ public:
   /// longer than others.
   ///
   /// The due date is an absolute deadline, whereas the priority is a relative value compared to other resources.
-  /// Both can be combined. The due date always take precedence when it approaches, however as long as it is further away, priority has the most influence.
+  /// Both can be combined. The due date always take precedence when it approaches, however as long as it is further away, priority has the
+  /// most influence.
   ///
   /// \sa SetDueDate
   void SetPriority(ezResourcePriority priority);
@@ -145,7 +148,8 @@ public:
   /// Calling this function without parameters 'resets' the due date to a date into the far future, which practically disables it.
   ///
   /// The due date is an absolute deadline, whereas the priority is a relative value compared to other resources.
-  /// Both can be combined. The due date always take precedence when it approaches, however as long as it is further away, priority has the most influence.
+  /// Both can be combined. The due date always take precedence when it approaches, however as long as it is further away, priority has the
+  /// most influence.
   ///
   /// \sa SetPriority
   void SetDueDate(ezTime date = ezTime::Seconds(60.0 * 60.0 * 24.0 * 365.0 * 1000.0));
@@ -166,7 +170,8 @@ public:
   EZ_ALWAYS_INLINE const MemoryUsage& GetMemoryUsage() const { return m_MemoryUsage; }
 
   /// \brief Returns the time at which the resource was (tried to be) acquired last.
-  /// If a resource is acquired using ezResourceAcquireMode::PointerOnly, this does not update the last acquired time, since the resource is not acquired for full use.
+  /// If a resource is acquired using ezResourceAcquireMode::PointerOnly, this does not update the last acquired time, since the resource is
+  /// not acquired for full use.
   EZ_ALWAYS_INLINE ezTime GetLastAcquireTime() const { return m_LastAcquire; }
 
   /// \brief Returns the reference count of this resource.
@@ -187,16 +192,17 @@ public:
   /// \brief Allows to manually increase the resource change counter to signal that dependent code might need to update.
   EZ_ALWAYS_INLINE void IncResourceChangeCounter() { ++m_uiResourceChangeCounter; }
 
-  /// \brief This is true for resources that are used as a 'missing resource' fallback. Through this function one can detect whether acquiring a resource returned the missing resource fallback.
+  /// \brief This is true for resources that are used as a 'missing resource' fallback. Through this function one can detect whether
+  /// acquiring a resource returned the missing resource fallback.
   EZ_ALWAYS_INLINE bool IsMissingResource() const { return m_Flags.IsSet(ezResourceFlags::IsMissingFallback); }
 
-  /// \brief If the resource has modifications from the original state, it should reset itself to that state now (or force a reload on itself).
+  /// \brief If the resource has modifications from the original state, it should reset itself to that state now (or force a reload on
+  /// itself).
   virtual void ResetResource() {}
 
   mutable ezEvent<const ezResourceEvent&> m_ResourceEvents;
 
 private:
-
   friend class ezResourceManager;
   friend class ezResourceManagerWorkerDiskRead;
   friend class ezResourceManagerWorkerMainThread;
@@ -206,7 +212,8 @@ private:
 
   void CallUnloadData(Unload WhatToUnload);
 
-  /// \brief Requests the resource to unload another quality level. If bFullUnload is true, the resource should unload all data, because it is going to be deleted afterwards.
+  /// \brief Requests the resource to unload another quality level. If bFullUnload is true, the resource should unload all data, because it
+  /// is going to be deleted afterwards.
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) = 0;
 
   void CallUpdateContent(ezStreamReader* Stream);
@@ -214,7 +221,8 @@ private:
   /// \brief Called whenever more data for the resource is available. The resource must read the stream to update it's data.
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) = 0;
 
-  /// \brief Returns the resource type loader that should be used for this type of resource, unless it has been overridden on the ezResourceManager.
+  /// \brief Returns the resource type loader that should be used for this type of resource, unless it has been overridden on the
+  /// ezResourceManager.
   ///
   /// By default, this redirects to ezResourceManager::GetDefaultResourceLoader. So there is one global default loader, that can be set
   /// on the resource manager. Overriding this function will then allow to use a different resource loader on a specific type.
@@ -230,7 +238,6 @@ private:
 
 
 protected:
-
   /// \brief Non-const version for resources that want to write this variable directly.
   MemoryUsage& ModifyMemoryUsage() { return m_MemoryUsage; }
 
@@ -241,10 +248,10 @@ protected:
   void SetIsReloadable(bool bIsReloadable) { m_Flags.AddOrRemove(ezResourceFlags::IsReloadable, bIsReloadable); }
 
 private:
-  template<typename ResourceType>
+  template <typename ResourceType>
   friend class ezTypedResourceHandle;
 
-  template<typename SELF, typename SELF_DESCRIPTOR>
+  template <typename SELF, typename SELF_DESCRIPTOR>
   friend class ezResource;
 
   friend EZ_CORE_DLL void IncreaseResourceRefCount(ezResourceBase* pResource);
@@ -274,4 +281,3 @@ private:
   ezTime m_DueDate;
   ezTimestamp m_LoadedFileModificationTime;
 };
-

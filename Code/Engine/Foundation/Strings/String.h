@@ -1,10 +1,10 @@
-﻿#pragma once
+#pragma once
 
-#include <Foundation/Strings/StringUtils.h>
-#include <Foundation/Strings/StringView.h>
+#include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Strings/Implementation/StringBase.h>
 #include <Foundation/Strings/StringConversion.h>
-#include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Strings/StringUtils.h>
+#include <Foundation/Strings/StringView.h>
 
 class ezStringBuilder;
 class ezStreamReader;
@@ -18,15 +18,14 @@ class ezStreamReader;
 /// of memory, which might be of concern when it is used as a member variable, in such cases you might want to use an
 /// ezHybridString with a very small internal array (1 would basically make it into a completely dynamic string).
 /// On the other hand, creating ezHybridString instances on the stack and working locally with them, is quite fast.
-/// Prefer to use the typedef'ed string types \a ezString, \a ezDynamicString, \a ezString32 etc.
+/// Prefer to use the typedef'd string types \a ezString, \a ezDynamicString, \a ezString32 etc.
 /// Most strings in an application are rather short, typically shorter than 20 characters.
-/// Use \a ezString, which is a typedef'ed ezHybridString to use a cache size that is sufficient for more than 90%
+/// Use \a ezString, which is a typedef'd ezHybridString to use a cache size that is sufficient for more than 90%
 /// of all use cases.
 template <ezUInt16 Size>
-struct ezHybridStringBase : public ezStringBase<ezHybridStringBase<Size> >
+struct ezHybridStringBase : public ezStringBase<ezHybridStringBase<Size>>
 {
 protected:
-
   /// \brief Creates an empty string.
   ezHybridStringBase(ezAllocatorBase* pAllocator); // [tested]
 
@@ -76,7 +75,6 @@ protected:
   void operator=(ezStringBuilder&& rhs); // [tested]
 
 public:
-
   /// \brief Returns a string view to this string's data.
   operator ezStringView() const; // [tested]
 
@@ -100,7 +98,8 @@ public:
   /// \brief Returns the number of characters in this string.
   ezUInt32 GetCharacterCount() const; // [tested]
 
-  /// \brief Returns an iterator to a sub-string of this string, starting at character uiFirstCharacter, up until uiFirstCharacter +  uiNumCharacters.
+  /// \brief Returns an iterator to a sub-string of this string, starting at character uiFirstCharacter, up until uiFirstCharacter +
+  /// uiNumCharacters.
   ///
   /// Note that this iterator will only be valid as long as this ezHybridString lives.
   /// Once the original string is destroyed, all iterators to them will point into invalid memory.
@@ -178,8 +177,8 @@ typedef ezHybridString<64> ezString64;
 typedef ezHybridString<128> ezString128;
 typedef ezHybridString<256> ezString256;
 
-EZ_CHECK_AT_COMPILETIME_MSG(ezGetTypeClass< ezString >::value == 2, "string is not memory relocatable");
-template<>
+EZ_CHECK_AT_COMPILETIME_MSG(ezGetTypeClass<ezString>::value == 2, "string is not memory relocatable");
+template <>
 struct ezCompareHelper<ezString>
 {
   template <typename DerivedLhs, typename DerivedRhs>
@@ -224,7 +223,8 @@ struct ezCompareString_NoCase
   template <typename DerivedLhs, typename DerivedRhs>
   EZ_ALWAYS_INLINE bool Less(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) const
   {
-    return ezStringUtils::Compare_NoCase(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd()) < 0;
+    return ezStringUtils::Compare_NoCase(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd()) <
+           0;
   }
 
   template <typename DerivedRhs>
@@ -261,16 +261,10 @@ struct ezCompareString_NoCase
 struct CompareConstChar
 {
   /// \brief Returns true if a is less than b
-  EZ_ALWAYS_INLINE bool Less(const char* a, const char* b) const
-  {
-    return ezStringUtils::Compare(a, b) < 0;
-  }
+  EZ_ALWAYS_INLINE bool Less(const char* a, const char* b) const { return ezStringUtils::Compare(a, b) < 0; }
 
   /// \brief Returns true if a is equal to b
-  EZ_ALWAYS_INLINE bool Equal(const char* a, const char* b) const
-  {
-    return ezStringUtils::IsEqual(a, b);
-  }
+  EZ_ALWAYS_INLINE bool Equal(const char* a, const char* b) const { return ezStringUtils::IsEqual(a, b); }
 };
 
 // For ezFormatString
@@ -278,4 +272,3 @@ EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const e
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezUntrackedString& arg);
 
 #include <Foundation/Strings/Implementation/String_inl.h>
-

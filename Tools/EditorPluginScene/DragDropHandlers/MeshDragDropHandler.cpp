@@ -3,7 +3,7 @@
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshComponentDragDropHandler, 1, ezRTTIDefaultAllocator<ezMeshComponentDragDropHandler>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 float ezMeshComponentDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const

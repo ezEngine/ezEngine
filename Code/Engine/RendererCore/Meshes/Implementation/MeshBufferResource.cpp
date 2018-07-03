@@ -5,7 +5,7 @@
 #include <Core/Graphics/Geometry.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshBufferResource, 1, ezRTTIDefaultAllocator<ezMeshBufferResource>);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezMeshBufferResourceDescriptor::ezMeshBufferResourceDescriptor()
 {

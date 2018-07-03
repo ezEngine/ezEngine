@@ -14,9 +14,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxSettingsComponent, 3, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("FixedFrameRate", GetFixedFrameRate, SetFixedFrameRate)->AddAttributes(new ezDefaultValueAttribute(60.0f), new ezClampValueAttribute(1.0f, 1000.0f)),
     EZ_ACCESSOR_PROPERTY("MaxSubSteps", GetMaxSubSteps, SetMaxSubSteps)->AddAttributes(new ezDefaultValueAttribute(4), new ezClampValueAttribute(1, 100)),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezPxSettingsComponent::ezPxSettingsComponent()
   : m_Settings()

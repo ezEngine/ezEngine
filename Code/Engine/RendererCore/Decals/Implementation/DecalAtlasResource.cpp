@@ -50,7 +50,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAtlasResource, 1, ezRTTIDefaultAllocator<ezDecalAtlasResource>);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezUInt32 ezDecalAtlasResource::s_uiDecalAtlasResources = 0;
 

@@ -1,5 +1,4 @@
 #include <PCH.h>
-#include <Foundation/Logging/Log.h>
 
 #include <Foundation/Basics/Platform/uwp/UWPUtils.h>
 #include <windows.graphics.display.h>
@@ -9,7 +8,8 @@ ezResult ezScreen::EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_Screens)
   out_Screens.Clear();
 
   ComPtr<ABI::Windows::Graphics::Display::IDisplayInformationStatics> displayInformationStatics;
-  EZ_HRESULT_TO_FAILURE_LOG(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_Graphics_Display_DisplayInformation).Get(), &displayInformationStatics));
+  EZ_HRESULT_TO_FAILURE_LOG(ABI::Windows::Foundation::GetActivationFactory(
+      HStringReference(RuntimeClass_Windows_Graphics_Display_DisplayInformation).Get(), &displayInformationStatics));
 
   // Get information for current screen. Todo: How to get information for secondary screen?
   ComPtr<ABI::Windows::Graphics::Display::IDisplayInformation> currentDisplayInformation;
@@ -34,4 +34,3 @@ ezResult ezScreen::EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_Screens)
 
   return EZ_SUCCESS;
 }
-

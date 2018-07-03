@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Time/Stopwatch.h>
 
 ezStopwatch::ezStopwatch()
@@ -19,7 +20,7 @@ void ezStopwatch::Resume()
 {
   if (m_bRunning)
     return;
-  
+
   m_bRunning = true;
   m_LastUpdate = ezTime::Now();
 }
@@ -60,4 +61,3 @@ ezTime ezStopwatch::Checkpoint()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Time_Implementation_Stopwatch);
-

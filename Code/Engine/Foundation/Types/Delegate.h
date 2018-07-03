@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 
@@ -6,16 +6,12 @@
 class ezDelegateBase
 {
 public:
-  union InstancePtr
-  {
+  union InstancePtr {
     void* m_Ptr;
     const void* m_ConstPtr;
   };
 
-  EZ_ALWAYS_INLINE ezDelegateBase()
-  {
-    m_pInstance.m_Ptr = nullptr;
-  }
+  EZ_ALWAYS_INLINE ezDelegateBase() { m_pInstance.m_Ptr = nullptr; }
 
 protected:
   InstancePtr m_pInstance;
@@ -29,7 +25,7 @@ protected:
 /// to be made statically, but is the choice of the user who assigns some function to the delegate.
 ///
 /// Delegates have a rather strange syntax:
-/// 
+///
 /// \code{.cpp}
 ///   typedef ezDelegate<void (ezUInt32, float)> SomeCallback;
 /// \endcode
@@ -48,7 +44,7 @@ protected:
 /// Assigning a member function to the delegate is a bit more complex:
 ///
 /// \code{.cpp}
-///   class SomeClass { 
+///   class SomeClass {
 ///     void SomeFunction(ezUInt32 i, float f);
 ///   };
 ///   SomeClass instance;
@@ -68,7 +64,7 @@ protected:
 ///
 /// Just treat the delegate like a simple C function and call it. Internally it will dispatch the call
 /// to whatever function is bound to it, independent of whether it is a regular C function or a member function.
-/// 
+///
 /// The check to 'IsValid' is only required when the delegate might have a nullptr bound (i.e. no function has
 /// been bound to it). When you know the delegate is always bound, this is not necessary.
 ///
@@ -77,8 +73,6 @@ protected:
 template <typename T>
 struct ezDelegate : public ezDelegateBase
 {
-
-
 };
 
 template <typename T>
@@ -108,4 +102,3 @@ template <typename Method, typename Class>
 typename ezMakeDelegateHelper<Method>::DelegateType ezMakeDelegate(Method method, Class* pClass);
 
 #include <Foundation/Types/Implementation/Delegate_inl.h>
-

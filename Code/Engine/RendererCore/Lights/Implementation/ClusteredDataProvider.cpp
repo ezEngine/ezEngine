@@ -108,7 +108,7 @@ void ezClusteredDataGPU::BindResources(ezRenderContext* pRenderContext)
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClusteredDataProvider, 1, ezRTTIDefaultAllocator<ezClusteredDataProvider>)
 {
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezClusteredDataProvider::ezClusteredDataProvider()
 {

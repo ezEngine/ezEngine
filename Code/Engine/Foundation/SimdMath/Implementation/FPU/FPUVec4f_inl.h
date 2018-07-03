@@ -1,8 +1,6 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f()
-{
-}
+EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f() {}
 
 EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f(float xyzw)
 {
@@ -54,7 +52,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4f::SetZero()
   m_v.SetZero();
 }
 
-template<int N>
+template <int N>
 EZ_ALWAYS_INLINE void ezSimdVec4f::Load(const float* pFloats)
 {
   m_v.SetZero();
@@ -64,7 +62,7 @@ EZ_ALWAYS_INLINE void ezSimdVec4f::Load(const float* pFloats)
   }
 }
 
-template<int N>
+template <int N>
 EZ_ALWAYS_INLINE void ezSimdVec4f::Store(float* pFloats) const
 {
   for (int i = 0; i < N; ++i)
@@ -73,13 +71,13 @@ EZ_ALWAYS_INLINE void ezSimdVec4f::Store(float* pFloats) const
   }
 }
 
-template<ezMathAcc::Enum acc>
+template <ezMathAcc::Enum acc>
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetReciprocal() const
 {
   return ezVec4(1.0f).CompDiv(m_v);
 }
 
-template<ezMathAcc::Enum acc>
+template <ezMathAcc::Enum acc>
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetSqrt() const
 {
   ezSimdVec4f result;
@@ -91,7 +89,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetSqrt() const
   return result;
 }
 
-template<int N, ezMathAcc::Enum acc>
+template <int N, ezMathAcc::Enum acc>
 void ezSimdVec4f::NormalizeIfNotZero(const ezSimdFloat& fEpsilon)
 {
   ezSimdFloat sqLength = GetLengthSquared<N>();
@@ -99,7 +97,7 @@ void ezSimdVec4f::NormalizeIfNotZero(const ezSimdFloat& fEpsilon)
   m_v = sqLength > fEpsilon.m_v ? m_v : ezVec4::ZeroVector();
 }
 
-template<int N>
+template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4f::IsZero() const
 {
   for (int i = 0; i < N; ++i)
@@ -111,7 +109,7 @@ EZ_ALWAYS_INLINE bool ezSimdVec4f::IsZero() const
   return true;
 }
 
-template<int N>
+template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4f::IsZero(const ezSimdFloat& fEpsilon) const
 {
   for (int i = 0; i < N; ++i)
@@ -123,7 +121,7 @@ EZ_ALWAYS_INLINE bool ezSimdVec4f::IsZero(const ezSimdFloat& fEpsilon) const
   return true;
 }
 
-template<int N>
+template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4f::IsNaN() const
 {
   for (int i = 0; i < N; ++i)
@@ -135,7 +133,7 @@ EZ_ALWAYS_INLINE bool ezSimdVec4f::IsNaN() const
   return false;
 }
 
-template<int N>
+template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4f::IsValid() const
 {
   for (int i = 0; i < N; ++i)
@@ -147,7 +145,7 @@ EZ_ALWAYS_INLINE bool ezSimdVec4f::IsValid() const
   return true;
 }
 
-template<int N>
+template <int N>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::GetComponent() const
 {
   return (&m_v.x)[N];
@@ -293,7 +291,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::FlipSign(const ezSimdVec4b& cmp) const
   return result;
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Select(const ezSimdVec4f& ifFalse, const ezSimdVec4f& ifTrue, const ezSimdVec4b& cmp)
 {
   ezSimdVec4f result;
@@ -377,61 +375,61 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4f::operator>(const ezSimdVec4f& v) const
   return result;
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalSum<2>() const
 {
   return m_v.x + m_v.y;
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalSum<3>() const
 {
   return (float)HorizontalSum<2>() + m_v.z;
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalSum<4>() const
 {
   return (float)HorizontalSum<3>() + m_v.w;
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalMin<2>() const
 {
   return ezMath::Min(m_v.x, m_v.y);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalMin<3>() const
 {
   return ezMath::Min((float)HorizontalMin<2>(), m_v.z);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalMin<4>() const
 {
   return ezMath::Min((float)HorizontalMin<3>(), m_v.w);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalMax<2>() const
 {
   return ezMath::Max(m_v.x, m_v.y);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalMax<3>() const
 {
   return ezMath::Max((float)HorizontalMax<2>(), m_v.z);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalMax<4>() const
 {
   return ezMath::Max((float)HorizontalMax<3>(), m_v.w);
 }
 
-template<int N>
+template <int N>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::Dot(const ezSimdVec4f& v) const
 {
   float result = 0.0f;
@@ -461,37 +459,37 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetOrthogonalVector() const
   }
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::ZeroVector()
 {
   return ezVec4::ZeroVector();
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MulAdd(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& c)
 {
   return a.CompMul(b) + c;
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MulAdd(const ezSimdVec4f& a, const ezSimdFloat& b, const ezSimdVec4f& c)
 {
   return a * b + c;
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MulSub(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& c)
 {
   return a.CompMul(b) - c;
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MulSub(const ezSimdVec4f& a, const ezSimdFloat& b, const ezSimdVec4f& c)
 {
   return a * b - c;
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::CopySign(const ezSimdVec4f& magnitude, const ezSimdVec4f& sign)
 {
   ezSimdVec4f result;
@@ -502,4 +500,3 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::CopySign(const ezSimdVec4f& magnitude,
 
   return result;
 }
-

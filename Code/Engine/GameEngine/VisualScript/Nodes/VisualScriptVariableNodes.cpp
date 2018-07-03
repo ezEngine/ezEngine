@@ -13,16 +13,16 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetNumberProperty, 1, ezRTTID
     new ezCategoryAttribute("Properties"),
     new ezTitleAttribute("Get Number Property '{Name}'"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sVariable),
     EZ_INPUT_DATA_PIN("Component", 0, ezVisualScriptDataPinType::ComponentHandle),
     EZ_OUTPUT_DATA_PIN("Value", 0, ezVisualScriptDataPinType::Number),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_GetNumberProperty::ezVisualScriptNode_GetNumberProperty() { }
 ezVisualScriptNode_GetNumberProperty::~ezVisualScriptNode_GetNumberProperty() { }
@@ -70,7 +70,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetNumberProperty, 1, ezRTTID
     new ezCategoryAttribute("Properties"),
     new ezTitleAttribute("Set Number Property '{Name}'"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sVariable),
@@ -79,9 +79,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetNumberProperty, 1, ezRTTID
     EZ_INPUT_DATA_PIN("Component", 0, ezVisualScriptDataPinType::ComponentHandle),
     EZ_INPUT_DATA_PIN_AND_PROPERTY("Value", 1, ezVisualScriptDataPinType::Number, m_fValue),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_SetNumberProperty::ezVisualScriptNode_SetNumberProperty() { }
 ezVisualScriptNode_SetNumberProperty::~ezVisualScriptNode_SetNumberProperty() { }
@@ -126,16 +126,16 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetBoolProperty, 1, ezRTTIDef
     new ezCategoryAttribute("Properties"),
     new ezTitleAttribute("Get Bool Property '{Name}'"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sVariable),
     EZ_INPUT_DATA_PIN("Component", 0, ezVisualScriptDataPinType::ComponentHandle),
     EZ_OUTPUT_DATA_PIN("Value", 0, ezVisualScriptDataPinType::Boolean),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_GetBoolProperty::ezVisualScriptNode_GetBoolProperty() { }
 ezVisualScriptNode_GetBoolProperty::~ezVisualScriptNode_GetBoolProperty() { }
@@ -182,7 +182,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetBoolProperty, 1, ezRTTIDef
     new ezCategoryAttribute("Properties"),
     new ezTitleAttribute("Set Bool Property '{Name}'"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sVariable),
@@ -191,9 +191,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetBoolProperty, 1, ezRTTIDef
     EZ_INPUT_DATA_PIN("Component", 0, ezVisualScriptDataPinType::ComponentHandle),
     EZ_INPUT_DATA_PIN_AND_PROPERTY("Value", 1, ezVisualScriptDataPinType::Boolean, m_bValue),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_SetBoolProperty::ezVisualScriptNode_SetBoolProperty() { }
 ezVisualScriptNode_SetBoolProperty::~ezVisualScriptNode_SetBoolProperty() { }
@@ -238,15 +238,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Number, 1, ezRTTIDefaultAlloc
     new ezCategoryAttribute("Variables"),
     new ezTitleAttribute("Number '{Name}'"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sVariable),
     EZ_OUTPUT_DATA_PIN("Value", 0, ezVisualScriptDataPinType::Number),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_Number::ezVisualScriptNode_Number() { }
 ezVisualScriptNode_Number::~ezVisualScriptNode_Number() { }
@@ -271,7 +271,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_StoreNumber, 1, ezRTTIDefault
     new ezCategoryAttribute("Variables"),
     new ezTitleAttribute("Store Number '{Name}'"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sVariable),
@@ -279,9 +279,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_StoreNumber, 1, ezRTTIDefault
     EZ_OUTPUT_EXECUTION_PIN("then", 0),
     EZ_INPUT_DATA_PIN_AND_PROPERTY("Value", 0, ezVisualScriptDataPinType::Number, m_Value),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_StoreNumber::ezVisualScriptNode_StoreNumber() { }
 ezVisualScriptNode_StoreNumber::~ezVisualScriptNode_StoreNumber() { }
@@ -312,15 +312,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Bool, 1, ezRTTIDefaultAllocat
     new ezCategoryAttribute("Variables"),
     new ezTitleAttribute("Bool '{Name}'"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sVariable),
     EZ_OUTPUT_DATA_PIN("Value", 0, ezVisualScriptDataPinType::Boolean),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_Bool::ezVisualScriptNode_Bool() { }
 ezVisualScriptNode_Bool::~ezVisualScriptNode_Bool() { }
@@ -345,7 +345,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_StoreBool, 1, ezRTTIDefaultAl
     new ezCategoryAttribute("Variables"),
     new ezTitleAttribute("Store Bool '{Name}'"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sVariable),
@@ -353,9 +353,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_StoreBool, 1, ezRTTIDefaultAl
     EZ_OUTPUT_EXECUTION_PIN("then", 0),
     EZ_INPUT_DATA_PIN_AND_PROPERTY("Value", 0, ezVisualScriptDataPinType::Boolean, m_Value),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_StoreBool::ezVisualScriptNode_StoreBool() { }
 ezVisualScriptNode_StoreBool::~ezVisualScriptNode_StoreBool() { }
@@ -385,7 +385,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_ToggleBool, 1, ezRTTIDefaultA
     new ezCategoryAttribute("Variables"),
     new ezTitleAttribute("Toggle Bool '{Name}'"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Name", m_sVariable),
@@ -394,9 +394,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_ToggleBool, 1, ezRTTIDefaultA
     EZ_OUTPUT_EXECUTION_PIN("OnFalse", 1),
     EZ_OUTPUT_DATA_PIN("Result", 0, ezVisualScriptDataPinType::Boolean),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_ToggleBool::ezVisualScriptNode_ToggleBool() { }
 ezVisualScriptNode_ToggleBool::~ezVisualScriptNode_ToggleBool() { }

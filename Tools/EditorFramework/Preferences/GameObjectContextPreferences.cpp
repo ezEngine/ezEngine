@@ -8,9 +8,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectContextPreferencesUser, 1, ezRTTIDef
     EZ_MEMBER_PROPERTY("ContextDocument", m_ContextDocument),
     EZ_MEMBER_PROPERTY("ContextObject", m_ContextObject),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezGameObjectContextPreferencesUser::ezGameObjectContextPreferencesUser() : ezPreferences(Domain::Document, "GameObjectContext")
 {

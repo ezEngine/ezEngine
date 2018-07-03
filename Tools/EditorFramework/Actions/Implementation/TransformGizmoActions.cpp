@@ -6,7 +6,7 @@
 #include <EditorFramework/EditTools/StandardGizmoEditTools.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoAction, 0, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezGizmoAction::ezGizmoAction(const ezActionContext& context, const char* szName, const ezRTTI* pGizmoType)
   : ezButtonAction(context, szName, false, "")
@@ -145,7 +145,7 @@ void ezTransformGizmoActions::MapToolbarActions(const char* szMapping, const cha
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformGizmoAction, 0, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezTransformGizmoAction::ezTransformGizmoAction(const ezActionContext& context, const char* szName, ActionType type)
   : ezButtonAction(context, szName, false, "")
@@ -230,7 +230,7 @@ void ezTransformGizmoAction::UpdateState()
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRotateGizmoAction, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezActionDescriptorHandle ezRotateGizmoAction::s_hSnappingValueMenu;
 ezActionDescriptorHandle ezRotateGizmoAction::s_hSnappingValues[11];
@@ -312,7 +312,7 @@ void ezRotateGizmoAction::Execute(const ezVariant& value)
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScaleGizmoAction, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezActionDescriptorHandle ezScaleGizmoAction::s_hSnappingValueMenu;
 ezActionDescriptorHandle ezScaleGizmoAction::s_hSnappingValues[8];
@@ -390,7 +390,7 @@ void ezScaleGizmoAction::Execute(const ezVariant& value)
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmoAction, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezActionDescriptorHandle ezTranslateGizmoAction::s_hSnappingValueMenu;
 ezActionDescriptorHandle ezTranslateGizmoAction::s_hSnapPivotToGrid;

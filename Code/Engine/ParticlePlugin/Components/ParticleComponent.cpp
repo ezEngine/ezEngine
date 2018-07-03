@@ -26,12 +26,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 3, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("SharedInstanceName", m_sSharedInstanceName),
     EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Effect"), new ezExposeColorAlphaAttribute),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
     EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Effects"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
     EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgSetPlaying, OnSetPlaying),

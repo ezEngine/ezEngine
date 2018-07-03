@@ -7,7 +7,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ScriptContainerBase, 1, ezRTTIDefaultAllocator<ScriptContainerBase>)
 {
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ScriptContainerBase::ScriptContainerBase()
 {
@@ -21,13 +21,13 @@ EZ_BEGIN_COMPONENT_TYPE(ScriptTestComponent, 2, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("ScriptPath", GetScript, SetScript)->AddAttributes(new ezFileBrowserAttribute("Browse Script", "*.txt")),
     EZ_ACCESSOR_PROPERTY("ScriptContainer", GetScriptContainer, SetScriptContainer)->AddAttributes(new ezConstrainPointerAttribute("ScriptSource", "ScriptPath"))->AddFlags(ezPropertyFlags::PointerOwner),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("SampleGame"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
 

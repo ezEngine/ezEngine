@@ -47,7 +47,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalResource, 1, ezRTTIDefaultAllocator<ezDecalResource>);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezDecalResource::ezDecalResource()
     : ezResource<ezDecalResource, ezDecalResourceDescriptor>(DoUpdate::OnAnyThread, 1)

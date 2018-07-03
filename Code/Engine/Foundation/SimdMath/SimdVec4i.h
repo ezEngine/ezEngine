@@ -28,7 +28,7 @@ public:
   static ezSimdVec4i Truncate(const ezSimdVec4f& f); // [tested]
 
 public:
-  template<int N>
+  template <int N>
   ezInt32 GetComponent() const; // [tested]
 
   ezInt32 x() const; // [tested]
@@ -40,7 +40,7 @@ public:
   ezSimdVec4i Get() const; // [tested]
 
 public:
-  ezSimdVec4i operator-() const; // [tested]
+  ezSimdVec4i operator-() const;                     // [tested]
   ezSimdVec4i operator+(const ezSimdVec4i& v) const; // [tested]
   ezSimdVec4i operator-(const ezSimdVec4i& v) const; // [tested]
 
@@ -49,7 +49,7 @@ public:
   ezSimdVec4i operator|(const ezSimdVec4i& v) const; // [tested]
   ezSimdVec4i operator&(const ezSimdVec4i& v) const; // [tested]
   ezSimdVec4i operator^(const ezSimdVec4i& v) const; // [tested]
-  ezSimdVec4i operator~() const; // [tested]
+  ezSimdVec4i operator~() const;                     // [tested]
 
   ezSimdVec4i operator<<(ezUInt32 uiShift) const; // [tested]
   ezSimdVec4i operator>>(ezUInt32 uiShift) const; // [tested]
@@ -66,14 +66,14 @@ public:
 
   ezSimdVec4i CompMin(const ezSimdVec4i& v) const; // [tested]
   ezSimdVec4i CompMax(const ezSimdVec4i& v) const; // [tested]
-  ezSimdVec4i Abs() const; // [tested]
+  ezSimdVec4i Abs() const;                         // [tested]
 
   ezSimdVec4b operator==(const ezSimdVec4i& v) const; // [tested]
   ezSimdVec4b operator!=(const ezSimdVec4i& v) const; // [tested]
   ezSimdVec4b operator<=(const ezSimdVec4i& v) const; // [tested]
-  ezSimdVec4b operator<(const ezSimdVec4i& v) const; // [tested]
+  ezSimdVec4b operator<(const ezSimdVec4i& v) const;  // [tested]
   ezSimdVec4b operator>=(const ezSimdVec4i& v) const; // [tested]
-  ezSimdVec4b operator>(const ezSimdVec4i& v) const; // [tested]
+  ezSimdVec4b operator>(const ezSimdVec4i& v) const;  // [tested]
 
   static ezSimdVec4i ZeroVector(); // [tested]
 
@@ -82,8 +82,7 @@ public:
 };
 
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
-  #include <Foundation/SimdMath/Implementation/SSE/SSEVec4i_inl.h>
+#include <Foundation/SimdMath/Implementation/SSE/SSEVec4i_inl.h>
 #else
-  #include <Foundation/SimdMath/Implementation/FPU/FPUVec4i_inl.h>
+#include <Foundation/SimdMath/Implementation/FPU/FPUVec4i_inl.h>
 #endif
-

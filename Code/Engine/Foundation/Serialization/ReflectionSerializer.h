@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/IO/OpenDdlWriter.h>
+#include <Foundation/Reflection/Reflection.h>
 
 
 class EZ_FOUNDATION_DLL ezReflectionSerializer
@@ -17,7 +17,8 @@ public:
   /// or might also be read by humans.
   ///
   /// Read-only properties are not written out, as they cannot be restored anyway.
-  static void WriteObjectToDDL(ezStreamWriter& stream, const ezRTTI* pRtti, const void* pObject, bool bCompactMmode = true, ezOpenDdlWriter::TypeStringMode typeMode = ezOpenDdlWriter::TypeStringMode::Shortest); // [tested]
+  static void WriteObjectToDDL(ezStreamWriter& stream, const ezRTTI* pRtti, const void* pObject, bool bCompactMmode = true,
+                               ezOpenDdlWriter::TypeStringMode typeMode = ezOpenDdlWriter::TypeStringMode::Shortest); // [tested]
 
   /// \brief Same as WriteObjectToDDL but binary.
   static void WriteObjectToBinary(ezStreamWriter& stream, const ezRTTI* pRtti, const void* pObject); // [tested]
@@ -62,10 +63,9 @@ public:
   static void Clone(const void* pObject, void* pClone, const ezRTTI* pType); // [tested]
 
   /// \brief Templated convenience function that calls Clone and automatically deduces the type.
-  template<typename T>
+  template <typename T>
   static T* Clone(const T* pObject)
   {
     return static_cast<T*>(Clone(pObject, ezGetStaticRTTI<T>()));
   }
 };
-

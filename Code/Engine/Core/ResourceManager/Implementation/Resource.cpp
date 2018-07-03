@@ -1,9 +1,10 @@
 #include <PCH.h>
+
 #include <Core/ResourceManager/Resource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResourceBase, 1, ezRTTINoAllocator);
 
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_CORE_DLL void IncreaseResourceRefCount(ezResourceBase* pResource)
 {
@@ -29,7 +30,7 @@ ezResourceBase::ezResourceBase(DoUpdate ResourceUpdateThread, ezUInt8 uiQualityL
   m_DueDate = ezTime::Seconds(60.0 * 60.0 * 24.0 * 365.0 * 1000.0);
 }
 
-void ezResourceBase::SetResourceDescription(const char * szDescription)
+void ezResourceBase::SetResourceDescription(const char* szDescription)
 {
   m_sResourceDescription = szDescription;
 }
@@ -115,7 +116,8 @@ void ezResourceBase::CallUpdateContent(ezStreamReader* Stream)
   e.m_EventType = ezResourceEventType::ResourceContentUpdated;
   ezResourceManager::BroadcastResourceEvent(e);
 
-  ezLog::Debug("Updated {0} - '{1}'({2}, {3}) ", GetDynamicRTTI()->GetTypeName(), GetResourceDescription(), (int)GetPriority(), GetLoadingDeadline(ezTime::Now()).GetSeconds());
+  ezLog::Debug("Updated {0} - '{1}'({2}, {3}) ", GetDynamicRTTI()->GetTypeName(), GetResourceDescription(), (int)GetPriority(),
+               GetLoadingDeadline(ezTime::Now()).GetSeconds());
 }
 
 ezTime ezResourceBase::GetLoadingDeadline(ezTime tNow) const
@@ -143,7 +145,7 @@ ezTime ezResourceBase::GetLoadingDeadline(ezTime tNow) const
     tDelay += (tNow - GetLastAcquireTime()) * 2.0;
   }
 
-  DueDate += tDelay * ((double) GetPriority() + 1.0);
+  DueDate += tDelay * ((double)GetPriority() + 1.0);
 
   return ezMath::Min(DueDate, m_DueDate);
 }
@@ -159,4 +161,3 @@ void ezResourceBase::ReportResourceIsMissing()
 }
 
 EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_Resource);
-

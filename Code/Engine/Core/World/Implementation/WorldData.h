@@ -130,12 +130,11 @@ namespace ezInternal
       EZ_DECLARE_POD_TYPE();
 
       EZ_ALWAYS_INLINE QueuedMsgMetaData()
-        : m_uiReceiverData(0)
+          : m_uiReceiverData(0)
       {
       }
 
-      union
-      {
+      union {
         ezUInt32 m_uiReceiverObject;
 
         struct
@@ -198,4 +197,3 @@ namespace ezInternal
 }
 
 #include <Core/World/Implementation/WorldData_inl.h>
-

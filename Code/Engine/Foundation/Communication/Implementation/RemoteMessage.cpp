@@ -4,7 +4,7 @@
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessMessage, 1, ezRTTIDefaultAllocator<ezProcessMessage>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezRemoteMessage::ezRemoteMessage()

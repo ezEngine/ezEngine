@@ -1,5 +1,5 @@
-
 #include <PCH.h>
+
 #include <Core/Application/Application.h>
 #include <Foundation/Configuration/Startup.h>
 
@@ -44,7 +44,8 @@ void ezRun_Shutdown(ezApplication* pApplicationInstance)
   // Destructor is called by entry point function
   ezApplication::s_pApplicationInstance = nullptr;
 
-  // memory leak reporting cannot be done here, because the application instance is still alive and may still hold on to memory that needs to be freed first
+  // memory leak reporting cannot be done here, because the application instance is still alive and may still hold on to memory that needs
+  // to be freed first
 }
 
 void ezRun(ezApplication* pApplicationInstance)
@@ -55,4 +56,3 @@ void ezRun(ezApplication* pApplicationInstance)
 }
 
 EZ_STATICLINK_FILE(Core, Core_Application_Implementation_MainLoop);
-

@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Core/Basics.h>
+#include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Math/Vec3.h>
-#include <Foundation/Containers/Deque.h>
 
 /// \brief Computes convex hulls for 3D meshes.
 ///
@@ -64,7 +64,11 @@ private:
 
   struct TwoSet
   {
-    EZ_ALWAYS_INLINE TwoSet() { a = 0xFFFF; b = 0xFFFF; }
+    EZ_ALWAYS_INLINE TwoSet()
+    {
+      a = 0xFFFF;
+      b = 0xFFFF;
+    }
     EZ_ALWAYS_INLINE void Add(ezUInt16 x) { (a == 0xFFFF ? a : b) = x; }
     EZ_ALWAYS_INLINE bool Contains(ezUInt16 x) { return a == x || b == x; }
     EZ_ALWAYS_INLINE void Remove(ezUInt16 x) { (a == x ? a : b) = 0xFFFF; }
@@ -103,4 +107,3 @@ private:
 
   ezDeque<Triangle> m_Triangles;
 };
-

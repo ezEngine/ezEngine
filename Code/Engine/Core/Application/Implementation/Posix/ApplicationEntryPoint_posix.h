@@ -12,22 +12,23 @@
 ///
 /// Just use the macro in a cpp file of your application and supply your app class (must be derived from ezApplication).
 /// The additional (optional) parameters are passed to the constructor of your app class.
-#define EZ_APPLICATION_ENTRY_POINT(AppClass, ...) \
-  static char appBuffer[sizeof(AppClass)]; /* Not on the stack to cope with smaller stacks */ \
-  \
-  int main(int argc, const char** argv) \
-  { \
-    \
-    AppClass* pApp = new (appBuffer) AppClass(__VA_ARGS__); \
-    pApp->SetCommandLineArguments((ezUInt32) argc, argv); \
-    ezRun(pApp); /* Life cycle & run method calling */ \
-    const int iReturnCode = pApp->GetReturnCode(); \
-    if (iReturnCode != 0) { \
-      std::string text = pApp->TranslateReturnCode(); \
-      if (!text.empty()) printf("Return Code: '%s'\n", text.c_str()); \
-    } \
-    pApp->~AppClass(); \
-    memset(pApp, 0, sizeof(AppClass)); \
-    return iReturnCode; \
+#define EZ_APPLICATION_ENTRY_POINT(AppClass, ...)                                                                                          \
+  static char appBuffer[sizeof(AppClass)]; /* Not on the stack to cope with smaller stacks */                                              \
+                                                                                                                                           \
+  int main(int argc, const char** argv)                                                                                                    \
+  {                                                                                                                                        \
+                                                                                                                                           \
+    AppClass* pApp = new (appBuffer) AppClass(__VA_ARGS__);                                                                                \
+    pApp->SetCommandLineArguments((ezUInt32)argc, argv);                                                                                   \
+    ezRun(pApp); /* Life cycle & run method calling */                                                                                     \
+    const int iReturnCode = pApp->GetReturnCode();                                                                                         \
+    if (iReturnCode != 0)                                                                                                                  \
+    {                                                                                                                                      \
+      std::string text = pApp->TranslateReturnCode();                                                                                      \
+      if (!text.empty())                                                                                                                   \
+        printf("Return Code: '%s'\n", text.c_str());                                                                                       \
+    }                                                                                                                                      \
+    pApp->~AppClass();                                                                                                                     \
+    memset(pApp, 0, sizeof(AppClass));                                                                                                     \
+    return iReturnCode;                                                                                                                    \
   }
-

@@ -8,7 +8,7 @@
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectContextAction, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezActionDescriptorHandle ezGameObjectContextActions::s_hCategory;
 ezActionDescriptorHandle ezGameObjectContextActions::s_hPickContextScene;

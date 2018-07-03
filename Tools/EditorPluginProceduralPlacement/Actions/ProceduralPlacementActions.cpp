@@ -42,7 +42,7 @@ void ezProceduralPlacementActions::MapMenuActions()
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementAction, 0, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezProceduralPlacementAction::ezProceduralPlacementAction(const ezActionContext& context, const char* szName, ActionType type)
   : ezButtonAction(context, szName, false, "")

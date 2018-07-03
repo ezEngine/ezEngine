@@ -1,15 +1,15 @@
 #pragma once
 
+#include <array>
 #include <tuple>
 #include <utility>
-#include <array>
 
-template<typename ... ARGS>
+template <typename... ARGS>
 class ezFormatStringImpl : public ezFormatString
 {
 public:
   ezFormatStringImpl(const char* szFormat, ARGS&&... args)
-    : m_Arguments(std::forward<ARGS>(args)...)
+      : m_Arguments(std::forward<ARGS>(args)...)
   {
     m_szString = szFormat;
   }
@@ -38,7 +38,8 @@ public:
         }
         else
         {
-          EZ_ASSERT_DEBUG(false, "Single percentage signs are not allowed in ezFormatString. Did you forgot to migrate a printf-style string? Use double percentage signs for the actual character.");
+          EZ_ASSERT_DEBUG(false, "Single percentage signs are not allowed in ezFormatString. Did you forgot to migrate a printf-style "
+                                 "string? Use double percentage signs for the actual character.");
         }
 
         szString += 2;
@@ -61,8 +62,7 @@ public:
   }
 
 private:
-
-  template<ezInt32 N>
+  template <ezInt32 N>
   typename std::enable_if<sizeof...(ARGS) != N>::type ReplaceString(char tmp[10][64], ezStringView* pViews) const
   {
     EZ_CHECK_AT_COMPILETIME_MSG(N < 10, "Maximum number of format arguments reached");
@@ -75,7 +75,7 @@ private:
   }
 
   // Recursion end if we reached the number of arguments.
-  template<ezInt32 N>
+  template <ezInt32 N>
   typename std::enable_if<sizeof...(ARGS) == N>::type ReplaceString(char tmp[10][64], ezStringView* pViews) const
   {
   }
@@ -84,4 +84,3 @@ private:
   // stores the arguments
   std::tuple<ARGS...> m_Arguments;
 };
-

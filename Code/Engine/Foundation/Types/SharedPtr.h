@@ -3,7 +3,8 @@
 #include <Foundation/Types/RefCounted.h>
 #include <Foundation/Types/UniquePtr.h>
 
-/// \brief A Shared ptr manages a shared object and destroys that object when no one references it anymore. The managed object must derive from ezRefCounted.
+/// \brief A Shared ptr manages a shared object and destroys that object when no one references it anymore. The managed object must derive
+/// from ezRefCounted.
 template <typename T>
 class ezSharedPtr
 {
@@ -17,7 +18,8 @@ public:
   template <typename U>
   ezSharedPtr(const ezInternal::NewInstance<U>& instance);
 
-  /// \brief Creates a shared ptr from a pointer and an allocator. The passed allocator will be used to destroy the instance when the unique ptr goes out of scope.
+  /// \brief Creates a shared ptr from a pointer and an allocator. The passed allocator will be used to destroy the instance when the unique
+  /// ptr goes out of scope.
   template <typename U>
   ezSharedPtr(U* pInstance, ezAllocatorBase* pAllocator);
 
@@ -32,7 +34,8 @@ public:
   template <typename U>
   ezSharedPtr(ezSharedPtr<U>&& other);
 
-  /// \brief Move constructs a shared ptr from a unique ptr. The unique ptr will be empty afterwards to guarantee that there is only one unique ptr managing the same object.
+  /// \brief Move constructs a shared ptr from a unique ptr. The unique ptr will be empty afterwards to guarantee that there is only one
+  /// unique ptr managing the same object.
   template <typename U>
   ezSharedPtr(ezUniquePtr<U>&& other);
 
@@ -57,7 +60,8 @@ public:
   template <typename U>
   void operator=(ezSharedPtr<U>&& other);
 
-  /// \brief Move assigns a shared ptr from a unique ptr. The unique ptr will be empty afterwards to guarantee that there is only one unique ptr managing the same object.
+  /// \brief Move assigns a shared ptr from a unique ptr. The unique ptr will be empty afterwards to guarantee that there is only one unique
+  /// ptr managing the same object.
   template <typename U>
   void operator=(ezUniquePtr<U>&& other);
 
@@ -102,7 +106,7 @@ public:
   bool operator>=(std::nullptr_t) const;
 
 private:
-  template<typename U>
+  template <typename U>
   friend class ezSharedPtr;
 
   void AddReferenceIfValid();
@@ -113,4 +117,3 @@ private:
 };
 
 #include <Foundation/Types/Implementation/SharedPtr_inl.h>
-

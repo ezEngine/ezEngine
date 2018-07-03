@@ -9,9 +9,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRemoveNodeCommand, 1, ezRTTIDefaultAllocator<e
   {
     EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMoveNodeCommand, 1, ezRTTIDefaultAllocator<ezMoveNodeCommand>)
 {
@@ -20,9 +20,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMoveNodeCommand, 1, ezRTTIDefaultAllocator<ezM
     EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
     EZ_MEMBER_PROPERTY("NewPos", m_NewPos),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConnectNodePinsCommand, 1, ezRTTIDefaultAllocator<ezConnectNodePinsCommand>)
 {
@@ -33,9 +33,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConnectNodePinsCommand, 1, ezRTTIDefaultAlloca
     EZ_MEMBER_PROPERTY("SourcePin", m_sSourcePin),
     EZ_MEMBER_PROPERTY("TargetPin", m_sTargetPin),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDisconnectNodePinsCommand, 1, ezRTTIDefaultAllocator<ezDisconnectNodePinsCommand>)
 {
@@ -46,9 +46,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDisconnectNodePinsCommand, 1, ezRTTIDefaultAll
     EZ_MEMBER_PROPERTY("SourcePin", m_sSourcePin),
     EZ_MEMBER_PROPERTY("TargetPin", m_sTargetPin),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ////////////////////////////////////////////////////////////////////////
 // ezRemoveNodeCommand

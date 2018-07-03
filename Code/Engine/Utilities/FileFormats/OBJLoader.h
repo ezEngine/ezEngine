@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Utilities/Basics.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
+#include <Utilities/Basics.h>
 
 /// \brief A loader class for OBJ/MTL files.
 ///
@@ -16,7 +16,6 @@
 class EZ_UTILITIES_DLL ezOBJLoader
 {
 public:
-
   /// \brief Stores the information for a vertex in a face.
   struct FaceVertex
   {
@@ -60,13 +59,11 @@ public:
     ezHybridArray<FaceVertex, 4> m_Vertices;
 
     /// Less-than operator is needed for sorting faces by material.
-    EZ_ALWAYS_INLINE bool operator< (const Face& rhs) const
-    {
-      return (m_uiMaterialID < rhs.m_uiMaterialID);
-    }
+    EZ_ALWAYS_INLINE bool operator<(const Face& rhs) const { return (m_uiMaterialID < rhs.m_uiMaterialID); }
   };
 
-  /// \brief Clears all data. Call this before LoadOBJ() / LoadMTL(), if you want to reuse the loader object to load another OBJ file, without merging them.
+  /// \brief Clears all data. Call this before LoadOBJ() / LoadMTL(), if you want to reuse the loader object to load another OBJ file,
+  /// without merging them.
   void Clear();
 
   /// \brief Returns whether texture-coordinates are available for this mesh.
@@ -102,6 +99,3 @@ public:
   ezDeque<ezVec3> m_TexCoords;
   ezDeque<Face> m_Faces;
 };
-
-
-

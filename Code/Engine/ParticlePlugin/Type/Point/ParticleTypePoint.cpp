@@ -18,12 +18,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypePointFactory, 1, ezRTTIDefaultAllo
   //{
   //  new ezHiddenAttribute()
   //}
-  //EZ_END_ATTRIBUTES
+  //EZ_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypePoint, 1, ezRTTIDefaultAllocator<ezParticleTypePoint>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 const ezRTTI* ezParticleTypePointFactory::GetTypeType() const
 {

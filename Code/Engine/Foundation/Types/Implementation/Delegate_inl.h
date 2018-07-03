@@ -2,7 +2,6 @@
 template <typename T>
 struct ezMakeDelegateHelper
 {
-
 };
 
 #define ARG_COUNT 0
@@ -44,4 +43,3 @@ typename ezMakeDelegateHelper<Method>::DelegateType ezMakeDelegate(Method method
 {
   return typename ezMakeDelegateHelper<Method>::DelegateType(method, pClass);
 }
-

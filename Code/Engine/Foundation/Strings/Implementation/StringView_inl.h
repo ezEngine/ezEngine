@@ -88,4 +88,3 @@ inline void ezStringView::Trim(const char* szTrimCharsStart, const char* szTrimC
   if (IsValid())
     ezStringUtils::Trim(m_pStart, m_pEnd, szTrimCharsStart, szTrimCharsEnd);
 }
-

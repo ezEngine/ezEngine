@@ -53,7 +53,7 @@ protected:
 };
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(AddOneStreamProcessor, 1, ezRTTIDefaultAllocator<AddOneStreamProcessor>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_CREATE_SIMPLE_TEST(DataProcessing, ProcessingStream)
 {

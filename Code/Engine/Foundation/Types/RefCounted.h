@@ -7,13 +7,14 @@
 class EZ_FOUNDATION_DLL ezRefCounted
 {
 public:
-
   /// \brief Constructor
-  ezRefCounted() : m_iRefCount(0) // [tested]
+  ezRefCounted()
+      : m_iRefCount(0) // [tested]
   {
   }
 
-  ezRefCounted(const ezRefCounted& rhs) : m_iRefCount(0) // [tested]
+  ezRefCounted(const ezRefCounted& rhs)
+      : m_iRefCount(0) // [tested]
   {
     // do not copy the ref count
   }
@@ -48,7 +49,6 @@ public:
   }
 
 private:
-
   mutable ezInt32 m_iRefCount; ///< Stores the current reference count
 };
 
@@ -61,14 +61,15 @@ template <typename T>
 class ezScopedRefPointer
 {
 public:
-
   /// \brief Constructor.
-  ezScopedRefPointer() : m_pReferencedObject(nullptr)
+  ezScopedRefPointer()
+      : m_pReferencedObject(nullptr)
   {
   }
 
   /// \brief Constructor, increases the ref count of the given object.
-  ezScopedRefPointer(T* pReferencedObject) : m_pReferencedObject(pReferencedObject)
+  ezScopedRefPointer(T* pReferencedObject)
+      : m_pReferencedObject(pReferencedObject)
   {
     AddReferenceIfValid();
   }
@@ -81,13 +82,11 @@ public:
   }
 
   /// \brief Destructor - releases the reference on the ref-counted object (if there is one).
-  ~ezScopedRefPointer()
-  {
-    ReleaseReferenceIfValid();
-  }
+  ~ezScopedRefPointer() { ReleaseReferenceIfValid(); }
 
-  /// \brief Assignment operator, decreases the ref count of the currently referenced object and increases the ref count of the newly assigned object.
-  void operator = (T* pNewReference)
+  /// \brief Assignment operator, decreases the ref count of the currently referenced object and increases the ref count of the newly
+  /// assigned object.
+  void operator=(T* pNewReference)
   {
     if (pNewReference == m_pReferencedObject)
       return;
@@ -99,8 +98,9 @@ public:
     AddReferenceIfValid();
   }
 
-  /// \brief Assignment operator, decreases the ref count of the currently referenced object and increases the ref count of the newly assigned object.
-  void operator = (const ezScopedRefPointer<T>& Other)
+  /// \brief Assignment operator, decreases the ref count of the currently referenced object and increases the ref count of the newly
+  /// assigned object.
+  void operator=(const ezScopedRefPointer<T>& Other)
   {
     if (Other.m_pReferencedObject == m_pReferencedObject)
       return;
@@ -113,33 +113,26 @@ public:
   }
 
   /// \brief Returns the referenced object (may be nullptr).
-  operator const T*() const
-  {
-    return m_pReferencedObject;
-  }
+  operator const T*() const { return m_pReferencedObject; }
 
   /// \brief Returns the referenced object (may be nullptr).
-  operator T*()
-  {
-    return m_pReferencedObject;
-  }
+  operator T*() { return m_pReferencedObject; }
 
   /// \brief Returns the referenced object (may be nullptr).
-  const T* operator ->() const
+  const T* operator->() const
   {
     EZ_ASSERT_DEV(m_pReferencedObject != nullptr, "Pointer is nullptr.");
     return m_pReferencedObject;
   }
 
   /// \brief Returns the referenced object (may be nullptr)
-  T* operator -> ()
+  T* operator->()
   {
     EZ_ASSERT_DEV(m_pReferencedObject != nullptr, "Pointer is nullptr.");
     return m_pReferencedObject;
   }
 
 private:
-
   /// \brief Internal helper function to add a reference on the current object (if != nullptr)
   inline void AddReferenceIfValid()
   {
@@ -162,11 +155,9 @@ private:
 };
 
 
-template<typename TYPE>
+template <typename TYPE>
 class ezRefCountedContainer : public ezRefCounted
 {
 public:
   TYPE m_Content;
 };
-
-

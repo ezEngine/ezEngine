@@ -2,8 +2,8 @@
 
 #include <Core/Basics.h>
 #include <Core/ResourceManager/ResourceHandle.h>
-#include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/Deque.h>
+#include <Foundation/Containers/HashTable.h>
 
 class ezResourceBase;
 class ezStreamWriter;
@@ -39,7 +39,7 @@ public:
   ///
   /// Multiple instances can be used on different threads, but on each thread only one instance can be active
   /// at a time.
-  template<typename ResourceType>
+  template <typename ResourceType>
   static void WriteHandle(ezStreamWriter* pStream, const ezTypedResourceHandle<ResourceType>& hResource)
   {
     WriteHandle(pStream, hResource.m_Typeless.m_pResource);
@@ -63,9 +63,8 @@ private:
 };
 
 /// \brief Operator to serialize resource handles
-template<typename ResourceType>
-void operator<< (ezStreamWriter& Stream, ezTypedResourceHandle<ResourceType> Value)
+template <typename ResourceType>
+void operator<<(ezStreamWriter& Stream, ezTypedResourceHandle<ResourceType> Value)
 {
   ezResourceHandleWriteContext::WriteHandle(&Stream, Value);
 }
-

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 template <typename Derived>
 EZ_ALWAYS_INLINE const char* ezStringBase<Derived>::InternalGetData() const
@@ -57,7 +57,8 @@ const char* ezStringBase<Derived>::FindSubString(const char* szStringToFind, con
   if (szStartSearchAt == nullptr)
     szStartSearchAt = InternalGetData();
 
-  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
+  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()),
+                "The given pointer to start searching at is not inside this strings valid range.");
 
   return ezStringUtils::FindSubString(szStartSearchAt, szStringToFind, InternalGetDataEnd());
 }
@@ -68,7 +69,8 @@ const char* ezStringBase<Derived>::FindSubString_NoCase(const char* szStringToFi
   if (szStartSearchAt == nullptr)
     szStartSearchAt = InternalGetData();
 
-  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
+  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()),
+                "The given pointer to start searching at is not inside this strings valid range.");
 
   return ezStringUtils::FindSubString_NoCase(szStartSearchAt, szStringToFind, InternalGetDataEnd());
 }
@@ -79,40 +81,47 @@ inline const char* ezStringBase<Derived>::FindLastSubString(const char* szString
   if (szStartSearchAt == nullptr)
     szStartSearchAt = InternalGetDataEnd();
 
-  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
+  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()),
+                "The given pointer to start searching at is not inside this strings valid range.");
 
   return ezStringUtils::FindLastSubString(InternalGetData(), szStringToFind, szStartSearchAt, InternalGetDataEnd());
 }
 
 template <typename Derived>
-inline const char* ezStringBase<Derived>::FindLastSubString_NoCase(const char* szStringToFind, const char* szStartSearchAt /* = nullptr */) const
+inline const char* ezStringBase<Derived>::FindLastSubString_NoCase(const char* szStringToFind,
+                                                                   const char* szStartSearchAt /* = nullptr */) const
 {
   if (szStartSearchAt == nullptr)
     szStartSearchAt = InternalGetDataEnd();
 
-  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
+  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()),
+                "The given pointer to start searching at is not inside this strings valid range.");
 
   return ezStringUtils::FindLastSubString_NoCase(InternalGetData(), szStringToFind, szStartSearchAt, InternalGetDataEnd());
 }
 
 template <typename Derived>
-inline const char* ezStringBase<Derived>::FindWholeWord(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB, const char* szStartSearchAt /* = nullptr */) const
+inline const char* ezStringBase<Derived>::FindWholeWord(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB,
+                                                        const char* szStartSearchAt /* = nullptr */) const
 {
   if (szStartSearchAt == nullptr)
     szStartSearchAt = InternalGetData();
 
-  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
+  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()),
+                "The given pointer to start searching at is not inside this strings valid range.");
 
   return ezStringUtils::FindWholeWord(szStartSearchAt, szSearchFor, IsDelimiterCB, InternalGetDataEnd());
 }
 
 template <typename Derived>
-inline const char* ezStringBase<Derived>::FindWholeWord_NoCase(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB, const char* szStartSearchAt /* = nullptr */) const
+inline const char* ezStringBase<Derived>::FindWholeWord_NoCase(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB,
+                                                               const char* szStartSearchAt /* = nullptr */) const
 {
   if (szStartSearchAt == nullptr)
     szStartSearchAt = InternalGetData();
 
-  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
+  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()),
+                "The given pointer to start searching at is not inside this strings valid range.");
 
   return ezStringUtils::FindWholeWord_NoCase(szStartSearchAt, szSearchFor, IsDelimiterCB, InternalGetDataEnd());
 }
@@ -186,111 +195,109 @@ typename ezStringBase<Derived>::reverse_iterator ezStringBase<Derived>::GetItera
 }
 
 template <typename DerivedLhs, typename DerivedRhs>
-EZ_ALWAYS_INLINE bool operator== (const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
+EZ_ALWAYS_INLINE bool operator==(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
 {
   return ezStringUtils::IsEqual(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd());
 }
 
 template <typename DerivedRhs>
-EZ_ALWAYS_INLINE bool operator== (const char* lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
+EZ_ALWAYS_INLINE bool operator==(const char* lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
 {
   return rhs.IsEqual(lhs);
 }
 
 template <typename DerivedLhs>
-EZ_ALWAYS_INLINE bool operator== (const ezStringBase<DerivedLhs>& lhs, const char* rhs) // [tested]
+EZ_ALWAYS_INLINE bool operator==(const ezStringBase<DerivedLhs>& lhs, const char* rhs) // [tested]
 {
   return lhs.IsEqual(rhs);
 }
 
 template <typename DerivedLhs, typename DerivedRhs>
-EZ_ALWAYS_INLINE bool operator!= (const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
+EZ_ALWAYS_INLINE bool operator!=(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
 {
   return !ezStringUtils::IsEqual(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd());
 }
 
 template <typename DerivedRhs>
-EZ_ALWAYS_INLINE bool operator!= (const char* lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
+EZ_ALWAYS_INLINE bool operator!=(const char* lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
 {
   return !rhs.IsEqual(lhs);
 }
 
 template <typename DerivedLhs>
-EZ_ALWAYS_INLINE bool operator!= (const ezStringBase<DerivedLhs>& lhs, const char* rhs) // [tested]
+EZ_ALWAYS_INLINE bool operator!=(const ezStringBase<DerivedLhs>& lhs, const char* rhs) // [tested]
 {
   return !lhs.IsEqual(rhs);
 }
 
 template <typename DerivedLhs, typename DerivedRhs>
-EZ_ALWAYS_INLINE bool operator< (const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
+EZ_ALWAYS_INLINE bool operator<(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
 {
   return ezStringUtils::Compare(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd()) < 0;
 }
 
 template <typename DerivedRhs>
-EZ_ALWAYS_INLINE bool operator< (const char* lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
+EZ_ALWAYS_INLINE bool operator<(const char* lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
 {
   return rhs.Compare(lhs) > 0;
 }
 
 template <typename DerivedLhs>
-EZ_ALWAYS_INLINE bool operator< (const ezStringBase<DerivedLhs>& lhs, const char* rhs) // [tested]
+EZ_ALWAYS_INLINE bool operator<(const ezStringBase<DerivedLhs>& lhs, const char* rhs) // [tested]
 {
   return lhs.Compare(rhs) < 0;
 }
 
 template <typename DerivedLhs, typename DerivedRhs>
-EZ_ALWAYS_INLINE bool operator> (const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
+EZ_ALWAYS_INLINE bool operator>(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
 {
   return ezStringUtils::Compare(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd()) > 0;
 }
 
 template <typename DerivedRhs>
-EZ_ALWAYS_INLINE bool operator> (const char* lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
+EZ_ALWAYS_INLINE bool operator>(const char* lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
 {
   return rhs.Compare(lhs) < 0;
 }
 
 template <typename DerivedLhs>
-EZ_ALWAYS_INLINE bool operator> (const ezStringBase<DerivedLhs>& lhs, const char* rhs) // [tested]
+EZ_ALWAYS_INLINE bool operator>(const ezStringBase<DerivedLhs>& lhs, const char* rhs) // [tested]
 {
   return lhs.Compare(rhs) > 0;
 }
 
 template <typename DerivedLhs, typename DerivedRhs>
-EZ_ALWAYS_INLINE bool operator<= (const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
+EZ_ALWAYS_INLINE bool operator<=(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
 {
   return ezStringUtils::Compare(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd()) <= 0;
 }
 
 template <typename DerivedRhs>
-EZ_ALWAYS_INLINE bool operator<= (const char* lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
+EZ_ALWAYS_INLINE bool operator<=(const char* lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
 {
   return rhs.Compare(lhs) >= 0;
 }
 
 template <typename DerivedLhs>
-EZ_ALWAYS_INLINE bool operator<= (const ezStringBase<DerivedLhs>& lhs, const char* rhs) // [tested]
+EZ_ALWAYS_INLINE bool operator<=(const ezStringBase<DerivedLhs>& lhs, const char* rhs) // [tested]
 {
   return lhs.Compare(rhs) <= 0;
 }
 
 template <typename DerivedLhs, typename DerivedRhs>
-EZ_ALWAYS_INLINE bool operator>= (const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
+EZ_ALWAYS_INLINE bool operator>=(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
 {
   return ezStringUtils::Compare(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd()) >= 0;
 }
 
 template <typename DerivedRhs>
-EZ_ALWAYS_INLINE bool operator>= (const char* lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
+EZ_ALWAYS_INLINE bool operator>=(const char* lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
 {
   return rhs.Compare(lhs) <= 0;
 }
 
 template <typename DerivedLhs>
-EZ_ALWAYS_INLINE bool operator>= (const ezStringBase<DerivedLhs>& lhs, const char* rhs) // [tested]
+EZ_ALWAYS_INLINE bool operator>=(const ezStringBase<DerivedLhs>& lhs, const char* rhs) // [tested]
 {
   return lhs.Compare(rhs) >= 0;
 }
-
-

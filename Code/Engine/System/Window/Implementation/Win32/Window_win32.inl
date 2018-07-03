@@ -1,8 +1,9 @@
 #include <PCH.h>
+
 #include <Foundation/Basics.h>
+#include <Foundation/Logging/Log.h>
 #include <System/Basics.h>
 #include <System/Window/Window.h>
-#include <Foundation/Logging/Log.h>
 
 static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPARAM WParam, LPARAM LParam)
 {
@@ -15,26 +16,26 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPAR
 
     switch (Msg)
     {
-    case WM_CLOSE:
-      pWindow->OnClickClose();
-      return 0;
+      case WM_CLOSE:
+        pWindow->OnClickClose();
+        return 0;
 
-    case WM_SETFOCUS:
-      pWindow->OnFocus(true);
-      return 0;
+      case WM_SETFOCUS:
+        pWindow->OnFocus(true);
+        return 0;
 
-    case WM_KILLFOCUS:
-      pWindow->OnFocus(false);
-      return 0;
+      case WM_KILLFOCUS:
+        pWindow->OnFocus(false);
+        return 0;
 
-    case WM_SIZE:
+      case WM_SIZE:
       {
         ezSizeU32 size(LOWORD(LParam), HIWORD(LParam));
         pWindow->OnResize(size);
       }
       break;
 
-    case WM_MOVE:
+      case WM_MOVE:
       {
         pWindow->OnWindowMove((int)(short)LOWORD(LParam), (int)(short)HIWORD(LParam));
       }
@@ -82,7 +83,8 @@ ezResult ezWindow::Initialize()
   // setup fullscreen mode
   if (m_CreationDescription.m_WindowMode == ezWindowMode::FullscreenFixedResolution)
   {
-    ezLog::Dev("Changing display resolution for fullscreen mode to {0}*{1}", m_CreationDescription.m_Resolution.width, m_CreationDescription.m_Resolution.height);
+    ezLog::Dev("Changing display resolution for fullscreen mode to {0}*{1}", m_CreationDescription.m_Resolution.width,
+               m_CreationDescription.m_Resolution.height);
 
     DEVMODEW dmScreenSettings;
 
@@ -127,7 +129,7 @@ ezResult ezWindow::Initialize()
 
 
   // Create rectangle for window
-  RECT Rect = {0, 0, (LONG) m_CreationDescription.m_Resolution.width, (LONG)m_CreationDescription.m_Resolution.height};
+  RECT Rect = {0, 0, (LONG)m_CreationDescription.m_Resolution.width, (LONG)m_CreationDescription.m_Resolution.height};
 
   // Account for left or top placed task bars
   if (m_CreationDescription.m_WindowMode == ezWindowMode::WindowFixedResolution ||
@@ -159,15 +161,15 @@ ezResult ezWindow::Initialize()
   const int iWidth = Rect.right - Rect.left;
   const int iHeight = Rect.bottom - Rect.top;
 
-  ezLog::Info("Window Dimensions: {0}*{1} at left/top origin ({2}, {3}).", iWidth, iHeight, m_CreationDescription.m_Position.x, m_CreationDescription.m_Position.y);
+  ezLog::Info("Window Dimensions: {0}*{1} at left/top origin ({2}, {3}).", iWidth, iHeight, m_CreationDescription.m_Position.x,
+              m_CreationDescription.m_Position.y);
 
 
   // create window
   ezStringWChar sTitelWChar(m_CreationDescription.m_Title.GetData());
   const wchar_t* sTitelWCharRaw = sTitelWChar.GetData();
-  m_WindowHandle = CreateWindowExW(dwExStyle, windowClass.lpszClassName, sTitelWCharRaw, dwWindowStyle,
-                                   m_CreationDescription.m_Position.x, m_CreationDescription.m_Position.y, iWidth, iHeight,
-                                   nullptr, nullptr, windowClass.hInstance, nullptr);
+  m_WindowHandle = CreateWindowExW(dwExStyle, windowClass.lpszClassName, sTitelWCharRaw, dwWindowStyle, m_CreationDescription.m_Position.x,
+                                   m_CreationDescription.m_Position.y, iWidth, iHeight, nullptr, nullptr, windowClass.hInstance, nullptr);
 
   if (m_WindowHandle == INVALID_HANDLE_VALUE)
   {
@@ -220,7 +222,8 @@ ezResult ezWindow::Destroy()
     Res = EZ_FAILURE;
   }
 
-  // the following line of code is a work around, because 'LONG_PTR pNull = reinterpret_cast<LONG_PTR>(nullptr)' crashes the VS 2010 32 Bit compiler :-(
+  // the following line of code is a work around, because 'LONG_PTR pNull = reinterpret_cast<LONG_PTR>(nullptr)' crashes the VS 2010 32 Bit
+  // compiler :-(
   LONG_PTR pNull = 0;
   SetWindowLongPtrW(hWindow, GWLP_USERDATA, pNull);
 
@@ -264,5 +267,3 @@ void ezWindow::OnResize(const ezSizeU32& newWindowSize)
 {
   ezLog::Info("Window resized to ({0}, {1})", newWindowSize.width, newWindowSize.height);
 }
-
-

@@ -10,7 +10,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Sequence, 1, ezRTTIDefaultAll
   {
     new ezCategoryAttribute("Logic")
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
   EZ_BEGIN_PROPERTIES
   {
     // Execution Pins (Input)
@@ -22,9 +22,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Sequence, 1, ezRTTIDefaultAll
     EZ_OUTPUT_EXECUTION_PIN("then4", 3),
     EZ_OUTPUT_EXECUTION_PIN("then5", 4),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_Sequence::ezVisualScriptNode_Sequence() { }
 
@@ -41,7 +41,7 @@ void ezVisualScriptNode_Sequence::Execute(ezVisualScriptInstance* pInstance, ezU
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezLogicOperator, 1)
 EZ_ENUM_CONSTANTS(ezLogicOperator::Equal, ezLogicOperator::Unequal, ezLogicOperator::Less, ezLogicOperator::LessEqual, ezLogicOperator::Greater, ezLogicOperator::GreaterEqual)
-EZ_END_STATIC_REFLECTED_ENUM()
+EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Compare, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_Compare>)
 {
@@ -50,7 +50,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Compare, 1, ezRTTIDefaultAllo
     new ezCategoryAttribute("Logic"),
     new ezTitleAttribute("Compare: {Value1} {Operator} {Value2}"),
   }
-    EZ_END_ATTRIBUTES
+    EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     // Properties
@@ -62,9 +62,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Compare, 1, ezRTTIDefaultAllo
     // Data Pins (Output)
     EZ_OUTPUT_DATA_PIN("Result", 0, ezVisualScriptDataPinType::Boolean),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_Compare::ezVisualScriptNode_Compare() { }
 ezVisualScriptNode_Compare::~ezVisualScriptNode_Compare() { }
@@ -129,7 +129,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_CompareExec, 1, ezRTTIDefault
     new ezCategoryAttribute("Logic"),
     new ezTitleAttribute("Compare: {Value1} {Operator} {Value2}"),
   }
-    EZ_END_ATTRIBUTES
+    EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     // Properties
@@ -144,9 +144,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_CompareExec, 1, ezRTTIDefault
     // Data Pins (Output)
     EZ_OUTPUT_DATA_PIN("Result", 0, ezVisualScriptDataPinType::Boolean),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_CompareExec::ezVisualScriptNode_CompareExec() { }
 ezVisualScriptNode_CompareExec::~ezVisualScriptNode_CompareExec() { }
@@ -206,7 +206,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_If, 1, ezRTTIDefaultAllocator
   {
     new ezCategoryAttribute("Logic")
   }
-    EZ_END_ATTRIBUTES
+    EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     // Execution Pins
@@ -216,9 +216,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_If, 1, ezRTTIDefaultAllocator
     // Data Pins (Input)
     EZ_INPUT_DATA_PIN("Bool", 0, ezVisualScriptDataPinType::Boolean),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_If::ezVisualScriptNode_If() { }
 ezVisualScriptNode_If::~ezVisualScriptNode_If() { }
@@ -247,7 +247,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Logic, 1, ezRTTIDefaultAlloca
   {
     new ezCategoryAttribute("Logic")
   }
-    EZ_END_ATTRIBUTES
+    EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     // Data Pins (Input)
@@ -259,9 +259,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Logic, 1, ezRTTIDefaultAlloca
     EZ_OUTPUT_DATA_PIN("AxorB", 2, ezVisualScriptDataPinType::Boolean),
     EZ_OUTPUT_DATA_PIN("notA", 3, ezVisualScriptDataPinType::Boolean),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_Logic::ezVisualScriptNode_Logic() { }
 ezVisualScriptNode_Logic::~ezVisualScriptNode_Logic() { }

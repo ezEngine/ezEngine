@@ -12,7 +12,7 @@
 #endif
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpotLightRenderData, 1, ezRTTIDefaultAllocator<ezSpotLightRenderData>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 2, ezComponentMode::Static)
 {
@@ -23,7 +23,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 2, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("OuterSpotAngle", GetOuterSpotAngle, SetOuterSpotAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(179.0f)), new ezDefaultValueAttribute(ezAngle::Degree(30.0f))),
     //EZ_ACCESSOR_PROPERTY("ProjectedTexture", GetProjectedTextureFile, SetProjectedTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D;Render Target")),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
@@ -36,7 +36,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 2, ezComponentMode::Static)
     new ezConeAngleManipulatorAttribute("OuterSpotAngle", 1.5f),
     new ezConeAngleManipulatorAttribute("InnerSpotAngle", 1.5f),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
 
@@ -224,7 +224,7 @@ ezBoundingSphere ezSpotLightComponent::CalculateBoundingSphere(const ezTransform
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpotLightVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezSpotLightVisualizerAttribute>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSpotLightVisualizerAttribute::ezSpotLightVisualizerAttribute()
   : ezVisualizerAttribute(nullptr)

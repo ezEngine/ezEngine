@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <Core/WorldSerializer/WorldWriter.h>
+
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/IO/MemoryStream.h>
 
 void ezWorldWriter::Clear()
@@ -270,7 +271,8 @@ void ezWorldWriter::WriteComponentInfo(const ezRTTI* pRtti)
   s << pRtti->GetTypeVersion();
 }
 
-void ezWorldWriter::WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<const ezComponent*>& components, ezResourceHandleWriteContext& ResHandleWriter)
+void ezWorldWriter::WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<const ezComponent*>& components,
+                                          ezResourceHandleWriteContext& ResHandleWriter)
 {
   ezMemoryStreamStorage storage;
   ezMemoryStreamWriter memWriter(&storage);
@@ -306,4 +308,3 @@ void ezWorldWriter::WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<con
 }
 
 EZ_STATICLINK_FILE(Core, Core_WorldSerializer_Implementation_WorldWriter);
-

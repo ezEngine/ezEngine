@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Core/World/World.h>
+#include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Types/TagSet.h>
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
 
 class ezResourceHandleWriteContext;
 
@@ -15,7 +15,6 @@ class ezResourceHandleWriteContext;
 class EZ_CORE_DLL ezWorldWriter
 {
 public:
-
   /// \brief Writes all content in \a world to \a stream.
   ///
   /// All game objects with tags that overlap with \a pExclude will be ignored.
@@ -61,7 +60,8 @@ private:
   ezVisitorExecution::Enum ObjectTraverser(ezGameObject* pObject);
   void WriteGameObject(const ezGameObject* pObject);
   void WriteComponentInfo(const ezRTTI* pRtti);
-  void WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<const ezComponent*>& components, ezResourceHandleWriteContext& ResHandleWriter);
+  void WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<const ezComponent*>& components,
+                             ezResourceHandleWriteContext& ResHandleWriter);
 
   ezStreamWriter* m_pStream = nullptr;
   const ezTagSet* m_pExclude = nullptr;
@@ -74,5 +74,3 @@ private:
   ezMap<ezGameObjectHandle, ezUInt32> m_WrittenGameObjectHandles;
   ezMap<ezComponentHandle, ezUInt32> m_WrittenComponentHandles;
 };
-
-

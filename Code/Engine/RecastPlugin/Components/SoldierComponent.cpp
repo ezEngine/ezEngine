@@ -15,7 +15,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSoldierComponent, 1, ezComponentMode::Dynamic)
   //EZ_BEGIN_PROPERTIES
   //{
   //}
-  //EZ_END_PROPERTIES
+  //EZ_END_PROPERTIES;
 }
 EZ_END_COMPONENT_TYPE
 

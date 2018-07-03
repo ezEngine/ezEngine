@@ -5,7 +5,7 @@
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezCurve1DAssetDocumentManager>);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezCurve1DAssetDocumentManager::ezCurve1DAssetDocumentManager()
 {

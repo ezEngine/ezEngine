@@ -10,13 +10,13 @@ EZ_BEGIN_COMPONENT_TYPE(RecursiveGrowthComponent, 2, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("Children", m_uiNumChildren)->AddAttributes(new ezDefaultValueAttribute(2), new ezClampValueAttribute(0, 200)),
     EZ_MEMBER_PROPERTY("RecursionDepth", m_uiRecursionDepth)->AddAttributes(new ezDefaultValueAttribute(2), new ezClampValueAttribute(0, 5)),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("SampleGame"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
 

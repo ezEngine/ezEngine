@@ -3,11 +3,12 @@
 #include <Foundation/Containers/HybridArray.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  // For HString, HStringReference and co.
-  #include <wrl/wrappers/corewrappers.h>
+// For HString, HStringReference and co.
+#include <wrl/wrappers/corewrappers.h>
 #endif
 
-/// \brief A very simple string class that should only be used to temporarily convert text to the OSes native wchar_t convention (16 or 32 Bit).
+/// \brief A very simple string class that should only be used to temporarily convert text to the OSes native wchar_t convention (16 or 32
+/// Bit).
 ///
 /// This should be used when one needs to output text via some function that only accepts wchar_t strings.
 /// DO NOT use this for storage or anything else that is not temporary.
@@ -159,7 +160,8 @@ public:
   void operator=(const ezUInt32* szUtf32);
   void operator=(const wchar_t* szWChar);
 
-  /// \brief Unfortunately you cannot assign HStrings, so you cannot copy the result to another HString, you have to use this result directly
+  /// \brief Unfortunately you cannot assign HStrings, so you cannot copy the result to another HString, you have to use this result
+  /// directly
   const Microsoft::WRL::Wrappers::HString& GetData() const { return m_Data; }
 
 private:
@@ -173,4 +175,3 @@ private:
 
 
 #include <Foundation/Strings/Implementation/StringConversion_inl.h>
-

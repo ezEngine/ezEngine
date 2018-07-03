@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Core/Scripting/LuaWrapper.h>
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
@@ -17,7 +18,10 @@ void* ezLuaWrapper::GetFunctionLightUserData() const
 
 bool ezLuaWrapper::PrepareFunctionCall(const char* szFunctionName)
 {
-  EZ_ASSERT_DEV(m_States.m_iLuaReturnValues == 0, "ezLuaWrapper::PrepareFunctionCall: You didn't discard the return-values of the previous script call. {0} Return-values were expected.", m_States.m_iLuaReturnValues);
+  EZ_ASSERT_DEV(m_States.m_iLuaReturnValues == 0,
+                "ezLuaWrapper::PrepareFunctionCall: You didn't discard the return-values of the previous script call. {0} Return-values "
+                "were expected.",
+                m_States.m_iLuaReturnValues);
 
   m_States.m_iParametersPushed = 0;
 
@@ -58,12 +62,14 @@ ezResult ezLuaWrapper::CallPreparedFunction(ezUInt32 iExpectedReturnValues, ezLo
 
     ezLog::Error(pLogInterface, "Script-function Call: {0}", lua_tostring(m_pState, -1));
 
-    lua_pop(m_pState, 1);  /* pop error message from the stack */
+    lua_pop(m_pState, 1); /* pop error message from the stack */
     return EZ_FAILURE;
   }
 
   // before resetting the state, make sure the returned state has no stuff left
-  EZ_ASSERT_DEV((m_States.m_iLuaReturnValues == 0) && (m_States.m_iOpenTables == 0), "After ezLuaWrapper::CallPreparedFunction: Return values: {0}, Open Tables: {1}", m_States.m_iLuaReturnValues, m_States.m_iOpenTables);
+  EZ_ASSERT_DEV((m_States.m_iLuaReturnValues == 0) && (m_States.m_iOpenTables == 0),
+                "After ezLuaWrapper::CallPreparedFunction: Return values: {0}, Open Tables: {1}", m_States.m_iLuaReturnValues,
+                m_States.m_iOpenTables);
 
   m_States = StackedStates;
   return EZ_SUCCESS;
@@ -78,22 +84,22 @@ void ezLuaWrapper::DiscardReturnValues()
   m_States.m_iLuaReturnValues = 0;
 }
 
-bool ezLuaWrapper::IsReturnValueInt (ezUInt32 iReturnValue) const
+bool ezLuaWrapper::IsReturnValueInt(ezUInt32 iReturnValue) const
 {
   return (lua_type(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_ParamOffset) - 1) == LUA_TNUMBER);
 }
 
-bool ezLuaWrapper::IsReturnValueBool (ezUInt32 iReturnValue) const
+bool ezLuaWrapper::IsReturnValueBool(ezUInt32 iReturnValue) const
 {
   return (lua_type(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_ParamOffset) - 1) == LUA_TBOOLEAN);
 }
 
-bool ezLuaWrapper::IsReturnValueFloat (ezUInt32 iReturnValue) const
+bool ezLuaWrapper::IsReturnValueFloat(ezUInt32 iReturnValue) const
 {
   return (lua_type(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_ParamOffset) - 1) == LUA_TNUMBER);
 }
 
-bool ezLuaWrapper::IsReturnValueString (ezUInt32 iReturnValue) const
+bool ezLuaWrapper::IsReturnValueString(ezUInt32 iReturnValue) const
 {
   return (lua_type(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_ParamOffset) - 1) == LUA_TSTRING);
 }
@@ -105,7 +111,7 @@ bool ezLuaWrapper::IsReturnValueNil(ezUInt32 iReturnValue) const
 
 ezInt32 ezLuaWrapper::GetIntReturnValue(ezUInt32 iReturnValue) const
 {
-  return ((int) (lua_tointeger(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_ParamOffset) - 1)));
+  return ((int)(lua_tointeger(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_ParamOffset) - 1)));
 }
 
 bool ezLuaWrapper::GetBoolReturnValue(ezUInt32 iReturnValue) const
@@ -115,7 +121,7 @@ bool ezLuaWrapper::GetBoolReturnValue(ezUInt32 iReturnValue) const
 
 float ezLuaWrapper::GetFloatReturnValue(ezUInt32 iReturnValue) const
 {
-  return ((float) (lua_tonumber(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_ParamOffset) - 1)));
+  return ((float)(lua_tonumber(m_pState, -m_States.m_iLuaReturnValues + (iReturnValue + s_ParamOffset) - 1)));
 }
 
 const char* ezLuaWrapper::GetStringReturnValue(ezUInt32 iReturnValue) const
@@ -129,4 +135,3 @@ const char* ezLuaWrapper::GetStringReturnValue(ezUInt32 iReturnValue) const
 
 
 EZ_STATICLINK_FILE(Core, Core_Scripting_LuaWrapper_CFunctions);
-

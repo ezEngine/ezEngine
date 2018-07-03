@@ -10,21 +10,20 @@
 struct EZ_FOUNDATION_DLL ezTime
 {
 public:
-
   /// \brief Gets the current time
   static ezTime Now(); // [tested]
 
   /// \brief Creates an instance of ezTime that was initialized from nanoseconds.
-  EZ_ALWAYS_INLINE constexpr static ezTime Nanoseconds(double fNanoseconds)    { return ezTime(fNanoseconds * 0.000000001); }
+  EZ_ALWAYS_INLINE constexpr static ezTime Nanoseconds(double fNanoseconds) { return ezTime(fNanoseconds * 0.000000001); }
 
   /// \brief Creates an instance of ezTime that was initialized from microseconds.
-  EZ_ALWAYS_INLINE constexpr static ezTime Microseconds(double fMicroseconds)  { return ezTime(fMicroseconds * 0.000001); }
+  EZ_ALWAYS_INLINE constexpr static ezTime Microseconds(double fMicroseconds) { return ezTime(fMicroseconds * 0.000001); }
 
   /// \brief Creates an instance of ezTime that was initialized from milliseconds.
-  EZ_ALWAYS_INLINE constexpr static ezTime Milliseconds(double fMilliseconds)  { return ezTime(fMilliseconds * 0.001); }
+  EZ_ALWAYS_INLINE constexpr static ezTime Milliseconds(double fMilliseconds) { return ezTime(fMilliseconds * 0.001); }
 
   /// \brief Creates an instance of ezTime that was initialized from seconds.
-  EZ_ALWAYS_INLINE constexpr static ezTime Seconds(double fSeconds)            { return ezTime(fSeconds); }
+  EZ_ALWAYS_INLINE constexpr static ezTime Seconds(double fSeconds) { return ezTime(fSeconds); }
 
   /// \brief Creates an instance of ezTime that was initialized with zero.
   EZ_ALWAYS_INLINE constexpr static ezTime Zero() { return ezTime(0.0); }
@@ -32,7 +31,10 @@ public:
   EZ_DECLARE_POD_TYPE();
 
   /// \brief The default constructor sets the time to zero.
-  EZ_ALWAYS_INLINE constexpr ezTime() : m_fTime(0.0) { }
+  EZ_ALWAYS_INLINE constexpr ezTime()
+      : m_fTime(0.0)
+  {
+  }
 
   /// \brief Sets the time value to zero.
   void SetZero();
@@ -63,28 +65,27 @@ public:
   constexpr double GetSeconds() const;
 
   /// \brief Subtracts the time value of "other" from this instances value.
-  void operator -= (const ezTime& other);
+  void operator-=(const ezTime& other);
 
   /// \brief Adds the time value of "other" to this instances value.
-  void operator += (const ezTime& other);
+  void operator+=(const ezTime& other);
 
   /// \brief Returns the difference: "this instance - other"
-  constexpr ezTime operator - (const ezTime& other) const;
+  constexpr ezTime operator-(const ezTime& other) const;
 
   /// \brief Returns the sum: "this instance + other"
-  constexpr ezTime operator + (const ezTime& other) const;
+  constexpr ezTime operator+(const ezTime& other) const;
 
   constexpr ezTime operator-() const;
 
-  constexpr bool operator< (const ezTime& rhs) const { return m_fTime <  rhs.m_fTime; }
+  constexpr bool operator<(const ezTime& rhs) const { return m_fTime < rhs.m_fTime; }
   constexpr bool operator<=(const ezTime& rhs) const { return m_fTime <= rhs.m_fTime; }
-  constexpr bool operator> (const ezTime& rhs) const { return m_fTime >  rhs.m_fTime; }
+  constexpr bool operator>(const ezTime& rhs) const { return m_fTime > rhs.m_fTime; }
   constexpr bool operator>=(const ezTime& rhs) const { return m_fTime >= rhs.m_fTime; }
   constexpr bool operator==(const ezTime& rhs) const { return m_fTime == rhs.m_fTime; }
   constexpr bool operator!=(const ezTime& rhs) const { return m_fTime != rhs.m_fTime; }
 
 private:
-
   /// \brief For internal use only.
   constexpr explicit ezTime(double fTime);
 
@@ -92,18 +93,16 @@ private:
   double m_fTime;
 
 private:
-
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, Time);
 
   static void Initialize();
 };
 
-constexpr ezTime operator* (ezTime t, double f);
-constexpr ezTime operator* (double f, ezTime t);
+constexpr ezTime operator*(ezTime t, double f);
+constexpr ezTime operator*(double f, ezTime t);
 
-constexpr ezTime operator/ (ezTime t, double f);
-constexpr ezTime operator/ (double f, ezTime t);
+constexpr ezTime operator/(ezTime t, double f);
+constexpr ezTime operator/(double f, ezTime t);
 
 
 #include <Foundation/Time/Implementation/Time_inl.h>
-

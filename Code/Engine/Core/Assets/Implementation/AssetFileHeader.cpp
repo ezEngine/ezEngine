@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/MemoryStream.h>
 
@@ -43,7 +44,7 @@ void ezAssetFileHeader::Read(ezStreamReader& stream)
   m_uiHash = 0xFFFFFFFFFFFFFFFF;
   m_uiVersion = 0;
 
-  char szTag[8] = { 0 };
+  char szTag[8] = {0};
   if (stream.ReadBytes(szTag, 7) < 7)
   {
     EZ_REPORT_FAILURE("The stream does not contain a valid asset file header");
@@ -80,4 +81,3 @@ void ezAssetFileHeader::Read(ezStreamReader& stream)
 }
 
 EZ_STATICLINK_FILE(Core, Core_Assets_Implementation_AssetFileHeader);
-

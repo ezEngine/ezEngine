@@ -7,7 +7,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleTypeRenderMode, 1)
   EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::Opaque),
   EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::Additive),
   EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::Blended),
-EZ_END_STATIC_REFLECTED_ENUM();
+EZ_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -18,7 +18,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezEffectInvisibleUpdateRate, 1)
   EZ_ENUM_CONSTANT(ezEffectInvisibleUpdateRate::Max5fps),
   EZ_ENUM_CONSTANT(ezEffectInvisibleUpdateRate::Pause),
   EZ_ENUM_CONSTANT(ezEffectInvisibleUpdateRate::Discard),
-EZ_END_STATIC_REFLECTED_ENUM();
+EZ_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////
 

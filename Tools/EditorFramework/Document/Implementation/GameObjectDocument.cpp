@@ -15,12 +15,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectMetaData, 1, ezRTTINoAllocator)
   //{
   //  //EZ_MEMBER_PROPERTY("MetaHidden", m_bHidden) // remove this property to disable serialization
   //}
-  //EZ_END_PROPERTIES
+  //EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectDocument, 2, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezGameObjectDocument::ezGameObjectDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, bool bUseEngineConnection, bool bUseIPCObjectMirror)
   : ezAssetDocument(szDocumentPath, pObjectManager, bUseEngineConnection, bUseIPCObjectMirror)

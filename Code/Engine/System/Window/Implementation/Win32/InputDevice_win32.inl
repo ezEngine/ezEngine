@@ -1,13 +1,13 @@
-﻿#include <PCH.h>
-#include <Foundation/Logging/Log.h>
-#include <System/Window/Implementation/Win32/InputDevice_win32.h>
+#include <PCH.h>
+
 #include <Core/Input/InputManager.h>
-#include <Foundation/Strings/StringConversion.h>
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Strings/StringConversion.h>
+#include <System/Window/Implementation/Win32/InputDevice_win32.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, 1, ezRTTINoAllocator);
-  // no properties or message handlers
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 bool ezStandardInputDevice::s_bMainWindowUsed = false;
 
@@ -53,7 +53,7 @@ void ezStandardInputDevice::InitializeDevice()
     Rid[1].dwFlags = 0;
     Rid[1].hwndTarget = nullptr;
 
-    if (RegisterRawInputDevices(&Rid[0], (UINT) 2, sizeof(RAWINPUTDEVICE)) == FALSE)
+    if (RegisterRawInputDevices(&Rid[0], (UINT)2, sizeof(RAWINPUTDEVICE)) == FALSE)
     {
       ezLog::Error("Could not initialize RawInput for Mouse and Keyboard input.");
     }
@@ -197,10 +197,10 @@ void ezStandardInputDevice::RegisterInputSlots()
   RegisterInputSlot(ezInputSlot_MouseWheelUp, "Mousewheel Up", ezInputSlotFlags::IsMouseWheel);
   RegisterInputSlot(ezInputSlot_MouseWheelDown, "Mousewheel Down", ezInputSlotFlags::IsMouseWheel);
 
-  RegisterInputSlot(ezInputSlot_MouseMoveNegX, "Mouse Move Left",   ezInputSlotFlags::IsMouseAxisMove);
-  RegisterInputSlot(ezInputSlot_MouseMovePosX, "Mouse Move Right",  ezInputSlotFlags::IsMouseAxisMove);
-  RegisterInputSlot(ezInputSlot_MouseMoveNegY, "Mouse Move Down",   ezInputSlotFlags::IsMouseAxisMove);
-  RegisterInputSlot(ezInputSlot_MouseMovePosY, "Mouse Move Up",     ezInputSlotFlags::IsMouseAxisMove);
+  RegisterInputSlot(ezInputSlot_MouseMoveNegX, "Mouse Move Left", ezInputSlotFlags::IsMouseAxisMove);
+  RegisterInputSlot(ezInputSlot_MouseMovePosX, "Mouse Move Right", ezInputSlotFlags::IsMouseAxisMove);
+  RegisterInputSlot(ezInputSlot_MouseMoveNegY, "Mouse Move Down", ezInputSlotFlags::IsMouseAxisMove);
+  RegisterInputSlot(ezInputSlot_MouseMovePosY, "Mouse Move Up", ezInputSlotFlags::IsMouseAxisMove);
 
   RegisterInputSlot(ezInputSlot_MouseButton0, "Mousebutton 0", ezInputSlotFlags::IsButton);
   RegisterInputSlot(ezInputSlot_MouseButton1, "Mousebutton 1", ezInputSlotFlags::IsButton);
@@ -208,8 +208,8 @@ void ezStandardInputDevice::RegisterInputSlots()
   RegisterInputSlot(ezInputSlot_MouseButton3, "Mousebutton 3", ezInputSlotFlags::IsButton);
   RegisterInputSlot(ezInputSlot_MouseButton4, "Mousebutton 4", ezInputSlotFlags::IsButton);
 
-  RegisterInputSlot(ezInputSlot_MouseDblClick0, "Left Double Click",   ezInputSlotFlags::IsDoubleClick);
-  RegisterInputSlot(ezInputSlot_MouseDblClick1, "Right Double Click",  ezInputSlotFlags::IsDoubleClick);
+  RegisterInputSlot(ezInputSlot_MouseDblClick0, "Left Double Click", ezInputSlotFlags::IsDoubleClick);
+  RegisterInputSlot(ezInputSlot_MouseDblClick1, "Right Double Click", ezInputSlotFlags::IsDoubleClick);
   RegisterInputSlot(ezInputSlot_MouseDblClick2, "Middle Double Click", ezInputSlotFlags::IsDoubleClick);
 
   RegisterInputSlot(ezInputSlot_MousePositionX, "Mouse Position X", ezInputSlotFlags::IsMouseAxisPosition);
@@ -259,8 +259,8 @@ void ezStandardInputDevice::RegisterInputSlots()
 
 void ezStandardInputDevice::ResetInputSlotValues()
 {
-  m_InputSlotValues[ezInputSlot_MouseWheelUp]  = 0;
-  m_InputSlotValues[ezInputSlot_MouseWheelDown]= 0;
+  m_InputSlotValues[ezInputSlot_MouseWheelUp] = 0;
+  m_InputSlotValues[ezInputSlot_MouseWheelDown] = 0;
   m_InputSlotValues[ezInputSlot_MouseMoveNegX] = 0;
   m_InputSlotValues[ezInputSlot_MouseMovePosX] = 0;
   m_InputSlotValues[ezInputSlot_MouseMoveNegY] = 0;
@@ -278,8 +278,10 @@ void SetClipRect(bool bClip, HWND hWnd)
     GetClientRect(hWnd, &area);
 
     POINT p0, p1;
-    p0.x = 0; p0.y = 0;
-    p1.x = area.right; p1.y = area.bottom;
+    p0.x = 0;
+    p0.y = 0;
+    p1.x = area.right;
+    p1.y = area.bottom;
 
     ClientToScreen(hWnd, &p0);
     ClientToScreen(hWnd, &p1);
@@ -316,20 +318,20 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
 
   switch (Msg)
   {
-  case WM_MOUSEWHEEL:
+    case WM_MOUSEWHEEL:
     {
       // The mousewheel does not work with rawinput over touchpads (at least not all)
       // So we handle that one individually
 
-      const ezInt32 iRotated = (ezInt16) HIWORD(wParam);
+      const ezInt32 iRotated = (ezInt16)HIWORD(wParam);
 
       if (iRotated > 0)
-        m_InputSlotValues[ezInputSlot_MouseWheelUp]   =  iRotated /  120.0f;
+        m_InputSlotValues[ezInputSlot_MouseWheelUp] = iRotated / 120.0f;
       else
-        m_InputSlotValues[ezInputSlot_MouseWheelDown] =  iRotated / -120.0f;
+        m_InputSlotValues[ezInputSlot_MouseWheelDown] = iRotated / -120.0f;
     }
     break;
-  case WM_MOUSEMOVE:
+    case WM_MOUSEMOVE:
     {
       RECT area;
       GetClientRect(hWnd, &area);
@@ -345,13 +347,12 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
     }
     break;
 
-  case WM_SETFOCUS:
+    case WM_SETFOCUS:
     {
       SetClipRect(m_bClipCursor, hWnd);
-
     }
     break;
-  case WM_KILLFOCUS:
+    case WM_KILLFOCUS:
     {
       SetClipRect(false, hWnd);
 
@@ -363,118 +364,118 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
         it.Next();
       }
     }
-    return;
-  case WM_CHAR:
-    m_LastCharacter = (wchar_t) wParam;
-    return;
-  case WM_LBUTTONDBLCLK:
-    m_InputSlotValues[ezInputSlot_MouseDblClick0] = 1.0f;
-    return;
-  case WM_RBUTTONDBLCLK:
-    m_InputSlotValues[ezInputSlot_MouseDblClick1] = 1.0f;
-    return;
-  case WM_MBUTTONDBLCLK:
-    m_InputSlotValues[ezInputSlot_MouseDblClick2] = 1.0f;
-    return;
+      return;
+    case WM_CHAR:
+      m_LastCharacter = (wchar_t)wParam;
+      return;
+    case WM_LBUTTONDBLCLK:
+      m_InputSlotValues[ezInputSlot_MouseDblClick0] = 1.0f;
+      return;
+    case WM_RBUTTONDBLCLK:
+      m_InputSlotValues[ezInputSlot_MouseDblClick1] = 1.0f;
+      return;
+    case WM_MBUTTONDBLCLK:
+      m_InputSlotValues[ezInputSlot_MouseDblClick2] = 1.0f;
+      return;
 
 #if EZ_ENABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
 
-  case WM_LBUTTONDOWN:
-    m_InputSlotValues[ezInputSlot_MouseButton0] = 1.0f;
+    case WM_LBUTTONDOWN:
+      m_InputSlotValues[ezInputSlot_MouseButton0] = 1.0f;
 
-    if (s_iMouseCaptureCount == 0)
-      SetCapture(hWnd);
-    ++s_iMouseCaptureCount;
+      if (s_iMouseCaptureCount == 0)
+        SetCapture(hWnd);
+      ++s_iMouseCaptureCount;
 
-    return;
+      return;
 
-  case WM_LBUTTONUP:
-    m_InputSlotValues[ezInputSlot_MouseButton0] = 0.0f;
-    SetClipRect(m_bClipCursor, hWnd);
+    case WM_LBUTTONUP:
+      m_InputSlotValues[ezInputSlot_MouseButton0] = 0.0f;
+      SetClipRect(m_bClipCursor, hWnd);
 
-    --s_iMouseCaptureCount;
-    if (s_iMouseCaptureCount <= 0)
-      ReleaseCapture();
+      --s_iMouseCaptureCount;
+      if (s_iMouseCaptureCount <= 0)
+        ReleaseCapture();
 
-    return;
+      return;
 
-  case WM_RBUTTONDOWN:
-    m_InputSlotValues[ezInputSlot_MouseButton1] = 1.0f;
+    case WM_RBUTTONDOWN:
+      m_InputSlotValues[ezInputSlot_MouseButton1] = 1.0f;
 
-    if (s_iMouseCaptureCount == 0)
-      SetCapture(hWnd);
-    ++s_iMouseCaptureCount;
+      if (s_iMouseCaptureCount == 0)
+        SetCapture(hWnd);
+      ++s_iMouseCaptureCount;
 
-    return;
+      return;
 
-  case WM_RBUTTONUP:
-    m_InputSlotValues[ezInputSlot_MouseButton1] = 0.0f;
-    SetClipRect(m_bClipCursor, hWnd);
+    case WM_RBUTTONUP:
+      m_InputSlotValues[ezInputSlot_MouseButton1] = 0.0f;
+      SetClipRect(m_bClipCursor, hWnd);
 
-    --s_iMouseCaptureCount;
-    if (s_iMouseCaptureCount <= 0)
-      ReleaseCapture();
+      --s_iMouseCaptureCount;
+      if (s_iMouseCaptureCount <= 0)
+        ReleaseCapture();
 
-    return;
+      return;
 
-  case WM_MBUTTONDOWN:
-    m_InputSlotValues[ezInputSlot_MouseButton2] = 1.0f;
+    case WM_MBUTTONDOWN:
+      m_InputSlotValues[ezInputSlot_MouseButton2] = 1.0f;
 
-    if (s_iMouseCaptureCount == 0)
-      SetCapture(hWnd);
-    ++s_iMouseCaptureCount;
-    return;
+      if (s_iMouseCaptureCount == 0)
+        SetCapture(hWnd);
+      ++s_iMouseCaptureCount;
+      return;
 
-  case WM_MBUTTONUP:
-    m_InputSlotValues[ezInputSlot_MouseButton2] = 0.0f;
+    case WM_MBUTTONUP:
+      m_InputSlotValues[ezInputSlot_MouseButton2] = 0.0f;
 
-    --s_iMouseCaptureCount;
-    if (s_iMouseCaptureCount <= 0)
-      ReleaseCapture();
+      --s_iMouseCaptureCount;
+      if (s_iMouseCaptureCount <= 0)
+        ReleaseCapture();
 
-    return;
+      return;
 
-  case WM_XBUTTONDOWN:
-    if (GET_XBUTTON_WPARAM(wParam) == XBUTTON1)
-      m_InputSlotValues[ezInputSlot_MouseButton3] = 1.0f;
-    if (GET_XBUTTON_WPARAM(wParam) == XBUTTON2)
-      m_InputSlotValues[ezInputSlot_MouseButton4] = 1.0f;
+    case WM_XBUTTONDOWN:
+      if (GET_XBUTTON_WPARAM(wParam) == XBUTTON1)
+        m_InputSlotValues[ezInputSlot_MouseButton3] = 1.0f;
+      if (GET_XBUTTON_WPARAM(wParam) == XBUTTON2)
+        m_InputSlotValues[ezInputSlot_MouseButton4] = 1.0f;
 
-    if (s_iMouseCaptureCount == 0)
-      SetCapture(hWnd);
-    ++s_iMouseCaptureCount;
+      if (s_iMouseCaptureCount == 0)
+        SetCapture(hWnd);
+      ++s_iMouseCaptureCount;
 
-    return;
+      return;
 
-  case WM_XBUTTONUP:
-    if (GET_XBUTTON_WPARAM(wParam) == XBUTTON1)
-      m_InputSlotValues[ezInputSlot_MouseButton3] = 0.0f;
-    if (GET_XBUTTON_WPARAM(wParam) == XBUTTON2)
-      m_InputSlotValues[ezInputSlot_MouseButton4] = 0.0f;
+    case WM_XBUTTONUP:
+      if (GET_XBUTTON_WPARAM(wParam) == XBUTTON1)
+        m_InputSlotValues[ezInputSlot_MouseButton3] = 0.0f;
+      if (GET_XBUTTON_WPARAM(wParam) == XBUTTON2)
+        m_InputSlotValues[ezInputSlot_MouseButton4] = 0.0f;
 
-    --s_iMouseCaptureCount;
-    if (s_iMouseCaptureCount <= 0)
-      ReleaseCapture();
+      --s_iMouseCaptureCount;
+      if (s_iMouseCaptureCount <= 0)
+        ReleaseCapture();
 
-    return;
+      return;
 
-  case WM_CAPTURECHANGED: // Sent to the window that is losing the mouse capture.
-    s_iMouseCaptureCount = 0;
-    return;
+    case WM_CAPTURECHANGED: // Sent to the window that is losing the mouse capture.
+      s_iMouseCaptureCount = 0;
+      return;
 
 #else
 
-  case WM_LBUTTONUP:
-    SetClipRect(m_bClipCursor, hWnd);
-    return;
+    case WM_LBUTTONUP:
+      SetClipRect(m_bClipCursor, hWnd);
+      return;
 
 #endif
 
-  case WM_INPUT:
+    case WM_INPUT:
     {
       ezUInt32 uiSize = 0;
 
-      GetRawInputData((HRAWINPUT) lParam, RID_INPUT, nullptr, &uiSize, sizeof(RAWINPUTHEADER));
+      GetRawInputData((HRAWINPUT)lParam, RID_INPUT, nullptr, &uiSize, sizeof(RAWINPUTHEADER));
 
       if (uiSize == 0)
         return;
@@ -482,10 +483,10 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
       ezHybridArray<ezUInt8, sizeof(RAWINPUT)> InputData;
       InputData.SetCountUninitialized(uiSize);
 
-      if (GetRawInputData((HRAWINPUT) lParam, RID_INPUT, &InputData[0], &uiSize, sizeof(RAWINPUTHEADER)) != uiSize)
+      if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, &InputData[0], &uiSize, sizeof(RAWINPUTHEADER)) != uiSize)
         return;
 
-      RAWINPUT* raw = (RAWINPUT*) &InputData[0];
+      RAWINPUT* raw = (RAWINPUT*)&InputData[0];
 
       if (raw->header.dwType == RIM_TYPEKEYBOARD)
       {
@@ -536,7 +537,8 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
 
         m_InputSlotValues[szInputSlotName] = bPressed ? 1.0f : 0.0f;
 
-        if ((m_InputSlotValues[ezInputSlot_KeyLeftCtrl] > 0.1f) && (m_InputSlotValues[ezInputSlot_KeyLeftAlt] > 0.1f) && (m_InputSlotValues[ezInputSlot_KeyNumpadEnter] > 0.1f))
+        if ((m_InputSlotValues[ezInputSlot_KeyLeftCtrl] > 0.1f) && (m_InputSlotValues[ezInputSlot_KeyLeftAlt] > 0.1f) &&
+            (m_InputSlotValues[ezInputSlot_KeyNumpadEnter] > 0.1f))
           SetClipMouseCursor(!m_bClipCursor);
       }
       else if (raw->header.dwType == RIM_TYPEMOUSE)
@@ -547,32 +549,35 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
         // if at all, we should handle them as touch points, not as mouse positions
         if ((raw->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE) == 0)
         {
-          m_InputSlotValues[ezInputSlot_MouseMoveNegX] += ((raw->data.mouse.lLastX < 0) ? (float) -raw->data.mouse.lLastX : 0.0f) * GetMouseSpeed().x;
-          m_InputSlotValues[ezInputSlot_MouseMovePosX] += ((raw->data.mouse.lLastX > 0) ? (float)  raw->data.mouse.lLastX : 0.0f) * GetMouseSpeed().x;
-          m_InputSlotValues[ezInputSlot_MouseMoveNegY] += ((raw->data.mouse.lLastY < 0) ? (float) -raw->data.mouse.lLastY : 0.0f) * GetMouseSpeed().y;
-          m_InputSlotValues[ezInputSlot_MouseMovePosY] += ((raw->data.mouse.lLastY > 0) ? (float)  raw->data.mouse.lLastY : 0.0f) * GetMouseSpeed().y;
+          m_InputSlotValues[ezInputSlot_MouseMoveNegX] +=
+              ((raw->data.mouse.lLastX < 0) ? (float)-raw->data.mouse.lLastX : 0.0f) * GetMouseSpeed().x;
+          m_InputSlotValues[ezInputSlot_MouseMovePosX] +=
+              ((raw->data.mouse.lLastX > 0) ? (float)raw->data.mouse.lLastX : 0.0f) * GetMouseSpeed().x;
+          m_InputSlotValues[ezInputSlot_MouseMoveNegY] +=
+              ((raw->data.mouse.lLastY < 0) ? (float)-raw->data.mouse.lLastY : 0.0f) * GetMouseSpeed().y;
+          m_InputSlotValues[ezInputSlot_MouseMovePosY] +=
+              ((raw->data.mouse.lLastY > 0) ? (float)raw->data.mouse.lLastY : 0.0f) * GetMouseSpeed().y;
 
-          // Mouse input does not always work via WM_INPUT
-          // e.g. some VMs don't send mouse click input via WM_INPUT when the mouse cursor is visible
-          // therefore in 'compatibility mode' it is just queried via standard WM_LBUTTONDOWN etc.
-          // to get 'high performance' mouse clicks, this code would work fine though
-          // but I doubt it makes much difference in latency
-          #if EZ_DISABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
-            for (ezInt32 mb = 0; mb < 5; ++mb)
-            {
-              char szTemp[32];
-              ezStringUtils::snprintf(szTemp, 32, "mouse_button_%i", mb);
+// Mouse input does not always work via WM_INPUT
+// e.g. some VMs don't send mouse click input via WM_INPUT when the mouse cursor is visible
+// therefore in 'compatibility mode' it is just queried via standard WM_LBUTTONDOWN etc.
+// to get 'high performance' mouse clicks, this code would work fine though
+// but I doubt it makes much difference in latency
+#if EZ_DISABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
+          for (ezInt32 mb = 0; mb < 5; ++mb)
+          {
+            char szTemp[32];
+            ezStringUtils::snprintf(szTemp, 32, "mouse_button_%i", mb);
 
-              if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN << (mb * 2))) != 0)
-                m_InputSlotValues[szTemp] = 1.0f;
+            if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN << (mb * 2))) != 0)
+              m_InputSlotValues[szTemp] = 1.0f;
 
-              if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN << (mb * 2 + 1))) != 0)
-                m_InputSlotValues[szTemp] = 0.0f;
-            }
-          #endif
+            if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN << (mb * 2 + 1))) != 0)
+              m_InputSlotValues[szTemp] = 0.0f;
+          }
+#endif
         }
-        else
-        if ((raw->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE) != 0)
+        else if ((raw->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE) != 0)
         {
           static int iTouchPoint = 0;
           static bool bTouchPointDown = false;
@@ -598,10 +603,10 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
         }
         else
         {
-          ezLog::Info("Unknown Mouse Move: {0} | {1}, Flags = {2}", ezArgF(raw->data.mouse.lLastX, 1), ezArgF(raw->data.mouse.lLastY, 1), (ezUInt32)raw->data.mouse.usFlags);
+          ezLog::Info("Unknown Mouse Move: {0} | {1}, Flags = {2}", ezArgF(raw->data.mouse.lLastX, 1), ezArgF(raw->data.mouse.lLastY, 1),
+                      (ezUInt32)raw->data.mouse.usFlags);
         }
       }
-
     }
   }
 }
@@ -611,7 +616,7 @@ static void SetKeyNameForScanCode(int iScanCode, bool bExtended, const char* szI
 {
   const ezUInt32 uiKeyCode = (iScanCode << 16) | (bExtended ? (1 << 24) : 0);
 
-  wchar_t szKeyName[32] = { 0 };
+  wchar_t szKeyName[32] = {0};
   GetKeyNameTextW(uiKeyCode, szKeyName, 30);
 
   ezStringUtf8 sName(szKeyName);
@@ -625,15 +630,15 @@ void ezStandardInputDevice::LocalizeButtonDisplayNames()
 {
   EZ_LOG_BLOCK("ezStandardInputDevice::LocalizeButtonDisplayNames");
 
-  SetKeyNameForScanCode( 1, false, ezInputSlot_KeyEscape);
-  SetKeyNameForScanCode( 2, false, ezInputSlot_Key1);
-  SetKeyNameForScanCode( 3, false, ezInputSlot_Key2);
-  SetKeyNameForScanCode( 4, false, ezInputSlot_Key3);
-  SetKeyNameForScanCode( 5, false, ezInputSlot_Key4);
-  SetKeyNameForScanCode( 6, false, ezInputSlot_Key5);
-  SetKeyNameForScanCode( 7, false, ezInputSlot_Key6);
-  SetKeyNameForScanCode( 8, false, ezInputSlot_Key7);
-  SetKeyNameForScanCode( 9, false, ezInputSlot_Key8);
+  SetKeyNameForScanCode(1, false, ezInputSlot_KeyEscape);
+  SetKeyNameForScanCode(2, false, ezInputSlot_Key1);
+  SetKeyNameForScanCode(3, false, ezInputSlot_Key2);
+  SetKeyNameForScanCode(4, false, ezInputSlot_Key3);
+  SetKeyNameForScanCode(5, false, ezInputSlot_Key4);
+  SetKeyNameForScanCode(6, false, ezInputSlot_Key5);
+  SetKeyNameForScanCode(7, false, ezInputSlot_Key6);
+  SetKeyNameForScanCode(8, false, ezInputSlot_Key7);
+  SetKeyNameForScanCode(9, false, ezInputSlot_Key8);
   SetKeyNameForScanCode(10, false, ezInputSlot_Key9);
   SetKeyNameForScanCode(11, false, ezInputSlot_Key0);
 
@@ -702,8 +707,8 @@ void ezStandardInputDevice::LocalizeButtonDisplayNames()
   SetKeyNameForScanCode(67, false, ezInputSlot_KeyF9);
   SetKeyNameForScanCode(68, false, ezInputSlot_KeyF10);
 
-  SetKeyNameForScanCode(69, true, ezInputSlot_KeyNumLock);  // Prints 'Pause' if it is not 'extended'
-  SetKeyNameForScanCode(70, false, ezInputSlot_KeyScroll);  // This overlaps with Pause
+  SetKeyNameForScanCode(69, true, ezInputSlot_KeyNumLock); // Prints 'Pause' if it is not 'extended'
+  SetKeyNameForScanCode(70, false, ezInputSlot_KeyScroll); // This overlaps with Pause
 
   SetKeyNameForScanCode(71, false, ezInputSlot_KeyNumpad7); // This overlaps with Home
   SetKeyNameForScanCode(72, false, ezInputSlot_KeyNumpad8); // This overlaps with Arrow Up
@@ -715,10 +720,10 @@ void ezStandardInputDevice::LocalizeButtonDisplayNames()
   SetKeyNameForScanCode(77, false, ezInputSlot_KeyNumpad6); // This overlaps with Arrow Right
   SetKeyNameForScanCode(78, false, ezInputSlot_KeyNumpadPlus);
 
-  SetKeyNameForScanCode(79, false, ezInputSlot_KeyNumpad1); // This overlaps with End
-  SetKeyNameForScanCode(80, false, ezInputSlot_KeyNumpad2); // This overlaps with Arrow Down
-  SetKeyNameForScanCode(81, false, ezInputSlot_KeyNumpad3); // This overlaps with Page Down
-  SetKeyNameForScanCode(82, false, ezInputSlot_KeyNumpad0); // This overlaps with Insert
+  SetKeyNameForScanCode(79, false, ezInputSlot_KeyNumpad1);      // This overlaps with End
+  SetKeyNameForScanCode(80, false, ezInputSlot_KeyNumpad2);      // This overlaps with Arrow Down
+  SetKeyNameForScanCode(81, false, ezInputSlot_KeyNumpad3);      // This overlaps with Page Down
+  SetKeyNameForScanCode(82, false, ezInputSlot_KeyNumpad0);      // This overlaps with Insert
   SetKeyNameForScanCode(83, false, ezInputSlot_KeyNumpadPeriod); // This overlaps with Insert
 
   SetKeyNameForScanCode(86, false, ezInputSlot_KeyPipe);
@@ -764,4 +769,3 @@ bool ezStandardInputDevice::GetShowMouseCursor() const
 {
   return m_bShowCursor;
 }
-

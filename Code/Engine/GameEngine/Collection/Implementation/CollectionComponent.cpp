@@ -11,14 +11,14 @@ EZ_BEGIN_COMPONENT_TYPE(ezCollectionComponent, 1, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("PreloadAtStart", m_bPreloadAtStart)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("TimeToLoad", m_TimeToLoad)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(10.0)), new ezClampValueAttribute(ezTime::Seconds(0), ezTime::Seconds(120))),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("General"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezCollectionComponent::ezCollectionComponent()
 {

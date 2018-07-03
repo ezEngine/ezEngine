@@ -29,12 +29,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeDistortionFactory, 1, ezRTTIDefaul
     EZ_MEMBER_PROPERTY("NumSpritesY", m_uiNumSpritesY)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_MEMBER_PROPERTY("TintColorParam", m_sTintColorParameter),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeDistortion, 1, ezRTTIDefaultAllocator<ezParticleTypeDistortion>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
     // clang-format on
 
     const ezRTTI* ezParticleTypeDistortionFactory::GetTypeType() const

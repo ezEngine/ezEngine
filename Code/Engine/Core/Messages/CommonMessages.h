@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Foundation/Communication/Message.h>
 #include <Core/World/Declarations.h>
+#include <Foundation/Communication/Message.h>
 
 /// \brief Common message for components that can be toggled between playing and paused states
 struct EZ_CORE_DLL ezMsgSetPlaying : public ezMessage
@@ -10,5 +10,3 @@ struct EZ_CORE_DLL ezMsgSetPlaying : public ezMessage
 
   bool m_bPlay = true;
 };
-
-

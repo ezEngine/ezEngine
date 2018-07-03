@@ -14,9 +14,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezOpaqueForwardRenderPass, 1, ezRTTIDefaultAlloc
     EZ_MEMBER_PROPERTY("SSAO", m_PinSSAO),
     EZ_MEMBER_PROPERTY("WriteDepth", m_bWriteDepth)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezOpaqueForwardRenderPass::ezOpaqueForwardRenderPass(const char* szName)
   : ezForwardRenderPass(szName)

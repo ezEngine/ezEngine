@@ -12,15 +12,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetVerticalHeadBoneRotation, 1, ezRTTIDefau
   {
     EZ_MEMBER_PROPERTY("Angle", m_Angle),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 
   EZ_BEGIN_ATTRIBUTES
   {
     new ezAutoGenVisScriptMsgSender,
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -31,15 +31,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgChangeVerticalHeadBoneRotation, 1, ezRTTIDe
   {
     EZ_MEMBER_PROPERTY("Angle", m_Angle),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 
   EZ_BEGIN_ATTRIBUTES
   {
     new ezAutoGenVisScriptMsgSender,
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -49,7 +49,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezHeadBoneComponent, 1, ezComponentMode::Dynamic)
   {
     EZ_MEMBER_PROPERTY("VerticalRotation", m_MaxVerticalRotation)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(80)), new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(89.0f))),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
     EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgSetVerticalHeadBoneRotation, OnSetVerticalRotation),
@@ -60,9 +60,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezHeadBoneComponent, 1, ezComponentMode::Dynamic)
   {
     new ezCategoryAttribute("Transform"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezHeadBoneComponent::ezHeadBoneComponent()
 {

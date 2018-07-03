@@ -5,7 +5,7 @@
 #include "ToolsFoundation/Assets/AssetFileExtensionWhitelist.h"
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezTextureCubeAssetDocumentManager>);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezTextureCubeAssetDocumentManager::ezTextureCubeAssetDocumentManager()
 {

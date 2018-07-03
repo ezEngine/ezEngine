@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Foundation/Types/Bitflags.h>
 #include <Core/Basics.h>
+#include <Foundation/Types/Bitflags.h>
 
 /// \brief This struct defines the different states a key can be in.
 ///        All keys always go through the states 'Pressed' and 'Released', even if they are active for only one frame.
@@ -10,15 +10,18 @@ struct EZ_CORE_DLL ezKeyState
 {
   enum Enum
   {
-    Up,         ///< Key is not pressed at all.
-    Released,   ///< Key has just been released this frame.
-    Pressed,    ///< Key has just been pressed down this frame.
-    Down        ///< Key is pressed down for longer than one frame now.
+    Up,       ///< Key is not pressed at all.
+    Released, ///< Key has just been released this frame.
+    Pressed,  ///< Key has just been pressed down this frame.
+    Down      ///< Key is pressed down for longer than one frame now.
   };
 
   /// \brief Computes the new key state from a previous key state and whether it is currently pressed or not.
   static ezKeyState::Enum GetNewKeyState(ezKeyState::Enum PrevState, bool bKeyDown);
 };
+
+// clang-format off
+// off for the entire file
 
 /// \brief These flags are specified when registering an input slot (by a device), to define some capabilities and restrictions of the hardware.
 ///

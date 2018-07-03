@@ -12,7 +12,7 @@ EZ_BEGIN_COMPONENT_TYPE(RtsTorpedoComponent, 1, ezComponentMode::Dynamic)
     EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(10.0f)),
     EZ_MEMBER_PROPERTY("Damage", m_iDamage)->AddAttributes(new ezDefaultValueAttribute(10)),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 
   EZ_BEGIN_MESSAGEHANDLERS
   {
@@ -24,7 +24,7 @@ EZ_BEGIN_COMPONENT_TYPE(RtsTorpedoComponent, 1, ezComponentMode::Dynamic)
   {
     new ezCategoryAttribute("RTS Sample"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE;
 // clang-format on

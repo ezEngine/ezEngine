@@ -1,9 +1,9 @@
-﻿#pragma once
+#pragma once
 
-#include <Utilities/Basics.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Strings/String.h>
+#include <Utilities/Basics.h>
 
 /// \brief Describes a list of texture groups
 ///
@@ -27,4 +27,3 @@ public:
 
   ezDynamicArray<TextureGroup> m_Groups;
 };
-

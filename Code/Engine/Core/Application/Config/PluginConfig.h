@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Core/Basics.h>
-#include <Foundation/Strings/String.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Strings/String.h>
 
 class EZ_CORE_DLL ezApplicationPluginConfig
 {
@@ -14,7 +14,8 @@ public:
   void Load();
   void Apply();
 
-  /// \brief If enabled (default is true), Apply() will only load plugins that have the dependency '<manual>' and ignore all that do not have it.
+  /// \brief If enabled (default is true), Apply() will only load plugins that have the dependency '<manual>' and ignore all that do not
+  /// have it.
   ///
   /// It typically makes sense only to load plugins that the user specifically asked for.
   /// Only few applications may want to additionally load plugins that are dependencies of some other
@@ -47,4 +48,3 @@ typedef ezApplicationPluginConfig::PluginConfig ezApplicationPluginConfig_Plugin
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezApplicationPluginConfig);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezApplicationPluginConfig_PluginConfig);
-

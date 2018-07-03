@@ -20,12 +20,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpatialAnchorComponent, 1, ezComponentMode::Dynamic)
   {
     EZ_ACCESSOR_PROPERTY("PersistentName", GetPersistentAnchorName, SetPersistentAnchorName),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Mixed Reality"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
 

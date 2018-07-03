@@ -1,15 +1,18 @@
 #include <PCH.h>
+
 #include <Core/World/World.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponent, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Active", IsActive, SetActive)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 void ezComponent::SetActive(bool bActive)
 {
@@ -63,15 +66,9 @@ ezComponentHandle ezComponent::GetHandle() const
   return ezComponentHandle(ezComponentId(m_InternalId, GetTypeId(), GetWorld()->GetIndex()));
 }
 
-void ezComponent::SerializeComponent(ezWorldWriter& stream) const
-{
+void ezComponent::SerializeComponent(ezWorldWriter& stream) const {}
 
-}
-
-void ezComponent::DeserializeComponent(ezWorldReader& stream)
-{
-
-}
+void ezComponent::DeserializeComponent(ezWorldReader& stream) {}
 
 void ezComponent::EnsureInitialized()
 {
@@ -124,7 +121,8 @@ bool ezComponent::SendMessage(ezMessage& msg)
   {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     if (msg.GetDebugMessageRouting())
-      ezLog::Warning("Discarded message with ID {0} because component of type '{1}' is neither initialized nor active at the moment", msg.GetId(), GetDynamicRTTI()->GetTypeName());
+      ezLog::Warning("Discarded message with ID {0} because component of type '{1}' is neither initialized nor active at the moment",
+                     msg.GetId(), GetDynamicRTTI()->GetTypeName());
 #endif
 
     return false;
@@ -138,7 +136,8 @@ bool ezComponent::SendMessage(ezMessage& msg)
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   if (msg.GetDebugMessageRouting())
-    ezLog::Warning("Component type '{0}' does not have a message handler for messages of type {1}", GetDynamicRTTI()->GetTypeName(), msg.GetId());
+    ezLog::Warning("Component type '{0}' does not have a message handler for messages of type {1}", GetDynamicRTTI()->GetTypeName(),
+                   msg.GetId());
 #endif
 
   return false;
@@ -150,7 +149,8 @@ bool ezComponent::SendMessage(ezMessage& msg) const
   {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     if (msg.GetDebugMessageRouting())
-      ezLog::Warning("Discarded message with ID {0} because component of type '{1}' is neither initialized nor active at the moment", msg.GetId(), GetDynamicRTTI()->GetTypeName());
+      ezLog::Warning("Discarded message with ID {0} because component of type '{1}' is neither initialized nor active at the moment",
+                     msg.GetId(), GetDynamicRTTI()->GetTypeName());
 #endif
 
     return false;
@@ -164,7 +164,8 @@ bool ezComponent::SendMessage(ezMessage& msg) const
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   if (msg.GetDebugMessageRouting())
-    ezLog::Warning("(const) Component type '{0}' does not have a CONST message handler for messages of type {1}", GetDynamicRTTI()->GetTypeName(), msg.GetId());
+    ezLog::Warning("(const) Component type '{0}' does not have a CONST message handler for messages of type {1}",
+                   GetDynamicRTTI()->GetTypeName(), msg.GetId());
 #endif
 
   return false;
@@ -180,9 +181,7 @@ void ezComponent::PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum q
   GetWorld()->PostMessage(GetHandle(), msg, queueType, delay);
 }
 
-void ezComponent::Initialize()
-{
-}
+void ezComponent::Initialize() {}
 
 void ezComponent::Deinitialize()
 {
@@ -194,20 +193,11 @@ void ezComponent::Deinitialize()
   }
 }
 
-void ezComponent::OnActivated()
-{
+void ezComponent::OnActivated() {}
 
-}
+void ezComponent::OnDeactivated() {}
 
-void ezComponent::OnDeactivated()
-{
-
-}
-
-void ezComponent::OnSimulationStarted()
-{
-
-}
+void ezComponent::OnSimulationStarted() {}
 
 void ezComponent::EnableUnhandledMessageHandler(bool enable)
 {
@@ -225,4 +215,3 @@ bool ezComponent::OnUnhandledMessage(ezMessage& msg) const
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_Component);
-

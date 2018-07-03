@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Core/World/Declarations.h>
 #include <Foundation/Configuration/Startup.h>
@@ -64,19 +64,24 @@ protected:
       m_fPriority = 0.0f;
     }
 
-    UpdateFunction m_Function;                    ///< Delegate to the actual update function.
-    ezHashedString m_sFunctionName;               ///< Name of the function. Use the EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC macro to create a description with the correct name.
-    ezHybridArray<ezHashedString, 4> m_DependsOn; ///< Array of other functions on which this function depends on. This function will be called after all its dependencies have been called.
-    ezEnum<Phase> m_Phase;                        ///< The update phase in which this update function should be called. See ezWorld for a description on the different phases.
-    bool m_bOnlyUpdateWhenSimulating;             ///< The update function is only called when the world simulation is enabled.
-    ezUInt16 m_uiGranularity;                     ///< The granularity in which batch updates should happen during the asynchronous phase. Has to be 0 for synchronous functions.
-    float m_fPriority;                            ///< Higher priority (higher number) means that this function is called earlier than a function with lower priority.
+    UpdateFunction m_Function;      ///< Delegate to the actual update function.
+    ezHashedString m_sFunctionName; ///< Name of the function. Use the EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC macro to create a description
+                                    ///< with the correct name.
+    ezHybridArray<ezHashedString, 4> m_DependsOn; ///< Array of other functions on which this function depends on. This function will be
+                                                  ///< called after all its dependencies have been called.
+    ezEnum<Phase> m_Phase; ///< The update phase in which this update function should be called. See ezWorld for a description on the
+                           ///< different phases.
+    bool m_bOnlyUpdateWhenSimulating; ///< The update function is only called when the world simulation is enabled.
+    ezUInt16 m_uiGranularity; ///< The granularity in which batch updates should happen during the asynchronous phase. Has to be 0 for
+                              ///< synchronous functions.
+    float m_fPriority; ///< Higher priority (higher number) means that this function is called earlier than a function with lower priority.
   };
 
   /// \brief Registers the given update function at the world.
   void RegisterUpdateFunction(const UpdateFunctionDesc& desc);
 
-  /// \brief De-registers the given update function from the world. Note that only the m_Function and the m_Phase of the description have to be valid for de-registration.
+  /// \brief De-registers the given update function from the world. Note that only the m_Function and the m_Phase of the description have to
+  /// be valid for de-registration.
   void DeregisterUpdateFunction(const UpdateFunctionDesc& desc);
 
   /// \brief Returns the allocator used by the world.
@@ -93,14 +98,16 @@ protected:
   virtual void InitializeInternal();
   virtual void DeinitializeInternal();
 
-  /// \brief This method is called after the constructor. A derived type can override this method to do initialization work. Typically this is the method where updates function are registered.
-  virtual void Initialize() { }
+  /// \brief This method is called after the constructor. A derived type can override this method to do initialization work. Typically this
+  /// is the method where updates function are registered.
+  virtual void Initialize() {}
 
   /// \brief This method is called before the destructor. A derived type can override this method to do deinitialization work.
-  virtual void Deinitialize() { }
+  virtual void Deinitialize() {}
 
-  /// \brief This method is called at the start of the next world update when the world is simulated. This method will be called after the initialization method.
-  virtual void OnSimulationStarted() { }
+  /// \brief This method is called at the start of the next world update when the world is simulated. This method will be called after the
+  /// initialization method.
+  virtual void OnSimulationStarted() {}
 
   ezWorld* m_pWorld;
 };
@@ -139,19 +146,19 @@ private:
 };
 
 /// \brief Add this macro to the declaration of your module type.
-#define EZ_DECLARE_WORLD_MODULE() \
-  public: \
-    static EZ_ALWAYS_INLINE ezUInt16 TypeId() { return TYPE_ID; } \
-  private: \
-    static ezUInt16 TYPE_ID;
+#define EZ_DECLARE_WORLD_MODULE()                                                                                                          \
+public:                                                                                                                                    \
+  static EZ_ALWAYS_INLINE ezUInt16 TypeId() { return TYPE_ID; }                                                                            \
+                                                                                                                                           \
+private:                                                                                                                                   \
+  static ezUInt16 TYPE_ID;
 
 /// \brief Implements the given module type. Add this macro to a cpp outside of the type declaration.
-#define EZ_IMPLEMENT_WORLD_MODULE(moduleType) \
+#define EZ_IMPLEMENT_WORLD_MODULE(moduleType)                                                                                              \
   ezUInt16 moduleType::TYPE_ID = ezWorldModuleFactory::GetInstance()->RegisterWorldModule<moduleType, moduleType>();
 
 /// \brief Helper macro to create an update function description with proper name
-#define EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(func, instance) \
+#define EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(func, instance)                                                                              \
   ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&func, instance), #func)
 
 #include <Core/World/Implementation/WorldModule_inl.h>
-

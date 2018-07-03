@@ -4,7 +4,7 @@
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezPxSteppingMode, 1)
   EZ_ENUM_CONSTANTS(ezPxSteppingMode::Variable, ezPxSteppingMode::Fixed, ezPxSteppingMode::SemiFixed)
-EZ_END_STATIC_REFLECTED_ENUM();
+EZ_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////
 

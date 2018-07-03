@@ -1,9 +1,8 @@
 #include <PCH.h>
-#include <Foundation/Logging/Log.h>
 
 BOOL CALLBACK ezMonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData)
 {
-  ezHybridArray<ezScreenInfo, 2>* pScreens = (ezHybridArray<ezScreenInfo, 2>*) dwData;
+  ezHybridArray<ezScreenInfo, 2>* pScreens = (ezHybridArray<ezScreenInfo, 2>*)dwData;
 
   MONITORINFOEXW info;
   info.cbSize = sizeof(info);
@@ -44,5 +43,3 @@ ezResult ezScreen::EnumerateScreens(ezHybridArray<ezScreenInfo, 2>& out_Screens)
 
   return EZ_SUCCESS;
 }
-
-

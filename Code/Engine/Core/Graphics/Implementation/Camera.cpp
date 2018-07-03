@@ -1,12 +1,15 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Core/Graphics/Camera.h>
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCameraMode, 1)
   EZ_ENUM_CONSTANT(ezCameraMode::PerspectiveFixedFovX),
   EZ_ENUM_CONSTANT(ezCameraMode::PerspectiveFixedFovY),
   EZ_ENUM_CONSTANT(ezCameraMode::OrthoFixedWidth),
   EZ_ENUM_CONSTANT(ezCameraMode::OrthoFixedHeight),
-EZ_END_STATIC_REFLECTED_ENUM();
+EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
 
 ezCamera::ezCamera()
 {
@@ -89,10 +92,7 @@ float ezCamera::GetDimensionY(float fAspectRatioWidthDivHeight) const
 void ezCamera::SetCameraMode(ezCameraMode::Enum Mode, float fFovOrDim, float fNearPlane, float fFarPlane)
 {
   // early out if no change
-  if (m_Mode == Mode &&
-    m_fFovOrDim == fFovOrDim &&
-    m_fNearPlane == fNearPlane &&
-    m_fFarPlane == fFarPlane)
+  if (m_Mode == Mode && m_fFovOrDim == fFovOrDim && m_fNearPlane == fNearPlane && m_fFarPlane == fFarPlane)
   {
     return;
   }
@@ -136,48 +136,55 @@ void ezCamera::SetViewMatrix(const ezMat4& mLookAtMatrix, ezCameraEye eye)
   const int iEyeIdx = static_cast<int>(eye);
 
   m_mViewMatrix[iEyeIdx] = mLookAtMatrix;
-  m_vCameraPosition[iEyeIdx] = -(m_mViewMatrix[static_cast<int>(eye)].GetRotationalPart().GetTranspose() * m_mViewMatrix[static_cast<int>(eye)].GetTranslationVector());
+  m_vCameraPosition[iEyeIdx] = -(m_mViewMatrix[static_cast<int>(eye)].GetRotationalPart().GetTranspose() *
+                                 m_mViewMatrix[static_cast<int>(eye)].GetTranslationVector());
 
   if (m_Mode != ezCameraMode::Stereo)
   {
     m_mViewMatrix[1 - iEyeIdx] = m_mViewMatrix[iEyeIdx];
     m_vCameraPosition[1 - iEyeIdx] = m_vCameraPosition[iEyeIdx];
   }
-  
+
   CameraOrientationChanged(true, true);
 }
 
-void ezCamera::GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out_projectionMatrix, ezCameraEye eye, ezProjectionDepthRange::Enum depthRange) const
+void ezCamera::GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out_projectionMatrix, ezCameraEye eye,
+                                   ezProjectionDepthRange::Enum depthRange) const
 {
   switch (m_Mode)
   {
-  case ezCameraMode::PerspectiveFixedFovX:
-    out_projectionMatrix.SetPerspectiveProjectionMatrixFromFovX(ezAngle::Degree(m_fFovOrDim), fAspectRatioWidthDivHeight, m_fNearPlane, m_fFarPlane, depthRange);
-    break;
+    case ezCameraMode::PerspectiveFixedFovX:
+      out_projectionMatrix.SetPerspectiveProjectionMatrixFromFovX(ezAngle::Degree(m_fFovOrDim), fAspectRatioWidthDivHeight, m_fNearPlane,
+                                                                  m_fFarPlane, depthRange);
+      break;
 
-  case ezCameraMode::PerspectiveFixedFovY:
-    out_projectionMatrix.SetPerspectiveProjectionMatrixFromFovY(ezAngle::Degree(m_fFovOrDim), fAspectRatioWidthDivHeight, m_fNearPlane, m_fFarPlane, depthRange);
-    break;
+    case ezCameraMode::PerspectiveFixedFovY:
+      out_projectionMatrix.SetPerspectiveProjectionMatrixFromFovY(ezAngle::Degree(m_fFovOrDim), fAspectRatioWidthDivHeight, m_fNearPlane,
+                                                                  m_fFarPlane, depthRange);
+      break;
 
-  case ezCameraMode::OrthoFixedWidth:
-    out_projectionMatrix.SetOrthographicProjectionMatrix(m_fFovOrDim, m_fFovOrDim / fAspectRatioWidthDivHeight, m_fNearPlane, m_fFarPlane, depthRange);
-    break;
+    case ezCameraMode::OrthoFixedWidth:
+      out_projectionMatrix.SetOrthographicProjectionMatrix(m_fFovOrDim, m_fFovOrDim / fAspectRatioWidthDivHeight, m_fNearPlane, m_fFarPlane,
+                                                           depthRange);
+      break;
 
-  case ezCameraMode::OrthoFixedHeight:
-    out_projectionMatrix.SetOrthographicProjectionMatrix(m_fFovOrDim * fAspectRatioWidthDivHeight, m_fFovOrDim, m_fNearPlane, m_fFarPlane, depthRange);
-    break;
+    case ezCameraMode::OrthoFixedHeight:
+      out_projectionMatrix.SetOrthographicProjectionMatrix(m_fFovOrDim * fAspectRatioWidthDivHeight, m_fFovOrDim, m_fNearPlane, m_fFarPlane,
+                                                           depthRange);
+      break;
 
-  case ezCameraMode::Stereo:
-    if (ezMath::IsEqual(m_fAspectOfPrecomputedStereoProjection, fAspectRatioWidthDivHeight, ezMath::BasicType<float>::LargeEpsilon()))
-      out_projectionMatrix = m_mStereoProjectionMatrix[static_cast<int>(eye)];
-    else
-    {
-      // Evade to FixedFovY
-      out_projectionMatrix.SetPerspectiveProjectionMatrixFromFovY(ezAngle::Degree(m_fFovOrDim), fAspectRatioWidthDivHeight, m_fNearPlane, m_fFarPlane, depthRange);
-    }
-    break;
+    case ezCameraMode::Stereo:
+      if (ezMath::IsEqual(m_fAspectOfPrecomputedStereoProjection, fAspectRatioWidthDivHeight, ezMath::BasicType<float>::LargeEpsilon()))
+        out_projectionMatrix = m_mStereoProjectionMatrix[static_cast<int>(eye)];
+      else
+      {
+        // Evade to FixedFovY
+        out_projectionMatrix.SetPerspectiveProjectionMatrixFromFovY(ezAngle::Degree(m_fFovOrDim), fAspectRatioWidthDivHeight, m_fNearPlane,
+                                                                    m_fFarPlane, depthRange);
+      }
+      break;
 
-  default:
+    default:
       EZ_REPORT_FAILURE("Invalid Camera Mode {0}", (int)m_Mode);
   }
 }
@@ -198,7 +205,8 @@ ezVec3 ezCamera::MoveLocally(float fForward, float fRight, float fUp)
   m_mViewMatrix[0].SetTranslationVector(m_mViewMatrix[0].GetTranslationVector() - ezVec3(fRight, fUp, fForward));
   m_mViewMatrix[1].SetTranslationVector(m_mViewMatrix[0].GetTranslationVector());
 
-  m_vCameraPosition[0] = m_vCameraPosition[1] = -(m_mViewMatrix[static_cast<int>(0)].GetRotationalPart().GetTranspose() * m_mViewMatrix[static_cast<int>(0)].GetTranslationVector());
+  m_vCameraPosition[0] = m_vCameraPosition[1] =
+      -(m_mViewMatrix[static_cast<int>(0)].GetRotationalPart().GetTranspose() * m_mViewMatrix[static_cast<int>(0)].GetTranslationVector());
 
   CameraOrientationChanged(true, false);
 
@@ -209,8 +217,8 @@ void ezCamera::MoveGlobally(const ezVec3& vMove)
 {
   m_mViewMatrix[0].SetTranslationVector(m_mViewMatrix[0].GetTranslationVector() - m_mViewMatrix[0].GetRotationalPart() * vMove);
   m_mViewMatrix[1].SetTranslationVector(m_mViewMatrix[0].GetTranslationVector());
-  
-  m_vCameraPosition[0] += vMove;   // Too inaccurate?
+
+  m_vCameraPosition[0] += vMove; // Too inaccurate?
   m_vCameraPosition[1] = m_vCameraPosition[0];
 
   CameraOrientationChanged(true, false);
@@ -298,7 +306,7 @@ void ezCamera::RotateGlobally(ezAngle X, ezAngle Y, ezAngle Z)
   {
     ezMat3 m;
     m.SetRotationMatrixY(Y);
-    
+
     vDirUp = m * vDirUp;
     vDirForwards = m * vDirForwards;
   }
@@ -323,4 +331,3 @@ void ezCamera::RotateGlobally(ezAngle X, ezAngle Y, ezAngle Z)
 
 
 EZ_STATICLINK_FILE(Core, Core_Graphics_Implementation_Camera);
-

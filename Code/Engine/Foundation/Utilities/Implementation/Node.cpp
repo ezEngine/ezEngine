@@ -1,10 +1,12 @@
 #include <PCH.h>
+
 #include <Foundation/Utilities/Node.h>
 
-//EZ_CHECK_AT_COMPILETIME(sizeof(ezNodePin) == 4);
+// EZ_CHECK_AT_COMPILETIME(sizeof(ezNodePin) == 4);
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezNode, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezNodePin, ezNoBase, 1, ezRTTINoAllocator)
 {
@@ -12,18 +14,19 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezNodePin, ezNoBase, 1, ezRTTINoAllocator)
   {
    new ezHiddenAttribute(),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezInputNodePin, ezNodePin, 1, ezRTTINoAllocator)
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezOutputNodePin, ezNodePin, 1, ezRTTINoAllocator)
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezPassThroughNodePin, ezNodePin, 1, ezRTTINoAllocator)
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
+// clang-format on
 
 void ezNode::InitializePins()
 {
@@ -47,7 +50,8 @@ void ezNode::InitializePins()
     pPin->m_pParent = this;
     if (pPin->m_Type == ezNodePin::Type::Unknown)
     {
-      EZ_REPORT_FAILURE("Pin '{0}' has an invalid type. Do not use ezNodePin directly as member but one of its derived types", pProp->GetPropertyName());
+      EZ_REPORT_FAILURE("Pin '{0}' has an invalid type. Do not use ezNodePin directly as member but one of its derived types",
+                        pProp->GetPropertyName());
       continue;
     }
 
@@ -62,7 +66,8 @@ void ezNode::InitializePins()
       m_OutputPins.PushBack(pPin);
     }
 
-    ezHashedString sHashedName; sHashedName.Assign(pProp->GetPropertyName());
+    ezHashedString sHashedName;
+    sHashedName.Assign(pProp->GetPropertyName());
     m_NameToPin.Insert(sHashedName, pPin);
   }
 }
@@ -81,7 +86,8 @@ ezHashedString ezNode::GetPinName(const ezNodePin* pPin) const
 
 const ezNodePin* ezNode::GetPinByName(const char* szName) const
 {
-  ezHashedString sHashedName; sHashedName.Assign(szName);
+  ezHashedString sHashedName;
+  sHashedName.Assign(szName);
   return GetPinByName(sHashedName);
 }
 
@@ -98,6 +104,4 @@ const ezNodePin* ezNode::GetPinByName(ezHashedString sName) const
 
 
 
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_Node);
-

@@ -422,7 +422,7 @@ void ezRTTI::SanityCheckType(ezRTTI* pType)
       }
       break;
       case ezPropertyCategory::Function:
-        EZ_REPORT_FAILURE("Functions need to be put into the EZ_BEGIN_FUNCTIONS / EZ_END_FUNCTIONS block.");
+        EZ_REPORT_FAILURE("Functions need to be put into the EZ_BEGIN_FUNCTIONS / EZ_END_FUNCTIONS; block.");
         break;
     }
   }

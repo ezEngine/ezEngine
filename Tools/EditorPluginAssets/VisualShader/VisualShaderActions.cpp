@@ -26,7 +26,7 @@ void ezVisualShaderActions::MapActions(const char * szMapping)
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualShaderAction, 0, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualShaderAction::ezVisualShaderAction(const ezActionContext& context, const char* szName)
   : ezButtonAction(context, szName, false, "")

@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Core/Scripting/LuaWrapper.h>
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
@@ -37,7 +38,10 @@ void ezLuaWrapper::Clear()
 
 ezResult ezLuaWrapper::ExecuteString(const char* szString, const char* szDebugChunkName, ezLogInterface* pLogInterface) const
 {
-  EZ_ASSERT_DEV(m_States.m_iLuaReturnValues == 0, "ezLuaWrapper::ExecuteString: You didn't discard the return-values of the previous script call. {0} Return-values were expected.", m_States.m_iLuaReturnValues);
+  EZ_ASSERT_DEV(
+      m_States.m_iLuaReturnValues == 0,
+      "ezLuaWrapper::ExecuteString: You didn't discard the return-values of the previous script call. {0} Return-values were expected.",
+      m_States.m_iLuaReturnValues);
 
   if (!pLogInterface)
     pLogInterface = ezLog::GetThreadLocalLogSystem();
@@ -75,7 +79,7 @@ void* ezLuaWrapper::lua_allocator(void* ud, void* ptr, size_t osize, size_t nsiz
 
   if (nsize == 0)
   {
-    delete[] (ezUInt8*) ptr;
+    delete[](ezUInt8*) ptr;
     return (nullptr);
   }
 
@@ -83,12 +87,12 @@ void* ezLuaWrapper::lua_allocator(void* ud, void* ptr, size_t osize, size_t nsiz
 
   if (ptr != nullptr)
   {
-    ezMemoryUtils::Copy(ucPtr, (ezUInt8*) ptr, ezUInt32 (osize < nsize ? osize : nsize));
+    ezMemoryUtils::Copy(ucPtr, (ezUInt8*)ptr, ezUInt32(osize < nsize ? osize : nsize));
 
-    delete[] (ezUInt8*) ptr;
+    delete[](ezUInt8*) ptr;
   }
 
-  return ((void*) ucPtr);
+  return ((void*)ucPtr);
 }
 
 
@@ -96,4 +100,3 @@ void* ezLuaWrapper::lua_allocator(void* ud, void* ptr, size_t osize, size_t nsiz
 
 
 EZ_STATICLINK_FILE(Core, Core_Scripting_LuaWrapper_Initialize);
-

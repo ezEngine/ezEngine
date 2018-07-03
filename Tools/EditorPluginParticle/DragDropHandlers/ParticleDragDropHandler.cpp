@@ -3,7 +3,7 @@
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleComponentDragDropHandler, 1, ezRTTIDefaultAllocator<ezParticleComponentDragDropHandler>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 float ezParticleComponentDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const

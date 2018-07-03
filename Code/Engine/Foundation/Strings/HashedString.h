@@ -56,14 +56,14 @@ public:
   ~ezHashedString();
 
   /// \brief Copies the given ezHashedString.
-  void operator= (const ezHashedString& rhs); // [tested]
+  void operator=(const ezHashedString& rhs); // [tested]
 
   /// \brief Assigning a new string from a string constant is a slow operation, but the hash computation can happen at compile time.
   ///
   /// If you need to create an object to compare ezHashedString objects against, prefer to use ezTempHashedString. It will only compute
   /// the strings hash value, but does not require any thread synchronization.
   template <size_t N>
-  void Assign(const char(&szString)[N]); // [tested]
+  void Assign(const char (&szString)[N]); // [tested]
 
   /// \brief Assigning a new string from a non-hashed string is a very slow operation, this should be used rarely.
   ///
@@ -71,27 +71,28 @@ public:
   /// the strings hash value, but does not require any thread synchronization.
   void Assign(ezHashing::StringWrapper szString); // [tested]
 
-  /// \brief Comparing whether two hashed strings are identical is just a pointer comparison. This operation is what ezHashedString is optimized for.
+  /// \brief Comparing whether two hashed strings are identical is just a pointer comparison. This operation is what ezHashedString is
+  /// optimized for.
   ///
   /// \note Comparing between ezHashedString objects is always error-free, so even if two string had the same hash value, although they are
   /// different, this comparison function will not report they are the same.
-  bool operator== (const ezHashedString& rhs) const; // [tested]
+  bool operator==(const ezHashedString& rhs) const; // [tested]
 
   /// \brief \see operator==
-  bool operator!= (const ezHashedString& rhs) const; // [tested]
+  bool operator!=(const ezHashedString& rhs) const; // [tested]
 
   /// \brief Compares this string object to an ezTempHashedString object. This should be used whenever some object needs to be found
   /// and the string to compare against is not yet an ezHashedString object.
-  bool operator== (const ezTempHashedString& rhs) const; // [tested]
+  bool operator==(const ezTempHashedString& rhs) const; // [tested]
 
   /// \brief \see operator==
-  bool operator!= (const ezTempHashedString& rhs) const; // [tested]
+  bool operator!=(const ezTempHashedString& rhs) const; // [tested]
 
   /// \brief This operator allows sorting objects by hash value, not by alphabetical order.
-  bool operator< (const ezHashedString& rhs) const; // [tested]
+  bool operator<(const ezHashedString& rhs) const; // [tested]
 
   /// \brief This operator allows sorting objects by hash value, not by alphabetical order.
-  bool operator< (const ezTempHashedString& rhs) const; // [tested]
+  bool operator<(const ezTempHashedString& rhs) const; // [tested]
 
   /// \brief Gives access to the actual string data, so you can do all the typical (read-only) string operations on it.
   const ezString& GetString() const; // [tested]
@@ -126,7 +127,7 @@ private:
 
 /// \brief Helper function to create an ezHashedString. This can be used to initialize static hashed string variables.
 template <size_t N>
-ezHashedString ezMakeHashedString(const char(&szString)[N]);
+ezHashedString ezMakeHashedString(const char (&szString)[N]);
 
 
 /// \brief A class to use together with ezHashedString for quick comparisons with temporary strings that need not be stored further.
@@ -139,14 +140,14 @@ class EZ_FOUNDATION_DLL ezTempHashedString
   friend class ezHashedString;
 
 public:
-
   ezTempHashedString() { m_uiHash = 0; }
 
   /// \brief Creates an ezTempHashedString object from the given string constant. The hash can be computed at compile time.
   template <size_t N>
-  ezTempHashedString(const char(&szString)[N]); // [tested]
+  ezTempHashedString(const char (&szString)[N]); // [tested]
 
-  /// \brief Creates an ezTempHashedString object from the given string. Computes the hash of the given string during runtime, which might be slow.
+  /// \brief Creates an ezTempHashedString object from the given string. Computes the hash of the given string during runtime, which might
+  /// be slow.
   ezTempHashedString(ezHashing::StringWrapper szString); // [tested]
 
   /// \brief Copies the hash from rhs.
@@ -160,34 +161,34 @@ public:
 
   /// \brief The hash of the given string can be computed at compile time.
   template <size_t N>
-  void operator= (const char(&szString)[N]); // [tested]
+  void operator=(const char (&szString)[N]); // [tested]
 
   /// \brief Computes and stores the hash of the given string during runtime, which might be slow.
-  void operator= (ezHashing::StringWrapper szString); // [tested]
+  void operator=(ezHashing::StringWrapper szString); // [tested]
 
   /// \brief Copies the hash from rhs.
-  void operator= (const ezTempHashedString& rhs); // [tested]
+  void operator=(const ezTempHashedString& rhs); // [tested]
 
   /// \brief Copies the hash from the ezHashedString.
-  void operator= (const ezHashedString& rhs); // [tested]
+  void operator=(const ezHashedString& rhs); // [tested]
 
   /// \brief Compares the two objects by their hash value. Might report incorrect equality, if two strings have the same hash value.
-  bool operator== (const ezTempHashedString& rhs) const; // [tested]
+  bool operator==(const ezTempHashedString& rhs) const; // [tested]
 
   /// \brief \see operator==
-  bool operator!= (const ezTempHashedString& rhs) const; // [tested]
+  bool operator!=(const ezTempHashedString& rhs) const; // [tested]
 
   /// \brief This operator allows soring objects by hash value, not by alphabetical order.
-  bool operator< (const ezTempHashedString& rhs) const; // [tested]
+  bool operator<(const ezTempHashedString& rhs) const; // [tested]
 
   /// \brief Returns the hash of the stored string.
   ezUInt32 GetHash() const; // [tested]
 
   template <size_t N>
-  static constexpr ezUInt32 ComputeHash(const char(&szString)[N]);
+  static constexpr ezUInt32 ComputeHash(const char (&szString)[N]);
 
   static ezUInt32 ComputeHash(ezHashing::StringWrapper szString);
-  
+
 
 private:
   ezUInt32 m_uiHash;
@@ -197,4 +198,3 @@ private:
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezHashedString& arg);
 
 #include <Foundation/Strings/Implementation/HashedString_inl.h>
-

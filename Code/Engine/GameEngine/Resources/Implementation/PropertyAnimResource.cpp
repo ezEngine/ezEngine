@@ -7,16 +7,16 @@
 #include <GameEngine/Curves/ColorGradientResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimResource, 1, ezRTTIDefaultAllocator<ezPropertyAnimResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezPropertyAnimTarget, 1)
 EZ_ENUM_CONSTANTS(ezPropertyAnimTarget::Number, ezPropertyAnimTarget::VectorX, ezPropertyAnimTarget::VectorY, ezPropertyAnimTarget::VectorZ, ezPropertyAnimTarget::VectorW)
 EZ_ENUM_CONSTANTS(ezPropertyAnimTarget::RotationX, ezPropertyAnimTarget::RotationY, ezPropertyAnimTarget::RotationZ, ezPropertyAnimTarget::Color)
-EZ_END_STATIC_REFLECTED_ENUM()
+EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezPropertyAnimMode, 1)
 EZ_ENUM_CONSTANTS(ezPropertyAnimMode::Once, ezPropertyAnimMode::Loop, ezPropertyAnimMode::BackAndForth)
-EZ_END_STATIC_REFLECTED_ENUM()
+EZ_END_STATIC_REFLECTED_ENUM;
 
 ezPropertyAnimResource::ezPropertyAnimResource()
   : ezResource<ezPropertyAnimResource, ezPropertyAnimResourceDescriptor>(DoUpdate::OnAnyThread, 1)

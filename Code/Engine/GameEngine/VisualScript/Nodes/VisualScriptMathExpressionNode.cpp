@@ -9,7 +9,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_MathExpression, 1, ezRTTIDefa
     new ezCategoryAttribute("Math"),
     new ezTitleAttribute("Expression '{Expression}'"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
   EZ_BEGIN_PROPERTIES
   {
     // Data Pins (Input)
@@ -21,9 +21,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_MathExpression, 1, ezRTTIDefa
     // Data Pins (Output)
     EZ_OUTPUT_DATA_PIN("Result", 0, ezVisualScriptDataPinType::Number),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_MathExpression::ezVisualScriptNode_MathExpression() { }
 ezVisualScriptNode_MathExpression::~ezVisualScriptNode_MathExpression() { }

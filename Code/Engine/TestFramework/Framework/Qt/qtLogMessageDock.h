@@ -2,10 +2,10 @@
 
 #ifdef EZ_USE_QT
 
-#include <TestFramework/Basics.h>
-#include <QDockWidget>
-#include <QAbstractItemModel>
 #include <Code/Engine/TestFramework/ui_qtLogMessageDock.h>
+#include <QAbstractItemModel>
+#include <QDockWidget>
+#include <TestFramework/Basics.h>
 #include <vector>
 
 class ezQtTestFramework;
@@ -37,7 +37,7 @@ class EZ_TEST_DLL ezQtLogMessageModel : public QAbstractItemModel
 public:
   ezQtLogMessageModel(QObject* pParent, const ezTestFrameworkResult* pResult);
   virtual ~ezQtLogMessageModel();
-  
+
   void resetModel();
   QModelIndex GetFirstIndexOfTestSelection();
   QModelIndex GetLastIndexOfTestSelection();
@@ -46,7 +46,7 @@ public slots:
   void currentTestResultChanged(const ezTestResultData* pTestResult);
   void currentTestSelectionChanged(const ezTestResultData* pTestResult);
 
-public: //QAbstractItemModel interface
+public: // QAbstractItemModel interface
   virtual QVariant data(const QModelIndex& index, int role) const override;
   virtual Qt::ItemFlags flags(const QModelIndex& index) const override;
   virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
@@ -66,4 +66,3 @@ private:
 };
 
 #endif
-

@@ -6,7 +6,7 @@
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSkeletonBoneGeometryType, 1)
 EZ_ENUM_CONSTANTS(ezSkeletonBoneGeometryType::None, ezSkeletonBoneGeometryType::Capsule, ezSkeletonBoneGeometryType::Sphere, ezSkeletonBoneGeometryType::Box)
-EZ_END_STATIC_REFLECTED_ENUM()
+EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeletonBone, 1, ezRTTIDefaultAllocator<ezEditableSkeletonBone>)
 {
@@ -20,9 +20,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeletonBone, 1, ezRTTIDefaultAllocato
     EZ_MEMBER_PROPERTY("Width", m_fWidth),
     EZ_MEMBER_PROPERTY("Thickness", m_fThickness),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeleton, 1, ezRTTIDefaultAllocator<ezEditableSkeleton>)
 {
@@ -35,9 +35,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeleton, 1, ezRTTIDefaultAllocator<ez
 
     EZ_ARRAY_MEMBER_PROPERTY("Children", m_Children)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezEditableSkeleton::ezEditableSkeleton() = default;
 ezEditableSkeleton::~ezEditableSkeleton()

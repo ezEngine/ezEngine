@@ -7,7 +7,7 @@
 #include <Preferences/GameObjectContextPreferences.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectContextDocument, 2, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezGameObjectContextDocument::ezGameObjectContextDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, bool bUseEngineConnection, bool bUseIPCObjectMirror)
   : ezGameObjectDocument(szDocumentPath, pObjectManager, bUseEngineConnection, bUseIPCObjectMirror)

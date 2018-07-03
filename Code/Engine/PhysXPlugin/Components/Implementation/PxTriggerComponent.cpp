@@ -44,7 +44,7 @@ void ezPxTriggerComponentManager::UpdateKinematicActors()
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPxTriggerTriggered)
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPxTriggerTriggered, 1, ezRTTIDefaultAllocator<ezMsgPxTriggerTriggered>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -56,14 +56,14 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxTriggerComponent, 1, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("Kinematic", GetKinematic, SetKinematic),
     EZ_ACCESSOR_PROPERTY("TriggerMessage", GetTriggerMessage, SetTriggerMessage)
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGESENDERS
   {
     EZ_MESSAGE_SENDER(m_TriggerEventSender)
   }
   EZ_END_MESSAGESENDERS
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezPxTriggerComponent::ezPxTriggerComponent()
   : m_UserData(this)

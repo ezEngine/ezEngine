@@ -8,7 +8,7 @@
 #include <Foundation/Configuration/CVar.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTexture2DResource, 1, ezRTTIDefaultAllocator<ezTexture2DResource>);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezCVarInt CVarRenderTargetResolution1("r_RenderTargetResolution1", 256, ezCVarFlags::Default, "Configurable render target resolution");
 ezCVarInt CVarRenderTargetResolution2("r_RenderTargetResolution2", 512, ezCVarFlags::Default, "Configurable render target resolution");

@@ -11,7 +11,7 @@
 #include <Foundation/Serialization/DdlSerializer.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditAction, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ////////////////////////////////////////////////////////////////////////
 // ezEditActions

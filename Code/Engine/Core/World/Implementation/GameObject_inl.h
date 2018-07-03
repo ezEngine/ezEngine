@@ -1,6 +1,6 @@
-﻿
-EZ_ALWAYS_INLINE ezGameObject::ConstChildIterator::ConstChildIterator(ezGameObject* pObject) :
-  m_pObject(pObject)
+
+EZ_ALWAYS_INLINE ezGameObject::ConstChildIterator::ConstChildIterator(ezGameObject* pObject)
+    : m_pObject(pObject)
 {
 }
 
@@ -31,8 +31,8 @@ EZ_ALWAYS_INLINE void ezGameObject::ConstChildIterator::operator++()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-EZ_ALWAYS_INLINE ezGameObject::ChildIterator::ChildIterator(ezGameObject* pObject) :
-  ConstChildIterator(pObject)
+EZ_ALWAYS_INLINE ezGameObject::ChildIterator::ChildIterator(ezGameObject* pObject)
+    : ConstChildIterator(pObject)
 {
 }
 
@@ -74,9 +74,7 @@ EZ_ALWAYS_INLINE ezGameObject::ezGameObject(const ezGameObject& other)
   *this = other;
 }
 
-EZ_ALWAYS_INLINE ezGameObject::~ezGameObject()
-{
-}
+EZ_ALWAYS_INLINE ezGameObject::~ezGameObject() {}
 
 EZ_ALWAYS_INLINE ezGameObjectHandle ezGameObject::GetHandle() const
 {
@@ -125,7 +123,8 @@ EZ_ALWAYS_INLINE bool ezGameObject::HasName(const ezTempHashedString& name) cons
   return m_sName == name;
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve)
+EZ_ALWAYS_INLINE void ezGameObject::AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children,
+                                                ezGameObject::TransformPreservation preserve)
 {
   for (ezUInt32 i = 0; i < children.GetCount(); ++i)
   {
@@ -133,7 +132,8 @@ EZ_ALWAYS_INLINE void ezGameObject::AddChildren(const ezArrayPtr<const ezGameObj
   }
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve)
+EZ_ALWAYS_INLINE void ezGameObject::DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children,
+                                                   ezGameObject::TransformPreservation preserve)
 {
   for (ezUInt32 i = 0; i < children.GetCount(); ++i)
   {
@@ -456,7 +456,7 @@ EZ_ALWAYS_INLINE ezArrayPtr<ezComponent* const> ezGameObject::GetComponents()
 
 EZ_ALWAYS_INLINE ezArrayPtr<const ezComponent* const> ezGameObject::GetComponents() const
 {
-  return ezMakeArrayPtr(const_cast<const ezComponent*const*>(m_Components.GetData()), m_Components.GetCount());
+  return ezMakeArrayPtr(const_cast<const ezComponent* const*>(m_Components.GetData()), m_Components.GetCount());
 }
 
 EZ_ALWAYS_INLINE ezTagSet& ezGameObject::GetTags()
@@ -497,7 +497,8 @@ EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalBounds()
   ///\todo find a better place for this
   // Can't use ezSimdBBoxSphere::operator != because we want to include the w component of m_BoxHalfExtents
   if ((m_globalBounds.m_CenterAndRadius != oldGlobalBounds.m_CenterAndRadius ||
-    m_globalBounds.m_BoxHalfExtents != oldGlobalBounds.m_BoxHalfExtents).AnySet<4>())
+       m_globalBounds.m_BoxHalfExtents != oldGlobalBounds.m_BoxHalfExtents)
+          .AnySet<4>())
   {
     bool bWasAlwaysVisible = oldGlobalBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();
     bool bIsAlwaysVisible = m_globalBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();
@@ -516,5 +517,3 @@ EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateVelocity(const ezS
   m_lastGlobalPosition = m_globalTransform.m_Position;
   m_velocity.SetW(ezSimdFloat::Zero());
 }
-
-

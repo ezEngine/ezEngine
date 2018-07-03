@@ -46,12 +46,11 @@ ezComponentHandle ezComponentManagerBase::CreateComponent(ezGameObject* pOwnerOb
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename T, ezBlockStorageType::Enum StorageType>
-ezComponentManager<T, StorageType>::ezComponentManager(ezWorld* pWorld) :
-  ezComponentManagerBase(pWorld),
-  m_ComponentStorage(GetBlockAllocator(), GetAllocator())
+ezComponentManager<T, StorageType>::ezComponentManager(ezWorld* pWorld)
+    : ezComponentManagerBase(pWorld)
+    , m_ComponentStorage(GetBlockAllocator(), GetAllocator())
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType),
-    "Not a valid component type");
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType), "Not a valid component type");
 }
 
 template <typename T, ezBlockStorageType::Enum StorageType>
@@ -63,10 +62,11 @@ template <typename T, ezBlockStorageType::Enum StorageType>
 EZ_FORCE_INLINE bool ezComponentManager<T, StorageType>::TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent)
 {
   EZ_ASSERT_DEV(ComponentType::TypeId() == component.GetInternalID().m_TypeId,
-    "The given component handle is not of the expected type. Expected type id {0}, got type id {1}",
-    ComponentType::TypeId(), component.GetInternalID().m_TypeId);
+                "The given component handle is not of the expected type. Expected type id {0}, got type id {1}", ComponentType::TypeId(),
+                component.GetInternalID().m_TypeId);
   EZ_ASSERT_DEV(component.GetInternalID().m_WorldIndex == GetWorld()->GetIndex(),
-    "Component does not belong to this world. Expected world id {0} got id {1}", GetWorld()->GetIndex(), component.GetInternalID().m_WorldIndex);
+                "Component does not belong to this world. Expected world id {0} got id {1}", GetWorld()->GetIndex(),
+                component.GetInternalID().m_WorldIndex);
 
   ezComponent* pComponent = nullptr;
   bool bResult = ezComponentManagerBase::TryGetComponent(component, pComponent);
@@ -75,13 +75,15 @@ EZ_FORCE_INLINE bool ezComponentManager<T, StorageType>::TryGetComponent(const e
 }
 
 template <typename T, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE bool ezComponentManager<T, StorageType>::TryGetComponent(const ezComponentHandle& component, const ComponentType*& out_pComponent) const
+EZ_FORCE_INLINE bool ezComponentManager<T, StorageType>::TryGetComponent(const ezComponentHandle& component,
+                                                                         const ComponentType*& out_pComponent) const
 {
   EZ_ASSERT_DEV(ComponentType::TypeId() == component.GetInternalID().m_TypeId,
-    "The given component handle is not of the expected type. Expected type id {0}, got type id {1}",
-    ComponentType::TypeId(), component.GetInternalID().m_TypeId);
+                "The given component handle is not of the expected type. Expected type id {0}, got type id {1}", ComponentType::TypeId(),
+                component.GetInternalID().m_TypeId);
   EZ_ASSERT_DEV(component.GetInternalID().m_WorldIndex == GetWorld()->GetIndex(),
-    "Component does not belong to this world. Expected world id {0} got id {1}", GetWorld()->GetIndex(), component.GetInternalID().m_WorldIndex);
+                "Component does not belong to this world. Expected world id {0} got id {1}", GetWorld()->GetIndex(),
+                component.GetInternalID().m_WorldIndex);
 
   const ezComponent* pComponent = nullptr;
   bool bResult = ezComponentManagerBase::TryGetComponent(component, pComponent);
@@ -90,18 +92,20 @@ EZ_FORCE_INLINE bool ezComponentManager<T, StorageType>::TryGetComponent(const e
 }
 
 template <typename T, ezBlockStorageType::Enum StorageType>
-EZ_ALWAYS_INLINE typename ezBlockStorage<T, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::Iterator ezComponentManager<T, StorageType>::GetComponents()
+EZ_ALWAYS_INLINE typename ezBlockStorage<T, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::Iterator
+ezComponentManager<T, StorageType>::GetComponents()
 {
   return m_ComponentStorage.GetIterator();
 }
 
 template <typename T, ezBlockStorageType::Enum StorageType>
-EZ_ALWAYS_INLINE typename ezBlockStorage<T, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::ConstIterator ezComponentManager<T, StorageType>::GetComponents() const
+EZ_ALWAYS_INLINE typename ezBlockStorage<T, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::ConstIterator
+ezComponentManager<T, StorageType>::GetComponents() const
 {
   return m_ComponentStorage.GetIterator();
 }
 
-//static
+// static
 template <typename T, ezBlockStorageType::Enum StorageType>
 EZ_ALWAYS_INLINE ezUInt16 ezComponentManager<T, StorageType>::TypeId()
 {
@@ -149,7 +153,8 @@ EZ_FORCE_INLINE void ezComponentManager<T, StorageType>::RegisterUpdateFunction(
 {
   // round up to multiple of data block capacity so tasks only have to deal with complete data blocks
   if (desc.m_uiGranularity != 0)
-    desc.m_uiGranularity = ezMath::Ceil((ezInt32)desc.m_uiGranularity, ezDataBlock<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE>::CAPACITY);
+    desc.m_uiGranularity =
+        ezMath::Ceil((ezInt32)desc.m_uiGranularity, ezDataBlock<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE>::CAPACITY);
 
   ezComponentManagerBase::RegisterUpdateFunction(desc);
 }
@@ -158,7 +163,7 @@ EZ_FORCE_INLINE void ezComponentManager<T, StorageType>::RegisterUpdateFunction(
 
 template <typename ComponentType, ezComponentUpdateType::Enum UpdateType>
 ezComponentManagerSimple<ComponentType, UpdateType>::ezComponentManagerSimple(ezWorld* pWorld)
-  : ezComponentManager<ComponentType, ezBlockStorageType::FreeList>(pWorld)
+    : ezComponentManager<ComponentType, ezBlockStorageType::FreeList>(pWorld)
 {
 }
 
@@ -189,7 +194,7 @@ void ezComponentManagerSimple<ComponentType, UpdateType>::SimpleUpdate(const ezW
   }
 }
 
-//static
+// static
 template <typename ComponentType, ezComponentUpdateType::Enum UpdateType>
 void ezComponentManagerSimple<ComponentType, UpdateType>::SimpleUpdateName(ezStringBuilder& out_sName)
 {
@@ -210,4 +215,3 @@ void ezComponentManagerSimple<ComponentType, UpdateType>::SimpleUpdateName(ezStr
     out_sName = sName;
   }
 }
-

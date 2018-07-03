@@ -27,9 +27,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptParameter, 1, ezRTTINoAllocator);
     EZ_MEMBER_PROPERTY("Name", m_sName),
     EZ_MEMBER_PROPERTY("Expose", m_bExpose),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptParameterBool, 1, ezRTTIDefaultAllocator<ezVisualScriptParameterBool>);
 {
@@ -37,9 +37,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptParameterBool, 1, ezRTTIDefaultAll
   {
     EZ_MEMBER_PROPERTY("Default", m_DefaultValue),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptParameterNumber, 1, ezRTTIDefaultAllocator<ezVisualScriptParameterNumber>);
 {
@@ -47,9 +47,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptParameterNumber, 1, ezRTTIDefaultA
   {
     EZ_MEMBER_PROPERTY("Default", m_DefaultValue),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAssetProperties, 1, ezRTTIDefaultAllocator<ezVisualScriptAssetProperties>);
 {
@@ -58,16 +58,16 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAssetProperties, 1, ezRTTIDefaultA
     EZ_ARRAY_MEMBER_PROPERTY("BoolParameters", m_BoolParameters),
     EZ_ARRAY_MEMBER_PROPERTY("NumberParameters", m_NumberParameters)
   }
-    EZ_END_PROPERTIES
+    EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 // ezVisualScriptAssetDocument
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAssetDocument, 4, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptAssetDocument::ezVisualScriptAssetDocument(const char* szDocumentPath)
   : ezSimpleAssetDocument<ezVisualScriptAssetProperties>(EZ_DEFAULT_NEW(ezVisualScriptNodeManager), szDocumentPath, false, false)

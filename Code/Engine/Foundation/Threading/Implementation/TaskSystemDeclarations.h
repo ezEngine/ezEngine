@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Foundation/Threading/Thread.h>
-#include <Foundation/Containers/List.h>
 #include <Foundation/Containers/DynamicArray.h>
-#include <Foundation/Threading/Mutex.h>
+#include <Foundation/Containers/List.h>
 #include <Foundation/Strings/StringBuilder.h>
+#include <Foundation/Threading/Mutex.h>
+#include <Foundation/Threading/Thread.h>
 #include <Foundation/Threading/ThreadSignal.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Types/Delegate.h>
@@ -24,30 +24,35 @@ class ezTask;
 /// For tasks that run over a longer period (e.g. path searches, procedural data creation), use 'LongRunning'.
 /// Only use 'LongRunningHighPriority' for tasks that occur rarely, otherwise 'LongRunning' tasks might not get processed, at all.\n
 /// For tasks that need to access files, prefer to use 'FileAccess', this way all file accesses get executed sequentially.\n
-/// Use 'FileAccessHighPriority' to get very important file accesses done sooner. For example writing out a save-game should finish quickly.\n
-/// For tasks that need to execute on the main thread (e.g. uploading GPU resources) use 'ThisFrameMainThread' or 'SomeFrameMainThread'
-/// depending on how urgent it is. 'SomeFrameMainThread' tasks might get delayed for quite a while, depending on the system load.
-/// For tasks that need to do several things (e.g. reading from a file AND uploading something on the main thread), split them up into
-/// several tasks that depend on each other (or just let the first task start the next step once it is finished).
-/// There is no guarantee WHEN (within a frame) main thread tasks get executed. Most of them will get executed upon a 'FinishFrameTasks' call.
-/// However they are also run whenever the main thread needs to wait or cancel some other task and has nothing else to do.
-/// So tasks that get executed on the main thread should never assume a certain state of other systems.
+/// Use 'FileAccessHighPriority' to get very important file accesses done sooner. For example writing out a save-game should finish
+/// quickly.\n For tasks that need to execute on the main thread (e.g. uploading GPU resources) use 'ThisFrameMainThread' or
+/// 'SomeFrameMainThread' depending on how urgent it is. 'SomeFrameMainThread' tasks might get delayed for quite a while, depending on the
+/// system load. For tasks that need to do several things (e.g. reading from a file AND uploading something on the main thread), split them
+/// up into several tasks that depend on each other (or just let the first task start the next step once it is finished). There is no
+/// guarantee WHEN (within a frame) main thread tasks get executed. Most of them will get executed upon a 'FinishFrameTasks' call. However
+/// they are also run whenever the main thread needs to wait or cancel some other task and has nothing else to do. So tasks that get
+/// executed on the main thread should never assume a certain state of other systems.
 struct ezTaskPriority
 {
   enum Enum
   {
-    EarlyThisFrame,             ///< Highest priority, guaranteed to get finished in this frame.
-    ThisFrame,                  ///< Medium priority, guaranteed to get finished in this frame.
-    LateThisFrame,              ///< Low priority, guaranteed to get finished in this frame.
-    EarlyNextFrame,             ///< Highest priority in next frame, guaranteed to get finished this frame or the next.
-    NextFrame,                  ///< Medium priority in next frame, guaranteed to get finished this frame or the next.
-    LateNextFrame,              ///< Low priority in next frame, guaranteed to get finished this frame or the next.
-    LongRunningHighPriority,    ///< Tasks that might take a while, but should be preferred over 'LongRunning' tasks. Use this priority only rarely, otherwise 'LongRunning' tasks might never get executed.
-    LongRunning,                ///< Use this priority for tasks that might run for a while.
-    FileAccessHighPriority,     ///< For tasks that require file access (e.g. resource loading). They run on one dedicated thread, such that file accesses are done sequentially and never in parallel.
-    FileAccess,                 ///< For tasks that require file access (e.g. resource loading). They run on one dedicated thread, such that file accesses are done sequentially and never in parallel.
-    ThisFrameMainThread,        ///< Tasks that need to be executed this frame, but in the main thread. This is mostly intended for resource creation.
-    SomeFrameMainThread,        ///< Tasks that have no hard deadline but need to be executed in the main thread. This is mostly intended for resource creation.
+    EarlyThisFrame,          ///< Highest priority, guaranteed to get finished in this frame.
+    ThisFrame,               ///< Medium priority, guaranteed to get finished in this frame.
+    LateThisFrame,           ///< Low priority, guaranteed to get finished in this frame.
+    EarlyNextFrame,          ///< Highest priority in next frame, guaranteed to get finished this frame or the next.
+    NextFrame,               ///< Medium priority in next frame, guaranteed to get finished this frame or the next.
+    LateNextFrame,           ///< Low priority in next frame, guaranteed to get finished this frame or the next.
+    LongRunningHighPriority, ///< Tasks that might take a while, but should be preferred over 'LongRunning' tasks. Use this priority only
+                             ///< rarely, otherwise 'LongRunning' tasks might never get executed.
+    LongRunning,             ///< Use this priority for tasks that might run for a while.
+    FileAccessHighPriority,  ///< For tasks that require file access (e.g. resource loading). They run on one dedicated thread, such that
+                             ///< file accesses are done sequentially and never in parallel.
+    FileAccess, ///< For tasks that require file access (e.g. resource loading). They run on one dedicated thread, such that file accesses
+                ///< are done sequentially and never in parallel.
+    ThisFrameMainThread, ///< Tasks that need to be executed this frame, but in the main thread. This is mostly intended for resource
+                         ///< creation.
+    SomeFrameMainThread, ///< Tasks that have no hard deadline but need to be executed in the main thread. This is mostly intended for
+                         ///< resource creation.
 
     ENUM_COUNT
   };
@@ -136,7 +141,7 @@ class ezTaskGroup
 {
 public:
   /// \brief The function type to use when one wants to get informed when a task group has been finished.
-  typedef ezDelegate<void ()> OnTaskGroupFinished;
+  typedef ezDelegate<void()> OnTaskGroupFinished;
 
 private:
   friend class ezTaskSystem;
@@ -154,4 +159,3 @@ private:
   ezTaskPriority::Enum m_Priority;
   OnTaskGroupFinished m_OnFinishedCallback;
 };
-

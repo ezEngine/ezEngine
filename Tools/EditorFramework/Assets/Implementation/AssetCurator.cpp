@@ -60,7 +60,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezFileStatus, ezNoBase, 3, ezRTTIDefaultAllocator
     EZ_MEMBER_PROPERTY("Hash", m_uiHash),
     EZ_MEMBER_PROPERTY("AssetGuid", m_AssetGuid),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on

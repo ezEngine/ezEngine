@@ -10,7 +10,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezLSAODepthCompareFunction, 1)
 EZ_ENUM_CONSTANT(ezLSAODepthCompareFunction::Depth),
 EZ_ENUM_CONSTANT(ezLSAODepthCompareFunction::Normal),
 EZ_ENUM_CONSTANT(ezLSAODepthCompareFunction::NormalAndSampleDistance),
-EZ_END_STATIC_REFLECTED_ENUM();
+EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLSAOPass, 1, ezRTTIDefaultAllocator<ezLSAOPass>)
 {
@@ -25,9 +25,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLSAOPass, 1, ezRTTIDefaultAllocator<ezLSAOPass
     EZ_ACCESSOR_PROPERTY("DepthCutoffDistance", GetDepthCutoffDistance, SetDepthCutoffDistance)->AddAttributes(new ezDefaultValueAttribute(4.0f), new ezClampValueAttribute(0.1f, 100.0f)),
     EZ_MEMBER_PROPERTY("DistributedGathering", m_bDistributedGathering)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 namespace
 {

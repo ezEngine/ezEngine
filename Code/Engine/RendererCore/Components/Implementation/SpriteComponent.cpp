@@ -9,7 +9,7 @@
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSpriteBlendMode, 1)
 EZ_ENUM_CONSTANTS(ezSpriteBlendMode::Masked, ezSpriteBlendMode::Transparent, ezSpriteBlendMode::Additive)
-EZ_END_STATIC_REFLECTED_ENUM();
+EZ_END_STATIC_REFLECTED_ENUM;
 
 //static
 ezTempHashedString ezSpriteBlendMode::GetPermutationValue(Enum blendMode)
@@ -28,7 +28,7 @@ ezTempHashedString ezSpriteBlendMode::GetPermutationValue(Enum blendMode)
 }
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpriteRenderData, 1, ezRTTIDefaultAllocator<ezSpriteRenderData>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 3, ezComponentMode::Static)
 {
@@ -41,12 +41,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 3, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("MaxScreenSize", GetMaxScreenSize, SetMaxScreenSize)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(64.0f), new ezSuffixAttribute(" px")),
     EZ_MEMBER_PROPERTY("AspectRatio", m_fAspectRatio)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(1.0f)),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
     EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Rendering"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
     EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),

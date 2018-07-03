@@ -1,4 +1,4 @@
-﻿
+
 class ezVariantHelper
 {
   friend class ezVariant;
@@ -47,28 +47,28 @@ class ezVariantHelper
   static void To(const ezVariant& value, ezInt8& result, bool& bSuccessful)
   {
     ezInt32 tempResult;
-    To (value, tempResult, bSuccessful);
+    To(value, tempResult, bSuccessful);
     result = (ezInt8)tempResult;
   }
 
   static void To(const ezVariant& value, ezUInt8& result, bool& bSuccessful)
   {
     ezUInt32 tempResult;
-    To (value, tempResult, bSuccessful);
+    To(value, tempResult, bSuccessful);
     result = (ezUInt8)tempResult;
   }
 
   static void To(const ezVariant& value, ezInt16& result, bool& bSuccessful)
   {
     ezInt32 tempResult;
-    To (value, tempResult, bSuccessful);
+    To(value, tempResult, bSuccessful);
     result = (ezInt16)tempResult;
   }
 
   static void To(const ezVariant& value, ezUInt16& result, bool& bSuccessful)
   {
     ezUInt32 tempResult;
-    To (value, tempResult, bSuccessful);
+    To(value, tempResult, bSuccessful);
     result = (ezUInt16)tempResult;
   }
 
@@ -189,7 +189,8 @@ class ezVariantHelper
 
   static void To(const ezVariant& value, void*& result, bool& bSuccessful)
   {
-    EZ_ASSERT_DEBUG(value.GetType() == ezVariant::Type::VoidPointer || value.GetType() == ezVariant::Type::ReflectedPointer, "Only ptr can be converted to void*!");
+    EZ_ASSERT_DEBUG(value.GetType() == ezVariant::Type::VoidPointer || value.GetType() == ezVariant::Type::ReflectedPointer,
+                    "Only ptr can be converted to void*!");
     result = value.GetType() == ezVariant::Type::VoidPointer ? value.Get<void*>() : value.Get<ezReflectedClass*>();
     bSuccessful = true;
   }
@@ -230,4 +231,3 @@ class ezVariantHelper
     ezString* m_pResult;
   };
 };
-

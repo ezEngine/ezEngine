@@ -17,7 +17,7 @@
 #include <Foundation/Utilities/Progress.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 4, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 static ezVec3 GetBasisVector(ezBasisAxis::Enum basisAxis)
 {
@@ -838,7 +838,7 @@ ezStatus ezMeshAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& A
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezMeshAssetDocumentGenerator>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezMeshAssetDocumentGenerator::ezMeshAssetDocumentGenerator()
 {

@@ -12,7 +12,7 @@
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmoEditTool, 1, ezRTTIDefaultAllocator<ezTranslateGizmoEditTool>)
 
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezTranslateGizmoEditTool::ezTranslateGizmoEditTool()
 {
@@ -210,7 +210,7 @@ void ezTranslateGizmoEditTool::GetGridSettings(ezGridSettingsMsgToEngine& msg)
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRotateGizmoEditTool, 1, ezRTTIDefaultAllocator<ezRotateGizmoEditTool>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezRotateGizmoEditTool::ezRotateGizmoEditTool()
 {
@@ -311,7 +311,7 @@ void ezRotateGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmoEve
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScaleGizmoEditTool, 1, ezRTTIDefaultAllocator<ezScaleGizmoEditTool>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezScaleGizmoEditTool::ezScaleGizmoEditTool()
 {
@@ -415,7 +415,7 @@ void ezScaleGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmoEven
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDragToPositionGizmoEditTool, 1, ezRTTIDefaultAllocator<ezDragToPositionGizmoEditTool>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezDragToPositionGizmoEditTool::ezDragToPositionGizmoEditTool()
 {

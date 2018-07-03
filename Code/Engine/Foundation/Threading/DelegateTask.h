@@ -17,10 +17,7 @@ public:
   }
 
 private:
-  virtual void Execute() override
-  {
-    m_func(m_param);
-  }
+  virtual void Execute() override { m_func(m_param); }
 
   FunctionType m_func;
   T m_param;
@@ -39,11 +36,7 @@ public:
   }
 
 private:
-  virtual void Execute() override
-  {
-    m_func();
-  }
+  virtual void Execute() override { m_func(); }
 
   FunctionType m_func;
 };
-

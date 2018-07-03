@@ -10,7 +10,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SampleNode, 1, ezRTTIDefaultA
     new ezCategoryAttribute("Sample"),
     new ezTitleAttribute("Sample Node '{Value}'"),
   }
-    EZ_END_ATTRIBUTES
+    EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     // Execution Pins
@@ -20,9 +20,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SampleNode, 1, ezRTTIDefaultA
     EZ_INPUT_DATA_PIN_AND_PROPERTY("Value", 0, ezVisualScriptDataPinType::Number, m_Value),
     EZ_OUTPUT_DATA_PIN("NewValue", 0, ezVisualScriptDataPinType::Number),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_SampleNode::ezVisualScriptNode_SampleNode()
 {

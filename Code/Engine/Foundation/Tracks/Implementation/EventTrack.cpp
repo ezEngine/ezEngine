@@ -1,13 +1,10 @@
 #include <PCH.h>
+
 #include <Foundation/Tracks/EventTrack.h>
 
-ezEventTrack::ezEventTrack()
-{
-}
+ezEventTrack::ezEventTrack() {}
 
-ezEventTrack::~ezEventTrack()
-{
-}
+ezEventTrack::~ezEventTrack() {}
 
 void ezEventTrack::Clear()
 {
@@ -93,7 +90,7 @@ ezInt32 ezEventTrack::FindControlPointBefore(ezTime x) const
   {
     const ezInt32 uiMidIdx = uiLowIdx + ((uiHighIdx - uiLowIdx) >> 1); // lerp
 
-                                                                        // doesn't matter whether to use > or >=
+    // doesn't matter whether to use > or >=
     if (m_ControlPoints[uiMidIdx].m_Time >= x)
       uiHighIdx = uiMidIdx;
     else
@@ -217,4 +214,3 @@ void ezEventTrack::Load(ezStreamReader& stream)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Tracks_Implementation_EventTrack);
-

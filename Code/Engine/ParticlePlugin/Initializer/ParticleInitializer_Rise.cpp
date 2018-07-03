@@ -14,12 +14,12 @@
 //    EZ_MEMBER_PROPERTY("Min Speed", m_fMinRiseSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
 //    EZ_MEMBER_PROPERTY("Speed Range", m_fRiseSpeedRange)
 //  }
-//  EZ_END_PROPERTIES
+//  EZ_END_PROPERTIES;
 //}
-//EZ_END_DYNAMIC_REFLECTED_TYPE
+//EZ_END_DYNAMIC_REFLECTED_TYPE;
 //
 //EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializer_Rise, 1, ezRTTIDefaultAllocator<ezParticleInitializer_Rise>)
-//EZ_END_DYNAMIC_REFLECTED_TYPE
+//EZ_END_DYNAMIC_REFLECTED_TYPE;
 //
 //ezParticleInitializerFactory_Rise::ezParticleInitializerFactory_Rise()
 //{

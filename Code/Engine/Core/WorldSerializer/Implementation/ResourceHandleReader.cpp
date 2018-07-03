@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <Core/WorldSerializer/ResourceHandleReader.h>
+
 #include <Core/ResourceManager/ResourceManager.h>
+#include <Core/WorldSerializer/ResourceHandleReader.h>
 
 static thread_local ezResourceHandleReadContext* s_pActiveReadContext = nullptr;
 
@@ -53,15 +54,19 @@ void ezResourceHandleReadContext::BeginRestoringHandles(ezStreamReader* pStream)
   EZ_ASSERT_DEV(s_pActiveReadContext == nullptr, "Instances of ezResourceHandleReadContext cannot be nested on the callstack");
   s_pActiveReadContext = this;
 
-  EZ_ASSERT_DEV(m_uiVersion != 0, "ezResourceHandleReadContext::BeginRestoringHandles must be called after ezResourceHandleReadContext::BeginReadingFromStream");
+  EZ_ASSERT_DEV(
+      m_uiVersion != 0,
+      "ezResourceHandleReadContext::BeginRestoringHandles must be called after ezResourceHandleReadContext::BeginReadingFromStream");
 
   m_StoredHandles.Clear();
 }
 
 void ezResourceHandleReadContext::EndRestoringHandles()
 {
-  EZ_ASSERT_DEV(s_pActiveReadContext == this, "Incorrect usage of ezResourceHandleReadContext::BeginRestoringHandles / EndRestoringHandles");
-  EZ_ASSERT_DEV(m_bReadData, "ezResourceHandleReadContext::EndRestoringHandles must be called AFTER ezResourceHandleReadContext::EndReadingFromStream");
+  EZ_ASSERT_DEV(s_pActiveReadContext == this,
+                "Incorrect usage of ezResourceHandleReadContext::BeginRestoringHandles / EndRestoringHandles");
+  EZ_ASSERT_DEV(m_bReadData,
+                "ezResourceHandleReadContext::EndRestoringHandles must be called AFTER ezResourceHandleReadContext::EndReadingFromStream");
 
   for (const auto& hd : m_StoredHandles)
   {
@@ -141,4 +146,3 @@ void ezResourceHandleReadContext::EndReadingFromStream(ezStreamReader* pStream)
 
 
 EZ_STATICLINK_FILE(Core, Core_WorldSerializer_Implementation_ResourceHandleReader);
-

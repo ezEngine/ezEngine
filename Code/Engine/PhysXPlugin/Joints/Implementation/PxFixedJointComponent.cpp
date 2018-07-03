@@ -10,7 +10,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxFixedJointComponent, 1, ezComponentMode::Static);
 {
 
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezPxFixedJointComponent::ezPxFixedJointComponent()
 {

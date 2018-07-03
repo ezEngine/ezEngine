@@ -15,7 +15,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRcMarkPoiVisibleComponent, 1, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(20.0f)),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
 EZ_END_COMPONENT_TYPE
 

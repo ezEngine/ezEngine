@@ -1,14 +1,16 @@
-﻿#include <PCH.h>
-#include <Foundation/Serialization/AbstractObjectGraph.h>
-#include <Foundation/Logging/Log.h>
+#include <PCH.h>
 
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezObjectChangeType, 1)
-EZ_ENUM_CONSTANTS(ezObjectChangeType::NodeAdded, ezObjectChangeType::NodeRemoved)
-EZ_ENUM_CONSTANTS(ezObjectChangeType::PropertySet, ezObjectChangeType::PropertyInserted, ezObjectChangeType::PropertyRemoved)
-EZ_END_STATIC_REFLECTED_ENUM();
+  EZ_ENUM_CONSTANTS(ezObjectChangeType::NodeAdded, ezObjectChangeType::NodeRemoved)
+  EZ_ENUM_CONSTANTS(ezObjectChangeType::PropertySet, ezObjectChangeType::PropertyInserted, ezObjectChangeType::PropertyRemoved)
+EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAbstractObjectNode, ezNoBase, 1, ezRTTIDefaultAllocator<ezAbstractObjectNode>)
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezDiffOperation, ezNoBase, 1, ezRTTIDefaultAllocator<ezDiffOperation>)
 {
@@ -20,12 +22,12 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezDiffOperation, ezNoBase, 1, ezRTTIDefaultAlloca
     EZ_MEMBER_PROPERTY("Index", m_Index),
     EZ_MEMBER_PROPERTY("Value", m_Value),
   }
-    EZ_END_PROPERTIES
+    EZ_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
+    // clang-format on
 
-
-ezAbstractObjectGraph::~ezAbstractObjectGraph()
+    ezAbstractObjectGraph::~ezAbstractObjectGraph()
 {
   Clear();
 }
@@ -76,7 +78,7 @@ const ezAbstractObjectNode* ezAbstractObjectGraph::GetNodeByName(const char* szN
 
 ezAbstractObjectNode* ezAbstractObjectGraph::GetNodeByName(const char* szName)
 {
-  return  m_NodesByName.GetValueOrDefault(szName, nullptr);
+  return m_NodesByName.GetValueOrDefault(szName, nullptr);
 }
 
 ezAbstractObjectNode* ezAbstractObjectGraph::AddNode(const ezUuid& guid, const char* szType, ezUInt32 uiTypeVersion, const char* szNodeName)
@@ -228,14 +230,14 @@ void ezAbstractObjectGraph::ReMapNodeGuids(const ezUuid& seedGuid, bool bRemapIn
     for (auto& prop : pNode->m_Properties)
     {
       RemapVariant(prop.m_Value, guidMap);
-
     }
     m_Nodes[pNode->m_Guid] = pNode;
   }
 }
 
 
-void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraph(ezAbstractObjectNode* root, const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* rhsRoot)
+void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraph(ezAbstractObjectNode* root, const ezAbstractObjectGraph& rhsGraph,
+                                                       const ezAbstractObjectNode* rhsRoot)
 {
   ezMap<ezUuid, ezUuid> guidMap;
   EZ_ASSERT_DEV(ezStringUtils::IsEqual(root->GetType(), rhsRoot->GetType()), "Roots must have the same type to be able re-map guids!");
@@ -254,7 +256,8 @@ void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraph(ezAbstractObjectNode* roo
   }
 }
 
-void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraphRecursive(ezMap<ezUuid, ezUuid>& guidMap, ezAbstractObjectNode* lhs, const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* rhs)
+void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraphRecursive(ezMap<ezUuid, ezUuid>& guidMap, ezAbstractObjectNode* lhs,
+                                                                const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* rhs)
 {
   if (!ezStringUtils::IsEqual(lhs->GetType(), rhs->GetType()))
   {
@@ -435,7 +438,8 @@ ezAbstractObjectNode* ezAbstractObjectGraph::CopyNodeIntoGraph(const ezAbstractO
 }
 
 
-void ezAbstractObjectGraph::CreateDiffWithBaseGraph(const ezAbstractObjectGraph& base, ezDeque<ezAbstractGraphDiffOperation>& out_DiffResult) const
+void ezAbstractObjectGraph::CreateDiffWithBaseGraph(const ezAbstractObjectGraph& base,
+                                                    ezDeque<ezAbstractGraphDiffOperation>& out_DiffResult) const
 {
   out_DiffResult.Clear();
 
@@ -535,19 +539,19 @@ void ezAbstractObjectGraph::ApplyDiff(ezDeque<ezAbstractGraphDiffOperation>& Dif
   {
     switch (op.m_Operation)
     {
-    case ezAbstractGraphDiffOperation::Op::NodeAdded:
+      case ezAbstractGraphDiffOperation::Op::NodeAdded:
       {
         AddNode(op.m_Node, op.m_sProperty, op.m_uiTypeVersion, op.m_Value.Get<ezString>());
       }
       break;
 
-    case ezAbstractGraphDiffOperation::Op::NodeRemoved:
+      case ezAbstractGraphDiffOperation::Op::NodeRemoved:
       {
         RemoveNode(op.m_Node);
       }
       break;
 
-    case ezAbstractGraphDiffOperation::Op::PropertyChanged:
+      case ezAbstractGraphDiffOperation::Op::PropertyChanged:
       {
         auto* pNode = GetNode(op.m_Node);
         if (pNode)
@@ -566,7 +570,8 @@ void ezAbstractObjectGraph::ApplyDiff(ezDeque<ezAbstractGraphDiffOperation>& Dif
 }
 
 
-void ezAbstractObjectGraph::MergeDiffs(const ezDeque<ezAbstractGraphDiffOperation>& lhs, const ezDeque<ezAbstractGraphDiffOperation>& rhs, ezDeque<ezAbstractGraphDiffOperation>& out) const
+void ezAbstractObjectGraph::MergeDiffs(const ezDeque<ezAbstractGraphDiffOperation>& lhs, const ezDeque<ezAbstractGraphDiffOperation>& rhs,
+                                       ezDeque<ezAbstractGraphDiffOperation>& out) const
 {
   struct Prop
   {
@@ -587,13 +592,10 @@ void ezAbstractObjectGraph::MergeDiffs(const ezDeque<ezAbstractGraphDiffOperatio
       return m_Node < rhs.m_Node;
     }
 
-    bool operator==(const Prop& rhs) const
-    {
-      return m_Node == rhs.m_Node && m_sProperty == rhs.m_sProperty;
-    }
+    bool operator==(const Prop& rhs) const { return m_Node == rhs.m_Node && m_sProperty == rhs.m_sProperty; }
   };
 
-  ezMap<Prop, ezHybridArray<const ezAbstractGraphDiffOperation*, 2> > propChanges;
+  ezMap<Prop, ezHybridArray<const ezAbstractGraphDiffOperation*, 2>> propChanges;
   ezSet<ezUuid> removed;
   ezMap<ezUuid, ezUInt32> added;
   for (const ezAbstractGraphDiffOperation& op : lhs)
@@ -682,7 +684,6 @@ void ezAbstractObjectGraph::MergeDiffs(const ezDeque<ezAbstractGraphDiffOperatio
         {
           out.PushBack(rightProp);
         }
-
       }
       else
       {
@@ -690,7 +691,6 @@ void ezAbstractObjectGraph::MergeDiffs(const ezDeque<ezAbstractGraphDiffOperatio
       }
     }
   }
-
 }
 
 void ezAbstractObjectGraph::RemapVariant(ezVariant& value, const ezMap<ezUuid, ezUuid>& guidMap)
@@ -763,7 +763,8 @@ void ezAbstractObjectGraph::RemapVariant(ezVariant& value, const ezMap<ezUuid, e
   }
 }
 
-void ezAbstractObjectGraph::MergeArrays(const ezDynamicArray<ezVariant>& baseArray, const ezDynamicArray<ezVariant>& leftArray, const ezDynamicArray<ezVariant>& rightArray, ezDynamicArray<ezVariant>& out) const
+void ezAbstractObjectGraph::MergeArrays(const ezDynamicArray<ezVariant>& baseArray, const ezDynamicArray<ezVariant>& leftArray,
+                                        const ezDynamicArray<ezVariant>& rightArray, ezDynamicArray<ezVariant>& out) const
 {
   // Find element type.
   ezVariantType::Enum type = ezVariantType::Invalid;
@@ -814,15 +815,15 @@ void ezAbstractObjectGraph::MergeArrays(const ezDynamicArray<ezVariant>& baseArr
   struct Element
   {
     Element(const ezVariant* pValue = nullptr, ezInt32 iBaseIndex = -1, ezInt32 iLeftIndex = -1, ezInt32 iRightIndex = -1)
-      : m_pValue(pValue), m_iBaseIndex(iBaseIndex), m_iLeftIndex(iLeftIndex), m_iRightIndex(iRightIndex), m_fIndex(ezMath::BasicType<float>::MaxValue()) {}
-    bool IsDeleted() const
+        : m_pValue(pValue)
+        , m_iBaseIndex(iBaseIndex)
+        , m_iLeftIndex(iLeftIndex)
+        , m_iRightIndex(iRightIndex)
+        , m_fIndex(ezMath::BasicType<float>::MaxValue())
     {
-      return m_iBaseIndex != -1 && (m_iLeftIndex == -1 || m_iRightIndex == -1);
     }
-    bool operator < (const Element& rhs) const
-    {
-      return m_fIndex < rhs.m_fIndex;
-    }
+    bool IsDeleted() const { return m_iBaseIndex != -1 && (m_iLeftIndex == -1 || m_iRightIndex == -1); }
+    bool operator<(const Element& rhs) const { return m_fIndex < rhs.m_fIndex; }
 
     const ezVariant* m_pValue;
     ezInt32 m_iBaseIndex;
@@ -963,4 +964,3 @@ void ezAbstractObjectGraph::MergeArrays(const ezDynamicArray<ezVariant>& baseArr
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_AbstractObjectGraph);
-

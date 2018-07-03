@@ -12,7 +12,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_DeleteObject, 1, ezRTTIDefaul
   {
     new ezCategoryAttribute("Objects")
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
   EZ_BEGIN_PROPERTIES
   {
     // Execution Pins (Input)
@@ -22,9 +22,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_DeleteObject, 1, ezRTTIDefaul
     // Data Pins (Input)
     EZ_INPUT_DATA_PIN("Object", 0, ezVisualScriptDataPinType::GameObjectHandle),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_DeleteObject::ezVisualScriptNode_DeleteObject() { }
 
@@ -61,7 +61,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_ActivateComponent, 1, ezRTTID
   {
     new ezCategoryAttribute("Components")
   }
-    EZ_END_ATTRIBUTES
+    EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     // Execution Pins (Input)
@@ -72,9 +72,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_ActivateComponent, 1, ezRTTID
     // Data Pins (Input)
     EZ_INPUT_DATA_PIN("Component", 0, ezVisualScriptDataPinType::ComponentHandle),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_ActivateComponent::ezVisualScriptNode_ActivateComponent() { }
 

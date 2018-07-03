@@ -2,8 +2,8 @@
 
 #include <TestFramework/Basics.h>
 #include <TestFramework/Framework/Declarations.h>
-#include <TestFramework/Framework/TestBaseClass.h>
 #include <TestFramework/Framework/SimpleTest.h>
+#include <TestFramework/Framework/TestBaseClass.h>
 #include <TestFramework/Framework/TestResults.h>
 
 
@@ -13,7 +13,7 @@ public:
   ezTestFramework(const char* szTestName, const char* szAbsTestOutputDir, const char* szRelTestDataDir, int argc, const char** argv);
   virtual ~ezTestFramework();
 
-  typedef void(*OutputHandler)(ezTestOutput::Enum Type, const char* szMsg);
+  typedef void (*OutputHandler)(ezTestOutput::Enum Type, const char* szMsg);
 
   // Test management
   void CreateOutputFolder();
@@ -47,8 +47,8 @@ public:
   void SetTestEnabled(ezUInt32 uiTestIndex, bool bEnabled);
   void SetSubTestEnabled(ezUInt32 uiTestIndex, ezUInt32 uiSubTestIndex, bool bEnabled);
 
-  ezInt32 GetCurrentTestIndex() {return m_iCurrentTestIndex;}
-  ezInt32 GetCurrentSubTestIndex() {return m_iCurrentSubTestIndex;}
+  ezInt32 GetCurrentTestIndex() { return m_iCurrentTestIndex; }
+  ezInt32 GetCurrentSubTestIndex() { return m_iCurrentSubTestIndex; }
   ezTestEntry* GetTest(ezUInt32 uiTestIndex);
   bool GetTestsRunning() const { return m_bTestsRunning; }
 
@@ -97,9 +97,9 @@ private:
   static ezTestFramework* s_pInstance;
 
 private:
-  std::string m_sTestName;  ///< The name of the tests being done
+  std::string m_sTestName;         ///< The name of the tests being done
   std::string m_sAbsTestOutputDir; ///< Absolute path to the output folder where results and temp data is stored
-  std::string m_sRelTestDataDir; ///< Relative path from the SDK to where the unit test data is located
+  std::string m_sRelTestDataDir;   ///< Relative path from the SDK to where the unit test data is located
   ezInt32 m_iErrorCount;
   ezInt32 m_iTestsFailed;
   ezInt32 m_iTestsPassed;
@@ -132,32 +132,37 @@ protected:
 #endif
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  #define EZ_NV_OPTIMUS extern "C" { _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001; }
+#define EZ_NV_OPTIMUS                                                                                                                      \
+  extern "C" {                                                                                                                             \
+  _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;                                                                             \
+  }
 #else
-  #define EZ_NV_OPTIMUS
+#define EZ_NV_OPTIMUS
 #endif
 
 /// \brief Macro to define the application entry point for all test applications
-#define EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName)                    \
-  /* Enables that on machines with multiple GPUs the NVIDIA GPU is preferred */           \
-  EZ_NV_OPTIMUS                                                                           \
-  int main(int argc, char **argv)                                                         \
-  {                                                                                       \
-    ezTestSetup::InitTestFramework(szTestName, szNiceTestName, argc, (const char**)argv); \
+#define EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName)                                                                     \
+  /* Enables that on machines with multiple GPUs the NVIDIA GPU is preferred */                                                            \
+  EZ_NV_OPTIMUS                                                                                                                            \
+  int main(int argc, char** argv)                                                                                                          \
+  {                                                                                                                                        \
+    ezTestSetup::InitTestFramework(szTestName, szNiceTestName, argc, (const char**)argv);                                                  \
     /* Execute custom init code here by using the BEGIN/END macros directly */
 
 
-#define EZ_TESTFRAMEWORK_ENTRY_POINT_END()                                                \
-    while (ezTestSetup::RunTests() == ezTestAppRun::Continue) { }                         \
-    const ezInt32 iFailedTests = ezTestSetup::GetFailedTestCount();                       \
-    ezTestSetup::DeInitTestFramework();                                                   \
-    return iFailedTests;                                                                  \
+#define EZ_TESTFRAMEWORK_ENTRY_POINT_END()                                                                                                 \
+  while (ezTestSetup::RunTests() == ezTestAppRun::Continue)                                                                                \
+  {                                                                                                                                        \
+  }                                                                                                                                        \
+  const ezInt32 iFailedTests = ezTestSetup::GetFailedTestCount();                                                                          \
+  ezTestSetup::DeInitTestFramework();                                                                                                      \
+  return iFailedTests;                                                                                                                     \
   }
 
 
-#define EZ_TESTFRAMEWORK_ENTRY_POINT(szTestName, szNiceTestName) \
-  EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName) \
-  /* Execute custom init code here by using the BEGIN/END macros directly */ \
+#define EZ_TESTFRAMEWORK_ENTRY_POINT(szTestName, szNiceTestName)                                                                           \
+  EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName)                                                                           \
+  /* Execute custom init code here by using the BEGIN/END macros directly */                                                               \
   EZ_TESTFRAMEWORK_ENTRY_POINT_END()
 
 /// \brief Enum for usage in EZ_TEST_BLOCK to enable or disable the block.
@@ -178,239 +183,254 @@ struct ezTestBlock
 /// First parameter allows to quickly disable a block depending on a condition (e.g. platform).
 /// Second parameter just gives it a name for better error reporting.
 /// Also skipped tests are highlighted in the output, such that people can quickly see when a test is currently deactivated.
-#define EZ_TEST_BLOCK(enable, name) \
-  ezTestFramework::s_szTestBlockName = name; \
-  if (enable == ezTestBlock::Disabled) \
-  { \
-    ezTestFramework::s_szTestBlockName = ""; \
-    ezTestFramework::Output(ezTestOutput::Message, "Skipped Test Block '%s'", name); \
-  } \
+#define EZ_TEST_BLOCK(enable, name)                                                                                                        \
+  ezTestFramework::s_szTestBlockName = name;                                                                                               \
+  if (enable == ezTestBlock::Disabled)                                                                                                     \
+  {                                                                                                                                        \
+    ezTestFramework::s_szTestBlockName = "";                                                                                               \
+    ezTestFramework::Output(ezTestOutput::Message, "Skipped Test Block '%s'", name);                                                       \
+  }                                                                                                                                        \
   else
 
 /// \brief Will trigger a debug break, if the test framework is configured to do so on test failure
-#define EZ_TEST_DEBUG_BREAK if (ezTestFramework::GetAssertOnTestFail())\
+#define EZ_TEST_DEBUG_BREAK                                                                                                                \
+  if (ezTestFramework::GetAssertOnTestFail())                                                                                              \
   EZ_DEBUG_BREAK
 
-#define EZ_TEST_FAILURE(erroroutput, msg, ...) \
-{\
-  ezTestFramework::Error(erroroutput, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__);\
-  EZ_TEST_DEBUG_BREAK \
-}
+#define EZ_TEST_FAILURE(erroroutput, msg, ...)                                                                                             \
+  {                                                                                                                                        \
+    ezTestFramework::Error(erroroutput, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__);                           \
+    EZ_TEST_DEBUG_BREAK                                                                                                                    \
+  }
 
 /// \brief Tests for a boolean condition, does not output an extra message.
 #define EZ_TEST_BOOL(condition) EZ_TEST_BOOL_MSG(condition, "")
 
 /// \brief Tests for a boolean condition, outputs a custom message on failure.
-#define EZ_TEST_BOOL_MSG(condition, msg, ...) \
-{\
-  ezTestFramework::s_iAssertCounter++; \
-  if (!(condition)) \
-  { \
-    EZ_TEST_FAILURE("Test failed: " EZ_STRINGIZE(condition), msg, ##__VA_ARGS__) \
-  } \
-}
+#define EZ_TEST_BOOL_MSG(condition, msg, ...)                                                                                              \
+  {                                                                                                                                        \
+    ezTestFramework::s_iAssertCounter++;                                                                                                   \
+    if (!(condition))                                                                                                                      \
+    {                                                                                                                                      \
+      EZ_TEST_FAILURE("Test failed: " EZ_STRINGIZE(condition), msg, ##__VA_ARGS__)                                                         \
+    }                                                                                                                                      \
+  }
 
-inline float ToFloat(int f) { return (float) f; }
-inline float ToFloat(float f) { return f; }
-inline float ToFloat(double f) { return (float) f; }
+inline float ToFloat(int f)
+{
+  return (float)f;
+}
+inline float ToFloat(float f)
+{
+  return f;
+}
+inline float ToFloat(double f)
+{
+  return (float)f;
+}
 
 /// \brief Tests two floats for equality, within a given epsilon. On failure both actual and expected values are output.
 #define EZ_TEST_FLOAT(f1, f2, epsilon) EZ_TEST_FLOAT_MSG(f1, f2, epsilon, "")
 
-/// \brief Tests two floats for equality, within a given epsilon. On failure both actual and expected values are output, also a custom message is printed.
-#define EZ_TEST_FLOAT_MSG(f1, f2, epsilon, msg, ...) \
-{ \
-  ezTestFramework::s_iAssertCounter++; \
-  const float internal_r1 = ToFloat(f1); \
-  const float internal_r2 = ToFloat(f2); \
-  const float internal_fD = internal_r1 - internal_r2; \
-  const float internal_fEps = ToFloat(epsilon); \
-  if (internal_fD < -internal_fEps || internal_fD > +internal_fEps) \
-  { \
-    char szLocal_TestMacro[256]; \
-    safeprintf(szLocal_TestMacro, 256, "Failure: '%s' (%.8f) does not equal '%s' (%.8f) within an epsilon of %.8f", EZ_STRINGIZE(f1), internal_r1, EZ_STRINGIZE(f2), internal_r2, internal_fEps); \
-    EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
-  } \
-}
+/// \brief Tests two floats for equality, within a given epsilon. On failure both actual and expected values are output, also a custom
+/// message is printed.
+#define EZ_TEST_FLOAT_MSG(f1, f2, epsilon, msg, ...)                                                                                       \
+  {                                                                                                                                        \
+    ezTestFramework::s_iAssertCounter++;                                                                                                   \
+    const float internal_r1 = ToFloat(f1);                                                                                                 \
+    const float internal_r2 = ToFloat(f2);                                                                                                 \
+    const float internal_fD = internal_r1 - internal_r2;                                                                                   \
+    const float internal_fEps = ToFloat(epsilon);                                                                                          \
+    if (internal_fD < -internal_fEps || internal_fD > +internal_fEps)                                                                      \
+    {                                                                                                                                      \
+      char szLocal_TestMacro[256];                                                                                                         \
+      safeprintf(szLocal_TestMacro, 256, "Failure: '%s' (%.8f) does not equal '%s' (%.8f) within an epsilon of %.8f", EZ_STRINGIZE(f1),    \
+                 internal_r1, EZ_STRINGIZE(f2), internal_r2, internal_fEps);                                                               \
+      EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__);                                                                              \
+    }                                                                                                                                      \
+  }
 
 /// \brief Tests two doubles for equality, within a given epsilon. On failure both actual and expected values are output.
 #define EZ_TEST_DOUBLE(f1, f2, epsilon) EZ_TEST_DOUBLE_MSG(f1, f2, epsilon, "")
 
-/// \brief Tests two doubles for equality, within a given epsilon. On failure both actual and expected values are output, also a custom message is printed.
-#define EZ_TEST_DOUBLE_MSG(f1, f2, epsilon, msg, ...) \
-{ \
-  ezTestFramework::s_iAssertCounter++; \
-  const double internal_r1 = (f1); \
-  const double internal_r2 = (f2); \
-  const double internal_fD = internal_r1 - internal_r2; \
-  const double internal_fEps = (double) epsilon; \
-  if (internal_fD < -internal_fEps || internal_fD > +internal_fEps) \
-  { \
-    char szLocal_TestMacro[256]; \
-    safeprintf(szLocal_TestMacro, 256, "Failure: '%s' (%.8f) does not equal '%s' (%.8f) within an epsilon of %.8f", EZ_STRINGIZE(f1), internal_r1, EZ_STRINGIZE(f2), internal_r2, internal_fEps); \
-    EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
-  } \
-}
+/// \brief Tests two doubles for equality, within a given epsilon. On failure both actual and expected values are output, also a custom
+/// message is printed.
+#define EZ_TEST_DOUBLE_MSG(f1, f2, epsilon, msg, ...)                                                                                      \
+  {                                                                                                                                        \
+    ezTestFramework::s_iAssertCounter++;                                                                                                   \
+    const double internal_r1 = (f1);                                                                                                       \
+    const double internal_r2 = (f2);                                                                                                       \
+    const double internal_fD = internal_r1 - internal_r2;                                                                                  \
+    const double internal_fEps = (double)epsilon;                                                                                          \
+    if (internal_fD < -internal_fEps || internal_fD > +internal_fEps)                                                                      \
+    {                                                                                                                                      \
+      char szLocal_TestMacro[256];                                                                                                         \
+      safeprintf(szLocal_TestMacro, 256, "Failure: '%s' (%.8f) does not equal '%s' (%.8f) within an epsilon of %.8f", EZ_STRINGIZE(f1),    \
+                 internal_r1, EZ_STRINGIZE(f2), internal_r2, internal_fEps);                                                               \
+      EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__);                                                                              \
+    }                                                                                                                                      \
+  }
 
 /// \brief Tests two ints for equality. On failure both actual and expected values are output.
 #define EZ_TEST_INT(i1, i2) EZ_TEST_INT_MSG(i1, i2, "")
 
 /// \brief Tests two ints for equality. On failure both actual and expected values are output, also a custom message is printed.
-#define EZ_TEST_INT_MSG(i1, i2, msg, ...) \
-{ \
-  ezTestFramework::s_iAssertCounter++; \
-  const ezInt32 internal_r1 = (ezInt32) (i1); \
-  const ezInt32 internal_r2 = (ezInt32) (i2); \
-  \
-  if (internal_r1 != internal_r2) \
-  { \
-    char szLocal_TestMacro[256]; \
-    safeprintf(szLocal_TestMacro, 256, "Failure: '%s' (%i) does not equal '%s' (%i)", EZ_STRINGIZE(i1), internal_r1, EZ_STRINGIZE(i2), internal_r2); \
-    EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
-  } \
-}
+#define EZ_TEST_INT_MSG(i1, i2, msg, ...)                                                                                                  \
+  {                                                                                                                                        \
+    ezTestFramework::s_iAssertCounter++;                                                                                                   \
+    const ezInt32 internal_r1 = (ezInt32)(i1);                                                                                             \
+    const ezInt32 internal_r2 = (ezInt32)(i2);                                                                                             \
+                                                                                                                                           \
+    if (internal_r1 != internal_r2)                                                                                                        \
+    {                                                                                                                                      \
+      char szLocal_TestMacro[256];                                                                                                         \
+      safeprintf(szLocal_TestMacro, 256, "Failure: '%s' (%i) does not equal '%s' (%i)", EZ_STRINGIZE(i1), internal_r1, EZ_STRINGIZE(i2),   \
+                 internal_r2);                                                                                                             \
+      EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__);                                                                              \
+    }                                                                                                                                      \
+  }
 
 /// \brief Tests two strings for equality. On failure both actual and expected values are output.
 #define EZ_TEST_STRING(i1, i2) EZ_TEST_STRING_MSG(i1, i2, "")
 
 /// \brief Tests two strings for equality. On failure both actual and expected values are output, also a custom message is printed.
-#define EZ_TEST_STRING_MSG(s1, s2, msg, ...) \
-{ \
-  ezTestFramework::s_iAssertCounter++; \
-  const std::string lhs = static_cast<const char*>(s1); \
-  const std::string rhs = static_cast<const char*>(s2); \
-  \
-  if (strcmp(lhs.c_str(), rhs.c_str()) != 0) \
-  { \
-    char szLocal_TestMacro[2048]; \
-    safeprintf(szLocal_TestMacro, 2048, "Failure: '%s' (%s) does not equal '%s' (%s)", EZ_STRINGIZE(s1), lhs.c_str(), EZ_STRINGIZE(s2), rhs.c_str()); \
-    EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
-  } \
-}
+#define EZ_TEST_STRING_MSG(s1, s2, msg, ...)                                                                                               \
+  {                                                                                                                                        \
+    ezTestFramework::s_iAssertCounter++;                                                                                                   \
+    const std::string lhs = static_cast<const char*>(s1);                                                                                  \
+    const std::string rhs = static_cast<const char*>(s2);                                                                                  \
+                                                                                                                                           \
+    if (strcmp(lhs.c_str(), rhs.c_str()) != 0)                                                                                             \
+    {                                                                                                                                      \
+      char szLocal_TestMacro[2048];                                                                                                        \
+      safeprintf(szLocal_TestMacro, 2048, "Failure: '%s' (%s) does not equal '%s' (%s)", EZ_STRINGIZE(s1), lhs.c_str(), EZ_STRINGIZE(s2),  \
+                 rhs.c_str());                                                                                                             \
+      EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__);                                                                              \
+    }                                                                                                                                      \
+  }
 
-/// \brief Tests two strings for equality. On failure both actual and expected values are output. Does not embed the original expression to work around issues with the current code page and unicode literals.
+/// \brief Tests two strings for equality. On failure both actual and expected values are output. Does not embed the original expression to
+/// work around issues with the current code page and unicode literals.
 #define EZ_TEST_STRING_UNICODE(i1, i2) EZ_TEST_STRING_UNICODE_MSG(i1, i2, "")
 
-/// \brief Tests two strings for equality. On failure both actual and expected values are output, also a custom message is printed. Does not embed the original expression to work around issues with the current code page and unicode literals.
-#define EZ_TEST_STRING_UNICODE_MSG(s1, s2, msg, ...) \
-{ \
-  ezTestFramework::s_iAssertCounter++; \
-  const std::string lhs = static_cast<const char*>(s1); \
-  const std::string rhs = static_cast<const char*>(s2); \
-  \
-  if (strcmp(lhs.c_str(), rhs.c_str()) != 0) \
-  { \
-    char szLocal_TestMacro[2048]; \
-    safeprintf(szLocal_TestMacro, 2048, "Failure: '%s' does not equal '%s'", lhs.c_str(), rhs.c_str()); \
-    EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
-  } \
-}
+/// \brief Tests two strings for equality. On failure both actual and expected values are output, also a custom message is printed. Does not
+/// embed the original expression to work around issues with the current code page and unicode literals.
+#define EZ_TEST_STRING_UNICODE_MSG(s1, s2, msg, ...)                                                                                       \
+  {                                                                                                                                        \
+    ezTestFramework::s_iAssertCounter++;                                                                                                   \
+    const std::string lhs = static_cast<const char*>(s1);                                                                                  \
+    const std::string rhs = static_cast<const char*>(s2);                                                                                  \
+                                                                                                                                           \
+    if (strcmp(lhs.c_str(), rhs.c_str()) != 0)                                                                                             \
+    {                                                                                                                                      \
+      char szLocal_TestMacro[2048];                                                                                                        \
+      safeprintf(szLocal_TestMacro, 2048, "Failure: '%s' does not equal '%s'", lhs.c_str(), rhs.c_str());                                  \
+      EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__);                                                                              \
+    }                                                                                                                                      \
+  }
 
 /// \brief Tests two ezVec2's for equality, using some epsilon. On failure both actual and expected values are output.
 #define EZ_TEST_VEC2(i1, i2, epsilon) EZ_TEST_VEC2_MSG(i1, i2, epsilon, "")
 
 /// \brief Tests two ezVec2's for equality. On failure both actual and expected values are output, also a custom message is printed.
-#define EZ_TEST_VEC2_MSG(r1, r2, epsilon, msg, ...) \
-{ \
-  const ezVec2T internal_v1 = (ezVec2T) (r1); \
-  const ezVec2T internal_v2 = (ezVec2T) (r2); \
-  \
-  EZ_TEST_FLOAT_MSG(internal_v1.x, internal_v2.x, epsilon, msg, ##__VA_ARGS__); \
-  EZ_TEST_FLOAT_MSG(internal_v1.y, internal_v2.y, epsilon, msg, ##__VA_ARGS__); \
-}
+#define EZ_TEST_VEC2_MSG(r1, r2, epsilon, msg, ...)                                                                                        \
+  {                                                                                                                                        \
+    const ezVec2T internal_v1 = (ezVec2T)(r1);                                                                                             \
+    const ezVec2T internal_v2 = (ezVec2T)(r2);                                                                                             \
+                                                                                                                                           \
+    EZ_TEST_FLOAT_MSG(internal_v1.x, internal_v2.x, epsilon, msg, ##__VA_ARGS__);                                                          \
+    EZ_TEST_FLOAT_MSG(internal_v1.y, internal_v2.y, epsilon, msg, ##__VA_ARGS__);                                                          \
+  }
 
 /// \brief Tests two ezVec3's for equality, using some epsilon. On failure both actual and expected values are output.
 #define EZ_TEST_VEC3(i1, i2, epsilon) EZ_TEST_VEC3_MSG(i1, i2, epsilon, "")
 
 /// \brief Tests two ezVec3's for equality. On failure both actual and expected values are output, also a custom message is printed.
-#define EZ_TEST_VEC3_MSG(r1, r2, epsilon, msg, ...) \
-{ \
-  const ezVec3T internal_v1 = (ezVec3T) (r1); \
-  const ezVec3T internal_v2 = (ezVec3T) (r2); \
-  \
-  EZ_TEST_FLOAT_MSG(internal_v1.x, internal_v2.x, epsilon, msg, ##__VA_ARGS__); \
-  EZ_TEST_FLOAT_MSG(internal_v1.y, internal_v2.y, epsilon, msg, ##__VA_ARGS__); \
-  EZ_TEST_FLOAT_MSG(internal_v1.z, internal_v2.z, epsilon, msg, ##__VA_ARGS__); \
-}
+#define EZ_TEST_VEC3_MSG(r1, r2, epsilon, msg, ...)                                                                                        \
+  {                                                                                                                                        \
+    const ezVec3T internal_v1 = (ezVec3T)(r1);                                                                                             \
+    const ezVec3T internal_v2 = (ezVec3T)(r2);                                                                                             \
+                                                                                                                                           \
+    EZ_TEST_FLOAT_MSG(internal_v1.x, internal_v2.x, epsilon, msg, ##__VA_ARGS__);                                                          \
+    EZ_TEST_FLOAT_MSG(internal_v1.y, internal_v2.y, epsilon, msg, ##__VA_ARGS__);                                                          \
+    EZ_TEST_FLOAT_MSG(internal_v1.z, internal_v2.z, epsilon, msg, ##__VA_ARGS__);                                                          \
+  }
 
 /// \brief Tests two ezVec4's for equality, using some epsilon. On failure both actual and expected values are output.
 #define EZ_TEST_VEC4(i1, i2, epsilon) EZ_TEST_VEC4_MSG(i1, i2, epsilon, "")
 
 /// \brief Tests two ezVec4's for equality. On failure both actual and expected values are output, also a custom message is printed.
-#define EZ_TEST_VEC4_MSG(r1, r2, epsilon, msg, ...) \
-{ \
-  const ezVec4T internal_v1 = (ezVec4T) (r1); \
-  const ezVec4T internal_v2 = (ezVec4T) (r2); \
-  \
-  EZ_TEST_FLOAT_MSG(internal_v1.x, internal_v2.x, epsilon, msg, ##__VA_ARGS__); \
-  EZ_TEST_FLOAT_MSG(internal_v1.y, internal_v2.y, epsilon, msg, ##__VA_ARGS__); \
-  EZ_TEST_FLOAT_MSG(internal_v1.z, internal_v2.z, epsilon, msg, ##__VA_ARGS__); \
-  EZ_TEST_FLOAT_MSG(internal_v1.w, internal_v2.w, epsilon, msg, ##__VA_ARGS__); \
-}
+#define EZ_TEST_VEC4_MSG(r1, r2, epsilon, msg, ...)                                                                                        \
+  {                                                                                                                                        \
+    const ezVec4T internal_v1 = (ezVec4T)(r1);                                                                                             \
+    const ezVec4T internal_v2 = (ezVec4T)(r2);                                                                                             \
+                                                                                                                                           \
+    EZ_TEST_FLOAT_MSG(internal_v1.x, internal_v2.x, epsilon, msg, ##__VA_ARGS__);                                                          \
+    EZ_TEST_FLOAT_MSG(internal_v1.y, internal_v2.y, epsilon, msg, ##__VA_ARGS__);                                                          \
+    EZ_TEST_FLOAT_MSG(internal_v1.z, internal_v2.z, epsilon, msg, ##__VA_ARGS__);                                                          \
+    EZ_TEST_FLOAT_MSG(internal_v1.w, internal_v2.w, epsilon, msg, ##__VA_ARGS__);                                                          \
+  }
 
-#define EZ_TEST_FILES(szFile1, szFile2, msg, ...) \
-{ \
-  ezTestFramework::s_iAssertCounter++; \
-  char szLocal_TestMacro[512]; \
-  ezFileReader ReadFile1; \
-  ezFileReader ReadFile2; \
-  \
-  if (ReadFile1.Open(szFile1) == EZ_FAILURE) \
-  { \
-    safeprintf(szLocal_TestMacro, 512, "Failure: File '%s' could not be read.", szFile1); \
-    EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
-  } \
-  else \
-  if (ReadFile2.Open(szFile2) == EZ_FAILURE) \
-  { \
-    safeprintf(szLocal_TestMacro, 512, "Failure: File '%s' could not be read.", szFile2); \
-    EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
-  } \
-  \
-  else \
-  if (ReadFile1.GetFileSize() != ReadFile2.GetFileSize()) \
-  { \
-    safeprintf(szLocal_TestMacro, 512, "Failure: File sizes do not match: '%s' (%llu Bytes) and '%s' (%llu Bytes)", szFile1, ReadFile1.GetFileSize(), szFile2, ReadFile2.GetFileSize()); \
-    EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
-  } \
-  else \
-  { \
-    while (true) \
-    { \
-      ezUInt8 uiTemp1[512]; \
-      ezUInt8 uiTemp2[512]; \
-      const ezUInt64 uiRead1 = ReadFile1.ReadBytes(uiTemp1, 512); \
-      const ezUInt64 uiRead2 = ReadFile2.ReadBytes(uiTemp2, 512); \
-      \
-      if (uiRead1 != uiRead2) \
-      { \
-        safeprintf(szLocal_TestMacro, 512, "Failure: Files could not read same amount of data: '%s' and '%s'", szFile1, szFile2); \
-        EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
-        break; \
-      } \
-      else \
-      { \
-        if (uiRead1 == 0) \
-          break; \
-        \
-        if (memcmp(uiTemp1, uiTemp2, (size_t) uiRead1) != 0) \
-        { \
-          safeprintf(szLocal_TestMacro, 512, "Failure: Files contents do not match: '%s' and '%s'", szFile1, szFile2); \
-          EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
-          break; \
-        } \
-      } \
-    } \
-  } \
-}
+#define EZ_TEST_FILES(szFile1, szFile2, msg, ...)                                                                                          \
+  {                                                                                                                                        \
+    ezTestFramework::s_iAssertCounter++;                                                                                                   \
+    char szLocal_TestMacro[512];                                                                                                           \
+    ezFileReader ReadFile1;                                                                                                                \
+    ezFileReader ReadFile2;                                                                                                                \
+                                                                                                                                           \
+    if (ReadFile1.Open(szFile1) == EZ_FAILURE)                                                                                             \
+    {                                                                                                                                      \
+      safeprintf(szLocal_TestMacro, 512, "Failure: File '%s' could not be read.", szFile1);                                                \
+      EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__);                                                                              \
+    }                                                                                                                                      \
+    else if (ReadFile2.Open(szFile2) == EZ_FAILURE)                                                                                        \
+    {                                                                                                                                      \
+      safeprintf(szLocal_TestMacro, 512, "Failure: File '%s' could not be read.", szFile2);                                                \
+      EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__);                                                                              \
+    }                                                                                                                                      \
+                                                                                                                                           \
+    else if (ReadFile1.GetFileSize() != ReadFile2.GetFileSize())                                                                           \
+    {                                                                                                                                      \
+      safeprintf(szLocal_TestMacro, 512, "Failure: File sizes do not match: '%s' (%llu Bytes) and '%s' (%llu Bytes)", szFile1,             \
+                 ReadFile1.GetFileSize(), szFile2, ReadFile2.GetFileSize());                                                               \
+      EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__);                                                                              \
+    }                                                                                                                                      \
+    else                                                                                                                                   \
+    {                                                                                                                                      \
+      while (true)                                                                                                                         \
+      {                                                                                                                                    \
+        ezUInt8 uiTemp1[512];                                                                                                              \
+        ezUInt8 uiTemp2[512];                                                                                                              \
+        const ezUInt64 uiRead1 = ReadFile1.ReadBytes(uiTemp1, 512);                                                                        \
+        const ezUInt64 uiRead2 = ReadFile2.ReadBytes(uiTemp2, 512);                                                                        \
+                                                                                                                                           \
+        if (uiRead1 != uiRead2)                                                                                                            \
+        {                                                                                                                                  \
+          safeprintf(szLocal_TestMacro, 512, "Failure: Files could not read same amount of data: '%s' and '%s'", szFile1, szFile2);        \
+          EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__);                                                                          \
+          break;                                                                                                                           \
+        }                                                                                                                                  \
+        else                                                                                                                               \
+        {                                                                                                                                  \
+          if (uiRead1 == 0)                                                                                                                \
+            break;                                                                                                                         \
+                                                                                                                                           \
+          if (memcmp(uiTemp1, uiTemp2, (size_t)uiRead1) != 0)                                                                              \
+          {                                                                                                                                \
+            safeprintf(szLocal_TestMacro, 512, "Failure: Files contents do not match: '%s' and '%s'", szFile1, szFile2);                   \
+            EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__);                                                                        \
+            break;                                                                                                                         \
+          }                                                                                                                                \
+        }                                                                                                                                  \
+      }                                                                                                                                    \
+    }                                                                                                                                      \
+  }
 
 #define EZ_TEST_IMAGE(MaxError) EZ_TEST_IMAGE_MSG(MaxError, "")
 
-#define EZ_TEST_IMAGE_MSG(MaxError, msg, ...) \
-{ \
-  char szLocal_TestMacro[512] = ""; \
-  if (!ezTestFramework::GetInstance()->CompareImages(MaxError, szLocal_TestMacro)) \
-    EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
-}
-
-
+#define EZ_TEST_IMAGE_MSG(MaxError, msg, ...)                                                                                              \
+  {                                                                                                                                        \
+    char szLocal_TestMacro[512] = "";                                                                                                      \
+    if (!ezTestFramework::GetInstance()->CompareImages(MaxError, szLocal_TestMacro))                                                       \
+      EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__);                                                                              \
+  }

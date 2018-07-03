@@ -25,9 +25,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDuplicateObjectsCommand, 1, ezRTTIDefaultAlloc
     EZ_MEMBER_PROPERTY("RevolveAngleStep", m_RevolveAngleStep),
     EZ_MEMBER_PROPERTY("RevolveRadius", m_fRevolveRadius),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 

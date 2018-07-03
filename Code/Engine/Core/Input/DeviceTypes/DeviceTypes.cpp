@@ -6,11 +6,11 @@
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceMouseKeyboard, 1, ezRTTINoAllocator);
   // no properties or message handlers
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceController, 1, ezRTTINoAllocator);
   // no properties or message handlers
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezInputDeviceController::ezInputDeviceController()
@@ -64,8 +64,10 @@ float ezInputDeviceController::GetVibrationStrength(ezUInt8 uiVirtual, Motor::En
 
 void ezInputDeviceController::SetControllerMapping(ezUInt8 uiVirtualController, ezInt8 iTakeInputFromPhysical)
 {
-  EZ_ASSERT_DEV(uiVirtualController < MaxControllers, "Virtual Controller Index {0} is larger than allowed ({1}).", uiVirtualController, MaxControllers);
-  EZ_ASSERT_DEV(iTakeInputFromPhysical < MaxControllers, "Physical Controller Index {0} is larger than allowed ({1}).", iTakeInputFromPhysical, MaxControllers);
+  EZ_ASSERT_DEV(uiVirtualController < MaxControllers, "Virtual Controller Index {0} is larger than allowed ({1}).", uiVirtualController,
+                MaxControllers);
+  EZ_ASSERT_DEV(iTakeInputFromPhysical < MaxControllers, "Physical Controller Index {0} is larger than allowed ({1}).",
+                iTakeInputFromPhysical, MaxControllers);
 
   if (iTakeInputFromPhysical < 0)
   {
@@ -96,7 +98,8 @@ ezInt8 ezInputDeviceController::GetControllerMapping(ezUInt8 uiVirtual) const
   return m_iControllerMapping[uiVirtual];
 }
 
-void ezInputDeviceController::AddVibrationTrack(ezUInt8 uiVirtual, Motor::Enum eMotor, float* fVibrationTrackValue, ezUInt32 uiSamples, float fScalingFactor)
+void ezInputDeviceController::AddVibrationTrack(ezUInt8 uiVirtual, Motor::Enum eMotor, float* fVibrationTrackValue, ezUInt32 uiSamples,
+                                                float fScalingFactor)
 {
   uiSamples = ezMath::Min<ezUInt32>(uiSamples, MaxVibrationSamples);
 
@@ -163,10 +166,9 @@ void ezInputDeviceController::UpdateVibration(ezTime tTimeDifference)
   for (ezUInt32 c = 0; c < MaxControllers; ++c)
   {
     for (ezUInt32 m = 0; m < Motor::ENUM_COUNT; ++m)
-      ApplyVibration(c, (Motor::Enum) m, fVibrationToApply[c][m]);
+      ApplyVibration(c, (Motor::Enum)m, fVibrationToApply[c][m]);
   }
 }
 
 
 EZ_STATICLINK_FILE(Core, Core_Input_DeviceTypes_DeviceTypes);
-

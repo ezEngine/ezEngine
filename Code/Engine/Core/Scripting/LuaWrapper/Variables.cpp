@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Core/Scripting/LuaWrapper.h>
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
@@ -51,7 +52,7 @@ ezInt32 ezLuaWrapper::GetIntVariable(const char* szName, ezInt32 Default) const
   int ret = Default;
 
   if (lua_isnumber(m_pState, -1) != 0)
-    ret = (int) lua_tonumber(m_pState, -1);
+    ret = (int)lua_tonumber(m_pState, -1);
 
   lua_pop(m_pState, 1);
 
@@ -91,7 +92,7 @@ float ezLuaWrapper::GetFloatVariable(const char* szName, float Default) const
   float ret = Default;
 
   if (lua_isnumber(m_pState, -1) != 0)
-    ret = (float) lua_tonumber(m_pState, -1);
+    ret = (float)lua_tonumber(m_pState, -1);
 
   lua_pop(m_pState, 1);
 
@@ -111,10 +112,10 @@ const char* ezLuaWrapper::GetStringVariable(const char* szName, const char* Defa
   const char* ret = Default;
 
   // non strict conversion
-  //if (lua_isstring(m_pState, -1) != 0)
+  // if (lua_isstring(m_pState, -1) != 0)
   //  ret = lua_tostring(m_pState, -1);
 
-  if (lua_type(m_pState, -1) == LUA_TSTRING)	//don't want to convert numbers to strings, so be strict about it
+  if (lua_type(m_pState, -1) == LUA_TSTRING) // don't want to convert numbers to strings, so be strict about it
     ret = (lua_tostring(m_pState, -1));
 
   // pop the variable and if necessary also the global table from the stack
@@ -126,4 +127,3 @@ const char* ezLuaWrapper::GetStringVariable(const char* szName, const char* Defa
 #endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
 EZ_STATICLINK_FILE(Core, Core_Scripting_LuaWrapper_Variables);
-

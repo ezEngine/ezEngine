@@ -9,15 +9,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgDamage, 1, ezRTTIDefaultAllocator<ezMsgDama
   {
     EZ_MEMBER_PROPERTY("Damage", m_fDamage)
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezAutoGenVisScriptMsgSender,
     new ezAutoGenVisScriptMsgHandler
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -27,7 +27,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_OnDamage, 1, ezRTTIDefaultAll
   {
     new ezCategoryAttribute("Events/Gameplay")
   }
-    EZ_END_ATTRIBUTES
+    EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     // Execution Pins
@@ -35,9 +35,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_OnDamage, 1, ezRTTIDefaultAll
     // Data Pins
     EZ_OUTPUT_DATA_PIN("Damage", 0, ezVisualScriptDataPinType::Number)
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_OnDamage::ezVisualScriptNode_OnDamage() { }
 ezVisualScriptNode_OnDamage::~ezVisualScriptNode_OnDamage() { }

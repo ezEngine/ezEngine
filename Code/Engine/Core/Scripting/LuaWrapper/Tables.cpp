@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Core/Scripting/LuaWrapper.h>
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
@@ -13,7 +14,7 @@ ezResult ezLuaWrapper::OpenTable(const char* szName)
     lua_gettable(m_pState, -2);
   }
 
-  //failed, it's no table
+  // failed, it's no table
   if (lua_istable(m_pState, -1) == 0)
   {
     lua_pop(m_pState, 1);
@@ -28,7 +29,7 @@ ezResult ezLuaWrapper::OpenTableFromParameter(ezUInt32 iFunctionParameter)
 {
   lua_pushvalue(m_pState, iFunctionParameter + s_ParamOffset);
 
-  //failed, it's no table
+  // failed, it's no table
   if (lua_istable(m_pState, -1) == 0)
   {
     lua_pop(m_pState, 1);
@@ -66,4 +67,3 @@ void ezLuaWrapper::CloseAllTables()
 
 
 EZ_STATICLINK_FILE(Core, Core_Scripting_LuaWrapper_Tables);
-

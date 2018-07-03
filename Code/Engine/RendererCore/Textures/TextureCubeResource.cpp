@@ -7,7 +7,7 @@
 #include <RendererCore/Textures/TextureUtils.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeResource, 1, ezRTTIDefaultAllocator<ezTextureCubeResource>);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezTextureCubeResource::ezTextureCubeResource() : ezResource<ezTextureCubeResource, ezTextureCubeResourceDescriptor>(DoUpdate::OnAnyThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
 {

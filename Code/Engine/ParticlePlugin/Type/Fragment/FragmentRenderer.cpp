@@ -10,10 +10,10 @@
 #include <RendererCore/../../../Data/Base/Shaders/Particles/ParticleSystemConstants.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFragmentRenderData, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFragmentRenderer, 1, ezRTTIDefaultAllocator<ezParticleFragmentRenderer>);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleFragmentRenderer::~ezParticleFragmentRenderer()
 {

@@ -144,13 +144,15 @@ public:
   void AddChild(const ezGameObjectHandle& child, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Adds the given objects as child objects.
-  void AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
+  void AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children,
+                   ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Detaches the given child object from this object and makes it a top-level object.
   void DetachChild(const ezGameObjectHandle& child, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Detaches the given child objects from this object and makes them top-level objects.
-  void DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children, ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
+  void DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children,
+                      ezGameObject::TransformPreservation preserve = TransformPreservation::PreserveGlobal);
 
   /// \brief Returns the number of children.
   ezUInt32 GetChildCount() const;
@@ -183,7 +185,8 @@ public:
   ezGameObject* SearchForChildByNameSequence(const char* szObjectSequence, const ezRTTI* pExpectedComponent = nullptr);
 
   /// \brief Same as SearchForChildByNameSequence but returns ALL matches, in case the given path could mean multiple objects
-  void SearchForChildrenByNameSequence(const char* szObjectSequence, const ezRTTI* pExpectedComponent, ezHybridArray<ezGameObject*, 8>& out_Objects);
+  void SearchForChildrenByNameSequence(const char* szObjectSequence, const ezRTTI* pExpectedComponent,
+                                       ezHybridArray<ezGameObject*, 8>& out_Objects);
 
   ezWorld* GetWorld();
   const ezWorld* GetWorld() const;
@@ -191,7 +194,8 @@ public:
 
   /// \brief Changes the position of the object local to its parent.
   /// \note The rotation of the object itself does not affect the final global position!
-  /// The local position is always in the space of the parent object. If there is no parent, local position and global position are identical.
+  /// The local position is always in the space of the parent object. If there is no parent, local position and global position are
+  /// identical.
   void SetLocalPosition(ezVec3 position);
   ezVec3 GetLocalPosition() const;
 
@@ -254,7 +258,8 @@ public:
   /// It has no effect on the object's subsequent position.
   void SetVelocity(const ezVec3& vVelocity);
 
-  /// \brief Returns the velocity of the object in units per second. This is not only the diff between last frame's position and this frame's position, but
+  /// \brief Returns the velocity of the object in units per second. This is not only the diff between last frame's position and this
+  /// frame's position, but
   ///        also the time difference is divided out.
   ezVec3 GetVelocity() const;
 
@@ -452,4 +457,3 @@ private:
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezGameObject);
 
 #include <Core/World/Implementation/GameObject_inl.h>
-

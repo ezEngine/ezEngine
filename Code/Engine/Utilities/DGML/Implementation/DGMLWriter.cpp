@@ -1,11 +1,11 @@
-
 #include <PCH.h>
-#include <Utilities/DGML/DGMLWriter.h>
+
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Utilities/DGML/DGMLWriter.h>
 
 ezDGMLGraph::ezDGMLGraph(ezDGMLGraph::Direction GraphDirection /*= LeftToRight*/, ezDGMLGraph::Layout GraphLayout /*= Tree*/)
-  : m_Direction( GraphDirection ),
-    m_Layout( GraphLayout )
+    : m_Direction(GraphDirection)
+    , m_Layout(GraphLayout)
 {
 }
 
@@ -84,7 +84,8 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& StringBuilder, c
       break;
   }
 
-  StringBuilder.AppendFormat("<DirectedGraph xmlns=\"http://schemas.microsoft.com/vs/2009/dgml\" GraphDirection=\"{0}\" Layout=\"{1}\">\n", szDirection, szLayout);
+  StringBuilder.AppendFormat("<DirectedGraph xmlns=\"http://schemas.microsoft.com/vs/2009/dgml\" GraphDirection=\"{0}\" Layout=\"{1}\">\n",
+                             szDirection, szLayout);
 
   // Write out all the nodes
   StringBuilder.Append("\t<Nodes>\n");
@@ -100,7 +101,8 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& StringBuilder, c
 
     ezStringBuilder ColorValue = "#FF";
     ezColorGammaUB RGBA(Graph.m_Nodes[i].m_Color);
-    ColorValue.AppendFormat("{0}{1}{2}", ezArgU(RGBA.r, 2, true, 16, true), ezArgU(RGBA.g, 2, true, 16, true), ezArgU(RGBA.b, 2, true, 16, true));
+    ColorValue.AppendFormat("{0}{1}{2}", ezArgU(RGBA.r, 2, true, 16, true), ezArgU(RGBA.g, 2, true, 16, true),
+                            ezArgU(RGBA.b, 2, true, 16, true));
 
     ezStringBuilder StyleString;
     switch (Graph.m_Nodes[i].m_Shape)
@@ -119,8 +121,8 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& StringBuilder, c
         break;
     }
 
-    StringBuilder.AppendFormat("\t\t<Node Id=\"N_{0}\" Label=\"{1}\" Background=\"{2}\" {3} />\n", i, SanitizedName, ColorValue, StyleString);
-
+    StringBuilder.AppendFormat("\t\t<Node Id=\"N_{0}\" Label=\"{1}\" Background=\"{2}\" {3} />\n", i, SanitizedName, ColorValue,
+                               StyleString);
   }
   StringBuilder.Append("\t</Nodes>\n");
 
@@ -128,7 +130,8 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& StringBuilder, c
   StringBuilder.Append("\t<Links>\n");
   for (ezUInt32 i = 0; i < Graph.m_Connections.GetCount(); ++i)
   {
-    StringBuilder.AppendFormat("\t\t<Link Source=\"N_{0}\" Target=\"N_{1}\" />\n", Graph.m_Connections[i].m_Source, Graph.m_Connections[i].m_Target);
+    StringBuilder.AppendFormat("\t\t<Link Source=\"N_{0}\" Target=\"N_{1}\" />\n", Graph.m_Connections[i].m_Source,
+                               Graph.m_Connections[i].m_Target);
   }
   StringBuilder.Append("\t</Links>\n");
 
@@ -140,4 +143,3 @@ ezResult ezDGMLGraphWriter::WriteGraphToString(ezStringBuilder& StringBuilder, c
 
 
 EZ_STATICLINK_FILE(Utilities, Utilities_DGML_Implementation_DGMLWriter);
-

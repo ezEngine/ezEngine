@@ -10,12 +10,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationComponent, 2, ezComponentMode::Static);
   {
     EZ_MEMBER_PROPERTY("DegreePerSecond", m_DegreePerSecond)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90))),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Animation"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
 

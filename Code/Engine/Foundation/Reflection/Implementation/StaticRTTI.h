@@ -191,6 +191,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 
 /// \brief Ends the reflection code block that was opened with EZ_BEGIN_STATIC_REFLECTED_TYPE.
 #define EZ_END_STATIC_REFLECTED_TYPE                                                                                                       \
+  ;                                                                                                                                        \
   return ezRTTI(GetTypeName(), ezGetStaticRTTI<OwnBaseType>(), sizeof(OwnType), GetTypeVersion(),                                          \
                 ezVariant::TypeDeduction<OwnType>::value, flags, &Allocator, Properties, Functions, Attributes, MessageHandlers,           \
                 MessageSenders, nullptr);                                                                                                  \
@@ -205,7 +206,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 /// \brief Ends the block to declare properties that was started with EZ_BEGIN_PROPERTIES.
 #define EZ_END_PROPERTIES                                                                                                                  \
   ;                                                                                                                                        \
-  Properties = PropertyList;
+  Properties = PropertyList
 
 /// \brief Within a EZ_BEGIN_REFLECTED_TYPE / EZ_END_REFLECTED_TYPE block, use this to start the block that declares all the functions.
 #define EZ_BEGIN_FUNCTIONS static ezAbstractFunctionProperty* FunctionList[] =
@@ -215,7 +216,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 /// \brief Ends the block to declare functions that was started with EZ_BEGIN_FUNCTIONS.
 #define EZ_END_FUNCTIONS                                                                                                                   \
   ;                                                                                                                                        \
-  Functions = FunctionList;
+  Functions = FunctionList
 
 /// \brief Within a EZ_BEGIN_REFLECTED_TYPE / EZ_END_REFLECTED_TYPE block, use this to start the block that declares all the attributes.
 #define EZ_BEGIN_ATTRIBUTES static ezPropertyAttribute* AttributeList[] =
@@ -225,16 +226,17 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 /// \brief Ends the block to declare attributes that was started with EZ_BEGIN_ATTRIBUTES.
 #define EZ_END_ATTRIBUTES                                                                                                                  \
   ;                                                                                                                                        \
-  Attributes = AttributeList;
+  Attributes = AttributeList
 
-/// \brief Within a EZ_BEGIN_FUNCTIONS / EZ_END_FUNCTIONS block, this adds a member or static function property stored inside the RTTI data.
+/// \brief Within a EZ_BEGIN_FUNCTIONS / EZ_END_FUNCTIONS; block, this adds a member or static function property stored inside the RTTI
+/// data.
 ///
 /// \param Function
 ///   The function to be executed, must match the C++ function name.
 #define EZ_FUNCTION_PROPERTY(Function) (new ezFunctionProperty<decltype(&OwnType::Function)>(EZ_STRINGIZE(Function), &OwnType::Function))
 
-/// \brief Within a EZ_BEGIN_FUNCTIONS / EZ_END_FUNCTIONS block, this adds a member or static function property stored inside the RTTI data.
-/// Use this version if you need to change the name of the function or need to cast the function to one of its overload versions.
+/// \brief Within a EZ_BEGIN_FUNCTIONS / EZ_END_FUNCTIONS; block, this adds a member or static function property stored inside the RTTI
+/// data. Use this version if you need to change the name of the function or need to cast the function to one of its overload versions.
 ///
 /// \param PropertyName
 ///   The name under which the property should be registered.
@@ -244,7 +246,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 #define EZ_FUNCTION_PROPERTY_EX(PropertyName, Function) (new ezFunctionProperty<decltype(&Function)>(PropertyName, &Function))
 
 
-/// \brief Within a EZ_BEGIN_FUNCTIONS / EZ_END_FUNCTIONS block, this adds a constructor function property stored inside the RTTI data.
+/// \brief Within a EZ_BEGIN_FUNCTIONS / EZ_END_FUNCTIONS; block, this adds a constructor function property stored inside the RTTI data.
 ///
 /// \param Function
 ///   The function to be executed in the form of CLASS::FUNCTION_NAME.
@@ -254,7 +256,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 // [internal] Helper macro to get the return type of a getter function.
 #define EZ_GETTER_TYPE(Class, GetterFunc) decltype(((Class*)nullptr)->GetterFunc())
 
-/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a property that uses custom getter / setter functions.
+/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES; block, this adds a property that uses custom getter / setter functions.
 ///
 /// \param PropertyName
 ///   The unique (in this class) name under which the property should be registered.
@@ -275,7 +277,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 // [internal] Helper macro to get the return type of a array getter function.
 #define EZ_ARRAY_GETTER_TYPE(Class, GetterFunc) decltype(((Class*)nullptr)->GetterFunc(0))
 
-/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a property that uses custom functions to access an array.
+/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES; block, this adds a property that uses custom functions to access an array.
 ///
 /// \param PropertyName
 ///   The unique (in this class) name under which the property should be registered.
@@ -303,7 +305,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 #define EZ_SET_CONTAINER_SUB_TYPE(Class, GetterFunc)                                                                                       \
   ezContainerSubTypeResolver<ezTypeTraits<decltype(((Class*)nullptr)->GetterFunc())>::NonConstReferenceType>::Type
 
-/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a property that uses custom functions to access a set.
+/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES; block, this adds a property that uses custom functions to access a set.
 ///
 /// \param PropertyName
 ///   The unique (in this class) name under which the property should be registered.
@@ -325,7 +327,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
   (new ezAccessorSetProperty<OwnType, EZ_SET_CONTAINER_SUB_TYPE(OwnType, GetValues), EZ_SET_CONTAINER_TYPE(OwnType, GetValues)>(           \
       PropertyName, &OwnType::GetValues, nullptr, nullptr))
 
-/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a property that uses custom functions to for write access to a
+/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES; block, this adds a property that uses custom functions to for write access to a
 /// map.
 ///   Use this if you have a ezHashTable or ezMap to expose directly and just want to be informed of write operations.
 ///
@@ -344,7 +346,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
                                   EZ_SET_CONTAINER_TYPE(OwnType, GetContainer)>(PropertyName, &OwnType::GetContainer, &OwnType::Insert,    \
                                                                                 &OwnType::Remove))
 
-/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a property that uses custom functions to access a map.
+/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES; block, this adds a property that uses custom functions to access a map.
 ///   Use this if you you want to hide the implementation details of the map from the user.
 ///
 /// \param PropertyName
@@ -376,7 +378,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 
 
 
-/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a property that uses custom getter / setter functions.
+/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES; block, this adds a property that uses custom getter / setter functions.
 ///
 /// \param PropertyName
 ///   The unique (in this class) name under which the property should be registered.
@@ -410,7 +412,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 #define EZ_MEMBER_CONTAINER_SUB_TYPE(Class, Member)                                                                                        \
   ezContainerSubTypeResolver<ezTypeTraits<decltype(((Class*)nullptr)->Member)>::NonConstReferenceType>::Type
 
-/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a property that actually exists as a member.
+/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES; block, this adds a property that actually exists as a member.
 ///
 /// \param PropertyName
 ///   The unique (in this class) name under which the property should be registered.
@@ -468,7 +470,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
       PropertyName, &ezMapPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetConstContainer,         \
       nullptr))
 
-/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a property that actually exists as a member.
+/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES; block, this adds a property that actually exists as a member.
 ///
 /// \param PropertyName
 ///   The unique (in this class) name under which the property should be registered.
@@ -507,7 +509,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 
 
 
-/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a constant property stored inside the RTTI data.
+/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES; block, this adds a constant property stored inside the RTTI data.
 ///
 /// \param PropertyName
 ///   The unique (in this class) name under which the property should be registered.
@@ -551,9 +553,9 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
   {                                                                                                                                        \
     EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Type::Default), (Storage)Type::Default),
 
-#define EZ_END_STATIC_REFLECTED_ENUM()                                                                                                     \
+#define EZ_END_STATIC_REFLECTED_ENUM                                                                                                       \
   }                                                                                                                                        \
-  EZ_END_PROPERTIES                                                                                                                        \
+  EZ_END_PROPERTIES;                                                                                                                       \
   flags |= ezTypeFlags::IsEnum;                                                                                                            \
   flags.Remove(ezTypeFlags::Class);                                                                                                        \
   EZ_END_STATIC_REFLECTED_TYPE
@@ -572,9 +574,9 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
   {                                                                                                                                        \
     EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Type::Default), (Storage)Type::Default),
 
-#define EZ_END_STATIC_REFLECTED_BITFLAGS()                                                                                                 \
+#define EZ_END_STATIC_REFLECTED_BITFLAGS                                                                                                   \
   }                                                                                                                                        \
-  EZ_END_PROPERTIES                                                                                                                        \
+  EZ_END_PROPERTIES;                                                                                                                       \
   flags |= ezTypeFlags::Bitflags;                                                                                                          \
   flags.Remove(ezTypeFlags::Class);                                                                                                        \
   EZ_END_STATIC_REFLECTED_TYPE

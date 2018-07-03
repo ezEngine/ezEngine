@@ -3,7 +3,7 @@
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSoundEventComponentDragDropHandler, 1, ezRTTIDefaultAllocator<ezSoundEventComponentDragDropHandler>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 float ezSoundEventComponentDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const

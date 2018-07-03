@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <TestFramework/Framework/TestFramework.h>
+
 #include <Foundation/Profiling/Profiling.h>
+#include <TestFramework/Framework/TestFramework.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezRegisterSimpleTestHelper);
 
@@ -54,4 +55,3 @@ ezResult ezSimpleTestGroup::DeInitializeSubTest(ezInt32 iIdentifier)
 
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_SimpleTest);
-

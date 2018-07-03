@@ -9,7 +9,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSkeletonAssetDocument::ezSkeletonAssetDocument(const char* szDocumentPath)
   : ezSimpleAssetDocument<ezEditableSkeleton>(szDocumentPath, true)
@@ -161,7 +161,7 @@ void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton* pNewSkele
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezSkeletonAssetDocumentGenerator>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSkeletonAssetDocumentGenerator::ezSkeletonAssetDocumentGenerator()
 {

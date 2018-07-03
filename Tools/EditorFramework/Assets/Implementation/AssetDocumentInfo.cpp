@@ -12,9 +12,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentInfo, 2, ezRTTIDefaultAllocator<e
     EZ_ACCESSOR_PROPERTY("AssetType", GetAssetTypeName, SetAssetTypeName),
     EZ_ARRAY_MEMBER_PROPERTY("MetaInfo", m_MetaInfo)->AddFlags(ezPropertyFlags::PointerOwner),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezAssetDocumentInfo::ezAssetDocumentInfo()
 {

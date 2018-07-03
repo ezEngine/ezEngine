@@ -1,14 +1,12 @@
-﻿
 #include <PCH.h>
-#include <Foundation/Types/Tag.h>
+
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/HashedString.h>
+#include <Foundation/Types/Tag.h>
 
 static ezTagRegistry s_GlobalRegistry;
 
-ezTagRegistry::ezTagRegistry()
-{
-}
+ezTagRegistry::ezTagRegistry() {}
 
 ezTagRegistry& ezTagRegistry::GetGlobalRegistry()
 {
@@ -113,4 +111,3 @@ void ezTagRegistry::Load(ezStreamReader& stream)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_TagRegistry);
-

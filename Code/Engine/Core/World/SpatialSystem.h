@@ -1,9 +1,9 @@
 #pragma once
 
+#include <Core/World/SpatialData.h>
 #include <Foundation/Containers/IdTable.h>
 #include <Foundation/Math/Frustum.h>
 #include <Foundation/Memory/CommonAllocators.h>
-#include <Core/World/SpatialData.h>
 
 class EZ_CORE_DLL ezSpatialSystem : public ezReflectedClass
 {
@@ -33,10 +33,10 @@ public:
 
   struct QueryStats
   {
-    ezUInt32 m_uiTotalNumObjects; ///< The total number of spatial objects in this system.
+    ezUInt32 m_uiTotalNumObjects;  ///< The total number of spatial objects in this system.
     ezUInt32 m_uiNumObjectsTested; ///< Number of objects tested for the query condition.
     ezUInt32 m_uiNumObjectsPassed; ///< Number of objects that passed the query condition.
-    float m_fTimeTaken; ///< Time taken to execute the query in seconds.
+    float m_fTimeTaken;            ///< Time taken to execute the query in seconds.
 
     EZ_ALWAYS_INLINE QueryStats()
     {
@@ -62,10 +62,10 @@ public:
   ///@}
 
 protected:
-
   virtual void FindObjectsInSphereInternal(const ezBoundingSphere& sphere, QueryCallback callback, QueryStats* pStats) const = 0;
   virtual void FindObjectsInBoxInternal(const ezBoundingBox& box, QueryCallback callback, QueryStats* pStats) const = 0;
-  virtual void FindVisibleObjectsInternal(const ezFrustum& frustum, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats) const = 0;
+  virtual void FindVisibleObjectsInternal(const ezFrustum& frustum, ezDynamicArray<const ezGameObject*>& out_Objects,
+                                          QueryStats* pStats) const = 0;
 
   virtual void SpatialDataAdded(ezSpatialData* pData) = 0;
   virtual void SpatialDataRemoved(ezSpatialData* pData) = 0;
@@ -82,4 +82,3 @@ protected:
 
   ezDynamicArray<ezSpatialData*> m_DataAlwaysVisible;
 };
-

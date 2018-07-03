@@ -10,9 +10,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectPreferencesUser, 1, ezRTTIDefaultAlloca
   {
     EZ_MEMBER_PROPERTY("RenderPipelines", m_sRenderPipelines),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezProjectPreferencesUser::ezProjectPreferencesUser()
   : ezPreferences(Domain::Project, "General")

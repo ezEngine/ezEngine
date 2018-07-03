@@ -15,9 +15,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezSliderComponent, 3, ezComponentMode::Dynamic)
     EZ_MEMBER_PROPERTY("Deceleration", m_fDeceleration)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("RandomStart", m_RandomStart)->AddAttributes(new ezClampValueAttribute(ezTime::Zero(), ezVariant())),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSliderComponent::ezSliderComponent()
 {

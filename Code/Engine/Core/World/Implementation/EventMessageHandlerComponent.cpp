@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Core/World/EventMessageHandlerComponent.h>
 #include <Core/World/World.h>
 
@@ -38,19 +39,15 @@ namespace
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventMessageHandlerComponent, 1, ezRTTINoAllocator)
-{
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezEventMessageHandlerComponent::ezEventMessageHandlerComponent()
-  : m_bDebugOutput(false)
-  , m_bIsGlobalEventHandler(false)
+    : m_bDebugOutput(false)
+    , m_bIsGlobalEventHandler(false)
 {
 }
 
-ezEventMessageHandlerComponent::~ezEventMessageHandlerComponent()
-{
-}
+ezEventMessageHandlerComponent::~ezEventMessageHandlerComponent() {}
 
 void ezEventMessageHandlerComponent::Deinitialize()
 {
@@ -89,7 +86,7 @@ bool ezEventMessageHandlerComponent::HandlesEventMessage(const ezEventMessage& m
   return true;
 }
 
-//static
+// static
 ezArrayPtr<ezComponentHandle> ezEventMessageHandlerComponent::GetAllGlobalEventHandler(const ezWorld* pWorld)
 {
   ezUInt32 uiWorldIndex = pWorld->GetIndex();
@@ -108,4 +105,3 @@ ezArrayPtr<ezComponentHandle> ezEventMessageHandlerComponent::GetAllGlobalEventH
 
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_EventMessageHandlerComponent);
-

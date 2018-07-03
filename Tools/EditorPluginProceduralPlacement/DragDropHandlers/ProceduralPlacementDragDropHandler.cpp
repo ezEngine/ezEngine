@@ -3,7 +3,7 @@
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementComponentDragDropHandler, 1, ezRTTIDefaultAllocator<ezProceduralPlacementComponentDragDropHandler>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 float ezProceduralPlacementComponentDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const

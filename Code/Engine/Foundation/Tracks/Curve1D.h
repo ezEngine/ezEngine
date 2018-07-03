@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Math/Vec2.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Math/Color.h>
+#include <Foundation/Math/Vec2.h>
 #include <Foundation/Types/Enum.h>
 
 class ezStreamWriter;
@@ -18,7 +18,7 @@ struct EZ_FOUNDATION_DLL ezCurveTangentMode
     Bezier,
     FixedLength,
     Linear,
-    //Constant,
+    // Constant,
     Auto,
     Default = Auto
   };
@@ -65,7 +65,8 @@ public:
 
   /// \brief Updates the min/max X value that can be retrieved through GetExtents().
   ///
-  /// This is automatically done when SortControlPoints() is called. It can be called manually, if the information is required without sorting.
+  /// This is automatically done when SortControlPoints() is called. It can be called manually, if the information is required without
+  /// sorting.
   void RecomputeExtents();
 
   /// \brief returns the min and max position value across all control points.
@@ -75,7 +76,8 @@ public:
   void QueryExtents(double& minx, double& maxx) const;
 
   /// \brief Returns the min and max Y value across the curve.
-  /// For this information to be available, the linear approximation of the curve must have been computed, otherwise stale values will be returned.
+  /// For this information to be available, the linear approximation of the curve must have been computed, otherwise stale values will be
+  /// returned.
   void QueryExtremeValues(double& minVal, double& maxVal) const;
 
   /// \brief Returns the number of control points.
@@ -84,10 +86,12 @@ public:
   /// \brief Const access to a control point.
   const ControlPoint& GetControlPoint(ezUInt32 idx) const { return m_ControlPoints[idx]; }
 
-  /// \brief Non-const access to a control point. If you modify the position, SortControlPoints() has to be called before evaluating the curve.
+  /// \brief Non-const access to a control point. If you modify the position, SortControlPoints() has to be called before evaluating the
+  /// curve.
   ControlPoint& ModifyControlPoint(ezUInt32 idx) { return m_ControlPoints[idx]; }
 
-  /// \brief Sorts the control point arrays by their position. The CPs have to be sorted before calling Evaluate(), otherwise the result will be wrong.
+  /// \brief Sorts the control point arrays by their position. The CPs have to be sorted before calling Evaluate(), otherwise the result
+  /// will be wrong.
   void SortControlPoints();
 
   /// \brief Evaluates the curve at the given position (x coordinate) and returns the value Y value at that point.
@@ -149,8 +153,10 @@ public:
 private:
   void RecomputeLinearApproxExtremes();
   void ApproximateMinMaxValues(const ControlPoint& lhs, const ControlPoint& rhs, double& fMinY, double& fMaxY);
-  void ApproximateCurve(const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double fMaxErrorX, double fMaxErrorY, ezInt32 iSubDivLeft);
-  void ApproximateCurvePiece(const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double tLeft, const ezVec2d& pLeft, double tRight, const ezVec2d& pRight, double fMaxErrorX, double fMaxErrorY, ezInt32 iSubDivLeft);
+  void ApproximateCurve(const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double fMaxErrorX, double fMaxErrorY,
+                        ezInt32 iSubDivLeft);
+  void ApproximateCurvePiece(const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double tLeft, const ezVec2d& pLeft,
+                             double tRight, const ezVec2d& pRight, double fMaxErrorX, double fMaxErrorY, ezInt32 iSubDivLeft);
   ezInt32 FindApproxControlPoint(double x) const;
 
   double m_fMinX, m_fMaxX;
@@ -158,4 +164,3 @@ private:
   ezHybridArray<ControlPoint, 8> m_ControlPoints;
   ezHybridArray<ezVec2d, 24> m_LinearApproximation;
 };
-

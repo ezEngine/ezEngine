@@ -1,15 +1,13 @@
-﻿#include <PCH.h>
-#include <Foundation/Utilities/ConversionUtils.h>
+#include <PCH.h>
+
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Types/Variant.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 
 namespace ezConversionUtils
 {
 
-  static bool IsWhitespace(char c)
-  {
-    return (c == ' ' || c == '\t' || c == '\r' || c == '\n' || c == '\v' || c == '\f' || c == '\a');
-  }
+  static bool IsWhitespace(char c) { return (c == ' ' || c == '\t' || c == '\r' || c == '\n' || c == '\v' || c == '\f' || c == '\a'); }
 
   static void SkipWhitespace(const char*& szString)
   {
@@ -79,8 +77,7 @@ namespace ezConversionUtils
   ezResult StringToInt(const char* szString, ezInt32& out_Res, const char** out_LastParsePosition)
   {
     ezInt64 tmp = out_Res;
-    if (StringToInt64(szString, tmp, out_LastParsePosition) == EZ_SUCCESS &&
-        tmp <= (ezInt32)0x7FFFFFFF && tmp >= (ezInt32)0x80000000)
+    if (StringToInt64(szString, tmp, out_LastParsePosition) == EZ_SUCCESS && tmp <= (ezInt32)0x7FFFFFFF && tmp >= (ezInt32)0x80000000)
     {
       out_Res = (ezInt32)tmp;
       return EZ_SUCCESS;
@@ -156,8 +153,8 @@ namespace ezConversionUtils
 
     NumberPart Part = Integer;
 
-    ezUInt64 uiIntegerPart = 0;     // with 64 Bit to represent the values a 32 Bit float value can be stored, but a 64 Bit double cannot
-    ezUInt64 uiFractionalPart = 0;  // lets just assume we won't have such large or precise values stored in text form
+    ezUInt64 uiIntegerPart = 0;    // with 64 Bit to represent the values a 32 Bit float value can be stored, but a 64 Bit double cannot
+    ezUInt64 uiFractionalPart = 0; // lets just assume we won't have such large or precise values stored in text form
     ezUInt64 uiFractionDivisor = 1;
     ezUInt64 uiExponentPart = 0;
     bool bExponentIsPositive = true;
@@ -599,31 +596,31 @@ namespace ezConversionUtils
   const ezStringBuilder& ToString(const ezMat3& value, ezStringBuilder& out_Result)
   {
     out_Result.Printf("{ c1r1=%f, c2r1=%f, c3r1=%f, "
-              "c1r2=%f, c2r2=%f, c3r2=%f, "
-              "c1r3=%f, c2r3=%f, c3r3=%f }",
-              value.Element(0, 0), value.Element(1, 0), value.Element(2, 0),
-              value.Element(0, 1), value.Element(1, 1), value.Element(2, 1),
-              value.Element(0, 2), value.Element(1, 2), value.Element(2, 2));
+                      "c1r2=%f, c2r2=%f, c3r2=%f, "
+                      "c1r3=%f, c2r3=%f, c3r3=%f }",
+                      value.Element(0, 0), value.Element(1, 0), value.Element(2, 0), value.Element(0, 1), value.Element(1, 1),
+                      value.Element(2, 1), value.Element(0, 2), value.Element(1, 2), value.Element(2, 2));
     return out_Result;
   }
 
   const ezStringBuilder& ToString(const ezMat4& value, ezStringBuilder& out_Result)
   {
     out_Result.Printf("{ c1r1=%f, c2r1=%f, c3r1=%f, c4r1=%f, "
-              "c1r2=%f, c2r2=%f, c3r2=%f, c4r2=%f, "
-              "c1r3=%f, c2r3=%f, c3r3=%f, c4r3=%f, "
-              "c1r4=%f, c2r4=%f, c3r4=%f, c4r4=%f }",
-              value.Element(0, 0), value.Element(1, 0), value.Element(2, 0), value.Element(3, 0),
-              value.Element(0, 1), value.Element(1, 1), value.Element(2, 1), value.Element(3, 1),
-              value.Element(0, 2), value.Element(1, 2), value.Element(2, 2), value.Element(3, 2),
-              value.Element(0, 3), value.Element(1, 3), value.Element(2, 3), value.Element(3, 3));
+                      "c1r2=%f, c2r2=%f, c3r2=%f, c4r2=%f, "
+                      "c1r3=%f, c2r3=%f, c3r3=%f, c4r3=%f, "
+                      "c1r4=%f, c2r4=%f, c3r4=%f, c4r4=%f }",
+                      value.Element(0, 0), value.Element(1, 0), value.Element(2, 0), value.Element(3, 0), value.Element(0, 1),
+                      value.Element(1, 1), value.Element(2, 1), value.Element(3, 1), value.Element(0, 2), value.Element(1, 2),
+                      value.Element(2, 2), value.Element(3, 2), value.Element(0, 3), value.Element(1, 3), value.Element(2, 3),
+                      value.Element(3, 3));
     return out_Result;
   }
 
   const ezStringBuilder& ToString(const ezTransform& value, ezStringBuilder& out_Result)
   {
     ezStringBuilder tmp1, tmp2, tmp3;
-    out_Result.Format("{ position={0}, rotation={1}, scale={2} }", ToString(value.m_vPosition, tmp1), ToString(value.m_qRotation, tmp2), ToString(value.m_vScale, tmp3));
+    out_Result.Format("{ position={0}, rotation={1}, scale={2} }", ToString(value.m_vPosition, tmp1), ToString(value.m_qRotation, tmp2),
+                      ToString(value.m_vScale, tmp3));
     return out_Result;
   }
 
@@ -648,18 +645,17 @@ namespace ezConversionUtils
     // Windows GUID formatting.
     struct GUID
     {
-      ezUInt32  Data1;
+      ezUInt32 Data1;
       ezUInt16 Data2;
       ezUInt16 Data3;
-      ezUInt8  Data4[8];
+      ezUInt8 Data4[8];
     };
 
     const GUID* pGuid = reinterpret_cast<const GUID*>(&value);
 
-    out_Result.Printf("{ %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x }",
-              pGuid->Data1, pGuid->Data2, pGuid->Data3,
-              pGuid->Data4[0], pGuid->Data4[1], pGuid->Data4[2], pGuid->Data4[3],
-              pGuid->Data4[4], pGuid->Data4[5], pGuid->Data4[6], pGuid->Data4[7]);
+    out_Result.Printf("{ %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x }", pGuid->Data1, pGuid->Data2, pGuid->Data3, pGuid->Data4[0],
+                      pGuid->Data4[1], pGuid->Data4[2], pGuid->Data4[3], pGuid->Data4[4], pGuid->Data4[5], pGuid->Data4[6],
+                      pGuid->Data4[7]);
 
     return out_Result;
   }
@@ -681,7 +677,8 @@ namespace ezConversionUtils
     if (ezStringUtils::GetStringElementCount(szText) != 40)
       return false;
 
-    if ((szText[1] != ' ') || (szText[10] != '-') || (szText[15] != '-') || (szText[20] != '-') || (szText[25] != '-') || (szText[38] != ' ') || (szText[39] != '}'))
+    if ((szText[1] != ' ') || (szText[10] != '-') || (szText[15] != '-') || (szText[20] != '-') || (szText[25] != '-') ||
+        (szText[38] != ' ') || (szText[39] != '}'))
       return false;
 
     return true;
@@ -696,10 +693,10 @@ namespace ezConversionUtils
 
     struct GUID
     {
-      ezUInt32  Data1;
+      ezUInt32 Data1;
       ezUInt16 Data2;
       ezUInt16 Data3;
-      ezUInt8  Data4[8];
+      ezUInt8 Data4[8];
     };
 
     GUID guid;
@@ -735,8 +732,10 @@ namespace ezConversionUtils
 
     for (int i = 0; i < 2; ++i)
     {
-      guid.Data4[i] = (guid.Data4[i] << 4) | HexCharacterToIntValue(*szText); ++szText;
-      guid.Data4[i] = (guid.Data4[i] << 4) | HexCharacterToIntValue(*szText); ++szText;
+      guid.Data4[i] = (guid.Data4[i] << 4) | HexCharacterToIntValue(*szText);
+      ++szText;
+      guid.Data4[i] = (guid.Data4[i] << 4) | HexCharacterToIntValue(*szText);
+      ++szText;
     }
 
     // -
@@ -744,8 +743,10 @@ namespace ezConversionUtils
 
     for (int i = 2; i < 8; ++i)
     {
-      guid.Data4[i] = (guid.Data4[i] << 4) | HexCharacterToIntValue(*szText); ++szText;
-      guid.Data4[i] = (guid.Data4[i] << 4) | HexCharacterToIntValue(*szText); ++szText;
+      guid.Data4[i] = (guid.Data4[i] << 4) | HexCharacterToIntValue(*szText);
+      ++szText;
+      guid.Data4[i] = (guid.Data4[i] << 4) | HexCharacterToIntValue(*szText);
+      ++szText;
     }
 
     ezUuid result;
@@ -754,7 +755,9 @@ namespace ezConversionUtils
     return result;
   }
 
-#define Check(name) if (ezStringUtils::IsEqual_NoCase(szColorName, EZ_STRINGIZE(name))) return ezColor::name
+#define Check(name)                                                                                                                        \
+  if (ezStringUtils::IsEqual_NoCase(szColorName, EZ_STRINGIZE(name)))                                                                      \
+  return ezColor::name
 
   ezColor GetColorByName(const char* szColorName, bool* out_ValidColorName)
   {
@@ -770,7 +773,7 @@ namespace ezConversionUtils
     {
       if (uiLen == 7 || uiLen == 9) // #RRGGBB or #RRGGBBAA
       {
-        ezInt32 cv[4] = { 0, 0, 0, 255 };
+        ezInt32 cv[4] = {0, 0, 0, 255};
 
         cv[0] = (HexCharacterToIntValue(*(szColorName + 1)) << 4) | HexCharacterToIntValue(*(szColorName + 2));
         cv[1] = (HexCharacterToIntValue(*(szColorName + 3)) << 4) | HexCharacterToIntValue(*(szColorName + 4));
@@ -950,7 +953,9 @@ namespace ezConversionUtils
 
 #undef Check
 
-#define Check(name) if (ezColor::name == col) return #name
+#define Check(name)                                                                                                                        \
+  if (ezColor::name == col)                                                                                                                \
+  return #name
 
   ezString GetColorName(const ezColor& col)
   {
@@ -1106,7 +1111,8 @@ namespace ezConversionUtils
     }
     else
     {
-      s.Format("#{0}{1}{2}{3}", ezArgU(cg.r, 2, true, 16, true), ezArgU(cg.g, 2, true, 16, true), ezArgU(cg.b, 2, true, 16, true), ezArgU(cg.a, 2, true, 16, true));
+      s.Format("#{0}{1}{2}{3}", ezArgU(cg.r, 2, true, 16, true), ezArgU(cg.g, 2, true, 16, true), ezArgU(cg.b, 2, true, 16, true),
+               ezArgU(cg.a, 2, true, 16, true));
     }
 
     return s;
@@ -1118,4 +1124,3 @@ namespace ezConversionUtils
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_ConversionUtils);
-

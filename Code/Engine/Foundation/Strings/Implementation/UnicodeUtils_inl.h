@@ -1,21 +1,18 @@
-﻿#pragma once
+#pragma once
 
 /*
 You can classify bytes in a UTF-8 stream as follows:
   With the high bit set to 0, it's a single byte value.
   With the two high bits set to 10, it's a continuation byte (the second, third or fourth byte in a UTF-8 multi-byte sequence).
-  Otherwise, it's the first byte of a multi-byte sequence and the number of leading 1 bits indicates how many bytes there are in total for this sequence (110... means two bytes, 1110... means three bytes, etc).
+  Otherwise, it's the first byte of a multi-byte sequence and the number of leading 1 bits indicates how many bytes there are in total for
+this sequence (110... means two bytes, 1110... means three bytes, etc).
 */
 
 EZ_ALWAYS_INLINE bool ezUnicodeUtils::IsUtf8StartByte(char uiByte)
 {
   // valid utf8 start bytes are 0x0-------, 0x110-----, 0x1110----, 0x11110---, etc
-  return
-    ((uiByte & 0x80) == 0) ||
-    ((uiByte & 0xE0) == 0xC0) ||
-    ((uiByte & 0xF0) == 0xE0) ||
-    ((uiByte & 0xF8) == 0xF0) ||
-    ((uiByte & 0xFC) == 0xF8);
+  return ((uiByte & 0x80) == 0) || ((uiByte & 0xE0) == 0xC0) || ((uiByte & 0xF0) == 0xE0) || ((uiByte & 0xF8) == 0xF0) ||
+         ((uiByte & 0xFC) == 0xF8);
 }
 
 EZ_ALWAYS_INLINE bool ezUnicodeUtils::IsUtf8ContinuationByte(char uiByte)
@@ -189,8 +186,7 @@ inline void ezUnicodeUtils::MoveToNextUtf8(const char*& szUtf8, ezUInt32 uiNumCh
     do
     {
       ++szUtf8;
-    }
-    while (IsUtf8ContinuationByte(*szUtf8));
+    } while (IsUtf8ContinuationByte(*szUtf8));
 
     --uiNumCharacters;
   }
@@ -205,11 +201,8 @@ inline void ezUnicodeUtils::MoveToPriorUtf8(const char*& szUtf8, ezUInt32 uiNumC
     do
     {
       --szUtf8;
-    }
-    while (IsUtf8ContinuationByte(*szUtf8));
+    } while (IsUtf8ContinuationByte(*szUtf8));
 
     --uiNumCharacters;
   }
 }
-
-

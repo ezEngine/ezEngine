@@ -1,7 +1,8 @@
 #include <PCH.h>
+
 #include <Foundation/Profiling/Profiling.h>
-#include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Threading/Lock.h>
+#include <Foundation/Threading/TaskSystem.h>
 
 ezTask::ezTask()
 {
@@ -75,20 +76,23 @@ void ezTaskSystem::TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup)
   }
 }
 
-ezTaskSystem::TaskData ezTaskSystem::GetNextTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, ezTask* pPrioritizeThis)
+ezTaskSystem::TaskData ezTaskSystem::GetNextTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority,
+                                                 ezTask* pPrioritizeThis)
 {
   // this is the central function that selects tasks for the worker threads to work on
 
   // do a quick and dirty check, whether we would find any work (without a lock)
   // if nothing is found, the thread can go to sleep, without entering the mutex
 
-  // note: There is NO race condition here. Even if this loop would miss a work item, because it is added after it looked at the corresponding
-  // queue, it will not be a problem. The function will return with 'no work' for the thread,  the thread will try to go to sleep, but the
-  // thread-signal will be signaled already and thus the thread will loop again, call 'GetNextTask' a second time and THEN detect the new work item
+  // note: There is NO race condition here. Even if this loop would miss a work item, because it is added after it looked at the
+  // corresponding queue, it will not be a problem. The function will return with 'no work' for the thread,  the thread will try to go to
+  // sleep, but the thread-signal will be signaled already and thus the thread will loop again, call 'GetNextTask' a second time and THEN
+  // detect the new work item
 
-  EZ_ASSERT_DEV(FirstPriority >= ezTaskPriority::EarlyThisFrame && LastPriority < ezTaskPriority::ENUM_COUNT, "Priority Range is invalid: {0} to {1}", FirstPriority, LastPriority);
+  EZ_ASSERT_DEV(FirstPriority >= ezTaskPriority::EarlyThisFrame && LastPriority < ezTaskPriority::ENUM_COUNT,
+                "Priority Range is invalid: {0} to {1}", FirstPriority, LastPriority);
 
-  for (ezUInt32 i = FirstPriority; i <= (ezUInt32) LastPriority; ++i)
+  for (ezUInt32 i = FirstPriority; i <= (ezUInt32)LastPriority; ++i)
   {
     if (!s_Tasks[i].IsEmpty())
       goto foundany;
@@ -112,7 +116,7 @@ foundany:
   {
     // only search for the task in the lists that this thread is willing to work on
     // otherwise we might execute a main-thread task in a thread that is not the main thread
-    for (ezUInt32 i = FirstPriority; i <= (ezUInt32) LastPriority; ++i)
+    for (ezUInt32 i = FirstPriority; i <= (ezUInt32)LastPriority; ++i)
     {
       auto it = s_Tasks[i].GetIterator();
 
@@ -136,7 +140,7 @@ foundany:
   }
 
   // go through all the task lists that this thread is willing to work on
-  for (ezUInt32 i = FirstPriority; i <= (ezUInt32) LastPriority; ++i)
+  for (ezUInt32 i = FirstPriority; i <= (ezUInt32)LastPriority; ++i)
   {
     // if the list is not empty, just take the first task and execute that
     if (!s_Tasks[i].IsEmpty())
@@ -198,7 +202,8 @@ void ezTaskSystem::WaitForTask(ezTask* pTask)
     FirstPriority = ezTaskPriority::ThisFrameMainThread;
     LastPriority = ezTaskPriority::SomeFrameMainThread;
 
-    /// \todo It is currently unclear whether bAllowDefaultWork should be false here as well (in which case the whole fall back mechanism could be removed)
+    /// \todo It is currently unclear whether bAllowDefaultWork should be false here as well (in which case the whole fall back mechanism
+    /// could be removed)
     bAllowDefaultWork = false;
   }
   else if (bIsLoadingThread)
@@ -245,7 +250,8 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
 
   EZ_PROFILE("CancelTask");
 
-  EZ_ASSERT_DEV(pTask->m_BelongsToGroup.m_pTaskGroup->m_uiGroupCounter == pTask->m_BelongsToGroup.m_uiGroupCounter, "The task to be removed is in an invalid group.");
+  EZ_ASSERT_DEV(pTask->m_BelongsToGroup.m_pTaskGroup->m_uiGroupCounter == pTask->m_BelongsToGroup.m_uiGroupCounter,
+                "The task to be removed is in an invalid group.");
 
   // we set the cancel flag, to make sure that tasks that support canceling will terminate asap
   pTask->m_bCancelExecution = true;
@@ -299,4 +305,3 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_Tasks);
-

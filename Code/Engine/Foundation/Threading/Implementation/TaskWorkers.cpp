@@ -1,6 +1,7 @@
-﻿#include <PCH.h>
-#include <Foundation/Threading/TaskSystem.h>
+#include <PCH.h>
+
 #include <Foundation/System/SystemInformation.h>
+#include <Foundation/Threading/TaskSystem.h>
 
 // Helper function to generate a nice thread name.
 static const char* GenerateThreadName(ezWorkerThreadType::Enum ThreadType, ezUInt32 iThreadNumber)
@@ -9,27 +10,28 @@ static const char* GenerateThreadName(ezWorkerThreadType::Enum ThreadType, ezUIn
 
   switch (ThreadType)
   {
-  case ezWorkerThreadType::ShortTasks:
-    sTemp.Format("Short Tasks {0}", iThreadNumber + 1);
-    break;
-  case ezWorkerThreadType::LongTasks:
-    sTemp.Format("Long Tasks {0}", iThreadNumber + 1);
-    break;
-  case ezWorkerThreadType::FileAccess:
-    if (iThreadNumber > 0)
-      sTemp.Format("Resource Loading {0}", iThreadNumber + 1);
-    else
-      sTemp = "Resource Loading";
-    break;
-  case ezWorkerThreadType::ENUM_COUNT:
-    EZ_REPORT_FAILURE("Invalid Thread Type");
-    break;
+    case ezWorkerThreadType::ShortTasks:
+      sTemp.Format("Short Tasks {0}", iThreadNumber + 1);
+      break;
+    case ezWorkerThreadType::LongTasks:
+      sTemp.Format("Long Tasks {0}", iThreadNumber + 1);
+      break;
+    case ezWorkerThreadType::FileAccess:
+      if (iThreadNumber > 0)
+        sTemp.Format("Resource Loading {0}", iThreadNumber + 1);
+      else
+        sTemp = "Resource Loading";
+      break;
+    case ezWorkerThreadType::ENUM_COUNT:
+      EZ_REPORT_FAILURE("Invalid Thread Type");
+      break;
   }
 
   return sTemp.GetData();
 }
 
-ezTaskWorkerThread::ezTaskWorkerThread(ezWorkerThreadType::Enum ThreadType, ezUInt32 iThreadNumber) : ezThread(GenerateThreadName(ThreadType, iThreadNumber))
+ezTaskWorkerThread::ezTaskWorkerThread(ezWorkerThreadType::Enum ThreadType, ezUInt32 iThreadNumber)
+    : ezThread(GenerateThreadName(ThreadType, iThreadNumber))
 {
   m_bActive = true;
   m_WorkerType = ThreadType;
@@ -46,7 +48,8 @@ bool ezTaskSystem::IsLoadingThread()
   if (s_WorkerThreads[ezWorkerThreadType::FileAccess].IsEmpty())
     return false;
 
-  EZ_ASSERT_DEBUG(s_WorkerThreads[ezWorkerThreadType::FileAccess].GetCount() == 1, "The number of loading threads cannot be changed without adjusting other code");
+  EZ_ASSERT_DEBUG(s_WorkerThreads[ezWorkerThreadType::FileAccess].GetCount() == 1,
+                  "The number of loading threads cannot be changed without adjusting other code");
   return ezThreadUtils::GetCurrentThreadID() == s_WorkerThreads[ezWorkerThreadType::FileAccess][0]->GetThreadID();
 }
 
@@ -117,10 +120,11 @@ void ezTaskSystem::SetWorkThreadCount(ezInt8 iShortTasks, ezInt8 iLongTasks)
   // and the main thread, of course
 
   iShortTasks = ezMath::Max<ezInt8>(iShortTasks, 1);
-  iLongTasks  = ezMath::Max<ezInt8>(iLongTasks, 1);
+  iLongTasks = ezMath::Max<ezInt8>(iLongTasks, 1);
 
   // if nothing has changed, do nothing
-  if (s_WorkerThreads[ezWorkerThreadType::ShortTasks].GetCount() == iShortTasks && s_WorkerThreads[ezWorkerThreadType::LongTasks].GetCount() == iLongTasks)
+  if (s_WorkerThreads[ezWorkerThreadType::ShortTasks].GetCount() == iShortTasks &&
+      s_WorkerThreads[ezWorkerThreadType::LongTasks].GetCount() == iLongTasks)
     return;
 
   StopWorkerThreads();
@@ -133,7 +137,7 @@ void ezTaskSystem::SetWorkThreadCount(ezInt8 iShortTasks, ezInt8 iLongTasks)
   {
     for (ezUInt32 i = 0; i < s_WorkerThreads[type].GetCount(); ++i)
     {
-      s_WorkerThreads[type][i] = EZ_DEFAULT_NEW(ezTaskWorkerThread, (ezWorkerThreadType::Enum) type, i);
+      s_WorkerThreads[type][i] = EZ_DEFAULT_NEW(ezTaskWorkerThread, (ezWorkerThreadType::Enum)type, i);
       s_WorkerThreads[type][i]->Start();
     }
   }
@@ -149,8 +153,7 @@ ezUInt32 ezTaskWorkerThread::Run()
     FirstPriority = ezTaskPriority::LongRunningHighPriority;
     LastPriority = ezTaskPriority::LongRunning;
   }
-  else
-  if (m_WorkerType == ezWorkerThreadType::FileAccess)
+  else if (m_WorkerType == ezWorkerThreadType::FileAccess)
   {
     FirstPriority = ezTaskPriority::FileAccessHighPriority;
     LastPriority = ezTaskPriority::FileAccess;
@@ -212,4 +215,3 @@ ezTime ezTaskWorkerThread::GetAndResetThreadActiveTime()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskWorkers);
-

@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
+
 #include <Core/ResourceManager/ResourceBase.h>
+#include <Core/WorldSerializer/ResourceHandleWriter.h>
 
 static thread_local ezResourceHandleWriteContext* s_pActiveWriteContext = nullptr;
 
@@ -24,7 +25,8 @@ void ezResourceHandleWriteContext::WriteHandle(ezStreamWriter* pStream, const ez
 
 void ezResourceHandleWriteContext::WriteResourceReference(ezStreamWriter* pStream, const ezResourceBase* pResource)
 {
-  EZ_ASSERT_DEV(m_State == State::Writing, "Resource handles can only be written between calls to ezResourceHandleWriteContext::BeginWritingToStream() and EndWritingToStream()");
+  EZ_ASSERT_DEV(m_State == State::Writing, "Resource handles can only be written between calls to "
+                                           "ezResourceHandleWriteContext::BeginWritingToStream() and EndWritingToStream()");
 
   ezUInt32 uiValue = 0xFFFFFFFF;
 
@@ -44,7 +46,8 @@ void ezResourceHandleWriteContext::WriteResourceReference(ezStreamWriter* pStrea
 void ezResourceHandleWriteContext::BeginWritingToStream(ezStreamWriter* pStream)
 {
   EZ_ASSERT_DEV(s_pActiveWriteContext == nullptr, "Instances of ezResourceHandleWriteContext cannot be nested on the callstack");
-  EZ_ASSERT_DEV(m_State == State::NotStarted, "ezResourceHandleWriteContext::BeginWritingToStream cannot be called twice on the same instance");
+  EZ_ASSERT_DEV(m_State == State::NotStarted,
+                "ezResourceHandleWriteContext::BeginWritingToStream cannot be called twice on the same instance");
 
   m_State = State::Writing;
 
@@ -56,12 +59,14 @@ void ezResourceHandleWriteContext::BeginWritingToStream(ezStreamWriter* pStream)
 
 void ezResourceHandleWriteContext::EndWritingToStream(ezStreamWriter* pStream)
 {
-  EZ_ASSERT_DEV(m_State == State::Writing, "ezResourceHandleWriteContext::EndWritingToStream must be called once after ezResourceHandleWriteContext::BeginWritingToStream");
+  EZ_ASSERT_DEV(
+      m_State == State::Writing,
+      "ezResourceHandleWriteContext::EndWritingToStream must be called once after ezResourceHandleWriteContext::BeginWritingToStream");
 
   // number of all resources
   *pStream << m_ResourcesToStore.GetCount();
 
-  ezMap<const ezRTTI*, ezDeque<ezUInt32> > SortedResourcesToStore;
+  ezMap<const ezRTTI*, ezDeque<ezUInt32>> SortedResourcesToStore;
 
   // sort all resources by type
   for (ezUInt32 id = 0; id < m_ResourcesToStore.GetCount(); ++id)
@@ -101,7 +106,4 @@ void ezResourceHandleWriteContext::EndWritingToStream(ezStreamWriter* pStream)
 
 
 
-
-
 EZ_STATICLINK_FILE(Core, Core_WorldSerializer_Implementation_ResourceHandleWriter);
-

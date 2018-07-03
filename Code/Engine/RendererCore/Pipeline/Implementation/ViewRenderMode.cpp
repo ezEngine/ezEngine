@@ -7,7 +7,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezViewRenderMode, 1)
 EZ_ENUM_CONSTANTS(ezViewRenderMode::None, ezViewRenderMode::WireframeColor, ezViewRenderMode::WireframeMonochrome, ezViewRenderMode::LitOnly, ezViewRenderMode::LightCount, ezViewRenderMode::DecalCount, ezViewRenderMode::TexCoordsUV0)
 EZ_ENUM_CONSTANTS(ezViewRenderMode::PixelNormals, ezViewRenderMode::VertexNormals, ezViewRenderMode::VertexTangents, ezViewRenderMode::DiffuseColor, ezViewRenderMode::DiffuseColorRange, ezViewRenderMode::SpecularColor)
 EZ_ENUM_CONSTANTS(ezViewRenderMode::EmissiveColor, ezViewRenderMode::Roughness, ezViewRenderMode::Occlusion, ezViewRenderMode::Depth, ezViewRenderMode::StaticVsDynamic)
-EZ_END_STATIC_REFLECTED_ENUM();
+EZ_END_STATIC_REFLECTED_ENUM;
 
 //static
 ezTempHashedString ezViewRenderMode::GetPermutationValue(Enum renderMode)

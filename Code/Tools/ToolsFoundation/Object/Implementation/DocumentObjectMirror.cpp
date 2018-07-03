@@ -14,9 +14,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezObjectChangeStep, ezNoBase, 1, ezRTTIDefaultAll
     EZ_MEMBER_PROPERTY("Index", m_Index),
     EZ_MEMBER_PROPERTY("Value", m_Value),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezObjectChange, ezNoBase, 1, ezRTTIDefaultAllocator<ezObjectChange>)
 {
@@ -27,9 +27,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezObjectChange, ezNoBase, 1, ezRTTIDefaultAllocat
     EZ_ARRAY_MEMBER_PROPERTY("Steps", m_Steps),
     EZ_MEMBER_PROPERTY("Graph", m_GraphData),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 ezObjectChange::ezObjectChange(const ezObjectChange&)
 {

@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Strings/HashedString.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Strings/HashedString.h>
 #include <Foundation/Time/Time.h>
 
 /// \brief An event track is a timeline that contains named events.
@@ -50,4 +50,3 @@ private:
   mutable ezDynamicArray<ControlPoint> m_ControlPoints;
   ezHybridArray<ezHashedString, 4> m_Events;
 };
-

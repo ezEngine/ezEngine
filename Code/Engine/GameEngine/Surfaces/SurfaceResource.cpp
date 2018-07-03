@@ -5,7 +5,7 @@
 #include <Core/Assets/AssetFileHeader.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceResource, 1, ezRTTIDefaultAllocator<ezSurfaceResource>);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezEvent<const ezSurfaceResource::Event&, ezMutex> ezSurfaceResource::s_Events;
 

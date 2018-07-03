@@ -1,6 +1,5 @@
-
 #ifdef EZ_STACKTRACER_WIN_INL_H_INCLUDED
-  #error "This file must not be included twice."
+#error "This file must not be included twice."
 #endif
 
 #define EZ_STACKTRACER_WIN_INL_H_INCLUDED
@@ -13,41 +12,35 @@
 #include <Foundation/Basics/Compiler/RestoreWarning.h>
 
 #include <Foundation/IO/OSFile.h>
-#include <Foundation/Math/Math.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Math/Math.h>
 
 // Deactivate Doxygen document generation for the following block.
 /// \cond
 
 namespace
 {
-  typedef WORD (__stdcall *CaptureStackBackTraceFunc)(DWORD FramesToSkip, DWORD FramesToCapture,
-    PVOID *BackTrace, PDWORD BackTraceHash);
+  typedef WORD(__stdcall* CaptureStackBackTraceFunc)(DWORD FramesToSkip, DWORD FramesToCapture, PVOID* BackTrace, PDWORD BackTraceHash);
 
-  typedef BOOL (__stdcall *SymbolInitializeFunc)(HANDLE hProcess, PCWSTR UserSearchPath,
-    BOOL fInvadeProcess);
+  typedef BOOL(__stdcall* SymbolInitializeFunc)(HANDLE hProcess, PCWSTR UserSearchPath, BOOL fInvadeProcess);
 
-  typedef DWORD64 (__stdcall *SymbolLoadModuleFunc)(HANDLE hProcess, HANDLE hFile, PCWSTR ImageName,
-    PCWSTR ModuleName, DWORD64 BaseOfDll, DWORD DllSize, PMODLOAD_DATA Data, DWORD Flags);
+  typedef DWORD64(__stdcall* SymbolLoadModuleFunc)(HANDLE hProcess, HANDLE hFile, PCWSTR ImageName, PCWSTR ModuleName, DWORD64 BaseOfDll,
+                                                   DWORD DllSize, PMODLOAD_DATA Data, DWORD Flags);
 
-  typedef BOOL (__stdcall *SymbolGetModuleInfoFunc)(HANDLE hProcess, DWORD64 qwAddr,
-    PIMAGEHLP_MODULEW64 ModuleInfo);
+  typedef BOOL(__stdcall* SymbolGetModuleInfoFunc)(HANDLE hProcess, DWORD64 qwAddr, PIMAGEHLP_MODULEW64 ModuleInfo);
 
-  typedef PVOID (__stdcall *SymbolFunctionTableAccess)(HANDLE hProcess, DWORD64 AddrBase);
+  typedef PVOID(__stdcall* SymbolFunctionTableAccess)(HANDLE hProcess, DWORD64 AddrBase);
 
-  typedef DWORD64 (__stdcall *SymbolGetModuleBaseFunc)(HANDLE hProcess, DWORD64 qwAddr);
+  typedef DWORD64(__stdcall* SymbolGetModuleBaseFunc)(HANDLE hProcess, DWORD64 qwAddr);
 
-  typedef BOOL (__stdcall *StackWalk)(DWORD MachineType, HANDLE hProcess, HANDLE hThread, LPSTACKFRAME64 StackFrame, PVOID ContextRecord,
-      PREAD_PROCESS_MEMORY_ROUTINE64 ReadMemoryRoutine,
-      PFUNCTION_TABLE_ACCESS_ROUTINE64 FunctionTableAccessRoutine,
-      PGET_MODULE_BASE_ROUTINE64 GetModuleBaseRoutine,
-      PTRANSLATE_ADDRESS_ROUTINE64 TranslateAddress);
+  typedef BOOL(__stdcall* StackWalk)(DWORD MachineType, HANDLE hProcess, HANDLE hThread, LPSTACKFRAME64 StackFrame, PVOID ContextRecord,
+                                     PREAD_PROCESS_MEMORY_ROUTINE64 ReadMemoryRoutine,
+                                     PFUNCTION_TABLE_ACCESS_ROUTINE64 FunctionTableAccessRoutine,
+                                     PGET_MODULE_BASE_ROUTINE64 GetModuleBaseRoutine, PTRANSLATE_ADDRESS_ROUTINE64 TranslateAddress);
 
-  typedef BOOL (__stdcall *SymbolFromAddressFunc)(HANDLE hProcess, DWORD64 Address,
-    PDWORD64 Displacement, PSYMBOL_INFOW Symbol);
+  typedef BOOL(__stdcall* SymbolFromAddressFunc)(HANDLE hProcess, DWORD64 Address, PDWORD64 Displacement, PSYMBOL_INFOW Symbol);
 
-  typedef BOOL (__stdcall *LineFromAddressFunc)(HANDLE hProcess, DWORD64 Address,
-    PDWORD64 Displacement, PIMAGEHLP_LINEW64 Line);
+  typedef BOOL(__stdcall* LineFromAddressFunc)(HANDLE hProcess, DWORD64 Address, PDWORD64 Displacement, PIMAGEHLP_LINEW64 Line);
 
   struct StackTracerImplementation
   {
@@ -73,8 +66,7 @@ namespace
       EZ_ASSERT_DEV(kernel32Dll != nullptr, "StackTracer could not load kernel32.dll");
       if (kernel32Dll != nullptr)
       {
-        captureStackBackTrace = (CaptureStackBackTraceFunc)GetProcAddress(kernel32Dll,
-          "RtlCaptureStackBackTrace");
+        captureStackBackTrace = (CaptureStackBackTraceFunc)GetProcAddress(kernel32Dll, "RtlCaptureStackBackTrace");
       }
 
       dbgHelpDll = LoadLibraryW(L"dbghelp.dll");
@@ -87,8 +79,8 @@ namespace
         getFunctionTableAccess = (SymbolFunctionTableAccess)GetProcAddress(dbgHelpDll, "SymFunctionTableAccess64");
         getModuleBase = (SymbolGetModuleBaseFunc)GetProcAddress(dbgHelpDll, "SymGetModuleBase64");
         stackWalk = (StackWalk)GetProcAddress(dbgHelpDll, "StackWalk64");
-        if (symbolInitialize == nullptr || symbolLoadModule == nullptr || getModuleInfo == nullptr ||
-          getFunctionTableAccess == nullptr || getModuleBase == nullptr || stackWalk == nullptr)
+        if (symbolInitialize == nullptr || symbolLoadModule == nullptr || getModuleInfo == nullptr || getFunctionTableAccess == nullptr ||
+            getModuleBase == nullptr || stackWalk == nullptr)
           return;
 
         symbolFromAddress = (SymbolFromAddressFunc)GetProcAddress(dbgHelpDll, "SymFromAddrW");
@@ -137,7 +129,7 @@ void ezStackTracer::OnPluginEvent(const ezPlugin::PluginEvent& e)
     SymbolInitialize();
   }
 
-  if (false)//e.m_EventType == ezPlugin::PluginEvent::AfterLoading)
+  if (false) // e.m_EventType == ezPlugin::PluginEvent::AfterLoading)
   {
     char buffer[1024];
     strcpy_s(buffer, ezOSFile::GetApplicationDirectory());
@@ -173,11 +165,12 @@ void ezStackTracer::OnPluginEvent(const ezPlugin::PluginEvent& e)
       DWORD err = GetLastError();
       LPVOID lpMsgBuf = nullptr;
 
-      FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
-        err, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPTSTR)&lpMsgBuf, 0, nullptr);
+      FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, err,
+                    MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPTSTR)&lpMsgBuf, 0, nullptr);
 
       char errStr[1024];
-      sprintf_s(errStr, "StackTracer could not get module info for '%s'. Error-Code %u (\"%s\")\n", e.m_szPluginFile, err, static_cast<char*>(lpMsgBuf));
+      sprintf_s(errStr, "StackTracer could not get module info for '%s'. Error-Code %u (\"%s\")\n", e.m_szPluginFile, err,
+                static_cast<char*>(lpMsgBuf));
       OutputDebugStringA(errStr);
 
       LocalFree(lpMsgBuf);
@@ -185,7 +178,7 @@ void ezStackTracer::OnPluginEvent(const ezPlugin::PluginEvent& e)
   }
 }
 
-//static
+// static
 ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace, void* pContext)
 {
   Initialize();
@@ -213,10 +206,10 @@ ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace, void* pContext)
 #endif
     for (ezInt32 i = 0; i < (ezInt32)trace.GetCount(); i++)
     {
-      if (s_pImplementation->stackWalk(machine_type, GetCurrentProcess(), GetCurrentThread(),
-        &frame, &context, NULL, s_pImplementation->getFunctionTableAccess, s_pImplementation->getModuleBase, NULL))
+      if (s_pImplementation->stackWalk(machine_type, GetCurrentProcess(), GetCurrentThread(), &frame, &context, NULL,
+                                       s_pImplementation->getFunctionTableAccess, s_pImplementation->getModuleBase, NULL))
       {
-          trace[i] = reinterpret_cast<void*>(frame.AddrPC.Offset);
+        trace[i] = reinterpret_cast<void*>(frame.AddrPC.Offset);
       }
       else
       {
@@ -238,7 +231,7 @@ ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace, void* pContext)
   return 0;
 }
 
-//static
+// static
 void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc printFunc)
 {
   Initialize();
@@ -260,8 +253,7 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
       symbolInfo.MaxNameLen = (EZ_ARRAY_SIZE(buffer) - symbolInfo.SizeOfStruct) / sizeof(WCHAR);
 
       DWORD64 displacement = 0;
-      BOOL result = (*s_pImplementation->symbolFromAddress)(currentProcess, pSymbolAddress,
-        &displacement, &symbolInfo);
+      BOOL result = (*s_pImplementation->symbolFromAddress)(currentProcess, pSymbolAddress, &displacement, &symbolInfo);
       if (!result)
       {
         wcscpy_s(symbolInfo.Name, symbolInfo.MaxNameLen, L"<Unknown>");
@@ -285,4 +277,3 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
 
 
 /// \endcond
-

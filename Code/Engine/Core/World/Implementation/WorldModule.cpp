@@ -12,9 +12,7 @@ ezWorldModule::ezWorldModule(ezWorld* pWorld)
 {
 }
 
-ezWorldModule::~ezWorldModule()
-{
-}
+ezWorldModule::~ezWorldModule() {}
 
 // protected methods
 
@@ -78,9 +76,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 static ezUInt16 s_uiNextTypeId = 0;
 
-ezWorldModuleFactory::ezWorldModuleFactory()
-{
-}
+ezWorldModuleFactory::ezWorldModuleFactory() {}
 
 // static
 ezWorldModuleFactory* ezWorldModuleFactory::GetInstance()

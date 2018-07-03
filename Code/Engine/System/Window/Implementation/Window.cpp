@@ -1,30 +1,29 @@
-﻿
 #include <PCH.h>
-#include <System/Window/Window.h>
-#include <System/Screen/Screen.h>
+
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/IO/OpenDdlWriter.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlUtils.h>
+#include <Foundation/IO/OpenDdlWriter.h>
+#include <System/Screen/Screen.h>
+#include <System/Window/Window.h>
 
 #if EZ_ENABLED(EZ_SUPPORTS_SFML)
-  #include <System/Window/Implementation/SFML/InputDevice_SFML.inl>
-  #include <System/Window/Implementation/SFML/Window_SFML.inl>
+#include <System/Window/Implementation/SFML/InputDevice_SFML.inl>
+#include <System/Window/Implementation/SFML/Window_SFML.inl>
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  #include <System/Window/Implementation/Win32/InputDevice_win32.inl>
-  #include <System/Window/Implementation/Win32/Window_win32.inl>
+#include <System/Window/Implementation/Win32/InputDevice_win32.inl>
+#include <System/Window/Implementation/Win32/Window_win32.inl>
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  #include <System/Window/Implementation/uwp/InputDevice_uwp.inl>
-  #include <System/Window/Implementation/uwp/Window_uwp.inl>
+#include <System/Window/Implementation/uwp/InputDevice_uwp.inl>
+#include <System/Window/Implementation/uwp/Window_uwp.inl>
 #else
-  #error "Missing code for ezWindow!"
+#error "Missing code for ezWindow!"
 #endif
 
 ezResult ezWindowCreationDesc::AdjustWindowSizeAndPosition()
 {
-  if (m_WindowMode == ezWindowMode::WindowFixedResolution ||
-      m_WindowMode == ezWindowMode::WindowResizable)
+  if (m_WindowMode == ezWindowMode::WindowFixedResolution || m_WindowMode == ezWindowMode::WindowResizable)
     return EZ_SUCCESS;
 
   ezHybridArray<ezScreenInfo, 2> screens;
@@ -62,13 +61,13 @@ ezResult ezWindowCreationDesc::AdjustWindowSizeAndPosition()
   if (m_WindowMode == ezWindowMode::FullscreenBorderlessNativeResolution)
   {
     m_Resolution.width = pScreen->m_iResolutionX;
-    m_Resolution.height= pScreen->m_iResolutionY;
+    m_Resolution.height = pScreen->m_iResolutionY;
   }
   else
   {
     // clamp the resolution to the native resolution ?
-    //m_ClientAreaSize.width = ezMath::Min<ezUInt32>(m_ClientAreaSize.width, pScreen->m_iResolutionX);
-    //m_ClientAreaSize.height= ezMath::Min<ezUInt32>(m_ClientAreaSize.height,pScreen->m_iResolutionY);
+    // m_ClientAreaSize.width = ezMath::Min<ezUInt32>(m_ClientAreaSize.width, pScreen->m_iResolutionX);
+    // m_ClientAreaSize.height= ezMath::Min<ezUInt32>(m_ClientAreaSize.height,pScreen->m_iResolutionY);
   }
 
   return EZ_SUCCESS;
@@ -82,18 +81,18 @@ void ezWindowCreationDesc::SaveToDDL(ezOpenDdlWriter& writer)
 
   switch (m_WindowMode.GetValue())
   {
-  case ezWindowMode::FullscreenBorderlessNativeResolution:
-    ezOpenDdlUtils::StoreString(writer, "Borderless", "Mode");
-    break;
-  case ezWindowMode::FullscreenFixedResolution:
-    ezOpenDdlUtils::StoreString(writer, "Fullscreen", "Mode");
-    break;
-  case ezWindowMode::WindowFixedResolution:
-    ezOpenDdlUtils::StoreString(writer, "Window", "Mode");
-    break;
-  case ezWindowMode::WindowResizable:
-    ezOpenDdlUtils::StoreString(writer, "ResizableWindow", "Mode");
-    break;
+    case ezWindowMode::FullscreenBorderlessNativeResolution:
+      ezOpenDdlUtils::StoreString(writer, "Borderless", "Mode");
+      break;
+    case ezWindowMode::FullscreenFixedResolution:
+      ezOpenDdlUtils::StoreString(writer, "Fullscreen", "Mode");
+      break;
+    case ezWindowMode::WindowFixedResolution:
+      ezOpenDdlUtils::StoreString(writer, "Window", "Mode");
+      break;
+    case ezWindowMode::WindowResizable:
+      ezOpenDdlUtils::StoreString(writer, "ResizableWindow", "Mode");
+      break;
   }
 
   if (m_uiWindowNumber != 0)
@@ -195,9 +194,7 @@ ezResult ezWindowCreationDesc::LoadFromDDL(const char* szFile)
   return EZ_SUCCESS;
 }
 
-ezWindow::ezWindow()
-{
-}
+ezWindow::ezWindow() {}
 
 ezWindow::~ezWindow()
 {
@@ -206,4 +203,3 @@ ezWindow::~ezWindow()
 }
 
 EZ_STATICLINK_FILE(System, System_Window_Implementation_Window);
-

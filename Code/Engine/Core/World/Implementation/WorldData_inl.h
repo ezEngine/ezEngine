@@ -1,7 +1,7 @@
 
 namespace ezInternal
 {
-  //static
+  // static
   EZ_ALWAYS_INLINE WorldData::HierarchyType::Enum WorldData::GetHierarchyType(bool bIsDynamic)
   {
     return bIsDynamic ? HierarchyType::Dynamic : HierarchyType::Static;
@@ -9,7 +9,8 @@ namespace ezInternal
 
   // static
   template <typename VISITOR>
-  EZ_FORCE_INLINE ezVisitorExecution::Enum WorldData::TraverseHierarchyLevel(Hierarchy::DataBlockArray& blocks, void* pUserData /* = nullptr*/)
+  EZ_FORCE_INLINE ezVisitorExecution::Enum WorldData::TraverseHierarchyLevel(Hierarchy::DataBlockArray& blocks,
+                                                                             void* pUserData /* = nullptr*/)
   {
     for (ezUInt32 uiBlockIndex = 0; uiBlockIndex < blocks.GetCount(); ++uiBlockIndex)
     {
@@ -39,7 +40,8 @@ namespace ezInternal
   }
 
   // static
-  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds)
+  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData,
+                                                                  const ezSimdFloat& fInvDeltaSeconds)
   {
     pData->UpdateGlobalTransformWithParent();
     pData->UpdateGlobalBounds();
@@ -65,31 +67,31 @@ namespace ezInternal
 
     // sort by function name to ensure determinism
     ezInt32 iNameComp = ezStringUtils::Compare(m_sFunctionName, other.m_sFunctionName);
-    EZ_ASSERT_DEV(iNameComp != 0, "An update function with the same name and same priority is already registered. This breaks determinism.");
+    EZ_ASSERT_DEV(iNameComp != 0,
+                  "An update function with the same name and same priority is already registered. This breaks determinism.");
     return iNameComp < 0;
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-  EZ_ALWAYS_INLINE WorldData::ReadMarker::ReadMarker(const WorldData& data) : m_Data(data)
+  EZ_ALWAYS_INLINE WorldData::ReadMarker::ReadMarker(const WorldData& data)
+      : m_Data(data)
   {
   }
 
   EZ_FORCE_INLINE void WorldData::ReadMarker::Acquire()
   {
     EZ_ASSERT_DEV(m_Data.m_WriteThreadID == (ezThreadID)0 || m_Data.m_WriteThreadID == ezThreadUtils::GetCurrentThreadID(),
-      "World '{0}' cannot be marked for reading because it is already marked for writing by another thread.", m_Data.m_sName);
+                  "World '{0}' cannot be marked for reading because it is already marked for writing by another thread.", m_Data.m_sName);
     m_Data.m_iReadCounter.Increment();
   }
 
-  EZ_ALWAYS_INLINE void WorldData::ReadMarker::Release()
-  {
-    m_Data.m_iReadCounter.Decrement();
-  }
+  EZ_ALWAYS_INLINE void WorldData::ReadMarker::Release() { m_Data.m_iReadCounter.Decrement(); }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-  EZ_ALWAYS_INLINE WorldData::WriteMarker::WriteMarker(WorldData& data) : m_Data(data)
+  EZ_ALWAYS_INLINE WorldData::WriteMarker::WriteMarker(WorldData& data)
+      : m_Data(data)
   {
   }
 
@@ -98,8 +100,10 @@ namespace ezInternal
     // already locked by this thread?
     if (m_Data.m_WriteThreadID != ezThreadUtils::GetCurrentThreadID())
     {
-      EZ_ASSERT_DEV(m_Data.m_iReadCounter == 0, "World '{0}' cannot be marked for writing because it is already marked for reading.", m_Data.m_sName);
-      EZ_ASSERT_DEV(m_Data.m_WriteThreadID == (ezThreadID)0, "World '{0}' cannot be marked for writing because it is already marked for writing by another thread.", m_Data.m_sName);
+      EZ_ASSERT_DEV(m_Data.m_iReadCounter == 0, "World '{0}' cannot be marked for writing because it is already marked for reading.",
+                    m_Data.m_sName);
+      EZ_ASSERT_DEV(m_Data.m_WriteThreadID == (ezThreadID)0,
+                    "World '{0}' cannot be marked for writing because it is already marked for writing by another thread.", m_Data.m_sName);
 
       m_Data.m_WriteThreadID = ezThreadUtils::GetCurrentThreadID();
       m_Data.m_iReadCounter.Increment(); // allow reading as well
@@ -118,6 +122,4 @@ namespace ezInternal
       m_Data.m_WriteThreadID = (ezThreadID)0;
     }
   }
-
 }
-

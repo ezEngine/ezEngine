@@ -1,7 +1,7 @@
 
 template <typename ComponentType>
 ezSettingsComponentManager<ComponentType>::ezSettingsComponentManager(ezWorld* pWorld)
-  : ezComponentManagerBase(pWorld)
+    : ezComponentManagerBase(pWorld)
 {
 }
 
@@ -26,7 +26,7 @@ EZ_ALWAYS_INLINE const ComponentType* ezSettingsComponentManager<ComponentType>:
   return m_Components[0].Borrow();
 }
 
-//static
+// static
 template <typename ComponentType>
 EZ_ALWAYS_INLINE ezUInt16 ezSettingsComponentManager<ComponentType>::TypeId()
 {
@@ -56,7 +56,8 @@ ezComponent* ezSettingsComponentManager<ComponentType>::CreateComponentStorage()
 {
   if (!m_Components.IsEmpty())
   {
-    ezLog::Warning("A component of type '{0}' is already present in this world. Having more than one is not allowed.", ezGetStaticRTTI<ComponentType>()->GetTypeName());
+    ezLog::Warning("A component of type '{0}' is already present in this world. Having more than one is not allowed.",
+                   ezGetStaticRTTI<ComponentType>()->GetTypeName());
   }
 
   m_Components.PushBack(EZ_NEW(GetAllocator(), ComponentType));
@@ -77,4 +78,3 @@ void ezSettingsComponentManager<ComponentType>::DeleteComponentStorage(ezCompone
     }
   }
 }
-

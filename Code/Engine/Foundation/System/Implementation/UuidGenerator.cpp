@@ -1,5 +1,5 @@
-
 #include <PCH.h>
+
 #include <Foundation/Types/Uuid.h>
 
 
@@ -16,13 +16,13 @@
 
 ezUuid ezUuid::StableUuidForString(const char* szString)
 {
-	size_t length = std::strlen( szString );
+  size_t length = std::strlen(szString);
 
-	ezUuid NewUuid;
-	NewUuid.m_uiLow = ezHashing::xxHash64( szString, length );
-	NewUuid.m_uiHigh = ezHashing::xxHash64( szString, length, 0x7FFFFFFFFFFFFFE7u );
+  ezUuid NewUuid;
+  NewUuid.m_uiLow = ezHashing::xxHash64(szString, length);
+  NewUuid.m_uiHigh = ezHashing::xxHash64(szString, length, 0x7FFFFFFFFFFFFFE7u);
 
-	return NewUuid;
+  return NewUuid;
 }
 
 ezUuid ezUuid::StableUuidForInt(ezInt64 iInt)
@@ -35,4 +35,3 @@ ezUuid ezUuid::StableUuidForInt(ezInt64 iInt)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_System_Implementation_UuidGenerator);
-

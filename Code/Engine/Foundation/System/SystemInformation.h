@@ -1,4 +1,3 @@
-
 #pragma once
 
 /// \brief The system configuration class encapsulates information about the system the application is running on.
@@ -8,47 +7,25 @@
 class EZ_FOUNDATION_DLL ezSystemInformation
 {
 public:
-
   /// \brief Returns the installed physical memory in bytes
-  inline ezUInt64 GetInstalledMainMemory() const
-  {
-    return m_uiInstalledMainMemory;
-  }
+  inline ezUInt64 GetInstalledMainMemory() const { return m_uiInstalledMainMemory; }
 
   /// \brief Returns the size of a memory page in bytes
-  inline ezUInt32 GetMemoryPageSize() const
-  {
-    return m_uiMemoryPageSize;
-  }
+  inline ezUInt32 GetMemoryPageSize() const { return m_uiMemoryPageSize; }
 
   /// \brief Returns the CPU core count of the system.
-  inline ezUInt32 GetCPUCoreCount() const
-  {
-    return m_uiCPUCoreCount;
-  }
+  inline ezUInt32 GetCPUCoreCount() const { return m_uiCPUCoreCount; }
 
   /// \brief Returns true if the process is currently running on a 64-bit OS.
-  inline bool Is64BitOS() const
-  {
-    return m_b64BitOS;
-  }
+  inline bool Is64BitOS() const { return m_b64BitOS; }
 
-  inline const char* GetPlatformName() const
-  {
-    return m_szPlatformName;
-  }
+  inline const char* GetPlatformName() const { return m_szPlatformName; }
 
-  inline const char* GetHostName() const
-  {
-    return m_sHostName;
-  }
+  inline const char* GetHostName() const { return m_sHostName; }
 
-  inline const char* GetBuildConfiguration() const
-  {
-    return m_szBuildConfiguration;
-  }
+  inline const char* GetBuildConfiguration() const { return m_szBuildConfiguration; }
+
 public:
-
   /// \brief Allows access to the current system configuration.
   static const ezSystemInformation& Get()
   {
@@ -59,7 +36,6 @@ public:
   }
 
 private:
-
   ezUInt64 m_uiInstalledMainMemory;
   ezUInt32 m_uiMemoryPageSize;
   ezUInt32 m_uiCPUCoreCount;
@@ -73,6 +49,4 @@ private:
   static void Initialize();
 
   static ezSystemInformation s_SystemInformation;
-
 };
-

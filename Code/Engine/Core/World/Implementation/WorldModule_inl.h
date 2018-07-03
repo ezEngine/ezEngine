@@ -16,13 +16,9 @@ ezUInt16 ezWorldModuleFactory::RegisterWorldModule()
 {
   struct Helper
   {
-    static ezWorldModule* Create(ezAllocatorBase* pAllocator, ezWorld* pWorld)
-    {
-      return EZ_NEW(pAllocator, ModuleType, pWorld);
-    }
+    static ezWorldModule* Create(ezAllocatorBase* pAllocator, ezWorld* pWorld) { return EZ_NEW(pAllocator, ModuleType, pWorld); }
   };
 
   const ezRTTI* pRtti = ezGetStaticRTTI<RTTIType>();
   return RegisterWorldModule(pRtti, &Helper::Create);
 }
-

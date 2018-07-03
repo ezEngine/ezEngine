@@ -12,7 +12,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_PxTriggerEvent, 1, ezRTTIDefa
     new ezCategoryAttribute("Physics/Events"),
     new ezTitleAttribute("Trigger Event '{TriggerMessage}'"),
   }
-    EZ_END_ATTRIBUTES
+    EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("TriggerMessage", GetTriggerMessage, SetTriggerMessage),
@@ -20,9 +20,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_PxTriggerEvent, 1, ezRTTIDefa
     EZ_OUTPUT_EXECUTION_PIN("OnDeactivated", 2),
     EZ_OUTPUT_DATA_PIN("Object", 0, ezVisualScriptDataPinType::GameObjectHandle),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_PxTriggerEvent::ezVisualScriptNode_PxTriggerEvent() { }
 ezVisualScriptNode_PxTriggerEvent::~ezVisualScriptNode_PxTriggerEvent() { }

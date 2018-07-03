@@ -12,15 +12,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetScriptOwner, 2, ezRTTIDefa
   {
     new ezCategoryAttribute("References")
   }
-    EZ_END_ATTRIBUTES
+    EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     // Data Pins (Output)
     EZ_OUTPUT_DATA_PIN("Object", 0, ezVisualScriptDataPinType::GameObjectHandle),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_GetScriptOwner::ezVisualScriptNode_GetScriptOwner() {}
 ezVisualScriptNode_GetScriptOwner::~ezVisualScriptNode_GetScriptOwner() {}
@@ -44,7 +44,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetComponentOwner, 1, ezRTTID
   {
     new ezCategoryAttribute("References")
   }
-    EZ_END_ATTRIBUTES
+    EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     // Data Pins (Input)
@@ -52,9 +52,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GetComponentOwner, 1, ezRTTID
     // Data Pins (Output)
     EZ_OUTPUT_DATA_PIN("Object", 0, ezVisualScriptDataPinType::GameObjectHandle),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_GetComponentOwner::ezVisualScriptNode_GetComponentOwner() {}
 ezVisualScriptNode_GetComponentOwner::~ezVisualScriptNode_GetComponentOwner() {}
@@ -95,7 +95,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindChildObject, 1, ezRTTIDef
     new ezCategoryAttribute("References"),
     new ezTitleAttribute("Child '{Name}'"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     // Data Pins (Input)
@@ -105,9 +105,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindChildObject, 1, ezRTTIDef
     // Exposed Properties
     EZ_MEMBER_PROPERTY("Name", m_sChildObjectName),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_FindChildObject::ezVisualScriptNode_FindChildObject() {}
 ezVisualScriptNode_FindChildObject::~ezVisualScriptNode_FindChildObject() {}
@@ -163,7 +163,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindComponent, 1, ezRTTIDefau
     new ezCategoryAttribute("References"),
     new ezTitleAttribute("Component '{Type}'"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     // Data Pins (Input)
@@ -173,9 +173,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindComponent, 1, ezRTTIDefau
     // Exposed Properties
     EZ_MEMBER_PROPERTY("Type", m_sType)->AddAttributes(new ezDynamicStringEnumAttribute("ComponentTypes")),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_FindComponent::ezVisualScriptNode_FindComponent() {}
 ezVisualScriptNode_FindComponent::~ezVisualScriptNode_FindComponent() {}
@@ -235,7 +235,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_QueryGlobalObject, 1, ezRTTID
     new ezCategoryAttribute("References"),
     new ezTitleAttribute("Global Object '{Name}'"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     // Data Pins (Output)
@@ -243,9 +243,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_QueryGlobalObject, 1, ezRTTID
     // Exposed Properties
     EZ_MEMBER_PROPERTY("Name", m_sObjectName),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_QueryGlobalObject::ezVisualScriptNode_QueryGlobalObject() {}
 ezVisualScriptNode_QueryGlobalObject::~ezVisualScriptNode_QueryGlobalObject() {}
@@ -277,7 +277,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindParent, 1, ezRTTIDefaultA
     new ezCategoryAttribute("References"),
     new ezTitleAttribute("Parent '{Name}'"),
   }
-    EZ_END_ATTRIBUTES
+    EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     // Data Pins (Input)
@@ -287,9 +287,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FindParent, 1, ezRTTIDefaultA
     // Data Pins (Output)
     EZ_OUTPUT_DATA_PIN("Parent", 0, ezVisualScriptDataPinType::GameObjectHandle),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_FindParent::ezVisualScriptNode_FindParent() {}
 ezVisualScriptNode_FindParent::~ezVisualScriptNode_FindParent() {}

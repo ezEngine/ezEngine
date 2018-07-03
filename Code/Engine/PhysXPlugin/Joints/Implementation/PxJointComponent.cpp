@@ -16,12 +16,12 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxJointComponent, 1)
     EZ_MEMBER_PROPERTY("BreakTorque", m_fBreakTorque),
     EZ_MEMBER_PROPERTY("PairCollision", m_bPairCollision),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
     EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Physics/Joints"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_ABSTRACT_COMPONENT_TYPE
 

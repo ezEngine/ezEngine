@@ -6,7 +6,7 @@
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptAssetWindow.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAction, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezActionDescriptorHandle ezVisualScriptActions::s_hCategory;
 ezActionDescriptorHandle ezVisualScriptActions::s_hPickDebugTarget;

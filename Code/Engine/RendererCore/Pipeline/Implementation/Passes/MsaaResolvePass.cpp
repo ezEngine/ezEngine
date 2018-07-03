@@ -13,9 +13,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsaaResolvePass, 1, ezRTTIDefaultAllocator<ezM
     EZ_MEMBER_PROPERTY("Input", m_PinInput),
     EZ_MEMBER_PROPERTY("Output", m_PinOutput)
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezMsaaResolvePass::ezMsaaResolvePass()
   : ezRenderPipelinePass("MsaaResolvePass")

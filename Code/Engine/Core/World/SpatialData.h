@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Foundation/SimdMath/SimdBBoxSphere.h>
 #include <Core/World/Declarations.h>
+#include <Foundation/SimdMath/SimdBBoxSphere.h>
 
 struct EZ_ALIGN_16(ezSpatialData)
 {
@@ -34,4 +34,3 @@ struct EZ_ALIGN_16(ezSpatialData)
 
   ezSimdBBoxSphere m_Bounds;
 };
-

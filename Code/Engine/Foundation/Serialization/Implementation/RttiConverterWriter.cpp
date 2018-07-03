@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <Foundation/Serialization/RttiConverter.h>
+
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/Serialization/RttiConverter.h>
 #include <Foundation/Types/ScopeExit.h>
 
 void ezRttiConverterContext::Clear()
@@ -41,8 +42,9 @@ void ezRttiConverterContext::RegisterObject(const ezUuid& guid, const ezRTTI* pR
     pRtti = static_cast<ezReflectedClass*>(pObject)->GetDynamicRTTI();
   }
 
-  //TODO: Actually remove child owner ptr from register when deleting an object
-  //EZ_ASSERT_DEV(co.m_pObject == nullptr || (co.m_pObject == pObject && co.m_pType == pRtti), "Registered same guid twice with different values");
+  // TODO: Actually remove child owner ptr from register when deleting an object
+  // EZ_ASSERT_DEV(co.m_pObject == nullptr || (co.m_pObject == pObject && co.m_pType == pRtti), "Registered same guid twice with different
+  // values");
 
   co.m_pObject = pObject;
   co.m_pType = pRtti;
@@ -119,7 +121,6 @@ ezRttiConverterObject ezRttiConverterContext::DequeueObject()
 
 
 
-
 ezAbstractObjectNode* ezRttiConverterWriter::AddObjectToGraph(const ezRTTI* pRtti, const void* pObject, const char* szNodeName)
 {
   const ezUuid guid = m_pContext->GetObjectGUID(pRtti, pObject);
@@ -137,7 +138,8 @@ ezAbstractObjectNode* ezRttiConverterWriter::AddObjectToGraph(const ezRTTI* pRtt
   return pNode;
 }
 
-ezAbstractObjectNode* ezRttiConverterWriter::AddSubObjectToGraph(const ezRTTI* pRtti, const void* pObject, const ezUuid& guid, const char* szNodeName)
+ezAbstractObjectNode* ezRttiConverterWriter::AddSubObjectToGraph(const ezRTTI* pRtti, const void* pObject, const ezUuid& guid,
+                                                                 const char* szNodeName)
 {
   ezAbstractObjectNode* pNode = m_pGraph->AddNode(guid, pRtti->GetTypeName(), pRtti->GetTypeVersion(), szNodeName);
   AddProperties(pNode, pRtti, pObject);
@@ -158,7 +160,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
 
   switch (pProp->GetCategory())
   {
-  case ezPropertyCategory::Member:
+    case ezPropertyCategory::Member:
     {
       const ezAbstractMemberProperty* pSpecific = static_cast<const ezAbstractMemberProperty*>(pProp);
 
@@ -226,7 +228,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
       }
     }
     break;
-  case ezPropertyCategory::Array:
+    case ezPropertyCategory::Array:
     {
       const ezAbstractArrayProperty* pSpecific = static_cast<const ezAbstractArrayProperty*>(pProp);
       ezUInt32 uiCount = pSpecific->GetCount(pObject);
@@ -288,7 +290,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
       }
     }
     break;
-  case ezPropertyCategory::Set:
+    case ezPropertyCategory::Set:
     {
       const ezAbstractSetProperty* pSpecific = static_cast<const ezAbstractSetProperty*>(pProp);
 
@@ -330,7 +332,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
       }
     }
     break;
-  case ezPropertyCategory::Map:
+    case ezPropertyCategory::Map:
     {
       const ezAbstractMapProperty* pSpecific = static_cast<const ezAbstractMapProperty*>(pProp);
 
@@ -395,11 +397,11 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
       }
     }
     break;
-  case ezPropertyCategory::Constant:
-    // Nothing to do here.
-    break;
-  default:
-    break;
+    case ezPropertyCategory::Constant:
+      // Nothing to do here.
+      break;
+    default:
+      break;
   }
 }
 
@@ -417,4 +419,3 @@ void ezRttiConverterWriter::AddProperties(ezAbstractObjectNode* pNode, const ezR
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_RttiConverterWriter);
-

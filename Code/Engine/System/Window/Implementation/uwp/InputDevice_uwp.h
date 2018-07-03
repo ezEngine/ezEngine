@@ -1,7 +1,7 @@
-﻿#pragma once
+#pragma once
 
-#include <System/Basics.h>
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
+#include <System/Basics.h>
 
 #include <windows.applicationmodel.core.h>
 #include <wrl/client.h>
@@ -27,7 +27,6 @@ public:
   virtual bool GetShowMouseCursor() const override;
 
 private:
-
   HRESULT OnKeyEvent(ABI::Windows::UI::Core::ICoreWindow* coreWindow, ABI::Windows::UI::Core::IKeyEventArgs* args);
   HRESULT OnCharacterReceived(ABI::Windows::UI::Core::ICoreWindow* coreWindow, ABI::Windows::UI::Core::ICharacterReceivedEventArgs* args);
   HRESULT OnPointerMovePressEnter(ABI::Windows::UI::Core::ICoreWindow* coreWindow, ABI::Windows::UI::Core::IPointerEventArgs* args);
@@ -36,7 +35,7 @@ private:
   HRESULT OnPointerCaptureLost(ABI::Windows::UI::Core::ICoreWindow* coreWindow, ABI::Windows::UI::Core::IPointerEventArgs* args);
   HRESULT OnMouseMoved(ABI::Windows::Devices::Input::IMouseDevice* mouseDevice, ABI::Windows::Devices::Input::IMouseEventArgs* args);
 
-  
+
 
   HRESULT UpdateMouseButtonStates(ABI::Windows::UI::Input::IPointerPoint* pointerPoint);
 
@@ -65,4 +64,3 @@ private:
   EventRegistrationToken m_eventRegistration_pointerWheelChanged;
   EventRegistrationToken m_eventRegistration_mouseMoved;
 };
-

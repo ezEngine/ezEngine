@@ -16,13 +16,12 @@ struct EZ_CORE_DLL ezCoordinateSystem
 class EZ_CORE_DLL ezCoordinateSystemProvider
 {
 public:
-  ezCoordinateSystemProvider(const ezWorld* pOwnerWorld) : m_pOwnerWorld(pOwnerWorld) 
+  ezCoordinateSystemProvider(const ezWorld* pOwnerWorld)
+      : m_pOwnerWorld(pOwnerWorld)
   {
   }
 
-  virtual ~ezCoordinateSystemProvider()
-  {
-  }
+  virtual ~ezCoordinateSystemProvider() {}
 
   virtual void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_CoordinateSystem) const = 0;
 
@@ -31,4 +30,3 @@ protected:
 
   const ezWorld* m_pOwnerWorld;
 };
-

@@ -1,6 +1,5 @@
-
 #ifdef EZ_OSTHREAD_POSIX_INL_H_INCLUDED
-  #error "This file must not be included twice."
+#error "This file must not be included twice."
 #endif
 
 #define EZ_OSTHREAD_POSIX_INL_H_INCLUDED
@@ -9,7 +8,8 @@ ezAtomicInteger32 ezOSThread::s_iThreadCount;
 
 // Posix specific implementation of the thread class
 
-ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /*= nullptr*/, const char* szName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
+ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /*= nullptr*/, const char* szName /*= "ezThread"*/,
+                       ezUInt32 uiStackSize /*= 128 * 1024*/)
 {
   s_iThreadCount.Increment();
 
@@ -17,7 +17,7 @@ ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /
   m_pUserData = pUserData;
   m_szName = szName;
   m_uiStackSize = uiStackSize;
-  
+
   // Thread creation is deferred since Posix threads can't be created sleeping
 }
 
@@ -33,13 +33,13 @@ void ezOSThread::Start()
   pthread_attr_init(&ThreadAttributes);
   pthread_attr_setdetachstate(&ThreadAttributes, PTHREAD_CREATE_JOINABLE);
   pthread_attr_setstacksize(&ThreadAttributes, m_uiStackSize);
-  
+
   int iReturnCode = pthread_create(&m_Handle, &ThreadAttributes, m_EntryPoint, m_pUserData);
   EZ_IGNORE_UNUSED(iReturnCode);
   EZ_ASSERT_RELEASE(iReturnCode == 0, "Thread creation failed!");
 
   m_ThreadID = m_Handle;
-  
+
   pthread_attr_destroy(&ThreadAttributes);
 }
 
@@ -48,4 +48,3 @@ void ezOSThread::Join()
 {
   pthread_join(m_Handle, nullptr);
 }
-

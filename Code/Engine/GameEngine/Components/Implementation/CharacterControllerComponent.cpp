@@ -20,26 +20,26 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgMoveCharacterController, 1, ezRTTIDefaultAl
     EZ_MEMBER_PROPERTY("Jump", m_bJump),
     EZ_MEMBER_PROPERTY("Crouch", m_bCrouch),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezAutoGenVisScriptMsgSender
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezCharacterControllerComponent, 1)
 {
   //EZ_BEGIN_PROPERTIES
-  //EZ_END_PROPERTIES
+  //EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Gameplay"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgMoveCharacterController, MoveCharacter),

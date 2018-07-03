@@ -28,9 +28,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonContext, 1, ezRTTIDefaultAllocator<ezS
   {
     EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Skeleton Asset"),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 ezSkeletonContext::ezSkeletonContext()

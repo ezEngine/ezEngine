@@ -14,12 +14,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Volume, 1, ezRTTIDefau
   {
     new ezHiddenAttribute()
   }
-    EZ_END_ATTRIBUTES
+    EZ_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Volume, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Volume>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleBehaviorFactory_Volume::ezParticleBehaviorFactory_Volume()
 {

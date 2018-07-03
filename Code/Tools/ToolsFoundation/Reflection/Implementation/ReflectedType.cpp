@@ -13,9 +13,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAttributeHolder, ezNoBase, 1, ezRTTINoAllocator
   {
     EZ_ARRAY_ACCESSOR_PROPERTY("Attributes", GetCount, GetValue, SetValue, Insert, Remove)->AddFlags(ezPropertyFlags::PointerOwner),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 ezAttributeHolder::ezAttributeHolder()
 {
@@ -80,9 +80,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedPropertyDescriptor, ezAttributeHolder,
     EZ_BITFLAGS_MEMBER_PROPERTY("Flags", ezPropertyFlags, m_Flags),
     EZ_MEMBER_PROPERTY("ConstantValue", m_ConstantValue),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 class ezReflectedPropertyDescriptorPatch_1_2 : public ezGraphPatch
 {
@@ -184,9 +184,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezFunctionArgumentDescriptor, ezNoBase, 1, ezRTTI
     EZ_MEMBER_PROPERTY("Type", m_sType),
     EZ_BITFLAGS_MEMBER_PROPERTY("Flags", ezPropertyFlags, m_Flags),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 ezFunctionArgumentDescriptor::ezFunctionArgumentDescriptor()
 {
@@ -212,9 +212,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedFunctionDescriptor, ezAttributeHolder,
     EZ_MEMBER_PROPERTY("ReturnValue", m_ReturnValue),
     EZ_ARRAY_MEMBER_PROPERTY("Arguments", m_Arguments),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 ezReflectedFunctionDescriptor::ezReflectedFunctionDescriptor()
 {
@@ -262,9 +262,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedTypeDescriptor, ezAttributeHolder, 1, 
     EZ_MEMBER_PROPERTY("TypeSize", m_uiTypeSize),
     EZ_MEMBER_PROPERTY("TypeVersion", m_uiTypeVersion),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 
 ezReflectedTypeDescriptor::~ezReflectedTypeDescriptor()

@@ -5,7 +5,7 @@
 #include <EditorPluginParticle/ParticleEffectAsset/ParticleEffectAsset.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleAction, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezActionDescriptorHandle ezParticleActions::s_hCategory;
 ezActionDescriptorHandle ezParticleActions::s_hPauseEffect;

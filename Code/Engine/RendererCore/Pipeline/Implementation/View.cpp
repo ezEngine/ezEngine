@@ -14,7 +14,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCameraUsageHint, 1)
   EZ_ENUM_CONSTANT(ezCameraUsageHint::EditorView),
   EZ_ENUM_CONSTANT(ezCameraUsageHint::RenderTarget),
   EZ_ENUM_CONSTANT(ezCameraUsageHint::Culling),
-EZ_END_STATIC_REFLECTED_ENUM();
+EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezView, 1, ezRTTINoAllocator)
 {
@@ -26,9 +26,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezView, 1, ezRTTINoAllocator)
     EZ_MEMBER_PROPERTY("RenderTarget3", m_PinRenderTarget3),
     EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezView::ezView()
   : m_ExtractTask("", ezMakeDelegate(&ezView::ExtractData, this))

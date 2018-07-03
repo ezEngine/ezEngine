@@ -1,17 +1,12 @@
 #include <PCH.h>
-#include <Utilities/Textures/TextureGroupDesc.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
+
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Utilities/Textures/TextureGroupDesc.h>
 
-ezTextureGroupDesc::ezTextureGroupDesc()
-{
+ezTextureGroupDesc::ezTextureGroupDesc() {}
 
-}
-
-ezTextureGroupDesc::~ezTextureGroupDesc()
-{
-
-}
+ezTextureGroupDesc::~ezTextureGroupDesc() {}
 
 ezResult ezTextureGroupDesc::Save(const char* szFile) const
 {
@@ -68,6 +63,4 @@ ezResult ezTextureGroupDesc::Load(const char* szFile)
 
 
 
-
 EZ_STATICLINK_FILE(Utilities, Utilities_Textures_Implementation_TextureGroupDesc);
-

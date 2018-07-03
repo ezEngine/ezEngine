@@ -8,7 +8,7 @@
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialDragDropHandler, 1, ezRTTIDefaultAllocator<ezMaterialDragDropHandler>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 void ezMaterialDragDropHandler::RequestConfiguration(ezDragDropConfig* pConfigToFillOut)
 {

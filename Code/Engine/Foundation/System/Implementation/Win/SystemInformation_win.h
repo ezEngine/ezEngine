@@ -1,10 +1,9 @@
-﻿
 // Deactivate Doxygen document generation for the following block.
 /// \cond
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  #include <Foundation/Basics/Platform/uwp/UWPUtils.h>
-  #include <windows.networking.connectivity.h>
+#include <Foundation/Basics/Platform/uwp/UWPUtils.h>
+#include <windows.networking.connectivity.h>
 #endif
 
 #include <Foundation/Strings/String.h>
@@ -13,16 +12,16 @@
 bool Is64BitWindows()
 {
 #if defined(_WIN64)
- return true;  // 64-bit programs run only on Win64 (although if we get to Win128 this will be wrong probably)
+  return true; // 64-bit programs run only on Win64 (although if we get to Win128 this will be wrong probably)
 #elif defined(_WIN32)
- // 32-bit programs run on both 32-bit and 64-bit Windows
- // Note that we used IsWow64Process before which is not available on UWP.
+  // 32-bit programs run on both 32-bit and 64-bit Windows
+  // Note that we used IsWow64Process before which is not available on UWP.
   SYSTEM_INFO info;
   GetNativeSystemInfo(&info);
   // According to documentation: "The processor architecture of the installed operating system."
   return info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64;
 #else
- return false; // Win64 does not support Win16
+  return false; // Win64 does not support Win16
 #endif
 }
 
@@ -69,13 +68,13 @@ void ezSystemInformation::Initialize()
   using namespace ABI::Windows::Networking::Connectivity;
   using namespace ABI::Windows::Networking;
   ComPtr<INetworkInformationStatics> networkInformation;
-  if (SUCCEEDED(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_Networking_Connectivity_NetworkInformation).Get(), &networkInformation)))
+  if (SUCCEEDED(ABI::Windows::Foundation::GetActivationFactory(
+          HStringReference(RuntimeClass_Windows_Networking_Connectivity_NetworkInformation).Get(), &networkInformation)))
   {
     ComPtr<ABI::Windows::Foundation::Collections::IVectorView<HostName*>> hostNames;
     if (SUCCEEDED(networkInformation->GetHostNames(&hostNames)))
     {
-      ezUwpUtils::ezWinRtIterateIVectorView<IHostName*>(hostNames, [](UINT, IHostName* hostName)
-      {
+      ezUwpUtils::ezWinRtIterateIVectorView<IHostName*>(hostNames, [](UINT, IHostName* hostName) {
         HostNameType hostNameType;
         if (FAILED(hostName->get_Type(&hostNameType)))
           return true;
@@ -102,4 +101,3 @@ void ezSystemInformation::Initialize()
 
   s_SystemInformation.m_bIsInitialized = true;
 }
-

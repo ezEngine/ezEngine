@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Core/Input/InputManager.h>
 
 ezInputActionConfig::ezInputActionConfig()
@@ -18,7 +19,7 @@ ezInputActionConfig::ezInputActionConfig()
   for (ezInt32 i = 0; i < MaxInputSlotAlternatives; ++i)
   {
     m_fInputSlotScale[i] = 1.0f;
-    m_sInputSlotTrigger[i]   = ezInputSlot_None;
+    m_sInputSlotTrigger[i] = ezInputSlot_None;
     m_sFilterByInputSlotX[i] = ezInputSlot_None;
     m_sFilterByInputSlotY[i] = ezInputSlot_None;
   }
@@ -49,7 +50,8 @@ void ezInputManager::ClearInputMapping(const char* szInputSet, const char* szInp
   }
 }
 
-void ezInputManager::SetInputActionConfig(const char* szInputSet, const char* szAction, const ezInputActionConfig& Config, bool bClearPreviousInputMappings)
+void ezInputManager::SetInputActionConfig(const char* szInputSet, const char* szAction, const ezInputActionConfig& Config,
+                                          bool bClearPreviousInputMappings)
 {
   EZ_ASSERT_DEV(!ezStringUtils::IsNullOrEmpty(szInputSet), "The InputSet name must not be empty.");
   EZ_ASSERT_DEV(!ezStringUtils::IsNullOrEmpty(szAction), "No input action to map to was given.");
@@ -122,7 +124,8 @@ ezKeyState::Enum ezInputManager::GetInputActionState(const char* szInputSet, con
   return ItAction.Value().m_State;
 }
 
-ezInputManager::ezActionMap::Iterator ezInputManager::GetBestAction(ezActionMap& Actions, const ezString& sSlot, const ezActionMap::Iterator& itFirst)
+ezInputManager::ezActionMap::Iterator ezInputManager::GetBestAction(ezActionMap& Actions, const ezString& sSlot,
+                                                                    const ezActionMap::Iterator& itFirst)
 {
   // this function determines which input action should be triggered by the given input slot
   // it will prefer actions with higher priority
@@ -149,7 +152,7 @@ ezInputManager::ezActionMap::Iterator ezInputManager::GetBestAction(ezActionMap&
   }
 
   // check all actions from the given array
-  for ( ; ItAction.IsValid(); ++ItAction)
+  for (; ItAction.IsValid(); ++ItAction)
   {
     ezActionData& ThisAction = ItAction.Value();
 
@@ -163,7 +166,7 @@ ezInputManager::ezActionMap::Iterator ezInputManager::GetBestAction(ezActionMap&
     else
     {
       // if the given slot triggers this action (or any of its alternative slots), continue
-      for (AltSlot = 0 ; AltSlot < ezInputActionConfig::MaxInputSlotAlternatives; ++AltSlot)
+      for (AltSlot = 0; AltSlot < ezInputActionConfig::MaxInputSlotAlternatives; ++AltSlot)
       {
         if (ThisAction.m_Config.m_sInputSlotTrigger[AltSlot] == sSlot)
           goto hell;
@@ -173,12 +176,12 @@ ezInputManager::ezActionMap::Iterator ezInputManager::GetBestAction(ezActionMap&
     // if the action is not triggered by this slot, skip it
     continue;
 
-hell:
+  hell:
 
     EZ_ASSERT_DEV(AltSlot >= 0 && AltSlot < ezInputActionConfig::MaxInputSlotAlternatives, "Alternate Slot out of bounds.");
 
-    // if the action had input in the last update AND wants to keep the focus, it will ALWAYS get the input, until the input slot gets inactive (key up)
-    // independent from priority, overlap of areas etc.
+    // if the action had input in the last update AND wants to keep the focus, it will ALWAYS get the input, until the input slot gets
+    // inactive (key up) independent from priority, overlap of areas etc.
     if (ThisAction.m_State != ezKeyState::Up && ThisAction.m_Config.m_OnLeaveArea == ezInputActionConfig::KeepFocus)
     {
       // just return this result immediately
@@ -251,7 +254,7 @@ void ezInputManager::UpdateInputActions(const char* szInputSet, ezActionMap& Act
 
     // find the action that should be affected by this input slot
     ezActionMap::Iterator itBestAction;
-    
+
     // we activate all actions with the same priority simultaneously
     while (true)
     {
@@ -272,7 +275,7 @@ void ezInputManager::UpdateInputActions(const char* szInputSet, ezActionMap& Act
         fSlotValue = ezMath::Pow(fSlotValue, -fSlotScale);
 
       if ((!ItSlots.Value().m_SlotFlags.IsAnySet(ezInputSlotFlags::NeverTimeScale)) && (itBestAction.Value().m_Config.m_bApplyTimeScaling))
-        fSlotValue *= (float) tTimeDifference.GetSeconds();
+        fSlotValue *= (float)tTimeDifference.GetSeconds();
 
       const float fNewValue = ezMath::Max(itBestAction.Value().m_fValue, fSlotValue);
 
@@ -282,7 +285,8 @@ void ezInputManager::UpdateInputActions(const char* szInputSet, ezActionMap& Act
         // we check whether this is either a fresh click (inside the area) or the action is already active
         // if it is already active, the mouse is most likely held clicked at the moment
 
-        if (bFreshClick || (itBestAction.Value().m_fValue > 0.0f) || (itBestAction.Value().m_State == ezKeyState::Pressed) || (itBestAction.Value().m_State == ezKeyState::Down))
+        if (bFreshClick || (itBestAction.Value().m_fValue > 0.0f) || (itBestAction.Value().m_State == ezKeyState::Pressed) ||
+            (itBestAction.Value().m_State == ezKeyState::Down))
           itBestAction.Value().m_fValue = fNewValue;
       }
       else
@@ -344,10 +348,4 @@ void ezInputManager::GetAllInputActions(const char* szInputSetName, ezHybridArra
 
 
 
-
-
-
-
-
 EZ_STATICLINK_FILE(Core, Core_Input_Implementation_Action);
-

@@ -9,9 +9,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransparentForwardRenderPass, 1, ezRTTIDefault
   {
     EZ_MEMBER_PROPERTY("ResolvedDepth", m_PinResolvedDepth),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezTransparentForwardRenderPass::ezTransparentForwardRenderPass(const char* szName)
   : ezForwardRenderPass(szName)

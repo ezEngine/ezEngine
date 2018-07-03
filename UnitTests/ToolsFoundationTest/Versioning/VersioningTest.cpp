@@ -30,9 +30,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezPatchTestBase, ezNoBase, 1, ezRTTIDefaultAlloca
     EZ_MEMBER_PROPERTY("String", m_string),
     EZ_MEMBER_PROPERTY("String2", m_string2),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 struct ezPatchTest : public ezPatchTestBase
 {
@@ -52,9 +52,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezPatchTest, ezPatchTestBase, 1, ezRTTIDefaultAll
   {
     EZ_MEMBER_PROPERTY("Int", m_iInt32),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 
 namespace

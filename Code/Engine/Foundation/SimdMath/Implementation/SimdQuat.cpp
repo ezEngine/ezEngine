@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/SimdMath/SimdQuat.h>
 
 ///\todo optimize these methods if needed
@@ -56,7 +57,7 @@ void ezSimdQuat::SetSlerp(const ezSimdQuat& qFrom, const ezSimdQuat& qTo, const 
     ezAngle theta = ezMath::ACos(cosTheta);
 
     // use sqrtInv(1+c^2) instead of 1.0/sin(theta)
-    const ezSimdFloat iSinTheta = (one - (cosTheta*cosTheta)).GetInvSqrt();
+    const ezSimdFloat iSinTheta = (one - (cosTheta * cosTheta)).GetInvSqrt();
     const ezAngle tTheta = (float)t * theta;
 
     ezSimdFloat s0 = ezMath::Sin(theta - tTheta);
@@ -93,12 +94,10 @@ bool ezSimdQuat::IsEqualRotation(const ezSimdQuat& qOther, const ezSimdFloat& fE
   ezAngle A1 = ezAngle::Radian(fA1);
   ezAngle A2 = ezAngle::Radian(fA2);
 
-  if ((A1.IsEqualSimple(A2, ezAngle::Degree(fEpsilon))) &&
-    (vA1.IsEqual(vA2, fEpsilon).AllSet<3>()))
+  if ((A1.IsEqualSimple(A2, ezAngle::Degree(fEpsilon))) && (vA1.IsEqual(vA2, fEpsilon).AllSet<3>()))
     return true;
 
-  if ((A1.IsEqualSimple(-A2, ezAngle::Degree(fEpsilon))) &&
-    (vA1.IsEqual(-vA2, fEpsilon).AllSet<3>()))
+  if ((A1.IsEqualSimple(-A2, ezAngle::Degree(fEpsilon))) && (vA1.IsEqual(-vA2, fEpsilon).AllSet<3>()))
     return true;
 
   return false;
@@ -107,4 +106,3 @@ bool ezSimdQuat::IsEqualRotation(const ezSimdQuat& qOther, const ezSimdFloat& fE
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_SimdMath_Implementation_SimdQuat);
-

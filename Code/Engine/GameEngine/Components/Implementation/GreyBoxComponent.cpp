@@ -10,7 +10,7 @@
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGreyBoxShape, 1)
 EZ_ENUM_CONSTANTS(ezGreyBoxShape::Box, ezGreyBoxShape::RampX, ezGreyBoxShape::RampY, ezGreyBoxShape::Column)
 EZ_ENUM_CONSTANTS(ezGreyBoxShape::StairsX, ezGreyBoxShape::StairsY, ezGreyBoxShape::ArchX, ezGreyBoxShape::ArchY, ezGreyBoxShape::SpiralStairs)
-EZ_END_STATIC_REFLECTED_ENUM()
+EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 2, ezComponentMode::Static)
 {
@@ -30,13 +30,13 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 2, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("SlopedTop", GetSlopedTop, SetSlopedTop),
     EZ_ACCESSOR_PROPERTY("SlopedBottom", GetSlopedBottom, SetSlopedBottom),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
     EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("General"),
     new ezNonUniformBoxManipulatorAttribute("SizeNegX", "SizePosX", "SizeNegY", "SizePosY", "SizeNegZ", "SizePosZ"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
     EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),

@@ -1,21 +1,22 @@
 #pragma once
 
-#include <Utilities/Basics.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Math/Mat3.h>
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Math/Vec3.h>
-#include <Foundation/Math/Mat3.h>
+#include <Utilities/Basics.h>
 
-/// \brief ezGameGrid is a general purpose 2D grid structure that has several convenience functions which are often required when working with a grid.
-template<class CellData>
+/// \brief ezGameGrid is a general purpose 2D grid structure that has several convenience functions which are often required when working
+/// with a grid.
+template <class CellData>
 class ezGameGrid
 {
 public:
   enum Orientation
   {
-    InPlaneXY,  ///< The grid is expected to lie in the XY plane in worldspace (when Y is up, this is similar to a 2D side scroller)
-    InPlaneXZ,  ///< The grid is expected to lie in the XZ plane in worldspace (when Y is up, this is similar to a top down RTS game)
-    InPlaneXminusZ,  ///< The grid is expected to lie in the XZ plane in worldspace (when Y is up, this is similar to a top down RTS game)
+    InPlaneXY,      ///< The grid is expected to lie in the XY plane in world-space (when Y is up, this is similar to a 2D side scroller)
+    InPlaneXZ,      ///< The grid is expected to lie in the XZ plane in world-space (when Y is up, this is similar to a top down RTS game)
+    InPlaneXminusZ, ///< The grid is expected to lie in the XZ plane in world-space (when Y is up, this is similar to a top down RTS game)
   };
 
   ezGameGrid();
@@ -47,10 +48,10 @@ public:
   ezVec2I32 GetCellAtWorldPosition(const ezVec3& vWorldSpacePos) const;
 
   /// \brief Returns the number of cells along the X axis.
-  ezUInt16 GetGridSizeX() const  { return m_uiGridSizeX;  }
+  ezUInt16 GetGridSizeX() const { return m_uiGridSizeX; }
 
   /// \brief Returns the number of cells along the Y axis.
-  ezUInt16 GetGridSizeY() const { return m_uiGridSizeY;  }
+  ezUInt16 GetGridSizeY() const { return m_uiGridSizeY; }
 
   /// \brief Returns the world-space bounding box of the grid, as specified via SetWorldDimensions.
   ezBoundingBox GetWorldBoundingBox() const;
@@ -71,7 +72,7 @@ public:
   const CellData& GetCell(const ezVec2I32& Coord) const { return m_Cells[ConvertCellCoordinateToIndex(Coord)]; }
 
   /// \brief Converts a cell index into a 2D cell coordinate.
-  ezVec2I32 ConvertCellIndexToCoordinate(ezUInt32 uiIndex) const { return ezVec2I32 (uiIndex % m_uiGridSizeX, uiIndex / m_uiGridSizeX); }
+  ezVec2I32 ConvertCellIndexToCoordinate(ezUInt32 uiIndex) const { return ezVec2I32(uiIndex % m_uiGridSizeX, uiIndex / m_uiGridSizeX); }
 
   /// \brief Converts a cell coordinate into a cell index.
   ezUInt32 ConvertCellCoordinateToIndex(const ezVec2I32& Coord) const { return Coord.y * m_uiGridSizeX + Coord.x; }
@@ -86,7 +87,8 @@ public:
   bool IsValidCellCoordinate(const ezVec2I32& Coord) const;
 
   /// \brief Casts a world space ray through the grid and determines which cell is hit (if any).
-  /// \note The picked cell is determined from where the ray hits the 'ground plane', ie. the plane that goes through the world space origin.
+  /// \note The picked cell is determined from where the ray hits the 'ground plane', ie. the plane that goes through the world space
+  /// origin.
   bool PickCell(const ezVec3& vRayStartPos, const ezVec3& vRayDirNorm, ezVec2I32* out_CellCoord, ezVec3* out_vIntersection = nullptr) const;
 
   /// \brief Returns the lower left corner position in world space of the grid
@@ -99,10 +101,12 @@ public:
   const ezMat3& GetRotationToGridSpace() const { return m_RotateToGridspace; }
 
   /// \brief Tests where and at which cell the given world space ray intersects the grids bounding box
-  bool GetRayIntersection(const ezVec3& vRayStartWorldSpace, const ezVec3& vRayDirNormalizedWorldSpace, float fMaxLength, float& out_fIntersection, ezVec2I32& out_CellCoord) const;
+  bool GetRayIntersection(const ezVec3& vRayStartWorldSpace, const ezVec3& vRayDirNormalizedWorldSpace, float fMaxLength,
+                          float& out_fIntersection, ezVec2I32& out_CellCoord) const;
 
   /// \brief Tests whether a ray would hit the grid bounding box, if it were expanded by a constant.
-  bool GetRayIntersectionExpandedBBox(const ezVec3& vRayStartWorldSpace, const ezVec3& vRayDirNormalizedWorldSpace, float fMaxLength, float& out_fIntersection, const ezVec3& vExpandBBoxByThis) const;
+  bool GetRayIntersectionExpandedBBox(const ezVec3& vRayStartWorldSpace, const ezVec3& vRayDirNormalizedWorldSpace, float fMaxLength,
+                                      float& out_fIntersection, const ezVec3& vExpandBBoxByThis) const;
 
 private:
   ezUInt16 m_uiGridSizeX;
@@ -121,4 +125,3 @@ private:
 
 
 #include <Utilities/DataStructures/Implementation/GameGrid_inl.h>
-

@@ -16,9 +16,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxDistanceJointComponent, 1, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("SpringDamping", m_fSpringDamping),
     EZ_MEMBER_PROPERTY("SpringTolerance", m_fSpringTolerance),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezPxDistanceJointComponent::ezPxDistanceJointComponent()
 {

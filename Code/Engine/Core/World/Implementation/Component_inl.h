@@ -1,10 +1,10 @@
 #include <Foundation/Logging/Log.h>
 
-EZ_ALWAYS_INLINE ezComponent::ezComponent() :
-  m_pMessageDispatchType(nullptr),
-  m_ComponentFlags(ezObjectFlags::Active),
-  m_pManager(nullptr),
-  m_pOwner(nullptr)
+EZ_ALWAYS_INLINE ezComponent::ezComponent()
+    : m_pMessageDispatchType(nullptr)
+    , m_ComponentFlags(ezObjectFlags::Active)
+    , m_pManager(nullptr)
+    , m_pOwner(nullptr)
 {
   m_uiUniqueID = ezInvalidIndex;
 }
@@ -79,8 +79,6 @@ EZ_ALWAYS_INLINE bool ezComponent::IsSimulationStarted() const
 
 EZ_ALWAYS_INLINE bool ezComponent::IsActiveAndSimulating() const
 {
-  return m_ComponentFlags.AreAllSet(ezObjectFlags::Initialized | ezObjectFlags::Active) && m_ComponentFlags.IsAnySet(ezObjectFlags::SimulationStarting | ezObjectFlags::SimulationStarted);
+  return m_ComponentFlags.AreAllSet(ezObjectFlags::Initialized | ezObjectFlags::Active) &&
+         m_ComponentFlags.IsAnySet(ezObjectFlags::SimulationStarting | ezObjectFlags::SimulationStarted);
 }
-
-
-

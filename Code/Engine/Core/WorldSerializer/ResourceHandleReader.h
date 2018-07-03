@@ -34,13 +34,14 @@ public:
   ///
   /// Note that the handle is NOT valid after this call. Resource handles are only restored during EndRestoringHandles() and thus
   /// will only become valid after that.
-  template<typename ResourceType>
+  template <typename ResourceType>
   static void ReadHandle(ezStreamReader* pStream, ezTypedResourceHandle<ResourceType>& ResourceHandle)
   {
     ReadHandle(pStream, &ResourceHandle.m_Typeless);
   }
 
-  /// \brief Call this before doing the first call to ReadHandle(). In a typical scenario that is immediately after BeginReadingFromStream().
+  /// \brief Call this before doing the first call to ReadHandle(). In a typical scenario that is immediately after
+  /// BeginReadingFromStream().
   ///
   /// In a non-typical scenario, where the data between BeginReadingFromStream() and EndReadingFromStream() is cached and potentially
   /// read only later (multiple times), BeginRestoringHandles() can be called every time the cached memory block is re-read.
@@ -75,9 +76,8 @@ private:
 
 
 /// \brief Operator to serialize resource handles
-template<typename ResourceType>
-void operator>> (ezStreamReader& Stream, ezTypedResourceHandle<ResourceType>& Value)
+template <typename ResourceType>
+void operator>>(ezStreamReader& Stream, ezTypedResourceHandle<ResourceType>& Value)
 {
   ezResourceHandleReadContext::ReadHandle(&Stream, Value);
 }
-

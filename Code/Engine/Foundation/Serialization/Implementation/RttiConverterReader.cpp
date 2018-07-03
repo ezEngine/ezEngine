@@ -1,7 +1,8 @@
 #include <PCH.h>
-#include <Foundation/Serialization/RttiConverter.h>
-#include <Foundation/Reflection/ReflectionUtils.h>
+
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/Serialization/RttiConverter.h>
 
 ezRttiConverterReader::ezRttiConverterReader(const ezAbstractObjectGraph* pGraph, ezRttiConverterContext* pContext)
 {
@@ -54,7 +55,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
 
   switch (pProp->GetCategory())
   {
-  case ezPropertyCategory::Member:
+    case ezPropertyCategory::Member:
     {
       ezAbstractMemberProperty* pSpecific = static_cast<ezAbstractMemberProperty*>(pProp);
 
@@ -75,7 +76,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
             pRefrencedObject = CreateObjectFromNode(pNode);
             if (pRefrencedObject == nullptr)
             {
-              //ezLog::Error("Failed to set property '{0}', type could not be created!", pProp->GetPropertyName());
+              // ezLog::Error("Failed to set property '{0}', type could not be created!", pProp->GetPropertyName());
               return;
             }
           }
@@ -126,7 +127,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
       }
     }
     break;
-  case ezPropertyCategory::Array:
+    case ezPropertyCategory::Array:
     {
       ezAbstractArrayProperty* pSpecific = static_cast<ezAbstractArrayProperty*>(pProp);
       if (!pSource->m_Value.IsA<ezVariantArray>())
@@ -209,7 +210,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
       }
     }
     break;
-  case ezPropertyCategory::Set:
+    case ezPropertyCategory::Set:
     {
       ezAbstractSetProperty* pSpecific = static_cast<ezAbstractSetProperty*>(pProp);
       if (!pSource->m_Value.IsA<ezVariantArray>())
@@ -293,7 +294,7 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
       }
     }
     break;
-  case ezPropertyCategory::Map:
+    case ezPropertyCategory::Map:
     {
       ezAbstractMapProperty* pSpecific = static_cast<ezAbstractMapProperty*>(pProp);
       if (!pSource->m_Value.IsA<ezVariantDictionary>())
@@ -401,4 +402,3 @@ void ezRttiConverterReader::CallOnObjectCreated(const ezAbstractObjectNode* pNod
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_RttiConverterReader);
-

@@ -1,8 +1,8 @@
-﻿#pragma once
+#pragma once
 
-#include <System/Basics.h>
-#include <SFML/Window.hpp>
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
+#include <SFML/Window.hpp>
+#include <System/Basics.h>
 
 /// \brief Implements an input device abstraction on top of the SFML library.
 ///
@@ -63,7 +63,7 @@ public:
   virtual bool GetShowMouseCursor() const override { return m_bShowCursor; }
 
 private:
-  virtual void InitializeDevice() override { }
+  virtual void InitializeDevice() override {}
   virtual void UpdateInputSlotValues() override;
   virtual void RegisterInputSlots() override;
   virtual void ResetInputSlotValues() override;
@@ -81,4 +81,3 @@ private:
 
   void UpdateMouseCursor();
 };
-

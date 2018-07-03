@@ -9,7 +9,6 @@ struct ezTime;
 class EZ_FOUNDATION_DLL ezThreadUtils
 {
 public:
-
   /// \brief Suspends execution of the current thread.
   static void YieldTimeSlice();
 
@@ -28,4 +27,3 @@ private:
   /// \brief Initialization functionality of the threading system (called by foundation startup and thus private)
   static void Initialize();
 };
-

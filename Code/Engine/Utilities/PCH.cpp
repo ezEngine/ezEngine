@@ -17,6 +17,3 @@ EZ_STATICLINK_LIBRARY(Utilities)
   EZ_STATICLINK_REFERENCE(Utilities_Textures_Implementation_TextureGroupDesc);
   EZ_STATICLINK_REFERENCE(Utilities_Textures_Implementation_TexturePacker);
 }
-
-
-

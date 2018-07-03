@@ -13,7 +13,7 @@
 #include <Foundation/IO/OSFile.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezDecalAssetDocumentManager>);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezDecalAssetDocumentManager::ezDecalAssetDocumentManager()
 {

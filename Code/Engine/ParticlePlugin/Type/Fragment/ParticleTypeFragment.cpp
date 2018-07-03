@@ -16,7 +16,7 @@
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezFragmentAxis, 1)
 EZ_ENUM_CONSTANTS(ezFragmentAxis::OrthogonalEmitterDirection, ezFragmentAxis::EmitterDirection)
-EZ_END_STATIC_REFLECTED_ENUM()
+EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeFragmentFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeFragmentFactory>)
 {
@@ -27,12 +27,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeFragmentFactory, 1, ezRTTIDefaultA
     EZ_MEMBER_PROPERTY("NumSpritesY", m_uiNumSpritesY)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_ENUM_MEMBER_PROPERTY("RotationAxis", ezFragmentAxis, m_RotationAxis),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeFragment, 1, ezRTTIDefaultAllocator<ezParticleTypeFragment>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 const ezRTTI* ezParticleTypeFragmentFactory::GetTypeType() const
 {

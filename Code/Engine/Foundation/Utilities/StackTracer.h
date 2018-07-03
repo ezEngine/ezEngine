@@ -25,4 +25,3 @@ private:
 
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, StackTracer);
 };
-

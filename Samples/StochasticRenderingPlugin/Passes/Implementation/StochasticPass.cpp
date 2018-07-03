@@ -16,9 +16,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStochasticPass, 1, ezRTTIDefaultAllocator<ezSt
     EZ_MEMBER_PROPERTY("SampleCount", m_PinSampleCount),
     EZ_MEMBER_PROPERTY("DepthStencil", m_PinDepthStencil)
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezStochasticPass::ezStochasticPass(const char* name /*= "StoachsticPass"*/)
   : ezRenderPipelinePass(name)

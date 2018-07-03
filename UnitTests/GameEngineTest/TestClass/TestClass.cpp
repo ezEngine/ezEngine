@@ -135,7 +135,7 @@ ezGameState* ezGameEngineTestApplication::CreateCustomGameStateForWorld(ezWorld*
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameEngineTestGameState, 1, ezRTTIDefaultAllocator<ezGameEngineTestGameState>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 void ezGameEngineTestGameState::ProcessInput()
 {

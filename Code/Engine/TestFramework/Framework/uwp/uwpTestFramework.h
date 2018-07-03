@@ -1,4 +1,5 @@
 #pragma once
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 
 #include <TestFramework/Basics.h>
@@ -20,4 +21,3 @@ public:
 };
 
 #endif
-

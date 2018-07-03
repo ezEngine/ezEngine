@@ -1,9 +1,9 @@
-﻿
+
 #pragma once
 
-#include <Foundation/Types/TagRegistry.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Types/TagRegistry.h>
 
 class ezTag;
 typedef ezUInt64 ezTagSetBlockStorage;
@@ -18,7 +18,7 @@ typedef ezUInt64 ezTagSetBlockStorage;
 /// Typical storage requirements for a given tag set instance should be small since the block storage is a sliding
 /// window. The standard class which can be used is ezTagSet, usage of ezTagSetTemplate is only necessary
 /// if the allocator needs to be overridden.
-template<typename BlockStorageAllocator = ezDefaultAllocatorWrapper> 
+template <typename BlockStorageAllocator = ezDefaultAllocatorWrapper>
 class ezTagSetTemplate
 {
 public:
@@ -67,15 +67,9 @@ public:
     const ezTag* operator->() const;
 
     /// \brief Returns whether the iterator is still pointing to a valid item
-    EZ_ALWAYS_INLINE bool IsValid() const
-    {
-      return m_uiIndex != 0xFFFFFFFF;
-    }
+    EZ_ALWAYS_INLINE bool IsValid() const { return m_uiIndex != 0xFFFFFFFF; }
 
-    EZ_ALWAYS_INLINE bool operator!=(const Iterator& rhs) const
-    {
-      return m_pTagSet != rhs.m_pTagSet || m_uiIndex != rhs.m_uiIndex;
-    }
+    EZ_ALWAYS_INLINE bool operator!=(const Iterator& rhs) const { return m_pTagSet != rhs.m_pTagSet || m_uiIndex != rhs.m_uiIndex; }
 
     /// \brief Advances the iterator to the next item
     void operator++();
@@ -121,16 +115,27 @@ typedef ezTagSetTemplate<> ezTagSet;
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezTagSet);
 
 template <typename BlockStorageAllocator>
-typename ezTagSetTemplate<BlockStorageAllocator>::Iterator cbegin(const ezTagSetTemplate<BlockStorageAllocator>& cont) { return typename ezTagSetTemplate<BlockStorageAllocator>::Iterator(&cont); }
+typename ezTagSetTemplate<BlockStorageAllocator>::Iterator cbegin(const ezTagSetTemplate<BlockStorageAllocator>& cont)
+{
+  return typename ezTagSetTemplate<BlockStorageAllocator>::Iterator(&cont);
+}
 
 template <typename BlockStorageAllocator>
-typename ezTagSetTemplate<BlockStorageAllocator>::Iterator cend(const ezTagSetTemplate<BlockStorageAllocator>& cont) { return typename ezTagSetTemplate<BlockStorageAllocator>::Iterator(&cont, true); }
+typename ezTagSetTemplate<BlockStorageAllocator>::Iterator cend(const ezTagSetTemplate<BlockStorageAllocator>& cont)
+{
+  return typename ezTagSetTemplate<BlockStorageAllocator>::Iterator(&cont, true);
+}
 
 template <typename BlockStorageAllocator>
-typename ezTagSetTemplate<BlockStorageAllocator>::Iterator begin(const ezTagSetTemplate<BlockStorageAllocator>& cont) { return typename ezTagSetTemplate<BlockStorageAllocator>::Iterator(&cont); }
+typename ezTagSetTemplate<BlockStorageAllocator>::Iterator begin(const ezTagSetTemplate<BlockStorageAllocator>& cont)
+{
+  return typename ezTagSetTemplate<BlockStorageAllocator>::Iterator(&cont);
+}
 
 template <typename BlockStorageAllocator>
-typename ezTagSetTemplate<BlockStorageAllocator>::Iterator end(const ezTagSetTemplate<BlockStorageAllocator>& cont) { return typename ezTagSetTemplate<BlockStorageAllocator>::Iterator(&cont, true); }
+typename ezTagSetTemplate<BlockStorageAllocator>::Iterator end(const ezTagSetTemplate<BlockStorageAllocator>& cont)
+{
+  return typename ezTagSetTemplate<BlockStorageAllocator>::Iterator(&cont, true);
+}
 
 #include <Foundation/Types/Implementation/TagSet_inl.h>
-

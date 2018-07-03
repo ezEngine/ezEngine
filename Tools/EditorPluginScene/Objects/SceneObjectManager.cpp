@@ -10,9 +10,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentSettings, 1, ezRTTIDefaultAllocat
   {
     EZ_ARRAY_MEMBER_PROPERTY("ExposedProperties", m_ExposedProperties)
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentRoot, 1, ezRTTINoAllocator)
 {
@@ -20,9 +20,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocumentRoot, 1, ezRTTINoAllocator)
   {
     EZ_MEMBER_PROPERTY("Settings", m_pSettings)->AddFlags(ezPropertyFlags::PointerOwner),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSceneObjectManager::ezSceneObjectManager()
   : ezDocumentObjectManager(ezGetStaticRTTI<ezSceneDocumentRoot>())

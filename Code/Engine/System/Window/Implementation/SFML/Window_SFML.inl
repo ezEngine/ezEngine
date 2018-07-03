@@ -1,8 +1,7 @@
-
 #include <PCH.h>
-#include <System/Window/Window.h>
-#include <Foundation/Math/Size.h>
 
+#include <Foundation/Math/Size.h>
+#include <System/Window/Window.h>
 
 ezResult ezWindow::Initialize()
 {
@@ -17,15 +16,14 @@ ezResult ezWindow::Initialize()
 
   sf::VideoMode Mode;
   Mode.bitsPerPixel = 32;
-  Mode.width  = m_CreationDescription.m_ClientAreaSize.width;
+  Mode.width = m_CreationDescription.m_ClientAreaSize.width;
   Mode.height = m_CreationDescription.m_ClientAreaSize.height;
 
   sf::Uint32 uiStyle = 0;
 
   if (m_CreationDescription.m_bFullscreenWindow)
     uiStyle |= sf::Style::Fullscreen;
-  else
-  if (m_CreationDescription.m_bResizable)
+  else if (m_CreationDescription.m_bResizable)
     uiStyle |= sf::Style::Resize;
   else
     uiStyle |= sf::Style::Titlebar;
@@ -67,7 +65,6 @@ ezResult ezWindow::Destroy()
 
   ezLog::Success("Window destroyed.");
   return EZ_SUCCESS;
-
 }
 
 void ezWindow::ProcessWindowMessages()
@@ -80,21 +77,21 @@ void ezWindow::ProcessWindowMessages()
   {
     switch (event.type)
     {
-    case sf::Event::Closed:
-      OnClickClose();
-      break;
+      case sf::Event::Closed:
+        OnClickClose();
+        break;
 
-    case sf::Event::Resized:
-      OnResize(ezSizeU32(event.size.width, event.size.height));
-      break;
+      case sf::Event::Resized:
+        OnResize(ezSizeU32(event.size.width, event.size.height));
+        break;
 
-    case sf::Event::LostFocus:
-      OnFocus(false);
-      break;
+      case sf::Event::LostFocus:
+        OnFocus(false);
+        break;
 
-    case sf::Event::GainedFocus:
-      OnFocus(true);
-      break;
+      case sf::Event::GainedFocus:
+        OnFocus(true);
+        break;
     }
 
     m_pInputDevice->WindowMessage(event);
@@ -110,11 +107,11 @@ ezResult ezWindow::CreateGraphicsContext()
 {
   switch (m_CreationDescription.m_GraphicsAPI)
   {
-  case ezGraphicsAPI::OpenGL:
-    return EZ_SUCCESS;
+    case ezGraphicsAPI::OpenGL:
+      return EZ_SUCCESS;
 
-  default:
-    EZ_REPORT_FAILURE("Unknown Graphics API selected.");
+    default:
+      EZ_REPORT_FAILURE("Unknown Graphics API selected.");
   }
 
   return EZ_FAILURE;
@@ -124,11 +121,11 @@ ezResult ezWindow::DestroyGraphicsContext()
 {
   switch (m_CreationDescription.m_GraphicsAPI)
   {
-  case ezGraphicsAPI::OpenGL:
-    return EZ_SUCCESS;
+    case ezGraphicsAPI::OpenGL:
+      return EZ_SUCCESS;
 
-  default:
-    EZ_REPORT_FAILURE("Unknown Graphics API selected.");
+    default:
+      EZ_REPORT_FAILURE("Unknown Graphics API selected.");
   }
 
   return EZ_FAILURE;
@@ -138,5 +135,3 @@ void ezWindow::OnResize(const ezSizeU32& newWindowSize)
 {
   ezLog::Info("Window resized to ({0}, {1})", newWindowSize.width, newWindowSize.height);
 }
-
-

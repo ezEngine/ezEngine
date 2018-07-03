@@ -134,7 +134,7 @@ namespace
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClusteredDataCPU, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezClusteredDataCPU::ezClusteredDataCPU()
   : m_AmbientTopColor(ezColor::Black)
@@ -156,7 +156,7 @@ ezClusteredDataCPU::~ezClusteredDataCPU()
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClusteredDataExtractor, 1, ezRTTIDefaultAllocator<ezClusteredDataExtractor>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezClusteredDataExtractor::ezClusteredDataExtractor(const char* szName)
   : ezExtractor(szName)

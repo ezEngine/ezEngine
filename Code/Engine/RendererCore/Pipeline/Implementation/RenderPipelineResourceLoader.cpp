@@ -30,9 +30,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ConnectionInternal, ezNoBase, 1, ezRTTIDefaultAll
     EZ_MEMBER_PROPERTY("Target", m_Target),
     EZ_MEMBER_PROPERTY("TargetPin", m_TargetPin),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 struct NodeDataInternal
 {
@@ -48,9 +48,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(NodeDataInternal, ezNoBase, 1, ezRTTIDefaultAlloc
     EZ_MEMBER_PROPERTY("Node::Pos", m_NodePos),
     EZ_ARRAY_MEMBER_PROPERTY("Node::Connections", m_Connections),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 
 void ezRenderPipelineRttiConverterContext::Clear()

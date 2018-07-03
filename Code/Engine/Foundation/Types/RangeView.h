@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Types/Delegate.h>
 
@@ -94,21 +94,39 @@ private:
 };
 
 template <typename V, typename I>
-typename ezRangeView<V, I>::Iterator begin(ezRangeView<V, I>& container) { return container.begin(); }
+typename ezRangeView<V, I>::Iterator begin(ezRangeView<V, I>& container)
+{
+  return container.begin();
+}
 
 template <typename V, typename I>
-typename ezRangeView<V, I>::ConstIterator begin(const ezRangeView<V, I>& container) { return container.cbegin(); }
+typename ezRangeView<V, I>::ConstIterator begin(const ezRangeView<V, I>& container)
+{
+  return container.cbegin();
+}
 
 template <typename V, typename I>
-typename ezRangeView<V, I>::ConstIterator cbegin(const ezRangeView<V, I>& container) { return container.cbegin(); }
+typename ezRangeView<V, I>::ConstIterator cbegin(const ezRangeView<V, I>& container)
+{
+  return container.cbegin();
+}
 
 template <typename V, typename I>
-typename ezRangeView<V, I>::Iterator end(ezRangeView<V, I>& container) { return container.end(); }
+typename ezRangeView<V, I>::Iterator end(ezRangeView<V, I>& container)
+{
+  return container.end();
+}
 
 template <typename V, typename I>
-typename ezRangeView<V, I>::ConstIterator end(const ezRangeView<V, I>& container) { return container.cend(); }
+typename ezRangeView<V, I>::ConstIterator end(const ezRangeView<V, I>& container)
+{
+  return container.cend();
+}
 
 template <typename V, typename I>
-typename ezRangeView<V, I>::ConstIterator cend(const ezRangeView<V, I>& container) { return container.cend(); }
+typename ezRangeView<V, I>::ConstIterator cend(const ezRangeView<V, I>& container)
+{
+  return container.cend();
+}
 
 #include <Foundation/Types/Implementation/RangeView_inl.h>

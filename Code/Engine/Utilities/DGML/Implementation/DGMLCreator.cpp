@@ -1,63 +1,64 @@
-﻿
 #include <PCH.h>
-#include <Utilities/DGML/DGMLWriter.h>
-#include <Utilities/DGML/DGMLCreator.h>
-#include <Core/World/World.h>
-#include <Core/World/GameObject.h>
 
-void ezDGMLGraphCreator::FillGraphFromWorld( ezWorld* pWorld, ezDGMLGraph& Graph )
+#include <Core/World/GameObject.h>
+#include <Core/World/World.h>
+#include <Utilities/DGML/DGMLCreator.h>
+#include <Utilities/DGML/DGMLWriter.h>
+
+void ezDGMLGraphCreator::FillGraphFromWorld(ezWorld* pWorld, ezDGMLGraph& Graph)
 {
-  if ( !pWorld )
+  if (!pWorld)
   {
-    ezLog::Warning( "ezDGMLGraphCreator::FillGraphFromWorld() called with null world!" );
+    ezLog::Warning("ezDGMLGraphCreator::FillGraphFromWorld() called with null world!");
     return;
   }
 
 
   struct GraphVisitor
   {
-    GraphVisitor( ezDGMLGraph& Graph )
-      : m_Graph( Graph )
+    GraphVisitor(ezDGMLGraph& Graph)
+        : m_Graph(Graph)
     {
-      m_WorldNodeId = Graph.AddNode( "World", ezColor::DarkRed, ezDGMLGraph::NodeShape::Button );
+      m_WorldNodeId = Graph.AddNode("World", ezColor::DarkRed, ezDGMLGraph::NodeShape::Button);
     }
 
-    ezVisitorExecution::Enum Visit( ezGameObject* pObject )
+    ezVisitorExecution::Enum Visit(ezGameObject* pObject)
     {
       ezStringBuilder name;
       name.Format("GameObject: \"{0}\"", ezStringUtils::IsNullOrEmpty(pObject->GetName()) ? "<Unnamed>" : pObject->GetName());
 
       // Create node for game object
-      auto gameObjectNodeId = m_Graph.AddNode( name.GetData(), ezColor::CornflowerBlue /* The Original! */, ezDGMLGraph::NodeShape::Rectangle );
+      auto gameObjectNodeId =
+          m_Graph.AddNode(name.GetData(), ezColor::CornflowerBlue /* The Original! */, ezDGMLGraph::NodeShape::Rectangle);
 
-      m_VisitedObjects.Insert( pObject, gameObjectNodeId );
+      m_VisitedObjects.Insert(pObject, gameObjectNodeId);
 
       // Add connection to parent if existent
-      if ( const ezGameObject* parent = pObject->GetParent() )
+      if (const ezGameObject* parent = pObject->GetParent())
       {
-        auto it = m_VisitedObjects.Find( parent );
+        auto it = m_VisitedObjects.Find(parent);
 
-        if ( it.IsValid() )
+        if (it.IsValid())
         {
-          m_Graph.AddConnection( gameObjectNodeId, it.Value() );
+          m_Graph.AddConnection(gameObjectNodeId, it.Value());
         }
       }
       else
       {
         // No parent -> connect to world
-        m_Graph.AddConnection( gameObjectNodeId, m_WorldNodeId );
+        m_Graph.AddConnection(gameObjectNodeId, m_WorldNodeId);
       }
 
       // Add components
-      for ( auto component : pObject->GetComponents() )
+      for (auto component : pObject->GetComponents())
       {
         auto szComponentName = component->GetDynamicRTTI()->GetTypeName();
 
-        auto componentNodeId = m_Graph.AddNode( szComponentName, ezColor::LimeGreen, ezDGMLGraph::NodeShape::RoundedRectangle );
+        auto componentNodeId = m_Graph.AddNode(szComponentName, ezColor::LimeGreen, ezDGMLGraph::NodeShape::RoundedRectangle);
 
         // And add the link to the game object
 
-        m_Graph.AddConnection( componentNodeId, gameObjectNodeId );
+        m_Graph.AddConnection(componentNodeId, gameObjectNodeId);
       }
 
       return ezVisitorExecution::Continue;
@@ -69,11 +70,10 @@ void ezDGMLGraphCreator::FillGraphFromWorld( ezWorld* pWorld, ezDGMLGraph& Graph
     ezMap<const ezGameObject*, ezDGMLGraph::NodeId> m_VisitedObjects;
   };
 
-  GraphVisitor visitor( Graph );
-  pWorld->Traverse( ezWorld::VisitorFunc( &GraphVisitor::Visit, &visitor ), ezWorld::BreadthFirst );
+  GraphVisitor visitor(Graph);
+  pWorld->Traverse(ezWorld::VisitorFunc(&GraphVisitor::Visit, &visitor), ezWorld::BreadthFirst);
 }
 
 
 
 EZ_STATICLINK_FILE(Utilities, Utilities_DGML_Implementation_DGMLCreator);
-

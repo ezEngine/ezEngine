@@ -1,11 +1,9 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezSimdBBoxSphere::ezSimdBBoxSphere()
-{
+EZ_ALWAYS_INLINE ezSimdBBoxSphere::ezSimdBBoxSphere() {}
 
-}
-
-EZ_ALWAYS_INLINE ezSimdBBoxSphere::ezSimdBBoxSphere(const ezSimdVec4f& vCenter, const ezSimdVec4f& vBoxHalfExtents, const ezSimdFloat& fSphereRadius)
+EZ_ALWAYS_INLINE ezSimdBBoxSphere::ezSimdBBoxSphere(const ezSimdVec4f& vCenter, const ezSimdVec4f& vBoxHalfExtents,
+                                                    const ezSimdFloat& fSphereRadius)
 {
   m_CenterAndRadius = vCenter;
   m_CenterAndRadius.SetW(fSphereRadius);
@@ -40,8 +38,8 @@ EZ_ALWAYS_INLINE void ezSimdBBoxSphere::SetInvalid()
 
 inline bool ezSimdBBoxSphere::IsValid() const
 {
-  return m_CenterAndRadius.IsValid<4>() && m_CenterAndRadius.w() >= ezSimdFloat::Zero() &&
-    m_BoxHalfExtents.IsValid<3>() && (m_BoxHalfExtents >= ezSimdVec4f::ZeroVector()).AllSet<3>();
+  return m_CenterAndRadius.IsValid<4>() && m_CenterAndRadius.w() >= ezSimdFloat::Zero() && m_BoxHalfExtents.IsValid<3>() &&
+         (m_BoxHalfExtents >= ezSimdVec4f::ZeroVector()).AllSet<3>();
 }
 
 inline bool ezSimdBBoxSphere::IsNaN() const
@@ -127,4 +125,3 @@ EZ_ALWAYS_INLINE bool ezSimdBBoxSphere::operator!=(const ezSimdBBoxSphere& rhs) 
 {
   return !(*this == rhs);
 }
-

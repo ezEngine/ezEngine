@@ -13,9 +13,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoHandle, 1, ezRTTINoAllocator)
     EZ_MEMBER_PROPERTY("Visible", m_bVisible),
     EZ_MEMBER_PROPERTY("Transformation", m_Transformation),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineGizmoHandle, 1, ezRTTIDefaultAllocator<ezEngineGizmoHandle>)
 {
@@ -29,9 +29,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineGizmoHandle, 1, ezRTTIDefaultAllocator<e
     EZ_MEMBER_PROPERTY("Ortho", m_bShowInOrtho),
     EZ_MEMBER_PROPERTY("Pickable", m_bIsPickable),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezGizmoHandle::ezGizmoHandle()
 {

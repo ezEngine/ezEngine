@@ -3,13 +3,13 @@
 /// \file
 
 #include <Foundation/Basics.h>
-#include <Foundation/Types/Uuid.h>
-#include <Foundation/Types/Variant.h>
-#include <Foundation/Strings/HashedString.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Containers/Set.h>
-#include <Foundation/Types/Enum.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Strings/HashedString.h>
+#include <Foundation/Types/Enum.h>
+#include <Foundation/Types/Uuid.h>
+#include <Foundation/Types/Variant.h>
 
 class ezAbstractObjectGraph;
 
@@ -22,7 +22,13 @@ public:
     ezVariant m_Value;
   };
 
-  ezAbstractObjectNode() : m_pOwner(nullptr), m_uiTypeVersion(0), m_szType(nullptr), m_szNodeName(nullptr) {}
+  ezAbstractObjectNode()
+      : m_pOwner(nullptr)
+      , m_uiTypeVersion(0)
+      , m_szType(nullptr)
+      , m_szNodeName(nullptr)
+  {
+  }
 
   const ezHybridArray<Property, 16>& GetProperties() const { return m_Properties; }
 
@@ -69,8 +75,8 @@ struct EZ_FOUNDATION_DLL ezAbstractGraphDiffOperation
   };
 
   Op m_Operation;
-  ezUuid m_Node; // prop parent or added / deleted node
-  ezString m_sProperty; // prop name or type
+  ezUuid m_Node;            // prop parent or added / deleted node
+  ezString m_sProperty;     // prop name or type
   ezUInt32 m_uiTypeVersion; // only used for NodeAdded
   ezVariant m_Value;
 };
@@ -96,7 +102,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezObjectChangeType);
 struct EZ_FOUNDATION_DLL ezDiffOperation
 {
   ezEnum<ezObjectChangeType> m_Operation;
-  ezUuid m_Node; // owner of m_sProperty
+  ezUuid m_Node;        // owner of m_sProperty
   ezString m_sProperty; // property
   ezVariant m_Index;
   ezVariant m_Value;
@@ -131,12 +137,13 @@ public:
   ///   This is mostly used to remap prefab instance graphs to their prefab template graph.
   void ReMapNodeGuids(const ezUuid& seedGuid, bool bRemapInverse = false);
 
-  /// \brief Tries to remap the guids of this graph to those in rhsGraph by walking in both down the hierarchy, starting at root and rhsRoot.
+  /// \brief Tries to remap the guids of this graph to those in rhsGraph by walking in both down the hierarchy, starting at root and
+  /// rhsRoot.
   ///
   ///  Note that in case of array properties the remapping assumes element indices to be equal
-  ///  on both sides which will cause all moves inside the arrays to be lost as there is no way of recovering this information without an equality criteria.
-  ///  This function is mostly used to remap a graph from a native object to a graph from ezDocumentObjects to allow applying native side changes
-  ///  to the original ezDocumentObject hierarchy using diffs.
+  ///  on both sides which will cause all moves inside the arrays to be lost as there is no way of recovering this information without an
+  ///  equality criteria. This function is mostly used to remap a graph from a native object to a graph from ezDocumentObjects to allow
+  ///  applying native side changes to the original ezDocumentObject hierarchy using diffs.
   void ReMapNodeGuidsToMatchGraph(ezAbstractObjectNode* root, const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* rhsRoot);
 
   /// \brief Deletes everything not accessible by the given root node.
@@ -149,15 +156,19 @@ public:
 
   void ApplyDiff(ezDeque<ezAbstractGraphDiffOperation>& Diff);
 
-  void MergeDiffs(const ezDeque<ezAbstractGraphDiffOperation>& lhs, const ezDeque<ezAbstractGraphDiffOperation>& rhs, ezDeque<ezAbstractGraphDiffOperation>& out) const;
+  void MergeDiffs(const ezDeque<ezAbstractGraphDiffOperation>& lhs, const ezDeque<ezAbstractGraphDiffOperation>& rhs,
+                  ezDeque<ezAbstractGraphDiffOperation>& out) const;
+
 private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezAbstractObjectGraph);
+
   void RemapVariant(ezVariant& value, const ezMap<ezUuid, ezUuid>& guidMap);
-  void MergeArrays(const ezVariantArray& baseArray, const ezVariantArray& leftArray, const ezVariantArray& rightArray, ezVariantArray& out) const;
-  void ReMapNodeGuidsToMatchGraphRecursive(ezMap<ezUuid, ezUuid>& guidMap, ezAbstractObjectNode* lhs, const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* rhs);
+  void MergeArrays(const ezVariantArray& baseArray, const ezVariantArray& leftArray, const ezVariantArray& rightArray,
+                   ezVariantArray& out) const;
+  void ReMapNodeGuidsToMatchGraphRecursive(ezMap<ezUuid, ezUuid>& guidMap, ezAbstractObjectNode* lhs, const ezAbstractObjectGraph& rhsGraph,
+                                           const ezAbstractObjectNode* rhs);
 
   ezSet<ezString> m_Strings;
   ezMap<ezUuid, ezAbstractObjectNode*> m_Nodes;
   ezMap<const char*, ezAbstractObjectNode*, CompareConstChar> m_NodesByName;
 };
-

@@ -3,17 +3,21 @@
 #ifdef EZ_USE_QT
 
 #include <QtWidgets>
+#include <TestFramework/Framework/Qt/qtLogMessageDock.h>
+#include <TestFramework/Framework/Qt/qtTestDelegate.h>
 #include <TestFramework/Framework/Qt/qtTestGUI.h>
 #include <TestFramework/Framework/Qt/qtTestModel.h>
-#include <TestFramework/Framework/Qt/qtTestDelegate.h>
-#include <TestFramework/Framework/Qt/qtLogMessageDock.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezQtTestGUI public functions
 ////////////////////////////////////////////////////////////////////////
 
 ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
-  : QMainWindow(), m_pTestFramework(&testFramework), m_pModel(nullptr), m_bExpandedCurrentTest(false), m_bAbort(false)
+    : QMainWindow()
+    , m_pTestFramework(&testFramework)
+    , m_pModel(nullptr)
+    , m_bExpandedCurrentTest(false)
+    , m_bAbort(false)
 {
   this->setupUi(this);
   this->setWindowTitle(testFramework.GetTestName());
@@ -39,7 +43,7 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
   m_pDelegate = new ezQtTestDelegate(this);
 
   // View
-  //testTreeView->expandAll();
+  // testTreeView->expandAll();
   testTreeView->resizeColumnToContents(4);
   testTreeView->resizeColumnToContents(3);
   testTreeView->resizeColumnToContents(2);
@@ -57,11 +61,13 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
   addDockWidget(Qt::RightDockWidgetArea, m_pMessageLogDock);
 
   // connect custom context menu
-  connect(testTreeView, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(onTestTreeViewCustomContextMenuRequested(const QPoint&)));
+  connect(testTreeView, SIGNAL(customContextMenuRequested(const QPoint&)), this,
+          SLOT(onTestTreeViewCustomContextMenuRequested(const QPoint&)));
 
   // connect current row changed signal
   QItemSelectionModel* pSelectionModel = testTreeView->selectionModel();
-  connect(pSelectionModel, SIGNAL(currentRowChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(onSelectionModelCurrentRowChanged(const QModelIndex&)));
+  connect(pSelectionModel, SIGNAL(currentRowChanged(const QModelIndex&, const QModelIndex&)), this,
+          SLOT(onSelectionModelCurrentRowChanged(const QModelIndex&)));
 
   // Sync actions with test framework settings
   TestSettings settings = m_pTestFramework->GetSettings();
@@ -133,7 +139,6 @@ void ezQtTestGUI::on_actionKeepConsoleOpen_triggered(bool bChecked)
   else
     ShowWindow(GetConsoleWindow(), SW_SHOW);
 #endif
-
 }
 
 void ezQtTestGUI::on_actionShowMessageBox_triggered(bool bChecked)
@@ -302,14 +307,16 @@ void ezQtTestGUI::onTestFrameworkTestResultReceived(qint32 iTestIndex, qint32 iS
   float fSubTestPercentage = 0.0f;
   if (iTestIndex != -1 && iSubTestIndex != -1)
   {
-    fSubTestPercentage = (float)m_pTestFramework->GetTestResult().GetSubTestCount(m_pTestFramework->GetCurrentTestIndex(), ezTestResultQuery::Executed)
-      / (float)m_pTestFramework->GetSubTestEnabledCount(m_pTestFramework->GetCurrentTestIndex());
+    fSubTestPercentage =
+        (float)m_pTestFramework->GetTestResult().GetSubTestCount(m_pTestFramework->GetCurrentTestIndex(), ezTestResultQuery::Executed) /
+        (float)m_pTestFramework->GetSubTestEnabledCount(m_pTestFramework->GetCurrentTestIndex());
   }
 
   float fProgress = 100.0f * (fSubTestPercentage + uiFailed + uiPassed) / uiTestCount;
-  QString sStatusText = QLatin1String("[progress: ") % QString::number(fProgress, 'f', 2) % QLatin1String("%] [passed: ") % QString::number(uiPassed)
-    % QLatin1String("] [failed: ") % QString::number(uiFailed) % QLatin1String("] [errors: ") % QString::number(uiErrors) % QLatin1String("] [time taken: ")
-    % QString::number(fTestDurationInSeconds, 'f', 2) % QLatin1String(" seconds]");
+  QString sStatusText = QLatin1String("[progress: ") % QString::number(fProgress, 'f', 2) % QLatin1String("%] [passed: ") %
+                        QString::number(uiPassed) % QLatin1String("] [failed: ") % QString::number(uiFailed) %
+                        QLatin1String("] [errors: ") % QString::number(uiErrors) % QLatin1String("] [time taken: ") %
+                        QString::number(fTestDurationInSeconds, 'f', 2) % QLatin1String(" seconds]");
 
   m_pStatusText->setText(sStatusText);
   m_pMessageLogDock->currentTestResultChanged(&m_pTestFramework->GetTestResult().GetTestResultData(iTestIndex, iSubTestIndex));
@@ -457,9 +464,9 @@ void ezQtTestGUI::EnableAllParents(const QModelIndex& index)
 
 void ezQtTestGUI::SetDarkTheme()
 {
-  //return;
+  // return;
   QApplication::setStyle(QStyleFactory::create("fusion"));
-  //return;
+  // return;
   QPalette palette;
 
   palette.setColor(QPalette::WindowText, QColor(200, 200, 200, 255));
@@ -497,4 +504,3 @@ void ezQtTestGUI::SetDarkTheme()
 
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_Qt_qtTestGUI);
-

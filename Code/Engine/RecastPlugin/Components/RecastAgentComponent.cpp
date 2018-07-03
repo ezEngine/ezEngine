@@ -17,7 +17,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRcAgentComponent, 2, ezComponentMode::Dynamic)
   {
     EZ_MEMBER_PROPERTY("WalkSpeed",m_fWalkSpeed)->AddAttributes(new ezDefaultValueAttribute(4.0f)),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
 EZ_END_COMPONENT_TYPE
 

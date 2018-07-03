@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Utilities/DataStructures/GameGrid.h>
-#include <Foundation/Math/Rect.h>
 #include <Foundation/Containers/Deque.h>
+#include <Foundation/Math/Rect.h>
+#include <Utilities/DataStructures/GameGrid.h>
 
 /// \brief Takes an ezGameGrid and creates an optimized navmesh structure from it, that is more efficient for path searches.
 class EZ_UTILITIES_DLL ezGridNavmesh
@@ -26,22 +26,26 @@ public:
   {
     EZ_DECLARE_POD_TYPE();
 
-    /// The 'area' of the edge. This is a one cell wide line that is always WITHIN the ConvexArea from where the edge connects to a neighbor area.
+    /// The 'area' of the edge. This is a one cell wide line that is always WITHIN the ConvexArea from where the edge connects to a neighbor
+    /// area.
     ezRectU16 m_EdgeRect;
 
     /// The index of the area that can be reached over this edge. This is always a valid index.
     ezInt32 m_iNeighborArea;
   };
 
-  /// \brief Callback that determines whether the cell with index \a uiCell1 and the cell with index \a uiCell2 represent the same type of terrain.
+  /// \brief Callback that determines whether the cell with index \a uiCell1 and the cell with index \a uiCell2 represent the same type of
+  /// terrain.
   typedef bool (*CellComparator)(ezUInt32 uiCell1, ezUInt32 uiCell2, void* pPassThrough);
 
-  /// \brief Callback that determines whether the cell with index \a uiCell is blocked entirely (for every type of unit) and therefore can be optimized away.
+  /// \brief Callback that determines whether the cell with index \a uiCell is blocked entirely (for every type of unit) and therefore can
+  /// be optimized away.
   typedef bool (*CellBlocked)(ezUInt32 uiCell, void* pPassThrough);
 
   /// \brief Creates the navmesh from the given ezGameGrid.
-  template<class CellData>
-  void CreateFromGrid(const ezGameGrid<CellData>& Grid, CellComparator IsSameCellType, void* pPassThroughSame, CellBlocked IsCellBlocked, void* pPassThroughBlocked);
+  template <class CellData>
+  void CreateFromGrid(const ezGameGrid<CellData>& Grid, CellComparator IsSameCellType, void* pPassThroughSame, CellBlocked IsCellBlocked,
+                      void* pPassThroughBlocked);
 
   /// \brief Returns the index of the ConvexArea at the given cell coordinates. Negative, if the cell is blocked.
   ezInt32 GetAreaAt(const ezVec2I32& Coord) const { return m_NodesGrid.GetCell(Coord); }
@@ -62,7 +66,8 @@ private:
   void UpdateRegion(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough1, CellBlocked IsCellBlocked, void* pPassThrough2);
 
   void Optimize(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough);
-  bool OptimizeBoxes(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough, ezUInt32 uiIntervalX, ezUInt32 uiIntervalY, ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiOffsetX = 0, ezUInt32 uiOffsetY = 0);
+  bool OptimizeBoxes(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough, ezUInt32 uiIntervalX, ezUInt32 uiIntervalY,
+                     ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiOffsetX = 0, ezUInt32 uiOffsetY = 0);
   bool CanCreateArea(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough) const;
 
   bool CanMergeRight(ezInt32 x, ezInt32 y, CellComparator IsSameCellType, void* pPassThrough, ezRectU32& out_Result) const;
@@ -82,4 +87,3 @@ private:
 };
 
 #include <Utilities/PathFinding/Implementation/GridNavmesh_inl.h>
-

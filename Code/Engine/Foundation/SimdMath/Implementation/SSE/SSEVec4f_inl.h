@@ -66,62 +66,62 @@ EZ_ALWAYS_INLINE void ezSimdVec4f::SetZero()
   m_v = _mm_setzero_ps();
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE void ezSimdVec4f::Load<1>(const float* pFloat)
 {
   m_v = _mm_load_ss(pFloat);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE void ezSimdVec4f::Load<2>(const float* pFloat)
 {
   m_v = _mm_castpd_ps(_mm_load_sd(reinterpret_cast<const double*>(pFloat)));
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE void ezSimdVec4f::Load<3>(const float* pFloat)
 {
   m_v = _mm_movelh_ps(_mm_castpd_ps(_mm_load_sd(reinterpret_cast<const double*>(pFloat))), _mm_load_ss(pFloat + 2));
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE void ezSimdVec4f::Load<4>(const float* pFloat)
 {
   m_v = _mm_loadu_ps(pFloat);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE void ezSimdVec4f::Store<1>(float* pFloat) const
 {
   _mm_store_ss(pFloat, m_v);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE void ezSimdVec4f::Store<2>(float* pFloat) const
 {
   _mm_store_sd(reinterpret_cast<double*>(pFloat), _mm_castps_pd(m_v));
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE void ezSimdVec4f::Store<3>(float* pFloat) const
 {
   _mm_store_sd(reinterpret_cast<double*>(pFloat), _mm_castps_pd(m_v));
   _mm_store_ss(pFloat + 2, _mm_movehl_ps(m_v, m_v));
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE void ezSimdVec4f::Store<4>(float* pFloat) const
 {
   _mm_storeu_ps(pFloat, m_v);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetReciprocal<ezMathAcc::BITS_12>() const
 {
   return _mm_rcp_ps(m_v);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetReciprocal<ezMathAcc::BITS_23>() const
 {
   __m128 x0 = _mm_rcp_ps(m_v);
@@ -132,19 +132,19 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetReciprocal<ezMathAcc::BITS_23>() co
   return x1;
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetReciprocal<ezMathAcc::FULL>() const
 {
   return _mm_div_ps(_mm_set1_ps(1.0f), m_v);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetSqrt<ezMathAcc::BITS_12>() const
 {
   return _mm_mul_ps(m_v, _mm_rsqrt_ps(m_v));
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetSqrt<ezMathAcc::BITS_23>() const
 {
   __m128 x0 = _mm_rsqrt_ps(m_v);
@@ -155,13 +155,13 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetSqrt<ezMathAcc::BITS_23>() const
   return _mm_mul_ps(m_v, x1);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetSqrt<ezMathAcc::FULL>() const
 {
   return _mm_sqrt_ps(m_v);
 }
 
-template<int N, ezMathAcc::Enum acc>
+template <int N, ezMathAcc::Enum acc>
 void ezSimdVec4f::NormalizeIfNotZero(const ezSimdFloat& fEpsilon)
 {
   ezSimdFloat sqLength = GetLengthSquared<N>();
@@ -170,14 +170,14 @@ void ezSimdVec4f::NormalizeIfNotZero(const ezSimdFloat& fEpsilon)
   m_v = _mm_and_ps(isNotZero, m_v);
 }
 
-template<int N>
+template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4f::IsZero() const
 {
   const int mask = EZ_BIT(N) - 1;
   return (_mm_movemask_ps(_mm_cmpeq_ps(m_v, _mm_setzero_ps())) & mask) == mask;
 }
 
-template<int N>
+template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4f::IsZero(const ezSimdFloat& fEpsilon) const
 {
   const int mask = EZ_BIT(N) - 1;
@@ -185,13 +185,13 @@ EZ_ALWAYS_INLINE bool ezSimdVec4f::IsZero(const ezSimdFloat& fEpsilon) const
   return (_mm_movemask_ps(_mm_cmplt_ps(absVal, fEpsilon.m_v)) & mask) == mask;
 }
 
-template<int N>
+template <int N>
 inline bool ezSimdVec4f::IsNaN() const
 {
   // NAN -> (exponent = all 1, mantissa = non-zero)
 
-  const ezUInt32 EZ_ALIGN_16(s_exponentMask[4]) = { 0x7f800000, 0x7f800000, 0x7f800000, 0x7f800000 };
-  const ezUInt32 EZ_ALIGN_16(s_mantissaMask[4]) = { 0x7FFFFF, 0x7FFFFF, 0x7FFFFF, 0x7FFFFF };
+  const ezUInt32 EZ_ALIGN_16(s_exponentMask[4]) = {0x7f800000, 0x7f800000, 0x7f800000, 0x7f800000};
+  const ezUInt32 EZ_ALIGN_16(s_mantissaMask[4]) = {0x7FFFFF, 0x7FFFFF, 0x7FFFFF, 0x7FFFFF};
 
   __m128 exponentMask = _mm_load_ps(reinterpret_cast<const float*>(s_exponentMask));
   __m128 mantissaMask = _mm_load_ps(reinterpret_cast<const float*>(s_mantissaMask));
@@ -203,14 +203,14 @@ inline bool ezSimdVec4f::IsNaN() const
   return (_mm_movemask_ps(_mm_and_ps(exponentAll1, mantissaNon0)) & mask) != 0;
 }
 
-template<int N>
+template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4f::IsValid() const
 {
   // Check the 8 exponent bits.
   // NAN -> (exponent = all 1, mantissa = non-zero)
   // INF -> (exponent = all 1, mantissa = zero)
 
-  const ezUInt32 EZ_ALIGN_16(s_exponentMask[4]) = { 0x7f800000, 0x7f800000, 0x7f800000, 0x7f800000 };
+  const ezUInt32 EZ_ALIGN_16(s_exponentMask[4]) = {0x7f800000, 0x7f800000, 0x7f800000, 0x7f800000};
 
   __m128 exponentMask = _mm_load_ps(reinterpret_cast<const float*>(s_exponentMask));
 
@@ -220,7 +220,7 @@ EZ_ALWAYS_INLINE bool ezSimdVec4f::IsValid() const
   return (_mm_movemask_ps(exponentNot1) & mask) == mask;
 }
 
-template<int N>
+template <int N>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::GetComponent() const
 {
   return _mm_shuffle_ps(m_v, m_v, EZ_SHUFFLE(N, N, N, N));
@@ -278,7 +278,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::operator*(const ezSimdFloat& f) const
   return _mm_mul_ps(m_v, f.m_v);
 }
 
-EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::operator / (const ezSimdFloat& f) const
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::operator/(const ezSimdFloat& f) const
 {
   return _mm_div_ps(m_v, f.m_v);
 }
@@ -288,13 +288,13 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::CompMul(const ezSimdVec4f& v) const
   return _mm_mul_ps(m_v, v.m_v);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::CompDiv<ezMathAcc::FULL>(const ezSimdVec4f& v) const
 {
   return _mm_div_ps(m_v, v.m_v);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::CompDiv<ezMathAcc::BITS_23>(const ezSimdVec4f& v) const
 {
   __m128 x0 = _mm_rcp_ps(v.m_v);
@@ -305,7 +305,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::CompDiv<ezMathAcc::BITS_23>(const ezSi
   return _mm_mul_ps(m_v, x1);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::CompDiv<ezMathAcc::BITS_12>(const ezSimdVec4f& v) const
 {
   return _mm_mul_ps(m_v, _mm_rcp_ps(v.m_v));
@@ -349,7 +349,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::FlipSign(const ezSimdVec4b& cmp) const
   return _mm_xor_ps(m_v, _mm_and_ps(cmp.m_v, _mm_set1_ps(-0.0f)));
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::Select(const ezSimdVec4f& ifFalse, const ezSimdVec4f& ifTrue, const ezSimdVec4b& cmp)
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_41
@@ -413,7 +413,7 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4f::operator>(const ezSimdVec4f& v) const
   return _mm_cmpgt_ps(m_v, v.m_v);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalSum<2>() const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_31
@@ -424,13 +424,13 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalSum<2>() const
 #endif
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalSum<3>() const
 {
   return HorizontalSum<2>() + GetComponent<2>();
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalSum<4>() const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_31
@@ -441,19 +441,19 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalSum<4>() const
 #endif
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalMin<2>() const
 {
   return _mm_min_ps(GetComponent<0>().m_v, GetComponent<1>().m_v);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalMin<3>() const
 {
   return _mm_min_ps(_mm_min_ps(GetComponent<0>().m_v, GetComponent<1>().m_v), GetComponent<2>().m_v);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalMin<4>() const
 {
   __m128 xyxyzwzw = _mm_min_ps(_mm_shuffle_ps(m_v, m_v, EZ_TO_SHUFFLE(ezSwizzle::ZWXY)), m_v);
@@ -461,19 +461,19 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalMin<4>() const
   return _mm_min_ps(xyxyzwzw, zwzwxyxy);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalMax<2>() const
 {
   return _mm_max_ps(GetComponent<0>().m_v, GetComponent<1>().m_v);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalMax<3>() const
 {
   return _mm_max_ps(_mm_max_ps(GetComponent<0>().m_v, GetComponent<1>().m_v), GetComponent<2>().m_v);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalMax<4>() const
 {
   __m128 xyxyzwzw = _mm_max_ps(_mm_shuffle_ps(m_v, m_v, EZ_TO_SHUFFLE(ezSwizzle::ZWXY)), m_v);
@@ -481,7 +481,7 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::HorizontalMax<4>() const
   return _mm_max_ps(xyxyzwzw, zwzwxyxy);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::Dot<1>(const ezSimdVec4f& v) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_41
@@ -491,7 +491,7 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::Dot<1>(const ezSimdVec4f& v) const
 #endif
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::Dot<2>(const ezSimdVec4f& v) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_41
@@ -501,7 +501,7 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::Dot<2>(const ezSimdVec4f& v) const
 #endif
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::Dot<3>(const ezSimdVec4f& v) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_41
@@ -511,7 +511,7 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::Dot<3>(const ezSimdVec4f& v) const
 #endif
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdVec4f::Dot<4>(const ezSimdVec4f& v) const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_41
@@ -536,13 +536,13 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetOrthogonalVector() const
   return Cross(_mm_and_ps(m_v, _mm_cmpeq_ps(m_v, HorizontalMin<3>().m_v)));
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::ZeroVector()
 {
   return _mm_setzero_ps();
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MulAdd(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& c)
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX2
@@ -552,7 +552,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MulAdd(const ezSimdVec4f& a, const ezS
 #endif
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MulAdd(const ezSimdVec4f& a, const ezSimdFloat& b, const ezSimdVec4f& c)
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX2
@@ -562,7 +562,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MulAdd(const ezSimdVec4f& a, const ezS
 #endif
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MulSub(const ezSimdVec4f& a, const ezSimdVec4f& b, const ezSimdVec4f& c)
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX2
@@ -572,7 +572,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MulSub(const ezSimdVec4f& a, const ezS
 #endif
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MulSub(const ezSimdVec4f& a, const ezSimdFloat& b, const ezSimdVec4f& c)
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_AVX2
@@ -582,10 +582,9 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::MulSub(const ezSimdVec4f& a, const ezS
 #endif
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::CopySign(const ezSimdVec4f& magnitude, const ezSimdVec4f& sign)
 {
   __m128 minusZero = _mm_set1_ps(-0.0f);
   return _mm_or_ps(_mm_andnot_ps(minusZero, magnitude.m_v), _mm_and_ps(minusZero, sign.m_v));
 }
-

@@ -6,7 +6,7 @@
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleExtractor, 1, ezRTTIDefaultAllocator<ezParticleExtractor>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleExtractor::ezParticleExtractor(const char* szName)
   : ezExtractor(szName)

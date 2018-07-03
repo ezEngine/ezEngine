@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Utilities/Basics.h>
-#include <Foundation/Math/Math.h>
 #include <Foundation/Containers/HashTable.h>
+#include <Foundation/Math/Math.h>
+#include <Utilities/Basics.h>
 
 /// \brief Base class for all path finding state objects.
 struct ezPathState
@@ -19,7 +19,8 @@ struct ezPathState
   /// Initialized by the path searcher. Back-pointer to the node from which this node was reached.
   ezInt64 m_iReachedThroughNode;
 
-  /// Each ezPathStateGenerator needs to update the costs by taking the nodes from the predecessor state and adding a non-zero cost value to it.
+  /// Each ezPathStateGenerator needs to update the costs by taking the nodes from the predecessor state and adding a non-zero cost value to
+  /// it.
   float m_fCostToNode;
 
   /// To get directed path searches (A*) this estimation needs to be filled out. It must be the sum of m_fCostToNode and an estimation
@@ -31,7 +32,7 @@ struct ezPathState
   float m_fEstimatedCostToTarget;
 };
 
-template<typename PathStateType>
+template <typename PathStateType>
 class ezPathSearch;
 
 /// \brief The base class for all path state generates.
@@ -45,11 +46,10 @@ class ezPathSearch;
 /// directions the path search can be expanded.
 ///
 /// PathStateType needs to be derived from ezPathState.
-template<typename PathStateType>
+template <typename PathStateType>
 class ezPathStateGenerator
 {
 public:
-
   /// \brief Called by a ezPathSearch object to generate the adjacent states from graph node iNodeIndex.
   ///
   /// On a 2D grid the iNodeIndex would just be the grid cell index (GridHeight * Cell.y + Cell.x). This function would then 'expand'
@@ -59,16 +59,13 @@ public:
 
   /// \brief Automatically called by ezPathSearch objects when a new path search is about to start (ezPathSearch::FindClosest).
   /// Allows the generator to do some initial setup.
-  virtual void StartSearchForClosest(ezInt64 iStartNodeIndex, const PathStateType* pStartState) { }
+  virtual void StartSearchForClosest(ezInt64 iStartNodeIndex, const PathStateType* pStartState) {}
 
   /// \brief Automatically called by ezPathSearch objects when a new path search is about to start (ezPathSearch::FindPath).
   /// Allows the generator to do some initial setup.
-  virtual void StartSearch(ezInt64 iStartNodeIndex, const PathStateType* pStartState, ezInt64 iTargetNodeIndex) { }
+  virtual void StartSearch(ezInt64 iStartNodeIndex, const PathStateType* pStartState, ezInt64 iTargetNodeIndex) {}
 
   /// \brief Automatically called by ezPathSearch objects when a path search was finished.
   /// Allows the generator to do some cleanup.
-  virtual void SearchFinished(ezResult res) { }
+  virtual void SearchFinished(ezResult res) {}
 };
-
-#include <Utilities/PathFinding/Implementation/PathState_inl.h>
-

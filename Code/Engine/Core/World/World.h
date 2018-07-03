@@ -4,11 +4,12 @@
 
 /// \brief A world encapsulates a scene graph of game objects and various component managers and their components.
 ///
-/// There can be multiple worlds active at a time, but only 64 at most. The world manages all object storage and might move objects around in memory.
-/// Thus it is not allowed to store pointers to objects. They should be referenced by handles.\n
-/// The world has a multi-phase update mechanism which is divided in the following phases:\n
+/// There can be multiple worlds active at a time, but only 64 at most. The world manages all object storage and might move objects around
+/// in memory. Thus it is not allowed to store pointers to objects. They should be referenced by handles.\n The world has a multi-phase
+/// update mechanism which is divided in the following phases:\n
 /// * Pre-async phase: The corresponding component manager update functions are called synchronously in the order of their dependencies.
-/// * Async phase: The update functions are called in batches asynchronously on multiple threads. There is absolutely no guarantee in which order the functions are called.
+/// * Async phase: The update functions are called in batches asynchronously on multiple threads. There is absolutely no guarantee in which
+/// order the functions are called.
 ///   Thus it is not allowed to access any data other than the components own data during that phase.
 /// * Post-async phase: Another synchronous phase like the pre-async phase.
 /// * Actual deletion of dead objects and components are done now.
@@ -45,7 +46,8 @@ public:
   /// Use DeleteObjectDelayed() instead for safe removal at the end of the frame.
   void DeleteObjectNow(const ezGameObjectHandle& object);
 
-  /// \brief Deletes the given object at the beginning of the next world update. The object and its components and children stay completely valid until then.
+  /// \brief Deletes the given object at the beginning of the next world update. The object and its components and children stay completely
+  /// valid until then.
   void DeleteObjectDelayed(const ezGameObjectHandle& object);
 
   /// \brief Returns whether the given handle corresponds to a valid object.
@@ -74,7 +76,8 @@ public:
   ezInternal::WorldData::ObjectStorage::ConstIterator GetObjects() const;
 
   /// \brief Defines a visitor function that is called for every game-object when using the traverse method.
-  /// The function takes a pointer to the game object as argument and returns a bool which indicates whether to continue (true) or abort (false) traversal.
+  /// The function takes a pointer to the game object as argument and returns a bool which indicates whether to continue (true) or abort
+  /// (false) traversal.
   typedef ezInternal::WorldData::VisitorFunc VisitorFunc;
 
   enum TraversalMethod
@@ -83,7 +86,8 @@ public:
     DepthFirst
   };
 
-  /// \brief Traverses the game object tree starting at the top level objects and then recursively all children. The given callback function is called for every object.
+  /// \brief Traverses the game object tree starting at the top level objects and then recursively all children. The given callback function
+  /// is called for every object.
   void Traverse(VisitorFunc visitorFunc, TraversalMethod method = DepthFirst);
 
   ///@}
@@ -156,17 +160,23 @@ public:
   /// \brief Sends a message to all components of the receiverObject and all its children.
   void SendMessageRecursive(const ezGameObjectHandle& receiverObject, ezMessage& msg);
 
-  /// \brief Queues the message for the given phase. The message is send to the receiverObject after the given delay in the corresponding phase.
-  void PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
+  /// \brief Queues the message for the given phase. The message is send to the receiverObject after the given delay in the corresponding
+  /// phase.
+  void PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType,
+                   ezTime delay = ezTime()) const;
 
-  /// \brief Queues the message for the given phase. The message is send to the receiverObject and all its children after the given delay in the corresponding phase.
-  void PostMessageRecursive(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
+  /// \brief Queues the message for the given phase. The message is send to the receiverObject and all its children after the given delay in
+  /// the corresponding phase.
+  void PostMessageRecursive(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType,
+                            ezTime delay = ezTime()) const;
 
   /// \brief Sends a message to the component.
   void SendMessage(const ezComponentHandle& receiverComponent, ezMessage& msg);
 
-  /// \brief Queues the message for the given phase. The message is send to the receiverComponent after the given delay in the corresponding phase.
-  void PostMessage(const ezComponentHandle& receiverComponent, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
+  /// \brief Queues the message for the given phase. The message is send to the receiverComponent after the given delay in the corresponding
+  /// phase.
+  void PostMessage(const ezComponentHandle& receiverComponent, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType,
+                   ezTime delay = ezTime()) const;
 
   ///@}
 
@@ -176,8 +186,8 @@ public:
   /// \brief If enabled, the full simulation should be executed, otherwise only the rendering related updates should be done
   bool GetWorldSimulationEnabled() const;
 
-  /// \brief Updates the world by calling the various update methods on the component managers and also updates the transformation data of the game objects.
-  /// See ezWorld for a detailed description of the update phases.
+  /// \brief Updates the world by calling the various update methods on the component managers and also updates the transformation data of
+  /// the game objects. See ezWorld for a detailed description of the update phases.
   void Update();
 
   /// \brief Returns a task implementation that calls Update on this world.
@@ -226,7 +236,8 @@ public:
   /// \brief Returns the stack allocator used by this world.
   ezDoubleBufferedStackAllocator* GetStackAllocator();
 
-  /// \brief Mark the world for reading by using EZ_LOCK(world.GetReadMarker()). Multiple threads can read simultaneously if none is writing.
+  /// \brief Mark the world for reading by using EZ_LOCK(world.GetReadMarker()). Multiple threads can read simultaneously if none is
+  /// writing.
   ezInternal::WorldData::ReadMarker& GetReadMarker() const;
 
   /// \brief Mark the world for writing by using EZ_LOCK(world.GetWriteMarker()). Only one thread can write at a time.
@@ -262,14 +273,16 @@ private:
   ezWorldModule* GetModule(const ezRTTI* pRtti);
   const ezWorldModule* GetModule(const ezRTTI* pRtti) const;
 
-  void SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameObject::TransformPreservation preserve = ezGameObject::TransformPreservation::PreserveGlobal);
+  void SetParent(ezGameObject* pObject, ezGameObject* pNewParent,
+                 ezGameObject::TransformPreservation preserve = ezGameObject::TransformPreservation::PreserveGlobal);
   void LinkToParent(ezGameObject* pObject);
   void UnlinkFromParent(ezGameObject* pObject);
 
   void SetObjectGlobalKey(ezGameObject* pObject, const ezHashedString& sGlobalKey);
   const char* GetObjectGlobalKey(const ezGameObject* pObject) const;
 
-  void PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const;
+  void PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay,
+                   bool bRecursive) const;
   void ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::Entry& entry);
   void ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType);
 
@@ -307,4 +320,3 @@ private:
 };
 
 #include <Core/World/Implementation/World_inl.h>
-

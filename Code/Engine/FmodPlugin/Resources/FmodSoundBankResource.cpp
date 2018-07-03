@@ -4,7 +4,7 @@
 #include <FmodPlugin/FmodIncludes.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodSoundBankResource, 1, ezRTTIDefaultAllocator<ezFmodSoundBankResource>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezFmodSoundBankResource::ezFmodSoundBankResource() : ezResource<ezFmodSoundBankResource, ezFmodSoundBankResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {

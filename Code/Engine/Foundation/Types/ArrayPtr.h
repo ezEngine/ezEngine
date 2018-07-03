@@ -1,7 +1,7 @@
-﻿#pragma once
+#pragma once
 
-#include <Foundation/Memory/MemoryUtils.h>
 #include <Foundation/Containers/Implementation/ArrayIterator.h>
+#include <Foundation/Memory/MemoryUtils.h>
 
 /// \brief This class encapsulates an array and it's size. It is recommended to use this class instead of plain C arrays.
 ///
@@ -32,12 +32,16 @@ public:
   typedef typename ByteTypeHelper<T>::type ByteType;
 
   /// \brief Initializes the ezArrayPtr to be empty.
-  EZ_ALWAYS_INLINE ezArrayPtr() : m_ptr(nullptr), m_uiCount(0u) // [tested]
+  EZ_ALWAYS_INLINE ezArrayPtr()
+      : m_ptr(nullptr)
+      , m_uiCount(0u) // [tested]
   {
   }
 
   /// \brief Initializes the ezArrayPtr with the given pointer and number of elements. No memory is allocated or copied.
-  inline ezArrayPtr(T* ptr, ezUInt32 uiCount) : m_ptr(ptr), m_uiCount(uiCount) // [tested]
+  inline ezArrayPtr(T* ptr, ezUInt32 uiCount)
+      : m_ptr(ptr)
+      , m_uiCount(uiCount) // [tested]
   {
     // If any of the arguments is invalid, we invalidate ourself.
     if (m_ptr == nullptr || m_uiCount == 0)
@@ -49,12 +53,16 @@ public:
 
   /// \brief Initializes the ezArrayPtr to encapsulate the given array.
   template <size_t N>
-  EZ_ALWAYS_INLINE ezArrayPtr(T (&staticArray)[N]) : m_ptr(staticArray), m_uiCount(static_cast<ezUInt32>(N)) // [tested]
+  EZ_ALWAYS_INLINE ezArrayPtr(T (&staticArray)[N])
+      : m_ptr(staticArray)
+      , m_uiCount(static_cast<ezUInt32>(N)) // [tested]
   {
   }
 
   /// \brief Initializes the ezArrayPtr to be a copy of \a other. No memory is allocated or copied.
-  EZ_ALWAYS_INLINE ezArrayPtr(const ezArrayPtr<T>& other) : m_ptr(other.m_ptr), m_uiCount(other.m_uiCount) // [tested]
+  EZ_ALWAYS_INLINE ezArrayPtr(const ezArrayPtr<T>& other)
+      : m_ptr(other.m_ptr)
+      , m_uiCount(other.m_uiCount) // [tested]
   {
   }
 
@@ -95,14 +103,16 @@ public:
   /// \brief Creates a sub-array from this array.
   EZ_FORCE_INLINE ezArrayPtr<const T> GetSubArray(ezUInt32 uiStart, ezUInt32 uiCount) const // [tested]
   {
-    EZ_ASSERT_DEV(uiStart + uiCount <= GetCount(), "uiStart+uiCount ({0}) has to be smaller or equal than the count ({1}).", uiStart + uiCount, GetCount());
+    EZ_ASSERT_DEV(uiStart + uiCount <= GetCount(), "uiStart+uiCount ({0}) has to be smaller or equal than the count ({1}).",
+                  uiStart + uiCount, GetCount());
     return ezArrayPtr<const T>(GetPtr() + uiStart, uiCount);
   }
 
   /// \brief Creates a sub-array from this array.
   EZ_FORCE_INLINE ezArrayPtr<T> GetSubArray(ezUInt32 uiStart, ezUInt32 uiCount) // [tested]
   {
-    EZ_ASSERT_DEV(uiStart + uiCount <= GetCount(), "uiStart+uiCount ({0}) has to be smaller or equal than the count ({1}).", uiStart + uiCount, GetCount());
+    EZ_ASSERT_DEV(uiStart + uiCount <= GetCount(), "uiStart+uiCount ({0}) has to be smaller or equal than the count ({1}).",
+                  uiStart + uiCount, GetCount());
     return ezArrayPtr<T>(GetPtr() + uiStart, uiCount);
   }
 
@@ -169,7 +179,8 @@ public:
   /// \brief Copies the data from \a other into this array. The arrays must have the exact same size.
   inline void CopyFrom(const ezArrayPtr<const T>& other) // [tested]
   {
-    EZ_ASSERT_DEV(GetCount() == other.GetCount(), "Count for copy does not match. Target has {0} elements, source {1} elements", GetCount(), other.GetCount());
+    EZ_ASSERT_DEV(GetCount() == other.GetCount(), "Count for copy does not match. Target has {0} elements, source {1} elements", GetCount(),
+                  other.GetCount());
 
     ezMemoryUtils::Copy(GetPtr(), other.GetPtr(), GetCount());
   }
@@ -192,53 +203,87 @@ private:
 };
 
 /// \brief Helper function to create ezArrayPtr from a pointer of some type and a count.
-template<typename T>
+template <typename T>
 EZ_ALWAYS_INLINE ezArrayPtr<T> ezMakeArrayPtr(T* ptr, ezUInt32 uiCount)
 {
   return ezArrayPtr<T>(ptr, uiCount);
 }
 
 /// \brief Helper function to create ezArrayPtr from a static array the a size known at compile-time.
-template<typename T, ezUInt32 N>
-EZ_ALWAYS_INLINE ezArrayPtr<T> ezMakeArrayPtr(T(&staticArray)[N])
+template <typename T, ezUInt32 N>
+EZ_ALWAYS_INLINE ezArrayPtr<T> ezMakeArrayPtr(T (&staticArray)[N])
 {
   return ezArrayPtr<T>(staticArray);
 }
 
 template <typename T>
-typename ezArrayPtr<T>::iterator begin(ezArrayPtr<T>& container) { return container.GetPtr(); }
+typename ezArrayPtr<T>::iterator begin(ezArrayPtr<T>& container)
+{
+  return container.GetPtr();
+}
 
 template <typename T>
-typename ezArrayPtr<T>::const_iterator  begin(const ezArrayPtr<T>& container) { return container.GetPtr(); }
+typename ezArrayPtr<T>::const_iterator begin(const ezArrayPtr<T>& container)
+{
+  return container.GetPtr();
+}
 
 template <typename T>
-typename ezArrayPtr<T>::const_iterator cbegin(const ezArrayPtr<T>& container) { return container.GetPtr(); }
+typename ezArrayPtr<T>::const_iterator cbegin(const ezArrayPtr<T>& container)
+{
+  return container.GetPtr();
+}
 
 template <typename T>
-typename ezArrayPtr<T>::reverse_iterator rbegin(ezArrayPtr<T>& container) { return typename ezArrayPtr<T>::reverse_iterator(container.GetPtr() + container.GetCount() - 1); }
+typename ezArrayPtr<T>::reverse_iterator rbegin(ezArrayPtr<T>& container)
+{
+  return typename ezArrayPtr<T>::reverse_iterator(container.GetPtr() + container.GetCount() - 1);
+}
 
 template <typename T>
-typename ezArrayPtr<T>::const_reverse_iterator rbegin(const ezArrayPtr<T>& container) { return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() + container.GetCount() - 1); }
+typename ezArrayPtr<T>::const_reverse_iterator rbegin(const ezArrayPtr<T>& container)
+{
+  return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() + container.GetCount() - 1);
+}
 
 template <typename T>
-typename ezArrayPtr<T>::const_reverse_iterator crbegin(const ezArrayPtr<T>& container) { return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() + container.GetCount() - 1); }
+typename ezArrayPtr<T>::const_reverse_iterator crbegin(const ezArrayPtr<T>& container)
+{
+  return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() + container.GetCount() - 1);
+}
 
 template <typename T>
-typename ezArrayPtr<T>::iterator end(ezArrayPtr<T>& container) { return container.GetPtr() + container.GetCount(); }
+typename ezArrayPtr<T>::iterator end(ezArrayPtr<T>& container)
+{
+  return container.GetPtr() + container.GetCount();
+}
 
 template <typename T>
-typename ezArrayPtr<T>::const_iterator end(const ezArrayPtr<T>& container) { return container.GetPtr() + container.GetCount(); }
+typename ezArrayPtr<T>::const_iterator end(const ezArrayPtr<T>& container)
+{
+  return container.GetPtr() + container.GetCount();
+}
 
 template <typename T>
-typename ezArrayPtr<T>::const_iterator cend(const ezArrayPtr<T>& container) { return container.GetPtr() + container.GetCount(); }
+typename ezArrayPtr<T>::const_iterator cend(const ezArrayPtr<T>& container)
+{
+  return container.GetPtr() + container.GetCount();
+}
 
 template <typename T>
-typename ezArrayPtr<T>::reverse_iterator rend(ezArrayPtr<T>& container) { return typename ezArrayPtr<T>::reverse_iterator(container.GetPtr() - 1); }
+typename ezArrayPtr<T>::reverse_iterator rend(ezArrayPtr<T>& container)
+{
+  return typename ezArrayPtr<T>::reverse_iterator(container.GetPtr() - 1);
+}
 
 template <typename T>
-typename ezArrayPtr<T>::const_reverse_iterator  rend(const ezArrayPtr<T>& container) { return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() - 1); }
+typename ezArrayPtr<T>::const_reverse_iterator rend(const ezArrayPtr<T>& container)
+{
+  return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() - 1);
+}
 
 template <typename T>
-typename ezArrayPtr<T>::const_reverse_iterator crend(const ezArrayPtr<T>& container) { return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() - 1); }
-
-
+typename ezArrayPtr<T>::const_reverse_iterator crend(const ezArrayPtr<T>& container)
+{
+  return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() - 1);
+}

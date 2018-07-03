@@ -1,6 +1,6 @@
 #pragma once
 
-//static
+// static
 EZ_FORCE_INLINE ezSimdVec4i ezSimdRandom::Int(const ezSimdVec4i& initialSeed)
 {
   ezSimdVec4i seed = initialSeed;
@@ -20,16 +20,14 @@ EZ_FORCE_INLINE ezSimdVec4i ezSimdRandom::Int(const ezSimdVec4i& initialSeed)
   return seed;
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdRandom::FloatZeroToOne(const ezSimdVec4i& seed)
 {
   return Int(seed).ToFloat() * (1.0f / 2147483648.0f);
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdRandom::FloatMinMax(const ezSimdVec4i& seed, const ezSimdVec4f& minValue, const ezSimdVec4f& maxValue)
 {
   return ezSimdVec4f::Lerp(minValue, maxValue, FloatZeroToOne(seed));
 }
-
-

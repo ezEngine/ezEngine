@@ -18,9 +18,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPickingRenderPass, 1, ezRTTIDefaultAllocator<e
     EZ_MEMBER_PROPERTY("MarqueePickPos1", m_MarqueePickPosition1),
     EZ_MEMBER_PROPERTY("MarqueeActionID", m_uiMarqueeActionID),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezPickingRenderPass::ezPickingRenderPass() : ezRenderPipelinePass("EditorPickingRenderPass")
 {

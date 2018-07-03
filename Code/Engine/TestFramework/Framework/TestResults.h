@@ -1,9 +1,9 @@
-﻿#pragma once
+#pragma once
 
 #include <TestFramework/Basics.h>
 #include <TestFramework/Framework/Declarations.h>
-#include <string>
 #include <deque>
+#include <string>
 #include <vector>
 
 struct ezTestOutput
@@ -33,7 +33,10 @@ struct ezTestOutput
 /// \brief A message of type ezTestOutput::Enum, stored in ezResult.
 struct ezTestErrorMessage
 {
-  ezTestErrorMessage() : m_iLine(-1) { }
+  ezTestErrorMessage()
+      : m_iLine(-1)
+  {
+  }
 
   std::string m_sError;
   std::string m_sBlock;
@@ -46,7 +49,11 @@ struct ezTestErrorMessage
 /// \brief A message of type ezTestOutput::Enum, stored in ezResult.
 struct ezTestOutputMessage
 {
-  ezTestOutputMessage() : m_Type(ezTestOutput::ImportantInfo), m_iErrorIndex(-1) { }
+  ezTestOutputMessage()
+      : m_Type(ezTestOutput::ImportantInfo)
+      , m_iErrorIndex(-1)
+  {
+  }
 
   ezTestOutput::Enum m_Type;
   std::string m_sMessage;
@@ -68,12 +75,21 @@ struct ezTestResultQuery
 /// \brief Stores the results of a test run. Used by both ezTestEntry and ezSubTestEntry.
 struct ezTestResultData
 {
-  ezTestResultData() : m_bExecuted(false), m_bSuccess(false), m_iTestAsserts(0), m_fTestDuration(0.0), m_iFirstOutput(-1), m_iLastOutput(-1) { }
+  ezTestResultData()
+      : m_bExecuted(false)
+      , m_bSuccess(false)
+      , m_iTestAsserts(0)
+      , m_fTestDuration(0.0)
+      , m_iFirstOutput(-1)
+      , m_iLastOutput(-1)
+  {
+  }
   void Reset();
   void AddOutput(ezInt32 iOutputIndex);
 
   std::string m_sName;
-  bool m_bExecuted;       ///< Whether the test was executed. If false, the test was either deactivated or the test process crashed before executing it.
+  bool m_bExecuted;       ///< Whether the test was executed. If false, the test was either deactivated or the test process crashed before
+                          ///< executing it.
   bool m_bSuccess;        ///< Whether the test succeeded or not.
   int m_iTestAsserts;     ///< Asserts that were checked. For tests this includes the count of all of their sub-tests as well.
   double m_fTestDuration; ///< Duration of the test/sub-test. For tests, this includes the duration of all their sub-tests as well.
@@ -100,7 +116,7 @@ struct ezTestConfiguration
 class ezTestFrameworkResult
 {
 public:
-  ezTestFrameworkResult() { }
+  ezTestFrameworkResult() {}
 
   // Manage tests
   void Clear();
@@ -118,13 +134,14 @@ public:
 
   // Test output
   void TestOutput(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, ezTestOutput::Enum Type, const char* szMsg);
-  void TestError(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex,
-                 const char* szError, const char* szBlock, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg);
+  void TestError(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, const char* szError, const char* szBlock, const char* szFile, ezInt32 iLine,
+                 const char* szFunction, const char* szMsg);
   void TestResult(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, bool bSuccess, double fDuration);
   void AddAsserts(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, int iCount);
 
   // Messages / Errors
-  ezUInt32 GetOutputMessageCount(ezInt32 iTestIndex = -1, ezInt32 iSubTestIndex = -1, ezTestOutput::Enum Type = ezTestOutput::AllOutputTypes) const;
+  ezUInt32 GetOutputMessageCount(ezInt32 iTestIndex = -1, ezInt32 iSubTestIndex = -1,
+                                 ezTestOutput::Enum Type = ezTestOutput::AllOutputTypes) const;
   const ezTestOutputMessage* GetOutputMessage(ezUInt32 uiOutputMessageIdx) const;
 
   ezUInt32 GetErrorMessageCount(ezInt32 iTestIndex = -1, ezInt32 iSubTestIndex = -1) const;
@@ -133,11 +150,8 @@ public:
 private:
   struct ezSubTestResult
   {
-    ezSubTestResult() { }
-    ezSubTestResult(const char* szName)
-    {
-      m_Result.m_sName = szName;
-    }
+    ezSubTestResult() {}
+    ezSubTestResult(const char* szName) { m_Result.m_sName = szName; }
 
     ezTestResultData m_Result;
   };
@@ -145,10 +159,7 @@ private:
   struct ezTestResult
   {
     ezTestResult() {}
-    ezTestResult(const char* szName)
-    {
-      m_Result.m_sName = szName;
-    }
+    ezTestResult(const char* szName) { m_Result.m_sName = szName; }
 
     void Reset();
 
@@ -162,5 +173,3 @@ private:
   std::deque<ezTestErrorMessage> m_Errors;
   std::deque<ezTestOutputMessage> m_TestOutput;
 };
-
-

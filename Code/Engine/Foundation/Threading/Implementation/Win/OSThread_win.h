@@ -1,6 +1,5 @@
-
 #ifdef EZ_OSTHREAD_WIN_INL_H_INCLUDED
-  #error "This file must not be included twice."
+#error "This file must not be included twice."
 #endif
 
 #define EZ_OSTHREAD_WIN_INL_H_INCLUDED
@@ -15,13 +14,13 @@ ezAtomicInteger32 ezOSThread::s_iThreadCount;
 const DWORD MS_VC_EXCEPTION = 0x406D1388;
 
 // This structure describes a thread name set exception
-#pragma pack(push,8)
+#pragma pack(push, 8)
 typedef struct tagTHREADNAME_INFO
 {
-  DWORD dwType; // Must be 0x1000.
-  LPCSTR szName; // Pointer to name (in user addr space).
+  DWORD dwType;     // Must be 0x1000.
+  LPCSTR szName;    // Pointer to name (in user addr space).
   DWORD dwThreadID; // Thread ID (-1=caller thread).
-  DWORD dwFlags; // Reserved for future use, must be zero.
+  DWORD dwFlags;    // Reserved for future use, must be zero.
 } THREADNAME_INFO;
 #pragma pack(pop)
 
@@ -38,9 +37,9 @@ void SetThreadName(DWORD dwThreadID, LPCSTR szThreadName)
 
   __try
   {
-    RaiseException(MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(DWORD), (ULONG_PTR*)&info);
+    RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(DWORD), (ULONG_PTR*)&info);
   }
-  __except(EXCEPTION_CONTINUE_EXECUTION)
+  __except (EXCEPTION_CONTINUE_EXECUTION)
   {
     return; // makes the static code analysis happy
   }
@@ -53,7 +52,8 @@ void SetThreadName(DWORD dwThreadID, LPCSTR szThreadName)
 
 // Windows specific implementation of the thread class
 
-ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /*= nullptr*/, const char* szName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
+ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /*= nullptr*/, const char* szName /*= "ezThread"*/,
+                       ezUInt32 uiStackSize /*= 128 * 1024*/)
 {
   s_iThreadCount.Increment();
 
@@ -62,7 +62,7 @@ ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /
   EZ_ASSERT_RELEASE(m_Handle != nullptr, "Thread creation failed!"); // makes the static code analysis happy
 
   m_ThreadID = GetThreadId(m_Handle);
-  
+
   m_EntryPoint = pThreadEntryPoint;
   m_pUserData = pUserData;
   m_szName = szName;
@@ -73,7 +73,6 @@ ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /
   {
     SetThreadName(GetThreadId(m_Handle), szName);
   }
-
 }
 
 ezOSThread::~ezOSThread()
@@ -94,4 +93,3 @@ void ezOSThread::Join()
 {
   WaitForSingleObject(m_Handle, INFINITE);
 }
-

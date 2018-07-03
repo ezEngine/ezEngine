@@ -1,22 +1,21 @@
-
 #pragma once
 
 ezTag::ezTag()
-  : m_uiBlockIndex(0xFFFFFFFEu)
+    : m_uiBlockIndex(0xFFFFFFFEu)
 {
 }
 
-bool ezTag::operator == (const ezTag& rhs) const
+bool ezTag::operator==(const ezTag& rhs) const
 {
   return m_TagString == rhs.m_TagString;
 }
 
-bool ezTag::operator != (const ezTag& rhs) const
+bool ezTag::operator!=(const ezTag& rhs) const
 {
   return m_TagString != rhs.m_TagString;
 }
 
-bool ezTag::operator < (const ezTag& rhs) const
+bool ezTag::operator<(const ezTag& rhs) const
 {
   return m_TagString < rhs.m_TagString;
 }
@@ -35,4 +34,3 @@ bool ezTag::IsValid() const
 {
   return m_uiBlockIndex != 0xFFFFFFFEu;
 }
-

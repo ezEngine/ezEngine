@@ -1,14 +1,16 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Strings/StringConversion.h>
 
-inline ezStringBuilder::ezStringBuilder(ezAllocatorBase* pAllocator) : m_Data(pAllocator)
+inline ezStringBuilder::ezStringBuilder(ezAllocatorBase* pAllocator)
+    : m_Data(pAllocator)
 {
   m_uiCharacterCount = 0;
   AppendTerminator();
 }
 
-inline ezStringBuilder::ezStringBuilder(const ezStringBuilder& rhs) : m_Data(rhs.GetAllocator())
+inline ezStringBuilder::ezStringBuilder(const ezStringBuilder& rhs)
+    : m_Data(rhs.GetAllocator())
 {
   m_uiCharacterCount = 0;
   AppendTerminator();
@@ -16,7 +18,8 @@ inline ezStringBuilder::ezStringBuilder(const ezStringBuilder& rhs) : m_Data(rhs
   *this = rhs;
 }
 
-inline ezStringBuilder::ezStringBuilder(ezStringBuilder&& rhs) : m_Data(rhs.GetAllocator())
+inline ezStringBuilder::ezStringBuilder(ezStringBuilder&& rhs)
+    : m_Data(rhs.GetAllocator())
 {
   m_uiCharacterCount = 0;
   AppendTerminator();
@@ -24,7 +27,8 @@ inline ezStringBuilder::ezStringBuilder(ezStringBuilder&& rhs) : m_Data(rhs.GetA
   *this = std::move(rhs);
 }
 
-inline ezStringBuilder::ezStringBuilder(const char* szUTF8, ezAllocatorBase* pAllocator) : m_Data(pAllocator)
+inline ezStringBuilder::ezStringBuilder(const char* szUTF8, ezAllocatorBase* pAllocator)
+    : m_Data(pAllocator)
 {
   m_uiCharacterCount = 0;
   AppendTerminator();
@@ -32,7 +36,8 @@ inline ezStringBuilder::ezStringBuilder(const char* szUTF8, ezAllocatorBase* pAl
   *this = szUTF8;
 }
 
-inline ezStringBuilder::ezStringBuilder(const wchar_t* szWChar, ezAllocatorBase* pAllocator) : m_Data(pAllocator)
+inline ezStringBuilder::ezStringBuilder(const wchar_t* szWChar, ezAllocatorBase* pAllocator)
+    : m_Data(pAllocator)
 {
   m_uiCharacterCount = 0;
   AppendTerminator();
@@ -40,7 +45,8 @@ inline ezStringBuilder::ezStringBuilder(const wchar_t* szWChar, ezAllocatorBase*
   *this = szWChar;
 }
 
-inline ezStringBuilder::ezStringBuilder(const ezStringView& rhs, ezAllocatorBase* pAllocator) : m_Data(pAllocator)
+inline ezStringBuilder::ezStringBuilder(const ezStringView& rhs, ezAllocatorBase* pAllocator)
+    : m_Data(pAllocator)
 {
   m_uiCharacterCount = 0;
   AppendTerminator();
@@ -107,7 +113,7 @@ EZ_FORCE_INLINE void ezStringBuilder::Clear()
 
 inline void ezStringBuilder::Append(ezUInt32 uiChar)
 {
-  char szChar[6] = { 0, 0, 0, 0, 0, 0 };
+  char szChar[6] = {0, 0, 0, 0, 0, 0};
   char* pChar = &szChar[0];
 
   ezUnicodeUtils::EncodeUtf32ToUtf8(uiChar, pChar);
@@ -124,14 +130,15 @@ inline void ezStringBuilder::Append(ezUInt32 uiChar)
 
 inline void ezStringBuilder::Prepend(ezUInt32 uiChar)
 {
-  char szChar[6] = { 0, 0, 0, 0, 0, 0 };
+  char szChar[6] = {0, 0, 0, 0, 0, 0};
   char* pChar = &szChar[0];
 
   ezUnicodeUtils::EncodeUtf32ToUtf8(uiChar, pChar);
   Prepend(szChar);
 }
 
-inline void ezStringBuilder::Append(const wchar_t* pData1, const wchar_t* pData2, const wchar_t* pData3, const wchar_t* pData4, const wchar_t* pData5, const wchar_t* pData6)
+inline void ezStringBuilder::Append(const wchar_t* pData1, const wchar_t* pData2, const wchar_t* pData3, const wchar_t* pData4,
+                                    const wchar_t* pData5, const wchar_t* pData6)
 {
   // this is a bit heavy on the stack size (6KB)
   // but it is really only a convenience function, as one could always just use the char* Append function and convert explicitly
@@ -145,7 +152,8 @@ inline void ezStringBuilder::Append(const wchar_t* pData1, const wchar_t* pData2
   Append(s1.GetData(), s2.GetData(), s3.GetData(), s4.GetData(), s5.GetData(), s6.GetData());
 }
 
-inline void ezStringBuilder::Prepend(const wchar_t* pData1, const wchar_t* pData2, const wchar_t* pData3, const wchar_t* pData4, const wchar_t* pData5, const wchar_t* pData6)
+inline void ezStringBuilder::Prepend(const wchar_t* pData1, const wchar_t* pData2, const wchar_t* pData3, const wchar_t* pData4,
+                                     const wchar_t* pData5, const wchar_t* pData6)
 {
   // this is a bit heavy on the stack size (6KB)
   // but it is really only a convenience function, as one could always just use the char* Append function and convert explicitly
@@ -192,17 +200,19 @@ inline void ezStringBuilder::ToLower()
 inline void ezStringBuilder::Printf(const char* szUtf8Format, ...)
 {
   va_list args;
-  va_start (args, szUtf8Format);
+  va_start(args, szUtf8Format);
 
   PrintfArgs(szUtf8Format, args);
 
-  va_end (args);
+  va_end(args);
 }
 
 inline void ezStringBuilder::ChangeCharacter(iterator& it, ezUInt32 uiCharacter)
 {
   EZ_ASSERT_DEV(it.IsValid(), "The given character iterator does not point to a valid character.");
-  EZ_ASSERT_DEV(it.GetData() >= GetData() && it.GetData() < GetData() + GetElementCount(), "The given character iterator does not point into this string. It was either created from another string, or this string has been reallocated in the mean time.");
+  EZ_ASSERT_DEV(it.GetData() >= GetData() && it.GetData() < GetData() + GetElementCount(),
+                "The given character iterator does not point into this string. It was either created from another string, or this string "
+                "has been reallocated in the mean time.");
 
   // this is only an optimization for pure ASCII strings
   // without it, the code below would still work
@@ -226,7 +236,7 @@ EZ_ALWAYS_INLINE void ezStringBuilder::Reserve(ezUInt32 uiNumElements)
   m_Data.Reserve(uiNumElements);
 }
 
-EZ_ALWAYS_INLINE void ezStringBuilder::Insert (const char* szInsertAtPos, const ezStringView& szTextToInsert)
+EZ_ALWAYS_INLINE void ezStringBuilder::Insert(const char* szInsertAtPos, const ezStringView& szTextToInsert)
 {
   ReplaceSubString(szInsertAtPos, szInsertAtPos, szTextToInsert);
 }
@@ -237,7 +247,8 @@ EZ_ALWAYS_INLINE void ezStringBuilder::Remove(const char* szRemoveFromPos, const
 }
 
 template <typename Container>
-void ezStringBuilder::Split(bool bReturnEmptyStrings, Container& Output, const char* szSeparator1, const char* szSeparator2, const char* szSeparator3, const char* szSeparator4, const char* szSeparator5, const char* szSeparator6) const
+void ezStringBuilder::Split(bool bReturnEmptyStrings, Container& Output, const char* szSeparator1, const char* szSeparator2,
+                            const char* szSeparator3, const char* szSeparator4, const char* szSeparator5, const char* szSeparator6) const
 {
   Output.Clear();
 
@@ -246,15 +257,7 @@ void ezStringBuilder::Split(bool bReturnEmptyStrings, Container& Output, const c
 
   const ezUInt32 uiParams = 6;
 
-  const char* Seps[uiParams] =
-  {
-    szSeparator1,
-    szSeparator2,
-    szSeparator3,
-    szSeparator4,
-    szSeparator5,
-    szSeparator6
-  };
+  const char* Seps[uiParams] = {szSeparator1, szSeparator2, szSeparator3, szSeparator4, szSeparator5, szSeparator6};
 
   ezUInt32 SepLen[uiParams];
 
@@ -348,4 +351,3 @@ EZ_FORCE_INLINE ezStringView ezStringBuilder::GetRootedPathRootName() const
 }
 
 #include <Foundation/Strings/Implementation/AllStrings_inl.h>
-

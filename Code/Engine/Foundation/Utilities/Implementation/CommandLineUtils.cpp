@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
@@ -9,7 +10,8 @@ ezCommandLineUtils* ezCommandLineUtils::GetGlobalInstance()
   return &g_pCmdLineInstance;
 }
 
-void ezCommandLineUtils::SplitCommandLineString(const char* commandString, bool addExecutableDir, ezDynamicArray<ezString>& outArgs, ezDynamicArray<const char*>& outArgsV)
+void ezCommandLineUtils::SplitCommandLineString(const char* commandString, bool addExecutableDir, ezDynamicArray<ezString>& outArgs,
+                                                ezDynamicArray<const char*>& outArgsV)
 {
   // Add application dir as first argument as customary on other platforms.
   if (addExecutableDir)
@@ -59,27 +61,27 @@ void ezCommandLineUtils::SetCommandLine(ezUInt32 argc, const char** argv)
 
 void ezCommandLineUtils::SetCommandLine()
 {
- int argc = 0;
+  int argc = 0;
 
- LPWSTR* argvw = CommandLineToArgvW(GetCommandLineW(), &argc);
+  LPWSTR* argvw = CommandLineToArgvW(GetCommandLineW(), &argc);
 
- EZ_ASSERT_RELEASE(argvw != nullptr, "CommandLineToArgvW failed");
+  EZ_ASSERT_RELEASE(argvw != nullptr, "CommandLineToArgvW failed");
 
- ezArrayPtr<ezStringUtf8> ArgvUtf8 = EZ_DEFAULT_NEW_ARRAY(ezStringUtf8, argc);
- ezArrayPtr<const char*> argv = EZ_DEFAULT_NEW_ARRAY(const char*, argc);
+  ezArrayPtr<ezStringUtf8> ArgvUtf8 = EZ_DEFAULT_NEW_ARRAY(ezStringUtf8, argc);
+  ezArrayPtr<const char*> argv = EZ_DEFAULT_NEW_ARRAY(const char*, argc);
 
- for (ezInt32 i = 0; i < argc; ++i)
- {
-   ArgvUtf8[i] = argvw[i];
-   argv[i] = ArgvUtf8[i].GetData();
- }
+  for (ezInt32 i = 0; i < argc; ++i)
+  {
+    ArgvUtf8[i] = argvw[i];
+    argv[i] = ArgvUtf8[i].GetData();
+  }
 
- SetCommandLine(argc, argv.GetPtr());
+  SetCommandLine(argc, argv.GetPtr());
 
 
- EZ_DEFAULT_DELETE_ARRAY(ArgvUtf8);
- EZ_DEFAULT_DELETE_ARRAY(argv);
- LocalFree(argvw);
+  EZ_DEFAULT_DELETE_ARRAY(ArgvUtf8);
+  EZ_DEFAULT_DELETE_ARRAY(argv);
+  LocalFree(argvw);
 }
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   // Not implemented on Windows UWP.
@@ -88,7 +90,7 @@ void ezCommandLineUtils::SetCommandLine()
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
   // Not implemented on Linux.
 #else
-  #error "ezCommandLineUtils::SetCommandLine(): Abstraction missing."
+#error "ezCommandLineUtils::SetCommandLine(): Abstraction missing."
 #endif
 
 ezUInt32 ezCommandLineUtils::GetParameterCount() const
@@ -107,8 +109,7 @@ ezInt32 ezCommandLineUtils::GetOptionIndex(const char* szOption, bool bCaseSensi
 
   for (ezUInt32 i = 0; i < m_Commands.GetCount(); ++i)
   {
-    if (( bCaseSensitive && m_Commands[i].IsEqual(szOption)) ||
-        (!bCaseSensitive && m_Commands[i].IsEqual_NoCase(szOption)))
+    if ((bCaseSensitive && m_Commands[i].IsEqual(szOption)) || (!bCaseSensitive && m_Commands[i].IsEqual_NoCase(szOption)))
       return i;
   }
 
@@ -227,4 +228,3 @@ void ezCommandLineUtils::InjectCustomArgument(const char* szArgument)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_CommandLineUtils);
-

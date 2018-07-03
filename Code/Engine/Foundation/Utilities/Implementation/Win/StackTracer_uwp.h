@@ -1,25 +1,21 @@
-
 #ifdef EZ_STACKTRACER_UWP_INL_H_INCLUDED
-  #error "This file must not be included twice."
+#error "This file must not be included twice."
 #endif
 
 #define EZ_STACKTRACER_UWP_INL_H_INCLUDED
 
-void ezStackTracer::OnPluginEvent(const ezPlugin::PluginEvent& e)
-{
-}
+void ezStackTracer::OnPluginEvent(const ezPlugin::PluginEvent& e) {}
 
-//static
+// static
 ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace, void* pContext)
 {
   return 0;
 }
 
-//static
+// static
 void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc printFunc)
 {
   char szBuffer[512] = "Stack Traces are currently not supported on UWP";
 
   (*printFunc)(szBuffer);
 }
-

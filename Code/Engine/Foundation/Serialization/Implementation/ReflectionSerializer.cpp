@@ -1,17 +1,20 @@
 #include <PCH.h>
+
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/Serialization/BinarySerializer.h>
+#include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Serialization/RttiConverter.h>
-#include <Foundation/Serialization/BinarySerializer.h>
-#include <Foundation/Reflection/ReflectionUtils.h>
-#include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/Types/ScopeExit.h>
-#include <Foundation/Logging/Log.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezReflectionSerializer public static functions
 ////////////////////////////////////////////////////////////////////////
 
-void ezReflectionSerializer::WriteObjectToDDL(ezStreamWriter& stream, const ezRTTI* pRtti, const void* pObject, bool bCompactMmode /*= true*/, ezOpenDdlWriter::TypeStringMode typeMode /*= ezOpenDdlWriter::TypeStringMode::Shortest*/)
+void ezReflectionSerializer::WriteObjectToDDL(ezStreamWriter& stream, const ezRTTI* pRtti, const void* pObject,
+                                              bool bCompactMmode /*= true*/,
+                                              ezOpenDdlWriter::TypeStringMode typeMode /*= ezOpenDdlWriter::TypeStringMode::Shortest*/)
 {
   ezAbstractObjectGraph graph;
   ezRttiConverterContext context;
@@ -129,7 +132,7 @@ namespace
     ezVariant vTemp;
     switch (pProp->GetCategory())
     {
-    case ezPropertyCategory::Member:
+      case ezPropertyCategory::Member:
       {
         ezAbstractMemberProperty* pSpecific = static_cast<ezAbstractMemberProperty*>(pProp);
 
@@ -177,7 +180,7 @@ namespace
         }
       }
       break;
-    case ezPropertyCategory::Array:
+      case ezPropertyCategory::Array:
       {
         ezAbstractArrayProperty* pSpecific = static_cast<ezAbstractArrayProperty*>(pProp);
         // Delete old values
@@ -235,7 +238,7 @@ namespace
         }
       }
       break;
-    case ezPropertyCategory::Set:
+      case ezPropertyCategory::Set:
       {
         ezAbstractSetProperty* pSpecific = static_cast<ezAbstractSetProperty*>(pProp);
 
@@ -280,7 +283,7 @@ namespace
         }
       }
       break;
-    case ezPropertyCategory::Map:
+      case ezPropertyCategory::Map:
       {
         ezAbstractMapProperty* pSpecific = static_cast<ezAbstractMapProperty*>(pProp);
 
@@ -306,7 +309,7 @@ namespace
         for (ezUInt32 i = 0; i < keys.GetCount(); ++i)
         {
           if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ||
-            (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)))
+              (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)))
           {
             ezVariant value = ezReflectionUtils::GetMapPropertyValue(pSpecific, pObject, keys[i]);
             ezReflectionUtils::SetMapPropertyValue(pSpecific, pClone, keys[i], value);
@@ -331,16 +334,16 @@ namespace
               }
               else
               {
-                ezLog::Error("The property '{}' can not be cloned as the type '{}' cannot be allocated."
-                  , pProp->GetPropertyName(), pPropType->GetTypeName());
+                ezLog::Error("The property '{}' can not be cloned as the type '{}' cannot be allocated.", pProp->GetPropertyName(),
+                             pPropType->GetTypeName());
               }
             }
           }
         }
       }
       break;
-    default:
-      break;
+      default:
+        break;
     }
   }
 
@@ -382,13 +385,11 @@ void ezReflectionSerializer::Clone(const void* pObject, void* pClone, const ezRT
   {
     const ezReflectedClass* pRefObject = static_cast<const ezReflectedClass*>(pObject);
     pType = pRefObject->GetDynamicRTTI();
-    EZ_ASSERT_DEV(pType == static_cast<ezReflectedClass*>(pClone)->GetDynamicRTTI(),
-      "Object '{0}' and clone '{1}' have mismatching types!",
-      pType->GetTypeName(), static_cast<ezReflectedClass*>(pClone)->GetDynamicRTTI()->GetTypeName());
+    EZ_ASSERT_DEV(pType == static_cast<ezReflectedClass*>(pClone)->GetDynamicRTTI(), "Object '{0}' and clone '{1}' have mismatching types!",
+                  pType->GetTypeName(), static_cast<ezReflectedClass*>(pClone)->GetDynamicRTTI()->GetTypeName());
   }
 
   CloneProperties(pObject, pClone, pType);
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_ReflectionSerializer);
-

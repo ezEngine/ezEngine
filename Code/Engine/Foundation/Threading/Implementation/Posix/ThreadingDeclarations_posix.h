@@ -22,4 +22,3 @@ struct ezThreadSignalData
 
 
 /// \endcond
-

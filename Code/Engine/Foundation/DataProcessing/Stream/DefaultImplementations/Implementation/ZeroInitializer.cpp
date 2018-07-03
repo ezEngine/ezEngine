@@ -10,7 +10,7 @@
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessingStreamSpawnerZeroInitialized, 1, ezRTTIDefaultAllocator<ezProcessingStreamSpawnerZeroInitialized>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezProcessingStreamSpawnerZeroInitialized::ezProcessingStreamSpawnerZeroInitialized()

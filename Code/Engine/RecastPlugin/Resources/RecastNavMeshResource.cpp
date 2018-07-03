@@ -4,7 +4,7 @@
 #include <Foundation/IO/ChunkStream.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRecastNavMeshResource, 1, ezRTTIDefaultAllocator<ezRecastNavMeshResource>);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezRecastNavMeshResource::ezRecastNavMeshResource() 
   : ezResource<ezRecastNavMeshResource, ezRecastNavMeshResourceDescriptor>(DoUpdate::OnAnyThread, 1)

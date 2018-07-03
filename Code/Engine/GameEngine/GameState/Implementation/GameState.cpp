@@ -16,7 +16,7 @@
 #endif
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameState, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameState_Implementation_GameState);
 

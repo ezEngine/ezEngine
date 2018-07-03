@@ -155,4 +155,3 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_StackTracer);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_Stats);
 }
-

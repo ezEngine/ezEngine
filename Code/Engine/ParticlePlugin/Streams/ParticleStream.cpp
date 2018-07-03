@@ -5,10 +5,10 @@
 #include <Foundation/Memory/MemoryUtils.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStreamFactory, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStream, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 void ezParticleStreamFactory::GetFullStreamName(const char* szName, ezProcessingStream::DataType type, ezStringBuilder& out_Result)
 {

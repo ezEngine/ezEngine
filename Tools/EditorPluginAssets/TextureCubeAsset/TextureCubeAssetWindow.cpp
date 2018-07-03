@@ -19,7 +19,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeChannelModeAction, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezTextureCubeChannelModeAction::ezTextureCubeChannelModeAction(const ezActionContext& context, const char* szName, const char* szIconPath)
   : ezEnumerationMenuAction(context, szName, szIconPath)
@@ -42,7 +42,7 @@ void ezTextureCubeChannelModeAction::Execute(const ezVariant& value)
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeLodSliderAction, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 ezTextureCubeLodSliderAction::ezTextureCubeLodSliderAction(const ezActionContext& context, const char* szName)

@@ -21,12 +21,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory_Burst, 1, ezRTTIDefault
     EZ_MEMBER_PROPERTY("SpawnCountRange", m_uiSpawnCountRange),
     EZ_MEMBER_PROPERTY("SpawnCountScaleParam", m_sSpawnCountScaleParameter),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitter_Burst, 1, ezRTTIDefaultAllocator<ezParticleEmitter_Burst>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleEmitterFactory_Burst::ezParticleEmitterFactory_Burst()
 {

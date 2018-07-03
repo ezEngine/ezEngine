@@ -6,7 +6,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezMaterialAssetDocumentManager>);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 const char* const ezMaterialAssetDocumentManager::s_szShaderOutputTag = "VISUAL_SHADER";
 

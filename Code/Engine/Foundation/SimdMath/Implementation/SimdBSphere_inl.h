@@ -1,9 +1,6 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezSimdBSphere::ezSimdBSphere()
-{
-
-}
+EZ_ALWAYS_INLINE ezSimdBSphere::ezSimdBSphere() {}
 
 EZ_ALWAYS_INLINE ezSimdBSphere::ezSimdBSphere(const ezSimdVec4f& vCenter, const ezSimdFloat& fRadius)
 {
@@ -153,4 +150,3 @@ EZ_ALWAYS_INLINE bool ezSimdBSphere::operator!=(const ezSimdBSphere& rhs) const
 {
   return (m_CenterAndRadius != rhs.m_CenterAndRadius).AnySet();
 }
-

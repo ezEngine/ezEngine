@@ -17,9 +17,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStochasticResolvePass, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("StochasticColor", m_PinStochasticColor),
     EZ_MEMBER_PROPERTY("SampleCount", m_PinSampleCount)
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezStochasticResolvePass::ezStochasticResolvePass(const char* name /* = "StoachsticResolvePass" */)
   : ezRenderPipelinePass(name)

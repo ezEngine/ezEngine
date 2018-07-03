@@ -21,7 +21,7 @@
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSpriteAxis, 1)
 EZ_ENUM_CONSTANTS(ezSpriteAxis::EmitterDirection, ezSpriteAxis::WorldUp, ezSpriteAxis::Random)
-EZ_END_STATIC_REFLECTED_ENUM()
+EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeSpriteFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeSpriteFactory>)
 {
@@ -35,9 +35,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeSpriteFactory, 1, ezRTTIDefaultAll
     EZ_MEMBER_PROPERTY("Deviation", m_MaxDeviation)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0), ezAngle::Degree(90))),
     EZ_MEMBER_PROPERTY("TintColorParam", m_sTintColorParameter),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeSprite, 1, ezRTTIDefaultAllocator<ezParticleTypeSprite>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

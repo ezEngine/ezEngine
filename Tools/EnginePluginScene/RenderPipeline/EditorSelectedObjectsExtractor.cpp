@@ -19,9 +19,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorSelectedObjectsExtractor, 1, ezRTTIDefau
   {
     EZ_ACCESSOR_PROPERTY("SceneContext", GetSceneContext, SetSceneContext),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 ezEditorSelectedObjectsExtractor::ezEditorSelectedObjectsExtractor()

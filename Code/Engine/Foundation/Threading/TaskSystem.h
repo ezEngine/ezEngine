@@ -1,12 +1,12 @@
 #pragma once
 
-#include <Foundation/Threading/Thread.h>
-#include <Foundation/Containers/List.h>
 #include <Foundation/Containers/DynamicArray.h>
-#include <Foundation/Threading/Mutex.h>
+#include <Foundation/Containers/List.h>
 #include <Foundation/Strings/StringBuilder.h>
-#include <Foundation/Threading/ThreadSignal.h>
 #include <Foundation/Threading/Implementation/TaskSystemDeclarations.h>
+#include <Foundation/Threading/Mutex.h>
+#include <Foundation/Threading/Thread.h>
+#include <Foundation/Threading/ThreadSignal.h>
 
 /// \brief Derive from this base class to implement custom tasks.
 class EZ_FOUNDATION_DLL ezTask
@@ -14,7 +14,7 @@ class EZ_FOUNDATION_DLL ezTask
   EZ_DISALLOW_COPY_AND_ASSIGN(ezTask);
 
   /// \brief Function type for callbacks when a task has been finished (or canceled).
-  typedef ezDelegate<void (ezTask*)> OnTaskFinished;
+  typedef ezDelegate<void(ezTask*)> OnTaskFinished;
 
 public:
   ezTask();
@@ -109,19 +109,22 @@ public:
   /// \brief Returns the number of threads that are allocated to work on the given type of task.
   static ezUInt32 GetWorkerThreadCount(ezWorkerThreadType::Enum Type) { return s_WorkerThreads[Type].GetCount(); }
 
-  /// \brief A helper function to insert a single task into the system and start it right away. Returns ID of the Group into which the task has been put.
+  /// \brief A helper function to insert a single task into the system and start it right away. Returns ID of the Group into which the task
+  /// has been put.
   static ezTaskGroupID StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority); // [tested]
 
-  /// \brief A helper function to insert a single task into the system and start it right away. Returns ID of the Group into which the task has been put.
-  /// This overload allows to additionally specify a single dependency.
+  /// \brief A helper function to insert a single task into the system and start it right away. Returns ID of the Group into which the task
+  /// has been put. This overload allows to additionally specify a single dependency.
   static ezTaskGroupID StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority, ezTaskGroupID Dependency); // [tested]
 
 
-  /// \brief Creates a new task group for one-time use. Groups need to be recreated every time a task is supposed to be inserted into the system.
+  /// \brief Creates a new task group for one-time use. Groups need to be recreated every time a task is supposed to be inserted into the
+  /// system.
   ///
   /// All tasks that are added to this group will be run with the same given \a Priority.
   /// Once all tasks in the group are finished and thus the group is finished, an optional \a Callback can be executed.
-  static ezTaskGroupID CreateTaskGroup(ezTaskPriority::Enum Priority, ezTaskGroup::OnTaskGroupFinished Callback = ezTaskGroup::OnTaskGroupFinished()); // [tested]
+  static ezTaskGroupID CreateTaskGroup(ezTaskPriority::Enum Priority,
+                                       ezTaskGroup::OnTaskGroupFinished Callback = ezTaskGroup::OnTaskGroupFinished()); // [tested]
 
   /// \brief Adds a task to the given task group. The group must not yet have been started.
   static void AddTaskToGroup(ezTaskGroupID Group, ezTask* pTask); // [tested]
@@ -213,10 +216,16 @@ public:
   /// \brief Returns true when the thread that this function is executed on is the file loading thread.
   static bool IsLoadingThread();
 
-  /// \brief Returns the utilization (0.0 to 1.0) of the given thread. Note: This will only be valid, if FinishFrameTasks() is called once per frame.
+  /// \brief Returns the utilization (0.0 to 1.0) of the given thread. Note: This will only be valid, if FinishFrameTasks() is called once
+  /// per frame.
   ///
   /// Also optionally returns the number of tasks that were finished during the last frame.
-  static double GetThreadUtilization(ezWorkerThreadType::Enum Type, ezUInt32 iThread, ezUInt32* pNumTasksExecuted = nullptr) { if (pNumTasksExecuted) *pNumTasksExecuted = s_WorkerThreads[Type][iThread]->m_uiNumTasksExecuted; return s_WorkerThreads[Type][iThread]->m_ThreadUtilization; }
+  static double GetThreadUtilization(ezWorkerThreadType::Enum Type, ezUInt32 iThread, ezUInt32* pNumTasksExecuted = nullptr)
+  {
+    if (pNumTasksExecuted)
+      *pNumTasksExecuted = s_WorkerThreads[Type][iThread]->m_uiNumTasksExecuted;
+    return s_WorkerThreads[Type][iThread]->m_ThreadUtilization;
+  }
 
   /// \brief Subscribes to the worker thread started event. The callback will be called on each new started worker thread.
   static void SubscribeToWorkerThreadStarted(ezDelegate<void()> callback);
@@ -268,7 +277,8 @@ private:
   // Moves all 'next frame' tasks into the 'this frame' queues.
   static void ReprioritizeFrameTasks();
 
-  // Executes up to uiSomeFrameTasks tasks of priority 'SomeFrameMainThread', as long as the last duration between frames is no longer than fSmoothFrameMS.
+  // Executes up to uiSomeFrameTasks tasks of priority 'SomeFrameMainThread', as long as the last duration between frames is no longer than
+  // fSmoothFrameMS.
   static void ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, double fSmoothFrameMS);
 
   // Executes the on worker thread started callbacks
@@ -298,6 +308,3 @@ private:
   // The target frame time used by FinishFrameTasks()
   static double s_fSmoothFrameMS;
 };
-
-
-

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Threading/Implementation/ThreadingDeclarations.h>
@@ -21,8 +21,5 @@ public:
   void RaiseSignal();
 
 private:
-
   ezThreadSignalData m_Data;
 };
-
-

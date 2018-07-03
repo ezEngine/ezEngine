@@ -6,7 +6,7 @@
 #include <ToolsFoundation/Document/PrefabCache.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPrefabComponentDragDropHandler, 1, ezRTTIDefaultAllocator<ezPrefabComponentDragDropHandler>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 float ezPrefabComponentDragDropHandler::CanHandle(const ezDragDropInfo* pInfo) const

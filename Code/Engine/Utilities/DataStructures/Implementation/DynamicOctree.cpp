@@ -1,9 +1,12 @@
 #include <PCH.h>
+
 #include <Utilities/DataStructures/DynamicOctree.h>
 
 const float ezDynamicOctree::s_LooseOctreeFactor = 1.1f;
 
-ezDynamicOctree::ezDynamicOctree() : m_uiMaxTreeDepth (0), m_uiAddIDTopLevel (0)
+ezDynamicOctree::ezDynamicOctree()
+    : m_uiMaxTreeDepth(0)
+    , m_uiAddIDTopLevel(0)
 {
 }
 
@@ -38,8 +41,7 @@ void ezDynamicOctree::CreateTree(const ezVec3& vCenter, const ezVec3& vHalfExten
 
   m_uiAddIDTopLevel = 0;
   for (ezUInt32 i = 0; i < m_uiMaxTreeDepth; ++i)
-    m_uiAddIDTopLevel += ezMath::Pow (8, i);
-
+    m_uiAddIDTopLevel += ezMath::Pow(8, i);
 }
 
 /// The object lies at vCenter and has vHalfExtents as its bounding box.
@@ -47,7 +49,8 @@ void ezDynamicOctree::CreateTree(const ezVec3& vCenter, const ezVec3& vHalfExten
 /// \note In such a case it is inserted at the root-node and thus ALWAYS returned in range/view-frustum queries.
 ///
 /// If bOnlyIfInside is true, the object is discarded, if it is not inside the actual bounding box of the tree.
-ezResult ezDynamicOctree::InsertObject(const ezVec3& vCenter, const ezVec3& vHalfExtents, ezInt32 iObjectType, ezInt32 iObjectInstance, ezDynamicTreeObject* out_Object, bool bOnlyIfInside)
+ezResult ezDynamicOctree::InsertObject(const ezVec3& vCenter, const ezVec3& vHalfExtents, ezInt32 iObjectType, ezInt32 iObjectInstance,
+                                       ezDynamicTreeObject* out_Object, bool bOnlyIfInside)
 {
   if (out_Object)
     *out_Object = ezDynamicTreeObject();
@@ -78,7 +81,8 @@ ezResult ezDynamicOctree::InsertObject(const ezVec3& vCenter, const ezVec3& vHal
   oData.m_iObjectInstance = iObjectInstance;
 
   // insert the object into the best child
-  if (!InsertObject(vCenter, vHalfExtents, oData, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.y, m_BBox.m_vMax.y, m_BBox.m_vMin.z, m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel, ezMath::Pow (8, m_uiMaxTreeDepth-1), out_Object))
+  if (!InsertObject(vCenter, vHalfExtents, oData, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.y, m_BBox.m_vMax.y, m_BBox.m_vMin.z,
+                    m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel, ezMath::Pow(8, m_uiMaxTreeDepth - 1), out_Object))
   {
     if (!bOnlyIfInside)
     {
@@ -100,7 +104,9 @@ ezResult ezDynamicOctree::InsertObject(const ezVec3& vCenter, const ezVec3& vHal
   return EZ_SUCCESS;
 }
 
-bool ezDynamicOctree::InsertObject(const ezVec3& vCenter, const ezVec3& vHalfExtents, const ezDynamicTree::ezObjectData& Obj, float minx, float maxx, float miny, float maxy, float minz, float maxz, ezUInt32 uiNodeID, ezUInt32 uiAddID, ezUInt32 uiSubAddID, ezDynamicTreeObject* out_Object)
+bool ezDynamicOctree::InsertObject(const ezVec3& vCenter, const ezVec3& vHalfExtents, const ezDynamicTree::ezObjectData& Obj, float minx,
+                                   float maxx, float miny, float maxy, float minz, float maxz, ezUInt32 uiNodeID, ezUInt32 uiAddID,
+                                   ezUInt32 uiSubAddID, ezDynamicTreeObject* out_Object)
 {
   if (vCenter.x - vHalfExtents.x < minx)
     return false;
@@ -125,21 +131,29 @@ bool ezDynamicOctree::InsertObject(const ezVec3& vCenter, const ezVec3& vHalfExt
     const ezUInt32 uiAddIDChild = uiAddID - uiSubAddID;
     const ezUInt32 uiSubAddIDChild = uiSubAddID >> 3;
 
-    if (InsertObject(vCenter, vHalfExtents, Obj, minx, minx + lx, miny, miny + ly, minz, minz + lz, uiNodeIDBase + uiAddID * 0, uiAddIDChild, uiSubAddIDChild, out_Object))
+    if (InsertObject(vCenter, vHalfExtents, Obj, minx, minx + lx, miny, miny + ly, minz, minz + lz, uiNodeIDBase + uiAddID * 0,
+                     uiAddIDChild, uiSubAddIDChild, out_Object))
       return true;
-    if (InsertObject(vCenter, vHalfExtents, Obj, minx, minx + lx, miny, miny + ly, maxz - lz, maxz, uiNodeIDBase + uiAddID * 1, uiAddIDChild, uiSubAddIDChild, out_Object))
+    if (InsertObject(vCenter, vHalfExtents, Obj, minx, minx + lx, miny, miny + ly, maxz - lz, maxz, uiNodeIDBase + uiAddID * 1,
+                     uiAddIDChild, uiSubAddIDChild, out_Object))
       return true;
-    if (InsertObject(vCenter, vHalfExtents, Obj, minx, minx + lx, maxy - ly, maxy, minz, minz + lz, uiNodeIDBase + uiAddID * 2, uiAddIDChild, uiSubAddIDChild, out_Object))
+    if (InsertObject(vCenter, vHalfExtents, Obj, minx, minx + lx, maxy - ly, maxy, minz, minz + lz, uiNodeIDBase + uiAddID * 2,
+                     uiAddIDChild, uiSubAddIDChild, out_Object))
       return true;
-    if (InsertObject(vCenter, vHalfExtents, Obj, minx, minx + lx, maxy - ly, maxy, maxz - lz, maxz, uiNodeIDBase + uiAddID * 3, uiAddIDChild, uiSubAddIDChild, out_Object))
+    if (InsertObject(vCenter, vHalfExtents, Obj, minx, minx + lx, maxy - ly, maxy, maxz - lz, maxz, uiNodeIDBase + uiAddID * 3,
+                     uiAddIDChild, uiSubAddIDChild, out_Object))
       return true;
-    if (InsertObject(vCenter, vHalfExtents, Obj, maxx - lx, maxx, miny, miny + ly, minz, minz + lz, uiNodeIDBase + uiAddID * 4, uiAddIDChild, uiSubAddIDChild, out_Object))
+    if (InsertObject(vCenter, vHalfExtents, Obj, maxx - lx, maxx, miny, miny + ly, minz, minz + lz, uiNodeIDBase + uiAddID * 4,
+                     uiAddIDChild, uiSubAddIDChild, out_Object))
       return true;
-    if (InsertObject(vCenter, vHalfExtents, Obj, maxx - lx, maxx, miny, miny + ly, maxz - lz, maxz, uiNodeIDBase + uiAddID * 5, uiAddIDChild, uiSubAddIDChild, out_Object))
+    if (InsertObject(vCenter, vHalfExtents, Obj, maxx - lx, maxx, miny, miny + ly, maxz - lz, maxz, uiNodeIDBase + uiAddID * 5,
+                     uiAddIDChild, uiSubAddIDChild, out_Object))
       return true;
-    if (InsertObject(vCenter, vHalfExtents, Obj, maxx - lx, maxx, maxy - ly, maxy, minz, minz + lz, uiNodeIDBase + uiAddID * 6, uiAddIDChild, uiSubAddIDChild, out_Object))
+    if (InsertObject(vCenter, vHalfExtents, Obj, maxx - lx, maxx, maxy - ly, maxy, minz, minz + lz, uiNodeIDBase + uiAddID * 6,
+                     uiAddIDChild, uiSubAddIDChild, out_Object))
       return true;
-    if (InsertObject(vCenter, vHalfExtents, Obj, maxx - lx, maxx, maxy - ly, maxy, maxz - lz, maxz, uiNodeIDBase + uiAddID * 7, uiAddIDChild, uiSubAddIDChild, out_Object))
+    if (InsertObject(vCenter, vHalfExtents, Obj, maxx - lx, maxx, maxy - ly, maxy, maxz - lz, maxz, uiNodeIDBase + uiAddID * 7,
+                     uiAddIDChild, uiSubAddIDChild, out_Object))
       return true;
   }
 
@@ -163,7 +177,8 @@ void ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CA
   if (!m_BBox.Contains(vPoint))
     return;
 
-  FindObjectsInRange(vPoint, Callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.y, m_BBox.m_vMax.y, m_BBox.m_vMin.z, m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel, ezMath::Pow (8, m_uiMaxTreeDepth-1), 0xFFFFFFFF);
+  FindObjectsInRange(vPoint, Callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.y, m_BBox.m_vMax.y, m_BBox.m_vMin.z,
+                     m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel, ezMath::Pow(8, m_uiMaxTreeDepth - 1), 0xFFFFFFFF);
 }
 
 void ezDynamicOctree::FindVisibleObjects(const ezFrustum& Viewfrustum, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough) const
@@ -173,10 +188,13 @@ void ezDynamicOctree::FindVisibleObjects(const ezFrustum& Viewfrustum, EZ_VISIBL
   if (m_NodeMap.IsEmpty())
     return;
 
-  FindVisibleObjects(Viewfrustum, Callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.y, m_BBox.m_vMax.y, m_BBox.m_vMin.z, m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel, ezMath::Pow (4, m_uiMaxTreeDepth-1), 0xFFFFFFFF);
+  FindVisibleObjects(Viewfrustum, Callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.y, m_BBox.m_vMax.y,
+                     m_BBox.m_vMin.z, m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel, ezMath::Pow(4, m_uiMaxTreeDepth - 1), 0xFFFFFFFF);
 }
 
-void ezDynamicOctree::FindVisibleObjects (const ezFrustum& Viewfrustum, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough, float minx, float maxx, float miny, float maxy, float minz, float maxz, ezUInt32 uiNodeID, ezUInt32 uiAddID, ezUInt32 uiSubAddID, ezUInt32 uiNextNodeID) const
+void ezDynamicOctree::FindVisibleObjects(const ezFrustum& Viewfrustum, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough, float minx,
+                                         float maxx, float miny, float maxy, float minz, float maxz, ezUInt32 uiNodeID, ezUInt32 uiAddID,
+                                         ezUInt32 uiSubAddID, ezUInt32 uiNextNodeID) const
 {
   ezVec3 v[8];
   v[0].Set(minx, miny, minz);
@@ -220,7 +238,7 @@ void ezDynamicOctree::FindVisibleObjects (const ezFrustum& Viewfrustum, EZ_VISIB
   {
     mmk.m_uiKey = uiNodeID + 1;
 
-    while  (it1.IsValid())
+    while (it1.IsValid())
     {
       // first increase the iterator, the user could erase it in the callback
       ezDynamicTreeObjectConst temp = it1;
@@ -239,14 +257,22 @@ void ezDynamicOctree::FindVisibleObjects (const ezFrustum& Viewfrustum, EZ_VISIB
       const ezUInt32 uiAddIDChild = uiAddID - uiSubAddID;
       const ezUInt32 uiSubAddIDChild = uiSubAddID >> 3;
 
-      FindVisibleObjects (Viewfrustum, Callback, pPassThrough, minx, minx + lx, miny, miny + ly, minz, minz + lz, uiNodeIDBase + uiAddID * 0, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 1);
-      FindVisibleObjects (Viewfrustum, Callback, pPassThrough, minx, minx + lx, miny, miny + ly, maxz - lz, maxz, uiNodeIDBase + uiAddID * 1, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 2);
-      FindVisibleObjects (Viewfrustum, Callback, pPassThrough, minx, minx + lx, maxy - ly, maxy, minz, minz + lz, uiNodeIDBase + uiAddID * 2, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 3);
-      FindVisibleObjects (Viewfrustum, Callback, pPassThrough, minx, minx + lx, maxy - ly, maxy, maxz - lz, maxz, uiNodeIDBase + uiAddID * 3, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 4);
-      FindVisibleObjects (Viewfrustum, Callback, pPassThrough, maxx - lx, maxx, miny, miny + ly, minz, minz + lz, uiNodeIDBase + uiAddID * 4, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 5);
-      FindVisibleObjects (Viewfrustum, Callback, pPassThrough, maxx - lx, maxx, miny, miny + ly, maxz - lz, maxz, uiNodeIDBase + uiAddID * 5, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 6);
-      FindVisibleObjects (Viewfrustum, Callback, pPassThrough, maxx - lx, maxx, maxy - ly, maxy, minz, minz + lz, uiNodeIDBase + uiAddID * 6, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 7);
-      FindVisibleObjects (Viewfrustum, Callback, pPassThrough, maxx - lx, maxx, maxy - ly, maxy, maxz - lz, maxz, uiNodeIDBase + uiAddID * 7, uiAddIDChild, uiSubAddIDChild, uiNextNodeID);
+      FindVisibleObjects(Viewfrustum, Callback, pPassThrough, minx, minx + lx, miny, miny + ly, minz, minz + lz, uiNodeIDBase + uiAddID * 0,
+                         uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 1);
+      FindVisibleObjects(Viewfrustum, Callback, pPassThrough, minx, minx + lx, miny, miny + ly, maxz - lz, maxz, uiNodeIDBase + uiAddID * 1,
+                         uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 2);
+      FindVisibleObjects(Viewfrustum, Callback, pPassThrough, minx, minx + lx, maxy - ly, maxy, minz, minz + lz, uiNodeIDBase + uiAddID * 2,
+                         uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 3);
+      FindVisibleObjects(Viewfrustum, Callback, pPassThrough, minx, minx + lx, maxy - ly, maxy, maxz - lz, maxz, uiNodeIDBase + uiAddID * 3,
+                         uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 4);
+      FindVisibleObjects(Viewfrustum, Callback, pPassThrough, maxx - lx, maxx, miny, miny + ly, minz, minz + lz, uiNodeIDBase + uiAddID * 4,
+                         uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 5);
+      FindVisibleObjects(Viewfrustum, Callback, pPassThrough, maxx - lx, maxx, miny, miny + ly, maxz - lz, maxz, uiNodeIDBase + uiAddID * 5,
+                         uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 6);
+      FindVisibleObjects(Viewfrustum, Callback, pPassThrough, maxx - lx, maxx, maxy - ly, maxy, minz, minz + lz, uiNodeIDBase + uiAddID * 6,
+                         uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 7);
+      FindVisibleObjects(Viewfrustum, Callback, pPassThrough, maxx - lx, maxx, maxy - ly, maxy, maxz - lz, maxz, uiNodeIDBase + uiAddID * 7,
+                         uiAddIDChild, uiSubAddIDChild, uiNextNodeID);
     }
   }
 }
@@ -270,7 +296,7 @@ void ezDynamicOctree::RemoveObject(ezInt32 iObjectType, ezInt32 iObjectInstance)
 
 void ezDynamicOctree::RemoveObjectsOfType(ezInt32 iObjectType)
 {
-  for (ezDynamicTreeObject it = m_NodeMap.GetIterator(); it.IsValid(); )
+  for (ezDynamicTreeObject it = m_NodeMap.GetIterator(); it.IsValid();)
   {
     if (it.Value().m_iObjectType == iObjectType)
     {
@@ -286,7 +312,9 @@ void ezDynamicOctree::RemoveObjectsOfType(ezInt32 iObjectType)
 
 
 
-bool ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough, float minx, float maxx, float miny, float maxy, float minz, float maxz, ezUInt32 uiNodeID, ezUInt32 uiAddID, ezUInt32 uiSubAddID, ezUInt32 uiNextNodeID) const
+bool ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough, float minx, float maxx,
+                                         float miny, float maxy, float minz, float maxz, ezUInt32 uiNodeID, ezUInt32 uiAddID,
+                                         ezUInt32 uiSubAddID, ezUInt32 uiNextNodeID) const
 {
   if (vPoint.x < minx)
     return true;
@@ -316,7 +344,7 @@ bool ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CA
 
       const ezDynamicTreeObjectConst itlast = m_NodeMap.LowerBound(mmk);
 
-      while  (it1 != itlast)
+      while (it1 != itlast)
       {
         // first increase the iterator, the user could erase it in the callback
         ezDynamicTreeObjectConst temp = it1;
@@ -337,21 +365,29 @@ bool ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CA
       const ezUInt32 uiAddIDChild = uiAddID - uiSubAddID;
       const ezUInt32 uiSubAddIDChild = uiSubAddID >> 3;
 
-      if (!FindObjectsInRange(vPoint, Callback, pPassThrough, minx, minx + lx, miny, miny + ly, minz, minz + lz, uiNodeIDBase + uiAddID * 0, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 1))
+      if (!FindObjectsInRange(vPoint, Callback, pPassThrough, minx, minx + lx, miny, miny + ly, minz, minz + lz, uiNodeIDBase + uiAddID * 0,
+                              uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 1))
         return false;
-      if (!FindObjectsInRange(vPoint, Callback, pPassThrough, minx, minx + lx, miny, miny + ly, maxz - lz, maxz, uiNodeIDBase + uiAddID * 1, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 2))
+      if (!FindObjectsInRange(vPoint, Callback, pPassThrough, minx, minx + lx, miny, miny + ly, maxz - lz, maxz, uiNodeIDBase + uiAddID * 1,
+                              uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 2))
         return false;
-      if (!FindObjectsInRange(vPoint, Callback, pPassThrough, minx, minx + lx, maxy - ly, maxy, minz, minz + lz, uiNodeIDBase + uiAddID * 2, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 3))
+      if (!FindObjectsInRange(vPoint, Callback, pPassThrough, minx, minx + lx, maxy - ly, maxy, minz, minz + lz, uiNodeIDBase + uiAddID * 2,
+                              uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 3))
         return false;
-      if (!FindObjectsInRange(vPoint, Callback, pPassThrough, minx, minx + lx, maxy - ly, maxy, maxz - lz, maxz, uiNodeIDBase + uiAddID * 3, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 4))
+      if (!FindObjectsInRange(vPoint, Callback, pPassThrough, minx, minx + lx, maxy - ly, maxy, maxz - lz, maxz, uiNodeIDBase + uiAddID * 3,
+                              uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 4))
         return false;
-      if (!FindObjectsInRange(vPoint, Callback, pPassThrough, maxx - lx, maxx, miny, miny + ly, minz, minz + lz, uiNodeIDBase + uiAddID * 4, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 5))
+      if (!FindObjectsInRange(vPoint, Callback, pPassThrough, maxx - lx, maxx, miny, miny + ly, minz, minz + lz, uiNodeIDBase + uiAddID * 4,
+                              uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 5))
         return false;
-      if (!FindObjectsInRange(vPoint, Callback, pPassThrough, maxx - lx, maxx, miny, miny + ly, maxz - lz, maxz, uiNodeIDBase + uiAddID * 5, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 6))
+      if (!FindObjectsInRange(vPoint, Callback, pPassThrough, maxx - lx, maxx, miny, miny + ly, maxz - lz, maxz, uiNodeIDBase + uiAddID * 5,
+                              uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 6))
         return false;
-      if (!FindObjectsInRange(vPoint, Callback, pPassThrough, maxx - lx, maxx, maxy - ly, maxy, minz, minz + lz, uiNodeIDBase + uiAddID * 6, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 7))
+      if (!FindObjectsInRange(vPoint, Callback, pPassThrough, maxx - lx, maxx, maxy - ly, maxy, minz, minz + lz, uiNodeIDBase + uiAddID * 6,
+                              uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 7))
         return false;
-      if (!FindObjectsInRange(vPoint, Callback, pPassThrough, maxx - lx, maxx, maxy - ly, maxy, maxz - lz, maxz, uiNodeIDBase + uiAddID * 7, uiAddIDChild, uiSubAddIDChild, uiNextNodeID))
+      if (!FindObjectsInRange(vPoint, Callback, pPassThrough, maxx - lx, maxx, maxy - ly, maxy, maxz - lz, maxz, uiNodeIDBase + uiAddID * 7,
+                              uiAddIDChild, uiSubAddIDChild, uiNextNodeID))
         return false;
     }
   }
@@ -366,10 +402,13 @@ void ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, float fRadius, EZ
   if (m_NodeMap.IsEmpty())
     return;
 
-  FindObjectsInRange(vPoint, fRadius, Callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.y, m_BBox.m_vMax.y, m_BBox.m_vMin.z, m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel, ezMath::Pow (8, m_uiMaxTreeDepth-1), 0xFFFFFFFF);
+  FindObjectsInRange(vPoint, fRadius, Callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.y, m_BBox.m_vMax.y,
+                     m_BBox.m_vMin.z, m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel, ezMath::Pow(8, m_uiMaxTreeDepth - 1), 0xFFFFFFFF);
 }
 
-bool ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, float fRadius, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough, float minx, float maxx, float miny, float maxy, float minz, float maxz, ezUInt32 uiNodeID, ezUInt32 uiAddID, ezUInt32 uiSubAddID, ezUInt32 uiNextNodeID) const
+bool ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, float fRadius, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough,
+                                         float minx, float maxx, float miny, float maxy, float minz, float maxz, ezUInt32 uiNodeID,
+                                         ezUInt32 uiAddID, ezUInt32 uiSubAddID, ezUInt32 uiNextNodeID) const
 {
   if (vPoint.x + fRadius < minx)
     return true;
@@ -397,7 +436,7 @@ bool ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, float fRadius, EZ
 
     // return all objects stored at this node
     {
-      while  (it1.IsValid() && (it1.Key().m_uiKey == uiNodeID))
+      while (it1.IsValid() && (it1.Key().m_uiKey == uiNodeID))
       {
         // first increase the iterator, the user could erase it in the callback
         ezDynamicTreeObjectConst temp = it1;
@@ -419,21 +458,29 @@ bool ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, float fRadius, EZ
       const ezUInt32 uiAddIDChild = uiAddID - uiSubAddID;
       const ezUInt32 uiSubAddIDChild = uiSubAddID >> 3;
 
-      if (!FindObjectsInRange(vPoint, fRadius, Callback, pPassThrough, minx, minx + lx, miny, miny + ly, minz, minz + lz, uiNodeIDBase + uiAddID * 0, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 1))
+      if (!FindObjectsInRange(vPoint, fRadius, Callback, pPassThrough, minx, minx + lx, miny, miny + ly, minz, minz + lz,
+                              uiNodeIDBase + uiAddID * 0, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 1))
         return false;
-      if (!FindObjectsInRange(vPoint, fRadius, Callback, pPassThrough, minx, minx + lx, miny, miny + ly, maxz - lz, maxz, uiNodeIDBase + uiAddID * 1, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 2))
+      if (!FindObjectsInRange(vPoint, fRadius, Callback, pPassThrough, minx, minx + lx, miny, miny + ly, maxz - lz, maxz,
+                              uiNodeIDBase + uiAddID * 1, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 2))
         return false;
-      if (!FindObjectsInRange(vPoint, fRadius, Callback, pPassThrough, minx, minx + lx, maxy - ly, maxy, minz, minz + lz, uiNodeIDBase + uiAddID * 2, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 3))
+      if (!FindObjectsInRange(vPoint, fRadius, Callback, pPassThrough, minx, minx + lx, maxy - ly, maxy, minz, minz + lz,
+                              uiNodeIDBase + uiAddID * 2, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 3))
         return false;
-      if (!FindObjectsInRange(vPoint, fRadius, Callback, pPassThrough, minx, minx + lx, maxy - ly, maxy, maxz - lz, maxz, uiNodeIDBase + uiAddID * 3, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 4))
+      if (!FindObjectsInRange(vPoint, fRadius, Callback, pPassThrough, minx, minx + lx, maxy - ly, maxy, maxz - lz, maxz,
+                              uiNodeIDBase + uiAddID * 3, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 4))
         return false;
-      if (!FindObjectsInRange(vPoint, fRadius, Callback, pPassThrough, maxx - lx, maxx, miny, miny + ly, minz, minz + lz, uiNodeIDBase + uiAddID * 4, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 5))
+      if (!FindObjectsInRange(vPoint, fRadius, Callback, pPassThrough, maxx - lx, maxx, miny, miny + ly, minz, minz + lz,
+                              uiNodeIDBase + uiAddID * 4, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 5))
         return false;
-      if (!FindObjectsInRange(vPoint, fRadius, Callback, pPassThrough, maxx - lx, maxx, miny, miny + ly, maxz - lz, maxz, uiNodeIDBase + uiAddID * 5, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 6))
+      if (!FindObjectsInRange(vPoint, fRadius, Callback, pPassThrough, maxx - lx, maxx, miny, miny + ly, maxz - lz, maxz,
+                              uiNodeIDBase + uiAddID * 5, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 6))
         return false;
-      if (!FindObjectsInRange(vPoint, fRadius, Callback, pPassThrough, maxx - lx, maxx, maxy - ly, maxy, minz, minz + lz, uiNodeIDBase + uiAddID * 6, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 7))
+      if (!FindObjectsInRange(vPoint, fRadius, Callback, pPassThrough, maxx - lx, maxx, maxy - ly, maxy, minz, minz + lz,
+                              uiNodeIDBase + uiAddID * 6, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 7))
         return false;
-      if (!FindObjectsInRange(vPoint, fRadius, Callback, pPassThrough, maxx - lx, maxx, maxy - ly, maxy, maxz - lz, maxz, uiNodeIDBase + uiAddID * 7, uiAddIDChild, uiSubAddIDChild, uiNextNodeID))
+      if (!FindObjectsInRange(vPoint, fRadius, Callback, pPassThrough, maxx - lx, maxx, maxy - ly, maxy, maxz - lz, maxz,
+                              uiNodeIDBase + uiAddID * 7, uiAddIDChild, uiSubAddIDChild, uiNextNodeID))
         return false;
     }
   }
@@ -443,7 +490,4 @@ bool ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, float fRadius, EZ
 
 
 
-
-
 EZ_STATICLINK_FILE(Utilities, Utilities_DataStructures_Implementation_DynamicOctree);
-

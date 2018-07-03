@@ -56,7 +56,7 @@ EZ_ALWAYS_INLINE ezSimdFloat::operator float() const
   return f;
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::Zero()
 {
   return _mm_setzero_ps();
@@ -173,13 +173,13 @@ EZ_ALWAYS_INLINE bool ezSimdFloat::operator<=(float f) const
   return (*this) <= ezSimdFloat(f);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetReciprocal<ezMathAcc::FULL>() const
 {
   return _mm_div_ps(_mm_set1_ps(1.0f), m_v);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetReciprocal<ezMathAcc::BITS_23>() const
 {
   __m128 x0 = _mm_rcp_ps(m_v);
@@ -190,19 +190,19 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetReciprocal<ezMathAcc::BITS_23>() co
   return x1;
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetReciprocal<ezMathAcc::BITS_12>() const
 {
   return _mm_rcp_ps(m_v);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetInvSqrt<ezMathAcc::FULL>() const
 {
   return _mm_div_ps(_mm_set1_ps(1.0f), _mm_sqrt_ps(m_v));
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetInvSqrt<ezMathAcc::BITS_23>() const
 {
   const __m128 x0 = _mm_rsqrt_ps(m_v);
@@ -211,25 +211,25 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetInvSqrt<ezMathAcc::BITS_23>() const
   return _mm_mul_ps(_mm_mul_ps(_mm_set1_ps(0.5f), x0), _mm_sub_ps(_mm_set1_ps(3.0f), _mm_mul_ps(_mm_mul_ps(m_v, x0), x0)));
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetInvSqrt<ezMathAcc::BITS_12>() const
 {
   return _mm_rsqrt_ps(m_v);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetSqrt<ezMathAcc::FULL>() const
 {
   return _mm_sqrt_ps(m_v);
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetSqrt<ezMathAcc::BITS_23>() const
 {
   return (*this) * GetInvSqrt<ezMathAcc::BITS_23>();
 }
 
-template<>
+template <>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetSqrt<ezMathAcc::BITS_12>() const
 {
   return (*this) * GetInvSqrt<ezMathAcc::BITS_12>();
@@ -249,4 +249,3 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::Abs() const
 {
   return _mm_andnot_ps(_mm_set1_ps(-0.0f), m_v);
 }
-

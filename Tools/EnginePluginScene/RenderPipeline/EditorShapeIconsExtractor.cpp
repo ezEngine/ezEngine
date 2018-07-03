@@ -14,9 +14,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorShapeIconsExtractor, 1, ezRTTIDefaultAll
     EZ_MEMBER_PROPERTY("MaxScreenSize", m_fMaxScreenSize)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant()), new ezDefaultValueAttribute(64.0f), new ezSuffixAttribute(" px")),
     EZ_ACCESSOR_PROPERTY("SceneContext", GetSceneContext, SetSceneContext),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 ezEditorShapeIconsExtractor::ezEditorShapeIconsExtractor(const char* szName)

@@ -17,7 +17,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDebugTextComponent, 1, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("Value3", m_fValue3),
     EZ_MEMBER_PROPERTY("Color", m_Color),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
     EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
@@ -27,9 +27,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezDebugTextComponent, 1, ezComponentMode::Static)
   {
     new ezCategoryAttribute("Gameplay"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezDebugTextComponent::ezDebugTextComponent()
   : m_sText("Value0: {0}, Value1: {1}, Value2: {2}, Value3: {3}")

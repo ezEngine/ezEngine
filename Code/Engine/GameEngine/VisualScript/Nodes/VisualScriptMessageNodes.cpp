@@ -13,7 +13,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SimpleUserEvent, 1, ezRTTIDef
     new ezCategoryAttribute("Events"),
     new ezTitleAttribute("UserEvent '{Message}'"),
   }
-    EZ_END_ATTRIBUTES
+    EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     //Properties
@@ -22,9 +22,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SimpleUserEvent, 1, ezRTTIDef
     EZ_OUTPUT_EXECUTION_PIN("OnEvent", 0),
     // Data Pins
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_SimpleUserEvent::ezVisualScriptNode_SimpleUserEvent() { }
 ezVisualScriptNode_SimpleUserEvent::~ezVisualScriptNode_SimpleUserEvent() { }
@@ -58,7 +58,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GenericEvent, 1, ezRTTIDefaul
     new ezCategoryAttribute("Events"),
     new ezTitleAttribute("Event '{EventType}'"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     //Properties
@@ -67,9 +67,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_GenericEvent, 1, ezRTTIDefaul
     EZ_OUTPUT_EXECUTION_PIN("OnEvent", 0),
     // Data Pins
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_GenericEvent::ezVisualScriptNode_GenericEvent() { }
 ezVisualScriptNode_GenericEvent::~ezVisualScriptNode_GenericEvent() { }
@@ -110,14 +110,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_ScriptUpdateEvent, 1, ezRTTID
   {
     new ezCategoryAttribute("Events")
   }
-    EZ_END_ATTRIBUTES
+    EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     EZ_OUTPUT_EXECUTION_PIN("OnUpdate", 0),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_ScriptUpdateEvent::ezVisualScriptNode_ScriptUpdateEvent()
 {
@@ -143,7 +143,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_InputState, 1, ezRTTIDefaultA
     new ezCategoryAttribute("Input"),
     new ezTitleAttribute("Input '{InputAction}'")
   }
-    EZ_END_ATTRIBUTES
+    EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("InputAction", m_sInputAction),
@@ -151,9 +151,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_InputState, 1, ezRTTIDefaultA
     EZ_INPUT_DATA_PIN("Component", 0, ezVisualScriptDataPinType::ComponentHandle),
     EZ_OUTPUT_DATA_PIN("Value", 0, ezVisualScriptDataPinType::Number),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_InputState::ezVisualScriptNode_InputState() { }
 ezVisualScriptNode_InputState::~ezVisualScriptNode_InputState() { }
@@ -195,7 +195,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_InputEvent, 1, ezRTTIDefaultA
     new ezCategoryAttribute("Input/Events"),
     new ezTitleAttribute("InputEvent '{InputAction}'"),
   }
-    EZ_END_ATTRIBUTES
+    EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("InputAction", GetInputAction, SetInputAction),
@@ -205,9 +205,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_InputEvent, 1, ezRTTIDefaultA
     EZ_OUTPUT_DATA_PIN("Object", 0, ezVisualScriptDataPinType::GameObjectHandle),
     EZ_OUTPUT_DATA_PIN("Component", 1, ezVisualScriptDataPinType::ComponentHandle),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_InputEvent::ezVisualScriptNode_InputEvent() { }
 ezVisualScriptNode_InputEvent::~ezVisualScriptNode_InputEvent() { }

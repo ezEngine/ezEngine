@@ -14,7 +14,7 @@
 EZ_IMPLEMENT_WORLD_MODULE(ezParticleWorldModule);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleWorldModule, 1, ezRTTINoAllocator);
 // no properties or message handlers
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleWorldModule::ezParticleWorldModule(ezWorld* pWorld)
   : ezWorldModule(pWorld)

@@ -113,7 +113,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 2, ezComponentMode::Dynamic)
     EZ_MEMBER_PROPERTY("AngularDamping", m_fAngularDamping)->AddAttributes(new ezDefaultValueAttribute(0.05f)),
     EZ_MEMBER_PROPERTY("MaxContactImpulse", m_fMaxContactImpulse)->AddAttributes(new ezDefaultValueAttribute(1000000.0f), new ezClampValueAttribute(0.0f, ezVariant())),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgPhysicsAddForce, AddForceAtPos),

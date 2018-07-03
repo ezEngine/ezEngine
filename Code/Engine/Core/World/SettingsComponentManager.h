@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Foundation/Types/UniquePtr.h>
 #include <Core/World/ComponentManager.h>
+#include <Foundation/Types/UniquePtr.h>
 
 /// \brief A component manager that does no update at all on components and expects only a single instance to be created per world.
 ///
@@ -36,4 +36,3 @@ private:
 };
 
 #include <Core/World/Implementation/SettingsComponentManager_inl.h>
-

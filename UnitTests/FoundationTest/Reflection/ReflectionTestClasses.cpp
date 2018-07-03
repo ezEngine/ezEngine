@@ -5,20 +5,20 @@
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezExampleEnum, 1)
   EZ_ENUM_CONSTANTS(ezExampleEnum::Value1, ezExampleEnum::Value2)
   EZ_ENUM_CONSTANT(ezExampleEnum::Value3),
-EZ_END_STATIC_REFLECTED_ENUM();
+EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezExampleBitflags, 1)
   EZ_BITFLAGS_CONSTANTS(ezExampleBitflags::Value1, ezExampleBitflags::Value2)
   EZ_BITFLAGS_CONSTANT(ezExampleBitflags::Value3),
-EZ_END_STATIC_REFLECTED_BITFLAGS();
+EZ_END_STATIC_REFLECTED_BITFLAGS;
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAbstractTestClass, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAbstractTestStruct, ezNoBase, 1, ezRTTINoAllocator);
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct, ezNoBase, 7, ezRTTIDefaultAllocator<ezTestStruct>)
@@ -34,9 +34,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct, ezNoBase, 7, ezRTTIDefaultAllocator
     EZ_MEMBER_PROPERTY("DataBuffer", m_DataBuffer),
     EZ_MEMBER_PROPERTY("vVec3I", m_vVec3I),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct3, ezNoBase, 71, ezRTTIDefaultAllocator<ezTestStruct3>)
 {
@@ -46,15 +46,15 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct3, ezNoBase, 71, ezRTTIDefaultAllocat
     EZ_ACCESSOR_PROPERTY("Int", GetInt, SetInt),
     EZ_MEMBER_PROPERTY("UInt8", m_UInt8),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS
   {
     EZ_CONSTRUCTOR_PROPERTY(),
     EZ_CONSTRUCTOR_PROPERTY(double, ezInt16),
   }
-  EZ_END_FUNCTIONS
+  EZ_END_FUNCTIONS;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass1, 11, ezRTTIDefaultAllocator<ezTestClass1>)
 {
@@ -65,9 +65,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass1, 11, ezRTTIDefaultAllocator<ezTestC
     EZ_MEMBER_PROPERTY("Color", m_Color),
     EZ_ACCESSOR_PROPERTY_READ_ONLY("SubVector", GetVector)
   }
-    EZ_END_PROPERTIES
+    EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezInt32 ezTestClass2Allocator::m_iAllocs = 0;
 ezInt32 ezTestClass2Allocator::m_iDeallocs = 0;
@@ -83,9 +83,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass2, 22, ezTestClass2Allocator)
     EZ_ARRAY_MEMBER_PROPERTY("Array", m_array),
     EZ_MEMBER_PROPERTY("Variant", m_Variant),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass2b, 24, ezRTTIDefaultAllocator<ezTestClass2b>)
 {
@@ -95,9 +95,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass2b, 24, ezRTTIDefaultAllocator<ezTest
     EZ_MEMBER_PROPERTY("SubStruct", m_Struct),
     EZ_MEMBER_PROPERTY("Color", m_Color),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestArrays, 1, ezRTTIDefaultAllocator<ezTestArrays>)
 {
@@ -119,9 +119,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestArrays, 1, ezRTTIDefaultAllocator<ezTestAr
     EZ_ARRAY_ACCESSOR_PROPERTY("AcDeque", GetCountDeq, GetValueDeq, SetValueDeq, InsertDeq, RemoveDeq),
     EZ_ARRAY_ACCESSOR_PROPERTY_READ_ONLY("AcDequeRO", GetCountDeq, GetValueDeq),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezUInt32 ezTestArrays::GetCount() const
 {
@@ -225,9 +225,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestSets, 1, ezRTTIDefaultAllocator<ezTestSets
     EZ_SET_ACCESSOR_PROPERTY_READ_ONLY("AcPseudoSet2RO", GetPseudoSet2),
     EZ_SET_ACCESSOR_PROPERTY("AcPseudoSet2b", GetPseudoSet2, PseudoInsert2b, PseudoRemove2b),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 const ezSet<double>& ezTestSets::GetSet() const
 {
@@ -317,9 +317,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestMaps, 1, ezRTTIDefaultAllocator<ezTestMaps
     EZ_MAP_ACCESSOR_PROPERTY("Accessor", GetKeys3, GetValue3, Insert3, Remove3),
     EZ_MAP_ACCESSOR_PROPERTY_READ_ONLY("AccessorRO", GetKeys3, GetValue3),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 bool ezTestMaps::operator==(const ezTestMaps& rhs) const
 {
@@ -434,9 +434,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestPtr, 1, ezRTTIDefaultAllocator<ezTestPtr>)
     EZ_ARRAY_MEMBER_PROPERTY("PtrArray", m_ArrayPtr)->AddFlags(ezPropertyFlags::PointerOwner),
     EZ_SET_MEMBER_PROPERTY("PtrSet", m_SetPtr)->AddFlags(ezPropertyFlags::PointerOwner),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestEnumStruct, ezNoBase, 1, ezRTTIDefaultAllocator<ezTestEnumStruct>)
@@ -448,9 +448,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestEnumStruct, ezNoBase, 1, ezRTTIDefaultAlloc
     EZ_ENUM_ACCESSOR_PROPERTY("m_enum2", ezExampleEnum, GetEnum, SetEnum),
     EZ_ENUM_ACCESSOR_PROPERTY("m_enumClass2", ezExampleEnum,  GetEnumClass, SetEnumClass),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestBitflagsStruct, ezNoBase, 1, ezRTTIDefaultAllocator<ezTestBitflagsStruct>)
 {
@@ -459,7 +459,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestBitflagsStruct, ezNoBase, 1, ezRTTIDefaultA
     EZ_BITFLAGS_MEMBER_PROPERTY("m_bitflagsClass", ezExampleBitflags, m_bitflagsClass),
     EZ_BITFLAGS_ACCESSOR_PROPERTY("m_bitflagsClass2", ezExampleBitflags, GetBitflagsClass, SetBitflagsClass),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 

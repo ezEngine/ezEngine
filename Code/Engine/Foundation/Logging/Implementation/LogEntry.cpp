@@ -6,7 +6,7 @@
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezLogMsgType, 1)
   EZ_BITFLAGS_CONSTANTS(ezLogMsgType::BeginGroup, ezLogMsgType::EndGroup, ezLogMsgType::None)
   EZ_BITFLAGS_CONSTANTS(ezLogMsgType::ErrorMsg, ezLogMsgType::SeriousWarningMsg, ezLogMsgType::WarningMsg, ezLogMsgType::SuccessMsg, ezLogMsgType::InfoMsg, ezLogMsgType::DevMsg, ezLogMsgType::DebugMsg, ezLogMsgType::All)
-EZ_END_STATIC_REFLECTED_ENUM();
+EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezLogEntry, ezNoBase, 1, ezRTTIDefaultAllocator<ezLogEntry>)
 {
@@ -18,7 +18,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezLogEntry, ezNoBase, 1, ezRTTIDefaultAllocator<e
     EZ_MEMBER_PROPERTY("Indentation", m_uiIndentation),
     EZ_MEMBER_PROPERTY("Time", m_fSeconds),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on

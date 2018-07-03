@@ -1,19 +1,20 @@
-﻿#pragma once
+#pragma once
 
+#include <Foundation/Algorithm/Hashing.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Threading/AtomicInteger.h>
 #include <Foundation/Utilities/ConversionUtils.h>
-#include <Foundation/Algorithm/Hashing.h>
 
 class ezReflectedClass;
 
-/// \brief ezVariant is a class that can store different types of variables, which is useful in situations where it is not clear up front, which type of data will be passed around.
+/// \brief ezVariant is a class that can store different types of variables, which is useful in situations where it is not clear up front,
+/// which type of data will be passed around.
 ///
-/// The variant supports a fixed list of types that it can store (\see ezVariant::Type). All types of 16 bytes or less in size can be stored without
-/// requiring a heap allocation. For larger types memory is allocated on the heap.
-/// In general variants should be used for code that needs to be flexible. Although ezVariant is implemented very efficiently, it should be avoided
-/// to use ezVariant in code that needs to be fast.
+/// The variant supports a fixed list of types that it can store (\see ezVariant::Type). All types of 16 bytes or less in size can be stored
+/// without requiring a heap allocation. For larger types memory is allocated on the heap. In general variants should be used for code that
+/// needs to be flexible. Although ezVariant is implemented very efficiently, it should be avoided to use ezVariant in code that needs to be
+/// fast.
 class EZ_FOUNDATION_DLL ezVariant
 {
 public:
@@ -26,54 +27,56 @@ public:
     /// patches to the serializer or a re-export of binary data that contains ezVariants.
     enum Enum
     {
-      Invalid = 0,        ///< The variant stores no (valid) data at the moment.
+      Invalid = 0, ///< The variant stores no (valid) data at the moment.
 
-/// *** Types that are flagged as 'StandardTypes' (see DetermineTypeFlags) ***
+      /// *** Types that are flagged as 'StandardTypes' (see DetermineTypeFlags) ***
       FirstStandardType = 1,
-      Bool,               ///< The variant stores a bool.
-      Int8,               ///< The variant stores an ezInt8.
-      UInt8,              ///< The variant stores an ezUInt8.
-      Int16,              ///< The variant stores an ezInt16.
-      UInt16,             ///< The variant stores an ezUInt16.
-      Int32,              ///< The variant stores an ezInt32.
-      UInt32,             ///< The variant stores an ezUInt32.
-      Int64,              ///< The variant stores an ezInt64.
-      UInt64,             ///< The variant stores an ezUInt64.
-      Float,              ///< The variant stores a float.
-      Double,             ///< The variant stores a double.
-      Color,              ///< The variant stores an ezColor.
-      Vector2,            ///< The variant stores an ezVec2.
-      Vector3,            ///< The variant stores an ezVec3.
-      Vector4,            ///< The variant stores an ezVec4.
-      Vector2I,           ///< The variant stores an ezVec2I32.
-      Vector3I,           ///< The variant stores an ezVec3I32.
-      Vector4I,           ///< The variant stores an ezVec4I32.
-      Vector2U,           ///< The variant stores an ezVec2U32.
-      Vector3U,           ///< The variant stores an ezVec3U32.
-      Vector4U,           ///< The variant stores an ezVec4U32.
-      Quaternion,         ///< The variant stores an ezQuat.
-      Matrix3,            ///< The variant stores an ezMat3. A heap allocation is required to store this data type.
-      Matrix4,            ///< The variant stores an ezMat4. A heap allocation is required to store this data type.
-      Transform,          ///< The variant stores an ezTransform. A heap allocation is required to store this data type.
-      String,             ///< The variant stores a string. A heap allocation is required to store this data type.
-      StringView,         ///< The variant stores an ezStringView.
-      DataBuffer,         ///< The variant stores an ezDataBuffer, a typedef to DynamicArray<ezUInt8>. A heap allocation is required to store this data type.
-      Time,               ///< The variant stores an ezTime value.
-      Uuid,               ///< The variant stores an ezUuid value.
-      Angle,              ///< The variant stores an ezAngle value.
-      ColorGamma,         ///< The variant stores an ezColorGammaUB value.
+      Bool,       ///< The variant stores a bool.
+      Int8,       ///< The variant stores an ezInt8.
+      UInt8,      ///< The variant stores an ezUInt8.
+      Int16,      ///< The variant stores an ezInt16.
+      UInt16,     ///< The variant stores an ezUInt16.
+      Int32,      ///< The variant stores an ezInt32.
+      UInt32,     ///< The variant stores an ezUInt32.
+      Int64,      ///< The variant stores an ezInt64.
+      UInt64,     ///< The variant stores an ezUInt64.
+      Float,      ///< The variant stores a float.
+      Double,     ///< The variant stores a double.
+      Color,      ///< The variant stores an ezColor.
+      Vector2,    ///< The variant stores an ezVec2.
+      Vector3,    ///< The variant stores an ezVec3.
+      Vector4,    ///< The variant stores an ezVec4.
+      Vector2I,   ///< The variant stores an ezVec2I32.
+      Vector3I,   ///< The variant stores an ezVec3I32.
+      Vector4I,   ///< The variant stores an ezVec4I32.
+      Vector2U,   ///< The variant stores an ezVec2U32.
+      Vector3U,   ///< The variant stores an ezVec3U32.
+      Vector4U,   ///< The variant stores an ezVec4U32.
+      Quaternion, ///< The variant stores an ezQuat.
+      Matrix3,    ///< The variant stores an ezMat3. A heap allocation is required to store this data type.
+      Matrix4,    ///< The variant stores an ezMat4. A heap allocation is required to store this data type.
+      Transform,  ///< The variant stores an ezTransform. A heap allocation is required to store this data type.
+      String,     ///< The variant stores a string. A heap allocation is required to store this data type.
+      StringView, ///< The variant stores an ezStringView.
+      DataBuffer, ///< The variant stores an ezDataBuffer, a typedef to DynamicArray<ezUInt8>. A heap allocation is required to store this
+                  ///< data type.
+      Time,       ///< The variant stores an ezTime value.
+      Uuid,       ///< The variant stores an ezUuid value.
+      Angle,      ///< The variant stores an ezAngle value.
+      ColorGamma, ///< The variant stores an ezColorGammaUB value.
       LastStandardType,
-/// *** Types that are flagged as 'StandardTypes' (see DetermineTypeFlags) ***
+      /// *** Types that are flagged as 'StandardTypes' (see DetermineTypeFlags) ***
 
       FirstExtendedType = 64,
-      VariantArray,       ///< The variant stores an array of ezVariant's. A heap allocation is required to store this data type.
-      VariantDictionary,  ///< The variant stores a dictionary (hashmap) of ezVariant's. A heap allocation is required to store this data type.
-      ReflectedPointer,   ///< The variant stores a pointer to a dynamically reflected object.
-      VoidPointer,        ///< The variant stores a void pointer.
-      LastExtendedType,         ///< Number of values for ezVariant::Type.
+      VariantArray,      ///< The variant stores an array of ezVariant's. A heap allocation is required to store this data type.
+      VariantDictionary, ///< The variant stores a dictionary (hashmap) of ezVariant's. A heap allocation is required to store this data
+                         ///< type.
+      ReflectedPointer,  ///< The variant stores a pointer to a dynamically reflected object.
+      VoidPointer,       ///< The variant stores a void pointer.
+      LastExtendedType,  ///< Number of values for ezVariant::Type.
 
       MAX_ENUM_VALUE = LastExtendedType,
-      Default = Invalid   ///< Default value used by ezEnum.
+      Default = Invalid ///< Default value used by ezEnum.
     };
   };
 
@@ -186,25 +189,27 @@ public:
   /// \brief Returns whether the stored type can generally be converted to the desired type.
   ///
   /// This function will return true for all number conversions, as float / double / int / etc. can generally be converted into each
-  /// other. It will also return true for all conversion from string to number types, and from all 'simple' types (not array or dictionary) to string.
+  /// other. It will also return true for all conversion from string to number types, and from all 'simple' types (not array or dictionary)
+  /// to string.
   ///
-  /// \note This function only returns whether a conversion between the stored TYPE and the desired TYPE is generally possible. It does NOT return
-  /// whether the stored VALUE is indeed convertible to the desired type. For example, a string is generally convertible to float, if it stores
-  /// a string representation of a float value. If, however, it stores anything else, the conversion can still fail.
+  /// \note This function only returns whether a conversion between the stored TYPE and the desired TYPE is generally possible. It does NOT
+  /// return whether the stored VALUE is indeed convertible to the desired type. For example, a string is generally convertible to float, if
+  /// it stores a string representation of a float value. If, however, it stores anything else, the conversion can still fail.
   ///
-  /// The only way to figure out whether the stored data can be converted to some type, is to actually convert it, using ConvertTo(), and then
-  /// to check the conversion status.
+  /// The only way to figure out whether the stored data can be converted to some type, is to actually convert it, using ConvertTo(), and
+  /// then to check the conversion status.
   template <typename T>
   bool CanConvertTo() const; // [tested]
 
   /// \brief Same as the templated CanConvertTo function.
   bool CanConvertTo(Type::Enum type) const; // [tested]
 
-  /// \brief Tries to convert the stored value to the given type. The optional status parameter can be used to check whether the conversion succeeded.
+  /// \brief Tries to convert the stored value to the given type. The optional status parameter can be used to check whether the conversion
+  /// succeeded.
   ///
-  /// When CanConvertTo() returns false, ConvertTo() will also always fail. However, when CanConvertTo() returns true, this is no guarantee that
-  /// ConvertTo() will succeed. Conversion between numbers and to strings will generally succeed. However, converting from a string to another type
-  /// can fail or succeed, depending on the exact string value.
+  /// When CanConvertTo() returns false, ConvertTo() will also always fail. However, when CanConvertTo() returns true, this is no guarantee
+  /// that ConvertTo() will succeed. Conversion between numbers and to strings will generally succeed. However, converting from a string to
+  /// another type can fail or succeed, depending on the exact string value.
   template <typename T>
   T ConvertTo(ezResult* out_pConversionStatus = nullptr) const; // [tested]
 
@@ -213,10 +218,11 @@ public:
 
   /// \brief This will call the overloaded operator() (function call operator) of the provided functor.
   ///
-  /// This allows to implement a functor that overloads operator() for different types and then call the proper version of that operator, depending on
-  /// the provided runtime type. Note that the proper overload of operator() is selected by providing a dummy type, but it will contain no useful value.
-  /// Instead, store the other necessary data inside the functor object, before calling this function. For example, store a pointer to a variant inside
-  /// the functor object and then call DispatchTo to execute the function that will handle the given type of the variant.
+  /// This allows to implement a functor that overloads operator() for different types and then call the proper version of that operator,
+  /// depending on the provided runtime type. Note that the proper overload of operator() is selected by providing a dummy type, but it will
+  /// contain no useful value. Instead, store the other necessary data inside the functor object, before calling this function. For example,
+  /// store a pointer to a variant inside the functor object and then call DispatchTo to execute the function that will handle the given
+  /// type of the variant.
   template <typename Functor>
   static void DispatchTo(Functor& functor, Type::Enum type); // [tested]
 
@@ -224,7 +230,6 @@ public:
   ezUInt64 ComputeHash(ezUInt64 uiSeed = 0) const;
 
 private:
-
   friend class ezVariantHelper;
   friend struct CompareFunc;
 
@@ -232,8 +237,12 @@ private:
   {
     void* m_Ptr;
     ezAtomicInteger32 m_uiRef;
-    EZ_ALWAYS_INLINE SharedData(void* ptr) : m_Ptr(ptr), m_uiRef(1) { }
-    virtual ~SharedData() { }
+    EZ_ALWAYS_INLINE SharedData(void* ptr)
+        : m_Ptr(ptr)
+        , m_uiRef(1)
+    {
+    }
+    virtual ~SharedData() {}
   };
 
   template <typename T>
@@ -241,12 +250,16 @@ private:
   {
   private:
     T m_t;
+
   public:
-    EZ_ALWAYS_INLINE TypedSharedData(const T& value) : SharedData(&m_t), m_t(value) { }
+    EZ_ALWAYS_INLINE TypedSharedData(const T& value)
+        : SharedData(&m_t)
+        , m_t(value)
+    {
+    }
   };
 
-  union Data
-  {
+  union Data {
     float f[4];
     SharedData* shared;
   } m_Data;
@@ -285,7 +298,6 @@ typedef ezHashTable<ezString, ezVariant> ezVariantDictionary;
 typedef ezVariant::Type ezVariantType;
 typedef ezDynamicArray<ezUInt8> ezDataBuffer;
 
-#include <Foundation/Types/Implementation/VariantTypeDeduction_inl.h>
 #include <Foundation/Types/Implementation/VariantHelper_inl.h>
+#include <Foundation/Types/Implementation/VariantTypeDeduction_inl.h>
 #include <Foundation/Types/Implementation/Variant_inl.h>
-

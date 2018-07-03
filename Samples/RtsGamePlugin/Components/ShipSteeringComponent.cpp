@@ -1,5 +1,5 @@
 #include <PCH.h>
-// Blank line to prevent Clang format from reordering this
+
 #include <Foundation/Utilities/Stats.h>
 #include <RtsGamePlugin/Components/ShipSteeringComponent.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
@@ -14,7 +14,7 @@ EZ_BEGIN_COMPONENT_TYPE(RtsShipSteeringComponent, 1, ezComponentMode::Dynamic)
     EZ_MEMBER_PROPERTY("Deceleration", m_fMaxDeceleration)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.1f, 100.0f)),
     EZ_MEMBER_PROPERTY("TurnSpeed", m_MaxTurnSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90.0f))),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 
   EZ_BEGIN_MESSAGEHANDLERS
   {
@@ -27,7 +27,7 @@ EZ_BEGIN_COMPONENT_TYPE(RtsShipSteeringComponent, 1, ezComponentMode::Dynamic)
   {
     new ezCategoryAttribute("RTS Sample"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE;
 // clang-format on

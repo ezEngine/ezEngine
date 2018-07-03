@@ -29,9 +29,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshContext, 1, ezRTTIDefaultAllocator<ezMeshC
   {
     EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Mesh Asset"),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 ezMeshContext::ezMeshContext()

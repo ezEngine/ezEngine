@@ -1,18 +1,19 @@
-﻿
+
 template <typename T>
-EZ_ALWAYS_INLINE ezAtomicInteger<T>::ezAtomicInteger() : m_value(0)
+EZ_ALWAYS_INLINE ezAtomicInteger<T>::ezAtomicInteger()
+    : m_value(0)
 {
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezAtomicInteger<T>::ezAtomicInteger(T value) :
-  m_value(value)
+EZ_ALWAYS_INLINE ezAtomicInteger<T>::ezAtomicInteger(T value)
+    : m_value(value)
 {
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezAtomicInteger<T>::ezAtomicInteger(const ezAtomicInteger<T>& value) :
-  m_value(value.m_value)
+EZ_ALWAYS_INLINE ezAtomicInteger<T>::ezAtomicInteger(const ezAtomicInteger<T>& value)
+    : m_value(value.m_value)
 {
 }
 
@@ -101,4 +102,3 @@ EZ_ALWAYS_INLINE ezAtomicInteger<T>::operator T() const
 {
   return ezAtomicUtils::Read(m_value);
 }
-

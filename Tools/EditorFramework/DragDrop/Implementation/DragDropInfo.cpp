@@ -2,7 +2,7 @@
 #include <EditorFramework/DragDrop/DragDropInfo.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDragDropInfo, 1, ezRTTIDefaultAllocator<ezDragDropInfo>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezDragDropInfo::ezDragDropInfo()
 {
@@ -16,7 +16,7 @@ ezDragDropInfo::ezDragDropInfo()
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDragDropConfig, 1, ezRTTIDefaultAllocator<ezDragDropConfig>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezDragDropConfig::ezDragDropConfig()
 {

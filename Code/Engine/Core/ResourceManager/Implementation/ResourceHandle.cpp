@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Core/ResourceManager/ResourceBase.h>
 
 ezTypelessResourceHandle::ezTypelessResourceHandle(ezResourceBase* pResource)
@@ -50,4 +51,3 @@ void ezTypelessResourceHandle::operator=(ezTypelessResourceHandle&& rhs)
 
 
 EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_ResourceHandle);
-

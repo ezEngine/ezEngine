@@ -1,22 +1,22 @@
 #include <PCH.h>
-#include <Foundation/Logging/Log.h>
-#include <System/Window/Implementation/uwp/InputDevice_uwp.h>
+
 #include <Core/Input/InputManager.h>
-#include <Foundation/Strings/StringConversion.h>
-#include <Foundation/Containers/HybridArray.h>
-
-
 #include <Foundation/Basics/Platform/uwp/UWPUtils.h>
+#include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Strings/StringConversion.h>
+#include <System/Window/Implementation/uwp/InputDevice_uwp.h>
 #include <wrl/event.h>
 
 using namespace ABI::Windows::UI::Core;
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, 1, ezRTTINoAllocator);
-  // no properties or message handlers
-EZ_END_DYNAMIC_REFLECTED_TYPE
+// no properties or message handlers
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezStandardInputDevice::ezStandardInputDevice(ICoreWindow* coreWindow) : m_coreWindow(coreWindow)
+ezStandardInputDevice::ezStandardInputDevice(ICoreWindow* coreWindow)
+    : m_coreWindow(coreWindow)
 {
   // TODO
   m_bClipCursor = false;
@@ -48,30 +48,40 @@ ezStandardInputDevice::~ezStandardInputDevice()
 void ezStandardInputDevice::InitializeDevice()
 {
   using KeyHandler = __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CKeyEventArgs;
-  using CharacterReceivedHandler = __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CCharacterReceivedEventArgs;
+  using CharacterReceivedHandler =
+      __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CCharacterReceivedEventArgs;
   using PointerHander = __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CPointerEventArgs;
 
   // Keyboard
   m_coreWindow->add_KeyDown(Callback<KeyHandler>(this, &ezStandardInputDevice::OnKeyEvent).Get(), &m_eventRegistration_keyDown);
   m_coreWindow->add_KeyUp(Callback<KeyHandler>(this, &ezStandardInputDevice::OnKeyEvent).Get(), &m_eventRegistration_keyUp);
-  m_coreWindow->add_CharacterReceived(Callback<CharacterReceivedHandler>(this, &ezStandardInputDevice::OnCharacterReceived).Get(), &m_eventRegistration_characterReceived);
+  m_coreWindow->add_CharacterReceived(Callback<CharacterReceivedHandler>(this, &ezStandardInputDevice::OnCharacterReceived).Get(),
+                                      &m_eventRegistration_characterReceived);
 
   // Pointer
   // Note that a pointer may be mouse, pen/stylus or touch!
-  // We bundle move/press/enter all in a single callback to update all pointer state - all these cases have in common that pen/touch is pressed now.
-  m_coreWindow->add_PointerMoved(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerMovePressEnter).Get(), &m_eventRegistration_pointerMoved);
-  m_coreWindow->add_PointerEntered(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerMovePressEnter).Get(), &m_eventRegistration_pointerEntered);
-  m_coreWindow->add_PointerPressed(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerMovePressEnter).Get(), &m_eventRegistration_pointerPressed);
+  // We bundle move/press/enter all in a single callback to update all pointer state - all these cases have in common that pen/touch is
+  // pressed now.
+  m_coreWindow->add_PointerMoved(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerMovePressEnter).Get(),
+                                 &m_eventRegistration_pointerMoved);
+  m_coreWindow->add_PointerEntered(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerMovePressEnter).Get(),
+                                   &m_eventRegistration_pointerEntered);
+  m_coreWindow->add_PointerPressed(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerMovePressEnter).Get(),
+                                   &m_eventRegistration_pointerPressed);
   // Changes in the pointer wheel:
-  m_coreWindow->add_PointerWheelChanged(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerWheelChange).Get(), &m_eventRegistration_pointerWheelChanged);
+  m_coreWindow->add_PointerWheelChanged(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerWheelChange).Get(),
+                                        &m_eventRegistration_pointerWheelChanged);
   // Exit for touch or stylus means that we no longer have a press.
   // However, we presserve mouse button presses.
-  m_coreWindow->add_PointerExited(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerReleasedOrExited).Get(), &m_eventRegistration_pointerExited);
-  m_coreWindow->add_PointerReleased(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerReleasedOrExited).Get(), &m_eventRegistration_pointerReleased);
+  m_coreWindow->add_PointerExited(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerReleasedOrExited).Get(),
+                                  &m_eventRegistration_pointerExited);
+  m_coreWindow->add_PointerReleased(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerReleasedOrExited).Get(),
+                                    &m_eventRegistration_pointerReleased);
   // Capture loss.
-  // From documentation "Occurs when a pointer moves to another app. This event is raised after PointerExited and is the final event received by the app for this pointer."
-  // If this happens we want to release all mouse buttons as well.
-  m_coreWindow->add_PointerCaptureLost(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerCaptureLost).Get(), &m_eventRegistration_pointerCaptureLost);
+  // From documentation "Occurs when a pointer moves to another app. This event is raised after PointerExited and is the final event
+  // received by the app for this pointer." If this happens we want to release all mouse buttons as well.
+  m_coreWindow->add_PointerCaptureLost(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerCaptureLost).Get(),
+                                       &m_eventRegistration_pointerCaptureLost);
 
 
   // Mouse
@@ -82,12 +92,15 @@ void ezStandardInputDevice::InitializeDevice()
   // https://docs.microsoft.com/en-us/windows/uwp/gaming/relative-mouse-movement
   {
     ComPtr<ABI::Windows::Devices::Input::IMouseDeviceStatics> mouseDeviceStatics;
-    if (SUCCEEDED(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_Devices_Input_MouseDevice).Get(), &mouseDeviceStatics)))
+    if (SUCCEEDED(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_Devices_Input_MouseDevice).Get(),
+                                                                 &mouseDeviceStatics)))
     {
       if (SUCCEEDED(mouseDeviceStatics->GetForCurrentView(&m_mouseDevice)))
       {
-        using MouseMovedHandler = __FITypedEventHandler_2_Windows__CDevices__CInput__CMouseDevice_Windows__CDevices__CInput__CMouseEventArgs;
-        m_mouseDevice->add_MouseMoved(Callback<MouseMovedHandler>(this, &ezStandardInputDevice::OnMouseMoved).Get(), &m_eventRegistration_mouseMoved);
+        using MouseMovedHandler =
+            __FITypedEventHandler_2_Windows__CDevices__CInput__CMouseDevice_Windows__CDevices__CInput__CMouseEventArgs;
+        m_mouseDevice->add_MouseMoved(Callback<MouseMovedHandler>(this, &ezStandardInputDevice::OnMouseMoved).Get(),
+                                      &m_eventRegistration_mouseMoved);
       }
     }
   }
@@ -117,7 +130,7 @@ HRESULT ezStandardInputDevice::OnKeyEvent(ICoreWindow* coreWindow, IKeyEventArgs
 
   // On Windows this only happens with the Pause key, but it will actually send the 'Right Ctrl' key value
   // so we need to fix this manually
-  //if (raw->data.keyboard.Flags & RI_KEY_E1)
+  // if (raw->data.keyboard.Flags & RI_KEY_E1)
   //{
   //  szInputSlotName = ezInputSlot_KeyPause;
   //  bIgnoreNext = true;
@@ -165,16 +178,16 @@ HRESULT ezStandardInputDevice::OnPointerMovePressEnter(ICoreWindow* coreWindow, 
   EZ_SUCCEED_OR_RETURN(pointerPoint->get_Position(&pointerPosition));
   ABI::Windows::Foundation::Rect windowRectangle;
   EZ_SUCCEED_OR_RETURN(coreWindow->get_Bounds(&windowRectangle)); // Bounds are in DIP as well!
-  
+
   float relativePosX = static_cast<float>(pointerPosition.X) / windowRectangle.Width;
   float relativePosY = static_cast<float>(pointerPosition.Y) / windowRectangle.Height;
 
   if (deviceType == PointerDeviceType_Mouse)
   {
     // TODO
-    //RegisterInputSlot(ezInputSlot_MouseDblClick0, "Left Double Click", ezInputSlotFlags::IsDoubleClick);
-    //RegisterInputSlot(ezInputSlot_MouseDblClick1, "Right Double Click", ezInputSlotFlags::IsDoubleClick);
-    //RegisterInputSlot(ezInputSlot_MouseDblClick2, "Middle Double Click", ezInputSlotFlags::IsDoubleClick);
+    // RegisterInputSlot(ezInputSlot_MouseDblClick0, "Left Double Click", ezInputSlotFlags::IsDoubleClick);
+    // RegisterInputSlot(ezInputSlot_MouseDblClick1, "Right Double Click", ezInputSlotFlags::IsDoubleClick);
+    // RegisterInputSlot(ezInputSlot_MouseDblClick2, "Middle Double Click", ezInputSlotFlags::IsDoubleClick);
 
     m_InputSlotValues[ezInputSlot_MousePositionX] = relativePosX;
     m_InputSlotValues[ezInputSlot_MousePositionY] = relativePosY;
@@ -190,7 +203,7 @@ HRESULT ezStandardInputDevice::OnPointerMovePressEnter(ICoreWindow* coreWindow, 
       return S_OK;
 
     // All callbacks we subscribed this event to imply that a touch occurs right now.
-    m_InputSlotValues[ezInputManager::GetInputSlotTouchPoint(pointerId)] = 1.0f;  // Touch strength?
+    m_InputSlotValues[ezInputManager::GetInputSlotTouchPoint(pointerId)] = 1.0f; // Touch strength?
     m_InputSlotValues[ezInputManager::GetInputSlotTouchPointPositionX(pointerId)] = relativePosX;
     m_InputSlotValues[ezInputManager::GetInputSlotTouchPointPositionY(pointerId)] = relativePosY;
   }
@@ -297,7 +310,8 @@ HRESULT ezStandardInputDevice::OnPointerCaptureLost(ICoreWindow* coreWindow, IPo
   return S_OK;
 }
 
-HRESULT ezStandardInputDevice::OnMouseMoved(ABI::Windows::Devices::Input::IMouseDevice* mouseDevice, ABI::Windows::Devices::Input::IMouseEventArgs* args)
+HRESULT ezStandardInputDevice::OnMouseMoved(ABI::Windows::Devices::Input::IMouseDevice* mouseDevice,
+                                            ABI::Windows::Devices::Input::IMouseEventArgs* args)
 {
   ABI::Windows::Devices::Input::MouseDelta mouseDelta;
   EZ_SUCCEED_OR_RETURN(args->get_MouseDelta(&mouseDelta));
@@ -452,21 +466,21 @@ void ezStandardInputDevice::RegisterInputSlots()
   RegisterInputSlot(ezInputSlot_KeyPause, "Pause", ezInputSlotFlags::IsButton);
   RegisterInputSlot(ezInputSlot_KeyApps, "Application", ezInputSlotFlags::IsButton);
 
-  //RegisterInputSlot(ezInputSlot_KeyPrevTrack, "Previous Track", ezInputSlotFlags::IsButton);
-  //RegisterInputSlot(ezInputSlot_KeyNextTrack, "Next Track", ezInputSlotFlags::IsButton);
-  //RegisterInputSlot(ezInputSlot_KeyPlayPause, "Play / Pause", ezInputSlotFlags::IsButton);
-  //RegisterInputSlot(ezInputSlot_KeyStop, "Stop", ezInputSlotFlags::IsButton);
-  //RegisterInputSlot(ezInputSlot_KeyVolumeUp, "Volume Up", ezInputSlotFlags::IsButton);
-  //RegisterInputSlot(ezInputSlot_KeyVolumeDown, "Volume Down", ezInputSlotFlags::IsButton);
-  //RegisterInputSlot(ezInputSlot_KeyMute, "Mute", ezInputSlotFlags::IsButton);
+  // RegisterInputSlot(ezInputSlot_KeyPrevTrack, "Previous Track", ezInputSlotFlags::IsButton);
+  // RegisterInputSlot(ezInputSlot_KeyNextTrack, "Next Track", ezInputSlotFlags::IsButton);
+  // RegisterInputSlot(ezInputSlot_KeyPlayPause, "Play / Pause", ezInputSlotFlags::IsButton);
+  // RegisterInputSlot(ezInputSlot_KeyStop, "Stop", ezInputSlotFlags::IsButton);
+  // RegisterInputSlot(ezInputSlot_KeyVolumeUp, "Volume Up", ezInputSlotFlags::IsButton);
+  // RegisterInputSlot(ezInputSlot_KeyVolumeDown, "Volume Down", ezInputSlotFlags::IsButton);
+  // RegisterInputSlot(ezInputSlot_KeyMute, "Mute", ezInputSlotFlags::IsButton);
 
   RegisterInputSlot(ezInputSlot_MouseWheelUp, "Mousewheel Up", ezInputSlotFlags::IsMouseWheel);
   RegisterInputSlot(ezInputSlot_MouseWheelDown, "Mousewheel Down", ezInputSlotFlags::IsMouseWheel);
 
-  RegisterInputSlot(ezInputSlot_MouseMoveNegX, "Mouse Move Left",   ezInputSlotFlags::IsMouseAxisMove);
-  RegisterInputSlot(ezInputSlot_MouseMovePosX, "Mouse Move Right",  ezInputSlotFlags::IsMouseAxisMove);
-  RegisterInputSlot(ezInputSlot_MouseMoveNegY, "Mouse Move Down",   ezInputSlotFlags::IsMouseAxisMove);
-  RegisterInputSlot(ezInputSlot_MouseMovePosY, "Mouse Move Up",     ezInputSlotFlags::IsMouseAxisMove);
+  RegisterInputSlot(ezInputSlot_MouseMoveNegX, "Mouse Move Left", ezInputSlotFlags::IsMouseAxisMove);
+  RegisterInputSlot(ezInputSlot_MouseMovePosX, "Mouse Move Right", ezInputSlotFlags::IsMouseAxisMove);
+  RegisterInputSlot(ezInputSlot_MouseMoveNegY, "Mouse Move Down", ezInputSlotFlags::IsMouseAxisMove);
+  RegisterInputSlot(ezInputSlot_MouseMovePosY, "Mouse Move Up", ezInputSlotFlags::IsMouseAxisMove);
 
   RegisterInputSlot(ezInputSlot_MouseButton0, "Mousebutton 0", ezInputSlotFlags::IsButton);
   RegisterInputSlot(ezInputSlot_MouseButton1, "Mousebutton 1", ezInputSlotFlags::IsButton);
@@ -474,8 +488,8 @@ void ezStandardInputDevice::RegisterInputSlots()
   RegisterInputSlot(ezInputSlot_MouseButton3, "Mousebutton 3", ezInputSlotFlags::IsButton);
   RegisterInputSlot(ezInputSlot_MouseButton4, "Mousebutton 4", ezInputSlotFlags::IsButton);
 
-  RegisterInputSlot(ezInputSlot_MouseDblClick0, "Left Double Click",   ezInputSlotFlags::IsDoubleClick);
-  RegisterInputSlot(ezInputSlot_MouseDblClick1, "Right Double Click",  ezInputSlotFlags::IsDoubleClick);
+  RegisterInputSlot(ezInputSlot_MouseDblClick0, "Left Double Click", ezInputSlotFlags::IsDoubleClick);
+  RegisterInputSlot(ezInputSlot_MouseDblClick1, "Right Double Click", ezInputSlotFlags::IsDoubleClick);
   RegisterInputSlot(ezInputSlot_MouseDblClick2, "Middle Double Click", ezInputSlotFlags::IsDoubleClick);
 
   RegisterInputSlot(ezInputSlot_MousePositionX, "Mouse Position X", ezInputSlotFlags::IsMouseAxisPosition);
@@ -526,8 +540,8 @@ void ezStandardInputDevice::RegisterInputSlots()
 
 void ezStandardInputDevice::ResetInputSlotValues()
 {
-  m_InputSlotValues[ezInputSlot_MouseWheelUp]  = 0;
-  m_InputSlotValues[ezInputSlot_MouseWheelDown]= 0;
+  m_InputSlotValues[ezInputSlot_MouseWheelUp] = 0;
+  m_InputSlotValues[ezInputSlot_MouseWheelDown] = 0;
   m_InputSlotValues[ezInputSlot_MouseMoveNegX] = 0;
   m_InputSlotValues[ezInputSlot_MouseMovePosX] = 0;
   m_InputSlotValues[ezInputSlot_MouseMoveNegY] = 0;
@@ -547,7 +561,7 @@ void ezStandardInputDevice::SetClipMouseCursor(bool bEnable)
   if (m_bClipCursor == bEnable)
     return;
 
-  if(bEnable)
+  if (bEnable)
     m_coreWindow->SetPointerCapture();
   else
     m_coreWindow->ReleasePointerCapture();
@@ -582,4 +596,3 @@ bool ezStandardInputDevice::GetShowMouseCursor() const
 {
   return m_bShowCursor;
 }
-

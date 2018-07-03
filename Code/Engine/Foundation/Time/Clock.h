@@ -3,10 +3,10 @@
 /// \file
 
 #include <Foundation/Basics.h>
-#include <Foundation/Time/Time.h>
-#include <Foundation/IO/Stream.h>
-#include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Communication/Event.h>
+#include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/IO/Stream.h>
+#include <Foundation/Time/Time.h>
 
 class ezTimeStepSmoothing;
 
@@ -14,12 +14,10 @@ class ezTimeStepSmoothing;
 class EZ_FOUNDATION_DLL ezClock
 {
 public:
-
   /// \brief Returns the global clock.
   static ezClock* GetGlobalClock() { return s_pGlobalClock; }
 
 public:
-
   /// \brief Constructor.
   ezClock(const char* szName); // [tested]
 
@@ -123,12 +121,12 @@ public:
   /// \brief Sets the name of the clock. Useful to identify the clock in tools such as ezInspector.
   void SetClockName(const char* szName);
 
-  /// \brief Returns the name of the clock. All clocks get default names 'Clock N', unless the user specifies another name with SetClockName.
+  /// \brief Returns the name of the clock. All clocks get default names 'Clock N', unless the user specifies another name with
+  /// SetClockName.
   const char* GetClockName() const;
 
 
 public:
-
   /// \brief The data that is sent through the event interface.
   struct EventData
   {
@@ -141,10 +139,10 @@ public:
   typedef ezEvent<const EventData&, ezMutex> Event;
 
   /// \brief Allows to register a function as an event receiver. All receivers will be notified in the order that they registered.
-  static void AddEventHandler(Event::Handler handler)    { s_TimeEvents.AddEventHandler    (handler); }
+  static void AddEventHandler(Event::Handler handler) { s_TimeEvents.AddEventHandler(handler); }
 
   /// \brief Unregisters a previously registered receiver. It is an error to unregister a receiver that was not registered.
-  static void RemoveEventHandler(Event::Handler handler) { s_TimeEvents.RemoveEventHandler (handler); }
+  static void RemoveEventHandler(Event::Handler handler) { s_TimeEvents.RemoveEventHandler(handler); }
 
 
 private:
@@ -199,4 +197,3 @@ public:
 
 
 #include <Foundation/Time/Implementation/Clock_inl.h>
-

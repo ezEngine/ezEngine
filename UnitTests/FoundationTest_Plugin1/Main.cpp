@@ -105,7 +105,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct2, ezNoBase, 1, ezRTTIDefaultAllocato
   {
     EZ_MEMBER_PROPERTY("Float2", m_fFloat2),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on

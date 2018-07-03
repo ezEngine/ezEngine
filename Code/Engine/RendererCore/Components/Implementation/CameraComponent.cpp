@@ -138,16 +138,16 @@ EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 7, ezComponentMode::Static)
     /*EZ_ACCESSOR_PROPERTY_READ_ONLY("EV100", GetEV100),
     EZ_ACCESSOR_PROPERTY_READ_ONLY("Final Exposure", GetExposure),*/
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
     EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Rendering"),
     new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.5f, ezColor::DarkSlateBlue),
     new ezCameraVisualizerAttribute("Mode", "FOV", "Dimensions", "NearPlane", "FarPlane"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezCameraComponent::ezCameraComponent()
 {

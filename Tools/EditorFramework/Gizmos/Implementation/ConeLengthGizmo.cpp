@@ -8,7 +8,7 @@
 #include <QDesktopWidget>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConeLengthGizmo, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezConeLengthGizmo::ezConeLengthGizmo()
 {

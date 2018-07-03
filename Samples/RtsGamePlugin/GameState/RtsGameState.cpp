@@ -6,7 +6,7 @@
 #include <RtsGamePlugin/GameState/RtsGameState.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(RtsGameState, 1, ezRTTIDefaultAllocator<RtsGameState>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 RtsGameState* RtsGameState::s_pSingleton = nullptr;
 

@@ -1,8 +1,8 @@
-﻿#pragma once
+#pragma once
 
-#include <Utilities/Basics.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Math/Vec2.h>
+#include <Utilities/Basics.h>
 
 class EZ_UTILITIES_DLL ezTexturePacker
 {
@@ -39,4 +39,3 @@ private:
   ezDynamicArray<Texture> m_Textures;
   ezDynamicArray<bool> m_Grid;
 };
-

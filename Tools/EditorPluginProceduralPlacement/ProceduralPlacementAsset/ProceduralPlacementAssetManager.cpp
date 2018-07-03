@@ -9,7 +9,7 @@
 #include <Foundation/IO/OSFile.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProceduralPlacementAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezProceduralPlacementAssetDocumentManager>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezProceduralPlacementAssetDocumentManager::ezProceduralPlacementAssetDocumentManager()
 {

@@ -47,4 +47,3 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_WorldData);
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_WorldModule);
 }
-

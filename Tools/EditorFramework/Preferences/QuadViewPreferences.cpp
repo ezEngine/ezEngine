@@ -14,9 +14,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezEngineViewPreferences, ezNoBase, 2, ezRTTIDefau
     EZ_ENUM_MEMBER_PROPERTY("RenderMode", ezViewRenderMode, m_uiRenderMode),
     EZ_MEMBER_PROPERTY("FOV", m_fFov),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 namespace
 {
@@ -44,9 +44,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezQuadViewPreferencesUser, 1, ezRTTIDefaultAlloc
     EZ_MEMBER_PROPERTY("ViewQuad2", m_ViewQuad2)->AddAttributes(new ezHiddenAttribute()),
     EZ_MEMBER_PROPERTY("ViewQuad3", m_ViewQuad3)->AddAttributes(new ezHiddenAttribute()),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezQuadViewPreferencesUser::ezQuadViewPreferencesUser() : ezPreferences(Domain::Document, "View")
 {

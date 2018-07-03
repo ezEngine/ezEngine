@@ -11,7 +11,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_MultiplyAdd, 1, ezRTTIDefault
     new ezCategoryAttribute("Math"),
     new ezTitleAttribute("'{a1}*{a2} + {b1}*{b2}'"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
   EZ_BEGIN_PROPERTIES
   {
     // Data Pins (Input)
@@ -22,9 +22,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_MultiplyAdd, 1, ezRTTIDefault
     // Data Pins (Output)
     EZ_OUTPUT_DATA_PIN("Result", 0, ezVisualScriptDataPinType::Number),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_MultiplyAdd::ezVisualScriptNode_MultiplyAdd() { }
 ezVisualScriptNode_MultiplyAdd::~ezVisualScriptNode_MultiplyAdd() { }
@@ -64,7 +64,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Div, 1, ezRTTIDefaultAllocato
     new ezCategoryAttribute("Math"),
     new ezTitleAttribute("Div: {a} / {b}"),
   }
-    EZ_END_ATTRIBUTES
+    EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     // Data Pins (Input)
@@ -73,9 +73,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Div, 1, ezRTTIDefaultAllocato
     // Data Pins (Output)
     EZ_OUTPUT_DATA_PIN("Result", 0, ezVisualScriptDataPinType::Number),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_Div::ezVisualScriptNode_Div() { }
 ezVisualScriptNode_Div::~ezVisualScriptNode_Div() { }
@@ -111,7 +111,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Min, 1, ezRTTIDefaultAllocato
     new ezCategoryAttribute("Math"),
     new ezTitleAttribute("Min ({a}, {b})"),
   }
-    EZ_END_ATTRIBUTES
+    EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     // Data Pins (Input)
@@ -120,9 +120,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Min, 1, ezRTTIDefaultAllocato
     // Data Pins (Output)
     EZ_OUTPUT_DATA_PIN("Result", 0, ezVisualScriptDataPinType::Number),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_Min::ezVisualScriptNode_Min() { }
 ezVisualScriptNode_Min::~ezVisualScriptNode_Min() { }
@@ -158,7 +158,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Max, 1, ezRTTIDefaultAllocato
     new ezCategoryAttribute("Math"),
     new ezTitleAttribute("Max ({a}, {b})"),
   }
-    EZ_END_ATTRIBUTES
+    EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     // Data Pins (Input)
@@ -167,9 +167,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Max, 1, ezRTTIDefaultAllocato
     // Data Pins (Output)
     EZ_OUTPUT_DATA_PIN("Result", 0, ezVisualScriptDataPinType::Number),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_Max::ezVisualScriptNode_Max() { }
 ezVisualScriptNode_Max::~ezVisualScriptNode_Max() { }
@@ -205,7 +205,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Clamp, 1, ezRTTIDefaultAlloca
     new ezCategoryAttribute("Math"),
     new ezTitleAttribute("Clamp ({Min}, {Max})"),
   }
-    EZ_END_ATTRIBUTES
+    EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     // Data Pins (Input)
@@ -215,9 +215,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Clamp, 1, ezRTTIDefaultAlloca
     // Data Pins (Output)
     EZ_OUTPUT_DATA_PIN("Result", 0, ezVisualScriptDataPinType::Number),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_Clamp::ezVisualScriptNode_Clamp() { }
 ezVisualScriptNode_Clamp::~ezVisualScriptNode_Clamp() { }
@@ -254,7 +254,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Abs, 1, ezRTTIDefaultAllocato
   {
     new ezCategoryAttribute("Math")
   }
-    EZ_END_ATTRIBUTES
+    EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     // Data Pins (Input)
@@ -262,9 +262,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Abs, 1, ezRTTIDefaultAllocato
     // Data Pins (Output)
     EZ_OUTPUT_DATA_PIN("Result", 0, ezVisualScriptDataPinType::Number),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_Abs::ezVisualScriptNode_Abs() { }
 ezVisualScriptNode_Abs::~ezVisualScriptNode_Abs() { }
@@ -298,7 +298,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Sign, 1, ezRTTIDefaultAllocat
   {
     new ezCategoryAttribute("Math")
   }
-    EZ_END_ATTRIBUTES
+    EZ_END_ATTRIBUTES;
     EZ_BEGIN_PROPERTIES
   {
     // Data Pins (Input)
@@ -306,9 +306,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_Sign, 1, ezRTTIDefaultAllocat
     // Data Pins (Output)
     EZ_OUTPUT_DATA_PIN("Result", 0, ezVisualScriptDataPinType::Number),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptNode_Sign::ezVisualScriptNode_Sign() { }
 ezVisualScriptNode_Sign::~ezVisualScriptNode_Sign() { }

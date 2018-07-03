@@ -54,22 +54,28 @@ public:
   /// szStartSearchAt allows to start searching at the end of the string (if it is nullptr) or at an earlier position.
   const char* FindLastSubString_NoCase(const char* szStringToFind, const char* szStartSearchAt = nullptr) const; // [tested]
 
-  /// Searches for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is returned. Otherwise nullptr.
-  const char* FindWholeWord(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB, const char* szStartSearchAt = nullptr) const; // [tested]
+  /// Searches for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is
+  /// returned. Otherwise nullptr.
+  const char* FindWholeWord(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB,
+                            const char* szStartSearchAt = nullptr) const; // [tested]
 
-  /// Searches for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is returned. Otherwise nullptr. Ignores case.
-  const char* FindWholeWord_NoCase(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB, const char* szStartSearchAt = nullptr) const; // [tested]
+  /// Searches for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is
+  /// returned. Otherwise nullptr. Ignores case.
+  const char* FindWholeWord_NoCase(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB,
+                                   const char* szStartSearchAt = nullptr) const; // [tested]
 
   /// Compares this string with the other one. Returns 0 for equality, -1 if this string is 'smaller', 1 otherwise.
   ezInt32 Compare(const char* pString2) const; // [tested]
 
-  /// Compares up to a given number of characters of this string with the other one. Returns 0 for equality, -1 if this string is 'smaller', 1 otherwise.
+  /// Compares up to a given number of characters of this string with the other one. Returns 0 for equality, -1 if this string is 'smaller',
+  /// 1 otherwise.
   ezInt32 CompareN(const char* pString2, ezUInt32 uiCharsToCompare) const; // [tested]
 
   /// Compares this string with the other one. Returns 0 for equality, -1 if this string is 'smaller', 1 otherwise. Case insensitive.
   ezInt32 Compare_NoCase(const char* pString2) const; // [tested]
 
-  /// Compares up to a given number of characters of this string with the other one. Returns 0 for equality, -1 if this string is 'smaller', 1 otherwise. Case insensitive.
+  /// Compares up to a given number of characters of this string with the other one. Returns 0 for equality, -1 if this string is 'smaller',
+  /// 1 otherwise. Case insensitive.
   ezInt32 CompareN_NoCase(const char* pString2, ezUInt32 uiCharsToCompare) const; // [tested]
 
   /// Compares this string with the other string for equality.
@@ -105,24 +111,23 @@ private:
   ezUInt32 InternalGetElementCount() const;
 
 private: // friends
+  template <typename DerivedLhs, typename DerivedRhs>
+  friend bool operator==(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
 
   template <typename DerivedLhs, typename DerivedRhs>
-  friend bool operator== (const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
+  friend bool operator!=(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
 
   template <typename DerivedLhs, typename DerivedRhs>
-  friend bool operator!= (const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
+  friend bool operator<(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
 
   template <typename DerivedLhs, typename DerivedRhs>
-  friend bool operator< (const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
+  friend bool operator>(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
 
   template <typename DerivedLhs, typename DerivedRhs>
-  friend bool operator> (const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
+  friend bool operator<=(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
 
   template <typename DerivedLhs, typename DerivedRhs>
-  friend bool operator<= (const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
-
-  template <typename DerivedLhs, typename DerivedRhs>
-  friend bool operator>= (const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
+  friend bool operator>=(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
 
   template <typename T, bool isString>
   friend struct ezInternal::HashHelperImpl;
@@ -141,29 +146,52 @@ private: // friends
 
 
 template <typename Derived>
-typename ezStringBase<Derived>::iterator begin(const ezStringBase<Derived>& container) { return typename ezStringBase<Derived>::iterator(container, false); }
+typename ezStringBase<Derived>::iterator begin(const ezStringBase<Derived>& container)
+{
+  return typename ezStringBase<Derived>::iterator(container, false);
+}
 
 template <typename Derived>
-typename ezStringBase<Derived>::const_iterator cbegin(const ezStringBase<Derived>& container) { return typename ezStringBase<Derived>::const_iterator(container, false); }
+typename ezStringBase<Derived>::const_iterator cbegin(const ezStringBase<Derived>& container)
+{
+  return typename ezStringBase<Derived>::const_iterator(container, false);
+}
 
 template <typename Derived>
-typename ezStringBase<Derived>::iterator end(const ezStringBase<Derived>& container) { return typename ezStringBase<Derived>::iterator(container, true); }
+typename ezStringBase<Derived>::iterator end(const ezStringBase<Derived>& container)
+{
+  return typename ezStringBase<Derived>::iterator(container, true);
+}
 
 template <typename Derived>
-typename ezStringBase<Derived>::const_iterator cend(const ezStringBase<Derived>& container) { return typename ezStringBase<Derived>::const_iterator(container, true); }
+typename ezStringBase<Derived>::const_iterator cend(const ezStringBase<Derived>& container)
+{
+  return typename ezStringBase<Derived>::const_iterator(container, true);
+}
 
 
 template <typename Derived>
-typename ezStringBase<Derived>::reverse_iterator rbegin(const ezStringBase<Derived>& container) { return typename ezStringBase<Derived>::reverse_iterator(container, false); }
+typename ezStringBase<Derived>::reverse_iterator rbegin(const ezStringBase<Derived>& container)
+{
+  return typename ezStringBase<Derived>::reverse_iterator(container, false);
+}
 
 template <typename Derived>
-typename ezStringBase<Derived>::const_reverse_iterator crbegin(const ezStringBase<Derived>& container) { return typename ezStringBase<Derived>::const_reverse_iterator(container, false); }
+typename ezStringBase<Derived>::const_reverse_iterator crbegin(const ezStringBase<Derived>& container)
+{
+  return typename ezStringBase<Derived>::const_reverse_iterator(container, false);
+}
 
 template <typename Derived>
-typename ezStringBase<Derived>::reverse_iterator rend(const ezStringBase<Derived>& container) { return typename ezStringBase<Derived>::reverse_iterator(container, true); }
+typename ezStringBase<Derived>::reverse_iterator rend(const ezStringBase<Derived>& container)
+{
+  return typename ezStringBase<Derived>::reverse_iterator(container, true);
+}
 
 template <typename Derived>
-typename ezStringBase<Derived>::const_reverse_iterator crend(const ezStringBase<Derived>& container) { return typename ezStringBase<Derived>::const_reverse_iterator(container, true); }
+typename ezStringBase<Derived>::const_reverse_iterator crend(const ezStringBase<Derived>& container)
+{
+  return typename ezStringBase<Derived>::const_reverse_iterator(container, true);
+}
 
 #include <Foundation/Strings/Implementation/StringBase_inl.h>
-

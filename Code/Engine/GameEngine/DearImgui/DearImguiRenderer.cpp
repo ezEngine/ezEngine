@@ -9,13 +9,13 @@
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezImguiRenderData, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezImguiExtractor, 1, ezRTTIDefaultAllocator<ezImguiExtractor>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezImguiRenderer, 1, ezRTTIDefaultAllocator<ezImguiRenderer>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezImguiExtractor::ezImguiExtractor(const char* szName)
   : ezExtractor(szName)

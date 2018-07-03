@@ -16,9 +16,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgTriggerRaycastInteractionComponent, 1, ezRT
   {
     new ezAutoGenVisScriptMsgSender,
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -30,7 +30,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxRaycastInteractComponent, 1, ezComponentMode::Static
     EZ_MEMBER_PROPERTY("MaxDistance", m_fMaxDistance)->AddAttributes(new ezClampValueAttribute(0, ezVariant()), new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("UserMessage", m_sUserMessage),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgTriggerRaycastInteractionComponent, OnTrigger),
@@ -41,9 +41,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxRaycastInteractComponent, 1, ezComponentMode::Static
     new ezCategoryAttribute("Input"),
     new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2f, ezColor::LightGreen, "MaxDistance"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezPxRaycastInteractComponent::ezPxRaycastInteractComponent() { }
 ezPxRaycastInteractComponent::~ezPxRaycastInteractComponent() { }

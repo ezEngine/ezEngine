@@ -6,7 +6,7 @@
 #include <System/Window/Window.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(SampleGameState, 1, ezRTTIDefaultAllocator<SampleGameState>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 SampleGameState::SampleGameState()
 {

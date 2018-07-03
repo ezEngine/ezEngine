@@ -16,13 +16,20 @@ public:
   void Write(ezStreamWriter& stream) const;
 
   /// \brief Checks whether the stored file contains the same hash.
-  bool IsFileUpToDate(ezUInt64 uiExpectedHash, ezUInt16 uiVersion) const { return (m_uiHash == uiExpectedHash && m_uiVersion == uiVersion); }
+  bool IsFileUpToDate(ezUInt64 uiExpectedHash, ezUInt16 uiVersion) const
+  {
+    return (m_uiHash == uiExpectedHash && m_uiVersion == uiVersion);
+  }
 
   /// \brief Returns the asset file hash
   ezUInt64 GetFileHash() const { return m_uiHash; }
 
   /// \brief Sets the asset file hash
-  void SetFileHashAndVersion(ezUInt64 hash, ezUInt16 v) { m_uiHash = hash; m_uiVersion = v; }
+  void SetFileHashAndVersion(ezUInt64 hash, ezUInt16 v)
+  {
+    m_uiHash = hash;
+    m_uiVersion = v;
+  }
 
   /// \brief Returns the asset type version
   ezUInt16 GetFileVersion() const { return m_uiVersion; }
@@ -36,4 +43,3 @@ private:
   ezUInt64 m_uiHash;
   ezUInt16 m_uiVersion;
 };
-

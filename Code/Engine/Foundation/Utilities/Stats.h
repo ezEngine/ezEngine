@@ -40,9 +40,9 @@ public:
     /// \brief Which type of event this is.
     enum EventType
     {
-      Add,    ///< A variable has been set for the first time.
-      Set,    ///< A variable has been changed.
-      Remove  ///< A variable that existed has been removed.
+      Add,   ///< A variable has been set for the first time.
+      Set,   ///< A variable has been changed.
+      Remove ///< A variable that existed has been removed.
     };
 
     EventType m_EventType;
@@ -53,14 +53,13 @@ public:
   typedef ezEvent<const StatsEventData&, ezMutex> ezEventStats;
 
   /// \brief Adds an event handler that is called every time a stat is changed.
-  static void AddEventHandler(ezEventStats::Handler handler)    { s_StatsEvents.AddEventHandler    (handler); }
+  static void AddEventHandler(ezEventStats::Handler handler) { s_StatsEvents.AddEventHandler(handler); }
 
   /// \brief Removes a previously added event handler.
-  static void RemoveEventHandler(ezEventStats::Handler handler) { s_StatsEvents.RemoveEventHandler (handler); }
+  static void RemoveEventHandler(ezEventStats::Handler handler) { s_StatsEvents.RemoveEventHandler(handler); }
 
 private:
   static MapType s_Stats;
 
   static ezEventStats s_StatsEvents;
 };
-

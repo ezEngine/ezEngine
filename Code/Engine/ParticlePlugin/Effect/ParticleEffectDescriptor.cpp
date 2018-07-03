@@ -16,9 +16,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectDescriptor, 1, ezRTTIDefaultAllo
     EZ_MAP_MEMBER_PROPERTY("ColorParameters", m_ColorParameters)->AddAttributes(new ezExposeColorAlphaAttribute),
     EZ_SET_ACCESSOR_PROPERTY("ParticleSystems", GetParticleSystems, AddParticleSystem, RemoveParticleSystem)->AddFlags(ezPropertyFlags::PointerOwner),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleEffectDescriptor::ezParticleEffectDescriptor()
 {

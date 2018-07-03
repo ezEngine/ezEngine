@@ -10,11 +10,11 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezInputMessageGranularity, 1)
   EZ_ENUM_CONSTANT(ezInputMessageGranularity::PressOnly),
   EZ_ENUM_CONSTANT(ezInputMessageGranularity::PressAndRelease),
   EZ_ENUM_CONSTANT(ezInputMessageGranularity::PressReleaseAndDown),
-EZ_END_STATIC_REFLECTED_ENUM();
+EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgInputActionTriggered);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgInputActionTriggered, 1, ezRTTIDefaultAllocator<ezMsgInputActionTriggered>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_COMPONENT_TYPE(ezInputComponent, 2, ezComponentMode::Static)
 {
@@ -23,19 +23,19 @@ EZ_BEGIN_COMPONENT_TYPE(ezInputComponent, 2, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("InputSet", m_sInputSet)->AddAttributes(new ezDynamicStringEnumAttribute("InputSet")),
     EZ_ENUM_MEMBER_PROPERTY("Granularity", ezInputMessageGranularity, m_Granularity),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Input"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
   EZ_BEGIN_MESSAGESENDERS
   {
     EZ_MESSAGE_SENDER(m_InputEventSender)
   }
   EZ_END_MESSAGESENDERS
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezInputComponent::ezInputComponent() {}
 ezInputComponent::~ezInputComponent() {}

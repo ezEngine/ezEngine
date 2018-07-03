@@ -1,7 +1,8 @@
 #include <PCH.h>
+
 #include <Foundation/Profiling/Profiling.h>
-#include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Threading/Lock.h>
+#include <Foundation/Threading/TaskSystem.h>
 
 ezTaskGroupID::ezTaskGroupID()
 {
@@ -167,30 +168,30 @@ void ezTaskSystem::ScheduleGroupTasks(ezTaskGroup* pGroup)
   // send the proper thread signal, to make sure one of the correct worker threads is awake
   switch (pGroup->m_Priority)
   {
-  case ezTaskPriority::EarlyThisFrame:
-  case ezTaskPriority::ThisFrame:
-  case ezTaskPriority::LateThisFrame:
-  case ezTaskPriority::EarlyNextFrame:
-  case ezTaskPriority::NextFrame:
-  case ezTaskPriority::LateNextFrame:
-    s_TasksAvailableSignal[ezWorkerThreadType::ShortTasks].RaiseSignal();
-    break;
+    case ezTaskPriority::EarlyThisFrame:
+    case ezTaskPriority::ThisFrame:
+    case ezTaskPriority::LateThisFrame:
+    case ezTaskPriority::EarlyNextFrame:
+    case ezTaskPriority::NextFrame:
+    case ezTaskPriority::LateNextFrame:
+      s_TasksAvailableSignal[ezWorkerThreadType::ShortTasks].RaiseSignal();
+      break;
 
-  case ezTaskPriority::LongRunning:
-  case ezTaskPriority::LongRunningHighPriority:
-    s_TasksAvailableSignal[ezWorkerThreadType::LongTasks].RaiseSignal();
-    break;
+    case ezTaskPriority::LongRunning:
+    case ezTaskPriority::LongRunningHighPriority:
+      s_TasksAvailableSignal[ezWorkerThreadType::LongTasks].RaiseSignal();
+      break;
 
-  case ezTaskPriority::FileAccess:
-  case ezTaskPriority::FileAccessHighPriority:
-    s_TasksAvailableSignal[ezWorkerThreadType::FileAccess].RaiseSignal();
-    break;
+    case ezTaskPriority::FileAccess:
+    case ezTaskPriority::FileAccessHighPriority:
+      s_TasksAvailableSignal[ezWorkerThreadType::FileAccess].RaiseSignal();
+      break;
 
-  case ezTaskPriority::SomeFrameMainThread:
-  case ezTaskPriority::ThisFrameMainThread:
-  case ezTaskPriority::ENUM_COUNT:
-    // nothing to do for these enum values
-    break;
+    case ezTaskPriority::SomeFrameMainThread:
+    case ezTaskPriority::ThisFrameMainThread:
+    case ezTaskPriority::ENUM_COUNT:
+      // nothing to do for these enum values
+      break;
   }
 }
 
@@ -277,4 +278,3 @@ ezResult ezTaskSystem::CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum On
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskGroups);
-

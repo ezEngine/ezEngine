@@ -35,7 +35,7 @@ void ezQuadViewActions::MapActions(const char* szMapping, const char* szPath)
 ////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezQuadViewAction, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezQuadViewAction::ezQuadViewAction(const ezActionContext& context, const char* szName, ButtonType button)
   : ezButtonAction(context, szName, false, "")

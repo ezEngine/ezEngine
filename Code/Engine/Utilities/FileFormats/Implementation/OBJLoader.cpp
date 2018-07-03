@@ -1,7 +1,8 @@
 #include <PCH.h>
-#include <Utilities/FileFormats/OBJLoader.h>
+
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Utilities/ConversionUtils.h>
+#include <Utilities/FileFormats/OBJLoader.h>
 
 ezOBJLoader::FaceVertex::FaceVertex()
 {
@@ -96,7 +97,7 @@ ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
     ezStringView sLine = ReadLine(sText);
     const ezStringView sFirst = ReadString(sLine);
 
-    if (sFirst.IsEqual_NoCase("v"))// line declares a vertex
+    if (sFirst.IsEqual_NoCase("v")) // line declares a vertex
     {
       ezVec3 v(0.0f);
       ezConversionUtils::ExtractFloatsFromString(sLine.GetData(), 3, &v.x);
@@ -112,17 +113,17 @@ ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
 
       m_TexCoords.PushBack(v);
     }
-    else if (sFirst.IsEqual_NoCase("vn"))	// line declares a normal
+    else if (sFirst.IsEqual_NoCase("vn")) // line declares a normal
     {
       bContainsNormals = true;
 
       ezVec3 v(0.0f);
       ezConversionUtils::ExtractFloatsFromString(sLine.GetData(), 3, &v.x);
-      v.Normalize();	// make sure normals are indeed normalized
+      v.Normalize(); // make sure normals are indeed normalized
 
       m_Normals.PushBack(v);
     }
-    else if (sFirst.IsEqual_NoCase("f"))	// line declares a face
+    else if (sFirst.IsEqual_NoCase("f")) // line declares a face
     {
       Face face;
       face.m_uiMaterialID = uiCurMaterial;
@@ -136,7 +137,7 @@ ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
 
         // read the position index
         if (ezConversionUtils::StringToInt(sLine.GetData(), id, &szCurPos).Failed())
-          break;	// nothing found, face-declaration is finished
+          break; // nothing found, face-declaration is finished
 
         sLine.SetStartPosition(szCurPos);
 
@@ -168,7 +169,7 @@ ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
 
           sLine.SetStartPosition(szCurPos);
 
-          Vertex.m_uiNormalID = uiNormalOffset + id - 1;		// OBJ indices start at 1, so decrement them to start at 0
+          Vertex.m_uiNormalID = uiNormalOffset + id - 1; // OBJ indices start at 1, so decrement them to start at 0
         }
 
         // stores the next vertex of the face
@@ -189,7 +190,7 @@ ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
         m_Faces.PushBack(face);
       }
     }
-    else if (sFirst.IsEqual_NoCase("usemtl"))		// next material to be used for the following faces
+    else if (sFirst.IsEqual_NoCase("usemtl")) // next material to be used for the following faces
     {
       if (bIgnoreMaterials)
         uiCurMaterial = 0xFFFFFFFF;
@@ -249,12 +250,10 @@ void ezOBJLoader::ComputeTangentSpaceVectors()
     float fScale1 = 1.0f / fDenominator;
 
     ezVec3 T, B;
-    T = ezVec3((c3c1_B * v2v1.x - c2c1_B * v3v1.x) * fScale1,
-               (c3c1_B * v2v1.y - c2c1_B * v3v1.y) * fScale1,
+    T = ezVec3((c3c1_B * v2v1.x - c2c1_B * v3v1.x) * fScale1, (c3c1_B * v2v1.y - c2c1_B * v3v1.y) * fScale1,
                (c3c1_B * v2v1.z - c2c1_B * v3v1.z) * fScale1);
 
-    B = ezVec3((-c3c1_T * v2v1.x + c2c1_T * v3v1.x) * fScale1,
-               (-c3c1_T * v2v1.y + c2c1_T * v3v1.y) * fScale1,
+    B = ezVec3((-c3c1_T * v2v1.x + c2c1_T * v3v1.x) * fScale1, (-c3c1_T * v2v1.y + c2c1_T * v3v1.y) * fScale1,
                (-c3c1_T * v2v1.z + c2c1_T * v3v1.z) * fScale1);
 
     T.Normalize();
@@ -310,7 +309,4 @@ ezResult ezOBJLoader::LoadMTL(const char* szFile, const char* szMaterialBasePath
 
 
 
-
-
 EZ_STATICLINK_FILE(Utilities, Utilities_FileFormats_Implementation_OBJLoader);
-

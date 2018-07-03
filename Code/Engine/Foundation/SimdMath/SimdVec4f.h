@@ -30,57 +30,57 @@ public:
 
   void SetZero(); // [tested]
 
-  template<int N>
+  template <int N>
   void Load(const float* pFloats); // [tested]
 
-  template<int N>
+  template <int N>
   void Store(float* pFloats) const; // [tested]
 
 public:
-  template<ezMathAcc::Enum acc = ezMathAcc::FULL>
+  template <ezMathAcc::Enum acc = ezMathAcc::FULL>
   ezSimdVec4f GetReciprocal() const; // [tested]
 
-  template<ezMathAcc::Enum acc = ezMathAcc::FULL>
+  template <ezMathAcc::Enum acc = ezMathAcc::FULL>
   ezSimdVec4f GetSqrt() const; // [tested]
 
-  template<int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
+  template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
   ezSimdFloat GetLength() const; // [tested]
 
-  template<int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
+  template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
   ezSimdFloat GetInvLength() const; // [tested]
 
-  template<int N>
+  template <int N>
   ezSimdFloat GetLengthSquared() const; // [tested]
 
-  template<int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
+  template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
   ezSimdFloat GetLengthAndNormalize(); // [tested]
 
-  template<int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
+  template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
   ezSimdVec4f GetNormalized() const; // [tested]
 
-  template<int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
+  template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
   void Normalize(); // [tested]
 
-  template<int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
+  template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
   void NormalizeIfNotZero(const ezSimdFloat& fEpsilon = ezMath::BasicType<float>::SmallEpsilon()); // [tested]
 
-  template<int N>
+  template <int N>
   bool IsZero() const; // [tested]
 
-  template<int N>
+  template <int N>
   bool IsZero(const ezSimdFloat& fEpsilon) const; // [tested]
 
-  template<int N>
+  template <int N>
   bool IsNormalized(const ezSimdFloat& fEpsilon = ezMath::BasicType<float>::HugeEpsilon()) const; // [tested]
 
-  template<int N>
+  template <int N>
   bool IsNaN() const; // [tested]
 
-  template<int N>
+  template <int N>
   bool IsValid() const; // [tested]
 
 public:
-  template<int N>
+  template <int N>
   ezSimdFloat GetComponent() const; // [tested]
 
   ezSimdFloat GetComponent(int i) const; // [tested]
@@ -98,7 +98,7 @@ public:
   ezSimdVec4f GetCombined(const ezSimdVec4f& other) const; // [tested]
 
 public:
-  ezSimdVec4f operator-() const; // [tested]
+  ezSimdVec4f operator-() const;                     // [tested]
   ezSimdVec4f operator+(const ezSimdVec4f& v) const; // [tested]
   ezSimdVec4f operator-(const ezSimdVec4f& v) const; // [tested]
 
@@ -107,14 +107,14 @@ public:
 
   ezSimdVec4f CompMul(const ezSimdVec4f& v) const; // [tested]
 
-  template<ezMathAcc::Enum acc = ezMathAcc::FULL>
+  template <ezMathAcc::Enum acc = ezMathAcc::FULL>
   ezSimdVec4f CompDiv(const ezSimdVec4f& v) const; // [tested]
 
   ezSimdVec4f CompMin(const ezSimdVec4f& rhs) const; // [tested]
   ezSimdVec4f CompMax(const ezSimdVec4f& rhs) const; // [tested]
-  ezSimdVec4f Abs() const; // [tested]
-  ezSimdVec4f Floor() const; // [tested]
-  ezSimdVec4f Ceil() const; // [tested]
+  ezSimdVec4f Abs() const;                           // [tested]
+  ezSimdVec4f Floor() const;                         // [tested]
+  ezSimdVec4f Ceil() const;                          // [tested]
 
   ezSimdVec4f FlipSign(const ezSimdVec4b& cmp) const; // [tested]
 
@@ -133,20 +133,20 @@ public:
   ezSimdVec4b operator==(const ezSimdVec4f& v) const; // [tested]
   ezSimdVec4b operator!=(const ezSimdVec4f& v) const; // [tested]
   ezSimdVec4b operator<=(const ezSimdVec4f& v) const; // [tested]
-  ezSimdVec4b operator<(const ezSimdVec4f& v) const; // [tested]
+  ezSimdVec4b operator<(const ezSimdVec4f& v) const;  // [tested]
   ezSimdVec4b operator>=(const ezSimdVec4f& v) const; // [tested]
-  ezSimdVec4b operator>(const ezSimdVec4f& v) const; // [tested]
+  ezSimdVec4b operator>(const ezSimdVec4f& v) const;  // [tested]
 
-  template<int N>
+  template <int N>
   ezSimdFloat HorizontalSum() const; // [tested]
 
-  template<int N>
+  template <int N>
   ezSimdFloat HorizontalMin() const; // [tested]
 
-  template<int N>
+  template <int N>
   ezSimdFloat HorizontalMax() const; // [tested]
 
-  template<int N>
+  template <int N>
   ezSimdFloat Dot(const ezSimdVec4f& v) const; // [tested]
 
   ///\brief 3D cross product, w is ignored.
@@ -172,8 +172,7 @@ public:
 #include <Foundation/SimdMath/Implementation/SimdVec4f_inl.h>
 
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
-  #include <Foundation/SimdMath/Implementation/SSE/SSEVec4f_inl.h>
+#include <Foundation/SimdMath/Implementation/SSE/SSEVec4f_inl.h>
 #else
-  #include <Foundation/SimdMath/Implementation/FPU/FPUVec4f_inl.h>
+#include <Foundation/SimdMath/Implementation/FPU/FPUVec4f_inl.h>
 #endif
-

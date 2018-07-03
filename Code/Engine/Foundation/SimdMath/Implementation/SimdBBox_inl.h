@@ -1,9 +1,6 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezSimdBBox::ezSimdBBox()
-{
-
-}
+EZ_ALWAYS_INLINE ezSimdBBox::ezSimdBBox() {}
 
 EZ_ALWAYS_INLINE ezSimdBBox::ezSimdBBox(const ezSimdVec4f& vMin, const ezSimdVec4f& vMax)
 {
@@ -177,4 +174,3 @@ EZ_ALWAYS_INLINE bool ezSimdBBox::operator!=(const ezSimdBBox& rhs) const
 {
   return ((m_Min != rhs.m_Min) || (m_Max != rhs.m_Max)).AnySet<3>();
 }
-

@@ -1,11 +1,11 @@
-﻿#pragma once
+#pragma once
 
 /// \file
 
 #include <Foundation/Basics.h>
-#include <Foundation/Utilities/EnumerableClass.h>
 #include <Foundation/Serialization/GraphVersioning.h>
 #include <Foundation/Strings/HashedString.h>
+#include <Foundation/Utilities/EnumerableClass.h>
 
 class ezRTTI;
 class ezAbstractObjectNode;
@@ -21,7 +21,7 @@ class EZ_FOUNDATION_DLL ezGraphPatch : public ezEnumerable<ezGraphPatch>
 public:
   enum class PatchType : ezUInt8
   {
-    NodePatch, ///< Patch applies to a node of a certain type and version
+    NodePatch,  ///< Patch applies to a node of a certain type and version
     GraphPatch, ///< Patch applies to an entire graph without any restrictions.
   };
 
@@ -50,4 +50,3 @@ private:
   ezUInt32 m_uiTypeVersion;
   PatchType m_PatchType;
 };
-

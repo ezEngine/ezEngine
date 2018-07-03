@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Utilities/DataStructures/ObjectSelection.h>
 
 ezObjectSelection::ezObjectSelection()
@@ -65,4 +66,3 @@ void ezObjectSelection::ToggleSelection(ezGameObjectHandle hObject)
 
 
 EZ_STATICLINK_FILE(Utilities, Utilities_DataStructures_Implementation_ObjectSelection);
-

@@ -4,13 +4,13 @@
 #include <Core/Input/InputManager.h>
 #include <Foundation/Math/Vec2.h>
 
-/// \brief A Virtual Thumb-stick is an input device that transforms certain types of input (mouse / touch) into input similar to a thumb-stick on a controller.
+/// \brief A Virtual Thumb-stick is an input device that transforms certain types of input (mouse / touch) into input similar to a
+/// thumb-stick on a controller.
 ///
-/// A virtual thumb-stick can be used to provide an 'input device' on a touch screen, that acts like a controller thumb-stick and thus allows
-/// easier control over a game. The virtual thumb-stick takes input inside a certain screen area. It tracks the users finger movements inside this
-/// area and translates those into input from a controller thumb-stick, which it then feeds back into the input system. That makes it then possible
-/// to be mapped to input actions again.
-/// This way a game controller type of input is emulated.
+/// A virtual thumb-stick can be used to provide an 'input device' on a touch screen, that acts like a controller thumb-stick and thus
+/// allows easier control over a game. The virtual thumb-stick takes input inside a certain screen area. It tracks the users finger
+/// movements inside this area and translates those into input from a controller thumb-stick, which it then feeds back into the input
+/// system. That makes it then possible to be mapped to input actions again. This way a game controller type of input is emulated.
 class EZ_CORE_DLL ezVirtualThumbStick : public ezInputDevice
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVirtualThumbStick, ezInputDevice);
@@ -27,9 +27,9 @@ public:
   {
     enum Enum
     {
-      Touchpoint,     ///< The Virtual Thumb-stick will be triggered by touch input events.
-      MousePosition,  ///< The Virtual Thumb-stick will be triggered by mouse input.
-      Custom          ///< The Thumb-stick triggers are specified manually.
+      Touchpoint,    ///< The Virtual Thumb-stick will be triggered by touch input events.
+      MousePosition, ///< The Virtual Thumb-stick will be triggered by mouse input.
+      Custom         ///< The Thumb-stick triggers are specified manually.
     };
   };
 
@@ -55,8 +55,8 @@ public:
   {
     enum Enum
     {
-      InputArea,        ///< The center of the thumb-stick is always at the center of the input area.
-      ActivationPoint   ///< The center of the thumb-stick is always where the user activates the thumb-stick (first touch-point)
+      InputArea,      ///< The center of the thumb-stick is always at the center of the input area.
+      ActivationPoint ///< The center of the thumb-stick is always where the user activates the thumb-stick (first touch-point)
     };
   };
 
@@ -72,8 +72,9 @@ public:
   ///   The priority of the input area. Defines which thumb-stick or other input action gets priority, if they overlap.
   ///
   /// \param center
-  ///   \sa CenterMode. 
-  void SetInputArea(const ezVec2& vLowerLeft, const ezVec2& vUpperRight, float fThumbstickRadius, float fPriority, CenterMode::Enum center = CenterMode::ActivationPoint);
+  ///   \sa CenterMode.
+  void SetInputArea(const ezVec2& vLowerLeft, const ezVec2& vUpperRight, float fThumbstickRadius, float fPriority,
+                    CenterMode::Enum center = CenterMode::ActivationPoint);
 
   /// \brief Returns the input area of the virtual thumb-stick.
   void GetInputArea(ezVec2& out_vLowerLeft, ezVec2& out_vUpperRight);
@@ -88,7 +89,8 @@ public:
   ///
   /// If \a Output is 'Custom' the remaining parameters define which input slots the thumb-stick triggers for which direction.
   /// Otherwise the remaining parameters are ignored.
-  void SetThumbstickOutput(Output::Enum Output, const char* szOutputLeft = nullptr, const char* szOutputRight = nullptr, const char* szOutputUp = nullptr, const char* szOutputDown = nullptr);
+  void SetThumbstickOutput(Output::Enum Output, const char* szOutputLeft = nullptr, const char* szOutputRight = nullptr,
+                           const char* szOutputUp = nullptr, const char* szOutputDown = nullptr);
 
   /// \brief Specifies what happens when the input slots that trigger the thumb-stick are active while entering or leaving the input area.
   void SetAreaFocusMode(ezInputActionConfig::OnEnterArea OnEnter, ezInputActionConfig::OnLeaveArea OnLeave);
@@ -103,7 +105,6 @@ public:
   bool IsActive() const { return m_bIsActive; }
 
 protected:
-
   void UpdateActionMapping();
 
   ezVec2 m_vLowerLeft;
@@ -126,9 +127,7 @@ protected:
   static ezInt32 s_iThumbsticks;
 
 private:
-
-  virtual void InitializeDevice() override { }
+  virtual void InitializeDevice() override {}
   virtual void UpdateInputSlotValues() override;
   virtual void RegisterInputSlots() override;
 };
-

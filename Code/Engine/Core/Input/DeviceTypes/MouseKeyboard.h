@@ -11,11 +11,8 @@ class EZ_CORE_DLL ezInputDeviceMouseKeyboard : public ezInputDevice
   EZ_ADD_DYNAMIC_REFLECTION(ezInputDeviceMouseKeyboard, ezInputDevice);
 
 public:
-  ezInputDeviceMouseKeyboard()
-  {
-    m_vMouseScale.Set(1.0f);
-  }
-  
+  ezInputDeviceMouseKeyboard() { m_vMouseScale.Set(1.0f); }
+
   /// \brief Shows or hides the mouse cursor inside the application window.
   virtual void SetShowMouseCursor(bool bShow) = 0;
 
@@ -31,4 +28,3 @@ public:
 private:
   ezVec2 m_vMouseScale;
 };
-

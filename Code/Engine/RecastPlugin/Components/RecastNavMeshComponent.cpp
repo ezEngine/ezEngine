@@ -21,7 +21,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezRcComponent, 1)
   {
     new ezCategoryAttribute("AI"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
 
 EZ_END_ABSTRACT_COMPONENT_TYPE
@@ -38,7 +38,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRcNavMeshComponent, 1, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("ShowNavMesh", m_bShowNavMesh),
     EZ_MEMBER_PROPERTY("NavMeshConfig", m_NavMeshConfig),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
 EZ_END_COMPONENT_TYPE
 

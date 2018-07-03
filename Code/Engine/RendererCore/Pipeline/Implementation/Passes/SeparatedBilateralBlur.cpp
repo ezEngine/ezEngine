@@ -21,9 +21,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSeparatedBilateralBlurPass, 2, ezRTTIDefaultAl
     EZ_ACCESSOR_PROPERTY("GaussianSigma", GetGaussianSigma, SetGaussianSigma)->AddAttributes(new ezDefaultValueAttribute(4.0f)),
     EZ_ACCESSOR_PROPERTY("Sharpness", GetSharpness, SetSharpness)->AddAttributes(new ezDefaultValueAttribute(120.0f)),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
   ezSeparatedBilateralBlurPass::ezSeparatedBilateralBlurPass()
   : ezRenderPipelinePass("SeparatedBilateral")

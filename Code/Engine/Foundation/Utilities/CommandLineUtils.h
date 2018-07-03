@@ -1,9 +1,9 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Strings/StringBuilder.h>
-#include <Foundation/Strings/String.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Strings/String.h>
+#include <Foundation/Strings/StringBuilder.h>
 
 /// \brief This is a helper class to parse command lines.
 ///
@@ -20,7 +20,8 @@ public:
   /// Useful for platforms where command line args come in as a single string.
   /// \param addExecutableDir
   ///   Adds executable path as first parameter (just as it would normally be in 'int main(argc, argv)').
-  static void SplitCommandLineString(const char* commandString, bool addExecutableDir, ezDynamicArray<ezString>& outArgs, ezDynamicArray<const char*>& outArgsV);
+  static void SplitCommandLineString(const char* commandString, bool addExecutableDir, ezDynamicArray<ezString>& outArgs,
+                                     ezDynamicArray<const char*>& outArgsV);
 
   /// \brief Initializes ezCommandLineUtils from the parameter arguments that were passed to the application.
   void SetCommandLine(ezUInt32 argc, const char** argv); // [tested]
@@ -58,7 +59,8 @@ public:
   /// \brief Returns the n-th parameter to the command line option with the name \a szOption.
   ///
   /// If the option does not exist or does not have that many parameters, \a szDefault is returned.
-  const char* GetStringOption(const char* szOption, ezUInt32 uiArgument = 0, const char* szDefault = "", bool bCaseSensitive = false) const; // [tested]
+  const char* GetStringOption(const char* szOption, ezUInt32 uiArgument = 0, const char* szDefault = "",
+                              bool bCaseSensitive = false) const; // [tested]
 
   /// \brief Returns a boolean interpretation of the option \a szOption or bDefault if it cannot be found.
   ///
@@ -121,8 +123,5 @@ public:
   void InjectCustomArgument(const char* szArgument); // [tested]
 
 private:
-
   ezDynamicArray<ezString> m_Commands;
 };
-
-

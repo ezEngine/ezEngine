@@ -6,7 +6,7 @@
 #include <ToolsFoundation/Project/ToolsProject.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXAction, 0, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezActionDescriptorHandle ezPhysXActions::s_hCategoryPhysX;
 ezActionDescriptorHandle ezPhysXActions::s_hProjectSettings;

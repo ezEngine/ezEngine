@@ -20,9 +20,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBloomPass, 1, ezRTTIDefaultAllocator<ezBloomPa
     EZ_MEMBER_PROPERTY("MidTintColor", m_midTintColor),
     EZ_MEMBER_PROPERTY("OuterTintColor", m_outerTintColor),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezBloomPass::ezBloomPass()
   : ezRenderPipelinePass("BloomPass")

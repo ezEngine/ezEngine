@@ -10,9 +10,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodProjectPreferences, 1, ezRTTIDefaultAlloca
     EZ_MEMBER_PROPERTY("Mute", m_bMute),
     EZ_MEMBER_PROPERTY("Volume", m_fMasterVolume),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezFmodProjectPreferences::ezFmodProjectPreferences()
   : ezPreferences(Domain::Project, "Fmod")

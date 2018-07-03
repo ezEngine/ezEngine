@@ -1,12 +1,13 @@
 #include <PCH.h>
-#include <TestFramework/Utilities/TestOrder.h>
+
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Utilities/StackTracer.h>
+#include <TestFramework/Utilities/TestOrder.h>
 
 #ifdef EZ_TESTFRAMEWORK_USE_FILESERVE
-#include <FileservePlugin/Plugin.h>
 #include <FileservePlugin/Client/FileserveClient.h>
 #include <FileservePlugin/Client/FileserveDataDir.h>
+#include <FileservePlugin/Plugin.h>
 #endif
 
 ezTestFramework* ezTestFramework::s_pInstance = nullptr;
@@ -25,7 +26,8 @@ static void PrintCallstack(const char* szText)
   fflush(stderr);
 };
 
-static bool TestAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
+static bool TestAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression,
+                              const char* szAssertMsg)
 {
   if (ezTestFramework::s_bCallstackOnAssert)
   {
@@ -49,8 +51,19 @@ static bool TestAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const c
 // ezTestFramework public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezTestFramework::ezTestFramework(const char* szTestName, const char* szAbsTestOutputDir, const char* szRelTestDataDir, int argc, const char** argv)
-  : m_sTestName(szTestName), m_sAbsTestOutputDir(szAbsTestOutputDir), m_sRelTestDataDir(szRelTestDataDir), m_iErrorCount(0), m_iTestsFailed(0), m_iTestsPassed(0), m_PreviousAssertHandler(nullptr), m_iCurrentTestIndex(-1), m_iCurrentSubTestIndex(-1), m_bTestsRunning(false), m_bIsInitialized(false)
+ezTestFramework::ezTestFramework(const char* szTestName, const char* szAbsTestOutputDir, const char* szRelTestDataDir, int argc,
+                                 const char** argv)
+    : m_sTestName(szTestName)
+    , m_sAbsTestOutputDir(szAbsTestOutputDir)
+    , m_sRelTestDataDir(szRelTestDataDir)
+    , m_iErrorCount(0)
+    , m_iTestsFailed(0)
+    , m_iTestsPassed(0)
+    , m_PreviousAssertHandler(nullptr)
+    , m_iCurrentTestIndex(-1)
+    , m_iCurrentSubTestIndex(-1)
+    , m_bTestsRunning(false)
+    , m_bIsInitialized(false)
 {
   s_pInstance = this;
 
@@ -69,13 +82,14 @@ ezTestFramework::~ezTestFramework()
 void ezTestFramework::Initialize()
 {
   // Don't do this, it will spam the log with sub-system messages
-  //ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
-  //ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  // ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
+  // ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 
   ezStartup::AddApplicationTag("testframework");
   ezStartup::StartupCore();
 
-  // if tests need to write data back through Fileserve (e.g. image comparison results), they can do that through a data dir mounted with this path
+  // if tests need to write data back through Fileserve (e.g. image comparison results), they can do that through a data dir mounted with
+  // this path
   ezFileSystem::SetSpecialDirectory("eztest", ezTestFramework::GetInstance()->GetAbsOutputPath());
 
   CreateOutputFolder();
@@ -226,7 +240,8 @@ void ezTestFramework::CreateOutputFolder()
 {
   ezOSFile::CreateDirectoryStructure(m_sAbsTestOutputDir.c_str());
 
-  EZ_ASSERT_RELEASE(ezOSFile::ExistsDirectory(m_sAbsTestOutputDir.c_str()), "Failed to create output directory '{0}'", m_sAbsTestOutputDir.c_str());
+  EZ_ASSERT_RELEASE(ezOSFile::ExistsDirectory(m_sAbsTestOutputDir.c_str()), "Failed to create output directory '{0}'",
+                    m_sAbsTestOutputDir.c_str());
 }
 
 void ezTestFramework::SaveTestOrder()
@@ -369,26 +384,26 @@ static void LogWriter(const ezLoggingEventData& e)
 {
   switch (e.m_EventType)
   {
-  case ezLogMsgType::ErrorMsg:
-    ezTestFramework::Output(ezTestOutput::Error, "ezLog Error: %s", e.m_szText);
-    break;
-  case ezLogMsgType::SeriousWarningMsg:
-    ezTestFramework::Output(ezTestOutput::Error, "ezLog Serious Warning: %s", e.m_szText);
-    break;
-  case ezLogMsgType::WarningMsg:
-    ezTestFramework::Output(ezTestOutput::ImportantInfo, "ezLog Warning: %s", e.m_szText);
-    break;
-  case ezLogMsgType::InfoMsg:
-  case ezLogMsgType::DevMsg:
-  case ezLogMsgType::DebugMsg:
+    case ezLogMsgType::ErrorMsg:
+      ezTestFramework::Output(ezTestOutput::Error, "ezLog Error: %s", e.m_szText);
+      break;
+    case ezLogMsgType::SeriousWarningMsg:
+      ezTestFramework::Output(ezTestOutput::Error, "ezLog Serious Warning: %s", e.m_szText);
+      break;
+    case ezLogMsgType::WarningMsg:
+      ezTestFramework::Output(ezTestOutput::ImportantInfo, "ezLog Warning: %s", e.m_szText);
+      break;
+    case ezLogMsgType::InfoMsg:
+    case ezLogMsgType::DevMsg:
+    case ezLogMsgType::DebugMsg:
     {
       if (ezStringUtils::IsEqual_NoCase(e.m_szTag, "test"))
         ezTestFramework::Output(ezTestOutput::Details, e.m_szText);
     }
     break;
 
-  default:
-    return;
+    default:
+      return;
   }
 }
 
@@ -449,7 +464,7 @@ void ezTestFramework::ExecuteNextTest()
       if (!subTest.m_bEnableTest)
       {
         /// \todo Don't we want to output this ?
-        //ezTestFramework::Output(ezTestOutput::Message, "Skipping deactivated Sub-Test: '%s'", subTest.m_szSubTestName);
+        // ezTestFramework::Output(ezTestOutput::Message, "Skipping deactivated Sub-Test: '%s'", subTest.m_szSubTestName);
         ++m_iExecutingSubTest;
         return;
       }
@@ -694,7 +709,8 @@ void ezTestFramework::OutputImpl(ezTestOutput::Enum Type, const char* szMsg)
 
 void ezTestFramework::ErrorImpl(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg)
 {
-  m_Result.TestError(m_iCurrentTestIndex, m_iCurrentSubTestIndex, szError, ezTestFramework::s_szTestBlockName, szFile, iLine, szFunction, szMsg);
+  m_Result.TestError(m_iCurrentTestIndex, m_iCurrentSubTestIndex, szError, ezTestFramework::s_szTestBlockName, szFile, iLine, szFunction,
+                     szMsg);
 
   g_bBlockOutput = true;
   ezTestFramework::Output(ezTestOutput::Error, szError);
@@ -737,7 +753,8 @@ void ezTestFramework::TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, doubl
     else
     {
       m_iTestsFailed++;
-      ezTestFramework::Output(ezTestOutput::Error, "Test '%s' failed: %i Errors.", szTestName, (ezUInt32)m_Result.GetErrorMessageCount(m_iCurrentTestIndex, iSubTestIndex));
+      ezTestFramework::Output(ezTestOutput::Error, "Test '%s' failed: %i Errors.", szTestName,
+                              (ezUInt32)m_Result.GetErrorMessageCount(m_iCurrentTestIndex, iSubTestIndex));
     }
   }
   else
@@ -749,7 +766,8 @@ void ezTestFramework::TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, doubl
     }
     else
     {
-      ezTestFramework::Output(ezTestOutput::Error, "Sub-Test '%s' failed: %i Errors.", szSubTestName, (ezUInt32)m_Result.GetErrorMessageCount(m_iCurrentTestIndex, iSubTestIndex));
+      ezTestFramework::Output(ezTestOutput::Error, "Sub-Test '%s' failed: %i Errors.", szSubTestName,
+                              (ezUInt32)m_Result.GetErrorMessageCount(m_iCurrentTestIndex, iSubTestIndex));
     }
   }
 }
@@ -826,7 +844,8 @@ bool ezTestFramework::CompareImages(ezUInt32 uiMaxError, char* szErrorMsg)
 
     imgDiff.SaveTo(sImgDiffName);
 
-    safeprintf(szErrorMsg, 512, "Image Comparison Failed: Error of %u exceeds threshold of %u for image '%s'", uiMeanError, uiMaxError, sImgName.GetData());
+    safeprintf(szErrorMsg, 512, "Image Comparison Failed: Error of %u exceeds threshold of %u for image '%s'", uiMeanError, uiMaxError,
+               sImgName.GetData());
     return false;
   }
 
@@ -871,4 +890,3 @@ void ezTestFramework::TestResult(ezInt32 iSubTestIndex, bool bSuccess, double fD
 
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_TestFramework);
-

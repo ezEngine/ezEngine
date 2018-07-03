@@ -1,11 +1,13 @@
 #include <PCH.h>
+
 #include <Core/Messages/EventMessage.h>
 #include <Core/World/EventMessageHandlerComponent.h>
 #include <Core/World/World.h>
 
+// clang-format off
 EZ_IMPLEMENT_MESSAGE_TYPE(ezEventMessage);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventMessage, 1, ezRTTIDefaultAllocator<ezEventMessage>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgGenericEvent);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgGenericEvent, 1, ezRTTIDefaultAllocator<ezMsgGenericEvent>)
@@ -14,15 +16,17 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgGenericEvent, 1, ezRTTIDefaultAllocator<ezM
   {
     EZ_MEMBER_PROPERTY("Message", m_sMessage),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 EZ_CHECK_AT_COMPILETIME(sizeof(ezEventMessageSender<ezEventMessage>) == 8);
 
 namespace ezInternal
 {
-  ezComponentHandle EventMessageSenderHelper::FindReceiver(ezEventMessage& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject)
+  ezComponentHandle EventMessageSenderHelper::FindReceiver(ezEventMessage& msg, const ezComponent* pSenderComponent,
+                                                           const ezGameObject* pSearchObject)
   {
     const ezGameObject* pCurrentObject = pSearchObject;
 
@@ -94,7 +98,7 @@ namespace ezInternal
   }
 
   void EventMessageSenderHelper::PostMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, const ezEventMessage& msg,
-    ezObjectMsgQueueType::Enum queueType)
+                                             ezObjectMsgQueueType::Enum queueType)
   {
     if (!hReceiver.IsInvalidated())
     {
@@ -110,7 +114,7 @@ namespace ezInternal
   }
 
   void EventMessageSenderHelper::PostMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, const ezEventMessage& msg,
-    ezObjectMsgQueueType::Enum queueType, ezTime delay)
+                                             ezObjectMsgQueueType::Enum queueType, ezTime delay)
   {
     if (!hReceiver.IsInvalidated())
     {
@@ -124,10 +128,8 @@ namespace ezInternal
     }
 #endif
   }
-
 }
 
 
 
 EZ_STATICLINK_FILE(Core, Core_Messages_Implementation_EventMessage);
-

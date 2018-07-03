@@ -2,11 +2,11 @@
 
 #ifdef EZ_USE_QT
 
-#include <TestFramework/Basics.h>
-#include <TestFramework/Framework/Qt/qtTestFramework.h>
 #include <QAbstractItemModel>
 #include <QColor>
 #include <QIcon>
+#include <TestFramework/Basics.h>
+#include <TestFramework/Framework/Qt/qtTestFramework.h>
 
 class ezQtTestFramework;
 
@@ -43,7 +43,7 @@ public:
 private:
   const ezTestFrameworkResult* m_pResult;
   ezInt32 m_iTestIndex;
-  ezInt32 m_iSubTestIndex; 
+  ezInt32 m_iSubTestIndex;
 
   ezQtTestModelEntry* m_pParentEntry;
   ezUInt32 m_uiIndexInParent;
@@ -85,7 +85,7 @@ public:
     };
   };
 
-public: //QAbstractItemModel interface
+public: // QAbstractItemModel interface
   virtual QVariant data(const QModelIndex& index, int role) const override;
   virtual Qt::ItemFlags flags(const QModelIndex& index) const override;
   virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
@@ -111,4 +111,3 @@ private:
 };
 
 #endif
-

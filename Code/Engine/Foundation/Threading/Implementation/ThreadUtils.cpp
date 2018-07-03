@@ -1,4 +1,3 @@
-
 #include <PCH.h>
 
 #include <Foundation/Configuration/Startup.h>
@@ -16,7 +15,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ThreadUtils)
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;
-  // clang-format on
+// clang-format on
 
 // Include inline file
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

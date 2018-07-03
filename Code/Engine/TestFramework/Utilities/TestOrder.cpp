@@ -1,16 +1,17 @@
 #include <PCH.h>
+
 #include <TestFramework/Utilities/TestOrder.h>
 
 /// Operator to sort tests alphabetically
 inline bool SortTest_Operator(const ezTestEntry& lhs, const ezTestEntry& rhs)
 {
-  return strcmp (lhs.m_szTestName, rhs.m_szTestName) < 0;
+  return strcmp(lhs.m_szTestName, rhs.m_szTestName) < 0;
 }
 
 /// Operator to sort sub-tests alphabetically
 inline bool SortSubTest_Operator(const ezSubTestEntry& lhs, const ezSubTestEntry& rhs)
 {
-  return strcmp (lhs.m_szSubTestName, rhs.m_szSubTestName) < 0;
+  return strcmp(lhs.m_szSubTestName, rhs.m_szSubTestName) < 0;
 }
 
 /// Sorts all tests and subtests alphabetically
@@ -61,7 +62,8 @@ void SaveTestOrder(const char* szFile, const std::deque<ezTestEntry>& AllTests, 
   fclose(pFile);
 }
 
-/// Reads one line from a text file, strips away white-spaces. Returns true if the line originally started with a white-space (ie. was indented).
+/// Reads one line from a text file, strips away white-spaces. Returns true if the line originally started with a white-space (ie. was
+/// indented).
 inline bool ReadLine(FILE* pFile, char* pDest, ezUInt32 uiBufferSize)
 {
   ezUInt32 iPos = 0;
@@ -91,7 +93,7 @@ inline bool ReadLine(FILE* pFile, char* pDest, ezUInt32 uiBufferSize)
 
       continue;
     }
-    
+
     pDest[iPos] = c;
     ++iPos;
   }
@@ -113,7 +115,7 @@ inline void StripWhitespaces(char* szString)
       szString[uiWritePos] = szString[uiReadPos];
       ++uiWritePos;
     }
-    
+
     ++uiReadPos;
   }
 
@@ -129,7 +131,7 @@ void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests, TestSe
     return;
   }
 
-  ezInt32 iLastMainTest =  0;
+  ezInt32 iLastMainTest = 0;
 
   while (!feof(pFile))
   {
@@ -142,7 +144,7 @@ void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests, TestSe
     const char* pEnd = strstr(szTestName, "=");
     if (pEnd)
     {
-      ezInt32 iPos = (ezInt32) (pEnd - szTestName);
+      ezInt32 iPos = (ezInt32)(pEnd - szTestName);
       szTestName[iPos] = '\0';
     }
 
@@ -219,4 +221,3 @@ void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests, TestSe
 
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Utilities_TestOrder);
-

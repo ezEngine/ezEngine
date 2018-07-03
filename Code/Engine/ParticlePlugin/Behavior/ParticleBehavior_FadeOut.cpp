@@ -13,12 +13,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_FadeOut, 1, ezRTTIDefa
     EZ_MEMBER_PROPERTY("StartAlpha", m_fStartAlpha)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("Exponent", m_fExponent)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_FadeOut, 1, ezRTTIDefaultAllocator<ezParticleBehavior_FadeOut>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 const ezRTTI* ezParticleBehaviorFactory_FadeOut::GetBehaviorType() const
 {

@@ -12,7 +12,7 @@
 #include <QFileDialog>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectSelectionAction, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezActionDescriptorHandle ezGameObjectSelectionActions::s_hSelectionCategory;
 ezActionDescriptorHandle ezGameObjectSelectionActions::s_hShowInScenegraph;

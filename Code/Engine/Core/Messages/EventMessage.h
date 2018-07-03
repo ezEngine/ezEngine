@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Foundation/Communication/Message.h>
 #include <Core/World/GameObject.h>
+#include <Foundation/Communication/Message.h>
 
 /// \brief Base class for all messages that are sent as 'events'
 struct EZ_CORE_DLL ezEventMessage : public ezMessage
@@ -14,8 +14,8 @@ struct EZ_CORE_DLL ezEventMessage : public ezMessage
 
 /// \brief For use in scripts to signal a custom event that some game event has occurred.
 ///
-/// This is a simple message for simple use cases. Create custom messages for more elaborate cases where a string is not sufficient information.
-/// Also be aware that passing this message is not the most efficient due to the string copy overhead.
+/// This is a simple message for simple use cases. Create custom messages for more elaborate cases where a string is not sufficient
+/// information. Also be aware that passing this message is not the most efficient due to the string copy overhead.
 struct EZ_CORE_DLL ezMsgGenericEvent : public ezEventMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgGenericEvent, ezEventMessage);
@@ -32,8 +32,10 @@ namespace ezInternal
 
     static void SendMessage(ezComponent* pSenderComponent, ezComponentHandle hReceiver, ezEventMessage& msg);
     static void SendMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, ezEventMessage& msg);
-    static void PostMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, const ezEventMessage& msg, ezObjectMsgQueueType::Enum queueType);
-    static void PostMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, const ezEventMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay);
+    static void PostMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, const ezEventMessage& msg,
+                            ezObjectMsgQueueType::Enum queueType);
+    static void PostMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, const ezEventMessage& msg,
+                            ezObjectMsgQueueType::Enum queueType, ezTime delay);
   };
 }
 
@@ -44,10 +46,7 @@ template <typename EventMessageType>
 class ezEventMessageSender : public ezMessageSenderBase<EventMessageType>
 {
 public:
-  EZ_ALWAYS_INLINE ezEventMessageSender()
-  {
-    *reinterpret_cast<ezUInt64*>(&m_hCachedReceiver) = 0xFFFFFFFFFFFFFFFF;
-  }
+  EZ_ALWAYS_INLINE ezEventMessageSender() { *reinterpret_cast<ezUInt64*>(&m_hCachedReceiver) = 0xFFFFFFFFFFFFFFFF; }
 
   EZ_ALWAYS_INLINE void SendMessage(EventMessageType& msg, ezComponent* pSenderComponent, const ezGameObject* pSearchObject)
   {
@@ -64,7 +63,7 @@ public:
   }
 
   EZ_ALWAYS_INLINE void PostMessage(const EventMessageType& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject,
-    ezObjectMsgQueueType::Enum queueType) const
+                                    ezObjectMsgQueueType::Enum queueType) const
   {
     UpdateMessageAndCachedReceiver(const_cast<EventMessageType&>(msg), pSenderComponent, pSearchObject);
 
@@ -72,7 +71,7 @@ public:
   }
 
   EZ_ALWAYS_INLINE void PostMessage(const EventMessageType& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject,
-    ezObjectMsgQueueType::Enum queueType, ezTime delay) const
+                                    ezObjectMsgQueueType::Enum queueType, ezTime delay) const
   {
     UpdateMessageAndCachedReceiver(const_cast<EventMessageType&>(msg), pSenderComponent, pSearchObject);
 
@@ -80,7 +79,8 @@ public:
   }
 
 private:
-  EZ_ALWAYS_INLINE void UpdateMessageAndCachedReceiver(ezEventMessage& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject) const
+  EZ_ALWAYS_INLINE void UpdateMessageAndCachedReceiver(ezEventMessage& msg, const ezComponent* pSenderComponent,
+                                                       const ezGameObject* pSearchObject) const
   {
     msg.m_hSenderObject = pSenderComponent->GetOwner()->GetHandle();
     msg.m_hSenderComponent = pSenderComponent->GetHandle();
@@ -93,4 +93,3 @@ private:
 
   mutable ezComponentHandle m_hCachedReceiver;
 };
-

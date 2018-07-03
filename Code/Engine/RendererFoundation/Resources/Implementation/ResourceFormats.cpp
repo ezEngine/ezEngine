@@ -15,7 +15,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezGALResourceFormat, 1)
   EZ_ENUM_CONSTANTS(ezGALResourceFormat::BC6UFloat, ezGALResourceFormat::BC6Float)
   EZ_ENUM_CONSTANTS(ezGALResourceFormat::BC7UNormalized, ezGALResourceFormat::BC7UNormalizedsRGB)
   EZ_ENUM_CONSTANTS(ezGALResourceFormat::RFloat)
-EZ_END_STATIC_REFLECTED_ENUM();
+EZ_END_STATIC_REFLECTED_ENUM;
 
 const ezUInt8 ezGALResourceFormat::s_BitsPerElement[ezGALResourceFormat::ENUM_COUNT] =
 {

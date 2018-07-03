@@ -3,7 +3,7 @@
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectResource, 1, ezRTTIDefaultAllocator<ezParticleEffectResource>);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleEffectResource::ezParticleEffectResource()
   : ezResource<ezParticleEffectResource, ezParticleEffectResourceDescriptor>(DoUpdate::OnAnyThread, 1)

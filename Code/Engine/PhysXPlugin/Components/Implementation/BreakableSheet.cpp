@@ -22,7 +22,7 @@ EZ_DEFINE_AS_POD_TYPE(jcv_point);
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgBreakableSheetBroke)
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgBreakableSheetBroke, 1, ezRTTIDefaultAllocator<ezMsgBreakableSheetBroke>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 // TODOs:
 // - Switch to box extents so box manipulator could be used OR
@@ -51,13 +51,13 @@ EZ_BEGIN_COMPONENT_TYPE(ezBreakableSheetComponent, 1, ezComponentMode::Dynamic)
     EZ_MEMBER_PROPERTY("CollisionLayerBrokenPieces", m_uiCollisionLayerBrokenPieces)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("IncludeInNavmesh", m_bIncludeInNavmesh)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Physics"),
     new ezNonUniformBoxManipulatorAttribute("Width", "Thickness", "Height"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
   EZ_BEGIN_MESSAGESENDERS
   {
     EZ_MESSAGE_SENDER(m_BreakEventSender)
@@ -72,7 +72,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBreakableSheetComponent, 1, ezComponentMode::Dynamic)
   }
   EZ_END_MESSAGEHANDLERS
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 ezBreakableSheetComponent::ezBreakableSheetComponent()

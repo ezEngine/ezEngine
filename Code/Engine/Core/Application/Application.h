@@ -1,11 +1,10 @@
-
 #pragma once
 
 /// \file
 
-#include <Foundation/Utilities/CommandLineUtils.h>
-#include <Core/Basics.h>
 #include <Core/Application/Implementation/ApplicationEntryPoint.h>
+#include <Core/Basics.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
 
 class ezApplication;
 
@@ -25,9 +24,9 @@ EZ_CORE_DLL void ezRun_Shutdown(ezApplication* pApplicationInstance);
 
 /// \brief Base class to be used by applications based on ezEngine.
 ///
-/// The platform abstraction layer will ensure that the correct functions are called independent of the basic main loop structure (traditional or event-based).
-/// Derive an application specific class from ezApplication and implement at least the abstract Run() function.
-/// Additional virtual functions allow to hook into specific events to run application specific code at the correct times.
+/// The platform abstraction layer will ensure that the correct functions are called independent of the basic main loop structure
+/// (traditional or event-based). Derive an application specific class from ezApplication and implement at least the abstract Run()
+/// function. Additional virtual functions allow to hook into specific events to run application specific code at the correct times.
 ///
 /// Finally pass the name of your derived class to one of the macros EZ_APPLICATION_ENTRY_POINT() or EZ_CONSOLEAPP_ENTRY_POINT().
 /// Those are used to abstract away the platform specific code to run an application.
@@ -63,7 +62,6 @@ EZ_CORE_DLL void ezRun_Shutdown(ezApplication* pApplicationInstance);
 class EZ_CORE_DLL ezApplication
 {
 public:
-
   /// \brief Defines the possible return values for the ezApplication::Run() function.
   enum ApplicationExecution
   {
@@ -89,25 +87,19 @@ public:
   /// ezApplication will automatically call ezStartup::StartupCore() to initialize the application.
   /// This function can be overridden to do additional application specific initialization.
   /// To startup entire subsystems, you should however use the features provided by ezStartup and ezSubSystem.
-  virtual void AfterCoreStartup()
-  {
-  }
+  virtual void AfterCoreStartup() {}
 
   /// \brief This function is called after the application main loop has run for the last time, before engine deinitialization.
   ///
   /// Override this function to do application specific deinitialization that still requires a running engine.
   /// After this function returns ezStartup::ShutdownBase() is called and thus everything, including allocators, is shut down.
   /// To shut down entire subsystems, you should however use the features provided by ezStartup and ezSubSystem.
-  virtual void BeforeCoreShutdown()
-  {
-  }
+  virtual void BeforeCoreShutdown() {}
 
   /// \brief This function is called after ezStartup::ShutdownBase() has been called.
   ///
   /// It is unlikely that there is any kind of deinitialization left, that can still be run at this point.
-  virtual void AfterCoreShutdown()
-  {
-  }
+  virtual void AfterCoreShutdown() {}
 
   /// \brief This function is called when an application is moved to the background.
   ///
@@ -115,18 +107,14 @@ public:
   /// On other devices this might mean that the application is not visible at all anymore and
   /// might even get shut down later. Override this function to be able to put the application
   /// into a proper sleep mode.
-  virtual void BeforeEnterBackground()
-  {
-  }
+  virtual void BeforeEnterBackground() {}
 
   /// \brief This function is called whenever an application is resumed from background mode.
   ///
   /// On Windows that might simply mean that the main window received focus again.
   /// On other devices this might mean that the application was suspended and is now active again.
   /// Override this function to reload the apps state or other resources, etc.
-  virtual void BeforeEnterForeground()
-  {
-  }
+  virtual void BeforeEnterForeground() {}
 
   /// \brief Main run function which is called periodically. This function must be overridden.
   ///
@@ -136,16 +124,10 @@ public:
   /// \brief Sets the value that the application will return to the OS.
   /// You can call this function at any point during execution to update the return value of the application.
   /// Default is zero.
-  inline void SetReturnCode(ezInt32 iReturnCode)
-  {
-    m_iReturnCode = iReturnCode;
-  }
+  inline void SetReturnCode(ezInt32 iReturnCode) { m_iReturnCode = iReturnCode; }
 
   /// \brief Returns the currently set value that the application will return to the OS.
-  inline ezInt32 GetReturnCode() const
-  {
-    return m_iReturnCode;
-  }
+  inline ezInt32 GetReturnCode() const { return m_iReturnCode; }
 
   /// \brief If the return code is not zero, this function might be called to get a string to print the error code in human readable form.
   virtual const char* TranslateReturnCode() const { return ""; }
@@ -155,40 +137,24 @@ public:
   void SetCommandLineArguments(ezUInt32 uiArgumentCount, const char** ppArguments);
 
   /// \brief Returns the one instance of ezApplication that is available.
-  static ezApplication* GetApplicationInstance()
-  {
-    return s_pApplicationInstance;
-  }
+  static ezApplication* GetApplicationInstance() { return s_pApplicationInstance; }
 
   /// \brief Returns the number of command lien arguments that were passed to the application.
   ///
   /// Note that the very first command line argument is typically the path to the application itself.
-  ezUInt32 GetArgumentCount() const
-  {
-    return m_uiArgumentCount;
-  }
+  ezUInt32 GetArgumentCount() const { return m_uiArgumentCount; }
 
   /// \brief Returns one of the command line arguments that was passed to the application.
   const char* GetArgument(ezUInt32 uiArgument) const;
 
   /// \brief Returns the complete array of command line arguments that were passed to the application.
-  const char** GetArgumentsArray() const
-  {
-    return m_ppArguments;
-  }
+  const char** GetArgumentsArray() const { return m_ppArguments; }
 
-  void EnableMemoryLeakReporting(bool bEnable)
-  {
-    m_bReportMemoryLeaks = bEnable;
-  }
+  void EnableMemoryLeakReporting(bool bEnable) { m_bReportMemoryLeaks = bEnable; }
 
-  bool IsMemoryLeakReportingEnabled() const
-  {
-    return m_bReportMemoryLeaks;
-  }
+  bool IsMemoryLeakReportingEnabled() const { return m_bReportMemoryLeaks; }
 
 private:
-
   ezInt32 m_iReturnCode;
 
   ezUInt32 m_uiArgumentCount;
@@ -204,4 +170,3 @@ private:
   friend EZ_CORE_DLL void ezRun_MainLoop(ezApplication* pApplicationInstance);
   friend EZ_CORE_DLL void ezRun_Shutdown(ezApplication* pApplicationInstance);
 };
-

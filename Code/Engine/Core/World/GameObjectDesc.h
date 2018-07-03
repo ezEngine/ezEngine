@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Foundation/Strings/HashedString.h>
 #include <Foundation/Math/Quat.h>
+#include <Foundation/Strings/HashedString.h>
 
 #include <Core/World/Declarations.h>
 #include <Foundation/Types/Uuid.h>
@@ -37,4 +37,3 @@ struct EZ_CORE_DLL ezGameObjectDesc
   float m_LocalUniformScaling;
   ezTagSet m_Tags;
 };
-

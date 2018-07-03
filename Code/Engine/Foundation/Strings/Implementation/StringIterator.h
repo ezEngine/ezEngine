@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Strings/StringUtils.h>
 
@@ -7,7 +7,7 @@ struct ezStringBase;
 
 /// \brief STL forward iterator used by all string classes. Iterates over unicode characters.
 ///  The iterator starts at the first character of the string and ends at the address beyond the last character of the string.
-template<class STRING>
+template <class STRING>
 struct ezStringIterator
 {
   typedef std::bidirectional_iterator_tag iterator_category;
@@ -19,10 +19,16 @@ struct ezStringIterator
   EZ_DECLARE_POD_TYPE();
 
   /// \brief Constructs an invalid iterator.
-  EZ_ALWAYS_INLINE ezStringIterator() : m_String(nullptr), m_pElement(nullptr) { } // [tested]
+  EZ_ALWAYS_INLINE ezStringIterator()
+      : m_String(nullptr)
+      , m_pElement(nullptr)
+  {
+  } // [tested]
 
   /// \brief Constructs either a begin or end iterator for the given string.
-  EZ_FORCE_INLINE explicit ezStringIterator(const ezStringBase<STRING>& string, bool bIsEnd) : m_String(&string), m_pElement(nullptr) // [tested]
+  EZ_FORCE_INLINE explicit ezStringIterator(const ezStringBase<STRING>& string, bool bIsEnd)
+      : m_String(&string)
+      , m_pElement(nullptr) // [tested]
   {
     if (bIsEnd)
     {
@@ -34,11 +40,15 @@ struct ezStringIterator
     }
   }
 
-  /// \brief Checks whether this iterator points to a valid element. Invalid iterators either point to end(m_String) or were never initialized.
+  /// \brief Checks whether this iterator points to a valid element. Invalid iterators either point to end(m_String) or were never
+  /// initialized.
   EZ_ALWAYS_INLINE bool IsValid() const { return m_pElement != nullptr && m_pElement != m_String->InternalGetDataEnd(); } // [tested]
-  
+
   /// \brief Returns the currently pointed to character in Utf32 encoding.
-  EZ_ALWAYS_INLINE ezUInt32 GetCharacter() const { return IsValid() ? ezUnicodeUtils::ConvertUtf8ToUtf32(m_pElement) : ezUInt32(0); } // [tested]
+  EZ_ALWAYS_INLINE ezUInt32 GetCharacter() const
+  {
+    return IsValid() ? ezUnicodeUtils::ConvertUtf8ToUtf32(m_pElement) : ezUInt32(0);
+  } // [tested]
 
   /// \brief Returns the currently pointed to character in Utf32 encoding.
   EZ_ALWAYS_INLINE ezUInt32 Value() const { return GetCharacter(); }
@@ -91,7 +101,7 @@ struct ezStringIterator
   }
 
   /// \brief Advances the iterator forwards by d characters. Does not move it beyond the range's end.
-  EZ_FORCE_INLINE void operator+=(difference_type d)  // [tested]
+  EZ_FORCE_INLINE void operator+=(difference_type d) // [tested]
   {
     while (d > 0)
     {
@@ -142,7 +152,8 @@ struct ezStringIterator
   void SetCurrentPosition(const char* szCurPos)
   {
     const char* szEnd = m_String->InternalGetDataEnd();
-    EZ_ASSERT_DEV((szCurPos >= m_String->InternalGetData()) && (szCurPos <= szEnd), "New current position must still be inside the iterator's range.");
+    EZ_ASSERT_DEV((szCurPos >= m_String->InternalGetData()) && (szCurPos <= szEnd),
+                  "New current position must still be inside the iterator's range.");
 
     m_pElement = szCurPos;
   }
@@ -155,7 +166,7 @@ protected:
 
 /// \brief STL reverse iterator used by all string classes. Iterates over unicode characters.
 ///  The iterator starts at the last character of the string and ends at the address before the first character of the string.
-template<class STRING>
+template <class STRING>
 struct ezStringReverseIterator
 {
   typedef std::bidirectional_iterator_tag iterator_category;
@@ -167,10 +178,16 @@ struct ezStringReverseIterator
   EZ_DECLARE_POD_TYPE();
 
   /// \brief Constructs an invalid iterator.
-  EZ_ALWAYS_INLINE ezStringReverseIterator() : m_String(nullptr), m_pElement(nullptr) { } // [tested]
+  EZ_ALWAYS_INLINE ezStringReverseIterator()
+      : m_String(nullptr)
+      , m_pElement(nullptr)
+  {
+  } // [tested]
 
   /// \brief Constructs either a rbegin or rend iterator for the given string.
-  EZ_FORCE_INLINE explicit ezStringReverseIterator(const ezStringBase<STRING>& string, bool bIsEnd) : m_String(&string), m_pElement(nullptr) // [tested]
+  EZ_FORCE_INLINE explicit ezStringReverseIterator(const ezStringBase<STRING>& string, bool bIsEnd)
+      : m_String(&string)
+      , m_pElement(nullptr) // [tested]
   {
     if (bIsEnd)
     {
@@ -187,7 +204,10 @@ struct ezStringReverseIterator
   EZ_ALWAYS_INLINE bool IsValid() const { return (m_pElement != nullptr); } // [tested]
 
   /// \brief Returns the currently pointed to character in Utf32 encoding.
-  EZ_ALWAYS_INLINE ezUInt32 GetCharacter() const { return IsValid() ? ezUnicodeUtils::ConvertUtf8ToUtf32(m_pElement) : ezUInt32(0); } // [tested]
+  EZ_ALWAYS_INLINE ezUInt32 GetCharacter() const
+  {
+    return IsValid() ? ezUnicodeUtils::ConvertUtf8ToUtf32(m_pElement) : ezUInt32(0);
+  } // [tested]
 
   /// \brief Returns the address the iterator currently points to.
   EZ_ALWAYS_INLINE const char* GetData() const { return m_pElement; } // [tested]
@@ -271,7 +291,7 @@ struct ezStringReverseIterator
       --(*this);
       --d;
     }
-     while (d < 0)
+    while (d < 0)
     {
       ++(*this);
       ++d;
@@ -301,7 +321,8 @@ struct ezStringReverseIterator
   {
     const char* szBegin = m_String->InternalGetData();
     const char* szEnd = m_String->InternalGetDataEnd();
-    EZ_ASSERT_DEV(szCurPos == nullptr || ((szCurPos >= szBegin) && (szCurPos < szEnd)), "New current position must still be inside the iterator's range.");
+    EZ_ASSERT_DEV(szCurPos == nullptr || ((szCurPos >= szBegin) && (szCurPos < szEnd)),
+                  "New current position must still be inside the iterator's range.");
 
     m_pElement = szCurPos;
   }
@@ -310,4 +331,3 @@ protected:
   const ezStringBase<STRING>* m_String;
   const char* m_pElement;
 };
-

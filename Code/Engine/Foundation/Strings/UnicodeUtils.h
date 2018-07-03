@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <ThirdParty/utf8/utf8.h>
@@ -17,10 +17,10 @@ public:
   static const ezUInt16 Utf16BomBE = 0xfeff;
 
   /// \brief Returns whether a character is a pure ASCII character (only the first 7 Bits are used)
-  static bool IsASCII(ezUInt32 uiChar);// [tested]
+  static bool IsASCII(ezUInt32 uiChar); // [tested]
 
   /// \brief Checks whether the given byte is a start byte in a UTF-8 multi-byte sequence
-  static bool IsUtf8StartByte(char uiByte);// [tested]
+  static bool IsUtf8StartByte(char uiByte); // [tested]
 
   /// \brief Checks whether the given byte is a byte in a UTF-8 multi-byte sequence.
   static bool IsUtf8ContinuationByte(char uiByte); // [tested]
@@ -42,7 +42,7 @@ public:
 
   /// \brief Moves the given string pointer backwards to the previous Utf8 character sequence.
   ///
-  /// The string may point to an invalid position (in between a character sequence), or even the \0 terminator, 
+  /// The string may point to an invalid position (in between a character sequence), or even the \0 terminator,
   /// as long as there is a valid string before it (and the user knows when to stop).
   static void MoveToPriorUtf8(const char*& szUtf8, ezUInt32 uiNumCharacters = 1); // [tested]
 
@@ -54,12 +54,14 @@ public:
   /// Otherwise the pointer is unchanged and false is returned.
   static bool SkipUtf8Bom(const char*& szUtf8); // [tested]
 
-  /// \brief If the given string starts with a Utf16 little endian Bom, the pointer is incremented behind the Bom, and the function returns true.
+  /// \brief If the given string starts with a Utf16 little endian Bom, the pointer is incremented behind the Bom, and the function returns
+  /// true.
   ///
   /// Otherwise the pointer is unchanged and false is returned.
   static bool SkipUtf16BomLE(const ezUInt16*& szUtf16); // [tested]
 
-  /// \brief If the given string starts with a Utf16 big endian Bom, the pointer is incremented behind the Bom, and the function returns true.
+  /// \brief If the given string starts with a Utf16 big endian Bom, the pointer is incremented behind the Bom, and the function returns
+  /// true.
   ///
   /// Otherwise the pointer is unchanged and false is returned.
   static bool SkipUtf16BomBE(const ezUInt16*& szUtf16); // [tested]
@@ -95,7 +97,7 @@ public:
     EZ_ALWAYS_INLINE UtfInserter(Container* pContainer) { m_pContainer = pContainer; }
     EZ_ALWAYS_INLINE void operator++() {}
     EZ_ALWAYS_INLINE UtfInserter& operator++(int) { return *this; }
-    EZ_ALWAYS_INLINE void operator= (IntType rhs) { m_pContainer->PushBack(rhs); }
+    EZ_ALWAYS_INLINE void operator=(IntType rhs) { m_pContainer->PushBack(rhs); }
     EZ_ALWAYS_INLINE UtfInserter& operator*() { return *this; }
 
     Container* m_pContainer;
@@ -104,4 +106,3 @@ public:
 
 
 #include <Foundation/Strings/Implementation/UnicodeUtils_inl.h>
-

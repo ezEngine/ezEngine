@@ -1,10 +1,11 @@
 #include <PCH.h>
+
 #include <Core/Graphics/ConvexHull.h>
 #include <Foundation/Containers/Bitfield.h>
-#include <Foundation/Math/BoundingBox.h>
-#include <Foundation/Math/Plane.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>
+#include <Foundation/Math/BoundingBox.h>
+#include <Foundation/Math/Plane.h>
 
 ezConvexHullGenerator::ezConvexHullGenerator()
 {
@@ -767,4 +768,3 @@ void ezConvexHullGenerator::RetrieveVertices(ezDynamicArray<ezVec3>& out_Vertice
 
 
 EZ_STATICLINK_FILE(Core, Core_Graphics_Implementation_ConvexHull);
-

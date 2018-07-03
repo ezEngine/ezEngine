@@ -18,7 +18,7 @@ EZ_ALWAYS_INLINE ezSimdVec4b::ezSimdVec4b(bool x, bool y, bool z, bool w)
 {
   EZ_CHECK_SIMD_ALIGNMENT(this);
 
-  ezUInt32 EZ_ALIGN_16(mask[4]) = { x ? 0xFFFFFFFF : 0, y ? 0xFFFFFFFF : 0, z ? 0xFFFFFFFF : 0, w ? 0xFFFFFFFF : 0 };
+  ezUInt32 EZ_ALIGN_16(mask[4]) = {x ? 0xFFFFFFFF : 0, y ? 0xFFFFFFFF : 0, z ? 0xFFFFFFFF : 0, w ? 0xFFFFFFFF : 0};
   m_v = _mm_load_ps((float*)mask);
 }
 
@@ -27,7 +27,7 @@ EZ_ALWAYS_INLINE ezSimdVec4b::ezSimdVec4b(ezInternal::QuadBool v)
   m_v = v;
 }
 
-template<int N>
+template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4b::GetComponent() const
 {
   return _mm_movemask_ps(_mm_shuffle_ps(m_v, m_v, EZ_SHUFFLE(N, N, N, N))) != 0;
@@ -95,4 +95,3 @@ EZ_ALWAYS_INLINE bool ezSimdVec4b::NoneSet()
   const int mask = EZ_BIT(N) - 1;
   return (_mm_movemask_ps(m_v) & mask) == 0;
 }
-

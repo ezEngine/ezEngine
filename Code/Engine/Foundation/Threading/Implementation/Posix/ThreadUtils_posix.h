@@ -1,6 +1,5 @@
-
 #ifdef EZ_THREADUTILS_POSIX_INL_H_INCLUDED
-  #error "This file must not be included twice."
+#error "This file must not be included twice."
 #endif
 
 #define EZ_THREADUTILS_POSIX_INL_H_INCLUDED
@@ -30,7 +29,7 @@ void ezThreadUtils::Sleep(const ezTime& duration)
   nanosleep(&SleepTime, nullptr);
 }
 
-//ezThreadHandle ezThreadUtils::GetCurrentThreadHandle()
+// ezThreadHandle ezThreadUtils::GetCurrentThreadHandle()
 //{
 //  return pthread_self();
 //}
@@ -44,4 +43,3 @@ bool ezThreadUtils::IsMainThread()
 {
   return pthread_self() == g_MainThread;
 }
-

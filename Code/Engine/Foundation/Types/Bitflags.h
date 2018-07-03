@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 /// \file
 
@@ -85,9 +85,9 @@ private:
   typedef typename T::StorageType StorageType;
 
 public:
-
   /// \brief Constructor. Initializes the flags to all empty.
-  EZ_ALWAYS_INLINE ezBitflags() : m_Value(0) // [tested]
+  EZ_ALWAYS_INLINE ezBitflags()
+      : m_Value(0) // [tested]
   {
   }
 
@@ -104,22 +104,13 @@ public:
   }
 
   /// \brief Comparison operator.
-  EZ_ALWAYS_INLINE bool operator!=(const StorageType rhs) const
-  {
-    return m_Value != rhs;
-  }
+  EZ_ALWAYS_INLINE bool operator!=(const StorageType rhs) const { return m_Value != rhs; }
 
   /// \brief Comparison operator.
-  EZ_ALWAYS_INLINE bool operator==(const ezBitflags<T>& rhs) const
-  {
-    return m_Value == rhs.m_Value;
-  }
+  EZ_ALWAYS_INLINE bool operator==(const ezBitflags<T>& rhs) const { return m_Value == rhs.m_Value; }
 
   /// \brief Comparison operator.
-  EZ_ALWAYS_INLINE bool operator!=(const ezBitflags<T>& rhs) const
-  {
-    return m_Value != rhs.m_Value;
-  }
+  EZ_ALWAYS_INLINE bool operator!=(const ezBitflags<T>& rhs) const { return m_Value != rhs.m_Value; }
 
   /// \brief Clears all flags
   EZ_ALWAYS_INLINE void Clear() // [tested]
@@ -170,25 +161,25 @@ public:
   }
 
   /// \brief Returns an object that has the flags of \a this and \a rhs combined.
-  EZ_ALWAYS_INLINE ezBitflags<T> operator | (const ezBitflags<T>& rhs) const // [tested]
+  EZ_ALWAYS_INLINE ezBitflags<T> operator|(const ezBitflags<T>& rhs) const // [tested]
   {
     return ezBitflags<T>(m_Value | rhs.m_Value);
   }
 
   /// \brief Returns an object that has the flags that were set both in \a this and \a rhs.
-  EZ_ALWAYS_INLINE ezBitflags<T> operator & (const ezBitflags<T>& rhs) const // [tested]
+  EZ_ALWAYS_INLINE ezBitflags<T> operator&(const ezBitflags<T>& rhs) const // [tested]
   {
     return ezBitflags<T>(m_Value & rhs.m_Value);
   }
 
   /// \brief Modifies \a this to also contain the bits from \a rhs.
-  EZ_ALWAYS_INLINE void operator|= (const ezBitflags<T>& rhs) // [tested]
+  EZ_ALWAYS_INLINE void operator|=(const ezBitflags<T>& rhs) // [tested]
   {
     m_Value |= rhs.m_Value;
   }
 
   /// \brief Modifies \a this to only contain the bits that were set in \a this and \a rhs.
-  EZ_ALWAYS_INLINE void operator&= (const ezBitflags<T>& rhs) // [tested]
+  EZ_ALWAYS_INLINE void operator&=(const ezBitflags<T>& rhs) // [tested]
   {
     m_Value &= rhs.m_Value;
   }
@@ -207,12 +198,11 @@ public:
 
 private:
   EZ_ALWAYS_INLINE explicit ezBitflags(StorageType flags)
-    : m_Value(flags)
+      : m_Value(flags)
   {
   }
 
-  union
-  {
+  union {
     StorageType m_Value;
     Bits m_bits;
   };
@@ -221,15 +211,15 @@ private:
 
 /// \brief This macro will define the operator| and operator& function that is required for class \a FlagsType to work with ezBitflags.
 /// See class ezBitflags for more information.
-#define EZ_DECLARE_FLAGS_OPERATORS(FlagsType) \
-  inline ezBitflags<FlagsType> operator|(FlagsType::Enum lhs, FlagsType::Enum rhs)    \
-  {    \
-    return (ezBitflags<FlagsType>(lhs) | ezBitflags<FlagsType>(rhs));    \
-  } \
-  \
-  inline ezBitflags<FlagsType> operator&(FlagsType::Enum lhs, FlagsType::Enum rhs)    \
-  {    \
-    return (ezBitflags<FlagsType>(lhs) & ezBitflags<FlagsType>(rhs));    \
+#define EZ_DECLARE_FLAGS_OPERATORS(FlagsType)                                                                                              \
+  inline ezBitflags<FlagsType> operator|(FlagsType::Enum lhs, FlagsType::Enum rhs)                                                         \
+  {                                                                                                                                        \
+    return (ezBitflags<FlagsType>(lhs) | ezBitflags<FlagsType>(rhs));                                                                      \
+  }                                                                                                                                        \
+                                                                                                                                           \
+  inline ezBitflags<FlagsType> operator&(FlagsType::Enum lhs, FlagsType::Enum rhs)                                                         \
+  {                                                                                                                                        \
+    return (ezBitflags<FlagsType>(lhs) & ezBitflags<FlagsType>(rhs));                                                                      \
   }
 
 
@@ -250,30 +240,29 @@ private:
 /// Each flag will use a different bit. If you need to define flags that are combinations of several
 /// other flags, you need to declare the bitflag struct manually. See the ezBitflags class for more
 /// information on how to do that.
-#define EZ_DECLARE_FLAGS(InternalStorageType, BitflagsTypeName, ...)    \
-struct BitflagsTypeName    \
-  {    \
-    static const ezUInt32 Count = EZ_VA_NUM_ARGS(__VA_ARGS__);    \
-    typedef InternalStorageType StorageType; \
-    enum Enum    \
-    {    \
-      EZ_EXPAND_ARGS_WITH_INDEX(EZ_DECLARE_FLAGS_ENUM, ##__VA_ARGS__)    \
-    };    \
-    struct Bits    \
-    {    \
-      EZ_EXPAND_ARGS(EZ_DECLARE_FLAGS_BITS, ##__VA_ARGS__)    \
-    };    \
-    EZ_ENUM_TO_STRING(__VA_ARGS__) \
-  };    \
+#define EZ_DECLARE_FLAGS(InternalStorageType, BitflagsTypeName, ...)                                                                       \
+  struct BitflagsTypeName                                                                                                                  \
+  {                                                                                                                                        \
+    static const ezUInt32 Count = EZ_VA_NUM_ARGS(__VA_ARGS__);                                                                             \
+    typedef InternalStorageType StorageType;                                                                                               \
+    enum Enum                                                                                                                              \
+    {                                                                                                                                      \
+      EZ_EXPAND_ARGS_WITH_INDEX(EZ_DECLARE_FLAGS_ENUM, ##__VA_ARGS__)                                                                      \
+    };                                                                                                                                     \
+    struct Bits                                                                                                                            \
+    {                                                                                                                                      \
+      EZ_EXPAND_ARGS(EZ_DECLARE_FLAGS_BITS, ##__VA_ARGS__)                                                                                 \
+    };                                                                                                                                     \
+    EZ_ENUM_TO_STRING(__VA_ARGS__)                                                                                                         \
+  };                                                                                                                                       \
   EZ_DECLARE_FLAGS_OPERATORS(BitflagsTypeName)
 
 /// \cond
 
 /// Internal Do not use.
-#define EZ_DECLARE_FLAGS_ENUM(name, n)    name = EZ_BIT(n),
+#define EZ_DECLARE_FLAGS_ENUM(name, n) name = EZ_BIT(n),
 
 /// Internal Do not use.
-#define EZ_DECLARE_FLAGS_BITS(name)       StorageType name : 1;
+#define EZ_DECLARE_FLAGS_BITS(name) StorageType name : 1;
 
 /// \endcond
-

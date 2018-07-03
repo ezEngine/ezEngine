@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <Foundation/Strings/StringBuilder.h>
+
 #include <Foundation/Strings/Implementation/StringIterator.h>
+#include <Foundation/Strings/StringBuilder.h>
 
 const char* ezPathUtils::FindPreviousSeparator(const char* szPathStart, const char* szStartSearchAt)
 {
@@ -106,7 +107,7 @@ ezStringView ezPathUtils::GetFileDirectory(const char* szPath, const char* szPat
   // make sure szPathEnd is valid
   ezStringUtils::UpdateStringEnd(szPath, szPathEnd);
 
-  ezStringView end (szPath, szPathEnd);
+  ezStringView end(szPath, szPathEnd);
   auto it = rbegin(end);
 
   // if it already ends in a path separator, do not return a different directory
@@ -124,34 +125,34 @@ ezStringView ezPathUtils::GetFileDirectory(const char* szPath, const char* szPat
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  const char ezPathUtils::OsSpecificPathSeparator = '\\';
+const char ezPathUtils::OsSpecificPathSeparator = '\\';
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-  const char ezPathUtils::OsSpecificPathSeparator = '/';
+const char ezPathUtils::OsSpecificPathSeparator = '/';
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
-  const char ezPathUtils::OsSpecificPathSeparator = '/';
+const char ezPathUtils::OsSpecificPathSeparator = '/';
 #else
-  #error "Unknown platform."
+#error "Unknown platform."
 #endif
 
 bool ezPathUtils::IsAbsolutePath(const char* szPath)
 {
-  if (ezStringUtils::IsNullOrEmpty (szPath))
+  if (ezStringUtils::IsNullOrEmpty(szPath))
     return false;
 
-  // szPath[0] will not be \0 -> so we can access szPath[1] without problems
+    // szPath[0] will not be \0 -> so we can access szPath[1] without problems
 
-  #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    /// if it is an absolute path, character 0 must be ASCII (A - Z)
-    /// checks for local paths, i.e. 'C:\stuff' and UNC paths, i.e. '\\server\stuff'
-    /// not sure if we should handle '//' identical to '\\' (currently we do)
-    return ((szPath[1] == ':') || (IsPathSeparator(szPath[0]) && IsPathSeparator(szPath[1])));
-  #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-    return (szPath[0] == '/');
-  #elif EZ_ENABLED(EZ_PLATFORM_OSX)
-    return (szPath[0] == '/');
-  #else
-    #error "Unknown platform."
-  #endif
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  /// if it is an absolute path, character 0 must be ASCII (A - Z)
+  /// checks for local paths, i.e. 'C:\stuff' and UNC paths, i.e. '\\server\stuff'
+  /// not sure if we should handle '//' identical to '\\' (currently we do)
+  return ((szPath[1] == ':') || (IsPathSeparator(szPath[0]) && IsPathSeparator(szPath[1])));
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+  return (szPath[0] == '/');
+#elif EZ_ENABLED(EZ_PLATFORM_OSX)
+  return (szPath[0] == '/');
+#else
+#error "Unknown platform."
+#endif
 }
 
 bool ezPathUtils::IsRelativePath(const char* szPath)
@@ -185,8 +186,7 @@ ezStringView ezPathUtils::GetRootedPathRootName(const char* szPath)
 
     if (*szStart == '\0')
       return ezStringView();
-  }
-  while (IsPathSeparator(*szStart));
+  } while (IsPathSeparator(*szStart));
 
   const char* szEnd = szStart;
   ezUnicodeUtils::MoveToNextUtf8(szEnd);
@@ -203,8 +203,9 @@ bool ezPathUtils::IsValidFilenameChar(ezUInt32 character)
 
   // Windows: https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
   // Unix: https://en.wikipedia.org/wiki/Filename#Reserved_characters_and_words
-  // Details can be more complicated (there might be reserved names depending on the filesystem), but in general all platforms behave like this:
-  static const ezUInt32 forbiddenFilenameChars[] = { '<', '>', ':', '"', '|', '?', '*', '\\', '/', '\t', '\b', '\n', '\r', '\0' };
+  // Details can be more complicated (there might be reserved names depending on the filesystem), but in general all platforms behave like
+  // this:
+  static const ezUInt32 forbiddenFilenameChars[] = {'<', '>', ':', '"', '|', '?', '*', '\\', '/', '\t', '\b', '\n', '\r', '\0'};
 
   for (int i = 0; i < EZ_ARRAY_SIZE(forbiddenFilenameChars); ++i)
   {
@@ -256,4 +257,3 @@ ezResult ezPathUtils::MakeValidFilename(const char* szFilename, ezUInt32 replace
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_PathUtils);
-

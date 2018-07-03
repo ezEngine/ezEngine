@@ -42,14 +42,11 @@ private:
 class EZ_FOUNDATION_DLL ezTranslatorPassThrough : public ezTranslator
 {
 public:
-
-  virtual const char* Translate(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage) override
-  {
-    return szString;
-  }
+  virtual const char* Translate(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage) override { return szString; }
 };
 
-/// \brief Can store translated strings and all translation requests will come from that storage. Returns nullptr if the requested string is not known
+/// \brief Can store translated strings and all translation requests will come from that storage. Returns nullptr if the requested string is
+/// not known
 class EZ_FOUNDATION_DLL ezTranslatorStorage : public ezTranslator
 {
 public:
@@ -69,7 +66,8 @@ protected:
   ezMap<ezUInt32, ezString> m_Translations[(int)ezTranslationUsage::ENUM_COUNT];
 };
 
-/// \brief Outputs a 'Missing Translation' warning the first time a string translation is requested. Otherwise returns the input string as the translation.
+/// \brief Outputs a 'Missing Translation' warning the first time a string translation is requested. Otherwise returns the input string as
+/// the translation.
 class EZ_FOUNDATION_DLL ezTranslatorLogMissing : public ezTranslatorStorage
 {
 public:
@@ -79,7 +77,8 @@ public:
   virtual const char* Translate(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage) override;
 };
 
-/// \brief Loads translations from files. Each translator can have different search paths, but the files to be loaded are the same for all of them
+/// \brief Loads translations from files. Each translator can have different search paths, but the files to be loaded are the same for all
+/// of them
 class EZ_FOUNDATION_DLL ezTranslatorFromFiles : public ezTranslatorStorage
 {
 public:
@@ -107,7 +106,8 @@ public:
   /// \brief Translators will be queried in the reverse order that they were added.
   static void AddTranslator(ezUniquePtr<ezTranslator> pTranslator);
 
-  /// \brief Prefer to use the ezTranslate macro instead of calling this function directly. Will query all translators for a translation, until one is found.
+  /// \brief Prefer to use the ezTranslate macro instead of calling this function directly. Will query all translators for a translation,
+  /// until one is found.
   static const char* Translate(const char* szString, ezUInt32 uiStringHash, ezTranslationUsage usage);
 
   /// \brief Deletes all translators.
@@ -124,5 +124,5 @@ private:
 #define ezTranslate(string) ezTranslationLookup::Translate(string, ezHashHelper<const char*>::Hash(string), ezTranslationUsage::Default)
 
 /// \brief Use this macro to query a translation for a string from the ezTranslationLookup system
-#define ezTranslateTooltip(string) ezTranslationLookup::Translate(string, ezHashHelper<const char*>::Hash(string), ezTranslationUsage::Tooltip)
-
+#define ezTranslateTooltip(string)                                                                                                         \
+  ezTranslationLookup::Translate(string, ezHashHelper<const char*>::Hash(string), ezTranslationUsage::Tooltip)

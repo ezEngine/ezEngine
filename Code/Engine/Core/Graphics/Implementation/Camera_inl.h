@@ -1,7 +1,7 @@
 #pragma once
 
 EZ_ALWAYS_INLINE ezVec3 ezCamera::GetPosition(ezCameraEye eye) const
-{ 
+{
   return m_vCameraPosition[static_cast<int>(eye)];
 }
 
@@ -22,7 +22,7 @@ EZ_ALWAYS_INLINE ezVec3 ezCamera::GetDirRight(ezCameraEye eye) const
 
 inline ezVec3 ezCamera::GetCenterPosition() const
 {
-  if(m_Mode == ezCameraMode::Stereo)
+  if (m_Mode == ezCameraMode::Stereo)
     return (GetPosition(ezCameraEye::Left) + GetPosition(ezCameraEye::Right)) * 0.5f;
   else
     return GetPosition();
@@ -74,8 +74,8 @@ EZ_ALWAYS_INLINE ezCameraMode::Enum ezCamera::GetCameraMode() const
 
 EZ_ALWAYS_INLINE bool ezCamera::IsPerspective() const
 {
-  return m_Mode == ezCameraMode::PerspectiveFixedFovX || m_Mode == ezCameraMode::PerspectiveFixedFovY || 
-          m_Mode == ezCameraMode::Stereo; // All HMD stereo cameras are perspective!
+  return m_Mode == ezCameraMode::PerspectiveFixedFovX || m_Mode == ezCameraMode::PerspectiveFixedFovY ||
+         m_Mode == ezCameraMode::Stereo; // All HMD stereo cameras are perspective!
 }
 
 EZ_ALWAYS_INLINE bool ezCamera::IsOrthographic() const
@@ -102,4 +102,3 @@ EZ_ALWAYS_INLINE const ezMat4& ezCamera::GetViewMatrix(ezCameraEye eye) const
 {
   return m_mViewMatrix[static_cast<int>(eye)];
 }
-

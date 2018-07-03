@@ -11,9 +11,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezMaterialResourceSlot, ezNoBase, 1, ezRTTIDefaul
     EZ_MEMBER_PROPERTY("Label", m_sLabel)->AddAttributes(new ezReadOnlyAttribute()),
     EZ_MEMBER_PROPERTY("Resource", m_sResource)->AddAttributes(new ezAssetBrowserAttribute("Material")),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 2, ezRTTIDefaultAllocator<ezMeshAssetProperties>)
 {
@@ -41,9 +41,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 2, ezRTTIDefaultAllocator
     EZ_MEMBER_PROPERTY("UseSubfolderForMaterialImport", m_bUseSubFolderForImportedMaterials)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ARRAY_MEMBER_PROPERTY("Materials", m_Slots)->AddAttributes(new ezContainerAttribute(false, true, true)),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 class ezMeshAssetPropertiesPatch_1_2 : public ezGraphPatch
 {
@@ -83,7 +83,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshPrimitive, 1)
   EZ_ENUM_CONSTANT(ezMeshPrimitive::GeodesicSphere),
   EZ_ENUM_CONSTANT(ezMeshPrimitive::Capsule),
   EZ_ENUM_CONSTANT(ezMeshPrimitive::Torus),
-EZ_END_STATIC_REFLECTED_ENUM();
+EZ_END_STATIC_REFLECTED_ENUM;
 
 ezMeshAssetProperties::ezMeshAssetProperties()
 {

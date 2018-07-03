@@ -11,8 +11,16 @@ class ezAbstractObjectNode;
 
 struct EZ_FOUNDATION_DLL ezRttiConverterObject
 {
-  ezRttiConverterObject() : m_pType(nullptr), m_pObject(nullptr) {}
-  ezRttiConverterObject(const ezRTTI* pType, void* pObject) : m_pType(pType), m_pObject(pObject) {}
+  ezRttiConverterObject()
+      : m_pType(nullptr)
+      , m_pObject(nullptr)
+  {
+  }
+  ezRttiConverterObject(const ezRTTI* pType, void* pObject)
+      : m_pType(pType)
+      , m_pObject(pObject)
+  {
+  }
 
   EZ_DECLARE_POD_TYPE();
 
@@ -48,16 +56,18 @@ protected:
 class EZ_FOUNDATION_DLL ezRttiConverterWriter
 {
 public:
-
   ezRttiConverterWriter(ezAbstractObjectGraph* pGraph, ezRttiConverterContext* pContext, bool bSerializeReadOnly, bool bSerializeOwnerPtrs)
   {
     m_pGraph = pGraph;
     m_pContext = pContext;
-    m_bSerializeReadOnly  = bSerializeReadOnly;
+    m_bSerializeReadOnly = bSerializeReadOnly;
     m_bSerializeOwnerPtrs = bSerializeOwnerPtrs;
   }
 
-  ezAbstractObjectNode* AddObjectToGraph(ezReflectedClass* pObject, const char* szNodeName = nullptr) { return AddObjectToGraph(pObject->GetDynamicRTTI(), pObject, szNodeName); }
+  ezAbstractObjectNode* AddObjectToGraph(ezReflectedClass* pObject, const char* szNodeName = nullptr)
+  {
+    return AddObjectToGraph(pObject->GetDynamicRTTI(), pObject, szNodeName);
+  }
   ezAbstractObjectNode* AddObjectToGraph(const ezRTTI* pRtti, const void* pObject, const char* szNodeName = nullptr);
 
   void AddProperty(ezAbstractObjectNode* pNode, const ezAbstractProperty* pProp, const void* pObject);
@@ -75,7 +85,6 @@ private:
 class EZ_FOUNDATION_DLL ezRttiConverterReader
 {
 public:
-
   ezRttiConverterReader(const ezAbstractObjectGraph* pGraph, ezRttiConverterContext* pContext);
 
   void* CreateObjectFromNode(const ezAbstractObjectNode* pNode);
@@ -88,4 +97,3 @@ private:
   ezRttiConverterContext* m_pContext;
   const ezAbstractObjectGraph* m_pGraph;
 };
-

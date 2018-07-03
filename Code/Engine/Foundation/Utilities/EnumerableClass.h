@@ -72,30 +72,30 @@ protected:
 /// \brief Insert this macro in a class that is supposed to be enumerable, and pass the class name as the parameter.
 ///
 /// See class ezEnumerable for more details.
-#define EZ_DECLARE_ENUMERABLE_CLASS(self) \
-  EZ_DECLARE_ENUMERABLE_CLASS_WITH_BASE(self, ezNoBase)
+#define EZ_DECLARE_ENUMERABLE_CLASS(self) EZ_DECLARE_ENUMERABLE_CLASS_WITH_BASE(self, ezNoBase)
 
 /// \brief Insert this macro in a class that is supposed to be enumerable, and pass the class name as the parameter.
 ///
 /// See class ezEnumerable for more details.
-#define EZ_DECLARE_ENUMERABLE_CLASS_WITH_BASE(self, base) \
-  private: \
-    typedef base ezEnumerableBase; \
-    friend class ezEnumerable<self, base>; \
-    static ezEnumerable<self, base>* s_pFirstInstance; \
-    static ezEnumerable<self, base>* s_pLastInstance; \
-    static ezUInt32 s_uiInstances; \
-  public: \
-    static self* GetFirstInstance() { return (self*) s_pFirstInstance; } \
-    self* GetNextInstance() { return (self*) m_pNextInstance; } \
-    const self* GetNextInstance() const { return (const self*) m_pNextInstance; } \
-  private:
+#define EZ_DECLARE_ENUMERABLE_CLASS_WITH_BASE(self, base)                                                                                  \
+private:                                                                                                                                   \
+  typedef base ezEnumerableBase;                                                                                                           \
+  friend class ezEnumerable<self, base>;                                                                                                   \
+  static ezEnumerable<self, base>* s_pFirstInstance;                                                                                       \
+  static ezEnumerable<self, base>* s_pLastInstance;                                                                                        \
+  static ezUInt32 s_uiInstances;                                                                                                           \
+                                                                                                                                           \
+public:                                                                                                                                    \
+  static self* GetFirstInstance() { return (self*)s_pFirstInstance; }                                                                      \
+  self* GetNextInstance() { return (self*)m_pNextInstance; }                                                                               \
+  const self* GetNextInstance() const { return (const self*)m_pNextInstance; }                                                             \
+                                                                                                                                           \
+private:
 
 /// \brief Insert this macro in a cpp file and pass the class name of the to-be-enumerable class as the parameter.
 ///
 /// See class ezEnumerable for more details.
-#define EZ_ENUMERABLE_CLASS_IMPLEMENTATION(self) \
-  ezEnumerable<self, self::ezEnumerableBase>* self::s_pFirstInstance = nullptr; \
-  ezEnumerable<self, self::ezEnumerableBase>* self::s_pLastInstance = nullptr; \
+#define EZ_ENUMERABLE_CLASS_IMPLEMENTATION(self)                                                                                           \
+  ezEnumerable<self, self::ezEnumerableBase>* self::s_pFirstInstance = nullptr;                                                            \
+  ezEnumerable<self, self::ezEnumerableBase>* self::s_pLastInstance = nullptr;                                                             \
   ezUInt32 self::s_uiInstances = 0
-

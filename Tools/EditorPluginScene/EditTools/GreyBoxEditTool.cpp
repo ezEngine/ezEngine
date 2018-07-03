@@ -8,7 +8,7 @@
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGreyBoxEditTool, 1, ezRTTIDefaultAllocator<ezGreyBoxEditTool>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezGreyBoxEditTool::ezGreyBoxEditTool()
 {

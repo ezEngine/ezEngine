@@ -5,7 +5,7 @@
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezCurveTangentMode, 1)
 EZ_ENUM_CONSTANTS(ezCurveTangentMode::Bezier, ezCurveTangentMode::FixedLength, ezCurveTangentMode::Linear, ezCurveTangentMode::Auto)
-EZ_END_STATIC_REFLECTED_ENUM()
+EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurveControlPointData, 5, ezRTTIDefaultAllocator<ezCurveControlPointData>)
 {
@@ -19,9 +19,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurveControlPointData, 5, ezRTTIDefaultAllocat
     EZ_ENUM_MEMBER_PROPERTY("LeftTangentMode", ezCurveTangentMode, m_LeftTangentMode),
     EZ_ENUM_MEMBER_PROPERTY("RightTangentMode", ezCurveTangentMode, m_RightTangentMode),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSingleCurveData, 3, ezRTTIDefaultAllocator<ezSingleCurveData>)
 {
@@ -30,9 +30,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSingleCurveData, 3, ezRTTIDefaultAllocator<ezS
     EZ_MEMBER_PROPERTY("Color", m_CurveColor)->AddAttributes(new ezDefaultValueAttribute(ezColorGammaUB(ezColor::GreenYellow))),
     EZ_ARRAY_MEMBER_PROPERTY("ControlPoints", m_ControlPoints),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurveGroupData, 2, ezRTTIDefaultAllocator<ezCurveGroupData>)
 {
@@ -41,9 +41,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurveGroupData, 2, ezRTTIDefaultAllocator<ezCu
     EZ_MEMBER_PROPERTY("FPS", m_uiFramesPerSecond)->AddAttributes(new ezDefaultValueAttribute(60)),
     EZ_ARRAY_MEMBER_PROPERTY("Curves", m_Curves)->AddFlags(ezPropertyFlags::PointerOwner),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 void ezCurveControlPointData::SetTickFromTime(double time, ezInt64 fps)

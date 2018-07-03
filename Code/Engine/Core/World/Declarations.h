@@ -37,8 +37,7 @@ struct ezGameObjectId
 
   EZ_DECLARE_ID_TYPE(ezGameObjectId, 20, 6);
 
-  EZ_FORCE_INLINE ezGameObjectId(StorageType instanceIndex, StorageType generation,
-                                 StorageType worldIndex = 0)
+  EZ_FORCE_INLINE ezGameObjectId(StorageType instanceIndex, StorageType generation, StorageType worldIndex = 0)
   {
     m_Data = 0;
     m_InstanceIndex = instanceIndex;
@@ -46,8 +45,7 @@ struct ezGameObjectId
     m_WorldIndex = worldIndex;
   }
 
-  union
-  {
+  union {
     StorageType m_Data;
     struct
     {
@@ -75,15 +73,9 @@ struct ezGameObjectHandle
 template <>
 struct ezHashHelper<ezGameObjectHandle>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(ezGameObjectHandle value)
-  {
-    return ezHashHelper<ezUInt32>::Hash(value.GetInternalID().m_Data);
-  }
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(ezGameObjectHandle value) { return ezHashHelper<ezUInt32>::Hash(value.GetInternalID().m_Data); }
 
-  EZ_ALWAYS_INLINE static bool Equal(ezGameObjectHandle a, ezGameObjectHandle b)
-  {
-    return a == b;
-  }
+  EZ_ALWAYS_INLINE static bool Equal(ezGameObjectHandle a, ezGameObjectHandle b) { return a == b; }
 };
 
 typedef ezGenericId<24, 8> ezGenericComponentId;
@@ -91,21 +83,22 @@ typedef ezGenericId<24, 8> ezGenericComponentId;
 /// \brief Internal component id used by ezComponentHandle.
 struct ezComponentId : public ezGenericComponentId
 {
-  EZ_ALWAYS_INLINE ezComponentId() : ezGenericComponentId()
+  EZ_ALWAYS_INLINE ezComponentId()
+      : ezGenericComponentId()
   {
     m_TypeId = 0;
     m_WorldIndex = 0;
   }
 
-  EZ_ALWAYS_INLINE ezComponentId(StorageType instanceIndex, StorageType generation, ezUInt16 typeId = 0, ezUInt16 worldIndex = 0) :
-    ezGenericComponentId(instanceIndex, generation)
+  EZ_ALWAYS_INLINE ezComponentId(StorageType instanceIndex, StorageType generation, ezUInt16 typeId = 0, ezUInt16 worldIndex = 0)
+      : ezGenericComponentId(instanceIndex, generation)
   {
     m_TypeId = typeId;
     m_WorldIndex = worldIndex;
   }
 
-  EZ_ALWAYS_INLINE ezComponentId(ezGenericComponentId genericId, ezUInt16 typeId, ezUInt16 worldIndex) :
-    ezGenericComponentId(genericId)
+  EZ_ALWAYS_INLINE ezComponentId(ezGenericComponentId genericId, ezUInt16 typeId, ezUInt16 worldIndex)
+      : ezGenericComponentId(genericId)
   {
     m_TypeId = typeId;
     m_WorldIndex = worldIndex;
@@ -117,7 +110,6 @@ struct ezComponentId : public ezGenericComponentId
     const ezUInt32& d2 = reinterpret_cast<const ezUInt32&>(other.m_TypeId);
 
     return m_Data == other.m_Data && d1 == d2;
-
   }
   EZ_ALWAYS_INLINE bool operator!=(const ezComponentId other) const
   {
@@ -170,10 +162,7 @@ struct ezHashHelper<ezComponentHandle>
     return ezHashHelper<ezUInt64>::Hash(data);
   }
 
-  EZ_ALWAYS_INLINE static bool Equal(ezComponentHandle a, ezComponentHandle b)
-  {
-    return a == b;
-  }
+  EZ_ALWAYS_INLINE static bool Equal(ezComponentHandle a, ezComponentHandle b) { return a == b; }
 };
 
 /// \brief Internal flags of game objects or components.
@@ -299,4 +288,3 @@ class ezSpatialDataHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezSpatialDataHandle, ezSpatialDataId);
 };
-

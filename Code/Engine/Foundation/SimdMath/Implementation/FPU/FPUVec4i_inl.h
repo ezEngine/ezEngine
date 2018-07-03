@@ -48,7 +48,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4i::ToFloat() const
   return result;
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Truncate(const ezSimdVec4f& f)
 {
   ezSimdVec4i result;
@@ -60,7 +60,7 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Truncate(const ezSimdVec4f& f)
   return result;
 }
 
-template<int N>
+template <int N>
 EZ_ALWAYS_INLINE ezInt32 ezSimdVec4i::GetComponent() const
 {
   return (&m_v.x)[N];
@@ -312,9 +312,8 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4i::operator>(const ezSimdVec4i& v) const
   return result;
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::ZeroVector()
 {
   return ezVec4I32::ZeroVector();
 }
-

@@ -3,7 +3,7 @@
 #include <ToolsFoundation/Document/Document.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCommandTransaction, 1, ezRTTIDefaultAllocator<ezCommandTransaction>);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ////////////////////////////////////////////////////////////////////////
 // ezCommandTransaction

@@ -24,7 +24,7 @@
 #include <SharedPluginScene/Common/Messages.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneDocument, 4, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab)
   : ezGameObjectDocument(szDocumentPath, EZ_DEFAULT_NEW(ezSceneObjectManager))

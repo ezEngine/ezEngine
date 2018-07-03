@@ -16,10 +16,10 @@ struct EZ_FOUNDATION_DLL ezProgressEvent
 {
   enum class Type
   {
-    ProgressStarted,  ///< Sent when the the first progress starts
-    ProgressEnded,    ///< Sent when progress finishes or is canceled
-    ProgressChanged,  ///< Sent whenever the progress value changes. Not necessarily in every update step.
-    CancelClicked,    ///< The user just clicked cancel (for the first time).
+    ProgressStarted, ///< Sent when the the first progress starts
+    ProgressEnded,   ///< Sent when progress finishes or is canceled
+    ProgressChanged, ///< Sent whenever the progress value changes. Not necessarily in every update step.
+    CancelClicked,   ///< The user just clicked cancel (for the first time).
   };
 
   Type m_Type;
@@ -66,7 +66,6 @@ public:
   ezEvent<const ezProgressEvent&> m_Events;
 
 private:
-
   friend class ezProgressRange;
   void SetActiveRange(ezProgressRange* pRange);
 
@@ -144,4 +143,3 @@ private:
   double m_PercentageRange;
   double m_SummedWeight;
 };
-

@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include <Foundation/Strings/HashedString.h>
@@ -15,14 +15,13 @@ typedef ezUInt64 ezTagSetBlockStorage;
 class EZ_FOUNDATION_DLL ezTag
 {
 public:
-
   EZ_ALWAYS_INLINE ezTag();
 
-  EZ_ALWAYS_INLINE bool operator == (const ezTag& rhs) const; // [tested]
+  EZ_ALWAYS_INLINE bool operator==(const ezTag& rhs) const; // [tested]
 
-  EZ_ALWAYS_INLINE bool operator != (const ezTag& rhs) const; // [tested]
+  EZ_ALWAYS_INLINE bool operator!=(const ezTag& rhs) const; // [tested]
 
-  EZ_ALWAYS_INLINE bool operator < (const ezTag& rhs) const;
+  EZ_ALWAYS_INLINE bool operator<(const ezTag& rhs) const;
 
   EZ_ALWAYS_INLINE const ezString& GetTagString() const; // [tested]
 
@@ -31,15 +30,15 @@ public:
   EZ_ALWAYS_INLINE bool IsValid() const; // [tested]
 
 private:
-
-  template<typename BlockStorageAllocator> friend class ezTagSetTemplate;
+  template <typename BlockStorageAllocator>
+  friend class ezTagSetTemplate;
   friend class ezTagRegistry;
 
   ezHashedString m_TagString;
 
   ezUInt32 m_uiBitIndex;
   ezUInt32 m_uiBlockIndex;
-  
+
   /// Stores a pre-shifted version of 1u << uiBitIndex
   ezTagSetBlockStorage m_uiPreshiftedBit;
 };
@@ -47,4 +46,3 @@ private:
 #include <Foundation/Types/TagSet.h>
 
 #include <Foundation/Types/Implementation/Tag_inl.h>
-

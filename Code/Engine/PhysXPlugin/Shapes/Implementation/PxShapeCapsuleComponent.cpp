@@ -13,7 +13,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxShapeCapsuleComponent, 1, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.1f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("Height", GetHeight, SetHeight)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
@@ -24,9 +24,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxShapeCapsuleComponent, 1, ezComponentMode::Static)
     new ezCapsuleManipulatorAttribute("Height", "Radius"),
     new ezCapsuleVisualizerAttribute("Height", "Radius"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezPxShapeCapsuleComponent::ezPxShapeCapsuleComponent()
 {

@@ -13,7 +13,7 @@ namespace
 
   EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgTest);
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgTest, 1, ezRTTIDefaultAllocator<ezMsgTest>)
-  EZ_END_DYNAMIC_REFLECTED_TYPE
+  EZ_END_DYNAMIC_REFLECTED_TYPE;
 
   struct TestMessage1 : public ezMsgTest
   {
@@ -36,11 +36,11 @@ namespace
 
   EZ_IMPLEMENT_MESSAGE_TYPE(TestMessage1);
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(TestMessage1, 1, ezRTTIDefaultAllocator<TestMessage1>)
-  EZ_END_DYNAMIC_REFLECTED_TYPE
+  EZ_END_DYNAMIC_REFLECTED_TYPE;
 
   EZ_IMPLEMENT_MESSAGE_TYPE(TestMessage2);
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(TestMessage2, 1, ezRTTIDefaultAllocator<TestMessage2>)
-  EZ_END_DYNAMIC_REFLECTED_TYPE
+  EZ_END_DYNAMIC_REFLECTED_TYPE;
 
   class TestComponentMsg;
   typedef ezComponentManager<TestComponentMsg, ezBlockStorageType::FreeList> TestComponentMsgManager;

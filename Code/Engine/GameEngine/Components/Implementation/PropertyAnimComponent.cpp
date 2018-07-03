@@ -16,9 +16,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPropertyAnimationEndReached, 1, ezRTTIDefau
   {
     new ezAutoGenVisScriptMsgHandler(),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPropertyAnimationPlayRange);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPropertyAnimationPlayRange, 1, ezRTTIDefaultAllocator<ezMsgPropertyAnimationPlayRange>)
@@ -28,14 +28,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPropertyAnimationPlayRange, 1, ezRTTIDefaul
     EZ_MEMBER_PROPERTY("RangeLow", m_RangeLow)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
     EZ_MEMBER_PROPERTY("RangeHigh", m_RangeHigh)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::Seconds(60 * 60))),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezAutoGenVisScriptMsgSender(),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -51,12 +51,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 3, ezComponentMode::Dynamic)
     EZ_MEMBER_PROPERTY("RangeLow", m_AnimationRangeLow)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
     EZ_MEMBER_PROPERTY("RangeHigh", m_AnimationRangeHigh)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::Seconds(60 * 60))),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Animation"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgPropertyAnimationPlayRange, OnPlayAnimationRange),
@@ -70,7 +70,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 3, ezComponentMode::Dynamic)
   }
   EZ_END_MESSAGESENDERS
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezPropertyAnimComponent::ezPropertyAnimComponent()
 {

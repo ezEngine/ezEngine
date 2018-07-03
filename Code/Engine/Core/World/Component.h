@@ -2,8 +2,8 @@
 
 /// \file
 
-#include <Foundation/Reflection/Reflection.h>
 #include <Core/World/Declarations.h>
+#include <Foundation/Reflection/Reflection.h>
 
 class ezMessage;
 class ezWorldWriter;
@@ -12,11 +12,10 @@ class ezWorldReader;
 /// \brief Base class of all component types.
 ///
 /// Derive from this class to implement custom component types. Also add the EZ_DECLARE_COMPONENT_TYPE macro to your class declaration.
-/// Also add a EZ_BEGIN_COMPONENT_TYPE/EZ_END_COMPONENT_TYPE block to a cpp file. In that block you can add reflected members or message handlers.
-/// Note that every component type needs a corresponding manager type. Take a look at ezComponentManagerSimple for a simple manager
-/// implementation that calls an update method on its components every frame.
-/// To create a component instance call CreateComponent on the corresponding manager. Never store a direct pointer to a component but store a
-/// component handle instead.
+/// Also add a EZ_BEGIN_COMPONENT_TYPE/EZ_END_COMPONENT_TYPE block to a cpp file. In that block you can add reflected members or message
+/// handlers. Note that every component type needs a corresponding manager type. Take a look at ezComponentManagerSimple for a simple
+/// manager implementation that calls an update method on its components every frame. To create a component instance call CreateComponent on
+/// the corresponding manager. Never store a direct pointer to a component but store a component handle instead.
 class EZ_CORE_DLL ezComponent : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezComponent, ezReflectedClass);
@@ -27,7 +26,8 @@ protected:
   virtual ~ezComponent();
 
 public:
-  /// \brief Sets the active state of the component. Note that it is up to the manager if he differentiates between active and inactive components.
+  /// \brief Sets the active state of the component. Note that it is up to the manager if he differentiates between active and inactive
+  /// components.
   void SetActive(bool bActive);
 
   /// \brief Activates the component. Note that it is up to the manager if he differentiates between active and inactive components.
@@ -87,7 +87,8 @@ public:
   /// \brief Ensures that the component is initialized. Must only be called from another component's Initialize callback.
   void EnsureInitialized();
 
-  /// \brief Ensures that the OnSimulationStarted method has been called. Must only be called from another component's OnSimulationStarted callback.
+  /// \brief Ensures that the OnSimulationStarted method has been called. Must only be called from another component's OnSimulationStarted
+  /// callback.
   void EnsureSimulationStarted();
 
 
@@ -123,7 +124,8 @@ protected:
   /// \sa OnActivated(), OnDeactivated(), Initialize(), Deinitialize(), OnSimulationStarted()
   virtual void Initialize();
 
-  /// \brief This method is called before the component is destroyed. A derived type can override this method to do common de-initialization work.
+  /// \brief This method is called before the component is destroyed. A derived type can override this method to do common de-initialization
+  /// work.
   ///
   /// This function is always called before destruction, even if the component is currently not active.
   /// The default implementation checks whether the component is currently active and will ensure OnDeactivated() gets called if necessary.
@@ -134,35 +136,37 @@ protected:
 
   /// \brief This method is called when the component gets activated.
   ///
-  /// By default a component is active, but it can be created in an inactive state. In such a case OnActivated() is only called once a component
-  /// is activated. If a component gets switched between active and inactive at runtime, OnActivated() and OnDeactivated() are called accordingly.
-  /// In contrast Initialize() and Deinitialize() are only ever called once.
+  /// By default a component is active, but it can be created in an inactive state. In such a case OnActivated() is only called once a
+  /// component is activated. If a component gets switched between active and inactive at runtime, OnActivated() and OnDeactivated() are
+  /// called accordingly. In contrast Initialize() and Deinitialize() are only ever called once.
   ///
   /// \sa OnActivated(), OnDeactivated(), Initialize(), Deinitialize(), OnSimulationStarted()
   virtual void OnActivated();
 
   /// \brief This method is called when the component gets deactivated.
   ///
-  /// Upon destruction, a component that is active first gets deactivated. Therefore OnDeactivated() should be used for typical game code cleanup.
+  /// Upon destruction, a component that is active first gets deactivated. Therefore OnDeactivated() should be used for typical game code
+  /// cleanup.
   ///
   /// \sa OnActivated(), OnDeactivated(), Initialize(), Deinitialize(), OnSimulationStarted()
   virtual void OnDeactivated();
 
   /// \brief This method is called once for active components, at the start of the next world update, but only when the world is simulated.
   ///
-  /// This is the one preferred method to setup typical game logic. In a pure game environment there is no practical difference between OnActivated()
-  /// and OnSimulationStarted(), as OnSimulationStarted() will be called right after OnActivated().
+  /// This is the one preferred method to setup typical game logic. In a pure game environment there is no practical difference between
+  /// OnActivated() and OnSimulationStarted(), as OnSimulationStarted() will be called right after OnActivated().
   ///
   /// However, when a scene is open inside the editor, there is an important difference:
   /// OnActivated() is called once the component was created.
   /// OnSimulationStarted() is only called once the game simulation is started inside the editor.
-  /// As an example, if a component starts a sound in OnActivated(), that sound will play right after the scene has been loaded into the editor.
-  /// If instead the sound gets started in OnSimulationStarted(), it will only play once the user starts the game mode inside the editor.
+  /// As an example, if a component starts a sound in OnActivated(), that sound will play right after the scene has been loaded into the
+  /// editor. If instead the sound gets started in OnSimulationStarted(), it will only play once the user starts the game mode inside the
+  /// editor.
   ///
-  /// Additionally, OnSimulationStarted() is only ever executed once on a component, even if the ezWorld pauses and resumes world simulation multiple times.
-  /// Thus components that should only execute a thing exactly once, will work correctly.
-  /// In contrast OnActivated() and OnDeactivated() will be executed every time the component's active state is toggled, which could re-execute
-  /// the same behavior multiple times.
+  /// Additionally, OnSimulationStarted() is only ever executed once on a component, even if the ezWorld pauses and resumes world simulation
+  /// multiple times. Thus components that should only execute a thing exactly once, will work correctly. In contrast OnActivated() and
+  /// OnDeactivated() will be executed every time the component's active state is toggled, which could re-execute the same behavior multiple
+  /// times.
   ///
   /// \sa OnActivated(), OnDeactivated(), Initialize(), Deinitialize(), OnSimulationStarted()
   virtual void OnSimulationStarted();
@@ -181,7 +185,6 @@ protected:
   const ezRTTI* m_pMessageDispatchType = nullptr;
 
 private:
-
   bool IsInitialized() const;
   bool IsInitializing() const;
   bool IsSimulationStarted() const;
@@ -198,5 +201,3 @@ private:
 };
 
 #include <Core/World/Implementation/Component_inl.h>
-
-

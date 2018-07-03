@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 /// \file
 
@@ -32,7 +32,7 @@
 ///
 /// This defines an "ezExampleEnum" which is stored in an ezUInt8 and is default initialized with Value1
 /// For more examples see the enum test.
-template <typename Derived> 
+template <typename Derived>
 struct ezEnum : public Derived
 {
 public:
@@ -40,19 +40,25 @@ public:
   typedef typename Derived::StorageType StorageType;
 
   /// \brief Default constructor
-  EZ_ALWAYS_INLINE ezEnum() : m_value(Derived::Default) {} // [tested]
+  EZ_ALWAYS_INLINE ezEnum()
+      : m_value(Derived::Default)
+  {
+  } // [tested]
 
   /// \brief Construct from a C++ enum, and implicit conversion from enum type
-  EZ_ALWAYS_INLINE ezEnum(typename Derived::Enum init) : m_value(init) {} // [tested]
+  EZ_ALWAYS_INLINE ezEnum(typename Derived::Enum init)
+      : m_value(init)
+  {
+  } // [tested]
 
   /// \brief Assignment operator
-  EZ_ALWAYS_INLINE void operator= (const SelfType& rh) // [tested]
+  EZ_ALWAYS_INLINE void operator=(const SelfType& rh) // [tested]
   {
     m_value = rh.m_value;
   }
 
   /// \brief Assignment operator.
-  EZ_ALWAYS_INLINE void operator= (const typename Derived::Enum value) // [tested]
+  EZ_ALWAYS_INLINE void operator=(const typename Derived::Enum value) // [tested]
   {
     m_value = value;
   }
@@ -80,8 +86,9 @@ private:
 };
 
 
-#define EZ_ENUM_VALUE_TO_STRING(name) \
-  case name: return EZ_STRINGIZE(name);
+#define EZ_ENUM_VALUE_TO_STRING(name)                                                                                                      \
+  case name:                                                                                                                               \
+    return EZ_STRINGIZE(name);
 
 /// \brief Helper macro to generate a 'ToString' function for enum values.
 ///
@@ -99,13 +106,13 @@ private:
 ///
 ///   EZ_ENUM_TO_STRING(A, B, C);
 /// };
-#define EZ_ENUM_TO_STRING(...) \
-  const char* ToString(ezUInt32 value) \
-  { \
-    switch (value) \
-    { \
-      EZ_EXPAND_ARGS(EZ_ENUM_VALUE_TO_STRING, ##__VA_ARGS__) \
-      default: return nullptr; \
-    } \
+#define EZ_ENUM_TO_STRING(...)                                                                                                             \
+  const char* ToString(ezUInt32 value)                                                                                                     \
+  {                                                                                                                                        \
+    switch (value)                                                                                                                         \
+    {                                                                                                                                      \
+      EZ_EXPAND_ARGS(EZ_ENUM_VALUE_TO_STRING, ##__VA_ARGS__)                                                                               \
+      default:                                                                                                                             \
+        return nullptr;                                                                                                                    \
+    }                                                                                                                                      \
   }
-

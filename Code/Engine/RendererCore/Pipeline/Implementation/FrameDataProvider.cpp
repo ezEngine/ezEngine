@@ -4,7 +4,7 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFrameDataProviderBase, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezFrameDataProviderBase::ezFrameDataProviderBase()
   : m_pOwnerPipeline(nullptr)

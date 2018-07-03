@@ -1,8 +1,9 @@
 #pragma once
 
 #include <ThirdParty/utf8/utf8.h>
-#include <Foundation/Strings/StringUtils.h>
+
 #include <Foundation/Strings/Implementation/StringBase.h>
+#include <Foundation/Strings/StringUtils.h>
 
 /// \brief ezStringView represent a read-only sub-string of a larger string, as it can store a dedicated string end position.
 /// It derives from ezStringBase and thus provides a large set of functions for search and comparisons.
@@ -39,8 +40,8 @@ public:
   bool IsValid() const; // [tested]
 
   // no implicit conversion to ezStringParamImpl or const char* because the string view may not be zero terminated
-  //operator ezStringParamImpl () const;
-  //operator const char* () const { return GetData(); }
+  // operator ezStringParamImpl () const;
+  // operator const char* () const { return GetData(); }
 
   /// \brief Returns the string. May not be zero-terminated.
   const char* GetData() const { return m_pStart; } // [tested]
@@ -48,7 +49,7 @@ public:
   /// \brief Returns the number of bytes from the start position up to its end.
   ///
   /// \note Note that the element count (bytes) may be larger than the number of characters in that string, due to Utf8 encoding.
-  ezUInt32 GetElementCount() const { return (ezUInt32) (m_pEnd - m_pStart); } // [tested]
+  ezUInt32 GetElementCount() const { return (ezUInt32)(m_pEnd - m_pStart); } // [tested]
 
   /// \brief Allows to set the start position to a different value.
   ///
@@ -79,7 +80,7 @@ public:
   /// Thus reduces the range of the view to a smaller sub-string.
   /// The current position is clamped to the new start of the range.
   /// The new end position is clamped to the new start of the range.
-  /// If more characters are removed from the range, than it actually contains, the view range will become 'empty' 
+  /// If more characters are removed from the range, than it actually contains, the view range will become 'empty'
   /// and its state will be set to invalid, however no error or assert will be triggered.
   void Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkCharsBack); // [tested]
 
@@ -97,4 +98,3 @@ private:
 
 
 #include <Foundation/Strings/Implementation/StringView_inl.h>
-

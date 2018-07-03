@@ -2,13 +2,13 @@
 
 /// \file
 
+#include <Foundation/Algorithm/Hashing.h>
 #include <Foundation/Basics.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Containers/HashTable.h>
-#include <Foundation/Algorithm/Hashing.h>
-#include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Strings/HashedString.h>
 
 class ezRTTI;
@@ -101,6 +101,7 @@ private:
 class EZ_FOUNDATION_DLL ezGraphVersioning
 {
   EZ_DECLARE_SINGLETON(ezGraphVersioning);
+
 public:
   ezGraphVersioning();
   ~ezGraphVersioning();
@@ -122,4 +123,3 @@ private:
   ezDynamicArray<const ezGraphPatch*> m_GraphPatches;
   ezHashTable<ezVersionKey, const ezGraphPatch*, ezGraphVersioningHash> m_NodePatches;
 };
-

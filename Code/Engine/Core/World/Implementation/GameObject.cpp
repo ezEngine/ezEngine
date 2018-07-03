@@ -1,7 +1,8 @@
 #include <PCH.h>
-#include <Core/World/World.h>
+
 #include <Core/Messages/DeleteObjectMessage.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
+#include <Core/World/World.h>
 
 namespace
 {
@@ -14,6 +15,7 @@ namespace
   }
 }
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
@@ -29,14 +31,15 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
     EZ_SET_ACCESSOR_PROPERTY("Children", Reflection_GetChildren, Reflection_AddChild, Reflection_DetachChild)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
     EZ_SET_ACCESSOR_PROPERTY("Components", Reflection_GetComponents, Reflection_AddComponent, Reflection_RemoveComponent)->AddFlags(ezPropertyFlags::PointerOwner),
   }
-  EZ_END_PROPERTIES
-    EZ_BEGIN_MESSAGEHANDLERS
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnDeleteObject),
   }
   EZ_END_MESSAGEHANDLERS
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
+// clang-format on
 
 void ezGameObject::Reflection_AddChild(ezGameObject* pChild)
 {
@@ -467,7 +470,8 @@ ezGameObject* ezGameObject::SearchForChildByNameSequence(const char* szObjectSeq
 }
 
 
-void ezGameObject::SearchForChildrenByNameSequence(const char* szObjectSequence, const ezRTTI* pExpectedComponent, ezHybridArray<ezGameObject*, 8>& out_Objects)
+void ezGameObject::SearchForChildrenByNameSequence(const char* szObjectSequence, const ezRTTI* pExpectedComponent,
+                                                   ezHybridArray<ezGameObject*, 8>& out_Objects)
 {
   /// \test Needs a unit test
 
@@ -604,8 +608,7 @@ void ezGameObject::OnDeleteObject(ezMsgDeleteGameObject& msg)
 void ezGameObject::AddComponent(ezComponent* pComponent)
 {
   EZ_ASSERT_DEV(pComponent->m_pOwner == nullptr, "Component must not be added twice.");
-  EZ_ASSERT_DEV(IsDynamic() || !pComponent->IsDynamic(),
-                "Cannot attach a dynamic component to a static object. Call MakeDynamic() first.");
+  EZ_ASSERT_DEV(IsDynamic() || !pComponent->IsDynamic(), "Cannot attach a dynamic component to a static object. Call MakeDynamic() first.");
 
   pComponent->m_pOwner = this;
   m_Components.PushBack(pComponent);
@@ -653,7 +656,8 @@ bool ezGameObject::SendMessage(ezMessage& msg)
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   if (!bSentToAny && msg.GetDebugMessageRouting())
   {
-    ezLog::Warning("ezGameObject::SendMessage: None of the target object's components had a handler for messages of type {0}.", msg.GetId());
+    ezLog::Warning("ezGameObject::SendMessage: None of the target object's components had a handler for messages of type {0}.",
+                   msg.GetId());
   }
 #endif
 
@@ -676,7 +680,8 @@ bool ezGameObject::SendMessage(ezMessage& msg) const
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   if (!bSentToAny && msg.GetDebugMessageRouting())
   {
-    ezLog::Warning("ezGameObject::SendMessage (const): None of the target object's components had a handler for messages of type {0}.", msg.GetId());
+    ezLog::Warning("ezGameObject::SendMessage (const): None of the target object's components had a handler for messages of type {0}.",
+                   msg.GetId());
   }
 #endif
 
@@ -702,13 +707,14 @@ bool ezGameObject::SendMessageRecursive(ezMessage& msg)
   }
 
   // should only be evaluated at the top function call
-//#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-//  if (!bSentToAny && msg.GetDebugMessageRouting())
-//  {
-//    ezLog::Warning("ezGameObject::SendMessageRecursive: None of the target object's components had a handler for messages of type {0}.", msg.GetId());
-//  }
-//#endif
-//#
+  //#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  //  if (!bSentToAny && msg.GetDebugMessageRouting())
+  //  {
+  //    ezLog::Warning("ezGameObject::SendMessageRecursive: None of the target object's components had a handler for messages of type {0}.",
+  //    msg.GetId());
+  //  }
+  //#endif
+  //#
   return bSentToAny;
 }
 
@@ -734,7 +740,8 @@ bool ezGameObject::SendMessageRecursive(ezMessage& msg) const
   //#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   //  if (!bSentToAny && msg.GetDebugMessageRouting())
   //  {
-  //    ezLog::Warning("ezGameObject::SendMessageRecursive(const): None of the target object's components had a handler for messages of type {0}.", msg.GetId());
+  //    ezLog::Warning("ezGameObject::SendMessageRecursive(const): None of the target object's components had a handler for messages of type
+  //    {0}.", msg.GetId());
   //  }
   //#endif
   //#
@@ -826,4 +833,3 @@ void ezGameObject::TransformationData::UpdateSpatialData(bool bWasAlwaysVisible,
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_GameObject);
-

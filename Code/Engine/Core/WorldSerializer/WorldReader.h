@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Core/World/World.h>
-#include <Foundation/IO/Stream.h>
-#include <Foundation/IO/MemoryStream.h>
 #include <Core/WorldSerializer/ResourceHandleReader.h>
+#include <Foundation/IO/MemoryStream.h>
+#include <Foundation/IO/Stream.h>
 
 /// \brief Reads a world description from a stream. Allows to instantiate that world multiple times
 ///        in different locations and different ezWorld's.
@@ -39,7 +39,9 @@ public:
   ///
   /// If pOverrideTeamID is not null, every instantiated game object will get it passed in as its new value.
   /// This can be used to identify that the object belongs to a specific player or team.
-  void InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects, const ezUInt16* pOverrideTeamID);
+  void InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent,
+                         ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects,
+                         const ezUInt16* pOverrideTeamID);
 
   /// \brief Gives access to the stream of data. Use this inside component deserialization functions to read data.
   ezStreamReader& GetStream() const { return *m_pStream; }
@@ -66,7 +68,6 @@ public:
   ezUInt64 GetHeapMemoryUsage() const;
 
 private:
-
   struct GameObjectToCreate
   {
     ezGameObjectDesc m_Desc;
@@ -78,10 +79,14 @@ private:
   void ReadComponentInfo(ezUInt32 uiComponentTypeIdx);
   void ReadComponentsOfType(ezUInt32 uiComponentTypeIdx);
   void FulfillComponentHandleRequets();
-  void Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects, const ezUInt16* pOverrideTeamID);
+  void Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, ezGameObjectHandle hParent,
+                   ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects,
+                   const ezUInt16* pOverrideTeamID);
 
-  void CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, const ezUInt16* pOverrideTeamID);
-  void CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, const ezUInt16* pOverrideTeamID);
+  void CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent,
+                         ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, const ezUInt16* pOverrideTeamID);
+  void CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, const ezTransform& rootTransform, ezGameObjectHandle hParent,
+                         ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, const ezUInt16* pOverrideTeamID);
 
   ezStreamReader* m_pStream;
   ezWorld* m_pWorld;
@@ -109,5 +114,3 @@ private:
   ezMemoryStreamStorage m_ComponentStream;
   ezResourceHandleReadContext m_HandleReadContext;
 };
-
-

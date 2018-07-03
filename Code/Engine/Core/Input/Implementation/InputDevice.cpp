@@ -1,22 +1,23 @@
 #include <PCH.h>
+
 #include <Core/Input/InputManager.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezInputDevice);
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDevice, 1, ezRTTINoAllocator);
-  // no properties or message handlers
-EZ_END_DYNAMIC_REFLECTED_TYPE
+// no properties or message handlers
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezKeyState::Enum ezKeyState::GetNewKeyState(ezKeyState::Enum PrevState, bool bKeyDown)
 {
   switch (PrevState)
   {
-  case ezKeyState::Down:
-  case ezKeyState::Pressed:
-    return bKeyDown ? ezKeyState::Down : ezKeyState::Released;
-  case ezKeyState::Released:
-  case ezKeyState::Up:
-    return bKeyDown ? ezKeyState::Pressed : ezKeyState::Up;
+    case ezKeyState::Down:
+    case ezKeyState::Pressed:
+      return bKeyDown ? ezKeyState::Down : ezKeyState::Released;
+    case ezKeyState::Released:
+    case ezKeyState::Up:
+      return bKeyDown ? ezKeyState::Pressed : ezKeyState::Up;
   }
 
   return ezKeyState::Up;
@@ -80,7 +81,7 @@ void ezInputDevice::ResetAllDevices()
 }
 
 ezUInt32 ezInputDevice::RetrieveLastCharacter()
-{ 
+{
   ezUInt32 Temp = m_LastCharacter;
   m_LastCharacter = L'\0';
   return Temp;
@@ -102,4 +103,3 @@ ezUInt32 ezInputDevice::RetrieveLastCharacterFromAllDevices()
 
 
 EZ_STATICLINK_FILE(Core, Core_Input_Implementation_InputDevice);
-

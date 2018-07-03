@@ -2,9 +2,9 @@
 
 #ifdef EZ_USE_QT
 
-#include <TestFramework/Basics.h>
-#include <QMainWindow>
 #include <Code/Engine/TestFramework/ui_qtTestGUI.h>
+#include <QMainWindow>
+#include <TestFramework/Basics.h>
 
 class ezQtTestFramework;
 class ezQtTestModel;
@@ -77,4 +77,3 @@ private:
 };
 
 #endif
-

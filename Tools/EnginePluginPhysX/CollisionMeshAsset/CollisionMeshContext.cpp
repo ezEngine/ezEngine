@@ -30,9 +30,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshContext, 1, ezRTTIDefaultAllocato
   {
     EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Collision Mesh Asset"),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 ezCollisionMeshContext::ezCollisionMeshContext()

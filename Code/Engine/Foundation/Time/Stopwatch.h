@@ -15,7 +15,8 @@ public:
 
   /// \brief Pauses the stopwatch so that the running total will not increase any further.
   ///
-  /// The stopwatch can be resumed via Resume() later and will then accumulate more time. The time in between will not contribute to the running total.
+  /// The stopwatch can be resumed via Resume() later and will then accumulate more time. The time in between will not contribute to the
+  /// running total.
   void Pause(); // [tested]
 
   /// \brief Resumes the stopwatch to accumulate more time.
@@ -45,4 +46,3 @@ private:
   ezTime m_LastCheckpoint;
   ezTime m_TotalDuration;
 };
-

@@ -1,15 +1,13 @@
-
 #pragma once
 
-#include <Utilities/Basics.h>
 #include <Foundation/Math/Color.h>
 #include <Foundation/Strings/String.h>
+#include <Utilities/Basics.h>
 
 /// \brief This class encapsulates building a DGML compatible graph.
 class EZ_UTILITIES_DLL ezDGMLGraph
 {
 public:
-
   enum class Direction
   {
     TopToBottom,
@@ -62,7 +60,6 @@ public:
   void AddConnection(NodeId Source, NodeId Target);
 
 protected:
-
   friend class ezDGMLGraphWriter;
 
   ezHybridArray<Node, 16> m_Nodes;
@@ -78,11 +75,9 @@ protected:
 class EZ_UTILITIES_DLL ezDGMLGraphWriter
 {
 public:
-
   /// \brief Helper method to write the graph to a file.
   static ezResult WriteGraphToFile(const char* szFileName, const ezDGMLGraph& Graph);
 
   /// \brief Writes the graph as a DGML formatted document to the given string builder.
   static ezResult WriteGraphToString(ezStringBuilder& StringBuilder, const ezDGMLGraph& Graph);
 };
-

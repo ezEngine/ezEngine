@@ -1,4 +1,4 @@
-﻿
+
 template <typename T>
 EZ_ALWAYS_INLINE ezUniquePtr<T>::ezUniquePtr()
 {
@@ -196,4 +196,3 @@ EZ_ALWAYS_INLINE bool ezUniquePtr<T>::operator>=(std::nullptr_t) const
 {
   return m_pInstance >= nullptr;
 }
-

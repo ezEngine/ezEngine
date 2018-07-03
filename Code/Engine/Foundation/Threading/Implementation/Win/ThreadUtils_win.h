@@ -1,6 +1,5 @@
-
 #ifdef EZ_THREADUTILS_WIN_INL_H_INCLUDED
-  #error "This file must not be included twice."
+#error "This file must not be included twice."
 #endif
 
 #define EZ_THREADUTILS_WIN_INL_H_INCLUDED
@@ -34,4 +33,3 @@ bool ezThreadUtils::IsMainThread()
 {
   return GetCurrentThreadID() == g_uiMainThreadID;
 }
-

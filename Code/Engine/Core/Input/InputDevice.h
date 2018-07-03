@@ -1,12 +1,12 @@
 #pragma once
 
 #include <Core/Basics.h>
-#include <Foundation/Utilities/EnumerableClass.h>
+#include <Core/Input/Declarations.h>
 #include <Foundation/Containers/Map.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Time/Time.h>
-#include <Foundation/Reflection/Reflection.h>
-#include <Core/Input/Declarations.h>
+#include <Foundation/Utilities/EnumerableClass.h>
 
 /// \brief The base class for all input device types.
 ///
@@ -20,7 +20,7 @@
 /// that has a finite range (such as buttons, analog triggers, the positive/negative axis of analog sticks) should try to map to this
 /// range. Even mouse coordinates are typically mapped to the 0 to 1 range, where zero means top/left and 1 means bottom/right.
 ///
-/// All input handling is usually handled through the ezInputManager class. 
+/// All input handling is usually handled through the ezInputManager class.
 /// A user should typically not have to interact directly with an input device, unless he needs to call device specific functions
 /// for advanced configuration.
 ///
@@ -49,7 +49,8 @@ public:
 private:
   friend class ezInputManager;
 
-  /// \brief If this type of input device handles character input (typed text with all its formatting), this function returns the last typed character.
+  /// \brief If this type of input device handles character input (typed text with all its formatting), this function returns the last typed
+  /// character.
   ///
   /// An input device that handles keyboard input should also have a way to query the real typed character. I.e. by default only the
   /// individual state of each key is handled, such that we know that the shift key and the a key are pressed. However, the fact that
@@ -93,7 +94,6 @@ protected:
   ezUInt32 m_LastCharacter; // [tested]
 
 private:
-
   /// \brief Calls InitializeDevice() when the device is not yet initialized.
   void Initialize();
   bool m_bInitialized;
@@ -110,8 +110,9 @@ private:
   /// to be called in tandem with this function and it will be fine.
   virtual void UpdateInputSlotValues() = 0;
 
-  /// \brief Override this, if you need to reset certain input slot values to zero, after the ezInputManager is finished with the current frame update.
-  virtual void ResetInputSlotValues() { }; // [tested]
+  /// \brief Override this, if you need to reset certain input slot values to zero, after the ezInputManager is finished with the current
+  /// frame update.
+  virtual void ResetInputSlotValues(){}; // [tested]
 
   /// \brief Override this to register all the input slots that this device exposes.
   ///
@@ -121,6 +122,5 @@ private:
 
   /// \brief This function is called once after ezInputManager::Update with the same time delta value.
   /// It allows to update hardware state, such as the vibration of gamepad motors.
-  virtual void UpdateHardwareState(ezTime tTimeDifference) { }
+  virtual void UpdateHardwareState(ezTime tTimeDifference) {}
 };
-

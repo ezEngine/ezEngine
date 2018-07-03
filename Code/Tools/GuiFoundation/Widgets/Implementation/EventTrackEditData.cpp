@@ -14,9 +14,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventTrackControlPointData, 1, ezRTTIDefaultAl
     EZ_MEMBER_PROPERTY("Tick", m_iTick),
     EZ_ACCESSOR_PROPERTY("Event", GetEventName, SetEventName),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventTrackData, 3, ezRTTIDefaultAllocator<ezEventTrackData>)
 {
@@ -24,9 +24,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventTrackData, 3, ezRTTIDefaultAllocator<ezEv
   {
     EZ_ARRAY_MEMBER_PROPERTY("ControlPoints", m_ControlPoints),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 void ezEventTrackControlPointData::SetTickFromTime(double time, ezInt64 fps)
 {

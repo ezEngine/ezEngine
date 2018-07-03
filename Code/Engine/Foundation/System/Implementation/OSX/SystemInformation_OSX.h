@@ -1,7 +1,6 @@
-
-#include <unistd.h>
-#include <sys/types.h>
 #include <sys/sysctl.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 void ezSystemInformation::Initialize()
 {
@@ -18,18 +17,19 @@ void ezSystemInformation::Initialize()
   int mib[2];
   int64_t iPhysicalMemory = 0;
   size_t uiLength = sizeof(iPhysicalMemory);
-  
-  mib[0] = CTL_HW; mib[1] = HW_MEMSIZE;
+
+  mib[0] = CTL_HW;
+  mib[1] = HW_MEMSIZE;
   sysctl(mib, 2, &iPhysicalMemory, &uiLength, nullptr, 0);
-  
+
   s_SystemInformation.m_uiInstalledMainMemory = iPhysicalMemory;
-  
+
   // Not correct for 32 bit process on 64 bit system
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
   s_SystemInformation.m_b64BitOS = true;
 #else
   s_SystemInformation.m_b64BitOS = false;
-  #error "32 Bit builds are not supported on OSX"
+#error "32 Bit builds are not supported on OSX"
 #endif
 
   s_SystemInformation.m_szPlatformName = "OSX";
@@ -47,4 +47,3 @@ void ezSystemInformation::Initialize()
 
   s_SystemInformation.m_bIsInitialized = true;
 }
-

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Core/Basics.h>
 #include <Foundation/Math/Mat4.h>
@@ -11,12 +11,12 @@ struct EZ_CORE_DLL ezCameraMode
 
   enum Enum
   {
-    None,                   ///< Not initialized
-    PerspectiveFixedFovX,   ///< Perspective camera, the fov for X is fixed, Y depends on the aspect ratio
-    PerspectiveFixedFovY,   ///< Perspective camera, the fov for Y is fixed, X depends on the aspect ratio
-    OrthoFixedWidth,        ///< Orthographic camera, the width is fixed, the height depends on the aspect ratio
-    OrthoFixedHeight,       ///< Orthographic camera, the height is fixed, the width depends on the aspect ratio
-    Stereo,                 ///< A stereo camera with view/projection matrices provided by an HMD.
+    None,                 ///< Not initialized
+    PerspectiveFixedFovX, ///< Perspective camera, the fov for X is fixed, Y depends on the aspect ratio
+    PerspectiveFixedFovY, ///< Perspective camera, the fov for Y is fixed, X depends on the aspect ratio
+    OrthoFixedWidth,      ///< Orthographic camera, the width is fixed, the height depends on the aspect ratio
+    OrthoFixedHeight,     ///< Orthographic camera, the height is fixed, the width depends on the aspect ratio
+    Stereo,               ///< A stereo camera with view/projection matrices provided by an HMD.
     Default = PerspectiveFixedFovY
   };
 };
@@ -122,7 +122,7 @@ public:
 
   /// \brief Sets the view matrix directly.
   ///
-  /// Works with all camera types. Position- and direction- getter/setter will work as usual. 
+  /// Works with all camera types. Position- and direction- getter/setter will work as usual.
   void SetViewMatrix(const ezMat4& mLookAtMatrix, ezCameraEye eye = ezCameraEye::Left);
 
   /// \brief Repositions the camera such that it looks at the given target position.
@@ -159,7 +159,8 @@ public:
   ///
   /// If the camera is stereo and the given aspect ratio is close to the aspect ratio passed in SetStereoProjection,
   /// the matrix set in SetStereoProjection will be used.
-  void GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out_projectionMatrix, ezCameraEye eye = ezCameraEye::Left, ezProjectionDepthRange::Enum depthRange = ezProjectionDepthRange::Default) const;
+  void GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out_projectionMatrix, ezCameraEye eye = ezCameraEye::Left,
+                           ezProjectionDepthRange::Enum depthRange = ezProjectionDepthRange::Default) const;
 
   float GetExposure() const;
   void SetExposure(float fExposure);
@@ -199,7 +200,8 @@ private:
   ezVec3 m_vCameraPosition[2];
   ezMat4 m_mViewMatrix[2];
 
-  /// If the camera mode is stereo and the aspect ratio given in getProjectio is close to this value, one of the stereo projection matrices is returned.
+  /// If the camera mode is stereo and the aspect ratio given in getProjectio is close to this value, one of the stereo projection matrices
+  /// is returned.
   float m_fAspectOfPrecomputedStereoProjection = -1.0;
   ezMat4 m_mStereoProjectionMatrix[2];
 
@@ -209,5 +211,3 @@ private:
 
 
 #include <Core/Graphics/Implementation/Camera_inl.h>
-
-

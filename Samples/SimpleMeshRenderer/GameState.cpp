@@ -21,7 +21,7 @@
 #include "GameState.h"
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(SimpleMeshRendererGameState, 1, ezRTTIDefaultAllocator<SimpleMeshRendererGameState>);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 SimpleMeshRendererGameState::SimpleMeshRendererGameState() = default;
 SimpleMeshRendererGameState::~SimpleMeshRendererGameState() = default;

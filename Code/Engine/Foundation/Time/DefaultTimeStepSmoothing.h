@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Time/Clock.h>
 #include <Foundation/Containers/StaticRingBuffer.h>
+#include <Foundation/Time/Clock.h>
 
 /// \brief Implements a simple time step smoothing algorithm.
 ///
@@ -31,4 +31,3 @@ private:
   ezTime m_LastTimeStepTaken;
   ezStaticRingBuffer<ezTime, 11> m_LastTimeSteps;
 };
-

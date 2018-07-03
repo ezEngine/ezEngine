@@ -25,9 +25,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezRecastConfig, ezNoBase, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("MaxSimplification", m_fMaxSimplificationError)->AddAttributes(new ezDefaultValueAttribute(1.3f)),
     EZ_MEMBER_PROPERTY("MaxEdgeLength", m_fMaxEdgeLength)->AddAttributes(new ezDefaultValueAttribute(4.0f)),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 class ezRcBuildContext : public rcContext
 {

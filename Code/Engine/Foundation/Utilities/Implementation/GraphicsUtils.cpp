@@ -1,18 +1,22 @@
 #include <PCH.h>
+
 #include <Foundation/Utilities/GraphicsUtils.h>
 
-ezResult ezGraphicsUtils::ConvertWorldPosToScreenPos(const ezMat4& ModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vPoint, ezVec3& out_vScreenPos, ezProjectionDepthRange::Enum DepthRange)
+ezResult ezGraphicsUtils::ConvertWorldPosToScreenPos(const ezMat4& ModelViewProjection, const ezUInt32 uiViewportX,
+                                                     const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth,
+                                                     const ezUInt32 uiViewportHeight, const ezVec3& vPoint, ezVec3& out_vScreenPos,
+                                                     ezProjectionDepthRange::Enum DepthRange)
 {
   const ezVec4 vToProject = vPoint.GetAsVec4(1.0f);
 
   ezVec4 vClipSpace = ModelViewProjection * vToProject;
 
-  if (vClipSpace.w == 0.0f) 
+  if (vClipSpace.w == 0.0f)
     return EZ_FAILURE;
 
   const ezVec3 vProjected = vClipSpace.GetAsVec3() / vClipSpace.w;
 
-  out_vScreenPos.x = uiViewportX + uiViewportWidth  * ((vProjected.x * 0.5f) + 0.5f);
+  out_vScreenPos.x = uiViewportX + uiViewportWidth * ((vProjected.x * 0.5f) + 0.5f);
   out_vScreenPos.y = uiViewportY + uiViewportHeight * ((vProjected.y * 0.5f) + 0.5f);
 
   // normalize the output z value to always be in [0; 1] range
@@ -25,7 +29,10 @@ ezResult ezGraphicsUtils::ConvertWorldPosToScreenPos(const ezMat4& ModelViewProj
   return EZ_SUCCESS;
 }
 
-ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4& InverseModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint, ezVec3* out_vDirection, ezProjectionDepthRange::Enum DepthRange)
+ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4& InverseModelViewProjection, const ezUInt32 uiViewportX,
+                                                     const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth,
+                                                     const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint,
+                                                     ezVec3* out_vDirection, ezProjectionDepthRange::Enum DepthRange)
 {
   ezVec3 vClipSpace = vScreenPos;
 
@@ -56,7 +63,8 @@ ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4& InverseModelV
 
     const ezVec4 vWorldSpacePoint2 = InverseModelViewProjection * vToUnProject;
 
-    EZ_ASSERT_DEV(vWorldSpacePoint2.w != 0.0f, "It should not be possible that the first projected point has a w other than zero, but the second one has!");
+    EZ_ASSERT_DEV(vWorldSpacePoint2.w != 0.0f,
+                  "It should not be possible that the first projected point has a w other than zero, but the second one has!");
 
     const ezVec3 vPoint2 = vWorldSpacePoint2.GetAsVec3() / vWorldSpacePoint2.w;
 
@@ -66,7 +74,11 @@ ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4& InverseModelV
   return EZ_SUCCESS;
 }
 
-ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4d& InverseModelViewProjection, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint, ezVec3* out_vDirection /*= nullptr*/, ezProjectionDepthRange::Enum DepthRange /*= ezProjectionDepthRange::Default*/)
+ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4d& InverseModelViewProjection, const ezUInt32 uiViewportX,
+                                                     const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth,
+                                                     const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint,
+                                                     ezVec3* out_vDirection /*= nullptr*/,
+                                                     ezProjectionDepthRange::Enum DepthRange /*= ezProjectionDepthRange::Default*/)
 {
   ezVec3 vClipSpace = vScreenPos;
 
@@ -98,7 +110,8 @@ ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4d& InverseModel
 
     const ezVec4d vWorldSpacePoint2 = InverseModelViewProjection * vToUnProject;
 
-    EZ_ASSERT_DEV(vWorldSpacePoint2.w != 0.0, "It should not be possible that the first projected point has a w other than zero, but the second one has!");
+    EZ_ASSERT_DEV(vWorldSpacePoint2.w != 0.0,
+                  "It should not be possible that the first projected point has a w other than zero, but the second one has!");
 
     const ezVec3d vPoint2 = vWorldSpacePoint2.GetAsVec3() / vWorldSpacePoint2.w;
 
@@ -110,4 +123,3 @@ ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4d& InverseModel
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_GraphicsUtils);
-

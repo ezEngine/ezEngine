@@ -1,8 +1,6 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezSimdVec4b::ezSimdVec4b()
-{
-}
+EZ_ALWAYS_INLINE ezSimdVec4b::ezSimdVec4b() {}
 
 EZ_ALWAYS_INLINE ezSimdVec4b::ezSimdVec4b(bool b)
 {
@@ -25,7 +23,7 @@ EZ_ALWAYS_INLINE ezSimdVec4b::ezSimdVec4b(ezInternal::QuadBool v)
   m_v = v;
 }
 
-template<int N>
+template <int N>
 EZ_ALWAYS_INLINE bool ezSimdVec4b::GetComponent() const
 {
   return (&m_v.x)[N];
@@ -127,4 +125,3 @@ EZ_ALWAYS_INLINE bool ezSimdVec4b::NoneSet()
 {
   return !AnySet<N>();
 }
-

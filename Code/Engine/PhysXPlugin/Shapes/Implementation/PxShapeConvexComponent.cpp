@@ -13,9 +13,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxShapeConvexComponent, 1, ezComponentMode::Static)
   {
     EZ_ACCESSOR_PROPERTY("CollisionMesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Collision Mesh (Convex)")),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezPxShapeConvexComponent::ezPxShapeConvexComponent()
 {

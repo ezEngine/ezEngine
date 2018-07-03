@@ -1,5 +1,5 @@
 #include <PCH.h>
-// Blank line to prevent Clang format from reordering this
+
 #include <Core/Input/InputManager.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Time/Clock.h>

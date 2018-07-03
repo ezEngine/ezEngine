@@ -1,9 +1,11 @@
 #include <PCH.h>
+
 #include <Utilities/PathFinding/GridNavmesh.h>
 
-void ezGridNavmesh::UpdateRegion(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough1, CellBlocked IsCellBlocked, void* pPassThrough2)
+void ezGridNavmesh::UpdateRegion(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough1, CellBlocked IsCellBlocked,
+                                 void* pPassThrough2)
 {
-  ezInt32 iInvalidNode = -(ezInt32) m_ConvexAreas.GetCount();
+  ezInt32 iInvalidNode = -(ezInt32)m_ConvexAreas.GetCount();
 
   // initialize with 'invalid'
   for (ezUInt32 y = region.y; y < region.y + region.height; ++y)
@@ -31,7 +33,7 @@ ezRectU32 ezGridNavmesh::GetCellBBox(ezInt32 x, ezInt32 y) const
   r.width = 1;
   r.height = 1;
 
-  while(r.x > 0)
+  while (r.x > 0)
   {
     if (iCellNode != m_NodesGrid.GetCell(ezVec2I32(r.x - 1, y)))
       break;
@@ -39,7 +41,7 @@ ezRectU32 ezGridNavmesh::GetCellBBox(ezInt32 x, ezInt32 y) const
     r.x--;
   }
 
-  while(r.y > 0)
+  while (r.y > 0)
   {
     if (iCellNode != m_NodesGrid.GetCell(ezVec2I32(x, r.y - 1)))
       break;
@@ -47,7 +49,7 @@ ezRectU32 ezGridNavmesh::GetCellBBox(ezInt32 x, ezInt32 y) const
     r.y--;
   }
 
-  while(x < m_NodesGrid.GetGridSizeX() - 1)
+  while (x < m_NodesGrid.GetGridSizeX() - 1)
   {
     if (iCellNode != m_NodesGrid.GetCell(ezVec2I32(x + 1, y)))
       break;
@@ -55,7 +57,7 @@ ezRectU32 ezGridNavmesh::GetCellBBox(ezInt32 x, ezInt32 y) const
     x++;
   }
 
-  while(y < m_NodesGrid.GetGridSizeY() - 1)
+  while (y < m_NodesGrid.GetGridSizeY() - 1)
   {
     if (iCellNode != m_NodesGrid.GetCell(ezVec2I32(x, y + 1)))
       break;
@@ -64,7 +66,7 @@ ezRectU32 ezGridNavmesh::GetCellBBox(ezInt32 x, ezInt32 y) const
   }
 
   r.width = x - r.x + 1;
-  r.height= y - r.y + 1;
+  r.height = y - r.y + 1;
 
   return r;
 }
@@ -113,38 +115,80 @@ void ezGridNavmesh::CreateNodes(ezRectU32 region, CellBlocked IsCellBlocked, voi
 
 void ezGridNavmesh::Optimize(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough)
 {
-  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 8, 8, 8, 8)) { }
-  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 4, 4, 4, 4)) { }
-  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 2, 2, 2, 2)) { }
+  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 8, 8, 8, 8))
+  {
+  }
+  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 4, 4, 4, 4))
+  {
+  }
+  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 2, 2, 2, 2))
+  {
+  }
 
-  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 4, 2, 3, 2)) { }
-  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 2, 4, 2, 3)) { }
+  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 4, 2, 3, 2))
+  {
+  }
+  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 2, 4, 2, 3))
+  {
+  }
 
-  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 4, 2, 3, 2, 1, 0)) { }
-  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 2, 4, 2, 3, 0, 1)) { }
+  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 4, 2, 3, 2, 1, 0))
+  {
+  }
+  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 2, 4, 2, 3, 0, 1))
+  {
+  }
 
-  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 4, 2, 4, 2)) { }
-  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 2, 4, 2, 4)) { }
+  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 4, 2, 4, 2))
+  {
+  }
+  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 2, 4, 2, 4))
+  {
+  }
 
-  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 8, 4, 6, 4)) { }
-  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 4, 8, 4, 6)) { }
+  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 8, 4, 6, 4))
+  {
+  }
+  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 4, 8, 4, 6))
+  {
+  }
 
-  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 8, 4, 6, 4, 2, 0)) { }
-  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 4, 8, 4, 6, 0, 2)) { }
+  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 8, 4, 6, 4, 2, 0))
+  {
+  }
+  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 4, 8, 4, 6, 0, 2))
+  {
+  }
 
 
-  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 1, 1, 4, 2)) { }
-  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 1, 1, 2, 4)) { }
+  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 1, 1, 4, 2))
+  {
+  }
+  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 1, 1, 2, 4))
+  {
+  }
 
-  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 1, 1, 3, 2)) { }
-  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 1, 1, 2, 3)) { }
+  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 1, 1, 3, 2))
+  {
+  }
+  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 1, 1, 2, 3))
+  {
+  }
 
-  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 1, 1, 2, 2)) { }
+  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 1, 1, 2, 2))
+  {
+  }
 
-  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 1, 1, 2, 1)) { }
-  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 1, 1, 1, 2)) { }
+  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 1, 1, 2, 1))
+  {
+  }
+  if (OptimizeBoxes(region, IsSameCellType, pPassThrough, 1, 1, 1, 2))
+  {
+  }
 
-  while (MergeBestFit(region, IsSameCellType, pPassThrough)) { }
+  while (MergeBestFit(region, IsSameCellType, pPassThrough))
+  {
+  }
 }
 
 bool ezGridNavmesh::CanCreateArea(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough) const
@@ -155,17 +199,17 @@ bool ezGridNavmesh::CanCreateArea(ezRectU32 region, CellComparator IsSameCellTyp
     return false;
 
   const ezUInt32 uiStartNode = m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(region.x, region.y));
-  //const ezInt32 iStartNodeArea = m_NodesGrid.GetCell(uiStartNode);
+  // const ezInt32 iStartNodeArea = m_NodesGrid.GetCell(uiStartNode);
 
   for (ezUInt32 y = region.y; y < region.y + region.height; ++y)
   {
     for (ezUInt32 x = region.x; x < region.x + region.width; ++x)
     {
       const ezUInt32 uiCurNode = m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(x, y));
-      //const ezInt32 iCurNodeArea = m_NodesGrid.GetCell(uiCurNode);
+      // const ezInt32 iCurNodeArea = m_NodesGrid.GetCell(uiCurNode);
 
-      //if (iCurNodeArea == iStartNodeArea)
-        //continue;
+      // if (iCurNodeArea == iStartNodeArea)
+      // continue;
 
       if (!IsSameCellType(uiStartNode, uiCurNode, pPassThrough))
         return false;
@@ -184,7 +228,8 @@ bool ezGridNavmesh::CanCreateArea(ezRectU32 region, CellComparator IsSameCellTyp
   return true;
 }
 
-bool ezGridNavmesh::OptimizeBoxes(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough, ezUInt32 uiIntervalX, ezUInt32 uiIntervalY, ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiOffsetX, ezUInt32 uiOffsetY)
+bool ezGridNavmesh::OptimizeBoxes(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough, ezUInt32 uiIntervalX,
+                                  ezUInt32 uiIntervalY, ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiOffsetX, ezUInt32 uiOffsetY)
 {
   bool bMergedAny = false;
 
@@ -212,8 +257,6 @@ bool ezGridNavmesh::OptimizeBoxes(ezRectU32 region, CellComparator IsSameCellTyp
 
 
 
-
-
 bool ezGridNavmesh::CanMergeRight(ezInt32 x, ezInt32 y, CellComparator IsSameCellType, void* pPassThrough, ezRectU32& out_Result) const
 {
   const ezRectU32 r1 = GetCellBBox(x, y);
@@ -221,9 +264,10 @@ bool ezGridNavmesh::CanMergeRight(ezInt32 x, ezInt32 y, CellComparator IsSameCel
   if (r1.x + r1.width >= m_NodesGrid.GetGridSizeX())
     return false;
 
-  //const ezInt32 iCellNode = m_NodesGrid.GetCell(ezVec2I32(x, y));
+  // const ezInt32 iCellNode = m_NodesGrid.GetCell(ezVec2I32(x, y));
 
-  if (!IsSameCellType(m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(x, y)), m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(r1.x + r1.width, y)), pPassThrough))
+  if (!IsSameCellType(m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(x, y)),
+                      m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(r1.x + r1.width, y)), pPassThrough))
     return false;
 
   const ezRectU32 r2 = GetCellBBox(r1.x + r1.width, y);
@@ -246,14 +290,15 @@ bool ezGridNavmesh::CanMergeDown(ezInt32 x, ezInt32 y, CellComparator IsSameCell
   if (r1.y + r1.height >= m_NodesGrid.GetGridSizeY())
     return false;
 
-  //const ezInt32 iCellNode = m_NodesGrid.GetCell(ezVec2I32(x, y));
+  // const ezInt32 iCellNode = m_NodesGrid.GetCell(ezVec2I32(x, y));
 
-  if (!IsSameCellType(m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(x, y)), m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(x, r1.y + r1.height)), pPassThrough))
+  if (!IsSameCellType(m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(x, y)),
+                      m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(x, r1.y + r1.height)), pPassThrough))
     return false;
 
   const ezRectU32 r2 = GetCellBBox(x, r1.y + r1.height);
 
-  if (r1.x != r2.x || r1.width!= r2.width)
+  if (r1.x != r2.x || r1.width != r2.width)
     return false;
 
   out_Result.x = r1.x;
@@ -262,7 +307,6 @@ bool ezGridNavmesh::CanMergeDown(ezInt32 x, ezInt32 y, CellComparator IsSameCell
   out_Result.height = r1.height + r2.height;
 
   return true;
-
 }
 
 
@@ -297,8 +341,8 @@ bool ezGridNavmesh::MergeBestFit(ezRectU32 region, CellComparator IsSameCellType
 
       if (bRR && bRD)
       {
-        const float fRatioRR = (float) ezMath::Max(rr.width,  rr.height) / (float) ezMath::Min(rr.width,  rr.height);
-        const float fRatioRD = (float) ezMath::Max(rd.width,  rd.height) / (float) ezMath::Min(rd.width,  rd.height);
+        const float fRatioRR = (float)ezMath::Max(rr.width, rr.height) / (float)ezMath::Min(rr.width, rr.height);
+        const float fRatioRD = (float)ezMath::Max(rd.width, rd.height) / (float)ezMath::Min(rd.width, rd.height);
 
         if (fRatioRR < fRatioRD)
           bRD = false;
@@ -308,7 +352,7 @@ bool ezGridNavmesh::MergeBestFit(ezRectU32 region, CellComparator IsSameCellType
 
       if (bRR)
       {
-        //const float fRatio = (float) ezMath::Max(rr.width,  rr.height) / (float) ezMath::Min(rr.width,  rr.height);
+        // const float fRatio = (float) ezMath::Max(rr.width,  rr.height) / (float) ezMath::Min(rr.width,  rr.height);
 
         bMergedAny = true;
         Merge(rr);
@@ -316,7 +360,7 @@ bool ezGridNavmesh::MergeBestFit(ezRectU32 region, CellComparator IsSameCellType
 
       if (bRD)
       {
-        //const float fRatio = (float) ezMath::Max(rd.width,  rd.height) / (float) ezMath::Min(rd.width,  rd.height);
+        // const float fRatio = (float) ezMath::Max(rd.width,  rd.height) / (float) ezMath::Min(rd.width,  rd.height);
 
         Merge(rd);
         bMergedAny = true;
@@ -421,7 +465,7 @@ void ezGridNavmesh::CreateGraphEdges(ConvexArea& Area)
     e.m_EdgeRect.height = 1;
     e.m_iNeighborArea = m_NodesGrid.GetCell(ezVec2I32(Area.m_Rect.x - 1, Area.m_Rect.y));
 
-    for (ezUInt32 y = Area.m_Rect.y + 1; y < Area.m_Rect.y+ Area.m_Rect.height; ++y)
+    for (ezUInt32 y = Area.m_Rect.y + 1; y < Area.m_Rect.y + Area.m_Rect.height; ++y)
     {
       const ezInt32 iThisNeighbor = m_NodesGrid.GetCell(ezVec2I32(Area.m_Rect.x - 1, y));
 
@@ -457,7 +501,7 @@ void ezGridNavmesh::CreateGraphEdges(ConvexArea& Area)
     e.m_EdgeRect.height = 1;
     e.m_iNeighborArea = m_NodesGrid.GetCell(ezVec2I32(Area.m_Rect.x + Area.m_Rect.width, Area.m_Rect.y));
 
-    for (ezUInt32 y = Area.m_Rect.y + 1; y < Area.m_Rect.y+ Area.m_Rect.height; ++y)
+    for (ezUInt32 y = Area.m_Rect.y + 1; y < Area.m_Rect.y + Area.m_Rect.height; ++y)
     {
       const ezInt32 iThisNeighbor = m_NodesGrid.GetCell(ezVec2I32(Area.m_Rect.x + Area.m_Rect.width, y));
 
@@ -487,6 +531,4 @@ void ezGridNavmesh::CreateGraphEdges(ConvexArea& Area)
 
 
 
-
 EZ_STATICLINK_FILE(Utilities, Utilities_PathFinding_Implementation_GridNavmesh);
-

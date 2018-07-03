@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Utilities/Basics.h>
-#include <Foundation/Containers/Deque.h>
 #include <Core/World/GameObject.h>
 #include <Core/World/World.h>
+#include <Foundation/Containers/Deque.h>
+#include <Utilities/Basics.h>
 
 /// \brief Stores a list of game objects as a 'selection'. Provides some common convenience functions for working with selections.
 class EZ_UTILITIES_DLL ezObjectSelection
@@ -26,7 +26,8 @@ public:
   /// \brief Adds the given object to the selection, unless it is not valid anymore. Objects can be added multiple times.
   void AddObject(ezGameObjectHandle hObject, bool bDontAddTwice = true);
 
-  /// \brief Removes the first occurrence of the given object from the selection. Returns false if the object did not exist in the selection.
+  /// \brief Removes the first occurrence of the given object from the selection. Returns false if the object did not exist in the
+  /// selection.
   bool RemoveObject(ezGameObjectHandle hObject);
 
   /// \brief Removes the object from the selection if it exists already, otherwise adds it.
@@ -42,4 +43,3 @@ private:
   ezWorld* m_pWorld;
   ezDeque<ezGameObjectHandle> m_Objects;
 };
-

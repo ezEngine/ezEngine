@@ -20,9 +20,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeContext, 1, ezRTTIDefaultAllocator<
   {
     EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "TextureCube Asset"),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezTextureCubeContext::ezTextureCubeContext()
   : m_TextureFormat(ezGALResourceFormat::Invalid)

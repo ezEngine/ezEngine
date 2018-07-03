@@ -3,7 +3,7 @@
 #include <EditorFramework/DocumentWindow/GameObjectDocumentWindow.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectEditTool, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezGameObjectEditTool::ezGameObjectEditTool()
 {

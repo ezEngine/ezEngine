@@ -20,9 +20,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoRenderer, 1, ezRTTIDefaultAllocator<ezGiz
     EZ_MEMBER_PROPERTY("HighlightID", m_uiHighlightID),
     EZ_MEMBER_PROPERTY("OnlyPickable", m_bOnlyPickable)
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 float ezGizmoRenderer::s_fGizmoScale = 1.0f;
 

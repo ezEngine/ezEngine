@@ -15,9 +15,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezRotorComponent, 2, ezComponentMode::Dynamic)
     EZ_MEMBER_PROPERTY("Acceleration", m_fAcceleration),
     EZ_MEMBER_PROPERTY("Deceleration", m_fDeceleration),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezRotorComponent::ezRotorComponent()
 {

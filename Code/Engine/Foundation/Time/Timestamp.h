@@ -1,16 +1,16 @@
 #pragma once
 
-#include <Foundation/Time/Time.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Time/Time.h>
 
 struct ezSIUnitOfTime
 {
   enum Enum
   {
-    Nanosecond,     ///< SI-unit of time (10^-9 second)
-    Microsecond,    ///< SI-unit of time (10^-6 second)
-    Millisecond,    ///< SI-unit of time (10^-3 second)
-    Second,         ///< SI-unit of time (base unit)
+    Nanosecond,  ///< SI-unit of time (10^-9 second)
+    Microsecond, ///< SI-unit of time (10^-6 second)
+    Millisecond, ///< SI-unit of time (10^-3 second)
+    Second,      ///< SI-unit of time (base unit)
   };
 };
 
@@ -26,9 +26,9 @@ public:
   {
     enum Enum
     {
-      FileTimeEqual,  ///< Uses a resolution that guarantees that a file's timestamp is considered equal on all platforms.
-      Identical, ///< Uses maximal stored resolution.
-      Newer, ///< Just compares values and returns true if the left-hand side is larger than the right hand side
+      FileTimeEqual, ///< Uses a resolution that guarantees that a file's timestamp is considered equal on all platforms.
+      Identical,     ///< Uses maximal stored resolution.
+      Newer,         ///< Just compares values and returns true if the left-hand side is larger than the right hand side
     };
   };
   /// \brief  Returns the current timestamp. Returned value will always be valid.
@@ -38,15 +38,15 @@ public:
 
   EZ_DECLARE_POD_TYPE();
 
-// *** Constructors ***
+  // *** Constructors ***
 public:
   /// \brief Creates an invalidated timestamp.
   ezTimestamp(); // [tested]
 
-    /// \brief Creates an new timestamp with the given time in the given unit of time since Unix epoch.
+  /// \brief Creates an new timestamp with the given time in the given unit of time since Unix epoch.
   ezTimestamp(ezInt64 iTimeValue, ezSIUnitOfTime::Enum unitOfTime); // [tested]
 
-// *** Public Functions ***
+  // *** Public Functions ***
 public:
   /// \brief Invalidates the timestamp.
   void Invalidate(); // [tested]
@@ -67,23 +67,22 @@ public:
   /// timestamp of a file is considered equal regardless on which platform it was retrieved.
   bool Compare(const ezTimestamp& rhs, CompareMode::Enum mode) const; // [tested]
 
-// *** Operators ***
+  // *** Operators ***
 public:
-
   /// \brief Adds the time value of "timeSpan" to this data value.
-  void operator += (const ezTime& timeSpan); // [tested]
+  void operator+=(const ezTime& timeSpan); // [tested]
 
   /// \brief Subtracts the time value of "timeSpan" from this date value.
-  void operator -= (const ezTime& timeSpan); // [tested]
+  void operator-=(const ezTime& timeSpan); // [tested]
 
   /// \brief Returns the time span between this timestamp and "other".
-  const ezTime operator - (const ezTimestamp& other) const; // [tested]
+  const ezTime operator-(const ezTimestamp& other) const; // [tested]
 
   /// \brief Returns a timestamp that is "timeSpan" further into the future from this timestamp.
-  const ezTimestamp operator + (const ezTime& timeSpan) const; // [tested]
+  const ezTimestamp operator+(const ezTime& timeSpan) const; // [tested]
 
   /// \brief Returns a timestamp that is "timeSpan" further into the past from this timestamp.
-  const ezTimestamp operator - (const ezTime& timeSpan) const; // [tested]
+  const ezTimestamp operator-(const ezTime& timeSpan) const; // [tested]
 
 
 private:
@@ -91,9 +90,9 @@ private:
   /// \brief The date is stored as microseconds since Unix epoch.
   ezInt64 m_iTimestamp;
 };
- 
+
 /// \brief Returns a timestamp that is "timeSpan" further into the future from "timestamp".
-const ezTimestamp operator+ (ezTime& timeSpan, const ezTimestamp& timestamp);
+const ezTimestamp operator+(ezTime& timeSpan, const ezTimestamp& timestamp);
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezTimestamp);
 
@@ -115,7 +114,7 @@ public:
   /// \brief Converts this instance' values into a ezTimestamp.
   ///
   /// The conversion is done via the OS and can fail for values that are outside the supported range.
-  /// In this case, the returned value will be invalid. Anything after 1970 and before the 
+  /// In this case, the returned value will be invalid. Anything after 1970 and before the
   /// not so distant future should be safe.
   const ezTimestamp GetTimestamp() const; // [tested]
 
@@ -188,4 +187,3 @@ private:
 };
 
 #include <Foundation/Time/Implementation/Timestamp_inl.h>
-

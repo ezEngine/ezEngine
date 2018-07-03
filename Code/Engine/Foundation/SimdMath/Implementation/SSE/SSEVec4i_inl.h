@@ -48,13 +48,13 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4i::ToFloat() const
   return _mm_cvtepi32_ps(m_v);
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Truncate(const ezSimdVec4f& f)
 {
   return _mm_cvttps_epi32(f.m_v);
 }
 
-template<int N>
+template <int N>
 EZ_ALWAYS_INLINE ezInt32 ezSimdVec4i::GetComponent() const
 {
 #if EZ_SSE_LEVEL >= EZ_SSE_41
@@ -247,7 +247,7 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4i::operator>(const ezSimdVec4i& v) const
   return _mm_castsi128_ps(_mm_cmpgt_epi32(m_v, v.m_v));
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::ZeroVector()
 {
   return _mm_setzero_si128();
@@ -268,4 +268,3 @@ void ezSimdVec4i::Transpose(ezSimdVec4i& v0, ezSimdVec4i& v1, ezSimdVec4i& v2, e
   v3.m_v = _mm_unpackhi_epi64(T2, T3);
 }
 #endif
-

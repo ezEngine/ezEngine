@@ -1,6 +1,6 @@
 #include <PCH.h>
-#include <Core/WorldSerializer/WorldReader.h>
 
+#include <Core/WorldSerializer/WorldReader.h>
 
 ezWorldReader::ezWorldReader()
 {
@@ -82,7 +82,7 @@ void ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
 
         memWriter.WriteBytes(Temp, uiRead);
 
-        uiAllComponentsSize -= (ezUInt32) uiRead;
+        uiAllComponentsSize -= (ezUInt32)uiRead;
       }
     }
 
@@ -95,12 +95,16 @@ void ezWorldReader::InstantiateWorld(ezWorld& world, const ezUInt16* pOverrideTe
   Instantiate(world, false, ezTransform(), ezGameObjectHandle(), nullptr, nullptr, pOverrideTeamID);
 }
 
-void ezWorldReader::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects, const ezUInt16* pOverrideTeamID)
+void ezWorldReader::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent,
+                                      ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects,
+                                      ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects, const ezUInt16* pOverrideTeamID)
 {
   Instantiate(world, true, rootTransform, hParent, out_CreatedRootObjects, out_CreatedChildObjects, pOverrideTeamID);
 }
 
-void ezWorldReader::Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects, const ezUInt16* pOverrideTeamID)
+void ezWorldReader::Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, ezGameObjectHandle hParent,
+                                ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects,
+                                ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects, const ezUInt16* pOverrideTeamID)
 {
   m_pWorld = &world;
 
@@ -206,14 +210,10 @@ void ezWorldReader::ClearAndCompact()
 
 ezUInt64 ezWorldReader::GetHeapMemoryUsage() const
 {
-  return m_IndexToGameObjectHandle.GetHeapMemoryUsage() +
-    m_IndexToComponentHandle.GetHeapMemoryUsage() +
-    m_RootObjectsToCreate.GetHeapMemoryUsage() +
-    m_ChildObjectsToCreate.GetHeapMemoryUsage() +
-    m_ComponentHandleRequests.GetHeapMemoryUsage() +
-    m_ComponentTypes.GetHeapMemoryUsage() +
-    m_ComponentTypeVersions.GetHeapMemoryUsage() +
-    m_ComponentStream.GetHeapMemoryUsage();
+  return m_IndexToGameObjectHandle.GetHeapMemoryUsage() + m_IndexToComponentHandle.GetHeapMemoryUsage() +
+         m_RootObjectsToCreate.GetHeapMemoryUsage() + m_ChildObjectsToCreate.GetHeapMemoryUsage() +
+         m_ComponentHandleRequests.GetHeapMemoryUsage() + m_ComponentTypes.GetHeapMemoryUsage() +
+         m_ComponentTypeVersions.GetHeapMemoryUsage() + m_ComponentStream.GetHeapMemoryUsage();
 }
 
 void ezWorldReader::ReadGameObjectDesc(GameObjectToCreate& godesc)
@@ -349,7 +349,8 @@ void ezWorldReader::FulfillComponentHandleRequets()
   m_ComponentHandleRequests.Clear();
 }
 
-void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedObjects, const ezUInt16* pOverrideTeamID)
+void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent,
+                                      ezHybridArray<ezGameObject*, 8>* out_CreatedObjects, const ezUInt16* pOverrideTeamID)
 {
   if (hParent.IsInvalidated())
   {
@@ -395,7 +396,9 @@ void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& 
 }
 
 
-void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, const ezTransform& rootTransform, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, const ezUInt16* pOverrideTeamID)
+void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, const ezTransform& rootTransform,
+                                      ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects,
+                                      const ezUInt16* pOverrideTeamID)
 {
   for (const auto& godesc : objects)
   {
@@ -425,8 +428,6 @@ void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& 
     if (out_CreatedRootObjects)
       out_CreatedRootObjects->PushBack(pObject);
   }
-
 }
 
 EZ_STATICLINK_FILE(Core, Core_WorldSerializer_Implementation_WorldReader);
-

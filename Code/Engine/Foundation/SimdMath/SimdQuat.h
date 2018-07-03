@@ -68,4 +68,3 @@ public:
 };
 
 #include <Foundation/SimdMath/Implementation/SimdQuat_inl.h>
-

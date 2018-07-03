@@ -27,13 +27,15 @@ public:
   /// This is a basic check, only because each character passes the test, it does not guarantee that the full string is a valid path.
   static bool ContainsInvalidFilenameChars(const char* szPath, const char* szPathEnd = ezMaxStringEnd);
 
-  /// \brief Searches for the previous path separator before szStartSearchAt. Will return nullptr if it reaches szPathStart before finding any separator.
+  /// \brief Searches for the previous path separator before szStartSearchAt. Will return nullptr if it reaches szPathStart before finding
+  /// any separator.
   static const char* FindPreviousSeparator(const char* szPathStart, const char* szStartSearchAt); // [tested]
 
   /// \brief Checks whether the given path has any file extension
   static bool HasAnyExtension(const char* szPath, const char* szPathEnd = ezMaxStringEnd); // [tested]
 
-  /// \brief Checks whether the given path ends with the given extension. szExtension should start with a '.' for performance reasons, but it will work without a '.' too.
+  /// \brief Checks whether the given path ends with the given extension. szExtension should start with a '.' for performance reasons, but
+  /// it will work without a '.' too.
   static bool HasExtension(const char* szPath, const char* szExtension, const char* szPathEnd = ezMaxStringEnd); // [tested]
 
   /// \brief Returns the file extension of the given path. Will be empty, if the path does not end with a proper extension.
@@ -64,7 +66,8 @@ public:
   /// \brief Returns true, if the given path represents a relative path on the current OS.
   static bool IsRelativePath(const char* szPath); // [tested]
 
-  /// \brief A rooted path starts with a colon and then names a file-system data directory. Rooted paths are used as 'absolute' paths within the ezFileSystem.
+  /// \brief A rooted path starts with a colon and then names a file-system data directory. Rooted paths are used as 'absolute' paths within
+  /// the ezFileSystem.
   static bool IsRootedPath(const char* szPath); // [tested]
 
   /// \brief Extracts the root name from a rooted path
@@ -86,4 +89,3 @@ public:
 };
 
 #include <Foundation/Strings/Implementation/PathUtils_inl.h>
-

@@ -8,7 +8,7 @@
 #include <EditorFramework/GUI/ExposedParameters.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectAssetDocument, 3, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleEffectAssetDocument::ezParticleEffectAssetDocument(const char* szDocumentPath)
   : ezSimpleAssetDocument<ezParticleEffectDescriptor>(szDocumentPath, true)

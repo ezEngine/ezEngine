@@ -1,4 +1,4 @@
-﻿
+
 template <typename T>
 EZ_ALWAYS_INLINE ezSharedPtr<T>::ezSharedPtr()
 {
@@ -290,4 +290,3 @@ EZ_ALWAYS_INLINE void ezSharedPtr<T>::ReleaseReferenceIfValid()
     m_pAllocator = nullptr;
   }
 }
-

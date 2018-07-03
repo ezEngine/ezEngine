@@ -3,8 +3,8 @@
 #include <Foundation/Time/Clock.h>
 
 inline void ezClock::SetClockName(const char* szName)
-{ 
-  m_sName = szName; 
+{
+  m_sName = szName;
 }
 
 inline const char* ezClock::GetClockName() const
@@ -96,4 +96,3 @@ inline void ezClock::SetSpeed(double fFactor)
 
   m_Speed = fFactor;
 }
-

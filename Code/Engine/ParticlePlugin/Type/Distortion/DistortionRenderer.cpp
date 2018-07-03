@@ -11,10 +11,10 @@
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleDistortionRenderData, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleDistortionRenderer, 1, ezRTTIDefaultAllocator<ezParticleDistortionRenderer>);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezParticleDistortionRenderer::ezParticleDistortionRenderer() = default;

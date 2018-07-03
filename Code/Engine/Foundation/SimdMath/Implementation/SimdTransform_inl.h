@@ -1,9 +1,6 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezSimdTransform::ezSimdTransform()
-{
-
-}
+EZ_ALWAYS_INLINE ezSimdTransform::ezSimdTransform() {}
 
 EZ_ALWAYS_INLINE ezSimdTransform::ezSimdTransform(const ezSimdVec4f& position, const ezSimdQuat& rotation, const ezSimdVec4f& scale)
 {
@@ -26,7 +23,7 @@ EZ_ALWAYS_INLINE void ezSimdTransform::SetIdentity()
   m_Scale.Set(1.0f);
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezSimdTransform ezSimdTransform::Identity()
 {
   ezSimdTransform result;
@@ -52,9 +49,8 @@ EZ_ALWAYS_INLINE bool ezSimdTransform::ContainsUniformScale() const
 
 EZ_ALWAYS_INLINE bool ezSimdTransform::IsEqual(const ezSimdTransform& rhs, const ezSimdFloat& fEpsilon) const
 {
-  return m_Position.IsEqual(rhs.m_Position, fEpsilon).AllSet<3>() &&
-    m_Rotation.IsEqualRotation(rhs.m_Rotation, fEpsilon) &&
-    m_Scale.IsEqual(rhs.m_Scale, fEpsilon).AllSet<3>();
+  return m_Position.IsEqual(rhs.m_Position, fEpsilon).AllSet<3>() && m_Rotation.IsEqualRotation(rhs.m_Rotation, fEpsilon) &&
+         m_Scale.IsEqual(rhs.m_Scale, fEpsilon).AllSet<3>();
 }
 
 EZ_ALWAYS_INLINE void ezSimdTransform::Invert()
@@ -81,7 +77,8 @@ inline void ezSimdTransform::SetLocalTransform(const ezSimdTransform& GlobalTran
   m_Scale = invScale.CompMul(GlobalTransformChild.m_Scale);
 }
 
-EZ_ALWAYS_INLINE void ezSimdTransform::SetGlobalTransform(const ezSimdTransform& GlobalTransformParent, const ezSimdTransform& LocalTransformChild)
+EZ_ALWAYS_INLINE void ezSimdTransform::SetGlobalTransform(const ezSimdTransform& GlobalTransformParent,
+                                                          const ezSimdTransform& LocalTransformChild)
 {
   *this = GlobalTransformParent * LocalTransformChild;
 }
@@ -197,4 +194,3 @@ EZ_ALWAYS_INLINE bool operator!=(const ezSimdTransform& lhs, const ezSimdTransfo
 {
   return !(lhs == rhs);
 }
-

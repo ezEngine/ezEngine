@@ -7,8 +7,8 @@ class ezTag;
 class ezStreamWriter;
 class ezStreamReader;
 
-#include <Foundation/Threading/Mutex.h>
 #include <Foundation/Containers/Map.h>
+#include <Foundation/Threading/Mutex.h>
 
 /// \brief The tag registry for tags in tag sets.
 ///
@@ -21,7 +21,6 @@ class ezStreamReader;
 class EZ_FOUNDATION_DLL ezTagRegistry
 {
 public:
-
   ezTagRegistry();
 
   static ezTagRegistry& GetGlobalRegistry();
@@ -48,10 +47,8 @@ public:
   void Load(ezStreamReader& stream);
 
 protected:
-
   mutable ezMutex m_TagRegistryMutex;
 
   ezMap<ezTempHashedString, ezTag> m_RegisteredTags;
   ezDeque<ezTag*> m_TagsByIndex;
 };
-

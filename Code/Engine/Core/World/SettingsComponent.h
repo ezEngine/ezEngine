@@ -10,7 +10,7 @@
 /// Components of this type should be managed by an ezSettingsComponentManager, which makes it easy to query for the one instance
 /// in the world.
 ///
-/// 
+///
 class EZ_CORE_DLL ezSettingsComponent : public ezComponent
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSettingsComponent, ezComponent);
@@ -32,8 +32,5 @@ public:
   void ResetModified(ezUInt32 uiBits = 0xFFFFFFFF) { m_uiSettingsModified &= ~uiBits; }
 
 private:
-
   ezUInt32 m_uiSettingsModified;
-
 };
-

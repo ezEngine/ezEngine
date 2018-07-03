@@ -9,10 +9,10 @@ class ezVariant;
 struct ezArgI
 {
   inline explicit ezArgI(ezInt64 value, ezUInt8 uiWidth = 1, bool bPadWithZeros = false, ezUInt8 uiBase = 10)
-    : m_Value(value)
-    , m_uiWidth(uiWidth)
-    , m_bPadWithZeros(bPadWithZeros)
-    , m_uiBase(uiBase)
+      : m_Value(value)
+      , m_uiWidth(uiWidth)
+      , m_bPadWithZeros(bPadWithZeros)
+      , m_uiBase(uiBase)
   {
   }
 
@@ -25,11 +25,11 @@ struct ezArgI
 struct ezArgU
 {
   inline explicit ezArgU(ezUInt64 value, ezUInt8 uiWidth = 1, bool bPadWithZeros = false, ezUInt8 uiBase = 10, bool bUpperCase = false)
-    : m_Value(value)
-    , m_uiWidth(uiWidth)
-    , m_bPadWithZeros(bPadWithZeros)
-    , m_bUpperCase(bUpperCase)
-    , m_uiBase(uiBase)
+      : m_Value(value)
+      , m_uiWidth(uiWidth)
+      , m_bPadWithZeros(bPadWithZeros)
+      , m_bUpperCase(bUpperCase)
+      , m_uiBase(uiBase)
   {
   }
 
@@ -43,11 +43,11 @@ struct ezArgU
 struct ezArgF
 {
   inline explicit ezArgF(double value, ezInt8 iPrecision = -1, bool bScientific = false, ezUInt8 uiWidth = 1, bool bPadWithZeros = false)
-    : m_Value(value)
-    , m_uiWidth(uiWidth)
-    , m_bPadWithZeros(bPadWithZeros)
-    , m_bScientific(bScientific)
-    , m_iPrecision(iPrecision)
+      : m_Value(value)
+      , m_uiWidth(uiWidth)
+      , m_bPadWithZeros(bPadWithZeros)
+      , m_bScientific(bScientific)
+      , m_iPrecision(iPrecision)
   {
   }
 
@@ -61,7 +61,7 @@ struct ezArgF
 struct ezArgC
 {
   inline explicit ezArgC(char value)
-    : m_Value(value)
+      : m_Value(value)
   {
   }
 
@@ -71,7 +71,7 @@ struct ezArgC
 struct ezArgP
 {
   inline explicit ezArgP(const void* value)
-    : m_Value(value)
+      : m_Value(value)
   {
   }
 
@@ -82,7 +82,7 @@ struct ezArgP
 struct ezArgErrorCode
 {
   inline explicit ezArgErrorCode(ezUInt32 errorCode)
-    : m_ErrorCode(errorCode)
+      : m_ErrorCode(errorCode)
   {
   }
 
@@ -106,4 +106,3 @@ EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const e
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgP& arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezResult result);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezVariant& result);
-

@@ -17,7 +17,7 @@ namespace
 
   EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgTest);
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgTest, 1, ezRTTIDefaultAllocator<ezMsgTest>)
-    EZ_END_DYNAMIC_REFLECTED_TYPE
+    EZ_END_DYNAMIC_REFLECTED_TYPE;
 
     struct AddMessage : public ezMsgTest
   {
@@ -27,7 +27,7 @@ namespace
   };
   EZ_IMPLEMENT_MESSAGE_TYPE(AddMessage);
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(AddMessage, 1, ezRTTIDefaultAllocator<AddMessage>)
-    EZ_END_DYNAMIC_REFLECTED_TYPE
+    EZ_END_DYNAMIC_REFLECTED_TYPE;
 
     struct SubMessage : public ezMsgTest
   {
@@ -37,7 +37,7 @@ namespace
   };
   EZ_IMPLEMENT_MESSAGE_TYPE(SubMessage);
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(SubMessage, 1, ezRTTIDefaultAllocator<SubMessage>)
-    EZ_END_DYNAMIC_REFLECTED_TYPE
+    EZ_END_DYNAMIC_REFLECTED_TYPE;
 
     struct MulMessage : public ezMsgTest
   {
@@ -47,7 +47,7 @@ namespace
   };
   EZ_IMPLEMENT_MESSAGE_TYPE(MulMessage);
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(MulMessage, 1, ezRTTIDefaultAllocator<MulMessage>)
-    EZ_END_DYNAMIC_REFLECTED_TYPE
+    EZ_END_DYNAMIC_REFLECTED_TYPE;
 
     struct GetMessage : public ezMsgTest
   {
@@ -57,7 +57,7 @@ namespace
   };
   EZ_IMPLEMENT_MESSAGE_TYPE(GetMessage);
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(GetMessage, 1, ezRTTIDefaultAllocator<GetMessage>)
-    EZ_END_DYNAMIC_REFLECTED_TYPE
+    EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 }
 
@@ -98,7 +98,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(BaseHandler, 1, ezRTTINoAllocator)
   }
   EZ_END_MESSAGEHANDLERS
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 class DerivedHandler : public BaseHandler
 {
@@ -125,7 +125,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(DerivedHandler, 1, ezRTTINoAllocator)
   }
   EZ_END_MESSAGEHANDLERS
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 EZ_CREATE_SIMPLE_TEST(Reflection, MessageHandler)

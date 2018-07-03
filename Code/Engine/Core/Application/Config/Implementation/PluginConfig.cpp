@@ -1,20 +1,22 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Core/Application/Config/PluginConfig.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/IO/OpenDdlWriter.h>
-#include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/IO/OpenDdlReader.h>
+#include <Foundation/IO/OpenDdlUtils.h>
+#include <Foundation/IO/OpenDdlWriter.h>
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationPluginConfig, ezNoBase, 1, ezRTTIDefaultAllocator<ezApplicationPluginConfig>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ARRAY_MEMBER_PROPERTY("Plugins", m_Plugins),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationPluginConfig_PluginConfig, ezNoBase, 1, ezRTTIDefaultAllocator<ezApplicationPluginConfig_PluginConfig>)
 {
@@ -23,10 +25,10 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationPluginConfig_PluginConfig, ezNoBase,
     EZ_MEMBER_PROPERTY("RelativePath", m_sAppDirRelativePath),
     EZ_MEMBER_PROPERTY("LoadCopy", m_bLoadCopy),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
-
+EZ_END_STATIC_REFLECTED_TYPE;
+// clang-format on
 
 bool ezApplicationPluginConfig::PluginConfig::operator<(const PluginConfig& rhs) const
 {
@@ -217,10 +219,8 @@ void ezApplicationPluginConfig::Apply()
 
     ezPlugin::LoadPlugin(var.m_sAppDirRelativePath, var.m_bLoadCopy);
   }
-
 }
 
 
 
 EZ_STATICLINK_FILE(Core, Core_Application_Config_Implementation_PluginConfig);
-

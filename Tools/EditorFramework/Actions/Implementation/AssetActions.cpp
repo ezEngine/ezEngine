@@ -58,7 +58,7 @@ void ezAssetActions::MapActions(const char* szMapping, bool bDocument)
 ////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetAction, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezAssetAction::ezAssetAction(const ezActionContext& context, const char* szName, ButtonType button)
   : ezButtonAction(context, szName, false, "")

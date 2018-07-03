@@ -25,9 +25,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptPreferences, 1, ezRTTIDefaultAlloc
   {
     EZ_MEMBER_PROPERTY("DebugObject", m_DebugObject)->AddAttributes(new ezHiddenAttribute()),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptPreferences::ezVisualScriptPreferences() 
   : ezPreferences(ezPreferences::Domain::Document, "Visual Script")

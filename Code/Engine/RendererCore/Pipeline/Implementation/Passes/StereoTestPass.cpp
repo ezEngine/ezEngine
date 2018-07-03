@@ -15,9 +15,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStereoTestPass, 1, ezRTTIDefaultAllocator<ezSt
     EZ_MEMBER_PROPERTY("Input", m_PinInput),
     EZ_MEMBER_PROPERTY("Output", m_PinOutput)
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezStereoTestPass::ezStereoTestPass()
   : ezRenderPipelinePass("StereoTestPass", true)

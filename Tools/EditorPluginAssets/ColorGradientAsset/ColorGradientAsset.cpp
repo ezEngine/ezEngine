@@ -21,9 +21,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorControlPoint, 2, ezRTTIDefaultAllocator<e
     EZ_MEMBER_PROPERTY("Green", m_Green)->AddAttributes(new ezDefaultValueAttribute(255)),
     EZ_MEMBER_PROPERTY("Blue", m_Blue)->AddAttributes(new ezDefaultValueAttribute(255)),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAlphaControlPoint, 2, ezRTTIDefaultAllocator<ezAlphaControlPoint>)
 {
@@ -33,9 +33,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAlphaControlPoint, 2, ezRTTIDefaultAllocator<e
     EZ_MEMBER_PROPERTY("Tick", m_iTick),
     EZ_MEMBER_PROPERTY("Alpha", m_Alpha)->AddAttributes(new ezDefaultValueAttribute(255)),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezIntensityControlPoint, 2, ezRTTIDefaultAllocator<ezIntensityControlPoint>)
 {
@@ -45,9 +45,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezIntensityControlPoint, 2, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("Tick", m_iTick),
     EZ_MEMBER_PROPERTY("Intensity", m_fIntensity)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorGradientAssetData, 2, ezRTTIDefaultAllocator<ezColorGradientAssetData>)
@@ -58,12 +58,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorGradientAssetData, 2, ezRTTIDefaultAlloca
     EZ_ARRAY_MEMBER_PROPERTY("AlphaCPs", m_AlphaCPs),
     EZ_ARRAY_MEMBER_PROPERTY("IntensityCPs", m_IntensityCPs),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorGradientAssetDocument, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 void ezColorControlPoint::SetTickFromTime(double time, ezInt64 fps)

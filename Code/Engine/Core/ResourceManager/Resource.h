@@ -1,21 +1,21 @@
 #pragma once
 
 #include <Core/Basics.h>
-#include <Foundation/Strings/HashedString.h>
-#include <Foundation/IO/Stream.h>
-#include <Foundation/Reflection/Reflection.h>
-#include <Foundation/Time/Time.h>
-#include <Foundation/Time/Timestamp.h>
 #include <Core/ResourceManager/Implementation/Declarations.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <Foundation/IO/Stream.h>
+#include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Strings/HashedString.h>
+#include <Foundation/Time/Time.h>
+#include <Foundation/Time/Timestamp.h>
 
 /// \brief The class from which all resource types need to derive.
 ///
 /// Pass the resources own type as the first template parameter.
 /// Pass the type name of the resource descriptor struct as the second template parameter.
 /// This may be any custom struct that stores the required information for creating a resource.
-template<typename SELF, typename SELF_DESCRIPTOR>
+template <typename SELF, typename SELF_DESCRIPTOR>
 class ezResource : public ezResourceBase
 {
 public:
@@ -23,8 +23,8 @@ public:
 
   /// \brief Unfortunately this has to be called manually from within dynamic plugins during core engine shutdown.
   ///
-  /// Without this, the dynamic plugin might still be referenced by the core engine during later shutdown phases and will crash, because memory
-  /// and code is still referenced, that is already unloaded.
+  /// Without this, the dynamic plugin might still be referenced by the core engine during later shutdown phases and will crash, because
+  /// memory and code is still referenced, that is already unloaded.
   static void CleanupDynamicPluginReferences()
   {
     s_TypeFallbackResource.Invalidate();
@@ -82,7 +82,8 @@ public:
 
     if (hResource.IsValid())
     {
-      // this is not thread safe (though we are only setting one flag), but this function should only be called during startup, where it is single-threaded anyway
+      // this is not thread safe (though we are only setting one flag), but this function should only be called during startup, where it is
+      // single-threaded anyway
       ezResourceLock<SELF> pFallback(hResource, ezResourceAcquireMode::PointerOnly);
       pFallback->m_Flags.Add(ezResourceFlags::IsMissingFallback);
     }
@@ -94,17 +95,16 @@ public:
   static const ezTypedResourceHandle<SELF>& GetTypeMissingResource() { return s_TypeMissingResource; }
 
 protected:
-
   friend class ezResourceManager;
 
-  ezResource(DoUpdate ResourceUpdateThread, ezUInt8 uiQualityLevelsLoadable) : ezResourceBase(ResourceUpdateThread, uiQualityLevelsLoadable)
+  ezResource(DoUpdate ResourceUpdateThread, ezUInt8 uiQualityLevelsLoadable)
+      : ezResourceBase(ResourceUpdateThread, uiQualityLevelsLoadable)
   {
   }
 
-  ~ezResource() { }
+  ~ezResource() {}
 
 private:
-
   static void ManagerEventHandler(const ezResourceManagerEvent& e)
   {
     if (e.m_EventType == ezResourceManagerEventType::ManagerShuttingDown)
@@ -180,13 +180,11 @@ private:
   ezTypedResourceHandle<SELF> m_hFallback;
 };
 
-template<typename SELF, typename SELF_DESCRIPTOR>
+template <typename SELF, typename SELF_DESCRIPTOR>
 bool ezResource<SELF, SELF_DESCRIPTOR>::s_bAddedManagerEventHandler = false;
 
-template<typename SELF, typename SELF_DESCRIPTOR>
+template <typename SELF, typename SELF_DESCRIPTOR>
 ezTypedResourceHandle<SELF> ezResource<SELF, SELF_DESCRIPTOR>::s_TypeFallbackResource;
 
-template<typename SELF, typename SELF_DESCRIPTOR>
+template <typename SELF, typename SELF_DESCRIPTOR>
 ezTypedResourceHandle<SELF> ezResource<SELF, SELF_DESCRIPTOR>::s_TypeMissingResource;
-
-

@@ -11,7 +11,7 @@
 #include <QClipboard>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentAction, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ////////////////////////////////////////////////////////////////////////
 // ezDocumentActions
@@ -267,7 +267,7 @@ void ezDocumentAction::Execute(const ezVariant& value)
 ////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezContainerWindowMenuAction, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezContainerWindowMenuAction::ezContainerWindowMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
   : ezDynamicMenuAction(context, szName, szIconPath)

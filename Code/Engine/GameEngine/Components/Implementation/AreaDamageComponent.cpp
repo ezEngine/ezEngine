@@ -16,7 +16,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAreaDamageComponent, 1, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("Damage", m_fDamage)->AddAttributes(new ezDefaultValueAttribute(10.0f)),
     EZ_MEMBER_PROPERTY("Impulse", m_fImpulse)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(0.0f, ezVariant())),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
     //  EZ_BEGIN_MESSAGEHANDLERS
     //{
     //  EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnTriggered),
@@ -28,9 +28,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezAreaDamageComponent, 1, ezComponentMode::Static)
     new ezSphereVisualizerAttribute("Radius", ezColor::OrangeRed),
     new ezSphereManipulatorAttribute("Radius"),
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 static ezPhysicsOverlapResult g_OverlapResults;
 

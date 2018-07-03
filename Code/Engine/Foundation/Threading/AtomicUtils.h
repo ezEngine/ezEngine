@@ -21,7 +21,7 @@ struct EZ_FOUNDATION_DLL ezAtomicUtils
 
   /// \brief Increments dest as an atomic operation and returns the new value.
   static ezInt32 Increment(volatile ezInt32& dest); // [tested]
-  
+
   /// \brief Increments dest as an atomic operation and returns the new value.
   static ezInt64 Increment(volatile ezInt64& dest); // [tested]
 
@@ -83,12 +83,11 @@ struct EZ_FOUNDATION_DLL ezAtomicUtils
   static bool TestAndSet(void** volatile dest, void* expected, void* value); // [tested]
 };
 
-  // Include inline file
+// Include inline file
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  #include <Foundation/Threading/Implementation/Win/AtomicUtils_win.h>
+#include <Foundation/Threading/Implementation/Win/AtomicUtils_win.h>
 #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
-  #include <Foundation/Threading/Implementation/Posix/AtomicUtils_posix.h>
+#include <Foundation/Threading/Implementation/Posix/AtomicUtils_posix.h>
 #else
-  #error "Atomics are not implemented on current platform"
+#error "Atomics are not implemented on current platform"
 #endif
-

@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <TestFramework/Framework/TestFramework.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezTestBaseClass);
@@ -50,7 +51,7 @@ ezResult ezTestBaseClass::DoTestInitialization()
       return EZ_FAILURE;
     }
   }
-  catch(...)
+  catch (...)
   {
     ezTestFramework::Output(ezTestOutput::Error, "Exception during test initialization.");
     return EZ_FAILURE;
@@ -66,7 +67,7 @@ void ezTestBaseClass::DoTestDeInitialization()
     if (DeInitializeTest() == EZ_FAILURE)
       ezTestFramework::Output(ezTestOutput::Error, "Test DeInitialization failed.");
   }
-  catch(...)
+  catch (...)
   {
     ezTestFramework::Output(ezTestOutput::Error, "Exception during test de-initialization.");
   }
@@ -82,7 +83,7 @@ ezResult ezTestBaseClass::DoSubTestInitialization(ezInt32 iIdentifier)
       return EZ_FAILURE;
     }
   }
-  catch(...)
+  catch (...)
   {
     ezTestFramework::Output(ezTestOutput::Error, "Exception during sub-test initialization.");
     return EZ_FAILURE;
@@ -98,7 +99,7 @@ void ezTestBaseClass::DoSubTestDeInitialization(ezInt32 iIdentifier)
     if (DeInitializeSubTest(iIdentifier) == EZ_FAILURE)
       ezTestFramework::Output(ezTestOutput::Error, "Sub-Test De-Initialization failed.");
   }
-  catch(...)
+  catch (...)
   {
     ezTestFramework::Output(ezTestOutput::Error, "Exception during sub-test de-initialization.");
   }
@@ -117,13 +118,12 @@ ezTestAppRun ezTestBaseClass::DoSubTestRun(ezInt32 iIdentifier, double& fDuratio
     ret = RunSubTest(iIdentifier);
 
     fDuration = (ezTime::Now() - StartTime).GetMilliseconds();
-
   }
-  catch(...)
+  catch (...)
   {
     ezInt32 iEntry = -1;
 
-    for (ezInt32 i = 0; i < (ezInt32) m_Entries.size(); ++i)
+    for (ezInt32 i = 0; i < (ezInt32)m_Entries.size(); ++i)
     {
       if (m_Entries[i].m_iIdentifier == iIdentifier)
       {
@@ -143,4 +143,3 @@ ezTestAppRun ezTestBaseClass::DoSubTestRun(ezInt32 iIdentifier, double& fDuratio
 
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_TestBaseClass);
-

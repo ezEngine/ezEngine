@@ -1,4 +1,5 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/Time/DefaultTimeStepSmoothing.h>
 
 ezDefaultTimeStepSmoothing::ezDefaultTimeStepSmoothing()
@@ -45,7 +46,7 @@ ezTime ezDefaultTimeStepSmoothing::GetSmoothedTimeStep(ezTime RawTimeStep, const
     tAvg = tAvg + Sorted[i];
   }
 
-  tAvg = tAvg / (double) ((uiLastSample - uiFirstSample) + 1.0);
+  tAvg = tAvg / (double)((uiLastSample - uiFirstSample) + 1.0);
 
 
   m_LastTimeStepTaken = ezMath::Lerp(m_LastTimeStepTaken, tAvg, m_fLerpFactor);
@@ -55,8 +56,4 @@ ezTime ezDefaultTimeStepSmoothing::GetSmoothedTimeStep(ezTime RawTimeStep, const
 
 
 
-
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Time_Implementation_DefaultTimeStepSmoothing);
-

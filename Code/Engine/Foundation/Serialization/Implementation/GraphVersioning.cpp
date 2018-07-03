@@ -16,7 +16,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTypeVersionInfo, ezNoBase, 1, ezRTTIDefaultAllo
     EZ_ACCESSOR_PROPERTY("ParentTypeName", GetParentTypeName, SetParentTypeName),
     EZ_MEMBER_PROPERTY("TypeVersion", m_uiTypeVersion),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on

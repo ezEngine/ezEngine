@@ -8,7 +8,7 @@ using namespace physx;
 
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxActorComponent, 1)
   //EZ_BEGIN_PROPERTIES
-  //EZ_END_PROPERTIES
+  //EZ_END_PROPERTIES;
 EZ_END_ABSTRACT_COMPONENT_TYPE
 
 ezPxActorComponent::ezPxActorComponent()

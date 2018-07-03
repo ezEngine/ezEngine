@@ -14,9 +14,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsaaUpscalePass, 2, ezRTTIDefaultAllocator<ezM
     EZ_MEMBER_PROPERTY("Output", m_PinOutput),
     EZ_ENUM_MEMBER_PROPERTY("MSAA_Mode", ezGALMSAASampleCount, m_MsaaMode)
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezMsaaUpscalePass::ezMsaaUpscalePass()
   : ezRenderPipelinePass("MsaaUpscalePass")

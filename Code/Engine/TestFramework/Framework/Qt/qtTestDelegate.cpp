@@ -1,22 +1,22 @@
 #include <PCH.h>
+
 #ifdef EZ_USE_QT
 
+#include <QApplication>
+#include <QPainter>
 #include <TestFramework/Framework/Qt/qtTestDelegate.h>
 #include <TestFramework/Framework/Qt/qtTestModel.h>
-#include <QPainter>
-#include <QApplication>
 
 ////////////////////////////////////////////////////////////////////////
 // ezQtTestDelegate public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezQtTestDelegate::ezQtTestDelegate(QObject* pParent) : QStyledItemDelegate(pParent)
+ezQtTestDelegate::ezQtTestDelegate(QObject* pParent)
+    : QStyledItemDelegate(pParent)
 {
 }
 
-ezQtTestDelegate::~ezQtTestDelegate()
-{
-}
+ezQtTestDelegate::~ezQtTestDelegate() {}
 
 void ezQtTestDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
@@ -32,7 +32,7 @@ void ezQtTestDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
 
     bool bSuccess = false;
     float fProgress = index.data(ezQtTestModel::UserRoles::Duration).toFloat(&bSuccess);
-    
+
     // If we got a valid float from the model we can draw a small duration bar on top of the background.
     if (bSuccess)
     {
@@ -50,4 +50,3 @@ void ezQtTestDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
 #endif
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_Qt_qtTestDelegate);
-

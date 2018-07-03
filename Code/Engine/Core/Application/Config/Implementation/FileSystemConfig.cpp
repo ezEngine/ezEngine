@@ -1,22 +1,24 @@
-﻿#include <PCH.h>
-#include <Core/Application/Config/FileSystemConfig.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/IO/OpenDdlWriter.h>
-#include <Foundation/IO/OpenDdlUtils.h>
-#include <Foundation/IO/OpenDdlReader.h>
-#include <Foundation/IO/OSFile.h>
+#include <PCH.h>
 
+#include <Core/Application/Config/FileSystemConfig.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/IO/OSFile.h>
+#include <Foundation/IO/OpenDdlReader.h>
+#include <Foundation/IO/OpenDdlUtils.h>
+#include <Foundation/IO/OpenDdlWriter.h>
+
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationFileSystemConfig, ezNoBase, 1, ezRTTIDefaultAllocator<ezApplicationFileSystemConfig>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ARRAY_MEMBER_PROPERTY("DataDirs", m_DataDirs),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationFileSystemConfig_DataDirConfig, ezNoBase, 1, ezRTTIDefaultAllocator<ezApplicationFileSystemConfig_DataDirConfig>)
 {
@@ -26,10 +28,10 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationFileSystemConfig_DataDirConfig, ezNo
     EZ_MEMBER_PROPERTY("Writable", m_bWritable),
     EZ_MEMBER_PROPERTY("RootName", m_sRootName),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_STATIC_REFLECTED_TYPE
-
+EZ_END_STATIC_REFLECTED_TYPE;
+// clang-format on
 
 ezResult ezApplicationFileSystemConfig::Save()
 {
@@ -136,16 +138,18 @@ void ezApplicationFileSystemConfig::Apply()
 {
   EZ_LOG_BLOCK("ezApplicationFileSystemConfig::Apply");
 
-  //ezStringBuilder s;
+  // ezStringBuilder s;
 
   // Make sure previous calls to Apply do not accumulate
   Clear();
 
   for (const auto& var : m_DataDirs)
   {
-    //if (ezFileSystem::ResolveSpecialDirectory(var.m_sDataDirSpecialPath, s).Succeeded())
+    // if (ezFileSystem::ResolveSpecialDirectory(var.m_sDataDirSpecialPath, s).Succeeded())
     {
-      ezFileSystem::AddDataDirectory(var.m_sDataDirSpecialPath, "AppFileSystemConfig", var.m_sRootName, (!var.m_sRootName.IsEmpty() && var.m_bWritable) ? ezFileSystem::DataDirUsage::AllowWrites : ezFileSystem::DataDirUsage::ReadOnly);
+      ezFileSystem::AddDataDirectory(var.m_sDataDirSpecialPath, "AppFileSystemConfig", var.m_sRootName,
+                                     (!var.m_sRootName.IsEmpty() && var.m_bWritable) ? ezFileSystem::DataDirUsage::AllowWrites
+                                                                                     : ezFileSystem::DataDirUsage::ReadOnly);
     }
   }
 }
@@ -188,4 +192,3 @@ ezResult ezApplicationFileSystemConfig::CreateDataDirStubFiles()
 
 
 EZ_STATICLINK_FILE(Core, Core_Application_Config_Implementation_FileSystemConfig);
-

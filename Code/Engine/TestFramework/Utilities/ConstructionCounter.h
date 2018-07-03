@@ -1,7 +1,7 @@
 #pragma once
 
-#include <TestFramework/Basics.h>
 #include <Foundation/Algorithm/Hashing.h>
+#include <TestFramework/Basics.h>
 
 struct ezConstructionCounter
 {
@@ -9,60 +9,46 @@ struct ezConstructionCounter
   ezInt32 m_iData;
 
   /// Default Constructor
-  ezConstructionCounter() : m_iData (0)
+  ezConstructionCounter()
+      : m_iData(0)
   {
     ++s_iConstructions;
   }
 
   /// Constructor with initialization
-  ezConstructionCounter(ezInt32 d) : m_iData (d)
+  ezConstructionCounter(ezInt32 d)
+      : m_iData(d)
   {
     ++s_iConstructions;
   }
 
   /// Copy Constructor
-  ezConstructionCounter(const ezConstructionCounter& cc) : m_iData(cc.m_iData)
+  ezConstructionCounter(const ezConstructionCounter& cc)
+      : m_iData(cc.m_iData)
   {
     ++s_iConstructions;
   }
 
   /// Move construction counts as a construction as well.
-  ezConstructionCounter(ezConstructionCounter&& cc) : m_iData(cc.m_iData)
+  ezConstructionCounter(ezConstructionCounter&& cc)
+      : m_iData(cc.m_iData)
   {
     ++s_iConstructions;
   }
 
   /// Destructor
-  ~ezConstructionCounter()
-  {
-    ++s_iDestructions;
-  }
+  ~ezConstructionCounter() { ++s_iDestructions; }
 
   /// Assignment does not change the construction counter, because it is only executed on already constructed objects.
-  void operator= (const ezConstructionCounter& cc)
-  {
-    m_iData = cc.m_iData;
-  }
+  void operator=(const ezConstructionCounter& cc) { m_iData = cc.m_iData; }
   /// Move assignment does not change the construction counter, because it is only executed on already constructed objects.
-  void operator= (const ezConstructionCounter&& cc)
-  {
-    m_iData = cc.m_iData;
-  }
+  void operator=(const ezConstructionCounter&& cc) { m_iData = cc.m_iData; }
 
-  bool operator== (const ezConstructionCounter& cc) const
-  {
-    return m_iData == cc.m_iData;
-  }
+  bool operator==(const ezConstructionCounter& cc) const { return m_iData == cc.m_iData; }
 
-  bool operator!= (const ezConstructionCounter& cc) const
-  {
-    return m_iData != cc.m_iData;
-  }
+  bool operator!=(const ezConstructionCounter& cc) const { return m_iData != cc.m_iData; }
 
-  bool operator< (const ezConstructionCounter& rhs) const
-  {
-    return m_iData < rhs.m_iData;
-  }
+  bool operator<(const ezConstructionCounter& rhs) const { return m_iData < rhs.m_iData; }
 
   /// Checks whether n constructions have been done since the last check.
   static bool HasConstructed(ezInt32 cons)
@@ -108,7 +94,8 @@ struct ezConstructionCounter
   /// For debugging and getting tests right: Prints out the current number of constructions and destructions
   static void PrintStats()
   {
-    printf("Constructions: %d (New: %i), Destructions: %d (New: %i) \n", s_iConstructions, s_iConstructions - s_iConstructionsLast, s_iDestructions, s_iDestructions - s_iDestructionsLast);
+    printf("Constructions: %d (New: %i), Destructions: %d (New: %i) \n", s_iConstructions, s_iConstructions - s_iConstructionsLast,
+           s_iDestructions, s_iDestructions - s_iDestructionsLast);
   }
 
   /// Checks that all instances have been destructed.
@@ -132,14 +119,7 @@ struct ezConstructionCounter
 template <>
 struct ezHashHelper<ezConstructionCounter>
 {
-  static ezUInt32 Hash(const ezConstructionCounter& value)
-  {
-    return ezHashHelper<ezInt32>::Hash(value.m_iData);
-  }
+  static ezUInt32 Hash(const ezConstructionCounter& value) { return ezHashHelper<ezInt32>::Hash(value.m_iData); }
 
-  EZ_ALWAYS_INLINE static bool Equal(const ezConstructionCounter& a, const ezConstructionCounter& b)
-  {
-    return a == b;
-  }
+  EZ_ALWAYS_INLINE static bool Equal(const ezConstructionCounter& a, const ezConstructionCounter& b) { return a == b; }
 };
-

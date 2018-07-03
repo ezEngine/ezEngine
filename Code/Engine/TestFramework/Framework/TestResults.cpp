@@ -1,13 +1,14 @@
-﻿#include <PCH.h>
-#include <TestFramework/Framework/TestResults.h>
+#include <PCH.h>
+
 #include <Foundation/Types/ScopeExit.h>
+#include <TestFramework/Framework/TestResults.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezTestOutput public functions
 ////////////////////////////////////////////////////////////////////////
 
-const char* const ezTestOutput::s_Names[] = {"StartOutput", "BeginBlock", "EndBlock", "ImportantInfo",
-                                          "Details", "Success", "Message", "Error", "Duration", "FinalResult"};
+const char* const ezTestOutput::s_Names[] = {"StartOutput", "BeginBlock", "EndBlock", "ImportantInfo", "Details",
+                                             "Success",     "Message",    "Error",    "Duration",      "FinalResult"};
 
 const char* ezTestOutput::ToString(Enum type)
 {
@@ -58,7 +59,13 @@ void ezTestResultData::AddOutput(ezInt32 iOutputIndex)
 ////////////////////////////////////////////////////////////////////////
 
 ezTestConfiguration::ezTestConfiguration()
-  : m_uiInstalledMainMemory(0), m_uiMemoryPageSize(0), m_uiCPUCoreCount(0), m_b64BitOS(false), m_b64BitApplication(false), m_iDateTime(0), m_iRCSRevision(-1)
+    : m_uiInstalledMainMemory(0)
+    , m_uiMemoryPageSize(0)
+    , m_uiCPUCoreCount(0)
+    , m_b64BitOS(false)
+    , m_b64BitApplication(false)
+    , m_iDateTime(0)
+    , m_iRCSRevision(-1)
 {
 }
 
@@ -92,7 +99,7 @@ void ezTestFrameworkResult::SetupTests(const std::deque<ezTestEntry>& tests, con
   }
 }
 
-void::ezTestFrameworkResult::Reset()
+void ::ezTestFrameworkResult::Reset()
 {
   const ezUInt32 uiTestCount = (ezUInt32)m_Tests.size();
   for (ezUInt32 uiTestIdx = 0; uiTestIdx < uiTestCount; ++uiTestIdx)
@@ -202,7 +209,7 @@ bool ezTestFrameworkResult::WriteJsonToFile(const char* szFileName) const
         ezUInt32 uiTests = GetTestCount();
         for (ezUInt32 uiTestIdx = 0; uiTestIdx < uiTests; ++uiTestIdx)
         {
-          const ezTestResultData& testResult = GetTestResultData(uiTestIdx, -1);       
+          const ezTestResultData& testResult = GetTestResultData(uiTestIdx, -1);
           js.BeginObject();
           {
             js.AddVariableString("m_sName", testResult.m_sName.c_str());
@@ -219,7 +226,7 @@ bool ezTestFrameworkResult::WriteJsonToFile(const char* szFileName) const
               ezUInt32 uiSubTests = GetSubTestCount(uiTestIdx);
               for (ezUInt32 uiSubTestIdx = 0; uiSubTestIdx < uiSubTests; ++uiSubTestIdx)
               {
-                const ezTestResultData& subTestResult = GetTestResultData(uiTestIdx, uiSubTestIdx);  
+                const ezTestResultData& subTestResult = GetTestResultData(uiTestIdx, uiSubTestIdx);
                 js.BeginObject();
                 {
                   js.AddVariableString("m_sName", subTestResult.m_sName.c_str());
@@ -234,12 +241,11 @@ bool ezTestFrameworkResult::WriteJsonToFile(const char* szFileName) const
               }
             }
             js.EndArray(); // subTests
-          }      
+          }
           js.EndObject();
         }
       }
       js.EndArray(); // tests
-
     }
     js.EndObject();
   }
@@ -262,14 +268,14 @@ ezUInt32 ezTestFrameworkResult::GetTestCount(ezTestResultQuery::Enum countQuery)
   {
     switch (countQuery)
     {
-    case ezTestResultQuery::Executed:
-      uiAccumulator += m_Tests[uiTest].m_Result.m_bExecuted ? 1 : 0;
-      break;
-    case ezTestResultQuery::Success:
-      uiAccumulator += m_Tests[uiTest].m_Result.m_bSuccess ? 1 : 0;
-      break;
-    default:
-      break;
+      case ezTestResultQuery::Executed:
+        uiAccumulator += m_Tests[uiTest].m_Result.m_bExecuted ? 1 : 0;
+        break;
+      case ezTestResultQuery::Success:
+        uiAccumulator += m_Tests[uiTest].m_Result.m_bSuccess ? 1 : 0;
+        break;
+      default:
+        break;
     }
   }
   return uiAccumulator;
@@ -301,14 +307,14 @@ ezUInt32 ezTestFrameworkResult::GetSubTestCount(ezUInt32 uiTestIndex, ezTestResu
   {
     switch (countQuery)
     {
-    case ezTestResultQuery::Executed:
-      uiAccumulator += test.m_SubTests[uiSubTest].m_Result.m_bExecuted ? 1 : 0;
-      break;
-    case ezTestResultQuery::Success:
-      uiAccumulator += test.m_SubTests[uiSubTest].m_Result.m_bSuccess ? 1 : 0;
-      break;
-    default:
-      break;
+      case ezTestResultQuery::Executed:
+        uiAccumulator += test.m_SubTests[uiSubTest].m_Result.m_bExecuted ? 1 : 0;
+        break;
+      case ezTestResultQuery::Success:
+        uiAccumulator += test.m_SubTests[uiSubTest].m_Result.m_bSuccess ? 1 : 0;
+        break;
+      default:
+        break;
     }
   }
   return uiAccumulator;
@@ -373,8 +379,8 @@ void ezTestFrameworkResult::TestOutput(ezUInt32 uiTestIndex, ezInt32 iSubTestInd
   outputMessage.m_sMessage.assign(szMsg);
 }
 
-void ezTestFrameworkResult::TestError(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex,
-                                        const char* szError, const char* szBlock, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg)
+void ezTestFrameworkResult::TestError(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, const char* szError, const char* szBlock,
+                                      const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg)
 {
   // In case there is no message set, we use the error as the message.
   TestOutput(uiTestIndex, iSubTestIndex, ezTestOutput::Error, szError);
@@ -392,7 +398,8 @@ void ezTestFrameworkResult::TestError(ezUInt32 uiTestIndex, ezInt32 iSubTestInde
 
 void ezTestFrameworkResult::TestResult(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, bool bSuccess, double fDuration)
 {
-  ezTestResultData& Result = (iSubTestIndex == -1) ? m_Tests[uiTestIndex].m_Result : m_Tests[uiTestIndex].m_SubTests[iSubTestIndex].m_Result;
+  ezTestResultData& Result =
+      (iSubTestIndex == -1) ? m_Tests[uiTestIndex].m_Result : m_Tests[uiTestIndex].m_SubTests[iSubTestIndex].m_Result;
 
   Result.m_bExecuted = true;
   Result.m_bSuccess = bSuccess;
@@ -491,4 +498,3 @@ void ezTestFrameworkResult::ezTestResult::Reset()
 
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_TestResults);
-

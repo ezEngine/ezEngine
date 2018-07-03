@@ -4,8 +4,8 @@
 #include <Foundation/Math/Color.h>
 #include <Foundation/Math/Mat3.h>
 #include <Foundation/Math/Mat4.h>
-#include <Foundation/Math/Transform.h>
 #include <Foundation/Math/Quat.h>
+#include <Foundation/Math/Transform.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Types/Uuid.h>
@@ -43,7 +43,8 @@ namespace ezConversionUtils
   EZ_FOUNDATION_DLL ezResult StringToInt(const char* szString, ezInt32& out_Res, const char** out_LastParsePosition = nullptr); // [tested]
 
   /// \brief Same as StringToInt but converts to a 64bit integer value instead.
-  EZ_FOUNDATION_DLL ezResult StringToInt64(const char* szString, ezInt64& out_Res, const char** out_LastParsePosition = nullptr); // [tested]
+  EZ_FOUNDATION_DLL ezResult StringToInt64(const char* szString, ezInt64& out_Res,
+                                           const char** out_LastParsePosition = nullptr); // [tested]
 
   /// \brief Pases szString and converts it to a double value. Returns EZ_FAILURE if the string contains no parsable floating point value.
   ///
@@ -58,56 +59,57 @@ namespace ezConversionUtils
   ///   Commas (',') are never treated as fractional part separators (as in the German locale).
   /// \param out_Res
   ///   If EZ_SUCCESS is returned, out_Res will contain the result. Otherwise it stays unmodified.
-  ///   The result may have rounding errors, i.e. even though a double may be able to represent the string value exactly, there is no guarantee
-  ///   that out_Res will be 100% identical. If that is required, use the C lib atof() function.
+  ///   The result may have rounding errors, i.e. even though a double may be able to represent the string value exactly, there is no
+  ///   guarantee that out_Res will be 100% identical. If that is required, use the C lib atof() function.
   /// \param out_LastParsePosition
   ///   On success out_LastParsePosition will contain the address of the character in szString that stopped the parser. This might point
   ///   to the zero terminator of szString, or to some unexpected character, since for example "5+6" will parse as '5' and '+' will be the
   ///   position where the parser stopped (returning EZ_SUCCESS).
-  ///   If you want to parse strictly (e.g. you do not want to parse "5+6" as "5") you can use this result to check that only certain characters
-  ///   were encountered after the float (e.g. only '\0' or ',').
+  ///   If you want to parse strictly (e.g. you do not want to parse "5+6" as "5") you can use this result to check that only certain
+  ///   characters were encountered after the float (e.g. only '\0' or ',').
   /// \return
   ///   EZ_SUCCESS if any text was encountered that can be interpreted as a floating point value.
   ///   EZ_FAILURE otherwise.
   ///
   /// \note
-  ///   The difference to the C lib atof() function is that this function properly returns whether something could get parsed as a floating point
-  ///   value, at all. atof() just returns zero in such a case. Also the way whitespace and signs at the beginning of the string are handled is
-  ///   different and StringToFloat will return 'success' if it finds anything that can be parsed as a float, even if the string continues with
-  ///   invalid text. So you can parse "2.54f+3.5" as "2.54f" and out_LastParsePosition will tell you where the parser stopped.
-  ///   On the down-side StringToFloat() is probably not as precise as atof(), because of a very simplistic conversion algorithm.
-  ///   If you require the features of StringToFloat() and the precision of atof(), you can let StringToFloat() handle the cases for detecting
-  ///   the validity, the sign and where the value ends and then use atof to parse only that substring with maximum precision.
+  ///   The difference to the C lib atof() function is that this function properly returns whether something could get parsed as a floating
+  ///   point value, at all. atof() just returns zero in such a case. Also the way whitespace and signs at the beginning of the string are
+  ///   handled is different and StringToFloat will return 'success' if it finds anything that can be parsed as a float, even if the string
+  ///   continues with invalid text. So you can parse "2.54f+3.5" as "2.54f" and out_LastParsePosition will tell you where the parser
+  ///   stopped. On the down-side StringToFloat() is probably not as precise as atof(), because of a very simplistic conversion algorithm.
+  ///   If you require the features of StringToFloat() and the precision of atof(), you can let StringToFloat() handle the cases for
+  ///   detecting the validity, the sign and where the value ends and then use atof to parse only that substring with maximum precision.
   EZ_FOUNDATION_DLL ezResult StringToFloat(const char* szString, double& out_Res, const char** out_LastParsePosition = nullptr); // [tested]
 
   /// \brief Parses szString and checks that the first word it finds stats with a phrase that can be interpreted as a boolean value.
   ///
   /// \param szString
   ///   If szString starts with whitespace characters, they are skipped. EZ_SUCCESS is returned (and out_Res is filled with true/false),
-  ///   if the string then starts with any of the following phrases: "true", "false", "on", "off", "yes", "no", "1", "0", "enable", "disable".
-  ///   EZ_FAILURE is returned if none of those is encountered (or the string is empty). It does not matter, whether the string continues
-  ///   with some other text, e.g. "nolf" is still interpreted as "no". That means you can pass strings such as "true, a = false" into this
-  ///   function to just parse the next piece of a command line.
+  ///   if the string then starts with any of the following phrases: "true", "false", "on", "off", "yes", "no", "1", "0", "enable",
+  ///   "disable". EZ_FAILURE is returned if none of those is encountered (or the string is empty). It does not matter, whether the string
+  ///   continues with some other text, e.g. "nolf" is still interpreted as "no". That means you can pass strings such as "true, a = false"
+  ///   into this function to just parse the next piece of a command line.
   /// \param out_Res
-  ///   If EZ_SUCCESS is returned, out_Res contains a valid value. Otherwise it is not modified. That means you can initialize it with a default
-  ///   value that can be used even if EZ_FAILURE is returned.
+  ///   If EZ_SUCCESS is returned, out_Res contains a valid value. Otherwise it is not modified. That means you can initialize it with a
+  ///   default value that can be used even if EZ_FAILURE is returned.
   /// \param out_LastParsePosition
   ///   On success out_LastParsePosition will contain the address of the character in szString that stopped the parser. This might point
-  ///   to the zero terminator of szString, or to the next character after the phrase "true", "false", "on", "off", etc. which was interpreted
-  ///   as a boolean value.
-  ///   If you want to parse strictly (e.g. you do not want to parse "Nolf" as "no") you can use this result to check that only certain characters
-  ///   were encountered after the boolean phrase (such as '\0' or ',' etc.).
+  ///   to the zero terminator of szString, or to the next character after the phrase "true", "false", "on", "off", etc. which was
+  ///   interpreted as a boolean value. If you want to parse strictly (e.g. you do not want to parse "Nolf" as "no") you can use this result
+  ///   to check that only certain characters were encountered after the boolean phrase (such as '\0' or ',' etc.).
   /// \return
   ///   EZ_SUCCESS if any phrase was encountered that can be interpreted as a boolean value.
   ///   EZ_FAILURE otherwise.
   EZ_FOUNDATION_DLL ezResult StringToBool(const char* szString, bool& out_Res, const char** out_LastParsePosition = nullptr); // [tested]
 
 
-  /// \brief Parses \a szText and tries to find up to \a uiNumFloats float values to extract. Skips all characters that cannot be interpreted as numbers.
+  /// \brief Parses \a szText and tries to find up to \a uiNumFloats float values to extract. Skips all characters that cannot be
+  /// interpreted as numbers.
   ///
-  /// This function can be used to convert string representations of vectors or other more complex numbers. It will parse the string from front to
-  /// back and convert anything that looks like a number and add it to the given float array. For example a text like '(1, 2, 3)' will result in
-  /// up to three floats. Since any invalid character is skipped, the parenthesis and commas will be ignored (though they act as delimiters, of course).
+  /// This function can be used to convert string representations of vectors or other more complex numbers. It will parse the string from
+  /// front to back and convert anything that looks like a number and add it to the given float array. For example a text like '(1, 2, 3)'
+  /// will result in up to three floats. Since any invalid character is skipped, the parenthesis and commas will be ignored (though they act
+  /// as delimiters, of course).
   ///
   /// \param szText
   ///   The null terminated string to parse.
@@ -120,7 +122,8 @@ namespace ezConversionUtils
   ///   or uiNumFloats values were successfully extracted.
   /// \return
   ///   The number of successfully extracted values (and thus valid values in out_pFloats).
-  EZ_FOUNDATION_DLL ezUInt32 ExtractFloatsFromString(const char* szText, ezUInt32 uiNumFloats, float* out_pFloats, const char** out_LastParsePosition = nullptr); // [tested]
+  EZ_FOUNDATION_DLL ezUInt32 ExtractFloatsFromString(const char* szText, ezUInt32 uiNumFloats, float* out_pFloats,
+                                                     const char** out_LastParsePosition = nullptr); // [tested]
 
   /// \brief Converts a hex character ('0', '1', ... '9', 'A'/'a', ... 'F'/'f') to the corresponding int value 0 - 15.
   ///
@@ -134,12 +137,13 @@ namespace ezConversionUtils
   ///
   /// "0x" or "0X" at the start is allowed and will be skipped.
   /// A maximum of \a uiBinaryBuffer bytes is written to \a pBinary.
-  /// If the string contains fewer HEX values than fit into \a pBinary, the remaining bytes will not be touched, so make sure all data is properly initialized!
-  /// The hex values are read 2 characters at a time to form a single byte value.
-  /// If at the end a single character is left (so an odd number of characters in total) that character is ignored entirely!
-  /// Values are started to be written at \a pBinary and then the pointer is increased, so the first values in szHEX represent to least significant bytes in \a pBinary.
+  /// If the string contains fewer HEX values than fit into \a pBinary, the remaining bytes will not be touched, so make sure all data is
+  /// properly initialized! The hex values are read 2 characters at a time to form a single byte value. If at the end a single character is
+  /// left (so an odd number of characters in total) that character is ignored entirely! Values are started to be written at \a pBinary and
+  /// then the pointer is increased, so the first values in szHEX represent to least significant bytes in \a pBinary.
   ///
-  /// \note This function does not validate that the incoming string is actually valid HEX. If an invalid character is used, the result will be invalid and there is no error reported.
+  /// \note This function does not validate that the incoming string is actually valid HEX. If an invalid character is used, the result will
+  /// be invalid and there is no error reported.
   EZ_FOUNDATION_DLL void ConvertHexToBinary(const char* szHEX, ezUInt8* pBinary, ezUInt32 uiBinaryBuffer); // [tested]
 
   /// \brief Converts a binary stream to a HEX string.
@@ -148,7 +152,7 @@ namespace ezConversionUtils
   /// The lambda signature must be:
   /// void Append(const char* twoChars)
   /// The given string will contain exactly two characters and will be zero terminated.
-  template<typename APPEND_CONTAINER_LAMBDA>
+  template <typename APPEND_CONTAINER_LAMBDA>
   inline void ConvertBinaryToHex(const void* pBinaryData, ezUInt32 uiBytes, APPEND_CONTAINER_LAMBDA append); // [tested]
 
   /// \brief Converts a string that was written with ezConversionUtils::ToString(ezUuid) back to an ezUuid object.
@@ -238,7 +242,8 @@ namespace ezConversionUtils
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezStringView& value, ezStringBuilder& out_Result);
 
   /// \brief Converts a ezVariantArray to a string
-  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezDynamicArray<ezVariant, ezDefaultAllocatorWrapper>& value, ezStringBuilder& out_Result);
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezDynamicArray<ezVariant, ezDefaultAllocatorWrapper>& value,
+                                                    ezStringBuilder& out_Result);
 
   /// \brief Fallback ToString implementation for all types that don't have one
   template <typename T>
@@ -258,7 +263,7 @@ namespace ezConversionUtils
   EZ_FOUNDATION_DLL ezString GetColorName(const ezColor& col); // [tested]
 };
 
-template<typename APPEND_CONTAINER_LAMBDA>
+template <typename APPEND_CONTAINER_LAMBDA>
 inline void ezConversionUtils::ConvertBinaryToHex(const void* pBinaryData, ezUInt32 uiBytes, APPEND_CONTAINER_LAMBDA append) // [tested]
 {
   char tmp[4];
@@ -273,4 +278,3 @@ inline void ezConversionUtils::ConvertBinaryToHex(const void* pBinaryData, ezUIn
     append(tmp);
   }
 }
-

@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <TestFramework/Utilities/TestSetup.h>
 
 #include <TestFramework/Utilities/ConsoleOutput.h>
@@ -7,17 +8,17 @@
 #include <Foundation/Utilities/StackTracer.h>
 
 #ifdef EZ_USE_QT
-  #include <TestFramework/Framework/Qt/qtTestFramework.h>
-  #include <TestFramework/Framework/Qt/qtTestGUI.h>
+#include <TestFramework/Framework/Qt/qtTestFramework.h>
+#include <TestFramework/Framework/Qt/qtTestGUI.h>
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  #include <TestFramework/Framework/Uwp/uwpTestFramework.h>
+#include <TestFramework/Framework/Uwp/uwpTestFramework.h>
 #endif
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  #include <conio.h>
+#include <conio.h>
 #else if EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
-  #include <cxxabi.h>
-  #include <csignal>
+#include <csignal>
+#include <cxxabi.h>
 #endif
 
 namespace ExceptionHandler
@@ -95,27 +96,27 @@ namespace ExceptionHandler
     Print("***Unhandled Signal:***\n");
     switch (signal)
     {
-    case SIGINT:
-      Print("Signal SIGINT: interrupt\n");
-      break;
-    case SIGILL:
-      Print("Signal SIGILL: illegal instruction - invalid function image\n");
-      break;
-    case SIGFPE:
-      Print("Signal SIGFPE: floating point exception\n");
-      break;
-    case SIGSEGV:
-      Print("Signal SIGSEGV: segment violation\n");
-      break;
-    case SIGTERM:
-      Print("Signal SIGTERM: Software termination signal from kill\n");
-      break;
-    case SIGABRT:
-      Print("Signal SIGABRT: abnormal termination triggered by abort call\n");
-      break;
-    default:
-      Print("Signal %i: unknown signal\n", signal);
-      break;
+      case SIGINT:
+        Print("Signal SIGINT: interrupt\n");
+        break;
+      case SIGILL:
+        Print("Signal SIGILL: illegal instruction - invalid function image\n");
+        break;
+      case SIGFPE:
+        Print("Signal SIGFPE: floating point exception\n");
+        break;
+      case SIGSEGV:
+        Print("Signal SIGSEGV: segment violation\n");
+        break;
+      case SIGTERM:
+        Print("Signal SIGTERM: Software termination signal from kill\n");
+        break;
+      case SIGABRT:
+        Print("Signal SIGABRT: abnormal termination triggered by abort call\n");
+        break;
+      default:
+        Print("Signal %i: unknown signal\n", signal);
+        break;
     }
 
     {
@@ -253,4 +254,3 @@ ezInt32 ezTestSetup::GetFailedTestCount()
 
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Utilities_TestSetup);
-

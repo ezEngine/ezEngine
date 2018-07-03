@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Foundation/SimdMath/SimdMath.h>
 #include <Foundation/Math/Angle.h>
+#include <Foundation/SimdMath/SimdMath.h>
 
 class EZ_FOUNDATION_DLL ezSimdFloat
 {
@@ -46,38 +46,37 @@ public:
 
   bool operator==(const ezSimdFloat& f) const; // [tested]
   bool operator!=(const ezSimdFloat& f) const; // [tested]
-  bool operator>(const ezSimdFloat& f) const; // [tested]
+  bool operator>(const ezSimdFloat& f) const;  // [tested]
   bool operator>=(const ezSimdFloat& f) const; // [tested]
-  bool operator<(const ezSimdFloat& f) const; // [tested]
+  bool operator<(const ezSimdFloat& f) const;  // [tested]
   bool operator<=(const ezSimdFloat& f) const; // [tested]
 
   bool operator==(float f) const; // [tested]
   bool operator!=(float f) const; // [tested]
-  bool operator>(float f) const; // [tested]
+  bool operator>(float f) const;  // [tested]
   bool operator>=(float f) const; // [tested]
-  bool operator<(float f) const; // [tested]
+  bool operator<(float f) const;  // [tested]
   bool operator<=(float f) const; // [tested]
 
-  template<ezMathAcc::Enum acc = ezMathAcc::FULL>
+  template <ezMathAcc::Enum acc = ezMathAcc::FULL>
   ezSimdFloat GetReciprocal() const; // [tested]
 
-  template<ezMathAcc::Enum acc = ezMathAcc::FULL>
+  template <ezMathAcc::Enum acc = ezMathAcc::FULL>
   ezSimdFloat GetSqrt() const; // [tested]
 
-  template<ezMathAcc::Enum acc = ezMathAcc::FULL>
+  template <ezMathAcc::Enum acc = ezMathAcc::FULL>
   ezSimdFloat GetInvSqrt() const; // [tested]
 
   ezSimdFloat Max(const ezSimdFloat& f) const; // [tested]
   ezSimdFloat Min(const ezSimdFloat& f) const; // [tested]
-  ezSimdFloat Abs() const; // [tested]
+  ezSimdFloat Abs() const;                     // [tested]
 
 public:
   ezInternal::QuadFloat m_v;
 };
 
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
-  #include <Foundation/SimdMath/Implementation/SSE/SSEFloat_inl.h>
+#include <Foundation/SimdMath/Implementation/SSE/SSEFloat_inl.h>
 #else
-  #include <Foundation/SimdMath/Implementation/FPU/FPUFloat_inl.h>
+#include <Foundation/SimdMath/Implementation/FPU/FPUFloat_inl.h>
 #endif
-

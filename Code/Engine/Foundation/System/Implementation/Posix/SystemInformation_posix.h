@@ -1,4 +1,3 @@
-
 #include <unistd.h>
 
 void ezSystemInformation::Initialize()
@@ -20,7 +19,7 @@ void ezSystemInformation::Initialize()
   s_SystemInformation.m_b64BitOS = true;
 #else
   s_SystemInformation.m_b64BitOS = false;
-  #error "32 Bit builds are not supported on OSX"
+#error "32 Bit builds are not supported on OSX"
 #endif
 
 #if defined BUILDSYSTEM_CONFIGURATION
@@ -33,7 +32,7 @@ void ezSystemInformation::Initialize()
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
   s_SystemInformation.m_szPlatformName = "Linux";
 #else
-  #error "Platform name not defined on current posix platform"
+#error "Platform name not defined on current posix platform"
 #endif
 
   //  Get host name
@@ -44,4 +43,3 @@ void ezSystemInformation::Initialize()
 
   s_SystemInformation.m_bIsInitialized = true;
 }
-

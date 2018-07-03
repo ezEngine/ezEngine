@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Math/Mat4.h>
 #include <Foundation/SimdMath/SimdMat4f.h>
 
@@ -20,4 +21,3 @@ ezResult ezSimdMat4f::Invert(const ezSimdFloat& fEpsilon)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_SimdMath_Implementation_SimdMat4f);
-

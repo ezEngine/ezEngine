@@ -1,8 +1,6 @@
 #pragma once
 
-EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat()
-{
-}
+EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat() {}
 
 EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat(float f)
 {
@@ -34,7 +32,7 @@ EZ_ALWAYS_INLINE ezSimdFloat::operator float() const
   return m_v.x;
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::Zero()
 {
   return ezSimdFloat(0.0f);
@@ -149,19 +147,19 @@ EZ_ALWAYS_INLINE bool ezSimdFloat::operator<=(float f) const
   return m_v.x <= f;
 }
 
-template<ezMathAcc::Enum acc>
+template <ezMathAcc::Enum acc>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetReciprocal() const
 {
   return ezSimdFloat(1.0f / m_v.x);
 }
 
-template<ezMathAcc::Enum acc>
+template <ezMathAcc::Enum acc>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetSqrt() const
 {
   return ezSimdFloat(ezMath::Sqrt(m_v.x));
 }
 
-template<ezMathAcc::Enum acc>
+template <ezMathAcc::Enum acc>
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::GetInvSqrt() const
 {
   return ezSimdFloat(1.0f / ezMath::Sqrt(m_v.x));
@@ -181,4 +179,3 @@ EZ_ALWAYS_INLINE ezSimdFloat ezSimdFloat::Abs() const
 {
   return ezSimdFloat(ezMath::Abs(m_v.x));
 }
-

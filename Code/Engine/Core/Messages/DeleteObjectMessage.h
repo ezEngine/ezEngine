@@ -7,4 +7,3 @@ struct EZ_CORE_DLL ezMsgDeleteGameObject : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgDeleteGameObject, ezMessage);
 };
-

@@ -6,8 +6,8 @@
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezActionMapDescriptor, ezNoBase, 0, ezRTTINoAllocator);
 //  EZ_BEGIN_PROPERTIES
-//  EZ_END_PROPERTIES
-EZ_END_STATIC_REFLECTED_TYPE
+//  EZ_END_PROPERTIES;
+EZ_END_STATIC_REFLECTED_TYPE;
 
 ////////////////////////////////////////////////////////////////////////
 // ezActionMap public functions

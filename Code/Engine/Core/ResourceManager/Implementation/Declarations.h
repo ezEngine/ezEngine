@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Core/Basics.h>
-#include <Foundation/Strings/String.h>
 #include <Foundation/Strings/HashedString.h>
+#include <Foundation/Strings/String.h>
 #include <Foundation/Types/Bitflags.h>
 
 class ezResourceManager;
@@ -10,12 +10,14 @@ class ezResourceManager;
 // resource base classes
 class ezResourceBase;
 
-template<typename SELF, typename SELF_DESCRIPTOR>
+template <typename SELF, typename SELF_DESCRIPTOR>
 class ezResource;
 
 // resource handle type
-template<typename ResourceType>
+template <typename ResourceType>
 class ezTypedResourceHandle;
+
+// clang-format off
 
 /// \brief The flags of an ezResourceBase instance.
 struct EZ_CORE_DLL ezResourceFlags
@@ -49,6 +51,7 @@ struct EZ_CORE_DLL ezResourceFlags
     StorageType HasCustomDataLoader   : 1;
   };
 };
+// clang-format on
 
 EZ_DECLARE_FLAGS_OPERATORS(ezResourceFlags);
 
@@ -56,10 +59,10 @@ EZ_DECLARE_FLAGS_OPERATORS(ezResourceFlags);
 enum class ezResourceState
 {
   Invalid,
-  Unloaded,                 ///< The resource instance has been created, but no meta info about the resource is available and no data is loaded.
-  LoadedResourceMissing,    ///< The resource could not be loaded, use a 'Missing Resource' fallback if available
-  UnloadedMetaInfoAvailable,///< Meta information about the resource is available (e.g. texture sizes, etc.) but no data is loaded so far.
-  Loaded,                   ///< The resource is fully loaded.
+  Unloaded, ///< The resource instance has been created, but no meta info about the resource is available and no data is loaded.
+  LoadedResourceMissing,     ///< The resource could not be loaded, use a 'Missing Resource' fallback if available
+  UnloadedMetaInfoAvailable, ///< Meta information about the resource is available (e.g. texture sizes, etc.) but no data is loaded so far.
+  Loaded,                    ///< The resource is fully loaded.
   // no other state can follow, Loaded must be the highest value
 };
 
@@ -70,7 +73,7 @@ struct ezResourceLoadDesc
   {
     m_State = ezResourceState::Invalid;
     m_uiQualityLevelsDiscardable = 0xFF; // invalid
-    m_uiQualityLevelsLoadable = 0xFF; // invalid
+    m_uiQualityLevelsLoadable = 0xFF;    // invalid
   }
 
   ezResourceState m_State;
@@ -86,15 +89,16 @@ enum class ezResourcePriority
   Normal,
   Low,
   Lowest,
-  Unchanged   ///< When a function might adjust the priority of a resource, this means it should keep it unchanged.
+  Unchanged ///< When a function might adjust the priority of a resource, this means it should keep it unchanged.
 };
 
 /// \brief Describes what data of a resource needs to be accessed and thus how much of the resource needs to be loaded.
 enum class ezResourceAcquireMode
 {
-  PointerOnly,    ///< We really only want the pointer (maybe to update some state), no data needs to be loaded. This will never block.
-  AllowFallback,  ///< We want to use the resource, but if it has a fallback, using that is fine as well. This should be the default usage.
-  MetaInfo,       ///< The actual resource data is not needed, but its meta data is required (e.g. texture dimensions). Thus a fallback resource cannot be used. This will block until at least the meta info is available.
-  NoFallback,     ///< The full resource data is required. The loader will block until the resource is in the 'Loaded' state. This does NOT mean that all quality levels are loaded.
+  PointerOnly,   ///< We really only want the pointer (maybe to update some state), no data needs to be loaded. This will never block.
+  AllowFallback, ///< We want to use the resource, but if it has a fallback, using that is fine as well. This should be the default usage.
+  MetaInfo,   ///< The actual resource data is not needed, but its meta data is required (e.g. texture dimensions). Thus a fallback resource
+              ///< cannot be used. This will block until at least the meta info is available.
+  NoFallback, ///< The full resource data is required. The loader will block until the resource is in the 'Loaded' state. This does NOT mean
+              ///< that all quality levels are loaded.
 };
-

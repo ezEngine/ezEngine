@@ -2,7 +2,7 @@
 #include <EditorFramework/DragDrop/DragDropHandler.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDragDropHandler, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezDragDropHandler* ezDragDropHandler::s_pActiveDnD = nullptr;
 

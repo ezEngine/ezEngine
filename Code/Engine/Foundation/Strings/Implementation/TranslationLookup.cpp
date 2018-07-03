@@ -1,9 +1,10 @@
 #include <PCH.h>
-#include <Foundation/Strings/TranslationLookup.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/Logging/Log.h>
+
 #include <Foundation/Algorithm/Hashing.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Strings/TranslationLookup.h>
 
 ezHybridArray<ezTranslator*, 4> ezTranslator::s_AllTranslators;
 
@@ -17,13 +18,9 @@ ezTranslator::~ezTranslator()
   s_AllTranslators.RemoveSwap(this);
 }
 
-void ezTranslator::Reset()
-{
-}
+void ezTranslator::Reset() {}
 
-void ezTranslator::Reload()
-{
-}
+void ezTranslator::Reload() {}
 
 void ezTranslator::ReloadAllTranslators()
 {
@@ -92,8 +89,7 @@ void ezTranslatorFromFiles::LoadTranslationFilesFromFolder(const char* szFolder)
       fullpath.AppendPath(it.GetStats().m_sFileName);
 
       LoadTranslationFile(fullpath);
-    }
-    while (it.Next().Succeeded());
+    } while (it.Next().Succeeded());
   }
 #endif
 }
@@ -221,7 +217,4 @@ const char* ezTranslatorLogMissing::Translate(const char* szString, ezUInt32 uiS
 
 
 
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_TranslationLookup);
-

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <System/Basics.h>
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
+#include <System/Basics.h>
 
 class EZ_SYSTEM_DLL ezStandardInputDevice : public ezInputDeviceMouseKeyboard
 {
@@ -36,7 +36,7 @@ public:
 
 private:
   virtual void InitializeDevice() override;
-  virtual void UpdateInputSlotValues() override { }
+  virtual void UpdateInputSlotValues() override {}
   virtual void RegisterInputSlots() override;
   virtual void ResetInputSlotValues() override;
 
@@ -45,4 +45,3 @@ private:
   bool m_bShowCursor;
   bool m_bClipCursor;
 };
-

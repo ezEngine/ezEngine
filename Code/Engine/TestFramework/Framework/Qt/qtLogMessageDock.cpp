@@ -1,9 +1,10 @@
 #include <PCH.h>
+
 #ifdef EZ_USE_QT
 
+#include <QStringBuilder>
 #include <TestFramework/Framework/Qt/qtLogMessageDock.h>
 #include <TestFramework/Framework/TestFramework.h>
-#include <QStringBuilder>
 
 ////////////////////////////////////////////////////////////////////////
 // ezQtLogMessageDock public functions
@@ -46,13 +47,12 @@ void ezQtLogMessageDock::currentTestSelectionChanged(const ezTestResultData* pTe
 ////////////////////////////////////////////////////////////////////////
 
 ezQtLogMessageModel::ezQtLogMessageModel(QObject* pParent, const ezTestFrameworkResult* pResult)
-  : QAbstractItemModel(pParent), m_pTestResult(pResult)
+    : QAbstractItemModel(pParent)
+    , m_pTestResult(pResult)
 {
 }
 
-ezQtLogMessageModel::~ezQtLogMessageModel()
-{
-}
+ezQtLogMessageModel::~ezQtLogMessageModel() {}
 
 void ezQtLogMessageModel::resetModel()
 {
@@ -111,7 +111,7 @@ void ezQtLogMessageModel::currentTestSelectionChanged(const ezTestResultData* pT
 
 QVariant ezQtLogMessageModel::data(const QModelIndex& index, int role) const
 {
-  if (!index.isValid() || m_pTestResult == nullptr|| index.column() != 0)
+  if (!index.isValid() || m_pTestResult == nullptr || index.column() != 0)
     return QVariant();
 
   const ezInt32 iRow = index.row();
@@ -124,47 +124,48 @@ QVariant ezQtLogMessageModel::data(const QModelIndex& index, int role) const
   const ezTestErrorMessage* pError = (Message.m_iErrorIndex != -1) ? m_pTestResult->GetErrorMessage(Message.m_iErrorIndex) : nullptr;
   switch (role)
   {
-  case Qt::DisplayRole:
+    case Qt::DisplayRole:
     {
       if (pError != nullptr)
       {
         QString sBlockStart = QLatin1String("\n") % QString((uiIndention + 1) * 3, ' ');
-        QString sBlockName = pError->m_sBlock.empty() ? QLatin1String("") : (sBlockStart % QLatin1String("Block: ") + QLatin1String(pError->m_sBlock.c_str()));
-        QString sMessage = pError->m_sMessage.empty() ? QLatin1String("") : (sBlockStart % QLatin1String("Message: ") + QLatin1String(pError->m_sMessage.c_str()));
-        QString sErrorMessage = QString(uiIndention * 3, ' ') % QString(Message.m_sMessage.c_str()) %
-          sBlockName %
-          sBlockStart % QLatin1String("File: ") % QLatin1String(pError->m_sFile.c_str()) %
-          sBlockStart % QLatin1String("Line: ") % QString::number(pError->m_iLine) %
-          sBlockStart % QLatin1String("Function: ") % QLatin1String(pError->m_sFunction.c_str()) %
-          sMessage;
-       
+        QString sBlockName = pError->m_sBlock.empty() ? QLatin1String("")
+                                                      : (sBlockStart % QLatin1String("Block: ") + QLatin1String(pError->m_sBlock.c_str()));
+        QString sMessage = pError->m_sMessage.empty()
+                               ? QLatin1String("")
+                               : (sBlockStart % QLatin1String("Message: ") + QLatin1String(pError->m_sMessage.c_str()));
+        QString sErrorMessage = QString(uiIndention * 3, ' ') % QString(Message.m_sMessage.c_str()) % sBlockName % sBlockStart %
+                                QLatin1String("File: ") % QLatin1String(pError->m_sFile.c_str()) % sBlockStart % QLatin1String("Line: ") %
+                                QString::number(pError->m_iLine) % sBlockStart % QLatin1String("Function: ") %
+                                QLatin1String(pError->m_sFunction.c_str()) % sMessage;
+
         return sErrorMessage;
       }
       return QString(uiIndention * 3, ' ') + QString(Message.m_sMessage.c_str());
     }
-  case Qt::TextColorRole:
+    case Qt::TextColorRole:
     {
       switch (Message.m_Type)
       {
-      case ezTestOutput::BeginBlock:
-      case ezTestOutput::Message:
-        return QColor(Qt::yellow);
-      case ezTestOutput::Error:
-        return QColor(Qt::red);
-      case ezTestOutput::Success:
-        return QColor(Qt::green);
-      case ezTestOutput::StartOutput:
-      case ezTestOutput::EndBlock:
-      case ezTestOutput::ImportantInfo:
-      case ezTestOutput::Details:
-      case ezTestOutput::Duration:
-      case ezTestOutput::FinalResult:
-        return QVariant();
-      default:
-        return QVariant();
+        case ezTestOutput::BeginBlock:
+        case ezTestOutput::Message:
+          return QColor(Qt::yellow);
+        case ezTestOutput::Error:
+          return QColor(Qt::red);
+        case ezTestOutput::Success:
+          return QColor(Qt::green);
+        case ezTestOutput::StartOutput:
+        case ezTestOutput::EndBlock:
+        case ezTestOutput::ImportantInfo:
+        case ezTestOutput::Details:
+        case ezTestOutput::Duration:
+        case ezTestOutput::FinalResult:
+          return QVariant();
+        default:
+          return QVariant();
       }
     }
-  case Qt::BackgroundColorRole:
+    case Qt::BackgroundColorRole:
     {
       QPalette palette = QApplication::palette();
       if (pCurrentTestSelection != nullptr && pCurrentTestSelection->m_iFirstOutput != -1)
@@ -176,27 +177,27 @@ QVariant ezQtLogMessageModel::data(const QModelIndex& index, int role) const
       }
       return palette.base().color();
     }
-  //case Qt::DecorationRole:
-  //  {
-  //    switch (Message.m_Type)
-  //    {
-  //    case ezTestOutput::StartOutput:
-  //    case ezTestOutput::BeginBlock:
-  //    case ezTestOutput::EndBlock:
-  //    case ezTestOutput::ImportantInfo:
-  //    case ezTestOutput::Details:
-  //    case ezTestOutput::Success:
-  //    case ezTestOutput::Message:
-  //      return QApplication::style()->standardIcon(QStyle::SP_MessageBoxInformation);
-  //    case ezTestOutput::Error:
-  //      return QApplication::style()->standardIcon(QStyle::SP_MessageBoxCritical);
-  //    case ezTestOutput::Duration:
-  //    case ezTestOutput::FinalResult:
-  //      return QApplication::style()->standardIcon(QStyle::SP_MessageBoxInformation);
-  //    }
-  //  }
-  default:
-    return QVariant();
+    // case Qt::DecorationRole:
+    //  {
+    //    switch (Message.m_Type)
+    //    {
+    //    case ezTestOutput::StartOutput:
+    //    case ezTestOutput::BeginBlock:
+    //    case ezTestOutput::EndBlock:
+    //    case ezTestOutput::ImportantInfo:
+    //    case ezTestOutput::Details:
+    //    case ezTestOutput::Success:
+    //    case ezTestOutput::Message:
+    //      return QApplication::style()->standardIcon(QStyle::SP_MessageBoxInformation);
+    //    case ezTestOutput::Error:
+    //      return QApplication::style()->standardIcon(QStyle::SP_MessageBoxCritical);
+    //    case ezTestOutput::Duration:
+    //    case ezTestOutput::FinalResult:
+    //      return QApplication::style()->standardIcon(QStyle::SP_MessageBoxInformation);
+    //    }
+    //  }
+    default:
+      return QVariant();
   }
 }
 
@@ -214,8 +215,8 @@ QVariant ezQtLogMessageModel::headerData(int section, Qt::Orientation orientatio
   {
     switch (section)
     {
-    case 0:
-      return QString("Log Entry");
+      case 0:
+        return QString("Log Entry");
     }
   }
   return QVariant();
@@ -280,4 +281,3 @@ void ezQtLogMessageModel::UpdateVisibleEntries()
 #endif
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_Qt_qtLogMessageDock);
-

@@ -1,11 +1,11 @@
 #pragma once
 
 #include <Foundation/PCH.h>
-#include <deque>
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <algorithm>
+#include <deque>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
 // <StaticLinkUtil::StartHere>
 // all include's before this will be left alone and not replaced by the StaticLinkUtil
@@ -13,15 +13,15 @@
 
 
 
-#include <Foundation/Image/Image.h>
-#include <Foundation/Image/ImageConversion.h>
-#include <Foundation/Image/ImageUtils.h>
 #include <Foundation/Basics.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/JSONWriter.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Image/Image.h>
+#include <Foundation/Image/ImageConversion.h>
+#include <Foundation/Image/ImageUtils.h>
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Math/Math.h>

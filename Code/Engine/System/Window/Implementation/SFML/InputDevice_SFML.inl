@@ -1,10 +1,11 @@
 #include <PCH.h>
-#include <System/Window/Implementation/SFML/InputDevice_SFML.h>
+
 #include <SFML/Window.hpp>
+#include <System/Window/Implementation/SFML/InputDevice_SFML.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, 1, ezRTTINoAllocator);
-  // no properties or message handlers
-EZ_END_DYNAMIC_REFLECTED_TYPE
+// no properties or message handlers
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 bool ezStandardInputDevice::s_bMainWindowUsed = false;
 
@@ -32,6 +33,7 @@ ezStandardInputDevice::~ezStandardInputDevice()
 
 void ezStandardInputDevice::RegisterInputSlots()
 {
+  // clang-format off
   RegisterInputSlot(ezInputSlot_KeyLeft,  "Left",   ezInputSlotFlags::IsButton);
   RegisterInputSlot(ezInputSlot_KeyRight, "Right",  ezInputSlotFlags::IsButton);
   RegisterInputSlot(ezInputSlot_KeyUp,    "Up",     ezInputSlotFlags::IsButton);
@@ -189,6 +191,8 @@ void ezStandardInputDevice::RegisterInputSlots()
   //RegisterInputSlot(ezInputSlot_TouchPoint0_PositionX,  "Touchpoint 1 Position X",  ezInputSlotFlags::IsTouchPosition);
   //RegisterInputSlot(ezInputSlot_TouchPoint0_PositionY,  "Touchpoint 1 Position Y",  ezInputSlotFlags::IsTouchPosition);
   // ...
+
+  // clang-format on
 }
 
 inline float ToF(bool b)
@@ -196,6 +200,7 @@ inline float ToF(bool b)
   return b ? 1.0f : 0.0f;
 }
 
+// clang-format off
 void ezStandardInputDevice::UpdateInputSlotValues()
 {
   m_InputSlotValues[ezInputSlot_KeyA]  = ToF(sf::Keyboard::isKeyPressed(sf::Keyboard::A));
@@ -312,11 +317,12 @@ void ezStandardInputDevice::UpdateInputSlotValues()
   m_InputSlotValues[ezInputSlot_MouseButton3] = ToF(sf::Mouse::isButtonPressed(sf::Mouse::XButton1));
   m_InputSlotValues[ezInputSlot_MouseButton4] = ToF(sf::Mouse::isButtonPressed(sf::Mouse::XButton2));
 }
+// clang-format on
 
 void ezStandardInputDevice::ResetInputSlotValues()
 {
-  m_InputSlotValues[ezInputSlot_MouseWheelUp]  = 0;
-  m_InputSlotValues[ezInputSlot_MouseWheelDown]= 0;
+  m_InputSlotValues[ezInputSlot_MouseWheelUp] = 0;
+  m_InputSlotValues[ezInputSlot_MouseWheelDown] = 0;
 
   m_InputSlotValues[ezInputSlot_MouseMoveNegX] = 0;
   m_InputSlotValues[ezInputSlot_MouseMovePosX] = 0;
@@ -324,9 +330,9 @@ void ezStandardInputDevice::ResetInputSlotValues()
   m_InputSlotValues[ezInputSlot_MouseMovePosY] = 0;
 
   // Not supported
-  //m_InputSlotValues[ezInputSlot_MouseDblClick0] = 0;
-  //m_InputSlotValues[ezInputSlot_MouseDblClick1] = 0;
-  //m_InputSlotValues[ezInputSlot_MouseDblClick2] = 0;
+  // m_InputSlotValues[ezInputSlot_MouseDblClick0] = 0;
+  // m_InputSlotValues[ezInputSlot_MouseDblClick1] = 0;
+  // m_InputSlotValues[ezInputSlot_MouseDblClick2] = 0;
 }
 
 
@@ -336,67 +342,69 @@ void ezStandardInputDevice::WindowMessage(const sf::Event& TheEvent)
 
   switch (TheEvent.type)
   {
-  case sf::Event::TextEntered:
-    m_LastCharacter = TheEvent.text.unicode;
-    break;
+    case sf::Event::TextEntered:
+      m_LastCharacter = TheEvent.text.unicode;
+      break;
 
-  case sf::Event::LostFocus:
-    s_bHasFocus = false;
+    case sf::Event::LostFocus:
+      s_bHasFocus = false;
 
-    if (!m_bShowCursor)
-    {
-      m_pWindow->setMouseCursorVisible(true);
-
-      sf::Vector2i iCurPos = sf::Mouse::getPosition(*m_pWindow);
-
-      // if we lost focus, but the global mouse position is still inside the window (task switch), set the mouse position properly
-      if (iCurPos.x > 0 && iCurPos.y > 0 && iCurPos.x < (int) m_pWindow->getSize().x && iCurPos.y < (int) m_pWindow->getSize().y)
+      if (!m_bShowCursor)
       {
-        // apply our emulated position to the actual mouse cursor, so that it will show up at the same position
-        sf::Mouse::setPosition(sf::Vector2i(m_vEmulatedMousePos.x, m_vEmulatedMousePos.y), *m_pWindow);
+        m_pWindow->setMouseCursorVisible(true);
+
+        sf::Vector2i iCurPos = sf::Mouse::getPosition(*m_pWindow);
+
+        // if we lost focus, but the global mouse position is still inside the window (task switch), set the mouse position properly
+        if (iCurPos.x > 0 && iCurPos.y > 0 && iCurPos.x < (int)m_pWindow->getSize().x && iCurPos.y < (int)m_pWindow->getSize().y)
+        {
+          // apply our emulated position to the actual mouse cursor, so that it will show up at the same position
+          sf::Mouse::setPosition(sf::Vector2i(m_vEmulatedMousePos.x, m_vEmulatedMousePos.y), *m_pWindow);
+        }
       }
-    }
-    break;
+      break;
 
-  case sf::Event::GainedFocus:
-    s_bHasFocus = true;
+    case sf::Event::GainedFocus:
+      s_bHasFocus = true;
 
-    if (!m_bShowCursor)
-      m_pWindow->setMouseCursorVisible(false);
+      if (!m_bShowCursor)
+        m_pWindow->setMouseCursorVisible(false);
 
-    m_vLastMousePos.Set(sf::Mouse::getPosition().x, sf::Mouse::getPosition().y); // this ensures that the mouse diff is zero in the update step
-    m_vEmulatedMousePos.Set(sf::Mouse::getPosition(*m_pWindow).x, sf::Mouse::getPosition(*m_pWindow).y); // just copy the new mouse position into the emulated position
+      m_vLastMousePos.Set(sf::Mouse::getPosition().x,
+                          sf::Mouse::getPosition().y); // this ensures that the mouse diff is zero in the update step
+      m_vEmulatedMousePos.Set(sf::Mouse::getPosition(*m_pWindow).x,
+                              sf::Mouse::getPosition(*m_pWindow).y); // just copy the new mouse position into the emulated position
 
-    UpdateMouseCursor();
-    break;
+      UpdateMouseCursor();
+      break;
 
-  case sf::Event::MouseWheelMoved:
+    case sf::Event::MouseWheelMoved:
     {
       if (TheEvent.mouseWheel.delta > 0)
-        m_InputSlotValues[ezInputSlot_MouseWheelUp]   = (float)  TheEvent.mouseWheel.delta;
+        m_InputSlotValues[ezInputSlot_MouseWheelUp] = (float)TheEvent.mouseWheel.delta;
 
       if (TheEvent.mouseWheel.delta < 0)
-        m_InputSlotValues[ezInputSlot_MouseWheelDown] = (float) -TheEvent.mouseWheel.delta;
+        m_InputSlotValues[ezInputSlot_MouseWheelDown] = (float)-TheEvent.mouseWheel.delta;
     }
     break;
 
-  case sf::Event::MouseLeft:
+    case sf::Event::MouseLeft:
     {
       if (m_bClipCursor && s_bHasFocus)
         UpdateMouseCursor(); // this will re-center the mouse into the window
     }
     break;
 
-  case sf::Event::MouseMoved:
-    if (!s_bHasFocus)
+    case sf::Event::MouseMoved:
+      if (!s_bHasFocus)
+        break;
+
+      UpdateMouseCursor();
       break;
 
-    UpdateMouseCursor();
-    break;
-
-  default:
-    // Nobody really knows what happened during THE EVENT.
-    break;
+    default:
+      // Nobody really knows what happened during THE EVENT.
+      break;
   }
 }
 
@@ -405,7 +413,7 @@ void ezStandardInputDevice::UpdateMouseCursor()
   if (m_vLastMousePos.IsZero())
     m_vLastMousePos.Set(sf::Mouse::getPosition().x, sf::Mouse::getPosition().y);
 
-  ezVec2I32 vDiff (sf::Mouse::getPosition().x - m_vLastMousePos.x, sf::Mouse::getPosition().y - m_vLastMousePos.y);
+  ezVec2I32 vDiff(sf::Mouse::getPosition().x - m_vLastMousePos.x, sf::Mouse::getPosition().y - m_vLastMousePos.y);
 
   // if the mouse cursor is hidden, we track both 'absolute' and relative mouse position, by emulating the absolute mouse position
   if (m_bClipCursor)
@@ -419,8 +427,8 @@ void ezStandardInputDevice::UpdateMouseCursor()
     m_vEmulatedMousePos.x = ezMath::Clamp<ezInt32>(m_vEmulatedMousePos.x, 0, m_pWindow->getSize().x - 1);
     m_vEmulatedMousePos.y = ezMath::Clamp<ezInt32>(m_vEmulatedMousePos.y, 0, m_pWindow->getSize().y - 1);
 
-    m_InputSlotValues[ezInputSlot_MousePositionX] = ((float) m_vEmulatedMousePos.x / (float) m_pWindow->getSize().x) + m_uiWindowNumber;
-    m_InputSlotValues[ezInputSlot_MousePositionY] = ((float) m_vEmulatedMousePos.y / (float) m_pWindow->getSize().y);
+    m_InputSlotValues[ezInputSlot_MousePositionX] = ((float)m_vEmulatedMousePos.x / (float)m_pWindow->getSize().x) + m_uiWindowNumber;
+    m_InputSlotValues[ezInputSlot_MousePositionY] = ((float)m_vEmulatedMousePos.y / (float)m_pWindow->getSize().y);
   }
   else
   {
@@ -428,17 +436,17 @@ void ezStandardInputDevice::UpdateMouseCursor()
     m_vEmulatedMousePos.Set(sf::Mouse::getPosition(*m_pWindow).x, sf::Mouse::getPosition(*m_pWindow).y);
 
     // also store the absolute mouse position
-    m_InputSlotValues[ezInputSlot_MousePositionX] = ((float) m_vEmulatedMousePos.x / (float) m_pWindow->getSize().x) + m_uiWindowNumber;
-    m_InputSlotValues[ezInputSlot_MousePositionY] = ((float) m_vEmulatedMousePos.y / (float) m_pWindow->getSize().y);
+    m_InputSlotValues[ezInputSlot_MousePositionX] = ((float)m_vEmulatedMousePos.x / (float)m_pWindow->getSize().x) + m_uiWindowNumber;
+    m_InputSlotValues[ezInputSlot_MousePositionY] = ((float)m_vEmulatedMousePos.y / (float)m_pWindow->getSize().y);
   }
 
   // store the new mouse position as the current one
   m_vLastMousePos.Set(sf::Mouse::getPosition().x, sf::Mouse::getPosition().y);
 
-  m_InputSlotValues[ezInputSlot_MouseMoveNegX] += ((vDiff.x < 0) ? (float) -vDiff.x : 0.0f) * GetMouseSpeed().x;
-  m_InputSlotValues[ezInputSlot_MouseMovePosX] += ((vDiff.x > 0) ? (float)  vDiff.x : 0.0f) * GetMouseSpeed().x;
-  m_InputSlotValues[ezInputSlot_MouseMoveNegY] += ((vDiff.y < 0) ? (float) -vDiff.y : 0.0f) * GetMouseSpeed().y;
-  m_InputSlotValues[ezInputSlot_MouseMovePosY] += ((vDiff.y > 0) ? (float)  vDiff.y : 0.0f) * GetMouseSpeed().y;
+  m_InputSlotValues[ezInputSlot_MouseMoveNegX] += ((vDiff.x < 0) ? (float)-vDiff.x : 0.0f) * GetMouseSpeed().x;
+  m_InputSlotValues[ezInputSlot_MouseMovePosX] += ((vDiff.x > 0) ? (float)vDiff.x : 0.0f) * GetMouseSpeed().x;
+  m_InputSlotValues[ezInputSlot_MouseMoveNegY] += ((vDiff.y < 0) ? (float)-vDiff.y : 0.0f) * GetMouseSpeed().y;
+  m_InputSlotValues[ezInputSlot_MouseMovePosY] += ((vDiff.y > 0) ? (float)vDiff.y : 0.0f) * GetMouseSpeed().y;
 }
 
 void ezStandardInputDevice::SetClipMouseCursor(bool bEnable)
@@ -470,6 +478,3 @@ void ezStandardInputDevice::SetShowMouseCursor(bool bShow)
   m_bShowCursor = bShow;
   m_pWindow->setMouseCursorVisible(m_bShowCursor);
 }
-
-
-

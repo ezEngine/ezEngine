@@ -1,22 +1,18 @@
-
 #include <PCH.h>
+
 #include <Core/Application/Application.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Reflection/Reflection.h>
 
-ezApplication::ezApplication() :
-  m_iReturnCode(0),
-  m_uiArgumentCount(0),
-  m_ppArguments(nullptr),
-  m_bReportMemoryLeaks(true)
+ezApplication::ezApplication()
+    : m_iReturnCode(0)
+    , m_uiArgumentCount(0)
+    , m_ppArguments(nullptr)
+    , m_bReportMemoryLeaks(true)
 {
-
 }
 
-ezApplication::~ezApplication()
-{
-
-}
+ezApplication::~ezApplication() {}
 
 void ezApplication::BeforeCoreStartup()
 {
@@ -46,4 +42,3 @@ const char* ezApplication::GetArgument(ezUInt32 uiArgument) const
 ezApplication* ezApplication::s_pApplicationInstance = nullptr;
 
 EZ_STATICLINK_FILE(Core, Core_Application_Implementation_Application);
-

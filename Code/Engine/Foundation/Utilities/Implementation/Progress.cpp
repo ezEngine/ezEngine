@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Utilities/Progress.h>
 
 static ezProgress* s_pGlobal = nullptr;
@@ -183,7 +184,7 @@ void ezProgressRange::SetStepWeighting(ezUInt32 uiStep, float fWeigth)
 void ezProgressRange::ComputeCurStepBaseAndRange(double& out_base, double& out_range)
 {
   const double internalBase = ComputeInternalCompletion();
-  const double internalRange = m_StepWeights[ezMath::Min(m_uiCurrentStep, m_StepWeights.GetCount()-1)] / m_SummedWeight;
+  const double internalRange = m_StepWeights[ezMath::Min(m_uiCurrentStep, m_StepWeights.GetCount() - 1)] / m_SummedWeight;
 
   out_range = internalRange * m_PercentageRange;
   out_base = m_PercentageBase + (internalBase * m_PercentageRange);
@@ -212,7 +213,8 @@ void ezProgressRange::BeginNextStep(const char* szStepDisplayText, ezUInt32 uiNu
   m_uiCurrentStep += uiNumSteps;
 
   // there is one extra step added as an empty step
-  EZ_ASSERT_DEBUG(m_uiCurrentStep < m_StepWeights.GetCount(), "Too many steps completed! ({0} of {1})", m_uiCurrentStep, m_StepWeights.GetCount());
+  EZ_ASSERT_DEBUG(m_uiCurrentStep < m_StepWeights.GetCount(), "Too many steps completed! ({0} of {1})", m_uiCurrentStep,
+                  m_StepWeights.GetCount());
 
   const double internalCompletion = ComputeInternalCompletion();
 
@@ -244,4 +246,3 @@ bool ezProgressRange::WasCanceled() const
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_Progress);
-

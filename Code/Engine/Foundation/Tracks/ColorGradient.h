@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Math/Declarations.h>
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Math/Declarations.h>
 
 class ezStreamWriter;
 class ezStreamReader;
@@ -83,14 +83,18 @@ public:
   /// \brief Const access to a control point.
   const IntensityCP& GetIntensityControlPoint(ezUInt32 idx) const { return m_IntensityCPs[idx]; }
 
-  /// \brief Non-const access to a control point. If you modify the x coordinate, SortControlPoints() has to be called before evaluating the curve.
+  /// \brief Non-const access to a control point. If you modify the x coordinate, SortControlPoints() has to be called before evaluating the
+  /// curve.
   ColorCP& ModifyColorControlPoint(ezUInt32 idx) { return m_ColorCPs[idx]; }
-  /// \brief Non-const access to a control point. If you modify the x coordinate, SortControlPoints() has to be called before evaluating the curve.
+  /// \brief Non-const access to a control point. If you modify the x coordinate, SortControlPoints() has to be called before evaluating the
+  /// curve.
   AlphaCP& ModifyAlphaControlPoint(ezUInt32 idx) { return m_AlphaCPs[idx]; }
-  /// \brief Non-const access to a control point. If you modify the x coordinate, SortControlPoints() has to be called before evaluating the curve.
+  /// \brief Non-const access to a control point. If you modify the x coordinate, SortControlPoints() has to be called before evaluating the
+  /// curve.
   IntensityCP& ModifyIntensityControlPoint(ezUInt32 idx) { return m_IntensityCPs[idx]; }
 
-  /// \brief Sorts the control point arrays by their x-coordinate. The CPs have to be sorted before calling Evaluate(), otherwise the result will be wrong.
+  /// \brief Sorts the control point arrays by their x-coordinate. The CPs have to be sorted before calling Evaluate(), otherwise the result
+  /// will be wrong.
   void SortControlPoints();
 
   /// \brief Evaluates the curve at the given x-coordinate and returns RGBA and intensity separately.
@@ -126,4 +130,3 @@ private:
   ezHybridArray<AlphaCP, 8> m_AlphaCPs;
   ezHybridArray<IntensityCP, 8> m_IntensityCPs;
 };
-

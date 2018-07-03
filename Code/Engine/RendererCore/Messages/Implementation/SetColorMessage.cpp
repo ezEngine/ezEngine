@@ -3,7 +3,7 @@
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSetColorMode, 1)
 EZ_ENUM_CONSTANTS(ezSetColorMode::SetRGBA, ezSetColorMode::SetRGB, ezSetColorMode::SetAlpha, ezSetColorMode::AlphaBlend, ezSetColorMode::Additive, ezSetColorMode::Modulate)
-EZ_END_STATIC_REFLECTED_ENUM();
+EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSetColor);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetColor, 1, ezRTTIDefaultAllocator<ezMsgSetColor>)
@@ -13,15 +13,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetColor, 1, ezRTTIDefaultAllocator<ezMsgSe
     EZ_MEMBER_PROPERTY("Color", m_Color),
     EZ_ENUM_MEMBER_PROPERTY("Mode", ezSetColorMode, m_Mode)
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 
   EZ_BEGIN_ATTRIBUTES
   {
     new ezAutoGenVisScriptMsgSender,
   }
-  EZ_END_ATTRIBUTES
+  EZ_END_ATTRIBUTES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 void ezMsgSetColor::ModifyColor(ezColor& color) const
 {

@@ -496,7 +496,7 @@ struct ezVariant::TypeDeduction<ezVariantArray>
 };
 
 template <>
-struct ezVariant::TypeDeduction<ezArrayPtr<ezVariant> >
+struct ezVariant::TypeDeduction<ezArrayPtr<ezVariant>>
 {
   enum
   {
@@ -556,4 +556,3 @@ struct ezVariant::TypeDeduction<T*>
 };
 
 /// \endcond
-

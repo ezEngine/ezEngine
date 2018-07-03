@@ -13,7 +13,7 @@
 #include <ToolsFoundation/Command/NodeCommands.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineAssetDocument, 3, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 bool ezRenderPipelineNodeManager::InternalIsNode(const ezDocumentObject* pObject) const
 {

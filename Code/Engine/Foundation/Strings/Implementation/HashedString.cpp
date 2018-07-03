@@ -1,7 +1,8 @@
 #include <PCH.h>
+
 #include <Foundation/Strings/HashedString.h>
-#include <Foundation/Threading/Mutex.h>
 #include <Foundation/Threading/Lock.h>
+#include <Foundation/Threading/Mutex.h>
 
 static ezHashedString::StringStorage g_HashedStrings;
 static bool g_bHashedStringsInitialized = false;
@@ -57,7 +58,7 @@ ezUInt32 ezHashedString::ClearUnusedStrings()
 
   ezUInt32 uiDeleted = 0;
 
-  for (auto it = g_HashedStrings.GetIterator(); it.IsValid(); )
+  for (auto it = g_HashedStrings.GetIterator(); it.IsValid();)
   {
     if (it.Value().m_iRefCount == 0)
     {
@@ -95,4 +96,3 @@ void ezHashedString::Clear()
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_HashedString);
-

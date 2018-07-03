@@ -1,8 +1,8 @@
-﻿#pragma once
+#pragma once
 
-#include <Foundation/Strings/HashedString.h>
-#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Basics.h>
+#include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Strings/HashedString.h>
 
 class ezNode;
 
@@ -42,30 +42,21 @@ struct ezInputNodePin : public ezNodePin
 {
   EZ_DECLARE_POD_TYPE();
 
-  EZ_ALWAYS_INLINE ezInputNodePin()
-  {
-    m_Type = Type::Input;
-  }
+  EZ_ALWAYS_INLINE ezInputNodePin() { m_Type = Type::Input; }
 };
 
 struct ezOutputNodePin : public ezNodePin
 {
   EZ_DECLARE_POD_TYPE();
 
-  EZ_ALWAYS_INLINE ezOutputNodePin()
-  {
-    m_Type = Type::Output;
-  }
+  EZ_ALWAYS_INLINE ezOutputNodePin() { m_Type = Type::Output; }
 };
 
 struct ezPassThroughNodePin : public ezNodePin
 {
   EZ_DECLARE_POD_TYPE();
 
-  EZ_ALWAYS_INLINE ezPassThroughNodePin()
-  {
-    m_Type = Type::PassThrough;
-  }
+  EZ_ALWAYS_INLINE ezPassThroughNodePin() { m_Type = Type::PassThrough; }
 };
 
 class EZ_FOUNDATION_DLL ezNode : public ezReflectedClass
@@ -73,7 +64,7 @@ class EZ_FOUNDATION_DLL ezNode : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezNode, ezReflectedClass);
 
 public:
-  virtual ~ezNode() { }
+  virtual ~ezNode() {}
 
   void InitializePins();
 
@@ -93,4 +84,3 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezNodePin);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezInputNodePin);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezOutputNodePin);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezPassThroughNodePin);
-

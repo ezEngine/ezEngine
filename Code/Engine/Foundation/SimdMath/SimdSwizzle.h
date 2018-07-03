@@ -4,7 +4,7 @@ struct ezSwizzle
 {
   enum Enum
   {
-    //XX
+    // XX
     XXXX = 0x0000,
     XXXY = 0x0001,
     XXXZ = 0x0002,
@@ -25,7 +25,7 @@ struct ezSwizzle
     XXWZ = 0x0032,
     XXWW = 0x0033,
 
-    //XY
+    // XY
     XYXX = 0x0100,
     XYXY = 0x0101,
     XYXZ = 0x0102,
@@ -46,7 +46,7 @@ struct ezSwizzle
     XYWZ = 0x0132,
     XYWW = 0x0133,
 
-    //XZ
+    // XZ
     XZXX = 0x0200,
     XZXY = 0x0201,
     XZXZ = 0x0202,
@@ -67,7 +67,7 @@ struct ezSwizzle
     XZWZ = 0x0232,
     XZWW = 0x0233,
 
-    //XW
+    // XW
     XWXX = 0x0300,
     XWXY = 0x0301,
     XWXZ = 0x0302,
@@ -89,7 +89,7 @@ struct ezSwizzle
     XWWW = 0x0333,
 
     //////////////
-    //YX
+    // YX
     YXXX = 0x1000,
     YXXY = 0x1001,
     YXXZ = 0x1002,
@@ -110,7 +110,7 @@ struct ezSwizzle
     YXWZ = 0x1032,
     YXWW = 0x1033,
 
-    //YY
+    // YY
     YYXX = 0x1100,
     YYXY = 0x1101,
     YYXZ = 0x1102,
@@ -131,7 +131,7 @@ struct ezSwizzle
     YYWZ = 0x1132,
     YYWW = 0x1133,
 
-    //YZ
+    // YZ
     YZXX = 0x1200,
     YZXY = 0x1201,
     YZXZ = 0x1202,
@@ -152,7 +152,7 @@ struct ezSwizzle
     YZWZ = 0x1232,
     YZWW = 0x1233,
 
-    //YW
+    // YW
     YWXX = 0x1300,
     YWXY = 0x1301,
     YWXZ = 0x1302,
@@ -174,7 +174,7 @@ struct ezSwizzle
     YWWW = 0x1333,
 
     //////////////
-    //ZX
+    // ZX
     ZXXX = 0x2000,
     ZXXY = 0x2001,
     ZXXZ = 0x2002,
@@ -195,7 +195,7 @@ struct ezSwizzle
     ZXWZ = 0x2032,
     ZXWW = 0x2033,
 
-    //ZY
+    // ZY
     ZYXX = 0x2100,
     ZYXY = 0x2101,
     ZYXZ = 0x2102,
@@ -216,7 +216,7 @@ struct ezSwizzle
     ZYWZ = 0x2132,
     ZYWW = 0x2133,
 
-    //ZZ
+    // ZZ
     ZZXX = 0x2200,
     ZZXY = 0x2201,
     ZZXZ = 0x2202,
@@ -237,7 +237,7 @@ struct ezSwizzle
     ZZWZ = 0x2232,
     ZZWW = 0x2233,
 
-    //ZW
+    // ZW
     ZWXX = 0x2300,
     ZWXY = 0x2301,
     ZWXZ = 0x2302,
@@ -259,7 +259,7 @@ struct ezSwizzle
     ZWWW = 0x2333,
 
     //////////////
-    //WX
+    // WX
     WXXX = 0x3000,
     WXXY = 0x3001,
     WXXZ = 0x3002,
@@ -280,7 +280,7 @@ struct ezSwizzle
     WXWZ = 0x3032,
     WXWW = 0x3033,
 
-    //WY
+    // WY
     WYXX = 0x3100,
     WYXY = 0x3101,
     WYXZ = 0x3102,
@@ -301,7 +301,7 @@ struct ezSwizzle
     WYWZ = 0x3132,
     WYWW = 0x3133,
 
-    //WZ
+    // WZ
     WZXX = 0x3200,
     WZXY = 0x3201,
     WZXZ = 0x3202,
@@ -322,7 +322,7 @@ struct ezSwizzle
     WZWZ = 0x3232,
     WZWW = 0x3233,
 
-    //WW
+    // WW
     WWXX = 0x3300,
     WWXY = 0x3301,
     WWXZ = 0x3302,
@@ -344,4 +344,3 @@ struct ezSwizzle
     WWWW = 0x3333
   };
 };
-

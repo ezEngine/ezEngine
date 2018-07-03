@@ -1,15 +1,10 @@
 #include <PCH.h>
+
 #include <Utilities/Textures/TexturePacker.h>
 
-ezTexturePacker::ezTexturePacker()
-{
+ezTexturePacker::ezTexturePacker() {}
 
-}
-
-ezTexturePacker::~ezTexturePacker()
-{
-
-}
+ezTexturePacker::~ezTexturePacker() {}
 
 void ezTexturePacker::SetTextureSize(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiReserveTextures /*= 0*/)
 {
@@ -51,10 +46,7 @@ ezResult ezTexturePacker::PackTextures()
     sorted[i].m_Priority = m_Textures[i].m_Priority;
   }
 
-  sorted.Sort([](const sortdata& lhs, const sortdata& rhs) -> bool
-  {
-    return lhs.m_Priority > rhs.m_Priority;
-  });
+  sorted.Sort([](const sortdata& lhs, const sortdata& rhs) -> bool { return lhs.m_Priority > rhs.m_Priority; });
 
   for (ezUInt32 idx = 0; idx < sorted.GetCount(); ++idx)
   {
@@ -79,7 +71,7 @@ bool ezTexturePacker::TryPlaceTexture(ezUInt32 idx)
     for (ezUInt32 x = 0; x < m_uiWidth; ++x)
     {
       if (!TryPlaceAt(ezVec2U32(x, y), tex.m_Size))
-          continue;
+        continue;
 
       tex.m_Position.Set(x, y);
       return true;
@@ -127,4 +119,3 @@ bool ezTexturePacker::TryPlaceAt(ezVec2U32 pos, ezVec2U32 size)
 
 
 EZ_STATICLINK_FILE(Utilities, Utilities_Textures_Implementation_TexturePacker);
-

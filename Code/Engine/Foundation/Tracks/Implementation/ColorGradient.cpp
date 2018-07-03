@@ -1,6 +1,7 @@
 #include <PCH.h>
-#include <Foundation/Tracks/ColorGradient.h>
+
 #include <Foundation/IO/Stream.h>
+#include <Foundation/Tracks/ColorGradient.h>
 
 ezColorGradient::ezColorGradient()
 {
@@ -84,7 +85,6 @@ void ezColorGradient::SortControlPoints()
   m_IntensityCPs.Sort();
 
   PrecomputeLerpNormalizer();
-
 }
 
 void ezColorGradient::PrecomputeLerpNormalizer()
@@ -196,21 +196,21 @@ void ezColorGradient::EvaluateColor(double x, ezColor& rgb) const
       return;
     }
 
-found:
-    {
-      const ColorCP& cpl = m_ColorCPs[uiControlPoint];
-      const ColorCP& cpr = m_ColorCPs[uiControlPoint + 1];
+  found:
+  {
+    const ColorCP& cpl = m_ColorCPs[uiControlPoint];
+    const ColorCP& cpr = m_ColorCPs[uiControlPoint + 1];
 
-      const ezColor lhs(ezColorGammaUB(cpl.m_GammaRed, cpl.m_GammaGreen, cpl.m_GammaBlue, 255));
-      const ezColor rhs(ezColorGammaUB(cpr.m_GammaRed, cpr.m_GammaGreen, cpr.m_GammaBlue, 255));
+    const ezColor lhs(ezColorGammaUB(cpl.m_GammaRed, cpl.m_GammaGreen, cpl.m_GammaBlue, 255));
+    const ezColor rhs(ezColorGammaUB(cpr.m_GammaRed, cpr.m_GammaGreen, cpr.m_GammaBlue, 255));
 
-      /// \todo Use a midpoint interpolation
+    /// \todo Use a midpoint interpolation
 
-      // interpolate (linear for now)
-      const float lerpX = (float)(x - cpl.m_PosX) * cpl.m_fInvDistToNextCp;
+    // interpolate (linear for now)
+    const float lerpX = (float)(x - cpl.m_PosX) * cpl.m_fInvDistToNextCp;
 
-      rgb = ezMath::Lerp(lhs, rhs, lerpX);
-    }
+    rgb = ezMath::Lerp(lhs, rhs, lerpX);
+  }
   }
   else if (m_ColorCPs.GetCount() == 1)
   {
@@ -249,18 +249,18 @@ void ezColorGradient::EvaluateAlpha(double x, ezUInt8& alpha) const
       return;
     }
 
-found:
-    {
-      /// \todo Use a midpoint interpolation
+  found:
+  {
+    /// \todo Use a midpoint interpolation
 
-      const AlphaCP& cpl = m_AlphaCPs[uiControlPoint];
-      const AlphaCP& cpr = m_AlphaCPs[uiControlPoint + 1];
+    const AlphaCP& cpl = m_AlphaCPs[uiControlPoint];
+    const AlphaCP& cpr = m_AlphaCPs[uiControlPoint + 1];
 
-      // interpolate (linear for now)
-      const float lerpX = (float)(x - cpl.m_PosX) * cpl.m_fInvDistToNextCp;
+    // interpolate (linear for now)
+    const float lerpX = (float)(x - cpl.m_PosX) * cpl.m_fInvDistToNextCp;
 
-      alpha = ezMath::Lerp(cpl.m_Alpha, cpr.m_Alpha, lerpX);
-    }
+    alpha = ezMath::Lerp(cpl.m_Alpha, cpr.m_Alpha, lerpX);
+  }
   }
   else if (m_AlphaCPs.GetCount() == 1)
   {
@@ -299,18 +299,18 @@ void ezColorGradient::EvaluateIntensity(double x, float& intensity) const
       return;
     }
 
-found:
-    {
-      const IntensityCP& cpl = m_IntensityCPs[uiControlPoint];
-      const IntensityCP& cpr = m_IntensityCPs[uiControlPoint + 1];
+  found:
+  {
+    const IntensityCP& cpl = m_IntensityCPs[uiControlPoint];
+    const IntensityCP& cpr = m_IntensityCPs[uiControlPoint + 1];
 
-      /// \todo Use a midpoint interpolation
+    /// \todo Use a midpoint interpolation
 
-      // interpolate (linear for now)
-      const float lerpX = (float)(x - cpl.m_PosX) * cpl.m_fInvDistToNextCp;
+    // interpolate (linear for now)
+    const float lerpX = (float)(x - cpl.m_PosX) * cpl.m_fInvDistToNextCp;
 
-      intensity = ezMath::Lerp(cpl.m_Intensity, cpr.m_Intensity, lerpX);
-    }
+    intensity = ezMath::Lerp(cpl.m_Intensity, cpr.m_Intensity, lerpX);
+  }
   }
   else if (m_IntensityCPs.GetCount() == 1)
   {
@@ -382,7 +382,8 @@ void ezColorGradient::Load(ezStreamReader& stream)
     float x;
     for (auto& cp : m_ColorCPs)
     {
-      stream >> x; cp.m_PosX = x; // float
+      stream >> x;
+      cp.m_PosX = x; // float
       stream >> cp.m_GammaRed;
       stream >> cp.m_GammaGreen;
       stream >> cp.m_GammaBlue;
@@ -390,13 +391,15 @@ void ezColorGradient::Load(ezStreamReader& stream)
 
     for (auto& cp : m_AlphaCPs)
     {
-      stream >> x; cp.m_PosX = x; // float
+      stream >> x;
+      cp.m_PosX = x; // float
       stream >> cp.m_Alpha;
     }
 
     for (auto& cp : m_IntensityCPs)
     {
-      stream >> x; cp.m_PosX = x; // float
+      stream >> x;
+      cp.m_PosX = x; // float
       stream >> cp.m_Intensity;
     }
   }
@@ -429,4 +432,3 @@ void ezColorGradient::Load(ezStreamReader& stream)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Tracks_Implementation_ColorGradient);
-

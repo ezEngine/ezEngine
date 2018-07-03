@@ -13,7 +13,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezDecalMode, 1)
   EZ_ENUM_CONSTANT(ezDecalMode::BaseColorRoughness),
   EZ_ENUM_CONSTANT(ezDecalMode::NormalRoughnessOcclusion),
   EZ_ENUM_CONSTANT(ezDecalMode::Emissive)
-EZ_END_STATIC_REFLECTED_ENUM();
+EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetProperties, 1, ezRTTIDefaultAllocator<ezDecalAssetProperties>)
 {
@@ -30,9 +30,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetProperties, 1, ezRTTIDefaultAllocato
     EZ_MEMBER_PROPERTY("Occlusion", m_sOcclusion)->AddAttributes(new ezFileBrowserAttribute("Select Occlusion Map", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
     EZ_MEMBER_PROPERTY("OcclusionValue", m_fOcclusionValue)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
   }
-  EZ_END_PROPERTIES
+  EZ_END_PROPERTIES;
 }
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezDecalAssetProperties::ezDecalAssetProperties()
   : m_fRoughnessValue(0.7f)
@@ -91,7 +91,7 @@ void ezDecalAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEv
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetDocument, 3, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezDecalAssetDocument::ezDecalAssetDocument(const char* szDocumentPath)
   : ezSimpleAssetDocument<ezDecalAssetProperties>(szDocumentPath, true)
@@ -167,7 +167,7 @@ ezStatus ezDecalAssetDocument::InternalCreateThumbnail(const ezAssetFileHeader& 
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezDecalAssetDocumentGenerator>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezDecalAssetDocumentGenerator::ezDecalAssetDocumentGenerator()
 {

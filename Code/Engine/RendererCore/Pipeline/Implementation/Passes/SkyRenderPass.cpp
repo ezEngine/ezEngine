@@ -2,7 +2,7 @@
 #include <RendererCore/Pipeline/Passes/SkyRenderPass.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkyRenderPass, 1, ezRTTIDefaultAllocator<ezSkyRenderPass>)
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSkyRenderPass::ezSkyRenderPass(const char* szName)
   : ezForwardRenderPass(szName)

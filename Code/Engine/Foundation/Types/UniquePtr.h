@@ -1,8 +1,9 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 
-/// \brief A Unique ptr manages an object and destroys that object when it goes out of scope. It is ensure that only one unique ptr can manage the same object.
+/// \brief A Unique ptr manages an object and destroys that object when it goes out of scope. It is ensure that only one unique ptr can
+/// manage the same object.
 template <typename T>
 class ezUniquePtr
 {
@@ -16,11 +17,13 @@ public:
   template <typename U>
   ezUniquePtr(const ezInternal::NewInstance<U>& instance);
 
-  /// \brief Creates a unique ptr from a pointer and an allocator. The passed allocator will be used to destroy the instance when the unique ptr goes out of scope.
+  /// \brief Creates a unique ptr from a pointer and an allocator. The passed allocator will be used to destroy the instance when the unique
+  /// ptr goes out of scope.
   template <typename U>
   ezUniquePtr(U* pInstance, ezAllocatorBase* pAllocator);
 
-  /// \brief Move constructs a unique ptr from another. The other unique ptr will be empty afterwards to guarantee that there is only one unique ptr managing the same object.
+  /// \brief Move constructs a unique ptr from another. The other unique ptr will be empty afterwards to guarantee that there is only one
+  /// unique ptr managing the same object.
   template <typename U>
   ezUniquePtr(ezUniquePtr<U>&& other);
 
@@ -34,7 +37,8 @@ public:
   template <typename U>
   void operator=(const ezInternal::NewInstance<U>& instance);
 
-  /// \brief Move assigns a unique ptr from another. The other unique ptr will be empty afterwards to guarantee that there is only one unique ptr managing the same object.
+  /// \brief Move assigns a unique ptr from another. The other unique ptr will be empty afterwards to guarantee that there is only one
+  /// unique ptr managing the same object.
   template <typename U>
   void operator=(ezUniquePtr<U>&& other);
 
@@ -81,7 +85,7 @@ public:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezUniquePtr);
 
 private:
-  template<typename U>
+  template <typename U>
   friend class ezUniquePtr;
 
   T* m_pInstance;
@@ -89,4 +93,3 @@ private:
 };
 
 #include <Foundation/Types/Implementation/UniquePtr_inl.h>
-

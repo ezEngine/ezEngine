@@ -37,7 +37,7 @@ EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& object, con
 {
   CheckForReadAccess();
   EZ_ASSERT_DEV(object.IsInvalidated() || object.m_InternalId.m_WorldIndex == m_uiIndex,
-    "Object does not belong to this world. Expected world id {0} got id {1}", m_uiIndex, object.m_InternalId.m_WorldIndex);
+                "Object does not belong to this world. Expected world id {0} got id {1}", m_uiIndex, object.m_InternalId.m_WorldIndex);
 
   ezGameObject* pObject = nullptr;
   bool bResult = m_Data.m_Objects.TryGetValue(object, pObject);
@@ -106,8 +106,7 @@ EZ_FORCE_INLINE void ezWorld::Traverse(VisitorFunc visitorFunc, TraversalMethod 
 template <typename ModuleType>
 EZ_ALWAYS_INLINE ModuleType* ezWorld::GetOrCreateModule()
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezWorldModule, ModuleType),
-    "Not a valid module type");
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezWorldModule, ModuleType), "Not a valid module type");
 
   return ezStaticCast<ModuleType*>(GetOrCreateModule(ezGetStaticRTTI<ModuleType>()));
 }
@@ -115,8 +114,7 @@ EZ_ALWAYS_INLINE ModuleType* ezWorld::GetOrCreateModule()
 template <typename ModuleType>
 EZ_ALWAYS_INLINE void ezWorld::DeleteModule()
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezWorldModule, ModuleType),
-    "Not a valid module type");
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezWorldModule, ModuleType), "Not a valid module type");
 
   DeleteModule(ezGetStaticRTTI<ModuleType>());
 }
@@ -124,8 +122,7 @@ EZ_ALWAYS_INLINE void ezWorld::DeleteModule()
 template <typename ModuleType>
 EZ_ALWAYS_INLINE ModuleType* ezWorld::GetModule()
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezWorldModule, ModuleType),
-    "Not a valid module type");
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezWorldModule, ModuleType), "Not a valid module type");
 
   return ezStaticCast<ModuleType*>(GetModule(ezGetStaticRTTI<ModuleType>()));
 }
@@ -133,8 +130,7 @@ EZ_ALWAYS_INLINE ModuleType* ezWorld::GetModule()
 template <typename ModuleType>
 EZ_ALWAYS_INLINE const ModuleType* ezWorld::GetModule() const
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezWorldModule, ModuleType),
-    "Not a valid module type");
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezWorldModule, ModuleType), "Not a valid module type");
 
   return ezStaticCast<const ModuleType*>(GetModule(ezGetStaticRTTI<ModuleType>()));
 }
@@ -142,8 +138,7 @@ EZ_ALWAYS_INLINE const ModuleType* ezWorld::GetModule() const
 template <typename ManagerType>
 ManagerType* ezWorld::GetOrCreateComponentManager()
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType),
-    "Not a valid component manager type");
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType), "Not a valid component manager type");
 
   CheckForWriteAccess();
 
@@ -176,8 +171,7 @@ EZ_ALWAYS_INLINE ezComponentManagerBase* ezWorld::GetOrCreateComponentManager(co
 template <typename ManagerType>
 void ezWorld::DeleteComponentManager()
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType),
-    "Not a valid component manager type");
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType), "Not a valid component manager type");
 
   CheckForWriteAccess();
 
@@ -198,8 +192,7 @@ void ezWorld::DeleteComponentManager()
 template <typename ManagerType>
 EZ_FORCE_INLINE ManagerType* ezWorld::GetComponentManager()
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType),
-    "Not a valid component manager type");
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType), "Not a valid component manager type");
 
   CheckForWriteAccess();
 
@@ -215,8 +208,7 @@ EZ_FORCE_INLINE ManagerType* ezWorld::GetComponentManager()
 template <typename ManagerType>
 EZ_FORCE_INLINE const ManagerType* ezWorld::GetComponentManager() const
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType),
-    "Not a valid component manager type");
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType), "Not a valid component manager type");
 
   CheckForReadAccess();
 
@@ -343,13 +335,15 @@ EZ_FORCE_INLINE void ezWorld::SendMessageRecursive(const ezGameObjectHandle& rec
   }
 }
 
-EZ_ALWAYS_INLINE void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
+EZ_ALWAYS_INLINE void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg,
+                                           ezObjectMsgQueueType::Enum queueType, ezTime delay) const
 {
   // This method is allowed to be called from multiple threads.
   PostMessage(receiverObject, msg, queueType, delay, false);
 }
 
-EZ_ALWAYS_INLINE void ezWorld::PostMessageRecursive(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
+EZ_ALWAYS_INLINE void ezWorld::PostMessageRecursive(const ezGameObjectHandle& receiverObject, const ezMessage& msg,
+                                                    ezObjectMsgQueueType::Enum queueType, ezTime delay) const
 {
   // This method is allowed to be called from multiple threads.
   PostMessage(receiverObject, msg, queueType, delay, true);
@@ -481,13 +475,13 @@ EZ_FORCE_INLINE void* ezWorld::GetUserData() const
   return m_Data.m_pUserData;
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezUInt32 ezWorld::GetWorldCount()
 {
   return s_Worlds.GetCount();
 }
 
-//static
+// static
 EZ_ALWAYS_INLINE ezWorld* ezWorld::GetWorld(ezUInt32 uiIndex)
 {
   return s_Worlds[uiIndex];
@@ -500,7 +494,8 @@ EZ_ALWAYS_INLINE void ezWorld::CheckForReadAccess() const
 
 EZ_ALWAYS_INLINE void ezWorld::CheckForWriteAccess() const
 {
-  EZ_ASSERT_DEV(m_Data.m_WriteThreadID == ezThreadUtils::GetCurrentThreadID(), "Trying to write to World '{0}', but it is not marked for writing.", GetName());
+  EZ_ASSERT_DEV(m_Data.m_WriteThreadID == ezThreadUtils::GetCurrentThreadID(),
+                "Trying to write to World '{0}', but it is not marked for writing.", GetName());
 }
 
 EZ_ALWAYS_INLINE ezGameObject* ezWorld::GetObjectUnchecked(ezUInt32 uiIndex) const
@@ -512,5 +507,3 @@ EZ_ALWAYS_INLINE bool ezWorld::ReportErrorWhenStaticObjectMoves() const
 {
   return m_Data.m_bReportErrorWhenStaticObjectMoves;
 }
-
-

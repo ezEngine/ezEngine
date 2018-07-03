@@ -1,11 +1,13 @@
 #include <PCH.h>
+
 #include <Foundation/Strings/StringConversion.h>
 
 // **************** ezStringWChar ****************
 
 void ezStringWChar::operator=(const char* szUtf8)
 {
-  EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(szUtf8), "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
+  EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(szUtf8),
+                "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
 
   m_Data.Clear();
 
@@ -21,7 +23,7 @@ void ezStringWChar::operator=(const char* szUtf8)
       const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeUtf8ToUtf32(szUtf8);
 
       // encode utf32 to wchar_t
-      ezUnicodeUtils::UtfInserter<wchar_t, ezHybridArray<wchar_t, BufferSize> > tempInserter(&m_Data);
+      ezUnicodeUtils::UtfInserter<wchar_t, ezHybridArray<wchar_t, BufferSize>> tempInserter(&m_Data);
       ezUnicodeUtils::EncodeUtf32ToWChar(uiUtf32, tempInserter);
     }
   }
@@ -46,7 +48,7 @@ void ezStringWChar::operator=(const ezUInt16* szUtf16)
       const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeUtf16ToUtf32(szUtf16);
 
       // encode utf32 to wchar_t
-      ezUnicodeUtils::UtfInserter<wchar_t, ezHybridArray<wchar_t, BufferSize> > tempInserter(&m_Data);
+      ezUnicodeUtils::UtfInserter<wchar_t, ezHybridArray<wchar_t, BufferSize>> tempInserter(&m_Data);
       ezUnicodeUtils::EncodeUtf32ToWChar(uiUtf32, tempInserter);
     }
   }
@@ -69,7 +71,7 @@ void ezStringWChar::operator=(const ezUInt32* szUtf32)
       ++szUtf32;
 
       // encode utf32 to wchar_t
-      ezUnicodeUtils::UtfInserter<wchar_t, ezHybridArray<wchar_t, BufferSize> > tempInserter(&m_Data);
+      ezUnicodeUtils::UtfInserter<wchar_t, ezHybridArray<wchar_t, BufferSize>> tempInserter(&m_Data);
       ezUnicodeUtils::EncodeUtf32ToWChar(uiUtf32, tempInserter);
     }
   }
@@ -102,7 +104,8 @@ void ezStringWChar::operator=(const wchar_t* szWChar)
 
 void ezStringUtf8::operator=(const char* szUtf8)
 {
-  EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(szUtf8), "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
+  EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(szUtf8),
+                "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
 
   m_Data.Clear();
 
@@ -139,7 +142,7 @@ void ezStringUtf8::operator=(const ezUInt16* szUtf16)
       const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeUtf16ToUtf32(szUtf16);
 
       // encode utf32 to wchar_t
-      ezUnicodeUtils::UtfInserter<char, ezHybridArray<char, BufferSize> > tempInserter(&m_Data);
+      ezUnicodeUtils::UtfInserter<char, ezHybridArray<char, BufferSize>> tempInserter(&m_Data);
       ezUnicodeUtils::EncodeUtf32ToUtf8(uiUtf32, tempInserter);
     }
   }
@@ -162,7 +165,7 @@ void ezStringUtf8::operator=(const ezUInt32* szUtf32)
       ++szUtf32;
 
       // encode utf32 to wchar_t
-      ezUnicodeUtils::UtfInserter<char, ezHybridArray<char, BufferSize> > tempInserter(&m_Data);
+      ezUnicodeUtils::UtfInserter<char, ezHybridArray<char, BufferSize>> tempInserter(&m_Data);
       ezUnicodeUtils::EncodeUtf32ToUtf8(uiUtf32, tempInserter);
     }
   }
@@ -183,7 +186,7 @@ void ezStringUtf8::operator=(const wchar_t* szWChar)
       const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeWCharToUtf32(szWChar);
 
       // encode utf32 to wchar_t
-      ezUnicodeUtils::UtfInserter<char, ezHybridArray<char, BufferSize> > tempInserter(&m_Data);
+      ezUnicodeUtils::UtfInserter<char, ezHybridArray<char, BufferSize>> tempInserter(&m_Data);
       ezUnicodeUtils::EncodeUtf32ToUtf8(uiUtf32, tempInserter);
     }
   }
@@ -222,7 +225,8 @@ void ezStringUtf8::operator=(const HSTRING& hstring)
 
 void ezStringUtf16::operator=(const char* szUtf8)
 {
-  EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(szUtf8), "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
+  EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(szUtf8),
+                "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
 
   m_Data.Clear();
 
@@ -237,7 +241,7 @@ void ezStringUtf16::operator=(const char* szUtf8)
       const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeUtf8ToUtf32(szUtf8);
 
       // encode utf32 to wchar_t
-      ezUnicodeUtils::UtfInserter<ezUInt16, ezHybridArray<ezUInt16, BufferSize> > tempInserter(&m_Data);
+      ezUnicodeUtils::UtfInserter<ezUInt16, ezHybridArray<ezUInt16, BufferSize>> tempInserter(&m_Data);
       ezUnicodeUtils::EncodeUtf32ToUtf16(uiUtf32, tempInserter);
     }
   }
@@ -282,7 +286,7 @@ void ezStringUtf16::operator=(const ezUInt32* szUtf32)
       ++szUtf32;
 
       // encode utf32 to wchar_t
-      ezUnicodeUtils::UtfInserter<ezUInt16, ezHybridArray<ezUInt16, BufferSize> > tempInserter(&m_Data);
+      ezUnicodeUtils::UtfInserter<ezUInt16, ezHybridArray<ezUInt16, BufferSize>> tempInserter(&m_Data);
       ezUnicodeUtils::EncodeUtf32ToUtf16(uiUtf32, tempInserter);
     }
   }
@@ -303,7 +307,7 @@ void ezStringUtf16::operator=(const wchar_t* szWChar)
       const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeWCharToUtf32(szWChar);
 
       // encode utf32 to wchar_t
-      ezUnicodeUtils::UtfInserter<ezUInt16, ezHybridArray<ezUInt16, BufferSize> > tempInserter(&m_Data);
+      ezUnicodeUtils::UtfInserter<ezUInt16, ezHybridArray<ezUInt16, BufferSize>> tempInserter(&m_Data);
       ezUnicodeUtils::EncodeUtf32ToUtf16(uiUtf32, tempInserter);
     }
   }
@@ -314,14 +318,12 @@ void ezStringUtf16::operator=(const wchar_t* szWChar)
 
 
 
-
-
-
 // **************** ezStringUtf32 ****************
 
 void ezStringUtf32::operator=(const char* szUtf8)
 {
-  EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(szUtf8), "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
+  EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(szUtf8),
+                "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
 
   m_Data.Clear();
 
@@ -400,9 +402,7 @@ void ezStringUtf32::operator=(const wchar_t* szWChar)
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 
-ezStringHString::ezStringHString()
-{
-}
+ezStringHString::ezStringHString() {}
 
 ezStringHString::ezStringHString(const char* szUtf8)
 {
@@ -448,4 +448,3 @@ void ezStringHString::operator=(const wchar_t* szWChar)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_StringConversion);
-

@@ -1,21 +1,20 @@
 #pragma once
 
 #include <Core/Basics.h>
-#include <Foundation/Strings/String.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Strings/String.h>
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
-extern "C"
-{
-  #include <ThirdParty/Lua/lua.h>
-  #include <ThirdParty/Lua/lualib.h>
-  #include <ThirdParty/Lua/lauxlib.h>
+extern "C" {
+#include <ThirdParty/Lua/lauxlib.h>
+#include <ThirdParty/Lua/Lua.h>
+#include <ThirdParty/Lua/lualib.h>
 }
 
 /// This class encapsulates ONE Lua-Script.
 ///
-///It makes it easier to interact with the script, to get data
+/// It makes it easier to interact with the script, to get data
 /// out of it (e.g. for configuration files), to register C-functions to it and to call script-functions. It is possible
 /// to load more than one Lua-File into one Lua-Script, one can dynamically generate code and pass it as
 /// a string to the script.
@@ -28,7 +27,6 @@ extern "C"
 class EZ_CORE_DLL ezLuaWrapper
 {
 public:
-
   /// \name Setting up the Script
   /// @{
 
@@ -44,9 +42,9 @@ public:
   /// Clears the script to be empty.
   void Clear(); // [tested]
 
-  /// Returns the lua state for custom access.
+  /// Returns the Lua state for custom access.
   ///
-  /// It is not recommended to modify the lua state directly, however for certain functionality that the wrapper does not implement
+  /// It is not recommended to modify the Lua state directly, however for certain functionality that the wrapper does not implement
   /// this might be necessary. Make sure to either do all modifications at the start, before using the LuaWrapper on it (as it has some
   /// internal state), or to only do actions that will end up in the same stack state as before.
   lua_State* GetLuaState();
@@ -54,12 +52,14 @@ public:
   /// Executes a string containing Lua-Code.
   ///
   /// \param szString
-  ///   The lua code to execute.
+  ///   The Lua code to execute.
   /// \param szDebugChunkName
-  ///   An optional name for the lua code, to ease debugging when errors occur.
+  ///   An optional name for the Lua code, to ease debugging when errors occur.
   /// \param pLogInterface
-  ///   An optional log interface where error messages are written to. If nullptr is passed in, error messages are written to the global log.
-  ezResult ExecuteString(const char* szString, const char* szDebugChunkName = "chunk", ezLogInterface* pLogInterface = nullptr) const; // [tested]
+  ///   An optional log interface where error messages are written to. If nullptr is passed in, error messages are written to the global
+  ///   log.
+  ezResult ExecuteString(const char* szString, const char* szDebugChunkName = "chunk",
+                         ezLogInterface* pLogInterface = nullptr) const; // [tested]
 
   /// @}
 
@@ -111,7 +111,7 @@ public:
   float GetFloatVariable(const char* szName, float fDefault = 0.0f) const; // [tested]
 
   /// Returns the Value of the Variable with the given name, or the default-value, if it does not exist.
-  const char* GetStringVariable(const char* szName, const char* szDefault="") const; // [tested]
+  const char* GetStringVariable(const char* szName, const char* szDefault = "") const; // [tested]
 
   /// @}
 
@@ -144,18 +144,20 @@ public:
   /// Registers a C-Function to the Script under a certain Name.
   void RegisterCFunction(const char* szFunctionName, lua_CFunction pFunction, void* pLightUserData = nullptr) const; // [tested]
 
-  /// Prepares a function to be called. After that the parameters can be pushed. Returns false if no function with the given name exists in the scope.
+  /// Prepares a function to be called. After that the parameters can be pushed. Returns false if no function with the given name exists in
+  /// the scope.
   bool PrepareFunctionCall(const char* szFunctionName); // [tested]
 
   /// Calls the prepared Function with the previously pushed Parameters.
   ///
-  /// You must pass in how many return values you expect from this function and the function must stick to that, otherwise an assert will trigger.
-  /// After you are finished inspecting the return values, you need to call DiscardReturnValues() to clean them up.
+  /// You must pass in how many return values you expect from this function and the function must stick to that, otherwise an assert will
+  /// trigger. After you are finished inspecting the return values, you need to call DiscardReturnValues() to clean them up.
   ///
   /// Returns EZ_FAILURE if anything went wrong during function execution. Reports errors via \a pLogInterface.
   ezResult CallPreparedFunction(ezUInt32 iExpectedReturnValues = 0, ezLogInterface* pLogInterface = nullptr); // [tested]
 
-  /// Call this after you called a prepared Lua-function, that returned some values. If zero values were returned, this function is optional.
+  /// Call this after you called a prepared Lua-function, that returned some values. If zero values were returned, this function is
+  /// optional.
   void DiscardReturnValues(); // [tested]
 
   /// Return the value of this function in a called C-Function.
@@ -178,23 +180,23 @@ public:
 
   /// Pushes a parameter on the stack to be passed to the next function called.
   /// Do this after PrepareFunctionCall() and before CallPreparedFunction().
-  void PushParameter (ezInt32 iParam); // [tested]
+  void PushParameter(ezInt32 iParam); // [tested]
 
   /// Pushes a parameter on the stack to be passed to the next function called.
   /// Do this after PrepareFunctionCall() and before CallPreparedFunction().
-  void PushParameter (bool bParam); // [tested]
+  void PushParameter(bool bParam); // [tested]
 
   /// Pushes a parameter on the stack to be passed to the next function called.
   /// Do this after PrepareFunctionCall() and before CallPreparedFunction().
-  void PushParameter (float fParam); // [tested]
+  void PushParameter(float fParam); // [tested]
 
   /// Pushes a parameter on the stack to be passed to the next function called.
   /// Do this after PrepareFunctionCall() and before CallPreparedFunction().
-  void PushParameter (const char* szParam); // [tested]
+  void PushParameter(const char* szParam); // [tested]
 
   /// Pushes a parameter on the stack to be passed to the next function called.
   /// Do this after PrepareFunctionCall() and before CallPreparedFunction().
-  void PushParameter (const char* szParam, ezUInt32 length); // [tested]
+  void PushParameter(const char* szParam, ezUInt32 length); // [tested]
 
   /// Pushes a nil parameter on the stack to be passed to the next function called.
   /// Do this after PrepareFunctionCall() and before CallPreparedFunction().
@@ -230,16 +232,16 @@ public:
   bool IsParameterNil(ezUInt32 iParameter) const; // [tested]
 
   /// Returns the Value of the nth Parameter.
-  int GetIntParameter (ezUInt32 iParameter) const; // [tested]
+  int GetIntParameter(ezUInt32 iParameter) const; // [tested]
 
   /// Returns the Value of the nth Parameter.
-  bool GetBoolParameter (ezUInt32 iParameter) const; // [tested]
+  bool GetBoolParameter(ezUInt32 iParameter) const; // [tested]
 
   /// Returns the Value of the nth Parameter.
-  float GetFloatParameter (ezUInt32 iParameter) const; // [tested]
+  float GetFloatParameter(ezUInt32 iParameter) const; // [tested]
 
   /// Returns the Value of the nth Parameter.
-  const char* GetStringParameter (ezUInt32 iParameter) const; // [tested]
+  const char* GetStringParameter(ezUInt32 iParameter) const; // [tested]
 
   /// @}
 
@@ -308,7 +310,12 @@ private:
 
   struct ezScriptStates
   {
-    ezScriptStates() : m_iParametersPushed (0), m_iOpenTables (0), m_iLuaReturnValues (0) {}
+    ezScriptStates()
+        : m_iParametersPushed(0)
+        , m_iOpenTables(0)
+        , m_iLuaReturnValues(0)
+    {
+    }
 
     /// How many Parameters were pushed for the next function-call.
     ezInt32 m_iParametersPushed;
@@ -316,7 +323,7 @@ private:
     /// How many Tables have been opened inside the Lua-Script.
     ezInt32 m_iOpenTables;
 
-    /// How many values the called lua-function should return
+    /// How many values the called Lua-function should return
     ezInt32 m_iLuaReturnValues;
   };
 
@@ -328,6 +335,3 @@ private:
 #include <Core/Scripting/LuaWrapper/LuaWrapper.inl>
 
 #endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
-
-
