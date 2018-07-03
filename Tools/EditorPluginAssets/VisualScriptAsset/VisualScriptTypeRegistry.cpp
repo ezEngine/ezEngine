@@ -1,56 +1,59 @@
 #include <PCH.h>
-#include <EditorPluginAssets/VisualScriptAsset/VisualScriptTypeRegistry.h>
-#include <ToolsFoundation/Reflection/ReflectedType.h>
+
+#include <Core/Messages/EventMessage.h>
+#include <Core/World/Component.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptAssetManager.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraph.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraphQt.moc.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
+#include <EditorPluginAssets/VisualScriptAsset/VisualScriptTypeRegistry.h>
 #include <Foundation/Logging/Log.h>
-#include <ToolsFoundation/Application/ApplicationServices.h>
-#include <GameEngine/VisualScript/VisualScriptNode.h>
-#include <GuiFoundation/UIServices/DynamicStringEnum.h>
-#include <Core/World/Component.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
-#include <Core/Messages/EventMessage.h>
+#include <GameEngine/VisualScript/VisualScriptNode.h>
+#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
+#include <GuiFoundation/UIServices/DynamicStringEnum.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
+#include <ToolsFoundation/Reflection/ReflectedType.h>
 
 EZ_IMPLEMENT_SINGLETON(ezVisualScriptTypeRegistry);
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, VisualScript)
 
-BEGIN_SUBSYSTEM_DEPENDENCIES
-"PluginAssets", "ReflectedTypeManager"
-END_SUBSYSTEM_DEPENDENCIES
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+  "PluginAssets", "ReflectedTypeManager"
+  END_SUBSYSTEM_DEPENDENCIES
 
-ON_CORE_STARTUP
-{
-  EZ_DEFAULT_NEW(ezVisualScriptTypeRegistry);
+  ON_CORE_STARTUP
+  {
+    EZ_DEFAULT_NEW(ezVisualScriptTypeRegistry);
 
-  ezVisualScriptTypeRegistry::GetSingleton()->UpdateNodeTypes();
-  const ezRTTI* pBaseType = ezVisualScriptTypeRegistry::GetSingleton()->GetNodeBaseType();
+    ezVisualScriptTypeRegistry::GetSingleton()->UpdateNodeTypes();
+    const ezRTTI* pBaseType = ezVisualScriptTypeRegistry::GetSingleton()->GetNodeBaseType();
 
-  ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualScriptPin(); });
-  ezQtNodeScene::GetConnectionFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptConnection>(), [](const ezRTTI* pRtti)->ezQtConnection* { return new ezQtVisualScriptConnection(); });
-  ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtVisualScriptNode(); });
-}
+    ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualScriptPin(); });
+    ezQtNodeScene::GetConnectionFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptConnection>(), [](const ezRTTI* pRtti)->ezQtConnection* { return new ezQtVisualScriptConnection(); });
+    ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtVisualScriptNode(); });
+  }
 
-ON_CORE_SHUTDOWN
-{
-  ezVisualScriptTypeRegistry* pDummy = ezVisualScriptTypeRegistry::GetSingleton();
-  EZ_DEFAULT_DELETE(pDummy);
-}
+  ON_CORE_SHUTDOWN
+  {
+    ezVisualScriptTypeRegistry* pDummy = ezVisualScriptTypeRegistry::GetSingleton();
+    EZ_DEFAULT_DELETE(pDummy);
+  }
 
-ON_ENGINE_STARTUP
-{
-}
+  ON_ENGINE_STARTUP
+  {
+  }
 
-ON_ENGINE_SHUTDOWN
-{
-}
+  ON_ENGINE_SHUTDOWN
+  {
+  }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezVisualScriptTypeRegistry::ezVisualScriptTypeRegistry()
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
   m_pBaseType = nullptr;
 }
@@ -112,16 +115,16 @@ static ezColor PinTypeColor(ezVisualScriptDataPinType::Enum type)
 {
   switch (type)
   {
-  case ezVisualScriptDataPinType::Number:
-    return ezColor::DarkGoldenRod;
-  case ezVisualScriptDataPinType::Boolean:
-    return ezColor::DarkGreen;
-  case ezVisualScriptDataPinType::Vec3:
-    return ezColor::Gold;
-  case ezVisualScriptDataPinType::GameObjectHandle:
-    return ezColor::Maroon;
-  case ezVisualScriptDataPinType::ComponentHandle:
-    return ezColor::DodgerBlue;
+    case ezVisualScriptDataPinType::Number:
+      return ezColor::DarkGoldenRod;
+    case ezVisualScriptDataPinType::Boolean:
+      return ezColor::DarkGreen;
+    case ezVisualScriptDataPinType::Vec3:
+      return ezColor::Gold;
+    case ezVisualScriptDataPinType::GameObjectHandle:
+      return ezColor::Maroon;
+    case ezVisualScriptDataPinType::ComponentHandle:
+      return ezColor::DodgerBlue;
   }
 
   return ezColor::Pink;
@@ -417,15 +420,15 @@ void ezVisualScriptTypeRegistry::CreateMessageNodeType(const ezRTTI* pRtti)
 
     switch (varType)
     {
-    case ezVariantType::Bool:
-      pid.m_DataType = ezVisualScriptDataPinType::Boolean;
-      break;
-    case ezVariantType::Double:
-      pid.m_DataType = ezVisualScriptDataPinType::Number;
-      break;
-    case ezVariantType::Vector3:
-      pid.m_DataType = ezVisualScriptDataPinType::Vec3;
-      break;
+      case ezVariantType::Bool:
+        pid.m_DataType = ezVisualScriptDataPinType::Boolean;
+        break;
+      case ezVariantType::Double:
+        pid.m_DataType = ezVisualScriptDataPinType::Number;
+        break;
+      case ezVariantType::Vector3:
+        pid.m_DataType = ezVisualScriptDataPinType::Vec3;
+        break;
     }
 
     pid.m_sName = prop->GetPropertyName();
@@ -504,15 +507,15 @@ void ezVisualScriptTypeRegistry::CreateEventMessageNodeType(const ezRTTI* pRtti)
 
     switch (varType)
     {
-    case ezVariantType::Bool:
-      pid.m_DataType = ezVisualScriptDataPinType::Boolean;
-      break;
-    case ezVariantType::Double:
-      pid.m_DataType = ezVisualScriptDataPinType::Number;
-      break;
-    case ezVariantType::Vector3:
-      pid.m_DataType = ezVisualScriptDataPinType::Vec3;
-      break;
+      case ezVariantType::Bool:
+        pid.m_DataType = ezVisualScriptDataPinType::Boolean;
+        break;
+      case ezVariantType::Double:
+        pid.m_DataType = ezVisualScriptDataPinType::Number;
+        break;
+      case ezVariantType::Vector3:
+        pid.m_DataType = ezVisualScriptDataPinType::Vec3;
+        break;
     }
 
     pid.m_sName = prop->GetPropertyName();
@@ -525,4 +528,3 @@ void ezVisualScriptTypeRegistry::CreateEventMessageNodeType(const ezRTTI* pRtti)
 
   m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);
 }
-

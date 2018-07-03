@@ -51,34 +51,34 @@ ezMap<ezResourceBase*, ezUniquePtr<ezResourceTypeLoader> > ezResourceManager::s_
 ezAtomicInteger32 ezResourceManager::s_ResourcesLoadedRecently;
 ezAtomicInteger32 ezResourceManager::s_ResourcesInLoadingLimbo;
 
-
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ResourceManager)
 
-BEGIN_SUBSYSTEM_DEPENDENCIES
-"Foundation"
-END_SUBSYSTEM_DEPENDENCIES
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+  "Foundation"
+  END_SUBSYSTEM_DEPENDENCIES
 
-ON_CORE_STARTUP
-{
-  ezResourceManager::OnCoreStartup();
-}
+  ON_CORE_STARTUP
+  {
+    ezResourceManager::OnCoreStartup();
+  }
 
-ON_CORE_SHUTDOWN
-{
-  ezResourceManager::OnCoreShutdown();
-}
+  ON_CORE_SHUTDOWN
+  {
+    ezResourceManager::OnCoreShutdown();
+  }
 
-ON_ENGINE_STARTUP
-{
-}
+  ON_ENGINE_STARTUP
+  {
+  }
 
-ON_ENGINE_SHUTDOWN
-{
-  ezResourceManager::OnEngineShutdown();
-}
+  ON_ENGINE_SHUTDOWN
+  {
+    ezResourceManager::OnEngineShutdown();
+  }
 
-EZ_END_SUBSYSTEM_DECLARATION
-
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 
 ezResourceTypeLoader* ezResourceManager::GetResourceTypeLoader(const ezRTTI* pRTTI)

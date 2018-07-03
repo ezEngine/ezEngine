@@ -1,11 +1,11 @@
-﻿#pragma once
+#pragma once
 
 /// \file
 
 #include <Foundation/Basics.h>
-#include <Foundation/Utilities/EnumerableClass.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Reflection/Implementation/StaticRTTI.h>
+#include <Foundation/Utilities/EnumerableClass.h>
 
 
 // *****************************************
@@ -20,21 +20,24 @@ class ezPropertyAttribute;
 class ezMessage;
 typedef ezUInt16 ezMessageId;
 
-/// \brief This enumerable class holds information about reflected types. Each instance represents one type that is known to the reflection system.
+/// \brief This enumerable class holds information about reflected types. Each instance represents one type that is known to the reflection
+/// system.
 ///
 /// Instances of this class are typically created through the macros from the StaticRTTI.h header.
-/// Each instance represents one type. This class holds information about derivation hierarchies and exposed properties. You can thus find out
-/// whether a type is derived from some base class and what properties of which types are available. Properties can then be read and modified on
-/// instances of this type.
+/// Each instance represents one type. This class holds information about derivation hierarchies and exposed properties. You can thus find
+/// out whether a type is derived from some base class and what properties of which types are available. Properties can then be read and
+/// modified on instances of this type.
 class EZ_FOUNDATION_DLL ezRTTI : public ezEnumerable<ezRTTI>
 {
   EZ_DECLARE_ENUMERABLE_CLASS(ezRTTI);
 
 public:
   /// \brief The constructor requires all the information about the type that this object represents.
-  ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags,
-    ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractFunctionProperty*> functions, ezArrayPtr<ezPropertyAttribute*> attributes,
-    ezArrayPtr<ezAbstractMessageHandler*> messageHandlers, ezArrayPtr<ezMessageSenderInfo> messageSenders, const ezRTTI*(*fnVerifyParent)());
+  ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType,
+         ezBitflags<ezTypeFlags> flags, ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties,
+         ezArrayPtr<ezAbstractFunctionProperty*> functions, ezArrayPtr<ezPropertyAttribute*> attributes,
+         ezArrayPtr<ezAbstractMessageHandler*> messageHandlers, ezArrayPtr<ezMessageSenderInfo> messageSenders,
+         const ezRTTI* (*fnVerifyParent)());
 
 
   ~ezRTTI();
@@ -61,8 +64,11 @@ public:
   bool IsDerivedFrom(const ezRTTI* pBaseType) const; // [tested]
 
   /// \brief Returns true if this type is derived from the given type.
-  template<typename BASE>
-  EZ_ALWAYS_INLINE bool IsDerivedFrom() const { return IsDerivedFrom(ezGetStaticRTTI<BASE>()); } // [tested]
+  template <typename BASE>
+  EZ_ALWAYS_INLINE bool IsDerivedFrom() const
+  {
+    return IsDerivedFrom(ezGetStaticRTTI<BASE>());
+  } // [tested]
 
   /// \brief Returns the object through which instances of this type can be allocated.
   EZ_ALWAYS_INLINE ezRTTIAllocator* GetAllocator() const { return m_pAllocator; } // [tested]
@@ -75,7 +81,7 @@ public:
   EZ_ALWAYS_INLINE const ezArrayPtr<ezPropertyAttribute*>& GetAttributes() const { return m_Attributes; }
 
   /// \brief Returns the first attribute that derives from the given type, or nullptr if nothing is found.
-  template<typename Type>
+  template <typename Type>
   const Type* GetAttributeByType() const;
 
   /// \brief Returns the list of properties that this type has, including derived properties from all base classes.
@@ -102,10 +108,12 @@ public:
   /// \brief Returns the array of message handlers that this type has.
   EZ_ALWAYS_INLINE const ezArrayPtr<ezAbstractMessageHandler*>& GetMessageHandlers() const { return m_MessageHandlers; }
 
-  /// \brief Dispatches the given message to the proper message handler, if there is one available. Returns true if so, false if no message handler for this type exists.
+  /// \brief Dispatches the given message to the proper message handler, if there is one available. Returns true if so, false if no message
+  /// handler for this type exists.
   bool DispatchMessage(void* pInstance, ezMessage& msg) const;
 
-  /// \brief Dispatches the given message to the proper message handler, if there is one available. Returns true if so, false if no message handler for this type exists.
+  /// \brief Dispatches the given message to the proper message handler, if there is one available. Returns true if so, false if no message
+  /// handler for this type exists.
   bool DispatchMessage(const void* pInstance, ezMessage& msg) const;
 
   /// \brief Returns whether this type can handle the given message type.
@@ -135,7 +143,8 @@ protected:
   ezArrayPtr<ezAbstractProperty*> m_Properties;
   ezArrayPtr<ezAbstractFunctionProperty*> m_Functions;
   ezArrayPtr<ezPropertyAttribute*> m_Attributes;
-  void UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags);
+  void UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType,
+                  ezBitflags<ezTypeFlags> flags);
   void RegisterType(ezRTTI* pType);
   void UnregisterType(ezRTTI* pType);
 
@@ -156,10 +165,11 @@ protected:
   ezUInt32 m_uiMsgIdOffset;
 
   bool m_bGatheredDynamicMessageHandlers;
-  const ezRTTI*(*m_fnVerifyParent)();
+  const ezRTTI* (*m_fnVerifyParent)();
 
   ezArrayPtr<ezAbstractMessageHandler*> m_MessageHandlers;
-  ezDynamicArray<ezAbstractMessageHandler*, ezStaticAllocatorWrapper> m_DynamicMessageHandlers; // do not track this data, it won't be deallocated before shutdown
+  ezDynamicArray<ezAbstractMessageHandler*, ezStaticAllocatorWrapper>
+      m_DynamicMessageHandlers; // do not track this data, it won't be deallocated before shutdown
 
   ezArrayPtr<ezMessageSenderInfo> m_MessageSenders;
 
@@ -282,6 +292,3 @@ private:
     return EZ_NEW(pAllocator, CLASS, *static_cast<const CLASS*>(pObject));
   }
 };
-
-
-

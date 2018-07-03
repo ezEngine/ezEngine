@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Foundation/Containers/DynamicArray.h>
-#include <Foundation/Memory/PageAllocator.h>
 #include <Foundation/Memory/MemoryTracker.h>
+#include <Foundation/Memory/PageAllocator.h>
 #include <Foundation/System/SystemInformation.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
@@ -14,22 +14,22 @@ struct ezDataBlock
 {
   EZ_DECLARE_POD_TYPE();
 
-  enum 
-  { 
+  enum
+  {
     SIZE_IN_BYTES = SizeInBytes,
-    CAPACITY = SIZE_IN_BYTES / sizeof(T) 
+    CAPACITY = SIZE_IN_BYTES / sizeof(T)
   };
 
   ezDataBlock(T* pData, ezUInt32 uiCount);
-  
+
   T* ReserveBack();
   T* PopBack();
-  
+
   bool IsEmpty() const;
   bool IsFull() const;
-  
+
   T& operator[](ezUInt32 uiIndex) const;
-  
+
   T* m_pData;
   ezUInt32 m_uiCount;
 };
@@ -39,22 +39,23 @@ template <ezUInt32 BlockSizeInByte>
 class ezLargeBlockAllocator
 {
 public:
-  ezLargeBlockAllocator(const char* szName, ezAllocatorBase* pParent, ezBitflags<ezMemoryTrackingFlags> flags = ezMemoryTrackingFlags::Default);
+  ezLargeBlockAllocator(const char* szName, ezAllocatorBase* pParent,
+                        ezBitflags<ezMemoryTrackingFlags> flags = ezMemoryTrackingFlags::Default);
   ~ezLargeBlockAllocator();
 
   template <typename T>
   ezDataBlock<T, BlockSizeInByte> AllocateBlock();
-  
+
   template <typename T>
   void DeallocateBlock(ezDataBlock<T, BlockSizeInByte>& block);
-  
+
 
   const char* GetName() const;
-  
+
   ezAllocatorId GetId() const;
-  
+
   const ezAllocatorBase::Stats& GetStats() const;
-  
+
 private:
   void* Allocate(size_t uiAlign);
   void Deallocate(void* ptr);
@@ -84,4 +85,3 @@ private:
 };
 
 #include <Foundation/Memory/Implementation/LargeBlockAllocator_inl.h>
-

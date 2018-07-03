@@ -1,6 +1,8 @@
 #include <PCH.h>
+
 #include <Foundation/Configuration/Startup.h>
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(StochasticRendering, StochasticRendering)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -25,4 +27,5 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(StochasticRendering, StochasticRendering)
   {
   }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on

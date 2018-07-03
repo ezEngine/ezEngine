@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Math/Math.h>
 
@@ -11,8 +11,8 @@ namespace ezMemoryPolicies
   class ezAlignedAllocation
   {
   public:
-    ezAlignedAllocation(ezAllocatorBase* pParent) : 
-      m_allocator(pParent)
+    ezAlignedAllocation(ezAllocatorBase* pParent)
+        : m_allocator(pParent)
     {
     }
 
@@ -20,7 +20,7 @@ namespace ezMemoryPolicies
     {
       EZ_ASSERT_DEV(uiAlign < (1 << 24), "Alignment of {0} is too big. Maximum supported alignment is 16MB.", uiAlign);
 
-      const ezUInt32 uiPadding = (ezUInt32)(uiAlign-1 + MetadataSize);
+      const ezUInt32 uiPadding = (ezUInt32)(uiAlign - 1 + MetadataSize);
       const size_t uiAlignedSize = uiSize + uiPadding;
 
       ezUInt8* pMemory = (ezUInt8*)m_allocator.Allocate(uiAlignedSize, EZ_ALIGNMENT_MINIMUM);
@@ -45,7 +45,7 @@ namespace ezMemoryPolicies
       const ezUInt32 uiMetadata = GetMetadata(ptr);
       const ezUInt32 uiOffset = UnpackOffset(uiMetadata);
       const ezUInt32 uiAlign = UnpackAlignment(uiMetadata);
-      const ezUInt32 uiPadding = uiAlign-1 + MetadataSize;
+      const ezUInt32 uiPadding = uiAlign - 1 + MetadataSize;
 
       const ezUInt8* pMemory = static_cast<const ezUInt8*>(ptr) - uiOffset;
       return m_allocator.AllocatedSize(pMemory) - uiPadding;
@@ -58,13 +58,13 @@ namespace ezMemoryPolicies
       return m_allocator.UsedMemorySize(pMemory);
     }
 
-    EZ_ALWAYS_INLINE ezAllocatorBase* GetParent() const
-    { 
-      return m_allocator.GetParent(); 
-    }
+    EZ_ALWAYS_INLINE ezAllocatorBase* GetParent() const { return m_allocator.GetParent(); }
 
   private:
-    enum { MetadataSize = sizeof(ezUInt32) };
+    enum
+    {
+      MetadataSize = sizeof(ezUInt32)
+    };
 
     // Meta-data is stored 4 bytes before the aligned memory
     inline ezUInt32* GetMetadataPtr(void* pAlignedMemory)
@@ -74,28 +74,20 @@ namespace ezMemoryPolicies
 
     inline ezUInt32 GetMetadata(const void* pAlignedMemory)
     {
-      return *static_cast<const ezUInt32*>(ezMemoryUtils::AddByteOffsetConst(pAlignedMemory, 
-        -MetadataSize));
+      return *static_cast<const ezUInt32*>(ezMemoryUtils::AddByteOffsetConst(pAlignedMemory, -MetadataSize));
     }
 
-    // Store offset between pMemory and pAlignedMemory in the lower 24 bit of meta-data. 
+    // Store offset between pMemory and pAlignedMemory in the lower 24 bit of meta-data.
     // The upper 8 bit are used to store the Log2 of the alignment.
     EZ_ALWAYS_INLINE ezUInt32 PackMetadata(ezUInt32 uiOffset, ezUInt32 uiAlignment)
     {
       return uiOffset | (ezMath::Log2i(uiAlignment) << 24);
     }
 
-    EZ_ALWAYS_INLINE ezUInt32 UnpackOffset(ezUInt32 uiMetadata)
-    {
-      return uiMetadata & 0x00FFFFFF;
-    }
+    EZ_ALWAYS_INLINE ezUInt32 UnpackOffset(ezUInt32 uiMetadata) { return uiMetadata & 0x00FFFFFF; }
 
-    EZ_ALWAYS_INLINE ezUInt32 UnpackAlignment(ezUInt32 uiMetadata)
-    {
-      return 1 << (uiMetadata >> 24);
-    }
+    EZ_ALWAYS_INLINE ezUInt32 UnpackAlignment(ezUInt32 uiMetadata) { return 1 << (uiMetadata >> 24); }
 
     T m_allocator;
   };
 }
-

@@ -1,49 +1,52 @@
 #include <PCH.h>
+
 #include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementGraph.h>
 #include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementGraphQt.h>
 #include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementNodes.h>
-#include <ToolsFoundation/Command/NodeCommands.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Utilities/Node.h>
+#include <ToolsFoundation/Command/NodeCommands.h>
 
 EZ_IMPLEMENT_SINGLETON(ezProceduralPlacementNodeRegistry);
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ProceduralPlacement)
 
-BEGIN_SUBSYSTEM_DEPENDENCIES
-"PluginAssets", "ReflectedTypeManager"
-END_SUBSYSTEM_DEPENDENCIES
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+  "PluginAssets", "ReflectedTypeManager"
+  END_SUBSYSTEM_DEPENDENCIES
 
-ON_CORE_STARTUP
-{
-  ezProceduralPlacementNodeRegistry* pRegistry = EZ_DEFAULT_NEW(ezProceduralPlacementNodeRegistry);
+  ON_CORE_STARTUP
+  {
+    ezProceduralPlacementNodeRegistry* pRegistry = EZ_DEFAULT_NEW(ezProceduralPlacementNodeRegistry);
 
-  pRegistry->UpdateNodeTypes();
-  const ezRTTI* pBaseType = pRegistry->GetBaseType();
+    pRegistry->UpdateNodeTypes();
+    const ezRTTI* pBaseType = pRegistry->GetBaseType();
 
-  //ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualScriptPin(); });
-  ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtProceduralPlacementNode(); });
-}
+    //ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualScriptPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualScriptPin(); });
+    ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtProceduralPlacementNode(); });
+  }
 
-ON_CORE_SHUTDOWN
-{
-  ezProceduralPlacementNodeRegistry* pDummy = ezProceduralPlacementNodeRegistry::GetSingleton();
-  EZ_DEFAULT_DELETE(pDummy);
-}
+  ON_CORE_SHUTDOWN
+  {
+    ezProceduralPlacementNodeRegistry* pDummy = ezProceduralPlacementNodeRegistry::GetSingleton();
+    EZ_DEFAULT_DELETE(pDummy);
+  }
 
-ON_ENGINE_STARTUP
-{
-}
+  ON_ENGINE_STARTUP
+  {
+  }
 
-ON_ENGINE_SHUTDOWN
-{
-}
+  ON_ENGINE_SHUTDOWN
+  {
+  }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 
 ezProceduralPlacementNodeRegistry::ezProceduralPlacementNodeRegistry()
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
   m_pBaseType = nullptr;
   m_pLayerOutputType = nullptr;
@@ -148,4 +151,3 @@ const char* ezProceduralPlacementNodeManager::GetTypeCategory(const ezRTTI* pRtt
   return pDesc->m_sCategory;
 }
 #endif
-

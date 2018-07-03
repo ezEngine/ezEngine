@@ -1,10 +1,12 @@
 #include <PCH.h>
-#include <Foundation/Time/Clock.h>
+
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Time/Clock.h>
 
 ezClock::Event ezClock::s_TimeEvents;
 ezClock* ezClock::s_pGlobalClock = nullptr;
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Clock)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -16,7 +18,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Clock)
     ezClock::s_pGlobalClock = new ezClock("Global");
   }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezClock::ezClock(const char* szName)
 {
@@ -135,8 +138,4 @@ void ezClock::Load(ezStreamReader& Stream)
 
 
 
-
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Time_Implementation_Clock);
-

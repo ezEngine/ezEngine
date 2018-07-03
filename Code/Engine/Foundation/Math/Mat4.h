@@ -1,11 +1,11 @@
 #pragma once
 
+#include <Foundation/Math/Angle.h>
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/Math/Vec4.h>
-#include <Foundation/Math/Angle.h>
 
 /// \brief A 4x4 component matrix class.
-template<typename Type>
+template <typename Type>
 class ezMat4Template
 {
 public:
@@ -13,7 +13,7 @@ public:
 
   typedef Type ComponentType;
 
-// *** Data ***
+  // *** Data ***
 public:
   // The elements are stored in column-major order.
   // That means first is column 0 (with elements of row 0, row 1, row 2, row 3),
@@ -22,12 +22,11 @@ public:
   /// \brief The matrix as a 16-element Type array (column-major)
   Type m_fElementsCM[16];
 
-  Type& Element(ezInt32 column, ezInt32 row) { return m_fElementsCM[column*4 + row]; }
-  Type Element(ezInt32 column, ezInt32 row) const { return m_fElementsCM[column*4 + row]; }
+  Type& Element(ezInt32 column, ezInt32 row) { return m_fElementsCM[column * 4 + row]; }
+  Type Element(ezInt32 column, ezInt32 row) const { return m_fElementsCM[column * 4 + row]; }
 
-// *** Constructors ***
+  // *** Constructors ***
 public:
-
   /// \brief Default Constructor DOES NOT INITIALIZE the matrix, at all.
   ezMat4Template(); // [tested]
 
@@ -77,9 +76,8 @@ public:
   /// \brief Sets a transformation matrix from a rotation and a translation.
   void SetTransformationMatrix(const ezMat3Template<Type>& Rotation, const ezVec3Template<Type>& vTranslation); // [tested]
 
-// *** Special matrix constructors ***
+  // *** Special matrix constructors ***
 public:
-
   /// \brief Sets all elements to zero.
   void SetZero(); // [tested]
 
@@ -127,9 +125,8 @@ public:
   /// \brief Creates a look-at matrix.
   void SetLookAtMatrix(const ezVec3Template<Type>& vStartPos, const ezVec3Template<Type>& vTargetPos, const ezVec3Template<Type>& vUpDir);
 
-// *** Common Matrix Operations ***
+  // *** Common Matrix Operations ***
 public:
-
   /// \brief Returns an Identity Matrix.
   static const ezMat4Template<Type> IdentityMatrix(); // [tested]
 
@@ -148,9 +145,8 @@ public:
   /// \brief Returns the inverse of this matrix.
   const ezMat4Template<Type> GetInverse(Type fEpsilon = ezMath::BasicType<Type>::SmallEpsilon()) const; // [tested]
 
-// *** Checks ***
+  // *** Checks ***
 public:
-
   /// \brief Checks whether all elements are zero.
   bool IsZero(Type fEpsilon = ezMath::BasicType<Type>::DefaultEpsilon()) const; // [tested]
 
@@ -163,9 +159,8 @@ public:
   /// \brief Checks whether any component is NaN.
   bool IsNaN() const; // [tested]
 
-// *** Special Accessors ***
+  // *** Special Accessors ***
 public:
-
   /// \brief Returns all 4 components of the i-th row.
   ezVec4Template<Type> GetRow(ezUInt32 uiRow) const; // [tested]
 
@@ -202,9 +197,8 @@ public:
   /// \brief Tries to set the three scaling factors in the matrix. Returns EZ_FAILURE if the matrix columns cannot be normalized and thus no rescaling is possible.
   ezResult SetScalingFactors(const ezVec3Template<Type>& vXYZ, Type fEpsilon = ezMath::BasicType<Type>::DefaultEpsilon()); // [tested]
 
-// *** Operators ***
+  // *** Operators ***
 public:
-
   /// \brief Matrix-vector multiplication, assuming the 4th component of the vector is one (default behavior).
   const ezVec3Template<Type> TransformPosition(const ezVec3Template<Type>& v) const; // [tested]
 
@@ -224,10 +218,10 @@ public:
   void Transform(ezVec4Template<Type>* inout_v, ezUInt32 uiNumVectors, ezUInt32 uiStride = sizeof(ezVec4Template<Type>)) const; // [tested]
 
   /// \brief Component-wise multiplication (commutative)
-  void operator*= (Type f); // [tested]
+  void operator*=(Type f); // [tested]
 
   /// \brief Component-wise division
-  void operator/= (Type f); // [tested]
+  void operator/=(Type f); // [tested]
 
   /// \brief Equality Check
   bool IsIdentical(const ezMat4Template<Type>& rhs) const; // [tested]
@@ -240,46 +234,43 @@ public:
 // *** free functions ***
 
 /// \brief Matrix-Matrix multiplication
-template<typename Type>
-const ezMat4Template<Type> operator* (const ezMat4Template<Type>& m1, const ezMat4Template<Type>& m2); // [tested]
+template <typename Type>
+const ezMat4Template<Type> operator*(const ezMat4Template<Type>& m1, const ezMat4Template<Type>& m2); // [tested]
 
 /// \brief Matrix-vector multiplication
-template<typename Type>
-const ezVec3Template<Type> operator* (const ezMat4Template<Type>& m, const ezVec3Template<Type>& v); // [tested]
+template <typename Type>
+const ezVec3Template<Type> operator*(const ezMat4Template<Type>& m, const ezVec3Template<Type>& v); // [tested]
 
 /// \brief Matrix-vector multiplication
-template<typename Type>
-const ezVec4Template<Type> operator* (const ezMat4Template<Type>& m, const ezVec4Template<Type>& v); // [tested]
+template <typename Type>
+const ezVec4Template<Type> operator*(const ezMat4Template<Type>& m, const ezVec4Template<Type>& v); // [tested]
 
 /// \brief Component-wise multiplication (commutative)
-template<typename Type>
-const ezMat4Template<Type> operator* (const ezMat4Template<Type>& m1, Type f); // [tested]
+template <typename Type>
+const ezMat4Template<Type> operator*(const ezMat4Template<Type>& m1, Type f); // [tested]
 
 /// \brief Component-wise multiplication (commutative)
-template<typename Type>
-const ezMat4Template<Type> operator* (Type f, const ezMat4Template<Type>& m1); // [tested]
+template <typename Type>
+const ezMat4Template<Type> operator*(Type f, const ezMat4Template<Type>& m1); // [tested]
 
 /// \brief Component-wise division
-template<typename Type>
-const ezMat4Template<Type> operator/ (const ezMat4Template<Type>& m1, Type f); // [tested]
+template <typename Type>
+const ezMat4Template<Type> operator/(const ezMat4Template<Type>& m1, Type f); // [tested]
 
 /// \brief Adding two matrices (component-wise)
-template<typename Type>
-const ezMat4Template<Type> operator+ (const ezMat4Template<Type>& m1, const ezMat4Template<Type>& m2); // [tested]
+template <typename Type>
+const ezMat4Template<Type> operator+(const ezMat4Template<Type>& m1, const ezMat4Template<Type>& m2); // [tested]
 
 /// \brief Subtracting two matrices (component-wise)
-template<typename Type>
-const ezMat4Template<Type> operator- (const ezMat4Template<Type>& m1, const ezMat4Template<Type>& m2); // [tested]
+template <typename Type>
+const ezMat4Template<Type> operator-(const ezMat4Template<Type>& m1, const ezMat4Template<Type>& m2); // [tested]
 
 /// \brief Comparison Operator ==
-template<typename Type>
-bool operator== (const ezMat4Template<Type>& lhs, const ezMat4Template<Type>& rhs); // [tested]
+template <typename Type>
+bool operator==(const ezMat4Template<Type>& lhs, const ezMat4Template<Type>& rhs); // [tested]
 
 /// \brief Comparison Operator !=
-template<typename Type>
-bool operator!= (const ezMat4Template<Type>& lhs, const ezMat4Template<Type>& rhs); // [tested]
+template <typename Type>
+bool operator!=(const ezMat4Template<Type>& lhs, const ezMat4Template<Type>& rhs); // [tested]
 
 #include <Foundation/Math/Implementation/Mat4_inl.h>
-
-
-

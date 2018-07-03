@@ -31,7 +31,7 @@
 ///    ezExampleSubSystem::EngineShutdown();
 ///  }
 ///
-///EZ_END_SUBSYSTEM_DECLARATION
+///EZ_END_SUBSYSTEM_DECLARATION;
 
 /// \brief Put this in some cpp file of a subsystem to start its startup / shutdown sequence declaration.
 ///
@@ -49,7 +49,7 @@
 /// \brief Finishes a subsystem's startup / shutdown sequence declaration.
 #define EZ_END_SUBSYSTEM_DECLARATION \
   }                                  \
-  static EZ_CONCAT(s_SubSystem, EZ_SOURCE_LINE);
+  static EZ_CONCAT(s_SubSystem, EZ_SOURCE_LINE)
 
 /// \brief Defines what code is to be executed upon base startup.
 ///

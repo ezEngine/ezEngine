@@ -4,7 +4,7 @@
 #include <Foundation/Math/Vec3.h>
 
 /// \brief A 4-component vector class.
-template<typename Type>
+template <typename Type>
 class ezVec4Template
 {
 public:
@@ -13,26 +13,24 @@ public:
 
   typedef Type ComponentType;
 
-// *** Data ***
+  // *** Data ***
 public:
-
   Type x, y, z, w;
 
-// *** Constructors ***
+  // *** Constructors ***
 public:
-
   /// \brief Default-constructed vector is uninitialized (for speed)
-  ezVec4Template();  // [tested]
+  ezVec4Template(); // [tested]
 
   /// \brief Initializes the vector with x,y,z,w
-  ezVec4Template(Type X, Type Y, Type Z, Type W);  // [tested]
+  ezVec4Template(Type X, Type Y, Type Z, Type W); // [tested]
 
   /// \brief Initializes all 4 components with xyzw
-  explicit ezVec4Template(Type xyzw);  // [tested]
+  explicit ezVec4Template(Type xyzw); // [tested]
   // no copy-constructor and operator= since the default-generated ones will be faster
 
   /// \brief Static function that returns a zero-vector.
-  static const ezVec4Template ZeroVector() { return ezVec4Template(0); }  // [tested]
+  static const ezVec4Template ZeroVector() { return ezVec4Template(0); } // [tested]
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
@@ -41,14 +39,13 @@ public:
   }
 #endif
 
-// *** Conversions ***
+  // *** Conversions ***
 public:
-
   /// \brief Returns an ezVec2Template with x and y from this vector.
-  const ezVec2Template<Type> GetAsVec2() const;  // [tested]
+  const ezVec2Template<Type> GetAsVec2() const; // [tested]
 
   /// \brief Returns an ezVec3Template with x,y and z from this vector.
-  const ezVec3Template<Type> GetAsVec3() const;  // [tested]
+  const ezVec3Template<Type> GetAsVec3() const; // [tested]
 
   /// \brief Returns the data as an array.
   const Type* GetData() const { return &x; }
@@ -56,21 +53,19 @@ public:
   /// \brief Returns the data as an array.
   Type* GetData() { return &x; }
 
-// *** Functions to set the vector to specific values ***
+  // *** Functions to set the vector to specific values ***
 public:
-
   /// \brief Sets all 4 components to this value.
-  void Set(Type xyzw);  // [tested]
+  void Set(Type xyzw); // [tested]
 
   /// \brief Sets the vector to these values.
-  void Set(Type x, Type y, Type z, Type w);  // [tested]
+  void Set(Type x, Type y, Type z, Type w); // [tested]
 
   /// \brief Sets the vector to all zero.
-  void SetZero();  // [tested]
+  void SetZero(); // [tested]
 
-// *** Functions dealing with length ***
+  // *** Functions dealing with length ***
 public:
-
   /// \brief Returns the length of the vector.
   Type GetLength() const; // [tested]
 
@@ -88,7 +83,7 @@ public:
 
   /// \brief Tries to normalize this vector. If the vector is too close to zero, EZ_FAILURE is returned and the vector is set to the given fallback value.
   ezResult NormalizeIfNotZero(const ezVec4Template& vFallback = ezVec4Template(1, 0, 0, 0), Type fEpsilon = ezMath::BasicType<Type>::SmallEpsilon()); // [tested]
-    
+
   /// \brief Returns, whether this vector is (0, 0, 0, 0).
   bool IsZero() const; // [tested]
 
@@ -105,23 +100,22 @@ public:
   bool IsValid() const; // [tested]
 
 
-// *** Operators ***
+  // *** Operators ***
 public:
-
   /// \brief Returns the negation of this vector.
-  const ezVec4Template operator- () const; // [tested]
+  const ezVec4Template operator-() const; // [tested]
 
   /// \brief Adds cc component-wise to this vector.
-  void operator+= (const ezVec4Template& cc); // [tested]
+  void operator+=(const ezVec4Template& cc); // [tested]
 
   /// \brief Subtracts cc component-wise from this vector.
-  void operator-= (const ezVec4Template& cc); // [tested]
+  void operator-=(const ezVec4Template& cc); // [tested]
 
   /// \brief Multiplies all components of this vector with f.
-  void operator*= (Type f); // [tested]
+  void operator*=(Type f); // [tested]
 
   /// \brief Divides all components of this vector by f.
-  void operator/= (Type f); // [tested]
+  void operator/=(Type f); // [tested]
 
   /// \brief Equality Check (bitwise).
   bool IsIdentical(const ezVec4Template& rhs) const; // [tested]
@@ -130,9 +124,8 @@ public:
   bool IsEqual(const ezVec4Template& rhs, Type fEpsilon) const; // [tested]
 
 
-// *** Common vector operations ***
+  // *** Common vector operations ***
 public:
-
   /// \brief Returns the Dot-product of the two vectors (commutative, order does not matter).
   Type Dot(const ezVec4Template& rhs) const; // [tested]
 
@@ -153,35 +146,32 @@ public:
 
 // *** Operators ***
 
-template<typename Type>
-const ezVec4Template<Type> operator+ (const ezVec4Template<Type>& v1, const ezVec4Template<Type>& v2); // [tested]
+template <typename Type>
+const ezVec4Template<Type> operator+(const ezVec4Template<Type>& v1, const ezVec4Template<Type>& v2); // [tested]
 
-template<typename Type>
-const ezVec4Template<Type> operator- (const ezVec4Template<Type>& v1, const ezVec4Template<Type>& v2); // [tested]
-
-
-template<typename Type>
-const ezVec4Template<Type> operator* (Type f, const ezVec4Template<Type>& v); // [tested]
-
-template<typename Type>
-const ezVec4Template<Type> operator* (const ezVec4Template<Type>& v, Type f); // [tested]
+template <typename Type>
+const ezVec4Template<Type> operator-(const ezVec4Template<Type>& v1, const ezVec4Template<Type>& v2); // [tested]
 
 
-template<typename Type>
-const ezVec4Template<Type> operator/ (const ezVec4Template<Type>& v, Type f); // [tested]
+template <typename Type>
+const ezVec4Template<Type> operator*(Type f, const ezVec4Template<Type>& v); // [tested]
+
+template <typename Type>
+const ezVec4Template<Type> operator*(const ezVec4Template<Type>& v, Type f); // [tested]
 
 
-template<typename Type>
-bool operator== (const ezVec4Template<Type>& v1, const ezVec4Template<Type>& v2); // [tested]
+template <typename Type>
+const ezVec4Template<Type> operator/(const ezVec4Template<Type>& v, Type f); // [tested]
 
-template<typename Type>
-bool operator!= (const ezVec4Template<Type>& v1, const ezVec4Template<Type>& v2); // [tested]
+
+template <typename Type>
+bool operator==(const ezVec4Template<Type>& v1, const ezVec4Template<Type>& v2); // [tested]
+
+template <typename Type>
+bool operator!=(const ezVec4Template<Type>& v1, const ezVec4Template<Type>& v2); // [tested]
 
 /// \brief Strict weak ordering. Useful for sorting vertices into a map.
-template<typename Type>
-bool operator< (const ezVec4Template<Type>& v1, const ezVec4Template<Type>& v2); // [tested]
+template <typename Type>
+bool operator<(const ezVec4Template<Type>& v1, const ezVec4Template<Type>& v2); // [tested]
 
 #include <Foundation/Math/Implementation/Vec4_inl.h>
-
-
-

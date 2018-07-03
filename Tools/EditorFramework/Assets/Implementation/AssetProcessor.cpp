@@ -1,38 +1,41 @@
-﻿#include <PCH.h>
-#include <EditorFramework/Assets/AssetProcessor.h>
+#include <PCH.h>
+
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
+#include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Configuration/SubSystem.h>
 
 EZ_IMPLEMENT_SINGLETON(ezAssetProcessor);
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, AssetProcessor)
 
-BEGIN_SUBSYSTEM_DEPENDENCIES
-"AssetCurator"
-END_SUBSYSTEM_DEPENDENCIES
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+  "AssetCurator"
+  END_SUBSYSTEM_DEPENDENCIES
 
-ON_CORE_STARTUP
-{
-  EZ_DEFAULT_NEW(ezAssetProcessor);
-}
+  ON_CORE_STARTUP
+  {
+    EZ_DEFAULT_NEW(ezAssetProcessor);
+  }
 
-ON_CORE_SHUTDOWN
-{
-  ezAssetProcessor* pDummy = ezAssetProcessor::GetSingleton();
-  EZ_DEFAULT_DELETE(pDummy);
-}
+  ON_CORE_SHUTDOWN
+  {
+    ezAssetProcessor* pDummy = ezAssetProcessor::GetSingleton();
+    EZ_DEFAULT_DELETE(pDummy);
+  }
 
-ON_ENGINE_STARTUP
-{
-}
+  ON_ENGINE_STARTUP
+  {
+  }
 
-ON_ENGINE_SHUTDOWN
-{
-}
+  ON_ENGINE_SHUTDOWN
+  {
+  }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ////////////////////////////////////////////////////////////////////////
 // ezCuratorLog
@@ -60,7 +63,7 @@ void ezAssetProcessorLog::RemoveLogWriter(ezLoggingEvent::Handler handler)
 ////////////////////////////////////////////////////////////////////////
 
 ezAssetProcessor::ezAssetProcessor()
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
   ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezAssetProcessor::AssetCuratorEventHandler, this));
 }
@@ -198,7 +201,11 @@ void ezAssetProcessor::AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
 ////////////////////////////////////////////////////////////////////////
 
 ezProcessTask::ezProcessTask(ezUInt32 uiProcessorID)
-  : m_uiProcessorID(uiProcessorID), m_bProcessShouldBeRunning(false), m_bProcessCrashed(false), m_bWaiting(false), m_bSuccess(true)
+    : m_uiProcessorID(uiProcessorID)
+    , m_bProcessShouldBeRunning(false)
+    , m_bProcessCrashed(false)
+    , m_bWaiting(false)
+    , m_bSuccess(true)
 {
   SetTaskName("ezProcessTask");
   m_pIPC = EZ_DEFAULT_NEW(ezEditorProcessCommunicationChannel);
@@ -261,34 +268,32 @@ bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, 
     auto flags = static_cast<ezAssetDocumentManager*>(pTypeDesc->m_pManager)->GetAssetDocumentTypeFlags(pTypeDesc);
     if (flags.IsAnySet(ezAssetDocumentFlags::OnlyTransformManually | ezAssetDocumentFlags::DisableTransform))
       return false;
-
   }
 
-  auto TestFunc = [this, &bComplete](const ezSet<ezString>& Files) -> ezAssetInfo*
-  {
+  auto TestFunc = [this, &bComplete](const ezSet<ezString>& Files) -> ezAssetInfo* {
     for (const auto& sFile : Files)
     {
       if (ezAssetInfo* pFileInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(sFile))
       {
         switch (pFileInfo->m_TransformState)
         {
-        case ezAssetInfo::TransformState::Unknown:
-        case ezAssetInfo::TransformState::Updating:
-        case ezAssetInfo::TransformState::TransformError:
-        case ezAssetInfo::TransformState::MissingDependency:
-        case ezAssetInfo::TransformState::MissingReference:
+          case ezAssetInfo::TransformState::Unknown:
+          case ezAssetInfo::TransformState::Updating:
+          case ezAssetInfo::TransformState::TransformError:
+          case ezAssetInfo::TransformState::MissingDependency:
+          case ezAssetInfo::TransformState::MissingReference:
           {
             bComplete = false;
             continue;
           }
-        case ezAssetInfo::TransformState::NeedsTransform:
-        case ezAssetInfo::TransformState::NeedsThumbnail:
+          case ezAssetInfo::TransformState::NeedsTransform:
+          case ezAssetInfo::TransformState::NeedsThumbnail:
           {
             bComplete = false;
             return pFileInfo;
           }
-        case ezAssetInfo::TransformState::UpToDate:
-          continue;
+          case ezAssetInfo::TransformState::UpToDate:
+            continue;
         }
       }
     }

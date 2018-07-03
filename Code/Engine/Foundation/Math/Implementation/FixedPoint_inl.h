@@ -2,47 +2,47 @@
 
 #include <Foundation/Math/Math.h>
 
-template<ezUInt8 DecimalBits>
+template <ezUInt8 DecimalBits>
 const ezFixedPoint<DecimalBits>& ezFixedPoint<DecimalBits>::operator=(ezInt32 IntVal)
 {
   m_Value = IntVal << DecimalBits;
   return *this;
 }
 
-template<ezUInt8 DecimalBits>
+template <ezUInt8 DecimalBits>
 const ezFixedPoint<DecimalBits>& ezFixedPoint<DecimalBits>::operator=(float FloatVal)
 {
-  m_Value = (ezInt32) ezMath::Round(FloatVal * (1 << DecimalBits));
+  m_Value = (ezInt32)ezMath::Round(FloatVal * (1 << DecimalBits));
   return *this;
 }
 
-template<ezUInt8 DecimalBits>
+template <ezUInt8 DecimalBits>
 const ezFixedPoint<DecimalBits>& ezFixedPoint<DecimalBits>::operator=(double FloatVal)
 {
-  m_Value = (ezInt32) ezMath::Round(FloatVal * (1 << DecimalBits));
+  m_Value = (ezInt32)ezMath::Round(FloatVal * (1 << DecimalBits));
   return *this;
 }
 
-template<ezUInt8 DecimalBits>
+template <ezUInt8 DecimalBits>
 ezInt32 ezFixedPoint<DecimalBits>::ToInt() const
 {
-  return (ezInt32) (m_Value >> DecimalBits);
+  return (ezInt32)(m_Value >> DecimalBits);
 }
 
-template<ezUInt8 DecimalBits>
+template <ezUInt8 DecimalBits>
 float ezFixedPoint<DecimalBits>::ToFloat() const
 {
-  return (float) ((double) m_Value / (double) (1 << DecimalBits));
+  return (float)((double)m_Value / (double)(1 << DecimalBits));
 }
 
-template<ezUInt8 DecimalBits>
+template <ezUInt8 DecimalBits>
 double ezFixedPoint<DecimalBits>::ToDouble() const
 {
-  return ((double) m_Value / (double) (1 << DecimalBits));
+  return ((double)m_Value / (double)(1 << DecimalBits));
 }
 
-template<ezUInt8 DecimalBits>
-void ezFixedPoint<DecimalBits>::operator*= (const ezFixedPoint<DecimalBits>& rhs)
+template <ezUInt8 DecimalBits>
+void ezFixedPoint<DecimalBits>::operator*=(const ezFixedPoint<DecimalBits>& rhs)
 {
   // lhs and rhs are in N:M format (N Bits for the Integer part, M Bits for the fractional part)
   // after multiplication, it will be in 2N:2M format
@@ -60,13 +60,13 @@ void ezFixedPoint<DecimalBits>::operator*= (const ezFixedPoint<DecimalBits>& rhs
   TempRes += ((TempRes & (1 << (DecimalBits - 1))) << 1);
 
   TempRes >>= DecimalBits; // result format: 2N:M
-  
+
   // the upper N Bits are thrown away during conversion from 64 Bit to 32 Bit
-  m_Value = (ezInt32) TempRes;
+  m_Value = (ezInt32)TempRes;
 }
 
-template<ezUInt8 DecimalBits>
-void ezFixedPoint<DecimalBits>::operator/= (const ezFixedPoint<DecimalBits>& rhs)
+template <ezUInt8 DecimalBits>
+void ezFixedPoint<DecimalBits>::operator/=(const ezFixedPoint<DecimalBits>& rhs)
 {
   ezInt64 TempLHS = m_Value;
   const ezInt64 TempRHS = rhs.m_Value;
@@ -81,37 +81,36 @@ void ezFixedPoint<DecimalBits>::operator/= (const ezFixedPoint<DecimalBits>& rhs
   TempRes >>= (31 - DecimalBits);
 
   // here we throw away the upper 32 Bits again (not needed anymore)
-  m_Value = (ezInt32) TempRes;
-
+  m_Value = (ezInt32)TempRes;
 }
 
 
-template<ezUInt8 DecimalBits>
-ezFixedPoint<DecimalBits> operator+ (const ezFixedPoint<DecimalBits>& lhs, const ezFixedPoint<DecimalBits>& rhs)
+template <ezUInt8 DecimalBits>
+ezFixedPoint<DecimalBits> operator+(const ezFixedPoint<DecimalBits>& lhs, const ezFixedPoint<DecimalBits>& rhs)
 {
   ezFixedPoint<DecimalBits> res = lhs;
   res += rhs;
   return res;
 }
 
-template<ezUInt8 DecimalBits>
-ezFixedPoint<DecimalBits> operator- (const ezFixedPoint<DecimalBits>& lhs, const ezFixedPoint<DecimalBits>& rhs)
+template <ezUInt8 DecimalBits>
+ezFixedPoint<DecimalBits> operator-(const ezFixedPoint<DecimalBits>& lhs, const ezFixedPoint<DecimalBits>& rhs)
 {
   ezFixedPoint<DecimalBits> res = lhs;
   res -= rhs;
   return res;
 }
 
-template<ezUInt8 DecimalBits>
-ezFixedPoint<DecimalBits> operator* (const ezFixedPoint<DecimalBits>& lhs, const ezFixedPoint<DecimalBits>& rhs)
+template <ezUInt8 DecimalBits>
+ezFixedPoint<DecimalBits> operator*(const ezFixedPoint<DecimalBits>& lhs, const ezFixedPoint<DecimalBits>& rhs)
 {
   ezFixedPoint<DecimalBits> res = lhs;
   res *= rhs;
   return res;
 }
 
-template<ezUInt8 DecimalBits>
-ezFixedPoint<DecimalBits> operator/ (const ezFixedPoint<DecimalBits>& lhs, const ezFixedPoint<DecimalBits>& rhs)
+template <ezUInt8 DecimalBits>
+ezFixedPoint<DecimalBits> operator/(const ezFixedPoint<DecimalBits>& lhs, const ezFixedPoint<DecimalBits>& rhs)
 {
   ezFixedPoint<DecimalBits> res = lhs;
   res /= rhs;
@@ -119,29 +118,26 @@ ezFixedPoint<DecimalBits> operator/ (const ezFixedPoint<DecimalBits>& lhs, const
 }
 
 
-template<ezUInt8 DecimalBits>
-ezFixedPoint<DecimalBits> operator* (const ezFixedPoint<DecimalBits>& lhs, ezInt32 rhs)
+template <ezUInt8 DecimalBits>
+ezFixedPoint<DecimalBits> operator*(const ezFixedPoint<DecimalBits>& lhs, ezInt32 rhs)
 {
   ezFixedPoint<DecimalBits> ret = lhs;
   ret *= rhs;
   return ret;
 }
 
-template<ezUInt8 DecimalBits>
-ezFixedPoint<DecimalBits> operator* (ezInt32 lhs, const ezFixedPoint<DecimalBits>& rhs)
+template <ezUInt8 DecimalBits>
+ezFixedPoint<DecimalBits> operator*(ezInt32 lhs, const ezFixedPoint<DecimalBits>& rhs)
 {
   ezFixedPoint<DecimalBits> ret = rhs;
   ret *= lhs;
   return ret;
 }
 
-template<ezUInt8 DecimalBits>
-ezFixedPoint<DecimalBits> operator/ (const ezFixedPoint<DecimalBits>& lhs, ezInt32 rhs)
+template <ezUInt8 DecimalBits>
+ezFixedPoint<DecimalBits> operator/(const ezFixedPoint<DecimalBits>& lhs, ezInt32 rhs)
 {
   ezFixedPoint<DecimalBits> ret = lhs;
   ret /= rhs;
   return ret;
 }
-
-
-

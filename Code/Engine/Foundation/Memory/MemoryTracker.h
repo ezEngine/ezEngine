@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 #include <Foundation/Types/Bitflags.h>
@@ -10,17 +10,17 @@ struct ezMemoryTrackingFlags
   enum Enum
   {
     None,
-    EnableTracking   = EZ_BIT(0),
+    EnableTracking = EZ_BIT(0),
     EnableStackTrace = EZ_BIT(1),
 
     All = EnableTracking | EnableStackTrace,
 
     Default = 0
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-    | EnableTracking
+              | EnableTracking
 #endif
 #if EZ_ENABLED(EZ_USE_ALLOCATION_STACK_TRACING)
-    | EnableStackTrace
+              | EnableStackTrace
 #endif
   };
 
@@ -44,10 +44,10 @@ public:
     EZ_DECLARE_POD_TYPE();
 
     EZ_FORCE_INLINE AllocationInfo()
-      : m_pStackTrace(nullptr)
-      , m_uiSize(0)
-      , m_uiAlignment(0)
-      , m_uiStackTraceLength(0)
+        : m_pStackTrace(nullptr)
+        , m_uiSize(0)
+        , m_uiAlignment(0)
+        , m_uiStackTraceLength(0)
     {
     }
 
@@ -61,12 +61,9 @@ public:
       return ezArrayPtr<void*>(m_pStackTrace, (ezUInt32)m_uiStackTraceLength);
     }
 
-    EZ_ALWAYS_INLINE ezArrayPtr<void*> GetStackTrace()
-    {
-      return ezArrayPtr<void*>(m_pStackTrace, (ezUInt32)m_uiStackTraceLength);
-    }
+    EZ_ALWAYS_INLINE ezArrayPtr<void*> GetStackTrace() { return ezArrayPtr<void*>(m_pStackTrace, (ezUInt32)m_uiStackTraceLength); }
 
-    EZ_FORCE_INLINE  void SetStackTrace(ezArrayPtr<void*> stackTrace)
+    EZ_FORCE_INLINE void SetStackTrace(ezArrayPtr<void*> stackTrace)
     {
       m_pStackTrace = stackTrace.GetPtr();
       EZ_ASSERT_DEV(stackTrace.GetCount() < 0xFFFF, "stack trace too long");
@@ -92,7 +89,10 @@ public:
   private:
     friend class ezMemoryTracker;
 
-    EZ_ALWAYS_INLINE Iterator(void* pData) : m_pData(pData) { }
+    EZ_ALWAYS_INLINE Iterator(void* pData)
+        : m_pData(pData)
+    {
+    }
 
     void* m_pData;
   };
@@ -113,4 +113,3 @@ public:
 
   static Iterator GetIterator();
 };
-

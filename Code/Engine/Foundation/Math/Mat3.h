@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Foundation/Math/Vec3.h>
 #include <Foundation/Math/Angle.h>
+#include <Foundation/Math/Vec3.h>
 
 /// \brief A 3x3 component matrix class.
-template<typename Type>
+template <typename Type>
 class ezMat3Template
 {
 public:
@@ -12,7 +12,7 @@ public:
 
   typedef Type ComponentType;
 
-// *** Data ***
+  // *** Data ***
 public:
   // The elements are stored in column-major order.
   // That means first is column 0 (with elements of row 0, row 1, row 2),
@@ -21,10 +21,10 @@ public:
   /// \brief The matrix as a 9-element Type array (column-major)
   Type m_fElementsCM[9];
 
-  Type& Element(ezInt32 column, ezInt32 row) { return m_fElementsCM[column*3 + row]; }
-  Type Element(ezInt32 column, ezInt32 row) const { return m_fElementsCM[column*3 + row]; }
+  Type& Element(ezInt32 column, ezInt32 row) { return m_fElementsCM[column * 3 + row]; }
+  Type Element(ezInt32 column, ezInt32 row) const { return m_fElementsCM[column * 3 + row]; }
 
-// *** Constructors ***
+  // *** Constructors ***
 public:
   /// \brief Default Constructor DOES NOT INITIALIZE the matrix, at all.
   ezMat3Template(); // [tested]
@@ -67,9 +67,8 @@ public:
                    Type c1r2, Type c2r2, Type c3r2,
                    Type c1r3, Type c2r3, Type c3r3); // [tested]
 
-// *** Special matrix constructors ***
+  // *** Special matrix constructors ***
 public:
-
   /// \brief Sets all elements to zero.
   void SetZero(); // [tested]
 
@@ -92,11 +91,10 @@ public:
   void SetRotationMatrix(const ezVec3Template<Type>& vAxis, ezAngle angle); // [tested]
 
   /// \brief Sets this matrix to be a look-at matrix (without the translation).
-  void SetLookInDirectionMatrix(ezVec3Template<Type> vLookDir, ezVec3Template<Type> vUpDir = ezVec3Template<Type> (0, 0, 1));
+  void SetLookInDirectionMatrix(ezVec3Template<Type> vLookDir, ezVec3Template<Type> vUpDir = ezVec3Template<Type>(0, 0, 1));
 
-// *** Common Matrix Operations ***
+  // *** Common Matrix Operations ***
 public:
-
   /// \brief Returns an Identity Matrix.
   static const ezMat3Template<Type> IdentityMatrix(); // [tested]
 
@@ -115,9 +113,8 @@ public:
   /// \brief Returns the inverse of this matrix.
   const ezMat3Template<Type> GetInverse(Type fEpsilon = ezMath::BasicType<Type>::SmallEpsilon()) const; // [tested]
 
-// *** Checks ***
+  // *** Checks ***
 public:
-
   /// \brief Checks whether all elements are zero.
   bool IsZero(Type fEpsilon = ezMath::BasicType<Type>::DefaultEpsilon()) const; // [tested]
 
@@ -130,9 +127,8 @@ public:
   /// \brief Checks whether any component is NaN.
   bool IsNaN() const; // [tested]
 
-// *** Special Accessors ***
+  // *** Special Accessors ***
 public:
-
   /// \brief Returns all 3 components of the i-th row.
   ezVec3Template<Type> GetRow(ezUInt32 uiRow) const; // [tested]
 
@@ -160,17 +156,16 @@ public:
   /// \brief Computes the determinant of the matix.
   Type GetDeterminant() const;
 
-// *** Operators ***
+  // *** Operators ***
 public:
-
   /// \brief Matrix-vector multiplication, assuming the 4th component of the vector is zero. So, rotation/scaling only. Useful as an optimization.
   const ezVec3Template<Type> TransformDirection(const ezVec3Template<Type>& v) const; // [tested]
 
   /// \brief Component-wise multiplication (commutative)
-  void operator*= (Type f);
+  void operator*=(Type f);
 
   /// \brief Component-wise division.
-  void operator/= (Type f); // [tested]
+  void operator/=(Type f); // [tested]
 
   /// \brief Equality Check.
   bool IsIdentical(const ezMat3Template<Type>& rhs) const; // [tested]
@@ -183,42 +178,39 @@ public:
 // *** free functions ***
 
 /// \brief Matrix-Matrix multiplication
-template<typename Type>
-const ezMat3Template<Type> operator* (const ezMat3Template<Type>& m1, const ezMat3Template<Type>& m2); // [tested]
+template <typename Type>
+const ezMat3Template<Type> operator*(const ezMat3Template<Type>& m1, const ezMat3Template<Type>& m2); // [tested]
 
 /// \brief Matrix-vector multiplication
-template<typename Type>
-const ezVec3Template<Type> operator* (const ezMat3Template<Type>& m, const ezVec3Template<Type>& v); // [tested]
+template <typename Type>
+const ezVec3Template<Type> operator*(const ezMat3Template<Type>& m, const ezVec3Template<Type>& v); // [tested]
 
 /// \brief Component-wise multiplication (commutative)
-template<typename Type>
-const ezMat3Template<Type> operator* (const ezMat3Template<Type>& m1, Type f); // [tested]
+template <typename Type>
+const ezMat3Template<Type> operator*(const ezMat3Template<Type>& m1, Type f); // [tested]
 
 /// \brief Component-wise multiplication (commutative)
-template<typename Type>
-const ezMat3Template<Type> operator* (Type f, const ezMat3Template<Type>& m1); // [tested]
+template <typename Type>
+const ezMat3Template<Type> operator*(Type f, const ezMat3Template<Type>& m1); // [tested]
 
 /// \brief Component-wise division
-template<typename Type>
-const ezMat3Template<Type> operator/ (const ezMat3Template<Type>& m1, Type f); // [tested]
+template <typename Type>
+const ezMat3Template<Type> operator/(const ezMat3Template<Type>& m1, Type f); // [tested]
 
 /// \brief Adding two matrices (component-wise)
-template<typename Type>
-const ezMat3Template<Type> operator+ (const ezMat3Template<Type>& m1, const ezMat3Template<Type>& m2); // [tested]
+template <typename Type>
+const ezMat3Template<Type> operator+(const ezMat3Template<Type>& m1, const ezMat3Template<Type>& m2); // [tested]
 
 /// \brief Subtracting two matrices (component-wise)
-template<typename Type>
-const ezMat3Template<Type> operator- (const ezMat3Template<Type>& m1, const ezMat3Template<Type>& m2); // [tested]
+template <typename Type>
+const ezMat3Template<Type> operator-(const ezMat3Template<Type>& m1, const ezMat3Template<Type>& m2); // [tested]
 
 /// \brief Comparison Operator ==
-template<typename Type>
-bool operator== (const ezMat3Template<Type>& lhs, const ezMat3Template<Type>& rhs); // [tested]
+template <typename Type>
+bool operator==(const ezMat3Template<Type>& lhs, const ezMat3Template<Type>& rhs); // [tested]
 
 /// \brief Comparison Operator !=
-template<typename Type>
-bool operator!= (const ezMat3Template<Type>& lhs, const ezMat3Template<Type>& rhs); // [tested]
+template <typename Type>
+bool operator!=(const ezMat3Template<Type>& lhs, const ezMat3Template<Type>& rhs); // [tested]
 
 #include <Foundation/Math/Implementation/Mat3_inl.h>
-
-
-

@@ -1,10 +1,12 @@
 #include <PCH.h>
+
 #include <EditorFramework/Visualizers/VisualizerAdapterRegistry.h>
-#include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <Foundation/Configuration/Startup.h>
+#include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 
 EZ_IMPLEMENT_SINGLETON(ezVisualizerAdapterRegistry);
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, VisualizerAdapterRegistry)
  
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -22,10 +24,11 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, VisualizerAdapterRegistry)
     EZ_DEFAULT_DELETE(ptr);
   }
  
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezVisualizerAdapterRegistry::ezVisualizerAdapterRegistry()
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
   ezVisualizerManager::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezVisualizerAdapterRegistry::VisualizerManagerEventHandler, this));
 }
@@ -84,4 +87,3 @@ void ezVisualizerAdapterRegistry::ClearAdapters(const ezDocument* pDocument)
 
   m_DocumentAdapters[pDocument].m_Adapters.Clear();
 }
-

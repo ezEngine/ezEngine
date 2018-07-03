@@ -1,7 +1,13 @@
 #include <PCH.h>
+
+#include <Core/Graphics/Camera.h>
+#include <Foundation/Configuration/CVar.h>
+#include <Foundation/Configuration/Startup.h>
+#include <Foundation/Math/Rect.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Lights/Implementation/ShadowPool.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
+#include <RendererCore/Lights/Implementation/ShadowPool.h>
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
 #include <RendererCore/Pipeline/View.h>
@@ -9,14 +15,10 @@
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Texture.h>
-#include <Core/Graphics/Camera.h>
-#include <Foundation/Configuration/Startup.h>
-#include <Foundation/Configuration/CVar.h>
-#include <Foundation/Math/Rect.h>
-#include <Foundation/Profiling/Profiling.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/LightData.h>
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, ShadowPool)
 
 BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -35,10 +37,11 @@ ON_ENGINE_SHUTDOWN
   ezShadowPool::OnEngineShutdown();
 }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  ezCVarBool CVarShadowPoolStats("r_ShadowPoolStats", false, ezCVarFlags::Default, "Display same stats of the shadow pool");
+ezCVarBool CVarShadowPoolStats("r_ShadowPoolStats", false, ezCVarFlags::Default, "Display same stats of the shadow pool");
 #endif
 
 namespace
@@ -78,10 +81,7 @@ namespace
 
   struct PoolData
   {
-    PoolData()
-    {
-      Clear();
-    }
+    PoolData() { Clear(); }
 
     ~PoolData()
     {
@@ -149,9 +149,11 @@ namespace
       renderTargetSetup.SetDepthStencilTarget(ezGALDevice::GetDefaultDevice()->GetDefaultRenderTargetView(m_hShadowAtlasTexture));
       pView->SetRenderTargetSetup(renderTargetSetup);
 
-      pView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>("{ 4f4d9f16-3d47-4c67-b821-a778f11dcaf5 }")); //ShadowMapRenderPipeline.ezRenderPipelineAsset
+      pView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>(
+          "{ 4f4d9f16-3d47-4c67-b821-a778f11dcaf5 }")); // ShadowMapRenderPipeline.ezRenderPipelineAsset
 
-                                                                                                                                               // Set viewport size to something valid, this will be changed to the proper location in the atlas texture in OnBeginFrame before rendering.
+      // Set viewport size to something valid, this will be changed to the proper location in the atlas texture in OnBeginFrame before
+      // rendering.
       pView->SetViewport(ezRectFloat(0.0f, 0.0f, 1024.0f, 1024.0f));
 
       const ezTag& tagCastShadows = ezTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
@@ -179,11 +181,12 @@ namespace
       return shadowView;
     }
 
-    bool GetDataForExtraction(const ezLightComponent* pLight, const ezView* pReferenceView, float fShadowMapScale, ezUInt32 uiPackedDataSize, ShadowData*& out_pData)
+    bool GetDataForExtraction(const ezLightComponent* pLight, const ezView* pReferenceView, float fShadowMapScale,
+                              ezUInt32 uiPackedDataSize, ShadowData*& out_pData)
     {
       EZ_LOCK(m_ShadowDataMutex);
 
-      LightAndRefView key = { pLight, pReferenceView };
+      LightAndRefView key = {pLight, pReferenceView};
 
       ezUInt32 uiDataIndex = ezInvalidIndex;
       if (m_LightToShadowDataTable.TryGetValue(key, uiDataIndex))
@@ -205,7 +208,7 @@ namespace
       out_pData = &m_ShadowData[m_uiUsedShadowData];
       out_pData->m_fShadowMapScale = fShadowMapScale;
       out_pData->m_fPenumbraSize = pLight->GetPenumbraSize();
-      out_pData->m_fSlopeBias = pLight->GetSlopeBias() * 100.0f; // map from user friendly range to real range
+      out_pData->m_fSlopeBias = pLight->GetSlopeBias() * 100.0f;       // map from user friendly range to real range
       out_pData->m_fConstantBias = pLight->GetConstantBias() / 100.0f; // map from user friendly range to real range
       out_pData->m_fFadeOutStart = 1.0f;
       out_pData->m_uiPackedDataOffset = uiPackedDataOffset;
@@ -288,7 +291,7 @@ namespace
     EZ_DECLARE_POD_TYPE();
 
     EZ_ALWAYS_INLINE AtlasCell()
-      : m_Rect(0, 0, 0, 0)
+        : m_Rect(0, 0, 0, 0)
     {
       m_uiChildIndices[0] = m_uiChildIndices[1] = m_uiChildIndices[2] = m_uiChildIndices[3] = 0xFFFF;
       m_uiDataIndex = ezInvalidIndex;
@@ -296,8 +299,8 @@ namespace
 
     EZ_ALWAYS_INLINE bool IsLeaf() const
     {
-      return m_uiChildIndices[0] == 0xFFFF && m_uiChildIndices[1] == 0xFFFF &&
-        m_uiChildIndices[2] == 0xFFFF && m_uiChildIndices[3] == 0xFFFF;
+      return m_uiChildIndices[0] == 0xFFFF && m_uiChildIndices[1] == 0xFFFF && m_uiChildIndices[2] == 0xFFFF &&
+             m_uiChildIndices[3] == 0xFFFF;
     }
 
     ezRectU32 m_Rect;
@@ -343,9 +346,9 @@ namespace
       ezUInt32 h = pCell->m_Rect.height / 2;
 
       ezUInt32 uiCellIndex = s_AtlasCells.GetCount();
-      s_AtlasCells.ExpandAndGetRef().m_Rect = ezRectU32(x,     y,     w, h);
-      s_AtlasCells.ExpandAndGetRef().m_Rect = ezRectU32(x + w, y,     w, h);
-      s_AtlasCells.ExpandAndGetRef().m_Rect = ezRectU32(x,     y + h, w, h);
+      s_AtlasCells.ExpandAndGetRef().m_Rect = ezRectU32(x, y, w, h);
+      s_AtlasCells.ExpandAndGetRef().m_Rect = ezRectU32(x + w, y, w, h);
+      s_AtlasCells.ExpandAndGetRef().m_Rect = ezRectU32(x, y + h, w, h);
       s_AtlasCells.ExpandAndGetRef().m_Rect = ezRectU32(x + w, y + h, w, h);
 
       for (ezUInt32 i = 0; i < 4; ++i)
@@ -385,10 +388,7 @@ namespace
 template <>
 struct ezHashHelper<LightAndRefView>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(LightAndRefView value)
-  {
-    return ezHashing::xxHash32(&value.m_pLight, sizeof(LightAndRefView));
-  }
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(LightAndRefView value) { return ezHashing::xxHash32(&value.m_pLight, sizeof(LightAndRefView)); }
 
   EZ_ALWAYS_INLINE static bool Equal(const LightAndRefView& a, const LightAndRefView& b)
   {
@@ -396,7 +396,7 @@ struct ezHashHelper<LightAndRefView>
   }
 };
 
-//static
+// static
 ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pDirLight, const ezView* pReferenceView)
 {
   EZ_ASSERT_DEBUG(pDirLight->GetCastShadows(), "Implementation error");
@@ -434,13 +434,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
     fCascadeRanges[i] = ezMath::Lerp(linearDistance, logDistance, fSplitModeWeight);
   }
 
-  const char* viewNames[4] =
-  {
-    "DirLightViewC0",
-    "DirLightViewC1",
-    "DirLightViewC2",
-    "DirLightViewC3"
-  };
+  const char* viewNames[4] = {"DirLightViewC0", "DirLightViewC1", "DirLightViewC2", "DirLightViewC3"};
 
   const ezGameObject* pOwner = pDirLight->GetOwner();
   ezVec3 vForward = pOwner->GetGlobalDirForwards();
@@ -519,7 +513,7 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
   return pData->m_uiPackedDataOffset;
 }
 
-//static
+// static
 ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, float fScreenSpaceSize)
 {
   EZ_ASSERT_DEBUG(pPointLight->GetCastShadows(), "Implementation error");
@@ -538,24 +532,13 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
   pData->m_uiType = LIGHT_TYPE_POINT;
   pData->m_Views.SetCount(6);
 
-  ezVec3 faceDirs[6] =
-  {
-    ezVec3(1.0f, 0.0f, 0.0f),
-    ezVec3(-1.0f, 0.0f, 0.0f),
-    ezVec3(0.0f, 1.0f, 0.0f),
-    ezVec3(0.0f, -1.0f, 0.0f),
-    ezVec3(0.0f, 0.0f, 1.0f),
-    ezVec3(0.0f, 0.0f, -1.0f),
+  ezVec3 faceDirs[6] = {
+      ezVec3(1.0f, 0.0f, 0.0f),  ezVec3(-1.0f, 0.0f, 0.0f), ezVec3(0.0f, 1.0f, 0.0f),
+      ezVec3(0.0f, -1.0f, 0.0f), ezVec3(0.0f, 0.0f, 1.0f),  ezVec3(0.0f, 0.0f, -1.0f),
   };
 
-  const char* viewNames[6] =
-  {
-    "PointLightView+X",
-    "PointLightView-X",
-    "PointLightView+Y",
-    "PointLightView-Y",
-    "PointLightView+Z",
-    "PointLightView-Z",
+  const char* viewNames[6] = {
+      "PointLightView+X", "PointLightView-X", "PointLightView+Y", "PointLightView-Y", "PointLightView+Z", "PointLightView-Z",
   };
 
   const ezGameObject* pOwner = pPointLight->GetOwner();
@@ -595,7 +578,7 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
   return pData->m_uiPackedDataOffset;
 }
 
-//static
+// static
 ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, float fScreenSpaceSize)
 {
   EZ_ASSERT_DEBUG(pSpotLight->GetCastShadows(), "Implementation error");
@@ -645,19 +628,19 @@ ezUInt32 ezShadowPool::AddSpotLight(const ezSpotLightComponent* pSpotLight, floa
   return pData->m_uiPackedDataOffset;
 }
 
-//static
+// static
 ezGALTextureHandle ezShadowPool::GetShadowAtlasTexture()
 {
   return s_pPool->m_hShadowAtlasTexture;
 }
 
-//static
+// static
 ezGALBufferHandle ezShadowPool::UpdateShadowDataBuffer(ezGALContext* pGALContext)
 {
   return s_pPool->UpdateShadowDataBuffer(pGALContext);
 }
 
-//static
+// static
 void ezShadowPool::OnEngineStartup()
 {
   s_pPool = EZ_DEFAULT_NEW(PoolData);
@@ -665,7 +648,7 @@ void ezShadowPool::OnEngineStartup()
   ezRenderWorld::s_BeginFrameEvent.AddEventHandler(OnBeginFrame);
 }
 
-//static
+// static
 void ezShadowPool::OnEngineShutdown()
 {
   ezRenderWorld::s_BeginFrameEvent.RemoveEventHandler(OnBeginFrame);
@@ -673,7 +656,7 @@ void ezShadowPool::OnEngineShutdown()
   EZ_DEFAULT_DELETE(s_pPool);
 }
 
-//static
+// static
 void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
 {
   EZ_PROFILE("Shadow Pool Update");
@@ -740,7 +723,8 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
       fadeOutEnd *= 2.0f;
     }
 
-    uiShadowMapSize = ezMath::PowerOfTwo_Ceil((ezUInt32)(uiShadowMapSize * ezMath::Clamp(shadowData.m_fShadowMapScale, fadeOutStart, 1.0f)));
+    uiShadowMapSize =
+        ezMath::PowerOfTwo_Ceil((ezUInt32)(uiShadowMapSize * ezMath::Clamp(shadowData.m_fShadowMapScale, fadeOutStart, 1.0f)));
 
     ezHybridArray<ezView*, 8> shadowViews;
     ezHybridArray<ezRectU32, 8> atlasRects;
@@ -969,4 +953,3 @@ void ezShadowPool::OnBeginFrame(ezUInt64 uiFrameNumber)
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_ShadowPool);
-

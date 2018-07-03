@@ -1,14 +1,14 @@
-﻿#pragma once
+#pragma once
 
 namespace ezMath
 {
-  template<>
+  template <>
   constexpr inline bool BasicType<double>::SupportsInfinity()
   {
     return true;
   }
 
-  template<>
+  template <>
   constexpr inline bool BasicType<double>::SupportsNaN()
   {
     return true;
@@ -37,13 +37,13 @@ namespace ezMath
     return (((i2f.i & 0x7FF0000000000000LL) == 0x7FF0000000000000LL) && ((i2f.i & 0xFFFFFFFFFFFFFLL) != 0));
   }
 
-  template<>
+  template <>
   EZ_ALWAYS_INLINE double BasicType<double>::GetNaN()
   {
     // NAN -> (exponent = all 1, mantissa = non-zero)
     // INF -> (exponent = all 1, mantissa = zero)
 
-    // NaN = 0111 1111 1111 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0001 
+    // NaN = 0111 1111 1111 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0001
 
     ezInt64DoubleUnion i2f;
     i2f.i = 0x7FF0000000000042LL;
@@ -51,7 +51,7 @@ namespace ezMath
     return i2f.f;
   };
 
-  template<>
+  template <>
   EZ_ALWAYS_INLINE double BasicType<double>::GetInfinity()
   {
     // NAN -> (exponent = all 1, mantissa = non-zero)
@@ -65,7 +65,7 @@ namespace ezMath
     return i2f.f;
   }
 
-  template<>
+  template <>
   EZ_ALWAYS_INLINE double BasicType<double>::MaxValue()
   {
     return 1.7976931348623158e+307;
@@ -145,4 +145,3 @@ namespace ezMath
     return fmod(f, div);
   }
 }
-

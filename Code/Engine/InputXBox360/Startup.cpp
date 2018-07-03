@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <InputXBox360/InputDeviceXBox.h>
 
 static ezInputDeviceXBox360* g_InputDeviceXBox360 = nullptr;
@@ -16,6 +17,7 @@ void ezInputDeviceXBox360::DestroyAllDevices()
   EZ_DEFAULT_DELETE(g_InputDeviceXBox360);
 }
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(InputDevices, InputDeviceXBox360)
  
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -43,9 +45,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InputDevices, InputDeviceXBox360)
     ezInputDeviceXBox360::DestroyAllDevices();
   }
  
-EZ_END_SUBSYSTEM_DECLARATION
-
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 
 EZ_STATICLINK_FILE(InputXBox360, InputXBox360_Startup);
-

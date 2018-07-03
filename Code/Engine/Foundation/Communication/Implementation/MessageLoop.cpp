@@ -42,7 +42,10 @@ EZ_END_SUBSYSTEM_DECLARATION;
 class ezLoopThread : public ezThread
 {
 public:
-  ezLoopThread() : ezThread("ezMessageLoopThread") {}
+  ezLoopThread()
+      : ezThread("ezMessageLoopThread")
+  {
+  }
   ezMessageLoop* m_pRemoteInterface = nullptr;
   virtual ezUInt32 Run() override
   {

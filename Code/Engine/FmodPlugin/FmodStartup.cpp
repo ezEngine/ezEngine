@@ -1,19 +1,21 @@
-﻿#include <PCH.h>
-#include <Foundation/Configuration/Startup.h>
+#include <PCH.h>
+
+#include <FmodPlugin/FmodIncludes.h>
+#include <FmodPlugin/FmodSingleton.h>
 #include <FmodPlugin/Resources/FmodSoundBankResource.h>
 #include <FmodPlugin/Resources/FmodSoundEventResource.h>
-#include <FmodPlugin/FmodSingleton.h>
-#include <GameEngine/GameApplication/GameApplication.h>
-#include <Foundation/IO/OpenDdlWriter.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/IO/OpenDdlUtils.h>
-#include <Foundation/IO/OpenDdlReader.h>
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <FmodPlugin/FmodIncludes.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/IO/OpenDdlReader.h>
+#include <Foundation/IO/OpenDdlUtils.h>
+#include <Foundation/IO/OpenDdlWriter.h>
+#include <GameEngine/GameApplication/GameApplication.h>
 
 static ezFmodSoundBankResourceLoader s_SoundBankResourceLoader;
 static ezFmodSoundEventResourceLoader s_SoundEventResourceLoader;
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Fmod, FmodPlugin)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -65,16 +67,17 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Fmod, FmodPlugin)
     ezFmodSoundBankResource::CleanupDynamicPluginReferences();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 void ezFmodConfiguration::Save(ezOpenDdlWriter& ddl) const
 {
-    ezOpenDdlUtils::StoreString(ddl, m_sMasterSoundBank, "MasterBank");
-    ezOpenDdlUtils::StoreUInt16(ddl, m_uiVirtualChannels, "VirtualChannels");
-    ezOpenDdlUtils::StoreUInt32(ddl, m_uiSamplerRate, "SamplerRate");
+  ezOpenDdlUtils::StoreString(ddl, m_sMasterSoundBank, "MasterBank");
+  ezOpenDdlUtils::StoreUInt16(ddl, m_uiVirtualChannels, "VirtualChannels");
+  ezOpenDdlUtils::StoreUInt32(ddl, m_uiSamplerRate, "SamplerRate");
 
-    switch (m_SpeakerMode)
-    {
+  switch (m_SpeakerMode)
+  {
     case ezFmodSpeakerMode::ModeStereo:
       ezOpenDdlUtils::StoreString(ddl, "Stereo", "Mode");
       break;
@@ -84,7 +87,7 @@ void ezFmodConfiguration::Save(ezOpenDdlWriter& ddl) const
     case ezFmodSpeakerMode::Mode7Point1:
       ezOpenDdlUtils::StoreString(ddl, "7.1", "Mode");
       break;
-    }
+  }
 }
 
 void ezFmodConfiguration::Load(const ezOpenDdlReaderElement& ddl)
@@ -183,4 +186,3 @@ ezResult ezFmodPlatformConfigs::Load(const char* szFile)
 }
 
 EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_FmodStartup);
-

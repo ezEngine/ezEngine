@@ -1,11 +1,13 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/Configuration/Startup.h>
-#include <ModelImporter/ModelImporter.h>
 #include <ModelImporter/Importers/AssimpImporter.h>
+#include <ModelImporter/Importers/FBXSDKImporter.h>
 #include <ModelImporter/Importers/PbrtImporter.h>
 #include <ModelImporter/Importers/SourceBSPImporter.h>
-#include <ModelImporter/Importers/FBXSDKImporter.h>
+#include <ModelImporter/ModelImporter.h>
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Editor, PluginAssets)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -35,4 +37,5 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Editor, PluginAssets)
   {
   }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on

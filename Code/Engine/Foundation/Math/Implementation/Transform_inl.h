@@ -1,8 +1,8 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Math/Transform.h>
 
-template<typename Type>
+template <typename Type>
 inline ezTransformTemplate<Type>::ezTransformTemplate(const ezVec3Template<Type>& vPosition, const ezQuatTemplate<Type>& qRotation, const ezVec3Template<Type>& vScale)
 {
   m_vPosition = vPosition;
@@ -10,7 +10,7 @@ inline ezTransformTemplate<Type>::ezTransformTemplate(const ezVec3Template<Type>
   m_vScale = vScale;
 }
 
-template<typename Type>
+template <typename Type>
 void ezTransformTemplate<Type>::SetFromMat4(const ezMat4& mat)
 {
   ezMat3 mRot = mat.GetRotationalPart();
@@ -21,7 +21,7 @@ void ezTransformTemplate<Type>::SetFromMat4(const ezMat4& mat)
   m_qRotation.SetFromMat3(mRot);
 }
 
-template<typename Type>
+template <typename Type>
 inline void ezTransformTemplate<Type>::SetIdentity()
 {
   m_vPosition.SetZero();
@@ -30,25 +30,25 @@ inline void ezTransformTemplate<Type>::SetIdentity()
 }
 
 //static
-template<typename Type>
+template <typename Type>
 inline const ezTransformTemplate<Type> ezTransformTemplate<Type>::Identity()
 {
   return ezTransformTemplate<Type>(ezVec3Template<Type>::ZeroVector(), ezQuatTemplate<Type>::IdentityQuaternion(), ezVec3Template<Type>(1));
 }
 
-template<typename Type>
+template <typename Type>
 inline bool ezTransformTemplate<Type>::IsIdentical(const ezTransformTemplate<Type>& rhs) const
 {
   return m_vPosition.IsIdentical(rhs.m_vPosition) && (m_qRotation == rhs.m_qRotation) && m_vScale.IsIdentical(rhs.m_vScale);
 }
 
-template<typename Type>
+template <typename Type>
 inline bool ezTransformTemplate<Type>::IsEqual(const ezTransformTemplate<Type>& rhs, Type fEpsilon) const
 {
   return m_vPosition.IsEqual(rhs.m_vPosition, fEpsilon) && m_qRotation.IsEqualRotation(rhs.m_qRotation, fEpsilon) && m_vScale.IsEqual(rhs.m_vScale, fEpsilon);
 }
 
-template<typename Type>
+template <typename Type>
 inline void ezTransformTemplate<Type>::SetLocalTransform(const ezTransformTemplate<Type>& GlobalTransformParent, const ezTransformTemplate<Type>& GlobalTransformChild)
 {
   const ezQuat invRot = -GlobalTransformParent.m_qRotation;
@@ -59,13 +59,13 @@ inline void ezTransformTemplate<Type>::SetLocalTransform(const ezTransformTempla
   m_vScale = invScale.CompMul(GlobalTransformChild.m_vScale);
 }
 
-template<typename Type>
+template <typename Type>
 inline void ezTransformTemplate<Type>::SetGlobalTransform(const ezTransformTemplate<Type>& GlobalTransformParent, const ezTransformTemplate<Type>& LocalTransformChild)
 {
   *this = GlobalTransformParent * LocalTransformChild;
 }
 
-template<typename Type>
+template <typename Type>
 EZ_ALWAYS_INLINE const ezMat4Template<Type> ezTransformTemplate<Type>::GetAsMat4() const
 {
   ezMat4 result = m_qRotation.GetAsMat4();
@@ -90,19 +90,19 @@ EZ_ALWAYS_INLINE const ezMat4Template<Type> ezTransformTemplate<Type>::GetAsMat4
 }
 
 
-template<typename Type>
+template <typename Type>
 void ezTransformTemplate<Type>::operator+=(const ezVec3& v)
 {
   m_vPosition += v;
 }
 
-template<typename Type>
+template <typename Type>
 void ezTransformTemplate<Type>::operator-=(const ezVec3& v)
 {
   m_vPosition -= v;
 }
 
-template<typename Type>
+template <typename Type>
 EZ_ALWAYS_INLINE ezVec3 ezTransformTemplate<Type>::TransformPosition(const ezVec3& v) const
 {
   const ezVec3 scaled = m_vScale.CompMul(v);
@@ -110,7 +110,7 @@ EZ_ALWAYS_INLINE ezVec3 ezTransformTemplate<Type>::TransformPosition(const ezVec
   return m_vPosition + rotated;
 }
 
-template<typename Type>
+template <typename Type>
 EZ_ALWAYS_INLINE ezVec3 ezTransformTemplate<Type>::TransformDirection(const ezVec3& v) const
 {
   const ezVec3 scaled = m_vScale.CompMul(v);
@@ -118,7 +118,7 @@ EZ_ALWAYS_INLINE ezVec3 ezTransformTemplate<Type>::TransformDirection(const ezVe
   return rotated;
 }
 
-template<typename Type>
+template <typename Type>
 EZ_ALWAYS_INLINE const ezTransformTemplate<Type> operator*(const ezQuatTemplate<Type>& q, const ezTransformTemplate<Type>& t)
 {
   ezTransform r;
@@ -130,7 +130,7 @@ EZ_ALWAYS_INLINE const ezTransformTemplate<Type> operator*(const ezQuatTemplate<
   return r;
 }
 
-template<typename Type>
+template <typename Type>
 EZ_ALWAYS_INLINE const ezTransformTemplate<Type> operator*(const ezTransformTemplate<Type>& t, const ezQuatTemplate<Type>& q)
 {
   ezTransform r;
@@ -142,25 +142,25 @@ EZ_ALWAYS_INLINE const ezTransformTemplate<Type> operator*(const ezTransformTemp
   return r;
 }
 
-template<typename Type>
+template <typename Type>
 EZ_ALWAYS_INLINE const ezTransformTemplate<Type> operator+(const ezTransformTemplate<Type>& t, const ezVec3Template<Type>& v)
 {
   return ezTransformTemplate<Type>(t.m_vPosition + v, t.m_qRotation, t.m_vScale);
 }
 
-template<typename Type>
+template <typename Type>
 EZ_ALWAYS_INLINE const ezTransformTemplate<Type> operator-(const ezTransformTemplate<Type>& t, const ezVec3Template<Type>& v)
 {
   return ezTransformTemplate<Type>(t.m_vPosition - v, t.m_qRotation, t.m_vScale);
 }
 
-template<typename Type>
+template <typename Type>
 EZ_ALWAYS_INLINE const ezVec3Template<Type> operator*(const ezTransformTemplate<Type>& t, const ezVec3Template<Type>& v)
 {
   return t.TransformPosition(v);
 }
 
-template<typename Type>
+template <typename Type>
 inline const ezTransformTemplate<Type> operator*(const ezTransformTemplate<Type>& t1, const ezTransformTemplate<Type>& t2)
 {
   ezTransformTemplate<Type> t;
@@ -172,25 +172,25 @@ inline const ezTransformTemplate<Type> operator*(const ezTransformTemplate<Type>
   return t;
 }
 
-template<typename Type>
+template <typename Type>
 EZ_ALWAYS_INLINE bool operator==(const ezTransformTemplate<Type>& t1, const ezTransformTemplate<Type>& t2)
 {
   return t1.IsIdentical(t2);
 }
 
-template<typename Type>
+template <typename Type>
 EZ_ALWAYS_INLINE bool operator!=(const ezTransformTemplate<Type>& t1, const ezTransformTemplate<Type>& t2)
 {
   return !t1.IsIdentical(t2);
 }
 
-template<typename Type>
+template <typename Type>
 EZ_ALWAYS_INLINE void ezTransformTemplate<Type>::Invert()
 {
   (*this) = GetInverse();
 }
 
-template<typename Type>
+template <typename Type>
 inline const ezTransformTemplate<Type> ezTransformTemplate<Type>::GetInverse() const
 {
   const ezQuat invRot = -m_qRotation;
@@ -199,4 +199,3 @@ inline const ezTransformTemplate<Type> ezTransformTemplate<Type>::GetInverse() c
 
   return ezTransformTemplate<Type>(invPos, invRot, invScale);
 }
-

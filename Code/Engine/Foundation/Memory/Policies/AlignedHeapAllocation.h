@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 
@@ -10,21 +10,20 @@ namespace ezMemoryPolicies
   class ezAlignedHeapAllocation
   {
   public:
-    EZ_ALWAYS_INLINE ezAlignedHeapAllocation(ezAllocatorBase* pParent) { }
-    EZ_ALWAYS_INLINE ~ezAlignedHeapAllocation() { }
-    
+    EZ_ALWAYS_INLINE ezAlignedHeapAllocation(ezAllocatorBase* pParent) {}
+    EZ_ALWAYS_INLINE ~ezAlignedHeapAllocation() {}
+
     void* Allocate(size_t uiSize, size_t uiAlign);
     void Deallocate(void* ptr);
-    
+
     EZ_ALWAYS_INLINE ezAllocatorBase* GetParent() const { return nullptr; }
   };
 
-  #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    #include <Foundation/Memory/Policies/Win/AlignedHeapAllocation_win.h>
-  #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
-    #include <Foundation/Memory/Policies/Posix/AlignedHeapAllocation_posix.h>
-  #else
-    #error "ezAlignedHeapAllocation is not implemented on current platform"
-  #endif
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#include <Foundation/Memory/Policies/Win/AlignedHeapAllocation_win.h>
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+#include <Foundation/Memory/Policies/Posix/AlignedHeapAllocation_posix.h>
+#else
+#error "ezAlignedHeapAllocation is not implemented on current platform"
+#endif
 }
-

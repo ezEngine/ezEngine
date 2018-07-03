@@ -1,7 +1,8 @@
 #include <PCH.h>
+
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/TaskSystem.h>
-#include <Foundation/Configuration/Startup.h>
 
 ezMutex ezTaskSystem::s_TaskSystemMutex;
 
@@ -13,6 +14,7 @@ ezList<ezTaskSystem::TaskData> ezTaskSystem::s_Tasks[ezTaskPriority::ENUM_COUNT]
 ezDynamicArray<ezDelegate<void()>> ezTaskSystem::s_OnWorkerThreadStarted;
 ezDynamicArray<ezDelegate<void()>> ezTaskSystem::s_OnWorkerThreadStopped;
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, TaskSystem)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -30,12 +32,10 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, TaskSystem)
     ezTaskSystem::Shutdown();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
-void ezTaskSystem::Startup()
-{
-
-}
+void ezTaskSystem::Startup() {}
 
 void ezTaskSystem::Shutdown()
 {
@@ -92,7 +92,7 @@ void ezTaskSystem::ReprioritizeFrameTasks()
   // There should usually be no 'this frame tasks' left at this time
   // however, while we waited to enter the lock, such tasks might have appeared
   // In this case we move them into the highest-priority 'this frame' queue, to ensure they will be executed asap
-  for (ezUInt32 i = (ezUInt32) ezTaskPriority::ThisFrame; i < (ezUInt32) ezTaskPriority::LateThisFrame; ++i)
+  for (ezUInt32 i = (ezUInt32)ezTaskPriority::ThisFrame; i < (ezUInt32)ezTaskPriority::LateThisFrame; ++i)
   {
     auto it = s_Tasks[i].GetIterator();
 
@@ -108,7 +108,7 @@ void ezTaskSystem::ReprioritizeFrameTasks()
     s_Tasks[i].Clear();
   }
 
-  for (ezUInt32 i = (ezUInt32) ezTaskPriority::EarlyNextFrame; i < (ezUInt32) ezTaskPriority::LateNextFrame; ++i)
+  for (ezUInt32 i = (ezUInt32)ezTaskPriority::EarlyNextFrame; i < (ezUInt32)ezTaskPriority::LateNextFrame; ++i)
   {
     auto it = s_Tasks[i].GetIterator();
 
@@ -139,8 +139,8 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, double fSmoo
   // on fast machines that means that these tasks are finished as soon as possible and users will see the results quickly
 
   // if the frame time spikes, we can skip this a few times, to try to prevent further slow downs
-  // however in such instances, the 'frame time threshold' will increase and thus the chance that we skip this entirely becomes lower over time
-  // that guarantees some progress, even if the frame rate is constantly low
+  // however in such instances, the 'frame time threshold' will increase and thus the chance that we skip this entirely becomes lower over
+  // time that guarantees some progress, even if the frame rate is constantly low
 
   static double s_fFrameTimeThreshold = fSmoothFrameMS;
 
@@ -283,4 +283,3 @@ void ezTaskSystem::FireWorkerThreadStopped()
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskSystem);
-

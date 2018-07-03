@@ -1,10 +1,10 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Math/Math.h>
 #include <Foundation/Math/Vec2.h>
 
 /// \brief A 3-component vector class.
-template<typename Type>
+template <typename Type>
 struct ezVec3Template
 {
 public:
@@ -13,14 +13,12 @@ public:
 
   typedef Type ComponentType;
 
-// *** Data ***
+  // *** Data ***
 public:
-
   Type x, y, z;
 
-// *** Constructors ***
+  // *** Constructors ***
 public:
-
   /// \brief default-constructed vector is uninitialized (for speed)
   ezVec3Template(); // [tested]
 
@@ -41,9 +39,8 @@ public:
   }
 #endif
 
-// *** Conversions ***
+  // *** Conversions ***
 public:
-
   /// \brief Returns an ezVec2Template with x and y from this vector.
   const ezVec2Template<Type> GetAsVec2() const; // [tested]
 
@@ -62,9 +59,8 @@ public:
   /// \brief Returns the data as an array.
   Type* GetData() { return &x; }
 
-// *** Functions to set the vector to specific values ***
+  // *** Functions to set the vector to specific values ***
 public:
-
   /// \brief Sets all 3 components to this value.
   void Set(Type xyz); // [tested]
 
@@ -74,9 +70,8 @@ public:
   /// \brief Sets the vector to all zero.
   void SetZero(); // [tested]
 
-// *** Functions dealing with length ***
+  // *** Functions dealing with length ***
 public:
-
   /// \brief Returns the length of the vector.
   Type GetLength() const; // [tested]
 
@@ -114,29 +109,28 @@ public:
   bool IsValid() const; // [tested]
 
 
-// *** Operators ***
+  // *** Operators ***
 public:
-
   /// \brief Returns the negation of this vector.
-  const ezVec3Template operator- () const; // [tested]
+  const ezVec3Template operator-() const; // [tested]
 
   /// \brief Adds rhs component-wise to this vector
-  void operator+= (const ezVec3Template& rhs); // [tested]
+  void operator+=(const ezVec3Template& rhs); // [tested]
 
   /// \brief Subtracts rhs component-wise from this vector
-  void operator-= (const ezVec3Template& rhs); // [tested]
+  void operator-=(const ezVec3Template& rhs); // [tested]
 
   /// \brief Multiplies rhs component-wise to this vector
-  void operator*= (const ezVec3Template& rhs);
+  void operator*=(const ezVec3Template& rhs);
 
   /// \brief Divides this vector component-wise by rhs
-  void operator/= (const ezVec3Template& rhs);
+  void operator/=(const ezVec3Template& rhs);
 
   /// \brief Multiplies all components of this vector with f
-  void operator*= (Type f); // [tested]
+  void operator*=(Type f); // [tested]
 
   /// \brief Divides all components of this vector by f
-  void operator/= (Type f); // [tested]
+  void operator/=(Type f); // [tested]
 
   /// \brief Equality Check (bitwise)
   bool IsIdentical(const ezVec3Template& rhs) const; // [tested]
@@ -145,9 +139,8 @@ public:
   bool IsEqual(const ezVec3Template& rhs, Type fEpsilon) const; // [tested]
 
 
-// *** Common vector operations ***
+  // *** Common vector operations ***
 public:
-
   /// \brief Returns the positive angle between *this and rhs.
   /// Both this and rhs must be normalized
   ezAngle GetAngleBetween(const ezVec3Template& rhs) const; // [tested]
@@ -171,9 +164,8 @@ public:
   const ezVec3Template CompDiv(const ezVec3Template& rhs) const; // [tested]
 
 
-// *** Other common operations ***
+  // *** Other common operations ***
 public:
-
   /// \brief Calculates the normal of the triangle defined by the three vertices. Vertices are assumed to be ordered counter-clockwise.
   ezResult CalculateNormal(const ezVec3Template& v1, const ezVec3Template& v2, const ezVec3Template& v3); // [tested]
 
@@ -214,40 +206,36 @@ public:
   /// \note If you are going to do this many times with the same axis, rather than calling this function, instead manually
   /// do what this function does (see inline code) and only compute the quaternion once.
   static ezVec3Template CreateRandomDeviation(ezRandom& rng, const ezAngle& maxDeviation, const ezVec3& vNormal); // [tested]
-
 };
 
 // *** Operators ***
 
-template<typename Type>
-const ezVec3Template<Type> operator+ (const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2); // [tested]
+template <typename Type>
+const ezVec3Template<Type> operator+(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2); // [tested]
 
-template<typename Type>
-const ezVec3Template<Type> operator- (const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2); // [tested]
-
-
-template<typename Type>
-const ezVec3Template<Type> operator* (Type f, const ezVec3Template<Type>& v); // [tested]
-
-template<typename Type>
-const ezVec3Template<Type> operator* (const ezVec3Template<Type>& v, Type f); // [tested]
+template <typename Type>
+const ezVec3Template<Type> operator-(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2); // [tested]
 
 
-template<typename Type>
-const ezVec3Template<Type> operator/ (const ezVec3Template<Type>& v, Type f); // [tested]
+template <typename Type>
+const ezVec3Template<Type> operator*(Type f, const ezVec3Template<Type>& v); // [tested]
+
+template <typename Type>
+const ezVec3Template<Type> operator*(const ezVec3Template<Type>& v, Type f); // [tested]
 
 
-template<typename Type>
-bool operator== (const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2); // [tested]
+template <typename Type>
+const ezVec3Template<Type> operator/(const ezVec3Template<Type>& v, Type f); // [tested]
 
-template<typename Type>
-bool operator!= (const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2); // [tested]
+
+template <typename Type>
+bool operator==(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2); // [tested]
+
+template <typename Type>
+bool operator!=(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2); // [tested]
 
 /// \brief Strict weak ordering. Useful for sorting vertices into a map.
-template<typename Type>
-bool operator< (const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2); // [tested]
+template <typename Type>
+bool operator<(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2); // [tested]
 
 #include <Foundation/Math/Implementation/Vec3_inl.h>
-
-
-

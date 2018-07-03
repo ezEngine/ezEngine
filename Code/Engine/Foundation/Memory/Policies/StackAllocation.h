@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Containers/HybridArray.h>
 
@@ -19,25 +19,23 @@ namespace ezMemoryPolicies
     };
 
     EZ_FORCE_INLINE ezStackAllocation(ezAllocatorBase* pParent)
-      : m_pParent(pParent),
-      m_uiCurrentBucketIndex(0),
-      m_uiCurrentBucketSize(4096),
-      m_pNextAllocation(nullptr) {}
+        : m_pParent(pParent)
+        , m_uiCurrentBucketIndex(0)
+        , m_uiCurrentBucketSize(4096)
+        , m_pNextAllocation(nullptr)
+    {
+    }
 
     EZ_FORCE_INLINE ~ezStackAllocation()
     {
-      EZ_ASSERT_DEV(m_uiCurrentBucketIndex == 0 && m_pNextAllocation == m_currentBucket.GetPtr(),
-        "There is still something allocated!");
+      EZ_ASSERT_DEV(m_uiCurrentBucketIndex == 0 && m_pNextAllocation == m_currentBucket.GetPtr(), "There is still something allocated!");
       for (auto& bucket : m_buckets)
       {
         m_pParent->Deallocate(bucket.memory.GetPtr());
       }
     }
 
-    EZ_FORCE_INLINE void SetNextBucketSize(ezUInt32 uiSize)
-    {
-      m_uiCurrentBucketSize = uiSize;
-    }
+    EZ_FORCE_INLINE void SetNextBucketSize(ezUInt32 uiSize) { m_uiCurrentBucketSize = uiSize; }
 
     EZ_FORCE_INLINE void* Allocate(size_t uiSize, size_t uiAlign)
     {
@@ -59,8 +57,7 @@ namespace ezMemoryPolicies
         if (m_uiCurrentBucketIndex < m_buckets.GetCount())
         {
           // is the allocation to big for the current bucket?
-          while (m_uiCurrentBucketIndex < m_buckets.GetCount() &&
-            uiSize > m_buckets[m_uiCurrentBucketIndex].memory.GetCount())
+          while (m_uiCurrentBucketIndex < m_buckets.GetCount() && uiSize > m_buckets[m_uiCurrentBucketIndex].memory.GetCount())
           {
             m_uiCurrentBucketIndex++;
           }
@@ -71,8 +68,9 @@ namespace ezMemoryPolicies
         }
         else
         {
-          AllocNewBucket:
-          m_currentBucket = ezArrayPtr<ezUInt8>(static_cast<ezUInt8*>(m_pParent->Allocate(m_uiCurrentBucketSize, Alignment)), m_uiCurrentBucketSize);
+        AllocNewBucket:
+          m_currentBucket =
+              ezArrayPtr<ezUInt8>(static_cast<ezUInt8*>(m_pParent->Allocate(m_uiCurrentBucketSize, Alignment)), m_uiCurrentBucketSize);
           m_buckets.ExpandAndGetRef().memory = m_currentBucket;
           m_uiCurrentBucketSize *= 2;
         }
@@ -143,4 +141,3 @@ namespace ezMemoryPolicies
     ezHybridArray<Bucket, 4> m_buckets;
   };
 }
-

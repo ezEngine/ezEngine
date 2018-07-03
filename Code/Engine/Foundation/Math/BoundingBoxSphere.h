@@ -1,13 +1,13 @@
 #pragma once
 
-#include <Foundation/Math/Vec4.h>
 #include <Foundation/Math/Mat4.h>
+#include <Foundation/Math/Vec4.h>
 
 /// \brief A combination of a bounding box and a bounding sphere with the same center.
 ///
 /// This class uses less memory than storying a bounding box and sphere separate.
 
-template<typename Type>
+template <typename Type>
 class ezBoundingBoxSphereTemplate
 {
 public:
@@ -64,20 +64,18 @@ public:
   void Transform(const ezMat4Template<Type>& mTransform); // [tested]
 
 public:
-
   ezVec3Template<Type> m_vCenter;
   Type m_fSphereRadius;
   ezVec3Template<Type> m_vBoxHalfExtends;
 };
 
 /// \brief Checks whether this bounds and the other are identical.
-template<typename Type>
-bool operator== (const ezBoundingBoxSphereTemplate<Type>& lhs, const ezBoundingBoxSphereTemplate<Type>& rhs); // [tested]
+template <typename Type>
+bool operator==(const ezBoundingBoxSphereTemplate<Type>& lhs, const ezBoundingBoxSphereTemplate<Type>& rhs); // [tested]
 
 /// \brief Checks whether this bounds and the other are not identical.
-template<typename Type>
-bool operator!= (const ezBoundingBoxSphereTemplate<Type>& lhs, const ezBoundingBoxSphereTemplate<Type>& rhs); // [tested]
+template <typename Type>
+bool operator!=(const ezBoundingBoxSphereTemplate<Type>& lhs, const ezBoundingBoxSphereTemplate<Type>& rhs); // [tested]
 
 
 #include <Foundation/Math/Implementation/BoundingBoxSphere_inl.h>
-

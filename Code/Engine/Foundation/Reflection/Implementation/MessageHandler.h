@@ -1,8 +1,9 @@
-﻿#pragma once
+#pragma once
 
 /// \file
 
 #include <Foundation/Basics.h>
+#include <Foundation/Reflection/Implementation/RTTI.h>
 
 class ezMessage;
 
@@ -10,10 +11,7 @@ class ezMessage;
 class EZ_FOUNDATION_DLL ezAbstractMessageHandler
 {
 public:
-  EZ_ALWAYS_INLINE void operator()(void* pInstance, ezMessage& msg)
-  {
-    (*m_DispatchFunc)(pInstance, msg);
-  }
+  EZ_ALWAYS_INLINE void operator()(void* pInstance, ezMessage& msg) { (*m_DispatchFunc)(pInstance, msg); }
 
   EZ_FORCE_INLINE void operator()(const void* pInstance, ezMessage& msg)
   {
@@ -21,22 +19,15 @@ public:
     (*m_ConstDispatchFunc)(pInstance, msg);
   }
 
-  EZ_ALWAYS_INLINE ezMessageId GetMessageId() const
-  {
-    return m_Id;
-  }
+  EZ_ALWAYS_INLINE ezMessageId GetMessageId() const { return m_Id; }
 
-  EZ_ALWAYS_INLINE bool IsConst() const
-  {
-    return m_bIsConst;
-  }
+  EZ_ALWAYS_INLINE bool IsConst() const { return m_bIsConst; }
 
 protected:
   typedef void (*DispatchFunc)(void*, ezMessage&);
   typedef void (*ConstDispatchFunc)(const void*, ezMessage&);
 
-  union
-  {
+  union {
     DispatchFunc m_DispatchFunc;
     ConstDispatchFunc m_ConstDispatchFunc;
   };
@@ -55,14 +46,14 @@ namespace ezInternal
   template <typename Class, typename MessageType>
   struct MessageHandlerTraits
   {
-    static ezCompileTimeTrueType IsConst(void(Class::*)(MessageType&) const);
+    static ezCompileTimeTrueType IsConst(void (Class::*)(MessageType&) const);
     static ezCompileTimeFalseType IsConst(...);
   };
 
   template <bool bIsConst>
   struct MessageHandler
   {
-    template <typename Class, typename MessageType, void(Class::*Method)(MessageType&)>
+    template <typename Class, typename MessageType, void (Class::*Method)(MessageType&)>
     class Impl : public ezAbstractMessageHandler
     {
     public:
@@ -84,7 +75,7 @@ namespace ezInternal
   template <>
   struct MessageHandler<true>
   {
-    template <typename Class, typename MessageType, void(Class::*Method)(MessageType&) const>
+    template <typename Class, typename MessageType, void (Class::*Method)(MessageType&) const>
     class Impl : public ezAbstractMessageHandler
     {
     public:
@@ -105,6 +96,5 @@ namespace ezInternal
   };
 }
 
-#define EZ_IS_CONST_MESSAGE_HANDLER(Class, MessageType, Method) \
+#define EZ_IS_CONST_MESSAGE_HANDLER(Class, MessageType, Method)                                                                            \
   (sizeof(ezInternal::MessageHandlerTraits<Class, MessageType>::IsConst(Method)) == sizeof(ezCompileTimeTrueType))
-

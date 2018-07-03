@@ -75,7 +75,8 @@ namespace ezMemoryPolicies
     }
 
     // Retrieve info from meta data first.
-    AlloctionMetaData* metaData = ezMemoryUtils::AddByteOffset(static_cast<AlloctionMetaData*>(ptr), -((ptrdiff_t)sizeof(AlloctionMetaData)));
+    AlloctionMetaData* metaData =
+        ezMemoryUtils::AddByteOffset(static_cast<AlloctionMetaData*>(ptr), -((ptrdiff_t)sizeof(AlloctionMetaData)));
     size_t uiAlignedSize = metaData->m_uiSize;
 
     ezMemoryUtils::Destruct(metaData, 1);
@@ -86,12 +87,11 @@ namespace ezMemoryPolicies
     size_t uiFullPageSize = ezMemoryUtils::AlignSize(uiTotalSize, uiPageSize);
     ptr = ezMemoryUtils::AddByteOffset(ptr, ((ptrdiff_t)uiAlignedSize) - uiFullPageSize);
 
-    EZ_VERIFY(::VirtualFree(ptr, uiFullPageSize, MEM_DECOMMIT), "Could not decommit memory pages. Error Code '{0}'", ezArgErrorCode(::GetLastError()));
+    EZ_VERIFY(::VirtualFree(ptr, uiFullPageSize, MEM_DECOMMIT), "Could not decommit memory pages. Error Code '{0}'",
+              ezArgErrorCode(::GetLastError()));
 
     // Finally store the allocation so we can release it later
     void* pMemory = ezMemoryUtils::AddByteOffset(ptr, -((ptrdiff_t)uiPageSize));
     m_AllocationsToFreeLater.PushBack(pMemory);
   }
-
 }
-

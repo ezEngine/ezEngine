@@ -1,10 +1,12 @@
 #include <PCH.h>
+
 #include <EditorFramework/Manipulators/ManipulatorAdapterRegistry.h>
-#include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <Foundation/Configuration/Startup.h>
+#include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 
 EZ_IMPLEMENT_SINGLETON(ezManipulatorAdapterRegistry);
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ManipulatorAdapterRegistry)
  
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -22,10 +24,11 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ManipulatorAdapterRegistry)
     EZ_DEFAULT_DELETE(ptr);
   }
  
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezManipulatorAdapterRegistry::ezManipulatorAdapterRegistry()
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
   ezManipulatorManager::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezManipulatorAdapterRegistry::ManipulatorManagerEventHandler, this));
 }
@@ -68,4 +71,3 @@ void ezManipulatorAdapterRegistry::ClearAdapters(const ezDocument* pDocument)
 
   m_DocumentAdapters[pDocument].m_Adapters.Clear();
 }
-

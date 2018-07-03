@@ -2,9 +2,9 @@
 
 /// \file
 
-#include <Foundation/Reflection/Implementation/RTTI.h>
-#include <Foundation/Reflection/Implementation/DynamicRTTI.h>
 #include <Foundation/Reflection/Implementation/AbstractProperty.h>
+#include <Foundation/Reflection/Implementation/DynamicRTTI.h>
+#include <Foundation/Reflection/Implementation/RTTI.h>
 #include <Foundation/Types/Variant.h>
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezEnumBase);
@@ -68,4 +68,3 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezPropertyFlags);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezFunctionType);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezVariantType);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezPropertyCategory);
-

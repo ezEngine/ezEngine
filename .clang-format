@@ -3,12 +3,14 @@ UseTab: Never
 IndentWidth: 2
 BreakBeforeBraces: Allman
 AllowShortIfStatementsOnASingleLine: false
-ColumnLimit: 0
+ColumnLimit: 140
 TabWidth: 2
 AccessModifierOffset: -2
 PointerAlignment: Left
 IndentCaseLabels: true
-AllowShortFunctionsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: Inline
 MaxEmptyLinesToKeep: 3
 #IndentPPDirectives: PPDIS_AfterHash
 NamespaceIndentation: All
+BreakConstructorInitializers: BeforeComma
+AlwaysBreakTemplateDeclarations: true

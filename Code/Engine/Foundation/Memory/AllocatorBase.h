@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 /// \file
 
@@ -8,11 +8,11 @@
 
 
 #ifdef new
-  #undef new
+#undef new
 #endif
 
 #ifdef delete
-  #undef delete
+#undef delete
 #endif
 
 typedef ezGenericId<24, 8> ezAllocatorId;
@@ -27,9 +27,9 @@ public:
 
     EZ_ALWAYS_INLINE Stats() { ezMemoryUtils::ZeroFill(this); }
 
-    ezUInt64 m_uiNumAllocations;      ///< total number of allocations
-    ezUInt64 m_uiNumDeallocations;    ///< total number of deallocations
-    ezUInt64 m_uiAllocationSize;      ///< total allocation size in bytes
+    ezUInt64 m_uiNumAllocations;   ///< total number of allocations
+    ezUInt64 m_uiNumDeallocations; ///< total number of deallocations
+    ezUInt64 m_uiAllocationSize;   ///< total allocation size in bytes
   };
 
   ezAllocatorBase();
@@ -51,32 +51,40 @@ private:
 #include <Foundation/Memory/Implementation/AllocatorBase_inl.h>
 
 /// \brief creates a new instance of type using the given allocator
-#define EZ_NEW(allocator, type, ...) \
-  ezInternal::NewInstance<type>(new ((allocator)->Allocate(sizeof(type), EZ_ALIGNMENT_OF(type), ezMemoryUtils::MakeDestructorFunction<type>())) type(__VA_ARGS__), (allocator))
+#define EZ_NEW(allocator, type, ...)                                                                                                       \
+  ezInternal::NewInstance<type>(                                                                                                           \
+      new ((allocator)->Allocate(sizeof(type), EZ_ALIGNMENT_OF(type), ezMemoryUtils::MakeDestructorFunction<type>())) type(__VA_ARGS__),   \
+      (allocator))
 
 /// \brief deletes the instance stored in ptr using the given allocator and sets ptr to nullptr
-#define EZ_DELETE(allocator, ptr) \
-  { ezInternal::Delete(allocator, ptr); ptr = nullptr; }
+#define EZ_DELETE(allocator, ptr)                                                                                                          \
+  {                                                                                                                                        \
+    ezInternal::Delete(allocator, ptr);                                                                                                    \
+    ptr = nullptr;                                                                                                                         \
+  }
 
 /// \brief creates a new array of type using the given allocator with count elements, calls default constructor for non-POD types
-#define EZ_NEW_ARRAY(allocator, type, count) \
-  ezInternal::CreateArray<type>(allocator, count)
+#define EZ_NEW_ARRAY(allocator, type, count) ezInternal::CreateArray<type>(allocator, count)
 
 /// \brief Calls destructor on every element for non-POD types and deletes the array stored in arrayPtr using the given allocator
-#define EZ_DELETE_ARRAY(allocator, arrayPtr) \
-  { ezInternal::DeleteArray(allocator, arrayPtr); arrayPtr.Reset(); }
+#define EZ_DELETE_ARRAY(allocator, arrayPtr)                                                                                               \
+  {                                                                                                                                        \
+    ezInternal::DeleteArray(allocator, arrayPtr);                                                                                          \
+    arrayPtr.Reset();                                                                                                                      \
+  }
 
 /// \brief creates a raw buffer of type using the given allocator with count elements, but does NOT call the default constructor
-#define EZ_NEW_RAW_BUFFER(allocator, type, count) \
-  ezInternal::CreateRawBuffer<type>(allocator, count)
+#define EZ_NEW_RAW_BUFFER(allocator, type, count) ezInternal::CreateRawBuffer<type>(allocator, count)
 
 /// \brief deletes a raw buffer stored in ptr using the given allocator, but does NOT call destructor
-#define EZ_DELETE_RAW_BUFFER(allocator, ptr) \
-  { ezInternal::DeleteRawBuffer(allocator, ptr); ptr = nullptr; }
+#define EZ_DELETE_RAW_BUFFER(allocator, ptr)                                                                                               \
+  {                                                                                                                                        \
+    ezInternal::DeleteRawBuffer(allocator, ptr);                                                                                           \
+    ptr = nullptr;                                                                                                                         \
+  }
 
 /// \brief extends a given raw buffer to the new size, taking care of calling constructors / asignment operators.
-#define EZ_EXTEND_RAW_BUFFER(allocator, ptr, oldSize, newSize) \
-  ezInternal::ExtendRawBuffer(ptr, allocator, oldSize, newSize)
+#define EZ_EXTEND_RAW_BUFFER(allocator, ptr, oldSize, newSize) ezInternal::ExtendRawBuffer(ptr, allocator, oldSize, newSize)
 
 
 
@@ -97,5 +105,3 @@ private:
 
 /// \brief deletes a raw buffer stored in ptr using the default allocator, but does NOT call destructor
 #define EZ_DEFAULT_DELETE_RAW_BUFFER(ptr) EZ_DELETE_RAW_BUFFER(ezFoundation::GetDefaultAllocator(), ptr)
-
-

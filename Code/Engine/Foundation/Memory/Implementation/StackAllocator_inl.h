@@ -1,10 +1,9 @@
 template <ezUInt32 TrackingFlags>
 ezStackAllocator<TrackingFlags>::ezStackAllocator(const char* szName, ezAllocatorBase* pParent)
-  : ezAllocator<ezMemoryPolicies::ezStackAllocation, TrackingFlags>(szName, pParent)
-  , m_DestructData(pParent)
-  , m_PtrToDestructDataIndexTable(pParent)
+    : ezAllocator<ezMemoryPolicies::ezStackAllocation, TrackingFlags>(szName, pParent)
+    , m_DestructData(pParent)
+    , m_PtrToDestructDataIndexTable(pParent)
 {
-
 }
 
 template <ezUInt32 TrackingFlags>
@@ -69,4 +68,3 @@ void ezStackAllocator<TrackingFlags>::Reset()
     ezMemoryTracker::RemoveAllAllocations(this->m_Id);
   }
 }
-

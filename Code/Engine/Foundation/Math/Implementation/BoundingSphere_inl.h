@@ -1,8 +1,8 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Math/Mat4.h>
 
-template<typename Type>
+template <typename Type>
 EZ_FORCE_INLINE ezBoundingSphereTemplate<Type>::ezBoundingSphereTemplate()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
@@ -13,46 +13,46 @@ EZ_FORCE_INLINE ezBoundingSphereTemplate<Type>::ezBoundingSphereTemplate()
 #endif
 }
 
-template<typename Type>
+template <typename Type>
 EZ_FORCE_INLINE ezBoundingSphereTemplate<Type>::ezBoundingSphereTemplate(const ezVec3Template<Type>& vCenter, Type fRadius)
 {
   m_vCenter = vCenter;
   m_fRadius = fRadius;
 }
 
-template<typename Type>
+template <typename Type>
 void ezBoundingSphereTemplate<Type>::SetZero()
 {
   m_vCenter.SetZero();
   m_fRadius = 0.0f;
 }
 
-template<typename Type>
+template <typename Type>
 bool ezBoundingSphereTemplate<Type>::IsZero(Type fEpsilon /* = ezMath::BasicType<Type>::DefaultEpsilon() */) const
 {
   return m_vCenter.IsZero(fEpsilon) && ezMath::IsZero(m_fRadius, fEpsilon);
 }
 
-template<typename Type>
+template <typename Type>
 void ezBoundingSphereTemplate<Type>::SetInvalid()
 {
   m_vCenter.SetZero();
   m_fRadius = -1.0f;
 }
 
-template<typename Type>
+template <typename Type>
 bool ezBoundingSphereTemplate<Type>::IsValid() const
 {
   return (m_vCenter.IsValid() && m_fRadius >= 0.0f);
 }
 
-template<typename Type>
+template <typename Type>
 bool ezBoundingSphereTemplate<Type>::IsNaN() const
 {
   return (m_vCenter.IsNaN() || ezMath::IsNaN(m_fRadius));
 }
 
-template<typename Type>
+template <typename Type>
 EZ_FORCE_INLINE void ezBoundingSphereTemplate<Type>::SetElements(const ezVec3Template<Type>& vCenter, Type fRadius)
 {
   m_vCenter = vCenter;
@@ -61,7 +61,7 @@ EZ_FORCE_INLINE void ezBoundingSphereTemplate<Type>::SetElements(const ezVec3Tem
   EZ_ASSERT_DEBUG(IsValid(), "The sphere was created with invalid values.");
 }
 
-template<typename Type>
+template <typename Type>
 void ezBoundingSphereTemplate<Type>::ExpandToInclude(const ezVec3Template<Type>& vPoint)
 {
   const Type fDistSQR = (vPoint - m_vCenter).GetLengthSquared();
@@ -70,7 +70,7 @@ void ezBoundingSphereTemplate<Type>::ExpandToInclude(const ezVec3Template<Type>&
     m_fRadius = ezMath::Sqrt(fDistSQR);
 }
 
-template<typename Type>
+template <typename Type>
 void ezBoundingSphereTemplate<Type>::ExpandToInclude(const ezBoundingSphereTemplate<Type>& rhs)
 {
   const Type fReqRadius = (rhs.m_vCenter - m_vCenter).GetLength() + rhs.m_fRadius;
@@ -78,7 +78,7 @@ void ezBoundingSphereTemplate<Type>::ExpandToInclude(const ezBoundingSphereTempl
   m_fRadius = ezMath::Max(m_fRadius, fReqRadius);
 }
 
-template<typename Type>
+template <typename Type>
 EZ_FORCE_INLINE void ezBoundingSphereTemplate<Type>::Grow(Type fDiff)
 {
   EZ_ASSERT_DEBUG(IsValid(), "Cannot grow a sphere that is invalid.");
@@ -88,37 +88,37 @@ EZ_FORCE_INLINE void ezBoundingSphereTemplate<Type>::Grow(Type fDiff)
   EZ_ASSERT_DEBUG(IsValid(), "The grown sphere has become invalid.");
 }
 
-template<typename Type>
+template <typename Type>
 bool ezBoundingSphereTemplate<Type>::IsIdentical(const ezBoundingSphereTemplate<Type>& rhs) const
 {
   return (m_vCenter.IsIdentical(rhs.m_vCenter) && m_fRadius == rhs.m_fRadius);
 }
 
-template<typename Type>
+template <typename Type>
 bool ezBoundingSphereTemplate<Type>::IsEqual(const ezBoundingSphereTemplate<Type>& rhs, Type fEpsilon) const
 {
   return (m_vCenter.IsEqual(rhs.m_vCenter, fEpsilon) && ezMath::IsEqual(m_fRadius, rhs.m_fRadius, fEpsilon));
 }
 
-template<typename Type>
-EZ_ALWAYS_INLINE bool operator== (const ezBoundingSphereTemplate<Type>& lhs, const ezBoundingSphereTemplate<Type>& rhs)
+template <typename Type>
+EZ_ALWAYS_INLINE bool operator==(const ezBoundingSphereTemplate<Type>& lhs, const ezBoundingSphereTemplate<Type>& rhs)
 {
   return lhs.IsIdentical(rhs);
 }
 
-template<typename Type>
-EZ_ALWAYS_INLINE bool operator!= (const ezBoundingSphereTemplate<Type>& lhs, const ezBoundingSphereTemplate<Type>& rhs)
+template <typename Type>
+EZ_ALWAYS_INLINE bool operator!=(const ezBoundingSphereTemplate<Type>& lhs, const ezBoundingSphereTemplate<Type>& rhs)
 {
   return !lhs.IsIdentical(rhs);
 }
 
-template<typename Type>
+template <typename Type>
 EZ_ALWAYS_INLINE void ezBoundingSphereTemplate<Type>::Translate(const ezVec3Template<Type>& vTranslation)
 {
   m_vCenter += vTranslation;
 }
 
-template<typename Type>
+template <typename Type>
 EZ_FORCE_INLINE void ezBoundingSphereTemplate<Type>::ScaleFromCenter(Type fScale)
 {
   EZ_ASSERT_DEBUG(fScale >= 0.0f, "Cannot invert the sphere.");
@@ -128,7 +128,7 @@ EZ_FORCE_INLINE void ezBoundingSphereTemplate<Type>::ScaleFromCenter(Type fScale
   EZ_NAN_ASSERT(this);
 }
 
-template<typename Type>
+template <typename Type>
 void ezBoundingSphereTemplate<Type>::ScaleFromOrigin(const ezVec3Template<Type>& vScale)
 {
   EZ_ASSERT_DEBUG(vScale.x >= 0.0f, "Cannot invert the sphere.");
@@ -142,72 +142,72 @@ void ezBoundingSphereTemplate<Type>::ScaleFromOrigin(const ezVec3Template<Type>&
   m_fRadius *= ezMath::Max(vScale.x, vScale.y, vScale.z);
 }
 
-template<typename Type>
-void ezBoundingSphereTemplate<Type>::TransformFromOrigin (const ezMat4Template<Type>& mTransform)
+template <typename Type>
+void ezBoundingSphereTemplate<Type>::TransformFromOrigin(const ezMat4Template<Type>& mTransform)
 {
-  m_vCenter = mTransform.TransformPosition (m_vCenter);
+  m_vCenter = mTransform.TransformPosition(m_vCenter);
 
-  const ezVec3Template<Type> Scale = mTransform.GetScalingFactors ();
+  const ezVec3Template<Type> Scale = mTransform.GetScalingFactors();
   m_fRadius *= ezMath::Max(Scale.x, Scale.y, Scale.z);
 }
 
-template<typename Type>
-void ezBoundingSphereTemplate<Type>::TransformFromCenter (const ezMat4Template<Type>& mTransform)
+template <typename Type>
+void ezBoundingSphereTemplate<Type>::TransformFromCenter(const ezMat4Template<Type>& mTransform)
 {
   m_vCenter += mTransform.GetTranslationVector();
 
-  const ezVec3Template<Type> Scale = mTransform.GetScalingFactors ();
+  const ezVec3Template<Type> Scale = mTransform.GetScalingFactors();
   m_fRadius *= ezMath::Max(Scale.x, Scale.y, Scale.z);
 }
 
-template<typename Type>
+template <typename Type>
 Type ezBoundingSphereTemplate<Type>::GetDistanceTo(const ezVec3Template<Type>& vPoint) const
 {
   return (vPoint - m_vCenter).GetLength() - m_fRadius;
 }
 
-template<typename Type>
+template <typename Type>
 Type ezBoundingSphereTemplate<Type>::GetDistanceTo(const ezBoundingSphereTemplate<Type>& rhs) const
 {
   return (rhs.m_vCenter - m_vCenter).GetLength() - m_fRadius - rhs.m_fRadius;
 }
 
-template<typename Type>
+template <typename Type>
 bool ezBoundingSphereTemplate<Type>::Contains(const ezVec3Template<Type>& vPoint) const
 {
   return (vPoint - m_vCenter).GetLengthSquared() <= ezMath::Square(m_fRadius);
 }
 
-template<typename Type>
+template <typename Type>
 bool ezBoundingSphereTemplate<Type>::Contains(const ezBoundingSphereTemplate<Type>& rhs) const
 {
   return (rhs.m_vCenter - m_vCenter).GetLength() + rhs.m_fRadius <= m_fRadius;
 }
 
-template<typename Type>
+template <typename Type>
 bool ezBoundingSphereTemplate<Type>::Overlaps(const ezBoundingSphereTemplate<Type>& rhs) const
 {
   return (rhs.m_vCenter - m_vCenter).GetLengthSquared() < ezMath::Square(rhs.m_fRadius + m_fRadius);
 }
 
-template<typename Type>
+template <typename Type>
 const ezVec3Template<Type> ezBoundingSphereTemplate<Type>::GetClampedPoint(const ezVec3Template<Type>& vPoint)
 {
   const ezVec3Template<Type> vDir = vPoint - m_vCenter;
-  const Type fDistSQR = vDir.GetLengthSquared ();
+  const Type fDistSQR = vDir.GetLengthSquared();
 
   // return the point, if it is already inside the sphere
-  if (fDistSQR <= ezMath::Square (m_fRadius))
+  if (fDistSQR <= ezMath::Square(m_fRadius))
     return vPoint;
 
   // otherwise return a point on the surface of the sphere
 
-  const Type fLength = ezMath::Sqrt (fDistSQR);
+  const Type fLength = ezMath::Sqrt(fDistSQR);
 
   return m_vCenter + m_fRadius * (vDir / fLength);
 }
 
-template<typename Type>
+template <typename Type>
 bool ezBoundingSphereTemplate<Type>::Contains(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */) const
 {
   EZ_ASSERT_DEBUG(pPoints != nullptr, "The array must not be empty.");
@@ -229,7 +229,7 @@ bool ezBoundingSphereTemplate<Type>::Contains(const ezVec3Template<Type>* pPoint
   return true;
 }
 
-template<typename Type>
+template <typename Type>
 bool ezBoundingSphereTemplate<Type>::Overlaps(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */) const
 {
   EZ_ASSERT_DEBUG(pPoints != nullptr, "The array must not be empty.");
@@ -251,7 +251,7 @@ bool ezBoundingSphereTemplate<Type>::Overlaps(const ezVec3Template<Type>* pPoint
   return false;
 }
 
-template<typename Type>
+template <typename Type>
 void ezBoundingSphereTemplate<Type>::SetFromPoints(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */)
 {
   EZ_ASSERT_DEBUG(pPoints != nullptr, "The array must not be empty.");
@@ -268,7 +268,7 @@ void ezBoundingSphereTemplate<Type>::SetFromPoints(const ezVec3Template<Type>* p
     pCur = ezMemoryUtils::AddByteOffsetConst(pCur, uiStride);
   }
 
-  vCenter /= (Type) uiNumPoints;
+  vCenter /= (Type)uiNumPoints;
 
   Type fMaxDistSQR = 0.0f;
 
@@ -287,7 +287,7 @@ void ezBoundingSphereTemplate<Type>::SetFromPoints(const ezVec3Template<Type>* p
   EZ_ASSERT_DEBUG(IsValid(), "The point cloud contained corrupted data.");
 }
 
-template<typename Type>
+template <typename Type>
 void ezBoundingSphereTemplate<Type>::ExpandToInclude(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */)
 {
   EZ_ASSERT_DEBUG(pPoints != nullptr, "The array must not be empty.");
@@ -309,7 +309,7 @@ void ezBoundingSphereTemplate<Type>::ExpandToInclude(const ezVec3Template<Type>*
     m_fRadius = ezMath::Sqrt(fMaxDistSQR);
 }
 
-template<typename Type>
+template <typename Type>
 Type ezBoundingSphereTemplate<Type>::GetDistanceTo(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */) const
 {
   EZ_ASSERT_DEBUG(pPoints != nullptr, "The array must not be empty.");
@@ -332,7 +332,7 @@ Type ezBoundingSphereTemplate<Type>::GetDistanceTo(const ezVec3Template<Type>* p
   return ezMath::Sqrt(fMinDistSQR);
 }
 
-template<typename Type>
+template <typename Type>
 bool ezBoundingSphereTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDirNormalized, Type* out_fIntersection /* = nullptr */, ezVec3Template<Type>* out_vIntersection /* = nullptr */) const
 {
   EZ_ASSERT_DEBUG(vRayDirNormalized.IsNormalized(), "The ray direction must be normalized.");
@@ -370,16 +370,16 @@ bool ezBoundingSphereTemplate<Type>::GetRayIntersection(const ezVec3Template<Typ
   return true;
 }
 
-template<typename Type>
+template <typename Type>
 bool ezBoundingSphereTemplate<Type>::GetLineSegmentIntersection(const ezVec3Template<Type>& vLineStartPos, const ezVec3Template<Type>& vLineEndPos, Type* out_fHitFraction /* = nullptr */, ezVec3Template<Type>* out_vIntersection /* = nullptr */) const
 {
   Type fIntersection = 0.0f;
 
   const ezVec3Template<Type> vDir = vLineEndPos - vLineStartPos;
   ezVec3Template<Type> vDirNorm = vDir;
-  const Type fLen = vDirNorm.GetLengthAndNormalize ();
+  const Type fLen = vDirNorm.GetLengthAndNormalize();
 
-  if (!GetRayIntersection (vLineStartPos, vDirNorm, &fIntersection))
+  if (!GetRayIntersection(vLineStartPos, vDirNorm, &fIntersection))
     return false;
 
   if (fIntersection > fLen)
@@ -395,5 +395,3 @@ bool ezBoundingSphereTemplate<Type>::GetLineSegmentIntersection(const ezVec3Temp
 }
 
 #include <Foundation/Math/Implementation/AllClasses_inl.h>
-
-

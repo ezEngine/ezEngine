@@ -1,7 +1,7 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/Math/Random.h>
 #include <Foundation/Time/Timestamp.h>
-
 
 ezRandom::ezRandom()
 {
@@ -90,8 +90,7 @@ ezUInt32 ezRandom::UIntInRange(ezUInt32 uiRange)
   do
   {
     result = UInt();
-  }
-  while (result > uiMaxValue);
+  } while (result > uiMaxValue);
 
   return result % uiRange;
 }
@@ -186,7 +185,6 @@ ezUInt32 ezRandomGauss::UnsignedValue()
   }
 
   return uiMax - 1;
-
 }
 
 ezInt32 ezRandomGauss::SignedValue()
@@ -216,7 +214,6 @@ ezInt32 ezRandomGauss::SignedValue()
 
     return -(ezInt32)(uiMax - 1);
   }
-
 }
 
 void ezRandomGauss::Save(ezStreamWriter& stream) const
@@ -241,6 +238,4 @@ void ezRandomGauss::Load(ezStreamReader& stream)
 
 
 
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Random);
-

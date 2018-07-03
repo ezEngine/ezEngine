@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 inline ezColor::ezColor()
 {
@@ -73,7 +73,7 @@ inline bool ezColor::IsNaN() const
   return false;
 }
 
-inline void ezColor::operator+= (const ezColor& rhs)
+inline void ezColor::operator+=(const ezColor& rhs)
 {
   EZ_NAN_ASSERT(this);
   EZ_NAN_ASSERT(&rhs);
@@ -84,7 +84,7 @@ inline void ezColor::operator+= (const ezColor& rhs)
   a += rhs.a;
 }
 
-inline void ezColor::operator-= (const ezColor& rhs)
+inline void ezColor::operator-=(const ezColor& rhs)
 {
   EZ_NAN_ASSERT(this);
   EZ_NAN_ASSERT(&rhs);
@@ -95,7 +95,7 @@ inline void ezColor::operator-= (const ezColor& rhs)
   a -= rhs.a;
 }
 
-inline void ezColor::operator*= (const ezColor& rhs)
+inline void ezColor::operator*=(const ezColor& rhs)
 {
   EZ_NAN_ASSERT(this);
   EZ_NAN_ASSERT(&rhs);
@@ -105,7 +105,7 @@ inline void ezColor::operator*= (const ezColor& rhs)
   b *= rhs.b;
   a *= rhs.a;
 }
-inline void ezColor::operator*= (float f)
+inline void ezColor::operator*=(float f)
 {
   r *= f;
   g *= f;
@@ -131,7 +131,7 @@ inline bool ezColor::IsIdenticalRGBA(const ezColor& rhs) const
   return r == rhs.r && g == rhs.g && b == rhs.b && a == rhs.a;
 }
 
-inline const ezColor operator+ (const ezColor& c1, const ezColor& c2)
+inline const ezColor operator+(const ezColor& c1, const ezColor& c2)
 {
   EZ_NAN_ASSERT(&c1);
   EZ_NAN_ASSERT(&c2);
@@ -139,7 +139,7 @@ inline const ezColor operator+ (const ezColor& c1, const ezColor& c2)
   return ezColor(c1.r + c2.r, c1.g + c2.g, c1.b + c2.b, c1.a + c2.a);
 }
 
-inline const ezColor operator- (const ezColor& c1, const ezColor& c2)
+inline const ezColor operator-(const ezColor& c1, const ezColor& c2)
 {
   EZ_NAN_ASSERT(&c1);
   EZ_NAN_ASSERT(&c2);
@@ -147,7 +147,7 @@ inline const ezColor operator- (const ezColor& c1, const ezColor& c2)
   return ezColor(c1.r - c2.r, c1.g - c2.g, c1.b - c2.b, c1.a - c2.a);
 }
 
-inline const ezColor operator* (const ezColor& c1, const ezColor& c2)
+inline const ezColor operator*(const ezColor& c1, const ezColor& c2)
 {
   EZ_NAN_ASSERT(&c1);
   EZ_NAN_ASSERT(&c2);
@@ -155,28 +155,28 @@ inline const ezColor operator* (const ezColor& c1, const ezColor& c2)
   return ezColor(c1.r * c2.r, c1.g * c2.g, c1.b * c2.b, c1.a * c2.a);
 }
 
-inline const ezColor operator* (float f, const ezColor& c)
+inline const ezColor operator*(float f, const ezColor& c)
 {
   EZ_NAN_ASSERT(&c);
 
   return ezColor(c.r * f, c.g * f, c.b * f, c.a * f);
 }
 
-inline const ezColor operator* (const ezColor& c, float f)
+inline const ezColor operator*(const ezColor& c, float f)
 {
   EZ_NAN_ASSERT(&c);
 
   return ezColor(c.r * f, c.g * f, c.b * f, c.a * f);
 }
 
-inline const ezColor operator* (const ezMat4& lhs, const ezColor& rhs)
+inline const ezColor operator*(const ezMat4& lhs, const ezColor& rhs)
 {
   ezColor r = rhs;
   r *= lhs;
   return r;
 }
 
-inline const ezColor operator/ (const ezColor& c, float f)
+inline const ezColor operator/(const ezColor& c, float f)
 {
   EZ_NAN_ASSERT(&c);
 
@@ -184,12 +184,12 @@ inline const ezColor operator/ (const ezColor& c, float f)
   return ezColor(c.r * f_inv, c.g * f_inv, c.b * f_inv, c.a * f_inv);
 }
 
-EZ_ALWAYS_INLINE bool operator== (const ezColor& c1, const ezColor& c2)
+EZ_ALWAYS_INLINE bool operator==(const ezColor& c1, const ezColor& c2)
 {
   return c1.IsIdenticalRGBA(c2);
 }
 
-EZ_ALWAYS_INLINE bool operator!= (const ezColor& c1, const ezColor& c2)
+EZ_ALWAYS_INLINE bool operator!=(const ezColor& c1, const ezColor& c2)
 {
   return !c1.IsIdenticalRGBA(c2);
 }
@@ -211,4 +211,3 @@ EZ_FORCE_INLINE bool operator<(const ezColor& c1, const ezColor& c2)
 
   return (c1.a < c2.a);
 }
-

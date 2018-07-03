@@ -1,53 +1,56 @@
 #include <PCH.h>
-#include <RendererCore/Decals/DecalResource.h>
+
 #include <Foundation/Configuration/Startup.h>
+#include <RendererCore/Decals/DecalResource.h>
 
 static ezDecalResourceLoader s_DecalResourceLoader;
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DecalResource)
 
-BEGIN_SUBSYSTEM_DEPENDENCIES
-"Foundation",
-"Core",
-"TextureResource"
-END_SUBSYSTEM_DEPENDENCIES
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+  "Foundation",
+  "Core",
+  "TextureResource"
+  END_SUBSYSTEM_DEPENDENCIES
 
-ON_CORE_STARTUP
-{
-  ezResourceManager::SetResourceTypeLoader<ezDecalResource>(&s_DecalResourceLoader);
+  ON_CORE_STARTUP
+  {
+    ezResourceManager::SetResourceTypeLoader<ezDecalResource>(&s_DecalResourceLoader);
 
-  ezDecalResourceDescriptor desc;
-  ezDecalResourceHandle hFallback = ezResourceManager::CreateResource<ezDecalResource>("Fallback Decal", desc, "Empty Decal for loading and missing decals");
+    ezDecalResourceDescriptor desc;
+    ezDecalResourceHandle hFallback = ezResourceManager::CreateResource<ezDecalResource>("Fallback Decal", desc, "Empty Decal for loading and missing decals");
 
-  ezDecalResource::SetTypeFallbackResource(hFallback);
-  ezDecalResource::SetTypeMissingResource(hFallback);
-}
+    ezDecalResource::SetTypeFallbackResource(hFallback);
+    ezDecalResource::SetTypeMissingResource(hFallback);
+  }
 
-ON_CORE_SHUTDOWN
-{
-  ezResourceManager::SetResourceTypeLoader<ezDecalResource>(nullptr);
+  ON_CORE_SHUTDOWN
+  {
+    ezResourceManager::SetResourceTypeLoader<ezDecalResource>(nullptr);
 
-  ezDecalResource::SetTypeFallbackResource(ezDecalResourceHandle());
-  ezDecalResource::SetTypeMissingResource(ezDecalResourceHandle());
-}
+    ezDecalResource::SetTypeFallbackResource(ezDecalResourceHandle());
+    ezDecalResource::SetTypeMissingResource(ezDecalResourceHandle());
+  }
 
-ON_ENGINE_STARTUP
-{
-}
+  ON_ENGINE_STARTUP
+  {
+  }
 
-ON_ENGINE_SHUTDOWN
-{
-}
+  ON_ENGINE_SHUTDOWN
+  {
+  }
 
-EZ_END_SUBSYSTEM_DECLARATION
-
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalResource, 1, ezRTTIDefaultAllocator<ezDecalResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
-ezDecalResource::ezDecalResource() : ezResource<ezDecalResource, ezDecalResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+ezDecalResource::ezDecalResource()
+    : ezResource<ezDecalResource, ezDecalResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
 }
 
@@ -111,7 +114,4 @@ bool ezDecalResourceLoader::IsResourceOutdated(const ezResourceBase* pResource) 
 
 
 
-
-
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Decals_Implementation_DecalResource);
-

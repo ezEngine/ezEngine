@@ -23,7 +23,7 @@ void ezMemoryUtils::ReserveLower4GBAddressSpace()
   size_t uiTotalReservation = 0;
   size_t uiNumVAllocs = 0;
   size_t uiNumHeapAllocs = 0;
-  
+
   for (size_t uiSize = 256 * ONE_MB; uiSize >= ONE_MB; uiSize /= 2)
   {
     while (true)
@@ -92,12 +92,11 @@ void ezMemoryUtils::ReserveLower4GBAddressSpace()
   // Print diagnostics showing how many allocations we had to make in
   // order to reserve all of low memory, typically less than 200.
   char buffer[1000];
-  sprintf_s(buffer, "Reserved %1.3f MB (%u vallocs, %u heap allocs) of low-memory.\n",
-    uiTotalReservation / (1024 * 1024.0), (ezUInt32)uiNumVAllocs, (ezUInt32)uiNumHeapAllocs);
+  sprintf_s(buffer, "Reserved %1.3f MB (%u vallocs, %u heap allocs) of low-memory.\n", uiTotalReservation / (1024 * 1024.0),
+            (ezUInt32)uiNumVAllocs, (ezUInt32)uiNumHeapAllocs);
   OutputDebugStringA(buffer);
 #endif
 }
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Memory_Implementation_MemoryUtils);
-

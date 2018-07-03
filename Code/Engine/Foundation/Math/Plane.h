@@ -7,15 +7,15 @@ struct ezPositionOnPlane
 {
   enum Enum
   {
-    Back,       ///< Something is completely on the back side of a plane
-    Front,      ///< Something is completely in front of a plane
-    OnPlane,    ///< Something is lying completely on a plane (all points)
-    Spanning,   ///< Something is spanning a plane, i.e. some points are on the front and some on the back
+    Back,     ///< Something is completely on the back side of a plane
+    Front,    ///< Something is completely in front of a plane
+    OnPlane,  ///< Something is lying completely on a plane (all points)
+    Spanning, ///< Something is spanning a plane, i.e. some points are on the front and some on the back
   };
 };
 
 /// \brief A class that represents a mathematical plane.
-template<typename Type>
+template <typename Type>
 struct ezPlaneTemplate
 {
 public:
@@ -24,21 +24,19 @@ public:
 
   typedef Type ComponentType;
 
-// *** Data ***
+  // *** Data ***
 public:
-
   ezVec3Template<Type> m_vNormal;
   Type m_fNegDistance;
 
 
-// *** Constructors ***
+  // *** Constructors ***
 public:
-
   /// \brief Default constructor. Does not initialize the plane.
   ezPlaneTemplate(); // [tested]
 
   /// \brief Creates the plane-equation from a normal and a point on the plane.
-  ezPlaneTemplate(const ezVec3Template<Type> &vNormal, const ezVec3Template<Type>& vPointOnPlane); // [tested]
+  ezPlaneTemplate(const ezVec3Template<Type>& vNormal, const ezVec3Template<Type>& vPointOnPlane); // [tested]
 
   /// \brief Creates the plane-equation from three points on the plane.
   ezPlaneTemplate(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2, const ezVec3Template<Type>& v3); // [tested]
@@ -57,7 +55,7 @@ public:
 #endif
 
   /// \brief Creates the plane-equation from a normal and a point on the plane.
-  void SetFromNormalAndPoint(const ezVec3Template<Type> &vNormal, const ezVec3Template<Type>& vPointOnPlane); // [tested]
+  void SetFromNormalAndPoint(const ezVec3Template<Type>& vNormal, const ezVec3Template<Type>& vPointOnPlane); // [tested]
 
   /// \brief Creates the plane-equation from three points on the plane.
   ezResult SetFromPoints(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2, const ezVec3Template<Type>& v3); // [tested]
@@ -74,9 +72,8 @@ public:
   /// \brief Sets the plane to an invalid state (all zero).
   void SetInvalid(); // [tested]
 
-// *** Distance and Position ***
+  // *** Distance and Position ***
 public:
-
   /// \brief Returns the distance of the point to the plane.
   Type GetDistanceTo(const ezVec3Template<Type>& vPoint) const; // [tested]
 
@@ -84,13 +81,13 @@ public:
   ///
   /// 'Minimum' means the (non-absolute) distance of a point to the plane. So a point behind the plane will always have a 'lower distance'
   /// than a point in front of the plane, even if that is closer to the plane's surface.
-  Type GetMinimumDistanceTo(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof (ezVec3Template<Type>)) const; // [tested]
+  Type GetMinimumDistanceTo(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
 
   /// \brief Returns the minimum and maximum distance that any of the given points had to the plane.
   ///
   /// 'Minimum' (and 'maximum') means the (non-absolute) distance of a point to the plane. So a point behind the plane will always have a 'lower distance'
   /// than a point in front of the plane, even if that is closer to the plane's surface.
-  void GetMinMaxDistanceTo(Type &out_fMin, Type &out_fMax, const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof (ezVec3Template<Type>)) const; // [tested]
+  void GetMinMaxDistanceTo(Type& out_fMin, Type& out_fMax, const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
 
   /// \brief Returns on which side of the plane the point lies.
   ezPositionOnPlane::Enum GetPointPosition(const ezVec3Template<Type>& vPoint) const; // [tested]
@@ -119,9 +116,8 @@ public:
   /// \brief Take the given direction vector and returns a modified one that is coplanar to the plane.
   const ezVec3Template<Type> GetCoplanarDirection(const ezVec3Template<Type>& vDirection) const; // [tested]
 
-// *** Comparisons ***
+  // *** Comparisons ***
 public:
-
   /// \brief Checks whether this plane and the other are identical.
   bool IsIdentical(const ezPlaneTemplate<Type>& rhs) const; // [tested]
 
@@ -134,9 +130,8 @@ public:
   /// \brief Checks whether any component is NaN.
   bool IsNaN() const; // [tested]
 
-// *** Modifications ***
+  // *** Modifications ***
 public:
-
   /// \brief Transforms the plane with the given matrix.
   void Transform(const ezMat3Template<Type>& m); // [tested]
 
@@ -149,9 +144,8 @@ public:
   /// \brief Negates Normal/Distance to switch which side of the plane is front and back. Returns true, if the plane had to be flipped.
   bool FlipIfNecessary(const ezVec3Template<Type>& vPoint, bool bPlaneShouldFacePoint = true); // [tested]
 
-// *** Intersection Tests ***
+  // *** Intersection Tests ***
 public:
-
   /// \brief Returns true, if the ray hit the plane. The intersection time describes at which multiple of the ray direction the ray hit the plane.
   ///
   /// An intersection will be reported regardless of whether the ray starts 'behind' or 'in front of' the plane, as long as it points at it.
@@ -171,23 +165,18 @@ public:
   /// \brief Computes the one point where all three planes intersect. Returns EZ_FAILURE if no such point exists.
   static ezResult GetPlanesIntersectionPoint(const ezPlaneTemplate<Type>& p0, const ezPlaneTemplate<Type>& p1, const ezPlaneTemplate<Type>& p2, ezVec3Template<Type>& out_Result); // [tested]
 
-// *** Helper Functions ***
+  // *** Helper Functions ***
 public:
-
   /// \brief Returns three points from an unreliable set of points, that reliably form a plane. Returns false, if there are none.
   static ezResult FindSupportPoints(const ezVec3Template<Type>* const pVertices, ezInt32 iMaxVertices, ezInt32& out_v1, ezInt32& out_v2, ezInt32& out_v3); // [tested]
-
 };
 
 /// \brief Checks whether this plane and the other are identical.
-template<typename Type>
-bool operator== (const ezPlaneTemplate<Type>& lhs, const ezPlaneTemplate<Type>& rhs); // [tested]
+template <typename Type>
+bool operator==(const ezPlaneTemplate<Type>& lhs, const ezPlaneTemplate<Type>& rhs); // [tested]
 
 /// \brief Checks whether this plane and the other are not identical.
-template<typename Type>
-bool operator!= (const ezPlaneTemplate<Type>& lhs, const ezPlaneTemplate<Type>& rhs); // [tested]
+template <typename Type>
+bool operator!=(const ezPlaneTemplate<Type>& lhs, const ezPlaneTemplate<Type>& rhs); // [tested]
 
 #include <Foundation/Math/Implementation/Plane_inl.h>
-
-
-

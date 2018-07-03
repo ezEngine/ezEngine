@@ -1,7 +1,8 @@
 #include <PCH.h>
+
 #include <EditorFramework/Assets/AssetCurator.h>
-#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/Assets/AssetProcessor.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Configuration/SubSystem.h>
@@ -9,45 +10,48 @@
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Utilities/Progress.h>
 #include <QDir>
-#include <Foundation/Profiling/Profiling.h>
 
 #define EZ_CURATOR_CACHE_VERSION 2
 #define EZ_CURATOR_CACHE_FILE_VERSION 6
 
 EZ_IMPLEMENT_SINGLETON(ezAssetCurator);
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, AssetCurator)
 
-BEGIN_SUBSYSTEM_DEPENDENCIES
-"ToolsFoundation",
-"DocumentManager"
-END_SUBSYSTEM_DEPENDENCIES
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+  "ToolsFoundation",
+  "DocumentManager"
+  END_SUBSYSTEM_DEPENDENCIES
 
-ON_CORE_STARTUP
-{
-  EZ_DEFAULT_NEW(ezAssetCurator);
-}
+  ON_CORE_STARTUP
+  {
+    EZ_DEFAULT_NEW(ezAssetCurator);
+  }
 
-ON_CORE_SHUTDOWN
-{
-  ezAssetCurator* pDummy = ezAssetCurator::GetSingleton();
-  EZ_DEFAULT_DELETE(pDummy);
-}
+  ON_CORE_SHUTDOWN
+  {
+    ezAssetCurator* pDummy = ezAssetCurator::GetSingleton();
+    EZ_DEFAULT_DELETE(pDummy);
+  }
 
-ON_ENGINE_STARTUP
-{
-}
+  ON_ENGINE_STARTUP
+  {
+  }
 
-ON_ENGINE_SHUTDOWN
-{
-}
+  ON_ENGINE_SHUTDOWN
+  {
+  }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezFileStatus, ezNoBase, 3, ezRTTIDefaultAllocator<ezFileStatus>)
 {
   EZ_BEGIN_PROPERTIES
@@ -58,15 +62,16 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezFileStatus, ezNoBase, 3, ezRTTIDefaultAllocator
   }
   EZ_END_PROPERTIES
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
+// clang-format on
 
-inline ezStreamWriter& operator << (ezStreamWriter& Stream, const ezFileStatus& uiValue)
+inline ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezFileStatus& uiValue)
 {
   Stream.WriteBytes(&uiValue, sizeof(ezFileStatus));
   return Stream;
 }
 
-inline ezStreamReader& operator >> (ezStreamReader& Stream, ezFileStatus& uiValue)
+inline ezStreamReader& operator>>(ezStreamReader& Stream, ezFileStatus& uiValue)
 {
   Stream.ReadBytes(&uiValue, sizeof(ezFileStatus));
   return Stream;
@@ -111,7 +116,7 @@ void ezSubAsset::GetSubAssetIdentifier(ezStringBuilder& out_sPath) const
 ////////////////////////////////////////////////////////////////////////
 
 ezAssetCurator::ezAssetCurator()
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
   m_bRunUpdateTask = false;
   m_bNeedToReloadResources = false;
@@ -155,8 +160,7 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
     }
   }
 
-  ezDelegateTask<void>* pInitTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Initialize Curator", [this]()
-  {
+  ezDelegateTask<void>* pInitTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Initialize Curator", [this]() {
     EZ_LOCK(m_CuratorMutex);
     m_bInitStarted = true;
     LoadCaches();
@@ -180,8 +184,7 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
     }
     SaveCaches();
   });
-  pInitTask->SetOnTaskFinished([](ezTask* pTask)
-  {
+  pInitTask->SetOnTaskFinished([](ezTask* pTask) {
     EZ_DEFAULT_DELETE(pTask);
   });
   m_bInitStarted = false;
@@ -263,11 +266,11 @@ void WatcherCallback(const char* szDirectory, const char* szFilename, ezDirector
 {
   switch (action)
   {
-  case ezDirectoryWatcherAction::Added:
-  case ezDirectoryWatcherAction::Removed:
-  case ezDirectoryWatcherAction::Modified:
-  case ezDirectoryWatcherAction::RenamedOldName:
-  case ezDirectoryWatcherAction::RenamedNewName:
+    case ezDirectoryWatcherAction::Added:
+    case ezDirectoryWatcherAction::Removed:
+    case ezDirectoryWatcherAction::Modified:
+    case ezDirectoryWatcherAction::RenamedOldName:
+    case ezDirectoryWatcherAction::RenamedNewName:
     {
       ezStringBuilder sTemp = szDirectory;
       sTemp.AppendPath(szFilename);
@@ -289,8 +292,7 @@ void ezAssetCurator::MainThreadTick()
 
   for (ezDirectoryWatcher* pWatcher : m_Watchers)
   {
-    pWatcher->EnumerateChanges([pWatcher](const char* szFilename, ezDirectoryWatcherAction action)
-    {
+    pWatcher->EnumerateChanges([pWatcher](const char* szFilename, ezDirectoryWatcherAction action) {
       WatcherCallback(pWatcher->GetDirectory(), szFilename, action);
     });
   }
@@ -408,7 +410,7 @@ void ezAssetCurator::ResaveAllAssets()
   ezDynamicArray<ezUuid> sortedAssets;
   sortedAssets.Reserve(m_KnownAssets.GetCount());
 
-  ezMap<ezUuid, ezSet<ezUuid> > dependencies;
+  ezMap<ezUuid, ezSet<ezUuid>> dependencies;
 
   ezSet<ezUuid> accu;
 
@@ -530,8 +532,7 @@ const ezAssetCurator::ezLockedSubAsset ezAssetCurator::FindSubAsset(const char* 
     return GetSubAsset(ezConversionUtils::ConvertStringToUuid(szPathOrGuid));
   }
 
-  auto FindAsset = [this](ezStringView path) -> ezAssetInfo*
-  {
+  auto FindAsset = [this](ezStringView path) -> ezAssetInfo* {
     // try to find the 'exact' relative path
     // otherwise find the shortest possible path
     ezUInt32 uiMinLength = 0xFFFFFFFF;
@@ -746,8 +747,7 @@ ezResult ezAssetCurator::FindBestMatchForFile(ezStringBuilder& sFile, ezArrayPtr
 
   EZ_LOCK(m_CuratorMutex);
 
-  auto SearchFile = [this](ezStringBuilder& name) -> bool
-  {
+  auto SearchFile = [this](ezStringBuilder& name) -> bool {
     for (auto it = m_ReferencedFiles.GetIterator(); it.IsValid(); ++it)
     {
       if (it.Value().m_Status != ezFileStatus::Status::Valid)
@@ -949,8 +949,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const char* szPla
     return ezStatus(ezFmt("Missing reference for asset '{0}', can't create thumbnail.", pAssetInfo->m_sAbsolutePath));
   }
 
-  if (assetFlags.IsSet(ezAssetDocumentFlags::SupportsThumbnail) && !assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform)
-    && !resReferences.m_Result.Failed())
+  if (assetFlags.IsSet(ezAssetDocumentFlags::SupportsThumbnail) && !assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform) && !resReferences.m_Result.Failed())
   {
     if (ret.m_Result.Succeeded() && state <= ezAssetInfo::TransformState::NeedsThumbnail)
     {
@@ -1172,8 +1171,7 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const char
 
     ezAssetDocumentManager* pManager = it.Value()->m_pManager;
 
-    auto WriteEntry = [this, &sDataDir, &sPlatform, &file, pManager, &sTemp, &sTemp2](const ezUuid& guid)
-    {
+    auto WriteEntry = [this, &sDataDir, &sPlatform, &file, pManager, &sTemp, &sTemp2](const ezUuid& guid) {
       ezSubAsset* pSub = GetSubAssetInternal(guid);
       ezString sEntry = pManager->GetAssetTableEntry(pSub, sDataDir, sPlatform);
 
@@ -1555,4 +1553,3 @@ void ezAssetCurator::SaveCaches()
 
   ezLog::Debug("Asset Curator SaveCaches: {0} ms", ezArgF(sw.GetRunningTotal().GetMilliseconds(), 3));
 }
-

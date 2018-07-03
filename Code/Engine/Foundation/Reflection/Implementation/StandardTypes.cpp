@@ -1,7 +1,9 @@
 #include <PCH.h>
-#include <Foundation/Reflection/Reflection.h>
-#include <Foundation/Math/Transform.h>
 
+#include <Foundation/Math/Transform.h>
+#include <Foundation/Reflection/Reflection.h>
+
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezEnumBase, ezNoBase, 1, ezRTTINoAllocator)
 EZ_END_STATIC_REFLECTED_TYPE
 
@@ -395,6 +397,6 @@ EZ_END_STATIC_REFLECTED_ENUM();
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezPropertyCategory, 1)
 EZ_BITFLAGS_CONSTANTS(ezPropertyCategory::Constant, ezPropertyCategory::Member, ezPropertyCategory::Function, ezPropertyCategory::Array, ezPropertyCategory::Set, ezPropertyCategory::Map)
 EZ_END_STATIC_REFLECTED_ENUM();
+// clang-format on
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_StandardTypes);
-

@@ -1,6 +1,6 @@
 #pragma once
 
-template<typename Type>
+template <typename Type>
 ezMat3Template<Type>::ezMat3Template()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
@@ -12,13 +12,13 @@ ezMat3Template<Type>::ezMat3Template()
 #endif
 }
 
-template<typename Type>
+template <typename Type>
 ezMat3Template<Type>::ezMat3Template(const Type* const pData, ezMatrixLayout::Enum layout)
 {
   SetFromArray(pData, layout);
 }
 
-template<typename Type>
+template <typename Type>
 ezMat3Template<Type>::ezMat3Template(Type c1r1, Type c2r1, Type c3r1,
                                      Type c1r2, Type c2r2, Type c3r2,
                                      Type c1r3, Type c2r3, Type c3r3)
@@ -28,23 +28,23 @@ ezMat3Template<Type>::ezMat3Template(Type c1r1, Type c2r1, Type c3r1,
               c1r3, c2r3, c3r3);
 }
 
-template<typename Type>
+template <typename Type>
 EZ_ALWAYS_INLINE const ezMat3Template<Type> ezMat3Template<Type>::IdentityMatrix()
 {
   return ezMat3Template<Type>(1, 0, 0,
-                0, 1, 0,
-                0, 0, 1);
+                              0, 1, 0,
+                              0, 0, 1);
 }
 
-template<typename Type>
+template <typename Type>
 EZ_ALWAYS_INLINE const ezMat3Template<Type> ezMat3Template<Type>::ZeroMatrix()
 {
   return ezMat3Template<Type>(0, 0, 0,
-                0, 0, 0,
-                0, 0, 0);
+                              0, 0, 0,
+                              0, 0, 0);
 }
 
-template<typename Type>
+template <typename Type>
 void ezMat3Template<Type>::SetFromArray(const Type* const pData, ezMatrixLayout::Enum layout)
 {
   if (layout == ezMatrixLayout::ColumnMajor)
@@ -62,7 +62,7 @@ void ezMat3Template<Type>::SetFromArray(const Type* const pData, ezMatrixLayout:
   }
 }
 
-template<typename Type>
+template <typename Type>
 void ezMat3Template<Type>::GetAsArray(Type* out_pData, ezMatrixLayout::Enum layout) const
 {
   EZ_NAN_ASSERT(this);
@@ -82,17 +82,23 @@ void ezMat3Template<Type>::GetAsArray(Type* out_pData, ezMatrixLayout::Enum layo
   }
 }
 
-template<typename Type>
+template <typename Type>
 void ezMat3Template<Type>::SetElements(Type c1r1, Type c2r1, Type c3r1,
-                                Type c1r2, Type c2r2, Type c3r2,
-                                Type c1r3, Type c2r3, Type c3r3)
+                                       Type c1r2, Type c2r2, Type c3r2,
+                                       Type c1r3, Type c2r3, Type c3r3)
 {
-  Element(0, 0) = c1r1; Element(1, 0) = c2r1;	Element(2, 0) = c3r1;
-  Element(0, 1) = c1r2; Element(1, 1) = c2r2;	Element(2, 1) = c3r2;
-  Element(0, 2) = c1r3; Element(1, 2) = c2r3;	Element(2, 2) = c3r3;
+  Element(0, 0) = c1r1;
+  Element(1, 0) = c2r1;
+  Element(2, 0) = c3r1;
+  Element(0, 1) = c1r2;
+  Element(1, 1) = c2r2;
+  Element(2, 1) = c3r2;
+  Element(0, 2) = c1r3;
+  Element(1, 2) = c2r3;
+  Element(2, 2) = c3r3;
 }
 
-template<typename Type>
+template <typename Type>
 void ezMat3Template<Type>::SetZero()
 {
   SetElements(0, 0, 0,
@@ -100,7 +106,7 @@ void ezMat3Template<Type>::SetZero()
               0, 0, 0);
 }
 
-template<typename Type>
+template <typename Type>
 void ezMat3Template<Type>::SetIdentity()
 {
   SetElements(1, 0, 0,
@@ -108,26 +114,26 @@ void ezMat3Template<Type>::SetIdentity()
               0, 0, 1);
 }
 
-template<typename Type>
+template <typename Type>
 void ezMat3Template<Type>::SetScalingMatrix(const ezVec3Template<Type>& s)
 {
-  SetElements(s.x,  0,   0,
-               0,  s.y,  0,
-               0,   0,  s.z);
+  SetElements(s.x, 0, 0,
+              0, s.y, 0,
+              0, 0, s.z);
 }
 
-template<typename Type>
+template <typename Type>
 void ezMat3Template<Type>::SetRotationMatrixX(ezAngle angle)
 {
   const Type fSin = ezMath::Sin(angle);
   const Type fCos = ezMath::Cos(angle);
 
   SetElements(1.0f, 0.0f, 0.0f,
-              0.0f, fCos,-fSin,
+              0.0f, fCos, -fSin,
               0.0f, fSin, fCos);
 }
 
-template<typename Type>
+template <typename Type>
 void ezMat3Template<Type>::SetRotationMatrixY(ezAngle angle)
 {
   const Type fSin = ezMath::Sin(angle);
@@ -136,21 +142,21 @@ void ezMat3Template<Type>::SetRotationMatrixY(ezAngle angle)
 
   SetElements(fCos, 0.0f, fSin,
               0.0f, 1.0f, 0.0f,
-             -fSin, 0.0f, fCos);
+              -fSin, 0.0f, fCos);
 }
 
-template<typename Type>
+template <typename Type>
 void ezMat3Template<Type>::SetRotationMatrixZ(ezAngle angle)
 {
   const Type fSin = ezMath::Sin(angle);
   const Type fCos = ezMath::Cos(angle);
 
-  SetElements(fCos,-fSin, 0.0f,
+  SetElements(fCos, -fSin, 0.0f,
               fSin, fCos, 0.0f,
               0.0f, 0.0f, 1.0f);
 }
 
-template<typename Type>
+template <typename Type>
 void ezMat3Template<Type>::Transpose()
 {
   ezMath::Swap(Element(0, 1), Element(1, 0));
@@ -158,13 +164,13 @@ void ezMat3Template<Type>::Transpose()
   ezMath::Swap(Element(1, 2), Element(2, 1));
 }
 
-template<typename Type>
+template <typename Type>
 const ezMat3Template<Type> ezMat3Template<Type>::GetTranspose() const
 {
   return ezMat3Template(m_fElementsCM, ezMatrixLayout::RowMajor);
 }
 
-template<typename Type>
+template <typename Type>
 const ezMat3Template<Type> ezMat3Template<Type>::GetInverse(Type fEpsilon) const
 {
   ezMat3Template<Type> Inverse = *this;
@@ -174,7 +180,7 @@ const ezMat3Template<Type> ezMat3Template<Type>::GetInverse(Type fEpsilon) const
   return Inverse;
 }
 
-template<typename Type>
+template <typename Type>
 ezVec3Template<Type> ezMat3Template<Type>::GetRow(ezUInt32 uiRow) const
 {
   EZ_ASSERT_DEBUG(uiRow <= 2, "Invalid Row Index {0}", uiRow);
@@ -188,7 +194,7 @@ ezVec3Template<Type> ezMat3Template<Type>::GetRow(ezUInt32 uiRow) const
   return r;
 }
 
-template<typename Type>
+template <typename Type>
 void ezMat3Template<Type>::SetRow(ezUInt32 uiRow, const ezVec3Template<Type>& row)
 {
   EZ_ASSERT_DEBUG(uiRow <= 2, "Invalid Row Index {0}", uiRow);
@@ -198,7 +204,7 @@ void ezMat3Template<Type>::SetRow(ezUInt32 uiRow, const ezVec3Template<Type>& ro
   Element(2, uiRow) = row.z;
 }
 
-template<typename Type>
+template <typename Type>
 ezVec3Template<Type> ezMat3Template<Type>::GetColumn(ezUInt32 uiColumn) const
 {
   EZ_ASSERT_DEBUG(uiColumn <= 2, "Invalid Column Index {0}", uiColumn);
@@ -212,7 +218,7 @@ ezVec3Template<Type> ezMat3Template<Type>::GetColumn(ezUInt32 uiColumn) const
   return r;
 }
 
-template<typename Type>
+template <typename Type>
 void ezMat3Template<Type>::SetColumn(ezUInt32 uiColumn, const ezVec3Template<Type>& column)
 {
   EZ_ASSERT_DEBUG(uiColumn <= 2, "Invalid Column Index {0}", uiColumn);
@@ -222,7 +228,7 @@ void ezMat3Template<Type>::SetColumn(ezUInt32 uiColumn, const ezVec3Template<Typ
   Element(uiColumn, 2) = column.z;
 }
 
-template<typename Type>
+template <typename Type>
 ezVec3Template<Type> ezMat3Template<Type>::GetDiagonal() const
 {
   EZ_NAN_ASSERT(this);
@@ -230,7 +236,7 @@ ezVec3Template<Type> ezMat3Template<Type>::GetDiagonal() const
   return ezVec3Template<Type>(Element(0, 0), Element(1, 1), Element(2, 2));
 }
 
-template<typename Type>
+template <typename Type>
 void ezMat3Template<Type>::SetDiagonal(const ezVec3Template<Type>& diag)
 {
   Element(0, 0) = diag.x;
@@ -238,7 +244,7 @@ void ezMat3Template<Type>::SetDiagonal(const ezVec3Template<Type>& diag)
   Element(2, 2) = diag.z;
 }
 
-template<typename Type>
+template <typename Type>
 EZ_FORCE_INLINE const ezVec3Template<Type> ezMat3Template<Type>::TransformDirection(const ezVec3Template<Type>& v) const
 {
   ezVec3Template<Type> r;
@@ -250,8 +256,8 @@ EZ_FORCE_INLINE const ezVec3Template<Type> ezMat3Template<Type>::TransformDirect
   return r;
 }
 
-template<typename Type>
-EZ_FORCE_INLINE void ezMat3Template<Type>::operator*= (Type f)
+template <typename Type>
+EZ_FORCE_INLINE void ezMat3Template<Type>::operator*=(Type f)
 {
   for (ezInt32 i = 0; i < 9; ++i)
     m_fElementsCM[i] *= f;
@@ -259,16 +265,16 @@ EZ_FORCE_INLINE void ezMat3Template<Type>::operator*= (Type f)
   EZ_NAN_ASSERT(this);
 }
 
-template<typename Type>
-EZ_FORCE_INLINE void ezMat3Template<Type>::operator/= (Type f)
+template <typename Type>
+EZ_FORCE_INLINE void ezMat3Template<Type>::operator/=(Type f)
 {
   const Type fInv = ezMath::Invert(f);
 
-  operator*= (fInv);
+  operator*=(fInv);
 }
 
-template<typename Type>
-const ezMat3Template<Type> operator* (const ezMat3Template<Type>& m1, const ezMat3Template<Type>& m2)
+template <typename Type>
+const ezMat3Template<Type> operator*(const ezMat3Template<Type>& m1, const ezMat3Template<Type>& m2)
 {
   ezMat3Template<Type> r;
   for (ezInt32 i = 0; i < 3; ++i)
@@ -282,8 +288,8 @@ const ezMat3Template<Type> operator* (const ezMat3Template<Type>& m1, const ezMa
   return r;
 }
 
-template<typename Type>
-EZ_ALWAYS_INLINE const ezVec3Template<Type> operator* (const ezMat3Template<Type>& m, const ezVec3Template<Type>& v)
+template <typename Type>
+EZ_ALWAYS_INLINE const ezVec3Template<Type> operator*(const ezMat3Template<Type>& m, const ezVec3Template<Type>& v)
 {
   return m.TransformDirection(v);
 }
@@ -292,14 +298,14 @@ EZ_ALWAYS_INLINE const ezVec3Template<Type> operator* (const ezMat3Template<Type
 
 // *** free functions ***
 
-template<typename Type>
-EZ_ALWAYS_INLINE const ezMat3Template<Type> operator* (Type f, const ezMat3Template<Type>& m1)
+template <typename Type>
+EZ_ALWAYS_INLINE const ezMat3Template<Type> operator*(Type f, const ezMat3Template<Type>& m1)
 {
-  return operator* (m1, f);
+  return operator*(m1, f);
 }
 
-template<typename Type>
-const ezMat3Template<Type> operator* (const ezMat3Template<Type>& m1, Type f)
+template <typename Type>
+const ezMat3Template<Type> operator*(const ezMat3Template<Type>& m1, Type f)
 {
   ezMat3Template<Type> r;
 
@@ -311,14 +317,14 @@ const ezMat3Template<Type> operator* (const ezMat3Template<Type>& m1, Type f)
   return r;
 }
 
-template<typename Type>
-EZ_ALWAYS_INLINE const ezMat3Template<Type> operator/ (const ezMat3Template<Type>& m1, Type f)
+template <typename Type>
+EZ_ALWAYS_INLINE const ezMat3Template<Type> operator/(const ezMat3Template<Type>& m1, Type f)
 {
-  return operator* (m1, ezMath::Invert(f));
+  return operator*(m1, ezMath::Invert(f));
 }
 
-template<typename Type>
-const ezMat3Template<Type> operator+ (const ezMat3Template<Type>& m1, const ezMat3Template<Type>& m2)
+template <typename Type>
+const ezMat3Template<Type> operator+(const ezMat3Template<Type>& m1, const ezMat3Template<Type>& m2)
 {
   ezMat3Template<Type> r;
 
@@ -330,8 +336,8 @@ const ezMat3Template<Type> operator+ (const ezMat3Template<Type>& m1, const ezMa
   return r;
 }
 
-template<typename Type>
-const ezMat3Template<Type> operator- (const ezMat3Template<Type>& m1, const ezMat3Template<Type>& m2)
+template <typename Type>
+const ezMat3Template<Type> operator-(const ezMat3Template<Type>& m1, const ezMat3Template<Type>& m2)
 {
   ezMat3Template<Type> r;
 
@@ -343,7 +349,7 @@ const ezMat3Template<Type> operator- (const ezMat3Template<Type>& m1, const ezMa
   return r;
 }
 
-template<typename Type>
+template <typename Type>
 bool ezMat3Template<Type>::IsIdentical(const ezMat3Template<Type>& rhs) const
 {
   EZ_NAN_ASSERT(this);
@@ -358,7 +364,7 @@ bool ezMat3Template<Type>::IsIdentical(const ezMat3Template<Type>& rhs) const
   return true;
 }
 
-template<typename Type>
+template <typename Type>
 bool ezMat3Template<Type>::IsEqual(const ezMat3Template<Type>& rhs, Type fEpsilon) const
 {
   EZ_NAN_ASSERT(this);
@@ -375,19 +381,19 @@ bool ezMat3Template<Type>::IsEqual(const ezMat3Template<Type>& rhs, Type fEpsilo
   return true;
 }
 
-template<typename Type>
-EZ_ALWAYS_INLINE bool operator== (const ezMat3Template<Type>& lhs, const ezMat3Template<Type>& rhs)
+template <typename Type>
+EZ_ALWAYS_INLINE bool operator==(const ezMat3Template<Type>& lhs, const ezMat3Template<Type>& rhs)
 {
   return lhs.IsIdentical(rhs);
 }
 
-template<typename Type>
-EZ_ALWAYS_INLINE bool operator!= (const ezMat3Template<Type>& lhs, const ezMat3Template<Type>& rhs)
+template <typename Type>
+EZ_ALWAYS_INLINE bool operator!=(const ezMat3Template<Type>& lhs, const ezMat3Template<Type>& rhs)
 {
   return !lhs.IsIdentical(rhs);
 }
 
-template<typename Type>
+template <typename Type>
 bool ezMat3Template<Type>::IsZero(Type fEpsilon) const
 {
   EZ_NAN_ASSERT(this);
@@ -401,27 +407,36 @@ bool ezMat3Template<Type>::IsZero(Type fEpsilon) const
   return true;
 }
 
-template<typename Type>
+template <typename Type>
 bool ezMat3Template<Type>::IsIdentity(Type fEpsilon) const
 {
   EZ_NAN_ASSERT(this);
 
-  if (!ezMath::IsEqual(Element(0, 0), (Type) 1, fEpsilon)) return false;
-  if (!ezMath::IsEqual(Element(0, 1), (Type) 0, fEpsilon)) return false;
-  if (!ezMath::IsEqual(Element(0, 2), (Type) 0, fEpsilon)) return false;
+  if (!ezMath::IsEqual(Element(0, 0), (Type)1, fEpsilon))
+    return false;
+  if (!ezMath::IsEqual(Element(0, 1), (Type)0, fEpsilon))
+    return false;
+  if (!ezMath::IsEqual(Element(0, 2), (Type)0, fEpsilon))
+    return false;
 
-  if (!ezMath::IsEqual(Element(1, 0), (Type) 0, fEpsilon)) return false;
-  if (!ezMath::IsEqual(Element(1, 1), (Type) 1, fEpsilon)) return false;
-  if (!ezMath::IsEqual(Element(1, 2), (Type) 0, fEpsilon)) return false;
+  if (!ezMath::IsEqual(Element(1, 0), (Type)0, fEpsilon))
+    return false;
+  if (!ezMath::IsEqual(Element(1, 1), (Type)1, fEpsilon))
+    return false;
+  if (!ezMath::IsEqual(Element(1, 2), (Type)0, fEpsilon))
+    return false;
 
-  if (!ezMath::IsEqual(Element(2, 0), (Type) 0, fEpsilon)) return false;
-  if (!ezMath::IsEqual(Element(2, 1), (Type) 0, fEpsilon)) return false;
-  if (!ezMath::IsEqual(Element(2, 2), (Type) 1, fEpsilon)) return false;
+  if (!ezMath::IsEqual(Element(2, 0), (Type)0, fEpsilon))
+    return false;
+  if (!ezMath::IsEqual(Element(2, 1), (Type)0, fEpsilon))
+    return false;
+  if (!ezMath::IsEqual(Element(2, 2), (Type)1, fEpsilon))
+    return false;
 
   return true;
 }
 
-template<typename Type>
+template <typename Type>
 bool ezMat3Template<Type>::IsValid() const
 {
   for (ezUInt32 i = 0; i < 9; ++i)
@@ -433,7 +448,7 @@ bool ezMat3Template<Type>::IsValid() const
   return true;
 }
 
-template<typename Type>
+template <typename Type>
 bool ezMat3Template<Type>::IsNaN() const
 {
   for (ezUInt32 i = 0; i < 9; ++i)
@@ -445,39 +460,48 @@ bool ezMat3Template<Type>::IsNaN() const
   return false;
 }
 
-template<typename Type>
+template <typename Type>
 const ezVec3Template<Type> ezMat3Template<Type>::GetScalingFactors() const
 {
   ezVec3Template<Type> v;
 
-  v.x = ezVec3Template<Type>(Element(0, 0), Element(0, 1), Element(0, 2)).GetLength ();
-  v.y = ezVec3Template<Type>(Element(1, 0), Element(1, 1), Element(1, 2)).GetLength ();
-  v.z = ezVec3Template<Type>(Element(2, 0), Element(2, 1), Element(2, 2)).GetLength ();
+  v.x = ezVec3Template<Type>(Element(0, 0), Element(0, 1), Element(0, 2)).GetLength();
+  v.y = ezVec3Template<Type>(Element(1, 0), Element(1, 1), Element(1, 2)).GetLength();
+  v.z = ezVec3Template<Type>(Element(2, 0), Element(2, 1), Element(2, 2)).GetLength();
 
   EZ_NAN_ASSERT(&v);
   return v;
 }
 
-template<typename Type>
+template <typename Type>
 ezResult ezMat3Template<Type>::SetScalingFactors(const ezVec3Template<Type>& vXYZ, Type fEpsilon /* = ezMath::BasicType<Type>::DefaultEpsilon() */)
 {
-  ezVec3Template<Type> tx (Element(0, 0), Element(0, 1), Element(0, 2));
-  ezVec3Template<Type> ty (Element(1, 0), Element(1, 1), Element(1, 2));
-  ezVec3Template<Type> tz (Element(2, 0), Element(2, 1), Element(2, 2));
+  ezVec3Template<Type> tx(Element(0, 0), Element(0, 1), Element(0, 2));
+  ezVec3Template<Type> ty(Element(1, 0), Element(1, 1), Element(1, 2));
+  ezVec3Template<Type> tz(Element(2, 0), Element(2, 1), Element(2, 2));
 
-  if (tx.SetLength (vXYZ.x, fEpsilon) == EZ_FAILURE) return EZ_FAILURE;
-  if (ty.SetLength (vXYZ.y, fEpsilon) == EZ_FAILURE) return EZ_FAILURE;
-  if (tz.SetLength (vXYZ.z, fEpsilon) == EZ_FAILURE) return EZ_FAILURE;
+  if (tx.SetLength(vXYZ.x, fEpsilon) == EZ_FAILURE)
+    return EZ_FAILURE;
+  if (ty.SetLength(vXYZ.y, fEpsilon) == EZ_FAILURE)
+    return EZ_FAILURE;
+  if (tz.SetLength(vXYZ.z, fEpsilon) == EZ_FAILURE)
+    return EZ_FAILURE;
 
 
-  Element(0, 0) = tx.x; Element(0, 1) = tx.y; Element(0, 2) = tx.z;
-  Element(1, 0) = ty.x; Element(1, 1) = ty.y; Element(1, 2) = ty.z;
-  Element(2, 0) = tz.x; Element(2, 1) = tz.y; Element(2, 2) = tz.z;
+  Element(0, 0) = tx.x;
+  Element(0, 1) = tx.y;
+  Element(0, 2) = tx.z;
+  Element(1, 0) = ty.x;
+  Element(1, 1) = ty.y;
+  Element(1, 2) = ty.z;
+  Element(2, 0) = tz.x;
+  Element(2, 1) = tz.y;
+  Element(2, 2) = tz.z;
 
   return EZ_SUCCESS;
 }
 
-template<typename Type>
+template <typename Type>
 Type ezMat3Template<Type>::GetDeterminant() const
 {
   // Using rule of Sarrus
@@ -491,4 +515,3 @@ Type ezMat3Template<Type>::GetDeterminant() const
 }
 
 #include <Foundation/Math/Implementation/AllClasses_inl.h>
-

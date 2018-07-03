@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Basics.h>
 
@@ -18,10 +18,7 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
   /// \brief Returns true if called on a little endian system, false otherwise.
   ///
   /// \note Note that usually the compile time decisions with the defines EZ_PLATFORM_LITTLE_ENDIAN, EZ_PLATFORM_BIG_ENDIAN is preferred.
-  static inline bool IsLittleEndian()
-  {
-    return !IsBigEndian();
-  }
+  static inline bool IsLittleEndian() { return !IsBigEndian(); }
 
   /// \brief Switches endianess of the given array of words (16 bit values).
   static inline void SwitchWords(ezUInt16* pWords, ezUInt32 uiCount) // [tested]
@@ -59,19 +56,26 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
   /// \brief Returns a single switched quad word (64 bit value).
   static EZ_ALWAYS_INLINE ezUInt64 Switch(ezUInt64 uiQWord) // [tested]
   {
-    return (((uiQWord & 0xFF) << 56) | ((uiQWord & 0xFF00) << 40) | ((uiQWord & 0xFF0000) << 24) | ((uiQWord & 0xFF000000) << 8) | ((uiQWord & 0xFF00000000) >> 8) | ((uiQWord & 0xFF0000000000) >> 24) | ((uiQWord & 0xFF000000000000) >> 40) | ((uiQWord & 0xFF00000000000000) >> 56));
+    return (((uiQWord & 0xFF) << 56) | ((uiQWord & 0xFF00) << 40) | ((uiQWord & 0xFF0000) << 24) | ((uiQWord & 0xFF000000) << 8) |
+            ((uiQWord & 0xFF00000000) >> 8) | ((uiQWord & 0xFF0000000000) >> 24) | ((uiQWord & 0xFF000000000000) >> 40) |
+            ((uiQWord & 0xFF00000000000000) >> 56));
   }
 
   /// \brief Switches a value in place (template accepts pointers for 2, 4 & 8 byte data types)
-  template <typename T> static void SwitchInPlace(T* pValue) // [tested]
+  template <typename T>
+  static void SwitchInPlace(T* pValue) // [tested]
   {
-    EZ_CHECK_AT_COMPILETIME_MSG((sizeof(T) == 2 || sizeof(T) == 4 || sizeof(T) == 8), "Switch in place only works for type equivalents of ezUInt16, ezUInt32, ezUInt64!");
+    EZ_CHECK_AT_COMPILETIME_MSG((sizeof(T) == 2 || sizeof(T) == 4 || sizeof(T) == 8),
+                                "Switch in place only works for type equivalents of ezUInt16, ezUInt32, ezUInt64!");
 
     if (sizeof(T) == 2)
     {
       struct TAnd16BitUnion
       {
-        union { ezUInt16 BitValue; T TValue; };
+        union {
+          ezUInt16 BitValue;
+          T TValue;
+        };
       };
 
       TAnd16BitUnion Temp;
@@ -84,7 +88,10 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
     {
       struct TAnd32BitUnion
       {
-        union { ezUInt32 BitValue; T TValue; };
+        union {
+          ezUInt32 BitValue;
+          T TValue;
+        };
       };
 
       TAnd32BitUnion Temp;
@@ -97,7 +104,10 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
     {
       struct TAnd64BitUnion
       {
-        union { ezUInt64 BitValue; T TValue; };
+        union {
+          ezUInt64 BitValue;
+          T TValue;
+        };
       };
 
       TAnd64BitUnion Temp;
@@ -108,119 +118,59 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
     }
   }
 
-  #if EZ_ENABLED(EZ_PLATFORM_LITTLE_ENDIAN)
+#if EZ_ENABLED(EZ_PLATFORM_LITTLE_ENDIAN)
 
-  static EZ_ALWAYS_INLINE void LittleEndianToNative(ezUInt16* pWords, ezUInt32 uiCount)
-  {
-  }
+  static EZ_ALWAYS_INLINE void LittleEndianToNative(ezUInt16* pWords, ezUInt32 uiCount) {}
 
-  static EZ_ALWAYS_INLINE void NativeToLittleEndian(ezUInt16* pWords, ezUInt32 uiCount)
-  {
-  }
+  static EZ_ALWAYS_INLINE void NativeToLittleEndian(ezUInt16* pWords, ezUInt32 uiCount) {}
 
-  static EZ_ALWAYS_INLINE void LittleEndianToNative(ezUInt32* pDWords, ezUInt32 uiCount)
-  {
-  }
+  static EZ_ALWAYS_INLINE void LittleEndianToNative(ezUInt32* pDWords, ezUInt32 uiCount) {}
 
-  static EZ_ALWAYS_INLINE void NativeToLittleEndian(ezUInt32* pDWords, ezUInt32 uiCount)
-  {
-  }
+  static EZ_ALWAYS_INLINE void NativeToLittleEndian(ezUInt32* pDWords, ezUInt32 uiCount) {}
 
-  static EZ_ALWAYS_INLINE void LittleEndianToNative(ezUInt64* pQWords, ezUInt32 uiCount)
-  {
-  }
+  static EZ_ALWAYS_INLINE void LittleEndianToNative(ezUInt64* pQWords, ezUInt32 uiCount) {}
 
-  static EZ_ALWAYS_INLINE void NativeToLittleEndian(ezUInt64* pQWords, ezUInt32 uiCount)
-  {
-  }
+  static EZ_ALWAYS_INLINE void NativeToLittleEndian(ezUInt64* pQWords, ezUInt32 uiCount) {}
 
-  static EZ_ALWAYS_INLINE void BigEndianToNative(ezUInt16* pWords, ezUInt32 uiCount)
-  {
-    SwitchWords(pWords, uiCount);
-  }
+  static EZ_ALWAYS_INLINE void BigEndianToNative(ezUInt16* pWords, ezUInt32 uiCount) { SwitchWords(pWords, uiCount); }
 
-  static EZ_ALWAYS_INLINE void NativeToBigEndian(ezUInt16* pWords, ezUInt32 uiCount)
-  {
-    SwitchWords(pWords, uiCount);
-  }
+  static EZ_ALWAYS_INLINE void NativeToBigEndian(ezUInt16* pWords, ezUInt32 uiCount) { SwitchWords(pWords, uiCount); }
 
-  static EZ_ALWAYS_INLINE void BigEndianToNative(ezUInt32* pDWords, ezUInt32 uiCount)
-  {
-    SwitchDWords(pDWords, uiCount);
-  }
+  static EZ_ALWAYS_INLINE void BigEndianToNative(ezUInt32* pDWords, ezUInt32 uiCount) { SwitchDWords(pDWords, uiCount); }
 
-  static EZ_ALWAYS_INLINE void NativeToBigEndian(ezUInt32* pDWords, ezUInt32 uiCount)
-  {
-    SwitchDWords(pDWords, uiCount);
-  }
+  static EZ_ALWAYS_INLINE void NativeToBigEndian(ezUInt32* pDWords, ezUInt32 uiCount) { SwitchDWords(pDWords, uiCount); }
 
-  static EZ_ALWAYS_INLINE void BigEndianToNative(ezUInt64* pQWords, ezUInt32 uiCount)
-  {
-    SwitchQWords(pQWords, uiCount);
-  }
+  static EZ_ALWAYS_INLINE void BigEndianToNative(ezUInt64* pQWords, ezUInt32 uiCount) { SwitchQWords(pQWords, uiCount); }
 
-  static EZ_ALWAYS_INLINE void NativeToBigEndian(ezUInt64* pQWords, ezUInt32 uiCount)
-  {
-    SwitchQWords(pQWords, uiCount);
-  }
+  static EZ_ALWAYS_INLINE void NativeToBigEndian(ezUInt64* pQWords, ezUInt32 uiCount) { SwitchQWords(pQWords, uiCount); }
 
-  #elif EZ_ENABLED(EZ_PLATFORM_BIG_ENDIAN)
+#elif EZ_ENABLED(EZ_PLATFORM_BIG_ENDIAN)
 
-  static EZ_ALWAYS_INLINE void LittleEndianToNative(ezUInt16* pWords, ezUInt32 uiCount)
-  {
-    SwitchWords(pWords, uiCount);
-  }
+  static EZ_ALWAYS_INLINE void LittleEndianToNative(ezUInt16* pWords, ezUInt32 uiCount) { SwitchWords(pWords, uiCount); }
 
-  static EZ_ALWAYS_INLINE void NativeToLittleEndian(ezUInt16* pWords, ezUInt32 uiCount)
-  {
-    SwitchWords(pWords, uiCount);
-  }
+  static EZ_ALWAYS_INLINE void NativeToLittleEndian(ezUInt16* pWords, ezUInt32 uiCount) { SwitchWords(pWords, uiCount); }
 
-  static EZ_ALWAYS_INLINE void LittleEndianToNative(ezUInt32* pDWords, ezUInt32 uiCount)
-  {
-    SwitchDWords(pDWords, uiCount);
-  }
+  static EZ_ALWAYS_INLINE void LittleEndianToNative(ezUInt32* pDWords, ezUInt32 uiCount) { SwitchDWords(pDWords, uiCount); }
 
-  static EZ_ALWAYS_INLINE void NativeToLittleEndian(ezUInt32* pDWords, ezUInt32 uiCount)
-  {
-    SwitchDWords(pDWords, uiCount);
-  }
+  static EZ_ALWAYS_INLINE void NativeToLittleEndian(ezUInt32* pDWords, ezUInt32 uiCount) { SwitchDWords(pDWords, uiCount); }
 
-  static EZ_ALWAYS_INLINE void LittleEndianToNative(ezUInt64* pQWords, ezUInt32 uiCount)
-  {
-    SwitchQWords(pQWords, uiCount);
-  }
+  static EZ_ALWAYS_INLINE void LittleEndianToNative(ezUInt64* pQWords, ezUInt32 uiCount) { SwitchQWords(pQWords, uiCount); }
 
-  static EZ_ALWAYS_INLINE void NativeToLittleEndian(ezUInt64* pQWords, ezUInt32 uiCount)
-  {
-    SwitchQWords(pQWords, uiCount);
-  }
+  static EZ_ALWAYS_INLINE void NativeToLittleEndian(ezUInt64* pQWords, ezUInt32 uiCount) { SwitchQWords(pQWords, uiCount); }
 
-  static EZ_ALWAYS_INLINE void BigEndianToNative(ezUInt16* pWords, ezUInt32 uiCount)
-  {
-  }
+  static EZ_ALWAYS_INLINE void BigEndianToNative(ezUInt16* pWords, ezUInt32 uiCount) {}
 
-  static EZ_ALWAYS_INLINE void NativeToBigEndian(ezUInt16* pWords, ezUInt32 uiCount)
-  {
-  }
+  static EZ_ALWAYS_INLINE void NativeToBigEndian(ezUInt16* pWords, ezUInt32 uiCount) {}
 
-  static EZ_ALWAYS_INLINE void BigEndianToNative(ezUInt32* pDWords, ezUInt32 uiCount)
-  {
-  }
+  static EZ_ALWAYS_INLINE void BigEndianToNative(ezUInt32* pDWords, ezUInt32 uiCount) {}
 
-  static EZ_ALWAYS_INLINE void NativeToBigEndian(ezUInt32* pDWords, ezUInt32 uiCount)
-  {
-  }
+  static EZ_ALWAYS_INLINE void NativeToBigEndian(ezUInt32* pDWords, ezUInt32 uiCount) {}
 
-  static EZ_ALWAYS_INLINE void BigEndianToNative(ezUInt64* pQWords, ezUInt32 uiCount)
-  {
-  }
+  static EZ_ALWAYS_INLINE void BigEndianToNative(ezUInt64* pQWords, ezUInt32 uiCount) {}
 
-  static EZ_ALWAYS_INLINE void NativeToBigEndian(ezUInt64* pQWords, ezUInt32 uiCount)
-  {
-  }
+  static EZ_ALWAYS_INLINE void NativeToBigEndian(ezUInt64* pQWords, ezUInt32 uiCount) {}
 
-  #endif
+#endif
 
 
   /// \brief Switches a given struct according to the layout described in the szFormat parameter
@@ -228,12 +178,13 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
   /// The format string may contain the characters:
   ///  - c, b for a member of 1 byte
   ///  - w, s for a member of 2 bytes (word, ezUInt16)
-  ///  - d for a member of 4 bytes (dword, ezUInt32)
-  ///  - q for a member of 8 bytes (qword, ezUInt64)
+  ///  - d for a member of 4 bytes (DWORD, ezUInt32)
+  ///  - q for a member of 8 bytes (DWORD, ezUInt64)
   static void SwitchStruct(void* pDataPointer, const char* szFormat);
 
   /// \brief Templated helper method for SwitchStruct
-  template <typename T> static void SwitchStruct(T* pDataPointer, const char* szFormat) // [tested]
+  template <typename T>
+  static void SwitchStruct(T* pDataPointer, const char* szFormat) // [tested]
   {
     SwitchStruct(static_cast<void*>(pDataPointer), szFormat);
   }
@@ -243,16 +194,14 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
   /// The format string may contain the characters:
   ///  - c, b for a member of 1 byte
   ///  - w, s for a member of 2 bytes (word, ezUInt16)
-  ///  - d for a member of 4 bytes (dword, ezUInt32)
-  ///  - q for a member of 8 bytes (qword, ezUInt64)
+  ///  - d for a member of 4 bytes (DWORD, ezUInt32)
+  ///  - q for a member of 8 bytes (DWORD, ezUInt64)
   static void SwitchStructs(void* pDataPointer, const char* szFormat, ezUInt32 uiStride, ezUInt32 uiCount); // [tested]
 
   /// \brief Templated helper method for SwitchStructs
-  template <typename T> static void SwitchStructs(T* pDataPointer, const char* szFormat, ezUInt32 uiCount) // [tested]
+  template <typename T>
+  static void SwitchStructs(T* pDataPointer, const char* szFormat, ezUInt32 uiCount) // [tested]
   {
     SwitchStructs(static_cast<void*>(pDataPointer), szFormat, sizeof(T), uiCount);
   }
-
-
 };
-

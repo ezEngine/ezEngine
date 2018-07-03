@@ -1,4 +1,4 @@
-﻿
+
 EZ_FORCE_INLINE void* ezAlignedHeapAllocation::Allocate(size_t uiSize, size_t uiAlign)
 {
   uiAlign = ezMath::Max<size_t>(uiAlign, 16u);
@@ -13,5 +13,3 @@ EZ_ALWAYS_INLINE void ezAlignedHeapAllocation::Deallocate(void* ptr)
 {
   _aligned_free(ptr);
 }
-
-

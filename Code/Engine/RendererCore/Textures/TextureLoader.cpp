@@ -1,20 +1,22 @@
 #include <PCH.h>
-#include <RendererCore/Textures/TextureLoader.h>
-#include <RendererCore/Textures/TextureUtils.h>
-#include <RendererCore/Textures/Texture2DResource.h>
-#include <RendererCore/Textures/TextureCubeResource.h>
+
 #include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/Image/Formats/DdsFileFormat.h>
-#include <Foundation/Image/ImageConversion.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
-#include <Foundation/Configuration/CVar.h>
+#include <Foundation/Image/Formats/DdsFileFormat.h>
+#include <Foundation/Image/ImageConversion.h>
+#include <RendererCore/Textures/Texture2DResource.h>
+#include <RendererCore/Textures/TextureCubeResource.h>
+#include <RendererCore/Textures/TextureLoader.h>
+#include <RendererCore/Textures/TextureUtils.h>
 
 static ezTextureResourceLoader s_TextureResourceLoader;
 
 ezCVarFloat CVarTextureLoadingDelay("r_TextureLoadDelay", 0.0f, ezCVarFlags::Save, "Artificial texture loading slowdown");
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, TextureResource)
 
 BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -42,7 +44,8 @@ ON_ENGINE_SHUTDOWN
 {
 }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase* pResource)
 {
@@ -210,7 +213,7 @@ ezResult ezTextureResourceLoader::LoadTexFile(ezStreamReader& stream, LoadedData
   {
     ezUInt8 uiFilter = 0;
     stream >> uiFilter;
-    data.m_textureFilter = (ezTextureFilterSetting::Enum) uiFilter;
+    data.m_textureFilter = (ezTextureFilterSetting::Enum)uiFilter;
   }
 
   if (uiTexFileFormatVersion >= 3)
@@ -259,4 +262,3 @@ void ezTextureResourceLoader::WriteTextureLoadStream(ezStreamWriter& w, const Lo
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_TextureLoader);
-

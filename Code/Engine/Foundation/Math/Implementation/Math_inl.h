@@ -57,7 +57,7 @@ namespace ezMath
     return (f2 < f1 ? f2 : f1);
   }
 
-  template <typename T, typename ...ARGS>
+  template <typename T, typename... ARGS>
   constexpr EZ_ALWAYS_INLINE T Min(T f1, T f2, ARGS... f)
   {
     return Min(Min(f1, f2), f...);
@@ -69,7 +69,7 @@ namespace ezMath
     return (f1 < f2 ? f2 : f1);
   }
 
-  template <typename T, typename ...ARGS>
+  template <typename T, typename... ARGS>
   constexpr EZ_ALWAYS_INLINE T Max(T f1, T f2, ARGS... f)
   {
     return Max(Max(f1, f2), f...);
@@ -78,9 +78,7 @@ namespace ezMath
   template <typename T>
   constexpr EZ_ALWAYS_INLINE T Clamp(T value, T min_val, T max_val)
   {
-    return value < min_val ? min_val :
-          (max_val < value ? max_val :
-           value);
+    return value < min_val ? min_val : (max_val < value ? max_val : value);
   }
 
   inline ezInt32 Floor(ezInt32 i, ezUInt32 uiMultiple)
@@ -109,7 +107,7 @@ namespace ezMath
     return ((iDivides + 1) * uiMultiple);
   }
 
-  template<typename Type>
+  template <typename Type>
   constexpr Type Invert(Type f)
   {
     return ((Type)1) / f;
@@ -180,11 +178,10 @@ namespace ezMath
 
   constexpr EZ_FORCE_INLINE bool IsPowerOf2(ezInt32 value)
   {
-    return (value < 1) ? false :
-          ((value & (value - 1)) == 0);
+    return (value < 1) ? false : ((value & (value - 1)) == 0);
   }
 
-  template<typename Type>
+  template <typename Type>
   constexpr bool IsEqual(Type lhs, Type rhs, Type fEpsilon)
   {
     return ((rhs >= lhs - fEpsilon) && (rhs <= lhs + fEpsilon));
@@ -193,12 +190,10 @@ namespace ezMath
   template <typename T>
   constexpr inline bool IsInRange(T Value, T MinVal, T MaxVal)
   {
-    return MinVal < MaxVal ?
-      (Value >= MinVal) && (Value <= MaxVal) :
-      (Value <= MinVal) && (Value >= MaxVal);
+    return MinVal < MaxVal ? (Value >= MinVal) && (Value <= MaxVal) : (Value <= MinVal) && (Value >= MaxVal);
   }
 
-  template<typename Type>
+  template <typename Type>
   bool IsZero(Type f, Type fEpsilon)
   {
     EZ_ASSERT_DEBUG(fEpsilon >= 0, "Epsilon may not be negative.");
@@ -206,7 +201,7 @@ namespace ezMath
     return ((f >= -fEpsilon) && (f <= fEpsilon));
   }
 
-  template<typename Type>
+  template <typename Type>
   EZ_ALWAYS_INLINE Type Trunc(Type f)
   {
     if (f > 0)
@@ -215,25 +210,25 @@ namespace ezMath
     return Ceil(f);
   }
 
-  template<typename Type>
+  template <typename Type>
   EZ_ALWAYS_INLINE Type Round(Type f)
   {
-    return Floor(f + (Type) 0.5);
+    return Floor(f + (Type)0.5);
   }
 
-  template<typename Type>
+  template <typename Type>
   EZ_ALWAYS_INLINE Type Round(Type f, Type fRoundTo)
   {
     return Round(f / fRoundTo) * fRoundTo;
   }
 
-  template<typename Type>
+  template <typename Type>
   EZ_ALWAYS_INLINE Type Fraction(Type f)
   {
     return (f - Trunc(f));
   }
 
-  template<typename Type>
+  template <typename Type>
   inline Type SmoothStep(Type x, Type edge1, Type edge2)
   {
     const Type divider = edge2 - edge1;
@@ -266,7 +261,7 @@ namespace ezMath
   }
 
 
-  template<typename T, typename T2>
+  template <typename T, typename T2>
   T EvaluateBezierCurve(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint)
   {
     const T2 mt = 1 - t;
@@ -285,4 +280,3 @@ constexpr EZ_FORCE_INLINE ezAngle ezAngle::AngleBetween(ezAngle a, ezAngle b)
   // taken from http://gamedev.stackexchange.com/questions/4467/comparing-angles-and-working-out-the-difference
   return ezAngle(Pi<float>() - ezMath::Abs(ezMath::Abs(a.GetRadian() - b.GetRadian()) - Pi<float>()));
 }
-

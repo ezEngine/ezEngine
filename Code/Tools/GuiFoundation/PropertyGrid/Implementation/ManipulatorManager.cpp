@@ -1,9 +1,11 @@
 #include <PCH.h>
+
 #include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <ToolsFoundation/Document/Document.h>
 
 EZ_IMPLEMENT_SINGLETON(ezManipulatorManager);
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ManipulatorManager)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -24,10 +26,11 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ManipulatorManager)
     }
   }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezManipulatorManager::ezManipulatorManager()
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
   ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezManipulatorManager::PhantomTypeManagerEventHandler, this));
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezManipulatorManager::DocumentManagerEventHandler, this));
@@ -39,7 +42,8 @@ ezManipulatorManager::~ezManipulatorManager()
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezManipulatorManager::DocumentManagerEventHandler, this));
 }
 
-const ezManipulatorAttribute* ezManipulatorManager::GetActiveManipulator(const ezDocument* pDoc, const ezHybridArray<ezPropertySelection, 8>*& out_Selection) const
+const ezManipulatorAttribute* ezManipulatorManager::GetActiveManipulator(const ezDocument* pDoc,
+                                                                         const ezHybridArray<ezPropertySelection, 8>*& out_Selection) const
 {
   out_Selection = nullptr;
   auto it = m_ActiveManipulator.Find(pDoc);
@@ -54,7 +58,8 @@ const ezManipulatorAttribute* ezManipulatorManager::GetActiveManipulator(const e
   return nullptr;
 }
 
-void ezManipulatorManager::InternalSetActiveManipulator(const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezHybridArray<ezPropertySelection, 8>& selection, bool bUnhide)
+void ezManipulatorManager::InternalSetActiveManipulator(const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator,
+                                                        const ezHybridArray<ezPropertySelection, 8>& selection, bool bUnhide)
 {
   bool existed = false;
   auto it = m_ActiveManipulator.FindOrAdd(pDoc, &existed);
@@ -85,7 +90,8 @@ void ezManipulatorManager::InternalSetActiveManipulator(const ezDocument* pDoc, 
 }
 
 
-void ezManipulatorManager::SetActiveManipulator(const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator, const ezHybridArray<ezPropertySelection, 8>& selection)
+void ezManipulatorManager::SetActiveManipulator(const ezDocument* pDoc, const ezManipulatorAttribute* pManipulator,
+                                                const ezHybridArray<ezPropertySelection, 8>& selection)
 {
   InternalSetActiveManipulator(pDoc, pManipulator, selection, true);
 }
@@ -173,12 +179,9 @@ void ezManipulatorManager::TransferToCurrentSelection(const ezDocument* pDoc)
         {
           ezManipulatorAttribute* pOtherManip = static_cast<ezManipulatorAttribute*>(pOtherAttr);
 
-          if (pOtherManip->m_sProperty1 == pAttribute->m_sProperty1 &&
-              pOtherManip->m_sProperty2 == pAttribute->m_sProperty2 &&
-              pOtherManip->m_sProperty3 == pAttribute->m_sProperty3 &&
-              pOtherManip->m_sProperty4 == pAttribute->m_sProperty4 &&
-              pOtherManip->m_sProperty5 == pAttribute->m_sProperty5 &&
-              pOtherManip->m_sProperty6 == pAttribute->m_sProperty6)
+          if (pOtherManip->m_sProperty1 == pAttribute->m_sProperty1 && pOtherManip->m_sProperty2 == pAttribute->m_sProperty2 &&
+              pOtherManip->m_sProperty3 == pAttribute->m_sProperty3 && pOtherManip->m_sProperty4 == pAttribute->m_sProperty4 &&
+              pOtherManip->m_sProperty5 == pAttribute->m_sProperty5 && pOtherManip->m_sProperty6 == pAttribute->m_sProperty6)
           {
             auto& newItem = newSelection.ExpandAndGetRef();
             newItem.m_pObject = child;
@@ -208,8 +211,8 @@ void ezManipulatorManager::DocumentManagerEventHandler(const ezDocumentManager::
   {
     ClearActiveManipulator(e.m_pDocument);
 
-    e.m_pDocument->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezManipulatorManager::StructureEventHandler, this));
+    e.m_pDocument->GetObjectManager()->m_StructureEvents.RemoveEventHandler(
+        ezMakeDelegate(&ezManipulatorManager::StructureEventHandler, this));
     m_ActiveManipulator.Remove(e.m_pDocument);
   }
-
 }

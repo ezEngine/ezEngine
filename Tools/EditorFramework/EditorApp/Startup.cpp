@@ -1,59 +1,61 @@
 #include <PCH.h>
+
+#include <EditorFramework/Actions/AssetActions.h>
+#include <EditorFramework/Actions/GameObjectContextActions.h>
+#include <EditorFramework/Actions/GameObjectDocumentActions.h>
+#include <EditorFramework/Actions/GameObjectSelectionActions.h>
+#include <EditorFramework/Actions/ProjectActions.h>
+#include <EditorFramework/Actions/QuadViewActions.h>
+#include <EditorFramework/Actions/TransformGizmoActions.h>
+#include <EditorFramework/Actions/ViewActions.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/Manipulators/BoxManipulatorAdapter.h>
+#include <EditorFramework/Manipulators/CapsuleManipulatorAdapter.h>
+#include <EditorFramework/Manipulators/ConeAngleManipulatorAdapter.h>
+#include <EditorFramework/Manipulators/ConeLengthManipulatorAdapter.h>
+#include <EditorFramework/Manipulators/ManipulatorAdapterRegistry.h>
+#include <EditorFramework/Manipulators/NonUniformBoxManipulatorAdapter.h>
+#include <EditorFramework/Manipulators/SphereManipulatorAdapter.h>
+#include <EditorFramework/Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
+#include <EditorFramework/Panels/AssetCuratorPanel/AssetCuratorPanel.moc.h>
+#include <EditorFramework/Panels/CVarPanel/CVarPanel.moc.h>
+#include <EditorFramework/Panels/GameObjectPanel/GameObjectPanel.moc.h>
+#include <EditorFramework/Panels/LogPanel/LogPanel.moc.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
+#include <EditorFramework/PropertyGrid/AssetBrowserPropertyWidget.moc.h>
+#include <EditorFramework/PropertyGrid/DynamicEnumPropertyWidget.moc.h>
+#include <EditorFramework/PropertyGrid/DynamicStringEnumPropertyWidget.moc.h>
+#include <EditorFramework/PropertyGrid/ExposedParametersPropertyWidget.moc.h>
+#include <EditorFramework/PropertyGrid/FileBrowserPropertyWidget.moc.h>
+#include <EditorFramework/Visualizers/BoxVisualizerAdapter.h>
+#include <EditorFramework/Visualizers/CameraVisualizerAdapter.h>
+#include <EditorFramework/Visualizers/CapsuleVisualizerAdapter.h>
+#include <EditorFramework/Visualizers/ConeVisualizerAdapter.h>
+#include <EditorFramework/Visualizers/DirectionVisualizerAdapter.h>
+#include <EditorFramework/Visualizers/SphereVisualizerAdapter.h>
+#include <EditorFramework/Visualizers/VisualizerAdapterRegistry.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/IO/OSFile.h>
+#include <Foundation/Logging/ConsoleWriter.h>
+#include <Foundation/Logging/VisualStudioWriter.h>
+#include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Strings/TranslationLookup.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
+#include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/BaseActions.h>
-#include <EditorFramework/Actions/ProjectActions.h>
-#include <EditorFramework/Actions/AssetActions.h>
-#include <EditorFramework/Actions/ViewActions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
-#include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <EditorFramework/PropertyGrid/AssetBrowserPropertyWidget.moc.h>
-#include <EditorFramework/PropertyGrid/DynamicEnumPropertyWidget.moc.h>
-#include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
-#include <EditorFramework/PropertyGrid/FileBrowserPropertyWidget.moc.h>
-#include <EditorFramework/PropertyGrid/DynamicStringEnumPropertyWidget.moc.h>
-#include <EditorFramework/PropertyGrid/ExposedParametersPropertyWidget.moc.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <Foundation/Utilities/Progress.h>
-#include <GuiFoundation/UIServices/QtProgressbar.h>
-#include <Foundation/Utilities/CommandLineUtils.h>
-#include <Foundation/IO/OSFile.h>
-#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
-#include <Foundation/Logging/ConsoleWriter.h>
-#include <Foundation/Logging/VisualStudioWriter.h>
-#include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
-#include <QClipboard>
+#include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
-#include <EditorFramework/Panels/LogPanel/LogPanel.moc.h>
-#include <EditorFramework/Panels/AssetBrowserPanel/AssetBrowserPanel.moc.h>
-#include <EditorFramework/Panels/AssetCuratorPanel/AssetCuratorPanel.moc.h>
-#include <EditorFramework/Manipulators/ManipulatorAdapterRegistry.h>
-#include <EditorFramework/Manipulators/SphereManipulatorAdapter.h>
-#include <EditorFramework/Manipulators/CapsuleManipulatorAdapter.h>
-#include <EditorFramework/Manipulators/BoxManipulatorAdapter.h>
-#include <EditorFramework/Manipulators/ConeAngleManipulatorAdapter.h>
-#include <EditorFramework/Manipulators/ConeLengthManipulatorAdapter.h>
-#include <EditorFramework/Manipulators/NonUniformBoxManipulatorAdapter.h>
-#include <EditorFramework/Visualizers/VisualizerAdapterRegistry.h>
-#include <EditorFramework/Visualizers/BoxVisualizerAdapter.h>
-#include <EditorFramework/Visualizers/SphereVisualizerAdapter.h>
-#include <EditorFramework/Visualizers/CapsuleVisualizerAdapter.h>
-#include <EditorFramework/Visualizers/DirectionVisualizerAdapter.h>
-#include <EditorFramework/Visualizers/ConeVisualizerAdapter.h>
-#include <EditorFramework/Visualizers/CameraVisualizerAdapter.h>
+#include <GuiFoundation/UIServices/QtProgressbar.h>
+#include <QClipboard>
 #include <ToolsFoundation/Application/ApplicationServices.h>
-#include <EditorFramework/Preferences/EditorPreferences.h>
-#include <Foundation/Profiling/Profiling.h>
-#include <EditorFramework/Panels/CVarPanel/CVarPanel.moc.h>
-#include <EditorFramework/Actions/GameObjectContextActions.h>
-#include <EditorFramework/Panels/GameObjectPanel/GameObjectPanel.moc.h>
-#include <EditorFramework/Actions/GameObjectDocumentActions.h>
-#include <EditorFramework/Actions/GameObjectSelectionActions.h>
-#include <EditorFramework/Actions/QuadViewActions.h>
-#include <EditorFramework/Actions/TransformGizmoActions.h>
+#include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -125,7 +127,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezQtPropertyGridWidget::GetFactory().UnregisterCreator(ezGetStaticRTTI<ezDynamicStringEnumAttribute>());
   }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 
 void ezQtEditorApp::StartupEditor(bool bHeadless)
@@ -195,9 +198,9 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
 
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
-    ezFileSystem::AddDataDirectory("", "AbsPaths", ":", ezFileSystem::AllowWrites); // for absolute paths
-    ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites); // writing to the binary directory
-    ezFileSystem::AddDataDirectory(sAppDir, "AppData", "app"); // app specific data
+    ezFileSystem::AddDataDirectory("", "AbsPaths", ":", ezFileSystem::AllowWrites);             // for absolute paths
+    ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites);     // writing to the binary directory
+    ezFileSystem::AddDataDirectory(sAppDir, "AppData", "app");                                  // app specific data
     ezFileSystem::AddDataDirectory(sUserData, "AppData", "appdata", ezFileSystem::AllowWrites); // for writing app user data
   }
 
@@ -205,7 +208,7 @@ void ezQtEditorApp::StartupEditor(bool bHeadless)
     EZ_PROFILE("Logging");
     ezString sApplicationID = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-appid", 0, "ezEditor");
     ezStringBuilder sLogFile;
-  sLogFile.Format(":appdata/Log_{0}.htm", sApplicationID);
+    sLogFile.Format(":appdata/Log_{0}.htm", sApplicationID);
     m_LogHTML.BeginLog(sLogFile, sApplicationID);
 
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
@@ -335,5 +338,3 @@ void ezQtEditorApp::CreatePanels()
   new ezQtAssetBrowserPanel();
   new ezQtAssetCuratorPanel();
 }
-
-

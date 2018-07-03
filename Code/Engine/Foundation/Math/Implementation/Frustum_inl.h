@@ -16,5 +16,3 @@ EZ_ALWAYS_INLINE const ezVec3& ezFrustum::GetPosition() const
 {
   return m_vPosition;
 }
-
-

@@ -1,11 +1,12 @@
 #include <PCH.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererCore/Pipeline/RenderPipeline.h>
-#include <RendererCore/Pipeline/View.h>
+
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <RendererCore/Pipeline/RenderPipeline.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 
 ezCVarBool CVarMultithreadedRendering("r_Multithreading", true, ezCVarFlags::Default, "Enables multi-threaded update and rendering");
 ezCVarBool CVarCacheRenderData("r_CacheRenderData", false, ezCVarFlags::Default, "Enables render data caching of static objects");
@@ -61,7 +62,7 @@ namespace ezInternal
   struct RenderDataCache
   {
     RenderDataCache(ezAllocatorBase* pAllocator)
-      : m_EntriesPerObject(pAllocator)
+        : m_EntriesPerObject(pAllocator)
     {
       m_NewEntriesPerComponent.SetCount(m_NewEntriesPerComponent.GetCapacity());
       for (auto& newEntry : m_NewEntriesPerComponent)
@@ -85,12 +86,12 @@ namespace ezInternal
     ezAtomicInteger32 m_NewEntriesCount;
   };
 
-  #if EZ_ENABLED(EZ_PLATFORM_64BIT)
-    EZ_CHECK_AT_COMPILETIME(sizeof(RenderDataCacheEntry) == 16);
-  #endif
+#if EZ_ENABLED(EZ_PLATFORM_64BIT)
+  EZ_CHECK_AT_COMPILETIME(sizeof(RenderDataCacheEntry) == 16);
+#endif
 }
 
-
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RenderWorld)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -108,7 +109,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, RenderWorld)
     ezRenderWorld::OnEngineShutdown();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezViewHandle ezRenderWorld::CreateView(const char* szName, ezView*& out_pView)
 {
@@ -214,7 +216,7 @@ ezArrayPtr<ezViewHandle> ezRenderWorld::GetMainViews()
 }
 
 void ezRenderWorld::CacheRenderData(const ezView& view, const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent,
-  ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries)
+                                    ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries)
 {
   if (CVarCacheRenderData)
   {
@@ -409,7 +411,8 @@ void ezRenderWorld::Render(ezRenderContext* pRenderContext)
 
   for (auto& pRenderPipeline : filteredRenderPipelines)
   {
-    // If we are the only one holding a reference to the pipeline skip rendering. The pipeline is not needed anymore and will be deleted soon.
+    // If we are the only one holding a reference to the pipeline skip rendering. The pipeline is not needed anymore and will be deleted
+    // soon.
     if (pRenderPipeline->GetRefCount() > 1)
     {
       pRenderPipeline->Render(pRenderContext);
@@ -592,4 +595,3 @@ void ezRenderWorld::OnEngineShutdown()
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_RenderWorld_Implementation_RenderWorld);
-

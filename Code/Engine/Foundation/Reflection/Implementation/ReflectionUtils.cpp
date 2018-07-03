@@ -1,7 +1,8 @@
 #include <PCH.h>
+
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
-#include <Foundation/Logging/Log.h>
 #include <Foundation/Types/ScopeExit.h>
 
 namespace
@@ -17,22 +18,22 @@ namespace
   };
 
   template <>
-  EZ_ALWAYS_INLINE void GetTypeFromVariantTypeFunc::operator() < ezVariantArray > ()
+  EZ_ALWAYS_INLINE void GetTypeFromVariantTypeFunc::operator()<ezVariantArray>()
   {
     m_pType = nullptr;
   }
   template <>
-  EZ_ALWAYS_INLINE void GetTypeFromVariantTypeFunc::operator() < ezVariantDictionary > ()
+  EZ_ALWAYS_INLINE void GetTypeFromVariantTypeFunc::operator()<ezVariantDictionary>()
   {
     m_pType = nullptr;
   }
   template <>
-  EZ_ALWAYS_INLINE void GetTypeFromVariantTypeFunc::operator() < ezReflectedClass* > ()
+  EZ_ALWAYS_INLINE void GetTypeFromVariantTypeFunc::operator()<ezReflectedClass*>()
   {
     m_pType = ezGetStaticRTTI<ezReflectedClass>();
   }
   template <>
-  EZ_ALWAYS_INLINE void GetTypeFromVariantTypeFunc::operator() < void* > ()
+  EZ_ALWAYS_INLINE void GetTypeFromVariantTypeFunc::operator()<void*>()
   {
     m_pType = nullptr;
   }
@@ -51,22 +52,22 @@ namespace
 
 
   template <>
-  EZ_ALWAYS_INLINE void GetTypeFromVariantFunc::operator() < ezVariantArray > ()
+  EZ_ALWAYS_INLINE void GetTypeFromVariantFunc::operator()<ezVariantArray>()
   {
     m_pType = nullptr;
   }
   template <>
-  EZ_ALWAYS_INLINE void GetTypeFromVariantFunc::operator() < ezVariantDictionary > ()
+  EZ_ALWAYS_INLINE void GetTypeFromVariantFunc::operator()<ezVariantDictionary>()
   {
     m_pType = nullptr;
   }
   template <>
-  EZ_ALWAYS_INLINE void GetTypeFromVariantFunc::operator() < ezReflectedClass* > ()
+  EZ_ALWAYS_INLINE void GetTypeFromVariantFunc::operator()<ezReflectedClass*>()
   {
     m_pType = m_pVariant->Get<ezReflectedClass*>()->GetDynamicRTTI();
   }
   template <>
-  EZ_ALWAYS_INLINE void GetTypeFromVariantFunc::operator() < void* > ()
+  EZ_ALWAYS_INLINE void GetTypeFromVariantFunc::operator()<void*>()
   {
     m_pType = nullptr;
   }
@@ -87,7 +88,7 @@ namespace
   };
 
   template <>
-  EZ_FORCE_INLINE void GetValueFunc::operator()<ezString> ()
+  EZ_FORCE_INLINE void GetValueFunc::operator()<ezString>()
   {
     if (m_pProp->GetSpecificType() == ezGetStaticRTTI<ezString>())
     {
@@ -124,7 +125,7 @@ namespace
   };
 
   template <>
-  EZ_FORCE_INLINE void SetValueFunc::operator() < ezString > ()
+  EZ_FORCE_INLINE void SetValueFunc::operator()<ezString>()
   {
     if (m_pProp->GetSpecificType() == ezGetStaticRTTI<ezString>())
     {
@@ -185,7 +186,7 @@ namespace
   };
 
   template <>
-  EZ_FORCE_INLINE void SetArrayValueFunc::operator() < ezString > ()
+  EZ_FORCE_INLINE void SetArrayValueFunc::operator()<ezString>()
   {
     EZ_ASSERT_DEBUG(m_pProp->GetSpecificType() == ezGetStaticRTTI<ezString>(), "Other string types not implemented");
     ezString value = m_pValue->ConvertTo<ezString>();
@@ -208,7 +209,7 @@ namespace
   };
 
   template <>
-  EZ_FORCE_INLINE void InsertArrayValueFunc::operator() < ezString > ()
+  EZ_FORCE_INLINE void InsertArrayValueFunc::operator()<ezString>()
   {
     EZ_ASSERT_DEBUG(m_pProp->GetSpecificType() == ezGetStaticRTTI<ezString>(), "Other string types not implemented");
     ezString value = m_pValue->ConvertTo<ezString>();
@@ -263,7 +264,7 @@ namespace
   };
 
   template <>
-  EZ_FORCE_INLINE void GetMapValueFunc::operator() < ezString > ()
+  EZ_FORCE_INLINE void GetMapValueFunc::operator()<ezString>()
   {
     ezString temp;
     EZ_ASSERT_DEBUG(m_pProp->GetSpecificType() == ezGetStaticRTTI<ezString>(), "Other string types not implemented");
@@ -289,7 +290,7 @@ namespace
   };
 
   template <>
-  EZ_FORCE_INLINE void SetMapValueFunc::operator() < ezString > ()
+  EZ_FORCE_INLINE void SetMapValueFunc::operator()<ezString>()
   {
     EZ_ASSERT_DEBUG(m_pProp->GetSpecificType() == ezGetStaticRTTI<ezString>(), "Other string types not implemented");
     ezString value = m_pValue->ConvertTo<ezString>();
@@ -313,7 +314,7 @@ namespace
     return true;
   }
 
-  template<typename T>
+  template <typename T>
   struct SetComponentValueImpl
   {
     EZ_FORCE_INLINE static void impl(ezVariant* pVector, ezUInt32 iComponent, double fValue)
@@ -322,7 +323,7 @@ namespace
     }
   };
 
-  template<typename T>
+  template <typename T>
   struct SetComponentValueImpl<ezVec2Template<T>>
   {
     EZ_FORCE_INLINE static void impl(ezVariant* pVector, ezUInt32 iComponent, double fValue)
@@ -330,18 +331,18 @@ namespace
       auto vec = pVector->Get<ezVec2Template<T>>();
       switch (iComponent)
       {
-      case 0:
-        vec.x = static_cast<T>(fValue);
-        break;
-      case 1:
-        vec.y = static_cast<T>(fValue);
-        break;
+        case 0:
+          vec.x = static_cast<T>(fValue);
+          break;
+        case 1:
+          vec.y = static_cast<T>(fValue);
+          break;
       }
       *pVector = vec;
     }
   };
 
-  template<typename T>
+  template <typename T>
   struct SetComponentValueImpl<ezVec3Template<T>>
   {
     EZ_FORCE_INLINE static void impl(ezVariant* pVector, ezUInt32 iComponent, double fValue)
@@ -349,21 +350,21 @@ namespace
       auto vec = pVector->Get<ezVec3Template<T>>();
       switch (iComponent)
       {
-      case 0:
-        vec.x = static_cast<T>(fValue);
-        break;
-      case 1:
-        vec.y = static_cast<T>(fValue);
-        break;
-      case 2:
-        vec.z = static_cast<T>(fValue);
-        break;
+        case 0:
+          vec.x = static_cast<T>(fValue);
+          break;
+        case 1:
+          vec.y = static_cast<T>(fValue);
+          break;
+        case 2:
+          vec.z = static_cast<T>(fValue);
+          break;
       }
       *pVector = vec;
     }
   };
 
-  template<typename T>
+  template <typename T>
   struct SetComponentValueImpl<ezVec4Template<T>>
   {
     EZ_FORCE_INLINE static void impl(ezVariant* pVector, ezUInt32 iComponent, double fValue)
@@ -371,18 +372,18 @@ namespace
       auto vec = pVector->Get<ezVec4Template<T>>();
       switch (iComponent)
       {
-      case 0:
-        vec.x = static_cast<T>(fValue);
-        break;
-      case 1:
-        vec.y = static_cast<T>(fValue);
-        break;
-      case 2:
-        vec.z = static_cast<T>(fValue);
-        break;
-      case 3:
-        vec.w = static_cast<T>(fValue);
-        break;
+        case 0:
+          vec.x = static_cast<T>(fValue);
+          break;
+        case 1:
+          vec.y = static_cast<T>(fValue);
+          break;
+        case 2:
+          vec.z = static_cast<T>(fValue);
+          break;
+        case 3:
+          vec.w = static_cast<T>(fValue);
+          break;
       }
       *pVector = vec;
     }
@@ -400,7 +401,7 @@ namespace
     double m_fValue;
   };
 
-  template<typename T>
+  template <typename T>
   struct GetComponentValueImpl
   {
     EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 iComponent, double& fValue)
@@ -409,7 +410,7 @@ namespace
     }
   };
 
-  template<typename T>
+  template <typename T>
   struct GetComponentValueImpl<ezVec2Template<T>>
   {
     EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 iComponent, double& fValue)
@@ -417,17 +418,17 @@ namespace
       const auto& vec = pVector->Get<ezVec2Template<T>>();
       switch (iComponent)
       {
-      case 0:
-        fValue = static_cast<double>(vec.x);
-        break;
-      case 1:
-        fValue = static_cast<double>(vec.y);
-        break;
+        case 0:
+          fValue = static_cast<double>(vec.x);
+          break;
+        case 1:
+          fValue = static_cast<double>(vec.y);
+          break;
       }
     }
   };
 
-  template<typename T>
+  template <typename T>
   struct GetComponentValueImpl<ezVec3Template<T>>
   {
     EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 iComponent, double& fValue)
@@ -435,20 +436,20 @@ namespace
       const auto& vec = pVector->Get<ezVec3Template<T>>();
       switch (iComponent)
       {
-      case 0:
-        fValue = static_cast<double>(vec.x);
-        break;
-      case 1:
-        fValue = static_cast<double>(vec.y);
-        break;
-      case 2:
-        fValue = static_cast<double>(vec.z);
-        break;
+        case 0:
+          fValue = static_cast<double>(vec.x);
+          break;
+        case 1:
+          fValue = static_cast<double>(vec.y);
+          break;
+        case 2:
+          fValue = static_cast<double>(vec.z);
+          break;
       }
     }
   };
 
-  template<typename T>
+  template <typename T>
   struct GetComponentValueImpl<ezVec4Template<T>>
   {
     EZ_FORCE_INLINE static void impl(const ezVariant* pVector, ezUInt32 iComponent, double& fValue)
@@ -456,18 +457,18 @@ namespace
       const auto& vec = pVector->Get<ezVec4Template<T>>();
       switch (iComponent)
       {
-      case 0:
-        fValue = static_cast<double>(vec.x);
-        break;
-      case 1:
-        fValue = static_cast<double>(vec.y);
-        break;
-      case 2:
-        fValue = static_cast<double>(vec.z);
-        break;
-      case 3:
-        fValue = static_cast<double>(vec.w);
-        break;
+        case 0:
+          fValue = static_cast<double>(vec.x);
+          break;
+        case 1:
+          fValue = static_cast<double>(vec.y);
+          break;
+        case 2:
+          fValue = static_cast<double>(vec.z);
+          break;
+        case 3:
+          fValue = static_cast<double>(vec.w);
+          break;
       }
     }
   };
@@ -539,21 +540,21 @@ ezUInt32 ezReflectionUtils::GetComponentCount(ezVariantType::Enum type)
 {
   switch (type)
   {
-  case ezVariant::Type::Vector2:
-  case ezVariant::Type::Vector2I:
-  case ezVariant::Type::Vector2U:
-    return 2;
-  case ezVariant::Type::Vector3:
-  case ezVariant::Type::Vector3I:
-  case ezVariant::Type::Vector3U:
-    return 3;
-  case ezVariant::Type::Vector4:
-  case ezVariant::Type::Vector4I:
-  case ezVariant::Type::Vector4U:
-    return 4;
-  default:
-    EZ_REPORT_FAILURE("Not a vector type: '{0}'", type);
-    return 0;
+    case ezVariant::Type::Vector2:
+    case ezVariant::Type::Vector2I:
+    case ezVariant::Type::Vector2U:
+      return 2;
+    case ezVariant::Type::Vector3:
+    case ezVariant::Type::Vector3I:
+    case ezVariant::Type::Vector3U:
+      return 3;
+    case ezVariant::Type::Vector4:
+    case ezVariant::Type::Vector4I:
+    case ezVariant::Type::Vector4U:
+      return 4;
+    default:
+      EZ_REPORT_FAILURE("Not a vector type: '{0}'", type);
+      return 0;
   }
 }
 
@@ -984,10 +985,10 @@ void ezReflectionUtils::GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ez
       continue;
     switch (prop->GetCategory())
     {
-    case ezPropertyCategory::Member:
-    case ezPropertyCategory::Array:
-    case ezPropertyCategory::Set:
-    case ezPropertyCategory::Map:
+      case ezPropertyCategory::Member:
+      case ezPropertyCategory::Array:
+      case ezPropertyCategory::Set:
+      case ezPropertyCategory::Map:
       {
         const ezRTTI* pPropRtti = prop->GetSpecificType();
 
@@ -998,10 +999,10 @@ void ezReflectionUtils::GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ez
         GatherDependentTypes(pPropRtti, inout_types);
       }
       break;
-    case ezPropertyCategory::Function:
-    case ezPropertyCategory::Constant:
-    default:
-      break;
+      case ezPropertyCategory::Function:
+      case ezPropertyCategory::Constant:
+      default:
+        break;
     }
   }
 }
@@ -1011,7 +1012,7 @@ bool ezReflectionUtils::CreateDependencySortedTypeArray(const ezSet<const ezRTTI
   out_sortedTypes.Clear();
   out_sortedTypes.Reserve(types.GetCount());
 
-  ezMap<const ezRTTI*, ezSet<const ezRTTI*> > dependencies;
+  ezMap<const ezRTTI*, ezSet<const ezRTTI*>> dependencies;
 
   ezSet<const ezRTTI*> accu;
 
@@ -1141,7 +1142,8 @@ ezInt64 ezReflectionUtils::DefaultEnumerationValue(const ezRTTI* pEnumerationRtt
   if (pEnumerationRtti->IsDerivedFrom<ezEnumBase>() || pEnumerationRtti->IsDerivedFrom<ezBitflagsBase>())
   {
     auto pProp = pEnumerationRtti->GetProperties()[0];
-    EZ_ASSERT_DEBUG(pProp->GetCategory() == ezPropertyCategory::Constant && ezStringUtils::EndsWith(pProp->GetPropertyName(), "::Default"), "First enumeration property must be the default value constant.");
+    EZ_ASSERT_DEBUG(pProp->GetCategory() == ezPropertyCategory::Constant && ezStringUtils::EndsWith(pProp->GetPropertyName(), "::Default"),
+                    "First enumeration property must be the default value constant.");
     return static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant().ConvertTo<ezInt64>();
   }
   else
@@ -1201,7 +1203,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
   ezVariant vTemp2;
   switch (pProp->GetCategory())
   {
-  case ezPropertyCategory::Member:
+    case ezPropertyCategory::Member:
     {
       ezAbstractMemberProperty* pSpecific = static_cast<ezAbstractMemberProperty*>(pProp);
 
@@ -1263,7 +1265,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
       }
     }
     break;
-  case ezPropertyCategory::Array:
+    case ezPropertyCategory::Array:
     {
       ezAbstractArrayProperty* pSpecific = static_cast<ezAbstractArrayProperty*>(pProp);
 
@@ -1333,7 +1335,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
       }
     }
     break;
-  case ezPropertyCategory::Set:
+    case ezPropertyCategory::Set:
     {
       ezAbstractSetProperty* pSpecific = static_cast<ezAbstractSetProperty*>(pProp);
 
@@ -1348,7 +1350,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
         return false;
 
       if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ||
-      (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)))
+          (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)))
       {
         bool bEqual = true;
         for (ezUInt32 i = 0; i < uiCount; ++i)
@@ -1384,7 +1386,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
       }
     }
     break;
-  case ezPropertyCategory::Map:
+    case ezPropertyCategory::Map:
     {
       ezAbstractMapProperty* pSpecific = static_cast<ezAbstractMapProperty*>(pProp);
 
@@ -1399,7 +1401,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
         return false;
 
       if (pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ||
-        (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)))
+          (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)))
       {
         bool bEqual = true;
         for (ezUInt32 i = 0; i < uiCount; ++i)
@@ -1415,7 +1417,8 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
         }
         return bEqual;
       }
-      else if ((!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)) && pProp->GetFlags().IsSet(ezPropertyFlags::Class))
+      else if ((!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)) &&
+               pProp->GetFlags().IsSet(ezPropertyFlags::Class))
       {
         bool bEqual = true;
         for (ezUInt32 i = 0; i < uiCount; ++i)
@@ -1455,8 +1458,8 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
             }
             else
             {
-              ezLog::Error("The property '{}' can not be compared as the type '{}' cannot be allocated."
-              , pProp->GetPropertyName(), pPropType->GetTypeName());
+              ezLog::Error("The property '{}' can not be compared as the type '{}' cannot be allocated.", pProp->GetPropertyName(),
+                           pPropType->GetTypeName());
             }
           }
           if (!bEqual)
@@ -1507,4 +1510,3 @@ void ezReflectionUtils::DeleteObject(void* pObject, ezAbstractProperty* pOwnerPr
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_ReflectionUtils);
-

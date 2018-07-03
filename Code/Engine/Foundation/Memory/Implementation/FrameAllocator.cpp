@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Profiling/Profiling.h>
@@ -30,7 +31,7 @@ void ezDoubleBufferedStackAllocator::Reset()
 }
 
 
-
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, FrameAllocator)
 
   ON_CORE_STARTUP
@@ -43,7 +44,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, FrameAllocator)
     ezFrameAllocator::Shutdown();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezDoubleBufferedStackAllocator* ezFrameAllocator::s_pAllocator;
 
@@ -74,4 +76,3 @@ void ezFrameAllocator::Shutdown()
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Memory_Implementation_FrameAllocator);
-

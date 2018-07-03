@@ -7,7 +7,7 @@
 /// This class allows to construct AABBs and also provides a large set of functions to work with them,
 /// e.g. for overlap queries and ray casts.
 
-template<typename Type>
+template <typename Type>
 class ezBoundingBoxTemplate
 {
 public:
@@ -147,19 +147,17 @@ public:
 
 
 public:
-
   ezVec3Template<Type> m_vMin;
   ezVec3Template<Type> m_vMax;
 };
 
 /// \brief Checks whether this box and the other are identical.
-template<typename Type>
-bool operator== (const ezBoundingBoxTemplate<Type>& lhs, const ezBoundingBoxTemplate<Type>& rhs); // [tested]
+template <typename Type>
+bool operator==(const ezBoundingBoxTemplate<Type>& lhs, const ezBoundingBoxTemplate<Type>& rhs); // [tested]
 
 /// \brief Checks whether this box and the other are not identical.
-template<typename Type>
-bool operator!= (const ezBoundingBoxTemplate<Type>& lhs, const ezBoundingBoxTemplate<Type>& rhs); // [tested]
+template <typename Type>
+bool operator!=(const ezBoundingBoxTemplate<Type>& lhs, const ezBoundingBoxTemplate<Type>& rhs); // [tested]
 
 
 #include <Foundation/Math/Implementation/BoundingBox_inl.h>
-

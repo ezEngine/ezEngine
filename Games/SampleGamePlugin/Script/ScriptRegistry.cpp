@@ -1,12 +1,14 @@
 #include <PCH.h>
-#include <SampleGamePlugin/Script/ScriptRegistry.h>
-#include <SampleGamePlugin/Components/ScriptTestComponent.h>
+
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
+#include <SampleGamePlugin/Components/ScriptTestComponent.h>
+#include <SampleGamePlugin/Script/ScriptRegistry.h>
 
 EZ_IMPLEMENT_SINGLETON(ezScriptRegistry);
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(SampleGame, ScriptRegistry)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -32,13 +34,14 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(SampleGame, ScriptRegistry)
   {
   }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
 
 ezScriptMemberProperty::ezScriptMemberProperty(const char* szName, const ezRTTI* pType)
-  : ezAbstractMemberProperty(nullptr)
+    : ezAbstractMemberProperty(nullptr)
 {
   m_sPropertyNameStorage = szName;
   m_szPropertyName = m_sPropertyNameStorage.GetData();
@@ -55,10 +58,7 @@ ezScriptMemberProperty::ezScriptMemberProperty(const char* szName, const ezRTTI*
     m_Flags.Add(ezPropertyFlags::Class);
 }
 
-ezScriptMemberProperty::~ezScriptMemberProperty()
-{
-
-}
+ezScriptMemberProperty::~ezScriptMemberProperty() {}
 
 const ezRTTI* ezScriptMemberProperty::GetSpecificType() const
 {
@@ -95,8 +95,11 @@ ezScriptRTTI::~ezScriptRTTI()
   EZ_DEFAULT_DELETE(m_pAllocator);
 }
 
-ezScriptRTTI::ezScriptRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags, const char* szPluginName)
-  : ezRTTI(nullptr, pParentType, uiTypeSize, uiTypeVersion, uiVariantType, flags, nullptr, ezArrayPtr<ezAbstractProperty*>(), ezArrayPtr<ezAbstractFunctionProperty*>(), ezArrayPtr<ezPropertyAttribute*>(), ezArrayPtr<ezAbstractMessageHandler*>(), ezArrayPtr<ezMessageSenderInfo>(), nullptr)
+ezScriptRTTI::ezScriptRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion,
+                           ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags, const char* szPluginName)
+    : ezRTTI(nullptr, pParentType, uiTypeSize, uiTypeVersion, uiVariantType, flags, nullptr, ezArrayPtr<ezAbstractProperty*>(),
+             ezArrayPtr<ezAbstractFunctionProperty*>(), ezArrayPtr<ezPropertyAttribute*>(), ezArrayPtr<ezAbstractMessageHandler*>(),
+             ezArrayPtr<ezMessageSenderInfo>(), nullptr)
 {
   m_sTypeNameStorage = szName;
   m_sPluginNameStorage = szPluginName;
@@ -133,7 +136,7 @@ void ezScriptRTTI::SetAttributes(ezArrayPtr<ezPropertyAttribute*> attributes)
 //////////////////////////////////////////////////////////////////////////
 
 ezScriptRegistry::ezScriptRegistry()
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
 }
 
@@ -156,7 +159,7 @@ void ezScriptRegistry::UpdateScriptTypes(const char* szScriptPath)
     }
     ezFileStats Stats;
     if (ezOSFile::GetFileStats(sAbsPath, Stats).Succeeded() &&
-      !Stats.m_LastModificationTime.Compare(it.Value().m_fileModifiedTime, ezTimestamp::CompareMode::FileTimeEqual))
+        !Stats.m_LastModificationTime.Compare(it.Value().m_fileModifiedTime, ezTimestamp::CompareMode::FileTimeEqual))
     {
       UpdateScriptTypes(it.Value());
     }
@@ -206,8 +209,8 @@ void ezScriptRegistry::UpdateScriptTypes(ScriptData& data)
 
   if (pPhantom == nullptr)
   {
-    pPhantom = EZ_DEFAULT_NEW(ezScriptRTTI, sTypeName, ezGetStaticRTTI<ScriptContainerBase>(),
-      sizeof(ScriptContainerBase), 0, ezVariantType::Invalid, ezTypeFlags::Class, "SampleGamePlugin");
+    pPhantom = EZ_DEFAULT_NEW(ezScriptRTTI, sTypeName, ezGetStaticRTTI<ScriptContainerBase>(), sizeof(ScriptContainerBase), 0,
+                              ezVariantType::Invalid, ezTypeFlags::Class, "SampleGamePlugin");
     data.m_pTypes.PushBack(pPhantom);
   }
 

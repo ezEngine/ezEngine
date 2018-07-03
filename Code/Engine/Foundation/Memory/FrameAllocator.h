@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Memory/StackAllocator.h>
 
@@ -11,10 +11,7 @@ public:
   ezDoubleBufferedStackAllocator(ezAllocatorBase* pParent);
   ~ezDoubleBufferedStackAllocator();
 
-  EZ_ALWAYS_INLINE ezAllocatorBase* GetCurrentAllocator() const
-  {
-    return m_pCurrentAllocator;
-  }
+  EZ_ALWAYS_INLINE ezAllocatorBase* GetCurrentAllocator() const { return m_pCurrentAllocator; }
 
   void Swap();
   void Reset();
@@ -27,10 +24,7 @@ private:
 class EZ_FOUNDATION_DLL ezFrameAllocator
 {
 public:
-  EZ_ALWAYS_INLINE static ezAllocatorBase* GetCurrentAllocator()
-  {
-    return s_pAllocator->GetCurrentAllocator();
-  }
+  EZ_ALWAYS_INLINE static ezAllocatorBase* GetCurrentAllocator() { return s_pAllocator->GetCurrentAllocator(); }
 
   static void Swap();
   static void Reset();
@@ -43,4 +37,3 @@ private:
 
   static ezDoubleBufferedStackAllocator* s_pAllocator;
 };
-

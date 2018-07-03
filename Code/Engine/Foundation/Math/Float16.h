@@ -24,15 +24,14 @@ public:
 
   /// \brief Convert float16 to float.
   operator float() const; // [tested]
-  
+
   /// \brief Returns true, if both values are identical.
-  bool operator== (const ezFloat16& c2) { return m_uiData == c2.m_uiData; } // [tested]
+  bool operator==(const ezFloat16& c2) { return m_uiData == c2.m_uiData; } // [tested]
 
   /// \brief Returns true, if both values are not identical.
-  bool operator!= (const ezFloat16& c2) { return m_uiData != c2.m_uiData; } // [tested]
+  bool operator!=(const ezFloat16& c2) { return m_uiData != c2.m_uiData; } // [tested]
 
 private:
   /// Raw 16 float data.
   ezUInt16 m_uiData;
 };
-

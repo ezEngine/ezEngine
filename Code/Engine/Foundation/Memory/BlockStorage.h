@@ -72,7 +72,7 @@ private:
 
   ezLargeBlockAllocator<BlockSizeInByte>* m_pBlockAllocator;
 
-  ezDynamicArray<ezDataBlock<T, BlockSizeInByte> > m_Blocks;
+  ezDynamicArray<ezDataBlock<T, BlockSizeInByte>> m_Blocks;
   ezUInt32 m_uiCount;
 
   ezUInt32 m_uiFreelistStart;
@@ -81,4 +81,3 @@ private:
 };
 
 #include <Foundation/Memory/Implementation/BlockStorage_inl.h>
-

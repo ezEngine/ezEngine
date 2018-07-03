@@ -1,9 +1,11 @@
 #include <PCH.h>
+
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 EZ_IMPLEMENT_SINGLETON(ezVisualizerManager);
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, VisualizerManager)
 
   ON_CORE_STARTUP
@@ -20,10 +22,11 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, VisualizerManager)
     }
   }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezVisualizerManager::ezVisualizerManager()
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezVisualizerManager::DocumentManagerEventHandler, this));
 }

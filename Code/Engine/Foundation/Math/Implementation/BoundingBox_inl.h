@@ -1,19 +1,19 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Math/Mat4.h>
 
-template<typename Type>
+template <typename Type>
 EZ_ALWAYS_INLINE ezBoundingBoxTemplate<Type>::ezBoundingBoxTemplate()
 {
 }
 
-template<typename Type>
+template <typename Type>
 EZ_FORCE_INLINE ezBoundingBoxTemplate<Type>::ezBoundingBoxTemplate(const ezVec3Template<Type>& vMin, const ezVec3Template<Type>& vMax)
 {
   SetElements(vMin, vMax);
 }
 
-template<typename Type>
+template <typename Type>
 EZ_FORCE_INLINE void ezBoundingBoxTemplate<Type>::SetElements(const ezVec3Template<Type>& vMin, const ezVec3Template<Type>& vMax)
 {
   m_vMin = vMin;
@@ -22,14 +22,14 @@ EZ_FORCE_INLINE void ezBoundingBoxTemplate<Type>::SetElements(const ezVec3Templa
   EZ_ASSERT_DEBUG(IsValid(), "The given values did not create a valid bounding box ({0} | {1} | {2} - {3} | {4} | {5})", ezArgF(vMin.x, 2), ezArgF(vMin.y, 2), ezArgF(vMin.z, 2), ezArgF(vMax.x, 2), ezArgF(vMax.y, 2), ezArgF(vMax.z, 2));
 }
 
-template<typename Type>
+template <typename Type>
 void ezBoundingBoxTemplate<Type>::SetFromPoints(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template<Type>) */)
 {
   SetInvalid();
   ExpandToInclude(pPoints, uiNumPoints, uiStride);
 }
 
-template<typename Type>
+template <typename Type>
 void ezBoundingBoxTemplate<Type>::GetCorners(ezVec3Template<Type>* out_pCorners) const
 {
   EZ_NAN_ASSERT(this);
@@ -45,65 +45,65 @@ void ezBoundingBoxTemplate<Type>::GetCorners(ezVec3Template<Type>* out_pCorners)
   out_pCorners[7].Set(m_vMax.x, m_vMax.y, m_vMax.z);
 }
 
-template<typename Type>
+template <typename Type>
 EZ_FORCE_INLINE const ezVec3Template<Type> ezBoundingBoxTemplate<Type>::GetCenter() const
 {
   return m_vMin + GetHalfExtents();
 }
 
-template<typename Type>
+template <typename Type>
 EZ_ALWAYS_INLINE const ezVec3Template<Type> ezBoundingBoxTemplate<Type>::GetExtents() const
 {
   return m_vMax - m_vMin;
 }
 
-template<typename Type>
+template <typename Type>
 const ezVec3Template<Type> ezBoundingBoxTemplate<Type>::GetHalfExtents() const
 {
-  return (m_vMax - m_vMin) / (Type) 2;
+  return (m_vMax - m_vMin) / (Type)2;
 }
 
-template<typename Type>
+template <typename Type>
 void ezBoundingBoxTemplate<Type>::SetCenterAndHalfExtents(const ezVec3Template<Type>& vCenter, const ezVec3Template<Type>& vHalfExtents)
 {
   m_vMin = vCenter - vHalfExtents;
   m_vMax = vCenter + vHalfExtents;
 }
 
-template<typename Type>
+template <typename Type>
 void ezBoundingBoxTemplate<Type>::SetInvalid()
 {
   m_vMin.Set(ezMath::BasicType<Type>::MaxValue());
   m_vMax.Set(-ezMath::BasicType<Type>::MaxValue());
 }
 
-template<typename Type>
+template <typename Type>
 bool ezBoundingBoxTemplate<Type>::IsValid() const
 {
   return (m_vMin.IsValid() && m_vMax.IsValid() && m_vMin.x <= m_vMax.x && m_vMin.y <= m_vMax.y && m_vMin.z <= m_vMax.z);
 }
 
-template<typename Type>
+template <typename Type>
 bool ezBoundingBoxTemplate<Type>::IsNaN() const
 {
   return m_vMin.IsNaN() || m_vMax.IsNaN();
 }
 
-template<typename Type>
+template <typename Type>
 EZ_FORCE_INLINE void ezBoundingBoxTemplate<Type>::ExpandToInclude(const ezVec3Template<Type>& vPoint)
 {
   m_vMin = m_vMin.CompMin(vPoint);
   m_vMax = m_vMax.CompMax(vPoint);
 }
 
-template<typename Type>
+template <typename Type>
 EZ_FORCE_INLINE void ezBoundingBoxTemplate<Type>::ExpandToInclude(const ezBoundingBoxTemplate<Type>& rhs)
 {
   ExpandToInclude(rhs.m_vMin);
   ExpandToInclude(rhs.m_vMax);
 }
 
-template<typename Type>
+template <typename Type>
 void ezBoundingBoxTemplate<Type>::ExpandToInclude(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride)
 {
   EZ_ASSERT_DEBUG(pPoints != nullptr, "Array may not be nullptr.");
@@ -119,7 +119,7 @@ void ezBoundingBoxTemplate<Type>::ExpandToInclude(const ezVec3Template<Type>* pP
   }
 }
 
-template<typename Type>
+template <typename Type>
 void ezBoundingBoxTemplate<Type>::ExpandToCube()
 {
   ezVec3Template<Type> vHalfExtents = GetHalfExtents();
@@ -131,7 +131,7 @@ void ezBoundingBoxTemplate<Type>::ExpandToCube()
   m_vMax = vCenter + ezVec3Template<Type>(f);
 }
 
-template<typename Type>
+template <typename Type>
 EZ_FORCE_INLINE void ezBoundingBoxTemplate<Type>::Grow(const ezVec3Template<Type>& vDiff)
 {
   EZ_ASSERT_DEBUG(IsValid(), "Cannot grow a box that is invalid.");
@@ -142,24 +142,24 @@ EZ_FORCE_INLINE void ezBoundingBoxTemplate<Type>::Grow(const ezVec3Template<Type
   EZ_ASSERT_DEBUG(IsValid(), "The grown box has become invalid.");
 }
 
-template<typename Type>
+template <typename Type>
 EZ_FORCE_INLINE bool ezBoundingBoxTemplate<Type>::Contains(const ezVec3Template<Type>& vPoint) const
 {
   EZ_NAN_ASSERT(this);
   EZ_NAN_ASSERT(&vPoint);
 
-  return(ezMath::IsInRange(vPoint.x, m_vMin.x, m_vMax.x) &&
-         ezMath::IsInRange(vPoint.y, m_vMin.y, m_vMax.y) &&
-         ezMath::IsInRange(vPoint.z, m_vMin.z, m_vMax.z));
+  return (ezMath::IsInRange(vPoint.x, m_vMin.x, m_vMax.x) &&
+          ezMath::IsInRange(vPoint.y, m_vMin.y, m_vMax.y) &&
+          ezMath::IsInRange(vPoint.z, m_vMin.z, m_vMax.z));
 }
 
-template<typename Type>
+template <typename Type>
 EZ_FORCE_INLINE bool ezBoundingBoxTemplate<Type>::Contains(const ezBoundingBoxTemplate<Type>& rhs) const
 {
   return Contains(rhs.m_vMin) && Contains(rhs.m_vMax);
 }
 
-template<typename Type>
+template <typename Type>
 bool ezBoundingBoxTemplate<Type>::Contains(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template<Type>) */) const
 {
   EZ_ASSERT_DEBUG(pPoints != nullptr, "Array must not be NuLL.");
@@ -178,7 +178,7 @@ bool ezBoundingBoxTemplate<Type>::Contains(const ezVec3Template<Type>* pPoints, 
   return true;
 }
 
-template<typename Type>
+template <typename Type>
 bool ezBoundingBoxTemplate<Type>::Overlaps(const ezBoundingBoxTemplate<Type>& rhs) const
 {
   EZ_NAN_ASSERT(this);
@@ -201,7 +201,7 @@ bool ezBoundingBoxTemplate<Type>::Overlaps(const ezBoundingBoxTemplate<Type>& rh
   return true;
 }
 
-template<typename Type>
+template <typename Type>
 bool ezBoundingBoxTemplate<Type>::Overlaps(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template<Type>) */) const
 {
   EZ_ASSERT_DEBUG(pPoints != nullptr, "Array must not be NuLL.");
@@ -220,38 +220,38 @@ bool ezBoundingBoxTemplate<Type>::Overlaps(const ezVec3Template<Type>* pPoints, 
   return false;
 }
 
-template<typename Type>
+template <typename Type>
 EZ_ALWAYS_INLINE bool ezBoundingBoxTemplate<Type>::IsIdentical(const ezBoundingBoxTemplate<Type>& rhs) const
 {
   return (m_vMin == rhs.m_vMin && m_vMax == rhs.m_vMax);
 }
 
-template<typename Type>
+template <typename Type>
 bool ezBoundingBoxTemplate<Type>::IsEqual(const ezBoundingBoxTemplate<Type>& rhs, Type fEpsilon) const
 {
   return (m_vMin.IsEqual(rhs.m_vMin, fEpsilon) && m_vMax.IsEqual(rhs.m_vMax, fEpsilon));
 }
 
-template<typename Type>
-EZ_ALWAYS_INLINE bool operator== (const ezBoundingBoxTemplate<Type>& lhs, const ezBoundingBoxTemplate<Type>& rhs)
+template <typename Type>
+EZ_ALWAYS_INLINE bool operator==(const ezBoundingBoxTemplate<Type>& lhs, const ezBoundingBoxTemplate<Type>& rhs)
 {
   return lhs.IsIdentical(rhs);
 }
 
-template<typename Type>
-EZ_ALWAYS_INLINE bool operator!= (const ezBoundingBoxTemplate<Type>& lhs, const ezBoundingBoxTemplate<Type>& rhs)
+template <typename Type>
+EZ_ALWAYS_INLINE bool operator!=(const ezBoundingBoxTemplate<Type>& lhs, const ezBoundingBoxTemplate<Type>& rhs)
 {
   return !lhs.IsIdentical(rhs);
 }
 
-template<typename Type>
+template <typename Type>
 EZ_FORCE_INLINE void ezBoundingBoxTemplate<Type>::Translate(const ezVec3Template<Type>& vDiff)
 {
   m_vMin += vDiff;
   m_vMax += vDiff;
 }
 
-template<typename Type>
+template <typename Type>
 void ezBoundingBoxTemplate<Type>::ScaleFromCenter(const ezVec3Template<Type>& vScale)
 {
   const ezVec3Template<Type> vCenter = GetCenter();
@@ -259,27 +259,27 @@ void ezBoundingBoxTemplate<Type>::ScaleFromCenter(const ezVec3Template<Type>& vS
   m_vMax = vCenter + (m_vMax - vCenter).CompMul(vScale);
 }
 
-template<typename Type>
+template <typename Type>
 EZ_FORCE_INLINE void ezBoundingBoxTemplate<Type>::ScaleFromOrigin(const ezVec3Template<Type>& vScale)
 {
   m_vMin = m_vMin.CompMul(vScale);
   m_vMax = m_vMax.CompMul(vScale);
 }
 
-template<typename Type>
-void ezBoundingBoxTemplate<Type>::TransformFromCenter (const ezMat4Template<Type>& mTransform)
+template <typename Type>
+void ezBoundingBoxTemplate<Type>::TransformFromCenter(const ezMat4Template<Type>& mTransform)
 {
   ezVec3Template<Type> vCorners[8];
-  GetCorners (vCorners);
+  GetCorners(vCorners);
 
-  const ezVec3Template<Type> vCenter = GetCenter ();
-  SetInvalid ();
+  const ezVec3Template<Type> vCenter = GetCenter();
+  SetInvalid();
 
   for (ezUInt32 i = 0; i < 8; ++i)
-    ExpandToInclude (vCenter + mTransform.TransformPosition (vCorners[i] - vCenter));
+    ExpandToInclude(vCenter + mTransform.TransformPosition(vCorners[i] - vCenter));
 }
 
-template<typename Type>
+template <typename Type>
 void ezBoundingBoxTemplate<Type>::TransformFromOrigin(const ezMat4Template<Type>& mTransform)
 {
   ezVec3Template<Type> vCorners[8];
@@ -291,13 +291,13 @@ void ezBoundingBoxTemplate<Type>::TransformFromOrigin(const ezMat4Template<Type>
   ExpandToInclude(vCorners, 8);
 }
 
-template<typename Type>
+template <typename Type>
 EZ_FORCE_INLINE const ezVec3Template<Type> ezBoundingBoxTemplate<Type>::GetClampedPoint(const ezVec3Template<Type>& vPoint) const
 {
   return vPoint.CompMin(m_vMax).CompMax(m_vMin);
 }
 
-template<typename Type>
+template <typename Type>
 Type ezBoundingBoxTemplate<Type>::GetDistanceTo(const ezVec3Template<Type>& vPoint) const
 {
   const ezVec3Template<Type> vClamped = GetClampedPoint(vPoint);
@@ -305,7 +305,7 @@ Type ezBoundingBoxTemplate<Type>::GetDistanceTo(const ezVec3Template<Type>& vPoi
   return (vPoint - vClamped).GetLength();
 }
 
-template<typename Type>
+template <typename Type>
 Type ezBoundingBoxTemplate<Type>::GetDistanceSquaredTo(const ezVec3Template<Type>& vPoint) const
 {
   const ezVec3Template<Type> vClamped = GetClampedPoint(vPoint);
@@ -313,7 +313,7 @@ Type ezBoundingBoxTemplate<Type>::GetDistanceSquaredTo(const ezVec3Template<Type
   return (vPoint - vClamped).GetLengthSquared();
 }
 
-template<typename Type>
+template <typename Type>
 Type ezBoundingBoxTemplate<Type>::GetDistanceSquaredTo(const ezBoundingBoxTemplate<Type>& rhs) const
 {
   // This will return zero for overlapping boxes
@@ -328,8 +328,7 @@ Type ezBoundingBoxTemplate<Type>::GetDistanceSquaredTo(const ezBoundingBoxTempla
     {
       fDistSQR += ezMath::Square(rhs.m_vMin.x - m_vMax.x);
     }
-    else
-    if (rhs.m_vMax.x < m_vMin.x)
+    else if (rhs.m_vMax.x < m_vMin.x)
     {
       fDistSQR += ezMath::Square(m_vMin.x - rhs.m_vMax.x);
     }
@@ -340,8 +339,7 @@ Type ezBoundingBoxTemplate<Type>::GetDistanceSquaredTo(const ezBoundingBoxTempla
     {
       fDistSQR += ezMath::Square(rhs.m_vMin.y - m_vMax.y);
     }
-    else
-    if (rhs.m_vMax.y < m_vMin.y)
+    else if (rhs.m_vMax.y < m_vMin.y)
     {
       fDistSQR += ezMath::Square(m_vMin.y - rhs.m_vMax.y);
     }
@@ -352,8 +350,7 @@ Type ezBoundingBoxTemplate<Type>::GetDistanceSquaredTo(const ezBoundingBoxTempla
     {
       fDistSQR += ezMath::Square(rhs.m_vMin.z - m_vMax.z);
     }
-    else
-    if (rhs.m_vMax.z < m_vMin.z)
+    else if (rhs.m_vMax.z < m_vMin.z)
     {
       fDistSQR += ezMath::Square(m_vMin.z - rhs.m_vMax.z);
     }
@@ -362,13 +359,13 @@ Type ezBoundingBoxTemplate<Type>::GetDistanceSquaredTo(const ezBoundingBoxTempla
   return fDistSQR;
 }
 
-template<typename Type>
+template <typename Type>
 Type ezBoundingBoxTemplate<Type>::GetDistanceTo(const ezBoundingBoxTemplate<Type>& rhs) const
 {
   return ezMath::Sqrt(GetDistanceSquaredTo(rhs));
 }
 
-template<typename Type>
+template <typename Type>
 bool ezBoundingBoxTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>& vStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection, ezVec3Template<Type>* out_vIntersection) const
 {
   // This code was taken from: http://people.csail.mit.edu/amy/papers/box-jgt.pdf
@@ -416,8 +413,10 @@ bool ezBoundingBoxTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>&
     if (tMin > tMaxY || tMinY > tMax)
       return false;
 
-    if (tMinY > tMin) tMin = tMinY;
-    if (tMaxY < tMax) tMax = tMaxY;
+    if (tMinY > tMin)
+      tMin = tMinY;
+    if (tMaxY < tMax)
+      tMax = tMaxY;
   }
 
   // Compare along Z axis and previous result, find intersection point
@@ -440,8 +439,10 @@ bool ezBoundingBoxTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>&
     if (tMin > tMaxZ || tMinZ > tMax)
       return false;
 
-    if (tMinZ > tMin) tMin = tMinZ;
-    if (tMaxZ < tMax) tMax = tMaxZ;
+    if (tMinZ > tMin)
+      tMin = tMinZ;
+    if (tMaxZ < tMax)
+      tMax = tMaxZ;
   }
 
   // rays that start inside the box are considered as not hitting the box
@@ -457,7 +458,7 @@ bool ezBoundingBoxTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>&
   return true;
 }
 
-template<typename Type>
+template <typename Type>
 bool ezBoundingBoxTemplate<Type>::GetLineSegmentIntersection(const ezVec3Template<Type>& vStartPos, const ezVec3Template<Type>& vEndPos, Type* out_fLineFraction, ezVec3Template<Type>* out_vIntersection) const
 {
   const ezVec3Template<Type> vRayDir = vEndPos - vStartPos;
@@ -475,4 +476,3 @@ bool ezBoundingBoxTemplate<Type>::GetLineSegmentIntersection(const ezVec3Templat
 
 
 #include <Foundation/Math/Implementation/AllClasses_inl.h>
-

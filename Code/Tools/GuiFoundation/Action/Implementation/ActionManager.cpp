@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
@@ -14,23 +15,25 @@
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ActionManager)
 
-BEGIN_SUBSYSTEM_DEPENDENCIES
-"ToolsFoundation"
-END_SUBSYSTEM_DEPENDENCIES
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+  "ToolsFoundation"
+  END_SUBSYSTEM_DEPENDENCIES
 
-ON_CORE_STARTUP
-{
-  ezActionManager::Startup();
-}
+  ON_CORE_STARTUP
+  {
+    ezActionManager::Startup();
+  }
 
-ON_CORE_SHUTDOWN
-{
-  ezActionManager::Shutdown();
-}
+  ON_CORE_SHUTDOWN
+  {
+    ezActionManager::Shutdown();
+  }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezEvent<const ezActionManager::Event&> ezActionManager::s_Events;
 ezIdTable<ezActionId, ezActionDescriptor*> ezActionManager::s_ActionTable;

@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Memory/AllocatorWrapper.h>
 
 static thread_local ezAllocatorBase* s_pAllocator = nullptr;
@@ -19,5 +20,3 @@ ezAllocatorBase* ezLocalAllocatorWrapper::GetAllocator()
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Memory_Implementation_AllocatorWrapper);
-
-

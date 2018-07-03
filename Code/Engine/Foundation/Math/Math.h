@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Math/Declarations.h>
 #include <Foundation/Math/Angle.h>
+#include <Foundation/Math/Declarations.h>
 
 
 /// \brief This namespace provides common math-functionality as functions.
@@ -12,14 +12,14 @@
 namespace ezMath
 {
   /// \brief Returns whether the given value is NaN under this type.
-  template<typename Type>
+  template <typename Type>
   constexpr static bool IsNaN(Type value) { return false; }
 
   /// \brief Returns whether the given value represents a finite value (i.e. not +/- Infinity and not NaN)
-  template<typename Type>
+  template <typename Type>
   constexpr static bool IsFinite(Type value) { return true; }
 
-  template<typename Type>
+  template <typename Type>
   struct BasicType
   {
     /// \brief Returns whether the templated type supports NaN, at all. Usually only true for \c float and \c double.
@@ -38,18 +38,18 @@ namespace ezMath
     static Type GetInfinity() { return Type(0); }
 
     /// \brief Returns the natural constant e.
-    constexpr static Type e() { return (Type) 2.71828182845904; }
+    constexpr static Type e() { return (Type)2.71828182845904; }
 
     /// \brief Returns the natural constant pi.
-    constexpr static Type Pi() { return (Type) 3.1415926535897932384626433832795; }
+    constexpr static Type Pi() { return (Type)3.1415926535897932384626433832795; }
 
     /// \brief Returns the largest possible positive value (that is not infinity).
     static Type MaxValue();
 
-    static Type SmallEpsilon()    { return (Type) 0.000001; }
-    static Type DefaultEpsilon()  { return (Type) 0.00001; }
-    static Type LargeEpsilon()    { return (Type) 0.0001; }
-    static Type HugeEpsilon()     { return (Type) 0.001; }
+    static Type SmallEpsilon() { return (Type)0.000001; }
+    static Type DefaultEpsilon() { return (Type)0.00001; }
+    static Type LargeEpsilon() { return (Type)0.0001; }
+    static Type HugeEpsilon() { return (Type)0.001; }
   };
 
   /// ***** Trigonometric Functions *****
@@ -100,7 +100,7 @@ namespace ezMath
   float Pow(float base, float exp); // [tested]
 
   /// \brief Returns 2^f
-  constexpr ezInt32 Pow2(ezInt32 i);// [tested]
+  constexpr ezInt32 Pow2(ezInt32 i); // [tested]
 
   /// \brief Returns base^exp
   ezInt32 Pow(ezInt32 base, ezInt32 exp); // [tested]
@@ -128,7 +128,7 @@ namespace ezMath
   constexpr T Min(T f1, T f2); // [tested]
 
   /// \brief Returns the smaller value, f1 or f2 or ...
-  template <typename T, typename ...ARGS>
+  template <typename T, typename... ARGS>
   constexpr T Min(T f1, T f2, ARGS... f); // [tested]
 
   /// \brief Returns the greater value, f1 or f2
@@ -136,8 +136,8 @@ namespace ezMath
   constexpr T Max(T f1, T f2); // [tested]
 
   /// \brief Returns the smaller value, f1 or f2 or ...
-  template <typename T, typename ...ARGS>
-  constexpr T Min(T f1, T f2, ARGS... f);// [tested]
+  template <typename T, typename... ARGS>
+  constexpr T Min(T f1, T f2, ARGS... f); // [tested]
 
   /// \brief Clamps "value" to the range [min; max]. Returns "value", if it is inside the range already
   template <typename T>
@@ -162,26 +162,26 @@ namespace ezMath
   ezInt32 Ceil(ezInt32 i, ezUInt32 uiMultiple); // [tested]
 
   /// \brief Returns the integer-part of f (removes the fraction).
-  template<typename Type>
+  template <typename Type>
   Type Trunc(Type f); // [tested]
 
   /// \brief Rounds f to the next integer. If f is positive 0.5 is rounded UP (i.e. to 1), if f is negative, -0.5 is rounded DOWN (i.e. to -1).
-  template<typename Type>
+  template <typename Type>
   Type Round(Type f); // [tested]
 
   /// \brief Rounds f to the closest multiple of fRoundTo.
-  template<typename Type>
+  template <typename Type>
   Type Round(Type f, Type fRoundTo); // [tested]
 
   /// \brief Returns the fraction-part of f.
-  template<typename Type>
+  template <typename Type>
   Type Fraction(Type f); // [tested]
 
   /// \brief Returns "value mod div" for floats. This also works with negative numbers, both for value and for div.
   float Mod(float value, float div); // [tested]
 
   /// \brief Returns 1 / f
-  template<typename Type>
+  template <typename Type>
   constexpr Type Invert(Type f); // [tested]
 
   /// \brief Returns true, if i is an odd number
@@ -213,7 +213,7 @@ namespace ezMath
   constexpr T Step(T value, T edge); // [tested]
 
   /// \brief Returns 0, if value is <= edge1, 1 if value >= edge2 and the hermite interpolation in between
-  template<typename Type>
+  template <typename Type>
   Type SmoothStep(Type value, Type edge1, Type edge2); // [tested]
 
   /// \brief Returns true, if there exists some x with base^x == value
@@ -229,7 +229,7 @@ namespace ezMath
   EZ_FOUNDATION_DLL ezInt32 PowerOfTwo_Ceil(ezUInt32 value); // [tested]
 
   /// \brief Checks, whether fValue is in the range [fDesired - fMaxImprecision; fDesired + fMaxImprecision].
-  template<typename Type>
+  template <typename Type>
   constexpr bool IsEqual(Type lhs, Type rhs, Type fEpsilon);
 
   /// \brief Checks whether the value of the first parameter lies between the value of the second and third.
@@ -237,7 +237,7 @@ namespace ezMath
   constexpr bool IsInRange(T Value, T MinVal, T MaxVal); // [tested]
 
   /// \brief Checks whether the given number is close to zero.
-  template<typename Type>
+  template <typename Type>
   bool IsZero(Type f, Type fEpsilon); // [tested]
 
   /// \brief Converts a color value from float [0;1] range to unsigned byte [0;255] range, with proper rounding
@@ -248,14 +248,12 @@ namespace ezMath
 
   /// \brief Evaluates the cubic spline defined by four control points at time \a t and returns the interpolated result.
   /// Can be used with T as float, vec2, vec3 or vec4
-  template<typename T, typename T2>
+  template <typename T, typename T2>
   T EvaluateBezierCurve(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint);
 };
 
-#include <Foundation/Math/Implementation/Math_inl.h>
-#include <Foundation/Math/Implementation/MathFloat_inl.h>
 #include <Foundation/Math/Implementation/MathDouble_inl.h>
-#include <Foundation/Math/Implementation/MathInt32_inl.h>
 #include <Foundation/Math/Implementation/MathFixedPoint_inl.h>
-
-
+#include <Foundation/Math/Implementation/MathFloat_inl.h>
+#include <Foundation/Math/Implementation/MathInt32_inl.h>
+#include <Foundation/Math/Implementation/Math_inl.h>

@@ -26,7 +26,8 @@ public:
   static double GetComponent(const ezVariant& vector, ezUInt32 iComponent);
 
   static ezVariant GetMemberPropertyValue(const ezAbstractMemberProperty* pProp, const void* pObject); // [tested] via ToolsFoundation
-  static void SetMemberPropertyValue(ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value); // [tested] via ToolsFoundation
+  static void SetMemberPropertyValue(ezAbstractMemberProperty* pProp, void* pObject,
+                                     const ezVariant& value); // [tested] via ToolsFoundation
 
   static ezVariant GetArrayPropertyValue(const ezAbstractArrayProperty* pProp, const void* pObject, ezUInt32 uiIndex);
   static void SetArrayPropertyValue(ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex, const ezVariant& value);
@@ -83,7 +84,7 @@ public:
   static ezInt64 MakeEnumerationValid(const ezRTTI* pEnumerationRtti, ezInt64 iValue); // [tested]
 
   /// \brief Templated convenience function that calls IsEqual and automatically deduces the type.
-  template<typename T>
+  template <typename T>
   static bool IsEqual(const T* pObject, const T* pObject2)
   {
     return IsEqual(pObject, pObject2, ezGetStaticRTTI<T>());
@@ -103,4 +104,3 @@ public:
   /// \brief Deletes pObject using the allocator found in the owning property's type.
   static void DeleteObject(void* pObject, ezAbstractProperty* pOwnerProperty);
 };
-

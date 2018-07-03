@@ -1,16 +1,16 @@
-﻿#pragma once
+#pragma once
 
 #include <algorithm>
 
 namespace ezMath
 {
-  template<>
+  template <>
   constexpr inline bool BasicType<float>::SupportsInfinity()
   {
     return true;
   }
 
-  template<>
+  template <>
   constexpr inline bool BasicType<float>::SupportsNaN()
   {
     return true;
@@ -39,7 +39,7 @@ namespace ezMath
     return (((i2f.i & 0x7f800000) == 0x7f800000) && ((i2f.i & 0x7FFFFF) != 0));
   }
 
-  template<>
+  template <>
   EZ_ALWAYS_INLINE float BasicType<float>::GetNaN()
   {
     // NAN -> (exponent = all 1, mantissa = non-zero)
@@ -53,7 +53,7 @@ namespace ezMath
     return i2f.f;
   };
 
-  template<>
+  template <>
   EZ_ALWAYS_INLINE float BasicType<float>::GetInfinity()
   {
     // NAN -> (exponent = all 1, mantissa = non-zero)
@@ -67,7 +67,7 @@ namespace ezMath
     return i2f.f;
   }
 
-  template<>
+  template <>
   EZ_ALWAYS_INLINE float BasicType<float>::MaxValue()
   {
     return 3.402823465e+38F;
@@ -181,9 +181,4 @@ namespace ezMath
   {
     return fmodf(f, div);
   }
-
-
-
-
 }
-

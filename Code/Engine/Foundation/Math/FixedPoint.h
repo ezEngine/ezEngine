@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Math/Declarations.h>
 
@@ -18,12 +18,12 @@
 /// ezFixedPoint <-> float conversions. You can set ezFixedPoint variables from float constants, but you should
 /// never put data into ezFixedPoint variables that was computed using floating point arithmetic (even if the
 /// computations are simple and look harmless). Instead do all those computations with ezFixedPoint variables.
-template<ezUInt8 DecimalBits>
+template <ezUInt8 DecimalBits>
 class ezFixedPoint
 {
 public:
   /// \brief Default constructor does not do any initialization.
-  EZ_ALWAYS_INLINE ezFixedPoint() { } // [tested]
+  EZ_ALWAYS_INLINE ezFixedPoint() {} // [tested]
 
   /// \brief Construct from an integer.
   /* implicit */ ezFixedPoint(ezInt32 IntVal) { *this = IntVal; } // [tested]
@@ -59,10 +59,10 @@ public:
   bool operator!=(const ezFixedPoint<DecimalBits>& rhs) const { return m_Value != rhs.m_Value; } // [tested]
 
   /// \brief 'Less than' comparison.
-  bool operator< (const ezFixedPoint<DecimalBits>& rhs) const { return m_Value <  rhs.m_Value; } // [tested]
+  bool operator<(const ezFixedPoint<DecimalBits>& rhs) const { return m_Value < rhs.m_Value; } // [tested]
 
   /// \brief 'Greater than' comparison.
-  bool operator> (const ezFixedPoint<DecimalBits>& rhs) const { return m_Value >  rhs.m_Value; } // [tested]
+  bool operator>(const ezFixedPoint<DecimalBits>& rhs) const { return m_Value > rhs.m_Value; } // [tested]
 
   /// \brief 'Less than or equal' comparison.
   bool operator<=(const ezFixedPoint<DecimalBits>& rhs) const { return m_Value <= rhs.m_Value; } // [tested]
@@ -74,45 +74,43 @@ public:
   const ezFixedPoint<DecimalBits> operator-() const { return ezFixedPoint<DecimalBits>(-m_Value, true); }
 
   /// \brief += operator
-  void operator+= (const ezFixedPoint<DecimalBits>& rhs) { m_Value += rhs.m_Value; } // [tested]
+  void operator+=(const ezFixedPoint<DecimalBits>& rhs) { m_Value += rhs.m_Value; } // [tested]
 
   /// \brief -= operator
-  void operator-= (const ezFixedPoint<DecimalBits>& rhs) { m_Value -= rhs.m_Value; } // [tested]
+  void operator-=(const ezFixedPoint<DecimalBits>& rhs) { m_Value -= rhs.m_Value; } // [tested]
 
   /// \brief *= operator
-  void operator*= (const ezFixedPoint<DecimalBits>& rhs); // [tested]
+  void operator*=(const ezFixedPoint<DecimalBits>& rhs); // [tested]
 
   /// \brief /= operator
-  void operator/= (const ezFixedPoint<DecimalBits>& rhs); // [tested]
+  void operator/=(const ezFixedPoint<DecimalBits>& rhs); // [tested]
 
   /// \brief *= operator with integers (more efficient)
-  void operator*= (ezInt32 rhs) { m_Value *= rhs; } // [tested]
+  void operator*=(ezInt32 rhs) { m_Value *= rhs; } // [tested]
 
   /// \brief /= operator with integers (more efficient)
-  void operator/= (ezInt32 rhs) { m_Value /= rhs; } // [tested]
+  void operator/=(ezInt32 rhs) { m_Value /= rhs; } // [tested]
 
   /// \brief Returns the underlying integer value. Mostly useful for serialization (or tests).
   ezInt32 GetRawValue() const { return m_Value; }
 
   /// \brief Sets the underlying integer value. Mostly useful for serialization (or tests).
-  void SetRawValue(ezInt32  val) { m_Value = val; }
+  void SetRawValue(ezInt32 val) { m_Value = val; }
 
 private:
-
   ezInt32 m_Value;
 };
 
-template<ezUInt8 DecimalBits>
+template <ezUInt8 DecimalBits>
 float ToFloat(ezFixedPoint<DecimalBits> f) { return f.ToFloat(); }
 
-// Additional operators:
-// ezFixedPoint operator+ (ezFixedPoint, ezFixedPoint); // [tested]
-// ezFixedPoint operator- (ezFixedPoint, ezFixedPoint); // [tested]
-// ezFixedPoint operator* (ezFixedPoint, ezFixedPoint); // [tested]
-// ezFixedPoint operator/ (ezFixedPoint, ezFixedPoint); // [tested]
-// ezFixedPoint operator* (int, ezFixedPoint); // [tested]
-// ezFixedPoint operator* (ezFixedPoint, int); // [tested]
-// ezFixedPoint operator/ (ezFixedPoint, int); // [tested]
+  // Additional operators:
+  // ezFixedPoint operator+ (ezFixedPoint, ezFixedPoint); // [tested]
+  // ezFixedPoint operator- (ezFixedPoint, ezFixedPoint); // [tested]
+  // ezFixedPoint operator* (ezFixedPoint, ezFixedPoint); // [tested]
+  // ezFixedPoint operator/ (ezFixedPoint, ezFixedPoint); // [tested]
+  // ezFixedPoint operator* (int, ezFixedPoint); // [tested]
+  // ezFixedPoint operator* (ezFixedPoint, int); // [tested]
+  // ezFixedPoint operator/ (ezFixedPoint, int); // [tested]
 
 #include <Foundation/Math/Implementation/FixedPoint_inl.h>
-

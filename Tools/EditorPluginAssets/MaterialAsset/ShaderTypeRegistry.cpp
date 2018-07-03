@@ -1,12 +1,14 @@
-﻿#include <PCH.h>
-#include <EditorPluginAssets/MaterialAsset/ShaderTypeRegistry.h>
+#include <PCH.h>
+
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorPluginAssets/MaterialAsset/ShaderTypeRegistry.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
 #include <RendererCore/ShaderCompiler/ShaderParser.h>
 
 EZ_IMPLEMENT_SINGLETON(ezShaderTypeRegistry);
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ShaderTypeRegistry)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -32,8 +34,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ShaderTypeRegistry)
   {
   }
 
-EZ_END_SUBSYSTEM_DECLARATION
-
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 namespace
 {
@@ -241,7 +243,7 @@ namespace
 }
 
 ezShaderTypeRegistry::ezShaderTypeRegistry()
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
   ezShaderTypeRegistry::GetSingleton();
   ezReflectedTypeDescriptor desc;
@@ -333,7 +335,8 @@ void ezShaderTypeRegistry::UpdateShaderType(ShaderData& data)
   ezReflectedTypeDescriptor desc;
   desc.m_sTypeName = data.m_sShaderPath;
   desc.m_sPluginName = "ShaderTypes";
-  desc.m_sParentTypeName = m_pBaseType->GetTypeName();;
+  desc.m_sParentTypeName = m_pBaseType->GetTypeName();
+  ;
   desc.m_Flags = ezTypeFlags::Phantom | ezTypeFlags::Class;
   desc.m_uiTypeSize = 0;
   desc.m_uiTypeVersion = 2;
@@ -382,7 +385,7 @@ void ezShaderTypeRegistry::PhantomTypeRegistryEventHandler(const ezPhantomRttiMa
   }
 }
 
-//////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 
@@ -392,7 +395,9 @@ class ezShaderTypePatch_1_2 : public ezGraphPatch
 {
 public:
   ezShaderTypePatch_1_2()
-    : ezGraphPatch(nullptr, 2, ezGraphPatch::PatchType::GraphPatch) {}
+      : ezGraphPatch(nullptr, 2, ezGraphPatch::PatchType::GraphPatch)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode*) const override
   {
@@ -446,7 +451,9 @@ class ezShaderBaseTypePatch_1_2 : public ezGraphPatch
 {
 public:
   ezShaderBaseTypePatch_1_2()
-    : ezGraphPatch("ezShaderTypeBase", 2) {}
+      : ezGraphPatch("ezShaderTypeBase", 2)
+  {
+  }
 
   static void FixEnumString(ezStringBuilder& sValue, const char* szName)
   {
@@ -484,4 +491,3 @@ public:
 };
 
 ezShaderBaseTypePatch_1_2 g_ezShaderBaseTypePatch_1_2;
-

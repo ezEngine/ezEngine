@@ -1,15 +1,16 @@
 #include <PCH.h>
+
 #include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Math/Mat4.h>
 
 // ****** ezColor ******
 
-void ezColor::operator= (const ezColorLinearUB& cc)
+void ezColor::operator=(const ezColorLinearUB& cc)
 {
   *this = cc.ToLinearFloat();
 }
 
-void ezColor::operator= (const ezColorGammaUB& cc)
+void ezColor::operator=(const ezColorGammaUB& cc)
 {
   *this = cc.ToLinearFloat();
 }
@@ -47,7 +48,7 @@ void ezColor::GetHSV(float& out_hue, float& out_sat, float& out_value) const
   float rgb_min = ezMath::Min(norm_r, norm_g, norm_b);
   float rgb_max = ezMath::Max(norm_r, norm_g, norm_b);
 
-  out_sat = rgb_max - rgb_min;  // Saturation
+  out_sat = rgb_max - rgb_min; // Saturation
 
   if (out_sat == 0)
   {
@@ -183,7 +184,7 @@ ezColor ezColor::WithAlpha(float alpha) const
   return ezColor(r, g, b, alpha);
 }
 
-void ezColor::operator/= (float f)
+void ezColor::operator/=(float f)
 {
   float f_inv = 1.0f / f;
   r *= f_inv;
@@ -194,7 +195,7 @@ void ezColor::operator/= (float f)
   EZ_NAN_ASSERT(this);
 }
 
-void ezColor::operator*= (const ezMat4& rhs)
+void ezColor::operator*=(const ezMat4& rhs)
 {
   ezVec3 v(r, g, b);
   v = rhs.TransformPosition(v);
@@ -421,7 +422,4 @@ const ezColor ezColor::YellowGreen(ezColorGammaUB(0x9A, 0xCD, 0x32));
 
 
 
-
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Color);
-

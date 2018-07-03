@@ -1,8 +1,8 @@
-﻿#pragma once
+#pragma once
 
-#include <Foundation/Math/Declarations.h>
-#include <Foundation/IO/Stream.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/IO/Stream.h>
+#include <Foundation/Math/Declarations.h>
 
 /// \brief A random number generator. Currently uses the WELL512 algorithm.
 class EZ_FOUNDATION_DLL ezRandom
@@ -66,7 +66,6 @@ private:
 class EZ_FOUNDATION_DLL ezRandomGauss
 {
 public:
-
   /// \brief Initializes the RNG and sets the maximum value that the functions UnsignedValue() and SignedValue() may return
   ///
   /// The Variance configures the distribution of the samples. 1.0 gives a standard bell-curve. Values below 1 lead to a distribution
@@ -97,5 +96,3 @@ private:
 };
 
 #include <Foundation/Math/Implementation/AllClassesRandom_inl.h>
-
-

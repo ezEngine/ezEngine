@@ -1,12 +1,13 @@
 #include <PCH.h>
-#include <Foundation/Serialization/GraphVersioning.h>
-#include <Foundation/Serialization/GraphPatch.h>
-#include <Foundation/Serialization/AbstractObjectGraph.h>
-#include <Foundation/Profiling/Profiling.h>
-#include <Foundation/Serialization/RttiConverter.h>
+
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
+#include <Foundation/Serialization/GraphVersioning.h>
+#include <Foundation/Serialization/RttiConverter.h>
 
-
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTypeVersionInfo, ezNoBase, 1, ezRTTIDefaultAllocator<ezTypeVersionInfo>)
 {
   EZ_BEGIN_PROPERTIES
@@ -17,7 +18,8 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTypeVersionInfo, ezNoBase, 1, ezRTTIDefaultAllo
   }
   EZ_END_PROPERTIES
 }
-EZ_END_STATIC_REFLECTED_TYPE
+EZ_END_STATIC_REFLECTED_TYPE;
+// clang-format on
 
 const char* ezTypeVersionInfo::GetTypeName() const
 {
@@ -39,10 +41,10 @@ void ezTypeVersionInfo::SetParentTypeName(const char* szName)
   m_sParentTypeName.Assign(szName);
 }
 
-
 void ezGraphPatchContext::PatchBaseClass(const char* szType, ezUInt32 uiTypeVersion, bool bForcePatch)
 {
-  ezHashedString sType; sType.Assign(szType);
+  ezHashedString sType;
+  sType.Assign(szType);
   for (ezUInt32 uiBaseClassIndex = m_uiBaseClassIndex; uiBaseClassIndex < m_BaseClasses.GetCount(); ++uiBaseClassIndex)
   {
     if (m_BaseClasses[uiBaseClassIndex].m_sType == sType)
@@ -175,34 +177,35 @@ void ezGraphPatchContext::UpdateBaseClasses()
     key.m_uiTypeVersion = 0;
     m_BaseClasses.PushBack(key);
   }
-
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 EZ_IMPLEMENT_SINGLETON(ezGraphVersioning);
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, GraphVersioning)
 
-BEGIN_SUBSYSTEM_DEPENDENCIES
-"Reflection"
-END_SUBSYSTEM_DEPENDENCIES
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+  "Reflection"
+  END_SUBSYSTEM_DEPENDENCIES
 
-ON_CORE_STARTUP
-{
-  EZ_DEFAULT_NEW(ezGraphVersioning);
-}
+  ON_CORE_STARTUP
+  {
+    EZ_DEFAULT_NEW(ezGraphVersioning);
+  }
 
-ON_CORE_SHUTDOWN
-{
-  ezGraphVersioning* pDummy = ezGraphVersioning::GetSingleton();
-  EZ_DEFAULT_DELETE(pDummy);
-}
+  ON_CORE_SHUTDOWN
+  {
+    ezGraphVersioning* pDummy = ezGraphVersioning::GetSingleton();
+    EZ_DEFAULT_DELETE(pDummy);
+  }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezGraphVersioning::ezGraphVersioning()
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
   ezPlugin::s_PluginEvents.AddEventHandler(ezMakeDelegate(&ezGraphVersioning::PluginEventHandler, this));
 
@@ -250,7 +253,7 @@ void ezGraphVersioning::UpdatePatches()
   {
     switch (pInstance->GetPatchType())
     {
-    case ezGraphPatch::PatchType::NodePatch:
+      case ezGraphPatch::PatchType::NodePatch:
       {
         key.m_sType = pInstance->GetType();
         key.m_uiTypeVersion = pInstance->GetTypeVersion();
@@ -266,7 +269,7 @@ void ezGraphVersioning::UpdatePatches()
         }
       }
       break;
-    case ezGraphPatch::PatchType::GraphPatch:
+      case ezGraphPatch::PatchType::GraphPatch:
       {
         m_GraphPatches.PushBack(pInstance);
       }
@@ -275,10 +278,7 @@ void ezGraphVersioning::UpdatePatches()
     pInstance = pInstance->GetNextInstance();
   }
 
-  m_GraphPatches.Sort([](const ezGraphPatch* a, const ezGraphPatch* b) -> bool
-  {
-    return a->GetTypeVersion() < b->GetTypeVersion();
-  });
+  m_GraphPatches.Sort([](const ezGraphPatch* a, const ezGraphPatch* b) -> bool { return a->GetTypeVersion() < b->GetTypeVersion(); });
 }
 
 ezUInt32 ezGraphVersioning::GetMaxPatchVersion(const ezHashedString& sType) const
@@ -291,4 +291,3 @@ ezUInt32 ezGraphVersioning::GetMaxPatchVersion(const ezHashedString& sType) cons
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_GraphVersioning);
-

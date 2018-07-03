@@ -11,26 +11,17 @@ struct ezNullAllocatorWrapper
 
 struct ezDefaultAllocatorWrapper
 {
-  EZ_ALWAYS_INLINE static ezAllocatorBase* GetAllocator()
-  {
-    return ezFoundation::GetDefaultAllocator();
-  }
+  EZ_ALWAYS_INLINE static ezAllocatorBase* GetAllocator() { return ezFoundation::GetDefaultAllocator(); }
 };
 
 struct ezStaticAllocatorWrapper
 {
-  EZ_ALWAYS_INLINE static ezAllocatorBase* GetAllocator()
-  {
-    return ezFoundation::GetStaticAllocator();
-  }
+  EZ_ALWAYS_INLINE static ezAllocatorBase* GetAllocator() { return ezFoundation::GetStaticAllocator(); }
 };
 
 struct ezAlignedAllocatorWrapper
 {
-  EZ_ALWAYS_INLINE static ezAllocatorBase* GetAllocator()
-  {
-    return ezFoundation::GetAlignedAllocator();
-  }
+  EZ_ALWAYS_INLINE static ezAllocatorBase* GetAllocator() { return ezFoundation::GetAlignedAllocator(); }
 };
 
 struct EZ_FOUNDATION_DLL ezLocalAllocatorWrapper

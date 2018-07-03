@@ -60,7 +60,7 @@
 ///     ezExampleSubSystem::EngineShutdown();
 ///   }
 ///
-/// EZ_END_SUBSYSTEM_DECLARATION
+/// EZ_END_SUBSYSTEM_DECLARATION;
 ///
 /// This will automatically register the subsystem, once the code is being loaded (can be dynamically loaded from a DLL).
 /// The next time any of the ezStartup functions are called (StartupCore, StartupEngine) the subsystem will be initialized.

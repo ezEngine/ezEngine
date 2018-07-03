@@ -92,21 +92,19 @@ struct ezIsStandardType<T, ezVariant>
 
 /// \brief Used to automatically assign any value to an ezVariant using the assignment rules
 /// outlined in ezAbstractFunctionProperty::Execute.
-template<class T, ///< Only this parameter needs to be provided, the actual type of the value.
-  class C = typename ezCleanType<T>::Type, ///< Same as T but without the const&* fluff.
-  int STANDARD_TYPE = ezIsStandardType<T>::value> ///< Is 1 if T is a ezTypeFlags::StandardType
+template <class T,                                        ///< Only this parameter needs to be provided, the actual type of the value.
+          class C = typename ezCleanType<T>::Type,        ///< Same as T but without the const&* fluff.
+          int STANDARD_TYPE = ezIsStandardType<T>::value> ///< Is 1 if T is a ezTypeFlags::StandardType
 struct ezVariantAssignmentAdapter
 {
   typedef typename ezTypeTraits<T>::NonConstReferencePointerType RealType;
-  ezVariantAssignmentAdapter(ezVariant& value) : m_value(value)
+  ezVariantAssignmentAdapter(ezVariant& value)
+      : m_value(value)
   {
   }
 
-  void operator= (T* rhs)
-  {
-    m_value = rhs;
-  }
-  void operator= (T&& rhs)
+  void operator=(T* rhs) { m_value = rhs; }
+  void operator=(T&& rhs)
   {
     if (m_value.IsValid())
       *static_cast<RealType*>(m_value.ConvertTo<void*>()) = rhs;
@@ -114,50 +112,44 @@ struct ezVariantAssignmentAdapter
   ezVariant& m_value;
 };
 
-template<class T, class S>
+template <class T, class S>
 struct ezVariantAssignmentAdapter<T, ezEnum<S>, 0>
 {
   typedef typename ezTypeTraits<T>::NonConstReferencePointerType RealType;
-  ezVariantAssignmentAdapter(ezVariant& value) : m_value(value)
+  ezVariantAssignmentAdapter(ezVariant& value)
+      : m_value(value)
   {
   }
 
-  void operator= (ezEnum<S>&& rhs)
-  {
-    m_value = static_cast<ezInt64>(rhs.GetValue());
-  }
+  void operator=(ezEnum<S>&& rhs) { m_value = static_cast<ezInt64>(rhs.GetValue()); }
 
   ezVariant& m_value;
 };
 
-template<class T, class S>
+template <class T, class S>
 struct ezVariantAssignmentAdapter<T, ezBitflags<S>, 0>
 {
   typedef typename ezTypeTraits<T>::NonConstReferencePointerType RealType;
-  ezVariantAssignmentAdapter(ezVariant& value) : m_value(value)
+  ezVariantAssignmentAdapter(ezVariant& value)
+      : m_value(value)
   {
   }
 
-  void operator= (ezBitflags<S>&& rhs)
-  {
-    m_value = static_cast<ezInt64>(rhs.GetValue());
-  }
+  void operator=(ezBitflags<S>&& rhs) { m_value = static_cast<ezInt64>(rhs.GetValue()); }
 
   ezVariant& m_value;
 };
 
-template<class T, class C>
+template <class T, class C>
 struct ezVariantAssignmentAdapter<T, C, 1>
 {
   typedef typename ezTypeTraits<T>::NonConstReferencePointerType RealType;
-  ezVariantAssignmentAdapter(ezVariant& value) : m_value(value)
+  ezVariantAssignmentAdapter(ezVariant& value)
+      : m_value(value)
   {
   }
 
-  void operator= (T&& rhs)
-  {
-    m_value = rhs;
-  }
+  void operator=(T&& rhs) { m_value = rhs; }
 
   ezVariant& m_value;
 };
@@ -166,59 +158,50 @@ struct ezVariantAssignmentAdapter<T, C, 1>
 
 /// \brief Used to implicitly retrieve any value from an ezVariant to be used as a function argument
 /// using the assignment rules outlined in ezAbstractFunctionProperty::Execute.
-template<class T, ///< Only this parameter needs to be provided, the actual type of the argument. Rest is used to force specializations.
-  class C = typename ezCleanType<T>::Type, ///< Same as T but without the const&* fluff.
-  int STANDARD_TYPE = ezIsStandardType<T>::value, ///< Is 1 if T is a ezTypeFlags::StandardType
-  int OUT_PARAM = ezIsOutParam<T>::value> ///< Is 1 if T a non-const reference or pointer.
+template <class T, ///< Only this parameter needs to be provided, the actual type of the argument. Rest is used to force specializations.
+          class C = typename ezCleanType<T>::Type,        ///< Same as T but without the const&* fluff.
+          int STANDARD_TYPE = ezIsStandardType<T>::value, ///< Is 1 if T is a ezTypeFlags::StandardType
+          int OUT_PARAM = ezIsOutParam<T>::value>         ///< Is 1 if T a non-const reference or pointer.
 struct ezVariantAdapter
 {
   typedef typename ezTypeTraits<T>::NonConstReferencePointerType RealType;
 
-  ezVariantAdapter(ezVariant& value) : m_value(value)
+  ezVariantAdapter(ezVariant& value)
+      : m_value(value)
   {
   }
 
-  operator RealType&()
-  {
-    return *static_cast<RealType*>(m_value.ConvertTo<void*>());
-  }
+  operator RealType&() { return *static_cast<RealType*>(m_value.ConvertTo<void*>()); }
 
-  operator RealType*()
-  {
-    return m_value.IsValid() ? static_cast<RealType*>(m_value.ConvertTo<void*>()) : nullptr;
-  }
+  operator RealType*() { return m_value.IsValid() ? static_cast<RealType*>(m_value.ConvertTo<void*>()) : nullptr; }
 
   ezVariant& m_value;
 };
 
-template<class T, class S>
+template <class T, class S>
 struct ezVariantAdapter<T, ezEnum<S>, 0, 0>
 {
   typedef typename ezTypeTraits<T>::NonConstReferencePointerType RealType;
-  ezVariantAdapter(ezVariant& value) : m_value(value)
+  ezVariantAdapter(ezVariant& value)
+      : m_value(value)
   {
     if (m_value.IsValid())
       m_realValue = static_cast<typename S::Enum>(m_value.ConvertTo<ezInt64>());
   }
 
-  operator const ezEnum<S>&()
-  {
-    return m_realValue;
-  }
-  operator const ezEnum<S>*()
-  {
-    return m_value.IsValid() ? &m_realValue : nullptr;
-  }
+  operator const ezEnum<S>&() { return m_realValue; }
+  operator const ezEnum<S>*() { return m_value.IsValid() ? &m_realValue : nullptr; }
 
   ezVariant& m_value;
   ezEnum<S> m_realValue;
 };
 
-template<class T, class S>
+template <class T, class S>
 struct ezVariantAdapter<T, ezEnum<S>, 0, 1>
 {
   typedef typename ezTypeTraits<T>::NonConstReferencePointerType RealType;
-  ezVariantAdapter(ezVariant& value) : m_value(value)
+  ezVariantAdapter(ezVariant& value)
+      : m_value(value)
   {
     if (m_value.IsValid())
       m_realValue = static_cast<typename S::Enum>(m_value.ConvertTo<ezInt64>());
@@ -229,47 +212,37 @@ struct ezVariantAdapter<T, ezEnum<S>, 0, 1>
       m_value = static_cast<ezInt64>(m_realValue.GetValue());
   }
 
-  operator ezEnum<S>&()
-  {
-    return m_realValue;
-  }
-  operator ezEnum<S>*()
-  {
-    return m_value.IsValid() ? &m_realValue : nullptr;
-  }
+  operator ezEnum<S>&() { return m_realValue; }
+  operator ezEnum<S>*() { return m_value.IsValid() ? &m_realValue : nullptr; }
 
   ezVariant& m_value;
   ezEnum<S> m_realValue;
 };
 
-template<class T, class S>
+template <class T, class S>
 struct ezVariantAdapter<T, ezBitflags<S>, 0, 0>
 {
   typedef typename ezTypeTraits<T>::NonConstReferencePointerType RealType;
-  ezVariantAdapter(ezVariant& value) : m_value(value)
+  ezVariantAdapter(ezVariant& value)
+      : m_value(value)
   {
     if (m_value.IsValid())
       m_realValue.SetValue(static_cast<typename S::StorageType>(m_value.ConvertTo<ezInt64>()));
   }
 
-  operator const ezBitflags<S>&()
-  {
-    return m_realValue;
-  }
-  operator const ezBitflags<S>*()
-  {
-    return m_value.IsValid() ? &m_realValue : nullptr;
-  }
+  operator const ezBitflags<S>&() { return m_realValue; }
+  operator const ezBitflags<S>*() { return m_value.IsValid() ? &m_realValue : nullptr; }
 
   ezVariant& m_value;
   ezBitflags<S> m_realValue;
 };
 
-template<class T, class S>
+template <class T, class S>
 struct ezVariantAdapter<T, ezBitflags<S>, 0, 1>
 {
   typedef typename ezTypeTraits<T>::NonConstReferencePointerType RealType;
-  ezVariantAdapter(ezVariant& value) : m_value(value)
+  ezVariantAdapter(ezVariant& value)
+      : m_value(value)
   {
     if (m_value.IsValid())
       m_realValue.SetValue(static_cast<typename S::StorageType>(m_value.ConvertTo<ezInt64>()));
@@ -280,45 +253,35 @@ struct ezVariantAdapter<T, ezBitflags<S>, 0, 1>
       m_value = static_cast<ezInt64>(m_realValue.GetValue());
   }
 
-  operator ezBitflags<S>&()
-  {
-    return m_realValue;
-  }
-  operator ezBitflags<S>*()
-  {
-    return m_value.IsValid() ? &m_realValue : nullptr;
-  }
+  operator ezBitflags<S>&() { return m_realValue; }
+  operator ezBitflags<S>*() { return m_value.IsValid() ? &m_realValue : nullptr; }
 
   ezVariant& m_value;
   ezBitflags<S> m_realValue;
 };
 
-template<class T, class C>
+template <class T, class C>
 struct ezVariantAdapter<T, C, 1, 0>
 {
   typedef typename ezTypeTraits<T>::NonConstReferencePointerType RealType;
-  ezVariantAdapter(ezVariant& value) : m_value(value)
+  ezVariantAdapter(ezVariant& value)
+      : m_value(value)
   {
   }
 
-  operator const C&()
-  {
-    return m_value.Get<RealType>();
-  }
+  operator const C&() { return m_value.Get<RealType>(); }
 
-  operator const C*()
-  {
-    return m_value.IsValid() ? &m_value.Get<RealType>() : nullptr;
-  }
+  operator const C*() { return m_value.IsValid() ? &m_value.Get<RealType>() : nullptr; }
 
   ezVariant& m_value;
 };
 
-template<class T, class C>
+template <class T, class C>
 struct ezVariantAdapter<T, C, 1, 1>
 {
   typedef typename ezTypeTraits<T>::NonConstReferencePointerType RealType;
-  ezVariantAdapter(ezVariant& value) : m_value(value)
+  ezVariantAdapter(ezVariant& value)
+      : m_value(value)
   {
     if (m_value.IsValid())
       m_realValue = m_value.Get<RealType>();
@@ -329,69 +292,50 @@ struct ezVariantAdapter<T, C, 1, 1>
       m_value = m_realValue;
   }
 
-  operator C&()
-  {
-    return m_realValue;
-  }
-  operator C*()
-  {
-    return m_value.IsValid() ? &m_realValue : nullptr;
-  }
+  operator C&() { return m_realValue; }
+  operator C*() { return m_value.IsValid() ? &m_realValue : nullptr; }
 
   ezVariant& m_value;
   RealType m_realValue;
 };
 
-template<class T>
+template <class T>
 struct ezVariantAdapter<T, ezVariant, 1, 0>
 {
-  ezVariantAdapter(ezVariant& value) : m_value(value)
+  ezVariantAdapter(ezVariant& value)
+      : m_value(value)
   {
   }
 
-  operator const ezVariant&()
-  {
-    return m_value;
-  }
-  operator const ezVariant*()
-  {
-    return &m_value;
-  }
+  operator const ezVariant&() { return m_value; }
+  operator const ezVariant*() { return &m_value; }
 
   ezVariant& m_value;
 };
 
-template<class T>
+template <class T>
 struct ezVariantAdapter<T, ezVariant, 1, 1>
 {
-  ezVariantAdapter(ezVariant& value) : m_value(value)
+  ezVariantAdapter(ezVariant& value)
+      : m_value(value)
   {
   }
 
-  operator ezVariant&()
-  {
-    return m_value;
-  }
-  operator ezVariant*()
-  {
-    return &m_value;
-  }
+  operator ezVariant&() { return m_value; }
+  operator ezVariant*() { return &m_value; }
 
   ezVariant& m_value;
 };
 
-template<>
+template <>
 struct ezVariantAdapter<const char*, const char*, 1, 0>
 {
-  ezVariantAdapter(ezVariant& value) : m_value(value)
+  ezVariantAdapter(ezVariant& value)
+      : m_value(value)
   {
   }
 
-  operator const char*()
-  {
-    return m_value.IsValid() ? m_value.Get<ezString>().GetData() : nullptr;
-  }
+  operator const char*() { return m_value.IsValid() ? m_value.Get<ezString>().GetData() : nullptr; }
 
   ezVariant& m_value;
 };
-

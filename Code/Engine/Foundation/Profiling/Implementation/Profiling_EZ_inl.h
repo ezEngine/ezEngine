@@ -35,7 +35,7 @@ namespace
     char m_szName[36];
   };
 
-  //EZ_CHECK_AT_COMPILETIME(sizeof(Event) == 64);
+  // EZ_CHECK_AT_COMPILETIME(sizeof(Event) == 64);
 
   struct EventBuffer
   {
@@ -115,8 +115,8 @@ void ezProfilingSystem::Reset()
 }
 
 ezProfilingScope::ezProfilingScope(const char* szName, const char* szFunctionName)
-  : m_szName(szName)
-  , m_uiNameLength((ezUInt32)::strlen(szName))
+    : m_szName(szName)
+    , m_uiNameLength((ezUInt32)::strlen(szName))
 {
   Event& e = AllocateEvent(m_szName, m_uiNameLength, Event::Begin);
   e.m_szFunctionName = szFunctionName;
@@ -128,7 +128,7 @@ ezProfilingScope::~ezProfilingScope()
   e.m_szFunctionName = nullptr;
 }
 
-//static
+// static
 void ezProfilingSystem::SetThreadName(const char* szThreadName)
 {
   EZ_LOCK(s_ThreadInfosMutex);
@@ -138,7 +138,7 @@ void ezProfilingSystem::SetThreadName(const char* szThreadName)
   info.m_sName = szThreadName;
 }
 
-//static
+// static
 void ezProfilingSystem::RemoveThread()
 {
   EZ_LOCK(s_ThreadInfosMutex);
@@ -146,7 +146,7 @@ void ezProfilingSystem::RemoveThread()
   s_DeadThreadIDs.PushBack((ezUInt64)ezThreadUtils::GetCurrentThreadID());
 }
 
-//static
+// static
 void ezProfilingSystem::Capture(ezStreamWriter& outputStream)
 {
   ezStandardJSONWriter writer;
@@ -210,4 +210,3 @@ void ezProfilingSystem::Capture(ezStreamWriter& outputStream)
 
   writer.EndObject();
 }
-

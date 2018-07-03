@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Foundation/Math/Float16.h>
 #include <Foundation/Math/Color.h>
+#include <Foundation/Math/Float16.h>
 
 /// \brief A 16bit per channel float color storage format.
-/// 
+///
 /// For any calculations or conversions use ezColor.
 /// \see ezColor
 class EZ_FOUNDATION_DLL ezColorLinear16f
@@ -15,7 +15,6 @@ public:
 
   // *** Data ***
 public:
-
   ezFloat16 r;
   ezFloat16 g;
   ezFloat16 b;
@@ -23,7 +22,6 @@ public:
 
   // *** Constructors ***
 public:
-
   /// \brief default-constructed color is uninitialized (for speed)
   ezColorLinear16f(); // [tested]
 
@@ -37,7 +35,6 @@ public:
 
   // *** Functions ***
 public:
-
   /// \brief Conversion to ezColor.
   ezColor ToLinearFloat() const; // [tested]
 
@@ -49,5 +46,3 @@ public:
 };
 
 #include <Foundation/Math/Implementation/Color16f_inl.h>
-
-

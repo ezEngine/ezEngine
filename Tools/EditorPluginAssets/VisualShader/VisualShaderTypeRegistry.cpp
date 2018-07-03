@@ -1,53 +1,56 @@
-﻿#include <PCH.h>
-#include <EditorPluginAssets/VisualShader/VisualShaderTypeRegistry.h>
-#include <ToolsFoundation/Reflection/ReflectedType.h>
+#include <PCH.h>
+
 #include <EditorPluginAssets/VisualShader/VisualShaderNodeManager.h>
-#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderScene.moc.h>
+#include <EditorPluginAssets/VisualShader/VisualShaderTypeRegistry.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/Logging/Log.h>
-#include <ToolsFoundation/Application/ApplicationServices.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlUtils.h>
+#include <Foundation/Logging/Log.h>
+#include <GuiFoundation/NodeEditor/NodeScene.moc.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
+#include <ToolsFoundation/Reflection/ReflectedType.h>
 
 EZ_IMPLEMENT_SINGLETON(ezVisualShaderTypeRegistry);
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, VisualShader)
 
-BEGIN_SUBSYSTEM_DEPENDENCIES
-"PluginAssets", "ReflectedTypeManager"
-END_SUBSYSTEM_DEPENDENCIES
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+  "PluginAssets", "ReflectedTypeManager"
+  END_SUBSYSTEM_DEPENDENCIES
 
-ON_CORE_STARTUP
-{
-  EZ_DEFAULT_NEW(ezVisualShaderTypeRegistry);
+  ON_CORE_STARTUP
+  {
+    EZ_DEFAULT_NEW(ezVisualShaderTypeRegistry);
 
-  ezVisualShaderTypeRegistry::GetSingleton()->LoadNodeData();
-  const ezRTTI* pBaseType = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
+    ezVisualShaderTypeRegistry::GetSingleton()->LoadNodeData();
+    const ezRTTI* pBaseType = ezVisualShaderTypeRegistry::GetSingleton()->GetNodeBaseType();
 
-  ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualShaderPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualShaderPin(); });
-  ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtVisualShaderNode(); });
-}
+    ezQtNodeScene::GetPinFactory().RegisterCreator(ezGetStaticRTTI<ezVisualShaderPin>(), [](const ezRTTI* pRtti)->ezQtPin* { return new ezQtVisualShaderPin(); });
+    ezQtNodeScene::GetNodeFactory().RegisterCreator(pBaseType, [](const ezRTTI* pRtti)->ezQtNode* { return new ezQtVisualShaderNode(); });
+  }
 
-ON_CORE_SHUTDOWN
-{
-  ezVisualShaderTypeRegistry* pDummy = ezVisualShaderTypeRegistry::GetSingleton();
-  EZ_DEFAULT_DELETE(pDummy);
-}
+  ON_CORE_SHUTDOWN
+  {
+    ezVisualShaderTypeRegistry* pDummy = ezVisualShaderTypeRegistry::GetSingleton();
+    EZ_DEFAULT_DELETE(pDummy);
+  }
 
-ON_ENGINE_STARTUP
-{
-}
+  ON_ENGINE_STARTUP
+  {
+  }
 
-ON_ENGINE_SHUTDOWN
-{
-}
+  ON_ENGINE_SHUTDOWN
+  {
+  }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezVisualShaderTypeRegistry::ezVisualShaderTypeRegistry()
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
   m_pBaseType = nullptr;
   m_pSamplerPinType = nullptr;
@@ -75,8 +78,7 @@ void ezVisualShaderTypeRegistry::UpdateNodeData()
     do
     {
       UpdateNodeData(it.GetStats().m_sFileName);
-    }
-    while (it.Next().Succeeded());
+    } while (it.Next().Succeeded());
   }
 }
 
@@ -209,7 +211,7 @@ static ezVariant ExtractDefaultValue(const ezRTTI* pType, const char* szDefault)
     return ezVariant(szDefault);
   }
 
-  float values[4] = { 0, 0, 0, 0 };
+  float values[4] = {0, 0, 0, 0};
   ezConversionUtils::ExtractFloatsFromString(szDefault, 4, values);
 
   if (pType == ezGetStaticRTTI<float>())
@@ -240,7 +242,7 @@ static ezVariant ExtractDefaultValue(const ezRTTI* pType, const char* szDefault)
   return ezVariant();
 }
 
-void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* pNode, const char* szPinType, ezHybridArray<ezVisualShaderPinDescriptor, 4> &pinArray, bool bOutput)
+void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* pNode, const char* szPinType, ezHybridArray<ezVisualShaderPinDescriptor, 4>& pinArray, bool bOutput)
 {
   for (const ezOpenDdlReaderElement* pElement = pNode->GetFirstChild(); pElement != nullptr; pElement = pElement->GetSibling())
   {
@@ -342,7 +344,7 @@ void ezVisualShaderTypeRegistry::ExtractNodePins(const ezOpenDdlReaderElement* p
   }
 }
 
-void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElement* pNode, ezVisualShaderNodeDescriptor &nd)
+void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElement* pNode, ezVisualShaderNodeDescriptor& nd)
 {
   for (const ezOpenDdlReaderElement* pElement = pNode->GetFirstChild(); pElement != nullptr; pElement = pElement->GetSibling())
   {
@@ -449,7 +451,7 @@ void ezVisualShaderTypeRegistry::ExtractNodeProperties(const ezOpenDdlReaderElem
   }
 }
 
-void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezOpenDdlReaderElement* pNode, ezVisualShaderNodeDescriptor &nd)
+void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezOpenDdlReaderElement* pNode, ezVisualShaderNodeDescriptor& nd)
 {
   ezStringBuilder temp;
 
@@ -488,31 +490,36 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezOpenDdlReaderElement*
       else if (ezStringUtils::IsEqual(pElement->GetName(), "CodePermutations"))
       {
         temp = pElement->GetPrimitivesString()[0];
-        if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
+        if (!temp.IsEmpty() && !temp.EndsWith("\n"))
+          temp.Append("\n");
         nd.m_sShaderCodePermutations = temp;
       }
       else if (ezStringUtils::IsEqual(pElement->GetName(), "CodeRenderStates"))
       {
         temp = pElement->GetPrimitivesString()[0];
-        if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
+        if (!temp.IsEmpty() && !temp.EndsWith("\n"))
+          temp.Append("\n");
         nd.m_sShaderCodeRenderState = temp;
       }
       else if (ezStringUtils::IsEqual(pElement->GetName(), "CodeVertexShader"))
       {
         temp = pElement->GetPrimitivesString()[0];
-        if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
+        if (!temp.IsEmpty() && !temp.EndsWith("\n"))
+          temp.Append("\n");
         nd.m_sShaderCodeVertexShader = temp;
       }
       else if (ezStringUtils::IsEqual(pElement->GetName(), "CodeGeometryShader"))
       {
         temp = pElement->GetPrimitivesString()[0];
-        if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
+        if (!temp.IsEmpty() && !temp.EndsWith("\n"))
+          temp.Append("\n");
         nd.m_sShaderCodeGeometryShader = temp;
       }
       else if (ezStringUtils::IsEqual(pElement->GetName(), "CodeMaterialParams"))
       {
         temp = pElement->GetPrimitivesString()[0];
-        if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
+        if (!temp.IsEmpty() && !temp.EndsWith("\n"))
+          temp.Append("\n");
         nd.m_sShaderCodeMaterialParams = temp;
       }
       else if (ezStringUtils::IsEqual(pElement->GetName(), "CodeMaterialCB"))
@@ -523,31 +530,36 @@ void ezVisualShaderTypeRegistry::ExtractNodeConfig(const ezOpenDdlReaderElement*
       else if (ezStringUtils::IsEqual(pElement->GetName(), "CodePixelDefines"))
       {
         temp = pElement->GetPrimitivesString()[0];
-        if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
+        if (!temp.IsEmpty() && !temp.EndsWith("\n"))
+          temp.Append("\n");
         nd.m_sShaderCodePixelDefines = temp;
       }
       else if (ezStringUtils::IsEqual(pElement->GetName(), "CodePixelIncludes"))
       {
         temp = pElement->GetPrimitivesString()[0];
-        if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
+        if (!temp.IsEmpty() && !temp.EndsWith("\n"))
+          temp.Append("\n");
         nd.m_sShaderCodePixelIncludes = temp;
       }
       else if (ezStringUtils::IsEqual(pElement->GetName(), "CodePixelSamplers"))
       {
         temp = pElement->GetPrimitivesString()[0];
-        if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
+        if (!temp.IsEmpty() && !temp.EndsWith("\n"))
+          temp.Append("\n");
         nd.m_sShaderCodePixelSamplers = temp;
       }
       else if (ezStringUtils::IsEqual(pElement->GetName(), "CodePixelConstants"))
       {
         temp = pElement->GetPrimitivesString()[0];
-        if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
+        if (!temp.IsEmpty() && !temp.EndsWith("\n"))
+          temp.Append("\n");
         nd.m_sShaderCodePixelConstants = temp;
       }
       else if (ezStringUtils::IsEqual(pElement->GetName(), "CodePixelBody"))
       {
         temp = pElement->GetPrimitivesString()[0];
-        if (!temp.IsEmpty() && !temp.EndsWith("\n")) temp.Append("\n");
+        if (!temp.IsEmpty() && !temp.EndsWith("\n"))
+          temp.Append("\n");
         nd.m_sShaderCodePixelBody = temp;
       }
     }

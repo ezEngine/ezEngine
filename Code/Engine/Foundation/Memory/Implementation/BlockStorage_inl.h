@@ -1,7 +1,7 @@
-﻿
+
 template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE ezBlockStorage<T, BlockSize, StorageType>::ConstIterator::ConstIterator(const ezBlockStorage<T, BlockSize, StorageType>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount) :
-  m_Storage(storage)
+EZ_FORCE_INLINE ezBlockStorage<T, BlockSize, StorageType>::ConstIterator::ConstIterator(const ezBlockStorage<T, BlockSize, StorageType>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount)
+    : m_Storage(storage)
 {
   m_uiCurrentIndex = uiStartIndex;
   m_uiEndIndex = ezMath::Max(uiStartIndex + uiCount, uiCount);
@@ -72,8 +72,8 @@ EZ_ALWAYS_INLINE void ezBlockStorage<T, BlockSize, StorageType>::ConstIterator::
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
-EZ_FORCE_INLINE ezBlockStorage<T, BlockSize, StorageType>::Iterator::Iterator(const ezBlockStorage<T, BlockSize, StorageType>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount) :
-  ConstIterator(storage, uiStartIndex, uiCount)
+EZ_FORCE_INLINE ezBlockStorage<T, BlockSize, StorageType>::Iterator::Iterator(const ezBlockStorage<T, BlockSize, StorageType>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount)
+    : ConstIterator(storage, uiStartIndex, uiCount)
 {
 }
 
@@ -99,10 +99,10 @@ EZ_ALWAYS_INLINE ezBlockStorage<T, BlockSize, StorageType>::Iterator::operator T
 
 template <typename T, ezUInt32 BlockSize, ezBlockStorageType::Enum StorageType>
 EZ_FORCE_INLINE ezBlockStorage<T, BlockSize, StorageType>::ezBlockStorage(ezLargeBlockAllocator<BlockSize>* pBlockAllocator, ezAllocatorBase* pAllocator)
-  : m_pBlockAllocator(pBlockAllocator)
-  , m_Blocks(pAllocator)
-  , m_uiCount(0)
-  , m_uiFreelistStart(ezInvalidIndex)
+    : m_pBlockAllocator(pBlockAllocator)
+    , m_Blocks(pAllocator)
+    , m_uiCount(0)
+    , m_uiFreelistStart(ezInvalidIndex)
 {
 }
 
@@ -264,4 +264,3 @@ EZ_FORCE_INLINE void ezBlockStorage<T, BlockSize, StorageType>::Delete(T* pObjec
   *reinterpret_cast<ezUInt32*>(pObject) = m_uiFreelistStart;
   m_uiFreelistStart = uiIndex;
 }
-

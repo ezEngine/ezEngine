@@ -1,5 +1,5 @@
 
-#define EZ_CHECK_CLASS(T) \
+#define EZ_CHECK_CLASS(T)                                                                                                                  \
   EZ_CHECK_AT_COMPILETIME_MSG(!std::is_trivial<T>::value, "Pod type is treated as class, did you forget EZ_DECLARE_POD_TYPE?")
 
 // public methods: redirect to implementation
@@ -9,13 +9,13 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Construct(T* pDestination, size_t uiCount)
   // Default constructor is always called, so that debug helper initializations (e.g. ezVec3 initializes to NaN) take place.
   // Note that destructor is ONLY called for class types.
   // Special case for c++11 to prevent default construction of "real" Pod types, also avoids warnings on msvc
-  Construct(pDestination, uiCount, ezTraitInt<ezIsPodType<T>::value && std::is_trivial<T>::value>());
+  Construct(pDestination, uiCount, ezTraitInt < ezIsPodType<T>::value && std::is_trivial<T>::value > ());
 }
 
 template <typename T>
 EZ_ALWAYS_INLINE ezMemoryUtils::ConstructorFunction ezMemoryUtils::MakeConstructorFunction()
 {
-  return MakeConstructorFunction<T>(ezTraitInt<ezIsPodType<T>::value && std::is_trivial<T>::value>());
+  return MakeConstructorFunction<T>(ezTraitInt < ezIsPodType<T>::value && std::is_trivial<T>::value > ());
 }
 
 template <typename T>
@@ -32,10 +32,7 @@ EZ_ALWAYS_INLINE ezMemoryUtils::ConstructorFunction ezMemoryUtils::MakeDefaultCo
 {
   struct Helper
   {
-    static void DefaultConstruct(void* pDestination)
-    {
-      ezMemoryUtils::DefaultConstruct(static_cast<T*>(pDestination), 1);
-    }
+    static void DefaultConstruct(void* pDestination) { ezMemoryUtils::DefaultConstruct(static_cast<T*>(pDestination), 1); }
   };
 
   return &Helper::DefaultConstruct;
@@ -73,7 +70,7 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::MoveConstruct(T* pDestination, T&& source)
 {
   // Make sure source is actually an rvalue reference (T&& is a universal reference).
   static_assert(std::is_rvalue_reference<decltype(source)>::value, "'source' parameter is not an rvalue reference.");
-  ::new(pDestination) T(std::forward<T>(source));
+  ::new (pDestination) T(std::forward<T>(source));
 }
 
 template <typename T>
@@ -86,7 +83,7 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::MoveConstruct(T* pDestination, T* pSource, 
 
   for (size_t i = 0; i < uiCount; ++i)
   {
-    ::new(pDestination + i) T(std::move(pSource[i]));
+    ::new (pDestination + i) T(std::move(pSource[i]));
   }
 }
 
@@ -100,7 +97,8 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::CopyOrMoveConstruct(Destination* pDestinati
 template <typename T>
 EZ_ALWAYS_INLINE void ezMemoryUtils::RelocateConstruct(T* pDestination, T* pSource, size_t uiCount)
 {
-  EZ_ASSERT_DEV(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using RelocateConstruct.");
+  EZ_ASSERT_DEV(pDestination < pSource || pSource + uiCount <= pDestination,
+                "Memory regions must not overlap when using RelocateConstruct.");
   RelocateConstruct(pDestination, pSource, uiCount, ezGetTypeClass<T>());
 }
 
@@ -119,7 +117,8 @@ EZ_ALWAYS_INLINE ezMemoryUtils::DestructorFunction ezMemoryUtils::MakeDestructor
 template <typename T>
 EZ_ALWAYS_INLINE void ezMemoryUtils::Copy(T* pDestination, const T* pSource, size_t uiCount)
 {
-  EZ_ASSERT_DEV(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using Copy. Use CopyOverlapped instead.");
+  EZ_ASSERT_DEV(pDestination < pSource || pSource + uiCount <= pDestination,
+                "Memory regions must not overlap when using Copy. Use CopyOverlapped instead.");
   Copy(pDestination, pSource, uiCount, ezIsPodType<T>());
 }
 
@@ -241,10 +240,7 @@ EZ_ALWAYS_INLINE ezMemoryUtils::ConstructorFunction ezMemoryUtils::MakeConstruct
 
   struct Helper
   {
-    static void Construct(void* pDestination)
-    {
-      ezMemoryUtils::Construct(static_cast<T*>(pDestination), 1, ezTypeIsClass());
-    }
+    static void Construct(void* pDestination) { ezMemoryUtils::Construct(static_cast<T*>(pDestination), 1, ezTypeIsClass()); }
   };
 
   return &Helper::Construct;
@@ -254,9 +250,8 @@ template <typename Destination, typename Source>
 EZ_ALWAYS_INLINE void ezMemoryUtils::CopyConstruct(Destination* pDestination, const Source& copy, size_t uiCount, ezTypeIsPod)
 {
   static_assert(std::is_same<Destination, Source>::value ||
-                (std::is_base_of<Destination, Source>::value == false &&
-                 std::is_base_of<Source, Destination>::value == false),
-    "Can't copy POD types that are derived from each other. Are you certain any of these types should be POD?");
+                    (std::is_base_of<Destination, Source>::value == false && std::is_base_of<Source, Destination>::value == false),
+                "Can't copy POD types that are derived from each other. Are you certain any of these types should be POD?");
 
   const Destination& copyConverted = copy;
   for (size_t i = 0; i < uiCount; i++)
@@ -272,7 +267,8 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::CopyConstruct(Destination* pDestination, co
 
   for (size_t i = 0; i < uiCount; i++)
   {
-    ::new (pDestination + i) Destination(copy); // Note that until now copy has not been converted to Destination. This allows for calling specialized constructors if available.
+    ::new (pDestination + i) Destination(copy); // Note that until now copy has not been converted to Destination. This allows for calling
+                                                // specialized constructors if available.
   }
 }
 
@@ -302,8 +298,9 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::CopyOrMoveConstruct(Destination* pDestinati
 template <typename Destination, typename Source>
 EZ_ALWAYS_INLINE void ezMemoryUtils::CopyOrMoveConstruct(Destination* pDestination, Source&& source, IsRValueReference)
 {
-  static_assert(std::is_rvalue_reference<decltype(source)>::value, "Implementation Error: This version of CopyOrMoveConstruct should only be called with a rvalue reference!");
-  ::new(pDestination) Destination(std::move(source));
+  static_assert(std::is_rvalue_reference<decltype(source)>::value,
+                "Implementation Error: This version of CopyOrMoveConstruct should only be called with a rvalue reference!");
+  ::new (pDestination) Destination(std::move(source));
 }
 
 template <typename T>
@@ -343,7 +340,7 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount, e
 {
   EZ_CHECK_CLASS(T);
 
-  for (size_t i = uiCount; i-- > 0; )
+  for (size_t i = uiCount; i-- > 0;)
   {
     pDestination[i].~T();
   }
@@ -362,10 +359,7 @@ EZ_ALWAYS_INLINE ezMemoryUtils::DestructorFunction ezMemoryUtils::MakeDestructor
 
   struct Helper
   {
-    static void Destruct(void* pDestination)
-    {
-      ezMemoryUtils::Destruct(static_cast<T*>(pDestination), 1, ezTypeIsClass());
-    }
+    static void Destruct(void* pDestination) { ezMemoryUtils::Destruct(static_cast<T*>(pDestination), 1, ezTypeIsClass()); }
   };
 
   return &Helper::Destruct;
@@ -411,7 +405,7 @@ inline void ezMemoryUtils::CopyOverlapped(T* pDestination, const T* pSource, siz
   }
   else
   {
-    for (size_t i = uiCount; i-- > 0; )
+    for (size_t i = uiCount; i-- > 0;)
     {
       pDestination[i] = pSource[i];
     }
@@ -589,4 +583,3 @@ EZ_ALWAYS_INLINE bool ezMemoryUtils::IsEqual(const T* a, const T* b, size_t uiCo
 
 
 #undef EZ_CHECK_CLASS
-

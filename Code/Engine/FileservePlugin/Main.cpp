@@ -1,13 +1,15 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <FileservePlugin/Client/FileserveDataDir.h>
 
-void OnLoadPlugin(bool bReloading)    { }
-void OnUnloadPlugin(bool bReloading)  { }
+void OnLoadPlugin(bool bReloading) {}
+void OnUnloadPlugin(bool bReloading) {}
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
 
 EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(EZ_FILESERVEPLUGIN_DLL, ezFileservePlugin);
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(FileservePlugin, FileservePluginMain)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -53,10 +55,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(FileservePlugin, FileservePluginMain)
     }
   }
 
-EZ_END_SUBSYSTEM_DECLARATION
-
-
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 
 EZ_STATICLINK_FILE(FileservePlugin, FileservePlugin_Main);
-

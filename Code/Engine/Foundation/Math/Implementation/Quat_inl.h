@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Foundation/Math/Vec3.h>
 #include <Foundation/Math/Mat4.h>
+#include <Foundation/Math/Vec3.h>
 
-template<typename Type>
+template <typename Type>
 EZ_ALWAYS_INLINE ezQuatTemplate<Type>::ezQuatTemplate()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
@@ -13,32 +13,34 @@ EZ_ALWAYS_INLINE ezQuatTemplate<Type>::ezQuatTemplate()
 #endif
 }
 
-template<typename Type>
-EZ_ALWAYS_INLINE ezQuatTemplate<Type>::ezQuatTemplate(Type X, Type Y, Type Z, Type W) : v(X, Y, Z), w(W)
+template <typename Type>
+EZ_ALWAYS_INLINE ezQuatTemplate<Type>::ezQuatTemplate(Type X, Type Y, Type Z, Type W)
+    : v(X, Y, Z)
+    , w(W)
 {
 }
 
-template<typename Type>
+template <typename Type>
 EZ_ALWAYS_INLINE const ezQuatTemplate<Type> ezQuatTemplate<Type>::IdentityQuaternion()
 {
   return ezQuatTemplate(0, 0, 0, 1);
 }
 
-template<typename Type>
+template <typename Type>
 EZ_ALWAYS_INLINE void ezQuatTemplate<Type>::SetElements(Type X, Type Y, Type Z, Type W)
 {
   v.Set(X, Y, Z);
   w = W;
 }
 
-template<typename Type>
+template <typename Type>
 EZ_ALWAYS_INLINE void ezQuatTemplate<Type>::SetIdentity()
 {
   v.SetZero();
   w = (Type)1;
 }
 
-template<typename Type>
+template <typename Type>
 void ezQuatTemplate<Type>::SetFromAxisAndAngle(const ezVec3Template<Type>& vRotationAxis, ezAngle angle)
 {
   const ezAngle halfAngle = angle * 0.5f;
@@ -47,7 +49,7 @@ void ezQuatTemplate<Type>::SetFromAxisAndAngle(const ezVec3Template<Type>& vRota
   w = ezMath::Cos(halfAngle);
 }
 
-template<typename Type>
+template <typename Type>
 void ezQuatTemplate<Type>::Normalize()
 {
   EZ_NAN_ASSERT(this);
@@ -60,7 +62,7 @@ void ezQuatTemplate<Type>::Normalize()
   w *= n;
 }
 
-template<typename Type>
+template <typename Type>
 ezResult ezQuatTemplate<Type>::GetRotationAxisAndAngle(ezVec3Template<Type>& vAxis, ezAngle& angle) const
 {
   EZ_NAN_ASSERT(this);
@@ -77,7 +79,7 @@ ezResult ezQuatTemplate<Type>::GetRotationAxisAndAngle(ezVec3Template<Type>& vAx
   return EZ_SUCCESS;
 }
 
-template<typename Type>
+template <typename Type>
 EZ_FORCE_INLINE const ezQuatTemplate<Type> ezQuatTemplate<Type>::operator-() const
 {
   EZ_NAN_ASSERT(this);
@@ -85,15 +87,15 @@ EZ_FORCE_INLINE const ezQuatTemplate<Type> ezQuatTemplate<Type>::operator-() con
   return (ezQuatTemplate(-v.x, -v.y, -v.z, w));
 }
 
-template<typename Type>
-EZ_ALWAYS_INLINE const ezVec3Template<Type> operator* (const ezQuatTemplate<Type>& q, const ezVec3Template<Type>& v)
+template <typename Type>
+EZ_ALWAYS_INLINE const ezVec3Template<Type> operator*(const ezQuatTemplate<Type>& q, const ezVec3Template<Type>& v)
 {
   ezVec3Template<Type> t = q.v.Cross(v) * (Type)2;
   return v + q.w * t + q.v.Cross(t);
 }
 
-template<typename Type>
-EZ_ALWAYS_INLINE const ezQuatTemplate<Type> operator* (const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2)
+template <typename Type>
+EZ_ALWAYS_INLINE const ezQuatTemplate<Type> operator*(const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2)
 {
   ezQuatTemplate<Type> q;
 
@@ -103,7 +105,7 @@ EZ_ALWAYS_INLINE const ezQuatTemplate<Type> operator* (const ezQuatTemplate<Type
   return (q);
 }
 
-template<typename Type>
+template <typename Type>
 bool ezQuatTemplate<Type>::IsValid(Type fEpsilon) const
 {
   if (!v.IsValid())
@@ -116,13 +118,13 @@ bool ezQuatTemplate<Type>::IsValid(Type fEpsilon) const
   return (ezMath::IsEqual(n, (Type)1, fEpsilon));
 }
 
-template<typename Type>
+template <typename Type>
 bool ezQuatTemplate<Type>::IsNaN() const
 {
   return v.IsNaN() || ezMath::IsNaN(w);
 }
 
-template<typename Type>
+template <typename Type>
 bool ezQuatTemplate<Type>::IsEqualRotation(const ezQuatTemplate<Type>& qOther, float fEpsilon) const
 {
   ezVec3Template<Type> vA1, vA2;
@@ -144,7 +146,7 @@ bool ezQuatTemplate<Type>::IsEqualRotation(const ezQuatTemplate<Type>& qOther, f
   return false;
 }
 
-template<typename Type>
+template <typename Type>
 const ezMat3Template<Type> ezQuatTemplate<Type>::GetAsMat3() const
 {
   EZ_NAN_ASSERT(this);
@@ -176,7 +178,7 @@ const ezMat3Template<Type> ezQuatTemplate<Type>::GetAsMat3() const
   return m;
 }
 
-template<typename Type>
+template <typename Type>
 const ezMat4Template<Type> ezQuatTemplate<Type>::GetAsMat4() const
 {
   EZ_NAN_ASSERT(this);
@@ -215,13 +217,13 @@ const ezMat4Template<Type> ezQuatTemplate<Type>::GetAsMat4() const
   return m;
 }
 
-template<typename Type>
+template <typename Type>
 void ezQuatTemplate<Type>::SetFromMat3(const ezMat3Template<Type>& m)
 {
   EZ_NAN_ASSERT(&m);
 
   const Type trace = m.Element(0, 0) + m.Element(1, 1) + m.Element(2, 2);
-  const Type half = (Type) 0.5;
+  const Type half = (Type)0.5;
 
   Type val[4];
 
@@ -238,7 +240,7 @@ void ezQuatTemplate<Type>::SetFromMat3(const ezMat3Template<Type>& m)
   }
   else
   {
-    const ezInt32 next[] = { 1,2,0 };
+    const ezInt32 next[] = {1, 2, 0};
     ezInt32 i = 0;
 
     if (m.Element(1, 1) > m.Element(0, 0))
@@ -271,7 +273,7 @@ void ezQuatTemplate<Type>::SetFromMat3(const ezMat3Template<Type>& m)
   that might be rotated with this quaternion. If a main / fallback axis is needed to rotate points, you need to calculate
   such a rotation with other means.
 */
-template<typename Type>
+template <typename Type>
 void ezQuatTemplate<Type>::SetShortestRotation(const ezVec3Template<Type>& vDirFrom, const ezVec3Template<Type>& vDirTo)
 {
   const ezVec3Template<Type> v0 = vDirFrom.GetNormalized();
@@ -280,23 +282,23 @@ void ezQuatTemplate<Type>::SetShortestRotation(const ezVec3Template<Type>& vDirF
   const Type fDot = v0.Dot(v1);
 
   // if both vectors are identical -> no rotation needed
-  if (ezMath::IsEqual(fDot, (Type)1, (Type) 0.0001))
+  if (ezMath::IsEqual(fDot, (Type)1, (Type)0.0001))
   {
     SetIdentity();
     return;
   }
   else
-    // if both vectors are opposing
-    if (ezMath::IsEqual(fDot, (Type)-1, (Type) 0.0001))
-    {
-      // find an axis, that is not identical and not opposing, ezVec3Template::Cross-product to find perpendicular vector, rotate around that
-      if (ezMath::Abs(v0.Dot(ezVec3Template<Type>(1, 0, 0))) < (Type) 0.8)
-        SetFromAxisAndAngle(v0.Cross(ezVec3Template<Type>(1, 0, 0)).GetNormalized(), ezAngle::Radian(ezMath::BasicType<float>::Pi()));
-      else
-        SetFromAxisAndAngle(v0.Cross(ezVec3Template<Type>(0, 1, 0)).GetNormalized(), ezAngle::Radian(ezMath::BasicType<float>::Pi()));
+      // if both vectors are opposing
+      if (ezMath::IsEqual(fDot, (Type)-1, (Type)0.0001))
+  {
+    // find an axis, that is not identical and not opposing, ezVec3Template::Cross-product to find perpendicular vector, rotate around that
+    if (ezMath::Abs(v0.Dot(ezVec3Template<Type>(1, 0, 0))) < (Type)0.8)
+      SetFromAxisAndAngle(v0.Cross(ezVec3Template<Type>(1, 0, 0)).GetNormalized(), ezAngle::Radian(ezMath::BasicType<float>::Pi()));
+    else
+      SetFromAxisAndAngle(v0.Cross(ezVec3Template<Type>(0, 1, 0)).GetNormalized(), ezAngle::Radian(ezMath::BasicType<float>::Pi()));
 
-      return;
-    }
+    return;
+  }
 
   const ezVec3Template<Type> c = v0.Cross(v1);
   const Type d = v0.Dot(v1);
@@ -310,13 +312,13 @@ void ezQuatTemplate<Type>::SetShortestRotation(const ezVec3Template<Type>& vDirF
   Normalize();
 }
 
-template<typename Type>
+template <typename Type>
 void ezQuatTemplate<Type>::SetSlerp(const ezQuatTemplate<Type>& qFrom, const ezQuatTemplate<Type>& qTo, Type t)
 {
   EZ_ASSERT_DEBUG((t >= (Type)0) && (t <= (Type)1), "Invalid lerp factor.");
 
   const Type one = 1;
-  const Type qdelta = (Type)1 - (Type) 0.001;
+  const Type qdelta = (Type)1 - (Type)0.001;
 
   const Type fDot = (qFrom.v.x * qTo.v.x + qFrom.v.y * qTo.v.y + qFrom.v.z * qTo.v.z + qFrom.w * qTo.w);
 
@@ -336,7 +338,7 @@ void ezQuatTemplate<Type>::SetSlerp(const ezQuatTemplate<Type>& qFrom, const ezQ
     ezAngle theta = ezMath::ACos(cosTheta);
 
     // use sqrtInv(1+c^2) instead of 1.0/sin(theta)
-    const Type iSinTheta = (Type)1 / ezMath::Sqrt(one - (cosTheta*cosTheta));
+    const Type iSinTheta = (Type)1 / ezMath::Sqrt(one - (cosTheta * cosTheta));
     const ezAngle tTheta = t * theta;
 
     Type s0 = ezMath::Sin(theta - tTheta);
@@ -366,22 +368,21 @@ void ezQuatTemplate<Type>::SetSlerp(const ezQuatTemplate<Type>& qFrom, const ezQ
   w += t1 * qTo.w;
 
   Normalize();
-
 }
 
-template<typename Type>
-EZ_ALWAYS_INLINE bool operator== (const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2)
+template <typename Type>
+EZ_ALWAYS_INLINE bool operator==(const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2)
 {
   return q1.v.IsIdentical(q2.v) && q1.w == q2.w;
 }
 
-template<typename Type>
-EZ_ALWAYS_INLINE bool operator!= (const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2)
+template <typename Type>
+EZ_ALWAYS_INLINE bool operator!=(const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2)
 {
   return !(q1 == q2);
 }
 
-template<typename Type>
+template <typename Type>
 void ezQuatTemplate<Type>::GetAsEulerAngles(ezAngle& out_x, ezAngle& out_y, ezAngle& out_z) const
 {
   /// \test This is new
@@ -409,7 +410,7 @@ void ezQuatTemplate<Type>::GetAsEulerAngles(ezAngle& out_x, ezAngle& out_y, ezAn
   yaw = ezMath::ATan2((float)siny, (float)cosy);
 }
 
-template<typename Type>
+template <typename Type>
 void ezQuatTemplate<Type>::SetFromEulerAngles(const ezAngle& x, const ezAngle& y, const ezAngle& z)
 {
   /// \test This is new
@@ -431,4 +432,3 @@ void ezQuatTemplate<Type>::SetFromEulerAngles(const ezAngle& x, const ezAngle& y
   v.y = (float)(cy * cr * sp + sy * sr * cp);
   v.z = (float)(sy * cr * cp - cy * sr * sp);
 }
-

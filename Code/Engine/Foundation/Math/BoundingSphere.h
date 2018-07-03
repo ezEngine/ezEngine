@@ -6,7 +6,7 @@
 ///
 /// This class allows to construct and manipulate bounding spheres.
 /// It also provides a large set of functions to do overlap queries, ray casts and other useful operations.
-template<typename Type>
+template <typename Type>
 class ezBoundingSphereTemplate
 {
 public:
@@ -134,19 +134,17 @@ public:
 
 
 public:
-
   ezVec3Template<Type> m_vCenter;
   Type m_fRadius;
 };
 
 /// \brief Checks whether this sphere and the other are identical.
-template<typename Type>
-bool operator== (const ezBoundingSphereTemplate<Type>& lhs, const ezBoundingSphereTemplate<Type>& rhs); // [tested]
+template <typename Type>
+bool operator==(const ezBoundingSphereTemplate<Type>& lhs, const ezBoundingSphereTemplate<Type>& rhs); // [tested]
 
 /// \brief Checks whether this sphere and the other are not identical.
-template<typename Type>
-bool operator!= (const ezBoundingSphereTemplate<Type>& lhs, const ezBoundingSphereTemplate<Type>& rhs); // [tested]
+template <typename Type>
+bool operator!=(const ezBoundingSphereTemplate<Type>& lhs, const ezBoundingSphereTemplate<Type>& rhs); // [tested]
 
 
 #include <Foundation/Math/Implementation/BoundingSphere_inl.h>
-

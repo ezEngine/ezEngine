@@ -1,15 +1,20 @@
-﻿#pragma once
+#pragma once
 
 #include <Foundation/Math/FixedPoint.h>
 
 namespace ezMath
 {
-  #define FIXEDPOINT_OVERLOADS(Bits) \
-    template<> EZ_ALWAYS_INLINE ezFixedPoint<Bits> BasicType<ezFixedPoint<Bits> >::MaxValue()        { return (ezFixedPoint<Bits>)((1 << (31 - Bits)) - 1); } \
-    template<> EZ_ALWAYS_INLINE ezFixedPoint<Bits> BasicType<ezFixedPoint<Bits> >::SmallEpsilon()    { return (ezFixedPoint<Bits>) 0.0001; } \
-    template<> EZ_ALWAYS_INLINE ezFixedPoint<Bits> BasicType<ezFixedPoint<Bits> >::DefaultEpsilon()  { return (ezFixedPoint<Bits>) 0.001; } \
-    template<> EZ_ALWAYS_INLINE ezFixedPoint<Bits> BasicType<ezFixedPoint<Bits> >::LargeEpsilon()    { return (ezFixedPoint<Bits>) 0.01; } \
-    template<> EZ_ALWAYS_INLINE ezFixedPoint<Bits> BasicType<ezFixedPoint<Bits> >::HugeEpsilon()     { return (ezFixedPoint<Bits>) 0.1; }
+#define FIXEDPOINT_OVERLOADS(Bits)                                                                                                       \
+  template <>                                                                                                                            \
+  EZ_ALWAYS_INLINE ezFixedPoint<Bits> BasicType<ezFixedPoint<Bits>>::MaxValue() { return (ezFixedPoint<Bits>)((1 << (31 - Bits)) - 1); } \
+  template <>                                                                                                                            \
+  EZ_ALWAYS_INLINE ezFixedPoint<Bits> BasicType<ezFixedPoint<Bits>>::SmallEpsilon() { return (ezFixedPoint<Bits>)0.0001; }               \
+  template <>                                                                                                                            \
+  EZ_ALWAYS_INLINE ezFixedPoint<Bits> BasicType<ezFixedPoint<Bits>>::DefaultEpsilon() { return (ezFixedPoint<Bits>)0.001; }              \
+  template <>                                                                                                                            \
+  EZ_ALWAYS_INLINE ezFixedPoint<Bits> BasicType<ezFixedPoint<Bits>>::LargeEpsilon() { return (ezFixedPoint<Bits>)0.01; }                 \
+  template <>                                                                                                                            \
+  EZ_ALWAYS_INLINE ezFixedPoint<Bits> BasicType<ezFixedPoint<Bits>>::HugeEpsilon() { return (ezFixedPoint<Bits>)0.1; }
 
   FIXEDPOINT_OVERLOADS(1);
   FIXEDPOINT_OVERLOADS(2);
@@ -43,23 +48,23 @@ namespace ezMath
   FIXEDPOINT_OVERLOADS(30);
   //FIXEDPOINT_OVERLOADS(31);
 
-  template<ezUInt8 DecimalBits>
+  template <ezUInt8 DecimalBits>
   EZ_FORCE_INLINE ezFixedPoint<DecimalBits> Floor(ezFixedPoint<DecimalBits> f)
   {
     EZ_REPORT_FAILURE("This function is not really implemented yet.");
 
-    return (ezFixedPoint<DecimalBits>) floor(f.ToDouble());
+    return (ezFixedPoint<DecimalBits>)floor(f.ToDouble());
   }
 
-  template<ezUInt8 DecimalBits>
+  template <ezUInt8 DecimalBits>
   EZ_FORCE_INLINE ezFixedPoint<DecimalBits> Ceil(ezFixedPoint<DecimalBits> f)
   {
     EZ_REPORT_FAILURE("This function is not really implemented yet.");
 
-    return (ezFixedPoint<DecimalBits>) ceil(f.ToDouble());
+    return (ezFixedPoint<DecimalBits>)ceil(f.ToDouble());
   }
 
-  template<ezUInt8 DecimalBits>
+  template <ezUInt8 DecimalBits>
   inline ezFixedPoint<DecimalBits> Floor(ezFixedPoint<DecimalBits> f, ezFixedPoint<DecimalBits> fMultiple)
   {
     EZ_REPORT_FAILURE("This function is not really implemented yet.");
@@ -69,7 +74,7 @@ namespace ezMath
     return fFactor * fMultiple;
   }
 
-  template<ezUInt8 DecimalBits>
+  template <ezUInt8 DecimalBits>
   inline ezFixedPoint<DecimalBits> Ceil(ezFixedPoint<DecimalBits> f, ezFixedPoint<DecimalBits> fMultiple)
   {
     EZ_REPORT_FAILURE("This function is not really implemented yet.");
@@ -79,74 +84,74 @@ namespace ezMath
     return fFactor * fMultiple;
   }
 
-  template<ezUInt8 DecimalBits>
+  template <ezUInt8 DecimalBits>
   EZ_FORCE_INLINE ezFixedPoint<DecimalBits> Exp(ezFixedPoint<DecimalBits> f)
   {
     EZ_REPORT_FAILURE("This function is not really implemented yet.");
 
-    return (ezFixedPoint<DecimalBits>) exp(f.ToDouble());
+    return (ezFixedPoint<DecimalBits>)exp(f.ToDouble());
   }
 
-  template<ezUInt8 DecimalBits>
+  template <ezUInt8 DecimalBits>
   EZ_FORCE_INLINE ezFixedPoint<DecimalBits> Ln(ezFixedPoint<DecimalBits> f)
   {
     EZ_REPORT_FAILURE("This function is not really implemented yet.");
 
-    return (ezFixedPoint<DecimalBits>) log(f.ToDouble());
+    return (ezFixedPoint<DecimalBits>)log(f.ToDouble());
   }
 
-  template<ezUInt8 DecimalBits>
+  template <ezUInt8 DecimalBits>
   EZ_FORCE_INLINE ezFixedPoint<DecimalBits> Log2(ezFixedPoint<DecimalBits> f)
   {
     EZ_REPORT_FAILURE("This function is not really implemented yet.");
 
-    return (ezFixedPoint<DecimalBits>) (log10(f.ToDouble()) / log10(2.0));
+    return (ezFixedPoint<DecimalBits>)(log10(f.ToDouble()) / log10(2.0));
   }
 
-  template<ezUInt8 DecimalBits>
+  template <ezUInt8 DecimalBits>
   EZ_FORCE_INLINE ezFixedPoint<DecimalBits> Log10(ezFixedPoint<DecimalBits> f)
   {
     EZ_REPORT_FAILURE("This function is not really implemented yet.");
 
-    return (ezFixedPoint<DecimalBits>) log10(f.ToDouble());
+    return (ezFixedPoint<DecimalBits>)log10(f.ToDouble());
   }
 
-  template<ezUInt8 DecimalBits>
+  template <ezUInt8 DecimalBits>
   EZ_FORCE_INLINE ezFixedPoint<DecimalBits> Log(ezFixedPoint<DecimalBits> fBase, ezFixedPoint<DecimalBits> f)
   {
     EZ_REPORT_FAILURE("This function is not really implemented yet.");
 
-    return (ezFixedPoint<DecimalBits>) (log10(f.ToDouble()) / log10(fBase.ToDouble()));
+    return (ezFixedPoint<DecimalBits>)(log10(f.ToDouble()) / log10(fBase.ToDouble()));
   }
 
-  template<ezUInt8 DecimalBits>
+  template <ezUInt8 DecimalBits>
   EZ_FORCE_INLINE ezFixedPoint<DecimalBits> Pow2(ezFixedPoint<DecimalBits> f)
   {
     EZ_REPORT_FAILURE("This function is not really implemented yet.");
 
-    return (ezFixedPoint<DecimalBits>) pow(2.0, f.ToDouble());
+    return (ezFixedPoint<DecimalBits>)pow(2.0, f.ToDouble());
   }
 
-  template<ezUInt8 DecimalBits>
+  template <ezUInt8 DecimalBits>
   EZ_FORCE_INLINE ezFixedPoint<DecimalBits> Pow(ezFixedPoint<DecimalBits> base, ezFixedPoint<DecimalBits> exp)
   {
     EZ_REPORT_FAILURE("This function is not really implemented yet.");
 
-    return (ezFixedPoint<DecimalBits>) pow(base.ToDouble(), exp.ToDouble());
+    return (ezFixedPoint<DecimalBits>)pow(base.ToDouble(), exp.ToDouble());
   }
 
-  template<ezUInt8 DecimalBits>
+  template <ezUInt8 DecimalBits>
   EZ_FORCE_INLINE ezFixedPoint<DecimalBits> Root(ezFixedPoint<DecimalBits> f, ezFixedPoint<DecimalBits> NthRoot)
   {
     EZ_REPORT_FAILURE("This function is not really implemented yet.");
 
-    return (ezFixedPoint<DecimalBits>) pow(f.ToDouble(), 1.0 / NthRoot.ToDouble());
+    return (ezFixedPoint<DecimalBits>)pow(f.ToDouble(), 1.0 / NthRoot.ToDouble());
   }
 
-  template<ezUInt8 DecimalBits>
+  template <ezUInt8 DecimalBits>
   ezFixedPoint<DecimalBits> Sqrt(ezFixedPoint<DecimalBits> a)
   {
-    return (ezFixedPoint<DecimalBits>) sqrt(a.ToDouble());
+    return (ezFixedPoint<DecimalBits>)sqrt(a.ToDouble());
     //if (a <= ezFixedPoint<DecimalBits>(0))
     //  return ezFixedPoint<DecimalBits>(0);
 
@@ -162,12 +167,11 @@ namespace ezMath
     //return x;
   }
 
-  template<ezUInt8 DecimalBits>
+  template <ezUInt8 DecimalBits>
   EZ_FORCE_INLINE ezFixedPoint<DecimalBits> Mod(ezFixedPoint<DecimalBits> f, ezFixedPoint<DecimalBits> div)
   {
     EZ_REPORT_FAILURE("This function is not really implemented yet.");
 
-    return (ezFixedPoint<DecimalBits>) fmod(f.ToDouble(), div);
+    return (ezFixedPoint<DecimalBits>)fmod(f.ToDouble(), div);
   }
 }
-

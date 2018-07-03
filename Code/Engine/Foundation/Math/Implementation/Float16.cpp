@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Math/Float16.h>
 
 ezFloat16::ezFloat16(float f)
@@ -101,4 +102,3 @@ ezFloat16::operator float() const
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Float16);
-

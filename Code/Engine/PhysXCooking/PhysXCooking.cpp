@@ -1,14 +1,16 @@
 #include <PCH.h>
-#include <PhysXCooking/PhysXCooking.h>
-#include <Foundation/Configuration/Startup.h>
-#include <Foundation/Configuration/Singleton.h>
+
 #include <Core/Graphics/ConvexHull.h>
-#include <PxPhysicsAPI.h>
-#include <Foundation/Time/Stopwatch.h>
-#include <Foundation/Utilities/Progress.h>
+#include <Foundation/Configuration/Singleton.h>
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/Math/BoundingBoxSphere.h>
+#include <Foundation/Time/Stopwatch.h>
+#include <Foundation/Utilities/Progress.h>
+#include <PhysXCooking/PhysXCooking.h>
+#include <PxPhysicsAPI.h>
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(PhysX, PhysXCooking)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -35,8 +37,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(PhysX, PhysXCooking)
   {
   }
 
-EZ_END_SUBSYSTEM_DECLARATION
-
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 PxCooking* ezPhysXCooking::s_pCooking = nullptr;
 ezPhysXInterface* ezPhysXCooking::s_pPhysX = nullptr;
@@ -64,7 +66,10 @@ void ezPhysXCooking::Shutdown()
 class ezPxOutStream : public PxOutputStream
 {
 public:
-  ezPxOutStream(ezStreamWriter* pStream) : m_pStream(pStream) {}
+  ezPxOutStream(ezStreamWriter* pStream)
+      : m_pStream(pStream)
+  {
+  }
 
   virtual PxU32 write(const void* src, PxU32 count) override
   {
@@ -80,7 +85,6 @@ public:
 class ezPxAllocator : public PxAllocatorCallback
 {
 public:
-
   virtual void* allocate(size_t size, const char* typeName, const char* filename, int line) override
   {
     if (size == 0)
@@ -96,13 +100,12 @@ public:
       delete[] static_cast<unsigned char*>(ptr);
     }
   }
-
 };
 
 ezResult ezPhysXCooking::CookTriangleMesh(const ezPhysXCookingMesh& mesh, ezStreamWriter& OutputStream)
 {
-  //ezPhysXCookingMesh mesh;
-  //if (ComputeConvexHull(mesh0, mesh).Failed())
+  // ezPhysXCookingMesh mesh;
+  // if (ComputeConvexHull(mesh0, mesh).Failed())
   //{
   //  ezLog::Error("Convex Hull computation failed.");
   //  return EZ_FAILURE;
@@ -292,7 +295,8 @@ void ezPhysXCooking::CreateMeshDesc(const ezPhysXCookingMesh& mesh, PxSimpleTria
   EZ_ASSERT_DEV(desc.isValid(), "PhysX PxTriangleMeshDesc is invalid");
 }
 
-ezStatus ezPhysXCooking::WriteResourceToStream(ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh, const ezArrayPtr<ezString>& surfaces, bool bConvexMesh)
+ezStatus ezPhysXCooking::WriteResourceToStream(ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh,
+                                               const ezArrayPtr<ezString>& surfaces, bool bConvexMesh)
 {
   ezResult resCooking = EZ_FAILURE;
 
@@ -349,4 +353,3 @@ ezStatus ezPhysXCooking::WriteResourceToStream(ezChunkStreamWriter& stream, cons
 }
 
 EZ_STATICLINK_FILE(PhysXCooking, PhysXCooking_PhysXCooking);
-

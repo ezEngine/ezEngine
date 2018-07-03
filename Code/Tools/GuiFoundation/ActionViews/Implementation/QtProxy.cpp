@@ -1,83 +1,86 @@
 #include <PCH.h>
-#include <GuiFoundation/ActionViews/QtProxy.moc.h>
+
+#include <Foundation/Configuration/Startup.h>
+#include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/BaseActions.h>
-#include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
-#include <Foundation/Configuration/Startup.h>
+#include <GuiFoundation/ActionViews/QtProxy.moc.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
-#include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <QMenu>
 #include <QAction>
+#include <QBoxLayout>
+#include <QLabel>
+#include <QMenu>
 #include <QSlider>
 #include <QWidgetAction>
-#include <QLabel>
-#include <QBoxLayout>
+#include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
 
 ezRttiMappedObjectFactory<ezQtProxy> ezQtProxy::s_Factory;
 ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> ezQtProxy::s_GlobalActions;
-ezMap<const ezDocument*, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > ezQtProxy::s_DocumentActions;
-ezMap<QWidget*, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>> > ezQtProxy::s_WindowActions;
+ezMap<const ezDocument*, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>>> ezQtProxy::s_DocumentActions;
+ezMap<QWidget*, ezMap<ezActionDescriptorHandle, QWeakPointer<ezQtProxy>>> ezQtProxy::s_WindowActions;
 QObject* ezQtProxy::s_pSignalProxy = nullptr;
 
 static ezQtProxy* QtMenuProxyCreator(const ezRTTI* pRtti)
 {
-  return new(ezQtMenuProxy);
+  return new (ezQtMenuProxy);
 }
 
 static ezQtProxy* QtCategoryProxyCreator(const ezRTTI* pRtti)
 {
-  return new(ezQtCategoryProxy);
+  return new (ezQtCategoryProxy);
 }
 
 static ezQtProxy* QtButtonProxyCreator(const ezRTTI* pRtti)
 {
-  return new(ezQtButtonProxy);
+  return new (ezQtButtonProxy);
 }
 
 static ezQtProxy* QtDynamicMenuProxyCreator(const ezRTTI* pRtti)
 {
-  return new(ezQtDynamicMenuProxy);
+  return new (ezQtDynamicMenuProxy);
 }
 
 static ezQtProxy* QtDynamicActionAndMenuProxyCreator(const ezRTTI* pRtti)
 {
-  return new(ezQtDynamicActionAndMenuProxy);
+  return new (ezQtDynamicActionAndMenuProxy);
 }
 
 static ezQtProxy* QtSliderProxyCreator(const ezRTTI* pRtti)
 {
-  return new(ezQtSliderProxy);
+  return new (ezQtSliderProxy);
 }
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtProxies)
 
-BEGIN_SUBSYSTEM_DEPENDENCIES
-"ToolsFoundation",
-"ActionManager"
-END_SUBSYSTEM_DEPENDENCIES
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+  "ToolsFoundation",
+  "ActionManager"
+  END_SUBSYSTEM_DEPENDENCIES
 
-ON_CORE_STARTUP
-{
-  ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezMenuAction>(), QtMenuProxyCreator);
-  ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezCategoryAction>(), QtCategoryProxyCreator);
-  ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezDynamicMenuAction>(), QtDynamicMenuProxyCreator);
-  ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezDynamicActionAndMenuAction>(), QtDynamicActionAndMenuProxyCreator);
-  ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezButtonAction>(), QtButtonProxyCreator);
-  ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezSliderAction>(), QtSliderProxyCreator);
-  ezQtProxy::s_pSignalProxy = new QObject;
-}
+  ON_CORE_STARTUP
+  {
+    ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezMenuAction>(), QtMenuProxyCreator);
+    ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezCategoryAction>(), QtCategoryProxyCreator);
+    ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezDynamicMenuAction>(), QtDynamicMenuProxyCreator);
+    ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezDynamicActionAndMenuAction>(), QtDynamicActionAndMenuProxyCreator);
+    ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezButtonAction>(), QtButtonProxyCreator);
+    ezQtProxy::GetFactory().RegisterCreator(ezGetStaticRTTI<ezSliderAction>(), QtSliderProxyCreator);
+    ezQtProxy::s_pSignalProxy = new QObject;
+  }
 
-ON_CORE_SHUTDOWN
-{
-  ezQtProxy::s_GlobalActions.Clear();
-  ezQtProxy::s_DocumentActions.Clear();
-  ezQtProxy::s_WindowActions.Clear();
-  delete ezQtProxy::s_pSignalProxy;
-  ezQtProxy::s_pSignalProxy = nullptr;
-}
+  ON_CORE_SHUTDOWN
+  {
+    ezQtProxy::s_GlobalActions.Clear();
+    ezQtProxy::s_DocumentActions.Clear();
+    ezQtProxy::s_WindowActions.Clear();
+    delete ezQtProxy::s_pSignalProxy;
+    ezQtProxy::s_pSignalProxy = nullptr;
+  }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezRttiMappedObjectFactory<ezQtProxy>& ezQtProxy::GetFactory()
 {
@@ -100,7 +103,7 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
   // ezActionType::Action will be cached to ensure only one QAction exist in its scope to prevent shortcut collisions.
   switch (pDesc->m_Scope)
   {
-  case ezActionScope::Global:
+    case ezActionScope::Global:
     {
       QWeakPointer<ezQtProxy> pTemp = s_GlobalActions[hDesc];
       if (pTemp.isNull())
@@ -117,7 +120,7 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
       }
     }
     break;
-  case ezActionScope::Document:
+    case ezActionScope::Document:
     {
       const ezDocument* pDocument = context.m_pDocument; // may be null
 
@@ -136,14 +139,14 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
       }
     }
     break;
-  case ezActionScope::Window:
+    case ezActionScope::Window:
     {
       bool bExisted = true;
       auto it = s_WindowActions.FindOrAdd(context.m_pWindow, &bExisted);
       if (!bExisted)
       {
-        s_pSignalProxy->connect(context.m_pWindow, &QObject::destroyed,
-                                s_pSignalProxy, [=]() { s_WindowActions.Remove(context.m_pWindow); });
+        s_pSignalProxy->connect(context.m_pWindow, &QObject::destroyed, s_pSignalProxy,
+                                [=]() { s_WindowActions.Remove(context.m_pWindow); });
       }
       QWeakPointer<ezQtProxy> pTemp = it.Value()[hDesc];
       if (pTemp.isNull())
@@ -277,13 +280,13 @@ void SetupQAction(ezAction* pAction, QPointer<QAction>& pQtAction, QObject* pTar
 
     switch (pDesc->m_Scope)
     {
-    case ezActionScope::Global:
+      case ezActionScope::Global:
       {
         // Parent is null so the global actions don't get deleted.
         pQtAction->setShortcutContext(Qt::ShortcutContext::ApplicationShortcut);
       }
       break;
-    case ezActionScope::Document:
+      case ezActionScope::Document:
       {
         // Parent is set to the window belonging to the document.
         ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(pAction->GetContext().m_pDocument);
@@ -292,7 +295,7 @@ void SetupQAction(ezAction* pAction, QPointer<QAction>& pQtAction, QObject* pTar
         pQtAction->setShortcutContext(Qt::ShortcutContext::WindowShortcut);
       }
       break;
-    case ezActionScope::Window:
+      case ezActionScope::Window:
       {
         pQtAction->setParent(pAction->GetContext().m_pWindow);
         pQtAction->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
@@ -386,7 +389,6 @@ void ezQtDynamicMenuProxy::SlotMenuEntryTriggered()
 
   ezUInt32 index = pAction->data().toUInt();
   m_pAction->Execute(m_Entries[index].m_UserValue);
-
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -470,11 +472,13 @@ void ezQtDynamicActionAndMenuProxy::StatusUpdateEventHandler(ezAction* pAction)
 //////////////////// ezQtSliderProxy /////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-ezQtSliderWidgetAction::ezQtSliderWidgetAction(QWidget* parent) : QWidgetAction(parent)
+ezQtSliderWidgetAction::ezQtSliderWidgetAction(QWidget* parent)
+    : QWidgetAction(parent)
 {
 }
 
-ezQtLabeledSlider::ezQtLabeledSlider(QWidget* parent) : QWidget(parent)
+ezQtLabeledSlider::ezQtLabeledSlider(QWidget* parent)
+    : QWidget(parent)
 {
   m_pLabel = new QLabel(this);
   m_pSlider = new QSlider(this);
@@ -530,7 +534,7 @@ void ezQtSliderWidgetAction::OnValueChanged(int value)
   emit valueChanged(value);
 }
 
-QWidget* ezQtSliderWidgetAction::createWidget(QWidget * parent)
+QWidget* ezQtSliderWidgetAction::createWidget(QWidget* parent)
 {
   ezQtLabeledSlider* pGroup = new ezQtLabeledSlider(parent);
   pGroup->m_pSlider->setOrientation(Qt::Orientation::Horizontal);
@@ -551,8 +555,7 @@ QWidget* ezQtSliderWidgetAction::createWidget(QWidget * parent)
 
 bool ezQtSliderWidgetAction::eventFilter(QObject* obj, QEvent* e)
 {
-  if (e->type() == QEvent::Type::MouseButtonPress ||
-      e->type() == QEvent::Type::MouseButtonRelease ||
+  if (e->type() == QEvent::Type::MouseButtonPress || e->type() == QEvent::Type::MouseButtonRelease ||
       e->type() == QEvent::Type::MouseButtonDblClick)
   {
     e->accept();

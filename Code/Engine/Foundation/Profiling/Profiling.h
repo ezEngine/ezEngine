@@ -25,7 +25,7 @@ protected:
 class EZ_FOUNDATION_DLL ezProfilingSystem
 {
 public:
-  /// \brief This is implementation specific. The default profiling captures the current data and writes it as json to the output stream. GPA does nothing.
+  /// \brief This is implementation specific. The default profiling captures the current data and writes it as JSON to the output stream.
   static void Capture(ezStreamWriter& outputStream);
 
 private:
@@ -46,12 +46,10 @@ private:
 #if EZ_ENABLED(EZ_USE_PROFILING) || defined(EZ_DOCS)
 
 /// \brief Profiles the current scope using the given name. The name string must not be destroyed before the current scope ends.
-#define EZ_PROFILE(szName) \
-  ezProfilingScope EZ_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(szName, EZ_SOURCE_FUNCTION)
+#define EZ_PROFILE(szName) ezProfilingScope EZ_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(szName, EZ_SOURCE_FUNCTION)
 
 #else
 
 #define EZ_PROFILE(Name)
 
 #endif
-

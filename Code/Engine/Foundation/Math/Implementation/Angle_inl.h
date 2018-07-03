@@ -1,30 +1,30 @@
-﻿#pragma once
+#pragma once
 
-template<typename Type>
+template <typename Type>
 constexpr EZ_ALWAYS_INLINE Type ezAngle::Pi()
 {
   return static_cast<Type>(3.1415926535897932384626433832795);
 }
 
-template<typename Type>
+template <typename Type>
 constexpr EZ_ALWAYS_INLINE Type ezAngle::DegToRadMultiplier()
 {
-  return Pi<Type>() / (Type) 180;
+  return Pi<Type>() / (Type)180;
 }
 
-template<typename Type>
+template <typename Type>
 constexpr EZ_ALWAYS_INLINE Type ezAngle::RadToDegMultiplier()
 {
-  return ((Type) 180) / Pi<Type>();
+  return ((Type)180) / Pi<Type>();
 }
 
-template<typename Type>
+template <typename Type>
 constexpr Type ezAngle::DegToRad(Type f)
 {
   return f * DegToRadMultiplier<Type>();
 }
 
-template<typename Type>
+template <typename Type>
 constexpr Type ezAngle::RadToDeg(Type f)
 {
   return f * RadToDegMultiplier<Type>();
@@ -73,68 +73,67 @@ inline bool ezAngle::IsEqualNormalized(ezAngle rhs, ezAngle epsilon) const
   return aNorm.IsEqualSimple(bNorm, epsilon);
 }
 
-constexpr EZ_ALWAYS_INLINE ezAngle ezAngle::operator - () const
+constexpr EZ_ALWAYS_INLINE ezAngle ezAngle::operator-() const
 {
   return ezAngle(-m_fRadian);
 }
 
-EZ_ALWAYS_INLINE void ezAngle::operator += (ezAngle r)
+EZ_ALWAYS_INLINE void ezAngle::operator+=(ezAngle r)
 {
   m_fRadian += r.m_fRadian;
 }
 
-EZ_ALWAYS_INLINE void ezAngle::operator -= (ezAngle r)
+EZ_ALWAYS_INLINE void ezAngle::operator-=(ezAngle r)
 {
   m_fRadian -= r.m_fRadian;
 }
 
-constexpr inline ezAngle ezAngle::operator + (ezAngle r) const
+constexpr inline ezAngle ezAngle::operator+(ezAngle r) const
 {
   return ezAngle(m_fRadian + r.m_fRadian);
 }
 
-constexpr inline ezAngle ezAngle::operator - (ezAngle r) const
+constexpr inline ezAngle ezAngle::operator-(ezAngle r) const
 {
   return ezAngle(m_fRadian - r.m_fRadian);
 }
 
-constexpr EZ_ALWAYS_INLINE bool ezAngle::operator == (const ezAngle& r) const
+constexpr EZ_ALWAYS_INLINE bool ezAngle::operator==(const ezAngle& r) const
 {
   return m_fRadian == r.m_fRadian;
 }
 
-constexpr EZ_ALWAYS_INLINE bool ezAngle::operator != (const ezAngle& r) const
+constexpr EZ_ALWAYS_INLINE bool ezAngle::operator!=(const ezAngle& r) const
 {
   return m_fRadian != r.m_fRadian;
 }
 
-constexpr EZ_ALWAYS_INLINE bool ezAngle::operator< (const ezAngle& r) const
+constexpr EZ_ALWAYS_INLINE bool ezAngle::operator<(const ezAngle& r) const
 {
   return m_fRadian < r.m_fRadian;
 }
 
-constexpr EZ_ALWAYS_INLINE bool ezAngle::operator> (const ezAngle& r) const
+constexpr EZ_ALWAYS_INLINE bool ezAngle::operator>(const ezAngle& r) const
 {
   return m_fRadian > r.m_fRadian;
 }
 
-constexpr inline ezAngle operator* (ezAngle a, float f)
+constexpr inline ezAngle operator*(ezAngle a, float f)
 {
   return ezAngle::Radian(a.GetRadian() * f);
 }
 
-constexpr inline ezAngle operator* (float f, ezAngle a)
+constexpr inline ezAngle operator*(float f, ezAngle a)
 {
   return ezAngle::Radian(a.GetRadian() * f);
 }
 
-constexpr inline ezAngle operator/ (ezAngle a, float f)
+constexpr inline ezAngle operator/(ezAngle a, float f)
 {
   return ezAngle::Radian(a.GetRadian() / f);
 }
 
-constexpr inline ezAngle operator/ (float f, ezAngle a)
+constexpr inline ezAngle operator/(float f, ezAngle a)
 {
   return ezAngle::Radian(a.GetRadian() / f);
 }
-

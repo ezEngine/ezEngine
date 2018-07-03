@@ -1,9 +1,10 @@
 #include <PCH.h>
+
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/Startup.h>
 
-void OnLoadPlugin(bool bReloading)    { }
-void OnUnloadPlugin(bool bReloading)  { }
+void OnLoadPlugin(bool bReloading) {}
+void OnUnloadPlugin(bool bReloading) {}
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
 
@@ -53,6 +54,7 @@ void RemoveResourceManagerEventHandler();
 
 void SetAppStats();
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, InspectorPluginMain)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -99,10 +101,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, InspectorPluginMain)
     ezTelemetry::AcceptMessagesForSystem(' APP', false);
   }
 
-EZ_END_SUBSYSTEM_DECLARATION
-
-
-
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Main);
-

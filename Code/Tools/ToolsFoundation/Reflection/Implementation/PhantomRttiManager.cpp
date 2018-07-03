@@ -1,32 +1,35 @@
 #include <PCH.h>
+
+#include <Foundation/Configuration/Startup.h>
+#include <Foundation/Memory/Allocator.h>
+#include <Foundation/Reflection/Reflection.h>
+#include <ToolsFoundation/Reflection/PhantomRtti.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
-#include <ToolsFoundation/Reflection/PhantomRtti.h>
-#include <Foundation/Reflection/Reflection.h>
-#include <Foundation/Memory/Allocator.h>
-#include <Foundation/Configuration/Startup.h>
 
 ezEvent<const ezPhantomRttiManagerEvent&> ezPhantomRttiManager::s_Events;
 
 ezHashTable<const char*, ezPhantomRTTI*> ezPhantomRttiManager::m_NameToPhantom;
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, ReflectedTypeManager)
 
-BEGIN_SUBSYSTEM_DEPENDENCIES
-"Foundation"
-END_SUBSYSTEM_DEPENDENCIES
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+  "Foundation"
+  END_SUBSYSTEM_DEPENDENCIES
 
-ON_CORE_STARTUP
-{
-  ezPhantomRttiManager::Startup();
-}
+  ON_CORE_STARTUP
+  {
+    ezPhantomRttiManager::Startup();
+  }
 
-ON_CORE_SHUTDOWN
-{
-  ezPhantomRttiManager::Shutdown();
-}
+  ON_CORE_SHUTDOWN
+  {
+    ezPhantomRttiManager::Shutdown();
+  }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ////////////////////////////////////////////////////////////////////////
 // ezPhantomRttiManager public functions
@@ -49,8 +52,8 @@ const ezRTTI* ezPhantomRttiManager::RegisterType(ezReflectedTypeDescriptor& desc
 
   if (pPhantom == nullptr)
   {
-    pPhantom = EZ_DEFAULT_NEW(ezPhantomRTTI, desc.m_sTypeName.GetData(), ezRTTI::FindTypeByName(desc.m_sParentTypeName),
-                              desc.m_uiTypeSize, desc.m_uiTypeVersion, ezVariantType::Invalid, desc.m_Flags, desc.m_sPluginName.GetData());
+    pPhantom = EZ_DEFAULT_NEW(ezPhantomRTTI, desc.m_sTypeName.GetData(), ezRTTI::FindTypeByName(desc.m_sParentTypeName), desc.m_uiTypeSize,
+                              desc.m_uiTypeVersion, ezVariantType::Invalid, desc.m_Flags, desc.m_sPluginName.GetData());
 
     pPhantom->SetProperties(desc.m_Properties);
     pPhantom->SetAttributes(desc.m_Attributes);
@@ -60,7 +63,8 @@ const ezRTTI* ezPhantomRttiManager::RegisterType(ezReflectedTypeDescriptor& desc
     ezPhantomRttiManagerEvent msg;
     msg.m_pChangedType = pPhantom;
     msg.m_Type = ezPhantomRttiManagerEvent::Type::TypeAdded;
-    s_Events.Broadcast(msg, 1); /// \todo Had to increase the recursion depth to allow registering phantom types that are based on actual types coming from the engine process
+    s_Events.Broadcast(msg, 1); /// \todo Had to increase the recursion depth to allow registering phantom types that are based on actual
+                                /// types coming from the engine process
   }
   else
   {

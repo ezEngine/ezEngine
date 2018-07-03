@@ -1,29 +1,32 @@
-﻿#include <PCH.h>
-#include <ToolsFoundation/Document/DocumentManager.h>
-#include <Foundation/Configuration/SubSystem.h>
-#include <Foundation/Configuration/Plugin.h>
-#include <Foundation/Profiling/Profiling.h>
+#include <PCH.h>
 
+#include <Foundation/Configuration/Plugin.h>
+#include <Foundation/Configuration/SubSystem.h>
+#include <Foundation/Profiling/Profiling.h>
+#include <ToolsFoundation/Document/DocumentManager.h>
+
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentManager, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, DocumentManager)
 
-BEGIN_SUBSYSTEM_DEPENDENCIES
-"Foundation"
-END_SUBSYSTEM_DEPENDENCIES
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+  "Foundation"
+  END_SUBSYSTEM_DEPENDENCIES
 
-ON_CORE_STARTUP
-{
-  ezPlugin::s_PluginEvents.AddEventHandler(ezDocumentManager::OnPluginEvent);
-}
+  ON_CORE_STARTUP
+  {
+    ezPlugin::s_PluginEvents.AddEventHandler(ezDocumentManager::OnPluginEvent);
+  }
 
-ON_CORE_SHUTDOWN
-{
-  ezPlugin::s_PluginEvents.RemoveEventHandler(ezDocumentManager::OnPluginEvent);
-}
+  ON_CORE_SHUTDOWN
+  {
+    ezPlugin::s_PluginEvents.RemoveEventHandler(ezDocumentManager::OnPluginEvent);
+  }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezSet<const ezRTTI*> ezDocumentManager::s_KnownManagers;
 ezHybridArray<ezDocumentManager*, 16> ezDocumentManager::s_AllDocumentManagers;
@@ -35,15 +38,15 @@ void ezDocumentManager::OnPluginEvent(const ezPlugin::PluginEvent& e)
 {
   switch (e.m_EventType)
   {
-  case ezPlugin::PluginEvent::BeforeUnloading:
-    UpdateBeforeUnloadingPlugins(e);
-    break;
-  case ezPlugin::PluginEvent::AfterPluginChanges:
-    UpdatedAfterLoadingPlugins();
-    break;
+    case ezPlugin::PluginEvent::BeforeUnloading:
+      UpdateBeforeUnloadingPlugins(e);
+      break;
+    case ezPlugin::PluginEvent::AfterPluginChanges:
+      UpdatedAfterLoadingPlugins();
+      break;
 
-  default:
-    break;
+    default:
+      break;
   }
 }
 
@@ -177,7 +180,9 @@ void ezDocumentManager::EnsureWindowRequested(ezDocument* pDocument, const ezDoc
   s_Events.Broadcast(e);
 }
 
-ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, bool bRequestWindow, bool bAddToRecentFilesList, const ezDocumentObject* pOpenContext /*= nullptr*/)
+ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDocumentTypeName, const char* szPath,
+                                                 ezDocument*& out_pDocument, bool bRequestWindow, bool bAddToRecentFilesList,
+                                                 const ezDocumentObject* pOpenContext /*= nullptr*/)
 {
   ezStringBuilder sPath = szPath;
   sPath.MakeCleanPath();
@@ -209,7 +214,8 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
       {
         EZ_PROFILE("InternalCreateDocument");
         status = InternalCreateDocument(szDocumentTypeName, sPath, out_pDocument);
-        EZ_ASSERT_DEV(status.m_Result == EZ_FAILURE || out_pDocument != nullptr, "Status was success, but the document manager returned a nullptr document.");
+        EZ_ASSERT_DEV(status.m_Result == EZ_FAILURE || out_pDocument != nullptr,
+                      "Status was success, but the document manager returned a nullptr document.");
       }
       out_pDocument->SetAddToResetFilesList(bAddToRecentFilesList);
 
@@ -254,12 +260,15 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
   return status;
 }
 
-ezStatus ezDocumentManager::CreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, bool bRequestWindow)
+ezStatus ezDocumentManager::CreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument,
+                                           bool bRequestWindow)
 {
   return CreateOrOpenDocument(true, szDocumentTypeName, szPath, out_pDocument, bRequestWindow, true);
 }
 
-ezStatus ezDocumentManager::OpenDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, bool bRequestWindow, bool bAddToRecentFilesList, const ezDocumentObject* pOpenContext /*= nullptr*/)
+ezStatus ezDocumentManager::OpenDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument,
+                                         bool bRequestWindow, bool bAddToRecentFilesList,
+                                         const ezDocumentObject* pOpenContext /*= nullptr*/)
 {
   return CreateOrOpenDocument(false, szDocumentTypeName, szPath, out_pDocument, bRequestWindow, bAddToRecentFilesList, pOpenContext);
 }
@@ -387,11 +396,11 @@ const ezDynamicArray<const ezDocumentTypeDescriptor*>& ezDocumentManager::GetAll
       pMan->GetSupportedDocumentTypes(s_AllDocumentDescriptors);
     }
 
-    s_AllDocumentDescriptors.Sort([](const auto& a, const auto& b)->bool { return a->m_sDocumentTypeName.Compare_NoCase(b->m_sDocumentTypeName) < 0; });
+    s_AllDocumentDescriptors.Sort(
+        [](const auto& a, const auto& b) -> bool { return a->m_sDocumentTypeName.Compare_NoCase(b->m_sDocumentTypeName) < 0; });
   }
 
   return s_AllDocumentDescriptors;
 }
 
 /// \todo on close doc: remove from m_AllDocuments
-

@@ -1,10 +1,12 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Containers/IdTable.h>
 #include <Foundation/Profiling/Profiling.h>
 
 #if EZ_ENABLED(EZ_USE_PROFILING)
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ProfilingSystem)
 
   // no dependencies
@@ -18,12 +20,13 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ProfilingSystem)
     ezProfilingSystem::Reset();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 // Include inline file
 #include <Foundation/Profiling/Implementation/Profiling_EZ_inl.h>
 
-//static
+// static
 void ezProfilingSystem::Initialize()
 {
   SetThreadName("Main Thread");
@@ -31,29 +34,18 @@ void ezProfilingSystem::Initialize()
 
 #else
 
-//static
-void ezProfilingSystem::SetThreadName(const char* szThreadName)
-{
-}
+// static
+void ezProfilingSystem::SetThreadName(const char* szThreadName) {}
 
-void ezProfilingSystem::Initialize()
-{
-}
+void ezProfilingSystem::Initialize() {}
 
-void ezProfilingSystem::Reset()
-{
-}
+void ezProfilingSystem::Reset() {}
 
-void ezProfilingSystem::Capture(ezStreamWriter& outputStream)
-{
-}
+void ezProfilingSystem::Capture(ezStreamWriter& outputStream) {}
 
-void ezProfilingSystem::RemoveThread()
-{
-}
+void ezProfilingSystem::RemoveThread() {}
 
 #endif
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Profiling_Implementation_Profiling);
-

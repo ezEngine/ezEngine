@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Foundation/Math/Plane.h>
 #include <Foundation/Math/Mat4.h>
+#include <Foundation/Math/Plane.h>
 
 /// \brief Enum that describes where in a volume another object is located.
 struct ezVolumePosition
@@ -9,9 +9,9 @@ struct ezVolumePosition
   /// \brief Enum that describes where in a volume another object is located.
   enum Enum
   {
-    Outside,		  //< means an object is ENTIRELY inside a volume
-    Inside,		    //< means an object is outside a volume
-    Intersecting,	//< means an object is PARTIALLY inside/outside a volume
+    Outside,      //< means an object is ENTIRELY inside a volume
+    Inside,       //< means an object is outside a volume
+    Intersecting, //< means an object is PARTIALLY inside/outside a volume
   };
 };
 
@@ -78,7 +78,6 @@ public:
 
 
 private:
-
   enum PlaneType
   {
     NearPlane,
@@ -99,4 +98,3 @@ private:
 };
 
 #include <Foundation/Math/Implementation/Frustum_inl.h>
-

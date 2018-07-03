@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <Foundation/Memory/EndianHelper.h>
 
 void ezEndianHelper::SwitchStruct(void* pDataPointer, const char* szFormat)
@@ -20,29 +21,28 @@ void ezEndianHelper::SwitchStruct(void* pDataPointer, const char* szFormat)
 
       case 's':
       case 'w':
-        {
+      {
         ezUInt16* pWordElement = reinterpret_cast<ezUInt16*>(pWorkPointer);
         *pWordElement = Switch(*pWordElement);
         pWorkPointer += sizeof(ezUInt16);
-        }
-        break;
+      }
+      break;
 
       case 'd':
-        {
+      {
         ezUInt32* pDWordElement = reinterpret_cast<ezUInt32*>(pWorkPointer);
         *pDWordElement = Switch(*pDWordElement);
         pWorkPointer += sizeof(ezUInt32);
-        }
-        break;
+      }
+      break;
 
       case 'q':
-        {
+      {
         ezUInt64* pQWordElement = reinterpret_cast<ezUInt64*>(pWorkPointer);
         *pQWordElement = Switch(*pQWordElement);
         pWorkPointer += sizeof(ezUInt64);
-        }
-        break;
-
+      }
+      break;
     }
 
     szFormat++;
@@ -64,4 +64,3 @@ void ezEndianHelper::SwitchStructs(void* pDataPointer, const char* szFormat, ezU
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Memory_Implementation_EndianHelper);
-

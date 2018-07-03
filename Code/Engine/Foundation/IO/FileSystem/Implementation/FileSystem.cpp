@@ -5,19 +5,21 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, FileSystem)
 
-ON_CORE_STARTUP
-{
-  ezFileSystem::Startup();
-}
+  ON_CORE_STARTUP
+  {
+    ezFileSystem::Startup();
+  }
 
-ON_CORE_SHUTDOWN
-{
-  ezFileSystem::Shutdown();
-}
+  ON_CORE_SHUTDOWN
+  {
+    ezFileSystem::Shutdown();
+  }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezFileSystem::FileSystemData* ezFileSystem::s_Data = nullptr;
 ezString ezFileSystem::s_sSdkRootDir;

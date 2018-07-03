@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 EZ_ALWAYS_INLINE ezColorLinearUB::ezColorLinearUB(ezUInt8 R, ezUInt8 G, ezUInt8 B, ezUInt8 A /* = 255*/)
 {
@@ -64,5 +64,3 @@ inline ezColor ezColorGammaUB::ToLinearFloat() const
 
   return ezColor(linear.x, linear.y, linear.z, a * (1.0f / 255.0f));
 }
-
-

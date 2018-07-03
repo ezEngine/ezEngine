@@ -1,10 +1,12 @@
 #include <PCH.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
+
 #include <Foundation/Configuration/Startup.h>
+#include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/DocumentActions.h>
 
 ezMap<ezString, ezActionMap*> ezActionMapManager::s_Mappings;
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ActionMapManager)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -21,7 +23,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ActionMapManager)
     ezActionMapManager::Shutdown();
   }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ////////////////////////////////////////////////////////////////////////
 // ezActionMapManager public functions

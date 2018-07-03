@@ -1,10 +1,11 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Foundation/Math/Math.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  ezProjectionDepthRange::Enum ezProjectionDepthRange::Default = ezProjectionDepthRange::ZeroToOne; // Default on Windows is D3D convention
+ezProjectionDepthRange::Enum ezProjectionDepthRange::Default = ezProjectionDepthRange::ZeroToOne; // Default on Windows is D3D convention
 #else
-  ezProjectionDepthRange::Enum ezProjectionDepthRange::Default = ezProjectionDepthRange::MinusOneToOne; // Default everywhere else is OpenGL convention
+ezProjectionDepthRange::Enum ezProjectionDepthRange::Default = ezProjectionDepthRange::MinusOneToOne; // Default everywhere else is OpenGL convention
 #endif
 
 
@@ -79,4 +80,3 @@ void ezAngle::NormalizeRange()
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Math);
-

@@ -1,14 +1,16 @@
 #include <PCH.h>
-#include <ToolsFoundation/Document/PrefabCache.h>
+
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Serialization/DdlSerializer.h>
+#include <ToolsFoundation/Document/PrefabCache.h>
 #include <ToolsFoundation/Document/PrefabUtils.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
-#include <Foundation/Serialization/DdlSerializer.h>
 
 EZ_IMPLEMENT_SINGLETON(ezPrefabCache);
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, ezPrefabCache)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -34,11 +36,11 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, ezPrefabCache)
   {
   }
 
-EZ_END_SUBSYSTEM_DECLARATION
-
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezPrefabCache::ezPrefabCache()
-  : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
 {
 }
 
@@ -79,7 +81,8 @@ ezPrefabCache::PrefabData& ezPrefabCache::GetOrCreatePrefabCache(const ezUuid& d
   if (it.IsValid())
   {
     ezFileStats Stats;
-    if (ezOSFile::GetFileStats(it.Value()->m_sAbsPath, Stats).Succeeded() && !Stats.m_LastModificationTime.Compare(it.Value()->m_fileModifiedTime, ezTimestamp::CompareMode::FileTimeEqual))
+    if (ezOSFile::GetFileStats(it.Value()->m_sAbsPath, Stats).Succeeded() &&
+        !Stats.m_LastModificationTime.Compare(it.Value()->m_fileModifiedTime, ezTimestamp::CompareMode::FileTimeEqual))
     {
       UpdatePrefabData(*it.Value().Borrow());
     }
@@ -134,5 +137,4 @@ void ezPrefabCache::UpdatePrefabData(PrefabData& data)
   data.m_fileModifiedTime = Stats.m_LastModificationTime;
   data.m_Graph.Clear();
   ezPrefabUtils::LoadGraph(data.m_Graph, data.m_sDocContent);
-
 }

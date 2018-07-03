@@ -1,13 +1,15 @@
 #include <PCH.h>
+
 #include <Core/World/World.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezWorldModule, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezWorldModule::ezWorldModule(ezWorld* pWorld)
-  : m_pWorld(pWorld)
+    : m_pWorld(pWorld)
 {
-
 }
 
 ezWorldModule::~ezWorldModule()
@@ -53,6 +55,7 @@ void ezWorldModule::DeinitializeInternal()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, WorldModuleFactory)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -70,7 +73,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, WorldModuleFactory)
     ezPlugin::s_PluginEvents.RemoveEventHandler(ezWorldModuleFactory::PluginEventHandler);
   }
 
-EZ_END_SUBSYSTEM_DECLARATION
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 static ezUInt16 s_uiNextTypeId = 0;
 
@@ -181,4 +185,3 @@ void ezWorldModuleFactory::FillBaseTypeIds()
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_WorldModule);
-

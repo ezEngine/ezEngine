@@ -7,17 +7,18 @@
 /// \details
 ///   The following concepts are realized:
 ///   Copy: Copying a object from a to b means that two equivalent objects will exists in both a and b.
-///   Move: Moving an object from a to b menas that the object will exist in b afterwards but a will be empty afterwards, but not destructed. This strictly requires an available move constructor (compile error otherwise).
-///   Relocate: Relocating an object from a to b means that the object will exist in b afterwards but will no longer exist in a, which means a will be moved if available or copied, but destructed afterwards in any case.
-///   Construct: Constructing assumes that the destination does not contain a valid object.
+///   Move: Moving an object from a to b means that the object will exist in b afterwards but a will be empty afterwards, but not
+///   destructed. This strictly requires an available move constructor (compile error otherwise). Relocate: Relocating an object from a to b
+///   means that the object will exist in b afterwards but will no longer exist in a, which means a will be moved if available or copied,
+///   but destructed afterwards in any case. Construct: Constructing assumes that the destination does not contain a valid object.
 ///   Overlapped: The source and destination range may overlap for the operation to be performed.
 ///   The above mentioned concepts can be combined, e.g. RelocateConstruct for relocating to an uninitialized buffer.
 class ezMemoryUtils
 {
 public:
-  typedef void(*ConstructorFunction)(void* pDestination);
-  typedef void(*CopyConstructorFunction)(void* pDestination, const void* pSource);
-  typedef void(*DestructorFunction)(void* pDestination);
+  typedef void (*ConstructorFunction)(void* pDestination);
+  typedef void (*CopyConstructorFunction)(void* pDestination, const void* pSource);
+  typedef void (*DestructorFunction)(void* pDestination);
 
   /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination.
   ///
@@ -29,11 +30,13 @@ public:
   template <typename T>
   static ConstructorFunction MakeConstructorFunction(); // [tested]
 
-  /// \brief Default constructs \a uiCount objects of type T in a raw buffer at \a pDestination regardless of T being a class, POD or trivial.
+  /// \brief Default constructs \a uiCount objects of type T in a raw buffer at \a pDestination regardless of T being a class, POD or
+  /// trivial.
   template <typename T>
   static void DefaultConstruct(T* pDestination, size_t uiCount); // [tested]
 
-  /// \brief Returns a function pointer to construct an instance of T. Always returns a constructor function regardless of T being a class, POD or trivial.
+  /// \brief Returns a function pointer to construct an instance of T. Always returns a constructor function regardless of T being a class,
+  /// POD or trivial.
   template <typename T>
   static ConstructorFunction MakeDefaultConstructorFunction(); // [tested]
 
@@ -41,7 +44,8 @@ public:
   template <typename Destination, typename Source>
   static void CopyConstruct(Destination* pDestination, const Source& copy, size_t uiCount); // [tested]
 
-  /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination from an existing array of objects at \a pSource by using copy construction.
+  /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination from an existing array of objects at \a pSource by
+  /// using copy construction.
   template <typename T>
   static void CopyConstructArray(T* pDestination, const T* pSource, size_t uiCount); // [tested]
 
@@ -53,16 +57,19 @@ public:
   template <typename T>
   static void MoveConstruct(T* pDestination, T&& source); // [tested]
 
-  /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination from an existing array of objects at \a pSource by using move construction.
+  /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination from an existing array of objects at \a pSource by
+  /// using move construction.
   template <typename T>
   static void MoveConstruct(T* pDestination, T* pSource, size_t uiCount);
 
-  /// \brief This function will either move call MoveConstruct or CopyConstruct for a single element \a source, depending on whether it was called with a rvalue reference or a const reference to \a source.
+  /// \brief This function will either move call MoveConstruct or CopyConstruct for a single element \a source, depending on whether it was
+  /// called with a rvalue reference or a const reference to \a source.
   template <typename Destination, typename Source>
   static void CopyOrMoveConstruct(Destination* pDestination, Source&& source);
 
-  /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination from an existing array of objects at \a pSource by using move construction if availble, otherwise by copy construction.
-  /// Calls destructor of source elements in any case (if it is a non primitive or memrelocatable type).
+  /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination from an existing array of objects at \a pSource by
+  /// using move construction if availble, otherwise by copy construction. Calls destructor of source elements in any case (if it is a non
+  /// primitive or memrelocatable type).
   template <typename T>
   static void RelocateConstruct(T* pDestination, T* pSource, size_t uiCount);
 
@@ -142,7 +149,7 @@ public:
   template <typename T>
   static bool IsAligned(const T* ptr, size_t uiAlignment); // [tested]
 
-   /// \brief Checks whether the given size is aligned.
+  /// \brief Checks whether the given size is aligned.
   template <typename T>
   static bool IsSizeAligned(T uiSize, T uiAlignment); // [tested]
 
@@ -176,7 +183,7 @@ private:
   static void CopyConstructArray(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass);
 
 
-  typedef std::false_type NotRValueReference;  
+  typedef std::false_type NotRValueReference;
   typedef std::true_type IsRValueReference;
 
   template <typename Destination, typename Source>
@@ -246,4 +253,3 @@ private:
 };
 
 #include <Foundation/Memory/Implementation/MemoryUtils_inl.h>
-
