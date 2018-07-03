@@ -1,5 +1,5 @@
-﻿#include <PCH.h>
-#include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementGraphQt.moc.h>
+#include <PCH.h>
+#include <EditorPluginProceduralPlacement/ProceduralPlacementAsset/ProceduralPlacementGraphQt.h>
 #include <ToolsFoundation/Command/NodeCommands.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
@@ -8,6 +8,7 @@
 #include <QTimer>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/TranslationLookup.h>
+#include <GuiFoundation/NodeEditor/Pin.h>
 
 namespace
 {

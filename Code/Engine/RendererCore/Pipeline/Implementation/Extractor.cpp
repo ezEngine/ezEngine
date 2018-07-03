@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <RendererCore/Pipeline/Extractor.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/Debug/DebugRenderer.h>
@@ -6,6 +7,7 @@
 #include <Core/World/World.h>
 #include <Core/World/SpatialSystem_RegularGrid.h>
 #include <Foundation/Configuration/CVar.h>
+#include <RendererCore/Pipeline/ExtractedRenderData.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezCVarBool CVarVisBounds("r_VisBounds", false, ezCVarFlags::Default, "Enables debug visualization of object bounds");

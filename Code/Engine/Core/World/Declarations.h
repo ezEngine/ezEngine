@@ -165,7 +165,8 @@ struct ezHashHelper<ezComponentHandle>
 {
   EZ_ALWAYS_INLINE static ezUInt32 Hash(ezComponentHandle value)
   {
-    ezUInt64 data = *reinterpret_cast<ezUInt64*>(&value.GetInternalID());
+    ezComponentId id = value.GetInternalID();
+    ezUInt64 data = *reinterpret_cast<ezUInt64*>(&id);
     return ezHashHelper<ezUInt64>::Hash(data);
   }
 

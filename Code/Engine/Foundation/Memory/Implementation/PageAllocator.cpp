@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <Foundation/Memory/PageAllocator.h>
 #include <Foundation/System/SystemInformation.h>
+#include <Foundation/Memory/MemoryTracker.h>
 
 static ezAllocatorId GetPageAllocatorId()
 {
