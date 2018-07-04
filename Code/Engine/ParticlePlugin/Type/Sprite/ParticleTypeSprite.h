@@ -6,7 +6,6 @@
 #include <ParticlePlugin/Type/Sprite/SpriteRenderer.h>
 
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
-struct ezSpriteParticleData;
 
 struct EZ_PARTICLEPLUGIN_DLL ezSpriteAxis
 {
@@ -73,7 +72,7 @@ protected:
   ezProcessingStream* m_pStreamRotationOffset = nullptr;
   ezProcessingStream* m_pStreamAxis = nullptr;
 
-  mutable ezArrayPtr<ezSpriteParticleData> m_ParticleData;
+  mutable ezArrayPtr<ezQuadParticleShaderData> m_ParticleData;
 };
 
 

@@ -38,7 +38,7 @@ void ezParticleDistortionRenderer::CreateDataBuffer()
   if (m_hDataBuffer.IsInvalidated())
   {
     ezGALBufferCreationDescription desc;
-    desc.m_uiStructSize = sizeof(ezDistortionParticleData);
+    desc.m_uiStructSize = sizeof(ezBillboardParticleData);
     desc.m_uiTotalSize = s_uiParticlesPerBatch * desc.m_uiStructSize;
     desc.m_BufferType = ezGALBufferType::Generic;
     desc.m_bUseAsStructuredBuffer = true;
@@ -84,7 +84,7 @@ void ezParticleDistortionRenderer::RenderBatch(const ezRenderViewContext& render
     const ezParticleDistortionRenderData* pRenderData = it;
     ezUInt32 uiNumParticles = pRenderData->m_ParticleData.GetCount();
 
-    const ezDistortionParticleData* pParticleData = pRenderData->m_ParticleData.GetPtr();
+    const ezBillboardParticleData* pParticleData = pRenderData->m_ParticleData.GetPtr();
 
     renderViewContext.m_pRenderContext->BindTexture2D("ParticleMaskTexture", pRenderData->m_hMaskTexture);
     renderViewContext.m_pRenderContext->BindTexture2D("ParticleDistortionTexture", pRenderData->m_hDistortionTexture);

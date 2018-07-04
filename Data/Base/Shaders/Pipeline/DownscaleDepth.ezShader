@@ -27,8 +27,6 @@ struct PS_IN
 #include <Shaders/Pipeline/Utils.h>
 #include "DownscaleDepthConstants.h"
 
-#if EZ_ENABLED(PLATFORM_DX11)
-
 Texture2D DepthTexture;
 SamplerState DepthSampler;
 
@@ -59,6 +57,3 @@ float4 main(PS_IN Input) : SV_Target
 
   return depth;
 }
-
-#endif
-

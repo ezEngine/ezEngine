@@ -29,30 +29,14 @@ CullMode = CullMode_None
 
 [VERTEXSHADER]
 
-#define USE_TEXCOORD0
-#define USE_COLOR
-
-#include <Shaders/Common/GlobalConstants.h>
-#include <Shaders/Materials/MaterialInterpolator.h>
+#include <Shaders/Particles/ParticleCommonVS.h>
 #include <Shaders/Particles/TrailShaderData.h>
-
-#if EZ_ENABLED(PLATFORM_DX11)
 
 #define TRAIL_SEGMENTS (PARTICLE_TRAIL_POINTS - 1)
 
 VS_OUT main(uint VertexID : SV_VertexID)
 {
   int trailIndexOffset[6] = { 0, 1, 1, 0, 1, 0 };
-
-  float2 texCoords[6] =
-  {
-    float2(0.0, 0.0),
-    float2(1.0, 0.0),
-    float2(1.0, 1.0),
-    float2(0.0, 0.0),
-    float2(1.0, 1.0),
-    float2(0.0, 1.0),
-  };
 
   // TODO: We could use NumUsedTrailPoints instead of TRAIL_SEGMENTS and then render fewer triangles
   // However, TRAIL_SEGMENTS is a compile time constant, so not clear what might be more efficient.
@@ -95,14 +79,14 @@ VS_OUT main(uint VertexID : SV_VertexID)
     float3 dirRight = mul(ObjectToWorldMatrix, float4(avgDirection, 0)).xyz;
     float3 dirUp = normalize(cross(dirRight, GetCameraDirForwards())) * particle.Size;
 
-    float4 offsetRight = float4(dirRight * texCoords[vertexSubIndex].x, 0);
-    float4 offsetUp = float4(dirUp * (texCoords[vertexSubIndex].y - 0.5), 0);
+    float4 offsetRight = float4(dirRight * QuadTexCoords[vertexSubIndex].x, 0);
+    float4 offsetUp = float4(dirUp * (QuadTexCoords[vertexSubIndex].y - 0.5), 0);
 
     float4 position = mul(ObjectToWorldMatrix, float4(position0, 1)) + offsetUp;
 
     ret.Position = mul(GetWorldToScreenMatrix(), position);
     ret.TexCoords.x = uvCoord;
-    ret.TexCoords.y = texCoords[vertexSubIndex].y;
+    ret.TexCoords.y = QuadTexCoords[vertexSubIndex].y;
     ret.Color = RGBA8ToFloat4(particle.Color);
 
     // do NOT adjust the UV of the very first vertex, that is the one moves all the time and is always at UV.x == 0
@@ -118,18 +102,9 @@ VS_OUT main(uint VertexID : SV_VertexID)
   return ret;
 }
 
-#endif
-
-
 [PIXELSHADER]
 
-#define USE_TEXCOORD0
-#define USE_COLOR
-
-#include <Shaders/Materials/MaterialInterpolator.h>
-#include <Shaders/Common/Lighting.h>
-
-#if EZ_ENABLED(PLATFORM_DX11)
+#include <Shaders/Particles/ParticleCommonPS.h>
 
 Texture2D ParticleTexture;
 SamplerState ParticleTexture_AutoSampler;
@@ -138,16 +113,12 @@ float4 main(PS_IN Input) : SV_Target
 {
   float4 texCol = ParticleTexture.Sample(ParticleTexture_AutoSampler, Input.TexCoords.xy);
 
-  float closeToGeometryFadeOut = DepthFade(Input.Position.xyw, 0.1);
-  //closeToGeometryFadeOut = 1;
-  float distanceToCameraFadeOut = saturate(Input.Position.w / 0.5);
+  float proximityFadeOut = CalcProximityFadeOut(Input.Position);
 
-  float opacity = Input.Color.a * texCol.a * closeToGeometryFadeOut * distanceToCameraFadeOut;
+  float opacity = Input.Color.a * texCol.a * proximityFadeOut;
 
   clip(opacity - 0.01);
 
   return float4(texCol.rgb * Input.Color.rgb * opacity, opacity);
 }
-
-#endif
 

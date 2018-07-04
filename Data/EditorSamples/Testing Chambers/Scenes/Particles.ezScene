@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10397632043479265953,5177341319926404083}}
-		u4 %Hash{10076756634597646459}
+		u4 %Hash{7949321122311827593}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -68,7 +68,10 @@ o
 	p
 	{
 		b %Active{1}
-		VarDict %Parameters{}
+		VarDict %Parameters
+		{
+			s %Label{"Stone"}
+		}
 		s %Prefab{"{ c49af1cd-233c-4af2-9edc-5c12d1456e32 }"}
 	}
 }
@@ -181,7 +184,10 @@ o
 	p
 	{
 		b %Active{1}
-		VarDict %Parameters{}
+		VarDict %Parameters
+		{
+			s %Label{"Fire"}
+		}
 		s %Prefab{"{ c49af1cd-233c-4af2-9edc-5c12d1456e32 }"}
 	}
 }
@@ -391,7 +397,10 @@ o
 	p
 	{
 		b %Active{1}
-		VarDict %Parameters{}
+		VarDict %Parameters
+		{
+			s %Label{"Spark Bursts"}
+		}
 		s %Prefab{"{ c49af1cd-233c-4af2-9edc-5c12d1456e32 }"}
 	}
 }
@@ -403,7 +412,10 @@ o
 	p
 	{
 		b %Active{1}
-		VarDict %Parameters{}
+		VarDict %Parameters
+		{
+			s %Label{"Impact Sparks"}
+		}
 		s %Prefab{"{ c49af1cd-233c-4af2-9edc-5c12d1456e32 }"}
 	}
 }
@@ -821,6 +833,32 @@ o
 }
 o
 {
+	Uuid %id{u4{7685607605337912737,4649701632421638039}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{12049466160263710391,5147191508196511199}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x000000C0,0x0000BCC1,0}}
+		Quat %LocalRotation{f{0,0,0xEE8384BE,0xEA46773F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{8741154852630916998,4660516589553992680}}
 	s %t{"ezParticleComponent"}
 	u3 %v{3}
@@ -882,32 +920,6 @@ o
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x000040BF,0x00002CC1,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-			s{"AutoColMesh"}
-		}
-	}
-}
-o
-{
-	Uuid %id{u4{2803542451872173974,4684489042004706510}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{9045036405934350491,5351055241004006316}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x000000C0,0x0000BCC1,0}}
-		Quat %LocalRotation{f{0,0,0xEE8384BE,0xEA46773F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -1271,6 +1283,18 @@ o
 }
 o
 {
+	Uuid %id{u4{12049466160263710391,5147191508196511199}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
+	}
+}
+o
+{
 	Uuid %id{u4{7762657555460290455,5152181436861837777}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -1423,18 +1447,6 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{9045036405934350491,5351055241004006316}}
-	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarDict %Parameters{}
-		s %Prefab{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
 	}
 }
 o
@@ -1905,7 +1917,7 @@ o
 			Uuid{u4{33066654432473145,10305381422365041551}}
 			Uuid{u4{4297086766439016889,15616775350136567724}}
 			Uuid{u4{10632761094881347127,9939274834476631098}}
-			Uuid{u4{2803542451872173974,4684489042004706510}}
+			Uuid{u4{7685607605337912737,4649701632421638039}}
 		}
 		Uuid %Settings{u4{15161553721701243557,5209781642161874369}}
 	}
@@ -1918,7 +1930,10 @@ o
 	p
 	{
 		b %Active{1}
-		VarDict %Parameters{}
+		VarDict %Parameters
+		{
+			s %Label{"Smoke"}
+		}
 		s %Prefab{"{ c49af1cd-233c-4af2-9edc-5c12d1456e32 }"}
 	}
 }
@@ -2215,7 +2230,10 @@ o
 	p
 	{
 		b %Active{1}
-		VarDict %Parameters{}
+		VarDict %Parameters
+		{
+			s %Label{"Plasma Impacts"}
+		}
 		s %Prefab{"{ c49af1cd-233c-4af2-9edc-5c12d1456e32 }"}
 	}
 }
@@ -2510,7 +2528,10 @@ o
 	p
 	{
 		b %Active{1}
-		VarDict %Parameters{}
+		VarDict %Parameters
+		{
+			s %Label{"Breaking Rock"}
+		}
 		s %Prefab{"{ c49af1cd-233c-4af2-9edc-5c12d1456e32 }"}
 	}
 }
@@ -3253,7 +3274,10 @@ o
 	p
 	{
 		b %Active{1}
-		VarDict %Parameters{}
+		VarDict %Parameters
+		{
+			s %Label{"Steam"}
+		}
 		s %Prefab{"{ c49af1cd-233c-4af2-9edc-5c12d1456e32 }"}
 	}
 }
@@ -3377,7 +3401,10 @@ o
 	p
 	{
 		b %Active{1}
-		VarDict %Parameters{}
+		VarDict %Parameters
+		{
+			s %Label{"Small Explosion"}
+		}
 		s %Prefab{"{ c49af1cd-233c-4af2-9edc-5c12d1456e32 }"}
 	}
 }
@@ -3676,7 +3703,10 @@ o
 	p
 	{
 		b %Active{1}
-		VarDict %Parameters{}
+		VarDict %Parameters
+		{
+			s %Label{"Continuous Sparks"}
+		}
 		s %Prefab{"{ c49af1cd-233c-4af2-9edc-5c12d1456e32 }"}
 	}
 }
@@ -3688,7 +3718,10 @@ o
 	p
 	{
 		b %Active{1}
-		VarDict %Parameters{}
+		VarDict %Parameters
+		{
+			s %Label{"Torch Fire"}
+		}
 		s %Prefab{"{ c49af1cd-233c-4af2-9edc-5c12d1456e32 }"}
 	}
 }
@@ -3700,7 +3733,10 @@ o
 	p
 	{
 		b %Active{1}
-		VarDict %Parameters{}
+		VarDict %Parameters
+		{
+			s %Label{"Breaking Stone"}
+		}
 		s %Prefab{"{ c49af1cd-233c-4af2-9edc-5c12d1456e32 }"}
 	}
 }
@@ -3954,7 +3990,7 @@ o
 			Uuid{u4{17143543744511656195,14923806679577461799}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x00005CC1,0x00004841,0x00001040}}
+		Vec3 %LocalPosition{f{0x00005CC1,0x8AE34841,0x00001040}}
 		Quat %LocalRotation{f{0x6DBC2A3A,0x7ADC343F,0x592D353F,0xC6082B3A}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -4457,7 +4493,10 @@ o
 	p
 	{
 		b %Active{1}
-		VarDict %Parameters{}
+		VarDict %Parameters
+		{
+			s %Label{"Many Points"}
+		}
 		s %Prefab{"{ c49af1cd-233c-4af2-9edc-5c12d1456e32 }"}
 	}
 }

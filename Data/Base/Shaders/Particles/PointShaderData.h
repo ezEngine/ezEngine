@@ -13,7 +13,7 @@ struct EZ_ALIGN_16(ezPointParticleData)
 
 StructuredBuffer<ezPointParticleData> particleData;
 
-#else
+#else // C++
 
 EZ_CHECK_AT_COMPILETIME(sizeof(ezPointParticleData) == 16);
 

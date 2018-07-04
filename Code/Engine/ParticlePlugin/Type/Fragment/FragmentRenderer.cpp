@@ -34,7 +34,7 @@ void ezParticleFragmentRenderer::CreateDataBuffer()
   if (m_hDataBuffer.IsInvalidated())
   {
     ezGALBufferCreationDescription desc;
-    desc.m_uiStructSize = sizeof(ezFragmentParticleData);
+    desc.m_uiStructSize = sizeof(ezQuadParticleShaderData);
     desc.m_uiTotalSize = s_uiParticlesPerBatch * desc.m_uiStructSize;
     desc.m_BufferType = ezGALBufferType::Generic;
     desc.m_bUseAsStructuredBuffer = true;
@@ -61,10 +61,11 @@ void ezParticleFragmentRenderer::RenderBatch(const ezRenderViewContext& renderVi
   {
     if (!m_hShader.IsValid())
     {
-      m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Particles/Fragment.ezShader");
+      m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Particles/Sprite.ezShader");
     }
 
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_OPAQUE");
   }
 
   // make sure our structured buffer is allocated and bound
@@ -80,7 +81,7 @@ void ezParticleFragmentRenderer::RenderBatch(const ezRenderViewContext& renderVi
     const ezParticleFragmentRenderData* pRenderData = it;
     ezUInt32 uiNumParticles = pRenderData->m_ParticleData.GetCount();
 
-    const ezFragmentParticleData* pParticleData = pRenderData->m_ParticleData.GetPtr();
+    const ezQuadParticleShaderData* pParticleData = pRenderData->m_ParticleData.GetPtr();
 
     renderViewContext.m_pRenderContext->BindTexture2D("ParticleTexture", pRenderData->m_hTexture);
 

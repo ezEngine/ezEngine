@@ -27,8 +27,6 @@ struct PS_IN
 #include <Shaders/Common/Common.h>
 #include <Shaders/Common/GlobalConstants.h>
 
-#if EZ_ENABLED(PLATFORM_DX11)
-
 Texture2DMS<float> DepthTexture;
 
 float main(PS_IN Input) : SV_Depth
@@ -43,6 +41,3 @@ float main(PS_IN Input) : SV_Depth
 
   return depth;
 }
-
-#endif
-

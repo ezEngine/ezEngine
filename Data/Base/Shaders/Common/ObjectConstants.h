@@ -20,7 +20,7 @@ struct EZ_ALIGN_16(ezPerInstanceData)
   StructuredBuffer<float4x4> skinningMatrices;
   #endif
 
-#else
+#else // C++
   EZ_CHECK_AT_COMPILETIME(sizeof(ezPerInstanceData) == 128);
 #endif
 

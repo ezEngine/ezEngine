@@ -31,8 +31,6 @@ WireFrame = false
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
 
-#if EZ_ENABLED(PLATFORM_DX11)
-
 struct SpriteData
 {
   float3 worldSpacePosition;
@@ -83,7 +81,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
     float2 maxScreenSize = (data.maxScreenSize * distance * 2.0) * ViewportSize.zw;
     scale = min(scale, maxScreenSize);
   }
-  
+
   scale.x *= data.aspectRatio;
   screenPosition.xy += vertexPosition * scale;
 
@@ -101,9 +99,6 @@ VS_OUT main(uint VertexID : SV_VertexID)
 
   return Output;
 }
-
-#endif
-
 
 [PIXELSHADER]
 
@@ -124,8 +119,6 @@ VS_OUT main(uint VertexID : SV_VertexID)
 
 #include <Shaders/Materials/MaterialHelper.h>
 
-#if EZ_ENABLED(PLATFORM_DX11)
-
 struct PS_OUT
 {
   #if RENDER_PASS != RENDER_PASS_DEPTH_ONLY
@@ -143,7 +136,7 @@ SamplerState SpriteTexture_AutoSampler;
 float GetOpacity(PS_IN Input)
 {
   float opacity = SpriteTexture.Sample(SpriteTexture_AutoSampler, Input.TexCoords.xy).a * Input.Color.a;
-  
+
   #if BLEND_MODE == BLEND_MODE_MASKED
     return opacity - 0.5;
   #else
@@ -184,6 +177,3 @@ PS_OUT main(PS_IN Input)
 
   return Output;
 }
-
-#endif
-

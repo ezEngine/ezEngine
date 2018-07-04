@@ -163,7 +163,7 @@ void ezParticleTypeDistortion::ExtractTypeRenderData(const ezView& view, ezExtra
     const ezFloat16* pRotationOffset = m_pStreamRotationOffset->GetData<ezFloat16>();
 
     // this will automatically be deallocated at the end of the frame
-    m_ParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezDistortionParticleData, numParticles);
+    m_ParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBillboardParticleData, numParticles);
 
     ezTransform trans;
     if (bNeedsSorting)

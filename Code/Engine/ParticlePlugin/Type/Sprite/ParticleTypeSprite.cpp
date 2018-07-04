@@ -221,9 +221,10 @@ void ezParticleTypeSprite::ExtractTypeRenderData(const ezView& view, ezExtracted
     const ezVec2* pLifeTime = m_pStreamLifeTime->GetData<ezVec2>();
 
     // this will automatically be deallocated at the end of the frame
-    m_ParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezSpriteParticleData, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
+    m_ParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezQuadParticleShaderData,
+                                  (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
 
-    ezSpriteParticleData* TempData = m_ParticleData.GetPtr();
+    ezQuadParticleShaderData* TempData = m_ParticleData.GetPtr();
 
     ezTransform t;
 

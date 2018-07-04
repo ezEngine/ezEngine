@@ -22,8 +22,6 @@ CullMode = CullMode_None
 #include <Shaders/Common/Common.h>
 #include <Shaders/Common/GlobalConstants.h>
 
-#if EZ_ENABLED(PLATFORM_DX11)
-
 struct PS_IN
 {
   float4 Position : SV_Position;
@@ -61,6 +59,3 @@ float4 main(PS_IN Input) : SV_Target
   //return overlayColor * 0.1f + float4(GetCameraPosition(), 1.0f);
   return float4(abs(cameraRayDir.xyz), 1.0f);
 }
-
-#endif
-

@@ -9,7 +9,7 @@
 #include <ParticlePlugin/Renderer/ParticleRenderer.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Particles/ParticleSystemConstants.h>
-#include <RendererCore/../../../Data/Base/Shaders/Particles/DistortionShaderData.h>
+#include <RendererCore/../../../Data/Base/Shaders/Particles/BillboardShaderData.h>
 
 typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
@@ -21,7 +21,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleDistortionRenderData : public ezRenderData
 public:
   ezTexture2DResourceHandle m_hMaskTexture;
   ezTexture2DResourceHandle m_hDistortionTexture;
-  ezArrayPtr<ezDistortionParticleData> m_ParticleData;
+  ezArrayPtr<ezBillboardParticleData> m_ParticleData;
   bool m_bApplyObjectTransform = true;
   ezUInt8 m_uiNumSpritesX = 1;
   ezUInt8 m_uiNumSpritesY = 1;

@@ -31,8 +31,6 @@ struct PS_IN
 #include "BilateralBlurConstants.h"
 #include "Utils.h"
 
-#if EZ_ENABLED(PLATFORM_DX11)
-
 Texture2D BlurSource;
 Texture2D DepthBuffer;
 
@@ -89,5 +87,3 @@ float4 main(PS_IN input) : SV_Target
 
   return accum / totalWeights;
 }
-
-#endif

@@ -79,12 +79,12 @@ struct EZ_ALIGN_16(ezDirShadowData)
 struct EZ_ALIGN_16(ezPerDecalData)
 {
   TRANSFORM(worldToDecalMatrix);
-  
+
   UINT1(applyOnlyToId);
   UINT1(decalModeAndFlags);
   UINT1(angleFadeParams); // scale and offset as 16 bit floats
   UINT1(padding0);
-  
+
   UINT1(colorRG); // as 16 bit floats
   UINT1(colorBA); // as 16 bit floats
 
@@ -100,7 +100,7 @@ struct EZ_ALIGN_16(ezPerDecalData)
 
 #if EZ_ENABLED(PLATFORM_DX11)
   StructuredBuffer<ezPerDecalData> perDecalDataBuffer;
-#else
+#else // C++
   EZ_CHECK_AT_COMPILETIME(sizeof(ezPerDecalData) == 96);
 #endif
 
@@ -116,11 +116,11 @@ CONSTANT_BUFFER(ezClusteredDataConstants, 3)
 
   COLOR4F(AmbientTopColor);
   COLOR4F(AmbientBottomColor);
-  
+
   FLOAT1(FogHeight);
   FLOAT1(FogHeightFalloff);
   FLOAT1(FogDensityAtCameraPos);
-  FLOAT1(FogDensity);  
+  FLOAT1(FogDensity);
   COLOR4F(FogColor);
 };
 

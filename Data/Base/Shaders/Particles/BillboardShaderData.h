@@ -16,7 +16,7 @@ struct EZ_ALIGN_16(ezBillboardParticleData)
 
 StructuredBuffer<ezBillboardParticleData> particleData;
 
-#else
+#else // C++
 
 EZ_CHECK_AT_COMPILETIME(sizeof(ezBillboardParticleData) == 64);
 

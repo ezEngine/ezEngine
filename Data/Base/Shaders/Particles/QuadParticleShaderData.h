@@ -2,7 +2,7 @@
 
 #include "ParticleSystemConstants.h"
 
-struct EZ_ALIGN_16(ezSpriteParticleData)
+struct EZ_ALIGN_16(ezQuadParticleShaderData)
 {
   FLOAT3(Position);
   FLOAT1(Life); // 1 to 0
@@ -21,11 +21,11 @@ struct EZ_ALIGN_16(ezSpriteParticleData)
 // this is only defined during shader compilation
 #if EZ_ENABLED(PLATFORM_DX11)
 
-StructuredBuffer<ezSpriteParticleData> particleData;
+StructuredBuffer<ezQuadParticleShaderData> particleData;
 
-#else
+#else // C++
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezSpriteParticleData) == 64);
+EZ_CHECK_AT_COMPILETIME(sizeof(ezQuadParticleShaderData) == 64);
 
 #endif
 

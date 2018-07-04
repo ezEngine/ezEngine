@@ -25,8 +25,6 @@ DepthTest = true
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
 
-#if EZ_ENABLED(PLATFORM_DX11)
-
 VS_OUT main(VS_IN Input)
 {
   VS_OUT RetVal;
@@ -45,17 +43,12 @@ VS_OUT main(VS_IN Input)
   return RetVal;
 }
 
-#endif
-
-
 [PIXELSHADER]
 
 #define USE_COLOR
 #define USE_TEXCOORD0
 
 #include <Shaders/Materials/MaterialInterpolator.h>
-
-#if EZ_ENABLED(PLATFORM_DX11)
 
 Texture2D BaseTexture;
 SamplerState BaseTexture_AutoSampler;
@@ -64,6 +57,3 @@ float4 main(PS_IN Input) : SV_Target
 {
   return BaseTexture.Sample(BaseTexture_AutoSampler, Input.TexCoords.xy) * Input.Color;
 }
-
-#endif
-

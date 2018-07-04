@@ -20,8 +20,6 @@ DepthWrite = false
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
 
-#if EZ_ENABLED(PLATFORM_DX11)
-
 struct GlyphData
 {
 	float2 topLeftCorner;
@@ -67,17 +65,12 @@ VS_OUT main(uint VertexID : SV_VertexID)
 	return RetVal;
 }
 
-#endif
-
-
 [PIXELSHADER]
 
 #define USE_TEXCOORD0
 #define USE_COLOR
 
 #include <Shaders/Materials/MaterialInterpolator.h>
-
-#if EZ_ENABLED(PLATFORM_DX11)
 
 Texture2D FontTexture;
 SamplerState FontTexture_AutoSampler;
@@ -86,6 +79,3 @@ float4 main(PS_IN Input) : SV_Target
 {
 	return FontTexture.Sample(FontTexture_AutoSampler, Input.TexCoords.xy) * Input.Color;
 }
-
-#endif
-

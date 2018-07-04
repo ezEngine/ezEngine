@@ -2,8 +2,6 @@
 
 #if EZ_ENABLED(PLATFORM_DX11)
 
-// HLSL
-
 // For stereo support, set this at the beginning of the shader to access the correct values in all camera getters.
 static uint s_ActiveCameraEyeIndex = 0;
 
@@ -28,10 +26,6 @@ float LinearizeZBufferDepth(float depthFromZBuffer)
 {
   return 1.0f / (depthFromZBuffer * GetScreenToCameraMatrix()._43 + GetScreenToCameraMatrix()._44);
 }
-
-#elif EZ_ENABLED(PLATFORM_OPENGL)
-
-// GLSL
 
 #else
 

@@ -21,8 +21,6 @@ DepthTestFunc = CompareFunc_Less
 #include <Shaders/Editor/GizmoConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
 
-#if EZ_ENABLED(PLATFORM_DX11)
-
 VS_OUT main(VS_IN Input)
 {
 	float4 worldSpacePos = mul(ObjectToWorldMatrix, float4(Input.Position, 1.0f));
@@ -34,17 +32,12 @@ VS_OUT main(VS_IN Input)
 	return RetVal;
 }
 
-#endif
-
-
 [PIXELSHADER]
 
 #define USE_COLOR
 
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
-
-#if EZ_ENABLED(PLATFORM_DX11)
 
 float4 main(PS_IN Input) : SV_Target
 {
@@ -54,6 +47,3 @@ float4 main(PS_IN Input) : SV_Target
 
   return Input.Color;
 }
-
-#endif
-

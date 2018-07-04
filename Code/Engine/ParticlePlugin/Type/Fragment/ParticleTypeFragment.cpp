@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <ParticlePlugin/Type/Fragment/ParticleTypeFragment.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
@@ -15,6 +16,7 @@
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <Foundation/Math/Float16.h>
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezFragmentAxis, 1)
 EZ_ENUM_CONSTANTS(ezFragmentAxis::OrthogonalEmitterDirection, ezFragmentAxis::EmitterDirection)
 EZ_END_STATIC_REFLECTED_ENUM;
@@ -34,6 +36,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeFragment, 1, ezRTTIDefaultAllocator<ezParticleTypeFragment>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 const ezRTTI* ezParticleTypeFragmentFactory::GetTypeType() const
 {
@@ -143,7 +146,8 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
     const ezVec2* pLifeTime = m_pStreamLifeTime->GetData<ezVec2>();
 
     // this will automatically be deallocated at the end of the frame
-    m_ParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezFragmentParticleData, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
+    m_ParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezQuadParticleShaderData,
+                                  (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
 
     ezTransform t;
 

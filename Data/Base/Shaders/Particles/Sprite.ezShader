@@ -2,23 +2,22 @@
 ALL
 
 [PERMUTATIONS]
+
 PARTICLE_RENDER_MODE
 SHADING_QUALITY=SHADING_QUALITY_NORMAL
 
 [RENDERSTATE]
 
 BlendingEnabled0 = true
-SourceBlend0 = Blend_One
+SourceBlend0 = Blend_SrcAlpha
 
 DepthTest = true
 DepthWrite = false
 CullMode = CullMode_None
 
 #if PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_ADDITIVE
-  // also premultiplied alpha assuming alpha is zero
   DestBlend0 = Blend_One
 #elif PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_BLENDED
-  // premultiplied alpha
   DestBlend0 = Blend_InvSrcAlpha
 #elif PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_OPAQUE
   BlendingEnabled0 = false
@@ -27,65 +26,28 @@ CullMode = CullMode_None
 
 [VERTEXSHADER]
 
-#define USE_TEXCOORD0
-#define USE_COLOR
-
-#include <Shaders/Common/GlobalConstants.h>
-#include <Shaders/Materials/MaterialInterpolator.h>
-#include <Shaders/Particles/FragmentShaderData.h>
-#include <Shaders/Particles/ParticleHelpers.h>
-
-#if EZ_ENABLED(PLATFORM_DX11)
+#include <Shaders/Particles/ParticleCommonVS.h>
+#include <Shaders/Particles/QuadParticleShaderData.h>
 
 VS_OUT main(uint VertexID : SV_VertexID)
 {
-  float2 texCoords[6] =
-  {
-    float2(0.0, 0.0),
-    float2(1.0, 0.0),
-    float2(1.0, 1.0),
-    float2(0.0, 0.0),
-    float2(1.0, 1.0),
-    float2(0.0, 1.0),
-  };
+  uint dataIndex = CalcQuadParticleDataIndex(VertexID);
+  uint vertexIndex = CalcQuadParticleVertexIndex(VertexID);
 
-  uint index = VertexID / 6;
-  uint vertexIndex = VertexID % 6;
-
-  ezFragmentParticleData particle = particleData[index];
-
-  float4 position = float4(particle.Position.xyz, 1);
-
-  float4 tangentX = float4(particle.TangentX, 0);
-  float4 tangentZ = float4(particle.TangentZ, 0);
-
-  float4 offsetRight = tangentX * (texCoords[vertexIndex].x - 0.5) * particle.Size;
-  float4 offsetUp = tangentZ * (texCoords[vertexIndex].y - 0.5) * -particle.Size;
-
-  float4 worldPosition = mul(ObjectToWorldMatrix, position + offsetRight + offsetUp);
-  float4 screenPosition = mul(GetWorldToScreenMatrix(), worldPosition);
-
+  ezQuadParticleShaderData particle = particleData[dataIndex];
 
   VS_OUT ret;
-  ret.Position = screenPosition;
-  ret.TexCoords = ComputeSpriteAnimationTexCoord(texCoords[vertexIndex], NumSpritesX, NumSpritesY, particle.Life);
+  ret.Position = CalcQuadOutputPositionWithTangents(vertexIndex, particle.Position.xyz, particle.TangentX, particle.TangentZ, particle.Size);
+  ret.TexCoords = ComputeSpriteAnimationTexCoord(QuadTexCoords[vertexIndex], NumSpritesX, NumSpritesY, particle.Life);
   ret.Color = RGBA8ToFloat4(particle.Color);
 
   return ret;
 }
 
-#endif
-
 
 [PIXELSHADER]
 
-#define USE_TEXCOORD0
-#define USE_COLOR
-
-#include <Shaders/Materials/MaterialInterpolator.h>
-#include <Shaders/Common/Lighting.h>
-
-#if EZ_ENABLED(PLATFORM_DX11)
+#include <Shaders/Particles/ParticleCommonPS.h>
 
 Texture2D ParticleTexture;
 SamplerState ParticleTexture_AutoSampler;
@@ -94,16 +56,11 @@ float4 main(PS_IN Input) : SV_Target
 {
   float4 texCol = ParticleTexture.Sample(ParticleTexture_AutoSampler, Input.TexCoords.xy);
 
-  float closeToGeometryFadeOut = DepthFade(Input.Position.xyw, 0.1);
-  //closeToGeometryFadeOut = 1;
-  float distanceToCameraFadeOut = saturate(Input.Position.w / 0.5);
+  float proximityFadeOut = CalcProximityFadeOut(Input.Position);
 
-  float opacity = Input.Color.a * texCol.a * closeToGeometryFadeOut * distanceToCameraFadeOut;
+  float opacity = Input.Color.a * texCol.a * proximityFadeOut;
 
   clip(opacity - 0.01);
 
-  return float4(texCol.rgb * Input.Color.rgb * opacity, opacity);
+  return float4(texCol.rgb * Input.Color.rgb, opacity);
 }
-
-#endif
-

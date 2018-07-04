@@ -43,8 +43,6 @@ CAMERA_MODE
 #include <Shaders/Editor/GizmoConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
 
-#if EZ_ENABLED(PLATFORM_DX11)
-
 VS_OUT main(VS_IN Input)
 {
 	float3 centerPosition = mul(ObjectToWorldMatrix, float4(0, 0, 0, 1)).xyz;
@@ -69,9 +67,6 @@ VS_OUT main(VS_IN Input)
 	return RetVal;
 }
 
-#endif
-
-
 [PIXELSHADER]
 
 #define USE_COLOR
@@ -79,8 +74,6 @@ VS_OUT main(VS_IN Input)
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Editor/GizmoConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
-
-#if EZ_ENABLED(PLATFORM_DX11)
 
 float4 main(PS_IN Input) : SV_Target
 {
@@ -96,6 +89,4 @@ float4 main(PS_IN Input) : SV_Target
 
 #endif
 }
-
-#endif
 

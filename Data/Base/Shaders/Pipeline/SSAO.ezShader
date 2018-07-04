@@ -27,8 +27,6 @@ struct PS_IN
 #include <Shaders/Pipeline/Utils.h>
 #include "SSAOConstants.h"
 
-#if EZ_ENABLED(PLATFORM_DX11)
-
 Texture2D DepthTexture;
 Texture2D LowResDepthTexture;
 SamplerState DepthSampler;
@@ -211,5 +209,4 @@ float4 main(PS_IN Input) : SV_Target
   return float4(occlusion, linearCenterDepth, 0, 1);
 }
 
-#endif
 

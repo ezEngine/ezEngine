@@ -27,8 +27,6 @@ struct PS_IN
   float2 TexCoord0 : TEXCOORD0;
 };
 
-#if EZ_ENABLED(PLATFORM_DX11)
-
 // From http://filmicgames.com/archives/75
 float3 FilmicTonemap(float3 x)
 {
@@ -109,6 +107,3 @@ float4 main(PS_IN Input) : SV_Target
 
   return float4(color, sceneColor.a);
 }
-
-#endif
-

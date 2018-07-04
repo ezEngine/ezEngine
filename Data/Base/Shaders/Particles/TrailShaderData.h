@@ -51,7 +51,7 @@ StructuredBuffer<ezTrailParticleData> particleData;
   StructuredBuffer<ezTrailParticlePointsData64> particlePointsData;
 #endif
 
-#else
+#else // C++
 
 EZ_CHECK_AT_COMPILETIME(sizeof(ezTrailParticleData) == 16);
 

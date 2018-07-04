@@ -26,8 +26,6 @@ struct PS_IN
 #include <Shaders/Common/Common.h>
 #include <Shaders/Common/GlobalConstants.h>
 
-#if EZ_ENABLED(PLATFORM_DX11)
-
 Texture2D ColorTexture;
 
 float4 main(PS_IN Input) : SV_Target
@@ -35,6 +33,4 @@ float4 main(PS_IN Input) : SV_Target
   int2 coords = Input.Position.xy;
   return ColorTexture.Load(int3(coords, 0));
 }
-
-#endif
 

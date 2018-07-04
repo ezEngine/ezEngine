@@ -34,7 +34,7 @@ void ezParticleSpriteRenderer::CreateDataBuffer()
   if (m_hDataBuffer.IsInvalidated())
   {
     ezGALBufferCreationDescription desc;
-    desc.m_uiStructSize = sizeof(ezSpriteParticleData);
+    desc.m_uiStructSize = sizeof(ezQuadParticleShaderData);
     desc.m_uiTotalSize = s_uiParticlesPerBatch * desc.m_uiStructSize;
     desc.m_BufferType = ezGALBufferType::Generic;
     desc.m_bUseAsStructuredBuffer = true;
@@ -80,7 +80,7 @@ void ezParticleSpriteRenderer::RenderBatch(const ezRenderViewContext& renderView
     const ezParticleSpriteRenderData* pRenderData = it;
     ezUInt32 uiNumParticles = pRenderData->m_ParticleData.GetCount();
 
-    const ezSpriteParticleData* pParticleData = pRenderData->m_ParticleData.GetPtr();
+    const ezQuadParticleShaderData* pParticleData = pRenderData->m_ParticleData.GetPtr();
 
     switch (pRenderData->m_RenderMode)
     {

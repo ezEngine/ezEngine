@@ -6,7 +6,7 @@
 #include <ParticlePlugin/Type/Fragment/FragmentRenderer.h>
 
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
-struct ezFragmentParticleData;
+struct ezQuadParticleShaderData;
 
 struct EZ_PARTICLEPLUGIN_DLL ezFragmentAxis
 {
@@ -67,7 +67,7 @@ protected:
   ezProcessingStream* m_pStreamRotationSpeed = nullptr;
   ezProcessingStream* m_pStreamRotationOffset = nullptr;
 
-  mutable ezArrayPtr<ezFragmentParticleData> m_ParticleData;
+  mutable ezArrayPtr<ezQuadParticleShaderData> m_ParticleData;
 };
 
 

@@ -49,32 +49,6 @@ float3x3 TransformToRotation(Transform t)
 #define COLOR4UB(Name) uint Name
 #define BOOL(Name) bool Name
 
-#elif EZ_ENABLED(PLATFORM_OPENGL)
-
-// GLSL
-
-#define EZ_ALIGN_16(decl) decl
-
-#define CONSTANT_BUFFER(Name, Slot) layout(shared) Name
-#define STRUCTURED_BUFFER(Name, Type)
-#define FLOAT1(Name) float Name
-#define FLOAT2(Name) vec2 Name
-#define FLOAT3(Name) vec3 Name
-#define FLOAT4(Name) vec4 Name
-#define INT1(Name) int Name
-#define INT2(Name) ivec2 Name
-#define INT3(Name) ivec3 Name
-#define INT4(Name) ivec4 Name
-#define UINT1(Name) uint Name
-#define UINT2(Name) uvec2 Name
-#define UINT3(Name) uvec3 Name
-#define UINT4(Name) uvec4 Name
-#define MAT3(Name) mat3 Name
-#define MAT4(Name) mat4 Name
-#define COLOR4F(Name) vec4 Name
-#define COLOR4UB(Name) uint Name
-#define BOOL(Name) bool Name
-
 #else
 
 // C++
