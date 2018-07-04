@@ -5,6 +5,7 @@
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
+#include <Foundation/Math/Float16.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_SizeCurve, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_SizeCurve>)
 {
@@ -79,7 +80,7 @@ const char* ezParticleBehaviorFactory_SizeCurve::GetSizeCurveFile() const
 void ezParticleBehavior_SizeCurve::CreateRequiredStreams()
 {
   CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime, false);
-  CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize, false);
+  CreateStream("Size", ezProcessingStream::DataType::Half, &m_pStreamSize, false);
 }
 
 
@@ -111,7 +112,7 @@ void ezParticleBehavior_SizeCurve::Process(ezUInt64 uiNumElements)
   EZ_PROFILE("PFX: Size Curve");
 
   ezProcessingStreamIterator<ezVec3> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
-  ezProcessingStreamIterator<float> itSize(m_pStreamSize, uiNumElements, 0);
+  ezProcessingStreamIterator<ezFloat16> itSize(m_pStreamSize, uiNumElements, 0);
 
   ezResourceLock<ezCurve1DResource> pCurve(m_hCurve, ezResourceAcquireMode::NoFallback);
 

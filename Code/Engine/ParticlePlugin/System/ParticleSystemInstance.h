@@ -93,12 +93,10 @@ private:
 
   struct StreamInfo
   {
-    StreamInfo();
-
     ezString m_sName;
-    bool m_bGetsInitialized;
-    bool m_bInUse;
-    ezProcessingStreamProcessor* m_pDefaultInitializer;
+    bool m_bGetsInitialized = false;
+    bool m_bInUse = false;
+    ezProcessingStreamProcessor* m_pDefaultInitializer = nullptr;
   };
 
   ezHybridArray<StreamInfo, 16> m_StreamInfo;

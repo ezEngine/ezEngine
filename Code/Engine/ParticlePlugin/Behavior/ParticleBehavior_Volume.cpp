@@ -7,6 +7,7 @@
 #include <ParticlePlugin/Events/ParticleEvent.h>
 #include <Foundation/Math/Declarations.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Math/Float16.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Volume, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Volume>)
 {
@@ -78,7 +79,7 @@ void ezParticleBehavior_Volume::CreateRequiredStreams()
 
 void ezParticleBehavior_Volume::QueryOptionalStreams()
 {
-  m_pStreamSize = GetOwnerSystem()->QueryStream("Size", ezProcessingStream::DataType::Float);
+  m_pStreamSize = GetOwnerSystem()->QueryStream("Size", ezProcessingStream::DataType::Half);
 }
 
 void ezParticleBehavior_Volume::Process(ezUInt64 uiNumElements)
@@ -97,27 +98,27 @@ void ezParticleBehavior_Volume::Process(ezUInt64 uiNumElements)
 
   if (m_pStreamSize != nullptr)
   {
-    const float* pSize = m_pStreamSize->GetData<float>();
+    const ezFloat16* pSize = m_pStreamSize->GetData<ezFloat16>();
 
     ezUInt32 idx = 0;
 
     for (ezUInt64 i = 0; i < uiNumElements / 8; ++i)
     {
-      fMaxSize[0] = ezMath::Max(fMaxSize[0], pSize[idx + 0]);
-      fMaxSize[1] = ezMath::Max(fMaxSize[1], pSize[idx + 1]);
-      fMaxSize[2] = ezMath::Max(fMaxSize[2], pSize[idx + 2]);
-      fMaxSize[3] = ezMath::Max(fMaxSize[3], pSize[idx + 3]);
-      fMaxSize[4] = ezMath::Max(fMaxSize[4], pSize[idx + 4]);
-      fMaxSize[5] = ezMath::Max(fMaxSize[5], pSize[idx + 5]);
-      fMaxSize[6] = ezMath::Max(fMaxSize[6], pSize[idx + 6]);
-      fMaxSize[7] = ezMath::Max(fMaxSize[7], pSize[idx + 7]);
+      fMaxSize[0] = ezMath::Max(fMaxSize[0], (float)pSize[idx + 0]);
+      fMaxSize[1] = ezMath::Max(fMaxSize[1], (float)pSize[idx + 1]);
+      fMaxSize[2] = ezMath::Max(fMaxSize[2], (float)pSize[idx + 2]);
+      fMaxSize[3] = ezMath::Max(fMaxSize[3], (float)pSize[idx + 3]);
+      fMaxSize[4] = ezMath::Max(fMaxSize[4], (float)pSize[idx + 4]);
+      fMaxSize[5] = ezMath::Max(fMaxSize[5], (float)pSize[idx + 5]);
+      fMaxSize[6] = ezMath::Max(fMaxSize[6], (float)pSize[idx + 6]);
+      fMaxSize[7] = ezMath::Max(fMaxSize[7], (float)pSize[idx + 7]);
 
       idx += 8;
     }
 
     for (ezUInt64 i = (uiNumElements / 8) * 8; i < uiNumElements; ++i)
     {
-      fMaxSize[0] = ezMath::Max(fMaxSize[0], pSize[i]);
+      fMaxSize[0] = ezMath::Max(fMaxSize[0], (float)pSize[i]);
     }
   }
 

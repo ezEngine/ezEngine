@@ -70,6 +70,7 @@ protected:
   ezProcessingStream* m_pStreamSize = nullptr;
   ezProcessingStream* m_pStreamColor = nullptr;
   ezProcessingStream* m_pStreamRotationSpeed = nullptr;
+  ezProcessingStream* m_pStreamRotationOffset = nullptr;
   ezProcessingStream* m_pStreamAxis = nullptr;
 
   mutable ezArrayPtr<ezSpriteParticleData> m_ParticleData;

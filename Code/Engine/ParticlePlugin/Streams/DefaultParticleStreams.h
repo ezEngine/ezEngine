@@ -3,6 +3,19 @@
 #include <ParticlePlugin/Streams/ParticleStream.h>
 
 //////////////////////////////////////////////////////////////////////////
+// ZERO-INIT STREAM
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_PARTICLEPLUGIN_DLL ezParticleStream_ZeroInit : public ezParticleStream
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_ZeroInit, ezParticleStream);
+
+protected:
+  // base class implementation already zero fills the stream data
+  // virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+};
+
+//////////////////////////////////////////////////////////////////////////
 // POSITION STREAM
 //////////////////////////////////////////////////////////////////////////
 
@@ -11,9 +24,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Position : public ezParticle
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_Position, ezParticleStreamFactory);
 
 public:
-  virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const override { return "Position"; }
-  virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Float4; }
+  ezParticleStreamFactory_Position();
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Position : public ezParticleStream
@@ -21,7 +32,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Position : public ezParticleStream
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_Position, ezParticleStream);
 
 protected:
-  virtual void Initialize(ezParticleSystemInstance* pOwner) override { m_pOwner = pOwner; }
+  virtual void Initialize(ezParticleSystemInstance* pOwner) override;
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
 
   ezParticleSystemInstance* m_pOwner;
@@ -36,9 +47,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Size : public ezParticleStre
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_Size, ezParticleStreamFactory);
 
 public:
-  virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const override { return "Size"; }
-  virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Float; }
+  ezParticleStreamFactory_Size();
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Size : public ezParticleStream
@@ -58,9 +67,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Color : public ezParticleStr
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_Color, ezParticleStreamFactory);
 
 public:
-  virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const override { return "Color"; }
-  virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Float4; }
+  ezParticleStreamFactory_Color();
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Color : public ezParticleStream
@@ -80,19 +87,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Velocity : public ezParticle
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_Velocity, ezParticleStreamFactory);
 
 public:
-  virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const override { return "Velocity"; }
-  virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Float3; }
-};
-
-class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Velocity : public ezParticleStream
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_Velocity, ezParticleStream);
-
-protected:
-
-  //virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
-
+  ezParticleStreamFactory_Velocity();
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -110,16 +105,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_LastPosition : public ezPart
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_LastPosition, ezParticleStreamFactory);
 
 public:
-  virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const override { return "LastPosition"; }
-  virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Float3; }
-};
-
-class EZ_PARTICLEPLUGIN_DLL ezParticleStream_LastPosition : public ezParticleStream
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_LastPosition, ezParticleStream);
-
-protected:
+  ezParticleStreamFactory_LastPosition();
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -131,16 +117,19 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_RotationSpeed : public ezPar
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_RotationSpeed, ezParticleStreamFactory);
 
 public:
-  virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const override { return "RotationSpeed"; }
-  virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Float; }
+  ezParticleStreamFactory_RotationSpeed();
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleStream_RotationSpeed : public ezParticleStream
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_RotationSpeed, ezParticleStream);
+//////////////////////////////////////////////////////////////////////////
+// ROTATION OFFSET STREAM
+//////////////////////////////////////////////////////////////////////////
 
-protected:
+class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_RotationOffset : public ezParticleStreamFactory
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_RotationOffset, ezParticleStreamFactory);
+
+public:
+  ezParticleStreamFactory_RotationOffset();
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -152,16 +141,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_EffectID : public ezParticle
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_EffectID, ezParticleStreamFactory);
 
 public:
-  virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const override { return "EffectID"; }
-  virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Int; }
-};
-
-class EZ_PARTICLEPLUGIN_DLL ezParticleStream_EffectID : public ezParticleStream
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_EffectID, ezParticleStream);
-
-protected:
+  ezParticleStreamFactory_EffectID();
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -173,16 +153,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_OnOff : public ezParticleStr
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_OnOff, ezParticleStreamFactory);
 
 public:
-  virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const override { return "OnOff"; }
-  virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Int; }
-};
-
-class EZ_PARTICLEPLUGIN_DLL ezParticleStream_OnOff : public ezParticleStream
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_OnOff, ezParticleStream);
-
-protected:
+  ezParticleStreamFactory_OnOff();
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -194,9 +165,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Axis : public ezParticleStre
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_Axis, ezParticleStreamFactory);
 
 public:
-  virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const override { return "Axis"; }
-  virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Float3; }
+  ezParticleStreamFactory_Axis();
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Axis : public ezParticleStream
@@ -216,16 +185,5 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_TrailData : public ezParticl
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_TrailData, ezParticleStreamFactory);
 
 public:
-  virtual const ezRTTI* GetParticleStreamType() const override;
-  virtual const char* GetStreamName() const override { return "TrailData"; }
-  virtual ezProcessingStream::DataType GetStreamDataType() const override { return ezProcessingStream::DataType::Int; }
+  ezParticleStreamFactory_TrailData();
 };
-
-class EZ_PARTICLEPLUGIN_DLL ezParticleStream_TrailData : public ezParticleStream
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_TrailData, ezParticleStream);
-
-protected:
-  //virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
-};
-

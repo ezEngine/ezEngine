@@ -54,6 +54,7 @@ protected:
   ezProcessingStream* m_pStreamSize = nullptr;
   ezProcessingStream* m_pStreamColor = nullptr;
   ezProcessingStream* m_pStreamRotationSpeed = nullptr;
+  ezProcessingStream* m_pStreamRotationOffset = nullptr;
 
   mutable ezArrayPtr<ezDistortionParticleData> m_ParticleData;
 };

@@ -13,6 +13,7 @@
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
+#include <Foundation/Math/Float16.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeLightFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeLightFactory>)
 {
@@ -107,7 +108,7 @@ void ezParticleTypeLight::CreateRequiredStreams()
   m_pStreamOnOff = nullptr;
 
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-  CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize, false);
+  CreateStream("Size", ezProcessingStream::DataType::Half, &m_pStreamSize, false);
   CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor, false);
 
   if (m_uiPercentage < 100)
@@ -122,7 +123,7 @@ void ezParticleTypeLight::ExtractTypeRenderData(const ezView& view, ezExtractedR
   EZ_PROFILE("PFX: Light");
 
   const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
-  const float* pSize = m_pStreamSize->GetData<float>();
+  const ezFloat16* pSize = m_pStreamSize->GetData<ezFloat16>();
   const ezColor* pColor = m_pStreamColor->GetData<ezColor>();
 
   if (pPosition == nullptr || pSize == nullptr || pColor == nullptr)

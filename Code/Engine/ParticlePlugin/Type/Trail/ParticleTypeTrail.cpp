@@ -13,6 +13,7 @@
 #include <Core/World/World.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
+#include <Foundation/Math/Float16.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeTrailFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeTrailFactory>)
 {
@@ -122,9 +123,9 @@ void ezParticleTypeTrail::CreateRequiredStreams()
 {
   CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime, false);
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-  CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize, false);
+  CreateStream("Size", ezProcessingStream::DataType::Half, &m_pStreamSize, false);
   CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor, false);
-  CreateStream("TrailData", ezProcessingStream::DataType::Int, &m_pStreamTrailData, true);
+  CreateStream("TrailData", ezProcessingStream::DataType::Short2, &m_pStreamTrailData, true);
 }
 
 void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
@@ -144,7 +145,7 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
   {
     m_uiLastExtractedFrame = uiExtractedFrame;
 
-    const float* pSize = m_pStreamSize->GetData<float>();
+    const ezFloat16* pSize = m_pStreamSize->GetData<ezFloat16>();
     const ezColor* pColor = m_pStreamColor->GetData<ezColor>();
     const TrailData* pTrailData = m_pStreamTrailData->GetData<TrailData>();
     const ezVec2* pLifeTime = m_pStreamLifeTime->GetData<ezVec2>();

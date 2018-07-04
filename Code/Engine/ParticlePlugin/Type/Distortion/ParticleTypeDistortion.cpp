@@ -3,6 +3,7 @@
 #include <Core/World/GameObject.h>
 #include <Core/World/World.h>
 #include <Foundation/Algorithm/Sorting.h>
+#include <Foundation/Math/Float16.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Type/Distortion/ParticleTypeDistortion.h>
@@ -35,9 +36,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeDistortion, 1, ezRTTIDefaultAllocator<ezParticleTypeDistortion>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-    // clang-format on
+// clang-format on
 
-    const ezRTTI* ezParticleTypeDistortionFactory::GetTypeType() const
+const ezRTTI* ezParticleTypeDistortionFactory::GetTypeType() const
 {
   return ezGetStaticRTTI<ezParticleTypeDistortion>();
 }
@@ -106,9 +107,10 @@ void ezParticleTypeDistortion::CreateRequiredStreams()
 {
   CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime, false);
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-  CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize, false);
+  CreateStream("Size", ezProcessingStream::DataType::Half, &m_pStreamSize, false);
   CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor, false);
-  CreateStream("RotationSpeed", ezProcessingStream::DataType::Float, &m_pStreamRotationSpeed, false);
+  CreateStream("RotationSpeed", ezProcessingStream::DataType::Half, &m_pStreamRotationSpeed, false);
+  CreateStream("RotationOffset", ezProcessingStream::DataType::Half, &m_pStreamRotationOffset, false);
 }
 
 struct sod
@@ -126,7 +128,8 @@ struct sodComparer
   EZ_ALWAYS_INLINE bool Equal(const sod& a, const sod& b) const { return a.dist == b.dist; }
 };
 
-void ezParticleTypeDistortion::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+void ezParticleTypeDistortion::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData,
+                                                     const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
   EZ_PROFILE("PFX: Distortion");
 
@@ -145,7 +148,8 @@ void ezParticleTypeDistortion::ExtractTypeRenderData(const ezView& view, ezExtra
 
   // don't copy the data multiple times in the same frame, if the effect is instanced
   if ((m_uiLastExtractedFrame != uiExtractedFrame)
-      /*&& !bNeedsSorting*/) // TODO: in theory every shared instance has to sort the Distortions, in practice this maybe should be an option
+      /*&& !bNeedsSorting*/) // TODO: in theory every shared instance has to sort the Distortions, in practice this maybe should be an
+                             // option
   {
     const ezColor tintColor = GetOwnerEffect()->GetColorParameter(m_sTintColorParameter, ezColor::White);
 
@@ -153,9 +157,10 @@ void ezParticleTypeDistortion::ExtractTypeRenderData(const ezView& view, ezExtra
 
     const ezVec2* pLifeTime = m_pStreamLifeTime->GetData<ezVec2>();
     const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
-    const float* pSize = m_pStreamSize->GetData<float>();
+    const ezFloat16* pSize = m_pStreamSize->GetData<ezFloat16>();
     const ezColor* pColor = m_pStreamColor->GetData<ezColor>();
-    const float* pRotationSpeed = m_pStreamRotationSpeed->GetData<float>();
+    const ezFloat16* pRotationSpeed = m_pStreamRotationSpeed->GetData<ezFloat16>();
+    const ezFloat16* pRotationOffset = m_pStreamRotationOffset->GetData<ezFloat16>();
 
     // this will automatically be deallocated at the end of the frame
     m_ParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezDistortionParticleData, numParticles);
@@ -181,7 +186,8 @@ void ezParticleTypeDistortion::ExtractTypeRenderData(const ezView& view, ezExtra
       {
         const ezUInt32 idx = sorted[p].index;
 
-        trans.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[idx])));
+        trans.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0),
+                                              ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[idx]) + pRotationOffset[idx]));
         trans.m_vPosition = pPosition[idx].GetAsVec3();
         trans.m_vScale.Set(1.0f);
         m_ParticleData[p].Transform = trans;
@@ -196,7 +202,8 @@ void ezParticleTypeDistortion::ExtractTypeRenderData(const ezView& view, ezExtra
       {
         const ezUInt32 idx = p;
 
-        trans.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[idx])));
+        trans.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0),
+                                              ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[idx]) + pRotationOffset[idx]));
         trans.m_vPosition = pPosition[idx].GetAsVec3();
         trans.m_vScale.Set(1.0f);
         m_ParticleData[p].Transform = trans;

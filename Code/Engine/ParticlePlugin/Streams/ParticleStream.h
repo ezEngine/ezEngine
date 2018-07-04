@@ -15,13 +15,20 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory, ezReflectedClass);
 
 public:
-  virtual const ezRTTI* GetParticleStreamType() const = 0;
-  virtual ezProcessingStream::DataType GetStreamDataType() const = 0;
-  virtual const char* GetStreamName() const = 0;
+  ezParticleStreamFactory(const char* szStreamName, ezProcessingStream::DataType dataType, const ezRTTI* pStreamTypeToCreate);
+
+  const ezRTTI* GetParticleStreamType() const;
+  ezProcessingStream::DataType GetStreamDataType() const;
+  const char* GetStreamName() const;
 
   static void GetFullStreamName(const char* szName, ezProcessingStream::DataType type, ezStringBuilder& out_Result);
 
   ezParticleStream* CreateParticleStream(ezParticleSystemInstance* pOwner) const;
+
+private:
+  const char* m_szStreamName = nullptr;
+  ezProcessingStream::DataType m_DataType = ezProcessingStream::DataType::Float;
+  const ezRTTI* m_pStreamTypeToCreate = nullptr;
 };
 
 /// \brief Base class for all particle streams

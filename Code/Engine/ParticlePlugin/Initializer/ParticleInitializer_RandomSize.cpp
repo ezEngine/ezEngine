@@ -7,6 +7,7 @@
 #include <Core/WorldSerializer/ResourceHandleReader.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Math/Float16.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_RandomSize, 1, ezRTTIDefaultAllocator<ezParticleInitializerFactory_RandomSize>)
 {
@@ -79,14 +80,14 @@ void ezParticleInitializerFactory_RandomSize::Load(ezStreamReader& stream)
 
 void ezParticleInitializer_RandomSize::CreateRequiredStreams()
 {
-  CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize, true);
+  CreateStream("Size", ezProcessingStream::DataType::Half, &m_pStreamSize, true);
 }
 
 void ezParticleInitializer_RandomSize::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
   EZ_PROFILE("PFX: Random Size");
 
-  float* pSize = m_pStreamSize->GetWritableData<float>();
+  ezFloat16* pSize = m_pStreamSize->GetWritableData<ezFloat16>();
 
   ezRandom& rng = GetRNG();
 

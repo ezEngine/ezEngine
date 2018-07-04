@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <Foundation/Basics.h>
@@ -15,12 +14,27 @@ public:
   /// When adding new data types the GetDataTypeSize() of ezProcessingStream needs to be updated.
   enum class DataType
   {
-    Float,
-    Float2,
-    Float3,
-    Float4,
+    Half,  // ezFloat16
+    Half2, // 2x ezFloat16
+    Half3, // 3x ezFloat16
+    Half4, // 4x ezFloat16
+
+    Float,  // float
+    Float2, // 2x float, e.g. ezVec2
+    Float3, // 3x float, e.g. ezVec3
+    Float4, // 4x float, e.g. ezVec4
 
     Matrix4x4,
+
+    //Byte, -> memory corruptions?
+    //Byte2,
+    /*Byte3 - bad alignment*/
+    //Byte4,
+
+    //Short,
+    Short2,
+    //Short3,
+    Short4,
 
     Int,
     Int2,
@@ -36,10 +50,7 @@ public:
   }
 
   /// \brief Returns a const pointer to the start of the data block.
-  const void* GetData() const
-  {
-    return m_pData;
-  }
+  const void* GetData() const { return m_pData; }
 
   /// \brief Returns a non-const pointer to the data casted to the type T, note that no type check is done!
   template <typename T>
@@ -49,34 +60,19 @@ public:
   }
 
   /// \brief Returns a non-const pointer to the start of the data block.
-  void* GetWritableData() const
-  {
-    return m_pData;
-  }
+  void* GetWritableData() const { return m_pData; }
 
   /// \brief Returns the name of the stream
-  const ezHashedString& GetName() const
-  {
-    return m_Name;
-  }
+  const ezHashedString& GetName() const { return m_Name; }
 
   /// \brief Returns the alignment which was used to allocate the stream.
-  const ezUInt64 GetAlignment() const
-  {
-    return m_uiAlignment;
-  }
+  const ezUInt64 GetAlignment() const { return m_uiAlignment; }
 
   /// \brief Returns the data type of the stream.
-  DataType GetDataType() const
-  {
-    return m_Type;
-  }
+  DataType GetDataType() const { return m_Type; }
 
   /// \brief Returns the size of one stream element.
-  const ezUInt64 GetElementSize() const
-  {
-    return m_uiTypeSize;
-  }
+  const ezUInt64 GetElementSize() const { return m_uiTypeSize; }
 
   /// \brief Returns the stride between two elements of the stream.
   const ezUInt64 GetElementStride() const

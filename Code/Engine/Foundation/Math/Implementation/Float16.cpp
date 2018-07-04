@@ -1,6 +1,9 @@
 #include <PCH.h>
 
 #include <Foundation/Math/Float16.h>
+#include <Foundation/Math/Vec2.h>
+#include <Foundation/Math/Vec3.h>
+#include <Foundation/Math/Vec4.h>
 
 ezFloat16::ezFloat16(float f)
 {
@@ -100,5 +103,63 @@ ezFloat16::operator float() const
 
   return *reinterpret_cast<float*>(&uiResult);
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+ezFloat16Vec2::ezFloat16Vec2(const ezVec2& vec)
+{
+  operator=(vec);
+}
+
+void ezFloat16Vec2::operator=(const ezVec2& vec)
+{
+  x = vec.x;
+  y = vec.y;
+}
+
+ezFloat16Vec2::operator ezVec2() const
+{
+  return ezVec2(x, y);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+ezFloat16Vec3::ezFloat16Vec3(const ezVec3& vec)
+{
+  operator=(vec);
+}
+
+void ezFloat16Vec3::operator=(const ezVec3& vec)
+{
+  x = vec.x;
+  y = vec.y;
+  z = vec.z;
+}
+
+ezFloat16Vec3::operator ezVec3() const
+{
+  return ezVec3(x, y, z);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+ezFloat16Vec4::ezFloat16Vec4(const ezVec4& vec)
+{
+  operator=(vec);
+}
+
+void ezFloat16Vec4::operator=(const ezVec4& vec)
+{
+  x = vec.x;
+  y = vec.y;
+  z = vec.z;
+  w = vec.w;
+}
+
+ezFloat16Vec4::operator ezVec4() const
+{
+  return ezVec4(x, y, z, w);
+}
+
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Float16);

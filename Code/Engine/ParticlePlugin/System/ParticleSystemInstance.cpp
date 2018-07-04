@@ -518,13 +518,6 @@ void ezParticleStreamBinding::UpdateBindings(const ezProcessingStreamGroup* pGro
   }
 }
 
-ezParticleSystemInstance::StreamInfo::StreamInfo()
-{
-  m_pDefaultInitializer = nullptr;
-  m_bGetsInitialized = false;
-  m_bInUse = false;
-}
-
 void ezParticleSystemInstance::ProcessEventQueue(const ezParticleEventQueue* pQueue)
 {
   for (auto pEmitter : m_Emitters)

@@ -143,7 +143,7 @@ ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition(const ezBoundin
 template <typename Type>
 void ezMat3Template<Type>::SetRotationMatrix(const ezVec3Template<Type>& vAxis, ezAngle angle)
 {
-  EZ_ASSERT_DEBUG(vAxis.IsNormalized(), "vAxis must be normalized.");
+  EZ_ASSERT_DEBUG(vAxis.IsNormalized(0.1f), "vAxis must be normalized.");
 
   const Type cos = ezMath::Cos(angle);
   const Type sin = ezMath::Sin(angle);

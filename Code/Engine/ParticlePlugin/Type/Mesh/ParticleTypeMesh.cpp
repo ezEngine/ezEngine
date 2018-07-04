@@ -9,6 +9,7 @@
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Textures/Texture2DResource.h>
+#include <Foundation/Math/Float16.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeMeshFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeMeshFactory>)
@@ -79,9 +80,10 @@ ezParticleTypeMesh::~ezParticleTypeMesh() = default;
 void ezParticleTypeMesh::CreateRequiredStreams()
 {
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-  CreateStream("Size", ezProcessingStream::DataType::Float, &m_pStreamSize, false);
+  CreateStream("Size", ezProcessingStream::DataType::Half, &m_pStreamSize, false);
   CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor, false);
-  CreateStream("RotationSpeed", ezProcessingStream::DataType::Float, &m_pStreamRotationSpeed, false);
+  CreateStream("RotationSpeed", ezProcessingStream::DataType::Half, &m_pStreamRotationSpeed, false);
+  CreateStream("RotationOffset", ezProcessingStream::DataType::Half, &m_pStreamRotationOffset, false);
   CreateStream("Axis", ezProcessingStream::DataType::Float3, &m_pStreamAxis, true);
 }
 
@@ -123,9 +125,10 @@ void ezParticleTypeMesh::ExtractTypeRenderData(const ezView& view, ezExtractedRe
     m_uiLastExtractedFrame = uiExtractedFrame;
 
     const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
-    const float* pSize = m_pStreamSize->GetData<float>();
+    const ezFloat16* pSize = m_pStreamSize->GetData<ezFloat16>();
     const ezColor* pColor = m_pStreamColor->GetData<ezColor>();
-    const float* pRotationSpeed = m_pStreamRotationSpeed->GetData<float>();
+    const ezFloat16* pRotationSpeed = m_pStreamRotationSpeed->GetData<ezFloat16>();
+    const ezFloat16* pRotationOffset = m_pStreamRotationOffset->GetData<ezFloat16>();
     const ezVec3* pAxis = m_pStreamAxis->GetData<ezVec3>();
 
     {
@@ -147,7 +150,8 @@ void ezParticleTypeMesh::ExtractTypeRenderData(const ezView& view, ezExtractedRe
         const ezUInt32 idx = p;
 
         ezTransform trans;
-        trans.m_qRotation.SetFromAxisAndAngle(pAxis[p], ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[idx])));
+        trans.m_qRotation.SetFromAxisAndAngle(pAxis[p],
+                                              ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[idx]) + pRotationOffset[idx]));
         trans.m_vPosition = pPosition[idx].GetAsVec3();
         trans.m_vScale.Set(pSize[idx]);
 

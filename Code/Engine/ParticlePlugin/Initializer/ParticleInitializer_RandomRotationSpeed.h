@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
 #include <Foundation/Types/VarianceTypes.h>
@@ -18,6 +18,7 @@ public:
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;
 
+  bool m_bRandomStartAngle = false;
   ezVarianceTypeAngle m_RotationSpeed;
 };
 
@@ -27,7 +28,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_RandomRotationSpeed : public e
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializer_RandomRotationSpeed, ezParticleInitializer);
 
 public:
-
+  bool m_bRandomStartAngle = false;
   ezVarianceTypeAngle m_RotationSpeed;
 
   virtual void CreateRequiredStreams() override;
@@ -36,4 +37,5 @@ protected:
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
 
   ezProcessingStream* m_pStreamRotationSpeed;
+  ezProcessingStream* m_pStreamRotationOffset;
 };
