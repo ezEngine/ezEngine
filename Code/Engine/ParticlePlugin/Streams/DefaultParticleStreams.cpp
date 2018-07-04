@@ -3,6 +3,7 @@
 #include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <ParticlePlugin/Streams/DefaultParticleStreams.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
+#include <Foundation/Math/Float16.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ZERO-INIT STREAM
@@ -62,7 +63,7 @@ ezParticleStreamFactory_Size::ezParticleStreamFactory_Size()
 
 void ezParticleStream_Size::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
-  ezProcessingStreamIterator<float> itData(m_pStream, uiNumElements, uiStartIndex);
+  ezProcessingStreamIterator<ezFloat16> itData(m_pStream, uiNumElements, uiStartIndex);
 
   const float defValue = 1.0f;
   while (!itData.HasReachedEnd())

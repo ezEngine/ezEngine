@@ -74,7 +74,7 @@ size_t ezProcessingStream::GetDataTypeSize(DataType Type)
     case DataType::Half:
     //case DataType::Byte2:
     //case DataType::Short:
-      //return 2;
+      return 2;
 
     case DataType::Float:
     case DataType::Int:

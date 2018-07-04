@@ -1,14 +1,16 @@
 #include <PCH.h>
-#include <ParticlePlugin/Initializer/ParticleInitializer_RandomSize.h>
-#include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
-#include <Foundation/Math/Random.h>
-#include <ParticlePlugin/System/ParticleSystemInstance.h>
-#include <GameEngine/Curves/Curve1DResource.h>
+
 #include <Core/WorldSerializer/ResourceHandleReader.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
-#include <Foundation/Profiling/Profiling.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Float16.h>
+#include <Foundation/Math/Random.h>
+#include <Foundation/Profiling/Profiling.h>
+#include <GameEngine/Curves/Curve1DResource.h>
+#include <ParticlePlugin/Initializer/ParticleInitializer_RandomSize.h>
+#include <ParticlePlugin/System/ParticleSystemInstance.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_RandomSize, 1, ezRTTIDefaultAllocator<ezParticleInitializerFactory_RandomSize>)
 {
   EZ_BEGIN_PROPERTIES
@@ -22,6 +24,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializer_RandomSize, 1, ezRTTIDefaultAllocator<ezParticleInitializer_RandomSize>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 const ezRTTI* ezParticleInitializerFactory_RandomSize::GetInitializerType() const
 {
@@ -122,4 +125,3 @@ void ezParticleInitializer_RandomSize::InitializeElements(ezUInt64 uiStartIndex,
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_RandomSize);
-
