@@ -7,7 +7,7 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <ParticlePlugin/Renderer/ParticleRenderer.h>
 
-#include <RendererCore/../../../Data/Base/Shaders/Particles/QuadParticleShaderData.h>
+#include <RendererCore/../../../Data/Base/Shaders/Particles/TangentQuadParticleShaderData.h>
 
 typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
@@ -19,7 +19,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleFragmentRenderData : public ezRenderData
 public:
   ezTexture2DResourceHandle m_hTexture;
   ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
-  ezArrayPtr<ezQuadParticleShaderData> m_QuadParticleData;
+  ezArrayPtr<ezTangentQuadParticleShaderData> m_QuadParticleData;
   bool m_bApplyObjectTransform = true;
   ezUInt8 m_uiNumSpritesX = 1;
   ezUInt8 m_uiNumSpritesY = 1;

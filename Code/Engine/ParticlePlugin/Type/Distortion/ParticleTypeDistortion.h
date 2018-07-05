@@ -6,7 +6,6 @@
 #include <ParticlePlugin/Type/Distortion/DistortionRenderer.h>
 
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
-struct ezBillboardParticleData;
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeDistortionFactory : public ezParticleTypeFactory
 {
@@ -57,7 +56,7 @@ protected:
   ezProcessingStream* m_pStreamRotationOffset = nullptr;
 
   mutable ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
-  mutable ezArrayPtr<ezBillboardParticleData> m_BillboardParticleData;
+  mutable ezArrayPtr<ezBillboardQuadParticleShaderData> m_BillboardParticleData;
 };
 
 

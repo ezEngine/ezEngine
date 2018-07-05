@@ -223,7 +223,7 @@ void ezParticleTypeSprite::ExtractTypeRenderData(const ezView& view, ezExtracted
     // this will automatically be deallocated at the end of the frame
     m_BaseParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBaseParticleShaderData,
                                       (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
-    m_QuadParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezQuadParticleShaderData,
+    m_QuadParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezTangentQuadParticleShaderData,
                                       (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
 
     ezTransform t;

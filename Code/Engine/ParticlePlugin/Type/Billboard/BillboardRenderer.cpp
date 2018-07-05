@@ -53,7 +53,7 @@ void ezParticleBillboardRenderer::CreateDataBuffer()
     if (m_hBillboardDataBuffer.IsInvalidated())
   {
     ezGALBufferCreationDescription desc;
-    desc.m_uiStructSize = sizeof(ezBillboardParticleData);
+    desc.m_uiStructSize = sizeof(ezBillboardQuadParticleShaderData);
     desc.m_uiTotalSize = s_uiParticlesPerBatch * desc.m_uiStructSize;
     desc.m_BufferType = ezGALBufferType::Generic;
     desc.m_bUseAsStructuredBuffer = true;
@@ -76,14 +76,17 @@ void ezParticleBillboardRenderer::RenderBatch(const ezRenderViewContext& renderV
   EZ_SCOPE_EXIT(ezRenderContext::DeleteConstantBufferStorage(hConstantBuffer));
   renderViewContext.m_pRenderContext->BindConstantBuffer("ezParticleSystemConstants", hConstantBuffer);
 
-  // Bind the billboard particle shader
+  // Bind the particle shader
   {
     if (!m_hShader.IsValid())
     {
-      m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Particles/Billboard.ezShader");
+      m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Particles/QuadParticle.ezShader");
     }
 
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
+
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_QUAD_MODE", "PARTICLE_QUAD_MODE_BILLBOARD");
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_OUTPUT_MODE", "PARTICLE_OUTPUT_MODE_DEFAULT");
   }
 
   // make sure our structured buffer is allocated and bound
@@ -92,7 +95,7 @@ void ezParticleBillboardRenderer::RenderBatch(const ezRenderViewContext& renderV
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, s_uiParticlesPerBatch * 2);
 
     renderViewContext.m_pRenderContext->BindBuffer("particleBaseData", pDevice->GetDefaultResourceView(m_hBaseDataBuffer));
-    renderViewContext.m_pRenderContext->BindBuffer("particleBillboardData", pDevice->GetDefaultResourceView(m_hBillboardDataBuffer));
+    renderViewContext.m_pRenderContext->BindBuffer("particleBillboardQuadData", pDevice->GetDefaultResourceView(m_hBillboardDataBuffer));
   }
 
   // now render all particle effects of type billboard
@@ -129,7 +132,7 @@ void ezParticleBillboardRenderer::RenderBatch(const ezRenderViewContext& renderV
     }
 
     const ezBaseParticleShaderData* pParticleBaseData = pRenderData->m_BaseParticleData.GetPtr();
-    const ezBillboardParticleData* pParticleBillboardData = pRenderData->m_BillboardParticleData.GetPtr();
+    const ezBillboardQuadParticleShaderData* pParticleBillboardData = pRenderData->m_BillboardParticleData.GetPtr();
 
     while (uiNumParticles > 0)
     {

@@ -73,7 +73,7 @@ protected:
   ezProcessingStream* m_pStreamAxis = nullptr;
 
   mutable ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
-  mutable ezArrayPtr<ezQuadParticleShaderData> m_QuadParticleData;
+  mutable ezArrayPtr<ezTangentQuadParticleShaderData> m_QuadParticleData;
 };
 
 

@@ -56,7 +56,7 @@ void ezParticleFragmentRenderer::CreateDataBuffer()
   if (m_hQuadDataBuffer.IsInvalidated())
   {
     ezGALBufferCreationDescription desc;
-    desc.m_uiStructSize = sizeof(ezQuadParticleShaderData);
+    desc.m_uiStructSize = sizeof(ezTangentQuadParticleShaderData);
     desc.m_uiTotalSize = s_uiParticlesPerBatch * desc.m_uiStructSize;
     desc.m_BufferType = ezGALBufferType::Generic;
     desc.m_bUseAsStructuredBuffer = true;
@@ -80,15 +80,17 @@ void ezParticleFragmentRenderer::RenderBatch(const ezRenderViewContext& renderVi
   EZ_SCOPE_EXIT(ezRenderContext::DeleteConstantBufferStorage(hConstantBuffer));
   renderViewContext.m_pRenderContext->BindConstantBuffer("ezParticleSystemConstants", hConstantBuffer);
 
-  // Bind the Fragment particle shader
+  // Bind the particle shader
   {
     if (!m_hShader.IsValid())
     {
-      m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Particles/Sprite.ezShader");
+      m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Particles/QuadParticle.ezShader");
     }
 
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_QUAD_MODE", "PARTICLE_QUAD_MODE_TANGENTS");
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_OPAQUE");
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_OUTPUT_MODE", "PARTICLE_OUTPUT_MODE_DEFAULT");
   }
 
   // make sure our structured buffer is allocated and bound
@@ -98,7 +100,7 @@ void ezParticleFragmentRenderer::RenderBatch(const ezRenderViewContext& renderVi
                                                        s_uiParticlesPerBatch * 2);
 
     renderViewContext.m_pRenderContext->BindBuffer("particleBaseData", pDevice->GetDefaultResourceView(m_hBaseDataBuffer));
-    renderViewContext.m_pRenderContext->BindBuffer("particleQuadData", pDevice->GetDefaultResourceView(m_hQuadDataBuffer));
+    renderViewContext.m_pRenderContext->BindBuffer("particleTangentQuadData", pDevice->GetDefaultResourceView(m_hQuadDataBuffer));
   }
 
   // now render all particle effects of type Fragment
@@ -122,7 +124,7 @@ void ezParticleFragmentRenderer::RenderBatch(const ezRenderViewContext& renderVi
     }
 
     const ezBaseParticleShaderData* pParticleBaseData = pRenderData->m_BaseParticleData.GetPtr();
-    const ezQuadParticleShaderData* pParticleQuadData = pRenderData->m_QuadParticleData.GetPtr();
+    const ezTangentQuadParticleShaderData* pParticleQuadData = pRenderData->m_QuadParticleData.GetPtr();
 
     while (uiNumParticles > 0)
     {

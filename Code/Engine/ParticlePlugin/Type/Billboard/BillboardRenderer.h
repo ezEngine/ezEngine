@@ -9,7 +9,7 @@
 #include <ParticlePlugin/Renderer/ParticleRenderer.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Particles/ParticleSystemConstants.h>
-#include <RendererCore/../../../Data/Base/Shaders/Particles/BillboardShaderData.h>
+#include <RendererCore/../../../Data/Base/Shaders/Particles/BillboardQuadParticleShaderData.h>
 
 typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
@@ -22,7 +22,7 @@ public:
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezTexture2DResourceHandle m_hTexture;
   ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
-  ezArrayPtr<ezBillboardParticleData> m_BillboardParticleData;
+  ezArrayPtr<ezBillboardQuadParticleShaderData> m_BillboardParticleData;
   bool m_bApplyObjectTransform = true;
   ezUInt8 m_uiNumSpritesX = 1;
   ezUInt8 m_uiNumSpritesY = 1;

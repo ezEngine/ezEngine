@@ -8,7 +8,7 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <ParticlePlugin/Renderer/ParticleRenderer.h>
 
-#include <RendererCore/../../../Data/Base/Shaders/Particles/BillboardShaderData.h>
+#include <RendererCore/../../../Data/Base/Shaders/Particles/BillboardQuadParticleShaderData.h>
 
 typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
@@ -21,7 +21,7 @@ public:
   ezTexture2DResourceHandle m_hMaskTexture;
   ezTexture2DResourceHandle m_hDistortionTexture;
   ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
-  ezArrayPtr<ezBillboardParticleData> m_BillboardParticleData;
+  ezArrayPtr<ezBillboardQuadParticleShaderData> m_BillboardParticleData;
   bool m_bApplyObjectTransform = true;
   ezUInt8 m_uiNumSpritesX = 1;
   ezUInt8 m_uiNumSpritesY = 1;

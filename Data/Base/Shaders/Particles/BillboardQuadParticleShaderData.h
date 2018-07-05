@@ -3,7 +3,7 @@
 #include "ParticleSystemConstants.h"
 #include "BaseParticleShaderData.h"
 
-struct EZ_ALIGN_16(ezBillboardParticleData)
+struct EZ_ALIGN_16(ezBillboardQuadParticleShaderData)
 {
   TRANSFORM(Transform);
 };
@@ -11,11 +11,11 @@ struct EZ_ALIGN_16(ezBillboardParticleData)
 // this is only defined during shader compilation
 #if EZ_ENABLED(PLATFORM_DX11)
 
-StructuredBuffer<ezBillboardParticleData> particleBillboardData;
+StructuredBuffer<ezBillboardQuadParticleShaderData> particleBillboardQuadData;
 
 #else // C++
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezBillboardParticleData) == 48);
+EZ_CHECK_AT_COMPILETIME(sizeof(ezBillboardQuadParticleShaderData) == 48);
 
 #endif
 

@@ -54,7 +54,7 @@ protected:
   ezProcessingStream* m_pStreamRotationOffset = nullptr;
 
   mutable ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
-  mutable ezArrayPtr<ezBillboardParticleData> m_BillboardParticleData;
+  mutable ezArrayPtr<ezBillboardQuadParticleShaderData> m_BillboardParticleData;
 };
 
 

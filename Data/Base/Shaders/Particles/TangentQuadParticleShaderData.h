@@ -2,7 +2,7 @@
 
 #include "BaseParticleShaderData.h"
 
-struct EZ_ALIGN_16(ezQuadParticleShaderData)
+struct EZ_ALIGN_16(ezTangentQuadParticleShaderData)
 {
   FLOAT3(Position);
   FLOAT1(dummy1);
@@ -17,11 +17,11 @@ struct EZ_ALIGN_16(ezQuadParticleShaderData)
 // this is only defined during shader compilation
 #if EZ_ENABLED(PLATFORM_DX11)
 
-StructuredBuffer<ezQuadParticleShaderData> particleQuadData;
+StructuredBuffer<ezTangentQuadParticleShaderData> particleTangentQuadData;
 
 #else // C++
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezQuadParticleShaderData) == 48);
+EZ_CHECK_AT_COMPILETIME(sizeof(ezTangentQuadParticleShaderData) == 48);
 
 #endif
 

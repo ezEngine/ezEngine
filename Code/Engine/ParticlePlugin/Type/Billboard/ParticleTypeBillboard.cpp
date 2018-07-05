@@ -182,7 +182,7 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
 
     // this will automatically be deallocated at the end of the frame
     m_BaseParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBaseParticleShaderData, numParticles);
-    m_BillboardParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBillboardParticleData, numParticles);
+    m_BillboardParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBillboardQuadParticleShaderData, numParticles);
 
     ezTransform trans;
     if (bNeedsSorting)
