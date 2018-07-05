@@ -1,14 +1,15 @@
 #include <PCH.h>
+
 #include "TestClass.h"
-#include <Foundation/Configuration/Startup.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Core/World/WorldDesc.h>
 #include <Core/World/World.h>
+#include <Core/World/WorldDesc.h>
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Foundation/Configuration/Startup.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 
-ezGameEngineTest::ezGameEngineTest()
-{
-}
-
+ezGameEngineTest::ezGameEngineTest() = default;
+ ezGameEngineTest::~ezGameEngineTest() = default;
 
 ezResult ezGameEngineTest::GetImage(ezImage& img)
 {
@@ -34,7 +35,7 @@ ezResult ezGameEngineTest::DeInitializeTest()
   if (m_pApplication)
   {
     m_pApplication->RequestQuit();
-    
+
     ezInt32 iSteps = 2;
     while (m_pApplication->Run() == ezApplication::Continue && iSteps > 0)
     {
@@ -56,7 +57,7 @@ ezResult ezGameEngineTest::DeInitializeTest()
 
 
 ezGameEngineTestApplication::ezGameEngineTestApplication(const char* szProjectDirName)
-  : ezGameApplication("ezGameEngineTest", ezGameApplicationType::StandAlone, nullptr)
+    : ezGameApplication("ezGameEngineTest", ezGameApplicationType::StandAlone, nullptr)
 {
   m_pWorld = nullptr;
   m_sProjectDirName = szProjectDirName;
@@ -66,6 +67,39 @@ ezGameEngineTestApplication::ezGameEngineTestApplication(const char* szProjectDi
 ezString ezGameEngineTestApplication::FindProjectDirectory() const
 {
   return m_sAppProjectPath;
+}
+
+ezResult ezGameEngineTestApplication::LoadScene(const char* szSceneFile)
+{
+  EZ_LOCK(m_pWorld->GetWriteMarker());
+  m_pWorld->Clear();
+
+  ezFileReader file;
+
+  if (file.Open(szSceneFile).Succeeded())
+  {
+    // File Header
+    {
+      ezAssetFileHeader header;
+      header.Read(file);
+
+      char szSceneTag[16];
+      file.ReadBytes(szSceneTag, sizeof(char) * 16);
+
+      EZ_ASSERT_RELEASE(ezStringUtils::IsEqualN(szSceneTag, "[ezBinaryScene]", 16), "The given file is not a valid scene file");
+    }
+
+    ezWorldReader reader;
+    reader.ReadWorldDescription(file);
+    reader.InstantiateWorld(*m_pWorld, nullptr);
+
+    return EZ_SUCCESS;
+  }
+  else
+  {
+    ezLog::Error("Failed to load scene '{0}'", szSceneFile);
+    return EZ_FAILURE;
+  }
 }
 
 void ezGameEngineTestApplication::BeforeCoreStartup()

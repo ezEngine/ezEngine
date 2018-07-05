@@ -1,5 +1,4 @@
 { ProjectDecalAtlas };PC/Decals.ezDecal
-{ 6d619c33-6611-432b-a924-27b1b9bfd8db };Common/Box.ezMesh
 { 8f0ec473-755d-476d-9d69-93626e4d0ce8 };Common/Lighting.ezObjectGraph
-{ 2a3d3f9d-afb5-412f-85e8-e35ce0b5b0a1 };Common/Boxes.ezObjectGraph
 { b342874a-d967-425a-9bf1-87bb3186350e };Common/ReferenceFullbright.ezMaterialBin
+{ 2a3d3f9d-afb5-412f-85e8-e35ce0b5b0a1 };Common/Boxes.ezObjectGraph

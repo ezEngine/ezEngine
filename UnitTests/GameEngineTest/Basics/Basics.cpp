@@ -1,16 +1,8 @@
 #include <PCH.h>
+
 #include "Basics.h"
-#include <Core/World/WorldDesc.h>
-#include <Core/World/World.h>
-#include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <Foundation/Math/Rect.h>
-#include <Foundation/Math/Declarations.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Core/Assets/AssetFileHeader.h>
-#include <Core/WorldSerializer/WorldReader.h>
 
 static ezGameEngineTestBasics s_GameEngineTestBasics;
 
@@ -87,7 +79,7 @@ ezTestAppRun ezGameEngineTestBasics::RunSubTest(ezInt32 iIdentifier)
 //////////////////////////////////////////////////////////////////////////
 
 ezGameEngineTestApplication_Basics::ezGameEngineTestApplication_Basics()
-  : ezGameEngineTestApplication("Basics")
+    : ezGameEngineTestApplication("Basics")
 {
 }
 
@@ -156,7 +148,8 @@ void ezGameEngineTestApplication_Basics::SubTestSkyboxSetup()
 
   m_pWorld->Clear();
 
-  ezTextureCubeResourceHandle hSkybox = ezResourceManager::LoadResource<ezTextureCubeResource>("SharedData/Textures/Cubemap/ezLogo_Cube_DXT1_Mips_D.dds");
+  ezTextureCubeResourceHandle hSkybox =
+      ezResourceManager::LoadResource<ezTextureCubeResource>("Textures/Cubemap/ezLogo_Cube_DXT1_Mips_D.dds");
   ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezMesh");
 
   // Skybox
@@ -230,7 +223,6 @@ void ezGameEngineTestApplication_Basics::SubTestDebugRenderingSetup()
   EZ_LOCK(m_pWorld->GetWriteMarker());
 
   m_pWorld->Clear();
-
 }
 
 ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt32 iCurFrame)
@@ -331,35 +323,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
 
 void ezGameEngineTestApplication_Basics::SubTestLoadSceneSetup()
 {
-  EZ_LOCK(m_pWorld->GetWriteMarker());
-
-  m_pWorld->Clear();
-
-  {
-    ezFileReader file;
-    if (file.Open("GameEngineTest/Basics/AssetCache/Common/Lighting.ezObjectGraph").Succeeded())
-    {
-      // File Header
-      {
-        ezAssetFileHeader header;
-        header.Read(file);
-
-        char szSceneTag[16];
-        file.ReadBytes(szSceneTag, sizeof(char) * 16);
-
-        EZ_ASSERT_RELEASE(ezStringUtils::IsEqualN(szSceneTag, "[ezBinaryScene]", 16), "The given file is not a valid scene file");
-      }
-
-      ezWorldReader reader;
-      reader.ReadWorldDescription(file);
-      reader.InstantiateWorld(*m_pWorld, nullptr);
-      //reader.InstantiatePrefab(*m_pWorld, ezVec3(0, 2, 0), ezQuat::IdentityQuaternion(), ezVec3(0.1f));
-    }
-    else
-    {
-      ezLog::Error("Failed to read level");
-    }
-  }
+  LoadScene("Basics/AssetCache/Common/Lighting.ezObjectGraph");
 }
 
 ezTestAppRun ezGameEngineTestApplication_Basics::SubTestLoadSceneExec(ezInt32 iCurFrame)
@@ -367,15 +331,16 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestLoadSceneExec(ezInt32 iC
   if (Run() == ezApplication::Quit)
     return ezTestAppRun::Quit;
 
-  // first frame no image is captured yet
-  if (iCurFrame < 1)
-    return ezTestAppRun::Continue;
+  switch (iCurFrame)
+  {
+    case 1:
+      EZ_TEST_IMAGE(150);
+      break;
 
-  EZ_TEST_IMAGE(150);
+    case 2:
+      EZ_TEST_IMAGE(150);
+      return ezTestAppRun::Quit;
+  }
 
-  if (iCurFrame < 2)
-    return ezTestAppRun::Continue;
-
-  return ezTestAppRun::Quit;
+  return ezTestAppRun::Continue;
 }
-

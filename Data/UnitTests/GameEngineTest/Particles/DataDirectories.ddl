@@ -16,9 +16,3 @@ DataDir
 	string %RootName{""}
 	bool %Writable{false}
 }
-DataDir
-{
-	string %Path{">sdk/Data/UnitTests/SharedData"}
-	string %RootName{""}
-	bool %Writable{false}
-}

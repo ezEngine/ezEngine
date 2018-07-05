@@ -1,8 +1,8 @@
-﻿#pragma once
+#pragma once
 
 #include <PCH.h>
+
 #include "../TestClass/TestClass.h"
-#include <RendererCore/Textures/Texture2DResource.h>
 
 class ezGameEngineTestApplication_Basics : public ezGameEngineTestApplication
 {

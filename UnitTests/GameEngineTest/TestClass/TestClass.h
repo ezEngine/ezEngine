@@ -23,6 +23,8 @@ public:
   virtual ezString FindProjectDirectory() const final override;
   const ezImage& GetLastScreenshot() { return m_LastScreenshot; }
 
+  ezResult LoadScene(const char* szSceneFile);
+
 protected:
   virtual void BeforeCoreStartup() override;
   virtual void AfterCoreStartup() override;
@@ -40,6 +42,7 @@ class ezGameEngineTest : public ezTestBaseClass
 {
 public:
   ezGameEngineTest();
+  ~ezGameEngineTest();
 
   virtual ezResult GetImage(ezImage& img) override;
   virtual ezGameEngineTestApplication* CreateApplication() = 0;

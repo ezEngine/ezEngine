@@ -133,6 +133,8 @@ void ezWorldModuleFactory::PluginEventHandler(const ezPlugin::PluginEvent& Event
   {
     ezWorldModuleFactory::GetInstance()->FillBaseTypeIds();
   }
+
+  // TODO: also listen to plugin unload events and make sure data gets removed from m_TypeToId
 }
 
 namespace
