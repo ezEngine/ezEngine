@@ -134,7 +134,10 @@ void ezWorldModuleFactory::PluginEventHandler(const ezPlugin::PluginEvent& Event
     ezWorldModuleFactory::GetInstance()->FillBaseTypeIds();
   }
 
-  // TODO: also listen to plugin unload events and make sure data gets removed from m_TypeToId
+  if (EventData.m_EventType == ezPlugin::PluginEvent::AfterUnloading)
+  {
+    ezWorldModuleFactory::GetInstance()->ClearUnloadedTypeToIDs();
+  }
 }
 
 namespace
@@ -180,6 +183,30 @@ void ezWorldModuleFactory::FillBaseTypeIds()
     m_TypeToId.Insert(newEntry.m_pRtti, newEntry.m_uiTypeId);
   }
   newEntries.Clear();
+}
+
+void ezWorldModuleFactory::ClearUnloadedTypeToIDs()
+{
+  ezSet<const ezRTTI*> allRttis;
+
+  for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+  {
+    allRttis.Insert(pRtti);
+  }
+
+  for (auto it = m_TypeToId.GetIterator(); it.IsValid();)
+  {
+    const ezRTTI* pRtti = it.Key();
+
+    if (!allRttis.Contains(pRtti))
+    {
+      it = m_TypeToId.Remove(it);
+    }
+    else
+    {
+      ++it;
+    }
+  }
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_WorldModule);

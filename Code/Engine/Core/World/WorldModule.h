@@ -139,6 +139,7 @@ private:
 
   static void PluginEventHandler(const ezPlugin::PluginEvent& EventData);
   void FillBaseTypeIds();
+  void ClearUnloadedTypeToIDs();
 
   ezHashTable<const ezRTTI*, ezUInt16> m_TypeToId;
 
