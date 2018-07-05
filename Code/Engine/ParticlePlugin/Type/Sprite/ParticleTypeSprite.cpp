@@ -221,18 +221,18 @@ void ezParticleTypeSprite::ExtractTypeRenderData(const ezView& view, ezExtracted
     const ezVec2* pLifeTime = m_pStreamLifeTime->GetData<ezVec2>();
 
     // this will automatically be deallocated at the end of the frame
-    m_ParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezQuadParticleShaderData,
-                                  (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
-
-    ezQuadParticleShaderData* TempData = m_ParticleData.GetPtr();
+    m_BaseParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBaseParticleShaderData,
+                                      (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
+    m_QuadParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezQuadParticleShaderData,
+                                      (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
 
     ezTransform t;
 
     for (ezUInt32 p = 0; p < (ezUInt32)GetOwnerSystem()->GetNumActiveParticles(); ++p)
     {
-      TempData[p].Size = pSize[p];
-      TempData[p].Color = pColor[p] * tintColor;
-      m_ParticleData[p].Life = pLifeTime[p].x * pLifeTime[p].y;
+      m_BaseParticleData[p].Size = pSize[p];
+      m_BaseParticleData[p].Color = pColor[p] * tintColor;
+      m_BaseParticleData[p].Life = pLifeTime[p].x * pLifeTime[p].y;
     }
 
     for (ezUInt32 p = 0; p < (ezUInt32)GetOwnerSystem()->GetNumActiveParticles(); ++p)
@@ -246,9 +246,9 @@ void ezParticleTypeSprite::ExtractTypeRenderData(const ezView& view, ezExtracted
 
       const ezVec3 vTangentX = mRotation * vTangentStart;
 
-      TempData[p].Position = pPosition[p].GetAsVec3();
-      TempData[p].TangentX = vTangentX;
-      TempData[p].TangentZ = vTangentX.Cross(vNormal);
+      m_QuadParticleData[p].Position = pPosition[p].GetAsVec3();
+      m_QuadParticleData[p].TangentX = vTangentX;
+      m_QuadParticleData[p].TangentZ = vTangentX.Cross(vNormal);
     }
   }
 
@@ -260,7 +260,8 @@ void ezParticleTypeSprite::ExtractTypeRenderData(const ezView& view, ezExtracted
   pRenderData->m_GlobalTransform = instanceTransform;
   pRenderData->m_RenderMode = m_RenderMode;
   pRenderData->m_hTexture = m_hTexture;
-  pRenderData->m_ParticleData = m_ParticleData;
+  pRenderData->m_BaseParticleData = m_BaseParticleData;
+  pRenderData->m_QuadParticleData = m_QuadParticleData;
   pRenderData->m_uiNumSpritesX = m_uiNumSpritesX;
   pRenderData->m_uiNumSpritesY = m_uiNumSpritesY;
 

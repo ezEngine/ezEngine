@@ -6,7 +6,6 @@
 #include <ParticlePlugin/Type/Billboard/BillboardRenderer.h>
 
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
-struct ezBillboardParticleData;
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeBillboardFactory : public ezParticleTypeFactory
 {
@@ -54,7 +53,8 @@ protected:
   ezProcessingStream* m_pStreamRotationSpeed = nullptr;
   ezProcessingStream* m_pStreamRotationOffset = nullptr;
 
-  mutable ezArrayPtr<ezBillboardParticleData> m_ParticleData;
+  mutable ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
+  mutable ezArrayPtr<ezBillboardParticleData> m_BillboardParticleData;
 };
 
 

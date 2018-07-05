@@ -34,12 +34,13 @@ VS_OUT main(uint VertexID : SV_VertexID)
   uint dataIndex = CalcQuadParticleDataIndex(VertexID);
   uint vertexIndex = CalcQuadParticleVertexIndex(VertexID);
 
-  ezQuadParticleShaderData particle = particleData[dataIndex];
+  ezBaseParticleShaderData baseParticle = particleBaseData[dataIndex];
+  ezQuadParticleShaderData quadParticle = particleQuadData[dataIndex];
 
   VS_OUT ret;
-  ret.Position = CalcQuadOutputPositionWithTangents(vertexIndex, particle.Position.xyz, particle.TangentX, particle.TangentZ, particle.Size);
-  ret.TexCoords = ComputeSpriteAnimationTexCoord(QuadTexCoords[vertexIndex], NumSpritesX, NumSpritesY, particle.Life);
-  ret.Color = RGBA8ToFloat4(particle.Color);
+  ret.Position = CalcQuadOutputPositionWithTangents(vertexIndex, quadParticle.Position.xyz, quadParticle.TangentX, quadParticle.TangentZ, baseParticle.Size);
+  ret.TexCoords = ComputeSpriteAnimationTexCoord(QuadTexCoords[vertexIndex], NumSpritesX, NumSpritesY, baseParticle.Life);
+  ret.Color = RGBA8ToFloat4(baseParticle.Color);
 
   return ret;
 }

@@ -153,15 +153,16 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
     const ezUInt32 uiBucketSize = ComputeTrailPointBucketSize(m_uiMaxPoints);
 
     // this will automatically be deallocated at the end of the frame
-    m_ParticleDataShared = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezTrailParticleData, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
+    m_BaseParticleData =
+        EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBaseParticleShaderData, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
     m_TrailPointsShared = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezVec4, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles() * uiBucketSize);
 
     for (ezUInt32 p = 0; p < numActiveParticles; ++p)
     {
-      m_ParticleDataShared[p].Size = pSize[p];
-      m_ParticleDataShared[p].Color = pColor[p];
-      m_ParticleDataShared[p].NumPoints = pTrailData[p].m_uiNumPoints;
-      m_ParticleDataShared[p].Life = pLifeTime[p].x * pLifeTime[p].y;
+      m_BaseParticleData[p].Size = pSize[p];
+      m_BaseParticleData[p].Color = pColor[p];
+      m_BaseParticleData[p].NumPoints = pTrailData[p].m_uiNumPoints;
+      m_BaseParticleData[p].Life = pLifeTime[p].x * pLifeTime[p].y;
     }
 
     for (ezUInt32 p = 0; p < numActiveParticles; ++p)
@@ -194,7 +195,7 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
   pRenderData->m_GlobalTransform = instanceTransform;
   pRenderData->m_uiMaxTrailPoints = m_uiMaxPoints;
   pRenderData->m_hTexture = m_hTexture;
-  pRenderData->m_ParticleDataShared = m_ParticleDataShared;
+  pRenderData->m_BaseParticleData = m_BaseParticleData;
   pRenderData->m_TrailPointsShared = m_TrailPointsShared;
   pRenderData->m_fSnapshotFraction = m_fSnapshotFraction;
   // TODO: expose and use this

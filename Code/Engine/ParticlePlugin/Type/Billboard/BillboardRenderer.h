@@ -21,7 +21,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBillboardRenderData : public ezRenderData
 public:
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezTexture2DResourceHandle m_hTexture;
-  ezArrayPtr<ezBillboardParticleData> m_ParticleData;
+  ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
+  ezArrayPtr<ezBillboardParticleData> m_BillboardParticleData;
   bool m_bApplyObjectTransform = true;
   ezUInt8 m_uiNumSpritesX = 1;
   ezUInt8 m_uiNumSpritesY = 1;
@@ -44,7 +45,8 @@ protected:
   void CreateDataBuffer();
 
   static const ezUInt32 s_uiParticlesPerBatch = 1024;
-  ezGALBufferHandle m_hDataBuffer;
+  ezGALBufferHandle m_hBaseDataBuffer;
+  ezGALBufferHandle m_hBillboardDataBuffer;
   ezShaderResourceHandle m_hShader;
 };
 

@@ -146,16 +146,18 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
     const ezVec2* pLifeTime = m_pStreamLifeTime->GetData<ezVec2>();
 
     // this will automatically be deallocated at the end of the frame
-    m_ParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezQuadParticleShaderData,
+    m_BaseParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBaseParticleShaderData,
+                                      (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
+    m_QuadParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezQuadParticleShaderData,
                                   (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
 
     ezTransform t;
 
     for (ezUInt32 p = 0; p < (ezUInt32)GetOwnerSystem()->GetNumActiveParticles(); ++p)
     {
-      m_ParticleData[p].Size = pSize[p];
-      m_ParticleData[p].Color = pColor[p];
-      m_ParticleData[p].Life = pLifeTime[p].x * pLifeTime[p].y;
+      m_BaseParticleData[p].Size = pSize[p];
+      m_BaseParticleData[p].Color = pColor[p];
+      m_BaseParticleData[p].Life = pLifeTime[p].x * pLifeTime[p].y;
     }
 
     if (m_RotationAxis == ezFragmentAxis::EmitterDirection)
@@ -168,9 +170,9 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
         ezMat3 mRotation;
         mRotation.SetRotationMatrix(vEmitterDir, ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[p]) + pRotationOffset[p]));
 
-        m_ParticleData[p].Position = pPosition[p].GetAsVec3();
-        m_ParticleData[p].TangentX = mRotation * vTangentX;
-        m_ParticleData[p].TangentZ = vTangentZ;
+        m_QuadParticleData[p].Position = pPosition[p].GetAsVec3();
+        m_QuadParticleData[p].TangentX = mRotation * vTangentX;
+        m_QuadParticleData[p].TangentZ = vTangentZ;
       }
     }
     else if (m_RotationAxis == ezFragmentAxis::OrthogonalEmitterDirection)
@@ -186,9 +188,9 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
         ezMat3 mRotation;
         mRotation.SetRotationMatrix(vOrthoDir, ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[p]) + pRotationOffset[p]));
 
-        m_ParticleData[p].Position = pPosition[p].GetAsVec3();
-        m_ParticleData[p].TangentX = vOrthoDir;
-        m_ParticleData[p].TangentZ = mRotation * vTangentZ;
+        m_QuadParticleData[p].Position = pPosition[p].GetAsVec3();
+        m_QuadParticleData[p].TangentX = vOrthoDir;
+        m_QuadParticleData[p].TangentZ = mRotation * vTangentZ;
       }
     }
   }
@@ -200,7 +202,8 @@ void ezParticleTypeFragment::ExtractTypeRenderData(const ezView& view, ezExtract
   pRenderData->m_bApplyObjectTransform = GetOwnerEffect()->NeedsToApplyTransform();
   pRenderData->m_GlobalTransform = instanceTransform;
   pRenderData->m_hTexture = m_hTexture;
-  pRenderData->m_ParticleData = m_ParticleData;
+  pRenderData->m_BaseParticleData = m_BaseParticleData;
+  pRenderData->m_QuadParticleData = m_QuadParticleData;
   pRenderData->m_uiNumSpritesX = m_uiNumSpritesX;
   pRenderData->m_uiNumSpritesY = m_uiNumSpritesY;
 

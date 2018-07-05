@@ -181,7 +181,8 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
     const ezFloat16* pRotationOffset = m_pStreamRotationOffset->GetData<ezFloat16>();
 
     // this will automatically be deallocated at the end of the frame
-    m_ParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBillboardParticleData, numParticles);
+    m_BaseParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBaseParticleShaderData, numParticles);
+    m_BillboardParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBillboardParticleData, numParticles);
 
     ezTransform trans;
     if (bNeedsSorting)
@@ -208,10 +209,10 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
                                               ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[idx]) + pRotationOffset[idx]));
         trans.m_vPosition = pPosition[idx].GetAsVec3();
         trans.m_vScale.Set(1.0f);
-        m_ParticleData[p].Transform = trans;
-        m_ParticleData[p].Size = pSize[idx];
-        m_ParticleData[p].Color = pColor[idx] * tintColor;
-        m_ParticleData[p].Life = pLifeTime[idx].x * pLifeTime[idx].y;
+        m_BillboardParticleData[p].Transform = trans;
+        m_BaseParticleData[p].Size = pSize[idx];
+        m_BaseParticleData[p].Color = pColor[idx] * tintColor;
+        m_BaseParticleData[p].Life = pLifeTime[idx].x * pLifeTime[idx].y;
       }
     }
     else
@@ -224,10 +225,10 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
                                               ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[idx]) + pRotationOffset[idx]));
         trans.m_vPosition = pPosition[idx].GetAsVec3();
         trans.m_vScale.Set(1.0f);
-        m_ParticleData[p].Transform = trans;
-        m_ParticleData[p].Size = pSize[idx];
-        m_ParticleData[p].Color = pColor[idx] * tintColor;
-        m_ParticleData[p].Life = pLifeTime[idx].x * pLifeTime[idx].y;
+        m_BillboardParticleData[p].Transform = trans;
+        m_BaseParticleData[p].Size = pSize[idx];
+        m_BaseParticleData[p].Color = pColor[idx] * tintColor;
+        m_BaseParticleData[p].Life = pLifeTime[idx].x * pLifeTime[idx].y;
       }
     }
   }
@@ -240,7 +241,8 @@ void ezParticleTypeBillboard::ExtractTypeRenderData(const ezView& view, ezExtrac
   pRenderData->m_GlobalTransform = instanceTransform;
   pRenderData->m_RenderMode = m_RenderMode;
   pRenderData->m_hTexture = m_hTexture;
-  pRenderData->m_ParticleData = m_ParticleData;
+  pRenderData->m_BaseParticleData = m_BaseParticleData;
+  pRenderData->m_BillboardParticleData = m_BillboardParticleData;
   pRenderData->m_uiNumSpritesX = m_uiNumSpritesX;
   pRenderData->m_uiNumSpritesY = m_uiNumSpritesY;
 

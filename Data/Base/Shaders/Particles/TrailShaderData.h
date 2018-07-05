@@ -1,14 +1,7 @@
 #pragma once
 
 #include "ParticleSystemConstants.h"
-
-struct EZ_ALIGN_16(ezTrailParticleData)
-{
-  COLOR4UB(Color);
-  FLOAT1(Life); // 1 to 0
-  FLOAT1(Size);
-  INT1(NumPoints);
-};
+#include "BaseParticleShaderData.h"
 
 struct EZ_ALIGN_16(ezTrailParticlePointsData8)
 {
@@ -33,8 +26,6 @@ struct EZ_ALIGN_16(ezTrailParticlePointsData64)
 // this is only defined during shader compilation
 #if EZ_ENABLED(PLATFORM_DX11)
 
-StructuredBuffer<ezTrailParticleData> particleData;
-
 #if PARTICLE_TRAIL_POINTS == PARTICLE_TRAIL_POINTS_COUNT8
   StructuredBuffer<ezTrailParticlePointsData8> particlePointsData;
 #endif
@@ -52,8 +43,6 @@ StructuredBuffer<ezTrailParticleData> particleData;
 #endif
 
 #else // C++
-
-EZ_CHECK_AT_COMPILETIME(sizeof(ezTrailParticleData) == 16);
 
 #endif
 

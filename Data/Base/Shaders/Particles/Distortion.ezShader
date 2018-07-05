@@ -24,12 +24,13 @@ VS_OUT main(uint VertexID : SV_VertexID)
   uint dataIndex = CalcQuadParticleDataIndex(VertexID);
   uint vertexIndex = CalcQuadParticleVertexIndex(VertexID);
 
-  ezBillboardParticleData particle = particleData[dataIndex];
+  ezBaseParticleShaderData baseParticle = particleBaseData[dataIndex];
+  ezBillboardParticleData billboardParticle = particleBillboardData[dataIndex];
 
   VS_OUT ret;
-  ret.Position = CalcQuadOutputPositionAsBillboard(vertexIndex, particle.Transform, particle.Size);
-  ret.TexCoords = ComputeSpriteAnimationTexCoord(QuadTexCoords[vertexIndex], NumSpritesX, NumSpritesY, particle.Life);
-  ret.Color = RGBA8ToFloat4(particle.Color);
+  ret.Position = CalcQuadOutputPositionAsBillboard(vertexIndex, billboardParticle.Transform, baseParticle.Size);
+  ret.TexCoords = ComputeSpriteAnimationTexCoord(QuadTexCoords[vertexIndex], NumSpritesX, NumSpritesY, baseParticle.Life);
+  ret.Color = RGBA8ToFloat4(baseParticle.Color);
 
   return ret;
 }

@@ -45,11 +45,11 @@ VS_OUT main(uint VertexID : SV_VertexID)
   int vertexSubIndex = VertexID % 6;
   int vertexTrailPointIndex = trailPointIndex + trailIndexOffset[vertexSubIndex];
 
-  ezTrailParticleData particle = particleData[particleIndex];
+  ezBaseParticleShaderData baseParticle = particleBaseData[particleIndex];
 
   VS_OUT ret;
 
-  if (trailPointIndex + 1 >= particle.NumPoints)
+  if (trailPointIndex + 1 >= baseParticle.NumPoints)
   {
     ret.Position = float4(0, 0, 0, 0);
     ret.TexCoords = float2(0, 0);
@@ -68,7 +68,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
     float uvSubtract = uvStep * SnapshotFraction; // to adjust the UV coordinates while the first position glides along, to not have jumps when a new segment is added
 
     int prevTrailPointIdx = max(vertexTrailPointIndex - 1, 0);
-    int nextTrailPointIdx = min(vertexTrailPointIndex + 1, particle.NumPoints - 1);
+    int nextTrailPointIdx = min(vertexTrailPointIndex + 1, baseParticle.NumPoints - 1);
 
     float3 position0 = particlePointsData[particleIndex].Positions[vertexTrailPointIndex].xyz;
     float3 positionP = particlePointsData[particleIndex].Positions[prevTrailPointIdx].xyz;
@@ -77,7 +77,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
     float3 avgDirection = positionN - positionP;
 
     float3 dirRight = mul(ObjectToWorldMatrix, float4(avgDirection, 0)).xyz;
-    float3 dirUp = normalize(cross(dirRight, GetCameraDirForwards())) * particle.Size;
+    float3 dirUp = normalize(cross(dirRight, GetCameraDirForwards())) * baseParticle.Size;
 
     float4 offsetRight = float4(dirRight * QuadTexCoords[vertexSubIndex].x, 0);
     float4 offsetUp = float4(dirUp * (QuadTexCoords[vertexSubIndex].y - 0.5), 0);
@@ -87,7 +87,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
     ret.Position = mul(GetWorldToScreenMatrix(), position);
     ret.TexCoords.x = uvCoord;
     ret.TexCoords.y = QuadTexCoords[vertexSubIndex].y;
-    ret.Color = RGBA8ToFloat4(particle.Color);
+    ret.Color = RGBA8ToFloat4(baseParticle.Color);
 
     // do NOT adjust the UV of the very first vertex, that is the one moves all the time and is always at UV.x == 0
     // however, DO adjust the coordinate of the LAST vertex, since that is not moving and needs to "fade away" (out of the UV space, ie > 1)

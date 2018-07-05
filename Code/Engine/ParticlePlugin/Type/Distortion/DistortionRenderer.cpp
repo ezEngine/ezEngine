@@ -1,11 +1,12 @@
 #include <PCH.h>
-#include <ParticlePlugin/Type/Distortion/DistortionRenderer.h>
-#include <RendererFoundation/Device/Device.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererFoundation/Context/Context.h>
-#include <RendererCore/Pipeline/RenderDataBatch.h>
-#include <RendererCore/Shader/ShaderResource.h>
+
 #include <Foundation/Types/ScopeExit.h>
+#include <ParticlePlugin/Type/Distortion/DistortionRenderer.h>
+#include <RendererCore/Pipeline/RenderDataBatch.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/Shader/ShaderResource.h>
+#include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/Device/Device.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Particles/ParticleSystemConstants.h>
 
@@ -21,10 +22,16 @@ ezParticleDistortionRenderer::ezParticleDistortionRenderer() = default;
 
 ezParticleDistortionRenderer::~ezParticleDistortionRenderer()
 {
-  if (!m_hDataBuffer.IsInvalidated())
+  if (!m_hBaseDataBuffer.IsInvalidated())
   {
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hDataBuffer);
-    m_hDataBuffer.Invalidate();
+    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hBaseDataBuffer);
+    m_hBaseDataBuffer.Invalidate();
+  }
+
+  if (!m_hBillboardDataBuffer.IsInvalidated())
+  {
+    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hBillboardDataBuffer);
+    m_hBillboardDataBuffer.Invalidate();
   }
 }
 
@@ -35,7 +42,20 @@ void ezParticleDistortionRenderer::GetSupportedRenderDataTypes(ezHybridArray<con
 
 void ezParticleDistortionRenderer::CreateDataBuffer()
 {
-  if (m_hDataBuffer.IsInvalidated())
+  if (m_hBaseDataBuffer.IsInvalidated())
+  {
+    ezGALBufferCreationDescription desc;
+    desc.m_uiStructSize = sizeof(ezBaseParticleShaderData);
+    desc.m_uiTotalSize = s_uiParticlesPerBatch * desc.m_uiStructSize;
+    desc.m_BufferType = ezGALBufferType::Generic;
+    desc.m_bUseAsStructuredBuffer = true;
+    desc.m_bAllowShaderResourceView = true;
+    desc.m_ResourceAccess.m_bImmutable = false;
+
+    m_hBaseDataBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
+  }
+
+  if (m_hBillboardDataBuffer.IsInvalidated())
   {
     ezGALBufferCreationDescription desc;
     desc.m_uiStructSize = sizeof(ezBillboardParticleData);
@@ -45,11 +65,12 @@ void ezParticleDistortionRenderer::CreateDataBuffer()
     desc.m_bAllowShaderResourceView = true;
     desc.m_ResourceAccess.m_bImmutable = false;
 
-    m_hDataBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
+    m_hBillboardDataBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
   }
 }
 
-void ezParticleDistortionRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch)
+void ezParticleDistortionRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass,
+                                               const ezRenderDataBatch& batch)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
@@ -74,17 +95,18 @@ void ezParticleDistortionRenderer::RenderBatch(const ezRenderViewContext& render
   // make sure our structured buffer is allocated and bound
   {
     CreateDataBuffer();
-    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, s_uiParticlesPerBatch * 2);
-    renderViewContext.m_pRenderContext->BindBuffer("particleData", pDevice->GetDefaultResourceView(m_hDataBuffer));
+    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles,
+                                                       s_uiParticlesPerBatch * 2);
+
+    renderViewContext.m_pRenderContext->BindBuffer("particleBaseData", pDevice->GetDefaultResourceView(m_hBaseDataBuffer));
+    renderViewContext.m_pRenderContext->BindBuffer("particleBillboardData", pDevice->GetDefaultResourceView(m_hBillboardDataBuffer));
   }
 
   // now render all particle effects of type Distortion
   for (auto it = batch.GetIterator<ezParticleDistortionRenderData>(0, batch.GetCount()); it.IsValid(); ++it)
   {
     const ezParticleDistortionRenderData* pRenderData = it;
-    ezUInt32 uiNumParticles = pRenderData->m_ParticleData.GetCount();
-
-    const ezBillboardParticleData* pParticleData = pRenderData->m_ParticleData.GetPtr();
+    ezUInt32 uiNumParticles = pRenderData->m_BaseParticleData.GetCount();
 
     renderViewContext.m_pRenderContext->BindTexture2D("ParticleMaskTexture", pRenderData->m_hMaskTexture);
     renderViewContext.m_pRenderContext->BindTexture2D("ParticleDistortionTexture", pRenderData->m_hDistortionTexture);
@@ -102,22 +124,24 @@ void ezParticleDistortionRenderer::RenderBatch(const ezRenderViewContext& render
         cb.ObjectToWorldMatrix.SetIdentity();
     }
 
+    const ezBaseParticleShaderData* pParticleBaseData = pRenderData->m_BaseParticleData.GetPtr();
+    const ezBillboardParticleData* pParticleBillboardData = pRenderData->m_BillboardParticleData.GetPtr();
+
     while (uiNumParticles > 0)
     {
       // upload this batch of particle data
       const ezUInt32 uiNumParticlesInBatch = ezMath::Min<ezUInt32>(uiNumParticles, s_uiParticlesPerBatch);
-      pGALContext->UpdateBuffer(m_hDataBuffer, 0, ezMakeArrayPtr(pParticleData, uiNumParticlesInBatch).ToByteArray());
+
+      pGALContext->UpdateBuffer(m_hBaseDataBuffer, 0, ezMakeArrayPtr(pParticleBaseData, uiNumParticlesInBatch).ToByteArray());
+      pGALContext->UpdateBuffer(m_hBillboardDataBuffer, 0, ezMakeArrayPtr(pParticleBillboardData, uiNumParticlesInBatch).ToByteArray());
+
 
       // do one drawcall
       renderViewContext.m_pRenderContext->DrawMeshBuffer(uiNumParticlesInBatch * 2);
 
       uiNumParticles -= uiNumParticlesInBatch;
-      pParticleData += uiNumParticlesInBatch;
+      pParticleBaseData += uiNumParticlesInBatch;
+      pParticleBillboardData += uiNumParticlesInBatch;
     }
   }
 }
-
-
-
-
-

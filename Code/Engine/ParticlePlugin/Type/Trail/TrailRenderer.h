@@ -9,6 +9,7 @@
 #include <ParticlePlugin/Renderer/ParticleRenderer.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Particles/ParticleSystemConstants.h>
+#include <RendererCore/../../../Data/Base/Shaders/Particles/BaseParticleShaderData.h>
 #include <RendererCore/../../../Data/Base/Shaders/Particles/TrailShaderData.h>
 
 typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
@@ -22,7 +23,7 @@ public:
   ezTexture2DResourceHandle m_hTexture;
   ezUInt32 m_uiMaxTrailPoints;
   float m_fSnapshotFraction;
-  ezArrayPtr<ezTrailParticleData> m_ParticleDataShared;
+  ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
   ezArrayPtr<ezVec4> m_TrailPointsShared;
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   bool m_bApplyObjectTransform = true;
