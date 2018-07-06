@@ -1,13 +1,14 @@
 #include <PCH.h>
-#include <ParticlePlugin/System/ParticleSystemDescriptor.h>
-#include <ParticlePlugin/Emitter/ParticleEmitter.h>
-#include <ParticlePlugin/Initializer/ParticleInitializer.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
-#include <ParticlePlugin/Type/ParticleType.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_Age.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_Volume.h>
+#include <ParticlePlugin/Emitter/ParticleEmitter.h>
+#include <ParticlePlugin/Initializer/ParticleInitializer.h>
+#include <ParticlePlugin/System/ParticleSystemDescriptor.h>
+#include <ParticlePlugin/Type/ParticleType.h>
 #include <ParticlePlugin/Type/Point/ParticleTypePoint.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleSystemDescriptor, 1, ezRTTIDefaultAllocator<ezParticleSystemDescriptor>)
 {
   EZ_BEGIN_PROPERTIES
@@ -26,6 +27,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleSystemDescriptor, 1, ezRTTIDefaultAllo
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezParticleSystemDescriptor::ezParticleSystemDescriptor()
 {
@@ -86,7 +88,8 @@ void ezParticleSystemDescriptor::SetupDefaultProcessors()
 {
   // Age Behavior
   {
-    ezParticleBehaviorFactory_Age* pFactory = ezParticleBehaviorFactory_Age::GetStaticRTTI()->GetAllocator()->Allocate<ezParticleBehaviorFactory_Age>();
+    ezParticleBehaviorFactory_Age* pFactory =
+        ezParticleBehaviorFactory_Age::GetStaticRTTI()->GetAllocator()->Allocate<ezParticleBehaviorFactory_Age>();
     pFactory->m_LifeTime = m_LifeTime;
     pFactory->m_sOnDeathEvent = m_sOnDeathEvent;
     pFactory->m_sLifeScaleParameter = m_sLifeScaleParameter;
@@ -95,13 +98,15 @@ void ezParticleSystemDescriptor::SetupDefaultProcessors()
 
   // Bounding Volume Update Behavior
   {
-    ezParticleBehaviorFactory_Volume* pFactory = ezParticleBehaviorFactory_Volume::GetStaticRTTI()->GetAllocator()->Allocate<ezParticleBehaviorFactory_Volume>();
+    ezParticleBehaviorFactory_Volume* pFactory =
+        ezParticleBehaviorFactory_Volume::GetStaticRTTI()->GetAllocator()->Allocate<ezParticleBehaviorFactory_Volume>();
     m_BehaviorFactories.PushBack(pFactory);
   }
 
   if (m_TypeFactories.IsEmpty())
   {
-    ezParticleTypePointFactory* pFactory = ezParticleTypePointFactory::GetStaticRTTI()->GetAllocator()->Allocate<ezParticleTypePointFactory>();
+    ezParticleTypePointFactory* pFactory =
+        ezParticleTypePointFactory::GetStaticRTTI()->GetAllocator()->Allocate<ezParticleTypePointFactory>();
     m_TypeFactories.PushBack(pFactory);
   }
 }
@@ -292,6 +297,4 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& stream)
 }
 
 
-
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_System_ParticleSystemDescriptor);
-

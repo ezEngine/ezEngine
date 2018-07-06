@@ -1,9 +1,12 @@
 #include <PCH.h>
+
+#include <Core/WorldSerializer/ResourceHandleReader.h>
+#include <Core/WorldSerializer/ResourceHandleWriter.h>
+#include <Foundation/Types/ScopeExit.h>
 #include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
 #include <ParticlePlugin/System/ParticleSystemDescriptor.h>
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
-#include <Core/WorldSerializer/ResourceHandleReader.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectDescriptor, 1, ezRTTIDefaultAllocator<ezParticleEffectDescriptor>)
 {
   EZ_BEGIN_PROPERTIES
@@ -19,10 +22,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectDescriptor, 1, ezRTTIDefaultAllo
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezParticleEffectDescriptor::ezParticleEffectDescriptor()
-{
-}
+ezParticleEffectDescriptor::ezParticleEffectDescriptor() {}
 
 ezParticleEffectDescriptor::~ezParticleEffectDescriptor()
 {
@@ -171,7 +173,7 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& stream)
     {
       ezColor val;
       stream >> key;
-      stream >>val;
+      stream >> val;
       m_ColorParameters[key] = val;
     }
 
@@ -190,7 +192,4 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& stream)
   context.EndRestoringHandles();
 }
 
-
-
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Effect_ParticleEffectDescriptor);
-

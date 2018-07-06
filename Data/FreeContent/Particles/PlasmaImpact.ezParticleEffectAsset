@@ -35,7 +35,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8041297443414721205,4824718660267000895}}
-		u4 %Hash{7042883621585388865}
+		u4 %Hash{6642281317858499697}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{4316270606494290047,3017982652440189618}}
@@ -119,20 +119,6 @@ o
 }
 o
 {
-	Uuid %id{u4{8537329987449419399,5082024730956027779}}
-	s %t{"ezParticleTypeBillboardFactory"}
-	u3 %v{1}
-	p
-	{
-		u1 %NumSpritesX{1}
-		u1 %NumSpritesY{1}
-		s %RenderMode{"ezParticleTypeRenderMode::Additive"}
-		s %Texture{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
-		s %TintColorParam{"Color"}
-	}
-}
-o
-{
 	Uuid %id{u4{8101625456810971297,5155582652522810804}}
 	s %t{"ezParticleTypeQuadFactory"}
 	u3 %v{1}
@@ -206,9 +192,27 @@ o
 		s %OnDeathEvent{""}
 		VarArray %Types
 		{
-			Uuid{u4{8537329987449419399,5082024730956027779}}
+			Uuid{u4{13395998929898605961,5345764278015880525}}
 		}
 		b %Visible{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13395998929898605961,5345764278015880525}}
+	s %t{"ezParticleTypeQuadFactory"}
+	u3 %v{1}
+	p
+	{
+		Angle %Deviation{f{0}}
+		f %DistortionStrength{0x0000C842}
+		s %DistortionTexture{""}
+		u1 %NumSpritesX{1}
+		u1 %NumSpritesY{1}
+		s %Orientation{"ezQuadParticleOrientation::Billboard"}
+		s %RenderMode{"ezParticleTypeRenderMode::Additive"}
+		s %Texture{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
+		s %TintColorParam{"Color"}
 	}
 }
 o
@@ -483,24 +487,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleSystemDescriptor"}
 		u3 %TypeSize{496}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{12521386556429718201,10497443732101625412}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezParticleTypeFactory"}
-		s %PluginName{"ezEditorPluginParticle"}
-		VarArray %Properties{}
-		s %TypeName{"ezParticleTypeBillboardFactory"}
-		u3 %TypeSize{152}
 		u3 %TypeVersion{1}
 	}
 }

@@ -18,9 +18,7 @@ Emitters;Emitters
 Initializers;Initializers
 Behaviors;Behaviors
 ParticleSystems;Particle Systems
-ezParticleTypeSpriteFactory;Sprites
-ezParticleTypeTrailFactory;Trails
-ezParticleBehaviorFactory_Age;Age
+ezParticleTypeTrailFactory;Trail
 ezParticleBehaviorFactory_ColorGradient;Color Gradient
 ezParticleBehaviorFactory_Velocity;Velocity
 ezParticleBehaviorFactory_Gravity;Gravity
@@ -30,7 +28,6 @@ ezParticleEmitterFactory_Continuous;Continuous
 ezParticleEmitterFactory_OnEvent;On Event
 ezParticleEmitterFactory_Burst;Burst
 ezParticleTypeMeshFactory;Mesh
-ezParticleInitializerFactory_Life;Life
 ezParticleInitializerFactory_VelocityCone;Velocity Cone
 ezParticleComponent;Particle
 ezParticleInitializerFactory_BoxPosition;Box Position
@@ -41,25 +38,18 @@ ezParticleInitializerFactory_RandomRotationSpeed;Rotation Speed
 ezParticleInitializerFactory_SpherePosition;Sphere Position
 ezParticleBehaviorFactory_PullAlong;Pull Along
 ezParticleBehaviorFactory_SizeCurve;Size Curve
-ezParticleTypeBillboardFactory;Billboards
-ezParticleTypeQuadFactory;Quads
-ezParticleTypeLightFactory;Lights
-ezParticleTypeEffectFactory;Effects
-ezParticleTypeFragmentFactory;Fragments
-ezParticleTypePointFactory;Points
+ezParticleTypeQuadFactory;Quad
+ezParticleTypeLightFactory;Light
+ezParticleTypeEffectFactory;Effect
+ezParticleTypePointFactory;Point
 Types;Types
 ezParticleRaycastHitReaction::Bounce;Bounce
 ezParticleRaycastHitReaction::Die;Die
 ezParticleRaycastHitReaction::Stop;Stop
-ezFragmentAxis::OrthogonalEmitterDirection;Orthogonal to Emitter
-ezFragmentAxis::EmitterDirection;Emitter Direction
 ezParticleTypeRenderMode::Additive;Additive
 ezParticleTypeRenderMode::Blended;Blended
 ezParticleTypeRenderMode::Opaque;Opaque
 ezParticleTypeRenderMode::Distortion;Distortion
-ezSpriteAxis::EmitterDirection;Emitter Direction
-ezSpriteAxis::WorldUp;World Up
-ezSpriteAxis::Random;Random
 ezEffectInvisibleUpdateRate::FullUpdate;Full Update
 ezEffectInvisibleUpdateRate::Max20fps;Max 20 FPS
 ezEffectInvisibleUpdateRate::Max10fps;Max 10 FPS
@@ -68,7 +58,6 @@ ezEffectInvisibleUpdateRate::Pause;Pause
 ezEffectInvisibleUpdateRate::Discard;Discard
 FloatParameters;Number Parameters
 ColorParameters;Color Parameters
-ezParticleTypeDistortionFactory;Distortion
 ezQuadParticleOrientation::Billboard;Billboard
 ezQuadParticleOrientation::FragmentOrthogonalEmitterDirection;Fragment Ortho Emitter Dir
 ezQuadParticleOrientation::FragmentEmitterDirection;Fragment Emitter Dir
