@@ -21,7 +21,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7797394691505756328,5717546376087507856}}
-		u4 %Hash{9984398930763122554}
+		u4 %Hash{13484859287526393546}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{4072367854585325170,3910810368260696579}}
@@ -90,22 +90,6 @@ o
 }
 o
 {
-	Uuid %id{u4{7655801771386949562,4701933330526228590}}
-	s %t{"ezParticleTypeSpriteFactory"}
-	u3 %v{1}
-	p
-	{
-		Angle %Deviation{f{0}}
-		u1 %NumSpritesX{1}
-		u1 %NumSpritesY{1}
-		s %RenderMode{"ezParticleTypeRenderMode::Blended"}
-		s %RotationAxis{"ezSpriteAxis::Random"}
-		s %Texture{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
-		s %TintColorParam{""}
-	}
-}
-o
-{
 	Uuid %id{u4{15743331047095930006,4714944409318883734}}
 	s %t{"ezParticleBehaviorFactory_Velocity"}
 	u3 %v{1}
@@ -160,6 +144,7 @@ o
 	u3 %v{1}
 	p
 	{
+		Angle %Deviation{f{0}}
 		u1 %NumSpritesX{1}
 		u1 %NumSpritesY{1}
 		s %Orientation{"ezQuadParticleOrientation::Billboard"}
@@ -267,6 +252,7 @@ o
 	u3 %v{1}
 	p
 	{
+		Angle %Deviation{f{0}}
 		u1 %NumSpritesX{1}
 		u1 %NumSpritesY{1}
 		s %Orientation{"ezQuadParticleOrientation::FragmentOrthogonalEmitterDirection"}
@@ -295,6 +281,22 @@ o
 	{
 		Uuid %DegreesPerSecond{u4{17109025132985106937,5110953237616890965}}
 		b %RandomStartAngle{0}
+	}
+}
+o
+{
+	Uuid %id{u4{4617096017169045662,5076217413224234217}}
+	s %t{"ezParticleTypeQuadFactory"}
+	u3 %v{1}
+	p
+	{
+		Angle %Deviation{f{0}}
+		u1 %NumSpritesX{1}
+		u1 %NumSpritesY{1}
+		s %Orientation{"ezQuadParticleOrientation::SpriteRandom"}
+		s %RenderMode{"ezParticleTypeRenderMode::Additive"}
+		s %Texture{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
+		s %TintColorParam{""}
 	}
 }
 o
@@ -470,7 +472,7 @@ o
 		s %OnDeathEvent{""}
 		VarArray %Types
 		{
-			Uuid{u4{7655801771386949562,4701933330526228590}}
+			Uuid{u4{4617096017169045662,5076217413224234217}}
 		}
 		b %Visible{1}
 	}
@@ -563,6 +565,7 @@ o
 	u3 %v{1}
 	p
 	{
+		Angle %Deviation{f{0}}
 		u1 %NumSpritesX{1}
 		u1 %NumSpritesY{1}
 		s %Orientation{"ezQuadParticleOrientation::Billboard"}
@@ -767,7 +770,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleTypeQuadFactory"}
-		u3 %TypeSize{152}
+		u3 %TypeSize{160}
 		u3 %TypeVersion{1}
 	}
 }
@@ -840,24 +843,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezDocumentRoot"}
 		u3 %TypeSize{72}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{14117691408468556726,9702856089586142480}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"ezEditorPluginParticle"}
-		VarArray %Properties{}
-		s %TypeName{"ezSpriteAxis"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -966,24 +951,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleBehaviorFactory_Velocity"}
 		u3 %TypeSize{16}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{4166072238705641546,14951291446851971096}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezParticleTypeFactory"}
-		s %PluginName{"ezEditorPluginParticle"}
-		VarArray %Properties{}
-		s %TypeName{"ezParticleTypeSpriteFactory"}
-		u3 %TypeSize{160}
 		u3 %TypeVersion{1}
 	}
 }

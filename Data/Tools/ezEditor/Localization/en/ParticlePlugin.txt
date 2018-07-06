@@ -42,6 +42,7 @@ ezParticleInitializerFactory_SpherePosition;Sphere Position
 ezParticleBehaviorFactory_PullAlong;Pull Along
 ezParticleBehaviorFactory_SizeCurve;Size Curve
 ezParticleTypeBillboardFactory;Billboards
+ezParticleTypeQuadFactory;Quads
 ezParticleTypeLightFactory;Lights
 ezParticleTypeEffectFactory;Effects
 ezParticleTypeFragmentFactory;Fragments
@@ -67,3 +68,9 @@ ezEffectInvisibleUpdateRate::Discard;Discard
 FloatParameters;Number Parameters
 ColorParameters;Color Parameters
 ezParticleTypeDistortionFactory;Distortion
+ezQuadParticleOrientation::Billboard;Billboard
+ezQuadParticleOrientation::FragmentOrthogonalEmitterDirection;Fragment Ortho Emitter Dir
+ezQuadParticleOrientation::FragmentEmitterDirection;Fragment Emitter Dir
+ezQuadParticleOrientation::SpriteEmitterDirection;Sprite Emitter Dir
+ezQuadParticleOrientation::SpriteRandom;Sprite Random
+ezQuadParticleOrientation::SpriteWorldUp;Sprite World Up

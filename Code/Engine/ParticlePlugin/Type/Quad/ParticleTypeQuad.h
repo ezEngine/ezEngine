@@ -42,6 +42,7 @@ public:
   virtual void Load(ezStreamReader& stream) override;
 
   ezEnum<ezQuadParticleOrientation> m_Orientation;
+  ezAngle m_MaxDeviation;
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezString m_sTexture;
   ezUInt8 m_uiNumSpritesX = 1;
@@ -60,6 +61,7 @@ public:
   virtual void CreateRequiredStreams() override;
 
   ezEnum<ezQuadParticleOrientation> m_Orientation;
+  ezAngle m_MaxDeviation;
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezTexture2DResourceHandle m_hTexture;
   ezUInt8 m_uiNumSpritesX = 1;
@@ -69,11 +71,22 @@ public:
   virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform,
                                      ezUInt64 uiExtractedFrame) const override;
 
-protected:
-  virtual void Process(ezUInt64 uiNumElements) override {}
+  struct sod
+  {
+    EZ_DECLARE_POD_TYPE();
 
+    float dist;
+    ezUInt32 index;
+  };
+
+
+protected:
+  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+  virtual void Process(ezUInt64 uiNumElements) override {}
   void AllocateParticleData(const ezUInt32 numParticles, const bool bNeedsBillboardData, const bool bNeedsTangentData) const;
   void AddParticleRenderData(ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform) const;
+  void CreateExtractedData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform,
+                           ezUInt64 uiExtractedFrame, const ezHybridArray<sod, 64>* pSorted) const;
 
   ezProcessingStream* m_pStreamLifeTime = nullptr;
   ezProcessingStream* m_pStreamPosition = nullptr;
@@ -81,6 +94,7 @@ protected:
   ezProcessingStream* m_pStreamColor = nullptr;
   ezProcessingStream* m_pStreamRotationSpeed = nullptr;
   ezProcessingStream* m_pStreamRotationOffset = nullptr;
+  ezProcessingStream* m_pStreamAxis = nullptr;
 
   mutable ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
   mutable ezArrayPtr<ezBillboardQuadParticleShaderData> m_BillboardParticleData;
