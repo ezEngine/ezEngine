@@ -7,6 +7,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleTypeRenderMode, 1)
   EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::Opaque),
   EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::Additive),
   EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::Blended),
+  EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::Distortion),
 EZ_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////

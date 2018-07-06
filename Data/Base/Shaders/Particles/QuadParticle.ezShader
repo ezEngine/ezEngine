@@ -5,7 +5,6 @@ ALL
 
 PARTICLE_RENDER_MODE
 PARTICLE_QUAD_MODE
-PARTICLE_OUTPUT_MODE
 SHADING_QUALITY=SHADING_QUALITY_NORMAL
 
 [RENDERSTATE]
@@ -24,6 +23,8 @@ CullMode = CullMode_None
 #elif PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_OPAQUE
   BlendingEnabled0 = false
   DepthWrite = true
+#elif PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_DISTORTION
+  DestBlend0 = Blend_InvSrcAlpha
 #endif
 
 [VERTEXSHADER]
@@ -71,7 +72,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
 Texture2D ParticleTexture;
 SamplerState ParticleTexture_AutoSampler;
 
-#if PARTICLE_OUTPUT_MODE == PARTICLE_OUTPUT_MODE_DISTORTION
+#if PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_DISTORTION
 
   Texture2D ParticleDistortionTexture;
   SamplerState ParticleDistortionTexture_AutoSampler;
@@ -88,16 +89,16 @@ float4 main(PS_IN Input) : SV_Target
 
   clip(opacity - 0.01);
 
-  #if PARTICLE_OUTPUT_MODE == PARTICLE_OUTPUT_MODE_DEFAULT
-
-    return float4(texCol.rgb * Input.Color.rgb, opacity);
-
-  #elif PARTICLE_OUTPUT_MODE == PARTICLE_OUTPUT_MODE_DISTORTION
+  #if PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_DISTORTION
 
     float4 texDistort = ParticleDistortionTexture.Sample(ParticleDistortionTexture_AutoSampler, Input.TexCoords.xy);
     float3 sceneColor = SampleSceneColor(Input.Position.xy + (texDistort - 0.5) * float2(DistortionStrength, DistortionStrength));
 
     return float4(sceneColor.rgb * Input.Color.rgb, opacity);
+
+  #else
+
+    return float4(texCol.rgb * Input.Color.rgb, opacity);
 
   #endif
 }

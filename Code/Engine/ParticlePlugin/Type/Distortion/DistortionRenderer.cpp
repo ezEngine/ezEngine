@@ -92,8 +92,7 @@ void ezParticleDistortionRenderer::RenderBatch(const ezRenderViewContext& render
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
 
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_QUAD_MODE", "PARTICLE_QUAD_MODE_BILLBOARD");
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_BLENDED");
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_OUTPUT_MODE", "PARTICLE_OUTPUT_MODE_DISTORTION");
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_DISTORTION");
   }
 
   // make sure our structured buffer is allocated and bound

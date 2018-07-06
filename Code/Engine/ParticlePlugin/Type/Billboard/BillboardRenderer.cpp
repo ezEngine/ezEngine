@@ -86,7 +86,6 @@ void ezParticleBillboardRenderer::RenderBatch(const ezRenderViewContext& renderV
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
 
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_QUAD_MODE", "PARTICLE_QUAD_MODE_BILLBOARD");
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_OUTPUT_MODE", "PARTICLE_OUTPUT_MODE_DEFAULT");
   }
 
   // make sure our structured buffer is allocated and bound

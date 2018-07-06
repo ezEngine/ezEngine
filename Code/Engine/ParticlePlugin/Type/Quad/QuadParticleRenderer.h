@@ -28,6 +28,9 @@ public:
   bool m_bApplyObjectTransform = true;
   ezUInt8 m_uiNumSpritesX = 1;
   ezUInt8 m_uiNumSpritesY = 1;
+
+  ezTexture2DResourceHandle m_hDistortionTexture;
+  float m_fDistortionStrength = 0;
 };
 
 /// \brief Implements rendering of particle systems

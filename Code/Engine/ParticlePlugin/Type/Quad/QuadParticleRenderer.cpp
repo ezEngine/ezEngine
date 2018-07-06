@@ -3,6 +3,7 @@
 #include <Foundation/Types/ScopeExit.h>
 #include <ParticlePlugin/Type/Quad/QuadParticleRenderer.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/Pipeline/RenderDataBatch.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleQuadRenderData, 1, ezRTTINoAllocator)
@@ -128,6 +129,10 @@ void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewCo
       case ezParticleTypeRenderMode::Opaque:
         renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_OPAQUE");
         break;
+      case ezParticleTypeRenderMode::Distortion:
+        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_DISTORTION");
+        renderViewContext.m_pRenderContext->BindTexture2D("ParticleDistortionTexture", pRenderData->m_hDistortionTexture);
+        break;
     }
 
     // fill the constant buffer
@@ -135,6 +140,7 @@ void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewCo
       ezParticleSystemConstants& cb = pConstantBuffer->GetDataForWriting();
       cb.NumSpritesX = pRenderData->m_uiNumSpritesX;
       cb.NumSpritesY = pRenderData->m_uiNumSpritesY;
+      cb.DistortionStrength = pRenderData->m_fDistortionStrength;
 
       if (pRenderData->m_bApplyObjectTransform)
         cb.ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();
@@ -150,8 +156,6 @@ void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewCo
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_QUAD_MODE", "PARTICLE_QUAD_MODE_BILLBOARD");
     else if (pParticleTangentData != nullptr)
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_QUAD_MODE", "PARTICLE_QUAD_MODE_TANGENTS");
-
-    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_OUTPUT_MODE", "PARTICLE_OUTPUT_MODE_DEFAULT");
 
     while (uiNumParticles > 0)
     {

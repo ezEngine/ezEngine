@@ -28,6 +28,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeQuadFactory, 1, ezRTTIDefaultAlloc
     EZ_MEMBER_PROPERTY("NumSpritesX", m_uiNumSpritesX)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_MEMBER_PROPERTY("NumSpritesY", m_uiNumSpritesY)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_MEMBER_PROPERTY("TintColorParam", m_sTintColorParameter),
+    EZ_MEMBER_PROPERTY("DistortionTexture", m_sDistortionTexture)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
+    EZ_MEMBER_PROPERTY("DistortionStrength", m_fDistortionStrength)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(0.0f, 500.0f)),
   }
   EZ_END_PROPERTIES;
 }
@@ -53,9 +55,13 @@ void ezParticleTypeQuadFactory::CopyTypeProperties(ezParticleType* pObject) cons
   pType->m_uiNumSpritesX = m_uiNumSpritesX;
   pType->m_uiNumSpritesY = m_uiNumSpritesY;
   pType->m_sTintColorParameter = ezTempHashedString(m_sTintColorParameter.GetData());
+  pType->m_hDistortionTexture.Invalidate();
+  pType->m_fDistortionStrength = m_fDistortionStrength;
 
   if (!m_sTexture.IsEmpty())
     pType->m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sTexture);
+  if (!m_sDistortionTexture.IsEmpty())
+    pType->m_hDistortionTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sDistortionTexture);
 }
 
 enum class TypeQuadVersion
@@ -63,6 +69,7 @@ enum class TypeQuadVersion
   Version_0 = 0,
   Version_1,
   Version_2, // sprite deviation
+  Version_3, // distortion
 
   // insert new version numbers above
   Version_Count,
@@ -81,6 +88,8 @@ void ezParticleTypeQuadFactory::Save(ezStreamWriter& stream) const
   stream << m_uiNumSpritesY;
   stream << m_sTintColorParameter;
   stream << m_MaxDeviation;
+  stream << m_sDistortionTexture;
+  stream << m_fDistortionStrength;
 }
 
 void ezParticleTypeQuadFactory::Load(ezStreamReader& stream)
@@ -100,6 +109,12 @@ void ezParticleTypeQuadFactory::Load(ezStreamReader& stream)
   if (uiVersion >= 2)
   {
     stream >> m_MaxDeviation;
+  }
+
+  if (uiVersion >= 3)
+  {
+    stream >> m_sDistortionTexture;
+    stream >> m_fDistortionStrength;
   }
 }
 
@@ -340,6 +355,8 @@ void ezParticleTypeQuad::AddParticleRenderData(ezExtractedRenderData& extractedR
   pRenderData->m_TangentParticleData = m_TangentParticleData;
   pRenderData->m_uiNumSpritesX = m_uiNumSpritesX;
   pRenderData->m_uiNumSpritesY = m_uiNumSpritesY;
+  pRenderData->m_hDistortionTexture = m_hDistortionTexture;
+  pRenderData->m_fDistortionStrength = m_fDistortionStrength;
 
   const ezUInt32 uiSortingKey = ComputeSortingKey(m_RenderMode);
   extractedRenderData.AddRenderData(pRenderData,

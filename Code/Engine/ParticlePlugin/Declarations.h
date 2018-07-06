@@ -75,6 +75,7 @@ struct EZ_PARTICLEPLUGIN_DLL ezParticleTypeRenderMode
     Additive,
     Blended,
     Opaque,
+    Distortion,
     Default = Additive
   };
 };
