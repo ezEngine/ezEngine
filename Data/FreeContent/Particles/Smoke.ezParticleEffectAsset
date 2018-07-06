@@ -35,7 +35,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{18423804289550068914,5029208661442092394}}
-		u4 %Hash{7851946004787351785}
+		u4 %Hash{12501525576586671351}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14698777452629637756,3222472653615281117}}
@@ -43,8 +43,8 @@ o
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 0c5ce0a7-7218-427d-9a9d-47ef5e9aa33f }"}
 			s{"{ a1f3f932-460e-405a-8512-a0f3ce341d1b }"}
+			s{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
 			s{"{ f633ccad-b4d5-12e5-260a-bb050d602881 }"}
 		}
 	}
@@ -92,7 +92,7 @@ o
 		s %OnDeathEvent{""}
 		VarArray %Types
 		{
-			Uuid{u4{10407767271512645277,5120174477154541319}}
+			Uuid{u4{18198626165141276314,5506089510500543476}}
 		}
 		b %Visible{1}
 	}
@@ -139,6 +139,7 @@ o
 	p
 	{
 		Uuid %DegreesPerSecond{u4{128509123954727614,4167405032877157575}}
+		b %RandomStartAngle{0}
 	}
 }
 o
@@ -153,15 +154,16 @@ o
 }
 o
 {
-	Uuid %id{u4{10407767271512645277,5120174477154541319}}
-	s %t{"ezParticleTypeBillboardFactory"}
+	Uuid %id{u4{18198626165141276314,5506089510500543476}}
+	s %t{"ezParticleTypeQuadFactory"}
 	u3 %v{1}
 	p
 	{
 		u1 %NumSpritesX{1}
 		u1 %NumSpritesY{1}
+		s %Orientation{"ezQuadParticleOrientation::Billboard"}
 		s %RenderMode{"ezParticleTypeRenderMode::Blended"}
-		s %Texture{"{ 0c5ce0a7-7218-427d-9a9d-47ef5e9aa33f }"}
+		s %Texture{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
 		s %TintColorParam{"Color"}
 	}
 }
@@ -279,6 +281,24 @@ o
 }
 o
 {
+	Uuid %id{u4{202231826772630354,2539613828686993863}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezQuadParticleOrientation"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{564319780849124288,2877851564283450000}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -292,6 +312,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleBehaviorFactory_ColorGradient"}
 		u3 %TypeSize{16}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5113863563986418407,3006780394682237384}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezParticleTypeFactory"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleTypeQuadFactory"}
+		u3 %TypeSize{152}
 		u3 %TypeVersion{1}
 	}
 }
@@ -400,24 +438,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleSystemDescriptor"}
 		u3 %TypeSize{496}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{12521386556429718201,10497443732101625412}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezParticleTypeFactory"}
-		s %PluginName{"ezEditorPluginParticle"}
-		VarArray %Properties{}
-		s %TypeName{"ezParticleTypeBillboardFactory"}
-		u3 %TypeSize{152}
 		u3 %TypeVersion{1}
 	}
 }
@@ -579,7 +599,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_RandomRotationSpeed"}
-		u3 %TypeSize{16}
+		u3 %TypeSize{24}
 		u3 %TypeVersion{1}
 	}
 }

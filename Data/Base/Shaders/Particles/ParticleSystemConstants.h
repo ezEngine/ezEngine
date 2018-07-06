@@ -6,10 +6,16 @@
 CONSTANT_BUFFER(ezParticleSystemConstants, 2)
 {
 	MAT4(ObjectToWorldMatrix);
-  FLOAT1(SnapshotFraction);
-  INT1(NumUsedTrailPoints);
+
+  // flip-book animations
   UINT1(NumSpritesX);
   UINT1(NumSpritesY);
+
+  // for trail particles
+  FLOAT1(SnapshotFraction);
+  INT1(NumUsedTrailPoints);
+
+  // heat haze distortion (pixel offset in screen-space)
   FLOAT1(DistortionStrength);
 };
 

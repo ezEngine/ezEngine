@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12099190295688988325,5711173786673602835}}
-		u4 %Hash{3924055764658654452}
+		u4 %Hash{3960133068315643806}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -149,6 +149,7 @@ o
 			Uuid{u4{5866629148714799258,5512820948564204248}}
 			Uuid{u4{7700082274850722453,5561822898671011154}}
 			Uuid{u4{4470234026784584383,5348546232402685197}}
+			Uuid{u4{17450633072838893996,5244186203198702709}}
 		}
 		Uuid %ResolvedDepth{u4{15118319717855427782,7566771301105821867}}
 		s %ShadingQuality{"ezForwardRenderShadingQuality::Normal"}
@@ -342,6 +343,13 @@ o
 			Uuid{u4{875541364554114992,5510539528898110569}}
 		}
 	}
+}
+o
+{
+	Uuid %id{u4{17450633072838893996,5244186203198702709}}
+	s %t{"ezParticleQuadRenderer"}
+	u3 %v{1}
+	p{}
 }
 o
 {
@@ -1396,6 +1404,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezClusteredDataExtractor"}
 		u3 %TypeSize{232}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6181955936983971658,9689925263264083687}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezParticleRenderer"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleQuadRenderer"}
+		u3 %TypeSize{32}
 		u3 %TypeVersion{1}
 	}
 }

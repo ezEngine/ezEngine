@@ -80,6 +80,19 @@ public:
     m_uiCount = other.m_uiCount;
   }
 
+  /// \brief Clears the array
+  EZ_ALWAYS_INLINE void Clear()
+  {
+    m_ptr = nullptr;
+    m_uiCount = 0;
+  }
+
+  EZ_ALWAYS_INLINE void operator=(nullptr_t) // [tested]
+  {
+    m_ptr = nullptr;
+    m_uiCount = 0;
+  }
+
   /// \brief Returns the pointer to the array.
   EZ_ALWAYS_INLINE const T* GetPtr() const // [tested]
   {
