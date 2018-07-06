@@ -1,29 +1,28 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
+#include <Core/Graphics/Geometry.h>
+#include <Core/ResourceManager/ResourceTypeLoader.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <EnginePluginAssets/MaterialAsset/MaterialContext.h>
 #include <EnginePluginAssets/MaterialAsset/MaterialView.h>
-
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/Lights/PointLightComponent.h>
-#include <RendererCore/Lights/SpotLightComponent.h>
-#include <RendererCore/Lights/DirectionalLightComponent.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <GameEngine/Components/InputComponent.h>
 #include <GameEngine/Components/RotorComponent.h>
 #include <GameEngine/Components/SliderComponent.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Core/Graphics/Geometry.h>
-#include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/Components/SpawnComponent.h>
 #include <GameEngine/Components/TimedDeathComponent.h>
-#include <GameEngine/Components/InputComponent.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
-#include <RendererCore/Meshes/MeshComponent.h>
-#include <SharedPluginAssets/Common/Messages.h>
-#include <Core/ResourceManager/ResourceTypeLoader.h>
-#include <SharedPluginAssets/Common/Messages.h>
+#include <GameEngine/GameApplication/GameApplication.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
+#include <RendererCore/Lights/DirectionalLightComponent.h>
+#include <RendererCore/Lights/PointLightComponent.h>
+#include <RendererCore/Lights/SpotLightComponent.h>
+#include <RendererCore/Meshes/MeshComponent.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <SharedPluginAssets/Common/Messages.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialContext, 1, ezRTTIDefaultAllocator<ezMaterialContext>)
 {
   EZ_BEGIN_PROPERTIES
@@ -33,11 +32,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialContext, 1, ezRTTIDefaultAllocator<ezM
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-
-ezMaterialContext::ezMaterialContext()
-{
-}
+ezMaterialContext::ezMaterialContext() {}
 
 void ezMaterialContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
@@ -61,7 +58,7 @@ void ezMaterialContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
   }
 
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineRestoreResourceMsg>() ||
-    pMsg->GetDynamicRTTI()->IsDerivedFrom<ezCreateThumbnailMsgToEngine>())
+      pMsg->GetDynamicRTTI()->IsDerivedFrom<ezCreateThumbnailMsgToEngine>())
   {
     ezResourceManager::RestoreResource(m_hMaterial);
   }
