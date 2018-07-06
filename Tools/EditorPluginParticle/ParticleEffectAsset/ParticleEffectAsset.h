@@ -5,6 +5,7 @@
 #include <Foundation/Communication/Event.h>
 
 class ezParticleEffectAssetDocument;
+struct ezPropertyMetaStateEvent;
 
 struct ezParticleEffectAssetEvent
 {
@@ -25,6 +26,8 @@ class ezParticleEffectAssetDocument : public ezSimpleAssetDocument<ezParticleEff
 
 public:
   ezParticleEffectAssetDocument(const char* szDocumentPath);
+
+  static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
   virtual const char* QueryAssetType() const override { return "Particle Effect"; }
 

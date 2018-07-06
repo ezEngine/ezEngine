@@ -1,18 +1,21 @@
-﻿#include <PCH.h>
-#include <EditorPluginParticle/EditorPluginParticle.h>
-#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
-#include <Foundation/Reflection/Reflection.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
-#include <EditorFramework/Actions/ProjectActions.h>
+#include <PCH.h>
+
 #include <EditorFramework/Actions/AssetActions.h>
-#include <GuiFoundation/Action/StandardMenus.h>
-#include <GuiFoundation/Action/DocumentActions.h>
-#include <GuiFoundation/Action/CommandHistoryActions.h>
-#include <Foundation/Strings/TranslationLookup.h>
+#include <EditorFramework/Actions/ProjectActions.h>
 #include <EditorFramework/Actions/ViewActions.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginParticle/Actions/ParticleActions.h>
+#include <EditorPluginParticle/EditorPluginParticle.h>
+#include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Strings/TranslationLookup.h>
+#include <GuiFoundation/Action/ActionMapManager.h>
+#include <GuiFoundation/Action/CommandHistoryActions.h>
+#include <GuiFoundation/Action/DocumentActions.h>
+#include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
+#include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
+#include <ParticleEffectAsset/ParticleEffectAsset.h>
+#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
 void OnLoadPlugin(bool bReloading)
 {
@@ -27,7 +30,8 @@ void OnLoadPlugin(bool bReloading)
     {
       ezActionMapManager::RegisterActionMap("ParticleEffectAssetMenuBar");
       ezProjectActions::MapActions("ParticleEffectAssetMenuBar");
-      ezStandardMenus::MapActions("ParticleEffectAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezStandardMenus::MapActions("ParticleEffectAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit |
+                                                                    ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
       ezDocumentActions::MapActions("ParticleEffectAssetMenuBar", "Menu.File", false);
       ezCommandHistoryActions::MapActions("ParticleEffectAssetMenuBar", "Menu.Edit");
     }
@@ -44,14 +48,14 @@ void OnLoadPlugin(bool bReloading)
     // View Tool Bar
     {
       ezActionMapManager::RegisterActionMap("ParticleEffectAssetViewToolBar");
-      //ezViewActions::MapActions("ParticleEffectAssetViewToolBar", "", false, true, false);
+      // ezViewActions::MapActions("ParticleEffectAssetViewToolBar", "", false, true, false);
     }
+
+    ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezParticleEffectAssetDocument::PropertyMetaStateEventHandler);
   }
 }
 
-void OnUnloadPlugin(bool bReloading)
-{
-}
+void OnUnloadPlugin(bool bReloading) {}
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
 

@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5189305147899033520,5264929536831011917}}
-		u4 %Hash{4313240261892148607}
+		u4 %Hash{8731712325295836909}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -215,7 +215,7 @@ o
 			Uuid{u4{14358557983197270941,12059421655526130593}}
 			Uuid{u4{5171885647257313967,16748165424210877240}}
 		}
-		Vec2 %Node::Pos{f{0xCDA18FC4,0xC17D72C3}}
+		Vec2 %Node::Pos{f{0xDC4290C4,0x9F8979C3}}
 		VarArray %Renderers
 		{
 			Uuid{u4{8572519140822481814,5115429687416637240}}
@@ -300,11 +300,7 @@ o
 		{
 			Uuid{u4{17561063011637801369,5711330016916472034}}
 			Uuid{u4{11867141582701966512,4630528323127588664}}
-			Uuid{u4{18205950680626520507,5661672131757145868}}
-			Uuid{u4{18360095894153122692,5193015474839541301}}
-			Uuid{u4{15514910540818261424,5151710153145392579}}
 			Uuid{u4{12324170437460765602,5176959845674784846}}
-			Uuid{u4{13562148913608907652,5625885085449458433}}
 			Uuid{u4{2625035017369082524,5032299466589820388}}
 			Uuid{u4{14632159989737147052,5133696016431507707}}
 		}
@@ -461,22 +457,8 @@ o
 }
 o
 {
-	Uuid %id{u4{15514910540818261424,5151710153145392579}}
-	s %t{"ezParticleFragmentRenderer"}
-	u3 %v{1}
-	p{}
-}
-o
-{
 	Uuid %id{u4{12324170437460765602,5176959845674784846}}
 	s %t{"ezParticlePointRenderer"}
-	u3 %v{1}
-	p{}
-}
-o
-{
-	Uuid %id{u4{18360095894153122692,5193015474839541301}}
-	s %t{"ezParticleBillboardRenderer"}
 	u3 %v{1}
 	p{}
 }
@@ -658,13 +640,6 @@ o
 }
 o
 {
-	Uuid %id{u4{13562148913608907652,5625885085449458433}}
-	s %t{"ezParticleSpriteRenderer"}
-	u3 %v{1}
-	p{}
-}
-o
-{
 	Uuid %id{u4{16469536899644782007,5647150639815068078}}
 	s %t{"ezMsaaResolvePass"}
 	u3 %v{1}
@@ -707,13 +682,6 @@ o
 		VarArray %Renderers{}
 		f %Threshold{0x0000803F}
 	}
-}
-o
-{
-	Uuid %id{u4{18205950680626520507,5661672131757145868}}
-	s %t{"ezParticleDistortionRenderer"}
-	u3 %v{1}
-	p{}
 }
 o
 {
@@ -1745,24 +1713,6 @@ o
 }
 o
 {
-	Uuid %id{u4{6921500010127633370,8395214990150793756}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezParticleRenderer"}
-		s %PluginName{"ezEditorPluginParticle"}
-		VarArray %Properties{}
-		s %TypeName{"ezParticleSpriteRenderer"}
-		u3 %TypeSize{24}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{3091061026879391945,8492000667679018555}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1812,24 +1762,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezSpriteRenderer"}
 		u3 %TypeSize{40}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{6496898329829944168,8927992532602504035}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezParticleRenderer"}
-		s %PluginName{"ezEditorPluginParticle"}
-		VarArray %Properties{}
-		s %TypeName{"ezParticleBillboardRenderer"}
-		u3 %TypeSize{24}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1903,24 +1835,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleQuadRenderer"}
 		u3 %TypeSize{32}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{12395827436503889569,9809079878538290429}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezParticleRenderer"}
-		s %PluginName{"ezEditorPluginParticle"}
-		VarArray %Properties{}
-		s %TypeName{"ezParticleFragmentRenderer"}
-		u3 %TypeSize{24}
 		u3 %TypeVersion{1}
 	}
 }
@@ -2000,24 +1914,6 @@ o
 		s %TypeName{"ezSourcePass"}
 		u3 %TypeSize{216}
 		u3 %TypeVersion{2}
-	}
-}
-o
-{
-	Uuid %id{u4{9543577854147286422,11312165328784956072}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezParticleRenderer"}
-		s %PluginName{"ezEditorPluginParticle"}
-		VarArray %Properties{}
-		s %TypeName{"ezParticleDistortionRenderer"}
-		u3 %TypeSize{24}
-		u3 %TypeVersion{1}
 	}
 }
 o

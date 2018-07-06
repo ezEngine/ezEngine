@@ -1,18 +1,50 @@
 #include <PCH.h>
-#include <EditorPluginParticle/ParticleEffectAsset/ParticleEffectAsset.h>
-#include <EditorPluginParticle/ParticleEffectAsset/ParticleEffectAssetManager.h>
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
+
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <EditorFramework/GUI/ExposedParameters.h>
+#include <EditorPluginParticle/ParticleEffectAsset/ParticleEffectAsset.h>
+#include <EditorPluginParticle/ParticleEffectAsset/ParticleEffectAssetManager.h>
+#include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
+#include <ParticlePlugin/Type/Quad/ParticleTypeQuad.h>
+#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectAssetDocument, 3, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezParticleEffectAssetDocument::ezParticleEffectAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezParticleEffectDescriptor>(szDocumentPath, true)
+    : ezSimpleAssetDocument<ezParticleEffectDescriptor>(szDocumentPath, true)
 {
+}
+
+void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
+{
+  if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleTypeQuadFactory>())
+  {
+    auto& props = *e.m_pPropertyStates;
+
+    ezInt64 orientation = e.m_pObject->GetTypeAccessor().GetValue("Orientation").ConvertTo<ezInt64>();
+    ezInt64 renderMode = e.m_pObject->GetTypeAccessor().GetValue("RenderMode").ConvertTo<ezInt64>();
+
+    props["Deviation"].m_Visibility = ezPropertyUiState::Invisible;
+    props["DistortionTexture"].m_Visibility = ezPropertyUiState::Invisible;
+    props["DistortionStrength"].m_Visibility = ezPropertyUiState::Invisible;
+
+    if (orientation == ezQuadParticleOrientation::SpriteEmitterDirection || orientation == ezQuadParticleOrientation::SpriteWorldUp)
+    {
+      props["Deviation"].m_Visibility = ezPropertyUiState::Default;
+    }
+
+    if (renderMode == ezParticleTypeRenderMode::Distortion)
+    {
+      props["DistortionTexture"].m_Visibility = ezPropertyUiState::Default;
+      props["DistortionStrength"].m_Visibility = ezPropertyUiState::Default;
+    }
+  }
+
 }
 
 ezStatus ezParticleEffectAssetDocument::WriteParticleEffectAsset(ezStreamWriter& stream, const char* szPlatform) const
@@ -101,7 +133,8 @@ void ezParticleEffectAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo*
   pInfo->m_MetaInfo.PushBack(pExposedParams);
 }
 
-ezStatus ezParticleEffectAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+ezStatus ezParticleEffectAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform,
+                                                               const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   return WriteParticleEffectAsset(stream, szPlatform);
 }
@@ -111,5 +144,3 @@ ezStatus ezParticleEffectAssetDocument::InternalCreateThumbnail(const ezAssetFil
   ezStatus status = ezAssetDocument::RemoteCreateThumbnail(AssetHeader);
   return status;
 }
-
-
