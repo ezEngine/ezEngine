@@ -87,7 +87,7 @@ public:
     m_uiCount = 0;
   }
 
-  EZ_ALWAYS_INLINE void operator=(nullptr_t) // [tested]
+  EZ_ALWAYS_INLINE void operator=(std::nullptr_t) // [tested]
   {
     m_ptr = nullptr;
     m_uiCount = 0;

@@ -330,7 +330,7 @@ void ezParticleTypeQuad::CreateExtractedData(const ezView& view, ezExtractedRend
     {
       for (ezUInt32 p = 0; p < numParticles; ++p)
       {
-        SetTangentDataEmitterDirOrtho(p, redirect(p, pSorted));
+        SetTangentDataFromAxis(p, redirect(p, pSorted));
       }
     }
     else
