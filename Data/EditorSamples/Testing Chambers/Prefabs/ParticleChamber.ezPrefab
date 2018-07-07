@@ -35,7 +35,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3633918713593126046,5400417647074144717}}
-		u4 %Hash{12571971442768244757}
+		u4 %Hash{12602749465627055845}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{18355635950382246504,3593681639247333440}}
@@ -43,12 +43,12 @@ o
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"}
+			s{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 			s{"{ 778150d4-9e85-4d17-85dd-f59df122b7b4 }"}
 			s{"{ a14fde66-a586-4ab3-96fa-18612f2d744d }"}
 			s{"{ ad8a78d6-07ff-4d97-a602-242b0f4dfb3c }"}
+			s{"{ d615cd66-0904-00ca-81f9-768ff4fc24ee }"}
 			s{"{ ebd09599-ce69-4995-a787-beefe6dcfa2c }"}
-			s{"{ fbbe8b57-91b5-4a9f-bf1e-e30ac87a8a6c }"}
 		}
 	}
 }
@@ -100,6 +100,7 @@ o
 			Uuid{u4{5081242317977918075,4753780489890172845}}
 			Uuid{u4{17607712780464659991,10069635342100570927}}
 			Uuid{u4{10325902670859081641,14932341806055471601}}
+			Uuid{u4{15840351775588948612,5684899015016849601}}
 		}
 		VarArray %Components{}
 		s %GlobalKey{""}
@@ -127,7 +128,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
-			s{"{ fbbe8b57-91b5-4a9f-bf1e-e30ac87a8a6c }"}
+			s{"{ d615cd66-0904-00ca-81f9-768ff4fc24ee }"}
 		}
 		s %Mesh{"{ ad8a78d6-07ff-4d97-a602-242b0f4dfb3c }"}
 	}
@@ -356,7 +357,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
-			s{"{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"}
+			s{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 		}
 		s %Mesh{"{ ebd09599-ce69-4995-a787-beefe6dcfa2c }"}
 	}
@@ -372,7 +373,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
-			s{"{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"}
+			s{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 		}
 		s %Mesh{"{ ebd09599-ce69-4995-a787-beefe6dcfa2c }"}
 	}
@@ -415,7 +416,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
-			s{"{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"}
+			s{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 		}
 		s %Mesh{"{ ebd09599-ce69-4995-a787-beefe6dcfa2c }"}
 	}
@@ -545,7 +546,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
-			s{"{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"}
+			s{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 		}
 		s %Mesh{"{ ebd09599-ce69-4995-a787-beefe6dcfa2c }"}
 	}
@@ -573,7 +574,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
-			s{"{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"}
+			s{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 		}
 		s %Mesh{"{ ebd09599-ce69-4995-a787-beefe6dcfa2c }"}
 	}
@@ -606,10 +607,10 @@ o
 			Uuid{u4{8915130549188995243,5371346962344090463}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0xC04ABF3D,0,0xFB3D8840}}
+		Vec3 %LocalPosition{f{0xCE5F7ABF,0,0x8D628940}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x5D74113F,0x90C20540,0x6EDB363F}}
-		f %LocalUniformScaling{0x0000003F}
+		Vec3 %LocalScaling{f{0x5D74913E,0x90C2853F,0x6EDBB63E}}
+		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
@@ -644,7 +645,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
-			s{"{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"}
+			s{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 		}
 		s %Mesh{"{ ebd09599-ce69-4995-a787-beefe6dcfa2c }"}
 	}
@@ -674,7 +675,6 @@ o
 		VarArray %Children
 		{
 			Uuid{u4{2688053112474780944,500835604860496146}}
-			Uuid{u4{15840351775588948612,5684899015016849601}}
 		}
 		Uuid %Settings{u4{2135196964617971876,4768571353437376782}}
 	}
@@ -730,7 +730,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
-			s{"{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"}
+			s{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 		}
 		s %Mesh{"{ ebd09599-ce69-4995-a787-beefe6dcfa2c }"}
 	}
@@ -800,7 +800,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
-			s{"{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"}
+			s{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 		}
 		s %Mesh{"{ ebd09599-ce69-4995-a787-beefe6dcfa2c }"}
 	}

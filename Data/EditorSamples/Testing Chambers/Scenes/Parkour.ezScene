@@ -15,13 +15,14 @@ o
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 		}
 		Uuid %DocumentID{u4{5903128649906562751,5170819896700819532}}
-		u4 %Hash{12546911934480311062}
+		u4 %Hash{3940913986229138217}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 03bb62c3-6b77-4641-99d0-ad6e3d3c2121 }"}
 			s{"{ 045da91f-697c-4263-8910-5f752ec262b2 }"}
+			s{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 			s{"{ 1ce6f3e5-326b-4dce-8cef-03cc8c06b40b }"}
 			s{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
 			s{"{ 27eef412-bd5d-424b-9d58-48725a829568 }"}
@@ -54,7 +55,6 @@ o
 			s{"{ f631b477-488a-4d0f-b9d8-d067bd8d519e }"}
 			s{"{ f8684eee-6928-40d3-bd13-24e18c5ffe91 }"}
 			s{"{ f973c7be-27d0-7806-49d3-d0c8b75bbe24 }"}
-			s{"{ fbbe8b57-91b5-4a9f-bf1e-e30ac87a8a6c }"}
 		}
 	}
 }
@@ -3723,7 +3723,7 @@ o
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials
 		{
-			s{"{ fbbe8b57-91b5-4a9f-bf1e-e30ac87a8a6c }"}
+			s{"{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"}
 		}
 		s %Mesh{"{ 87012036-2712-42af-80ba-c0fd29d5a480 }"}
 	}
