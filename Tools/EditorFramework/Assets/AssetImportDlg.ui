@@ -62,16 +62,6 @@
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="QPushButton" name="ButtonClose">
-       <property name="text">
-        <string>Close</string>
-       </property>
-       <property name="autoDefault">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
   </layout>

@@ -176,11 +176,6 @@ void ezQtAssetImportDlg::on_ButtonImport_clicked()
   UpdateAllRows();
 }
 
-void ezQtAssetImportDlg::on_ButtonClose_clicked()
-{
-  accept();
-}
-
 void ezQtAssetImportDlg::TableCellChanged(int row, int column)
 {
   if (column == Columns::GeneratedDoc)
@@ -205,8 +200,7 @@ void ezQtAssetImportDlg::BrowseButtonClicked(bool)
   {
     // asset was already imported
 
-    ezQtEditorApp* pApp = ezQtEditorApp::GetSingleton();
-    pApp->OpenDocument(option.m_sOutputFileAbsolute);
+    ezQtEditorApp::GetSingleton()->OpenDocument(option.m_sOutputFileAbsolute);
   }
   else
   {

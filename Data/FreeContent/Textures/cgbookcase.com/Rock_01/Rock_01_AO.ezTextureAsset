@@ -14,7 +14,7 @@ o
 			s{"Textures/cgbookcase.com/Rock_01/Rock_01_AO.jpg"}
 		}
 		Uuid %DocumentID{u4{17034091573030017442,4926020041401896864}}
-		u4 %Hash{15898440547526370891}
+		u4 %Hash{11830435859380472392}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -34,7 +34,7 @@ o
 		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
 		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		f %CVarResScale{0x0000803F}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::R1"}
 		b %Compression{1}
 		b %FlipHorizontal{0}
 		s %Format{"ezRenderTargetFormat::RGBA8sRgb"}

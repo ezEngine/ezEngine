@@ -17,7 +17,7 @@ struct ezMaterialShaderMode
     File,
     Custom,
 
-    Default = File
+    Default = BaseMaterial
   };
 };
 

@@ -16,7 +16,6 @@ public:
 private slots:
   void SelectedOptionChanged(int index);
   void on_ButtonImport_clicked();
-  void on_ButtonClose_clicked();
   void TableCellChanged(int row, int column);
   void BrowseButtonClicked(bool);
 

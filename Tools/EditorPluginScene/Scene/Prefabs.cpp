@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
 #include <GameEngine/Components/PrefabReferenceComponent.h>
@@ -80,7 +81,8 @@ void ezSceneDocument::UpdatePrefabs()
 }
 
 
-ezUuid ezSceneDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed)
+ezUuid ezSceneDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset,
+                                        const ezUuid& PrefabSeed)
 {
   ezUuid newGuid = SUPER::ReplaceByPrefab(pRootObject, szPrefabFile, PrefabAsset, PrefabSeed);
   if (newGuid.IsValid())
@@ -126,7 +128,8 @@ ezUuid ezSceneDocument::RevertPrefab(const ezDocumentObject* pObject)
   return newGuid;
 }
 
-void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab)
+void ezSceneDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed,
+                                         const char* szBasePrefab)
 {
   auto pHistory = GetCommandHistory();
   const ezVec3 vLocalPos = pObject->GetTypeAccessor().GetValue("LocalPosition").ConvertTo<ezVec3>();
@@ -182,8 +185,11 @@ void ezSceneDocument::ConvertToEditorPrefab(const ezDeque<const ezDocumentObject
     newGuid.CreateNewUuid();
     ezUuid newObject = ReplaceByPrefab(pObject, pAsset->m_pAssetInfo->m_sAbsolutePath, assetGuid, newGuid);
 
-    const ezDocumentObject* pNewObject = GetObjectManager()->GetObject(newObject);
-    SetGlobalTransform(pNewObject, transform, TransformationChanges::All);
+    if (newObject.IsValid())
+    {
+      const ezDocumentObject* pNewObject = GetObjectManager()->GetObject(newObject);
+      SetGlobalTransform(pNewObject, transform, TransformationChanges::All);
+    }
   }
 
   pHistory->FinishTransaction();
