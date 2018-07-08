@@ -11,18 +11,32 @@ o
 		s %AssetType{"Surface"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9753618612338378646,4890478201592266617}}
-		u4 %Hash{8784712990735880218}
+		u4 %Hash{13792725212703659819}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
+			s{"{ 73d03cee-5744-4bcc-a926-d09b82b965e6 }"}
 		}
 	}
 }
 }
 Objects
 {
+o
+{
+	Uuid %id{u4{7198910796518207675,4999821065474755020}}
+	s %t{"ezSurfaceInteraction"}
+	u3 %v{1}
+	p
+	{
+		s %Alignment{"ezSurfaceInteractionAlignment::SurfaceNormal"}
+		Angle %Deviation{f{0}}
+		s %Prefab{"{ 73d03cee-5744-4bcc-a926-d09b82b965e6 }"}
+		s %Type{"Footstep"}
+	}
+}
 o
 {
 	Uuid %id{u4{2109382039210662577,5676546169070438888}}
@@ -32,7 +46,10 @@ o
 	{
 		s %BaseSurface{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
 		f %DynamicFriction{0x9A99993E}
-		VarArray %Interactions{}
+		VarArray %Interactions
+		{
+			Uuid{u4{7198910796518207675,4999821065474755020}}
+		}
 		f %Restitution{0xCDCCCC3D}
 		f %StaticFriction{0xCDCCCC3E}
 	}

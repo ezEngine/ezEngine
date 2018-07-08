@@ -242,3 +242,36 @@ InputAction
 		float %Scale{1}
 	}
 }
+InputAction
+{
+	string %Set{"Player"}
+	string %Action{"SwitchWeapon1"}
+	bool %TimeScale{true}
+	Slot
+	{
+		string %Key{"keyboard_1"}
+		float %Scale{1}
+	}
+}
+InputAction
+{
+	string %Set{"Player"}
+	string %Action{"SwitchWeapon2"}
+	bool %TimeScale{true}
+	Slot
+	{
+		string %Key{"keyboard_2"}
+		float %Scale{1}
+	}
+}
+InputAction
+{
+	string %Set{"Player"}
+	string %Action{"SwitchWeapon3"}
+	bool %TimeScale{true}
+	Slot
+	{
+		string %Key{"keyboard_3"}
+		float %Scale{1}
+	}
+}

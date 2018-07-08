@@ -11,7 +11,7 @@ o
 		s %AssetType{"Surface"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12817809891629497739,5129659926182446297}}
-		u4 %Hash{8568251962349844608}
+		u4 %Hash{3624017589021398565}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -48,24 +48,10 @@ o
 		f %DynamicFriction{0xCDCCCC3E}
 		VarArray %Interactions
 		{
-			Uuid{u4{7383651050427679923,5272654408929543150}}
 			Uuid{u4{18422080003341365389,4680599310298852609}}
 		}
 		f %Restitution{0xCDCC4C3D}
 		f %StaticFriction{0x9A99193F}
-	}
-}
-o
-{
-	Uuid %id{u4{7383651050427679923,5272654408929543150}}
-	s %t{"ezSurfaceInteraction"}
-	u3 %v{1}
-	p
-	{
-		s %Alignment{"ezSurfaceInteractionAlignment::SurfaceNormal"}
-		Angle %Deviation{f{0x920A063F}}
-		s %Prefab{""}
-		s %Type{"BulletImpact"}
 	}
 }
 o
