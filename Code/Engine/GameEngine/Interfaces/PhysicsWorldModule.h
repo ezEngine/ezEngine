@@ -63,6 +63,8 @@ public:
 
   virtual ezVec3 GetGravity() const = 0;
 
+  virtual void AddStaticCollisionBox(ezGameObject* pObject, ezVec3 boxSize) {}
+
 private:
 
 };

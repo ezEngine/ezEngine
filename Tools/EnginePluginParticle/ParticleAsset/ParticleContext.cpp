@@ -7,17 +7,19 @@
 #include <EnginePluginParticle/ParticleAsset/ParticleView.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <GameEngine/GameApplication/GameApplication.h>
+#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <ParticlePlugin/Components/ParticleComponent.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
+#include <RendererCore/Components/FogComponent.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
+#include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <SharedPluginAssets/Common/Messages.h>
-#include <RendererCore/Material/MaterialResource.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleContext, 1, ezRTTIDefaultAllocator<ezParticleContext>)
@@ -130,6 +132,12 @@ void ezParticleContext::OnInitialize()
     pAmbLight->SetTopColor(ezColor(0.2f, 0.2f, 0.2f));
     pAmbLight->SetBottomColor(ezColor(0.1f, 0.1f, 0.1f));
     pAmbLight->SetIntensity(5.0f);
+
+    ezFogComponent* pFog;
+    ezFogComponent::CreateComponent(pObj, pFog);
+    pFog->SetColor(ezColor(0.02f, 0.02f, 0.02f));
+    pFog->SetDensity(5.0f);
+    pFog->SetHeightFalloff(0);
   }
 
   const char* szMeshName = "ParticlePreviewBackgroundMesh";
@@ -144,7 +152,7 @@ void ezParticleContext::OnInitialize()
       // Build geometry
       ezGeometry geom;
 
-      geom.AddTexturedBox(ezVec3(1, 4, 4), ezColor::White, ezMat4::IdentityMatrix());
+      geom.AddTexturedBox(ezVec3(4, 4, 4), ezColor::White, ezMat4::IdentityMatrix());
       geom.ComputeTangents();
 
       ezMeshBufferResourceDescriptor desc;
@@ -164,52 +172,67 @@ void ezParticleContext::OnInitialize()
       ezMeshResourceDescriptor md;
       md.UseExistingMeshBuffer(hMeshBuffer);
       md.AddSubMesh(pMeshBuffer->GetPrimitiveCount(), 0, 0);
-      md.SetMaterial(0, "{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"); 
+      md.SetMaterial(0, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }");
       md.ComputeBounds();
 
       hMesh = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, md, pMeshBuffer->GetResourceDescription());
     }
   }
 
+  ezPhysicsWorldModuleInterface* pPhysicsInterface = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
+
   // Background Mesh
   {
-    ezMaterialResourceHandle hBgTop = ezResourceManager::LoadResource<ezMaterialResource>("{ aa1c5601-bc43-fbf8-4e07-6a3df3af51e7 }");//{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"); // PrototypeGrey.ezMaterialAssetkd
-    ezMaterialResourceHandle hBgBottom =
-        ezResourceManager::LoadResource<ezMaterialResource>("{ 6bd5e7e6-b7be-9801-e032-14226cba1e96 }"); // PrototypeBlack.ezMaterialAssetkd
-
     ezGameObjectDesc obj;
     obj.m_sName.Assign("ParticleBackground");
 
-    for (int y = 0; y <= 5; ++y)
+    for (int y = -1; y <= 5; ++y)
     {
       for (int x = -5; x <= 5; ++x)
       {
         ezGameObject* pObj;
-        obj.m_LocalPosition.Set(5, (float)x * 4, 2 + (float)y * 4);
+        obj.m_LocalPosition.Set(6, (float)x * 4, 1 + (float)y * 4);
         pWorld->CreateObject(obj, pObj);
 
         ezMeshComponent* pMesh;
         ezMeshComponent::CreateComponent(pObj, pMesh);
         pMesh->SetMesh(hMesh);
 
-        pMesh->SetMaterial(0, hBgTop);
+        if (pPhysicsInterface)
+          pPhysicsInterface->AddStaticCollisionBox(pObj, ezVec3(4, 4, 4));
       }
     }
 
-    for (int y = -5; y < 0; ++y)
+    for (int y = -5; y <= 5; ++y)
     {
-      for (int x = -5; x <= 5; ++x)
+      for (int x = -5; x <= 1; ++x)
       {
         ezGameObject* pObj;
-        obj.m_LocalPosition.Set(5, (float)x * 4, 2 + (float)y * 4);
+        obj.m_LocalPosition.Set((float)x * 4, (float)y * 4, -3);
         pWorld->CreateObject(obj, pObj);
 
         ezMeshComponent* pMesh;
         ezMeshComponent::CreateComponent(pObj, pMesh);
         pMesh->SetMesh(hMesh);
 
-        pMesh->SetMaterial(0, hBgBottom);
+        if (pPhysicsInterface)
+          pPhysicsInterface->AddStaticCollisionBox(pObj, ezVec3(4, 4, 4));
       }
+    }
+
+    for (int x = -5; x <= 5; ++x)
+    {
+      ezGameObject* pObj;
+      obj.m_LocalPosition.Set(4, (float)x * 4, -2);
+      obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(45));
+      pWorld->CreateObject(obj, pObj);
+
+      ezMeshComponent* pMesh;
+      ezMeshComponent::CreateComponent(pObj, pMesh);
+      pMesh->SetMesh(hMesh);
+
+      if (pPhysicsInterface)
+        pPhysicsInterface->AddStaticCollisionBox(pObj, ezVec3(4, 4, 4));
     }
   }
 }

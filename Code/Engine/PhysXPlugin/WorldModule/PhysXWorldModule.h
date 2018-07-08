@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <PhysXPlugin/PhysXInterface.h>
 #include <Core/World/WorldModule.h>
@@ -52,6 +52,8 @@ public:
   virtual bool OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& vPosition, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const override;
 
   virtual void QueryDynamicShapesInSphere(float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer, ezPhysicsOverlapResult& out_Results, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const override;
+
+  virtual void AddStaticCollisionBox(ezGameObject* pObject, ezVec3 boxSize) override;
 
 private:
   bool SweepTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer,
