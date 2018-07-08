@@ -69,11 +69,11 @@ ezTestAppRun ezGameEngineTestApplication_Particles::SubTestBillboardsExec(ezInt3
   {
     case 15:
     case 30:
-      EZ_TEST_IMAGE(1500); // TODO: fix this
+      EZ_TEST_IMAGE(50);
       break;
 
     case 60:
-      EZ_TEST_IMAGE(1500); // TODO: fix this
+      EZ_TEST_IMAGE(50);
       return ezTestAppRun::Quit;
   }
 

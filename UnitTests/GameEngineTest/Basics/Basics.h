@@ -9,6 +9,9 @@ class ezGameEngineTestApplication_Basics : public ezGameEngineTestApplication
 public:
   ezGameEngineTestApplication_Basics();
 
+  void SubTestTransformAssetsSetup();
+  ezTestAppRun SubTestTransformAssetsExec(ezInt32 iCurFrame);
+
   void SubTestManyMeshesSetup();
   ezTestAppRun SubTestManyMeshesExec(ezInt32 iCurFrame);
 
@@ -31,6 +34,7 @@ public:
 private:
   enum SubTests
   {
+    ST_TransformAssets,
     ST_ManyMeshes,
     ST_Skybox,
     ST_DebugRendering,
@@ -44,5 +48,3 @@ private:
   ezInt32 m_iFrame;
   ezGameEngineTestApplication_Basics* m_pOwnApplication;
 };
-
-

@@ -1,10 +1,11 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <Core/Application/Application.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <QApplication>
 #include <QSettings>
 #include <QtNetwork/QHostInfo>
@@ -45,10 +46,8 @@ public:
     {
       ezProcessAssetResponse msg;
       {
-        ezLogEntryDelegate logger([&msg](ezLogEntry& entry) -> void
-        {
-          msg.m_LogEntries.PushBack(std::move(entry));
-        }, ezLogMsgType::WarningMsg);
+        ezLogEntryDelegate logger([&msg](ezLogEntry& entry) -> void { msg.m_LogEntries.PushBack(std::move(entry)); },
+                                  ezLogMsgType::WarningMsg);
         ezLogSystemScope logScope(&logger);
 
         ezStatus res = ezAssetCurator::GetSingleton()->TransformAsset(pMsg->m_AssetGuid, false);
@@ -70,36 +69,60 @@ public:
     ezQtEditorApp::GetSingleton()->StartupEditor(true);
     ezQtUiServices::SetHeadless(true);
 
+    const ezStringBuilder sProject = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-project");
+
+    if (!ezStringUtils::IsNullOrEmpty(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-transform")))
+    {
+      ezQtEditorApp::GetSingleton()->OpenProject(sProject);
+
+      bool bTransform = true;
+
+      ezQtEditorApp::GetSingleton()->connect(
+          ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this, &bTransform]() {
+
+            if (!bTransform)
+              return;
+
+            bTransform = false;
+
+            const ezString sTransform = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-transform");
+            ezAssetCurator::GetSingleton()->TransformAllAssets(sTransform);
+
+            QApplication::quit();
+          });
+
+      const ezInt32 iReturnCode = ezQtEditorApp::GetSingleton()->RunEditor();
+      SetReturnCode(iReturnCode);
+    }
+    else
     {
       ezResult res = m_IPC.ConnectToHostProcess();
       if (res.Succeeded())
       {
         m_IPC.m_Events.AddEventHandler(ezMakeDelegate(&ezEditorApplication::EventHandlerIPC, this));
 
-        ezStringBuilder sProject = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-project");
         ezQtEditorApp::GetSingleton()->OpenProject(sProject);
         ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(),
-          [this]()
-        {
-          static bool bRecursionBlock = false;
-          if (bRecursionBlock)
-            return;
-          bRecursionBlock = true;
+                                               [this]() {
+                                                 static bool bRecursionBlock = false;
+                                                 if (bRecursionBlock)
+                                                   return;
+                                                 bRecursionBlock = true;
 
-          if (!m_IPC.IsHostAlive())
-            QApplication::quit();
+                                                 if (!m_IPC.IsHostAlive())
+                                                   QApplication::quit();
 
-          m_IPC.WaitForMessages();
+                                                 m_IPC.WaitForMessages();
 
-          bRecursionBlock = false;
-        });
+                                                 bRecursionBlock = false;
+                                               });
 
         const ezInt32 iReturnCode = ezQtEditorApp::GetSingleton()->RunEditor();
         SetReturnCode(iReturnCode);
       }
       else
       {
-
+        ezLog::Error("Failed to connect with host process");
       }
     }
 
@@ -115,4 +138,3 @@ private:
 };
 
 EZ_APPLICATION_ENTRY_POINT(ezEditorApplication);
-

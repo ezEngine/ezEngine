@@ -1,6 +1,8 @@
 #include <PCH.h>
 
 #include "Basics.h"
+#include <Foundation/IO/OSFile.h>
+#include <Foundation/Strings/StringConversion.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 
@@ -19,6 +21,7 @@ ezGameEngineTestApplication* ezGameEngineTestBasics::CreateApplication()
 
 void ezGameEngineTestBasics::SetupSubTests()
 {
+  AddSubTest("00 Transform Assets", SubTests::ST_TransformAssets);
   AddSubTest("Many Meshes", SubTests::ST_ManyMeshes);
   AddSubTest("Skybox", SubTests::ST_Skybox);
   AddSubTest("Debug Rendering", SubTests::ST_DebugRendering);
@@ -28,6 +31,12 @@ void ezGameEngineTestBasics::SetupSubTests()
 ezResult ezGameEngineTestBasics::InitializeSubTest(ezInt32 iIdentifier)
 {
   m_iFrame = -1;
+
+  if (iIdentifier == SubTests::ST_TransformAssets)
+  {
+    m_pOwnApplication->SubTestTransformAssetsSetup();
+    return EZ_SUCCESS;
+  }
 
   if (iIdentifier == SubTests::ST_ManyMeshes)
   {
@@ -60,6 +69,9 @@ ezTestAppRun ezGameEngineTestBasics::RunSubTest(ezInt32 iIdentifier)
 {
   ++m_iFrame;
 
+  if (iIdentifier == SubTests::ST_TransformAssets)
+    return m_pOwnApplication->SubTestTransformAssetsExec(m_iFrame);
+
   if (iIdentifier == SubTests::ST_ManyMeshes)
     return m_pOwnApplication->SubTestManyMeshesExec(m_iFrame);
 
@@ -81,6 +93,38 @@ ezTestAppRun ezGameEngineTestBasics::RunSubTest(ezInt32 iIdentifier)
 ezGameEngineTestApplication_Basics::ezGameEngineTestApplication_Basics()
     : ezGameEngineTestApplication("Basics")
 {
+}
+
+
+void ezGameEngineTestApplication_Basics::SubTestTransformAssetsSetup() {}
+
+
+ezTestAppRun ezGameEngineTestApplication_Basics::SubTestTransformAssetsExec(ezInt32 iCurFrame)
+{
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  ezStringBuilder sBinPath = ezOSFile::GetApplicationDirectory();
+
+  ezStringBuilder sBaseDataPath = sBinPath;
+  sBaseDataPath.PathParentDirectory(3);
+  sBaseDataPath.AppendPath("Data/Base/ezProject");
+
+  sBinPath.AppendFormat("/EditorProcessor.exe -project \"{0}\" -transform PC", sBaseDataPath);
+  sBinPath.MakeCleanPath();
+
+
+  STARTUPINFOW info = {sizeof(info)};
+  PROCESS_INFORMATION processInfo;
+  if (CreateProcessW(nullptr, (wchar_t*)(ezStringWChar(sBinPath).GetData()), nullptr, nullptr, FALSE, 0, nullptr, nullptr, &info, &processInfo))
+  {
+    WaitForSingleObject(processInfo.hProcess, INFINITE);
+    CloseHandle(processInfo.hProcess);
+    CloseHandle(processInfo.hThread);
+
+    ezLog::Success("Executed Asset Processor to transform base data assets");
+  }
+#endif
+
+  return ezTestAppRun::Quit;
 }
 
 void ezGameEngineTestApplication_Basics::SubTestManyMeshesSetup()
