@@ -8,6 +8,7 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Shader/ShaderResource.h>
+#include <Foundation/Math/Color16f.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Particles/BillboardQuadParticleShaderData.h>
 #include <RendererCore/../../../Data/Base/Shaders/Particles/TangentQuadParticleShaderData.h>

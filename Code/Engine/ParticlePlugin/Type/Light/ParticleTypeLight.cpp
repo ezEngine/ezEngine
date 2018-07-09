@@ -14,6 +14,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <Foundation/Math/Float16.h>
+#include <Foundation/Math/Color16f.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeLightFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeLightFactory>)
 {
@@ -109,7 +110,7 @@ void ezParticleTypeLight::CreateRequiredStreams()
 
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
   CreateStream("Size", ezProcessingStream::DataType::Half, &m_pStreamSize, false);
-  CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor, false);
+  CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
 
   if (m_uiPercentage < 100)
   {
@@ -124,7 +125,7 @@ void ezParticleTypeLight::ExtractTypeRenderData(const ezView& view, ezExtractedR
 
   const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
   const ezFloat16* pSize = m_pStreamSize->GetData<ezFloat16>();
-  const ezColor* pColor = m_pStreamColor->GetData<ezColor>();
+  const ezColorLinear16f* pColor = m_pStreamColor->GetData<ezColorLinear16f>();
 
   if (pPosition == nullptr || pSize == nullptr || pColor == nullptr)
     return;
@@ -179,7 +180,7 @@ void ezParticleTypeLight::ExtractTypeRenderData(const ezView& view, ezExtractedR
 
     pRenderData->m_GlobalTransform.SetIdentity();
     pRenderData->m_GlobalTransform.m_vPosition = transform * pPosition[i].GetAsVec3();
-    pRenderData->m_LightColor = tintColor * pColor[i];
+    pRenderData->m_LightColor = tintColor * pColor[i].ToLinearFloat();
     pRenderData->m_fIntensity = intensity;
     pRenderData->m_fRange = pSize[i] * sizeFactor;
     pRenderData->m_uiShadowDataOffset = ezInvalidIndex;

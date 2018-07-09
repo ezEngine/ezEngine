@@ -4,6 +4,7 @@
 #include <ParticlePlugin/Streams/DefaultParticleStreams.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 #include <Foundation/Math/Float16.h>
+#include <Foundation/Math/Color16f.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ZERO-INIT STREAM
@@ -84,16 +85,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStream_Color, 1, ezRTTIDefaultAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleStreamFactory_Color::ezParticleStreamFactory_Color()
-    : ezParticleStreamFactory("Color", ezProcessingStream::DataType::Float4, ezGetStaticRTTI<ezParticleStream_Color>())
+    : ezParticleStreamFactory("Color", ezProcessingStream::DataType::Half4, ezGetStaticRTTI<ezParticleStream_Color>())
 {
-  // TODO: smaller color type ? (e.g. 4 halfs?)
 }
 
 void ezParticleStream_Color::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
-  ezProcessingStreamIterator<ezColor> itData(m_pStream, uiNumElements, uiStartIndex);
+  ezProcessingStreamIterator<ezColorLinear16f> itData(m_pStream, uiNumElements, uiStartIndex);
 
-  const ezColor defValue(1.0f, 1.0f, 1.0f, 1.0f);
+  const ezColorLinear16f defValue(1.0f, 1.0f, 1.0f, 1.0f);
   while (!itData.HasReachedEnd())
   {
     itData.Current() = defValue;

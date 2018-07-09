@@ -5,6 +5,7 @@
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Math/Color16f.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_FadeOut, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_FadeOut>)
 {
@@ -54,7 +55,7 @@ void ezParticleBehaviorFactory_FadeOut::Load(ezStreamReader& stream)
 void ezParticleBehavior_FadeOut::CreateRequiredStreams()
 {
   CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime, false);
-  CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor, false);
+  CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
 }
 
 void ezParticleBehavior_FadeOut::Process(ezUInt64 uiNumElements)
@@ -71,7 +72,7 @@ void ezParticleBehavior_FadeOut::Process(ezUInt64 uiNumElements)
   EZ_PROFILE("PFX: Fade Out");
 
   ezProcessingStreamIterator<ezVec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
-  ezProcessingStreamIterator<ezColor> itColor(m_pStreamColor, uiNumElements, 0);
+  ezProcessingStreamIterator<ezColorLinear16f> itColor(m_pStreamColor, uiNumElements, 0);
 
   // skip the first n particles
   {

@@ -10,6 +10,7 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <Foundation/Math/Float16.h>
+#include <Foundation/Math/Color16f.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeMeshFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeMeshFactory>)
@@ -81,7 +82,7 @@ void ezParticleTypeMesh::CreateRequiredStreams()
 {
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
   CreateStream("Size", ezProcessingStream::DataType::Half, &m_pStreamSize, false);
-  CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor, false);
+  CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
   CreateStream("RotationSpeed", ezProcessingStream::DataType::Half, &m_pStreamRotationSpeed, false);
   CreateStream("RotationOffset", ezProcessingStream::DataType::Half, &m_pStreamRotationOffset, false);
   CreateStream("Axis", ezProcessingStream::DataType::Float3, &m_pStreamAxis, true);
@@ -126,7 +127,7 @@ void ezParticleTypeMesh::ExtractTypeRenderData(const ezView& view, ezExtractedRe
 
     const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
     const ezFloat16* pSize = m_pStreamSize->GetData<ezFloat16>();
-    const ezColor* pColor = m_pStreamColor->GetData<ezColor>();
+    const ezColorLinear16f* pColor = m_pStreamColor->GetData<ezColorLinear16f>();
     const ezFloat16* pRotationSpeed = m_pStreamRotationSpeed->GetData<ezFloat16>();
     const ezFloat16* pRotationOffset = m_pStreamRotationOffset->GetData<ezFloat16>();
     const ezVec3* pAxis = m_pStreamAxis->GetData<ezVec3>();
@@ -161,7 +162,7 @@ void ezParticleTypeMesh::ExtractTypeRenderData(const ezView& view, ezExtractedRe
           pRenderData->m_GlobalBounds = bounds;
           pRenderData->m_hMesh = m_hMesh;
           pRenderData->m_hMaterial = hMaterial;
-          pRenderData->m_Color = pColor[idx] * tintColor;
+          pRenderData->m_Color = pColor[idx].ToLinearFloat() * tintColor;
 
           pRenderData->m_uiPartIndex = 0;
           pRenderData->m_uiFlipWinding = uiFlipWinding;

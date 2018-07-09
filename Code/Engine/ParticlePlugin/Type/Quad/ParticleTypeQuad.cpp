@@ -9,6 +9,7 @@
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/View.h>
+#include <Foundation/Math/Color16f.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezQuadParticleOrientation, 1)
@@ -126,7 +127,7 @@ void ezParticleTypeQuad::CreateRequiredStreams()
   CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime, false);
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
   CreateStream("Size", ezProcessingStream::DataType::Half, &m_pStreamSize, false);
-  CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor, false);
+  CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
   CreateStream("RotationSpeed", ezProcessingStream::DataType::Half, &m_pStreamRotationSpeed, false);
   CreateStream("RotationOffset", ezProcessingStream::DataType::Half, &m_pStreamRotationOffset, false);
 
@@ -225,7 +226,7 @@ void ezParticleTypeQuad::CreateExtractedData(const ezView& view, ezExtractedRend
   const ezVec2* pLifeTime = m_pStreamLifeTime->GetData<ezVec2>();
   const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
   const ezFloat16* pSize = m_pStreamSize->GetData<ezFloat16>();
-  const ezColor* pColor = m_pStreamColor->GetData<ezColor>();
+  const ezColorLinear16f* pColor = m_pStreamColor->GetData<ezColorLinear16f>();
   const ezFloat16* pRotationSpeed = m_pStreamRotationSpeed->GetData<ezFloat16>();
   const ezFloat16* pRotationOffset = m_pStreamRotationOffset->GetData<ezFloat16>();
   const ezVec3* pAxis = m_pStreamAxis ? m_pStreamAxis->GetData<ezVec3>() : nullptr;
@@ -238,7 +239,7 @@ void ezParticleTypeQuad::CreateExtractedData(const ezView& view, ezExtractedRend
   auto SetBaseData = [&](ezUInt32 dstIdx, ezUInt32 srcIdx) {
 
     m_BaseParticleData[dstIdx].Size = pSize[srcIdx];
-    m_BaseParticleData[dstIdx].Color = pColor[srcIdx] * tintColor;
+    m_BaseParticleData[dstIdx].Color = pColor[srcIdx].ToLinearFloat() * tintColor;
     m_BaseParticleData[dstIdx].Life = pLifeTime[srcIdx].x * pLifeTime[srcIdx].y;
   };
 

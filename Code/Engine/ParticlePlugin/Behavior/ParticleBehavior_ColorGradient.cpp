@@ -5,6 +5,7 @@
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Math/Color16f.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_ColorGradient, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_ColorGradient>)
 {
@@ -76,7 +77,7 @@ void ezParticleBehavior_ColorGradient::AfterPropertiesConfigured(bool bFirstTime
 void ezParticleBehavior_ColorGradient::CreateRequiredStreams()
 {
   CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime, false);
-  CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor, false);
+  CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
 }
 
 void ezParticleBehavior_ColorGradient::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
@@ -107,10 +108,12 @@ void ezParticleBehavior_ColorGradient::InitializeElements(ezUInt64 uiStartIndex,
     }
   }
 
-  ezProcessingStreamIterator<ezColor> itColor(m_pStreamColor, uiNumElements, uiStartIndex);
+  const ezColorLinear16f initCol16 = m_InitColor;
+
+  ezProcessingStreamIterator<ezColorLinear16f> itColor(m_pStreamColor, uiNumElements, uiStartIndex);
   while (!itColor.HasReachedEnd())
   {
-    itColor.Current() = m_InitColor;
+    itColor.Current() = initCol16;
     itColor.Advance();
   }
 }
@@ -139,7 +142,7 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
   const ezColorGradient& gradient = pGradient->GetDescriptor().m_Gradient;
 
   ezProcessingStreamIterator<ezVec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
-  ezProcessingStreamIterator<ezColor> itColor(m_pStreamColor, uiNumElements, 0);
+  ezProcessingStreamIterator<ezColorLinear16f> itColor(m_pStreamColor, uiNumElements, 0);
 
   // skip the first n particles
   {

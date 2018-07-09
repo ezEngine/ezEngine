@@ -7,6 +7,7 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <ParticlePlugin/Renderer/ParticleRenderer.h>
+#include <Foundation/Math/Color16f.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Particles/ParticleSystemConstants.h>
 #include <RendererCore/../../../Data/Base/Shaders/Particles/BaseParticleShaderData.h>

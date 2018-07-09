@@ -11,6 +11,7 @@
 #include <Core/World/World.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
+#include <Foundation/Math/Color16f.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypePointFactory, 1, ezRTTIDefaultAllocator<ezParticleTypePointFactory>)
 {
@@ -67,7 +68,7 @@ void ezParticleTypePointFactory::Load(ezStreamReader& stream)
 void ezParticleTypePoint::CreateRequiredStreams()
 {
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
-  CreateStream("Color", ezProcessingStream::DataType::Float4, &m_pStreamColor, false);
+  CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
 }
 
 void ezParticleTypePoint::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
@@ -85,7 +86,7 @@ void ezParticleTypePoint::ExtractTypeRenderData(const ezView& view, ezExtractedR
     m_uiLastExtractedFrame = uiExtractedFrame;
 
     const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
-    const ezColor* pColor = m_pStreamColor->GetData<ezColor>();
+    const ezColorLinear16f* pColor = m_pStreamColor->GetData<ezColorLinear16f>();
 
     // this will automatically be deallocated at the end of the frame
     m_ParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezPointParticleData, numParticles);
@@ -93,7 +94,7 @@ void ezParticleTypePoint::ExtractTypeRenderData(const ezView& view, ezExtractedR
     for (ezUInt32 p = 0; p < numParticles; ++p)
     {
       m_ParticleData[p].Position = pPosition[p].GetAsVec3();
-      m_ParticleData[p].Color = pColor[p];
+      m_ParticleData[p].Color = pColor[p].ToLinearFloat();
     }
   }
 
