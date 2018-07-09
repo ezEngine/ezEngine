@@ -46,6 +46,8 @@ ezFogComponent::~ezFogComponent()
 void ezFogComponent::Deinitialize()
 {
   ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+
+  SUPER::Deinitialize();
 }
 
 void ezFogComponent::OnActivated()

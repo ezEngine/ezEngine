@@ -2,7 +2,7 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{4585678578125348250,4791111026204270759}}
+	Uuid %id{u4{162700357792486316,4850074554625298946}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
 	s %n{"Header"}
@@ -11,10 +11,11 @@ o
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"Particles/Textures/Smoke.tga"}
+			s{"Particles/Textures/FragmentMask1024.jpg"}
+			s{"Textures/cgbookcase.com/Bark_02/Bark_02_Color.jpg"}
 		}
-		Uuid %DocumentID{u4{4585678578125348250,4791111026204270759}}
-		u4 %Hash{4214098873686093694}
+		Uuid %DocumentID{u4{162700357792486316,4850074554625298946}}
+		u4 %Hash{7499742677712039244}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -25,28 +26,28 @@ Objects
 {
 o
 {
-	Uuid %id{u4{9016200449904215976,5178995886495180514}}
+	Uuid %id{u4{4404271898736694949,5131043458251461675}}
 	s %t{"ezTextureAssetProperties"}
 	u3 %v{2}
 	p
 	{
-		s %AddressModeU{"ezTexture2DAddressMode::Clamp"}
-		s %AddressModeV{"ezTexture2DAddressMode::Clamp"}
-		s %AddressModeW{"ezTexture2DAddressMode::Clamp"}
+		s %AddressModeU{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeV{"ezTexture2DAddressMode::Wrap"}
+		s %AddressModeW{"ezTexture2DAddressMode::Wrap"}
 		f %CVarResScale{0x0000803F}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_A2"}
-		b %Compression{0}
+		b %Compression{1}
 		b %FlipHorizontal{0}
 		s %Format{"ezRenderTargetFormat::RGBA8sRgb"}
-		s %Input1{"Particles/Textures/Smoke.tga"}
-		s %Input2{"Particles/Textures/Smoke.tga"}
+		s %Input1{"Textures/cgbookcase.com/Bark_02/Bark_02_Color.jpg"}
+		s %Input2{"Particles/Textures/FragmentMask1024.jpg"}
 		s %Input3{""}
 		s %Input4{""}
 		b %IsRenderTarget{0}
 		b %Mipmaps{1}
-		b %PremultipliedAlpha{0}
+		b %PremultipliedAlpha{1}
 		s %Resolution{"ezTexture2DResolution::Fixed256x256"}
-		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
+		s %TextureFilter{"ezTextureFilterSetting::LowestQuality"}
 		s %Usage{"ezTexture2DUsageEnum::Diffuse"}
 	}
 }
@@ -60,7 +61,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{9016200449904215976,5178995886495180514}}
+			Uuid{u4{4404271898736694949,5131043458251461675}}
 		}
 	}
 }

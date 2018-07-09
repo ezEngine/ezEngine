@@ -46,6 +46,8 @@ ezAmbientLightComponent::~ezAmbientLightComponent()
 void ezAmbientLightComponent::Deinitialize()
 {
   ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+
+  SUPER::Deinitialize();
 }
 
 void ezAmbientLightComponent::OnActivated()

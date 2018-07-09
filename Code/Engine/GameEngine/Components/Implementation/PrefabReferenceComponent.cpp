@@ -34,6 +34,8 @@ void ezPrefabReferenceComponent::Deinitialize()
   {
     GetWorld()->DeleteObjectNow(it->GetHandle());
   }
+
+  SUPER::Deinitialize();
 }
 
 void ezPrefabReferenceComponent::SerializeComponent(ezWorldWriter& stream) const

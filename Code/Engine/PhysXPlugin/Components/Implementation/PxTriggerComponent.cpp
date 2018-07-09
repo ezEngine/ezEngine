@@ -159,6 +159,8 @@ void ezPxTriggerComponent::Deinitialize()
     m_pActor->release();
     m_pActor = nullptr;
   }
+
+  SUPER::Deinitialize();
 }
 
 void ezPxTriggerComponent::SetKinematic(bool b)

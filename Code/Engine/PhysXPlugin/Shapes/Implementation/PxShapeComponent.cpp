@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <PhysXPlugin/Shapes/PxShapeComponent.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
@@ -83,6 +83,8 @@ void ezPxShapeComponent::Deinitialize()
       m_uiShapeId = ezInvalidIndex;
     }
   }
+
+  SUPER::Deinitialize();
 }
 
 void ezPxShapeComponent::SetSurfaceFile(const char* szFile)

@@ -52,6 +52,8 @@ ezEventMessageHandlerComponent::~ezEventMessageHandlerComponent() {}
 void ezEventMessageHandlerComponent::Deinitialize()
 {
   SetGlobalEventHandlerMode(false);
+
+  SUPER::Deinitialize();
 }
 
 void ezEventMessageHandlerComponent::SetDebugOutput(bool enable)

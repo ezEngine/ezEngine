@@ -88,6 +88,8 @@ void ezPxStaticActorComponent::Deinitialize()
       m_uiShapeId = ezInvalidIndex;
     }
   }
+
+  SUPER::Deinitialize();
 }
 
 void ezPxStaticActorComponent::OnSimulationStarted()

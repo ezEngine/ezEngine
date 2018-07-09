@@ -1,13 +1,13 @@
 #pragma once
 
-#include <ParticlePlugin/Basics.h>
-#include <Core/World/World.h>
-#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
-#include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/ResourceManager/ResourceBase.h>
-#include <RendererCore/Components/RenderComponent.h>
-#include <ParticlePlugin/Effect/ParticleEffectController.h>
+#include <Core/ResourceManager/ResourceHandle.h>
+#include <Core/World/World.h>
 #include <Foundation/Types/RangeView.h>
+#include <ParticlePlugin/Basics.h>
+#include <ParticlePlugin/Effect/ParticleEffectController.h>
+#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
+#include <RendererCore/Components/RenderComponent.h>
 
 class ezParticleRenderData;
 struct ezMsgUpdateLocalBounds;
@@ -36,7 +36,8 @@ public:
   //////////////////////////////////////////////////////////////////////////
   // Interface
 
-  /// \brief Starts a new particle effect. If one is already running, it will be stopped (but not interrupted) and a new one is started as well.
+  /// \brief Starts a new particle effect. If one is already running, it will be stopped (but not interrupted) and a new one is started as
+  /// well.
   ///
   /// Returns false, if no valid particle resource is specified.
   bool StartEffect();
@@ -73,6 +74,8 @@ public:
   void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   ezParticleEffectController m_EffectController;
+
+
 
 protected:
   virtual void OnDeactivated() override;

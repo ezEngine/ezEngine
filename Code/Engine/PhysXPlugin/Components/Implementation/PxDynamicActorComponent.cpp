@@ -322,6 +322,8 @@ void ezPxDynamicActorComponent::Deinitialize()
 
     m_pActor = nullptr;
   }
+
+  SUPER::Deinitialize();
 }
 
 ezVec3 ezPxDynamicActorComponent::GetLocalCenterOfMass() const

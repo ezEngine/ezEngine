@@ -26,6 +26,8 @@ ezRenderComponent::~ezRenderComponent()
 void ezRenderComponent::Deinitialize()
 {
   ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+
+  SUPER::Deinitialize();
 }
 
 void ezRenderComponent::OnActivated()

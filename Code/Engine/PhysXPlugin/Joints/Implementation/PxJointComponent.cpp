@@ -103,6 +103,8 @@ void ezPxJointComponent::Deinitialize()
 
     m_pJoint = nullptr;
   }
+
+  SUPER::Deinitialize();
 }
 
 void ezPxJointComponent::SerializeComponent(ezWorldWriter& stream) const

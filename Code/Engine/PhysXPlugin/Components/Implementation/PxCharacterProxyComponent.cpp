@@ -239,6 +239,8 @@ void ezPxCharacterProxyComponent::Deinitialize()
       m_uiShapeId = ezInvalidIndex;
     }
   }
+
+  SUPER::Deinitialize();
 }
 
 void ezPxCharacterProxyComponent::OnSimulationStarted()
