@@ -13,7 +13,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Velocity, 1, ezRTTIDef
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("RiseSpeed", m_fRiseSpeed),
-    EZ_MEMBER_PROPERTY("Friction", m_fFriction),
+    EZ_MEMBER_PROPERTY("Friction", m_fFriction)->AddAttributes(new ezClampValueAttribute(0.0f, 100.0f)),
   }
   EZ_END_PROPERTIES;
 }
@@ -94,8 +94,8 @@ void ezParticleBehavior_Velocity::Process(ezUInt64 uiNumElements)
   ezSimdVec4f vRise;
   vRise.Load<3>(&vRise0.x);
 
-  const float fFriction = ezMath::Clamp(m_fFriction, 0.0f, 1.0f);
-  const float fFrictionFactor = ezMath::Pow(1.0f - fFriction, tDiff);
+  const float fFriction = ezMath::Clamp(m_fFriction, 0.0f, 100.0f);
+  const float fFrictionFactor = ezMath::Pow(0.5f, tDiff * m_fFriction);
 
   ezProcessingStreamIterator<ezSimdVec4f> itPosition(m_pStreamPosition, uiNumElements, 0);
   ezProcessingStreamIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements, 0);

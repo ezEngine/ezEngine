@@ -35,7 +35,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17416888867860498366,5583682757376855072}}
-		u4 %Hash{10230999673736316817}
+		u4 %Hash{3203451820689597188}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{13691862030940067208,3776946749550043795}}
@@ -58,8 +58,8 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Friction{0x72F97F3F}
-		f %RiseSpeed{0}
+		f %Friction{0x00007042}
+		f %RiseSpeed{0x0AD7233C}
 	}
 }
 o
@@ -87,7 +87,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Time %Value{d{0x0000000000001440}}
+		Time %Value{d{0x0000000000001040}}
 		f %Variance{0x713D8A3E}
 	}
 }
@@ -98,7 +98,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Angle %Angle{f{0xC2B8323E}}
+		Angle %Angle{f{0xC2B8B23D}}
 		Uuid %Speed{u4{5732833682167267249,11859447406627769003}}
 	}
 }
@@ -120,8 +120,8 @@ o
 	u3 %v{1}
 	p
 	{
-		f %BaseSize{0xCDCCCC3D}
-		f %CurveScale{0x0000003F}
+		f %BaseSize{0}
+		f %CurveScale{0xCDCCCC3D}
 		s %SizeCurve{"{ f633ccad-b4d5-12e5-260a-bb050d602881 }"}
 	}
 }
@@ -188,7 +188,7 @@ o
 	p
 	{
 		Time %Duration{d{0x9A9999999999B93F}}
-		u3 %MinSpawnCount{30}
+		u3 %MinSpawnCount{15}
 		u3 %SpawnCountRange{10}
 		s %SpawnCountScaleParam{""}
 		Time %StartDelay{d{0}}
@@ -216,7 +216,7 @@ o
 	p
 	{
 		f %Value{0x00002041}
-		f %Variance{0x0000803F}
+		f %Variance{0x8FC2753F}
 	}
 }
 }

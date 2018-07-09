@@ -14,7 +14,7 @@ o
 			s{"Particles/Textures/ParticleCloud1.jpg"}
 		}
 		Uuid %DocumentID{u4{1136617659584854659,4918177254669848362}}
-		u4 %Hash{11151188679896105882}
+		u4 %Hash{9133308058769095313}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -34,12 +34,12 @@ o
 		s %AddressModeV{"ezTexture2DAddressMode::Clamp"}
 		s %AddressModeW{"ezTexture2DAddressMode::Clamp"}
 		f %CVarResScale{0x0000803F}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_A2"}
 		b %Compression{1}
 		b %FlipHorizontal{0}
 		s %Format{"ezRenderTargetFormat::RGBA8sRgb"}
 		s %Input1{"Particles/Textures/ParticleCloud1.jpg"}
-		s %Input2{""}
+		s %Input2{"Particles/Textures/ParticleCloud1.jpg"}
 		s %Input3{""}
 		s %Input4{""}
 		b %IsRenderTarget{0}

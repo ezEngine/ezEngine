@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5463257418692118172,5464026562302117863}}
-		u4 %Hash{8620224281621587248}
+		u4 %Hash{9684909295178331401}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{1738230581771687014,3657290554475306586}}
@@ -60,7 +60,7 @@ o
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters
 		{
-			Color %Color{f{0xA0FC243F,0xAFC8843E,0xE881243C,0x0000803F}}
+			Color %Color{f{0x547DDB3E,0x12835E3E,0x6540183D,0x0000803F}}
 		}
 		u4 %RandomSeed{0}
 		Time %RestartDelayRange{d{0}}

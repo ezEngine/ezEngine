@@ -21,7 +21,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2375702699631731084,5315158232507785336}}
-		u4 %Hash{7221584325984409081}
+		u4 %Hash{8972833618877452000}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{17097419936420851542,3508422224680974059}}
@@ -29,6 +29,7 @@ o
 		VarArray %Outputs{}
 		VarArray %References
 		{
+			s{"{ 3619cd17-924e-4a3a-8aab-ecd69716ab3d }"}
 			s{"{ 5baa63c4-3b61-4125-bb86-dd4ab439c483 }"}
 			s{"{ 5c9d3e28-e23d-4305-a16e-2db6836ef5d6 }"}
 			s{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
@@ -46,7 +47,7 @@ o
 	p
 	{
 		f %Value{0x00004040}
-		f %Variance{0xCDCCCC3E}
+		f %Variance{0x85EB113F}
 	}
 }
 o
@@ -282,7 +283,7 @@ o
 	p
 	{
 		Time %Duration{d{0}}
-		u3 %MinSpawnCount{25}
+		u3 %MinSpawnCount{15}
 		u3 %SpawnCountRange{10}
 		s %SpawnCountScaleParam{""}
 		Time %StartDelay{d{0}}
@@ -317,8 +318,8 @@ o
 	p
 	{
 		s %RenderMode{"ezParticleTypeRenderMode::Additive"}
-		u2 %Segments{6}
-		s %Texture{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
+		u2 %Segments{4}
+		s %Texture{"{ 3619cd17-924e-4a3a-8aab-ecd69716ab3d }"}
 	}
 }
 o
@@ -445,7 +446,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Time %Value{d{0x333333333333E33F}}
+		Time %Value{d{0x000000000000E03F}}
 		f %Variance{0x14AEC73E}
 	}
 }
@@ -489,7 +490,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Value{0xCDCC4C3D}
+		f %Value{0x0AD7233C}
 		f %Variance{0xB81E053E}
 	}
 }
