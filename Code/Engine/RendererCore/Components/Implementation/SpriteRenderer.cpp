@@ -1,12 +1,14 @@
 #include <PCH.h>
+
+#include <Foundation/Math/Float16.h>
+#include <Foundation/Types/ScopeExit.h>
 #include <RendererCore/Components/SpriteComponent.h>
 #include <RendererCore/Components/SpriteRenderer.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <Foundation/Math/Float16.h>
-#include <Foundation/Types/ScopeExit.h>
-#include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Pipeline/RenderDataBatch.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/Shader/ShaderResource.h>
+#include <RendererFoundation/Shader/ShaderUtils.h>
 
 struct EZ_ALIGN_16(SpriteData)
 {
@@ -26,15 +28,6 @@ EZ_CHECK_AT_COMPILETIME(sizeof(SpriteData) == 48);
 
 namespace
 {
-  ///\todo find a better place for this function
-  ezUInt32 Float2ToRG16F(ezVec2 value)
-  {
-    ezUInt32 r = ezFloat16(value.x).GetRawData();
-    ezUInt32 g = ezFloat16(value.y).GetRawData();
-
-    return r | (g << 16);
-  }
-
   enum
   {
     MAX_SPRITE_DATA_PER_BATCH = 1024
@@ -50,16 +43,15 @@ ezSpriteRenderer::ezSpriteRenderer()
   m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Materials/SpriteMaterial.ezShader");
 }
 
-ezSpriteRenderer::~ezSpriteRenderer()
-{
-}
+ezSpriteRenderer::~ezSpriteRenderer() {}
 
 void ezSpriteRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)
 {
   types.PushBack(ezGetStaticRTTI<ezSpriteRenderData>());
 }
 
-void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch)
+void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass,
+                                   const ezRenderDataBatch& batch)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezRenderContext* pContext = renderViewContext.m_pRenderContext;
@@ -74,7 +66,8 @@ void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext,
   renderViewContext.m_pRenderContext->BindBuffer("spriteData", pDevice->GetDefaultResourceView(hSpriteData));
   renderViewContext.m_pRenderContext->BindTexture2D("SpriteTexture", pRenderData->m_hTexture);
 
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLEND_MODE", ezSpriteBlendMode::GetPermutationValue(pRenderData->m_BlendMode));
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLEND_MODE",
+                                                                   ezSpriteBlendMode::GetPermutationValue(pRenderData->m_BlendMode));
 
   ezUInt32 uiStartIndex = 0;
   while (uiStartIndex < batch.GetCount())
@@ -87,7 +80,7 @@ void ezSpriteRenderer::RenderBatch(const ezRenderViewContext& renderViewContext,
       pGALContext->UpdateBuffer(hSpriteData, 0, m_spriteData.GetByteArrayPtr());
 
       renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr,
-        ezGALPrimitiveTopology::Triangles, uiCount * 2);
+                                                         ezGALPrimitiveTopology::Triangles, uiCount * 2);
       renderViewContext.m_pRenderContext->DrawMeshBuffer();
     }
 
@@ -128,10 +121,10 @@ void ezSpriteRenderer::FillSpriteData(const ezRenderDataBatch& batch, ezUInt32 u
     spriteData.m_size = pRenderData->m_fSize;
     spriteData.m_maxScreenSize = pRenderData->m_fMaxScreenSize;
     spriteData.m_aspectRatio = pRenderData->m_fAspectRatio;
-    spriteData.m_colorRG = Float2ToRG16F(ezVec2(pRenderData->m_color.r, pRenderData->m_color.g));
-    spriteData.m_colorBA = Float2ToRG16F(ezVec2(pRenderData->m_color.b, pRenderData->m_color.a));
-    spriteData.m_texCoordScale = Float2ToRG16F(pRenderData->m_texCoordScale);
-    spriteData.m_texCoordOffset = Float2ToRG16F(pRenderData->m_texCoordOffset);
+    spriteData.m_colorRG = ezShaderUtils::Float2ToRG16F(ezVec2(pRenderData->m_color.r, pRenderData->m_color.g));
+    spriteData.m_colorBA = ezShaderUtils::Float2ToRG16F(ezVec2(pRenderData->m_color.b, pRenderData->m_color.a));
+    spriteData.m_texCoordScale = ezShaderUtils::Float2ToRG16F(pRenderData->m_texCoordScale);
+    spriteData.m_texCoordOffset = ezShaderUtils::Float2ToRG16F(pRenderData->m_texCoordOffset);
     spriteData.m_gameObjectID = pRenderData->m_uiUniqueID;
     spriteData.m_reserved = 0;
   }
@@ -140,4 +133,3 @@ void ezSpriteRenderer::FillSpriteData(const ezRenderDataBatch& batch, ezUInt32 u
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_SpriteRenderer);
-

@@ -34,10 +34,6 @@ float3x3 TransformToRotation(Transform t)
 #define FLOAT2(Name) float2 Name
 #define FLOAT3(Name) float3 Name
 #define FLOAT4(Name) float4 Name
-//#define HALF1(Name) half Name
-//#define HALF2(Name) half2 Name
-//#define HALF3(Name) half3 Name
-//#define HALF4(Name) half4 Name
 #define INT1(Name) int Name
 #define INT2(Name) int2 Name
 #define INT3(Name) int3 Name
@@ -50,9 +46,13 @@ float3x3 TransformToRotation(Transform t)
 #define MAT4(Name) float4x4 Name
 #define TRANSFORM(Name) Transform Name
 #define COLOR4F(Name) float4 Name
-//#define COLOR4H(Name) half4 Name // HLSL does not support HALFs in structure buffers !?
 #define COLOR4UB(Name) uint Name
 #define BOOL(Name) bool Name
+#define PACKEDHALF2(Name1, Name2, CombinedName) uint CombinedName
+#define PACKEDCOLOR4H(Name) uint EZ_CONCAT(Name,RG); uint EZ_CONCAT(Name,GB)
+
+#define UNPACKHALF2(Name1, Name2, CombinedName) float Name1 = f16tof32(CombinedName); float Name2 = f16tof32(CombinedName >> 16)
+#define UNPACKCOLOR4H(Name) RGBA16FToFloat4(EZ_CONCAT(Name,RG), EZ_CONCAT(Name,GB))
 
 #else
 
@@ -67,10 +67,6 @@ float3x3 TransformToRotation(Transform t)
 #define FLOAT2(Name) ezVec2 Name
 #define FLOAT3(Name) ezVec3 Name
 #define FLOAT4(Name) ezVec4 Name
-//#define HALF1(Name) ezFloat16 Name
-//#define HALF2(Name) ezFloat16Vec2 Name
-//#define HALF3(Name) ezFloat16Vec3 Name
-//#define HALF4(Name) ezFloat16Vec4  Name
 #define INT1(Name) int Name
 #define INT2(Name) ezVec2I32 Name
 #define INT3(Name) ezVec3I32 Name
@@ -83,9 +79,10 @@ float3x3 TransformToRotation(Transform t)
 #define MAT4(Name) ezMat4 Name
 #define TRANSFORM(Name) ezShaderTransform Name
 #define COLOR4F(Name) ezColor Name
-//#define COLOR4H(Name) ezColorLinear16f Name // HLSL does not support HALFs in structure buffers !?
 #define COLOR4UB(Name) ezColorGammaUB Name
 #define BOOL(Name) ezShaderBool Name
+#define PACKEDHALF2(Name1, Name2, CombinedName) ezFloat16 Name1; ezFloat16 Name2
+#define PACKEDCOLOR4H(Name) ezColorLinear16f Name
 
 #endif
 

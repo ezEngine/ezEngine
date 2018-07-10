@@ -4,12 +4,13 @@
 
 #include <Core/World/GameObject.h>
 #include <Core/World/World.h>
+#include <Foundation/Math/Color16f.h>
 #include <Foundation/Math/Float16.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/Pipeline/View.h>
-#include <Foundation/Math/Color16f.h>
+#include <RendererFoundation/Shader/ShaderUtils.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezQuadParticleOrientation, 1)
@@ -252,7 +253,9 @@ void ezParticleTypeQuad::CreateExtractedData(const ezView& view, ezExtractedRend
                                           ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[srcIdx]) + pRotationOffset[srcIdx]));
     trans.m_vScale.Set(1.0f);
 
-    m_BillboardParticleData[dstIdx].Transform = trans;
+    m_BillboardParticleData[dstIdx].Position = pPosition[srcIdx].GetAsVec3();
+    m_BillboardParticleData[dstIdx].RotationOffset = pRotationOffset[srcIdx];
+    m_BillboardParticleData[dstIdx].RotationSpeed = pRotationSpeed[srcIdx];
   };
 
   auto SetTangentDataEmitterDir = [&](ezUInt32 dstIdx, ezUInt32 srcIdx) {

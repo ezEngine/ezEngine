@@ -1,5 +1,6 @@
 #pragma once
 
+#include <RendererFoundation/Shader/ShaderUtils.h>
 #include <RendererCore/Decals/DecalComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Lights/PointLightComponent.h>
@@ -40,8 +41,8 @@ namespace
   }
 
   // in order: tlf, trf, blf, brf, tln, trn, bln, brn
-  EZ_FORCE_INLINE void GetClusterCornerPoints(const ezCamera& camera, float fZf, float fZn, float fTanFovX, float fTanFovY,
-    ezInt32 x, ezInt32 y, ezInt32 z, ezVec3* out_pCorners)
+  EZ_FORCE_INLINE void GetClusterCornerPoints(const ezCamera& camera, float fZf, float fZn, float fTanFovX, float fTanFovY, ezInt32 x,
+                                              ezInt32 y, ezInt32 z, ezVec3* out_pCorners)
   {
     const ezVec3& pos = camera.GetPosition();
     const ezVec3& dirForward = camera.GetDirForwards();
@@ -68,25 +69,6 @@ namespace
     out_pCorners[5] = out_pCorners[4] + dirRight * fStepXn;
     out_pCorners[6] = out_pCorners[4] - dirUp * fStepYn;
     out_pCorners[7] = out_pCorners[6] + dirRight * fStepXn;
-  }
-
-  EZ_ALWAYS_INLINE ezUInt32 Float3ToRGB10(ezVec3 value)
-  {
-    ezVec3 unsignedValue = value * 0.5f + ezVec3(0.5f);
-
-    ezUInt32 r = ezMath::Clamp(static_cast<ezUInt32>(unsignedValue.x * 1023.0f + 0.5f), 0u, 1023u);
-    ezUInt32 g = ezMath::Clamp(static_cast<ezUInt32>(unsignedValue.y * 1023.0f + 0.5f), 0u, 1023u);
-    ezUInt32 b = ezMath::Clamp(static_cast<ezUInt32>(unsignedValue.z * 1023.0f + 0.5f), 0u, 1023u);
-
-    return r | (g << 10) | (b << 20);
-  }
-
-  EZ_ALWAYS_INLINE ezUInt32 Float2ToRG16F(ezVec2 value)
-  {
-    ezUInt32 r = ezFloat16(value.x).GetRawData();
-    ezUInt32 g = ezFloat16(value.y).GetRawData();
-
-    return r | (g << 16);
   }
 
   void FillClusterBoundingSpheres(const ezCamera& camera, float fAspectRatio, ezArrayPtr<ezSimdBSphere> clusterBoundingSpheres)
@@ -137,7 +119,8 @@ namespace
           cc[6] = cc[4] - dirUp * steps.w();
           cc[7] = cc[6] + dirRight * steps.z();
 
-          ezSimdBSphere s; s.SetFromPoints(cc, 8);
+          ezSimdBSphere s;
+          s.SetFromPoints(cc, 8);
 
           clusterBoundingSpheres[GetClusterIndexFromCoord(x, y, z)] = s;
         }
@@ -171,7 +154,7 @@ namespace
   {
     FillLightData(perLightData, pSpotLightRenderData, LIGHT_TYPE_SPOT);
 
-    perLightData.direction = Float3ToRGB10(pSpotLightRenderData->m_GlobalTransform.m_qRotation * ezVec3(-1, 0, 0));
+    perLightData.direction = ezShaderUtils::Float3ToRGB10(pSpotLightRenderData->m_GlobalTransform.m_qRotation * ezVec3(-1, 0, 0));
     perLightData.position = pSpotLightRenderData->m_GlobalTransform.m_vPosition;
     perLightData.invSqrAttRadius = 1.0f / (pSpotLightRenderData->m_fRange * pSpotLightRenderData->m_fRange);
 
@@ -179,14 +162,14 @@ namespace
     const float fCosOuter = ezMath::Cos(pSpotLightRenderData->m_OuterSpotAngle * 0.5f);
     const float fSpotParamScale = 1.0f / ezMath::Max(0.001f, (fCosInner - fCosOuter));
     const float fSpotParamOffset = -fCosOuter * fSpotParamScale;
-    perLightData.spotParams = Float2ToRG16F(ezVec2(fSpotParamScale, fSpotParamOffset));
+    perLightData.spotParams = ezShaderUtils::Float2ToRG16F(ezVec2(fSpotParamScale, fSpotParamOffset));
   }
 
   void FillDirLightData(ezPerLightData& perLightData, const ezDirectionalLightRenderData* pDirLightRenderData)
   {
     FillLightData(perLightData, pDirLightRenderData, LIGHT_TYPE_DIR);
 
-    perLightData.direction = Float3ToRGB10(pDirLightRenderData->m_GlobalTransform.m_qRotation * ezVec3(-1, 0, 0));
+    perLightData.direction = ezShaderUtils::Float3ToRGB10(pDirLightRenderData->m_GlobalTransform.m_qRotation * ezVec3(-1, 0, 0));
   }
 
   void FillDecalData(ezPerDecalData& perDecalData, const ezDecalRenderData* pDecalRenderData)
@@ -200,10 +183,13 @@ namespace
     // if negative scaling should be allowed, this would need to be changed
     scale = ezVec3(1.0f).CompDiv(scale.CompMax(ezVec3(0.00001f)));
 
-    ezMat4 lookAt; lookAt.SetLookAtMatrix(position, position + dirForwards, dirUp);
-    ezMat4 scaleMat; scaleMat.SetScalingMatrix(ezVec3(scale.y, -scale.z, scale.x));
+    ezMat4 lookAt;
+    lookAt.SetLookAtMatrix(position, position + dirForwards, dirUp);
+    ezMat4 scaleMat;
+    scaleMat.SetScalingMatrix(ezVec3(scale.y, -scale.z, scale.x));
 
-    const bool bNoFade = pDecalRenderData->m_InnerFadeAngle == ezAngle::Radian(0.0f) && pDecalRenderData->m_OuterFadeAngle == ezAngle::Radian(0.0f);
+    const bool bNoFade =
+        pDecalRenderData->m_InnerFadeAngle == ezAngle::Radian(0.0f) && pDecalRenderData->m_OuterFadeAngle == ezAngle::Radian(0.0f);
     const float fCosInner = ezMath::Cos(pDecalRenderData->m_InnerFadeAngle);
     const float fCosOuter = ezMath::Cos(pDecalRenderData->m_OuterFadeAngle);
     const float fFadeParamScale = bNoFade ? 0.0f : (1.0f / ezMath::Max(0.001f, (fCosInner - fCosOuter)));
@@ -212,16 +198,17 @@ namespace
     perDecalData.worldToDecalMatrix = scaleMat * lookAt;
     perDecalData.applyOnlyToId = pDecalRenderData->m_uiApplyOnlyToId;
     perDecalData.decalModeAndFlags = pDecalRenderData->m_uiDecalMode | (pDecalRenderData->m_bWrapAround ? DECAL_WRAP_AROUND_FLAG : 0);
-    perDecalData.angleFadeParams = Float2ToRG16F(ezVec2(fFadeParamScale, fFadeParamOffset));
+    perDecalData.angleFadeParams = ezShaderUtils::Float2ToRG16F(ezVec2(fFadeParamScale, fFadeParamOffset));
     perDecalData.padding0 = 0;
-    perDecalData.colorRG = Float2ToRG16F(ezVec2(pDecalRenderData->m_Color.r, pDecalRenderData->m_Color.g));
-    perDecalData.colorBA = Float2ToRG16F(ezVec2(pDecalRenderData->m_Color.b, pDecalRenderData->m_Color.a));
-    perDecalData.baseAtlasScale = Float2ToRG16F(pDecalRenderData->m_vBaseAtlasScale);
-    perDecalData.baseAtlasOffset = Float2ToRG16F(pDecalRenderData->m_vBaseAtlasOffset);
+    perDecalData.colorRG = ezShaderUtils::Float2ToRG16F(ezVec2(pDecalRenderData->m_Color.r, pDecalRenderData->m_Color.g));
+    perDecalData.colorBA = ezShaderUtils::Float2ToRG16F(ezVec2(pDecalRenderData->m_Color.b, pDecalRenderData->m_Color.a));
+    perDecalData.baseAtlasScale = ezShaderUtils::Float2ToRG16F(pDecalRenderData->m_vBaseAtlasScale);
+    perDecalData.baseAtlasOffset = ezShaderUtils::Float2ToRG16F(pDecalRenderData->m_vBaseAtlasOffset);
   }
 
 
-  EZ_FORCE_INLINE ezSimdBBox GetScreenSpaceBounds(const ezSimdBSphere& sphere, const ezSimdMat4f& viewMatrix, const ezSimdMat4f& projectionMatrix)
+  EZ_FORCE_INLINE ezSimdBBox GetScreenSpaceBounds(const ezSimdBSphere& sphere, const ezSimdMat4f& viewMatrix,
+                                                  const ezSimdMat4f& projectionMatrix)
   {
     ezSimdVec4f viewSpaceCenter = viewMatrix.TransformPosition(sphere.GetCenter());
     ezSimdFloat depth = viewSpaceCenter.z();
@@ -262,8 +249,8 @@ namespace
   }
 
   template <typename Cluster, typename IntersectionFunc>
-  EZ_FORCE_INLINE void FillCluster(const ezSimdBBox& screenSpaceBounds, ezUInt32 uiBlockIndex, ezUInt32 uiMask,
-    Cluster* clusters, IntersectionFunc func)
+  EZ_FORCE_INLINE void FillCluster(const ezSimdBBox& screenSpaceBounds, ezUInt32 uiBlockIndex, ezUInt32 uiMask, Cluster* clusters,
+                                   IntersectionFunc func)
   {
     ezSimdVec4f scale = ezSimdVec4f(0.5f * NUM_CLUSTERS_X, -0.5f * NUM_CLUSTERS_Y, 1.0f, 1.0f);
     ezSimdVec4f bias = ezSimdVec4f(0.5f * NUM_CLUSTERS_X, 0.5f * NUM_CLUSTERS_Y, 0.0f, 0.0f);
@@ -303,18 +290,16 @@ namespace
   }
 
   template <typename Cluster>
-  void RasterizePointLight(const ezSimdBSphere& pointLightSphere, ezUInt32 uiLightIndex, const ezSimdMat4f& viewMatrix, const ezSimdMat4f& projectionMatrix,
-    Cluster* clusters, ezSimdBSphere* clusterBoundingSpheres)
+  void RasterizePointLight(const ezSimdBSphere& pointLightSphere, ezUInt32 uiLightIndex, const ezSimdMat4f& viewMatrix,
+                           const ezSimdMat4f& projectionMatrix, Cluster* clusters, ezSimdBSphere* clusterBoundingSpheres)
   {
     ezSimdBBox screenSpaceBounds = GetScreenSpaceBounds(pointLightSphere, viewMatrix, projectionMatrix);
 
     const ezUInt32 uiBlockIndex = uiLightIndex / 32;
     const ezUInt32 uiMask = 1 << (uiLightIndex - uiBlockIndex * 32);
 
-    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, clusters, [&](ezUInt32 uiClusterIndex)
-    {
-      return pointLightSphere.Overlaps(clusterBoundingSpheres[uiClusterIndex]);
-    });
+    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, clusters,
+                [&](ezUInt32 uiClusterIndex) { return pointLightSphere.Overlaps(clusterBoundingSpheres[uiClusterIndex]); });
   }
 
   struct BoundingCone
@@ -326,8 +311,8 @@ namespace
   };
 
   template <typename Cluster>
-  void RasterizeSpotLight(const BoundingCone& spotLightCone, ezUInt32 uiLightIndex, const ezSimdMat4f& viewMatrix, const ezSimdMat4f& projectionMatrix,
-    Cluster* clusters, ezSimdBSphere* clusterBoundingSpheres)
+  void RasterizeSpotLight(const BoundingCone& spotLightCone, ezUInt32 uiLightIndex, const ezSimdMat4f& viewMatrix,
+                          const ezSimdMat4f& projectionMatrix, Cluster* clusters, ezSimdBSphere* clusterBoundingSpheres)
   {
     ezSimdVec4f position = spotLightCone.m_PositionAndRange;
     ezSimdFloat range = spotLightCone.m_PositionAndRange.w();
@@ -355,8 +340,7 @@ namespace
     const ezUInt32 uiBlockIndex = uiLightIndex / 32;
     const ezUInt32 uiMask = 1 << (uiLightIndex - uiBlockIndex * 32);
 
-    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, clusters, [&](ezUInt32 uiClusterIndex)
-    {
+    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, clusters, [&](ezUInt32 uiClusterIndex) {
       ezSimdBSphere clusterSphere = clusterBoundingSpheres[uiClusterIndex];
       ezSimdFloat clusterRadius = clusterSphere.GetRadius();
 
@@ -387,7 +371,7 @@ namespace
 
   template <typename Cluster>
   void RasterizeDecal(const ezDecalRenderData* pDecalRenderData, ezUInt32 uiDecalIndex, const ezSimdMat4f& viewProjectionMatrix,
-    Cluster* clusters, ezSimdBSphere* clusterBoundingSpheres)
+                      Cluster* clusters, ezSimdBSphere* clusterBoundingSpheres)
   {
     ezSimdTransform decalToWorld = ezSimdConversion::ToTransform(pDecalRenderData->m_GlobalTransform);
     ezSimdTransform worldToDecal = decalToWorld.GetInverse();
@@ -396,7 +380,8 @@ namespace
     ezBoundingBox(-pDecalRenderData->m_vHalfExtents, pDecalRenderData->m_vHalfExtents).GetCorners(corners);
 
     ezSimdMat4f decalToScreen = viewProjectionMatrix * decalToWorld.GetAsMat4();
-    ezSimdBBox screenSpaceBounds; screenSpaceBounds.SetInvalid();
+    ezSimdBBox screenSpaceBounds;
+    screenSpaceBounds.SetInvalid();
     bool bInsideBox = false;
     for (ezUInt32 i = 0; i < 8; ++i)
     {
@@ -424,8 +409,7 @@ namespace
     const ezUInt32 uiBlockIndex = uiDecalIndex / 32;
     const ezUInt32 uiMask = 1 << (uiDecalIndex - uiBlockIndex * 32);
 
-    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, clusters, [&](ezUInt32 uiClusterIndex)
-    {
+    FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, clusters, [&](ezUInt32 uiClusterIndex) {
       ezSimdBSphere clusterSphere = clusterBoundingSpheres[uiClusterIndex];
       clusterSphere.Transform(worldToDecal);
 
@@ -433,4 +417,3 @@ namespace
     });
   }
 }
-

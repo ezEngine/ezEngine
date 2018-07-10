@@ -5,7 +5,8 @@
 
 struct EZ_ALIGN_16(ezBillboardQuadParticleShaderData)
 {
-  TRANSFORM(Transform);
+  FLOAT3(Position);
+  PACKEDHALF2(RotationOffset, RotationSpeed, RotationOffsetAndSpeed);
 };
 
 // this is only defined during shader compilation
@@ -15,7 +16,7 @@ StructuredBuffer<ezBillboardQuadParticleShaderData> particleBillboardQuadData;
 
 #else // C++
 
-EZ_CHECK_AT_COMPILETIME(sizeof(ezBillboardQuadParticleShaderData) == 48);
+EZ_CHECK_AT_COMPILETIME(sizeof(ezBillboardQuadParticleShaderData) == 16);
 
 #endif
 

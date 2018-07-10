@@ -1,6 +1,7 @@
 
 #include <PCH.h>
 #include <RendererFoundation/Shader/Shader.h>
+#include <RendererFoundation/Shader/ShaderUtils.h>
 
 ezGALShader::ezGALShader(const ezGALShaderCreationDescription& Description)
   : ezGALObject(Description)

@@ -43,10 +43,20 @@ float4 CalcQuadOutputPositionWithTangents(uint vertexIndex, float3 inPosition, f
   return screenPosition;
 }
 
-float4 CalcQuadOutputPositionAsBillboard(uint vertexIndex, Transform inTransform, float inSize)
+float3x3 CreateRotationMatrixY(float radians)
 {
-  float4 position = TransformToPosition(inTransform);
-  float3x3 rotation = TransformToRotation(inTransform);
+  float fsin = sin(radians);
+  float fcos = cos(radians);
+
+  return float3x3(fcos, 0, fsin, 0, 1, 0, -fsin, 0, fcos);
+}
+
+float4 CalcQuadOutputPositionAsBillboard(uint vertexIndex, float3 centerPosition, float rotationOffset, float rotationSpeed, float inSize)
+{
+  //float4 position = TransformToPosition(inTransform);
+  float4 position = float4(centerPosition, 1);
+  //float3x3 rotation = TransformToRotation(inTransform);
+  float3x3 rotation = CreateRotationMatrixY(rotationOffset + rotationSpeed * WorldTime);
 
   float3 offsetRight = GetCameraDirRight() * (QuadTexCoords[vertexIndex].x - 0.5) * inSize;
   float3 offsetUp = GetCameraDirUp() * (QuadTexCoords[vertexIndex].y - 0.5) * -inSize;

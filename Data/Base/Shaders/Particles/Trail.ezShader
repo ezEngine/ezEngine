@@ -36,6 +36,8 @@ CullMode = CullMode_None
 
 VS_OUT main(uint VertexID : SV_VertexID)
 {
+  VS_OUT ret;
+
   int trailIndexOffset[6] = { 0, 1, 1, 0, 1, 0 };
 
   // TODO: We could use NumUsedTrailPoints instead of TRAIL_SEGMENTS and then render fewer triangles
@@ -46,8 +48,8 @@ VS_OUT main(uint VertexID : SV_VertexID)
   int vertexTrailPointIndex = trailPointIndex + trailIndexOffset[vertexSubIndex];
 
   ezBaseParticleShaderData baseParticle = particleBaseData[particleIndex];
-
-  VS_OUT ret;
+  UNPACKHALF2(particleLife, particleSize, baseParticle.LifeAndSize);
+  ret.Color = UNPACKCOLOR4H(baseParticle.Color);
 
   if (trailPointIndex + 1 >= baseParticle.NumPoints)
   {
@@ -77,7 +79,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
     float3 avgDirection = positionN - positionP;
 
     float3 dirRight = mul(ObjectToWorldMatrix, float4(avgDirection, 0)).xyz;
-    float3 dirUp = normalize(cross(dirRight, GetCameraDirForwards())) * baseParticle.Size;
+    float3 dirUp = normalize(cross(dirRight, GetCameraDirForwards())) * particleSize;
 
     float4 offsetRight = float4(dirRight * QuadTexCoords[vertexSubIndex].x, 0);
     float4 offsetUp = float4(dirUp * (QuadTexCoords[vertexSubIndex].y - 0.5), 0);
@@ -87,7 +89,6 @@ VS_OUT main(uint VertexID : SV_VertexID)
     ret.Position = mul(GetWorldToScreenMatrix(), position);
     ret.TexCoords.x = uvCoord;
     ret.TexCoords.y = QuadTexCoords[vertexSubIndex].y;
-    ret.Color = RGBA8ToFloat4(baseParticle.Color);
 
     // do NOT adjust the UV of the very first vertex, that is the one moves all the time and is always at UV.x == 0
     // however, DO adjust the coordinate of the LAST vertex, since that is not moving and needs to "fade away" (out of the UV space, ie > 1)

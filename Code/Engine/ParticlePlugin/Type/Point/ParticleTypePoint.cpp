@@ -96,7 +96,7 @@ void ezParticleTypePoint::ExtractTypeRenderData(const ezView& view, ezExtractedR
     for (ezUInt32 p = 0; p < numParticles; ++p)
     {
       m_BaseParticleData[p].Color = pColor[p].ToLinearFloat();
-      m_BillboardParticleData[p].Transform = ezTransform(pPosition[p].GetAsVec3());
+      m_BillboardParticleData[p].Position = pPosition[p].GetAsVec3();
     }
   }
 

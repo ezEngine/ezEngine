@@ -39,27 +39,30 @@ CullMode = CullMode_None
 
 VS_OUT main(uint VertexID : SV_VertexID)
 {
+  VS_OUT ret;
+
   uint dataIndex = CalcQuadParticleDataIndex(VertexID);
   uint vertexIndex = CalcQuadParticleVertexIndex(VertexID);
 
   ezBaseParticleShaderData baseParticle = particleBaseData[dataIndex];
+  UNPACKHALF2(particleLife, particleSize, baseParticle.LifeAndSize);
+  ret.Color = UNPACKCOLOR4H(baseParticle.Color);
 
-  VS_OUT ret;
 
 #if PARTICLE_QUAD_MODE == PARTICLE_QUAD_MODE_BILLBOARD
 
   ezBillboardQuadParticleShaderData billboardData = particleBillboardQuadData[dataIndex];
-  ret.Position = CalcQuadOutputPositionAsBillboard(vertexIndex, billboardData.Transform, baseParticle.Size);
+  UNPACKHALF2(rotationOffset, rotationSpeed, billboardData.RotationOffsetAndSpeed);
+  ret.Position = CalcQuadOutputPositionAsBillboard(vertexIndex, billboardData.Position, rotationOffset, rotationSpeed, particleSize);
 
 #elif PARTICLE_QUAD_MODE == PARTICLE_QUAD_MODE_TANGENTS
 
   ezTangentQuadParticleShaderData tangentData = particleTangentQuadData[dataIndex];
-  ret.Position = CalcQuadOutputPositionWithTangents(vertexIndex, tangentData.Position.xyz, tangentData.TangentX, tangentData.TangentZ, baseParticle.Size);
+  ret.Position = CalcQuadOutputPositionWithTangents(vertexIndex, tangentData.Position.xyz, tangentData.TangentX, tangentData.TangentZ, particleSize);
 
 #endif
 
-  ret.TexCoords = ComputeSpriteAnimationTexCoord(QuadTexCoords[vertexIndex], NumSpritesX, NumSpritesY, baseParticle.Life);
-  ret.Color = RGBA8ToFloat4(baseParticle.Color);
+  ret.TexCoords = ComputeSpriteAnimationTexCoord(QuadTexCoords[vertexIndex], NumSpritesX, NumSpritesY, particleLife);
 
   return ret;
 }
