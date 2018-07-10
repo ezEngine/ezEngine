@@ -4,8 +4,6 @@
 #include <RendererFoundation/Basics.h>
 #include <ParticlePlugin/Type/Point/PointRenderer.h>
 
-struct ezPointParticleData;
-
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypePointFactory : public ezParticleTypeFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypePointFactory, ezParticleTypeFactory);
@@ -37,7 +35,8 @@ protected:
   ezProcessingStream* m_pStreamPosition;
   ezProcessingStream* m_pStreamColor;
 
-  mutable ezArrayPtr<ezPointParticleData> m_ParticleData;
+  mutable ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
+  mutable ezArrayPtr<ezBillboardQuadParticleShaderData> m_BillboardParticleData;
 };
 
 

@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <ParticlePlugin/Type/Point/ParticleTypePoint.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
@@ -13,6 +14,7 @@
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <Foundation/Math/Color16f.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypePointFactory, 1, ezRTTIDefaultAllocator<ezParticleTypePointFactory>)
 {
   //EZ_BEGIN_ATTRIBUTES
@@ -25,12 +27,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypePoint, 1, ezRTTIDefaultAllocator<ezParticleTypePoint>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 const ezRTTI* ezParticleTypePointFactory::GetTypeType() const
 {
   return ezGetStaticRTTI<ezParticleTypePoint>();
 }
-
 
 void ezParticleTypePointFactory::CopyTypeProperties(ezParticleType* pObject) const
 {
@@ -64,7 +66,6 @@ void ezParticleTypePointFactory::Load(ezStreamReader& stream)
 
 }
 
-
 void ezParticleTypePoint::CreateRequiredStreams()
 {
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
@@ -89,12 +90,13 @@ void ezParticleTypePoint::ExtractTypeRenderData(const ezView& view, ezExtractedR
     const ezColorLinear16f* pColor = m_pStreamColor->GetData<ezColorLinear16f>();
 
     // this will automatically be deallocated at the end of the frame
-    m_ParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezPointParticleData, numParticles);
+    m_BaseParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBaseParticleShaderData, numParticles);
+    m_BillboardParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBillboardQuadParticleShaderData, numParticles);
 
     for (ezUInt32 p = 0; p < numParticles; ++p)
     {
-      m_ParticleData[p].Position = pPosition[p].GetAsVec3();
-      m_ParticleData[p].Color = pColor[p].ToLinearFloat();
+      m_BaseParticleData[p].Color = pColor[p].ToLinearFloat();
+      m_BillboardParticleData[p].Transform = ezTransform(pPosition[p].GetAsVec3());
     }
   }
 
@@ -104,9 +106,9 @@ void ezParticleTypePoint::ExtractTypeRenderData(const ezView& view, ezExtractedR
 
   pRenderData->m_bApplyObjectTransform = GetOwnerEffect()->NeedsToApplyTransform();
   pRenderData->m_GlobalTransform = instanceTransform;
-  pRenderData->m_ParticleData = m_ParticleData;
+  pRenderData->m_BaseParticleData = m_BaseParticleData;
+  pRenderData->m_BillboardParticleData = m_BillboardParticleData;
 
-  /// \todo Generate a proper sorting key?
   const ezUInt32 uiSortingKey = 0;
   extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitTransparent, uiSortingKey);
 }

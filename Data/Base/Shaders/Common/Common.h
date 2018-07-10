@@ -21,6 +21,12 @@ float4 RGBA8ToFloat4(uint x)
   return result / 255.0;
 }
 
+// for when the input data is already float4
+float4 RGBA8ToFloat4(float4 x)
+{
+  return x;
+}
+
 float3 RGB8ToFloat3(uint x)
 {
   float3 result;

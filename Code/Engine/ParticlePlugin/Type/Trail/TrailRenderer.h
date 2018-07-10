@@ -4,17 +4,10 @@
 #include <ParticlePlugin/Declarations.h>
 #include <RendererCore/Pipeline/Declarations.h>
 #include <RendererCore/Pipeline/RenderData.h>
-#include <Core/ResourceManager/ResourceHandle.h>
-#include <Foundation/Containers/DynamicArray.h>
 #include <ParticlePlugin/Renderer/ParticleRenderer.h>
-#include <Foundation/Math/Color16f.h>
 
-#include <RendererCore/../../../Data/Base/Shaders/Particles/ParticleSystemConstants.h>
 #include <RendererCore/../../../Data/Base/Shaders/Particles/BaseParticleShaderData.h>
 #include <RendererCore/../../../Data/Base/Shaders/Particles/TrailShaderData.h>
-
-typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
-typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTrailRenderData : public ezRenderData
 {
@@ -51,12 +44,11 @@ protected:
   void CreateDataBuffer();
 
   static const ezUInt32 s_uiParticlesPerBatch = 512;
-  ezGALBufferHandle m_hParticleDataBuffer;
+  ezGALBufferHandle m_hBaseDataBuffer;
   ezGALBufferHandle m_hTrailPointsDataBuffer8;
   ezGALBufferHandle m_hTrailPointsDataBuffer16;
   ezGALBufferHandle m_hTrailPointsDataBuffer32;
   ezGALBufferHandle m_hTrailPointsDataBuffer64;
   ezGALBufferHandle m_hActiveTrailPointsDataBuffer;
-  ezShaderResourceHandle m_hShader;
 };
 

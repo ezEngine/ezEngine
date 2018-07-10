@@ -1,11 +1,11 @@
+#include <Foundation/Types/ScopeExit.h>
 #include <PCH.h>
 #include <ParticlePlugin/Type/Point/PointRenderer.h>
-#include <RendererFoundation/Device/Device.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererFoundation/Context/Context.h>
 #include <RendererCore/Pipeline/RenderDataBatch.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/ShaderResource.h>
-#include <Foundation/Types/ScopeExit.h>
+#include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/Device/Device.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Particles/ParticleSystemConstants.h>
 
@@ -17,11 +17,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticlePointRenderer::~ezParticlePointRenderer()
 {
-  if (!m_hDataBuffer.IsInvalidated())
-  {
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hDataBuffer);
-    m_hDataBuffer.Invalidate();
-  }
+  DestroyParticleDataBuffer(m_hBaseDataBuffer);
+  DestroyParticleDataBuffer(m_hBillboardDataBuffer);
 }
 
 void ezParticlePointRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)
@@ -31,77 +28,56 @@ void ezParticlePointRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ez
 
 void ezParticlePointRenderer::CreateDataBuffer()
 {
-  if (m_hDataBuffer.IsInvalidated())
-  {
-    ezGALBufferCreationDescription desc;
-    desc.m_uiStructSize = sizeof(ezPointParticleData);
-    desc.m_uiTotalSize = s_uiParticlesPerBatch * desc.m_uiStructSize;
-    desc.m_BufferType = ezGALBufferType::Generic;
-    desc.m_bUseAsStructuredBuffer = true;
-    desc.m_bAllowShaderResourceView = true;
-    desc.m_ResourceAccess.m_bImmutable = false;
-
-    m_hDataBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc);
-  }
+  CreateParticleDataBuffer(m_hBaseDataBuffer, sizeof(ezBaseParticleShaderData), s_uiParticlesPerBatch);
+  CreateParticleDataBuffer(m_hBillboardDataBuffer, sizeof(ezBillboardQuadParticleShaderData), s_uiParticlesPerBatch);
 }
 
-void ezParticlePointRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch)
+void ezParticlePointRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass,
+                                          const ezRenderDataBatch& batch)
 {
+  ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
+  ezGALContext* pGALContext = pRenderContext->GetGALContext();
 
-  // prepare the constant buffer
-  ezConstantBufferStorage<ezParticleSystemConstants>* pConstantBuffer;
-  ezConstantBufferStorageHandle hConstantBuffer = ezRenderContext::CreateConstantBufferStorage(pConstantBuffer);
-  EZ_SCOPE_EXIT(ezRenderContext::DeleteConstantBufferStorage(hConstantBuffer));
-  renderViewContext.m_pRenderContext->BindConstantBuffer("ezParticleSystemConstants", hConstantBuffer);
+  TempSystemCB systemConstants(pRenderContext);
 
-  // Bind the Point particle shader
-  {
-    if (!m_hShader.IsValid())
-    {
-      m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Particles/Point.ezShader");
-    }
-
-    renderViewContext.m_pRenderContext->BindShader(m_hShader);
-  }
+  BindParticleShader(pRenderContext, "Shaders/Particles/Point.ezShader");
 
   // make sure our structured buffer is allocated and bound
   {
     CreateDataBuffer();
-    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Points, s_uiParticlesPerBatch);
-    renderViewContext.m_pRenderContext->BindBuffer("particleData", pDevice->GetDefaultResourceView(m_hDataBuffer));
+    pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Points,
+                                                       s_uiParticlesPerBatch);
+    pRenderContext->BindBuffer("particleBaseData", pDevice->GetDefaultResourceView(m_hBaseDataBuffer));
+    pRenderContext->BindBuffer("particleBillboardQuadData", pDevice->GetDefaultResourceView(m_hBillboardDataBuffer));
   }
 
   // now render all particle effects of type Point
   for (auto it = batch.GetIterator<ezParticlePointRenderData>(0, batch.GetCount()); it.IsValid(); ++it)
   {
     const ezParticlePointRenderData* pRenderData = it;
-    ezUInt32 uiNumParticles = pRenderData->m_ParticleData.GetCount();
 
-    const ezPointParticleData* pParticleData = pRenderData->m_ParticleData.GetPtr();
+    const ezBaseParticleShaderData* pParticleBaseData = pRenderData->m_BaseParticleData.GetPtr();
+    const ezBillboardQuadParticleShaderData* pParticleBillboardData = pRenderData->m_BillboardParticleData.GetPtr();
 
-    // fill the constant buffer
-    {
-      ezParticleSystemConstants& cb = pConstantBuffer->GetDataForWriting();
+    ezUInt32 uiNumParticles = pRenderData->m_BaseParticleData.GetCount();
 
-      if (pRenderData->m_bApplyObjectTransform)
-        cb.ObjectToWorldMatrix = pRenderData->m_GlobalTransform.GetAsMat4();
-      else
-        cb.ObjectToWorldMatrix.SetIdentity();
-    }
+    systemConstants.SetGenericData(pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, 1, 1);
 
     while (uiNumParticles > 0)
     {
       // upload this batch of particle data
       const ezUInt32 uiNumParticlesInBatch = ezMath::Min<ezUInt32>(uiNumParticles, s_uiParticlesPerBatch);
-      pGALContext->UpdateBuffer(m_hDataBuffer, 0, ezMakeArrayPtr(pParticleData, uiNumParticlesInBatch).ToByteArray());
+      uiNumParticles -= uiNumParticlesInBatch;
+
+      pGALContext->UpdateBuffer(m_hBaseDataBuffer, 0, ezMakeArrayPtr(pParticleBaseData, uiNumParticlesInBatch).ToByteArray());
+      pParticleBaseData += uiNumParticlesInBatch;
+
+      pGALContext->UpdateBuffer(m_hBillboardDataBuffer, 0, ezMakeArrayPtr(pParticleBillboardData, uiNumParticlesInBatch).ToByteArray());
+      pParticleBillboardData += uiNumParticlesInBatch;
 
       // do one drawcall
-      renderViewContext.m_pRenderContext->DrawMeshBuffer(uiNumParticlesInBatch);
-
-      uiNumParticles -= uiNumParticlesInBatch;
-      pParticleData += uiNumParticlesInBatch;
+      pRenderContext->DrawMeshBuffer(uiNumParticlesInBatch);
     }
   }
 }
@@ -109,4 +85,3 @@ void ezParticlePointRenderer::RenderBatch(const ezRenderViewContext& renderViewC
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Point_PointRenderer);
-

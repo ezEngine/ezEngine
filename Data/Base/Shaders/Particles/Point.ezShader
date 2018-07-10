@@ -16,22 +16,24 @@ DepthWrite = true
 
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
-#include <Shaders/Particles/PointShaderData.h>
+#include <Shaders/Particles/BillboardQuadParticleShaderData.h>
 
 VS_OUT main(uint VertexID : SV_VertexID)
 {
-  uint index = VertexID;
+  VS_OUT ret;
 
-  ezPointParticleData particle = particleData[index];
+  uint dataIndex = VertexID;
 
-  float4 position = float4(particle.Position.xyz, 1);
+  ezBaseParticleShaderData baseParticle = particleBaseData[dataIndex];
+  ezBillboardQuadParticleShaderData billboardData = particleBillboardQuadData[dataIndex];
+
+  float4 position = TransformToPosition(billboardData.Transform);
 
   float4 worldPosition = mul(ObjectToWorldMatrix, position);
   float4 screenPosition = mul(GetWorldToScreenMatrix(), worldPosition);
 
-  VS_OUT ret;
   ret.Position = screenPosition;
-  ret.Color = RGBA8ToFloat4(particle.Color);
+  ret.Color = RGBA8ToFloat4(baseParticle.Color);
 
   return ret;
 }

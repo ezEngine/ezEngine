@@ -3,22 +3,17 @@
 #include <ParticlePlugin/Basics.h>
 #include <RendererCore/Pipeline/Declarations.h>
 #include <RendererCore/Pipeline/RenderData.h>
-#include <Core/ResourceManager/ResourceHandle.h>
-#include <Foundation/Containers/DynamicArray.h>
 #include <ParticlePlugin/Renderer/ParticleRenderer.h>
-#include <Foundation/Math/Color16f.h>
 
-#include <RendererCore/../../../Data/Base/Shaders/Particles/ParticleSystemConstants.h>
-#include <RendererCore/../../../Data/Base/Shaders/Particles/PointShaderData.h>
-
-typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;
+#include <RendererCore/../../../Data/Base/Shaders/Particles/BillboardQuadParticleShaderData.h>
 
 class EZ_PARTICLEPLUGIN_DLL ezParticlePointRenderData : public ezRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticlePointRenderData, ezRenderData);
 
 public:
-  ezArrayPtr<ezPointParticleData> m_ParticleData;
+  ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
+  ezArrayPtr<ezBillboardQuadParticleShaderData> m_BillboardParticleData;
   bool m_bApplyObjectTransform = true;
 };
 
@@ -39,7 +34,7 @@ protected:
   void CreateDataBuffer();
 
   static const ezUInt32 s_uiParticlesPerBatch = 1024;
-  ezGALBufferHandle m_hDataBuffer;
-  ezShaderResourceHandle m_hShader;
+  ezGALBufferHandle m_hBaseDataBuffer;
+  ezGALBufferHandle m_hBillboardDataBuffer;
 };
 
