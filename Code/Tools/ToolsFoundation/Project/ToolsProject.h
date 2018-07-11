@@ -18,6 +18,7 @@ struct ezToolsProjectEvent
     ProjectClosing,
     ProjectClosed,
     ProjectConfigChanged, ///< Sent when global project configuration data was changed and thus certain menus would need to update their content (or just deselect any item, forcing the user to reselect and thus update state)
+    SaveAll, ///< When sent, this shall save all outstanding modifications
   };
 
   ezToolsProject* m_pProject;
@@ -69,6 +70,9 @@ public:
   ezStringBuilder GetPathForDocumentGuid(const ezUuid& guid);
   static ezStatus OpenProject(const char* szProjectPath);
   static ezStatus CreateProject(const char* szProjectPath);
+
+  /// \brief Broadcasts the SaveAll event, though otherwise has no direct effect.
+  static void BroadcastSaveAll();
 
   /// \brief Sent when global project configuration data was changed and thus certain menus would need to update their content (or just deselect any item, forcing the user to reselect and thus update state)
   static void BroadcastConfigChanged();

@@ -193,6 +193,15 @@ ezStatus ezToolsProject::CreateProject(const char* szProjectPath)
   return CreateOrOpenProject(szProjectPath, true);
 }
 
+void ezToolsProject::BroadcastSaveAll()
+{
+  ezToolsProjectEvent e;
+  e.m_pProject = GetSingleton();
+  e.m_Type = ezToolsProjectEvent::Type::SaveAll;
+
+  s_Events.Broadcast(e);
+}
+
 void ezToolsProject::BroadcastConfigChanged()
 {
   ezToolsProjectEvent e;

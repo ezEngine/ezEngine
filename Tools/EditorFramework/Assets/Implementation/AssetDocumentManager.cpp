@@ -82,7 +82,8 @@ bool ezAssetDocumentManager::IsThumbnailUpToDate(const char* szDocumentPath, ezU
   return true;
 }
 
-void ezAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory, const char* szPlatform, ezStreamWriter& file) const
+void ezAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory, const char* szPlatform,
+                                                    ezMap<ezString, ezString>& inout_GuidToPath) const
 {
 
 }

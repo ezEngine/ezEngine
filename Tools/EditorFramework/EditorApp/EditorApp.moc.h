@@ -202,6 +202,7 @@ private:
   void DetectAvailableEnginePlugins();
   void ReadEditorPluginsToBeLoaded();
   void ReadEnginePluginConfig();
+  void SaveAllOpenDocuments();
 
   void ValidateEnginePluginConfig();
 

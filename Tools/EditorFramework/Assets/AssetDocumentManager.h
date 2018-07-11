@@ -33,7 +33,7 @@ public:
   /// \name Output Functions
   ///@{
 
-  virtual void AddEntriesToAssetTable(const char* szDataDirectory, const char* szPlatform, ezStreamWriter& file) const;
+  virtual void AddEntriesToAssetTable(const char* szDataDirectory, const char* szPlatform, ezMap<ezString, ezString>& inout_GuidToPath) const;
   virtual ezString GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const char* szPlatform) const;
 
   /// \brief Calls GetRelativeOutputFileName and prepends [DataDir]/AssetCache/ .

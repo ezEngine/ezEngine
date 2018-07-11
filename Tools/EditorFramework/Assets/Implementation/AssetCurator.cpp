@@ -1152,12 +1152,10 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const char
   ezStringBuilder sFinalPath(sDataDir, "/AssetCache/", sPlatform, ".ezAidlt");
   sFinalPath.MakeCleanPath();
 
-
-  ezDeferredFileWriter file;
-  file.SetOutput(sFinalPath);
-
   ezStringBuilder sTemp, sTemp2;
   ezString sResourcePath;
+
+  ezMap<ezString, ezString> GuidToPath;
 
   {
     for (auto& man : ezAssetDocumentManager::GetAllDocumentManagers())
@@ -1168,7 +1166,7 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const char
       ezAssetDocumentManager* pManager = static_cast<ezAssetDocumentManager*>(man);
 
       // allow to add fully custom entries
-      pManager->AddEntriesToAssetTable(sDataDir, szPlatform, file);
+      pManager->AddEntriesToAssetTable(sDataDir, szPlatform, GuidToPath);
     }
   }
 
@@ -1183,7 +1181,7 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const char
 
     ezAssetDocumentManager* pManager = it.Value()->m_pManager;
 
-    auto WriteEntry = [this, &sDataDir, &sPlatform, &file, pManager, &sTemp, &sTemp2](const ezUuid& guid) {
+    auto WriteEntry = [this, &sDataDir, &sPlatform, &GuidToPath, pManager, &sTemp, &sTemp2](const ezUuid& guid) {
       ezSubAsset* pSub = GetSubAssetInternal(guid);
       ezString sEntry = pManager->GetAssetTableEntry(pSub, sDataDir, sPlatform);
 
@@ -1191,8 +1189,9 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const char
       // this is used by decal assets for instance
       if (!sEntry.IsEmpty())
       {
-        sTemp.Set(ezConversionUtils::ToString(guid, sTemp2), ";", sEntry, "\n");
-        file.WriteBytes(sTemp.GetData(), sTemp.GetElementCount());
+        ezConversionUtils::ToString(guid, sTemp2);
+
+        GuidToPath[sTemp2] = sEntry;
       }
     };
 
@@ -1201,6 +1200,20 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const char
     {
       WriteEntry(subGuid);
     }
+  }
+
+  ezDeferredFileWriter file;
+  file.SetOutput(sFinalPath);
+
+  for (auto it = GuidToPath.GetIterator(); it.IsValid(); ++it)
+  {
+    const ezString& guid = it.Key();
+    const ezString& path = it.Value();
+
+    file.WriteBytes(guid.GetData(), guid.GetElementCount());
+    file.WriteBytes(";", 1);
+    file.WriteBytes(path.GetData(), path.GetElementCount());
+    file.WriteBytes("\n", 1);
   }
 
   if (file.Close().Failed())
@@ -1287,7 +1300,7 @@ bool ezAssetCurator::GetNextAssetToUpdate(ezUuid& guid, ezStringBuilder& out_sAb
 
     auto pAssetInfo = GetAssetInfo(guid);
 
-    //EZ_ASSERT_DEBUG(pAssetInfo != nullptr, "Non-existent assets should not have a tracked transform state.");
+    // EZ_ASSERT_DEBUG(pAssetInfo != nullptr, "Non-existent assets should not have a tracked transform state.");
 
     if (pAssetInfo != nullptr)
     {

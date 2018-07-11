@@ -1,14 +1,15 @@
 #include <PCH.h>
-#include <GuiFoundation/Action/DocumentActions.h>
+
+#include <Foundation/IO/OSFile.h>
+#include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
-#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
+#include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
-#include <ToolsFoundation/Project/ToolsProject.h>
-#include <Foundation/Strings/TranslationLookup.h>
-#include <Foundation/IO/OSFile.h>
-#include <QMimeData>
+#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <QClipboard>
+#include <QMimeData>
+#include <ToolsFoundation/Project/ToolsProject.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -32,17 +33,25 @@ ezActionDescriptorHandle ezDocumentActions::s_hDocumentCategory;
 void ezDocumentActions::RegisterActions()
 {
   s_hSaveCategory = EZ_REGISTER_CATEGORY("SaveCategory");
-  s_hSave = EZ_REGISTER_ACTION_1("Document.Save", ezActionScope::Document, "Document", "Ctrl+S", ezDocumentAction, ezDocumentAction::ButtonType::Save);
-  s_hSaveAll = EZ_REGISTER_ACTION_1("Document.SaveAll", ezActionScope::Document, "Document", "Ctrl+Shift+S", ezDocumentAction, ezDocumentAction::ButtonType::SaveAll);
-  s_hSaveAs = EZ_REGISTER_ACTION_1("Document.SaveAs", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::SaveAs);
+  s_hSave = EZ_REGISTER_ACTION_1("Document.Save", ezActionScope::Document, "Document", "Ctrl+S", ezDocumentAction,
+                                 ezDocumentAction::ButtonType::Save);
+  s_hSaveAll = EZ_REGISTER_ACTION_1("Document.SaveAll", ezActionScope::Document, "Document", "Ctrl+Shift+S", ezDocumentAction,
+                                    ezDocumentAction::ButtonType::SaveAll);
+  s_hSaveAs = EZ_REGISTER_ACTION_1("Document.SaveAs", ezActionScope::Document, "Document", "", ezDocumentAction,
+                                   ezDocumentAction::ButtonType::SaveAs);
   s_hCloseCategory = EZ_REGISTER_CATEGORY("CloseCategory");
-  s_hClose = EZ_REGISTER_ACTION_1("Document.Close", ezActionScope::Document, "Document", "Ctrl+W", ezDocumentAction, ezDocumentAction::ButtonType::Close);
-  s_hOpenContainingFolder = EZ_REGISTER_ACTION_1("Document.OpenContainingFolder", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::OpenContainingFolder);
-  s_hCopyAssetGuid = EZ_REGISTER_ACTION_1("Document.CopyAssetGuid", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::CopyAssetGuid);
-  s_hMoveDocumentWindow = EZ_REGISTER_DYNAMIC_MENU("Document.MoveWindow", ezContainerWindowMenuAction, ":/GuiFoundation/Icons/Window16.png");
+  s_hClose = EZ_REGISTER_ACTION_1("Document.Close", ezActionScope::Document, "Document", "Ctrl+W", ezDocumentAction,
+                                  ezDocumentAction::ButtonType::Close);
+  s_hOpenContainingFolder = EZ_REGISTER_ACTION_1("Document.OpenContainingFolder", ezActionScope::Document, "Document", "", ezDocumentAction,
+                                                 ezDocumentAction::ButtonType::OpenContainingFolder);
+  s_hCopyAssetGuid = EZ_REGISTER_ACTION_1("Document.CopyAssetGuid", ezActionScope::Document, "Document", "", ezDocumentAction,
+                                          ezDocumentAction::ButtonType::CopyAssetGuid);
+  s_hMoveDocumentWindow =
+      EZ_REGISTER_DYNAMIC_MENU("Document.MoveWindow", ezContainerWindowMenuAction, ":/GuiFoundation/Icons/Window16.png");
 
   s_hDocumentCategory = EZ_REGISTER_CATEGORY("Tools.DocumentCategory");
-  s_hUpdatePrefabs = EZ_REGISTER_ACTION_1("Prefabs.UpdateAll", ezActionScope::Document, "Scene", "Ctrl+Shift+P", ezDocumentAction, ezDocumentAction::ButtonType::UpdatePrefabs);
+  s_hUpdatePrefabs = EZ_REGISTER_ACTION_1("Prefabs.UpdateAll", ezActionScope::Document, "Scene", "Ctrl+Shift+P", ezDocumentAction,
+                                          ezDocumentAction::ButtonType::UpdatePrefabs);
 }
 
 void ezDocumentActions::UnregisterActions()
@@ -69,7 +78,7 @@ void ezDocumentActions::MapActions(const char* szMapping, const char* szPath, bo
   ezStringBuilder sSubPath(szPath, "/SaveCategory");
 
   pMap->MapAction(s_hSave, sSubPath, 1.0f);
-  //pMap->MapAction(s_hSaveAs, sSubPath, 2.0f);
+  // pMap->MapAction(s_hSaveAs, sSubPath, 2.0f);
   pMap->MapAction(s_hSaveAll, sSubPath, 3.0f);
 
   if (!bForToolbar)
@@ -100,33 +109,33 @@ void ezDocumentActions::MapToolsActions(const char* szMapping, const char* szPat
 ////////////////////////////////////////////////////////////////////////
 
 ezDocumentAction::ezDocumentAction(const ezActionContext& context, const char* szName, ButtonType button)
-  : ezButtonAction(context, szName, false, "")
+    : ezButtonAction(context, szName, false, "")
 {
   m_ButtonType = button;
 
   switch (m_ButtonType)
   {
-  case ezDocumentAction::ButtonType::Save:
-    SetIconPath(":/GuiFoundation/Icons/Save16.png");
-    break;
-  case ezDocumentAction::ButtonType::SaveAs:
-    SetIconPath("");
-    break;
-  case ezDocumentAction::ButtonType::SaveAll:
-    SetIconPath(":/GuiFoundation/Icons/SaveAll16.png");
-    break;
-  case ezDocumentAction::ButtonType::Close:
-    SetIconPath("");
-    break;
-  case ezDocumentAction::ButtonType::OpenContainingFolder:
-    SetIconPath(":/GuiFoundation/Icons/OpenFolder16.png");
-    break;
-  case ezDocumentAction::ButtonType::CopyAssetGuid:
-    SetIconPath(":/GuiFoundation/Icons/DocumentGuid16.png");
-    break;
-  case ezDocumentAction::ButtonType::UpdatePrefabs:
-    SetIconPath(":/EditorPluginScene/Icons/PrefabUpdate16.png");
-    break;
+    case ezDocumentAction::ButtonType::Save:
+      SetIconPath(":/GuiFoundation/Icons/Save16.png");
+      break;
+    case ezDocumentAction::ButtonType::SaveAs:
+      SetIconPath("");
+      break;
+    case ezDocumentAction::ButtonType::SaveAll:
+      SetIconPath(":/GuiFoundation/Icons/SaveAll16.png");
+      break;
+    case ezDocumentAction::ButtonType::Close:
+      SetIconPath("");
+      break;
+    case ezDocumentAction::ButtonType::OpenContainingFolder:
+      SetIconPath(":/GuiFoundation/Icons/OpenFolder16.png");
+      break;
+    case ezDocumentAction::ButtonType::CopyAssetGuid:
+      SetIconPath(":/GuiFoundation/Icons/DocumentGuid16.png");
+      break;
+    case ezDocumentAction::ButtonType::UpdatePrefabs:
+      SetIconPath(":/EditorPluginScene/Icons/PrefabUpdate16.png");
+      break;
   }
 
   if (context.m_pDocument == nullptr)
@@ -161,8 +170,8 @@ void ezDocumentAction::DocumentEventHandler(const ezDocumentEvent& e)
 {
   switch (e.m_Type)
   {
-  case ezDocumentEvent::Type::DocumentSaved:
-  case ezDocumentEvent::Type::ModifiedChanged:
+    case ezDocumentEvent::Type::DocumentSaved:
+    case ezDocumentEvent::Type::ModifiedChanged:
     {
       if (m_ButtonType == ButtonType::Save)
       {
@@ -171,8 +180,8 @@ void ezDocumentAction::DocumentEventHandler(const ezDocumentEvent& e)
     }
     break;
 
-  default:
-    break;
+    default:
+      break;
   }
 }
 
@@ -180,40 +189,26 @@ void ezDocumentAction::Execute(const ezVariant& value)
 {
   switch (m_ButtonType)
   {
-  case ezDocumentAction::ButtonType::Save:
+    case ezDocumentAction::ButtonType::Save:
     {
       ezQtDocumentWindow* pWnd = ezQtDocumentWindow::FindWindowByDocument(m_Context.m_pDocument);
       pWnd->SaveDocument();
     }
     break;
 
-  case ezDocumentAction::ButtonType::SaveAs:
-    /// \todo Save as
-    break;
+    case ezDocumentAction::ButtonType::SaveAs:
+      /// \todo Save as
+      break;
 
-  case ezDocumentAction::ButtonType::SaveAll:
+    case ezDocumentAction::ButtonType::SaveAll:
     {
-      for (auto pMan : ezDocumentManager::GetAllDocumentManagers())
-      {
-        for (auto pDoc : pMan->ezDocumentManager::GetAllDocuments())
-        {
-          ezQtDocumentWindow* pWnd = ezQtDocumentWindow::FindWindowByDocument(pDoc);
-          if (pWnd)
-          {
-            if (pWnd->SaveDocument().m_Result.Failed())
-              return;
-          }
-          // There might be no window for this document.
-          else
-          {
-            pDoc->SaveDocument();
-          }
-        }
-      }
+      ezToolsProject::GetSingleton()->BroadcastSaveAll();
+
+
     }
     break;
 
-  case ezDocumentAction::ButtonType::Close:
+    case ezDocumentAction::ButtonType::Close:
     {
       ezQtDocumentWindow* pWnd = ezQtDocumentWindow::FindWindowByDocument(m_Context.m_pDocument);
 
@@ -224,7 +219,7 @@ void ezDocumentAction::Execute(const ezVariant& value)
     }
     break;
 
-  case ezDocumentAction::ButtonType::OpenContainingFolder:
+    case ezDocumentAction::ButtonType::OpenContainingFolder:
     {
       ezString sPath;
 
@@ -242,7 +237,7 @@ void ezDocumentAction::Execute(const ezVariant& value)
     }
     break;
 
-  case ezDocumentAction::ButtonType::CopyAssetGuid:
+    case ezDocumentAction::ButtonType::CopyAssetGuid:
     {
       ezStringBuilder sGuid;
       ezConversionUtils::ToString(m_Context.m_pDocument->GetGuid(), sGuid);
@@ -254,10 +249,10 @@ void ezDocumentAction::Execute(const ezVariant& value)
     }
     break;
 
-  case ezDocumentAction::ButtonType::UpdatePrefabs:
-    // TODO const cast
-    const_cast<ezDocument*>(m_Context.m_pDocument)->UpdatePrefabs();
-    return;
+    case ezDocumentAction::ButtonType::UpdatePrefabs:
+      // TODO const cast
+      const_cast<ezDocument*>(m_Context.m_pDocument)->UpdatePrefabs();
+      return;
   }
 }
 
@@ -270,7 +265,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezContainerWindowMenuAction, 1, ezRTTINoAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezContainerWindowMenuAction::ezContainerWindowMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-  : ezDynamicMenuAction(context, szName, szIconPath)
+    : ezDynamicMenuAction(context, szName, szIconPath)
 {
 }
 
@@ -292,7 +287,8 @@ void ezContainerWindowMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::
     else
       entryItem.m_sDisplay = ezConversionUtils::ToString(i, tmp);
 
-    entryItem.m_CheckState = (pView->GetContainerWindow() == pContainer) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+    entryItem.m_CheckState = (pView->GetContainerWindow() == pContainer) ? ezDynamicMenuAction::Item::CheckMark::Checked
+                                                                         : ezDynamicMenuAction::Item::CheckMark::Unchecked;
     entryItem.m_UserValue = (ezInt32)i;
     entryItem.m_Icon = QIcon(QStringLiteral(":/GuiFoundation/Icons/Window16.png"));
     out_Entries.PushBack(entryItem);
@@ -330,4 +326,3 @@ void ezContainerWindowMenuAction::Execute(const ezVariant& value)
     pView->EnsureVisible();
   }
 }
-

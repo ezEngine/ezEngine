@@ -43,7 +43,8 @@ ezBitflags<ezAssetDocumentFlags> ezDecalAssetDocumentManager::GetAssetDocumentTy
 }
 
 
-void ezDecalAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory, const char* szPlatform, ezStreamWriter& file) const
+void ezDecalAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory, const char* szPlatform,
+                                                         ezMap<ezString, ezString>& inout_GuidToPath) const
 {
   ezStringBuilder projectDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
   projectDir.MakeCleanPath();
@@ -51,9 +52,7 @@ void ezDecalAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirec
 
   if (projectDir.StartsWith_NoCase(szDataDirectory))
   {
-    ezStringBuilder tmp;
-    tmp.Set("{ ProjectDecalAtlas }", ";", "PC/Decals.ezDecal", "\n");
-    file.WriteBytes(tmp.GetData(), tmp.GetElementCount());
+    inout_GuidToPath["{ ProjectDecalAtlas }"] = "PC/Decals.ezDecal";
   }
 }
 

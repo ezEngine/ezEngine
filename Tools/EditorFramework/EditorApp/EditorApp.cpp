@@ -83,3 +83,24 @@ void ezQtEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnectio
     return;
   }
 }
+
+void ezQtEditorApp::SaveAllOpenDocuments()
+{
+  for (auto pMan : ezDocumentManager::GetAllDocumentManagers())
+  {
+    for (auto pDoc : pMan->ezDocumentManager::GetAllDocuments())
+    {
+      ezQtDocumentWindow* pWnd = ezQtDocumentWindow::FindWindowByDocument(pDoc);
+      if (pWnd)
+      {
+        if (pWnd->SaveDocument().m_Result.Failed())
+          return;
+      }
+      // There might be no window for this document.
+      else
+      {
+        pDoc->SaveDocument();
+      }
+    }
+  }
+}

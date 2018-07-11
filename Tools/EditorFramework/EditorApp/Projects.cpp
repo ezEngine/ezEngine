@@ -1,10 +1,11 @@
 #include <PCH.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
+
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/Preferences.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
-#include <Foundation/Profiling/Profiling.h>
 
 void UpdateInputDynamicEnumValues();
 
@@ -68,14 +69,14 @@ void ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
     const ezRecentFilesList allDocs = LoadOpenDocumentsList();
 
     // Unfortunately this crashes in Qt due to the processEvents in the QtProgressBar
-    //ezProgressRange range("Restoring Documents", allDocs.GetFileList().GetCount(), true);
+    // ezProgressRange range("Restoring Documents", allDocs.GetFileList().GetCount(), true);
 
     for (auto& doc : allDocs.GetFileList())
     {
-      //if (range.WasCanceled())
-        //break;
+      // if (range.WasCanceled())
+      // break;
 
-      //range.BeginNextStep(doc.m_File);
+      // range.BeginNextStep(doc.m_File);
       OpenDocument(doc.m_File);
     }
   }
@@ -85,11 +86,11 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
 {
   switch (r.m_Type)
   {
-  case ezToolsProjectEvent::Type::ProjectCreated:
-    m_bSavePreferencesAfterOpenProject = true;
-    break;
+    case ezToolsProjectEvent::Type::ProjectCreated:
+      m_bSavePreferencesAfterOpenProject = true;
+      break;
 
-  case ezToolsProjectEvent::Type::ProjectOpened:
+    case ezToolsProjectEvent::Type::ProjectOpened:
     {
       EZ_PROFILE("ProjectOpened");
       LoadProjectPreferences();
@@ -128,20 +129,22 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
         // instead, save the settings after a short delay, by then all documents should have been opened
         QTimer::singleShot(1000, this, SLOT(SlotSaveSettings()));
       }
-    }
-    break;
 
-  case ezToolsProjectEvent::Type::ProjectClosing:
+      break;
+    }
+
+    case ezToolsProjectEvent::Type::ProjectClosing:
     {
       s_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile(), 0);
       SaveSettings();
 
       ezShutdownProcessMsgToEngine msg;
       ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
-    }
-    break;
 
-  case ezToolsProjectEvent::Type::ProjectClosed:
+      break;
+    }
+
+    case ezToolsProjectEvent::Type::ProjectClosed:
     {
       ezEditorEngineProcessConnection::GetSingleton()->ShutdownProcess();
 
@@ -155,8 +158,16 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
       UpdateGlobalStatusBarMessage();
 
       ezPreferences::ClearProjectPreferences();
+
+      break;
     }
-    break;
+
+    case ezToolsProjectEvent::Type::SaveAll:
+    {
+      SaveSettings();
+      SaveAllOpenDocuments();
+      break;
+    }
   }
 }
 
@@ -164,8 +175,8 @@ void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
 {
   switch (r.m_Type)
   {
-  case ezToolsProjectRequest::Type::CanCloseProject:
-  case ezToolsProjectRequest::Type::CanCloseDocuments:
+    case ezToolsProjectRequest::Type::CanCloseProject:
+    case ezToolsProjectRequest::Type::CanCloseDocuments:
     {
       if (r.m_bCanClose == false)
         return;
@@ -199,7 +210,7 @@ void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
       }
     }
     break;
-  case ezToolsProjectRequest::Type::SuggestContainerWindow:
+    case ezToolsProjectRequest::Type::SuggestContainerWindow:
     {
       const auto& docs = GetRecentDocumentsList();
       ezStringBuilder sCleanPath = r.m_Documents[0]->GetDocumentPath();
@@ -212,11 +223,10 @@ void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
           r.m_iContainerWindowUniqueIdentifier = file.m_iContainerWindow;
           break;
         }
-
       }
     }
     break;
-  case ezToolsProjectRequest::Type::GetPathForDocumentGuid:
+    case ezToolsProjectRequest::Type::GetPathForDocumentGuid:
     {
       if (ezAssetCurator::ezLockedSubAsset pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(r.m_documentGuid))
       {
@@ -226,4 +236,3 @@ void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
     break;
   }
 }
-
