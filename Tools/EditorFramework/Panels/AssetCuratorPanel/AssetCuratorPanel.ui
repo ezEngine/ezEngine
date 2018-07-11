@@ -92,7 +92,7 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QListView" name="ListAssets"/>
+      <widget class="QTreeView" name="ListAssets"/>
       <widget class="ezQtLogWidget" name="TransformLog" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">

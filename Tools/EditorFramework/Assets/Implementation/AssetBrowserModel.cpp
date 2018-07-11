@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
@@ -318,6 +318,16 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
         const QPixmap* pThumbnailPixmap = ezQtImageCache::GetSingleton()->QueryPixmapForType(pSubAsset->m_Data.m_sAssetTypeName, sThumbnailPath, index, QVariant(uiUserData1), QVariant(uiUserData2), &asset.m_uiThumbnailID);
 
         return *pThumbnailPixmap;
+      }
+      else
+      {
+        ezStringBuilder sIconName;
+        sIconName.Set(":/AssetIcons/", pSubAsset->m_Data.m_sAssetTypeName);
+        sIconName.ReplaceAll(" ", "_");
+        sIconName.ReplaceAll("(", "");
+        sIconName.ReplaceAll(")", "");
+
+        return ezQtUiServices::GetCachedPixmapResource(sIconName.GetData());
       }
     }
     break;

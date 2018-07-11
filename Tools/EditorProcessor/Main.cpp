@@ -52,6 +52,12 @@ public:
 
         ezStatus res = ezAssetCurator::GetSingleton()->TransformAsset(pMsg->m_AssetGuid, false);
         msg.m_bSuccess = res.m_Result.Succeeded();
+
+        if (res.m_Result.Failed())
+        {
+          // make sure the result message ends up in the log
+          ezLog::Error(res.m_sMessage);
+        }
       }
       m_IPC.SendMessage(&msg);
     }

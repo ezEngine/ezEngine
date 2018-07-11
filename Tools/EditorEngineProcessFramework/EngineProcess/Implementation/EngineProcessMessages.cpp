@@ -1,5 +1,8 @@
 #include <PCH.h>
+
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+
+// clang-format off
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSyncWithProcessMsgToEngine, 1, ezRTTIDefaultAllocator<ezSyncWithProcessMsgToEngine>)
 {
@@ -478,3 +481,4 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezObjectsForDebugVisMsgToEngine, 1, ezRTTIDefaul
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
