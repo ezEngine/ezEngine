@@ -235,11 +235,14 @@ void ezAssetCurator::Deinitialize()
     }
     m_KnownSubAssets.Clear();
     m_KnownAssets.Clear();
+    m_TransformStateStale.Clear();
+
     for (int i = 0; i < ezAssetInfo::TransformState::COUNT; i++)
     {
       m_TransformState[i].Clear();
     }
   }
+
 
   // Broadcast reset.
   {
@@ -1284,7 +1287,6 @@ bool ezAssetCurator::GetNextAssetToUpdate(ezUuid& guid, ezStringBuilder& out_sAb
 
     auto pAssetInfo = GetAssetInfo(guid);
 
-    ezLog::Error("Non-existent assets should not have a tracked transform state.");
     //EZ_ASSERT_DEBUG(pAssetInfo != nullptr, "Non-existent assets should not have a tracked transform state.");
 
     if (pAssetInfo != nullptr)
@@ -1294,6 +1296,7 @@ bool ezAssetCurator::GetNextAssetToUpdate(ezUuid& guid, ezStringBuilder& out_sAb
     }
     else
     {
+      ezLog::Error("Non-existent assets ('{0}') should not have a tracked transform state.", guid);
       m_TransformStateStale.Remove(it);
     }
   }
