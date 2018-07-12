@@ -3,6 +3,12 @@
 #include "ParticleSystemConstants.h"
 #include "BaseParticleShaderData.h"
 
+struct EZ_ALIGN_16(ezTrailParticleShaderData)
+{
+  INT1(NumPoints);
+  FLOAT3(dummy);
+};
+
 struct EZ_ALIGN_16(ezTrailParticlePointsData8)
 {
   FLOAT4(Positions[8]);
@@ -25,6 +31,8 @@ struct EZ_ALIGN_16(ezTrailParticlePointsData64)
 
 // this is only defined during shader compilation
 #if EZ_ENABLED(PLATFORM_DX11)
+
+StructuredBuffer<ezTrailParticleShaderData> particleTrailData;
 
 #if PARTICLE_TRAIL_POINTS == PARTICLE_TRAIL_POINTS_COUNT8
   StructuredBuffer<ezTrailParticlePointsData8> particlePointsData;

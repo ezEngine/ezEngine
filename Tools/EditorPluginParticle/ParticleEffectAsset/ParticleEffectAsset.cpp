@@ -28,10 +28,16 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
 
     ezInt64 orientation = e.m_pObject->GetTypeAccessor().GetValue("Orientation").ConvertTo<ezInt64>();
     ezInt64 renderMode = e.m_pObject->GetTypeAccessor().GetValue("RenderMode").ConvertTo<ezInt64>();
+    ezInt64 textureAtlas = e.m_pObject->GetTypeAccessor().GetValue("TextureAtlas").ConvertTo<ezInt64>();
 
     props["Deviation"].m_Visibility = ezPropertyUiState::Invisible;
     props["DistortionTexture"].m_Visibility = ezPropertyUiState::Invisible;
     props["DistortionStrength"].m_Visibility = ezPropertyUiState::Invisible;
+    props["NumSpritesX"].m_Visibility =
+        (textureAtlas == (int)ezParticleTextureAtlasType::None) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+    props["NumSpritesY"].m_Visibility =
+        (textureAtlas == (int)ezParticleTextureAtlasType::None) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+
 
     if (orientation == ezQuadParticleOrientation::SpriteEmitterDirection || orientation == ezQuadParticleOrientation::SpriteWorldUp)
     {
@@ -44,7 +50,6 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
       props["DistortionStrength"].m_Visibility = ezPropertyUiState::Default;
     }
   }
-
 }
 
 ezStatus ezParticleEffectAssetDocument::WriteParticleEffectAsset(ezStreamWriter& stream, const char* szPlatform) const

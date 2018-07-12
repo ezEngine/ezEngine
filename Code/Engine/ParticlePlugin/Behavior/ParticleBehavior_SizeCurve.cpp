@@ -79,7 +79,7 @@ const char* ezParticleBehaviorFactory_SizeCurve::GetSizeCurveFile() const
 
 void ezParticleBehavior_SizeCurve::CreateRequiredStreams()
 {
-  CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime, false);
+  CreateStream("LifeTime", ezProcessingStream::DataType::Half2, &m_pStreamLifeTime, false);
   CreateStream("Size", ezProcessingStream::DataType::Half, &m_pStreamSize, false);
 }
 
@@ -111,7 +111,7 @@ void ezParticleBehavior_SizeCurve::Process(ezUInt64 uiNumElements)
 
   EZ_PROFILE("PFX: Size Curve");
 
-  ezProcessingStreamIterator<ezVec3> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
+  ezProcessingStreamIterator<ezFloat16Vec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
   ezProcessingStreamIterator<ezFloat16> itSize(m_pStreamSize, uiNumElements, 0);
 
   ezResourceLock<ezCurve1DResource> pCurve(m_hCurve, ezResourceAcquireMode::NoFallback);

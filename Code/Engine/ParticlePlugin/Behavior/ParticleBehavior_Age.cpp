@@ -1,12 +1,15 @@
 #include <PCH.h>
-#include <ParticlePlugin/Behavior/ParticleBehavior_Age.h>
-#include <ParticlePlugin/System/ParticleSystemInstance.h>
-#include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
+
 #include <Core/World/World.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
+#include <Foundation/Math/Float16.h>
+#include <Foundation/Profiling/Profiling.h>
+#include <ParticlePlugin/Behavior/ParticleBehavior_Age.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Events/ParticleEvent.h>
-#include <Foundation/Profiling/Profiling.h>
+#include <ParticlePlugin/System/ParticleSystemInstance.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Age, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Age>)
 {
   EZ_BEGIN_ATTRIBUTES
@@ -19,10 +22,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Age, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Age>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezParticleBehaviorFactory_Age::ezParticleBehaviorFactory_Age()
-{
-}
+ezParticleBehaviorFactory_Age::ezParticleBehaviorFactory_Age() {}
 
 const ezRTTI* ezParticleBehaviorFactory_Age::GetBehaviorType() const
 {
@@ -107,7 +109,7 @@ ezParticleBehavior_Age::~ezParticleBehavior_Age()
 
 void ezParticleBehavior_Age::CreateRequiredStreams()
 {
-  CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime, true);
+  CreateStream("LifeTime", ezProcessingStream::DataType::Half2, &m_pStreamLifeTime, true);
 
   if (m_sOnDeathEvent.GetHash() != 0)
   {
@@ -136,7 +138,7 @@ void ezParticleBehavior_Age::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 
 {
   EZ_PROFILE("PFX: Age Init");
 
-  ezVec2* pLifeTime = m_pStreamLifeTime->GetWritableData<ezVec2>();
+  ezFloat16Vec2* pLifeTime = m_pStreamLifeTime->GetWritableData<ezFloat16Vec2>();
   const float fLifeScale = ezMath::Clamp(GetOwnerEffect()->GetFloatParameter(m_sLifeScaleParameter, 1.0f), 0.0f, 10.0f);
 
   if (m_LifeTime.m_fVariance == 0)
@@ -146,7 +148,8 @@ void ezParticleBehavior_Age::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 
 
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
-      pLifeTime[i].Set(tLifeTime, tInvLifeTime);
+      pLifeTime[i].x = tLifeTime;
+      pLifeTime[i].y = tInvLifeTime;
     }
   }
   else // random range
@@ -155,10 +158,12 @@ void ezParticleBehavior_Age::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 
 
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
-      const float tLifeTime = (fLifeScale * (float)rng.DoubleVariance(m_LifeTime.m_Value.GetSeconds(), m_LifeTime.m_fVariance)) + 0.01f; // make sure it's not zero
+      const float tLifeTime = (fLifeScale * (float)rng.DoubleVariance(m_LifeTime.m_Value.GetSeconds(), m_LifeTime.m_fVariance)) +
+                              0.01f; // make sure it's not zero
       const float tInvLifeTime = 1.0f / tLifeTime;
 
-      pLifeTime[i].Set(tLifeTime, tInvLifeTime);
+      pLifeTime[i].x = tLifeTime;
+      pLifeTime[i].y = tInvLifeTime;
     }
   }
 }
@@ -167,13 +172,13 @@ void ezParticleBehavior_Age::Process(ezUInt64 uiNumElements)
 {
   EZ_PROFILE("PFX: Age");
 
-  ezVec2* pLifeTime = m_pStreamLifeTime->GetWritableData<ezVec2>();
+  ezFloat16Vec2* pLifeTime = m_pStreamLifeTime->GetWritableData<ezFloat16Vec2>();
 
   const float tDiff = (float)m_TimeDiff.GetSeconds();
 
   for (ezUInt32 i = 0; i < uiNumElements; ++i)
   {
-    pLifeTime[i].x -= tDiff;
+    pLifeTime[i].x = pLifeTime[i].x - tDiff;
 
     if (pLifeTime[i].x <= 0)
     {
@@ -202,4 +207,3 @@ void ezParticleBehavior_Age::OnParticleDeath(const ezStreamGroupElementRemovedEv
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_Age);
-

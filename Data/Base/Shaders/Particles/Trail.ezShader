@@ -51,7 +51,9 @@ VS_OUT main(uint VertexID : SV_VertexID)
   UNPACKHALF2(particleLife, particleSize, baseParticle.LifeAndSize);
   ret.Color = UNPACKCOLOR4H(baseParticle.Color);
 
-  if (trailPointIndex + 1 >= baseParticle.NumPoints)
+  ezTrailParticleShaderData trailParticle = particleTrailData[particleIndex];
+
+  if (trailPointIndex + 1 >= trailParticle.NumPoints)
   {
     ret.Position = float4(0, 0, 0, 0);
     ret.TexCoords = float2(0, 0);
@@ -70,7 +72,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
     float uvSubtract = uvStep * SnapshotFraction; // to adjust the UV coordinates while the first position glides along, to not have jumps when a new segment is added
 
     int prevTrailPointIdx = max(vertexTrailPointIndex - 1, 0);
-    int nextTrailPointIdx = min(vertexTrailPointIndex + 1, baseParticle.NumPoints - 1);
+    int nextTrailPointIdx = min(vertexTrailPointIndex + 1, trailParticle.NumPoints - 1);
 
     float3 position0 = particlePointsData[particleIndex].Positions[vertexTrailPointIndex].xyz;
     float3 positionP = particlePointsData[particleIndex].Positions[prevTrailPointIdx].xyz;

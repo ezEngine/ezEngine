@@ -103,3 +103,25 @@ struct EZ_PARTICLEPLUGIN_DLL ezEffectInvisibleUpdateRate
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezEffectInvisibleUpdateRate);
+
+//////////////////////////////////////////////////////////////////////////
+
+struct EZ_PARTICLEPLUGIN_DLL ezParticleTextureAtlasType
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    None,
+
+    RandomVariations,
+    FlipbookAnimation,
+
+    Default = None
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleTextureAtlasType);
+
+//////////////////////////////////////////////////////////////////////////
+

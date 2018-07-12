@@ -45,6 +45,7 @@ public:
   ezAngle m_MaxDeviation;
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezString m_sTexture;
+  ezEnum<ezParticleTextureAtlasType> m_TextureAtlasType;
   ezUInt8 m_uiNumSpritesX = 1;
   ezUInt8 m_uiNumSpritesY = 1;
   ezString m_sTintColorParameter;
@@ -66,6 +67,7 @@ public:
   ezAngle m_MaxDeviation;
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezTexture2DResourceHandle m_hTexture;
+  ezEnum<ezParticleTextureAtlasType> m_TextureAtlasType;
   ezUInt8 m_uiNumSpritesX = 1;
   ezUInt8 m_uiNumSpritesY = 1;
   ezTempHashedString m_sTintColorParameter;

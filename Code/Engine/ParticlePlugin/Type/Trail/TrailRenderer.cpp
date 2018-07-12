@@ -22,6 +22,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezParticleTrailRenderer::~ezParticleTrailRenderer()
 {
   DestroyParticleDataBuffer(m_hBaseDataBuffer);
+  DestroyParticleDataBuffer(m_hTrailDataBuffer);
   DestroyParticleDataBuffer(m_hTrailPointsDataBuffer8);
   DestroyParticleDataBuffer(m_hTrailPointsDataBuffer16);
   DestroyParticleDataBuffer(m_hTrailPointsDataBuffer32);
@@ -36,6 +37,7 @@ void ezParticleTrailRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ez
 void ezParticleTrailRenderer::CreateDataBuffer()
 {
   CreateParticleDataBuffer(m_hBaseDataBuffer, sizeof(ezBaseParticleShaderData), s_uiParticlesPerBatch);
+  CreateParticleDataBuffer(m_hTrailDataBuffer, sizeof(ezTrailParticleShaderData), s_uiParticlesPerBatch);
 
   // this is kinda stupid, apparently due to stride enforcement I cannot reuse the same buffer for different sizes
   // and instead have to create one buffer with every size ...
@@ -60,6 +62,7 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
   {
     CreateDataBuffer();
     pRenderContext->BindBuffer("particleBaseData", ezGALDevice::GetDefaultDevice()->GetDefaultResourceView(m_hBaseDataBuffer));
+    pRenderContext->BindBuffer("particleTrailData", ezGALDevice::GetDefaultDevice()->GetDefaultResourceView(m_hTrailDataBuffer));
   }
 
   // now render all particle effects of type Trail
@@ -80,6 +83,9 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
                                    uiMaxPrimitivesToRender);
 
     const ezBaseParticleShaderData* pParticleBaseData = pRenderData->m_BaseParticleData.GetPtr();
+    const ezTrailParticleShaderData* pParticleTrailData = pRenderData->m_TrailParticleData.GetPtr();
+
+
     const ezVec4* pParticlePointsData = pRenderData->m_TrailPointsShared.GetPtr();
 
     pRenderContext->BindTexture2D("ParticleTexture", pRenderData->m_hTexture);
@@ -97,6 +103,9 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
 
       pGALContext->UpdateBuffer(m_hBaseDataBuffer, 0, ezMakeArrayPtr(pParticleBaseData, uiNumParticlesInBatch).ToByteArray());
       pParticleBaseData += uiNumParticlesInBatch;
+
+      pGALContext->UpdateBuffer(m_hTrailDataBuffer, 0, ezMakeArrayPtr(pParticleTrailData, uiNumParticlesInBatch).ToByteArray());
+      pParticleTrailData += uiNumParticlesInBatch;
 
       pGALContext->UpdateBuffer(m_hActiveTrailPointsDataBuffer, 0,
                                 ezMakeArrayPtr(pParticlePointsData, uiNumParticlesInBatch * uiBucketSize).ToByteArray());

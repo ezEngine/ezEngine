@@ -6,7 +6,6 @@
 #include <RendererCore/Pipeline/RenderData.h>
 #include <ParticlePlugin/Renderer/ParticleRenderer.h>
 
-#include <RendererCore/../../../Data/Base/Shaders/Particles/BaseParticleShaderData.h>
 #include <RendererCore/../../../Data/Base/Shaders/Particles/TrailShaderData.h>
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTrailRenderData : public ezRenderData
@@ -18,6 +17,7 @@ public:
   ezUInt32 m_uiMaxTrailPoints;
   float m_fSnapshotFraction;
   ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
+  ezArrayPtr<ezTrailParticleShaderData> m_TrailParticleData;
   ezArrayPtr<ezVec4> m_TrailPointsShared;
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   bool m_bApplyObjectTransform = true;
@@ -45,6 +45,7 @@ protected:
 
   static const ezUInt32 s_uiParticlesPerBatch = 512;
   ezGALBufferHandle m_hBaseDataBuffer;
+  ezGALBufferHandle m_hTrailDataBuffer;
   ezGALBufferHandle m_hTrailPointsDataBuffer8;
   ezGALBufferHandle m_hTrailPointsDataBuffer16;
   ezGALBufferHandle m_hTrailPointsDataBuffer32;

@@ -27,6 +27,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeQuadFactory, 1, ezRTTIDefaultAlloc
     EZ_MEMBER_PROPERTY("Deviation", m_MaxDeviation)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0), ezAngle::Degree(90))),
     EZ_ENUM_MEMBER_PROPERTY("RenderMode", ezParticleTypeRenderMode, m_RenderMode),
     EZ_MEMBER_PROPERTY("Texture", m_sTexture)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
+    EZ_ENUM_MEMBER_PROPERTY("TextureAtlas", ezParticleTextureAtlasType, m_TextureAtlasType),
     EZ_MEMBER_PROPERTY("NumSpritesX", m_uiNumSpritesX)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_MEMBER_PROPERTY("NumSpritesY", m_uiNumSpritesY)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_MEMBER_PROPERTY("TintColorParam", m_sTintColorParameter),
@@ -59,6 +60,7 @@ void ezParticleTypeQuadFactory::CopyTypeProperties(ezParticleType* pObject) cons
   pType->m_sTintColorParameter = ezTempHashedString(m_sTintColorParameter.GetData());
   pType->m_hDistortionTexture.Invalidate();
   pType->m_fDistortionStrength = m_fDistortionStrength;
+  pType->m_TextureAtlasType = m_TextureAtlasType;
 
   if (!m_sTexture.IsEmpty())
     pType->m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sTexture);
@@ -72,6 +74,7 @@ enum class TypeQuadVersion
   Version_1,
   Version_2, // sprite deviation
   Version_3, // distortion
+  Version_4, // added texture atlas type
 
   // insert new version numbers above
   Version_Count,
@@ -92,6 +95,7 @@ void ezParticleTypeQuadFactory::Save(ezStreamWriter& stream) const
   stream << m_MaxDeviation;
   stream << m_sDistortionTexture;
   stream << m_fDistortionStrength;
+  stream << m_TextureAtlasType;
 }
 
 void ezParticleTypeQuadFactory::Load(ezStreamReader& stream)
@@ -118,6 +122,17 @@ void ezParticleTypeQuadFactory::Load(ezStreamReader& stream)
     stream >> m_sDistortionTexture;
     stream >> m_fDistortionStrength;
   }
+
+  if (uiVersion >= 4)
+  {
+    stream >> m_TextureAtlasType;
+
+    if (m_TextureAtlasType == ezParticleTextureAtlasType::None)
+    {
+      m_uiNumSpritesX = 1;
+      m_uiNumSpritesY = 1;
+    }
+  }
 }
 
 ezParticleTypeQuad::ezParticleTypeQuad() = default;
@@ -125,7 +140,7 @@ ezParticleTypeQuad::~ezParticleTypeQuad() = default;
 
 void ezParticleTypeQuad::CreateRequiredStreams()
 {
-  CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime, false);
+  CreateStream("LifeTime", ezProcessingStream::DataType::Half2, &m_pStreamLifeTime, false);
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
   CreateStream("Size", ezProcessingStream::DataType::Half, &m_pStreamSize, false);
   CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
@@ -224,7 +239,7 @@ void ezParticleTypeQuad::CreateExtractedData(const ezView& view, ezExtractedRend
   const ezTime tCur = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
   const ezColor tintColor = GetOwnerEffect()->GetColorParameter(m_sTintColorParameter, ezColor::White);
 
-  const ezVec2* pLifeTime = m_pStreamLifeTime->GetData<ezVec2>();
+  const ezFloat16Vec2* pLifeTime = m_pStreamLifeTime->GetData<ezFloat16Vec2>();
   const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
   const ezFloat16* pSize = m_pStreamSize->GetData<ezFloat16>();
   const ezColorLinear16f* pColor = m_pStreamColor->GetData<ezColorLinear16f>();

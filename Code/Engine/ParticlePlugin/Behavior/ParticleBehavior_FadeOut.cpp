@@ -54,7 +54,7 @@ void ezParticleBehaviorFactory_FadeOut::Load(ezStreamReader& stream)
 
 void ezParticleBehavior_FadeOut::CreateRequiredStreams()
 {
-  CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime, false);
+  CreateStream("LifeTime", ezProcessingStream::DataType::Half2, &m_pStreamLifeTime, false);
   CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
 }
 
@@ -71,7 +71,7 @@ void ezParticleBehavior_FadeOut::Process(ezUInt64 uiNumElements)
 
   EZ_PROFILE("PFX: Fade Out");
 
-  ezProcessingStreamIterator<ezVec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
+  ezProcessingStreamIterator<ezFloat16Vec2> itLifeTime(m_pStreamLifeTime, uiNumElements, 0);
   ezProcessingStreamIterator<ezColorLinear16f> itColor(m_pStreamColor, uiNumElements, 0);
 
   // skip the first n particles

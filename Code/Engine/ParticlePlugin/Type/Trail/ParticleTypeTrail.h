@@ -62,6 +62,7 @@ protected:
   float m_fSnapshotFraction;
 
   mutable ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
+  mutable ezArrayPtr<ezTrailParticleShaderData> m_TrailParticleData;
   mutable ezArrayPtr<ezVec4> m_TrailPointsShared;
 
   struct TrailData

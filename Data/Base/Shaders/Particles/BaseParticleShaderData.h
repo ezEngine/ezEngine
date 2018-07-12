@@ -6,9 +6,7 @@ struct EZ_ALIGN_16(ezBaseParticleShaderData)
 {
   PACKEDCOLOR4H(Color);
   PACKEDHALF2(Life, Size, LifeAndSize); // Life: 1 to 0
-  INT1(NumPoints); // used by trail particles
-  //FLOAT1(dummy2);
-  //FLOAT1(dummy1);
+  INT1(dummy);
 };
 
 // this is only defined during shader compilation

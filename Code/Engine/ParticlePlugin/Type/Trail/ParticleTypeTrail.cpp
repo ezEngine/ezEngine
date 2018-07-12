@@ -122,7 +122,7 @@ void ezParticleTypeTrail::AfterPropertiesConfigured(bool bFirstTime)
 
 void ezParticleTypeTrail::CreateRequiredStreams()
 {
-  CreateStream("LifeTime", ezProcessingStream::DataType::Float2, &m_pStreamLifeTime, false);
+  CreateStream("LifeTime", ezProcessingStream::DataType::Half2, &m_pStreamLifeTime, false);
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
   CreateStream("Size", ezProcessingStream::DataType::Half, &m_pStreamSize, false);
   CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
@@ -149,7 +149,7 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
     const ezFloat16* pSize = m_pStreamSize->GetData<ezFloat16>();
     const ezColorLinear16f* pColor = m_pStreamColor->GetData<ezColorLinear16f>();
     const TrailData* pTrailData = m_pStreamTrailData->GetData<TrailData>();
-    const ezVec2* pLifeTime = m_pStreamLifeTime->GetData<ezVec2>();
+    const ezFloat16Vec2* pLifeTime = m_pStreamLifeTime->GetData<ezFloat16Vec2>();
 
     const ezUInt32 uiBucketSize = ComputeTrailPointBucketSize(m_uiMaxPoints);
 
@@ -157,13 +157,16 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
     m_BaseParticleData =
         EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBaseParticleShaderData, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
     m_TrailPointsShared = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezVec4, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles() * uiBucketSize);
+    m_TrailParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezTrailParticleShaderData,
+                                       (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
 
     for (ezUInt32 p = 0; p < numActiveParticles; ++p)
     {
       m_BaseParticleData[p].Size = pSize[p];
       m_BaseParticleData[p].Color = pColor[p].ToLinearFloat();
-      m_BaseParticleData[p].NumPoints = pTrailData[p].m_uiNumPoints;
       m_BaseParticleData[p].Life = pLifeTime[p].x * pLifeTime[p].y;
+
+      m_TrailParticleData[p].NumPoints = pTrailData[p].m_uiNumPoints;
     }
 
     for (ezUInt32 p = 0; p < numActiveParticles; ++p)
@@ -197,6 +200,7 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
   pRenderData->m_uiMaxTrailPoints = m_uiMaxPoints;
   pRenderData->m_hTexture = m_hTexture;
   pRenderData->m_BaseParticleData = m_BaseParticleData;
+  pRenderData->m_TrailParticleData = m_TrailParticleData;
   pRenderData->m_TrailPointsShared = m_TrailPointsShared;
   pRenderData->m_fSnapshotFraction = m_fSnapshotFraction;
   // TODO: expose and use this

@@ -1,7 +1,10 @@
 #include <PCH.h>
+
+#include <Foundation/Configuration/Plugin.h>
 #include <ParticlePlugin/Basics.h>
 #include <ParticlePlugin/Declarations.h>
-#include <Foundation/Configuration/Plugin.h>
+
+// clang-format off
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleTypeRenderMode, 1)
   EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::Opaque),
@@ -23,12 +26,24 @@ EZ_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////
 
-void OnLoadPlugin(bool bReloading) { }
-void OnUnloadPlugin(bool bReloading) { }
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleTextureAtlasType, 1)
+  EZ_ENUM_CONSTANT(ezParticleTextureAtlasType::None),
+  EZ_ENUM_CONSTANT(ezParticleTextureAtlasType::RandomVariations),
+  EZ_ENUM_CONSTANT(ezParticleTextureAtlasType::FlipbookAnimation),
+EZ_END_STATIC_REFLECTED_ENUM;
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format on
+
+void OnLoadPlugin(bool bReloading) {}
+void OnUnloadPlugin(bool bReloading) {}
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
 
 EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(EZ_PARTICLEPLUGIN_DLL, ezParticlePlugin);
+
+//////////////////////////////////////////////////////////////////////////
 
 
 EZ_STATICLINK_LIBRARY(ParticlePlugin)
@@ -86,4 +101,3 @@ EZ_STATICLINK_LIBRARY(ParticlePlugin)
   EZ_STATICLINK_REFERENCE(ParticlePlugin_WorldModule_ParticleSystems);
   EZ_STATICLINK_REFERENCE(ParticlePlugin_WorldModule_ParticleWorldModule);
 }
-

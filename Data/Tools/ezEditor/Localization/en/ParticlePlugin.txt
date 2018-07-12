@@ -64,3 +64,6 @@ ezQuadParticleOrientation::FragmentEmitterDirection;Fragment Emitter Dir
 ezQuadParticleOrientation::SpriteEmitterDirection;Sprite Emitter Dir
 ezQuadParticleOrientation::SpriteRandom;Sprite Random
 ezQuadParticleOrientation::SpriteWorldUp;Sprite World Up
+ezParticleTextureAtlasType::None;None
+ezParticleTextureAtlasType::RandomVariations;Variations
+ezParticleTextureAtlasType::FlipbookAnimation;Flipbook Animation
