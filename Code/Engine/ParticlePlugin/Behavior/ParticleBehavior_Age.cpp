@@ -111,6 +111,9 @@ void ezParticleBehavior_Age::CreateRequiredStreams()
 {
   CreateStream("LifeTime", ezProcessingStream::DataType::Half2, &m_pStreamLifeTime, true);
 
+  m_pStreamPosition = nullptr;
+  m_pStreamVelocity = nullptr;
+
   if (m_sOnDeathEvent.GetHash() != 0)
   {
     CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);

@@ -101,6 +101,7 @@ protected:
   ezProcessingStream* m_pStreamRotationSpeed = nullptr;
   ezProcessingStream* m_pStreamRotationOffset = nullptr;
   ezProcessingStream* m_pStreamAxis = nullptr;
+  ezProcessingStream* m_pStreamVariation = nullptr;
 
   mutable ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
   mutable ezArrayPtr<ezBillboardQuadParticleShaderData> m_BillboardParticleData;

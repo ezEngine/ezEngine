@@ -147,10 +147,18 @@ void ezParticleTypeQuad::CreateRequiredStreams()
   CreateStream("RotationSpeed", ezProcessingStream::DataType::Half, &m_pStreamRotationSpeed, false);
   CreateStream("RotationOffset", ezProcessingStream::DataType::Half, &m_pStreamRotationOffset, false);
 
+  m_pStreamAxis = nullptr;
+  m_pStreamVariation = nullptr;
+
   if (m_Orientation == ezQuadParticleOrientation::SpriteRandom || m_Orientation == ezQuadParticleOrientation::SpriteEmitterDirection ||
       m_Orientation == ezQuadParticleOrientation::SpriteWorldUp)
   {
     CreateStream("Axis", ezProcessingStream::DataType::Float3, &m_pStreamAxis, true);
+  }
+
+  if (m_TextureAtlasType == ezParticleTextureAtlasType::RandomVariations)
+  {
+    CreateStream("Variation", ezProcessingStream::DataType::Int, &m_pStreamVariation, true);
   }
 }
 
@@ -246,6 +254,7 @@ void ezParticleTypeQuad::CreateExtractedData(const ezView& view, ezExtractedRend
   const ezFloat16* pRotationSpeed = m_pStreamRotationSpeed->GetData<ezFloat16>();
   const ezFloat16* pRotationOffset = m_pStreamRotationOffset->GetData<ezFloat16>();
   const ezVec3* pAxis = m_pStreamAxis ? m_pStreamAxis->GetData<ezVec3>() : nullptr;
+  const ezUInt32* pVariation = m_pStreamVariation ? m_pStreamVariation->GetData<ezUInt32>() : nullptr;
 
   // this will automatically be deallocated at the end of the frame
   m_BaseParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBaseParticleShaderData, numParticles);
@@ -257,6 +266,11 @@ void ezParticleTypeQuad::CreateExtractedData(const ezView& view, ezExtractedRend
     m_BaseParticleData[dstIdx].Size = pSize[srcIdx];
     m_BaseParticleData[dstIdx].Color = pColor[srcIdx].ToLinearFloat() * tintColor;
     m_BaseParticleData[dstIdx].Life = pLifeTime[srcIdx].x * pLifeTime[srcIdx].y;
+
+    if (pVariation)
+    {
+      m_BaseParticleData[dstIdx].Variation = pVariation[srcIdx];
+    }
   };
 
   auto SetBillboardData = [&](ezUInt32 dstIdx, ezUInt32 srcIdx) {
@@ -400,62 +414,78 @@ void ezParticleTypeQuad::AddParticleRenderData(ezExtractedRenderData& extractedR
 
 void ezParticleTypeQuad::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
-  if (m_pStreamAxis == nullptr)
-    return;
-
-  ezVec3* pAxis = m_pStreamAxis->GetWritableData<ezVec3>();
-  ezRandom& rng = GetRNG();
-
-  if (m_Orientation == ezQuadParticleOrientation::SpriteRandom)
+  if (m_pStreamAxis != nullptr)
   {
-    EZ_PROFILE("PFX: Init Quad Axis Random");
+    ezVec3* pAxis = m_pStreamAxis->GetWritableData<ezVec3>();
+    ezRandom& rng = GetRNG();
+
+    if (m_Orientation == ezQuadParticleOrientation::SpriteRandom)
+    {
+      EZ_PROFILE("PFX: Init Quad Axis Random");
+
+      for (ezUInt32 i = 0; i < uiNumElements; ++i)
+      {
+        const ezUInt64 uiElementIdx = uiStartIndex + i;
+
+        pAxis[uiElementIdx] = ezVec3::CreateRandomDirection(rng);
+      }
+    }
+    else if (m_Orientation == ezQuadParticleOrientation::SpriteEmitterDirection ||
+             m_Orientation == ezQuadParticleOrientation::SpriteWorldUp)
+    {
+      EZ_PROFILE("PFX: Init Quad Axis");
+
+      ezVec3 vNormal;
+
+      if (m_Orientation == ezQuadParticleOrientation::SpriteEmitterDirection)
+      {
+        vNormal = GetOwnerSystem()->GetTransform().m_qRotation * ezVec3(0, 0, 1); // Z axis
+      }
+      else if (m_Orientation == ezQuadParticleOrientation::SpriteWorldUp)
+      {
+        ezCoordinateSystem coord;
+        GetOwnerSystem()->GetWorld()->GetCoordinateSystem(GetOwnerSystem()->GetTransform().m_vPosition, coord);
+
+        vNormal = coord.m_vUpDir;
+      }
+
+      if (m_MaxDeviation > ezAngle::Degree(1.0f))
+      {
+        // how to get from the X axis to the desired normal
+        ezQuat qRotToDir;
+        qRotToDir.SetShortestRotation(ezVec3(1, 0, 0), vNormal);
+
+        for (ezUInt32 i = 0; i < uiNumElements; ++i)
+        {
+          const ezUInt64 uiElementIdx = uiStartIndex + i;
+          const ezVec3 vRandomX = ezVec3::CreateRandomDeviationX(rng, m_MaxDeviation);
+
+          pAxis[uiElementIdx] = qRotToDir * vRandomX;
+        }
+      }
+      else
+      {
+        for (ezUInt32 i = 0; i < uiNumElements; ++i)
+        {
+          const ezUInt64 uiElementIdx = uiStartIndex + i;
+          pAxis[uiElementIdx] = vNormal;
+        }
+      }
+    }
+  }
+
+  if (m_pStreamVariation != nullptr)
+  {
+    ezUInt32* pVariation = m_pStreamVariation->GetWritableData<ezUInt32>();
+    ezRandom& rng = GetRNG();
+
+    EZ_PROFILE("PFX: Init Variation");
 
     for (ezUInt32 i = 0; i < uiNumElements; ++i)
     {
       const ezUInt64 uiElementIdx = uiStartIndex + i;
 
-      pAxis[uiElementIdx] = ezVec3::CreateRandomDirection(rng);
-    }
-  }
-  else if (m_Orientation == ezQuadParticleOrientation::SpriteEmitterDirection || m_Orientation == ezQuadParticleOrientation::SpriteWorldUp)
-  {
-    EZ_PROFILE("PFX: Init Quad Axis");
-
-    ezVec3 vNormal;
-
-    if (m_Orientation == ezQuadParticleOrientation::SpriteEmitterDirection)
-    {
-      vNormal = GetOwnerSystem()->GetTransform().m_qRotation * ezVec3(0, 0, 1); // Z axis
-    }
-    else if (m_Orientation == ezQuadParticleOrientation::SpriteWorldUp)
-    {
-      ezCoordinateSystem coord;
-      GetOwnerSystem()->GetWorld()->GetCoordinateSystem(GetOwnerSystem()->GetTransform().m_vPosition, coord);
-
-      vNormal = coord.m_vUpDir;
-    }
-
-    if (m_MaxDeviation > ezAngle::Degree(1.0f))
-    {
-      // how to get from the X axis to the desired normal
-      ezQuat qRotToDir;
-      qRotToDir.SetShortestRotation(ezVec3(1, 0, 0), vNormal);
-
-      for (ezUInt32 i = 0; i < uiNumElements; ++i)
-      {
-        const ezUInt64 uiElementIdx = uiStartIndex + i;
-        const ezVec3 vRandomX = ezVec3::CreateRandomDeviationX(rng, m_MaxDeviation);
-
-        pAxis[uiElementIdx] = qRotToDir * vRandomX;
-      }
-    }
-    else
-    {
-      for (ezUInt32 i = 0; i < uiNumElements; ++i)
-      {
-        const ezUInt64 uiElementIdx = uiStartIndex + i;
-        pAxis[uiElementIdx] = vNormal;
-      }
+      pVariation[uiElementIdx] = rng.UInt();
     }
   }
 }

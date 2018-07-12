@@ -6,7 +6,7 @@ struct EZ_ALIGN_16(ezBaseParticleShaderData)
 {
   PACKEDCOLOR4H(Color);
   PACKEDHALF2(Life, Size, LifeAndSize); // Life: 1 to 0
-  INT1(dummy);
+  UINT1(Variation); // only lower 8 bit
 };
 
 // this is only defined during shader compilation

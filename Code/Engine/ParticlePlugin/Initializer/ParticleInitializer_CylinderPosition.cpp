@@ -76,6 +76,8 @@ void ezParticleInitializer_CylinderPosition::CreateRequiredStreams()
 {
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, true);
 
+  m_pStreamVelocity = nullptr;
+
   if (m_bSetVelocity)
   {
     CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity, true);
