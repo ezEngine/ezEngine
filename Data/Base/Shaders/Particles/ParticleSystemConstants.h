@@ -7,9 +7,13 @@ CONSTANT_BUFFER(ezParticleSystemConstants, 2)
 {
 	MAT4(ObjectToWorldMatrix);
 
+  // random variations, can be combined with flipbook animations
+  UINT1(TextureAtlasVariationFramesX);
+  UINT1(TextureAtlasVariationFramesY);
+
   // flip-book animations
-  UINT1(NumSpritesX);
-  UINT1(NumSpritesY);
+  UINT1(TextureAtlasFlipbookFramesX);
+  UINT1(TextureAtlasFlipbookFramesY);
 
   // for trail particles
   FLOAT1(SnapshotFraction);

@@ -21,8 +21,10 @@ public:
   ezArrayPtr<ezVec4> m_TrailPointsShared;
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   bool m_bApplyObjectTransform = true;
-  ezUInt8 m_uiNumSpritesX = 1;
-  ezUInt8 m_uiNumSpritesY = 1;
+  ezUInt8 m_uiNumVariationsX = 1;
+  ezUInt8 m_uiNumVariationsY = 1;
+  ezUInt8 m_uiNumFlipbookAnimationsX = 1;
+  ezUInt8 m_uiNumFlipbookAnimationsY = 1;
 };
 
 /// \brief Implements rendering of a trail particle systems

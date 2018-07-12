@@ -75,16 +75,23 @@ float4 CalcQuadOutputPositionAsBillboard(uint vertexIndex, float3 centerPosition
   return screenPosition;
 }
 
-float2 ComputeSpriteAnimationTexCoord(float2 texCoord, uint numSpriteCols, uint numSpriteRows, float particleLife)
+float2 ComputeSpriteAnimationTexCoord(float2 baseTexCoord, uint numVarsX, uint numVarsY, float varLerp, uint numAnimsX, uint numAnimsY, float animLerp)
 {
-  uint numSprites = numSpriteRows * numSpriteCols;
-  float spriteLerp = 1.0 - particleLife;
-  uint idxSprite = (uint)(numSprites * spriteLerp);
-  uint spriteRow = idxSprite / numSpriteCols;
-  uint spriteCol = (idxSprite - (spriteRow * numSpriteCols));
-  float2 texCoordSize = float2(1, 1) / float2(numSpriteCols, numSpriteRows);
+  uint numVars = numVarsX * numVarsY;
+  uint idxVar = (uint)(numVars * varLerp);
+  uint varY = idxVar / numVarsX;
+  uint varX = (idxVar - (varY * numVarsX));
+  float2 varTexCoordSize = float2(1, 1) / float2(numVarsX, numVarsY);
 
-  return texCoordSize * float2(spriteCol, spriteRow) + texCoord * texCoordSize;
+  float2 newbaseTexCoord = varTexCoordSize * float2(varX, varY);
+
+  uint numAnims = numAnimsX * numAnimsY;
+  uint idxAnim = (uint)(numAnims * animLerp);
+  uint animY = idxAnim / numAnimsX;
+  uint animX = (idxVar - (animY * numAnimsX));
+  float2 animTexCoordSize = varTexCoordSize / float2(numAnimsX, numAnimsY);
+
+  return newbaseTexCoord + animTexCoordSize * float2(animY, animY) + baseTexCoord * animTexCoordSize;
 }
 
 

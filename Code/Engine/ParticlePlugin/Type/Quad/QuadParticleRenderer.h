@@ -19,8 +19,10 @@ public:
   ezArrayPtr<ezBillboardQuadParticleShaderData> m_BillboardParticleData;
   ezArrayPtr<ezTangentQuadParticleShaderData> m_TangentParticleData;
   bool m_bApplyObjectTransform = true;
-  ezUInt8 m_uiNumSpritesX = 1;
-  ezUInt8 m_uiNumSpritesY = 1;
+  ezUInt8 m_uiNumVariationsX = 1;
+  ezUInt8 m_uiNumVariationsY = 1;
+  ezUInt8 m_uiNumFlipbookAnimationsX = 1;
+  ezUInt8 m_uiNumFlipbookAnimationsY = 1;
 
   ezTexture2DResourceHandle m_hDistortionTexture;
   float m_fDistortionStrength = 0;

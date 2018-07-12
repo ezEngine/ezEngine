@@ -62,7 +62,7 @@ void ezParticlePointRenderer::RenderBatch(const ezRenderViewContext& renderViewC
 
     ezUInt32 uiNumParticles = pRenderData->m_BaseParticleData.GetCount();
 
-    systemConstants.SetGenericData(pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, 1, 1);
+    systemConstants.SetGenericData(pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, 1, 1, 1, 1);
 
     while (uiNumParticles > 0)
     {

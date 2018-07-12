@@ -22,12 +22,15 @@ ezParticleRenderer::TempSystemCB::~TempSystemCB()
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 
-void ezParticleRenderer::TempSystemCB::SetGenericData(bool bApplyObjectTransform, const ezTransform& ObjectTransform, ezUInt8 uiNumSpritesX,
-                                                      ezUInt8 uiNumSpritesY, float fDistortionStrength /*= 0*/)
+void ezParticleRenderer::TempSystemCB::SetGenericData(bool bApplyObjectTransform, const ezTransform& ObjectTransform,
+                                                      ezUInt8 uiNumVariationsX, ezUInt8 uiNumVariationsY, ezUInt8 uiNumFlipbookAnimsX,
+                                                      ezUInt8 uiNumFlipbookAnimsY, float fDistortionStrength /*= 0*/)
 {
   ezParticleSystemConstants& cb = m_pConstants->GetDataForWriting();
-  cb.NumSpritesX = uiNumSpritesX;
-  cb.NumSpritesY = uiNumSpritesY;
+  cb.TextureAtlasVariationFramesX = uiNumVariationsX;
+  cb.TextureAtlasVariationFramesY = uiNumVariationsY;
+  cb.TextureAtlasFlipbookFramesX = uiNumFlipbookAnimsX;
+  cb.TextureAtlasFlipbookFramesY = uiNumFlipbookAnimsY;
   cb.DistortionStrength = fDistortionStrength;
 
   if (bApplyObjectTransform)

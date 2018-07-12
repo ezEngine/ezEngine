@@ -372,10 +372,25 @@ void ezParticleTypeQuad::AddParticleRenderData(ezExtractedRenderData& extractedR
   pRenderData->m_BaseParticleData = m_BaseParticleData;
   pRenderData->m_BillboardParticleData = m_BillboardParticleData;
   pRenderData->m_TangentParticleData = m_TangentParticleData;
-  pRenderData->m_uiNumSpritesX = m_uiNumSpritesX;
-  pRenderData->m_uiNumSpritesY = m_uiNumSpritesY;
+  pRenderData->m_uiNumVariationsX = 1;
+  pRenderData->m_uiNumVariationsY = 1;
+  pRenderData->m_uiNumFlipbookAnimationsX = 1;
+  pRenderData->m_uiNumFlipbookAnimationsY = 1;
   pRenderData->m_hDistortionTexture = m_hDistortionTexture;
   pRenderData->m_fDistortionStrength = m_fDistortionStrength;
+
+  switch (m_TextureAtlasType)
+  {
+    case ezParticleTextureAtlasType::RandomVariations:
+      pRenderData->m_uiNumVariationsX = m_uiNumSpritesX;
+      pRenderData->m_uiNumVariationsY = m_uiNumSpritesY;
+      break;
+
+    case ezParticleTextureAtlasType::FlipbookAnimation:
+      pRenderData->m_uiNumFlipbookAnimationsX = m_uiNumSpritesX;
+      pRenderData->m_uiNumFlipbookAnimationsY = m_uiNumSpritesY;
+      break;
+  }
 
   const ezUInt32 uiSortingKey = ComputeSortingKey(m_RenderMode);
   extractedRenderData.AddRenderData(pRenderData,

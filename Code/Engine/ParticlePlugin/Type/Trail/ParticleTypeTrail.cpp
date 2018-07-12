@@ -203,9 +203,12 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
   pRenderData->m_TrailParticleData = m_TrailParticleData;
   pRenderData->m_TrailPointsShared = m_TrailPointsShared;
   pRenderData->m_fSnapshotFraction = m_fSnapshotFraction;
+
   // TODO: expose and use this
-  pRenderData->m_uiNumSpritesX = 1;
-  pRenderData->m_uiNumSpritesY = 1;
+  pRenderData->m_uiNumVariationsX = 1;
+  pRenderData->m_uiNumVariationsY = 1;
+  pRenderData->m_uiNumFlipbookAnimationsX = 1;
+  pRenderData->m_uiNumFlipbookAnimationsY = 1;
 
   const ezUInt32 uiSortingKey = ComputeSortingKey(m_RenderMode);
   extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitTransparent, uiSortingKey);

@@ -71,8 +71,9 @@ void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewCo
 
     ConfigureRenderMode(pRenderData, pRenderContext);
 
-    systemConstants.SetGenericData(pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, pRenderData->m_uiNumSpritesX,
-                                   pRenderData->m_uiNumSpritesY, pRenderData->m_fDistortionStrength);
+    systemConstants.SetGenericData(pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, pRenderData->m_uiNumVariationsX,
+                                   pRenderData->m_uiNumVariationsY, pRenderData->m_uiNumFlipbookAnimationsX,
+                                   pRenderData->m_uiNumFlipbookAnimationsY, pRenderData->m_fDistortionStrength);
 
     if (pParticleBillboardData != nullptr)
       pRenderContext->SetShaderPermutationVariable("PARTICLE_QUAD_MODE", "PARTICLE_QUAD_MODE_BILLBOARD");

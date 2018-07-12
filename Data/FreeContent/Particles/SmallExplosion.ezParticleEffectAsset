@@ -21,7 +21,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17186564394336932993,5559752034210902017}}
-		u4 %Hash{13495928066698407408}
+		u4 %Hash{1121674925444466117}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{13461537557416501835,3753016026384090740}}
@@ -221,6 +221,7 @@ o
 	p
 	{
 		b %AlwaysShared{0}
+		f %ApplyOwnerVelocity{0}
 		VarDict %ColorParameters{}
 		VarDict %FloatParameters{}
 		VarArray %ParticleSystems
@@ -284,6 +285,7 @@ o
 		s %Orientation{"ezQuadParticleOrientation::Billboard"}
 		s %RenderMode{"ezParticleTypeRenderMode::Additive"}
 		s %Texture{"{ 5960875e-fd79-4e1a-a7f6-8c084e7fba9b }"}
+		s %TextureAtlas{"ezParticleTextureAtlasType::FlipbookAnimation"}
 		s %TintColorParam{""}
 	}
 }
@@ -302,6 +304,7 @@ o
 		s %Orientation{"ezQuadParticleOrientation::Billboard"}
 		s %RenderMode{"ezParticleTypeRenderMode::Additive"}
 		s %Texture{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
+		s %TextureAtlas{"ezParticleTextureAtlasType::None"}
 		s %TintColorParam{""}
 	}
 }
@@ -452,6 +455,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleBehaviorFactory"}
 		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5814284155980160751,5759191340344101956}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleTextureAtlasType"}
+		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }

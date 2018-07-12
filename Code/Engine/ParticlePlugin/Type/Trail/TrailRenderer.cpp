@@ -90,8 +90,9 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
 
     pRenderContext->BindTexture2D("ParticleTexture", pRenderData->m_hTexture);
 
-    systemConstants.SetGenericData(pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, pRenderData->m_uiNumSpritesX,
-                                   pRenderData->m_uiNumSpritesY);
+    systemConstants.SetGenericData(pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, pRenderData->m_uiNumVariationsX,
+                                   pRenderData->m_uiNumVariationsY, pRenderData->m_uiNumFlipbookAnimationsX,
+                                   pRenderData->m_uiNumFlipbookAnimationsY, 0.0f);
     systemConstants.SetTrailData(pRenderData->m_fSnapshotFraction, pRenderData->m_uiMaxTrailPoints);
 
     ezUInt32 uiNumParticles = pRenderData->m_BaseParticleData.GetCount();

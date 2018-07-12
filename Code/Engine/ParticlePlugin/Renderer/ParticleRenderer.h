@@ -1,11 +1,11 @@
 #pragma once
 
+#include <Foundation/Math/Color16f.h>
 #include <ParticlePlugin/Basics.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Textures/Texture2DResource.h>
-#include <Foundation/Math/Color16f.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Particles/ParticleSystemConstants.h>
 
@@ -27,8 +27,8 @@ protected:
     TempSystemCB(ezRenderContext* pRenderContext);
     ~TempSystemCB();
 
-    void SetGenericData(bool bApplyObjectTransform, const ezTransform& ObjectTransform, ezUInt8 uiNumSpritesX, ezUInt8 uiNumSpritesY,
-                        float fDistortionStrength = 0);
+    void SetGenericData(bool bApplyObjectTransform, const ezTransform& ObjectTransform, ezUInt8 uiNumVariationsX, ezUInt8 uiNumVariationsY,
+                        ezUInt8 uiNumFlipbookAnimsX, ezUInt8 uiNumFlipbookAnimsY, float fDistortionStrength = 0);
     void SetTrailData(float fSnapshotFraction, ezInt32 iNumUsedTrailPoints);
 
     ezConstantBufferStorage<ezParticleSystemConstants>* m_pConstants;

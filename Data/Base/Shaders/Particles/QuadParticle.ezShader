@@ -63,7 +63,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
 
 #endif
 
-  ret.TexCoords = ComputeSpriteAnimationTexCoord(QuadTexCoords[vertexIndex], NumSpritesX, NumSpritesY, particleLife);
+  ret.TexCoords = ComputeSpriteAnimationTexCoord(QuadTexCoords[vertexIndex], TextureAtlasVariationFramesX, TextureAtlasVariationFramesY, 1.0f - particleLife, TextureAtlasFlipbookFramesX, TextureAtlasFlipbookFramesY, 1.0f - particleLife);
 
   return ret;
 }
