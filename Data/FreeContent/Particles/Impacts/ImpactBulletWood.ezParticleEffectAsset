@@ -21,7 +21,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16172054985231832202,5382839285714293133}}
-		u4 %Hash{1499436569765802832}
+		u4 %Hash{2105813374335358919}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{12447028148311401044,3576103277887481856}}
@@ -129,6 +129,7 @@ o
 	p
 	{
 		b %AlwaysShared{0}
+		f %ApplyOwnerVelocity{0}
 		VarDict %ColorParameters{}
 		VarDict %FloatParameters{}
 		VarArray %ParticleSystems
@@ -219,8 +220,8 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Value{0xCDCC4C3D}
-		f %Variance{0x5C8FC23E}
+		f %Value{0x8FC2753D}
+		f %Variance{0x5C8F023F}
 	}
 }
 o

@@ -156,7 +156,8 @@ void ezParticleTypeQuad::CreateRequiredStreams()
     CreateStream("Axis", ezProcessingStream::DataType::Float3, &m_pStreamAxis, true);
   }
 
-  if (m_TextureAtlasType == ezParticleTextureAtlasType::RandomVariations)
+  if (m_TextureAtlasType == ezParticleTextureAtlasType::RandomVariations ||
+      m_TextureAtlasType == ezParticleTextureAtlasType::RandomYAnimatedX)
   {
     CreateStream("Variation", ezProcessingStream::DataType::Int, &m_pStreamVariation, true);
   }
@@ -403,6 +404,11 @@ void ezParticleTypeQuad::AddParticleRenderData(ezExtractedRenderData& extractedR
     case ezParticleTextureAtlasType::FlipbookAnimation:
       pRenderData->m_uiNumFlipbookAnimationsX = m_uiNumSpritesX;
       pRenderData->m_uiNumFlipbookAnimationsY = m_uiNumSpritesY;
+      break;
+
+    case ezParticleTextureAtlasType::RandomYAnimatedX:
+      pRenderData->m_uiNumFlipbookAnimationsX = m_uiNumSpritesX;
+      pRenderData->m_uiNumVariationsY = m_uiNumSpritesY;
       break;
   }
 

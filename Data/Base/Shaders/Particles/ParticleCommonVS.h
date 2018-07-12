@@ -77,21 +77,30 @@ float4 CalcQuadOutputPositionAsBillboard(uint vertexIndex, float3 centerPosition
 
 float2 ComputeSpriteAnimationTexCoord(float2 baseTexCoord, uint numVarsX, uint numVarsY, float varLerp, uint numAnimsX, uint numAnimsY, float animLerp)
 {
-  uint numVars = numVarsX * numVarsY;
-  uint idxVar = (uint)(numVars * varLerp);
-  uint varY = idxVar / numVarsX;
-  uint varX = (idxVar - (varY * numVarsX));
-  float2 varTexCoordSize = float2(1, 1) / float2(numVarsX, numVarsY);
+  float2 texCoordSize = float2(1, 1);
+  float2 texCoordOffset = float2(0, 0);
 
-  float2 newbaseTexCoord = varTexCoordSize * float2(varX, varY);
+  if (numVarsX > 1 || numVarsY > 1)
+  {
+    uint numVars = numVarsX * numVarsY;
+    uint idxVar = (uint)(numVars * varLerp);
+    uint varY = idxVar / numVarsX;
+    uint varX = (idxVar - (varY * numVarsX));
+    texCoordSize = texCoordSize / float2(numVarsX, numVarsY);
+    texCoordOffset = texCoordOffset + texCoordSize * float2(varX, varY);
+  }
 
-  uint numAnims = numAnimsX * numAnimsY;
-  uint idxAnim = (uint)(numAnims * animLerp);
-  uint animY = idxAnim / numAnimsX;
-  uint animX = (idxVar - (animY * numAnimsX));
-  float2 animTexCoordSize = varTexCoordSize / float2(numAnimsX, numAnimsY);
+  if (numAnimsX > 1 || numAnimsY > 1)
+  {
+    uint numAnims = numAnimsX * numAnimsY;
+    uint idxAnim = (uint)(numAnims * animLerp);
+    uint animY = idxAnim / numAnimsX;
+    uint animX = (idxAnim - (animY * numAnimsX));
+    texCoordSize = texCoordSize / float2(numAnimsX, numAnimsY);
+    texCoordOffset = texCoordOffset + texCoordSize * float2(animX, animY);
+  }
 
-  return newbaseTexCoord + animTexCoordSize * float2(animY, animY) + baseTexCoord * animTexCoordSize;
+  return texCoordOffset + baseTexCoord * texCoordSize;
 }
 
 

@@ -30,6 +30,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleTextureAtlasType, 1)
   EZ_ENUM_CONSTANT(ezParticleTextureAtlasType::None),
   EZ_ENUM_CONSTANT(ezParticleTextureAtlasType::RandomVariations),
   EZ_ENUM_CONSTANT(ezParticleTextureAtlasType::FlipbookAnimation),
+  EZ_ENUM_CONSTANT(ezParticleTextureAtlasType::RandomYAnimatedX),
 EZ_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////

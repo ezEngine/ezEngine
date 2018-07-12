@@ -116,6 +116,7 @@ struct EZ_PARTICLEPLUGIN_DLL ezParticleTextureAtlasType
 
     RandomVariations,
     FlipbookAnimation,
+    RandomYAnimatedX,
 
     Default = None
   };
