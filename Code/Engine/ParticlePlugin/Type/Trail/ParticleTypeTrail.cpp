@@ -1,21 +1,23 @@
 #include <PCH.h>
-#include <ParticlePlugin/Type/Trail/ParticleTypeTrail.h>
-#include <RendererCore/Shader/ShaderResource.h>
-#include <RendererFoundation/Descriptors/Descriptors.h>
-#include <RendererFoundation/Device/Device.h>
-#include <RendererCore/Pipeline/Declarations.h>
-#include <RendererCore/Pipeline/RenderPipelinePass.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/Meshes/MeshBufferResource.h>
-#include <RendererCore/Textures/Texture2DResource.h>
+
 #include <Core/World/GameObject.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <Core/World/World.h>
+#include <Foundation/Math/Color16f.h>
+#include <Foundation/Math/Float16.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
-#include <Foundation/Math/Float16.h>
-#include <Foundation/Math/Color16f.h>
+#include <ParticlePlugin/Type/Trail/ParticleTypeTrail.h>
+#include <RendererCore/Meshes/MeshBufferResource.h>
+#include <RendererCore/Pipeline/Declarations.h>
+#include <RendererCore/Pipeline/ExtractedRenderData.h>
+#include <RendererCore/Pipeline/RenderPipelinePass.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/Shader/ShaderResource.h>
+#include <RendererCore/Textures/Texture2DResource.h>
+#include <RendererFoundation/Descriptors/Descriptors.h>
+#include <RendererFoundation/Device/Device.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeTrailFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeTrailFactory>)
 {
   EZ_BEGIN_PROPERTIES
@@ -23,7 +25,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeTrailFactory, 1, ezRTTIDefaultAllo
     EZ_ENUM_MEMBER_PROPERTY("RenderMode", ezParticleTypeRenderMode, m_RenderMode),
     EZ_MEMBER_PROPERTY("Texture", m_sTexture)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
     EZ_MEMBER_PROPERTY("Segments", m_uiMaxPoints)->AddAttributes(new ezDefaultValueAttribute(6), new ezClampValueAttribute(3, 64)),
-    //EZ_MEMBER_PROPERTY("UpdateTime", m_UpdateDiff)->AddAttributes(new ezDefaultValueAttribute(ezTime::Milliseconds(50)), new ezClampValueAttribute(ezTime::Milliseconds(20), ezTime::Milliseconds(300))),
+    EZ_ENUM_MEMBER_PROPERTY("TextureAtlas", ezParticleTextureAtlasType, m_TextureAtlasType),
+    EZ_MEMBER_PROPERTY("NumSpritesX", m_uiNumSpritesX)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
+    EZ_MEMBER_PROPERTY("NumSpritesY", m_uiNumSpritesY)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
+    // EZ_MEMBER_PROPERTY("UpdateTime", m_UpdateDiff)->AddAttributes(new ezDefaultValueAttribute(ezTime::Milliseconds(50)), new
+    // ezClampValueAttribute(ezTime::Milliseconds(20), ezTime::Milliseconds(300))),
   }
   EZ_END_PROPERTIES;
 }
@@ -31,6 +37,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeTrail, 1, ezRTTIDefaultAllocator<ezParticleTypeTrail>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 const ezRTTI* ezParticleTypeTrailFactory::GetTypeType() const
 {
@@ -44,6 +51,9 @@ void ezParticleTypeTrailFactory::CopyTypeProperties(ezParticleType* pObject) con
   pType->m_RenderMode = m_RenderMode;
   pType->m_uiMaxPoints = m_uiMaxPoints;
   pType->m_hTexture.Invalidate();
+  pType->m_TextureAtlasType = m_TextureAtlasType;
+  pType->m_uiNumSpritesX = m_uiNumSpritesX;
+  pType->m_uiNumSpritesY = m_uiNumSpritesY;
 
   // fixed 25 FPS for the update rate
   pType->m_UpdateDiff = ezTime::Seconds(1.0 / 25.0); // m_UpdateDiff;
@@ -57,6 +67,7 @@ enum class TypeTrailVersion
   Version_0 = 0,
   Version_1,
   Version_2, // added render mode
+  Version_3, // added texture atlas support
 
   // insert new version numbers above
   Version_Count,
@@ -72,6 +83,11 @@ void ezParticleTypeTrailFactory::Save(ezStreamWriter& stream) const
   stream << m_uiMaxPoints;
   stream << m_UpdateDiff;
   stream << m_RenderMode;
+
+  // version 3
+  stream << m_TextureAtlasType;
+  stream << m_uiNumSpritesX;
+  stream << m_uiNumSpritesY;
 }
 
 void ezParticleTypeTrailFactory::Load(ezStreamReader& stream)
@@ -85,9 +101,22 @@ void ezParticleTypeTrailFactory::Load(ezStreamReader& stream)
   stream >> m_uiMaxPoints;
   stream >> m_UpdateDiff;
 
-  if (uiVersion >= (int)TypeTrailVersion::Version_2)
+  if (uiVersion >= 2)
   {
     stream >> m_RenderMode;
+  }
+
+  if (uiVersion >= 3)
+  {
+    stream >> m_TextureAtlasType;
+    stream >> m_uiNumSpritesX;
+    stream >> m_uiNumSpritesY;
+
+    if (m_TextureAtlasType == ezParticleTextureAtlasType::None)
+    {
+      m_uiNumSpritesX = 1;
+      m_uiNumSpritesY = 1;
+    }
   }
 }
 
@@ -111,7 +140,7 @@ void ezParticleTypeTrail::AfterPropertiesConfigured(bool bFirstTime)
     m_LastSnapshot = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
   }
 
-  //m_uiMaxPoints = ezMath::Min<ezUInt16>(8, m_uiMaxPoints);
+  // m_uiMaxPoints = ezMath::Min<ezUInt16>(8, m_uiMaxPoints);
 
   // clamp the number of points to the maximum possible count
   m_uiMaxPoints = ezMath::Min<ezUInt16>(m_uiMaxPoints, ComputeTrailPointBucketSize(m_uiMaxPoints));
@@ -127,9 +156,18 @@ void ezParticleTypeTrail::CreateRequiredStreams()
   CreateStream("Size", ezProcessingStream::DataType::Half, &m_pStreamSize, false);
   CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
   CreateStream("TrailData", ezProcessingStream::DataType::Short2, &m_pStreamTrailData, true);
+
+  m_pStreamVariation = nullptr;
+
+  if (m_TextureAtlasType == ezParticleTextureAtlasType::RandomVariations ||
+      m_TextureAtlasType == ezParticleTextureAtlasType::RandomYAnimatedX)
+  {
+    CreateStream("Variation", ezProcessingStream::DataType::Int, &m_pStreamVariation, false);
+  }
 }
 
-void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData,
+                                                const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
   EZ_PROFILE("PFX: Trail");
 
@@ -150,13 +188,15 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
     const ezColorLinear16f* pColor = m_pStreamColor->GetData<ezColorLinear16f>();
     const TrailData* pTrailData = m_pStreamTrailData->GetData<TrailData>();
     const ezFloat16Vec2* pLifeTime = m_pStreamLifeTime->GetData<ezFloat16Vec2>();
+    const ezUInt32* pVariation = m_pStreamVariation ? m_pStreamVariation->GetData<ezUInt32>() : nullptr;
 
     const ezUInt32 uiBucketSize = ComputeTrailPointBucketSize(m_uiMaxPoints);
 
     // this will automatically be deallocated at the end of the frame
-    m_BaseParticleData =
-        EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBaseParticleShaderData, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
-    m_TrailPointsShared = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezVec4, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles() * uiBucketSize);
+    m_BaseParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBaseParticleShaderData,
+                                      (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
+    m_TrailPointsShared =
+        EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezVec4, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles() * uiBucketSize);
     m_TrailParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezTrailParticleShaderData,
                                        (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
 
@@ -165,6 +205,7 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
       m_BaseParticleData[p].Size = pSize[p];
       m_BaseParticleData[p].Color = pColor[p].ToLinearFloat();
       m_BaseParticleData[p].Life = pLifeTime[p].x * pLifeTime[p].y;
+      m_BaseParticleData[p].Variation = (pVariation != nullptr) ? pVariation[p] : 0;
 
       m_TrailParticleData[p].NumPoints = pTrailData[p].m_uiNumPoints;
     }
@@ -204,11 +245,28 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
   pRenderData->m_TrailPointsShared = m_TrailPointsShared;
   pRenderData->m_fSnapshotFraction = m_fSnapshotFraction;
 
-  // TODO: expose and use this
   pRenderData->m_uiNumVariationsX = 1;
   pRenderData->m_uiNumVariationsY = 1;
   pRenderData->m_uiNumFlipbookAnimationsX = 1;
   pRenderData->m_uiNumFlipbookAnimationsY = 1;
+
+  switch (m_TextureAtlasType)
+  {
+    case ezParticleTextureAtlasType::RandomVariations:
+      pRenderData->m_uiNumVariationsX = m_uiNumSpritesX;
+      pRenderData->m_uiNumVariationsY = m_uiNumSpritesY;
+      break;
+
+    case ezParticleTextureAtlasType::FlipbookAnimation:
+      pRenderData->m_uiNumFlipbookAnimationsX = m_uiNumSpritesX;
+      pRenderData->m_uiNumFlipbookAnimationsY = m_uiNumSpritesY;
+      break;
+
+    case ezParticleTextureAtlasType::RandomYAnimatedX:
+      pRenderData->m_uiNumFlipbookAnimationsX = m_uiNumSpritesX;
+      pRenderData->m_uiNumVariationsY = m_uiNumSpritesY;
+      break;
+  }
 
   const ezUInt32 uiSortingKey = ComputeSortingKey(m_RenderMode);
   extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitTransparent, uiSortingKey);
@@ -281,22 +339,22 @@ ezUInt16 ezParticleTypeTrail::GetIndexForTrailPoints()
   {
     // expand the proper array
 
-    //if (m_uiMaxPoints > 32)
+    // if (m_uiMaxPoints > 32)
     //{
     res = m_TrailPoints64.GetCount();
     m_TrailPoints64.ExpandAndGetRef();
     //}
-    //else if (m_uiMaxPoints > 16)
+    // else if (m_uiMaxPoints > 16)
     //{
     //  res = m_TrailData32.GetCount() & 0xFFFF;
     //  m_TrailData64.ExpandAndGetRef();
     //}
-    //else if (m_uiMaxPoints > 8)
+    // else if (m_uiMaxPoints > 8)
     //{
     //  res = m_TrailData16.GetCount() & 0xFFFF;
     //  m_TrailData64.ExpandAndGetRef();
     //}
-    //else
+    // else
     //{
     //  res = m_TrailData8.GetCount() & 0xFFFF;
     //  m_TrailData8.ExpandAndGetRef();
@@ -308,19 +366,19 @@ ezUInt16 ezParticleTypeTrail::GetIndexForTrailPoints()
 
 ezVec4* ezParticleTypeTrail::GetTrailPointsPositions(ezUInt32 index)
 {
-  //if (m_uiMaxPoints > 32)
+  // if (m_uiMaxPoints > 32)
   {
     return &m_TrailPoints64[index].Positions[0];
   }
-  //else if (m_uiMaxPoints > 16)
+  // else if (m_uiMaxPoints > 16)
   //{
   //  return &m_TrailPoints32[index].Positions[0];
   //}
-  //else if (m_uiMaxPoints > 8)
+  // else if (m_uiMaxPoints > 8)
   //{
   //  return &m_TrailPoints16[index].Positions[0];
   //}
-  //else
+  // else
   //{
   //  return &m_TrailPoints8[index].Positions[0];
   //}
@@ -328,19 +386,19 @@ ezVec4* ezParticleTypeTrail::GetTrailPointsPositions(ezUInt32 index)
 
 const ezVec4* ezParticleTypeTrail::GetTrailPointsPositions(ezUInt32 index) const
 {
-  //if (m_uiMaxPoints > 32)
+  // if (m_uiMaxPoints > 32)
   {
     return &m_TrailPoints64[index].Positions[0];
   }
-  //else if (m_uiMaxPoints > 16)
+  // else if (m_uiMaxPoints > 16)
   //{
   //  return &m_TrailPoints32[index].Positions[0];
   //}
-  //else if (m_uiMaxPoints > 8)
+  // else if (m_uiMaxPoints > 8)
   //{
   //  return &m_TrailPoints16[index].Positions[0];
   //}
-  //else
+  // else
   //{
   //  return &m_TrailPoints8[index].Positions[0];
   //}
@@ -376,4 +434,3 @@ void ezParticleTypeTrail::OnParticleDeath(const ezStreamGroupElementRemovedEvent
 }
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Trail_ParticleTypeTrail);
-

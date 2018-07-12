@@ -75,32 +75,35 @@ float4 CalcQuadOutputPositionAsBillboard(uint vertexIndex, float3 centerPosition
   return screenPosition;
 }
 
-float2 ComputeSpriteAnimationTexCoord(float2 baseTexCoord, uint numVarsX, uint numVarsY, float varLerp, uint numAnimsX, uint numAnimsY, float animLerp)
+float4 ComputeTextureAtlasRect(uint numVarsX, uint numVarsY, float varLerp, float4 texCoordOffsetAndSize)
 {
-  float2 texCoordSize = float2(1, 1);
-  float2 texCoordOffset = float2(0, 0);
-
   if (numVarsX > 1 || numVarsY > 1)
   {
     uint numVars = numVarsX * numVarsY;
     uint idxVar = (uint)(numVars * varLerp);
     uint varY = idxVar / numVarsX;
     uint varX = (idxVar - (varY * numVarsX));
-    texCoordSize = texCoordSize / float2(numVarsX, numVarsY);
-    texCoordOffset = texCoordOffset + texCoordSize * float2(varX, varY);
+    texCoordOffsetAndSize.zw = texCoordOffsetAndSize.zw / float2(numVarsX, numVarsY);
+    texCoordOffsetAndSize.xy = texCoordOffsetAndSize.xy + texCoordOffsetAndSize.zw * float2(varX, varY);
   }
 
-  if (numAnimsX > 1 || numAnimsY > 1)
-  {
-    uint numAnims = numAnimsX * numAnimsY;
-    uint idxAnim = (uint)(numAnims * animLerp);
-    uint animY = idxAnim / numAnimsX;
-    uint animX = (idxAnim - (animY * numAnimsX));
-    texCoordSize = texCoordSize / float2(numAnimsX, numAnimsY);
-    texCoordOffset = texCoordOffset + texCoordSize * float2(animX, animY);
-  }
-
-  return texCoordOffset + baseTexCoord * texCoordSize;
+  return texCoordOffsetAndSize;
 }
 
+float4 ComputeAtlasRectRandomAnimated(uint numVarsX, uint numVarsY, float varLerp, uint numAnimsX, uint numAnimsY, float animLerp)
+{
+  float4 texCoordOffsetAndSize = float4(0, 0, 1, 1);
+
+  texCoordOffsetAndSize = ComputeTextureAtlasRect(numVarsX, numVarsY, varLerp, texCoordOffsetAndSize);
+  texCoordOffsetAndSize = ComputeTextureAtlasRect(numAnimsX, numAnimsY, animLerp, texCoordOffsetAndSize);
+
+  return texCoordOffsetAndSize;
+}
+
+float2 ComputeAtlasTexCoordRandomAnimated(float2 baseTexCoord, uint numVarsX, uint numVarsY, float varLerp, uint numAnimsX, uint numAnimsY, float animLerp)
+{
+  float4 texCoordOffsetAndSize = ComputeAtlasRectRandomAnimated(numVarsX, numVarsY, varLerp, numAnimsX, numAnimsY, animLerp);
+
+  return texCoordOffsetAndSize.xy + baseTexCoord * texCoordOffsetAndSize.zw;
+}
 

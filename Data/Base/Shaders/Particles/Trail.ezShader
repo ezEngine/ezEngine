@@ -11,16 +11,14 @@ SHADING_QUALITY=SHADING_QUALITY_NORMAL
 [RENDERSTATE]
 
 BlendingEnabled0 = true
-SourceBlend0 = Blend_One
+SourceBlend0 = Blend_SrcAlpha
 DepthTest = true
 DepthWrite = false
 CullMode = CullMode_None
 
 #if PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_ADDITIVE
-  // also premultiplied alpha assuming alpha is zero
   DestBlend0 = Blend_One
 #elif PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_BLENDED
-  // premultiplied alpha
   DestBlend0 = Blend_InvSrcAlpha
 #elif PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_OPAQUE
   BlendingEnabled0 = false
@@ -64,10 +62,13 @@ VS_OUT main(uint VertexID : SV_VertexID)
     // doing this and then accessing the data will silently not work on nVidia cards and just result in the drawcall being ignored
     //ezTrailParticlePointsData trail = particlePointsData[particleIndex];
 
+    float fVariation = (baseParticle.Variation & 255) / 255.0;
+    float4 textureAtlasRect = ComputeAtlasRectRandomAnimated(TextureAtlasVariationFramesX, TextureAtlasVariationFramesY, fVariation, TextureAtlasFlipbookFramesX, TextureAtlasFlipbookFramesY, 1.0f - particleLife);
+
     // UV step is currently calculated over the maximum number of segments, instead of the active number of segments
     // this means at start the texture is cut off, instead of stretching over the full UV space
     // doing it differently would be very complicated though
-    float uvStep = 1.0 / (NumUsedTrailPoints - 2);
+    float uvStep = textureAtlasRect.z / (NumUsedTrailPoints - 2);
     float uvCoord = uvStep * vertexTrailPointIndex;
     float uvSubtract = uvStep * SnapshotFraction; // to adjust the UV coordinates while the first position glides along, to not have jumps when a new segment is added
 
@@ -89,17 +90,17 @@ VS_OUT main(uint VertexID : SV_VertexID)
     float4 position = mul(ObjectToWorldMatrix, float4(position0, 1)) + offsetUp;
 
     ret.Position = mul(GetWorldToScreenMatrix(), position);
-    ret.TexCoords.x = uvCoord;
-    ret.TexCoords.y = QuadTexCoords[vertexSubIndex].y;
+    ret.TexCoords.x = textureAtlasRect.x + uvCoord;
+    ret.TexCoords.y = textureAtlasRect.y + textureAtlasRect.w * QuadTexCoords[vertexSubIndex].y;
 
     // do NOT adjust the UV of the very first vertex, that is the one moves all the time and is always at UV.x == 0
     // however, DO adjust the coordinate of the LAST vertex, since that is not moving and needs to "fade away" (out of the UV space, ie > 1)
-    if (ret.TexCoords.x > 0.01)
+    if (ret.TexCoords.x > textureAtlasRect.x)
       ret.TexCoords.x -= uvSubtract;
 
     // manually clamp the texCoords
     // this could be set as a sampler state, but it would not work with sub-ranges (once we support texture atlases)
-    ret.TexCoords.x = min(1.0, ret.TexCoords.x);
+    ret.TexCoords.x = min(textureAtlasRect.x + textureAtlasRect.z, ret.TexCoords.x);
   }
 
   return ret;
@@ -122,6 +123,6 @@ float4 main(PS_IN Input) : SV_Target
 
   clip(opacity - 0.01);
 
-  return float4(texCol.rgb * Input.Color.rgb * opacity, opacity);
+  return float4(texCol.rgb * Input.Color.rgb, opacity);
 }
 

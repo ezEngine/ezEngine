@@ -9,6 +9,7 @@
 #include <ParticlePlugin/Type/Quad/ParticleTypeQuad.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
+#include <ParticlePlugin/Type/Trail/ParticleTypeTrail.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectAssetDocument, 3, ezRTTINoAllocator);
@@ -49,6 +50,26 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
       props["DistortionTexture"].m_Visibility = ezPropertyUiState::Default;
       props["DistortionStrength"].m_Visibility = ezPropertyUiState::Default;
     }
+  }
+  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleTypeTrailFactory>())
+  {
+    auto& props = *e.m_pPropertyStates;
+
+    //ezInt64 renderMode = e.m_pObject->GetTypeAccessor().GetValue("RenderMode").ConvertTo<ezInt64>();
+    ezInt64 textureAtlas = e.m_pObject->GetTypeAccessor().GetValue("TextureAtlas").ConvertTo<ezInt64>();
+
+    //props["DistortionTexture"].m_Visibility = ezPropertyUiState::Invisible;
+    //props["DistortionStrength"].m_Visibility = ezPropertyUiState::Invisible;
+    props["NumSpritesX"].m_Visibility =
+        (textureAtlas == (int)ezParticleTextureAtlasType::None) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+    props["NumSpritesY"].m_Visibility =
+        (textureAtlas == (int)ezParticleTextureAtlasType::None) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+
+    //if (renderMode == ezParticleTypeRenderMode::Distortion)
+    //{
+    //  props["DistortionTexture"].m_Visibility = ezPropertyUiState::Default;
+    //  props["DistortionStrength"].m_Visibility = ezPropertyUiState::Default;
+    //}
   }
 }
 

@@ -235,5 +235,44 @@ ezParticleStreamFactory_TrailData::ezParticleStreamFactory_TrailData()
 {
 }
 
+
+//////////////////////////////////////////////////////////////////////////
+// VARIATION STREAM
+//////////////////////////////////////////////////////////////////////////
+
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStreamFactory_Variation, 1, ezRTTIDefaultAllocator<ezParticleStreamFactory_Variation>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStream_Variation, 1, ezRTTIDefaultAllocator<ezParticleStream_Variation>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+ezParticleStreamFactory_Variation::ezParticleStreamFactory_Variation()
+    : ezParticleStreamFactory("Variation", ezProcessingStream::DataType::Int, ezGetStaticRTTI<ezParticleStream_Variation>())
+{
+}
+
+void ezParticleStream_Variation::Initialize(ezParticleSystemInstance* pOwner)
+{
+  m_pOwner = pOwner;
+}
+
+void ezParticleStream_Variation::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+{
+  ezProcessingStreamIterator<ezUInt32> itData(m_pStream, uiNumElements, uiStartIndex);
+
+  const ezVec3 startVel = m_pOwner->GetParticleStartVelocity();
+
+  ezRandom& rng = m_pOwner->GetRNG();
+
+  while (!itData.HasReachedEnd())
+  {
+    itData.Current() = rng.UInt();
+    itData.Advance();
+  }
+}
+
+
+
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Streams_DefaultParticleStreams);
 

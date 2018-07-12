@@ -23,6 +23,9 @@ public:
   ezUInt16 m_uiMaxPoints;
   ezTime m_UpdateDiff;
   ezString m_sTexture;
+  ezEnum<ezParticleTextureAtlasType> m_TextureAtlasType;
+  ezUInt8 m_uiNumSpritesX = 1;
+  ezUInt8 m_uiNumSpritesY = 1;
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeTrail : public ezParticleType
@@ -33,11 +36,13 @@ public:
   ezParticleTypeTrail();
   ~ezParticleTypeTrail();
 
-
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   ezUInt16 m_uiMaxPoints;
   ezTime m_UpdateDiff;
   ezTexture2DResourceHandle m_hTexture;
+  ezEnum<ezParticleTextureAtlasType> m_TextureAtlasType;
+  ezUInt8 m_uiNumSpritesX = 1;
+  ezUInt8 m_uiNumSpritesY = 1;
 
   virtual void CreateRequiredStreams() override;
   virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override;
@@ -57,6 +62,7 @@ protected:
   ezProcessingStream* m_pStreamSize = nullptr;
   ezProcessingStream* m_pStreamColor = nullptr;
   ezProcessingStream* m_pStreamTrailData = nullptr;
+  ezProcessingStream* m_pStreamVariation = nullptr;
   ezTime m_LastSnapshot;
   ezUInt8 m_uiCurFirstIndex;
   float m_fSnapshotFraction;

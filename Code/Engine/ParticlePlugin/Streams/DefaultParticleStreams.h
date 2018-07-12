@@ -198,3 +198,26 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_TrailData : public ezParticl
 public:
   ezParticleStreamFactory_TrailData();
 };
+
+//////////////////////////////////////////////////////////////////////////
+// VARIATION STREAM
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Variation : public ezParticleStreamFactory
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_Variation, ezParticleStreamFactory);
+
+public:
+  ezParticleStreamFactory_Variation();
+};
+
+class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Variation : public ezParticleStream
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_Variation, ezParticleStream);
+
+protected:
+  virtual void Initialize(ezParticleSystemInstance* pOwner) override;
+  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+
+  ezParticleSystemInstance* m_pOwner;
+};

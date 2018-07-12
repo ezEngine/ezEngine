@@ -159,7 +159,7 @@ void ezParticleTypeQuad::CreateRequiredStreams()
   if (m_TextureAtlasType == ezParticleTextureAtlasType::RandomVariations ||
       m_TextureAtlasType == ezParticleTextureAtlasType::RandomYAnimatedX)
   {
-    CreateStream("Variation", ezProcessingStream::DataType::Int, &m_pStreamVariation, true);
+    CreateStream("Variation", ezProcessingStream::DataType::Int, &m_pStreamVariation, false);
   }
 }
 
@@ -267,11 +267,7 @@ void ezParticleTypeQuad::CreateExtractedData(const ezView& view, ezExtractedRend
     m_BaseParticleData[dstIdx].Size = pSize[srcIdx];
     m_BaseParticleData[dstIdx].Color = pColor[srcIdx].ToLinearFloat() * tintColor;
     m_BaseParticleData[dstIdx].Life = pLifeTime[srcIdx].x * pLifeTime[srcIdx].y;
-
-    if (pVariation)
-    {
-      m_BaseParticleData[dstIdx].Variation = pVariation[srcIdx];
-    }
+    m_BaseParticleData[dstIdx].Variation = (pVariation != nullptr) ? pVariation[srcIdx] : 0;
   };
 
   auto SetBillboardData = [&](ezUInt32 dstIdx, ezUInt32 srcIdx) {
@@ -477,21 +473,6 @@ void ezParticleTypeQuad::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNu
           pAxis[uiElementIdx] = vNormal;
         }
       }
-    }
-  }
-
-  if (m_pStreamVariation != nullptr)
-  {
-    ezUInt32* pVariation = m_pStreamVariation->GetWritableData<ezUInt32>();
-    ezRandom& rng = GetRNG();
-
-    EZ_PROFILE("PFX: Init Variation");
-
-    for (ezUInt32 i = 0; i < uiNumElements; ++i)
-    {
-      const ezUInt64 uiElementIdx = uiStartIndex + i;
-
-      pVariation[uiElementIdx] = rng.UInt();
     }
   }
 }

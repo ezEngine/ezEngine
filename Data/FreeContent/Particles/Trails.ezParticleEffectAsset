@@ -21,7 +21,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3591997517772925067,4762298574615070988}}
-		u4 %Hash{8482455343909778975}
+		u4 %Hash{3183331996444678128}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{18313714754562045525,2955562566788259711}}
@@ -29,8 +29,7 @@ o
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 5baa63c4-3b61-4125-bb86-dd4ab439c483 }"}
-			s{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
+			s{"{ 39f5aa7d-375c-489c-81aa-579df88d8621 }"}
 		}
 	}
 }
@@ -45,6 +44,7 @@ o
 	p
 	{
 		b %AlwaysShared{0}
+		f %ApplyOwnerVelocity{0}
 		VarDict %ColorParameters{}
 		VarDict %FloatParameters{}
 		VarArray %ParticleSystems
@@ -67,7 +67,7 @@ o
 		{
 			Uuid{u4{13551080696668029061,5572285354122191541}}
 			Uuid{u4{6604802465339532935,5598454946551210507}}
-			Uuid{u4{3612934058340306622,5336830372913875708}}
+			Uuid{u4{6776122424175760512,5679275929774723315}}
 		}
 		VarArray %Emitters
 		{
@@ -88,16 +88,6 @@ o
 			Uuid{u4{7553829695027867529,5751090183486421052}}
 		}
 		b %Visible{1}
-	}
-}
-o
-{
-	Uuid %id{u4{3612934058340306622,5336830372913875708}}
-	s %t{"ezParticleBehaviorFactory_ColorGradient"}
-	u3 %v{1}
-	p
-	{
-		s %Gradient{"{ 5baa63c4-3b61-4125-bb86-dd4ab439c483 }"}
 	}
 }
 o
@@ -134,6 +124,17 @@ o
 }
 o
 {
+	Uuid %id{u4{6776122424175760512,5679275929774723315}}
+	s %t{"ezParticleBehaviorFactory_FadeOut"}
+	u3 %v{1}
+	p
+	{
+		f %Exponent{0x00000040}
+		f %StartAlpha{0x0000803F}
+	}
+}
+o
+{
 	Uuid %id{u4{16863058486973731006,5698620605118841066}}
 	s %t{"ezParticleInitializerFactory_RandomSize"}
 	u3 %v{1}
@@ -151,7 +152,7 @@ o
 	p
 	{
 		Time %Duration{d{0x000000000000E03F}}
-		u3 %MinSpawnCount{100}
+		u3 %MinSpawnCount{20}
 		u3 %SpawnCountRange{0}
 		s %SpawnCountScaleParam{""}
 		Time %StartDelay{d{0}}
@@ -164,9 +165,12 @@ o
 	u3 %v{1}
 	p
 	{
+		u1 %NumSpritesX{4}
+		u1 %NumSpritesY{4}
 		s %RenderMode{"ezParticleTypeRenderMode::Additive"}
 		u2 %Segments{6}
-		s %Texture{"{ e00262e8-58f5-42f5-880d-569257047201 }"}
+		s %Texture{"{ 39f5aa7d-375c-489c-81aa-579df88d8621 }"}
+		s %TextureAtlas{"ezParticleTextureAtlasType::RandomYAnimatedX"}
 	}
 }
 o
@@ -176,7 +180,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Value{0xCDCC4C3E}
+		f %Value{0x9A99993E}
 		f %Variance{0x713D8A3E}
 	}
 }
@@ -257,24 +261,6 @@ o
 }
 o
 {
-	Uuid %id{u4{564319780849124288,2877851564283450000}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezParticleBehaviorFactory"}
-		s %PluginName{"ezEditorPluginParticle"}
-		VarArray %Properties{}
-		s %TypeName{"ezParticleBehaviorFactory_ColorGradient"}
-		u3 %TypeSize{16}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{3168673866823338768,4696335111295142345}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -288,6 +274,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleBehaviorFactory"}
 		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5814284155980160751,5759191340344101956}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleTextureAtlasType"}
+		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -341,7 +345,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleTypeTrailFactory"}
-		u3 %TypeSize{88}
+		u3 %TypeSize{96}
 		u3 %TypeVersion{1}
 	}
 }
@@ -396,6 +400,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_RandomSize"}
 		u3 %TypeSize{24}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6039580943737071570,13050277371990143528}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezParticleBehaviorFactory"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleBehaviorFactory_FadeOut"}
+		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -485,7 +507,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEffectDescriptor"}
-		u3 %TypeSize{288}
+		u3 %TypeSize{304}
 		u3 %TypeVersion{1}
 	}
 }

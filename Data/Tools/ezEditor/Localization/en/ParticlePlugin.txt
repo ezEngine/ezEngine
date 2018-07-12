@@ -68,3 +68,4 @@ ezParticleTextureAtlasType::None;None
 ezParticleTextureAtlasType::RandomVariations;Random Variations
 ezParticleTextureAtlasType::FlipbookAnimation;Flipbook Animation
 ezParticleTextureAtlasType::RandomYAnimatedX;Random Row, Animated Column
+TextureAtlas;Texture Atlas
