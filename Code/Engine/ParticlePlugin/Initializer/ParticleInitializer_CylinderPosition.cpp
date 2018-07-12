@@ -86,6 +86,8 @@ void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStart
 {
   EZ_PROFILE("PFX: Cylinder Position");
 
+  const ezVec3 startVel = GetOwnerSystem()->GetParticleStartVelocity();
+
   ezVec4* pPosition = m_pStreamPosition->GetWritableData<ezVec4>();
   ezVec3* pVelocity = m_bSetVelocity ? m_pStreamVelocity->GetWritableData<ezVec3>() : nullptr;
 
@@ -128,7 +130,7 @@ void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStart
       const float fSpeed = (float)rng.DoubleVariance(m_Speed.m_Value, m_Speed.m_fVariance);
 
       /// \todo Ignore scale ?
-      pVelocity[i] = GetOwnerSystem()->GetTransform().m_qRotation * normalPos * fSpeed;
+      pVelocity[i] = startVel + GetOwnerSystem()->GetTransform().m_qRotation * normalPos * fSpeed;
     }
 
     pPosition[i] = (GetOwnerSystem()->GetTransform() * pos).GetAsVec4(0);

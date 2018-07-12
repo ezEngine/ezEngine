@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10397632043479265953,5177341319926404083}}
-		u4 %Hash{6943971738119636271}
+		u4 %Hash{15413169977117998262}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -1238,17 +1238,17 @@ o
 	u3 %v{3}
 	p
 	{
-		f %Acceleration{0x0000803F}
+		f %Acceleration{0x0000A040}
 		b %Active{1}
 		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveY"}
-		f %Deceleration{0x0000803F}
+		f %Deceleration{0x0000A040}
 		f %Distance{0x00004040}
 		Time %RandomStart{d{0}}
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{1}
 		b %RunAtStartup{1}
-		f %Speed{0x00000040}
+		f %Speed{0x00002041}
 	}
 }
 o
@@ -1488,6 +1488,26 @@ o
 }
 o
 {
+	Uuid %id{u4{1727578037747425937,5212156382793752602}}
+	s %t{"ezSliderComponent"}
+	u3 %v{3}
+	p
+	{
+		f %Acceleration{0x0000A040}
+		b %Active{1}
+		b %AutoToggleDirection{0}
+		s %Axis{"ezBasisAxis::PositiveX"}
+		f %Deceleration{0x0000A040}
+		f %Distance{0x00004040}
+		Time %RandomStart{d{0}}
+		b %ReverseAtEnd{1}
+		b %ReverseAtStart{1}
+		b %RunAtStartup{1}
+		f %Speed{0x00002041}
+	}
+}
+o
+{
 	Uuid %id{u4{7343750881105534622,5248227714855315255}}
 	s %t{"ezPrefabReferenceComponent"}
 	u3 %v{1}
@@ -1658,6 +1678,7 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{351308001296778121,4918700357571917199}}
+			Uuid{u4{1727578037747425937,5212156382793752602}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x000020C0,0x000048C1,0x0000403F}}
@@ -3429,7 +3450,7 @@ o
 			Uuid{u4{1252754354447498147,4990691014731305642}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x000020C0,0x00006040,0}}
+		Vec3 %LocalPosition{f{0x000020C0,0x00006040,0xFC05DF3E}}
 		Quat %LocalRotation{f{0x3E0E353F,0x834778B9,0x072E78B9,0xA8FB343F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}

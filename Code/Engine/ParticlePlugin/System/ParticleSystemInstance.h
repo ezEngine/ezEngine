@@ -1,11 +1,11 @@
 #pragma once
 
-#include <ParticlePlugin/Basics.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStream.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
-#include <Foundation/Math/Random.h>
-#include <ParticlePlugin/Declarations.h>
 #include <Foundation/Math/BoundingBoxSphere.h>
+#include <Foundation/Math/Random.h>
+#include <ParticlePlugin/Basics.h>
+#include <ParticlePlugin/Declarations.h>
 
 class ezView;
 class ezExtractedRenderData;
@@ -35,8 +35,9 @@ public:
 
   void SetupOptionalStreams();
 
-  void SetTransform(const ezTransform& transform) { m_Transform = transform; }
+  void SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity);
   const ezTransform& GetTransform() const { return m_Transform; }
+  const ezVec3& GetParticleStartVelocity() const { return m_vParticleStartVelocity; }
 
   ezParticleSystemState::Enum Update(const ezTime& tDiff);
 
@@ -51,14 +52,16 @@ public:
   const ezProcessingStream* QueryStream(const char* szName, ezProcessingStream::DataType Type) const;
 
   /// \brief Returns the desired stream, if it already exists, creates it otherwise.
-  void CreateStream(const char* szName, ezProcessingStream::DataType Type, ezProcessingStream** ppStream, ezParticleStreamBinding& binding, bool bExpectInitializedValue);
+  void CreateStream(const char* szName, ezProcessingStream::DataType Type, ezProcessingStream** ppStream, ezParticleStreamBinding& binding,
+                    bool bExpectInitializedValue);
 
   void ProcessEventQueue(const ezParticleEventQueue* pQueue);
 
   ezParticleEffectInstance* GetOwnerEffect() const { return m_pOwnerEffect; }
   ezParticleWorldModule* GetOwnerWorldModule() const;
 
-  void ExtractSystemRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const;
+  void ExtractSystemRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform,
+                               ezUInt64 uiExtractedFrame) const;
 
   typedef ezEvent<const ezStreamGroupElementRemovedEvent&>::Handler ParticleDeathHandler;
 
@@ -88,6 +91,7 @@ private:
   ezParticleEffectInstance* m_pOwnerEffect;
   ezWorld* m_pWorld;
   ezTransform m_Transform;
+  ezVec3 m_vParticleStartVelocity;
 
   ezProcessingStreamGroup m_StreamGroup;
 

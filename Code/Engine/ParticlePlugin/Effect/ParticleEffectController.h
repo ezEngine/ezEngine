@@ -20,7 +20,7 @@ public:
 
   bool IsContinuousEffect() const { return GetInstance()->IsContinuous(); }
 
-  void SetTransform(const ezTransform& t) const;
+  void SetTransform(const ezTransform& t, const ezVec3& vParticleStartVelocity) const;
 
   void Tick(const ezTime& tDiff) const;
   void SetIsInView() const;

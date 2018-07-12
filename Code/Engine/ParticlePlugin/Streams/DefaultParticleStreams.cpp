@@ -108,9 +108,30 @@ void ezParticleStream_Color::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStreamFactory_Velocity, 1, ezRTTIDefaultAllocator<ezParticleStreamFactory_Velocity>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStream_Velocity, 1, ezRTTIDefaultAllocator<ezParticleStream_Velocity>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
 ezParticleStreamFactory_Velocity::ezParticleStreamFactory_Velocity()
-    : ezParticleStreamFactory("Velocity", ezProcessingStream::DataType::Float3, ezGetStaticRTTI<ezParticleStream_ZeroInit>())
+    : ezParticleStreamFactory("Velocity", ezProcessingStream::DataType::Float3, ezGetStaticRTTI<ezParticleStream_Velocity>())
 {
+}
+
+void ezParticleStream_Velocity::Initialize(ezParticleSystemInstance* pOwner)
+{
+  m_pOwner = pOwner;
+}
+
+void ezParticleStream_Velocity::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+{
+  ezProcessingStreamIterator<ezVec3> itData(m_pStream, uiNumElements, uiStartIndex);
+
+  const ezVec3 startVel = m_pOwner->GetParticleStartVelocity();
+
+  while (!itData.HasReachedEnd())
+  {
+    itData.Current() = startVel;
+    itData.Advance();
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -215,3 +236,4 @@ ezParticleStreamFactory_TrailData::ezParticleStreamFactory_TrailData()
 }
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Streams_DefaultParticleStreams);
+

@@ -15,6 +15,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectDescriptor, 1, ezRTTIDefaultAllo
     EZ_MEMBER_PROPERTY("SimulateInLocalSpace", m_bSimulateInLocalSpace),
     EZ_MEMBER_PROPERTY("AlwaysShared", m_bAlwaysShared),
     EZ_MEMBER_PROPERTY("PreSimulateDuration", m_PreSimulateDuration),
+    EZ_MEMBER_PROPERTY("ApplyOwnerVelocity", m_fApplyInstanceVelocity)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_MAP_MEMBER_PROPERTY("FloatParameters", m_FloatParameters),
     EZ_MAP_MEMBER_PROPERTY("ColorParameters", m_ColorParameters)->AddAttributes(new ezExposeColorAlphaAttribute),
     EZ_SET_ACCESSOR_PROPERTY("ParticleSystems", GetParticleSystems, AddParticleSystem, RemoveParticleSystem)->AddFlags(ezPropertyFlags::PointerOwner),
@@ -50,6 +51,7 @@ enum class ParticleEffectVersion
   Version_4,
   Version_5, // m_bAlwaysShared
   Version_6, // added parameters
+  Version_7, // added instance velocity
 
   // insert new version numbers above
   Version_Count,
@@ -103,6 +105,9 @@ void ezParticleEffectDescriptor::Save(ezStreamWriter& stream) const
       stream << it.Value();
     }
   }
+
+  // Version 7
+  stream << m_fApplyInstanceVelocity;
 
   context.EndWritingToStream(&stream);
 }
@@ -186,6 +191,11 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& stream)
       stream >> val;
       m_FloatParameters[key] = val;
     }
+  }
+
+  if (uiVersion >= 7)
+  {
+    stream >> m_fApplyInstanceVelocity;
   }
 
   context.EndReadingFromStream(&stream);

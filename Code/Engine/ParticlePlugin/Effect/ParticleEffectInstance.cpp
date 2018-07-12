@@ -40,6 +40,7 @@ void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, c
   m_EffectIsVisible.SetZero();
   m_iMinSimStepsToDo = 4;
   m_Transform.SetIdentity();
+  m_vVelocity.SetZero();
 
   Reconfigure(uiRandomSeed, true);
 }
@@ -201,6 +202,8 @@ void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTim
   const auto& systems = desc.GetParticleSystems();
 
   m_Transform.SetIdentity();
+  m_vVelocity.SetZero();
+  m_fApplyInstanceVelocity = desc.m_fApplyInstanceVelocity;
   m_bSimulateInLocalSpace = desc.m_bSimulateInLocalSpace;
   m_InvisibleUpdateRate = desc.m_InvisibleUpdateRate;
 
@@ -258,10 +261,12 @@ void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTim
     }
   }
 
+  const ezVec3 vStartVelocity = m_vVelocity * m_fApplyInstanceVelocity;
+
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
     m_ParticleSystems[i]->ConfigureFromTemplate(systems[i]);
-    m_ParticleSystems[i]->SetTransform(m_Transform);
+    m_ParticleSystems[i]->SetTransform(m_Transform, vStartVelocity);
     m_ParticleSystems[i]->SetEmitterEnabled(m_bEmitterEnabled);
     m_ParticleSystems[i]->Finalize();
   }
@@ -367,11 +372,13 @@ bool ezParticleEffectInstance::StepSimulation(const ezTime& tDiff)
   return m_uiReviveTimeout > 0;
 }
 
-void ezParticleEffectInstance::SetTransform(const ezTransform& transform, const void* pSharedInstanceOwner)
+void ezParticleEffectInstance::SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity,
+                                            const void* pSharedInstanceOwner)
 {
   if (pSharedInstanceOwner == nullptr)
   {
     m_Transform = transform;
+    m_vVelocity = vParticleStartVelocity;
   }
   else
   {
@@ -407,11 +414,13 @@ void ezParticleEffectInstance::PassTransformToSystems()
 {
   if (!m_bSimulateInLocalSpace)
   {
+    const ezVec3 vStartVel = m_vVelocity * m_fApplyInstanceVelocity;
+
     for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
     {
       if (m_ParticleSystems[i] != nullptr)
       {
-        m_ParticleSystems[i]->SetTransform(m_Transform);
+        m_ParticleSystems[i]->SetTransform(m_Transform, vStartVel);
       }
     }
   }

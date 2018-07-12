@@ -67,6 +67,8 @@ void ezParticleInitializer_VelocityCone::InitializeElements(ezUInt64 uiStartInde
 {
   EZ_PROFILE("PFX: Velocity Cone");
 
+  const ezVec3 startVel = GetOwnerSystem()->GetParticleStartVelocity();
+
   ezVec3* pVelocity = m_pStreamVelocity->GetWritableData<ezVec3>();
 
   ezRandom& rng = GetRNG();
@@ -93,7 +95,7 @@ void ezParticleInitializer_VelocityCone::InitializeElements(ezUInt64 uiStartInde
 
     const float fSpeed = (float)rng.DoubleVariance(m_Speed.m_Value, m_Speed.m_fVariance);
 
-    pVelocity[i] = GetOwnerSystem()->GetTransform().m_qRotation * dir * fSpeed;
+    pVelocity[i] = startVel + GetOwnerSystem()->GetTransform().m_qRotation * dir * fSpeed;
   }
 }
 

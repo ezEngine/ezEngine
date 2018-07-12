@@ -90,6 +90,17 @@ public:
   ezParticleStreamFactory_Velocity();
 };
 
+class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Velocity : public ezParticleStream
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_Velocity, ezParticleStream);
+
+protected:
+  virtual void Initialize(ezParticleSystemInstance* pOwner) override;
+  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+
+  ezParticleSystemInstance* m_pOwner;
+};
+
 //////////////////////////////////////////////////////////////////////////
 // LIFETIME STREAM
 //////////////////////////////////////////////////////////////////////////

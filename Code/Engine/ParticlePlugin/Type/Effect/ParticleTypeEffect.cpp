@@ -147,7 +147,8 @@ void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
       t.m_vScale.Set(1.0f);
       t.m_vPosition = pPosition[i].GetAsVec3();
 
-      pEffect->SetTransform(t, nullptr);
+      // TODO: pass through velocity
+      pEffect->SetTransform(t, ezVec3::ZeroVector(), nullptr);
     }
   }
 }

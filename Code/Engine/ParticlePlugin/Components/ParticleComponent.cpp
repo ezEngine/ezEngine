@@ -162,7 +162,7 @@ bool ezParticleComponent::StartEffect()
     ezParticleWorldModule* pModule = GetWorld()->GetOrCreateModule<ezParticleWorldModule>();
     m_EffectController.Create(m_hEffectResource, pModule, m_uiRandomSeed, m_sSharedInstanceName, this);
 
-    m_EffectController.SetTransform(GetOwner()->GetGlobalTransform());
+    m_EffectController.SetTransform(GetOwner()->GetGlobalTransform(), GetOwner()->GetVelocity());
 
     return true;
   }
@@ -312,8 +312,8 @@ void ezParticleComponent::Update()
         m_EffectController.SetParameter(e.m_sName, e.m_Value);
       }
     }
-
-    m_EffectController.SetTransform(GetOwner()->GetGlobalTransform());
+    
+    m_EffectController.SetTransform(GetOwner()->GetGlobalTransform(), GetOwner()->GetVelocity());
 
     CheckBVolumeUpdate();
   }
@@ -352,6 +352,7 @@ void ezParticleComponent::HandOffToFinisher()
     pWorld->GetOrCreateComponentManager<ezParticleFinisherComponentManager>()->CreateComponent(pFinisher, pFinisherComp);
 
     pFinisherComp->m_EffectController = m_EffectController;
+    pFinisherComp->m_EffectController.SetTransform(transform, ezVec3::ZeroVector()); // clear the velocity
   }
 
   m_EffectController.Invalidate();

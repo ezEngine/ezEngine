@@ -67,7 +67,7 @@ public:
   bool IsSimulatedInLocalSpace() const { return m_bSimulateInLocalSpace; }
 
   /// \brief Sets the transformation of the main or shared instance
-  void SetTransform(const ezTransform& transform, const void* pSharedInstanceOwner = nullptr);
+  void SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity, const void* pSharedInstanceOwner = nullptr);
 
   /// \brief Returns the transform of the main or shared instance
   const ezTransform& GetTransform(const void* pSharedInstanceOwner = nullptr) const;
@@ -79,6 +79,7 @@ private:
   void PassTransformToSystems();
 
   ezTransform m_Transform;
+  ezVec3 m_vVelocity;
 
   /// @}
   /// @name Updates
@@ -204,6 +205,7 @@ private:
   bool m_bIsFinishing = false;
   ezUInt8 m_uiReviveTimeout;
   ezInt8 m_iMinSimStepsToDo = 0;
+  float m_fApplyInstanceVelocity;
   ezTime m_PreSimulateDuration;
   ezParticleEffectResourceHandle m_hResource;
 

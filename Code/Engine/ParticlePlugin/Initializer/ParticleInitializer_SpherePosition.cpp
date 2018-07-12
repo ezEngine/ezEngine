@@ -82,6 +82,8 @@ void ezParticleInitializer_SpherePosition::InitializeElements(ezUInt64 uiStartIn
 {
   EZ_PROFILE("PFX: Sphere Position");
 
+const ezVec3 startVel = GetOwnerSystem()->GetParticleStartVelocity();
+
   ezVec4* pPosition = m_pStreamPosition->GetWritableData<ezVec4>();
   ezVec3* pVelocity = m_bSetVelocity ? m_pStreamVelocity->GetWritableData<ezVec3>() : nullptr;
 
@@ -107,7 +109,7 @@ void ezParticleInitializer_SpherePosition::InitializeElements(ezUInt64 uiStartIn
       const float fSpeed = (float)rng.DoubleVariance(m_Speed.m_Value, m_Speed.m_fVariance);
 
       /// \todo Ignore scale ?
-      pVelocity[i] = GetOwnerSystem()->GetTransform().m_qRotation * normalPos * fSpeed;
+      pVelocity[i] = startVel + GetOwnerSystem()->GetTransform().m_qRotation * normalPos * fSpeed;
     }
 
     pPosition[i] = (GetOwnerSystem()->GetTransform() * pos).GetAsVec4(0);

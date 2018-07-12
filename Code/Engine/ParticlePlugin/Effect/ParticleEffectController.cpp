@@ -67,14 +67,14 @@ bool ezParticleEffectController::IsAlive() const
   return pEffect != nullptr;
 }
 
-void ezParticleEffectController::SetTransform(const ezTransform& t) const
+void ezParticleEffectController::SetTransform(const ezTransform& t, const ezVec3& vParticleStartVelocity) const
 {
   ezParticleEffectInstance* pEffect = GetInstance();
 
   // shared effects are always simulated at the origin
   if (pEffect)
   {
-    pEffect->SetTransform(t, m_pSharedInstanceOwner);
+    pEffect->SetTransform(t, vParticleStartVelocity, m_pSharedInstanceOwner);
   }
 }
 

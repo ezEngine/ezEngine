@@ -75,13 +75,13 @@ float4 CalcQuadOutputPositionAsBillboard(uint vertexIndex, float3 centerPosition
   return screenPosition;
 }
 
-float2 ComputeSpriteAnimationTexCoord(float2 texCoord, int numSpriteCols, int numSpriteRows, float particleLife)
+float2 ComputeSpriteAnimationTexCoord(float2 texCoord, uint numSpriteCols, uint numSpriteRows, float particleLife)
 {
-  int numSprites = numSpriteRows * numSpriteCols;
+  uint numSprites = numSpriteRows * numSpriteCols;
   float spriteLerp = 1.0 - particleLife;
-  int idxSprite = (int)(numSprites * spriteLerp);
-  int spriteRow = idxSprite / numSpriteCols;
-  int spriteCol = (idxSprite - (spriteRow * numSpriteCols));
+  uint idxSprite = (uint)(numSprites * spriteLerp);
+  uint spriteRow = idxSprite / numSpriteCols;
+  uint spriteCol = (idxSprite - (spriteRow * numSpriteCols));
   float2 texCoordSize = float2(1, 1) / float2(numSpriteCols, numSpriteRows);
 
   return texCoordSize * float2(spriteCol, spriteRow) + texCoord * texCoordSize;

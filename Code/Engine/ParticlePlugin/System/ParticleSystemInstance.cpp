@@ -1,20 +1,21 @@
 #include <PCH.h>
-#include <ParticlePlugin/System/ParticleSystemInstance.h>
-#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
-#include <Foundation/DataProcessing/Stream/ProcessingStreamProcessor.h>
-#include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
+
 #include <Core/World/World.h>
-#include <ParticlePlugin/Emitter/ParticleEmitter.h>
-#include <ParticlePlugin/Behavior/ParticleBehavior.h>
-#include <ParticlePlugin/System/ParticleSystemDescriptor.h>
-#include <ParticlePlugin/Initializer/ParticleInitializer.h>
-#include <ParticlePlugin/Type/ParticleType.h>
 #include <Foundation/DataProcessing/Stream/DefaultImplementations/ZeroInitializer.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamProcessor.h>
+#include <Foundation/Profiling/Profiling.h>
+#include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <ParticlePlugin/Behavior/ParticleBehavior.h>
+#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
+#include <ParticlePlugin/Emitter/ParticleEmitter.h>
+#include <ParticlePlugin/Initializer/ParticleInitializer.h>
 #include <ParticlePlugin/Streams/ParticleStream.h>
+#include <ParticlePlugin/System/ParticleSystemDescriptor.h>
+#include <ParticlePlugin/System/ParticleSystemInstance.h>
+#include <ParticlePlugin/Type/ParticleType.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <Foundation/Profiling/Profiling.h>
 
 bool ezParticleSystemInstance::HasActiveParticles() const
 {
@@ -96,11 +97,8 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
     info.m_bInUse = false;
   }
 
-  const bool allProcessorsEqual =
-    IsEmitterConfigEqual(pTemplate) &&
-    IsInitializerConfigEqual(pTemplate) &&
-    IsBehaviorConfigEqual(pTemplate) &&
-    IsTypeConfigEqual(pTemplate);
+  const bool allProcessorsEqual = IsEmitterConfigEqual(pTemplate) && IsInitializerConfigEqual(pTemplate) &&
+                                  IsBehaviorConfigEqual(pTemplate) && IsTypeConfigEqual(pTemplate);
 
   if (!allProcessorsEqual)
   {
@@ -147,7 +145,7 @@ void ezParticleSystemInstance::CreateStreamProcessors(const ezParticleSystemDesc
 {
   // all spawners get cleared, so clear this as well
   // this has to be done before any streams get created
-  //for (auto& info : m_StreamInfo)
+  // for (auto& info : m_StreamInfo)
   //{
   //  info.m_pZeroInitializer = nullptr;
   //}
@@ -231,6 +229,12 @@ void ezParticleSystemInstance::SetupOptionalStreams()
   }
 }
 
+void ezParticleSystemInstance::SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity)
+{
+  m_Transform = transform;
+  m_vParticleStartVelocity = vParticleStartVelocity;
+}
+
 void ezParticleSystemInstance::ReinitializeStreamProcessors(const ezParticleSystemDescriptor* pTemplate)
 {
   // emitters
@@ -291,7 +295,8 @@ ezParticleSystemInstance::ezParticleSystemInstance()
   m_BoundingVolume = ezBoundingSphere(ezVec3::ZeroVector(), 0.0f);
 }
 
-void ezParticleSystemInstance::Construct(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed, ezParticleEffectInstance* pOwnerEffect)
+void ezParticleSystemInstance::Construct(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed,
+                                         ezParticleEffectInstance* pOwnerEffect)
 {
   m_Transform.SetIdentity();
   m_pOwnerEffect = pOwnerEffect;
@@ -408,7 +413,8 @@ const ezProcessingStream* ezParticleSystemInstance::QueryStream(const char* szNa
   return m_StreamGroup.GetStreamByName(fullName);
 }
 
-void ezParticleSystemInstance::CreateStream(const char* szName, ezProcessingStream::DataType Type, ezProcessingStream** ppStream, ezParticleStreamBinding& binding, bool bWillInitializeElements)
+void ezParticleSystemInstance::CreateStream(const char* szName, ezProcessingStream::DataType Type, ezProcessingStream** ppStream,
+                                            ezParticleStreamBinding& binding, bool bWillInitializeElements)
 {
   EZ_ASSERT_DEV(ppStream != nullptr, "The pointer to the stream pointer must not be null");
 
@@ -455,7 +461,7 @@ void ezParticleSystemInstance::CreateStream(const char* szName, ezProcessingStre
 
 void ezParticleSystemInstance::CreateStreamZeroInitializers()
 {
-  for (ezUInt32 i = 0; i < m_StreamInfo.GetCount(); )
+  for (ezUInt32 i = 0; i < m_StreamInfo.GetCount();)
   {
     auto& info = m_StreamInfo[i];
 
@@ -498,7 +504,7 @@ void ezParticleSystemInstance::CreateStreamZeroInitializers()
       }
       else
       {
-        //ezLog::Debug("Particle stream '{0}' is default-initialized.", info.m_sName);
+        // ezLog::Debug("Particle stream '{0}' is default-initialized.", info.m_sName);
         info.m_pDefaultInitializer = pStream;
       }
 
@@ -531,13 +537,13 @@ ezParticleWorldModule* ezParticleSystemInstance::GetOwnerWorldModule() const
   return m_pOwnerEffect->GetOwnerWorldModule();
 }
 
-void ezParticleSystemInstance::ExtractSystemRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+void ezParticleSystemInstance::ExtractSystemRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData,
+                                                       const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
   for (auto pType : m_Types)
   {
     pType->ExtractTypeRenderData(view, extractedRenderData, instanceTransform, uiExtractedFrame);
   }
-
 }
 
 void ezParticleSystemInstance::AddParticleDeathEventHandler(ParticleDeathHandler handler)
@@ -582,4 +588,3 @@ bool ezParticleSystemInstance::IsContinuous() const
 }
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_System_ParticleSystemInstance);
-
