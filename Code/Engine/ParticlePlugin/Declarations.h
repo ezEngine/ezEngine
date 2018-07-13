@@ -126,3 +126,19 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleTextureAtlasType);
 
 //////////////////////////////////////////////////////////////////////////
 
+struct EZ_PARTICLEPLUGIN_DLL ezParticleColorGradientMode
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    Age,
+    Speed,
+
+    Default = Age
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleColorGradientMode);
+
+//////////////////////////////////////////////////////////////////////////

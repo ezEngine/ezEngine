@@ -10,6 +10,7 @@
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 #include <ParticlePlugin/Type/Trail/ParticleTypeTrail.h>
+#include <ParticlePlugin/Behavior/ParticleBehavior_ColorGradient.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectAssetDocument, 3, ezRTTINoAllocator);
@@ -70,6 +71,15 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
     //  props["DistortionTexture"].m_Visibility = ezPropertyUiState::Default;
     //  props["DistortionStrength"].m_Visibility = ezPropertyUiState::Default;
     //}
+  }
+  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleBehaviorFactory_ColorGradient>())
+  {
+    auto& props = *e.m_pPropertyStates;
+
+    ezInt64 mode = e.m_pObject->GetTypeAccessor().GetValue("ColorGradientMode").ConvertTo<ezInt64>();
+
+    props["GradientMaxSpeed"].m_Visibility =
+        (mode == ezParticleColorGradientMode::Speed) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   }
 }
 

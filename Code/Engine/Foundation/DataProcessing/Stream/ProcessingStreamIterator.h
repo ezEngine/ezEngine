@@ -21,6 +21,9 @@ public:
   /// \brief Advances the current pointer to the next element in the stream.
   void Advance();
 
+  /// \brief Advances the current pointer by the given number of elements.
+  void Advance(ezUInt32 numElements);
+
   // TODO: Add iterator interface? Only makes really sense for element spawners and processors which work on a single stream
 
 protected:

@@ -22,6 +22,9 @@ public:
   void SetColorGradientFile(const char* szFile);
   const char* GetColorGradientFile() const;
 
+  ezEnum<ezParticleColorGradientMode> m_GradientMode;
+  float m_fMaxSpeed = 1.0f;
+
 private:
   ezColorGradientResourceHandle m_hGradient;
 };
@@ -33,6 +36,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_ColorGradient : public ezParticle
 
 public:
   ezColorGradientResourceHandle m_hGradient;
+  ezEnum<ezParticleColorGradientMode> m_GradientMode;
+  float m_fMaxSpeed = 1.0f;
 
   virtual void AfterPropertiesConfigured(bool bFirstTime) override;
   virtual void CreateRequiredStreams() override;
@@ -43,6 +48,7 @@ protected:
 
   ezProcessingStream* m_pStreamLifeTime = nullptr;
   ezProcessingStream* m_pStreamColor = nullptr;
+  ezProcessingStream* m_pStreamVelocity = nullptr;
   ezColor m_InitColor;
   ezUInt8 m_uiFirstToUpdate = 0;
   ezUInt8 m_uiCurrentUpdateInterval = 8;

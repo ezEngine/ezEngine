@@ -35,6 +35,13 @@ EZ_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////
 
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleColorGradientMode, 1)
+  EZ_ENUM_CONSTANT(ezParticleColorGradientMode::Age),
+  EZ_ENUM_CONSTANT(ezParticleColorGradientMode::Speed),
+EZ_END_STATIC_REFLECTED_ENUM;
+
+//////////////////////////////////////////////////////////////////////////
+
 // clang-format on
 
 void OnLoadPlugin(bool bReloading) {}

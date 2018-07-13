@@ -69,3 +69,7 @@ ezParticleTextureAtlasType::RandomVariations;Random Variations
 ezParticleTextureAtlasType::FlipbookAnimation;Flipbook Animation
 ezParticleTextureAtlasType::RandomYAnimatedX;Random Row, Animated Column
 TextureAtlas;Texture Atlas
+ezParticleColorGradientMode::Age;Age
+ezParticleColorGradientMode::Speed;Speed
+ColorGradientMode;Color From
+GradientMaxSpeed;Max Speed
