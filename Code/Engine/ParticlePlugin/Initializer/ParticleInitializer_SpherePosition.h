@@ -1,7 +1,7 @@
-﻿#pragma once
+#pragma once
 
-#include <ParticlePlugin/Initializer/ParticleInitializer.h>
 #include <Foundation/Types/VarianceTypes.h>
+#include <ParticlePlugin/Initializer/ParticleInitializer.h>
 
 class ezParticleInitializerFactory_SpherePosition : public ezParticleInitializerFactory
 {
@@ -17,6 +17,7 @@ public:
   virtual void Load(ezStreamReader& stream) override;
 
 public:
+  ezVec3 m_vPositionOffset;
   float m_fRadius;
   bool m_bSpawnOnSurface;
   bool m_bSetVelocity;
@@ -29,7 +30,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_SpherePosition : public ezPart
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializer_SpherePosition, ezParticleInitializer);
 
 public:
-
+  ezVec3 m_vPositionOffset;
   float m_fRadius;
   bool m_bSpawnOnSurface;
   bool m_bSetVelocity;

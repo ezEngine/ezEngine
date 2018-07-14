@@ -16,6 +16,7 @@ public:
   virtual void Load(ezStreamReader& stream) override;
 
 public:
+  ezVec3 m_vPositionOffset;
   ezVec3 m_vSize;
 };
 
@@ -25,7 +26,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_BoxPosition : public ezParticl
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializer_BoxPosition, ezParticleInitializer);
 
 public:
-
+  ezVec3 m_vPositionOffset;
   ezVec3 m_vSize;
 
   virtual void CreateRequiredStreams() override;

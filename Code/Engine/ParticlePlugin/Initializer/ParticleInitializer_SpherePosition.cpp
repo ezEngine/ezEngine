@@ -1,15 +1,18 @@
 #include <PCH.h>
-#include <ParticlePlugin/Initializer/ParticleInitializer_SpherePosition.h>
+
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Random.h>
-#include <ParticlePlugin/System/ParticleSystemInstance.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <ParticlePlugin/Initializer/ParticleInitializer_SpherePosition.h>
+#include <ParticlePlugin/System/ParticleSystemInstance.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_SpherePosition, 1, ezRTTIDefaultAllocator<ezParticleInitializerFactory_SpherePosition>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.25f)),
+    EZ_MEMBER_PROPERTY("PositionOffset", m_vPositionOffset),
+    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.01f, 100.0f)),
     EZ_MEMBER_PROPERTY("OnSurface", m_bSpawnOnSurface),
     EZ_MEMBER_PROPERTY("SetVelocity", m_bSetVelocity),
     EZ_MEMBER_PROPERTY("Speed", m_Speed),
@@ -20,10 +23,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializer_SpherePosition, 1, ezRTTIDefaultAllocator<ezParticleInitializer_SpherePosition>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezParticleInitializerFactory_SpherePosition::ezParticleInitializerFactory_SpherePosition()
 {
   m_fRadius = 0.25f;
+  m_vPositionOffset.SetZero();
   m_bSpawnOnSurface = false;
   m_bSetVelocity = false;
 }
@@ -37,15 +42,16 @@ void ezParticleInitializerFactory_SpherePosition::CopyInitializerProperties(ezPa
 {
   ezParticleInitializer_SpherePosition* pInitializer = static_cast<ezParticleInitializer_SpherePosition*>(pInitializer0);
 
-  pInitializer->m_fRadius = ezMath::Max(m_fRadius, 0.02f); // prevent 0 radius
+  pInitializer->m_fRadius = ezMath::Max(m_fRadius, 0.01f); // prevent 0 radius
   pInitializer->m_bSpawnOnSurface = m_bSpawnOnSurface;
   pInitializer->m_bSetVelocity = m_bSetVelocity;
   pInitializer->m_Speed = m_Speed;
+  pInitializer->m_vPositionOffset = m_vPositionOffset;
 }
 
 void ezParticleInitializerFactory_SpherePosition::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 1;
+  const ezUInt8 uiVersion = 2;
   stream << uiVersion;
 
   stream << m_fRadius;
@@ -53,6 +59,9 @@ void ezParticleInitializerFactory_SpherePosition::Save(ezStreamWriter& stream) c
   stream << m_bSetVelocity;
   stream << m_Speed.m_Value;
   stream << m_Speed.m_fVariance;
+
+  // version 2
+  stream << m_vPositionOffset;
 }
 
 void ezParticleInitializerFactory_SpherePosition::Load(ezStreamReader& stream)
@@ -65,6 +74,11 @@ void ezParticleInitializerFactory_SpherePosition::Load(ezStreamReader& stream)
   stream >> m_bSetVelocity;
   stream >> m_Speed.m_Value;
   stream >> m_Speed.m_fVariance;
+
+  if (uiVersion >= 2)
+  {
+    stream >> m_vPositionOffset;
+  }
 }
 
 
@@ -84,18 +98,18 @@ void ezParticleInitializer_SpherePosition::InitializeElements(ezUInt64 uiStartIn
 {
   EZ_PROFILE("PFX: Sphere Position");
 
-const ezVec3 startVel = GetOwnerSystem()->GetParticleStartVelocity();
+  const ezVec3 startVel = GetOwnerSystem()->GetParticleStartVelocity();
 
   ezVec4* pPosition = m_pStreamPosition->GetWritableData<ezVec4>();
   ezVec3* pVelocity = m_bSetVelocity ? m_pStreamVelocity->GetWritableData<ezVec3>() : nullptr;
 
   ezRandom& rng = GetRNG();
 
+  const ezTransform trans = GetOwnerSystem()->GetTransform();
+
   for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
   {
-    ezVec3 pos = ezVec3::CreateRandomPointInSphere(rng);
-    pos *= m_fRadius;
-
+    ezVec3 pos = ezVec3::CreateRandomPointInSphere(rng) * m_fRadius;
     ezVec3 normalPos = pos;
 
     if (m_bSpawnOnSurface || m_bSetVelocity)
@@ -106,19 +120,19 @@ const ezVec3 startVel = GetOwnerSystem()->GetParticleStartVelocity();
     if (m_bSpawnOnSurface)
       pos = normalPos * m_fRadius;
 
+    pos += m_vPositionOffset;
+
     if (m_bSetVelocity)
     {
       const float fSpeed = (float)rng.DoubleVariance(m_Speed.m_Value, m_Speed.m_fVariance);
 
-      /// \todo Ignore scale ?
-      pVelocity[i] = startVel + GetOwnerSystem()->GetTransform().m_qRotation * normalPos * fSpeed;
+      pVelocity[i] = startVel + trans.m_qRotation * normalPos * fSpeed;
     }
 
-    pPosition[i] = (GetOwnerSystem()->GetTransform() * pos).GetAsVec4(0);
+    pPosition[i] = (trans * pos).GetAsVec4(0);
   }
 }
 
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_SpherePosition);
-

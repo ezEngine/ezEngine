@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
 #include <Foundation/Types/VarianceTypes.h>
@@ -17,6 +17,7 @@ public:
   virtual void Load(ezStreamReader& stream) override;
 
 public:
+  ezVec3 m_vPositionOffset;
   float m_fRadius;
   float m_fHeight;
   bool m_bSpawnOnSurface;
@@ -31,6 +32,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_CylinderPosition : public ezPa
 
 public:
 
+  ezVec3 m_vPositionOffset;
   float m_fRadius;
   float m_fHeight;
   bool m_bSpawnOnSurface;

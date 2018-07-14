@@ -1,16 +1,19 @@
 #include <PCH.h>
-#include <ParticlePlugin/Initializer/ParticleInitializer_CylinderPosition.h>
+
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Random.h>
-#include <ParticlePlugin/System/ParticleSystemInstance.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <ParticlePlugin/Initializer/ParticleInitializer_CylinderPosition.h>
+#include <ParticlePlugin/System/ParticleSystemInstance.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_CylinderPosition, 1, ezRTTIDefaultAllocator<ezParticleInitializerFactory_CylinderPosition>)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.25f)),
-    EZ_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("PositionOffset", m_vPositionOffset),
+    EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.01f, 100.0f)),
+    EZ_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 100.0f)),
     EZ_MEMBER_PROPERTY("OnSurface", m_bSpawnOnSurface),
     EZ_MEMBER_PROPERTY("SetVelocity", m_bSetVelocity),
     EZ_MEMBER_PROPERTY("Speed", m_Speed),
@@ -21,9 +24,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializer_CylinderPosition, 1, ezRTTIDefaultAllocator<ezParticleInitializer_CylinderPosition>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezParticleInitializerFactory_CylinderPosition::ezParticleInitializerFactory_CylinderPosition()
 {
+  m_vPositionOffset.SetZero();
   m_fRadius = 0.25f;
   m_fHeight = 1.0f;
   m_bSpawnOnSurface = false;
@@ -39,7 +44,8 @@ void ezParticleInitializerFactory_CylinderPosition::CopyInitializerProperties(ez
 {
   ezParticleInitializer_CylinderPosition* pInitializer = static_cast<ezParticleInitializer_CylinderPosition*>(pInitializer0);
 
-  pInitializer->m_fRadius = ezMath::Max(m_fRadius, 0.02f); // prevent 0 radius
+  pInitializer->m_vPositionOffset = m_vPositionOffset;
+  pInitializer->m_fRadius = ezMath::Max(m_fRadius, 0.01f); // prevent 0 radius
   pInitializer->m_fHeight = ezMath::Max(m_fHeight, 0.0f);
   pInitializer->m_bSpawnOnSurface = m_bSpawnOnSurface;
   pInitializer->m_bSetVelocity = m_bSetVelocity;
@@ -48,7 +54,7 @@ void ezParticleInitializerFactory_CylinderPosition::CopyInitializerProperties(ez
 
 void ezParticleInitializerFactory_CylinderPosition::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 1;
+  const ezUInt8 uiVersion = 2;
   stream << uiVersion;
 
   stream << m_fRadius;
@@ -57,6 +63,9 @@ void ezParticleInitializerFactory_CylinderPosition::Save(ezStreamWriter& stream)
   stream << m_bSetVelocity;
   stream << m_Speed.m_Value;
   stream << m_Speed.m_fVariance;
+
+  // version 2
+  stream << m_vPositionOffset;
 }
 
 void ezParticleInitializerFactory_CylinderPosition::Load(ezStreamReader& stream)
@@ -70,6 +79,11 @@ void ezParticleInitializerFactory_CylinderPosition::Load(ezStreamReader& stream)
   stream >> m_bSetVelocity;
   stream >> m_Speed.m_Value;
   stream >> m_Speed.m_fVariance;
+
+  if (uiVersion >= 2)
+  {
+    stream >> m_vPositionOffset;
+  }
 }
 
 void ezParticleInitializer_CylinderPosition::CreateRequiredStreams()
@@ -97,6 +111,8 @@ void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStart
 
   const float fRadiusSqr = m_fRadius * m_fRadius;
 
+  const ezTransform trans = GetOwnerSystem()->GetTransform();
+
   for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
   {
     ezVec3 pos;
@@ -109,8 +125,8 @@ void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStart
       pos.y = (float)rng.DoubleMinMax(-m_fRadius, m_fRadius);
 
       len = pos.GetLengthSquared();
-    }
-    while (len > fRadiusSqr || len <= 0.000001f); // prevent spawning at the exact center (note: this has to be smaller than the minimum allowed radius sqr)
+    } while (len > fRadiusSqr ||
+             len <= 0.000001f); // prevent spawning at the exact center (note: this has to be smaller than the minimum allowed radius sqr)
 
     ezVec3 normalPos = pos;
 
@@ -124,22 +140,22 @@ void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStart
 
     if (m_fHeight > 0)
     {
-      pos.z = (float)rng.DoubleMinMax(0, m_fHeight);
+      pos.z = (float)rng.DoubleMinMax(-m_fHeight, m_fHeight);
     }
+
+    pos += m_vPositionOffset;
 
     if (m_bSetVelocity)
     {
       const float fSpeed = (float)rng.DoubleVariance(m_Speed.m_Value, m_Speed.m_fVariance);
 
-      /// \todo Ignore scale ?
-      pVelocity[i] = startVel + GetOwnerSystem()->GetTransform().m_qRotation * normalPos * fSpeed;
+      pVelocity[i] = startVel + trans.m_qRotation * normalPos * fSpeed;
     }
 
-    pPosition[i] = (GetOwnerSystem()->GetTransform() * pos).GetAsVec4(0);
+    pPosition[i] = (trans * pos).GetAsVec4(0);
   }
 }
 
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_CylinderPosition);
-
