@@ -66,6 +66,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
   float fVariation = (baseParticle.Variation & 255) / 255.0;
   ret.TexCoords = ComputeAtlasTexCoordRandomAnimated(QuadTexCoords[vertexIndex], TextureAtlasVariationFramesX, TextureAtlasVariationFramesY, fVariation, TextureAtlasFlipbookFramesX, TextureAtlasFlipbookFramesY, 1.0f - particleLife);
 
+  ret.WorldPosition = mul(GetScreenToWorldMatrix(), ret.Position);
   return ret;
 }
 
@@ -92,9 +93,9 @@ float4 main(PS_IN Input) : SV_Target
 
   float opacity = Input.Color.a * texCol.a * proximityFadeOut;
 
-  clip(opacity - 0.01);
 
   #if PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_DISTORTION
+    clip(opacity - 0.01);
 
     float4 texDistort = ParticleDistortionTexture.Sample(ParticleDistortionTexture_AutoSampler, Input.TexCoords.xy);
     float3 sceneColor = SampleSceneColor(Input.Position.xy + (texDistort - 0.5) * float2(DistortionStrength, DistortionStrength));
@@ -103,7 +104,19 @@ float4 main(PS_IN Input) : SV_Target
 
   #else
 
-    return float4(texCol.rgb * Input.Color.rgb, opacity);
+    float3 finalColor = texCol.rgb * Input.Color.rgb;
+
+    //#if defined(USE_FOG)
+      #if PARTICLE_RENDER_MODE == PARTICLE_RENDER_MODE_ADDITIVE
+        opacity *= 1.0 - GetFogAmount(Input.WorldPosition);      
+      #else
+        finalColor = ApplyFog(finalColor, Input.WorldPosition);      
+      #endif
+    //#endif
+
+    clip(opacity - 0.01);
+
+    return float4(finalColor, opacity);
 
   #endif
 }

@@ -2,6 +2,7 @@
 
 #define USE_TEXCOORD0
 #define USE_COLOR
+#define USE_WORLDPOS
 
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
