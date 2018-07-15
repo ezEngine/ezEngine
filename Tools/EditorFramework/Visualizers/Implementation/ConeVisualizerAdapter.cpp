@@ -1,16 +1,12 @@
-﻿#include <PCH.h>
-#include <EditorFramework/Visualizers/ConeVisualizerAdapter.h>
+#include <PCH.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/Visualizers/ConeVisualizerAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezConeVisualizerAdapter::ezConeVisualizerAdapter()
-{
-}
+ezConeVisualizerAdapter::ezConeVisualizerAdapter() {}
 
-ezConeVisualizerAdapter::~ezConeVisualizerAdapter()
-{
-}
+ezConeVisualizerAdapter::~ezConeVisualizerAdapter() {}
 
 void ezConeVisualizerAdapter::Finalize()
 {
@@ -65,9 +61,33 @@ void ezConeVisualizerAdapter::Update()
 
 void ezConeVisualizerAdapter::UpdateGizmoTransform()
 {
+  const ezConeVisualizerAttribute* pAttr = static_cast<const ezConeVisualizerAttribute*>(m_pVisualizerAttr);
+
+  ezQuat rot;
+  switch (pAttr->m_Axis)
+  {
+    case ezBasisAxis::PositiveX:
+      rot.SetIdentity();
+      break;
+    case ezBasisAxis::PositiveY:
+      rot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
+      break;
+    case ezBasisAxis::PositiveZ:
+      rot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
+      break;
+    case ezBasisAxis::NegativeX:
+      rot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(180));
+      break;
+    case ezBasisAxis::NegativeY:
+      rot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-90));
+      break;
+    case ezBasisAxis::NegativeZ:
+      rot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
+      break;
+  }
+
   ezTransform t = GetObjectTransform();
   t.m_vScale = t.m_vScale.CompMul(ezVec3(1.0f, m_fAngleScale, m_fAngleScale) * m_fFinalScale);
+  t.m_qRotation = rot * t.m_qRotation;
   m_Gizmo.SetTransformation(t);
 }
-
-

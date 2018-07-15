@@ -1,10 +1,12 @@
 #include <PCH.h>
-#include <ParticlePlugin/Initializer/ParticleInitializer_VelocityCone.h>
+
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Random.h>
-#include <ParticlePlugin/System/ParticleSystemInstance.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <ParticlePlugin/Initializer/ParticleInitializer_VelocityCone.h>
+#include <ParticlePlugin/System/ParticleSystemInstance.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_VelocityCone, 1, ezRTTIDefaultAllocator<ezParticleInitializerFactory_VelocityCone>)
 {
   EZ_BEGIN_PROPERTIES
@@ -13,11 +15,17 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_VelocityCone, 1, ez
     EZ_MEMBER_PROPERTY("Speed", m_Speed),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezConeVisualizerAttribute(ezBasisAxis::PositiveZ, "Angle", 1.0f, nullptr, nullptr, ezColor::CornflowerBlue)
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializer_VelocityCone, 1, ezRTTIDefaultAllocator<ezParticleInitializer_VelocityCone>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezParticleInitializerFactory_VelocityCone::ezParticleInitializerFactory_VelocityCone()
 {
@@ -87,8 +95,7 @@ void ezParticleInitializer_VelocityCone::InitializeElements(ezUInt64 uiStartInde
       dir.y = (float)rng.DoubleMinMax(-1.0, 1.0);
 
       len = dir.GetLengthSquared();
-    }
-    while (len > 1.0f);
+    } while (len > 1.0f);
 
     dir.z = dist;
     dir.Normalize();
@@ -102,4 +109,3 @@ void ezParticleInitializer_VelocityCone::InitializeElements(ezUInt64 uiStartInde
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_VelocityCone);
-

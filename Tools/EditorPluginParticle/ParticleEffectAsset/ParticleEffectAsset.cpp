@@ -146,6 +146,13 @@ void ezParticleEffectAssetDocument::SetSimulationSpeed(float speed)
   m_Events.Broadcast(e);
 }
 
+ezResult ezParticleEffectAssetDocument::ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_Result) const
+{
+  // currently the preview particle effect is always at the origin
+  out_Result.SetIdentity();
+  return EZ_SUCCESS;
+}
+
 void ezParticleEffectAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 {
   SUPER::UpdateAssetDocumentInfo(pInfo);

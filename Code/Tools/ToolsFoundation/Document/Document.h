@@ -154,7 +154,7 @@ public:
   void ShowDocumentStatus(const ezFormatString& msg) const;
 
   /// \brief Tries to compute the position and rotation for an object in the document. Returns EZ_SUCCESS if it was possible.
-  virtual ezResult ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_Result) const { return EZ_FAILURE; }
+  virtual ezResult ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_Result) const;
 
   ///@}
   /// \name Prefab Functions

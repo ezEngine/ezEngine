@@ -1,8 +1,8 @@
 #pragma once
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
-#include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
 #include <Foundation/Communication/Event.h>
+#include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
 
 class ezParticleEffectAssetDocument;
 struct ezPropertyMetaStateEvent;
@@ -46,9 +46,13 @@ public:
   void SetSimulationSpeed(float speed);
   float GetSimulationSpeed() const { return m_fSimulationSpeed; }
 
+  // Overridden to enable support for visualizers/manipulators
+  virtual ezResult ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_Result) const override;
+
 protected:
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform,
+                                          const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
   virtual ezStatus InternalCreateThumbnail(const ezAssetFileHeader& AssetHeader) override;
 
 private:

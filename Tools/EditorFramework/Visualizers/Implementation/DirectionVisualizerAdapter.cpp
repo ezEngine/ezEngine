@@ -1,16 +1,13 @@
-﻿#include <PCH.h>
-#include <EditorFramework/Visualizers/DirectionVisualizerAdapter.h>
+#include <PCH.h>
+
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/Visualizers/DirectionVisualizerAdapter.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
-ezDirectionVisualizerAdapter::ezDirectionVisualizerAdapter()
-{
-}
+ezDirectionVisualizerAdapter::ezDirectionVisualizerAdapter() {}
 
-ezDirectionVisualizerAdapter::~ezDirectionVisualizerAdapter()
-{
-}
+ezDirectionVisualizerAdapter::~ezDirectionVisualizerAdapter() {}
 
 void ezDirectionVisualizerAdapter::Finalize()
 {
@@ -59,11 +56,32 @@ void ezDirectionVisualizerAdapter::UpdateGizmoTransform()
     fScale *= value.ConvertTo<float>();
   }
 
+  ezQuat rot;
+  switch (pAttr->m_Axis)
+  {
+    case ezBasisAxis::PositiveX:
+      rot.SetIdentity();
+      break;
+    case ezBasisAxis::PositiveY:
+      rot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
+      break;
+    case ezBasisAxis::PositiveZ:
+      rot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
+      break;
+    case ezBasisAxis::NegativeX:
+      rot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(180));
+      break;
+    case ezBasisAxis::NegativeY:
+      rot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-90));
+      break;
+    case ezBasisAxis::NegativeZ:
+      rot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
+      break;
+  }
+
   ezTransform t;
-  t.m_qRotation.SetIdentity();
+  t.m_qRotation = rot;
   t.m_vScale = ezVec3(fScale);
   t.m_vPosition = ezVec3(fScale, 0, 0);
   m_Gizmo.SetTransformation(GetObjectTransform() * t);
 }
-
-

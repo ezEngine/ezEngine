@@ -19,6 +19,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_CylinderPosition, 1
     EZ_MEMBER_PROPERTY("Speed", m_Speed),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCapsuleVisualizerAttribute("Height", "Radius")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -110,6 +115,7 @@ void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStart
   ezRandom& rng = GetRNG();
 
   const float fRadiusSqr = m_fRadius * m_fRadius;
+  const float fHalfHeight = m_fHeight * 0.5f;
 
   const ezTransform trans = GetOwnerSystem()->GetTransform();
 
@@ -140,7 +146,7 @@ void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStart
 
     if (m_fHeight > 0)
     {
-      pos.z = (float)rng.DoubleMinMax(-m_fHeight, m_fHeight);
+      pos.z = (float)rng.DoubleMinMax(-fHalfHeight, fHalfHeight);
     }
 
     pos += m_vPositionOffset;

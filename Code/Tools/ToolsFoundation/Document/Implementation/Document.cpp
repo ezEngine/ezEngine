@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
@@ -385,6 +385,12 @@ void ezDocument::ShowDocumentStatus(const ezFormatString& msg) const
   m_EventsOne.Broadcast(e);
 }
 
+
+ezResult ezDocument::ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_Result) const
+{
+  out_Result.SetIdentity();
+  return EZ_FAILURE;
+}
 
 ezObjectAccessorBase* ezDocument::GetObjectAccessor() const
 {
