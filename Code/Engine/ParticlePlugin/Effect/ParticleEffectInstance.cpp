@@ -270,7 +270,6 @@ void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTim
     m_ParticleSystems[i]->SetEmitterEnabled(m_bEmitterEnabled);
     m_ParticleSystems[i]->Finalize();
   }
-
 }
 
 bool ezParticleEffectInstance::Update(const ezTime& tDiff)
