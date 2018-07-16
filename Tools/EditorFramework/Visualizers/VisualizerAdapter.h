@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorFramework/Plugin.h>
 #include <Foundation/Types/Variant.h>
@@ -26,6 +26,8 @@ public:
   virtual ~ezVisualizerAdapter();
 
   void SetVisualizer(const ezVisualizerAttribute* pAttribute, const ezDocumentObject* pObject);
+
+  static ezQuat GetBasisRotation(ezBasisAxis::Enum identity, ezBasisAxis::Enum axis);
 
 private:
   void DocumentObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e);

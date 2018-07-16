@@ -20,7 +20,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_SpherePosition, 1, 
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezSphereVisualizerAttribute("Radius"),
+    new ezSphereVisualizerAttribute("Radius", nullptr, ezColor::MediumVioletRed, "PositionOffset"),
   }
   EZ_END_ATTRIBUTES;
 }

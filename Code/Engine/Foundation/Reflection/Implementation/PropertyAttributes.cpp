@@ -489,9 +489,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezBoxVisualizerAttribute, 1, ezRTTIDefaultAlloca
   EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const ezColor&, const char*, ezVec3),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const ezColor&, const char*),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const ezColor&),
     EZ_CONSTRUCTOR_PROPERTY(const char*, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const ezColor&),
+    EZ_CONSTRUCTOR_PROPERTY(const char*),
   }
   EZ_END_FUNCTIONS;
 }
@@ -503,16 +505,14 @@ ezBoxVisualizerAttribute::ezBoxVisualizerAttribute()
 {
 }
 
-ezBoxVisualizerAttribute::ezBoxVisualizerAttribute(const char* szSize, const char* szColorProperty)
-    : ezVisualizerAttribute(szSize, szColorProperty)
-{
-  m_Color = ezColor::MediumVioletRed;
-}
-
-ezBoxVisualizerAttribute::ezBoxVisualizerAttribute(const char* szSizeProperty, const ezColor& fixedColor /*= ezColor::MediumVioletRed*/)
-    : ezVisualizerAttribute(szSizeProperty)
+ezBoxVisualizerAttribute::ezBoxVisualizerAttribute(const char* szSizeProperty, const char* szColorProperty /*= nullptr*/,
+                                                   const ezColor& fixedColor /*= ezColor::MediumVioletRed*/,
+                                                   const char* szOffsetProperty /*= nullptr*/,
+                                                   ezVec3 fixedOffset /*= ezVec3::ZeroVector()*/)
+    : ezVisualizerAttribute(szSizeProperty, szColorProperty, szOffsetProperty)
 {
   m_Color = fixedColor;
+  m_vOffset = fixedOffset;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -527,9 +527,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSphereVisualizerAttribute, 1, ezRTTIDefaultAll
   EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_CONSTRUCTOR_PROPERTY(const char*),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const ezColor&, const char*, ezVec3),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const ezColor&, const char*),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, const ezColor&),
     EZ_CONSTRUCTOR_PROPERTY(const char*, const char*),
-    EZ_CONSTRUCTOR_PROPERTY(const char*, const ezColor&),
+    EZ_CONSTRUCTOR_PROPERTY(const char*),
   }
   EZ_END_FUNCTIONS;
 }
@@ -541,19 +543,15 @@ ezSphereVisualizerAttribute::ezSphereVisualizerAttribute()
 {
 }
 
-ezSphereVisualizerAttribute::ezSphereVisualizerAttribute(const char* szRadiusProperty, const char* szColorProperty)
-    : ezVisualizerAttribute(szRadiusProperty, szColorProperty)
+ezSphereVisualizerAttribute::ezSphereVisualizerAttribute(const char* szRadiusProperty, const char* szColorProperty /*= nullptr*/,
+                                                         const ezColor& fixedColor /*= ezColor::MediumVioletRed*/,
+                                                         const char* szOffsetProperty /*= nullptr*/,
+                                                         ezVec3 fixedOffset /*= ezVec3::ZeroVector()*/)
+    : ezVisualizerAttribute(szRadiusProperty, szColorProperty, szOffsetProperty)
 {
-  m_Color = ezColor::MediumVioletRed;
-}
-
-ezSphereVisualizerAttribute::ezSphereVisualizerAttribute(const char* szRadiusProperty,
-                                                         const ezColor& fixedColor /*= ezColor::MediumVioletRed*/)
-    : ezVisualizerAttribute(szRadiusProperty)
-{
+  m_vOffset = fixedOffset;
   m_Color = fixedColor;
 }
-
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -593,6 +591,46 @@ ezCapsuleVisualizerAttribute::ezCapsuleVisualizerAttribute(const char* szHeightP
     : ezVisualizerAttribute(szHeightProperty, szRadiusProperty)
 {
   m_Color = fixedColor;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCylinderVisualizerAttribute, 1, ezRTTIDefaultAllocator<ezCylinderVisualizerAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("color", m_Color),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_CONSTRUCTOR_PROPERTY(ezEnum<ezBasisAxis>, const char*, const char*, const char*, const ezColor&, const char*, ezVec3),
+    EZ_CONSTRUCTOR_PROPERTY(ezEnum<ezBasisAxis>, const char*, const char*, const char*, const ezColor&, const char*),
+    EZ_CONSTRUCTOR_PROPERTY(ezEnum<ezBasisAxis>, const char*, const char*, const char*, const ezColor&),
+    EZ_CONSTRUCTOR_PROPERTY(ezEnum<ezBasisAxis>, const char*, const char*, const char*),
+    EZ_CONSTRUCTOR_PROPERTY(ezEnum<ezBasisAxis>, const char*, const char*),
+  }
+  EZ_END_FUNCTIONS;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezCylinderVisualizerAttribute::ezCylinderVisualizerAttribute()
+    : ezVisualizerAttribute(nullptr)
+{
+}
+
+ezCylinderVisualizerAttribute::ezCylinderVisualizerAttribute(ezEnum<ezBasisAxis> axis, const char* szHeightProperty,
+                                                             const char* szRadiusProperty, const char* szColorProperty /*= nullptr*/,
+                                                             const ezColor& fixedColor /*= ezColor::MediumVioletRed*/,
+                                                             const char* szOffsetProperty /*= nullptr*/,
+                                                             ezVec3 fixedOffset /*= ezVec3::ZeroVector()*/)
+    : ezVisualizerAttribute(szHeightProperty, szRadiusProperty, szColorProperty, szOffsetProperty)
+{
+  m_Axis = axis;
+  m_Color = fixedColor;
+  m_vOffset = fixedOffset;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -661,6 +699,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConeVisualizerAttribute, 1, ezRTTIDefaultAlloc
   {
     EZ_CONSTRUCTOR_PROPERTY(ezEnum<ezBasisAxis>, const char*, float, const char*, const char*, const ezColor&),
     EZ_CONSTRUCTOR_PROPERTY(ezEnum<ezBasisAxis>, const char*, float, const char*, const char*),
+    EZ_CONSTRUCTOR_PROPERTY(ezEnum<ezBasisAxis>, const char*, float, const char*),
   }
   EZ_END_FUNCTIONS;
 }

@@ -56,31 +56,10 @@ void ezDirectionVisualizerAdapter::UpdateGizmoTransform()
     fScale *= value.ConvertTo<float>();
   }
 
-  ezQuat rot;
-  switch (pAttr->m_Axis)
-  {
-    case ezBasisAxis::PositiveX:
-      rot.SetIdentity();
-      break;
-    case ezBasisAxis::PositiveY:
-      rot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
-      break;
-    case ezBasisAxis::PositiveZ:
-      rot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
-      break;
-    case ezBasisAxis::NegativeX:
-      rot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(180));
-      break;
-    case ezBasisAxis::NegativeY:
-      rot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-90));
-      break;
-    case ezBasisAxis::NegativeZ:
-      rot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
-      break;
-  }
+  const ezQuat axisRotation = GetBasisRotation(ezBasisAxis::PositiveX, pAttr->m_Axis);
 
   ezTransform t;
-  t.m_qRotation = rot;
+  t.m_qRotation = axisRotation;
   t.m_vScale = ezVec3(fScale);
   t.m_vPosition = ezVec3(fScale, 0, 0);
   m_Gizmo.SetTransformation(GetObjectTransform() * t);

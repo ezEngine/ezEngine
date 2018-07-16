@@ -1,10 +1,11 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <EditorFramework/Visualizers/VisualizerAdapter.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <ToolsFoundation/Document/Document.h>
-#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
-#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <Foundation/Math/Transform.h>
+#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
+#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
+#include <ToolsFoundation/Document/Document.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezVisualizerAdapter::ezVisualizerAdapter()
@@ -22,8 +23,10 @@ ezVisualizerAdapter::~ezVisualizerAdapter()
 
   if (m_pObject)
   {
-    m_pObject->GetDocumentObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezVisualizerAdapter::DocumentObjectPropertyEventHandler, this));
-    m_pObject->GetDocumentObjectManager()->GetDocument()->m_DocumentObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezVisualizerAdapter::DocumentObjectMetaDataEventHandler, this));
+    m_pObject->GetDocumentObjectManager()->m_PropertyEvents.RemoveEventHandler(
+        ezMakeDelegate(&ezVisualizerAdapter::DocumentObjectPropertyEventHandler, this));
+    m_pObject->GetDocumentObjectManager()->GetDocument()->m_DocumentObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(
+        ezMakeDelegate(&ezVisualizerAdapter::DocumentObjectMetaDataEventHandler, this));
   }
 }
 
@@ -34,7 +37,8 @@ void ezVisualizerAdapter::SetVisualizer(const ezVisualizerAttribute* pAttribute,
 
   auto& meta = m_pObject->GetDocumentObjectManager()->GetDocument()->m_DocumentObjectMetaData;
 
-  m_pObject->GetDocumentObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezVisualizerAdapter::DocumentObjectPropertyEventHandler, this));
+  m_pObject->GetDocumentObjectManager()->m_PropertyEvents.AddEventHandler(
+      ezMakeDelegate(&ezVisualizerAdapter::DocumentObjectPropertyEventHandler, this));
   meta.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezVisualizerAdapter::DocumentObjectMetaDataEventHandler, this));
 
   {
@@ -48,16 +52,66 @@ void ezVisualizerAdapter::SetVisualizer(const ezVisualizerAttribute* pAttribute,
   Update();
 }
 
+
+ezQuat ezVisualizerAdapter::GetBasisRotation(ezBasisAxis::Enum identity, ezBasisAxis::Enum axis)
+{
+  ezQuat rotId;
+  switch (identity)
+  {
+    case ezBasisAxis::PositiveX:
+      rotId.SetIdentity();
+      break;
+    case ezBasisAxis::PositiveY:
+      rotId.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-90));
+      break;
+    case ezBasisAxis::PositiveZ:
+      rotId.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
+      break;
+    case ezBasisAxis::NegativeX:
+      rotId.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(180));
+      break;
+    case ezBasisAxis::NegativeY:
+      rotId.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
+      break;
+    case ezBasisAxis::NegativeZ:
+      rotId.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
+      break;
+  }
+
+    ezQuat rotAxis;
+  switch (axis)
+  {
+    case ezBasisAxis::PositiveX:
+      rotAxis.SetIdentity();
+      break;
+    case ezBasisAxis::PositiveY:
+      rotAxis.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
+      break;
+    case ezBasisAxis::PositiveZ:
+      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
+      break;
+    case ezBasisAxis::NegativeX:
+      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(180));
+      break;
+    case ezBasisAxis::NegativeY:
+      rotAxis.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-90));
+      break;
+    case ezBasisAxis::NegativeZ:
+      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
+      break;
+  }
+
+  return rotId * rotAxis;
+}
+
 void ezVisualizerAdapter::DocumentObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
   if (e.m_EventType == ezDocumentObjectPropertyEvent::Type::PropertySet)
   {
     if (e.m_pObject == m_pObject)
     {
-      if (e.m_sProperty == m_pVisualizerAttr->m_sProperty1 ||
-          e.m_sProperty == m_pVisualizerAttr->m_sProperty2 ||
-          e.m_sProperty == m_pVisualizerAttr->m_sProperty3 ||
-          e.m_sProperty == m_pVisualizerAttr->m_sProperty4 ||
+      if (e.m_sProperty == m_pVisualizerAttr->m_sProperty1 || e.m_sProperty == m_pVisualizerAttr->m_sProperty2 ||
+          e.m_sProperty == m_pVisualizerAttr->m_sProperty3 || e.m_sProperty == m_pVisualizerAttr->m_sProperty4 ||
           e.m_sProperty == m_pVisualizerAttr->m_sProperty5)
       {
         Update();
@@ -68,7 +122,8 @@ void ezVisualizerAdapter::DocumentObjectPropertyEventHandler(const ezDocumentObj
 
 void ezVisualizerAdapter::DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e)
 {
-  if (e.m_Type == ezQtDocumentWindowEvent::BeforeRedraw && e.m_pWindow->GetDocument() == m_pObject->GetDocumentObjectManager()->GetDocument())
+  if (e.m_Type == ezQtDocumentWindowEvent::BeforeRedraw &&
+      e.m_pWindow->GetDocument() == m_pObject->GetDocumentObjectManager()->GetDocument())
   {
     UpdateGizmoTransform();
   }
@@ -76,8 +131,7 @@ void ezVisualizerAdapter::DocumentWindowEventHandler(const ezQtDocumentWindowEve
 
 void ezVisualizerAdapter::DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e)
 {
-  if ((e.m_uiModifiedFlags & ezDocumentObjectMetaData::HiddenFlag) != 0 &&
-      e.m_ObjectKey == m_pObject->GetGuid())
+  if ((e.m_uiModifiedFlags & ezDocumentObjectMetaData::HiddenFlag) != 0 && e.m_ObjectKey == m_pObject->GetGuid())
   {
     m_bVisualizerIsVisible = !e.m_pValue->m_bHidden;
 
@@ -102,5 +156,3 @@ const ezAbstractProperty* ezVisualizerAdapter::GetProperty(const char* szPropert
 {
   return m_pObject->GetTypeAccessor().GetType()->FindPropertyByName(szProperty);
 }
-
-

@@ -12,6 +12,7 @@ PFX.Speed.3;300%
 PFX.Speed.4;400%
 PFX.Speed.5;500%
 PFX.Speed.10;1000%
+PFX.Render.Visualizers;Render Visualizers
 Particle Systems;Particle Systems
 ezParticleSystemDescriptor;Particle System
 Emitters;Emitters

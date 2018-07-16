@@ -14,6 +14,7 @@ struct ezParticleEffectAssetEvent
     RestartEffect,
     AutoRestartChanged,
     SimulationSpeedChanged,
+    RenderVisualizersChanged,
   };
 
   ezParticleEffectAssetDocument* m_pDocument;
@@ -46,6 +47,9 @@ public:
   void SetSimulationSpeed(float speed);
   float GetSimulationSpeed() const { return m_fSimulationSpeed; }
 
+  bool GetRenderVisualizers() const { return m_bRenderVisualizers; }
+  void SetRenderVisualizers(bool b);
+
   // Overridden to enable support for visualizers/manipulators
   virtual ezResult ComputeObjectTransformation(const ezDocumentObject* pObject, ezTransform& out_Result) const override;
 
@@ -58,5 +62,6 @@ protected:
 private:
   bool m_bSimulationPaused = false;
   bool m_bAutoRestart = true;
+  bool m_bRenderVisualizers = false;
   float m_fSimulationSpeed = 1.0f;
 };

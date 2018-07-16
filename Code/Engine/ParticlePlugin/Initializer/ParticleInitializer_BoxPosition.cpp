@@ -19,7 +19,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_BoxPosition, 1, ezR
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezBoxVisualizerAttribute("Size")
+    new ezBoxVisualizerAttribute("Size", nullptr, ezColor::MediumVioletRed, "PositionOffset")
   }
   EZ_END_ATTRIBUTES;
 }

@@ -21,6 +21,7 @@ public:
   static ezActionDescriptorHandle s_hAutoRestart;
   static ezActionDescriptorHandle s_hSimulationSpeedMenu;
   static ezActionDescriptorHandle s_hSimulationSpeed[10];
+  static ezActionDescriptorHandle s_hRenderVisualizers;
 };
 
 class ezParticleAction : public ezButtonAction
@@ -35,6 +36,7 @@ public:
     RestartEffect,
     AutoRestart,
     SimulationSpeed,
+    RenderVisualizers,
   };
 
   ezParticleAction(const ezActionContext& context, const char* szName, ActionType type, float fSimSpeed = 1.0f);

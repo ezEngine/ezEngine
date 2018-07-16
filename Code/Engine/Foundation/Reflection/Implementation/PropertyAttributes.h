@@ -485,13 +485,16 @@ class EZ_FOUNDATION_DLL ezBoxVisualizerAttribute : public ezVisualizerAttribute
 
 public:
   ezBoxVisualizerAttribute();
-  ezBoxVisualizerAttribute(const char* szSizeProperty, const char* szColorProperty);
-  ezBoxVisualizerAttribute(const char* szSizeProperty, const ezColor& fixedColor = ezColor::MediumVioletRed);
+  ezBoxVisualizerAttribute(const char* szSizeProperty, const char* szColorProperty = nullptr,
+                           const ezColor& fixedColor = ezColor::MediumVioletRed, const char* szOffsetProperty = nullptr,
+                           ezVec3 fixedOffset = ezVec3::ZeroVector());
 
   const ezUntrackedString& GetSizeProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetColorProperty() const { return m_sProperty2; }
+  const ezUntrackedString& GetOffsetProperty() const { return m_sProperty3; }
 
   ezColor m_Color;
+  ezVec3 m_vOffset;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -502,13 +505,16 @@ class EZ_FOUNDATION_DLL ezSphereVisualizerAttribute : public ezVisualizerAttribu
 
 public:
   ezSphereVisualizerAttribute();
-  ezSphereVisualizerAttribute(const char* szRadiusProperty, const char* szColorProperty);
-  ezSphereVisualizerAttribute(const char* szRadiusProperty, const ezColor& fixedColor = ezColor::MediumVioletRed);
+  ezSphereVisualizerAttribute(const char* szRadiusProperty, const char* szColorProperty = nullptr,
+                              const ezColor& fixedColor = ezColor::MediumVioletRed, const char* szOffsetProperty = nullptr,
+                              ezVec3 fixedOffset = ezVec3::ZeroVector());
 
   const ezUntrackedString& GetRadiusProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetColorProperty() const { return m_sProperty2; }
+  const ezUntrackedString& GetOffsetProperty() const { return m_sProperty3; }
 
   ezColor m_Color;
+  ezVec3 m_vOffset;
 };
 
 
@@ -529,6 +535,28 @@ public:
   const ezUntrackedString& GetColorProperty() const { return m_sProperty3; }
 
   ezColor m_Color;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_FOUNDATION_DLL ezCylinderVisualizerAttribute : public ezVisualizerAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezCylinderVisualizerAttribute, ezVisualizerAttribute);
+
+public:
+  ezCylinderVisualizerAttribute();
+  ezCylinderVisualizerAttribute(ezEnum<ezBasisAxis> axis, const char* szHeightProperty, const char* szRadiusProperty,
+                                const char* szColorProperty = nullptr, const ezColor& fixedColor = ezColor::MediumVioletRed,
+                                const char* szOffsetProperty = nullptr, ezVec3 fixedOffset = ezVec3::ZeroVector());
+
+  const ezUntrackedString& GetHeightProperty() const { return m_sProperty1; }
+  const ezUntrackedString& GetRadiusProperty() const { return m_sProperty2; }
+  const ezUntrackedString& GetColorProperty() const { return m_sProperty3; }
+  const ezUntrackedString& GetOffsetProperty() const { return m_sProperty4; }
+
+  ezBasisAxis::Enum m_Axis;
+  ezColor m_Color;
+  ezVec3 m_vOffset;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -568,7 +596,7 @@ public:
   /// szColorProperty may be nullptr. In this case it is ignored and fixedColor is used instead.
   /// fixedColor is ignored if szColorProperty is valid.
   ezConeVisualizerAttribute(ezEnum<ezBasisAxis> axis, const char* szAngleProperty, float fScale, const char* szRadiusProperty,
-                            const char* szColorProperty, const ezColor& fixedColor = ezColor::MediumVioletRed);
+                            const char* szColorProperty = nullptr, const ezColor& fixedColor = ezColor::MediumVioletRed);
 
   const ezUntrackedString& GetAngleProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetRadiusProperty() const { return m_sProperty2; }

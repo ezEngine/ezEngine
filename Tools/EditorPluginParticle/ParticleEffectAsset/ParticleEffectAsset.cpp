@@ -6,11 +6,12 @@
 #include <EditorPluginParticle/ParticleEffectAsset/ParticleEffectAsset.h>
 #include <EditorPluginParticle/ParticleEffectAsset/ParticleEffectAssetManager.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
+#include <GuiFoundation/PropertyGrid/VisualizerManager.h>
+#include <ParticlePlugin/Behavior/ParticleBehavior_ColorGradient.h>
 #include <ParticlePlugin/Type/Quad/ParticleTypeQuad.h>
+#include <ParticlePlugin/Type/Trail/ParticleTypeTrail.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <ParticlePlugin/Type/Trail/ParticleTypeTrail.h>
-#include <ParticlePlugin/Behavior/ParticleBehavior_ColorGradient.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectAssetDocument, 3, ezRTTINoAllocator);
@@ -20,6 +21,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezParticleEffectAssetDocument::ezParticleEffectAssetDocument(const char* szDocumentPath)
     : ezSimpleAssetDocument<ezParticleEffectDescriptor>(szDocumentPath, true)
 {
+  ezVisualizerManager::GetSingleton()->SetVisualizersActive(this, m_bRenderVisualizers);
 }
 
 void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
@@ -56,17 +58,17 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
   {
     auto& props = *e.m_pPropertyStates;
 
-    //ezInt64 renderMode = e.m_pObject->GetTypeAccessor().GetValue("RenderMode").ConvertTo<ezInt64>();
+    // ezInt64 renderMode = e.m_pObject->GetTypeAccessor().GetValue("RenderMode").ConvertTo<ezInt64>();
     ezInt64 textureAtlas = e.m_pObject->GetTypeAccessor().GetValue("TextureAtlas").ConvertTo<ezInt64>();
 
-    //props["DistortionTexture"].m_Visibility = ezPropertyUiState::Invisible;
-    //props["DistortionStrength"].m_Visibility = ezPropertyUiState::Invisible;
+    // props["DistortionTexture"].m_Visibility = ezPropertyUiState::Invisible;
+    // props["DistortionStrength"].m_Visibility = ezPropertyUiState::Invisible;
     props["NumSpritesX"].m_Visibility =
         (textureAtlas == (int)ezParticleTextureAtlasType::None) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
     props["NumSpritesY"].m_Visibility =
         (textureAtlas == (int)ezParticleTextureAtlasType::None) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
 
-    //if (renderMode == ezParticleTypeRenderMode::Distortion)
+    // if (renderMode == ezParticleTypeRenderMode::Distortion)
     //{
     //  props["DistortionTexture"].m_Visibility = ezPropertyUiState::Default;
     //  props["DistortionStrength"].m_Visibility = ezPropertyUiState::Default;
@@ -142,6 +144,23 @@ void ezParticleEffectAssetDocument::SetSimulationSpeed(float speed)
   ezParticleEffectAssetEvent e;
   e.m_pDocument = this;
   e.m_Type = ezParticleEffectAssetEvent::SimulationSpeedChanged;
+
+  m_Events.Broadcast(e);
+}
+
+
+void ezParticleEffectAssetDocument::SetRenderVisualizers(bool b)
+{
+  if (m_bRenderVisualizers == b)
+    return;
+
+  m_bRenderVisualizers = b;
+
+  ezVisualizerManager::GetSingleton()->SetVisualizersActive(this, m_bRenderVisualizers);
+
+  ezParticleEffectAssetEvent e;
+  e.m_pDocument = this;
+  e.m_Type = ezParticleEffectAssetEvent::RenderVisualizersChanged;
 
   m_Events.Broadcast(e);
 }

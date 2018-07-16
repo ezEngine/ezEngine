@@ -25,7 +25,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAreaDamageComponent, 1, ezComponentMode::Static)
     EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Gameplay"),
-    new ezSphereVisualizerAttribute("Radius", ezColor::OrangeRed),
+    new ezSphereVisualizerAttribute("Radius", nullptr, ezColor::OrangeRed),
     new ezSphereManipulatorAttribute("Radius"),
   }
   EZ_END_ATTRIBUTES;

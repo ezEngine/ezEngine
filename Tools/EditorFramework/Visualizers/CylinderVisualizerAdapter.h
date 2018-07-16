@@ -1,16 +1,16 @@
-#pragma once 
+#pragma once
 
+#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Plugin.h>
 #include <EditorFramework/Visualizers/VisualizerAdapter.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 
 struct ezGizmoEvent;
 
-class ezBoxVisualizerAdapter : public ezVisualizerAdapter
+class ezCylinderVisualizerAdapter : public ezVisualizerAdapter
 {
 public:
-  ezBoxVisualizerAdapter();
-  ~ezBoxVisualizerAdapter();
+  ezCylinderVisualizerAdapter();
+  ~ezCylinderVisualizerAdapter();
 
 protected:
   virtual void Finalize() override;
@@ -18,7 +18,9 @@ protected:
 
   virtual void UpdateGizmoTransform() override;
 
-  ezVec3 m_Scale;
+  float m_fRadius;
+  float m_fHeight;
   ezVec3 m_vPositionOffset;
-  ezEngineGizmoHandle m_Gizmo;
+
+  ezEngineGizmoHandle m_Cylinder;
 };
