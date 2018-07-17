@@ -23,6 +23,10 @@ public:
   void SetTransform(const ezTransform& t, const ezVec3& vParticleStartVelocity) const;
 
   void Tick(const ezTime& tDiff) const;
+
+  /// \brief This has to be called during world-update, as it may run stuff that depends on a write-locked world.
+  void ExecuteWorldLockedUpdates();
+
   void SetIsInView() const;
 
   void StopImmediate();

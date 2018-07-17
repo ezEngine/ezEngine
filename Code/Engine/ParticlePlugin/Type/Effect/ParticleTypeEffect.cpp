@@ -1,10 +1,12 @@
 #include <PCH.h>
-#include <ParticlePlugin/Type/Effect/ParticleTypeEffect.h>
-#include <ParticlePlugin/Resources/ParticleEffectResource.h>
-#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
-#include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
-#include <Foundation/Profiling/Profiling.h>
 
+#include <Foundation/Profiling/Profiling.h>
+#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
+#include <ParticlePlugin/Resources/ParticleEffectResource.h>
+#include <ParticlePlugin/Type/Effect/ParticleTypeEffect.h>
+#include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
+
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeEffectFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeEffectFactory>)
 {
   EZ_BEGIN_PROPERTIES
@@ -19,7 +21,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeEffect, 1, ezRTTIDefaultAllocator<ezParticleTypeEffect>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
+// clang-format on
 
 ezParticleTypeEffectFactory::ezParticleTypeEffectFactory()
 {
@@ -41,7 +43,7 @@ void ezParticleTypeEffectFactory::CopyTypeProperties(ezParticleType* pObject) co
     pType->m_hEffect = ezResourceManager::LoadResource<ezParticleEffectResource>(m_sEffect);
 
   pType->m_uiRandomSeed = m_uiRandomSeed;
-  //pType->m_sSharedInstanceName = m_sSharedInstanceName;
+  // pType->m_sSharedInstanceName = m_sSharedInstanceName;
 }
 
 enum class TypeEffectVersion
@@ -132,7 +134,8 @@ void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
     if (pEffectID[i] == 0) // always an invalid ID
     {
       const void* pDummy = nullptr;
-      ezParticleEffectHandle hInstance = pWorldModule->CreateEffectInstance(m_hEffect, m_uiRandomSeed, /*m_sSharedInstanceName*/nullptr, pDummy);
+      ezParticleEffectHandle hInstance =
+          pWorldModule->CreateEffectInstance(m_hEffect, m_uiRandomSeed, /*m_sSharedInstanceName*/ nullptr, pDummy);
 
       pEffectID[i] = hInstance.GetInternalID().m_Data;
     }
@@ -185,8 +188,4 @@ void ezParticleTypeEffect::ClearEffects(bool bInterruptImmediately)
   }
 }
 
-
-
-
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Effect_ParticleTypeEffect);
-

@@ -1,17 +1,18 @@
 #include <PCH.h>
-#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
-#include <ParticlePlugin/System/ParticleSystemInstance.h>
-#include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
-#include <ParticlePlugin/Resources/ParticleEffectResource.h>
-#include <ParticlePlugin/System/ParticleSystemDescriptor.h>
+
 #include <Core/ResourceManager/ResourceManager.h>
-#include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/Clock.h>
+#include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
+#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
+#include <ParticlePlugin/Resources/ParticleEffectResource.h>
+#include <ParticlePlugin/System/ParticleSystemDescriptor.h>
+#include <ParticlePlugin/System/ParticleSystemInstance.h>
+#include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 
 ezParticleEffectInstance::ezParticleEffectInstance()
-  : m_Task(this)
+    : m_Task(this)
 {
   m_pOwnerModule = nullptr;
   m_Task.SetTaskName("Particle Effect Update");
@@ -24,7 +25,8 @@ ezParticleEffectInstance::~ezParticleEffectInstance()
   Destruct();
 }
 
-void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld, ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared)
+void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, const ezParticleEffectResourceHandle& hResource,
+                                         ezWorld* pWorld, ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared)
 {
   m_hEffectHandle = hEffectHandle;
   m_pWorld = pWorld;
@@ -113,6 +115,20 @@ void ezParticleEffectInstance::ClearParticleSystems()
   }
 
   m_ParticleSystems.Clear();
+}
+
+
+void ezParticleEffectInstance::ClearEventReactions()
+{
+  for (ezUInt32 i = 0; i < m_EventReactions.GetCount(); ++i)
+  {
+    if (m_EventReactions[i])
+    {
+      m_EventReactions[i]->GetDynamicRTTI()->GetAllocator()->Deallocate(m_EventReactions[i]);
+    }
+  }
+
+  m_EventReactions.Clear();
 }
 
 bool ezParticleEffectInstance::IsContinuous() const
@@ -270,6 +286,22 @@ void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTim
     m_ParticleSystems[i]->SetEmitterEnabled(m_bEmitterEnabled);
     m_ParticleSystems[i]->Finalize();
   }
+
+  // recreate event reactions
+  {
+    ClearEventReactions();
+
+    m_EventReactions.SetCount(desc.GetEventReactions().GetCount());
+
+    const auto& er = desc.GetEventReactions();
+    for (ezUInt32 i = 0; i < er.GetCount(); ++i)
+    {
+      if (m_EventReactions[i] == nullptr)
+      {
+        m_EventReactions[i] = er[i]->CreateEventReaction(this);
+      }
+    }
+  }
 }
 
 bool ezParticleEffectInstance::Update(const ezTime& tDiff)
@@ -286,28 +318,28 @@ bool ezParticleEffectInstance::Update(const ezTime& tDiff)
 
     switch (m_InvisibleUpdateRate)
     {
-    case ezEffectInvisibleUpdateRate::FullUpdate:
-      tMinStep = ezTime::Seconds(1.0 / 60.0);
-      break;
+      case ezEffectInvisibleUpdateRate::FullUpdate:
+        tMinStep = ezTime::Seconds(1.0 / 60.0);
+        break;
 
-    case ezEffectInvisibleUpdateRate::Max20fps:
-      tMinStep = ezTime::Milliseconds(50);
-      break;
+      case ezEffectInvisibleUpdateRate::Max20fps:
+        tMinStep = ezTime::Milliseconds(50);
+        break;
 
-    case ezEffectInvisibleUpdateRate::Max10fps:
-      tMinStep = ezTime::Milliseconds(100);
-      break;
+      case ezEffectInvisibleUpdateRate::Max10fps:
+        tMinStep = ezTime::Milliseconds(100);
+        break;
 
-    case ezEffectInvisibleUpdateRate::Max5fps:
-      tMinStep = ezTime::Milliseconds(200);
-      break;
+      case ezEffectInvisibleUpdateRate::Max5fps:
+        tMinStep = ezTime::Milliseconds(200);
+        break;
 
-    case ezEffectInvisibleUpdateRate::Pause:
-      return m_uiReviveTimeout > 0;
+      case ezEffectInvisibleUpdateRate::Pause:
+        return m_uiReviveTimeout > 0;
 
-    case ezEffectInvisibleUpdateRate::Discard:
-      Interrupt();
-      return false;
+      case ezEffectInvisibleUpdateRate::Discard:
+        Interrupt();
+        return false;
     }
   }
 
@@ -336,6 +368,11 @@ bool ezParticleEffectInstance::Update(const ezTime& tDiff)
   return StepSimulation(tUpdateDiff);
 }
 
+void ezParticleEffectInstance::ExecuteWorldLockedUpdates()
+{
+  ProcessEventQueues();
+}
+
 bool ezParticleEffectInstance::StepSimulation(const ezTime& tDiff)
 {
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
@@ -357,8 +394,6 @@ bool ezParticleEffectInstance::StepSimulation(const ezTime& tDiff)
       }
     }
   }
-
-  ProcessEventQueues();
 
   if (NeedsBoundingVolumeUpdate())
   {
@@ -557,6 +592,22 @@ void ezParticleEffectInstance::ProcessEventQueues()
     }
   }
 
+  for (ezUInt32 i = 0; i < m_EventReactions.GetCount(); ++i)
+  {
+    if (m_EventReactions[i])
+    {
+      const ezTempHashedString sEvent = m_EventReactions[i]->m_sEventName;
+
+      for (const auto& queue : m_EventQueues)
+      {
+        if (queue.m_EventTypeHash == sEvent.GetHash())
+        {
+          m_EventReactions[i]->ProcessEventQueue(queue.m_pQueue);
+        }
+      }
+    }
+  }
+
   for (auto& queue : m_EventQueues)
   {
     queue.m_pQueue->Clear();
@@ -671,4 +722,3 @@ const ezColor& ezParticleEffectInstance::GetColorParameter(const ezTempHashedStr
 }
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Effect_ParticleEffectInstance);
-

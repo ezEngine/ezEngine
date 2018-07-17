@@ -75,3 +75,5 @@ ezParticleColorGradientMode::Age;Age
 ezParticleColorGradientMode::Speed;Speed
 ColorGradientMode;Color From
 GradientMaxSpeed;Max Speed
+EventReactions;Event Reactions
+ezParticleEventReactionFactory_Effect;Effect Reaction

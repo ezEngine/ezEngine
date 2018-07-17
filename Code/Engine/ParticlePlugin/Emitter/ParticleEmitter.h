@@ -40,9 +40,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter : public ezParticleModule
   friend class ezParticleEmitterFactory;
 
 protected:
-  virtual bool IsContinuous() const { return false; }
-
-  virtual void Process(ezUInt64 uiNumElements) final override {}
+  virtual bool IsContinuous() const;
+  virtual void Process(ezUInt64 uiNumElements) final override;
 
   /// \brief Called once per update. Must return how many new particles are to be spawned.
   virtual ezUInt32 ComputeSpawnCount(const ezTime& tDiff) = 0;
@@ -50,5 +49,5 @@ protected:
   /// \brief Called before ComputeSpawnCount(). Should return true, if the emitter will never spawn any more particles.
   virtual ezParticleEmitterState IsFinished() = 0;
 
-  virtual void ProcessEventQueue(const ezParticleEventQueue* pQueue) {}
+  virtual void ProcessEventQueue(const ezParticleEventQueue* pQueue);
 };

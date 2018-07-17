@@ -4,6 +4,7 @@
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <Foundation/Types/ScopeExit.h>
 #include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
+#include <ParticlePlugin/Events/ParticleEventReaction.h>
 #include <ParticlePlugin/System/ParticleSystemDescriptor.h>
 
 // clang-format off
@@ -19,6 +20,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectDescriptor, 1, ezRTTIDefaultAllo
     EZ_MAP_MEMBER_PROPERTY("FloatParameters", m_FloatParameters),
     EZ_MAP_MEMBER_PROPERTY("ColorParameters", m_ColorParameters)->AddAttributes(new ezExposeColorAlphaAttribute),
     EZ_SET_ACCESSOR_PROPERTY("ParticleSystems", GetParticleSystems, AddParticleSystem, RemoveParticleSystem)->AddFlags(ezPropertyFlags::PointerOwner),
+    EZ_SET_ACCESSOR_PROPERTY("EventReactions", GetEventReactions, AddEventReaction, RemoveEventReaction)->AddFlags(ezPropertyFlags::PointerOwner),
   }
   EZ_END_PROPERTIES;
 }
@@ -30,6 +32,7 @@ ezParticleEffectDescriptor::ezParticleEffectDescriptor() {}
 ezParticleEffectDescriptor::~ezParticleEffectDescriptor()
 {
   ClearSystems();
+  ClearEventReactions();
 }
 
 void ezParticleEffectDescriptor::ClearSystems()
@@ -42,6 +45,17 @@ void ezParticleEffectDescriptor::ClearSystems()
   m_ParticleSystems.Clear();
 }
 
+
+void ezParticleEffectDescriptor::ClearEventReactions()
+{
+  for (auto pReaction : m_EventReactions)
+  {
+    pReaction->GetDynamicRTTI()->GetAllocator()->Deallocate(pReaction);
+  }
+
+  m_EventReactions.Clear();
+}
+
 enum class ParticleEffectVersion
 {
   Version_0 = 0,
@@ -52,6 +66,7 @@ enum class ParticleEffectVersion
   Version_5, // m_bAlwaysShared
   Version_6, // added parameters
   Version_7, // added instance velocity
+  Version_8, // added event reactions
 
   // insert new version numbers above
   Version_Count,
@@ -109,6 +124,19 @@ void ezParticleEffectDescriptor::Save(ezStreamWriter& stream) const
   // Version 7
   stream << m_fApplyInstanceVelocity;
 
+  // Version 8
+  {
+    const ezUInt32 uiNumReactions = m_EventReactions.GetCount();
+    stream << uiNumReactions;
+
+    for (auto pReaction : m_EventReactions)
+    {
+      stream << pReaction->GetDynamicRTTI()->GetTypeName();
+
+      pReaction->Save(stream);
+    }
+  }
+
   context.EndWritingToStream(&stream);
 }
 
@@ -116,6 +144,7 @@ void ezParticleEffectDescriptor::Save(ezStreamWriter& stream) const
 void ezParticleEffectDescriptor::Load(ezStreamReader& stream)
 {
   ClearSystems();
+  ClearEventReactions();
 
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
@@ -196,6 +225,26 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& stream)
   if (uiVersion >= 7)
   {
     stream >> m_fApplyInstanceVelocity;
+  }
+
+  if (uiVersion >= 8)
+  {
+    ezUInt32 uiNumReactions = 0;
+    stream >> uiNumReactions;
+
+    m_EventReactions.SetCountUninitialized(uiNumReactions);
+
+    for (auto& pReaction : m_EventReactions)
+    {
+      stream >> sType;
+
+      const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
+      EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown particle effect event reaction type '{0}'", sType);
+
+      pReaction = pRtti->GetAllocator()->Allocate<ezParticleEventReactionFactory>();
+
+      pReaction->Load(stream);
+    }
   }
 
   context.EndReadingFromStream(&stream);

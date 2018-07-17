@@ -22,7 +22,15 @@ ezParticleEmitter* ezParticleEmitterFactory::CreateEmitter(ezParticleSystemInsta
   return pEmitter;
 }
 
+bool ezParticleEmitter::IsContinuous() const
+{
+  return false;
+}
+
+void ezParticleEmitter::Process(ezUInt64 uiNumElements) {}
+void ezParticleEmitter::ProcessEventQueue(const ezParticleEventQueue* pQueue) {}
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Emitter_ParticleEmitter);
+
 

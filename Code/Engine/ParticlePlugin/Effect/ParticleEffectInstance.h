@@ -49,6 +49,7 @@ public:
   bool HasActiveParticles() const;
 
   void ClearParticleSystems();
+  void ClearEventReactions();
 
   bool IsContinuous() const;
 
@@ -88,6 +89,9 @@ private:
 public:
   /// \brief Returns false when the effect is finished.
   bool Update(const ezTime& tDiff);
+
+  /// \brief This has to be called during world-update, as it may run stuff that depends on a write-locked world.
+  void ExecuteWorldLockedUpdates();
 
 private: //friend ezParticleWorldModule
   /// \brief Whether this instance is in a state where its update task should be run
@@ -212,6 +216,7 @@ private:
   ezParticleWorldModule* m_pOwnerModule;
   ezWorld* m_pWorld;
   ezHybridArray<ezParticleSystemInstance*, 4> m_ParticleSystems;
+  ezHybridArray<ezParticleEventReaction*, 4> m_EventReactions;
 
   ezParticleffectUpdateTask m_Task;
 

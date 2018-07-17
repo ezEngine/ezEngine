@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <ParticlePlugin/Effect/ParticleEffectController.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 
@@ -37,11 +38,13 @@ ezParticleEffectInstance* ezParticleEffectController::GetInstance() const
   return pEffect;
 }
 
-void ezParticleEffectController::Create(const ezParticleEffectResourceHandle& hEffectResource, ezParticleWorldModule* pModule, ezUInt64 uiRandomSeed, const char* szSharedName, const void* pSharedInstanceOwner)
+void ezParticleEffectController::Create(const ezParticleEffectResourceHandle& hEffectResource, ezParticleWorldModule* pModule,
+                                        ezUInt64 uiRandomSeed, const char* szSharedName, const void* pSharedInstanceOwner)
 {
   m_pSharedInstanceOwner = pSharedInstanceOwner;
 
-  // first get the new effect, to potentially increase a refcount to the same effect instance, before we decrease the refcount of our current one
+  // first get the new effect, to potentially increase a refcount to the same effect instance, before we decrease the refcount of our
+  // current one
   ezParticleEffectHandle hNewEffect;
   if (pModule != nullptr && hEffectResource.IsValid())
   {
@@ -52,8 +55,8 @@ void ezParticleEffectController::Create(const ezParticleEffectResourceHandle& hE
 
   m_hEffect = hNewEffect;
 
-    if (!m_hEffect.IsInvalidated())
-      m_pModule = pModule;
+  if (!m_hEffect.IsInvalidated())
+    m_pModule = pModule;
 }
 
 bool ezParticleEffectController::IsValid() const
@@ -88,6 +91,16 @@ void ezParticleEffectController::Tick(const ezTime& tDiff) const
   }
 }
 
+
+void ezParticleEffectController::ExecuteWorldLockedUpdates()
+{
+  ezParticleEffectInstance* pEffect = GetInstance();
+
+  if (pEffect)
+  {
+    pEffect->ExecuteWorldLockedUpdates();
+  }
+}
 
 void ezParticleEffectController::SetIsInView() const
 {
@@ -159,4 +172,3 @@ void ezParticleEffectController::Invalidate()
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Effect_ParticleEffectController);
-

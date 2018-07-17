@@ -1,13 +1,13 @@
 #include <PCH.h>
-#include <ParticlePlugin/Components/ParticleFinisherComponent.h>
+
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
+#include <ParticlePlugin/Components/ParticleFinisherComponent.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/View.h>
 
-//////////////////////////////////////////////////////////////////////////
-
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezParticleFinisherComponent, 1, ezComponentMode::Static)
 {
   //EZ_BEGIN_PROPERTIES
@@ -25,18 +25,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleFinisherComponent, 1, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS
-
 }
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
-
-ezParticleFinisherComponent::ezParticleFinisherComponent()
-{
-}
-
-ezParticleFinisherComponent::~ezParticleFinisherComponent()
-{
-}
+ezParticleFinisherComponent::ezParticleFinisherComponent() = default;
+ezParticleFinisherComponent::~ezParticleFinisherComponent() = default;
 
 void ezParticleFinisherComponent::OnDeactivated()
 {
@@ -48,12 +42,12 @@ void ezParticleFinisherComponent::OnDeactivated()
 
 void ezParticleFinisherComponent::SerializeComponent(ezWorldWriter& stream) const
 {
-  //auto& s = stream.GetStream();
+  // auto& s = stream.GetStream();
 }
 
 void ezParticleFinisherComponent::DeserializeComponent(ezWorldReader& stream)
 {
-  //auto& s = stream.GetStream();
+  // auto& s = stream.GetStream();
 }
 
 ezResult ezParticleFinisherComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
@@ -86,6 +80,8 @@ void ezParticleFinisherComponent::Update()
 {
   if (m_EffectController.IsAlive())
   {
+    m_EffectController.ExecuteWorldLockedUpdates();
+
     CheckBVolumeUpdate();
   }
   else
@@ -102,5 +98,3 @@ void ezParticleFinisherComponent::CheckBVolumeUpdate()
     TriggerLocalBoundsUpdate();
   }
 }
-
-

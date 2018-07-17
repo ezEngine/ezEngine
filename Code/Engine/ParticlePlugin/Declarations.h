@@ -9,6 +9,8 @@
 
 class ezWorld;
 class ezParticleSystemDescriptor;
+class ezParticleEventReactionFactory;
+class ezParticleEventReaction;
 class ezParticleEmitter;
 class ezParticleInitializer;
 class ezParticleBehavior;
