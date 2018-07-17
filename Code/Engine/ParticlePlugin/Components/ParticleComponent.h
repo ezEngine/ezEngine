@@ -97,22 +97,10 @@ public:
   bool GetParameter(const char* szKey, ezVariant& out_value) const;
 
 private:
-  struct FloatParam
-  {
-    EZ_DECLARE_POD_TYPE();
-    ezHashedString m_sName;
-    float m_Value;
-  };
-
-  struct ColorParam
-  {
-    EZ_DECLARE_POD_TYPE();
-    ezHashedString m_sName;
-    ezColor m_Value;
-  };
+  friend class ezParticleEventReaction_Effect;
 
   bool m_bFloatParamsChanged = false;
   bool m_bColorParamsChanged = false;
-  ezHybridArray<FloatParam, 2> m_FloatParams;
-  ezHybridArray<ColorParam, 2> m_ColorParams;
+  ezHybridArray<ezParticleEffectFloatParam, 2> m_FloatParams;
+  ezHybridArray<ezParticleEffectColorParam, 2> m_ColorParams;
 };

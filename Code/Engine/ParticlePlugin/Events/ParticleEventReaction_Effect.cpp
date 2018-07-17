@@ -1,11 +1,11 @@
 #include <PCH.h>
 
 #include <Core/World/World.h>
+#include <ParticlePlugin/Components/ParticleComponent.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Events/ParticleEvent.h>
 #include <ParticlePlugin/Events/ParticleEventReaction_Effect.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
-#include <ParticlePlugin/Components/ParticleComponent.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEventReactionFactory_Effect, 1, ezRTTIDefaultAllocator<ezParticleEventReactionFactory_Effect>)
@@ -13,6 +13,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEventReactionFactory_Effect, 1, ezRTTI
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Effect", m_sEffect)->AddAttributes(new ezAssetBrowserAttribute("Particle Effect")),
+    EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Effect"), new ezExposeColorAlphaAttribute),
   }
   EZ_END_PROPERTIES;
 }
@@ -28,6 +29,7 @@ enum class ReactionEffectVersion
 {
   Version_0 = 0,
   Version_1,
+  Version_2, // added effect parameters
 
   // insert new version numbers above
   Version_Count,
@@ -43,6 +45,20 @@ void ezParticleEventReactionFactory_Effect::Save(ezStreamWriter& stream) const
 
   // Version 1
   stream << m_sEffect;
+
+  // Version 2
+  stream << m_FloatParams.GetCount();
+  for (ezUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
+  {
+    stream << m_FloatParams[i].m_sName;
+    stream << m_FloatParams[i].m_Value;
+  }
+  stream << m_ColorParams.GetCount();
+  for (ezUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
+  {
+    stream << m_ColorParams[i].m_sName;
+    stream << m_ColorParams[i].m_Value;
+  }
 }
 
 void ezParticleEventReactionFactory_Effect::Load(ezStreamReader& stream)
@@ -56,6 +72,29 @@ void ezParticleEventReactionFactory_Effect::Load(ezStreamReader& stream)
 
   // Version 1
   stream >> m_sEffect;
+
+  if (uiVersion >= 2)
+  {
+    ezUInt32 numFloats, numColors;
+
+    stream >> numFloats;
+    m_FloatParams.SetCountUninitialized(numFloats);
+
+    for (ezUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
+    {
+      stream >> m_FloatParams[i].m_sName;
+      stream >> m_FloatParams[i].m_Value;
+    }
+
+    stream >> numColors;
+    m_ColorParams.SetCountUninitialized(numColors);
+
+    for (ezUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
+    {
+      stream >> m_ColorParams[i].m_sName;
+      stream >> m_ColorParams[i].m_Value;
+    }
+  }
 }
 
 
@@ -73,6 +112,118 @@ void ezParticleEventReactionFactory_Effect::CopyReactionProperties(ezParticleEve
 
   if (!m_sEffect.IsEmpty())
     pReaction->m_hEffect = ezResourceManager::LoadResource<ezParticleEffectResource>(m_sEffect);
+
+  pReaction->m_FloatParams = m_FloatParams;
+  pReaction->m_ColorParams = m_ColorParams;
+}
+
+const ezRangeView<const char*, ezUInt32> ezParticleEventReactionFactory_Effect::GetParameters() const
+{
+  return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32 { return 0; },
+                                            [this]() -> ezUInt32 { return m_FloatParams.GetCount() + m_ColorParams.GetCount(); },
+                                            [this](ezUInt32& it) { ++it; },
+                                            [this](const ezUInt32& it) -> const char* {
+                                              if (it < m_FloatParams.GetCount())
+                                                return m_FloatParams[it].m_sName.GetData();
+                                              else
+                                                return m_ColorParams[it - m_FloatParams.GetCount()].m_sName.GetData();
+                                            });
+}
+
+void ezParticleEventReactionFactory_Effect::SetParameter(const char* szKey, const ezVariant& var)
+{
+  const ezTempHashedString th(szKey);
+  if (var.CanConvertTo<float>())
+  {
+    float value = var.ConvertTo<float>();
+
+    for (ezUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
+    {
+      if (m_FloatParams[i].m_sName == th)
+      {
+        if (m_FloatParams[i].m_Value != value)
+        {
+          m_FloatParams[i].m_Value = value;
+        }
+        return;
+      }
+    }
+
+    auto& e = m_FloatParams.ExpandAndGetRef();
+    e.m_sName.Assign(szKey);
+    e.m_Value = value;
+
+    return;
+  }
+
+  if (var.CanConvertTo<ezColor>())
+  {
+    ezColor value = var.ConvertTo<ezColor>();
+
+    for (ezUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
+    {
+      if (m_ColorParams[i].m_sName == th)
+      {
+        if (m_ColorParams[i].m_Value != value)
+        {
+          m_ColorParams[i].m_Value = value;
+        }
+        return;
+      }
+    }
+
+    auto& e = m_ColorParams.ExpandAndGetRef();
+    e.m_sName.Assign(szKey);
+    e.m_Value = value;
+
+    return;
+  }
+}
+
+void ezParticleEventReactionFactory_Effect::RemoveParameter(const char* szKey)
+{
+  const ezTempHashedString th(szKey);
+
+  for (ezUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
+  {
+    if (m_FloatParams[i].m_sName == th)
+    {
+      m_FloatParams.RemoveAtSwap(i);
+      return;
+    }
+  }
+
+  for (ezUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
+  {
+    if (m_ColorParams[i].m_sName == th)
+    {
+      m_ColorParams.RemoveAtSwap(i);
+      return;
+    }
+  }
+}
+
+bool ezParticleEventReactionFactory_Effect::GetParameter(const char* szKey, ezVariant& out_value) const
+{
+  const ezTempHashedString th(szKey);
+
+  for (const auto& e : m_FloatParams)
+  {
+    if (e.m_sName == th)
+    {
+      out_value = e.m_Value;
+      return true;
+    }
+  }
+  for (const auto& e : m_ColorParams)
+  {
+    if (e.m_sName == th)
+    {
+      out_value = e.m_Value;
+      return true;
+    }
+  }
+  return false;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -104,5 +255,17 @@ void ezParticleEventReaction_Effect::ProcessEventQueue(const ezParticleEventQueu
     pComponent->m_bIfContinuousStopRightAway = true;
     pComponent->m_OnFinishedAction = ezOnComponentFinishedAction2::DeleteGameObject;
     pComponent->SetParticleEffect(m_hEffect);
+
+    if (!m_FloatParams.IsEmpty())
+    {
+      pComponent->m_bFloatParamsChanged = true;
+      pComponent->m_FloatParams = m_FloatParams;
+    }
+
+    if (!m_ColorParams.IsEmpty())
+    {
+      pComponent->m_bColorParamsChanged = true;
+      pComponent->m_ColorParams = m_ColorParams;
+    }
   }
 }

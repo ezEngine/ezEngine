@@ -124,7 +124,7 @@ void ezParticleComponent::DeserializeComponent(ezWorldReader& stream)
     ezUInt32 numFloats, numColors;
 
     s >> numFloats;
-    m_FloatParams.SetCount(numFloats);
+    m_FloatParams.SetCountUninitialized(numFloats);
 
     for (ezUInt32 i = 0; i < m_FloatParams.GetCount(); ++i)
     {
@@ -135,7 +135,7 @@ void ezParticleComponent::DeserializeComponent(ezWorldReader& stream)
     m_bFloatParamsChanged = numFloats > 0;
 
     s >> numColors;
-    m_ColorParams.SetCount(numColors);
+    m_ColorParams.SetCountUninitialized(numColors);
 
     for (ezUInt32 i = 0; i < m_ColorParams.GetCount(); ++i)
     {

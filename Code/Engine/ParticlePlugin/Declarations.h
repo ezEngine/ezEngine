@@ -1,11 +1,12 @@
 #pragma once
 
-#include <ParticlePlugin/Basics.h>
-#include <Foundation/Strings/String.h>
-#include <Foundation/Containers/HybridArray.h>
 #include <Core/ResourceManager/ResourceHandle.h>
-#include <Foundation/Types/Id.h>
+#include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Strings/String.h>
+#include <Foundation/Types/Id.h>
+#include <ParticlePlugin/Basics.h>
+#include <Foundation/Strings/HashedString.h>
 
 class ezWorld;
 class ezParticleSystemDescriptor;
@@ -144,3 +145,17 @@ struct EZ_PARTICLEPLUGIN_DLL ezParticleColorGradientMode
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleColorGradientMode);
 
 //////////////////////////////////////////////////////////////////////////
+
+struct ezParticleEffectFloatParam
+{
+  EZ_DECLARE_POD_TYPE();
+  ezHashedString m_sName;
+  float m_Value;
+};
+
+struct ezParticleEffectColorParam
+{
+  EZ_DECLARE_POD_TYPE();
+  ezHashedString m_sName;
+  ezColor m_Value;
+};
