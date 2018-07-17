@@ -1,18 +1,20 @@
 #include <PCH.h>
-#include <ParticlePlugin/Components/ParticleComponent.h>
+
+#include <Core/Messages/CommonMessages.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
+#include <Core/World/WorldModule.h>
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <ParticlePlugin/Components/ParticleComponent.h>
+#include <ParticlePlugin/Components/ParticleFinisherComponent.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
-#include <Core/World/WorldModule.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
 #include <RendererCore/Pipeline/RenderData.h>
-#include <ParticlePlugin/Components/ParticleFinisherComponent.h>
 #include <RendererCore/Pipeline/View.h>
-#include <Core/Messages/CommonMessages.h>
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -27,12 +29,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 3, ezComponentMode::Static)
     EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Effect"), new ezExposeColorAlphaAttribute),
   }
   EZ_END_PROPERTIES;
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Effects"),
   }
   EZ_END_ATTRIBUTES;
-    EZ_BEGIN_MESSAGEHANDLERS
+  EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgSetPlaying, OnSetPlaying),
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
@@ -41,7 +43,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 3, ezComponentMode::Static)
 
 }
 EZ_END_COMPONENT_TYPE
-
+// clang-format on
 
 ezParticleComponent::ezParticleComponent()
 {
@@ -49,9 +51,7 @@ ezParticleComponent::ezParticleComponent()
   m_bSpawnAtStart = true;
 }
 
-ezParticleComponent::~ezParticleComponent()
-{
-}
+ezParticleComponent::~ezParticleComponent() = default;
 
 void ezParticleComponent::OnDeactivated()
 {
@@ -267,7 +267,14 @@ void ezParticleComponent::Update()
 
       if (m_EffectController.IsContinuousEffect())
       {
-        m_bSpawnAtStart = true;
+        if (m_bIfContinuousStopRightAway)
+        {
+          StopEffect();
+        }
+        else
+        {
+          m_bSpawnAtStart = true;
+        }
       }
     }
   }
@@ -278,7 +285,8 @@ void ezParticleComponent::Update()
 
     if (m_RestartTime == ezTime())
     {
-      const ezTime tDiff = ezTime::Seconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(m_MinRestartDelay.GetSeconds(), m_RestartDelayRange.GetSeconds()));
+      const ezTime tDiff = ezTime::Seconds(
+          GetWorld()->GetRandomNumberGenerator().DoubleInRange(m_MinRestartDelay.GetSeconds(), m_RestartDelayRange.GetSeconds()));
 
       m_RestartTime = tNow + tDiff;
     }
@@ -312,7 +320,7 @@ void ezParticleComponent::Update()
         m_EffectController.SetParameter(e.m_sName, e.m_Value);
       }
     }
-    
+
     m_EffectController.SetTransform(GetOwner()->GetGlobalTransform(), GetOwner()->GetVelocity());
 
     m_EffectController.ExecuteWorldLockedUpdates();
@@ -351,12 +359,13 @@ void ezParticleComponent::HandOffToFinisher()
     pWorld->CreateObject(go, pFinisher);
 
     ezParticleFinisherComponent* pFinisherComp;
-    pWorld->GetOrCreateComponentManager<ezParticleFinisherComponentManager>()->CreateComponent(pFinisher, pFinisherComp);
+    ezParticleFinisherComponent::CreateComponent(pFinisher, pFinisherComp);
 
     pFinisherComp->m_EffectController = m_EffectController;
     pFinisherComp->m_EffectController.SetTransform(transform, ezVec3::ZeroVector()); // clear the velocity
   }
 
+  // this will instruct the effect instance to cancel any further emission, thus continuous effects will stop in finite time
   m_EffectController.Invalidate();
 }
 
@@ -371,17 +380,15 @@ void ezParticleComponent::CheckBVolumeUpdate()
 
 const ezRangeView<const char*, ezUInt32> ezParticleComponent::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>(
-    [this]()-> ezUInt32 { return 0; },
-    [this]()-> ezUInt32 { return m_FloatParams.GetCount() + m_ColorParams.GetCount(); },
-    [this](ezUInt32& it) { ++it; },
-    [this](const ezUInt32& it)-> const char*
-  {
-    if (it < m_FloatParams.GetCount())
-      return m_FloatParams[it].m_sName.GetData();
-    else
-      return m_ColorParams[it - m_FloatParams.GetCount()].m_sName.GetData();
-  });
+  return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32 { return 0; },
+                                            [this]() -> ezUInt32 { return m_FloatParams.GetCount() + m_ColorParams.GetCount(); },
+                                            [this](ezUInt32& it) { ++it; },
+                                            [this](const ezUInt32& it) -> const char* {
+                                              if (it < m_FloatParams.GetCount())
+                                                return m_FloatParams[it].m_sName.GetData();
+                                              else
+                                                return m_ColorParams[it - m_FloatParams.GetCount()].m_sName.GetData();
+                                            });
 }
 
 void ezParticleComponent::SetParameter(const char* szKey, const ezVariant& var)
@@ -485,4 +492,3 @@ bool ezParticleComponent::GetParameter(const char* szKey, ezVariant& out_value) 
 }
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Components_ParticleComponent);
-

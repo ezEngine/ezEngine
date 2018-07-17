@@ -62,7 +62,8 @@ public:
   ezUInt64 m_uiRandomSeed;
   ezString m_sSharedInstanceName;
 
-  bool m_bSpawnAtStart;
+  bool m_bSpawnAtStart = true;
+  bool m_bIfContinuousStopRightAway = false;
   ezEnum<ezOnComponentFinishedAction2> m_OnFinishedAction;
   ezTime m_MinRestartDelay;
   ezTime m_RestartDelayRange;

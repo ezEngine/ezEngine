@@ -101,6 +101,8 @@ void ezParticleEventReaction_Effect::ProcessEventQueue(const ezParticleEventQueu
     ezParticleComponent* pComponent = nullptr;
     ezParticleComponent::CreateComponent(pObject, pComponent);
 
+    pComponent->m_bIfContinuousStopRightAway = true;
+    pComponent->m_OnFinishedAction = ezOnComponentFinishedAction2::DeleteGameObject;
     pComponent->SetParticleEffect(m_hEffect);
   }
 }
