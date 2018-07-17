@@ -2,11 +2,11 @@
 
 #define USE_TEXCOORD0
 #define USE_COLOR
-#define USE_WORLDPOS
 
 #include <Shaders/Common/GlobalConstants.h>
 #include <Shaders/Materials/MaterialInterpolator.h>
 #include <Shaders/Particles/ParticleSystemConstants.h>
+#include <Shaders/Common/Lighting.h>
 
 static float2 QuadTexCoords[6] =
 {

@@ -2,7 +2,6 @@
 
 #define USE_TEXCOORD0
 #define USE_COLOR
-#define USE_WORLDPOS
 
 #include <Shaders/Materials/MaterialInterpolator.h>
 #include <Shaders/Particles/ParticleSystemConstants.h>

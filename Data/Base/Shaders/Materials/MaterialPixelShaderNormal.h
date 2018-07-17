@@ -76,18 +76,18 @@ PS_OUT main(PS_IN Input)
     #else
       bool applySSAO = false;
     #endif
-    
+
     AccumulatedLight light = CalculateLighting(matData, clusterData, Input.Position.xyw, applySSAO);
   #else
     AccumulatedLight light = InitializeLight(matData.diffuseColor, 0.0f);
   #endif
-  
+
   #if BLEND_MODE != BLEND_MODE_OPAQUE && BLEND_MODE != BLEND_MODE_MASKED
     if (matData.opacity > 0.01f)
     {
       light.specularLight /= matData.opacity;
     }
-  
+
     #if defined(USE_MATERIAL_REFRACTION)
       ApplyRefraction(matData, light);
     #endif
@@ -99,11 +99,11 @@ PS_OUT main(PS_IN Input)
   #if RENDER_PASS == RENDER_PASS_FORWARD
     #if defined(USE_FOG)
       #if BLEND_MODE == BLEND_MODE_ADDITIVE
-        matData.opacity *= 1.0 - GetFogAmount(matData.worldPosition);      
+        matData.opacity *= GetFogAmount(matData.worldPosition);
       #elif BLEND_MODE == BLEND_MODE_MODULATE
-        litColor = lerp(litColor, 1.0, GetFogAmount(matData.worldPosition));
+        litColor = lerp(1.0, litColor, GetFogAmount(matData.worldPosition));
       #else
-        litColor = ApplyFog(litColor, matData.worldPosition);      
+        litColor = ApplyFog(litColor, matData.worldPosition);
       #endif
     #endif
 
