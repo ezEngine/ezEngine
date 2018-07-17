@@ -91,8 +91,11 @@ void ezPxRaycastInteractComponent::OnTrigger(ezMsgTriggerRaycastInteractionCompo
   }
 
   ezPhysicsHitResult res;
-  if (!pModule->CastRay(GetOwner()->GetGlobalPosition(), vDirection, m_fMaxDistance, m_uiCollisionLayer, res, true, uiIgnoreShapeID))
+  if (!pModule->CastRay(GetOwner()->GetGlobalPosition(), vDirection, m_fMaxDistance, m_uiCollisionLayer, res,
+    ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, uiIgnoreShapeID))
+  {
     return;
+  }
 
   SendMessage(res);
 }

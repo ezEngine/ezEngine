@@ -37,7 +37,7 @@ public:
 
   // ezPhysicsWorldModuleInterface implementation
   virtual bool CastRay(const ezVec3& vStart, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer,
-    ezPhysicsHitResult& out_HitResult, bool bIncludeDynamic = true, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const override;
+    ezPhysicsHitResult& out_HitResult, ezBitflags<ezPhysicsShapeType> shapeTypes, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const override;
 
   virtual bool SweepTestSphere(float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance,
     ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const override;

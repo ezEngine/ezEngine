@@ -93,7 +93,7 @@ void ezRcMarkPoiVisibleComponent::Update()
 
     ezPhysicsHitResult hit;
 
-    if (m_pPhysicsModule->CastRay(vOwnPos, vDirToBottom, fRayLenBottom, m_uiCollisionLayer, hit, false))
+    if (m_pPhysicsModule->CastRay(vOwnPos, vDirToBottom, fRayLenBottom, m_uiCollisionLayer, hit, ezPhysicsShapeType::Static))
     {
       const ezVec3 vTargetTop = poi.m_vFloorPosition + ezVec3(0, 0, 1.0f);
       ezVec3 vDirToTop = vTargetTop - vOwnPos;
@@ -102,7 +102,7 @@ void ezRcMarkPoiVisibleComponent::Update()
       --iPointsToCheck;
 
       ezPhysicsHitResult hit;
-      if (m_pPhysicsModule->CastRay(vOwnPos, vDirToTop, fRayLenTop, m_uiCollisionLayer, hit, false))
+      if (m_pPhysicsModule->CastRay(vOwnPos, vDirToTop, fRayLenTop, m_uiCollisionLayer, hit, ezPhysicsShapeType::Static))
       {
         poi.m_uiVisibleMarker = uiCheckTimeStamp;
       }

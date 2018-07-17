@@ -431,16 +431,21 @@ void ezPhysXWorldModule::SetGravity(const ezVec3& objectGravity, const ezVec3& c
 }
 
 bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer,
-                                 ezPhysicsHitResult& out_HitResult, bool bIncludeDynamic, ezUInt32 uiIgnoreShapeId) const
+                                 ezPhysicsHitResult& out_HitResult, ezBitflags<ezPhysicsShapeType> shapeTypes, ezUInt32 uiIgnoreShapeId) const
 {
   if (fDistance <= 0.001f || vDir.IsZero())
     return false;
 
   PxQueryFilterData filterData;
   filterData.data = ezPhysX::CreateFilterData(uiCollisionLayer, uiIgnoreShapeId);
-  filterData.flags = PxQueryFlag::eSTATIC | PxQueryFlag::ePREFILTER;
+  filterData.flags = PxQueryFlag::ePREFILTER;
 
-  if (bIncludeDynamic)
+  if (shapeTypes.IsSet(ezPhysicsShapeType::Static))
+  {
+    filterData.flags |= PxQueryFlag::eSTATIC;
+  }
+
+  if (shapeTypes.IsSet(ezPhysicsShapeType::Dynamic))
   {
     filterData.flags |= PxQueryFlag::eDYNAMIC;
   }

@@ -35,6 +35,8 @@ struct ezPhysicsOverlapResult
   ezDynamicArray<Hit> m_Results;
 };
 
+EZ_DECLARE_FLAGS(ezUInt32, ezPhysicsShapeType, Static, Dynamic);
+
 class EZ_GAMEENGINE_DLL ezPhysicsWorldModuleInterface : public ezWorldModule
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezPhysicsWorldModuleInterface, ezWorldModule);
@@ -45,7 +47,8 @@ protected:
 public:
 
   virtual bool CastRay(const ezVec3& vStart, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer,
-    ezPhysicsHitResult& out_HitResult, bool bIncludeDynamic = true, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const = 0;
+    ezPhysicsHitResult& out_HitResult, ezBitflags<ezPhysicsShapeType> shapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic,
+    ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const = 0;
 
   virtual bool SweepTestSphere(float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance,
     ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const = 0;
