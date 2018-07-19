@@ -431,7 +431,8 @@ void ezPhysXWorldModule::SetGravity(const ezVec3& objectGravity, const ezVec3& c
 }
 
 bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer,
-                                 ezPhysicsHitResult& out_HitResult, ezBitflags<ezPhysicsShapeType> shapeTypes, ezUInt32 uiIgnoreShapeId) const
+                                 ezPhysicsHitResult& out_HitResult, ezBitflags<ezPhysicsShapeType> shapeTypes,
+                                 ezUInt32 uiIgnoreShapeId) const
 {
   if (fDistance <= 0.001f || vDir.IsZero())
     return false;
@@ -455,8 +456,8 @@ bool ezPhysXWorldModule::CastRay(const ezVec3& vStart, const ezVec3& vDir, float
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
-  if (GetPxScene()->raycast(ezPxConversionUtils::ToVec3(vStart), ezPxConversionUtils::ToVec3(vDir), fDistance, closestHit,
-                            PxHitFlag::eDEFAULT, filterData, &queryFilter))
+  if (m_pPxScene->raycast(ezPxConversionUtils::ToVec3(vStart), ezPxConversionUtils::ToVec3(vDir), fDistance, closestHit,
+                          PxHitFlag::eDEFAULT, filterData, &queryFilter))
   {
     FillHitResult(closestHit.block, out_HitResult);
 
@@ -525,8 +526,8 @@ bool ezPhysXWorldModule::SweepTest(const physx::PxGeometry& geometry, const phys
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
-  if (GetPxScene()->sweep(geometry, transform, ezPxConversionUtils::ToVec3(vDir), fDistance, closestHit, PxHitFlag::eDEFAULT, filterData,
-                          &queryFilter))
+  if (m_pPxScene->sweep(geometry, transform, ezPxConversionUtils::ToVec3(vDir), fDistance, closestHit, PxHitFlag::eDEFAULT, filterData,
+                        &queryFilter))
   {
     FillHitResult(closestHit.block, out_HitResult);
 
@@ -580,7 +581,7 @@ bool ezPhysXWorldModule::OverlapTest(const physx::PxGeometry& geometry, const ph
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
-  return GetPxScene()->overlap(geometry, transform, closestHit, filterData, &queryFilter);
+  return m_pPxScene->overlap(geometry, transform, closestHit, filterData, &queryFilter);
 }
 
 static PxOverlapHit g_OverlapHits[256];
@@ -607,7 +608,7 @@ void ezPhysXWorldModule::QueryDynamicShapesInSphere(float fSphereRadius, const e
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
-  GetPxScene()->overlap(sphere, transform, allOverlaps, filterData, &queryFilter);
+  m_pPxScene->overlap(sphere, transform, allOverlaps, filterData, &queryFilter);
 
   out_Results.m_Results.SetCountUninitialized(allOverlaps.nbTouches);
   for (ezUInt32 i = 0; i < allOverlaps.nbTouches; ++i)
@@ -752,17 +753,40 @@ void ezPhysXWorldModule::Simulate()
 
 void ezPhysXWorldModule::SimulateStep(float fDeltaTime)
 {
-  EZ_PX_WRITE_LOCK(*m_pPxScene);
-
   {
+    EZ_PX_WRITE_LOCK(*m_pPxScene);
+
     EZ_PROFILE("Simulate");
     m_pPxScene->simulate(fDeltaTime, nullptr, m_ScratchMemory.GetData(), m_ScratchMemory.GetCount());
   }
 
   {
+    int numCheck = 0;
+    int numFetch = 0;
+
+    // TODO: PhysX HACK / WORKAROUND:
+    // As far as I can tell, there is a multi-threading bug in checkResults(true).
+    // When multiple threads are trying to acquire the read-lock on the PX scene, the blocking version
+    // of checkResults (which is also called by fetchResults) can dead-lock.
+    //
+    // By doing checkResults manually and using the non-blocking version, this seems to work.
+    // Unfortunately we are now wasting resources in our custom spin-lock :(
+
     ///\todo execute tasks instead of waiting
     EZ_PROFILE("FetchResult");
-    m_pPxScene->fetchResults(true);
+    while (!m_pPxScene->checkResults(false))
+    {
+      ++numCheck;
+    }
+
+    EZ_PX_WRITE_LOCK(*m_pPxScene);
+
+    while (!m_pPxScene->fetchResults(false))
+    {
+      ++numFetch;
+    }
+
+    EZ_ASSERT_DEBUG(numFetch == 0, "m_pPxScene->fetchResults should have succeeded right away");
   }
 }
 
