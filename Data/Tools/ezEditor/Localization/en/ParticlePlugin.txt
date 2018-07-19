@@ -77,3 +77,4 @@ ColorGradientMode;Color From
 GradientMaxSpeed;Max Speed
 EventReactions;Event Reactions
 ezParticleEventReactionFactory_Effect;Effect Reaction
+ezParticleEventReactionFactory_Prefab;Prefab Reaction
