@@ -1,8 +1,10 @@
 #include <PCH.h>
-#include <GameEngine/Components/PrefabReferenceComponent.h>
-#include <Core/WorldSerializer/WorldWriter.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezPrefabReferenceComponent, 1, ezComponentMode::Static)
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <GameEngine/Components/PrefabReferenceComponent.h>
+
+// clang-format off
+EZ_BEGIN_COMPONENT_TYPE(ezPrefabReferenceComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -10,23 +12,21 @@ EZ_BEGIN_COMPONENT_TYPE(ezPrefabReferenceComponent, 1, ezComponentMode::Static)
     EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Prefab")),
   }
   EZ_END_PROPERTIES;
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("General"),
   }
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezPrefabReferenceComponent::ezPrefabReferenceComponent()
 {
   m_bRequiresInstantiation = true;
 }
 
-ezPrefabReferenceComponent::~ezPrefabReferenceComponent()
-{
-
-}
+ezPrefabReferenceComponent::~ezPrefabReferenceComponent() {}
 
 void ezPrefabReferenceComponent::Deinitialize()
 {
@@ -47,16 +47,44 @@ void ezPrefabReferenceComponent::SerializeComponent(ezWorldWriter& stream) const
 
   const bool instantiate = GetUniqueID() != ezInvalidIndex;
   s << instantiate;
+
+  // Version 2
+  const ezUInt32 numParams = m_Parameters.GetCount();
+  s << numParams;
+  for (ezUInt32 i = 0; i < numParams; ++i)
+  {
+    s << m_Parameters.GetKey(i);
+    s << m_Parameters.GetValue(i);
+  }
 }
 
 void ezPrefabReferenceComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
   s >> m_hPrefab;
   s >> m_bRequiresInstantiation;
+
+  if (uiVersion >= 2)
+  {
+    ezUInt32 numParams = 0;
+    s >> numParams;
+
+    m_Parameters.Reserve(numParams);
+
+    ezHashedString key;
+    ezVariant value;
+
+    for (ezUInt32 i = 0; i < numParams; ++i)
+    {
+      s >> key;
+      s >> value;
+
+      m_Parameters.Insert(key, value);
+    }
+  }
 
   if (m_bRequiresInstantiation)
   {
@@ -143,13 +171,8 @@ void ezPrefabReferenceComponent::Initialize()
 const ezRangeView<const char*, ezUInt32> ezPrefabReferenceComponent::GetParameters() const
 {
   return ezRangeView<const char*, ezUInt32>(
-    [this]()-> ezUInt32 { return 0; },
-    [this]()-> ezUInt32 { return m_Parameters.GetCount(); },
-    [this](ezUInt32& it) { ++it; },
-    [this](const ezUInt32& it)-> const char*
-  {
-    return m_Parameters.GetKey(it).GetString().GetData();
-  });
+      [this]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Parameters.GetCount(); }, [this](ezUInt32& it) { ++it; },
+      [this](const ezUInt32& it) -> const char* { return m_Parameters.GetKey(it).GetString().GetData(); });
 }
 
 void ezPrefabReferenceComponent::SetParameter(const char* szKey, const ezVariant& value)
@@ -190,7 +213,7 @@ bool ezPrefabReferenceComponent::GetParameter(const char* szKey, ezVariant& out_
 //////////////////////////////////////////////////////////////////////////
 
 ezPrefabReferenceComponentManager::ezPrefabReferenceComponentManager(ezWorld* pWorld)
-  : ezComponentManager<ComponentType, ezBlockStorageType::Compact>(pWorld)
+    : ezComponentManager<ComponentType, ezBlockStorageType::Compact>(pWorld)
 {
   ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezPrefabReferenceComponentManager::ResourceEventHandler, this));
 }
@@ -250,7 +273,7 @@ void ezPrefabReferenceComponentManager::Update(const ezWorldModule::UpdateContex
       continue;
 
     // not implemented in all necessary code paths atm
-    //if (!pPrefab->IsActive())
+    // if (!pPrefab->IsActive())
     //  continue;
 
     pPrefab->InstantiatePrefab();
@@ -284,4 +307,3 @@ void ezPrefabReferenceComponentManager::AddToUpdateList(ezPrefabReferenceCompone
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_PrefabReferenceComponent);
-
