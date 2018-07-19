@@ -108,16 +108,16 @@ ezUInt32 ezParticleEmitter_OnEvent::ComputeSpawnCount(const ezTime& tDiff)
   return m_Events.GetCount();
 }
 
-void ezParticleEmitter_OnEvent::ProcessEventQueue(const ezParticleEventQueue* pQueue)
+void ezParticleEmitter_OnEvent::ProcessEventQueue(ezParticleEventQueue queue)
 {
-  if (pQueue->GetEventTypeHash() == m_sEventName.GetHash())
+  for (const ezParticleEvent& e : queue)
   {
-    // this is the event type we are waiting for!
-
-    // copy all the data. quite inefficient though, have to see whether that could be done better
-    if (!pQueue->GetAllEvents().IsEmpty())
+    if (e.m_EventType == m_sEventName) // this is the event type we are waiting for!
     {
-      m_Events = pQueue->GetAllEvents();
+      if (m_Events.GetCount() == m_Events.GetCapacity())
+        return;
+
+      m_Events.PushBack(e);
     }
   }
 }

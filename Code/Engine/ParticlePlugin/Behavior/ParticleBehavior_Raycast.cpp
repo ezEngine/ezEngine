@@ -164,11 +164,12 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
           if (m_sOnCollideEvent.GetHash() != 0)
           {
             ezParticleEvent e;
+            e.m_EventType = m_sOnCollideEvent;
             e.m_vPosition = hitResult.m_vPosition;
             e.m_vNormal = hitResult.m_vNormal;
             e.m_vDirection = vDirection;
 
-            GetOwnerEffect()->GetEventQueue(m_sOnCollideEvent)->AddEvent(e);
+            GetOwnerEffect()->AddParticleEvent(e);
           }
         }
       }

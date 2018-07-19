@@ -1,7 +1,8 @@
 #pragma once
 
-#include <ParticlePlugin/Events/ParticleEventReaction.h>
 #include <Foundation/Types/RangeView.h>
+#include <ParticlePlugin/Events/ParticleEventReaction.h>
+#include <Foundation/Types/SharedPtr.h>
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleEventReactionFactory_Effect : public ezParticleEventReactionFactory
 {
@@ -27,9 +28,7 @@ public:
   bool GetParameter(const char* szKey, ezVariant& out_value) const;
 
 private:
-
-  ezHybridArray<ezParticleEffectFloatParam, 2> m_FloatParams;
-  ezHybridArray<ezParticleEffectColorParam, 2> m_ColorParams;
+  ezSharedPtr<ezParticleEffectParameters> m_Parameters;
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleEventReaction_Effect : public ezParticleEventReaction
@@ -42,10 +41,8 @@ public:
 
   ezParticleEffectResourceHandle m_hEffect;
 
-  // TODO: maybe could make this just pointers (assuming the factory outlives the instance)
-  ezHybridArray<ezParticleEffectFloatParam, 2> m_FloatParams;
-  ezHybridArray<ezParticleEffectColorParam, 2> m_ColorParams;
+  ezSharedPtr<ezParticleEffectParameters> m_Parameters;
 
 protected:
-  virtual void ProcessEventQueue(const ezParticleEventQueue* pQueue) override;
+  virtual void ProcessEventQueue(ezParticleEventQueue queue) override;
 };

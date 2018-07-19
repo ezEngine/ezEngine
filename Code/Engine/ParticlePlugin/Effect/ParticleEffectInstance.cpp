@@ -66,7 +66,7 @@ void ezParticleEffectInstance::Destruct()
 void ezParticleEffectInstance::Interrupt()
 {
   ClearParticleSystems();
-  DestroyEventQueues();
+  ClearEventReactions();
   m_bEmitterEnabled = false;
 }
 
@@ -407,6 +407,18 @@ bool ezParticleEffectInstance::StepSimulation(const ezTime& tDiff)
   return m_uiReviveTimeout > 0;
 }
 
+
+void ezParticleEffectInstance::AddParticleEvent(const ezParticleEvent& pe)
+{
+  const ezUInt32 uiQueueIndex = GetOwnerWorldModule()->GetWriteEventQueueIndex();
+
+  // drop events when the capacity is full
+  if (m_EventQueue[uiQueueIndex].GetCount() == m_EventQueue[uiQueueIndex].GetCapacity())
+    return;
+
+  m_EventQueue[uiQueueIndex].PushBack(pe);
+}
+
 void ezParticleEffectInstance::SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity,
                                             const void* pSharedInstanceOwner)
 {
@@ -486,24 +498,6 @@ void ezParticleEffectInstance::RemoveSharedInstance(const void* pSharedInstanceO
   }
 }
 
-
-ezParticleEventQueue* ezParticleEffectInstance::GetEventQueue(const ezTempHashedString& EventType)
-{
-  for (ezUInt32 i = 0; i < m_EventQueues.GetCount(); ++i)
-  {
-    if (m_EventQueues[i].m_EventTypeHash == EventType.GetHash())
-      return m_EventQueues[i].m_pQueue;
-  }
-
-  auto& queue = m_EventQueues.ExpandAndGetRef();
-
-  queue.m_pQueue = m_pOwnerModule->GetEventQueueManager().CreateEventQueue(EventType.GetHash());
-  queue.m_EventTypeHash = EventType.GetHash();
-
-  return queue.m_pQueue;
-}
-
-
 bool ezParticleEffectInstance::ShouldBeUpdated() const
 {
   if (m_hEffectHandle.IsInvalidated())
@@ -569,27 +563,19 @@ ezTime ezParticleEffectInstance::GetBoundingVolume(ezBoundingBoxSphere& volume) 
   return m_LastBVolumeUpdate;
 }
 
-void ezParticleEffectInstance::DestroyEventQueues()
-{
-  for (auto& queue : m_EventQueues)
-  {
-    m_pOwnerModule->GetEventQueueManager().DestroyEventQueue(queue.m_pQueue);
-  }
-
-  m_EventQueues.Clear();
-}
-
 void ezParticleEffectInstance::ProcessEventQueues()
 {
+  const ezUInt32 uiQueueIndex = GetOwnerWorldModule()->GetReadEventQueueIndex();
+
+  if (m_EventQueue[uiQueueIndex].IsEmpty())
+    return;
+
   EZ_PROFILE("PFX: Effect Event Queue");
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
     if (m_ParticleSystems[i])
     {
-      for (const auto& queue : m_EventQueues)
-      {
-        m_ParticleSystems[i]->ProcessEventQueue(queue.m_pQueue);
-      }
+      m_ParticleSystems[i]->ProcessEventQueue(m_EventQueue[uiQueueIndex]);
     }
   }
 
@@ -597,22 +583,11 @@ void ezParticleEffectInstance::ProcessEventQueues()
   {
     if (m_EventReactions[i])
     {
-      const ezTempHashedString sEvent = m_EventReactions[i]->m_sEventName;
-
-      for (const auto& queue : m_EventQueues)
-      {
-        if (queue.m_EventTypeHash == sEvent.GetHash())
-        {
-          m_EventReactions[i]->ProcessEventQueue(queue.m_pQueue);
-        }
-      }
+      m_EventReactions[i]->ProcessEventQueue(m_EventQueue[uiQueueIndex]);
     }
   }
 
-  for (auto& queue : m_EventQueues)
-  {
-    queue.m_pQueue->Clear();
-  }
+  m_EventQueue[uiQueueIndex].Clear();
 }
 
 ezParticleffectUpdateTask::ezParticleffectUpdateTask(ezParticleEffectInstance* pEffect)

@@ -40,10 +40,10 @@ protected:
   virtual ezParticleEmitterState IsFinished() override;
   virtual ezUInt32 ComputeSpawnCount(const ezTime& tDiff) override;
 
-  virtual void ProcessEventQueue(const ezParticleEventQueue* pQueue) override;
+  virtual void ProcessEventQueue(ezParticleEventQueue queue) override;
 
   ezProcessingStream* m_pStreamPosition;
   ezProcessingStream* m_pStreamVelocity;
 
-  ezDeque<ezParticleEvent> m_Events;
+  ezStaticArray<ezParticleEvent, 16> m_Events;
 };

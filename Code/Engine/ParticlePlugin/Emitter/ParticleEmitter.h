@@ -49,5 +49,5 @@ protected:
   /// \brief Called before ComputeSpawnCount(). Should return true, if the emitter will never spawn any more particles.
   virtual ezParticleEmitterState IsFinished() = 0;
 
-  virtual void ProcessEventQueue(const ezParticleEventQueue* pQueue);
+  virtual void ProcessEventQueue(ezParticleEventQueue queue);
 };

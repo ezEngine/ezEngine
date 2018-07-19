@@ -113,9 +113,11 @@ bool ezParticleWorldModule::TryGetEffectInstance(const ezParticleEffectHandle& h
 void ezParticleWorldModule::UpdateEffects(const ezWorldModule::UpdateContext& context)
 {
   // do this outside the lock to allow tasks to enter it
+  // this should actually never have to have any effect, as this is already done at the end of the previous frame
   EnsureUpdatesFinished(context);
 
   EZ_LOCK(m_Mutex);
+  ezMath::Swap(m_uiReadEventQueue, m_uiWriteEventQueue);
 
   DestroyFinishedEffects();
   ReconfigureEffects();

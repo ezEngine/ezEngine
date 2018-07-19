@@ -198,13 +198,13 @@ void ezParticleBehavior_Age::OnParticleDeath(const ezStreamGroupElementRemovedEv
   const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
   const ezVec3* pVelocity = m_pStreamVelocity->GetData<ezVec3>();
 
-  ezParticleEventQueue* pQueue = GetOwnerEffect()->GetEventQueue(m_sOnDeathEvent);
-
   ezParticleEvent pe;
+  pe.m_EventType = m_sOnDeathEvent;
   pe.m_vPosition = pPosition[e.m_uiElementIndex].GetAsVec3();
   pe.m_vDirection = pVelocity[e.m_uiElementIndex];
   pe.m_vNormal.SetZero();
-  pQueue->AddEvent(pe);
+
+  GetOwnerEffect()->AddParticleEvent(pe);
 }
 
 

@@ -28,7 +28,7 @@ bool ezParticleEmitter::IsContinuous() const
 }
 
 void ezParticleEmitter::Process(ezUInt64 uiNumElements) {}
-void ezParticleEmitter::ProcessEventQueue(const ezParticleEventQueue* pQueue) {}
+void ezParticleEmitter::ProcessEventQueue(ezParticleEventQueue queue) {}
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Emitter_ParticleEmitter);

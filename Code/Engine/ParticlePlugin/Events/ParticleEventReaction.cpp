@@ -68,7 +68,7 @@ void ezParticleEventReactionFactory::Load(ezStreamReader& stream)
 ezParticleEventReaction::ezParticleEventReaction() = default;
 ezParticleEventReaction::~ezParticleEventReaction() = default;
 
-void ezParticleEventReaction::ProcessEventQueue(const ezParticleEventQueue* pQueue) {}
+void ezParticleEventReaction::ProcessEventQueue(ezParticleEventQueue queue) {}
 void ezParticleEventReaction::AfterPropertiesConfigured(bool bFirstTime) {}
 
 void ezParticleEventReaction::Reset(ezParticleEffectInstance* pOwner)

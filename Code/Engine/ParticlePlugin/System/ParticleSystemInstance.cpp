@@ -524,11 +524,11 @@ void ezParticleStreamBinding::UpdateBindings(const ezProcessingStreamGroup* pGro
   }
 }
 
-void ezParticleSystemInstance::ProcessEventQueue(const ezParticleEventQueue* pQueue)
+void ezParticleSystemInstance::ProcessEventQueue(ezParticleEventQueue queue)
 {
   for (auto pEmitter : m_Emitters)
   {
-    pEmitter->ProcessEventQueue(pQueue);
+    pEmitter->ProcessEventQueue(queue);
   }
 }
 

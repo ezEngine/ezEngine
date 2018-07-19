@@ -3,10 +3,11 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Strings/HashedString.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Types/Id.h>
+#include <Foundation/Types/RefCounted.h>
 #include <ParticlePlugin/Basics.h>
-#include <Foundation/Strings/HashedString.h>
 
 class ezWorld;
 class ezParticleSystemDescriptor;
@@ -19,7 +20,7 @@ class ezParticleType;
 class ezProcessingStreamGroup;
 class ezProcessingStream;
 class ezRandom;
-class ezParticleEventQueue;
+struct ezParticleEvent;
 class ezParticleEffectDescriptor;
 class ezParticleWorldModule;
 class ezParticleEffectInstance;
@@ -158,4 +159,11 @@ struct ezParticleEffectColorParam
   EZ_DECLARE_POD_TYPE();
   ezHashedString m_sName;
   ezColor m_Value;
+};
+
+class ezParticleEffectParameters : public ezRefCounted
+{
+public:
+  ezHybridArray<ezParticleEffectFloatParam, 2> m_FloatParams;
+  ezHybridArray<ezParticleEffectColorParam, 2> m_ColorParams;
 };

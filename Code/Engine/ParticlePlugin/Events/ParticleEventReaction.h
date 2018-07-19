@@ -38,7 +38,7 @@ protected:
   void Reset(ezParticleEffectInstance* pOwner);
 
   virtual void AfterPropertiesConfigured(bool bFirstTime);
-  virtual void ProcessEventQueue(const ezParticleEventQueue* pQueue) = 0;
+  virtual void ProcessEventQueue(ezParticleEventQueue queue) = 0;
 
   ezTempHashedString m_sEventName;
   ezParticleEffectInstance* m_pOwnerEffect = nullptr;

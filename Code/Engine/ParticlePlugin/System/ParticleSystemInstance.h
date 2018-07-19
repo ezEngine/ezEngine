@@ -6,6 +6,7 @@
 #include <Foundation/Math/Random.h>
 #include <ParticlePlugin/Basics.h>
 #include <ParticlePlugin/Declarations.h>
+#include <ParticlePlugin/Events/ParticleEvent.h>
 
 class ezView;
 class ezExtractedRenderData;
@@ -55,7 +56,7 @@ public:
   void CreateStream(const char* szName, ezProcessingStream::DataType Type, ezProcessingStream** ppStream, ezParticleStreamBinding& binding,
                     bool bExpectInitializedValue);
 
-  void ProcessEventQueue(const ezParticleEventQueue* pQueue);
+  void ProcessEventQueue(ezParticleEventQueue queue);
 
   ezParticleEffectInstance* GetOwnerEffect() const { return m_pOwnerEffect; }
   ezParticleWorldModule* GetOwnerWorldModule() const;
