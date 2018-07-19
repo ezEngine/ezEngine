@@ -64,6 +64,8 @@ public:
 
   void AddParticleEvent(const ezParticleEvent& pe);
 
+  ezRandom& GetRNG() { return m_Random; }
+
   /// @name Transform Related
   /// @{
 public:
@@ -197,9 +199,12 @@ private:
 
 
 private:
-  void Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTime);
+  void Reconfigure(bool bFirstTime);
   void ClearParticleSystem(ezUInt32 index);
   void ProcessEventQueues();
+
+  // for deterministic randomness
+  ezRandom m_Random;
 
   ezDynamicArray<SharedInstance> m_SharedInstances;
   ezParticleEffectHandle m_hEffectHandle;

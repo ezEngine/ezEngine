@@ -121,15 +121,16 @@ void ezParticleEventReactionFactory_Effect::CopyReactionProperties(ezParticleEve
 
 const ezRangeView<const char*, ezUInt32> ezParticleEventReactionFactory_Effect::GetParameters() const
 {
-  return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32 { return 0; },
+  return ezRangeView<const char*, ezUInt32>(
+      [this]() -> ezUInt32 { return 0; },
       [this]() -> ezUInt32 { return m_Parameters->m_FloatParams.GetCount() + m_Parameters->m_ColorParams.GetCount(); },
-                                            [this](ezUInt32& it) { ++it; },
-                                            [this](const ezUInt32& it) -> const char* {
+      [this](ezUInt32& it) { ++it; },
+      [this](const ezUInt32& it) -> const char* {
         if (it < m_Parameters->m_FloatParams.GetCount())
           return m_Parameters->m_FloatParams[it].m_sName.GetData();
-                                              else
+        else
           return m_Parameters->m_ColorParams[it - m_Parameters->m_FloatParams.GetCount()].m_sName.GetData();
-                                            });
+      });
 }
 
 void ezParticleEventReactionFactory_Effect::SetParameter(const char* szKey, const ezVariant& var)
@@ -233,41 +234,34 @@ bool ezParticleEventReactionFactory_Effect::GetParameter(const char* szKey, ezVa
 ezParticleEventReaction_Effect::ezParticleEventReaction_Effect() = default;
 ezParticleEventReaction_Effect::~ezParticleEventReaction_Effect() = default;
 
-void ezParticleEventReaction_Effect::ProcessEventQueue(ezParticleEventQueue queue)
+void ezParticleEventReaction_Effect::ProcessEvent(const ezParticleEvent& e)
 {
   ezGameObjectDesc god;
   god.m_bDynamic = true;
+  god.m_LocalPosition = e.m_vPosition;
 
-  for (const auto& e : queue)
+  // TODO: modes how to align the spawned effect (direction, normal, reflected dir, etc.)
+  god.m_LocalRotation.SetShortestRotation(ezVec3(0, 0, 1), e.m_vDirection);
+
+  ezGameObject* pObject = nullptr;
+  m_pOwnerEffect->GetWorld()->CreateObject(god, pObject);
+
+  ezParticleComponent* pComponent = nullptr;
+  ezParticleComponent::CreateComponent(pObject, pComponent);
+
+  pComponent->m_bIfContinuousStopRightAway = true;
+  pComponent->m_OnFinishedAction = ezOnComponentFinishedAction2::DeleteGameObject;
+  pComponent->SetParticleEffect(m_hEffect);
+
+  if (!m_Parameters->m_FloatParams.IsEmpty())
   {
-    if (e.m_EventType != m_sEventName)
-      continue;
+    pComponent->m_bFloatParamsChanged = true;
+    pComponent->m_FloatParams = m_Parameters->m_FloatParams;
+  }
 
-    god.m_LocalPosition = e.m_vPosition;
-
-    // TODO: modes how to align the spawned effect (direction, normal, reflected dir, etc.)
-    god.m_LocalRotation.SetShortestRotation(ezVec3(0, 0, 1), e.m_vDirection);
-
-    ezGameObject* pObject = nullptr;
-    m_pOwnerEffect->GetWorld()->CreateObject(god, pObject);
-
-    ezParticleComponent* pComponent = nullptr;
-    ezParticleComponent::CreateComponent(pObject, pComponent);
-
-    pComponent->m_bIfContinuousStopRightAway = true;
-    pComponent->m_OnFinishedAction = ezOnComponentFinishedAction2::DeleteGameObject;
-    pComponent->SetParticleEffect(m_hEffect);
-
-    if (!m_Parameters->m_FloatParams.IsEmpty())
-    {
-      pComponent->m_bFloatParamsChanged = true;
-      pComponent->m_FloatParams = m_Parameters->m_FloatParams;
-    }
-
-    if (!m_Parameters->m_ColorParams.IsEmpty())
-    {
-      pComponent->m_bColorParamsChanged = true;
-      pComponent->m_ColorParams = m_Parameters->m_ColorParams;
-    }
+  if (!m_Parameters->m_ColorParams.IsEmpty())
+  {
+    pComponent->m_bColorParamsChanged = true;
+    pComponent->m_ColorParams = m_Parameters->m_ColorParams;
   }
 }

@@ -44,5 +44,5 @@ public:
   ezSharedPtr<ezParticleEffectParameters> m_Parameters;
 
 protected:
-  virtual void ProcessEventQueue(ezParticleEventQueue queue) override;
+  virtual void ProcessEvent(const ezParticleEvent& e) override;
 };

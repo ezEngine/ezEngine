@@ -1,6 +1,7 @@
 #include <PCH.h>
 
 #include <Core/ResourceManager/ResourceManager.h>
+#include <Core/World/World.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/Clock.h>
 #include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
@@ -45,7 +46,12 @@ void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, c
   m_Transform.SetIdentity();
   m_vVelocity.SetZero();
 
-  Reconfigure(uiRandomSeed, true);
+  if (uiRandomSeed == 0)
+    m_Random.InitializeFromCurrentTime();
+  else
+    m_Random.Initialize(uiRandomSeed);
+
+  Reconfigure(true);
 }
 
 void ezParticleEffectInstance::Destruct()
@@ -205,7 +211,7 @@ bool ezParticleEffectInstance::IsVisible() const
   return m_EffectIsVisible >= ezClock::GetGlobalClock()->GetAccumulatedTime();
 }
 
-void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTime)
+void ezParticleEffectInstance::Reconfigure(bool bFirstTime)
 {
   if (!m_hResource.IsValid())
   {
@@ -257,7 +263,7 @@ void ezParticleEffectInstance::Reconfigure(ezUInt64 uiRandomSeed, bool bFirstTim
     {
       if (m_ParticleSystems[i] == nullptr)
       {
-        m_ParticleSystems[i] = m_pOwnerModule->CreateSystemInstance(systems[i]->m_uiMaxParticles, m_pWorld, uiRandomSeed, this);
+        m_ParticleSystems[i] = m_pOwnerModule->CreateSystemInstance(systems[i]->m_uiMaxParticles, m_pWorld, this);
       }
     }
   }
@@ -579,11 +585,22 @@ void ezParticleEffectInstance::ProcessEventQueues()
     }
   }
 
-  for (ezUInt32 i = 0; i < m_EventReactions.GetCount(); ++i)
+  for (const ezParticleEvent& e : m_EventQueue[uiQueueIndex])
   {
-    if (m_EventReactions[i])
+    ezUInt32 rnd = m_Random.UIntInRange(100);
+
+    for (ezParticleEventReaction* pReaction : m_EventReactions)
     {
-      m_EventReactions[i]->ProcessEventQueue(m_EventQueue[uiQueueIndex]);
+      if (pReaction->m_sEventName != e.m_EventType)
+        continue;
+
+      if (pReaction->m_uiProbability > rnd)
+      {
+        pReaction->ProcessEvent(e);
+        break;
+      }
+
+      rnd -= pReaction->m_uiProbability;
     }
   }
 

@@ -171,7 +171,7 @@ void ezParticleWorldModule::ReconfigureEffects()
 
   for (auto pEffect : m_EffectsToReconfigure)
   {
-    pEffect->Reconfigure(0, false);
+    pEffect->Reconfigure(false);
   }
 
   m_EffectsToReconfigure.Clear();

@@ -22,6 +22,7 @@ public:
   virtual void Load(ezStreamReader& stream);
 
   ezString m_sEventType;
+  ezUInt8 m_uiProbability = 100;
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleEventReaction : public ezReflectedClass
@@ -38,8 +39,9 @@ protected:
   void Reset(ezParticleEffectInstance* pOwner);
 
   virtual void AfterPropertiesConfigured(bool bFirstTime);
-  virtual void ProcessEventQueue(ezParticleEventQueue queue) = 0;
+  virtual void ProcessEvent(const ezParticleEvent& e) = 0;
 
   ezTempHashedString m_sEventName;
+  ezUInt8 m_uiProbability;
   ezParticleEffectInstance* m_pOwnerEffect = nullptr;
 };

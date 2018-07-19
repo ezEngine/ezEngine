@@ -1,10 +1,10 @@
 #pragma once
 
-#include <ParticlePlugin/Basics.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStream.h>
-#include <ParticlePlugin/Declarations.h>
-#include <ParticlePlugin/System/ParticleSystemInstance.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamProcessor.h>
+#include <ParticlePlugin/Basics.h>
+#include <ParticlePlugin/Declarations.h>
+#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 
 class ezProcessingStream;
 
@@ -13,7 +13,6 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleModule : public ezProcessingStreamProcesso
   friend class ezParticleSystemInstance;
 
 public:
-
   /// \brief Called after construction when m_pOwnerSystem is set and when properties have been set
   virtual void AfterPropertiesConfigured(bool bFirstTime) {}
   virtual void CreateRequiredStreams() = 0;
@@ -28,22 +27,13 @@ public:
   }
 
   /// \brief Called after everything is set up.
-  virtual void OnFinalize() { }
+  virtual void OnFinalize() {}
 
-  ezParticleSystemInstance* GetOwnerSystem()
-  {
-    return m_pOwnerSystem;
-  }
+  ezParticleSystemInstance* GetOwnerSystem() { return m_pOwnerSystem; }
 
-  const ezParticleSystemInstance* GetOwnerSystem() const
-  {
-    return m_pOwnerSystem;
-  }
+  const ezParticleSystemInstance* GetOwnerSystem() const { return m_pOwnerSystem; }
 
-  ezParticleEffectInstance* GetOwnerEffect() const
-  {
-    return m_pOwnerSystem->GetOwnerEffect();
-  }
+  ezParticleEffectInstance* GetOwnerEffect() const { return m_pOwnerSystem->GetOwnerEffect(); }
 
 protected:
   /// \brief Called by Reset()
@@ -60,10 +50,7 @@ protected:
     return EZ_SUCCESS;
   }
 
-  ezRandom& GetRNG() const
-  {
-    return m_pOwnerSystem->GetRNG();
-  }
+  ezRandom& GetRNG() const { return GetOwnerEffect()->GetRNG(); }
 
 private:
   ezParticleSystemInstance* m_pOwnerSystem;

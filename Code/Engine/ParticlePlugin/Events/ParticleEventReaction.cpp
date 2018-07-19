@@ -7,7 +7,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEventReactionFactory, 1, ezRTTINoAlloc
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("EventType", m_sEventType)
+    EZ_MEMBER_PROPERTY("EventType", m_sEventType),
+    EZ_MEMBER_PROPERTY("Probability", m_uiProbability)->AddAttributes(new ezDefaultValueAttribute(100), new ezClampValueAttribute(1, 100)),
   }
   EZ_END_PROPERTIES;
 }
@@ -25,6 +26,7 @@ ezParticleEventReaction* ezParticleEventReactionFactory::CreateEventReaction(ezP
   ezParticleEventReaction* pReaction = pRtti->GetAllocator()->Allocate<ezParticleEventReaction>();
   pReaction->Reset(pOwner);
   pReaction->m_sEventName = ezTempHashedString(m_sEventType.GetData());
+  pReaction->m_uiProbability = m_uiProbability;
 
   CopyReactionProperties(pReaction);
   pReaction->AfterPropertiesConfigured(true);
@@ -36,6 +38,7 @@ enum class ReactionVersion
 {
   Version_0 = 0,
   Version_1,
+  Version_2, // added probability
 
   // insert new version numbers above
   Version_Count,
@@ -49,6 +52,9 @@ void ezParticleEventReactionFactory::Save(ezStreamWriter& stream) const
 
   // Version 1
   stream << m_sEventType;
+
+  // Version 2
+  stream << m_uiProbability;
 }
 
 
@@ -61,6 +67,11 @@ void ezParticleEventReactionFactory::Load(ezStreamReader& stream)
 
   // Version 1
   stream >> m_sEventType;
+
+  if (uiVersion >= 2)
+  {
+    stream >> m_uiProbability;
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -68,7 +79,6 @@ void ezParticleEventReactionFactory::Load(ezStreamReader& stream)
 ezParticleEventReaction::ezParticleEventReaction() = default;
 ezParticleEventReaction::~ezParticleEventReaction() = default;
 
-void ezParticleEventReaction::ProcessEventQueue(ezParticleEventQueue queue) {}
 void ezParticleEventReaction::AfterPropertiesConfigured(bool bFirstTime) {}
 
 void ezParticleEventReaction::Reset(ezParticleEffectInstance* pOwner)

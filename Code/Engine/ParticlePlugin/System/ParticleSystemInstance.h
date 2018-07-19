@@ -17,7 +17,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleSystemInstance
 public:
   ezParticleSystemInstance();
 
-  void Construct(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed, ezParticleEffectInstance* pOwnerEffect);
+  void Construct(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect);
   void Destruct();
 
   bool IsVisible() const { return m_bVisible; }
@@ -47,7 +47,7 @@ public:
   ezUInt64 GetMaxParticles() const { return m_StreamGroup.GetNumElements(); }
   ezUInt64 GetNumActiveParticles() const { return m_StreamGroup.GetNumActiveElements(); }
 
-  ezRandom& GetRNG() { return m_Random; }
+  
 
   /// \brief Returns the desired stream, if it already exists, nullptr otherwise.
   const ezProcessingStream* QueryStream(const char* szName, ezProcessingStream::DataType Type) const;
@@ -105,8 +105,6 @@ private:
   };
 
   ezHybridArray<StreamInfo, 16> m_StreamInfo;
-
-  ezRandom m_Random;
 
   // culling data
   ezBoundingBoxSphere m_BoundingVolume;

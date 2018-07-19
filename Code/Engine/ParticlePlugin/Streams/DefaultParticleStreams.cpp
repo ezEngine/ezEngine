@@ -1,10 +1,11 @@
 #include <PCH.h>
 
 #include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
+#include <Foundation/Math/Color16f.h>
+#include <Foundation/Math/Float16.h>
+#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Streams/DefaultParticleStreams.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
-#include <Foundation/Math/Float16.h>
-#include <Foundation/Math/Color16f.h>
 
 //////////////////////////////////////////////////////////////////////////
 // ZERO-INIT STREAM
@@ -141,7 +142,7 @@ void ezParticleStream_Velocity::InitializeElements(ezUInt64 uiStartIndex, ezUInt
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStreamFactory_LastPosition, 1, ezRTTIDefaultAllocator<ezParticleStreamFactory_LastPosition>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
- ezParticleStreamFactory_LastPosition::ezParticleStreamFactory_LastPosition()
+ezParticleStreamFactory_LastPosition::ezParticleStreamFactory_LastPosition()
     : ezParticleStreamFactory("LastPosition", ezProcessingStream::DataType::Float3, ezGetStaticRTTI<ezParticleStream_ZeroInit>())
 {
 }
@@ -263,7 +264,7 @@ void ezParticleStream_Variation::InitializeElements(ezUInt64 uiStartIndex, ezUIn
 
   const ezVec3 startVel = m_pOwner->GetParticleStartVelocity();
 
-  ezRandom& rng = m_pOwner->GetRNG();
+  ezRandom& rng = m_pOwner->GetOwnerEffect()->GetRNG();
 
   while (!itData.HasReachedEnd())
   {
@@ -275,4 +276,3 @@ void ezParticleStream_Variation::InitializeElements(ezUInt64 uiStartIndex, ezUIn
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Streams_DefaultParticleStreams);
-

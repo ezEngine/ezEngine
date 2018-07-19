@@ -49,8 +49,7 @@ public:
   /// \brief Extracts render data for all effects that are currently active.
   void ExtractRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData) const;
 
-  ezParticleSystemInstance* CreateSystemInstance(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed,
-                                                 ezParticleEffectInstance* pOwnerEffect);
+  ezParticleSystemInstance* CreateSystemInstance(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect);
   void DestroySystemInstance(ezParticleSystemInstance* pInstance);
 
   ezParticleStream* CreateStreamDefaultInitializer(ezParticleSystemInstance* pOwner, const char* szFullStreamName) const;

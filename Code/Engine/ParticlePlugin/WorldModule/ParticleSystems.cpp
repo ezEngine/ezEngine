@@ -1,7 +1,7 @@
 #include <PCH.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 
-ezParticleSystemInstance* ezParticleWorldModule::CreateSystemInstance(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed, ezParticleEffectInstance* pOwnerEffect)
+ezParticleSystemInstance* ezParticleWorldModule::CreateSystemInstance(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect)
 {
   EZ_LOCK(m_Mutex);
 
@@ -18,7 +18,7 @@ ezParticleSystemInstance* ezParticleWorldModule::CreateSystemInstance(ezUInt32 u
     pResult = &m_ParticleSystems.ExpandAndGetRef();
   }
 
-  pResult->Construct(uiMaxParticles, pWorld, uiRandomSeed, pOwnerEffect);
+  pResult->Construct(uiMaxParticles, pWorld, pOwnerEffect);
 
   return pResult;
 }

@@ -295,8 +295,7 @@ ezParticleSystemInstance::ezParticleSystemInstance()
   m_BoundingVolume = ezBoundingSphere(ezVec3::ZeroVector(), 0.0f);
 }
 
-void ezParticleSystemInstance::Construct(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezUInt64 uiRandomSeed,
-                                         ezParticleEffectInstance* pOwnerEffect)
+void ezParticleSystemInstance::Construct(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect)
 {
   m_Transform.SetIdentity();
   m_pOwnerEffect = pOwnerEffect;
@@ -306,11 +305,6 @@ void ezParticleSystemInstance::Construct(ezUInt32 uiMaxParticles, ezWorld* pWorl
 
   m_StreamInfo.Clear();
   m_StreamGroup.SetSize(uiMaxParticles);
-
-  if (uiRandomSeed == 0)
-    m_Random.InitializeFromCurrentTime();
-  else
-    m_Random.Initialize(uiRandomSeed);
 }
 
 void ezParticleSystemInstance::Destruct()
