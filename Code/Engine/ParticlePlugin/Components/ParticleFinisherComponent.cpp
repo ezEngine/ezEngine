@@ -80,8 +80,6 @@ void ezParticleFinisherComponent::Update()
 {
   if (m_EffectController.IsAlive())
   {
-    m_EffectController.ExecuteWorldLockedUpdates();
-
     CheckBVolumeUpdate();
   }
   else

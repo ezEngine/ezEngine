@@ -375,11 +375,6 @@ bool ezParticleEffectInstance::Update(const ezTime& tDiff)
   return StepSimulation(tUpdateDiff);
 }
 
-void ezParticleEffectInstance::ExecuteWorldLockedUpdates()
-{
-  ProcessEventQueues();
-}
-
 bool ezParticleEffectInstance::StepSimulation(const ezTime& tDiff)
 {
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
@@ -416,13 +411,11 @@ bool ezParticleEffectInstance::StepSimulation(const ezTime& tDiff)
 
 void ezParticleEffectInstance::AddParticleEvent(const ezParticleEvent& pe)
 {
-  const ezUInt32 uiQueueIndex = GetOwnerWorldModule()->GetWriteEventQueueIndex();
-
   // drop events when the capacity is full
-  if (m_EventQueue[uiQueueIndex].GetCount() == m_EventQueue[uiQueueIndex].GetCapacity())
+  if (m_EventQueue.GetCount() == m_EventQueue.GetCapacity())
     return;
 
-  m_EventQueue[uiQueueIndex].PushBack(pe);
+  m_EventQueue.PushBack(pe);
 }
 
 void ezParticleEffectInstance::SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity,
@@ -571,9 +564,7 @@ ezTime ezParticleEffectInstance::GetBoundingVolume(ezBoundingBoxSphere& volume) 
 
 void ezParticleEffectInstance::ProcessEventQueues()
 {
-  const ezUInt32 uiQueueIndex = GetOwnerWorldModule()->GetReadEventQueueIndex();
-
-  if (m_EventQueue[uiQueueIndex].IsEmpty())
+  if (m_EventQueue.IsEmpty())
     return;
 
   EZ_PROFILE("PFX: Effect Event Queue");
@@ -581,11 +572,11 @@ void ezParticleEffectInstance::ProcessEventQueues()
   {
     if (m_ParticleSystems[i])
     {
-      m_ParticleSystems[i]->ProcessEventQueue(m_EventQueue[uiQueueIndex]);
+      m_ParticleSystems[i]->ProcessEventQueue(m_EventQueue);
     }
   }
 
-  for (const ezParticleEvent& e : m_EventQueue[uiQueueIndex])
+  for (const ezParticleEvent& e : m_EventQueue)
   {
     ezUInt32 rnd = m_Random.UIntInRange(100);
 
@@ -604,7 +595,7 @@ void ezParticleEffectInstance::ProcessEventQueues()
     }
   }
 
-  m_EventQueue[uiQueueIndex].Clear();
+  m_EventQueue.Clear();
 }
 
 ezParticleffectUpdateTask::ezParticleffectUpdateTask(ezParticleEffectInstance* pEffect)

@@ -14,7 +14,7 @@ o
 			s{"id/Imp_data/Imp.obj"}
 		}
 		Uuid %DocumentID{u4{824725391493986470,5000215402686462604}}
-		u4 %Hash{16413389127838520473}
+		u4 %Hash{10593126788499376386}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -33,7 +33,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Label{"DefaultMaterial"}
+		s %Label{"Imp"}
 		s %Resource{"{ 25d8c2ac-f99e-406a-a07d-720bec3b19e1 }"}
 	}
 }
@@ -51,7 +51,7 @@ o
 		u2 %Detail2{1}
 		s %ForwardDir{"ezBasisAxis::PositiveX"}
 		f %Height{0x0000803F}
-		b %ImportMaterials{0}
+		b %ImportMaterials{1}
 		b %InvertNormals{1}
 		VarArray %Materials
 		{

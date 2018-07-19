@@ -95,9 +95,6 @@ public:
   /// \brief Returns false when the effect is finished.
   bool Update(const ezTime& tDiff);
 
-  /// \brief This has to be called during world-update, as it may run stuff that depends on a write-locked world.
-  void ExecuteWorldLockedUpdates();
-
 private: // friend ezParticleWorldModule
   /// \brief Whether this instance is in a state where its update task should be run
   bool ShouldBeUpdated() const;
@@ -224,5 +221,5 @@ private:
 
   ezParticleffectUpdateTask m_Task;
 
-  ezStaticArray<ezParticleEvent, 16> m_EventQueue[2];
+  ezStaticArray<ezParticleEvent, 16> m_EventQueue;
 };

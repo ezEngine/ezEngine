@@ -34,9 +34,6 @@ public:
   virtual void Initialize() override;
   virtual void Deinitialize() override;
 
-  EZ_ALWAYS_INLINE ezUInt32 GetReadEventQueueIndex() const { return m_uiReadEventQueue; }
-  EZ_ALWAYS_INLINE ezUInt32 GetWriteEventQueueIndex() const { return m_uiWriteEventQueue; }
-
   ezParticleEffectHandle CreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed,
                                               const char* szSharedName /*= nullptr*/, const void*& inout_pSharedInstanceOwner);
 
@@ -73,8 +70,6 @@ private:
   void ClearParticleStreamFactories();
 
   mutable ezMutex m_Mutex;
-  ezUInt32 m_uiReadEventQueue = 0;
-  ezUInt32 m_uiWriteEventQueue = 1;
   ezDeque<ezParticleEffectInstance> m_ParticleEffects;
   ezDynamicArray<ezParticleEffectInstance*> m_FinishingEffects;
   ezDynamicArray<ezParticleEffectInstance*> m_EffectsToReconfigure;

@@ -91,17 +91,6 @@ void ezParticleEffectController::Tick(const ezTime& tDiff) const
   }
 }
 
-
-void ezParticleEffectController::ExecuteWorldLockedUpdates()
-{
-  ezParticleEffectInstance* pEffect = GetInstance();
-
-  if (pEffect)
-  {
-    pEffect->ExecuteWorldLockedUpdates();
-  }
-}
-
 void ezParticleEffectController::SetIsInView() const
 {
   ezParticleEffectInstance* pEffect = GetInstance();

@@ -117,7 +117,6 @@ void ezParticleWorldModule::UpdateEffects(const ezWorldModule::UpdateContext& co
   EnsureUpdatesFinished(context);
 
   EZ_LOCK(m_Mutex);
-  ezMath::Swap(m_uiReadEventQueue, m_uiWriteEventQueue);
 
   DestroyFinishedEffects();
   ReconfigureEffects();
@@ -129,6 +128,8 @@ void ezParticleWorldModule::UpdateEffects(const ezWorldModule::UpdateContext& co
   {
     if (!m_ParticleEffects[i].ShouldBeUpdated())
       continue;
+
+    m_ParticleEffects[i].ProcessEventQueues();
 
     ezParticleffectUpdateTask* pTask = m_ParticleEffects[i].GetUpdateTask();
     pTask->m_UpdateDiff = tDiff;

@@ -323,8 +323,6 @@ void ezParticleComponent::Update()
 
     m_EffectController.SetTransform(GetOwner()->GetGlobalTransform(), GetOwner()->GetVelocity());
 
-    m_EffectController.ExecuteWorldLockedUpdates();
-
     CheckBVolumeUpdate();
   }
   else
