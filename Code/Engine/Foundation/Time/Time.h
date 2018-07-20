@@ -25,6 +25,12 @@ public:
   /// \brief Creates an instance of ezTime that was initialized from seconds.
   EZ_ALWAYS_INLINE constexpr static ezTime Seconds(double fSeconds) { return ezTime(fSeconds); }
 
+  /// \brief Creates an instance of ezTime that was initialized from minutes.
+  EZ_ALWAYS_INLINE constexpr static ezTime Minutes(double fMinutes) { return ezTime(fMinutes * 60); }
+
+  /// \brief Creates an instance of ezTime that was initialized from hours.
+  EZ_ALWAYS_INLINE constexpr static ezTime Hours(double fHours) { return ezTime(fHours * 60 * 60); }
+
   /// \brief Creates an instance of ezTime that was initialized with zero.
   EZ_ALWAYS_INLINE constexpr static ezTime Zero() { return ezTime(0.0); }
 
@@ -63,6 +69,12 @@ public:
 
   /// \brief Returns the seconds value.
   constexpr double GetSeconds() const;
+
+  /// \brief Returns the minutes value.
+  constexpr double GetMinutes() const;
+
+  /// \brief Returns the hours value.
+  constexpr double GetHours() const;
 
   /// \brief Subtracts the time value of "other" from this instances value.
   void operator-=(const ezTime& other);

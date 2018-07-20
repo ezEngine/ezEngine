@@ -162,6 +162,24 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
   {
     const ezEntityMsgToEngine* pMsg2 = static_cast<const ezEntityMsgToEngine*>(pMsg);
     m_Mirror.ApplyOp(const_cast<ezObjectChange&>(pMsg2->m_change));
+
+    ezRttiConverterObject target = m_Context.GetObjectByGUID(pMsg2->m_change.m_Root);
+    if (target.m_pType == ezGetStaticRTTI<ezGameObject>())
+    {
+      ezGameObject* pObject = static_cast<ezGameObject*>(target.m_pObject);
+      if (pObject != nullptr && pObject->IsStatic())
+      {
+        ezRenderWorld::DeleteCachedRenderDataRecursive(pObject);
+      }
+    }
+    else if (target.m_pType->IsDerivedFrom<ezComponent>())
+    {
+      ezComponent* pComponent = static_cast<ezComponent*>(target.m_pObject);
+      if (pComponent != nullptr && pComponent->GetOwner()->IsStatic())
+      {
+        ezRenderWorld::DeleteCachedRenderData(pComponent->GetOwner()->GetHandle(), pComponent->GetHandle());
+      }
+    }
   }
   else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineSyncObjectMsg>())
   {
@@ -539,7 +557,7 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
   m_hThumbnailDepthRT = pDevice->CreateTexture(tcd);
 
   m_ThumbnailRenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(m_hThumbnailColorRT))
-    .SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hThumbnailDepthRT));
+      .SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hThumbnailDepthRT));
   m_pThumbnailViewContext->SetupRenderTarget(m_ThumbnailRenderTargetSetup, m_uiThumbnailWidth, m_uiThumbnailHeight);
 
   UpdateThumbnailViewContext(m_pThumbnailViewContext);

@@ -19,6 +19,7 @@ public:
   static void CacheRenderData(const ezView& view, const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent,
     ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries);
   static void DeleteCachedRenderData(const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent);
+  static void DeleteCachedRenderDataRecursive(const ezGameObject* pOwnerObject);
   static ezArrayPtr<ezInternal::RenderDataCacheEntry> GetCachedRenderData(const ezView& view, const ezGameObjectHandle& hOwner);
 
   static void AddViewToRender(const ezViewHandle& hView);
@@ -58,6 +59,7 @@ private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RenderWorld);
   friend class ezView;
 
+  static void ClearRenderDataCache();
   static void UpdateRenderDataCache();
 
   static void AddRenderPipelineToRebuild(ezRenderPipeline* pRenderPipeline, const ezViewHandle& hView);

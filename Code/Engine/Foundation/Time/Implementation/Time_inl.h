@@ -37,6 +37,16 @@ constexpr EZ_ALWAYS_INLINE double ezTime::GetSeconds() const
   return m_fTime;
 }
 
+constexpr EZ_ALWAYS_INLINE double ezTime::GetMinutes() const
+{
+  return m_fTime / 60.0;
+}
+
+constexpr EZ_ALWAYS_INLINE double ezTime::GetHours() const
+{
+  return m_fTime / (60.0 * 60.0);
+}
+
 EZ_ALWAYS_INLINE void ezTime::operator-=(const ezTime& other)
 {
   m_fTime -= other.m_fTime;

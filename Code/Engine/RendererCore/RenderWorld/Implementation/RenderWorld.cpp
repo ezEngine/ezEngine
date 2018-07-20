@@ -9,7 +9,7 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 ezCVarBool CVarMultithreadedRendering("r_Multithreading", true, ezCVarFlags::Default, "Enables multi-threaded update and rendering");
-ezCVarBool CVarCacheRenderData("r_CacheRenderData", false, ezCVarFlags::Default, "Enables render data caching of static objects");
+ezCVarBool CVarCacheRenderData("r_CacheRenderData", true, ezCVarFlags::Default, "Enables render data caching of static objects");
 
 ezEvent<ezView*> ezRenderWorld::s_ViewCreatedEvent;
 ezEvent<ezView*> ezRenderWorld::s_ViewDeletedEvent;
@@ -50,6 +50,7 @@ namespace
   static ezProxyAllocator* s_pCacheAllocator;
   typedef ezHybridArray<const ezRenderData*, 4> CachedRenderDataPerComponent;
   static ezHashTable<ezComponentHandle, CachedRenderDataPerComponent> s_CachedRenderData;
+  static ezDynamicArray<const ezRenderData*> s_DeletedRenderData;
 
   enum
   {
@@ -259,11 +260,24 @@ void ezRenderWorld::DeleteCachedRenderData(const ezGameObjectHandle& hOwnerObjec
   {
     for (auto pCachedRenderData : *pCachedRenderDataPerComponent)
     {
-      ezRenderData* ptr = const_cast<ezRenderData*>(pCachedRenderData);
-      EZ_DELETE(s_pCacheAllocator, ptr);
+      s_DeletedRenderData.PushBack(pCachedRenderData);
     }
 
     pCachedRenderDataPerComponent->Clear();
+  }
+}
+
+void ezRenderWorld::DeleteCachedRenderDataRecursive(const ezGameObject* pOwnerObject)
+{
+  auto components = pOwnerObject->GetComponents();
+  for (auto pComponent : components)
+  {
+    DeleteCachedRenderData(pOwnerObject->GetHandle(), pComponent->GetHandle());
+  }
+
+  for (auto it = pOwnerObject->GetChildren(); it.IsValid(); ++it)
+  {
+    DeleteCachedRenderDataRecursive(it);
   }
 }
 
@@ -466,6 +480,7 @@ void ezRenderWorld::EndFrame()
     }
   }
 
+  ClearRenderDataCache();
   UpdateRenderDataCache();
 
   s_RenderingThreadID = (ezThreadID)0;
@@ -480,6 +495,17 @@ bool ezRenderWorld::GetUseMultithreadedRendering()
 bool ezRenderWorld::IsRenderingThread()
 {
   return s_RenderingThreadID == ezThreadUtils::GetCurrentThreadID();
+}
+
+void ezRenderWorld::ClearRenderDataCache()
+{
+  for (auto pRenderData : s_DeletedRenderData)
+  {
+    ezRenderData* ptr = const_cast<ezRenderData*>(pRenderData);
+    EZ_DELETE(s_pCacheAllocator, ptr);
+  }
+
+  s_DeletedRenderData.Clear();
 }
 
 void ezRenderWorld::UpdateRenderDataCache()
@@ -541,9 +567,10 @@ void ezRenderWorld::UpdateRenderDataCache()
 
       for (auto& newEntry : newEntries.m_CacheEntries)
       {
-        EZ_ASSERT_DEV(!cacheEntries.Contains(newEntry), "");
-
-        cacheEntries.PushBack(newEntry);
+        if (!cacheEntries.Contains(newEntry))
+        {
+          cacheEntries.PushBack(newEntry);
+        }
       }
     }
   }
@@ -576,6 +603,8 @@ void ezRenderWorld::OnEngineStartup()
 
 void ezRenderWorld::OnEngineShutdown()
 {
+  ClearRenderDataCache();
+
   EZ_DEFAULT_DELETE(s_pCacheAllocator);
 
   s_FilteredRenderPipelines[0].Clear();
