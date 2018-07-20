@@ -119,7 +119,7 @@ public:
   BeginAcquireResource(const ezTypedResourceHandle<ResourceType>& hResource,
                        ezResourceAcquireMode mode = ezResourceAcquireMode::AllowFallback,
                        const ezTypedResourceHandle<ResourceType>& hFallbackResource = ezTypedResourceHandle<ResourceType>(),
-                       ezResourcePriority Priority = ezResourcePriority::Unchanged);
+                       ezResourcePriority Priority = ezResourcePriority::Unchanged, ezResourceAcquireResult* out_AcquireResult = nullptr);
 
   template <typename ResourceType>
   static void EndAcquireResource(ResourceType* pResource);
@@ -319,7 +319,7 @@ public:
                  const ezTypedResourceHandle<RESOURCE_TYPE>& hFallbackResource = ezTypedResourceHandle<RESOURCE_TYPE>(),
                  ezResourcePriority Priority = ezResourcePriority::Unchanged)
   {
-    m_pResource = ezResourceManager::BeginAcquireResource(hResource, mode, hFallbackResource, Priority);
+    m_pResource = ezResourceManager::BeginAcquireResource(hResource, mode, hFallbackResource, Priority, &m_AcquireResult);
   }
 
   ~ezResourceLock()
@@ -332,7 +332,10 @@ public:
 
   operator bool() { return m_pResource != nullptr; }
 
+  ezResourceAcquireResult GetAcquireResult() const { return m_AcquireResult; }
+
 private:
+  ezResourceAcquireResult m_AcquireResult;
   RESOURCE_TYPE* m_pResource;
 };
 

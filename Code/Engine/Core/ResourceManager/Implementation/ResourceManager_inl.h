@@ -79,7 +79,7 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::CreateResource(const char
 template <typename ResourceType>
 ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandle<ResourceType>& hResource, ezResourceAcquireMode mode,
                                                       const ezTypedResourceHandle<ResourceType>& hFallbackResource,
-                                                      ezResourcePriority Priority)
+                                                      ezResourcePriority Priority, ezResourceAcquireResult* out_AcquireResult /*= nullptr*/)
 {
   // EZ_LOCK(s_ResourceMutex);
 
@@ -98,6 +98,9 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
   {
     if (Priority != ezResourcePriority::Unchanged)
       pResource->m_Priority = Priority;
+
+    if (out_AcquireResult)
+      *out_AcquireResult = ezResourceAcquireResult::Final;
 
     pResource->m_iLockCount.Increment();
     return pResource;
@@ -123,6 +126,8 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
           (pResource->m_hFallback.IsValid() || hFallbackResource.IsValid() || ResourceType::GetTypeFallbackResource().IsValid()))
       {
         // return the fallback resource for now, if there is one
+        if (out_AcquireResult)
+          *out_AcquireResult = ezResourceAcquireResult::LoadingFallback;
 
         // Fallback order is as follows:
         //  1) Prefer any resource specific fallback resource
@@ -158,6 +163,9 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
     if (/*mode == ezResourceAcquireMode::AllowFallback && (hFallbackResource.IsValid() || */ ResourceType::GetTypeMissingResource()
             .IsValid()) //)
     {
+      if (out_AcquireResult)
+        *out_AcquireResult = ezResourceAcquireResult::MissingFallback;
+
       // prefer the fallback given for this situation (might e.g. be a default normal map)
       // use the type specific missing resource otherwise
 
@@ -169,8 +177,15 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
 
     EZ_REPORT_FAILURE("The resource '{0}' of type '{1}' is missing and no fallback is available", pResource->GetResourceID(),
                       ezGetStaticRTTI<ResourceType>()->GetTypeName());
+
+    if (out_AcquireResult)
+      *out_AcquireResult = ezResourceAcquireResult::None;
+
     return nullptr;
   }
+
+  if (out_AcquireResult)
+    *out_AcquireResult = ezResourceAcquireResult::Final;
 
   pResource->m_iLockCount.Increment();
   return pResource;

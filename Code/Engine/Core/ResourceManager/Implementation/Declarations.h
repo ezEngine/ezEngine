@@ -102,3 +102,11 @@ enum class ezResourceAcquireMode
   NoFallback, ///< The full resource data is required. The loader will block until the resource is in the 'Loaded' state. This does NOT mean
               ///< that all quality levels are loaded.
 };
+
+enum class ezResourceAcquireResult
+{
+  None,
+  MissingFallback,
+  LoadingFallback,
+  Final,
+};

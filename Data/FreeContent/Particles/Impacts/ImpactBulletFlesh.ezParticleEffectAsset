@@ -24,7 +24,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3750422148337051577,4755495847018279901}}
-		u4 %Hash{680791067268389783}
+		u4 %Hash{8624871929342043261}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{25395311416620419,2948759839191468624}}
@@ -32,7 +32,8 @@ o
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 9c30aec4-9d5b-4a58-86cb-bc354330899e }"}
+			s{"{ 1dd7dbfb-f712-0acc-d78b-cd7f36eddea1 }"}
+			s{"{ 356ae27b-729d-48e7-9bf3-3aaefa239628 }"}
 			s{"{ a1c9c953-f4d3-4688-8e36-7b98d53d6606 }"}
 		}
 	}
@@ -70,7 +71,7 @@ o
 	p
 	{
 		Angle %Value{f{0x58A08B41}}
-		f %Variance{0x0AD7A33E}
+		f %Variance{0x9A99193F}
 	}
 }
 o
@@ -91,8 +92,8 @@ o
 	p
 	{
 		Time %Duration{d{0}}
-		u3 %MinSpawnCount{3}
-		u3 %SpawnCountRange{3}
+		u3 %MinSpawnCount{30}
+		u3 %SpawnCountRange{30}
 		s %SpawnCountScaleParam{""}
 		Time %StartDelay{d{0}}
 	}
@@ -172,7 +173,8 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Mesh{"{ 9c30aec4-9d5b-4a58-86cb-bc354330899e }"}
+		s %Material{"{ 1dd7dbfb-f712-0acc-d78b-cd7f36eddea1 }"}
+		s %Mesh{"{ 356ae27b-729d-48e7-9bf3-3aaefa239628 }"}
 		s %TintColorParam{"Color"}
 	}
 }
@@ -210,8 +212,8 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Value{0xCDCC4C3D}
-		f %Variance{0}
+		f %Value{0x0AD7233C}
+		f %Variance{0xD7A3303F}
 	}
 }
 o
@@ -508,7 +510,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleTypeMeshFactory"}
-		u3 %TypeSize{136}
+		u3 %TypeSize{200}
 		u3 %TypeVersion{1}
 	}
 }
