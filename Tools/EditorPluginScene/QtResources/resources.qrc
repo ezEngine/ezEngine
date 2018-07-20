@@ -47,5 +47,6 @@
     <file>ezGreyBoxComponent.png</file>
     <file>ezDebugTextComponent.png</file>
 	<file>ezVisualizeSkeletonComponent.png</file>
+	<file>ezSimpleWindComponent.png</file>
   </qresource>  
 </RCC>

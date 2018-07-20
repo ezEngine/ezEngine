@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10397632043479265953,5177341319926404083}}
-		u4 %Hash{14508647497658183243}
+		u4 %Hash{18398476463826522699}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -1196,6 +1196,7 @@ o
 			Uuid{u4{14835772711769385887,5678507581643066030}}
 			Uuid{u4{14636725684677561022,4950644262662634008}}
 			Uuid{u4{7762657555460290455,5152181436861837777}}
+			Uuid{u4{4184379643003521440,5345747637243799799}}
 		}
 		VarArray %Components{}
 		s %GlobalKey{""}
@@ -1730,6 +1731,32 @@ o
 }
 o
 {
+	Uuid %id{u4{4184379643003521440,5345747637243799799}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{9786938473989745074,5678134843646109366}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x348CC1BF,0x8621F4C0,0x7A2A2040}}
+		Quat %LocalRotation{f{0xF68384BE,0xE746773F,0x1EAED1B4,0x27AED134}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{18001070750118309078,5361617880501598945}}
 	s %t{"ezParticleComponent"}
 	u3 %v{3}
@@ -2105,6 +2132,19 @@ o
 		Time %RestartDelayRange{d{0x0000000000000040}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+	}
+}
+o
+{
+	Uuid %id{u4{9786938473989745074,5678134843646109366}}
+	s %t{"ezSimpleWindComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		Angle %Deviation{f{0xDB0F493F}}
+		f %MaxStrength{0x0000803F}
+		f %MinStrength{0xCDCCCC3D}
 	}
 }
 o
@@ -5590,6 +5630,24 @@ o
 		s %TypeName{"ezSkyBoxComponent"}
 		u3 %TypeSize{88}
 		u3 %TypeVersion{4}
+	}
+}
+o
+{
+	Uuid %id{u4{9941764884638810502,8668738566769915430}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSimpleWindComponent"}
+		u3 %TypeSize{112}
+		u3 %TypeVersion{1}
 	}
 }
 o

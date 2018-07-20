@@ -1,19 +1,23 @@
 #include <PCH.h>
-#include <ParticlePlugin/Behavior/ParticleBehavior_Velocity.h>
-#include <Core/World/WorldModule.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
-#include <ParticlePlugin/System/ParticleSystemInstance.h>
+
 #include <Core/World/World.h>
-#include <Foundation/Time/Clock.h>
+#include <Core/World/WorldModule.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Time/Clock.h>
+#include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <GameEngine/Interfaces/WindWorldModule.h>
+#include <ParticlePlugin/Behavior/ParticleBehavior_Velocity.h>
+#include <ParticlePlugin/System/ParticleSystemInstance.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Velocity, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Velocity>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("RiseSpeed", m_fRiseSpeed),
     EZ_MEMBER_PROPERTY("Friction", m_fFriction)->AddAttributes(new ezClampValueAttribute(0.0f, 100.0f)),
+    EZ_MEMBER_PROPERTY("WindInfluence", m_fWindInfluence)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f)),
   }
   EZ_END_PROPERTIES;
 }
@@ -21,12 +25,10 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Velocity, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Velocity>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezParticleBehaviorFactory_Velocity::ezParticleBehaviorFactory_Velocity()
-{
-  m_fRiseSpeed = 0;
-  m_fFriction = 0;
-}
+ezParticleBehaviorFactory_Velocity::ezParticleBehaviorFactory_Velocity() = default;
+ezParticleBehaviorFactory_Velocity::~ezParticleBehaviorFactory_Velocity() = default;
 
 const ezRTTI* ezParticleBehaviorFactory_Velocity::GetBehaviorType() const
 {
@@ -39,6 +41,7 @@ void ezParticleBehaviorFactory_Velocity::CopyBehaviorProperties(ezParticleBehavi
 
   pBehavior->m_fRiseSpeed = m_fRiseSpeed;
   pBehavior->m_fFriction = m_fFriction;
+  pBehavior->m_fWindInfluence = m_fWindInfluence;
 }
 
 enum class BehaviorVelocityVersion
@@ -46,6 +49,7 @@ enum class BehaviorVelocityVersion
   Version_0 = 0,
   Version_1,
   Version_2, // added rise speed and acceleration
+  Version_3, // added wind influence
 
   // insert new version numbers above
   Version_Count,
@@ -59,6 +63,9 @@ void ezParticleBehaviorFactory_Velocity::Save(ezStreamWriter& stream) const
 
   stream << m_fRiseSpeed;
   stream << m_fFriction;
+
+  // Version 3
+  stream << m_fWindInfluence;
 }
 
 void ezParticleBehaviorFactory_Velocity::Load(ezStreamReader& stream)
@@ -70,11 +77,21 @@ void ezParticleBehaviorFactory_Velocity::Load(ezStreamReader& stream)
 
   stream >> m_fRiseSpeed;
   stream >> m_fFriction;
+
+  if (uiVersion >= 3)
+  {
+    stream >> m_fWindInfluence;
+  }
 }
 
 void ezParticleBehavior_Velocity::AfterPropertiesConfigured(bool bFirstTime)
 {
   m_pPhysicsModule = GetOwnerSystem()->GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
+
+  if (m_fWindInfluence > 0)
+  {
+    m_pWindModule = GetOwnerSystem()->GetWorld()->GetModule<ezWindWorldModuleInterface>();
+  }
 }
 
 void ezParticleBehavior_Velocity::CreateRequiredStreams()
@@ -89,10 +106,18 @@ void ezParticleBehavior_Velocity::Process(ezUInt64 uiNumElements)
 
   const float tDiff = (float)m_TimeDiff.GetSeconds();
   const ezVec3 vDown = m_pPhysicsModule != nullptr ? m_pPhysicsModule->GetGravity().GetNormalized() : ezVec3(0.0f, 0.0f, -1.0f);
-  const ezVec3 vRise0 = vDown * tDiff * -m_fRiseSpeed;
+  const ezVec3 vRise = vDown * tDiff * -m_fRiseSpeed;
 
-  ezSimdVec4f vRise;
-  vRise.Load<3>(&vRise0.x);
+  ezVec3 vWind(0);
+  if (m_pWindModule != nullptr)
+  {
+    vWind = m_pWindModule->GetWindAt(GetOwnerSystem()->GetTransform().m_vPosition) * m_fWindInfluence * tDiff;
+  }
+
+  const ezVec3 vAddPos0 = vRise + vWind;
+
+  ezSimdVec4f vAddPos;
+  vAddPos.Load<3>(&vAddPos0.x);
 
   const float fFriction = ezMath::Clamp(m_fFriction, 0.0f, 100.0f);
   const float fFrictionFactor = ezMath::Pow(0.5f, tDiff * m_fFriction);
@@ -105,7 +130,7 @@ void ezParticleBehavior_Velocity::Process(ezUInt64 uiNumElements)
     ezSimdVec4f velocity;
     velocity.Load<3>(&itVelocity.Current().x);
 
-    itPosition.Current() += velocity * tDiff + vRise;
+    itPosition.Current() += velocity * tDiff + vAddPos;
     itVelocity.Current() *= fFrictionFactor;
 
     itPosition.Advance();
@@ -115,6 +140,4 @@ void ezParticleBehavior_Velocity::Process(ezUInt64 uiNumElements)
 
 
 
-
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_Velocity);
-

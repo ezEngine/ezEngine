@@ -85,10 +85,9 @@ ezProjectileComponent::ezProjectileComponent()
   m_vVelocity.SetZero();
 }
 
-
 void ezProjectileComponent::Update()
 {
-  ezPhysicsWorldModuleInterface* pPhysicsInterface = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
+  ezPhysicsWorldModuleInterface* pPhysicsInterface = GetWorld()->GetModule<ezPhysicsWorldModuleInterface>();
 
   if (pPhysicsInterface)
   {
@@ -393,24 +392,6 @@ const char* ezProjectileComponent::GetFallbackSurfaceFile() const
     return "";
 
   return m_hFallbackSurface.GetResourceID();
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-
-
-ezProjectileComponentManager::ezProjectileComponentManager(ezWorld* pWorld)
-  : ezComponentManagerSimple<class ezProjectileComponent, ezComponentUpdateType::WhenSimulating>(pWorld)
-  , m_pPhysicsInterface(nullptr)
-{
-
-}
-
-void ezProjectileComponentManager::Initialize()
-{
-  ezComponentManagerSimple<ezProjectileComponent, ezComponentUpdateType::WhenSimulating>::Initialize();
-
-  m_pPhysicsInterface = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
 }
 
 //////////////////////////////////////////////////////////////////////////
