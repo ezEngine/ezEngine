@@ -1,8 +1,9 @@
 #pragma once
 
 #include <Foundation/Types/RangeView.h>
-#include <ParticlePlugin/Events/ParticleEventReaction.h>
 #include <Foundation/Types/SharedPtr.h>
+#include <GameEngine/Surfaces/SurfaceResourceDescriptor.h>
+#include <ParticlePlugin/Events/ParticleEventReaction.h>
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleEventReactionFactory_Effect : public ezParticleEventReactionFactory
 {
@@ -18,6 +19,7 @@ public:
   virtual void Load(ezStreamReader& stream) override;
 
   ezString m_sEffect;
+  ezEnum<ezSurfaceInteractionAlignment> m_Alignment;
 
   //////////////////////////////////////////////////////////////////////////
   // Exposed Parameters
@@ -40,7 +42,7 @@ public:
   ~ezParticleEventReaction_Effect();
 
   ezParticleEffectResourceHandle m_hEffect;
-
+  ezEnum<ezSurfaceInteractionAlignment> m_Alignment;
   ezSharedPtr<ezParticleEffectParameters> m_Parameters;
 
 protected:

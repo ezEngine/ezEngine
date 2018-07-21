@@ -86,9 +86,7 @@ void ezSurfaceResourceDescriptor::Load(ezStreamReader& stream)
       m_Interactions[i].m_sInteractionType = sTemp;
 
       stream >> m_Interactions[i].m_hPrefab;
-
-      ezSurfaceInteractionAlignment::StorageType al;
-      stream >> al; m_Interactions[i].m_Alignment = (ezSurfaceInteractionAlignment::Enum)al;
+      stream >> m_Interactions[i].m_Alignment;
       stream >> m_Interactions[i].m_Deviation;
     }
   }
@@ -109,10 +107,7 @@ void ezSurfaceResourceDescriptor::Save(ezStreamWriter& stream) const
   {
     stream << ia.m_sInteractionType;
     stream << ia.m_hPrefab;
-
-    ezSurfaceInteractionAlignment::StorageType al = ia.m_Alignment;
-    stream << al;
-
+    stream << ia.m_Alignment;
     stream << ia.m_Deviation;
   }
 }

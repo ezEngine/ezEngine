@@ -20,6 +20,7 @@ public:
   virtual void Load(ezStreamReader& stream) override;
 
   ezString m_sPrefab;
+  ezEnum<ezSurfaceInteractionAlignment> m_Alignment;
 
   //////////////////////////////////////////////////////////////////////////
   // Exposed Parameters
@@ -42,6 +43,7 @@ public:
   ~ezParticleEventReaction_Prefab();
 
   ezPrefabResourceHandle m_hPrefab;
+  ezEnum<ezSurfaceInteractionAlignment> m_Alignment;
 
   //ezSharedPtr<ezParticlePrefabParameters> m_Parameters;
 

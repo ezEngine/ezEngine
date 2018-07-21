@@ -13,6 +13,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEventReactionFactory_Effect, 1, ezRTTI
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Effect", m_sEffect)->AddAttributes(new ezAssetBrowserAttribute("Particle Effect")),
+    EZ_ENUM_MEMBER_PROPERTY("Alignment", ezSurfaceInteractionAlignment, m_Alignment),
     EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Effect"), new ezExposeColorAlphaAttribute),
   }
   EZ_END_PROPERTIES;
@@ -33,6 +34,7 @@ enum class ReactionEffectVersion
   Version_0 = 0,
   Version_1,
   Version_2, // added effect parameters
+  Version_3, // added alignment
 
   // insert new version numbers above
   Version_Count,
@@ -62,6 +64,9 @@ void ezParticleEventReactionFactory_Effect::Save(ezStreamWriter& stream) const
     stream << m_Parameters->m_ColorParams[i].m_sName;
     stream << m_Parameters->m_ColorParams[i].m_Value;
   }
+
+  // Version 3
+  stream << m_Alignment;
 }
 
 void ezParticleEventReactionFactory_Effect::Load(ezStreamReader& stream)
@@ -98,6 +103,11 @@ void ezParticleEventReactionFactory_Effect::Load(ezStreamReader& stream)
       stream >> m_Parameters->m_ColorParams[i].m_Value;
     }
   }
+
+  if (uiVersion >= 3)
+  {
+    stream >> m_Alignment;
+  }
 }
 
 
@@ -112,6 +122,7 @@ void ezParticleEventReactionFactory_Effect::CopyReactionProperties(ezParticleEve
   ezParticleEventReaction_Effect* pReaction = static_cast<ezParticleEventReaction_Effect*>(pObject);
 
   pReaction->m_hEffect.Invalidate();
+  pReaction->m_Alignment = m_Alignment;
 
   if (!m_sEffect.IsEmpty())
     pReaction->m_hEffect = ezResourceManager::LoadResource<ezParticleEffectResource>(m_sEffect);
@@ -236,12 +247,40 @@ ezParticleEventReaction_Effect::~ezParticleEventReaction_Effect() = default;
 
 void ezParticleEventReaction_Effect::ProcessEvent(const ezParticleEvent& e)
 {
+  if (!m_hEffect.IsValid())
+    return;
+
   ezGameObjectDesc god;
   god.m_bDynamic = true;
   god.m_LocalPosition = e.m_vPosition;
 
-  // TODO: modes how to align the spawned effect (direction, normal, reflected dir, etc.)
-  god.m_LocalRotation.SetShortestRotation(ezVec3(0, 0, 1), e.m_vDirection);
+  ezVec3 vAlignDir = e.m_vNormal;
+
+  switch (m_Alignment)
+  {
+    case ezSurfaceInteractionAlignment::IncidentDirection:
+      vAlignDir = -e.m_vDirection;
+      break;
+
+    case ezSurfaceInteractionAlignment::ReflectedDirection:
+      vAlignDir = e.m_vDirection.GetReflectedVector(e.m_vNormal);
+      break;
+
+    case ezSurfaceInteractionAlignment::ReverseSurfaceNormal:
+      vAlignDir = -e.m_vNormal;
+      break;
+
+    case ezSurfaceInteractionAlignment::ReverseIncidentDirection:
+      vAlignDir = e.m_vDirection;
+      ;
+      break;
+
+    case ezSurfaceInteractionAlignment::ReverseReflectedDirection:
+      vAlignDir = -e.m_vDirection.GetReflectedVector(e.m_vNormal);
+      break;
+  }
+
+  god.m_LocalRotation.SetShortestRotation(ezVec3(0, 0, 1), vAlignDir);
 
   ezGameObject* pObject = nullptr;
   m_pOwnerEffect->GetWorld()->CreateObject(god, pObject);

@@ -36,7 +36,7 @@ struct EZ_GAMEENGINE_DLL ezSurfaceInteraction
   ezString m_sInteractionType;
 
   ezPrefabResourceHandle m_hPrefab;
-  ezSurfaceInteractionAlignment::Enum m_Alignment;
+  ezEnum<ezSurfaceInteractionAlignment> m_Alignment;
   ezAngle m_Deviation;
 };
 
