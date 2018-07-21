@@ -176,8 +176,13 @@ void ezParticleEffectAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo*
 {
   SUPER::UpdateAssetDocumentInfo(pInfo);
 
-  ezExposedParameters* pExposedParams = EZ_DEFAULT_NEW(ezExposedParameters);
   auto* desc = GetProperties();
+
+  // shared effects do not support parameters
+  if (desc->m_bAlwaysShared)
+    return;
+
+  ezExposedParameters* pExposedParams = EZ_DEFAULT_NEW(ezExposedParameters);
   for (auto it = desc->m_FloatParameters.GetIterator(); it.IsValid(); ++it)
   {
     auto& param = pExposedParams->m_Parameters.ExpandAndGetRef();

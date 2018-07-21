@@ -10,7 +10,9 @@ public:
   ezParticleEffectController(const ezParticleEffectController& rhs);
   void operator=(const ezParticleEffectController& rhs);
 
-  void Create(const ezParticleEffectResourceHandle& hEffectResource, ezParticleWorldModule* pModule, ezUInt64 uiRandomSeed, const char* szSharedName /*= nullptr*/, const void* pSharedInstanceOwner /*= nullptr*/);
+  void Create(const ezParticleEffectResourceHandle& hEffectResource, ezParticleWorldModule* pModule, ezUInt64 uiRandomSeed,
+              const char* szSharedName /*= nullptr*/, const void* pSharedInstanceOwner /*= nullptr*/,
+              ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams);
 
   bool IsValid() const;
   void Invalidate();
@@ -35,7 +37,6 @@ public:
   /// \name Effect Parameters
   ///@{
 public:
-
   /// \brief Passes an effect parameter on to the effect instance
   void SetParameter(const ezTempHashedString& name, float value);
 

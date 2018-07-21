@@ -161,14 +161,12 @@ bool ezParticleComponent::StartEffect()
   {
     ezParticleWorldModule* pModule = GetWorld()->GetOrCreateModule<ezParticleWorldModule>();
 
-    // TODO: pass exposed parameters to 'Create'
-    m_EffectController.Create(m_hEffectResource, pModule, m_uiRandomSeed, m_sSharedInstanceName, this);
+    m_EffectController.Create(m_hEffectResource, pModule, m_uiRandomSeed, m_sSharedInstanceName, this, m_FloatParams, m_ColorParams);
 
     m_EffectController.SetTransform(GetOwner()->GetGlobalTransform(), GetOwner()->GetVelocity());
 
-    // make sure the parameters are passed through again after the restart
-    m_bFloatParamsChanged = true;
-    m_bColorParamsChanged = true;
+    m_bFloatParamsChanged = false;
+    m_bColorParamsChanged = false;
 
     return true;
   }

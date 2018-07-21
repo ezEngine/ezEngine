@@ -135,7 +135,8 @@ void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
     {
       const void* pDummy = nullptr;
       ezParticleEffectHandle hInstance =
-          pWorldModule->CreateEffectInstance(m_hEffect, m_uiRandomSeed, /*m_sSharedInstanceName*/ nullptr, pDummy);
+          pWorldModule->CreateEffectInstance(m_hEffect, m_uiRandomSeed, /*m_sSharedInstanceName*/ nullptr, pDummy,
+                                             ezArrayPtr<ezParticleEffectFloatParam>(), ezArrayPtr<ezParticleEffectColorParam>());
 
       pEffectID[i] = hInstance.GetInternalID().m_Data;
     }

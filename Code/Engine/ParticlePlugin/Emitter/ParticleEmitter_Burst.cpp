@@ -1,15 +1,17 @@
 #include <PCH.h>
-#include <ParticlePlugin/Emitter/ParticleEmitter_Burst.h>
-#include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
-#include <Foundation/Math/Random.h>
-#include <ParticlePlugin/System/ParticleSystemInstance.h>
-#include <Foundation/Time/Clock.h>
+
 #include <Core/World/World.h>
 #include <Core/WorldSerializer/ResourceHandleReader.h>
 #include <Core/WorldSerializer/ResourceHandleWriter.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
+#include <Foundation/Math/Random.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Time/Clock.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
+#include <ParticlePlugin/Emitter/ParticleEmitter_Burst.h>
+#include <ParticlePlugin/System/ParticleSystemInstance.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory_Burst, 1, ezRTTIDefaultAllocator<ezParticleEmitterFactory_Burst>)
 {
   EZ_BEGIN_PROPERTIES
@@ -27,6 +29,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitter_Burst, 1, ezRTTIDefaultAllocator<ezParticleEmitter_Burst>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezParticleEmitterFactory_Burst::ezParticleEmitterFactory_Burst()
 {
@@ -92,8 +95,7 @@ void ezParticleEmitter_Burst::OnFinalize()
 {
   float fSpawnFactor = 1.0f;
 
-  // TODO: this cannot work, as the exposed parameters have not been initialized at this point
-  const float spawnCountScale = ezMath::Clamp(GetOwnerEffect()->GetFloatParameter(m_sSpawnCountScaleParameter, 1.0f), 0.0f, 10.0f);
+  const float spawnCountScale = ezMath::Clamp(GetOwnerEffect()->GetFloatParameter(m_sSpawnCountScaleParameter, 1.0f), 0.0f, 1000.0f);
   fSpawnFactor *= spawnCountScale;
 
   ezRandom& rng = GetRNG();

@@ -38,7 +38,8 @@ public:
   ~ezParticleEffectInstance();
 
   void Construct(ezParticleEffectHandle hEffectHandle, const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld,
-                 ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared);
+                 ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared,
+                 ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams);
   void Destruct();
 
   void Interrupt();
@@ -196,7 +197,7 @@ private:
 
 
 private:
-  void Reconfigure(bool bFirstTime);
+  void Reconfigure(bool bFirstTime, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams);
   void ClearParticleSystem(ezUInt32 index);
   void ProcessEventQueues();
 

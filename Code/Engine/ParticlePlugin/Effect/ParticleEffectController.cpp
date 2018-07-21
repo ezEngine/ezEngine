@@ -39,7 +39,9 @@ ezParticleEffectInstance* ezParticleEffectController::GetInstance() const
 }
 
 void ezParticleEffectController::Create(const ezParticleEffectResourceHandle& hEffectResource, ezParticleWorldModule* pModule,
-                                        ezUInt64 uiRandomSeed, const char* szSharedName, const void* pSharedInstanceOwner)
+                                        ezUInt64 uiRandomSeed, const char* szSharedName, const void* pSharedInstanceOwner,
+                                        ezArrayPtr<ezParticleEffectFloatParam> floatParams,
+                                        ezArrayPtr<ezParticleEffectColorParam> colorParams)
 {
   m_pSharedInstanceOwner = pSharedInstanceOwner;
 
@@ -48,7 +50,7 @@ void ezParticleEffectController::Create(const ezParticleEffectResourceHandle& hE
   ezParticleEffectHandle hNewEffect;
   if (pModule != nullptr && hEffectResource.IsValid())
   {
-    hNewEffect = pModule->CreateEffectInstance(hEffectResource, uiRandomSeed, szSharedName, m_pSharedInstanceOwner);
+    hNewEffect = pModule->CreateEffectInstance(hEffectResource, uiRandomSeed, szSharedName, m_pSharedInstanceOwner, floatParams, colorParams);
   }
 
   Invalidate();

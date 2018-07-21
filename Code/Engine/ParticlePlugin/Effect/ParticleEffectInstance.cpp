@@ -28,7 +28,9 @@ ezParticleEffectInstance::~ezParticleEffectInstance()
 }
 
 void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, const ezParticleEffectResourceHandle& hResource,
-                                         ezWorld* pWorld, ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared)
+                                         ezWorld* pWorld, ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared,
+                                         ezArrayPtr<ezParticleEffectFloatParam> floatParams,
+                                         ezArrayPtr<ezParticleEffectColorParam> colorParams)
 {
   m_hEffectHandle = hEffectHandle;
   m_pWorld = pWorld;
@@ -51,7 +53,7 @@ void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, c
   else
     m_Random.Initialize(uiRandomSeed);
 
-  Reconfigure(true);
+  Reconfigure(true, floatParams, colorParams);
 }
 
 void ezParticleEffectInstance::Destruct()
@@ -211,7 +213,8 @@ bool ezParticleEffectInstance::IsVisible() const
   return m_EffectIsVisible >= ezClock::GetGlobalClock()->GetAccumulatedTime();
 }
 
-void ezParticleEffectInstance::Reconfigure(bool bFirstTime)
+void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticleEffectFloatParam> floatParams,
+                                           ezArrayPtr<ezParticleEffectColorParam> colorParams)
 {
   if (!m_hResource.IsValid())
   {
@@ -281,6 +284,20 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime)
     for (auto it = desc.m_ColorParameters.GetIterator(); it.IsValid(); ++it)
     {
       SetParameter(ezTempHashedString::ComputeHash(it.Key().GetData()), it.Value());
+    }
+
+    // shared effects to not support per-instance parameters
+    if (!m_bIsSharedEffect)
+    {
+      for (ezUInt32 p = 0; p < floatParams.GetCount(); ++p)
+      {
+        SetParameter(floatParams[p].m_sName, floatParams[p].m_Value);
+      }
+
+      for (ezUInt32 p = 0; p < colorParams.GetCount(); ++p)
+      {
+        SetParameter(colorParams[p].m_sName, colorParams[p].m_Value);
+      }
     }
   }
 
@@ -625,6 +642,10 @@ void ezParticleffectUpdateTask::Execute()
 
 void ezParticleEffectInstance::SetParameter(const ezTempHashedString& name, float value)
 {
+  // shared effects do not support parameters
+  if (m_bIsSharedEffect)
+    return;
+
   for (ezUInt32 i = 0; i < m_FloatParameters.GetCount(); ++i)
   {
     if (m_FloatParameters[i].m_uiNameHash == name.GetHash())
@@ -641,6 +662,10 @@ void ezParticleEffectInstance::SetParameter(const ezTempHashedString& name, floa
 
 void ezParticleEffectInstance::SetParameter(const ezTempHashedString& name, const ezColor& value)
 {
+  // shared effects do not support parameters
+  if (m_bIsSharedEffect)
+    return;
+
   for (ezUInt32 i = 0; i < m_ColorParameters.GetCount(); ++i)
   {
     if (m_ColorParameters[i].m_uiNameHash == name.GetHash())

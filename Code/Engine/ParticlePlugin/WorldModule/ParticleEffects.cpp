@@ -1,10 +1,13 @@
 #include <PCH.h>
 
-#include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 #include <Core/World/World.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
+#include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 
-ezParticleEffectHandle ezParticleWorldModule::InternalCreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, bool bIsShared)
+ezParticleEffectHandle ezParticleWorldModule::InternalCreateEffectInstance(const ezParticleEffectResourceHandle& hResource,
+                                                                           ezUInt64 uiRandomSeed, bool bIsShared,
+                                                                           ezArrayPtr<ezParticleEffectFloatParam> floatParams,
+                                                                           ezArrayPtr<ezParticleEffectColorParam> colorParams)
 {
   EZ_LOCK(m_Mutex);
 
@@ -21,12 +24,14 @@ ezParticleEffectHandle ezParticleWorldModule::InternalCreateEffectInstance(const
   }
 
   ezParticleEffectHandle hEffectHandle(m_ActiveEffects.Insert(pInstance));
-  pInstance->Construct(hEffectHandle, hResource, GetWorld(), this, uiRandomSeed, bIsShared);
+  pInstance->Construct(hEffectHandle, hResource, GetWorld(), this, uiRandomSeed, bIsShared, floatParams, colorParams);
 
   return hEffectHandle;
 }
 
-ezParticleEffectHandle ezParticleWorldModule::InternalCreateSharedEffectInstance(const char* szSharedName, const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const void* pSharedInstanceOwner)
+ezParticleEffectHandle ezParticleWorldModule::InternalCreateSharedEffectInstance(const char* szSharedName,
+                                                                                 const ezParticleEffectResourceHandle& hResource,
+                                                                                 ezUInt64 uiRandomSeed, const void* pSharedInstanceOwner)
 {
   EZ_LOCK(m_Mutex);
 
@@ -44,7 +49,8 @@ ezParticleEffectHandle ezParticleWorldModule::InternalCreateSharedEffectInstance
 
   if (!pEffect)
   {
-    it.Value() = InternalCreateEffectInstance(hResource, uiRandomSeed, true);
+    it.Value() = InternalCreateEffectInstance(hResource, uiRandomSeed, true, ezArrayPtr<ezParticleEffectFloatParam>(),
+                                              ezArrayPtr<ezParticleEffectColorParam>());
     TryGetEffectInstance(it.Value(), pEffect);
   }
 
@@ -55,7 +61,10 @@ ezParticleEffectHandle ezParticleWorldModule::InternalCreateSharedEffectInstance
 }
 
 
-ezParticleEffectHandle ezParticleWorldModule::CreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const char* szSharedName, const void*& inout_pSharedInstanceOwner)
+ezParticleEffectHandle ezParticleWorldModule::CreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed,
+                                                                   const char* szSharedName, const void*& inout_pSharedInstanceOwner,
+                                                                   ezArrayPtr<ezParticleEffectFloatParam> floatParams,
+                                                                   ezArrayPtr<ezParticleEffectColorParam> colorParams)
 {
   EZ_ASSERT_DEBUG(hResource.IsValid(), "Invalid Particle Effect resource handle");
 
@@ -70,7 +79,7 @@ ezParticleEffectHandle ezParticleWorldModule::CreateEffectInstance(const ezParti
   if (!bIsShared)
   {
     inout_pSharedInstanceOwner = nullptr;
-    return InternalCreateEffectInstance(hResource, uiRandomSeed, false);
+    return InternalCreateEffectInstance(hResource, uiRandomSeed, false, floatParams, colorParams);
   }
   else
   {
@@ -78,7 +87,8 @@ ezParticleEffectHandle ezParticleWorldModule::CreateEffectInstance(const ezParti
   }
 }
 
-void ezParticleWorldModule::DestroyEffectInstance(const ezParticleEffectHandle& hEffect, bool bInterruptImmediately, const void* pSharedInstanceOwner)
+void ezParticleWorldModule::DestroyEffectInstance(const ezParticleEffectHandle& hEffect, bool bInterruptImmediately,
+                                                  const void* pSharedInstanceOwner)
 {
   EZ_LOCK(m_Mutex);
 
@@ -145,7 +155,7 @@ void ezParticleWorldModule::DestroyFinishedEffects()
 {
   EZ_LOCK(m_Mutex);
 
-  for (ezUInt32 i = 0; i < m_FinishingEffects.GetCount(); )
+  for (ezUInt32 i = 0; i < m_FinishingEffects.GetCount();)
   {
     ezParticleEffectInstance* pEffect = m_FinishingEffects[i];
 
@@ -173,7 +183,7 @@ void ezParticleWorldModule::ReconfigureEffects()
 
   for (auto pEffect : m_EffectsToReconfigure)
   {
-    pEffect->Reconfigure(false);
+    pEffect->Reconfigure(false, ezArrayPtr<ezParticleEffectFloatParam>(), ezArrayPtr<ezParticleEffectColorParam>());
   }
 
   m_EffectsToReconfigure.Clear();
@@ -181,7 +191,4 @@ void ezParticleWorldModule::ReconfigureEffects()
 
 
 
-
-
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_WorldModule_ParticleEffects);
-
