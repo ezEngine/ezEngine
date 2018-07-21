@@ -1,29 +1,31 @@
 #include <PCH.h>
+
+#include <Core/Assets/AssetFileHeader.h>
+#include <Core/ResourceManager/ResourceManager.h>
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorEngineProcessFramework/IPC/SyncObject.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessViewContext.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessCommunicationChannel.h>
-#include <Foundation/Reflection/ReflectionUtils.h>
-#include <Foundation/Serialization/ReflectionSerializer.h>
-#include <Foundation/Logging/Log.h>
+#include <EditorEngineProcessFramework/EngineProcess/RemoteViewContext.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Core/WorldSerializer/WorldReader.h>
-#include <GameEngine/GameApplication/GameApplication.h>
-#include <Core/Assets/AssetFileHeader.h>
+#include <EditorEngineProcessFramework/IPC/SyncObject.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <RendererFoundation/Device/Device.h>
-#include <RendererFoundation/Context/Context.h>
-#include <Core/ResourceManager/ResourceManager.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Image/Image.h>
 #include <Foundation/Image/ImageUtils.h>
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Memory/MemoryUtils.h>
-#include <EditorEngineProcessFramework/EngineProcess/RemoteViewContext.h>
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/Serialization/ReflectionSerializer.h>
+#include <GameEngine/GameApplication/GameApplication.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineProcessDocumentContext, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -37,7 +39,8 @@ ezEngineProcessDocumentContext* ezEngineProcessDocumentContext::GetDocumentConte
   return pResult;
 }
 
-void ezEngineProcessDocumentContext::AddDocumentContext(ezUuid guid, ezEngineProcessDocumentContext* pContext, ezEngineProcessCommunicationChannel* pIPC)
+void ezEngineProcessDocumentContext::AddDocumentContext(ezUuid guid, ezEngineProcessDocumentContext* pContext,
+                                                        ezEngineProcessCommunicationChannel* pIPC)
 {
   EZ_ASSERT_DEV(!s_DocumentContexts.Contains(guid), "Cannot add a view with an index that already exists");
   s_DocumentContexts[guid] = pContext;
@@ -287,10 +290,7 @@ void ezEngineProcessDocumentContext::HandleMessage(const ezEditorEngineDocumentM
 
 void ezEngineProcessDocumentContext::AddSyncObject(ezEditorEngineSyncObject* pSync)
 {
-  pSync->Configure(m_DocumentGuid, [this](ezEditorEngineSyncObject* pSync)
-  {
-    RemoveSyncObject(pSync);
-  });
+  pSync->Configure(m_DocumentGuid, [this](ezEditorEngineSyncObject* pSync) { RemoveSyncObject(pSync); });
 
   m_SyncObjects[pSync->GetGuid()] = pSync;
 }
@@ -312,8 +312,8 @@ void ezEngineProcessDocumentContext::ResourceEventHandler(const ezResourceEvent&
   // TODO: Even in combination with ezResourceManager::FinishLoadingOfResources we end up with
   // broken thumbnails :-/
 
-  //ezLog::Debug("Resource changed, resetting counter");
-  //m_uiThumbnailConvergenceFrames = 0;
+  // ezLog::Debug("Resource changed, resetting counter");
+  // m_uiThumbnailConvergenceFrames = 0;
 }
 
 void ezEngineProcessDocumentContext::ClearViewContexts()
@@ -409,7 +409,6 @@ bool ezEngineProcessDocumentContext::PendingOperationInProgress() const
 {
   auto pState = ezGameApplication::GetGameApplicationInstance()->GetGameStateForWorld(GetWorld());
   return m_pThumbnailViewContext != nullptr || pState != nullptr;
-
 }
 
 void ezEngineProcessDocumentContext::UpdateDocumentContext()
@@ -437,32 +436,32 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
   {
     m_uiThumbnailConvergenceFrames++;
 
-    //ezLog::Debug("Updating document context for thumbnail: {0}", m_uiThumbnailConvergenceFrames);
+    // ezLog::Debug("Updating document context for thumbnail: {0}", m_uiThumbnailConvergenceFrames);
 
     // Once all resources are loaded and UpdateThumbnailViewContext returns true,
     // we render 'ThumbnailConvergenceFramesTarget' frames and than download it.
     if (ezResourceManager::FinishLoadingOfResources())
     {
-      //ezLog::Debug("Resources loaded, Resetting convergence counter");
+      // ezLog::Debug("Resources loaded, Resetting convergence counter");
       m_uiThumbnailConvergenceFrames = 0;
     }
 
     if (!UpdateThumbnailViewContext(m_pThumbnailViewContext))
     {
-      //ezLog::Debug("Not updated thumbnail context, Resetting convergence counter");
+      // ezLog::Debug("Not updated thumbnail context, Resetting convergence counter");
       m_uiThumbnailConvergenceFrames = 0;
     }
 
     if (m_uiThumbnailConvergenceFrames > ThumbnailConvergenceFramesTarget)
     {
-      //ezLog::Debug("Convergence > threshold, storing thumbnail");
+      // ezLog::Debug("Convergence > threshold, storing thumbnail");
 
       ezCreateThumbnailMsgToEditor ret;
       ret.m_DocumentGuid = GetDocumentGuid();
 
       // Download image
       {
-        //ezLog::Success("Reading back Thumbnail");
+        // ezLog::Success("Reading back Thumbnail");
 
         ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_hThumbnailColorRT);
 
@@ -477,7 +476,8 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
         image.SetWidth(m_uiThumbnailWidth);
         image.SetHeight(m_uiThumbnailHeight);
         image.AllocateImageData();
-        EZ_ASSERT_DEV(m_uiThumbnailWidth * m_uiThumbnailHeight * 4 == image.GetDataSize(), "Thumbnail ezImage has different size than data buffer!");
+        EZ_ASSERT_DEV(m_uiThumbnailWidth * m_uiThumbnailHeight * 4 == image.GetDataSize(),
+                      "Thumbnail ezImage has different size than data buffer!");
 
         MemDesc.m_pData = image.GetDataPointer<ezUInt8>();
         ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
@@ -493,8 +493,8 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
         }
 
 
-        ret.m_ThumbnailData.SetCountUninitialized((m_uiThumbnailWidth / ThumbnailSuperscaleFactor)
-        * (m_uiThumbnailHeight / ThumbnailSuperscaleFactor) * 4);
+        ret.m_ThumbnailData.SetCountUninitialized((m_uiThumbnailWidth / ThumbnailSuperscaleFactor) *
+                                                  (m_uiThumbnailHeight / ThumbnailSuperscaleFactor) * 4);
         ezMemoryUtils::Copy(ret.m_ThumbnailData.GetData(), pImage->GetDataPointer<ezUInt8>(), ret.m_ThumbnailData.GetCount());
       }
 
@@ -505,7 +505,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
     }
     else
     {
-      //ezLog::Info("Rendering Thumbnail");
+      // ezLog::Info("Rendering Thumbnail");
       m_pThumbnailViewContext->Redraw(false);
     }
   }
@@ -522,7 +522,8 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
 {
   EZ_ASSERT_DEV(!ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode(), "Wrong mode for thumbnail creation");
   EZ_ASSERT_DEV(m_pThumbnailViewContext == nullptr, "Thumbnail rendering already in progress.");
-  EZ_CHECK_AT_COMPILETIME_MSG((ThumbnailSuperscaleFactor & (ThumbnailSuperscaleFactor - 1)) == 0, "ThumbnailSuperscaleFactor must be power of 2.");
+  EZ_CHECK_AT_COMPILETIME_MSG((ThumbnailSuperscaleFactor & (ThumbnailSuperscaleFactor - 1)) == 0,
+                              "ThumbnailSuperscaleFactor must be power of 2.");
   m_uiThumbnailConvergenceFrames = 0;
   m_uiThumbnailWidth = pMsg->m_uiWidth * ThumbnailSuperscaleFactor;
   m_uiThumbnailHeight = pMsg->m_uiHeight * ThumbnailSuperscaleFactor;
@@ -672,4 +673,3 @@ void ezEngineProcessDocumentContext::UpdateSyncObjects()
     }
   }
 }
-

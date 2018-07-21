@@ -92,6 +92,7 @@ void ezParticleEmitter_Burst::OnFinalize()
 {
   float fSpawnFactor = 1.0f;
 
+  // TODO: this cannot work, as the exposed parameters have not been initialized at this point
   const float spawnCountScale = ezMath::Clamp(GetOwnerEffect()->GetFloatParameter(m_sSpawnCountScaleParameter, 1.0f), 0.0f, 10.0f);
   fSpawnFactor *= spawnCountScale;
 
