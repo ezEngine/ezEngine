@@ -27,6 +27,8 @@ class ezParticleEffectInstance;
 class ezParticleSystemInstance;
 struct ezRenderViewContext;
 class ezRenderPipelinePass;
+class ezParticleFinalizer;
+class ezParticleFinalizerFactory;
 
 typedef ezTypedResourceHandle<class ezParticleEffectResource> ezParticleEffectResourceHandle;
 

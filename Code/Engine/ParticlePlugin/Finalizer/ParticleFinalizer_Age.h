@@ -1,19 +1,19 @@
 #pragma once
 
-#include <ParticlePlugin/Behavior/ParticleBehavior.h>
+#include <ParticlePlugin/Finalizer/ParticleFinalizer.h>
 #include <Foundation/Types/VarianceTypes.h>
 
 class ezPhysicsWorldModuleInterface;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Age : public ezParticleBehaviorFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizerFactory_Age : public ezParticleFinalizerFactory
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Age, ezParticleBehaviorFactory);
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizerFactory_Age, ezParticleFinalizerFactory);
 
 public:
-  ezParticleBehaviorFactory_Age();
+  ezParticleFinalizerFactory_Age();
 
-  virtual const ezRTTI* GetBehaviorType() const override;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject) const override;
+  virtual const ezRTTI* GetFinalizerType() const override;
+  virtual void CopyFinalizerProperties(ezParticleFinalizer* pObject) const override;
 
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;
@@ -24,12 +24,12 @@ public:
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Age : public ezParticleBehavior
+class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizer_Age : public ezParticleFinalizer
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Age, ezParticleBehavior);
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizer_Age, ezParticleFinalizer);
 public:
-  ezParticleBehavior_Age();
-  ~ezParticleBehavior_Age();
+  ezParticleFinalizer_Age();
+  ~ezParticleFinalizer_Age();
 
   virtual void CreateRequiredStreams() override;
 

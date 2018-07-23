@@ -1,43 +1,37 @@
 #include <PCH.h>
-#include <ParticlePlugin/Behavior/ParticleBehavior_Volume.h>
-#include <ParticlePlugin/System/ParticleSystemInstance.h>
-#include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
+
 #include <Core/World/World.h>
+#include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
+#include <Foundation/Math/Declarations.h>
+#include <Foundation/Math/Float16.h>
+#include <Foundation/Profiling/Profiling.h>
+#include <ParticlePlugin/Finalizer/ParticleFinalizer_Volume.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Events/ParticleEvent.h>
-#include <Foundation/Math/Declarations.h>
-#include <Foundation/Profiling/Profiling.h>
-#include <Foundation/Math/Float16.h>
+#include <ParticlePlugin/System/ParticleSystemInstance.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Volume, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Volume>)
-{
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezHiddenAttribute()
-  }
-    EZ_END_ATTRIBUTES;
-}
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFinalizerFactory_Volume, 1, ezRTTIDefaultAllocator<ezParticleFinalizerFactory_Volume>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Volume, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Volume>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFinalizer_Volume, 1, ezRTTIDefaultAllocator<ezParticleFinalizer_Volume>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
-ezParticleBehaviorFactory_Volume::ezParticleBehaviorFactory_Volume()
+ezParticleFinalizerFactory_Volume::ezParticleFinalizerFactory_Volume() {}
+
+const ezRTTI* ezParticleFinalizerFactory_Volume::GetFinalizerType() const
 {
+  return ezGetStaticRTTI<ezParticleFinalizer_Volume>();
 }
 
-const ezRTTI* ezParticleBehaviorFactory_Volume::GetBehaviorType() const
+void ezParticleFinalizerFactory_Volume::CopyFinalizerProperties(ezParticleFinalizer* pObject) const
 {
-  return ezGetStaticRTTI<ezParticleBehavior_Volume>();
-}
-
-void ezParticleBehaviorFactory_Volume::CopyBehaviorProperties(ezParticleBehavior* pObject) const
-{
-  ezParticleBehavior_Volume* pBehavior = static_cast<ezParticleBehavior_Volume*>(pObject);
+  ezParticleFinalizer_Volume* pFinalizer = static_cast<ezParticleFinalizer_Volume*>(pObject);
 }
 
 
-enum class BehaviorVolumeVersion
+enum class FinalizerVolumeVersion
 {
   Version_0 = 0,
 
@@ -47,42 +41,37 @@ enum class BehaviorVolumeVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleBehaviorFactory_Volume::Save(ezStreamWriter& stream) const
+void ezParticleFinalizerFactory_Volume::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = (int)BehaviorVolumeVersion::Version_Current;
+  const ezUInt8 uiVersion = (int)FinalizerVolumeVersion::Version_Current;
   stream << uiVersion;
 }
 
-void ezParticleBehaviorFactory_Volume::Load(ezStreamReader& stream)
+void ezParticleFinalizerFactory_Volume::Load(ezStreamReader& stream)
 {
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion <= (int)BehaviorVolumeVersion::Version_Current, "Invalid version {0}", uiVersion);
-
+  EZ_ASSERT_DEV(uiVersion <= (int)FinalizerVolumeVersion::Version_Current, "Invalid version {0}", uiVersion);
 }
 
 
-ezParticleBehavior_Volume::ezParticleBehavior_Volume()
-{
-}
+ezParticleFinalizer_Volume::ezParticleFinalizer_Volume() {}
 
-ezParticleBehavior_Volume::~ezParticleBehavior_Volume()
-{
-}
+ezParticleFinalizer_Volume::~ezParticleFinalizer_Volume() {}
 
-void ezParticleBehavior_Volume::CreateRequiredStreams()
+void ezParticleFinalizer_Volume::CreateRequiredStreams()
 {
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
   m_pStreamSize = nullptr;
 }
 
-void ezParticleBehavior_Volume::QueryOptionalStreams()
+void ezParticleFinalizer_Volume::QueryOptionalStreams()
 {
   m_pStreamSize = GetOwnerSystem()->QueryStream("Size", ezProcessingStream::DataType::Half);
 }
 
-void ezParticleBehavior_Volume::Process(ezUInt64 uiNumElements)
+void ezParticleFinalizer_Volume::Process(ezUInt64 uiNumElements)
 {
   if (!GetOwnerEffect()->NeedsBoundingVolumeUpdate())
     return;
@@ -94,7 +83,7 @@ void ezParticleBehavior_Volume::Process(ezUInt64 uiNumElements)
   ezBoundingBoxSphere volume;
   volume.SetFromPoints(reinterpret_cast<const ezVec3*>(pPosition), static_cast<ezUInt32>(uiNumElements), sizeof(ezVec4));
 
-  float fMaxSize[8] = { 0 };
+  float fMaxSize[8] = {0};
 
   if (m_pStreamSize != nullptr)
   {

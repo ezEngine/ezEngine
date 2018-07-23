@@ -4,44 +4,36 @@
 #include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <Foundation/Math/Float16.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <ParticlePlugin/Behavior/ParticleBehavior_Age.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Events/ParticleEvent.h>
+#include <ParticlePlugin/Finalizer/ParticleFinalizer_Age.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Age, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Age>)
-{
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezHiddenAttribute()
-  }
-  EZ_END_ATTRIBUTES;
-}
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFinalizerFactory_Age, 1, ezRTTIDefaultAllocator<ezParticleFinalizerFactory_Age>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Age, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Age>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFinalizer_Age, 1, ezRTTIDefaultAllocator<ezParticleFinalizer_Age>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleBehaviorFactory_Age::ezParticleBehaviorFactory_Age() {}
+ezParticleFinalizerFactory_Age::ezParticleFinalizerFactory_Age() {}
 
-const ezRTTI* ezParticleBehaviorFactory_Age::GetBehaviorType() const
+const ezRTTI* ezParticleFinalizerFactory_Age::GetFinalizerType() const
 {
-  return ezGetStaticRTTI<ezParticleBehavior_Age>();
+  return ezGetStaticRTTI<ezParticleFinalizer_Age>();
 }
 
-void ezParticleBehaviorFactory_Age::CopyBehaviorProperties(ezParticleBehavior* pObject) const
+void ezParticleFinalizerFactory_Age::CopyFinalizerProperties(ezParticleFinalizer* pObject) const
 {
-  ezParticleBehavior_Age* pBehavior = static_cast<ezParticleBehavior_Age*>(pObject);
+  ezParticleFinalizer_Age* pFinalizer = static_cast<ezParticleFinalizer_Age*>(pObject);
 
-  pBehavior->m_LifeTime = m_LifeTime;
-  pBehavior->m_sOnDeathEvent = ezTempHashedString(m_sOnDeathEvent.GetData());
-  pBehavior->m_sLifeScaleParameter = ezTempHashedString(m_sLifeScaleParameter.GetData());
+  pFinalizer->m_LifeTime = m_LifeTime;
+  pFinalizer->m_sOnDeathEvent = ezTempHashedString(m_sOnDeathEvent.GetData());
+  pFinalizer->m_sLifeScaleParameter = ezTempHashedString(m_sLifeScaleParameter.GetData());
 }
 
-
-enum class BehaviorAgeVersion
+enum class FinalizerAgeVersion
 {
   Version_0 = 0,
   Version_1,
@@ -55,9 +47,9 @@ enum class BehaviorAgeVersion
   Version_Current = Version_Count - 1
 };
 
-void ezParticleBehaviorFactory_Age::Save(ezStreamWriter& stream) const
+void ezParticleFinalizerFactory_Age::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = (int)BehaviorAgeVersion::Version_Current;
+  const ezUInt8 uiVersion = (int)FinalizerAgeVersion::Version_Current;
   stream << uiVersion;
 
   stream << m_sOnDeathEvent;
@@ -69,12 +61,12 @@ void ezParticleBehaviorFactory_Age::Save(ezStreamWriter& stream) const
   stream << m_sLifeScaleParameter;
 }
 
-void ezParticleBehaviorFactory_Age::Load(ezStreamReader& stream)
+void ezParticleFinalizerFactory_Age::Load(ezStreamReader& stream)
 {
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
 
-  EZ_ASSERT_DEV(uiVersion <= (int)BehaviorAgeVersion::Version_Current, "Invalid version {0}", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= (int)FinalizerAgeVersion::Version_Current, "Invalid version {0}", uiVersion);
 
   if (uiVersion >= 2)
   {
@@ -94,20 +86,20 @@ void ezParticleBehaviorFactory_Age::Load(ezStreamReader& stream)
 }
 
 
-ezParticleBehavior_Age::ezParticleBehavior_Age()
+ezParticleFinalizer_Age::ezParticleFinalizer_Age()
 {
   m_bHasOnDeathEventHandler = false;
 }
 
-ezParticleBehavior_Age::~ezParticleBehavior_Age()
+ezParticleFinalizer_Age::~ezParticleFinalizer_Age()
 {
   if (m_bHasOnDeathEventHandler)
   {
-    GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleBehavior_Age::OnParticleDeath, this));
+    GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleFinalizer_Age::OnParticleDeath, this));
   }
 }
 
-void ezParticleBehavior_Age::CreateRequiredStreams()
+void ezParticleFinalizer_Age::CreateRequiredStreams()
 {
   CreateStream("LifeTime", ezProcessingStream::DataType::Half2, &m_pStreamLifeTime, true);
 
@@ -122,22 +114,22 @@ void ezParticleBehavior_Age::CreateRequiredStreams()
 }
 
 
-void ezParticleBehavior_Age::AfterPropertiesConfigured(bool bFirstTime)
+void ezParticleFinalizer_Age::AfterPropertiesConfigured(bool bFirstTime)
 {
   if (m_bHasOnDeathEventHandler)
   {
     m_bHasOnDeathEventHandler = false;
-    GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleBehavior_Age::OnParticleDeath, this));
+    GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleFinalizer_Age::OnParticleDeath, this));
   }
 
   if (m_sOnDeathEvent.GetHash() != 0)
   {
     m_bHasOnDeathEventHandler = true;
-    GetOwnerSystem()->AddParticleDeathEventHandler(ezMakeDelegate(&ezParticleBehavior_Age::OnParticleDeath, this));
+    GetOwnerSystem()->AddParticleDeathEventHandler(ezMakeDelegate(&ezParticleFinalizer_Age::OnParticleDeath, this));
   }
 }
 
-void ezParticleBehavior_Age::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
+void ezParticleFinalizer_Age::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
   EZ_PROFILE("PFX: Age Init");
 
@@ -171,7 +163,7 @@ void ezParticleBehavior_Age::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 
   }
 }
 
-void ezParticleBehavior_Age::Process(ezUInt64 uiNumElements)
+void ezParticleFinalizer_Age::Process(ezUInt64 uiNumElements)
 {
   EZ_PROFILE("PFX: Age");
 
@@ -193,7 +185,7 @@ void ezParticleBehavior_Age::Process(ezUInt64 uiNumElements)
   }
 }
 
-void ezParticleBehavior_Age::OnParticleDeath(const ezStreamGroupElementRemovedEvent& e)
+void ezParticleFinalizer_Age::OnParticleDeath(const ezStreamGroupElementRemovedEvent& e)
 {
   const ezVec4* pPosition = m_pStreamPosition->GetData<ezVec4>();
   const ezVec3* pVelocity = m_pStreamVelocity->GetData<ezVec3>();
@@ -209,4 +201,4 @@ void ezParticleBehavior_Age::OnParticleDeath(const ezStreamGroupElementRemovedEv
 
 
 
-EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_Age);
+EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Finalizer_ParticleFinalizer_Age);

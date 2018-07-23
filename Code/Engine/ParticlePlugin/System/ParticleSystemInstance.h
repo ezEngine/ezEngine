@@ -85,6 +85,7 @@ private:
   ezHybridArray<ezParticleEmitter*, 2> m_Emitters;
   ezHybridArray<ezParticleInitializer*, 6> m_Initializers;
   ezHybridArray<ezParticleBehavior*, 6> m_Behaviors;
+  ezHybridArray<ezParticleFinalizer*, 2> m_Finalizers;
   ezHybridArray<ezParticleType*, 2> m_Types;
 
   bool m_bVisible; // typically used in editor to hide a system

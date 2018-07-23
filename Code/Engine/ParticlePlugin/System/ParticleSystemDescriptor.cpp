@@ -1,8 +1,9 @@
 #include <PCH.h>
+
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
-#include <ParticlePlugin/Behavior/ParticleBehavior_Age.h>
-#include <ParticlePlugin/Behavior/ParticleBehavior_Volume.h>
 #include <ParticlePlugin/Emitter/ParticleEmitter.h>
+#include <ParticlePlugin/Finalizer/ParticleFinalizer_Age.h>
+#include <ParticlePlugin/Finalizer/ParticleFinalizer_Volume.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
 #include <ParticlePlugin/System/ParticleSystemDescriptor.h>
 #include <ParticlePlugin/Type/ParticleType.h>
@@ -40,6 +41,7 @@ ezParticleSystemDescriptor::~ezParticleSystemDescriptor()
   ClearEmitters();
   ClearInitializers();
   ClearBehaviors();
+  ClearFinalizers();
   ClearTypes();
 }
 
@@ -83,24 +85,33 @@ void ezParticleSystemDescriptor::ClearTypes()
   m_TypeFactories.Clear();
 }
 
+void ezParticleSystemDescriptor::ClearFinalizers()
+{
+  for (auto pFactory : m_FinalizerFactories)
+  {
+    pFactory->GetDynamicRTTI()->GetAllocator()->Deallocate(pFactory);
+  }
+
+  m_FinalizerFactories.Clear();
+}
 
 void ezParticleSystemDescriptor::SetupDefaultProcessors()
 {
   // Age Behavior
   {
-    ezParticleBehaviorFactory_Age* pFactory =
-        ezParticleBehaviorFactory_Age::GetStaticRTTI()->GetAllocator()->Allocate<ezParticleBehaviorFactory_Age>();
+    ezParticleFinalizerFactory_Age* pFactory =
+        ezParticleFinalizerFactory_Age::GetStaticRTTI()->GetAllocator()->Allocate<ezParticleFinalizerFactory_Age>();
     pFactory->m_LifeTime = m_LifeTime;
     pFactory->m_sOnDeathEvent = m_sOnDeathEvent;
     pFactory->m_sLifeScaleParameter = m_sLifeScaleParameter;
-    m_BehaviorFactories.PushBack(pFactory);
+    m_FinalizerFactories.PushBack(pFactory);
   }
 
   // Bounding Volume Update Behavior
   {
-    ezParticleBehaviorFactory_Volume* pFactory =
-        ezParticleBehaviorFactory_Volume::GetStaticRTTI()->GetAllocator()->Allocate<ezParticleBehaviorFactory_Volume>();
-    m_BehaviorFactories.PushBack(pFactory);
+    ezParticleFinalizerFactory_Volume* pFactory =
+        ezParticleFinalizerFactory_Volume::GetStaticRTTI()->GetAllocator()->Allocate<ezParticleFinalizerFactory_Volume>();
+    m_FinalizerFactories.PushBack(pFactory);
   }
 
   if (m_TypeFactories.IsEmpty())
@@ -185,6 +196,7 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& stream)
   ClearEmitters();
   ClearInitializers();
   ClearBehaviors();
+  ClearFinalizers();
   ClearTypes();
 
   ezUInt8 uiVersion = 0;

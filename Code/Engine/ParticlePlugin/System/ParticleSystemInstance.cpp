@@ -135,6 +135,11 @@ void ezParticleSystemInstance::Finalize()
     pBehavior->OnFinalize();
   }
 
+  for (auto& pFinalizer : m_Finalizers)
+  {
+    pFinalizer->OnFinalize();
+  }
+
   for (auto& pType : m_Types)
   {
     pType->OnFinalize();
@@ -192,6 +197,18 @@ void ezParticleSystemInstance::CreateStreamProcessors(const ezParticleSystemDesc
     }
   }
 
+  // finalizers
+  {
+    m_Finalizers.Clear();
+
+    for (const auto pFactory : pTemplate->GetFinalizerFactories())
+    {
+      ezParticleFinalizer* pFinalizer = pFactory->CreateFinalizer(this);
+      m_StreamGroup.AddProcessor(pFinalizer);
+      m_Finalizers.PushBack(pFinalizer);
+    }
+  }
+
   // types
   {
     m_Types.Clear();
@@ -221,6 +238,11 @@ void ezParticleSystemInstance::SetupOptionalStreams()
   for (auto& pBehavior : m_Behaviors)
   {
     pBehavior->QueryOptionalStreams();
+  }
+
+  for (auto& pFinalizer : m_Finalizers)
+  {
+    pFinalizer->QueryOptionalStreams();
   }
 
   for (auto& pType : m_Types)
@@ -276,6 +298,19 @@ void ezParticleSystemInstance::ReinitializeStreamProcessors(const ezParticleSyst
     }
   }
 
+  // finalizers
+  {
+    const auto& factories = pTemplate->GetFinalizerFactories();
+
+    for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
+    {
+      m_Finalizers[i]->Reset(this);
+      factories[i]->CopyFinalizerProperties(m_Finalizers[i]);
+      m_Finalizers[i]->AfterPropertiesConfigured(false);
+      m_Finalizers[i]->CreateRequiredStreams();
+    }
+  }
+
   // types
   {
     const auto& factories = pTemplate->GetTypeFactories();
@@ -313,6 +348,7 @@ void ezParticleSystemInstance::Destruct()
   m_Emitters.Clear();
   m_Initializers.Clear();
   m_Behaviors.Clear();
+  m_Finalizers.Clear();
   m_Types.Clear();
 
   m_StreamInfo.Clear();
@@ -373,6 +409,14 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
     for (auto pBehavior : m_Behaviors)
     {
       pBehavior->StepParticleSystem(tDiff, uiSpawnedParticles);
+    }
+  }
+
+  {
+    EZ_PROFILE("PFX: System Step Finalizers");
+    for (auto pFinalizer : m_Finalizers)
+    {
+      pFinalizer->StepParticleSystem(tDiff, uiSpawnedParticles);
     }
   }
 
