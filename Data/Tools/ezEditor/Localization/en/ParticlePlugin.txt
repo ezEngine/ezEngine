@@ -60,12 +60,6 @@ ezEffectInvisibleUpdateRate::Pause;Pause
 ezEffectInvisibleUpdateRate::Discard;Discard
 FloatParameters;Number Parameters
 ColorParameters;Color Parameters
-ezQuadParticleOrientation::Billboard;Billboard
-ezQuadParticleOrientation::FragmentOrthogonalEmitterDirection;Fragment Ortho Emitter Dir
-ezQuadParticleOrientation::FragmentEmitterDirection;Fragment Emitter Dir
-ezQuadParticleOrientation::SpriteEmitterDirection;Sprite Emitter Dir
-ezQuadParticleOrientation::SpriteRandom;Sprite Random
-ezQuadParticleOrientation::SpriteWorldUp;Sprite World Up
 ezParticleTextureAtlasType::None;None
 ezParticleTextureAtlasType::RandomVariations;Random Variations
 ezParticleTextureAtlasType::FlipbookAnimation;Flipbook Animation
@@ -78,9 +72,16 @@ GradientMaxSpeed;Max Speed
 EventReactions;Event Reactions
 ezParticleEventReactionFactory_Effect;Effect Reaction
 ezParticleEventReactionFactory_Prefab;Prefab Reaction
-ezQuadParticleOrientation::AxisAligned_Emitter;Axis Aligned: Emitter
 ezParticleBehaviorFactory_Flies;Flies Behavior
 LifeTime;Life
 Orientation;Orientation
 Texture;Texture
 RenderMode;Render Mode
+ezQuadParticleOrientation::Billboard;Billboard
+ezQuadParticleOrientation::Rotating_OrthoEmitterDir;Rotating: Ortho Emitter Dir
+ezQuadParticleOrientation::Rotating_EmitterDir;Rotating: Emitter Dir
+ezQuadParticleOrientation::Fixed_EmitterDir;Fixed: Emitter Dir
+ezQuadParticleOrientation::Fixed_RandomDir;Fixed: Random Dir
+ezQuadParticleOrientation::Fixed_WorldUp;Fixed: World Up
+ezQuadParticleOrientation::FixedAxis_EmitterDir;Axis: Emitter Dir
+ezQuadParticleOrientation::FixedAxis_ParticleDir;Axis: Particle Dir

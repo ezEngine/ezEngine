@@ -14,7 +14,7 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectAssetDocument, 3, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectAssetDocument, 4, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -37,13 +37,17 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
     props["Deviation"].m_Visibility = ezPropertyUiState::Invisible;
     props["DistortionTexture"].m_Visibility = ezPropertyUiState::Invisible;
     props["DistortionStrength"].m_Visibility = ezPropertyUiState::Invisible;
+    props["ParticleStretch"].m_Visibility =
+        (orientation == ezQuadParticleOrientation::FixedAxis_EmitterDir || orientation == ezQuadParticleOrientation::FixedAxis_ParticleDir)
+            ? ezPropertyUiState::Default
+            : ezPropertyUiState::Invisible;
     props["NumSpritesX"].m_Visibility =
         (textureAtlas == (int)ezParticleTextureAtlasType::None) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
     props["NumSpritesY"].m_Visibility =
         (textureAtlas == (int)ezParticleTextureAtlasType::None) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
 
 
-    if (orientation == ezQuadParticleOrientation::SpriteEmitterDirection || orientation == ezQuadParticleOrientation::SpriteWorldUp)
+    if (orientation == ezQuadParticleOrientation::Fixed_EmitterDir || orientation == ezQuadParticleOrientation::Fixed_WorldUp)
     {
       props["Deviation"].m_Visibility = ezPropertyUiState::Default;
     }

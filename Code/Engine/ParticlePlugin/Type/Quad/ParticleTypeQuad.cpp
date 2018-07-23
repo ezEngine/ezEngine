@@ -13,14 +13,14 @@
 #include <RendererFoundation/Shader/ShaderUtils.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezQuadParticleOrientation, 1)
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezQuadParticleOrientation, 2)
   EZ_ENUM_CONSTANTS(ezQuadParticleOrientation::Billboard)
-  EZ_ENUM_CONSTANTS(ezQuadParticleOrientation::FragmentOrthogonalEmitterDirection, ezQuadParticleOrientation::FragmentEmitterDirection)
-  EZ_ENUM_CONSTANTS(ezQuadParticleOrientation::SpriteEmitterDirection, ezQuadParticleOrientation::SpriteRandom, ezQuadParticleOrientation::SpriteWorldUp)
-  EZ_ENUM_CONSTANTS(ezQuadParticleOrientation::AxisAligned_Emitter)
+  EZ_ENUM_CONSTANTS(ezQuadParticleOrientation::Rotating_OrthoEmitterDir, ezQuadParticleOrientation::Rotating_EmitterDir)
+  EZ_ENUM_CONSTANTS(ezQuadParticleOrientation::Fixed_EmitterDir, ezQuadParticleOrientation::Fixed_RandomDir, ezQuadParticleOrientation::Fixed_WorldUp)
+  EZ_ENUM_CONSTANTS(ezQuadParticleOrientation::FixedAxis_EmitterDir, ezQuadParticleOrientation::FixedAxis_ParticleDir)
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeQuadFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeQuadFactory>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeQuadFactory, 2, ezRTTIDefaultAllocator<ezParticleTypeQuadFactory>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -34,6 +34,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeQuadFactory, 1, ezRTTIDefaultAlloc
     EZ_MEMBER_PROPERTY("TintColorParam", m_sTintColorParameter),
     EZ_MEMBER_PROPERTY("DistortionTexture", m_sDistortionTexture)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
     EZ_MEMBER_PROPERTY("DistortionStrength", m_fDistortionStrength)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(0.0f, 500.0f)),
+    EZ_MEMBER_PROPERTY("ParticleStretch", m_fStretch)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(-100.0f, 100.0f)),
   }
   EZ_END_PROPERTIES;
 }
@@ -62,6 +63,7 @@ void ezParticleTypeQuadFactory::CopyTypeProperties(ezParticleType* pObject) cons
   pType->m_hDistortionTexture.Invalidate();
   pType->m_fDistortionStrength = m_fDistortionStrength;
   pType->m_TextureAtlasType = m_TextureAtlasType;
+  pType->m_fStretch = m_fStretch;
 
   if (!m_sTexture.IsEmpty())
     pType->m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sTexture);
@@ -76,6 +78,7 @@ enum class TypeQuadVersion
   Version_2, // sprite deviation
   Version_3, // distortion
   Version_4, // added texture atlas type
+  Version_5, // added particle stretch
 
   // insert new version numbers above
   Version_Count,
@@ -97,6 +100,9 @@ void ezParticleTypeQuadFactory::Save(ezStreamWriter& stream) const
   stream << m_sDistortionTexture;
   stream << m_fDistortionStrength;
   stream << m_TextureAtlasType;
+
+  // Version 5
+  stream << m_fStretch;
 }
 
 void ezParticleTypeQuadFactory::Load(ezStreamReader& stream)
@@ -134,6 +140,11 @@ void ezParticleTypeQuadFactory::Load(ezStreamReader& stream)
       m_uiNumSpritesY = 1;
     }
   }
+
+  if (uiVersion >= 5)
+  {
+    stream >> m_fStretch;
+  }
 }
 
 ezParticleTypeQuad::ezParticleTypeQuad() = default;
@@ -150,9 +161,10 @@ void ezParticleTypeQuad::CreateRequiredStreams()
 
   m_pStreamAxis = nullptr;
   m_pStreamVariation = nullptr;
+  m_pStreamVelocity = nullptr;
 
-  if (m_Orientation == ezQuadParticleOrientation::SpriteRandom || m_Orientation == ezQuadParticleOrientation::SpriteEmitterDirection ||
-      m_Orientation == ezQuadParticleOrientation::SpriteWorldUp)
+  if (m_Orientation == ezQuadParticleOrientation::Fixed_RandomDir || m_Orientation == ezQuadParticleOrientation::Fixed_EmitterDir ||
+      m_Orientation == ezQuadParticleOrientation::Fixed_WorldUp)
   {
     CreateStream("Axis", ezProcessingStream::DataType::Float3, &m_pStreamAxis, true);
   }
@@ -161,6 +173,11 @@ void ezParticleTypeQuad::CreateRequiredStreams()
       m_TextureAtlasType == ezParticleTextureAtlasType::RandomYAnimatedX)
   {
     CreateStream("Variation", ezProcessingStream::DataType::Int, &m_pStreamVariation, false);
+  }
+
+  if (m_Orientation == ezQuadParticleOrientation::FixedAxis_ParticleDir)
+  {
+    CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity, false);
   }
 }
 
@@ -257,6 +274,7 @@ void ezParticleTypeQuad::CreateExtractedData(const ezView& view, ezExtractedRend
   const ezFloat16* pRotationOffset = m_pStreamRotationOffset->GetData<ezFloat16>();
   const ezVec3* pAxis = m_pStreamAxis ? m_pStreamAxis->GetData<ezVec3>() : nullptr;
   const ezUInt32* pVariation = m_pStreamVariation ? m_pStreamVariation->GetData<ezUInt32>() : nullptr;
+  const ezVec3* pVelocity = m_pStreamVelocity ? m_pStreamVelocity->GetData<ezVec3>() : nullptr;
 
   // this will automatically be deallocated at the end of the frame
   m_BaseParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBaseParticleShaderData, numParticles);
@@ -331,7 +349,14 @@ void ezParticleTypeQuad::CreateExtractedData(const ezView& view, ezExtractedRend
 
     m_TangentParticleData[dstIdx].Position = pPosition[srcIdx].GetAsVec3();
     m_TangentParticleData[dstIdx].TangentX = vEmitterDir;
-    // m_TangentParticleData[dstIdx].TangentZ = vEmitterDir;
+    m_TangentParticleData[dstIdx].TangentZ.x = m_fStretch;
+  };
+
+  auto SetTangentDataAligned_ParticleDir = [&](ezUInt32 dstIdx, ezUInt32 srcIdx) {
+
+    m_TangentParticleData[dstIdx].Position = pPosition[srcIdx].GetAsVec3();
+    m_TangentParticleData[dstIdx].TangentX = pVelocity[srcIdx];
+    m_TangentParticleData[dstIdx].TangentZ.x = m_fStretch;
   };
 
   for (ezUInt32 p = 0; p < numParticles; ++p)
@@ -349,33 +374,40 @@ void ezParticleTypeQuad::CreateExtractedData(const ezView& view, ezExtractedRend
 
   if (bNeedsTangentData)
   {
-    if (m_Orientation == ezQuadParticleOrientation::FragmentEmitterDirection)
+    if (m_Orientation == ezQuadParticleOrientation::Rotating_EmitterDir)
     {
       for (ezUInt32 p = 0; p < numParticles; ++p)
       {
         SetTangentDataEmitterDir(p, redirect(p, pSorted));
       }
     }
-    else if (m_Orientation == ezQuadParticleOrientation::FragmentOrthogonalEmitterDirection)
+    else if (m_Orientation == ezQuadParticleOrientation::Rotating_OrthoEmitterDir)
     {
       for (ezUInt32 p = 0; p < numParticles; ++p)
       {
         SetTangentDataEmitterDirOrtho(p, redirect(p, pSorted));
       }
     }
-    else if (m_Orientation == ezQuadParticleOrientation::SpriteEmitterDirection ||
-             m_Orientation == ezQuadParticleOrientation::SpriteRandom || m_Orientation == ezQuadParticleOrientation::SpriteWorldUp)
+    else if (m_Orientation == ezQuadParticleOrientation::Fixed_EmitterDir || m_Orientation == ezQuadParticleOrientation::Fixed_RandomDir ||
+             m_Orientation == ezQuadParticleOrientation::Fixed_WorldUp)
     {
       for (ezUInt32 p = 0; p < numParticles; ++p)
       {
         SetTangentDataFromAxis(p, redirect(p, pSorted));
       }
     }
-    else if (m_Orientation == ezQuadParticleOrientation::AxisAligned_Emitter)
+    else if (m_Orientation == ezQuadParticleOrientation::FixedAxis_EmitterDir)
     {
       for (ezUInt32 p = 0; p < numParticles; ++p)
       {
         SetTangentDataAligned_Emitter(p, redirect(p, pSorted));
+      }
+    }
+    else if (m_Orientation == ezQuadParticleOrientation::FixedAxis_ParticleDir)
+    {
+      for (ezUInt32 p = 0; p < numParticles; ++p)
+      {
+        SetTangentDataAligned_ParticleDir(p, redirect(p, pSorted));
       }
     }
     else
@@ -410,14 +442,15 @@ void ezParticleTypeQuad::AddParticleRenderData(ezExtractedRenderData& extractedR
     case ezQuadParticleOrientation::Billboard:
       pRenderData->m_QuadModePermutation = "PARTICLE_QUAD_MODE_BILLBOARD";
       break;
-    case ezQuadParticleOrientation::FragmentOrthogonalEmitterDirection:
-    case ezQuadParticleOrientation::FragmentEmitterDirection:
-    case ezQuadParticleOrientation::SpriteEmitterDirection:
-    case ezQuadParticleOrientation::SpriteWorldUp:
-    case ezQuadParticleOrientation::SpriteRandom:
+    case ezQuadParticleOrientation::Rotating_OrthoEmitterDir:
+    case ezQuadParticleOrientation::Rotating_EmitterDir:
+    case ezQuadParticleOrientation::Fixed_EmitterDir:
+    case ezQuadParticleOrientation::Fixed_WorldUp:
+    case ezQuadParticleOrientation::Fixed_RandomDir:
       pRenderData->m_QuadModePermutation = "PARTICLE_QUAD_MODE_TANGENTS";
       break;
-    case ezQuadParticleOrientation::AxisAligned_Emitter:
+    case ezQuadParticleOrientation::FixedAxis_EmitterDir:
+    case ezQuadParticleOrientation::FixedAxis_ParticleDir:
       pRenderData->m_QuadModePermutation = "PARTICLE_QUAD_MODE_AXIS_ALIGNED";
       break;
   }
@@ -453,7 +486,7 @@ void ezParticleTypeQuad::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNu
     ezVec3* pAxis = m_pStreamAxis->GetWritableData<ezVec3>();
     ezRandom& rng = GetRNG();
 
-    if (m_Orientation == ezQuadParticleOrientation::SpriteRandom)
+    if (m_Orientation == ezQuadParticleOrientation::Fixed_RandomDir)
     {
       EZ_PROFILE("PFX: Init Quad Axis Random");
 
@@ -464,18 +497,17 @@ void ezParticleTypeQuad::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNu
         pAxis[uiElementIdx] = ezVec3::CreateRandomDirection(rng);
       }
     }
-    else if (m_Orientation == ezQuadParticleOrientation::SpriteEmitterDirection ||
-             m_Orientation == ezQuadParticleOrientation::SpriteWorldUp)
+    else if (m_Orientation == ezQuadParticleOrientation::Fixed_EmitterDir || m_Orientation == ezQuadParticleOrientation::Fixed_WorldUp)
     {
       EZ_PROFILE("PFX: Init Quad Axis");
 
       ezVec3 vNormal;
 
-      if (m_Orientation == ezQuadParticleOrientation::SpriteEmitterDirection)
+      if (m_Orientation == ezQuadParticleOrientation::Fixed_EmitterDir)
       {
         vNormal = GetOwnerSystem()->GetTransform().m_qRotation * ezVec3(0, 0, 1); // Z axis
       }
-      else if (m_Orientation == ezQuadParticleOrientation::SpriteWorldUp)
+      else if (m_Orientation == ezQuadParticleOrientation::Fixed_WorldUp)
       {
         ezCoordinateSystem coord;
         GetOwnerSystem()->GetWorld()->GetCoordinateSystem(GetOwnerSystem()->GetTransform().m_vPosition, coord);
@@ -525,3 +557,70 @@ void ezParticleTypeQuad::AllocateParticleData(const ezUInt32 numParticles, const
                                          (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
   }
 }
+
+  //////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezQuadParticleOrientationPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezQuadParticleOrientationPatch_1_2()
+      : ezGraphPatch("ezQuadParticleOrientation", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    // TODO: this type of patch does not work
+
+    pNode->RenameProperty("FragmentOrthogonalEmitterDirection", "Rotating_OrthoEmitterDir");
+    pNode->RenameProperty("FragmentEmitterDirection", "Rotating_EmitterDir");
+
+    pNode->RenameProperty("SpriteEmitterDirection", "Fixed_EmitterDir");
+    pNode->RenameProperty("SpriteRandom", "Fixed_RandomDir");
+    pNode->RenameProperty("SpriteWorldUp", "Fixed_WorldUp");
+
+    pNode->RenameProperty("AxisAligned_Emitter", "FixedAxis_EmitterDir");
+  }
+};
+
+ezQuadParticleOrientationPatch_1_2 g_ezQuadParticleOrientationPatch_1_2;
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezParticleTypeQuadFactory_1_2 : public ezGraphPatch
+{
+public:
+  ezParticleTypeQuadFactory_1_2()
+      : ezGraphPatch("ezParticleTypeQuadFactory", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    ezAbstractObjectNode::Property* pProp = pNode->FindProperty("Orientation");
+    const ezStringBuilder sOri = pProp->m_Value.Get<ezString>();
+
+    if (sOri == "ezQuadParticleOrientation::FragmentOrthogonalEmitterDirection")
+      pProp->m_Value = "ezQuadParticleOrientation::Rotating_OrthoEmitterDir";
+
+    if (sOri == "ezQuadParticleOrientation::FragmentEmitterDirection")
+      pProp->m_Value = "ezQuadParticleOrientation::Rotating_EmitterDir";
+
+    if (sOri == "ezQuadParticleOrientation::SpriteEmitterDirection")
+      pProp->m_Value = "ezQuadParticleOrientation::Fixed_EmitterDir";
+
+    if (sOri == "ezQuadParticleOrientation::SpriteRandom")
+      pProp->m_Value = "ezQuadParticleOrientation::Fixed_RandomDir";
+
+    if (sOri == "ezQuadParticleOrientation::SpriteWorldUp")
+      pProp->m_Value = "ezQuadParticleOrientation::Fixed_WorldUp";
+
+    if (sOri == "ezQuadParticleOrientation::AxisAligned_Emitter")
+      pProp->m_Value = "ezQuadParticleOrientation::FixedAxis_EmitterDir";
+  }
+};
+
+ezParticleTypeQuadFactory_1_2 g_ezParticleTypeQuadFactory_1_2;

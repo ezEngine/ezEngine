@@ -91,9 +91,11 @@ void ezParticleInitializer_VelocityCone::InitializeElements(ezUInt64 uiStartInde
 
     do
     {
+      // random point in a rectangle
       dir.x = (float)rng.DoubleMinMax(-1.0, 1.0);
       dir.y = (float)rng.DoubleMinMax(-1.0, 1.0);
 
+      // discard points outside the circle
       len = dir.GetLengthSquared();
     } while (len > 1.0f);
 

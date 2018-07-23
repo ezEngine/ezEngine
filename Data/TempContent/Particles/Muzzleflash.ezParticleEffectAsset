@@ -35,7 +35,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{6624488108262606998,5508995940489292237}}
-		u4 %Hash{4392377836346368837}
+		u4 %Hash{8554809203817103943}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{2899461271342175840,3702259932662480960}}
@@ -119,7 +119,7 @@ o
 {
 	Uuid %id{u4{3582930423168467089,5555150106552486839}}
 	s %t{"ezParticleTypeQuadFactory"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		Angle %Deviation{f{0}}
@@ -127,7 +127,8 @@ o
 		s %DistortionTexture{""}
 		u1 %NumSpritesX{2}
 		u1 %NumSpritesY{2}
-		s %Orientation{"ezQuadParticleOrientation::AxisAligned_Emitter"}
+		s %Orientation{"ezQuadParticleOrientation::FixedAxis_EmitterDir"}
+		f %ParticleStretch{0x00000040}
 		s %RenderMode{"ezParticleTypeRenderMode::Additive"}
 		s %Texture{"{ 3538f70d-daf7-e2a1-4d5b-b53b7a9fbaaa }"}
 		s %TextureAtlas{"ezParticleTextureAtlasType::None"}
@@ -138,7 +139,7 @@ o
 {
 	Uuid %id{u4{6604664238822288791,5599737655241144165}}
 	s %t{"ezParticleTypeQuadFactory"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		Angle %Deviation{f{0}}
@@ -146,7 +147,8 @@ o
 		s %DistortionTexture{""}
 		u1 %NumSpritesX{1}
 		u1 %NumSpritesY{1}
-		s %Orientation{"ezQuadParticleOrientation::SpriteEmitterDirection"}
+		s %Orientation{"ezQuadParticleOrientation::Fixed_EmitterDir"}
+		f %ParticleStretch{0x0000803F}
 		s %RenderMode{"ezParticleTypeRenderMode::Additive"}
 		s %Texture{"{ ac8550ae-8286-3a74-5ecb-6bd4787fd5b0 }"}
 		s %TextureAtlas{"ezParticleTextureAtlasType::None"}
@@ -309,7 +311,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezQuadParticleOrientation"}
 		u3 %TypeSize{1}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -327,7 +329,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleTypeQuadFactory"}
 		u3 %TypeSize{232}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o

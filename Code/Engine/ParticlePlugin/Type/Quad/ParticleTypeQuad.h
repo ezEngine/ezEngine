@@ -14,17 +14,15 @@ struct EZ_PARTICLEPLUGIN_DLL ezQuadParticleOrientation
   {
     Billboard,
 
-    FragmentOrthogonalEmitterDirection,
-    FragmentEmitterDirection,
-    // these would require additional streams
-    // ParticleDirection, // -> last position for direction
-    // FragmentRandom, // -> rotation axis
+    Rotating_OrthoEmitterDir,
+    Rotating_EmitterDir,
 
-    SpriteEmitterDirection,
-    SpriteWorldUp,
-    SpriteRandom,
+    Fixed_EmitterDir,
+    Fixed_WorldUp,
+    Fixed_RandomDir,
 
-    AxisAligned_Emitter,
+    FixedAxis_EmitterDir,
+    FixedAxis_ParticleDir,
 
     Default = Billboard
   };
@@ -53,6 +51,7 @@ public:
   ezString m_sTintColorParameter;
   ezString m_sDistortionTexture;
   float m_fDistortionStrength = 0;
+  float m_fStretch = 1;
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeQuad : public ezParticleType
@@ -75,6 +74,7 @@ public:
   ezTempHashedString m_sTintColorParameter;
   ezTexture2DResourceHandle m_hDistortionTexture;
   float m_fDistortionStrength = 0;
+  float m_fStretch = 1;
 
   virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform,
                                      ezUInt64 uiExtractedFrame) const override;
@@ -104,6 +104,7 @@ protected:
   ezProcessingStream* m_pStreamRotationOffset = nullptr;
   ezProcessingStream* m_pStreamAxis = nullptr;
   ezProcessingStream* m_pStreamVariation = nullptr;
+  ezProcessingStream* m_pStreamVelocity = nullptr;
 
   mutable ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
   mutable ezArrayPtr<ezBillboardQuadParticleShaderData> m_BillboardParticleData;
