@@ -44,6 +44,22 @@ float4 CalcQuadOutputPositionWithTangents(uint vertexIndex, float3 inPosition, f
   return screenPosition;
 }
 
+float4 CalcQuadOutputPositionWithAlignedAxis(uint vertexIndex, float3 inPosition, float3 inTangentX, float3 inTangentZ, float inSize)
+{
+  float4 position = float4(inPosition, 1);
+
+  float4 axisDir = float4(inTangentX, 0);
+  float4 orthoDir = float4(normalize(cross(inTangentX, GetCameraDirForwards())), 0);
+
+  float4 offsetRight = orthoDir * (QuadTexCoords[vertexIndex].x - 0.5) * inSize;
+  float4 offsetUp = axisDir * (1.0 - QuadTexCoords[vertexIndex].y) * inSize;
+
+  float4 worldPosition = mul(ObjectToWorldMatrix, position + offsetRight + offsetUp);
+  float4 screenPosition = mul(GetWorldToScreenMatrix(), worldPosition);
+
+  return screenPosition;
+}
+
 float3x3 CreateRotationMatrixY(float radians)
 {
   float fsin = sin(radians);

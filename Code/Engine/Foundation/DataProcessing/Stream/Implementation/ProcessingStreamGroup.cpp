@@ -157,10 +157,6 @@ void ezProcessingStreamGroup::Process()
 {
   EnsureStreamAssignmentValid();
 
-  // Run any pending operations the user may have triggered after running Process() the last time
-  RunPendingDeletions();
-  RunPendingSpawns();
-
   // TODO: Identify which processors work on which streams and find independent groups and use separate tasks for them?
   for (ezProcessingStreamProcessor* pStreamProcessor : m_Processors)
   {
@@ -170,7 +166,9 @@ void ezProcessingStreamGroup::Process()
   // Run any pending deletions which happened due to stream processor execution
   RunPendingDeletions();
 
-  // do not spawn here anymore, delay that to the next round
+  // spawning here (instead of before processing) allows for particles to exist for exactly one frame
+  // they will be created, initialized, then rendered, and the next Process() will already delete them
+  RunPendingSpawns();
 }
 
 

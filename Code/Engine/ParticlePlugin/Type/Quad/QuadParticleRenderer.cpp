@@ -75,10 +75,7 @@ void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewCo
                                    pRenderData->m_uiNumVariationsY, pRenderData->m_uiNumFlipbookAnimationsX,
                                    pRenderData->m_uiNumFlipbookAnimationsY, pRenderData->m_fDistortionStrength);
 
-    if (pParticleBillboardData != nullptr)
-      pRenderContext->SetShaderPermutationVariable("PARTICLE_QUAD_MODE", "PARTICLE_QUAD_MODE_BILLBOARD");
-    else if (pParticleTangentData != nullptr)
-      pRenderContext->SetShaderPermutationVariable("PARTICLE_QUAD_MODE", "PARTICLE_QUAD_MODE_TANGENTS");
+    pRenderContext->SetShaderPermutationVariable("PARTICLE_QUAD_MODE", pRenderData->m_QuadModePermutation);
 
     while (uiNumParticles > 0)
     {

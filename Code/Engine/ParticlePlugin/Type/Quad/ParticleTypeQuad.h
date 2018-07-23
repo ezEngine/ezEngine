@@ -24,6 +24,8 @@ struct EZ_PARTICLEPLUGIN_DLL ezQuadParticleOrientation
     SpriteWorldUp,
     SpriteRandom,
 
+    AxisAligned_Emitter,
+
     Default = Billboard
   };
 };

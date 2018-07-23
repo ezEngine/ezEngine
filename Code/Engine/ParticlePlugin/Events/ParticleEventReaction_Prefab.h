@@ -1,8 +1,9 @@
 #pragma once
 
 #include <Foundation/Types/RangeView.h>
-#include <ParticlePlugin/Events/ParticleEventReaction.h>
 #include <Foundation/Types/SharedPtr.h>
+#include <GameEngine/Surfaces/SurfaceResourceDescriptor.h>
+#include <ParticlePlugin/Events/ParticleEventReaction.h>
 
 typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
 
@@ -25,13 +26,13 @@ public:
   //////////////////////////////////////////////////////////////////////////
   // Exposed Parameters
 public:
-  //const ezRangeView<const char*, ezUInt32> GetParameters() const;
-  //void SetParameter(const char* szKey, const ezVariant& value);
-  //void RemoveParameter(const char* szKey);
-  //bool GetParameter(const char* szKey, ezVariant& out_value) const;
+  // const ezRangeView<const char*, ezUInt32> GetParameters() const;
+  // void SetParameter(const char* szKey, const ezVariant& value);
+  // void RemoveParameter(const char* szKey);
+  // bool GetParameter(const char* szKey, ezVariant& out_value) const;
 
 private:
-  //ezSharedPtr<ezParticlePrefabParameters> m_Parameters;
+  // ezSharedPtr<ezParticlePrefabParameters> m_Parameters;
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleEventReaction_Prefab : public ezParticleEventReaction
@@ -45,7 +46,7 @@ public:
   ezPrefabResourceHandle m_hPrefab;
   ezEnum<ezSurfaceInteractionAlignment> m_Alignment;
 
-  //ezSharedPtr<ezParticlePrefabParameters> m_Parameters;
+  // ezSharedPtr<ezParticlePrefabParameters> m_Parameters;
 
 protected:
   virtual void ProcessEvent(const ezParticleEvent& e) override;

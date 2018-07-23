@@ -35,7 +35,7 @@ CullMode = CullMode_None
 
 #if PARTICLE_QUAD_MODE == PARTICLE_QUAD_MODE_BILLBOARD
   #include <Shaders/Particles/BillboardQuadParticleShaderData.h>
-#elif PARTICLE_QUAD_MODE == PARTICLE_QUAD_MODE_TANGENTS
+#else
   #include <Shaders/Particles/TangentQuadParticleShaderData.h>
 #endif
 
@@ -62,6 +62,11 @@ VS_OUT main(uint VertexID : SV_VertexID)
 
   ezTangentQuadParticleShaderData tangentData = particleTangentQuadData[dataIndex];
   ret.Position = CalcQuadOutputPositionWithTangents(vertexIndex, tangentData.Position.xyz, tangentData.TangentX, tangentData.TangentZ, particleSize);
+
+#elif PARTICLE_QUAD_MODE == PARTICLE_QUAD_MODE_AXIS_ALIGNED
+
+  ezTangentQuadParticleShaderData tangentData = particleTangentQuadData[dataIndex];
+  ret.Position = CalcQuadOutputPositionWithAlignedAxis(vertexIndex, tangentData.Position.xyz, tangentData.TangentX, tangentData.TangentZ, particleSize);
 
 #endif
 

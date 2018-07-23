@@ -26,6 +26,7 @@ public:
 
   ezTexture2DResourceHandle m_hDistortionTexture;
   float m_fDistortionStrength = 0;
+  ezTempHashedString m_QuadModePermutation;
 };
 
 /// \brief Implements rendering of particle systems

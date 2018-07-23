@@ -11,11 +11,10 @@ o
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"Particles/Textures/Muzzle.tga"}
-			s{"Particles/Textures/Muzzle_A.tga"}
+			s{"Particles/Textures/Muzzle.jpg"}
 		}
 		Uuid %DocumentID{u4{12302320679452498765,16330574479106832141}}
-		u4 %Hash{16365082256404053379}
+		u4 %Hash{11182829735191459431}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -39,8 +38,8 @@ o
 		b %Compression{1}
 		b %FlipHorizontal{0}
 		s %Format{"ezRenderTargetFormat::RGBA8sRgb"}
-		s %Input1{"Particles/Textures/Muzzle.tga"}
-		s %Input2{"Particles/Textures/Muzzle_A.tga"}
+		s %Input1{"Particles/Textures/Muzzle.jpg"}
+		s %Input2{"Particles/Textures/Muzzle.jpg"}
 		s %Input3{""}
 		s %Input4{""}
 		b %IsRenderTarget{0}

@@ -17,6 +17,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezQuadParticleOrientation, 1)
   EZ_ENUM_CONSTANTS(ezQuadParticleOrientation::Billboard)
   EZ_ENUM_CONSTANTS(ezQuadParticleOrientation::FragmentOrthogonalEmitterDirection, ezQuadParticleOrientation::FragmentEmitterDirection)
   EZ_ENUM_CONSTANTS(ezQuadParticleOrientation::SpriteEmitterDirection, ezQuadParticleOrientation::SpriteRandom, ezQuadParticleOrientation::SpriteWorldUp)
+  EZ_ENUM_CONSTANTS(ezQuadParticleOrientation::AxisAligned_Emitter)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeQuadFactory, 1, ezRTTIDefaultAllocator<ezParticleTypeQuadFactory>)
@@ -326,6 +327,13 @@ void ezParticleTypeQuad::CreateExtractedData(const ezView& view, ezExtractedRend
     m_TangentParticleData[dstIdx].TangentZ = vTangentX.Cross(vNormal);
   };
 
+  auto SetTangentDataAligned_Emitter = [&](ezUInt32 dstIdx, ezUInt32 srcIdx) {
+
+    m_TangentParticleData[dstIdx].Position = pPosition[srcIdx].GetAsVec3();
+    m_TangentParticleData[dstIdx].TangentX = vEmitterDir;
+    // m_TangentParticleData[dstIdx].TangentZ = vEmitterDir;
+  };
+
   for (ezUInt32 p = 0; p < numParticles; ++p)
   {
     SetBaseData(p, redirect(p, pSorted));
@@ -363,6 +371,13 @@ void ezParticleTypeQuad::CreateExtractedData(const ezView& view, ezExtractedRend
         SetTangentDataFromAxis(p, redirect(p, pSorted));
       }
     }
+    else if (m_Orientation == ezQuadParticleOrientation::AxisAligned_Emitter)
+    {
+      for (ezUInt32 p = 0; p < numParticles; ++p)
+      {
+        SetTangentDataAligned_Emitter(p, redirect(p, pSorted));
+      }
+    }
     else
     {
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -389,6 +404,23 @@ void ezParticleTypeQuad::AddParticleRenderData(ezExtractedRenderData& extractedR
   pRenderData->m_uiNumFlipbookAnimationsY = 1;
   pRenderData->m_hDistortionTexture = m_hDistortionTexture;
   pRenderData->m_fDistortionStrength = m_fDistortionStrength;
+
+  switch (m_Orientation)
+  {
+    case ezQuadParticleOrientation::Billboard:
+      pRenderData->m_QuadModePermutation = "PARTICLE_QUAD_MODE_BILLBOARD";
+      break;
+    case ezQuadParticleOrientation::FragmentOrthogonalEmitterDirection:
+    case ezQuadParticleOrientation::FragmentEmitterDirection:
+    case ezQuadParticleOrientation::SpriteEmitterDirection:
+    case ezQuadParticleOrientation::SpriteWorldUp:
+    case ezQuadParticleOrientation::SpriteRandom:
+      pRenderData->m_QuadModePermutation = "PARTICLE_QUAD_MODE_TANGENTS";
+      break;
+    case ezQuadParticleOrientation::AxisAligned_Emitter:
+      pRenderData->m_QuadModePermutation = "PARTICLE_QUAD_MODE_AXIS_ALIGNED";
+      break;
+  }
 
   switch (m_TextureAtlasType)
   {
