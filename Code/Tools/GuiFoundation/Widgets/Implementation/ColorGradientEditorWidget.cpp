@@ -13,6 +13,7 @@ ezQtColorGradientEditorWidget::ezQtColorGradientEditorWidget(QWidget* pParent)
 
   GradientWidget->setShowColorCPs(true);
   GradientWidget->setShowAlphaCPs(true);
+  GradientWidget->setShowIntensityCPs(true);
   GradientWidget->setShowCoords(true, true);
 
   on_GradientWidget_selectionChanged(-1, -1, -1);

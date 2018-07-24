@@ -82,6 +82,7 @@ private:
   void PaintControlPoint(QPainter& p, const QRect& area, double posX, const ezColorGammaUB& outlineColor, const ezColorGammaUB& fillColor, bool selected) const;
   void PaintColorCPs(QPainter& p) const;
   void PaintAlphaCPs(QPainter& p) const;
+  void PaintIntensityCPs(QPainter& p) const;
   void PaintScrubber(QPainter& p) const;
 
   QRect GetColorCpArea() const;

@@ -25,6 +25,13 @@ public:
   /// \brief Returns all the data that is stored in this resource.
   const ezColorGradientResourceDescriptor& GetDescriptor() const { return m_Descriptor; }
 
+  ezColor ezColorGradientResource::Evaluate(double x)
+  {
+    ezColor result;
+    m_Descriptor.m_Gradient.Evaluate(x, result);
+    return result;
+  }
+
 private:
   virtual ezResourceLoadDesc CreateResource(const ezColorGradientResourceDescriptor& descriptor) override;
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;

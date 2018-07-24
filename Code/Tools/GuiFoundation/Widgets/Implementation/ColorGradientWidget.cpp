@@ -174,6 +174,7 @@ void ezQtColorGradientWidget::paintEvent(QPaintEvent* event)
 
   PaintColorCPs(p);
   PaintAlphaCPs(p);
+  PaintIntensityCPs(p);
 
   PaintScrubber(p);
 }
@@ -456,6 +457,38 @@ void ezQtColorGradientWidget::PaintAlphaCPs(QPainter& p) const
   }
 }
 
+void ezQtColorGradientWidget::PaintIntensityCPs(QPainter& p) const
+{
+  if (!m_bShowIntensityCPs)
+    return;
+
+  const QRect area = GetIntensityCpArea();
+
+  ezUInt32 numRgb;
+  ezUInt32 numAlpha;
+  ezUInt32 numIntensity;
+  m_pColorGradientData->GetNumControlPoints(numRgb, numAlpha, numIntensity);
+
+  float fMaxIntensity = 0.0f;
+  for (ezUInt32 i = 0; i < numIntensity; ++i)
+  {
+    const auto& cp = m_pColorGradientData->GetIntensityControlPoint(i);
+    fMaxIntensity = ezMath::Max(cp.m_Intensity, fMaxIntensity);
+  }
+
+  const float fInvMaxIntensity = 1.0f / fMaxIntensity;
+
+  for (ezUInt32 i = 0; i < numIntensity; ++i)
+  {
+    const auto& cp = m_pColorGradientData->GetIntensityControlPoint(i);
+
+    const bool selected = i == m_iSelectedAlphaCP;
+
+    float fIntensity = cp.m_Intensity * fInvMaxIntensity;
+    PaintControlPoint(p, area, cp.m_PosX, selected ? ezColor::White : ezColor::Black, ezColor(fIntensity, fIntensity, fIntensity), selected);
+  }
+}
+
 void ezQtColorGradientWidget::PaintScrubber(QPainter& p) const
 {
   if (!m_bShowScrubber)
@@ -718,7 +751,7 @@ void ezQtColorGradientWidget::ClampDisplayExtents(double zoomCenter)
   const double center = ezMath::Lerp(m_fDisplayExtentMinX, m_fDisplayExtentMaxX, zoomCenter);
 
   m_fDisplayExtentMinX = center - clampedRange * zoomCenter;
-  m_fDisplayExtentMaxX = center + clampedRange * (1.0 - zoomCenter); 
+  m_fDisplayExtentMaxX = center + clampedRange * (1.0 - zoomCenter);
 }
 
 void ezQtColorGradientWidget::keyPressEvent(QKeyEvent* event)
@@ -798,7 +831,7 @@ QRect ezQtColorGradientWidget::GetGradientArea() const
   if (m_bShowCoordsTop)
     r.setTop(r.top() + CpAreaHeight);
 
- 
+
   if (m_bShowColorCPs)
     r.setBottom(r.bottom() - CpAreaHeight);
 

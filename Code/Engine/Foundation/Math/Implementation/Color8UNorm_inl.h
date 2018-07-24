@@ -62,5 +62,5 @@ inline ezColor ezColorGammaUB::ToLinearFloat() const
 
   const ezVec3 linear = ezColor::GammaToLinear(gamma);
 
-  return ezColor(linear.x, linear.y, linear.z, a * (1.0f / 255.0f));
+  return ezColor(linear.x, linear.y, linear.z, ezMath::ColorByteToFloat(a));
 }
