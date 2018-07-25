@@ -87,11 +87,11 @@ void ezParticleInitializer_RandomRotationSpeed::InitializeElements(ezUInt64 uiSt
 {
   EZ_PROFILE("PFX: Random Rotation");
 
+  ezFloat16* pSpeed = m_pStreamRotationSpeed->GetWritableData<ezFloat16>();
+
   // speed
   if (m_RotationSpeed.m_Value != ezAngle::Radian(0))
   {
-    ezFloat16* pSpeed = m_pStreamRotationSpeed->GetWritableData<ezFloat16>();
-
     ezRandom& rng = GetRNG();
 
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
@@ -101,6 +101,14 @@ void ezParticleInitializer_RandomRotationSpeed::InitializeElements(ezUInt64 uiSt
       // this can certainly be done more elegantly
       if (ezMath::IsEven(rng.UInt()))
         pSpeed[i] = -pSpeed[i];
+    }
+  }
+  else
+  {
+
+    for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
+    {
+      pSpeed[i] = 0;
     }
   }
 

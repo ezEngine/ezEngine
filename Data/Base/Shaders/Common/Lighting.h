@@ -354,9 +354,9 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
       #if 0
         lightColor = lerp(1.0f, debugColor, 0.5f);
       #endif
-      
+
       lightColor *= (intensity * attenuation * (1.0f / PI));
-      
+
       AccumulateLight(totalLight, DefaultShading(matData, lightVector, viewVector, float2(1.0f, 1.0f)), lightColor);
     }
   }
@@ -380,7 +380,7 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
 {
   uint firstItemIndex = clusterData.offset;
   uint lastItemIndex = firstItemIndex + GET_DECAL_INDEX(clusterData.counts);
-  
+
   uint applyOnlyToId = (gameObjectId & (1 << 31)) ? gameObjectId : 0;
 
   [loop]
@@ -398,7 +398,7 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
 
     if (any(abs(decalPosition) >= 1.0f))
       continue;
-    
+
     uint decalModeAndFlags = decalData.decalModeAndFlags;
     float2 angleFadeParams = RG16FToFloat2(decalData.angleFadeParams);
 
@@ -443,16 +443,16 @@ float4 CalculateRefraction(float3 worldPosition, float3 worldNormal, float IoR, 
   float NdotV = dot(worldNormal, normalizedViewVector);
   float k = 1.0f - r * r * (1.0f - NdotV * NdotV);
   float3 refractVector = r * -normalizedViewVector + (r * NdotV - sqrt(k)) * worldNormal;
-  
+
   float4 projectedRefractVector = mul(GetWorldToScreenMatrix(), float4(worldPosition + refractVector * thickness, 1.0f));
   projectedRefractVector.xy /= projectedRefractVector.w;
-    
+
   float2 refractCoords = projectedRefractVector.xy * float2(0.5f, -0.5f) + 0.5f;
   float3 refractionColor = SceneColor.SampleLevel(SceneColorSampler, refractCoords, 0.0f).rgb;
-  
+
   float fresnel = pow(1.0f - NdotV, 5.0f);
   refractionColor *= tintColor * (1.0f - fresnel);
-  
+
   return float4(refractionColor, newOpacity);
 }
 

@@ -342,6 +342,9 @@ void ezDecalComponent::OnSimulationStarted()
 
   if (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0)
   {
+    // when a decal is supposed to fade out, it has to be dynamic, otherwise it doesn't get the render updates
+    GetOwner()->MakeDynamic();
+
     const ezTime tFadeOutDelay = ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleVariance(m_FadeOutDelay.m_Value.GetSeconds(), m_FadeOutDelay.m_fVariance));
     m_StartFadeOutTime = pWorld->GetClock().GetAccumulatedTime() + tFadeOutDelay;
 
