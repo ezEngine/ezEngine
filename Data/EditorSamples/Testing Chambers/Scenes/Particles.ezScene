@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10397632043479265953,5177341319926404083}}
-		u4 %Hash{4795262532846171684}
+		u4 %Hash{6251661779911707128}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -39,6 +39,7 @@ o
 			s{"{ bdc24e7e-33a2-459a-a611-7a466dc63024 }"}
 			s{"{ c49af1cd-233c-4af2-9edc-5c12d1456e32 }"}
 			s{"{ dd849390-ce22-4f58-a898-b7d828e9356c }"}
+			s{"{ e2e23057-b051-45e3-a484-d6a9c5ab32d6 }"}
 			s{"{ f45eb3dd-ea46-41fe-b927-63c5122d0c34 }"}
 			s{"{ ffd8b44e-e8e1-4d5b-8437-e84de0974f06 }"}
 		}
@@ -1343,6 +1344,32 @@ o
 }
 o
 {
+	Uuid %id{u4{4027248445663987901,4777302104761078579}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{13737450419561807000,5123438462334162608}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x000000C0,0x000001C2,0}}
+		Quat %LocalRotation{f{0x50EF2EB7,0x641BAEB9,0x3C957FBF,0x38B4693D}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x9A99993F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{16531809700852591265,4787348202058068684}}
 	s %t{"ezPrefabReferenceComponent"}
 	u3 %v{2}
@@ -1733,6 +1760,18 @@ o
 		Time %RestartDelayRange{d{0x000000000000F03F}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13737450419561807000,5123438462334162608}}
+	s %t{"ezPrefabReferenceComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		VarDict %Parameters{}
+		s %Prefab{"{ e2e23057-b051-45e3-a484-d6a9c5ab32d6 }"}
 	}
 }
 o
@@ -2672,6 +2711,7 @@ o
 			Uuid{u4{6151591637013930992,15551419057907692363}}
 			Uuid{u4{1690353530251225996,2763923751382570699}}
 			Uuid{u4{9161100242018737439,7918158064656273173}}
+			Uuid{u4{4027248445663987901,4777302104761078579}}
 		}
 		Uuid %Settings{u4{15161553721701243557,5209781642161874369}}
 	}
@@ -3440,8 +3480,8 @@ o
 			Uuid{u4{10959235131342533709,9670724325652916193}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x000050C0,0x00000EC2,0x00005040}}
-		Quat %LocalRotation{f{0x77746D3B,0x958F343F,0xCE78353F,0x2CA76E3B}}
+		Vec3 %LocalPosition{f{0x000050C0,0x00000EC2,0x0000803F}}
+		Quat %LocalRotation{f{0x4F0EA03A,0x3333343F,0x9ED5353F,0xF481A13A}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}

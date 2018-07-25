@@ -14,7 +14,7 @@ o
 			s{"id/Imp_data/Imp.obj"}
 		}
 		Uuid %DocumentID{u4{824725391493986470,5000215402686462604}}
-		u4 %Hash{10593126788499376386}
+		u4 %Hash{366755518536479223}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -65,7 +65,7 @@ o
 		b %RecalculateNormals{0}
 		s %RightDir{"ezBasisAxis::PositiveY"}
 		s %SubmeshName{""}
-		f %UniformScaling{0x0000803F}
+		f %UniformScaling{0x0AD7A33C}
 		s %UpDir{"ezBasisAxis::PositiveZ"}
 		b %UseSubfolderForMaterialImport{0}
 	}

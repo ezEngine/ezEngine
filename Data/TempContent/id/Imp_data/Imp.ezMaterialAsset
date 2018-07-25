@@ -17,7 +17,7 @@ o
 			s{":app/VisualShader/Textures.ddl"}
 		}
 		Uuid %DocumentID{u4{16220061417941925280,4641796823593829036}}
-		u4 %Hash{5598991748609508326}
+		u4 %Hash{15203108815713641242}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -25,6 +25,7 @@ o
 		}
 		VarArray %References
 		{
+			s{"{ 059b15b6-e6df-4ffe-aebc-70ef9399c2f0 }"}
 			s{"{ 0a28debd-1399-4227-a934-e40ebc4b1844 }"}
 			s{"{ 43e95e61-f5a9-43a5-b322-610a7da2fe0f }"}
 			s{"{ 8f4667ee-2dfb-49e4-a713-5a0e63b94aed }"}
@@ -89,7 +90,7 @@ o
 		s %Shader{"{ 25d8c2ac-f99e-406a-a07d-720bec3b19e1 }"}
 		s %ShaderMode{"ezMaterialShaderMode::Custom"}
 		Uuid %ShaderProperties{u4{10886342464003612130,4273404563149859649}}
-		s %Surface{""}
+		s %Surface{"{ 059b15b6-e6df-4ffe-aebc-70ef9399c2f0 }"}
 	}
 }
 o
@@ -234,6 +235,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %ApplyFog{1}
 		Vec3 %BaseColor{f{0x0000803F,0,0}}
 		Vec3 %Emissive{f{0,0,0}}
 		f %MaskThreshold{0}
@@ -363,6 +365,16 @@ o
 }
 o
 {
+	Uuid %id{u4{2285764016442911866,442634453292996405}}
+	s %t{"ezDefaultValueAttribute"}
+	u3 %v{1}
+	p
+	{
+		Vec4 %Value{f{0,0,0,0x0000803F}}
+	}
+}
+o
+{
 	Uuid %id{u4{8723343707815427314,456177363574852592}}
 	s %t{"ezDefaultValueAttribute"}
 	u3 %v{1}
@@ -421,6 +433,7 @@ o
 			Uuid{u4{9765865109747241453,15920834316372830540}}
 			Uuid{u4{6281640925685787227,5978986187035205731}}
 			Uuid{u4{9647992397268701992,5828667758011737256}}
+			Uuid{u4{9477753298669859401,7621033676883353519}}
 		}
 		s %TypeName{"ShaderNode::MaterialOutput"}
 		u3 %TypeSize{0}
@@ -603,7 +616,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Value{0}
+		Vec3 %Value{f{0x0000803F,0x0000803F,0x0000803F}}
 	}
 }
 o
@@ -740,7 +753,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Roughness"}
+		s %Name{"Reflectance"}
 		s %Type{"float"}
 	}
 }
@@ -782,8 +795,8 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"RefractionColor"}
-		s %Type{"ezVec4"}
+		s %Name{"Occlusion"}
+		s %Type{"float"}
 	}
 }
 o
@@ -819,8 +832,8 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Occlusion"}
-		s %Type{"float"}
+		s %Name{"Emissive"}
+		s %Type{"ezVec3"}
 	}
 }
 o
@@ -830,7 +843,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Value{0x0000803F}
+		f %Value{0x0000003F}
 	}
 }
 o
@@ -903,6 +916,23 @@ o
 }
 o
 {
+	Uuid %id{u4{9477753298669859401,7621033676883353519}}
+	s %t{"ezReflectedPropertyDescriptor"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{2285764016442911866,442634453292996405}}
+		}
+		s %Category{"ezPropertyCategory::Member"}
+		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
+		s %Name{"RefractionColor"}
+		s %Type{"ezVec4"}
+	}
+}
+o
+{
 	Uuid %id{u4{293647509682933482,8071676064274089451}}
 	s %t{"ezCategoryAttribute"}
 	u3 %v{1}
@@ -943,7 +973,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Value{0x0000003F}
+		f %Value{0}
 	}
 }
 o
@@ -953,7 +983,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec3 %Value{f{0x0000803F,0x0000803F,0x0000803F}}
+		b %Value{1}
 	}
 }
 o
@@ -991,7 +1021,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec3 %Value{f{0,0,0}}
+		f %Value{0x0000803F}
 	}
 }
 o
@@ -1150,8 +1180,8 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Metallic"}
-		s %Type{"float"}
+		s %Name{"BaseColor"}
+		s %Type{"ezVec3"}
 	}
 }
 o
@@ -1356,7 +1386,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Opacity"}
+		s %Name{"Roughness"}
 		s %Type{"float"}
 	}
 }
@@ -1538,7 +1568,7 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Reflectance"}
+		s %Name{"Metallic"}
 		s %Type{"float"}
 	}
 }
@@ -1555,8 +1585,8 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"BaseColor"}
-		s %Type{"ezVec3"}
+		s %Name{"ApplyFog"}
+		s %Type{"bool"}
 	}
 }
 o
@@ -1591,8 +1621,8 @@ o
 		}
 		s %Category{"ezPropertyCategory::Member"}
 		s %Flags{"ezPropertyFlags::StandardType|ezPropertyFlags::Phantom"}
-		s %Name{"Emissive"}
-		s %Type{"ezVec3"}
+		s %Name{"Opacity"}
+		s %Type{"float"}
 	}
 }
 o
@@ -1676,7 +1706,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Vec4 %Value{f{0,0,0,0x0000803F}}
+		f %Value{0x0000803F}
 	}
 }
 o
@@ -1686,7 +1716,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Value{0x0000803F}
+		Vec3 %Value{f{0,0,0}}
 	}
 }
 o
@@ -1759,7 +1789,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMaterialAssetProperties"}
-		u3 %TypeSize{320}
+		u3 %TypeSize{328}
 		u3 %TypeVersion{4}
 	}
 }
