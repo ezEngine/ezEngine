@@ -482,7 +482,7 @@ void ezQtColorGradientWidget::PaintIntensityCPs(QPainter& p) const
   {
     const auto& cp = m_pColorGradientData->GetIntensityControlPoint(i);
 
-    const bool selected = i == m_iSelectedAlphaCP;
+    const bool selected = i == m_iSelectedIntensityCP;
 
     float fIntensity = cp.m_Intensity * fInvMaxIntensity;
     PaintControlPoint(p, area, cp.m_PosX, selected ? ezColor::White : ezColor::Black, ezColor(fIntensity, fIntensity, fIntensity), selected);
