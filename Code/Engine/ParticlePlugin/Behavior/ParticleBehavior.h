@@ -22,6 +22,8 @@ public:
 
   virtual void Save(ezStreamWriter& stream) const = 0;
   virtual void Load(ezStreamReader& stream) = 0;
+
+  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_FinalizerDeps) const {}
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior : public ezParticleModule

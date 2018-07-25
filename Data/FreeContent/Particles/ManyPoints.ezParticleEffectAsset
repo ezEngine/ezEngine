@@ -21,7 +21,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4202708370900592777,4889946379708453151}}
-		u4 %Hash{7284672886945061500}
+		u4 %Hash{3268310954725650725}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{477681533980161619,3083210371881641874}}
@@ -68,7 +68,6 @@ o
 		VarArray %Behaviors
 		{
 			Uuid{u4{1239265145644006062,5696661429175904653}}
-			Uuid{u4{17594267146006110093,5386818543973447521}}
 			Uuid{u4{16264184164362923435,5328202819556405381}}
 		}
 		VarArray %Emitters
@@ -122,18 +121,9 @@ o
 	u3 %v{1}
 	p
 	{
+		s %ColorGradientMode{"ezParticleColorGradientMode::Age"}
 		s %Gradient{"{ 5baa63c4-3b61-4125-bb86-dd4ab439c483 }"}
-	}
-}
-o
-{
-	Uuid %id{u4{17594267146006110093,5386818543973447521}}
-	s %t{"ezParticleBehaviorFactory_Velocity"}
-	u3 %v{1}
-	p
-	{
-		f %Friction{0}
-		f %RiseSpeed{0}
+		f %GradientMaxSpeed{0x0000803F}
 	}
 }
 o
@@ -153,6 +143,7 @@ o
 	u3 %v{1}
 	p
 	{
+		Vec3 %PositionOffset{f{0,0,0}}
 		Vec3 %Size{f{0x0000803F,0x0000803F,0}}
 	}
 }
@@ -164,7 +155,9 @@ o
 	p
 	{
 		b %AlwaysShared{0}
+		f %ApplyOwnerVelocity{0}
 		VarDict %ColorParameters{}
+		VarArray %EventReactions{}
 		VarDict %FloatParameters{}
 		VarArray %ParticleSystems
 		{
@@ -242,7 +235,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleBehaviorFactory_ColorGradient"}
-		u3 %TypeSize{16}
+		u3 %TypeSize{24}
 		u3 %TypeVersion{1}
 	}
 }
@@ -338,6 +331,24 @@ o
 }
 o
 {
+	Uuid %id{u4{14629506848506290391,9215743187228223963}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleColorGradientMode"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{8451557108294811839,9362818356096707204}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -350,7 +361,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_BoxPosition"}
-		u3 %TypeSize{24}
+		u3 %TypeSize{32}
 		u3 %TypeVersion{1}
 	}
 }
@@ -368,7 +379,25 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleSystemDescriptor"}
-		u3 %TypeSize{496}
+		u3 %TypeSize{448}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7645929985005038759,12736932236042017252}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleEventReactionFactory"}
+		u3 %TypeSize{80}
 		u3 %TypeVersion{1}
 	}
 }
@@ -387,24 +416,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEmitterFactory"}
 		u3 %TypeSize{8}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{8142462884773427986,14180952824391079247}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezParticleBehaviorFactory"}
-		s %PluginName{"ezEditorPluginParticle"}
-		VarArray %Properties{}
-		s %TypeName{"ezParticleBehaviorFactory_Velocity"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }
@@ -440,7 +451,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEffectDescriptor"}
-		u3 %TypeSize{288}
+		u3 %TypeSize{360}
 		u3 %TypeVersion{1}
 	}
 }

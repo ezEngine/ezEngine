@@ -18,7 +18,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleFinalizer_Volume, 1, ezRTTIDefaultAllo
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleFinalizerFactory_Volume::ezParticleFinalizerFactory_Volume() {}
+ezParticleFinalizerFactory_Volume::ezParticleFinalizerFactory_Volume() = default;
+ezParticleFinalizerFactory_Volume::~ezParticleFinalizerFactory_Volume() = default;
 
 const ezRTTI* ezParticleFinalizerFactory_Volume::GetFinalizerType() const
 {
@@ -30,35 +31,8 @@ void ezParticleFinalizerFactory_Volume::CopyFinalizerProperties(ezParticleFinali
   ezParticleFinalizer_Volume* pFinalizer = static_cast<ezParticleFinalizer_Volume*>(pObject);
 }
 
-
-enum class FinalizerVolumeVersion
-{
-  Version_0 = 0,
-
-
-  // insert new version numbers above
-  Version_Count,
-  Version_Current = Version_Count - 1
-};
-
-void ezParticleFinalizerFactory_Volume::Save(ezStreamWriter& stream) const
-{
-  const ezUInt8 uiVersion = (int)FinalizerVolumeVersion::Version_Current;
-  stream << uiVersion;
-}
-
-void ezParticleFinalizerFactory_Volume::Load(ezStreamReader& stream)
-{
-  ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
-
-  EZ_ASSERT_DEV(uiVersion <= (int)FinalizerVolumeVersion::Version_Current, "Invalid version {0}", uiVersion);
-}
-
-
-ezParticleFinalizer_Volume::ezParticleFinalizer_Volume() {}
-
-ezParticleFinalizer_Volume::~ezParticleFinalizer_Volume() {}
+ezParticleFinalizer_Volume::ezParticleFinalizer_Volume() = default;
+ezParticleFinalizer_Volume::~ezParticleFinalizer_Volume() = default;
 
 void ezParticleFinalizer_Volume::CreateRequiredStreams()
 {

@@ -19,9 +19,6 @@ public:
   virtual void CopyFinalizerProperties(ezParticleFinalizer* pObject) const = 0;
 
   ezParticleFinalizer* CreateFinalizer(ezParticleSystemInstance* pOwner) const;
-
-  virtual void Save(ezStreamWriter& stream) const = 0;
-  virtual void Load(ezStreamReader& stream) = 0;
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizer : public ezParticleModule

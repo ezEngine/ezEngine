@@ -120,6 +120,30 @@ void ezParticleSystemDescriptor::SetupDefaultProcessors()
         ezParticleTypePointFactory::GetStaticRTTI()->GetAllocator()->Allocate<ezParticleTypePointFactory>();
     m_TypeFactories.PushBack(pFactory);
   }
+
+  ezSet<const ezRTTI*> finalizers;
+  for (const auto* pFactory : m_InitializerFactories)
+  {
+    pFactory->QueryFinalizerDependencies(finalizers);
+  }
+
+  for (const auto* pFactory : m_BehaviorFactories)
+  {
+    pFactory->QueryFinalizerDependencies(finalizers);
+  }
+
+  for (const auto* pFactory : m_TypeFactories)
+  {
+    pFactory->QueryFinalizerDependencies(finalizers);
+  }
+
+  for (const ezRTTI* pRtti : finalizers)
+  {
+    EZ_ASSERT_DEBUG(pRtti->IsDerivedFrom<ezParticleFinalizerFactory>(), "Invalid finalizer factory added as a dependency: '{0}'", pRtti->GetTypeName());
+    EZ_ASSERT_DEBUG(pRtti->GetAllocator()->CanAllocate(), "Finalizer factory cannot be allocated: '{0}'", pRtti->GetTypeName());
+
+    m_FinalizerFactories.PushBack(pRtti->GetAllocator()->Allocate<ezParticleFinalizerFactory>());
+  }
 }
 
 enum class ParticleSystemVersion

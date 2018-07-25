@@ -15,9 +15,6 @@ public:
   virtual const ezRTTI* GetFinalizerType() const override;
   virtual void CopyFinalizerProperties(ezParticleFinalizer* pObject) const override;
 
-  virtual void Save(ezStreamWriter& stream) const override;
-  virtual void Load(ezStreamReader& stream) override;
-
   ezVarianceTypeTime m_LifeTime;
   ezString m_sOnDeathEvent;
   ezString m_sLifeScaleParameter;
@@ -44,7 +41,7 @@ protected:
   virtual void Process(ezUInt64 uiNumElements) override;
   void OnParticleDeath(const ezStreamGroupElementRemovedEvent& e);
 
-  bool m_bHasOnDeathEventHandler;
+  bool m_bHasOnDeathEventHandler = false;
   ezProcessingStream* m_pStreamLifeTime = nullptr;
   ezProcessingStream* m_pStreamPosition = nullptr;
   ezProcessingStream* m_pStreamVelocity = nullptr;

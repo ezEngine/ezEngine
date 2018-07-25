@@ -1,13 +1,16 @@
 #include <PCH.h>
-#include <ParticlePlugin/Behavior/ParticleBehavior_Gravity.h>
-#include <Core/World/WorldModule.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
-#include <ParticlePlugin/System/ParticleSystemInstance.h>
+
 #include <Core/World/World.h>
-#include <Foundation/Time/Clock.h>
+#include <Core/World/WorldModule.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Time/Clock.h>
+#include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <ParticlePlugin/Behavior/ParticleBehavior_Gravity.h>
+#include <ParticlePlugin/Finalizer/ParticleFinalizer_ApplyVelocity.h>
+#include <ParticlePlugin/System/ParticleSystemInstance.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Gravity, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Gravity>)
 {
   EZ_BEGIN_PROPERTIES
@@ -20,6 +23,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehavior_Gravity, 1, ezRTTIDefaultAllocator<ezParticleBehavior_Gravity>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezParticleBehaviorFactory_Gravity::ezParticleBehaviorFactory_Gravity()
 {
@@ -54,6 +58,14 @@ void ezParticleBehaviorFactory_Gravity::Load(ezStreamReader& stream)
   stream >> m_fGravityFactor;
 }
 
+void ezParticleBehaviorFactory_Gravity::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_FinalizerDeps) const
+{
+  inout_FinalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+
 void ezParticleBehavior_Gravity::AfterPropertiesConfigured(bool bFirstTime)
 {
   m_pPhysicsModule = GetOwnerSystem()->GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
@@ -86,4 +98,3 @@ void ezParticleBehavior_Gravity::Process(ezUInt64 uiNumElements)
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_Gravity);
-

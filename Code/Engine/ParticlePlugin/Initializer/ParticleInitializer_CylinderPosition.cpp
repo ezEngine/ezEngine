@@ -3,6 +3,7 @@
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <ParticlePlugin/Finalizer/ParticleFinalizer_ApplyVelocity.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer_CylinderPosition.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
@@ -90,6 +91,16 @@ void ezParticleInitializerFactory_CylinderPosition::Load(ezStreamReader& stream)
     stream >> m_vPositionOffset;
   }
 }
+
+void ezParticleInitializerFactory_CylinderPosition::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_FinalizerDeps) const
+{
+  if (m_bSetVelocity)
+  {
+    inout_FinalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 void ezParticleInitializer_CylinderPosition::CreateRequiredStreams()
 {

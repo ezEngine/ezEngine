@@ -2,14 +2,16 @@
 
 #include <Core/World/World.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
+#include <Foundation/Math/Float16.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/Clock.h>
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_Raycast.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Events/ParticleEvent.h>
+#include <ParticlePlugin/Finalizer/ParticleFinalizer_ApplyVelocity.h>
+#include <ParticlePlugin/Finalizer/ParticleFinalizer_LastPosition.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
-#include <Foundation/Math/Float16.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Raycast, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Raycast>)
@@ -101,6 +103,14 @@ void ezParticleBehaviorFactory_Raycast::Load(ezStreamReader& stream)
   }
 }
 
+void ezParticleBehaviorFactory_Raycast::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_FinalizerDeps) const
+{
+  inout_FinalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
+  inout_FinalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_LastPosition>());
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 void ezParticleBehavior_Raycast::AfterPropertiesConfigured(bool bFirstTime)
 {
   m_pPhysicsModule = GetOwnerSystem()->GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
@@ -121,7 +131,7 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
   const float tDiff = (float)m_TimeDiff.GetSeconds();
 
   ezProcessingStreamIterator<ezVec4> itPosition(m_pStreamPosition, uiNumElements, 0);
-  ezProcessingStreamIterator<ezVec3> itLastPosition(m_pStreamLastPosition, uiNumElements, 0);
+  ezProcessingStreamIterator<const ezVec3> itLastPosition(m_pStreamLastPosition, uiNumElements, 0);
   ezProcessingStreamIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements, 0);
 
   ezPhysicsHitResult hitResult;
@@ -175,8 +185,6 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
       }
     }
 
-    itLastPosition.Current() = itPosition.Current().GetAsVec3();
-
     itPosition.Advance();
     itLastPosition.Advance();
     itVelocity.Advance();
@@ -184,7 +192,5 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
     ++i;
   }
 }
-
-
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_Raycast);

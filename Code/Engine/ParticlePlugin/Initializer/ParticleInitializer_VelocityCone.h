@@ -1,7 +1,7 @@
-﻿#pragma once
+#pragma once
 
-#include <ParticlePlugin/Initializer/ParticleInitializer.h>
 #include <Foundation/Types/VarianceTypes.h>
+#include <ParticlePlugin/Initializer/ParticleInitializer.h>
 
 class ezParticleInitializerFactory_VelocityCone : public ezParticleInitializerFactory
 {
@@ -16,6 +16,8 @@ public:
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;
 
+  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_FinalizerDeps) const override;
+
 public:
   ezAngle m_Angle;
   ezVarianceTypeFloat m_Speed;
@@ -27,7 +29,6 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_VelocityCone : public ezPartic
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializer_VelocityCone, ezParticleInitializer);
 
 public:
-
   ezAngle m_Angle;
   ezVarianceTypeFloat m_Speed;
 

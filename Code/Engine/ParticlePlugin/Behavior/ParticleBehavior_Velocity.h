@@ -19,6 +19,8 @@ public:
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;
 
+  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_FinalizerDeps) const override;
+
   float m_fRiseSpeed = 0;
   float m_fFriction = 0;
   float m_fWindInfluence = 0;
@@ -47,4 +49,3 @@ protected:
   ezProcessingStream* m_pStreamPosition;
   ezProcessingStream* m_pStreamVelocity;
 };
-

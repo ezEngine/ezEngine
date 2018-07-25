@@ -24,7 +24,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3750422148337051577,4755495847018279901}}
-		u4 %Hash{8624871929342043261}
+		u4 %Hash{17454069866139756951}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{25395311416620419,2948759839191468624}}
@@ -130,7 +130,6 @@ o
 		VarArray %Behaviors
 		{
 			Uuid{u4{12254364652136575678,4910579236461948552}}
-			Uuid{u4{9809566890637723789,5646075678907765820}}
 			Uuid{u4{12479066378978212286,5742855340803892193}}
 		}
 		VarArray %Emitters
@@ -218,22 +217,12 @@ o
 }
 o
 {
-	Uuid %id{u4{9809566890637723789,5646075678907765820}}
-	s %t{"ezParticleBehaviorFactory_Velocity"}
-	u3 %v{1}
-	p
-	{
-		f %Friction{0}
-		f %RiseSpeed{0}
-	}
-}
-o
-{
 	Uuid %id{u4{8866526326719596968,5739385673592075302}}
 	s %t{"ezParticleEventReactionFactory_Prefab"}
 	u3 %v{1}
 	p
 	{
+		s %Alignment{"ezSurfaceInteractionAlignment::SurfaceNormal"}
 		s %EventType{"GibDecal"}
 		s %Prefab{"{ a1c9c953-f4d3-4688-8e36-7b98d53d6606 }"}
 		u1 %Probability{100}
@@ -402,7 +391,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEventReactionFactory_Prefab"}
-		u3 %TypeSize{144}
+		u3 %TypeSize{152}
 		u3 %TypeVersion{1}
 	}
 }
@@ -422,6 +411,24 @@ o
 		s %TypeName{"ezDocumentRoot"}
 		u3 %TypeSize{72}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{6857712172019910339,8941382314076304129}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezSurfaceInteractionAlignment"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -456,7 +463,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleSystemDescriptor"}
-		u3 %TypeSize{496}
+		u3 %TypeSize{448}
 		u3 %TypeVersion{1}
 	}
 }
@@ -547,24 +554,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEmitterFactory"}
 		u3 %TypeSize{8}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{8142462884773427986,14180952824391079247}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezParticleBehaviorFactory"}
-		s %PluginName{"ezEditorPluginParticle"}
-		VarArray %Properties{}
-		s %TypeName{"ezParticleBehaviorFactory_Velocity"}
-		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }

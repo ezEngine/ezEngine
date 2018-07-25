@@ -16,6 +16,8 @@ public:
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;
 
+  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_FinalizerDeps) const override;
+
 public:
   ezVec3 m_vPositionOffset;
   float m_fRadius;

@@ -201,18 +201,15 @@ void ezColorGradient::EvaluateColor(double x, ezColor& rgb) const
     const ColorCP& cpl = m_ColorCPs[uiControlPoint];
     const ColorCP& cpr = m_ColorCPs[uiControlPoint + 1];
 
+    const ezColor lhs(ezColorGammaUB(cpl.m_GammaRed, cpl.m_GammaGreen, cpl.m_GammaBlue, 255));
+    const ezColor rhs(ezColorGammaUB(cpr.m_GammaRed, cpr.m_GammaGreen, cpr.m_GammaBlue, 255));
+
     /// \todo Use a midpoint interpolation
 
     // interpolate (linear for now)
     const float lerpX = (float)(x - cpl.m_PosX) * cpl.m_fInvDistToNextCp;
 
-    ezVec3 gamma;
-    gamma.x = ezMath::Lerp(ezMath::ColorByteToFloat(cpl.m_GammaRed), ezMath::ColorByteToFloat(cpr.m_GammaRed), lerpX);
-    gamma.y = ezMath::Lerp(ezMath::ColorByteToFloat(cpl.m_GammaGreen), ezMath::ColorByteToFloat(cpr.m_GammaGreen), lerpX);
-    gamma.z = ezMath::Lerp(ezMath::ColorByteToFloat(cpl.m_GammaBlue), ezMath::ColorByteToFloat(cpr.m_GammaBlue), lerpX);
-
-    ezVec3 linear = ezColor::GammaToLinear(gamma);
-    rgb = ezColor(linear.x, linear.y, linear.z);
+    rgb = ezMath::Lerp(lhs, rhs, lerpX);
   }
   }
   else if (m_ColorCPs.GetCount() == 1)

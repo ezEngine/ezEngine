@@ -120,6 +120,7 @@ void ezParticleTypeTrailFactory::Load(ezStreamReader& stream)
   }
 }
 
+//////////////////////////////////////////////////////////////////////////
 
 ezParticleTypeTrail::ezParticleTypeTrail()
 {

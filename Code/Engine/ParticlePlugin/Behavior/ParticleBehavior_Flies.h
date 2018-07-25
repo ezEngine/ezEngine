@@ -13,6 +13,8 @@ public:
   virtual const ezRTTI* GetBehaviorType() const override;
   virtual void CopyBehaviorProperties(ezParticleBehavior* pObject) const override;
 
+  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_FinalizerDeps) const override;
+
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;
 

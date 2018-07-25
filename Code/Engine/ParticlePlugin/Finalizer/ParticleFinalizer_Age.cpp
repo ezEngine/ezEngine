@@ -33,63 +33,7 @@ void ezParticleFinalizerFactory_Age::CopyFinalizerProperties(ezParticleFinalizer
   pFinalizer->m_sLifeScaleParameter = ezTempHashedString(m_sLifeScaleParameter.GetData());
 }
 
-enum class FinalizerAgeVersion
-{
-  Version_0 = 0,
-  Version_1,
-  Version_2,
-  Version_3,
-  Version_4,
-  Version_5, // added life scale param
-
-  // insert new version numbers above
-  Version_Count,
-  Version_Current = Version_Count - 1
-};
-
-void ezParticleFinalizerFactory_Age::Save(ezStreamWriter& stream) const
-{
-  const ezUInt8 uiVersion = (int)FinalizerAgeVersion::Version_Current;
-  stream << uiVersion;
-
-  stream << m_sOnDeathEvent;
-
-  stream << m_LifeTime.m_Value;
-  stream << m_LifeTime.m_fVariance;
-
-  // Version 5
-  stream << m_sLifeScaleParameter;
-}
-
-void ezParticleFinalizerFactory_Age::Load(ezStreamReader& stream)
-{
-  ezUInt8 uiVersion = 0;
-  stream >> uiVersion;
-
-  EZ_ASSERT_DEV(uiVersion <= (int)FinalizerAgeVersion::Version_Current, "Invalid version {0}", uiVersion);
-
-  if (uiVersion >= 2)
-  {
-    stream >> m_sOnDeathEvent;
-  }
-
-  if (uiVersion >= 3)
-  {
-    stream >> m_LifeTime.m_Value;
-    stream >> m_LifeTime.m_fVariance;
-  }
-
-  if (uiVersion >= 5)
-  {
-    stream >> m_sLifeScaleParameter;
-  }
-}
-
-
-ezParticleFinalizer_Age::ezParticleFinalizer_Age()
-{
-  m_bHasOnDeathEventHandler = false;
-}
+ezParticleFinalizer_Age::ezParticleFinalizer_Age() = default;
 
 ezParticleFinalizer_Age::~ezParticleFinalizer_Age()
 {

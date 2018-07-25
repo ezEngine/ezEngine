@@ -23,6 +23,8 @@ public:
 
   ezParticleType* CreateType(ezParticleSystemInstance* pOwner) const;
 
+  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_FinalizerDeps) const {}
+
   virtual void Save(ezStreamWriter& stream) const = 0;
   virtual void Load(ezStreamReader& stream) = 0;
 };

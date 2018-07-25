@@ -6,6 +6,7 @@
 #include <Foundation/SimdMath/SimdVec4f.h>
 #include <Foundation/Time/Clock.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_Flies.h>
+#include <ParticlePlugin/Finalizer/ParticleFinalizer_ApplyVelocity.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
@@ -42,6 +43,11 @@ void ezParticleBehaviorFactory_Flies::CopyBehaviorProperties(ezParticleBehavior*
   pBehavior->m_fPathLength = m_fPathLength;
   pBehavior->m_fMaxEmitterDistance = m_fMaxEmitterDistance;
   pBehavior->m_MaxSteeringAngle = m_MaxSteeringAngle;
+}
+
+void ezParticleBehaviorFactory_Flies::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_FinalizerDeps) const
+{
+  inout_FinalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
 }
 
 enum class BehaviorFliesVersion

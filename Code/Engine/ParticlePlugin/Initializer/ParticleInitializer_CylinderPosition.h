@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ParticlePlugin/Initializer/ParticleInitializer.h>
 #include <Foundation/Types/VarianceTypes.h>
+#include <ParticlePlugin/Initializer/ParticleInitializer.h>
 
 class ezParticleInitializerFactory_CylinderPosition : public ezParticleInitializerFactory
 {
@@ -15,6 +15,8 @@ public:
 
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;
+
+  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_FinalizerDeps) const override;
 
 public:
   ezVec3 m_vPositionOffset;
@@ -31,7 +33,6 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_CylinderPosition : public ezPa
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializer_CylinderPosition, ezParticleInitializer);
 
 public:
-
   ezVec3 m_vPositionOffset;
   float m_fRadius;
   float m_fHeight;

@@ -21,9 +21,10 @@ public:
 
   ezParticleInitializer* CreateInitializer(ezParticleSystemInstance* pOwner) const;
 
-
   virtual void Save(ezStreamWriter& stream) const = 0;
   virtual void Load(ezStreamReader& stream) = 0;
+
+  virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_FinalizerDeps) const {}
 };
 
 /// \brief Base class for stream spawners that are used by ezParticleEmitter's

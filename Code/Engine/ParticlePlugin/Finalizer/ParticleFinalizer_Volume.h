@@ -11,12 +11,10 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizerFactory_Volume : public ezParticl
 
 public:
   ezParticleFinalizerFactory_Volume();
+  ~ezParticleFinalizerFactory_Volume();
 
   virtual const ezRTTI* GetFinalizerType() const override;
   virtual void CopyFinalizerProperties(ezParticleFinalizer* pObject) const override;
-
-  virtual void Save(ezStreamWriter& stream) const override;
-  virtual void Load(ezStreamReader& stream) override;
 };
 
 
