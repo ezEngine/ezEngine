@@ -24,6 +24,7 @@ public:
 
   ezEnum<ezParticleColorGradientMode> m_GradientMode;
   float m_fMaxSpeed = 1.0f;
+  ezColor m_TintColor = ezColor::White;
 
 private:
   ezColorGradientResourceHandle m_hGradient;
@@ -38,6 +39,7 @@ public:
   ezColorGradientResourceHandle m_hGradient;
   ezEnum<ezParticleColorGradientMode> m_GradientMode;
   float m_fMaxSpeed = 1.0f;
+  ezColor m_TintColor;
 
   virtual void AfterPropertiesConfigured(bool bFirstTime) override;
   virtual void CreateRequiredStreams() override;

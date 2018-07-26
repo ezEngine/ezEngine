@@ -328,7 +328,7 @@ void ezParticleSystemInstance::ReinitializeStreamProcessors(const ezParticleSyst
 
 ezParticleSystemInstance::ezParticleSystemInstance()
 {
-  m_BoundingVolume = ezBoundingSphere(ezVec3::ZeroVector(), 0.0f);
+  m_BoundingVolume = ezBoundingSphere(ezVec3::ZeroVector(), 0.25f);
 }
 
 void ezParticleSystemInstance::Construct(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect)

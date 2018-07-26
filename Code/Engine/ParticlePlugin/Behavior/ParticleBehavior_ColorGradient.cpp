@@ -14,6 +14,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_ColorGradient, 1, ezRT
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Gradient", GetColorGradientFile, SetColorGradientFile)->AddAttributes(new ezAssetBrowserAttribute("ColorGradient")),
+    EZ_MEMBER_PROPERTY("TintColor", m_TintColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
     EZ_ENUM_MEMBER_PROPERTY("ColorGradientMode", ezParticleColorGradientMode, m_GradientMode),
     EZ_MEMBER_PROPERTY("GradientMaxSpeed", m_fMaxSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 100.0f)),
   }
@@ -37,11 +38,12 @@ void ezParticleBehaviorFactory_ColorGradient::CopyBehaviorProperties(ezParticleB
   pBehavior->m_hGradient = m_hGradient;
   pBehavior->m_GradientMode = m_GradientMode;
   pBehavior->m_fMaxSpeed = m_fMaxSpeed;
+  pBehavior->m_TintColor = m_TintColor;
 }
 
 void ezParticleBehaviorFactory_ColorGradient::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 3;
+  const ezUInt8 uiVersion = 4;
   stream << uiVersion;
 
   stream << m_hGradient;
@@ -49,6 +51,9 @@ void ezParticleBehaviorFactory_ColorGradient::Save(ezStreamWriter& stream) const
   // version 3
   stream << m_GradientMode;
   stream << m_fMaxSpeed;
+
+  // Version 4
+  stream << m_TintColor;
 }
 
 void ezParticleBehaviorFactory_ColorGradient::Load(ezStreamReader& stream)
@@ -62,6 +67,11 @@ void ezParticleBehaviorFactory_ColorGradient::Load(ezStreamReader& stream)
   {
     stream >> m_GradientMode;
     stream >> m_fMaxSpeed;
+  }
+
+  if (uiVersion >= 4)
+  {
+    stream >> m_TintColor;
   }
 }
 
@@ -118,7 +128,7 @@ void ezParticleBehavior_ColorGradient::InitializeElements(ezUInt64 uiStartIndex,
   // query the init color from the gradient
   if (m_InitColor == ezColor::RebeccaPurple)
   {
-    m_InitColor = ezColor::White;
+    m_InitColor = m_TintColor;
 
     ezResourceLock<ezColorGradientResource> pGradient(m_hGradient, ezResourceAcquireMode::NoFallback);
 
@@ -194,7 +204,7 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
         gradient.EvaluateAlpha(posx, alpha);
         rgba.a = ezMath::ColorByteToFloat(alpha);
 
-        itColor.Current() = rgba;
+        itColor.Current() = rgba * m_TintColor;
       }
 
       // skip the next n items
@@ -224,7 +234,7 @@ void ezParticleBehavior_ColorGradient::Process(ezUInt64 uiNumElements)
         gradient.EvaluateAlpha(posx, alpha);
         rgba.a = ezMath::ColorByteToFloat(alpha);
 
-        itColor.Current() = rgba;
+        itColor.Current() = rgba * m_TintColor;
       }
 
       // skip the next n items

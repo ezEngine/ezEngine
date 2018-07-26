@@ -41,7 +41,7 @@ void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, c
   m_bIsFinishing = false;
   m_UpdateBVolumeTime.SetZero();
   m_LastBVolumeUpdate.SetZero();
-  m_BoundingVolume = ezBoundingSphere(ezVec3::ZeroVector(), 0);
+  m_BoundingVolume = ezBoundingSphere(ezVec3::ZeroVector(), 0.25f);
   m_ElapsedTimeSinceUpdate.SetZero();
   m_EffectIsVisible.SetZero();
   m_iMinSimStepsToDo = 4;
@@ -153,6 +153,11 @@ bool ezParticleEffectInstance::IsContinuous() const
 
 void ezParticleEffectInstance::PreSimulate()
 {
+  if (m_PreSimulateDuration.GetSeconds() == 0.0)
+    return;
+
+  PassTransformToSystems();
+
   // Pre-simulate the effect, if desired, to get it into a 'good looking' state
 
   // simulate in large steps to get close
@@ -286,8 +291,15 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
       SetParameter(ezTempHashedString::ComputeHash(it.Key().GetData()), it.Value());
     }
 
-    // shared effects to not support per-instance parameters
-    if (!m_bIsSharedEffect)
+    // shared effects do not support per-instance parameters
+    if (m_bIsSharedEffect)
+    {
+      if (!floatParams.IsEmpty() || !colorParams.IsEmpty())
+      {
+        ezLog::Warning("Shared particle effects do not support effect parameters");
+      }
+    }
+    else
     {
       for (ezUInt32 p = 0; p < floatParams.GetCount(); ++p)
       {
