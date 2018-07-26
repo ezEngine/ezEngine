@@ -24,13 +24,25 @@ const ezRTTI* ezParticleFinalizerFactory_Age::GetFinalizerType() const
   return ezGetStaticRTTI<ezParticleFinalizer_Age>();
 }
 
-void ezParticleFinalizerFactory_Age::CopyFinalizerProperties(ezParticleFinalizer* pObject) const
+void ezParticleFinalizerFactory_Age::CopyFinalizerProperties(ezParticleFinalizer* pObject, bool bFirstTime) const
 {
   ezParticleFinalizer_Age* pFinalizer = static_cast<ezParticleFinalizer_Age*>(pObject);
 
   pFinalizer->m_LifeTime = m_LifeTime;
   pFinalizer->m_sOnDeathEvent = ezTempHashedString(m_sOnDeathEvent.GetData());
   pFinalizer->m_sLifeScaleParameter = ezTempHashedString(m_sLifeScaleParameter.GetData());
+
+  if (pFinalizer->m_bHasOnDeathEventHandler)
+  {
+    pFinalizer->m_bHasOnDeathEventHandler = false;
+    pFinalizer->GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleFinalizer_Age::OnParticleDeath, pFinalizer));
+  }
+
+  if (pFinalizer->m_sOnDeathEvent.GetHash() != 0)
+  {
+    pFinalizer->m_bHasOnDeathEventHandler = true;
+    pFinalizer->GetOwnerSystem()->AddParticleDeathEventHandler(ezMakeDelegate(&ezParticleFinalizer_Age::OnParticleDeath, pFinalizer));
+  }
 }
 
 ezParticleFinalizer_Age::ezParticleFinalizer_Age() = default;
@@ -54,22 +66,6 @@ void ezParticleFinalizer_Age::CreateRequiredStreams()
   {
     CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
     CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity, false);
-  }
-}
-
-
-void ezParticleFinalizer_Age::AfterPropertiesConfigured(bool bFirstTime)
-{
-  if (m_bHasOnDeathEventHandler)
-  {
-    m_bHasOnDeathEventHandler = false;
-    GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleFinalizer_Age::OnParticleDeath, this));
-  }
-
-  if (m_sOnDeathEvent.GetHash() != 0)
-  {
-    m_bHasOnDeathEventHandler = true;
-    GetOwnerSystem()->AddParticleDeathEventHandler(ezMakeDelegate(&ezParticleFinalizer_Age::OnParticleDeath, this));
   }
 }
 

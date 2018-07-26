@@ -14,7 +14,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleTypeTrailFactory : public ezParticleTypeFa
 
 public:
   virtual const ezRTTI* GetTypeType() const override;
-  virtual void CopyTypeProperties(ezParticleType* pObject) const override;
+  virtual void CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const override;
 
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;
@@ -52,7 +52,8 @@ public:
   static ezUInt32 ComputeTrailPointBucketSize(ezUInt32 uiMaxTrailPoints);
 
 protected:
-  virtual void AfterPropertiesConfigured(bool bFirstTime) override;
+  friend class ezParticleTypeTrailFactory;
+
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
   virtual void Process(ezUInt64 uiNumElements) override;
   void OnParticleDeath(const ezStreamGroupElementRemovedEvent& e);

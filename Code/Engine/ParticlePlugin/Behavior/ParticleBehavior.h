@@ -16,7 +16,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory : public ezReflectedClass
 
 public:
   virtual const ezRTTI* GetBehaviorType() const = 0;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject) const = 0;
+  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const = 0;
 
   ezParticleBehavior* CreateBehavior(ezParticleSystemInstance* pOwner) const;
 

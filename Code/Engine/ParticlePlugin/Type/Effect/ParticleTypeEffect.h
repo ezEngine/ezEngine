@@ -13,7 +13,7 @@ public:
   ezParticleTypeEffectFactory();
 
   virtual const ezRTTI* GetTypeType() const override;
-  virtual void CopyTypeProperties(ezParticleType* pObject) const override;
+  virtual void CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const override;
 
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;
@@ -36,10 +36,11 @@ public:
   //ezString m_sSharedInstanceName;
 
   virtual void CreateRequiredStreams() override;
-  virtual void AfterPropertiesConfigured(bool bFirstTime) override;
   virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override {}
 
 protected:
+  friend class ezParticleTypeEffectFactory;
+
   virtual void OnReset() override;
   virtual void Process(ezUInt64 uiNumElements) override;
   void OnParticleDeath(const ezStreamGroupElementRemovedEvent& e);

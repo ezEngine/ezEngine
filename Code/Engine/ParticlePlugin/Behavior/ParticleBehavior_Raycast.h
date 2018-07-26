@@ -30,7 +30,7 @@ public:
   ~ezParticleBehaviorFactory_Raycast();
 
   virtual const ezRTTI* GetBehaviorType() const override;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject) const override;
+  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const override;
 
   virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_FinalizerDeps) const override;
 
@@ -49,7 +49,6 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Raycast : public ezParticleBehavi
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Raycast, ezParticleBehavior);
 
 public:
-  virtual void AfterPropertiesConfigured(bool bFirstTime) override;
   virtual void CreateRequiredStreams() override;
 
   ezEnum<ezParticleRaycastHitReaction> m_Reaction;
@@ -58,6 +57,8 @@ public:
   float m_fBounceFactor = 0.6f;
 
 protected:
+  friend class ezParticleBehaviorFactory_Raycast;
+
   virtual void Process(ezUInt64 uiNumElements) override;
 
   ezPhysicsWorldModuleInterface* m_pPhysicsModule;

@@ -27,7 +27,7 @@ const ezRTTI* ezParticleBehaviorFactory_SizeCurve::GetBehaviorType() const
   return ezGetStaticRTTI<ezParticleBehavior_SizeCurve>();
 }
 
-void ezParticleBehaviorFactory_SizeCurve::CopyBehaviorProperties(ezParticleBehavior* pObject) const
+void ezParticleBehaviorFactory_SizeCurve::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
 {
   ezParticleBehavior_SizeCurve* pBehavior = static_cast<ezParticleBehavior_SizeCurve*>(pObject);
 

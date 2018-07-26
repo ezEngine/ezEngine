@@ -30,7 +30,7 @@ const ezRTTI* ezParticleBehaviorFactory_PullAlong::GetBehaviorType() const
   return ezGetStaticRTTI<ezParticleBehavior_PullAlong>();
 }
 
-void ezParticleBehaviorFactory_PullAlong::CopyBehaviorProperties(ezParticleBehavior* pObject) const
+void ezParticleBehaviorFactory_PullAlong::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
 {
   ezParticleBehavior_PullAlong* pBehavior = static_cast<ezParticleBehavior_PullAlong*>(pObject);
 

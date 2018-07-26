@@ -12,7 +12,7 @@ public:
   ezParticleBehaviorFactory_PullAlong();
 
   virtual const ezRTTI* GetBehaviorType() const override;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject) const override;
+  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const override;
 
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;

@@ -11,7 +11,7 @@ public:
   ezParticleEmitterFactory_Burst();
 
   virtual const ezRTTI* GetEmitterType() const override;
-  virtual void CopyEmitterProperties(ezParticleEmitter* pEmitter) const override;
+  virtual void CopyEmitterProperties(ezParticleEmitter* pEmitter, bool bFirstTime) const override;
 
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;

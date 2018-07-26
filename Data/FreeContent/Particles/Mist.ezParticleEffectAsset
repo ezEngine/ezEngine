@@ -33,7 +33,6 @@ o
 		{
 			Uuid{u4{8425683851578185852,527614644695521224}}
 			Uuid{u4{5876997564359382518,1052284181032799716}}
-			Uuid{u4{5658877999543230048,8904764241629355546}}
 		}
 	}
 }
@@ -48,7 +47,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2836996776398598532,5217182121428743175}}
-		u4 %Hash{10411677845962347045}
+		u4 %Hash{18406334395968409589}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{17558714013187718990,3410446113601931898}}
@@ -60,17 +59,6 @@ o
 			s{"{ ca7b26fd-7c01-42be-adec-fd843d5bcc93 }"}
 			s{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{5658877999543230048,8904764241629355546}}
-	s %t{"ezExposedParameter"}
-	u3 %v{1}
-	p
-	{
-		f %DefaultValue{0x0000803F}
-		s %Name{"SpawnMul"}
 	}
 }
 }
@@ -149,7 +137,7 @@ o
 		}
 		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{1641913817178327790,12146598787001882680}}
-		u3 %MaxParticles{2000}
+		u3 %MaxParticles{64}
 		s %Name{"Ground Cover"}
 		s %OnDeathEvent{""}
 		VarArray %Types
@@ -232,7 +220,7 @@ o
 		Time %CurveDuration{d{0x0000000000002440}}
 		u3 %SpawnCountPerSec{1}
 		u3 %SpawnCountPerSecRange{4}
-		s %SpawnCountScaleParam{"SpawnMul"}
+		s %SpawnCountScaleParam{""}
 		Time %StartDelay{d{0}}
 	}
 }
@@ -261,13 +249,12 @@ o
 		VarDict %FloatParameters
 		{
 			f %SizeY{0x0000803F}
-			f %SpawnMul{0x0000803F}
 			f %SizeX{0x0000803F}
 		}
 		VarArray %ParticleSystems
 		{
-			Uuid{u4{11361775263546821530,5733721473028337590}}
 			Uuid{u4{16827043448730845601,4760745024263820182}}
+			Uuid{u4{11361775263546821530,5733721473028337590}}
 		}
 		Time %PreSimulateDuration{d{0x0000000000002840}}
 		b %SimulateInLocalSpace{0}
@@ -285,7 +272,7 @@ o
 		Time %CurveDuration{d{0x0000000000002440}}
 		u3 %SpawnCountPerSec{2}
 		u3 %SpawnCountPerSecRange{2}
-		s %SpawnCountScaleParam{"SpawnMul"}
+		s %SpawnCountScaleParam{""}
 		Time %StartDelay{d{0}}
 	}
 }
@@ -366,7 +353,7 @@ o
 		}
 		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{16719819591780322435,1702313106307435869}}
-		u3 %MaxParticles{1000}
+		u3 %MaxParticles{64}
 		s %Name{"Fog"}
 		s %OnDeathEvent{""}
 		VarArray %Types

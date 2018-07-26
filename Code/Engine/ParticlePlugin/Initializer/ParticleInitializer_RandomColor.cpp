@@ -29,7 +29,7 @@ const ezRTTI* ezParticleInitializerFactory_RandomColor::GetInitializerType() con
   return ezGetStaticRTTI<ezParticleInitializer_RandomColor>();
 }
 
-void ezParticleInitializerFactory_RandomColor::CopyInitializerProperties(ezParticleInitializer* pInitializer0) const
+void ezParticleInitializerFactory_RandomColor::CopyInitializerProperties(ezParticleInitializer* pInitializer0, bool bFirstTime) const
 {
   ezParticleInitializer_RandomColor* pInitializer = static_cast<ezParticleInitializer_RandomColor*>(pInitializer0);
 

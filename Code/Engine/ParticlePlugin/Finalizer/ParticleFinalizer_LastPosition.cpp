@@ -21,7 +21,7 @@ const ezRTTI* ezParticleFinalizerFactory_LastPosition::GetFinalizerType() const
   return ezGetStaticRTTI<ezParticleFinalizer_LastPosition>();
 }
 
-void ezParticleFinalizerFactory_LastPosition::CopyFinalizerProperties(ezParticleFinalizer* pObject) const
+void ezParticleFinalizerFactory_LastPosition::CopyFinalizerProperties(ezParticleFinalizer* pObject, bool bFirstTime) const
 {
   ezParticleFinalizer_LastPosition* pFinalizer = static_cast<ezParticleFinalizer_LastPosition*>(pObject);
 }

@@ -35,7 +35,7 @@ const ezRTTI* ezParticleBehaviorFactory_Flies::GetBehaviorType() const
   return ezGetStaticRTTI<ezParticleBehavior_Flies>();
 }
 
-void ezParticleBehaviorFactory_Flies::CopyBehaviorProperties(ezParticleBehavior* pObject) const
+void ezParticleBehaviorFactory_Flies::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
 {
   ezParticleBehavior_Flies* pBehavior = static_cast<ezParticleBehavior_Flies*>(pObject);
 

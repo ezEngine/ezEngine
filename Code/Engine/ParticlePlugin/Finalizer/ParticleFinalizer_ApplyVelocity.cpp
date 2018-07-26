@@ -21,7 +21,7 @@ const ezRTTI* ezParticleFinalizerFactory_ApplyVelocity::GetFinalizerType() const
   return ezGetStaticRTTI<ezParticleFinalizer_ApplyVelocity>();
 }
 
-void ezParticleFinalizerFactory_ApplyVelocity::CopyFinalizerProperties(ezParticleFinalizer* pObject) const
+void ezParticleFinalizerFactory_ApplyVelocity::CopyFinalizerProperties(ezParticleFinalizer* pObject, bool bFirstTime) const
 {
   ezParticleFinalizer_ApplyVelocity* pFinalizer = static_cast<ezParticleFinalizer_ApplyVelocity*>(pObject);
 }

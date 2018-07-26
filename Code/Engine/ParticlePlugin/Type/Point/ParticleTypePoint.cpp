@@ -34,7 +34,7 @@ const ezRTTI* ezParticleTypePointFactory::GetTypeType() const
   return ezGetStaticRTTI<ezParticleTypePoint>();
 }
 
-void ezParticleTypePointFactory::CopyTypeProperties(ezParticleType* pObject) const
+void ezParticleTypePointFactory::CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const
 {
   //ezParticleTypePoint* pType = static_cast<ezParticleTypePoint*>(pObject);
 

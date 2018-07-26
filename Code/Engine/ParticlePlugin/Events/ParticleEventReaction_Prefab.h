@@ -15,7 +15,7 @@ public:
   ezParticleEventReactionFactory_Prefab();
 
   virtual const ezRTTI* GetEventReactionType() const override;
-  virtual void CopyReactionProperties(ezParticleEventReaction* pObject) const override;
+  virtual void CopyReactionProperties(ezParticleEventReaction* pObject, bool bFirstTime) const override;
 
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;

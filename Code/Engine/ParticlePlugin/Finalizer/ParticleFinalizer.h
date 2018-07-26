@@ -16,7 +16,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizerFactory : public ezReflectedClass
 
 public:
   virtual const ezRTTI* GetFinalizerType() const = 0;
-  virtual void CopyFinalizerProperties(ezParticleFinalizer* pObject) const = 0;
+  virtual void CopyFinalizerProperties(ezParticleFinalizer* pObject, bool bFirstTime) const = 0;
 
   ezParticleFinalizer* CreateFinalizer(ezParticleSystemInstance* pOwner) const;
 };

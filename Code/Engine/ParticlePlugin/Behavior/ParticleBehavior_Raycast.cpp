@@ -43,7 +43,7 @@ const ezRTTI* ezParticleBehaviorFactory_Raycast::GetBehaviorType() const
   return ezGetStaticRTTI<ezParticleBehavior_Raycast>();
 }
 
-void ezParticleBehaviorFactory_Raycast::CopyBehaviorProperties(ezParticleBehavior* pObject) const
+void ezParticleBehaviorFactory_Raycast::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
 {
   ezParticleBehavior_Raycast* pBehavior = static_cast<ezParticleBehavior_Raycast*>(pObject);
 
@@ -51,6 +51,8 @@ void ezParticleBehaviorFactory_Raycast::CopyBehaviorProperties(ezParticleBehavio
   pBehavior->m_uiCollisionLayer = m_uiCollisionLayer;
   pBehavior->m_sOnCollideEvent = ezTempHashedString(m_sOnCollideEvent.GetData());
   pBehavior->m_fBounceFactor = m_fBounceFactor;
+
+  pBehavior->m_pPhysicsModule = pBehavior->GetOwnerSystem()->GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
 }
 
 enum class BehaviorRaycastVersion
@@ -110,12 +112,6 @@ void ezParticleBehaviorFactory_Raycast::QueryFinalizerDependencies(ezSet<const e
 }
 
 //////////////////////////////////////////////////////////////////////////
-
-void ezParticleBehavior_Raycast::AfterPropertiesConfigured(bool bFirstTime)
-{
-  m_pPhysicsModule = GetOwnerSystem()->GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
-}
-
 
 void ezParticleBehavior_Raycast::CreateRequiredStreams()
 {

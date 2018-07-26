@@ -16,8 +16,7 @@ ezParticleBehavior* ezParticleBehaviorFactory::CreateBehavior(ezParticleSystemIn
   ezParticleBehavior* pBehavior = pRtti->GetAllocator()->Allocate<ezParticleBehavior>();
   pBehavior->Reset(pOwner);
 
-  CopyBehaviorProperties(pBehavior);
-  pBehavior->AfterPropertiesConfigured(true);
+  CopyBehaviorProperties(pBehavior, true);
   pBehavior->CreateRequiredStreams();
 
   return pBehavior;

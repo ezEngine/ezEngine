@@ -17,8 +17,7 @@ ezParticleType* ezParticleTypeFactory::CreateType(ezParticleSystemInstance* pOwn
   ezParticleType* pType = pRtti->GetAllocator()->Allocate<ezParticleType>();
   pType->Reset(pOwner);
 
-  CopyTypeProperties(pType);
-  pType->AfterPropertiesConfigured(true);
+  CopyTypeProperties(pType, true);
   pType->CreateRequiredStreams();
 
   return pType;

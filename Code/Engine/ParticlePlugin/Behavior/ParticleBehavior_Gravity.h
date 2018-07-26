@@ -12,7 +12,7 @@ public:
   ezParticleBehaviorFactory_Gravity();
 
   virtual const ezRTTI* GetBehaviorType() const override;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject) const override;
+  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const override;
 
   virtual void QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_FinalizerDeps) const override;
 
@@ -31,10 +31,11 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Gravity : public ezParticleBehavi
 public:
   float m_fGravityFactor;
 
-  virtual void AfterPropertiesConfigured(bool bFirstTime) override;
   virtual void CreateRequiredStreams() override;
 
 protected:
+  friend class ezParticleBehaviorFactory_Gravity;
+
   virtual void Process(ezUInt64 uiNumElements) override;
 
   ezPhysicsWorldModuleInterface* m_pPhysicsModule;

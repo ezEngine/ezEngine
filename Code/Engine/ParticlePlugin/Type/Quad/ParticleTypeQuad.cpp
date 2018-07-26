@@ -49,7 +49,7 @@ const ezRTTI* ezParticleTypeQuadFactory::GetTypeType() const
   return ezGetStaticRTTI<ezParticleTypeQuad>();
 }
 
-void ezParticleTypeQuadFactory::CopyTypeProperties(ezParticleType* pObject) const
+void ezParticleTypeQuadFactory::CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const
 {
   ezParticleTypeQuad* pType = static_cast<ezParticleTypeQuad*>(pObject);
 

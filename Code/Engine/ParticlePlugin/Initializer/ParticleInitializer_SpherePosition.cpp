@@ -44,7 +44,7 @@ const ezRTTI* ezParticleInitializerFactory_SpherePosition::GetInitializerType() 
   return ezGetStaticRTTI<ezParticleInitializer_SpherePosition>();
 }
 
-void ezParticleInitializerFactory_SpherePosition::CopyInitializerProperties(ezParticleInitializer* pInitializer0) const
+void ezParticleInitializerFactory_SpherePosition::CopyInitializerProperties(ezParticleInitializer* pInitializer0, bool bFirstTime) const
 {
   ezParticleInitializer_SpherePosition* pInitializer = static_cast<ezParticleInitializer_SpherePosition*>(pInitializer0);
 

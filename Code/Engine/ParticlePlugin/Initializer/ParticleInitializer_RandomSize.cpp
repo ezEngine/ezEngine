@@ -31,7 +31,7 @@ const ezRTTI* ezParticleInitializerFactory_RandomSize::GetInitializerType() cons
   return ezGetStaticRTTI<ezParticleInitializer_RandomSize>();
 }
 
-void ezParticleInitializerFactory_RandomSize::CopyInitializerProperties(ezParticleInitializer* pInitializer0) const
+void ezParticleInitializerFactory_RandomSize::CopyInitializerProperties(ezParticleInitializer* pInitializer0, bool bFirstTime) const
 {
   ezParticleInitializer_RandomSize* pInitializer = static_cast<ezParticleInitializer_RandomSize*>(pInitializer0);
 

@@ -47,7 +47,7 @@ const ezRTTI* ezParticleTypeLightFactory::GetTypeType() const
   return ezGetStaticRTTI<ezParticleTypeLight>();
 }
 
-void ezParticleTypeLightFactory::CopyTypeProperties(ezParticleType* pObject) const
+void ezParticleTypeLightFactory::CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const
 {
   ezParticleTypeLight* pType = static_cast<ezParticleTypeLight*>(pObject);
 

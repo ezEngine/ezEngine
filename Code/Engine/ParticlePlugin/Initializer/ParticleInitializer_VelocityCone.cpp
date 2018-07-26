@@ -38,7 +38,7 @@ const ezRTTI* ezParticleInitializerFactory_VelocityCone::GetInitializerType() co
   return ezGetStaticRTTI<ezParticleInitializer_VelocityCone>();
 }
 
-void ezParticleInitializerFactory_VelocityCone::CopyInitializerProperties(ezParticleInitializer* pInitializer0) const
+void ezParticleInitializerFactory_VelocityCone::CopyInitializerProperties(ezParticleInitializer* pInitializer0, bool bFirstTime) const
 {
   ezParticleInitializer_VelocityCone* pInitializer = static_cast<ezParticleInitializer_VelocityCone*>(pInitializer0);
 

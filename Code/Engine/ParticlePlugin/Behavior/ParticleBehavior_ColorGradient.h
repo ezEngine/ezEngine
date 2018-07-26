@@ -9,7 +9,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_ColorGradient : public ezP
 
 public:
   virtual const ezRTTI* GetBehaviorType() const override;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject) const override;
+  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const override;
 
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;
@@ -41,10 +41,11 @@ public:
   float m_fMaxSpeed = 1.0f;
   ezColor m_TintColor;
 
-  virtual void AfterPropertiesConfigured(bool bFirstTime) override;
   virtual void CreateRequiredStreams() override;
 
 protected:
+  friend class ezParticleBehaviorFactory_ColorGradient;
+
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
   virtual void Process(ezUInt64 uiNumElements) override;
 

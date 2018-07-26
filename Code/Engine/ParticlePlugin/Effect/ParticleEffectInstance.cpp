@@ -7,6 +7,7 @@
 #include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Events/ParticleEventReaction.h>
+#include <ParticlePlugin/Initializer/ParticleInitializer.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 #include <ParticlePlugin/System/ParticleSystemDescriptor.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
@@ -238,44 +239,6 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
   m_bSimulateInLocalSpace = desc.m_bSimulateInLocalSpace;
   m_InvisibleUpdateRate = desc.m_InvisibleUpdateRate;
 
-  if (bFirstTime)
-  {
-    m_PreSimulateDuration = desc.m_PreSimulateDuration;
-  }
-
-  // TODO Check max number of particles etc. to reset
-
-  if (m_ParticleSystems.GetCount() != systems.GetCount())
-  {
-    // reset everything
-    ClearParticleSystems();
-  }
-
-  m_ParticleSystems.SetCount(systems.GetCount());
-
-  // delete all that have important changes
-  {
-    for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
-    {
-      if (m_ParticleSystems[i] != nullptr)
-      {
-        if (m_ParticleSystems[i]->GetMaxParticles() != systems[i]->m_uiMaxParticles)
-          ClearParticleSystem(i);
-      }
-    }
-  }
-
-  // recreate where necessary
-  {
-    for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
-    {
-      if (m_ParticleSystems[i] == nullptr)
-      {
-        m_ParticleSystems[i] = m_pOwnerModule->CreateSystemInstance(systems[i]->m_uiMaxParticles, m_pWorld, this);
-      }
-    }
-  }
-
   // parameters
   {
     m_FloatParameters.Clear();
@@ -309,6 +272,65 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
       for (ezUInt32 p = 0; p < colorParams.GetCount(); ++p)
       {
         SetParameter(colorParams[p].m_sName, colorParams[p].m_Value);
+      }
+    }
+  }
+
+  if (bFirstTime)
+  {
+    m_PreSimulateDuration = desc.m_PreSimulateDuration;
+  }
+
+  // TODO Check max number of particles etc. to reset
+
+  if (m_ParticleSystems.GetCount() != systems.GetCount())
+  {
+    // reset everything
+    ClearParticleSystems();
+  }
+
+  m_ParticleSystems.SetCount(systems.GetCount());
+
+  struct MulCount
+  {
+    float m_fMultiplier = 1.0f;
+    ezUInt32 m_uiCount = 0;
+  };
+  ezHybridArray<MulCount, 8> systemMaxParticles;
+  {
+    systemMaxParticles.SetCountUninitialized(systems.GetCount());
+    for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
+    {
+      float fMultiplier = 1.0f;
+
+      for (const ezParticleInitializerFactory* pInitializer : systems[i]->GetInitializerFactories())
+      {
+        fMultiplier *= pInitializer->GetSpawnCountMultiplier(this);
+      }
+
+      systemMaxParticles[i].m_fMultiplier = ezMath::Max(0.0f, fMultiplier);
+      systemMaxParticles[i].m_uiCount = (ezUInt32)(systems[i]->m_uiMaxParticles * systemMaxParticles[i].m_fMultiplier);
+    }
+  }
+  // delete all that have important changes
+  {
+    for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
+    {
+      if (m_ParticleSystems[i] != nullptr)
+      {
+        if (m_ParticleSystems[i]->GetMaxParticles() != systemMaxParticles[i].m_uiCount)
+          ClearParticleSystem(i);
+      }
+    }
+  }
+
+  // recreate where necessary
+  {
+    for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
+    {
+      if (m_ParticleSystems[i] == nullptr)
+      {
+        m_ParticleSystems[i] = m_pOwnerModule->CreateSystemInstance(systemMaxParticles[i].m_uiCount, m_pWorld, this, systemMaxParticles[i].m_fMultiplier);
       }
     }
   }

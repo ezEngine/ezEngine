@@ -2,7 +2,8 @@
 
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 
-ezParticleSystemInstance* ezParticleWorldModule::CreateSystemInstance(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect)
+ezParticleSystemInstance* ezParticleWorldModule::CreateSystemInstance(ezUInt32 uiMaxParticles, ezWorld* pWorld,
+                                                                      ezParticleEffectInstance* pOwnerEffect, float fSpawnMultiplier)
 {
   EZ_LOCK(m_Mutex);
 
@@ -19,7 +20,7 @@ ezParticleSystemInstance* ezParticleWorldModule::CreateSystemInstance(ezUInt32 u
     pResult = &m_ParticleSystems.ExpandAndGetRef();
   }
 
-  pResult->Construct(uiMaxParticles, pWorld, pOwnerEffect);
+  pResult->Construct(uiMaxParticles, pWorld, pOwnerEffect, fSpawnMultiplier);
 
   return pResult;
 }
@@ -34,8 +35,4 @@ void ezParticleWorldModule::DestroySystemInstance(ezParticleSystemInstance* pIns
 }
 
 
-
-
-
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_WorldModule_ParticleSystems);
-

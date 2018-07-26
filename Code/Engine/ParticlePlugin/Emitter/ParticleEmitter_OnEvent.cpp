@@ -34,7 +34,7 @@ const ezRTTI* ezParticleEmitterFactory_OnEvent::GetEmitterType() const
   return ezGetStaticRTTI<ezParticleEmitter_OnEvent>();
 }
 
-void ezParticleEmitterFactory_OnEvent::CopyEmitterProperties(ezParticleEmitter* pEmitter0) const
+void ezParticleEmitterFactory_OnEvent::CopyEmitterProperties(ezParticleEmitter* pEmitter0, bool bFirstTime) const
 {
   ezParticleEmitter_OnEvent* pEmitter = static_cast<ezParticleEmitter_OnEvent*>(pEmitter0);
 

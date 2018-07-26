@@ -10,7 +10,7 @@ public:
   ezParticleFinalizerFactory_LastPosition();
 
   virtual const ezRTTI* GetFinalizerType() const override;
-  virtual void CopyFinalizerProperties(ezParticleFinalizer* pObject) const override;
+  virtual void CopyFinalizerProperties(ezParticleFinalizer* pObject, bool bFirstTime) const override;
 };
 
 

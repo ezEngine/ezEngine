@@ -35,7 +35,7 @@ const ezRTTI* ezParticleTypeMeshFactory::GetTypeType() const
 }
 
 
-void ezParticleTypeMeshFactory::CopyTypeProperties(ezParticleType* pObject) const
+void ezParticleTypeMeshFactory::CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const
 {
   ezParticleTypeMesh* pType = static_cast<ezParticleTypeMesh*>(pObject);
 

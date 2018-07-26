@@ -26,7 +26,7 @@ const ezRTTI* ezParticleBehaviorFactory_FadeOut::GetBehaviorType() const
   return ezGetStaticRTTI<ezParticleBehavior_FadeOut>();
 }
 
-void ezParticleBehaviorFactory_FadeOut::CopyBehaviorProperties(ezParticleBehavior* pObject) const
+void ezParticleBehaviorFactory_FadeOut::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
 {
   ezParticleBehavior_FadeOut* pBehavior = static_cast<ezParticleBehavior_FadeOut*>(pObject);
 

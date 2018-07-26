@@ -14,7 +14,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleEventReactionFactory : public ezReflectedC
 
 public:
   virtual const ezRTTI* GetEventReactionType() const = 0;
-  virtual void CopyReactionProperties(ezParticleEventReaction* pObject) const = 0;
+  virtual void CopyReactionProperties(ezParticleEventReaction* pObject, bool bFirstTime) const = 0;
 
   ezParticleEventReaction* CreateEventReaction(ezParticleEffectInstance* pOwner) const;
 
@@ -38,7 +38,6 @@ protected:
 
   void Reset(ezParticleEffectInstance* pOwner);
 
-  virtual void AfterPropertiesConfigured(bool bFirstTime);
   virtual void ProcessEvent(const ezParticleEvent& e) = 0;
 
   ezTempHashedString m_sEventName;

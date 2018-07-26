@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10397632043479265953,5177341319926404083}}
-		u4 %Hash{10618377910007215918}
+		u4 %Hash{1058559349821277837}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -2548,9 +2548,8 @@ o
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters
 		{
-			d %SizeY{0x0000000000001840}
-			d %SpawnMul{0x0000000000004240}
-			d %SizeX{0x0000000000001840}
+			f %SizeY{0x0000C040}
+			f %SizeX{0x0000C040}
 		}
 		u4 %RandomSeed{0}
 		Time %RestartDelayRange{d{0}}

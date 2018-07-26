@@ -36,13 +36,20 @@ const ezRTTI* ezParticleBehaviorFactory_Velocity::GetBehaviorType() const
   return ezGetStaticRTTI<ezParticleBehavior_Velocity>();
 }
 
-void ezParticleBehaviorFactory_Velocity::CopyBehaviorProperties(ezParticleBehavior* pObject) const
+void ezParticleBehaviorFactory_Velocity::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
 {
   ezParticleBehavior_Velocity* pBehavior = static_cast<ezParticleBehavior_Velocity*>(pObject);
 
   pBehavior->m_fRiseSpeed = m_fRiseSpeed;
   pBehavior->m_fFriction = m_fFriction;
   pBehavior->m_fWindInfluence = m_fWindInfluence;
+
+  pBehavior->m_pPhysicsModule = pBehavior->GetOwnerSystem()->GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
+
+  if (m_fWindInfluence > 0)
+  {
+    pBehavior->m_pWindModule = pBehavior->GetOwnerSystem()->GetWorld()->GetModule<ezWindWorldModuleInterface>();
+  }
 }
 
 enum class BehaviorVelocityVersion
@@ -88,16 +95,6 @@ void ezParticleBehaviorFactory_Velocity::Load(ezStreamReader& stream)
 void ezParticleBehaviorFactory_Velocity::QueryFinalizerDependencies(ezSet<const ezRTTI*>& inout_FinalizerDeps) const
 {
   inout_FinalizerDeps.Insert(ezGetStaticRTTI<ezParticleFinalizerFactory_ApplyVelocity>());
-}
-
-void ezParticleBehavior_Velocity::AfterPropertiesConfigured(bool bFirstTime)
-{
-  m_pPhysicsModule = GetOwnerSystem()->GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
-
-  if (m_fWindInfluence > 0)
-  {
-    m_pWindModule = GetOwnerSystem()->GetWorld()->GetModule<ezWindWorldModuleInterface>();
-  }
 }
 
 void ezParticleBehavior_Velocity::CreateRequiredStreams()

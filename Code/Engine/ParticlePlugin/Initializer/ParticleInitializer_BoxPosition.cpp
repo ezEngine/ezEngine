@@ -43,15 +43,42 @@ const ezRTTI* ezParticleInitializerFactory_BoxPosition::GetInitializerType() con
   return ezGetStaticRTTI<ezParticleInitializer_BoxPosition>();
 }
 
-void ezParticleInitializerFactory_BoxPosition::CopyInitializerProperties(ezParticleInitializer* pInitializer0) const
+void ezParticleInitializerFactory_BoxPosition::CopyInitializerProperties(ezParticleInitializer* pInitializer0, bool bFirstTime) const
 {
   ezParticleInitializer_BoxPosition* pInitializer = static_cast<ezParticleInitializer_BoxPosition*>(pInitializer0);
 
+  const float fScaleX = pInitializer->GetOwnerEffect()->GetFloatParameter(ezTempHashedString(m_sScaleXParameter.GetData()), 1.0f);
+  const float fScaleY = pInitializer->GetOwnerEffect()->GetFloatParameter(ezTempHashedString(m_sScaleYParameter.GetData()), 1.0f);
+  const float fScaleZ = pInitializer->GetOwnerEffect()->GetFloatParameter(ezTempHashedString(m_sScaleZParameter.GetData()), 1.0f);
+
+  ezVec3 vSize = m_vSize;
+  vSize.x *= fScaleX;
+  vSize.y *= fScaleY;
+  vSize.z *= fScaleZ;
+
   pInitializer->m_vPositionOffset = m_vPositionOffset;
-  pInitializer->m_vSize = m_vSize.CompMax(ezVec3::ZeroVector());
-  pInitializer->m_sScaleXParameter = ezTempHashedString(m_sScaleXParameter.GetData());
-  pInitializer->m_sScaleYParameter = ezTempHashedString(m_sScaleYParameter.GetData());
-  pInitializer->m_sScaleZParameter = ezTempHashedString(m_sScaleZParameter.GetData());
+  pInitializer->m_vSize = vSize;
+
+}
+
+float ezParticleInitializerFactory_BoxPosition::GetSpawnCountMultiplier(const ezParticleEffectInstance* pEffect) const
+{
+  const float fScaleX = pEffect->GetFloatParameter(ezTempHashedString(m_sScaleXParameter.GetData()), 1.0f);
+  const float fScaleY = pEffect->GetFloatParameter(ezTempHashedString(m_sScaleYParameter.GetData()), 1.0f);
+  const float fScaleZ = pEffect->GetFloatParameter(ezTempHashedString(m_sScaleZParameter.GetData()), 1.0f);
+
+  float fSpawnMultiplier = 1.0f;
+
+  if (m_vSize.x != 0.0f)
+    fSpawnMultiplier *= fScaleX;
+
+  if (m_vSize.y != 0.0f)
+    fSpawnMultiplier *= fScaleY;
+
+  if (m_vSize.z != 0.0f)
+    fSpawnMultiplier *= fScaleZ;
+
+  return fSpawnMultiplier;
 }
 
 void ezParticleInitializerFactory_BoxPosition::Save(ezStreamWriter& stream) const
@@ -117,15 +144,6 @@ void ezParticleInitializer_BoxPosition::InitializeElements(ezUInt64 uiStartIndex
   }
   else
   {
-    const float fScaleX = GetOwnerEffect()->GetFloatParameter(m_sScaleXParameter, 1.0f);
-    const float fScaleY = GetOwnerEffect()->GetFloatParameter(m_sScaleYParameter, 1.0f);
-    const float fScaleZ = GetOwnerEffect()->GetFloatParameter(m_sScaleZParameter, 1.0f);
-
-    ezVec3 vSize = m_vSize;
-    vSize.x *= fScaleX;
-    vSize.y *= fScaleY;
-    vSize.z *= fScaleZ;
-
     ezTransform ownerTransform = GetOwnerSystem()->GetTransform();
 
     ezSimdVec4f pos;
@@ -139,9 +157,9 @@ void ezParticleInitializer_BoxPosition::InitializeElements(ezUInt64 uiStartIndex
 
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
-      p0[0] = (float)(rng.DoubleMinMax(-vSize.x, vSize.x) * 0.5) + m_vPositionOffset.x;
-      p0[1] = (float)(rng.DoubleMinMax(-vSize.y, vSize.y) * 0.5) + m_vPositionOffset.y;
-      p0[2] = (float)(rng.DoubleMinMax(-vSize.z, vSize.z) * 0.5) + m_vPositionOffset.z;
+      p0[0] = (float)(rng.DoubleMinMax(-m_vSize.x, m_vSize.x) * 0.5) + m_vPositionOffset.x;
+      p0[1] = (float)(rng.DoubleMinMax(-m_vSize.y, m_vSize.y) * 0.5) + m_vPositionOffset.y;
+      p0[2] = (float)(rng.DoubleMinMax(-m_vSize.z, m_vSize.z) * 0.5) + m_vPositionOffset.z;
 
       pos.Load<4>(p0);
 

@@ -9,6 +9,7 @@
 class ezParticleSystemInstance;
 class ezProcessingStream;
 class ezParticleInitializer;
+class ezParticleEffectInstance;
 
 /// \brief Base class for all particle emitters
 class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory : public ezReflectedClass
@@ -17,7 +18,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory : public ezReflectedCla
 
 public:
   virtual const ezRTTI* GetInitializerType() const = 0;
-  virtual void CopyInitializerProperties(ezParticleInitializer* pInitializer) const = 0;
+  virtual void CopyInitializerProperties(ezParticleInitializer* pInitializer, bool bFirstTime) const = 0;
+  virtual float GetSpawnCountMultiplier(const ezParticleEffectInstance* pEffect) const;
 
   ezParticleInitializer* CreateInitializer(ezParticleSystemInstance* pOwner) const;
 

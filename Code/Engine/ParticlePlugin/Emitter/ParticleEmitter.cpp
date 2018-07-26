@@ -15,8 +15,7 @@ ezParticleEmitter* ezParticleEmitterFactory::CreateEmitter(ezParticleSystemInsta
   ezParticleEmitter* pEmitter = pRtti->GetAllocator()->Allocate<ezParticleEmitter>();
   pEmitter->Reset(pOwner);
 
-  CopyEmitterProperties(pEmitter);
-  pEmitter->AfterPropertiesConfigured(true);
+  CopyEmitterProperties(pEmitter, true);
   pEmitter->CreateRequiredStreams();
 
   return pEmitter;

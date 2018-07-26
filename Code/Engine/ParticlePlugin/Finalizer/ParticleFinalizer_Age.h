@@ -13,7 +13,7 @@ public:
   ezParticleFinalizerFactory_Age();
 
   virtual const ezRTTI* GetFinalizerType() const override;
-  virtual void CopyFinalizerProperties(ezParticleFinalizer* pObject) const override;
+  virtual void CopyFinalizerProperties(ezParticleFinalizer* pObject, bool bFirstTime) const override;
 
   ezVarianceTypeTime m_LifeTime;
   ezString m_sOnDeathEvent;
@@ -34,9 +34,9 @@ public:
   ezTempHashedString m_sOnDeathEvent;
   ezTempHashedString m_sLifeScaleParameter;
 
-  virtual void AfterPropertiesConfigured(bool bFirstTime) override;
-
 protected:
+  friend class ezParticleFinalizerFactory_Age;
+
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
   virtual void Process(ezUInt64 uiNumElements) override;
   void OnParticleDeath(const ezStreamGroupElementRemovedEvent& e);

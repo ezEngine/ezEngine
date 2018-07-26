@@ -44,7 +44,7 @@ const ezRTTI* ezParticleTypeTrailFactory::GetTypeType() const
   return ezGetStaticRTTI<ezParticleTypeTrail>();
 }
 
-void ezParticleTypeTrailFactory::CopyTypeProperties(ezParticleType* pObject) const
+void ezParticleTypeTrailFactory::CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const
 {
   ezParticleTypeTrail* pType = static_cast<ezParticleTypeTrail*>(pObject);
 
@@ -60,6 +60,22 @@ void ezParticleTypeTrailFactory::CopyTypeProperties(ezParticleType* pObject) con
 
   if (!m_sTexture.IsEmpty())
     pType->m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sTexture);
+
+
+  if (bFirstTime)
+  {
+    pType->GetOwnerSystem()->AddParticleDeathEventHandler(ezMakeDelegate(&ezParticleTypeTrail::OnParticleDeath, pType));
+
+    pType->m_LastSnapshot = pType->GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
+  }
+
+  // m_uiMaxPoints = ezMath::Min<ezUInt16>(8, m_uiMaxPoints);
+
+  // clamp the number of points to the maximum possible count
+  pType->m_uiMaxPoints = ezMath::Min<ezUInt16>(pType->m_uiMaxPoints, pType->ComputeTrailPointBucketSize(pType->m_uiMaxPoints));
+
+  pType->m_uiCurFirstIndex = pType->m_uiMaxPoints - 1;
+  pType->m_uiCurFirstIndex = 1;
 }
 
 enum class TypeTrailVersion
@@ -130,24 +146,6 @@ ezParticleTypeTrail::ezParticleTypeTrail()
 ezParticleTypeTrail::~ezParticleTypeTrail()
 {
   GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleTypeTrail::OnParticleDeath, this));
-}
-
-void ezParticleTypeTrail::AfterPropertiesConfigured(bool bFirstTime)
-{
-  if (bFirstTime)
-  {
-    GetOwnerSystem()->AddParticleDeathEventHandler(ezMakeDelegate(&ezParticleTypeTrail::OnParticleDeath, this));
-
-    m_LastSnapshot = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
-  }
-
-  // m_uiMaxPoints = ezMath::Min<ezUInt16>(8, m_uiMaxPoints);
-
-  // clamp the number of points to the maximum possible count
-  m_uiMaxPoints = ezMath::Min<ezUInt16>(m_uiMaxPoints, ComputeTrailPointBucketSize(m_uiMaxPoints));
-
-  m_uiCurFirstIndex = m_uiMaxPoints - 1;
-  m_uiCurFirstIndex = 1;
 }
 
 void ezParticleTypeTrail::CreateRequiredStreams()

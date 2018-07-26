@@ -14,7 +14,7 @@ public:
   ~ezParticleBehaviorFactory_Velocity();
 
   virtual const ezRTTI* GetBehaviorType() const override;
-  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject) const override;
+  virtual void CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const override;
 
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;
@@ -39,7 +39,8 @@ public:
   float m_fWindInfluence = 0;
 
 protected:
-  virtual void AfterPropertiesConfigured(bool bFirstTime) override;
+  friend class ezParticleBehaviorFactory_Velocity;
+
   virtual void Process(ezUInt64 uiNumElements) override;
 
   // used to rise/fall along the gravity vector

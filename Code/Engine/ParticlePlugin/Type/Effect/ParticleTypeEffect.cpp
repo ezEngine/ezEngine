@@ -33,7 +33,7 @@ const ezRTTI* ezParticleTypeEffectFactory::GetTypeType() const
   return ezGetStaticRTTI<ezParticleTypeEffect>();
 }
 
-void ezParticleTypeEffectFactory::CopyTypeProperties(ezParticleType* pObject) const
+void ezParticleTypeEffectFactory::CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const
 {
   ezParticleTypeEffect* pType = static_cast<ezParticleTypeEffect*>(pObject);
 
@@ -44,6 +44,12 @@ void ezParticleTypeEffectFactory::CopyTypeProperties(ezParticleType* pObject) co
 
   pType->m_uiRandomSeed = m_uiRandomSeed;
   // pType->m_sSharedInstanceName = m_sSharedInstanceName;
+
+
+  if (bFirstTime)
+  {
+    pType->GetOwnerSystem()->AddParticleDeathEventHandler(ezMakeDelegate(&ezParticleTypeEffect::OnParticleDeath, pType));
+  }
 }
 
 enum class TypeEffectVersion
@@ -102,15 +108,6 @@ void ezParticleTypeEffect::CreateRequiredStreams()
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
   CreateStream("EffectID", ezProcessingStream::DataType::Int, &m_pStreamEffectID, false);
 }
-
-void ezParticleTypeEffect::AfterPropertiesConfigured(bool bFirstTime)
-{
-  if (bFirstTime)
-  {
-    GetOwnerSystem()->AddParticleDeathEventHandler(ezMakeDelegate(&ezParticleTypeEffect::OnParticleDeath, this));
-  }
-}
-
 
 void ezParticleTypeEffect::OnReset()
 {

@@ -46,7 +46,7 @@ const ezRTTI* ezParticleInitializerFactory_CylinderPosition::GetInitializerType(
   return ezGetStaticRTTI<ezParticleInitializer_CylinderPosition>();
 }
 
-void ezParticleInitializerFactory_CylinderPosition::CopyInitializerProperties(ezParticleInitializer* pInitializer0) const
+void ezParticleInitializerFactory_CylinderPosition::CopyInitializerProperties(ezParticleInitializer* pInitializer0, bool bFirstTime) const
 {
   ezParticleInitializer_CylinderPosition* pInitializer = static_cast<ezParticleInitializer_CylinderPosition*>(pInitializer0);
 

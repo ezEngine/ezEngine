@@ -19,7 +19,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleTypeFactory : public ezReflectedClass
 
 public:
   virtual const ezRTTI* GetTypeType() const = 0;
-  virtual void CopyTypeProperties(ezParticleType* pObject) const = 0;
+  virtual void CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const = 0;
 
   ezParticleType* CreateType(ezParticleSystemInstance* pOwner) const;
 

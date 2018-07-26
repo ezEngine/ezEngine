@@ -18,8 +18,7 @@ ezParticleFinalizer* ezParticleFinalizerFactory::CreateFinalizer(ezParticleSyste
   ezParticleFinalizer* pFinalizer = pRtti->GetAllocator()->Allocate<ezParticleFinalizer>();
   pFinalizer->Reset(pOwner);
 
-  CopyFinalizerProperties(pFinalizer);
-  pFinalizer->AfterPropertiesConfigured(true);
+  CopyFinalizerProperties(pFinalizer, true);
   pFinalizer->CreateRequiredStreams();
 
   return pFinalizer;

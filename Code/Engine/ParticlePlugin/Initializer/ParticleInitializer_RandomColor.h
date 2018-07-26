@@ -12,7 +12,7 @@ class ezParticleInitializerFactory_RandomColor : public ezParticleInitializerFac
 public:
 
   virtual const ezRTTI* GetInitializerType() const override;
-  virtual void CopyInitializerProperties(ezParticleInitializer* pInitializer) const override;
+  virtual void CopyInitializerProperties(ezParticleInitializer* pInitializer, bool bFirstTime) const override;
 
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;

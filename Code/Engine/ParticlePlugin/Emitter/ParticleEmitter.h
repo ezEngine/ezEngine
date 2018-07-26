@@ -16,7 +16,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleEmitterFactory : public ezReflectedClass
 
 public:
   virtual const ezRTTI* GetEmitterType() const = 0;
-  virtual void CopyEmitterProperties(ezParticleEmitter* pEmitter) const = 0;
+  virtual void CopyEmitterProperties(ezParticleEmitter* pEmitter, bool bFirstTime) const = 0;
 
   ezParticleEmitter* CreateEmitter(ezParticleSystemInstance* pOwner) const;
 

@@ -10,7 +10,8 @@ public:
   ezParticleInitializerFactory_BoxPosition();
 
   virtual const ezRTTI* GetInitializerType() const override;
-  virtual void CopyInitializerProperties(ezParticleInitializer* pInitializer) const override;
+  virtual void CopyInitializerProperties(ezParticleInitializer* pInitializer, bool bFirstTime) const override;
+  virtual float GetSpawnCountMultiplier(const ezParticleEffectInstance* pEffect) const override;
 
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;
@@ -31,9 +32,6 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_BoxPosition : public ezParticl
 public:
   ezVec3 m_vPositionOffset;
   ezVec3 m_vSize;
-  ezTempHashedString m_sScaleXParameter;
-  ezTempHashedString m_sScaleYParameter;
-  ezTempHashedString m_sScaleZParameter;
 
   virtual void CreateRequiredStreams() override;
 
@@ -41,5 +39,4 @@ protected:
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
 
   ezProcessingStream* m_pStreamPosition;
-
 };

@@ -117,7 +117,7 @@ const ezRTTI* ezParticleEventReactionFactory_Effect::GetEventReactionType() cons
 }
 
 
-void ezParticleEventReactionFactory_Effect::CopyReactionProperties(ezParticleEventReaction* pObject) const
+void ezParticleEventReactionFactory_Effect::CopyReactionProperties(ezParticleEventReaction* pObject, bool bFirstTime) const
 {
   ezParticleEventReaction_Effect* pReaction = static_cast<ezParticleEventReaction_Effect*>(pObject);
 

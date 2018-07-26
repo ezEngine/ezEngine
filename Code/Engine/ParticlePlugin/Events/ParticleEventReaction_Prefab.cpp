@@ -116,7 +116,7 @@ const ezRTTI* ezParticleEventReactionFactory_Prefab::GetEventReactionType() cons
 }
 
 
-void ezParticleEventReactionFactory_Prefab::CopyReactionProperties(ezParticleEventReaction* pObject) const
+void ezParticleEventReactionFactory_Prefab::CopyReactionProperties(ezParticleEventReaction* pObject, bool bFirstTime) const
 {
   ezParticleEventReaction_Prefab* pReaction = static_cast<ezParticleEventReaction_Prefab*>(pObject);
 

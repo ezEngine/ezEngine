@@ -17,7 +17,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleSystemInstance
 public:
   ezParticleSystemInstance();
 
-  void Construct(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect);
+  void Construct(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect, float fSpawnCountMultiplier);
   void Destruct();
 
   bool IsVisible() const { return m_bVisible; }
@@ -47,7 +47,7 @@ public:
   ezUInt64 GetMaxParticles() const { return m_StreamGroup.GetNumElements(); }
   ezUInt64 GetNumActiveParticles() const { return m_StreamGroup.GetNumActiveElements(); }
 
-  
+
 
   /// \brief Returns the desired stream, if it already exists, nullptr otherwise.
   const ezProcessingStream* QueryStream(const char* szName, ezProcessingStream::DataType Type) const;
@@ -74,6 +74,8 @@ public:
 
   bool IsContinuous() const;
 
+  float GetSpawnCountMultiplier() const { return m_fSpawnCountMultiplier; }
+
 private:
   bool IsEmitterConfigEqual(const ezParticleSystemDescriptor* pTemplate) const;
   bool IsInitializerConfigEqual(const ezParticleSystemDescriptor* pTemplate) const;
@@ -94,6 +96,7 @@ private:
   ezWorld* m_pWorld;
   ezTransform m_Transform;
   ezVec3 m_vParticleStartVelocity;
+  float m_fSpawnCountMultiplier = 1.0f;
 
   ezProcessingStreamGroup m_StreamGroup;
 

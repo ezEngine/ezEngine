@@ -42,15 +42,15 @@ const ezRTTI* ezParticleEmitterFactory_Burst::GetEmitterType() const
   return ezGetStaticRTTI<ezParticleEmitter_Burst>();
 }
 
-void ezParticleEmitterFactory_Burst::CopyEmitterProperties(ezParticleEmitter* pEmitter0) const
+void ezParticleEmitterFactory_Burst::CopyEmitterProperties(ezParticleEmitter* pEmitter0, bool bFirstTime) const
 {
   ezParticleEmitter_Burst* pEmitter = static_cast<ezParticleEmitter_Burst*>(pEmitter0);
 
   pEmitter->m_Duration = m_Duration;
   pEmitter->m_StartDelay = m_StartDelay;
 
-  pEmitter->m_uiSpawnCountMin = m_uiSpawnCountMin;
-  pEmitter->m_uiSpawnCountRange = m_uiSpawnCountRange;
+  pEmitter->m_uiSpawnCountMin = (ezUInt32)(m_uiSpawnCountMin * pEmitter->GetOwnerSystem()->GetSpawnCountMultiplier());
+  pEmitter->m_uiSpawnCountRange = (ezUInt32)(m_uiSpawnCountRange * pEmitter->GetOwnerSystem()->GetSpawnCountMultiplier());
   pEmitter->m_sSpawnCountScaleParameter = ezTempHashedString(m_sSpawnCountScaleParameter.GetData());
 }
 

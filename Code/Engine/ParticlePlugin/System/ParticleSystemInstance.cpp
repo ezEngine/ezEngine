@@ -267,8 +267,7 @@ void ezParticleSystemInstance::ReinitializeStreamProcessors(const ezParticleSyst
     for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
     {
       m_Emitters[i]->Reset(this);
-      factories[i]->CopyEmitterProperties(m_Emitters[i]);
-      m_Emitters[i]->AfterPropertiesConfigured(false);
+      factories[i]->CopyEmitterProperties(m_Emitters[i], false);
       m_Emitters[i]->CreateRequiredStreams();
     }
   }
@@ -280,8 +279,7 @@ void ezParticleSystemInstance::ReinitializeStreamProcessors(const ezParticleSyst
     for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
     {
       m_Initializers[i]->Reset(this);
-      factories[i]->CopyInitializerProperties(m_Initializers[i]);
-      m_Initializers[i]->AfterPropertiesConfigured(false);
+      factories[i]->CopyInitializerProperties(m_Initializers[i], false);
       m_Initializers[i]->CreateRequiredStreams();
     }
   }
@@ -293,8 +291,7 @@ void ezParticleSystemInstance::ReinitializeStreamProcessors(const ezParticleSyst
     for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
     {
       m_Behaviors[i]->Reset(this);
-      factories[i]->CopyBehaviorProperties(m_Behaviors[i]);
-      m_Behaviors[i]->AfterPropertiesConfigured(false);
+      factories[i]->CopyBehaviorProperties(m_Behaviors[i], false);
       m_Behaviors[i]->CreateRequiredStreams();
     }
   }
@@ -306,8 +303,7 @@ void ezParticleSystemInstance::ReinitializeStreamProcessors(const ezParticleSyst
     for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
     {
       m_Finalizers[i]->Reset(this);
-      factories[i]->CopyFinalizerProperties(m_Finalizers[i]);
-      m_Finalizers[i]->AfterPropertiesConfigured(false);
+      factories[i]->CopyFinalizerProperties(m_Finalizers[i], false);
       m_Finalizers[i]->CreateRequiredStreams();
     }
   }
@@ -319,8 +315,7 @@ void ezParticleSystemInstance::ReinitializeStreamProcessors(const ezParticleSyst
     for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
     {
       m_Types[i]->Reset(this);
-      factories[i]->CopyTypeProperties(m_Types[i]);
-      m_Types[i]->AfterPropertiesConfigured(false);
+      factories[i]->CopyTypeProperties(m_Types[i], false);
       m_Types[i]->CreateRequiredStreams();
     }
   }
@@ -331,13 +326,15 @@ ezParticleSystemInstance::ezParticleSystemInstance()
   m_BoundingVolume = ezBoundingSphere(ezVec3::ZeroVector(), 0.25f);
 }
 
-void ezParticleSystemInstance::Construct(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect)
+void ezParticleSystemInstance::Construct(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect,
+                                         float fSpawnCountMultiplier)
 {
   m_Transform.SetIdentity();
   m_pOwnerEffect = pOwnerEffect;
   m_bEmitterEnabled = true;
   m_bVisible = true;
   m_pWorld = pWorld;
+  m_fSpawnCountMultiplier = fSpawnCountMultiplier;
 
   m_StreamInfo.Clear();
   m_StreamGroup.SetSize(uiMaxParticles);

@@ -36,7 +36,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleTypeQuadFactory : public ezParticleTypeFac
 
 public:
   virtual const ezRTTI* GetTypeType() const override;
-  virtual void CopyTypeProperties(ezParticleType* pObject) const override;
+  virtual void CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const override;
 
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;

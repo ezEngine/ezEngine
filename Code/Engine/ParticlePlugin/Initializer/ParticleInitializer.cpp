@@ -1,6 +1,6 @@
+#include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <PCH.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
-#include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory, 1, ezRTTINoAllocator)
@@ -16,11 +16,15 @@ ezParticleInitializer* ezParticleInitializerFactory::CreateInitializer(ezParticl
   ezParticleInitializer* pInitializer = pRtti->GetAllocator()->Allocate<ezParticleInitializer>();
   pInitializer->Reset(pOwner);
 
-  CopyInitializerProperties(pInitializer);
-  pInitializer->AfterPropertiesConfigured(true);
+  CopyInitializerProperties(pInitializer, true);
   pInitializer->CreateRequiredStreams();
 
   return pInitializer;
+}
+
+float ezParticleInitializerFactory::GetSpawnCountMultiplier(const ezParticleEffectInstance* pEffect) const
+{
+  return 1.0f;
 }
 
 ezParticleInitializer::ezParticleInitializer()
@@ -30,4 +34,3 @@ ezParticleInitializer::ezParticleInitializer()
 }
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer);
-

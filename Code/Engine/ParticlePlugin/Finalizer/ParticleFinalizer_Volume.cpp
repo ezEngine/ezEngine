@@ -26,7 +26,7 @@ const ezRTTI* ezParticleFinalizerFactory_Volume::GetFinalizerType() const
   return ezGetStaticRTTI<ezParticleFinalizer_Volume>();
 }
 
-void ezParticleFinalizerFactory_Volume::CopyFinalizerProperties(ezParticleFinalizer* pObject) const
+void ezParticleFinalizerFactory_Volume::CopyFinalizerProperties(ezParticleFinalizer* pObject, bool bFirstTime) const
 {
   ezParticleFinalizer_Volume* pFinalizer = static_cast<ezParticleFinalizer_Volume*>(pObject);
 }

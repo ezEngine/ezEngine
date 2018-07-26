@@ -13,8 +13,6 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleModule : public ezProcessingStreamProcesso
   friend class ezParticleSystemInstance;
 
 public:
-  /// \brief Called after construction when m_pOwnerSystem is set and when properties have been set
-  virtual void AfterPropertiesConfigured(bool bFirstTime) {}
   virtual void CreateRequiredStreams() = 0;
   virtual void QueryOptionalStreams() {}
 

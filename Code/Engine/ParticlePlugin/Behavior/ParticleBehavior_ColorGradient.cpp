@@ -31,7 +31,7 @@ const ezRTTI* ezParticleBehaviorFactory_ColorGradient::GetBehaviorType() const
   return ezGetStaticRTTI<ezParticleBehavior_ColorGradient>();
 }
 
-void ezParticleBehaviorFactory_ColorGradient::CopyBehaviorProperties(ezParticleBehavior* pObject) const
+void ezParticleBehaviorFactory_ColorGradient::CopyBehaviorProperties(ezParticleBehavior* pObject, bool bFirstTime) const
 {
   ezParticleBehavior_ColorGradient* pBehavior = static_cast<ezParticleBehavior_ColorGradient*>(pObject);
 
@@ -39,6 +39,9 @@ void ezParticleBehaviorFactory_ColorGradient::CopyBehaviorProperties(ezParticleB
   pBehavior->m_GradientMode = m_GradientMode;
   pBehavior->m_fMaxSpeed = m_fMaxSpeed;
   pBehavior->m_TintColor = m_TintColor;
+
+  // the gradient resource may not be specified yet, so defer evaluation until an element is created
+  pBehavior->m_InitColor = ezColor::RebeccaPurple;
 }
 
 void ezParticleBehaviorFactory_ColorGradient::Save(ezStreamWriter& stream) const
@@ -93,12 +96,6 @@ const char* ezParticleBehaviorFactory_ColorGradient::GetColorGradientFile() cons
     return "";
 
   return m_hGradient.GetResourceID();
-}
-
-void ezParticleBehavior_ColorGradient::AfterPropertiesConfigured(bool bFirstTime)
-{
-  // the gradient resource may not be specified yet, so defer evaluation until an element is created
-  m_InitColor = ezColor::RebeccaPurple;
 }
 
 void ezParticleBehavior_ColorGradient::CreateRequiredStreams()
