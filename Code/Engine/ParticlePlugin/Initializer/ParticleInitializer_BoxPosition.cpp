@@ -15,6 +15,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_BoxPosition, 1, ezR
   {
     EZ_MEMBER_PROPERTY("PositionOffset", m_vPositionOffset),
     EZ_MEMBER_PROPERTY("Size", m_vSize)->AddAttributes(new ezDefaultValueAttribute(ezVec3(0, 0, 0))),
+    EZ_MEMBER_PROPERTY("ScaleXParam", m_sScaleXParameter),
+    EZ_MEMBER_PROPERTY("ScaleYParam", m_sScaleYParameter),
+    EZ_MEMBER_PROPERTY("ScaleZParam", m_sScaleZParameter),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -46,17 +49,25 @@ void ezParticleInitializerFactory_BoxPosition::CopyInitializerProperties(ezParti
 
   pInitializer->m_vPositionOffset = m_vPositionOffset;
   pInitializer->m_vSize = m_vSize.CompMax(ezVec3::ZeroVector());
+  pInitializer->m_sScaleXParameter = ezTempHashedString(m_sScaleXParameter.GetData());
+  pInitializer->m_sScaleYParameter = ezTempHashedString(m_sScaleYParameter.GetData());
+  pInitializer->m_sScaleZParameter = ezTempHashedString(m_sScaleZParameter.GetData());
 }
 
 void ezParticleInitializerFactory_BoxPosition::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 2;
+  const ezUInt8 uiVersion = 3;
   stream << uiVersion;
 
   stream << m_vSize;
 
   // version 2
   stream << m_vPositionOffset;
+
+  // version 3
+  stream << m_sScaleXParameter;
+  stream << m_sScaleYParameter;
+  stream << m_sScaleZParameter;
 }
 
 void ezParticleInitializerFactory_BoxPosition::Load(ezStreamReader& stream)
@@ -70,8 +81,14 @@ void ezParticleInitializerFactory_BoxPosition::Load(ezStreamReader& stream)
   {
     stream >> m_vPositionOffset;
   }
-}
 
+  if (uiVersion >= 3)
+  {
+    stream >> m_sScaleXParameter;
+    stream >> m_sScaleYParameter;
+    stream >> m_sScaleZParameter;
+  }
+}
 
 void ezParticleInitializer_BoxPosition::CreateRequiredStreams()
 {
@@ -100,6 +117,15 @@ void ezParticleInitializer_BoxPosition::InitializeElements(ezUInt64 uiStartIndex
   }
   else
   {
+    const float fScaleX = GetOwnerEffect()->GetFloatParameter(m_sScaleXParameter, 1.0f);
+    const float fScaleY = GetOwnerEffect()->GetFloatParameter(m_sScaleYParameter, 1.0f);
+    const float fScaleZ = GetOwnerEffect()->GetFloatParameter(m_sScaleZParameter, 1.0f);
+
+    ezVec3 vSize = m_vSize;
+    vSize.x *= fScaleX;
+    vSize.y *= fScaleY;
+    vSize.z *= fScaleZ;
+
     ezTransform ownerTransform = GetOwnerSystem()->GetTransform();
 
     ezSimdVec4f pos;
@@ -113,9 +139,9 @@ void ezParticleInitializer_BoxPosition::InitializeElements(ezUInt64 uiStartIndex
 
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
-      p0[0] = (float)(rng.DoubleMinMax(-m_vSize.x, m_vSize.x) * 0.5) + m_vPositionOffset.x;
-      p0[1] = (float)(rng.DoubleMinMax(-m_vSize.y, m_vSize.y) * 0.5) + m_vPositionOffset.y;
-      p0[2] = (float)(rng.DoubleMinMax(-m_vSize.z, m_vSize.z) * 0.5) + m_vPositionOffset.z;
+      p0[0] = (float)(rng.DoubleMinMax(-vSize.x, vSize.x) * 0.5) + m_vPositionOffset.x;
+      p0[1] = (float)(rng.DoubleMinMax(-vSize.y, vSize.y) * 0.5) + m_vPositionOffset.y;
+      p0[2] = (float)(rng.DoubleMinMax(-vSize.z, vSize.z) * 0.5) + m_vPositionOffset.z;
 
       pos.Load<4>(p0);
 

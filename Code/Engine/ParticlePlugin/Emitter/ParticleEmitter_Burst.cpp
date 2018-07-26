@@ -95,7 +95,7 @@ void ezParticleEmitter_Burst::OnFinalize()
 {
   float fSpawnFactor = 1.0f;
 
-  const float spawnCountScale = ezMath::Clamp(GetOwnerEffect()->GetFloatParameter(m_sSpawnCountScaleParameter, 1.0f), 0.0f, 1000.0f);
+  const float spawnCountScale = ezMath::Max(GetOwnerEffect()->GetFloatParameter(m_sSpawnCountScaleParameter, 1.0f), 0.0f);
   fSpawnFactor *= spawnCountScale;
 
   ezRandom& rng = GetRNG();

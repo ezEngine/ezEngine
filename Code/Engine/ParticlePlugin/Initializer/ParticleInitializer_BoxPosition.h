@@ -18,6 +18,9 @@ public:
 public:
   ezVec3 m_vPositionOffset;
   ezVec3 m_vSize;
+  ezString m_sScaleXParameter;
+  ezString m_sScaleYParameter;
+  ezString m_sScaleZParameter;
 };
 
 
@@ -28,6 +31,9 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_BoxPosition : public ezParticl
 public:
   ezVec3 m_vPositionOffset;
   ezVec3 m_vSize;
+  ezTempHashedString m_sScaleXParameter;
+  ezTempHashedString m_sScaleYParameter;
+  ezTempHashedString m_sScaleZParameter;
 
   virtual void CreateRequiredStreams() override;
 
