@@ -17,6 +17,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_SpherePosition, 1, 
     EZ_MEMBER_PROPERTY("OnSurface", m_bSpawnOnSurface),
     EZ_MEMBER_PROPERTY("SetVelocity", m_bSetVelocity),
     EZ_MEMBER_PROPERTY("Speed", m_Speed),
+    EZ_MEMBER_PROPERTY("ScaleRadiusParam", m_sScaleRadiusParameter),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -48,16 +49,49 @@ void ezParticleInitializerFactory_SpherePosition::CopyInitializerProperties(ezPa
 {
   ezParticleInitializer_SpherePosition* pInitializer = static_cast<ezParticleInitializer_SpherePosition*>(pInitializer0);
 
-  pInitializer->m_fRadius = ezMath::Max(m_fRadius, 0.01f); // prevent 0 radius
+  const float fScale = pInitializer->GetOwnerEffect()->GetFloatParameter(ezTempHashedString(m_sScaleRadiusParameter.GetData()), 1.0f);
+
+  pInitializer->m_fRadius = ezMath::Max(m_fRadius * fScale, 0.01f); // prevent 0 radius
   pInitializer->m_bSpawnOnSurface = m_bSpawnOnSurface;
   pInitializer->m_bSetVelocity = m_bSetVelocity;
   pInitializer->m_Speed = m_Speed;
   pInitializer->m_vPositionOffset = m_vPositionOffset;
 }
 
+float ezParticleInitializerFactory_SpherePosition::GetSpawnCountMultiplier(const ezParticleEffectInstance* pEffect) const
+{
+  const float fScale = pEffect->GetFloatParameter(ezTempHashedString(m_sScaleRadiusParameter.GetData()), 1.0f);
+
+  float fSpawnMultiplier = 1.0f;
+
+  if (m_fRadius != 0.0f && fScale != 1.0f)
+  {
+    if (m_bSpawnOnSurface)
+    {
+      // original surface area
+      const float s0 = 4.0f * ezMath::BasicType<float>::Pi() * ezMath::Square(m_fRadius);
+      // new surface area
+      const float s1 = 4.0f * ezMath::BasicType<float>::Pi() * ezMath::Square(m_fRadius * fScale);
+
+      fSpawnMultiplier = s1 / s0;
+    }
+    else
+    {
+      // original volume
+      const float v0 = 4.0f / 3.0f * ezMath::BasicType<float>::Pi() * ezMath::Pow(m_fRadius, 3.0f);
+      // new volume
+      const float v1 = 4.0f / 3.0f * ezMath::BasicType<float>::Pi() * ezMath::Pow(m_fRadius * fScale, 3.0f);
+
+      fSpawnMultiplier = v1 / v0;
+    }
+  }
+
+  return fSpawnMultiplier;
+}
+
 void ezParticleInitializerFactory_SpherePosition::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 2;
+  const ezUInt8 uiVersion = 3;
   stream << uiVersion;
 
   stream << m_fRadius;
@@ -68,6 +102,9 @@ void ezParticleInitializerFactory_SpherePosition::Save(ezStreamWriter& stream) c
 
   // version 2
   stream << m_vPositionOffset;
+
+  // version 3
+  stream << m_sScaleRadiusParameter;
 }
 
 void ezParticleInitializerFactory_SpherePosition::Load(ezStreamReader& stream)
@@ -84,6 +121,11 @@ void ezParticleInitializerFactory_SpherePosition::Load(ezStreamReader& stream)
   if (uiVersion >= 2)
   {
     stream >> m_vPositionOffset;
+  }
+
+  if (uiVersion >= 3)
+  {
+    stream >> m_sScaleRadiusParameter;
   }
 }
 

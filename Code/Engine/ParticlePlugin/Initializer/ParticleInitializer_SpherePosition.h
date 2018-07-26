@@ -12,6 +12,7 @@ public:
 
   virtual const ezRTTI* GetInitializerType() const override;
   virtual void CopyInitializerProperties(ezParticleInitializer* pInitializer, bool bFirstTime) const override;
+  virtual float GetSpawnCountMultiplier(const ezParticleEffectInstance* pEffect) const override;
 
   virtual void Save(ezStreamWriter& stream) const override;
   virtual void Load(ezStreamReader& stream) override;
@@ -24,6 +25,7 @@ public:
   bool m_bSpawnOnSurface;
   bool m_bSetVelocity;
   ezVarianceTypeFloat m_Speed;
+  ezString m_sScaleRadiusParameter;
 };
 
 
