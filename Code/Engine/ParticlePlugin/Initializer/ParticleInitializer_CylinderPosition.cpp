@@ -18,6 +18,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_CylinderPosition, 1
     EZ_MEMBER_PROPERTY("OnSurface", m_bSpawnOnSurface),
     EZ_MEMBER_PROPERTY("SetVelocity", m_bSetVelocity),
     EZ_MEMBER_PROPERTY("Speed", m_Speed),
+    EZ_MEMBER_PROPERTY("ScaleRadiusParam", m_sScaleRadiusParameter),
+    EZ_MEMBER_PROPERTY("ScaleHeightParam", m_sScaleHeightParameter),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -50,17 +52,42 @@ void ezParticleInitializerFactory_CylinderPosition::CopyInitializerProperties(ez
 {
   ezParticleInitializer_CylinderPosition* pInitializer = static_cast<ezParticleInitializer_CylinderPosition*>(pInitializer0);
 
+  const float fScaleRadius = pInitializer->GetOwnerEffect()->GetFloatParameter(ezTempHashedString(m_sScaleRadiusParameter.GetData()), 1.0f);
+  const float fScaleHeight = pInitializer->GetOwnerEffect()->GetFloatParameter(ezTempHashedString(m_sScaleHeightParameter.GetData()), 1.0f);
+
   pInitializer->m_vPositionOffset = m_vPositionOffset;
-  pInitializer->m_fRadius = ezMath::Max(m_fRadius, 0.01f); // prevent 0 radius
-  pInitializer->m_fHeight = ezMath::Max(m_fHeight, 0.0f);
+  pInitializer->m_fRadius = ezMath::Max(m_fRadius * fScaleRadius, 0.01f); // prevent 0 radius
+  pInitializer->m_fHeight = ezMath::Max(m_fHeight * fScaleHeight, 0.0f);
   pInitializer->m_bSpawnOnSurface = m_bSpawnOnSurface;
   pInitializer->m_bSetVelocity = m_bSetVelocity;
   pInitializer->m_Speed = m_Speed;
 }
 
+float ezParticleInitializerFactory_CylinderPosition::GetSpawnCountMultiplier(const ezParticleEffectInstance* pEffect) const
+{
+  const float fScaleRadius = pEffect->GetFloatParameter(ezTempHashedString(m_sScaleRadiusParameter.GetData()), 1.0f);
+  const float fScaleHeight = pEffect->GetFloatParameter(ezTempHashedString(m_sScaleHeightParameter.GetData()), 1.0f);
+
+  if (m_bSpawnOnSurface)
+  {
+    const float s0 = /* 2.0f * ezMath::BasicType<float>::Pi() * m_fRadius **/ m_fRadius + /* 2.0f * ezMath::BasicType<float>::Pi() * m_fRadius **/ m_fHeight;
+    const float s1 = /* 2.0f * ezMath::BasicType<float>::Pi() * m_fRadius **/ m_fRadius * fScaleRadius * fScaleRadius +
+                             /*2.0f * ezMath::BasicType<float>::Pi() * m_fRadius **/ fScaleRadius * m_fHeight * fScaleHeight;
+
+    return s1 / s0;
+  }
+  else
+  {
+    const float v0 = 1.0f /* ezMath::BasicType<float>::Pi() * m_fRadius * m_fRadius*/;
+    const float v1 = 1.0f /* ezMath::BasicType<float>::Pi() * m_fRadius * m_fRadius*/ * fScaleRadius * fScaleRadius;
+
+    return v1 / v0;
+  }
+}
+
 void ezParticleInitializerFactory_CylinderPosition::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 2;
+  const ezUInt8 uiVersion = 3;
   stream << uiVersion;
 
   stream << m_fRadius;
@@ -72,6 +99,10 @@ void ezParticleInitializerFactory_CylinderPosition::Save(ezStreamWriter& stream)
 
   // version 2
   stream << m_vPositionOffset;
+
+  // version 3
+  stream << m_sScaleRadiusParameter;
+  stream << m_sScaleHeightParameter;
 }
 
 void ezParticleInitializerFactory_CylinderPosition::Load(ezStreamReader& stream)
@@ -89,6 +120,12 @@ void ezParticleInitializerFactory_CylinderPosition::Load(ezStreamReader& stream)
   if (uiVersion >= 2)
   {
     stream >> m_vPositionOffset;
+  }
+
+  if (uiVersion >= 3)
+  {
+    stream >> m_sScaleRadiusParameter;
+    stream >> m_sScaleHeightParameter;
   }
 }
 
@@ -172,7 +209,5 @@ void ezParticleInitializer_CylinderPosition::InitializeElements(ezUInt64 uiStart
     pPosition[i] = (trans * pos).GetAsVec4(0);
   }
 }
-
-
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_CylinderPosition);

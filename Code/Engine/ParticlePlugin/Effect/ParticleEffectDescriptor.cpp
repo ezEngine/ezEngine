@@ -13,8 +13,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectDescriptor, 1, ezRTTIDefaultAllo
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_MEMBER_PROPERTY("WhenInvisible", ezEffectInvisibleUpdateRate, m_InvisibleUpdateRate),
-    EZ_MEMBER_PROPERTY("SimulateInLocalSpace", m_bSimulateInLocalSpace),
     EZ_MEMBER_PROPERTY("AlwaysShared", m_bAlwaysShared),
+    EZ_MEMBER_PROPERTY("SimulateInLocalSpace", m_bSimulateInLocalSpace),
     EZ_MEMBER_PROPERTY("PreSimulateDuration", m_PreSimulateDuration),
     EZ_MEMBER_PROPERTY("ApplyOwnerVelocity", m_fApplyInstanceVelocity)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_MAP_MEMBER_PROPERTY("FloatParameters", m_FloatParameters),

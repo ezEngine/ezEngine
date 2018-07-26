@@ -62,31 +62,30 @@ float ezParticleInitializerFactory_SpherePosition::GetSpawnCountMultiplier(const
 {
   const float fScale = pEffect->GetFloatParameter(ezTempHashedString(m_sScaleRadiusParameter.GetData()), 1.0f);
 
-  float fSpawnMultiplier = 1.0f;
-
   if (m_fRadius != 0.0f && fScale != 1.0f)
   {
     if (m_bSpawnOnSurface)
     {
       // original surface area
-      const float s0 = 4.0f * ezMath::BasicType<float>::Pi() * ezMath::Square(m_fRadius);
+      const float s0 = 1.0f; /*4.0f * ezMath::BasicType<float>::Pi() * m_fRadius * m_fRadius; */
       // new surface area
-      const float s1 = 4.0f * ezMath::BasicType<float>::Pi() * ezMath::Square(m_fRadius * fScale);
+      const float s1 = 1.0f /*4.0f * ezMath::BasicType<float>::Pi() * m_fRadius * m_fRadius */ * fScale * fScale;
 
-      fSpawnMultiplier = s1 / s0;
+      return s1 / s0;
     }
     else
     {
       // original volume
-      const float v0 = 4.0f / 3.0f * ezMath::BasicType<float>::Pi() * ezMath::Pow(m_fRadius, 3.0f);
+      const float v0 = 1.0f;
+       /* 4.0f / 3.0f * ezMath::BasicType<float>::Pi() * m_fRadius* m_fRadius* m_fRadius; */
       // new volume
-      const float v1 = 4.0f / 3.0f * ezMath::BasicType<float>::Pi() * ezMath::Pow(m_fRadius * fScale, 3.0f);
+      const float v1 = 1.0f /* 4.0f / 3.0f * ezMath::BasicType<float>::Pi() * m_fRadius * m_fRadius * m_fRadius*/ * fScale * fScale * fScale;
 
-      fSpawnMultiplier = v1 / v0;
+      return v1 / v0;
     }
   }
 
-  return fSpawnMultiplier;
+  return 1.0f;
 }
 
 void ezParticleInitializerFactory_SpherePosition::Save(ezStreamWriter& stream) const
