@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9806294794305770135,5052761689686868269}}
-		u4 %Hash{5581693272204413584}
+		u4 %Hash{17485071076949616422}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{6081267957385338977,3246025681860056992}}
@@ -148,7 +148,7 @@ o
 	p
 	{
 		b %Active{1}
-		s %OnFinishedAction{"ezOnComponentFinishedAction::DeleteComponent"}
+		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
 		b %Paused{0}
 		f %Pitch{0x0000803F}
 		s %SoundEvent{"{ 32cb0079-08cc-4f6b-a94b-0832e602ee1a }"}

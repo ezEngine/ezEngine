@@ -619,6 +619,13 @@ void ezGameObject::RemoveComponent(ezComponent* pComponent)
   ezUInt32 uiIndex = m_Components.IndexOf(pComponent);
   EZ_ASSERT_DEV(uiIndex != ezInvalidIndex, "Component not found");
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  if (IsActive() && IsStatic() && GetWorld()->ReportErrorWhenStaticObjectMoves())
+  {
+    EZ_ASSERT_DEV(uiIndex == m_Components.GetCount() - 1, "A component was removed from static object '{0}' during runtime. This can break render data caching!", GetName());
+  }
+#endif
+
   pComponent->m_pOwner = nullptr;
   m_Components.RemoveAtSwap(uiIndex);
 }

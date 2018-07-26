@@ -324,7 +324,9 @@ void ezDecalComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
 
   ezUInt32 uiSortingId = (ezUInt32)(ezMath::Min(m_fSortOrder * 512.0f, 32767.0f) + 32768.0f);
   uiSortingId = (uiSortingId << 16) | (m_uiInternalSortKey & 0xFFFF);
-  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Decal, uiSortingId, ezRenderData::Caching::IfStatic);
+  ezRenderData::Caching::Enum caching = (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0) ?
+    ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic;
+  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Decal, uiSortingId, caching);
 }
 
 void ezDecalComponent::OnObjectCreated(const ezAbstractObjectNode& node)
@@ -342,9 +344,6 @@ void ezDecalComponent::OnSimulationStarted()
 
   if (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0)
   {
-    // when a decal is supposed to fade out, it has to be dynamic, otherwise it doesn't get the render updates
-    GetOwner()->MakeDynamic();
-
     const ezTime tFadeOutDelay = ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleVariance(m_FadeOutDelay.m_Value.GetSeconds(), m_FadeOutDelay.m_fVariance));
     m_StartFadeOutTime = pWorld->GetClock().GetAccumulatedTime() + tFadeOutDelay;
 
