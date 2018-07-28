@@ -16,7 +16,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleSystemDescriptor, 1, ezRTTIDefaultAllo
   {
     EZ_MEMBER_PROPERTY("Name", m_sName),
     EZ_MEMBER_PROPERTY("Visible", m_bVisible)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_MEMBER_PROPERTY("MaxParticles", m_uiMaxParticles)->AddAttributes(new ezDefaultValueAttribute(64), new ezClampValueAttribute(1, 65535)),
     EZ_MEMBER_PROPERTY("LifeTime", m_LifeTime)->AddAttributes(new ezDefaultValueAttribute(ezTime::Seconds(2)), new ezClampValueAttribute(ezTime::Seconds(0.0), ezVariant())),
     EZ_MEMBER_PROPERTY("LifeScaleParam", m_sLifeScaleParameter),
     EZ_MEMBER_PROPERTY("OnDeathEvent", m_sOnDeathEvent),
@@ -33,7 +32,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezParticleSystemDescriptor::ezParticleSystemDescriptor()
 {
   m_bVisible = true;
-  m_uiMaxParticles = 64;
 }
 
 ezParticleSystemDescriptor::~ezParticleSystemDescriptor()
@@ -139,7 +137,8 @@ void ezParticleSystemDescriptor::SetupDefaultProcessors()
 
   for (const ezRTTI* pRtti : finalizers)
   {
-    EZ_ASSERT_DEBUG(pRtti->IsDerivedFrom<ezParticleFinalizerFactory>(), "Invalid finalizer factory added as a dependency: '{0}'", pRtti->GetTypeName());
+    EZ_ASSERT_DEBUG(pRtti->IsDerivedFrom<ezParticleFinalizerFactory>(), "Invalid finalizer factory added as a dependency: '{0}'",
+                    pRtti->GetTypeName());
     EZ_ASSERT_DEBUG(pRtti->GetAllocator()->CanAllocate(), "Finalizer factory cannot be allocated: '{0}'", pRtti->GetTypeName());
 
     m_FinalizerFactories.PushBack(pRtti->GetAllocator()->Allocate<ezParticleFinalizerFactory>());
@@ -163,6 +162,21 @@ enum class ParticleSystemVersion
 };
 
 
+ezTime ezParticleSystemDescriptor::GetAvgLifetime() const
+{
+  ezTime time = m_LifeTime.m_Value + m_LifeTime.m_Value * (m_LifeTime.m_fVariance * 2.0f / 3.0f);
+
+  // we actively prevent values outside the [0;2] range for the life-time scale parameter, when it is applied
+  // so this is the accurate worst case value
+  // effects should be authored with the maximum lifetime, and at runtime the lifetime should only be scaled down
+  if (!m_sLifeScaleParameter.IsEmpty())
+  {
+    time = time * 2.0f;
+  }
+
+  return time;
+}
+
 void ezParticleSystemDescriptor::Save(ezStreamWriter& stream) const
 {
   const ezUInt8 uiVersion = (int)ParticleSystemVersion::Version_Current;
@@ -174,8 +188,9 @@ void ezParticleSystemDescriptor::Save(ezStreamWriter& stream) const
   const ezUInt32 uiNumBehaviors = m_BehaviorFactories.GetCount();
   const ezUInt32 uiNumTypes = m_TypeFactories.GetCount();
 
+  ezUInt32 uiMaxParticles = 0;
   stream << m_bVisible;
-  stream << m_uiMaxParticles;
+  stream << uiMaxParticles;
   stream << m_LifeTime.m_Value;
   stream << m_LifeTime.m_fVariance;
   stream << m_sOnDeathEvent;
@@ -239,7 +254,9 @@ void ezParticleSystemDescriptor::Load(ezStreamReader& stream)
 
   if (uiVersion >= 2)
   {
-    stream >> m_uiMaxParticles;
+    // now unused
+    ezUInt32 uiMaxParticles = 0;
+    stream >> uiMaxParticles;
   }
 
   if (uiVersion >= 5)

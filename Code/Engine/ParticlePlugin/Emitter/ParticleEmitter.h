@@ -19,6 +19,7 @@ public:
   virtual void CopyEmitterProperties(ezParticleEmitter* pEmitter, bool bFirstTime) const = 0;
 
   ezParticleEmitter* CreateEmitter(ezParticleSystemInstance* pOwner) const;
+  virtual void QueryMaxParticleCount(ezUInt32& out_uiMaxParticlesAbs, ezUInt32& out_uiMaxParticlesPerSecond) const = 0;
 
   virtual void Save(ezStreamWriter& stream) const = 0;
   virtual void Load(ezStreamReader& stream) = 0;

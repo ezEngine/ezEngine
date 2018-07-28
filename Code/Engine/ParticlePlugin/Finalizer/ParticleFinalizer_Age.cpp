@@ -74,7 +74,7 @@ void ezParticleFinalizer_Age::InitializeElements(ezUInt64 uiStartIndex, ezUInt64
   EZ_PROFILE("PFX: Age Init");
 
   ezFloat16Vec2* pLifeTime = m_pStreamLifeTime->GetWritableData<ezFloat16Vec2>();
-  const float fLifeScale = ezMath::Max(GetOwnerEffect()->GetFloatParameter(m_sLifeScaleParameter, 1.0f), 0.0f);
+  const float fLifeScale = ezMath::Clamp(GetOwnerEffect()->GetFloatParameter(m_sLifeScaleParameter, 1.0f), 0.0f, 2.0f);
 
   if (m_LifeTime.m_fVariance == 0)
   {

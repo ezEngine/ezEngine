@@ -6,6 +6,7 @@
 #include <Foundation/Time/Clock.h>
 #include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
+#include <ParticlePlugin/Emitter/ParticleEmitter.h>
 #include <ParticlePlugin/Events/ParticleEventReaction.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
@@ -301,6 +302,21 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
     systemMaxParticles.SetCountUninitialized(systems.GetCount());
     for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
     {
+      ezUInt32 uiMaxParticlesAbs = 0, uiMaxParticlesPerSec = 0;
+      for (const ezParticleEmitterFactory* pEmitter : systems[i]->GetEmitterFactories())
+      {
+        ezUInt32 uiMaxParticlesAbs0 = 0, uiMaxParticlesPerSec0 = 0;
+        pEmitter->QueryMaxParticleCount(uiMaxParticlesAbs0, uiMaxParticlesPerSec0);
+
+        uiMaxParticlesAbs += uiMaxParticlesAbs0;
+        uiMaxParticlesPerSec += uiMaxParticlesPerSec0;
+      }
+
+      const ezTime tLifetime = systems[i]->GetAvgLifetime();
+
+      const ezUInt32 uiMaxParticles =
+          ezMath::Max(32u, ezMath::Max(uiMaxParticlesAbs, (ezUInt32)(uiMaxParticlesPerSec * tLifetime.GetSeconds())));
+
       float fMultiplier = 1.0f;
 
       for (const ezParticleInitializerFactory* pInitializer : systems[i]->GetInitializerFactories())
@@ -309,7 +325,7 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
       }
 
       systemMaxParticles[i].m_fMultiplier = ezMath::Max(0.0f, fMultiplier);
-      systemMaxParticles[i].m_uiCount = (ezUInt32)(systems[i]->m_uiMaxParticles * systemMaxParticles[i].m_fMultiplier);
+      systemMaxParticles[i].m_uiCount = (ezUInt32)(uiMaxParticles * systemMaxParticles[i].m_fMultiplier);
     }
   }
   // delete all that have important changes
@@ -330,7 +346,8 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
     {
       if (m_ParticleSystems[i] == nullptr)
       {
-        m_ParticleSystems[i] = m_pOwnerModule->CreateSystemInstance(systemMaxParticles[i].m_uiCount, m_pWorld, this, systemMaxParticles[i].m_fMultiplier);
+        m_ParticleSystems[i] =
+            m_pOwnerModule->CreateSystemInstance(systemMaxParticles[i].m_uiCount, m_pWorld, this, systemMaxParticles[i].m_fMultiplier);
       }
     }
   }

@@ -38,7 +38,8 @@ public:
 
   const ezHybridArray<ezParticleFinalizerFactory*, 2>& GetFinalizerFactories() const { return m_FinalizerFactories; }
 
-  ezUInt32 m_uiMaxParticles;
+  ezTime GetAvgLifetime() const;
+
   bool m_bVisible;
 
   ezVarianceTypeTime m_LifeTime;

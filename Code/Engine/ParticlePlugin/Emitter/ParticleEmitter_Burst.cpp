@@ -54,6 +54,13 @@ void ezParticleEmitterFactory_Burst::CopyEmitterProperties(ezParticleEmitter* pE
   pEmitter->m_sSpawnCountScaleParameter = ezTempHashedString(m_sSpawnCountScaleParameter.GetData());
 }
 
+
+void ezParticleEmitterFactory_Burst::QueryMaxParticleCount(ezUInt32& out_uiMaxParticlesAbs, ezUInt32& out_uiMaxParticlesPerSecond) const
+{
+  out_uiMaxParticlesAbs = m_uiSpawnCountMin + m_uiSpawnCountRange;
+  out_uiMaxParticlesPerSecond = 0;
+}
+
 enum class EmitterBurstVersion
 {
   Version_1 = 1,

@@ -41,6 +41,12 @@ void ezParticleEmitterFactory_OnEvent::CopyEmitterProperties(ezParticleEmitter* 
   pEmitter->m_sEventName = ezTempHashedString(m_sEventName.GetData());
 }
 
+void ezParticleEmitterFactory_OnEvent::QueryMaxParticleCount(ezUInt32& out_uiMaxParticlesAbs, ezUInt32& out_uiMaxParticlesPerSecond) const
+{
+  out_uiMaxParticlesAbs = 0;
+  out_uiMaxParticlesPerSecond = 16; // some wild guess
+}
+
 enum class EmitterOnEventVersion
 {
   Version_0 = 0,

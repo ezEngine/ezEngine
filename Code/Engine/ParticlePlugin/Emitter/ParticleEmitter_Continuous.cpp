@@ -60,6 +60,12 @@ void ezParticleEmitterFactory_Continuous::CopyEmitterProperties(ezParticleEmitte
   pEmitter->m_CurveDuration = ezMath::Max(m_CurveDuration, ezTime::Seconds(1.0));
 }
 
+void ezParticleEmitterFactory_Continuous::QueryMaxParticleCount(ezUInt32& out_uiMaxParticlesAbs, ezUInt32& out_uiMaxParticlesPerSecond) const
+{
+  out_uiMaxParticlesAbs = 0;
+  out_uiMaxParticlesPerSecond = m_uiSpawnCountPerSec + (m_uiSpawnCountPerSecRange * 3 / 4); // don't be too pessimistic
+}
+
 enum class EmitterContinuousVersion
 {
   Version_0 = 0,
