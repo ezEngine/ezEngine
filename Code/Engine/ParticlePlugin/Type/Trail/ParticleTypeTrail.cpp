@@ -28,6 +28,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeTrailFactory, 1, ezRTTIDefaultAllo
     EZ_ENUM_MEMBER_PROPERTY("TextureAtlas", ezParticleTextureAtlasType, m_TextureAtlasType),
     EZ_MEMBER_PROPERTY("NumSpritesX", m_uiNumSpritesX)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_MEMBER_PROPERTY("NumSpritesY", m_uiNumSpritesY)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
+    EZ_MEMBER_PROPERTY("TintColorParam", m_sTintColorParameter),
     // EZ_MEMBER_PROPERTY("UpdateTime", m_UpdateDiff)->AddAttributes(new ezDefaultValueAttribute(ezTime::Milliseconds(50)), new
     // ezClampValueAttribute(ezTime::Milliseconds(20), ezTime::Milliseconds(300))),
   }
@@ -54,6 +55,7 @@ void ezParticleTypeTrailFactory::CopyTypeProperties(ezParticleType* pObject, boo
   pType->m_TextureAtlasType = m_TextureAtlasType;
   pType->m_uiNumSpritesX = m_uiNumSpritesX;
   pType->m_uiNumSpritesY = m_uiNumSpritesY;
+  pType->m_sTintColorParameter = ezTempHashedString(m_sTintColorParameter.GetData());
 
   // fixed 25 FPS for the update rate
   pType->m_UpdateDiff = ezTime::Seconds(1.0 / 25.0); // m_UpdateDiff;
@@ -84,6 +86,7 @@ enum class TypeTrailVersion
   Version_1,
   Version_2, // added render mode
   Version_3, // added texture atlas support
+  Version_4, // added tint color
 
   // insert new version numbers above
   Version_Count,
@@ -104,6 +107,9 @@ void ezParticleTypeTrailFactory::Save(ezStreamWriter& stream) const
   stream << m_TextureAtlasType;
   stream << m_uiNumSpritesX;
   stream << m_uiNumSpritesY;
+
+  // version 4
+  stream << m_sTintColorParameter;
 }
 
 void ezParticleTypeTrailFactory::Load(ezStreamReader& stream)
@@ -133,6 +139,11 @@ void ezParticleTypeTrailFactory::Load(ezStreamReader& stream)
       m_uiNumSpritesX = 1;
       m_uiNumSpritesY = 1;
     }
+  }
+
+  if (uiVersion >= 4)
+  {
+    stream >> m_sTintColorParameter;
   }
 }
 
@@ -183,6 +194,8 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
   {
     m_uiLastExtractedFrame = uiExtractedFrame;
 
+    const ezColor tintColor = GetOwnerEffect()->GetColorParameter(m_sTintColorParameter, ezColor::White);
+
     const ezFloat16* pSize = m_pStreamSize->GetData<ezFloat16>();
     const ezColorLinear16f* pColor = m_pStreamColor->GetData<ezColorLinear16f>();
     const TrailData* pTrailData = m_pStreamTrailData->GetData<TrailData>();
@@ -202,7 +215,7 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
     for (ezUInt32 p = 0; p < numActiveParticles; ++p)
     {
       m_BaseParticleData[p].Size = pSize[p];
-      m_BaseParticleData[p].Color = pColor[p].ToLinearFloat();
+      m_BaseParticleData[p].Color = pColor[p].ToLinearFloat() * tintColor;
       m_BaseParticleData[p].Life = pLifeTime[p].x * pLifeTime[p].y;
       m_BaseParticleData[p].Variation = (pVariation != nullptr) ? pVariation[p] : 0;
 
