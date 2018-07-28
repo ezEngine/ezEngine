@@ -47,7 +47,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2836996776398598532,5217182121428743175}}
-		u4 %Hash{18406334395968409589}
+		u4 %Hash{6860988563127320890}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{17558714013187718990,3410446113601931898}}
@@ -137,7 +137,6 @@ o
 		}
 		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{1641913817178327790,12146598787001882680}}
-		u3 %MaxParticles{64}
 		s %Name{"Ground Cover"}
 		s %OnDeathEvent{""}
 		VarArray %Types
@@ -303,7 +302,7 @@ o
 		u1 %NumSpritesY{1}
 		s %Orientation{"ezQuadParticleOrientation::Billboard"}
 		f %ParticleStretch{0x0000803F}
-		s %RenderMode{"ezParticleTypeRenderMode::Blended"}
+		s %RenderMode{"ezParticleTypeRenderMode::BlendedForeground"}
 		s %Texture{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
 		s %TextureAtlas{"ezParticleTextureAtlasType::None"}
 		s %TintColorParam{""}
@@ -323,7 +322,7 @@ o
 		u1 %NumSpritesY{1}
 		s %Orientation{"ezQuadParticleOrientation::Fixed_EmitterDir"}
 		f %ParticleStretch{0x0000803F}
-		s %RenderMode{"ezParticleTypeRenderMode::Blended"}
+		s %RenderMode{"ezParticleTypeRenderMode::BlendedBackground"}
 		s %Texture{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
 		s %TextureAtlas{"ezParticleTextureAtlasType::None"}
 		s %TintColorParam{""}
@@ -353,7 +352,6 @@ o
 		}
 		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{16719819591780322435,1702313106307435869}}
-		u3 %MaxParticles{64}
 		s %Name{"Fog"}
 		s %OnDeathEvent{""}
 		VarArray %Types

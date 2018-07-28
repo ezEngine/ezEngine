@@ -197,7 +197,9 @@ void ezParticleTypeQuad::ExtractTypeRenderData(const ezView& view, ezExtractedRe
   if (!m_hTexture.IsValid() || numParticles == 0)
     return;
 
-  const bool bNeedsSorting = m_RenderMode == ezParticleTypeRenderMode::Blended;
+  const bool bNeedsSorting = (m_RenderMode == ezParticleTypeRenderMode::Blended) ||
+                             (m_RenderMode == ezParticleTypeRenderMode::BlendedForeground) ||
+                             (m_RenderMode == ezParticleTypeRenderMode::BlendedBackground);
 
   // don't copy the data multiple times in the same frame, if the effect is instanced
   if ((m_uiLastExtractedFrame != uiExtractedFrame)

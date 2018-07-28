@@ -50,6 +50,8 @@ ezParticleRaycastHitReaction::Die;Die
 ezParticleRaycastHitReaction::Stop;Stop
 ezParticleTypeRenderMode::Additive;Additive
 ezParticleTypeRenderMode::Blended;Blended
+ezParticleTypeRenderMode::BlendedForeground;Blended (Foreground)
+ezParticleTypeRenderMode::BlendedBackground;Blended (Background)
 ezParticleTypeRenderMode::Opaque;Opaque
 ezParticleTypeRenderMode::Distortion;Distortion
 ezEffectInvisibleUpdateRate::FullUpdate;Full Update

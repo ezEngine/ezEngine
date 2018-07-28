@@ -9,8 +9,10 @@
 enum ezParticleTypeSortingKey
 {
   Opaque = 0,
-  Additive  = 10,
-  Blended = 20,
+  BlendedBackground = 10,
+  Additive  = 20,
+  Blended = 30,
+  BlendedForeground = 40,
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeFactory : public ezReflectedClass

@@ -126,6 +126,8 @@ bool ezParticleTrailRenderer::ConfigureShader(const ezParticleTrailRenderData* p
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_ADDITIVE");
       break;
     case ezParticleTypeRenderMode::Blended:
+    case ezParticleTypeRenderMode::BlendedForeground:
+    case ezParticleTypeRenderMode::BlendedBackground:
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_BLENDED");
       break;
     case ezParticleTypeRenderMode::Opaque:
