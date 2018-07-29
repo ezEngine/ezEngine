@@ -33,7 +33,8 @@ public:
   void SetDocument(ezDocument* pDocument, bool bBindToSelectionManager = true);
 
   void ClearSelection();
-  void SetSelection(const ezDeque<const ezDocumentObject*>& selection);
+  void SetSelection(const ezDeque<const ezDocumentObject*>& selection, const char* szIncludeProperties = nullptr,
+                    const char* szExcludeProperties = nullptr);
   const ezDocument* GetDocument() const;
   const ezDocumentObjectManager* GetObjectManager() const;
   ezCommandHistory* GetCommandHistory() const;

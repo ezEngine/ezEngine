@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <GuiFoundation/PropertyGrid/PropertyBaseWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <Foundation/Strings/TranslationLookup.h>
@@ -385,7 +385,7 @@ void ezQtPropertyPointerWidget::SetSelection(const ezHybridArray<ezPropertySelec
   {
     const ezRTTI* pCommonType = ezQtPropertyWidget::GetCommonBaseType(subItems);
 
-    m_pTypeWidget = new ezQtTypeWidget(m_pGroup->GetContent(), m_pGrid, m_pObjectAccessor, pCommonType);
+    m_pTypeWidget = new ezQtTypeWidget(m_pGroup->GetContent(), m_pGrid, m_pObjectAccessor, pCommonType, nullptr, nullptr);
     m_pTypeWidget->SetSelection(subItems);
 
     m_pGroupLayout->addWidget(m_pTypeWidget);
@@ -643,7 +643,7 @@ void ezQtPropertyTypeWidget::SetSelection(const ezHybridArray<ezPropertySelectio
     // As we are not dealing with a pointer in this case the type must match the property exactly.
     pCommonType = m_pProp->GetSpecificType();
   }
-  m_pTypeWidget = new ezQtTypeWidget(pOwner, m_pGrid, m_pObjectAccessor, pCommonType);
+  m_pTypeWidget = new ezQtTypeWidget(pOwner, m_pGrid, m_pObjectAccessor, pCommonType, nullptr, nullptr);
   m_pTypeWidget->SetSelection(ResolvedObjects);
 
   pLayout->addWidget(m_pTypeWidget);

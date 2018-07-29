@@ -17,7 +17,8 @@ class EZ_GUIFOUNDATION_DLL ezQtTypeWidget : public QWidget
 {
   Q_OBJECT
 public:
-  ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, ezObjectAccessorBase* pObjectAccessor, const ezRTTI* pType);
+  ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, ezObjectAccessorBase* pObjectAccessor, const ezRTTI* pType,
+                 const char* szIncludeProperties, const char* szExcludeProperties);
   ~ezQtTypeWidget();
   void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items);
   const ezHybridArray<ezPropertySelection, 8>& GetSelection() const { return m_Items; }
@@ -25,8 +26,9 @@ public:
   void PrepareToDie();
 
 private:
-  void BuildUI(const ezRTTI* pType);
-  void BuildUI(const ezRTTI* pType, const ezMap<ezString, const ezManipulatorAttribute*>& manipulatorMap);
+  void BuildUI(const ezRTTI* pType, const char* szIncludeProperties, const char* szExcludeProperties);
+  void BuildUI(const ezRTTI* pType, const ezMap<ezString, const ezManipulatorAttribute*>& manipulatorMap, const char* szIncludeProperties,
+               const char* szExcludeProperties);
 
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);

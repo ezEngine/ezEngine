@@ -1,25 +1,30 @@
 #include <PCH.h>
-#include <GuiFoundation/PropertyGrid/Implementation/TypeWidget.moc.h>
+
+#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
+#include <Foundation/Strings/TranslationLookup.h>
+#include <Foundation/Types/Variant.h>
+#include <GuiFoundation/PropertyGrid/Implementation/ManipulatorLabel.moc.h>
 #include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
+#include <GuiFoundation/PropertyGrid/Implementation/TypeWidget.moc.h>
+#include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
+#include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Document/Document.h>
-#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
-#include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
-#include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
-#include <GuiFoundation/PropertyGrid/Implementation/ManipulatorLabel.moc.h>
-#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
-#include <Foundation/Strings/TranslationLookup.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
+#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
+
 #include <QGridLayout>
 #include <QLabel>
 
-ezQtTypeWidget::ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, ezObjectAccessorBase* pObjectAccessor, const ezRTTI* pType)
-  : QWidget(pParent)
-  , m_pGrid(pGrid)
-  , m_pObjectAccessor(pObjectAccessor)
-  , m_pType(pType)
+
+ezQtTypeWidget::ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, ezObjectAccessorBase* pObjectAccessor, const ezRTTI* pType,
+                               const char* szIncludeProperties, const char* szExcludeProperties)
+    : QWidget(pParent)
+    , m_pGrid(pGrid)
+    , m_pObjectAccessor(pObjectAccessor)
+    , m_pType(pType)
 {
   EZ_ASSERT_DEBUG(m_pGrid && m_pObjectAccessor && m_pType, "");
   m_pLayout = new QGridLayout(this);
@@ -35,7 +40,7 @@ ezQtTypeWidget::ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, 
   m_pGrid->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtTypeWidget::CommandHistoryEventHandler, this));
   ezManipulatorManager::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtTypeWidget::ManipulatorManagerEventHandler, this));
 
-  BuildUI(pType);
+  BuildUI(pType, szIncludeProperties, szExcludeProperties);
 }
 
 ezQtTypeWidget::~ezQtTypeWidget()
@@ -89,13 +94,14 @@ void ezQtTypeWidget::PrepareToDie()
   }
 }
 
-void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ezManipulatorAttribute*>& manipulatorMap)
+void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ezManipulatorAttribute*>& manipulatorMap,
+                             const char* szIncludeProperties, const char* szExcludeProperties)
 {
   ezQtScopedUpdatesDisabled _(this);
 
   const ezRTTI* pParentType = pType->GetParentType();
   if (pParentType != nullptr)
-    BuildUI(pParentType, manipulatorMap);
+    BuildUI(pParentType, manipulatorMap, szIncludeProperties, szExcludeProperties);
 
   ezUInt32 iRows = m_pLayout->rowCount();
   for (ezUInt32 i = 0; i < pType->GetProperties().GetCount(); ++i)
@@ -112,6 +118,12 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ez
       continue;
 
     if (pProp->GetCategory() == ezPropertyCategory::Constant)
+      continue;
+
+    if (szIncludeProperties != nullptr && ezStringUtils::FindSubString(szIncludeProperties, pProp->GetPropertyName()) == nullptr)
+      continue;
+
+    if (szExcludeProperties != nullptr && ezStringUtils::FindSubString(szExcludeProperties, pProp->GetPropertyName()) != nullptr)
       continue;
 
     ezQtPropertyWidget* pNewWidget = ezQtPropertyGridWidget::CreatePropertyWidget(pProp);
@@ -153,7 +165,7 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ez
 }
 
 
-void ezQtTypeWidget::BuildUI(const ezRTTI* pType)
+void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludeProperties, const char* szExcludeProperties)
 {
   ezMap<ezString, const ezManipulatorAttribute*> manipulatorMap;
 
@@ -186,7 +198,7 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType)
     pParentType = pParentType->GetParentType();
   }
 
-  BuildUI(pType, manipulatorMap);
+  BuildUI(pType, manipulatorMap, szIncludeProperties, szExcludeProperties);
 }
 
 void ezQtTypeWidget::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
@@ -204,17 +216,17 @@ void ezQtTypeWidget::CommandHistoryEventHandler(const ezCommandHistoryEvent& e)
 
   switch (e.m_Type)
   {
-  case ezCommandHistoryEvent::Type::UndoEnded:
-  case ezCommandHistoryEvent::Type::RedoEnded:
-  case ezCommandHistoryEvent::Type::TransactionEnded:
-  case ezCommandHistoryEvent::Type::TransactionCanceled:
+    case ezCommandHistoryEvent::Type::UndoEnded:
+    case ezCommandHistoryEvent::Type::RedoEnded:
+    case ezCommandHistoryEvent::Type::TransactionEnded:
+    case ezCommandHistoryEvent::Type::TransactionCanceled:
     {
       FlushQueuedChanges();
     }
     break;
 
-  default:
-    break;
+    default:
+      break;
   }
 }
 
@@ -243,14 +255,11 @@ void ezQtTypeWidget::ManipulatorManagerEventHandler(const ezManipulatorManagerEv
       }
     }
   }
-
 }
 
 void ezQtTypeWidget::UpdateProperty(const ezDocumentObject* pObject, const ezString& sProperty)
 {
-  if (std::none_of(cbegin(m_Items), cend(m_Items),
-                   [=](const ezPropertySelection& sel) { return pObject == sel.m_pObject; }
-  ))
+  if (std::none_of(cbegin(m_Items), cend(m_Items), [=](const ezPropertySelection& sel) { return pObject == sel.m_pObject; }))
     return;
 
 
@@ -295,7 +304,8 @@ void ezQtTypeWidget::UpdatePropertyMetaState()
   {
     auto itData = PropertyStates.Find(it.Key());
 
-    const bool bReadOnly = (it.Value().m_pWidget->GetProperty()->GetFlags().IsSet(ezPropertyFlags::ReadOnly)) || (it.Value().m_pWidget->GetProperty()->GetAttributeByType<ezReadOnlyAttribute>() != nullptr);
+    const bool bReadOnly = (it.Value().m_pWidget->GetProperty()->GetFlags().IsSet(ezPropertyFlags::ReadOnly)) ||
+                           (it.Value().m_pWidget->GetProperty()->GetAttributeByType<ezReadOnlyAttribute>() != nullptr);
     ezPropertyUiState::Visibility state = ezPropertyUiState::Default;
     bool bIsDefaultValue = true;
     if (itData.IsValid())
@@ -338,4 +348,3 @@ void ezQtTypeWidget::UpdatePropertyMetaState()
     it.Value().m_pWidget->SetIsDefault(bIsDefaultValue);
   }
 }
-
