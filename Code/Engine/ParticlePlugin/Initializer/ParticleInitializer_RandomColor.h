@@ -1,11 +1,11 @@
-﻿#pragma once
+#pragma once
 
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 
 typedef ezTypedResourceHandle<class ezColorGradientResource> ezColorGradientResourceHandle;
 
-class ezParticleInitializerFactory_RandomColor : public ezParticleInitializerFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_RandomColor : public ezParticleInitializerFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializerFactory_RandomColor, ezParticleInitializerFactory);
 

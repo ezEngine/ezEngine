@@ -26,7 +26,16 @@ ezParticleEffectAssetDocument::ezParticleEffectAssetDocument(const char* szDocum
 
 void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
 {
-  if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleTypeQuadFactory>())
+  if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleEffectDescriptor>())
+  {
+    auto& props = *e.m_pPropertyStates;
+
+    bool bShared = e.m_pObject->GetTypeAccessor().GetValue("AlwaysShared").ConvertTo<bool>();
+
+    props["SimulateInLocalSpace"].m_Visibility = bShared ? ezPropertyUiState::Disabled : ezPropertyUiState::Default;
+    props["ApplyOwnerVelocity"].m_Visibility = bShared ? ezPropertyUiState::Disabled : ezPropertyUiState::Default;
+  }
+  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleTypeQuadFactory>())
   {
     auto& props = *e.m_pPropertyStates;
 

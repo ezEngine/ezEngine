@@ -5,7 +5,7 @@
 #include <ParticlePlugin/Events/ParticleEvent.h>
 #include <Foundation/Containers/Deque.h>
 
-class ezParticleEmitterFactory_OnEvent : public ezParticleEmitterFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleEmitterFactory_OnEvent : public ezParticleEmitterFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitterFactory_OnEvent, ezParticleEmitterFactory);
 

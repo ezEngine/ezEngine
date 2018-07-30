@@ -3,7 +3,7 @@
 #include <ParticlePlugin/Emitter/ParticleEmitter.h>
 #include <Foundation/Types/VarianceTypes.h>
 
-class ezParticleEmitterFactory_Burst : public ezParticleEmitterFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleEmitterFactory_Burst : public ezParticleEmitterFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitterFactory_Burst, ezParticleEmitterFactory);
 
