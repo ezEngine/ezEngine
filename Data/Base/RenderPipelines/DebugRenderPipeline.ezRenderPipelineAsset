@@ -1077,7 +1077,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSelectedObjectsExtractor"}
-		u3 %TypeSize{88}
+		u3 %TypeSize{96}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1188,7 +1188,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleExtractor"}
-		u3 %TypeSize{80}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1237,7 +1237,7 @@ o
 			Uuid{u4{2012387899594327277,3950326609854899947}}
 		}
 		s %TypeName{"ezSceneContext"}
-		u3 %TypeSize{1312}
+		u3 %TypeSize{1408}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1345,7 +1345,7 @@ o
 			Uuid{u4{6854911006197083064,7746640694434617992}}
 		}
 		s %TypeName{"ezEditorSelectedObjectsExtractor"}
-		u3 %TypeSize{424}
+		u3 %TypeSize{432}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1513,7 +1513,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezClusteredDataExtractor"}
-		u3 %TypeSize{224}
+		u3 %TypeSize{232}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1710,7 +1710,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezExtractor"}
-		u3 %TypeSize{80}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1731,7 +1731,7 @@ o
 			Uuid{u4{15868110692668931867,14943561632443673429}}
 		}
 		s %TypeName{"ezEditorGridExtractor"}
-		u3 %TypeSize{88}
+		u3 %TypeSize{96}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1796,7 +1796,7 @@ o
 			Uuid{u4{16998480651558378128,16264935532857513760}}
 		}
 		s %TypeName{"ezEditorShapeIconsExtractor"}
-		u3 %TypeSize{128}
+		u3 %TypeSize{136}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1914,7 +1914,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezVisibleObjectsExtractor"}
-		u3 %TypeSize{80}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1946,7 +1946,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEngineProcessDocumentContext"}
-		u3 %TypeSize{1064}
+		u3 %TypeSize{1112}
 		u3 %TypeVersion{1}
 	}
 }

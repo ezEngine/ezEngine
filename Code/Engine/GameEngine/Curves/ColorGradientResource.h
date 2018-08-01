@@ -25,7 +25,7 @@ public:
   /// \brief Returns all the data that is stored in this resource.
   const ezColorGradientResourceDescriptor& GetDescriptor() const { return m_Descriptor; }
 
-  ezColor ezColorGradientResource::Evaluate(double x)
+  inline ezColor Evaluate(double x) const
   {
     ezColor result;
     m_Descriptor.m_Gradient.Evaluate(x, result);

@@ -590,7 +590,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMaterialAssetProperties"}
-		u3 %TypeSize{320}
+		u3 %TypeSize{328}
 		u3 %TypeVersion{4}
 	}
 }

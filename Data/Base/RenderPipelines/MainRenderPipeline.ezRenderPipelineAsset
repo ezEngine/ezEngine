@@ -957,7 +957,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleTrailRenderer"}
-		u3 %TypeSize{40}
+		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
 	}
 }
@@ -1011,7 +1011,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleRenderer"}
-		u3 %TypeSize{8}
+		u3 %TypeSize{16}
 		u3 %TypeVersion{1}
 	}
 }

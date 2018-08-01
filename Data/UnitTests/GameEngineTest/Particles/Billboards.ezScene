@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{417929859897055155,5213067083916580312}}
-		u4 %Hash{17561964560789806114}
+		u4 %Hash{16077306431979629739}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -191,7 +191,7 @@ o
 {
 	Uuid %id{u4{16335282381914008233,5745122716798277419}}
 	s %t{"ezPrefabReferenceComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -360,7 +360,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezPrefabReferenceComponent"}
 		u3 %TypeSize{96}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
