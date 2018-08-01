@@ -19,7 +19,7 @@ Emitters;Emitters
 Initializers;Initializers
 Behaviors;Behaviors
 ParticleSystems;Particle Systems
-ezParticleTypeTrailFactory;Trail Renderer
+ezParticleTypeTrailFactory;Trail
 ezParticleBehaviorFactory_ColorGradient;Color Gradient
 ezParticleBehaviorFactory_Velocity;Velocity
 ezParticleBehaviorFactory_Gravity;Gravity
@@ -29,7 +29,7 @@ ezParticleEmitterFactory_Continuous;Continuous
 ezParticleEmitterFactory_OnEvent;On Event
 ezParticleEmitterFactory_Burst;Burst
 ezParticleEmitterFactory_Distance;Distance
-ezParticleTypeMeshFactory;Mesh Renderer
+ezParticleTypeMeshFactory;Mesh
 ezParticleInitializerFactory_VelocityCone;Velocity Cone
 ezParticleComponent;Particle
 ezParticleInitializerFactory_BoxPosition;Box Position
@@ -40,10 +40,10 @@ ezParticleInitializerFactory_RandomRotationSpeed;Rotation Speed
 ezParticleInitializerFactory_SpherePosition;Sphere Position
 ezParticleBehaviorFactory_PullAlong;Pull Along
 ezParticleBehaviorFactory_SizeCurve;Size Curve
-ezParticleTypeQuadFactory;Quad Renderer
-ezParticleTypeLightFactory;Light Renderer
-ezParticleTypeEffectFactory;Effect Renderer
-ezParticleTypePointFactory;Point Renderer
+ezParticleTypeQuadFactory;Quad
+ezParticleTypeLightFactory;Light
+ezParticleTypeEffectFactory;Effect
+ezParticleTypePointFactory;Point
 Types;Renderers
 ezParticleRaycastHitReaction::Bounce;Bounce
 ezParticleRaycastHitReaction::Die;Die

@@ -35,7 +35,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8041297443414721205,4824718660267000895}}
-		u4 %Hash{12319445806124586079}
+		u4 %Hash{15407352267437249923}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{4316270606494290047,3017982652440189618}}
@@ -62,6 +62,7 @@ o
 		b %OnSurface{0}
 		Vec3 %PositionOffset{f{0,0,0}}
 		f %Radius{0xCDCCCC3D}
+		s %ScaleRadiusParam{""}
 		b %SetVelocity{0}
 		Uuid %Speed{u4{7729996155230992620,11480695737777084942}}
 	}
@@ -156,7 +157,6 @@ o
 		}
 		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{8957888071462240302,10894455869226789624}}
-		u3 %MaxParticles{64}
 		s %Name{"Sprite"}
 		s %OnDeathEvent{""}
 		VarArray %Types
@@ -189,8 +189,7 @@ o
 		}
 		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{16834580451501738140,18337240242138616246}}
-		u3 %MaxParticles{64}
-		s %Name{""}
+		s %Name{"Billboards"}
 		s %OnDeathEvent{""}
 		VarArray %Types
 		{
@@ -679,7 +678,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_SpherePosition"}
-		u3 %TypeSize{40}
+		u3 %TypeSize{104}
 		u3 %TypeVersion{1}
 	}
 }

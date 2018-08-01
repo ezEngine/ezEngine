@@ -35,7 +35,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{6624488108262606998,5508995940489292237}}
-		u4 %Hash{8554809203817103943}
+		u4 %Hash{8968535809728333633}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{2899461271342175840,3702259932662480960}}
@@ -187,8 +187,7 @@ o
 		}
 		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{2308317634490975308,6876505243937913362}}
-		u3 %MaxParticles{100}
-		s %Name{""}
+		s %Name{"Muzzle"}
 		s %OnDeathEvent{""}
 		VarArray %Types
 		{
@@ -436,7 +435,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleSystemDescriptor"}
-		u3 %TypeSize{496}
+		u3 %TypeSize{448}
 		u3 %TypeVersion{1}
 	}
 }

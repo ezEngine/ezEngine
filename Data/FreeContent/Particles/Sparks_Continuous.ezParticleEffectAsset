@@ -21,7 +21,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9587224334196595849,5364780715327568785}}
-		u4 %Hash{4627008531176096323}
+		u4 %Hash{3634132188220998375}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{5862197497276164691,3558044707500757508}}
@@ -78,6 +78,9 @@ o
 	p
 	{
 		Vec3 %PositionOffset{f{0,0,0x9A99193E}}
+		s %ScaleXParam{""}
+		s %ScaleYParam{""}
+		s %ScaleZParam{""}
 		Vec3 %Size{f{0,0,0}}
 	}
 }
@@ -101,7 +104,6 @@ o
 		}
 		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{14553335748936124,9315461061791415028}}
-		u3 %MaxParticles{10}
 		s %Name{"Glow"}
 		s %OnDeathEvent{""}
 		VarArray %Types
@@ -173,6 +175,7 @@ o
 		u2 %Segments{5}
 		s %Texture{"{ 3619cd17-924e-4a3a-8aab-ecd69716ab3d }"}
 		s %TextureAtlas{"ezParticleTextureAtlasType::None"}
+		s %TintColorParam{""}
 	}
 }
 o
@@ -211,6 +214,7 @@ o
 		s %ColorGradientMode{"ezParticleColorGradientMode::Age"}
 		s %Gradient{"{ 5c9d3e28-e23d-4305-a16e-2db6836ef5d6 }"}
 		f %GradientMaxSpeed{0x0000803F}
+		Color %TintColor{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 	}
 }
 o
@@ -247,8 +251,7 @@ o
 		}
 		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{17888183714619390752,11349349863256194600}}
-		u3 %MaxParticles{200}
-		s %Name{""}
+		s %Name{"Trails"}
 		s %OnDeathEvent{""}
 		VarArray %Types
 		{
@@ -401,7 +404,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleBehaviorFactory_ColorGradient"}
-		u3 %TypeSize{24}
+		u3 %TypeSize{40}
 		u3 %TypeVersion{1}
 	}
 }
@@ -509,7 +512,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleTypeTrailFactory"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{160}
 		u3 %TypeVersion{1}
 	}
 }
@@ -563,7 +566,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_BoxPosition"}
-		u3 %TypeSize{32}
+		u3 %TypeSize{224}
 		u3 %TypeVersion{1}
 	}
 }

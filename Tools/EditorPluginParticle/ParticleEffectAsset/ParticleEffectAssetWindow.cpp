@@ -214,9 +214,6 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pTypePanel);
   }
 
-  // tabifyDockWidget(pMainPropertyPanel, pReactionsPanel);
-  // tabifyDockWidget(pMainPropertyPanel, pEffectPanel);
-
   // 3D View
   {
     SetTargetFramerate(25);
@@ -231,6 +228,16 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
   }
 
   m_pAssetDoc = static_cast<ezParticleEffectAssetDocument*>(pDocument);
+
+  tabifyDockWidget(pEffectPanel, pSystemsPanel);
+  tabifyDockWidget(pEffectPanel, pReactionsPanel);
+
+  tabifyDockWidget(pEmitterPanel, pInitializerPanel);
+  tabifyDockWidget(pEmitterPanel, pBehaviorPanel);
+  tabifyDockWidget(pEmitterPanel, pTypePanel);
+
+  pSystemsPanel->raise();
+  pEmitterPanel->raise();
 
   FinishWindowCreation();
 
@@ -252,6 +259,10 @@ ezQtParticleEffectAssetDocumentWindow::~ezQtParticleEffectAssetDocumentWindow()
       ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::PropertyEventHandler, this));
 }
 
+const char* ezQtParticleEffectAssetDocumentWindow::GetWindowLayoutGroupName() const
+{
+  return "ParticleEffectAsset2";
+}
 
 ezParticleEffectAssetDocument* ezQtParticleEffectAssetDocumentWindow::GetParticleDocument()
 {
@@ -713,7 +724,7 @@ void ezQtParticleEffectAssetDocumentWindow::UpdateSystemList()
   if (m_sSelectedSystem.IsEmpty() && !m_ParticleSystems.IsEmpty())
     m_sSelectedSystem = m_ParticleSystems.GetIterator().Key();
 
-  if (!m_sSelectedSystem.IsEmpty())
+  if (!m_ParticleSystems.IsEmpty())
   {
     SelectSystem(m_ParticleSystems[m_sSelectedSystem]);
   }

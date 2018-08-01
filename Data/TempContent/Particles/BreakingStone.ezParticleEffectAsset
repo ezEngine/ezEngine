@@ -24,7 +24,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12907113733222061238,5577365460626278697}}
-		u4 %Hash{8636714311960340877}
+		u4 %Hash{16662275080339673721}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{9182086896301630080,3770629452799467420}}
@@ -109,8 +109,7 @@ o
 		}
 		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{1401971896807354412,1275040784592982185}}
-		u3 %MaxParticles{64}
-		s %Name{""}
+		s %Name{"Stones"}
 		s %OnDeathEvent{""}
 		VarArray %Types
 		{

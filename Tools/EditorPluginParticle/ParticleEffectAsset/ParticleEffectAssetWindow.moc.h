@@ -22,7 +22,7 @@ public:
   ezQtParticleEffectAssetDocumentWindow(ezAssetDocument* pDocument);
   ~ezQtParticleEffectAssetDocumentWindow();
 
-  virtual const char* GetWindowLayoutGroupName() const { return "ParticleEffectAsset"; }
+  virtual const char* GetWindowLayoutGroupName() const;
   ezParticleEffectAssetDocument* GetParticleDocument();
 
 private slots:

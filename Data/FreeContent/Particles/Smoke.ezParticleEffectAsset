@@ -35,7 +35,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{18423804289550068914,5029208661442092394}}
-		u4 %Hash{17077969289316193446}
+		u4 %Hash{15430874432298731683}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14698777452629637756,3222472653615281117}}
@@ -87,8 +87,7 @@ o
 		}
 		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{10559976892065798889,6366291333529181288}}
-		u3 %MaxParticles{100}
-		s %Name{""}
+		s %Name{"Smoke"}
 		s %OnDeathEvent{""}
 		VarArray %Types
 		{
@@ -153,13 +152,14 @@ o
 		s %ColorGradientMode{"ezParticleColorGradientMode::Age"}
 		s %Gradient{"{ a1f3f932-460e-405a-8512-a0f3ce341d1b }"}
 		f %GradientMaxSpeed{0x0000803F}
+		Color %TintColor{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 	}
 }
 o
 {
 	Uuid %id{u4{18198626165141276314,5506089510500543476}}
 	s %t{"ezParticleTypeQuadFactory"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		Angle %Deviation{f{0}}
@@ -168,6 +168,7 @@ o
 		u1 %NumSpritesX{1}
 		u1 %NumSpritesY{1}
 		s %Orientation{"ezQuadParticleOrientation::Billboard"}
+		f %ParticleStretch{0x0000803F}
 		s %RenderMode{"ezParticleTypeRenderMode::Blended"}
 		s %Texture{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
 		s %TextureAtlas{"ezParticleTextureAtlasType::None"}
@@ -303,7 +304,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezQuadParticleOrientation"}
 		u3 %TypeSize{1}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -320,7 +321,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleBehaviorFactory_ColorGradient"}
-		u3 %TypeSize{24}
+		u3 %TypeSize{40}
 		u3 %TypeVersion{1}
 	}
 }
@@ -339,7 +340,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleTypeQuadFactory"}
 		u3 %TypeSize{232}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -482,7 +483,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleSystemDescriptor"}
-		u3 %TypeSize{496}
+		u3 %TypeSize{448}
 		u3 %TypeVersion{1}
 	}
 }

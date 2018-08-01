@@ -25,7 +25,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2102503715191217833,5588297821589819351}}
-		u4 %Hash{16377007005690624481}
+		u4 %Hash{18107081116407848854}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{16824220951980338291,3781561813763008074}}
@@ -196,8 +196,7 @@ o
 		}
 		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{3514186338970429704,12783530002325329518}}
-		u3 %MaxParticles{64}
-		s %Name{""}
+		s %Name{"Trails"}
 		s %OnDeathEvent{""}
 		VarArray %Types
 		{
@@ -229,8 +228,7 @@ o
 		}
 		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{12559811424043615130,2377943238997206245}}
-		u3 %MaxParticles{64}
-		s %Name{""}
+		s %Name{"Rising Billboards"}
 		s %OnDeathEvent{""}
 		VarArray %Types
 		{
@@ -414,8 +412,7 @@ o
 		}
 		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{4641011033921511054,10168112621520401147}}
-		u3 %MaxParticles{64}
-		s %Name{""}
+		s %Name{"Ground"}
 		s %OnDeathEvent{""}
 		VarArray %Types
 		{
@@ -461,6 +458,7 @@ o
 		u2 %Segments{6}
 		s %Texture{"{ 3619cd17-924e-4a3a-8aab-ecd69716ab3d }"}
 		s %TextureAtlas{"ezParticleTextureAtlasType::None"}
+		s %TintColorParam{""}
 	}
 }
 o
@@ -704,7 +702,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleTypeTrailFactory"}
-		u3 %TypeSize{96}
+		u3 %TypeSize{160}
 		u3 %TypeVersion{1}
 	}
 }

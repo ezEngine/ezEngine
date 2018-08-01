@@ -24,7 +24,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3750422148337051577,4755495847018279901}}
-		u4 %Hash{6941226401068385844}
+		u4 %Hash{14006696113252717412}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{25395311416620419,2948759839191468624}}
@@ -106,6 +106,9 @@ o
 	p
 	{
 		Vec3 %PositionOffset{f{0,0,0xCDCC4C3D}}
+		s %ScaleXParam{""}
+		s %ScaleYParam{""}
+		s %ScaleZParam{""}
 		Vec3 %Size{f{0,0,0}}
 	}
 }
@@ -229,7 +232,6 @@ o
 		}
 		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{14989423389834982458,9597719047597669649}}
-		u3 %MaxParticles{64}
 		s %Name{"Gibs"}
 		s %OnDeathEvent{""}
 		VarArray %Types
@@ -345,8 +347,7 @@ o
 		}
 		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{7064176166749679639,7057728419743519494}}
-		u3 %MaxParticles{64}
-		s %Name{""}
+		s %Name{"Cloud"}
 		s %OnDeathEvent{""}
 		VarArray %Types
 		{
@@ -672,7 +673,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleInitializerFactory_BoxPosition"}
-		u3 %TypeSize{32}
+		u3 %TypeSize{224}
 		u3 %TypeVersion{1}
 	}
 }
