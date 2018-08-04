@@ -27,6 +27,9 @@ struct EZ_RENDERERCORE_DLL ezViewRenderMode
     Occlusion,
     Depth,
     StaticVsDynamic,
+    BoneWeights,
+
+    ENUM_COUNT,
 
     Default = None
   };

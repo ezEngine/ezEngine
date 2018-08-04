@@ -1,21 +1,17 @@
-#include <PCH.h>
-#include <GameEngine/Animation/SimpleAnimationComponent.h>
-#include <Core/WorldSerializer/WorldWriter.h>
 #include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
+#include <GameEngine/Animation/SimpleAnimationComponent.h>
+#include <PCH.h>
 #include <RendererFoundation/Device/Device.h>
 
-EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationComponent, 2, ezComponentMode::Static);
+EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationComponent, 2, ezComponentMode::Dynamic);
 {
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("DegreePerSecond", m_DegreePerSecond)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90))),
-  }
-  EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezCategoryAttribute("Animation"),
-  }
-  EZ_END_ATTRIBUTES;
+  EZ_BEGIN_PROPERTIES{
+      EZ_MEMBER_PROPERTY("DegreePerSecond", m_DegreePerSecond)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90))),
+  } EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES{
+      new ezCategoryAttribute("Animation"),
+  } EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
 
@@ -25,9 +21,7 @@ ezSimpleAnimationComponent::ezSimpleAnimationComponent()
   m_DegreePerSecond = ezAngle::Degree(90);
 }
 
-ezSimpleAnimationComponent::~ezSimpleAnimationComponent()
-{
-}
+ezSimpleAnimationComponent::~ezSimpleAnimationComponent() {}
 
 void ezSimpleAnimationComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -50,8 +44,12 @@ void ezSimpleAnimationComponent::Update()
 {
   m_Rotation += (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds() * m_DegreePerSecond;
 
-  m_BoneMatrices.SetCountUninitialized(1);
-  m_BoneMatrices[0].SetRotationMatrixZ(m_Rotation);
+  m_BoneMatrices.SetCountUninitialized(100);
+
+  for (ezUInt32 i = 0; i < m_BoneMatrices.GetCount(); ++i)
+  {
+    m_BoneMatrices[i].SetRotationMatrixZ(m_Rotation);
+  }
 
   m_SkinningMatrices = ezArrayPtr<ezMat4>(m_BoneMatrices);
 
@@ -65,11 +63,11 @@ void ezSimpleAnimationComponent::Update()
     BufferDesc.m_bAllowShaderResourceView = true;
     BufferDesc.m_ResourceAccess.m_bImmutable = false;
 
-    m_hSkinningTransformsBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(BufferDesc, ezArrayPtr<ezUInt8>(reinterpret_cast<ezUInt8*>(m_BoneMatrices.GetData()), BufferDesc.m_uiTotalSize));
+    m_hSkinningTransformsBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(
+        BufferDesc, ezArrayPtr<ezUInt8>(reinterpret_cast<ezUInt8*>(m_BoneMatrices.GetData()), BufferDesc.m_uiTotalSize));
   }
 }
 
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_SimpleAnimationComponent);
-

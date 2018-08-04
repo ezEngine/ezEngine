@@ -53,7 +53,6 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
   const ezMat3 mTransformation = ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir, fScale);
   const ezMat3 mTransformRotations = ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir);
 
-
   using namespace ezModelImporter;
 
   ezSharedPtr<Scene> scene;
@@ -61,24 +60,19 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
   ezString sMeshFileAbs;
   EZ_SUCCEED_OR_RETURN(ImportHelper::ImportSkeleton(pProp->m_sAnimationFile, "", scene, mesh, sMeshFileAbs));
 
-
-  // TODO: Read FBX, extract data, store structure (bone names, hierarchy) in a new ezEditableSkeleton
   ezEditableSkeleton* pNewSkeleton = EZ_DEFAULT_NEW(ezEditableSkeleton);
-  pNewSkeleton->ClearBones();
 
-  const ezUInt32 numBonex = ezMath::Min(12u, scene->m_pSkeleton->GetBoneCount());
+  const ezUInt32 numBones = ezMath::Min(12u, scene->m_pSkeleton->GetBoneCount());
 
   ezDynamicArray<ezEditableSkeletonBone*> allBones;
-  allBones.SetCountUninitialized(numBonex);
+  allBones.SetCountUninitialized(numBones);
 
   ezSet<ezString> boneNames;
-
   ezStringBuilder tmp;
 
-  for (ezUInt32 b = 0; b < numBonex; ++b)
+  for (ezUInt32 b = 0; b < numBones; ++b)
   {
-    ezMat4 mBoneTransform = scene->m_pSkeleton->GetBone(b).GetBoneTransform();
-    //ezMat4 mInvBind = scene->m_pSkeleton->GetBone(b).GetInverseBindPoseTransform();
+    const ezMat4 mBoneTransform = scene->m_pSkeleton->GetBone(b).GetBoneTransform();
 
     allBones[b] = EZ_DEFAULT_NEW(ezEditableSkeletonBone);
     allBones[b]->m_sName = scene->m_pSkeleton->GetBone(b).GetName();
@@ -115,54 +109,6 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
       allBones[parentIdx]->m_Children.PushBack(allBones[b]);
     }
   }
-
-  //// sets up a dummy skeleton, remove this code
-  //{
-  //  pNewSkeleton->ClearBones();
-
-  //  ezStringBuilder name;
-  //  ezRandom r;
-  //  r.InitializeFromCurrentTime();
-
-  //  ezEditableSkeletonBone* pCur;
-
-  //  if (pNewSkeleton->m_Children.IsEmpty())
-  //  {
-  //    pCur = EZ_DEFAULT_NEW(ezEditableSkeletonBone);
-  //    pNewSkeleton->m_Children.PushBack(pCur);
-  //  }
-
-  //  pCur = pNewSkeleton->m_Children[0];
-  //  name.Format("Root", r.UInt());
-  //  pCur->SetName(name);
-  //  pCur->m_Transform.SetIdentity();
-
-  //  if (pNewSkeleton->m_Children[0]->m_Children.IsEmpty())
-  //  {
-  //    pCur = EZ_DEFAULT_NEW(ezEditableSkeletonBone);
-  //    pNewSkeleton->m_Children[0]->m_Children.PushBack(pCur);
-  //  }
-
-  //  pCur = pNewSkeleton->m_Children[0]->m_Children[0];
-
-  //  name.Format("Body", r.UInt());
-  //  pCur->SetName(name);
-  //  pCur->m_Transform.SetIdentity();
-  //  pCur->m_Transform.m_vPosition.Set(0, 0, 1);
-
-  //  if (pNewSkeleton->m_Children[0]->m_Children[0]->m_Children.IsEmpty())
-  //  {
-  //    pCur = EZ_DEFAULT_NEW(ezEditableSkeletonBone);
-  //    pNewSkeleton->m_Children[0]->m_Children[0]->m_Children.PushBack(pCur);
-  //  }
-
-  //  pCur = pNewSkeleton->m_Children[0]->m_Children[0]->m_Children[0];
-
-  //  name.Format("Head", r.UInt());
-  //  pCur->SetName(name);
-  //  pCur->m_Transform.SetIdentity();
-  //  pCur->m_Transform.m_vPosition.Set(0, 0, 1.7);
-  //}
 
   // synchronize the old data (collision geometry etc.) with the new hierarchy
   // this function deletes pNewSkeleton when it's done

@@ -204,6 +204,14 @@ PS_OUT main(PS_IN Input)
     {
       Output.Color = ColorizeGameObjectId(gameObjectId);
     }
+    else if (RenderPass == EDITOR_RENDER_PASS_BONE_WEIGHTS)
+    {
+      #ifdef USE_NORMAL
+        Output.Color = float4(Input.Normal, 1);
+      #else
+        Output.Color = float4(0.05, 0.05, 0.1, 1);
+      #endif
+    }
     else
     {
       Output.Color = float4(1.0f, 0.0f, 1.0f, 1.0f);

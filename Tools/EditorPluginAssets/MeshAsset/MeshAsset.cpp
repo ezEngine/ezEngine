@@ -242,7 +242,6 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
   {
     ezStopwatch timer;
     // Prepare streams.
-    const static int maxNumMeshStreams = 7;
     enum Streams
     {
       Position,
@@ -251,10 +250,14 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
       Normal,
       Tangent,
       BiTangent,
-      Color
+      Color,
+      BoneIndices0,
+      BoneWeights0,
+
+      ENUM_COUNT
     };
 
-    const ezModelImporter::VertexDataStream* dataStreams[maxNumMeshStreams] = {};
+    const ezModelImporter::VertexDataStream* dataStreams[Streams::ENUM_COUNT] = {};
     dataStreams[Position] = mesh->GetDataStream(ezGALVertexAttributeSemantic::Position);
     if (dataStreams[Position] == nullptr)
     {
@@ -277,12 +280,15 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
     dataStreams[Tangent] = mesh->GetDataStream(ezGALVertexAttributeSemantic::Tangent);
     dataStreams[BiTangent] = mesh->GetDataStream(ezGALVertexAttributeSemantic::BiTangent);
     dataStreams[Color] = mesh->GetDataStream(ezGALVertexAttributeSemantic::Color);
+    dataStreams[BoneIndices0] = mesh->GetDataStream(ezGALVertexAttributeSemantic::BoneIndices0);
+    dataStreams[BoneWeights0] = mesh->GetDataStream(ezGALVertexAttributeSemantic::BoneWeights0);
 
     // Compute indices for interleaved data.
-    ezHashTable<Mesh::DataIndexBundle<maxNumMeshStreams>, ezUInt32> dataIndices_to_InterleavedVertexIndices;
+    ezHashTable<Mesh::DataIndexBundle<Streams::ENUM_COUNT>, ezUInt32> dataIndices_to_InterleavedVertexIndices;
     ezDynamicArray<ezUInt32> triangleVertexIndices;
     auto triangles = mesh->GetTriangles();
-    Mesh::GenerateInterleavedVertexMapping<maxNumMeshStreams>(triangles, dataStreams, dataIndices_to_InterleavedVertexIndices, triangleVertexIndices);
+    Mesh::GenerateInterleavedVertexMapping<Streams::ENUM_COUNT>(triangles, dataStreams, dataIndices_to_InterleavedVertexIndices,
+                                                                triangleVertexIndices);
     ezTime mappingTime = timer.Checkpoint();
 
 
@@ -322,13 +328,21 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
       uiColorStream = desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAUByteNormalized);
     }
 
+    ezUInt32 uiBoneIndex0Stream = 0;
+    ezUInt32 uiBoneWeight0Stream = 0;
+    if (dataStreams[BoneIndices0] && dataStreams[BoneWeights0])
+    {
+      uiBoneIndex0Stream = desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::BoneIndices0, ezGALResourceFormat::RGBAUInt); // TODO: use 16 bit ints ?
+      uiBoneWeight0Stream = desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::BoneWeights0, ezGALResourceFormat::RGBAFloat); // TODO: only use HALF type
+    }
+
     desc.MeshBufferDesc().AllocateStreams(uiNumVertices, ezGALPrimitiveTopology::Triangles, uiNumTriangles);
 
     // Read in vertices.
     // Set positions and normals (should always be there)
     for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
     {
-      Mesh::DataIndexBundle<maxNumMeshStreams> dataIndices = it.Key();
+      Mesh::DataIndexBundle<Streams::ENUM_COUNT> dataIndices = it.Key();
       ezUInt32 uiVertexIndex = it.Value();
 
       ezVec3 vPosition = streamPosition.GetValue(dataIndices[Position]);
@@ -344,6 +358,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
       desc.MeshBufferDesc().SetVertexData(uiPosStream, uiVertexIndex, vPosition);
       desc.MeshBufferDesc().SetVertexData(uiNormalStream, uiVertexIndex, vNormal);
     }
+
     // Set Tangents.
     if (dataStreams[Tangent] && dataStreams[BiTangent])
     {
@@ -351,7 +366,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
 
       for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
       {
-        Mesh::DataIndexBundle<maxNumMeshStreams> dataIndices = it.Key();
+        Mesh::DataIndexBundle<Streams::ENUM_COUNT> dataIndices = it.Key();
         ezUInt32 uiVertexIndex = it.Value();
 
         ezVec3 vTangent = streamTangent.GetValue(dataIndices[Tangent]);
@@ -402,7 +417,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
 
         for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
         {
-          Mesh::DataIndexBundle<maxNumMeshStreams> dataIndices = it.Key();
+          Mesh::DataIndexBundle<Streams::ENUM_COUNT> dataIndices = it.Key();
           ezUInt32 uiVertexIndex = it.Value();
 
           ezVec2 vTexcoord = streamTex.GetValue(dataIndices[uiDataIndex]);
@@ -428,12 +443,31 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
 
       for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
       {
-        Mesh::DataIndexBundle<maxNumMeshStreams> dataIndices = it.Key();
+        Mesh::DataIndexBundle<Streams::ENUM_COUNT> dataIndices = it.Key();
         ezUInt32 uiVertexIndex = it.Value();
 
         ezVec4 c = streamColor.GetValue(dataIndices[Color]);
         ezColorLinearUB color = ezColor(c.x, c.y, c.z, c.w);
         desc.MeshBufferDesc().SetVertexData(uiColorStream, uiVertexIndex, color);
+      }
+    }
+
+    // Set bone indices/weights
+    if (dataStreams[BoneIndices0] && dataStreams[BoneWeights0])
+    {
+      const ezModelImporter::TypedVertexDataStreamView<ezVec4U32> streamBoneIndices(*dataStreams[BoneIndices0]);
+      const ezModelImporter::TypedVertexDataStreamView<ezVec4> streamBoneWeights(*dataStreams[BoneWeights0]);
+
+      for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
+      {
+        Mesh::DataIndexBundle<Streams::ENUM_COUNT> dataIndices = it.Key();
+        ezUInt32 uiVertexIndex = it.Value();
+
+        const ezVec4U32 bIdx = streamBoneIndices.GetValue(dataIndices[BoneIndices0]);
+        desc.MeshBufferDesc().SetVertexData(uiBoneIndex0Stream, uiVertexIndex, bIdx);
+
+        const ezVec4 bWgt = streamBoneWeights.GetValue(dataIndices[BoneWeights0]);
+        desc.MeshBufferDesc().SetVertexData(uiBoneWeight0Stream, uiVertexIndex, bWgt);
       }
     }
 

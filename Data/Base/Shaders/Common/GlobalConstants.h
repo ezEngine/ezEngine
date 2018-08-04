@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "Platforms.h"
 #include "ConstantBufferMacros.h"
@@ -21,6 +21,7 @@
 #define	EDITOR_RENDER_PASS_OCCLUSION 13
 #define	EDITOR_RENDER_PASS_DEPTH 14
 #define EDITOR_RENDER_PASS_STATIC_VS_DYNAMIC 15
+#define EDITOR_RENDER_PASS_BONE_WEIGHTS 16
 
 CONSTANT_BUFFER(ezGlobalConstants, 0)
 {

@@ -85,8 +85,8 @@ VS_OUT FillVertexData(VS_IN Input)
     float3 biTangent = cross(Input.Normal, tangent) * handednessCorrection;
 
     #if defined(USE_SKINNING)
-    tangent = SkinDirection(tangent, Input.BoneWeights, Input.BoneIndices);
-    biTangent = SkinDirection(biTangent, Input.BoneWeights, Input.BoneIndices);
+      tangent = SkinDirection(tangent, Input.BoneWeights, Input.BoneIndices);
+      biTangent = SkinDirection(biTangent, Input.BoneWeights, Input.BoneIndices);
     #endif
 
     Output.Tangent = normalize(mul(objectToWorldNormal, tangent));
@@ -103,6 +103,17 @@ VS_OUT FillVertexData(VS_IN Input)
 
   #if defined(USE_COLOR)
     Output.Color = Input.Color;
+  #endif
+
+  #if defined(USE_NORMAL) && (RENDER_PASS == RENDER_PASS_EDITOR)
+    if (RenderPass == EDITOR_RENDER_PASS_BONE_WEIGHTS)
+    {
+      #if defined(USE_SKINNING)
+        Output.Normal = Input.BoneWeights;
+      #else
+        Output.Normal = float4(0.1, 0.1, 0.1, 1.0);
+      #endif
+    }
   #endif
 
   Output.InstanceID = Input.InstanceID;
