@@ -27,7 +27,7 @@ ezSkeletonAssetDocument::~ezSkeletonAssetDocument() = default;
 namespace ImportHelper
 {
   static ezStatus ImportSkeleton(const char* filename, const char* subMeshFilename, ezSharedPtr<ezModelImporter::Scene>& outScene,
-                          ezModelImporter::Mesh*& outMesh, ezString& outMeshFileAbs)
+                                 ezModelImporter::Mesh*& outMesh, ezString& outMeshFileAbs)
   {
     outMeshFileAbs = filename;
     if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(outMeshFileAbs))
@@ -35,6 +35,7 @@ namespace ImportHelper
       return ezStatus(ezFmt("Could not make path absolute: '{0};", outMeshFileAbs));
     }
 
+    // TODO: speed up import by telling the importer to ignore meshes (needs flags)
     return ezModelImporter::Importer::GetSingleton()->ImportMesh(outMeshFileAbs, subMeshFilename, outScene, outMesh);
   }
 }
@@ -59,6 +60,11 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
   Mesh* mesh = nullptr;
   ezString sMeshFileAbs;
   EZ_SUCCEED_OR_RETURN(ImportHelper::ImportSkeleton(pProp->m_sAnimationFile, "", scene, mesh, sMeshFileAbs));
+
+  if (scene->m_pSkeleton == nullptr || scene->m_pSkeleton->GetBoneCount() == 0)
+  {
+    return ezStatus("Mesh does not contain skeleton information");
+  }
 
   ezEditableSkeleton* pNewSkeleton = EZ_DEFAULT_NEW(ezEditableSkeleton);
 

@@ -1,22 +1,30 @@
-﻿#include <PCH.h>
+#include <PCH.h>
+
 #include <ModelImporter/Importers/AssimpImporter.h>
-#include <ModelImporter/Scene.h>
-#include <ModelImporter/Node.h>
-#include <ModelImporter/Mesh.h>
-#include <ModelImporter/VertexData.h>
 #include <ModelImporter/Material.h>
+#include <ModelImporter/Mesh.h>
+#include <ModelImporter/Node.h>
+#include <ModelImporter/Scene.h>
+#include <ModelImporter/VertexData.h>
 
 #include <Foundation/Logging/Log.h>
 
-#include <../ThirdParty/AssImp/include/scene.h>
-#include <../ThirdParty/AssImp/include/Importer.hpp>
-#include <../ThirdParty/AssImp/include/postprocess.h>
-#include <../ThirdParty/AssImp/include/Logger.hpp>
-#include <../ThirdParty/AssImp/include/LogStream.hpp>
 #include <../ThirdParty/AssImp/include/DefaultLogger.hpp>
+#include <../ThirdParty/AssImp/include/Importer.hpp>
+#include <../ThirdParty/AssImp/include/LogStream.hpp>
+#include <../ThirdParty/AssImp/include/Logger.hpp>
+#include <../ThirdParty/AssImp/include/postprocess.h>
+#include <../ThirdParty/AssImp/include/scene.h>
+#include <RendererCore/AnimationSystem/SkeletonBuilder.h>
 
 namespace ezModelImporter
 {
+  struct BoneInfo
+  {
+    ezMat4 m_Transform;
+    ezUInt32 m_uiBoneIndex;
+  };
+
   AssimpImporter::AssimpImporter()
   {
     Assimp::Importer importer;
@@ -38,17 +46,14 @@ namespace ezModelImporter
     m_supportedFileFormats.Reserve(supportedFileFormatViews.GetCount());
     for (ezUInt32 i = 0; i < supportedFileFormatViews.GetCount(); ++i)
     {
-      if(supportedFileFormatViews[i].IsEmpty())
+      if (supportedFileFormatViews[i].IsEmpty())
         continue;
 
       m_supportedFileFormats.PushBack(ezString(supportedFileFormatViews[i]));
     }
   }
 
-  ezArrayPtr<const ezString> AssimpImporter::GetSupportedFileFormats() const
-  {
-    return ezMakeArrayPtr(m_supportedFileFormats);
-  }
+  ezArrayPtr<const ezString> AssimpImporter::GetSupportedFileFormats() const { return ezMakeArrayPtr(m_supportedFileFormats); }
 
   float ConvertAssimpType(float value, bool invert)
   {
@@ -58,10 +63,7 @@ namespace ezModelImporter
       return value;
   }
 
-  ezUInt32 ConvertAssimpType(int value, bool invert)
-  {
-    return value;
-  }
+  ezUInt32 ConvertAssimpType(int value, bool dummy) { return value; }
 
   ezColor ConvertAssimpType(const aiColor3D& value, bool invert)
   {
@@ -71,8 +73,16 @@ namespace ezModelImporter
       return ezColor(value.r, value.g, value.b);
   }
 
-  template<typename assimpType, typename ezType>
-  void TryReadAssimpProperty(const char* pKey, unsigned int type, unsigned int idx, SemanticHint::Enum semantic, const aiMaterial& assimpMaterial, Material& material, bool invert = false)
+  ezMat4 ConvertAssimpType(const aiMatrix4x4& value)
+  {
+    ezMat4 mTransformation;
+    mTransformation.SetFromArray(&value.a1, ezMatrixLayout::RowMajor);
+    return mTransformation;
+  }
+
+  template <typename assimpType, typename ezType>
+  void TryReadAssimpProperty(const char* pKey, unsigned int type, unsigned int idx, SemanticHint::Enum semantic,
+                             const aiMaterial& assimpMaterial, Material& material, bool invert = false)
   {
     assimpType assimpValue;
     if (assimpMaterial.Get(pKey, type, idx, assimpValue) == AI_SUCCESS)
@@ -84,7 +94,8 @@ namespace ezModelImporter
     }
   }
 
-  void TryReadAssimpTextures(aiTextureType assimpTextureType, const char* semanticString, SemanticHint::Enum semanticHint, const aiMaterial& assimpMaterial, Material& material)
+  void TryReadAssimpTextures(aiTextureType assimpTextureType, const char* semanticString, SemanticHint::Enum semanticHint,
+                             const aiMaterial& assimpMaterial, Material& material)
   {
     material.m_Textures.Reserve(material.m_Textures.GetCount() + assimpMaterial.GetTextureCount(assimpTextureType));
     for (unsigned int i = 0; i < assimpMaterial.GetTextureCount(assimpTextureType); ++i)
@@ -129,10 +140,15 @@ namespace ezModelImporter
       TryReadAssimpProperty<int, ezInt32>(AI_MATKEY_ENABLE_WIREFRAME, SemanticHint::WIREFRAME, *assimpMaterial, *material);
       TryReadAssimpProperty<int, ezInt32>(AI_MATKEY_TWOSIDED, SemanticHint::TWOSIDED, *assimpMaterial, *material);
       TryReadAssimpProperty<int, ezInt32>(AI_MATKEY_SHADING_MODEL, SemanticHint::SHADINGMODEL, *assimpMaterial, *material);
-      TryReadAssimpProperty<int, ezInt32>(AI_MATKEY_BLEND_FUNC, SemanticHint::UNKNOWN, *assimpMaterial, *material); // There is only "additive" and "default". Rather impractical so we're mapping to UNKNOWN.
-      TryReadAssimpProperty<float, float>(AI_MATKEY_OPACITY, SemanticHint::OPACITY, *assimpMaterial, *material); // Yes, we can end up with two properties with semantic hint "OPACITY"
+      TryReadAssimpProperty<int, ezInt32>(
+          AI_MATKEY_BLEND_FUNC, SemanticHint::UNKNOWN, *assimpMaterial,
+          *material); // There is only "additive" and "default". Rather impractical so we're mapping to UNKNOWN.
+      TryReadAssimpProperty<float, float>(AI_MATKEY_OPACITY, SemanticHint::OPACITY, *assimpMaterial,
+                                          *material); // Yes, we can end up with two properties with semantic hint "OPACITY"
       TryReadAssimpProperty<float, float>(AI_MATKEY_SHININESS, SemanticHint::ROUGHNESS, *assimpMaterial, *material);
-      TryReadAssimpProperty<float, float>(AI_MATKEY_SHININESS_STRENGTH, SemanticHint::METALLIC, *assimpMaterial, *material); // From assimp documentation "Scales the specular color of the material. This value is kept separate from the specular color by most modelers, and so do we."
+      TryReadAssimpProperty<float, float>(AI_MATKEY_SHININESS_STRENGTH, SemanticHint::METALLIC, *assimpMaterial,
+                                          *material); // From assimp documentation "Scales the specular color of the material. This value is
+                                                      // kept separate from the specular color by most modelers, and so do we."
       TryReadAssimpProperty<float, float>(AI_MATKEY_REFRACTI, SemanticHint::REFRACTIONINDEX, *assimpMaterial, *material);
 
       // Read textures.
@@ -146,13 +162,15 @@ namespace ezModelImporter
       TryReadAssimpTextures(aiTextureType_OPACITY, "Opacity", SemanticHint::OPACITY, *assimpMaterial, *material);
       TryReadAssimpTextures(aiTextureType_DISPLACEMENT, "Displacement", SemanticHint::DISPLACEMENT, *assimpMaterial, *material);
       TryReadAssimpTextures(aiTextureType_LIGHTMAP, "LightMap", SemanticHint::LIGHTMAP, *assimpMaterial, *material);
-      TryReadAssimpTextures(aiTextureType_REFLECTION, "Reflection", SemanticHint::METALLIC, *assimpMaterial, *material); // From Assimp documentation "Contains the color of a perfect mirror reflection."
+      TryReadAssimpTextures(aiTextureType_REFLECTION, "Reflection", SemanticHint::METALLIC, *assimpMaterial,
+                            *material); // From Assimp documentation "Contains the color of a perfect mirror reflection."
 
       outMaterialHandles.PushBack(outScene.AddMaterial(std::move(material)));
     }
   }
 
-  void ImportMeshes(ezArrayPtr<aiMesh*> assimpMeshes, const ezDynamicArray<MaterialHandle>& materialHandles, const char* szFileName, Scene& outScene, ezDynamicArray<ObjectHandle>& outMeshHandles)
+  void ImportMeshes(ezArrayPtr<aiMesh*> assimpMeshes, const ezDynamicArray<MaterialHandle>& materialHandles, const char* szFileName,
+                    Scene& outScene, ezDynamicArray<ObjectHandle>& outMeshHandles, ezMap<ezString, BoneInfo>& inout_allMeshBones)
   {
     outMeshHandles.Reserve(assimpMeshes.GetCount());
 
@@ -191,7 +209,8 @@ namespace ezModelImporter
         vertexDataStreams.PushBack(colors);
 
         if (assimpMesh->GetNumColorChannels() > 1)
-          ezLog::Warning("Mesh '{0}' in '{1}' has {2} sets of vertex colors, only the first set will be imported!", mesh->m_Name, szFileName, assimpMesh->GetNumColorChannels());
+          ezLog::Warning("Mesh '{0}' in '{1}' has {2} sets of vertex colors, only the first set will be imported!", mesh->m_Name,
+                         szFileName, assimpMesh->GetNumColorChannels());
       }
       if (assimpMesh->HasTangentsAndBitangents())
       {
@@ -211,19 +230,72 @@ namespace ezModelImporter
       {
         unsigned int texcoordDimensionality = assimpMesh->mNumUVComponents[texcoordSet];
 
-        VertexDataStream* texcoords = mesh->AddDataStream(static_cast<ezGALVertexAttributeSemantic::Enum>(ezGALVertexAttributeSemantic::TexCoord0 + texcoordSet), texcoordDimensionality);
+        VertexDataStream* texcoords = mesh->AddDataStream(
+            static_cast<ezGALVertexAttributeSemantic::Enum>(ezGALVertexAttributeSemantic::TexCoord0 + texcoordSet), texcoordDimensionality);
         texcoords->ReserveData(assimpMesh->mNumVertices);
         for (unsigned int coord = 0; coord < assimpMesh->mNumVertices; ++coord)
         {
-          texcoords->AddValues(ezArrayPtr<char>(reinterpret_cast<char*>(assimpMesh->mTextureCoords[texcoordSet] + coord), texcoordDimensionality * sizeof(float)));
+          texcoords->AddValues(ezArrayPtr<char>(reinterpret_cast<char*>(assimpMesh->mTextureCoords[texcoordSet] + coord),
+                                                texcoordDimensionality * sizeof(float)));
         }
         vertexDataStreams.PushBack(texcoords);
       }
 
       if (assimpMesh->HasBones())
       {
-        /// \todo import animation data
-        ezLog::Warning("Mesh '{0}' in '{1}' has bone animation data. This is not yet supported and won't be imported.", mesh->m_Name, szFileName);
+        VertexDataStream* boneWeightStream = nullptr;
+        boneWeightStream = mesh->AddDataStream(ezGALVertexAttributeSemantic::BoneWeights0, 4, VertexElementType::FLOAT);
+        vertexDataStreams.PushBack(boneWeightStream);
+
+        VertexDataStream* boneIndicesStream = nullptr;
+        boneIndicesStream = mesh->AddDataStream(ezGALVertexAttributeSemantic::BoneIndices0, 4, VertexElementType::UINT32);
+        vertexDataStreams.PushBack(boneIndicesStream);
+
+        ezDynamicArray<ezVec4> boneWeightData;
+        ezDynamicArray<ezVec4U32> boneIndexData;
+        ezDynamicArray<ezUInt8> boneInfluenceCount;
+
+        boneInfluenceCount.SetCountUninitialized(assimpMesh->mNumVertices);
+        boneWeightData.SetCountUninitialized(assimpMesh->mNumVertices);
+        boneIndexData.SetCountUninitialized(assimpMesh->mNumVertices);
+
+        // init all with zero
+        for (ezUInt32 i = 0; i < assimpMesh->mNumVertices; ++i)
+        {
+          boneInfluenceCount[i] = 0;
+          boneWeightData[i].SetZero();
+          boneIndexData[i].SetZero();
+        }
+
+        for (ezUInt32 bone = 0; bone < assimpMesh->mNumBones; ++bone)
+        {
+          const auto* pBone = assimpMesh->mBones[bone];
+          const ezUInt32 numWeights = pBone->mNumWeights;
+
+          bool bExisted = false;
+          auto itBone = inout_allMeshBones.FindOrAdd(pBone->mName.C_Str(), &bExisted);
+          if (!bExisted)
+          {
+            itBone.Value().m_uiBoneIndex = inout_allMeshBones.GetCount() - 1;
+          }
+
+          for (ezUInt32 w = 0; w < numWeights; ++w)
+          {
+            const auto& wgt = pBone->mWeights[w];
+            const ezUInt32 vtxIdx = wgt.mVertexId;
+            const ezUInt32 influence = boneInfluenceCount[vtxIdx]++;
+
+            EZ_ASSERT_DEBUG(influence < 4, "Too many bone influences for a single vertex");
+
+            boneWeightData[vtxIdx].GetData()[influence] = wgt.mWeight;
+            boneIndexData[vtxIdx].GetData()[influence] = itBone.Value().m_uiBoneIndex;
+          }
+        }
+
+        boneWeightStream->AddValues(
+            ezArrayPtr<char>(reinterpret_cast<char*>(boneWeightData.GetData()), boneWeightData.GetCount() * 4 * sizeof(float)));
+        boneIndicesStream->AddValues(
+            ezArrayPtr<char>(reinterpret_cast<char*>(boneIndexData.GetData()), boneIndexData.GetCount() * 4 * sizeof(ezUInt32)));
       }
 
       // Triangles/Indices
@@ -243,7 +315,8 @@ namespace ezModelImporter
 
       // Material - an assimp mesh uses only a single material!
       if (assimpMesh->mMaterialIndex >= materialHandles.GetCount())
-        ezLog::Warning("Mesh '{0}' in '{1}' points to material {2}, but there are only {3} materials.", mesh->m_Name, szFileName, assimpMesh->mMaterialIndex, materialHandles.GetCount());
+        ezLog::Warning("Mesh '{0}' in '{1}' points to material {2}, but there are only {3} materials.", mesh->m_Name, szFileName,
+                       assimpMesh->mMaterialIndex, materialHandles.GetCount());
       else
       {
         SubMesh subMesh;
@@ -281,26 +354,26 @@ namespace ezModelImporter
         data.m_Key = assimpNode->mMetaData->mKeys[metadataIdx].C_Str();
         switch (assimpNode->mMetaData->mValues[metadataIdx].mType)
         {
-        case AI_BOOL:
-          data.m_Data = *static_cast<bool*> (assimpNode->mMetaData->mValues[metadataIdx].mData);
-          break;
-        case AI_INT32:
-          data.m_Data = *static_cast<ezInt32*>(assimpNode->mMetaData->mValues[metadataIdx].mData);
-          break;
-        case AI_UINT64:
-          data.m_Data = *static_cast<ezInt64*>(assimpNode->mMetaData->mValues[metadataIdx].mData);
-          break;
-        case AI_FLOAT:
-          data.m_Data = *static_cast<float*>(assimpNode->mMetaData->mValues[metadataIdx].mData);
-          break;
-        case AI_AISTRING:
-          data.m_Data = static_cast<char*>(assimpNode->mMetaData->mValues[metadataIdx].mData);
-          break;
-        case AI_AIVECTOR3D:
-          data.m_Data = *static_cast<ezVec3*>(assimpNode->mMetaData->mValues[metadataIdx].mData);
-          break;
-        default:
-          EZ_ASSERT_NOT_IMPLEMENTED;
+          case AI_BOOL:
+            data.m_Data = *static_cast<bool*>(assimpNode->mMetaData->mValues[metadataIdx].mData);
+            break;
+          case AI_INT32:
+            data.m_Data = *static_cast<ezInt32*>(assimpNode->mMetaData->mValues[metadataIdx].mData);
+            break;
+          case AI_UINT64:
+            data.m_Data = *static_cast<ezInt64*>(assimpNode->mMetaData->mValues[metadataIdx].mData);
+            break;
+          case AI_FLOAT:
+            data.m_Data = *static_cast<float*>(assimpNode->mMetaData->mValues[metadataIdx].mData);
+            break;
+          case AI_AISTRING:
+            data.m_Data = static_cast<char*>(assimpNode->mMetaData->mValues[metadataIdx].mData);
+            break;
+          case AI_AIVECTOR3D:
+            data.m_Data = *static_cast<ezVec3*>(assimpNode->mMetaData->mValues[metadataIdx].mData);
+            break;
+          default:
+            EZ_ASSERT_NOT_IMPLEMENTED;
         }
       }
     }
@@ -333,7 +406,7 @@ namespace ezModelImporter
     {
       for (unsigned int childIdx = 0; childIdx < assimpRootNode->mNumChildren; ++childIdx)
       {
-        ImportNodesRecursive(assimpRootNode->mChildren[childIdx],meshHandles, outScene);
+        ImportNodesRecursive(assimpRootNode->mChildren[childIdx], meshHandles, outScene);
       }
     }
     else
@@ -342,15 +415,52 @@ namespace ezModelImporter
     }
   }
 
+  void ImportSkeletonRecursive(aiNode* assimpNode, ezMap<ezString, BoneInfo>& inout_allMeshBones, ezUInt32& inout_uiCurBoneIdx,
+                               ezSkeletonBuilder& sb, ezUInt32 uiParentBoneIndex)
+  {
+    ezStringBuilder sName = assimpNode->mName.C_Str();
+
+    if (sName.IsEmpty() || inout_allMeshBones.Contains(sName))
+    {
+      sName.Format("!auto_bone_{0}!", inout_uiCurBoneIdx);
+      ++inout_uiCurBoneIdx;
+    }
+
+    const ezUInt32 boneIdx = inout_allMeshBones.GetCount();
+    auto& boneInfo = inout_allMeshBones[sName];
+    boneInfo.m_uiBoneIndex = boneIdx;
+    boneInfo.m_Transform = ConvertAssimpType(assimpNode->mTransformation);
+
+    const ezUInt32 uiThisBoneIndex = sb.AddBone(sName, boneInfo.m_Transform, uiParentBoneIndex);
+
+    for (ezUInt32 c = 0; c < assimpNode->mNumChildren; ++c)
+    {
+      ImportSkeletonRecursive(assimpNode->mChildren[c], inout_allMeshBones, inout_uiCurBoneIdx, sb, uiThisBoneIndex);
+    }
+  }
+
+  void ImportSkeleton(aiNode* assimpRootNode, ezMap<ezString, BoneInfo>& inout_allMeshBones, Scene& outScene)
+  {
+    ezUInt32 uiCurBoneIdx = 0;
+
+    ezSkeletonBuilder sb;
+    sb.SetSkinningMode(ezSkeleton::Mode::FourBones);
+
+    ImportSkeletonRecursive(assimpRootNode, inout_allMeshBones, uiCurBoneIdx, sb, 0xFFFFFFFFu);
+
+    outScene.m_pSkeleton = sb.CreateSkeletonInstance();
+
+    auto pose = outScene.m_pSkeleton->CreatePose();
+    outScene.m_pSkeleton->SetAnimationPoseToBindPose(pose.Borrow());
+    outScene.m_pSkeleton->CalculateObjectSpaceAnimationPoseMatrices(pose.Borrow());
+  }
+
   ezSharedPtr<Scene> AssimpImporter::ImportScene(const char* szFileName)
   {
     class aiLogStream : public Assimp::LogStream
     {
     public:
-      void write(const char* message)
-      {
-        ezLog::Dev("AssImp: {0}", message);
-      }
+      void write(const char* message) { ezLog::Dev("AssImp: {0}", message); }
     };
     Assimp::DefaultLogger::create("", Assimp::Logger::NORMAL);
     const unsigned int severity = Assimp::Logger::Debugging | Assimp::Logger::Info | Assimp::Logger::Err | Assimp::Logger::Warn;
@@ -358,12 +468,13 @@ namespace ezModelImporter
 
     Assimp::Importer importer;
 
-    // Note: ReadFileFromMemory is not able to read dependent files even if use our own Assimp::IOSystem. It is possible to use ReadFile instead but this involves leads to a lot of code...
-    // Triangulate:           Our mesh format cannot handle anything else.
+    // Note: ReadFileFromMemory is not able to read dependent files even if use our own Assimp::IOSystem. It is possible to use ReadFile
+    // instead but this involves leads to a lot of code... Triangulate:           Our mesh format cannot handle anything else.
     // JoinIdenticalVertices: Assimp doesn't use index buffer at all if this is not specified.
     // TransformUVCoords:     As of now we do not have a concept for uv transforms.
     // Process_FlipUVs:       Assimp assumes OpenGl style UV coordinate system otherwise.
-    const aiScene* assimpScene = importer.ReadFile(szFileName, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_TransformUVCoords | aiProcess_FlipUVs);
+    const aiScene* assimpScene = importer.ReadFile(szFileName, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices |
+                                                                   aiProcess_TransformUVCoords | aiProcess_FlipUVs);
     if (!assimpScene)
     {
       ezLog::Error("Assimp importer failed to load model {0} with error {1}.", szFileName, importer.GetErrorString());
@@ -376,9 +487,14 @@ namespace ezModelImporter
     ezDynamicArray<MaterialHandle> materialHandles;
     ImportMaterials(ezArrayPtr<aiMaterial*>(assimpScene->mMaterials, assimpScene->mNumMaterials), *outScene, materialHandles);
 
+    // Import skeleton
+    ezMap<ezString, BoneInfo> allMeshBones;
+    ImportSkeleton(assimpScene->mRootNode, allMeshBones, *outScene);
+
     // Import meshes.
     ezDynamicArray<ObjectHandle> meshHandles;
-    ImportMeshes(ezArrayPtr<aiMesh*>(assimpScene->mMeshes, assimpScene->mNumMeshes), materialHandles, szFileName, *outScene, meshHandles);
+    ImportMeshes(ezArrayPtr<aiMesh*>(assimpScene->mMeshes, assimpScene->mNumMeshes), materialHandles, szFileName, *outScene, meshHandles,
+                 allMeshBones);
 
     // Import nodes.
     ezDynamicArray<ObjectHandle> nodeHandles;
