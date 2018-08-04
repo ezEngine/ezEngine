@@ -1,11 +1,14 @@
 #include <PCH.h>
-#include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
+
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
 #include <Foundation/Utilities/Progress.h>
+#include <RendererCore/AnimationSystem/AnimationClipResource.h>
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 1, ezRTTIDefaultAllocator<ezAnimationClipAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
@@ -19,23 +22,23 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 1, ezRTTIDefault
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetDocument, 1, ezRTTINoAllocator);
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
 ezAnimationClipAssetProperties::ezAnimationClipAssetProperties()
 {
   m_uiFirstFrame = 0;
   m_uiLastFrame = 0xFFFFFFFF;
 }
 
-//////////////////////////////////////////////////////////////////////////
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetDocument, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
 ezAnimationClipAssetDocument::ezAnimationClipAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezAnimationClipAssetProperties>(szDocumentPath, true)
+    : ezSimpleAssetDocument<ezAnimationClipAssetProperties>(szDocumentPath, true)
 {
 }
 
-ezStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+ezStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform,
+                                                              const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 
@@ -45,6 +48,25 @@ ezStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& st
   range.BeginNextStep("Importing Mesh");
 
   range.BeginNextStep("Writing Result");
+
+  ezAnimationClipResourceDescriptor anim;
+  anim.Configure(100, 45, 30);
+
+  for (ezUInt32 f = 0; f < anim.GetNumFrames(); ++f)
+  {
+    const ezAngle rot = (ezAngle::Degree(360) / anim.GetNumFrames()) * f;
+    ezMat4 mRot;
+    mRot.SetRotationMatrixZ(rot);
+
+    ezMat4* pBones = anim.GetFirstBones(f);
+
+    for (ezUInt32 b = 0; b < anim.GetNumBones(); ++b)
+    {
+      pBones[b] = mRot;
+    }
+  }
+
+  anim.Save(stream);
 
   return ezStatus(EZ_SUCCESS);
 }
@@ -65,12 +87,10 @@ ezAnimationClipAssetDocumentGenerator::ezAnimationClipAssetDocumentGenerator()
   AddSupportedFileType("fbx");
 }
 
-ezAnimationClipAssetDocumentGenerator::~ezAnimationClipAssetDocumentGenerator()
-{
+ezAnimationClipAssetDocumentGenerator::~ezAnimationClipAssetDocumentGenerator() {}
 
-}
-
-void ezAnimationClipAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezAnimationClipAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath,
+                                                           ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
   baseOutputFile.ChangeFileExtension(GetDocumentExtension());
@@ -84,7 +104,8 @@ void ezAnimationClipAssetDocumentGenerator::GetImportModes(const char* szParentD
   }
 }
 
-ezStatus ezAnimationClipAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezAnimationClipAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info,
+                                                         ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 

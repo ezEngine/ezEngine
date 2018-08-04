@@ -67,17 +67,83 @@ ezResourceLoadDesc ezAnimationClipResource::UpdateContent(ezStreamReader* Stream
 void ezAnimationClipResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezAnimationClipResource); // TODO
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezAnimationClipResource) + static_cast<ezUInt32>(m_Descriptor.GetHeapMemoryUsage());
+}
+
+void ezAnimationClipResourceDescriptor::Configure(ezUInt16 uiNumBones, ezUInt16 uiNumFrames, ezUInt8 uiFramesPerSecond)
+{
+  EZ_ASSERT_DEV(uiNumFrames > 0, "Invalid number of animation frames");
+  EZ_ASSERT_DEV(uiNumBones > 0, "Invalid number of animation bones");
+  EZ_ASSERT_DEV(uiFramesPerSecond > 0, "Invalid number of animation fps");
+
+  m_uiNumBones = uiNumBones;
+  m_uiNumFrames = uiNumFrames;
+  m_uiFramesPerSecond = uiFramesPerSecond;
+
+  m_Duration = ezTime::Seconds((double)m_uiNumFrames / (double)m_uiFramesPerSecond);
+
+  m_BoneTransforms.SetCount(m_uiNumBones * m_uiNumFrames);
+}
+
+ezUInt16 ezAnimationClipResourceDescriptor::GetFrameAt(ezTime time, double& out_fLerpToNext) const
+{
+  const double fFrameIdx = time.GetSeconds() * m_uiFramesPerSecond;
+
+  if (fFrameIdx >= m_uiNumFrames)
+  {
+    out_fLerpToNext = 0;
+    return m_uiNumFrames - 1;
+  }
+
+  const ezUInt16 uiLowerFrame = static_cast<ezUInt16>(ezMath::Trunc(fFrameIdx));
+  out_fLerpToNext = ezMath::Fraction(fFrameIdx);
+
+  return uiLowerFrame;
+}
+
+const ezMat4* ezAnimationClipResourceDescriptor::GetFirstBones(ezUInt16 uiFrame) const
+{
+  return &m_BoneTransforms[uiFrame * m_uiNumBones];
+}
+
+ezMat4* ezAnimationClipResourceDescriptor::GetFirstBones(ezUInt16 uiFrame)
+{
+  return &m_BoneTransforms[uiFrame * m_uiNumBones];
 }
 
 void ezAnimationClipResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  // const ezUInt8 uiVersion = 1;
-  // stream << uiVersion;
+  const ezUInt8 uiVersion = 1;
+  stream << uiVersion;
+
+  stream << m_uiNumBones;
+  stream << m_uiNumFrames;
+  stream << m_uiFramesPerSecond;
+
+  stream << m_BoneTransforms;
 }
 
 void ezAnimationClipResourceDescriptor::Load(ezStreamReader& stream)
 {
-  // ezUInt8 uiVersion = 0;
-  // stream >> uiVersion;
+  ezUInt8 uiVersion = 0;
+  stream >> uiVersion;
+
+  stream >> m_uiNumBones;
+  stream >> m_uiNumFrames;
+  stream >> m_uiFramesPerSecond;
+
+  stream >> m_BoneTransforms;
+
+  m_Duration = ezTime::Seconds((double)m_uiNumFrames / (double)m_uiFramesPerSecond);
+}
+
+
+ezUInt64 ezAnimationClipResourceDescriptor::GetHeapMemoryUsage() const
+{
+  return m_BoneTransforms.GetHeapMemoryUsage();
+}
+
+ezTime ezAnimationClipResourceDescriptor::GetDuration() const
+{
+  return m_Duration;
 }

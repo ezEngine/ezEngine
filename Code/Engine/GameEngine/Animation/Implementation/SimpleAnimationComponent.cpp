@@ -3,14 +3,15 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Animation/SimpleAnimationComponent.h>
+#include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererFoundation/Device/Device.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationComponent, 2, ezComponentMode::Dynamic);
+EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationComponent, 3, ezComponentMode::Dynamic);
 {
   EZ_BEGIN_PROPERTIES
   {
-      EZ_MEMBER_PROPERTY("DegreePerSecond", m_DegreePerSecond)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90))),
+    EZ_ACCESSOR_PROPERTY("AnimationClip", GetAnimationClipFile, SetAnimationClipFile)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
   }
   EZ_END_PROPERTIES;
 
@@ -23,11 +24,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationComponent, 2, ezComponentMode::Dynamic)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezSimpleAnimationComponent::ezSimpleAnimationComponent()
-{
-  m_Rotation.SetRadian(0);
-  m_DegreePerSecond = ezAngle::Degree(90);
-}
+ezSimpleAnimationComponent::ezSimpleAnimationComponent() {}
 
 ezSimpleAnimationComponent::~ezSimpleAnimationComponent() {}
 
@@ -36,7 +33,9 @@ void ezSimpleAnimationComponent::SerializeComponent(ezWorldWriter& stream) const
   SUPER::SerializeComponent(stream);
   auto& s = stream.GetStream();
 
+  ezAngle m_DegreePerSecond;
   s << m_DegreePerSecond;
+  s << m_hAnimationClip;
 }
 
 void ezSimpleAnimationComponent::DeserializeComponent(ezWorldReader& stream)
@@ -45,7 +44,9 @@ void ezSimpleAnimationComponent::DeserializeComponent(ezWorldReader& stream)
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   auto& s = stream.GetStream();
 
+  ezAngle m_DegreePerSecond;
   s >> m_DegreePerSecond;
+  s >> m_hAnimationClip;
 }
 
 void ezSimpleAnimationComponent::OnActivated()
@@ -56,15 +57,12 @@ void ezSimpleAnimationComponent::OnActivated()
   EZ_ASSERT_DEBUG(m_hSkinningTransformsBuffer.IsInvalidated(), "The skinning buffer should not exist at this time");
 
   {
-    ezMat4 rotMat;
-    rotMat.SetRotationMatrixZ(m_Rotation);
-
     m_BoneMatrices.SetCountUninitialized(100);
     m_SkinningMatrices = ezArrayPtr<ezMat4>(m_BoneMatrices);
 
     for (ezUInt32 i = 0; i < m_BoneMatrices.GetCount(); ++i)
     {
-      m_BoneMatrices[i] = rotMat;
+      m_BoneMatrices[i].SetIdentity();
     }
 
     // Create the buffer for the skinning matrices
@@ -80,19 +78,60 @@ void ezSimpleAnimationComponent::OnActivated()
   }
 }
 
+void ezSimpleAnimationComponent::SetAnimationClip(const ezAnimationClipResourceHandle& hResource)
+{
+  m_hAnimationClip = hResource;
+}
+
+void ezSimpleAnimationComponent::SetAnimationClipFile(const char* szFile)
+{
+  ezAnimationClipResourceHandle hResource;
+
+  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  {
+    hResource = ezResourceManager::LoadResource<ezAnimationClipResource>(szFile);
+  }
+
+  SetAnimationClip(hResource);
+}
+
+const char* ezSimpleAnimationComponent::GetAnimationClipFile() const
+{
+  if (!m_hAnimationClip.IsValid())
+    return "";
+
+  return m_hAnimationClip.GetResourceID();
+}
+
 void ezSimpleAnimationComponent::Update()
 {
-  m_Rotation += (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds() * m_DegreePerSecond;
+  if (!m_hAnimationClip.IsValid())
+    return;
 
-  ezMat4 rotMat;
-  rotMat.SetRotationMatrixZ(m_Rotation);
+  ezResourceLock<ezAnimationClipResource> pAnimClip(m_hAnimationClip);
+
+  const ezTime animDuration = pAnimClip->GetDescriptor().GetDuration();
+
+  if (animDuration < ezTime::Zero())
+    return;
+
+  m_AnimationTime += GetWorld()->GetClock().GetTimeDiff();
+
+  // loop the animation
+  while (m_AnimationTime >= animDuration)
+  {
+    m_AnimationTime -= animDuration;
+  }
+
+  double fAnimLerp = 0;
+  const ezUInt32 uiFirstFrame = pAnimClip->GetDescriptor().GetFrameAt(m_AnimationTime, fAnimLerp);
+
+  const ezMat4* pAnimBoneTransforms = pAnimClip->GetDescriptor().GetFirstBones(uiFirstFrame);
 
   for (ezUInt32 i = 0; i < m_BoneMatrices.GetCount(); ++i)
   {
-    m_BoneMatrices[i] = rotMat;
+    m_BoneMatrices[i] = pAnimBoneTransforms[i];
   }
 }
-
-
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_SimpleAnimationComponent);

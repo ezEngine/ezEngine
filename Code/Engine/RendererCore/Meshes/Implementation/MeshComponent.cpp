@@ -4,6 +4,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Messages/SetColorMessage.h>
+#include <RendererFoundation/Device/Device.h>
 
 //////////////////////////////////////////////////////////////////////////
 
