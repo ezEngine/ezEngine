@@ -1,6 +1,8 @@
 #include <PCH.h>
 
 #include <Foundation/Math/Math.h>
+#include <Foundation/Math/Vec3.h>
+#include <Foundation/Math/Mat3.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 ezProjectionDepthRange::Enum ezProjectionDepthRange::Default = ezProjectionDepthRange::ZeroToOne; // Default on Windows is D3D convention

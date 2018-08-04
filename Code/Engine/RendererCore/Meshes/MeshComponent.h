@@ -17,14 +17,14 @@ public:
   ezMaterialResourceHandle m_hMaterial;
   ezColor m_Color;
   ezGALBufferHandle m_hSkinningMatrices;
-  ezArrayPtr<const ezUInt8> m_pNewSkinningMatricesData; // Optional - if set the buffer specified in m_hSkinningMatrices will be updated with this data
+  ezArrayPtr<const ezUInt8>
+      m_pNewSkinningMatricesData; // Optional - if set the buffer specified in m_hSkinningMatrices will be updated with this data
 
   ezUInt32 m_uiPartIndex : 30;
   ezUInt32 m_uiFlipWinding : 1;
   ezUInt32 m_uiUniformScale : 1;
 
   ezUInt32 m_uiUniqueID;
-
 };
 
 typedef ezComponentManager<class ezMeshComponent, ezBlockStorageType::Compact> ezMeshComponentManager;
@@ -54,9 +54,9 @@ public:
   //////////////////////////////////////////////////////////////////////////
   // ezComponent Interface
 public:
-
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void OnDeactivated() override;
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -70,7 +70,6 @@ public:
   // ezMeshComponent Interface
 
 public:
-
   void SetMesh(const ezMeshResourceHandle& hMesh);
   EZ_ALWAYS_INLINE const ezMeshResourceHandle& GetMesh() const { return m_hMesh; }
 
@@ -106,4 +105,3 @@ private:
   ezDynamicArray<ezMaterialResourceHandle> m_Materials;
   ezColor m_Color;
 };
-

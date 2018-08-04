@@ -1,11 +1,13 @@
 #include <PCH.h>
+
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Messages/SetColorMessage.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgSetMeshMaterial);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetMeshMaterial, 1, ezRTTIDefaultAllocator<ezMsgSetMeshMaterial>)
 {
@@ -23,6 +25,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgSetMeshMaterial, 1, ezRTTIDefaultAllocator<
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 void ezMsgSetMeshMaterial::SetMaterialFile(const char* szFile)
 {
@@ -62,6 +65,7 @@ void ezMsgSetMeshMaterial::Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVer
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderData, 1, ezRTTIDefaultAllocator<ezMeshRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -88,6 +92,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezMeshComponent, 2, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS
 }
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
 ezMeshComponent::ezMeshComponent()
 {
@@ -95,9 +100,15 @@ ezMeshComponent::ezMeshComponent()
   m_Color = ezColor::White;
 }
 
-ezMeshComponent::~ezMeshComponent()
-{
+ezMeshComponent::~ezMeshComponent() {}
 
+void ezMeshComponent::OnDeactivated()
+{
+  if (!m_hSkinningTransformsBuffer.IsInvalidated())
+  {
+    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hSkinningTransformsBuffer);
+    m_hSkinningTransformsBuffer.Invalidate();
+  }
 }
 
 void ezMeshComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -190,7 +201,7 @@ void ezMeshComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
     const ezUInt32 uiMaterialIDHash = hMaterial.IsValid() ? hMaterial.GetResourceIDHash() : 0;
 
     // Generate batch id from mesh, material and part index.
-    ezUInt32 data[] = { uiMeshIDHash, uiMaterialIDHash, uiPartIndex, uiFlipWinding };
+    ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, uiPartIndex, uiFlipWinding};
 
     if (!m_SkinningMatrices.IsEmpty())
     {
@@ -217,7 +228,9 @@ void ezMeshComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
       if (!m_SkinningMatrices.IsEmpty())
       {
         pRenderData->m_hSkinningMatrices = m_hSkinningTransformsBuffer;
-        pRenderData->m_pNewSkinningMatricesData = ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(m_SkinningMatrices.GetPtr()), m_SkinningMatrices.GetCount() * sizeof(ezMat4));;
+        pRenderData->m_pNewSkinningMatricesData = ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(m_SkinningMatrices.GetPtr()),
+                                                                            m_SkinningMatrices.GetCount() * sizeof(ezMat4));
+        ;
       }
     }
 
@@ -368,4 +381,3 @@ void ezMeshComponent::Materials_Remove(ezUInt32 uiIndex)
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshComponent);
-

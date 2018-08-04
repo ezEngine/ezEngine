@@ -1,19 +1,27 @@
+#include <PCH.h>
+
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Animation/SimpleAnimationComponent.h>
-#include <PCH.h>
 #include <RendererFoundation/Device/Device.h>
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezSimpleAnimationComponent, 2, ezComponentMode::Dynamic);
 {
-  EZ_BEGIN_PROPERTIES{
+  EZ_BEGIN_PROPERTIES
+  {
       EZ_MEMBER_PROPERTY("DegreePerSecond", m_DegreePerSecond)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90))),
-  } EZ_END_PROPERTIES;
-  EZ_BEGIN_ATTRIBUTES{
+  }
+  EZ_END_PROPERTIES;
+
+  EZ_BEGIN_ATTRIBUTES
+  {
       new ezCategoryAttribute("Animation"),
-  } EZ_END_ATTRIBUTES;
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
 ezSimpleAnimationComponent::ezSimpleAnimationComponent()
 {
@@ -40,21 +48,25 @@ void ezSimpleAnimationComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_DegreePerSecond;
 }
 
-void ezSimpleAnimationComponent::Update()
+void ezSimpleAnimationComponent::OnActivated()
 {
-  m_Rotation += (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds() * m_DegreePerSecond;
+  SUPER::OnActivated();
 
-  m_BoneMatrices.SetCountUninitialized(100);
+  // make sure the skinning buffer is deleted
+  EZ_ASSERT_DEBUG(m_hSkinningTransformsBuffer.IsInvalidated(), "The skinning buffer should not exist at this time");
 
-  for (ezUInt32 i = 0; i < m_BoneMatrices.GetCount(); ++i)
   {
-    m_BoneMatrices[i].SetRotationMatrixZ(m_Rotation);
-  }
+    ezMat4 rotMat;
+    rotMat.SetRotationMatrixZ(m_Rotation);
 
-  m_SkinningMatrices = ezArrayPtr<ezMat4>(m_BoneMatrices);
+    m_BoneMatrices.SetCountUninitialized(100);
+    m_SkinningMatrices = ezArrayPtr<ezMat4>(m_BoneMatrices);
 
-  if (m_hSkinningTransformsBuffer.IsInvalidated())
-  {
+    for (ezUInt32 i = 0; i < m_BoneMatrices.GetCount(); ++i)
+    {
+      m_BoneMatrices[i] = rotMat;
+    }
+
     // Create the buffer for the skinning matrices
     ezGALBufferCreationDescription BufferDesc;
     BufferDesc.m_uiStructSize = sizeof(ezMat4);
@@ -65,6 +77,19 @@ void ezSimpleAnimationComponent::Update()
 
     m_hSkinningTransformsBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(
         BufferDesc, ezArrayPtr<ezUInt8>(reinterpret_cast<ezUInt8*>(m_BoneMatrices.GetData()), BufferDesc.m_uiTotalSize));
+  }
+}
+
+void ezSimpleAnimationComponent::Update()
+{
+  m_Rotation += (float)GetWorld()->GetClock().GetTimeDiff().GetSeconds() * m_DegreePerSecond;
+
+  ezMat4 rotMat;
+  rotMat.SetRotationMatrixZ(m_Rotation);
+
+  for (ezUInt32 i = 0; i < m_BoneMatrices.GetCount(); ++i)
+  {
+    m_BoneMatrices[i] = rotMat;
   }
 }
 
