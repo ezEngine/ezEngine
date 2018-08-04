@@ -61,27 +61,6 @@ struct EZ_FOUNDATION_DLL ezProjectionDepthRange
   static Enum Default;
 };
 
-
-/// \brief An enum that allows to select on of the six main axis (positive / negative)
-struct EZ_FOUNDATION_DLL ezBasisAxis
-{
-  typedef ezInt8 StorageType;
-
-  /// \brief An enum that allows to select on of the six main axis (positive / negative)
-  enum Enum
-  {
-    PositiveX,
-    PositiveY,
-    PositiveZ,
-    NegativeX,
-    NegativeY,
-    NegativeZ,
-
-    Default = PositiveX
-  };
-};
-
-
 // forward declarations
 template <typename Type>
 class ezVec2Template;
@@ -166,3 +145,29 @@ class ezColorLinearUB;
 class ezColorGammaUB;
 
 class ezRandom;
+
+
+/// \brief An enum that allows to select on of the six main axis (positive / negative)
+struct EZ_FOUNDATION_DLL ezBasisAxis
+{
+  typedef ezInt8 StorageType;
+
+  /// \brief An enum that allows to select on of the six main axis (positive / negative)
+  enum Enum
+  {
+    PositiveX,
+    PositiveY,
+    PositiveZ,
+    NegativeX,
+    NegativeY,
+    NegativeZ,
+
+    Default = PositiveX
+  };
+
+  static ezVec3 GetBasisVector(ezBasisAxis::Enum basisAxis);
+  static ezMat3 CalculateTransformationMatrix(ezBasisAxis::Enum forwardDir, ezBasisAxis::Enum rightDir, ezBasisAxis::Enum upDir,
+                                              float fUniformScale = 1.0f, float fScaleX = 1.0f, float fScaleY = 1.0f, float fScaleZ = 1.0f);
+};
+
+

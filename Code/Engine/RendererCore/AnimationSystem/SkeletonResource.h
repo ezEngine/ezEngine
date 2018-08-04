@@ -1,9 +1,9 @@
 #pragma once
 
-#include <RendererCore/Basics.h>
 #include <Core/ResourceManager/Resource.h>
-#include <RendererCore/AnimationSystem/Skeleton.h>
 #include <RendererCore/AnimationSystem/Declarations.h>
+#include <RendererCore/AnimationSystem/Skeleton.h>
+#include <RendererCore/Basics.h>
 
 struct ezSkeletonResourceGeometry
 {
@@ -42,5 +42,3 @@ private:
 
   ezSkeletonResourceDescriptor m_Descriptor;
 };
-
-

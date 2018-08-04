@@ -63,10 +63,10 @@ namespace ezModelImporter
   ezMat4 ConvertFromFBX(const FbxAMatrix& fbxMatrix)
   {
     ezMat4 mat;
-    mat.SetColumn(0, ConvertFromFBX(fbxMatrix.GetColumn(0)));
-    mat.SetColumn(1, ConvertFromFBX(fbxMatrix.GetColumn(1)));
-    mat.SetColumn(2, ConvertFromFBX(fbxMatrix.GetColumn(2)));
-    mat.SetColumn(3, ConvertFromFBX(fbxMatrix.GetColumn(3)));
+    mat.SetRow(0, ConvertFromFBX(fbxMatrix.GetColumn(0)));
+    mat.SetRow(1, ConvertFromFBX(fbxMatrix.GetColumn(1)));
+    mat.SetRow(2, ConvertFromFBX(fbxMatrix.GetColumn(2)));
+    mat.SetRow(3, ConvertFromFBX(fbxMatrix.GetColumn(3)));
 
     return mat;
   }
@@ -1026,8 +1026,6 @@ namespace ezModelImporter
       // Import hierarchy
       if (pScene->GetRootNode())
       {
-        ezUniquePtr<ezSkeleton> pSkeleton;
-
         // Import the skeleton first so bone names can be used to properly get the bone indices
         {
           ezSkeletonBuilder SkeletonBuilder;
@@ -1043,15 +1041,15 @@ namespace ezModelImporter
           }
           else
           {
-            pSkeleton = SkeletonBuilder.CreateSkeletonInstance();
+            outScene->m_pSkeleton = SkeletonBuilder.CreateSkeletonInstance();
 
-            auto pose = pSkeleton->CreatePose();
-            pSkeleton->SetAnimationPoseToBindPose(pose.Borrow());
-            pSkeleton->CalculateObjectSpaceAnimationPoseMatrices(pose.Borrow());
+            auto pose = outScene->m_pSkeleton->CreatePose();
+            outScene->m_pSkeleton->SetAnimationPoseToBindPose(pose.Borrow());
+            outScene->m_pSkeleton->CalculateObjectSpaceAnimationPoseMatrices(pose.Borrow());
           }
         }
 
-        if (!ImportNodeRecursive(pScene->GetRootNode(), pSkeleton.Borrow(), ImportContext).IsValid())
+        if (!ImportNodeRecursive(pScene->GetRootNode(), outScene->m_pSkeleton.Borrow(), ImportContext).IsValid())
         {
           ezLog::Error("Errors during FBX import of '{0}'", szFileName);
           return nullptr;

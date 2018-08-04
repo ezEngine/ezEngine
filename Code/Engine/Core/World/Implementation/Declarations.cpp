@@ -16,5 +16,5 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezOnComponentFinishedAction2, 1)
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
-
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_Declarations);
+

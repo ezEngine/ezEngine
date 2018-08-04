@@ -1,10 +1,9 @@
-
 #pragma once
 
-#include <RendererCore/Basics.h>
-#include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/Bitfield.h>
+#include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Math/Mat4.h>
+#include <RendererCore/Basics.h>
 
 class ezSkeleton;
 
@@ -14,7 +13,6 @@ class ezSkeleton;
 class EZ_RENDERERCORE_DLL ezAnimationPose
 {
 public:
-
   inline const ezMat4& GetBoneTransform(ezUInt32 uiBoneIndex) const;
   inline bool IsBoneTransformValid(ezUInt32 uiBoneIndex) const;
 
@@ -53,7 +51,6 @@ public:
   ezVec3 SkinDirectionWithFourBones(const ezVec3& Direction, const ezVec4U32& BoneIndices, const ezVec4& BoneWeights) const;
 
 protected:
-
   friend ezSkeleton;
 
   // Animation poses belong to specific skeletons, thus only the skeleton can provide new pose objects.

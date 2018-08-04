@@ -1,9 +1,15 @@
 #include <PCH.h>
-#include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
+
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <Foundation/Utilities/Progress.h>
+#include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
 #include <Foundation/Math/Random.h>
+#include <Foundation/Types/SharedPtr.h>
+#include <Foundation/Utilities/Progress.h>
+#include <ModelImporter/Mesh.h>
+#include <ModelImporter/ModelImporter.h>
+#include <ModelImporter/Scene.h>
+#include <RendererCore/AnimationSystem/EditableSkeleton.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 //////////////////////////////////////////////////////////////////////////
@@ -12,70 +18,151 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSkeletonAssetDocument::ezSkeletonAssetDocument(const char* szDocumentPath)
-  : ezSimpleAssetDocument<ezEditableSkeleton>(szDocumentPath, true)
+    : ezSimpleAssetDocument<ezEditableSkeleton>(szDocumentPath, true)
 {
 }
 
 ezSkeletonAssetDocument::~ezSkeletonAssetDocument() = default;
 
-ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+namespace ImportHelper
+{
+  static ezStatus ImportSkeleton(const char* filename, const char* subMeshFilename, ezSharedPtr<ezModelImporter::Scene>& outScene,
+                          ezModelImporter::Mesh*& outMesh, ezString& outMeshFileAbs)
+  {
+    outMeshFileAbs = filename;
+    if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(outMeshFileAbs))
+    {
+      return ezStatus(ezFmt("Could not make path absolute: '{0};", outMeshFileAbs));
+    }
+
+    return ezModelImporter::Importer::GetSingleton()->ImportMesh(outMeshFileAbs, subMeshFilename, outScene, outMesh);
+  }
+}
+
+ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform,
+                                                         const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
   ezProgressRange range("Transforming Asset", 2, false);
-
 
   range.SetStepWeighting(0, 0.9);
   range.BeginNextStep("Importing Skeleton");
 
+  ezEditableSkeleton* pProp = GetProperties();
+
+  const float fScale = ezMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
+  const ezMat3 mTransformation = ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir, fScale);
+  const ezMat3 mTransformRotations = ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir);
+
+
+  using namespace ezModelImporter;
+
+  ezSharedPtr<Scene> scene;
+  Mesh* mesh = nullptr;
+  ezString sMeshFileAbs;
+  EZ_SUCCEED_OR_RETURN(ImportHelper::ImportSkeleton(pProp->m_sAnimationFile, "", scene, mesh, sMeshFileAbs));
+
+
   // TODO: Read FBX, extract data, store structure (bone names, hierarchy) in a new ezEditableSkeleton
   ezEditableSkeleton* pNewSkeleton = EZ_DEFAULT_NEW(ezEditableSkeleton);
+  pNewSkeleton->ClearBones();
 
-  // sets up a dummy skeleton, remove this code
+  const ezUInt32 numBonex = ezMath::Min(12u, scene->m_pSkeleton->GetBoneCount());
+
+  ezDynamicArray<ezEditableSkeletonBone*> allBones;
+  allBones.SetCountUninitialized(numBonex);
+
+  ezSet<ezString> boneNames;
+
+  ezStringBuilder tmp;
+
+  for (ezUInt32 b = 0; b < numBonex; ++b)
   {
-    pNewSkeleton->ClearBones();
+    ezMat4 mBoneTransform = scene->m_pSkeleton->GetBone(b).GetBoneTransform();
+    //ezMat4 mInvBind = scene->m_pSkeleton->GetBone(b).GetInverseBindPoseTransform();
 
-    ezStringBuilder name;
-    ezRandom r;
-    r.InitializeFromCurrentTime();
+    allBones[b] = EZ_DEFAULT_NEW(ezEditableSkeletonBone);
+    allBones[b]->m_sName = scene->m_pSkeleton->GetBone(b).GetName();
+    allBones[b]->m_Transform.SetFromMat4(mBoneTransform);
+    allBones[b]->m_Transform.m_vScale.Set(1.0f);
 
-    ezEditableSkeletonBone* pCur;
+    allBones[b]->m_fLength = 0.1f;
+    allBones[b]->m_fThickness = 0.01f;
+    allBones[b]->m_fWidth = 0.01f;
+    allBones[b]->m_Geometry = ezSkeletonBoneGeometryType::None;
 
-    if (pNewSkeleton->m_Children.IsEmpty())
+    if (boneNames.Contains(allBones[b]->m_sName))
     {
-      pCur = EZ_DEFAULT_NEW(ezEditableSkeletonBone);
-      pNewSkeleton->m_Children.PushBack(pCur);
+      tmp = allBones[b]->m_sName.GetData();
+      tmp.AppendFormat("_bone{0}", b);
+      allBones[b]->m_sName.Assign(tmp.GetData());
     }
 
-    pCur = pNewSkeleton->m_Children[0];
-    name.Format("Root", r.UInt());
-    pCur->SetName(name);
-    pCur->m_Transform.SetIdentity();
+    boneNames.Insert(allBones[b]->m_sName.GetString());
 
-    if (pNewSkeleton->m_Children[0]->m_Children.IsEmpty())
+    if (scene->m_pSkeleton->GetBone(b).IsRootBone())
     {
-      pCur = EZ_DEFAULT_NEW(ezEditableSkeletonBone);
-      pNewSkeleton->m_Children[0]->m_Children.PushBack(pCur);
+      allBones[b]->m_Transform.m_vPosition = mTransformation * allBones[b]->m_Transform.m_vPosition;
+      allBones[b]->m_Transform.m_qRotation.SetFromMat3(mTransformRotations * allBones[b]->m_Transform.m_qRotation.GetAsMat3());
+
+      pNewSkeleton->m_Children.PushBack(allBones[b]);
     }
-
-    pCur = pNewSkeleton->m_Children[0]->m_Children[0];
-
-    name.Format("Body", r.UInt());
-    pCur->SetName(name);
-    pCur->m_Transform.SetIdentity();
-    pCur->m_Transform.m_vPosition.Set(0, 0, 1);
-
-    if (pNewSkeleton->m_Children[0]->m_Children[0]->m_Children.IsEmpty())
+    else
     {
-      pCur = EZ_DEFAULT_NEW(ezEditableSkeletonBone);
-      pNewSkeleton->m_Children[0]->m_Children[0]->m_Children.PushBack(pCur);
+      allBones[b]->m_Transform.m_vPosition = fScale * allBones[b]->m_Transform.m_vPosition;
+
+      ezUInt32 parentIdx = scene->m_pSkeleton->GetBone(b).GetParentIndex();
+      EZ_ASSERT_DEBUG(parentIdx < b, "Invalid parent bone index");
+      allBones[parentIdx]->m_Children.PushBack(allBones[b]);
     }
-
-    pCur = pNewSkeleton->m_Children[0]->m_Children[0]->m_Children[0];
-
-    name.Format("Head", r.UInt());
-    pCur->SetName(name);
-    pCur->m_Transform.SetIdentity();
-    pCur->m_Transform.m_vPosition.Set(0, 0, 1.7);
   }
+
+  //// sets up a dummy skeleton, remove this code
+  //{
+  //  pNewSkeleton->ClearBones();
+
+  //  ezStringBuilder name;
+  //  ezRandom r;
+  //  r.InitializeFromCurrentTime();
+
+  //  ezEditableSkeletonBone* pCur;
+
+  //  if (pNewSkeleton->m_Children.IsEmpty())
+  //  {
+  //    pCur = EZ_DEFAULT_NEW(ezEditableSkeletonBone);
+  //    pNewSkeleton->m_Children.PushBack(pCur);
+  //  }
+
+  //  pCur = pNewSkeleton->m_Children[0];
+  //  name.Format("Root", r.UInt());
+  //  pCur->SetName(name);
+  //  pCur->m_Transform.SetIdentity();
+
+  //  if (pNewSkeleton->m_Children[0]->m_Children.IsEmpty())
+  //  {
+  //    pCur = EZ_DEFAULT_NEW(ezEditableSkeletonBone);
+  //    pNewSkeleton->m_Children[0]->m_Children.PushBack(pCur);
+  //  }
+
+  //  pCur = pNewSkeleton->m_Children[0]->m_Children[0];
+
+  //  name.Format("Body", r.UInt());
+  //  pCur->SetName(name);
+  //  pCur->m_Transform.SetIdentity();
+  //  pCur->m_Transform.m_vPosition.Set(0, 0, 1);
+
+  //  if (pNewSkeleton->m_Children[0]->m_Children[0]->m_Children.IsEmpty())
+  //  {
+  //    pCur = EZ_DEFAULT_NEW(ezEditableSkeletonBone);
+  //    pNewSkeleton->m_Children[0]->m_Children[0]->m_Children.PushBack(pCur);
+  //  }
+
+  //  pCur = pNewSkeleton->m_Children[0]->m_Children[0]->m_Children[0];
+
+  //  name.Format("Head", r.UInt());
+  //  pCur->SetName(name);
+  //  pCur->m_Transform.SetIdentity();
+  //  pCur->m_Transform.m_vPosition.Set(0, 0, 1.7);
+  //}
 
   // synchronize the old data (collision geometry etc.) with the new hierarchy
   // this function deletes pNewSkeleton when it's done
@@ -108,8 +195,7 @@ void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton* pNewSkele
 
   // map all old bones by name
   {
-    auto TraverseBones = [&prevBones](const auto& self, ezEditableSkeletonBone* pBone)->void
-    {
+    auto TraverseBones = [&prevBones](const auto& self, ezEditableSkeletonBone* pBone) -> void {
       prevBones[pBone->GetName()] = pBone;
 
       for (ezEditableSkeletonBone* pChild : pBone->m_Children)
@@ -126,8 +212,7 @@ void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton* pNewSkele
 
   // copy old properties to new skeleton
   {
-    auto TraverseBones = [&prevBones](const auto& self, ezEditableSkeletonBone* pBone)->void
-    {
+    auto TraverseBones = [&prevBones](const auto& self, ezEditableSkeletonBone* pBone) -> void {
       auto it = prevBones.Find(pBone->GetName());
       if (it.IsValid())
       {
@@ -170,7 +255,8 @@ ezSkeletonAssetDocumentGenerator::ezSkeletonAssetDocumentGenerator()
 
 ezSkeletonAssetDocumentGenerator::~ezSkeletonAssetDocumentGenerator() = default;
 
-void ezSkeletonAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezSkeletonAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath,
+                                                      ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
   baseOutputFile.ChangeFileExtension(GetDocumentExtension());
@@ -184,7 +270,8 @@ void ezSkeletonAssetDocumentGenerator::GetImportModes(const char* szParentDirRel
   }
 }
 
-ezStatus ezSkeletonAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezSkeletonAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info,
+                                                    ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 

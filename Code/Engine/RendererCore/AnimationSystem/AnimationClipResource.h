@@ -1,7 +1,7 @@
 #pragma once
 
-#include <RendererCore/Basics.h>
 #include <Core/ResourceManager/Resource.h>
+#include <RendererCore/Basics.h>
 
 struct EZ_RENDERERCORE_DLL ezAnimationClipResourceDescriptor
 {
@@ -29,5 +29,3 @@ private:
 
   ezAnimationClipResourceDescriptor m_Descriptor;
 };
-
-

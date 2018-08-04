@@ -1,9 +1,10 @@
-
 #include <PCH.h>
+
 #include <RendererCore/AnimationSystem/EditableSkeleton.h>
 #include <RendererCore/AnimationSystem/SkeletonBuilder.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
+// clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSkeletonBoneGeometryType, 1)
 EZ_ENUM_CONSTANTS(ezSkeletonBoneGeometryType::None, ezSkeletonBoneGeometryType::Capsule, ezSkeletonBoneGeometryType::Sphere, ezSkeletonBoneGeometryType::Box)
 EZ_END_STATIC_REFLECTED_ENUM;
@@ -32,12 +33,14 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeleton, 1, ezRTTIDefaultAllocator<ez
     EZ_ENUM_MEMBER_PROPERTY("ForwardDir", ezBasisAxis, m_ForwardDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::NegativeZ)),
     EZ_ENUM_MEMBER_PROPERTY("RightDir", ezBasisAxis, m_RightDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveX)),
     EZ_ENUM_MEMBER_PROPERTY("UpDir", ezBasisAxis, m_UpDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
+    EZ_MEMBER_PROPERTY("UniformScaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0001f, 10000.0f)),
 
     EZ_ARRAY_MEMBER_PROPERTY("Children", m_Children)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
   }
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezEditableSkeleton::ezEditableSkeleton() = default;
 ezEditableSkeleton::~ezEditableSkeleton()
@@ -64,8 +67,7 @@ void ezEditableSkeleton::FillResourceDescriptor(ezSkeletonResourceDescriptor& de
     ezSkeletonBuilder sb;
     sb.SetSkinningMode(ezSkeleton::Mode::FourBones); // TODO: make this configurable ?
 
-    auto AddChildBones = [&sb, &desc](auto& self, const ezEditableSkeletonBone* pBone, ezUInt32 uiBoneIdx)->void
-    {
+    auto AddChildBones = [&sb, &desc](auto& self, const ezEditableSkeletonBone* pBone, ezUInt32 uiBoneIdx) -> void {
       if (pBone->m_Geometry != ezSkeletonBoneGeometryType::None)
       {
         auto& geo = desc.m_Geometry.ExpandAndGetRef();

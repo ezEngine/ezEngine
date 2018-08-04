@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <ModelImporter/Node.h>
 #include <ModelImporter/VertexIndex.h>
@@ -81,7 +81,7 @@ namespace ezModelImporter
     // Skeleton
   public:
 
-    ezUniquePtr<ezSkeleton> m_pSkeleton;
+    //ezUniquePtr<ezSkeleton> m_pSkeleton;
 
     // Processing
   public:

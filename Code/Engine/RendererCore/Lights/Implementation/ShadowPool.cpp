@@ -481,6 +481,13 @@ ezUInt32 ezShadowPool::AddDirectionalLight(const ezDirectionalLightComponent* pD
 
       ezVec3 center = pReferenceCamera->GetPosition() + pReferenceCamera->GetDirForwards() * x;
 
+      // prevent too large values
+      // sometimes this can happen when imported data is badly scaled and thus way too large
+      // then adding dirForwards result in no change and we run into other asserts later
+      center.x = ezMath::Clamp(center.x, -1000000.0f, +1000000.0f);
+      center.y = ezMath::Clamp(center.y, -1000000.0f, +1000000.0f);
+      center.z = ezMath::Clamp(center.z, -1000000.0f, +1000000.0f);
+
       endCorner.z -= x;
       float radius = endCorner.GetLength();
 

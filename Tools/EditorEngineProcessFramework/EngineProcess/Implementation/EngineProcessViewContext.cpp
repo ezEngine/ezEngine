@@ -218,7 +218,16 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
     {
       m_Camera.SetCameraMode(cameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
     }
-    m_Camera.LookAt(pMsg->m_vPosition, pMsg->m_vPosition + pMsg->m_vDirForwards, pMsg->m_vDirUp);
+
+    // prevent too large values
+    // sometimes this can happen when imported data is badly scaled and thus way too large
+    // then adding dirForwards result in no change and we run into other asserts later
+    ezVec3 pos = pMsg->m_vPosition;
+    pos.x = ezMath::Clamp(pos.x, -1000000.0f, +1000000.0f);
+    pos.y = ezMath::Clamp(pos.y, -1000000.0f, +1000000.0f);
+    pos.z = ezMath::Clamp(pos.z, -1000000.0f, +1000000.0f);
+
+    m_Camera.LookAt(pos, pos + pMsg->m_vDirForwards, pMsg->m_vDirUp);
   }
 
   if (pView)

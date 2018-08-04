@@ -1,13 +1,14 @@
 #include <PCH.h>
-#include <RendererCore/AnimationSystem/AnimationClipResource.h>
+
 #include <Core/Assets/AssetFileHeader.h>
+#include <RendererCore/AnimationSystem/AnimationClipResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipResource, 1, ezRTTIDefaultAllocator<ezAnimationClipResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 ezAnimationClipResource::ezAnimationClipResource()
-  : ezResource<ezAnimationClipResource, ezAnimationClipResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource<ezAnimationClipResource, ezAnimationClipResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
 }
 
@@ -71,15 +72,12 @@ void ezAnimationClipResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 
 void ezAnimationClipResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  //const ezUInt8 uiVersion = 1;
-  //stream << uiVersion;
+  // const ezUInt8 uiVersion = 1;
+  // stream << uiVersion;
 }
 
 void ezAnimationClipResourceDescriptor::Load(ezStreamReader& stream)
 {
-  //ezUInt8 uiVersion = 0;
-  //stream >> uiVersion;
-
+  // ezUInt8 uiVersion = 0;
+  // stream >> uiVersion;
 }
-
-

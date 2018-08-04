@@ -20,4 +20,3 @@ struct ezSkeletonBoneGeometryType
     Default = None
   };
 };
-

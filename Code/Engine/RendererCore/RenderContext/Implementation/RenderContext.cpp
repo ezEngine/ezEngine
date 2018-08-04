@@ -394,7 +394,7 @@ void ezRenderContext::BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBuffe
 
 ezResult ezRenderContext::DrawMeshBuffer(ezUInt32 uiPrimitiveCount, ezUInt32 uiFirstPrimitive, ezUInt32 uiInstanceCount)
 {
-  if (ApplyContextStates().Failed())
+  if (ApplyContextStates().Failed() || uiPrimitiveCount == 0 || uiInstanceCount == 0)
   {
     m_Statistics.m_uiFailedDrawcalls++;
     return EZ_FAILURE;

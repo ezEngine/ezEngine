@@ -1,4 +1,5 @@
 #include <PCH.h>
+
 #include <EditorPluginAssets/MeshAsset/MeshAsset.h>
 #include <Core/Graphics/Geometry.h>
 #include <EditorFramework/Assets/AssetCurator.h>
@@ -19,34 +20,6 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 4, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-static ezVec3 GetBasisVector(ezBasisAxis::Enum basisAxis)
-{
-  switch (basisAxis)
-  {
-  case ezBasisAxis::PositiveX:
-    return ezVec3(1.0f, 0.0f, 0.0f);
-
-  case ezBasisAxis::NegativeX:
-    return ezVec3(-1.0f, 0.0f, 0.0f);
-
-  case ezBasisAxis::PositiveY:
-    return ezVec3(0.0f, 1.0f, 0.0f);
-
-  case ezBasisAxis::NegativeY:
-    return ezVec3(0.0f, -1.0f, 0.0f);
-
-  case ezBasisAxis::PositiveZ:
-    return ezVec3(0.0f, 0.0f, 1.0f);
-
-  case ezBasisAxis::NegativeZ:
-    return ezVec3(0.0f, 0.0f, -1.0f);
-
-  default:
-    EZ_REPORT_FAILURE("Invalid basis dir {0}", basisAxis);
-    return ezVec3::ZeroVector();
-  }
-}
-
 static ezMat3 CalculateTransformationMatrix(const ezMeshAssetProperties* pProp)
 {
   const float us = ezMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
@@ -54,12 +27,7 @@ static ezMat3 CalculateTransformationMatrix(const ezMeshAssetProperties* pProp)
   const float sy = ezMath::Clamp(pProp->m_vNonUniformScaling.y, 0.0001f, 10000.0f);
   const float sz = ezMath::Clamp(pProp->m_vNonUniformScaling.z, 0.0001f, 10000.0f);
 
-  ezMat3 mResult;
-  mResult.SetColumn(0, GetBasisVector(pProp->m_ForwardDir) * us * sx);
-  mResult.SetColumn(1, GetBasisVector(pProp->m_RightDir) * us * sy);
-  mResult.SetColumn(2, GetBasisVector(pProp->m_UpDir) * us * sz);
-
-  return mResult.GetTranspose();
+  return ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir, us, sx, sy, sz);
 }
 
 namespace ImportHelper

@@ -1,9 +1,9 @@
-
 #include <PCH.h>
+
 #include <RendererCore/AnimationSystem/SkeletonBuilder.h>
 
 ezSkeletonBuilder::ezSkeletonBuilder()
-  : m_eSkinningMode(ezSkeleton::Mode::FourBones)
+    : m_eSkinningMode(ezSkeleton::Mode::FourBones)
 {
 }
 

@@ -266,21 +266,21 @@ namespace ezModelImporter
     // Add skeleton if existent
     // TODO: What if multiple, incompatible skeletons are found(?)
     // For now: Remove skeleton and import unskinned
-    if (mesh.m_pSkeleton)
-    {
-      if (m_pSkeleton)
-      {
-        if (!m_pSkeleton->IsCompatibleWith(mesh.m_pSkeleton.Borrow()))
-        {
-          ezLog::Warning("Found incompatible skeletons during mesh merging in mesh '{0}', import will be without skeletons!", m_Name.GetData());
-          m_pSkeleton.Reset();
-        }
-      }
-      else
-      {
-        m_pSkeleton = EZ_DEFAULT_NEW(ezSkeleton, *mesh.m_pSkeleton);
-      }
-    }
+    //if (mesh.m_pSkeleton)
+    //{
+    //  if (m_pSkeleton)
+    //  {
+    //    if (!m_pSkeleton->IsCompatibleWith(mesh.m_pSkeleton.Borrow()))
+    //    {
+    //      ezLog::Warning("Found incompatible skeletons during mesh merging in mesh '{0}', import will be without skeletons!", m_Name.GetData());
+    //      m_pSkeleton.Reset();
+    //    }
+    //  }
+    //  else
+    //  {
+    //    m_pSkeleton = EZ_DEFAULT_NEW(ezSkeleton, *mesh.m_pSkeleton);
+    //  }
+    //}
   }
 
   void Mesh::MergeSubMeshesWithSameMaterials()

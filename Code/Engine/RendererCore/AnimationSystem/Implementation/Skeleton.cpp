@@ -1,28 +1,28 @@
-
 #include <PCH.h>
-#include <RendererCore/AnimationSystem/Skeleton.h>
-#include <RendererCore/AnimationSystem/AnimationPose.h>
+
 #include <Foundation/Reflection/Reflection.h>
+#include <RendererCore/AnimationSystem/AnimationPose.h>
+#include <RendererCore/AnimationSystem/Skeleton.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeleton, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 ezSkeleton::ezSkeleton()
-  : m_bAnyPoseCreated(false)
-  , m_eSkinningMode(Mode::FourBones)
+    : m_bAnyPoseCreated(false)
+    , m_eSkinningMode(Mode::FourBones)
 {
 }
 
 
 ezSkeleton::ezSkeleton(const ezSkeleton& Other)
-  : m_bAnyPoseCreated(false)
-  , m_eSkinningMode(Other.m_eSkinningMode)
+    : m_bAnyPoseCreated(false)
+    , m_eSkinningMode(Other.m_eSkinningMode)
 {
   m_Bones = Other.m_Bones;
 }
 
-void ezSkeleton::operator = (const ezSkeleton& Other)
+void ezSkeleton::operator=(const ezSkeleton& Other)
 {
   m_bAnyPoseCreated = false;
   m_pBindSpacePose.Reset();
@@ -106,7 +106,8 @@ void ezSkeleton::CalculateObjectSpaceAnimationPoseMatrices(ezAnimationPose* pPos
     else
     {
       // TODO: Verify that multiplication order is correct
-      pPose->SetBoneTransform(i, m_Bones[i].GetInverseBindPoseTransform() * m_Bones[i].GetBoneTransform() * pPose->GetBoneTransform(m_Bones[i].GetParentIndex()));
+      pPose->SetBoneTransform(i, m_Bones[i].GetInverseBindPoseTransform() * m_Bones[i].GetBoneTransform() *
+                                     pPose->GetBoneTransform(m_Bones[i].GetParentIndex()));
     }
   }
 }
@@ -173,14 +174,14 @@ ezResult ezSkeleton::Load(ezStreamReader& stream)
 
   switch (uiSkinningMode)
   {
-  case ezUInt32(Mode::SingleBone):
-    m_eSkinningMode = Mode::SingleBone;
-    break;
-  case ezUInt32(Mode::FourBones):
-    m_eSkinningMode = Mode::FourBones;
-    break;
-  default:
-    EZ_ASSERT_NOT_IMPLEMENTED;
+    case ezUInt32(Mode::SingleBone):
+      m_eSkinningMode = Mode::SingleBone;
+      break;
+    case ezUInt32(Mode::FourBones):
+      m_eSkinningMode = Mode::FourBones;
+      break;
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
   }
 
   ezUInt32 uiNumBones = 0;

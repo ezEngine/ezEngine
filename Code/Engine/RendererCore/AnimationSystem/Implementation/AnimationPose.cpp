@@ -1,5 +1,5 @@
-
 #include <PCH.h>
+
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <RendererCore/AnimationSystem/Skeleton.h>
 

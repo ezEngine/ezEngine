@@ -79,4 +79,43 @@ void ezAngle::NormalizeRange()
   }
 }
 
+ezVec3 ezBasisAxis::GetBasisVector(Enum basisAxis)
+{
+  switch (basisAxis)
+  {
+    case ezBasisAxis::PositiveX:
+      return ezVec3(1.0f, 0.0f, 0.0f);
+
+    case ezBasisAxis::NegativeX:
+      return ezVec3(-1.0f, 0.0f, 0.0f);
+
+    case ezBasisAxis::PositiveY:
+      return ezVec3(0.0f, 1.0f, 0.0f);
+
+    case ezBasisAxis::NegativeY:
+      return ezVec3(0.0f, -1.0f, 0.0f);
+
+    case ezBasisAxis::PositiveZ:
+      return ezVec3(0.0f, 0.0f, 1.0f);
+
+    case ezBasisAxis::NegativeZ:
+      return ezVec3(0.0f, 0.0f, -1.0f);
+
+    default:
+      EZ_REPORT_FAILURE("Invalid basis dir {0}", basisAxis);
+      return ezVec3::ZeroVector();
+  }
+}
+
+ezMat3 ezBasisAxis::CalculateTransformationMatrix(Enum forwardDir, Enum rightDir, Enum upDir, float fUniformScale /*= 1.0f*/,
+                                                  float fScaleX /*= 1.0f*/, float fScaleY /*= 1.0f*/, float fScaleZ /*= 1.0f*/)
+{
+  ezMat3 mResult;
+  mResult.SetRow(0, ezBasisAxis::GetBasisVector(forwardDir) * fUniformScale * fScaleX);
+  mResult.SetRow(1, ezBasisAxis::GetBasisVector(rightDir) * fUniformScale * fScaleY);
+  mResult.SetRow(2, ezBasisAxis::GetBasisVector(upDir) * fUniformScale * fScaleZ);
+
+  return mResult;
+}
+
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Math);

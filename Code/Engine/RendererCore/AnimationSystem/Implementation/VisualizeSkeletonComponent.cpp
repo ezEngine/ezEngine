@@ -1,15 +1,13 @@
 #include <PCH.h>
-#include <RendererCore/AnimationSystem/VisualizeSkeletonComponent.h>
-#include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/WorldSerializer/WorldReader.h>
-#include <RendererCore/Pipeline/RenderData.h>
+
 #include <Core/Graphics/Geometry.h>
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/AnimationSystem/SkeletonBuilder.h>
+#include <RendererCore/AnimationSystem/VisualizeSkeletonComponent.h>
+#include <RendererCore/Pipeline/RenderData.h>
 
-ezVisualizeSkeletonComponentManager::ezVisualizeSkeletonComponentManager(ezWorld* pWorld) : SUPER(pWorld)
-{
-}
-
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezVisualizeSkeletonComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -29,6 +27,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezVisualizeSkeletonComponent, 1, ezComponentMode::Static
   EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezVisualizeSkeletonComponentManager::ezVisualizeSkeletonComponentManager(ezWorld* pWorld)
+    : SUPER(pWorld)
+{
+}
 
 ezVisualizeSkeletonComponent::ezVisualizeSkeletonComponent() = default;
 ezVisualizeSkeletonComponent::~ezVisualizeSkeletonComponent() = default;
@@ -64,7 +68,7 @@ void ezVisualizeSkeletonComponent::OnSimulationStarted()
 ezResult ezVisualizeSkeletonComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
   // have to assume this isn't thread safe
-  //CreateRenderMesh();
+  // CreateRenderMesh();
 
   if (m_hMesh.IsValid())
   {
@@ -133,7 +137,8 @@ void ezVisualizeSkeletonComponent::CreateRenderMesh()
     return;
 
   ezStringBuilder sVisMeshName = pSkeleton->GetResourceID();
-  sVisMeshName.AppendFormat("_{0}_VisSkeletonMesh", pSkeleton->GetCurrentResourceChangeCounter()); // the change counter allows to react to resource updates
+  sVisMeshName.AppendFormat("_{0}_VisSkeletonMesh",
+                            pSkeleton->GetCurrentResourceChangeCounter()); // the change counter allows to react to resource updates
 
   m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(sVisMeshName);
 
@@ -152,39 +157,6 @@ void ezVisualizeSkeletonComponent::CreateRenderMesh()
 
   ezMeshResourceDescriptor md;
   auto& buffer = md.MeshBufferDesc();
-
-  // create a realistic humanoid dummy skeleton
-  //{
-  //  ezMat4 m;
-  //  ezSkeletonBuilder builder;
-
-  //  m.SetTranslationMatrix(ezVec3(0, 0, 0.0f));
-  //  const ezUInt32 root = builder.AddBone("Root", m);
-
-  //  m.SetTranslationMatrix(ezVec3(0, 0, 1.0f));
-  //  const ezUInt32 body = builder.AddBone("Body", m, root);
-
-  //  m.SetTranslationMatrix(ezVec3(0, 0, 0.6f));
-  //  const ezUInt32 head = builder.AddBone("Head", m, body);
-
-  //  m.SetTranslationMatrix(ezVec3(0.2f, 0, 0));
-  //  const ezUInt32 nose = builder.AddBone("Nose", m, head);
-
-  //  m.SetTranslationMatrix(ezVec3(0, 0.5f, 0));
-  //  const ezUInt32 rarm = builder.AddBone("RArm", m, body);
-
-  //  m.SetTranslationMatrix(ezVec3(0, 0.3f, 0.1f));
-  //  const ezUInt32 rarm2 = builder.AddBone("RArm2", m, rarm);
-
-  //  m.SetTranslationMatrix(ezVec3(0, -0.4f, -0.1f));
-  //  const ezUInt32 larm = builder.AddBone("LArm", m, body);
-
-  //  m.SetTranslationMatrix(ezVec3(0, -0.1f, -0.2f));
-  //  const ezUInt32 larm2 = builder.AddBone("LArm2", m, larm);
-
-  //  pSkeletonData = builder.CreateSkeletonInstance();
-  //}
-
 
   {
     ezGeometry geo;
@@ -215,8 +187,8 @@ void ezVisualizeSkeletonComponent::CreateRenderMesh()
 
 void ezVisualizeSkeletonComponent::CreateSkeletonGeometry(const ezSkeleton* pSkeletonData, ezGeometry& geo)
 {
-  //const ezAnimationPose* pPose = pSkeletonData->GetBindSpacePoseInObjectSpace();
-  //const ezUInt32 uiNumBones = pPose->GetBoneTransformCount();
+  // const ezAnimationPose* pPose = pSkeletonData->GetBindSpacePoseInObjectSpace();
+  // const ezUInt32 uiNumBones = pPose->GetBoneTransformCount();
   const ezUInt32 uiNumBones = pSkeletonData->GetBoneCount();
 
   for (ezUInt32 b = 0; b < uiNumBones; ++b)
@@ -224,20 +196,25 @@ void ezVisualizeSkeletonComponent::CreateSkeletonGeometry(const ezSkeleton* pSke
     const auto& bone = pSkeletonData->GetBone(b);
 
     const ezMat4 mBone = ComputeBoneMatrix(*pSkeletonData, bone);
-    //const ezMat4 mBone = pPose->GetBoneTransform(b);
+    // const ezMat4 mBone = pPose->GetBoneTransform(b);
 
     geo.AddSphere(0.03f, 10, 10, ezColor::RebeccaPurple, mBone, b);
 
     if (!bone.IsRootBone())
     {
       const ezMat4 mParentBone = ComputeBoneMatrix(*pSkeletonData, pSkeletonData->GetBone(bone.GetParentIndex()));
-      //const ezMat4 mParentBone = pPose->GetBoneTransform(bone.GetParentIndex());
+      // const ezMat4 mParentBone = pPose->GetBoneTransform(bone.GetParentIndex());
 
       const ezVec3 vTargetPos = mBone.GetTranslationVector();
       const ezVec3 vSourcePos = mParentBone.GetTranslationVector();
 
       ezVec3 vBoneDir = vTargetPos - vSourcePos;
-      const float fBoneLen = vBoneDir.GetLengthAndNormalize();
+      const float fBoneLen = vBoneDir.GetLength();
+
+      if (fBoneLen <= 0.0f)
+        continue;
+
+      vBoneDir /= fBoneLen;
 
       ezMat4 mScale;
       mScale.SetScalingMatrix(ezVec3(1, 1, fBoneLen));
@@ -254,28 +231,33 @@ void ezVisualizeSkeletonComponent::CreateSkeletonGeometry(const ezSkeleton* pSke
   }
 }
 
-void ezVisualizeSkeletonComponent::CreateHitBoxGeometry(const ezSkeletonResourceDescriptor* pDescriptor, ezGeometry &geo)
+void ezVisualizeSkeletonComponent::CreateHitBoxGeometry(const ezSkeletonResourceDescriptor* pDescriptor, ezGeometry& geo)
 {
+  ezMat4 mRotCapsule;
+  mRotCapsule.SetRotationMatrixY(ezAngle::Degree(90));
+
   for (const auto& boneGeo : pDescriptor->m_Geometry)
   {
     const auto& bone = pDescriptor->m_Skeleton.GetBone(boneGeo.m_uiAttachedToBone);
-    const ezMat4 boneTransform = bone.GetBoneTransform();
+    //const ezMat4 boneTransform = bone.GetBoneTransform();
+    const ezMat4 boneTransform = ComputeBoneMatrix(pDescriptor->m_Skeleton, bone);
 
     switch (boneGeo.m_Type)
     {
-    case ezSkeletonBoneGeometryType::Box:
+      case ezSkeletonBoneGeometryType::Box:
       {
         geo.AddBox(boneGeo.m_Transform.m_vScale, ezColor::White, boneTransform, boneGeo.m_uiAttachedToBone);
       }
       break;
 
-    case ezSkeletonBoneGeometryType::Capsule:
+      case ezSkeletonBoneGeometryType::Capsule:
       {
-        geo.AddCapsule(boneGeo.m_Transform.m_vScale.z, boneGeo.m_Transform.m_vScale.x, 16, 4, ezColor::White, boneTransform, boneGeo.m_uiAttachedToBone);
+        geo.AddCapsule(boneGeo.m_Transform.m_vScale.z, boneGeo.m_Transform.m_vScale.x, 16, 4, ezColor::White, boneTransform * mRotCapsule,
+                       boneGeo.m_uiAttachedToBone);
       }
       break;
 
-    case ezSkeletonBoneGeometryType::Sphere:
+      case ezSkeletonBoneGeometryType::Sphere:
       {
         geo.AddGeodesicSphere(boneGeo.m_Transform.m_vScale.z, 1, ezColor::White, boneTransform, boneGeo.m_uiAttachedToBone);
       }
@@ -306,7 +288,7 @@ void ezVisualizeSkeletonComponent::OnExtractRenderData(ezMsgExtractRenderData& m
     const ezUInt32 uiFlipWinding = GetOwner()->GetGlobalTransformSimd().ContainsNegativeScale() ? 1 : 0;
 
     // Generate batch id from mesh, material and part index.
-    ezUInt32 data[] = { uiMeshIDHash, uiMaterialIDHash, uiPartIndex, uiFlipWinding };
+    ezUInt32 data[] = {uiMeshIDHash, uiMaterialIDHash, uiPartIndex, uiFlipWinding};
     ezUInt32 uiBatchId = ezHashing::xxHash32(data, sizeof(data));
 
     ezMeshRenderData* pRenderData = CreateRenderData(uiBatchId);
@@ -369,8 +351,8 @@ void ezVisualizeSkeletonComponentManager::EnqueueUpdate(ezComponentHandle hCompo
 
 void ezVisualizeSkeletonComponentManager::ResourceEventHandler(const ezResourceEvent& e)
 {
-  if ((e.m_EventType == ezResourceEventType::ResourceContentUnloading ||e.m_EventType == ezResourceEventType::ResourceContentUpdated) &&
-    e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezSkeletonResource>())
+  if ((e.m_EventType == ezResourceEventType::ResourceContentUnloading || e.m_EventType == ezResourceEventType::ResourceContentUpdated) &&
+      e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezSkeletonResource>())
   {
     EZ_LOCK(m_Mutex);
 

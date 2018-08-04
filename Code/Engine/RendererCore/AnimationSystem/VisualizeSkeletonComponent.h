@@ -2,13 +2,14 @@
 
 #include <PhysXPlugin/Basics.h>
 #include <PhysXPlugin/Resources/PxMeshResource.h>
+#include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <RendererCore/Components/RenderComponent.h>
+#include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Pipeline/RenderData.h>
-#include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/AnimationSystem/SkeletonResource.h>
 
-class EZ_RENDERERCORE_DLL ezVisualizeSkeletonComponentManager : public ezComponentManager<class ezVisualizeSkeletonComponent, ezBlockStorageType::Compact>
+class EZ_RENDERERCORE_DLL ezVisualizeSkeletonComponentManager
+    : public ezComponentManager<class ezVisualizeSkeletonComponent, ezBlockStorageType::Compact>
 {
 public:
   typedef ezComponentManager<ezVisualizeSkeletonComponent, ezBlockStorageType::Compact> SUPER;
@@ -52,19 +53,17 @@ protected:
   virtual ezMeshRenderData* CreateRenderData(ezUInt32 uiBatchId) const;
   void CreateRenderMesh();
 
-  void CreateSkeletonGeometry(const ezSkeleton* pSkeletonData, ezGeometry &geo);
-  void CreateHitBoxGeometry(const ezSkeletonResourceDescriptor* pDescriptor, ezGeometry &geo);
+  void CreateSkeletonGeometry(const ezSkeleton* pSkeletonData, ezGeometry& geo);
+  void CreateHitBoxGeometry(const ezSkeletonResourceDescriptor* pDescriptor, ezGeometry& geo);
 
 
 
   // ************************************* PROPERTIES ***********************************
 public:
-
   void SetSkeletonFile(const char* szFile);
   const char* GetSkeletonFile() const;
 
 protected:
-
   // ************************************* FUNCTIONS *****************************
 
 public:

@@ -1,9 +1,10 @@
-﻿#pragma once
+#pragma once
 
 #include <ModelImporter/HierarchyObject.h>
 #include <Foundation/Containers/IdTable.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <Foundation/Types/RefCounted.h>
+#include <RendererCore/AnimationSystem/Skeleton.h>
 
 namespace ezModelImporter
 {
@@ -55,6 +56,8 @@ namespace ezModelImporter
     ObjectHandle AddNode(ezUniquePtr<Node> node);
     ObjectHandle AddMesh(ezUniquePtr<Mesh> mesh);
     MaterialHandle AddMaterial(ezUniquePtr<Material> material);
+
+    ezUniquePtr<ezSkeleton> m_pSkeleton;
 
     /// Adds all objects without a parent to the list of root objects.
     ///

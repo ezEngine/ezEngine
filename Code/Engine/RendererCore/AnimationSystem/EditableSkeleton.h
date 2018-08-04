@@ -1,10 +1,9 @@
-
 #pragma once
 
-#include <RendererCore/Basics.h>
-#include <RendererCore/AnimationSystem/Declarations.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/HashedString.h>
+#include <RendererCore/AnimationSystem/Declarations.h>
+#include <RendererCore/Basics.h>
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezSkeletonBoneGeometryType);
 
@@ -29,8 +28,8 @@ public:
   ezTransform m_Transform;
   ezEnum<ezSkeletonBoneGeometryType> m_Geometry;
 
-  float m_fLength = 0; // Box, Capsule, 0 means parent bone to this bone
-  float m_fWidth = 0; // Box
+  float m_fLength = 0;    // Box, Capsule, 0 means parent bone to this bone
+  float m_fWidth = 0;     // Box
   float m_fThickness = 0; // Sphere radius, Capsule radius
 
   ezHybridArray<ezEditableSkeletonBone*, 4> m_Children;
@@ -38,7 +37,7 @@ public:
 
 class EZ_RENDERERCORE_DLL ezEditableSkeleton : public ezReflectedClass
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditableSkeleton, ezReflectedClass );
+  EZ_ADD_DYNAMIC_REFLECTION(ezEditableSkeleton, ezReflectedClass);
 
 public:
   ezEditableSkeleton();
@@ -52,7 +51,7 @@ public:
   ezEnum<ezBasisAxis> m_ForwardDir;
   ezEnum<ezBasisAxis> m_RightDir;
   ezEnum<ezBasisAxis> m_UpDir;
+  float m_fUniformScaling;
 
   ezHybridArray<ezEditableSkeletonBone*, 4> m_Children;
 };
-

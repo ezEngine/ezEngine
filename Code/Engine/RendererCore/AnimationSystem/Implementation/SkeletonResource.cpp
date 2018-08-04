@@ -1,12 +1,13 @@
 #include <PCH.h>
-#include <RendererCore/AnimationSystem/SkeletonResource.h>
+
 #include <Core/Assets/AssetFileHeader.h>
+#include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonResource, 1, ezRTTIDefaultAllocator<ezSkeletonResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSkeletonResource::ezSkeletonResource()
-  : ezResource<ezSkeletonResource, ezSkeletonResourceDescriptor>(DoUpdate::OnAnyThread, 1)
+    : ezResource<ezSkeletonResource, ezSkeletonResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
 }
 
@@ -114,5 +115,3 @@ void ezSkeletonResourceDescriptor::Load(ezStreamReader& stream)
     stream >> geo.m_Transform;
   }
 }
-
-
