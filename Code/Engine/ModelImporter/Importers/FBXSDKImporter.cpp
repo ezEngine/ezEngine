@@ -948,7 +948,7 @@ namespace ezModelImporter
     return ezMakeArrayPtr(m_supportedFileFormats);
   }
 
-  ezSharedPtr<Scene> FBXSDKImporter::ImportScene(const char* szFileName)
+  ezSharedPtr<Scene> FBXSDKImporter::ImportScene(const char* szFileName, ezBitflags<ImportFlags> importFlags)
   {
     if (!m_pFBXManager)
     {
@@ -1076,7 +1076,7 @@ namespace ezModelImporter
     return ezMakeArrayPtr(m_supportedFileFormats);
   }
 
-  ezSharedPtr<Scene> FBXSDKImporter::ImportScene(const char* szFileName)
+  ezSharedPtr<Scene> FBXSDKImporter::ImportScene(const char* szFileName, ezBitflags<ImportFlags> importFlags)
   {
     return nullptr;
   }

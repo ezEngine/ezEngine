@@ -1,13 +1,14 @@
 #include <PCH.h>
 
+#include <Foundation/Logging/Log.h>
 #include <ModelImporter/Importers/AssimpImporter.h>
 #include <ModelImporter/Material.h>
 #include <ModelImporter/Mesh.h>
 #include <ModelImporter/Node.h>
 #include <ModelImporter/Scene.h>
 #include <ModelImporter/VertexData.h>
-
-#include <Foundation/Logging/Log.h>
+#include <RendererCore/AnimationSystem/AnimationPose.h>
+#include <RendererCore/AnimationSystem/SkeletonBuilder.h>
 
 #include <../ThirdParty/AssImp/include/DefaultLogger.hpp>
 #include <../ThirdParty/AssImp/include/Importer.hpp>
@@ -15,7 +16,6 @@
 #include <../ThirdParty/AssImp/include/Logger.hpp>
 #include <../ThirdParty/AssImp/include/postprocess.h>
 #include <../ThirdParty/AssImp/include/scene.h>
-#include <RendererCore/AnimationSystem/SkeletonBuilder.h>
 
 namespace ezModelImporter
 {
@@ -241,7 +241,8 @@ namespace ezModelImporter
         vertexDataStreams.PushBack(texcoords);
       }
 
-      if (assimpMesh->HasBones())
+      // only import bone weights, when the mesh has a skeleton
+      if (assimpMesh->HasBones() && !inout_allMeshBones.IsEmpty())
       {
         VertexDataStream* boneWeightStream = nullptr;
         boneWeightStream = mesh->AddDataStream(ezGALVertexAttributeSemantic::BoneWeights0, 4, VertexElementType::FLOAT);
@@ -271,12 +272,15 @@ namespace ezModelImporter
         {
           const auto* pBone = assimpMesh->mBones[bone];
           const ezUInt32 numWeights = pBone->mNumWeights;
+          ezUInt32 uiBoneIndex = 0;
 
-          bool bExisted = false;
-          auto itBone = inout_allMeshBones.FindOrAdd(pBone->mName.C_Str(), &bExisted);
-          if (!bExisted)
+          // map this bone to the global skeleton index
           {
-            itBone.Value().m_uiBoneIndex = inout_allMeshBones.GetCount() - 1;
+            auto itBone = inout_allMeshBones.Find(pBone->mName.C_Str());
+            if (itBone.IsValid())
+            {
+              uiBoneIndex = itBone.Value().m_uiBoneIndex;
+            }
           }
 
           for (ezUInt32 w = 0; w < numWeights; ++w)
@@ -288,7 +292,7 @@ namespace ezModelImporter
             EZ_ASSERT_DEBUG(influence < 4, "Too many bone influences for a single vertex");
 
             boneWeightData[vtxIdx].GetData()[influence] = wgt.mWeight;
-            boneIndexData[vtxIdx].GetData()[influence] = itBone.Value().m_uiBoneIndex;
+            boneIndexData[vtxIdx].GetData()[influence] = uiBoneIndex;
           }
         }
 
@@ -450,12 +454,12 @@ namespace ezModelImporter
 
     outScene.m_pSkeleton = sb.CreateSkeletonInstance();
 
-    auto pose = outScene.m_pSkeleton->CreatePose();
+    ezUniquePtr<ezAnimationPose> pose = outScene.m_pSkeleton->CreatePose();
     outScene.m_pSkeleton->SetAnimationPoseToBindPose(pose.Borrow());
     outScene.m_pSkeleton->CalculateObjectSpaceAnimationPoseMatrices(pose.Borrow());
   }
 
-  ezSharedPtr<Scene> AssimpImporter::ImportScene(const char* szFileName)
+  ezSharedPtr<Scene> AssimpImporter::ImportScene(const char* szFileName, ezBitflags<ImportFlags> importFlags)
   {
     class aiLogStream : public Assimp::LogStream
     {
@@ -473,8 +477,15 @@ namespace ezModelImporter
     // JoinIdenticalVertices: Assimp doesn't use index buffer at all if this is not specified.
     // TransformUVCoords:     As of now we do not have a concept for uv transforms.
     // Process_FlipUVs:       Assimp assumes OpenGl style UV coordinate system otherwise.
-    const aiScene* assimpScene = importer.ReadFile(szFileName, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices |
-                                                                   aiProcess_TransformUVCoords | aiProcess_FlipUVs);
+
+
+    ezUInt32 uiAssimpFlags = 0;
+    if (importFlags.IsSet(ImportFlags::Meshes))
+    {
+      uiAssimpFlags |= aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_TransformUVCoords | aiProcess_FlipUVs;
+    }
+
+    const aiScene* assimpScene = importer.ReadFile(szFileName, uiAssimpFlags);
     if (!assimpScene)
     {
       ezLog::Error("Assimp importer failed to load model {0} with error {1}.", szFileName, importer.GetErrorString());
@@ -489,12 +500,17 @@ namespace ezModelImporter
 
     // Import skeleton
     ezMap<ezString, BoneInfo> allMeshBones;
-    ImportSkeleton(assimpScene->mRootNode, allMeshBones, *outScene);
+    if (importFlags.IsSet(ImportFlags::Skeleton))
+    {
+      ImportSkeleton(assimpScene->mRootNode, allMeshBones, *outScene);
+    }
 
     // Import meshes.
     ezDynamicArray<ObjectHandle> meshHandles;
     ImportMeshes(ezArrayPtr<aiMesh*>(assimpScene->mMeshes, assimpScene->mNumMeshes), materialHandles, szFileName, *outScene, meshHandles,
                  allMeshBones);
+
+    // assimpScene->HasAnimations
 
     // Import nodes.
     ezDynamicArray<ObjectHandle> nodeHandles;

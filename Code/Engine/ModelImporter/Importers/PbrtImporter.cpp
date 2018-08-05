@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <ModelImporter/Importers/PbrtImporter.h>
 #include <ModelImporter/Importers/PbrtImporter_Context.h>
 #include <ModelImporter/Importers/PbrtImporter_ParsingFunctions.h>
@@ -203,7 +203,7 @@ namespace ezModelImporter
     }
   }
 
-  ezSharedPtr<Scene> PbrtImporter::ImportScene(const char* szFileName)
+  ezSharedPtr<Scene> PbrtImporter::ImportScene(const char* szFileName, ezBitflags<ImportFlags> importFlags)
   {
     ezLogBlock("Load Pbrt scene", szFileName);
     ezSharedPtr<Scene> outScene = EZ_DEFAULT_NEW(Scene);

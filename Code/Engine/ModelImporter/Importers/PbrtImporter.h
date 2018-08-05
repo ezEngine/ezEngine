@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <ModelImporter/ImporterImplementation.h>
 
@@ -13,6 +13,6 @@ namespace ezModelImporter
     ~PbrtImporter() {}
 
     virtual ezArrayPtr<const ezString> GetSupportedFileFormats() const override;
-    virtual ezSharedPtr<Scene> ImportScene(const char* szFileName) override;
+    virtual ezSharedPtr<Scene> ImportScene(const char* szFileName, ezBitflags<ImportFlags> importFlags) override;
   };
 }

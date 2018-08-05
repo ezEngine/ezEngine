@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <EditorPluginAssets/SceneImport/SceneImportDlg.moc.h>
 #include <ModelImporter/ModelImporter.h>
 #include <ModelImporter/Mesh.h>
@@ -126,7 +126,8 @@ void ezQtSceneImportDlg::on_accepted()
   EZ_SCOPE_EXIT(ezModelImporter::Importer::GetSingleton()->ClearCachedScenes());
 
   // Load model.
-  ezSharedPtr<ezModelImporter::Scene> rawScene = ezModelImporter::Importer::GetSingleton()->ImportScene(inputFilename, true);
+  ezSharedPtr<ezModelImporter::Scene> rawScene =
+      ezModelImporter::Importer::GetSingleton()->ImportScene(inputFilename, ezModelImporter::ImportFlags::All, true);
   if (!rawScene)
   {
     QMessageBox::critical(this, "Failed to load import", "Failed to load the input model file. Details can be found in the editor log.");

@@ -65,7 +65,7 @@ namespace ezModelImporter
   }
 #endif
 
-  ezSharedPtr<Scene> Importer::ImportScene(const char* szFileName, bool addToCache)
+  ezSharedPtr<Scene> Importer::ImportScene(const char* szFileName, ezBitflags<ImportFlags> importFlags, bool addToCache)
   {
     ezLogBlock logBlock("Scene Import", szFileName);
 
@@ -88,7 +88,7 @@ namespace ezModelImporter
           { return ezStringUtils::IsEqual_NoCase(ext, fileExtension); }))
       {
         ezStopwatch timer;
-        scene = m_ImporterImplementations[i]->ImportScene(szFileName);
+        scene = m_ImporterImplementations[i]->ImportScene(szFileName, importFlags);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
         ValidateSceneGraph(scene);
@@ -137,7 +137,7 @@ namespace ezModelImporter
 
   ezStatus Importer::ImportMesh(const char* szSceneFile, const char* szSubMesh, ezSharedPtr<ezModelImporter::Scene>& outScene, ezModelImporter::Mesh*& outMesh)
   {
-    outScene = ezModelImporter::Importer::GetSingleton()->ImportScene(szSceneFile);
+    outScene = ezModelImporter::Importer::GetSingleton()->ImportScene(szSceneFile, ImportFlags::Meshes | ImportFlags::Skeleton);
     if (!outScene)
     {
       return ezStatus(ezFmt("Input file '{0}' could not be imported", szSceneFile));

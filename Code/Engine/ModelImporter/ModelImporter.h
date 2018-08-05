@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <ModelImporter/Scene.h>
 #include <Foundation/Configuration/Singleton.h>
@@ -28,7 +28,7 @@ namespace ezModelImporter
     /// \returns
     ///   Null if something went wrong (see log).
     /// \see ClearCachedScenes
-    ezSharedPtr<Scene> ImportScene(const char* szFileName, bool addToCache = false);
+    ezSharedPtr<Scene> ImportScene(const char* szFileName, ezBitflags<ImportFlags> importFlags, bool addToCache = false);
 
     /// Clears list of cached scenes.
     /// \see ImportScene

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <ModelImporter/Importers/SourceBSPImporter.h>
 #include <ModelImporter/Scene.h>
 #include <ModelImporter/Node.h>
@@ -714,7 +714,7 @@ namespace ezModelImporter
   }
 
 
-  ezSharedPtr<Scene> SourceBSPImporter::ImportScene(const char* szFileName)
+  ezSharedPtr<Scene> SourceBSPImporter::ImportScene(const char* szFileName, ezBitflags<ImportFlags> importFlags)
   {
     ezDynamicArray<ezUInt8> fileContent;
     fileContent.Reserve(1024 * 1024);

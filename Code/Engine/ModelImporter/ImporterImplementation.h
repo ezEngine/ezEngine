@@ -1,7 +1,8 @@
-﻿#pragma once
+#pragma once
 
-#include <ModelImporter/Plugin.h>
 #include <Foundation/Types/SharedPtr.h>
+#include <ModelImporter/Plugin.h>
+#include <ModelImporter/Declarations.h>
 
 class ezStreamReader;
 
@@ -28,6 +29,6 @@ namespace ezModelImporter
     /// Some formats have dependent files. This makes it difficult to pass a stream reader instead of a filepath.
     /// \returns
     ///   Null if something went wrong (see log).
-    virtual ezSharedPtr<Scene> ImportScene(const char* szFileName) = 0;
+    virtual ezSharedPtr<Scene> ImportScene(const char* szFileName, ezBitflags<ImportFlags> importFlags) = 0;
   };
 }

@@ -1,4 +1,4 @@
-﻿#include <PCH.h>
+#include <PCH.h>
 #include <ModelImporter/Importers/PbrtImporter_Context.h>
 #include <ModelImporter/Importers/PbrtImporter_ImportFunctions.h>
 #include <ModelImporter/Importers/PbrtImporter_ParsingFunctions.h>
@@ -189,7 +189,7 @@ namespace ezModelImporter
         ezStringBuilder meshFilename = context.GetModelFilename();
         meshFilename = meshFilename.GetFileDirectory();
         meshFilename.AppendPath(parameters[0].data[0].Get<ezString>());
-        ezSharedPtr<Scene> subScene = ezModelImporter::Importer::GetSingleton()->ImportScene(meshFilename);
+        ezSharedPtr<Scene> subScene = ezModelImporter::Importer::GetSingleton()->ImportScene(meshFilename, ImportFlags::All);
         if (!subScene)
         {
           ezLog::Error("Failed to load mesh '{0}'.", meshFilename);

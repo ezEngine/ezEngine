@@ -24,20 +24,25 @@ ezSkeletonAssetDocument::ezSkeletonAssetDocument(const char* szDocumentPath)
 
 ezSkeletonAssetDocument::~ezSkeletonAssetDocument() = default;
 
-namespace ImportHelper
-{
-  static ezStatus ImportSkeleton(const char* filename, const char* subMeshFilename, ezSharedPtr<ezModelImporter::Scene>& outScene,
-                                 ezModelImporter::Mesh*& outMesh, ezString& outMeshFileAbs)
-  {
-    outMeshFileAbs = filename;
-    if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(outMeshFileAbs))
-    {
-      return ezStatus(ezFmt("Could not make path absolute: '{0};", outMeshFileAbs));
-    }
+using namespace ezModelImporter;
 
-    // TODO: speed up import by telling the importer to ignore meshes (needs flags)
-    return ezModelImporter::Importer::GetSingleton()->ImportMesh(outMeshFileAbs, subMeshFilename, outScene, outMesh);
+static ezStatus ImportSkeleton(const char* filename, ezSharedPtr<ezModelImporter::Scene>& outScene)
+{
+  ezStringBuilder sAbsFilename = filename;
+  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilename))
+  {
+    return ezStatus(ezFmt("Could not make path absolute: '{0};", sAbsFilename));
   }
+
+  outScene = Importer::GetSingleton()->ImportScene(sAbsFilename, ImportFlags::Skeleton);
+
+  if (outScene == nullptr)
+    return ezStatus(ezFmt("Input file '{0}' could not be imported", filename));
+
+  if (outScene->m_pSkeleton == nullptr || outScene->m_pSkeleton->GetBoneCount() == 0)
+    return ezStatus("Mesh does not contain skeleton information");
+
+  return ezStatus(EZ_SUCCESS);
 }
 
 ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform,
@@ -54,17 +59,8 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
   const ezMat3 mTransformation = ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir, fScale);
   const ezMat3 mTransformRotations = ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir);
 
-  using namespace ezModelImporter;
-
   ezSharedPtr<Scene> scene;
-  Mesh* mesh = nullptr;
-  ezString sMeshFileAbs;
-  EZ_SUCCEED_OR_RETURN(ImportHelper::ImportSkeleton(pProp->m_sAnimationFile, "", scene, mesh, sMeshFileAbs));
-
-  if (scene->m_pSkeleton == nullptr || scene->m_pSkeleton->GetBoneCount() == 0)
-  {
-    return ezStatus("Mesh does not contain skeleton information");
-  }
+  EZ_SUCCEED_OR_RETURN(ImportSkeleton(pProp->m_sAnimationFile, scene));
 
   ezEditableSkeleton* pNewSkeleton = EZ_DEFAULT_NEW(ezEditableSkeleton);
 
