@@ -1,14 +1,14 @@
 
-inline const ezMat4& ezSkeleton::Bone::GetBoneTransform() const
+inline const ezMat4& ezSkeleton::Bone::GetBindPoseLocalTransform() const
 {
-  return m_BoneTransform;
+  return m_BindPoseLocal;
 }
 
-inline const ezMat4& ezSkeleton::Bone::GetInverseBindPoseTransform() const
-{
-  return m_InverseBindPoseTransform;
-}
-
+//inline const ezMat4& ezSkeleton::Bone::GetInverseBindPoseTransform() const
+//{
+//  return m_InverseBindPoseTransform;
+//}
+//
 inline ezUInt32 ezSkeleton::Bone::GetParentIndex() const
 {
   return m_uiParentIndex;

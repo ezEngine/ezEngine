@@ -7,15 +7,21 @@ ezSkeletonBuilder::ezSkeletonBuilder()
 {
 }
 
-ezUInt32 ezSkeletonBuilder::AddBone(const char* szName, const ezMat4& LocalTransform,
-                                    ezUInt32 uiParentIndex /*= 0xFFFFFFFFu*/)
+ezUInt32 ezSkeletonBuilder::AddBone(const char* szName, const ezMat4& LocalTransform, ezUInt32 uiParentIndex /*= 0xFFFFFFFFu*/)
 {
   auto& bone = m_Bones.ExpandAndGetRef();
 
-  bone.m_BoneTransform = LocalTransform;
-  bone.m_InverseBindPoseTransform = LocalTransform.GetInverse();
+  bone.m_BindPoseLocal = LocalTransform;
+  bone.m_BindPoseGlobal = LocalTransform;
   bone.m_sName.Assign(szName);
   bone.m_uiParentIndex = uiParentIndex;
+
+  if (!bone.IsRootBone())
+  {
+    bone.m_BindPoseGlobal = m_Bones[bone.m_uiParentIndex].m_BindPoseGlobal * bone.m_BindPoseLocal;
+  }
+
+  bone.m_InverseBindPoseGlobal = bone.m_BindPoseGlobal.GetInverse();
 
   return m_Bones.GetCount() - 1;
 }

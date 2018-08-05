@@ -74,7 +74,7 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 
   for (ezUInt32 b = 0; b < numBones; ++b)
   {
-    const ezMat4 mBoneTransform = scene->m_pSkeleton->GetBone(b).GetBoneTransform();
+    const ezMat4 mBoneTransform = scene->m_pSkeleton->GetBone(b).GetBindPoseLocalTransform();
 
     allBones[b] = EZ_DEFAULT_NEW(ezEditableSkeletonBone);
     allBones[b]->m_sName = scene->m_pSkeleton->GetBone(b).GetName();

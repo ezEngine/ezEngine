@@ -14,7 +14,7 @@ o
 			s{"Models/Skeleton/skeleton_animated.FBX"}
 		}
 		Uuid %DocumentID{u4{8818264285624543651,5191221413138122962}}
-		u4 %Hash{1320326947100158998}
+		u4 %Hash{1109526532697611522}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -38,7 +38,7 @@ o
 		f %Length{0xCDCCCC3D}
 		s %Name{"Bip01_L_Foot"}
 		f %Thickness{0x0AD7233C}
-		Transform %Transform{f{0x9A00D43E,0xCDCC4C32,0xCDCC4C32,0x653B14BD,0x5919493D,0x46ED08BF,0x23BD573F,0x0000803F,0x0000803F,0x0000803F}}
+		Transform %Transform{f{0x9300D43E,0x9A9919B3,0x00008033,0x70A3BDBD,0xD53241B7,0x7F39DDBE,0x55A6653F,0x0000803F,0x0000803F,0x0000803F}}
 		f %Width{0x0AD7233C}
 	}
 }
@@ -57,7 +57,7 @@ o
 		f %Length{0xCDCCCC3D}
 		s %Name{"Bip01_$AssimpFbx$_Translation"}
 		f %Thickness{0x0AD7233C}
-		Transform %Transform{f{0xB7547EB7,0xEED4B93E,0x8CE7A7BB,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		f %Width{0x0AD7233C}
 	}
 }
@@ -76,7 +76,478 @@ o
 		f %Length{0xCDCCCC3D}
 		s %Name{"Bip01_L_Calf"}
 		f %Thickness{0x0AD7233C}
-		Transform %Transform{f{0x8213E53E,0xCDCC4C32,0xCDCC4CB2,0x1C6B8CB1,0x2C2F7632,0x1B6B8C3E,0x292F763F,0x0000803F,0x0000803F,0x0000803F}}
+		Transform %Transform{f{0x8313E53E,0xCDCC4C31,0,0x2E073234,0xB5085833,0x7A6E913C,0xACF57F3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{6594480401281973910,4623507018790228854}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{17034178559726042536,4762412665947311836}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_L_Finger4"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0xADECAF3D,0x33CF81BC,0x420F26BD,0x2F8814BE,0xD010553E,0xDC8E29BE,0x29F9733F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{10617325284852931754,4640445064827349105}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"RPinkyeffector"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{6438562745459569806,4651654865233588781}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"LThumbeffector"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0xA72ED83E,0x4AD11D3F,0xCBBF47BF,0x96776B3E,0x93100BBF,0x464DDA3E,0xC88C2F3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{12733367096966157191,4680079408976905621}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{3099332072663711110,5088929406162340374}}
+			Uuid{u4{9769576493290106039,5215967964126026156}}
+			Uuid{u4{8472318209246614156,4808167873133905312}}
+			Uuid{u4{12671754964805098648,4979629519594191322}}
+			Uuid{u4{9111728924086964375,4811096874279909715}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_R_Hand"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x6037883E,0x004445BA,0x33A50CBD,0x06E336BF,0x475CE2BC,0xD34CC63C,0xA9E2323F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{8363562562339577483,4682562054368729734}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"RThumbeffector"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{16178416226880979592,4686296724060727625}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"LMiddleeffector"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0xBFAF653F,0xE41D0CBF,0xEB1578BC,0xD43003BF,0x4747DFBE,0x5A39123F,0xE7AAF03E,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{17053353521386886569,4711149888460541916}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"LIndexeffector"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x1AF4703F,0x9FBDFCBE,0x9DCC113D,0x64DF09BF,0xA803B6BE,0x3715283F,0x10EEC73E,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{2571780933678380968,4736006706193245987}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{13793634503896312197,5552267409908188877}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_L_Finger0"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0xCD501D3D,0x67ABB1BC,0xBAF7043D,0x4F372CBF,0xF4BD04BE,0x764C9EBE,0xADDA283F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{17034178559726042536,4762412665947311836}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{6540117033481836200,4930838433342593486}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_L_Finger41"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0xCDCDF83C,0xCDCC4C33,0x333353B3,0xB3779A3A,0xEEEB803C,0x5DC1E1BD,0x68687E3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{9604056623294694278,4784992016761710666}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{13056745835606018990,5157332026668487099}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"SM_Skeleton_Base_$AssimpFbx$_PreRotation"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{8472318209246614156,4808167873133905312}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{11013449517908005030,5679136514038038533}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_R_Finger2"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0xF3F4C03D,0x0094C5BB,0xF369903C,0x7DFE9FBD,0x4A2625BE,0xA48B2FBE,0xB500783F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{9111728924086964375,4811096874279909715}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{6652018865734754447,5021627001354957282}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_R_Finger4"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x808FD63D,0xCDCC80B7,0x1ACC00BD,0x57A72E3E,0x320BB2BC,0x598CD7BD,0x7DBE7A3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{12063109084033792952,4824323875233409153}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{10617325284852931754,4640445064827349105}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_R_Finger42"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x8595753F,0xC82FD6BE,0xBC2D8C3E,0x2CC1023F,0xF0620BBF,0x9A47C6BE,0xB77F0A3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{8634110632751046310,4856828031301198438}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"RToeeff"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0xB54CC9BD,0xABE98C3B,0x1D63233E,0x6E86E2BE,0xA1C0123F,0xE2C90BBF,0x6FB0D7BE,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{15094622579277903247,4867304731246526741}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"LRingeffector"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x82B0733F,0xC2E4E6BE,0x2B4BDA3D,0x3173F53E,0x725C193F,0x9A13E9BE,0x454AE7BE,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{2646320893872268452,4877109387383776268}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{13614208597393443983,5125256233042450130}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_L_Finger1"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x1390D63D,0x00006339,0x40CB003D,0xF5B3303E,0x88B88FBC,0xBEF9E7BD,0x56727A3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{5218154626244514184,4882474825670592564}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{15105362734056617600,5120155160245737454}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_L_UpperArm"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0xDF34113E,0x00145BBC,0x9A55833A,0xE83E34BF,0x01872B3E,0xA9E29CBE,0xF3491E3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{3964949771160282248,4896034542202198631}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"RIndexeffector"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x55B9663F,0xC6ADC1BE,0x3D4ECFBE,0x4D8911BF,0xFF84A03E,0x5FA91F3F,0xD4E7DEBE,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{1601035050219126417,4904940087310247282}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_Head2"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0xCA1CCCBF,0xF0DA96BE,0x74D28138,0xAEC476BD,0x2F5E343F,0x634F793D,0x3657343F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{6438685324906012862,4929877019195582508}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{5127245637453100962,5563719208685114374}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_R_Finger01"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x9A07273D,0x9A9919B4,0xCDCC4CB3,0x8C1C653A,0xBEDC4ABC,0xA10D653D,0x64947F3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{7222626482073187515,4930159179261452964}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{15094622579277903247,4867304731246526741}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_L_Finger32"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x0058B93C,0x9A991934,0,0xC707F2BC,0xA8A2EA3C,0x267304BE,0x7EA17D3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{6540117033481836200,4930838433342593486}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{8688515711005419180,5402689389439706070}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_L_Finger42"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x9A0D9F3C,0,0x9A9999B1,0x3E6B5DBC,0x9720863C,0xC0FF4ABD,0xADA07F3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{3729853238433462712,4936361297258853216}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{7091955778256286111,5234735896650462189}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_L_Finger3"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0xA7FFC03D,0x67CABEBB,0xF36389BC,0xB974D6BC,0x38402A3E,0xD99C45BE,0xFD76773F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{10858204085404239798,4966571329465758793}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{5831049052097119905,5433896045354767216}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_L_Finger2"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0xCD49D33D,0x3333023A,0xE718A03B,0x059E6D3D,0x1273613D,0x1B2B1FBE,0xFA0E7C3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{11579691443117309574,4970750331018780605}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{6438562745459569806,4651654865233588781}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_L_Finger02"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0xA7540D3D,0,0xCDCCCC33,0x473F5139,0x9E180FBD,0xD1EE44BE,0xDC0F7B3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{12671754964805098648,4979629519594191322}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{17429615590998486663,5622018493279600366}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_R_Finger3"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x4749D33D,0x9A99F139,0xE736A0BB,0x24382C3D,0xD200A5BD,0x659910BE,0x5B5D7C3F,0x0000803F,0x0000803F,0x0000803F}}
 		f %Width{0x0AD7233C}
 	}
 }
@@ -92,10 +563,441 @@ o
 			Uuid{u4{5993322452390027065,12557885916971026100}}
 		}
 		s %File{"Models/Skeleton/skeleton_animated.FBX"}
-		s %ForwardDir{"ezBasisAxis::PositiveZ"}
-		s %RightDir{"ezBasisAxis::PositiveX"}
+		s %ForwardDir{"ezBasisAxis::NegativeY"}
+		s %RightDir{"ezBasisAxis::NegativeX"}
 		f %UniformScaling{0xCDCCCC3C}
-		s %UpDir{"ezBasisAxis::PositiveY"}
+		s %UpDir{"ezBasisAxis::PositiveZ"}
+	}
+}
+o
+{
+	Uuid %id{u4{6652018865734754447,5021627001354957282}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{12063109084033792952,4824323875233409153}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_R_Finger41"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x40DB2C3D,0,0xCDCCCCB2,0xC20D7CBC,0x009E82BD,0x64C05BBE,0x8F78793F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{3025964274872848284,5047059276984929370}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{12517970007945810601,5086420432703498578}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_R_Finger22"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x334FB93C,0xCDCC4CB3,0xCDCCCC32,0x61B7303C,0xD5E1493B,0x243ECFBD,0x73AB7E3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{13605575684804157856,5063616166837004032}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{16178416226880979592,4686296724060727625}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_L_Finger22"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x6730FF3C,0xCDCC4C33,0xCDCCCC30,0xA239523A,0xB9439C3B,0x8119043D,0x25DD7F3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{12517970007945810601,5086420432703498578}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"RMiddleeffector"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0xAAE6743F,0x4535D0BE,0xE7503CBE,0xB4E6063F,0xB765CCBE,0x70F904BF,0x7D9A0A3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{3099332072663711110,5088929406162340374}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{6438685324906012862,4929877019195582508}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_R_Finger0"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x8D501D3D,0x33A2B3BC,0xAD4E04BD,0xF0F52A3F,0xE55FEA3D,0xAF9F9EBE,0x27C32A3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{14421508242203307677,5106498171524933352}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"RRingeffector"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x679D673F,0xD7BE02BF,0x85A0FC3D,0x7440063F,0x53FA03BF,0x9F09EABE,0xEA10003F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{7144848045697772432,5106642494296768214}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{8613616223425161890,5402393406522228255}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_Spine"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0xD2CCCCA9,0x2DFB7A3D,0x5F1C863F,0x4C04353F,0xE18E74BB,0x4F04353F,0x460A75BB,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{15105362734056617600,5120155160245737454}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{7183405216536352156,5206362042186143205}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_L_Forearm"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x40A2843E,0x3333B3B3,0x67BA1C3C,0x38375DB4,0xD5474133,0x645CEBBD,0xCA4D7E3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{13614208597393443983,5125256233042450130}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{2590986234270925977,5551581245447394893}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_L_Finger11"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0xF3DA2C3D,0xCDCCCCB3,0x9A991933,0x3C1B88BC,0x1916B0BD,0x675337BE,0x45DD7A3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{13056745835606018990,5157332026668487099}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"SM_Skeleton_Base"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{443859735820637859,5163736659578542163}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{4435541823011118733,5434277939998733518}}
+			Uuid{u4{3403511829520324010,5228214442788666304}}
+			Uuid{u4{11282839491734333115,5308005960858880128}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_Spine4"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x3A9D4A3E,0x9A9959B3,0x33A0BBB1,0x28133635,0x639E3EB3,0x78DE623E,0x57A3793F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{7183405216536352156,5206362042186143205}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{2571780933678380968,4736006706193245987}}
+			Uuid{u4{2646320893872268452,4877109387383776268}}
+			Uuid{u4{10858204085404239798,4966571329465758793}}
+			Uuid{u4{3729853238433462712,4936361297258853216}}
+			Uuid{u4{6594480401281973910,4623507018790228854}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_L_Hand"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0xCA37883E,0x67E275BA,0x9A2C033D,0xDB8B373F,0x440FE33C,0x877DC53C,0x6A35323F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{2059100433347607177,5215549357520602749}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{5839165877868300940,5618165159649522498}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_R_Foot"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0xC7F6D33E,0xCDCC4CB3,0xCDCC4CB2,0x8C28143E,0xE4E3B13C,0x04E5DDBE,0x08A6633F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{9769576493290106039,5215967964126026156}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{9434413017908411011,5367239841633155183}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_R_Finger1"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x60ECAF3D,0x9AB37EBC,0xE888263D,0x92D36ABE,0x88D20FBE,0x996070BE,0x7B226F3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{3403511829520324010,5228214442788666304}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{5218154626244514184,4882474825670592564}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_L_Clavicle"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x80B07B3D,0x737C053D,0x8B6A463D,0x5E63E33E,0x4177043F,0x03B31E3F,0x2CC4C6BE,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{7091955778256286111,5234735896650462189}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{7222626482073187515,4930159179261452964}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_L_Finger31"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x1ADC2C3D,0,0xCDCCCCB2,0x6630ACBA,0x56B496BC,0xE50A05BD,0x45D27F3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{13774188891090943635,5305746199383902292}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{14421508242203307677,5106498171524933352}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_R_Finger32"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x335CFE3C,0xCDCC4C33,0xCDCCCC32,0x34A6CA38,0x1FB553BB,0x83EE6B3D,0xD9927F3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{11282839491734333115,5308005960858880128}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{17908259412631008645,5403226585008970697}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_R_Clavicle"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x33B07B3D,0x8D7C053D,0x8B6A46BD,0x3915DCBE,0x36180ABF,0x8DD3193F,0x5ED3CEBE,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{9434413017908411011,5367239841633155183}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{17387066045567397050,5614517461099273668}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_R_Finger11"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x33CEF83C,0,0xCDCCCCB3,0xA75B0C3C,0x1A64B93D,0x776B8FBD,0xF44E7E3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{13638351594652299654,5367714913974766019}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{1601035050219126417,4904940087310247282}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_Head1"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x73B28F3D,0,0x67663A31,0x42D9C333,0xDB46FDB4,0xB6C47F3E,0xC9E2773F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{8613616223425161890,5402393406522228255}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{5934979642808209288,5760024648225605815}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_Spine1"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x8DE4CB3D,0xCDCCCCB1,0x33B548B2,0xC822B5B6,0x653DF8B4,0x56F0D0BD,0x0DAA7E3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{8688515711005419180,5402689389439706070}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"LPinkyeffector"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0xBF9B743F,0x72F7ECBE,0x63580B3D,0xD88CDABE,0x029725BF,0xDA15C33E,0x3813013F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{17908259412631008645,5403226585008970697}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{12826610341254140073,5710461187262430359}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_R_UpperArm"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x0B37113E,0x67DC53BC,0x0038FBBA,0xE64A393F,0x9E8025BE,0x73CEA2BE,0x9235173F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
 	}
 }
 o
@@ -113,8 +1015,255 @@ o
 		f %Length{0xCDCC4C3E}
 		s %Name{"Bip01_L_Thigh"}
 		f %Thickness{0x0AD7A33C}
-		Transform %Transform{f{0xDE30C73D,0,0,0x3EA3193F,0xFAE5C1BE,0x0F36053F,0x5D34F3BE,0x0000803F,0x0000803F,0x0000803F}}
+		Transform %Transform{f{0xDF30C73D,0,0x676666B2,0xD72201BF,0xC4AFFD3E,0x4DDFEFBE,0x4A98073F,0x0000803F,0x0000803F,0x0000803F}}
 		f %Width{0x0AD7A33C}
+	}
+}
+o
+{
+	Uuid %id{u4{5831049052097119905,5433896045354767216}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{13605575684804157856,5063616166837004032}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_L_Finger21"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x40473E3D,0x9A9919B4,0x333333B3,0xC9BF3CBC,0xDB5E78BD,0xE40D39BE,0xE9497B3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{4435541823011118733,5434277939998733518}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{13638351594652299654,5367714913974766019}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_Neck1"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x67B8ED3D,0xCDCC4CB3,0xCD7698B1,0x4D947C3F,0x99D6263E,0x8FF182B9,0xD65FC139,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{11122249615803644053,5436640574169291247}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{2059100433347607177,5215549357520602749}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_R_Calf"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0xD8D6E43E,0x9A999932,0x3333B333,0x3D773235,0x9209ECB3,0xBCC6913C,0xA0F57F3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{2590986234270925977,5551581245447394893}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{17053353521386886569,4711149888460541916}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_L_Finger12"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x334ED53C,0xCDCC4C33,0xCDCC8CB3,0xACD280BA,0x5853193B,0x800D0DBD,0xEBD87F3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{13793634503896312197,5552267409908188877}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{11579691443117309574,4970750331018780605}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_L_Finger01"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x8D07273D,0xCDCC4C33,0xCDCC4CB4,0x08A6A6BB,0x00455D3D,0x78F8AE3D,0x7CAF7E3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{5127245637453100962,5563719208685114374}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{8363562562339577483,4682562054368729734}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_R_Finger02"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x9C45273F,0x573DDD3E,0x2A17453F,0x32CC9C3E,0xFB643EBF,0x8793023E,0xB292143F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{17387066045567397050,5614517461099273668}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{3964949771160282248,4896034542202198631}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_R_Finger12"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x330D9F3C,0xCDCC4C33,0xCDCCCC32,0xB39B79BA,0x2FBBEDBC,0x875E4FBC,0x1EDF7F3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{5839165877868300940,5618165159649522498}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{8634110632751046310,4856828031301198438}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_R_Toe0"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x73D00F3E,0x9A9999B2,0x9A991933,0xE590F5BC,0x243D93BB,0xC0A1B9BE,0x97746E3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{17429615590998486663,5622018493279600366}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{13774188891090943635,5305746199383902292}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_R_Finger31"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0xC0473E3D,0xCDCCCCB3,0xCDCC4CB2,0x6451F63B,0xD4E3FA3C,0xBE5963BE,0xE67A793F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{11013449517908005030,5679136514038038533}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{3025964274872848284,5047059276984929370}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_R_Finger21"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x00572B3D,0,0,0x1208AA3B,0xEA4C383D,0x309FBABD,0xCEAB7E3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{12826610341254140073,5710461187262430359}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{12733367096966157191,4680079408976905621}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_R_Forearm"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x37A2843E,0x9A991933,0x9A6152BC,0x746203B4,0x4C3F3934,0x3340EDBD,0xC4467E3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{1393332436999705732,5742455758071572635}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{11122249615803644053,5436640574169291247}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_R_Thigh"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0xDF30C7BD,0xCDCCCCB3,0xCDCCCCB1,0x7131F1BE,0x1301073F,0xD5A500BF,0x51AFFE3E,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
+	}
+}
+o
+{
+	Uuid %id{u4{5934979642808209288,5760024648225605815}}
+	s %t{"ezEditableSkeletonBone"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{443859735820637859,5163736659578542163}}
+		}
+		s %Geometry{"ezSkeletonBoneGeometryType::None"}
+		f %Length{0xCDCCCC3D}
+		s %Name{"Bip01_Spine2"}
+		f %Thickness{0x0AD7233C}
+		Transform %Transform{f{0x0DEAEC3D,0xCDCCCC32,0xB3901DB2,0x1A0EABB3,0xCBED48B2,0xE6B6443D,0x61B47F3F,0x0000803F,0x0000803F,0x0000803F}}
+		f %Width{0x0AD7233C}
 	}
 }
 o
@@ -141,12 +1290,13 @@ o
 		VarArray %Children
 		{
 			Uuid{u4{18351360701067391928,5405601504970583243}}
+			Uuid{u4{1393332436999705732,5742455758071572635}}
 		}
 		s %Geometry{"ezSkeletonBoneGeometryType::Sphere"}
 		f %Length{0x9A99993E}
 		s %Name{"Bip01_Pelvis"}
 		f %Thickness{0x0AD7A33C}
-		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Transform %Transform{f{0x9A991924,0x3A915ABC,0x0AD4763F,0x3BF2343F,0,0,0xA917353F,0x0000803F,0x0000803F,0x0000803F}}
 		f %Width{0x0AD7233C}
 	}
 }
@@ -165,7 +1315,7 @@ o
 		f %Length{0xCDCCCC3D}
 		s %Name{"Bip01_$AssimpFbx$_PreRotation"}
 		f %Thickness{0x0AD7233C}
-		Transform %Transform{f{0,0,0,0xF30435BF,0,0,0xF304353F,0x0000803F,0x0000803F,0x0000803F}}
+		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		f %Width{0x0AD7233C}
 	}
 }
@@ -179,6 +1329,7 @@ o
 		VarArray %Children
 		{
 			Uuid{u4{12686505303697144023,7662802516293584724}}
+			Uuid{u4{7144848045697772432,5106642494296768214}}
 		}
 		s %Geometry{"ezSkeletonBoneGeometryType::Sphere"}
 		f %Length{0x9A99993E}
@@ -217,12 +1368,13 @@ o
 		VarArray %Children
 		{
 			Uuid{u4{2060639235255542210,1652562238387457109}}
+			Uuid{u4{9604056623294694278,4784992016761710666}}
 		}
 		s %Geometry{"ezSkeletonBoneGeometryType::None"}
 		f %Length{0xCDCCCC3D}
 		s %Name{"RootNode"}
 		f %Thickness{0x0AD7233C}
-		Transform %Transform{f{0,0,0,0x0000003F,0x0000003F,0x0000003F,0x0000003F,0x0000803F,0x0000803F,0x0000803F}}
+		Transform %Transform{f{0,0,0,0,0,0,0xF304353F,0x0000803F,0x0000803F,0x0000803F}}
 		f %Width{0x0AD7233C}
 	}
 }
@@ -241,7 +1393,7 @@ o
 		f %Length{0xCDCCCC3D}
 		s %Name{"Bip01_$AssimpFbx$_Rotation"}
 		f %Thickness{0x0AD7233C}
-		Transform %Transform{f{0,0,0,0x26AD383F,0x7730DF35,0xB0D50036,0x7149313F,0x0000803F,0x0000803F,0x0000803F}}
+		Transform %Transform{f{0,0,0,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		f %Width{0x0AD7233C}
 	}
 }
@@ -257,7 +1409,7 @@ o
 		f %Length{0xCDCCCC3D}
 		s %Name{"LToeeff"}
 		f %Thickness{0x0AD7233C}
-		Transform %Transform{f{0x85C6C83D,0,0xCDCCCCB2,0,0,0,0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Transform %Transform{f{0x8F6DD0BD,0x65ADC6BB,0x59971CBE,0x804B083F,0x761ACBBE,0xE2CBE43E,0x207E193F,0x0000803F,0x0000803F,0x0000803F}}
 		f %Width{0x0AD7233C}
 	}
 }
@@ -276,7 +1428,7 @@ o
 		f %Length{0xCDCCCC3D}
 		s %Name{"Bip01_L_Toe0"}
 		f %Thickness{0x0AD7A33C}
-		Transform %Transform{f{0xF3F70D3E,0xCDCC4C33,0,0x3623023D,0x8BDF99BD,0x6419BABE,0x15936D3F,0x0000803F,0x0000803F,0x0000803F}}
+		Transform %Transform{f{0xF4F70D3E,0x00000033,0xCDCC4CB2,0xD892023D,0xB4FA99BD,0x0617BABE,0x08936D3F,0x0000803F,0x0000803F,0x0000803F}}
 		f %Width{0x0AD7A33C}
 	}
 }

@@ -21,8 +21,10 @@ namespace ezModelImporter
 {
   struct BoneInfo
   {
-    ezMat4 m_Transform;
-    ezUInt32 m_uiBoneIndex;
+    ezString m_sBoneName;
+    ezUInt32 m_uiParentBoneIndex = 0xFFFFFFFF;
+    ezMat4 m_MeshOffset;
+    bool m_bMeshOffsetIsValid = false;
   };
 
   AssimpImporter::AssimpImporter()
@@ -55,7 +57,7 @@ namespace ezModelImporter
 
   ezArrayPtr<const ezString> AssimpImporter::GetSupportedFileFormats() const { return ezMakeArrayPtr(m_supportedFileFormats); }
 
-  float ConvertAssimpType(float value, bool invert)
+  float ConvertAssimpType(float value, bool invert = false)
   {
     if (invert)
       return 1.0f - value;
@@ -63,9 +65,9 @@ namespace ezModelImporter
       return value;
   }
 
-  ezUInt32 ConvertAssimpType(int value, bool dummy) { return value; }
+  ezUInt32 ConvertAssimpType(int value, bool dummy = false) { return value; }
 
-  ezColor ConvertAssimpType(const aiColor3D& value, bool invert)
+  ezColor ConvertAssimpType(const aiColor3D& value, bool invert = false)
   {
     if (invert)
       return ezColor(1.0f - value.r, 1.0f - value.g, 1.0f - value.b);
@@ -79,6 +81,10 @@ namespace ezModelImporter
     mTransformation.SetFromArray(&value.a1, ezMatrixLayout::RowMajor);
     return mTransformation;
   }
+
+  ezVec3 ConvertAssimpType(const aiVector3D& value) { return ezVec3(value.x, value.y, value.z); }
+
+  ezQuat ConvertAssimpType(const aiQuaternion& value) { return ezQuat(value.x, value.y, value.z, value.w); }
 
   template <typename assimpType, typename ezType>
   void TryReadAssimpProperty(const char* pKey, unsigned int type, unsigned int idx, SemanticHint::Enum semantic,
@@ -170,7 +176,7 @@ namespace ezModelImporter
   }
 
   void ImportMeshes(ezArrayPtr<aiMesh*> assimpMeshes, const ezDynamicArray<MaterialHandle>& materialHandles, const char* szFileName,
-                    Scene& outScene, ezDynamicArray<ObjectHandle>& outMeshHandles, ezMap<ezString, BoneInfo>& inout_allMeshBones)
+                    Scene& outScene, ezDynamicArray<ObjectHandle>& outMeshHandles, ezDynamicArray<BoneInfo>& inout_allMeshBones)
   {
     outMeshHandles.Reserve(assimpMeshes.GetCount());
 
@@ -276,11 +282,15 @@ namespace ezModelImporter
 
           // map this bone to the global skeleton index
           {
-            auto itBone = inout_allMeshBones.Find(pBone->mName.C_Str());
-            if (itBone.IsValid())
+            for (uiBoneIndex = 0; uiBoneIndex < inout_allMeshBones.GetCount(); ++uiBoneIndex)
             {
-              uiBoneIndex = itBone.Value().m_uiBoneIndex;
+              if (inout_allMeshBones[uiBoneIndex].m_sBoneName == pBone->mName.C_Str())
+                break;
             }
+
+            EZ_ASSERT_DEBUG(uiBoneIndex < inout_allMeshBones.GetCount(), "Bone not found");
+            inout_allMeshBones[uiBoneIndex].m_MeshOffset = ConvertAssimpType(pBone->mOffsetMatrix);
+            inout_allMeshBones[uiBoneIndex].m_bMeshOffsetIsValid = true;
           }
 
           for (ezUInt32 w = 0; w < numWeights; ++w)
@@ -419,44 +429,94 @@ namespace ezModelImporter
     }
   }
 
-  void ImportSkeletonRecursive(aiNode* assimpNode, ezMap<ezString, BoneInfo>& inout_allMeshBones, ezUInt32& inout_uiCurBoneIdx,
-                               ezSkeletonBuilder& sb, ezUInt32 uiParentBoneIndex)
+  void ImportSkeletonRecursive(aiNode* assimpNode, ezDynamicArray<BoneInfo>& inout_allMeshBones, ezUInt32 uiParentBoneIdx)
   {
-    ezStringBuilder sName = assimpNode->mName.C_Str();
-
-    if (sName.IsEmpty() || inout_allMeshBones.Contains(sName))
-    {
-      sName.Format("!auto_bone_{0}!", inout_uiCurBoneIdx);
-      ++inout_uiCurBoneIdx;
-    }
-
     const ezUInt32 boneIdx = inout_allMeshBones.GetCount();
-    auto& boneInfo = inout_allMeshBones[sName];
-    boneInfo.m_uiBoneIndex = boneIdx;
-    boneInfo.m_Transform = ConvertAssimpType(assimpNode->mTransformation);
+    auto& boneInfo = inout_allMeshBones.ExpandAndGetRef();
 
-    const ezUInt32 uiThisBoneIndex = sb.AddBone(sName, boneInfo.m_Transform, uiParentBoneIndex);
+    boneInfo.m_sBoneName = assimpNode->mName.C_Str();
+    boneInfo.m_MeshOffset.SetIdentity();
+    boneInfo.m_uiParentBoneIndex = uiParentBoneIdx;
 
     for (ezUInt32 c = 0; c < assimpNode->mNumChildren; ++c)
     {
-      ImportSkeletonRecursive(assimpNode->mChildren[c], inout_allMeshBones, inout_uiCurBoneIdx, sb, uiThisBoneIndex);
+      ImportSkeletonRecursive(assimpNode->mChildren[c], inout_allMeshBones, boneIdx);
     }
   }
 
-  void ImportSkeleton(aiNode* assimpRootNode, ezMap<ezString, BoneInfo>& inout_allMeshBones, Scene& outScene)
+  void ImportSkeleton(aiNode* assimpRootNode, ezDynamicArray<BoneInfo>& inout_allMeshBones)
   {
-    ezUInt32 uiCurBoneIdx = 0;
+    ImportSkeletonRecursive(assimpRootNode, inout_allMeshBones, 0xFFFFFFFF);
+  }
 
+  void GenerateSkeleton(const ezDynamicArray<BoneInfo>& allMeshBones, Scene& outScene)
+  {
     ezSkeletonBuilder sb;
     sb.SetSkinningMode(ezSkeleton::Mode::FourBones);
 
-    ImportSkeletonRecursive(assimpRootNode, inout_allMeshBones, uiCurBoneIdx, sb, 0xFFFFFFFFu);
+    for (ezUInt32 boneIdx = 0; boneIdx < allMeshBones.GetCount(); ++boneIdx)
+    {
+      ezMat4 localTransform = allMeshBones[boneIdx].m_MeshOffset.GetInverse();
+
+      if (allMeshBones[boneIdx].m_uiParentBoneIndex != 0xFFFFFFFF)
+      {
+        const ezUInt32 uiParentBone = allMeshBones[boneIdx].m_uiParentBoneIndex;
+
+        localTransform = allMeshBones[uiParentBone].m_MeshOffset * localTransform;
+      }
+
+      sb.AddBone(allMeshBones[boneIdx].m_sBoneName, localTransform, allMeshBones[boneIdx].m_uiParentBoneIndex);
+    }
 
     outScene.m_pSkeleton = sb.CreateSkeletonInstance();
+  }
 
-    ezUniquePtr<ezAnimationPose> pose = outScene.m_pSkeleton->CreatePose();
-    outScene.m_pSkeleton->SetAnimationPoseToBindPose(pose.Borrow());
-    outScene.m_pSkeleton->CalculateObjectSpaceAnimationPoseMatrices(pose.Borrow());
+  void ImportAnimations(const aiScene* assimpScene, Scene& outScene)
+  {
+    for (ezUInt32 animIdx = 0; animIdx < assimpScene->mNumAnimations; ++animIdx)
+    {
+      aiAnimation* pAnim = assimpScene->mAnimations[animIdx];
+
+      // duration seems to just be the max number of keyframes (-1)
+      const ezUInt32 uiNumKeyframes = ((ezUInt32)pAnim->mDuration) + 1;
+
+      AnimationClip& animClip = outScene.m_AnimationClips.ExpandAndGetRef();
+      animClip.m_sClipName = pAnim->mName.C_Str();
+      animClip.m_uiFramesPerSecond = static_cast<ezUInt32>(pAnim->mTicksPerSecond);
+      animClip.m_uiNumKeyframes = uiNumKeyframes;
+
+      animClip.m_BoneAnimations.SetCount(pAnim->mNumChannels);
+
+      for (ezUInt32 channelIdx = 0; channelIdx < pAnim->mNumChannels; ++channelIdx)
+      {
+        const auto& channel = pAnim->mChannels[channelIdx];
+        BoneAnimation& boneAnim = animClip.m_BoneAnimations[channelIdx];
+
+        boneAnim.m_sBoneName = channel->mNodeName.C_Str();
+        boneAnim.m_Keyframes.SetCountUninitialized(uiNumKeyframes);
+
+        for (ezUInt32 keyframeIdx = 0; keyframeIdx < uiNumKeyframes; ++keyframeIdx)
+        {
+          ezMat4 keyframeMat;
+          keyframeMat.SetIdentity();
+
+          // indices could also depend on the animation state (loop, etc) but for now we just clamp
+          const ezUInt32 uiPosFrame = ezMath::Min(keyframeIdx, channel->mNumPositionKeys - 1);
+          const ezUInt32 uiRotFrame = ezMath::Min(keyframeIdx, channel->mNumRotationKeys - 1);
+          const ezUInt32 uiScaFrame = ezMath::Min(keyframeIdx, channel->mNumScalingKeys - 1);
+
+          const ezVec3 keyPos = ConvertAssimpType(channel->mPositionKeys[uiPosFrame].mValue);
+          const ezQuat keyRot = ConvertAssimpType(channel->mRotationKeys[uiRotFrame].mValue);
+          const ezVec3 keySca = ConvertAssimpType(channel->mScalingKeys[uiScaFrame].mValue);
+
+          keyframeMat.SetRotationalPart(keyRot.GetAsMat3());
+          keyframeMat.SetScalingFactors(keySca);
+          keyframeMat.SetTranslationVector(keyPos);
+
+          boneAnim.m_Keyframes[keyframeIdx] = keyframeMat;
+        }
+      }
+    }
   }
 
   ezSharedPtr<Scene> AssimpImporter::ImportScene(const char* szFileName, ezBitflags<ImportFlags> importFlags)
@@ -499,18 +559,29 @@ namespace ezModelImporter
     ImportMaterials(ezArrayPtr<aiMaterial*>(assimpScene->mMaterials, assimpScene->mNumMaterials), *outScene, materialHandles);
 
     // Import skeleton
-    ezMap<ezString, BoneInfo> allMeshBones;
-    if (importFlags.IsSet(ImportFlags::Skeleton))
+    ezDynamicArray<BoneInfo> allMeshBones;
+    if (importFlags.IsAnySet(ImportFlags::Skeleton))
     {
-      ImportSkeleton(assimpScene->mRootNode, allMeshBones, *outScene);
+      ImportSkeleton(assimpScene->mRootNode, allMeshBones);
     }
 
     // Import meshes.
     ezDynamicArray<ObjectHandle> meshHandles;
-    ImportMeshes(ezArrayPtr<aiMesh*>(assimpScene->mMeshes, assimpScene->mNumMeshes), materialHandles, szFileName, *outScene, meshHandles,
-                 allMeshBones);
+    if (importFlags.IsAnySet(ImportFlags::Skeleton | ImportFlags::Meshes))
+    {
+      ImportMeshes(ezArrayPtr<aiMesh*>(assimpScene->mMeshes, assimpScene->mNumMeshes), materialHandles, szFileName, *outScene, meshHandles,
+                   allMeshBones);
+    }
 
-    // assimpScene->HasAnimations
+    if (importFlags.IsAnySet(ImportFlags::Skeleton))
+    {
+      GenerateSkeleton(allMeshBones, *outScene);
+    }
+
+    if (importFlags.IsSet(ImportFlags::Animations) && assimpScene->HasAnimations())
+    {
+      ImportAnimations(assimpScene, *outScene);
+    }
 
     // Import nodes.
     ezDynamicArray<ObjectHandle> nodeHandles;

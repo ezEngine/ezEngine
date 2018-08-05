@@ -101,19 +101,36 @@ ezUInt16 ezAnimationClipResourceDescriptor::GetFrameAt(ezTime time, double& out_
   return uiLowerFrame;
 }
 
-const ezMat4* ezAnimationClipResourceDescriptor::GetFirstBones(ezUInt16 uiFrame) const
+ezUInt16 ezAnimationClipResourceDescriptor::AddBoneName(const ezHashedString& sBoneName)
 {
-  return &m_BoneTransforms[uiFrame * m_uiNumBones];
+  const ezUInt16 uiBoneIdx = m_NameToFirstKeyframe.GetCount();
+  m_NameToFirstKeyframe.Insert(sBoneName, uiBoneIdx);
+  return uiBoneIdx;
 }
 
-ezMat4* ezAnimationClipResourceDescriptor::GetFirstBones(ezUInt16 uiFrame)
+ezUInt16 ezAnimationClipResourceDescriptor::FindBoneIndexByName(const ezTempHashedString& sBoneName) const
 {
-  return &m_BoneTransforms[uiFrame * m_uiNumBones];
+  const ezUInt32 uiIndex = m_NameToFirstKeyframe.Find(sBoneName);
+
+  if (uiIndex == ezInvalidIndex)
+    return 0xFFFF;
+
+  return m_NameToFirstKeyframe.GetValue(uiIndex);
+}
+
+const ezMat4* ezAnimationClipResourceDescriptor::GetBoneKeyframes(ezUInt16 uiBone) const
+{
+  return &m_BoneTransforms[uiBone * m_uiNumFrames];
+}
+
+ezMat4* ezAnimationClipResourceDescriptor::GetBoneKeyframes(ezUInt16 uiBone)
+{
+  return &m_BoneTransforms[uiBone * m_uiNumFrames];
 }
 
 void ezAnimationClipResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 1;
+  const ezUInt8 uiVersion = 2;
   stream << uiVersion;
 
   stream << m_uiNumBones;
@@ -121,6 +138,18 @@ void ezAnimationClipResourceDescriptor::Save(ezStreamWriter& stream) const
   stream << m_uiFramesPerSecond;
 
   stream << m_BoneTransforms;
+
+  // version 2
+  {
+    m_NameToFirstKeyframe.Sort();
+    const ezUInt32 uiBoneCount = m_NameToFirstKeyframe.GetCount();
+    stream << uiBoneCount;
+    for (ezUInt32 b = 0; b < uiBoneCount; ++b)
+    {
+      stream << m_NameToFirstKeyframe.GetKey(b);
+      stream << m_NameToFirstKeyframe.GetValue(b);
+    }
+  }
 }
 
 void ezAnimationClipResourceDescriptor::Load(ezStreamReader& stream)
@@ -135,6 +164,28 @@ void ezAnimationClipResourceDescriptor::Load(ezStreamReader& stream)
   stream >> m_BoneTransforms;
 
   m_Duration = ezTime::Seconds((double)m_uiNumFrames / (double)m_uiFramesPerSecond);
+
+  // version 2
+  if (uiVersion >= 2)
+  {
+    m_NameToFirstKeyframe.Clear();
+    ezUInt32 uiBoneCount = 0;
+    stream >> uiBoneCount;
+
+    for (ezUInt32 b = 0; b < uiBoneCount; ++b)
+    {
+      ezHashedString hs;
+      ezUInt32 idx;
+
+      stream >> hs;
+      stream >> idx;
+
+      m_NameToFirstKeyframe.Insert(hs, idx);
+    }
+
+    // should do nothing
+    m_NameToFirstKeyframe.Sort();
+  }
 }
 
 

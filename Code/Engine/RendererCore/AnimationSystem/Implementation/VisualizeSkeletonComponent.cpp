@@ -119,11 +119,11 @@ ezMeshRenderData* ezVisualizeSkeletonComponent::CreateRenderData(ezUInt32 uiBatc
 static ezMat4 ComputeBoneMatrix(const ezSkeleton& skeleton, const ezSkeleton::Bone& bone)
 {
   if (bone.IsRootBone())
-    return bone.GetBoneTransform();
+    return bone.GetBindPoseLocalTransform();
 
   ezMat4 parentMat = ComputeBoneMatrix(skeleton, skeleton.GetBone(bone.GetParentIndex()));
 
-  return parentMat * bone.GetBoneTransform();
+  return parentMat * bone.GetBindPoseLocalTransform();
 }
 
 void ezVisualizeSkeletonComponent::CreateRenderMesh()
@@ -187,8 +187,6 @@ void ezVisualizeSkeletonComponent::CreateRenderMesh()
 
 void ezVisualizeSkeletonComponent::CreateSkeletonGeometry(const ezSkeleton* pSkeletonData, ezGeometry& geo)
 {
-  // const ezAnimationPose* pPose = pSkeletonData->GetBindSpacePoseInObjectSpace();
-  // const ezUInt32 uiNumBones = pPose->GetBoneTransformCount();
   const ezUInt32 uiNumBones = pSkeletonData->GetBoneCount();
 
   for (ezUInt32 b = 0; b < uiNumBones; ++b)
@@ -239,7 +237,7 @@ void ezVisualizeSkeletonComponent::CreateHitBoxGeometry(const ezSkeletonResource
   for (const auto& boneGeo : pDescriptor->m_Geometry)
   {
     const auto& bone = pDescriptor->m_Skeleton.GetBone(boneGeo.m_uiAttachedToBone);
-    //const ezMat4 boneTransform = bone.GetBoneTransform();
+
     const ezMat4 boneTransform = ComputeBoneMatrix(pDescriptor->m_Skeleton, bone);
 
     switch (boneGeo.m_Type)

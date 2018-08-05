@@ -3,7 +3,10 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAsset.h>
+#include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Utilities/Progress.h>
+#include <ModelImporter/ModelImporter.h>
+#include <ModelImporter/Scene.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 
 //////////////////////////////////////////////////////////////////////////
@@ -14,7 +17,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 1, ezRTTIDefault
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("File", m_sAnimationFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", "*.fbx")),
-    EZ_MEMBER_PROPERTY("Skeleton", m_sSkeletonResourceFile)->AddAttributes(new ezAssetBrowserAttribute("Skeleton")),
     EZ_MEMBER_PROPERTY("FirstFrame", m_uiFirstFrame)->AddAttributes(new ezDefaultValueAttribute(0)),
     EZ_MEMBER_PROPERTY("LastFrame", m_uiLastFrame)->AddAttributes(new ezDefaultValueAttribute(0xFFFFFFFF)),
   }
@@ -37,6 +39,27 @@ ezAnimationClipAssetDocument::ezAnimationClipAssetDocument(const char* szDocumen
 {
 }
 
+using namespace ezModelImporter;
+
+static ezStatus ImportAnimation(const char* filename, ezSharedPtr<ezModelImporter::Scene>& outScene)
+{
+  ezStringBuilder sAbsFilename = filename;
+  if (!ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sAbsFilename))
+  {
+    return ezStatus(ezFmt("Could not make path absolute: '{0};", sAbsFilename));
+  }
+
+  outScene = Importer::GetSingleton()->ImportScene(sAbsFilename, ImportFlags::Skeleton | ImportFlags::Animations);
+
+  if (outScene == nullptr)
+    return ezStatus(ezFmt("Input file '{0}' could not be imported", filename));
+
+  if (outScene->m_AnimationClips.IsEmpty())
+    return ezStatus("File does not contain any animations");
+
+  return ezStatus(EZ_SUCCESS);
+}
+
 ezStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const char* szPlatform,
                                                               const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
 {
@@ -45,25 +68,29 @@ ezStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& st
   ezAnimationClipAssetProperties* pProp = GetProperties();
 
   range.SetStepWeighting(0, 0.9);
-  range.BeginNextStep("Importing Mesh");
+  range.BeginNextStep("Importing Animations");
+
+  ezSharedPtr<Scene> scene;
+  EZ_SUCCEED_OR_RETURN(ImportAnimation(pProp->m_sAnimationFile, scene));
 
   range.BeginNextStep("Writing Result");
 
+  const ezUInt32 uiAnimationToUse = 0;
+
+  const auto& animClip = scene->m_AnimationClips[uiAnimationToUse];
+
   ezAnimationClipResourceDescriptor anim;
-  anim.Configure(100, 45, 30);
+  anim.Configure(animClip.m_BoneAnimations.GetCount(), animClip.m_uiNumKeyframes, animClip.m_uiFramesPerSecond);
 
-  for (ezUInt32 f = 0; f < anim.GetNumFrames(); ++f)
+  for (ezUInt32 b = 0; b < anim.GetNumBones(); ++b)
   {
-    const ezAngle rot = (ezAngle::Degree(360) / anim.GetNumFrames()) * f;
-    ezMat4 mRot;
-    mRot.SetRotationMatrixZ(rot);
+    ezHashedString hs;
+    hs.Assign(animClip.m_BoneAnimations[b].m_sBoneName.GetData());
+    ezUInt16 uiBoneIdx = anim.AddBoneName(hs);
 
-    ezMat4* pBones = anim.GetFirstBones(f);
+    ezMat4* pBoneTransforms = anim.GetBoneKeyframes(uiBoneIdx);
 
-    for (ezUInt32 b = 0; b < anim.GetNumBones(); ++b)
-    {
-      pBones[b] = mRot;
-    }
+    ezMemoryUtils::Copy(pBoneTransforms, animClip.m_BoneAnimations[b].m_Keyframes.GetData(), animClip.m_uiNumKeyframes);
   }
 
   anim.Save(stream);

@@ -11,7 +11,6 @@ public:
   ezAnimationClipAssetProperties();
 
   ezString m_sAnimationFile;
-  ezString m_sSkeletonResourceFile;
   ezUInt32 m_uiFirstFrame;
   ezUInt32 m_uiLastFrame;
 

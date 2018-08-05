@@ -1,11 +1,13 @@
 #pragma once
 
-#include <GameEngine/Basics.h>
-#include <Core/World/World.h>
 #include <Core/World/ComponentManager.h>
+#include <Core/World/World.h>
+#include <GameEngine/Basics.h>
+#include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 
 typedef ezTypedResourceHandle<class ezAnimationClipResource> ezAnimationClipResourceHandle;
+typedef ezTypedResourceHandle<class ezSkeletonResource> ezSkeletonResourceHandle;
 
 typedef ezComponentManagerSimple<class ezSimpleAnimationComponent, ezComponentUpdateType::WhenSimulating> ezSimpleAnimationComponentManager;
 
@@ -25,7 +27,7 @@ public:
   virtual void OnActivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // 
+  //
 
   //////////////////////////////////////////////////////////////////////////
   // Properties
@@ -37,14 +39,20 @@ public:
   void SetAnimationClipFile(const char* szFile);
   const char* GetAnimationClipFile() const;
 
+  void SetSkeleton(const ezSkeletonResourceHandle& hResource);
+  EZ_ALWAYS_INLINE const ezSkeletonResourceHandle& GetSkeleton() const { return m_hSkeleton; }
+
+  void SetSkeletonFile(const char* szFile);
+  const char* GetSkeletonFile() const;
+
 
   void Update();
 
 protected:
   ezAnimationClipResourceHandle m_hAnimationClip;
+  ezSkeletonResourceHandle m_hSkeleton;
 
-  ezDynamicArray<ezMat4, ezAlignedAllocatorWrapper> m_BoneMatrices;
+  ezUniquePtr<ezAnimationPose> m_pAnimationPose;
 
   ezTime m_AnimationTime;
 };
-

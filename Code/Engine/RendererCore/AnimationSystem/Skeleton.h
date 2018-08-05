@@ -27,8 +27,8 @@ public:
   class EZ_RENDERERCORE_DLL Bone
   {
   public:
-    inline const ezMat4& GetBoneTransform() const;
-    inline const ezMat4& GetInverseBindPoseTransform() const;
+    inline const ezMat4& GetBindPoseLocalTransform() const;
+    //inline const ezMat4& GetInverseBindPoseTransform() const;
     inline ezUInt32 GetParentIndex() const;
     inline bool IsRootBone() const;
     inline const ezHashedString& GetName() const;
@@ -37,8 +37,9 @@ public:
     friend ezSkeletonBuilder;
     friend ezSkeleton;
 
-    ezMat4 m_BoneTransform;
-    ezMat4 m_InverseBindPoseTransform;
+    ezMat4 m_BindPoseLocal;
+    ezMat4 m_BindPoseGlobal;
+    ezMat4 m_InverseBindPoseGlobal;
     ezUInt32 m_uiParentIndex; // 0xFFFFFFFFu if no parent
 
     ezHashedString m_sName;
@@ -87,13 +88,7 @@ public:
   ezResult Load(ezStreamReader& stream);
 
   /// \brief Applies a global transform to the skeleton (used by the importer to correct scale and up-axis)
-  void ApplyGlobalTransform(const ezMat3& transform);
-
-  /// \brief Returns the bind space pose this skeleton represents. All pose matrices are still relative.
-  const ezAnimationPose* GetBindSpacePose() const;
-
-  /// \brief Returns the bind space pose this skeleton represents. All pose matrices are the final matrices necessary for skinning.
-  const ezAnimationPose* GetBindSpacePoseInObjectSpace() const;
+  //void ApplyGlobalTransform(const ezMat3& transform);
 
   /// \brief Returns the skinning mode of the skeleton
   Mode GetSkinningMode() const;
@@ -103,13 +98,7 @@ protected:
 
   ezDynamicArray<Bone> m_Bones;
 
-  /// These poses are generated on demand
-  mutable ezUniquePtr<ezAnimationPose> m_pBindSpacePose;
-  mutable ezUniquePtr<ezAnimationPose> m_pObjectSpaceBindPose;
-
   Mode m_eSkinningMode;
-
-  mutable bool m_bAnyPoseCreated;
 };
 
 #include <RendererCore/AnimationSystem/Implementation/Skeleton_inl.h>

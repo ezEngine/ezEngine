@@ -1,12 +1,14 @@
 #pragma once
 
 #include <Core/ResourceManager/Resource.h>
+#include <Foundation/Containers/ArrayMap.h>
+#include <Foundation/Strings/HashedString.h>
 #include <RendererCore/Basics.h>
 
 struct EZ_RENDERERCORE_DLL ezAnimationClipResourceDescriptor
 {
 public:
-  void Configure(ezUInt16 uiNumBones, ezUInt16 uiNumFrames, ezUInt8 uiFramesPerSecond = 30);
+  void Configure(ezUInt16 uiNumBones, ezUInt16 uiNumFrames, ezUInt8 uiFramesPerSecond);
 
   ezUInt16 GetNumBones() const { return m_uiNumBones; }
   ezUInt16 GetNumFrames() const { return m_uiNumFrames; }
@@ -15,13 +17,20 @@ public:
 
   ezUInt16 GetFrameAt(ezTime time, double& out_fLerpToNext) const;
 
-  const ezMat4* GetFirstBones(ezUInt16 uiFrame) const;
-  ezMat4* GetFirstBones(ezUInt16 uiFrame);
+  ezUInt16 AddBoneName(const ezHashedString& sBoneName);
+
+  /// \brief returns 0xFFFF if no bone with the given name is known
+  ezUInt16 FindBoneIndexByName(const ezTempHashedString& sBoneName) const;
+
+  const ezMat4* GetBoneKeyframes(ezUInt16 uiBone) const;
+  ezMat4* GetBoneKeyframes(ezUInt16 uiBone);
 
   void Save(ezStreamWriter& stream) const;
   void Load(ezStreamReader& stream);
 
   ezUInt64 GetHeapMemoryUsage() const;
+
+  const ezArrayMap<ezHashedString, ezUInt32>& GetAllBoneIndices() const { return m_NameToFirstKeyframe; }
 
 private:
   ezUInt16 m_uiNumBones = 0;
@@ -31,6 +40,7 @@ private:
   ezTime m_Duration;
 
   ezDynamicArray<ezMat4> m_BoneTransforms;
+  ezArrayMap<ezHashedString, ezUInt32> m_NameToFirstKeyframe;
 };
 
 typedef ezTypedResourceHandle<class ezAnimationClipResource> ezAnimationClipResourceHandle;
