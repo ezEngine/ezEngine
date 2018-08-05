@@ -1,30 +1,27 @@
-﻿#include <PCH.h>
-#include <Foundation/Types/RefCounted.h>
+#include <PCH.h>
+
 #include <Foundation/Containers/IdTable.h>
-#include <ModelImporter/Handles.h>
+#include <Foundation/Types/RefCounted.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <ModelImporter/Handles.h>
 #include <ModelImporter/Node.h>
 
 #include <ModelImporter/Scene.h>
 
-#include <ModelImporter/Node.h>
-#include <ModelImporter/Mesh.h>
 #include <ModelImporter/Material.h>
+#include <ModelImporter/Mesh.h>
+#include <ModelImporter/Node.h>
 
 #include <Foundation/Containers/HashSet.h>
-#include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Time/Stopwatch.h>
 
 
 namespace ezModelImporter
 {
-  Scene::Scene()
-  {
-  }
+  Scene::Scene() {}
 
-  Scene::~Scene()
-  {
-  }
+  Scene::~Scene() {}
 
   const HierarchyObject* Scene::GetObject(ObjectHandle handle) const
   {
@@ -33,14 +30,14 @@ namespace ezModelImporter
 
     switch (handle.GetType())
     {
-    case ObjectHandle::NODE:
-      return m_Nodes[handle.m_Id].Borrow();
+      case ObjectHandle::NODE:
+        return m_Nodes[handle.m_Id].Borrow();
 
-    case ObjectHandle::MESH:
-      return m_Meshes[handle.m_Id].Borrow();
+      case ObjectHandle::MESH:
+        return m_Meshes[handle.m_Id].Borrow();
 
-    default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED;
     }
 
     return nullptr;
@@ -58,20 +55,11 @@ namespace ezModelImporter
     return material ? material->Borrow() : nullptr;
   }
 
-  ObjectHandle Scene::AddNode(ezUniquePtr<Node> node)
-  {
-    return ObjectHandle(ObjectHandle::NODE, m_Nodes.Insert(std::move(node)));
-  }
+  ObjectHandle Scene::AddNode(ezUniquePtr<Node> node) { return ObjectHandle(ObjectHandle::NODE, m_Nodes.Insert(std::move(node))); }
 
-  ObjectHandle Scene::AddMesh(ezUniquePtr<Mesh> mesh)
-  {
-    return ObjectHandle(ObjectHandle::MESH, m_Meshes.Insert(std::move(mesh)));
-  }
+  ObjectHandle Scene::AddMesh(ezUniquePtr<Mesh> mesh) { return ObjectHandle(ObjectHandle::MESH, m_Meshes.Insert(std::move(mesh))); }
 
-  MaterialHandle Scene::AddMaterial(ezUniquePtr<Material> material)
-  {
-    return MaterialHandle(m_Materials.Insert(std::move(material)));
-  }
+  MaterialHandle Scene::AddMaterial(ezUniquePtr<Material> material) { return MaterialHandle(m_Materials.Insert(std::move(material))); }
 
   void Scene::RefreshRootList()
   {
@@ -100,12 +88,13 @@ namespace ezModelImporter
         m_RootObjects.PushBack(it.Value().Borrow());
     }
 
-    EZ_ASSERT_DEBUG((m_Nodes.IsEmpty() && m_Meshes.IsEmpty()) || !m_RootObjects.IsEmpty(), "There are objects but no root objects. The scene graph is a circle!");
+    EZ_ASSERT_DEBUG((m_Nodes.IsEmpty() && m_Meshes.IsEmpty()) || !m_RootObjects.IsEmpty(),
+                    "There are objects but no root objects. The scene graph is a circle!");
   }
 
   namespace
   {
-    template<typename HierarchyNodeCollection>
+    template <typename HierarchyNodeCollection>
     void CreateUniqueNamesImpl(HierarchyNodeCollection& hierarchyObjectList, const char* unnamedPrefix)
     {
       ezStringBuilder tmp;
@@ -130,7 +119,8 @@ namespace ezModelImporter
           ezStringBuilder newName;
 
           int suffix = 0;
-          do {
+          do
+          {
             newName = targetName;
             newName.Append("_", ezConversionUtils::ToString(suffix, tmp));
             ++suffix;
@@ -173,7 +163,7 @@ namespace ezModelImporter
         {
           currentTransform.SetGlobalTransform(currentTransform, node->m_RelativeTransform);
 
-          for (int childIdx=node->m_Children.GetCount()-1; childIdx >=0; --childIdx)
+          for (int childIdx = node->m_Children.GetCount() - 1; childIdx >= 0; --childIdx)
           {
             ObjectHandle childHandle = node->m_Children[childIdx];
             if (childHandle.GetType() == ObjectHandle::MESH)
@@ -204,4 +194,3 @@ namespace ezModelImporter
     return outMesh;
   }
 }
-

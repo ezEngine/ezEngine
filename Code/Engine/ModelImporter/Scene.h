@@ -1,10 +1,11 @@
 #pragma once
 
-#include <ModelImporter/HierarchyObject.h>
 #include <Foundation/Containers/IdTable.h>
-#include <Foundation/Types/UniquePtr.h>
 #include <Foundation/Types/RefCounted.h>
+#include <Foundation/Types/UniquePtr.h>
+#include <ModelImporter/HierarchyObject.h>
 #include <RendererCore/AnimationSystem/Skeleton.h>
+#include <Foundation/Containers/Deque.h>
 
 namespace ezModelImporter
 {
@@ -28,36 +29,44 @@ namespace ezModelImporter
 
     // Data access.
   public:
-
     /// Returns a list of all root objects.
     ezArrayPtr<const HierarchyObject* const> GetRootObjects() const { return ezMakeArrayPtr(m_RootObjects); }
     ezArrayPtr<HierarchyObject*> GetRootObjects() { return ezMakeArrayPtr(m_RootObjects); }
 
-    //const HierarchyObject* GetObject(ObjectReference handle) const;
+    // const HierarchyObject* GetObject(ObjectReference handle) const;
     const HierarchyObject* GetObject(ObjectHandle handle) const;
     HierarchyObject* GetObject(ObjectHandle handle);
-    template<typename T>
-    const T* GetObject(ObjectHandle handle) const { auto obj = GetObject(handle); return obj ? obj->Cast<T>() : nullptr; }
-    template<typename T>
-    T* GetObject(ObjectHandle handle) { auto obj = GetObject(handle); return obj ? obj->Cast<T>() : nullptr; }
+    template <typename T>
+    const T* GetObject(ObjectHandle handle) const
+    {
+      auto obj = GetObject(handle);
+      return obj ? obj->Cast<T>() : nullptr;
+    }
+    template <typename T>
+    T* GetObject(ObjectHandle handle)
+    {
+      auto obj = GetObject(handle);
+      return obj ? obj->Cast<T>() : nullptr;
+    }
 
     const Material* GetMaterial(MaterialHandle handle) const;
 
-    const ezIdTable<ObjectId, ezUniquePtr<Node>>& GetNodes() const           { return m_Nodes; }
-    const ezIdTable<ObjectId, ezUniquePtr<Mesh>>& GetMeshes() const          { return m_Meshes; }
+    const ezIdTable<ObjectId, ezUniquePtr<Node>>& GetNodes() const { return m_Nodes; }
+    const ezIdTable<ObjectId, ezUniquePtr<Mesh>>& GetMeshes() const { return m_Meshes; }
     const ezIdTable<MaterialId, ezUniquePtr<Material>>& GetMaterials() const { return m_Materials; }
-    ezIdTable<ObjectId, ezUniquePtr<Node>>& GetNodes()                       { return m_Nodes; }
-    ezIdTable<ObjectId, ezUniquePtr<Mesh>>& GetMeshes()                      { return m_Meshes; }
-    ezIdTable<MaterialId, ezUniquePtr<Material>>& GetMaterials()             { return m_Materials; }
+
+    ezIdTable<ObjectId, ezUniquePtr<Node>>& GetNodes() { return m_Nodes; }
+    ezIdTable<ObjectId, ezUniquePtr<Mesh>>& GetMeshes() { return m_Meshes; }
+    ezIdTable<MaterialId, ezUniquePtr<Material>>& GetMaterials() { return m_Materials; }
 
     // Manipulation methods for importer implementations.
   public:
-
     ObjectHandle AddNode(ezUniquePtr<Node> node);
     ObjectHandle AddMesh(ezUniquePtr<Mesh> mesh);
     MaterialHandle AddMaterial(ezUniquePtr<Material> material);
 
     ezUniquePtr<ezSkeleton> m_pSkeleton;
+    ezDeque<AnimationClip> m_AnimationClips;
 
     /// Adds all objects without a parent to the list of root objects.
     ///
@@ -85,7 +94,6 @@ namespace ezModelImporter
 
 
   private:
-
     ezDynamicArray<HierarchyObject*> m_RootObjects;
 
     ezIdTable<ObjectId, ezUniquePtr<ezModelImporter::Node>> m_Nodes;

@@ -1042,10 +1042,6 @@ namespace ezModelImporter
           else
           {
             outScene->m_pSkeleton = SkeletonBuilder.CreateSkeletonInstance();
-
-            auto pose = outScene->m_pSkeleton->CreatePose();
-            outScene->m_pSkeleton->SetAnimationPoseToBindPose(pose.Borrow());
-            outScene->m_pSkeleton->CalculateObjectSpaceAnimationPoseMatrices(pose.Borrow());
           }
         }
 

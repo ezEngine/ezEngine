@@ -8,7 +8,7 @@ ezAnimationPose::ezAnimationPose(const ezSkeleton* skeleton)
   EZ_ASSERT_DEV(skeleton && skeleton->GetBoneCount() > 0, "Animation pose needs a valid skeleton which also has at least one bone!");
 
   // Allocate storage once for matrices and validity bits
-  m_BoneTransforms.SetCount(skeleton->GetBoneCount());
+  m_BoneTransforms.SetCountUninitialized(skeleton->GetBoneCount());
 
   // By default all transforms are invalid.
   m_BoneTransformsValid.SetCount(skeleton->GetBoneCount());

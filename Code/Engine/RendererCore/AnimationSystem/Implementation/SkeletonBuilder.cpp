@@ -7,7 +7,8 @@ ezSkeletonBuilder::ezSkeletonBuilder()
 {
 }
 
-ezUInt32 ezSkeletonBuilder::AddBone(const char* szName, const ezMat4& LocalTransform, ezUInt32 uiParentIndex /*= 0xFFFFFFFFu*/)
+ezUInt32 ezSkeletonBuilder::AddBone(const char* szName, const ezMat4& LocalTransform,
+                                    ezUInt32 uiParentIndex /*= 0xFFFFFFFFu*/)
 {
   auto& bone = m_Bones.ExpandAndGetRef();
 

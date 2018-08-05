@@ -14,6 +14,7 @@ class EZ_RENDERERCORE_DLL ezAnimationPose
 {
 public:
   inline const ezMat4& GetBoneTransform(ezUInt32 uiBoneIndex) const;
+  inline ezArrayPtr<const ezMat4> GetAllBoneTransforms() const;
   inline bool IsBoneTransformValid(ezUInt32 uiBoneIndex) const;
 
   /// \brief Sets the bone transform (final transform!) for the given bone index.
@@ -56,7 +57,8 @@ protected:
   // Animation poses belong to specific skeletons, thus only the skeleton can provide new pose objects.
   ezAnimationPose(const ezSkeleton* skeleton);
 
-  ezDynamicArray<ezMat4> m_BoneTransforms;
+  // used an aligned allocator to make sure this can be uploaded to the GPU
+  ezDynamicArray<ezMat4, ezAlignedAllocatorWrapper> m_BoneTransforms;
   ezDynamicBitfield m_BoneTransformsValid;
 };
 

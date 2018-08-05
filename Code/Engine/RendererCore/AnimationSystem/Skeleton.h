@@ -66,8 +66,7 @@ public:
   inline const Bone& GetBone(ezUInt32 uiBoneIndex) const;
 
   /// \brief Allows to find a specific bone in the skeleton by name, returns true if a bone is found, false otherwise.
-  /// Note that uiBoneIndex is invalid if the function returned false.
-  bool FindBoneByName(const char* szName, ezUInt32& uiBoneIndex) const;
+  bool FindBoneByName(const ezTempHashedString& sBoneName, ezUInt32& out_uiBoneIndex) const;
 
   /// \brief Creates a new pose object with storage for all bone transforms of the skeleton.
   ezUniquePtr<ezAnimationPose> CreatePose() const;

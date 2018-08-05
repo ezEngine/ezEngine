@@ -50,9 +50,9 @@ public:
   /// \brief Purges all elements from the map.
   void Clear(); // [tested]
 
-  /// \brief Always inserts a new value under the given key. Duplicates are allowed. The returned index is only valid briefly, until the map is sorted or modified further.
+  /// \brief Always inserts a new value under the given key. Duplicates are allowed.
   template <typename CompatibleKeyType, typename CompatibleValueType>
-  ezUInt32 Insert(CompatibleKeyType&& key, CompatibleValueType&& value); // [tested]
+  void Insert(CompatibleKeyType&& key, CompatibleValueType&& value); // [tested]
 
   /// \brief Ensures the internal data structure is sorted. This is done automatically every time a lookup needs to be made.
   void Sort() const; // [tested]

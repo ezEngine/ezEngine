@@ -91,7 +91,7 @@ protected:
   virtual ezMeshRenderData* CreateRenderData(ezUInt32 uiBatchId) const;
 
   ezGALBufferHandle m_hSkinningTransformsBuffer;
-  ezArrayPtr<ezMat4> m_SkinningMatrices;
+  ezArrayPtr<const ezMat4> m_SkinningMatrices;
 
 private:
   ezUInt32 Materials_GetCount() const;

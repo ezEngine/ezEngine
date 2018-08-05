@@ -44,13 +44,11 @@ ezUInt32 ezSkeleton::GetBoneCount() const
   return m_Bones.GetCount();
 }
 
-bool ezSkeleton::FindBoneByName(const char* szName, ezUInt32& uiBoneIndex) const
+bool ezSkeleton::FindBoneByName(const ezTempHashedString& sBoneName, ezUInt32& uiBoneIndex) const
 {
-  ezTempHashedString NameString(szName);
-
   for (ezUInt32 i = 0; i < m_Bones.GetCount(); ++i)
   {
-    if (m_Bones[i].GetName() == NameString)
+    if (m_Bones[i].GetName() == sBoneName)
     {
       uiBoneIndex = i;
       return true;
@@ -100,14 +98,13 @@ void ezSkeleton::CalculateObjectSpaceAnimationPoseMatrices(ezAnimationPose* pPos
     // If it is a root bone the transform is already final.
     if (m_Bones[i].IsRootBone())
     {
-      pPose->SetBoneTransform(i, m_Bones[i].GetInverseBindPoseTransform() * m_Bones[i].GetBoneTransform());
+      pPose->SetBoneTransform(i, m_Bones[i].GetInverseBindPoseTransform() * pPose->GetBoneTransform(i));
     }
     // If not: grab transform of parent bone and use it to make the final transform for this bone
     else
     {
-      // TODO: Verify that multiplication order is correct
-      pPose->SetBoneTransform(i, m_Bones[i].GetInverseBindPoseTransform() * m_Bones[i].GetBoneTransform() *
-                                     pPose->GetBoneTransform(m_Bones[i].GetParentIndex()));
+      pPose->SetBoneTransform(i, pPose->GetBoneTransform(m_Bones[i].GetParentIndex()) * m_Bones[i].GetInverseBindPoseTransform() *
+                                     pPose->GetBoneTransform(i));
     }
   }
 }

@@ -4,6 +4,11 @@ inline const ezMat4& ezAnimationPose::GetBoneTransform(ezUInt32 uiBoneIndex) con
   return m_BoneTransforms[uiBoneIndex];
 }
 
+inline ezArrayPtr<const ezMat4> ezAnimationPose::GetAllBoneTransforms() const
+{
+  return m_BoneTransforms.GetArrayPtr();
+}
+
 inline bool ezAnimationPose::IsBoneTransformValid(ezUInt32 uiBoneIndex) const
 {
   return m_BoneTransformsValid.IsSet(uiBoneIndex);

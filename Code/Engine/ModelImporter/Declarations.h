@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ModelImporter/Plugin.h>
 #include <Foundation/Types/Bitflags.h>
+#include <ModelImporter/Plugin.h>
 
 namespace ezModelImporter
 {
@@ -75,4 +75,19 @@ namespace ezModelImporter
   };
 
   EZ_DECLARE_FLAGS_OPERATORS(ImportFlags);
+
+  struct EZ_MODELIMPORTER_DLL BoneAnimation
+  {
+    ezString m_sBoneName;
+    ezDynamicArray<ezMat4> m_Keyframes;
+  };
+
+  struct EZ_MODELIMPORTER_DLL AnimationClip
+  {
+    ezString m_sClipName;
+    ezUInt32 m_uiFramesPerSecond = 0;
+    ezUInt32 m_uiNumKeyframes = 0;
+
+    ezDynamicArray<BoneAnimation> m_BoneAnimations;
+  };
 }
