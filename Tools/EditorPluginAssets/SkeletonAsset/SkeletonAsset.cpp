@@ -64,7 +64,7 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 
   ezEditableSkeleton* pNewSkeleton = EZ_DEFAULT_NEW(ezEditableSkeleton);
 
-  const ezUInt32 numBones = ezMath::Min(12u, scene->m_pSkeleton->GetBoneCount());
+  const ezUInt32 numBones = scene->m_pSkeleton->GetBoneCount();
 
   ezDynamicArray<ezEditableSkeletonBone*> allBones;
   allBones.SetCountUninitialized(numBones);
@@ -118,7 +118,7 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
   pNewSkeleton = nullptr;
 
   // merge the new data with the actual asset document
-  ApplyNativePropertyChangesToObjectManager();
+  ApplyNativePropertyChangesToObjectManager(true);
 
   range.BeginNextStep("Writing Result");
 

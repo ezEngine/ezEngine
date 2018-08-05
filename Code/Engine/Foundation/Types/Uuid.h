@@ -59,6 +59,9 @@ public:
   /// \brief Subtracts the given seed from this guid, restoring the original guid.
   EZ_ALWAYS_INLINE void RevertCombinationWithSeed(const ezUuid& seed);
 
+  /// \brief Combines two guids using hashing, irreversible and order dependent.
+  EZ_ALWAYS_INLINE void HashCombine(const ezUuid& hash);
+
 private:
   friend EZ_FOUNDATION_DLL void operator>>(ezStreamReader& Stream, ezUuid& Value);
   friend EZ_FOUNDATION_DLL void operator<<(ezStreamWriter& Stream, const ezUuid& Value);

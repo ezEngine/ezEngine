@@ -11,6 +11,26 @@ void ezRttiConverterContext::Clear()
   m_QueuedObjects.Clear();
 }
 
+ezUuid ezRttiConverterContext::GenerateObjectGuid(const ezUuid& parentGuid, const ezAbstractProperty* pProp, ezVariant index, void* pObject) const
+{
+  ezUuid guid = parentGuid;
+  guid.HashCombine(ezUuid::StableUuidForString(pProp->GetPropertyName()));
+  if (index.IsA<ezString>())
+  {
+    guid.HashCombine(ezUuid::StableUuidForString(index.Get<ezString>()));
+  }
+  else if (index.CanConvertTo<ezUInt32>())
+  {
+    guid.HashCombine(ezUuid::StableUuidForInt(index.ConvertTo<ezUInt32>()));
+  }
+  else if (index.IsValid())
+  {
+    EZ_REPORT_FAILURE("Index type must be ezUInt32 or ezString.");
+  }
+  //ezLog::Warning("{0},{1},{2} -> {3}", parentGuid, pProp->GetPropertyName(), index, guid);
+  return guid;
+}
+
 void* ezRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI* pRtti)
 {
   EZ_ASSERT_DEBUG(pRtti != nullptr, "Cannot create object, RTTI type is unknown");
@@ -124,6 +144,7 @@ ezRttiConverterObject ezRttiConverterContext::DequeueObject()
 ezAbstractObjectNode* ezRttiConverterWriter::AddObjectToGraph(const ezRTTI* pRtti, const void* pObject, const char* szNodeName)
 {
   const ezUuid guid = m_pContext->GetObjectGUID(pRtti, pObject);
+  EZ_ASSERT_DEV(guid.IsValid(), "The object was not registered. Call ezRttiConverterContext::RegisterObject before adding.");
   ezAbstractObjectNode* pNode = AddSubObjectToGraph(pRtti, pObject, guid, szNodeName);
 
   ezRttiConverterObject obj = m_pContext->DequeueObject();
@@ -169,8 +190,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
         vTemp = ezReflectionUtils::GetMemberPropertyValue(pSpecific, pObject);
         void* pRefrencedObject = vTemp.ConvertTo<void*>();
 
-        ezUuid guid = pNode->GetGuid();
-        guid.CombineWithSeed(ezUuid::StableUuidForString(pProp->GetPropertyName()));
+        ezUuid guid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, ezVariant(), pRefrencedObject);
         if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
         {
           guid = m_pContext->EnqueObject(guid, pPropType, pRefrencedObject);
@@ -199,14 +219,11 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
         {
           void* pSubObject = pSpecific->GetPropertyPointer(pObject);
 
-          ezConversionUtils::ToString(pNode->GetGuid(), sTemp);
-          sTemp.Append("/", pProp->GetPropertyName());
-
-          const ezUuid SubObjectGuid = ezUuid::StableUuidForString(sTemp);
 
           // Do we have direct access to the property?
           if (pSubObject != nullptr)
           {
+            const ezUuid SubObjectGuid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, ezVariant(), pSubObject);
             pNode->AddProperty(pProp->GetPropertyName(), SubObjectGuid);
 
             AddSubObjectToGraph(pPropType, pSubObject, SubObjectGuid, nullptr);
@@ -217,7 +234,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
             pSubObject = pPropType->GetAllocator()->Allocate<void>();
 
             pSpecific->GetValuePtr(pObject, pSubObject);
-
+            const ezUuid SubObjectGuid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, ezVariant(), pSubObject);
             pNode->AddProperty(pProp->GetPropertyName(), SubObjectGuid);
 
             AddSubObjectToGraph(pPropType, pSubObject, SubObjectGuid, nullptr);
@@ -237,8 +254,6 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
 
       if (pSpecific->GetFlags().IsSet(ezPropertyFlags::Pointer))
       {
-        ezUuid propertyGuid = pNode->GetGuid();
-        propertyGuid.CombineWithSeed(ezUuid::StableUuidForString(pProp->GetPropertyName()));
         for (ezUInt32 i = 0; i < uiCount; ++i)
         {
           vTemp = ezReflectionUtils::GetArrayPropertyValue(pSpecific, pObject, i);
@@ -247,8 +262,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
           ezUuid guid;
           if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
           {
-            guid = propertyGuid;
-            guid.CombineWithSeed(ezUuid::StableUuidForInt(i));
+            guid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, i, pRefrencedObject);
             guid = m_pContext->EnqueObject(guid, pPropType, pRefrencedObject);
           }
           else
@@ -276,10 +290,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
           for (ezUInt32 i = 0; i < uiCount; ++i)
           {
             pSpecific->GetValue(pObject, i, pSubObject);
-
-            ezConversionUtils::ToString(pNode->GetGuid(), sTemp);
-            sTemp.AppendFormat("/{0}/{1}", pProp->GetPropertyName(), i);
-            const ezUuid SubObjectGuid = ezUuid::StableUuidForString(sTemp);
+            const ezUuid SubObjectGuid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, i, pSubObject);
             AddSubObjectToGraph(pPropType, pSubObject, SubObjectGuid, nullptr);
 
             values[i] = SubObjectGuid;
@@ -301,8 +312,6 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
 
       if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
       {
-        ezUuid propertyGuid = pNode->GetGuid();
-        propertyGuid.CombineWithSeed(ezUuid::StableUuidForString(pProp->GetPropertyName()));
         for (ezUInt32 i = 0; i < values.GetCount(); ++i)
         {
           void* pRefrencedObject = values[i].ConvertTo<void*>();
@@ -311,8 +320,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
           if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
           {
             // TODO: pointer sets are never stable unless they use an array based pseudo set as storage.
-            guid = propertyGuid;
-            guid.CombineWithSeed(ezUuid::StableUuidForInt(i));
+            guid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, i, pRefrencedObject);
             guid = m_pContext->EnqueObject(guid, pPropType, pRefrencedObject);
           }
           else
@@ -344,8 +352,6 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
 
       if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer))
       {
-        ezUuid propertyGuid = pNode->GetGuid();
-        propertyGuid.CombineWithSeed(ezUuid::StableUuidForString(pProp->GetPropertyName()));
         for (ezUInt32 i = 0; i < keys.GetCount(); ++i)
         {
           ezVariant value = ezReflectionUtils::GetMapPropertyValue(pSpecific, pObject, keys[i]);
@@ -354,9 +360,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
           ezUuid guid;
           if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
           {
-            // TODO: pointer sets are never stable unless they use an array based pseudo set as storage.
-            guid = propertyGuid;
-            guid.CombineWithSeed(ezUuid::StableUuidForInt(i));
+            guid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, keys[i], pRefrencedObject);
             guid = m_pContext->EnqueObject(guid, pPropType, pRefrencedObject);
           }
           else
@@ -386,9 +390,7 @@ void ezRttiConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbs
             EZ_SCOPE_EXIT(pPropType->GetAllocator()->Deallocate(pSubObject););
             EZ_VERIFY(pSpecific->GetValue(pObject, keys[i], pSubObject), "Key should be valid.");
 
-            ezConversionUtils::ToString(pNode->GetGuid(), sTemp);
-            sTemp.AppendFormat("/{0}/{1}", pProp->GetPropertyName(), keys[i]);
-            const ezUuid SubObjectGuid = ezUuid::StableUuidForString(sTemp);
+            const ezUuid SubObjectGuid = m_pContext->GenerateObjectGuid(pNode->GetGuid(), pProp, keys[i], pSubObject);
             AddSubObjectToGraph(pPropType, pSubObject, SubObjectGuid, nullptr);
             ValuesCopied.Insert(keys[i], SubObjectGuid);
           }

@@ -34,6 +34,10 @@ class EZ_FOUNDATION_DLL ezRttiConverterContext
 public:
   virtual void Clear();
 
+  /// \brief Generates a guid for a new object. Default implementation generates stable guids derived from
+  /// parentGuid + property name + index and ignores the address of pObject.
+  virtual ezUuid GenerateObjectGuid(const ezUuid& parentGuid, const ezAbstractProperty* pProp, ezVariant index, void* pObject) const;
+
   virtual void* CreateObject(const ezUuid& guid, const ezRTTI* pRtti);
   virtual void DeleteObject(const ezUuid& guid);
 

@@ -48,6 +48,12 @@ void ezUuid::RevertCombinationWithSeed(const ezUuid& seed)
   m_uiLow -= seed.m_uiLow;
 }
 
+void ezUuid::HashCombine(const ezUuid& guid)
+{
+  m_uiHigh = ezHashing::xxHash64(&guid.m_uiHigh, sizeof(ezUInt64), m_uiHigh);
+  m_uiLow = ezHashing::xxHash64(&guid.m_uiLow, sizeof(ezUInt64), m_uiLow);
+}
+
 template <>
 struct ezHashHelper<ezUuid>
 {

@@ -7,6 +7,86 @@
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
+class ezApplyNativePropertyChangesContext : public ezRttiConverterContext
+{
+public:
+  ezApplyNativePropertyChangesContext(ezRttiConverterContext& source, const ezAbstractObjectGraph& originalGraph)
+    : m_nativeContext(source)
+    , m_originalGraph(originalGraph)
+  {
+  }
+
+  virtual ezUuid GenerateObjectGuid(const ezUuid& parentGuid, const ezAbstractProperty* pProp, ezVariant index, void* pObject) const override
+  {
+    ezUuid guid;
+    if (pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
+    {
+      // If the object is already known by the native context (a pointer that existed before the native changes)
+      // we can just return it. Any other pointer will get a new guid assigned.
+      guid = m_nativeContext.GetObjectGUID(pProp->GetSpecificType(), pObject);
+      if (guid.IsValid())
+        return guid;
+    }
+    else if (pProp->GetFlags().IsSet(ezPropertyFlags::Class))
+    {
+      // In case of by-value classes we lookup the guid in the object manager graph by using
+      // the index as the identify of the object. If the index is not valid (e.g. the array was expanded by native changes)
+      // a new guid is assigned.
+      if (const ezAbstractObjectNode* originalNode = m_originalGraph.GetNode(parentGuid))
+      {
+        if (const ezAbstractObjectNode::Property* originalProp = originalNode->FindProperty(pProp->GetPropertyName()))
+        {
+          switch (pProp->GetCategory())
+          {
+          case ezPropertyCategory::Member:
+            {
+              if (originalProp->m_Value.IsA<ezUuid>() && originalProp->m_Value.Get<ezUuid>().IsValid())
+                return originalProp->m_Value.Get<ezUuid>();
+            }
+            break;
+          case ezPropertyCategory::Array:
+            {
+              ezUInt32 uiIndex = index.Get<ezUInt32>();
+              if (originalProp->m_Value.IsA<ezVariantArray>())
+              {
+                const ezVariantArray& values = originalProp->m_Value.Get<ezVariantArray>();
+                if (uiIndex < values.GetCount())
+                {
+                  const auto& originalElemValue = values[uiIndex];
+                  if (originalElemValue.IsA<ezUuid>() && originalElemValue.Get<ezUuid>().IsValid())
+                    return originalElemValue.Get<ezUuid>();
+                }
+              }
+            }
+            break;
+          case ezPropertyCategory::Map:
+            {
+              const ezString& sIndex = index.Get<ezString>();
+              if (originalProp->m_Value.IsA<ezVariantDictionary>())
+              {
+                const ezVariantDictionary& values = originalProp->m_Value.Get<ezVariantDictionary>();
+                if (values.Contains(sIndex))
+                {
+                  const auto& originalElemValue = *values.GetValue(sIndex);
+                  if (originalElemValue.IsA<ezUuid>() && originalElemValue.Get<ezUuid>().IsValid())
+                    return originalElemValue.Get<ezUuid>();
+                }
+              }
+            }
+            break;
+          }
+        }
+      }
+
+    }
+    guid.CreateNewUuid();
+    return guid;
+  }
+private:
+  ezRttiConverterContext& m_nativeContext;
+  const ezAbstractObjectGraph& m_originalGraph;
+};
+
 template<typename ObjectProperties>
 class ezSimpleDocumentObjectManager : public ezDocumentObjectManager
 {
@@ -73,16 +153,11 @@ protected:
     return ret;
   }
 
-  void ApplyNativePropertyChangesToObjectManager()
+  // Index based remapping ignores address identity and solely uses the object's parent index to define
+  // its guid. Set it to true if the native changes are complete clear and replace operations and
+  // not incremental changes to the existing data.
+  void ApplyNativePropertyChangesToObjectManager(bool bForceIndexBasedRemapping = false)
   {
-    // Create native object graph
-    ezAbstractObjectGraph graph;
-    ezAbstractObjectNode* pRootNode = nullptr;
-    {
-      ezRttiConverterWriter rttiConverter(&graph, &m_Context, true, true);
-      pRootNode = rttiConverter.AddObjectToGraph(GetProperties(), "Object");
-    }
-
     // Create object manager graph
     ezAbstractObjectGraph origGraph;
     ezAbstractObjectNode* pOrigRootNode = nullptr;
@@ -91,10 +166,29 @@ protected:
       pOrigRootNode = writer.AddObjectToGraph(GetPropertyObject());
     }
 
-    // Remap native guids so they match the object manager (stuff like embedded classes will not have a guid on the native side).
-    graph.ReMapNodeGuidsToMatchGraph(pRootNode, origGraph, pOrigRootNode);
-    ezDeque<ezAbstractGraphDiffOperation> diffResult;
+    // Create native object graph
+    ezAbstractObjectGraph graph;
+    ezAbstractObjectNode* pRootNode = nullptr;
+    {
+      // The ezApplyNativePropertyChangesContext takes care of generating guids for native pointers that match those
+      // of the object manager.
+      ezApplyNativePropertyChangesContext nativeChangesContext(m_Context, origGraph);
+      ezRttiConverterWriter rttiConverter(&graph, &nativeChangesContext, true, true);
+      nativeChangesContext.RegisterObject(pOrigRootNode->GetGuid(), ezGetStaticRTTI<PropertyType>(), GetProperties());
+      pRootNode = rttiConverter.AddObjectToGraph(GetProperties(), "Object");
+    }
 
+    // Remapping is no longer necessary as ezApplyNativePropertyChangesContext takes care of mapping to the original nodes.
+    // However, if the native changes are done like clear+rebuild everything, then no original object will be found and
+    // every pointer will be deleted and re-created. Forcing the remapping (which works entirely via index and ignores
+    // pointer addresses) will yield better results (e.g. no changes on two back-to -back transform calls).
+    if (bForceIndexBasedRemapping)
+    {
+      // Remap native guids so they match the object manager (stuff like embedded classes will not have a guid on the native side).
+      graph.ReMapNodeGuidsToMatchGraph(pRootNode, origGraph, pOrigRootNode);
+    }
+
+    ezDeque<ezAbstractGraphDiffOperation> diffResult;
     graph.CreateDiffWithBaseGraph(origGraph, diffResult);
 
     // As we messed up the native side the object mirror is no longer synced and needs to be destroyed.

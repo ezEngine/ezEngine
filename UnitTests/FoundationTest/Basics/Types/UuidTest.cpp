@@ -60,5 +60,23 @@ EZ_CREATE_SIMPLE_TEST(Basics, Uuid)
 	  EZ_TEST_BOOL(uuid1 == uuid3);
 	  EZ_TEST_BOOL(uuid1 != uuid2);
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Uuid Combine")
+  {
+    ezUuid uuid1; uuid1.CreateNewUuid();
+    ezUuid uuid2; uuid2.CreateNewUuid();
+    ezUuid combined = uuid1;
+    combined.CombineWithSeed(uuid2);
+    EZ_TEST_BOOL(combined != uuid1);
+    EZ_TEST_BOOL(combined != uuid2);
+    combined.RevertCombinationWithSeed(uuid2);
+    EZ_TEST_BOOL(combined == uuid1);
+
+    ezUuid hashA = uuid1;
+    hashA.HashCombine(uuid2);
+    ezUuid hashB = uuid2;
+    hashA.HashCombine(uuid1);
+    EZ_TEST_BOOL(hashA != hashB);
+  }
 }
 
