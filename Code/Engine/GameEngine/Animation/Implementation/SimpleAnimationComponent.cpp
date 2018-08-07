@@ -144,8 +144,6 @@ const char* ezSimpleAnimationComponent::GetSkeletonFile() const
   return m_hSkeleton.GetResourceID();
 }
 
-
-
 void ezSimpleAnimationComponent::Update()
 {
   if (!m_hAnimationClip.IsValid())
@@ -171,17 +169,19 @@ void ezSimpleAnimationComponent::Update()
   // TODO: reasons why stuff may not work
   // The skeleton is rotated differently than the mesh, it seems not possible to align them correctly (forward dir)
   // animation clip data is neither scaled nor rotated
-  // that whole (inverse) bindpose stuff is complicated
+  // that whole (inverse) bind-pose stuff is complicated
+
+  skeleton.SetAnimationPoseToBindPose(m_pAnimationPose.Borrow());
 
   // dummy stuff that doesn't work very well
+  if (false)
   {
-    skeleton.SetAnimationPoseToBindPose(m_pAnimationPose.Borrow());
 
     ezUInt32 uiHeadBone;
     if (skeleton.FindBoneByName("Bip01_L_Calf", uiHeadBone))
     {
       ezMat4 mRot;
-      mRot.SetRotationMatrixX(ezAngle::Degree((float)m_AnimationTime.GetSeconds() * 30.0f));
+      mRot.SetRotationMatrixZ(ezAngle::Degree((float)m_AnimationTime.GetSeconds() * 30.0f));
 
       ezMat4 mCur = m_pAnimationPose->GetBoneTransform(uiHeadBone);
       // m_pAnimationPose->SetBoneTransform(uiHeadBone, mCur * mRot * mCur.GetInverse());
@@ -189,13 +189,23 @@ void ezSimpleAnimationComponent::Update()
 
       ezMat4 mTrans;
       mTrans.SetIdentity();
-      mTrans.SetTranslationMatrix(ezVec3(0, 0, (float)m_AnimationTime.GetSeconds()));
-      // m_pAnimationPose->SetBoneTransform(uiHeadBone, mTrans);
+      mTrans = mCur * mRot;
+      // mTrans.SetTranslationVector(mCur.GetTranslationVector());
+      // mTrans.SetTranslationMatrix(ezVec3(0, 0, (float)m_AnimationTime.GetSeconds()));
+      m_pAnimationPose->SetBoneTransform(uiHeadBone, mTrans);
+    }
+  }
+
+  if (false)
+  {
+    for (ezUInt32 b = 0; b < skeleton.GetBoneCount(); ++b)
+    {
+      m_pAnimationPose->SetBoneTransform(b, ezMat4::IdentityMatrix());
     }
   }
 
   // using real animation data (works even less)
-  if (false)
+  //if (false)
   {
     const auto& animDesc = pAnimClip->GetDescriptor();
 
@@ -206,11 +216,15 @@ void ezSimpleAnimationComponent::Update()
     for (ezUInt32 b = 0; b < animatedBones.GetCount(); ++b)
     {
       const ezHashedString sBoneName = animatedBones.GetKey(b);
+      const ezUInt32 uiAnimBoneIdx = animatedBones.GetValue(b);
+
+      //if (sBoneName.GetString() != "Bip01_L_Calf")
+        //continue;
 
       ezUInt32 uiHeadBone;
       if (skeleton.FindBoneByName(sBoneName, uiHeadBone))
       {
-        const ezMat4 boneMat = animDesc.GetBoneKeyframes(b)[uiFirstFrame];
+        const ezMat4 boneMat = animDesc.GetBoneKeyframes(uiAnimBoneIdx)[uiFirstFrame];
 
         // TODO: animations are not scaled yet, these matrices do not include the rotation and down-scale that the skeleton already has
 
@@ -221,5 +235,7 @@ void ezSimpleAnimationComponent::Update()
 
   skeleton.CalculateObjectSpaceAnimationPoseMatrices(m_pAnimationPose.Borrow());
 }
+
+
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_SimpleAnimationComponent);

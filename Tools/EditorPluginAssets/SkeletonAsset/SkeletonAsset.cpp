@@ -55,9 +55,13 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 
   ezEditableSkeleton* pProp = GetProperties();
 
-  const float fScale = ezMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
-  const ezMat3 mTransformation = ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir, fScale);
-  const ezMat3 mTransformRotations = ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir);
+  const float fScale = 1.0f;
+  //ezMath::Clamp(pProp->m_fUniformScaling, 0.0001f, 10000.0f);
+  ezMat3 mTransformation = ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir, fScale);
+  ezMat3 mTransformRotations = ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir);
+
+  mTransformation.SetIdentity();
+  mTransformRotations.SetIdentity();
 
   ezSharedPtr<Scene> scene;
   EZ_SUCCEED_OR_RETURN(ImportSkeleton(pProp->m_sAnimationFile, scene));
