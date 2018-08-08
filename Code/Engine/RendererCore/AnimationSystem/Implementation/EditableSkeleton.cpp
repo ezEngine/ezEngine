@@ -5,18 +5,18 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSkeletonBoneGeometryType, 1)
-EZ_ENUM_CONSTANTS(ezSkeletonBoneGeometryType::None, ezSkeletonBoneGeometryType::Capsule, ezSkeletonBoneGeometryType::Sphere, ezSkeletonBoneGeometryType::Box)
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezSkeletonJointGeometryType, 1)
+EZ_ENUM_CONSTANTS(ezSkeletonJointGeometryType::None, ezSkeletonJointGeometryType::Capsule, ezSkeletonJointGeometryType::Sphere, ezSkeletonJointGeometryType::Box)
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeletonBone, 1, ezRTTIDefaultAllocator<ezEditableSkeletonBone>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditableSkeletonJoint, 1, ezRTTIDefaultAllocator<ezEditableSkeletonJoint>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
     EZ_MEMBER_PROPERTY("Transform", m_Transform)->AddFlags(ezPropertyFlags::Hidden)->AddAttributes(new ezDefaultValueAttribute(ezTransform::Identity())),
     EZ_ARRAY_MEMBER_PROPERTY("Children", m_Children)->AddFlags(ezPropertyFlags::PointerOwner | ezPropertyFlags::Hidden),
-    EZ_ENUM_MEMBER_PROPERTY("Geometry", ezSkeletonBoneGeometryType, m_Geometry),
+    EZ_ENUM_MEMBER_PROPERTY("Geometry", ezSkeletonJointGeometryType, m_Geometry),
     EZ_MEMBER_PROPERTY("Length", m_fLength),
     EZ_MEMBER_PROPERTY("Width", m_fWidth),
     EZ_MEMBER_PROPERTY("Thickness", m_fThickness),
@@ -45,12 +45,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezEditableSkeleton::ezEditableSkeleton() = default;
 ezEditableSkeleton::~ezEditableSkeleton()
 {
-  ClearBones();
+  ClearJoints();
 }
 
-void ezEditableSkeleton::ClearBones()
+void ezEditableSkeleton::ClearJoints()
 {
-  for (ezEditableSkeletonBone* pChild : m_Children)
+  for (ezEditableSkeletonJoint* pChild : m_Children)
   {
     EZ_DEFAULT_DELETE(pChild);
   }
@@ -65,61 +65,59 @@ void ezEditableSkeleton::FillResourceDescriptor(ezSkeletonResourceDescriptor& de
   // create the ezSkeleton
   {
     ezSkeletonBuilder sb;
-    sb.SetSkinningMode(ezSkeleton::Mode::FourBones); // TODO: make this configurable ?
 
-    auto AddChildBones = [&sb, &desc](auto& self, const ezEditableSkeletonBone* pBone, ezUInt32 uiBoneIdx) -> void {
-      if (pBone->m_Geometry != ezSkeletonBoneGeometryType::None)
+    auto AddChildJoints = [&sb, &desc](auto& self, const ezEditableSkeletonJoint* pJoint, ezUInt32 uiJointIdx) -> void {
+      if (pJoint->m_Geometry != ezSkeletonJointGeometryType::None)
       {
         auto& geo = desc.m_Geometry.ExpandAndGetRef();
-        geo.m_Type = pBone->m_Geometry;
-        geo.m_uiAttachedToBone = uiBoneIdx;
+        geo.m_Type = pJoint->m_Geometry;
+        geo.m_uiAttachedToJoint = uiJointIdx;
         geo.m_Transform.SetIdentity();
-        geo.m_Transform.m_vScale.Set(pBone->m_fLength, pBone->m_fWidth, pBone->m_fThickness);
+        geo.m_Transform.m_vScale.Set(pJoint->m_fLength, pJoint->m_fWidth, pJoint->m_fThickness);
       }
 
-      for (const auto* pChildBone : pBone->m_Children)
+      for (const auto* pChildJoint : pJoint->m_Children)
       {
-        const ezUInt32 idx = sb.AddBone(pChildBone->GetName(), pChildBone->m_Transform.GetAsMat4(), uiBoneIdx);
+        const ezUInt32 idx = sb.AddJoint(pChildJoint->GetName(), pChildJoint->m_Transform, uiJointIdx);
 
-        self(self, pChildBone, idx);
+        self(self, pChildJoint, idx);
       }
     };
 
-    for (const auto* pBone : m_Children)
+    for (const auto* pJoint : m_Children)
     {
-      const ezUInt32 idx = sb.AddBone(pBone->GetName(), pBone->m_Transform.GetAsMat4());
+      const ezUInt32 idx = sb.AddJoint(pJoint->GetName(), pJoint->m_Transform);
 
-      AddChildBones(AddChildBones, pBone, idx);
+      AddChildJoints(AddChildJoints, pJoint, idx);
     }
 
-    // TODO: a bit wasteful to allocate an object that is discarded right away
-    desc.m_Skeleton = *sb.CreateSkeletonInstance();
+    sb.BuildSkeleton(desc.m_Skeleton);
   }
 }
 
-ezEditableSkeletonBone::ezEditableSkeletonBone()
+ezEditableSkeletonJoint::ezEditableSkeletonJoint()
 {
   m_Transform.SetIdentity();
 }
 
-ezEditableSkeletonBone::~ezEditableSkeletonBone()
+ezEditableSkeletonJoint::~ezEditableSkeletonJoint()
 {
-  ClearBones();
+  ClearJoints();
 }
 
-const char* ezEditableSkeletonBone::GetName() const
+const char* ezEditableSkeletonJoint::GetName() const
 {
   return m_sName.GetData();
 }
 
-void ezEditableSkeletonBone::SetName(const char* sz)
+void ezEditableSkeletonJoint::SetName(const char* sz)
 {
   m_sName.Assign(sz);
 }
 
-void ezEditableSkeletonBone::ClearBones()
+void ezEditableSkeletonJoint::ClearJoints()
 {
-  for (ezEditableSkeletonBone* pChild : m_Children)
+  for (ezEditableSkeletonJoint* pChild : m_Children)
   {
     EZ_DEFAULT_DELETE(pChild);
   }
@@ -127,15 +125,15 @@ void ezEditableSkeletonBone::ClearBones()
   m_Children.Clear();
 }
 
-void ezEditableSkeletonBone::CopyPropertiesFrom(const ezEditableSkeletonBone* pBone)
+void ezEditableSkeletonJoint::CopyPropertiesFrom(const ezEditableSkeletonJoint* pJoint)
 {
   // do not copy:
   //  name
   //  transform
   //  children
 
-  m_Geometry = pBone->m_Geometry;
-  m_fLength = pBone->m_fLength;
-  m_fWidth = pBone->m_fWidth;
-  m_fThickness = pBone->m_fThickness;
+  m_Geometry = pJoint->m_Geometry;
+  m_fLength = pJoint->m_fLength;
+  m_fWidth = pJoint->m_fWidth;
+  m_fThickness = pJoint->m_fThickness;
 }

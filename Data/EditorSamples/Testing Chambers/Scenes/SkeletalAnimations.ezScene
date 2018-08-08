@@ -11,17 +11,17 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7881024186004347053,4683856107289637145}}
-		u4 %Hash{5915379264092511540}
+		u4 %Hash{2413777469233973507}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
-			s{"{ 3460a81d-e690-4a03-a5fd-8defc2c8ffd0 }"}
+			s{"{ 2f688f8c-6694-45f9-a559-b176edf4f3f1 }"}
 			s{"{ 3cd008a7-effe-428c-a7da-3306d854565d }"}
+			s{"{ 56f1e828-38be-4e9b-9add-afebd5b8f668 }"}
 			s{"{ af18877b-6691-4d20-801d-951edac59762 }"}
 			s{"{ d65cd59b-50e0-44f3-aefb-a88943b81900 }"}
-			s{"{ f87fc8d2-ec5e-480a-a329-2a88a5c4607a }"}
 		}
 	}
 }
@@ -376,11 +376,11 @@ o
 	p
 	{
 		b %Active{1}
-		s %AnimationClip{"{ 3460a81d-e690-4a03-a5fd-8defc2c8ffd0 }"}
+		s %AnimationClip{"{ 56f1e828-38be-4e9b-9add-afebd5b8f668 }"}
 		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
 		VarArray %Materials{}
 		s %Mesh{"{ af18877b-6691-4d20-801d-951edac59762 }"}
-		s %Skeleton{"{ f87fc8d2-ec5e-480a-a329-2a88a5c4607a }"}
+		s %Skeleton{"{ 2f688f8c-6694-45f9-a559-b176edf4f3f1 }"}
 	}
 }
 o
@@ -391,7 +391,7 @@ o
 	p
 	{
 		b %Active{1}
-		s %Skeleton{"{ f87fc8d2-ec5e-480a-a329-2a88a5c4607a }"}
+		s %Skeleton{"{ 2f688f8c-6694-45f9-a559-b176edf4f3f1 }"}
 	}
 }
 }
@@ -411,7 +411,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSimpleAnimationComponent"}
-		u3 %TypeSize{168}
+		u3 %TypeSize{208}
 		u3 %TypeVersion{4}
 	}
 }

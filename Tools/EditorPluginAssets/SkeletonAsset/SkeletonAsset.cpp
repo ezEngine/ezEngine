@@ -39,7 +39,7 @@ static ezStatus ImportSkeleton(const char* filename, ezSharedPtr<ezModelImporter
   if (outScene == nullptr)
     return ezStatus(ezFmt("Input file '{0}' could not be imported", filename));
 
-  if (outScene->m_pSkeleton == nullptr || outScene->m_pSkeleton->GetBoneCount() == 0)
+  if (outScene->m_Skeleton.GetJointCount() == 0)
     return ezStatus("Mesh does not contain skeleton information");
 
   return ezStatus(EZ_SUCCESS);
@@ -68,51 +68,51 @@ ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream,
 
   ezEditableSkeleton* pNewSkeleton = EZ_DEFAULT_NEW(ezEditableSkeleton);
 
-  const ezUInt32 numBones = scene->m_pSkeleton->GetBoneCount();
+  const ezUInt32 numJoints = scene->m_Skeleton.GetJointCount();
 
-  ezDynamicArray<ezEditableSkeletonBone*> allBones;
-  allBones.SetCountUninitialized(numBones);
+  ezDynamicArray<ezEditableSkeletonJoint*> allJoints;
+  allJoints.SetCountUninitialized(numJoints);
 
-  ezSet<ezString> boneNames;
+  ezSet<ezString> jointNames;
   ezStringBuilder tmp;
 
-  for (ezUInt32 b = 0; b < numBones; ++b)
+  for (ezUInt32 b = 0; b < numJoints; ++b)
   {
-    const ezMat4 mBoneTransform = scene->m_pSkeleton->GetBone(b).GetBindPoseLocalTransform();
+    const ezTransform mJointTransform = scene->m_Skeleton.GetJointByIndex(b).GetBindPoseLocalTransform();
 
-    allBones[b] = EZ_DEFAULT_NEW(ezEditableSkeletonBone);
-    allBones[b]->m_sName = scene->m_pSkeleton->GetBone(b).GetName();
-    allBones[b]->m_Transform.SetFromMat4(mBoneTransform);
-    allBones[b]->m_Transform.m_vScale.Set(1.0f);
+    allJoints[b] = EZ_DEFAULT_NEW(ezEditableSkeletonJoint);
+    allJoints[b]->m_sName = scene->m_Skeleton.GetJointByIndex(b).GetName();
+    allJoints[b]->m_Transform = mJointTransform;
+    allJoints[b]->m_Transform.m_vScale.Set(1.0f);
 
-    allBones[b]->m_fLength = 0.1f;
-    allBones[b]->m_fThickness = 0.01f;
-    allBones[b]->m_fWidth = 0.01f;
-    allBones[b]->m_Geometry = ezSkeletonBoneGeometryType::None;
+    allJoints[b]->m_fLength = 0.1f;
+    allJoints[b]->m_fThickness = 0.01f;
+    allJoints[b]->m_fWidth = 0.01f;
+    allJoints[b]->m_Geometry = ezSkeletonJointGeometryType::None;
 
-    if (boneNames.Contains(allBones[b]->m_sName))
+    if (jointNames.Contains(allJoints[b]->m_sName))
     {
-      tmp = allBones[b]->m_sName.GetData();
-      tmp.AppendFormat("_bone{0}", b);
-      allBones[b]->m_sName.Assign(tmp.GetData());
+      tmp = allJoints[b]->m_sName.GetData();
+      tmp.AppendFormat("_joint{0}", b);
+      allJoints[b]->m_sName.Assign(tmp.GetData());
     }
 
-    boneNames.Insert(allBones[b]->m_sName.GetString());
+    jointNames.Insert(allJoints[b]->m_sName.GetString());
 
-    if (scene->m_pSkeleton->GetBone(b).IsRootBone())
+    if (scene->m_Skeleton.GetJointByIndex(b).IsRootJoint())
     {
-      allBones[b]->m_Transform.m_vPosition = mTransformation * allBones[b]->m_Transform.m_vPosition;
-      allBones[b]->m_Transform.m_qRotation.SetFromMat3(mTransformRotations * allBones[b]->m_Transform.m_qRotation.GetAsMat3());
+      allJoints[b]->m_Transform.m_vPosition = mTransformation * allJoints[b]->m_Transform.m_vPosition;
+      allJoints[b]->m_Transform.m_qRotation.SetFromMat3(mTransformRotations * allJoints[b]->m_Transform.m_qRotation.GetAsMat3());
 
-      pNewSkeleton->m_Children.PushBack(allBones[b]);
+      pNewSkeleton->m_Children.PushBack(allJoints[b]);
     }
     else
     {
-      allBones[b]->m_Transform.m_vPosition = fScale * allBones[b]->m_Transform.m_vPosition;
+      allJoints[b]->m_Transform.m_vPosition = fScale * allJoints[b]->m_Transform.m_vPosition;
 
-      ezUInt32 parentIdx = scene->m_pSkeleton->GetBone(b).GetParentIndex();
-      EZ_ASSERT_DEBUG(parentIdx < b, "Invalid parent bone index");
-      allBones[parentIdx]->m_Children.PushBack(allBones[b]);
+      ezUInt32 parentIdx = scene->m_Skeleton.GetJointByIndex(b).GetParentIndex();
+      EZ_ASSERT_DEBUG(parentIdx < b, "Invalid parent joint index");
+      allJoints[parentIdx]->m_Children.PushBack(allJoints[b]);
     }
   }
 
@@ -143,52 +143,52 @@ ezStatus ezSkeletonAssetDocument::InternalCreateThumbnail(const ezAssetFileHeade
 void ezSkeletonAssetDocument::MergeWithNewSkeleton(ezEditableSkeleton* pNewSkeleton)
 {
   ezEditableSkeleton* pOldSkeleton = GetProperties();
-  ezMap<ezString, const ezEditableSkeletonBone*> prevBones;
+  ezMap<ezString, const ezEditableSkeletonJoint*> prevJoints;
 
-  // map all old bones by name
+  // map all old joints by name
   {
-    auto TraverseBones = [&prevBones](const auto& self, ezEditableSkeletonBone* pBone) -> void {
-      prevBones[pBone->GetName()] = pBone;
+    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint) -> void {
+      prevJoints[pJoint->GetName()] = pJoint;
 
-      for (ezEditableSkeletonBone* pChild : pBone->m_Children)
+      for (ezEditableSkeletonJoint* pChild : pJoint->m_Children)
       {
         self(self, pChild);
       }
     };
 
-    for (ezEditableSkeletonBone* pChild : pOldSkeleton->m_Children)
+    for (ezEditableSkeletonJoint* pChild : pOldSkeleton->m_Children)
     {
-      TraverseBones(TraverseBones, pChild);
+      TraverseJoints(TraverseJoints, pChild);
     }
   }
 
   // copy old properties to new skeleton
   {
-    auto TraverseBones = [&prevBones](const auto& self, ezEditableSkeletonBone* pBone) -> void {
-      auto it = prevBones.Find(pBone->GetName());
+    auto TraverseJoints = [&prevJoints](const auto& self, ezEditableSkeletonJoint* pJoint) -> void {
+      auto it = prevJoints.Find(pJoint->GetName());
       if (it.IsValid())
       {
-        pBone->CopyPropertiesFrom(it.Value());
+        pJoint->CopyPropertiesFrom(it.Value());
       }
 
-      for (ezEditableSkeletonBone* pChild : pBone->m_Children)
+      for (ezEditableSkeletonJoint* pChild : pJoint->m_Children)
       {
         self(self, pChild);
       }
     };
 
-    for (ezEditableSkeletonBone* pChild : pNewSkeleton->m_Children)
+    for (ezEditableSkeletonJoint* pChild : pNewSkeleton->m_Children)
     {
-      TraverseBones(TraverseBones, pChild);
+      TraverseJoints(TraverseJoints, pChild);
     }
   }
 
-  // get rid of all old bones
-  pOldSkeleton->ClearBones();
+  // get rid of all old joints
+  pOldSkeleton->ClearJoints();
 
-  // move the new top level bones over to our own skeleton
+  // move the new top level joints over to our own skeleton
   pOldSkeleton->m_Children = pNewSkeleton->m_Children;
-  pNewSkeleton->m_Children.Clear(); // prevent this skeleton from deallocating the bones
+  pNewSkeleton->m_Children.Clear(); // prevent this skeleton from deallocating the joints
 
   // there is no use for the new skeleton anymore
   EZ_DEFAULT_DELETE(pNewSkeleton);

@@ -2,7 +2,7 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{15059976418518498725,5333359890765228061}}
+	Uuid %id{u4{7563435853137042842,5664183346502166568}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
 	s %n{"Header"}
@@ -13,14 +13,11 @@ o
 		{
 			s{"Models/Skeleton/skeleton_animated.FBX"}
 		}
-		Uuid %DocumentID{u4{15059976418518498725,5333359890765228061}}
-		u4 %Hash{7586371082111939759}
+		Uuid %DocumentID{u4{7563435853137042842,5664183346502166568}}
+		u4 %Hash{10144526531696136637}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
-		VarArray %References
-		{
-			s{"{ f87fc8d2-ec5e-480a-a329-2a88a5c4607a }"}
-		}
+		VarArray %References{}
 	}
 }
 }
@@ -28,7 +25,7 @@ Objects
 {
 o
 {
-	Uuid %id{u4{17250337323998780604,5056869461016807676}}
+	Uuid %id{u4{7724895867362924689,5104414882580023840}}
 	s %t{"ezAnimationClipAssetProperties"}
 	u3 %v{1}
 	p
@@ -36,7 +33,6 @@ o
 		s %File{"Models/Skeleton/skeleton_animated.FBX"}
 		u3 %FirstFrame{0}
 		u3 %LastFrame{4294967295}
-		s %Skeleton{"{ f87fc8d2-ec5e-480a-a329-2a88a5c4607a }"}
 	}
 }
 o
@@ -49,7 +45,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{17250337323998780604,5056869461016807676}}
+			Uuid{u4{7724895867362924689,5104414882580023840}}
 		}
 	}
 }
@@ -88,7 +84,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezAnimationClipAssetProperties"}
-		u3 %TypeSize{144}
+		u3 %TypeSize{80}
 		u3 %TypeVersion{1}
 	}
 }

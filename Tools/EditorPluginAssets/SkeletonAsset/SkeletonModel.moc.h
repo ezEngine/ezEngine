@@ -6,12 +6,12 @@
 
 class ezSkeletonAssetDocument;
 
-class ezQtBoneAdapter : public ezQtNamedAdapter
+class ezQtJointAdapter : public ezQtNamedAdapter
 {
   Q_OBJECT;
 public:
-  ezQtBoneAdapter(const ezSkeletonAssetDocument* pDocument);
-  ~ezQtBoneAdapter();
+  ezQtJointAdapter(const ezSkeletonAssetDocument* pDocument);
+  ~ezQtJointAdapter();
   virtual QVariant data(const ezDocumentObject* pObject, int column, int role) const override;
 
 private:

@@ -65,7 +65,7 @@ namespace ezModelImporter
     ObjectHandle AddMesh(ezUniquePtr<Mesh> mesh);
     MaterialHandle AddMaterial(ezUniquePtr<Material> material);
 
-    ezUniquePtr<ezSkeleton> m_pSkeleton;
+    ezSkeleton m_Skeleton;
     ezDeque<AnimationClip> m_AnimationClips;
 
     /// Adds all objects without a parent to the list of root objects.

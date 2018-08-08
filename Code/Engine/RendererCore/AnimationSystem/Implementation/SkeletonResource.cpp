@@ -85,7 +85,7 @@ void ezSkeletonResourceDescriptor::Save(ezStreamWriter& stream) const
   {
     const auto& geo = m_Geometry[i];
 
-    stream << geo.m_uiAttachedToBone;
+    stream << geo.m_uiAttachedToJoint;
     stream << geo.m_Type;
     stream << geo.m_Transform;
   }
@@ -110,7 +110,7 @@ void ezSkeletonResourceDescriptor::Load(ezStreamReader& stream)
   {
     auto& geo = m_Geometry.ExpandAndGetRef();
 
-    stream >> geo.m_uiAttachedToBone;
+    stream >> geo.m_uiAttachedToJoint;
     stream >> geo.m_Type;
     stream >> geo.m_Transform;
   }

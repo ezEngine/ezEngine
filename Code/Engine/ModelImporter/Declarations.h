@@ -76,10 +76,10 @@ namespace ezModelImporter
 
   EZ_DECLARE_FLAGS_OPERATORS(ImportFlags);
 
-  struct EZ_MODELIMPORTER_DLL BoneAnimation
+  struct EZ_MODELIMPORTER_DLL JointAnimation
   {
-    ezString m_sBoneName;
-    ezDynamicArray<ezMat4> m_Keyframes;
+    ezString m_sJointName;
+    ezDynamicArray<ezTransform> m_Keyframes;
   };
 
   struct EZ_MODELIMPORTER_DLL AnimationClip
@@ -88,6 +88,6 @@ namespace ezModelImporter
     ezUInt32 m_uiFramesPerSecond = 0;
     ezUInt32 m_uiNumKeyframes = 0;
 
-    ezDynamicArray<BoneAnimation> m_BoneAnimations;
+    ezDynamicArray<JointAnimation> m_JointAnimations;
   };
 }

@@ -70,19 +70,19 @@ void ezAnimationClipResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezAnimationClipResource) + static_cast<ezUInt32>(m_Descriptor.GetHeapMemoryUsage());
 }
 
-void ezAnimationClipResourceDescriptor::Configure(ezUInt16 uiNumBones, ezUInt16 uiNumFrames, ezUInt8 uiFramesPerSecond)
+void ezAnimationClipResourceDescriptor::Configure(ezUInt16 uiNumJoints, ezUInt16 uiNumFrames, ezUInt8 uiFramesPerSecond)
 {
   EZ_ASSERT_DEV(uiNumFrames > 0, "Invalid number of animation frames");
-  EZ_ASSERT_DEV(uiNumBones > 0, "Invalid number of animation bones");
+  EZ_ASSERT_DEV(uiNumJoints > 0, "Invalid number of animation joints");
   EZ_ASSERT_DEV(uiFramesPerSecond > 0, "Invalid number of animation fps");
 
-  m_uiNumBones = uiNumBones;
+  m_uiNumJoints = uiNumJoints;
   m_uiNumFrames = uiNumFrames;
   m_uiFramesPerSecond = uiFramesPerSecond;
 
   m_Duration = ezTime::Seconds((double)m_uiNumFrames / (double)m_uiFramesPerSecond);
 
-  m_BoneTransforms.SetCount(m_uiNumBones * m_uiNumFrames);
+  m_JointTransforms.SetCount(m_uiNumJoints * m_uiNumFrames);
 }
 
 ezUInt16 ezAnimationClipResourceDescriptor::GetFrameAt(ezTime time, double& out_fLerpToNext) const
@@ -101,16 +101,16 @@ ezUInt16 ezAnimationClipResourceDescriptor::GetFrameAt(ezTime time, double& out_
   return uiLowerFrame;
 }
 
-ezUInt16 ezAnimationClipResourceDescriptor::AddBoneName(const ezHashedString& sBoneName)
+ezUInt16 ezAnimationClipResourceDescriptor::AddJointName(const ezHashedString& sJointName)
 {
-  const ezUInt16 uiBoneIdx = m_NameToFirstKeyframe.GetCount();
-  m_NameToFirstKeyframe.Insert(sBoneName, uiBoneIdx);
-  return uiBoneIdx;
+  const ezUInt16 uiJointIdx = m_NameToFirstKeyframe.GetCount();
+  m_NameToFirstKeyframe.Insert(sJointName, uiJointIdx);
+  return uiJointIdx;
 }
 
-ezUInt16 ezAnimationClipResourceDescriptor::FindBoneIndexByName(const ezTempHashedString& sBoneName) const
+ezUInt16 ezAnimationClipResourceDescriptor::FindJointIndexByName(const ezTempHashedString& sJointName) const
 {
-  const ezUInt32 uiIndex = m_NameToFirstKeyframe.Find(sBoneName);
+  const ezUInt32 uiIndex = m_NameToFirstKeyframe.Find(sJointName);
 
   if (uiIndex == ezInvalidIndex)
     return 0xFFFF;
@@ -118,14 +118,14 @@ ezUInt16 ezAnimationClipResourceDescriptor::FindBoneIndexByName(const ezTempHash
   return m_NameToFirstKeyframe.GetValue(uiIndex);
 }
 
-const ezMat4* ezAnimationClipResourceDescriptor::GetBoneKeyframes(ezUInt16 uiBone) const
+const ezTransform* ezAnimationClipResourceDescriptor::GetJointKeyframes(ezUInt16 uiJoint) const
 {
-  return &m_BoneTransforms[uiBone * m_uiNumFrames];
+  return &m_JointTransforms[uiJoint * m_uiNumFrames];
 }
 
-ezMat4* ezAnimationClipResourceDescriptor::GetBoneKeyframes(ezUInt16 uiBone)
+ezTransform* ezAnimationClipResourceDescriptor::GetJointKeyframes(ezUInt16 uiJoint)
 {
-  return &m_BoneTransforms[uiBone * m_uiNumFrames];
+  return &m_JointTransforms[uiJoint * m_uiNumFrames];
 }
 
 void ezAnimationClipResourceDescriptor::Save(ezStreamWriter& stream) const
@@ -133,18 +133,18 @@ void ezAnimationClipResourceDescriptor::Save(ezStreamWriter& stream) const
   const ezUInt8 uiVersion = 2;
   stream << uiVersion;
 
-  stream << m_uiNumBones;
+  stream << m_uiNumJoints;
   stream << m_uiNumFrames;
   stream << m_uiFramesPerSecond;
 
-  stream << m_BoneTransforms;
+  stream << m_JointTransforms;
 
   // version 2
   {
     m_NameToFirstKeyframe.Sort();
-    const ezUInt32 uiBoneCount = m_NameToFirstKeyframe.GetCount();
-    stream << uiBoneCount;
-    for (ezUInt32 b = 0; b < uiBoneCount; ++b)
+    const ezUInt32 uiJointCount = m_NameToFirstKeyframe.GetCount();
+    stream << uiJointCount;
+    for (ezUInt32 b = 0; b < uiJointCount; ++b)
     {
       stream << m_NameToFirstKeyframe.GetKey(b);
       stream << m_NameToFirstKeyframe.GetValue(b);
@@ -157,11 +157,11 @@ void ezAnimationClipResourceDescriptor::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
 
-  stream >> m_uiNumBones;
+  stream >> m_uiNumJoints;
   stream >> m_uiNumFrames;
   stream >> m_uiFramesPerSecond;
 
-  stream >> m_BoneTransforms;
+  stream >> m_JointTransforms;
 
   m_Duration = ezTime::Seconds((double)m_uiNumFrames / (double)m_uiFramesPerSecond);
 
@@ -169,10 +169,10 @@ void ezAnimationClipResourceDescriptor::Load(ezStreamReader& stream)
   if (uiVersion >= 2)
   {
     m_NameToFirstKeyframe.Clear();
-    ezUInt32 uiBoneCount = 0;
-    stream >> uiBoneCount;
+    ezUInt32 uiJointCount = 0;
+    stream >> uiJointCount;
 
-    for (ezUInt32 b = 0; b < uiBoneCount; ++b)
+    for (ezUInt32 b = 0; b < uiJointCount; ++b)
     {
       ezHashedString hs;
       ezUInt32 idx;
@@ -191,7 +191,7 @@ void ezAnimationClipResourceDescriptor::Load(ezStreamReader& stream)
 
 ezUInt64 ezAnimationClipResourceDescriptor::GetHeapMemoryUsage() const
 {
-  return m_BoneTransforms.GetHeapMemoryUsage();
+  return m_JointTransforms.GetHeapMemoryUsage();
 }
 
 ezTime ezAnimationClipResourceDescriptor::GetDuration() const

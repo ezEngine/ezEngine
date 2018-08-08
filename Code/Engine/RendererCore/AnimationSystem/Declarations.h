@@ -4,9 +4,9 @@
 
 class ezSkeleton;
 struct ezSkeletonResourceDescriptor;
-class ezEditableSkeletonBone;
+class ezEditableSkeletonJoint;
 
-struct ezSkeletonBoneGeometryType
+struct ezSkeletonJointGeometryType
 {
   typedef ezUInt8 StorageType;
 

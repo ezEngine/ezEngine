@@ -1,25 +1,23 @@
 #include <PCH.h>
-#include <EditorPluginAssets/SkeletonAsset/SkeletonModel.moc.h>
+
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
+#include <EditorPluginAssets/SkeletonAsset/SkeletonModel.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QIcon>
 
-
-ezQtBoneAdapter::ezQtBoneAdapter(const ezSkeletonAssetDocument* pDocument)
-  : ezQtNamedAdapter(pDocument->GetObjectManager(), ezGetStaticRTTI<ezEditableSkeletonBone>(), "Children", "Name")
-  , m_pDocument(pDocument)
+ezQtJointAdapter::ezQtJointAdapter(const ezSkeletonAssetDocument* pDocument)
+    : ezQtNamedAdapter(pDocument->GetObjectManager(), ezGetStaticRTTI<ezEditableSkeletonJoint>(), "Children", "Name")
+    , m_pDocument(pDocument)
 {
 }
 
-ezQtBoneAdapter::~ezQtBoneAdapter()
-{
-}
+ezQtJointAdapter::~ezQtJointAdapter() {}
 
-QVariant ezQtBoneAdapter::data(const ezDocumentObject* pObject, int column, int role) const
+QVariant ezQtJointAdapter::data(const ezDocumentObject* pObject, int column, int role) const
 {
   switch (role)
   {
-  case Qt::DecorationRole:
+    case Qt::DecorationRole:
     {
       QIcon icon = ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorPluginAssets/CurveY.png"); // Giv ICon Plez!
       return icon;

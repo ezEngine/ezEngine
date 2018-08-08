@@ -33,7 +33,7 @@ ezQtSkeletonPanel::ezQtSkeletonPanel(QWidget* pParent, ezSkeletonAssetDocument* 
   std::unique_ptr<ezQtDocumentTreeModel> pModel(new ezQtDocumentTreeModel(pDocument->GetObjectManager()));
   pModel->AddAdapter(new ezQtDummyAdapter(pDocument->GetObjectManager(), ezGetStaticRTTI<ezDocumentRoot>(), "Children"));
   pModel->AddAdapter(new ezQtDummyAdapter(pDocument->GetObjectManager(), ezGetStaticRTTI<ezEditableSkeleton>(), "Children"));
-  pModel->AddAdapter(new ezQtBoneAdapter(pDocument));
+  pModel->AddAdapter(new ezQtJointAdapter(pDocument));
 
   m_pTreeWidget = new ezQtDocumentTreeView(this, pDocument, std::move(pModel));
   m_pTreeWidget->SetAllowDragDrop(true);

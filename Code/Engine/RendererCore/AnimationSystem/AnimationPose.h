@@ -1,65 +1,75 @@
 #pragma once
 
+#include <RendererCore/Basics.h>
+
 #include <Foundation/Containers/Bitfield.h>
 #include <Foundation/Containers/DynamicArray.h>
-#include <Foundation/Math/Mat4.h>
-#include <RendererCore/Basics.h>
+#include <Foundation/Math/Transform.h>
 
 class ezSkeleton;
 
-/// \brief The animation pose encapsulates the final transform matrices for each bone in a given skeleton.
-/// For each bone there is also a bit flag indicating whether the transform is valid or not. An IK system for example may only
-/// generate a couple of valid transforms and will ignore all other bones which are not influenced by the IK system.
+/// \brief The animation pose encapsulates the final transform matrices for each joint in a given skeleton.
+/// For each joint there is also a bit flag indicating whether the transform is valid or not. An IK system for example may only
+/// generate a couple of valid transforms and will ignore all other joints which are not influenced by the IK system.
 class EZ_RENDERERCORE_DLL ezAnimationPose
 {
 public:
-  inline const ezMat4& GetBoneTransform(ezUInt32 uiBoneIndex) const;
-  inline ezArrayPtr<const ezMat4> GetAllBoneTransforms() const;
-  inline bool IsBoneTransformValid(ezUInt32 uiBoneIndex) const;
+  ezAnimationPose();
+  ~ezAnimationPose();
 
-  /// \brief Sets the bone transform (final transform!) for the given bone index.
-  /// This will also by default set the bit flag indicating that the bone transform is valid.
-  inline void SetBoneTransform(ezUInt32 uiBoneIndex, const ezMat4& BoneTransform);
+  void Configure(const ezSkeleton& skeleton);
 
-  /// \brief Sets the valid flag for a given bone index manually.
-  /// Note that SetBoneTransform will set the validity flag to true when setting a transform automatically.
-  inline void SetBoneTransformValid(ezUInt32 uiBoneIndex, bool bTransformValid);
+  /// \brief Sets all transforms to the local bind pose of the skeleton.
+  /// This is typically used to initialize a skeleton to a default start state.
+  void SetToBindPose(const ezSkeleton& skeleton);
 
-  /// \brief Helper to set the valid flags of all bone transforms to a single value.
-  inline void SetValidityOfAllBoneTransforms(bool bTransformsValid);
+  /// \brief Converts the pose from a collection of local transforms to a usable object space transform collection.
+  /// This modifies the transforms in place. This is typically the very last modification on a pose before it is sent to the renderer for skinning.
+  void CalculateObjectSpaceTransforms(const ezSkeleton& skeleton);
 
-  /// \brief Returns the number of bone transforms in the pose.
-  inline ezUInt32 GetBoneTransformCount() const;
+  const ezMat4& GetTransform(ezUInt32 uiIndex) const { return m_Transforms[uiIndex]; }
 
-  /// \brief Helper to skin a position with a single bone (rigid skinning)
+  ezArrayPtr<const ezMat4> GetAllTransforms() const { return m_Transforms.GetArrayPtr(); }
+  bool IsTransformValid(ezUInt32 uiIndex) const { return m_TransformsValid.IsSet(uiIndex); }
+
+  /// \brief Sets the transform for the given index.
+  /// This will also set the flag indicating that the transform is valid.
+  void SetTransform(ezUInt32 uiIndex, const ezMat4& transform);
+
+  /// \brief Sets the valid flag for a given transform manually.
+  void SetTransformValid(ezUInt32 uiIndex, bool bValid);
+
+  /// \brief Helper to set the valid flag of all transforms to a single value.
+  void SetValidityOfAllTransforms(bool bValid);
+
+  /// \brief Returns the number of transforms in the pose.
+  ezUInt32 GetTransformCount() const { return m_Transforms.GetCount(); }
+
+  /// \brief Helper to skin a position with a single joint (rigid skinning)
   /// Note that this shouldn't be used for "real" skinning - this is just for anchors etc. so they are available
   /// on the CPU side of things.
-  ezVec3 SkinPositionWithSingleBone(const ezVec3& Position, ezUInt32 uiBoneIndex) const;
+  ezVec3 SkinPositionWithSingleJoint(const ezVec3& Position, ezUInt32 uiIndex) const;
 
-  /// \brief Helper to skin a position with four bones (four indices + four weights)
+  /// \brief Helper to skin a position with four joints (four indices + four weights)
   /// Note that this shouldn't be used for "real" skinning - this is just for anchors etc. so they are available
   /// on the CPU side of things.
-  ezVec3 SkinPositionWithFourBones(const ezVec3& Position, const ezVec4U32& BoneIndices, const ezVec4& BoneWeights) const;
+  ezVec3 SkinPositionWithFourJoints(const ezVec3& Position, const ezVec4U32& indices, const ezVec4& weights) const;
 
-  /// \brief Helper to skin a direction with a single bone (rigid skinning)
+  /// \brief Helper to skin a direction with a single joint (rigid skinning)
   /// Note that this shouldn't be used for "real" skinning - this is just for anchors etc. so they are available
   /// on the CPU side of things.
-  ezVec3 SkinDirectionWithSingleBone(const ezVec3& Direction, ezUInt32 uiBoneIndex) const;
+  ezVec3 SkinDirectionWithSingleJoint(const ezVec3& Direction, ezUInt32 uiIndex) const;
 
-  /// \brief Helper to skin a direction with four bones (four indices + four weights)
+  /// \brief Helper to skin a direction with four joints (four indices + four weights)
   /// Note that this shouldn't be used for "real" skinning - this is just for anchors etc. so they are available
   /// on the CPU side of things.
-  ezVec3 SkinDirectionWithFourBones(const ezVec3& Direction, const ezVec4U32& BoneIndices, const ezVec4& BoneWeights) const;
+  ezVec3 SkinDirectionWithFourJoints(const ezVec3& Direction, const ezVec4U32& indices, const ezVec4& weights) const;
 
-protected:
-  friend ezSkeleton;
+private:
+  // TODO: would be nicer to use ezTransform or ezShaderTransform for this data
 
-  // Animation poses belong to specific skeletons, thus only the skeleton can provide new pose objects.
-  ezAnimationPose(const ezSkeleton* skeleton);
-
-  // used an aligned allocator to make sure this can be uploaded to the GPU
-  ezDynamicArray<ezMat4, ezAlignedAllocatorWrapper> m_BoneTransforms;
-  ezDynamicBitfield m_BoneTransformsValid;
+  // use an aligned allocator to make sure this can be uploaded to the GPU
+  ezDynamicArray<ezMat4, ezAlignedAllocatorWrapper> m_Transforms;
+  ezDynamicBitfield m_TransformsValid;
 };
 
-#include <RendererCore/AnimationSystem/Implementation/AnimationPose_inl.h>

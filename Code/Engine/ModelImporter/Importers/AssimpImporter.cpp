@@ -19,12 +19,11 @@
 
 namespace ezModelImporter
 {
-  struct BoneInfo
+  struct JointInfo
   {
-    ezString m_sBoneName;
-    ezUInt32 m_uiParentBoneIndex = 0xFFFFFFFF;
-    ezMat4 m_MeshOffset;
-    bool m_bMeshOffsetIsValid = false;
+    ezString m_sJointName;
+    ezUInt32 m_uiParentJointIndex = 0xFFFFFFFF;
+    ezTransform m_MeshOffset;
   };
 
   AssimpImporter::AssimpImporter()
@@ -176,7 +175,7 @@ namespace ezModelImporter
   }
 
   void ImportMeshes(ezArrayPtr<aiMesh*> assimpMeshes, const ezDynamicArray<MaterialHandle>& materialHandles, const char* szFileName,
-                    Scene& outScene, ezDynamicArray<ObjectHandle>& outMeshHandles, ezDynamicArray<BoneInfo>& inout_allMeshBones)
+                    Scene& outScene, ezDynamicArray<ObjectHandle>& outMeshHandles, ezDynamicArray<JointInfo>& inout_allMeshJoints)
   {
     outMeshHandles.Reserve(assimpMeshes.GetCount());
 
@@ -247,69 +246,68 @@ namespace ezModelImporter
         vertexDataStreams.PushBack(texcoords);
       }
 
-      // only import bone weights, when the mesh has a skeleton
-      if (assimpMesh->HasBones() && !inout_allMeshBones.IsEmpty())
+      // only import joint weights, when the mesh has a skeleton
+      if (assimpMesh->HasBones() && !inout_allMeshJoints.IsEmpty())
       {
-        VertexDataStream* boneWeightStream = nullptr;
-        boneWeightStream = mesh->AddDataStream(ezGALVertexAttributeSemantic::BoneWeights0, 4, VertexElementType::FLOAT);
-        vertexDataStreams.PushBack(boneWeightStream);
+        VertexDataStream* jointWeightStream = nullptr;
+        jointWeightStream = mesh->AddDataStream(ezGALVertexAttributeSemantic::BoneWeights0, 4, VertexElementType::FLOAT);
+        vertexDataStreams.PushBack(jointWeightStream);
 
-        VertexDataStream* boneIndicesStream = nullptr;
-        boneIndicesStream = mesh->AddDataStream(ezGALVertexAttributeSemantic::BoneIndices0, 4, VertexElementType::UINT32);
-        vertexDataStreams.PushBack(boneIndicesStream);
+        VertexDataStream* jointIndicesStream = nullptr;
+        jointIndicesStream = mesh->AddDataStream(ezGALVertexAttributeSemantic::BoneIndices0, 4, VertexElementType::UINT32);
+        vertexDataStreams.PushBack(jointIndicesStream);
 
-        ezDynamicArray<ezVec4> boneWeightData;
-        ezDynamicArray<ezVec4U32> boneIndexData;
-        ezDynamicArray<ezUInt8> boneInfluenceCount;
+        ezDynamicArray<ezVec4> jointWeightData;
+        ezDynamicArray<ezVec4U32> jointIndexData;
+        ezDynamicArray<ezUInt8> jointInfluenceCount;
 
-        boneInfluenceCount.SetCountUninitialized(assimpMesh->mNumVertices);
-        boneWeightData.SetCountUninitialized(assimpMesh->mNumVertices);
-        boneIndexData.SetCountUninitialized(assimpMesh->mNumVertices);
+        jointInfluenceCount.SetCountUninitialized(assimpMesh->mNumVertices);
+        jointWeightData.SetCountUninitialized(assimpMesh->mNumVertices);
+        jointIndexData.SetCountUninitialized(assimpMesh->mNumVertices);
 
         // init all with zero
         for (ezUInt32 i = 0; i < assimpMesh->mNumVertices; ++i)
         {
-          boneInfluenceCount[i] = 0;
-          boneWeightData[i].SetZero();
-          boneIndexData[i].SetZero();
+          jointInfluenceCount[i] = 0;
+          jointWeightData[i].SetZero();
+          jointIndexData[i].SetZero();
         }
 
-        for (ezUInt32 bone = 0; bone < assimpMesh->mNumBones; ++bone)
+        for (ezUInt32 joint = 0; joint < assimpMesh->mNumBones; ++joint)
         {
-          const auto* pBone = assimpMesh->mBones[bone];
-          const ezUInt32 numWeights = pBone->mNumWeights;
-          ezUInt32 uiBoneIndex = 0;
+          const auto* pJoint = assimpMesh->mBones[joint];
+          const ezUInt32 numWeights = pJoint->mNumWeights;
+          ezUInt32 uiJointIndex = 0;
 
-          // map this bone to the global skeleton index
+          // map this joint to the global skeleton index
           {
-            for (uiBoneIndex = 0; uiBoneIndex < inout_allMeshBones.GetCount(); ++uiBoneIndex)
+            for (uiJointIndex = 0; uiJointIndex < inout_allMeshJoints.GetCount(); ++uiJointIndex)
             {
-              if (inout_allMeshBones[uiBoneIndex].m_sBoneName == pBone->mName.C_Str())
+              if (inout_allMeshJoints[uiJointIndex].m_sJointName == pJoint->mName.C_Str())
                 break;
             }
 
-            EZ_ASSERT_DEBUG(uiBoneIndex < inout_allMeshBones.GetCount(), "Bone not found");
-            inout_allMeshBones[uiBoneIndex].m_MeshOffset = ConvertAssimpType(pBone->mOffsetMatrix);
-            inout_allMeshBones[uiBoneIndex].m_bMeshOffsetIsValid = true;
+            EZ_ASSERT_DEBUG(uiJointIndex < inout_allMeshJoints.GetCount(), "Joint not found");
+            inout_allMeshJoints[uiJointIndex].m_MeshOffset.SetFromMat4(ConvertAssimpType(pJoint->mOffsetMatrix));
           }
 
           for (ezUInt32 w = 0; w < numWeights; ++w)
           {
-            const auto& wgt = pBone->mWeights[w];
+            const auto& wgt = pJoint->mWeights[w];
             const ezUInt32 vtxIdx = wgt.mVertexId;
-            const ezUInt32 influence = boneInfluenceCount[vtxIdx]++;
+            const ezUInt32 influence = jointInfluenceCount[vtxIdx]++;
 
-            EZ_ASSERT_DEBUG(influence < 4, "Too many bone influences for a single vertex");
+            EZ_ASSERT_DEBUG(influence < 4, "Too many joint influences for a single vertex");
 
-            boneWeightData[vtxIdx].GetData()[influence] = wgt.mWeight;
-            boneIndexData[vtxIdx].GetData()[influence] = uiBoneIndex;
+            jointWeightData[vtxIdx].GetData()[influence] = wgt.mWeight;
+            jointIndexData[vtxIdx].GetData()[influence] = uiJointIndex;
           }
         }
 
-        boneWeightStream->AddValues(
-            ezArrayPtr<char>(reinterpret_cast<char*>(boneWeightData.GetData()), boneWeightData.GetCount() * 4 * sizeof(float)));
-        boneIndicesStream->AddValues(
-            ezArrayPtr<char>(reinterpret_cast<char*>(boneIndexData.GetData()), boneIndexData.GetCount() * 4 * sizeof(ezUInt32)));
+        jointWeightStream->AddValues(
+            ezArrayPtr<char>(reinterpret_cast<char*>(jointWeightData.GetData()), jointWeightData.GetCount() * 4 * sizeof(float)));
+        jointIndicesStream->AddValues(
+            ezArrayPtr<char>(reinterpret_cast<char*>(jointIndexData.GetData()), jointIndexData.GetCount() * 4 * sizeof(ezUInt32)));
       }
 
       // Triangles/Indices
@@ -429,46 +427,45 @@ namespace ezModelImporter
     }
   }
 
-  void ImportSkeletonRecursive(aiNode* assimpNode, ezDynamicArray<BoneInfo>& inout_allMeshBones, ezUInt32 uiParentBoneIdx)
+  void ImportSkeletonRecursive(aiNode* assimpNode, ezDynamicArray<JointInfo>& inout_allMeshJoints, ezUInt32 uiParentJointIdx)
   {
-    const ezUInt32 boneIdx = inout_allMeshBones.GetCount();
-    auto& boneInfo = inout_allMeshBones.ExpandAndGetRef();
+    const ezUInt32 jointIdx = inout_allMeshJoints.GetCount();
+    auto& jointInfo = inout_allMeshJoints.ExpandAndGetRef();
 
-    boneInfo.m_sBoneName = assimpNode->mName.C_Str();
-    boneInfo.m_MeshOffset.SetIdentity();
-    boneInfo.m_uiParentBoneIndex = uiParentBoneIdx;
+    jointInfo.m_sJointName = assimpNode->mName.C_Str();
+    jointInfo.m_MeshOffset.SetIdentity();
+    jointInfo.m_uiParentJointIndex = uiParentJointIdx;
 
     for (ezUInt32 c = 0; c < assimpNode->mNumChildren; ++c)
     {
-      ImportSkeletonRecursive(assimpNode->mChildren[c], inout_allMeshBones, boneIdx);
+      ImportSkeletonRecursive(assimpNode->mChildren[c], inout_allMeshJoints, jointIdx);
     }
   }
 
-  void ImportSkeleton(aiNode* assimpRootNode, ezDynamicArray<BoneInfo>& inout_allMeshBones)
+  void ImportSkeleton(aiNode* assimpRootNode, ezDynamicArray<JointInfo>& inout_allMeshJoints)
   {
-    ImportSkeletonRecursive(assimpRootNode, inout_allMeshBones, 0xFFFFFFFF);
+    ImportSkeletonRecursive(assimpRootNode, inout_allMeshJoints, 0xFFFFFFFF);
   }
 
-  void GenerateSkeleton(const ezDynamicArray<BoneInfo>& allMeshBones, Scene& outScene)
+  void GenerateSkeleton(const ezDynamicArray<JointInfo>& allMeshJoints, Scene& outScene)
   {
     ezSkeletonBuilder sb;
-    sb.SetSkinningMode(ezSkeleton::Mode::FourBones);
 
-    for (ezUInt32 boneIdx = 0; boneIdx < allMeshBones.GetCount(); ++boneIdx)
+    for (ezUInt32 jointIdx = 0; jointIdx < allMeshJoints.GetCount(); ++jointIdx)
     {
-      ezMat4 localTransform = allMeshBones[boneIdx].m_MeshOffset.GetInverse();
+      ezTransform localTransform = allMeshJoints[jointIdx].m_MeshOffset.GetInverse();
 
-      if (allMeshBones[boneIdx].m_uiParentBoneIndex != 0xFFFFFFFF)
+      if (allMeshJoints[jointIdx].m_uiParentJointIndex != 0xFFFFFFFF)
       {
-        const ezUInt32 uiParentBone = allMeshBones[boneIdx].m_uiParentBoneIndex;
+        const ezUInt32 uiParentJoint = allMeshJoints[jointIdx].m_uiParentJointIndex;
 
-        localTransform = allMeshBones[uiParentBone].m_MeshOffset * localTransform;
+        localTransform = allMeshJoints[uiParentJoint].m_MeshOffset * localTransform;
       }
 
-      sb.AddBone(allMeshBones[boneIdx].m_sBoneName, localTransform, allMeshBones[boneIdx].m_uiParentBoneIndex);
+      sb.AddJoint(allMeshJoints[jointIdx].m_sJointName, localTransform, allMeshJoints[jointIdx].m_uiParentJointIndex);
     }
 
-    outScene.m_pSkeleton = sb.CreateSkeletonInstance();
+    sb.BuildSkeleton(outScene.m_Skeleton);
   }
 
   void ImportAnimations(const aiScene* assimpScene, Scene& outScene)
@@ -485,35 +482,31 @@ namespace ezModelImporter
       animClip.m_uiFramesPerSecond = static_cast<ezUInt32>(pAnim->mTicksPerSecond);
       animClip.m_uiNumKeyframes = uiNumKeyframes;
 
-      animClip.m_BoneAnimations.SetCount(pAnim->mNumChannels);
+      animClip.m_JointAnimations.SetCount(pAnim->mNumChannels);
 
       for (ezUInt32 channelIdx = 0; channelIdx < pAnim->mNumChannels; ++channelIdx)
       {
         const auto& channel = pAnim->mChannels[channelIdx];
-        BoneAnimation& boneAnim = animClip.m_BoneAnimations[channelIdx];
+        JointAnimation& jointAnim = animClip.m_JointAnimations[channelIdx];
 
-        boneAnim.m_sBoneName = channel->mNodeName.C_Str();
-        boneAnim.m_Keyframes.SetCountUninitialized(uiNumKeyframes);
+        jointAnim.m_sJointName = channel->mNodeName.C_Str();
+        jointAnim.m_Keyframes.SetCountUninitialized(uiNumKeyframes);
 
         for (ezUInt32 keyframeIdx = 0; keyframeIdx < uiNumKeyframes; ++keyframeIdx)
         {
-          ezMat4 keyframeMat;
-          keyframeMat.SetIdentity();
+          ezTransform keyframe;
+          keyframe.SetIdentity();
 
           // indices could also depend on the animation state (loop, etc) but for now we just clamp
           const ezUInt32 uiPosFrame = ezMath::Min(keyframeIdx, channel->mNumPositionKeys - 1);
           const ezUInt32 uiRotFrame = ezMath::Min(keyframeIdx, channel->mNumRotationKeys - 1);
           const ezUInt32 uiScaFrame = ezMath::Min(keyframeIdx, channel->mNumScalingKeys - 1);
 
-          const ezVec3 keyPos = ConvertAssimpType(channel->mPositionKeys[uiPosFrame].mValue);
-          const ezQuat keyRot = ConvertAssimpType(channel->mRotationKeys[uiRotFrame].mValue);
-          const ezVec3 keySca = ConvertAssimpType(channel->mScalingKeys[uiScaFrame].mValue);
+          keyframe.m_vPosition = ConvertAssimpType(channel->mPositionKeys[uiPosFrame].mValue);
+          keyframe.m_qRotation = ConvertAssimpType(channel->mRotationKeys[uiRotFrame].mValue);
+          keyframe.m_vScale = ConvertAssimpType(channel->mScalingKeys[uiScaFrame].mValue);
 
-          keyframeMat.SetRotationalPart(keyRot.GetAsMat3());
-          keyframeMat.SetScalingFactors(keySca);
-          keyframeMat.SetTranslationVector(keyPos);
-
-          boneAnim.m_Keyframes[keyframeIdx] = keyframeMat;
+          jointAnim.m_Keyframes[keyframeIdx] = keyframe;
         }
       }
     }
@@ -559,10 +552,10 @@ namespace ezModelImporter
     ImportMaterials(ezArrayPtr<aiMaterial*>(assimpScene->mMaterials, assimpScene->mNumMaterials), *outScene, materialHandles);
 
     // Import skeleton
-    ezDynamicArray<BoneInfo> allMeshBones;
+    ezDynamicArray<JointInfo> allMeshJoints;
     if (importFlags.IsAnySet(ImportFlags::Skeleton))
     {
-      ImportSkeleton(assimpScene->mRootNode, allMeshBones);
+      ImportSkeleton(assimpScene->mRootNode, allMeshJoints);
     }
 
     // Import meshes.
@@ -570,12 +563,12 @@ namespace ezModelImporter
     if (importFlags.IsAnySet(ImportFlags::Skeleton | ImportFlags::Meshes))
     {
       ImportMeshes(ezArrayPtr<aiMesh*>(assimpScene->mMeshes, assimpScene->mNumMeshes), materialHandles, szFileName, *outScene, meshHandles,
-                   allMeshBones);
+                   allMeshJoints);
     }
 
     if (importFlags.IsAnySet(ImportFlags::Skeleton))
     {
-      GenerateSkeleton(allMeshBones, *outScene);
+      GenerateSkeleton(allMeshJoints, *outScene);
     }
 
     if (importFlags.IsSet(ImportFlags::Animations) && assimpScene->HasAnimations())

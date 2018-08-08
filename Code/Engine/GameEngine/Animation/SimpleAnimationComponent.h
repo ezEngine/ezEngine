@@ -52,7 +52,7 @@ protected:
   ezAnimationClipResourceHandle m_hAnimationClip;
   ezSkeletonResourceHandle m_hSkeleton;
 
-  ezUniquePtr<ezAnimationPose> m_pAnimationPose;
+  ezAnimationPose m_AnimationPose;
 
   ezTime m_AnimationTime;
 };

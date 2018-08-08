@@ -1,10 +1,11 @@
 #pragma once
 
+#include <RendererCore/Basics.h>
+
 #include <Foundation/Math/Mat3.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <RendererCore/Basics.h>
 
 class ezStreamWriter;
 class ezStreamReader;
@@ -12,93 +13,61 @@ class ezAnimationPose;
 class ezSkeletonBuilder;
 class ezSkeleton;
 
-// TODOs:
-// - decide if bone name should be hashed string
-
-/// \brief The skeleton class encapsulates the information about the bone structure for a model.
-class EZ_RENDERERCORE_DLL ezSkeleton : public ezReflectedClass
+/// \brief Describes a single joint.
+/// The transforms of the joints are in their local space and thus need to be correctly multiplied with their parent transforms to get the
+/// final transform.
+class EZ_RENDERERCORE_DLL ezSkeletonJoint
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezSkeleton, ezReflectedClass);
-
 public:
-  /// \brief Describes a single bone.
-  /// The transforms of the bones are in their local space and thus need to be correctly multiplied with their parent transforms to get the
-  /// final transform.
-  class EZ_RENDERERCORE_DLL Bone
-  {
-  public:
-    inline const ezMat4& GetBindPoseLocalTransform() const;
-    //inline const ezMat4& GetInverseBindPoseTransform() const;
-    inline ezUInt32 GetParentIndex() const;
-    inline bool IsRootBone() const;
-    inline const ezHashedString& GetName() const;
+  const ezTransform& GetBindPoseLocalTransform() const { return m_BindPoseLocal; }
+  const ezTransform& GetInverseBindPoseGlobalTransform() const { return m_InverseBindPoseGlobal; }
 
-  protected:
-    friend ezSkeletonBuilder;
-    friend ezSkeleton;
+  /// \brief Returns 0xFFFFFFFFu if no parent
+  ezUInt32 GetParentIndex() const { return m_uiParentIndex; }
 
-    ezMat4 m_BindPoseLocal;
-    ezMat4 m_BindPoseGlobal;
-    ezMat4 m_InverseBindPoseGlobal;
-    ezUInt32 m_uiParentIndex; // 0xFFFFFFFFu if no parent
+  bool IsRootJoint() const { return m_uiParentIndex == 0xFFFFFFFFu; }
+  const ezHashedString& GetName() const { return m_sName; }
 
-    ezHashedString m_sName;
-  };
+protected:
+  friend ezSkeleton;
+  friend ezSkeletonBuilder;
 
-  /// \brief The available skinning modes, says if a skeleton uses single or four bone skinning
-  enum class Mode
-  {
-    SingleBone,
-    FourBones
-  };
+  ezTransform m_BindPoseLocal;
+  ezTransform m_InverseBindPoseGlobal;
+  ezUInt32 m_uiParentIndex = 0xFFFFFFFFu;
+  ezHashedString m_sName;
+};
 
+/// \brief The skeleton class encapsulates the information about the joint structure for a model.
+class EZ_RENDERERCORE_DLL ezSkeleton
+{
+public:
   ezSkeleton();
-
-  ezSkeleton(const ezSkeleton& Other);
-
   ~ezSkeleton();
 
-  void operator=(const ezSkeleton& Other);
+  /// \brief Returns the number of joints in the skeleton.
+  ezUInt32 GetJointCount() const { return m_Joints.GetCount(); }
 
-  /// \brief Returns the number of bones in the skeleton.
-  ezUInt32 GetBoneCount() const;
+  /// \brief Returns the nth joint.
+  const ezSkeletonJoint& GetJointByIndex(ezUInt32 uiIndex) const { return m_Joints[uiIndex]; }
 
-  /// \brief Returns the bone given the bone index.
-  inline const Bone& GetBone(ezUInt32 uiBoneIndex) const;
+  /// \brief Allows to find a specific joint in the skeleton by name.
+  ezResult FindJointByName(const ezTempHashedString& sName, ezUInt32& out_uiIndex) const;
 
-  /// \brief Allows to find a specific bone in the skeleton by name, returns true if a bone is found, false otherwise.
-  bool FindBoneByName(const ezTempHashedString& sBoneName, ezUInt32& out_uiBoneIndex) const;
-
-  /// \brief Creates a new pose object with storage for all bone transforms of the skeleton.
-  ezUniquePtr<ezAnimationPose> CreatePose() const;
-
-  /// \brief Sets the animation pose to the bind pose of this skeleton.
-  void SetAnimationPoseToBindPose(ezAnimationPose* pPose) const;
-
-  /// \brief Converts the given animation pose from a collection of local transforms to a usable object space matrix collection.
-  void CalculateObjectSpaceAnimationPoseMatrices(ezAnimationPose* pPose) const;
-
-  /// \brief Checks if two skeletons are compatible (same bone count and hierarchy)
-  bool IsCompatibleWith(const ezSkeleton* pOtherSkeleton) const;
+  /// \brief Checks if two skeletons are compatible (same joint count and hierarchy)
+  bool IsCompatibleWith(const ezSkeleton& other) const;
 
   /// \brief Saves the skeleton in a given stream.
   void Save(ezStreamWriter& stream) const;
 
   /// \brief Loads the skeleton from the given stream.
-  ezResult Load(ezStreamReader& stream);
+  void Load(ezStreamReader& stream);
 
   /// \brief Applies a global transform to the skeleton (used by the importer to correct scale and up-axis)
-  //void ApplyGlobalTransform(const ezMat3& transform);
-
-  /// \brief Returns the skinning mode of the skeleton
-  Mode GetSkinningMode() const;
+  // void ApplyGlobalTransform(const ezMat3& transform);
 
 protected:
   friend ezSkeletonBuilder;
 
-  ezDynamicArray<Bone> m_Bones;
-
-  Mode m_eSkinningMode;
+  ezDynamicArray<ezSkeletonJoint> m_Joints;
 };
-
-#include <RendererCore/AnimationSystem/Implementation/Skeleton_inl.h>

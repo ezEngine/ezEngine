@@ -9,8 +9,8 @@ struct ezSkeletonResourceGeometry
 {
   // scale is used to resize a unit sphere / box / capsule
   ezTransform m_Transform;
-  ezUInt16 m_uiAttachedToBone = 0;
-  ezEnum<ezSkeletonBoneGeometryType> m_Type;
+  ezUInt16 m_uiAttachedToJoint = 0;
+  ezEnum<ezSkeletonJointGeometryType> m_Type;
 };
 
 struct EZ_RENDERERCORE_DLL ezSkeletonResourceDescriptor

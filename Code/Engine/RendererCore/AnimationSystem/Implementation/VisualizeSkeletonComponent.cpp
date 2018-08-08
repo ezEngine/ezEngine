@@ -116,14 +116,14 @@ ezMeshRenderData* ezVisualizeSkeletonComponent::CreateRenderData(ezUInt32 uiBatc
   return ezCreateRenderDataForThisFrame<ezMeshRenderData>(GetOwner(), uiBatchId);
 }
 
-static ezMat4 ComputeBoneMatrix(const ezSkeleton& skeleton, const ezSkeleton::Bone& bone)
+static ezTransform ComputeJointTransform(const ezSkeleton& skeleton, const ezSkeletonJoint& joint)
 {
-  if (bone.IsRootBone())
-    return bone.GetBindPoseLocalTransform();
+  if (joint.IsRootJoint())
+    return joint.GetBindPoseLocalTransform();
 
-  ezMat4 parentMat = ComputeBoneMatrix(skeleton, skeleton.GetBone(bone.GetParentIndex()));
+  const ezTransform parentMat = ComputeJointTransform(skeleton, skeleton.GetJointByIndex(joint.GetParentIndex()));
 
-  return parentMat * bone.GetBindPoseLocalTransform();
+  return parentMat * joint.GetBindPoseLocalTransform();
 }
 
 void ezVisualizeSkeletonComponent::CreateRenderMesh()
@@ -152,7 +152,7 @@ void ezVisualizeSkeletonComponent::CreateRenderMesh()
 
   const ezSkeleton* pSkeletonData = &pSkeleton->GetDescriptor().m_Skeleton;
 
-  if (pSkeletonData->GetBoneCount() == 0)
+  if (pSkeletonData->GetJointCount() == 0)
     return;
 
   ezMeshResourceDescriptor md;
@@ -169,7 +169,7 @@ void ezVisualizeSkeletonComponent::CreateRenderMesh()
     buffer.AddStream(ezGALVertexAttributeSemantic::BoneWeights0, ezGALResourceFormat::XYZWFloat);
     buffer.AddStream(ezGALVertexAttributeSemantic::BoneIndices0, ezGALResourceFormat::RGBAUShort);
 
-    // this will move the custom index into the first bone index
+    // this will move the custom index into the first joint index
     buffer.AllocateStreamsFromGeometry(geo);
 
     md.AddSubMesh(uiSubmeshTris1, 0, 0);
@@ -187,38 +187,36 @@ void ezVisualizeSkeletonComponent::CreateRenderMesh()
 
 void ezVisualizeSkeletonComponent::CreateSkeletonGeometry(const ezSkeleton* pSkeletonData, ezGeometry& geo)
 {
-  const ezUInt32 uiNumBones = pSkeletonData->GetBoneCount();
+  const ezUInt32 uiNumJoints = pSkeletonData->GetJointCount();
 
-  for (ezUInt32 b = 0; b < uiNumBones; ++b)
+  for (ezUInt32 b = 0; b < uiNumJoints; ++b)
   {
-    const auto& bone = pSkeletonData->GetBone(b);
+    const auto& joint = pSkeletonData->GetJointByIndex(b);
 
-    const ezMat4 mBone = ComputeBoneMatrix(*pSkeletonData, bone);
-    // const ezMat4 mBone = pPose->GetBoneTransform(b);
+    const ezTransform mJoint = ComputeJointTransform(*pSkeletonData, joint);
 
-    geo.AddSphere(0.03f, 10, 10, ezColor::RebeccaPurple, mBone, b);
+    geo.AddSphere(0.03f, 10, 10, ezColor::RebeccaPurple, mJoint.GetAsMat4(), b);
 
-    if (!bone.IsRootBone())
+    if (!joint.IsRootJoint())
     {
-      const ezMat4 mParentBone = ComputeBoneMatrix(*pSkeletonData, pSkeletonData->GetBone(bone.GetParentIndex()));
-      // const ezMat4 mParentBone = pPose->GetBoneTransform(bone.GetParentIndex());
+      const ezTransform mParentJoint = ComputeJointTransform(*pSkeletonData, pSkeletonData->GetJointByIndex(joint.GetParentIndex()));
 
-      const ezVec3 vTargetPos = mBone.GetTranslationVector();
-      const ezVec3 vSourcePos = mParentBone.GetTranslationVector();
+      const ezVec3 vTargetPos = mJoint.m_vPosition;
+      const ezVec3 vSourcePos = mParentJoint.m_vPosition;
 
-      ezVec3 vBoneDir = vTargetPos - vSourcePos;
-      const float fBoneLen = vBoneDir.GetLength();
+      ezVec3 vJointDir = vTargetPos - vSourcePos;
+      const float fJointLen = vJointDir.GetLength();
 
-      if (fBoneLen <= 0.0f)
+      if (fJointLen <= 0.0f)
         continue;
 
-      vBoneDir /= fBoneLen;
+      vJointDir /= fJointLen;
 
       ezMat4 mScale;
-      mScale.SetScalingMatrix(ezVec3(1, 1, fBoneLen));
+      mScale.SetScalingMatrix(ezVec3(1, 1, fJointLen));
 
       ezQuat qRot;
-      qRot.SetShortestRotation(ezVec3(0, 0, 1), vBoneDir);
+      qRot.SetShortestRotation(ezVec3(0, 0, 1), vJointDir);
 
       ezMat4 mTransform;
       mTransform = qRot.GetAsMat4() * mScale;
@@ -234,30 +232,31 @@ void ezVisualizeSkeletonComponent::CreateHitBoxGeometry(const ezSkeletonResource
   ezMat4 mRotCapsule;
   mRotCapsule.SetRotationMatrixY(ezAngle::Degree(90));
 
-  for (const auto& boneGeo : pDescriptor->m_Geometry)
+  for (const auto& jointGeo : pDescriptor->m_Geometry)
   {
-    const auto& bone = pDescriptor->m_Skeleton.GetBone(boneGeo.m_uiAttachedToBone);
+    const auto& joint = pDescriptor->m_Skeleton.GetJointByIndex(jointGeo.m_uiAttachedToJoint);
 
-    const ezMat4 boneTransform = ComputeBoneMatrix(pDescriptor->m_Skeleton, bone);
+    const ezTransform jointTransform = ComputeJointTransform(pDescriptor->m_Skeleton, joint);
 
-    switch (boneGeo.m_Type)
+    switch (jointGeo.m_Type)
     {
-      case ezSkeletonBoneGeometryType::Box:
+      case ezSkeletonJointGeometryType::Box:
       {
-        geo.AddBox(boneGeo.m_Transform.m_vScale, ezColor::White, boneTransform, boneGeo.m_uiAttachedToBone);
+        geo.AddBox(jointGeo.m_Transform.m_vScale, ezColor::White, jointTransform.GetAsMat4(), jointGeo.m_uiAttachedToJoint);
       }
       break;
 
-      case ezSkeletonBoneGeometryType::Capsule:
+      case ezSkeletonJointGeometryType::Capsule:
       {
-        geo.AddCapsule(boneGeo.m_Transform.m_vScale.z, boneGeo.m_Transform.m_vScale.x, 16, 4, ezColor::White, boneTransform * mRotCapsule,
-                       boneGeo.m_uiAttachedToBone);
+        geo.AddCapsule(jointGeo.m_Transform.m_vScale.z, jointGeo.m_Transform.m_vScale.x, 16, 4, ezColor::White,
+                       jointTransform.GetAsMat4() * mRotCapsule,
+                       jointGeo.m_uiAttachedToJoint);
       }
       break;
 
-      case ezSkeletonBoneGeometryType::Sphere:
+      case ezSkeletonJointGeometryType::Sphere:
       {
-        geo.AddGeodesicSphere(boneGeo.m_Transform.m_vScale.z, 1, ezColor::White, boneTransform, boneGeo.m_uiAttachedToBone);
+        geo.AddGeodesicSphere(jointGeo.m_Transform.m_vScale.z, 1, ezColor::White, jointTransform.GetAsMat4(), jointGeo.m_uiAttachedToJoint);
       }
       break;
     }

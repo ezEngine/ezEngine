@@ -157,10 +157,10 @@ ezRenderTargetFormat::RGBA8;RGBA8 (linear)
 ezRenderTargetFormat::RGBA8sRgb;RGBA8 (sRGB)
 ezRenderTargetFormat::RGB10;RGB10
 ezRenderTargetFormat::RGBA16;RGBA16
-ezSkeletonBoneGeometryType::None;None
-ezSkeletonBoneGeometryType::Capsule;Capsule
-ezSkeletonBoneGeometryType::Sphere;Sphere
-ezSkeletonBoneGeometryType::Box;Box
+ezSkeletonJointGeometryType::None;None
+ezSkeletonJointGeometryType::Capsule;Capsule
+ezSkeletonJointGeometryType::Sphere;Sphere
+ezSkeletonJointGeometryType::Box;Box
 ezSimpleAnimationComponent;Simple Animation
 ezVisualizeSkeletonComponent;Visualize Skeleton
 BoolParameters;Bool Variables

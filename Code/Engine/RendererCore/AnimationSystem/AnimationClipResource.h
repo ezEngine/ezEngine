@@ -8,38 +8,38 @@
 struct EZ_RENDERERCORE_DLL ezAnimationClipResourceDescriptor
 {
 public:
-  void Configure(ezUInt16 uiNumBones, ezUInt16 uiNumFrames, ezUInt8 uiFramesPerSecond);
+  void Configure(ezUInt16 uiNumJoints, ezUInt16 uiNumFrames, ezUInt8 uiFramesPerSecond);
 
-  ezUInt16 GetNumBones() const { return m_uiNumBones; }
+  ezUInt16 GetNumJoints() const { return m_uiNumJoints; }
   ezUInt16 GetNumFrames() const { return m_uiNumFrames; }
   ezUInt8 GetFramesPerSecond() const { return m_uiFramesPerSecond; }
   ezTime GetDuration() const;
 
   ezUInt16 GetFrameAt(ezTime time, double& out_fLerpToNext) const;
 
-  ezUInt16 AddBoneName(const ezHashedString& sBoneName);
+  ezUInt16 AddJointName(const ezHashedString& sJointName);
 
-  /// \brief returns 0xFFFF if no bone with the given name is known
-  ezUInt16 FindBoneIndexByName(const ezTempHashedString& sBoneName) const;
+  /// \brief returns 0xFFFF if no joint with the given name is known
+  ezUInt16 FindJointIndexByName(const ezTempHashedString& sJointName) const;
 
-  const ezMat4* GetBoneKeyframes(ezUInt16 uiBone) const;
-  ezMat4* GetBoneKeyframes(ezUInt16 uiBone);
+  const ezTransform* GetJointKeyframes(ezUInt16 uiJoint) const;
+  ezTransform* GetJointKeyframes(ezUInt16 uiJoint);
 
   void Save(ezStreamWriter& stream) const;
   void Load(ezStreamReader& stream);
 
   ezUInt64 GetHeapMemoryUsage() const;
 
-  const ezArrayMap<ezHashedString, ezUInt32>& GetAllBoneIndices() const { return m_NameToFirstKeyframe; }
+  const ezArrayMap<ezHashedString, ezUInt32>& GetAllJointIndices() const { return m_NameToFirstKeyframe; }
 
 private:
-  ezUInt16 m_uiNumBones = 0;
+  ezUInt16 m_uiNumJoints = 0;
   ezUInt16 m_uiNumFrames = 0;
   ezUInt8 m_uiFramesPerSecond = 0;
 
   ezTime m_Duration;
 
-  ezDynamicArray<ezMat4> m_BoneTransforms;
+  ezDynamicArray<ezTransform> m_JointTransforms;
   ezArrayMap<ezHashedString, ezUInt32> m_NameToFirstKeyframe;
 };
 

@@ -69,16 +69,10 @@ void ezSimpleAnimationComponent::OnActivated()
     ezResourceLock<ezSkeletonResource> pSkeleton(m_hSkeleton, ezResourceAcquireMode::NoFallback);
 
     const ezSkeleton& skeleton = pSkeleton->GetDescriptor().m_Skeleton;
-    m_pAnimationPose = skeleton.CreatePose();
-    skeleton.SetAnimationPoseToBindPose(m_pAnimationPose.Borrow());
-    skeleton.CalculateObjectSpaceAnimationPoseMatrices(m_pAnimationPose.Borrow());
+    m_AnimationPose.Configure(skeleton);
+    m_AnimationPose.CalculateObjectSpaceTransforms(skeleton);
 
-    m_SkinningMatrices = m_pAnimationPose->GetAllBoneTransforms();
-
-    // for (ezUInt32 i = 0; i < m_BoneMatrices.GetCount(); ++i)
-    //{
-    //  m_BoneMatrices[i].SetIdentity();
-    //}
+    m_SkinningMatrices = m_AnimationPose.GetAllTransforms();
 
     // Create the buffer for the skinning matrices
     ezGALBufferCreationDescription BufferDesc;
@@ -166,76 +160,33 @@ void ezSimpleAnimationComponent::Update()
     m_AnimationTime -= animDuration;
   }
 
-  // TODO: reasons why stuff may not work
-  // The skeleton is rotated differently than the mesh, it seems not possible to align them correctly (forward dir)
-  // animation clip data is neither scaled nor rotated
-  // that whole (inverse) bind-pose stuff is complicated
+  m_AnimationPose.SetToBindPose(skeleton);
 
-  skeleton.SetAnimationPoseToBindPose(m_pAnimationPose.Borrow());
-
-  // dummy stuff that doesn't work very well
-  if (false)
-  {
-
-    ezUInt32 uiHeadBone;
-    if (skeleton.FindBoneByName("Bip01_L_Calf", uiHeadBone))
-    {
-      ezMat4 mRot;
-      mRot.SetRotationMatrixZ(ezAngle::Degree((float)m_AnimationTime.GetSeconds() * 30.0f));
-
-      ezMat4 mCur = m_pAnimationPose->GetBoneTransform(uiHeadBone);
-      // m_pAnimationPose->SetBoneTransform(uiHeadBone, mCur * mRot * mCur.GetInverse());
-      m_pAnimationPose->SetBoneTransform(uiHeadBone, mCur * mRot);
-
-      ezMat4 mTrans;
-      mTrans.SetIdentity();
-      mTrans = mCur * mRot;
-      // mTrans.SetTranslationVector(mCur.GetTranslationVector());
-      // mTrans.SetTranslationMatrix(ezVec3(0, 0, (float)m_AnimationTime.GetSeconds()));
-      m_pAnimationPose->SetBoneTransform(uiHeadBone, mTrans);
-    }
-  }
-
-  if (false)
-  {
-    for (ezUInt32 b = 0; b < skeleton.GetBoneCount(); ++b)
-    {
-      m_pAnimationPose->SetBoneTransform(b, ezMat4::IdentityMatrix());
-    }
-  }
-
-  // using real animation data (works even less)
-  //if (false)
   {
     const auto& animDesc = pAnimClip->GetDescriptor();
 
     double fAnimLerp = 0;
     const ezUInt32 uiFirstFrame = animDesc.GetFrameAt(m_AnimationTime, fAnimLerp);
 
-    const auto& animatedBones = animDesc.GetAllBoneIndices();
-    for (ezUInt32 b = 0; b < animatedBones.GetCount(); ++b)
+    const auto& animatedJoints = animDesc.GetAllJointIndices();
+    for (ezUInt32 b = 0; b < animatedJoints.GetCount(); ++b)
     {
-      const ezHashedString sBoneName = animatedBones.GetKey(b);
-      const ezUInt32 uiAnimBoneIdx = animatedBones.GetValue(b);
+      const ezHashedString sJointName = animatedJoints.GetKey(b);
+      const ezUInt32 uiAnimJointIdx = animatedJoints.GetValue(b);
 
-      //if (sBoneName.GetString() != "Bip01_L_Calf")
-        //continue;
-
-      ezUInt32 uiHeadBone;
-      if (skeleton.FindBoneByName(sBoneName, uiHeadBone))
+      ezUInt32 uiSkeletonJointIdx;
+      if (skeleton.FindJointByName(sJointName, uiSkeletonJointIdx).Succeeded())
       {
-        const ezMat4 boneMat = animDesc.GetBoneKeyframes(uiAnimBoneIdx)[uiFirstFrame];
+        const ezTransform jointTransform = animDesc.GetJointKeyframes(uiAnimJointIdx)[uiFirstFrame];
 
         // TODO: animations are not scaled yet, these matrices do not include the rotation and down-scale that the skeleton already has
 
-        m_pAnimationPose->SetBoneTransform(uiHeadBone, boneMat);
+        m_AnimationPose.SetTransform(uiSkeletonJointIdx, jointTransform.GetAsMat4());
       }
     }
   }
 
-  skeleton.CalculateObjectSpaceAnimationPoseMatrices(m_pAnimationPose.Borrow());
+  m_AnimationPose.CalculateObjectSpaceTransforms(skeleton);
 }
-
-
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_SimpleAnimationComponent);

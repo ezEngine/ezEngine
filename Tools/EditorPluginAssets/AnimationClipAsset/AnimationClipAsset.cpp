@@ -80,17 +80,17 @@ ezStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& st
   const auto& animClip = scene->m_AnimationClips[uiAnimationToUse];
 
   ezAnimationClipResourceDescriptor anim;
-  anim.Configure(animClip.m_BoneAnimations.GetCount(), animClip.m_uiNumKeyframes, animClip.m_uiFramesPerSecond);
+  anim.Configure(animClip.m_JointAnimations.GetCount(), animClip.m_uiNumKeyframes, animClip.m_uiFramesPerSecond);
 
-  for (ezUInt32 b = 0; b < anim.GetNumBones(); ++b)
+  for (ezUInt32 b = 0; b < anim.GetNumJoints(); ++b)
   {
     ezHashedString hs;
-    hs.Assign(animClip.m_BoneAnimations[b].m_sBoneName.GetData());
-    ezUInt16 uiBoneIdx = anim.AddBoneName(hs);
+    hs.Assign(animClip.m_JointAnimations[b].m_sJointName.GetData());
+    ezUInt16 uiJointIdx = anim.AddJointName(hs);
 
-    ezMat4* pBoneTransforms = anim.GetBoneKeyframes(uiBoneIdx);
+    ezTransform* pJointTransforms = anim.GetJointKeyframes(uiJointIdx);
 
-    ezMemoryUtils::Copy(pBoneTransforms, animClip.m_BoneAnimations[b].m_Keyframes.GetData(), animClip.m_uiNumKeyframes);
+    ezMemoryUtils::Copy(pJointTransforms, animClip.m_JointAnimations[b].m_Keyframes.GetData(), animClip.m_uiNumKeyframes);
   }
 
   anim.Save(stream);
