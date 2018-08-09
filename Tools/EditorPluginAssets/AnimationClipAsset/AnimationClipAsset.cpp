@@ -79,8 +79,13 @@ ezStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& st
 
   const auto& animClip = scene->m_AnimationClips[uiAnimationToUse];
 
+  // first and last frame are inclusive and may be equal to pick only a single frame
+  const ezUInt32 uiFirstKeyframe = ezMath::Min(pProp->m_uiFirstFrame, animClip.m_uiNumKeyframes - 1);
+  const ezUInt32 uiLastKeyframe = (pProp->m_uiLastFrame == 0) ? (animClip.m_uiNumKeyframes - 1) : ezMath::Clamp(pProp->m_uiLastFrame, uiFirstKeyframe, animClip.m_uiNumKeyframes - 1);
+  const ezUInt32 uiNumKeyframes = (uiLastKeyframe - uiFirstKeyframe) + 1;
+
   ezAnimationClipResourceDescriptor anim;
-  anim.Configure(animClip.m_JointAnimations.GetCount(), animClip.m_uiNumKeyframes, animClip.m_uiFramesPerSecond);
+  anim.Configure(animClip.m_JointAnimations.GetCount(), uiNumKeyframes, animClip.m_uiFramesPerSecond);
 
   for (ezUInt32 b = 0; b < anim.GetNumJoints(); ++b)
   {
@@ -90,7 +95,7 @@ ezStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& st
 
     ezTransform* pJointTransforms = anim.GetJointKeyframes(uiJointIdx);
 
-    ezMemoryUtils::Copy(pJointTransforms, animClip.m_JointAnimations[b].m_Keyframes.GetData(), animClip.m_uiNumKeyframes);
+    ezMemoryUtils::Copy(pJointTransforms, &animClip.m_JointAnimations[b].m_Keyframes.GetData()[uiFirstKeyframe], uiNumKeyframes);
   }
 
   anim.Save(stream);
