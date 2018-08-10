@@ -230,6 +230,7 @@ inline ezStreamReader& operator>>(ezStreamReader& Stream, ARRAYTYPE& ar)
 {
   ezUInt32 uiCount = 0;
   Stream >> uiCount;
+  ar.Clear();
   ar.Reserve(uiCount);
   for (ezUInt32 i = 0; i < uiCount; ++i)
   {

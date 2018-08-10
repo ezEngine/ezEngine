@@ -14,7 +14,7 @@ o
 			s{"Models/Skeleton/skeleton_animated.FBX"}
 		}
 		Uuid %DocumentID{u4{3928894157054860453,5546264075200483984}}
-		u4 %Hash{1902767350529842690}
+		u4 %Hash{8198007133429139858}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -32,7 +32,7 @@ o
 	{
 		s %File{"Models/Skeleton/skeleton_animated.FBX"}
 		u3 %FirstFrame{98}
-		u3 %LastFrame{190}
+		u3 %NumFrames{92}
 	}
 }
 o

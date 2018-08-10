@@ -72,18 +72,19 @@ void ezSimpleAnimationComponent::OnActivated()
     m_AnimationPose.Configure(skeleton);
     m_AnimationPose.CalculateObjectSpaceTransforms(skeleton);
 
-    m_SkinningMatrices = m_AnimationPose.GetAllTransforms();
+    //m_SkinningMatrices = m_AnimationPose.GetAllTransforms();
 
     // Create the buffer for the skinning matrices
     ezGALBufferCreationDescription BufferDesc;
     BufferDesc.m_uiStructSize = sizeof(ezMat4);
-    BufferDesc.m_uiTotalSize = BufferDesc.m_uiStructSize * m_SkinningMatrices.GetCount();
+    BufferDesc.m_uiTotalSize = BufferDesc.m_uiStructSize * m_AnimationPose.GetTransformCount();
     BufferDesc.m_bUseAsStructuredBuffer = true;
     BufferDesc.m_bAllowShaderResourceView = true;
     BufferDesc.m_ResourceAccess.m_bImmutable = false;
 
     m_hSkinningTransformsBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(
-        BufferDesc, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(m_SkinningMatrices.GetPtr()), BufferDesc.m_uiTotalSize));
+        BufferDesc,
+        ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(m_AnimationPose.GetAllTransforms().GetPtr()), BufferDesc.m_uiTotalSize));
   }
 }
 
@@ -187,6 +188,11 @@ void ezSimpleAnimationComponent::Update()
   }
 
   m_AnimationPose.CalculateObjectSpaceTransforms(skeleton);
+
+  ezArrayPtr<ezMat4> pRenderMatrices = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezMat4, m_AnimationPose.GetTransformCount());
+  ezMemoryUtils::Copy(pRenderMatrices.GetPtr(), m_AnimationPose.GetAllTransforms().GetPtr(), m_AnimationPose.GetTransformCount());
+
+  m_SkinningMatrices = pRenderMatrices;
 }
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_SimpleAnimationComponent);

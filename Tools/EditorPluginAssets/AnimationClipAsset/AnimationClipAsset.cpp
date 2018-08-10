@@ -17,8 +17,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 1, ezRTTIDefault
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("File", m_sAnimationFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", "*.fbx")),
-    EZ_MEMBER_PROPERTY("FirstFrame", m_uiFirstFrame)->AddAttributes(new ezDefaultValueAttribute(0)),
-    EZ_MEMBER_PROPERTY("LastFrame", m_uiLastFrame)->AddAttributes(new ezDefaultValueAttribute(0xFFFFFFFF)),
+    EZ_MEMBER_PROPERTY("FirstFrame", m_uiFirstFrame),
+    EZ_MEMBER_PROPERTY("NumFrames", m_uiNumFrames),
   }
   EZ_END_PROPERTIES;
 }
@@ -31,7 +31,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezAnimationClipAssetProperties::ezAnimationClipAssetProperties()
 {
   m_uiFirstFrame = 0;
-  m_uiLastFrame = 0xFFFFFFFF;
+  m_uiNumFrames = 0;
 }
 
 ezAnimationClipAssetDocument::ezAnimationClipAssetDocument(const char* szDocumentPath)
@@ -81,8 +81,8 @@ ezStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& st
 
   // first and last frame are inclusive and may be equal to pick only a single frame
   const ezUInt32 uiFirstKeyframe = ezMath::Min(pProp->m_uiFirstFrame, animClip.m_uiNumKeyframes - 1);
-  const ezUInt32 uiLastKeyframe = (pProp->m_uiLastFrame == 0) ? (animClip.m_uiNumKeyframes - 1) : ezMath::Clamp(pProp->m_uiLastFrame, uiFirstKeyframe, animClip.m_uiNumKeyframes - 1);
-  const ezUInt32 uiNumKeyframes = (uiLastKeyframe - uiFirstKeyframe) + 1;
+  const ezUInt32 uiMaxKeyframes = animClip.m_uiNumKeyframes - uiFirstKeyframe; 
+  const ezUInt32 uiNumKeyframes = ezMath::Min((pProp->m_uiNumFrames == 0) ? uiMaxKeyframes : pProp->m_uiNumFrames, uiMaxKeyframes);
 
   ezAnimationClipResourceDescriptor anim;
   anim.Configure(animClip.m_JointAnimations.GetCount(), uiNumKeyframes, animClip.m_uiFramesPerSecond);

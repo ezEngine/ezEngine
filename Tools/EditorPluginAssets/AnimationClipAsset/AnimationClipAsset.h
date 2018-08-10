@@ -11,8 +11,8 @@ public:
   ezAnimationClipAssetProperties();
 
   ezString m_sAnimationFile;
-  ezUInt32 m_uiFirstFrame;
-  ezUInt32 m_uiLastFrame;
+  ezUInt32 m_uiFirstFrame = 0;
+  ezUInt32 m_uiNumFrames = 0;
 
 };
 
